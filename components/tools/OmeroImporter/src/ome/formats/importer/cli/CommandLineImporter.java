@@ -212,9 +212,8 @@ public class CommandLineImporter {
             switch (a) {
             case 1: {
                 // We're modifying the Log4j logging level of everything
-                // under the ome.format package hierarchically. We're using
-                // OMEROMetadataStoreClient as a convenience.
-                Logger l = Logger.getLogger(OMEROMetadataStoreClient.class);
+                // under the ome.format package hierarchically.
+                Logger l = Logger.getLogger("ome.formats");
                 l.setLevel(Level.DEBUG);
                 config.debug.set(true);
                 break;

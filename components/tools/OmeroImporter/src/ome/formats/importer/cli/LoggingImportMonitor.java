@@ -1,8 +1,10 @@
 package ome.formats.importer.cli;
 
+import static ome.formats.importer.ImportEvent.*;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportEvent;
+import omero.model.Pixels;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -19,6 +21,16 @@ public class LoggingImportMonitor implements IObserver
     
     public void update(IObservable importLibrary, ImportEvent event)
     {
-        log.info(event.toLog());
+        if (event instanceof IMPORT_DONE) {
+            IMPORT_DONE ev = (IMPORT_DONE) event;
+            log.info(event.toLog());
+            System.err.println("Imported pixels:");
+            for (Pixels p : ev.pixels) {
+                System.out.println(p.getId().getValue());
+            }
+        }
+        else if (log.isDebugEnabled()) {
+            log.debug(event.toLog());
+        }
     }
 }

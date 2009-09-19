@@ -7,6 +7,7 @@
 
 package ome.formats.importer.cli;
 
+import static ome.formats.importer.ImportEvent.*;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportConfig;
@@ -36,12 +37,16 @@ public class ErrorHandler extends ome.formats.importer.util.ErrorHandler {
 
     public void onUpdate(IObservable importLibrary, ImportEvent event) {
         
-        if (event instanceof FILE_EXCEPTION) {
+        if (event instanceof IMPORT_DONE) {
+            log.info("Number of errors: " + errors.size());
+        }
+
+        else if (event instanceof FILE_EXCEPTION) {
             FILE_EXCEPTION ev = (FILE_EXCEPTION) event;
             log.error(ev.toLog());
         }
         
-        if (event instanceof ImportEvent.DEBUG_SEND) {
+        else if (event instanceof ImportEvent.DEBUG_SEND) {
             
             for (ErrorContainer error : errors) {
                 error.setEmail(config.email.get());

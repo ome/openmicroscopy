@@ -27,7 +27,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public abstract class ErrorHandler implements IObserver, IObservable {
 
-    public static class EXCEPTION_EVENT extends ImportEvent {
+    public abstract static class EXCEPTION_EVENT extends ImportEvent {
         public final Exception exception;
 
         public EXCEPTION_EVENT(Exception exception) {
@@ -77,10 +77,13 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     }
 
     public final void update(IObservable observable, ImportEvent event) {
-        System.out.println(event.toLog());
         if (event instanceof FILE_EXCEPTION) {
             FILE_EXCEPTION ev = (FILE_EXCEPTION) event;
             addError(ev.exception, new File(ev.filename), ev.usedFiles, ev.reader);
+        }
+        else if (event instanceof INTERNAL_EXCEPTION) {
+            INTERNAL_EXCEPTION ev = (INTERNAL_EXCEPTION) event;
+            log.error(event.toLog(), ev.exception);
         }
         onUpdate(observable, event);
     }

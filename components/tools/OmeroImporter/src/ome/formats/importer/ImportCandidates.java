@@ -70,6 +70,15 @@ public class ImportCandidates extends DirectoryWalker {
         public void cancel() {
             this.cancel = true;
         }
+
+        public String toLog() {
+            int l = file.toString().length() - 16;
+            if (l < 0) {
+                l = 0;
+            }
+            String f = file.toString().substring(l);
+            return super.toLog() + String.format(": Depth:%s Num: %4s Tot: %4s File: %s", depth, numFiles, totalFiles, f);
+        }
     }
 
     /**
@@ -86,6 +95,7 @@ public class ImportCandidates extends DirectoryWalker {
     final private Set<String> allFiles = new HashSet<String>();
     final private Map<String, Set<String>> usedBy = new HashMap<String, Set<String>>();
     final private List<ImportContainer> containers = new ArrayList<ImportContainer>();
+    final private int depth = Integer.valueOf(System.getProperty("omero.import.depth","4"));
 
     /**
      * Current count of files processed. This will be incremented in two phases:
