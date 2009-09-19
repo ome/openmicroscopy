@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -25,8 +24,6 @@ import omero.model.Pixels;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.sun.tools.corba.se.idl.InvalidArgument;
 
 public class OMEROWrapper extends MinMaxCalculator {
 
