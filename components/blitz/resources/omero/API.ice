@@ -670,13 +670,26 @@ module omero {
          *   ExporterPrx e = sf.createExporter();
          *
          *   // Exporter is currently in the "configuration" state
+         *   // Objects can be added by id which should be present
+         *   // in the output.
          *
-         *   e.asXml();
          *   e.addImage(1);
+         *
+         *
+         *   // As soon as a generate method is called, the objects
+         *   // added to the Exporter are converted to the specified
+         *   // format. The length of the file produced is returned.
+         *   // No more objects can be added to the Exporter, nor can
+         *   // another generate method be called.
+         *
+         *   long length = e.generateTiff();
          *
          *   // As soon as "getBytes()" is called, the Exporter is in the
          *   // "output" state, and will stay there until all data has been
-         *   // read.
+         *   // read. After all bytes are read, the server-side file is
+         *   // deleted, and the Exporter can be reused. Alternatively,
+         *   // create a second Exporter for working simultaneously. Be sure
+         *   // to close all Exporter instances.
          *
          *   byte[] buf;
          *   while (true) {
@@ -698,10 +711,19 @@ module omero {
              **/
             void addImage(long id) throws ServerError;
 
+            // Output ================================================
+
             /**
-             * Sets the output format as OME-XML (default).
+             * Generates an OME-XML file. The return value is the length
+             * of the file produced.
              **/
-            void asXml() throws ServerError;
+            long generateXml() throws ServerError;
+
+            /**
+             * Generates an OME-TIFF file. The return value is the length
+             * of the file produced.
+             **/
+            long generateTiff() throws ServerError;
 
             // Output ================================================
 

@@ -5,20 +5,17 @@
 
 package ome.services.blitz.test;
 
-import static omero.rtypes.rstring;
-import static omero.rtypes.rtime;
 import ome.services.blitz.impl.ExporterI;
 import ome.services.blitz.impl.OmeroMetadata;
 import ome.services.db.DatabaseIdentity;
-import omero.RString;
 import omero.api.AMD_Exporter_addImage;
+import omero.api.AMD_Exporter_generateTiff;
 import omero.api.AMD_Exporter_getBytes;
 import omero.api.AMD_IConfig_getDatabaseUuid;
 import omero.model.Image;
 import omero.model.ImageI;
-import omero.model.PixelsI;
 
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 @Test(groups = "integration")
@@ -28,7 +25,7 @@ public class ExporterITest extends AbstractServantTest {
     ExporterI user_e, root_e;
 
     @Override
-    @BeforeClass
+    @BeforeMethod
     protected void setUp() throws Exception {
         super.setUp();
 
@@ -97,6 +94,16 @@ public class ExporterITest extends AbstractServantTest {
         assertEquals(0, buf.length);
     }
 
+    @Test
+    public void testTiffGeneration() throws Exception {
+        Image i = assertNewImage();
+        assertAddImage(i.getId().getValue());
+        long size = assertGenerateTiff();
+        byte[] buf = assertGetBytes((int)size);
+        assertTrue(size > 0);
+        assertEquals(size, buf.length);
+        
+    }
     // Helpers
     // =========================================================================
 
@@ -113,6 +120,23 @@ public class ExporterITest extends AbstractServantTest {
         return i;
     }
 
+    private long assertGenerateTiff() throws Exception {
+
+        final RV rv = new RV();
+        user_e.generateTiff_async(new AMD_Exporter_generateTiff() {
+
+            public void ice_exception(Exception ex) {
+                rv.ex = ex;
+            }
+
+            public void ice_response(long val) {
+                rv.rv = val;
+            }
+        }, null);
+        rv.assertPassed();
+        return ((Long)rv.rv).longValue();
+    }
+    
     private void assertAddImage(long id) throws Exception {
 
         final RV rv = new RV();

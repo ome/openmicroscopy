@@ -111,6 +111,22 @@ public class OmeroMetadata implements MetadataRetrieve {
     public OmeroMetadata(DatabaseIdentity db) {
         this.db = db;
     }
+    
+
+    public void addImage(Image image) {
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Adding image for retrieval:", image));
+        }
+        imageList.add(image);
+    }
+
+    public Image getImage(int i) {
+        return imageList.get(i);
+    }
+    
+    public int sizeImages() {
+        return imageList.size();
+    }
 
     public String handleLsid(IObject obj) {
 
@@ -182,6 +198,8 @@ public class OmeroMetadata implements MetadataRetrieve {
                 qb.join("i.pixels", "p", true, true);
                 qb.join("p.details.owner", "p_o", false, true);
                 qb.join("p.details.group", "p_g", false, true);
+                qb.join("p.pixelsType", "pt", false, true);
+                qb.join("p.dimensionOrder", "do", false, true);
                 qb.join("p.channels", "c", true, true);
                 qb.join("c.logicalChannel", "l", true, true);
                 qb.join("i.instrument", "n", true, true);
@@ -217,13 +235,6 @@ public class OmeroMetadata implements MetadataRetrieve {
         this.imageList.clear();
         this.imageList.addAll(newImages);
 
-    }
-
-    public void addImage(Image image) {
-        if (log.isDebugEnabled()) {
-            log.debug(String.format("Adding image for retrieval:", image));
-        }
-        imageList.add(image);
     }
 
     private Float dbl2flt(double value) {
@@ -1873,7 +1884,7 @@ public class OmeroMetadata implements MetadataRetrieve {
         Exception e = null;
         Boolean rv = null;
         try {
-            rv = null;
+            rv = true; // Added for ExporterI
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;

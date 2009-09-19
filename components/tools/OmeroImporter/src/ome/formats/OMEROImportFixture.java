@@ -11,8 +11,10 @@ import java.io.File;
 import java.util.List;
 
 import loci.formats.FormatReader;
+import ome.formats.importer.IObservable;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
+import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.cli.ErrorHandler;
@@ -126,11 +128,18 @@ public class OMEROImportFixture {
     public void doImport() throws Exception {
         String fileName = file.getAbsolutePath();
         ImportConfig config = new ImportConfig();
-        ErrorHandler handler = new ErrorHandler(config); // FIXME should be specialized.
+        ErrorHandler handler = new ErrorHandler(config) {
+            @Override
+            public void onUpdate(IObservable importLibrary, ImportEvent event) {
+                super.onUpdate(importLibrary, event);
+                if (event instanceof ImportEvent.IMPORT_DONE) {
+                    pixels = ((ImportEvent.IMPORT_DONE) event).pixels;
+                }
+            }
+        };
         ImportCandidates candidates = new ImportCandidates(reader, new String[]{fileName}, handler);
         library.addObserver(handler);
         library.importCandidates(config, candidates);
-        throw new RuntimeException("NYI");
     }
 
     public void setFile(File file) {
