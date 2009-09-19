@@ -140,7 +140,7 @@ for FILE in ./libs/*.jar; do
 done
 
 # setup Java System Properties (no spaces in values)
-JAVA_PROPS=""
+JAVA_PROPS=${JAVA_PROPS:-""}
 if [ ! "$JAVA_ISGCJ x" = " x" ] ; then
 	JAVA_PROPS="$JAVA_PROPS -Dgnu.gcj.runtime.VMClassLoader.library_control=never"
 fi

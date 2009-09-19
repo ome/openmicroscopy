@@ -13,9 +13,6 @@
 
 package ome.formats.importer.gui;
 
-import ome.formats.importer.util.ErrorHandler.*;
-
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -39,7 +36,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 
 import javax.swing.JDialog;
@@ -64,9 +60,14 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.Version;
 import ome.formats.importer.util.BareBonesBrowserLaunch;
+import ome.formats.importer.util.IniFileLoader;
+import ome.formats.importer.util.LogAppenderProxy;
+import ome.formats.importer.util.ErrorHandler.EXCEPTION_EVENT;
+import ome.formats.importer.util.ErrorHandler.FILE_EXCEPTION;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.PropertyConfigurator;
 import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
 import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
@@ -80,10 +81,16 @@ public class GuiImporter extends JFrame
     implements  ActionListener, WindowListener, IObserver, PropertyChangeListener, 
                 WindowStateListener, WindowFocusListener
 {
+
     private static final long   serialVersionUID = 1228000122345370913L;
 
     private static final String show_log_file = "show_log_file_location";
-    
+
+    /**
+     * Due to the static initialization required by {@link LogAppenderProxy}
+     * no logging should be performed before {@link LogAppenderProxy#configure(ImportConfig)}
+     * is called.
+     */
     private static Log          log     = LogFactory.getLog(GuiImporter.class);
    
     // -- Constants --
@@ -624,7 +631,9 @@ public class GuiImporter extends JFrame
      */
     public static void main(String[] args)
     {  
+        LogAppenderProxy.configure(new File(IniFileLoader.LOGFILE));
         ImportConfig config = new ImportConfig(args.length > 0 ? new File(args[0]) : null);
+        
         config.loadAll();
         USE_QUAQUA = config.getUseQuaqua();
         

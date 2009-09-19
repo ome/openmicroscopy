@@ -25,35 +25,44 @@ import org.apache.log4j.RollingFileAppender;
 import org.apache.log4j.spi.LoggingEvent;
 
 public class LogAppenderProxy extends AppenderSkeleton implements Appender
-{    
-    private final File saveDirectory;
-    private final String logFileName;
-    private final LogAppender delegate;
-    private final RollingFileAppender logfile_delegate;
+{
+    private static boolean configured;
+    private static Layout layout;
+    private static LogAppender delegate;
+    private static RollingFileAppender logfile_delegate;
    
     public final static boolean USE_LOG_FILE = true;
 
-    public LogAppenderProxy(ImportConfig config)
+    /**
+     * Appenders require a null constructor. This workaround allows the gui
+     * logging to function, but is not ideal.
+     * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/1479">ticket:1479</a>
+     */
+    public static void configure(File logFile)
     {
-        super(); 
-        this.saveDirectory = config.savedDirectory.get();
-        this.logFileName = config.getLogFile();
-        
         delegate = LogAppender.getInstance();
         logfile_delegate = new RollingFileAppender();
-        String f = new File(saveDirectory, logFileName).getAbsolutePath();
-        logfile_delegate.setFile(f);
+        logfile_delegate.setFile(logFile.getAbsolutePath());
+        if (layout != null) {
+            logfile_delegate.setLayout(layout);
+        }
         // 10MB is the default size
         logfile_delegate.setMaxBackupIndex(10);
         logfile_delegate.activateOptions();
+        configured = true;
     }
 
     @Override
     protected void append(LoggingEvent arg0)
     {
         String s = getLayout().format(arg0);
-        delegate.append(s);
-        logfile_delegate.append(arg0);
+
+        if (configured) {
+            delegate.append(s);
+            logfile_delegate.append(arg0);
+        } else {
+            System.err.println(s);
+        }
     }
 
     public void close()
@@ -69,6 +78,9 @@ public class LogAppenderProxy extends AppenderSkeleton implements Appender
     public void setLayout(Layout layout)
     {
         super.setLayout(layout);
-        logfile_delegate.setLayout(layout);
+        this.layout = layout;
+        if (logfile_delegate != null) {
+            logfile_delegate.setLayout(layout);
+        }
     }
 }

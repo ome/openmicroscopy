@@ -39,7 +39,12 @@ public class IniFileLoader {
     private final static String LOGDIR = System.getProperty("user.home")
             + File.separator + "omero" + File.separator + "log";
 
-    private final static String LOGFILE = LOGDIR + File.separator
+    /**
+     * Public in order to configure LogAppenderProxy, but then the value
+     * might as well be configured in the log4j.properties file
+     * @see ticket:1479
+     */
+    public final static String LOGFILE = LOGDIR + File.separator
             + "importer.log";
 
     // Dynamic user settings
