@@ -10,6 +10,7 @@ import omero.api.ServiceFactoryPrx;
 import omero.model.IObject;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
+import omero.util.IceMapper;
 
 import org.testng.annotations.Test;
 
@@ -69,11 +70,10 @@ public class UmaskSecurityTest extends AbstractPermissionsTest {
     // =========================================================================
 
     private void assertUmaskWorks(ServiceFactoryPrx sf, IObject _i,
-            Permissions perms) {
+            Permissions perms) throws Exception {
         setSFPermissionsMask(sf, perms);
         IObject t = sf.getQueryService().get(_i.getClass().getName(), _i.getId().getValue());
-        assertTrue(t + "!=" + perms, t.getDetails().getPermissions()
-                .sameRights(perms));
+        assertSameRights(perms, t.getDetails().getPermissions());
     }
 
 }

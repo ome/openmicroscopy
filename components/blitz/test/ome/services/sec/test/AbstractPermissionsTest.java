@@ -17,14 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import ome.model.display.Thumbnail;
 import ome.system.Login;
 import ome.testing.ObjectFactory;
 import omero.ServerError;
-import omero.model.IObject;
 import omero.api.IAdminPrx;
 import omero.api.ISessionPrx;
-import omero.api.ServiceFactory;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Dataset;
 import omero.model.DatasetI;
@@ -33,6 +30,7 @@ import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
+import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.Instrument;
@@ -48,7 +46,9 @@ import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
+import omero.model.Thumbnail;
 import omero.sys.EventContext;
+import omero.util.IceMapper;
 
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
@@ -111,7 +111,7 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
 
     protected Pixels pix;
 
-    protected omero.model.Thumbnail tb;
+    protected Thumbnail tb;
 
     protected Image img;
 
@@ -283,8 +283,11 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
     }
 
     protected void createPixels(ServiceFactoryPrx ownsfA2, ExperimenterGroup group,
-            Permissions perms) {
-        pix = ObjectFactory.createPixelGraph(null);
+            Permissions perms) throws Exception {
+        ome.model.core.Pixels _pix = ObjectFactory.createPixelGraph(null);
+        IceMapper mapper = new IceMapper();
+        pix = (Pixels) mapper.map(_pix);
+        
         pix.getDetails().setGroup(group);
         // pix.getDetails().setPermissions(perms); must be done for whole graph
         setSFPermissionsMask(ownsfA2, perms);
@@ -293,8 +296,12 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
     }
 
     protected void createThumbnail(ServiceFactoryPrx ownsfB2, ExperimenterGroup group,
-            Permissions perms, Pixels _p) {
-        tb = ObjectFactory.createThumbnails(_p);
+            Permissions perms, Pixels p) throws Exception {
+        IceMapper mapper = new IceMapper();
+        ome.model.core.Pixels _p = (ome.model.core.Pixels) mapper.reverse(p);
+        ome.model.display.Thumbnail _tb = ObjectFactory.createThumbnails(_p);
+        tb = (Thumbnail) mapper.map(_tb);
+        
         tb.getDetails().setPermissions(new PermissionsI(perms.toString()));
         tb.getDetails().setGroup(group);
         tb = (omero.model.Thumbnail) ownsfB2.getUpdateService().saveAndReturnObject(tb);
@@ -349,4 +356,11 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
         s.setDefaultPermissions(rstring(p.toString()));
     }
 
+    //TODO ticket:1478
+    protected void assertSameRights(Permissions p1, Permissions p2) {
+        IceMapper mapper = new IceMapper();
+        ome.model.internal.Permissions _p1 = mapper.convert(p1);
+        ome.model.internal.Permissions _p2 = mapper.convert(p2);
+        assertTrue(p1 + "!=" + p2, _p1.sameRights(_p2));
+    }
 }

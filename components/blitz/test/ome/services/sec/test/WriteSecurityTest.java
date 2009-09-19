@@ -20,6 +20,7 @@ import omero.ServerError;
 import omero.api.ServiceFactory;
 import omero.api.ServiceFactoryPrx;
 import omero.model.FilterI;
+import omero.model.PixelsI;
 import omero.model.Project;
 import omero.model.ProjectI;
 import omero.model.Dataset;
@@ -612,7 +613,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
      * first tries to change both the pixel and the thumbnail and the tries to
      * delete them
      */
-    protected void oneToMany(ServiceFactoryPrx u, boolean pix_ok, boolean tb_ok) {
+    protected void oneToMany(ServiceFactoryPrx u, boolean pix_ok, boolean tb_ok) throws Exception {
 
         createPixels(ownsfA, groupA, permsA);
         createThumbnail(ownsfB, groupB, permsB, pix);
@@ -629,8 +630,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
 
         try {
         
-            pix.putAt(Pixels.THUMBNAILS, Collections.singleton(new ThumbnailI(tb
-                    .getId().getValue(), false)));
+            resetThumbnails();
+
             t = (Pixels) u.getUpdateService().saveAndReturnObject(pix);
             t.addThumbnail(tb); // used to update the pixel version in tb
             if (!pix_ok) {
@@ -666,7 +667,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
             }
 
             // done for later recursive delete.
-            pix.putAt(Pixels.THUMBNAILS, null);
+            pix.unloadThumbnails();
             // must be internal to try/catch otherwise, explodes
             // since tb still references the pix.
             deleteRecurisvely(u, pix);
@@ -680,6 +681,14 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
             }
         }
 
+    }
+
+    private void resetThumbnails(Thumbnail...tbs) {
+        PixelsI toCopy = new PixelsI(pix.getId(), true);
+        for (Thumbnail thumbnail : tbs) {
+            toCopy.addThumbnail(new ThumbnailI(thumbnail.getId(), false));            
+        }
+        pix.reloadThumbnails(toCopy);
     }
 
     // ~ unidirectional many-to-one
@@ -909,7 +918,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
      * performs various write operations on linked projects and datasets.
      */
     protected void manyToMany(ServiceFactoryPrx u, boolean prj_ok, boolean ds_ok,
-            boolean link_ok) {
+            boolean link_ok) throws Exception {
 
         createProject(ownsfA, permsA, groupA);
         createDataset(ownsfB, permsB, groupB);
@@ -926,7 +935,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
 
         ds.setName(rstring(MSG));
         try {
-            ds.putAt(Dataset.PROJECTLINKS, null);
+            ds.unloadProjectLinks();
             testB = (Dataset) u.getUpdateService().saveAndReturnObject(ds);
             if (!ds_ok) {
                 fail("secvio!");
@@ -941,7 +950,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         prj.setName(rstring(MSG));
 
         try {
-            prj.putAt(Project.DATASETLINKS, null);
+            prj.unloadDatasetLinks();
             test = (Project) u.getUpdateService().saveAndReturnObject(prj);
             if (!prj_ok) {
                 fail("secvio!");
@@ -962,8 +971,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
             if (!link_ok) {
                 fail("secvio!");
             }
-            prj.putAt(Project.DATASETLINKS, null);
-            ds.putAt(Dataset.PROJECTLINKS, null);
+            prj.unloadDatasetLinks();
+            ds.unloadProjectLinks();
 
         } catch (SecurityViolation sv) {
             if (link_ok) {
@@ -1033,7 +1042,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
 
     }
 
-    protected void imagePixels(ServiceFactoryPrx w, boolean img_ok, boolean pix_ok) throws ServerError {
+    protected void imagePixels(ServiceFactoryPrx w, boolean img_ok, boolean pix_ok) throws Exception {
         createPixels(ownsfB, groupB, permsB);
         verifyDetails(pix, ownerB, groupB, permsB);
 
@@ -1075,6 +1084,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
     @Test(enabled = false)
     public static void deleteRecurisvely(ServiceFactoryPrx u, IObject target) {
         // Deleting all links to target
+        fail("IMPLEMENT: ticket:1478");
+        /*
         Set<String> fields = target.fields();
         for (String field : fields) {
             Object obj = target.retrieve(field);
@@ -1094,6 +1105,6 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
         }
         // Now actually delete target
         u.getUpdateService().deleteObject(target);
-
+        */
     }
 }

@@ -476,7 +476,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
      * should contain a single thumbnail.
      * @throws ServerError 
      */
-    protected void oneToMany(ServiceFactoryPrx sf, boolean pix_ok, boolean tb_ok) throws ServerError {
+    protected void oneToMany(ServiceFactoryPrx sf, boolean pix_ok, boolean tb_ok) throws Exception {
         createPixels(ownsfA, groupA, permsA);
         verifyDetails(pix, ownerA, groupA, permsA);
 
@@ -638,7 +638,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
      * should contain a single thumbnail.
      * @throws ServerError 
      */
-    protected void manyToOne(ServiceFactoryPrx sf, boolean tb_ok, boolean pix_ok) throws ServerError {
+    protected void manyToOne(ServiceFactoryPrx sf, boolean tb_ok, boolean pix_ok) throws Exception {
         createPixels(ownsfB, groupB, permsB);
         verifyDetails(pix, ownerB, groupB, permsB);
 
@@ -876,7 +876,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
 
     }
 
-    protected void imagePixels(ServiceFactoryPrx sf, boolean img_ok, boolean pix_ok) throws ServerError {
+    protected void imagePixels(ServiceFactoryPrx sf, boolean img_ok, boolean pix_ok) throws Exception {
         createPixels(ownsfB, groupB, permsB);
         createImage(ownsfA, groupA, permsA, pix);
 

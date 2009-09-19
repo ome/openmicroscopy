@@ -6,38 +6,38 @@
  */
 package ome.services.sec.test;
 
+import static omero.rtypes.rstring;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import ome.conditions.SecurityViolation;
 import ome.model.ILink;
-
-import static omero.rtypes.rstring;
-import omero.RString;
-import omero.ServerError;
-import omero.model.IObject;
-import omero.api.ServiceFactoryPrx;
-import omero.model.ImageI;
-import omero.model.Project;
-import omero.model.ProjectI;
-import omero.model.Dataset;
-import omero.model.DatasetI;
-import omero.model.ProjectDatasetLink;
-import omero.model.ProjectDatasetLinkI;
-import omero.model.Image;
-import omero.model.PermissionsI;
-import omero.model.Details;
-import omero.model.Experimenter;
-import omero.model.ExperimenterGroup;
-import omero.model.Permissions;
-import omero.sys.ParametersI;
-
+import ome.model.core.Pixels;
 import ome.model.internal.Permissions.Flag;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
-//import ome.parameters.Parameters;
-import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
+import ome.util.Utils;
+import omero.ServerError;
+import omero.api.ServiceFactoryPrx;
+import omero.model.Dataset;
+import omero.model.DatasetI;
+import omero.model.Details;
+import omero.model.DetailsI;
+import omero.model.Experimenter;
+import omero.model.ExperimenterGroup;
+import omero.model.IObject;
+import omero.model.Image;
+import omero.model.ImageI;
+import omero.model.Permissions;
+import omero.model.PermissionsI;
+import omero.model.Project;
+import omero.model.ProjectDatasetLinkI;
+import omero.model.ProjectI;
+import omero.sys.ParametersI;
+import omero.util.IceMapper;
 
 import org.testng.annotations.Test;
 
@@ -329,7 +329,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
     }
 
     protected void oneToMany(ServiceFactoryPrx sf, boolean can_change,
-            Object... details_changed) {
+            Object... details_changed) throws Exception {
 
         // whether or not this is valid is handled in the ReadSecurityTest.
         // an exception here means something went wrong elsewhere; most likely,
@@ -368,7 +368,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
     }
 
     protected void uniManyToOne(ServiceFactoryPrx sf, boolean can_change,
-            Object... details_changed) throws ServerError {
+            Object... details_changed) throws Exception {
 
         // whether or not this is valid is handled in the ReadSecurityTest.
         // an exception here means something went wrong elsewhere; most likely,
@@ -455,7 +455,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
     /**
      * performs various write operations on linked projects and datasets.
      */
-    protected void manyToMany() {
+    protected void manyToMany() throws Exception {
 
         createProject(ownsfA, permsA, groupA);
         verifyDetails(prj, ownerA, groupA, permsA);
@@ -470,7 +470,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         verifyLockStatus(ds, will_lock);
 
         r.getUpdateService().deleteObject(link);
-        boolean[] unlocked = r.getAdminService().unlock(prj, ds);
+        boolean[] unlocked = r.getAdminService().unlock(Arrays.asList(prj, ds));
         assertTrue(unlocked[0]);
         assertTrue(unlocked[1]);
 
@@ -511,7 +511,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
     }
 
     protected void imagePixels(ServiceFactoryPrx sf, boolean can_change_img,
-            boolean can_change_pix, Object... details_changed) throws ServerError {
+            boolean can_change_pix, Object... details_changed) throws Exception {
 
         // whether or not this is valid is handled in the ReadSecurityTest.
         // an exception here means something went wrong elsewhere; most likely,
@@ -544,11 +544,13 @@ public class UseSecurityTest extends AbstractPermissionsTest {
     @Test
     public void testNoLoadOnNonReadableProxy() throws Exception {
 
+        Permissions USER_PRIVATE = new PermissionsI(ome.model.internal.Permissions.USER_PRIVATE.toString());
+        
         prj = new ProjectI();
         prj.setName(rstring("noloadonnonreadable"));
-        prj.getDetails().setPermissions(Permissions.USER_PRIVATE);
+        prj.getDetails().setPermissions(USER_PRIVATE);
         prj = (Project) u.getUpdateService().saveAndReturnObject(prj);
-        assertFalse(prj.getDetails().getPermissions().isSet(Flag.LOCKED));
+        assertFalse(prj.getDetails().getPermissions().isLocked());
 
         prj.unload();
         ds = new DatasetI();
@@ -567,13 +569,14 @@ public class UseSecurityTest extends AbstractPermissionsTest {
 
     @Test
     public void testDeletingSingleLockedObject() throws Exception {
-        Permissions perms = new PermissionsI().set(Flag.LOCKED);
+        Permissions perms = new PermissionsI();
+        perms.setLocked(true);
 
         prj = new ProjectI();
         prj.setName(rstring("deletinglocked"));
         prj.getDetails().setPermissions(perms);
         prj = (Project) u.getUpdateService().saveAndReturnObject(prj);
-        assertTrue(prj.getDetails().getPermissions().isSet(Flag.LOCKED));
+        assertTrue(prj.getDetails().getPermissions().isLocked());
         u.getUpdateService().deleteObject(prj);
     }
 
@@ -587,7 +590,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         prj.setName(rstring("ticket:337"));
         prj = (Project) u.getUpdateService().saveAndReturnObject(prj);
 
-        assertFalse(prj.getDetails().getPermissions().isSet(Flag.LOCKED));
+        assertFalse(prj.getDetails().getPermissions().isLocked());
 
         ds = new DatasetI();
         ds.setName(rstring("ticket:337"));
@@ -596,11 +599,11 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         prj = (Project) u.getUpdateService().saveAndReturnObject(prj);
         ds = prj.linkedDatasetList().get(0);
 
-        prj = u.getQueryService().find(prj.getClass(), prj.getId().getValue());
-        ds = u.getQueryService().find(ds.getClass(), ds.getId().getValue());
+        prj = (Project) u.getQueryService().find(prj.getClass().getName(), prj.getId().getValue());
+        ds = (Dataset) u.getQueryService().find(ds.getClass().getName(), ds.getId().getValue());
 
-        assertTrue(prj.getDetails().getPermissions().isSet(Flag.LOCKED));
-        assertTrue(ds.getDetails().getPermissions().isSet(Flag.LOCKED));
+        assertTrue(prj.getDetails().getPermissions().isLocked());
+        assertTrue(ds.getDetails().getPermissions().isLocked());
 
     }
 
@@ -609,11 +612,11 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         reacquire(r);
 
         // try to change
-        prj.getDetails().getPermissions().revoke(Role.USER, Right.READ);
+        prj.getDetails().getPermissions().setUserRead(false);
         assertFails(r);
 
         reacquire(r);
-        prj.getDetails().getPermissions().unSet(Flag.LOCKED);
+        prj.getDetails().getPermissions().setLocked(false);
         assertNoChange(r);
 
         // this succeeds because of loosened semantics. see:
@@ -640,11 +643,11 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         reacquire(u);
 
         // try to change
-        prj.getDetails().getPermissions().revoke(Role.USER, Right.READ);
+        prj.getDetails().getPermissions().setUserRead(false);
         assertFails(u);
 
         reacquire(u);
-        prj.getDetails().getPermissions().unSet(Flag.LOCKED);
+        prj.getDetails().getPermissions().setLocked(false);
         assertNoChange(u);
 
         // no set owner
@@ -658,36 +661,37 @@ public class UseSecurityTest extends AbstractPermissionsTest {
     @Test(dependsOnMethods = { "test_RootCantOverride", "test_UserCantOverride" })
     public void test_OnceDatasetIsRemovedCanUnlock() throws Exception {
 
-        ILink link = r.getQueryService().findByQuery(
+        IObject link = r.getQueryService().findByQuery(
                 "select pdl from ProjectDatasetLink pdl "
                         + "where parent.id = :pid and child.id = :cid",
                 new ParametersI().addLong("pid", prj.getId()).addLong("cid",
                         ds.getId()));
         r.getUpdateService().deleteObject(link);
 
-        r.getAdminService().unlock(prj);
+        r.getAdminService().unlock(Arrays.<IObject>asList(prj));
 
-        prj = r.getQueryService().find(prj.getClass(), prj.getId());
-        assertFalse(prj.getDetails().getPermissions().isSet(Flag.LOCKED));
+        prj = (Project) r.getQueryService().find(prj.getClass().getName(), prj.getId().getValue());
+        assertFalse(prj.getDetails().getPermissions().isLocked());
     }
 
     @Test
     public void test_AllowInitialLock() throws Exception {
 
-        Permissions perms = new PermissionsI().set(Flag.LOCKED);
+        Permissions perms = new PermissionsI();
+        perms.setLocked(true);
 
         prj = new ProjectI();
         prj.setName(rstring("ticket:337"));
         prj.getDetails().setPermissions(perms);
 
         Project t = (Project) u.getUpdateService().saveAndReturnObject(prj);
-        assertTrue(t.getDetails().getPermissions().isSet(Flag.LOCKED));
+        assertTrue(t.getDetails().getPermissions().isLocked());
 
         t = (Project) u.getUpdateService().saveAndReturnObject(prj); // cloning
-        t.getDetails().getPermissions().set(Flag.LOCKED);
+        t.getDetails().getPermissions().setLocked(true);
         t = (Project) u.getUpdateService().saveAndReturnObject(t); // save changes on
         // managed
-        assertTrue(t.getDetails().getPermissions().isSet(Flag.LOCKED));
+        assertTrue(t.getDetails().getPermissions().isLocked());
 
     }
 
@@ -700,7 +704,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         ds.setName(rstring("ticket:339"));
         prj.linkDataset(ds);
 
-        Permissions perms = Permissions.READ_ONLY; // relatively common
+        Permissions perms = new PermissionsI(ome.model.internal.Permissions.READ_ONLY.toString()); // relatively common
         // use-case
         prj.getDetails().setPermissions(perms);
 
@@ -711,26 +715,29 @@ public class UseSecurityTest extends AbstractPermissionsTest {
     @Test(groups = "ticket:357")
     public void test_OneToOnesGetLockedAsWell() throws Exception {
 
+        Pixels _pix = ObjectFactory.createPixelGraph(null);
+        IceMapper mapper = new IceMapper();
+        
         img = new ImageI();
         img.setName(rstring("ticket:357"));
-        pix = ObjectFactory.createPixelGraph(null);
+        pix = (omero.model.Pixels) mapper.map(_pix);
         img.addPixels(pix);
 
         img = (Image) u.getUpdateService().saveAndReturnObject(img);
-        pix = img.iteratePixels().next();
+        pix = img.getPixels(0);
 
-        assertTrue(pix.getDetails().getPermissions().isSet(Flag.LOCKED));
+        assertTrue(pix.getDetails().getPermissions().isLocked());
 
     }
 
     // ~ Helpers
     // =========================================================================
 
-    private void reacquire(ServiceFactoryPrx u) {
-        prj = u.getQueryService()
-                .find(prj.getClass(), prj.getId().getValue());
+    private void reacquire(ServiceFactoryPrx u) throws Exception {
+        prj = (Project) u.getQueryService()
+                .find(prj.getClass().getName(), prj.getId().getValue());
         assertTrue("Permissions should still be locked.", prj.getDetails()
-                .getPermissions().isSet(Flag.LOCKED));
+                .getPermissions().isLocked());
     }
 
     private void assertSucceeds(ServiceFactoryPrx sf) throws ServerError {
@@ -746,25 +753,26 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         }
     }
 
-    private void assertNoChange(ServiceFactoryPrx sf) {
+    private void assertNoChange(ServiceFactoryPrx sf) throws Exception {
         Permissions p1 = prj.getDetails().getPermissions();
         prj = (Project) sf.getUpdateService().saveAndReturnObject(prj);
         Permissions p2 = prj.getDetails().getPermissions();
-        assertTrue(p1.sameRights(p2));
+        assertSameRights(p1, p2);
     }
 
-    protected void verifyLockStatus(IObject _i, boolean was_locked) {
-        IObject v = rootQuery.get(_i.getClass(), _i.getId());
+    protected void verifyLockStatus(IObject _i, boolean was_locked) throws Exception {
+        IObject v = rootQuery.get(_i.getClass().getName(), _i.getId().getValue());
         Details d = v.getDetails();
-        assertEquals(was_locked, d.getPermissions().isSet(Flag.LOCKED));
+        assertEquals(was_locked, d.getPermissions().isLocked());
     }
 
     protected void verifyLocked(ServiceFactoryPrx u, IObject _i, Details d,
-            boolean can_change) {
+            boolean can_change) throws Exception {
 
         // shouldn't be able to remove read
         try {
-            _i.getDetails().copy(d);
+            fail("IMPLEMENT: ticket:1478");
+            // _i.getDetails().copy(d);
             u.getUpdateService().saveObject(_i);
             if (!can_change) {
                 fail("secvio!");
@@ -777,7 +785,9 @@ public class UseSecurityTest extends AbstractPermissionsTest {
     }
 
     protected Details d(IObject _i, Object _o) {
-        Details retVal = _i.getDetails().copy();
+        fail("IMPLEMENT: ticket:1478");
+        // Details retVal = _i.getDetails().copy();
+        Details retVal = new DetailsI();
         // prevent error on different update event versions.
         retVal.setCreationEvent(null);
         retVal.setUpdateEvent(null);
