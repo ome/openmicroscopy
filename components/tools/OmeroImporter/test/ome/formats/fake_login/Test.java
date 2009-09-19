@@ -68,7 +68,6 @@ public class Test {
                 };
             }
         };
-        System.setProperty("LoginHandlerClass", LoginHandler.class.getName());
         new GuiImporter(config);
     }
 
