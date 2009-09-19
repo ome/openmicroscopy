@@ -1373,19 +1373,7 @@ public class OMEROMetadataStore
     	StopWatch s1 = new CommonsLogStopWatch("omero.saveImportGraph");
     	Image[] imageArray = 
     		imageList.values().toArray(new Image[imageList.size()]);
-    	System.err.println("Image count: " + imageArray.length);
-    	log.error("Image count: " + imageArray.length);
-    	for (int z = 0; z < imageArray.length; z++)
-    	{
-    		Image i = imageArray[z];
-    		Well w = i.iterateWellSamples().next().getWell();
-    		log.error(String.format("Image %d well col %d row %d", i.getId(), w.getColumn(), w.getRow()));
-    	}
     	List<Long> imageIdList = iUpdate.saveAndReturnIds(imageArray);
-    	for (Long imageId : imageIdList)
-    	{
-    		log.error("New Image ID: " + imageId);
-    	}
     	s1.stop();
     	
     	// To conform loosely with the method contract, reload a subset of
@@ -1413,12 +1401,6 @@ public class OMEROMetadataStore
     		pixelsList.put(i, toReturn.get(i));
     	}
     	s2.stop();
-    	for (Pixels pixels : toReturn)
-    	{
-    		Image i = pixels.getImage();
-    		Well w = i.iterateWellSamples().next().getWell();
-    		log.error(String.format("Image %d well col %d row %d", i.getId(), w.getColumn(), w.getRow()));
-    	}
    		return toReturn;
     }
     
