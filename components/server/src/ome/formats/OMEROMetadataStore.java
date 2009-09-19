@@ -1359,6 +1359,28 @@ public class OMEROMetadataStore
         instrumentList = new LinkedHashMap<Integer, Instrument>();
         lsidMap = new LinkedHashMap<LSID, IObject>();
     }
+    
+    /**
+     * The return value of save may not have sorted, ascending identities. This
+     * method is in place to reorder a Pixels list based on the ordered and
+     * saved Image IDs.
+     * @param pixelsList Pixels list to be reordered in place.
+     * @param imageIds Ordered list of Image IDs.
+     */
+    private void reorderPixelsListByImageIds(List<Pixels> pixelsList,
+    		                                 List<Long> imageIds)
+    {
+    	Map<Long, Pixels> imageIdPixelsMap = new HashMap<Long, Pixels>();
+    	for (Pixels pixels : pixelsList)
+    	{
+    		imageIdPixelsMap.put(pixels.getImage().getId(), pixels);
+    	}
+    	for (int i = 0; i < imageIds.size(); i++)
+    	{
+    		Long imageId = imageIds.get(i);
+    		pixelsList.set(i, imageIdPixelsMap.get(imageId));
+    	}
+    }
 
     /**
      * Saves the current object graph to the database.
@@ -1395,6 +1417,7 @@ public class OMEROMetadataStore
     			"left outer join fetch pl_a_link.child as pl_a " +
     			"left outer join fetch pl_a.file " +
     			"where i.id in (:ids)", p);
+    	reorderPixelsListByImageIds(toReturn, imageIdList);
     	pixelsList = new LinkedHashMap<Integer, Pixels>();
     	for (int i = 0; i < toReturn.size(); i++)
     	{
