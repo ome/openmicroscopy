@@ -31,13 +31,10 @@ from StringIO import StringIO
 from getpass import getpass
 from getopt import getopt, GetoptError
 
-# XXX: Haxxor
 import omero.clients
-import omero_Tables_ice
-import omero_SharedResources_ice
 from omero.rtypes import rdouble, rstring, rint
 from omero.model import OriginalFileI, PlateI, PlateAnnotationLinkI, ImageI, FileAnnotationI, RoiI, EllipseI
-from omero.grid import ImageColumn, RoiColumn, DoubleColumn
+from omero.grid import ImageColumn, WellColumn, RoiColumn, DoubleColumn
 from omero import client
 
 # Handle Python 2.5 built-in ElementTree
@@ -75,9 +72,14 @@ class MeasurementError(Exception):
     pass
 
 class AbstractPlateAnalysisCtx(object):
-    def __init__(self, original_files, original_file_image_map, plate_id,
-                 service_factory):
+    """
+    Abstract class which aggregates and represents all measurement runs made on
+    a given Plate.
+    """
+    def __init__(self, images, original_files, original_file_image_map,
+                 plate_id, service_factory):
         super(AbstractPlateAnalysisCtx, self).__init__()
+        self.images = images
         self.original_files = original_files
         self.original_file_image_map = original_file_image_map
         self.plate_id = plate_id
@@ -91,42 +93,64 @@ class AbstractPlateAnalysisCtx(object):
     ### 
 
     def is_this_type(klass):
+        """
+        Concrete implementations are to return True if the class pertinent
+        for the original files associated with the plate.
+        """
         raise Exception("To be implemented by concrete implementations.")
     is_this_type = classmethod(is_this_type)
 
     def get_measurement_count(self):
+        """Returns the number of recognized measurement runs."""
         raise Exception("To be implemented by concrete implementations.")
 
     def get_measurement_ctx(self, index):
+        """Returns the measurement context for a given index."""
         raise Exception("To be implemented by concrete implementations.")
 
     def get_result_file_count(self, measurement_index):
+        """
+        Return the number of result files associated with a measurement run.
+        """
         raise Exception("To be implemented by concrete implementations.")
 
 class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
+    """
+    MIAS dataset concrete class implementation of an analysis context. MIAS
+    measurements are aggregated based on a single "log" file. A result
+    file is present for each stitched (of multiple fields) mosaic and
+    contains the actual measured results and ROI.
+    """
+
+    # Python datetime format string of the log filename completion date/time
     datetime_format = '%Y-%m-%d-%Hh%Mm%Ss'
     
+    # Regular expression matching a log filename
     log_regex = re.compile('.*log(\d+-\d+-\d+-\d+h\d+m\d+s).txt$')
     
+    # Regular expression matching a result filename
     detail_regex = re.compile(
         '^Well\d+_.*_detail_(\d+-\d+-\d+-\d+h\d+m\d+s).txt$')
+
+    # Companion file format
+    companion_format = 'Companion/MIAS'
         
-    def __init__(self, original_files, original_file_image_map, plate_id,
-                 service_factory):
+    def __init__(self, images, original_files, original_file_image_map,
+                 plate_id, service_factory):
         super(MIASPlateAnalysisCtx, self).__init__(
-                original_files, original_file_image_map, plate_id,
+                images, original_files, original_file_image_map, plate_id,
                 service_factory)
         self._populate_log_and_detail_files()
         self._populate_measurements()
 
-    def is_this_type(klass, original_files):
-        for original_file in original_files.values():
-            if klass.log_regex.match(original_file.name.val):
-                return True
-    is_this_type = classmethod(is_this_type)
-    
     def _populate_log_and_detail_files(self):
+        """
+        Strips out erroneous files and collects the log and result original
+        files based on regular expression matching.
+        """
         for original_file in self.original_files.values():
+            if original_file.format.value.val != self.companion_format:
+                continue
             name = original_file.name.val
             match = self.log_regex.match(name)
             if match:
@@ -140,6 +164,13 @@ class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
                 continue
     
     def _populate_measurements(self):
+        """
+        Result original files are only recognizable as part of a given
+        measurement (declared by a log file) based upon their parsed
+        date/time of completion as encoded in the filename. This method
+        collects result original files and groups them by collective
+        parsed date/time of completion.
+        """
         log_timestamps = list(self.log_files.keys())
         log_timestamps.sort()
         detail_timestamps = list(self.detail_files.keys())
@@ -152,6 +183,18 @@ class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
                     self.measurements[log_timestamp].append(
                         self.detail_files[detail_timestamp])
                     break
+    
+    ###
+    ### Abstract method implementations
+    ### 
+    
+    def is_this_type(klass, original_files):
+        for original_file in original_files.values():
+            format = original_file.format.value.val
+            if format == klass.companion_format \
+               and klass.log_regex.match(original_file.name.val):
+                return True
+    is_this_type = classmethod(is_this_type)
     
     def get_measurement_count(self):
         return len(self.measurements.keys())
@@ -168,24 +211,37 @@ class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         return len(self.measurements[key])
 
 class FlexPlateAnalysisCtx(AbstractPlateAnalysisCtx):
-    def __init__(self, original_files, original_file_image_map, plate_id,
-                 service_factory):
+    """
+    Flex dataset concrete class implementation of an analysis context. Flex
+    measurements are aggregated in a single ".res" XML file and contain no
+    ROI.
+    """
+    
+    # Companion file format
+    companion_format = 'Companion/Flex'
+
+    def __init__(self, images, original_files, original_file_image_map,
+                 plate_id, service_factory):
         super(FlexPlateAnalysisCtx, self).__init__(
-                original_files, original_file_image_map, plate_id,
+                images, original_files, original_file_image_map, plate_id,
                 service_factory)
         path_original_file_map = dict()
         for original_file in original_files.values():
             path = original_file.path.val
             format = original_file.format.value.val
-            if format == 'Companion/Flex' and path.endswith('.res'):
+            if format == self.companion_format and path.endswith('.res'):
                 path_original_file_map[path] = original_file
         self.measurements = path_original_file_map.values()
+    
+    ###
+    ### Abstract method implementations
+    ### 
 
     def is_this_type(klass, original_files):
         for original_file in original_files.values():
             path = original_file.path.val
             format = original_file.format.value.val
-            if format == 'Companion/Flex' and path.endswith('.res'):
+            if format == klass.companion_format and path.endswith('.res'):
                 return True
         return False
     is_this_type = classmethod(is_this_type)
@@ -203,6 +259,10 @@ class FlexPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         return 1
 
 class PlateAnalysisCtxFactory(object):
+    """
+    The plate analysis context factory is responsible for detecting and
+    returning a plate analysis context instance for a given plate.
+    """
 
     implementations = [FlexPlateAnalysisCtx, MIASPlateAnalysisCtx]
 
@@ -211,11 +271,17 @@ class PlateAnalysisCtxFactory(object):
         self.query_service = self.service_factory.getQueryService()
     
     def find_images_for_plate(self, plate_id):
+        """
+        Retrieves all the images associated with a given plate. Fetched
+        are the Image's WellSample, the WellSample's Well, the annotation
+        stack associated with the Image and each annotation's linked
+        original file.
+        """
         return self.query_service.findAllByQuery(
             'select img from Image as img ' \
             'left outer join fetch img.annotationLinks as a_links ' \
-            'join img.wellSamples as ws ' \
-            'join ws.well as w ' \
+            'join fetch img.wellSamples as ws ' \
+            'join fetch ws.well as w ' \
             'join w.plate as p ' \
             'join fetch a_links.child as a ' \
             'join fetch a.file as o_file ' \
@@ -223,6 +289,7 @@ class PlateAnalysisCtxFactory(object):
             'where p.id = %d' % plate_id, None)
 
     def get_analysis_ctx(self, plate_id):
+        """Retrieves a plate analysis context for a given plate."""
         original_files = dict()
         original_file_image_map = dict()
         images = self.find_images_for_plate(plate_id)
@@ -235,7 +302,7 @@ class PlateAnalysisCtxFactory(object):
                     original_file_image_map[f.id.val] = image
         for klass in self.implementations:
             if klass.is_this_type(original_files):
-                return klass(original_files,
+                return klass(images, original_files,
                              original_file_image_map,
                              plate_id, service_factory)
         raise MeasurementError(
@@ -243,6 +310,11 @@ class PlateAnalysisCtxFactory(object):
                         plate_id)
 
 class AbstractMeasurementCtx(object):
+    """
+    Abstract class which aggregates and represents all the results produced
+    from a given measurement run. It also provides a scaffold for interacting
+    with the OmeroTables infrastructure.
+    """
     def __init__(self, analysis_ctx, service_factory, original_file,
                  result_files):
         super(AbstractMeasurementCtx, self).__init__()
@@ -288,6 +360,7 @@ class AbstractMeasurementCtx(object):
         self.n_columns = None
     
     def update_table(self, columns):
+        """Updates the OmeroTables instance backing our results."""
         if not self.table_initialized:
             t0 = int(time.time() * 1000)
             self.table.initialize(columns)
@@ -298,6 +371,7 @@ class AbstractMeasurementCtx(object):
         self.table_initialized = True
     
     def image_from_original_file(self, original_file):
+        """Returns the image from wich an original file has originated."""
         m= self.analysis_ctx.original_file_image_map
         return m[original_file.id.val]
    
@@ -306,15 +380,26 @@ class AbstractMeasurementCtx(object):
     ### 
 
     def get_name(self):
+        """Returns the name of the measurement."""
         raise Exception("To be implemented by concrete implementations.")
 
     def parse_and_populate(self): 
+        """
+        Parses result files and populates both the OmeroTables instance
+        backing our results and the OMERO database itself.
+        """
         raise Exception("To be implemented by concrete implementations.")
 
 class MIASMeasurementCtx(AbstractMeasurementCtx):
+    """
+    MIAS measurements are a set of tab delimited text files per well. Each
+    TSV file's content is prefixed by the analysis parameters.
+    """
     
+    # The OmeroTable ImageColumn index
     IMAGE_COL = 0
     
+    # The OmeroTable RoiColumn index
     ROI_COL = 1
 
     def __init__(self, analysis_ctx, service_factory, original_file,
@@ -322,10 +407,12 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
         super(MIASMeasurementCtx, self).__init__(
                 analysis_ctx, service_factory, original_file, result_files)
     
-    def get_name(self):
-        return self.original_file.name.val[:-4]
-    
     def get_empty_columns(self, n_columns):
+        """
+        Retrieves a set of empty OmeroTables columns for the analysis results
+        prefixed by an ImageColumn and RoiColumn to handle these linked
+        object indexes.
+        """
         if not self.table_initialized:
             columns = [ImageColumn('Image', '', list()),
                        RoiColumn('ROI', '', list())]
@@ -336,6 +423,10 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
             return self.table.getHeaders()
 
     def parse_roi(self, image, row):
+        """
+        Parses an ROI from a given row of tab delimited results linking the
+        resulting ROI to the umbrella file annotation and the source image.
+        """
         roi = RoiI()
         ellipse = EllipseI()
         diameter = rdouble(float(row[4]))
@@ -351,7 +442,14 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
                 FileAnnotationI(self.file_annotation.id, False)
         roi.linkAnnotation(unloaded_file_annotation)
         return roi
+    
+    ###
+    ### Abstract method implementations
+    ### 
 
+    def get_name(self):
+        return self.original_file.name.val[:-4]
+    
     def parse_and_populate(self):
         raw_file_store = self.service_factory.createRawFileStore()
         try:
@@ -395,19 +493,55 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
             raw_file_store.close()
 
 class FlexMeasurementCtx(AbstractMeasurementCtx):
+    """
+    Flex measurements are located deep within a ".res" XML file container
+    and contain no ROI.
+    """
+
+    # The XPath to the <Area> which aggregate an acquisition
+    AREA_XPATH = './/Areas/Area'
+
+    # The XPath to the an analysis <Parameter>; will become a column header
+    # and is below AREA_XPATH
+    PARAMETER_XPATH = './/Wells/ResultParameters/Parameter'
+
+    # The XPath to a <Well> which has had at least one acquisition event
+    # within and is below AREA_XPATH
+    WELL_XPATH = './/Wells/Well'
+
+    # The XPath to a <Result> for a given well and is below WELL_XPATH
+    RESULT_XPATH = './/Result'
+
     def __init__(self, analysis_ctx, service_factory, original_file,
                  result_files):
         super(FlexMeasurementCtx, self).__init__(
                 analysis_ctx, service_factory, original_file, result_files)
-    
-    def get_name(self):
-        return self.original_file.name.val[:-4]
+        self.wells = dict()
+        for image in self.analysis_ctx.images:
+            for well_sample in image.copyWellSamples():
+                well = well_sample.well
+                row = well.row.val
+                column = well.column.val
+                if row not in self.wells.keys():
+                    self.wells[row] = dict()
+                self.wells[row][column] = well
     
     def get_empty_columns(self, headers):
-        columns = {'Image': ImageColumn('Image', '', list())}
+        """
+        Retrieves a set of empty OmeroTables columns for the analysis results
+        prefixed by a WellColumn to handle linked object indexes.
+        """
+        columns = {'Well': WellColumn('Well', '', list())}
         for header in headers:
             columns[header] = DoubleColumn(header, '', list())
         return columns
+    
+    ###
+    ### Abstract method implementations
+    ### 
+    
+    def get_name(self):
+        return self.original_file.name.val[:-4]
     
     def parse_and_populate(self):
         raw_file_store = self.service_factory.createRawFileStore()
@@ -421,11 +555,10 @@ class FlexMeasurementCtx(AbstractMeasurementCtx):
             data = raw_file_store.read(0L, self.original_file.size.val)
             et = ElementTree(file=StringIO(data))
             root = et.getroot()
-            areas = root.findall('.//Areas/Area')
+            areas = root.findall(self.AREA_XPATH)
             print "Area count: %d" % len(areas)
             for i, area in enumerate(areas):
-                result_parameters = \
-                        area.findall('.//Wells/ResultParameters/Parameter')
+                result_parameters = area.findall(self.PARAMETER_XPATH)
                 print "Area %d result children: %d" % (i, len(result_parameters))
                 if len(result_parameters) == 0:
                     print "%s contains no analysis data." % self.get_name()
@@ -434,14 +567,26 @@ class FlexMeasurementCtx(AbstractMeasurementCtx):
                 for result_parameter in result_parameters:
                     headers.append(result_parameter.text)
                 columns = self.get_empty_columns(headers)
-                wells = area.findall('.//Wells/Well')
+                wells = area.findall(self.WELL_XPATH)
                 for well in wells:
-                    results = well.findall('.//Result')
+                    # Rows and columns are 1-indexed, OMERO wells are 0-indexed
+                    row = int(well.get('row')) - 1
+                    column = int(well.get('col')) - 1
+                    try:
+                        v = columns['Well'].values
+                        v.append(self.wells[row][column].id.val)
+                    except KeyError:
+                        # This has the potential to happen alot with the
+                        # datasets we have given the split machine acquisition
+                        # ".flex" file storage.
+                        print "WARNING: Missing data for row %d column %d" % \
+                                (row, column)
+                        continue
+                    results = well.findall(self.RESULT_XPATH)
                     for result in results:
                         name = result.get('name')
                         columns[name].values.append(float(result.text))
-                print columns
-            print "Root: %s" % root
+                self.update_table(columns.values())
         finally:
             raw_file_store.close()
 
