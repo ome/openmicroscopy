@@ -38,7 +38,7 @@ image_id = plate.copyWells()[0].copyWellSamples()[0].image.id.val
 
 # http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/slice2html/omero/api/IRoi.html#IRoi
 roi_svc = s.getRoiService()
-roi_meas = roi_svc.getImageMeasurements(image_id, None)
+roi_meas = roi_svc.getRoiMeasurements(image_id, None)
 roi_result = roi_svc.getMeasuredRois(image_id, roi_meas[0].id.val, None)
 
 table = roi_svc.getTable(roi_meas[0].id.val)
