@@ -20,7 +20,7 @@ OMERO.fs server for watching directories"
       author_email="",
       url="https://trac.openmicroscopy.org.uk/omero/wiki/OmeroFs",
       download_url="https://trac.openmicroscopy.org.uk/omero/wiki/OmeroFs",
-      packages=['', 'omero.grid.monitors'],
+      packages=[''],
       test_suite='test.suite'
 )
 
