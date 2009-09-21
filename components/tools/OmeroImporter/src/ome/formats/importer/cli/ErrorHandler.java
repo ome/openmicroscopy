@@ -24,19 +24,19 @@ import org.apache.commons.logging.LogFactory;
  * {@link ImportLibrary#importCandidates(ome.formats.importer.ImportConfig, ome.formats.importer.ImportCandidates)}
  * and after the import is finished offers to submit them via the feedback
  * system.
- * 
+ *
  * @since Beta4.1
  */
 public class ErrorHandler extends ome.formats.importer.util.ErrorHandler {
 
     private final static Log log = LogFactory.getLog(ErrorHandler.class);
-    
+
     public ErrorHandler(ImportConfig config) {
         super(config);
     }
 
     public void onUpdate(IObservable importLibrary, ImportEvent event) {
-        
+
         if (event instanceof IMPORT_DONE) {
             log.info("Number of errors: " + errors.size());
         }
@@ -45,18 +45,24 @@ public class ErrorHandler extends ome.formats.importer.util.ErrorHandler {
             FILE_EXCEPTION ev = (FILE_EXCEPTION) event;
             log.error(ev.toLog());
         }
-        
+
         else if (event instanceof ImportEvent.DEBUG_SEND) {
-            
+
             for (ErrorContainer error : errors) {
                 error.setEmail(config.email.get());
                 error.setComment("Sent from CLI");
             }
-            
-            sendFiles = ((ImportEvent.DEBUG_SEND) event).sendFiles;
-            sendErrors();
+
+            if (errors.size() > 0) {
+
+                sendFiles = ((ImportEvent.DEBUG_SEND) event).sendFiles;
+                log.info("Sending error report "
+                    + ( sendFiles ? "with files " : " ") + "...");
+                sendErrors();
+            }
+
         }
-        
+
     }
 
 }

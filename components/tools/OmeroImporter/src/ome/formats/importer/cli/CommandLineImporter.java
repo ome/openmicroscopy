@@ -128,9 +128,7 @@ public class CommandLineImporter {
         boolean report = config.sendReport.get();
         boolean files = config.sendFiles.get();
         if (report) {
-            log.info("Sending error report "
-                    + (files ? "with files " : " ") + "...");
-            handler.update(null, new ImportEvent.DEBUG_SEND(files));
+           handler.update(null, new ImportEvent.DEBUG_SEND(files));
         }
     }
 
