@@ -20,6 +20,7 @@ import loci.formats.meta.MetadataStore;
 import ome.api.RawPixelsStore;
 import omero.model.Image;
 import omero.model.Pixels;
+import omero.api.RawPixelsStorePrx;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,20 +42,35 @@ public class OmeroReader extends FormatReader {
 
     private final RawPixelsStore raw;
 
+    private final RawPixelsStorePrx prx;
+
     private final Pixels pix;
     
     public final int sizeX, sizeY, sizeZ, sizeT, sizeC, planes;
 
-    public OmeroReader(RawPixelsStore raw, Pixels pix) {
+    private OmeroReader(Pixels pix, RawPixelsStore raw, RawPixelsStorePrx prx) {
         super("OMERO", "*");
-        this.raw = raw;
         this.pix = pix;
+	this.prx = prx;
+	this.raw = raw;
         sizeX = pix.getSizeX().getValue();
         sizeY = pix.getSizeY().getValue();
         sizeZ = pix.getSizeZ().getValue();
         sizeC = pix.getSizeC().getValue();
         sizeT = pix.getSizeT().getValue();
         planes = sizeZ * sizeC * sizeT;
+        if ( (this.raw == null && this.prx == null) ||
+             (this.raw != null && this.prx != null)) {
+            throw new RuntimeException("Improperly configured");
+        }
+    }
+
+    public OmeroReader(RawPixelsStore raw, Pixels pix) {
+        this(pix, raw, null);
+    }
+
+    public OmeroReader(RawPixelsStorePrx prx, Pixels pix) {
+        this(pix, null, prx);
     }
 
     public boolean isThisType(String name, boolean open) {
@@ -76,7 +92,19 @@ public class OmeroReader extends FormatReader {
 
         int[] zct = FormatTools.getZCTCoords(this, no);
 
-        byte[] plane = raw.getPlane(zct[0], zct[1], zct[2]);
+        byte[] plane = null;
+        if (raw != null) {
+            plane = raw.getPlane(zct[0], zct[1], zct[2]);
+        } else if (prx != null) {
+            try {
+                plane = prx.getPlane(zct[0], zct[1], zct[2]);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            throw new RuntimeException("Improperly configured");
+        }
+
         int len = getSizeX() * getSizeY()
                 * FormatTools.getBytesPerPixel(getPixelType());
         System.arraycopy((byte[]) plane, 0, buf, 0, len);
