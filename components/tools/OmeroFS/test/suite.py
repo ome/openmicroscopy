@@ -18,4 +18,6 @@ def additional_tests():
     load = unittest.defaultTestLoader.loadTestsFromName
     suite = unittest.TestSuite()
     suite.addTest(load("test.example"))
+    suite.addTest(load("test.dirtimeout"))
+    suite.addTest(load("test.drivers"))
     return suite
