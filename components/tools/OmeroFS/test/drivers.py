@@ -162,6 +162,16 @@ class Simulator(monitors.MonitorClient):
                 if not file.exists():
                     raise exceptions.Exception("%s doesn't exist" % file)
                 file.remove()
+            elif monitors.EventType.MoveIn == event.type:
+                if file.exists():
+                    raise exceptions.Exception("%s already exists" % file)
+                file.write_lines(["Moved in by event: %s" % event])
+            elif monitors.EventType.MoveOut == event.type:
+                if not file.exists():
+                    raise exceptions.Exception("%s doesn't exist" % file)
+                file.remove()
+            elif monitors.EventType.System == event.type:
+                pass # file id here is simply an informational string
             else:
                 self.fail("UNKNOWN EVENT TYPE: %s" % event.eventType)
 
