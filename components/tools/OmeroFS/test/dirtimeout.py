@@ -8,17 +8,35 @@
 
 """
 
-import unittest, logging, threading
+import unittest, logging, threading, time
 
 from monitors import *
 from fsDropBoxMonitorClient import *
+from test.drivers import *
+from path import path
+from uuid import uuid4
+
+logging.basicConfig(level=0)
+
+def with_errors(func, count = 1):
+    """ Decorator for catching any ERROR logging messages """
+    def exc_handler(*args, **kwargs):
+        handler = DetectError()
+        logging.root.addHandler(handler)
+        try:
+            rv = func(*args, **kwargs)
+            return rv
+        finally:
+            logging.root.removeHandler(handler)
+    exc_handler = wraps(func)(exc_handler)
+    return exc_handler
 
 class DetectError(logging.Handler):
     def __init__(self):
         logging.Handler.__init__(self)
+        self.errors = []
     def handle(self, record):
-       print record
-       print dir(record)
+        self.errors.append(record)
 
 class OurClient(MonitorClientI):
         def __init__(self):
@@ -30,22 +48,20 @@ class OurClient(MonitorClientI):
 class TestDirTimeout(unittest.TestCase):
 
     def testBadId(self):
-        m = OurClient()
-        logging.root.addHandler(DetectError())
-        m.fsEventHappened('foo',[])
+        OurClient().fsEventHappened('foo',[])
+    testBadId = with_errors(testBadId, 1)
 
     def testBadFileId(self):
         # Could cause infinite loop
-        m = OurClient()
-        m.fsEventHappened('',[EventInfo()])
+        OurClient().fsEventHappened('',[EventInfo()])
 
     def testEmptyAdd(self):
-        m = OurClient()
-        m.fsEventHappened('',[])
+        OurClient().fsEventHappened('',[]) # Does nothing.
 
     def testBasicAdd(self):
-        m = OurClient()
-        m.fsEventHappened('',[EventInfo('myfile', None)])
+        self.driver.add(DirInfoEvent(1, monitors.EventInfo(self.dir / "dirtimeout", monitors.EventType.Create)))
+        self.driver.run()
+    testBasicAdd = with_driver(testBasicAdd, OurClient())
 
 if __name__ == '__main__':
     unittest.main()

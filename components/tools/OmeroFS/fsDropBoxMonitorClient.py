@@ -13,6 +13,7 @@ import os
 import platform
 import uuid
 import threading
+import time
 import path as pathModule
 
 import omero
@@ -89,7 +90,14 @@ class MonitorClientI(monitors.MonitorClient):
         if self.id == id:
             try:                       
                 for fileInfo in eventList:
+
                     fileId = fileInfo.fileId
+                    if not fileId:
+                        log.error("Empty fileId")
+                        return
+
+                    log.info("EVENT_RECORD::%s::%s::%s" % (time.time(), fileInfo.type, fileId))
+
                     fileIn = self.fileInNewDir(fileId)
                     
                     # New file within an existing new directory.

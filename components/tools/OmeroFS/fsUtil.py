@@ -27,6 +27,7 @@ def monitorPackage():
                   'LINUX_2_6_13+pyinotify_0_7' : 'fsPyinotify-0-7-Monitor', 
                   'LINUX_2_6_13+pyinotify_0_8' : 'fsPyinotify-0-8-Monitor', 
                   'WIN_XP'                     : 'fsWin-XP-Monitor', 
+                  'WIN_2003Server'             : 'fsWin-XP-Monitor', 
                 }
     
     # Initial state
@@ -83,20 +84,17 @@ def monitorPackage():
         else:
             errorString = "Linux kernel 2.6.13 or above required. "
             errorString += "You have: %s" % str(platform.platform().split('-')[1])
-    
+
     # Windows of some flavour.
     elif system == 'Windows':
         version = platform.platform().split('-')
         if version[1] == 'XP':
-            # Although there is a working monitor system for XP the whole blitzed
-            # FS system has yet to be deployed against an XP blitz server. Thus the
-            # option is forced to fail until this deployment is tested.
-            #current = 'WIN_XP-NOT_YET_SUPPORTED'
-            #errorString = "Windows XP not yet supported."
             current = 'WIN_XP'
+        elif version[1] == '2003Server':
+            current = 'WIN_2003Server'
         else:
-            errorString = "Windows XP required. You have: %s" % str(version)
-    
+            errorString = "Windows XP or 2003Server required. You have: %s" % str(version)
+
     # Unknown OS.
     else:
         errorString = "Unsupported platform: %s" % system
