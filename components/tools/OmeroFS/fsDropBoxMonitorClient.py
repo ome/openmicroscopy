@@ -357,10 +357,10 @@ class MonitorClientI(monitors.MonitorClient):
                     # Windows requires bin/omero to be bin\omero
                     climporter = config.climporter.replace('/','\\')
                     # Awkward file names not yet handled.
-                    command = [climporter +
-                                " -s " + config.host +
-                                " -k " + key +
-                                " " + fileName ]
+                    command = [climporter,
+                                " -s " + config.host,
+                                " -k " + key,
+                                " " + "'" + fileName + "'" ]
                     self.log.info("Windows command %s", str(command))
 
                 else:
