@@ -25,6 +25,12 @@ LOGSIZE = 500000000
 LOGNUM = 9
 LOGMODE = "a"
 
+def make_logname(self):
+    """
+    Generates a logname from the given instance using the module and name from its class
+    """
+    log_name = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
+    return log_name
 
 def configure_logging(logdir, logfile, loglevel = logging.INFO, format = LOGFORMAT, filemode = LOGMODE, time_rollover = False):
 
@@ -237,8 +243,7 @@ class Servant(object):
 
     def __init__(self):
         self.resources = omero.util.Resources()
-        log_name = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
-        self.logger = logging.getLogger(log_name)
+        self.logger = logging.getLogger(make_logname(self))
         self.logger.info("Initialized")
 
     def cleanup(self):

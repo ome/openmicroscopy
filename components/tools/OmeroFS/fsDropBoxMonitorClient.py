@@ -1,12 +1,11 @@
 """
     OMERO.fs  DropBox implementation of a MonitorClient
 
-    
 """
 import logging
 import fsLogger
-log = logging.getLogger("fsclient."+__name__)
 
+import exceptions
 import string
 import subprocess as sp
 import os
@@ -24,309 +23,305 @@ import IceGrid
 import Glacier2
 
 from omero.grid import monitors
+from omero.util import make_logname
+from omero.util.decorators import remoted
+from omero.util.import_candidates import as_dictionary
+
 import fsConfig as config
+
+class MonitorState(object):
+    """
+    Concurrent state which is tracked by a MonitorClientI
+    instance.
+    """
+
+    def __init__(self):
+        self.log = logging.getLogger(make_logname(self))
+        self._lock = threading.RLock()
+        #: dictionary of files onHold
+        self.__onHold = {}
+        self.__ometifHold = {}
+        #: list of new directories yet to be imported.
+        self.__newDirFiles = {}
+        self.__newDirTimers = {}
+
+    def checkKey(self, key):
+        if not isinstance(key, str):
+            self.log.warn("Key isn't a string: %s", key)
+            key = str(key)
+        return key
+
+    def update(self, fileSets):
+        """
+        Central MonitorState method which takes a fileSet dictionary as returned
+        from omero.utils.import_candidates.as_dictionary and updates the internal state
+        """
+        for fileKey, fileSet in fileSets.items():
+            fileKey = self.checkKey(fileKey)
+
+            # Update
+            exists = fileKey in self.__newDirFiles
+            if exists:
+                if len(fileSet) == 0:
+                    raise exceptions.Exception("NYI")
+                raise exceptions.Exception("NYI")
+                # Cancel and "restart" the Timer.
+                if self.__newDirTimers[fileIn].isAlive():
+                    self.__newDirTimers[fileIn].cancel()
+                self.log.info("Revised set on %s contains %d files", fileIn, len(self.newDirFiles[fileIn]) )
+
+            # Insert
+            else:
+                if len(fileSet) == 0:
+                    return # Nothing to do
+                else:
+                    self.__newDirFiles[fileKey] = fileSet
+                    self.__addDirTimer(fileId, self.dirImportWait, self.importDirectory, [fileKey])
+                    self.log.info("New set on %s contains %d files", key, len(fileSet))
+
+    def __addDirTimer(self, key, dirImportWait, callback, args):
+        key = self.checkKey(key)
+        timer = threading.Timer(dirImportWait, callback, args)
+        timer.start()
+        self.__newDirTimers[key] = timer
+
 
 class MonitorClientI(monitors.MonitorClient):
     """
         Implementation of the MonitorClient.
-        
+
         The interface of the MonitorClient is defined in omerofs.ice and
         contains the single callback below.
-        
+
     """
 
-    def __init__(self):
+    def __init__(self, getUsedFiles = as_dictionary):
         """
             Intialise the instance variables.
-        
+
         """
+        self.getUsedFiles = getUsedFiles
+        self.log = logging.getLogger(make_logname(self))
+        self.state = MonitorState()
         self.master = None
         #: Reference back to FSServer.
         self.serverProxy = None
         self.selfProxy = None
-        self.dropBoxDir = ''
+        self.dropBoxDir = None
+        self.dirImportWait = 0
         #: Id
         self.id = ''
-        #: dictionary of files onHold
-        self.onHold = {}
-        self.ometifHold = {}
-        #: list of new directories yet to be imported.
-        self.newDirs = set([])
-        self.newDirFiles = {}
-        self.newDirTimers = {}
-        self.directoryImportWait = 0
 
-    def fsEventHappened(self, id, eventList, current=None):
+    def fsEventHappened(self, monitorid, eventList, current=None):
         """
-            This is an example callback.
-            
-            If new files appear on the watch the list is sent as an argument.
-            The id should match for the events to be relevant. In this simple 
-            exmple the call back outputs the list of new files to stdout.
-            
+            Primary monitor client callback.
+
+            If new files appear on the watch, the list is sent as an argument.
+            The id should match for the events to be relevant.
+
             At the moment each file type is treated as a special case. The number of
             special cases is likely to explode and so a different approach is needed.
             That will be easier with more knowledge of the different multi-file formats.
-            
+
             :Parameters:
                 id : string
                     A string uniquely identifying the OMERO.fs Watch created
                     by the OMERO.fs Server.
-                      
+
                 eventList : list<string>
-                    A list of events, in the current implementation this is 
+                    A list of events, in the current implementation this is
                     a list of strings representing the full path names of new files.
-                    
-                current 
+
+                current
                     An ICE context, this parameter is required to be present
                     in an ICE callback.
-                           
+
             :return: No explicit return value.
-            
+
         """
         # ############## ! Set import to dummy mode for testing purposes.
-        # self.importFile = self.dummyImportFile 
+        # self.importFile = self.dummyImportFile
         # ############## ! If the above line is not commented out nothing will import.
-        if self.id == id:
-            try:                       
-                for fileInfo in eventList:
+        if self.id != monitorid:
+            self.warnAndThrow(omero.ApiUsageException(), "Unknown fs server id: %s", monitorid)
 
-                    fileId = fileInfo.fileId
-                    if not fileId:
-                        log.error("Empty fileId")
-                        return
+        for fileInfo in eventList:
 
-                    log.info("EVENT_RECORD::%s::%s::%s" % (time.time(), fileInfo.type, fileId))
+            fileId = fileInfo.fileId
+            if not fileId:
+                self.warnAndThrow(omero.ApiUsageException(), "Empty fieldId")
 
-                    fileIn = self.fileInNewDir(fileId)
-                    
-                    # New file within an existing new directory.
-                    if  fileIn != '/':
-                        log.info("New file %s in %s", fileId, fileIn)
-                        fileSet = self.getUsedFiles(pathModule.path(fileIn))
-                        
-                        if len(fileSet) > 0 :
-                            self.newDirFiles[fileIn] = fileSet
-                            # Cancel and "restart" the Timer.
-                            if self.newDirTimers[fileIn].isAlive():
-                                self.newDirTimers[fileIn].cancel()
-                            self.newDirTimers[fileIn] = threading.Timer(self.dirImportWait, self.importDirectory, [fileIn] )
-                            self.newDirTimers[fileIn].start()
-                            log.info("Revised set on %s contains %d files", fileIn, len(self.newDirFiles[fileIn]) )
-                    
-                    # New directory      
-                    elif pathModule.path(fileId).isdir():
-                        log.info("New directory %s", fileId)
-                        self.newDirs.add(fileId)
-                        self.newDirFiles[fileId] = self.getUsedFiles(pathModule.path(fileId))
-                        #Create and start a new Timer
-                        self.newDirTimers[fileId] = threading.Timer(self.dirImportWait, self.importDirectory, [fileId] )
-                        self.newDirTimers[fileId].start()
-                        log.info("New set on %s contains %d files", fileId, len(self.newDirFiles[fileId]) )
-                        
-                    # New file at the top level.
-                    else:
-                        # import a file at the top level or in an 'old' directory.
-                        log.info("New file *not* in new dir %s", fileId)
-                        try:
-                            exName = self.getExperimenterFromPath(fileId)
-                            fileExt, fileName, fileBase = self.getBestGuessImporter(fileId)
-                        
-                            # Deal with root level jpg files
-                            if fileExt == ".jpg":
-                                self.importFile(fileId, exName)
+            self.log.info("EVENT_RECORD::%s::%s::%s" % (time.time(), fileInfo.type, fileId))
 
-                            # Deal with root level lsm files
-                            elif fileExt == ".lsm":
-                                self.importFile(fileId, exName)
+            # Creation or modification handled by state/timeout system
+            if self.handledByState(fileId):
+                fileSet = self.getUsedFiles(fileId)
+                self.state.update(fileSet)
 
-                            # Deal with root level dv files and their logs
-                            elif fileExt == ".dv":
-                                if (fileName+".log", exName) in self.onHold.keys():
-                                    self.onHold[(fileName+".log", exName)].cancel()
-                                    self.onHold.pop((fileName+".log", exName))
-                                    self.importFile(fileId, exName)
-                                else:
-                                    self.onHold[(fileName,exName)] = threading.Timer(config.waitTimes[".dv"], self.importAnyway, (fileId, exName))
-                                    self.onHold[(fileName,exName)].start()
-                            # Deal with root level log files and their dvs
-                            elif fileExt == ".log":
-                                if (fileBase, exName) in self.onHold.keys():
-                                    self.onHold[(fileBase, exName)].cancel()
-                                    self.onHold.pop((fileBase, exName))
-                                    self.importFile(pathModule.path(fileId).parent + "/" + fileBase, exName)
-                                else:
-                                    self.onHold[(fileName,exName)] = threading.Timer(config.dropTimes[".dv"], self.ignoreFile, (fileName, exName))
-                                    self.onHold[(fileName,exName)].start()
+            # New file at the top level.
+            else:
+                self.handleOther(fileId)
 
-                            # Deal with root level ome.tif files
-                            elif fileExt == ".tif" or fileExt == ".tiff":
-                                if pathModule.path(fileBase).ext == ".ome":
-                                    command = [config.climporter + " -f " + fileId]
-                                    output = sp.Popen(command, stdout=sp.PIPE, stderr=sp.PIPE, shell=True).communicate()
-                                    files = output[0].splitlines()
-                                    # Single file 
-                                    if len(files) == 1:
-                                        self.importFile(fileId, exName)
-                                    # Multiple files
-                                    else:
-                                        fileList = []
-                                        for line in files:
-                                            fileList.append(pathModule.path(line).name)
-                                        fileList.sort()
-                                        omeKey = tuple(fileList)
-                                        if omeKey in self.ometifHold.keys():
-                                            self.ometifHold[omeKey].discard(fileName)
-                                            log.info("File identified as part of %s", str(omeKey))
-                                            if len(self.ometifHold[omeKey]) == 0:
-                                                self.importFile(fileId, exName)
-                                                self.ometifHold.pop(omeKey)    
-                                        else:
-                                            log.info("First file of %s",str(omeKey))
-                                            self.ometifHold[omeKey] = set(fileList)
-                                            self.ometifHold[omeKey].discard(fileName)
-                                                                         
-                            # Deal with all other notified file types.
-                            else:
-                                # ignore other file types for now.
-                                log.info("File not imported: file type %s not currently handled.", fileExt)
-                        except IndexError:
-                            log.info("File not imported: file not copied into user level directory")
-                        except:
-                            log.exception("Import failed: ")
-            except:
-                log.exception("Failed to get or join session: ")              
-        else:
-            log.error("Unknown fs server id: %s", id)
+    fsEventHappened = remoted(fsEventHappened)
 
-    def fileInNewDir(self, fileId):
+    def handledByState(self, fileId):
         """
-            Is the file in one of the new and as yet unimported directories?
-            
+        Determines if this state object will be
+        able to handle the given fileId. If "True",
+        then update() can (and *should*) be called
+        with any changes to the fileSet stored under
+        the given key.
         """
         dirName = pathModule.path(fileId).dirname()
-        while dirName != '/' and dirName not in self.newDirs:
+        while str(dirName.abspath()) != str(self.dropBoxDir):
             dirName = pathModule.path(dirName).dirname()
-        
-        return dirName
-    
+            if dirName.ismount():
+                return False
+        return True
+
+    def handleOther(self, fileId):
+        """
+        Import a file at the top level or in an 'old' directory.
+        """
+        self.log.info("New file *not* in new dir %s", fileId)
+
+        exName = self.getExperimenterFromPath(fileId)
+        fileExt, fileName, fileBase = self.getBestGuessImporter(fileId)
+
+        # Deal with root level jpg files
+        if fileExt == ".jpg":
+            self.importFile(fileId, exName)
+
+        # Deal with root level lsm files
+        elif fileExt == ".lsm":
+            self.importFile(fileId, exName)
+
+        # Deal with root level dv files and their logs
+        elif fileExt == ".dv":
+            if (fileName+".log", exName) in self.onHold.keys():
+                self.onHold[(fileName+".log", exName)].cancel()
+                self.onHold.pop((fileName+".log", exName))
+                self.importFile(fileId, exName)
+            else:
+                self.onHold[(fileName,exName)] = threading.Timer(config.waitTimes[".dv"], self.importAnyway, (fileId, exName))
+                self.onHold[(fileName,exName)].start()
+        # Deal with root level log files and their dvs
+        elif fileExt == ".log":
+            if (fileBase, exName) in self.onHold.keys():
+                self.onHold[(fileBase, exName)].cancel()
+                self.onHold.pop((fileBase, exName))
+                self.importFile(pathModule.path(fileId).parent + "/" + fileBase, exName)
+            else:
+                self.onHold[(fileName,exName)] = threading.Timer(config.dropTimes[".dv"], self.ignoreFile, (fileName, exName))
+                self.onHold[(fileName,exName)].start()
+
+        # Deal with root level ome.tif files
+        elif fileExt == ".tif" or fileExt == ".tiff":
+            if pathModule.path(fileBase).ext == ".ome":
+                command = [config.climporter + " -f " + fileId]
+                output = sp.Popen(command, stdout=sp.PIPE, stderr=sp.PIPE, shell=True).communicate()
+                files = output[0].splitlines()
+                # Single file
+                if len(files) == 1:
+                    self.importFile(fileId, exName)
+                # Multiple files
+                else:
+                    fileList = []
+                    for line in files:
+                        fileList.append(pathModule.path(line).name)
+                    fileList.sort()
+                    omeKey = tuple(fileList)
+                    if omeKey in self.ometifHold.keys():
+                        self.ometifHold[omeKey].discard(fileName)
+                        self.log.info("File identified as part of %s", str(omeKey))
+                        if len(self.ometifHold[omeKey]) == 0:
+                            self.importFile(fileId, exName)
+                            self.ometifHold.pop(omeKey)
+                    else:
+                        self.log.info("First file of %s",str(omeKey))
+                        self.ometifHold[omeKey] = set(fileList)
+                        self.ometifHold[omeKey].discard(fileName)
+
+        # Deal with all other notified file types.
+        else:
+            # ignore other file types for now.
+            self.log.info("File not imported: file type '%s' not currently handled: %s", fileExt, fileId)
+
     def getBestGuessImporter(self, fileId):
         """
             For the moment return file details.
-            
+
             Eventually call some method on the importer
-            
+
         """
         fileExt = pathModule.path(fileId).ext
         fileName = pathModule.path(fileId).name
         fileBase = pathModule.path(fileId).namebase
-        
+
         return (fileExt, fileName, fileBase)
-    
+
     def getExperimenterFromPath(self, fileId):
         """
-            Extract experimenter name from path.
-            
+            Extract experimenter name from path. If the experimenter
+            cannot be extracted, then null will be returned, in which
+            case no import should take place.
         """
-    
-        fileParts = fileId.split("/")
-        base = fileParts.index(self.dropBoxDir)
-        exName = fileParts[base+2]
-        # The following line throws an exception if the file is
-        # a level or more below the experimenter name level.
+
+        exName = None
+        fileParts = pathModule.path(fileId).splitall()
         try:
-            fileParts[base+3] 
-        except:
-            raise
-            
+            base = fileParts.index(self.dropBoxDir)
+            exName = fileParts[base+2]
+        except exceptions.Exception, e:
+            if isinstance(e, IndexError) or isinstance(e, ValueError):
+                self.errAndThrow(omero.InternalException(), "Monitor directory improperly configured: %s", self.dropBoxDir)
+            else:
+                raise
+
+        try:
+            # The following line throws an exception if the file is
+            # a level or more below the experimenter name level
+            fileParts[base+3]
+        except IndexError:
+            self.log.info("File added not at user level directory: %s" % fileId)
         return exName
-        
-            
+
+
     def importAnyway(self, fileName, exName):
         """
             Force the import of a dv with no accompanying log.
-            
+
         """
-        log.info("No accompanying file has appeared, importing primary file %s for user %s", fileName, exName)
+        self.log.info("No accompanying file has appeared, importing primary file %s for user %s", fileName, exName)
         self.onHold.pop((pathModule.path(fileName).name, exName))
         self.importFile(fileName, exName)
 
     def ignoreFile(self, fileName, exName):
         """
             Remove a log file from onHold that has no accompanying dv.
-            
+
         """
-        log.info("No primary file has appeared, ignoring accompanying file %s for user %s", fileName, exName)
+        self.log.info("No primary file has appeared, ignoring accompanying file %s for user %s", fileName, exName)
         self.onHold.pop((fileName, exName))
 
-    def getUsedFiles(self, dirName):
-        """
-            Call importer with -f to get used files.
-            
-            Return a set of filepaths.
-            
-        """
-        if platform.system() == 'Windows':
-            # Windows requires bin/omero to be bin\omero
-            climporter = config.climporter.replace('/','\\')
-            # Awkward file names not yet handled.
-            command = [climporter +
-                        " -s " + config.host +
-                        " -f " + dirName ]
-            log.info("Windows command %s", str(command))
-            
-        else:
-            climporter = config.climporter
-            # Wrap filename in single quotes, escape any ' characters first.
-            # This deals with awkward file names (spaces, quotes, etc.)
-            dirName = "'" + dirName.replace("'", r"'\''") + "'"
-            command = [climporter +
-                        " -s " + config.host +
-                        " -f " + dirName ]
-                        
-        process = sp.Popen(command, stdout=sp.PIPE, stderr=sp.PIPE, shell=True)
-        output = process.communicate()
-        retCode = process.returncode
-        
-        fileSet = set([])
-        if retCode != 0:
-            log.info("***** ERROR stderr from import -f *****") 
-            # Log all lines at the moment. Only first few may be of interest - no usage!!
-            for line in output[1].split('\n'):
-                log.info(line)
-            log.info("***** end of output from import *****")
-        else:
-            # Parse the output file (logging at the moment)
-            for line in output[0].split('\n'):
-                log.info(line)
-                if line.strip(string.whitespace) != '' and line[0] != '#':
-                    fileSet.add(line)
-        
-        return fileSet
-       
     def importDirectory(self, dirName):
         """
             Import a directory.
-            
+
             Clear it from the new directory list.
 
         """
-        try:
-            exName = self.getExperimenterFromPath(dirName)
+        exName = self.getExperimenterFromPath(dirName)
+        if exName:
             self.newDirs.discard(dirName)
             self.newDirFiles.pop(dirName, True)
             self.newDirTimers.pop(dirName, True)
             self.importFile(dirName, exName)
-        except IndexError:
-            log.info("File not imported: file not copied into user level directory")
-        except:
-            log.exception("Import failed: ")
-        
 
     def importFile(self, fileName, exName):
         """
             Import file or directory using 'bin/omero importer'
-            
+
         """
         try:
             ic = Ice.initialize(["--Ice.Config=etc/internal.cfg"])
@@ -341,7 +336,7 @@ class MonitorClientI(monitors.MonitorClient):
             sessionUuid = sf.ice_getIdentity().name
 
             root = omero.client(config.host, config.port)
-            root.joinSession(sessionUuid) 
+            root.joinSession(sessionUuid)
 
             exp = root.sf.getAdminService().lookupExperimenter(exName)
             if exName == exp._omeName._val:
@@ -356,7 +351,7 @@ class MonitorClientI(monitors.MonitorClient):
                 user_sess = client.createSession(sess.uuid, sess.uuid)
 
                 key = user_sess.getAdminService().getEventContext().sessionUuid
-                log.info("Importing file using session key = %s", key)
+                self.log.info("Importing file using session key = %s", key)
 
                 if platform.system() == 'Windows':
                     # Windows requires bin/omero to be bin\omero
@@ -366,7 +361,7 @@ class MonitorClientI(monitors.MonitorClient):
                                 " -s " + config.host +
                                 " -k " + key +
                                 " " + fileName ]
-                    log.info("Windows command %s", str(command))
+                    self.log.info("Windows command %s", str(command))
 
                 else:
                     climporter = config.climporter
@@ -377,7 +372,7 @@ class MonitorClientI(monitors.MonitorClient):
                                 " -s " + config.host +
                                 " -k " + key +
                                 " " + fileName]
-                                
+
                 process = sp.Popen(command, stdout=sp.PIPE, stderr=sp.PIPE, shell=True)
                 output = process.communicate()
                 retCode = process.returncode
@@ -387,38 +382,38 @@ class MonitorClientI(monitors.MonitorClient):
                     # Windows. At the moment it is impossible to know for sure so try once
                     # more and then log a failure. A better strategy may be possible with
                     # more error information passed on by bin/omero
-                    log.warn("Import failed, possible cause file locking. Trying once more.")
-                    log.info("Importing file using command = %s", command[0])                
+                    self.log.warn("Import failed, possible cause file locking. Trying once more.")
+                    self.log.info("Importing file using command = %s", command[0])
                     process = sp.Popen(command, stdout=sp.PIPE, stderr=sp.PIPE, shell=True)
                     output = process.communicate()
                     retCode = process.returncode
 
                 if retCode == 0:
-                    log.info("Import completed on session key = %s", key)
+                    self.log.info("Import completed on session key = %s", key)
                 else:
-                    log.error("Import completed on session key = %s, return code = %s", key, str(retCode))
-                    log.error("***** start of output from importer-cli to stderr *****")
+                    self.log.error("Import completed on session key = %s, return code = %s", key, str(retCode))
+                    self.log.error("***** start of output from importer-cli to stderr *****")
                     for line in output[1].split('\n'):
-                        log.error(line)
-                    log.error("***** end of output from importer-cli *****")
-                
+                        self.log.error(line)
+                    self.log.error("***** end of output from importer-cli *****")
+
             else:
-                log.info("File not imported: user unknown: %s", exName)
+                self.log.info("File not imported: user unknown: %s", exName)
 
         except:
             raise
-               
+
     def dummyImportFile(self, fileName, exName):
         """
             Log a potential import for test purposes
 
         """
-        log.info("***DUMMY IMPORT***  Would have tried to import: %s ", fileName)
+        self.log.info("***DUMMY IMPORT***  Would have tried to import: %s ", fileName)
 
-        
+
     def setMaster(self, master):
         """
-            Setter for FSDropBox 
+            Setter for FSDropBox
 
             :Parameters:
                 master : DropBox
@@ -431,7 +426,7 @@ class MonitorClientI(monitors.MonitorClient):
 
     def setDropBoxDir(self, dropBoxDir):
         """
-            Setter for FSDropBox 
+            Setter for FSDropBox
 
             :Parameters:
                 dropBoxDir : string
@@ -474,29 +469,42 @@ class MonitorClientI(monitors.MonitorClient):
     def setId(self, id):
         """
             Setter for id
-            
+
             :Parameters:
                 id : string
                     A string uniquely identifying the OMERO.fs Monitor created
                     by the OMERO.fs Server.
-                    
+
             :return: No explicit return value.
-            
+
         """
         #: A string uniquely identifying the OMERO.fs Monitor
         self.id = id
-        
+
     def setDirImportWait(self, dirImportWait):
         """
             Setter for dirImportWait
-            
+
             :Parameters:
                 dirImportWait : int
 
-                    
+
             :return: No explicit return value.
-            
+
         """
-        
+
         self.dirImportWait = dirImportWait
-        
+
+    #
+    # Various trivial helpers
+    #
+
+    def warnAndThrow(self, exc, message, *arguments):
+        self.log.warn(message, *arguments)
+        exc.message = (message % arguments)
+        raise exc
+
+    def errAndThrow(self, exc, message, *arguments):
+        self.log.error(message, *arguments)
+        exc.message = (message % arguments)
+        raise exc

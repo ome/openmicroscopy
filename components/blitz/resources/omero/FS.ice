@@ -443,7 +443,7 @@ module monitors {
          * @param el, list of events (EventList).
          * @return, no explicit return value.
          **/
-        void fsEventHappened(string id, EventList el);
+        void fsEventHappened(string id, EventList el) throws omero::ServerError;
 
     }; // end interface MonitorClient
 

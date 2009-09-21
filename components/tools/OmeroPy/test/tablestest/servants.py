@@ -261,8 +261,8 @@ class TestTables(lib.TestCase):
 
     def testErrorInStorage(self):
         self.repofile(self.sf.db_uuid)
-        f = omero.model.OriginalFileI( 1, False)
-        self.sf.return_values.append( f )
+        of = omero.model.OriginalFileI( 1, False)
+        self.sf.return_values.append( of )
 
         internal_repo = mock_internal_repo(self.tmp)
         f = open(internal_repo.path,"w")
@@ -270,7 +270,7 @@ class TestTables(lib.TestCase):
         f.close()
 
         tables = self.tablesI(internal_repo)
-        self.assertRaises(omero.ValidationException, tables.getTable, f, self.current)
+        self.assertRaises(omero.ValidationException, tables.getTable, of, self.current)
 
     def testErrorInGet(self):
         self.repofile(self.sf.db_uuid)

@@ -9,8 +9,11 @@
 """
 
 import sys
-from omero.cli import CLI
 import tempfile
+import omero
+import omero_ServerErrors_ice
+
+from omero.cli import CLI
 
 def _to_list(path):
         if isinstance(path,str):
@@ -24,36 +27,51 @@ def as_stdout(path):
         cli = CLI()
         cli.loadplugins()
         cli.invoke(["import", "-f"]+path)
+        if cli.rv != 0:
+            raise omero.InternalException(None, None, "'import -f' failed")
 
 def as_dictionary(path):
+    """
+    Run as_stdout, parses the output and returns a dictionary of the form:
+    {
+        some_file_in_group : \
+            [
+                some_file_in_group
+                some_other_file_in_group
+                ...
+                last_file_in_group
+            ],
+        some_file_in_second_group : ...
+    }
+    """
 
-        t = tempfile.NamedTemporaryFile()
-        path = _to_list(path)
-	path.insert(0, "---file=%s" % t.name)
-	as_stdout(path)
-	f = open(t.name,"r")
-	output = f.readlines()
-	f.close()
-	t.close()
+    t = tempfile.NamedTemporaryFile()
+    path = _to_list(path)
+    path.insert(0, "---file=%s" % t.name)
+    as_stdout(path)
+    f = open(t.name,"r")
+    output = f.readlines()
+    f.close()
+    t.close()
 
-        gline = -1
-        key = None
-        groups = {}
-        for line in output:
-            line = line.strip()
-            if len(line) == 0:
-                continue
-            if line.startswith("#"):
-                gline = -1
+    gline = -1
+    key = None
+    groups = {}
+    for line in output:
+        line = line.strip()
+        if len(line) == 0:
+            continue
+        if line.startswith("#"):
+            gline = -1
+        else:
+            if gline == -1:
+                gline = 1
+                key = line
+                groups[key] = [line]
             else:
-                if gline == -1:
-                    gline = 1
-                    key = line
-                    groups[key] = [line]
-                else:
-                    groups[key].append(line)
+                groups[key].append(line)
 
-        return groups
+    return groups
 
 
 if __name__ == "__main__":

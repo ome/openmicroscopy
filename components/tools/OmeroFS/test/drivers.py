@@ -21,6 +21,7 @@ import unittest
 from uuid import uuid4
 from path import path
 from omero_ext.functional import wraps
+from fsDropBoxMonitorClient import *
 
 LOGFORMAT =  """%(asctime)s %(levelname)-5s [%(name)40s] (%(threadName)-10s) %(message)s"""
 logging.basicConfig(level=0,format=LOGFORMAT)
@@ -37,7 +38,7 @@ class AbstractEvent(object):
 
         in millis.
         """
-        self.log = logging.getLogger("event")
+        self.log = logging.getLogger("Event")
         self.client = None
         self.waitMillis = waitMillis
 
@@ -110,7 +111,7 @@ class Driver(threading.Thread):
     def __init__(self, client):
         assert client.fsEventHappened
         threading.Thread.__init__(self)
-        self.log = logging.getLogger("driver")
+        self.log = logging.getLogger("Driver")
         self.client = client
         self.events = []
         self.errors = []
@@ -123,7 +124,7 @@ class Driver(threading.Thread):
         self.log.debug("Added: %s" % event)
 
     def run(self):
-        self.log.debug("Running %s events" % len(self.events))
+        self.log.debug("Running %s event(s)" % len(self.events))
         for event in self.events:
             try:
                 event.setClient(self.client)
@@ -133,12 +134,14 @@ class Driver(threading.Thread):
                 self.log.exception("Error in Driver.run()")
 
 
-def with_driver(func, client, errors = 0):
+def with_driver(func, errors = 0):
     """ Decorator for running a test with a Driver """
     def handler(*args, **kwargs):
         self = args[0]
         self.dir = path(tempfile.gettempdir()) / "test-omero" / str(uuid4())
-        self.client = client
+        self.simulator = Simulator(self.dir)
+        self.client = MockMonitor(pre=[self.simulator], post=[])
+        self.client.setDropBoxDir(self.dir / "DropBox")
         self.driver = Driver(self.client)
         rv = func(*args, **kwargs)
         self.assertEquals(errors, len(self.driver.errors))
@@ -157,6 +160,7 @@ class Simulator(monitors.MonitorClient):
     """
     def __init__(self, dir):
         self.dir = path(dir)
+        self.log = logging.getLogger("Simulator")
 
     def isrelto(self, p):
         """
@@ -182,8 +186,10 @@ class Simulator(monitors.MonitorClient):
                 if file.exists():
                     raise exceptions.Exception("%s already exists" % file)
                 if hasattr(event, "dir"):
+                    self.log.info("Creating dir: %s", file)
                     file.makedirs()
                 else:
+                    self.log.info("Creating file: %s", file)
                     file.write_lines(["Created by event: %s" % event])
             elif monitors.EventType.Modify == event.type:
                 if not file.exists():
@@ -191,9 +197,11 @@ class Simulator(monitors.MonitorClient):
                 if hasattr(event, "dir"):
                     if not file.isdir():
                         raise exceptions.Exception("%s is not a directory" % file)
+                    self.log.info("Creating file in dir %s", file)
                     new_file = file / str(uuid4())
                     new_file.write_lines(["Writing new file to modify this directory on event: %s" % event])
                 else:
+                    self.log.info("Modifying file %s", file)
                     file.write_lines(["Modified by event: %s" % event])
             elif monitors.EventType.Delete == event.type:
                 if not file.exists():
@@ -201,8 +209,10 @@ class Simulator(monitors.MonitorClient):
                 if hasattr(event, "dir"):
                     if not file.isdir():
                         raise exceptions.Exception("%s is not a directory" % file)
+                    self.log.info("Deleting dir %s", file)
                     file.rmtree()
                 else:
+                    self.log.info("Deleting file %s", file)
                     file.remove()
             elif monitors.EventType.MoveIn == event.type:
                 raise exceptions.Exception("TO BE REMOVED")
@@ -213,140 +223,47 @@ class Simulator(monitors.MonitorClient):
             else:
                 self.fail("UNKNOWN EVENT TYPE: %s" % event.eventType)
 
-
-class MockMonitor(object):
-    def __init__(self):
+class MockMonitor(MonitorClientI):
+    """
+    Mock Monitor Client which can also delegate to other clients.
+    """
+    def __init__(self, pre = [], post = []):
+        MonitorClientI.__init__(self, getUsedFiles = self.used_files)
+        self.log = logging.getLogger("MockMonitor")
         self.events = []
+        self.pre = list(pre)
+        self.post = list(post)
+        self.files = {}
+    def used_files(self, *args, **kwargs):
+        self.log.info("getUsedFiles(%s, %s)=>%s", args, kwargs, self.files)
+        if isinstance(self.files, exceptions.Exception):
+            raise self.files
+        else:
+            return self.files
     def fsEventHappened(self, monitorid, eventList, current = None):
         self.events.extend(eventList)
+        for client in self.pre:
+            client.fsEventHappened(monitorid, eventList, current)
+        MonitorClientI.fsEventHappened(self, monitorid, eventList, current)
+        for client in self.post:
+            client.fsEventHappened(monitorid, eventList, current)
 
-class TestDrivers(unittest.TestCase):
-    """
-    Simple test to test the testing functionality (driver)
-    """
+def with_errors(func, count = 1):
+    """ Decorator for catching any ERROR logging messages """
+    def exc_handler(*args, **kwargs):
+        handler = DetectError()
+        logging.root.addHandler(handler)
+        try:
+            rv = func(*args, **kwargs)
+            return rv
+        finally:
+            logging.root.removeHandler(handler)
+    exc_handler = wraps(func)(exc_handler)
+    return exc_handler
 
-    def setUp(self):
-        self.monitor = MockMonitor()
-        self.driver = Driver(self.monitor)
-
-    def assertEventCount(self, count):
-        self.assertEquals(count, len(self.monitor.events))
-
-    def testCallback(self):
-        l = []
-        self.driver.add(CallbackEvent(1, lambda: l.append(True)))
-        self.driver.run()
-        self.assertEquals(1, len(l))
-        self.assertEventCount(0) # Events don't get passed on callbacks
-
-    def testInfo(self):
-        self.driver.add(InfoEvent(1, monitors.EventInfo()))
-        self.driver.run()
-        self.assertEventCount(1)
-
-class TestSimulator(unittest.TestCase):
-    """
-    Simple test to test the testing functionality (simulator)
-    """
-
-    def beforeMethod(self):
-        self.uuid = str(uuid4())
-        self.dir = path(tempfile.gettempdir()) / "test-omero" / self.uuid
-        self.dir.makedirs()
-        self.sim = Simulator(self.dir)
-        self.driver = Driver(self.sim)
-
-    def tearDown(self):
-        self.assertEquals(0, len(self.driver.errors))
-
-    def assertErrors(self, count = 1):
-        self.assertEquals(count, len(self.driver.errors))
-        for i in range(count):
-            self.driver.errors.pop()
-
-    def testRelativeTest(self):
-        self.beforeMethod()
-        self.assertTrue(self.sim.isrelto(self.dir / "foo"))
-        self.assertTrue(self.sim.isrelto(self.dir / "foo" / "bar" / "baz"))
-        # Not relative
-        self.assertFalse(self.sim.isrelto(path("/")))
-        self.assertFalse(self.sim.isrelto(path("/root")))
-        self.assertFalse(self.sim.isrelto(path(".")))
-
-    def testBad(self):
-        self.beforeMethod()
-        self.driver.add(InfoEvent(1, monitors.EventInfo("foo", monitors.EventType.Create)))
-        self.driver.run()
-        self.assertErrors()
-
-    def testSimpleCreate(self):
-        self.beforeMethod()
-        self.driver.add(InfoEvent(1, monitors.EventInfo(self.dir / "foo", monitors.EventType.Create)))
-        self.driver.run()
-
-    def testBadCreate(self):
-        self.beforeMethod()
-        self.driver.add(InfoEvent(1, monitors.EventInfo(self.dir / "foo", monitors.EventType.Create)))
-        self.driver.add(InfoEvent(1, monitors.EventInfo(self.dir / "foo", monitors.EventType.Create)))
-        self.driver.run()
-        self.assertErrors()
-
-    def testBadModify(self):
-        self.beforeMethod()
-        self.driver.add(InfoEvent(1, monitors.EventInfo(self.dir / "foo", monitors.EventType.Modify)))
-        self.driver.run()
-        self.assertErrors()
-
-    def testSimpleModify(self):
-        self.beforeMethod()
-        self.driver.add(InfoEvent(1, monitors.EventInfo(self.dir / "foo", monitors.EventType.Create)))
-        self.driver.add(InfoEvent(1, monitors.EventInfo(self.dir / "foo", monitors.EventType.Modify)))
-        self.driver.run()
-
-    def testBadDelete(self):
-        self.beforeMethod()
-        self.driver.add(InfoEvent(1, monitors.EventInfo(self.dir / "foo", monitors.EventType.Delete)))
-        self.driver.run()
-        self.assertErrors()
-
-    def testSimpleDelete(self):
-        self.beforeMethod()
-        self.driver.add(InfoEvent(1, monitors.EventInfo(self.dir / "foo", monitors.EventType.Create)))
-        self.driver.add(InfoEvent(1, monitors.EventInfo(self.dir / "foo", monitors.EventType.Delete)))
-        self.driver.run()
-
-    def testSimpleDeleteWithModify(self):
-        self.beforeMethod()
-        self.driver.add(InfoEvent(1, monitors.EventInfo(self.dir / "foo", monitors.EventType.Create)))
-        self.driver.add(InfoEvent(1, monitors.EventInfo(self.dir / "foo", monitors.EventType.Modify)))
-        self.driver.add(InfoEvent(1, monitors.EventInfo(self.dir / "foo", monitors.EventType.Delete)))
-        self.driver.run()
-
-    def testDirectoryMethods(self):
-        self.beforeMethod()
-        self.driver.add(InfoEvent(1, monitors.EventInfo(self.dir / "foo", monitors.EventType.Create)))
-        self.driver.add(InfoEvent(1, monitors.EventInfo(self.dir / "foo", monitors.EventType.Modify)))
-        self.driver.add(InfoEvent(1, monitors.EventInfo(self.dir / "foo", monitors.EventType.Delete)))
-        self.driver.run()
-
-    def testDirectoryMethods(self):
-        self.beforeMethod()
-        self.driver.add(DirInfoEvent(1, monitors.EventInfo(self.dir / "dir", monitors.EventType.Create)))
-        self.driver.add(DirInfoEvent(1, monitors.EventInfo(self.dir / "dir", monitors.EventType.Modify)))
-        self.driver.add(DirInfoEvent(1, monitors.EventInfo(self.dir / "dir", monitors.EventType.Delete)))
-        self.driver.run()
-
-    def testDirectoryDoesntExistOnModify(self):
-        self.beforeMethod()
-        self.driver.add(DirInfoEvent(1, monitors.EventInfo(self.dir / "dir", monitors.EventType.Modify)))
-        self.driver.run()
-        self.assertErrors()
-
-    def testDirectoryDoesntExistOnDelete(self):
-        self.beforeMethod()
-        self.driver.add(DirInfoEvent(1, monitors.EventInfo(self.dir / "dir", monitors.EventType.Delete)))
-        self.driver.run()
-        self.assertErrors()
-
-if __name__ == "__main__":
-    unittest.main()
+class DetectError(logging.Handler):
+    def __init__(self):
+        logging.Handler.__init__(self)
+        self.errors = []
+    def handle(self, record):
+        self.errors.append(record)

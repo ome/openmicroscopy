@@ -217,7 +217,10 @@ module omero
     };
 
   /**
-   * Too many simultaneous database users.
+   * Too many simultaneous database users. This implies that a
+   * connection to the database could not be acquired, no data
+   * was saved or modifed. Clients may want to wait the given
+   * backOff period, and retry.
    */
   exception DatabaseBusyException extends ConcurrencyException
     {
@@ -263,6 +266,7 @@ module omero
     };
 
   // OMEROFS
+
     /**
      * OmeroFSError
      *
@@ -271,9 +275,10 @@ module omero
      *
      * It should be fitted into or subsumed within the above hierarchy
      **/
-    exception OmeroFSError {
+    exception OmeroFSError extends ServerError
+      {
         string reason;
-    };
+      };
 
 
 };
