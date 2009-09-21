@@ -1,6 +1,6 @@
 /*
  *   $Id$
- * 
+ *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
@@ -263,14 +263,14 @@ module omero
     };
 
   // OMEROFS
-    /*
+    /**
      * OmeroFSError
      *
-     * Just one catch-all UserException for the present. It could be 
+     * Just one catch-all UserException for the present. It could be
      * subclassed to provide a finer grained level if necessary.
      *
      * It should be fitted into or subsumed within the above hierarchy
-     */
+     **/
     exception OmeroFSError {
         string reason;
     };
