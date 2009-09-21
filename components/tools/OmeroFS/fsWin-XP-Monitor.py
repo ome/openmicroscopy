@@ -16,7 +16,7 @@ import uuid
 # Imported as pathModule to avoid clashes.
 import path as pathModule
 
-import monitors
+from omero.grid import monitors
 
 import win32file
 import win32con

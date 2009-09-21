@@ -190,7 +190,7 @@
     <server-template id="FSTemplate">
       <parameter name="exe" default="python"/>
       <server id="FSServer" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
-        <option>${OMEROPY_HOME}fsServer.py</option>
+        <option>${OMEROPY_HOME}omero/fs/fsServer.py</option>
         <env>${PYTHONPATH}</env>
         <adapter name="omerofs.MonitorServer" register-process="true" endpoints="tcp">
           <object identity="FSServer" type="::monitors::MonitorServer"/>
@@ -206,7 +206,7 @@
     <server-template id="DropBoxTemplate">
       <parameter name="exe" default="python"/>
       <server id="DropBox" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
-        <option>${OMEROPY_HOME}fsDropBox.py</option>
+        <option>${OMEROPY_HOME}omero/fs/fsDropBox.py</option>
         <env>${PYTHONPATH}</env>
         <adapter name="omerofs.DropBox" register-process="true" endpoints="tcp"/>
         <properties>

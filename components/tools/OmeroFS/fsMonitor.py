@@ -24,7 +24,7 @@ except:
     raise
 
 
-import monitors
+from omero.grid import monitors
 
 class MonitorFactory(object):
     @staticmethod

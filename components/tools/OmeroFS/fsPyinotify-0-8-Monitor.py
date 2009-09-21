@@ -19,7 +19,7 @@ import socket
 # Imported as pathModule to avoid potential clashes.
 import path as pathModule
 
-import monitors
+from omero.grid import monitors
  
 
 class PlatformMonitor(object):

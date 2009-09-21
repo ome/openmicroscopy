@@ -23,7 +23,7 @@ import path as pathModule
 
 from fsMonitor import MonitorFactory
 
-import monitors
+from omero.grid import monitors
 
 class MonitorServerI(monitors.MonitorServer):
     """

@@ -15,7 +15,7 @@ import Ice
 import IceGrid
 import Glacier2
 
-import monitors
+from omero.grid import monitors
 import fsDropBoxMonitorClient
 import fsConfig as config
 

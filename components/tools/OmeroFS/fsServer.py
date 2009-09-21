@@ -41,13 +41,7 @@ class Server(Ice.Application):
         except:
             log.exception("System requirements not met: \n")
             return -1
-        
-##        try:
-##            prop = self.communicator().getProperties().getPropertyWithDefault("omero.fs.foo","willikers")
-##            log.info("foo is %s", prop)
-##        except:
-##            log.exception("Failed get property foo: \n", )
-        
+            
         # Create a MonitorServer, its adapter and activate it.
         try:
             mServer = fsMonitorServer.MonitorServerI()
