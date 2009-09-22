@@ -80,8 +80,9 @@ class TestDropBoxClient(unittest.TestCase):
 
     def test1(self):
         app = MockDropBox()
-        exitCode = app.main(sys.argv)
-        sys.exit(exitCode)
+        app.main(sys.argv)
+    def tearDown(self):
+        MockMonitor.static_stop()
 
 if __name__ == '__main__':
     unittest.main()

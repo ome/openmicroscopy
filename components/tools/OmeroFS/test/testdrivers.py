@@ -35,6 +35,7 @@ class TestDrivers(unittest.TestCase):
 
     def tearDown(self):
         self.client.stop()
+        MockMonitor.static_stop()
 
     def assertEventCount(self, count):
         self.assertEquals(count, len(self.client.events))

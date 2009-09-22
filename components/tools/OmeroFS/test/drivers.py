@@ -218,6 +218,12 @@ class MockMonitor(MonitorClientI):
     """
     Mock Monitor Client which can also delegate to other clients.
     """
+    INSTANCES = []
+    def static_stop():
+        for i in MockMonitor.INSTANCES:
+            i.stop()
+    static_stop = staticmethod(static_stop)
+
     def __init__(self, pre = [], post = []):
         self.root = None
         MonitorClientI.__init__(self, getUsedFiles = self.used_files, getRoot = self.get_root)
@@ -226,6 +232,7 @@ class MockMonitor(MonitorClientI):
         self.files = {}
         self.pre = list(pre)
         self.post = list(post)
+        MockMonitor.INSTANCES.append(self)
 
     def fake_meth(self, name, rv, *args, **kwargs):
         self.log.info("%s(%s, %s)=>%s", name, args, kwargs, rv)

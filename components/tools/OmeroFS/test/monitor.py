@@ -23,6 +23,9 @@ from uuid import uuid4
 
 class TestMonitor(unittest.TestCase):
 
+    def tearDown(self):
+        MockMonitor.static_stop()
+
     def testBadId(self):
         self.assertRaises(omero.ApiUsageException, MockMonitor().fsEventHappened, 'foo', [])
 
