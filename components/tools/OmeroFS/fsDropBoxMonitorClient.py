@@ -175,12 +175,13 @@ class MonitorClientI(monitors.MonitorClient):
 
     """
 
-    def __init__(self, getUsedFiles = as_dictionary, getRoot = internal_service_factory):
+    def __init__(self, communicator = None, getUsedFiles = as_dictionary, getRoot = internal_service_factory):
         """
             Intialise the instance variables.
 
         """
         self.log = logging.getLogger(make_logname(self))
+	self.communicator = communicator
         self.root = None
         self.master = None
         #: Reference back to FSServer.
@@ -320,7 +321,7 @@ class MonitorClientI(monitors.MonitorClient):
             except:
                 has = False
         if not has:
-            self.root = self.getRoot()
+            self.root = self.getRoot(self.communicator)
             if self.root:
                 self.resources.add(SessionHolder(self.root))
 

@@ -90,7 +90,7 @@ class DropBox(Ice.Application):
 
             identity = self.communicator().stringToIdentity(config.clientIdString)
 
-            mClient = fsDropBoxMonitorClient.MonitorClientI()
+            mClient = fsDropBoxMonitorClient.MonitorClientI(self.communicator())
             adapter = self.communicator().createObjectAdapter(config.clientAdapterName)
             adapter.add(mClient, identity)
             adapter.activate()
