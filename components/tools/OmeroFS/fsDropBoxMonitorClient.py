@@ -110,6 +110,7 @@ class MonitorState(object):
         """
         Shutdown this instance
         """
+        self.log.info("Stop called")
         try:
             for k,s in self.__data.items():
                 self.clear(k,s)
@@ -159,6 +160,10 @@ class MonitorClientI(monitors.MonitorClient):
         # TODO: should probably stop root session here
         self.state.stop()
 
+    #
+    # Called by server threads.
+    #
+
     def fsEventHappened(self, monitorid, eventList, current=None):
         """
             Primary monitor client callback.
@@ -192,7 +197,7 @@ class MonitorClientI(monitors.MonitorClient):
         if self.id != monitorid:
             self.warnAndThrow(omero.ApiUsageException(), "Unknown fs server id: %s", monitorid)
 
-        self.log.info("EVENT_RECORD::%s::%s::%s::%s" % ("Cookie", time.time(), "Batch", ""))
+        self.log.info("EVENT_RECORD::%s::%s::%s::%s" % ("Cookie", time.time(), "Batch", len(eventList)))
 
         for fileInfo in eventList:
 
@@ -202,115 +207,15 @@ class MonitorClientI(monitors.MonitorClient):
 
             self.log.info("EVENT_RECORD::%s::%s::%s::%s" % ("Cookie", time.time(), fileInfo.type, fileId))
 
-            # Creation or modification handled by state/timeout system
-            if self.handledByState(fileId):
+            # Checking name first since it's faster
+            exName = self.getExperimenterFromPath(fileId)
+            if exName:
+                # Creation or modification handled by state/timeout system
                 fileSet = self.getUsedFiles(fileId)
                 if fileSet:
-                    exName = self.getExperimenterFromPath(fileId)
-                    if exName:
-                        self.state.update(fileSet, self.dirImportWait, self.importFileWrapper, [fileId, exName])
-
-            # New file at the top level.
-            else:
-                self.handleOther(fileId)
+                    self.state.update(fileSet, self.dirImportWait, self.importFileWrapper, [fileId, exName])
 
     fsEventHappened = remoted(fsEventHappened)
-
-    def handledByState(self, fileId):
-        """
-        Determines if this state object will be
-        able to handle the given fileId. If "True",
-        then update() can (and *should*) be called
-        with any changes to the fileSet stored under
-        the given key.
-        """
-        dirName = pathModule.path(fileId).dirname()
-        while str(dirName.abspath()) != str(self.dropBoxDir):
-            dirName = pathModule.path(dirName).dirname()
-            if dirName.ismount():
-                return False
-        return True
-
-    def handleOther(self, fileId):
-        """
-        Import a file at the top level or in an 'old' directory.
-        """
-        self.log.info("New file *not* in new dir %s", fileId)
-
-        exName = self.getExperimenterFromPath(fileId)
-        fileExt, fileName, fileBase = self.getBestGuessImporter(fileId)
-
-        # Deal with root level jpg files
-        if fileExt == ".jpg":
-            self.importFile(fileId, exName)
-
-        # Deal with root level lsm files
-        elif fileExt == ".lsm":
-            self.importFile(fileId, exName)
-
-        # Deal with root level dv files and their logs
-        elif fileExt == ".dv":
-            if (fileName+".log", exName) in self.onHold.keys():
-                self.onHold[(fileName+".log", exName)].cancel()
-                self.onHold.pop((fileName+".log", exName))
-                self.importFile(fileId, exName)
-            else:
-                self.onHold[(fileName,exName)] = threading.Timer(config.waitTimes[".dv"], self.importAnyway, (fileId, exName))
-                self.onHold[(fileName,exName)].start()
-        # Deal with root level log files and their dvs
-        elif fileExt == ".log":
-            if (fileBase, exName) in self.onHold.keys():
-                self.onHold[(fileBase, exName)].cancel()
-                self.onHold.pop((fileBase, exName))
-                self.importFile(pathModule.path(fileId).parent + "/" + fileBase, exName)
-            else:
-                self.onHold[(fileName,exName)] = threading.Timer(config.dropTimes[".dv"], self.ignoreFile, (fileName, exName))
-                self.onHold[(fileName,exName)].start()
-
-        # Deal with root level ome.tif files
-        elif fileExt == ".tif" or fileExt == ".tiff":
-            if pathModule.path(fileBase).ext == ".ome":
-                command = [config.climporter + " -f " + fileId]
-                output = sp.Popen(command, stdout=sp.PIPE, stderr=sp.PIPE, shell=True).communicate()
-                files = output[0].splitlines()
-                # Single file
-                if len(files) == 1:
-                    self.importFile(fileId, exName)
-                # Multiple files
-                else:
-                    fileList = []
-                    for line in files:
-                        fileList.append(pathModule.path(line).name)
-                    fileList.sort()
-                    omeKey = tuple(fileList)
-                    if omeKey in self.ometifHold.keys():
-                        self.ometifHold[omeKey].discard(fileName)
-                        self.log.info("File identified as part of %s", str(omeKey))
-                        if len(self.ometifHold[omeKey]) == 0:
-                            self.importFile(fileId, exName)
-                            self.ometifHold.pop(omeKey)
-                    else:
-                        self.log.info("First file of %s",str(omeKey))
-                        self.ometifHold[omeKey] = set(fileList)
-                        self.ometifHold[omeKey].discard(fileName)
-
-        # Deal with all other notified file types.
-        else:
-            # ignore other file types for now.
-            self.log.info("File not imported: file type '%s' not currently handled: %s", fileExt, fileId)
-
-    def getBestGuessImporter(self, fileId):
-        """
-            For the moment return file details.
-
-            Eventually call some method on the importer
-
-        """
-        fileExt = pathModule.path(fileId).ext
-        fileName = pathModule.path(fileId).name
-        fileBase = pathModule.path(fileId).namebase
-
-        return (fileExt, fileName, fileBase)
 
     def getExperimenterFromPath(self, fileId):
         """
@@ -332,22 +237,18 @@ class MonitorClientI(monitors.MonitorClient):
             self.log.info("File added outside user directories: %s" % fileId)
         return exName
 
-    def importAnyway(self, fileName, exName):
-        """
-            Force the import of a dv with no accompanying log.
+    #
+    # Called from callback
+    #
 
+    def importFileWrapper(self, fileName, exName):
         """
-        self.log.info("No accompanying file has appeared, importing primary file %s for user %s", fileName, exName)
-        self.onHold.pop((pathModule.path(fileName).name, exName))
+        Wrapper method which allows plugging error handling code around
+        the main call to importFile. In all cases, the key will be removed
+        on execution.
+        """
+        self.state.clear(fileName, False, False)
         self.importFile(fileName, exName)
-
-    def ignoreFile(self, fileName, exName):
-        """
-            Remove a log file from onHold that has no accompanying dv.
-
-        """
-        self.log.info("No primary file has appeared, ignoring accompanying file %s for user %s", fileName, exName)
-        self.onHold.pop((fileName, exName))
 
     def checkRoot(self):
         """
@@ -390,16 +291,6 @@ class MonitorClientI(monitors.MonitorClient):
         except:
             self.log.exception("Unknown exception during loginUser")
             return None
-
-
-    def importFileWrapper(self, fileName, exName):
-        """
-        Wrapper method which allows plugging error handling code around
-        the main call to importFile. In all cases, the key will be removed
-        on execution.
-        """
-        self.state.clear(fileName, False, False)
-        self.importFile(fileName, exName)
 
     def importFile(self, fileName, exName):
         """
