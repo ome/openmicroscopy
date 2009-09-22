@@ -105,7 +105,7 @@ module monitors {
 
     /* SEQUENCES */
 
-    sequence<WatchEventTypeList> WatchEventType;
+    sequence<WatchEventList> WatchEventType;
 
     /*
      *   Interface declarations
@@ -140,7 +140,7 @@ module monitors {
          * @throws omero::OmeroFSError
          **/
         string createMonitor(MonitorType mType,
-                                WatchEventTypeList eTypes,
+                                WatchEventList eTypes,
                                 PathMode pMode,
                                 string pathString,
                                 Ice::StringSeq whitelist,
@@ -428,7 +428,7 @@ module monitors {
      * System, used to flag a system notification, info in fileId.
      *
      **/
-    enum MonitorEventType { Create, Modify, Delete, System };
+    enum EventType { Create, Modify, Delete, System };
 
     /* STRUCTURES */
     /**
