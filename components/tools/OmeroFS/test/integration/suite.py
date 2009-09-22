@@ -24,6 +24,7 @@ def additional_tests():
     suite = unittest.TestSuite()
     suite.addTest(load("test.suite.additional_tests"))
     suite.addTest(load("test.integration.example"))
+    suite.addTest(load("test.integration.dbclient"))
     return suite
 
 if __name__ == "__main__":
