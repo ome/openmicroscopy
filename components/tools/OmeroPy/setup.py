@@ -42,7 +42,7 @@ Python bindings to the OMERO.blitz server.
 	'omero.api','omero.install','omero.model',\
 	'omero.sys','omero.util','omero.romio',\
 	'omero_ext','omero.gateway','omero.gateway.scripts',\
-	'omero.grid.monitors', 'omero.fs'],
+	'omero.grid', 'omero.grid.monitors', 'omero.fs'],
       package_data={'omero.gateway':['pilfonts/*'], 'omero.gateway.scripts':['imgs/*']},
       test_suite='test.suite'
 )

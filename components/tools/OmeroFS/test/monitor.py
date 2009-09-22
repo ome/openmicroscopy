@@ -14,13 +14,12 @@ logging.basicConfig(level=0)
 import omero
 import omero_ServerErrors_ice
 
-from monitors import *
+import omero.grid.monitors as monitors
 from fsDropBoxMonitorClient import *
 from test.drivers import *
 
 from path import path
 from uuid import uuid4
-
 
 class TestMonitor(unittest.TestCase):
 
@@ -29,7 +28,7 @@ class TestMonitor(unittest.TestCase):
 
     def testBadFileId(self):
         # Could cause infinite loop
-        self.assertRaises(omero.ApiUsageException, MockMonitor().fsEventHappened, '',[EventInfo()])
+        self.assertRaises(omero.ApiUsageException, MockMonitor().fsEventHappened, '',[monitors.EventInfo()])
 
     def testEmptyAdd(self):
         MockMonitor().fsEventHappened('',[]) # Does nothing.

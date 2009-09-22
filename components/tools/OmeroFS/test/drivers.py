@@ -11,12 +11,13 @@
 
 import exceptions
 import logging
-import monitors
 import os
 import tempfile
 import threading
 import time
 import unittest
+
+import omero.grid.monitors as monitors
 
 from uuid import uuid4
 from path import path

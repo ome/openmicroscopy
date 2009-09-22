@@ -10,10 +10,7 @@
 
 import exceptions
 import logging
-import monitors
 import os
-import tempfile
-import threading
 import time
 import unittest
 
