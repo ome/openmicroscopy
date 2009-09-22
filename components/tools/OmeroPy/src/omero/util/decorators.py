@@ -5,6 +5,7 @@
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
+import time
 import logging
 import threading
 import traceback
@@ -13,6 +14,32 @@ import exceptions
 import omero
 
 from omero_ext.functional import wraps
+
+def perf(func):
+    """ Decorator for (optionally) printing performance statistics """
+    log = logging.getLogger("omero.perf")
+    if not log.isEnabledFor(logging.DEBUG):
+        return func
+    def handler(*args, **kwargs):
+        try:
+            self = args[0]
+            mod = self.__class__.__module__
+            cls = self.__class__.__name__
+            tag = "%s.%s.%s" % (mod, cls, func.func_name)
+        except:
+            tag = func.func_name
+        start = time.time()
+        try:
+            rv = func(*args, **kwargs)
+            return rv
+        finally:
+            stop = time.time()
+            diff = stop - start
+            startMillis = int(start * 1000)
+            timeMillis = int(diff * 1000)
+            log.debug("start[%d] time[%d] tag[%s]", startMillis, timeMillis, tag)
+    handler = wraps(func)(handler)
+    return handler
 
 
 def remoted(func):

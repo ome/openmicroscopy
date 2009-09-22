@@ -29,7 +29,7 @@ class TestDrivers(unittest.TestCase):
     """
 
     def setUp(self):
-        self.client = MockMonitorClient()
+        self.client = MockMonitor()
         self.driver = Driver(self.client)
 
     def assertEventCount(self, count):
@@ -69,12 +69,12 @@ class TestSimulator(unittest.TestCase):
 
     def testRelativeTest(self):
         self.beforeMethod()
-        self.assertTrue(self.sim.isrelto(self.dir / "foo"))
-        self.assertTrue(self.sim.isrelto(self.dir / "foo" / "bar" / "baz"))
+        self.assertTrue((self.dir / "foo").parpath(self.dir))
+        self.assertTrue((self.dir / "foo" / "bar" / "baz").parpath(self.dir))
         # Not relative
-        self.assertFalse(self.sim.isrelto(path("/")))
-        self.assertFalse(self.sim.isrelto(path("/root")))
-        self.assertFalse(self.sim.isrelto(path(".")))
+        self.assertFalse((path("/")).parpath(self.dir))
+        self.assertFalse((path("/root")).parpath(self.dir))
+        self.assertFalse((path(".")).parpath(self.dir))
 
     def testBad(self):
         self.beforeMethod()

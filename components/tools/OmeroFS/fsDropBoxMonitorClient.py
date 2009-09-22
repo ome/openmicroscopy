@@ -24,10 +24,58 @@ import Glacier2
 
 from omero.grid import monitors
 from omero.util import make_logname, internal_service_factory, Resources, SessionHolder
-from omero.util.decorators import remoted, locked
+from omero.util.decorators import remoted, locked, perf
 from omero.util.import_candidates import as_dictionary
 
 import fsConfig as config
+
+
+class Timer(threading._Timer):
+    """Based on threading._Thread but allows for resetting the Timer.
+
+    t = Timer(30.0, f, args=[], kwargs={})
+    t.start()
+    t.cancel() # stop the timer's action if it's still waiting
+
+    # or
+
+    t.reset()
+
+    After excecution, the status of the run can be checked via the
+    "completed" and the "exception" Event instances.
+    """
+
+    def __init__(self, interval, function, args=[], kwargs={}):
+        threading._Timer.__init__(self, interval, function, args, kwargs)
+        self.log = logging.getLogger(make_logname(self))
+        self.completed = threading.Event()
+        self.exception = threading.Event()
+        self._reset = threading.Event()
+
+    def reset(self):
+        self.log.debug("Reset called")
+        self._reset.set() # Set first, so that the loop will continue
+        self.finished.set() # Forces waiting thread to fall through
+
+    def run(self):
+        while True:
+            self.finished.wait(self.interval)
+            if self._reset.isSet():
+                self.finished.clear()
+                self._reset.clear()
+                self.log.debug("Resetting")
+                continue
+            if not self.finished.isSet():
+                try:
+                    self.log.debug("Executing")
+                    self.function(*self.args, **self.kwargs)
+                    self.completed.set()
+                    self.finished.set()
+                except:
+                    self.exception.set()
+                    self.finished.set()
+                    raise
+            break
 
 class MonitorState(object):
     """
@@ -43,13 +91,24 @@ class MonitorState(object):
     def __init__(self):
         self.log = logging.getLogger(make_logname(self))
         self._lock = threading.RLock()
-        self.__data = {}
+        self.__entries = {}
+        self.__timers = 0
 
     def checkKey(self, key):
         if not isinstance(key, str):
             self.log.warn("Key isn't a string: %s", key)
             key = str(key)
         return key
+
+    def keys(self):
+        """
+        Returns the current keys stored. This is mostly used
+        for testing. None of the import logic depends on using
+        this method.
+        """
+        return self.__entries.keys()
+    keys = locked(keys)
+    keys = perf(keys)
 
     def update(self, data, wait, callback, argsList):
         """
@@ -58,53 +117,87 @@ class MonitorState(object):
         """
         for key, seq in data.items():
             key = self.checkKey(key)
+            assert key in seq # Guarantees length > 1
+            # Key ignored after this point.
 
-            # Update
-            exists = key in self.__data
-            if exists:
-                s = self.__data[key]
-                if len(seq) == 0:
-                    self.clear(key, s)
-                else: # True
-                    s.seq = seq
-                    self.log.info("Revised entry %s contains %d file(s)", key, len(seq))
+            entry = self.find(seq)
 
-            # Insert
-            else:
-                if len(seq) == 0:
-                    self.log.info("Not adding entry %s with no data", key)
-                    return # Nothing to do
-                else:
-                    timer = threading.Timer(wait, callback, argsList)
-                    entry = MonitorState.Entry(seq, timer)
-                    self.__data[key] = entry
-                    timer.start()
-                    self.log.info("New entry %s contains %d file(s)", key, len(seq))
+            if entry: # UPDATE
+                msg = "Revised"
+                entry.seq = seq
+                entry.timer.reset()
+                self.sync(entry)
+
+            else: # INSERT
+                msg = "New"
+                self.__timers += 1
+                timer = Timer(wait, callback, argsList)
+                entry = MonitorState.Entry(seq, timer)
+                self.sync(entry)
+                # Last activity
+                timer.start()
+
+            self.log.info("%s entry %s contains %d file(s). Files=%s Timers=%s", msg, key, len(seq), len(self.__entries), self.__timers)
+
     update = locked(update)
+    update = perf(update)
 
-    def clear(self, key, s = None, cancel = True):
+    def find(self, seq):
         """
-        Used to remove all references to a given key. If s is passed in, then this is
+        Finds the entry for the given key or None.
+        """
+        for key in seq:
+            try:
+                return self.__entries[key]
+            except KeyError:
+                pass
+        return None
+
+    def sync(self, entry):
+        """
+        Takes an Entry instance and creates all the needed dictionary
+        entries from all the keys in the sequence to the Entry itself.
+        If the link already exists, it MUST be to the entry.
+        """
+        for key in entry.seq:
+            try:
+                entry2 = self.__entries[key]
+                if entry2 != entry:
+                    raise exceptions.Exception("INTERNAL EXCEPTION: entries out of sync: %s!=%s",entry,entry2)
+            except KeyError:
+                self.log.debug("Adding entry for %s", key)
+                self.__entries[key] = entry
+
+    def clear(self, key, entry = None):
+        """
+        Used to remove all references to a given Entry. In key contained in
+        Entry.seq can be passed. If entry is passed in, then this is
         assumed to be the data in the dictionary to prevent a further lookup.
         """
-        if cancel:
-            if s is None:
-                try:
-                    s = self.__data[key]
-                except KeyError:
-                    self.log.warn("Can't find key for clear: %s", key)
+        if entry is None:
+            try:
+                entry = self.__entries[key]
+            except KeyError:
+                self.log.warn("Can't find key for clear: %s", key)
+                return
 
-            if s.timer.isAlive():
-                    try:
-                        s.timer.cancel()
-                    except:
-                        self.log.warn("Failed to stop timer: %s", s.timer)
-            else:
-                self.log.warn("Timer not alive: %s", s.timer)
+        try:
+            self.__timers -= 1
+            entry.timer.cancel()
+        except:
+            self.log.warn("Failed to stop timer: %s", entry.timer)
 
-        del self.__data[key]
+        for key2 in entry.seq:
+            try:
+                del self.__entries[key2]
+                self.log.debug("Removed key %s", key2)
+            except KeyError:
+                self.log.warn("Could not remove key %s", key2)
+
         self.log.info("Removed key %s" % key)
+
     clear = locked(clear)
+    clear = perf(clear)
 
     def stop(self):
         """
@@ -112,10 +205,10 @@ class MonitorState(object):
         """
         self.log.info("Stop called")
         try:
-            for k,s in self.__data.items():
+            for k,s in self.__entries.items():
                 self.clear(k,s)
         finally:
-            del self.__data
+            del self.__entries
     stop = locked(stop)
 
 
@@ -136,8 +229,8 @@ class MonitorClientI(monitors.MonitorClient):
         self.log = logging.getLogger(make_logname(self))
 
         # Overriding methods to allow for simpler testing
-        self.getUsedFiles = getUsedFiles
-        self.getRoot = getRoot
+        self.getUsedFiles = perf(getUsedFiles)
+        self.getRoot = perf(getRoot)
 
         # Threading primitives
         self.state = MonitorState()
@@ -211,10 +304,11 @@ class MonitorClientI(monitors.MonitorClient):
             exName = self.getExperimenterFromPath(fileId)
             if exName:
                 # Creation or modification handled by state/timeout system
-                fileSet = self.getUsedFiles(fileId)
-                if fileSet:
-                    self.state.update(fileSet, self.dirImportWait, self.importFileWrapper, [fileId, exName])
+                fileSets = self.getUsedFiles(fileId)
+                if fileSets:
+                    self.state.update(fileSets, self.dirImportWait, self.importFileWrapper, [fileId, exName])
 
+    fsEventHappeend = perf(fsEventHappened)
     fsEventHappened = remoted(fsEventHappened)
 
     def getExperimenterFromPath(self, fileId):
@@ -247,7 +341,7 @@ class MonitorClientI(monitors.MonitorClient):
         the main call to importFile. In all cases, the key will be removed
         on execution.
         """
-        self.state.clear(fileName, False, False)
+        self.state.clear(fileName)
         self.importFile(fileName, exName)
 
     def checkRoot(self):
@@ -356,6 +450,8 @@ class MonitorClientI(monitors.MonitorClient):
         finally:
             client.closeSession()
             del client
+
+    importFile = perf(importFile)
 
     #
     # Setters
