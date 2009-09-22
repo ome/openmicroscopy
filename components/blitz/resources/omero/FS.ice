@@ -66,7 +66,7 @@ module monitors {
     enum PathMode { Flat, Recurse, Follow };
 
     /**
-     * Enumeration for Monitor event types.
+     * Enumeration for event types to watch.
      *
      * Create, notify on file creation only.
      * Modify, notify on file modification only.
@@ -75,7 +75,7 @@ module monitors {
      *
      * Not all event types may be implemented for a given operating system.
      **/
-    enum EventType { Create, Modify, Delete, MoveIn, MoveOut, All, System };
+     enum WatchEventType { Create, Modify, Delete, All }; /* MoveIn, MoveOut, (removed from interface at present) */
 
     /**
      * Enumeration for Monitor state.
@@ -103,6 +103,9 @@ module monitors {
         FileType type;
     };
 
+    /* SEQUENCES */
+
+    sequence<WatchEventTypeList> WatchEventType;
 
     /*
      *   Interface declarations
@@ -125,7 +128,7 @@ module monitors {
          * if a monitor cannot be created for any other reason.
          *
          * @param mType, type of monitor to create (MonitorType).
-         * @param eType, event type to monitor (EventType).
+         * @param eTypes, a sequence of watch event type to monitor (WatchEventTypeList).
          * @param pathString, full path of directory of interest (string).
          * @param whitelist, list of files or extensions of interest (Ice::StringSeq).
          * @param blacklist, list of directories, files or extensions that are not of interest (Ice::StringSeq).
@@ -137,7 +140,7 @@ module monitors {
          * @throws omero::OmeroFSError
          **/
         string createMonitor(MonitorType mType,
-                                EventType eType,
+                                WatchEventTypeList eTypes,
                                 PathMode pMode,
                                 string pathString,
                                 Ice::StringSeq whitelist,
@@ -414,6 +417,20 @@ module monitors {
      *   =================
      */
 
+    /* ENUMERATIONS */
+
+    /**
+     * Enumeration for Monitor event types returned.
+     *
+     * Create, event is file or directory creation.
+     * Modify, event is file or directory modification.
+     * Delete, event is file or directory deletion.
+     * System, used to flag a system notification, info in fileId.
+     *
+     **/
+    enum MonitorEventType { Create, Modify, Delete, System };
+
+    /* STRUCTURES */
     /**
      * The id and type of an event. The file's basename is included for convenience,
      * other stats are not included since they may be unavailable for some event types.
@@ -422,6 +439,8 @@ module monitors {
         string fileId;
         EventType type;
     };
+
+    /* SEQUENCES */
 
     sequence<EventInfo> EventList;
 

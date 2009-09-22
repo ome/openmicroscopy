@@ -30,24 +30,48 @@ class PlatformMonitor(object):
 
     """
 
-    def setUp(self, eventType, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, monitorId, proxy):
+    def setUp(self, eventTypes, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, monitorId, proxy):
         """
-            Initialise Monitor thread.
-                        
+            Set-up Monitor thread.
+            
+            After initialising the superclass and some instance variables
+            try to create an FSEventStream. Throw an exeption if this fails.
+            
             :Parameters:
-                pathsString : string
-                    The *single* path string of
-                    interest.
+                eventTypes : 
+                    A list of the event types to be monitored.          
                     
-                idString : string
-                    A unique id passed to that is
-                    returned in the callback.
-         
-                event : Event
-                    A threading.Event used to terminate the watch.
-         
+                pathMode : 
+                    The mode of directory monitoring: flat, recursive or following.
+
+                pathString : string
+                    A string representing a path to be monitored.
+                  
+                whitelist : list<string>
+                    A list of files and extensions of interest.
+                    
+                blacklist : list<string>
+                    A list of subdirectories to be excluded.
+
+                ignoreSysFiles :
+                    If true platform dependent sys files should be ignored.
+                    
+                monitorId :
+                    Unique id for the monitor included in callbacks.
+                    
+                proxy :
+                    A proxy to be informed of events         
         """
-        self.eventType = str(eventType)
+        self.eventTypes = str(eventTypes)
+        # This dictionary should be thinned depending on the above list
+        self.actions = {
+            1 : monitors.EventType.Create, # Created
+            2 : monitors.EventType.Delete, # Deleted
+            3 : monitors.EventType.Modify, # Updated
+            4 : monitors.EventType.Modify, # Renamed to something
+            5 : monitors.EventType.Modify  # Renamed from something
+            }
+
         self.recurse = not (str(pathMode) == "Flat")
         self.pathsToMonitor = pathString
         self.whitelist = whitelist
@@ -83,13 +107,9 @@ class PlatformMonitor(object):
         """
             Create a monitor on created files.
             
+            Callback on file events.
+            
         """
-        ACTIONS = {
-            1 : "Created",
-            2 : "Deleted",
-            3 : "Updated",
-            4 : "Renamed to something",
-            5 : "Renamed from something" }
 
         FILE_LIST_DIRECTORY = 0x0001
         
@@ -116,37 +136,26 @@ class PlatformMonitor(object):
                 None,
                 None)
 
+            eventList = []
             for action, file in results:
                 log.debug("Event : " + str(results))
                 # At the moment this gets around 'New Folder' appearing and then changing
-                if action in (1,5) :
+                if action in self.actions.keys():
                     # Ignore default name for GUI created folders.
-                    if file.find('New Folder') == -1 :
+                    if self.ignoreSysFiles and file.find('New Folder') >= 0:
+                        pass # ignore New Folder event.
+                    else:
+                        eventType = self.actions[action]
                         filename = os.path.join(self.pathsToMonitor, file)
-                        try:
-                            if (len(self.whitelist) == 0) or (pathModule.path(filename).ext in self.whitelist):
-                                self.callback(self.idString, filename)
-                        except:
-                            log.exception("Failed to make callback: ")
+                        # Should have richer filename matching here.
+                        if (len(self.whitelist) == 0) or (pathModule.path(filename).ext in self.whitelist):
+                            eventList.append((filename.replace('\\\\','\\').replace('\\','/'), eventType))
+                            
+            if len(eventList) > 0:
+                try:
+                    log.info('Event notification on monitor id=' + self.idString + ' => ' + str(eventList))
+                    self.proxy.callback(self.idString, eventList)
+                except:
+                    log.exception("Failed to make callback: ")
 
-    def callback(self, id, eventPath):
-        """
-            Callback used by ProcessEvent methods
 
-            :Parameters:
-
-                id : string
-                watch id.
-
-                eventPath : string
-                File paths of the event.
-
-            :return: No explicit return value.
-
-        """     
-        monitorId = id        
-        eventList = []
-        eventType = monitors.EventType.Create
-        eventList.append((eventPath.replace('\\\\','\\').replace('\\','/'),eventType))  
-        log.info('Event notification on monitor id=' + monitorId + ' => ' + str(eventList))
-        self.proxy.callback(monitorId, eventList)

@@ -31,26 +31,38 @@ class PlatformMonitor(object):
 
     """
 
-    def setUp(self, eventType, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, monitorId, proxy):
+    def setUp(self, eventTypes, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, monitorId, proxy):
         """
-            Initialise Monitor thread.
+            Set-up Monitor thread.
             
             After initialising the superclass and some instance variables
             try to create an FSEventStream. Throw an exeption if this fails.
             
             :Parameters:
-                pathsToMonitor : list<string>
-                    This list contains the *single* path string of
-                    interest.
+                eventTypes : 
+                    A list of the event types to be monitored.          
                     
-                callback : function
-                    The callback function that the FSEvents.FSEventStream
-                    will call when there is file activity under path.
+                pathMode : 
+                    The mode of directory monitoring: flat, recursive or following.
+
+                pathString : string
+                    A string representing a path to be monitored.
+                  
+                whitelist : list<string>
+                    A list of files and extensions of interest.
                     
-                idString : string
-                    A unique id passed to FSEvents.FSEventStream that is
-                    returned in the callback.
-         
+                blacklist : list<string>
+                    A list of subdirectories to be excluded.
+
+                ignoreSysFiles :
+                    If true platform dependent sys files should be ignored.
+                    
+                monitorId :
+                    Unique id for the monitor included in callbacks.
+                    
+                proxy :
+                    A proxy to be informed of events
+                    
         """
         threading.Thread.__init__(self)
  

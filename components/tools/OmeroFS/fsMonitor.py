@@ -28,13 +28,13 @@ from omero.grid import monitors
 
 class MonitorFactory(object):
     @staticmethod
-    def createMonitor(mType, eType, pMode, pathString, whitelist, blacklist, timeout, ignoreSysFiles, self, monitorId):
+    def createMonitor(mType, eTypes, pMode, pathString, whitelist, blacklist, timeout, ignoreSysFiles, self, monitorId):
         if str(mType) == 'Persistent':
-            return PersistentMonitor(eType, pMode, pathString, whitelist, blacklist, ignoreSysFiles, self, monitorId)
+            return PersistentMonitor(eTypes, pMode, pathString, whitelist, blacklist, ignoreSysFiles, self, monitorId)
         elif str(mType) == 'OneShot':
-            return OneShotMonitor(eType, pMode, pathString, whitelist, blacklist, timeout, ignoreSysFiles, self, monitorId)
+            return OneShotMonitor(eTypes, pMode, pathString, whitelist, blacklist, timeout, ignoreSysFiles, self, monitorId)
         elif str(mType) == 'Inactivity':
-            return InactivityMonitor(eType, pMode, pathString, whitelist, blacklist, timeout, ignoreSysFiles, self, monitorId)
+            return InactivityMonitor(eTypes, pMode, pathString, whitelist, blacklist, timeout, ignoreSysFiles, self, monitorId)
         else:
             raise Exception("Unkown monitor type: %s", str(mType))
         
@@ -103,13 +103,13 @@ class PersistentMonitor(Monitor):
         :group Other methods: run, stop
 
     """
-    def __init__(self, eventType, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, proxy, monitorId):
+    def __init__(self, eventTypes, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, proxy, monitorId):
         """
             Initialise Monitor.
                                  
         """
         Monitor.__init__(self, proxy, monitorId)
-        self.pMonitor.setUp(eventType, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, monitorId, self)
+        self.pMonitor.setUp(eventTypes, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, monitorId, self)
 
     def run(self):
         """
@@ -155,13 +155,13 @@ class InactivityMonitor(Monitor):
         :group Other methods: run, stop
 
     """
-    def __init__(self, eventType, pathMode, pathString, whitelist, blacklist, timeout, ignoreSysFiles, proxy, monitorId):
+    def __init__(self, eventTypes, pathMode, pathString, whitelist, blacklist, timeout, ignoreSysFiles, proxy, monitorId):
         """
             Initialise Monitor.
                                  
         """
         Monitor.__init__(self, proxy, monitorId)
-        self.pMonitor.setUp(eventType, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, monitorId, self)
+        self.pMonitor.setUp(eventTypes, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, monitorId, self)
         self.timer = threading.Timer(timeout, self.inactive)
         log.info('Inactivity monitor created. Timer: %s', str(self.timer))
 
@@ -223,13 +223,13 @@ class OneShotMonitor(Monitor):
         :group Other methods: run, stop
 
     """
-    def __init__(self, eventType, pathMode, pathString, whitelist, blacklist, timeout, ignoreSysFiles, proxy, monitorId):
+    def __init__(self, eventTypes, pathMode, pathString, whitelist, blacklist, timeout, ignoreSysFiles, proxy, monitorId):
         """
             Initialise Monitor.
                                  
         """
         Monitor.__init__(self, proxy, monitorId)
-        self.pMonitor.setUp(eventType, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, monitorId, self)
+        self.pMonitor.setUp(eventTypes, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, monitorId, self)
         self.timer = threading.Timer(timeout, self.inactive)
         log.info('OneShot monitor created. Timer: %s', str(self.timer))
 

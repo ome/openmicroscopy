@@ -40,8 +40,9 @@ class DropBox(Ice.Application):
                                 "omero.fs.retryInterval","3"))
             dropBoxDir = self.communicator().getProperties().getPropertyWithDefault(
                                 "omero.fs.dropBoxDir","DropBox")
-            eventType = self.communicator().getProperties().getPropertyWithDefault(
-                                "omero.fs.eventType","Create")
+# Hard-code until xml property is changed.
+#            eventType = self.communicator().getProperties().getPropertyWithDefault(
+#                                "omero.fs.eventType","Create")
             pathMode = self.communicator().getProperties().getPropertyWithDefault(
                                 "omero.fs.pathMode","Follow")
             dirImportWait = int(self.communicator().getProperties().getPropertyWithDefault(
@@ -96,9 +97,9 @@ class DropBox(Ice.Application):
 
             mClientProxy = monitors.MonitorClientPrx.checkedCast(adapter.createProxy(identity))
             monitorType = monitors.MonitorType.__dict__["Persistent"]
-            eventType = monitors.EventType.__dict__[eventType]
+            eventTypes = [ monitors.EventType.__dict__["Create"], monitors.EventType.__dict__["Modify"] ]
             pathMode = monitors.PathMode.__dict__[pathMode]
-            serverId = fsServer.createMonitor(monitorType, eventType, pathMode, dropBoxBase, list(config.fileTypes),  [], mClientProxy, 0.0, True)
+            serverId = fsServer.createMonitor(monitorType, eventTypes, pathMode, dropBoxBase, list(config.fileTypes),  [], mClientProxy, 0.0, True)
 
             mClient.setId(serverId)
             mClient.setServerProxy(fsServer)

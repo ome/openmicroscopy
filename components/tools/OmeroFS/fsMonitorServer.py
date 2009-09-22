@@ -58,7 +58,7 @@ class MonitorServerI(monitors.MonitorServer):
         Methods published in the slice interface omerofs.ice
     
     """
-    def createMonitor(self, mType, eType, pMode, pathString, whitelist, blacklist, proxy, timeout, ignoreSysFiles, current=None):
+    def createMonitor(self, mType, eTypes, pMode, pathString, whitelist, blacklist, proxy, timeout, ignoreSysFiles, current=None):
         """
             Create a the Monitor for a given path.
         
@@ -66,8 +66,8 @@ class MonitorServerI(monitors.MonitorServer):
                 mType : 
                     The type of monitor.
                     
-                eType : 
-                    The event type to be monitored.          
+                eTypes : 
+                    A list of the event types to be monitored.          
                     
                 pathString : string
                     A string representing a path to be monitored.
@@ -99,7 +99,7 @@ class MonitorServerI(monitors.MonitorServer):
         monitorId = self._getNextMonitorId()
 
         try:
-            self.monitors[monitorId] = MonitorFactory.createMonitor(mType, eType, pMode, pathString, whitelist, blacklist, timeout, ignoreSysFiles, self, monitorId)
+            self.monitors[monitorId] = MonitorFactory.createMonitor(mType, eTypes, pMode, pathString, whitelist, blacklist, timeout, ignoreSysFiles, self, monitorId)
         except Exception, e:
             log.exception('Failed to create monitor: ')
             raise monitors.OmeroFSError('Failed to create monitor: ' + str(e))       
