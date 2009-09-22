@@ -97,7 +97,7 @@ class DropBox(Ice.Application):
 
             mClientProxy = monitors.MonitorClientPrx.checkedCast(adapter.createProxy(identity))
             monitorType = monitors.MonitorType.__dict__["Persistent"]
-            eventTypes = [ monitors.EventType.__dict__["Create"], monitors.EventType.__dict__["Modify"] ]
+            eventTypes = [ monitors.WatchEventType.__dict__["Creation"], monitors.WatchEventType.__dict__["Modification"] ]
             pathMode = monitors.PathMode.__dict__[pathMode]
             serverId = fsServer.createMonitor(monitorType, eventTypes, pathMode, dropBoxBase, list(config.fileTypes),  [], mClientProxy, 0.0, True)
 
