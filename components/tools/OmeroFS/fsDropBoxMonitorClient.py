@@ -23,8 +23,8 @@ import IceGrid
 import Glacier2
 
 from omero.grid import monitors
-from omero.util import make_logname
-from omero.util.decorators import remoted
+from omero.util import make_logname, internal_service_factory, Resources, SessionHolder
+from omero.util.decorators import remoted, locked
 from omero.util.import_candidates import as_dictionary
 
 import fsConfig as config
@@ -35,15 +35,15 @@ class MonitorState(object):
     instance.
     """
 
+    class Entry(object):
+        def __init__(self, seq, timer):
+            self.seq = seq
+            self.timer = timer
+
     def __init__(self):
         self.log = logging.getLogger(make_logname(self))
         self._lock = threading.RLock()
-        #: dictionary of files onHold
-        self.__onHold = {}
-        self.__ometifHold = {}
-        #: list of new directories yet to be imported.
-        self.__newDirFiles = {}
-        self.__newDirTimers = {}
+        self.__data = {}
 
     def checkKey(self, key):
         if not isinstance(key, str):
@@ -51,39 +51,71 @@ class MonitorState(object):
             key = str(key)
         return key
 
-    def update(self, fileSets):
+    def update(self, data, wait, callback, argsList):
         """
         Central MonitorState method which takes a fileSet dictionary as returned
         from omero.utils.import_candidates.as_dictionary and updates the internal state
         """
-        for fileKey, fileSet in fileSets.items():
-            fileKey = self.checkKey(fileKey)
+        for key, seq in data.items():
+            key = self.checkKey(key)
 
             # Update
-            exists = fileKey in self.__newDirFiles
+            exists = key in self.__data
             if exists:
-                if len(fileSet) == 0:
-                    raise exceptions.Exception("NYI")
-                raise exceptions.Exception("NYI")
-                # Cancel and "restart" the Timer.
-                if self.__newDirTimers[fileIn].isAlive():
-                    self.__newDirTimers[fileIn].cancel()
-                self.log.info("Revised set on %s contains %d files", fileIn, len(self.newDirFiles[fileIn]) )
+                s = self.__data[key]
+                if len(seq) == 0:
+                    self.clear(key, s)
+                else: # True
+                    s.seq = seq
+                    self.log.info("Revised entry %s contains %d file(s)", key, len(seq))
 
             # Insert
             else:
-                if len(fileSet) == 0:
+                if len(seq) == 0:
+                    self.log.info("Not adding entry %s with no data", key)
                     return # Nothing to do
                 else:
-                    self.__newDirFiles[fileKey] = fileSet
-                    self.__addDirTimer(fileId, self.dirImportWait, self.importDirectory, [fileKey])
-                    self.log.info("New set on %s contains %d files", key, len(fileSet))
+                    timer = threading.Timer(wait, callback, argsList)
+                    entry = MonitorState.Entry(seq, timer)
+                    self.__data[key] = entry
+                    timer.start()
+                    self.log.info("New entry %s contains %d file(s)", key, len(seq))
+    update = locked(update)
 
-    def __addDirTimer(self, key, dirImportWait, callback, args):
-        key = self.checkKey(key)
-        timer = threading.Timer(dirImportWait, callback, args)
-        timer.start()
-        self.__newDirTimers[key] = timer
+    def clear(self, key, s = None, cancel = True):
+        """
+        Used to remove all references to a given key. If s is passed in, then this is
+        assumed to be the data in the dictionary to prevent a further lookup.
+        """
+        if cancel:
+            if s is None:
+                try:
+                    s = self.__data[key]
+                except KeyError:
+                    self.log.warn("Can't find key for clear: %s", key)
+
+            if s.timer.isAlive():
+                    try:
+                        s.timer.cancel()
+                    except:
+                        self.log.warn("Failed to stop timer: %s", s.timer)
+            else:
+                self.log.warn("Timer not alive: %s", s.timer)
+
+        del self.__data[key]
+        self.log.info("Removed key %s" % key)
+    clear = locked(clear)
+
+    def stop(self):
+        """
+        Shutdown this instance
+        """
+        try:
+            for k,s in self.__data.items():
+                self.clear(k,s)
+        finally:
+            del self.__data
+    stop = locked(stop)
 
 
 class MonitorClientI(monitors.MonitorClient):
@@ -95,14 +127,22 @@ class MonitorClientI(monitors.MonitorClient):
 
     """
 
-    def __init__(self, getUsedFiles = as_dictionary):
+    def __init__(self, getUsedFiles = as_dictionary, getRoot = internal_service_factory):
         """
             Intialise the instance variables.
 
         """
-        self.getUsedFiles = getUsedFiles
         self.log = logging.getLogger(make_logname(self))
+
+        # Overriding methods to allow for simpler testing
+        self.getUsedFiles = getUsedFiles
+        self.getRoot = getRoot
+
+        # Threading primitives
         self.state = MonitorState()
+        self.resources = Resources()
+        self.checkRoot()
+
         self.master = None
         #: Reference back to FSServer.
         self.serverProxy = None
@@ -111,6 +151,13 @@ class MonitorClientI(monitors.MonitorClient):
         self.dirImportWait = 0
         #: Id
         self.id = ''
+
+    def stop(self):
+        """
+        Shutdown this servant
+        """
+        # TODO: should probably stop root session here
+        self.state.stop()
 
     def fsEventHappened(self, monitorid, eventList, current=None):
         """
@@ -145,18 +192,23 @@ class MonitorClientI(monitors.MonitorClient):
         if self.id != monitorid:
             self.warnAndThrow(omero.ApiUsageException(), "Unknown fs server id: %s", monitorid)
 
+        self.log.info("EVENT_RECORD::%s::%s::%s::%s" % ("Cookie", time.time(), "Batch", ""))
+
         for fileInfo in eventList:
 
             fileId = fileInfo.fileId
             if not fileId:
                 self.warnAndThrow(omero.ApiUsageException(), "Empty fieldId")
 
-            self.log.info("EVENT_RECORD::%s::%s::%s" % (time.time(), fileInfo.type, fileId))
+            self.log.info("EVENT_RECORD::%s::%s::%s::%s" % ("Cookie", time.time(), fileInfo.type, fileId))
 
             # Creation or modification handled by state/timeout system
             if self.handledByState(fileId):
                 fileSet = self.getUsedFiles(fileId)
-                self.state.update(fileSet)
+                if fileSet:
+                    exName = self.getExperimenterFromPath(fileId)
+                    if exName:
+                        self.state.update(fileSet, self.dirImportWait, self.importFileWrapper, [fileId, exName])
 
             # New file at the top level.
             else:
@@ -267,25 +319,18 @@ class MonitorClientI(monitors.MonitorClient):
             case no import should take place.
         """
 
+        fileId = pathModule.path(fileId)
         exName = None
-        fileParts = pathModule.path(fileId).splitall()
-        try:
-            base = fileParts.index(self.dropBoxDir)
-            exName = fileParts[base+2]
-        except exceptions.Exception, e:
-            if isinstance(e, IndexError) or isinstance(e, ValueError):
-                self.errAndThrow(omero.InternalException(), "Monitor directory improperly configured: %s", self.dropBoxDir)
-            else:
-                raise
-
-        try:
-            # The following line throws an exception if the file is
-            # a level or more below the experimenter name level
-            fileParts[base+3]
-        except IndexError:
-            self.log.info("File added not at user level directory: %s" % fileId)
+        parpath = fileId.parpath(self.dropBoxDir)
+        if parpath and len(parpath) >= 2:
+            fileParts = fileId.splitall()
+            i = -1 * len(parpath)
+            fileParts = fileParts[i:]
+            if len(fileParts) >= 3:
+                exName = fileParts[1]
+        if not exName:
+            self.log.info("File added outside user directories: %s" % fileId)
         return exName
-
 
     def importAnyway(self, fileName, exName):
         """
@@ -304,104 +349,126 @@ class MonitorClientI(monitors.MonitorClient):
         self.log.info("No primary file has appeared, ignoring accompanying file %s for user %s", fileName, exName)
         self.onHold.pop((fileName, exName))
 
-    def importDirectory(self, dirName):
+    def checkRoot(self):
         """
-            Import a directory.
-
-            Clear it from the new directory list.
-
+        Checks that
         """
-        exName = self.getExperimenterFromPath(dirName)
-        if exName:
-            self.newDirs.discard(dirName)
-            self.newDirFiles.pop(dirName, True)
-            self.newDirTimers.pop(dirName, True)
-            self.importFile(dirName, exName)
+        has = bool(self.root)
+        if has:
+            try:
+                self.root.keepAlive(None)
+            except:
+                has = False
+        if not has:
+            self.root = self.getRoot()
+            if self.root:
+                self.resources.add(SessionHolder(self.root))
+
+    def loginUser(self, exName):
+        """
+        Logins in the given user and returns the client
+        """
+        self.checkRoot()
+        if not self.root:
+            self.log.error("No connection")
+            return None
+
+        p = omero.sys.Principal()
+        p.name  = exName
+        p.group = "user"
+        p.eventType = "User"
+
+        try:
+            exp = self.root.getAdminService().lookupExperimenter(exName)
+            sess = root.sf.getSessionService().createSessionWithTimeout(p, 60000L)
+            client = omero.client(config.host, config.port)
+            user_sess = client.createSession(sess.uuid, sess.uuid)
+            return client
+        except omero.ApiUsageException:
+            self.log.info("User unknown: %s", exName)
+            return None
+        except:
+            self.log.exception("Unknown exception during loginUser")
+            return None
+
+
+    def importFileWrapper(self, fileName, exName):
+        """
+        Wrapper method which allows plugging error handling code around
+        the main call to importFile. In all cases, the key will be removed
+        on execution.
+        """
+        self.state.clear(fileName, False, False)
+        self.importFile(fileName, exName)
 
     def importFile(self, fileName, exName):
         """
             Import file or directory using 'bin/omero importer'
-
+            This method is solely responsible for logging the user in,
+            attempting (possibly multiply) an import, logging and
+            throwing an exception if necessary.
         """
+
+        client = self.loginUser(exName)
+        if not client:
+            self.log.info("File not imported: %s", fileName)
+            return
+
         try:
-            ic = Ice.initialize(["--Ice.Config=etc/internal.cfg"])
-            query = ic.stringToProxy("IceGrid/Query")
-            query = IceGrid.QueryPrx.checkedCast(query)
-            blitz = query.findAllObjectsByType("::Glacier2::SessionManager")[0]
-            blitz = Glacier2.SessionManagerPrx.checkedCast(blitz)
-            sf = blitz.create("root", None, {"omero.client.uuid":str(uuid.uuid1())})
-            sf = omero.api.ServiceFactoryPrx.checkedCast(sf)
-            sf.detachOnDestroy()
-            sf.destroy()
-            sessionUuid = sf.ice_getIdentity().name
+            key = user_sess.getAdminService().getEventContext().sessionUuid
+            self.log.info("Importing file using session key = %s", key)
 
-            root = omero.client(config.host, config.port)
-            root.joinSession(sessionUuid)
+            if platform.system() == 'Windows':
+                # Windows requires bin/omero to be bin\omero
+                climporter = config.climporter.replace('/','\\')
+                # Awkward file names not yet handled.
+                command = [climporter,
+                            " -s " + config.host,
+                            " -k " + key,
+                            " " + "'" + fileName + "'" ]
+                self.log.info("Windows command %s", str(command))
 
-            exp = root.sf.getAdminService().lookupExperimenter(exName)
-            if exName == exp._omeName._val:
-                p = omero.sys.Principal()
-                p.name  = exName
-                p.group = "user"
-                p.eventType = "Test"
+            else:
+                climporter = config.climporter
+                # Wrap filename in single quotes, escape any ' characters first.
+                # This deals with awkward file names (spaces, quotes, etc.)
+                fileName = "'" + fileName.replace("'", r"'\''") + "'"
+                command = [climporter +
+                            " -s " + config.host +
+                            " -k " + key +
+                            " " + fileName]
 
-                sess = root.sf.getSessionService().createSessionWithTimeout(p, 60000L)
+            process = sp.Popen(command, stdout=sp.PIPE, stderr=sp.PIPE, shell=True)
+            output = process.communicate()
+            retCode = process.returncode
 
-                client = omero.client(config.host, config.port)
-                user_sess = client.createSession(sess.uuid, sess.uuid)
-
-                key = user_sess.getAdminService().getEventContext().sessionUuid
-                self.log.info("Importing file using session key = %s", key)
-
-                if platform.system() == 'Windows':
-                    # Windows requires bin/omero to be bin\omero
-                    climporter = config.climporter.replace('/','\\')
-                    # Awkward file names not yet handled.
-                    command = [climporter,
-                                " -s " + config.host,
-                                " -k " + key,
-                                " " + "'" + fileName + "'" ]
-                    self.log.info("Windows command %s", str(command))
-
-                else:
-                    climporter = config.climporter
-                    # Wrap filename in single quotes, escape any ' characters first.
-                    # This deals with awkward file names (spaces, quotes, etc.)
-                    fileName = "'" + fileName.replace("'", r"'\''") + "'"
-                    command = [climporter +
-                                " -s " + config.host +
-                                " -k " + key +
-                                " " + fileName]
-
+            if retCode == 2:
+                # The file still being in use is one possible cause of retCode == 2 under
+                # Windows. At the moment it is impossible to know for sure so try once
+                # more and then log a failure. A better strategy may be possible with
+                # more error information passed on by bin/omero
+                self.log.warn("Import failed, possible cause file locking. Trying once more.")
+                self.log.info("Importing file using command = %s", command[0])
                 process = sp.Popen(command, stdout=sp.PIPE, stderr=sp.PIPE, shell=True)
                 output = process.communicate()
                 retCode = process.returncode
 
-                if retCode == 2:
-                    # The file still being in use is one possible cause of retCode == 2 under
-                    # Windows. At the moment it is impossible to know for sure so try once
-                    # more and then log a failure. A better strategy may be possible with
-                    # more error information passed on by bin/omero
-                    self.log.warn("Import failed, possible cause file locking. Trying once more.")
-                    self.log.info("Importing file using command = %s", command[0])
-                    process = sp.Popen(command, stdout=sp.PIPE, stderr=sp.PIPE, shell=True)
-                    output = process.communicate()
-                    retCode = process.returncode
-
-                if retCode == 0:
-                    self.log.info("Import completed on session key = %s", key)
-                else:
-                    self.log.error("Import completed on session key = %s, return code = %s", key, str(retCode))
-                    self.log.error("***** start of output from importer-cli to stderr *****")
-                    for line in output[1].split('\n'):
-                        self.log.error(line)
-                    self.log.error("***** end of output from importer-cli *****")
-
+            if retCode == 0:
+                self.log.info("Import completed on session key = %s", key)
             else:
-                self.log.info("File not imported: user unknown: %s", exName)
+                self.log.error("Import completed on session key = %s, return code = %s", key, str(retCode))
+                self.log.error("***** start of output from importer-cli to stderr *****")
+                for line in output[1].split('\n'):
+                    self.log.error(line)
+                self.log.error("***** end of output from importer-cli *****")
 
-        except:
-            raise
+        finally:
+            client.closeSession()
+            del client
+
+    #
+    # Setters
+    #
 
     def dummyImportFile(self, fileName, exName):
         """

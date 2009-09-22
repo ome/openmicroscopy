@@ -138,10 +138,10 @@ def with_driver(func, errors = 0):
     """ Decorator for running a test with a Driver """
     def handler(*args, **kwargs):
         self = args[0]
-        self.dir = path(tempfile.gettempdir()) / "test-omero" / str(uuid4())
+        self.dir = path(tempfile.gettempdir()) / "test-omero" / str(uuid4()) / "DropBox"
         self.simulator = Simulator(self.dir)
         self.client = MockMonitor(pre=[self.simulator], post=[])
-        self.client.setDropBoxDir(self.dir / "DropBox")
+        self.client.setDropBoxDir(self.dir)
         self.driver = Driver(self.client)
         rv = func(*args, **kwargs)
         self.assertEquals(errors, len(self.driver.errors))
@@ -162,26 +162,13 @@ class Simulator(monitors.MonitorClient):
         self.dir = path(dir)
         self.log = logging.getLogger("Simulator")
 
-    def isrelto(self, p):
-        """
-        Checks if this path is relative to (i.e. within)
-        the given directory.
-        """
-        p = path(p)
-        rel = p.relpathto(self.dir)
-        dots = rel.split(os.sep)
-        for dot in dots:
-            if os.pardir != dot:
-                return False
-        return True
-
     def fsEventHappened(self, monitorid, eventList, current = None):
         # enum EventType { Create, Modify, Delete, MoveIn, MoveOut, All, System };
         for event in eventList:
             fileid = event.fileId
             file = path(fileid)
-            if not self.isrelto(file):
-                raise exceptions.Exception("%s is not in %s" % (id, self.dir))
+            if not file.parpath(self.dir):
+                raise exceptions.Exception("%s is not in %s" % (file, self.dir))
             if monitors.EventType.Create == event.type:
                 if file.exists():
                     raise exceptions.Exception("%s already exists" % file)
@@ -228,19 +215,33 @@ class MockMonitor(MonitorClientI):
     Mock Monitor Client which can also delegate to other clients.
     """
     def __init__(self, pre = [], post = []):
-        MonitorClientI.__init__(self, getUsedFiles = self.used_files)
+        self.root = None
+        MonitorClientI.__init__(self, getUsedFiles = self.used_files, getRoot = self.get_root)
         self.log = logging.getLogger("MockMonitor")
         self.events = []
+        self.files = {}
         self.pre = list(pre)
         self.post = list(post)
-        self.files = {}
-    def used_files(self, *args, **kwargs):
-        self.log.info("getUsedFiles(%s, %s)=>%s", args, kwargs, self.files)
-        if isinstance(self.files, exceptions.Exception):
-            raise self.files
+
+    def fake_meth(self, name, rv, *args, **kwargs):
+        self.log.info("%s(%s, %s)=>%s", name, args, kwargs, rv)
+        if isinstance(rv, exceptions.Exception):
+            raise rv
         else:
-            return self.files
+            return rv
+
+    def used_files(self, *args, **kwargs):
+        return self.fake_meth("getUsedFiles", self.files, *args, **kwargs)
+
+    def get_root(self, *args, **kwargs):
+        return self.fake_meth("getRoot", self.root, *args, **kwargs)
+
     def fsEventHappened(self, monitorid, eventList, current = None):
+        """
+        Dispatches the event first to pre, then to the true implementation
+        and finally to the post monitor clients. This allows for Simulator
+        or similar to set the event up properly.
+        """
         self.events.extend(eventList)
         for client in self.pre:
             client.fsEventHappened(monitorid, eventList, current)

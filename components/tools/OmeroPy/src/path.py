@@ -17,15 +17,19 @@ Date:    9 Mar 2007
 +------------------------------------------------------------------------------------+
 Added by Colin Blackburn 17 Jun 2009
 
-The above url is dead and development of path.py has ceased. This copy of path.py 
+The above url is dead and development of path.py has ceased. This copy of path.py
 is  now maintained by the OMERO developers.
 
 Fo reference, the original package is now available from:
 http://pypi.python.org/pypi/path.py/2.2
 
 Notes:
-The functionality of the method read_md5() has been removed from this copy. 
-This is due to the changes in the hash libraries between Python 2.4 and 2.5.
+
+ * The functionality of the method read_md5() has been removed from this copy.
+   This is due to the changes in the hash libraries between Python 2.4 and 2.5.
+
+ * Added parpath (2009/09/21)
+
 """
 
 
@@ -286,6 +290,28 @@ class path(_base):
         """
         cwd = self.__class__(os.getcwd())
         return cwd.relpathto(self)
+
+    def parpath(self, dest):
+        """
+        Return the command to move up the directory hierarchy
+        from the current path to the dest path. This method
+        can be used to test if one path object is contained
+        within another:
+
+            p1 = path.path("/tmp)
+            p2 = path.path("/tmp/foo")
+            if p2.parpath(p1):
+                print "p2 is contained in p1"
+
+        This method does not follow symlinks.
+        """
+        dest = self.__class__(dest)
+        rel = self.relpathto(dest)
+        dots = rel.split(os.sep)
+        for dot in dots:
+            if os.pardir != str(dot) and os.curdir != str(dot):
+                return []
+        return dots
 
     def relpathto(self, dest):
         """ Return a relative path from self to dest.

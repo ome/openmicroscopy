@@ -111,16 +111,22 @@ class DropBox(Ice.Application):
         except:
             log.exception("Failed to access proxy : \n")
             return -1
-            
-        log.info('Started OMERO.fs DropBox client')        
+
+        log.info('Started OMERO.fs DropBox client')
         self.communicator().waitForShutdown()
+
+        try:
+            if mClient != None:
+                mClient.stop()
+        except:
+            log.warn("Failed to stop MonitorClient")
 
         try:
             fsServer.stopMonitor(id)
             fsServer.destroyMonitor(id)
         except:
             log.info('Unable to contact FS Server, must have been stopped already.')
-            
+
         log.info('Stopping OMERO.fs DropBox client')
         return 0
 
@@ -132,7 +138,7 @@ if __name__ == '__main__':
         log.exception("Failed to start the client:\n")
         log.info("Exiting with exit code: -1")
         sys.exit(-1)
-        
+
     exitCode = app.main(sys.argv)
     log.info("Exiting with exit code: %d", exitCode)
     sys.exit(exitCode)
