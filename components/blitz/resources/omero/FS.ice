@@ -75,7 +75,7 @@ module monitors {
      *
      * Not all event types may be implemented for a given operating system.
      **/
-     enum WatchEventType { Create, Modify, Delete, All }; /* MoveIn, MoveOut, (removed from interface at present) */
+     enum WatchEventType { Creation, Modification, Deletion, All }; /* MoveIn, MoveOut, (removed from interface at present) */
 
     /**
      * Enumeration for Monitor state.
@@ -105,7 +105,7 @@ module monitors {
 
     /* SEQUENCES */
 
-    sequence<WatchEventList> WatchEventType;
+    sequence<WatchEventType> WatchEventList;
 
     /*
      *   Interface declarations
