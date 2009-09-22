@@ -142,13 +142,16 @@ def with_driver(func, errors = 0):
         self.dir = path(tempfile.gettempdir()) / "test-omero" / str(uuid4()) / "DropBox"
         self.simulator = Simulator(self.dir)
         self.client = MockMonitor(pre=[self.simulator], post=[])
-        self.client.setDropBoxDir(self.dir)
-        self.driver = Driver(self.client)
-        rv = func(*args, **kwargs)
-        self.assertEquals(errors, len(self.driver.errors))
-        for i in range(errors):
-            self.driver.errors.pop()
-        return rv
+        try:
+            self.client.setDropBoxDir(self.dir)
+            self.driver = Driver(self.client)
+            rv = func(*args, **kwargs)
+            self.assertEquals(errors, len(self.driver.errors))
+            for i in range(errors):
+                self.driver.errors.pop()
+            return rv
+        finally:
+            self.client.stop()
     return wraps(func)(handler)
 
 

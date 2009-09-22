@@ -250,8 +250,19 @@ class MonitorClientI(monitors.MonitorClient):
         """
         Shutdown this servant
         """
-        # TODO: should probably stop root session here
-        self.state.stop()
+        try:
+            if self.state: self.state.stop()
+            self.state = None
+        except:
+            self.log.exception("Error stopping state")
+        try:
+            if self.resources: self.resources.cleanup()
+            self.resources = None
+        except:
+            self.log.exception("Error cleaning resources")
+
+    def __del__(self):
+        self.stop()
 
     #
     # Called by server threads.
