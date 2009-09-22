@@ -181,6 +181,15 @@ class MonitorClientI(monitors.MonitorClient):
 
         """
         self.log = logging.getLogger(make_logname(self))
+        self.root = None
+        self.master = None
+        #: Reference back to FSServer.
+        self.serverProxy = None
+        self.selfProxy = None
+        self.dropBoxDir = None
+        self.dirImportWait = 0
+        #: Id
+        self.id = ''
 
         # Overriding methods to allow for simpler testing
         self.getUsedFiles = perf(getUsedFiles)
@@ -190,15 +199,6 @@ class MonitorClientI(monitors.MonitorClient):
         self.state = MonitorState()
         self.resources = Resources()
         self.checkRoot()
-
-        self.master = None
-        #: Reference back to FSServer.
-        self.serverProxy = None
-        self.selfProxy = None
-        self.dropBoxDir = None
-        self.dirImportWait = 0
-        #: Id
-        self.id = ''
 
     def stop(self):
         """
