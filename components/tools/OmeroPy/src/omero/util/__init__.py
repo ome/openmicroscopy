@@ -18,6 +18,7 @@ import Glacier2
 import threading
 import exceptions
 import logging.handlers
+import omero.util.concurrency
 
 LOGDIR = os.path.join("var","log")
 LOGFORMAT =  """%(asctime)s %(levelname)-5s [%(name)40s] (%(threadName)-10s) %(message)s"""
@@ -271,12 +272,13 @@ class Task(threading.Thread):
     default.
     """
 
-    def __init__(self, sleeptime, task):
+    def __init__(self, event, sleeptime, task):
 
         if sleeptime < 5:
             raise exceptions.Exception("Sleep time should be greater than 5")
 
         threading.Thread.__init__(self)
+        self.event = event
         self.sleeptime = sleeptime
         self.task = task
         self.exit = False
@@ -290,34 +292,10 @@ class Task(threading.Thread):
             except:
                 self.logger.warning("Exception on task", exc_info = True)
             self.logger.debug("Sleeping")
-            self.sleep()
+            self.event.wait(self.sleeptime)
+            if self.event.isSet():
+                break
         self.logger.info("Stopping")
-
-    def sleep(self):
-        try:
-            start = time.time()
-            while True:
-                elapsed = time.time() - start
-                if elapsed > self.sleeptime or self.exit:
-                    break
-                time.sleep(5)
-        except exceptions.Exception, ex:
-            # Ignoring since this is due to shutdown weirdness: ticket:1450
-            if isinstance(ex, AttributeError) and ex[0].startswith("'NoneType'"):
-                pass
-            else:
-                raise
-
-    def stop(self, wait = True):
-        """
-        Should be called by another thread.
-        """
-        self.logger.info("Stop called")
-        self.exit = True
-        if wait:
-            self.logger.info("Waiting on task")
-            self.join()
-            self.logger.info("Stopped")
 
 
 class Resources:
@@ -338,6 +316,7 @@ class Resources:
 
         self.logger = logging.getLogger("omero.util.Resources")
         self.logger.info("Starting")
+        self.stop_event = omero.util.concurrency.get_event()
 
         self.stuff = []
         def task():
@@ -351,7 +330,7 @@ class Resources:
                 self.logger.info("Removing %s" % r[0])
                 self.stuff.remove(r)
 
-        self.thread = Task(sleeptime, task)
+        self.thread = Task(self.stop_event, sleeptime, task)
         self.thread.start()
 
     def add(self, object, cleanupMethod = "cleanup", checkMethod = "check"):
@@ -369,7 +348,7 @@ class Resources:
         """
         lock = threading.RLock()
         lock.acquire()
-        self.thread.stop(wait=False)
+        self.stop_event.set()
         try:
             for m in self.stuff:
                 try:
@@ -383,8 +362,9 @@ class Resources:
             self.logger.info("Stopping")
         finally:
             lock.release()
-            self.thread.stop(wait=True)
-            self.logger.info("Stopped")
+
+    def __del__(self):
+        self.cleanup()
 
 class SessionHolder(object):
     """
