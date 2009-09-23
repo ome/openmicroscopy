@@ -403,7 +403,7 @@ module monitors {
         idempotent Ice::ByteSeq readBlock(string fileId, long offset, int size)
             throws omero::OmeroFSError;
 
-    }; // end interface MonitorServer
+    }; /* end interface MonitorServer */
 
 
     /*
@@ -445,9 +445,10 @@ module monitors {
     sequence<EventInfo> EventList;
 
 
-    //
-    //  Interface declaration
-    //  =====================
+    /**
+     *  Interface declaration
+     *  =====================
+     **/
 
     /**
      *  This interface must be implemented by a client that
@@ -464,7 +465,7 @@ module monitors {
          **/
         void fsEventHappened(string id, EventList el) throws omero::ServerError;
 
-    }; // end interface MonitorClient
+    }; /* end interface MonitorClient */
 
 }; /* end module monitors */
 }; /* end module grid */
