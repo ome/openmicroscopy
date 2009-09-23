@@ -64,6 +64,7 @@ import ome.formats.importer.util.IniFileLoader;
 import ome.formats.importer.util.LogAppenderProxy;
 import ome.formats.importer.util.ErrorHandler.EXCEPTION_EVENT;
 import ome.formats.importer.util.ErrorHandler.FILE_EXCEPTION;
+import ome.formats.importer.util.ErrorHandler.INTERNAL_EXCEPTION;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -715,7 +716,7 @@ public class GuiImporter extends JFrame
             appendToOutputLn("> [" + ev.filename + "] Image imported successfully!");
         }
         
-        if (event instanceof EXCEPTION_EVENT)
+        if (event instanceof FILE_EXCEPTION)
         {
             FILE_EXCEPTION ev = (FILE_EXCEPTION) event;
             if (IOException.class.isAssignableFrom(ev.exception.getClass())) {
@@ -737,6 +738,13 @@ public class GuiImporter extends JFrame
                 dialog.setVisible(true);
                 
             }
+        }
+        
+        if (event instanceof INTERNAL_EXCEPTION) 
+        {
+            INTERNAL_EXCEPTION e = (INTERNAL_EXCEPTION) event;
+            log.error("INTERNAL_EXCEPTION", e.exception);
+            // What else should we do here?
         }
         
         
