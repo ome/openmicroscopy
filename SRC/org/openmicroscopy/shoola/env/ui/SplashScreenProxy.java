@@ -222,5 +222,11 @@ class SplashScreenProxy
 		//Now we can safely wait for the user to enter their credentials.
 		return (UserCredentials) future.get(); 
 	}
+
+	/**
+	 * Implemented as specified by {@link SplashScreen}.
+	 * @see SplashScreen#onLoginFailure()
+	 */
+	public void onLoginFailure() { servant.onLoginFailure(); }
 	
 }

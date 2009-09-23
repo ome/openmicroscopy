@@ -172,6 +172,7 @@ public final class SplashScreenInit
 				case LoginService.NOT_CONNECTED:
 					if (max != 0) {
 						loginSvc.notifyLoginFailure();
+						splashScreen.onLoginFailure();
 		        	} else if (max == 0) {
 		        		//Exit if we couldn't manage to log in.
 		        		 un.notifyError("Login Failure", 

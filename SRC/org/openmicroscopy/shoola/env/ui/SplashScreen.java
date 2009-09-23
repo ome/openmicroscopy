@@ -103,4 +103,7 @@ public interface SplashScreen
 	 */
 	public UserCredentials getUserCredentials(boolean init);
 	
+	/** Notifies a login failure occurred. */
+	public void onLoginFailure();
+
 }

@@ -92,7 +92,7 @@ public class ScreenLogin
 	/** Identifies the user name field. */
 	public static final int			USERNAME_FIELD = 0;
 	
-	/** Identifies the passwrod field. */
+	/** Identifies the password field. */
 	public static final int			PASSWORD_FIELD = 1;
 	
 	/** Default text if no server. */
@@ -194,8 +194,15 @@ public class ScreenLogin
 		StringBuffer buf = new StringBuffer();
 		buf.append(pass.getPassword());
 		String usr = user.getText().trim(), psw = buf.toString();
-		if (usr != null) usr = usr.trim();
 		String s = serverText.getText();
+		if (usr == null || usr.length() == 0 ||
+				psw == null || psw.length() == 0 ||
+				s == null || s.trim().length() == 0 ||
+				s.trim().equals(DEFAULT_SERVER)) {
+			requestFocusOnField();
+			return;
+		}
+		if (usr != null) usr = usr.trim();
 		if (s != null) s = s.trim();
 		setControlsEnabled(false);
 		LoginCredentials lc = new LoginCredentials(usr, psw, s, speedIndex, 
@@ -553,7 +560,7 @@ public class ScreenLogin
 			}
 			login.setForeground(defaultForeground);
 		} else {
-			login.removeActionListener(this);
+			//login.removeActionListener(this);
 			login.setForeground(FOREGROUND_COLOR);
 		}
 	}

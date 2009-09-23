@@ -145,7 +145,9 @@ class SplashScreenManager
     {
     	if (view != null) view.setAlwaysOnTop(true);
     	viewTop.setAlwaysOnTop(true); 
-    	if (view != null) view.requestFocusOnField();
+    	if (view != null) {
+    		view.requestFocusOnField();
+    	}
     }
     
     /** Initializes the view. */
@@ -317,6 +319,12 @@ class SplashScreenManager
         if (view != null) view.setControlsEnabled(true);
     }
 
+    void onLoginFailure()
+    {
+    	 view.setControlsEnabled(true);
+         updateView();
+    }
+    
 	/**
 	 * Reacts to property changes fired by the {@link ScreenLogin} and
 	 * {@link ScreenLogo}.
@@ -355,7 +363,7 @@ class SplashScreenManager
 	}
 
 	/**
-	 * Resests the flag when one of the windows loses focus.
+	 * Resets the flag when one of the windows loses focus.
 	 * @see WindowFocusListener#windowLostFocus(WindowEvent)
 	 */
 	public void windowLostFocus(WindowEvent e)
