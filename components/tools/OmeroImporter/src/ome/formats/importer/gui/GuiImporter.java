@@ -165,7 +165,10 @@ public class GuiImporter extends JFrame
 
         // Add a shutdown hook for when app closes
         Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() { shutdown(); }
+            public void run() {
+                log.debug("Running shutdown hook.");
+                shutdown();
+                }
         });
         
         // Set app defaults
@@ -365,6 +368,7 @@ public class GuiImporter extends JFrame
     // save ini file and gui settings on exist
     protected void shutdown()
     {
+        log.debug("Shutdown called");
         // Get and save the UI window placement
         try {
             config.setUIBounds(gui.getUIBounds());

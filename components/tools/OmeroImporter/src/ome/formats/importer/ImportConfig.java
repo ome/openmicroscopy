@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import ome.formats.Main;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.IniFileLoader;
 import ome.system.PreferenceContext;
@@ -89,71 +88,48 @@ public class ImportConfig {
     // are committed to disk.
     //
 
-    public final StrValue hostname = new StrValue("hostname", this,
-            "omero.host");
-    public final StrValue username = new StrValue("username", this,
-            "omero.name");
-    public final StrValue password = new StrValue("password", this,
-            "omero.pass");
-    public final IntValue port = new IntValue("port", this, 4063, "omero.port");
+    public final StrValue hostname;
+    public final StrValue username;
+    public final StrValue password;
+    public final IntValue port;
+    public final LongValue savedProject;
+    public final LongValue savedDataset;
+    public final LongValue savedScreen;
 
-    public final LongValue savedProject = new LongValue("savedProject", this,
-            0L);
-    public final LongValue savedDataset = new LongValue("savedDataset", this,
-            0L);
-    public final LongValue savedScreen = new LongValue("savedScreen", this, 0L);
+    public final StrValue sessionKey;
+    public final StrValue email;
+    public final StrValue serverList;
+    public final StrValue name;
+    public final StrValue description;
+    public final StrValue targetClass;
+    public final LongValue targetId;
 
-    public final StrValue sessionKey = new StrValue("session", this);
-    public final StrValue email = new StrValue("email", this);
-    public final StrValue serverList = new StrValue("serverList", this);
-    public final StrValue name = new StrValue("imageName", this);
-    public final StrValue description = new StrValue("imageDescription", this);
-    public final StrValue targetClass = new StrValue("targetClass", this);
-    public final LongValue targetId = new LongValue("targetId", this, 0);
+    public final BoolValue debug;
+    public final BoolValue contOnError;
+    public final BoolValue sendReport;
+    public final BoolValue sendFiles;
 
-    public final BoolValue debug = new BoolValue("debug", this, false);
-    public final BoolValue contOnError = new BoolValue("contOnError", this, false   );
-    public final BoolValue sendReport = new BoolValue("sendFiles", this, false);
-    public final BoolValue sendFiles = new BoolValue("sendFiles", this, false);
+    public final BoolValue useFullPath;
+    public final BoolValue savedFileNaming;
+    public final BoolValue overrideImageName;
+    public final IntValue numOfDirectories;
 
-    public final BoolValue useFullPath = new BoolValue("useFullPath", this, true);
-    public final BoolValue savedFileNaming = new BoolValue("savedFileNaming",
-            this, false);
-    public final BoolValue overrideImageName = new BoolValue(
-            "overrideImageName", this, false);
+    public final FileValue savedDirectory;
+    public final StrValue readersPath;
 
-    public final IntValue numOfDirectories = new IntValue("numOfDirectories",
-            this, 0);
-
-    public final FileValue savedDirectory = new FileValue("savedDirectory",
-            this);
-    public final StrValue readersPath = new StrValue("readersPath", this) {
-        @Override
-        public String get() {
-
-            if (super.get() == null) {
-                set(System.getProperty(READERS_KEY));
-            }
-
-            if (super.get() == null) {
-
-                if (ini != null) {
-                    String readersFile = ini.getUserSettingsDirectory()
-                            + File.separator + "importer_readers.txt";
-                    File rFile = new File(readersFile);
-                    if (rFile.exists()) {
-                        set(rFile.getAbsolutePath());
-                    }
-                }
-
-                if (super.get() == null) {
-                    set("importer_readers.txt");
-                }
-
-            }
-            return super.get();
+    /**
+     * Static method for creating {@link Preferences} during construction if
+     * necessary.
+     */
+    private static Preferences prefs() {
+        Preferences prefs = Preferences.userNodeForPackage(ImportConfig.class);
+        try {
+            prefs.flush();
+        } catch (Exception e) {
+            log.error("Error flushing preferences");
         }
-    };
+        return prefs;
+    }
 
     /**
      * Simplest constructor which use calls
@@ -174,9 +150,8 @@ public class ImportConfig {
      *            Can be null.
      */
     public ImportConfig(final File configFile) {
-        this(Preferences.userNodeForPackage(Main.class),
-                new PreferenceContext(), new IniFileLoader(configFile), System
-                        .getProperties());
+        this(prefs(), new PreferenceContext(), new IniFileLoader(configFile),
+                System.getProperties());
     }
 
     /**
@@ -190,16 +165,74 @@ public class ImportConfig {
     public ImportConfig(final Preferences prefs, PreferenceContext ctx,
             IniFileLoader ini, Properties props) {
 
+        log.debug(prefs);
         this.prefs = prefs;
-        this.ctx = ctx;
-        this.ini = ini;
         this.props = props;
+        this.ini = ini;
+        this.ctx = ctx;
+        this.ctx.afterPropertiesSet();
 
         // Various startup requirements
         isUpgradeRequired();
         if (ini != null) {
             ini.updateFlexReaderServerMaps();
         }
+
+        hostname = new StrValue("hostname", this, "omero.host");
+        username = new StrValue("username", this, "omero.name");
+        password = new StrValue("password", this, "omero.pass");
+        port = new IntValue("port", this, 4063, "omero.port");
+
+        savedProject = new LongValue("savedProject", this, 0L);
+        savedDataset = new LongValue("savedDataset", this, 0L);
+        savedScreen = new LongValue("savedScreen", this, 0L);
+
+        sessionKey = new StrValue("session", this);
+        email = new StrValue("email", this);
+        serverList = new StrValue("serverList", this);
+        name = new StrValue("imageName", this);
+        description = new StrValue("imageDescription", this);
+        targetClass = new StrValue("targetClass", this);
+        targetId = new LongValue("targetId", this, 0);
+
+        debug = new BoolValue("debug", this, false);
+        contOnError = new BoolValue("contOnError", this, false);
+        sendReport = new BoolValue("sendFiles", this, false);
+        sendFiles = new BoolValue("sendFiles", this, false);
+
+        useFullPath = new BoolValue("useFullPath", this, true);
+        savedFileNaming = new BoolValue("savedFileNaming", this, false);
+        overrideImageName = new BoolValue("overrideImageName", this, false);
+
+        numOfDirectories = new IntValue("numOfDirectories", this, 0);
+
+        savedDirectory = new FileValue("savedDirectory", this);
+        readersPath = new StrValue("readersPath", this) {
+            @Override
+            public String get() {
+
+                if (super.get() == null) {
+                    set(System.getProperty(READERS_KEY));
+                }
+
+                if (super.get() == null) {
+
+                    if (ini != null) {
+                        String readersFile = ini.getUserSettingsDirectory()
+                                + File.separator + "importer_readers.txt";
+                        File rFile = new File(readersFile);
+                        if (rFile.exists()) {
+                            set(rFile.getAbsolutePath());
+                        }
+                    }
+
+                    if (super.get() == null) {
+                        set("importer_readers.txt");
+                    }
+                }
+                return super.get();
+            }
+        };
 
     }
 
@@ -518,10 +551,18 @@ public class ImportConfig {
         public synchronized void store() {
             if (which instanceof Properties || which instanceof Preferences) {
                 prefs.put(key, toString());
+                log.debug("Saved " + key + " to " + prefs);
             } else if (which instanceof PreferenceContext) {
                 ctx.setProperty(key, toString());
+                log.debug("Saved " + key + " to " + ctx);
             } else if (which instanceof IniFileLoader) {
                 // FIXME ((IniFileLoader)which).set
+                log.debug("Saved " + key + " to " + ini);
+            } else if (which == null && prefs != null) { // Loaded from defaults
+                prefs.put(key, toString());
+                log.debug("Freshly saved " + key + " to " + prefs);
+            } else {
+                log.debug("WHICH:" + which); // Unknown state
             }
 
         }
@@ -537,6 +578,7 @@ public class ImportConfig {
                 set(fromString(props.getProperty(key)));
                 if (!empty()) {
                     which = props;
+                    log.debug("Loaded " + key + " from " + props);
                     return;
                 }
             }
@@ -548,6 +590,7 @@ public class ImportConfig {
                 }
                 if (!empty()) {
                     which = ctx;
+                    log.debug("Loaded " + key + " from " + ctx);
                     return;
                 }
             }
@@ -556,17 +599,20 @@ public class ImportConfig {
                 set(fromString(prefs.get(key, "")));
                 if (!empty()) {
                     which = prefs;
+                    log.debug("Loaded " + key + " from " + prefs);
                     return;
                 }
             }
 
             if (empty() && ini != null) {
                 // set(fromString((ini.getProperty(key));
+                log.debug("Loaded " + key + " from " + ini);
                 // break; FIXME
             }
 
             if (empty()) {
                 set(_default);
+                log.debug("Loaded " + key + " from default");
                 which = null;
             }
         }
@@ -623,6 +669,9 @@ public class ImportConfig {
 
         @Override
         protected Boolean fromString(String arg0) {
+            if (arg0 == null) {
+                return null;
+            }
             return Boolean.parseBoolean(arg0);
         }
     }
@@ -655,7 +704,11 @@ public class ImportConfig {
 
         @Override
         protected Long fromString(String arg0) {
-            return Long.valueOf(arg0);
+            try {
+                return Long.valueOf(arg0);
+            } catch (NumberFormatException nfe) {
+                return null;
+            }
         }
     }
 
@@ -666,6 +719,9 @@ public class ImportConfig {
 
         @Override
         protected File fromString(String arg0) {
+            if (arg0 == null) {
+                return null;
+            }
             return new File(arg0);
         }
 
