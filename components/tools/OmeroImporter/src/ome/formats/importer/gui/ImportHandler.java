@@ -154,7 +154,8 @@ public class ImportHandler {
                                 importContainer[i].file);
                     }
                 } catch (Exception e) {
-                    log.error("Generic error while updating progress.", e);
+                    log.error("Generic error while inserting history.", e);
+                    viewer.appendToDebug(e.toString());
                 }
             }
         }
@@ -284,13 +285,14 @@ public class ImportHandler {
 
                 } catch (Exception error) {
                     log.error("Generic error while importing image.", error);
+                    viewer.appendToDebug(error.toString());
                     qTable.setProgressFailed(j);
                     viewer.appendToOutputLn("> [" + j + "] Failure importing.");
 
                     files = importContainer[j].usedFiles;
                     String readerType = importContainer[j].reader;
 
-                    // FIXMEaddError(error, importContainer[j].file, files, readerType);
+                    //addError(error, importContainer[j].file, files, readerType);
 
                     if (importStatus < 0)
                         importStatus = -3;
