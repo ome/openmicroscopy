@@ -100,7 +100,7 @@ class DropBox(Ice.Application):
             eventTypes = [ monitors.WatchEventType.__dict__["Creation"], monitors.WatchEventType.__dict__["Modification"] ]
             pathMode = monitors.PathMode.__dict__[pathMode]
             serverId = fsServer.createMonitor(monitorType, eventTypes, pathMode, dropBoxBase, list(config.fileTypes),  [], mClientProxy, 0.0, True)
-
+            log.info("Created monitor with id = %s",str(serverId))
             mClient.setId(serverId)
             mClient.setServerProxy(fsServer)
             mClient.setSelfProxy(mClientProxy)

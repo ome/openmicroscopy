@@ -180,8 +180,9 @@ class MonitorClientI(monitors.MonitorClient):
             Intialise the instance variables.
 
         """
-        self.log = logging.getLogger(make_logname(self))
-	self.communicator = communicator
+        #self.log = logging.getLogger(make_logname(self))
+        self.log = logging.getLogger("fsclient."+__name__)
+        self.communicator = communicator
         self.root = None
         self.master = None
         #: Reference back to FSServer.

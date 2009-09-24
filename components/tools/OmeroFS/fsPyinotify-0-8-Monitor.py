@@ -8,6 +8,7 @@ import fsLogger
 log = logging.getLogger("fsserver."+__name__)
 
 import pyinotify
+import pyinotify as eventcode
 
 import copy
 import threading
@@ -106,10 +107,12 @@ class PlatformMonitor(object):
                     
             :return: No explicit return value.
             
-        """            
-        log.info('Event notification on monitor id=' + self.monitorId + ' => ' + str(eventList))
-        self.proxy.callback(self.monitorId, eventList)
-
+        """
+        try:          
+            log.info('Event notification on monitor id=' + self.monitorId + ' => ' + str(eventList))
+            self.proxy.callback(self.monitorId, eventList)
+        except:
+            self.exception("Notification failed : ")
 
                 
     def start(self):
@@ -151,34 +154,52 @@ class MyWatchManager(pyinotify.WatchManager):
        may need to be fixed for applications outside of DropBox.
        
     """
-    watchPaths = set()
+    watchPaths = {}
     watchParams = {}
     
     def isPathWatched(self, pathString):
-        return pathString in self.watchPaths
+        return pathString in self.watchPaths.keys()
 
     def addBaseWatch(self, path, mask, rec=False, auto_add=False):
-        log.info('Base watch on: %s', path)
-        pyinotify.WatchManager.add_watch(self, path, mask, rec=False, auto_add=False)
-        self.watchPaths.add(path)
+        res = pyinotify.WatchManager.add_watch(self, path, mask, rec=False, auto_add=False)
+        self.watchPaths.update(res)
         self.watchParams[path] = WatchParameters(mask, rec=rec, auto_add=auto_add)
         if rec:
             for d in pathModule.path(path).dirs():
                 self.addWatch(str(d), mask)
+        log.info('Base watch created on: %s', path)
 
     def addWatch(self, path, mask):
         if not self.isPathWatched(path):
-            log.info('Watch on: %s', path)
-            pyinotify.WatchManager.add_watch(self, path, mask, rec=False, auto_add=False)
-            self.watchPaths.add(path)
+            res = pyinotify.WatchManager.add_watch(self, path, mask, rec=False, auto_add=False)
+            self.watchPaths.update(res)
             self.watchParams[path] = copy.copy(self.watchParams[pathModule.path(path).parent])
             if self.watchParams[path].getRec():
                 for d in pathModule.path(path).dirs():
                     self.addWatch(str(d), mask)
+            log.info('Watch added on: %s', path)
+
+    def removeWatch(self, path):
+        if self.isPathWatched(path):
+            removeDict = {}
+            log.info('Trying to remove : %s', path)
+            removeDict[self.watchPaths[path]] = path
+            for d in self.watchPaths.keys():
+                if d.find(path+'/') == 0:
+                    log.info('    ... and : %s', d)
+                    removeDict[self.watchPaths[d]] = d
+            res = pyinotify.WatchManager.rm_watch(self, removeDict.keys())
+            for wd in res.keys():
+                if res[wd]: 
+                    self.watchPaths.pop(removeDict[wd], True)
+                    self.watchParams.pop(removeDict[wd], True)
+                    log.info('Watch removed on: %s', removeDict[wd])
+                else:
+                    log.info('Watch remove failed, wd=%s, on: %s', wd, removeDict[wd]) 
 
     def getWatchPaths(self):
-        for path in self.watchPaths:
-            yield path
+        for (path,wd) in self.watchPaths.items():
+            yield (path, wd)
   
 class WatchParameters(object):
     def __init__(self, mask, rec=False, auto_add=False):
@@ -208,16 +229,20 @@ class ProcessEvent(pyinotify.ProcessEvent):
         el = []
         
         # This is a tricky one. I'm not sure why these events arise exactly.
+        # It seems to happen when inotify isn't sure of the path. Yet all the
+        # events seem to have otherwise good paths. So, remove the suffix and 
+        # allow the event to be dealt with as normal. 
         if name.find('-unknown-path') > 0:
-            log.info('Event with "-unknown-path" of type %s : %s', maskname, name)
+            log.debug('Event with "-unknown-path" of type %s : %s', maskname, name)
             name = name.replace('-unknown-path','')
             
-        # New directory within watch area.
-        if event.mask == (pyinotify.IN_CREATE | pyinotify.IN_ISDIR) \
-                or event.mask ==  (pyinotify.IN_MOVED_TO | pyinotify.IN_ISDIR):
+        # New directory within watch area, either created or moved into.
+        if event.mask == (eventcode.IN_CREATE | eventcode.IN_ISDIR) \
+                or event.mask ==  (eventcode.IN_MOVED_TO | eventcode.IN_ISDIR):
             if name.find('untitled folder') == -1:
                 el.append((name, monitors.EventType.Create))
                 log.info('New directory event of type %s at: %s', maskname, name)
+                # Handle the recursion plus create any missed Create events
                 if self.wm.watchParams[pathModule.path(name).parent].getAutoAdd():
                     self.wm.addWatch(name, self.wm.watchParams[pathModule.path(name).parent].getMask())
                     if self.wm.watchParams[pathModule.path(name).parent].getRec():
@@ -234,46 +259,61 @@ class ProcessEvent(pyinotify.ProcessEvent):
             else:
                 pass # ignore new directory with name 'untitled folder*'
                 
-        # Deleted or modified directory!
-        elif event.mask ==  (pyinotify.IN_MOVED_FROM | pyinotify.IN_ISDIR):
+        # Deleted directory or one moved out of the watch area.
+        elif event.mask ==  (eventcode.IN_MOVED_FROM | eventcode.IN_ISDIR) \
+                or event.mask ==  (eventcode.IN_DELETE | eventcode.IN_ISDIR):
             if name.find('untitled folder') == -1:
-                el.append((name, monitors.EventType.Modify))
-                log.info('Deleted or modified directory event of type %s at: %s', maskname, name)
+                el.append((name, monitors.EventType.Delete))
+                log.info('Deleted directory event of type %s at: %s', maskname, name)
+                self.wm.removeWatch(name)
             else:
                 pass # ignore deleted directory with name 'untitled folder*'
         
-        # New file within watch area
-        elif event.mask == pyinotify.IN_CLOSE_WRITE or event.mask == pyinotify.IN_MOVED_TO:
+        # New file within watch area, either created or moved into.
+        # Note that IN_CREATE is ignored in favour of IN_CLOSE_WRITE which ensures
+        # that the file has been closed after writing.
+        elif event.mask == eventcode.IN_CLOSE_WRITE or event.mask == eventcode.IN_MOVED_TO:
             log.info('New file event of type %s at: %s', maskname, name)
             el.append((name, monitors.EventType.Create))
 
-        # Modified file within watch area
-        elif event.mask == pyinotify.IN_MODIFY:
+        # Modified file within watch area.
+        elif event.mask == eventcode.IN_MODIFY:
             log.info('Modified file event of type %s at: %s', maskname, name)
             el.append((name, monitors.EventType.Modify))
 
-        # Deleted file within watch area
-        elif event.mask == pyinotify.IN_MOVED_FROM:
+        # Deleted file  or one moved out of the watch area.
+        elif event.mask == eventcode.IN_MOVED_FROM or event.mask == eventcode.IN_DELETE:
             log.info('Deleted file event of type %s at: %s', maskname, name)
             el.append((name, monitors.EventType.Delete))
 
         # These are all the currently ignored events.
-        elif event.mask == pyinotify.IN_ATTRIB:
-            pass # These are all the currently ignored events.
-        elif event.mask == pyinotify.IN_MOVE_SELF:
-            pass # Event, hmm, an odd one. This is when a directory being watched is moved.
-        elif event.mask == pyinotify.IN_OPEN | pyinotify.IN_ISDIR :
-            pass # Event, dir open, we can ignore for now to reduce the log volume at any rate.
-        elif event.mask == pyinotify.IN_CLOSE_NOWRITE | pyinotify.IN_ISDIR :
-            pass # Event, dir close, we can ignore for now to reduce the log volume at any rate.
-        elif event.mask == pyinotify.IN_ACCESS | pyinotify.IN_ISDIR :
-            pass # Event, dir access, we can ignore for now to reduce the log volume at any rate.
-        elif event.mask == pyinotify.IN_OPEN :
-            pass # Event, file open, we can ignore for now to reduce the log volume at any rate.
-        elif event.mask == pyinotify.IN_CLOSE_NOWRITE :
-            pass # Event, file close, we can ignore for now to reduce the log volume at any rate.
-        elif event.mask == pyinotify.IN_ACCESS :
-            pass # Event, file access, we can ignore for now to reduce the log volume at any rate.
+        elif event.mask == eventcode.IN_ATTRIB:
+            # Attributes have changed? Useful?
+            log.debug('Ignored event of type %s at: %s', maskname, name)
+        elif event.mask == eventcode.IN_DELETE_SELF or event.mask == eventcode.IN_IGNORED:
+            # This is when a directory being watched is removed, handled above.
+            log.debug('Ignored event of type %s at: %s', maskname, name)
+        elif event.mask == eventcode.IN_MOVE_SELF:
+            # This is when a directory being watched is moved out of the watch area (itself!), handled above.
+            log.debug('Ignored event of type %s at: %s', maskname, name)
+        elif event.mask == eventcode.IN_OPEN | eventcode.IN_ISDIR :
+            # Event, dir open, we can ignore for now to reduce the log volume at any rate.
+            log.debug('Ignored event of type %s at: %s', maskname, name)
+        elif event.mask == eventcode.IN_CLOSE_NOWRITE | eventcode.IN_ISDIR :
+            # Event, dir close, we can ignore for now to reduce the log volume at any rate.
+            log.debug('Ignored event of type %s at: %s', maskname, name)
+        elif event.mask == eventcode.IN_ACCESS | eventcode.IN_ISDIR :
+            # Event, dir access, we can ignore for now to reduce the log volume at any rate.
+            log.debug('Ignored event of type %s at: %s', maskname, name)
+        elif event.mask == eventcode.IN_OPEN :
+            # Event, file open, we can ignore for now to reduce the log volume at any rate.
+            log.debug('Ignored event of type %s at: %s', maskname, name)
+        elif event.mask == eventcode.IN_CLOSE_NOWRITE :
+            # Event, file close, we can ignore for now to reduce the log volume at any rate.
+            log.debug('Ignored event of type %s at: %s', maskname, name)
+        elif event.mask == eventcode.IN_ACCESS :
+            # Event, file access, we can ignore for now to reduce the log volume at any rate.
+            log.debug('Ignored event of type %s at: %s', maskname, name)
         
         # Other events, log them since they really should be caught above    
         else:
