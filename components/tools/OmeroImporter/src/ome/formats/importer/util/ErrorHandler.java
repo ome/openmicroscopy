@@ -36,8 +36,14 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     }
     
     public static class INTERNAL_EXCEPTION extends EXCEPTION_EVENT {
-        public INTERNAL_EXCEPTION(Exception exception) {
+        public final String filename;
+        public final String[] usedFiles;
+        public final String reader;
+        public INTERNAL_EXCEPTION(String filename, Exception exception, String[] usedFiles, String reader) {
             super(exception);
+            this.filename = filename;
+            this.usedFiles = usedFiles;
+            this.reader = reader;
         }
     }
 
@@ -84,6 +90,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
         else if (event instanceof INTERNAL_EXCEPTION) {
             INTERNAL_EXCEPTION ev = (INTERNAL_EXCEPTION) event;
             log.error(event.toLog(), ev.exception);
+            addError(ev.exception, new File(ev.filename), ev.usedFiles, ev.reader);
         }
         onUpdate(observable, event);
     }

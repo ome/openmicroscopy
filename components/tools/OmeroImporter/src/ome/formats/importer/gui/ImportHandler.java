@@ -86,6 +86,7 @@ public class ImportHandler {
             this.qTable = qTable;
             library.addObserver(qTable);
             library.addObserver(viewer);
+            library.addObserver(viewer.errorHandler.delegate);
 
             runThread = new Thread() {
 

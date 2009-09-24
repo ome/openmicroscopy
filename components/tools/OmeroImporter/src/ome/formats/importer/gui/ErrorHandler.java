@@ -243,7 +243,14 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
             super.onAddError(errorContainer, message);
             Vector<Object> row = new Vector<Object>();
             row.add(new Boolean(true));
-            row.add(errorContainer.getSelectedFile().getName());
+            if (errorContainer.getSelectedFile() == null)
+            {
+                row.add("None");
+            }
+            else
+            {
+                row.add(errorContainer.getSelectedFile().getName());   
+            }
             row.add(message);
             row.add(-1);
             row.add(null);

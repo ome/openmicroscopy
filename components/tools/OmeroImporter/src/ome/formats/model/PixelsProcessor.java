@@ -143,13 +143,17 @@ public class PixelsProcessor implements ModelProcessor
                 
                 if (reader.getSeriesCount() > 1)
                 {
-                    if (image.getName() != null || image.getName().getValue().trim().length() != 0)
+                    if (image.getName() == null)
+                    {
+                        saveName += " [" + imageIndex + "]";  
+                    }
+                    else if (image.getName().getValue().trim().length() != 0)
                     {
                         saveName += " [" + image.getName().getValue() + "]";
                     }
                     else
                     {
-                        saveName += " [" + imageIndex + "]";   
+                        saveName += " [" + imageIndex + "]";
                     }
                 }
             } 

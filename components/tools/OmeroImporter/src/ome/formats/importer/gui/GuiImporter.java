@@ -752,6 +752,7 @@ public class GuiImporter extends JFrame
         {
             INTERNAL_EXCEPTION e = (INTERNAL_EXCEPTION) event;
             log.error("INTERNAL_EXCEPTION", e.exception);
+            
             // What else should we do here?
         }
         

@@ -390,13 +390,16 @@ public class ImportLibrary implements IObservable
             return pixList;
         } catch (IOException io) {
             notifyObservers(new ErrorHandler.FILE_EXCEPTION(fileName, io, usedFiles, format));
+            io.printStackTrace();
             throw io;
         } catch (FormatException fe) {
             notifyObservers(new ErrorHandler.FILE_EXCEPTION(fileName, fe, usedFiles, format));
+            fe.printStackTrace();
             throw fe;
         } catch (Exception e) {
             //notifyObservers(new ErrorHandler.FILE_EXCEPTION(fileName, e, usedFiles, null));
-            notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(e));
+            notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(fileName, e, usedFiles, format));
+            e.printStackTrace();
             throw e;
         } finally {
             store.createRoot(); // CLEAR MetadataStore
