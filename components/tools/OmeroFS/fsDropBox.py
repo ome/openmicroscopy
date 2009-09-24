@@ -104,7 +104,7 @@ class DropBox(Ice.Application):
             mClient.setId(serverId)
             mClient.setServerProxy(fsServer)
             mClient.setSelfProxy(mClientProxy)
-            mClient.setDropBoxDir(dropBoxDir)
+            mClient.setDropBoxDir(dropBoxBase)
             mClient.setDirImportWait(dirImportWait)
             mClient.setMaster(self)
             fsServer.startMonitor(serverId)

@@ -271,10 +271,14 @@ class MonitorClientI(monitors.MonitorClient):
             exName = self.getExperimenterFromPath(fileId)
             if exName:
                 # Creation or modification handled by state/timeout system
-                fileSets = self.getUsedFiles(fileId)
-                if fileSets:
-                    self.state.update(fileSets, self.dirImportWait, self.importFileWrapper, [fileId, exName])
-
+                if str(fileInfo.type) == "Create" or str(fileInfo.type) == "Modify":
+                    fileSets = self.getUsedFiles(fileId)
+                    if fileSets:
+                        self.state.update(fileSets, self.dirImportWait, self.importFileWrapper, [fileId, exName])
+                else:
+                    self.log.info("Event not Create or Modify, presently ignored.")
+                    
+                    
     fsEventHappeend = perf(fsEventHappened)
     fsEventHappened = remoted(fsEventHappened)
 
@@ -283,8 +287,7 @@ class MonitorClientI(monitors.MonitorClient):
             Extract experimenter name from path. If the experimenter
             cannot be extracted, then null will be returned, in which
             case no import should take place.
-        """
-
+        """        
         fileId = pathModule.path(fileId)
         exName = None
         parpath = fileId.parpath(self.dropBoxDir)
