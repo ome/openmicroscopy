@@ -28,11 +28,11 @@ import java.awt.Component;
 import java.awt.Container;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
 import javax.swing.BorderFactory;
-import javax.swing.JComponent;
+
 
 //Third-party libraries
+import layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 
@@ -60,10 +60,28 @@ public class JXTaskPaneContainerSingle
 	/** Bound property indicating the selection of a new task pane. */
 	public static final String SELECTED_TASKPANE_PROPERTY = "selectedTaskPane";
 	
+	/** The layout used. */
+	private TableLayout layout;
+	
 	/** Initializes the component. */
 	private void initialize()
 	{
 		setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+		setBackground(UIUtilities.BACKGROUND);
+		/*
+		setLayout(new GridBagLayout());
+		constraints = new GridBagConstraints();
+		constraints.gridy = 0;
+		constraints.gridwidth = GridBagConstraints.REMAINDER;
+		constraints.fill = GridBagConstraints.HORIZONTAL;
+		constraints.anchor = GridBagConstraints.FIRST_LINE_START;
+		constraints.weightx = 1.0;
+		*/
+		double[] columns = {TableLayout.FILL};
+    	layout = new TableLayout();
+    	setLayout(layout);
+    	layout.setColumn(columns);
+		//setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 	}
 	
 	/** Creates a new instance. */
@@ -91,7 +109,7 @@ public class JXTaskPaneContainerSingle
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Overridden to attach listener to the component if it is a 
 	 * <code>JXTaskPane</code>.
@@ -99,7 +117,9 @@ public class JXTaskPaneContainerSingle
 	 */
 	public void add(JXTaskPane c)
 	{
-		super.add(c);
+		int row = layout.getNumRow();
+		layout.insertRow(row, TableLayout.PREFERRED);
+		super.add(c, "0,"+row);
 		c.addPropertyChangeListener(
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
 	}
