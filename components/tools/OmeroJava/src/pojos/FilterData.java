@@ -69,13 +69,13 @@ public class FilterData
 	 * 
 	 * @return See above.
 	 */
-	public int getCutIn()
+	public Integer getCutIn()
 	{
 		Filter f = (Filter) asIObject();
 		TransmittanceRange range = f.getTransmittanceRange();
-		if (range == null) return -1;
+		if (range == null) return null;
 		RInt value = range.getCutIn();
-		if (value == null) return -1;
+		if (value == null) return null;
 		return value.getValue();
 	}
 	
@@ -84,13 +84,13 @@ public class FilterData
 	 * 
 	 * @return See above.
 	 */
-	public int getCutInTolerance()
+	public Integer getCutInTolerance()
 	{
 		Filter f = (Filter) asIObject();
 		TransmittanceRange range = f.getTransmittanceRange();
-		if (range == null) return -1;
+		if (range == null) return null;
 		RInt value = range.getCutInTolerance();
-		if (value == null) return -1;
+		if (value == null) return null;
 		return value.getValue();
 	}
 	
@@ -99,13 +99,13 @@ public class FilterData
 	 * 
 	 * @return See above.
 	 */
-	public int getCutOut()
+	public Integer getCutOut()
 	{
 		Filter f = (Filter) asIObject();
 		TransmittanceRange range = f.getTransmittanceRange();
-		if (range == null) return -1;
+		if (range == null) return null;
 		RInt value = range.getCutOut();
-		if (value == null) return -1;
+		if (value == null) return null;
 		return value.getValue();
 	}
 	
@@ -114,13 +114,12 @@ public class FilterData
 	 * 
 	 * @return See above.
 	 */
-	public int getCutOutTolerance()
+	public Integer getCutOutTolerance()
 	{
 		Filter f = (Filter) asIObject();
 		TransmittanceRange range = f.getTransmittanceRange();
-		if (range == null) return -1;
+		if (range == null) return null;
 		RInt value = range.getCutOutTolerance();
-		if (value == null) return -1;
 		return value.getValue();
 	}
 	
@@ -129,13 +128,13 @@ public class FilterData
 	 * 
 	 * @return See above.
 	 */
-	public double getTransmittance()
+	public Double getTransmittance()
 	{
 		Filter f = (Filter) asIObject();
 		TransmittanceRange range = f.getTransmittanceRange();
-		if (range == null) return -1;
+		if (range == null) return null;
 		RDouble value = range.getTransmittance();
-		if (value == null) return -1;
+		if (value == null) return null;
 		return value.getValue();
 	}
 	

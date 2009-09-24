@@ -66,11 +66,11 @@ public class DetectorData
 	 * 
 	 * @return See above
 	 */
-	public double getVoltage()
+	public Double getVoltage()
 	{
 		Detector detector = (Detector) asIObject();
 		RDouble value = detector.getVoltage();
-		if (value == null) return -1;
+		if (value == null) return null;
 		return value.getValue();
 	}
 	
@@ -79,11 +79,11 @@ public class DetectorData
 	 * 
 	 * @return See above
 	 */
-	public double getAmplificationGain()
+	public Double getAmplificationGain()
 	{
 		Detector detector = (Detector) asIObject();
 		RDouble value = detector.getAmplificationGain();
-		if (value == null) return -1;
+		if (value == null) return null;
 		return value.getValue();
 	}
 	
@@ -92,11 +92,11 @@ public class DetectorData
 	 * 
 	 * @return See above
 	 */
-	public double getGain()
+	public Double getGain()
 	{
 		Detector detector = (Detector) asIObject();
 		RDouble value = detector.getGain();
-		if (value == null) return -1;
+		if (value == null) return null;
 		return value.getValue();
 	}
 	
@@ -105,11 +105,11 @@ public class DetectorData
 	 * 
 	 * @return See above
 	 */
-	public double getOffset()
+	public Double getOffset()
 	{
 		Detector detector = (Detector) asIObject();
 		RDouble value = detector.getOffsetValue();
-		if (value == null) return -1;
+		if (value == null) return null;
 		return value.getValue();
 	}
 
@@ -118,11 +118,11 @@ public class DetectorData
 	 * 
 	 * @return See above
 	 */
-	public double getZoom()
+	public Double getZoom()
 	{
 		Detector detector = (Detector) asIObject();
 		RDouble value = detector.getZoom();
-		if (value == null) return -1;
+		if (value == null) return null;
 		return value.getValue();
 	}
 	
