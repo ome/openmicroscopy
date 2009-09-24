@@ -314,7 +314,7 @@ public class ImportLibrary implements IObservable
                 Pixels pixels = pixList.get(series); 
                 long pixId = pixels.getId().getValue(); 
                 
-                notifyObservers(new ImportEvent.DATASET_STORED(index, fileName, userSpecifiedTarget, pixId, series, size));
+                notifyObservers(new ImportEvent.DATASET_STORED(index, fileName, userSpecifiedTarget, pixId, series, size, numDone, total));
         
                 MessageDigest md = importData(pixId, fileName, series, size);
                 if (md != null)
@@ -395,6 +395,7 @@ public class ImportLibrary implements IObservable
             notifyObservers(new ErrorHandler.FILE_EXCEPTION(fileName, fe, usedFiles, format));
             throw fe;
         } catch (Exception e) {
+            //notifyObservers(new ErrorHandler.FILE_EXCEPTION(fileName, e, usedFiles, null));
             notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(e));
             throw e;
         } finally {

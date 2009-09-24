@@ -154,8 +154,10 @@ public class HistoryTable
                 HistoryDB.alertOnce = true;
             }
         }
+        
+        this.gui = viewer.gui;
+        
         this.db = db;
-        this.gui = gui;
         
         // set to layout that will maximize on resizing
         setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));

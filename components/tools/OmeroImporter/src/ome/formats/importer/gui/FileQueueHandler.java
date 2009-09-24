@@ -15,6 +15,8 @@ package ome.formats.importer.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -23,10 +25,14 @@ import java.io.File;
 import java.util.List;
 import java.util.Vector;
 
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 
@@ -69,6 +75,10 @@ public class FileQueueHandler
     private final FileQueueChooser fileChooser;
     private final FileQueueTable qTable;
     private final HistoryTable historyTable;
+    //private JProgressBar directoryProgressBar;
+    //private JDialog progressDialog;
+    
+    private Integer directoryCount;
     
     /**
      * @param viewer
@@ -80,7 +90,9 @@ public class FileQueueHandler
         this.reader = new OMEROWrapper(config);
         this.gui = new GuiCommonElements(config);
         this.historyTable = viewer.historyTable;
-
+        
+        directoryCount = 0;
+        
         //reader.setChannelStatCalculationStatus(true);
         
         setLayout(new BorderLayout());
@@ -125,7 +137,7 @@ public class FileQueueHandler
 
     private void addFiles()
     {
-
+        setCursor(java.awt.Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         final File[] _files = fileChooser.getSelectedFiles();                    
 
         if (_files == null)
@@ -140,15 +152,18 @@ public class FileQueueHandler
         }
 
         final ImportCandidates candidates = new ImportCandidates(reader, paths, this);
+        
         final List<ImportContainer> containers = candidates.getContainers();
         
         Boolean spw = spwOrNull(containers);
         if (spw == null) {
+            setCursor(Cursor.getDefaultCursor());
             return; // Invalid containers.
         }
         
         if (store() != null && spw.booleanValue())
         {
+            setCursor(Cursor.getDefaultCursor());
             SPWDialog dialog =
                 new SPWDialog(gui, viewer, "Screen Import", true, store());
             if (dialog.cancelled == true || dialog.screen == null) 
@@ -156,6 +171,7 @@ public class FileQueueHandler
             for (ImportContainer ic : containers)
             {             
                 ic.setTarget(dialog.screen);
+                ic.setImageName(ic.file.getAbsolutePath());
                 String title = dialog.screen.getName().getValue(); 
                 addFileToQueue(ic, title, false, 0);
             }
@@ -166,6 +182,7 @@ public class FileQueueHandler
         }
         else if (store() != null)
         {
+            setCursor(Cursor.getDefaultCursor());
             ImportDialog dialog = 
                 new ImportDialog(gui, viewer, "Image Import", true, store());
             if (dialog.cancelled == true || dialog.dataset == null) 
@@ -183,6 +200,8 @@ public class FileQueueHandler
                 ic.setTarget(dialog.dataset);
                 ic.setUserPixels(pixelSizes);
                 ic.setArchive(dialog.archiveImage.isSelected());
+                ic.setProjectID(dialog.project.getId().getValue());
+                ic.setImageName(ic.file.getAbsolutePath());
                 String title =
                 dialog.project.getName().getValue() + " / " +
                 dialog.dataset.getName().getValue();
@@ -195,6 +214,7 @@ public class FileQueueHandler
 
             
         } else {
+            setCursor(Cursor.getDefaultCursor());
             JOptionPane.showMessageDialog(viewer, 
                     "Due to an error the application is unable to \n" +
                     "retrieve an OMEROMetadataStore and cannot continue." +
@@ -506,6 +526,49 @@ public class FileQueueHandler
     {
         final OMEROMetadataStoreClient store = viewer.loginHandler.getMetadataStore();  
 
+        if (event instanceof ImportCandidates.SCANNING)
+        {
+            ImportCandidates.SCANNING ev = (ImportCandidates.SCANNING) event;
+            
+            /*
+            if (ev.totalFiles < 0)
+            {
+                if (progressDialog == null)
+                {
+                    progressDialog = new JDialog((JFrame)null, "Processing Directories");
+                    directoryProgressBar = new JProgressBar();
+                    progressDialog.setSize(300, 75);
+                    progressDialog.setLocationRelativeTo(viewer);
+                    directoryProgressBar.setIndeterminate(true);
+                    progressDialog.add(BorderLayout.CENTER, directoryProgressBar);
+                    progressDialog.setVisible(true);
+                    //progressDialog.toFront();
+                }
+            }
+            else
+            {
+                if (progressDialog != null)
+                {
+                    directoryProgressBar.setMaximum(ev.totalFiles);
+                    directoryProgressBar.setMinimum(0);
+                }
+                  
+                  directoryProgressBar.setValue(ev.numFiles);
+                  
+                  //if (ev.totalFiles == ev.numFiles) progressDialog.dispose();
+            }
+            */
+            
+            if (ev.totalFiles < 0)
+            {
+                System.err.println("numFiles: " + ev.numFiles + " total: " + ev.totalFiles);  
+                if (directoryCount == 0) viewer.appendToOutput("Determining how many directory files to process....\n");
+                directoryCount += ev.numFiles;
+            } else {
+                viewer.appendToOutput("Processing directories: Scanned " + ev.numFiles + " files of " + ev.totalFiles + " total.\n");
+            }
+        }
+        
         if (event instanceof ImportEvent.REIMPORT)
         {
             
@@ -608,9 +671,7 @@ public class FileQueueHandler
             if (qTable.table.getRowCount() >  0)
                 qTable.importBtn.setEnabled(true);
         }
-    }
-    
-    
+    }   
 }
 
 

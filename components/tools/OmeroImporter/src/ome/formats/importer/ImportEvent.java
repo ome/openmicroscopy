@@ -49,15 +49,19 @@ public class ImportEvent {
         public final Long pixId;
         public final int series;
         public final ImportSize size;
+        public final Integer numDone;
+        public final Integer total;
 
         PROGRESS_EVENT(int index, String filename, IObject target, Long pixId,
-                int series, ImportSize size) {
+                int series, ImportSize size, Integer numDone, Integer total) {
             this.index = index;
             this.filename = filename;
             this.target = target;
             this.pixId = pixId;
             this.series = series;
             this.size = size;
+            this.numDone = numDone;
+            this.total= total;
         }
     }
 
@@ -228,29 +232,29 @@ public class ImportEvent {
 
     public static class DATASET_STORED extends PROGRESS_EVENT {
         public DATASET_STORED(int index, String filename, IObject target,
-                Long pixId, int series, ImportSize size) {
-            super(index, filename, target, pixId, series, size);
+                Long pixId, int series, ImportSize size, Integer numDone, Integer total) {
+            super(index, filename, target, pixId, series, size, numDone, total);
         }
     }
 
     public static class DATA_STORED extends PROGRESS_EVENT {
         public DATA_STORED(int index, String filename, IObject target,
                 Long pixId, int series, ImportSize size) {
-            super(index, filename, target, pixId, series, size);
+            super(index, filename, target, pixId, series, size, null, null);
         }
     }
 
     public static class IMPORT_ARCHIVING extends PROGRESS_EVENT {
         public IMPORT_ARCHIVING(int index, String filename, IObject target,
                 Long pixId, int series, ImportSize size) {
-            super(index, filename, target, pixId, series, size);
+            super(index, filename, target, pixId, series, size, null, null);
         }
     }
 
     public static class IMPORT_THUMBNAILING extends PROGRESS_EVENT {
         public IMPORT_THUMBNAILING(int index, String filename, IObject target,
                 Long pixId, int series, ImportSize size) {
-            super(index, filename, target, pixId, series, size);
+            super(index, filename, target, pixId, series, size, null, null);
         }
     }
 
@@ -258,7 +262,7 @@ public class ImportEvent {
         public final List<Pixels> pixels;
         public IMPORT_DONE(int index, String filename, IObject target,
                 Long pixId, int series, ImportSize size, List<Pixels> pixels) {
-            super(index, filename, target, pixId, series, size);
+            super(index, filename, target, pixId, series, size, null, null);
             this.pixels = pixels;
         }
     }

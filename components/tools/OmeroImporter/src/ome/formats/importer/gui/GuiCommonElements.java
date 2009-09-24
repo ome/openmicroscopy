@@ -68,7 +68,6 @@ import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
 
 import layout.TableLayout;
-import ome.formats.Main;
 import ome.formats.importer.ImportConfig;
 
 import org.apache.commons.logging.Log;

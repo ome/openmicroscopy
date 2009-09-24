@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 @Test(groups = { "client", "integration", "security" })
 public class AbstractSecurityTest extends TestCase {
 
-    protected ServiceFactory tmp = new ServiceFactory("ome.client.test");
+    protected ServiceFactory tmp = new ServiceFactory("ome.blitz.test");
 
     protected DataSource dataSource = (DataSource) tmp.getContext().getBean(
             "dataSource");

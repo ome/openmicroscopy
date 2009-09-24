@@ -15,12 +15,12 @@ import omero.model.IObject;
 
 public class ImportContainer
 {
-	final public File file;
-	final public Long projectID;
-	final public String imageName;
-    final public String reader;
-    final public String[] usedFiles;
-    final public boolean isSPW;
+	public File file;
+	public Long projectID;
+	public String imageName;
+    public String reader;
+    public String[] usedFiles;
+    public boolean isSPW;
     
     private boolean archive;
     private Double[] userPixels;
@@ -43,7 +43,58 @@ public class ImportContainer
 		this.usedFiles = usedFiles;
 		this.isSPW = isSPW;
 	}
+	
+    
+    /**
+     * @return Returns the fileInfo.
+     */
+    public FileInfo[] getFileInfo()
+    {
+        return fileInfo;
+    }
 
+    
+    /**
+     * @param fileInfo The fileInfo to set.
+     */
+    public void setFileInfo(FileInfo[] fileInfo)
+    {
+        this.fileInfo = fileInfo;
+    }
+
+    
+    /**
+     * @return Returns the projectID.
+     */
+    public Long getProjectID()
+    {
+        return projectID;
+    }
+
+    /**
+     * @return Returns the projectID.
+     */
+    public void setProjectID(Long projectID)
+    {
+        this.projectID = projectID;
+    }
+    
+    /**
+     * @return Returns the imageName.
+     */
+    public String getImageName()
+    {
+        return imageName;
+    }
+
+    /**
+     * @return Returns the imageName.
+     */
+    public void setImageName(String imageName)
+    {
+        this.imageName = imageName;
+    }
+    
     public String getUserSpecifiedName()
     {
         return userSpecifiedImageName;

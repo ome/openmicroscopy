@@ -246,6 +246,12 @@ public class GuiImporter extends JFrame
 
         // file chooser pane
         JPanel filePanel = new JPanel(new BorderLayout());
+        
+        statusBar = new StatusBar();
+        statusBar.setStatusIcon("gfx/server_disconn16.png",
+                "Server disconnected.");
+        statusBar.setProgress(false, 0, "");
+        this.getContentPane().add(statusBar, BorderLayout.SOUTH);
 
         // The file chooser sub-pane
         fileQueueHandler = new FileQueueHandler(this, config);
@@ -331,12 +337,6 @@ public class GuiImporter extends JFrame
         
         // Add the tabbed pane to this panel.
         add(tPane);
-        
-        statusBar = new StatusBar();
-        statusBar.setStatusIcon("gfx/server_disconn16.png",
-                "Server disconnected.");
-        statusBar.setProgress(false, 0, "");
-        this.getContentPane().add(statusBar, BorderLayout.SOUTH);
 
         this.setVisible(false);
 
@@ -346,6 +346,7 @@ public class GuiImporter extends JFrame
             historyTable = historyHandler.table;
         } catch (Exception e) {
             log.debug("Disabling history");
+            e.printStackTrace();
         }
         
         loginHandler = new LoginHandler(this, historyTable);
@@ -699,8 +700,8 @@ public class GuiImporter extends JFrame
         {
             ImportEvent.DATASET_STORED ev = (ImportEvent.DATASET_STORED) event;
             
-            int num = ev.index;
-            int tot = ev.series;
+            int num = ev.numDone;
+            int tot = ev.total;
             int pro = num - 1;
             appendToOutputLn("Successfully stored to "+ev.target.getClass().getSimpleName()+" \"" + 
                     ev.filename + "\" with id \"" + ev.target.getId().getValue() + "\".");
@@ -740,8 +741,11 @@ public class GuiImporter extends JFrame
                 dialog.setContentPane(optionPane);
                 dialog.pack();
                 dialog.setVisible(true);
-                
             }
+        } else if (event instanceof EXCEPTION_EVENT)
+        {
+            EXCEPTION_EVENT ev = (EXCEPTION_EVENT) event;
+            log.error("EXCEPTION_EVENT", ev.exception);
         }
         
         if (event instanceof INTERNAL_EXCEPTION) 
