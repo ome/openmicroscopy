@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser;
 
 //Java imports
 import java.util.Collection;
+import java.util.List;
 
 //Third-party libraries
 
@@ -108,7 +109,9 @@ public class DataObjectCreator
     public void handleResult(Object result) 
     {
     	if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
-    	viewer.setDataObjectCreated((DataObject) result, parent);
+    	List list = (List) result;
+    	if (list.size() == 1)
+    		viewer.setDataObjectCreated((DataObject) list.get(0), parent);
     }
     
 }

@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.util.ui.RegExFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
@@ -499,6 +500,8 @@ class DataBrowserComponent
 	{
 		if (data == null) return;
 		//TODO: check state.
+		if (!(data instanceof DatasetData)) return;
+
 		Browser browser = model.getBrowser();
 		Collection images;
 		Collection set = browser.getSelectedDisplays();
@@ -510,12 +513,17 @@ class DataBrowserComponent
 			while (i.hasNext()) {
 				display = (ImageDisplay) i.next();
 				ho = display.getHierarchyObject();
-				if (ho instanceof DataObject) {
+				if (ho instanceof ImageData) {
 					images.add(ho);
 				}
 			}
 		} else {
 			images = browser.getVisibleImages();
+		}
+		if (images == null || images.size() == 0) {
+			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Dataset Creation", "No images has been selected");
+			return;
 		}
 		model.fireDataSaving(data, images);
 		/*

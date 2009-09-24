@@ -124,6 +124,12 @@ public class QuickSearch
 	/** Bound property indicating to search for given terms. */
 	public static final String	VK_DOWN_SEARCH_PROPERTY = "vkDownSearch";
 	
+	/** Text displayed when the show all buttons is selected. */
+	private static final String	SHOW_ALL_TEXT = "Show All images";
+	
+	/** Text displayed when the show all buttons is selected. */
+	private static final String	SHOW_ALL_DESCRIPTION = "filter images"; 
+	
 	/** Removes the text from the text field. */
 	private static final int 	CLEAR = 0;
 	
@@ -192,7 +198,7 @@ public class QuickSearch
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
-		showAll = new SearchObject(SHOW_ALL, null, "Show All");
+		showAll = new SearchObject(SHOW_ALL, null, SHOW_ALL_TEXT);
 		IconManager icons = IconManager.getInstance();
 		clearButton = new JButton(icons.getIcon(IconManager.CLEAR_DISABLED));
 		//clearButton.setEnabled(false);
@@ -203,6 +209,7 @@ public class QuickSearch
 		clearButton.setActionCommand(""+CLEAR);
 		
 		searchArea = new JTextField(15);
+		searchArea.setText(SHOW_ALL_DESCRIPTION);
         UIUtilities.setTextAreaDefault(searchArea);
         searchArea.setBorder(null);
         
@@ -390,12 +397,17 @@ public class QuickSearch
 				text = selectedNode.getDescription();
 				cleanBar.setVisible(false);
 				break;
+			case SHOW_ALL:
+				setSearchEnabled(false);
+				text = SHOW_ALL_DESCRIPTION;
+				cleanBar.setVisible(false);
+				break;
 			case UNRATED:
 			case UNTAGGED:
 			case UNCOMMENTED:
 			case TAGGED:
 			case COMMENTED:
-			case SHOW_ALL:
+			//case SHOW_ALL:
 				setSearchEnabled(false);
 				text = "";
 				cleanBar.setVisible(false);
@@ -500,7 +512,7 @@ public class QuickSearch
 	public void setDefaultSearchContext()
 	{
 		List<SearchObject> nodes = new ArrayList<SearchObject>();
-		SearchObject node = new SearchObject(SHOW_ALL, null, "Show All");
+		SearchObject node = new SearchObject(SHOW_ALL, null, SHOW_ALL_TEXT);
     	nodes.add(node);
     	node = new SearchObject(FULL_TEXT, null, 
     								SearchComponent.NAME_TEXT);

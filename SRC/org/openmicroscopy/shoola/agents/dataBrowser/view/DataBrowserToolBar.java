@@ -735,7 +735,6 @@ class DataBrowserToolBar
 			case SLIDE_SHOW_SELECTION:
 				view.slideShowView(true);
 				break;	
-			
 				//view.slideShowView(true, false);	
 			case DataBrowserUI.SORT_BY_NAME:
 			case DataBrowserUI.SORT_BY_DATE:
