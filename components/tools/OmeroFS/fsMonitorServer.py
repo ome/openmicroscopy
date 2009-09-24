@@ -734,7 +734,8 @@ class MonitorServerI(monitors.MonitorServer):
         proxy = self.proxies[monitorId]
         
         try:
-            log.info('Event notification on monitor id=' + monitorId + ' => ' + str(eventList))
+            log.info('Event notification on monitor id= %s', monitorId)
+            log.debug(' ...notifications are: %s', str(eventList))
             proxy.fsEventHappened(monitorId, eventList)
         except Exception, e:
             log.info('Callback to monitor id=' + monitorId + ' failed. Reason: ' + str(e))

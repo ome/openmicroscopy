@@ -24,8 +24,8 @@ def monitorPackage():
     # Currently supported platforms
     supported = { 
                   'MACOS_10_5+'                : 'fsMac-10-5-Monitor', 
-                  'LINUX_2_6_13+pyinotify_0_7' : 'fsPyinotify-0-7-Monitor', 
-                  'LINUX_2_6_13+pyinotify_0_8' : 'fsPyinotify-0-8-Monitor', 
+                  'LINUX_2_6_13+pyinotify_0_7' : 'fsPyinotifyMonitor', 
+                  'LINUX_2_6_13+pyinotify_0_8' : 'fsPyinotifyMonitor', 
                   'WIN_XP'                     : 'fsWin-XP-Monitor', 
                   'WIN_2003Server'             : 'fsWin-XP-Monitor', 
                 }
