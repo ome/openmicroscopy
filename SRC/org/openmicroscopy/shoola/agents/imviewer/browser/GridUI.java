@@ -29,6 +29,8 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.File;
+
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.JScrollPane;
@@ -71,7 +73,7 @@ class GridUI
     private void initComponents()
     {
         layeredPane = new JLayeredPane();
-        canvas = new GridCanvas(model);
+        canvas = new GridCanvas(model, view);
         //The image canvas is always at the bottom of the pile.
         //layeredPane.setLayout(new BorderLayout(0, 0));
         layeredPane.add(canvas, Integer.valueOf(0));
@@ -102,6 +104,18 @@ class GridUI
 		this.view = view;
 		initComponents();
 		buildGUI();
+	}
+	
+	/**
+	 * Saves the image to the passed file.
+	 * 
+	 * @param file		The file where to save the image.
+	 * @param format	The format to use.
+	 */
+	void activeFileSave(File file, String format)
+	{
+		canvas.activeSave(file, format);
+		canvas.repaint();
 	}
 	
 	/** Sets the dimension of the UI components. */
@@ -137,7 +151,11 @@ class GridUI
     }
     
 	/** Determines the size of the canvas. */
-	void paintImage() { repaint(); }
+	void paintImage()
+	{ 
+		
+		repaint(); 
+	}
 	
 	/**
 	 * Returns the grid image.

@@ -185,7 +185,7 @@ public class ProjectionSaver
         if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
         switch (index) {
 	        case PREVIEW:
-	        	viewer.setProjectionPreview((BufferedImage) result);
+	        	viewer.setProjectionPreview(result);
 	        	break;
 	        case PROJECTION:
 	        	viewer.setProjectedImage((ImageData) result, ref.getChannels(), 

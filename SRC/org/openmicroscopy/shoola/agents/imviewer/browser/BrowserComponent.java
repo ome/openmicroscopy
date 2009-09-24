@@ -29,6 +29,8 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.File;
+
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
@@ -37,9 +39,12 @@ import javax.swing.JComponent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
+import org.openmicroscopy.shoola.agents.imviewer.util.saver.SaveObject;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
+import com.sun.opengl.util.texture.TextureData;
 
 
 /** 
@@ -85,7 +90,7 @@ class BrowserComponent
     
     /** The sub-component displaying the projection. */
     private ProjectionUI	projectionView;
-    
+	
     /**
      * Creates a new instance.
      * The {@link #initialize() initialize} method should be called straight 
@@ -210,6 +215,7 @@ class BrowserComponent
 	                    "between "+ZoomAction.MIN_ZOOM_FACTOR+" and "+
 	                    ZoomAction.MAX_ZOOM_FACTOR);
     	} else {
+    		/*
     		BufferedImage img = null;
     		Dimension viewport = null;
     		if (index == ImViewer.VIEW_INDEX) {
@@ -217,6 +223,26 @@ class BrowserComponent
     			viewport = view.getViewportSize();
     		} else if (index == ImViewer.PROJECTION_INDEX) {
     			img = model.getProjectedImage();
+    			viewport = projectionView.getViewportSize();
+    		}
+    		if (img != null) {
+    			int width = img.getWidth();
+        		int height = img.getHeight();
+        		double zoomFactorX = 0;
+        		if (width > 0) zoomFactorX = viewport.getWidth()/width;
+        		double zoomFactorY = 0;
+        		if (height > 0) zoomFactorY = viewport.getHeight()/height;
+        		factor = Math.min(zoomFactorX, zoomFactorY); 
+    		}
+    		*/
+    		
+    		TextureData img = null;
+    		Dimension viewport = null;
+    		if (index == ImViewer.VIEW_INDEX) {
+    			img = model.getRenderedImageAsTexture();
+    			viewport = view.getViewportSize();
+    		} else if (index == ImViewer.PROJECTION_INDEX) {
+    			img = model.getProjectedImageAsTexture();
     			viewport = projectionView.getViewportSize();
     		}
     		if (img != null) {
@@ -409,7 +435,7 @@ class BrowserComponent
 	{
 		switch (index) {
 			case ImViewer.GRID_INDEX:
-				if (model.hasNoGridImages())
+				if (!model.hasGridImagesAsTexture())
 					model.setGridImages();
 				gridView.paintImage();
 				break;
@@ -454,7 +480,7 @@ class BrowserComponent
 	
 	/** 
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#getGridViewTitle()
+     * @see Browser#viewSplitImages()
      */
 	public void viewSplitImages()
 	{
@@ -469,9 +495,14 @@ class BrowserComponent
      */
 	public BufferedImage getGridImage()
 	{
-		if (model.getCombinedImage() != null)
-			return gridView.getGridImage();
-		model.setGridImages();
+		//if (model.getCombinedImage() != null)
+		//	return gridView.getGridImage();
+		//model.setGridImages();
+		if (!model.hasGridImagesAsTexture()) {
+			model.setGridImages();
+			gridView.paintImage();
+		}
+			
 		return gridView.getGridImage();
 	}
 	
@@ -519,14 +550,18 @@ class BrowserComponent
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setRenderProjected(BufferedImage)
      */
-	public void setRenderProjected(BufferedImage image)
+	public void setRenderProjected(Object image)
 	{
 		if (image == null) 
             throw new IllegalArgumentException("Image cannot be null.");
-        model.setProjectedImage(image);
-        model.createDisplayedProjectedImage();
-        BufferedImage img = model.getDisplayedProjectedImage();
-        if (img == null) return;
+		if (image instanceof BufferedImage) {
+			model.setProjectedImage((BufferedImage) image);
+			model.createDisplayedProjectedImage();
+			BufferedImage img = model.getDisplayedProjectedImage();
+			if (img == null) return;
+		} else if (image instanceof TextureData) {
+			model.setProjectedImageAsTexture((TextureData) image);
+		}
         //canvasListener.setAreaSize(img.getWidth(), img.getHeight());
         projectionView.repaint();
 	}
@@ -564,5 +599,63 @@ class BrowserComponent
 	 * @see Browser#getUnitInMicrons()
 	 */
 	public double getUnitInMicrons() { return model.getUnitInMicrons(); }
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Browser#setRenderedImageAsTexture(TextureData)
+	 */
+	public void setRenderedImageAsTexture(TextureData image)
+	{
+		 if (image == null) 
+	            throw new IllegalArgumentException("Image cannot be null.");
+		 model.setRenderedImageAsTexture(image);
+		 //Paint only if selected.
+		 view.paintMainImage();
+		 viewSplitImages();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Browser#saveImage(SaveObject)
+	 */
+	public void saveImage(SaveObject value)
+	{
+		if (value == null) return;
+		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+		String name = value.getFileName();
+		if (name == null || name.trim().length() == 0) {
+			un.notifyInfo("Save Image", "Please specify a file name.");
+			return;
+		}
+		File file = new File(name);
+		switch (value.getType()) {
+			case SaveObject.IMAGE:
+				view.activeFileSave(file, value.getFormat());
+				break;
+			case SaveObject.GRID_IMAGE:
+				if (!model.hasGridImagesAsTexture())
+					model.setGridImages();
+				gridView.activeFileSave(file, value.getFormat());
+				break;
+		}
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Browser#saveImage(SaveObject)
+	 */
+	public TextureData getImageAsTexture()
+	{
+		return model.getRenderedImageAsTexture();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Browser#saveImage(SaveObject)
+	 */
+	public TextureData getProjectedImageAsTexture()
+	{
+		return model.getProjectedImageAsTexture();
+	}
 	
 }

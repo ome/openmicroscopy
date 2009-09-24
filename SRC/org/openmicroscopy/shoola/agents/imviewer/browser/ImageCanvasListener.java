@@ -64,7 +64,7 @@ class ImageCanvasListener
     private BrowserUI		view;
     
     /** The canvas this listener is for. */
-    private ImageCanvas		canvas;
+    private GLImageCanvas		canvas;
     
     /** 
      * Flag indicating that the mouse entered or not the area. Control
@@ -92,7 +92,8 @@ class ImageCanvasListener
      * @param canvas	Reference to the canvas this listener is for.
      * 					Mustn't be <code>null</code>.
      */
-    ImageCanvasListener(BrowserUI view, BrowserModel model, ImageCanvas canvas)
+    ImageCanvasListener(BrowserUI view, BrowserModel model, 
+    		GLImageCanvas canvas)
     {
     	if (model == null) throw new NullPointerException("No Model.");
     	if (canvas == null) throw new NullPointerException("No canvas.");

@@ -69,6 +69,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjSavingDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
+import org.openmicroscopy.shoola.agents.imviewer.util.saver.SaveObject;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
@@ -83,6 +84,9 @@ import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
+import com.sun.opengl.util.texture.TextureData;
+
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -638,9 +642,9 @@ class ImViewerComponent
 			default:
 				throw new IllegalArgumentException("Color Model not supported");		
 		}
-		
-		firePropertyChange(COLOR_MODEL_CHANGED_PROPERTY, 
-				Integer.valueOf(1), Integer.valueOf(-1));
+		//Remove 21/09
+		//firePropertyChange(COLOR_MODEL_CHANGED_PROPERTY, 
+		//		Integer.valueOf(1), Integer.valueOf(-1));
 		view.setColorModel(key);
 	}
 
@@ -936,6 +940,14 @@ class ImViewerComponent
 		if (index == PROJECTION_INDEX) {
 			previewProjection();
 			fireStateChange();
+		} else if (index == GRID_INDEX) {
+			if (GREY_SCALE_MODEL.equals(model.getColorModel())) {
+				model.getBrowser().onColorModelChange();
+			} else {
+				model.fireImageRetrieval();
+				newPlane = false;
+				fireStateChange();
+			}
 		} else {
 			model.fireImageRetrieval();
 			newPlane = false;
@@ -1254,6 +1266,70 @@ class ImViewerComponent
 		return images;
 	}
 
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getGridImagesAsTexture()
+	 */
+	public Map<Integer, TextureData> getGridImagesAsTexture()
+	{
+		switch (model.getState()) {
+			case NEW:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED or NEW"+
+				" state.");
+		}
+		
+		view.createGridImage(true);
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		//if (model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
+		List active = model.getActiveChannels();
+		int maxC = model.getMaxC();
+		Map<Integer, TextureData> 
+			images = new HashMap<Integer, TextureData>(maxC);
+		List<ChannelData> list = getSortedChannelData();
+		Iterator<ChannelData> i = list.iterator();
+		int k;
+		Iterator w;
+		if (model.getColorModel().equals(GREY_SCALE_MODEL)) {
+			active = view.getActiveChannelsInGrid();
+			//Iterator i = active.iterator();
+			while (i.hasNext()) {
+				k = i.next().getIndex();
+				if (active.contains(k)) {
+					for (int j = 0; j < maxC; j++) 
+						model.setChannelActive(j, j == k);
+					images.put(k, model.getSplitComponentImageAsTexture());
+				} else {
+					images.put(k, null);
+				}
+			}
+			w = active.iterator();
+			while (w.hasNext()) { //reset values.
+				model.setChannelActive((Integer) w.next(), true);
+			}
+		} else {
+			while (i.hasNext()) {
+				k = i.next().getIndex();
+				if (model.isChannelActive(k)) {
+					for (int l = 0; l < maxC; l++)
+						model.setChannelActive(l, k == l);
+
+					images.put(k, model.getSplitComponentImageAsTexture());
+					w = active.iterator();
+					while (w.hasNext()) { //reset values.
+						model.setChannelActive((Integer) w.next(), true);
+					}
+				} else {
+					images.put(k, null);
+				}
+			}
+		}
+		view.createGridImage(false);
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		return images;
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getCombinedGridImage()
@@ -2329,9 +2405,9 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setProjectionPreview(BufferedImage)
+	 * @see ImViewer#setProjectionPreview(Object)
 	 */
-	public void setProjectionPreview(BufferedImage image)
+	public void setProjectionPreview(Object image)
 	{
 		if (image == null) {
 			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
@@ -2738,6 +2814,68 @@ class ImViewerComponent
 	{
 		if (bounds == null) return;
 		model.getBrowser().scrollTo(bounds, false);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#scrollToViewport(Rectangle)
+	 */
+	public void setImageAsTexture(TextureData image)
+	{
+		if (model.getState() != LOADING_IMAGE) 
+			throw new IllegalStateException("This method can only be invoked " +
+			"in the LOADING_IMAGE state.");
+		if (image == null) {
+			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Image retrieval", "An error occured while " +
+					"creating the image.");
+			return;
+		}
+			
+		if (newPlane) postMeasurePlane();
+		newPlane = false;
+
+		//BufferedImage originalImage = model.getOriginalImage();
+		model.setImageAsTexture(image);
+		view.setLeftStatus();
+		view.setPlaneInfoStatus();
+		/*
+		if (originalImage == null && model.isZoomFitToWindow()) {
+			controller.setZoomFactor(ZoomAction.ZOOM_FIT_TO_WINDOW);
+		}
+		if (model.isPlayingChannelMovie())
+			model.setState(ImViewer.CHANNEL_MOVIE);
+		if (!model.isPlayingMovie()) {
+			//Post an event
+			EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+			BufferedImage icon = model.getImageIcon();
+			bus.post(new ImageRendered(model.getPixelsID(), icon, 
+					model.getBrowser().getRenderedImage()));
+			if (icon != null) view.setIconImage(icon);
+		}
+			
+		if (!model.isPlayingMovie() && !model.isPlayingChannelMovie()) {
+			if (view.isLensVisible()) view.setLensPlaneImage();
+			view.createHistoryItem(null);
+		}
+		*/
+		view.setCursor(Cursor.getDefaultCursor());
+		fireStateChange();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#saveImage(SaveObject)
+	 */
+	public void saveImage(SaveObject value)
+	{
+		switch (model.getState()) {
+			case LOADING_IMAGE:
+			case DISCARDED:
+				return;
+		}
+		if (value == null) return;
+		model.getBrowser().saveImage(value);
 	}
 	
 }

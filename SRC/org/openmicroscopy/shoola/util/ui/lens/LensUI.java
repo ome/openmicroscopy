@@ -39,7 +39,7 @@ import javax.swing.JPopupMenu;
 //Application-internal dependencies
 
 /** 
-* Magnifing lens, will show a lens on the image and link into a second window
+* Magnifying lens, will show a lens on the image and link into a second window
 * which will display the magnified image.
 * 
 *
@@ -53,7 +53,7 @@ import javax.swing.JPopupMenu;
 * </small>
 * @since OME2.2
 */
-public class LensUI 
+class LensUI 
 	extends JPanel
 {
 
@@ -146,7 +146,7 @@ public class LensUI
 	/** size of the crosshair, running from centre of lens. */
 	private int 				crosshairLength = UNSNAPPED_CROSSHAIR;
 
-	/** size of the visble crosshair. */
+	/** size of the visible crosshair. */
 	private int 				crosshairTick = crosshairLength/2-1;
 
 	/** Colour of the frame of the lens */

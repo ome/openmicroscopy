@@ -32,6 +32,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
+import javax.media.opengl.GLAutoDrawable;
+
 
 //Third-party libraries
 
@@ -52,16 +54,13 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
  * @since 3.0-Beta4
  */
 class ProjectionCanvas 
-	extends ImageCanvas
+	extends GLImageCanvas//ImageCanvas
 {
 
 	/** The default text. */
 	private static final String DEFAULT_TEXT = "Click here to preview\n" +
 			" a projection of all the z-sections.";
 	
-	/** Reference to the View. */
-    private BrowserUI    	view;
-    
     /** The mouse listerner. */
     private MouseAdapter	listener;
     
@@ -92,15 +91,14 @@ class ProjectionCanvas
      */
 	ProjectionCanvas(BrowserModel model, BrowserUI view)
 	{
-		super(model);
-		if (view == null) throw new NullPointerException("No view.");
-		this.view = view;
+		super(model, view);
 	}
 
 	/**
      * Overridden to paint the image.
      * @see javax.swing.JComponent#paintComponent(Graphics)
      */
+	/*
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
@@ -130,5 +128,42 @@ class ProjectionCanvas
         paintScaleBar(g2D, img.getWidth(), img.getHeight(), view.getViewport());
         g2D.dispose();
     }
+    */
+    
+    /**
+     * Paints the image.
+     * 
+     */
+    public void display(GLAutoDrawable drawable) 
+	{
+    	/*
+		GL2 gl = drawable.getGL().getGL2();
+		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);	
+		texture = TextureIO.newTexture(model.getRenderedImageAsTexture());
+		if (texture != null) 
+		{
+			float x = 1;
+			float y = 1;
+			texture.enable();
+			texture.bind();
+			gl.glTexEnvi(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE,
+					GL2.GL_REPLACE);
+			TextureCoords coords = texture.getImageTexCoords();
+			coords = new TextureCoords(0, 0, 1, 1);
+			gl.glBegin(GL2.GL_QUADS);
+			gl.glTexCoord2f(coords.left(), coords.bottom());
+			gl.glVertex3f(0, 0, 0);
+			gl.glTexCoord2f(coords.right(), coords.bottom());
+			gl.glVertex3d(x, 0, 0);
+			gl.glTexCoord2f(coords.right(), coords.top());
+			gl.glVertex3f(x, y, 0);
+			gl.glTexCoord2f(coords.left(), coords.top());
+			gl.glVertex3f(0, y, 0);
+			gl.glEnd();
+			texture.disable();
+		}
+		*/
+    	onDisplay(drawable, model.getProjectedImageAsTexture());
+	}
     
 }

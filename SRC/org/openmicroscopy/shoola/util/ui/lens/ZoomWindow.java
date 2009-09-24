@@ -23,9 +23,21 @@
 package org.openmicroscopy.shoola.util.ui.lens;
 
 //Java imports
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
 import javax.swing.JMenuBar;
+import javax.swing.JViewport;
 
 //Third-party libraries
 
@@ -46,20 +58,59 @@ import javax.swing.JMenuBar;
 * @since OME2.2
 */
 class ZoomWindow
+	extends JDialog
+	implements ComponentListener
 {
+	
+	/** The default size of the window. */
+	static final Dimension	DEFAULT_SIZE = new Dimension(300, 300);
+	
+	/** The default location of the window. */
+	private static final Point		DEFAULT_LOC = new Point(900, 200);
 	
 	/** The UI which displays the zoomed image. */
 	private ZoomWindowUI 	zoomWindowUI;
 	
-	/**
-	 * Creates a  new  instance.
-	 * 
-	 * @param lensComponent The parent component of the ZoomWindow.
-	 * 						Mustn't be <code>null</code>.
-	 */
-	ZoomWindow(LensComponent lensComponent)
+	/** Lens menu bar. */
+	private JMenuBar			menu;
+	
+	/** Lens options popup menu. */
+	private LensMenu			lensMenu;
+	
+    private JLayeredPane        layeredPane;
+    
+	/** The statusPanel shows the position, size and zoomFactor of the lens. */
+	private StatusPanel        statusPanel;
+	
+	/** Parent component of the lens and zoomWindowUI. */
+	private LensComponent      lensComponent;
+	
+	private void initComponents()
 	{
-		this(null, lensComponent);
+		setTitle("Zoom Window");
+		//setSize(DEFAULT_SIZE);
+		setLocation(DEFAULT_LOC);
+		//setAlwaysOnTop(true);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		
+		addWindowListener( new WindowAdapter() {
+			public void windowClosing(WindowEvent e)
+			{ 
+				lensComponent.zoomWindowClosed();
+			}
+		});
+		addComponentListener(this);
+		lensMenu = new LensMenu(lensComponent);
+		statusPanel = new StatusPanel();
+	}
+	
+	/** Builds and lays out the UI. */
+	private void buildGUI()
+	{
+		Container c = getContentPane();
+		c.setLayout(new BorderLayout());
+		c.add(zoomWindowUI, BorderLayout.CENTER);
+		c.add(statusPanel, BorderLayout.SOUTH);
 	}
 	
 	/**
@@ -70,13 +121,17 @@ class ZoomWindow
 	 * @param lensComponent The parent component of the ZoomWindow.
 	 *
 	 */
-	ZoomWindow(JFrame parent, LensComponent lensComponent)
+	ZoomWindow(JFrame parent, LensComponent lensComponent, LensModel model)
 	{
+		super(parent);
 		if (lensComponent == null)
 			throw new IllegalArgumentException("No parent.");
-		zoomWindowUI = new ZoomWindowUI(parent, lensComponent);
+		this.lensComponent = lensComponent;
+		zoomWindowUI = new ZoomWindowUI(model);
+		initComponents();
+		buildGUI();
 	}
-	
+
 	/**
 	 * Displays in pixels if <code>true</code> or in microns otherwise.
 	 * 
@@ -84,57 +139,29 @@ class ZoomWindow
 	 */
 	void setDisplayInPixels(boolean b)
 	{
-		zoomWindowUI.setDisplayInPixels(b);
+		statusPanel.setDisplayInPixels(b);
+		statusPanel.repaint();
 	}
 
-	/** 
-	 * Adds menu to the zoomWindowUI. 
-	 * 
-	 * @param menu menubar.
-	 */
-	void setMenu(JMenuBar menu) { zoomWindowUI.setJMenuBar(menu); }
-	
 	/**
 	 * Sets the mapping from pixel size to microns along the x and y axis. 
-   * 
+	 * 
 	 * @param x mapping in x axis.
 	 * @param y mapping in y axis.
 	 */
 	void setXYPixelMicron(double x, double y) 
 	{
-		zoomWindowUI.setXYPixelMicron(x, y);
-	}
-
-	/** Repaints the zoomwindowUI after and update.  */
-	void repaint() { zoomWindowUI.repaint(); }
-	
-	/**
-	 * Sets the visiblity of the zoomWindowUI.
-	 * 
-	 * @param makeVisible see above.
-	 */
-	void setVisible(boolean makeVisible)
-	{
-		zoomWindowUI.setVisible(makeVisible);
-	}
-  
-	/**
-	 * Sets the zoomImage to be the bufferedImage.
-	 * 
-	 * @param zoomImage See above.
-	 */
-	void setZoomImage(BufferedImage zoomImage)
-	{
-		zoomWindowUI.setZoomImage(zoomImage);
+		statusPanel.setXYPixelMicron(x, y);
+		statusPanel.repaint();
 	}
 	
 	/**
-	 * Sets the X,Y co-ordinates of the lens on the ZoomWindowUI.
+	 * Sets the X,Y coordinates of the lens on the ZoomWindowUI.
 	 * 
 	 * @param x See above.
 	 * @param y See above.
 	 */
-	void setLensXY(int x, int y) { zoomWindowUI.setLensXY(x, y); }
+	void setLensXY(int x, int y) { statusPanel.setLensXY(x, y); }
 	
 	/**
 	 * Sets the w,h size of the lens on the ZoomWindowUI.
@@ -144,7 +171,7 @@ class ZoomWindow
 	 */
 	void setLensWidthHeight(int w, int h)
 	{
-		zoomWindowUI.setLensWidthHeight(w, h);
+		statusPanel.setLensWidthHeight(w, h);
 	}
 
 	/** 
@@ -154,7 +181,7 @@ class ZoomWindow
 	 */
 	void setLensZoomFactor(float zoomFactor)
 	{
-		zoomWindowUI.setLensZoomFactor(zoomFactor);
+		statusPanel.setLensZoomFactor(zoomFactor);
 	}
 
 	/**
@@ -165,7 +192,7 @@ class ZoomWindow
 	 */
 	void setZoomUISize(float w, float h) 
 	{
-		zoomWindowUI.setZoomedImageSize((int) w, (int) h);
+		zoomWindowUI.setZoomUISize((int) w, (int) h);
 	} 
 	
 	/**
@@ -174,27 +201,52 @@ class ZoomWindow
 	 * @return zoomWindowUI.
 	 */
 	ZoomWindowUI getUI() { return zoomWindowUI; }
+
+	/**
+	 * Forwards call to {@link #zoomWindowUI}.
+	 * 
+	 * @param index The index. 
+	 */
+	void setSelectedSize(int index) { lensMenu.setSelectedSize(index); }
+
+	/**
+	 * Forwards call to {@link #zoomWindowUI}.
+	 * 
+	 * @param index The index. 
+	 */
+	void setZoomIndex(int index) { lensMenu.setZoomIndex(index); }
+
+	/** Repaints the image canvas. */
+	void paintImage()
+	{ 
+		zoomWindowUI.repaint();
+	}
+
+	/** Updates the background color of the view port. */
+	void updateBackgroundColor() { zoomWindowUI.updateBackgroundColor(); }
+
+	/**
+	 * Ce
+	 */
+	public void componentResized(ComponentEvent e)
+	{
+		zoomWindowUI.setBounds(zoomWindowUI.getBounds());
+	}
+
 	
-	/**
-	 * Returns <code>true</code> if the zoomWindowUI is visible,
-   * <code>false</code> otherwise.
-	 *  
-	 * @return See above.
-	 */
-	boolean isVisible() { return zoomWindowUI.isVisible(); }
+	public void componentHidden(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
 
-	/**
-	 * Forwards call to {@link #zoomWindowUI}.
-	 * 
-	 * @param index The index. 
-	 */
-	void setSelectedSize(int index) { zoomWindowUI.setSelectedSize(index); }
-
-	/**
-	 * Forwards call to {@link #zoomWindowUI}.
-	 * 
-	 * @param index The index. 
-	 */
-	void setZoomIndex(int index) { zoomWindowUI.setZoomIndex(index); }
+	public void componentMoved(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	public void componentShown(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

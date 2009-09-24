@@ -26,6 +26,9 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 
@@ -34,6 +37,7 @@ import javax.swing.event.ChangeEvent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.util.saver.ImgSaver;
+import org.openmicroscopy.shoola.agents.imviewer.util.saver.SaveObject;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -107,6 +111,15 @@ public class SaveAction
     	if (model.getMaxC() > 1) index = ImgSaver.PARTIAL;
     	if (model.hasLens()) index = ImgSaver.FULL;
         ImgSaver saver = new ImgSaver(model.getUI(), model, index);
+        saver.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			public void propertyChange(PropertyChangeEvent evt) {
+				String name = evt.getPropertyName();
+				if (ImgSaver.SAVE_IMAGE_PROPERTY.equals(name)) {
+					model.saveImage((SaveObject) evt.getNewValue());
+				}
+			}
+		});
         UIUtilities.setLocationRelativeToAndShow(model.getUI(), saver);
     }
     

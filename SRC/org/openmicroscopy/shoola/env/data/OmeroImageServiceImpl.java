@@ -68,6 +68,9 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+
+import com.sun.opengl.util.texture.TextureData;
+
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -414,6 +417,19 @@ class OmeroImageServiceImpl
 	{
 		return PixelsServicesFactory.renderProjected(context, pixelsID, startZ,
 				endZ, type, stepping, channels);
+	}
+	
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#renderProjectedAsTexture(long, int, int, int, int, 
+	 * List)
+	 */
+	public TextureData renderProjectedAsTexture(long pixelsID, int startZ, 
+			int endZ, int stepping, int type, List<Integer> channels)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		return PixelsServicesFactory.renderProjectedAsTexture(context, 
+				pixelsID, startZ, endZ, type, stepping, channels);
 	}
 	
 	/** 

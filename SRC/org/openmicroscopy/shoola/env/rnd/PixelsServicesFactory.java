@@ -50,6 +50,8 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 
+import com.sun.opengl.util.texture.TextureData;
+
 import pojos.ChannelData;
 import pojos.PixelsData;
 
@@ -430,7 +432,7 @@ public class PixelsServicesFactory
      * @param type 	   	One of the projection type defined by this class.
      * @param channels The collection of channels to project.
      * @return See above.
-     * @throws RenderingServiceException 	If an error occured while setting 
+     * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -449,6 +451,41 @@ public class PixelsServicesFactory
 		
 		return proxy.renderProjected(startZ, endZ, stepping, type, channels);
 	}
+	
+	/**
+	 * Renders the projected images.
+	 * 
+	 * @param context	Reference to the registry. To ensure that agents cannot
+	 *                  call the method. It must be a reference to the
+	 *                  container's registry.
+	 * @param pixelsID  The id of the pixels set.
+	 * @param startZ	The first optical section.
+     * @param endZ     	The last optical section.
+     * @param stepping 	Stepping value to use while calculating the projection.
+     * @param type 	   	One of the projection type defined by this class.
+     * @param channels The collection of channels to project.
+     * @return See above.
+     * @throws RenderingServiceException 	If an error occurred while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	public static TextureData renderProjectedAsTexture(Registry context, 
+			Long pixelsID, int startZ, int endZ, int type, int stepping, 
+			List<Integer> channels)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		if (!(context.equals(registry)))
+			throw new IllegalArgumentException("Not allow to access method.");
+		RenderingControlProxy proxy = 
+			(RenderingControlProxy) singleton.rndSvcProxies.get(pixelsID);
+		if (proxy == null) 
+			throw new RuntimeException("No rendering service " +
+			"initialized for the specified pixels set.");
+		
+		return proxy.renderProjectedAsTexture(startZ, endZ, stepping, type, 
+				channels);
+	}
+	
 	
 	/**
 	 * Returns the compression quality related to the passed level.

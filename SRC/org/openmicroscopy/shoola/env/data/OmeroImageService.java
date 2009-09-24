@@ -45,6 +45,9 @@ import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+
+import com.sun.opengl.util.texture.TextureData;
+
 import pojos.DataObject;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -324,6 +327,24 @@ public interface OmeroImageService
 	 */
 	public BufferedImage renderProjected(long pixelsID, int startZ, int endZ, 
 			 int stepping, int type, List<Integer> channels)
+		throws RenderingServiceException, DSOutOfServiceException; 
+	
+	/**
+	 * Creates a preview projected image 
+	 * 
+	 * @param pixelsID  The ID of the pixels set.
+	 * @param startZ    The first optical section.
+	 * @param endZ      The last optical section.
+	 * @param stepping  The stepping used during the projection.
+	 * @param type      The type of projection.
+     * @param channels The collection of channels to project.
+	 * @return The buffered image representing the projected image.
+	 * @throws RenderingServiceException If the server cannot render the image.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 */
+	public TextureData renderProjectedAsTexture(long pixelsID, int startZ, 
+			int endZ, int stepping, int type, List<Integer> channels)
 		throws RenderingServiceException, DSOutOfServiceException; 
 	
 	/**

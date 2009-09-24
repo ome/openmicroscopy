@@ -63,6 +63,7 @@ import javax.swing.event.ChangeListener;
 import layout.TableLayout;
 
 //Application-internal dependencies
+import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
@@ -97,6 +98,9 @@ class ControlPane
     PropertyChangeListener
 {
 
+	/** The default size of the busy label. */
+	private static final Dimension	DIMENSION = new Dimension(16, 16);
+	
     /** The description of a z-sections selection slider. */
     private static final String 	Z_SLIDER_DESCRIPTION = 
     								"Select a z-section.";
@@ -252,6 +256,9 @@ class ControlPane
 
     /** Sets the stepping for the mapping. */
     private JSpinner			   	projectionFrequency;
+    
+    /** Busy indicating that the images composing the grid are retrieved. */
+    private JXBusyLabel				gridImageLabel;
     
     /** Helper reference. */
     private IconManager     		icons; 
@@ -501,6 +508,14 @@ class ControlPane
         playLifetimeMovie = new JButton(
     			controller.getAction(ImViewerControl.PLAY_LIFETIME_MOVIE));
 	    UIUtilities.unifiedButtonLookAndFeel(playLifetimeMovie);
+	    
+	    Icon icon = textVisibleButton.getIcon();
+	    Dimension d = DIMENSION; 
+	    if (icon != null) {
+	    	d = new Dimension(icon.getIconWidth(), icon.getIconHeight());
+	    }
+	    gridImageLabel = new JXBusyLabel(d);
+	    gridImageLabel.setVisible(false);
     }
     
     /**
@@ -664,10 +679,7 @@ class ControlPane
      */
     private JToolBar buildToolBar()
     {
-        JToolBar bar = new JToolBar(JToolBar.VERTICAL);
-        bar.setFloatable(false);
-        bar.setRollover(true);
-        bar.setBorder(null);
+        JToolBar bar = createBar();
         bar.add(colorModelButton);
         if (!model.isLifetime()) {
         	bar.add(Box.createRigidArea(VBOX));
@@ -686,16 +698,28 @@ class ControlPane
     /** 
      * Builds the tool bar displayed on the left side of the  grid view.
      * 
-     * @param button The button to add to the tool bar.
      * @return See above.
      */
-    private JToolBar buildGridBar(JComponent button)
+    private JToolBar buildGridBar()
+    {
+    	JToolBar bar = createBar();
+        bar.add(gridImageLabel);
+        bar.add(Box.createRigidArea(VBOX));
+        bar.add(colorModelButtonGrid);
+        return bar;
+    }
+    
+    /**
+     * Creates a tool bar.
+     * 
+     * @return See above.
+     */
+    private JToolBar createBar()
     {
     	JToolBar bar = new JToolBar(JToolBar.VERTICAL);
         bar.setFloatable(false);
         bar.setRollover(true);
         bar.setBorder(null);
-        bar.add(button);
         return bar;
     }
     
@@ -888,7 +912,6 @@ class ControlPane
         	buttons.add(button);
             buttons.add(Box.createRigidArea(VBOX));
             button.addPropertyChangeListener(controller);
-            
 		}
         JPanel controls = new JPanel();
         double size[][] = {{TableLayout.PREFERRED}, 
@@ -896,11 +919,13 @@ class ControlPane
         	TableLayout.PREFERRED, TableLayout.PREFERRED, SLIDER_HEIGHT}};
         
         controls.setLayout(new TableLayout(size));
-        controls.add(Box.createVerticalStrut(20), "0, 0");
-        JToolBar bar = buildGridBar(colorModelButtonGrid);
+        controls.add(Box.createVerticalStrut(10), "0, 0");
+        JToolBar bar = buildGridBar();
         bar.add(Box.createRigidArea(VBOX));
         controls.add(bar, "0, 1, c, c");
-        controls.add(buildGridBar(textVisibleButton), "0, 2, c, c");
+        bar = createBar();
+        bar.add(textVisibleButton);
+        controls.add(bar, "0, 2, c, c");
         if (channelButtonsGrid.size() > ImViewer.MAX_CHANNELS) {
         	JScrollPane sp = new JScrollPane(buttons);
         	d = new Dimension(2*w, h*ImViewer.MAX_CHANNELS);
@@ -1501,6 +1526,19 @@ class ControlPane
 	{
 		int index = projectionTypesBox.getSelectedIndex();
 		return projections.get(index);
+	}
+	
+	/**
+	 * Shows or hides a busy label indicating the on-going creation of the
+	 * grid image.
+	 * 
+	 * @param busy  Pass <code>true</code> to indicate the on-going creation,
+	 * 				<code>false</code> when it is finished.
+	 */
+	void createGridImage(boolean busy)
+	{
+		gridImageLabel.setVisible(busy);
+		gridImageLabel.setBusy(busy);
 	}
 	
     /**

@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.imviewer.util.saver;
 //Java imports
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.DataOutputStream;
@@ -75,6 +76,39 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class ImgSaver
     extends JDialog
 {
+	
+	/** Bound property indicating to save the image. */
+	public static final String	SAVE_IMAGE_PROPERTY = "saveImage";
+	
+    /** Save the main image. */
+    public static final int				IMAGE = ImgSaverUI.IMAGE;
+    
+    /** Save the grid image. */
+    public static final int				GRID_IMAGE = ImgSaverUI.GRID_IMAGE;
+    
+    /** 
+     * Save the images and an image of each channel composing the rendered 
+     * image. 
+     */
+    public static final int				IMAGE_AND_COMPONENTS = 
+    	ImgSaverUI.IMAGE_AND_COMPONENTS;
+    
+    /** 
+     * Save the images and an image of each channel composing the rendered 
+     * image.  Each channel rendered in grey scale mode.
+     */
+    public static final int				IMAGE_AND_COMPONENTS_GREY = 
+    	ImgSaverUI.IMAGE_AND_COMPONENTS_GREY;
+    
+    /** Save the lens image. */
+    static final int				LENS_IMAGE = 4;
+    
+    /** Save the lens image and the split channels. */
+    static final int				LENS_IMAGE_AND_COMPONENTS = 5;
+    
+    
+    /** Save the lens image. */
+    static final int				LENS_IMAGE_AND_COMPONENTS_GREY = 6;
     
 	/** Indicates to display all possible save options. */
 	public static final int 	FULL = 0;
@@ -103,7 +137,7 @@ public class ImgSaver
     /** The message when an image with the name and extension already exists. */
     private static final String	MESSAGE = "A file with the same name and \n" +
                                 "extension already exists in this " +
-                                "directory.\n " +
+                                "directory.\n" +
                                 "Do you really want to save the image?";
     
     /** Reference to the model. */
@@ -348,6 +382,9 @@ public class ImgSaver
     void setSelection(int index)
     {
     	MessageBox dialog = new MessageBox(this, "Save Image", MESSAGE);
+    	dialog.pack();
+    	Dimension d = dialog.getPreferredSize();
+    	dialog.setSize(d.width, d.height+30);
     	if (dialog.centerMsgBox() == MessageBox.YES_OPTION) {
     		dialog.setVisible(false);
         	switch (index) {
@@ -378,6 +415,7 @@ public class ImgSaver
     private void writeSingleImage(BufferedImage image, boolean constrain, 
     							String name)
     {
+    	/*
     	int width = image.getWidth();
         int h = image.getHeight();
         String v = getUnitBarValue(); 
@@ -393,6 +431,8 @@ public class ImgSaver
         if (constrain)
             ImagePaintingFactory.paintScaleBar(g2, width-s-10, h-10, s, v);
         writeImage(newImage, name);
+        */
+    	 writeImage(image, name);
     }
     
     /** 
@@ -403,6 +443,14 @@ public class ImgSaver
      */
     void saveImage(boolean init)
     {
+    	String extendedName = getExtendedName(name, format);
+        SaveObject object = new SaveObject(extendedName, format, 
+        		uiDelegate.getSavingType());
+        if (uiDelegate.isSetDefaultFolder())
+        	UIUtilities.setDefaultFolder(uiDelegate.getCurrentDirectory());
+        firePropertyChange(SAVE_IMAGE_PROPERTY, null, object);
+        close();
+    	/*
     	UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
     	if (init) createImages(uiDelegate.getSavingType());
         //Builds the image to display.
@@ -475,6 +523,7 @@ public class ImgSaver
         un.notifyInfo("Saving Image", saveMessage);
         if (uiDelegate.isSetDefaultFolder())
         	UIUtilities.setDefaultFolder(uiDelegate.getCurrentDirectory());
+        	*/
     }
 
     /**

@@ -80,8 +80,8 @@ public class ProjectionSaver
             public void doCall() throws Exception
             {
                 OmeroImageService rds = context.getImageService();
-                result = rds.renderProjected(pixelsID, startZ, endZ, stepping, 
-                		algorithm, channels);
+                result = rds.renderProjectedAsTexture(pixelsID, startZ, endZ, 
+                		stepping, algorithm, channels);
             }
         };
     }

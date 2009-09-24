@@ -36,7 +36,7 @@ import javax.swing.event.MouseInputListener;
 
 /** 
  * MouseListener attached to the LensUI, it simply relays mouse events to the 
- * LensUI which will inturn post them to the lensContoller. 
+ * LensUI which will in turn post them to the lensContoller. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

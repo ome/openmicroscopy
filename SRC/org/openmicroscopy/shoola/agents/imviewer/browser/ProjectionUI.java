@@ -32,6 +32,8 @@ import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.JScrollPane;
 
+import com.sun.opengl.util.texture.TextureData;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -122,6 +124,7 @@ class ProjectionUI
     /** Displays the zoomed image. */
     void zoomImage()
     {
+    	/*
         if (model.getProjectedImage() == null) return;
         model.createDisplayedProjectedImage();
         BufferedImage img = model.getDisplayedProjectedImage();
@@ -131,6 +134,16 @@ class ProjectionUI
         getViewport().setViewPosition(new Point(-1, -1));
         canvas.repaint();
         setBounds(getBounds());
+        */
+        TextureData img = model.getRenderedImageAsTexture();
+    	if (img == null) return;
+    	double zoom = model.getZoomFactor();
+    	int w = (int) (img.getWidth()*zoom);
+    	int h = (int) (img.getHeight()*zoom);
+    	setComponentsSize(w, h);
+    	getViewport().setViewPosition(new Point(-1, -1));
+    	canvas.repaint();
+    	setBounds(getBounds());
     }
     
     /**

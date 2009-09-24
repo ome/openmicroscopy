@@ -71,6 +71,9 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+
+import com.sun.opengl.util.texture.TextureData;
+
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -715,7 +718,8 @@ class ImViewerModel
 		pDef.z = getDefaultZ();
 		pDef.slice = omero.romio.XY.value;
 		state = ImViewer.LOADING_IMAGE;
-		component.setImage(rnd.renderPlane(pDef));
+		//component.setImage(rnd.renderPlane(pDef));
+		component.setImageAsTexture(rnd.renderPlaneAsTexture(pDef));
 	}
 
 	/**
@@ -735,6 +739,23 @@ class ImViewerModel
 		return rnd.renderPlane(pDef);
 	}
 
+	/**
+	 * This method should only be invoked when we save the displayed image
+	 * and split its components.
+	 * 
+	 * @return See above.
+	 */
+	TextureData getSplitComponentImageAsTexture()
+	{
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return null;
+		PlaneDef pDef = new PlaneDef();
+		pDef.t = getDefaultT();
+		pDef.z = getDefaultZ();
+		pDef.slice = omero.romio.XY.value;
+		return rnd.renderPlaneAsTexture(pDef);
+	}
+	
 	/** Notifies that the rendering control has been loaded. */
 	void onRndLoaded()
 	{
@@ -865,7 +886,7 @@ class ImViewerModel
 	 * Sets the color model.
 	 * 
 	 * @param colorModel	The color model to set.
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -920,7 +941,7 @@ class ImViewerModel
 	}  
 
 	/**
-	 * Returns the number of bins per timeinterval
+	 * Returns the number of bins per time interval
 	 * 
 	 * @return See above
 	 */
@@ -1061,6 +1082,23 @@ class ImViewerModel
 	 */
 	BufferedImage getGridImage() { return browser.getGridImage(); }
 
+	/**
+	 * Returns the main image as a texture data.
+	 * 
+	 * @return See above.
+	 */
+	TextureData getImageAsTexture() { return browser.getImageAsTexture(); }
+	
+	/**
+	 * Returns the projected image as a texture data.
+	 * 
+	 * @return See above.
+	 */
+	TextureData getProjectedImageAsTexture()
+	{ 
+		return browser.getProjectedImageAsTexture(); 
+	}
+	
 	/**
 	 * Returns the size in microns of a pixel along the X-axis.
 	 * 
@@ -1831,7 +1869,7 @@ class ImViewerModel
      * 
      * @param image The buffered image.
      */
-	void setRenderProjected(BufferedImage image)
+	void setRenderProjected(Object image)
 	{
 		state = ImViewer.READY; 
 		browser.setRenderProjected(image);
@@ -2032,5 +2070,27 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	Collection getMeasurements() { return measurements; }
+	
+	/**
+	 * Sets the retrieved image, returns the a magnification or <code>-1</code>
+	 * if no magnification factor computed. 
+	 * 
+	 * @param image The image to set.
+	 * @return See above.
+	 */
+	double setImageAsTexture(TextureData image)
+	{
+		state = ImViewer.READY; 
+		browser.setRenderedImageAsTexture(image);
+		//update image icon
+		//28/02 added to speed up process, turn back on for 4.1
+		/*
+		if (imageIcon == null) {
+			computeSizes();
+			imageIcon = Factory.magnifyImage(factor, image);
+		}
+		*/
+		return initZoomFactor();
+	}
 	
 }

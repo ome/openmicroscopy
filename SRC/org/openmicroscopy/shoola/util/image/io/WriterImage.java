@@ -69,7 +69,7 @@ public class WriterImage
      * @param f The file used to create the output stream.
      * @param img The image to encode.
      * @param format The file format.
-     * @throws EncoderException Exception thrown if an error occured during the
+     * @throws EncoderException Exception thrown if an error occurred during the
      * encoding process.
      */
     public static void saveImage(File f, BufferedImage img, String format)
@@ -95,7 +95,7 @@ public class WriterImage
      * Encodes the specified image.
      * 
      * @param encoder The encoder to use. Mustn't be <code>null</code>.
-     * @throws EncoderException Exception thrown if an error occured during the
+     * @throws EncoderException Exception thrown if an error occurred during the
      * encoding process.
      */
     public static void saveImage(Encoder encoder)
@@ -116,7 +116,7 @@ public class WriterImage
 	 * 
 	 * @param image The image to convert.
 	 * @return See above.
-	 * @throws EncoderException Exception thrown if an error occured during the
+	 * @throws EncoderException Exception thrown if an error occurred during the
      * encoding process.
 	 */
 	public static byte[] imageToByteStreamAsJPEG(BufferedImage image) 
@@ -143,7 +143,7 @@ public class WriterImage
 	 * 
 	 * @param values The values to convert.
 	 * @return See above.
-	 *  @throws EncoderException Exception thrown if an error occured during the
+	 *  @throws EncoderException Exception thrown if an error occurred during the
      * encoding process.
 	 */
 	public static BufferedImage bytesToImageJPEG(byte[] values)

@@ -31,7 +31,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JComponent;
@@ -42,6 +42,8 @@ import javax.swing.JViewport;
 
 
 //Third-party libraries
+import com.sun.opengl.util.texture.TextureData;
+
 
 //Application-internal dependencies
 
@@ -151,6 +153,18 @@ class BrowserUI
         buildGUI();
     }
 
+	/**
+	 * Saves the image to the passed file.
+	 * 
+	 * @param file		The file where to save the image.
+	 * @param format	The format to use.
+	 */
+	void activeFileSave(File file, String format)
+	{
+		browserCanvas.activeSave(file, format);
+		browserCanvas.repaint();
+	}
+	
     /** 
      * Sets the component related to this component when the bounds of 
      * the view are reset.
@@ -195,17 +209,27 @@ class BrowserUI
      */
     void paintMainImage()
     {
+    	/*
         if (model.getRenderedImage() == null) return;
         model.createDisplayedImage();
         BufferedImage img = model.getDisplayedImage();
         if (img == null) return;
         canvasListener.setAreaSize(img.getWidth(), img.getHeight());
         browserCanvas.repaint();
+        */
+    	TextureData img = model.getRenderedImageAsTexture();
+    	if (img == null) return;
+    	double zoom = model.getZoomFactor();
+    	int w = (int) (img.getWidth()*zoom);
+    	int h = (int) (img.getHeight()*zoom);
+    	canvasListener.setAreaSize(w, h);
+    	browserCanvas.repaint();
     }
     
     /** Displays the zoomed image. */
     void zoomImage()
     {
+    	/*
         if (model.getRenderedImage() == null) return;
         model.createDisplayedImage();
         BufferedImage img = model.getDisplayedImage();
@@ -215,6 +239,17 @@ class BrowserUI
         getViewport().setViewPosition(new Point(-1, -1));
         browserCanvas.repaint();
         setBounds(getBounds());
+        */
+    	TextureData img = model.getRenderedImageAsTexture();
+    	if (img == null) return;
+    	double zoom = model.getZoomFactor();
+    	int w = (int) (img.getWidth()*zoom);
+    	int h = (int) (img.getHeight()*zoom);
+    	setComponentsSize(w, h);
+    	canvasListener.setAreaSize(img.getWidth(), img.getHeight());
+    	getViewport().setViewPosition(new Point(-1, -1));
+    	browserCanvas.repaint();
+    	setBounds(getBounds());
     }
       
     /**

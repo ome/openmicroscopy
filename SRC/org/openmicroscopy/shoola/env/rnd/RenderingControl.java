@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.rnd;
 //Java imports
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.nio.Buffer;
 import java.util.List;
 
 
@@ -34,6 +35,9 @@ import java.util.List;
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+
+import com.sun.opengl.util.texture.TextureData;
+
 import pojos.ChannelData;
 import pojos.PixelsData;
 
@@ -655,6 +659,24 @@ public interface RenderingControl
     	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
+     * Projects the selected optical sections for the currently selected 
+     * time-point and the active channels and returned a projected image.
+     * 
+     * @param startZ   The first optical section.
+     * @param endZ     The last optical section.
+     * @param stepping Stepping value to use while calculating the projection.
+     * @param type 	   One of the projection type defined by this class.
+     * @param channels The collection of channels to project.
+     * @return See above.
+     * @throws RenderingServiceException 	If an error occurred while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
+     */
+    public TextureData renderProjectedAsTexture(int startZ, int endZ, 
+    		int stepping, int type, List<Integer> channels)
+    	throws RenderingServiceException, DSOutOfServiceException;
+    
+    /**
      * Copies rendering settings from the original image to the projected
      * one.
      * 
@@ -696,4 +718,17 @@ public interface RenderingControl
      */
     public long getPixelsID();
     
+    
+	/**
+	 * Renders the specified {@link PlaneDef 2D-plane}.
+	 * 
+	 * @param pDef The plane to render.
+	 * @return See above.
+	 * @throws RenderingServiceException 	If an error occurred while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	public TextureData renderPlaneAsTexture(PlaneDef pDef)
+		throws RenderingServiceException, DSOutOfServiceException;
+
 }

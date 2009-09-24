@@ -40,10 +40,14 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
+import org.openmicroscopy.shoola.agents.imviewer.util.saver.SaveObject;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+
+import com.sun.opengl.util.texture.TextureData;
+
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -904,7 +908,7 @@ public interface ImViewer
 	 * 
 	 * @param image The value to display.
 	 */
-	public void setProjectionPreview(BufferedImage image);
+	public void setProjectionPreview(Object image);
 	
 	/**
 	 * Sets the newly created projected image.
@@ -1062,5 +1066,27 @@ public interface ImViewer
 	 * @param bounds The rectangle to display if possible.
 	 */
 	public void scrollToViewport(Rectangle bounds);
+	
+	/**
+	 * Sets the image to display.
+	 * 
+	 * @param image The image to display.
+	 */
+	public void setImageAsTexture(TextureData image);
+
+	/**
+	 * Returns the images composing the grid. This should be invoked
+	 * only if the main image is not an RGB image.
+	 * 
+	 * @return See above.
+	 */
+	public Map<Integer, TextureData> getGridImagesAsTexture();
+
+	/**
+	 * Saves the image.
+	 * 
+	 * @param value The object hosting the information about the file to save.
+	 */
+	public void saveImage(SaveObject value);
 	
 }

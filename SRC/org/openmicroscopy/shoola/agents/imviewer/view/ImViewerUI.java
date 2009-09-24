@@ -68,6 +68,7 @@ import javax.swing.JTabbedPane;
 
 //Third-party libraries
 import layout.TableLayout;
+import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.model.PlaneInfo;
@@ -394,6 +395,8 @@ class ImViewerUI
 						(ColorCheckBoxMenuItem) e.getSource();
 					if (src.isSelected()) {
 						controller.setPreferences();
+						if (lens != null) 
+							lens.setBackgroundColor(src.getColor());
 						model.getBrowser().setBackgroundColor(src.getColor());
 					}
 				}
@@ -995,9 +998,7 @@ class ImViewerUI
 		container.addHierarchyBoundsListener(boundsAdapter);
 	}
 	
-	/**
-	 * Packs the window and resizes it if the screen is too small.
-	 */
+	/** Packs the window and resizes it if the screen is too small. */
 	private void packWindow()
 	{
 		pack();
@@ -1443,7 +1444,7 @@ class ImViewerUI
 	 * 
 	 * @param b 			Pass <code>true</code> to display the lens, 
 	 * 						<code>false</code> otherwise.
-	 * @param historyIndex	The index of the tabbed pane. 
+	 * @param historyIndex	The index of the tab pane. 
 	 */
 	void setLensVisible(boolean b, int historyIndex)
 	{
@@ -1476,23 +1477,28 @@ class ImViewerUI
 		int maxX = model.getMaxX();
 		int maxY = model.getMaxY();
 		float f = 1.0f;
-		BufferedImage img;
+		//BufferedImage img;
+		TextureData image;
 		int index = model.getTabbedIndex();
 		switch (index) {
 			case ImViewer.VIEW_INDEX:
 			default:
 				f = (float) model.getZoomFactor();
-				img = model.getOriginalImage();
+				image = model.getImageAsTexture();
+				//img = model.getOriginalImage();
 				break;
 			case ImViewer.PROJECTION_INDEX:
 				f = (float) model.getZoomFactor();
-				img = model.getProjectedImage();
+				image = model.getProjectedImageAsTexture();
+				//img = model.getProjectedImage();
 				break;
 			case ImViewer.GRID_INDEX:
-				img = model.getGridImage();
+				//img = model.getGridImage();
+				image = null;
 		}
-		int width = lens.getLensUI().getWidth();
-		int height = lens.getLensUI().getHeight();
+		JComponent c = lens.getLensUI();
+		int width = c.getWidth();
+		int height = c.getHeight();
 		Point p = lens.getLensLocation();
 		int lensX = p.x;
 		int lensY = p.y;
@@ -1534,10 +1540,11 @@ class ImViewerUI
 					}
 			}
 		}
-		lens.resetLens(img, f, lensX, lensY);  
-		model.getBrowser().addComponent(lens.getLensUI(), index);
+		if (image != null)
+			lens.resetLensAsTexture(image, f, lensX, lensY);  
+		model.getBrowser().addComponent(c, index);
 		scrollLens();
-		UIUtilities.setLocationRelativeTo(this, lens.getZoomWindowUI());
+		UIUtilities.setLocationRelativeTo(this, lens.getZoomWindow());
 		lens.setVisible(b);
 		repaint();
 	}
@@ -1755,7 +1762,7 @@ class ImViewerUI
 	}
 	
 	/**
-	 * Returns the collection of the acive channels in the grid view.
+	 * Returns the collection of the active channels in the grid view.
 	 * 
 	 * @return See above.
 	 */
@@ -2242,6 +2249,18 @@ class ImViewerUI
 	 */
 	void setDefaultScaleBarMenu(int index) { defaultIndex = index; }
 	
+	/**
+	 * Shows or hides a busy label indicating the on-going creation of the
+	 * grid image.
+	 * 
+	 * @param busy  Pass <code>true</code> to indicate the on-going creation,
+	 * 				<code>false</code> when it is finished.
+	 */
+	void createGridImage(boolean busy)
+	{
+		controlPane.createGridImage(busy);
+	}
+
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 
@@ -2289,5 +2308,5 @@ class ImViewerUI
 			//requestFocusInWindow();
 		}
 	}
-
+	
 }

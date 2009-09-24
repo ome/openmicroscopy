@@ -692,10 +692,10 @@ class ImViewerControl
 	{
 		String m = model.getColorModel();
 		ViewerAction a = null;
-		if (m.equals(ImViewer.RGB_MODEL)) {
+		if (ImViewer.RGB_MODEL.equals(m)) {
 			a = getAction(ImViewerControl.GREY_SCALE_MODEL);
 			a.actionPerformed(e);
-		} else if (m.equals(ImViewer.GREY_SCALE_MODEL)) {
+		} else if (ImViewer.GREY_SCALE_MODEL.equals(m)) {
 			a = getAction(ImViewerControl.RGB_MODEL);
 			a.actionPerformed(e);
 		} 

@@ -36,7 +36,10 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.util.saver.SaveObject;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+
+import com.sun.opengl.util.texture.TextureData;
 
 
 /** 
@@ -339,7 +342,7 @@ public interface Browser
      * 
      * @param image The buffered image.
      */
-	public void setRenderProjected(BufferedImage image);
+	public void setRenderProjected(Object image);
 	
 	/**
 	 * Returns <code>true</code> if a projected image has already been
@@ -357,5 +360,33 @@ public interface Browser
 	public BufferedImage getProjectedImage();
 
 	public void onColorModelChange();
+	
+	/**
+	 * Sets the image rendered as texture.
+	 * 
+	 * @param image The image to set.
+	 */
+	void setRenderedImageAsTexture(TextureData image);
+	
+	/**
+	 * Saves the image.
+	 * 
+	 * @param value The object hosting the information about the file to save.
+	 */
+	public void saveImage(SaveObject value);
+
+	/**
+	 * Returns the main image as a texture data.
+	 * 
+	 * @return See above.
+	 */
+	public TextureData getImageAsTexture();
+	
+	/**
+	 * Returns the projected image as a texture data.
+	 * 
+	 * @return See above.
+	 */
+	public TextureData getProjectedImageAsTexture();
 	
 }

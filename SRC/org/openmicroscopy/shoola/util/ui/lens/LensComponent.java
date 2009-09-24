@@ -29,16 +29,20 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.apache.commons.digester.WithDefaultsRulesWrapper;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
+import com.sun.opengl.util.texture.TextureData;
+
 /** 
-* The Lens Component is the main component of the lens accessable from outside
+* The Lens Component is the main component of the lens accessible from outside
 * of the lens Package. 
 * 
 * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -70,11 +74,11 @@ public class LensComponent
 	/** Reference to the lens object which will render onto the image canvas */
 	private LensUI			lens;
 	
-	/** Menu objcet which hold the popup and menu items. */
+	/** Menu object which hold the pop-up and menu items. */
 	private	LensMenu 		menu;
 	
 	/** 
-	 * Reference to the lensController which will modifiy the position and 
+	 * Reference to the lensController which will modify the position and 
 	 * properties of the lens and the zoomWindow. 
 	 */
 	private LensController	lensController;
@@ -116,6 +120,7 @@ public class LensComponent
 	{
 		Rectangle bounds = lensModel.getLensScaledBounds();
 		firePropertyChange(LENS_LOCATION_PROPERTY, null, bounds);
+		zoomWindow.paintImage();
 	}
 	
 	/** Selects the menu item if the size corresponds to a predefined size. */
@@ -129,7 +134,7 @@ public class LensComponent
 	}
 	
 	/**
-	 * Sets the zoomfactor for the lens. 
+	 * Sets the magnification factor for the lens. 
 	 * 
 	 * @param zoomFactor The magnification factor.
 	 */
@@ -169,9 +174,10 @@ public class LensComponent
 	public LensComponent(JFrame parent, BufferedImage planeImage)
 	{
 		lensModel = new LensModel(planeImage);
-		zoomWindow = new ZoomWindow(parent, this);
+		zoomWindow = new ZoomWindow(parent, this, lensModel);
 		lens = new LensUI(this, LENS_DEFAULT_WIDTH, LENS_DEFAULT_WIDTH);
 		lensController = new LensController(lensModel, lens, zoomWindow);
+		
 		lensModel.setWidth(LENS_DEFAULT_WIDTH);
 		lensModel.setHeight(LENS_DEFAULT_WIDTH);
 		lensModel.setImageZoomFactor(ZoomAction.ZOOMx1+1);
@@ -179,7 +185,7 @@ public class LensComponent
 		lens.setLensColour(lensModel.getLensPreferredColour());
 		menu = new LensMenu(this);
 		lens.setPopupMenu(menu.getPopupMenu());
-		zoomWindow.setMenu(menu.getMenubar());
+		zoomWindow.setJMenuBar(menu.getMenubar());
 	}
 	
 	/**
@@ -225,12 +231,12 @@ public class LensComponent
 	public void setPlaneImage(BufferedImage img)
 	{
 		lensModel.setPlaneImage(img);
-		zoomWindow.setZoomImage(lensModel.getZoomedImage());
-		zoomWindow.repaint();
+		zoomWindow.paintImage();
+		
 	}
 	
 	/**
-	 * Sets the visiblity of the lens, and ZoomWindowUI.
+	 * Sets the visibility of the lens, and ZoomWindowUI.
 	 * 
 	 * @param makeVisible The value to set.
 	 * 
@@ -277,11 +283,11 @@ public class LensComponent
 	public BufferedImage getZoomedImage() { return lensModel.getZoomedImage(); }
 	
 	/**
-	 * Returns the lens UI (a JPanel).
+	 * Returns the lens UI.
 	 * 
 	 * @return See above. 
 	 */
-	public LensUI getLensUI() { return lens; }
+	public JComponent getLensUI() { return lens; }
 	
 	/**
 	 * Returns <code>true</code> if the lens and zoomWindow are visible,
@@ -357,13 +363,13 @@ public class LensComponent
 	 * 
 	 * @return See above.
 	 */
-	public Component getZoomWindowUI() { return zoomWindow.getUI(); }
+	public Component getZoomWindow() { return zoomWindow; }
 	
 	/**
 	 * Returns a zoomed image of the passed image.
 	 * 
 	 * @param image The image to zoom.
-	 * @return Se above.
+	 * @return See above.
 	 */
 	public BufferedImage createZoomedImage(BufferedImage image)
 	{
@@ -388,11 +394,47 @@ public class LensComponent
 		lens.setImageZoomFactor();
 		//from PlaneImage
 		lensController.setLensLocation(x, y);
-		zoomWindow.setZoomImage(lensModel.getZoomedImage());
-		zoomWindow.repaint();
+		//zoomWindow.setZoomImage(lensModel.getZoomedImage());
+		zoomWindow.paintImage();
+	}
+	
+	/**
+	 * Sets the image to be magnified and the location of the lens.
+	 * 
+	 * @param image	The image to magnify.
+	 * @param f		The amount of zooming that has occurred on the image. 
+	 * @param x		The x-coordinate of the lens.
+	 * @param y		The y-coordinate of the lens.
+	 */
+	public void resetLensAsTexture(TextureData image, float f, int x, int y)
+	{
+		lensModel.setImageZoomFactor(f);
+		//lensModel.setPlaneImage(image);
+		lensModel.setPlaneImageAsTexture(image);
+		lensModel.setLensLocation(x, y);
+		//from ZoomFactor
+		lens.setImageZoomFactor();
+		//from PlaneImage
+		lensController.setLensLocation(x, y);
+		//zoomWindow.setZoomImage(lensModel.getZoomedImage());
+		setLensSize(lensModel.getWidth(), lensModel.getHeight());
+		zoomWindow.paintImage();
+		if (!zoomWindow.isVisible())
+			zoomWindow.setSize(ZoomWindow.DEFAULT_SIZE);
 	}
 	
 	/** Indicates to reset the zoomed buffer to <code>null</code>*/
 	public void resetDataBuffered() { lensModel.resetDataBuffer(); }
+	
+	/** 
+	 * Sets the background color.
+	 * 
+	 * @param color The color to set
+	 */
+	public void setBackgroundColor(Color color)
+	{ 
+		lensModel.setBackgroundColor(color);
+		zoomWindow.updateBackgroundColor();
+	}
 	
 }

@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -33,13 +34,38 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
+import javax.media.opengl.GL;
+import javax.media.opengl.GL2;
+import javax.media.opengl.GLAutoDrawable;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.image.io.Encoder;
+import org.openmicroscopy.shoola.util.image.io.TIFFEncoder;
+import org.openmicroscopy.shoola.util.image.io.WriterImage;
+
+import com.sun.opengl.util.BufferUtil;
+import com.sun.opengl.util.gl2.GLUT;
+import com.sun.opengl.util.texture.Texture;
+import com.sun.opengl.util.texture.TextureCoords;
+import com.sun.opengl.util.texture.TextureData;
+import com.sun.opengl.util.texture.TextureIO;
 
 /** 
  * Paints the main image and the split channels.
@@ -55,9 +81,18 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
  * @since OME3.0
  */
 class GridCanvas 
-	extends ImageCanvas
+	extends GLImageCanvas//ImageCanvas
 {
- 
+
+	/** The horizontal gap between image. */
+	private static final float HGAP = 0.5f;
+	
+	/** The horizontal gap between image if 3 columns are used. */
+	private static final float HGAP_HIGH = 0.33f;
+	
+	/** The zoom factor. */
+	private static final float ZOOM = 0.25f;
+
 	/** 
      * Paints the image.
      * 
@@ -67,6 +102,7 @@ class GridCanvas
      * @param bar	Pass <code>true</code> to paint the scale bar,
      * 				<code>false</code> otherwise.
      */
+	/*
     private void paintImage(Graphics2D g2D, int w, int h, boolean bar)
 	{
 		List images = model.getSplitImages();
@@ -174,15 +210,169 @@ class GridCanvas
         	}
         }
 	}
-
+*/
+	
+	/**
+	 * Paints the grid image.
+	 * 
+	 * @param gl The graphics context.
+	 */
+	private void paintGrid(GL2 gl)
+	{
+		List<GridImage> list = model.getGridImages();
+		Iterator<GridImage> i = list.iterator();
+		GridImage img;
+		
+		//paint image.
+		TextureCoords coords = new TextureCoords(0f, 0f, 1f, 1f);
+		float hGap = HGAP;
+		float vGap = 1.0f/model.getGridRow();
+		if (model.getMaxC() > 3) hGap = HGAP_HIGH;
+		float xStart = 0;
+		float yStart = 0;
+		float xEnd = hGap;
+		float yEnd = vGap;
+		int col = 0;
+		int columns = model.getGridColumn();
+		TextureData data;
+		Texture t = null;
+		while (i.hasNext()) {
+			img = (GridImage) i.next();
+			if (img.isActive()) {
+				data = img.getTextureData();
+				if (data != null) {
+					if (texture == null) texture = TextureIO.newTexture(data);
+					else texture.updateImage(data);
+					
+					gl.glBegin(GL2.GL_QUADS);
+					gl.glScaled(ZOOM, -1, 1);
+					gl.glTexCoord2f(coords.left(), coords.bottom());
+					gl.glVertex3f(xStart, yStart, 0);
+					gl.glTexCoord2f(coords.right(), coords.bottom());
+					gl.glVertex3d(xEnd, yStart, 0);
+					gl.glTexCoord2f(coords.right(), coords.top());
+					gl.glVertex3f(xEnd, yEnd, 0);
+					gl.glTexCoord2f(coords.left(), coords.top());
+					gl.glVertex3f(xStart, yEnd, 0);
+					gl.glEnd();
+					//texture.disable();
+				}
+			}
+			col++;
+			if (col == columns) {
+				col = 0;
+				xStart = 0;
+				xEnd = hGap;
+				yStart += vGap;
+				yEnd += vGap;
+			} else {
+				xStart = hGap;
+				xEnd += hGap;
+			}
+		}
+	}
+	
+	/**
+	 * Paints the text
+	 * 
+	 * @param gl The graphics context.
+	 */
+	private void paintText(GL2 gl)
+	{
+		int columns = model.getGridColumn();
+		int col = 0;
+		//write the text.
+		Color c = model.getUnitBarColor();
+		//draw scale bar text
+		gl.glColor3f(c.getRed()/255f, c.getGreen()/255f, c.getBlue()/255f);
+		List<GridImage> list = model.getGridImages();
+		Iterator<GridImage> i = list.iterator();
+		GridImage img;
+		
+		float start = 0.04f;
+		float y = 0.02f;
+		float x = start;
+		float hGap = HGAP;
+		float vGap = 1.0f/model.getGridRow();
+		if (model.getMaxC() > 3) hGap = HGAP_HIGH;
+		while (i.hasNext()) {
+			img = (GridImage) i.next();
+			if (img.isActive()) {
+				gl.glRasterPos2f(x, y);
+				glut.glutBitmapString(FONT, img.getLabel());
+			}
+			col++;
+			if (col == columns) {
+				col = 0;
+				x = start;
+				y += vGap;
+			} else x += hGap;
+		}
+	}
+	
+	/**
+	 * Paints the grid image if it is an RGB image.
+	 * 
+	 * @param gl The graphics context.
+	 */
+	private void paintGridAsRGB(GL2 gl)
+	{
+		List<GridImage> list = model.getGridImages();
+		Iterator<GridImage> i = list.iterator();
+		GridImage img;
+		
+		//paint image.
+		TextureCoords coords = new TextureCoords(0f, 0f, 1f, 1f);
+		boolean[] rgb;
+		float hGap = HGAP;
+		float vGap = 1.0f/model.getGridRow();
+		if (model.getMaxC() > 3) hGap = HGAP_HIGH;
+		float xStart = 0;
+		float yStart = 0;
+		float xEnd = hGap;
+		float yEnd = vGap;
+		int col = 0;
+		int columns = model.getGridColumn();
+		while (i.hasNext()) {
+			img = (GridImage) i.next();
+			if (img.isActive()) {
+				rgb = img.getRGB();
+				gl.glColorMask(rgb[0], rgb[1], rgb[2], true);
+				gl.glBegin(GL2.GL_QUADS);
+				gl.glScaled(ZOOM, -1, 1);
+				gl.glTexCoord2f(coords.left(), coords.bottom());
+				gl.glVertex3f(xStart, yStart, 0);
+				gl.glTexCoord2f(coords.right(), coords.bottom());
+				gl.glVertex3d(xEnd, yStart, 0);
+				gl.glTexCoord2f(coords.right(), coords.top());
+				gl.glVertex3f(xEnd, yEnd, 0);
+				gl.glTexCoord2f(coords.left(), coords.top());
+				gl.glVertex3f(xStart, yEnd, 0);
+				gl.glEnd();
+			}
+			col++;
+			if (col == columns) {
+				col = 0;
+				xStart = 0;
+				xEnd = hGap;
+				yStart += vGap;
+				yEnd += vGap;
+			} else {
+				xStart = hGap;
+				xEnd += hGap;
+			}
+		}
+	}
+	
 	/**
      * Creates a new instance.
      *
      * @param model Reference to the Model. Mustn't be <code>null</code>.
+     * 
      */
-	GridCanvas(BrowserModel model)
+	GridCanvas(BrowserModel model, BrowserUI view)
 	{
-		super(model); 
+		super(model, view); 
 	}
 	
 	/**
@@ -192,17 +382,7 @@ class GridCanvas
 	 */
 	BufferedImage getGridImage()
 	{
-		BufferedImage gridImage;
-		BufferedImage original = model.getCombinedImage();
-    	int w = original.getWidth();
-    	int h = original.getHeight();
-    	Dimension d = getSize();
-		gridImage = new BufferedImage(d.width, d.height, 
-										BufferedImage.TYPE_INT_RGB);
-		Graphics2D g2D = (Graphics2D) gridImage.getGraphics();
-		ImagePaintingFactory.setGraphicRenderingSettings(g2D);
-		paintImage(g2D, w, h, model.isUnitBar());
-		return gridImage;
+		return null;
 	}
 
 	/**
@@ -266,20 +446,81 @@ class GridCanvas
         }
         return null;
 	}
-
-	/**
-     * Overridden to paint the image.
-     * @see javax.swing.JComponent#paintComponent(Graphics)
+	
+    /**
+     * Paints the grid.
+     * @see GLImageCanvas#display(GLAutoDrawable)
      */
-    public void paintComponent(Graphics g)
-    {
-        super.paintComponent(g);
-        Graphics2D g2D = (Graphics2D) g;
-        ImagePaintingFactory.setGraphicRenderingSettings(g2D);
-        BufferedImage original = model.getCombinedImage();
-        if (original == null) return;
-    	paintImage(g2D, original.getWidth(), original.getHeight(), 
-    				model.isUnitBar());
-    }
-
+    public void display(GLAutoDrawable drawable) 
+	{
+    	TextureData data = model.getRenderedImageAsTexture();
+    	GL2 gl = drawable.getGL().getGL2();
+		// Clear The Screen And The Depth Buffer
+		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);	
+		if (data == null) return;
+    	//paint the text
+    	if (model.isTextVisible() && 
+    			model.getGridRatio() > ZOOM) paintText(gl);
+    	// pain the grid.
+		
+		gl.glTexEnvi(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE,
+				GL2.GL_REPLACE);
+		if (texture == null) texture = TextureIO.newTexture(data);
+		else texture.updateImage(data);
+		texture.enable();
+		texture.bind();
+    	if (model.isRenderedImageRGB() && model.isModelRGB()) { 
+    		//texture = TextureIO.newTexture(data);
+    		//texture.enable();
+    		//texture.bind();
+    		paintGridAsRGB(gl);
+    	} else {
+    		//texture = null;
+    		paintGrid(gl);
+    	}
+    	float vGap = 1.0f/model.getGridRow();
+    	//paint the 
+    	float xStart = HGAP;
+    	float yStart = 0;
+    	float xEnd = 2*HGAP;
+    	float yEnd = vGap;
+    	switch (model.getMaxC()) {
+			case 2:
+				xStart = 0;
+				xEnd = HGAP;
+				yEnd += vGap;
+				yStart += vGap;
+				break;
+			case 3:
+				yStart = vGap;
+				yEnd += vGap;
+				break;
+			default:
+				xStart = 2*HGAP_HIGH;
+				xEnd = 1.0f;
+		}
+    	if (texture == null) {
+    		texture = TextureIO.newTexture(data);
+    		//texture.enable();
+    		//texture.bind();
+    	} else texture.updateImage(data);
+    	TextureCoords coords = new TextureCoords(0f, 0f, 1f, 1f);
+    	gl.glColorMask(true, true, true, true);
+    	gl.glBegin(GL2.GL_QUADS);
+		gl.glScaled(ZOOM, -1, 1);
+		gl.glTexCoord2f(coords.left(), coords.bottom());
+		gl.glVertex3f(xStart, yStart, 0);
+		gl.glTexCoord2f(coords.right(), coords.bottom());
+		gl.glVertex3d(xEnd, yStart, 0);
+		gl.glTexCoord2f(coords.right(), coords.top());
+		gl.glVertex3f(xEnd, yEnd, 0);
+		gl.glTexCoord2f(coords.left(), coords.top());
+		gl.glVertex3f(xStart, yEnd, 0);
+		gl.glEnd();
+		
+		saveDisplayedImage(gl);
+		texture.disable();
+    	gl.glFlush();
+	}
+    
 }

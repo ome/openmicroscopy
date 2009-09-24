@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.swing.Icon;
 
@@ -53,8 +54,9 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import com.sun.opengl.util.texture.TextureData;
+
 import pojos.ChannelData;
-import pojos.ImageData;
 
 /** 
  * The Model component in the <code>Browser</code> MVC triad.
@@ -93,7 +95,7 @@ class BrowserModel
 	private static final Integer NON_PRIMARY_INDEX = -1;
 	
 	/** Gap between the images. */
-	static final int 			GAP = 2;
+	static final int 			GAP = 0;//2;
 	
     /** Reference to the component that embeds this model. */ 
     private Browser         	component;
@@ -121,6 +123,12 @@ class BrowserModel
     
     /** Reference to the {@link ImViewer}. */
     private ImViewer        	parent;
+    
+    /** The original image. */
+    private TextureData	   		renderedImageAsTexture;
+
+    /** The projected image. */
+    private TextureData		projectedImageAsTexture;
     
     /** 
      * Flag to indicate if the unit bar is painted or not on top of the
@@ -154,6 +162,9 @@ class BrowserModel
     
     /** Flag indicating to initialize {@link #ratio} and {@link #unitBar}. */
     private boolean				init;
+    
+    /** Collection of retrieved images composing the grid. */
+    private Map<Integer, TextureData>	gridImagesAsTextures;
     
     /**
      * Creates a buffered image.
@@ -398,6 +409,8 @@ class BrowserModel
     private void retrieveGridImages()
     {
     	List<BufferedImage> images = parent.getGridImages();
+    	
+    	
     	if (images != null) {
     		Iterator i = images.iterator();
         	while (i.hasNext()) {
@@ -416,6 +429,7 @@ class BrowserModel
     /** Creates the images composing the grid. */
     private void createGridImages()
     {
+    	/*
     	if (originalGridImages == null)
     		originalGridImages = new ArrayList<BufferedImage>();
     	gridImages.clear();
@@ -423,76 +437,16 @@ class BrowserModel
     		createGridImagesForGreyScale();
     		return;
     	}
-    	
-    	List l = parent.getActiveChannels();
-    	int maxC = parent.getMaxC();
-    	switch (l.size()) {
-			case 0:
-				for (int i = 0; i < maxC; i++) 
-					gridImages.add(null);
-				break;
-			case 1:
-			case 2:
-			case 3:
-				if (isImageMappedRGB(l)) {
-					//if (combinedImage == null) 
-						combinedImage = Factory.magnifyImage(gridRatio, 
-								renderedImage);
-					int w = combinedImage.getWidth();
-		        	int h = combinedImage.getHeight();
-		        	DataBuffer buf = combinedImage.getRaster().getDataBuffer();
-		        	List<ChannelData> list = parent.getSortedChannelData();
-		        	Iterator<ChannelData> i = list.iterator();
-		        	int index;
-		        	while (i.hasNext()) {
-						index = i.next().getIndex();
-						if (parent.isChannelActive(index)) {
-							if (parent.isChannelRed(index)) { 
-								gridImages.add(createBandImage(buf, w, h, 
-										Factory.RED_MASK, Factory.BLANK_MASK,
-										Factory.BLANK_MASK));
-							} else if (parent.isChannelGreen(index)) {
-								gridImages.add(createBandImage(buf, w, h,
-										Factory.BLANK_MASK, Factory.GREEN_MASK, 
-										Factory.BLANK_MASK));
-							} else if (parent.isChannelBlue(index)) {
-								gridImages.add(createBandImage(buf, w, h, 
-										Factory.BLANK_MASK, Factory.BLANK_MASK, 
-										Factory.BLUE_MASK));
-							}
-						} else {
-							gridImages.add(null);
-						}
-					}
-		        	/*
-		    		for (int i = 0; i < maxC; i++) {
-						if (parent.isChannelActive(i)) {
-							if (parent.isChannelRed(i)) { 
-								gridImages.add(createBandImage(buf, w, h, 
-										Factory.RED_MASK, Factory.BLANK_MASK,
-										Factory.BLANK_MASK));
-							} else if (parent.isChannelGreen(i)) {
-								gridImages.add(createBandImage(buf, w, h,
-										Factory.BLANK_MASK, Factory.GREEN_MASK, 
-										Factory.BLANK_MASK));
-							} else if (parent.isChannelBlue(i)) {
-								gridImages.add(createBandImage(buf, w, h, 
-										Factory.BLANK_MASK, Factory.BLANK_MASK, 
-										Factory.BLUE_MASK));
-							}
-						} else {
-							gridImages.add(null);
-						}
-					}
-					*/
-		    		
-				} else {
-					retrieveGridImages();
-				}
-				break;
-			default:
-				retrieveGridImages();
+    	*/
+    	if (parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL)) {
+    		if (!hasGridImagesAsTexture())
+    			gridImagesAsTextures = parent.getGridImagesAsTexture();
+    	} else {
+    		if (isRenderedImageRGB()) return;
+        	gridImagesAsTextures = parent.getGridImagesAsTexture();
     	}
+    	
+    	//retrieveGridImages();
     }
     
     /** 
@@ -566,8 +520,9 @@ class BrowserModel
     /** Sets the images composing the grid. */
     void setGridImages()
     {
-    	if (gridImages.size() != 0) return;
-    	if (originalGridImages != null) originalGridImages.clear();
+    	//if (gridImages.size() != 0) return;
+    	//if (originalGridImages != null) originalGridImages.clear();
+    	//if (gridImagesAsTextures == null || gridImagesAsTextures.size() == 0)
     	createGridImages();
     }
     
@@ -721,6 +676,18 @@ class BrowserModel
      * @return See above.
      */
     double getUnitInMicrons() { return unitInMicrons; }
+    
+    /**
+     * Returns the size of the unit bar.
+     * 
+     * @return See above.
+     */
+    double getOriginalUnitBarSize()
+    { 
+    	double v = unitInMicrons;
+    	if (getPixelsSizeX() > 0) v = unitInMicrons/getPixelsSizeX();
+    	return v;
+    }
     
     /**
      * Returns the size of the unit bar.
@@ -901,7 +868,8 @@ class BrowserModel
     int getGridRow()
     {
     	int n = parent.getMaxC();
-    	if (n <= 3) return 2;
+    	if (n == 1) return 1;
+    	if (n == 2 || n == 3) return 2;
     	int row = n/2;
     	if (n%2 != 0) row += 1; 
     	return row;
@@ -940,6 +908,19 @@ class BrowserModel
      * @return See above.
      */
     boolean hasNoGridImages() { return (gridImages.size() == 0); }
+    
+    /** 
+     * Returns <code>true</code> if there is no images retrieved for the
+     * grid view, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean hasGridImagesAsTexture()
+    { 
+    	if (gridImagesAsTextures == null || gridImagesAsTextures.size() == 0)
+    		return false;
+    	return true;
+    }
     
     /**
      * Returns a collection of images composing the grid.
@@ -1007,43 +988,6 @@ class BrowserModel
 		double max = ZoomGridAction.MAX_ZOOM_FACTOR;
 		if (gridRatio > max) return;
 		this.gridRatio = gridRatio; 
-		if (originalGridImages == null || originalGridImages.size() == 0) {
-			createGridImages(); 
-			return;
-		}
-		int n = originalGridImages.size();
-		gridImages.clear();
-		int maxC = parent.getMaxC();
-		//List<BufferedImage> images = new ArrayList<BufferedImage>(maxC);
-		switch (n) {
-			case 0:
-				for (int i = 0; i < maxC; i++) 
-					gridImages.add(null);
-				break;
-			case 1:
-			case 2:
-			case 3:
-				//TODO: Review that code.
-				if (isImageMappedRGB(parent.getActiveChannels())) {
-					createGridImages(); 
-				} else {
-					combinedImage = Factory.magnifyImage(gridRatio, 
-														renderedImage);
-					Iterator i = originalGridImages.iterator();
-					while (i.hasNext()) {
-    	        		gridImages.add(Factory.magnifyImage(gridRatio, 
-    	        							(BufferedImage) i.next()));
-    	    		}
-				}
-				break;
-			default:
-				combinedImage = Factory.magnifyImage(gridRatio, renderedImage);
-				Iterator i = originalGridImages.iterator();
-				while (i.hasNext()) {
-		    		gridImages.add(Factory.magnifyImage(gridRatio, 
-		    							(BufferedImage) i.next()));
-				}
-		}
 	}
 	
 	/**
@@ -1105,7 +1049,120 @@ class BrowserModel
 	void clearGridImages()
 	{ 
 		if (gridImages != null) gridImages.clear(); 
+		if (gridImagesAsTextures != null) gridImagesAsTextures.clear();
 		//if (originalGridImages != null) originalGridImages.clear();
 	}
 	
+    /**
+     * Sets the rendered image.
+     * 
+     * @param image The image to set.
+     */
+    void setRenderedImageAsTexture(TextureData image)
+    {
+    	renderedImageAsTexture = image;
+        if (renderedImageAsTexture != null) {
+        	if (init) {
+        		int imageWidth = image.getWidth();
+        		if (imageWidth < ImViewer.MINIMUM_SIZE) {
+        			ratio = 1;
+        			gridRatio = 1;
+        			unitBar = false;
+        		}
+        		if (imageWidth*ratio > ImViewer.MAXIMUM_SIZE)
+        			ratio = (double) ImViewer.MAXIMUM_SIZE/imageWidth;
+        		init = false;
+        	}
+        }
+        //displayedImage = null;
+        //combinedImage = null;
+        gridImages.clear();
+    }
+	
+	/**
+	 * Returns the projected image if any.
+	 * 
+	 * @param projectedImage The projected image.
+	 */
+	void setProjectedImageAsTexture(TextureData projectedImage)
+	{
+		this.projectedImageAsTexture = projectedImage;
+	}
+	
+	/**
+	 * Returns the projected image if any.
+	 * 
+	 * @return See above.
+	 */
+	TextureData getProjectedImageAsTexture() { return projectedImageAsTexture; }
+	
+    /**
+     * Returns the rendered image.
+     * 
+     * @return See above.
+     */
+    TextureData getRenderedImageAsTexture() { return renderedImageAsTexture; }
+    
+    /**
+     * Returns <code>true</code> if the rendered image is an RGB image,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isRenderedImageRGB() 
+    {
+    	return isImageMappedRGB(parent.getActiveChannels());
+    }
+    
+    /**
+     * Returns <code>true</code> if the color model is RGB, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isModelRGB()
+    {
+    	return !ImViewer.GREY_SCALE_MODEL.equals(parent.getColorModel());
+    }
+    
+    /**
+     * Returns the list of grid images.
+     * 
+     * @return See above.
+     */
+    List<GridImage> getGridImages()
+    {
+    	List<GridImage> list = new ArrayList<GridImage>();	
+    	List<ChannelData> l = parent.getSortedChannelData();
+    	Iterator<ChannelData> i = l.iterator();
+    	int index;
+    	GridImage image;
+    	boolean[] rgb;
+    	ChannelData data;
+    	String label;
+    	boolean b = isRenderedImageRGB();
+    	if (!isModelRGB()) b = false;
+    	while (i.hasNext()) {
+    		data = i.next();
+			index = data.getIndex();
+			label = data.getChannelLabeling();
+			rgb = new boolean[3];
+			if (parent.isChannelActive(index)) {
+				if (b) {
+					rgb[0] = parent.isChannelRed(index);
+					rgb[1] = parent.isChannelGreen(index);
+					rgb[2] = parent.isChannelBlue(index);
+					image = new GridImage(index, true, label, rgb);
+				} else {
+					image = new GridImage(index, true, label);
+					image.setTextureData(gridImagesAsTextures.get(index));
+				}
+			} else {
+				image = new GridImage(index, false, label);
+			}
+			list.add(image);
+		}
+    	return list;
+    }
+    
 }

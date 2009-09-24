@@ -260,8 +260,8 @@ class ImgSaverUI
     	bar.setBorder(null);
     	bar.add(cancelButton);
     	bar.add(Box.createRigidArea(H_SPACER_SIZE));
-    	bar.add(previewButton);
-    	bar.add(Box.createRigidArea(H_SPACER_SIZE));
+    	//bar.add(previewButton);
+    	//bar.add(Box.createRigidArea(H_SPACER_SIZE));
     	bar.add(saveButton);
     	JPanel controls = new JPanel();
     	controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));

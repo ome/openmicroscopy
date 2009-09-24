@@ -25,17 +25,16 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
+import java.io.File;
+
+import javax.media.opengl.GLAutoDrawable;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 
 /** 
- * UI component where the renderered image is painted.
+ * UI component where the image is painted.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -50,13 +49,10 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
  * @since OME2.2
  */
 class BrowserCanvas
-    extends ImageCanvas
+    extends GLImageCanvas//ImageCanvas
 {
     
-    /** Reference to the View. */
-    private BrowserUI    	view;
-
-    /**
+	/**
      * Creates a new instance.
      *
      * @param model Reference to the Model. Mustn't be <code>null</code>.
@@ -64,15 +60,14 @@ class BrowserCanvas
      */
     BrowserCanvas(BrowserModel model, BrowserUI view)
     {
-        super(model);
-        if (view == null) throw new NullPointerException("No view.");
-        this.view = view;
+        super(model, view);
     }
-    
+       
     /**
      * Overridden to paint the image.
      * @see javax.swing.JComponent#paintComponent(Graphics)
      */
+    /*
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
@@ -83,6 +78,15 @@ class BrowserCanvas
         g2D.drawImage(img, null, 0, 0); 
         paintScaleBar(g2D, img.getWidth(), img.getHeight(), view.getViewport());
         g2D.dispose();
-    }
+    }*/
+    
+    /**
+     * Paints the image.
+     * @see GLImageCanvas#display(GLAutoDrawable)
+     */
+    public void display(GLAutoDrawable drawable) 
+	{
+    	onDisplay(drawable, model.getRenderedImageAsTexture());
+	}
     
 }

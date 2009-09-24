@@ -50,6 +50,8 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
+import com.sun.opengl.util.texture.TextureData;
+
 import pojos.DataObject;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
@@ -325,6 +327,18 @@ public class NullRenderingService
 	public Object exportImageAsXML(long imageID, File folder)
 			throws DSOutOfServiceException, DSAccessException
 	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#renderProjectedAsTexture(long, int, int, int, int, 
+     * List)
+     */
+	public TextureData renderProjectedAsTexture(long pixelsID, int startZ,
+			int endZ, int stepping, int type, List<Integer> channels)
+			throws RenderingServiceException, DSOutOfServiceException {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

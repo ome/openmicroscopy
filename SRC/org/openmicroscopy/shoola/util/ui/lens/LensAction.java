@@ -214,7 +214,7 @@ class LensAction
 		this.lens = lens;
 		checkIndex(lensIndex);
 		index = lensIndex;
-      putValue(Action.NAME, names[index]);
+        putValue(Action.NAME, names[index]);
 	}
 	
 	/**

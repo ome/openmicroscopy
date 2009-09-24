@@ -43,6 +43,8 @@ import java.awt.image.WritableRaster;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import com.sun.opengl.util.texture.TextureData;
+
 /** 
  * The Lens model controls the manipulation of the lens, creating the zoomed 
  * verison of the image to be displayed in the zoomPanel. 
@@ -60,13 +62,16 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 class LensModel 
 {
 	
-	/** Dark lens colour, when the background of the image is light. */
+	/** Dark lens color, when the background of the image is light. */
     static final Color 		LENS_DARK_COLOUR = new Color(96, 96, 96, 255);
 
-	/** Light lens colour, when the background of the image is Dark. */
+	/** Light lens color, when the background of the image is Dark. */
 	static final Color 		LENS_LIGHT_COLOUR = 
 											new Color(196, 196, 196, 255);
 
+	/** The default color of the background. */
+	static final Color	DEFAULT_BACKGROUND = new Color(200, 200, 200);
+	
 	/** Minimum zoom allowed. */
 	final static int		MINIMUM_ZOOM = 1;
 
@@ -82,30 +87,33 @@ class LensModel
 	/** The minimum size of heapspace for the lens to still work. */
 	final static long 		MINHEAPSIZE = UIUtilities.MEGABYTE*8;
 	
-	/** x co-ordinate of the lens. */
-	private int		      x;
+	/** X-coordinate of the lens. */
+	private int		      	x;
 
-	/** y co-ordinate of the lens. */
-	private int		      y;
+	/** Y-coordinate of the lens. */
+	private int		      	y;
 	
 	/** Width of the lens. */
-	private int  	      width;
+	private int  	      	width;
 	
 	/** Height of the lens. */
-	private int		      height;
+	private int		      	height;
 	
 	/** 
-	 * ZoomFactor which will be used to convvert the original image 
+	 * ZoomFactor which will be used to convert the original image 
 	 * represented by the viewport of the lens component to the image
 	 * shown by the zoomWindow.
 	 */
-	private float          zoomFactor;
+	private float          	zoomFactor;
 	
 	/** The amount of zooming in the original image. */
-	private float          imageZoomFactor;
+	private float          	imageZoomFactor;
 	
 	/** plane image. */
-	private BufferedImage  planeImage;
+	private BufferedImage  	planeImage;
+	
+	/** The plane image as texture. */
+	private TextureData  	planeImageAsTexture;
 	
 	/** Pre-allocated buffer storing image data */
 	private DataBuffer     zoomedDataBuffer;
@@ -116,6 +124,9 @@ class LensModel
 	 */
 	private int            zoomedDataBufferSize;
 
+	/** The background color. */
+	private Color			background;
+	
 	/** Flushes the data buffer. */
 	private void flushDataBuffer()
 	{
@@ -221,6 +232,7 @@ class LensModel
 		this.planeImage = planeImage;
 		x = 0;
 		y = 0;
+		setBackgroundColor(DEFAULT_BACKGROUND);
 		zoomedDataBufferSize = DEFAULT_SIZE;
 	}
 
@@ -231,6 +243,13 @@ class LensModel
 	 */
 	void setPlaneImage(BufferedImage img) { planeImage = img; }
 	
+	/** 
+	 * Sets the plane image to a new image.
+	 *  
+	 * @param img new PlaneImage.
+	 */
+	void setPlaneImageAsTexture(TextureData img) { planeImageAsTexture = img; }
+	
 	/**
 	 * Returns the width of the plane Image.
 	 * 
@@ -238,7 +257,8 @@ class LensModel
 	 */
 	int	getImageWidth()
 	{
-		if (planeImage != null) return planeImage.getWidth();
+		//if (planeImage != null) return planeImage.getWidth();
+		if (planeImageAsTexture != null) return planeImageAsTexture.getWidth();
 		return 0;
 	}
 	
@@ -249,9 +269,10 @@ class LensModel
 	 */
 	int	getImageScaledWidth()
 	{
-		if (planeImage != null )
-			return (int) (planeImage.getWidth()*imageZoomFactor);
-		return 0;
+		//if (planeImage != null )
+		//	return (int) (planeImage.getWidth()*imageZoomFactor);
+		return (int) (getImageWidth()*imageZoomFactor);
+		//return 0;
 	}
 
 	/**
@@ -261,9 +282,12 @@ class LensModel
 	 */
 	int	getImageScaledHeight()
 	{
+		/*
 		if (planeImage != null)
 			return (int) (planeImage.getHeight()*imageZoomFactor);
 		return 0;
+		*/
+		return (int) (getImageHeight()*imageZoomFactor);
 	}
 	
 	/**
@@ -273,7 +297,8 @@ class LensModel
 	 */
 	int	getImageHeight()
 	{
-		if (planeImage != null) return planeImage.getHeight();
+		//if (planeImage != null) return planeImage.getHeight();
+		if (planeImageAsTexture != null) return planeImageAsTexture.getHeight();
 		return 0;
 	}
 
@@ -381,7 +406,7 @@ class LensModel
 	int getY() { return y; }
     
 	/**
-	 * Returns the x-coordinate of the lens multipled by the magnification 
+	 * Returns the x-coordinate of the lens multiplied by the magnification 
 	 * factor.
 	 * 
 	 * @return See above.
@@ -390,7 +415,7 @@ class LensModel
 	int getScaledX() { return (int) (x*imageZoomFactor); }
 
 	/**
-	 * Returns the y-coordinate of the lens multipled by the magnification 
+	 * Returns the y-coordinate of the lens multiplied by the magnification 
 	 * factor.
      * 
 	 * @return See above.
@@ -412,20 +437,6 @@ class LensModel
 	void setWidth(int width) { this.width = width; }
 
 	/**
-	 * Sets the x-coordinate of the lens. 
-	 * 
-	 * @param x The x-coordinate to set.
-	 */
-	void setX(int x) { this.x = x; }
-
-	/**
-	 * Sets the y-coordinate of the lens. 
-	 * 
-	 * @param y The y-coordinate  to set.
-	 */
-	void setY(int y) { this.y = y; }
-
-	/**
 	 * Sets the location of the lens.
 	 * 
 	 * @param x The x-coordinate to set.
@@ -433,8 +444,8 @@ class LensModel
 	 */
 	void setLensLocation(int x, int y)
 	{
-		setX(x);
-		setY(y);
+		this.x = x;
+		this.y = y;
 	}
 	
 	/**
@@ -521,6 +532,7 @@ class LensModel
      */
     Color getLensPreferredColour()
     {
+    	/*
     	if (planeImage != null)
     	{
     		long r  = 0, g  = 0, b = 0;
@@ -539,7 +551,8 @@ class LensModel
     		if ((total)/(cnt) > 128) return LENS_DARK_COLOUR;
     		return LENS_LIGHT_COLOUR;
     	}
-    	return null;
+    	*/
+    	return LENS_LIGHT_COLOUR;
     }
 	    
     /** Resets the data buffer. */
@@ -548,5 +561,30 @@ class LensModel
     	zoomedDataBuffer = null; 
     	zoomedDataBufferSize = DEFAULT_SIZE;
     }
+    
+    /**
+     * Returns the image.
+     * 
+     * @return See above.
+     */
+    TextureData getImageAsTexture() { return planeImageAsTexture; }
+
+    /**
+     * Returns the background.
+     * 
+     * @return See above.
+     */
+	Color getBackgroundColor() { return background; }
+
+	/**
+	 * Sets the background color.
+	 * 
+	 * @param color The value to set.
+	 */
+	void setBackgroundColor(Color color)
+	{ 
+		if (color == null) background = DEFAULT_BACKGROUND;
+		background = color; 
+	}
     
 }
