@@ -1481,24 +1481,37 @@ public class EditorUtil
         if (s == null || s.trim().length() == 0) 
 			notSet.add(FILTER_WHEEL);
         details.put(FILTER_WHEEL, s);
-        int i = data.getCutIn();
-        if (i <= 0) notSet.add(CUT_IN);
-        details.put(CUT_IN, i);
-        i = data.getCutOut();
-        if (i <= 0) notSet.add(CUT_OUT);
+        Integer v = data.getCutIn();
+        int i = 0;
+        if (v == null) notSet.add(CUT_IN);
+        else i = v;
+        details.put(CUT_IN, v);
+        v = data.getCutOut();
+        if (v == null) {
+        	notSet.add(CUT_OUT);
+        	i = 0;
+        } else i = v;
         details.put(CUT_OUT, i);
-        i = data.getCutInTolerance();
-        if (i <= 0)
+        if (v == null) {
+        	i = 0;
         	notSet.add(CUT_IN_TOLERANCE);
+        } else i = v;
         details.put(CUT_IN_TOLERANCE, i);
-        i = data.getCutOutTolerance();
-        if (i <= 0)
+        
+        v = data.getCutOutTolerance();
+        if (v == null) {
+        	i = 0;
         	notSet.add(CUT_OUT_TOLERANCE);
+        } else i = v;
         details.put(CUT_OUT_TOLERANCE, i);
-        double d = data.getTransmittance();
-        if (d <= 0)
+        
+        Double d = data.getTransmittance();
+        double dv = 0;
+        if (d == null) {
         	notSet.add(TRANSMITTANCE);
-        details.put(TRANSMITTANCE, d);
+        } else dv = d;
+        	
+        details.put(TRANSMITTANCE, dv);
         details.put(NOT_SET, notSet);
 		return details;
     }
@@ -1661,36 +1674,34 @@ public class EditorUtil
 			notSet.add(LOT_NUMBER);
 		details.put(LOT_NUMBER, s);
 		
-		double f = data.getGain();
-		if (f < 0) {
-			f = 0;
-			notSet.add(GAIN);
-		}
-		details.put(GAIN, f);
+		Double f = data.getGain();
+		double v = 0;
+		if (f == null) notSet.add(GAIN);
+		else v = f;
+		details.put(GAIN, v);
     	f = data.getVoltage();
-		if (f < 0) {
-			f = 0;
-			notSet.add(VOLTAGE);
-		}
-		details.put(VOLTAGE, f);
+    	if (f == null) {
+    		v = 0;
+    		notSet.add(VOLTAGE);
+    	} else v = f;
+		details.put(VOLTAGE, v);
 		f = data.getOffset();
-		if (f < 0) {
-			f = 0;
+		if (f == null) {
+			v = 0;
 			notSet.add(OFFSET);
-		}
-		details.put(OFFSET, f);
+		} else v = f;
+		details.put(OFFSET, v);
         f = data.getZoom();
-    	if (f < 0) {
-			f = 0;
-			notSet.add(ZOOM);
-		}
-        details.put(ZOOM, f);
-        f = data.getAmplificationGain();
-    	if (f < 0) {
-			f = 0;
-			notSet.add(AMPLIFICATION);
-		}
-        details.put(AMPLIFICATION, f);
+        if (f == null) {
+        	v = 0;
+        	notSet.add(ZOOM);
+        } else v = f;
+        details.put(ZOOM, v);
+        if (f == null) {
+        	v = 0;
+        	notSet.add(AMPLIFICATION);
+        } else v = f;
+        details.put(AMPLIFICATION, v);
         s = data.getType();
         if (s == null || s.trim().length() == 0) 
 			notSet.add(TYPE);

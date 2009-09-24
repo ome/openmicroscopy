@@ -4714,7 +4714,7 @@ class OMEROGateway
 			stream = new FileOutputStream(f);
 			ExporterPrx service = getExporterService();
 			//service.activate();
-			service.asXml();
+			service.generateXml();
 			service.addImage(imageID);
 			byte[] buf;
 			while (true) {
