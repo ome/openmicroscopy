@@ -388,7 +388,7 @@ class DataBrowserToolBar
 		group.add(orderByName);
 		orderByDate = new JToggleButton(
 				icons.getIcon(IconManager.SORT_BY_DATE));
-		orderByDate.setToolTipText("Order images by imported date.");
+		orderByDate.setToolTipText("Order images by acquisition date.");
 		orderByDate.addActionListener(this);
 		orderByDate.setActionCommand(""+DataBrowserUI.SORT_BY_DATE);
 		group.add(orderByDate);
