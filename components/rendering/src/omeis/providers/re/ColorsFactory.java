@@ -12,8 +12,11 @@ package omeis.providers.re;
 // Third-party libraries
 
 // Application-internal dependencies
+import ome.model.acquisition.Filter;
+import ome.model.acquisition.TransmittanceRange;
 import ome.model.core.Channel;
 import ome.model.core.LogicalChannel;
+
 
 /**
  * Utility class to determine the color usually associated to a specified
@@ -29,6 +32,7 @@ import ome.model.core.LogicalChannel;
  * @since OME2.2
  */
 public class ColorsFactory {
+	
     /** Index of the red component of a color. */
     public static final int RED_INDEX = 0;
     
@@ -45,88 +49,85 @@ public class ColorsFactory {
     static final int DEFAULT_ALPHA = 255;
 
     /**
-     * Lower bound of the emission wavelength interval corresponding to a
+     * Lower bound of the wavelength interval corresponding to a
      * <code>BLUE</code> color.
      */
     private static final int BLUE_MIN = 400;
 
     /**
-     * Upper bound of the emission wavelength interval corresponding to a
+     * Upper bound of the wavelength interval corresponding to a
      * <code>BLUE</code> color.
      */
     private static final int BLUE_MAX = 500;
 
     /**
-     * Lower bound of the emission wavelength interval corresponding to a
+     * Lower bound of the wavelength interval corresponding to a
      * <code>GREEN</code> color.
      */
     private static final int GREEN_MIN = 501;
 
     /**
-     * Upper bound of the emission wavelength interval corresponding to a
+     * Upper bound of the wavelength interval corresponding to a
      * <code>GREEN</code> color.
      */
-    private static final int GREEN_MAX = 600;
+    private static final int GREEN_MAX = 559;//600;
 
     /**
-     * Lower bound of the emission wavelength interval corresponding to a
+     * Lower bound of the wavelength interval corresponding to a
      * <code>RED</code> color.
      */
-    private static final int RED_MIN = 601;
+    private static final int RED_MIN = 560;//601;
 
     /**
-     * Upper bound of the emission wavelength interval corresponding to a
+     * Upper bound of the wavelength interval corresponding to a
      * <code>RED</code> color.
      */
     private static final int RED_MAX = 700;
 
     /**
-     * Returns <code>true</code> if the emission wavelength is in the blue
+     * Returns <code>true</code> if the wavelength is in the blue
      * color band, <code>false</code> otherwise.
      * 
-     * @param emWavelenght
-     *            The value of the emission wavelength.
+     * @param wavelength The wavelength to handle.
      * @return See above.
      */
-    private static boolean rangeBlue(int emWavelenght) {
-        return emWavelenght <= BLUE_MAX && emWavelenght >= BLUE_MIN;
+    private static boolean rangeBlue(int wavelength) {
+        return wavelength <= BLUE_MAX;// && wavelength >= BLUE_MIN;
     }
 
     /**
-     * Returns <code>true</code> if the emission wavelength is in the green
+     * Returns <code>true</code> if the wavelength is in the green
      * color band, <code>false</code> otherwise.
      * 
-     * @param emWave
-     *            The value of the emission wavelength.
+     * @param wavelength The wavelength to handle.
      * @return See above.
      */
-    private static boolean rangeGreen(int emWave) {
-        return emWave >= GREEN_MIN && emWave <= GREEN_MAX;
+    private static boolean rangeGreen(int wavelength) {
+        return wavelength >= GREEN_MIN && wavelength <= GREEN_MAX;
     }
 
     /**
-     * Returns <code>true</code> if the emission wavelength is in the red
+     * Returns <code>true</code> if the wavelength is in the red
      * color band, <code>false</code> otherwise.
      * 
-     * @param emWave
-     *            The value of the emission wavelength.
+     * @param wavelength The wavelength to handle.
      * @return See above.
      */
-    private static boolean rangeRed(int emWave) {
-        return emWave >= RED_MIN && emWave <= RED_MAX;
+    private static boolean rangeRed(int wavelength) {
+        return wavelength >= RED_MIN;//&& wavelength <= RED_MAX;
     }
 
     /**
-     * Determines the color usually associated to the specified emission
+     * Determines the color usually associated to the specified
      * wavelength or explicitly defined for a particular channel.
      * 
      * @param channel The channel to determine the color for.
+     * @param lc	  The logical channel associated to that channel.
      * @return An RGBA array representation of the color.
      */
-    private static int[] getColor(Channel channel) {
-    	LogicalChannel lc = channel.getLogicalChannel();
+    private static int[] getColor(Channel channel, LogicalChannel lc) {
     	if (lc == null) return null;
-        Integer emWave = lc.getEmissionWave();
+        Integer emissionWavelength = lc.getEmissionWave();
         
         Integer red = channel.getRed();
         Integer green = channel.getGreen();
@@ -139,28 +140,30 @@ public class ColorsFactory {
             return new int[] { red, green, blue, alpha };
         }
 
-        if (emWave == null)
-        {
-            return null;
-        }
-        if (rangeBlue(emWave))
-        {
-            return newBlueColor();
-        }
-        if (rangeGreen(emWave))
-        {
-            return newGreenColor();
-        }
-        if (rangeRed(emWave))
-        {
-            return newRedColor();
+        //First we check the emission wavelength.
+        if (emissionWavelength != null) {
+        	if (rangeBlue(emissionWavelength)) return newBlueColor();
+        	if (rangeGreen(emissionWavelength)) return newGreenColor();
+        	if (rangeRed(emissionWavelength)) return newRedColor();
+        } else { //check the secondary emission filter if any.
+        	Filter f = lc.getSecondaryEmissionFilter();
+        	if (f == null) return null;
+        	TransmittanceRange transmittance = f.getTransmittanceRange();
+        	if (transmittance == null) return null;
+        	Integer cutIn = transmittance.getCutIn();
+        	Integer cutOut = transmittance.getCutOut();
+        	if (cutIn == null) return null;
+        	if (cutOut == null || cutOut == 0) cutOut = cutIn+20;
+        	Integer value = (cutIn+cutOut)/2;
+        	if (rangeBlue(value)) return newBlueColor();
+        	if (rangeGreen(value)) return newGreenColor();
+        	if (rangeRed(value)) return newRedColor();
         }
         return null;
     }
 
     /**
-     * Determines the color usually associated to the specified emission
-     * wavelength.
+     * Determines the color usually associated to the specified wavelength.
      * 
      * @param index
      *            The channel index.
@@ -169,20 +172,28 @@ public class ColorsFactory {
      * @return A color.
      */
     public static int[] getColor(int index, Channel channel) {
-        int[] c = ColorsFactory.getColor(channel);
-        if (c != null) {
-            return c;
-        }
-        switch (index) {
-            case 0:
-            	return newRedColor();
-            case 1:
-            	return newBlueColor();
-            default:
-            	return newGreenColor();
-        }
+    	return getColor(index, channel, channel.getLogicalChannel());
     }
 
+    /**
+     * Determines the color usually associated to the specified wavelength.
+     * 
+     * @param index The channel index.
+     * @param channel The channel to determine the color for.
+     * @return A color.
+     */
+    public static int[] getColor(int index, Channel channel, LogicalChannel
+    		lc) {
+    	if (lc == null) lc = channel.getLogicalChannel();
+        int[] c = ColorsFactory.getColor(channel, lc);
+        if (c != null) return c;
+        switch (index) {
+            case 0: return newRedColor();
+            case 1: return newBlueColor();
+            default: return newGreenColor();
+        }
+    }
+    
     /**
      * Creates a new <i>Red</i> Color object.
      * 
@@ -209,4 +220,14 @@ public class ColorsFactory {
     public static int[] newBlueColor() {
         return new int[] { 0, 0, 255, DEFAULT_ALPHA };
     }
+    
+    /**
+     * Creates a new <i>Grey</i> Color object.
+     * 
+     * @return An RGBA array representation of the color Blue.
+     */
+    public static int[] newGreyColor() {
+        return new int[] { 128, 128, 128, DEFAULT_ALPHA };
+    }
+    
 }

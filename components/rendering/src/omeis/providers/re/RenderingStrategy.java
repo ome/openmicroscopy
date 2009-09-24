@@ -169,8 +169,8 @@ abstract class RenderingStrategy {
     /**
      * Encapsulates a specific rendering algorithm. The image is rendered
      * according to the current settings hold by the <code>ctx</code>
-     * argument. Typically, active wavelenghts are processed by first quantizing
-     * the wavelenght data in the plane selected by <code>pd</code> &#151; the
+     * argument. Typically, active wavelengths are processed by first quantizing
+     * the wavelength data in the plane selected by <code>pd</code> &#151; the
      * quantum strategy is retrieved from the {@link QuantumManager} (accessed
      * through the <code>ctx</code> object) and the actual data from the
      * {@link omeis.providers.re.data.PixelsData PixelsData} service (again,
@@ -197,36 +197,36 @@ abstract class RenderingStrategy {
     abstract RGBIntBuffer renderAsPackedInt(Renderer ctx, PlaneDef pd)
             throws IOException, QuantizationException;
 
-	    /**
-	     * Encapsulates a specific rendering algorithm. The image is rendered
-	     * according to the current settings hold by the <code>ctx</code>
-	     * argument. Typically, active wavelenghts are processed by first quantizing
-	     * the wavelenght data in the plane selected by <code>pd</code> &#151; the
-	     * quantum strategy is retrieved from the {@link QuantumManager} (accessed
-	     * through the <code>ctx</code> object) and the actual data from the
-	     * {@link omeis.providers.re.data.PixelsData PixelsData} service (again,
-	     * retrieved through <code>ctx</code>). Then the codomain transformations
-	     * are applied &#151; by calling the transform method of the
-	     * {@link omeis.providers.re.codomain.CodomainChain chain} hold by
-	     * <code>ctx</code>. Transformed wavelength data is finally packed into a
-	     * {@link RGBBuffer} taking into account the color bindings defined by the
-	     * rendering context.
-	     * 
-	     * @param ctx
-	     *            Represents the rendering environment.
-	     * @param pd
-	     *            Selects a plane orthogonal to one of the <i>X</i>, <i>Y</i>,
-	     *            or <i>Z</i> axes.
-	     * @return An image rendered according to the current settings hold by
-	     *         <code>ctx</code>.
-	     * @throws IOException
-	     *             If an error occurred while accessing the pixels raw data.
-	     * @throws QuantizationException
-	     *             If an error occurred while quantizing the pixels raw data.
-	     * @see render()
-	     */
-	    abstract RGBAIntBuffer renderAsPackedIntAsRGBA(Renderer ctx, PlaneDef pd)
-	            throws IOException, QuantizationException;
+    /**
+     * Encapsulates a specific rendering algorithm. The image is rendered
+     * according to the current settings hold by the <code>ctx</code>
+     * argument. Typically, active wavelengths are processed by first 
+     * quantizing the wavelength data in the plane selected by <code>pd</code> 
+     * &#151; the quantum strategy is retrieved from the {@link QuantumManager}
+     * (accessed through the <code>ctx</code> object) and the actual data from 
+     * the {@link omeis.providers.re.data.PixelsData PixelsData} service again,
+     * retrieved through <code>ctx</code>). Then the codomain transformations
+     * are applied &#151; by calling the transform method of the
+     * {@link omeis.providers.re.codomain.CodomainChain chain} hold by
+     * <code>ctx</code>. Transformed wavelength data is finally packed into a
+     * {@link RGBBuffer} taking into account the color bindings defined by the
+     * rendering context.
+     * 
+     * @param ctx
+     *            Represents the rendering environment.
+     * @param pd
+     *            Selects a plane orthogonal to one of the <i>X</i>, <i>Y</i>,
+     *            or <i>Z</i> axes.
+     * @return An image rendered according to the current settings hold by
+     *         <code>ctx</code>.
+     * @throws IOException
+     *             If an error occurred while accessing the pixels raw data.
+     * @throws QuantizationException
+     *             If an error occurred while quantizing the pixels raw data.
+     * @see render()
+     */
+    abstract RGBAIntBuffer renderAsPackedIntAsRGBA(Renderer ctx, PlaneDef pd)
+    throws IOException, QuantizationException;
 
 
     /**

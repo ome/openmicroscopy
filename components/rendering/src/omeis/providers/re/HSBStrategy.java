@@ -132,7 +132,8 @@ class HSBStrategy extends RenderingStrategy {
         	for (int w = 0; w < channelBindings.length; w++) {
         		if (channelBindings[w].getActive()) {
         			performanceStats.startIO(w);
-        			wData.add(PlaneFactory.createPlane(pDef, w, metadata, pixels));
+        			wData.add(PlaneFactory.createPlane(pDef, w, metadata, 
+        					pixels));
         			performanceStats.endIO(w);
         		}
         	}
@@ -205,7 +206,7 @@ class HSBStrategy extends RenderingStrategy {
      * @return An array containing the tasks.
      */
     private RenderingTask[] makeRenderingTasks(PlaneDef def, RGBBuffer buf) {
-        ArrayList<RenderHSBRegionTask> tasks = new ArrayList<RenderHSBRegionTask>();
+        List<RenderHSBRegionTask> tasks = new ArrayList<RenderHSBRegionTask>();
 
         // Get all objects we need to create the tasks.
         CodomainChain cc = renderer.getCodomainChain();
@@ -275,7 +276,7 @@ class HSBStrategy extends RenderingStrategy {
         return buf;
     }
 
- /**
+    /**
      * Implemented as specified by the superclass.
      * 
      * @see RenderingStrategy#renderAsPackedIntRGBA(Renderer ctx, PlaneDef planeDef)
