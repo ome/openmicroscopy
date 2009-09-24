@@ -113,16 +113,16 @@ class BaseGroup(BaseController):
     def createGroup(self, name, eid, permissions, description=None):
         new_gr = ExperimenterGroupI()
         new_gr.name = rstring(str(name))
-        new_gr.description = rstring(str(description))
-        self.setObjectPermissions(new_gr, self.setActualPermissions(permissions))
+        new_gr.description = description is not None and rstring(str(description)) or None
+        #self.setObjectPermissions(new_gr, self.setActualPermissions(permissions))
         gr_owner = self.conn.getExperimenter(long(eid))._obj
         self.conn.createGroup(new_gr, gr_owner)
     
     def updateGroup(self, name, eid, permissions, description=None):
         up_gr = self.group._obj
         up_gr.name = rstring(str(name))
-        up_gr.description = rstring(str(description))
-        self.setObjectPermissions(up_gr, self.setActualPermissions(permissions))
+        up_gr.description = description is not None and rstring(str(description)) or None
+        #self.setObjectPermissions(up_gr, self.setActualPermissions(permissions))
         gr_owner = self.conn.getExperimenter(long(eid))._obj
         up_gr.details.owner = gr_owner
         self.conn.updateGroup(up_gr, gr_owner)

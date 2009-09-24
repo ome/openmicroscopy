@@ -500,13 +500,14 @@ def manage_group(request, action, gid=None, **kwargs):
             name = request.REQUEST['name'].encode('utf-8')
             description = request.REQUEST['description'].encode('utf-8')
             owner = request.REQUEST['owner']
-            permissions = request.REQUEST.get('access_controll')
-            controller.createGroup(name, owner, permissions, description)
+            #permissions = request.REQUEST.get('access_controll')
+            #controller.createGroup(name, owner, permissions, description)
+            controller.createGroup(name, owner, description)
             return HttpResponseRedirect(reverse("wagroups"))
         context = {'info':info, 'eventContext':eventContext, 'form':form}
     elif action == 'edit':
         form = GroupForm(initial={'name': controller.group.name, 'description':controller.group.description,
-                                     'access_controll': controller.getActualPermissions(), 
+                                     #'access_controll': controller.getActualPermissions(), 
                                      'owner': controller.group.details.owner.id.val, 'experimenters':controller.experimenters})
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid}
     elif action == 'save':
@@ -516,8 +517,9 @@ def manage_group(request, action, gid=None, **kwargs):
             name = request.REQUEST['name'].encode('utf-8')
             description = request.REQUEST['description'].encode('utf-8')
             owner = request.REQUEST['owner']
-            permissions = request.REQUEST.get('access_controll')
-            controller.updateGroup(name, owner, permissions, description)
+            #permissions = request.REQUEST.get('access_controll')
+            #controller.updateGroup(name, owner, permissions, description)
+            controller.updateGroup(name, owner, description)
             return HttpResponseRedirect(reverse("wagroups"))
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid}
     elif action == "update":

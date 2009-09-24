@@ -45,7 +45,7 @@
 </div>
 
 <div id="center">
-    {% if info.error %}<ul class="errorList"><li>{{ info.error|default_if_none:"" }}</li></ul>{% endif %}
+    {% if info.error %}<ul class="errorlist"><li>{{ info.error|default_if_none:"" }}</li></ul>{% endif %}
     {% block content %}{% endblock %}
 </div>
 

@@ -49,9 +49,9 @@ from webclient.controller import BaseController
 class BaseContainer(BaseController):
     
     project = None
-    screen = None
+    #screen = None
     dataset = None
-    plate = None
+    #plate = None
     image = None
     tag = None
     comment = None
@@ -94,24 +94,24 @@ class BaseContainer(BaseController):
                         raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
                     if self.image._obj is None:
                         raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
-        elif o1_type == "screen":
-            self.screen = self.conn.getScreen(o1_id)
-            if self.screen is None:
-                raise AttributeError("We are sorry, but that screen does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
-            if self.screen._obj is None:
-                raise AttributeError("We are sorry, but that screen does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
-            if o2_type == "plate":
-                self.plate = self.conn.getPlate(o2_id)
-                if self.plate is None:
-                    raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
-                if self.plate._obj is None:
-                    raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.") 
-        elif o1_type == "plate":
-            self.plate = self.conn.getPlate(o1_id)
-            if self.plate is None:
-                raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
-            if self.plate._obj is None:
-                raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")               
+        #elif o1_type == "screen":
+        #    self.screen = self.conn.getScreen(o1_id)
+        #    if self.screen is None:
+        #        raise AttributeError("We are sorry, but that screen does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+        #    if self.screen._obj is None:
+        #        raise AttributeError("We are sorry, but that screen does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+        #    if o2_type == "plate":
+        #        self.plate = self.conn.getPlate(o2_id)
+        #        if self.plate is None:
+        #            raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+        #        if self.plate._obj is None:
+        #            raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.") 
+        #elif o1_type == "plate":
+        #    self.plate = self.conn.getPlate(o1_id)
+        #    if self.plate is None:
+        #        raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+        #    if self.plate._obj is None:
+        #        raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")               
         elif o1_type == "dataset":
             self.dataset = self.conn.getDataset(o1_id)
             if self.dataset is None:
@@ -218,10 +218,10 @@ class BaseContainer(BaseController):
                 self.eContext['breadcrumb'] = ['Edit project: %s' % (self.project.breadcrumbName())]
             elif self.dataset is not None:
                 self.eContext['breadcrumb'] = ['Edit dataset: %s' % (self.dataset.breadcrumbName())]
-            elif self.screen is not None:
-                self.eContext['breadcrumb'] = ['Edit screen: %s' % (self.screen.breadcrumbName())]
-            elif self.plate is not None:
-                self.eContext['breadcrumb'] = ['Edit plate: %s' % (self.plate.breadcrumbName())]
+            #elif self.screen is not None:
+            #    self.eContext['breadcrumb'] = ['Edit screen: %s' % (self.screen.breadcrumbName())]
+            #elif self.plate is not None:
+            #    self.eContext['breadcrumb'] = ['Edit plate: %s' % (self.plate.breadcrumbName())]
             elif self.image is not None:
                 self.eContext['breadcrumb'] = ['Edit image: %s' % (self.image.breadcrumbName())]
             elif self.tag is not None:
@@ -253,11 +253,11 @@ class BaseContainer(BaseController):
                     self.eContext['breadcrumb'].append('<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu, "project", self.project.id, "dataset", self.dataset.id]), self.dataset.breadcrumbName()))
                     if self.image is not None:
                         self.eContext['breadcrumb'].append('%s' % self.image.breadcrumbName())
-            elif self.screen is not None:
-                self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()),  
-                            '<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu, "screen", self.screen.id]), self.screen.breadcrumbName())]
-                if self.plate is not None:
-                    self.eContext['breadcrumb'].append('<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu, "plate", self.plate.id, "dataset", self.plate.id]), self.plate.breadcrumbName()))
+            #elif self.screen is not None:
+            #    self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()),  
+            #                '<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu, "screen", self.screen.id]), self.screen.breadcrumbName())]
+            #    if self.plate is not None:
+            #        self.eContext['breadcrumb'].append('<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu, "plate", self.plate.id, "dataset", self.plate.id]), self.plate.breadcrumbName()))
             elif self.dataset is not None:
                 self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()), '<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu, "dataset", self.dataset.id]), self.dataset.breadcrumbName())]
                 if self.image is not None:
@@ -338,11 +338,11 @@ class BaseContainer(BaseController):
     def listMyRoots(self):
         pr_list = list(self.conn.lookupProjects())
         ds_list = list(self.conn.lookupOrphanedDatasets())
-        sc_list = list(self.conn.lookupScreens())
+        #sc_list = list(self.conn.lookupScreens())
         
         pr_list_with_counters = list()
         ds_list_with_counters = list()
-        sc_list_with_counters = list()
+        #sc_list_with_counters = list()
         
         pr_ids = [pr.id for pr in pr_list]
         if len(pr_ids) > 0:
@@ -364,22 +364,24 @@ class BaseContainer(BaseController):
                 ds.annotation_counter = ds_annotation_counter.get(ds.id)
                 ds_list_with_counters.append(ds)
         
-        sc_ids = [sc.id for sc in sc_list]
-        if len(sc_ids) > 0:
-            sc_child_counter = self.conn.getCollectionCount("Screen", "plateLinks", sc_ids)
-            sc_annotation_counter = self.conn.getCollectionCount("Screen", "annotationLinks", sc_ids)
-            
-            for sc in sc_list:
-                sc.child_counter = sc_child_counter.get(sc.id)
-                sc.annotation_counter = sc_annotation_counter.get(sc.id)
-                sc_list_with_counters.append(sc)
+        #sc_ids = [sc.id for sc in sc_list]
+        #if len(sc_ids) > 0:
+        #    sc_child_counter = self.conn.getCollectionCount("Screen", "plateLinks", sc_ids)
+        #    sc_annotation_counter = self.conn.getCollectionCount("Screen", "annotationLinks", sc_ids)
+        #    
+        #    for sc in sc_list:
+        #        sc.child_counter = sc_child_counter.get(sc.id)
+        #        sc.annotation_counter = sc_annotation_counter.get(sc.id)
+        #        sc_list_with_counters.append(sc)
         
         pr_list_with_counters = self.sortByAttr(pr_list_with_counters, "name")
         ds_list_with_counters = self.sortByAttr(ds_list_with_counters, "name")
-        sc_list_with_counters = self.sortByAttr(sc_list_with_counters, "name")
+        #sc_list_with_counters = self.sortByAttr(sc_list_with_counters, "name")
         
-        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters, 'screens': sc_list_with_counters}
-        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(sc_list_with_counters)
+        #self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters, 'screens': sc_list_with_counters}
+        #self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(sc_list_with_counters)
+        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}
+        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)
 
     def listMyDatasetsInProject(self, project_id, page):
         ds_list = list(self.conn.lookupDatasetsInProject(oid=project_id, page=page))

@@ -158,10 +158,10 @@ class BaseExperimenter(BaseController):
     def updateMyAccount(self, firstName, lastName, email, dGroup, middleName=None, institution=None, password=None):
         up_exp = self.experimenter._obj
         up_exp.firstName = rstring(str(firstName))
-        up_exp.middleName = rstring(str(middleName))
+        up_exp.middleName = middleName is not None and rstring(str(middleName)) or None
         up_exp.lastName = rstring(str(lastName))
         up_exp.email = rstring(str(email))
-        up_exp.institution = rstring(str(institution))
+        up_exp.institution = institution is not None and rstring(str(institution)) or None
         
         defaultGroup = self.conn.getGroup(long(dGroup))._obj
         self.conn.updateMyAccount(up_exp, defaultGroup, password)
@@ -182,10 +182,10 @@ class BaseExperimenter(BaseController):
         new_exp = ExperimenterI()
         new_exp.omeName = rstring(str(omeName))
         new_exp.firstName = rstring(str(firstName))
-        new_exp.middleName = rstring(str(middleName))
+        new_exp.middleName = middleName is not None and rstring(str(middleName)) or None
         new_exp.lastName = rstring(str(lastName))
         new_exp.email = rstring(str(email))
-        new_exp.institution = rstring(str(institution))
+        new_exp.institution = institution is not None and rstring(str(institution)) or None
         
         listOfGroups = set()
         # default group
@@ -221,10 +221,10 @@ class BaseExperimenter(BaseController):
         up_exp = self.experimenter._obj
         up_exp.omeName = rstring(str(omeName))
         up_exp.firstName = rstring(str(firstName))
-        up_exp.middleName = rstring(str(middleName))
+        up_exp.middleName = middleName is not None and rstring(str(middleName)) or None
         up_exp.lastName = rstring(str(lastName))
         up_exp.email = rstring(str(email))
-        up_exp.institution = rstring(str(institution))
+        up_exp.institution = institution is not None and rstring(str(institution)) or None
         
         # old list of groups
         old_groups = list()

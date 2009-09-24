@@ -168,10 +168,10 @@ class ExperimenterLdapForm(forms.Form):
 
 class GroupForm(forms.Form):
     
-    PERMISSION_CHOICES = (
-        ('0', 'Private (rw----)'),
-        ('1', 'Group visible (rwr---)')
-    )
+    #PERMISSION_CHOICES = (
+    #    ('0', 'Private (rw----)'),
+    #    ('1', 'Group visible (rwr---)')
+    #)
     
     def __init__(self, name_check=False, *args, **kwargs):
         super(GroupForm, self).__init__(*args, **kwargs)
@@ -181,11 +181,12 @@ class GroupForm(forms.Form):
             self.fields['owner'] = ExperimenterModelChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['owner'])
         except:
             self.fields['owner'] = ExperimenterModelChoiceField(queryset=kwargs['initial']['experimenters'])
-        self.fields.keyOrder = ['name', 'description', 'owner', 'access_controll']
+        #self.fields.keyOrder = ['name', 'description', 'owner', 'access_controll']
+        self.fields.keyOrder = ['name', 'description', 'owner']
 
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25}))
     description = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':25}), required=False)
-    access_controll = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True)
+    #access_controll = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True)
     
     def clean_name(self):
         if self.name_check:
