@@ -1,8 +1,23 @@
 /*
  *   $Id$
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
- *   Copyright 2007 University of Dundee. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *
+ * 	This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
  */
 
 package ome.logic;
@@ -36,6 +51,8 @@ import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.IObject;
+import ome.model.acquisition.Filter;
+import ome.model.acquisition.TransmittanceRange;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Channel;
@@ -104,8 +121,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             && !Screen.class.equals(klass))
         	{
         		throw new IllegalArgumentException(
-        				"Class parameter for resetDefaultsInSet() must be in " +
-        				"{Project, Dataset, Image, Plate, Screen, Pixels}, not " + 
+        			"Class parameter for resetDefaultsInSet() must be in " +
+        			"{Project, Dataset, Image, Plate, Screen, Pixels}, not " + 
         				klass);
         	}	
     }
@@ -163,6 +180,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     
     /**
      * Retrieves all Pixels by ID.
+     * 
      * @param pixelsIds Pixels IDs to retrieve Pixels for.
      * @return List of Pixels with the given Pixels IDs.
      */
@@ -184,6 +202,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     
     /**
      * Retrieves all Pixels linked to a given set of Image IDs.
+     * 
      * @param imageIds Image IDs to retrieve Pixels for.
      * @return List of Pixels associated with the given Image IDs.
      */
@@ -255,6 +274,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     
     /**
      * Retrieves all Pixels associated with a Dataset from the database.
+     * 
      * @param datasetId Dataset ID to retrieve Pixels for.
      * @return List of Pixels associated with the Dataset.
      */
@@ -278,7 +298,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     
     /**
      * Retrieves all Pixels associated with a Project from the database.
-     * @param datasetId Project ID to retrieve Pixels for.
+     * 
+     * @param projectIds Project ID to retrieve Pixels for.
      * @return List of Pixels associated with the Project.
      */
     private List<Pixels> loadProjectPixels(Long projectIds)
@@ -299,6 +320,29 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		List<Pixels> pixels = iQuery.findAllByQuery(sql, p);
 		s1.stop();
 		return pixels;
+    }
+    
+    /**
+     * Loads the logical channel to determine the color correctly.
+     * 
+     * @param id The id of the channel.
+     * @return See above.
+     */
+    private LogicalChannel loadLogicalChannel(Long id)
+    {
+    	StopWatch s1 = new CommonsLogStopWatch("omero.loadLogicalChannel");
+		Parameters p = new Parameters();
+		p.addId(id);
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("select channel from LogicalChannel as channel ");
+        sb.append("left outer join fetch channel.filterSet as filter ");
+        sb.append("left outer join fetch channel.secondaryEmissionFilter as " +
+        		"emfilter ");
+        sb.append("left outer join fetch emfilter.transmittanceRange as " +
+        		"trans ");
+        //sb.append("left outer join fetch exfilter.type as ext ");
+        sb.append("where channel.id = :id");
+        return (LogicalChannel) iQuery.findByQuery(sb.toString(), p);
     }
     
     /**
@@ -525,8 +569,15 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     
         int i = 0;
         ChannelBinding channelBinding;
+        LogicalChannel lc;
+        Family family;
+        int[] defaultColor;
+        int n = channelBindings.size();
+        Map<ChannelBinding, Boolean> m = new HashMap<ChannelBinding, Boolean>();
+        List<Boolean> values = new ArrayList<Boolean>();
+        boolean v;
         for (Channel channel : pixels.<Channel>collectChannels(null)) {
-            Family family = quantumFactory.getFamily(QuantumFactory.LINEAR);
+            family = quantumFactory.getFamily(QuantumFactory.LINEAR);
     
             channelBinding = channelBindings.get(i);
             channelBinding.setFamily(family);
@@ -534,14 +585,16 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     
             // If we have more than one channel set each of the first three
             // active, otherwise only activate the first.
-            if (i < 3) {
-                channelBinding.setActive(true);
-            } else {
-                channelBinding.setActive(false);
-            }
-    
+            channelBinding.setActive(i < 3);
+
             // Handle updating or recreating a color for this channel.
-            int[] defaultColor = ColorsFactory.getColor(i, channel);
+            lc = channel.getLogicalChannel();
+            if (lc != null) lc = loadLogicalChannel(lc.getId());
+            v = hasEmissionData(lc);
+            if (!v) values.add(v);
+            m.put(channelBinding, v);
+            
+            defaultColor = ColorsFactory.getColor(i, channel, lc);
             channelBinding.setRed(defaultColor[ColorsFactory.RED_INDEX]);
             channelBinding.setGreen(defaultColor[ColorsFactory.GREEN_INDEX]);
             channelBinding.setBlue(defaultColor[ColorsFactory.BLUE_INDEX]);
@@ -550,7 +603,23 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             channelBinding.setNoiseReduction(false);
             i++;
         }
-    
+        if (values.size() != m.size()) {
+        	Iterator<ChannelBinding> k = m.keySet().iterator();
+            while (k.hasNext()) {
+    			channelBinding = k.next();
+    			if (!m.get(channelBinding)) {
+    				defaultColor = ColorsFactory.newGreyColor();
+    				channelBinding.setRed(
+    						defaultColor[ColorsFactory.RED_INDEX]);
+    	            channelBinding.setGreen(
+    	            		defaultColor[ColorsFactory.GREEN_INDEX]);
+    	            channelBinding.setBlue(
+    	            		defaultColor[ColorsFactory.BLUE_INDEX]);
+    	            channelBinding.setAlpha(
+    	            		defaultColor[ColorsFactory.ALPHA_INDEX]);
+    			}
+    		}
+        }
         // Set the input start and input end for each channel binding based upon
         // the computation of the pixels set's location statistics.
         if (computeStats)
@@ -572,6 +641,24 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             	 channelBinding.setInputEnd(stats.getGlobalMax().doubleValue());
             }
         }
+    }
+    
+    /**
+     * Returns <code>true</code> if the channel has emission metadata,
+     * <code>false</code> otherwise.
+     * 
+     * @param lc The channel to handle.
+     * @return See above.
+     */
+    private boolean hasEmissionData(LogicalChannel lc)
+    {
+    	if (lc == null) return false;
+    	if (lc.getEmissionWave() != null) return true;
+    	Filter f = lc.getSecondaryEmissionFilter();
+    	if (f == null) return false;
+    	TransmittanceRange transmittance = f.getTransmittanceRange();
+    	if (transmittance == null) return false;
+    	return transmittance.getCutIn() != null;
     }
     
     /**
