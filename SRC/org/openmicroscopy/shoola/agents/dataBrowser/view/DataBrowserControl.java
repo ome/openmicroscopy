@@ -305,7 +305,8 @@ class DataBrowserControl
 			model.setUnselectedDisplay(node);
 		} else if (QuickFiltering.FILTER_DATA_PROPERTY.equals(name)) {
 			filterNodes((SearchObject) evt.getNewValue());
-		} else if (FilteringDialog.FILTER_PROPERTY.equals(name)) {
+		} else if (FilteringDialog.FILTER_PROPERTY.equals(name) ||
+				QuickFiltering.FILTER_TAGS_PROPERTY.equals(name)) {
 			model.filterByContext((FilterContext) evt.getNewValue());
 		} else if (FilteringDialog.LOAD_TAG_PROPERTY.equals(name) ||
 				QuickFiltering.TAG_LOADING_PROPERTY.equals(name)) {

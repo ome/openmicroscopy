@@ -351,14 +351,15 @@ class DataBrowserComponent
             un.notifyInfo("Find", "Some characters are not recognised.");
             return;
         }
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		//view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		RegexFinder finder = new RegexFinder(pattern);
 		browser.accept(finder);
 		List<ImageDisplay> nodes = finder.getFoundNodes();
 		browser.setFilterNodes(nodes);
 		view.layoutUI();
 		view.setNumberOfImages(nodes.size());
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		//view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		view.setFilterStatus(false);
 	}
 
 	/**
@@ -418,7 +419,8 @@ class DataBrowserComponent
 		view.layoutUI();
 		view.setNumberOfImages(nodes.size());
 		model.setState(READY);
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		//view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		view.setFilterStatus(false);
 		fireStateChange();
 	}
 
@@ -439,12 +441,14 @@ class DataBrowserComponent
 			return;
 		}
 		if (context.isNameOnly()) {
+			//view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			view.filterByContext(context);
 			filterByFullText(context.getNames()); 
 		} else {
 			Browser browser = model.getBrowser();
 			Set<DataObject> nodes = browser.getOriginal();
 			if (nodes != null && nodes.size() > 0) {
-				view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				//view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				view.filterByContext(context);
 				model.fireFilteringByContext(context, nodes);
 				fireStateChange();

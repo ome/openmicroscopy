@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.util.ui.search;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -52,6 +53,7 @@ import javax.swing.event.DocumentListener;
 import layout.TableLayout;
 
 //Application-internal dependencies
+import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -148,6 +150,9 @@ public class QuickSearch
 	/** Button to clear the text. */
 	private JButton				menuButton;
 	
+	/** Status label. */
+	private JXBusyLabel			status;
+	
 	/** The Layout manager used to lay out the search area. */
 	private TableLayout			layoutManager;
 	
@@ -200,7 +205,12 @@ public class QuickSearch
 	{
 		showAll = new SearchObject(SHOW_ALL, null, SHOW_ALL_TEXT);
 		IconManager icons = IconManager.getInstance();
-		clearButton = new JButton(icons.getIcon(IconManager.CLEAR_DISABLED));
+		Icon icon = icons.getIcon(IconManager.CLEAR_DISABLED);
+		Dimension d = new Dimension(icon.getIconWidth(), icon.getIconHeight());
+		status = new JXBusyLabel(d);
+		UIUtilities.setTextAreaDefault(status);
+		status.setBorder(null);
+		clearButton = new JButton(icon);
 		//clearButton.setEnabled(false);
 		clearButton.setToolTipText("Clear Filtering and Show All");
 		UIUtilities.setTextAreaDefault(clearButton);
@@ -420,6 +430,7 @@ public class QuickSearch
 					if (oldIndex != TAGS && oldIndex != COMMENTS &&
 							oldIndex != FULL_TEXT) text = "";
 				}
+				setFocusOnArea();
 		}
 		if (text == null) return;
 		searchArea.getDocument().removeDocumentListener(this);
@@ -656,10 +667,44 @@ public class QuickSearch
 			}
 		}
 		if (selectedNode != null) {
+			setFilteringStatus(true);
 			initMenu();
 			menu.setSelectedNode(selectedNode);
 			this.selectedNode = selectedNode;
 			setSearchContext(null);
+		}
+	}
+	
+	/**
+	 * Replaces the clear button and shows the tool bar if the passed 
+	 * value is <code>true</code>. Otherwise add the clear button and 
+	 * shows or hides the bar depending on the selected node.
+	 * 
+	 * @param busy See above.
+	 */
+	public void setFilteringStatus(boolean busy)
+	{
+		status.setBusy(busy);
+		cleanBar.removeAll();
+		if (busy) {
+			cleanBar.add(status);
+			cleanBar.setVisible(true);
+			setFocusOnArea();
+		} else {
+			cleanBar.add(clearButton);
+			boolean visible = false;
+			if (selectedNode != null) {
+				switch (selectedNode.getIndex()) {
+					case TAGS:
+					case COMMENTS:
+					case FULL_TEXT:
+						String text = searchArea.getText();
+						if (text != null && text.trim().length() == 0)
+							visible = true;
+				}
+			}
+			cleanBar.setVisible(visible);
+			setFocusOnArea();
 		}
 	}
 	
@@ -689,6 +734,9 @@ public class QuickSearch
 	public void removeUpdate(DocumentEvent e)
 	{
 		//if (e.getDocument().getLength() == 0) clear();
+		String text = searchArea.getText();
+		if (text == null || text.trim().length() == 0)
+			cleanBar.setVisible(false);
 	}
 	
 	/** Subclasses should override this method to handle the search. */

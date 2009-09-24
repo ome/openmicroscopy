@@ -458,6 +458,17 @@ class DataBrowserUI
 	}
     
 	/**
+	 * Sets the filtering status.
+	 * 
+	 * @param busy  Pass <code>true</code> if filtering, <code>false</code>
+	 * 				otherwise.
+	 */
+	void setFilterStatus(boolean busy)
+	{
+		toolBar.setFilterStatus(busy);
+	}
+	
+	/**
 	 * Sets the text of the filtered label.
 	 * 
 	 * @param value The value to set.

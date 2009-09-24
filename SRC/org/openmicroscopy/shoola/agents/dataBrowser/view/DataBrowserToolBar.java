@@ -619,6 +619,17 @@ class DataBrowserToolBar
 	}
 	
 	/**
+	 * Sets the filtering status.
+	 * 
+	 * @param busy  Pass <code>true</code> if filtering, <code>false</code>
+	 * 				otherwise.
+	 */
+	void setFilterStatus(boolean busy)
+	{
+		search.setFilteringStatus(busy);
+	}
+	
+	/**
 	 * Sets the filtering context.
 	 * 
 	 * @param context The context to handle.
@@ -652,6 +663,7 @@ class DataBrowserToolBar
 				search.setSearchContext(QuickSearch.SHOW_ALL);
 				setFilterLabel("");
 				search.setSearchEnabled(false);
+				search.setFilteringStatus(false);
 				break;
 			case FilterContext.RATE:
 				search.setSearchEnabled(false);

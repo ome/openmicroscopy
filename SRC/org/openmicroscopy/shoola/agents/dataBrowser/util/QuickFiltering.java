@@ -29,6 +29,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 //Third-party libraries
 
@@ -36,6 +37,7 @@ import java.util.Iterator;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.tagging.util.TagCellRenderer;
 import org.openmicroscopy.shoola.agents.util.tagging.util.TagItem;
+import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.util.ui.HistoryDialog;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
@@ -66,6 +68,10 @@ public class QuickFiltering
 	
 	/** Bound property indicating to filter the data. */
 	public static final String	FILTER_DATA_PROPERTY = "filterData";
+	
+	/** Bound property indicating to filter the data. */
+	public static final String	FILTER_TAGS_PROPERTY = "filterTags";
+	
 	
 	/** The collection of tags if any. */
 	private Collection 		tags;
@@ -188,6 +194,13 @@ public class QuickFiltering
 				if (ho instanceof TagAnnotationData) {
 					String v = ((TagAnnotationData) ho).getTagValue();
 					setSearchValue(v);
+					FilterContext context = new FilterContext();
+					List<String> l = SearchUtil.splitTerms(getSearchValue(), 
+							SearchUtil.COMMA_SEPARATOR);
+					if (l != null && l.size() > 0) {
+						context.addAnnotationType(TagAnnotationData.class, l);
+						firePropertyChange(FILTER_TAGS_PROPERTY, null, context);
+					}
 				}
 			} else
 				firePropertyChange(FILTER_DATA_PROPERTY, evt.getOldValue(), 
