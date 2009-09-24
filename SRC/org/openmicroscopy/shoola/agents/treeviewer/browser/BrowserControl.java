@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserDeleteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserImportAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserInfoAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserManageAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserRefreshAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CloseAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CollapseAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ShowNameAction;
@@ -104,6 +105,8 @@ class BrowserControl
 	/** Identifies the <code>Import</code> action. */
 	static final Integer    IMPORT = Integer.valueOf(9);
 	
+	/** Identifies the <code>Refresh</code> action. */
+	static final Integer    REFRESH = Integer.valueOf(10);
     /** 
      * Reference to the {@link Browser} component, which, in this context,
      * is regarded as the Model.
@@ -131,6 +134,7 @@ class BrowserControl
         actionsMap.put(NEW_TAG, new BrowserManageAction(model, 
         		BrowserManageAction.NEW_TAGS));
         actionsMap.put(IMPORT, new BrowserImportAction(model));
+        actionsMap.put(REFRESH, new BrowserRefreshAction(model));
     }
     
     /**

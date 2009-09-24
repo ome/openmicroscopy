@@ -83,40 +83,40 @@ public class TreeImageTimeSet
 	 */
 	public static final int			MONTH = 105;
 	
-	/** Identifies the month of january. */
+	/** Identifies the month of January. */
 	static final int 				JANUARY = Calendar.JANUARY;
 	
-	/** Identifies the month of february. */
+	/** Identifies the month of February. */
 	static final int 				FEBRUARY = Calendar.FEBRUARY;
 	
-	/** Identifies the month of march. */
+	/** Identifies the month of March. */
 	static final int 				MARCH = Calendar.MARCH;
 	
-	/** Identifies the month of april. */
+	/** Identifies the month of April. */
 	static final int 				APRIL = Calendar.APRIL;
 	
-	/** Identifies the month of may. */
+	/** Identifies the month of May. */
 	static final int 				MAY = Calendar.MAY;
 	
-	/** Identifies the month of june. */
+	/** Identifies the month of June. */
 	static final int 				JUNE = Calendar.JUNE;
 	
-	/** Identifies the month of july. */
+	/** Identifies the month of July. */
 	static final int 				JULY = Calendar.JULY;
 	
-	/** Identifies the month of august. */
+	/** Identifies the month of August. */
 	static final int 				AUGUST = Calendar.AUGUST;
 	
-	/** Identifies the month of september. */
+	/** Identifies the month of September. */
 	static final int 				SEPTEMBER = Calendar.SEPTEMBER;
 	
-	/** Identifies the month of october. */
+	/** Identifies the month of October. */
 	static final int 				OCTOBER = Calendar.OCTOBER;
 	
-	/** Identifies the month of november. */
+	/** Identifies the month of November. */
 	static final int 				NOVEMBER = Calendar.NOVEMBER;
 	
-	/** Identifies the month of december. */
+	/** Identifies the month of December. */
 	static final int 				DECEMBER = Calendar.DECEMBER;
 	
 	 /** 

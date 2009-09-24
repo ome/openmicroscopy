@@ -948,7 +948,20 @@ public class EditorUtil
     	if (l != null) {
     		 int n = l.length;
              if (n >= 1) name = l[n-1]; 
-    	} else return name;
+    	} else {
+    		if (Pattern.compile(".").matcher(name).find()) {
+        		l = name.split("\\.");
+        		if (l.length >= 1) {
+        			name = "";
+        			int n = l.length-1;
+            		for (int i = 0; i < n; i++) {
+        				name += l[i];
+        				if (i < (n-1)) name += ".";
+        			}
+        		}
+        	}
+    		return name;
+    	}
     	   	
     	if (Pattern.compile(".").matcher(name).find()) {
     		l = name.split("\\.");

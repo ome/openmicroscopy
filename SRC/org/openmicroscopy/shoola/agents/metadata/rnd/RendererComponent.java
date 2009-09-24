@@ -44,6 +44,9 @@ import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
+import com.sun.opengl.util.texture.TextureData;
+
 import pojos.ChannelData;
 import pojos.PixelsData;
 
@@ -809,6 +812,21 @@ class RendererComponent
 		return null;
 	}
 
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#renderPlaneAsTexture(PlaneDef)
+     */
+	public TextureData renderPlaneAsTexture(PlaneDef pDef)
+	{
+		if (pDef == null) return null;
+		try {
+			return model.renderPlaneAsTexture(pDef);
+		} catch (Throwable e) {
+			handleException(e);
+		}
+		return null;
+	}
+	
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#reloadUI(boolean)

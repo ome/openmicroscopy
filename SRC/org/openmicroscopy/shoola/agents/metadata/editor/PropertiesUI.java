@@ -394,22 +394,22 @@ class PropertiesUI
     private String isValidPixelsSize(Map details)
     {
     	String x = (String) details.get(EditorUtil.PIXEL_SIZE_X);
-    	String y = (String) details.get(EditorUtil.PIXEL_SIZE_X);
-    	String z = (String) details.get(EditorUtil.PIXEL_SIZE_X);
+    	String y = (String) details.get(EditorUtil.PIXEL_SIZE_Y);
+    	String z = (String) details.get(EditorUtil.PIXEL_SIZE_Z);
     	String label = "Pixels Size (";
     	
     	String value = "";
     	String zero = "0";
     	if (!zero.equals(x)) {
     		value += x;
-    		label = "X";
+    		label += "X";
     	}
     	if (!zero.equals(y)) {
     		if (value.length() == 0) value += y;
     		else value +="x"+y;
     		label += "Y";
     	}
-    	if (!zero.equals(y)) {
+    	if (!zero.equals(z)) {
     		if (value.length() == 0) value += z;
     		else value +="x"+z;
     		label += "Z";

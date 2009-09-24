@@ -285,9 +285,11 @@ class UserProfile
 		} else groups.setEnabled(false);
 		
         groupBox = new JRadioButton(EditorUtil.GROUP_VISIBLE);
+        groupBox.setBackground(UIUtilities.BACKGROUND_COLOR);
         groupBox.setToolTipText(EditorUtil.GROUP_DESCRIPTION);
         //groupBox.setEnabled(false);
         privateBox =  new JRadioButton(EditorUtil.PRIVATE);
+        privateBox.setBackground(UIUtilities.BACKGROUND_COLOR);
         privateBox.setSelected(true);
         //privateBox.setEnabled(false);
     	ButtonGroup group = new ButtonGroup();

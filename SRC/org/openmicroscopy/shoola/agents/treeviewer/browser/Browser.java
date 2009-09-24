@@ -345,7 +345,8 @@ public interface Browser
      */
     public void sortTreeNodes(int sortType);
     
-    /** Brings up on screen the popup menu. 
+    /** 
+     * Brings up on screen the pop-up menu. 
      * 
      * @param menuIndex The index of the menu. One of the following constants
      * 					{@link TreeViewer#FULL_POP_UP_MENU} or 
@@ -356,7 +357,7 @@ public interface Browser
     /** 
      * Reloads children of the currently selected node and rebuilds
      * the display if the <code>Browser</code> is currently selected, 
-     * if not, all the chidren are removed and there is no data loading.
+     * if not, all the children are removed and there is no data loading.
      */
     public void refreshTree();
     
@@ -667,4 +668,6 @@ public interface Browser
 	/** Brings up the importer. */
 	void showImporter();
 
+	void refreshBrowser();
+	
 }

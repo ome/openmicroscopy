@@ -1418,5 +1418,14 @@ class BrowserComponent
 	{
 		model.getParentModel().showImporter();
 	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#refreshBrowser()
+	 */
+	public void refreshBrowser()
+	{
+		model.getParentModel().refreshTree();
+	}
 	
 }

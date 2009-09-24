@@ -38,6 +38,9 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+
+import com.sun.opengl.util.texture.TextureData;
+
 import pojos.ChannelData;
 import pojos.PixelsData;
 
@@ -529,4 +532,13 @@ public interface Renderer
 	
 	/** Sets the maximum range for channels. */
 	void setRangeAllChannels();
+	
+	/**
+	 * Renders the specified plane.
+	 * 
+	 * @param pDef The plane to render.
+	 * @return See above.
+	 */
+	TextureData renderPlaneAsTexture(PlaneDef pDef);
+	
 }

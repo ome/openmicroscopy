@@ -50,7 +50,7 @@ public class SortByDateAction
 {
     
     /** Description of the action. */
-    private static final String DESCRIPTION = "Sort by date.";
+    private static final String DESCRIPTION = "Sort by acquisition date.";
     
     /** 
      * Reacts to {@link Browser}'s state change.

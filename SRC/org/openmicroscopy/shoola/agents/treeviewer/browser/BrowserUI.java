@@ -42,6 +42,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -254,7 +256,7 @@ class BrowserUI
         
         
         leftMenuBar = new JToolBar();
-        leftMenuBar.setBorder(null);
+        leftMenuBar.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 0));
         leftMenuBar.setRollover(true);
         leftMenuBar.setFloatable(false);
         BrowserManageAction a;
@@ -264,7 +266,7 @@ class BrowserUI
 					controller.getAction(BrowserControl.NEW_CONTAINER);
 				button = new JButton(a);
 				button.setBorderPainted(false);
-				b.addMouseListener(a);
+				button.addMouseListener(a);
 				leftMenuBar.add(button);
 				break;
 			case Browser.TAGS_EXPLORER:
@@ -272,10 +274,13 @@ class BrowserUI
 					controller.getAction(BrowserControl.NEW_TAG);
 				button = new JButton(a);
 				button.setBorderPainted(false);
-				b.addMouseListener(a);
+				button.addMouseListener(a);
 				leftMenuBar.add(button);
 		}
         button = new JButton(controller.getAction(BrowserControl.DELETE));
+		button.setBorderPainted(false);
+		leftMenuBar.add(button);
+		button = new JButton(controller.getAction(BrowserControl.REFRESH));
 		button.setBorderPainted(false);
 		leftMenuBar.add(button);
 		button = new JButton(controller.getAction(BrowserControl.IMPORT));
@@ -386,6 +391,7 @@ class BrowserUI
      */
     private void createTimeElements(TreeImageSet parent)
     {
+    	createTimeNode(TreeImageTimeSet.TODAY, parent, true);
     	createTimeNode(TreeImageTimeSet.WEEK, parent, true);
 		createTimeNode(TreeImageTimeSet.TWO_WEEK, parent, true);
 		TreeImageSet n = createTimeNode(TreeImageTimeSet.YEAR, parent, false);
@@ -1570,8 +1576,7 @@ class BrowserUI
 		}
 		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
         TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
-		Set nodes = createFileSystemExplorer();
-		setExperimenterData(nodes, root);
+		setExperimenterData(createFileSystemExplorer(), root);
 	}
 
 	/**

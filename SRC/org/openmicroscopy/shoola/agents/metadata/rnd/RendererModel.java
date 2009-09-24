@@ -43,6 +43,9 @@ import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+
+import com.sun.opengl.util.texture.TextureData;
+
 import pojos.ChannelData;
 import pojos.PixelsData;
 
@@ -1067,6 +1070,22 @@ class RendererModel
 		return rndControl.renderPlane(pDef);
 	}
 
+	/**
+	 * Renders the specified plane.
+	 * 
+	 * @param pDef The plane to render.
+	 * @return See above.
+	 * @throws RenderingServiceException 	If an error occurred while setting 
+	 * 										the value.
+	 * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	TextureData renderPlaneAsTexture(PlaneDef pDef)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		if (rndControl == null) return null;
+		return rndControl.renderPlaneAsTexture(pDef);
+	}
+	
 	/**
 	 * Returns <code>true</code> if the passed rendering settings are the same
 	 * that the current one, <code>false</code> otherwise.
