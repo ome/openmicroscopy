@@ -8,7 +8,7 @@
 
 """
 
-import sys
+import sys, os
 import tempfile
 import omero
 import omero_ServerErrors_ice
@@ -46,13 +46,18 @@ def as_dictionary(path):
     """
 
     t = tempfile.NamedTemporaryFile()
+    t.close() # Forcing deletion due to Windows sharing issues
+
     path = _to_list(path)
     path.insert(0, "---file=%s" % t.name)
-    as_stdout(path)
-    f = open(t.name,"r")
-    output = f.readlines()
-    f.close()
-    t.close()
+    try:
+        as_stdout(path)
+        f = open(t.name,"r")
+        output = f.readlines()
+        f.close()
+    finally:
+        if os.path.exists(t.name):
+            os.remove(t.name)
 
     gline = -1
     key = None
