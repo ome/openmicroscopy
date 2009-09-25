@@ -16,6 +16,7 @@ import ome.api.ThumbnailStore;
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
 import ome.model.annotations.CommentAnnotation;
+import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.annotations.TagAnnotation;
 import ome.model.containers.Dataset;
@@ -23,7 +24,9 @@ import ome.model.containers.DatasetImageLink;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
+import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
+import ome.model.enums.Format;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.screen.Plate;
@@ -387,6 +390,21 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
             // good, it's gone.
         }
     }
+    
+    // Misc
+    
+    public void testDeleteImageWithFileAnnotation() throws Exception {
+        Image i1 = makeImage(true);
+        ImageAnnotationLink link = new ImageAnnotationLink();
+        FileAnnotation fa = new FileAnnotation();
+        OriginalFile of = new OriginalFile("",0L,"",new Format("text/plain"),"");
+        fa.setFile(of);
+        link.link(i1, fa);
+        iUpdate.saveObject(fa);
+        IDelete srv = this.factory.getDeleteService();
+        srv.deleteImage(i1.getId(), true);
+    }
+
 
     
 }
