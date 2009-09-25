@@ -141,7 +141,10 @@ public class OmeroReader extends FormatReader {
         Image image = pix.getImage();
 
         String name = image.getName().getValue();
-        String description = image.getDescription().getValue();
+        String description = null;
+        if (image.getDescription() != null) {
+            description = image.getDescription().getValue();
+        }
 
         MetadataStore store = getMetadataStore();
         store.setImageName(name, 0);
