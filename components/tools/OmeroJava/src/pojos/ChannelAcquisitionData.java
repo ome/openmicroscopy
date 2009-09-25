@@ -127,11 +127,11 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public double getDetectorSettingsOffset()
+	public Double getDetectorSettingsOffset()
 	{
-		if (detectorSettings == null) return -1;
+		if (detectorSettings == null) return null;
 		RDouble value = detectorSettings.getOffsetValue();
-		if (value == null) return -1;
+		if (value == null) return null;
 		return value.getValue();
 	}
 	
@@ -140,11 +140,11 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public double getDetectorSettingsGain()
+	public Double getDetectorSettingsGain()
 	{
-		if (detectorSettings == null) return -1;
+		if (detectorSettings == null) return null;
 		RDouble value = detectorSettings.getGain();
-		if (value == null) return -1;
+		if (value == null) return null;
 		return value.getValue();
 	}
 	
@@ -153,11 +153,11 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public double getDetectorSettingsVoltage()
+	public Double getDetectorSettingsVoltage()
 	{
-		if (detectorSettings == null) return -1;
+		if (detectorSettings == null) return null;
 		RDouble value = detectorSettings.getVoltage();
-		if (value == null) return -1;
+		if (value == null) return null;
 		return value.getValue();
 	}
 	
@@ -166,11 +166,11 @@ public class ChannelAcquisitionData
 	 * 
 	 * @return See above.
 	 */
-	public double getDetectorSettingsReadOutRate()
+	public Double getDetectorSettingsReadOutRate()
 	{
-		if (detectorSettings == null) return -1;
+		if (detectorSettings == null) return null;
 		RDouble value = detectorSettings.getReadOutRate();
-		if (value == null) return -1;
+		if (value == null) return null;
 		return value.getValue();
 	}
 	
@@ -187,33 +187,31 @@ public class ChannelAcquisitionData
 		return value.getValue().getValue();
 	}
 	
-	
-	
-	
+
 	/**
-	 * Returns the attenuation of the ligth source, percent value 
+	 * Returns the attenuation of the light source, percent value 
 	 * between 0 and 1.
 	 * 
 	 * @return See above.
 	 */
-	public double getLigthSettingsAttenuation()
+	public Double getLigthSettingsAttenuation()
 	{
-		if (lightSettings == null) return -1;
+		if (lightSettings == null) return null;
 		RDouble value = lightSettings.getAttenuation();
-		if (value == null) return -1;
+		if (value == null) return null;
 		return value.getValue();
 	}
 	
 	/**
-	 * Returns the wavelength of the ligth source.
+	 * Returns the wavelength of the light source.
 	 * 
 	 * @return See above.
 	 */
-	public int getLigthSettingsWavelength()
+	public Integer getLigthSettingsWavelength()
 	{
-		if (lightSettings == null) return -1;
+		if (lightSettings == null) return null;
 		RInt value = lightSettings.getWavelength();
-		if (value == null) return -1;
+		if (value == null) return null;
 		return value.getValue();
 	}
 
@@ -269,7 +267,7 @@ public class ChannelAcquisitionData
 	}
 	
 	/**
-	 * Returns the wavelength of the ligth source.
+	 * Returns the wavelength of the light source.
 	 * 
 	 * @param value The value to set.
 	 */
