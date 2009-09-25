@@ -33,7 +33,7 @@
     <dependency org="jamon" name="jamon" rev="${versions.jamon}"/>
     <dependency org="perf4j" name="perf4j" rev="${versions.perf4j}"/>
     <dependency org="quartz" name="quartz" rev="${versions.quartz}"/>
-    <dependency org="xerces" name="xerces" rev="${versions.xerces}"/>
+    <dependency org="xerces" name="xercesImpl" rev="${versions.xercesImpl}"/>
     <dependency org="xml-apis" name="xml-apis" rev="${versions.xml-apis}"/>
     <dependency org="mail" name="mail" rev="${versions.mail}"/>
     <dependency org="activation" name="activation" rev="${versions.activation}"/>
