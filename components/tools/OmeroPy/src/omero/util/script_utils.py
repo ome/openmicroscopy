@@ -47,10 +47,10 @@ import omero.util.pixelstypetopython as pixelstopython;
 
 try: 
 	import hashlib 
- 	hash_sha1 = hashlib.sha1 
+	hash_sha1 = hashlib.sha1 
 except: 
 	import sha 
-    hash_sha1 = sha.new 
+	hash_sha1 = sha.new 
 
 def drawTextOverlay(draw, x, y, text, colour='0xffffff'):
 	draw.text((x, y), text, fill=colour)

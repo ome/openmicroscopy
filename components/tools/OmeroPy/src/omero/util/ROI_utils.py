@@ -563,7 +563,7 @@ class PointData(ShapeData, ROIDrawingI):
     # overridden, @See ShapeData#acceptVisitor
     #    
     def acceptVisitor(self, visitor):
-        visitor.drawEllipse(self.x.getValue(), self.y.getValue(), 3, 3 self.shapeSettings.getSettings());
+        visitor.drawEllipse(self.x.getValue(), self.y.getValue(), 3, 3, self.shapeSettings.getSettings());
 
 ##
 # The PolygonData class contains all the manipulation and create of PolygonI
