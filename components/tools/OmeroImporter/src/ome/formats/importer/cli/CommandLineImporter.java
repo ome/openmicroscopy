@@ -94,22 +94,24 @@ public class CommandLineImporter {
 
     public int start() {
 
-        if (candidates.size() < 1) {
-            if (handler.errorCount() > 0) {
-                System.err.println("No imports due to errors!");
-            } else {
-                System.err.println("No imports found");
-                usage();
-            }
-        }
-
-        else if (getUsedFiles) {
+        if (getUsedFiles) {
             try {
                 candidates.print();
+                report();
                 return 0;
             } catch (Throwable t) {
                 log.error("Error retrieving used files.", t);
-                return 2;
+                return 1;
+            }
+        }
+
+        else if (candidates.size() < 1) {
+            if (handler.errorCount() > 0) {
+                System.err.println("No imports due to errors!");
+                report();
+            } else {
+                System.err.println("No imports found");
+                usage();
             }
         }
 
@@ -117,9 +119,9 @@ public class CommandLineImporter {
             library.addObserver(new LoggingImportMonitor());
             library.addObserver(new ErrorHandler(config));
             library.importCandidates(config, candidates);
+            report();
         }
 
-        report();
         return 0;
 
     }
@@ -184,13 +186,18 @@ public class CommandLineImporter {
 
     /**
      * Command line application entry point which parses CLI arguments and
-     * passes them into the importer. Return codes are:
+     * passes them into the importer. Return codes for import are:
      * <ul>
      * <li>0 on success</li>
      * <li>1 on argument parsing failure</li>
      * <li>2 on exception during import</li>
      * </ul>
      * 
+     * Return codes for the "-f" option (getUsedFiles) are:
+     * <ul>
+     * <li>0 on success, even if errors exist in the files</li>
+     * <li>1 only if an exception propagates up the stack</li>
+     * </ul>
      * @param args
      *            Command line arguments.
      */
