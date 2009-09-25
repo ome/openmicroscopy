@@ -137,6 +137,8 @@ public class ColorsFactory {
         	// We've got a color image of some type that has explicitly
         	// specified which channel is Red, Green, Blue or some other wacky
         	// color.
+        	if (red == 0 && green == 0 && blue == 0 && alpha == 0)
+        		alpha = DEFAULT_ALPHA;
             return new int[] { red, green, blue, alpha };
         }
 
@@ -229,5 +231,15 @@ public class ColorsFactory {
     public static int[] newGreyColor() {
         return new int[] { 128, 128, 128, DEFAULT_ALPHA };
     }
+    
+    /**
+     * Creates a new <i>White</i> Color object.
+     * 
+     * @return An RGBA array representation of the color Blue.
+     */
+    public static int[] newWhiteColor() {
+        return new int[] { 255, 255, 255, DEFAULT_ALPHA };
+    }
+    
     
 }
