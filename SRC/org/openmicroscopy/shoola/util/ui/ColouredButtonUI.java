@@ -207,7 +207,7 @@ class ColouredButtonUI
     /**
      * This method calculates the size of the button's text. It then
      * renders the text in the centre of the button, it also changes the
-     * colour of the text to maximise the contrast between it and the 
+     * colour of the text to maximize the contrast between it and the 
      * background. 
      * 
      * @param g Graphics2D drawing context.
@@ -215,9 +215,9 @@ class ColouredButtonUI
     private void drawText(final Graphics2D g)
     {
         final HSV col = new HSV(colour);
-        Font fnt = button.getFont();
-        fnt = fnt.deriveFont(fontIndex, 10);
-        g.setFont(fnt);
+        //Font fnt = button.getFont();
+        //fnt = fnt.deriveFont(fontIndex, 10);
+        //g.setFont(fnt);
         final FontMetrics fm = g.getFontMetrics();
         
         // Using the font metrics, centre the text in the button face.
@@ -228,7 +228,7 @@ class ColouredButtonUI
         
         // If the button face is dark or does not contrast well with the 
         // black text turn the text white.
-        if(col.getValue() < 0.6 || (col.getHue() > 0.6 && 
+        if (col.getValue() < 0.6 || (col.getHue() > 0.6 && 
            col.getSaturation() > 0.7) || greyedOut)
             g.setPaint(Color.white);
         else
@@ -250,7 +250,7 @@ class ColouredButtonUI
 
     /**
      * The button has been selected. Draw the button face, inverting the 
-     * gradient and darkening the colours used in the gradeint fill.
+     * gradient and darkening the colours used in the gradient fill.
      *  
      * @param g Graphics2D render context.
      */
@@ -423,7 +423,7 @@ class ColouredButtonUI
     
     /**
      * Paints the square, beveled button with gradient fill on to the 
-     * Grpahics context.
+     * Graphics context.
      * 
      * @param g Graphics context.
      */
@@ -477,7 +477,7 @@ class ColouredButtonUI
 
     /**
      * Creates the painters for the colour, and adds specular highlight if the
-     * spec is <code>true</code>. 
+     * passed parameter is <code>true</code>. 
      * 
      * @param colour see above.
      * @param spec see above.
@@ -518,12 +518,14 @@ class ColouredButtonUI
 		
 		HSV newHSV = new HSV(colour);
 		float colourAlpha = 0.5f;
-		if(newHSV.getHue()>(100.0/360.0) && newHSV.getHue()<(150.0/360.0))
+		if (newHSV.getHue()>(100.0/360.0) && newHSV.getHue()<(150.0/360.0))
 			colourAlpha = 0.7f;
 		
 		MattePainter gradientLight = new MattePainter(
-			    new GradientPaint(new Point2D.Double(startX, startY), new Color(1.0f, 1.0f, 1.0f, colourAlpha),
-			    new Point2D.Double(colourStartX, colourStartY),  new Color(1.0f, 1.0f, 1.0f, 0.0f) ));
+			    new GradientPaint(new Point2D.Double(startX, startY), 
+			    		new Color(1.0f, 1.0f, 1.0f, colourAlpha),
+			    new Point2D.Double(colourStartX, colourStartY),  
+			    new Color(1.0f, 1.0f, 1.0f, 0.0f) ));
 		
 	    if (spec == SPEC)
 	    	return new CompoundPainter<JXButton>(gradientWhite, 

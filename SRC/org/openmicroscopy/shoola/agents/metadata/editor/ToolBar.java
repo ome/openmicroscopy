@@ -171,7 +171,7 @@ class ToolBar
 		refreshButton.addActionListener(controller);
 		refreshButton.setActionCommand(""+EditorControl.REFRESH);
 		
-		icon = icons.getIcon(IconManager.EXPORT);
+		icon = icons.getIcon(IconManager.EXPORT_AS_OMETIFF);
 		exportButton = new JButton(icon);
 		exportButton.setToolTipText("Export the image.");
 		exportButton.addActionListener(controller);

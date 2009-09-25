@@ -76,8 +76,7 @@ public class ColouredButton
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param text      The text of the button. The text should correspond to
-	 *                  the emission wavelength.
+	 * @param text      The text of the button. 
 	 * @param color     The background color of the button. Corresponds to the
 	 *                  color associated to the channel.
 	 */

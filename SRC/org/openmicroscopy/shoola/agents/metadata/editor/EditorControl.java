@@ -237,7 +237,7 @@ class EditorControl
 				"Export", "Select where to export the image.");
 		chooser.setApproveButtonText("Export");
 		IconManager icons = IconManager.getInstance();
-		chooser.setTitleIcon(icons.getIcon(IconManager.EXPORT_48));
+		chooser.setTitleIcon(icons.getIcon(IconManager.EXPORT_AS_OMETIFF_48));
 		chooser.addPropertyChangeListener(new PropertyChangeListener() {
 		
 			public void propertyChange(PropertyChangeEvent evt) {

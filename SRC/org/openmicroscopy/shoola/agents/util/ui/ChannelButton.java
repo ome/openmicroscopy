@@ -26,12 +26,15 @@ package org.openmicroscopy.shoola.agents.util.ui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
@@ -79,6 +82,9 @@ public class ChannelButton
     
     /** The description associated to this channel. */
 	private static final String		DESCRIPTION = "Toggle channel on/off.";
+	 
+	/** The minimum size of the font. */
+	private static final int		MIN_FONT_SIZE = 10;
 	
     /** The index of the channel. */
     protected final int               index;
@@ -114,8 +120,8 @@ public class ChannelButton
     }
        
     /** 
-     * Handles the mouse released event because Popup menus are triggered 
-     * differently on different systems.
+     * Handles the mouse released event because pop-up menus are triggered 
+     * differently depending on the platform.
      * 
      * @param e The The mouse event to handle.
      */
@@ -131,20 +137,44 @@ public class ChannelButton
     /**
      * Returns the preferred dimension of the component.
      * 
-     * @param decrease The value by which the size of the font is decrease.
-     * @return See above
+     * @param decrease The value by which the size of the font is decreased
      */
     private Dimension setComponentSize(int decrease)
     {
     	 Font f = getFont();
-         setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
-         int width = getFontMetrics(getFont()).stringWidth(getText())+4;
+    	 Font fNew = f.deriveFont(f.getStyle(), f.getSize()-1);
+         setFont(fNew);
+         String text = getText();
+         FontMetrics fm = getFontMetrics(fNew);
+         int width = fm.stringWidth(text)+4;
          Dimension d = DEFAULT_MIN_SIZE;
          if (width > DEFAULT_MIN_SIZE.width &&
-         		width < DEFAULT_MAX_SIZE.width) 
+         		width < DEFAULT_MAX_SIZE.width) {
         	 d = new Dimension(width+6, DEFAULT_MIN_SIZE.height);
-         else if (width >= DEFAULT_MAX_SIZE.width)
-        	 return setComponentSize(decrease-1);
+         } else if (width >= DEFAULT_MAX_SIZE.width) {
+        	 if (fNew.getSize() > MIN_FONT_SIZE) {
+        		 return setComponentSize(decrease-1);
+        	 } else {
+        		 String s = "";
+        		 int n = text.length()-1;
+        		 List l = new ArrayList();
+        		 char ch;
+        		 while (fm.stringWidth(s)+4 < DEFAULT_MAX_SIZE.width-2) {
+        			 ch = text.charAt(n);
+        			 s += ch;
+        			 l.add(ch);
+        			 n = n-1;
+        		 }
+        		 Collections.reverse(l);
+        		 Iterator i = l.iterator();
+        		 s = "..";
+        		 while (i.hasNext())
+        			 s += i.next();
+        		 setText(s);
+        		 //reset text
+        		 return setComponentSize(decrease);
+        	 }
+         }
          return d;
     }
     

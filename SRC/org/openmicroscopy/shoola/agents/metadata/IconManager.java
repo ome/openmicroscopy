@@ -272,10 +272,10 @@ public class IconManager
     public static  final int          ANALYSE_48 = 72;
     
     /** The <code>Export</code> icon. */
-    public static final int           EXPORT = 73;
+    public static final int           EXPORT_AS_OMETIFF = 73;
     
     /** The <code>Export 48x48</code> icon. */
-    public static final int           EXPORT_48 = 74;
+    public static final int           EXPORT_AS_OMETIFF_48 = 74;
     
     /** A 22x22 version of the <code>movie</code> icon. */
     public static final int 		  MOVIE_22 = 75;
@@ -364,8 +364,8 @@ public class IconManager
         relPaths[RGB] = "rgb16.png";
         relPaths[ANALYSE] = "nuvola_kchart16.png";
         relPaths[ANALYSE_48] = "nuvola_kchart48.png";
-        relPaths[EXPORT] = "nuvola_kchart16.png";
-        relPaths[EXPORT_48] = "nuvola_kchart48.png";
+        relPaths[EXPORT_AS_OMETIFF] = "download_image16.png";
+        relPaths[EXPORT_AS_OMETIFF_48] = "download_image48.png";
         relPaths[MOVIE_22] = "openOffice_stock_insert-video-plugin-22.png";
         relPaths[EXPORT_22] = "nuvola_kchart16.png";
 	}
