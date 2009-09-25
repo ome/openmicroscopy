@@ -608,7 +608,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             while (k.hasNext()) {
     			channelBinding = k.next();
     			if (!m.get(channelBinding)) {
-    				defaultColor = ColorsFactory.newGreyColor();
+    				defaultColor = ColorsFactory.newWhiteColor();
     				channelBinding.setRed(
     						defaultColor[ColorsFactory.RED_INDEX]);
     	            channelBinding.setGreen(

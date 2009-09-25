@@ -58,6 +58,7 @@ import ome.model.annotations.Annotation;
 import ome.model.containers.Project;
 import ome.model.core.LogicalChannel;
 import ome.model.core.OriginalFile;
+import ome.model.screen.Screen;
 import ome.parameters.Parameters;
 import ome.services.query.PojosFindAnnotationsQueryDefinition;
 import ome.services.query.Query;
@@ -82,7 +83,7 @@ public class MetadataImpl
 	implements IMetadata
 {
 
-	/** Qeury to load the original file related to a file annotation. */
+	/** Query to load the original file related to a file annotation. */
 	private final String LOAD_ORIGINAL_FILE = 
 		"select p from OriginalFile as p left outer join fetch p.format " +
 					"where p.id = :id";
@@ -267,6 +268,19 @@ public class MetadataImpl
 		sb.append("where child.id = :id");
 		l = iQuery.findAllByQuery(sb.toString(), param);
 		if (l != null) result.addAll(l);
+		
+		sb = new StringBuilder();
+		sb.append("select pl from Plate as pl ");
+		sb.append("left outer join fetch "
+				+ "pl.annotationLinksCountPerOwner pl_a_c ");
+		sb.append("left outer join fetch pl.annotationLinks ail ");
+		sb.append("left outer join fetch ail.child child ");
+		sb.append("left outer join fetch ail.parent parent ");
+		sb.append("where child.id = :id");
+		l = iQuery.findAllByQuery(sb.toString(), param);
+		if (l != null) result.addAll(l);
+		
+		
 		sb = new StringBuilder();
 		sb.append("select p from Project as p ");
 		sb.append("left outer join fetch "
@@ -288,6 +302,30 @@ public class MetadataImpl
 			Set p = iContainer.loadContainerHierarchy(Project.class, ids, po);
 			result.addAll(p);
 		}
+		
+		sb = new StringBuilder();
+		sb.append("select s from Screen as s ");
+		sb.append("left outer join fetch "
+				+ "s.annotationLinksCountPerOwner s_a_c ");
+		sb.append("left outer join fetch s.annotationLinks ail ");
+		sb.append("left outer join fetch ail.child child ");
+		sb.append("left outer join fetch ail.parent parent ");
+		sb.append("where child.id = :id");
+		l = iQuery.findAllByQuery(sb.toString(), param);
+		if (l != null && l.size() > 0) {
+			Set<Long> ids = new HashSet<Long>();
+			Iterator i = l.iterator();
+			while (i.hasNext()) {
+				ids.add(((IObject) i.next()).getId());
+			}
+			Parameters po = new Parameters(options);
+			po.noLeaves();
+			po.noOrphan();
+			Set p = iContainer.loadContainerHierarchy(Screen.class, ids, po);
+			result.addAll(p);
+		}
+		
+		
 		
     	return result;
     }
