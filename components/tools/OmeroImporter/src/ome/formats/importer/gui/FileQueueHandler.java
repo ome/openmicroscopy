@@ -525,6 +525,11 @@ public class FileQueueHandler
     public void update(IObservable observable, ImportEvent event)
     {
         final OMEROMetadataStoreClient store = viewer.loginHandler.getMetadataStore();  
+        
+        if (event instanceof ImportCandidates.SCANNING_FILE_EXCEPTION)
+        {
+            ImportCandidates.SCANNING_FILE_EXCEPTION ev = (ImportCandidates.SCANNING_FILE_EXCEPTION) event;
+        }
 
         if (event instanceof ImportCandidates.SCANNING)
         {

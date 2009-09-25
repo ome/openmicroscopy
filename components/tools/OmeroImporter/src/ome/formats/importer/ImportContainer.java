@@ -20,9 +20,9 @@ public class ImportContainer
 	public String imageName;
     public String reader;
     public String[] usedFiles;
-    public boolean isSPW;
+    public Boolean isSPW;
     
-    private boolean archive;
+    private Boolean archive;
     private Double[] userPixels;
     private String userSpecifiedImageName;
     private IObject target;
@@ -30,8 +30,8 @@ public class ImportContainer
     
 	public ImportContainer(File file, Long projectID,
 			IObject target, 
-			String imageName, boolean archive, 
-			Double[] userPixels, String reader, String[] usedFiles, boolean isSPW)
+			String imageName, Boolean archive, 
+			Double[] userPixels, String reader, String[] usedFiles, Boolean isSPW)
 	{
 		this.file = file;
 		this.projectID = projectID;

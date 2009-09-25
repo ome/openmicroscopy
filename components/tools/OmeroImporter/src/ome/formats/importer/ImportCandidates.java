@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ome.formats.importer.util.ErrorHandler;
+import ome.formats.importer.util.ErrorHandler.FILE_EXCEPTION;
 
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -81,6 +82,23 @@ public class ImportCandidates extends DirectoryWalker {
         }
     }
 
+
+    public static class SCANNING_FILE_EXCEPTION extends FILE_EXCEPTION {
+        public final String filename;
+        public final String[] usedFiles;
+        public final String reader;
+        public SCANNING_FILE_EXCEPTION(String filename, Exception exception, String[] usedFiles, String reader) {
+            super(filename, exception, usedFiles, reader);
+            this.filename = filename;
+            this.usedFiles = usedFiles;
+            this.reader = reader;
+        }
+        @Override
+        public String toLog() {
+            return super.toLog() + ": "+filename;
+        }
+    }
+    
     /**
      * Marker exception raised if the {@link SCANNING#cancel()} method is
      * called by an {@link IObserver} instance.
@@ -284,7 +302,7 @@ public class ImportCandidates extends DirectoryWalker {
             usedFiles = reader.getUsedFiles();
 
             return new ImportContainer(file, null, null, null, false, null,
-                    reader.getFormat(), usedFiles, reader.isSPWReader(path));
+                    format, usedFiles, reader.isSPWReader(path));
         } catch (Exception e) {
 
             if (usedFiles == null || usedFiles.length == 0) {
@@ -293,7 +311,7 @@ public class ImportCandidates extends DirectoryWalker {
                 }
             }
 
-            ImportEvent event = new ErrorHandler.FILE_EXCEPTION(path, e,
+            ImportEvent event = new SCANNING_FILE_EXCEPTION(path, e,
                     usedFiles, format);
             try {
                 observer.update(null, event);
@@ -302,9 +320,11 @@ public class ImportCandidates extends DirectoryWalker {
                         String.format("Error on %s with %s", observer, event),
                         ex);
             }
+            
         }
 
-        return null;
+        return new ImportContainer(file, null, null, null, false, null,
+                format, usedFiles, reader.isSPWReader(path));  
     }
 
     @Override

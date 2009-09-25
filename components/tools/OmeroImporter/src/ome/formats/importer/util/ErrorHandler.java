@@ -61,9 +61,8 @@ public abstract class ErrorHandler implements IObserver, IObservable {
         public String toLog() {
             return super.toLog() + ": "+filename;
         }
-        
     }
-
+    
     final protected Log log = LogFactory.getLog(getClass());
 
     final protected ArrayList<IObserver> observers = new ArrayList<IObserver>();
