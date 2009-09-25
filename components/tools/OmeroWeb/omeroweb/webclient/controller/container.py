@@ -882,10 +882,10 @@ class BaseContainer(BaseController):
             return list(self.conn.listTags("dataset", self.dataset.id))
         elif self.project is not None:
             return list(self.conn.listTags("project", self.project.id))
-        elif self.plate is not None:
-            return list(self.conn.listTags("plate", self.plate.id))
-        elif self.screen is not None:
-            return list(self.conn.listTags("screen", self.screen.id))
+        #elif self.plate is not None:
+        #    return list(self.conn.listTags("plate", self.plate.id))
+        #elif self.screen is not None:
+        #    return list(self.conn.listTags("screen", self.screen.id))
     
     def listComments(self):
         if self.image is not None:
@@ -894,10 +894,10 @@ class BaseContainer(BaseController):
             return list(self.conn.listComments("dataset", self.dataset.id))
         elif self.project is not None:
             return list(self.conn.listComments("project", self.project.id))
-        elif self.plate is not None:
-            return list(self.conn.listComments("plate", self.plate.id))
-        elif self.screen is not None:
-            return list(self.conn.listComments("screen", self.screen.id))
+        #elif self.plate is not None:
+        #    return list(self.conn.listComments("plate", self.plate.id))
+        #elif self.screen is not None:
+        #    return list(self.conn.listComments("screen", self.screen.id))
     
     def listUrls(self):
         if self.image is not None:
@@ -906,10 +906,10 @@ class BaseContainer(BaseController):
             return list(self.conn.listUrls("dataset", self.dataset.id))
         elif self.project is not None:
             return list(self.conn.listUrls("project", self.project.id))
-        elif self.plate is not None:
-            return list(self.conn.listUrls("plate", self.plate.id))
-        elif self.screen is not None:
-            return list(self.conn.listUrls("screen", self.screen.id))
+        #elif self.plate is not None:
+        #    return list(self.conn.listUrls("plate", self.plate.id))
+        #elif self.screen is not None:
+        #    return list(self.conn.listUrls("screen", self.screen.id))
     
     def listFiles(self):
         if self.image is not None:
@@ -918,10 +918,10 @@ class BaseContainer(BaseController):
             return list(self.conn.listFiles("dataset", self.dataset.id))
         elif self.project is not None:
             return list(self.conn.listFiles("project", self.project.id))
-        elif self.plate is not None:
-            return list(self.conn.listFiles("plate", self.plate.id))
-        elif self.screen is not None:
-            return list(self.conn.listFiles("screen", self.screen.id))
+        #elif self.plate is not None:
+        #    return list(self.conn.listFiles("plate", self.plate.id))
+        #elif self.screen is not None:
+        #    return list(self.conn.listFiles("screen", self.screen.id))
     
     ####################################################################
     # Creation
