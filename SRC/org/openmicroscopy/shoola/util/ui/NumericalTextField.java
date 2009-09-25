@@ -144,8 +144,25 @@ public class NumericalTextField
 	public void setNegativeAccepted(boolean negativeAccepted)
 	{
 		this.negativeAccepted = negativeAccepted;
-		if (negativeAccepted) accepted += "-";
+		if (negativeAccepted) {
+			accepted += "-";
+			double min = document.getMinimum();
+			if (min >= 0) {
+				if (numberType == null || Integer.class.equals(numberType))
+					min = Integer.MIN_VALUE;
+				else min = Double.MIN_VALUE;
+				document.setMinimum(min);
+			}
+		}
 	}
+	
+	/**
+	 * Returns <code>true</code> if negative values are accepted,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isNegativeAccepted() { return negativeAccepted; }
 	
 	/**
 	 * Sets the type of number to handle.
@@ -157,8 +174,9 @@ public class NumericalTextField
 		if (numberType == null)
 			numberType = Integer.class;
 		this.numberType = numberType;
-		if (numberType.equals(Integer.class)) accepted = NUMERIC;
-		else accepted = FLOAT;
+		if (numberType.equals(Integer.class)) {
+			accepted = NUMERIC;
+		} else accepted = FLOAT;
 		setNegativeAccepted(negativeAccepted);	
 	}
 	
@@ -310,6 +328,13 @@ public class NumericalTextField
 		 */
 		void setMaximum(double max) { this.max = max; }
 		
+		/** 
+		 * Returns the minimum value.
+		 * 
+		 * @return See above.
+		 */
+		double getMinimum() { return min; }
+		
 		/**
 		 * Overridden to make sure that the value inserted is a numerical
 		 * value in the defined range.
@@ -338,6 +363,7 @@ public class NumericalTextField
 						return;
 					}
 				}
+				
 				if (str.equals(".") && accepted.equals(FLOAT)) {
 					super.insertString(offset, str, a);
 				} else if (str.equals("-") && negativeAccepted) {

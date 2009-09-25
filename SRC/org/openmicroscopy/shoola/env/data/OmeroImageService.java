@@ -312,6 +312,21 @@ public interface OmeroImageService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
+	 * Retrieves the rendering setting related to a given set of pixels
+	 * for the specified user.
+	 *  
+	 * @param pixelsID The id of the pixels set.
+	 * @param userID	The id of the user currently logged in.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public List getRenderingSettingsFor(long pixelsID, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
 	 * Creates a preview projected image 
 	 * 
 	 * @param pixelsID  The ID of the pixels set.
@@ -494,7 +509,7 @@ public interface OmeroImageService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Object exportImageAsXML(long imageID, File folder)
+	public Object exportImageAsOMETiff(long imageID, File folder)
 		throws DSOutOfServiceException, DSAccessException;
 
 }

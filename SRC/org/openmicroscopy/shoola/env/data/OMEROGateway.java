@@ -58,7 +58,9 @@ import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
+import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 //import Ice.Communicator;
 import ome.conditions.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
@@ -3294,14 +3296,51 @@ class OMEROGateway
 			while (i.hasNext()) {
 				rndDef = (RenderingDef) i.next();
 				exp = rndDef.getDetails().getOwner();
-				map.put(PojoMapper.asDataObject(exp), rndDef);
+				map.put(PojoMapper.asDataObject(exp), 
+						PixelsServicesFactory.convert(rndDef));
 			}
 			return map;
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the rendering settings " +
-								"for.");
+								"for: "+pixelsID);
 		}
 		return map;
+	}
+	
+	/**
+	 * Retrieves all the rendering settings linked to the specified set
+	 * of pixels.
+	 * 
+	 * @param pixelsID	The pixels ID.
+	 * @param userID	The id of the user.
+	 * @return Map whose key is the experimenter who set the settings,
+	 * 		  and the value is the rendering settings itself.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List getRenderingSettingsFor(long pixelsID, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Map map = new HashMap();
+		isSessionAlive();
+		try {
+			IPixelsPrx service = getPixelsService();
+			List results = service.retrieveAllRndSettings(pixelsID, userID);
+			
+			if (results == null || results.size() == 0) return new ArrayList();
+			List<RndProxyDef> l = new ArrayList<RndProxyDef>();
+			Iterator i = results.iterator();
+			while (i.hasNext()) {
+				l.add(PixelsServicesFactory.convert((RenderingDef) i.next()));
+			}
+			return l;
+		} catch (Exception e) {
+			handleException(e, "Cannot retrieve the rendering settings " +
+								"for: "+pixelsID);
+		}
+		return new ArrayList();
 	}
 	
 	/**
@@ -4705,7 +4744,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	synchronized File exportImageAsXML(File f, long imageID)
+	synchronized File exportImageAsOMETiff(File f, long imageID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive();

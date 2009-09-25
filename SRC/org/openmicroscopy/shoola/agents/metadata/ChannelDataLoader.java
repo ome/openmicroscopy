@@ -25,7 +25,9 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -76,7 +78,8 @@ public class ChannelDataLoader
      */
     public void load()
     {
-        handle = dmView.loadChannelsData(pixelsID, this);
+    	long userID = MetadataViewerAgent.getUserDetails().getId();
+        handle = dmView.loadChannelsData(pixelsID, userID, this);
     }
     
     /**
@@ -85,7 +88,7 @@ public class ChannelDataLoader
      */
     public void handleNullResult() 
     {
-    	viewer.setChannelsData(new ArrayList(), true);
+    	viewer.setChannelsData(new HashMap(), true);
     }
     
     /** 
@@ -100,7 +103,7 @@ public class ChannelDataLoader
      */
     public void handleResult(Object result) 
     {
-        viewer.setChannelsData((List) result, true);
+        viewer.setChannelsData((Map) result, true);
     }
 
 }

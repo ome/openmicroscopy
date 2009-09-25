@@ -181,12 +181,12 @@ class DataManagerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadChannelsData(long, AgentEventListener)
+	 * @see DataManagerView#loadChannelsData(long, long, AgentEventListener)
 	 */
-	public CallHandle loadChannelsData(long pixelsID, 
+	public CallHandle loadChannelsData(long pixelsID, long userID,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ChannelMetadataLoader(pixelsID);
+		BatchCallTree cmd = new ChannelMetadataLoader(pixelsID, userID);
 		return cmd.exec(observer);
 	}
 

@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.env.rnd;
 
 
 //Java imports
+import java.awt.Color;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -264,5 +265,18 @@ public class RndProxyDef
 	 */
 	public int getDefaultZ() { return defaultZ; }
 	
+	/**
+	 * Returns the color associated to channel.
+	 * 
+	 * @param index The index of the channel.
+	 * @return See above.
+	 */
+	public Color getChannelColor(int index)
+	{
+		ChannelBindingsProxy channel = getChannel(index);
+		if (channel == null) return null;
+		int[] rgba = channel.getRGBA();
+		return new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
+	}
   
 }

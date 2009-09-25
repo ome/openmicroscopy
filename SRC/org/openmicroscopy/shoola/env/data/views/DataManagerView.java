@@ -187,10 +187,13 @@ public interface DataManagerView
 	 * Loads the emission wavelengths for the given set of pixels.
 	 * 
 	 * @param pixelsID  The id of the pixels set.
+	 * @param userID   If the id is specified i.e. not <code>-1</code>, 
+     * 				   load the color associated to the channel, 
+     * 				   <code>false</code> otherwise.
 	 * @param observer  Callback handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadChannelsData(long pixelsID, 
+	public CallHandle loadChannelsData(long pixelsID, long userID,
 			AgentEventListener observer);
 
 	/**

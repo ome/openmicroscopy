@@ -394,6 +394,8 @@ class OmeroImageServiceImpl
 	public Map getRenderingSettings(long pixelsID, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
+		return gateway.getRenderingSettings(pixelsID, userID);
+		/*
 		Map m = gateway.getRenderingSettings(pixelsID, userID);
 		if (m == null) return null;
 		Iterator i = m.keySet().iterator();
@@ -405,8 +407,19 @@ class OmeroImageServiceImpl
 					PixelsServicesFactory.convert((RenderingDef) m.get(key)));
 		}
 		return results;
+		*/
 	}
 
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#getRenderingSettingsFor(long, long)
+	 */
+	public List getRenderingSettingsFor(long pixelsID, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return gateway.getRenderingSettingsFor(pixelsID, userID);
+	}
+	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#renderProjected(long, int, int, int, int, List)
@@ -681,16 +694,16 @@ class OmeroImageServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#exportImageAsXML(long, File)
+	 * @see OmeroImageService#exportImageAsOMETiff(long, File)
 	 */
-	public Object exportImageAsXML(long imageID, File file)
+	public Object exportImageAsOMETiff(long imageID, File file)
 			throws DSOutOfServiceException, DSAccessException
 	{
 		if (imageID <= 0)
 			throw new IllegalArgumentException("No image specified.");
 		if (file == null)
 			throw new IllegalArgumentException("No File specified.");
-		return gateway.exportImageAsXML(file, imageID);
+		return gateway.exportImageAsOMETiff(file, imageID);
 	}
 	
 }

@@ -265,11 +265,11 @@ class EditorComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#setChannelsData(List, boolean)
+	 * @see Editor#setChannelsData(Map, boolean)
 	 */
-	public void setChannelsData(List channelData, boolean updateView)
+	public void setChannelsData(Map channels, boolean updateView)
 	{
-		model.setChannelData(channelData);
+		model.setChannelData(channels);
 		if (updateView) view.showChannelData();
 	}
 
@@ -696,7 +696,7 @@ class EditorComponent
 		if (!(refObject instanceof ImageData)) return;
 		if (folder == null) folder = UIUtilities.getDefaultFolder();
 		ExportActivityParam param = new ExportActivityParam(folder, 
-				(ImageData) refObject, ExportActivityParam.EXPORT_AS_XML);
+				(ImageData) refObject, ExportActivityParam.EXPORT_AS_OME_TIFFF);
 		IconManager icons = IconManager.getInstance();
 		param.setIcon(icons.getIcon(IconManager.EXPORT_22));
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();

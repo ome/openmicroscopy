@@ -158,11 +158,11 @@ public interface Editor
 	/**
 	 * Sets the collection of channel data.
 	 * 
-	 * @param list 			The collection to set.
+	 * @param channels 		The collection to set.
 	 * @param updateView 	Pass <code>true</code> to update the view,
 	 * 						<code>false</code> otherwise.
 	 */
-	public void setChannelsData(List list, boolean updateView);
+	public void setChannelsData(Map channels, boolean updateView);
 
 	/**
 	 * Returns <code>true</code> if data to save, <code>false</code>

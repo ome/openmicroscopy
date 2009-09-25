@@ -48,8 +48,8 @@ import pojos.ImageData;
 public class ExportActivityParam
 {
 
-	/** Indicates to export the image as XML. */
-	public static final int	EXPORT_AS_XML = 0;
+	/** Indicates to export the image as OME TIFF. */
+	public static final int	EXPORT_AS_OME_TIFFF = 0;
 	
 	/** The image to export. */
     private ImageData 	image;

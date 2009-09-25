@@ -348,9 +348,11 @@ public class UserNotifierImpl
 			comp = new ExportActivity(this, manager.getRegistry(), p);
 		}
 		if (comp != null) {
+			UserNotifierLoader loader = comp.createLoader();
+			
+			if (loader == null) return;
 			manager.registerActivity(comp);
 			comp.startActivity();
-			UserNotifierLoader loader = comp.createLoader();
 			loader.load();
 		}
 	}

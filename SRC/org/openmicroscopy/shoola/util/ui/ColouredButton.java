@@ -148,7 +148,7 @@ public class ColouredButton
 	}
 
 	/**
-	 * Overridden. Does nothing as it's overwritten by laf and breaks the 
+	 * Overridden. Does nothing as it's overwritten by L&F and breaks the 
 	 * coloured button.
 	 * @see javax.swing.JComponent#setBackground(Color)
 	 */

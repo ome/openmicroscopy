@@ -141,8 +141,8 @@ public class ChannelButton
          int width = getFontMetrics(getFont()).stringWidth(getText())+4;
          Dimension d = DEFAULT_MIN_SIZE;
          if (width > DEFAULT_MIN_SIZE.width &&
-         		width < DEFAULT_MAX_SIZE.width) d = new Dimension(width+6, 
-         				DEFAULT_MIN_SIZE.height);
+         		width < DEFAULT_MAX_SIZE.width) 
+        	 d = new Dimension(width+6, DEFAULT_MIN_SIZE.height);
          else if (width >= DEFAULT_MAX_SIZE.width)
         	 return setComponentSize(decrease-1);
          return d;
@@ -165,7 +165,7 @@ public class ChannelButton
      * Creates a new instance.
      * 
      * @param text      The text of the button. The text should correspond to
-     *                  the emission wavelength, fluor used or the index.
+     *                  the label of the channel.
      * @param color     The background color of the button. Corresponds to the
      *                  color associated to the channel.
      * @param index     The channel index.
@@ -196,7 +196,7 @@ public class ChannelButton
      * Creates a deselected button. 
      * 
      * @param text      The text of the button. The text should correspond to
-     *                  the emission wavelength, fluor used or the index.
+     *                  the label of the channel.
      * @param color     The background color of the button. Corresponds to the
      *                  color associated to the channel.
      * @param index     The channel index.

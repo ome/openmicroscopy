@@ -31,9 +31,18 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+
+import pojos.ChannelData;
 
 /** 
  * Command to retrieve the channels medatada.
@@ -64,15 +73,38 @@ public class ChannelMetadataLoader
      * Creates a {@link BatchCall} to retrieve the channels metadata.
      * 
      * @param pixelsID The ID of the pixels set.
+     * @param userID   If the id is specified i.e. not <code>-1</code>, 
+     * 				   load the color associated to the channel, 
+     * 				   <code>false</code> otherwise.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(final long pixelsID) 
+    private BatchCall makeBatchCall(final long pixelsID, final long userID) 
     {
         return new BatchCall("Loading channel Metadata: ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                results = os.getChannelsMetadata(pixelsID);
+                List l = os.getChannelsMetadata(pixelsID);
+                if (userID >= 0) { //load the rendering settings.
+                	OmeroImageService svc = context.getImageService();
+                	List rnd = svc.getRenderingSettingsFor(pixelsID, userID);
+                	Map channels = new HashMap();
+                	Iterator i = l.iterator();
+                	if (rnd != null && rnd.size() > 0) {
+                		RndProxyDef ref = (RndProxyDef) rnd.get(0);
+                		ChannelData channel;
+                		while (i.hasNext()) {
+                			channel = (ChannelData) i.next();
+                			channels.put(channel, 
+                					ref.getChannelColor(channel.getIndex()));
+						}
+                	} else {
+                		while (i.hasNext())
+                			channels.put(i.next(), null);
+                	}
+                	
+                	results = channels;
+                } else results = l;
             }
         };
     }
@@ -95,12 +127,15 @@ public class ChannelMetadataLoader
 	 * exception so to fail early and in the caller's thread.
 	 * 
      * @param pixelsID The Id of the pixels set.
+     * @param userID   If the id is specified i.e. not <code>-1</code>, 
+     * 				   load the color associated to the channel, 
+     * 				   <code>false</code> otherwise.
      */
-    public ChannelMetadataLoader(long pixelsID)
+    public ChannelMetadataLoader(long pixelsID, long userID)
     {
     	if (pixelsID < 0)
     		 throw new IllegalArgumentException("Pixels ID not valid.");
-        loadCall = makeBatchCall(pixelsID);
+        loadCall = makeBatchCall(pixelsID, userID);
     }
     
 }

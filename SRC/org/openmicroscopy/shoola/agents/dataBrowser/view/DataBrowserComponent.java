@@ -291,7 +291,6 @@ class DataBrowserComponent
 		browser.accept(finder, ImageDisplayVisitor.IMAGE_NODE_ONLY);
 		Set nodes = finder.getImages();
 		if (nodes != null && nodes.size() > 0) {
-			view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			model.fireFilteringByRate(rate, nodes);
 			fireStateChange();
 		}
@@ -324,7 +323,6 @@ class DataBrowserComponent
 		Browser browser = model.getBrowser();
 		Set<DataObject> nodes = browser.getOriginal();
 		if (nodes != null && nodes.size() > 0) {
-			view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			model.fireFilteringByComments(comments, nodes);
 			fireStateChange();
 		}
@@ -376,7 +374,6 @@ class DataBrowserComponent
 		Browser browser = model.getBrowser();
 		Set<DataObject> nodes = browser.getOriginal();
 		if (nodes != null && nodes.size() > 0) {
-			view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			model.fireFilteringByTags(tags, nodes);
 			fireStateChange();
 		}
@@ -441,14 +438,12 @@ class DataBrowserComponent
 			return;
 		}
 		if (context.isNameOnly()) {
-			//view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			view.filterByContext(context);
 			filterByFullText(context.getNames()); 
 		} else {
 			Browser browser = model.getBrowser();
 			Set<DataObject> nodes = browser.getOriginal();
 			if (nodes != null && nodes.size() > 0) {
-				//view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				view.filterByContext(context);
 				model.fireFilteringByContext(context, nodes);
 				fireStateChange();
@@ -816,7 +811,6 @@ class DataBrowserComponent
 		Browser browser = model.getBrowser();
 		Set<DataObject> nodes = browser.getOriginal();
 		if (nodes != null && nodes.size() > 0) {
-			view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			model.fireFilteringByAnnotated(TagAnnotationData.class, tagged, 
 	                nodes);
 			fireStateChange();
@@ -837,7 +831,6 @@ class DataBrowserComponent
 		Browser browser = model.getBrowser();
 		Set<DataObject> nodes = browser.getOriginal();
 		if (nodes != null && nodes.size() > 0) {
-			view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			model.fireFilteringByAnnotated(TextualAnnotationData.class, 
 					commented, nodes);
 			fireStateChange();

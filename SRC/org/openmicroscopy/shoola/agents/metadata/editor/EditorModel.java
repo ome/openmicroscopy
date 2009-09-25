@@ -35,6 +35,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -152,7 +153,7 @@ class EditorModel
     private Collection				existingAttachments;
     
     /** The list of emission wavelengths for a given set of pixels. */
-    private List					emissionsWavelengths;
+    private Map						emissionsWavelengths;
     
     /** Used to sort the various collection. */
     private ViewerSorter			sorter;
@@ -1199,9 +1200,16 @@ class EditorModel
 	 * 
 	 * @param data The value to set.
 	 */
-	void setChannelData(List data)
+	void setChannelData(Map data)
 	{ 
-		emissionsWavelengths = sorter.sort(data); 
+		List l = sorter.sort(data.keySet()); 
+		emissionsWavelengths = new LinkedHashMap();
+		Iterator i = l.iterator();
+		Object channel;
+		while (i.hasNext()) {
+			channel = i.next();
+			emissionsWavelengths.put(channel, data.get(channel));
+		}
 	}
 	
 	/**
@@ -1209,11 +1217,20 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	List getChannelData()
+	Map getChannelData()
 	{ 
 		if (getRndIndex() == MetadataViewer.RND_SPECIFIC) {
-			if (renderer != null)
-				return renderer.getChannelData();
+			if (renderer != null) {
+				List<ChannelData> l = renderer.getChannelData();
+				Map m = new LinkedHashMap();
+				Iterator<ChannelData> i = l.iterator();
+				ChannelData data;
+				while (i.hasNext()) {
+					data = i.next();
+					m.put(data, renderer.getChannelColor(data.getIndex()));
+				}
+				return m;
+			}
 		}
 		return emissionsWavelengths; 
 	}

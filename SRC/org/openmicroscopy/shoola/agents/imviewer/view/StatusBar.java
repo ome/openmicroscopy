@@ -143,7 +143,7 @@ class StatusBar
     void setRigthStatus(String s) { rigthStatus.setText(s); }
     
     /** 
-     * Sets the comp displaying the plane information.
+     * Sets the component displaying the plane information.
      * 
      * @param comp The message to display.
      */

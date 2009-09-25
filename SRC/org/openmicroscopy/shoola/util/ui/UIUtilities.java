@@ -1422,6 +1422,7 @@ public class UIUtilities
 		else if (OMETextArea.class.equals(type)) comp = new OMETextArea();
 		else if (NumericalTextField.class.equals(type)) {
 			comp = new NumericalTextField();
+			((NumericalTextField) comp).setNegativeAccepted(true);
 			comp.setBorder(null);
 		}
 				

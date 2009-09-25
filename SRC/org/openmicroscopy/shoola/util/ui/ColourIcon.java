@@ -59,6 +59,9 @@ public class ColourIcon
 	/** The default height of the icon. */
 	public static final int DEFAULT_HEIGHT = 16;
 	
+	/** The default color of the border. */
+	private static final Color BORDER_COLOR = Color.BLACK;
+	
     /** Colour of the icon */
     private Color   colour;
     
@@ -68,6 +71,12 @@ public class ColourIcon
 	/** The width of the icon. */	
 	private int		width;
 
+	/** Flag indicating to paint a line border. */
+	private boolean	paintLineBorder;
+	
+	/** The color of the line border. */
+	private Color	borderColor;
+	
 	/** Creates a default icon. */
 	public ColourIcon()
 	{
@@ -75,7 +84,17 @@ public class ColourIcon
 	}
 	
 	/**
-	 * Creates a new intance. 
+	 * Creates a new instance. 
+	 * 
+	 * @param color The color to paint.
+	 */
+	public ColourIcon(Color color)
+	{
+		this(DEFAULT_WIDTH, DEFAULT_HEIGHT, color);
+	}
+	
+	/**
+	 * Creates a new instance. 
 	 * 
 	 * @param d The dimension of the icon.
 	 */
@@ -85,7 +104,7 @@ public class ColourIcon
 	}
 	
 	/**
-	 * Creates a new intance. 
+	 * Creates a new instance. 
 	 * 
 	 * @param width		The width of the icon.
 	 * @param height	The height of the icon.
@@ -96,7 +115,7 @@ public class ColourIcon
 	}
 
 	/**
-	 * Creates a new intance. 
+	 * Creates a new instance. 
 	 * 
 	 * @param width		The width of the icon.
 	 * @param height	The height of the icon.
@@ -108,13 +127,15 @@ public class ColourIcon
 	}
 	
 	/**
-	 * Creates a new intance. 
+	 * Creates a new instance. 
 	 * 
 	 * @param d 	The dimension of the icon.
 	 * @param color	The color to paint.
 	 */
 	public ColourIcon(Dimension d, Color color)
 	{
+		borderColor = BORDER_COLOR;
+		paintLineBorder = false;
 		if (d == null) {
 			width = DEFAULT_WIDTH;
 			height = DEFAULT_HEIGHT;
@@ -128,11 +149,28 @@ public class ColourIcon
 	}
 	
 	/**
+	 * Sets to <code>true</code> if a line border is painted,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param paintLineBorder Pass <code>true</code> to paint the line border.
+	 * 						  <code>false</code> otherwise.
+	 */
+	public void paintLineBorder(boolean paintLineBorder)
+	{ 
+		this.paintLineBorder = paintLineBorder;
+	}
+	
+	/**
 	 * Sets the colour of the icon.
 	 * 
 	 * @param c The colour to set.
 	 */
-	public void setColour(Color c) { colour = c; }
+	public void setColour(Color c)
+	{ 
+		colour = c; 
+		//if (colour != null && colour.getAlpha() == 0)
+		//	colour = new Color(c.getRGB());
+	}
 	
 	/** 
      * Overridden to return the set height of the icon.
@@ -157,6 +195,10 @@ public class ColourIcon
 			g2D.setColor(colour);
 			g2D.fillRect(4, 4, width-2, height-2);
 			g2D.drawRect(4, 4, width-2, height-2);
+			if (paintLineBorder) {
+				g2D.setColor(borderColor);
+				g2D.drawRect(3, 3, width, height);
+			}
 			/*
 			g2D.fillRect(4, 4, width-3, height-3);
 			g2D.setColor(colour.darker());

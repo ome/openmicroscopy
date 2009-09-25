@@ -39,7 +39,6 @@ import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.views.calls.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AcquisitionDataSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.Analyser;
-import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.EnumerationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ExportLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.FretAnalyser;
@@ -78,17 +77,6 @@ import pojos.PixelsData;
 class ImageDataViewImpl
     implements ImageDataView
 {
-
-    /**
-     * Implemented as specified by the view interface.
-     * @see ImageDataView#loadChannelMetadata(long, AgentEventListener)
-     */
-    public CallHandle loadChannelMetadata(long imageID,
-                                        AgentEventListener observer)
-    {
-        BatchCallTree cmd = new ChannelMetadataLoader(imageID);
-        return cmd.exec(observer);
-    }
 
     /**
      * Implemented as specified by the view interface.
@@ -347,13 +335,13 @@ class ImageDataViewImpl
 
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#exportImageAsXml(long, File, AgentEventListener)
+     * @see ImageDataView#exportImageAsOMETiff(long, File, AgentEventListener)
      */
-	public CallHandle exportImageAsXml(long imageID, File file,
+	public CallHandle exportImageAsOMETiff(long imageID, File file,
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ExportLoader(imageID, file, 
-				ExportLoader.EXPORT_AS_XML);
+				ExportLoader.EXPORT_AS_OMETIFF);
 		return cmd.exec(observer);
 	}
 	

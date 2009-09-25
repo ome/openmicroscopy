@@ -403,6 +403,11 @@ public class QuickSearch
 			case RATED_THREE_OR_BETTER:
 			case RATED_FOUR_OR_BETTER:
 			case RATED_FIVE:
+			case UNRATED:
+			case UNTAGGED:
+			case UNCOMMENTED:
+			case TAGGED:
+			case COMMENTED:
 				setSearchEnabled(false);
 				text = selectedNode.getDescription();
 				cleanBar.setVisible(false);
@@ -412,16 +417,17 @@ public class QuickSearch
 				text = SHOW_ALL_DESCRIPTION;
 				cleanBar.setVisible(false);
 				break;
+				/*
 			case UNRATED:
 			case UNTAGGED:
 			case UNCOMMENTED:
 			case TAGGED:
 			case COMMENTED:
-			//case SHOW_ALL:
 				setSearchEnabled(false);
 				text = "";
 				cleanBar.setVisible(false);
 				break;
+				*/
 			case TAGS:
 			case COMMENTS:
 			case FULL_TEXT:

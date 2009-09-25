@@ -34,6 +34,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
@@ -192,9 +194,9 @@ class MetadataViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#activate(List)
+	 * @see MetadataViewer#activate(Map)
 	 */
-	public void activate(List channelData)
+	public void activate(Map channelData)
 	{
 		switch (model.getState()) {
 			case NEW:

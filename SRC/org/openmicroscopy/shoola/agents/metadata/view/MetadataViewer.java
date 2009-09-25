@@ -29,6 +29,8 @@ import java.awt.Dimension;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -152,7 +154,7 @@ public interface MetadataViewer
 	 * 						<code>null</code> otherwise.
 	 * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
 	 */
-	public void activate(List channelData);
+	public void activate(Map channelData);
 
 	/**
 	 * Transitions the viewer to the {@link #DISCARDED} state.

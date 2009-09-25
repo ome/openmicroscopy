@@ -50,8 +50,8 @@ public class ExportLoader
 	extends BatchCallTree
 {
 
-	/** Indicates to export the image as XML. */
-	public static final int	EXPORT_AS_XML = 0;
+	/** Indicates to export the image as OME TIFF. */
+	public static final int	EXPORT_AS_OMETIFF = 0;
 	
 	/** Loads the specified annotations. */
     private BatchCall   loadCall;
@@ -66,14 +66,14 @@ public class ExportLoader
 	 * @param imageID The id of the image to export.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeAsXMLBatchCall(final File file, 
+    private BatchCall makeAsOMETiffBatchCall(final File file, 
     						final long imageID)
     {
-        return new BatchCall("Export image.") {
+        return new BatchCall("Export image as OME-TIFF.") {
             public void doCall() throws Exception
             {
                 OmeroImageService service = context.getImageService();
-                result = service.exportImageAsXML(imageID, file);
+                result = service.exportImageAsOMETiff(imageID, file);
             }
         };
     }
@@ -100,8 +100,8 @@ public class ExportLoader
     public ExportLoader(long imageID, File file, int index)
     {
     	switch (index) {
-			case EXPORT_AS_XML:
-				loadCall = makeAsXMLBatchCall(file, imageID);
+			case EXPORT_AS_OMETIFF:
+				loadCall = makeAsOMETiffBatchCall(file, imageID);
 				break;
 		}
     }

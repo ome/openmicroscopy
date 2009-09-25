@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -1624,13 +1625,15 @@ class ImViewerModel
 	{ 
 		if (!metadataLoaded) {
 			metadataLoaded = true;
-			List<ChannelData> l = new ArrayList<ChannelData>();
+			Map<ChannelData, Color> m = new LinkedHashMap<ChannelData, Color>();
 			List<ChannelData> sorted = getChannelData();
 			Iterator<ChannelData> i = sorted.iterator();
+			ChannelData channel;
 			while (i.hasNext()) {
-				l.add(i.next());
+				channel = i.next();
+				m.put(channel, getChannelColor(channel.getIndex()));
 			}
-			metadataViewer.activate(l); 
+			metadataViewer.activate(m); 
 		}
 	}
 

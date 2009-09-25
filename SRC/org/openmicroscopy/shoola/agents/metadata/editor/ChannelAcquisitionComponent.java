@@ -60,6 +60,7 @@ import omero.model.PlaneInfo;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
+import org.openmicroscopy.shoola.util.ui.ColourIcon;
 import org.openmicroscopy.shoola.util.ui.JLabelButton;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
@@ -137,6 +138,9 @@ class ChannelAcquisitionComponent
 
 	/** The component hosting the exposure time. */
 	private JXTaskPane							exposureTask;
+	
+	/** The icon displaying the color associated to the channel. */
+	private ColourIcon							icon;
 	
 	/** Resets the various boxes with enumerations. */
 	private void resetBoxes()
@@ -381,6 +385,27 @@ class ChannelAcquisitionComponent
 		this.parent = parent;
 		initComponents();
 	}
+	
+	/**
+	 * Sets the color associated to that channel.
+	 * 
+	 * @param color The associated color.
+	 */
+	void setChannelColor(Color color)
+	{
+		if (color == null) return;
+		if (icon == null) {
+			icon = new ColourIcon(color);
+			icon.paintLineBorder(true);
+		} else icon.setColour(color);
+	}
+	
+	/** 
+	 * Returns the color icon associated to the channel or <code>null</code>.
+	 * 
+	 * @return
+	 */
+	Icon getIcon() { return icon; }
 	
 	/**
 	 * Displays the acquisition data for the passed channel.

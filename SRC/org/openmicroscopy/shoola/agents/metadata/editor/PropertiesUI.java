@@ -860,12 +860,12 @@ class PropertiesUI
 	 * 
 	 * @param channels The value to set.
 	 */
-	void setChannelData(List channels)
+	void setChannelData(Map channels)
 	{
 		if (channels == null) return;
 		String s = "";
 		int n = channels.size()-1;
-		Iterator k = channels.iterator();
+		Iterator k = channels.keySet().iterator();
 		int j = 0;
 		while (k.hasNext()) {
 			s += ((ChannelData) k.next()).getChannelLabeling();

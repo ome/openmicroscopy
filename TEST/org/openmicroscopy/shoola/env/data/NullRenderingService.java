@@ -322,9 +322,9 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
-     * @see OmeroImageService#exportImageAsXML(long, File)
+     * @see OmeroImageService#exportImageAsOMETiff(long, File)
      */
-	public Object exportImageAsXML(long imageID, File folder)
+	public Object exportImageAsOMETiff(long imageID, File folder)
 			throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -339,6 +339,16 @@ public class NullRenderingService
 			int endZ, int stepping, int type, List<Integer> channels)
 			throws RenderingServiceException, DSOutOfServiceException {
 		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#getRenderingSettingsFor(long, long)
+     */
+	public List getRenderingSettingsFor(long pixelsID, long userID)
+			throws DSOutOfServiceException, DSAccessException
+	{
 		return null;
 	}
 

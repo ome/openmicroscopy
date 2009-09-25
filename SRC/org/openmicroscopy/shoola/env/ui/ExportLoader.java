@@ -50,8 +50,8 @@ public class ExportLoader
 	extends UserNotifierLoader
 {
 
-	/** Indicates to export the image as XML. */
-	public static final int	EXPORT_AS_XML = 0;
+	/** Indicates to export the image as OMETiff. */
+	public static final int	EXPORT_AS_OME_TIFF = 0;
 	
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  			handle;
@@ -103,7 +103,7 @@ public class ExportLoader
      */
     public void load()
     {
-    	handle = ivView.exportImageAsXml(image.getId(), file, this);
+    	handle = ivView.exportImageAsOMETiff(image.getId(), file, this);
     }
     
     /**

@@ -1737,21 +1737,32 @@ public class EditorUtil
         	return details;
         }
 
-		double f = data.getDetectorSettingsGain();
-    	if (f > 0)  details.put(GAIN, f);
+        Double f = data.getDetectorSettingsGain();
+        
+    	if (f != null)  {
+    		details.put(GAIN, f);
+    		notSet.remove(GAIN);
+    	}
     	
     	f = data.getDetectorSettingsVoltage();
-    	if (f > 0) details.put(VOLTAGE, f);
+    	if (f != null) {
+    		notSet.remove(VOLTAGE);
+    		details.put(VOLTAGE, f);
+    	}
 
     	f = data.getDetectorSettingsOffset();
-    	if (f > 0) details.put(OFFSET, f);
+    	if (f != null) {
+    		notSet.remove(OFFSET);
+    		details.put(OFFSET, f);
+    	}
     	
     	f = data.getDetectorSettingsReadOutRate();
-    	if (f < 0) {
-			f = 0;
+    	double v = 0;
+    	if (f == null) {
+			v = 0;
 			notSet.add(READ_OUT_RATE);
-		}
-        details.put(READ_OUT_RATE, f);
+		} else v = f;
+        details.put(READ_OUT_RATE, v);
         String s = data.getDetectorSettingsBinning();
         if (s == null || s.trim().length() == 0) 
 			notSet.add(BINNING);

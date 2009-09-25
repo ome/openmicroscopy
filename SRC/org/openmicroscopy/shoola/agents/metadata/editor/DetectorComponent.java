@@ -171,6 +171,7 @@ class DetectorComponent
             key = (String) entry.getKey();
             set = !notSet.contains(key);
             value = entry.getValue();
+           
             label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
             label.setBackground(UIUtilities.BACKGROUND_COLOR);
             if (EditorUtil.BINNING.equals(key)) {

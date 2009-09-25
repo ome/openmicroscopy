@@ -68,16 +68,6 @@ public interface ImageDataView
 	
 	/** Indicates to reload the rendering engine. */
 	public static final int RESET = 2;
-	
-    /**
-     * Retrieves the metadata.
-     * 
-     * @param pixelsID	The id of the pixels set.
-     * @param observer  Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle loadChannelMetadata(long pixelsID,
-                                    AgentEventListener observer);
     
     /**
      * Loads the rendering proxy associated to the pixels set.
@@ -336,7 +326,7 @@ public interface ImageDataView
 	 * @param observer 	Callback handler.
 	 * @return See above.
 	 */
-	public CallHandle exportImageAsXml(long imageID, File file,
+	public CallHandle exportImageAsOMETiff(long imageID, File file,
 			AgentEventListener observer);
 	
 }

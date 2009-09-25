@@ -86,10 +86,20 @@ public class ExportActivity
 	{
 		ImageData image = parameters.getImage();
 		File folder = parameters.getFolder();
+		String extension = null;
+		switch (parameters.getIndex()) {
+			case ExportActivityParam.EXPORT_AS_OME_TIFFF:
+				extension = ".tiff";
+				break;
+
+			default:
+				break;
+		}
+		if (extension == null) return null;
 		File f = new File(folder.getAbsolutePath()+
-				File.separator+image.getName()+".xml");
+				File.separator+image.getName()+extension);
 		return new ExportLoader(viewer,  registry, image, f, 
-				ExportLoader.EXPORT_AS_XML, this);
+				ExportLoader.EXPORT_AS_OME_TIFF, this);
 	}
 
 	/**

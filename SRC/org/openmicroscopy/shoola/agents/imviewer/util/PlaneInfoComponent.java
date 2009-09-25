@@ -84,6 +84,7 @@ public class PlaneInfoComponent
 	{
 		content = new JLabel();
 		icon = new ColourIcon(ICON_DIMENSION, color);
+		icon.paintLineBorder(true);
 		setIcon(icon);
 		setVerticalTextPosition(JLabel.CENTER);
 		setHorizontalTextPosition(JLabel.RIGHT);

@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -90,7 +91,7 @@ class AcquisitionDataUI
 	static final List<String>			UNSET_ENUM;
 	
 	/** The default text of the channel. */
-	private static final String			DEFAULT_CHANNEL_TEXT = "Channel ";
+	private static final String			DEFAULT_CHANNEL_TEXT = "";//"Channel ";
 	
 	static {
 		UNSET_ENUM = new ArrayList<String>();
@@ -370,19 +371,21 @@ class AcquisitionDataUI
 	/** Sets the data when data are loaded, builds the UI. */
 	void setChannelData()
 	{
-		List channels = model.getChannelData();
+		Map channels = model.getChannelData();
 		channelAcquisitionPanes.clear();
 		channelComps.clear();
 		if (channels != null) {
 			ChannelData channel;
-			Iterator i = channels.iterator();
+			Iterator i = channels.keySet().iterator();
 			ChannelAcquisitionComponent comp;
 			JXTaskPane p;
 			while (i.hasNext()) {
 				channel = (ChannelData) i.next();
 				comp = new ChannelAcquisitionComponent(this, model, channel);
+				comp.setChannelColor((Color) channels.get(channel)); 
 				p = EditorUtil.createTaskPane(DEFAULT_CHANNEL_TEXT+
 						channel.getChannelLabeling());
+				p.setIcon(comp.getIcon());
 				p.add(comp);
 				p.addPropertyChangeListener(
 						UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
