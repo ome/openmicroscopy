@@ -16,7 +16,7 @@
 	<classpathentry kind="lib" path="target/libs/commons-codec.jar"/>
 	<classpathentry kind="lib" path="target/libs/omero_client.jar"/>
 	<classpathentry kind="lib" path="target/libs/log4j.jar"/>
-	<classpathentry kind="lib" path="target/libs/bio-formats.jar" sourcepath="/Users/TheBrain/LOCI Software/components/bio-formats"/>
+	<classpathentry kind="lib" path="target/libs/bio-formats.jar"/>
 	<classpathentry kind="lib" path="target/libs/mdbtools-java.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring.jar"/>
 	<classpathentry kind="lib" path="target/libs/poi-loci.jar"/>

@@ -3,7 +3,7 @@
 ######## CONFIGURATION OPTIONS ########
 SCRIPT_NOT_CHANGED=1	# change this to 1 if you don't want your script overwritten!
 JAVA_PROGRAM_DIR=""	# use full path to java bin dir, ex. "/usr/java/j2sdk1.4.2/bin/"
-JAVA_ARGS="-Xmx256m"
+JAVA_ARGS="-Xmx512m"
 #######################################
 
 
