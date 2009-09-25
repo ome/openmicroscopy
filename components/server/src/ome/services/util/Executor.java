@@ -189,10 +189,13 @@ public interface Executor extends ApplicationContextAware {
             sb.append(o.getClass().getName());
             sb.append(".");
             sb.append(method);
+            boolean first = true;
             if (params.length > 0) {
                 sb.append("(");
                 for (Object object : params) {
-                    if (sb.length() > 1) {
+                    if (first) {
+                        first = false;
+                    } else {
                         sb.append(", ");
                     }
                     sb.append(object);

@@ -561,7 +561,6 @@ public class FileQueueHandler
             
             if (ev.totalFiles < 0)
             {
-                System.err.println("numFiles: " + ev.numFiles + " total: " + ev.totalFiles);  
                 if (directoryCount == 0) viewer.appendToOutput("Determining how many directory files to process....\n");
                 directoryCount += ev.numFiles;
             } else {

@@ -328,7 +328,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 
         runnableCall(__current, new Adapter(__cb, __current, mapper, factory
                 .getExecutor(), factory.principal, new SimpleWork(this,
-                "getMeasuredRoisMap", imageId) {
+                "getMeasuredRoisMap", imageId, annotationIds) {
 
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
@@ -353,7 +353,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 
         runnableCall(__current, new Adapter(__cb, __current, mapper, factory
                 .getExecutor(), factory.principal, new SimpleWork(this,
-                "getMeasuredRois", imageId) {
+                "getMeasuredRois", imageId, annotationId) {
 
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
@@ -369,7 +369,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 
         runnableCall(__current, new Adapter(__cb, __current, mapper, factory
                 .getExecutor(), factory.principal, new SimpleWork(this,
-                "getOriginalFile", annotationId) {
+                "getTable", annotationId) {
 
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
