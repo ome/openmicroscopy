@@ -248,7 +248,7 @@ class MonitorClientI(monitors.MonitorClient):
                     An ICE context, this parameter is required to be present
                     in an ICE callback.
 
-            :return: No explicit return value.
+            :return: No explicit return value.omero.client(config.host, config.port)
 
         """
         # ############## ! Set import to dummy mode for testing purposes.
@@ -272,7 +272,14 @@ class MonitorClientI(monitors.MonitorClient):
             if exName:
                 # Creation or modification handled by state/timeout system
                 if str(fileInfo.type) == "Create" or str(fileInfo.type) == "Modify":
-                    fileSets = self.getUsedFiles(fileId)
+                    try:
+                        self.log.info("Getting filesets on : %s", fileId)
+                        fileSets = self.getUsedFiles(fileId)
+                        self.log.info("Filesets = %s", str(fileSets))
+                    except:
+                        self.log.exception("Failed to get filesets : " )
+                        fileSets = None
+                        
                     if fileSets:
                         self.state.update(fileSets, self.dirImportWait, self.importFileWrapper, [fileId, exName])
                 else:
@@ -338,17 +345,30 @@ class MonitorClientI(monitors.MonitorClient):
             self.log.error("No connection")
             return None
 
+        ic = Ice.initialize(["--Ice.Config=etc/internal.cfg"])
+        query = ic.stringToProxy("IceGrid/Query")
+        query = IceGrid.QueryPrx.checkedCast(query)
+        blitz = query.findAllObjectsByType("::Glacier2::SessionManager")[0]
+        blitz = Glacier2.SessionManagerPrx.checkedCast(blitz)
+        sf = blitz.create("root", None, {"omero.client.uuid":str(uuid.uuid1())})
+        sf = omero.api.ServiceFactoryPrx.checkedCast(sf)
+        sf.detachOnDestroy()
+        sf.destroy()
+        sessionUuid = sf.ice_getIdentity().name
+        root = omero.client(config.host, config.port)
+        root.joinSession(sessionUuid) 
+
         p = omero.sys.Principal()
         p.name  = exName
         p.group = "user"
         p.eventType = "User"
 
         try:
-            exp = self.root.getAdminService().lookupExperimenter(exName)
+            exp = root.sf.getAdminService().lookupExperimenter(exName)
             sess = root.sf.getSessionService().createSessionWithTimeout(p, 60000L)
             client = omero.client(config.host, config.port)
             user_sess = client.createSession(sess.uuid, sess.uuid)
-            return client
+            return (client, user_sess)
         except omero.ApiUsageException:
             self.log.info("User unknown: %s", exName)
             return None
@@ -364,7 +384,7 @@ class MonitorClientI(monitors.MonitorClient):
             throwing an exception if necessary.
         """
 
-        client = self.loginUser(exName)
+        client, user_sess = self.loginUser(exName)
         if not client:
             self.log.info("File not imported: %s", fileName)
             return
