@@ -347,6 +347,8 @@ java component.
     <target name="release-epydoc">
        <mkdir dir="${dist.dir}/docs/api/epydoc"/>
        <exec executable="epydoc" failonerror="true">
+	       <!-- turning off introspect temporarily -->
+           <arg value="--parse-only"/>
            <arg value="--html"/>
            <arg value="-n"/>
            <arg value="OmeroPy API Documentation"/>
