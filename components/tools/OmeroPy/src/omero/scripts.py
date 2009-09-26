@@ -1,16 +1,14 @@
 #!/usr/bin/env python
 """
    Scripting types
+       - Classes:
+           - Type        --  Top of parameter type hierarchy
+           - Long        --
+           - String      --
+           - Bool        --
 
-   Classes:
-       Type          --  Top of parameter type hierarchy
-         Long        --
-         String      --
-         Bool        --
-
-   Functions:
-       client        -- Produces an omero.client object with
-                        given input/output constraints.
+       - Functions:
+           - client      -- Produces an omero.client object with given input/output constraints.
 
    Copyright 2008 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
@@ -81,7 +79,7 @@ def client(name, description = None, *args, **kwargs):
     """
     Entry point for all script engine scripts.
 
-    Typical usage consists of:
+    Typical usage consists of::
 
         client = omero.scripts.client("name","description", \
             omero.scripts.Long("name"),...)
@@ -94,7 +92,7 @@ def client(name, description = None, *args, **kwargs):
     Possible types are all subclasses of omero.scripts.Type
 
     To change the omero.model.Format of the stdout and stderr produced by
-    this script, use the constructor arguments:
+    this script, use the constructor arguments::
 
         client = omero.scripts.client(..., \
             stdoutFormat = "text/plain",

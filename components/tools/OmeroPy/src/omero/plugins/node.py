@@ -22,7 +22,7 @@ RE=re.compile("^\s*(\S*)\s*(start|stop|restart|status)\s*(\S*)\s*$")
 #From: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/157035
 def tail_lines(filename,linesback=10,returnlist=0):
     """Does what "tail -10 filename" would have done
-       Parameters:
+       Parameters::
             filename   file to read
             linesback  Number of lines to read from end of file
             returnlist Return a list containing the lines instead of a string

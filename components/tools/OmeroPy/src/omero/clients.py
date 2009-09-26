@@ -38,7 +38,7 @@ class BaseClient(object):
     Central client-side blitz entry point, and should be in sync with OmeroJava's omero.client
     and OmeroCpp's omero::client.
 
-    Typical usage includes:
+    Typical usage includes::
 
         client = omero.client()                          # Uses --Ice.Config argument or ICE_CONFIG variable
         client = omero.client(host = host)               # Defines "omero.host"
@@ -46,7 +46,7 @@ class BaseClient(object):
 
     For more information, see:
 
-        https://trac.openmicroscopy.org.uk/omero/wiki/ClientDesign
+        - U{https://trac.openmicroscopy.org.uk/omero/wiki/ClientDesign}
 
     """
 
@@ -58,33 +58,32 @@ class BaseClient(object):
         that order. *However*, to simplify use, we reassign values based on
         their type with a warning printed. A cleaner approach is to use named
         parameters.
-
-          c1 = omero.client(None, None, "host", myPort)   # Correct
-          c2 = omero.client(host = "host", port = myPort) # Correct
-          c3 = omero.client("host", myPort)               # Works with warning
+        ::
+            c1 = omero.client(None, None, "host", myPort)   # Correct
+            c2 = omero.client(host = "host", port = myPort) # Correct
+            c3 = omero.client("host", myPort)               # Works with warning
 
         Both "Ice" and "omero" prefixed properties will be parsed.
 
-        Defines the state variables:
-        
-          __previous : InitializationData from any previous communicator, if any
+        Defines the state variables::
+            __previous : InitializationData from any previous communicator, if any
                        Used to re-initialization the client post-closeSession()
-                       
-          __ic       : communicator. Nullness => init() needed on createSession()
-          
-          __sf       : current session. Nullness => createSession() needed.
-          
-          __resources: if non-null, hs access to this client instance and will
+           
+            __ic       : communicator. Nullness => init() needed on createSession()
+
+            __sf       : current session. Nullness => createSession() needed.
+
+            __resources: if non-null, hs access to this client instance and will
                        periodically call sf.keepAlive(None) in order to keep any
                        session alive. This can be enabled either via the omero.keep_alive
                        configuration property, or by calling the enableKeepAlive() method.
                        Once enabled, the period cannot be adjusted during a single
                        session.
 
-          Modifying these variables outside of the accessors can lead to
-          undefined behavior.
+        Modifying these variables outside of the accessors can lead to
+        undefined behavior.
 
-          Equivalent to all OmeroJava and OmeroCpp constructors
+        Equivalent to all OmeroJava and OmeroCpp constructors
         """
 
         # Setting all protected values to prevent AttributeError

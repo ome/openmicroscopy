@@ -57,21 +57,19 @@ def configure_logging(logdir, logfile, loglevel = logging.INFO, format = LOGFORM
 
 def internal_service_factory(communicator, user="root", group=None, retries=6, interval=10, client_uuid=None):
     """
-        Try to return a ServiceFactory from the grid.
+    Try to return a ServiceFactory from the grid.
 
-        Try a number of times then give up and raise the
-        last exception returned. This method will only
-        work internally to the grid, i.e. behind the Glacier2
-        firewall. It is intended for internal servers to
-        be able to create sessions for accessing the database.
-
-          communicator := Ice.Communicator used to find the registry
-          user         := Username which should have a session created
-          group        := Group into which the session should be logged
-          retries      := Number of session creation retries before throwing
-          interval     := Seconds between retries
-          client_uuid  := Uuid of the client which should be used
-
+    Try a number of times then give up and raise the
+    last exception returned. This method will only
+    work internally to the grid, i.e. behind the Glacier2
+    firewall. It is intended for internal servers to
+    be able to create sessions for accessing the database. ::
+        communicator := Ice.Communicator used to find the registry
+        user         := Username which should have a session created
+        group        := Group into which the session should be logged
+        retries      := Number of session creation retries before throwing
+        interval     := Seconds between retries
+        client_uuid  := Uuid of the client which should be used
     """
     log = logging.getLogger("omero.utils")
 
@@ -157,18 +155,18 @@ class Server(Ice.Application):
     be started from icegridnode.
 
     The servant implementation MUST:
-     * have a no-arg __init__ method
-     * have a cleanup() method
-     * not provide a "serverid" attribute (will be assigned)
+       - have a no-arg __init__ method
+       - have a cleanup() method
+       - not provide a "serverid" attribute (will be assigned)
 
     Logging is configured relative to the current directory
     to be in var/log by default.
 
-    Usage:
+    Usage::
 
-    if __name__ == "__main__":
-        app=Server(ServicesI, "ServicesAdapter", Ice.Identity("Services",""))
-        sys.exit(app.main(sys.argv))
+        if __name__ == "__main__":
+            app=Server(ServicesI, "ServicesAdapter", Ice.Identity("Services",""))
+            sys.exit(app.main(sys.argv))
 
     app.impl now points to an instance of ServicesI
 

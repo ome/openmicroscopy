@@ -502,7 +502,7 @@ class _BlitzGateway (object):
     def getEventContext (self):
         """
         Returns omero_System_ice.EventContext.
-        It containes: 
+        It containes:: 
             shareId, sessionId, sessionUuid, userId, userName, 
             groupId, groupName, isAdmin, isReadOnly, 
             eventId, eventType, eventType,
@@ -706,7 +706,7 @@ class _BlitzGateway (object):
         This service is special in that it does not get cached inside BlitzGateway so every call to this function
         returns a new object, avoiding unexpected inherited states.
         
-        @return omero.gateway.ProxyObjectWrapper
+        @return: omero.gateway.ProxyObjectWrapper
         """
         return ProxyObjectWrapper(self, 'createSearchService')
 

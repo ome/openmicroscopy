@@ -92,15 +92,15 @@ class Arguments:
         - the shlex'd line as a string list
 
     To simplify usage, this class can be used at the beginning of every
-    method so:
-
+    method so::
+    
         def method(self, args):
             args = Arguments(args)
 
     and it will handle the above cases as well as wrapping other Argument
     instances. If the method takes varargs and it is desired to test for
-    single argument of the above type, then use:
-
+    single argument of the above type, then use::
+    
         args = Arguments(*args)
 
     """
@@ -300,12 +300,12 @@ class Context:
 class BaseControl:
     """Controls get registered with a CLI instance on loadplugins().
 
-    To create a new control, subclass BaseControl and end your module with:
+    To create a new control, subclass BaseControl and end your module with::
 
-    try:
-        registry("name", MyControl)
-    except:
-        MyControl()._main()
+        try:
+            registry("name", MyControl)
+        except:
+            MyControl()._main()
 
     This module should be put in the omero.plugins package.
 

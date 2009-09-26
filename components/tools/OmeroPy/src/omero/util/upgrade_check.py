@@ -47,14 +47,15 @@ class UpgradeCheck(object):
 
     def __init__(self, agent, url = "http://upgrade.openmicroscopy.org.uk/", version = omero_version, timeout = DEFAULT_TIMEOUT):
         """
-        agent   := Name of the agent which is accessing the registry. This will
-                   be appended to "OMERO." in order to adhere to the registry
-                   API.
-        url     := Connection information for the upgrade check.
-                   None or empty string disables check. Defaults to upgrade.openmicroscopy.org.uk
-        version := Version to check against the returned value.
-                   Defaults to current version as specified in omero_version.py.
-        timeout := How long to wait for the HTTP GET
+        ::
+            agent   := Name of the agent which is accessing the registry. This will
+                       be appended to "OMERO." in order to adhere to the registry
+                       API.
+            url     := Connection information for the upgrade check.
+                       None or empty string disables check. Defaults to upgrade.openmicroscopy.org.uk
+            version := Version to check against the returned value.
+                       Defaults to current version as specified in omero_version.py.
+            timeout := How long to wait for the HTTP GET
         """
 
         self.log = logging.getLogger("omero.util.UpgradeCheck")

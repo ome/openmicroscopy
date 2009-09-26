@@ -32,17 +32,17 @@ def as_stdout(path):
 
 def as_dictionary(path):
     """
-    Run as_stdout, parses the output and returns a dictionary of the form:
-    {
-        some_file_in_group : \
-            [
-                some_file_in_group
-                some_other_file_in_group
-                ...
-                last_file_in_group
-            ],
-        some_file_in_second_group : ...
-    }
+    Run as_stdout, parses the output and returns a dictionary of the form::
+        {
+            some_file_in_group : \
+                [
+                    some_file_in_group
+                    some_other_file_in_group
+                    ...
+                    last_file_in_group
+                ],
+            some_file_in_second_group : ...
+        }
     """
 
     t = tempfile.NamedTemporaryFile()
