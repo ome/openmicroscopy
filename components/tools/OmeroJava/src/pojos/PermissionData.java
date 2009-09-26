@@ -28,118 +28,134 @@ import omero.model.PermissionsI;
  */
 public class PermissionData {
 
+	/** The permissions object */
     private final Permissions p;
 
-    public PermissionData() {
-        this.p = new PermissionsI();
+    /** Creates a new instance. */
+    public PermissionData()
+    {
+        p = new PermissionsI();
     }
 
-    public PermissionData(Permissions permissions) {
-        this.p = permissions;
+    /** 
+     * Creates a new instance.
+     * 
+     * @param permissions The value to set.
+     */
+    public PermissionData(Permissions permissions)
+    {
+    	if (permissions == null) p = new PermissionsI();
+    	else p = permissions;
     }
 
     // ~ Rights
     // =====================================================================
 
     /**
-     * Indicates if the group has read access.
+     * Returns <code>true </code> if the group has read access,
+     * <code>false</code> otherwise.
      * 
-     * @return the groupRead
+     * @return See above.
      */
-    public boolean isGroupRead() {
-        return p.isGroupRead();
-    }
+    public boolean isGroupRead() { return p.isGroupRead(); }
 
     /**
-     * Indicates if the group has write access.
+     * Returns <code>true </code> if the group has write access,
+     * <code>false</code> otherwise.
      * 
-     * @return the groupWrite
+     * @return See above.
      */
-    public boolean isGroupWrite() {
-        return p.isGroupWrite();
-    }
+    public boolean isGroupWrite() { return p.isGroupWrite(); }
 
     /**
-     * Indicates if the user has read access.
+     * Returns <code>true </code> if the user has read access,
+     * <code>false</code> otherwise.
      * 
-     * @return the userRead
+     * @return See above.
      */
-    public boolean isUserRead() {
-        return p.isUserRead();
-    }
+    public boolean isUserRead() { return p.isUserRead(); }
 
     /**
-     * Indicates if the user has write access.
+     * Returns <code>true </code> if the user has write access,
+     * <code>false</code> otherwise.
      * 
-     * @return the userWrite
+     * @return See above.
      */
-    public boolean isUserWrite() {
-        return p.isUserWrite();
-    }
+    public boolean isUserWrite() { return p.isUserWrite(); }
 
     /**
-     * Indicates if the world has read access.
+     * Returns <code>true </code> if the world has read access,
+     * <code>false</code> otherwise.
      * 
-     * @return the worldRead
+     * @return See above.
      */
-    public boolean isWorldRead() {
-        return p.isWorldRead();
-    }
+    public boolean isWorldRead() { return p.isWorldRead(); }
 
     /**
-     * Indicates if the world has write access.
+     * Returns <code>true </code> if the world has write access,
+     * <code>false</code> otherwise.
      * 
-     * @return the worldWrite
+     * @return See above.
      */
-    public boolean isWorldWrite() {
-        return p.isWorldWrite();
-    }
+    public boolean isWorldWrite() { return p.isWorldWrite(); }
 
     /**
-     * @param groupRead
-     *            the groupRead to set
+     * Sets to <code>true</code> if the group has read access,
+     * <code>false</code> otherwise.
+     * 
+     * @param groupRead The value to set.
      */
-    public void setGroupRead(boolean groupRead) {
-        p.setGroupRead(groupRead);
-    }
+    public void setGroupRead(boolean groupRead) { p.setGroupRead(groupRead); }
 
     /**
-     * @param groupWrite
-     *            the groupWrite to set
+     * Sets to <code>true</code> if the group has write access,
+     * <code>false</code> otherwise.
+     * 
+     * @param groupWrite The value to set.
      */
-    public void setGroupWrite(boolean groupWrite) {
+    public void setGroupWrite(boolean groupWrite) 
+    {
         p.setGroupWrite(groupWrite);
     }
 
     /**
-     * @param userRead
-     *            the userRead to set
+     * Sets to <code>true</code> if the user has read access,
+     * <code>false</code> otherwise.
+     * 
+     * @param userRead The value to set.
      */
-    public void setUserRead(boolean userRead) {
-        p.setUserRead(userRead);
-    }
+    public void setUserRead(boolean userRead) { p.setUserRead(userRead); }
 
     /**
-     * @param userWrite
-     *            the userWrite to set
+     * Sets to <code>true</code> if the user has write access,
+     * <code>false</code> otherwise.
+     * 
+     * @param userWrite The value to set.
      */
-    public void setUserWrite(boolean userWrite) {
+    public void setUserWrite(boolean userWrite)
+    {
         p.setUserWrite(userWrite);
     }
 
     /**
-     * @param worldRead
-     *            the worldRead to set
+     * Sets to <code>true</code> if the world has read access,
+     * <code>false</code> otherwise.
+     * 
+     * @param worldRead The value to set.
      */
-    public void setWorldRead(boolean worldRead) {
+    public void setWorldRead(boolean worldRead)
+    {
         p.setWorldRead(worldRead);
     }
 
     /**
-     * @param worldWrite
-     *            the worldWrite to set
+     * Sets to <code>true</code> if the world has write access,
+     * <code>false</code> otherwise.
+     * 
+     * @param worldWrite The value to set.
      */
-    public void setWorldWrite(boolean worldWrite) {
+    public void setWorldWrite(boolean worldWrite)
+    {
         p.setWorldWrite(worldWrite);
     }
 
@@ -147,20 +163,19 @@ public class PermissionData {
     // =====================================================================
 
     /**
-     * Indicates if the instance is locked.
+     * Returns <code>true</code> if the instance is locked, <code>false</code>
+     * otherwise.
      * 
-     * @return locked
+     * @return See above.
      */
-    public boolean isLocked() {
-        return p.isLocked();
-    }
+    public boolean isLocked() { return p.isLocked(); }
 
     /**
-     * @param groupRead
-     *            the groupRead to set
+     * Sets to <code>true</code> to lock the instance,
+     * <code>false</code> otherwise.
+     * 
+     * @param locked The value to set.
      */
-    public void setLocked(boolean locked) {
-        p.setLocked(locked);
-    }
+    public void setLocked(boolean locked) { p.setLocked(locked); }
 
 }

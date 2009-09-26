@@ -50,12 +50,7 @@ public class LongAnnotationData extends AnnotationData {
         setDataValue(value);
     }
 
-    /**
-     * Creates a new instance.
-     * 
-     * @param value
-     *            The value to set. 
-     */
+    /** Creates a new instance. */
     public LongAnnotationData() {
         super(LongAnnotationI.class);
     }
