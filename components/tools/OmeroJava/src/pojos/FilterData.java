@@ -65,7 +65,7 @@ public class FilterData
 	}
 	
 	/**
-	 * Returns the cut in value or <code>-1</code>.
+	 * Returns the cut in value or <code>null</code>.
 	 * 
 	 * @return See above.
 	 */
@@ -80,7 +80,7 @@ public class FilterData
 	}
 	
 	/**
-	 * Returns the cut in tolerance value or <code>-1</code>.
+	 * Returns the cut in tolerance value or <code>null</code>.
 	 * 
 	 * @return See above.
 	 */
@@ -95,7 +95,7 @@ public class FilterData
 	}
 	
 	/**
-	 * Returns the cut out value or <code>-1</code>.
+	 * Returns the cut out value or <code>null</code>.
 	 * 
 	 * @return See above.
 	 */
@@ -110,7 +110,7 @@ public class FilterData
 	}
 	
 	/**
-	 * Returns the cut out tolerance value or <code>-1</code>.
+	 * Returns the cut out tolerance value or <code>null</code>.
 	 * 
 	 * @return See above.
 	 */
@@ -120,6 +120,7 @@ public class FilterData
 		TransmittanceRange range = f.getTransmittanceRange();
 		if (range == null) return null;
 		RInt value = range.getCutOutTolerance();
+		if (value == null) return null;
 		return value.getValue();
 	}
 	

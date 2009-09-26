@@ -61,11 +61,7 @@ public class DoubleAnnotationData
         setDataValue(value);
     }
 
-    /**
-     * Creates a new instance.
-     * 
-     * @param value The value to set.
-     */
+    /** Creates a new instance. */
     public DoubleAnnotationData()
     {
         super(DoubleAnnotationI.class);
