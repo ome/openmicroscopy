@@ -115,11 +115,20 @@ class ChannelAcquisitionComponent
 	/** The UI component hosting the detector metadata. */
 	private DetectorComponent					detectorPane;
 	
+	/** The UI component hosting the secondary emission filter. */
+	private FilterComponent						secondEmissionFilterPane;
+	
+	/** The UI component hosting the secondary excitation filter. */
+	private FilterComponent						secondExcitationFilterPane;
+	
 	/** The UI component hosting the emission filter. */
 	private FilterComponent						emissionFilterPane;
 	
 	/** The UI component hosting the excitation filter. */
 	private FilterComponent						excitationFilterPane;
+	
+	/** The component hosting the dichroic. */
+	private DichroicComponent					dichroicPane;
 	
 	/** Button to show or hides the unset fields of the detector. */
 	private JLabelButton						unsetGeneral;
@@ -195,10 +204,15 @@ class ChannelAcquisitionComponent
 	{
 		resetBoxes();
 		fieldsGeneral = new LinkedHashMap<String, DataComponent>();
-		emissionFilterPane = new FilterComponent(parent, model, 
+		secondEmissionFilterPane = new FilterComponent(parent, model, 
 				"Emission Filter");
-		excitationFilterPane = new FilterComponent(parent, model, 
+		secondExcitationFilterPane = new FilterComponent(parent, model, 
 									"Excitation Filter");
+		emissionFilterPane = new FilterComponent(parent, model, 
+		"Emission Filter");
+		excitationFilterPane = new FilterComponent(parent, model, 
+							"Excitation Filter");
+		dichroicPane = new DichroicComponent(parent, model);
 		detectorPane = new DetectorComponent(parent, model);
 		lightPane = new LightSourceComponent(parent, model);
 		unsetGeneral = null;
@@ -343,12 +357,12 @@ class ChannelAcquisitionComponent
 			add(generalPane, constraints);
 			++constraints.gridy;
 		}
-		if (emissionFilterPane.isVisible()) {
-			add(emissionFilterPane, constraints);
+		if (secondEmissionFilterPane.isVisible()) {
+			add(secondEmissionFilterPane, constraints);
 			++constraints.gridy;
 		}
-		if (excitationFilterPane.isVisible()) {
-			add(excitationFilterPane, constraints);
+		if (secondExcitationFilterPane.isVisible()) {
+			add(secondExcitationFilterPane, constraints);
 			++constraints.gridy;
 		}
 		if (detectorPane.isVisible()) {
@@ -463,19 +477,20 @@ class ChannelAcquisitionComponent
 			details = EditorUtil.transformFilter(
 					data.getSecondaryExcitationFilter());
 			notSet = (List) details.get(EditorUtil.NOT_SET);
-			excitationFilterPane.setVisible(false);
+			secondExcitationFilterPane.setVisible(false);
 			if (notSet.size() != EditorUtil.MAX_FIELDS_FILTER) {
-				excitationFilterPane.displayFilter(details);
-				excitationFilterPane.setVisible(true);
+				secondExcitationFilterPane.displayFilter(details);
+				secondExcitationFilterPane.setVisible(true);
 			}
 			details = EditorUtil.transformFilter(
 					data.getSecondaryEmissionFilter());
 			notSet = (List) details.get(EditorUtil.NOT_SET);
-			emissionFilterPane.setVisible(false);
+			secondEmissionFilterPane.setVisible(false);
 			if (notSet.size() != EditorUtil.MAX_FIELDS_FILTER) {
-				emissionFilterPane.displayFilter(details);
-				emissionFilterPane.setVisible(true);
+				secondEmissionFilterPane.displayFilter(details);
+				secondEmissionFilterPane.setVisible(true);
 			}
+			//data.get
 			buildGUI();
 		}
 	}

@@ -203,8 +203,14 @@ public class ViewerSorter
     private int compareDataObjects(DataObject o1, DataObject o2)
     {
     	if (o1 instanceof ChannelData) {
-    		return compareNumbers(((ChannelData) o1).getEmissionWavelength(), 
-    				((ChannelData) o2).getEmissionWavelength());
+    		ChannelData c1 = (ChannelData) o1;
+    		ChannelData c2 = (ChannelData) o2;
+    		int w1 = c1.getEmissionWavelength();
+    		if (w1 < 0) w1 = c1.getIndex();
+    		int w2 = c2.getEmissionWavelength();
+    		if (w2 < 0) w2 = c2.getIndex();
+    		
+    		return compareNumbers(w1, w2);
     	}
     	if (o1 instanceof WellData) {
     		return compareNumbers(((WellData) o1).getRow(), 

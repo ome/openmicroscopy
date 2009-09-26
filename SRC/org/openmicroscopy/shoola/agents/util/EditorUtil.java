@@ -1443,7 +1443,7 @@ public class EditorUtil
         int i = 0;
         if (v == null) notSet.add(CUT_IN);
         else i = v;
-        details.put(CUT_IN, v);
+        details.put(CUT_IN, i);
         v = data.getCutOut();
         if (v == null) {
         	notSet.add(CUT_OUT);
