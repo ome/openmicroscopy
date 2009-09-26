@@ -169,8 +169,8 @@ class TreeViewerWin
 		return type;
     }
     
-    /** Creates the {@link JTabbedPane} hosting the browsers. */
-    private void createTabbedPane()
+    /** Creates the components hosting the browsers. */
+    private void layoutBrowsers()
     {
     	Map browsers = model.getBrowsers();
     	Browser browser;
@@ -387,7 +387,7 @@ class TreeViewerWin
     /** Initializes the UI components. */
     private void initComponents()
     {
-        createTabbedPane();
+        layoutBrowsers();
         workingPane = new JScrollPane();
     }
 

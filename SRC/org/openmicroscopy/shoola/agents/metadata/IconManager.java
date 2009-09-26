@@ -367,7 +367,7 @@ public class IconManager
         relPaths[EXPORT_AS_OMETIFF] = "download_image16.png";
         relPaths[EXPORT_AS_OMETIFF_48] = "download_image48.png";
         relPaths[MOVIE_22] = "openOffice_stock_insert-video-plugin-22.png";
-        relPaths[EXPORT_22] = "nuvola_kchart16.png";
+        relPaths[EXPORT_22] = "download_image22.png";
 	}
    
 	/** The sole instance. */

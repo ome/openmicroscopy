@@ -234,7 +234,7 @@ class EditorControl
 	{
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(f, FileChooser.FOLDER_CHOOSER, 
-				"Export", "Select where to export the image.");
+				"Export", "Select where to export the image as OME-TIFF.");
 		chooser.setApproveButtonText("Export");
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.EXPORT_AS_OMETIFF_48));
@@ -246,7 +246,7 @@ class EditorControl
 					File folder = (File) evt.getNewValue();
 					if (folder == null)
 						folder = UIUtilities.getDefaultFolder();
-					model.exportImageAsXML(folder);
+					model.exportImageAsOMETIFF(folder);
 				}
 			}
 		});

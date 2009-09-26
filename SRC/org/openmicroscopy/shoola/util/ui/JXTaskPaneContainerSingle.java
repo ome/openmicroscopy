@@ -28,6 +28,9 @@ import java.awt.Component;
 import java.awt.Container;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.swing.BorderFactory;
 
 
@@ -110,6 +113,8 @@ public class JXTaskPaneContainerSingle
 		return false;
 	}
 
+	private Map<JXTaskPane, Integer> map = new HashMap<JXTaskPane, Integer>();
+	
 	/**
 	 * Overridden to attach listener to the component if it is a 
 	 * <code>JXTaskPane</code>.
@@ -118,7 +123,9 @@ public class JXTaskPaneContainerSingle
 	public void add(JXTaskPane c)
 	{
 		int row = layout.getNumRow();
-		layout.insertRow(row, TableLayout.PREFERRED);
+		if (c.isCollapsed()) layout.insertRow(row, TableLayout.PREFERRED);
+		else layout.insertRow(row, TableLayout.FILL);
+		map.put(c, row);
 		super.add(c, "0,"+row);
 		c.addPropertyChangeListener(
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
@@ -132,6 +139,7 @@ public class JXTaskPaneContainerSingle
 	{
 		JXTaskPane src = (JXTaskPane) evt.getSource();
 		if (src.isCollapsed()) {
+			layout.setRow(map.get(src), TableLayout.PREFERRED);
 			if (hasTaskPaneExpanded()) return;
 			firePropertyChange(SELECTED_TASKPANE_PROPERTY, null, src);
 			return;
@@ -143,9 +151,13 @@ public class JXTaskPaneContainerSingle
 			c = comp[i];
 			if (c instanceof JXTaskPane) {
 				JXTaskPane p = (JXTaskPane) c;
-				if (p != src) p.setCollapsed(true);
+				if (p != src) {
+					layout.setRow(map.get(p), TableLayout.PREFERRED);
+					p.setCollapsed(true);
+				}
 			}
 		}
+		layout.setRow(map.get(src), TableLayout.FILL);
 		firePropertyChange(SELECTED_TASKPANE_PROPERTY, null, src);
 	}
 	

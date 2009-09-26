@@ -1894,6 +1894,20 @@ class EditorModel
     	return b;
     }
 
+    /** Updates the permissions. */
 	void upgradePermissions() {}
     
+	/**
+	 * Invokes when the color of the channel has been modified using the 
+	 * renderer.
+	 * 
+	 * @param index The index of the channel.
+	 * @return See above.
+	 */
+	Color getChannelColor(int index)
+	{
+		if (renderer == null) return null;
+		return renderer.getChannelColor(index);
+	}
+	
 }

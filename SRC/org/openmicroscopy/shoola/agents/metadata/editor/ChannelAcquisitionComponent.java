@@ -387,6 +387,13 @@ class ChannelAcquisitionComponent
 	}
 	
 	/**
+	 * Returns the index of the channel hosted by this component.
+	 * 
+	 * @return See above.
+	 */
+	int getChannelIndex() { return channel.getIndex(); }
+	
+	/**
 	 * Sets the color associated to that channel.
 	 * 
 	 * @param color The associated color.

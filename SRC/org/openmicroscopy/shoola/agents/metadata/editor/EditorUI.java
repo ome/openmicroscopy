@@ -591,11 +591,15 @@ public class EditorUI
 	 * @return See above.
 	 */
 	int getSelectedTab() { return tabPane.getSelectedIndex(); }
-	
-	/** Refreshes the currently selected tab. */
-	void refresh()
+
+	/**
+	 * Indicates that the color of the passed channel has changed.
+	 * 
+	 * @param index The index of the channel.
+	 */
+	void onChannelColorChanged(int index)
 	{
-		
+		acquisitionPane.onChannelColorChanged(index);
 	}
-	
+
 }

@@ -274,5 +274,18 @@ class RendererUI
 		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
 		pane.onSettingsApplied(); 
 	}
+
+	/**
+	 * Returns <code>true</code> if the passed object is one of the
+	 * channel buttons, <code>false</code> otherwise.
+	 * 
+	 * @param source The object to handle.
+	 * @return See above.
+	 */
+	boolean isSourceDisplayed(Object source)
+	{
+		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+		return pane.isSourceDisplayed(source);
+	}
 	
 }

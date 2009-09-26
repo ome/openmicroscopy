@@ -31,6 +31,8 @@ import java.io.File;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ImageData;
 
 
@@ -52,13 +54,37 @@ public class ExportActivity
 {
 
 	/** The description of the activity. */
-	private static final String		DESCRIPTION_CREATION = "Export image";
+	private static final String		CREATION_AS_XML = "Export image as XML";
+	
+	/** The description of the activity if OME-TIFF. */
+	private static final String		CREATION_AS_OME_TIFF =
+		"Export image as OME-TIFF";
 	
 	/** The description of the activity when finished. */
 	private static final String		DESCRIPTION_CREATED = "Image exported";
 	
     /** The parameters hosting information about the image to export. */
     private ExportActivityParam parameters;
+    
+    /**
+     * Returns the name of the file. 
+     * 
+     * @return See above.
+     */
+    private String getFileName()
+    {
+    	ImageData image = parameters.getImage();
+		File folder = parameters.getFolder();
+		String extension = null;
+		switch (parameters.getIndex()) {
+			case ExportActivityParam.EXPORT_AS_OME_TIFFF:
+				extension = ".tiff";
+				break;
+		}
+    	String name = folder.getAbsolutePath()+File.separator+
+			UIUtilities.removeFileExtension(image.getName())+extension;
+    	return name;
+    }
     
     /**
      * Creates a new instance.
@@ -71,11 +97,16 @@ public class ExportActivity
 	public ExportActivity(UserNotifier viewer,  Registry registry,
 			ExportActivityParam parameters)
 	{
-		super(viewer, registry, DESCRIPTION_CREATION, parameters.getIcon());
+		super(viewer, registry, CREATION_AS_OME_TIFF, parameters.getIcon());
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
-		messageLabel.setText(parameters.getImage().getName());
+		messageLabel.setText(getFileName());
+		switch (parameters.getIndex()) {
+			case ExportActivityParam.EXPORT_AS_OME_TIFFF:
+				type.setText(CREATION_AS_OME_TIFF);
+				break;
+		}
 	}
 
 	/**
@@ -84,22 +115,8 @@ public class ExportActivity
 	 */
 	protected UserNotifierLoader createLoader()
 	{
-		ImageData image = parameters.getImage();
-		File folder = parameters.getFolder();
-		String extension = null;
-		switch (parameters.getIndex()) {
-			case ExportActivityParam.EXPORT_AS_OME_TIFFF:
-				extension = ".tiff";
-				break;
-
-			default:
-				break;
-		}
-		if (extension == null) return null;
-		File f = new File(folder.getAbsolutePath()+
-				File.separator+image.getName()+extension);
-		return new ExportLoader(viewer,  registry, image, f, 
-				ExportLoader.EXPORT_AS_OME_TIFF, this);
+		return new ExportLoader(viewer,  registry, parameters.getImage(), 
+				new File(getFileName()), ExportLoader.EXPORT_AS_OME_TIFF, this);
 	}
 
 	/**

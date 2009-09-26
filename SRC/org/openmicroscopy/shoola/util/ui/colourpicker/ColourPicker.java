@@ -39,7 +39,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
 /** 
- * This is the colourpicker which instatiates a dialog. Once the user hits 
+ * This is the picker which instantiates a dialog. Once the user hits 
  * cancel or accept the dialog will disappear. It contains 3 panels, HSV wheel
  * RGB Sliders and ColourSwatchs. 
  * 

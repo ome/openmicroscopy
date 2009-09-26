@@ -40,7 +40,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -1539,6 +1538,30 @@ class ControlPane
 	{
 		gridImageLabel.setVisible(busy);
 		gridImageLabel.setBusy(busy);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the passed object is one of the
+	 * channel buttons, <code>false</code> otherwise.
+	 * 
+	 * @param source The object to handle.
+	 * @return See above.
+	 */
+	boolean isSourceDisplayed(Object source)
+	{
+		Iterator<ChannelButton> i = channelButtons.iterator();
+		while (i.hasNext()) {
+			if (i.next() == source) return true;
+		}
+		i = channelButtonsGrid.iterator();
+		while (i.hasNext()) {
+			if (i.next() == source) return true;
+		}
+		i = channelButtonsProjection.iterator();
+		while (i.hasNext()) {
+			if (i.next() == source) return true;
+		}
+		return false;
 	}
 	
     /**

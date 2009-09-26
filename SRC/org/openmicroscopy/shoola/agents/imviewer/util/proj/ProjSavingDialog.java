@@ -238,7 +238,7 @@ public class ProjSavingDialog
 		newFolderButton.addActionListener(this);
 		nameField = new JTextField();
 
-		String s = EditorUtil.removeFileExtension(imageName);
+		String s = UIUtilities.removeFileExtension(imageName);
 		s += DEFAULT_EXTENSION;
 		nameField.setText(s);
 		nameField.getDocument().addDocumentListener(this);

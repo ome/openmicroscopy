@@ -325,7 +325,7 @@ public class ImgSaver
      */
     String getPartialImageName()
     { 
-    	return EditorUtil.removeFileExtension(model.getImageName());
+    	return UIUtilities.removeFileExtension(model.getImageName());
     }
     
     /**

@@ -42,7 +42,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -190,10 +189,10 @@ class BrowserUI
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
-        setLayout(new BorderLayout(0, 0));
+    	setLayout(new BorderLayout(0, 0));
         add(buildToolBar(), BorderLayout.NORTH);
-        scrollPane = new JScrollPane(treeDisplay);
-        add(scrollPane, BorderLayout.CENTER);
+        add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
+        
         treeDisplay.addMouseListener(new MouseAdapter() {
     		
         	/**

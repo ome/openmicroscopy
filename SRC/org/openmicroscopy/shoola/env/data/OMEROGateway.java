@@ -43,7 +43,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
-
 import javax.swing.filechooser.FileSystemView;
 
 //Third-party libraries
@@ -61,6 +60,10 @@ import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.image.io.Encoder;
+import org.openmicroscopy.shoola.util.image.io.TIFFEncoder;
+import org.openmicroscopy.shoola.util.image.io.WriterImage;
 //import Ice.Communicator;
 import ome.conditions.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
@@ -988,7 +991,7 @@ class OMEROGateway
 		try {
 			if (exporterService == null) {
 				exporterService = entry.createExporter();
-				services.add(exporterService);
+				//services.add(exporterService);
 			}
 			return exporterService; 
 		} catch (Throwable e) {
@@ -4752,18 +4755,28 @@ class OMEROGateway
 		try {
 			stream = new FileOutputStream(f);
 			ExporterPrx service = getExporterService();
-			//service.activate();
-			service.generateXml();
 			service.addImage(imageID);
-			byte[] buf;
-			while (true) {
-			  buf = service.getBytes(MAX_BYTES);
-			  stream.write(buf);
-			  if (buf.length < MAX_BYTES) {
-				 break;
-			  }
+			long size = service.generateTiff();
+			
+			
+			int offset = 0;
+			int length = (int) size;
+			int read = 0;
+			while (read < length) {
+				offset = INC;
+				if (read+offset > length) {
+					offset = length-read;
+					read = length;
+				} else read += offset;
+				stream.write(service.getBytes(offset));
 			}
-			if (stream != null) stream.close();
+			try {
+				if (stream != null) stream.close();
+				//exporterService.close();
+				exporterService = null;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			
 			return f;
 		} catch (Throwable t) {
@@ -4780,9 +4793,12 @@ class OMEROGateway
 			exporterService = null;
 			if (f != null) f.delete();
 			try {
-				if (stream != null) stream.close();
+				//exporterService.close();
+				exporterService = null;
+				//if (stream != null) stream.close();
 			} catch (Exception e) {}
-			handleException(t, "Cannot export the image");
+			t.printStackTrace();
+			handleException(t, "Cannot export the image as an OME-TIFF");
 			return null;
 		}
 	}

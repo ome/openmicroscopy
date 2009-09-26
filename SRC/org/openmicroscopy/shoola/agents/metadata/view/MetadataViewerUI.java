@@ -210,6 +210,16 @@ class MetadataViewerUI
 	 */
 	JComponent getUI() { return uiDelegate; }
 	
+	/**
+	 * Indicates that the color of the passed channel has changed.
+	 * 
+	 * @param index The index of the channel.
+	 */
+	void onChannelColorChanged(int index)
+	{
+		model.getEditor().onChannelColorChanged(index);
+	}
+	
 	/** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()
     {

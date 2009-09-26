@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Container;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -68,7 +69,8 @@ class TaskPaneBrowser
 		setTitle(browser.getTitle());
 		setIcon(browser.getIcon());
 		setCollapsed(true);
-		add(browser.getUI());
+		setLayout(new BorderLayout(0, 0));
+		add(browser.getUI(), BorderLayout.CENTER);
 	}
 	
 	/**

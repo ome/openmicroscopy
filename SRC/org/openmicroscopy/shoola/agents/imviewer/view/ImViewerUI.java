@@ -85,6 +85,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.PlaneInfoComponent;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
+import org.openmicroscopy.shoola.agents.metadata.rnd.DomainPane;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -992,9 +993,9 @@ class ImViewerUI
 			setSize(width, height);
 		} else setSize(d);
 		*/
-		setSize(d);
-		setPreferredSize(d);
-		pack();
+		//setSize(d);
+		//setPreferredSize(d);
+		//pack();
 		container.addHierarchyBoundsListener(boundsAdapter);
 	}
 	
@@ -1327,9 +1328,7 @@ class ImViewerUI
 				}
 			}
 		}
-		
 		statusBar.setCenterStatus(panel);
-		
 	}
 	
 	/**
@@ -1370,6 +1369,8 @@ class ImViewerUI
 	 */
 	void setChannelColor(int index, Color c)
 	{
+		PlaneInfoComponent comp = planes.get(index);
+		if (comp != null) comp.setColor(c);
 		controlPane.setChannelColor(index, c);
 	}
 
@@ -2261,6 +2262,18 @@ class ImViewerUI
 		controlPane.createGridImage(busy);
 	}
 
+	/**
+	 * Returns <code>true</code> if the passed object is one of the
+	 * channel buttons, <code>false</code> otherwise.
+	 * 
+	 * @param source The object to handle.
+	 * @return See above.
+	 */
+	boolean isSourceDisplayed(Object source)
+	{
+		return controlPane.isSourceDisplayed(source);
+	}
+		
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 

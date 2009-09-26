@@ -118,16 +118,21 @@ public class ExportLoader
      */
     public void handleNullResult()
     { 
-    	activity.notifyError("Unable to export ");
+    	switch (index) {
+			case EXPORT_AS_OME_TIFF:
+				activity.notifyError("Unable to export as OME-TIFF");
+				break;
+	
+			default:
+				break;
+		}
+    	
     }
  
     /** 
      * Feeds the result back to the viewer. 
      * @see UserNotifierLoader#handleResult(Object)
      */
-    public void handleResult(Object result)
-    {
-    	activity.endActivity();
-    }
+    public void handleResult(Object result) { activity.endActivity(); }
     
 }

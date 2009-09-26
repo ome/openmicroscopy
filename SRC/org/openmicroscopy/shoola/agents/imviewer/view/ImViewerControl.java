@@ -808,7 +808,8 @@ class ImViewerControl
 			*/
 		} else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(pName) ||
 				ChannelColorMenuItem.CHANNEL_COLOR_PROPERTY.equals(pName)) {
-			model.showColorPicker(((Integer) pce.getNewValue()).intValue());
+			if (view.isSourceDisplayed(pce.getSource()))
+				model.showColorPicker(((Integer) pce.getNewValue()).intValue());
 		} else if (ColourPicker.COLOUR_PROPERTY.equals(pName)) { 
 			Color c = (Color) pce.getNewValue();
 			if (colorPickerIndex != -1) {

@@ -78,7 +78,7 @@ import pojos.WellSampleData;
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Tunneled MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
@@ -688,9 +688,9 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#exportImageAsXML(File)
+	 * @see Editor#exportImageAsOMETIFF(File)
 	 */
-	public void exportImageAsXML(File folder)
+	public void exportImageAsOMETIFF(File folder)
 	{
 		Object refObject = model.getRefObject();
 		if (!(refObject instanceof ImageData)) return;
@@ -701,6 +701,15 @@ class EditorComponent
 		param.setIcon(icons.getIcon(IconManager.EXPORT_22));
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
 		un.notifyActivity(param);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#onChannelColorChanged(int)
+	 */
+	public void onChannelColorChanged(int index)
+	{
+		view.onChannelColorChanged(index);
 	}
 
 }

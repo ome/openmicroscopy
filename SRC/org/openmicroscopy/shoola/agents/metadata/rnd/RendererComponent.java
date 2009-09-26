@@ -242,12 +242,6 @@ class RendererComponent
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#setChannelColor(int)
-     */
-	public void setChannelColor(int index) { view.setChannelColor(index); }
-
-    /** 
-     * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#setChannelSelection(int, boolean)
      */
 	public void setChannelSelection(int index, boolean selected)
@@ -401,11 +395,8 @@ class RendererComponent
 	{
 		try {
 			model.setChannelColor(index, color);
-			setChannelColor(index);
-			if (!model.isChannelActive(index)) {
-				//setChannelActive(index, true);
-				//view.setChannelActive(index, ImViewerUI.ALL_VIEW);
-			}
+			view.setChannelColor(index);
+			firePropertyChange(CHANNEL_COLOR_PROPERTY, -1, index);
 			if (GREY_SCALE_MODEL.equals(model.getColorModel()))
 				setColorModel(RGB_MODEL);
 			else {

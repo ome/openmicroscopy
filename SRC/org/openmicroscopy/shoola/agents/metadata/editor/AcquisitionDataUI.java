@@ -396,6 +396,25 @@ class AcquisitionDataUI
 		layoutUI();
 	}
 	
+	/**
+	 * Indicates that the color of the passed channel has changed.
+	 * 
+	 * @param index The index of the channel.
+	 */
+	void onChannelColorChanged(int index)
+	{
+		ChannelAcquisitionComponent comp;
+		Iterator<ChannelAcquisitionComponent> i = channelComps.iterator();
+		ChannelData data;
+		while (i.hasNext()) {
+			comp = i.next();
+			if (comp.getChannelIndex() == index) {
+				comp.setChannelColor(model.getChannelColor(index));
+				break;
+			}
+		}
+	}
+	
 	/** Sets the metadata. */
 	void setImageAcquisitionData()
 	{

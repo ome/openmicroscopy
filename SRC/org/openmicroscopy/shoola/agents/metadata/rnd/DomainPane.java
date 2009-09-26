@@ -809,6 +809,7 @@ public class DomainPane
 				 if (gs) btn.setGrayedOut(gs);
 			}
 		}
+    	graphicsPane.repaint();
     }
     
     /** Toggles between color model and Greyscale. */
@@ -867,6 +868,21 @@ public class DomainPane
     /** Updates the display when the settings have been updated. */
 	void onSettingsApplied() { graphicsPane.onSettingsApplied(); }
 	
+	/**
+	 * Returns <code>true</code> if the passed object is one of the
+	 * channel buttons, <code>false</code> otherwise.
+	 * 
+	 * @param source The object to handle.
+	 * @return See above.
+	 */
+	boolean isSourceDisplayed(Object source)
+	{
+		Iterator<ChannelButton> i = channelList.iterator();
+		while (i.hasNext()) {
+			if (i.next() == source) return true;
+		}
+		return false;
+	} 
     /**
      * Depending on the source of the event. Sets the gamma value or
      * the bit resolution.

@@ -936,48 +936,6 @@ public class EditorUtil
     }
     
     /**
-     * Removes the extension if any of the passed image's name.
-     * 
-     * @param originalName The name to handle.
-     * @return See above.
-     */
-    public static String removeFileExtension(String originalName)
-    {
-    	String name = originalName;
-    	String[] l = UIUtilities.splitString(originalName);
-    	if (l != null) {
-    		 int n = l.length;
-             if (n >= 1) name = l[n-1]; 
-    	} else {
-    		if (Pattern.compile(".").matcher(name).find()) {
-        		l = name.split("\\.");
-        		if (l.length >= 1) {
-        			name = "";
-        			int n = l.length-1;
-            		for (int i = 0; i < n; i++) {
-        				name += l[i];
-        				if (i < (n-1)) name += ".";
-        			}
-        		}
-        	}
-    		return name;
-    	}
-    	   	
-    	if (Pattern.compile(".").matcher(name).find()) {
-    		l = name.split("\\.");
-    		if (l.length >= 1) {
-    			name = "";
-    			int n = l.length-1;
-        		for (int i = 0; i < n; i++) {
-    				name += l[i];
-    				if (i < (n-1)) name += ".";
-    			}
-    		}
-    	}
-        return name;
-    }
-    
-    /**
      * Transforms the specified channel information.
      * 
      * @param data  The object to transform.

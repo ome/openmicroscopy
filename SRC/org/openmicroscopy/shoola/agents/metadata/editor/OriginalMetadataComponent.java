@@ -130,9 +130,9 @@ class OriginalMetadataComponent
 	private void initComponents()
 	{
 		IconManager icons = IconManager.getInstance();
-		downloadButton = new JButton();
 		Icon icon = icons.getIcon(IconManager.DOWNLOAD);
 		downloadButton = new JButton(icon);
+		downloadButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		downloadButton.setOpaque(false);
 		UIUtilities.unifiedButtonLookAndFeel(downloadButton);
 		downloadButton.setToolTipText("Download the metadata file.");
@@ -141,19 +141,24 @@ class OriginalMetadataComponent
 			public void actionPerformed(ActionEvent evt) { download(); }
 		});
 		toolBar = buildToolBar();
-		
+		toolBar.setBackground(UIUtilities.BACKGROUND_COLOR);
 		JXBusyLabel label = new JXBusyLabel(new Dimension(icon.getIconWidth(), 
 				icon.getIconHeight()));
+		label.setBackground(UIUtilities.BACKGROUND_COLOR);
 		label.setBusy(true);
 		label.setText("Loading metadata");
 		//label.setHorizontalTextPosition(JXBusyLabel.RIGHT);
 		JPanel p = new JPanel();
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 		p.add(label);
 		p.add(Box.createHorizontalStrut(5));
-		p.add(new JLabel("Loading metadata"));
+		JLabel l = new JLabel("Loading metadata");
+		l.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.add(l);
 		statusBar = UIUtilities.buildComponentPanel(p);
-		
+		statusBar.setBackground(UIUtilities.BACKGROUND_COLOR);
+		setBackground(UIUtilities.BACKGROUND_COLOR);
 		setLayout(new BorderLayout(0, 0));
 		add(statusBar, BorderLayout.NORTH);
 	}
@@ -182,6 +187,7 @@ class OriginalMetadataComponent
 	{
 		//Now lay out the elements
 		JPanel p = new JPanel();
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.setLayout(new GridBagLayout());
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.gridy = 0;
@@ -194,14 +200,19 @@ class OriginalMetadataComponent
 		Entry entry;
 		Iterator i = components.entrySet().iterator();
 		p.add(new JSeparator(), constraints);
+		JPanel row;
+		JLabel label;
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			key = (String) entry.getKey();
 			l = (List) entry.getValue();
 			if (l != null && l.size() > 0) {
 				constraints.gridy++;
-				p.add(UIUtilities.buildComponentPanel(
-						UIUtilities.setTextFont(key)), constraints);
+				label = UIUtilities.setTextFont(key);
+				label.setBackground(UIUtilities.BACKGROUND_COLOR);
+				row = UIUtilities.buildComponentPanel(label);
+				row.setBackground(UIUtilities.BACKGROUND_COLOR);
+				p.add(row, constraints);
 				constraints.gridy++;
 				p.add(createTable(l), constraints);
 			}

@@ -115,7 +115,7 @@ public class PlaneInfoComponent
 	public void setColor(Color color) { icon.setColour(color); }
 	
 	/**
-	 * Overridden to set the text of the c<code>content</code> component.
+	 * Overridden to set the text of the <code>content</code> component.
 	 * @see JLabel#setToolTipText(String)
 	 */
 	public void setToolTipText(String text)

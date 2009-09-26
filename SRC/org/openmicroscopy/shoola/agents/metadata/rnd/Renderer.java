@@ -100,12 +100,14 @@ public interface Renderer
 
 	/** Bound property name indicating that a new time-point is selected. */
 	public final static String  T_SELECTED_PROPERTY = "tSelected";
-
 	/** 
 	 * Bound property name indicating to apply the rendering settings
 	 * to all selected or displayed images. 
 	 */
 	public final static String  APPLY_TO_ALL_PROPERTY = "applyToAll";
+	
+	/** Bound property indicating that the color of a channel has changed. */
+	public static final String	CHANNEL_COLOR_PROPERTY = "channelColor";
 	
     /** 
      * Sets the pixels intensity interval for the
@@ -150,7 +152,7 @@ public interface Renderer
      * Sets the coefficient identifying a curve in the family
      * and updates the image.
      * 
-     * @param k The new curve scoefficient.
+     * @param k The new curve coefficient.
      */
     void setCurveCoefficient(double k);
     
@@ -172,15 +174,8 @@ public interface Renderer
     //CodomainMapContext getCodomainMapContext(Class mapType);
 
     /**
-     * Sets the colour of the channel button in the renderer.
-     * 
-     * @param index The index of the channel
-     */
-    void setChannelColor(int index);
-    
-    /**
-     * Fired if the colour model has been changed from RGB -> Greyscale or 
-     * vise versa.
+     * Fired if the color model has been changed from RGB -> Greyscale or 
+     * vice versa.
      */
     void setColorModelChanged();
     

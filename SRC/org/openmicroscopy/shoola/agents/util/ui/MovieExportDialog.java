@@ -167,7 +167,7 @@ public class MovieExportDialog
 		saveButton.setActionCommand(""+SAVE);
 		saveButton.addActionListener(this);
 		nameField = new JTextField();
-		String s = EditorUtil.removeFileExtension(name);
+		String s = UIUtilities.removeFileExtension(name);
 		if (s != null) {
 			nameField.setText(s);
 			saveButton.setEnabled(true);

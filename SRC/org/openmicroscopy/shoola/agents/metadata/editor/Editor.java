@@ -359,6 +359,13 @@ public interface Editor
 	 * 
 	 * @param folder The folder where to export the image.
 	 */
-	public void exportImageAsXML(File folder);
+	public void exportImageAsOMETIFF(File folder);
+
+	/**
+	 * Indicates that the color of the passed channel has changed.
+	 * 
+	 * @param index The index of the channel.
+	 */
+	public void onChannelColorChanged(int index);
 	
 }
