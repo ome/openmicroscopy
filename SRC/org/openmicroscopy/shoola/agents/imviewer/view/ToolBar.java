@@ -150,20 +150,20 @@ class ToolBar
         rndButton = new JToggleButton();
         rndButton.setSelected(view.isRendererShown());
         rndButton.setAction(controller.getAction(ImViewerControl.RENDERER));
-        bar.add(rndButton);
+        //bar.add(rndButton);
         
         metadataButton = new JToggleButton();
         metadataButton.setSelected(view.isRendererShown());
         metadataButton.setAction(controller.getAction(
         		ImViewerControl.METADATA));
-        bar.add(metadataButton);
+        //bar.add(metadataButton);
         
         historyButton = new JToggleButton();
         historyButton.setSelected(view.isHistoryShown());
         historyButton.setAction(controller.getAction(ImViewerControl.HISTORY));
         //bar.add(historyButton);
-        bar.add(Box.createRigidArea(H_SPACE));
-        bar.add(new JSeparator(JSeparator.VERTICAL));
+        //bar.add(Box.createRigidArea(H_SPACE));
+        //bar.add(new JSeparator(JSeparator.VERTICAL));
 
         bar.add(Box.createRigidArea(H_SPACE));
         JButton button = new JButton(

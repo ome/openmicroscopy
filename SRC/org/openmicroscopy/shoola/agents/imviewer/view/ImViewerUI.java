@@ -85,7 +85,6 @@ import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.PlaneInfoComponent;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
-import org.openmicroscopy.shoola.agents.metadata.rnd.DomainPane;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -555,7 +554,7 @@ class ImViewerUI
 		rndItem.setAction(action);
 		rndItem.setText(action.getName());
 		if (pref != null) rndItem.setSelected(pref.isRenderer());
-		menu.add(rndItem);
+		//menu.add(rndItem);
 		
 		action = controller.getAction(ImViewerControl.METADATA);
 		metadataItem = new JCheckBoxMenuItem();
@@ -563,7 +562,7 @@ class ImViewerUI
 		metadataItem.setAction(action);
 		metadataItem.setText(action.getName());
 		if (pref != null) metadataItem.setSelected(pref.isRenderer());
-		menu.add(metadataItem);
+		//menu.add(metadataItem);
 		
 		action = controller.getAction(ImViewerControl.HISTORY);
 		historyItem = new JCheckBoxMenuItem();
@@ -837,6 +836,8 @@ class ImViewerUI
 			}
 		};
 		container.addHierarchyBoundsListener(boundsAdapter);
+		//restoreSize = new Dimension(0, 0);
+		//layoutComponents(false);
 	}
 
 	/**
@@ -901,7 +902,7 @@ class ImViewerUI
 		//int divider = 0;
 		int vExtra = 2;
 		int addition;
-		
+		displayMode = RENDERER;
 		switch (displayMode) {
 			case RENDERER:
 				rightComponent = model.getMetadataViewer().getEditorUI();
@@ -980,7 +981,7 @@ class ImViewerUI
 				break;
 			default: 
 		}
-		rendererSplit.setDividerLocation(-1);
+		//rendererSplit.setDividerLocation(-1);
 		//rendererSplit.setResizeWeight(1.0);
 		//historySplit.setDividerLocation(-1);
 		d = getIdealSize(width, height);
@@ -993,9 +994,9 @@ class ImViewerUI
 			setSize(width, height);
 		} else setSize(d);
 		*/
-		//setSize(d);
-		//setPreferredSize(d);
-		//pack();
+		setSize(d);
+		setPreferredSize(d);
+		pack();
 		container.addHierarchyBoundsListener(boundsAdapter);
 	}
 	
@@ -1950,7 +1951,9 @@ class ImViewerUI
 	 */
 	void setRestoreSize(int width, int height)
 	{
-		restoreSize = new Dimension(width, height);
+		//restoreSize = new Dimension(width, height);
+		restoreSize = tabs.getSize();
+		layoutComponents(false);
 	}
 	
 	/**

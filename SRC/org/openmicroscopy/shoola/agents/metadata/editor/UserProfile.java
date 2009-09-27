@@ -497,9 +497,9 @@ class UserProfile
 		c.weightx = 1.0;  
     	add(buildContentPanel(), c);
     	if (model.isCurrentUserOwner(model.getRefObject())) {
-    		GroupData group = (GroupData) groups.getSelectedItem();
-    		c.gridy++;
-    		add(buildPermissions(group.getPermissions()), c); 
+    		//GroupData group = (GroupData) groups.getSelectedItem();
+    		//c.gridy++;
+    		//add(buildPermissions(group.getPermissions()), c); 
     		c.gridy++;
     		add(Box.createVerticalStrut(5), c); 
     		c.gridy++;

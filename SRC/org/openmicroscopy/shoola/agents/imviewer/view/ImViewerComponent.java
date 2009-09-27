@@ -2832,14 +2832,17 @@ class ImViewerComponent
 			return;
 		}
 			
-		if (newPlane) postMeasurePlane();
-		newPlane = false;
+		
 
+		TextureData originalImage = model.getImageAsTexture();
 		//BufferedImage originalImage = model.getOriginalImage();
 		model.setImageAsTexture(image);
+		if (newPlane) postMeasurePlane();
+		if (originalImage == null) view.setRestoreSize(0, 0);
+		newPlane = false;
 		view.setLeftStatus();
 		view.setPlaneInfoStatus();
-		/*
+		
 		if (originalImage == null && model.isZoomFitToWindow()) {
 			controller.setZoomFactor(ZoomAction.ZOOM_FIT_TO_WINDOW);
 		}
@@ -2858,7 +2861,7 @@ class ImViewerComponent
 			if (view.isLensVisible()) view.setLensPlaneImage();
 			view.createHistoryItem(null);
 		}
-		*/
+		
 		view.setCursor(Cursor.getDefaultCursor());
 		fireStateChange();
 	}
