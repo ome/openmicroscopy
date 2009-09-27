@@ -29,8 +29,15 @@ public class Main {
                 return;
             }
         } else {
+            try
+            {
             GuiImporter.main(args);
             return;
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -126,9 +126,6 @@ public class GuiImporter extends JFrame
     public LoginHandler         loginHandler;
     public HistoryHandler       historyHandler;
     public HistoryTable         historyTable;
-    
-    public ScreenLogin          view;
-    public ScreenLogo           viewTop;
 
     private JMenuBar            menubar;
     private JMenu               fileMenu;
@@ -162,7 +159,9 @@ public class GuiImporter extends JFrame
         this.config = config;
         this.gui = new GuiCommonElements(config);
         
-
+        historyHandler = new HistoryHandler(this);
+        historyTable = historyHandler.table;
+        
         // Add a shutdown hook for when app closes
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
@@ -340,14 +339,7 @@ public class GuiImporter extends JFrame
 
         this.setVisible(false);
 
-        try {
-            historyHandler = new HistoryHandler(this);
-            historyPanel.add(historyHandler, BorderLayout.CENTER);
-            historyTable = historyHandler.table;
-        } catch (Exception e) {
-            log.debug("Disabling history");
-            e.printStackTrace();
-        }
+        historyPanel.add(historyHandler, BorderLayout.CENTER);
         
         loginHandler = new LoginHandler(this, historyTable);
         
@@ -390,52 +382,6 @@ public class GuiImporter extends JFrame
             addPropertyChangeListener(this);
 
         } catch (Throwable e) {}
-    }
-    
-    public boolean displayLoginDialog(Object viewer, boolean modal, boolean displayTop)
-    {   
-        Image img = Toolkit.getDefaultToolkit().createImage(ICON);
-        view = new ScreenLogin(config.getAppTitle(),
-                gui.getImageIcon("gfx/login_background.png"),
-                img,
-                config.getVersionNumber(), Integer.toString(config.port.get()));
-        view.showConnectionSpeed(false);
-        viewTop = new ScreenLogo(config.getAppTitle(), gui.getImageIcon(splash), img);
-        viewTop.setStatusVisible(false);
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        Dimension d = viewTop.getExtendedSize();
-        Dimension dlogin = view.getPreferredSize();
-        Rectangle r;
-        int totalHeight;
-        if (displayTop)
-        {
-            totalHeight = d.height+dlogin.height;
-            viewTop.setBounds((screenSize.width-d.width)/2, 
-                    (screenSize.height-totalHeight)/2, 
-                    d.width, viewTop.getSize().height);
-            r = viewTop.getBounds();
-            
-            viewTop.addPropertyChangeListener((PropertyChangeListener) viewer);
-            viewTop.addWindowStateListener((WindowStateListener) viewer);
-            viewTop.addWindowFocusListener((WindowFocusListener) viewer); 
-            view.setBounds(r.x, r.y+d.height, dlogin.width, dlogin.height);
-       } else {
-            totalHeight = dlogin.height;
-            view.setBounds((screenSize.width-d.width)/2,
-                    (screenSize.height-totalHeight)/2, 
-                    dlogin.width, dlogin.height);
-            view.setQuitButtonText("Canel");
-        }
-        view.addPropertyChangeListener((PropertyChangeListener) viewer);
-        view.addWindowStateListener((WindowStateListener) viewer);
-        view.addWindowFocusListener((WindowFocusListener) viewer);
-        view.setAlwaysOnTop(false);
-        
-        
-        viewTop.setVisible(displayTop);
-        view.setVisible(true);
-        
-        return true;
     }
     
     /**
@@ -526,8 +472,8 @@ public class GuiImporter extends JFrame
                 if (historyHandler != null) {
                     table = historyHandler.table;
                 }
-                loginHandler = new LoginHandler(this, table, true, true);
-                loginHandler.displayLogin(false);
+                loginHandler = new LoginHandler(this, table, true, true, false);
+                //loginHandler.displayLogin(false);
             }
         } else if ("quit".equals(cmd)) {
             if (gui.quitConfirmed(this, null) == true)

@@ -265,7 +265,8 @@ public class ImportLibrary implements IObservable
         String fileName = file.getAbsolutePath();
         String shortName = file.getName();
         String format = null;
-        String[] usedFiles = null;
+        String[] usedFiles = new String[1];
+        usedFiles[0] = file.getAbsolutePath();
 
         try {
             
@@ -273,7 +274,7 @@ public class ImportLibrary implements IObservable
         
             open(file.getAbsolutePath());
             format = reader.getFormat();
-            usedFiles = reader.getUsedFiles();
+            if (reader.getUsedFiles() != null) usedFiles = reader.getUsedFiles();
             
             notifyObservers(new ImportEvent.LOADED_IMAGE(shortName, index, numDone, total));
             

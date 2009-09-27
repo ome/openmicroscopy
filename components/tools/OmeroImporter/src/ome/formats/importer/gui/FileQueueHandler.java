@@ -310,6 +310,7 @@ public class FileQueueHandler
                     if (candidates != null)
                     {
                         ImportLibrary library = new ImportLibrary(store(), reader);
+
                         if (store() != null) {
                             new ImportHandler(viewer, qTable, config, library, candidates);
                         }

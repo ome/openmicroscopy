@@ -180,6 +180,7 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
         @Override
         protected void onException(Exception e) {
             super.onException(e);
+            /*
             // Get the full debug text
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
@@ -197,6 +198,7 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
 
             gui.appendTextToDocument(debugDocument, debugStyle, "----\n"
                     + debugText);
+            */
             String sendErrorMsg = "Sorry, but due to an error we were not able "
                     + "to automatically \n send your debug information. \n\n"
                     + "Pleae let us know about this problem by contacting \n\n"

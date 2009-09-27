@@ -13,6 +13,10 @@
 
 package ome.formats.importer.gui;
 
+import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -71,6 +75,9 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     public LoginDialog         dialog;
     
     public LoginFrame          frame;
+    
+    public ScreenLogin          view;
+    public ScreenLogo           viewTop;
 
     private LoginCredentials    lc;
     
@@ -83,10 +90,10 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     
     public LoginHandler(GuiImporter viewer, HistoryTable table)
     {
-        this(viewer, table, false, false);
+        this(viewer, table, false, false, true);
     }    
     
-    public LoginHandler(GuiImporter viewer, HistoryTable table, boolean modal, boolean center)
+    public LoginHandler(GuiImporter viewer, HistoryTable table, boolean modal, boolean center, boolean displayTop)
     {
         this.viewer = viewer;
         this.center = center;
@@ -101,7 +108,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         
         viewer.enableMenus(false);
         
-        displayLogin(true);
+        displayLogin(displayTop);
     }
     
     public void displayLogin(boolean displayTop)
@@ -109,12 +116,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         boolean cancelled;
         this.displayTop = displayTop;
         
-        if (NEW_LOGIN)
-        {
-            cancelled = viewer.displayLoginDialog(this, modal, displayTop);
-        } else {
-            cancelled = displayLoginDialog(viewer, modal);  
-        }
+        cancelled = displayLoginDialog(this, modal, displayTop);
         
         if (modal == true && cancelled == true)
         {
@@ -159,8 +161,8 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                     {
                         if (NEW_LOGIN)
                         {
-                            viewer.view.close();
-                            viewer.viewTop.close();
+                            view.close();
+                            viewTop.close();
                             viewer.setVisible(true);
                         }
 
@@ -189,7 +191,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                         }
                     } else {   
                         if (NEW_LOGIN)
-                            viewer.view.setAlwaysOnTop(false);
+                            view.setAlwaysOnTop(false);
                         log.info("Login failed!");
                         viewer.statusBar.setProgress(false, 0, "");
                         viewer.statusBar.setStatusIcon("gfx/error_msg16.png",
@@ -218,7 +220,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                             "Please try again.");
                     
                     if (NEW_LOGIN)
-                        viewer.view.setAlwaysOnTop(false);
+                        view.setAlwaysOnTop(false);
                     
                     JOptionPane
                     .showMessageDialog(
@@ -240,9 +242,9 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
 
     void refreshNewLogin()
     {
-        viewer.view.setAlwaysOnTop(true);
-        //viewer.viewTop.setAlwaysOnTop(true); 
-        viewer.view.requestFocusOnField();
+        view.setAlwaysOnTop(true);
+        //viewTop.setAlwaysOnTop(true); 
+        view.requestFocusOnField();
     }
     
     void loginCancelled() {
@@ -269,6 +271,54 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         return false;
     }
 
+    public boolean displayLoginDialog(Object viewer, boolean modal, boolean displayTop)
+    {   
+        Image img = Toolkit.getDefaultToolkit().createImage(GuiImporter.ICON);
+        view = new ScreenLogin(config.getAppTitle(),
+                gui.getImageIcon("gfx/login_background.png"),
+                img,
+                config.getVersionNumber(), Integer.toString(config.port.get()));
+        view.showConnectionSpeed(false);
+        viewTop = new ScreenLogo(config.getAppTitle(), gui.getImageIcon(GuiImporter.splash), img);
+        viewTop.setStatusVisible(false);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        Dimension d = viewTop.getExtendedSize();
+        Dimension dlogin = view.getPreferredSize();
+        Rectangle r;
+        int totalHeight;
+        if (displayTop)
+        {
+            totalHeight = d.height+dlogin.height;
+            viewTop.setBounds((screenSize.width-d.width)/2, 
+                    (screenSize.height-totalHeight)/2, 
+                    d.width, viewTop.getSize().height);
+            r = viewTop.getBounds();
+            
+            viewTop.addPropertyChangeListener((PropertyChangeListener) viewer);
+            viewTop.addWindowStateListener((WindowStateListener) viewer);
+            viewTop.addWindowFocusListener((WindowFocusListener) viewer); 
+            view.setBounds(r.x, r.y+d.height, dlogin.width, dlogin.height);
+       } else {
+            totalHeight = dlogin.height;
+            view.setBounds((screenSize.width-d.width)/2,
+                    (screenSize.height-totalHeight)/2, 
+                    dlogin.width, dlogin.height);
+            view.setQuitButtonText("Canel");
+        }
+        view.addPropertyChangeListener((PropertyChangeListener) viewer);
+        view.addWindowStateListener((WindowStateListener) viewer);
+        view.addWindowFocusListener((WindowFocusListener) viewer);
+        view.setAlwaysOnTop(!displayTop);
+        
+        
+        viewTop.setVisible(displayTop);
+        view.setVisible(true);
+        
+        return true;
+    }
+    
+
+    
     protected boolean isValidLogin() throws Exception
     {
         try
@@ -324,7 +374,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                         System.exit(0);
                     }    
                 } else {
-                    viewer.view.dispose();
+                    view.dispose();
                 }
                 
             } else if (ScreenLogin.TO_FRONT_PROPERTY.equals(prop) || 
