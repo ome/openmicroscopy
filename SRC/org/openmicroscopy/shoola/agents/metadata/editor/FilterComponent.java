@@ -70,6 +70,12 @@ class FilterComponent
 	implements PropertyChangeListener
 {
 
+	/** The title displayed if the filter is an emission filter. */
+	static final String EMISSION_FILTER = "Emission Filter";
+	
+	/** The title displayed if the filter is an excitation filter. */
+	static final String EXCITATION_FILTER = "Excitation Filter";
+	
 	/** The component displaying the filter options. */
 	private OMEComboBox							filterBox;
 	

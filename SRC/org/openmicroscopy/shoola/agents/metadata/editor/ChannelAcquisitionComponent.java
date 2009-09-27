@@ -68,6 +68,7 @@ import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
+import pojos.FilterData;
 import pojos.LightSourceData;
 
 /** 
@@ -115,17 +116,11 @@ class ChannelAcquisitionComponent
 	/** The UI component hosting the detector metadata. */
 	private DetectorComponent					detectorPane;
 	
-	/** The UI component hosting the secondary emission filter. */
-	private FilterComponent						secondEmissionFilterPane;
-	
-	/** The UI component hosting the secondary excitation filter. */
-	private FilterComponent						secondExcitationFilterPane;
-	
-	/** The UI component hosting the emission filter. */
-	private FilterComponent						emissionFilterPane;
+	/** The UI component hosting the emission filters. */
+	private List<FilterComponent>				emissionFilterPanes;
 	
 	/** The UI component hosting the excitation filter. */
-	private FilterComponent						excitationFilterPane;
+	private List<FilterComponent>				excitationFilterPanes;
 	
 	/** The component hosting the dichroic. */
 	private DichroicComponent					dichroicPane;
@@ -150,6 +145,27 @@ class ChannelAcquisitionComponent
 	
 	/** The icon displaying the color associated to the channel. */
 	private ColourIcon							icon;
+
+	/**
+	 * Transforms the passed filter if not <code>null</code>.
+	 * 
+	 * @param filter The filter to transform.
+	 * @param l The list the UI object will be added to.
+	 */
+	private void populateFilter(FilterData filter, List<FilterComponent> l)
+	{
+		if (filter == null) return;
+		Map<String, Object>  details = EditorUtil.transformFilter(filter);
+		List notSet = (List) details.get(EditorUtil.NOT_SET);
+		if (notSet.size() != EditorUtil.MAX_FIELDS_FILTER) {
+			String title = FilterComponent.EMISSION_FILTER;
+			if (l == excitationFilterPanes) 
+				title = FilterComponent.EXCITATION_FILTER;
+			FilterComponent comp = new FilterComponent(parent, model, title);
+			comp.displayFilter(details);
+			l.add(comp);
+		}
+	}
 	
 	/** Resets the various boxes with enumerations. */
 	private void resetBoxes()
@@ -204,15 +220,10 @@ class ChannelAcquisitionComponent
 	{
 		resetBoxes();
 		fieldsGeneral = new LinkedHashMap<String, DataComponent>();
-		secondEmissionFilterPane = new FilterComponent(parent, model, 
-				"Emission Filter");
-		secondExcitationFilterPane = new FilterComponent(parent, model, 
-									"Excitation Filter");
-		emissionFilterPane = new FilterComponent(parent, model, 
-		"Emission Filter");
-		excitationFilterPane = new FilterComponent(parent, model, 
-							"Excitation Filter");
+		emissionFilterPanes = new ArrayList<FilterComponent>();
+		excitationFilterPanes = new ArrayList<FilterComponent>();
 		dichroicPane = new DichroicComponent(parent, model);
+		dichroicPane.setVisible(false);
 		detectorPane = new DetectorComponent(parent, model);
 		lightPane = new LightSourceComponent(parent, model);
 		unsetGeneral = null;
@@ -357,14 +368,22 @@ class ChannelAcquisitionComponent
 			add(generalPane, constraints);
 			++constraints.gridy;
 		}
-		if (secondEmissionFilterPane.isVisible()) {
-			add(secondEmissionFilterPane, constraints);
+		Iterator<FilterComponent> i = emissionFilterPanes.iterator();
+		while (i.hasNext()) {
+			add(i.next(), constraints);	
 			++constraints.gridy;
 		}
-		if (secondExcitationFilterPane.isVisible()) {
-			add(secondExcitationFilterPane, constraints);
+		
+		if (dichroicPane.isVisible()) {
+			add(dichroicPane, constraints);
 			++constraints.gridy;
 		}
+		i = excitationFilterPanes.iterator();
+		while (i.hasNext()) {
+			add(i.next(), constraints);	
+			++constraints.gridy;
+		}
+		
 		if (detectorPane.isVisible()) {
 			add(detectorPane, constraints);
 	    	++constraints.gridy;
@@ -474,27 +493,28 @@ class ChannelAcquisitionComponent
 				lightPane.displayLightSource(kind, details);
 				lightPane.setVisible(true);
 			}
-			details = EditorUtil.transformFilter(
-					data.getSecondaryExcitationFilter());
+			details = EditorUtil.transformDichroic(data.getDichroic());
 			notSet = (List) details.get(EditorUtil.NOT_SET);
-			secondExcitationFilterPane.setVisible(false);
-			if (notSet.size() != EditorUtil.MAX_FIELDS_FILTER) {
-				secondExcitationFilterPane.displayFilter(details);
-				secondExcitationFilterPane.setVisible(true);
+			if (notSet.size() != EditorUtil.MAX_FIELDS_DICHROIC) {
+				dichroicPane.displayDichroic(details);
+				dichroicPane.setVisible(true);
 			}
-			details = EditorUtil.transformFilter(
-					data.getSecondaryEmissionFilter());
-			notSet = (List) details.get(EditorUtil.NOT_SET);
-			secondEmissionFilterPane.setVisible(false);
-			if (notSet.size() != EditorUtil.MAX_FIELDS_FILTER) {
-				secondEmissionFilterPane.displayFilter(details);
-				secondEmissionFilterPane.setVisible(true);
-			}
+			
+			//emission filter
+			populateFilter(data.getEmissionFilter(), emissionFilterPanes);
+			populateFilter(data.getSecondaryExcitationFilter(), 
+					emissionFilterPanes);
+			populateFilter(data.getExcitationFilter(), excitationFilterPanes);
+			populateFilter(data.getSecondaryExcitationFilter(), 
+					excitationFilterPanes);
+			
+			//Dichroic
+			
 			//data.get
 			buildGUI();
 		}
 	}
-
+	
 	/**
 	 * Sets the plane info for the specified channel.
 	 * 

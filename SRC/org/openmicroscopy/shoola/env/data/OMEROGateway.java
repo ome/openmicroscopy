@@ -60,10 +60,6 @@ import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-import org.openmicroscopy.shoola.util.image.geom.Factory;
-import org.openmicroscopy.shoola.util.image.io.Encoder;
-import org.openmicroscopy.shoola.util.image.io.TIFFEncoder;
-import org.openmicroscopy.shoola.util.image.io.WriterImage;
 //import Ice.Communicator;
 import ome.conditions.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
@@ -192,7 +188,7 @@ import pojos.WellSampleData;
 */
 class OMEROGateway
 {
-
+	
 	/** Indicates that the connection has been lost. */
 	static final int LOST_CONNECTION = 0;
 	
