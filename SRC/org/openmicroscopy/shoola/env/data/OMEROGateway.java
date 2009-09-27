@@ -2736,7 +2736,6 @@ class OMEROGateway
 		} catch (Throwable e) {
 			handleException(e, "Cannot set the file's id.");
 		}
-		
 		String path = file.getAbsolutePath();
 		int offset = 0;
 		int length = (int) size;

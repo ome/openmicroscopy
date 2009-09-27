@@ -33,7 +33,6 @@ import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 
 //Third-party libraries
-import javax.imageio.ImageIO;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLCapabilities;
@@ -41,12 +40,6 @@ import javax.media.opengl.GLEventListener;
 import javax.media.opengl.GLProfile;
 import javax.media.opengl.awt.GLJPanel;
 import javax.media.opengl.glu.GLU;
-
-import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
-import org.openmicroscopy.shoola.util.image.geom.Factory;
-import org.openmicroscopy.shoola.util.image.io.Encoder;
-import org.openmicroscopy.shoola.util.image.io.TIFFEncoder;
-import org.openmicroscopy.shoola.util.image.io.WriterImage;
 
 import com.sun.opengl.util.BufferUtil;
 import com.sun.opengl.util.gl2.GLUT;
@@ -56,6 +49,12 @@ import com.sun.opengl.util.texture.TextureData;
 import com.sun.opengl.util.texture.TextureIO;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.image.io.Encoder;
+import org.openmicroscopy.shoola.util.image.io.TIFFEncoder;
+import org.openmicroscopy.shoola.util.image.io.WriterImage;
+
 
 /**
  * OpengGL canvas.
@@ -154,12 +153,12 @@ class GLImageCanvas
      */
     protected void saveDisplayedImage(GL2 gl)
     {
-    	//System.err.println(gl+" "+savedFile);
     	if (gl == null || savedFile == null) return;
     	Dimension s = getSize();
     	int w = s.width; 
     	int h = s.height;
-    	BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+    	BufferedImage img = new BufferedImage(w, h, 
+    			BufferedImage.TYPE_INT_ARGB);
     	img.setRGB(0, 0, w, h, copyFrame(gl), 0, w);
     	// write the file.
     	try {
@@ -188,7 +187,7 @@ class GLImageCanvas
     {
     	float s = (float) (model.getOriginalUnitBarSize())/width;
 		Color c = model.getUnitBarColor();
-		String text = model.getUnitBarValue();
+		//Display scale bar depending on size.
 		//draw scale bar text
 		gl.glColor3f(c.getRed()/255f, c.getGreen()/255f, c.getBlue()/255f);
 		
@@ -198,11 +197,18 @@ class GLImageCanvas
         float y1 = 0.98f;
         float y2 = 0.983f;
         
-        float xText = 0.99f-s/2;
-        float yText =  0.97f;
-        gl.glRasterPos2f(xText, yText);
-        if (model.getZoomFactor() > 0.25)
+        if (model.getZoomFactor() > 0.25) {
+        	String text = model.getUnitBarValue();
+    		int length = 0;
+    		if (text != null)
+    			length = getFontMetrics(getFont()).stringWidth(text);
+        	float t = (float) (length) / width;
+        	float xText = x1+(s-t)/2+0.01f;
+            float yText =  0.97f;
+            gl.glRasterPos2f(xText, yText);
         	glut.glutBitmapString(FONT, text);
+        }
+        	
         
 		//draw the scale bar.
 		gl.glBegin(GL2.GL_POLYGON);

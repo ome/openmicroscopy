@@ -545,6 +545,8 @@ class AcquisitionDataUI
 			//make sure we only download it once.
 			if (f != null && !originalMetadata.isMetadataLoaded())
 				model.loadFile(f, originalMetadata);
+			else if (f == null)
+				originalMetadataPane.setCollapsed(true);
 		} else {
 			ChannelData channel = channelAcquisitionPanes.get(src);
 			controller.loadChannelAcquisitionData(channel);

@@ -26,9 +26,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -56,6 +53,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 import javax.swing.table.DefaultTableModel;
+
+import layout.TableLayout;
 
 
 //Third-party libraries
@@ -188,33 +187,35 @@ class OriginalMetadataComponent
 		//Now lay out the elements
 		JPanel p = new JPanel();
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.setLayout(new GridBagLayout());
-		GridBagConstraints constraints = new GridBagConstraints();
-		constraints.gridy = 0;
-		constraints.fill = GridBagConstraints.BOTH;
-		constraints.anchor = GridBagConstraints.WEST;
-		constraints.insets = new Insets(0, 2, 2, 0);
-		constraints.weightx = 1.0;
+		double[] size = {TableLayout.FILL};
+		TableLayout layout = new TableLayout();
+		layout.setColumn(size);
+		p.setLayout(layout);
 		String key;
 		List l;
 		Entry entry;
 		Iterator i = components.entrySet().iterator();
-		p.add(new JSeparator(), constraints);
 		JPanel row;
 		JLabel label;
+		layout.insertRow(0, TableLayout.PREFERRED);
+		p.add(new JSeparator(), "0, "+0);
+
+		int rowIndex = 1;
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			key = (String) entry.getKey();
 			l = (List) entry.getValue();
 			if (l != null && l.size() > 0) {
-				constraints.gridy++;
 				label = UIUtilities.setTextFont(key);
 				label.setBackground(UIUtilities.BACKGROUND_COLOR);
 				row = UIUtilities.buildComponentPanel(label);
 				row.setBackground(UIUtilities.BACKGROUND_COLOR);
-				p.add(row, constraints);
-				constraints.gridy++;
-				p.add(createTable(l), constraints);
+				layout.insertRow(rowIndex, TableLayout.PREFERRED);
+				p.add(row, "0, "+rowIndex);
+				rowIndex++;
+				layout.insertRow(rowIndex, TableLayout.PREFERRED);
+				p.add(createTable(l), "0, "+rowIndex);
+				rowIndex++;
 			}
 		}
 		removeAll();
@@ -236,8 +237,15 @@ class OriginalMetadataComponent
 		int index = 0;
 		while (i.hasNext()) {
 			values =  i.next().split("=");
-			data[index][0] = values[0];
-			data[index][1] = values[1];
+			switch (values.length) {
+				case 1:
+					data[index][0] = values[0];
+					break;
+				case 2:
+					data[index][0] = values[0];
+					data[index][1] = values[1];
+					break;
+			}
 			index++;
 		}
 		JXTable table = new JXTable(new DefaultTableModel(data, COLUMNS));
@@ -300,6 +308,7 @@ class OriginalMetadataComponent
 						if (l != null) l.add(line);
 					}
 				} else {
+					
 					key = line.substring(1, line.length()-1);
 					components.put(key, new ArrayList<String>());
 				}
