@@ -590,7 +590,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             // Handle updating or recreating a color for this channel.
             lc = channel.getLogicalChannel();
             if (lc != null) lc = loadLogicalChannel(lc.getId());
-            v = hasEmissionData(lc);
+            v = ColorsFactory.hasEmissionData(lc);
             if (!v) values.add(v);
             m.put(channelBinding, v);
             
@@ -642,25 +642,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             }
         }
     }
-    
-    /**
-     * Returns <code>true</code> if the channel has emission metadata,
-     * <code>false</code> otherwise.
-     * 
-     * @param lc The channel to handle.
-     * @return See above.
-     */
-    private boolean hasEmissionData(LogicalChannel lc)
-    {
-    	if (lc == null) return false;
-    	if (lc.getEmissionWave() != null) return true;
-    	Filter f = lc.getSecondaryEmissionFilter();
-    	if (f == null) return false;
-    	TransmittanceRange transmittance = f.getTransmittanceRange();
-    	if (transmittance == null) return false;
-    	return transmittance.getCutIn() != null;
-    }
-    
+   
     /**
      * Computes the location statistics for a set of rendering settings.
      * 
