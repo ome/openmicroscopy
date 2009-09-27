@@ -35,6 +35,7 @@ import omero.RString;
 import omero.model.Binning;
 import omero.model.DetectorSettings;
 import omero.model.DetectorSettingsI;
+import omero.model.Dichroic;
 import omero.model.Filter;
 import omero.model.FilterSet;
 import omero.model.LightSettings;
@@ -74,6 +75,15 @@ public class ChannelAcquisitionData
 	/** The filter used for the excitation wavelength. */
 	private FilterData			secondaryExFilter;
 	
+	/** The filter used for the emission wavelength. */
+	private FilterData			emFilter;
+	
+	/** The filter used for the excitation wavelength. */
+	private FilterData			exFilter;
+	
+	/** The dichroic. */
+	private DichroicData		dichroic;
+	
 	/** The light source. */
 	private LightSourceData		ligthSource;
 	
@@ -107,7 +117,36 @@ public class ChannelAcquisitionData
         if (f != null) secondaryEmFilter = new FilterData(f);
         f = channel.getSecondaryExcitationFilter();
         if (f != null) secondaryExFilter = new FilterData(f);
+        if (filterSet != null) {
+        	f = filterSet.getEmFilter();
+        	if (f != null) emFilter = new FilterData(f);
+        	f = filterSet.getExFilter();
+        	if (f != null) exFilter = new FilterData(f);
+        	Dichroic d = filterSet.getDichroic();
+        	if (d != null) dichroic = new DichroicData(d);
+        }
 	}
+	
+	/**
+	 * Returns the emission filter.
+	 * 
+	 * @return See above.
+	 */
+	public FilterData getEmissionFilter() { return emFilter; }
+	
+	/**
+	 * Returns the excitation filter.
+	 * 
+	 * @return See above.
+	 */
+	public FilterData getExcitationFilter() { return exFilter; }
+	
+	/**
+	 * Returns the dichroic.
+	 * 
+	 * @return See above.
+	 */
+	public DichroicData getDichroic() { return dichroic; }
 	
 	/**
 	 * Returns the detector used for that channel.
