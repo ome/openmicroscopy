@@ -478,16 +478,22 @@ public class ExporterI extends AbstractAmdServant implements
     public void close_async(AMD_StatefulServiceInterface_close __cb,
             Current __current) {
 
-        retrieve = null;
-        if (file != null) {
-            file.delete();
-            file = null;
+        try {
+            retrieve = null;
+            if (file != null) {
+                file.delete();
+                file = null;
+            }
+    
+            InternalMessage msg = new UnregisterServantMessage(this,
+                    factory.principal.getName(), __current);
+            factory.context.publishEvent(msg);
+            
+            __cb.ice_response();
+        } catch (Exception e) {
+            __cb.ice_exception(e);
         }
-
-        InternalMessage msg = new UnregisterServantMessage(this,
-                factory.principal.getName(), __current);
-        factory.context.publishEvent(msg);
-
+        
     }
 
     public void getCurrentEventContext_async(
