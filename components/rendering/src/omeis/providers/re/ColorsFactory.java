@@ -127,21 +127,22 @@ public class ColorsFactory {
      */
     private static int[] getColor(Channel channel, LogicalChannel lc) {
     	if (lc == null) return null;
-        Integer emissionWavelength = lc.getEmissionWave();
-        
-        Integer red = channel.getRed();
-        Integer green = channel.getGreen();
-        Integer blue = channel.getBlue();
-        Integer alpha = channel.getAlpha();
-        if (red != null && green != null && blue != null && alpha != null) {
-        	// We've got a color image of some type that has explicitly
-        	// specified which channel is Red, Green, Blue or some other wacky
-        	// color.
-        	if (red == 0 && green == 0 && blue == 0 && alpha == 0)
-        		alpha = DEFAULT_ALPHA;
-            return new int[] { red, green, blue, alpha };
-        }
-
+    	if (!hasEmissionData(lc)) {
+    		Integer red = channel.getRed();
+            Integer green = channel.getGreen();
+            Integer blue = channel.getBlue();
+            Integer alpha = channel.getAlpha();
+            if (red != null && green != null && blue != null && alpha != null) {
+            	// We've got a color image of some type that has explicitly
+            	// specified which channel is Red, Green, Blue or some other wacky
+            	// color.
+            	if (red == 0 && green == 0 && blue == 0 && alpha == 0)
+            		alpha = DEFAULT_ALPHA;
+                return new int[] { red, green, blue, alpha };
+            }
+            return null;
+    	}
+    	Integer emissionWavelength = lc.getEmissionWave();
         //First we check the emission wavelength.
         if (emissionWavelength != null) {
         	if (rangeBlue(emissionWavelength)) return newBlueColor();
@@ -194,6 +195,24 @@ public class ColorsFactory {
             case 1: return newBlueColor();
             default: return newGreenColor();
         }
+    }
+    
+    /**
+     * Returns <code>true</code> if the channel has emission metadata,
+     * <code>false</code> otherwise.
+     * 
+     * @param lc The channel to handle.
+     * @return See above.
+     */
+    public static boolean hasEmissionData(LogicalChannel lc)
+    {
+    	if (lc == null) return false;
+    	if (lc.getEmissionWave() != null) return true;
+    	Filter f = lc.getSecondaryEmissionFilter();
+    	if (f == null) return false;
+    	TransmittanceRange transmittance = f.getTransmittanceRange();
+    	if (transmittance == null) return false;
+    	return transmittance.getCutIn() != null;
     }
     
     /**
