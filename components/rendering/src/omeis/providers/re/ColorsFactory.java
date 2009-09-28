@@ -164,7 +164,22 @@ public class ColorsFactory {
         }
         return null;
     }
-
+ 
+    /**
+     * Returns <code>true</code> if the channel has emission metadata,
+     * <code>false</code> otherwise.
+     * 
+     * @param f The filter to handle.
+     * @return See above.
+     */
+    private static boolean isFilterHasEmissionData(Filter f)
+    {
+    	if (f == null) return false;
+    	TransmittanceRange transmittance = f.getTransmittanceRange();
+    	if (transmittance == null) return false;
+    	return transmittance.getCutIn() != null;
+    }
+    
     /**
      * Determines the color usually associated to the specified wavelength.
      * 
@@ -208,11 +223,9 @@ public class ColorsFactory {
     {
     	if (lc == null) return false;
     	if (lc.getEmissionWave() != null) return true;
-    	Filter f = lc.getSecondaryEmissionFilter();
-    	if (f == null) return false;
-    	TransmittanceRange transmittance = f.getTransmittanceRange();
-    	if (transmittance == null) return false;
-    	return transmittance.getCutIn() != null;
+    	Filter f = lc.getFilterSet().getEmFilter();
+    	if (isFilterHasEmissionData(f)) return true;
+    	return isFilterHasEmissionData(lc.getSecondaryEmissionFilter());
     }
     
     /**

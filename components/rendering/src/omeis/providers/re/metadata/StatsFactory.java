@@ -39,17 +39,25 @@ import omeis.providers.re.quantum.QuantumStrategy;
  */
 public class StatsFactory {
 
+	/** The minimum range. */
+	private static final int RANGE_RGB = 255;
+	
+	/** The number of bins. */
     private static final int NB_BIN = 2 * QuantumStrategy.DECILE;
 
+    /** The default size of a bin. */
     private static final int BIN = 2;
 
     /** The error factor. */
     private static final int EPSILON = 4;
 
+    /** The threshold value. */
     private static final double THRESHOLD = 0.99;
 
+    /** The noise reduction threshold value. */
     private static final double NR_THRESHOLD = 0.95;
 
+    /** The location statistics. */
     private double[] locationStats;
 
     /** Boolean flag to determine the mapping algorithm. */
@@ -65,12 +73,10 @@ public class StatsFactory {
      * For the specified {@link Plane2D}, computes the bins, determines the
      * inputWindow and the noiseReduction flag.
      * 
-     * @param p2D
-     *            The selected plane2d.
-     * @param stats
-     *            The stats for the selected channel.
-     * @param sizeX2
-     * @param sizeX1
+     * @param p2D 	 The selected plane2d.
+     * @param stats  The statistics for the selected channel.
+     * @param sizeX2 The size along one axis.
+     * @param sizeX1 The size along the other axis.
      */
     private void computeBins(Plane2D p2D, StatsInfo stats, int sizeX2,
             int sizeX1) {
@@ -155,16 +161,20 @@ public class StatsFactory {
                 sumMax += locationStats[i];
             }
         }
-        boolean nr = true;
         if (sumMin >= NR_THRESHOLD || sumMax >= NR_THRESHOLD) {
-            nr = false;
+           return false;
         }
-        return nr;
+        return true;
     }
 
     /**
      * Determines the value of inputEnd when the pixels' values accumulated
-     * closed to the min.
+     * closed to the minimum.
+     * 
+     * @param totals The accumulated values.
+     * @param segments The segments to analyze.
+     * @param total The total value.
+     * @param epsilon The error value.
      */
     private double accumulateCloseToMin(int[] totals, BasicSegment[] segments,
             double total, double epsilon) {
@@ -182,6 +192,11 @@ public class StatsFactory {
     /**
      * Determines the value of inputStart when the pixels' values accumulated
      * closed to the max.
+     * 
+     * @param totals The accumulated values.
+     * @param segments The segments to analyze.
+     * @param total The total value.
+     * @param epsilon The error value.
      */
     private double accumulateCloseToMax(int[] totals, BasicSegment[] segments,
             double total, double epsilon) {
@@ -201,11 +216,10 @@ public class StatsFactory {
      * inputWindow i.e. <code>inputStart</code> and <code>inputEnd</code>
      * and to initialize the <code>noiseReduction</code> flag.
      * 
-     * @param metadata
-     * @param pixelsData
-     * @param pixelsStats
-     * @param pd
-     * @param index
+     * @param metadata The pixels to parse.
+     * @param pixelsData The buffer.
+     * @param pd The plane to handle.
+     * @param index The channel index.
      * @throws PixMetadataException
      */
     public void computeLocationStats(Pixels metadata, PixelBuffer pixelsData,
@@ -224,23 +238,47 @@ public class StatsFactory {
         double gMax = stats.getGlobalMax().doubleValue();
         Plane2D plane2D = PlaneFactory.createPlane(pd, index, metadata,
                 pixelsData);
-        if (gMax - gMin >= NB_BIN) {
-            computeBins(plane2D, stats, sizeY, sizeX);
+        if (gMax-gMin < RANGE_RGB || gMax - gMin < NB_BIN) {
+        	inputEnd = gMax;
+        	inputStart = gMin;
+        } else {
+        	computeBins(plane2D, stats, sizeY, sizeX);
         }
     }
 
+    /**
+     * Returns the statistics.
+     * 
+     * @return See above.
+     */
     public double[] getLocationStats() {
         return locationStats;
     }
 
+    /**
+     * Returns <code>true</code> if the flag is on, <code>false</code>
+     * otherwise.
+     * 
+     * @return See above.
+     */
     public boolean isNoiseReduction() {
         return noiseReduction;
     }
 
+    /**
+     * Returns the input start.
+     * 
+     * @return See above.
+     */
     public double getInputStart() {
         return inputStart;
     }
 
+    /**
+     * Returns the input end.
+     * 
+     * @return See above.
+     */
     public double getInputEnd() {
         return inputEnd;
     }
