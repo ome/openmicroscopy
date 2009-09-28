@@ -1,8 +1,4 @@
 try:
-{
-	import omero_FS_ice
-}
-except: (AttributeError e)
-{
-	System.out.println( "AttributeError" );
-}
+    import omero_FS_ice
+except AttributeError:
+    print "AttributeError importing omero_FS_ice"

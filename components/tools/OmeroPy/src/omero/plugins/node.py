@@ -11,7 +11,7 @@
 
 """
 
-from omero.cli import BaseControl
+from omero.cli import Arguments, BaseControl
 from omero_ext.strings import shlex
 import re, os, sys, signal
 from exceptions import Exception as Exc

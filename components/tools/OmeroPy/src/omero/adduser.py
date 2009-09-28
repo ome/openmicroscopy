@@ -62,7 +62,7 @@ def main():
 	e.lastName = rstring(ln)
 	e.middleName = rstring(mn)
 	e.email = rstring(options.email)
-	e.institute = rstring(options.institute)
+	e.institution = rstring(options.institute)
 	admin = c.getSession().getAdminService()
 	id = admin.createUser(e,options.group)
 	print "Added user "+str(id)
