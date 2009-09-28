@@ -56,6 +56,7 @@ import org.jdesktop.swingx.JXTaskPane;
 import omero.model.AcquisitionMode;
 import omero.model.ContrastMethod;
 import omero.model.Illumination;
+import omero.model.LogicalChannel;
 import omero.model.PlaneInfo;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -471,6 +472,7 @@ class ChannelAcquisitionComponent
 			}
 			ChannelAcquisitionData data = model.getChannelAcquisitionData(
 	    			channel.getIndex());
+			LogicalChannel lc = (LogicalChannel) data.asIObject();
 			//if no detector info: don't display.
 			details = EditorUtil.transformDetectorAndSettings(data);
 			notSet = (List) details.get(EditorUtil.NOT_SET);
@@ -502,13 +504,11 @@ class ChannelAcquisitionComponent
 			
 			//emission filter
 			populateFilter(data.getEmissionFilter(), emissionFilterPanes);
-			populateFilter(data.getSecondaryExcitationFilter(), 
+			populateFilter(data.getSecondaryEmissionFilter(), 
 					emissionFilterPanes);
 			populateFilter(data.getExcitationFilter(), excitationFilterPanes);
 			populateFilter(data.getSecondaryExcitationFilter(), 
 					excitationFilterPanes);
-			
-			//Dichroic
 			
 			//data.get
 			buildGUI();
@@ -544,8 +544,7 @@ class ChannelAcquisitionComponent
 		JScrollPane pane = new JScrollPane(table);
 		Dimension d = table.getPreferredSize();
 		Dimension de = exposureTask.getPreferredSize();
-		pane.setPreferredSize(
-			new Dimension(de.width-10, 4*d.height));
+		pane.setPreferredSize(new Dimension(de.width-10, 4*d.height));
 		exposureTask.add(pane);
 	}
 	
