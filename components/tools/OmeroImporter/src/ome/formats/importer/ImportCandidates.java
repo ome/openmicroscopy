@@ -189,7 +189,7 @@ public class ImportCandidates extends DirectoryWalker {
             count = -1;
         }
         groups = g;
-        
+
     }
 
     /**
@@ -220,7 +220,7 @@ public class ImportCandidates extends DirectoryWalker {
     public int size() {
         return containers.size();
     }
-    
+
     public boolean wasCancelled() {
         return cancelled;
     }
@@ -262,7 +262,7 @@ public class ImportCandidates extends DirectoryWalker {
      * to operate on all the given paths. This will be called twice: once
      * without reading the files, and once (with the known total) using
      * {@link #reader}
-     * 
+     *
      * @param paths
      */
     private void execute(String[] paths) {
@@ -303,6 +303,7 @@ public class ImportCandidates extends DirectoryWalker {
 
             return new ImportContainer(file, null, null, null, false, null,
                     format, usedFiles, reader.isSPWReader(path));
+
         } catch (Exception e) {
 
             if (usedFiles == null || usedFiles.length == 0) {
@@ -313,6 +314,7 @@ public class ImportCandidates extends DirectoryWalker {
 
             ImportEvent event = new SCANNING_FILE_EXCEPTION(path, e,
                     usedFiles, format);
+
             try {
                 observer.update(null, event);
             } catch (Exception ex) {
@@ -320,11 +322,11 @@ public class ImportCandidates extends DirectoryWalker {
                         String.format("Error on %s with %s", observer, event),
                         ex);
             }
-            
+
         }
 
-        return new ImportContainer(file, null, null, null, false, null,
-                format, usedFiles, reader.isSPWReader(path));  
+        return null;
+
     }
 
     @Override
@@ -341,7 +343,7 @@ public class ImportCandidates extends DirectoryWalker {
         if (count%100 == 0) {
             observer.update(null, new SCANNING(file, depth, count, total));
         }
-        
+
         // If this is just a count, return
         if (total < 0) {
             return;
