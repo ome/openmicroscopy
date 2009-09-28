@@ -9,11 +9,13 @@ cd %~dp0\..
 python build.py
 cd dist
 
+python bin\omero admin stop
+
 set OMERO_CONFIG=quickstart
 dropdb -U postgres %OMERO_CONFIG%
 createdb -U postgres %OMERO_CONFIG%
 createlang -U postgres plpgsql %OMERO_CONFIG%
-pythonl bin\omero db script OMERO4.1 0 ome
+python bin\omero db script OMERO4.1 0 ome
 psql -U postgres -f OMERO4.1__0.sql %OMERO_CONFIG%
 
 set PYTHONPATH=%PYTHONPATH%;lib\python
