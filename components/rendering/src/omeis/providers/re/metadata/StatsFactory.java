@@ -238,12 +238,14 @@ public class StatsFactory {
         double gMax = stats.getGlobalMax().doubleValue();
         Plane2D plane2D = PlaneFactory.createPlane(pd, index, metadata,
                 pixelsData);
-        if (gMax-gMin < RANGE_RGB || gMax - gMin < NB_BIN) {
+        
+        if (gMax-gMin <= RANGE_RGB) {
         	inputEnd = gMax;
         	inputStart = gMin;
         } else {
         	computeBins(plane2D, stats, sizeY, sizeX);
         }
+
     }
 
     /**

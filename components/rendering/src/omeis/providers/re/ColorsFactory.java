@@ -223,8 +223,10 @@ public class ColorsFactory {
     {
     	if (lc == null) return false;
     	if (lc.getEmissionWave() != null) return true;
-    	Filter f = lc.getFilterSet().getEmFilter();
-    	if (isFilterHasEmissionData(f)) return true;
+    	if (lc.getFilterSet() != null) {
+    		Filter f = lc.getFilterSet().getEmFilter();
+        	if (isFilterHasEmissionData(f)) return true;
+    	}
     	return isFilterHasEmissionData(lc.getSecondaryEmissionFilter());
     }
     
