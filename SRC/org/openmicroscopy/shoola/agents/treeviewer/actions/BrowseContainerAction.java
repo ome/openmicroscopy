@@ -120,7 +120,7 @@ public class BrowseContainerAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
-        if (selectedDisplay == null) {
+        if (selectedDisplay == null || model.getSelectedBrowser() == null) {
             setEnabled(false);
             putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER)); 
             putValue(Action.SHORT_DESCRIPTION, 
@@ -142,7 +142,8 @@ public class BrowseContainerAction
             putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER));
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_TIME));
-            if (browser.getSelectedDisplays().length > 1) {
+           TreeImageDisplay[] array = browser.getSelectedDisplays();
+            if (array != null && array.length > 1) {
             	setEnabled(false);
             } else {
             	TreeImageTimeSet timeNode = (TreeImageTimeSet) selectedDisplay;

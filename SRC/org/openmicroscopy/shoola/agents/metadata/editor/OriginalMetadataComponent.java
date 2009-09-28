@@ -66,6 +66,9 @@ import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
@@ -145,7 +148,6 @@ class OriginalMetadataComponent
 				icon.getIconHeight()));
 		label.setBackground(UIUtilities.BACKGROUND_COLOR);
 		label.setBusy(true);
-		label.setText("Loading metadata");
 		//label.setHorizontalTextPosition(JXBusyLabel.RIGHT);
 		JPanel p = new JPanel();
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -291,32 +293,48 @@ class OriginalMetadataComponent
 	 * @param file The file to read.
 	 */
 	void setOriginalFile(File file)
-		throws IOException
 	{
 		metadataLoaded = true;
-		BufferedReader input = new BufferedReader(new FileReader(file));
-		Map<String, List<String>> components = 
-			new LinkedHashMap<String, List<String>>();
 		try {
-			String line = null;
-			List<String> l;
-			String key = null;
-			while ((line = input.readLine()) != null) {
-				if (line.contains("=")) {
-					if (key != null) {
-						l = components.get(key);
-						if (l != null) l.add(line);
+			BufferedReader input = new BufferedReader(new FileReader(file));
+			Map<String, List<String>> components = 
+				new LinkedHashMap<String, List<String>>();
+			try {
+				String line = null;
+				List<String> l;
+				String key = null;
+				while ((line = input.readLine()) != null) {
+					if (line.contains("=")) {
+						if (key != null) {
+							l = components.get(key);
+							if (l != null) l.add(line);
+						}
+					} else {
+						if (line.trim().length() > 0) {
+							key = line.substring(1, line.length()-1);
+							components.put(key, new ArrayList<String>());
+						}
 					}
-				} else {
-					
-					key = line.substring(1, line.length()-1);
-					components.put(key, new ArrayList<String>());
 				}
+				buildGUI(components);
+			} finally {
+				input.close();
 			}
-			buildGUI(components);
-		} finally {
-			input.close();
+		} catch (IOException e) {
+			file.delete();
+			String s = "Error while reading metadata file.";
+			JLabel l = new JLabel("Loading metadata");
+			l.setBackground(UIUtilities.BACKGROUND_COLOR);
+			statusBar = UIUtilities.buildComponentPanel(l);
+			removeAll();
+			add(statusBar, BorderLayout.NORTH);
+			Logger logger = MetadataViewerAgent.getRegistry().getLogger();
+			LogMessage msg = new LogMessage();
+			msg.print("Error while reading metadata file.");
+			msg.print(e);
+			logger.error(this, msg);
 		}
+		
 	}
 
 	/**

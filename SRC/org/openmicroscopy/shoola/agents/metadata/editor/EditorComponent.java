@@ -605,20 +605,7 @@ class EditorComponent
 				file.delete();
 			}
 		} else if (uiView instanceof OriginalMetadataComponent) {
-			try {
-				((OriginalMetadataComponent) uiView).setOriginalFile(file);
-				file.delete();
-			} catch (Exception e) {
-				UserNotifier un = 
-					MetadataViewerAgent.getRegistry().getUserNotifier();
-				un.notifyInfo("Original Metadata", "An error occurred while " +
-						"reading the original metadata.");
-				Logger logger = MetadataViewerAgent.getRegistry().getLogger();
-				LogMessage msg = new LogMessage();
-				msg.print("Error while reading metadata file.");
-				msg.print(e);
-				logger.error(this, msg);
-			}
+			((OriginalMetadataComponent) uiView).setOriginalFile(file);
 		}
 	}
 
