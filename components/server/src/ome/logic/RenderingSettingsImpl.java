@@ -336,6 +336,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	StringBuilder sb = new StringBuilder();
     	sb.append("select channel from LogicalChannel as channel ");
         sb.append("left outer join fetch channel.filterSet as filter ");
+        sb.append("left outer join fetch filter.emFilter as ef ");
+        sb.append("left outer join fetch ef.transmittanceRange as efTrans ");
         sb.append("left outer join fetch channel.secondaryEmissionFilter as " +
         		"emfilter ");
         sb.append("left outer join fetch emfilter.transmittanceRange as " +
@@ -521,16 +523,22 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	Set<Long> imageIds = new HashSet<Long>();
     	List<RenderingDef> toSave = new ArrayList<RenderingDef>(pixels.size());
     	Map<Long, RenderingDef> settingsMap = loadRenderingSettings(pixels);
+    	RenderingDef settings;
     	for (Pixels p : pixels)
     	{
-    		RenderingDef settings = settingsMap.get(p.getId());
+    		settings = settingsMap.get(p.getId());
     		if (settings == null)
     		{
     			settings = createNewRenderingDef(p);
     		}
-            toSave.add(resetDefaults(settings, p, false, computeStats, families,
-            		                 renderingModels));
-			imageIds.add(p.getImage().getId());
+    		try {
+    			 toSave.add(resetDefaults(settings, p, false, computeStats,
+    					 		families, renderingModels));
+    			 imageIds.add(p.getImage().getId());
+			} catch (Exception e) {
+				//Exception has already been written to log file.
+			}
+           
     	}
         StopWatch s2 = new CommonsLogStopWatch(
 			"omero.resetDefaultsInSet.saveAndReturn");
@@ -633,12 +641,12 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
                 // of the channels linked to the pixels set.
             	channelBinding = channelBindings.get(w);
             	stats = pixels.getChannel(w).getStatsInfo();
-            	 if (stats == null)
-                 	throw new ResourceError("Pixels set is missing statistics" +
-                 			" for channel '"+ w +"'. This suggests an image " +
-                 		    "import error or failed image import.");
-            	 channelBinding.setInputStart(stats.getGlobalMin().doubleValue());
-            	 channelBinding.setInputEnd(stats.getGlobalMax().doubleValue());
+            	if (stats == null)
+            		throw new ResourceError("Pixels set is missing statistics" +
+            				" for channel '"+ w +"'. This suggests an image " +
+            		"import error or failed image import.");
+            	channelBinding.setInputStart(stats.getGlobalMin().doubleValue());
+            	channelBinding.setInputEnd(stats.getGlobalMax().doubleValue());
             }
         }
     }
