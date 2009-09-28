@@ -8,6 +8,9 @@
 package ome.formats.importer.util;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -133,7 +136,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
             postList.add(new StringPart("os_version", errorContainer
                     .getOSVersion()));
             postList.add(new StringPart("extra", errorContainer.getExtra()));
-            postList.add(new StringPart("error", ome.formats.importer.gui.ErrorHandler.getStackTrace(errorContainer.getError())));
+            postList.add(new StringPart("error", getStackTrace(errorContainer.getError())));
             postList
                     .add(new StringPart("comment", errorContainer.getComment()));
             postList.add(new StringPart("email", errorContainer.getEmail()));
@@ -287,5 +290,14 @@ public abstract class ErrorHandler implements IObserver, IObservable {
 
     protected void finishComplete() {
     }
+    
+    
+    public static String getStackTrace(Throwable throwable) {
+        final Writer writer = new StringWriter();
+        final PrintWriter printWriter = new PrintWriter(writer);
+        throwable.printStackTrace(printWriter);
+        return writer.toString();
+      }
+
 
 }

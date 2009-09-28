@@ -281,12 +281,4 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
     public void notifyObservers(ImportEvent event) {
         this.delegate.notifyObservers(event);
     }
-    
-    public static String getStackTrace(Throwable throwable) {
-        final Writer writer = new StringWriter();
-        final PrintWriter printWriter = new PrintWriter(writer);
-        throwable.printStackTrace(printWriter);
-        return writer.toString();
-      }
-
 }

@@ -291,7 +291,7 @@ public class ImportHandler implements IObservable {
 
                 } catch (Exception error) {
                     log.error("Generic error while importing image.", error);
-                    viewer.appendToDebug(ome.formats.importer.gui.ErrorHandler.getStackTrace(error));
+                    viewer.appendToDebug(ome.formats.importer.util.ErrorHandler.getStackTrace(error));
                     qTable.setProgressFailed(j);
                     viewer.appendToOutputLn("> [" + j + "] Failure importing.");
 

@@ -45,11 +45,6 @@ public class ErrorHandler extends ome.formats.importer.util.ErrorHandler {
             FILE_EXCEPTION ev = (FILE_EXCEPTION) event;
             log.error(ev.toLog());
         }
-
-        else if (event instanceof INTERNAL_EXCEPTION) {
-            FILE_EXCEPTION ev = (FILE_EXCEPTION) event;
-            log.error(ev.toLog());
-        }
         
         else if (event instanceof ImportEvent.DEBUG_SEND) {
 

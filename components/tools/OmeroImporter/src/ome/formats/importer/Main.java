@@ -5,7 +5,7 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-package ome.formats;
+package ome.formats.importer;
 
 import ome.formats.importer.cli.CommandLineImporter;
 import ome.formats.importer.gui.GuiImporter;
