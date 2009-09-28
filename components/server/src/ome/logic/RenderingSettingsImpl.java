@@ -342,7 +342,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         		"emfilter ");
         sb.append("left outer join fetch emfilter.transmittanceRange as " +
         		"trans ");
-        //sb.append("left outer join fetch exfilter.type as ext ");
         sb.append("where channel.id = :id");
         return (LogicalChannel) iQuery.findByQuery(sb.toString(), p);
     }
@@ -538,7 +537,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 			} catch (Exception e) {
 				//Exception has already been written to log file.
 			}
-           
     	}
         StopWatch s2 = new CommonsLogStopWatch(
 			"omero.resetDefaultsInSet.saveAndReturn");
