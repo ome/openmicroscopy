@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -280,4 +281,12 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
     public void notifyObservers(ImportEvent event) {
         this.delegate.notifyObservers(event);
     }
+    
+    public static String getStackTrace(Throwable throwable) {
+        final Writer writer = new StringWriter();
+        final PrintWriter printWriter = new PrintWriter(writer);
+        throwable.printStackTrace(printWriter);
+        return writer.toString();
+      }
+
 }

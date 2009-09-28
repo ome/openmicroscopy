@@ -18,11 +18,14 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import javax.swing.JOptionPane;
 
 import loci.formats.FormatException;
+import ome.formats.importer.IObservable;
+import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
@@ -42,7 +45,7 @@ import org.apache.commons.logging.LogFactory;
  * @author Brian Loranger brain at lifesci.dundee.ac.uk
  * @basedOnCodeFrom Curtis Rueden ctrueden at wisc.edu
  */
-public class ImportHandler {
+public class ImportHandler implements IObservable {
 
     private static Log log = LogFactory.getLog(ImportHandler.class);
 
@@ -59,7 +62,9 @@ public class ImportHandler {
     private Thread runThread;
     private int numOfPendings = 0;
     private int numOfDone = 0;
-
+    
+    final ArrayList<IObserver> observers = new ArrayList<IObserver>();
+    
     private String[] files = null;
 
     public ImportHandler(GuiImporter viewer, FileQueueTable qTable,
@@ -286,7 +291,7 @@ public class ImportHandler {
 
                 } catch (Exception error) {
                     log.error("Generic error while importing image.", error);
-                    viewer.appendToDebug(error.toString());
+                    viewer.appendToDebug(ome.formats.importer.gui.ErrorHandler.getStackTrace(error));
                     qTable.setProgressFailed(j);
                     viewer.appendToOutputLn("> [" + j + "] Failure importing.");
 
@@ -334,13 +339,6 @@ public class ImportHandler {
                 log.error("SQL exception when updating import status.", e);
             }
 
-        if (false){ // FIXME errorsCollected) {
-            JOptionPane.showMessageDialog(viewer,
-                    "\nYour import has produced one or more errors, "
-                            + "\nvisit the 'Import Errors' tab for details.",
-                    "Errors in import!", JOptionPane.WARNING_MESSAGE);
-        }
-
         timestampOut = System.currentTimeMillis();
         timestampDiff = timestampOut - timestampIn;
 
@@ -356,6 +354,26 @@ public class ImportHandler {
                 + minutes + " minute(s), " + seconds + " second(s).");
 
         viewer.appendToOutputLn("> Image import completed!");
+        notifyObservers(new ImportEvent.IMPORT_QUEUE_DONE());
     }
 
+    public boolean addObserver(IObserver object)
+    {
+        return observers.add(object);
+    }
+    
+    public boolean deleteObserver(IObserver object)
+    {
+        return observers.remove(object);
+        
+    }
+
+    public void notifyObservers(ImportEvent event)
+    {
+        for (IObserver observer:observers)
+        {
+            observer.update(this, event);
+        }
+    }
+    
 }

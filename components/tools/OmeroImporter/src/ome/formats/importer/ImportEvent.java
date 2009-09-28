@@ -111,6 +111,10 @@ public class ImportEvent {
     public static class LOGGED_IN extends ImportEvent {
 
     }
+    
+    public static class IMPORT_QUEUE_DONE extends ImportEvent {
+        
+    }
 
     // file-upload events
 
@@ -266,7 +270,7 @@ public class ImportEvent {
             this.pixels = pixels;
         }
     }
-
+    
     //
     // Events which should be housed elsewhere
     //

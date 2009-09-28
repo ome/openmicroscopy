@@ -15,6 +15,7 @@ package ome.formats.importer.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Image;
@@ -144,6 +145,8 @@ public class GuiImporter extends JFrame
     private JPanel              errorPanel;
     
     private JTabbedPane         tPane;
+
+    private boolean errors_pending = false;
 
 
     
@@ -706,14 +709,30 @@ public class GuiImporter extends JFrame
         if (event instanceof ImportEvent.ERRORS_PENDING)
         {
             tPane.setIconAt(4, gui.getImageIcon(ERROR_ICON_ANIM));
+            errors_pending  = true;
         }
         
         if (event instanceof ImportEvent.ERRORS_COMPLETE)
         {
             tPane.setIconAt(4, gui.getImageIcon(ERROR_ICON));
         }
+        
+        if (event instanceof ImportEvent.IMPORT_QUEUE_DONE && errors_pending == true)
+        {
+            errors_pending = false;
+            importErrorsCollected(this); 
+        }
+        
     }
 
+    private void importErrorsCollected(Component frame)
+    {
+            JOptionPane.showMessageDialog(frame,
+                    "\nYour import has produced one or more errors, "
+                            + "\nvisit the 'Import Errors' tab for details.",
+                    "Errors in import!", JOptionPane.WARNING_MESSAGE);
+    }
+    
     public void propertyChange(PropertyChangeEvent evt)
     {
         String name = evt.getPropertyName();

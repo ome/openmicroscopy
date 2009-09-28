@@ -45,6 +45,10 @@ public abstract class ErrorHandler implements IObserver, IObservable {
             this.usedFiles = usedFiles;
             this.reader = reader;
         }
+        @Override
+        public String toLog() {
+            return super.toLog() + ": "+filename;
+        }
     }
 
     public static class FILE_EXCEPTION extends EXCEPTION_EVENT {
@@ -129,14 +133,13 @@ public abstract class ErrorHandler implements IObserver, IObservable {
             postList.add(new StringPart("os_version", errorContainer
                     .getOSVersion()));
             postList.add(new StringPart("extra", errorContainer.getExtra()));
-            postList.add(new StringPart("error", errorContainer.getError()
-                    .toString()));
+            postList.add(new StringPart("error", ome.formats.importer.gui.ErrorHandler.getStackTrace(errorContainer.getError())));
             postList
                     .add(new StringPart("comment", errorContainer.getComment()));
             postList.add(new StringPart("email", errorContainer.getEmail()));
             postList.add(new StringPart("app_name", "2"));
             postList.add(new StringPart("import_session", "test"));
-            postList.add(new StringPart("absolute_path", "blarg"));
+            postList.add(new StringPart("absolute_path", errorContainer.getAbsolutePath()));
 
             String sendUrl = config.getTokenUrl();
 
