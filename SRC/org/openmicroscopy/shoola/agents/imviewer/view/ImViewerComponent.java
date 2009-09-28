@@ -2831,14 +2831,13 @@ class ImViewerComponent
 					"creating the image.");
 			return;
 		}
-			
-		
 
 		TextureData originalImage = model.getImageAsTexture();
 		//BufferedImage originalImage = model.getOriginalImage();
 		model.setImageAsTexture(image);
 		if (newPlane) postMeasurePlane();
-		if (originalImage == null) view.setRestoreSize(0, 0);
+		
+		
 		newPlane = false;
 		view.setLeftStatus();
 		view.setPlaneInfoStatus();

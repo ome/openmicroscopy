@@ -231,7 +231,6 @@ class GLImageCanvas
 		// Clear The Screen And The Depth Buffer
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);	
 		if (data == null) return;
-		long start = System.currentTimeMillis();
 		if (texture == null) {
 			texture = TextureIO.newTexture(data);
 		} else {
@@ -263,7 +262,6 @@ class GLImageCanvas
 			texture.disable();
 			gl.glFlush();
 		}
-		//System.err.println(System.currentTimeMillis()-start);
 	}
 	
 	/**
@@ -284,6 +282,7 @@ class GLImageCanvas
         glut = new GLUT();
         addGLEventListener(this);
         paintedString = null;
+ 
 	}
 	
 	/**
@@ -294,7 +293,6 @@ class GLImageCanvas
 	 */
 	void activeSave(File file, String format)
 	{
-		System.err.println("File: "+file);
 		savedFile = file;
 		this.format = format;
 	}
@@ -321,6 +319,12 @@ class GLImageCanvas
 		GL2 gl = drawable.getGL().getGL2();
 		gl.glClearColor(0, 0, 0, 0);
 		gl.glEnable(GL2.GL_DEPTH_TEST);
+		gl.glMatrixMode(GL2.GL_PROJECTION);
+		gl.glLoadIdentity();
+		gl.glScaled(1, -1, 1);
+		glu.gluOrtho2D(0, 1, 0, 1);
+		gl.glMatrixMode(GL2.GL_MODELVIEW);
+		gl.glLoadIdentity();
 	}
 	
 	/**
@@ -330,13 +334,15 @@ class GLImageCanvas
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width,
 			int height) 
 	{
-		GL2 gl = drawable.getGL().getGL2();
-		gl.glMatrixMode(GL2.GL_PROJECTION);
-		gl.glLoadIdentity();
-		gl.glScaled(1, -1, 1);
-		glu.gluOrtho2D(0, 1, 0, 1);
-		gl.glMatrixMode(GL2.GL_MODELVIEW);
-		gl.glLoadIdentity();
+		/*
+		 GL2 gl = drawable.getGL().getGL2();
+			gl.glMatrixMode(GL2.GL_PROJECTION);
+			gl.glLoadIdentity();
+			gl.glScaled(1, -1, 1);
+			glu.gluOrtho2D(0, 1, 0, 1);
+			gl.glMatrixMode(GL2.GL_MODELVIEW);
+			gl.glLoadIdentity();
+		 */
 	}
 
 	/**

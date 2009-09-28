@@ -33,6 +33,7 @@ import java.io.File;
 
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 //Third-party libraries
@@ -68,11 +69,12 @@ class GridUI
 	
 	/** The UI component hosting the {@link GridCanvas}. */
     private JLayeredPane	layeredPane;
-    
+
 	/** Initializes the components composing the display. */
     private void initComponents()
     {
         layeredPane = new JLayeredPane();
+       
         canvas = new GridCanvas(model, view);
         //The image canvas is always at the bottom of the pile.
         //layeredPane.setLayout(new BorderLayout(0, 0));
@@ -126,7 +128,6 @@ class GridUI
         layeredPane.setSize(d);
         canvas.setPreferredSize(d);
         canvas.setSize(d);
-        layeredPane.setBackground(Color.RED);
 	}
 	
 	/**

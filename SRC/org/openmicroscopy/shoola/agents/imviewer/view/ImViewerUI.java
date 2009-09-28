@@ -796,7 +796,8 @@ class ImViewerUI
 		}
 		
 		double[][] tl2 = {{TableLayout.PREFERRED, TableLayout.FILL}, 
-				{TableLayout.PREFERRED, TableLayout.FILL, TableLayout.PREFERRED}};
+				{TableLayout.PREFERRED, TableLayout.FILL, 
+			TableLayout.PREFERRED}};
 		
 		projectionViewPanel = new ClosableTabbedPaneComponent(
 				ImViewer.PROJECTION_INDEX, browser.getProjectionViewTitle(),  
@@ -817,7 +818,11 @@ class ImViewerUI
 		}
 		
 		tabs.addChangeListener(controller);	
-		mainComponent = tabs;
+		
+		//mainComponent = tabs;
+		rendererSplit.setLeftComponent(tabs);
+		mainComponent = rendererSplit;
+
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout(0, 0));
 		container.add(toolBar, BorderLayout.NORTH);
@@ -858,7 +863,7 @@ class ImViewerUI
 		Insets frameInsets = getInsets();
 		Insets stInsets = statusBar.getInsets();
 		sz.width = w+frameInsets.left+frameInsets.right+stInsets.left
-					+stInsets.right;
+					+stInsets.right+rendererSplit.getDividerSize();
 		sz.height = h+tbDim.height+statusDim.height+frameInsets.top
 					+frameInsets.bottom+tabbedIconHeight+stInsets.top
 					+stInsets.bottom;
@@ -902,16 +907,16 @@ class ImViewerUI
 		//int divider = 0;
 		int vExtra = 2;
 		int addition;
-		displayMode = RENDERER;
 		switch (displayMode) {
 			case RENDERER:
 				rightComponent = model.getMetadataViewer().getEditorUI();
-				container.remove(mainComponent);
-				addComponents(rendererSplit, tabs, rightComponent);
-				mainComponent = rendererSplit;
-				container.add(mainComponent, BorderLayout.CENTER);
-				container.validate();
-				container.repaint();
+				//container.remove(mainComponent);
+				//addComponents(rendererSplit, tabs, rightComponent);
+				rendererSplit.setRightComponent(rightComponent);
+				//mainComponent = rendererSplit;
+				//container.add(mainComponent, BorderLayout.CENTER);
+				//container.validate();
+				//container.repaint();
 				d = model.getMetadataViewer().getIdealRendererSize();
 				rightComponent.setMinimumSize(d);
 				tabs.setMinimumSize(restoreSize);
@@ -971,11 +976,13 @@ class ImViewerUI
 				height += addition;
 				break;
 			case NEUTRAL:
-				container.remove(mainComponent);
-				mainComponent = tabs;
-				container.add(mainComponent, BorderLayout.CENTER);
-				container.validate();
-				container.repaint();
+				//container.remove(mainComponent);
+				//mainComponent = tabs;
+				rightComponent = model.getMetadataViewer().getEditorUI();
+				rendererSplit.remove(rightComponent);
+				//container.add(mainComponent, BorderLayout.CENTER);
+				//container.validate();
+				//container.repaint();
 				width = restoreSize.width;
 				height = restoreSize.height;
 				break;
@@ -1942,19 +1949,6 @@ class ImViewerUI
 	 * @return See above.
 	 */
 	boolean isImageCompressed() { return model.isImageCompressed(); }
-	
-	/**
-	 * Sets the restore dimension.
-	 * 
-	 * @param width  The width to set.
-	 * @param height The height to set.
-	 */
-	void setRestoreSize(int width, int height)
-	{
-		//restoreSize = new Dimension(width, height);
-		restoreSize = tabs.getSize();
-		layoutComponents(false);
-	}
 	
 	/**
 	 * Returns the color of the image's background.

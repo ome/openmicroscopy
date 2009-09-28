@@ -150,7 +150,7 @@ class ToolBar
         rndButton = new JToggleButton();
         rndButton.setSelected(view.isRendererShown());
         rndButton.setAction(controller.getAction(ImViewerControl.RENDERER));
-        //bar.add(rndButton);
+        bar.add(rndButton);
         
         metadataButton = new JToggleButton();
         metadataButton.setSelected(view.isRendererShown());
