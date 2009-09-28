@@ -75,4 +75,4 @@ Report bugs to <ome-users@openmicroscopy.org.uk>""")
 try:
     register("export", ExportControl)
 except NameError:
-    ImportControl()._main()
+    ExportControl()._main()

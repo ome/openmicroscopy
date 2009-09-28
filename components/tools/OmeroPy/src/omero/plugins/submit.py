@@ -75,4 +75,4 @@ Syntax: %(program_name)s submit single command with args
 try:
     register("submit", SubmitControl)
 except NameError:
-    SubmitControl._main()
+    SubmitControl()._main()

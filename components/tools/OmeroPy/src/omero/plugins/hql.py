@@ -48,4 +48,4 @@ Syntax: %(program_name)s hql param1=value1 param2=value2 select x from X ...
 try:
     register("hql", HqlControl)
 except NameError:
-    HqlControl._main()
+    HqlControl()._main()

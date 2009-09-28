@@ -148,4 +148,4 @@ Syntax: %(program_name)s upload pytable <filename> [1..n]
 try:
     register("upload", UploadControl)
 except NameError:
-    UploadControl._main()
+    UploadControl()._main()
