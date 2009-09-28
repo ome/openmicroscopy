@@ -322,7 +322,7 @@ java component.
         </emma>
     </target>
 
-    <target name="release-slice2html">
+    <target name="release-slice2html" description="The Ice API Documentation">
       <mkdir dir="${dist.dir}/docs/api/slice2html"/>
       <apply executable="slice2html" parallel="true" failonerror="true">
            <arg value="--hdr"/>
@@ -344,12 +344,11 @@ java component.
        </apply>
     </target>
 
-    <target name="release-epydoc">
+    <target name="release-epydoc"  description="The OmeroPy API Documentation">
        <mkdir dir="${dist.dir}/docs/api/epydoc"/>
        <exec executable="epydoc" failonerror="true">
-	       <!-- turning off introspect temporarily -->
-           <arg value="--parse-only"/>
            <arg value="--html"/>
+           <arg value="--exclude-introspect=monitors"/><!-- causes a crash if included, review with next release -->
            <arg value="-n"/>
            <arg value="OmeroPy API Documentation"/>
            <arg value="--css"/>
