@@ -1654,6 +1654,7 @@ public class EditorUtil
         	notSet.add(ZOOM);
         } else v = f;
         details.put(ZOOM, v);
+        f = data.getAmplificationGain();
         if (f == null) {
         	v = 0;
         	notSet.add(AMPLIFICATION);
