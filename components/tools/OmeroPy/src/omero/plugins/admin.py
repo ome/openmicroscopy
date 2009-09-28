@@ -99,29 +99,29 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
             finally:
                 win32service.CloseServiceHandle(hscm)
 
-        def events(ctx, svc_name):
+        def events(self, svc_name):
             def DumpRecord(record):
                 if str(record.SourceName) == svc_name:
-                    ctx.out("Time: %s" % record.TimeWritten)
-                    ctx.out("Rec:  %s" % record.RecordNumber)
+                    self.ctx.out("Time: %s" % record.TimeWritten)
+                    self.ctx.out("Rec:  %s" % record.RecordNumber)
                     for si in record.StringInserts:
-                        ctx.out(si)
-                    ctx.out("="*20)
+                        self.ctx.out(si)
+                    self.ctx.out("="*20)
             win32evtlogutil.FeedEventLogRecords(DumpRecord)
 
     else:
 
-        def events(ctx, svc_name):
-            ctx.die(666, "Could not import win32service and/or win32evtlogutil")
+        def events(self, svc_name):
+            self.ctx.die(666, "Could not import win32service and/or win32evtlogutil")
 
-        def _query_service(ctx, svc_name):
+        def _query_service(self, svc_name):
             """
             Query the service
             Required to check the stdout since
             rcode is not non-0
             """
             command = ["sc", "query", svc_name]
-            popen = ctx.popen(command) # popen
+            popen = self.ctx.popen(command) # popen
             output = popen.communicate()[0]
             if 0 <= output.find("1060"):
                 return "DOESNOTEXIST"
