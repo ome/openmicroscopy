@@ -52,10 +52,6 @@ from omero.rtypes import rstring, rint, rlong, rbool, rtime
 import omero_Constants_ice  
 import omero_ROMIO_ice
 
-# TODO: what is this for?
-SLEEPTIME = 30
-
-
 def timeit (func):
     """
     Measures the execution time of a function using time.time() 
@@ -437,7 +433,7 @@ class _BlitzGateway (object):
                     else: #pragma: no cover
                         logger.debug("BlitzGateway.connect().createSession(): " + traceback.format_exc())
                         logger.info('first create session threw SecurityViolation, hold off 10 secs and retry (but only once)')
-                        time.sleep(10)
+                        #time.sleep(10)
                         try:
                             logger.info("(2) calling createSession()")
                             self._createSession()
@@ -456,7 +452,7 @@ class _BlitzGateway (object):
                     logger.info("BlitzGateway.connect().createSession(): " + traceback.format_exc())
                     logger.info(str(self._ic_props))
                     logger.info('first create session had errors, hold off 10 secs and retry (but only once)')
-                    time.sleep(10)
+                    #time.sleep(10)
                     logger.info("(3) calling createSession()")
                     self._createSession()
 
@@ -988,7 +984,7 @@ def safeCallWrap (self, attr, f): #pragma: no cover
                     raise
             logger.debug("exception caught, first time we back off for 10 secs")
             logger.debug(traceback.format_exc())
-            time.sleep(10)
+            #time.sleep(10)
             return inner(*args, **kwargs)
     return wrapped
 
@@ -2062,7 +2058,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             tb.close()
             tb.setPixelsId(pixels_id)
         return tb
-
+    
     def getThumbnail (self, size=(64,64)):
         try:
             tb = self._prepareTB()
@@ -2077,8 +2073,8 @@ class _ImageWrapper (BlitzObjectWrapper):
             size = map(lambda x: rint(x), size)
             rv = thumb(*size)
             return rv
-        except Ice.Exception: #pragma: no cover
-            traceback.print_exc()
+        except Exception: #pragma: no cover
+            logger.error(traceback.print_exc())
             return None
 
     @assert_re
