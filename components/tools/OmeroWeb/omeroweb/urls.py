@@ -48,9 +48,9 @@ urlpatterns = patterns('',
     # admin panel support
     (r'^admin/(.*)', admin.site.root),
     # Require link to admin media
-    url( r'^admin_static/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(os.path.realpath(admin.__file__)), 'media').replace('\\','/') }, name="admin_static" ),
-    
+    url( r'^admin_static/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(os.path.realpath(admin.__file__)), 'media').replace('\\','/') }, name="admin_static" ),    
     (r'^webgateway/appmedia/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'webgateway/media')}),
+    
     (r'(?i)^webadmin/', include('omeroweb.webadmin.urls')),
     (r'(?i)^webclient/', include('omeroweb.webclient.urls')),
     (r'(?i)^feedback/', include('omeroweb.feedback.urls')),

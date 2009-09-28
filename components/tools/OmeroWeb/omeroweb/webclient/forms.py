@@ -22,6 +22,7 @@
 # Version: 1.0
 #
 
+import re
 
 from django import forms
 from django.db import models
@@ -31,8 +32,6 @@ from django.forms.widgets import HiddenInput
 from django.core.urlresolvers import reverse
 
 from omeroweb.webadmin.models import Gateway
-
-import re
 
 ##################################################################
 # Static values
@@ -432,9 +431,276 @@ class MetadataObjectiveForm(forms.Form):
             self.fields['iris'].widget.attrs['disabled'] = True 
             self.fields['iris'].widget.attrs['class'] = 'disabled'
         
-        self.fields.keyOrder = ['correction', 'correctionCollar', 'calibratedMagnification', 'immersion', 'iris', 'lensNA', 'manufacturer', 'medium', 'model', 'nominalMagnification', 'refractiveIndex', 'serialNumber', 'workingDistance'] 
+        self.fields.keyOrder = ['model', 'manufacturer', 'serialNumber', 'nominalMagnification', 'calibratedMagnification', 'lensNA', 'immersion', 'correction', 'workingDistance', 'iris', 'correctionCollar',  'medium', 'refractiveIndex'] 
     
+
+class MetadataFilterForm(forms.Form):
     
+    def __init__(self, *args, **kwargs):
+        super(MetadataFilterForm, self).__init__(*args, **kwargs)
+        
+        # Filter 
+        
+        # Manufacturer
+        try:
+            if kwargs['initial']['filter'] is not None:
+                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].manufacturer)+', \'manufacturer\', this.value);'}), initial=kwargs['initial']['filter'].manufacturer, required=False)
+            else:
+                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].manufacturer)+', \'manufacturer\', this.value);'}), required=False)
+            self.fields['manufacturer'].widget.attrs['disabled'] = True 
+            self.fields['manufacturer'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['manufacturer'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
+            self.fields['manufacturer'].widget.attrs['disabled'] = True 
+            self.fields['manufacturer'].widget.attrs['class'] = 'disabled'
+        
+        # Model
+        try:
+            if kwargs['initial']['filter'] is not None:
+                self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].model)+', \'model\', this.value);'}), initial=kwargs['initial']['filter'].model, required=False)
+            else:
+                self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].model)+', \'model\', this.value);'}), required=False)
+            self.fields['model'].widget.attrs['disabled'] = True 
+            self.fields['model'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['model'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
+            self.fields['model'].widget.attrs['disabled'] = True 
+            self.fields['model'].widget.attrs['class'] = 'disabled'
+        
+        # Lot number
+        try:
+            if kwargs['initial']['filter'] is not None:
+                self.fields['lotNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].lotNumber)+', \'lotNumber\', this.value);'}), initial=kwargs['initial']['filter'].lotNumber, label="Lot number", required=False)
+            else:
+                self.fields['lotNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].lotNumber)+', \'lotNumber\', this.value);'}), label="Lot number", required=False)
+            self.fields['lotNumber'].widget.attrs['disabled'] = True 
+            self.fields['lotNumber'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['lotNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Lot number", required=False)
+            self.fields['lotNumber'].widget.attrs['disabled'] = True 
+            self.fields['lotNumber'].widget.attrs['class'] = 'disabled'
+        
+        # Filter wheel
+        try:
+            if kwargs['initial']['filter'] is not None:
+                self.fields['filterWheel'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].filterWheel)+', \'filterWheel\', this.value);'}), initial=kwargs['initial']['filter'].filterWheel, label="Filter wheel", required=False)
+            else:
+                self.fields['filterWheel'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].filterWheel)+', \'filterWheel\', this.value);'}), label="Filter wheel", required=False)
+            self.fields['filterWheel'].widget.attrs['disabled'] = True 
+            self.fields['filterWheel'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['filterWheel'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Filter wheel", required=False)
+            self.fields['filterWheel'].widget.attrs['disabled'] = True 
+            self.fields['filterWheel'].widget.attrs['class'] = 'disabled'
+        
+        # Type
+        try:
+            if kwargs['initial']['filter'].type is not None:
+                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['types'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['type'].id)+', \'type\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['filter'].getType().value, required=False) 
+            else:
+                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['types'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['filter'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), required=False) 
+            self.fields['type'].widget.attrs['disabled'] = True 
+            self.fields['type'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['type'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
+            self.fields['type'].widget.attrs['disabled'] = True 
+            self.fields['type'].widget.attrs['class'] = 'disabled'
+        
+        # Transmittance range
+        try:
+            if kwargs['initial']['filter'].getTransmittanceRange().cutIn is not None:
+                self.fields['cutIn'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].getTransmittanceRange().cutIn)+', \'cutIn\', this.value);'}), initial=kwargs['initial']['filter'].getTransmittanceRange().cutIn, label="Cut in", required=False)
+            else:
+                self.fields['cutIn'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].getTransmittanceRange().cutIn)+', \'cutIn\', this.value);'}), label="Cut in", required=False)
+            self.fields['cutIn'].widget.attrs['disabled'] = True 
+            self.fields['cutIn'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['cutIn'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Cut in", required=False)
+            self.fields['cutIn'].widget.attrs['disabled'] = True 
+            self.fields['cutIn'].widget.attrs['class'] = 'disabled'
+        
+        # Cut in
+        try:
+            if kwargs['initial']['filter'].getTransmittanceRange().cutIn is not None:
+                self.fields['cutIn'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].getTransmittanceRange().cutIn)+', \'cutIn\', this.value);'}), initial=kwargs['initial']['filter'].getTransmittanceRange().cutIn, label="Cut in", required=False)
+            else:
+                self.fields['cutIn'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].getTransmittanceRange().cutIn)+', \'cutIn\', this.value);'}), label="Cut in", required=False)
+            self.fields['cutIn'].widget.attrs['disabled'] = True 
+            self.fields['cutIn'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['cutIn'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Cut in", required=False)
+            self.fields['cutIn'].widget.attrs['disabled'] = True 
+            self.fields['cutIn'].widget.attrs['class'] = 'disabled'
+        
+        # Cut out
+        try:
+            if kwargs['initial']['filter'].getTransmittanceRange().cutIn is not None:
+                self.fields['cutOut'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].getTransmittanceRange().cutOut)+', \'cutOut\', this.value);'}), initial=kwargs['initial']['filter'].getTransmittanceRange().cutOut, label="Cut out", required=False)
+            else:
+                self.fields['cutOut'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].getTransmittanceRange().cutOut)+', \'cutOut\', this.value);'}), label="Cut out", required=False)
+            self.fields['cutOut'].widget.attrs['disabled'] = True 
+            self.fields['cutOut'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['cutOut'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Cut out", required=False)
+            self.fields['cutOut'].widget.attrs['disabled'] = True 
+            self.fields['cutOut'].widget.attrs['class'] = 'disabled'
+        
+        # Cut in tolerance
+        try:
+            if kwargs['initial']['filter'].getTransmittanceRange().cutInTolerance is not None:
+                self.fields['cutInTolerance'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].getTransmittanceRange().cutInTolerance)+', \'cutInTolerance\', this.value);'}), initial=kwargs['initial']['filter'].getTransmittanceRange().cutInTolerance, label="Cut in tolerance", required=False)
+            else:
+                self.fields['cutInTolerance'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].getTransmittanceRange().cutInTolerance)+', \'cutInTolerance\', this.value);'}), label="Cut in tolerance", required=False)
+            self.fields['cutInTolerance'].widget.attrs['disabled'] = True 
+            self.fields['cutInTolerance'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['cutInTolerance'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Cut in tolerance", required=False)
+            self.fields['cutInTolerance'].widget.attrs['disabled'] = True 
+            self.fields['cutInTolerance'].widget.attrs['class'] = 'disabled'
+        
+        # Cut on tolerance
+        try:
+            if kwargs['initial']['filter'].getTransmittanceRange().cutOutTolerance is not None:
+                self.fields['cutOutTolerance'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].getTransmittanceRange().cutOutTolerance)+', \'cutOut\', this.value);'}), initial=kwargs['initial']['filter'].getTransmittanceRange().cutOutTolerance, label="Cut out tolerance", required=False)
+            else:
+                self.fields['cutOutTolerance'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].getTransmittanceRange().cutOutTolerance)+', \'cutOut\', this.value);'}), label="Cut out tolerance", required=False)
+            self.fields['cutOutTolerance'].widget.attrs['disabled'] = True 
+            self.fields['cutOutTolerance'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['cutOutTolerance'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Cut out tolerance", required=False)
+            self.fields['cutOutTolerance'].widget.attrs['disabled'] = True 
+            self.fields['cutOutTolerance'].widget.attrs['class'] = 'disabled'
+        
+        # Transmittance
+        try:
+            if kwargs['initial']['filter'].getTransmittanceRange().transmittance is not None:
+                self.fields['transmittance'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].getTransmittanceRange().transmittance)+', \'transmittance\', this.value);'}), initial=kwargs['initial']['filter'].getTransmittanceRange().transmittance, required=False)
+            else:
+                self.fields['transmittance'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].getTransmittanceRange().transmittance)+', \'transmittance\', this.value);'}), required=False)
+            self.fields['transmittance'].widget.attrs['disabled'] = True 
+            self.fields['transmittance'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['transmittance'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
+            self.fields['transmittance'].widget.attrs['disabled'] = True 
+            self.fields['transmittance'].widget.attrs['class'] = 'disabled'
+        
+        self.fields.keyOrder = ['manufacturer', 'model', 'lotNumber', 'type', 'filterWheel', 'cutIn', 'cutOut', 'cutInTolerance', 'cutOutTolerance', 'transmittance']
+
+
+class MetadataDetectorForm(forms.Form):
+    
+    def __init__(self, *args, **kwargs):
+        super(MetadataDetectorForm, self).__init__(*args, **kwargs)
+        
+        # Filter 
+        
+        # Manufacturer
+        try:
+            if kwargs['initial']['detector'] is not None:
+                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].manufacturer)+', \'manufacturer\', this.value);'}), initial=kwargs['initial']['detector'].manufacturer, required=False)
+            else:
+                self.fields['manufacturer'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].manufacturer)+', \'manufacturer\', this.value);'}), required=False)
+            self.fields['manufacturer'].widget.attrs['disabled'] = True 
+            self.fields['manufacturer'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['manufacturer'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
+            self.fields['manufacturer'].widget.attrs['disabled'] = True 
+            self.fields['manufacturer'].widget.attrs['class'] = 'disabled'
+        
+        # Model
+        try:
+            if kwargs['initial']['detector'] is not None:
+                self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].model)+', \'model\', this.value);'}), initial=kwargs['initial']['detector'].model, required=False)
+            else:
+                self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].model)+', \'model\', this.value);'}), required=False)
+            self.fields['model'].widget.attrs['disabled'] = True 
+            self.fields['model'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['model'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
+            self.fields['model'].widget.attrs['disabled'] = True 
+            self.fields['model'].widget.attrs['class'] = 'disabled'
+        
+        # Type
+        try:
+            if kwargs['initial']['detector'].type is not None:
+                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['types'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['type'].id)+', \'type\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['detector'].getType().value, required=False) 
+            else:
+                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['types'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detector'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), required=False) 
+            self.fields['type'].widget.attrs['disabled'] = True 
+            self.fields['type'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['type'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
+            self.fields['type'].widget.attrs['disabled'] = True 
+            self.fields['type'].widget.attrs['class'] = 'disabled'
+        
+        # Gain
+        try:
+            if kwargs['initial']['detector'] is not None:
+                self.fields['gain'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].gain)+', \'gain\', this.value);'}), initial=kwargs['initial']['detector'].gain, required=False)
+            else:
+                self.fields['gain'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].gain)+', \'gain\', this.value);'}), required=False)
+            self.fields['gain'].widget.attrs['disabled'] = True 
+            self.fields['gain'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['gain'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
+            self.fields['gain'].widget.attrs['disabled'] = True 
+            self.fields['gain'].widget.attrs['class'] = 'disabled'
+        
+        # Voltage
+        try:
+            if kwargs['initial']['detector'] is not None:
+                self.fields['voltage'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].voltage)+', \'voltage\', this.value);'}), initial=kwargs['initial']['detector'].voltage, required=False)
+            else:
+                self.fields['voltage'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].voltage)+', \'voltage\', this.value);'}), required=False)
+            self.fields['voltage'].widget.attrs['disabled'] = True 
+            self.fields['voltage'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['voltage'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
+            self.fields['voltage'].widget.attrs['disabled'] = True 
+            self.fields['voltage'].widget.attrs['class'] = 'disabled'
+        
+        # Offset
+        try:
+            if kwargs['initial']['detector'] is not None:
+                self.fields['offsetValue'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].offsetValue)+', \'offsetValue\', this.value);'}), initial=kwargs['initial']['detector'].offsetValue, label="Offset", required=False)
+            else:
+                self.fields['offsetValue'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].offsetValue)+', \'offsetValue\', this.value);'}), label="Offset", required=False)
+            self.fields['offsetValue'].widget.attrs['disabled'] = True 
+            self.fields['offsetValue'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['offsetValue'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Offset", required=False)
+            self.fields['offsetValue'].widget.attrs['disabled'] = True 
+            self.fields['offsetValue'].widget.attrs['class'] = 'disabled'
+        
+        # Zoom
+        try:
+            if kwargs['initial']['detector'] is not None:
+                self.fields['zoom'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].zoom)+', \'zoom\', this.value);'}), initial=kwargs['initial']['detector'].zoom, required=False)
+            else:
+                self.fields['zoom'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].zoom)+', \'voltage\', this.value);'}), required=False)
+            self.fields['zoom'].widget.attrs['disabled'] = True 
+            self.fields['zoom'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['zoom'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", required=False)
+            self.fields['zoom'].widget.attrs['disabled'] = True 
+            self.fields['zoom'].widget.attrs['class'] = 'disabled'
+        
+        # Amplification gain
+        try:
+            if kwargs['initial']['detector'] is not None:
+                self.fields['amplificationGain'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].amplificationGain)+', \'amplificationGain\', this.value);'}), initial=kwargs['initial']['detector'].amplificationGain, label="Amplification gain", required=False)
+            else:
+                self.fields['amplificationGain'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':15, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detector'].amplificationGain)+', \'amplificationGain\', this.value);'}), label="Amplification gain", required=False)
+            self.fields['amplificationGain'].widget.attrs['disabled'] = True 
+            self.fields['amplificationGain'].widget.attrs['class'] = 'disable'
+        except:
+            self.fields['amplificationGain'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':15}), initial="N/A", label="Amplification gain", required=False)
+            self.fields['amplificationGain'].widget.attrs['disabled'] = True 
+            self.fields['amplificationGain'].widget.attrs['class'] = 'disabled'
+        
+        self.fields.keyOrder = ['manufacturer', 'model', 'type', 'gain', 'voltage', 'offsetValue', 'zoom', 'amplificationGain']
+
+
 class MetadataEnvironmentForm(forms.Form):
     
     def __init__(self, *args, **kwargs):

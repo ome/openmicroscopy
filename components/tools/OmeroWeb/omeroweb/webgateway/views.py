@@ -11,6 +11,8 @@
 #
 # Author: Carlos Neves <carlos(at)glencoesoftware.com>
 
+import omero
+import omero.clients
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404
 from django.utils import simplejson
 from django.core import template_loader
@@ -18,7 +20,6 @@ from django.template import RequestContext as Context
 
 from omero import client_wrapper, ApiUsageException
 from omero.gateway import timeit
-import omero
 
 #from models import StoredConnection
 
@@ -93,7 +94,7 @@ def _createConnection (server_id, sUuid=None, username=None, passwd=None, host=N
         logger.error("Critical error during connect, retrying after _purge")
         logger.debug(traceback.format_exc())
         _purge(force=True)
-        return _createConnection(server_id, sUuid, username, passwd, retry=False, host=host, port=port)
+        return _createConnection(server_id, None, username, passwd, retry=False, host=host, port=port)
 
 @timeit
 def _purge (force=False):
@@ -179,7 +180,7 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
             logger.debug('stale connection found: %s != %s' % (str(request.session.get(browsersession_connection_key, None)), str(blitzcon._sessionUuid)))
             blitzcon.seppuku()
             blitzcon = None
-
+    
     if blitzcon is None:
         ####
         # No stored connection matching the request found, so create a new one

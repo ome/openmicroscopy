@@ -104,10 +104,10 @@
 
 <p><a href="#" onclick="return popup('{% url image_viewer manager.image.id %}')">Open full viewer</a></p>
 <div class="miniview" id="viewport"></div>
-<div class="metadata"><h1>{% trans "Metadata" %}: </h1>
-
+<div class="metadata">
+    
 <ul id="metadata" class="ui-accordion-metadata" >
-    <li><a href='#'>{% trans "General" %}:</a>
+    <li><a href='#'>{% trans "Image details" %}:</a>
         <div>
             <table class="forms">
                 <tr><td><label>{% trans "Image date" %} </label></td><td>{{ manager.image.getDate|date:"Y m d H:i:s" }}</td></tr>
@@ -115,11 +115,48 @@
                 <tr><td><label>{% trans "Pixel size" %} (XYZ) [&micro;m] </label></td><td>{{ manager.image.getPixelSizeX|default_if_none:"-" }} x {{ manager.image.getPixelSizeY|default_if_none:"-" }} x {{ manager.image.getPixelSizeZ|default_if_none:"-" }}</td></tr>
                 <tr><td><label>{% trans "Z-sections" %} </label></td><td>{{ manager.image.z_count }}</td></tr>
                 <tr><td><label>{% trans "Timepoints" %} </label></td><td>{{ manager.image.t_count }}</td></tr>
-                <!--<tr><td><label>{% trans "Emissions wavelengths" %} </label></td><td>{{ manager.image.getChannels.getEmissionWave }}</td></tr>-->
             </table>
         </div>
     </li>
-    <li><a href='#'>{% trans "Objective" %}:</a>
+    <li><a href='#'>{% trans "Global metadata" %}:</a>
+        <div>
+            
+        </div>
+    </li>
+    <li><a href='#'>{% trans "Series metadata" %}:</a>
+        <div>
+            
+        </div>
+    </li>
+    <li><a href='#'>{% trans "Filters" %}:</a>
+        <div>
+            {% for form in form_filters %}
+            <table class="forms">
+                <tr><th>{% trans "Filter" %}:</th></tr>
+                {% for field in form %}
+                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% endfor %}
+        </div>
+    </li>
+    <li><a href='#'>{% trans "Detectors" %}:</a>
+        <div>
+            {% for form in form_detectors %}
+            <table class="forms">
+                <tr><th>{% trans "Detector" %}:</th></tr>
+                {% for field in form %}
+                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% endfor %}
+        </div>
+    </li>
+    <li><a href='#'>{% trans "Image" %}:</a>
         <div>
             {% if form_objective %}
             <table class="forms">
@@ -163,11 +200,8 @@
 </div>
 
 <div class="miniview_desc">
-    <center>
-        <p>{{ manager.image.name }}</p>
-        <p>created by {{ manager.image.getOwnerFullName }}</p>
-        <!--<p><a href="">Send this image to someone else.</a></p>-->
-    </center>
+    <br/><p class="center">{{ manager.image.name }}</p>
+    <p class="center">created by {{ manager.image.getOwnerFullName }}</p>
 </div>
 <div class="clear"></div>
 

@@ -56,6 +56,10 @@ from omero_model_TagAnnotationI import TagAnnotationI
 from omero_model_DatasetI import DatasetI
 from omero_model_ProjectI import ProjectI
 from omero_model_ImageI import ImageI
+from omero_model_DetectorI import DetectorI
+from omero_model_FilterI import FilterI
+from omero_model_ObjectiveI import ObjectiveI
+from omero_model_InstrumentI import InstrumentI
 
 from omero_sys_ParametersI import ParametersI
 
@@ -1061,7 +1065,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             return ImageWrapper(self, img)
         else:
             return None
-
+    
     def getDatasetImageLink (self, parent, oid):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
@@ -2291,23 +2295,35 @@ class ImageCorrectionWrapper (omero.gateway.BlitzObjectWrapper):
 class ImageInstrumentWrapper (omero.gateway.BlitzObjectWrapper):
     pass
 
+class ImageFilterWrapper (omero.gateway.BlitzObjectWrapper):
+    
+    def getTransmittanceRange(self):
+        if self._obj.transmittanceRange is None:
+            return None
+        else:
+            return FilterTransmittanceRangeWrapper(self._conn, self._obj.transmittanceRange)
+
+class FilterTransmittanceRangeWrapper (omero.gateway.BlitzObjectWrapper):
+    pass
+
+class ImageDetectorWrapper (omero.gateway.BlitzObjectWrapper):
+    pass
+   
 class ImageStageLabelWrapper (omero.gateway.BlitzObjectWrapper):
     pass
 
 class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
     
-    '''def getThumbnail (self, size=(120,120)):
+    def getThumbnail (self, size=(120,120)):
         rv = super(omero.gateway.ImageWrapper, self).getThumbnail(size=size)
         if rv is None:
             try:
-                t = self.defaultThumbnail(size)
+                rv = self.defaultThumbnail(size)
             except Exception, e:
                 logger.info(traceback.format_exc())
                 raise e
-        else:
-            return rv'''
+        return rv
     
-
     def defaultThumbnail(self, size=(120,120)):
         img = Image.open(settings.DEFAULT_IMG)
         img.thumbnail(size, Image.ANTIALIAS)
@@ -2325,6 +2341,26 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
             return _("unknown")
     
     # metadata getters
+    # from metadata service
+    def getMicroscopInstruments(self):
+        meta_serv = self._conn.getMetadataService()
+        for inst in meta_serv.loadInstrument(self._obj.instrument.id.val):
+            if isinstance(inst, InstrumentI):
+                yield ImageInstrumentWrapper(self._conn, inst)
+    
+    def getMicroscopDetectors(self):
+        meta_serv = self._conn.getMetadataService()
+        for inst in meta_serv.loadInstrument(self._obj.instrument.id.val):
+            if isinstance(inst, DetectorI):
+                yield ImageDetectorWrapper(self._conn, inst)
+    
+    def getMicroscopFilters(self):
+        meta_serv = self._conn.getMetadataService()
+        for inst in meta_serv.loadInstrument(self._obj.instrument.id.val):
+            if isinstance(inst, FilterI):
+                yield ImageFilterWrapper(self._conn, inst)
+    
+    # from model
     def getImagingEnvironment(self):
         if self._obj.imagingEnvironment is None:
             return None
@@ -2360,13 +2396,7 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
             return None
         else:
             return ImageCorrectionWrapper(self._conn, self._obj.objectiveSettings.objective.correction)
-    
-    def getInstrument(self):
-        if self._obj.objectiveSettings.objective.instrument is None:
-            return None
-        else:
-            return ImageInstrumentWrapper(self._conn, self._obj.objectiveSettings.objective.instrument)
-    
+
     def getStageLabel (self):
         if self._obj.stageLabel is None:
             return None
