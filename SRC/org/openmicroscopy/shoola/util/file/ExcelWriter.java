@@ -458,8 +458,8 @@ public class ExcelWriter
 	 * Writes the current row to the spreadsheet. 
 	 * 
 	 * @param startColumn see above.
-	 * @param rowCount The current row in the tablemodel.
-	 * @param tableModel the tablemodel to write.
+	 * @param rowCount The current row in the table model.
+	 * @param tableModel the table model to write.
 	 */
 	private void writeRow(int startColumn, int rowCount, TableModel tableModel)
 	{

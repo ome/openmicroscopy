@@ -112,7 +112,7 @@ public class SaveAction
 		if (option != JFileChooser.APPROVE_OPTION) return;
 		File  file = chooser.getFormattedSelectedFile();
 		if (file != null)
-    		model.saveThumbnails(file.getAbsolutePath()); 
+    		model.saveThumbnails(file); 
     }
     
 }

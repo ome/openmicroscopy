@@ -23,8 +23,8 @@
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
-import java.awt.Cursor; 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -876,11 +876,11 @@ class DataBrowserComponent
 	
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
-	 * @see DataBrowser#saveThumbnails(String)
+	 * @see DataBrowser#saveThumbnails(File)
 	 */
-	public void saveThumbnails(String name)
+	public void saveThumbnails(File file)
 	{
-		if (!isImagesModel()) return;
+		if (!isImagesModel() || file == null) return;
 		Browser browser = model.getBrowser();
 		List<ImageNode> l = browser.getVisibleImageNodes();
 		
@@ -893,7 +893,7 @@ class DataBrowserComponent
 		Iterator<ImageNode> i = nodes.iterator();
 		ImageNode node;
 		try {
-			ExcelWriter writer = new ExcelWriter(name);
+			ExcelWriter writer = new ExcelWriter(file.getAbsolutePath());
 			writer.openFile();
 			writer.createSheet("Thumbnails");
 //			ready to build report
@@ -945,8 +945,12 @@ class DataBrowserComponent
 	        msg.print("Error while saving.");
 	        msg.print(e);
 	        logger.error(this, msg);
-	        un.notifyInfo("Report", "An error occurs while saving the file.");
+	        un.notifyInfo("Save Thumbnails", 
+	        		"An error occurs while saving the file.");
+	        return;
 		}
+		un.notifyInfo("Save Thumbnails", 
+				"The thumbnails have been save to:\n"+file.getAbsolutePath());
 	}
 
 	/**

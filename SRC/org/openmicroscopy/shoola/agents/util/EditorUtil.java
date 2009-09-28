@@ -37,8 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-import java.util.regex.Pattern;
-
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 
@@ -1450,6 +1448,7 @@ public class EditorUtil
         	i = 0;
         } else i = v;
         details.put(CUT_OUT, i);
+        v = data.getCutInTolerance();
         if (v == null) {
         	i = 0;
         	notSet.add(CUT_IN_TOLERANCE);

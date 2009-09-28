@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -491,9 +492,9 @@ public interface DataBrowser
 	/** 
 	 * Saves the displayed thumbnails as a single image. 
 	 * 
-	 * @param name The name of the file.
+	 * @param file The file where to save the data.
 	 */
-	public void saveThumbnails(String name);
+	public void saveThumbnails(File file);
 	
 	/**
 	 * Returns <code>true</code> if the model is of type
