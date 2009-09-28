@@ -289,7 +289,7 @@ class ImViewerComponent
 		}
 		MessageBox msg = new MessageBox(view, "Save Data", 
 		"Before closing the viewer, do you want to save: ");
-		msg.addCancelButton();
+		//msg.addCancelButton();
 		msg.addBodyComponent(p);
 		
 		int option = msg.centerMsgBox();
@@ -549,8 +549,11 @@ class ImViewerComponent
 			default:
 				controller.setPreferences();
 				//tmp store compression
-				ImViewerFactory.setCompressionLevel(view.getUICompressionLevel());
-				if (!saveOnClose()) return;
+				ImViewerFactory.setCompressionLevel(
+						view.getUICompressionLevel());
+				if (!saveOnClose()) {
+					return;
+				}
 				postViewerState(ViewerState.CLOSE);
 				ImViewerRecentObject object = new ImViewerRecentObject(
 						model.getImageID(), model.getImageTitle(),
@@ -2825,6 +2828,7 @@ class ImViewerComponent
 		if (model.getState() != LOADING_IMAGE) 
 			throw new IllegalStateException("This method can only be invoked " +
 			"in the LOADING_IMAGE state.");
+
 		if (image == null) {
 			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Image retrieval", "An error occured while " +

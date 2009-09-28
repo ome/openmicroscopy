@@ -295,6 +295,7 @@ class ServerROITable
 	void selectROI(List<Long> roiIDs)
 	{
 		if (roiIDs == null || roiIDs.size() == 0) return;
+		if (table == null) return;
 		Iterator<Long> i = roiIDs.iterator();
 		int index;
 		Long id;

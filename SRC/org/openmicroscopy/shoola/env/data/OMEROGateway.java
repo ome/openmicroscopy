@@ -3110,12 +3110,19 @@ class OMEROGateway
 		try {
 			IRenderingSettingsPrx service = getRenderingSettingsService();
 			String klass = convertPojos(rootNodeType).getName();
+			if (klass.equals(Image.class)) failure.addAll(nodes);
 			if (klass.equals(Image.class.getName()) 
 					|| klass.equals(Dataset.class.getName()) ||
 					klass.equals(Plate.class.getName()))
 				success = service.resetDefaultsInSet(klass, nodes);
 		} catch (Exception e) {
 			handleException(e, "Cannot reset the rendering settings.");
+		}
+		Iterator<Long> i = success.iterator(); 
+		Long id;
+		while (i.hasNext()) {
+			id = i.next();
+			if (failure.contains(id)) failure.remove(id);
 		}
 		Map<Boolean, List> result = new HashMap<Boolean, List>(2);
 		result.put(Boolean.TRUE, success);
@@ -3145,16 +3152,24 @@ class OMEROGateway
 	{
 		List<Long> success = new ArrayList<Long>();
 		List<Long> failure = new ArrayList<Long>();
+		
 		isSessionAlive();
 		try {
 			IRenderingSettingsPrx service = getRenderingSettingsService();
 			String klass = convertPojos(rootNodeType).getName();
+			if (klass.equals(Image.class)) failure.addAll(nodes);
 			if (klass.equals(Image.class.getName()) 
 				|| klass.equals(Dataset.class.getName()) || 
 						klass.equals(Plate.class.getName()))
-				success = service.setOriginalSettingsInSet(klass, nodes);
+				success = service.resetDefaultsInSet(klass, nodes);
 		} catch (Exception e) {
 			handleException(e, "Cannot reset the rendering settings.");
+		}
+		Iterator<Long> i = success.iterator(); 
+		Long id;
+		while (i.hasNext()) {
+			id = i.next();
+			if (failure.contains(id)) failure.remove(id);
 		}
 		Map<Boolean, List> result = new HashMap<Boolean, List>(2);
 		result.put(Boolean.TRUE, success);

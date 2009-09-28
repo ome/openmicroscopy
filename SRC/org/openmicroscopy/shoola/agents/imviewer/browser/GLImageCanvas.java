@@ -282,7 +282,6 @@ class GLImageCanvas
         glut = new GLUT();
         addGLEventListener(this);
         paintedString = null;
- 
 	}
 	
 	/**
