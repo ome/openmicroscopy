@@ -55,7 +55,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
     
     boolean debug = false;
     
-    private static final String ICON = "gfx/nuvola_error64.png";
+    private static final String ICON = "gfx/nuvola_mail_send64.png";
     
     ArrayList<IObserver> observers = new ArrayList<IObserver>();
     

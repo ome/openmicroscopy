@@ -314,6 +314,7 @@ public class FileQueueHandler
                         if (store() != null) {
                             ImportHandler importHandler = new ImportHandler(viewer, qTable, config, library, candidates);
                             importHandler.addObserver(viewer);
+                            importHandler.addObserver(qTable);
                         }
                     }
                     qTable.importing = true;

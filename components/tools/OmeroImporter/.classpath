@@ -32,6 +32,5 @@
 	<classpathentry kind="lib" path="target/libs/ome-xml.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="target/libs/perf4j.jar"/>
-	<classpathentry kind="lib" path="target/libs/test/testng.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

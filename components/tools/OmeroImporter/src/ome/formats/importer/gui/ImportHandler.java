@@ -117,6 +117,8 @@ public class ImportHandler implements IObservable {
         long hours, minutes, seconds;
         Date date = null;
 
+        notifyObservers(new ImportEvent.IMPORT_QUEUE_STARTED());
+        
         // record initial timestamp and record total running time for the import
         timestampIn = System.currentTimeMillis();
         date = new Date(timestampIn);
@@ -126,9 +128,6 @@ public class ImportHandler implements IObservable {
         viewer.appendToOutputLn("> Starting import at: " + myDate + "\n");
         viewer.statusBar.setStatusIcon("gfx/import_icon_16.png",
                 "Now importing.");
-
-        qTable.importBtn.setText("Cancel");
-        qTable.importing = true;
 
         numOfPendings = 0;
         int importKey = 0;
@@ -144,7 +143,6 @@ public class ImportHandler implements IObservable {
         }
 
         for (int i = 0; i < importContainer.length; i++) {
-            File selected_file = importContainer[i].file;
             if (qTable.setProgressPending(i)) {
                 numOfPendings++;
                 try {
@@ -227,12 +225,7 @@ public class ImportHandler implements IObservable {
                          * "\nhttp://trac.openmicroscopy.org.uk/omero/wiki/LosslessJPEG"
                          * );
                          */
-                    } else {
-                        String[] files = { importContainer[j].file
-                                .getAbsolutePath() };
-                        // FIXME addErrro(fe, importContainer[j].file, files, null);
-                    }
-
+                    } 
                     try {
                         if (db != null) {
                             db.updateImportStatus(importKey, "incomplete");
@@ -296,9 +289,6 @@ public class ImportHandler implements IObservable {
                     viewer.appendToOutputLn("> [" + j + "] Failure importing.");
 
                     files = importContainer[j].usedFiles;
-                    String readerType = importContainer[j].reader;
-
-                    //addError(error, importContainer[j].file, files, readerType);
 
                     if (importStatus < 0)
                         importStatus = -3;
@@ -316,17 +306,6 @@ public class ImportHandler implements IObservable {
                 }
             }
         }
-        qTable.importBtn.setText("Import");
-        qTable.importBtn.setEnabled(true);
-        qTable.queue.setRowSelectionAllowed(true);
-        qTable.removeBtn.setEnabled(true);
-        if (qTable.failedFiles == true)
-            qTable.clearFailedBtn.setEnabled(true);
-        if (qTable.doneFiles == true)
-            qTable.clearDoneBtn.setEnabled(true);
-        qTable.importing = false;
-        qTable.cancel = false;
-        qTable.abort = false;
 
         viewer.statusBar.setProgress(false, 0, "");
         viewer.statusBar.setStatusIcon("gfx/import_done_16.png",

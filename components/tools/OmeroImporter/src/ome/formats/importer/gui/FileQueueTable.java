@@ -637,6 +637,27 @@ public class FileQueueTable
             ImportEvent.IMPORT_THUMBNAILING ev = (ImportEvent.IMPORT_THUMBNAILING) event;
         	setProgressResettingDefaults(ev.index);
         }
+        else if (event instanceof ImportEvent.IMPORT_QUEUE_STARTED)
+        {
+            importBtn.setText("Cancel");
+            addBtn.setEnabled(false);
+            importing = true;
+        }
+        else if (event instanceof ImportEvent.IMPORT_QUEUE_DONE)
+        {
+            addBtn.setEnabled(true);
+            importBtn.setText("Import");
+            importBtn.setEnabled(true);
+            queue.setRowSelectionAllowed(true);
+            removeBtn.setEnabled(true);
+            if (failedFiles == true)
+                clearFailedBtn.setEnabled(true);
+            if (doneFiles == true)
+                clearDoneBtn.setEnabled(true);
+            importing = false;
+            cancel = false;
+            abort = false;
+        }
     }
     
     /**

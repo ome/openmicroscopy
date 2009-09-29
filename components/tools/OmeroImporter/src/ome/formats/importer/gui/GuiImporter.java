@@ -727,10 +727,31 @@ public class GuiImporter extends JFrame
 
     private void importErrorsCollected(Component frame)
     {
-            JOptionPane.showMessageDialog(frame,
-                    "\nYour import has produced one or more errors, "
-                            + "\nvisit the 'Import Errors' tab for details.",
-                    "Errors in import!", JOptionPane.WARNING_MESSAGE);
+            final JOptionPane optionPane = new JOptionPane("\nYour import has produced one or more errors, "
+                            + "\nvisit the 'Import Errors' tab for details.", JOptionPane.WARNING_MESSAGE);
+            final JDialog errorDialog = new JDialog(this, "Errors Collected", false);
+            errorDialog.setContentPane(optionPane);
+            
+            optionPane.addPropertyChangeListener(
+                    new PropertyChangeListener() {
+                        public void propertyChange(PropertyChangeEvent e) {
+                            String prop = e.getPropertyName();
+
+                            if (errorDialog.isVisible() 
+                             && (e.getSource() == optionPane)
+                             && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                                //If you were going to check something
+                                //before closing the window, you'd do
+                                //it here.
+                                errorDialog.setVisible(false);
+                            }
+                        }
+                    });
+
+            errorDialog.toFront();
+            errorDialog.pack();
+            errorDialog.setLocationRelativeTo(frame);
+            errorDialog.setVisible(true);
     }
     
     public void propertyChange(PropertyChangeEvent evt)

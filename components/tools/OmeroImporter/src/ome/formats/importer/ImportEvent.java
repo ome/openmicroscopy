@@ -111,6 +111,10 @@ public class ImportEvent {
     public static class LOGGED_IN extends ImportEvent {
 
     }
+
+    public static class IMPORT_QUEUE_STARTED extends ImportEvent {
+        
+    }
     
     public static class IMPORT_QUEUE_DONE extends ImportEvent {
         
