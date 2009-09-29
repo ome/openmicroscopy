@@ -6,6 +6,7 @@
  */
 package ome.services.blitz.repo;
 
+import java.nio.channels.OverlappingFileLockException;
 import java.sql.Timestamp;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -290,6 +291,7 @@ public class LegacyRepositoryI extends _InternalRepositoryDisp {
                 log.info("Repository now active");
                 return null;
             } catch (Exception e) {
+                fileMaker.close(); // If anything goes awry, we release for others!
                 return e;
             }
 

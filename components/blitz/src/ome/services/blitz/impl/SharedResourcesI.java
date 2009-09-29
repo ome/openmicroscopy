@@ -289,9 +289,16 @@ public class SharedResourcesI extends AbstractAmdServant implements
                                     @Override
                                     public void ice_response(
                                             OriginalFile description) {
+                                        /*
                                         if (description != null
                                                 && description.getId()
                                                         .getValue() == repo) {
+                                                        */
+                                        // At the moment there are no non-LegacyRepositoryI
+                                        // repository implementations, and legacy ones are restricted
+                                        // to being a singleton in the grid, so ignore the repo
+                                        // number for the moment and return;
+                                        if (true) {
                                             server
                                                     .getProxy_async(new AMI_InternalRepository_getProxy() {
 
