@@ -7,10 +7,17 @@
 
 package ome.services.blitz.impl;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
+import ome.conditions.InternalException;
 import ome.formats.OMEROMetadataStore;
 import ome.model.IObject;
+import ome.model.core.Pixels;
+import ome.model.screen.Plate;
+import ome.parameters.Parameters;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
@@ -23,16 +30,32 @@ import omero.RBool;
 import omero.RDouble;
 import omero.RFloat;
 import omero.RInt;
+import omero.RList;
 import omero.RLong;
+import omero.RMap;
 import omero.RString;
-import omero.RType;
 import omero.ServerError;
-import omero.api.*;
+import omero.api.AMD_MetadataStore_createRoot;
+import omero.api.AMD_MetadataStore_populateMinMax;
+import omero.api.AMD_MetadataStore_saveToDB;
+import omero.api.AMD_MetadataStore_updateObjects;
+import omero.api.AMD_MetadataStore_updateReferences;
+import omero.api.AMD_StatefulServiceInterface_activate;
+import omero.api.AMD_StatefulServiceInterface_close;
+import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
+import omero.api.AMD_StatefulServiceInterface_passivate;
+import omero.api._MetadataStoreOperations;
+import omero.grid.InteractiveProcessorPrx;
+import omero.grid.SharedResourcesPrx;
 import omero.metadatastore.IObjectContainer;
-import omero.model.PlaneInfo;
-import omero.model.Project;
+import omero.model.OriginalFile;
+import omero.model.OriginalFileI;
+import omero.model.ScriptJob;
+import omero.model.ScriptJobI;
 import omero.util.IceMapper;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +66,10 @@ import Ice.UserException;
  */
 public class MetadataStoreI extends AbstractAmdServant implements
         _MetadataStoreOperations, ServiceFactoryAware, BlitzOnly {
+
+    private final static Log log = LogFactory.getLog(MetadataStoreI.class);
+
+    protected final List<Long> savedPixels = new ArrayList<Long>();
 
     protected OMEROMetadataStore store;
 
@@ -71,6 +98,21 @@ public class MetadataStoreI extends AbstractAmdServant implements
         }
     }
 
+    /**
+     * Called during
+     * {@link #saveToDB_async(AMD_MetadataStore_saveToDB, Current)} to prepare
+     * the list of pixels for post-processing.
+     * 
+     * @see #processing()
+     */
+    private void savePixels(List<Pixels> pixels) {
+        synchronized (savedPixels) {
+            for (Pixels p : pixels) {
+                savedPixels.add(p.getId());
+            }
+        }
+    }
+
     // ~ Service methods
     // =========================================================================
 
@@ -91,8 +133,8 @@ public class MetadataStoreI extends AbstractAmdServant implements
 
     public void populateMinMax_async(
             final AMD_MetadataStore_populateMinMax __cb,
-			final double[][][] imageChannelGlobalMinMax,
-			final Current __current) throws ServerError {
+            final double[][][] imageChannelGlobalMinMax, final Current __current)
+            throws ServerError {
 
         final IceMapper mapper = new IceMapper(IceMapper.VOID);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
@@ -116,8 +158,9 @@ public class MetadataStoreI extends AbstractAmdServant implements
                         this, "saveToDb") {
                     @Transactional(readOnly = false)
                     public Object doWork(Session session, ServiceFactory sf) {
-
-                        return store.saveToDB();
+                        List<Pixels> pix = store.saveToDB();
+                        savePixels(pix);
+                        return pix;
                     }
                 }));
     }
@@ -159,6 +202,80 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(Session session, ServiceFactory sf) {
                         store.updateReferences(references);
                         return null;
+                    }
+                }));
+    }
+
+    static String plate_query = "select disinct p from plate join p.wells w join w.wellSample ws " +
+    		"join ws.image i join i.pixels pix where pix.id in :pixels";
+    
+    /**
+     * Called after some number of Passes the {@link #savedPixels} to a
+     * background processor for further work. This happens on
+     * {@link #close_async(AMD_StatefulServiceInterface_close, Current)} since
+     * no further pixels can be created, but also on
+     * {@link #createRoot_async(AMD_MetadataStore_createRoot, Current)} which is
+     * used by the client to reset the status of this instance. To prevent any
+     * possible
+     */
+    public void postProcess_async(omero.api.AMD_MetadataStore_postProcess __cb, Current __current)
+    throws ServerError {
+        
+        final IceMapper mapper = new IceMapper(IceMapper.UNMAPPED);
+
+        final List<Long> copy = new ArrayList<Long>();
+        
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.SimpleWork(
+                        this, "updateReferences") {
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory _sf) {
+
+                        synchronized (savedPixels) {
+
+                            copy.addAll(savedPixels);
+                        
+                            Parameters p = new Parameters();
+                            p.addList("pixels", copy);
+                            List<Plate> plates = (List<Plate>) _sf.getQueryService().findByQuery(plate_query, p);
+                            if (plates == null || plates.size() == 0) {
+                                return null;
+                            }
+                            
+                            final Collection<RLong> rplates = new ArrayList<RLong>();
+                            for (Plate plate : plates) {
+                                rplates.add(omero.rtypes.rlong(plate.getId()));
+                            }
+                            RList list = omero.rtypes.rlist(rplates.toArray(new RLong[0]));
+                            RMap inputs = omero.rtypes.rmap("plateIds", list);
+                            
+                            long id;
+                            try {
+                                id = sf.getScriptService().getScriptID("populate_roi.py");
+                            } catch (ServerError e1) {
+                                String msg = "populate_roi.py not found";
+                                log.error(msg, e1);
+                                throw new InternalException(msg);
+                            }
+                            OriginalFile script = new OriginalFileI(id, false);
+                            
+                            ScriptJob job = new ScriptJobI();
+                            job.linkOriginalFile(script);
+                            job.setDescription(omero.rtypes.rstring("import-post-processing"));
+                            InteractiveProcessorPrx prx;
+                            try {
+                                SharedResourcesPrx sr = sf.sharedResources();
+                                prx = sr.acquireProcessor(job, 15);
+                                prx.execute(inputs);
+                                copy.clear();
+                                return prx;
+                            } catch (ServerError e) {
+                                String msg = "Error acquiring post processor";
+                                log.error(msg, e);
+                                throw new InternalException(msg);
+                            }
+                            
+                        }
                     }
                 }));
     }

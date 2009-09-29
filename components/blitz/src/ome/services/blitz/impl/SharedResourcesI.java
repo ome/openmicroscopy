@@ -139,11 +139,29 @@ public class SharedResourcesI extends AbstractAmdServant implements
         }
     }
 
+    /**
+     * A task that gets applied to various proxies to test their validity.
+     * Usually defined inline as anonymous classes.
+     * 
+     * @see {@link ProcessorCheck}
+     */
     private interface RepeatTask<U extends Ice.ObjectPrx> {
         void requestService(Ice.ObjectPrx server, ResultHolder holder)
                 throws ServerError;
     }
 
+    /**
+     * One implementation of {@link RepeatTask} which is reused locally.
+     */
+    private static final class ProcessorCheck implements
+            RepeatTask<ProcessorPrx> {
+        public void requestService(Ice.ObjectPrx prx, ResultHolder holder)
+                throws ServerError {
+            ProcessorPrx server = ProcessorPrxHelper.checkedCast(prx);
+            holder.set(server);
+        }
+    }
+    
     private class ResultHolder<U> {
 
         private final CountDownLatch c = new CountDownLatch(1);
@@ -432,14 +450,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
         ProcessorPrx[] procs = registry.lookupProcessors();
         ProcessorPrx server = (ProcessorPrx) lookup(Arrays
                 .<Ice.ObjectPrx> asList(procs), seconds,
-                new RepeatTask<ProcessorPrx>() {
-                    public void requestService(Ice.ObjectPrx prx,
-                            ResultHolder holder) throws ServerError {
-                        ProcessorPrx server = ProcessorPrxHelper
-                                .checkedCast(prx);
-                        holder.set(server);
-                    }
-                });
+                new ProcessorCheck());
 
         long timeout = System.currentTimeMillis() + 60 * 60 * 1000L;
         InteractiveProcessorI ip = new InteractiveProcessorI(sf.principal,
@@ -450,6 +461,25 @@ public class SharedResourcesI extends AbstractAmdServant implements
         Ice.ObjectPrx rv = sf.registerServant(current, id, ip);
         allow(rv);
         return InteractiveProcessorPrxHelper.uncheckedCast(rv);
+
+    }
+    
+    //
+    // NON-INTERFACE METHODS: in order to re-use the logic of this
+    // class, several methods are defined here which are not in
+    // the remote interface.
+    //
+    
+    /**
+     * Chooses on {@link ProcessorPrx} at random.
+     */
+    public ProcessorPrx chooseProcessor() throws ServerError {
+
+        ProcessorPrx[] procs = registry.lookupProcessors();
+        ProcessorPrx server = (ProcessorPrx) lookup(Arrays
+                .<Ice.ObjectPrx> asList(procs), 15,
+                new ProcessorCheck());
+        return server;
 
     }
 }

@@ -20,6 +20,7 @@ import ome.services.throttling.ThrottlingStrategy;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import omero.api._ServiceInterfaceOperations;
+import omero.api._StatefulServiceInterfaceOperations;
 import omero.util.IceMapper;
 
 import org.springframework.aop.framework.ProxyFactory;
@@ -132,4 +133,9 @@ public abstract class AbstractAmdServant implements ApplicationContextAware {
         throw new UnsupportedOperationException();
     }
 
+    //
+    // StatefulServiceInterface
+    //
+    
+    // Here a final close should be defined.
 }

@@ -11,7 +11,7 @@
 
 #include <Ice/BuiltinSequences.ice>
 #include <omero/API.ice>
-#include <omero/ServerErrors.ice>
+#include <omero/Scripts.ice>
 
 module omero {
 
@@ -51,6 +51,7 @@ module omero {
                 void updateReferences(omero::api::StringStringArrayMap references) throws ServerError;
                 PixelsList saveToDB() throws ServerError;
                 void populateMinMax(DoubleArrayArrayArray imageChannelGlobalMinMax) throws ServerError;
+                omero::grid::InteractiveProcessor* postProcess() throws ServerError;
             };
     };
 

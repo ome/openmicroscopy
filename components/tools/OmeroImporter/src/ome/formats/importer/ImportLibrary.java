@@ -385,6 +385,7 @@ public class ImportLibrary implements IObservable
                     
             notifyObservers(new ImportEvent.IMPORT_THUMBNAILING(index, null, userSpecifiedTarget, null, 0, null));
             store.resetDefaultsAndGenerateThumbnails(plateIds, pixelsIds);
+            store.launchProcessing(); // Use or return value here later.
             notifyObservers(new ImportEvent.IMPORT_DONE(index, null, userSpecifiedTarget, null, 0, null, pixList));
             
             return pixList;

@@ -19,6 +19,7 @@ import Ice.OperationMode;
 import Ice.RouterPrx;
 import omero.RString;
 import omero.ServerError;
+import omero.grid.InteractiveProcessorPrx;
 import omero.metadatastore.IObjectContainer;
 import omero.model.IObject;
 import omero.model.Pixels;
@@ -26,6 +27,7 @@ import omero.sys.EventContext;
 
 import omero.api.AMI_MetadataStore_createRoot;
 import omero.api.AMI_MetadataStore_populateMinMax;
+import omero.api.AMI_MetadataStore_postProcess;
 import omero.api.AMI_MetadataStore_saveToDB;
 import omero.api.AMI_MetadataStore_updateObjects;
 import omero.api.AMI_MetadataStore_updateReferences;
@@ -537,5 +539,27 @@ public class TestMetadataStoreService implements MetadataStorePrx
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+    public InteractiveProcessorPrx postProcess() throws ServerError {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public InteractiveProcessorPrx postProcess(Map<String, String> __ctx)
+            throws ServerError {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public boolean postProcess_async(AMI_MetadataStore_postProcess __cb) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    public boolean postProcess_async(AMI_MetadataStore_postProcess __cb,
+            Map<String, String> __ctx) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
 }

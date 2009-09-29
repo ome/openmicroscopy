@@ -41,6 +41,10 @@
         </bean>
     </constructor-arg>
   </bean>
+  <bean id="populateRois" class="ome.services.roi.PopulateRoiJob" lazy-init="false">
+      <constructor-arg ref="uuid"/>
+      <constructor-arg ref="executor"/>
+  </bean>
   <bean id="geomTool" class="ome.services.roi.GeomTool" lazy-init="false">
       <constructor-arg ref="roiPixData"/>
       <constructor-arg ref="simpleJdbcTemplate"/>
