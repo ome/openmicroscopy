@@ -24,48 +24,22 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
-
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
-import javax.media.opengl.GL;
+//Third-party libraries
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
-
-//Third-party libraries
-
-//Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction;
-import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
-import org.openmicroscopy.shoola.util.image.geom.Factory;
-import org.openmicroscopy.shoola.util.image.io.Encoder;
-import org.openmicroscopy.shoola.util.image.io.TIFFEncoder;
-import org.openmicroscopy.shoola.util.image.io.WriterImage;
-
-import com.sun.opengl.util.BufferUtil;
-import com.sun.opengl.util.gl2.GLUT;
 import com.sun.opengl.util.texture.Texture;
 import com.sun.opengl.util.texture.TextureCoords;
 import com.sun.opengl.util.texture.TextureData;
 import com.sun.opengl.util.texture.TextureIO;
+
+//Application-internal dependencies
 
 /** 
  * Paints the main image and the split channels.
@@ -235,7 +209,6 @@ class GridCanvas
 		int col = 0;
 		int columns = model.getGridColumn();
 		TextureData data;
-		Texture t = null;
 		while (i.hasNext()) {
 			img = (GridImage) i.next();
 			if (img.isActive()) {
@@ -289,8 +262,8 @@ class GridCanvas
 		Iterator<GridImage> i = list.iterator();
 		GridImage img;
 		
-		float start = 0.04f;
-		float y = 0.02f;
+		float start = 0f;//0.04f;
+		float y = 0.04f;
 		float x = start;
 		float hGap = HGAP;
 		float vGap = 1.0f/model.getGridRow();

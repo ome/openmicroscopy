@@ -413,7 +413,7 @@ class ImViewerUI
 	 */
 	private JMenuItem createScaleBarColorSubMenu(ViewerPreferences pref)
 	{
-		JMenu menu = new JMenu("Scale bar color");
+		JMenu menu = new JMenu("Scale bar/Text color");
 		ButtonGroup group = new ButtonGroup();
 		Iterator i = EditorUtil.COLORS_BAR.entrySet().iterator();
 		ColorCheckBoxMenuItem item;
@@ -733,8 +733,8 @@ class ImViewerUI
 		//menu.add(item);
 		item = new JMenuItem(
 			controller.getAction(ImViewerControl.TAB_GRID));
-		menu.add(item);
 		item.setEnabled(model.getMaxC() > 1);
+		menu.add(item);
 		item = new JMenuItem(
 				controller.getAction(ImViewerControl.TAB_PROJECTION));
 		item.setEnabled(model.getMaxZ() > 1);
@@ -793,6 +793,9 @@ class ImViewerUI
 			tabs.insertTab(browser.getGridViewTitle(), 
 					browser.getGridViewIcon(), gridViewPanel, "", 
 					ImViewer.GRID_INDEX);
+			if (model.isBigImage()) {
+				controller.setGridMagnificationFactor(0.1);
+			}
 		}
 		
 		double[][] tl2 = {{TableLayout.PREFERRED, TableLayout.FILL}, 
@@ -1654,7 +1657,7 @@ class ImViewerUI
 	}
 
 	/**
-	 * Selects the tabbed pane specified by the passed index.
+	 * Selects the tab pane specified by the passed index.
 	 * 
 	 * @param index The index.
 	 */
@@ -1674,7 +1677,7 @@ class ImViewerUI
 	/** 
 	 * Sets the selected pane.
 	 * 
-	 * @param index The index of the selected tabbed pane.
+	 * @param index The index of the selected tab pane.
 	 */
 	void setSelectedPane(int index)
 	{

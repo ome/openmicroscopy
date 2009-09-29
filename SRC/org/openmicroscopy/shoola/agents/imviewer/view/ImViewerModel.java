@@ -106,6 +106,9 @@ import pojos.WellSampleData;
 */
 class ImViewerModel
 {
+
+	/** The maximum number of channels. */
+	static final int			MAX_CHANNELS = 6;
 	
 	/** The maximum number of items in the history. */
 	private static final int	MAX_HISTORY = 10;
@@ -958,7 +961,11 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isLifetime() { return getImage().isLifetime(); }
+	boolean isLifetime()
+	{ 
+		if (getMaxC() > MAX_CHANNELS) return true;
+		return getImage().isLifetime(); 
+	}
 	
 	/**
 	 * Returns <code>true</code> if the split view is allowed i.e. if the 
@@ -970,10 +977,23 @@ class ImViewerModel
 	{
 		if (getMaxC() < 1) return false;
 		if (isLifetime()) return false;
-		if (getMaxX() >= 2*IMAGE_MAX_WIDTH) return false;
-		if (getMaxY() >= 2*IMAGE_MAX_HEIGHT) return false;
+		//if (getMaxX() >= 2*IMAGE_MAX_WIDTH) return false;
+		//if (getMaxY() >= 2*IMAGE_MAX_HEIGHT) return false;
 		return true;
 	}
+	
+	/**
+	 * Returns <code>true</code> if it is a large image, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isBigImage()
+	{
+		return (getMaxX() >= 2*IMAGE_MAX_WIDTH ||
+				getMaxY() >= 2*IMAGE_MAX_HEIGHT);
+	}
+	
 	/**
 	 * Returns the number of channels.
 	 * 
