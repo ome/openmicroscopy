@@ -20,6 +20,8 @@ import exceptions
 import logging.handlers
 import omero.util.concurrency
 
+from omero.util.decorators import locked
+
 LOGDIR = os.path.join("var","log")
 LOGFORMAT =  """%(asctime)s %(levelname)-5s [%(name)40s] (%(threadName)-10s) %(message)s"""
 LOGSIZE = 500000000
@@ -193,11 +195,20 @@ class Server(Ice.Application):
         from omero.rtypes import ObjectFactories as rFactories
         from omero.columns import ObjectFactories as cFactories
 
-        program_name = self.communicator().getProperties().getProperty("Ice.ProgramName")
-        configure_logging(self.logdir, program_name+".log")
-        self.shutdownOnInterrupt()
+        props = self.communicator().getProperties()
+        program_name = props.getProperty("Ice.ProgramName")
+        log_name = program_name+".log"
+        log_debug = props.getPropertyWithDefault("omero.debug","")
+        if log_debug:
+            log_level = logging.DEBUG
+        else:
+            log_level = logging.INFO
+        configure_logging(self.logdir, log_name, loglevel=log_level)
         self.logger = logging.getLogger("omero.util.Server")
+        self.logger.info("*"*80)
         self.logger.info("Starting")
+
+        self.shutdownOnInterrupt()
 
         try:
 
@@ -231,6 +242,7 @@ class Server(Ice.Application):
             self.logger.info("Cleanup")
             self.cleanup()
             self.logger.info("Stopped")
+            self.logger.info("*"*80)
 
     def cleanup(self):
         """
@@ -244,21 +256,32 @@ class Server(Ice.Application):
                 del self.impl
 
 
-class Servant(object):
+class SimpleServant(object):
+    """
+    Base servant initialization. Doesn't create or try to cleanup
+    a top-level Resources thread. This is useful for large numbers
+    of servants. For servers and other singleton-like servants,
+    see "Servant"
+    """
+    def __init__(self, ctx):
+        self._lock = threading.RLock()
+        self.ctx = ctx
+        self.stop_event = ctx.stop_event
+        self.communicator = ctx.communicator
+        self.logger = logging.getLogger(make_logname(self))
+        self.logger.info("Initialized")
+
+class Servant(SimpleServant):
     """
     Abstract servant which can be used along with a slice2py
-    generated dispatch class as the base type of servants.
+    generated dispatch class as the base type of high-level servants.
     These provide resource cleanup as per the omero.util.Server
     class.
     """
 
     def __init__(self, ctx):
-        self.ctx = ctx
-        self.stop_event = ctx.stop_event
-        self.resources = omero.util.Resources(stop_event = self.stop_event)
-        self.communicator = ctx.communicator
-        self.logger = logging.getLogger(make_logname(self))
-        self.logger.info("Initialized")
+        SimpleServant.__init__(self, ctx)
+        self.resources = omero.util.Resources(sleeptime = 60, stop_event = self.stop_event)
 
     def cleanup(self):
         """
@@ -276,45 +299,11 @@ class Servant(object):
         self.cleanup()
 
 
-class Task(threading.Thread):
-    """
-    Thread which is used to periodically call
-    a task and then sleep for a given time.
-
-    Use stop() to cancel the thread. Joins by
-    default.
-    """
-
-    def __init__(self, event, sleeptime, task):
-
-        if sleeptime < 5:
-            raise exceptions.Exception("Sleep time should be greater than 5: %s" % sleeptime)
-
-        threading.Thread.__init__(self)
-        self.event = event
-        self.sleeptime = sleeptime
-        self.task = task
-        self.exit = False
-        self.logger = logging.getLogger("omero.util.Task")
-
-    def run(self):
-        self.logger.info("Starting")
-        while not self.exit:
-            try:
-                self.task()
-            except:
-                self.logger.warning("Exception on task", exc_info = True)
-            self.logger.debug("Sleeping")
-            self.event.wait(self.sleeptime)
-            if self.event.isSet():
-                break
-        self.logger.info("Stopping")
-
-
 class Resources:
     """
     Container class for storing resources which should be
-    cleaned up on close and periodically checked.
+    cleaned up on close and periodically checked. Use
+    stop_event.set() to stop the internal thread.
     """
 
     def __init__(self, sleeptime = 60, stop_event = None):
@@ -327,56 +316,86 @@ class Resources:
         Resources.cleanup()
         """
 
+        self._lock = threading.RLock()
         self.logger = logging.getLogger("omero.util.Resources")
-        self.logger.info("Starting")
         self.stop_event = stop_event
         if not self.stop_event:
             self.stop_event = omero.util.concurrency.get_event()
 
+        if sleeptime < 5:
+            raise exceptions.Exception("Sleep time should be greater than 5: " % sleeptime)
+        self.sleeptime = sleeptime
         self.stuff = []
-        def task():
-            remove = []
-            for m in self.stuff:
-                self.logger.info("Checking %s" % m[0])
-                method = getattr(m[0],m[2])
-                if not method():
-                    remove.append(m)
-            for r in remove:
-                self.logger.info("Removing %s" % r[0])
-                self.stuff.remove(r)
 
-        self.thread = Task(self.stop_event, sleeptime, task)
+        class Task(threading.Thread):
+            """
+            Internal thread used for checking "stuff"
+            """
+            def run(self):
+                ctx = self.ctx # Outer class
+                ctx.logger.info("Starting")
+                while not ctx.stop_event.isSet():
+                    try:
+                        ctx.logger.debug("Executing")
+
+                        # With a first lock, copy stuff
+                        ctx._lock.acquire()
+                        try:
+                            copy = list(ctx.stuff)
+                        finally:
+                            ctx._lock.release()
+
+                        remove = []
+                        for m in copy:
+                            ctx.logger.info("Checking %s" % m[0])
+                            method = getattr(m[0],m[2])
+                            rv = None
+                            try:
+                                rv = method()
+                            except:
+                                ctx.logger.warn("Error from %s" % method, exc_info = True)
+                            if not method():
+                                remove.append(m)
+
+                        # In a second lock, remove items
+                        ctx._lock.acquire()
+                        try:
+                            for r in remove:
+                                ctx.logger.info("Removing %s" % r[0])
+                                ctx.stuff.remove(r)
+                        finally:
+                            ctx._lock.release()
+
+                    except:
+                        ctx.logger.error("Exception during execution", exc_info = True)
+
+                    ctx.logger.debug("Sleeping %s" % ctx.sleeptime)
+                    ctx.stop_event.wait(ctx.sleeptime)
+                ctx.logger.info("Halted")
+
+        self.thread = Task()
+        self.thread.ctx = self
         self.thread.start()
 
+    @locked
     def add(self, object, cleanupMethod = "cleanup", checkMethod = "check"):
-        lock = threading.RLock()
-        lock.acquire()
-        try:
-            entry = (object,cleanupMethod,checkMethod)
-            self.logger.info("Adding object " % object)
-            self.stuff.append(entry)
-        finally:
-            lock.release()
+        entry = (object,cleanupMethod,checkMethod)
+        self.logger.info("Adding object %s" % object)
+        self.stuff.append(entry)
 
+    @locked
     def cleanup(self):
-        """
-        """
-        lock = threading.RLock()
-        lock.acquire()
         self.stop_event.set()
-        try:
-            for m in self.stuff:
-                try:
-                    m = self.stuff.pop(0)
-                    self.logger.info("Cleaning %s" % m[0])
-                    method = getattr(m[0],m[1])
-                    method()
-                except:
-                    self.logger.error("Error cleaning resource: %s" % m[0], exc_info=1)
-            self.stuff = None
-            self.logger.info("Stopping")
-        finally:
-            lock.release()
+        for m in self.stuff:
+            try:
+                m = self.stuff.pop(0)
+                self.logger.info("Cleaning %s" % m[0])
+                method = getattr(m[0],m[1])
+                method()
+            except:
+                self.logger.error("Error cleaning resource: %s" % m[0], exc_info=1)
+        self.stuff = None
+        self.logger.info("Stopping")
 
     def __del__(self):
         self.cleanup()

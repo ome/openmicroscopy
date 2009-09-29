@@ -27,6 +27,7 @@ import time
 import sys
 import csv
 import re
+from tempfile import TemporaryFile
 from StringIO import StringIO
 from getpass import getpass
 from getopt import getopt, GetoptError
@@ -39,9 +40,9 @@ from omero import client
 
 # Handle Python 2.5 built-in ElementTree
 try:
-        from xml.etree.ElementTree import XML, Element, SubElement, ElementTree, dump
+        from xml.etree.cElementTree import XML, Element, SubElement, ElementTree, dump, iterparse
 except ImportError:
-        from elementtree.ElementTree import XML, Element, SubElement, ElementTree, dump
+        from elementtree.cElementTree import XML, Element, SubElement, ElementTree, dump, iterparse
 
 def usage(error):
     """Prints usage so that we don't have to. :)"""
@@ -71,11 +72,44 @@ class MeasurementError(Exception):
     """
     pass
 
+class DownloadingOriginalFileProvider(object):
+    """
+    Provides original file data by downloading it from an OMERO raw file store.
+    """
+    def __init__(self, service_factory):
+        self.service_factory = service_factory
+        self.raw_file_store = self.service_factory.createRawFileStore()
+
+    def get_original_file_data(self, original_file):
+        """
+        Downloads an original file to a temporary file and returns an open
+        file handle to that temporary file seeked to zero. The caller is
+        responsible for closing the temporary file.
+        """
+        self.raw_file_store.setFileId(original_file.id.val)
+        temporary_file = TemporaryFile()
+        index = 0L
+        while True:
+            data = self.raw_file_store.read(index, BUFFER_SIZE)
+            read_length = len(data)
+            if read_length == 0:
+                break
+            index += read_length
+            temporary_file.write(data)
+        temporary_file.seek(0L)
+        return temporary_file
+
+    def __delete__(self):
+        self.raw_file_store.close()
+
 class AbstractPlateAnalysisCtx(object):
     """
     Abstract class which aggregates and represents all measurement runs made on
     a given Plate.
     """
+    
+    DEFAULT_ORIGINAL_FILE_PROVIDER = DownloadingOriginalFileProvider
+    
     def __init__(self, images, original_files, original_file_image_map,
                  plate_id, service_factory):
         super(AbstractPlateAnalysisCtx, self).__init__()
@@ -204,7 +238,9 @@ class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         sf = self.service_factory
         original_file = self.log_files[key]
         result_files = self.measurements[key]
-        return MIASMeasurementCtx(self, sf, original_file, result_files)
+        provider = self.DEFAULT_ORIGINAL_FILE_PROVIDER(sf)
+        return MIASMeasurementCtx(self, sf, provider, original_file,
+                                  result_files)
     
     def get_result_file_count(self, measurement_index):
         key = self.log_files.keys()[measurement_index]
@@ -253,7 +289,59 @@ class FlexPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         sf = self.service_factory
         original_file = self.measurements[index]
         result_files = []
-        return FlexMeasurementCtx(self, sf, original_file, result_files)
+        provider = self.DEFAULT_ORIGINAL_FILE_PROVIDER(sf)
+        return FlexMeasurementCtx(self, sf, provider, original_file,
+                                  result_files)
+
+    def get_result_file_count(self, measurement_index):
+        return 1
+
+class InCellPlateAnalysisCtx(AbstractPlateAnalysisCtx):
+    """
+    InCell dataset concrete class implementation of an analysis context.
+    InCell measurements are from InCell analyzer and are aggregated in a
+    single gargantuan (often larger than 100MB per plate) XML file.
+    """
+
+    # Companion file format
+    companion_format = 'Companion/InCell'
+
+    def __init__(self, images, original_files, original_file_image_map,
+                 plate_id, service_factory):
+        super(InCellPlateAnalysisCtx, self).__init__(
+                images, original_files, original_file_image_map, plate_id,
+                service_factory)
+        path_original_file_map = dict()
+        for original_file in original_files.values():
+            path = original_file.path.val
+            format = original_file.format.value.val
+            if format == self.companion_format and path.endswith('.xml'):
+                path_original_file_map[path] = original_file
+        self.measurements = path_original_file_map.values()
+
+    ###
+    ### Abstract method implementations
+    ### 
+
+    def is_this_type(klass, original_files):
+        for original_file in original_files.values():
+            path = original_file.path.val
+            format = original_file.format.value.val
+            if format == klass.companion_format and path.endswith('.xml'):
+                return True
+        return False
+    is_this_type = classmethod(is_this_type)
+
+    def get_measurement_count(self):
+        return len(self.measurements)
+
+    def get_measurement_ctx(self, index):
+        sf = self.service_factory
+        original_file = self.measurements[index]
+        result_files = []
+        provider = self.DEFAULT_ORIGINAL_FILE_PROVIDER(sf)
+        return InCellMeasurementCtx(self, sf, provider, original_file,
+                                    result_files)
 
     def get_result_file_count(self, measurement_index):
         return 1
@@ -269,7 +357,7 @@ class PlateAnalysisCtxFactory(object):
     def __init__(self, service_factory):
         self.service_factory = service_factory
         self.query_service = self.service_factory.getQueryService()
-
+    
     def find_images_for_plate(self, plate_id):
         """
         Retrieves all the images associated with a given plate. Fetched
@@ -315,11 +403,16 @@ class AbstractMeasurementCtx(object):
     from a given measurement run. It also provides a scaffold for interacting
     with the OmeroTables infrastructure.
     """
-    def __init__(self, analysis_ctx, service_factory, original_file,
-                 result_files):
+    
+    # Default raw file store buffer size
+    BUFFER_SIZE = 1024 * 1024  # 1MB
+    
+    def __init__(self, analysis_ctx, service_factory, original_file_provider,
+                 original_file, result_files):
         super(AbstractMeasurementCtx, self).__init__()
         self.analysis_ctx = analysis_ctx
         self.service_factory = service_factory
+        self.original_file_provider = original_file_provider
         self.update_service = self.service_factory.getUpdateService()
         self.original_file = original_file
         self.result_files = result_files
@@ -330,7 +423,12 @@ class AbstractMeasurementCtx(object):
             rstring('openmicroscopy.org/omero/measurement')
         name = self.get_name()
         self.file_annotation.description = rstring(name)
+        
+        # Establish the rest of our initial state
+        self.n_columns = None
 
+    def update_table(self, columns):
+        """Updates the OmeroTables instance backing our results."""
         # Create a new OMERO table to store our measurement results
         sr = self.service_factory.sharedResources()
         self.table = sr.newTable(1, '/%s.r5' % name)
@@ -355,25 +453,25 @@ class AbstractMeasurementCtx(object):
                 self.update_service.saveAndReturnObject(plate_annotation_link)
         self.file_annotation = plate_annotation_link.child
         
-        # Establish the rest of our initial state
-        self.table_initialized = False
-        self.n_columns = None
-    
-    def update_table(self, columns):
-        """Updates the OmeroTables instance backing our results."""
-        if not self.table_initialized:
-            t0 = int(time.time() * 1000)
-            self.table.initialize(columns)
-            print "Table init took %sms" % (int(time.time() * 1000) - t0)
+        t0 = int(time.time() * 1000)
+        self.table.initialize(columns)
+        print "Table init took %sms" % (int(time.time() * 1000) - t0)
         t0 = int(time.time() * 1000)
         self.table.addData(columns)
         print "Table update took %sms" % (int(time.time() * 1000) - t0)
-        self.table_initialized = True
     
     def image_from_original_file(self, original_file):
         """Returns the image from wich an original file has originated."""
-        m= self.analysis_ctx.original_file_image_map
+        m = self.analysis_ctx.original_file_image_map
         return m[original_file.id.val]
+        
+    def parse_and_populate(self):
+        """
+        Calls parse and populate, updating the OmeroTables instance backing
+        our results and the OMERO database itself.
+        """
+        columns = self.parse()
+        self.populate(columns)
    
     ###
     ### Abstract methods
@@ -382,11 +480,15 @@ class AbstractMeasurementCtx(object):
     def get_name(self):
         """Returns the name of the measurement."""
         raise Exception("To be implemented by concrete implementations.")
-
-    def parse_and_populate(self): 
+    
+    def parse(self):
+        """Parses result files, returning a list of OmeroTables columns."""
+        raise Exception("To be implemented by concrete implementations.")
+        
+    def populate(self, columns):
         """
-        Parses result files and populates both the OmeroTables instance
-        backing our results and the OMERO database itself.
+        Populates an OmeroTables instance backing our results and the OMERO
+        database itself.
         """
         raise Exception("To be implemented by concrete implementations.")
 
@@ -402,10 +504,11 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
     # The OmeroTable RoiColumn index
     ROI_COL = 1
 
-    def __init__(self, analysis_ctx, service_factory, original_file,
-                 result_files):
+    def __init__(self, analysis_ctx, service_factory, original_file_provider,
+                 original_file, result_files):
         super(MIASMeasurementCtx, self).__init__(
-                analysis_ctx, service_factory, original_file, result_files)
+                analysis_ctx, service_factory, original_file_provider,
+                original_file, result_files)
     
     def get_empty_columns(self, n_columns):
         """
@@ -413,14 +516,11 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
         prefixed by an ImageColumn and RoiColumn to handle these linked
         object indexes.
         """
-        if not self.table_initialized:
-            columns = [ImageColumn('Image', '', list()),
-                       RoiColumn('ROI', '', list())]
-            for i in range(n_columns):
-                columns.append(DoubleColumn('', '', list()))
-            return columns
-        else:
-            return self.table.getHeaders()
+        columns = [ImageColumn('Image', '', list()),
+                   RoiColumn('ROI', '', list())]
+        for i in range(n_columns):
+            columns.append(DoubleColumn('', '', list()))
+        return columns
 
     def parse_roi(self, image, row):
         """
@@ -449,48 +549,51 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
 
     def get_name(self):
         return self.original_file.name.val[:-4]
-    
-    def parse_and_populate(self):
-        raw_file_store = self.service_factory.createRawFileStore()
-        try:
-            rois = list()
-            columns = None
-            for result_file in self.result_files:
-                print "Parsing: %s" % result_file.name.val
-                image = self.image_from_original_file(result_file)
-                unloaded_image = ImageI(image.id.val, False)
-                raw_file_store.setFileId(result_file.id.val)
-                data = raw_file_store.read(0L, result_file.size.val)
-                rows = list(csv.reader(StringIO(data), delimiter='\t'))
-                rows.reverse()
-                if columns is None:
-                    columns = self.get_empty_columns(len(rows[0]))
-                for row in rows:
-                    try:
-                        for i, value in enumerate(row):
-                            value = float(value)
-                            columns[i + 2].values.append(value)
-                        columns[self.IMAGE_COL].values.append(image.id.val)
-                        rois.append(self.parse_roi(unloaded_image, row))
-                    except ValueError:
-                        for i, value in enumerate(row):
-                            columns[i + 2].name = value
-                        break
-            n_roi = len(rois)
-            print "Total ROI count: %d" % n_roi
-            for i in range((len(rois) / 1000) + 1):
-                t0 = int(time.time() * 1000)
-                a = i * 1000
-                b = (i + 1) * 1000
-                to_save = rois[a:b]
-                print "Saving %d ROI at [%d:%d]" % (len(to_save), a, b)
-                to_save = self.update_service.saveAndReturnIds(to_save)
-                print "ROI update took %sms" % (int(time.time() * 1000) - t0)
-                for roi in to_save:
-                    columns[self.ROI_COL].values.append(roi)
-            self.update_table(columns)
-        finally:
-            raw_file_store.close()
+        
+    def parse(self):
+        rois = list()
+        columns = None
+        for result_file in self.result_files:
+            print "Parsing: %s" % result_file.name.val
+            image = self.image_from_original_file(result_file)
+            unloaded_image = ImageI(image.id.val, False)
+            provider = self.original_file_provider
+            data = provider.get_original_file_data(result_file)
+            try:
+                rows = list(csv.reader(data, delimiter='\t'))
+            finally:
+                data.close()
+            rows.reverse()
+            if columns is None:
+                columns = self.get_empty_columns(len(rows[0]))
+            for row in rows:
+                try:
+                    for i, value in enumerate(row):
+                        value = float(value)
+                        columns[i + 2].values.append(value)
+                    columns[self.IMAGE_COL].values.append(image.id.val)
+                    rois.append(self.parse_roi(unloaded_image, row))
+                except ValueError:
+                    for i, value in enumerate(row):
+                        columns[i + 2].name = value
+                    break
+        self.rois = rois
+        return columns
+
+    def populate(self):
+        n_roi = len(self.rois)
+        print "Total ROI count: %d" % n_roi
+        for i in range((len(self.rois) / 1000) + 1):
+            t0 = int(time.time() * 1000)
+            a = i * 1000
+            b = (i + 1) * 1000
+            to_save = self.rois[a:b]
+            print "Saving %d ROI at [%d:%d]" % (len(to_save), a, b)
+            to_save = self.update_service.saveAndReturnIds(to_save)
+            print "ROI update took %sms" % (int(time.time() * 1000) - t0)
+            for roi in to_save:
+                columns[self.ROI_COL].values.append(roi)
+        self.update_table(columns)
 
 class FlexMeasurementCtx(AbstractMeasurementCtx):
     """
@@ -512,10 +615,11 @@ class FlexMeasurementCtx(AbstractMeasurementCtx):
     # The XPath to a <Result> for a given well and is below WELL_XPATH
     RESULT_XPATH = './/Result'
 
-    def __init__(self, analysis_ctx, service_factory, original_file,
-                 result_files):
+    def __init__(self, analysis_ctx, service_factory, original_file_provider,
+                 original_file, result_files):
         super(FlexMeasurementCtx, self).__init__(
-                analysis_ctx, service_factory, original_file, result_files)
+                analysis_ctx, service_factory, original_file_provider,
+                original_file, result_files)
         self.wells = dict()
         for image in self.analysis_ctx.images:
             for well_sample in image.copyWellSamples():
@@ -542,53 +646,122 @@ class FlexMeasurementCtx(AbstractMeasurementCtx):
     
     def get_name(self):
         return self.original_file.name.val[:-4]
-    
-    def parse_and_populate(self):
-        raw_file_store = self.service_factory.createRawFileStore()
+
+    def parse(self):
+        print "Parsing: %s" % self.original_file.name.val
+        image = self.image_from_original_file(self.original_file)
+        unloaded_image = ImageI(image.id.val, False)
+        provider = self.original_file_provider
+        data = provider.get_original_file_data(self.original_file)
         try:
-            rois = list()
-            columns = None
-            print "Parsing: %s" % self.original_file.name.val
-            image = self.image_from_original_file(self.original_file)
-            unloaded_image = ImageI(image.id.val, False)
-            raw_file_store.setFileId(self.original_file.id.val)
-            data = raw_file_store.read(0L, self.original_file.size.val)
-            et = ElementTree(file=StringIO(data))
-            root = et.getroot()
-            areas = root.findall(self.AREA_XPATH)
-            print "Area count: %d" % len(areas)
-            for i, area in enumerate(areas):
-                result_parameters = area.findall(self.PARAMETER_XPATH)
-                print "Area %d result children: %d" % (i, len(result_parameters))
-                if len(result_parameters) == 0:
-                    print "%s contains no analysis data." % self.get_name()
-                    return
-                headers = list()
-                for result_parameter in result_parameters:
-                    headers.append(result_parameter.text)
-                columns = self.get_empty_columns(headers)
-                wells = area.findall(self.WELL_XPATH)
-                for well in wells:
-                    # Rows and columns are 1-indexed, OMERO wells are 0-indexed
-                    row = int(well.get('row')) - 1
-                    column = int(well.get('col')) - 1
-                    try:
-                        v = columns['Well'].values
-                        v.append(self.wells[row][column].id.val)
-                    except KeyError:
-                        # This has the potential to happen alot with the
-                        # datasets we have given the split machine acquisition
-                        # ".flex" file storage.
-                        print "WARNING: Missing data for row %d column %d" % \
-                                (row, column)
-                        continue
-                    results = well.findall(self.RESULT_XPATH)
-                    for result in results:
-                        name = result.get('name')
-                        columns[name].values.append(float(result.text))
-                self.update_table(columns.values())
+            et = ElementTree(file=data)
         finally:
-            raw_file_store.close()
+            data.close()
+        root = et.getroot()
+        areas = root.findall(self.AREA_XPATH)
+        print "Area count: %d" % len(areas)
+        for i, area in enumerate(areas):
+            result_parameters = area.findall(self.PARAMETER_XPATH)
+            print "Area %d result children: %d" % (i, len(result_parameters))
+            if len(result_parameters) == 0:
+                print "%s contains no analysis data." % self.get_name()
+                return
+            headers = list()
+            for result_parameter in result_parameters:
+                headers.append(result_parameter.text)
+            columns = self.get_empty_columns(headers)
+            wells = area.findall(self.WELL_XPATH)
+            for well in wells:
+                # Rows and columns are 1-indexed, OMERO wells are 0-indexed
+                row = int(well.get('row')) - 1
+                column = int(well.get('col')) - 1
+                try:
+                    v = columns['Well'].values
+                    v.append(self.wells[row][column].id.val)
+                except KeyError:
+                    # This has the potential to happen alot with the
+                    # datasets we have given the split machine acquisition
+                    # ".flex" file storage.
+                    print "WARNING: Missing data for row %d column %d" % \
+                            (row, column)
+                    continue
+                results = well.findall(self.RESULT_XPATH)
+                for result in results:
+                    name = result.get('name')
+                    columns[name].values.append(float(result.text))
+        return columns.values()
+
+    def populate(self, columns):
+        self.update_table(columns)
+
+class InCellMeasurementCtx(AbstractMeasurementCtx):
+    """
+    InCell analyzer measurements are located deep within an XML file container.
+    """
+
+    def __init__(self, analysis_ctx, service_factory, original_file_provider,
+                 original_file, result_files):
+        super(InCellMeasurementCtx, self).__init__(
+                analysis_ctx, service_factory, original_file_provider,
+                original_file, result_files)
+        self.wells = dict()
+        for image in self.analysis_ctx.images:
+            for well_sample in image.copyWellSamples():
+                well = well_sample.well
+                row = well.row.val
+                column = well.column.val
+                if row not in self.wells.keys():
+                    self.wells[row] = dict()
+                self.wells[row][column] = well
+
+    ###
+    ### Abstract method implementations
+    ### 
+
+    def get_name(self):
+        return self.original_file.name.val[:-4]
+
+    def parse(self):
+        print "Parsing: %s" % self.original_file.name.val
+        image = self.image_from_original_file(self.original_file)
+        unloaded_image = ImageI(image.id.val, False)
+        provider = self.original_file_provider
+        data = provider.get_original_file_data(self.original_file)
+        try:
+            events = ('start', 'end')
+            well_data = None
+            n_roi = 0
+            n_measurements = 0
+            columns = {'Image': ImageColumn('Image', '', list())}
+            for event, element in iterparse(data, events=events):
+                if event == 'start' and element.tag == 'WellData' \
+                   and element.get('cell') != 'Summary':
+                    well_data = element
+                    # FIXME: Haxxor
+                    columns['Image'].values.append(n_roi)
+                elif well_data is not None and event == 'start' \
+                     and element.tag == 'Measure':
+                    key = element.get('key')
+                    value = float(element.get('value'))
+                    if n_roi == 0:
+                        columns[key] = DoubleColumn(key, '', list())
+                    columns[key].values.append(value)
+                    n_measurements += 1
+                elif event == 'end' and element.tag == 'WellData':
+                    if well_data is not None:
+                        n_roi += 1
+                        well_data.clear()
+                        well_data = None
+                else:
+                    element.clear()
+            print "Total ROI: %d" % n_roi
+            print "Total measurements: %d" % n_measurements
+            return columns.values()
+        finally:
+            data.close()
+
+    def populate(self, columns):
+        self.update_table(columns)
 
 if __name__ == "__main__":
     try:
@@ -627,7 +800,7 @@ if __name__ == "__main__":
         usage("Host name must be specified!")
     if session_key is None:
         password = getpass()
-
+    
     c = client(hostname, port)
     c.enableKeepAlive(60)
     try:
@@ -635,7 +808,7 @@ if __name__ == "__main__":
             service_factory = c.createSession(session_key)
         else:
             service_factory = c.createSession(username, password)
-
+    
         factory = PlateAnalysisCtxFactory(service_factory)
         analysis_ctx = factory.get_analysis_ctx(plate_id)
         n_measurements = analysis_ctx.get_measurement_count()

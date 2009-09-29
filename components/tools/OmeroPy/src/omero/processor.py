@@ -11,7 +11,6 @@ import time
 import signal
 import logging
 import tempfile
-import threading
 import traceback
 import subprocess
 import exceptions
@@ -22,9 +21,10 @@ import omero.clients
 import omero.util
 import omero.util.concurrency
 
+from omero.util.decorators import remoted, perf, locked
 from omero.rtypes import *
 
-class ProcessI(omero.grid.Process, omero.util.Servant):
+class ProcessI(omero.grid.Process, omero.util.SimpleServant):
     """
     Wrapper around a subprocess.Popen instance. Returned by ProcessorI
     when a job is submitted. This implementation uses the given
@@ -47,16 +47,15 @@ class ProcessI(omero.grid.Process, omero.util.Servant):
     """
 
     def __init__(self, ctx, interpreter, properties, params, kill = False):
-        omero.util.Servant.__init__(self, ctx)
+        omero.util.SimpleServant.__init__(self, ctx)
         self.active = False
         self.dead = False
         self.interpreter = interpreter
         self.properties = properties
         self.params = params
-        self.kill = kill
+        self.iskill = kill
         # Non arguments
         self.callbacks = []
-        self.lock = threading.Lock()
         self.dir = tempfile.mkdtemp()
         self.script_name = os.path.join(self.dir, "script")
         self.config_name = os.path.join(self.dir, "config")
@@ -76,6 +75,7 @@ class ProcessI(omero.grid.Process, omero.util.Servant):
         self.make_client()
         self.logger.info("Created %s in %s" % (self.uuid, self.dir))
 
+    @locked
     def activate(self):
         """
         Process creation has to wait until all external downloads, etc
@@ -84,33 +84,38 @@ class ProcessI(omero.grid.Process, omero.util.Servant):
         self.stdout = open(self.stdout_name, "w")
         self.stderr = open(self.stderr_name, "w")
         self.popen = subprocess.Popen([self.interpreter, "./script"], cwd=self.dir, env=self.env(), stdout=self.stdout, stderr=self.stderr)
-        self.active = True
         self.logger.info("Activated %s with pid %s" % (self.uuid, self.popen.pid))
+        self.active = True
 
+    @perf
+    @locked
     def check(self):
         """
         Called periodically to keep the session alive. Returns
         False if this resource can be cleaned up. (Resources API)
         """
-        if not self.client:
-            self.logger.warning("No client for " + self.uuid)
-            return False
-        try:
-            self.logger.debug("Checking " + self.uuid)
-            self.client.sf.keepAlive(None)
-            return True
-        except:
-            self.logger.error("Keep alive failed for %s" % self.uuid)
-            self.cleanup_session()
-            return False
+        if not self.dead:
+            if not self.client:
+                self.logger.warning("No client for " + self.uuid)
+                return False
+            try:
+                self.logger.debug("Checking " + self.uuid)
+                self.client.sf.keepAlive(None)
+                # Now see if the process is running
+                return (self.poll() is None)
+            except:
+                self.logger.error("Keep alive failed for %s" % self.uuid)
+                self.cleanup_session()
+                return False
 
+    @perf
+    @locked
     def cleanup(self):
         """
         Cleans up the temporary directory used by the process, and terminates
         the Popen process if running. (Resources API)
         """
         try:
-            self.lock.acquire()
             if not self.dead:
                 try:
                     self.logger.info("Cleaning " + self.uuid)
@@ -118,16 +123,12 @@ class ProcessI(omero.grid.Process, omero.util.Servant):
                     self.cleanup_output()
                     self.upload_output() # Important
                     self.cleanup_tmpdir()
-                    if self.kill:
+                    if self.iskill:
                         self.cleanup_session()
                 except exceptions.Exception:
                     self.logger.error("FAILED TO CLEANUP %s" % self.uuid, exc_info = True)
-            else:
-                self.logger.info("Already dead - " + self.uuid)
         finally:
             self.dead = True
-            self.lock.release()
-            omero.util.Servant.cleanup(self)
 
     def __del__(self):
         self.cleanup()
@@ -179,20 +180,26 @@ class ProcessI(omero.grid.Process, omero.util.Servant):
             err_format = out_format
             upload = False
 
-        if upload:
-            self._upload(self.client, self.stdout_name, "stdout", out_format)
-            self._upload(self.client, self.stderr_name, "stderr", err_format)
-            self.logger.info("Uploaded output " + self.uuid)
+        self._upload(upload, self.client, self.stdout_name, "stdout", out_format)
+        self._upload(upload, self.client, self.stderr_name, "stderr", err_format)
 
-    def _upload(self, client, filename, name, format):
-        if format:
-            if os.path.getsize(filename):
-                ofile = client.upload(filename, name=name, type=format)
-                jobid = long(client.getProperty("omero.job"))
-                link = omero.model.JobOriginalFileLinkI()
-                link.parent = omero.model.ScriptJobI(rlong(jobid), False)
-                link.child = ofile
-                client.getSession().getUpdateService().saveObject(link)
+    def _upload(self, upload, client, filename, name, format):
+
+        if not upload or not format:
+            return
+
+        sz = os.path.getsize(filename)
+        if not sz:
+            self.logger.debug("No %s: %s" % (name, self.uuid))
+            return
+
+        ofile = client.upload(filename, name=name, type=format)
+        jobid = long(client.getProperty("omero.job"))
+        link = omero.model.JobOriginalFileLinkI()
+        link.parent = omero.model.ScriptJobI(rlong(jobid), False)
+        link.child = ofile
+        client.getSession().getUpdateService().saveObject(link)
+        self.logger.info("Uploaded %s bytes of %s: %s" % (sz, filename, self.uuid))
 
     def cleanup_tmpdir(self):
         """
@@ -232,6 +239,8 @@ class ProcessI(omero.grid.Process, omero.util.Servant):
         self.client.createSession().closeOnDestroy()
         self.uuid = self.client.sf.ice_getIdentity().name
 
+    @perf
+    @remoted
     def poll(self, current = None):
         rv = self.popen.poll()
         if None == rv:
@@ -242,6 +251,8 @@ class ProcessI(omero.grid.Process, omero.util.Servant):
         self.__del__()
         return rv
 
+    @perf
+    @remoted
     def wait(self, current = None):
         self.logger.info("Wait on " + self.uuid)
         rv = self.popen.wait()
@@ -258,6 +269,8 @@ class ProcessI(omero.grid.Process, omero.util.Servant):
                 pass
         return self.popen.poll() != None
 
+    @perf
+    @remoted
     def cancel(self, current = None):
         rv = self._send(signal.SIGTERM)
         self.allcallbacks("processCancelled", rv)
@@ -265,38 +278,33 @@ class ProcessI(omero.grid.Process, omero.util.Servant):
             self.__del__()
         return rv
 
+    @perf
+    @remoted
     def kill(self, current = None):
         rv = self._send(signal.SIGKILL)
         self.allcallbacks("processKilled", rv)
         self.__del__()
         return rv
 
+    @remoted
+    @locked
     def registerCallback(self, callback, current = None):
-        self.lock.acquire()
-        try:
-            self.callbacks.append(callback)
-        finally:
-            self.lock.release()
+        self.callbacks.append(callback)
 
+    @remoted
+    @locked
     def unregisterCallback(self, callback, current = None):
-        self.lock.acquire()
-        try:
-            self.callbacks.remove(callback)
-        finally:
-            self.lock.release()
+        self.callbacks.remove(callback)
 
+    @locked
     def allcallbacks(self, method, arg):
-        self.lock.acquire()
-        try:
-            self.logger.info("Callback %s for %s" % (method, self.uuid))
-            for cb in self.callbacks:
-                try:
-                    m = getattr(cb,method)
-                    m(arg)
-                except:
-                    self.logger.error("Error calling callback %s on %s" % (cb, self.uuid))
-        finally:
-            self.lock.release()
+        self.logger.info("Callback %s for %s" % (method, self.uuid))
+        for cb in self.callbacks:
+            try:
+                m = getattr(cb,method)
+                m(arg)
+            except:
+                self.logger.error("Error calling callback %s on %s" % (cb, self.uuid))
 
     def __str__(self):
         if hasattr(self, "uuid"):
@@ -311,9 +319,11 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         self.cfg = os.path.join(os.curdir, "etc", "ice.config")
         self.cfg = os.path.abspath(self.cfg)
 
+    @remoted
     def parseJob(self, session, job, current = None):
         return self.parse(session, job, current, kill = True)
 
+    @perf
     def parse(self, session, job, current, kill):
         if not session or not job or not job.id:
             raise omero.ApiUsageException("No null arguments")
@@ -333,12 +343,14 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             self.logger.warning("No output found for omero.scripts.parse. Keys: %s" % client.getOutputKeys())
             return None
 
+    @remoted
     def processJob(self, session, job, current = None):
         """
         """
         params = self.parse(session, job, current, kill = False)
         return self.process(session, job, current, params, kill = True)
 
+    @perf
     def process(self, session, job, current, params, properties = {}, client = None, kill = True):
         """
         session: session uuid, used primarily if client is None
@@ -375,6 +387,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         properties["omero.pass"] = session
         properties["Ice.Default.Router"] = client.getProperty("Ice.Default.Router")
 
+        self.logger.info("processJob: Session = %s, JobId = %s" % (session, job.id.val))
         process = ProcessI(self.ctx, "python", properties, params, kill)
         self.resources.add(process)
         client.download(file, process.script_name)

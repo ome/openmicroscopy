@@ -233,7 +233,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
         
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.SimpleWork(
-                        this, "updateReferences") {
+                        this, "postProcess") {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory _sf) {
 
@@ -263,6 +263,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                                     prx = sr.acquireProcessor(job, 15);
                                     prx.execute(inputs);
                                     procs.add(prx);
+                                    log.info("Launched populateroi.py on " + plate);
                                 } catch (ServerError e) {
                                     String msg = "Error acquiring post processor";
                                     log.error(msg, e);
@@ -271,7 +272,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             
                             }
                             
-                            copy.clear();
+                            savedPixels.clear();
                             return procs;
                         }
                     }

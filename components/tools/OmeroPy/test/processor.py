@@ -14,6 +14,7 @@ logging.basicConfig(level=0)
 
 import omero.processor
 import omero.util
+import omero.util.concurrency
 
 class log:
     def warning(self, string):
@@ -26,6 +27,18 @@ def make_client(self):
 omero.processor.ProcessI.make_client = make_client
 
 class TestProcess(unittest.TestCase):
+
+    def setUp(self):
+        self.log = logging.getLogger("TestProcess")
+        self.ctx = omero.util.ServerContext(server_id='mock', communicator=None, stop_event=omero.util.concurrency.get_event())
+
+    def tearDown(self):
+        self.log.info("stop_event")
+        self.ctx.stop_event.set()
+
+    def param(self):
+        p = {"omero.user":"sessionId","omero.pass":"sessionId", "Ice.Default.Router":"foo"}
+        return p
 
     def testMockPopen(self):
 
@@ -76,10 +89,7 @@ class TestProcess(unittest.TestCase):
         self.asseert_( callback._cancelled )
 
     def testPopen(self):
-
-        ctx = omero.util.ServerContext(None, None, None)
-        p = {"omero.user":"sessionId","omero.pass":"sessionId", "Ice.Default.Router":"conn"}
-        process = omero.processor.ProcessI(ctx, "python",p,log())
+        process = omero.processor.ProcessI(self.ctx, "python", self.param(), log())
         f = open(process.script_name, "w")
         f.write("""
 print "Hello"
@@ -91,11 +101,9 @@ print "Hello"
         self.assert_( None != process.poll() )
 
     def testParameters(self):
-
-        ctx = omero.util.ServerContext(None, None, None)
-        p = {"omero.user":"sessionId","omero.pass":"sessionId", "Ice.Default.Router":"conn"}
+        p = self.param()
         p["omero.scripts.parse"] = "1"
-        process = omero.processor.ProcessI(ctx, "python",p,log())
+        process = omero.processor.ProcessI(self.ctx, "python", p, log())
         f = open(process.script_name, "w")
         f.write("""
 import omero, omero.scripts s
@@ -112,10 +120,18 @@ client = s.client("name","description",s.Long("l"))
         env.append("PATH", os.path.join(os.getcwd(), "lib"))
 
     def testEnvironemnt2(self):
-        ctx = omero.util.ServerContext(None, None, None)
-        p = {"omero.user":"sessionId","omero.pass":"sessionId", "Ice.Default.Router":"foo"}
-        process = omero.processor.ProcessI(ctx, "python",p,log())
+        process = omero.processor.ProcessI(self.ctx, "python", self.param(), log())
         print process.env()
+
+    def testKillProcess(self):
+        process = omero.processor.ProcessI(self.ctx, "python", self.param(), log())
+        f = open(process.script_name, "w")
+        f.write("import time\n")
+        f.write("time.sleep(100)\n")
+        f.close()
+        process.activate()
+        self.assertFalse(process.poll())
+        process.cleanup()
 
 if __name__ == '__main__':
     unittest.main()
