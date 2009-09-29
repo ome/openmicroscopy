@@ -1777,6 +1777,7 @@ public class EditorUtil
     		Color backgoundColor)
 	{
     	OMEComboBox box = new OMEComboBox(values);
+    	box.setOpaque(true);
     	if (backgoundColor != null)
     		box.setBackground(backgoundColor);
 		OMEComboBoxUI ui = new OMEComboBoxUI();
@@ -1787,6 +1788,7 @@ public class EditorUtil
 		int size = f.getSize()-decrement;
 		box.setBorder(null);
 		box.setFont(f.deriveFont(Font.ITALIC, size));
+		
 		return box;
 	}
     

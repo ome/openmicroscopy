@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.env.rnd;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
 import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
@@ -423,7 +425,7 @@ class RenderingControlProxy
 		Object array = getFromCache(pDef);
 		try {
 			if (array != null) 
-				return ImageIO.read(new ByteArrayInputStream((byte[]) array));
+				return WriterImage.bytesToImageJPEG((byte[]) array);
 			
 			byte[] values = servant.renderCompressed(pDef);
 			imageSize = values.length;
@@ -431,6 +433,7 @@ class RenderingControlProxy
 			cache(pDef, values);
 			return WriterImage.bytesToImageJPEG(values);
 		} catch (Throwable e) {
+			e.printStackTrace();
 			handleException(e, ERROR+"cannot render the compressed image.");
 		} 
 		return null;
@@ -517,9 +520,10 @@ class RenderingControlProxy
 			//imageSize = values.length;
 			//initializeCache(pDef);
 			//cache(pDef, values); 
-			TextureData texture = createTexture(buf.getData(), p.x, p.y);
-			return texture;
+			return createTexture(((DataBufferInt) buf).getData(), p.x, p.y);
+			
 		} catch (Throwable e) {
+			e.printStackTrace();
 			handleException(e, ERROR+"cannot render the compressed image.");
 		} 
 		return null;

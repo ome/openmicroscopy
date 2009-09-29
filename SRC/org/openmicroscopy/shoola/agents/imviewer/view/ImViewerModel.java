@@ -975,7 +975,7 @@ class ImViewerModel
 	 */
 	boolean allowSplitView()
 	{
-		if (getMaxC() < 1) return false;
+		if (getMaxC() <= 1) return false;
 		if (isLifetime()) return false;
 		//if (getMaxX() >= 2*IMAGE_MAX_WIDTH) return false;
 		//if (getMaxY() >= 2*IMAGE_MAX_HEIGHT) return false;
