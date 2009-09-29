@@ -343,8 +343,8 @@ class TableI(omero.grid.Table, omero.util.Servant):
     Spreadsheet implementation based on pytables.
     """
 
-    def __init__(self, file_obj, storage):
-        omero.util.Servant.__init__(self)
+    def __init__(self, ctx, file_obj, storage):
+        omero.util.Servant.__init__(self, ctx)
         self.file_obj = file_obj
         self.storage = storage
         self.storage.incr(self)
@@ -368,6 +368,7 @@ class TableI(omero.grid.Table, omero.util.Servant):
                 self.storage.decr(self)
             finally:
                 self.storage = None
+        omero.util.Servant.cleanup(self)
 
     def __str__(self):
         if hasattr(self, "uuid"):
@@ -437,11 +438,11 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
     """
 
     def __init__(self,\
+        ctx,\
         table_cast = omero.grid.TablePrx.uncheckedCast,\
         internal_repo_cast = omero.grid.InternalRepositoryPrx.checkedCast):
 
-        omero.util.Servant.__init__(self)
-        self.communicator = TablesI.communicator # FIXME take context object
+        omero.util.Servant.__init__(self, ctx)
 
         # Storing these methods, mainly to allow overriding via
         # test methods. Static methods are evil.
@@ -537,7 +538,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
             p.makedirs()
 
         storage = HDFLIST.getOrCreate(file_path)
-        table = TableI(file_obj, storage)
+        table = TableI(self.ctx, file_obj, storage)
         self.resources.add(table)
 
         prx = current.adapter.addWithUUID(table)

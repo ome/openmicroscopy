@@ -269,7 +269,7 @@ class PlateAnalysisCtxFactory(object):
     def __init__(self, service_factory):
         self.service_factory = service_factory
         self.query_service = self.service_factory.getQueryService()
-    
+
     def find_images_for_plate(self, plate_id):
         """
         Retrieves all the images associated with a given plate. Fetched
@@ -304,7 +304,7 @@ class PlateAnalysisCtxFactory(object):
             if klass.is_this_type(original_files):
                 return klass(images, original_files,
                              original_file_image_map,
-                             plate_id, service_factory)
+                             plate_id, self.service_factory)
         raise MeasurementError(
                 "Unable to find suitable analysis context for plate: %d" % \
                         plate_id)
@@ -330,12 +330,12 @@ class AbstractMeasurementCtx(object):
             rstring('openmicroscopy.org/omero/measurement')
         name = self.get_name()
         self.file_annotation.description = rstring(name)
-        
+
         # Create a new OMERO table to store our measurement results
         sr = self.service_factory.sharedResources()
         self.table = sr.newTable(1, '/%s.r5' % name)
         if self.table is None:
-            raise MeasurementException(
+            raise MeasurementError(
                 "Unable to create table: %s" % name)
                 
         # Retrieve the original file corresponding to the table for the
@@ -627,7 +627,7 @@ if __name__ == "__main__":
         usage("Host name must be specified!")
     if session_key is None:
         password = getpass()
-    
+
     c = client(hostname, port)
     c.enableKeepAlive(60)
     try:
@@ -635,7 +635,7 @@ if __name__ == "__main__":
             service_factory = c.createSession(session_key)
         else:
             service_factory = c.createSession(username, password)
-    
+
         factory = PlateAnalysisCtxFactory(service_factory)
         analysis_ctx = factory.get_analysis_ctx(plate_id)
         n_measurements = analysis_ctx.get_measurement_count()

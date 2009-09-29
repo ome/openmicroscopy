@@ -148,16 +148,24 @@ def long_to_path(id, root=""):
 
     return os.path.join(root, "%s%s" %(suffix,id))
 
+class ServerContext(object):
+    """
+    Simple server context passed to all servants.
+    """
+    def __init__(self, server_id, communicator, stop_event):
+        self.server_id = server_id
+        self.communicator = communicator
+        self.stop_event = stop_event
+
 class Server(Ice.Application):
     """
     Basic server implementation which can be used for
     implementing a standalone python server which can
     be started from icegridnode.
 
-    The servant implementation MUST:
-       - have a no-arg __init__ method
-       - have a cleanup() method
-       - not provide a "serverid" attribute (will be assigned)
+    The servant implementation MUST have a constructor
+    which takes a single ServerContext argument AND
+    have a cleanup() method
 
     Logging is configured relative to the current directory
     to be in var/log by default.
@@ -178,6 +186,7 @@ class Server(Ice.Application):
         self.adapter_name = adapter_name
         self.identity = identity
         self.logdir = logdir
+        self.stop_event = omero.util.concurrency.get_event()
 
     def run(self,args):
 
@@ -198,9 +207,10 @@ class Server(Ice.Application):
                 of.register(self.communicator())
 
             try:
-                self.impl_class.communicator = self.communicator() # FIXME use context object
-                self.impl = self.impl_class()
-                self.impl.serverid = self.communicator().getProperties().getProperty("Ice.ServerId")
+                serverid = self.communicator().getProperties().getProperty("Ice.ServerId")
+                ctx = ServerContext(serverid, self.communicator(), self.stop_event)
+                self.impl = self.impl_class(ctx)
+                getattr(self.impl, "cleanup") # Required per docs
             except:
                 self.logger.error("Failed initialization", exc_info=1)
                 sys.exit(100)
@@ -217,6 +227,7 @@ class Server(Ice.Application):
             self.logger.info("Blocking until shutdown")
             self.communicator().waitForShutdown()
         finally:
+            self.stop_event.set() # Let's all waits shutdown
             self.logger.info("Cleanup")
             self.cleanup()
             self.logger.info("Stopped")
@@ -232,6 +243,7 @@ class Server(Ice.Application):
             finally:
                 del self.impl
 
+
 class Servant(object):
     """
     Abstract servant which can be used along with a slice2py
@@ -240,8 +252,11 @@ class Servant(object):
     class.
     """
 
-    def __init__(self):
-        self.resources = omero.util.Resources()
+    def __init__(self, ctx):
+        self.ctx = ctx
+        self.stop_event = ctx.stop_event
+        self.resources = omero.util.Resources(stop_event = self.stop_event)
+        self.communicator = ctx.communicator
         self.logger = logging.getLogger(make_logname(self))
         self.logger.info("Initialized")
 
@@ -273,7 +288,7 @@ class Task(threading.Thread):
     def __init__(self, event, sleeptime, task):
 
         if sleeptime < 5:
-            raise exceptions.Exception("Sleep time should be greater than 5")
+            raise exceptions.Exception("Sleep time should be greater than 5: %s" % sleeptime)
 
         threading.Thread.__init__(self)
         self.event = event
@@ -302,7 +317,7 @@ class Resources:
     cleaned up on close and periodically checked.
     """
 
-    def __init__(self, sleeptime = 60):
+    def __init__(self, sleeptime = 60, stop_event = None):
         """
         Add resources via add(object). They should have a no-arg cleanup()
         and a check() method.
@@ -314,7 +329,9 @@ class Resources:
 
         self.logger = logging.getLogger("omero.util.Resources")
         self.logger.info("Starting")
-        self.stop_event = omero.util.concurrency.get_event()
+        self.stop_event = stop_event
+        if not self.stop_event:
+            self.stop_event = omero.util.concurrency.get_event()
 
         self.stuff = []
         def task():

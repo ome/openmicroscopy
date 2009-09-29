@@ -8,12 +8,22 @@
 
 """
 
-import unittest, os
+import unittest, os, logging
+
+logging.basicConfig(level=0)
+
 import omero.processor
+import omero.util
 
 class log:
     def warning(self, string):
         print "Warning:",string
+
+def make_client(self):
+    self.client = None
+    self.uuid = "mock_uuid"
+
+omero.processor.ProcessI.make_client = make_client
 
 class TestProcess(unittest.TestCase):
 
@@ -67,8 +77,9 @@ class TestProcess(unittest.TestCase):
 
     def testPopen(self):
 
+        ctx = omero.util.ServerContext(None, None, None)
         p = {"omero.user":"sessionId","omero.pass":"sessionId", "Ice.Default.Router":"conn"}
-        process = omero.processor.ProcessI("python",p,log())
+        process = omero.processor.ProcessI(ctx, "python",p,log())
         f = open(process.script_name, "w")
         f.write("""
 print "Hello"
@@ -81,9 +92,10 @@ print "Hello"
 
     def testParameters(self):
 
+        ctx = omero.util.ServerContext(None, None, None)
         p = {"omero.user":"sessionId","omero.pass":"sessionId", "Ice.Default.Router":"conn"}
         p["omero.scripts.parse"] = "1"
-        process = omero.processor.ProcessI("python",p,log())
+        process = omero.processor.ProcessI(ctx, "python",p,log())
         f = open(process.script_name, "w")
         f.write("""
 import omero, omero.scripts s
@@ -95,13 +107,14 @@ client = s.client("name","description",s.Long("l"))
         process.poll()
 
     def testEnvironment(self):
-        env = omero.processor.Environment("PATH")
+        env = omero.util.Environment("PATH")
         env.append("PATH", os.pathsep.join(["bob","cat"]))
         env.append("PATH", os.path.join(os.getcwd(), "lib"))
 
     def testEnvironemnt2(self):
+        ctx = omero.util.ServerContext(None, None, None)
         p = {"omero.user":"sessionId","omero.pass":"sessionId", "Ice.Default.Router":"foo"}
-        process = omero.processor.ProcessI("python",p,log())
+        process = omero.processor.ProcessI(ctx, "python",p,log())
         print process.env()
 
 if __name__ == '__main__':
