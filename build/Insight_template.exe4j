@@ -39,7 +39,9 @@
       <scanDirectory location="./lib" failOnError="false" />
       <scanDirectory location="." failOnError="false" />
     </classPath>
-    <nativeLibraryDirectories />
+    <nativeLibraryDirectories>
+      <directory name="lib" />
+    </nativeLibraryDirectories>
   </java>
   <includedFiles />
   <unextractableFiles />

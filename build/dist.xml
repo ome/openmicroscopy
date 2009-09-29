@@ -220,6 +220,7 @@
       <zipfileset file="${app.dir}/${dist.win.exename}.exe"/>
       <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 
       <zipfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
+      <zipfileset dir="${base.lib.dir}/win-native" prefix="lib/" includes="*"/>
     </zip> 
   </target>
   
