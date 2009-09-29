@@ -219,6 +219,7 @@
       <zipfileset dir="${app.dir}" includes="lib/*"/>
       <zipfileset file="${app.dir}/${dist.win.exename}.exe"/>
       <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 
+      <zipfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
     </zip> 
   </target>
   
