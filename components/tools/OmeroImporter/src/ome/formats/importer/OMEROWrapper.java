@@ -183,11 +183,6 @@ public class OMEROWrapper extends MinMaxCalculator {
 }
 
 class ReaderInvocationHandler implements InvocationHandler {
-    static class UnknownFormatException extends FormatException {
-        UnknownFormatException(Throwable t) {
-            super(t);
-        }
-    }
 
     private final IFormatReader reader;
 
@@ -208,7 +203,7 @@ class ReaderInvocationHandler implements InvocationHandler {
             try {
                 return method.invoke(proxy, args);
             } catch (Exception e) {
-                throw new UnknownFormatException(e);
+                throw new FormatException(e);
             }
         }
     }

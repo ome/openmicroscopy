@@ -32,6 +32,7 @@ import java.util.Map;
 import loci.common.DataTools;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
+import loci.formats.UnknownFormatException;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.ErrorHandler;
 import ome.formats.model.InstanceProvider;
@@ -50,7 +51,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * support class for the proper usage of {@link OMEROMetadataStoreClient} and
  * {@link FormatReader} instances. This library was factored out of
- * {@link ImportHandler} to support {@link ImportFixture} The general workflow
+ * ImportHandler to support ImportFixture The general workflow
  * for this class (as seen in {@link ImportFixture} is: <code>
  *   ImportLibrary library = new ImportLibrary(store,reader,files);
  *   for (File file : files) {
@@ -67,7 +68,6 @@ import org.apache.commons.logging.LogFactory;
  * @version $Revision: 1167 $, $Date: 2006-12-15 10:39:34 +0000 (Fri, 15 Dec 2006) $
  * @see FormatReader
  * @see OMEROMetadataStoreClient
- * @see ImportHandler
  * @see ImportFixture
  * @see IObservable
  * @see IObserver
@@ -154,7 +154,7 @@ public class ImportLibrary implements IObservable
                 String path = paths.get(index);
                 
                 try {
-                    List<Pixels> pix = importImage(new File(path), 
+                    importImage(new File(path), 
                             index, numDone, paths.size(), path, "",
                             false, false, null, null);
                     numDone++;
@@ -391,16 +391,15 @@ public class ImportLibrary implements IObservable
             return pixList;
         } catch (IOException io) {
             notifyObservers(new ErrorHandler.FILE_EXCEPTION(fileName, io, usedFiles, format));
-            io.printStackTrace();
             throw io;
+        } catch (UnknownFormatException ufe) {
+            notifyObservers(new ErrorHandler.UNKNOWN_FORMAT(fileName, ufe));
+            throw ufe;
         } catch (FormatException fe) {
             notifyObservers(new ErrorHandler.FILE_EXCEPTION(fileName, fe, usedFiles, format));
-            fe.printStackTrace();
             throw fe;
         } catch (Exception e) {
-            //notifyObservers(new ErrorHandler.FILE_EXCEPTION(fileName, e, usedFiles, null));
             notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(fileName, e, usedFiles, format));
-            e.printStackTrace();
             throw e;
         } finally {
             store.createRoot(); // CLEAR MetadataStore
@@ -409,7 +408,7 @@ public class ImportLibrary implements IObservable
     
     /**
      * saves the binary data to the server. After each successful save,
-     * {@link Step#step(int)} is called with the number of the iteration just
+     * an {@link ImportEvent.IMPORT_STEP} is raised with the number of the iteration just
      * completed.
      * @param series 
      * @return The SHA1 message digest for the Pixels saved.

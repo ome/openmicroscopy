@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import loci.formats.UnknownFormatException;
+
 import ome.formats.importer.util.ErrorHandler;
 import ome.formats.importer.util.ErrorHandler.FILE_EXCEPTION;
 
@@ -295,7 +297,7 @@ public class ImportCandidates extends DirectoryWalker {
 
         String path = file.getAbsolutePath();
         String format = null;
-        String[] usedFiles = null;
+        String[] usedFiles = new String[] { path };
         try {
             reader.setId(path);
             format = reader.getFormat();
@@ -304,29 +306,24 @@ public class ImportCandidates extends DirectoryWalker {
             return new ImportContainer(file, null, null, null, false, null,
                     format, usedFiles, reader.isSPWReader(path));
 
+        } catch (UnknownFormatException ufe) {
+            safeUpdate(new ErrorHandler.UNKNOWN_FORMAT(path, ufe));
         } catch (Exception e) {
-
-            if (usedFiles == null || usedFiles.length == 0) {
-                if (new File(path).exists()) {
-                    usedFiles = new String[] { path };
-                }
-            }
-
-            ImportEvent event = new SCANNING_FILE_EXCEPTION(path, e,
-                    usedFiles, format);
-
-            try {
-                observer.update(null, event);
-            } catch (Exception ex) {
-                log.error(
-                        String.format("Error on %s with %s", observer, event),
-                        ex);
-            }
-
+            safeUpdate(new SCANNING_FILE_EXCEPTION(path, e, usedFiles, format));
         }
 
         return null;
 
+    }
+
+    private void safeUpdate(ImportEvent event) {
+        try {
+            observer.update(null, event);
+        } catch (Exception ex) {
+            log.error(
+                    String.format("Error on %s with %s", observer, event),
+                    ex);
+        }
     }
 
     @Override

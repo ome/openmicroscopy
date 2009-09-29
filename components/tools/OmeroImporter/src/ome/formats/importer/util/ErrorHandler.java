@@ -54,6 +54,26 @@ public abstract class ErrorHandler implements IObserver, IObservable {
         }
     }
 
+    /**
+     * Unlike {@link FILE_EXECEPTION}, UKNOWN_FORMAT does not have a reader
+     * since bio-formats is telling us that it does not know how to handle
+     * the given file. This should be generally be considered less fatal
+     * than a {@link FILE_EXCEPTION}, but if the user is specifically saying
+     * that a file should be imported, and an {@link UNKNOWN_FORMAT} is raised,
+     * then perhaps there is a configuration issue.
+     */
+    public static class UNKNOWN_FORMAT extends EXCEPTION_EVENT {
+        public final String filename;
+        public UNKNOWN_FORMAT(String filename, Exception exception) {
+            super(exception);
+            this.filename = filename;
+        }
+        @Override
+        public String toLog() {
+            return super.toLog() + ": "+filename;
+        }
+    }
+    
     public static class FILE_EXCEPTION extends EXCEPTION_EVENT {
         public final String filename;
         public final String[] usedFiles;
@@ -97,6 +117,8 @@ public abstract class ErrorHandler implements IObserver, IObservable {
             INTERNAL_EXCEPTION ev = (INTERNAL_EXCEPTION) event;
             log.error(event.toLog(), ev.exception);
             addError(ev.exception, new File(ev.filename), ev.usedFiles, ev.reader);
+        } else if (event instanceof UNKNOWN_FORMAT) {
+            log.debug(event.toLog());
         }
         onUpdate(observable, event);
     }
