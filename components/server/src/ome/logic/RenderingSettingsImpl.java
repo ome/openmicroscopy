@@ -335,13 +335,23 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		p.addId(id);
     	StringBuilder sb = new StringBuilder();
     	sb.append("select channel from LogicalChannel as channel ");
+    	
         sb.append("left outer join fetch channel.filterSet as filter ");
         sb.append("left outer join fetch filter.emFilter as ef ");
+        sb.append("left outer join fetch filter.exFilter as exf ");
         sb.append("left outer join fetch ef.transmittanceRange as efTrans ");
+        sb.append("left outer join fetch exf.transmittanceRange as exfTrans ");
         sb.append("left outer join fetch channel.secondaryEmissionFilter as " +
         		"emfilter ");
         sb.append("left outer join fetch emfilter.transmittanceRange as " +
-        		"trans ");
+        		"emTrans ");
+        sb.append("left outer join fetch channel.secondaryExcitationFilter as " +
+		"exfilter ");
+        sb.append("left outer join fetch exfilter.transmittanceRange as " +
+        		"exTrans ");
+        sb.append("left outer join fetch channel.lightSourceSettings as lss ");
+        sb.append("left outer join fetch lss.lightSource as ls ");
+        //
         sb.append("where channel.id = :id");
         return (LogicalChannel) iQuery.findByQuery(sb.toString(), p);
     }
