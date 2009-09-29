@@ -202,7 +202,16 @@ public class CommandLineImporter {
      *            Command line arguments.
      */
     public static void main(String[] args) {
+        
         ImportConfig config = new ImportConfig();
+        
+        // Defaults
+        config.email.set("");
+        config.sendFiles.set(false);
+        config.sendReport.set(false);
+        config.contOnError.set(false);
+        config.debug.set(false);
+        
         LongOpt debug = new LongOpt("debug", LongOpt.NO_ARGUMENT, null, 1);
         LongOpt report = new LongOpt("report", LongOpt.NO_ARGUMENT, null, 2);
         LongOpt upload = new LongOpt("upload", LongOpt.NO_ARGUMENT, null, 3);
