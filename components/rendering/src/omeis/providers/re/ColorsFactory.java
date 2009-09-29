@@ -13,6 +13,8 @@ package omeis.providers.re;
 
 // Application-internal dependencies
 import ome.model.acquisition.Filter;
+import ome.model.acquisition.Laser;
+import ome.model.acquisition.LightSource;
 import ome.model.acquisition.TransmittanceRange;
 import ome.model.core.Channel;
 import ome.model.core.LogicalChannel;
@@ -142,29 +144,72 @@ public class ColorsFactory {
             }
             return null;
     	}
-    	Integer emissionWavelength = lc.getEmissionWave();
+    	Integer value = lc.getEmissionWave();
         //First we check the emission wavelength.
-        if (emissionWavelength != null) {
-        	if (rangeBlue(emissionWavelength)) return newBlueColor();
-        	if (rangeGreen(emissionWavelength)) return newGreenColor();
-        	if (rangeRed(emissionWavelength)) return newRedColor();
-        } else { //check the secondary emission filter if any.
-        	Filter f = lc.getSecondaryEmissionFilter();
-        	if (f == null) return null;
-        	TransmittanceRange transmittance = f.getTransmittanceRange();
-        	if (transmittance == null) return null;
-        	Integer cutIn = transmittance.getCutIn();
-        	Integer cutOut = transmittance.getCutOut();
-        	if (cutIn == null) return null;
-        	if (cutOut == null || cutOut == 0) cutOut = cutIn+20;
-        	Integer value = (cutIn+cutOut)/2;
-        	if (rangeBlue(value)) return newBlueColor();
-        	if (rangeGreen(value)) return newGreenColor();
-        	if (rangeRed(value)) return newRedColor();
-        }
-        return null;
+        if (value != null) return determineColor(value);
+        
+        //First check the emission filter.
+    	//First check if filter
+       
+    	if (lc.getFilterSet() != null)
+    		value = getValueFromFilter(lc.getFilterSet().getEmFilter());
+    	//nothing so we check the secondary filter
+    	if (value == null) 
+    		value = getValueFromFilter(lc.getSecondaryEmissionFilter());
+    
+    	//Laser
+    	if (value == null && lc.getLightSourceSettings() != null) {
+    		LightSource ls = lc.getLightSourceSettings().getLightSource();
+    		if (ls instanceof Laser) value = ((Laser) ls).getWavelength();
+    	}
+    	if (value != null) return determineColor(value);
+    	
+    	//Excitation
+    	value = lc.getExcitationWave();
+    	if (value != null) return determineColor(value);
+    	
+    	if (value == null && lc.getFilterSet() != null)
+    		value = getValueFromFilter(lc.getFilterSet().getExFilter());
+
+    	if (value == null) 
+    		value = getValueFromFilter(lc.getSecondaryExcitationFilter());
+    	
+    	return determineColor(value);
     }
  
+    /**
+     * Determines the color corresponding to the passed value.
+     * 
+     * @param value The value to handle.
+     * @return
+     */
+    private static int[] determineColor(Integer value)
+    {
+    	if (value == null) return null;
+    	if (rangeBlue(value)) return newBlueColor();
+    	if (rangeGreen(value)) return newGreenColor();
+    	if (rangeRed(value)) return newRedColor();
+    	return null;
+    }
+    
+    /**
+     * Returns the range of the wavelength or <code>null</code>.
+     * 
+     * @param filter The filter to handle.
+     * @return See above.
+     */
+    private static Integer getValueFromFilter(Filter filter)
+    {
+    	if (filter == null) return null;
+    	TransmittanceRange transmittance = filter.getTransmittanceRange();
+    	if (transmittance == null) return null;
+    	Integer cutIn = transmittance.getCutIn();
+    	Integer cutOut = transmittance.getCutOut();
+    	if (cutIn == null) return null;
+    	if (cutOut == null || cutOut == 0) cutOut = cutIn+20;
+    	return (cutIn+cutOut)/2;
+    }
+    
     /**
      * Returns <code>true</code> if the channel has emission metadata,
      * <code>false</code> otherwise.
@@ -178,6 +223,21 @@ public class ColorsFactory {
     	TransmittanceRange transmittance = f.getTransmittanceRange();
     	if (transmittance == null) return false;
     	return transmittance.getCutIn() != null;
+    }
+    
+    /**
+     * Returns the name related to the channel if the channel has emission 
+     * metadata, <code>null</code> otherwise.
+     * 
+     * @param f The filter to handle.
+     * @return See above.
+     */
+    private static String isFilterHasEmissionValue(Filter f)
+    {
+    	if (f == null) return null;
+    	TransmittanceRange transmittance = f.getTransmittanceRange();
+    	if (transmittance == null) return null;
+    	return ""+transmittance.getCutIn();
     }
     
     /**
@@ -227,7 +287,60 @@ public class ColorsFactory {
     		Filter f = lc.getFilterSet().getEmFilter();
         	if (isFilterHasEmissionData(f)) return true;
     	}
-    	return isFilterHasEmissionData(lc.getSecondaryEmissionFilter());
+    	if (isFilterHasEmissionData(lc.getSecondaryEmissionFilter()))
+    		return true;
+    	//Laser
+    	if (lc.getLightSourceSettings() != null) {
+    		LightSource src = lc.getLightSourceSettings().getLightSource();
+    		if (src instanceof Laser) {
+    			Laser laser = (Laser) src;
+    			if (laser.getWavelength() != null) return true;
+    		}
+    	}
+    	//Excitation
+    	if (lc.getExcitationWave() != null) return true;
+    	if (lc.getFilterSet() != null) {
+    		Filter f = lc.getFilterSet().getExFilter();
+        	if (isFilterHasEmissionData(f)) return true;
+    	}
+    	return isFilterHasEmissionData(lc.getSecondaryExcitationFilter());
+    }
+    
+    /**
+     * Returns <code>true</code> if the channel has emission metadata,
+     * <code>false</code> otherwise.
+     * 
+     * @param lc The channel to handle.
+     * @return See above.
+     */
+    public static String hasEmissionValue(LogicalChannel lc)
+    {
+    	String value = null;
+    	if (lc == null) return null;
+    	if (lc.getEmissionWave() != null) return ""+lc.getEmissionWave();
+    	if (lc.getFilterSet() != null) {
+    		Filter f = lc.getFilterSet().getEmFilter();
+    		value = isFilterHasEmissionValue(f);
+        	if (value != null) return value;
+    	}
+    	value = isFilterHasEmissionValue(lc.getSecondaryEmissionFilter());
+    	if (value != null) return value;
+    	//Laser
+    	if (lc.getLightSourceSettings() != null) {
+    		LightSource src = lc.getLightSourceSettings().getLightSource();
+    		if (src instanceof Laser) {
+    			Laser laser = (Laser) src;
+    			if (laser.getWavelength() != null) 
+    				return ""+laser.getWavelength();
+    		}
+    	}
+    	//Excitation
+    	if (lc.getExcitationWave() != null) return ""+lc.getExcitationWave();
+    	if (lc.getFilterSet() != null) {
+    		Filter f = lc.getFilterSet().getExFilter();
+    		value = isFilterHasEmissionValue(f);
+    	}
+    	return isFilterHasEmissionValue(lc.getSecondaryExcitationFilter());
     }
     
     /**
