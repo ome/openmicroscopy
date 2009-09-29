@@ -2753,7 +2753,7 @@ public class OMEROMetadataStoreClient
         }
     }
 
-    public InteractiveProcessorPrx launchProcessing()
+    public List<InteractiveProcessorPrx> launchProcessing()
     {
         try {
             return delegate.postProcess();

@@ -21,6 +21,7 @@ import ome.parameters.Parameters;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
+import ome.services.roi.PopulateRoiJob;
 import ome.services.throttling.Adapter;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
@@ -74,9 +75,12 @@ public class MetadataStoreI extends AbstractAmdServant implements
     protected OMEROMetadataStore store;
 
     protected ServiceFactoryI sf;
+    
+    protected PopulateRoiJob popRoi;
 
-    public MetadataStoreI(final BlitzExecutor be) throws Exception {
+    public MetadataStoreI(final BlitzExecutor be, PopulateRoiJob popRoi) throws Exception {
         super(null, be);
+        this.popRoi = popRoi;
     }
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
@@ -206,8 +210,8 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 }));
     }
 
-    static String plate_query = "select disinct p from plate join p.wells w join w.wellSample ws " +
-    		"join ws.image i join i.pixels pix where pix.id in :pixels";
+    public static String plate_query = "select distinct p from Plate p join p.wells w join w.wellSamples ws " +
+    		"join ws.image i join i.pixels pix where pix.id in (:pixels)";
     
     /**
      * Called after some number of Passes the {@link #savedPixels} to a
@@ -225,6 +229,8 @@ public class MetadataStoreI extends AbstractAmdServant implements
 
         final List<Long> copy = new ArrayList<Long>();
         
+        final List<InteractiveProcessorPrx> procs = new ArrayList<InteractiveProcessorPrx>();
+        
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.SimpleWork(
                         this, "updateReferences") {
@@ -234,47 +240,39 @@ public class MetadataStoreI extends AbstractAmdServant implements
                         synchronized (savedPixels) {
 
                             copy.addAll(savedPixels);
-                        
+                            if (copy.size() == 0) {
+                                return null;
+                            }
+                            
                             Parameters p = new Parameters();
                             p.addList("pixels", copy);
-                            List<Plate> plates = (List<Plate>) _sf.getQueryService().findByQuery(plate_query, p);
+                            List<IObject> plates = _sf.getQueryService().findAllByQuery(plate_query, p);
                             if (plates == null || plates.size() == 0) {
                                 return null;
                             }
                             
-                            final Collection<RLong> rplates = new ArrayList<RLong>();
-                            for (Plate plate : plates) {
-                                rplates.add(omero.rtypes.rlong(plate.getId()));
-                            }
-                            RList list = omero.rtypes.rlist(rplates.toArray(new RLong[0]));
-                            RMap inputs = omero.rtypes.rmap("plateIds", list);
+                            for (IObject plate : plates) {
+                                
+                                RMap inputs = omero.rtypes.rmap("plate_id",
+                                        omero.rtypes.rlong(plate.getId()));
+                                
+                                ScriptJob job = popRoi.createJob();
+                                InteractiveProcessorPrx prx;
+                                try {
+                                    SharedResourcesPrx sr = sf.sharedResources();
+                                    prx = sr.acquireProcessor(job, 15);
+                                    prx.execute(inputs);
+                                    procs.add(prx);
+                                } catch (ServerError e) {
+                                    String msg = "Error acquiring post processor";
+                                    log.error(msg, e);
+                                    throw new InternalException(msg);
+                                }
                             
-                            long id;
-                            try {
-                                id = sf.getScriptService().getScriptID("populate_roi.py");
-                            } catch (ServerError e1) {
-                                String msg = "populate_roi.py not found";
-                                log.error(msg, e1);
-                                throw new InternalException(msg);
-                            }
-                            OriginalFile script = new OriginalFileI(id, false);
-                            
-                            ScriptJob job = new ScriptJobI();
-                            job.linkOriginalFile(script);
-                            job.setDescription(omero.rtypes.rstring("import-post-processing"));
-                            InteractiveProcessorPrx prx;
-                            try {
-                                SharedResourcesPrx sr = sf.sharedResources();
-                                prx = sr.acquireProcessor(job, 15);
-                                prx.execute(inputs);
-                                copy.clear();
-                                return prx;
-                            } catch (ServerError e) {
-                                String msg = "Error acquiring post processor";
-                                log.error(msg, e);
-                                throw new InternalException(msg);
                             }
                             
+                            copy.clear();
+                            return procs;
                         }
                     }
                 }));

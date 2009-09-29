@@ -51,7 +51,7 @@ module omero {
                 void updateReferences(omero::api::StringStringArrayMap references) throws ServerError;
                 PixelsList saveToDB() throws ServerError;
                 void populateMinMax(DoubleArrayArrayArray imageChannelGlobalMinMax) throws ServerError;
-                omero::grid::InteractiveProcessor* postProcess() throws ServerError;
+                omero::grid::InteractiveProcessorList postProcess() throws ServerError;
             };
     };
 

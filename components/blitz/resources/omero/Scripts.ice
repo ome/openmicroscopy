@@ -225,6 +225,9 @@ module omero {
             omero::RMap getResults(Process* proc) throws ServerError;
 
         };
+
+        ["java:type:java.util.ArrayList<omero.grid.InteractiveProcessorPrx>:java.util.List<omero.grid.InteractiveProcessorPrx>"]
+            sequence<InteractiveProcessor*> InteractiveProcessorList;
     };
 };
 
