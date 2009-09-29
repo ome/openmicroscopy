@@ -540,12 +540,12 @@ public class TestMetadataStoreService implements MetadataStorePrx
 		return null;
 	}
 
-    public InteractiveProcessorPrx postProcess() throws ServerError {
+    public List<InteractiveProcessorPrx> postProcess() throws ServerError {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public InteractiveProcessorPrx postProcess(Map<String, String> __ctx)
+    public List<InteractiveProcessorPrx> postProcess(Map<String, String> __ctx)
             throws ServerError {
         // TODO Auto-generated method stub
         return null;
