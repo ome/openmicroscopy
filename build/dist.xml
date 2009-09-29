@@ -62,7 +62,8 @@
   <property name="dist.installfile" 
             location="${base.launch.dir}/INSTALL.txt"/> 
   <basename property="dist.app.lib.dir.name" file="${app.lib.dir}"/>
-  <basename property="dist.app.config.dir.name" file="${app.config.dir}"/> 
+  <basename property="dist.app.config.dir.name" file="${app.config.dir}"/>
+  <property name="dist.vmparameters" value="-Xms256M -Xmx512M"/>
   <property name="dist.osx.icon" 
             location="${base.launch.dir}/osx/omeroinsight.icns"/>
   <property name="dist.osx.stub" 
@@ -70,6 +71,10 @@
   <property name="dist.osx.stub.name" value="JavaApplicationStub"/> 
   <property name="dist.osx.installfile" 
             location="${base.launch.dir}/osx/INSTALL"/>
+  <property name="dist.exe4j.home" value="/opt/exe4j"/>
+  <property name="dist.win.exename" value="OMERO.insight.exe"/>
+  <property name="dist.win.icon"
+            location="${base.launch.dir}/win/omeroinsight.ico"/>
   <property name="dist.util.name" value="omero-clients-util"/>
   <property name="dist.util.dir" location="${dist.dir}/util"/>
   <property name="distEditor.osx.icon" 
@@ -84,8 +89,31 @@
     * all tests pass.  
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="dist-init" depends="app.clean,test.clean,test">
-    <mkdir dir="${dist.dir}"/> 
-  </target> 
+    <mkdir dir="${dist.dir}"/>
+  </target>
+  
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+    * Checks to see if EXE4J is available for Windows build targets.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <target name="exe4j-check-exists">
+    <condition property="dist.exe4j.exists">
+      <available file="${dist.exe4j.home}/bin/ant.jar"/>
+    </condition>
+  </target>
+
+  <target name="exe4j-echo-on-missing" unless="dist.exe4j.exists">
+    <echo message="exe4j not present at ${dist.exe4j.home}/bin/ant.jar, skipping exe4j tasks."/>
+  </target>
+
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+    * Prepares the EXE4J Ant plug-in for Windows build targets.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <target name="exe4j-init" depends="exe4j-check-exists,exe4j-echo-on-missing" if="dist.exe4j.exists">
+    <echo message="exe4j present at ${dist.exe4j.home}, preparing exe4j tasks."/>
+      <taskdef name="exe4j"
+               classpath="${dist.exe4j.home}/bin/ant.jar"
+               classname="com.exe4j.Exe4JTask"/>
+  </target>
  
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Package the whole app into the ${dist.jar.file} under ${dist.dir}.
@@ -154,7 +182,34 @@
       <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 
     </zip> 
   </target>
- 
+
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Creates the Windows distribution bundle under ${dist.dir}.
+   * This is a zip file whose name is set to 
+   * ${dist.bundle.name}-${dist.bundle.version}-win.zip 
+   * and whose contents are:
+   *   + A config dir, containing all the app.config files.  The dir name is
+   *     set to the name of the ${app.config.dir}.
+   *   + The OMERO.insight application.  That is, the .app dir embedding the app
+   *     jar file, all the the app.libs files, and Windows exe.
+   *   + The license file, ${base.licensefile}. 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <target name="dist-win" depends="jar,exe4j-init"
+          if="dist.exe4j.exists"
+          description="Build an package the app for Windows distribution.">
+    <copy tofile="Insight.exe4j" file="Insight_template.exe4j"
+          overwrite="true">
+      <filterset>
+        <filter token="MAIN_CLASS" value="${app.mainclass}"/>
+        <filter token="EXE_NAME" value="${dist.win.exename}"/>
+        <filter token="APP_NAME" value="OMERO.insight"/>
+        <filter token="ICON_FILE" value="${dist.win.iconfile}"/>
+        <filter token="VM_PARAMETERS" value="${dist.vmparameters}"/>
+      </filterset>
+    </copy>
+    <exe4j projectfile="Insight.exe4j"/>
+  </target>
+  
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Creates the Mac OS X distribution bundle under ${dist.dir}.
    * This is a zip file whose name is set to 
@@ -180,7 +235,7 @@
                 icon="${dist.osx.icon}"
                 stubfile="${dist.osx.stub}" 
                	jvmversion="1.5+"
-                vmoptions="-Xms256M -Xmx512M">
+                vmoptions="${dist.vmparameters}">
       <jarfileset refid="app.libs"/>
       <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
     </jarbundler>  
