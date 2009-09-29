@@ -2,6 +2,14 @@ package ome.formats.importer.cli;
 
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import loci.formats.meta.MetadataStore;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
@@ -152,8 +160,14 @@ public class CommandLineImporter {
         System.err
                 .println(String
                         .format(
-                                "Usage: %s [OPTION]... [FILE]\n"
-                                        + "Import single files into an OMERO instance.\n"
+                                "\n"
+                                        +" Usage:   %s [OPTION]... [DIR|FILE]... \n"
+                                        + "   or:  %s [OPTION]... - \n"
+                                        + "\n"
+                                        + "Import any number of files into an OMERO instance.\n"
+                                        + "If \"-\" is the only path, a list of files or directories \n"
+                                        + "is read from standard in. Directories will be searched for \n"
+                                        + "all valid imports.\n"
                                         + "\n"
                                         + "Mandatory arguments:\n"
                                         + "  -s\tOMERO server hostname\n"
@@ -180,7 +194,7 @@ public class CommandLineImporter {
                                         + "ex. %s -s localhost -u bart -w simpson -d 50 foo.tiff\n"
                                         + "\n"
                                         + "Report bugs to <ome-users@openmicroscopy.org.uk>",
-                                APP_NAME, APP_NAME));
+                                APP_NAME, APP_NAME, APP_NAME));
         System.exit(1);
     }
 
@@ -294,8 +308,11 @@ public class CommandLineImporter {
                 config.readersPath.set(g.getOptarg());
                 break;
             }
+            case 'h': {
+                usage(); // exits
+            }
             default: {
-                usage();
+                usage(); // exits
             }
             }
         }
@@ -304,9 +321,16 @@ public class CommandLineImporter {
         String[] rest = new String[args.length - g.getOptind()];
         System.arraycopy(args, g.getOptind(), rest, 0, args.length
                 - g.getOptind());
+        
+                
         CommandLineImporter c = null;
         int rc = 0;
         try {
+
+            if (rest.length == 1 && "-".equals(rest[0])) {
+                rest = stdin();
+            }
+            
             c = new CommandLineImporter(config, rest, getUsedFiles);
             rc = c.start();
         } catch (Throwable t) {
@@ -319,4 +343,26 @@ public class CommandLineImporter {
         }
         System.exit(rc);
     }
+
+    /**
+     * Reads a list of paths from stdin.
+     * @return
+     */
+    static String[] stdin() throws IOException {
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        List<String> files = new ArrayList<String>();
+        while (true) {
+            String str = in.readLine();
+            if (str == null) {
+                break;
+            } else {
+                str = str.trim();
+                if (str.length() > 0) {
+                    files.add(str);
+                }
+            }
+        }
+        return files.toArray(new String[0]);
+    }
+
 }
