@@ -50,7 +50,7 @@ class MockDropBox(Ice.Application):
 
         identity = self.communicator().stringToIdentity(config.clientIdString)
 
-        mClient = MockMonitor()
+        mClient = MockMonitor(dirBoxBase)
         adapter = self.communicator().createObjectAdapter(config.clientAdapterName)
         adapter.add(mClient, identity)
         adapter.activate()
@@ -64,7 +64,6 @@ class MockDropBox(Ice.Application):
         mClient.setId(serverId)
         mClient.setServerProxy(fsServer)
         mClient.setSelfProxy(mClientProxy)
-        mClient.setDropBoxDir(dropBoxDir)
         mClient.setDirImportWait(dirImportWait)
         mClient.setMaster(self)
         fsServer.startMonitor(serverId)

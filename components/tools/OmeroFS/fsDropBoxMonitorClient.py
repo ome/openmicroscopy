@@ -228,7 +228,7 @@ class MonitorClientI(monitors.MonitorClient):
 
     """
 
-    def __init__(self, communicator, getUsedFiles = as_dictionary, getRoot = internal_service_factory,\
+    def __init__(self, dir, communicator, getUsedFiles = as_dictionary, getRoot = internal_service_factory,\
                        worker_wait = 60, worker_count = 1, worker_batch = 10):
         """
             Intialise the instance variables.
@@ -242,7 +242,7 @@ class MonitorClientI(monitors.MonitorClient):
         #: Reference back to FSServer.
         self.serverProxy = None
         self.selfProxy = None
-        self.dropBoxDir = None
+        self.dropBoxDir = dir
         self.dirImportWait = 0
         #: Id
         self.id = ''
@@ -266,6 +266,8 @@ class MonitorClientI(monitors.MonitorClient):
 
         # Finally, configure our communicator
         ObjectFactory().registerObjectFactory(self.communicator)
+        self.eventRecord("Directory", self.dropBoxDir)
+
 
     @perf
     def stop(self):
@@ -340,7 +342,7 @@ class MonitorClientI(monitors.MonitorClient):
         if self.id != monitorid:
             self.warnAndThrow(omero.ApiUsageException(), "Unknown fs server id: %s", monitorid)
 
-        self.log.info("EVENT_RECORD::%s::%s::%s::%s" % ("Cookie", time.time(), "Batch", len(eventList)))
+        self.eventRecord("Batch", len(eventList))
 
         for fileInfo in eventList:
 
@@ -348,7 +350,7 @@ class MonitorClientI(monitors.MonitorClient):
             if not fileId:
                 self.warnAndThrow(omero.ApiUsageException(), "Empty fieldId")
 
-            self.log.info("EVENT_RECORD::%s::%s::%s::%s" % ("Cookie", time.time(), fileInfo.type, fileId))
+            self.eventRecord(fileInfo.type, fileId)
 
             # Checking name first since it's faster
             exName = self.getExperimenterFromPath(fileId)
@@ -543,20 +545,6 @@ class MonitorClientI(monitors.MonitorClient):
         """
         self.master = master
 
-    def setDropBoxDir(self, dropBoxDir):
-        """
-            Setter for FSDropBox
-
-            :Parameters:
-                dropBoxDir : string
-                    DropBox directory
-
-            :return: No explicit return value.
-
-        """
-        self.dropBoxDir = dropBoxDir
-
-
     def setServerProxy(self, serverProxy):
         """
             Setter for serverProxy
@@ -617,6 +605,9 @@ class MonitorClientI(monitors.MonitorClient):
     #
     # Various trivial helpers
     #
+
+    def eventRecord(self, category, value):
+        self.log.info("EVENT_RECORD::%s::%s::%s::%s" % ("Cookie", time.time(), category, value))
 
     def warnAndThrow(self, exc, message, *arguments):
         self.log.warn(message, *arguments)

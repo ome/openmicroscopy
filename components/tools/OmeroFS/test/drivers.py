@@ -141,9 +141,8 @@ def with_driver(func, errors = 0):
         self = args[0]
         self.dir = path(tempfile.gettempdir()) / "test-omero" / str(uuid4()) / "DropBox"
         self.simulator = Simulator(self.dir)
-        self.client = MockMonitor(pre=[self.simulator], post=[])
+        self.client = MockMonitor(self.dir, pre=[self.simulator], post=[])
         try:
-            self.client.setDropBoxDir(self.dir)
             self.driver = Driver(self.client)
             rv = func(*args, **kwargs)
             self.assertEquals(errors, len(self.driver.errors))
@@ -230,10 +229,10 @@ class MockMonitor(MonitorClientI):
             i.stop()
     static_stop = staticmethod(static_stop)
 
-    def __init__(self, pre = [], post = []):
+    def __init__(self, dir=None, pre = [], post = []):
         self.root = None
         ic = mock_communicator()
-        MonitorClientI.__init__(self, ic, getUsedFiles = self.used_files, getRoot = self.get_root, worker_wait = 0.1)
+        MonitorClientI.__init__(self, dir, ic, getUsedFiles = self.used_files, getRoot = self.get_root, worker_wait = 0.1)
         self.log = logging.getLogger("MockMonitor")
         self.events = []
         self.files = {}

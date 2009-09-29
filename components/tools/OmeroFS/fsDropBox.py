@@ -90,7 +90,7 @@ class DropBox(Ice.Application):
 
             identity = self.communicator().stringToIdentity(config.clientIdString)
 
-            mClient = fsDropBoxMonitorClient.MonitorClientI(self.communicator())
+            mClient = fsDropBoxMonitorClient.MonitorClientI(dropBoxBase, self.communicator())
             adapter = self.communicator().createObjectAdapter(config.clientAdapterName)
             adapter.add(mClient, identity)
             adapter.activate()
@@ -104,7 +104,6 @@ class DropBox(Ice.Application):
             mClient.setId(serverId)
             mClient.setServerProxy(fsServer)
             mClient.setSelfProxy(mClientProxy)
-            mClient.setDropBoxDir(dropBoxBase)
             mClient.setDirImportWait(dirImportWait)
             mClient.setMaster(self)
             fsServer.startMonitor(serverId)
