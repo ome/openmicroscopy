@@ -7,9 +7,10 @@ import logging
 import fsLogger
 log = logging.getLogger("fsserver."+__name__)
 
-import threading
+import threading, Queue
 import os, sys, traceback
 import uuid
+import time
 
 # Third party path package. It provides much of the 
 # functionality of os.path but without the complexity.
@@ -17,11 +18,12 @@ import uuid
 import path as pathModule
 
 from omero.grid import monitors
+from fsAbstractPlatformMonitor import AbstractPlatformMonitor
 
 import win32file
 import win32con
 
-class PlatformMonitor(object):
+class PlatformMonitor(AbstractPlatformMonitor):
     """
         A Thread to monitor a path.
         
@@ -29,8 +31,7 @@ class PlatformMonitor(object):
         :group Other methods: run, stop
 
     """
-
-    def setUp(self, eventTypes, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, monitorId, proxy):
+    def __init__(self, eventTypes, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, ignoreDirEvents, proxy):
         """
             Set-up Monitor thread.
             
@@ -62,8 +63,8 @@ class PlatformMonitor(object):
                 proxy :
                     A proxy to be informed of events         
         """
-        self.eventTypes = str(eventTypes)
-        # This dictionary should be thinned depending on the above list
+        AbstractPlatformMonitor.__init__(self, eventTypes, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, ignoreDirEvents, proxy)
+
         self.actions = {
             1 : monitors.EventType.Create, # Created
             2 : monitors.EventType.Delete, # Deleted
@@ -72,18 +73,13 @@ class PlatformMonitor(object):
             5 : monitors.EventType.Modify  # Renamed from something
             }
 
-        self.recurse = not (str(pathMode) == "Flat")
-        self.pathsToMonitor = pathString
-        self.whitelist = whitelist
-        self.blacklist = blacklist
-        self.ignoreSysFiles = ignoreSysFiles
-        self.idString = monitorId
-        self.proxy = proxy
-
+        self.recurse = not (self.pathMode == "Flat")
+        
         self.event = threading.Event()
-        log.debug('Monitor set-up on =' + str(self.pathsToMonitor))
+        log.info('Monitor set-up on =' + str(self.pathsToMonitor))
+        log.info('Monitoring %s events', str(self.eTypes))
                 
-    def start(self):
+    def run(self):
         """
             Start monitoring.
             
@@ -137,25 +133,83 @@ class PlatformMonitor(object):
                 None)
 
             eventList = []
-            for action, file in results:
-                log.debug("Event : " + str(results))
-                # At the moment this gets around 'New Folder' appearing and then changing
-                if action in self.actions.keys():
-                    # Ignore default name for GUI created folders.
-                    if self.ignoreSysFiles and file.find('New Folder') >= 0:
-                        pass # ignore New Folder event.
+            if results:
+                for action, file in results:
+                    filename = os.path.join(self.pathsToMonitor, file)
+                    log.info("Event : %s %s", str(self.actions[action]), filename)    
+                    if self.ignoreDirEvents and pathModule.path(filename).isdir():
+                        log.info('Directory event, not propagated.')
                     else:
-                        eventType = self.actions[action]
-                        filename = os.path.join(self.pathsToMonitor, file)
-                        # Should have richer filename matching here.
-                        if (len(self.whitelist) == 0) or (pathModule.path(filename).ext in self.whitelist):
-                            eventList.append((filename.replace('\\\\','\\').replace('\\','/'), eventType))
-                            
+                        if action == 1:
+                            if "Creation" in self.eTypes:
+                                # Ignore default name for GUI created folders.
+                                if self.ignoreSysFiles and filename.find('New Folder') >= 0:
+                                    log.info('Created "New Folder" ignored.')
+                                else:
+                                    eventType = self.actions[action]
+                                    # Should have richer filename matching here.
+                                    if (len(self.whitelist) == 0) or (pathModule.path(filename).ext in self.whitelist):
+                                        eventList.append((filename.replace('\\\\','\\').replace('\\','/'), eventType))
+                            else:
+                                log.info('Not propagated.')
+
+                        elif action == 2:
+                            if "Deletion" in self.eTypes:
+                                # Ignore default name for GUI created folders.
+                                if self.ignoreSysFiles and filename.find('New Folder') >= 0:
+                                    log.info('Deleted "New Folder" ignored.')
+                                else:
+                                    eventType = self.actions[action]
+                                    # Should have richer filename matching here.
+                                    if (len(self.whitelist) == 0) or (pathModule.path(filename).ext in self.whitelist):
+                                        eventList.append((filename.replace('\\\\','\\').replace('\\','/'), eventType))
+                            else:
+                                log.info('Not propagated.')
+
+                        elif action in (3,4,5):
+                            if "Modification" in self.eTypes:
+                                # Ignore default name for GUI created folders.
+                                if self.ignoreSysFiles and filename.find('New Folder') >= 0:
+                                    log.info('Modified "New Folder" ignored.')
+                                else:
+                                    eventType = self.actions[action]
+                                    # Should have richer filename matching here.
+                                    if (len(self.whitelist) == 0) or (pathModule.path(filename).ext in self.whitelist):
+                                        eventList.append((filename.replace('\\\\','\\').replace('\\','/'), eventType))
+                            else:
+                                log.info('Not propagated.')
+
+                        else:
+                            log.error('Unknown event type.')
+                    
             if len(eventList) > 0:
                 try:
-                    log.info('Event notification on monitor id=' + self.idString + ' => ' + str(eventList))
-                    self.proxy.callback(self.idString, eventList)
+                    log.info('Event notification => ' + str(eventList))
+                    self.proxy.callback(eventList)
                 except:
                     log.exception("Failed to make callback: ")
 
+            
+if __name__ == "__main__":
+    class Proxy(object):
+        def callback(self, eventList):
+            for event in eventList:
+                #pass
+                log.info("EVENT_RECORD::%s::%s::%s" % (time.time(), event[1], event[0]))
+    
+    import logging
+    from logging import handlers
+    log = logging.getLogger("fstestserver")
+    file_handler = logging.FileHandler("/TEST/logs/fstestserver.out")
+    file_handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s: %(name)s - %(message)s"))
+    log.addHandler(file_handler)
+    log.setLevel(logging.INFO)
+    log = logging.getLogger("fstestserver."+__name__)
 
+    p = Proxy()
+    m = PlatformMonitor([monitors.WatchEventType.Creation,monitors.WatchEventType.Modification], monitors.PathMode.Follow, "C:\OMERO\DropBox", [], [], True, True, p)
+    try:
+        m.start()
+    except:
+        m.stop()
+    

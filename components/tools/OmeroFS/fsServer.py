@@ -15,7 +15,6 @@ import sys
 import Ice
 import IceGrid
 
-
 import fsConfig as config
 
 class Server(Ice.Application):
