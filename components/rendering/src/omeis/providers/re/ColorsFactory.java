@@ -120,6 +120,46 @@ public class ColorsFactory {
     }
 
     /**
+     * Returns <code>true</code> if the channel has emission and/or excitation
+     * information, <code>false</code> otherwise.
+     * 
+     * @param lc   The channel to handle.
+     * @param full Pass <code>true</code> to check emission and excitation,
+     * 			   <code>false</code> to only check emission.
+     * @return See above.
+     */
+    private static boolean hasEmissionExcitationData(LogicalChannel lc, 
+    		boolean full)
+    {
+    	if (lc == null) return false;
+    	if (lc.getEmissionWave() != null) return true;
+    	if (lc.getFilterSet() != null) {
+    		Filter f = lc.getFilterSet().getEmFilter();
+        	if (isFilterHasEmissionData(f)) return true;
+    	}
+    	if (isFilterHasEmissionData(lc.getSecondaryEmissionFilter()))
+    		return true;
+    	//Laser
+    	if (lc.getLightSourceSettings() != null) {
+    		LightSource src = lc.getLightSourceSettings().getLightSource();
+    		if (src instanceof Laser) {
+    			Laser laser = (Laser) src;
+    			if (laser.getWavelength() != null) return true;
+    		}
+    	}
+    	if (!full) return false;
+    	//Excitation
+
+    	if (lc.getExcitationWave() != null) return true;
+    	if (lc.getFilterSet() != null) {
+    		Filter f = lc.getFilterSet().getExFilter();
+        	if (isFilterHasEmissionData(f)) return true;
+    	}
+    	return isFilterHasEmissionData(lc.getSecondaryExcitationFilter());
+    }
+    
+    
+    /**
      * Determines the color usually associated to the specified
      * wavelength or explicitly defined for a particular channel.
      * 
@@ -129,7 +169,7 @@ public class ColorsFactory {
      */
     private static int[] getColor(Channel channel, LogicalChannel lc) {
     	if (lc == null) return null;
-    	if (!hasEmissionData(lc)) {
+    	if (!hasEmissionExcitationData(lc, true)) {
     		Integer red = channel.getRed();
             Integer green = channel.getGreen();
             Integer blue = channel.getBlue();
@@ -226,21 +266,6 @@ public class ColorsFactory {
     }
     
     /**
-     * Returns the name related to the channel if the channel has emission 
-     * metadata, <code>null</code> otherwise.
-     * 
-     * @param f The filter to handle.
-     * @return See above.
-     */
-    private static String isFilterHasEmissionValue(Filter f)
-    {
-    	if (f == null) return null;
-    	TransmittanceRange transmittance = f.getTransmittanceRange();
-    	if (transmittance == null) return null;
-    	return ""+transmittance.getCutIn();
-    }
-    
-    /**
      * Determines the color usually associated to the specified wavelength.
      * 
      * @param index
@@ -271,7 +296,7 @@ public class ColorsFactory {
             default: return newGreenColor();
         }
     }
-    
+
     /**
      * Returns <code>true</code> if the channel has emission metadata,
      * <code>false</code> otherwise.
@@ -281,66 +306,7 @@ public class ColorsFactory {
      */
     public static boolean hasEmissionData(LogicalChannel lc)
     {
-    	if (lc == null) return false;
-    	if (lc.getEmissionWave() != null) return true;
-    	if (lc.getFilterSet() != null) {
-    		Filter f = lc.getFilterSet().getEmFilter();
-        	if (isFilterHasEmissionData(f)) return true;
-    	}
-    	if (isFilterHasEmissionData(lc.getSecondaryEmissionFilter()))
-    		return true;
-    	//Laser
-    	if (lc.getLightSourceSettings() != null) {
-    		LightSource src = lc.getLightSourceSettings().getLightSource();
-    		if (src instanceof Laser) {
-    			Laser laser = (Laser) src;
-    			if (laser.getWavelength() != null) return true;
-    		}
-    	}
-    	//Excitation
-    	if (lc.getExcitationWave() != null) return true;
-    	if (lc.getFilterSet() != null) {
-    		Filter f = lc.getFilterSet().getExFilter();
-        	if (isFilterHasEmissionData(f)) return true;
-    	}
-    	return isFilterHasEmissionData(lc.getSecondaryExcitationFilter());
-    }
-    
-    /**
-     * Returns <code>true</code> if the channel has emission metadata,
-     * <code>false</code> otherwise.
-     * 
-     * @param lc The channel to handle.
-     * @return See above.
-     */
-    public static String hasEmissionValue(LogicalChannel lc)
-    {
-    	String value = null;
-    	if (lc == null) return null;
-    	if (lc.getEmissionWave() != null) return ""+lc.getEmissionWave();
-    	if (lc.getFilterSet() != null) {
-    		Filter f = lc.getFilterSet().getEmFilter();
-    		value = isFilterHasEmissionValue(f);
-        	if (value != null) return value;
-    	}
-    	value = isFilterHasEmissionValue(lc.getSecondaryEmissionFilter());
-    	if (value != null) return value;
-    	//Laser
-    	if (lc.getLightSourceSettings() != null) {
-    		LightSource src = lc.getLightSourceSettings().getLightSource();
-    		if (src instanceof Laser) {
-    			Laser laser = (Laser) src;
-    			if (laser.getWavelength() != null) 
-    				return ""+laser.getWavelength();
-    		}
-    	}
-    	//Excitation
-    	if (lc.getExcitationWave() != null) return ""+lc.getExcitationWave();
-    	if (lc.getFilterSet() != null) {
-    		Filter f = lc.getFilterSet().getExFilter();
-    		value = isFilterHasEmissionValue(f);
-    	}
-    	return isFilterHasEmissionValue(lc.getSecondaryExcitationFilter());
+    	return hasEmissionExcitationData(lc, false);
     }
     
     /**
