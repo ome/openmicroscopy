@@ -214,6 +214,12 @@ class Simulator(monitors.MonitorClient):
             else:
                 self.fail("UNKNOWN EVENT TYPE: %s" % event.eventType)
 
+class mock_communicator(object):
+    def findObjectFactory(self, *args):
+        return None
+    def addObjectFactory(self, *args):
+        pass
+
 class MockMonitor(MonitorClientI):
     """
     Mock Monitor Client which can also delegate to other clients.
@@ -226,7 +232,8 @@ class MockMonitor(MonitorClientI):
 
     def __init__(self, pre = [], post = []):
         self.root = None
-        MonitorClientI.__init__(self, getUsedFiles = self.used_files, getRoot = self.get_root)
+        ic = mock_communicator()
+        MonitorClientI.__init__(self, ic, getUsedFiles = self.used_files, getRoot = self.get_root, worker_wait = 0.1)
         self.log = logging.getLogger("MockMonitor")
         self.events = []
         self.files = {}

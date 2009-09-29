@@ -22,3 +22,6 @@ def additional_tests():
     suite.addTest(load("test.drivers"))
     suite.addTest(load("test.state"))
     return suite
+
+if __name__ == "__main__":
+    unittest.TextTestRunner().run(additional_tests())

@@ -12,6 +12,7 @@ import os
 import platform
 import uuid
 import threading
+import Queue
 import time
 import path as pathModule
 
@@ -22,11 +23,12 @@ import Ice
 import IceGrid
 import Glacier2
 
+from omero.clients import ObjectFactory
 from omero.grid import monitors
 from omero.util import make_logname, internal_service_factory, Resources, SessionHolder
 from omero.util.decorators import remoted, locked, perf
 from omero.util.import_candidates import as_dictionary
-from omero.util.concurrency import Timer
+from omero.util.concurrency import Timer, get_event
 
 import fsConfig as config
 
@@ -43,7 +45,7 @@ class MonitorState(object):
             self.timer = timer
 
     def __init__(self):
-        self.log = logging.getLogger(make_logname(self))
+        self.log = logging.getLogger("fsclient.MonitorState")
         self._lock = threading.RLock()
         self.__entries = {}
         self.__timers = 0
@@ -54,6 +56,8 @@ class MonitorState(object):
             key = str(key)
         return key
 
+    @perf
+    @locked
     def keys(self):
         """
         Returns the current keys stored. This is mostly used
@@ -61,10 +65,10 @@ class MonitorState(object):
         this method.
         """
         return self.__entries.keys()
-    keys = locked(keys)
-    keys = perf(keys)
 
-    def update(self, data, wait, callback, argsList):
+    @perf
+    @locked
+    def update(self, data, wait, callback):
         """
         Central MonitorState method which takes a fileSet dictionary as returned
         from omero.utils.import_candidates.as_dictionary and updates the internal state
@@ -85,16 +89,13 @@ class MonitorState(object):
             else: # INSERT
                 msg = "New"
                 self.__timers += 1
-                timer = Timer(wait, callback, argsList)
+                timer = Timer(wait, callback, [key])
                 entry = MonitorState.Entry(seq, timer)
                 self.sync(entry)
                 # Last activity
                 timer.start()
 
             self.log.info("%s entry %s contains %d file(s). Files=%s Timers=%s", msg, key, len(seq), len(self.__entries), self.__timers)
-
-    update = locked(update)
-    update = perf(update)
 
     def find(self, seq):
         """
@@ -122,6 +123,8 @@ class MonitorState(object):
                 self.log.debug("Adding entry for %s", key)
                 self.__entries[key] = entry
 
+    @perf
+    @locked
     def clear(self, key, entry = None):
         """
         Used to remove all references to a given Entry. In key contained in
@@ -150,9 +153,8 @@ class MonitorState(object):
 
         self.log.info("Removed key %s" % key)
 
-    clear = locked(clear)
-    clear = perf(clear)
-
+    @perf
+    @locked
     def stop(self):
         """
         Shutdown this instance
@@ -163,8 +165,59 @@ class MonitorState(object):
                 self.clear(k,s)
         finally:
             del self.__entries
-    stop = locked(stop)
 
+
+class MonitorWorker(threading.Thread):
+    """
+    Worker thread which will consume items from the MonitorClientI.queue
+    and add them to the MonitorState
+    """
+    def __init__(self, wait, batch, event, queue, callback):
+        threading.Thread.__init__(self)
+        self.log = logging.getLogger("fsclient.MonitorWorker")
+        # numbers
+        self.wait = wait
+        self.batch = batch
+        # threading privitives
+        self.event = event
+        self.queue = queue
+        # external functions
+        self.callback = callback
+
+    def run(self):
+        while not self.event.isSet():
+            self.execute()
+        self.log.info("Stopping")
+
+    @perf
+    def execute(self):
+
+            count = 0
+            ids = set()
+            try:
+                ids.add(self.queue.get(timeout=self.wait).fileId)
+                count += 1
+            except Queue.Empty:
+                pass
+
+            if len(ids) == 0:
+                self.log.debug("No events found")
+                return
+
+            try:
+                while len(ids) < self.batch:
+                    ids.add(self.queue.get_nowait().fileId)
+                    count += 1
+            except Queue.Empty:
+                pass
+
+            self.log.info("Processing %s events (%s ids). %s remaining"\
+                % (count, len(ids), self.queue.qsize()))
+
+            try:
+                self.callback(ids)
+            except:
+                self.log.exception("Callback error")
 
 class MonitorClientI(monitors.MonitorClient):
     """
@@ -175,14 +228,15 @@ class MonitorClientI(monitors.MonitorClient):
 
     """
 
-    def __init__(self, communicator = None, getUsedFiles = as_dictionary, getRoot = internal_service_factory):
+    def __init__(self, communicator, getUsedFiles = as_dictionary, getRoot = internal_service_factory,\
+                       worker_wait = 60, worker_count = 1, worker_batch = 10):
         """
             Intialise the instance variables.
 
         """
-        #self.log = logging.getLogger(make_logname(self))
         self.log = logging.getLogger("fsclient."+__name__)
         self.communicator = communicator
+
         self.root = None
         self.master = None
         #: Reference back to FSServer.
@@ -198,22 +252,49 @@ class MonitorClientI(monitors.MonitorClient):
         self.getRoot = perf(getRoot)
 
         # Threading primitives
+        self.worker_wait = worker_wait
+        self.worker_count = worker_count
+        self.worker_batch = worker_batch
+        self.event = get_event()
+        self.queue = Queue.Queue(0)
         self.state = MonitorState()
-        self.resources = Resources()
+        self.resources = Resources(stop_event = self.event)
         self.checkRoot()
+        self.workers = [MonitorWorker(worker_wait, worker_batch, self.event, self.queue, self.callback) for x in range(worker_count)]
+        for worker in self.workers:
+            worker.start()
 
+        # Finally, configure our communicator
+        ObjectFactory().registerObjectFactory(self.communicator)
+
+    @perf
     def stop(self):
         """
         Shutdown this servant
         """
+
+        self.event.set() # Marks everything as stopping
+
+        # Shutdown all workers first, otherwise
+        # there will be contention on the state
+        workers = self.workers
+        self.workers = None
+        if workers:
+            self.log.info("Joining workers...")
+            for x in workers:
+                x.join()
+
         try:
-            if self.state: self.state.stop()
+            state = self.state
             self.state = None
+            if state: state.stop()
         except:
             self.log.exception("Error stopping state")
+
         try:
-            if self.resources: self.resources.cleanup()
+            resources = self.resources
             self.resources = None
+            if resources: resources.cleanup()
         except:
             self.log.exception("Error cleaning resources")
 
@@ -224,6 +305,8 @@ class MonitorClientI(monitors.MonitorClient):
     # Called by server threads.
     #
 
+    @remoted
+    @perf
     def fsEventHappened(self, monitorid, eventList, current=None):
         """
             Primary monitor client callback.
@@ -248,7 +331,7 @@ class MonitorClientI(monitors.MonitorClient):
                     An ICE context, this parameter is required to be present
                     in an ICE callback.
 
-            :return: No explicit return value.omero.client(config.host, config.port)
+            :return: No explicit return value
 
         """
         # ############## ! Set import to dummy mode for testing purposes.
@@ -272,29 +355,51 @@ class MonitorClientI(monitors.MonitorClient):
             if exName:
                 # Creation or modification handled by state/timeout system
                 if str(fileInfo.type) == "Create" or str(fileInfo.type) == "Modify":
-                    try:
-                        self.log.info("Getting filesets on : %s", fileId)
-                        fileSets = self.getUsedFiles(fileId)
-                        self.log.info("Filesets = %s", str(fileSets))
-                    except:
-                        self.log.exception("Failed to get filesets : " )
-                        fileSets = None
-                        
-                    if fileSets:
-                        self.state.update(fileSets, self.dirImportWait, self.importFileWrapper, [fileId, exName])
+                    self.queue.put(fileInfo)
                 else:
                     self.log.info("Event not Create or Modify, presently ignored.")
-                    
-                    
-    fsEventHappeend = perf(fsEventHappened)
-    fsEventHappened = remoted(fsEventHappened)
+
+    #
+    # Called by worker threads.
+    #
+
+    @perf
+    def callback(self, ids):
+        try:
+            self.log.info("Getting filesets on : %s", ids)
+            fileSets = self.getUsedFiles(list(ids))
+            self.log.info("Filesets = %s", str(fileSets))
+        except:
+            self.log.exception("Failed to get filesets")
+            fileSets = None
+
+        if fileSets:
+            self.state.update(fileSets, self.dirImportWait, self.importFileWrapper)
+
+    #
+    # Called from state callback (timer)
+    #
+
+    def importFileWrapper(self, fileId):
+        """
+        Wrapper method which allows plugging error handling code around
+        the main call to importFile. In all cases, the key will be removed
+        on execution.
+        """
+        self.state.clear(fileId)
+        exName = self.getExperimenterFromPath(fileId)
+        self.importFile(fileId, exName)
+
+    #
+    # Helpers
+    #
 
     def getExperimenterFromPath(self, fileId):
         """
             Extract experimenter name from path. If the experimenter
             cannot be extracted, then null will be returned, in which
             case no import should take place.
-        """        
+        """
         fileId = pathModule.path(fileId)
         exName = None
         parpath = fileId.parpath(self.dropBoxDir)
@@ -307,19 +412,6 @@ class MonitorClientI(monitors.MonitorClient):
         if not exName:
             self.log.info("File added outside user directories: %s" % fileId)
         return exName
-
-    #
-    # Called from callback
-    #
-
-    def importFileWrapper(self, fileName, exName):
-        """
-        Wrapper method which allows plugging error handling code around
-        the main call to importFile. In all cases, the key will be removed
-        on execution.
-        """
-        self.state.clear(fileName)
-        self.importFile(fileName, exName)
 
     def checkRoot(self):
         """
@@ -345,30 +437,15 @@ class MonitorClientI(monitors.MonitorClient):
             self.log.error("No connection")
             return None
 
-        ic = Ice.initialize(["--Ice.Config=etc/internal.cfg"])
-        query = ic.stringToProxy("IceGrid/Query")
-        query = IceGrid.QueryPrx.checkedCast(query)
-        blitz = query.findAllObjectsByType("::Glacier2::SessionManager")[0]
-        blitz = Glacier2.SessionManagerPrx.checkedCast(blitz)
-        sf = blitz.create("root", None, {"omero.client.uuid":str(uuid.uuid1())})
-        sf = omero.api.ServiceFactoryPrx.checkedCast(sf)
-        sf.detachOnDestroy()
-        sf.destroy()
-        sessionUuid = sf.ice_getIdentity().name
-        root = omero.client(config.host, config.port)
-        root.joinSession(sessionUuid) 
-
         p = omero.sys.Principal()
         p.name  = exName
         p.group = "user"
         p.eventType = "User"
 
         try:
-            exp = root.sf.getAdminService().lookupExperimenter(exName)
-            sess = root.sf.getSessionService().createSessionWithTimeout(p, 60000L)
-            client = omero.client(config.host, config.port)
-            user_sess = client.createSession(sess.uuid, sess.uuid)
-            return (client, user_sess)
+            exp = self.root.getAdminService().lookupExperimenter(exName)
+            sess = self.root.getSessionService().createSessionWithTimeout(p, 60000L)
+            return sess.uuid.val
         except omero.ApiUsageException:
             self.log.info("User unknown: %s", exName)
             return None
@@ -376,6 +453,7 @@ class MonitorClientI(monitors.MonitorClient):
             self.log.exception("Unknown exception during loginUser")
             return None
 
+    @perf
     def importFile(self, fileName, exName):
         """
             Import file or directory using 'bin/omero importer'
@@ -384,13 +462,12 @@ class MonitorClientI(monitors.MonitorClient):
             throwing an exception if necessary.
         """
 
-        client, user_sess = self.loginUser(exName)
-        if not client:
+        key = self.loginUser(exName)
+        if not key:
             self.log.info("File not imported: %s", fileName)
             return
 
         try:
-            key = user_sess.getAdminService().getEventContext().sessionUuid
             self.log.info("Importing file using session key = %s", key)
 
             if platform.system() == 'Windows':
@@ -440,8 +517,6 @@ class MonitorClientI(monitors.MonitorClient):
         finally:
             client.closeSession()
             del client
-
-    importFile = perf(importFile)
 
     #
     # Setters

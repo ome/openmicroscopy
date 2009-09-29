@@ -9,7 +9,7 @@
 """
 
 import unittest, logging, threading, time
-logging.basicConfig(level=0)
+logging.basicConfig(level=logging.INFO)
 
 import omero
 import omero_ServerErrors_ice
