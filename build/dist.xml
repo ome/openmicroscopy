@@ -72,7 +72,7 @@
   <property name="dist.osx.installfile" 
             location="${base.launch.dir}/osx/INSTALL"/>
   <property name="dist.exe4j.home" value="/opt/exe4j"/>
-  <property name="dist.win.exename" value="OMERO.insight.exe"/>
+  <property name="dist.win.exename" value="OMERO.insight"/>
   <property name="dist.win.icon"
             location="${base.launch.dir}/win/omeroinsight.ico"/>
   <property name="dist.util.name" value="omero-clients-util"/>
@@ -197,17 +197,29 @@
   <target name="dist-win" depends="jar,exe4j-init"
           if="dist.exe4j.exists"
           description="Build an package the app for Windows distribution.">
-    <copy tofile="Insight.exe4j" file="Insight_template.exe4j"
+    <echo message="Setting exe as: ${exe_location}."/>
+    <copy tofile="${build.dir}/Insight.exe4j"
+          file="build/Insight_template.exe4j"
           overwrite="true">
       <filterset>
         <filter token="MAIN_CLASS" value="${app.mainclass}"/>
-        <filter token="EXE_NAME" value="${dist.win.exename}"/>
+        <!-- exe4j exe names have to be relative paths for some reason. Please
+             leave the "app" directory prefix and do not replace with
+             ${app.dir} or you will get strange errors. -->
+		<filter token="EXE_NAME" value="app/${dist.win.exename}"/>
         <filter token="APP_NAME" value="OMERO.insight"/>
-        <filter token="ICON_FILE" value="${dist.win.iconfile}"/>
+        <filter token="ICON_FILE" value="${dist.win.icon}"/>
         <filter token="VM_PARAMETERS" value="${dist.vmparameters}"/>
       </filterset>
     </copy>
-    <exe4j projectfile="Insight.exe4j"/>
+    <exe4j projectfile="${build.dir}/Insight.exe4j"/>
+    <zip destfile=
+           "${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win.zip">
+      <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
+      <zipfileset dir="${app.dir}" includes="lib/*"/>
+      <zipfileset file="${app.dir}/${dist.win.exename}.exe"/>
+      <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 
+    </zip> 
   </target>
   
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
