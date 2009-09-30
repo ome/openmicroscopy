@@ -108,7 +108,7 @@
     
 <ul id="metadata" class="ui-accordion-metadata" >
     <li><a href='#'>{% trans "Image details" %}:</a>
-        <div>
+        <div class="metadata_details">
             <table class="forms">
                 <tr><td><label>{% trans "Image date" %} </label></td><td>{{ manager.image.getDate|date:"Y m d H:i:s" }}</td></tr>
                 <tr><td><label>{% trans "Dimensions" %} (XY) [px] </label></td><td>{{ manager.image.getWidth }} x {{ manager.image.getHeight }}</td></tr>
@@ -118,18 +118,70 @@
             </table>
         </div>
     </li>
+    {% if manager.global_metadata %}
     <li><a href='#'>{% trans "Global metadata" %}:</a>
-        <div>
-            
-        </div>
+        <div><div class="metadata_details"><input type="button" value="Download {{ manager.original_metadata.getFileName }}" onClick="document.location.href='{% url manage_annotation "download" manager.original_metadata.id %}';"/>
+            <table class="formsm">
+            {% for gm in manager.global_metadata %}
+                <tr><td><label>{{ gm.0 }}</label></td><td>{{ gm.1 }}</td></tr>
+            {% endfor %}
+            </table>
+        </div></div>
     </li>
+    {% endif %}
+    {% if manager.series_metadata %}
     <li><a href='#'>{% trans "Series metadata" %}:</a>
-        <div>
-            
-        </div>
+        <div><div class="metadata_details"><input type="button" value="Download {{ manager.original_metadata.getFileName }}" onClick="document.location.href='{% url manage_annotation "download" manager.original_metadata.id %}';"/>
+            <table class="formsm">
+            {% for sm in manager.series_metadata %}
+                <tr><td><label>{{ sm.0 }}</label></td><td>{{ sm.1 }}</td></tr>
+            {% endfor %}
+            </table>
+        </div></div>
     </li>
-    <li><a href='#'>{% trans "Filters" %}:</a>
-        <div>
+    {% endif %}
+    <li><a href='#'>{% trans "Image" %}:</a>
+        <div><div class="metadata_details">
+            <table class="forms">
+            {% if form_objective %}
+            <tr><th>{% trans "Objective" %}:</th></tr>
+                {% for field in form_objective %}
+                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                </tr>
+                {% endfor %}
+            {% endif %}
+            {% if form_environment %}
+            <tr><th>{% trans "Environment" %}:</th></tr>
+                {% for field in form_environment %}
+                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                </tr>
+                {% endfor %}
+            {% endif %}
+            {% if form_stageLabel %}
+            <tr><th>{% trans "Stage label" %}:</th></tr>
+                {% for field in form_stageLabel %}
+                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                </tr>
+                {% endfor %}
+            {% endif %}
+            </table>
+        </div></div>
+    </li>
+    <li><a href='#'>{% trans "Microscope" %}:</a>
+        <div><div class="metadata_details">
+            {% if form_objective %}
+            <table class="forms">
+            <tr><th>{% trans "Objective" %}:</th></tr>
+                {% for field in form_objective %}
+                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% endif %}
             {% for form in form_filters %}
             <table class="forms">
                 <tr><th>{% trans "Filter" %}:</th></tr>
@@ -140,10 +192,6 @@
                 {% endfor %}
             </table>
             {% endfor %}
-        </div>
-    </li>
-    <li><a href='#'>{% trans "Detectors" %}:</a>
-        <div>
             {% for form in form_detectors %}
             <table class="forms">
                 <tr><th>{% trans "Detector" %}:</th></tr>
@@ -154,46 +202,7 @@
                 {% endfor %}
             </table>
             {% endfor %}
-        </div>
-    </li>
-    <li><a href='#'>{% trans "Image" %}:</a>
-        <div>
-            {% if form_objective %}
-            <table class="forms">
-                {% for field in form_objective %}
-                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-            {% endif %}
-        </div>
-    </li>
-    <li><a href='#'>{% trans "Environment" %}:</a>
-        <div>
-            {% if form_environment %}
-            <table class="forms">
-                {% for field in form_environment %}
-                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-            {% endif %}
-        </div>
-    </li>
-    <li><a href='#'>{% trans "Stage label" %}:</a>
-        <div>
-            {% if form_stageLabel %}
-            <table class="forms">
-                {% for field in form_stageLabel %}
-                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-            {% endif %}
-        </div>
+        </div></div>
     </li>
 </ul>
 <br/><p>*{% trans "N/A - this value is not available." %}</p>

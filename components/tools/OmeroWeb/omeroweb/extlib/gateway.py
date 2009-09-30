@@ -2270,9 +2270,6 @@ class AnnotationWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper
             except:
                 logger.info(traceback.format_exc())
                 return self._obj.textValue.val
-    
-class OriginalFileWrapper (omero.gateway.BlitzObjectWrapper):
-    pass
 
 class ImageImagingEnvironmentWrapper (omero.gateway.BlitzObjectWrapper):
     pass
@@ -2303,12 +2300,26 @@ class ImageFilterWrapper (omero.gateway.BlitzObjectWrapper):
         else:
             return FilterTransmittanceRangeWrapper(self._conn, self._obj.transmittanceRange)
 
+    def getFilterType(self):
+        if self._obj.type is None:
+            return None
+        else:
+            return TypeWrapper(self._conn, self._obj.type)
+
 class FilterTransmittanceRangeWrapper (omero.gateway.BlitzObjectWrapper):
     pass
 
 class ImageDetectorWrapper (omero.gateway.BlitzObjectWrapper):
-    pass
+    
+    def getDetectorType(self):
+        if self._obj.type is None:
+            return None
+        else:
+            return TypeWrapper(self._conn, self._obj.type)
    
+class TypeWrapper (omero.gateway.BlitzObjectWrapper):
+    pass
+
 class ImageStageLabelWrapper (omero.gateway.BlitzObjectWrapper):
     pass
 

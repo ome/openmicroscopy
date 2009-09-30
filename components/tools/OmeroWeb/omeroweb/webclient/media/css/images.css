@@ -144,7 +144,15 @@ div#view, div#view2  {
     margin: -8px 0 20px 0;
     position: relative;
 }
+.metadata_details {
+    max-height: 430px;
+    overflow: auto;
+    padding-top: 5px;
+}
 
+table.formsm td{
+    border-bottom: 1px dotted #bbb;
+}
 .ui-accordion-help {
     list-style-type:none;
     margin:0;

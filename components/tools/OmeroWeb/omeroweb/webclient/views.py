@@ -631,9 +631,14 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
     form_filters = list()
     form_detectors = list()
     if o1_type =='image' or o2_type == 'image' or o3_type == 'image':
-        form_environment = MetadataEnvironmentForm(initial={'image': manager.image})
+        manager.originalMetadata()
+        
         form_objective = MetadataObjectiveForm(initial={'image': manager.image, 'mediums': list(conn.getEnumerationEntries("MediumI")), 'immersions': list(conn.getEnumerationEntries("ImmersionI")), 'corrections': list(conn.getEnumerationEntries("CorrectionI")) })
-        form_stageLabel = MetadataStageLabelForm(initial={'image': manager.image })
+        if manager.image.getImagingEnvironment() is not None:
+            form_environment = MetadataEnvironmentForm(initial={'image': manager.image})
+        if manager.image.getStageLabel() is not None:
+            form_stageLabel = MetadataStageLabelForm(initial={'image': manager.image })
+        
         filters = list(manager.image.getMicroscopFilters())
         for f in filters:
             form_filter = MetadataFilterForm(initial={'filter': f, 'types':list(conn.getEnumerationEntries("FilterTypeI"))})

@@ -151,6 +151,44 @@ class BaseContainer(BaseController):
         elif o1_type == "orphaned":
             self.orphaned = True
     
+    def formatMetadataLine(self, l):
+        meta = l.split("=")                            
+        try:
+            splited = []
+            for v in range(0,len(meta[0]),20):
+                splited.append(meta[0][v:v+20]+"\n")
+            meta[0] = "".join(splited)
+        except:
+            pass                            
+        try:
+            splited = []
+            for v in range(0,len(meta[1]),20):
+                splited.append(meta[1][v:v+20]+"\n")
+            meta[1] = "".join(splited)
+        except:
+            pass
+        return meta
+        
+    def originalMetadata(self):
+        # TODO: hardcoded values.
+        self.global_metadata = list()
+        self.series_metadata = list()
+        for a in self.image.listAnnotations():
+            if a.ns == "openmicroscopy.org/omero/import/companionFile" and a.getFileName().startswith("original_metadata"):
+                self.original_metadata = a
+                temp_file = self.conn.getFile(a.file.id.val, a.file.size.val).split('\n')
+                flag = None
+                for l in temp_file:
+                    if l.startswith("[GlobalMetadata]"):
+                        flag = 1
+                    elif l.startswith("[SeriesMetadata]"):
+                        flag = 2
+                    else:
+                        if flag == 1:                                                            
+                            self.global_metadata.append(self.formatMetadataLine(l))
+                        elif flag == 2:
+                            self.series_metadata.append(self.formatMetadataLine(l))
+    
     def saveMetadata(self, matadataType, metadataValue):
         metadata_rtype = {
             # ObjectiveSettings
@@ -858,7 +896,10 @@ class BaseContainer(BaseController):
                 self.long_annotations['votes'] += 1
                 self.long_annotations['rate'] += int(ann.longValue)
             elif isinstance(ann._obj, FileAnnotationI):
-                self.file_annotations.append(ann)
+                if ann.ns == "openmicroscopy.org/omero/import/companionFile" and ann.getFileName().startswith("original_metadata"):
+                    pass
+                else:
+                    self.file_annotations.append(ann)
             elif isinstance(ann._obj, TagAnnotationI):
                 self.tag_annotations.append(ann)
 
