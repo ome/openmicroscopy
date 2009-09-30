@@ -90,17 +90,16 @@ class DownloadingOriginalFileProvider(object):
         file handle to that temporary file seeked to zero. The caller is
         responsible for closing the temporary file.
         """
+        print "Reading from: %d" % original_file.id.val
         self.raw_file_store.setFileId(original_file.id.val)
         temporary_file = TemporaryFile()
-        index = 0L
-        while True:
+        size = original_file.size.val
+        for i in range((size / self.BUFFER_SIZE) + 1):
+            index = i * self.BUFFER_SIZE
             data = self.raw_file_store.read(index, self.BUFFER_SIZE)
-            read_length = len(data)
-            if read_length == 0:
-                break
-            index += read_length
             temporary_file.write(data)
         temporary_file.seek(0L)
+        temporary_file.truncate(size)
         return temporary_file
 
     def __delete__(self):
@@ -414,6 +413,7 @@ class AbstractMeasurementCtx(object):
         self.analysis_ctx = analysis_ctx
         self.service_factory = service_factory
         self.original_file_provider = original_file_provider
+        self.query_service = self.service_factory.getQueryService()
         self.update_service = self.service_factory.getUpdateService()
         self.original_file = original_file
         self.result_files = result_files
@@ -432,6 +432,7 @@ class AbstractMeasurementCtx(object):
         """Updates the OmeroTables instance backing our results."""
         # Create a new OMERO table to store our measurement results
         sr = self.service_factory.sharedResources()
+        name = self.get_name()
         self.table = sr.newTable(1, '/%s.r5' % name)
         if self.table is None:
             raise MeasurementError(
@@ -539,9 +540,7 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
         ellipse.ry = diameter
         roi.addShape(ellipse)
         roi.image = image
-        unloaded_file_annotation = \
-                FileAnnotationI(self.file_annotation.id, False)
-        roi.linkAnnotation(unloaded_file_annotation)
+        roi.linkAnnotation(self.file_annotation)
         return roi
     
     ###
@@ -581,7 +580,7 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
         self.rois = rois
         return columns
 
-    def populate(self):
+    def populate(self, columns):
         n_roi = len(self.rois)
         print "Total ROI count: %d" % n_roi
         for i in range((len(self.rois) / 1000) + 1):
@@ -594,6 +593,15 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
             print "ROI update took %sms" % (int(time.time() * 1000) - t0)
             for roi in to_save:
                 columns[self.ROI_COL].values.append(roi)
+        first_roi = columns[self.ROI_COL].values[0]
+        print "First ROI: %s" % first_roi
+        first_roi = self.query_service.findByQuery(
+                'select roi from Roi as roi ' \
+                'join fetch roi.annotationLinks as link ' \
+                'join fetch link.child ' \
+                'where roi.id = %d' % first_roi, None)
+        print "First ROI: %s" % first_roi
+        self.file_annotation = first_roi.copyAnnotationLinks()[0].child
         self.update_table(columns)
 
 class FlexMeasurementCtx(AbstractMeasurementCtx):
