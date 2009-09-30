@@ -51,6 +51,7 @@
    *   + dist.osx.installfile: The install instructions to include in the 
    *           Mac OS X bundle.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <property name="dist.name" value="OMERO.insight"/>
   <property name="dist.dir" location="${build.dir}/dist"/>
   <property name="dist.jar.file" value="omero.insight.jar"/>
   <property name="dist.bundle.name" value="omero.insight"/> 
@@ -207,7 +208,7 @@
              leave the "app" directory prefix and do not replace with
              ${app.dir} or you will get strange errors. -->
 		<filter token="EXE_NAME" value="app/${dist.win.exename}"/>
-        <filter token="APP_NAME" value="OMERO.insight"/>
+        <filter token="APP_NAME" value="${dist.name}"/>
         <filter token="ICON_FILE" value="${dist.win.icon}"/>
         <filter token="VM_PARAMETERS" value="${dist.vmparameters}"/>
       </filterset>
@@ -240,11 +241,11 @@
           depends="jar"
           description="Build and package the app for OS X distribution.">
     <jarbundler dir="${dist.dir}"
-                name="OMERO.insight"
+                name="${dist.name}"
                 mainclass="${app.mainclass}"
                 version="${dist.bundle.version}"
-                infostring="OMERO.insight Java Client, ${dist.bundle.version}"
-                aboutmenuname="OMERO.insight"
+                infostring="${dist.name} Java Client, ${dist.bundle.version}"
+                aboutmenuname="${dist.name}"
                 screenmenu="true" 
                 icon="${dist.osx.icon}"
                 stubfile="${dist.osx.stub}" 
@@ -252,9 +253,11 @@
                 vmoptions="${dist.vmparameters}">
       <jarfileset refid="app.libs"/>
       <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
+    	<jarfileset dir="${base.lib.dir}/osx-native" includes="*.jnilib"/>
     </jarbundler>  
     <zip destfile=
            "${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-OSX.zip">
+       
       <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
       <fileset dir="${dist.dir}" 
                includes="OMERO.insight.app/**"
