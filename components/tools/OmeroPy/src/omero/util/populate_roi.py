@@ -94,7 +94,7 @@ class DownloadingOriginalFileProvider(object):
         temporary_file = TemporaryFile()
         index = 0L
         while True:
-            data = self.raw_file_store.read(index, BUFFER_SIZE)
+            data = self.raw_file_store.read(index, self.BUFFER_SIZE)
             read_length = len(data)
             if read_length == 0:
                 break
