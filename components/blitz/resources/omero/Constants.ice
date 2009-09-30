@@ -108,6 +108,7 @@ module omero {
         const string NSEDITOREXPERIMENT = "openmicroscopy.org/omero/editor/experiment";
         const string NSMOVIEMPEG = "openmicroscopy.org/omero/movie/mpeg";
         const string NSMOVIEQT = "openmicroscopy.org/omero/movie/qt";
+        
     };
 
     /**
@@ -115,6 +116,7 @@ module omero {
      **/
     module namespaces {
         const string NSMEASUREMENT = "openmicroscopy.org/omero/measurement";
+        const string NSCOMPANIONFILE = "openmicroscopy.org/omero/import/companionFile";
     };
 
     module jobs {
