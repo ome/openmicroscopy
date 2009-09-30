@@ -262,6 +262,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                                     SharedResourcesPrx sr = sf.sharedResources();
                                     prx = sr.acquireProcessor(job, 15);
                                     prx.execute(inputs);
+                                    prx.setDetach(true);
                                     procs.add(prx);
                                     log.info("Launched populateroi.py on " + plate);
                                 } catch (ServerError e) {

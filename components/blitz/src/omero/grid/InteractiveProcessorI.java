@@ -68,6 +68,8 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
 
     private final Principal principal;
 
+    private boolean detach = false;
+    
     private boolean obtainResults = false;
 
     private boolean stop = false;
@@ -214,17 +216,32 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
         return job;
     }
 
+    public boolean setDetach(boolean detach, Current __current) {
+        rwl.writeLock().lock();
+        try {
+            boolean old = this.detach;
+            this.detach = detach;
+            return old;
+        } finally {
+            rwl.writeLock().unlock();
+        }
+    }
+    
     /**
      * Cancels the current process, nulls the value, and returns immediately.
      */
-    public void stop() {
+    public void stop(Current __current) {
         rwl.writeLock().lock();
         try {
             if (currentProcess != null) {
-                currentProcess.cancel();
-                currentProcess = null;
-                stop = true;
+                if (!detach) {
+                    currentProcess.cancel();
+                } else {
+                    log.info("Detaching from "+currentProcess);
+                }
             }
+            currentProcess = null;
+            stop = true;
         } finally {
             rwl.writeLock().unlock();
         }

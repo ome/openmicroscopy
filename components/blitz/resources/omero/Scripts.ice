@@ -224,6 +224,26 @@ module omero {
              **/
             omero::RMap getResults(Process* proc) throws ServerError;
 
+            /**
+             * Sets whether or not cancel will be called on the current
+             * [Process] on stop. If detach is true, then the [Process]
+             * will continue running. Otherwise, Process.cancel() willl
+             * be called, before prepairing for another run.
+             *
+             * false by default
+             *
+             **/
+            bool setDetach(bool detach) throws ServerError;
+
+            /**
+             * Clears the current execution of [omero::model::Job] from
+             * the processor to prepare for another execution.
+             *
+             * cancel() will be called on the current [Process]
+             * if detach is set to false.
+             **/
+            void stop() throws ServerError;
+
         };
 
         ["java:type:java.util.ArrayList<omero.grid.InteractiveProcessorPrx>:java.util.List<omero.grid.InteractiveProcessorPrx>"]
