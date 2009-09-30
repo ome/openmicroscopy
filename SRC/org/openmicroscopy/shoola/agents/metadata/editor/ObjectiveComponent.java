@@ -152,7 +152,7 @@ class ObjectiveComponent
 						set = false;
 				}
 				immersionBox.setEditedColor(UIUtilities.EDITED_COLOR);
-				area = immersionBox;
+				area = parent.replaceCombobox(immersionBox);
 			} else if (key.equals(EditorUtil.CORRECTION)) {
 				selected = model.getImageEnumerationSelected(
 						Editor.CORRECTION, (String) value);
@@ -162,7 +162,7 @@ class ObjectiveComponent
 							selected.toString()))
 						set = false;
 				}
-				area = coatingBox;
+				area = parent.replaceCombobox(coatingBox);
 				coatingBox.setEditedColor(UIUtilities.EDITED_COLOR);
 			} else if (key.equals(EditorUtil.MEDIUM)) {
 				selected = model.getImageEnumerationSelected(
@@ -173,7 +173,7 @@ class ObjectiveComponent
 					set = false;
 					mediumBox.setSelectedIndex(mediumBox.getItemCount()-1);
 				}
-				area = mediumBox;
+				area = parent.replaceCombobox(mediumBox);
 				mediumBox.setEditedColor(UIUtilities.EDITED_COLOR);
 			} else if (key.equals(EditorUtil.IRIS)) {
         		if (value != null) {
@@ -186,7 +186,7 @@ class ObjectiveComponent
         			irisBox.setSelectedItem(AnnotationDataUI.NO_SET_TEXT);
         		}
         		irisBox.setEditedColor(UIUtilities.EDITED_COLOR);
-        		area = irisBox;
+        		area = parent.replaceCombobox(irisBox);
 			} else {
 				if (value instanceof Number) {
 					area = UIUtilities.createComponent(

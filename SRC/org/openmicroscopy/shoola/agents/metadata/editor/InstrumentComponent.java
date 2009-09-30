@@ -185,7 +185,7 @@ class InstrumentComponent
             				microscopeBox.getItemCount()-1);
             	}
             	microscopeBox.setEditedColor(UIUtilities.EDITED_COLOR);
-            	area = microscopeBox;
+            	area = parent.replaceCombobox(microscopeBox);
             } else {
             	area = UIUtilities.createComponent(OMETextArea.class, null);
                 if (value == null || value.equals("")) {

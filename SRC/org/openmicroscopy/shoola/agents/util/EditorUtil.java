@@ -1846,7 +1846,6 @@ public class EditorUtil
 		int size = f.getSize()-decrement;
 		box.setBorder(null);
 		box.setFont(f.deriveFont(Font.ITALIC, size));
-		
 		return box;
 	}
     

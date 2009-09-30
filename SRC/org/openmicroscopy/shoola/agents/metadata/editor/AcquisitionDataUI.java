@@ -43,7 +43,9 @@ import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -301,6 +303,24 @@ class AcquisitionDataUI
 		comp.setBorder(BorderFactory.createTitledBorder(title));
 		comp.setBackground(UIUtilities.BACKGROUND_COLOR);
 		comp.setLayout(new GridBagLayout());
+	}
+	
+	/**
+	 * Replaces the combox by a label, due to a painting problem since we
+	 * switched to openGL.
+	 * 
+	 * @param box The box to change.
+	 * @return See above.
+	 */
+	JComponent replaceCombobox(JComboBox box)
+	{
+		JLabel l = new JLabel();
+		l.setBackground(UIUtilities.BACKGROUND_COLOR);
+		if (box != null) {
+			l.setFont(box.getFont());
+			l.setText(box.getSelectedItem().toString());
+		}
+		return l;
 	}
 	
 	/** 
