@@ -53,7 +53,7 @@
         </copy>
     </target>
 
-   <target name="tools-clean">
+   <target name="tools-clean" depends="python-clean">
         <delete dir="${basedir}/omeroweb/db.sqlite3"/>
         <delete dir="${basedir}/omeroweb/django"/>
         <delete dir="${basedir}/omeroweb/logs"/>
