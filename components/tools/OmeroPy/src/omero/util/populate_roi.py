@@ -42,7 +42,7 @@ from omero import client
 try:
         from xml.etree.cElementTree import XML, Element, SubElement, ElementTree, dump, iterparse
 except ImportError:
-        from elementtree.cElementTree import XML, Element, SubElement, ElementTree, dump, iterparse
+        from cElementTree import XML, Element, SubElement, ElementTree, dump, iterparse
 
 def usage(error):
     """Prints usage so that we don't have to. :)"""
