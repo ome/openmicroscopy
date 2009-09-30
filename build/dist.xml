@@ -226,6 +226,46 @@
   </target>
   
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+	* Creates the Windows distribution bundle under ${dist.dir}.
+	* This is a zip file whose name is set to 
+	* ${dist.bundle.name}-${dist.bundle.version}-win.zip 
+	* and whose contents are:
+	*   + A config dir, containing all the app.config files.  The dir name is
+	*     set to the name of the ${app.config.dir}.
+	*   + The OMERO.insight application.  That is, the .app dir embedding the app
+	*     jar file, all the the app.libs files, and Windows exe.
+	*   + The license file, ${base.licensefile}.  
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+   <target name="dist-win64" depends="jar,exe4j-init"
+	          if="dist.exe4j.exists"
+	          description="Build an package the app for Windows 64 distribution.">
+	    <echo message="Setting exe as: ${exe_location}."/>
+	    <copy tofile="${build.dir}/Insight64.exe4j"
+	          file="build/Insight_template.exe4j"
+	          overwrite="true">
+	      <filterset>
+	        <filter token="MAIN_CLASS" value="${app.mainclass}"/>
+	        <!-- exe4j exe names have to be relative paths for some reason. Please
+	             leave the "app" directory prefix and do not replace with
+	             ${app.dir} or you will get strange errors. -->
+			<filter token="EXE_NAME" value="app/${dist.win.exename}"/>
+	        <filter token="APP_NAME" value="${dist.name}"/>
+	        <filter token="ICON_FILE" value="${dist.win.icon}"/>
+	        <filter token="VM_PARAMETERS" value="${dist.vmparameters}"/>
+	      </filterset>
+	    </copy>
+	    <exe4j projectfile="${build.dir}/Insight64.exe4j"/>
+	    <zip destfile=
+	           "${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win64.zip">
+	      <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
+	      <zipfileset dir="${app.dir}" includes="lib/*"/>
+	      <zipfileset file="${app.dir}/${dist.win.exename}.exe"/>
+	      <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 
+	      <zipfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
+	      <zipfileset dir="${base.lib.dir}/win64-native" prefix="lib/" includes="*"/>
+	    </zip> 
+	  </target>
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Creates the Mac OS X distribution bundle under ${dist.dir}.
    * This is a zip file whose name is set to 
    * ${dist.bundle.name}-${dist.bundle.version}-OSX.zip 
