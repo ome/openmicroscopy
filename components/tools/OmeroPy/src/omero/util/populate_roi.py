@@ -594,13 +594,11 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
             for roi in to_save:
                 columns[self.ROI_COL].values.append(roi)
         first_roi = columns[self.ROI_COL].values[0]
-        print "First ROI: %s" % first_roi
         first_roi = self.query_service.findByQuery(
                 'select roi from Roi as roi ' \
                 'join fetch roi.annotationLinks as link ' \
                 'join fetch link.child ' \
                 'where roi.id = %d' % first_roi, None)
-        print "First ROI: %s" % first_roi
         self.file_annotation = first_roi.copyAnnotationLinks()[0].child
         self.update_table(columns)
 
