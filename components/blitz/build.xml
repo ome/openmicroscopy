@@ -9,7 +9,9 @@
     <property name="main.class" value="ome.services.blitz.Entry"/>
 
         <target name="clean" depends="lifecycle.clean">
-            <delete dir="${basedir}/generated"/>
+            <delete dir ="${basedir}/generated"/>
+            <delete dir="${basedir}/omero"/>
+            <delete file="${basedir}/.sconsign.dblite"/>
         </target>
 
 	<target name="compile" depends="generate,icegen" unless="skip.compile">
