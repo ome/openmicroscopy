@@ -488,7 +488,7 @@ class ImViewerModel
 
 	/**
 	 * Sets the object in the {@link ImViewer#DISCARDED} state.
-	 * Any ongoing data loading will be cancelled.
+	 * Any ongoing data loading will be canceled.
 	 */
 	void discard()
 	{
@@ -1031,7 +1031,7 @@ class ImViewerModel
 	 * 
 	 * @param play  Pass <code>true</code> to play the movie, <code>false</code>
 	 *              to stop it.
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -1187,14 +1187,14 @@ class ImViewerModel
 	long getPixelsID() { return currentPixelsID; }
 
 	/**
-	 * Returns the index of the selected tabbed.
+	 * Returns the index of the selected tab.
 	 * 
 	 * @return See above.
 	 */
 	int getTabbedIndex() { return tabbedIndex; }
 
 	/**
-	 * Sets the tabbed index.
+	 * Sets the tab index.
 	 * 
 	 * @param index The value to set.
 	 */
@@ -1255,7 +1255,7 @@ class ImViewerModel
 	 * 
 	 * @param reset Pass <code>true</code> to reset the original settings,
 	 * 				<code>false</code> otherwise.
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken. 
 	 */
@@ -1543,7 +1543,7 @@ class ImViewerModel
 	}
 	
 	/**
-	 * Sets the compressiong level.
+	 * Sets the compression level.
 	 * 
 	 * @param compressionLevel 	One of the compression level defined by 
 	 * 							{@link RenderingControl} I/F.

@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.util.image.io;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -155,6 +156,30 @@ public class WriterImage
 			JPEGCodec.createJPEGDecoder(new ByteArrayInputStream(values));
 		try {
 			return decoder.decodeAsBufferedImage();
+		} catch (Exception e) {
+			throw new EncoderException("Cannot decode the image.", e);
+		}
+	}
+	
+	/**
+	 * Converts the passed byte array to a buffered image.
+	 * 
+	 * @param values The values to convert.
+	 * @return See above.
+	 *  @throws EncoderException Exception thrown if an error occurred during the
+     * encoding process.
+	 */
+	public static int[] bytesToDataBufferJPEG(byte[] values)
+		throws EncoderException
+	{
+		if (values == null) 
+    		throw new IllegalArgumentException("No array specified.");
+		
+		try {
+			BufferedImage img = bytesToImageJPEG(values);
+			if (img == null) return null;
+			DataBufferInt buf = (DataBufferInt) img.getData().getDataBuffer();
+			return buf.getData();
 		} catch (Exception e) {
 			throw new EncoderException("Cannot decode the image.", e);
 		}

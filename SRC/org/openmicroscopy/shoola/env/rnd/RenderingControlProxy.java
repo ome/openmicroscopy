@@ -27,10 +27,7 @@ package org.openmicroscopy.shoola.env.rnd;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
-import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.IntBuffer;
@@ -39,7 +36,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.imageio.ImageIO;
 import javax.media.opengl.GL2;
 
 //Third-party libraries
@@ -418,22 +414,24 @@ class RenderingControlProxy
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	private BufferedImage renderPlaneCompressed(PlaneDef pDef)
+	private int[] renderPlaneCompressed(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		//Need to adjust the cache.
 		Object array = getFromCache(pDef);
 		try {
-			if (array != null) 
+			/*
+			if (array != null) {
+				
+			}
 				return WriterImage.bytesToImageJPEG((byte[]) array);
-			
+			*/
 			byte[] values = servant.renderCompressed(pDef);
 			imageSize = values.length;
-			initializeCache(pDef);
-			cache(pDef, values);
-			return WriterImage.bytesToImageJPEG(values);
+			//initializeCache(pDef);
+			//cache(pDef, values);
+			return WriterImage.bytesToDataBufferJPEG(values);
 		} catch (Throwable e) {
-			e.printStackTrace();
 			handleException(e, ERROR+"cannot render the compressed image.");
 		} 
 		return null;
@@ -513,14 +511,13 @@ class RenderingControlProxy
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		try {
-			BufferedImage img = renderPlaneCompressed(pDef);
-			if (img == null) return null;
-			DataBufferInt buf = (DataBufferInt) img.getData().getDataBuffer();
+			int[] buffer = renderPlaneCompressed(pDef);
+			if (buffer == null) return null;
 			Point p = getSize(pDef);
 			//imageSize = values.length;
 			//initializeCache(pDef);
 			//cache(pDef, values); 
-			return createTexture(((DataBufferInt) buf).getData(), p.x, p.y);
+			return createTexture(buffer, p.x, p.y);
 			
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -1440,7 +1437,7 @@ class RenderingControlProxy
         if (pDef == null) 
             throw new IllegalArgumentException("Plane def cannot be null.");
         //DataServicesFactory.isSessionAlive(context);
-        if (isCompressed()) return renderPlaneCompressed(pDef);
+        if (isCompressed()) return renderPlaneUncompressed(pDef);//renderPlaneCompressed(pDef);
         return renderPlaneUncompressed(pDef);
     }
     

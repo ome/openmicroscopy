@@ -51,8 +51,6 @@ import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.ImageAcquisitionData;
-
 /** 
  * Component displaying details of an objective.
  *
@@ -220,7 +218,7 @@ class ObjectiveComponent
 		}
 	}
 	
-	/** Initiliases the components. */
+	/** Initializes the components. */
 	private void initComponents()
 	{
 		unsetObjective = null;
@@ -284,6 +282,7 @@ class ObjectiveComponent
 	void displayObjective(Map<String, Object> details)
 	{
 		resetBoxes();
+		setOpaque(true);
 		fieldsObjective.clear();
 		transformObjective(details);
 		parent.layoutFields(this, unsetObjective, fieldsObjective, 

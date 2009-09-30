@@ -81,6 +81,7 @@ public class OMEComboBoxUI
     public void setBackgroundColor(Color backgroundColor)
     {
     	this.backgroundColor = backgroundColor;
+    	UIManager.put("ComboBox.buttonBackground", backgroundColor);
     }
     
 }

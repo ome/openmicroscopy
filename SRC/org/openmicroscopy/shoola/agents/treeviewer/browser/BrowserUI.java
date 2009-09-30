@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -226,11 +227,49 @@ class BrowserUI
         rightMenuBar.setFloatable(false);
        
         JButton button;
-        if (model.getBrowserType() == Browser.FILE_SYSTEM_EXPLORER) {
+        
+        
+        
+        leftMenuBar = new JToolBar();
+        leftMenuBar.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+        leftMenuBar.setRollover(true);
+        leftMenuBar.setFloatable(false);
+        BrowserManageAction a;
+        switch (model.getBrowserType()) {
+			case Browser.PROJECT_EXPLORER:
+				a = (BrowserManageAction) 
+					controller.getAction(BrowserControl.NEW_CONTAINER);
+				button = new JButton(a);
+				button.setBorderPainted(false);
+				button.addMouseListener(a);
+				rightMenuBar.add(button);
+				break;
+			case Browser.TAGS_EXPLORER:
+				a = (BrowserManageAction) 
+					controller.getAction(BrowserControl.NEW_TAG);
+				button = new JButton(a);
+				button.setBorderPainted(false);
+				button.addMouseListener(a);
+				rightMenuBar.add(button);
+		}
+        button = new JButton(controller.getAction(BrowserControl.DELETE));
+		button.setBorderPainted(false);
+		rightMenuBar.add(button);
+		button = new JButton(controller.getAction(BrowserControl.REFRESH));
+		button.setBorderPainted(false);
+		rightMenuBar.add(button);
+		button = new JButton(controller.getAction(BrowserControl.IMPORT));
+		button.setBorderPainted(false);
+		rightMenuBar.add(button);
+		
+		rightMenuBar.add(Box.createHorizontalStrut(6));
+		if (model.getBrowserType() == Browser.FILE_SYSTEM_EXPLORER) {
         	button = new JButton(controller.getAction(BrowserControl.INFO));
             button.setBorderPainted(false);
             rightMenuBar.add(button);
         }
+		rightMenuBar.add(new JSeparator());
+		rightMenuBar.add(Box.createHorizontalStrut(6));
         ButtonGroup group = new ButtonGroup();
         JToggleButton b = new JToggleButton();
         group.add(b);
@@ -252,39 +291,6 @@ class BrowserUI
         button = new JButton(controller.getAction(BrowserControl.COLLAPSE));
         button.setBorderPainted(false);
         rightMenuBar.add(button);
-        
-        
-        leftMenuBar = new JToolBar();
-        leftMenuBar.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 0));
-        leftMenuBar.setRollover(true);
-        leftMenuBar.setFloatable(false);
-        BrowserManageAction a;
-        switch (model.getBrowserType()) {
-			case Browser.PROJECT_EXPLORER:
-				a = (BrowserManageAction) 
-					controller.getAction(BrowserControl.NEW_CONTAINER);
-				button = new JButton(a);
-				button.setBorderPainted(false);
-				button.addMouseListener(a);
-				leftMenuBar.add(button);
-				break;
-			case Browser.TAGS_EXPLORER:
-				a = (BrowserManageAction) 
-					controller.getAction(BrowserControl.NEW_TAG);
-				button = new JButton(a);
-				button.setBorderPainted(false);
-				button.addMouseListener(a);
-				leftMenuBar.add(button);
-		}
-        button = new JButton(controller.getAction(BrowserControl.DELETE));
-		button.setBorderPainted(false);
-		leftMenuBar.add(button);
-		button = new JButton(controller.getAction(BrowserControl.REFRESH));
-		button.setBorderPainted(false);
-		leftMenuBar.add(button);
-		button = new JButton(controller.getAction(BrowserControl.IMPORT));
-		button.setBorderPainted(false);
-		leftMenuBar.add(button);
     }
 
     /** 

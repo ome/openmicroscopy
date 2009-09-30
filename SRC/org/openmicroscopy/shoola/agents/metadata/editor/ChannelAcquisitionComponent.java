@@ -481,15 +481,14 @@ class ChannelAcquisitionComponent
 				detectorPane.displayDetector(details);
 				detectorPane.setVisible(true);
 			}
-			details = EditorUtil.transformLightSource(
-					data.getLightSource());
+			details = EditorUtil.transformLightSourceAndSetting(data);
 			String kind = (String) details.get(EditorUtil.LIGHT_TYPE);
 			details.remove(EditorUtil.LIGHT_TYPE);
 			notSet = (List) details.get(EditorUtil.NOT_SET);
 			lightPane.setVisible(false);
-			int n = EditorUtil.MAX_FIELDS_LIGHT;
+			int n = EditorUtil.MAX_FIELDS_LIGHT_AND_SETTINGS;
 			if (LightSourceData.LASER.equals(kind)) 
-				n = EditorUtil.MAX_FIELDS_LASER;
+				n = EditorUtil.MAX_FIELDS_LASER_AND_SETTINGS;
 			
 			if (notSet.size() != n) {
 				lightPane.displayLightSource(kind, details);

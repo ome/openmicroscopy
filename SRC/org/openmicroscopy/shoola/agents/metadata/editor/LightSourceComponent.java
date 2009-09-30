@@ -392,7 +392,7 @@ class LightSourceComponent
 		repaint();
 	}
 	
-	/** Initiliases the components. */
+	/** Initializes the components. */
 	private void initComponents()
 	{
 		unsetLight = null;

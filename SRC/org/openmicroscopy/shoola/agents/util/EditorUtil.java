@@ -377,6 +377,9 @@ public class EditorUtil
 	/** Identifies a cut out tolerance. */
 	public static final String	CUT_OUT_TOLERANCE = "Cut Out Tolerance";
 	
+	/** Identifies a light source settings attenuation. */
+	public static final String	ATTENUATION = "Attenuation";
+	
 	/** The maximum number of field for a detector and its settings. */
 	public static final int		MAX_FIELDS_DETECTOR_AND_SETTINGS = 12;
 	
@@ -397,6 +400,12 @@ public class EditorUtil
 	
 	/** The maximum number of field for a filament and arc. */
 	public static final int		MAX_FIELDS_LIGHT = 7;
+	
+	/** The maximum number of field for a filament and arc. */
+	public static final int		MAX_FIELDS_LIGHT_AND_SETTINGS = 9;
+	
+	/** The maximum number of field for a laser. */
+	public static final int		MAX_FIELDS_LASER_AND_SETTINGS = 15;
 	
 	/** The maximum number of field for a dichroic. */
 	public static final int		MAX_FIELDS_DICHROIC = 4;
@@ -1471,6 +1480,55 @@ public class EditorUtil
         details.put(TRANSMITTANCE, dv);
         details.put(NOT_SET, notSet);
 		return details;
+    }
+    
+    /**
+     * Transforms the light and its settings.
+     * 
+     * @param data The data to transform.
+     * @return See above.
+     */
+    public static Map<String, Object> transformLightSourceAndSetting(
+    		ChannelAcquisitionData data)
+    {
+    	LinkedHashMap<String, Object> 
+			details = new LinkedHashMap<String, Object>();
+		Map<String, Object> m;
+		
+		if (data == null) m = transformLightSource(null);
+		else  m = transformLightSource(data.getLightSource());
+		List<String> notSet = (List) m.get(NOT_SET);
+		m.remove(NOT_SET);
+		details.putAll(m);
+		details.put(ATTENUATION, new Double(0));
+		if (data == null) {
+			details.put(WAVELENGTH, new Integer(0));
+			notSet.add(ATTENUATION);
+        	notSet.add(WAVELENGTH);
+        	details.put(NOT_SET, notSet);
+        	return details;
+		}
+		Double f = data.getLigthSettingsAttenuation();
+		if (f == null) {
+			double v = 0;
+			if (f == null) notSet.add(ATTENUATION);
+			else v = f;
+			details.put(ATTENUATION, v);
+		}
+		Integer i = data.getLigthSettingsWavelength();
+        if (details.containsKey(WAVELENGTH)) {
+        	
+        	if (i != null) { //override the value.
+        		details.put(WAVELENGTH, i);
+        	}
+        } else {
+        	int v = 0;
+			if (i == null) notSet.add(WAVELENGTH);
+			else v = i;
+			details.put(WAVELENGTH, v);
+        }
+        details.put(NOT_SET, notSet);
+    	return details;
     }
     
     /**
