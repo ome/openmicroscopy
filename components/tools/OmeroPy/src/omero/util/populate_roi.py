@@ -76,6 +76,10 @@ class DownloadingOriginalFileProvider(object):
     """
     Provides original file data by downloading it from an OMERO raw file store.
     """
+    
+    # Default raw file store buffer size
+    BUFFER_SIZE = 1024 * 1024  # 1MB
+    
     def __init__(self, service_factory):
         self.service_factory = service_factory
         self.raw_file_store = self.service_factory.createRawFileStore()
@@ -403,9 +407,6 @@ class AbstractMeasurementCtx(object):
     from a given measurement run. It also provides a scaffold for interacting
     with the OmeroTables infrastructure.
     """
-    
-    # Default raw file store buffer size
-    BUFFER_SIZE = 1024 * 1024  # 1MB
     
     def __init__(self, analysis_ctx, service_factory, original_file_provider,
                  original_file, result_files):
