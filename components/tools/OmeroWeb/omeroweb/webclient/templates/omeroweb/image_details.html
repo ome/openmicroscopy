@@ -172,36 +172,32 @@
     </li>
     <li><a href='#'>{% trans "Microscope" %}:</a>
         <div><div class="metadata_details">
-            {% if form_objective %}
             <table class="forms">
+            {% if form_objective %}
             <tr><th>{% trans "Objective" %}:</th></tr>
                 {% for field in form_objective %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
                     <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
                 </tr>
                 {% endfor %}
-            </table>
             {% endif %}
             {% for form in form_filters %}
-            <table class="forms">
                 <tr><th>{% trans "Filter" %}:</th></tr>
                 {% for field in form %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
                     <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
                 </tr>
                 {% endfor %}
-            </table>
             {% endfor %}
             {% for form in form_detectors %}
-            <table class="forms">
                 <tr><th>{% trans "Detector" %}:</th></tr>
                 {% for field in form %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
                     <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
                 </tr>
                 {% endfor %}
-            </table>
             {% endfor %}
+            </table>
         </div></div>
     </li>
 </ul>
