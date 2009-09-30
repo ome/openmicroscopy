@@ -18,10 +18,12 @@ import path as pathModule
 
 import omero
 import omero.java
+import omero.rtypes
 
 import Ice
 import IceGrid
 import Glacier2
+
 
 from omero.clients import ObjectFactory
 from omero.grid import monitors
@@ -266,6 +268,8 @@ class MonitorClientI(monitors.MonitorClient):
 
         # Finally, configure our communicator
         ObjectFactory().registerObjectFactory(self.communicator)
+        for of in omero.rtypes.ObjectFactories.values():
+            of.register(self.communicator)
         self.eventRecord("Directory", self.dropBoxDir)
 
 
