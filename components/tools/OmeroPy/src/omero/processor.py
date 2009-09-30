@@ -199,7 +199,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         link.parent = omero.model.ScriptJobI(rlong(jobid), False)
         link.child = ofile
         client.getSession().getUpdateService().saveObject(link)
-        self.logger.info("Uploaded %s bytes of %s: %s" % (sz, filename, self.uuid))
+        self.logger.info("Uploaded %s bytes of %s to id %s: %s" % (sz, filename, ofile.id.val, self.uuid))
 
     def cleanup_tmpdir(self):
         """
