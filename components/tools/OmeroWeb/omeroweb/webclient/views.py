@@ -639,14 +639,24 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
         if manager.image.getStageLabel() is not None:
             form_stageLabel = MetadataStageLabelForm(initial={'image': manager.image })
         
-        filters = list(manager.image.getMicroscopFilters())
-        for f in filters:
-            form_filter = MetadataFilterForm(initial={'filter': f, 'types':list(conn.getEnumerationEntries("FilterTypeI"))})
-            form_filters.append(form_filter)
-        detectors = list(manager.image.getMicroscopDetectors())
-        for d in detectors:
-            form_detector = MetadataDetectorForm(initial={'detector': d, 'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
-            form_detectors.append(form_detector)
+        try:
+            if manager.image.getMicroscopFilters().next() is not None:
+                filters = list(manager.image.getMicroscopFilters())
+        except StopIteration:
+            pass
+        else:
+            for f in filters:
+                form_filter = MetadataFilterForm(initial={'filter': f, 'types':list(conn.getEnumerationEntries("FilterTypeI"))})
+                form_filters.append(form_filter)
+        try:
+            if manager.image.getMicroscopDetectors().next() is not None:
+                detectors = list(manager.image.getMicroscopDetectors())
+        except StopIteration:
+            pass
+        else:
+            for d in detectors:
+                form_detector = MetadataDetectorForm(initial={'detector': d, 'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
+                form_detectors.append(form_detector)
     
     template = None
     if o3_type and o3_id:

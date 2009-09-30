@@ -2355,21 +2355,30 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
     # from metadata service
     def getMicroscopInstruments(self):
         meta_serv = self._conn.getMetadataService()
-        for inst in meta_serv.loadInstrument(self._obj.instrument.id.val):
-            if isinstance(inst, InstrumentI):
-                yield ImageInstrumentWrapper(self._conn, inst)
+        if self._obj.instrument is None:
+            yield None
+        else:
+            for inst in meta_serv.loadInstrument(self._obj.instrument.id.val):
+                if isinstance(inst, InstrumentI):
+                    yield ImageInstrumentWrapper(self._conn, inst)
     
     def getMicroscopDetectors(self):
         meta_serv = self._conn.getMetadataService()
-        for inst in meta_serv.loadInstrument(self._obj.instrument.id.val):
-            if isinstance(inst, DetectorI):
-                yield ImageDetectorWrapper(self._conn, inst)
+        if self._obj.instrument is None:
+            yield None
+        else:
+            for inst in meta_serv.loadInstrument(self._obj.instrument.id.val):
+                if isinstance(inst, DetectorI):
+                    yield ImageDetectorWrapper(self._conn, inst)
     
     def getMicroscopFilters(self):
         meta_serv = self._conn.getMetadataService()
-        for inst in meta_serv.loadInstrument(self._obj.instrument.id.val):
-            if isinstance(inst, FilterI):
-                yield ImageFilterWrapper(self._conn, inst)
+        if self._obj.instrument is None:
+            yield None
+        else:
+            for inst in meta_serv.loadInstrument(self._obj.instrument.id.val):
+                if isinstance(inst, FilterI):
+                    yield ImageFilterWrapper(self._conn, inst)
     
     # from model
     def getImagingEnvironment(self):
