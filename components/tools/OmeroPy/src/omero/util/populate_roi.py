@@ -473,7 +473,8 @@ class AbstractMeasurementCtx(object):
         our results and the OMERO database itself.
         """
         columns = self.parse()
-        self.populate(columns)
+        if columns is not None:
+            self.populate(columns)
    
     ###
     ### Abstract methods
