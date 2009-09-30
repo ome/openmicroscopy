@@ -5,6 +5,7 @@
 import logging
 import fsLogger
 
+import tempfile
 import exceptions
 import string
 import subprocess as sp
@@ -17,7 +18,7 @@ import time
 import path as pathModule
 
 import omero
-import omero.java
+import omero.cli
 import omero.rtypes
 
 import Ice
@@ -476,53 +477,33 @@ class MonitorClientI(monitors.MonitorClient):
         try:
             self.log.info("Importing file using session key = %s", key)
 
-            if platform.system() == 'Windows':
-                # Windows requires bin/omero to be bin\omero
-                climporter = config.climporter.replace('/','\\')
-                # Awkward file names not yet handled.
-                command = [climporter,
-                            " -s " + config.host,
-                            " -k " + key,
-                            " " + "'" + fileName + "'" ]
-                self.log.info("Windows command %s", str(command))
+            t = tempfile.NamedTemporaryFile()
+            t.close() # Forcing deletion due to Windows sharing issues
 
-            else:
-                climporter = config.climporter
-                # Wrap filename in single quotes, escape any ' characters first.
-                # This deals with awkward file names (spaces, quotes, etc.)
-                fileName = "'" + fileName.replace("'", r"'\''") + "'"
-                command = [climporter +
-                            " -s " + config.host +
-                            " -k " + key +
-                            " " + fileName]
-
-            process = sp.Popen(command, stdout=sp.PIPE, stderr=sp.PIPE, shell=True)
-            output = process.communicate()
-            retCode = process.returncode
-
-            if retCode == 2:
-                # The file still being in use is one possible cause of retCode == 2 under
-                # Windows. At the moment it is impossible to know for sure so try once
-                # more and then log a failure. A better strategy may be possible with
-                # more error information passed on by bin/omero
-                self.log.warn("Import failed, possible cause file locking. Trying once more.")
-                self.log.info("Importing file using command = %s", command[0])
-                process = sp.Popen(command, stdout=sp.PIPE, stderr=sp.PIPE, shell=True)
-                output = process.communicate()
-                retCode = process.returncode
+            cli = omero.cli.CLI()
+            cli.invoke(["import", "---errs=%s"%t.name, "-s", config.host, "-k", key, fileName])
+            retCode = cli.rv
 
             if retCode == 0:
                 self.log.info("Import completed on session key = %s", key)
             else:
                 self.log.error("Import completed on session key = %s, return code = %s", key, str(retCode))
                 self.log.error("***** start of output from importer-cli to stderr *****")
-                for line in output[1].split('\n'):
-                    self.log.error(line)
+		if os.path.exists(t.name):
+		    f = open(t.name,"r")
+                    lines = f.readlines()
+                    f.close()
+                    for line in lines:
+                        self.log.error(line.strip())
+		else:
+		    self.log.error("%s not found !" % t.name)
                 self.log.error("***** end of output from importer-cli *****")
 
         finally:
             client.closeSession()
             del client
+            if os.path.exists(t.name):
+                os.remove(t.name)
 
     #
     # Setters

@@ -31,14 +31,20 @@ class ImportControl(BaseControl):
         # facilitate the omero.util.import_candidates.as_dictionary
         # call. This may not always be necessary.
         out = None
+	err = None
         for i in args.args:
             if i.startswith("---file="):
                 out = i
+            if i.startswith("---errs="):
+                err = i
         if out:
             args.args.remove(out)
             out = open(out[8:], "w")
+        if err:
+            args.args.remove(err)
+            err = open(err[8:], "w")
 
-        p = omero.java.popen(self.command + args.args, debug=False, xargs = xargs, stdout=out, stderr=None)
+        p = omero.java.popen(self.command + args.args, debug=False, xargs = xargs, stdout=out, stderr=err)
         self.ctx.rv = p.wait()
 
     def help(self, args = None):
