@@ -198,6 +198,7 @@ class DataBrowserToolBar
 		IconManager icons = IconManager.getInstance();
 		manageMenu = new JPopupMenu();
 		
+		//TODO: Should be a menu, create or select existing one.
 		JMenuItem menuItem = new JMenuItem("New Dataset");
 		menuItem.setToolTipText("Create a Dataset.");
 		menuItem.setIcon(icons.getIcon(IconManager.CREATE));
@@ -423,7 +424,7 @@ class DataBrowserToolBar
 		UIUtilities.unifiedButtonLookAndFeel(saveButton);
 		
 		reportButton = new JButton();
-		reportButton.setToolTipText("Write a report.");
+		reportButton.setToolTipText("Create a report.");
 		reportButton.setIcon(icons.getIcon(IconManager.REPORT));
 		reportButton.addActionListener(this);
 		reportButton.setActionCommand(""+REPORT);

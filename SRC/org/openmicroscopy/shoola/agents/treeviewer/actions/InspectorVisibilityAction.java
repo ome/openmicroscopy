@@ -86,7 +86,6 @@ public class InspectorVisibilityAction
      */
     public void actionPerformed(ActionEvent e)
     { 
-    	String name = (String) getValue(Action.NAME);
     	if (NAME_HIDE.equals(name)) {
     		name = NAME_SHOW;
     		putValue(Action.SHORT_DESCRIPTION, 

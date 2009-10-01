@@ -1396,27 +1396,44 @@ class TreeViewerComponent
 			else text += ".";
 			un.notifyInfo("Rendering Settings Applied", text);
 		} else {
-			String s = "";
-			Iterator i = failure.iterator();
-			int index = 1;
-			int size = failure.size();
-			while (i.hasNext()) {
-				s += (Long) i.next();
-				if (index != size) {
-					if (index%10 == 0) s += "\n";
-					else s += ", ";
-				}
-				index++;
-			}
-			s = s.trim();
-			un.notifyInfo("Rendering Settings Applied", text+
-					"\ncould not be applied to the following images with ID:" +
-					"\n"+s);
-			//Indicates the wrong images.
-			//TODO: update the color of nodes in tree.
 			DataBrowser db = model.getDataViewer();
-			if (db != null) 
-				db.markUnmodifiedNodes(ImageData.class, failure);
+			String message = "";
+			String s = "";
+			if (db != null) {
+				Set<ImageData> images = db.getBrowser().getImages();
+				Map<Long, ImageData> m = new HashMap<Long, ImageData>();
+				if (images != null) {
+					Iterator<ImageData> k = images.iterator();
+					ImageData img;
+					while (k.hasNext()) {
+						img = k.next();
+						m.put(img.getId(), img);
+					}
+					
+					Iterator i = failure.iterator();
+					long id;
+					while (i.hasNext()) {
+						id = (Long) i.next();
+						if (m.containsKey(id)) {
+							s += EditorUtil.getPartialName(m.get(i).getName());
+							s += "\n";
+						}
+					}
+					s = s.trim();
+					message = text+"\ncould not be applied to the following " +
+							"images:\n"+s;
+				}
+			} 
+			if (message.length() == 0) {
+				s = " image";
+				if (n > 1) s+="s";
+				s += ".";
+				message = text+"\ncould not be applied to "+n+s;
+			}
+			un.notifyInfo("Rendering Settings Applied", message);
+			
+			//if (db != null) 
+			//	db.markUnmodifiedNodes(ImageData.class, failure);
 		}
 		MetadataViewer mv = model.getMetadataViewer();
 		if (mv != null) mv.onSettingsApplied();

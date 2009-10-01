@@ -85,7 +85,7 @@ public class RndSettingsSaver
 	/** Time reference object. */
 	private TimeRefObject 	ref;
 
-	/** Handle to the async call so that we can cancel it. */
+	/** Handle to the asynchronous call so that we can cancel it. */
 	private CallHandle  	handle;
 
 	/** One of the constants defined by this class. */
@@ -134,7 +134,6 @@ public class RndSettingsSaver
 	 * 					<code>DatasetData</code> or
 	 * 					<code>CategoryData</code>, the settings will be applied
 	 * 					to the images contained in the specified containers.
-	 * @param pixelsID	The id of the pixels of reference.
 	 * @param index 	One of the constants defined by this class.
 	 */
 	public RndSettingsSaver(TreeViewer viewer, Class rootType, List<Long> ids,
