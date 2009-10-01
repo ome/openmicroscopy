@@ -205,11 +205,6 @@ public class ExporterI extends AbstractAmdServant implements
         }
     }
     
-    public void reset_async(AMD_Exporter_reset __cb, Current __current)
-            throws ServerError {
-        
-    }
-
     // State methods
     // =========================================================================
 
