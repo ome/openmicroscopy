@@ -20,6 +20,7 @@ def additional_tests():
     suite.addTest(load("test.example"))
     suite.addTest(load("test.monitor"))
     suite.addTest(load("test.drivers"))
+    suite.addTest(load("test.replay"))
     suite.addTest(load("test.state"))
     return suite
 

@@ -76,8 +76,7 @@ class CallbackEvent(AbstractEvent):
         Calls the delegate.
         """
         m = self.delegate
-        m()
-
+        m(self.client)
 
 class InfoEvent(AbstractEvent):
     """
@@ -154,6 +153,94 @@ def with_driver(func, errors = 0):
     return wraps(func)(handler)
 
 
+class Replay(object):
+    """
+    Utility to read EVENT_RECORD logs and make the proper
+    calls on the given target.
+    """
+    def __init__(self, dir, source, target):
+        """
+        Uses the dir as the location where files should *appear*
+        to be created, regardless of what the EVENT_RECORD suggests.
+        """
+        self.log = logging.getLogger("Replay")
+        self.dir_out = dir
+        self.dir_in = None
+        self.batch = None
+        self.bsize = None
+        self.timestamp= None
+        self.filesets = None
+        self.source = source
+        self.target = target
+
+    def run(self):
+        for line in self.source.lines():
+            if 0<=line.find("EVENT_RECORD"):
+                parts = line.split("::")
+                cookie = parts[1]
+                timestamp = float(parts[2])
+                category = parts[3]
+                data = parts[4].strip()
+                if category == "Directory":
+                    self.directory(timestamp, data)
+                elif category == "Batch":
+                    self.batchStart(timestamp, data)
+                elif category == "Filesets":
+                    self.fileset(timestamp, data)
+                elif category == "Create":
+                    self.event(timestamp, data, monitors.EventType.Create)
+                elif category == "Modify":
+                    self.event(timestamp, data, monitors.EventType.Modify)
+
+    def directory(self, timestamp, data):
+        self.dir_in = data
+        self.timestamp = float(timestamp)
+        self.log.info("Replaying from %s at %s", self.dir_in, self.timestamp)
+
+    def batchStart(self, timestamp, data):
+        if self.batch:
+            assert len(self.batch) == ( self.bsize * 2 ) # Double due to callbacks
+            self.process()
+        self.batch = []
+        self.bsize = int(data)
+
+    def fileset(self, timestamp, data):
+        filesets = eval(data, {"__builtins__":None}, {})
+        self.filesets = dict()
+        for k,iv in filesets.items():
+            k = self.rewrite(k)
+            ov = []
+            for i in iv:
+                ov.append(self.rewrite(i))
+            self.filesets[k] = ov
+        return self.filesets
+
+    def event(self, timestamp, data, type):
+        data = self.rewrite(data)
+
+        def cb(client):
+            client.files = dict(self.filesets)
+        self.batch.append(CallbackEvent(0, cb))
+
+        offset = timestamp - self.timestamp
+        self.timestamp = timestamp
+        info = monitors.EventInfo(data, type)
+        event = InfoEvent(offset, info)
+        self.batch.append(event)
+        return event
+
+    def process(self):
+        if self.target:
+            for event in self.batch:
+                self.target.add(event)
+
+    def rewrite(self, data):
+        if not data.startswith(self.dir_in):
+            raise exceptions.Exception("%s doesn't start with %s" % (data, self.dir_in))
+        data = data[len(self.dir_in):]
+        data = self.dir_out + data
+        return data
+
 class Simulator(monitors.MonitorClient):
     """
     Adapter object which takes mocked Events from
@@ -179,6 +266,13 @@ class Simulator(monitors.MonitorClient):
                     self.log.info("Creating dir: %s", file)
                     file.makedirs()
                 else:
+                    #
+                    # For the moment, we assum directory events are being filtered
+                    # and therefore we will do the creation anyway.
+                    #
+                    if not file.parent.exists():
+                        file.parent.makedirs()
+
                     self.log.info("Creating file: %s", file)
                     file.write_lines(["Created by event: %s" % event])
             elif monitors.EventType.Modify == event.type:

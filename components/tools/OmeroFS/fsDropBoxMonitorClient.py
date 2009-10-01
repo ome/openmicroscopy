@@ -2,13 +2,11 @@
     OMERO.fs  DropBox implementation of a MonitorClient
 
 """
-import logging
-import fsLogger
 
+import logging
 import tempfile
 import exceptions
 import string
-import subprocess as sp
 import os
 import platform
 import uuid
@@ -25,9 +23,10 @@ import Ice
 import IceGrid
 import Glacier2
 
+import omero_FS_ice
+monitors = Ice.openModule('omero.grid.monitors')
 
 from omero.clients import ObjectFactory
-from omero.grid import monitors
 from omero.util import make_logname, internal_service_factory, Resources, SessionHolder
 from omero.util.decorators import remoted, locked, perf
 from omero.util.import_candidates import as_dictionary
@@ -46,12 +45,28 @@ class MonitorState(object):
         def __init__(self, seq, timer):
             self.seq = seq
             self.timer = timer
+        def __repr__(self):
+            return self.__str__()
+        def __str__(self):
+            return "<Entry:%s>"%id(self)
 
     def __init__(self):
         self.log = logging.getLogger("fsclient.MonitorState")
         self._lock = threading.RLock()
         self.__entries = {}
         self.__timers = 0
+
+    def addTimer(self, wait, callback, argsList):
+        self.__timers += 1
+        timer = Timer(wait, callback, argsList)
+        return timer
+
+    def removeTimer(self, timer):
+        try:
+            self.__timers -= 1
+            timer.cancel()
+        except:
+            self.log.warn("Failed to stop timer: %s", timer)
 
     def checkKey(self, key):
         if not isinstance(key, str):
@@ -91,14 +106,13 @@ class MonitorState(object):
 
             else: # INSERT
                 msg = "New"
-                self.__timers += 1
-                timer = Timer(wait, callback, [key])
+                timer = self.addTimer(wait, callback, [key])
                 entry = MonitorState.Entry(seq, timer)
                 self.sync(entry)
                 # Last activity
                 timer.start()
 
-            self.log.info("%s entry %s contains %d file(s). Files=%s Timers=%s", msg, key, len(seq), len(self.__entries), self.__timers)
+        self.log.info("%s entry %s contains %d file(s). Files=%s Timers=%s", msg, key, len(seq), len(self.__entries), self.__timers)
 
     def find(self, seq):
         """
@@ -115,13 +129,24 @@ class MonitorState(object):
         """
         Takes an Entry instance and creates all the needed dictionary
         entries from all the keys in the sequence to the Entry itself.
-        If the link already exists, it MUST be to the entry.
+        If the link already exists and it is not to the current Entry,
+        then the old Entry will be cleaned up.
         """
         for key in entry.seq:
             try:
                 entry2 = self.__entries[key]
                 if entry2 != entry:
-                    raise exceptions.Exception("INTERNAL EXCEPTION: entries out of sync: %s!=%s",entry,entry2)
+                    self.log.info("Key %s moved entries:%s=>%s", key, entry2, entry)
+                    self.__entries[key] = entry
+                    count=0
+                    for v in self.__entries.values():
+                        if v == entry2:
+                            count+=1
+                    if count:
+                        self.log.warn("%s remaining key(s) point to %s", count, entry2)
+                    else:
+                        self.log.info("Stopping %s", entry2)
+                        self.removeTimer(entry2.timer)
             except KeyError:
                 self.log.debug("Adding entry for %s", key)
                 self.__entries[key] = entry
@@ -141,11 +166,7 @@ class MonitorState(object):
                 self.log.warn("Can't find key for clear: %s", key)
                 return
 
-        try:
-            self.__timers -= 1
-            entry.timer.cancel()
-        except:
-            self.log.warn("Failed to stop timer: %s", entry.timer)
+        self.removeTimer(entry.timer)
 
         for key2 in entry.seq:
             try:
@@ -375,7 +396,7 @@ class MonitorClientI(monitors.MonitorClient):
         try:
             self.log.info("Getting filesets on : %s", ids)
             fileSets = self.getUsedFiles(list(ids))
-            self.log.info("Filesets = %s", str(fileSets))
+            self.eventRecord("Filesets", str(fileSets))
         except:
             self.log.exception("Failed to get filesets")
             fileSets = None
@@ -475,7 +496,7 @@ class MonitorClientI(monitors.MonitorClient):
             return
 
         try:
-            self.log.info("Importing file using session key = %s", key)
+            self.log.info("Importing %s (session=%s)", fileName, key)
 
             t = tempfile.NamedTemporaryFile()
             t.close() # Forcing deletion due to Windows sharing issues
@@ -485,9 +506,9 @@ class MonitorClientI(monitors.MonitorClient):
             retCode = cli.rv
 
             if retCode == 0:
-                self.log.info("Import completed on session key = %s", key)
+                self.log.info("Import of %s completed (session=%s)", fileName, key)
             else:
-                self.log.error("Import completed on session key = %s, return code = %s", key, str(retCode))
+                self.log.error("Import of %s failed=%s (session=%s)", fileName, str(retCode), key)
                 self.log.error("***** start of output from importer-cli to stderr *****")
 		if os.path.exists(t.name):
 		    f = open(t.name,"r")

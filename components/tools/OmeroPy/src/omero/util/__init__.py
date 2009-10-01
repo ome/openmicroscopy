@@ -56,6 +56,18 @@ def configure_logging(logdir, logfile, loglevel = logging.INFO, format = LOGFORM
     rootLogger.addHandler(fileLog)
     return rootLogger
 
+def configure_server_logging(props):
+    """
+    Takes an Ice.Properties instance and configures logging
+    """
+    program_name = props.getProperty("Ice.ProgramName")
+    log_name = program_name+".log"
+    log_debug = props.getPropertyWithDefault("omero.debug","")
+    if log_debug:
+        log_level = logging.DEBUG
+    else:
+        log_level = logging.INFO
+    configure_logging(LOGDIR, log_name, loglevel=log_level)
 
 def internal_service_factory(communicator, user="root", group=None, retries=6, interval=10, client_uuid=None):
     """
@@ -196,14 +208,8 @@ class Server(Ice.Application):
         from omero.columns import ObjectFactories as cFactories
 
         props = self.communicator().getProperties()
-        program_name = props.getProperty("Ice.ProgramName")
-        log_name = program_name+".log"
-        log_debug = props.getPropertyWithDefault("omero.debug","")
-        if log_debug:
-            log_level = logging.DEBUG
-        else:
-            log_level = logging.INFO
-        configure_logging(self.logdir, log_name, loglevel=log_level)
+        configure_server_logging(props)
+
         self.logger = logging.getLogger("omero.util.Server")
         self.logger.info("*"*80)
         self.logger.info("Starting")

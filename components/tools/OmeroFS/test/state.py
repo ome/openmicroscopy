@@ -21,7 +21,8 @@ from uuid import uuid4
 from path import path
 from omero.util import make_logname
 from omero_ext.functional import wraps
-from fsDropBoxMonitorClient import *
+
+import fsDropBoxMonitorClient as fsDBMC
 
 def nullcb(*args):
     pass
@@ -41,7 +42,7 @@ def clearcb(log, state, key):
 class TestState(unittest.TestCase):
 
     def setUp(self):
-        self.s = MonitorState()
+        self.s = fsDBMC.MonitorState()
         self.log = logging.getLogger(make_logname(self))
 
     def tearDown(self):
@@ -100,6 +101,22 @@ class TestState(unittest.TestCase):
         self.assertEquals(2, len(self.s.keys()))
         time.sleep(0.25)
         self.assertEquals(0, len(self.s.keys()), self.s.keys())
+
+    def testEntryOutOfSyncSubsume(self):
+        self.s.update({'file1':['file1'        ]}, 0.1, nullcb)
+        self.assertEquals(1, len(self.s.keys()))
+        self.s.update({'file2':['file2'        ]}, 0.1, nullcb)
+        self.assertEquals(2, len(self.s.keys()))
+        self.s.update({'file2':['file1','file2']}, 0.1, nullcb)
+        self.assertEquals(2, len(self.s.keys()))
+
+    def testEntryOutOfSyncSteal(self):
+        self.s.update({'file1':['file1','file3']}, 0.1, nullcb)
+        self.assertEquals(2, len(self.s.keys()))
+        self.s.update({'file2':['file2'        ]}, 0.1, nullcb)
+        self.assertEquals(3, len(self.s.keys()))
+        self.s.update({'file2':['file2','file3']}, 0.1, nullcb)
+        self.assertEquals(3, len(self.s.keys()))
 
 if __name__ == "__main__":
     unittest.main()

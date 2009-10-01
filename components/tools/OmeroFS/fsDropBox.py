@@ -3,8 +3,8 @@
 
 
 """
+
 import logging
-import fsLogger
 log = logging.getLogger("fsclient."+__name__)
 
 import time, os, sys
@@ -15,24 +15,29 @@ import Ice
 import IceGrid
 import Glacier2
 
+from omero.util import configure_server_logging
 from omero.grid import monitors
+
 import fsDropBoxMonitorClient
 import fsConfig as config
 
 
 class DropBox(Ice.Application):
-    
+
     def run(self, args):
-        
+
+        self.props = self.communicator().getProperties()
+        configure_server_logging(props)
+
         # This tests if the FSServer is supported by the platform
-        # if not there's no point starting the FSDropBox client 
+        # if not there's no point starting the FSDropBox client
         import fsUtil
         try:
-            fsUtil.monitorPackage()         
+            fsUtil.monitorPackage()
         except:
             log.exception("System requirements not met: \n")
             return -1
-           
+
         try:
             maxRetries = int(self.communicator().getProperties().getPropertyWithDefault(
                             "omero.fs.maxRetries","5"))
@@ -47,7 +52,7 @@ class DropBox(Ice.Application):
                                 "omero.fs.pathMode","Follow")
             dirImportWait = int(self.communicator().getProperties().getPropertyWithDefault(
                                 "omero.fs.dirImportWait","60"))
-                                
+
         except:
             log.exception("Failed get properties from templates.xml: \n", )
         
