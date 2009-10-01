@@ -106,7 +106,8 @@ public class ImportDialog
 	private static final String TITLE = "Import";
 	
 	/** The message to display in the header. */
-	private static final String MESSAGE = "Selects the files to import";
+	private static final String MESSAGE = "Selects the files or directories " +
+			"to import";
 	
 	/** The message to display in the header. */
 	private static final String MESSAGE_PLATE = "Selects the plates to import";
@@ -205,7 +206,8 @@ public class ImportDialog
 		//chooser.setAcceptAllFileFilterUsed(false);
 		chooser.setControlButtonsAreShown(false);
 		chooser.setApproveButtonText("Import");
-		chooser.setApproveButtonToolTipText("Import files");
+		chooser.setApproveButtonToolTipText("Import the selected files " +
+				"or directories");
 		/*
 		if (filters != null) {
 			Iterator<FileFilter> i = filters.iterator();
@@ -221,7 +223,8 @@ public class ImportDialog
 		cancelButton.setActionCommand(""+CANCEL);
 		cancelButton.addActionListener(this);
 		importButton = new JButton("Import");
-		importButton.setToolTipText("Import the selected files.");
+		importButton.setToolTipText("Import the selected files or" +
+				" directories.");
 		importButton.setActionCommand(""+IMPORT);
 		importButton.addActionListener(this);
 		importButton.setEnabled(false);
@@ -376,6 +379,10 @@ public class ImportDialog
 
     	ImportableObject object = new ImportableObject(table.getFilesToImport(),
     			archived.isSelected());
+    	if (partialName.isSelected()) {
+    		Integer number = (Integer) numberOfFolders.getValueAsNumber();
+        	if (number != null && number >= 0) object.setDepth(number);
+    	}
     	firePropertyChange(IMPORT_PROPERTY, null, object);
     	setVisible(false);
     	dispose();
@@ -415,11 +422,15 @@ public class ImportDialog
 			if (isFileImportable(f)) l.add(f);
 		} else if (f.isDirectory()) {
 			File[] list = f.listFiles();
+			if (list != null && list.length > 0) l.add(f);
+			/*
+			File[] list = f.listFiles();
 			if (list != null && list.length > 0) {
 				for (int i = 0; i < list.length; i++) {
 					checkFile(list[i], l);
 				}
 			}
+			*/
 		}
 	}
     
@@ -432,34 +443,8 @@ public class ImportDialog
 	String getDisplayedFileName(String fullPath)
 	{
 		if (fullPath == null || !partialName.isSelected()) return fullPath;
-		String[] l = UIUtilities.splitString(fullPath);
-    	String extension = null;
-    	if (fullPath.endsWith("\\")) extension = "\\";
-    	else if (fullPath.endsWith("/")) extension = "/";
-    	String start = null;
-    	if (fullPath.startsWith("\\")) start = "\\";
-    	else if (fullPath.startsWith("/")) start = "/";
-    	String sep = UIUtilities.getStringSeparator(fullPath);
-    	if (sep == null) sep = "";
-    	String text = "";
-    	int folder = -1;
-    	Integer number = (Integer) numberOfFolders.getValueAsNumber();
-    	if (number != null && number >= 0) folder = (Integer) number;
-    	if (folder == -1) return null;
-    	if (l != null && l.length > 1) {
-    		int n = 0;
-    		if (folder < l.length) n = l.length-folder-2;
-    		if (n < 0) n = 0;
-    		int m = l.length-1;
-    		for (int i = l.length-1; i > n; i--) {
-    			if (i == m) text = l[i];
-    			else text = l[i]+sep+text;
-			}
-    		if (n == 0 && start != null) text = start+text;
-    		if (extension != null) text = text+extension;
-    		return text;
-    	}
-    	return null;
+		Integer number = (Integer) numberOfFolders.getValueAsNumber();
+		return UIUtilities.getDisplayedFileName(fullPath, number);
 	}
 	
     /** 
@@ -562,6 +547,7 @@ public class ImportDialog
 				chooser.repaint();
 				break;
 			case RESET: 
+				partialName.setSelected(false);
 				table.resetFilesName();
 				break;
 			case APPLY_TO_ALL:

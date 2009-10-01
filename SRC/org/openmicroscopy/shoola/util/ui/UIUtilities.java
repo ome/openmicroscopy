@@ -1566,4 +1566,42 @@ public class UIUtilities
         return name;
     }
     
+	/**
+	 * Returns the name to display for a file.
+	 * 
+	 * @param fullPath The file's absolute path.
+	 * @param number The number of folder to set the name.
+	 * @return See above.
+	 */
+	public static String getDisplayedFileName(String fullPath, Integer number)
+	{
+		if (fullPath == null) return fullPath;
+		String[] l = UIUtilities.splitString(fullPath);
+    	String extension = null;
+    	if (fullPath.endsWith("\\")) extension = "\\";
+    	else if (fullPath.endsWith("/")) extension = "/";
+    	String start = null;
+    	if (fullPath.startsWith("\\")) start = "\\";
+    	else if (fullPath.startsWith("/")) start = "/";
+    	String sep = UIUtilities.getStringSeparator(fullPath);
+    	if (sep == null) sep = "";
+    	String text = "";
+    	int folder = -1;
+    	if (number != null && number >= 0) folder = (Integer) number;
+    	if (folder == -1) return null;
+    	if (l != null && l.length > 1) {
+    		int n = 0;
+    		if (folder < l.length) n = l.length-folder-2;
+    		if (n < 0) n = 0;
+    		int m = l.length-1;
+    		for (int i = l.length-1; i > n; i--) {
+    			if (i == m) text = l[i];
+    			else text = l[i]+sep+text;
+			}
+    		if (n == 0 && start != null) text = start+text;
+    		if (extension != null) text = text+extension;
+    		return text;
+    	}
+    	return null;
+	}
 }

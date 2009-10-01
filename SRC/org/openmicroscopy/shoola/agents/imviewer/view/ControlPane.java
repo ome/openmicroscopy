@@ -271,7 +271,7 @@ class ControlPane
     private void setSelectedXYPlane(int z, int t)
     {
     	int bin = -1;
-    	if (model.isLifetime()) bin = lifetimeSlider.getValue();
+    	if (model.isNumerousChannel()) bin = lifetimeSlider.getValue();
     	controller.setSelectedXYPlane(z, t, bin);
     }
     
@@ -680,7 +680,7 @@ class ControlPane
     {
         JToolBar bar = createBar();
         bar.add(colorModelButton);
-        if (!model.isLifetime()) {
+        if (!model.isNumerousChannel()) {
         	bar.add(Box.createRigidArea(VBOX));
             bar.add(channelMovieButton);
             bar.add(Box.createRigidArea(VBOX));
@@ -749,7 +749,7 @@ class ControlPane
         ChannelButton button;
         Dimension d;
         int w = 0, h = 0;
-        if (!model.isLifetime()) {
+        if (!model.isNumerousChannel()) {
         	p.add(Box.createRigidArea(VBOX));
             channelButtons = createChannelButtons();
             Iterator<ChannelButton> i = channelButtons.iterator();
@@ -893,7 +893,7 @@ class ControlPane
      */
     JPanel buildGridComponent()
     {
-    	if (model.isLifetime()) return new JPanel();
+    	if (model.isNumerousChannel()) return new JPanel();
     	JPanel p = createZGridSliderPane();
         JPanel buttons = new JPanel();
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
@@ -968,7 +968,7 @@ class ControlPane
      */
     JPanel buildProjectionComponent()
     {
-    	if (model.isLifetime()) return new JPanel();
+    	if (model.isNumerousChannel()) return new JPanel();
     	JPanel p = layoutSlider(projectionRange);
         JPanel buttons = new JPanel();
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));

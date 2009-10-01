@@ -442,4 +442,12 @@ public interface MetadataViewer
 	 */
 	void onRndSettingsCopied(Collection imageIds);
 	
+	/**
+	 * Returns <code>true</code> if it is an image with a lot of channels.
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isNumerousChannel();
+	
 }

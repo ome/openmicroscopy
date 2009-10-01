@@ -352,4 +352,11 @@ public class NullRenderingService
 		return null;
 	}
 
+	public Object importImage(DataObject container, File file,
+			StatusLabel status, long userID, long groupID, boolean archived,
+			String name, int depth) throws ImportException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

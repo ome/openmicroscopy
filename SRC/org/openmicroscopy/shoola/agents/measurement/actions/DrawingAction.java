@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.measurement.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
+import javax.swing.Icon;
 import javax.swing.JToggleButton;
 
 //Third-party libraries
@@ -78,8 +79,8 @@ public class DrawingAction
 		putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(button.getToolTipText()));
 		//resize icons
-		putValue(Action.SMALL_ICON, Factory.scaleIcon(button.getIcon()));
-		
+		Icon icon = button.getIcon();
+		if (icon != null) putValue(Action.SMALL_ICON, Factory.scaleIcon(icon));
 	}
 	
 	/** 

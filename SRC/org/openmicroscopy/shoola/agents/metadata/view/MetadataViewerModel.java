@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.editor.EditorFactory;
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import pojos.AnnotationData;
@@ -572,6 +573,19 @@ class MetadataViewerModel
 		FretAnalyser analyser = new FretAnalyser(component, img, toAnalyzeID, 
 				fa);
 		analyser.load();
+	}
+
+	/**
+	 * Returns <code>true</code> if it is an image with a lot of channels.
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isNumerousChannel()
+	{
+		if (!(refObject instanceof ImageData)) return false;
+		ImageData img = (ImageData) refObject;
+		return img.getDefaultPixels().getSizeC() >= Renderer.MAX_CHANNELS;
 	}
 	
 }

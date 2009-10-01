@@ -257,7 +257,8 @@ class ServerTable
 		DefaultTableModel model = ((DefaultTableModel) getModel());
 		if (row != previousRow && row >= 0 && previousRow != -1) {
 			if (model.getColumnCount() < 3) return; 
-			v = (String) model.getValueAt(previousRow, 1);
+			if (previousRow < model.getRowCount())
+				v = (String) model.getValueAt(previousRow, 1);
 			TableCellEditor editor = getCellEditor();
 			if (editor != null) editor.stopCellEditing();
 			if (v == null || v.trim().length() == 0) v = null;

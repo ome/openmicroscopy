@@ -1800,7 +1800,7 @@ class EditorModel
 	
 	/**
 	 * Returns <code>true </code> if the object e.g. image has been published,
-	 * <code>false</code> otherwese.
+	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
@@ -1815,19 +1815,6 @@ class EditorModel
 	{
 		FileLoader loader = new FileLoader(component, data, uiView);
 		loader.load();
-	}
-	
-	/**
-	 * Returns <code>true</code> if the image is a lifetime image,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean isLifetime()
-	{
-		Object object = getRefObject();
-		if (object == null || !(object instanceof ImageData)) return false;
-		return ((ImageData) object).isLifetime();
 	}
 	
 	/** Notifies that the rendering control has been loaded. 
@@ -1908,6 +1895,21 @@ class EditorModel
 	{
 		if (renderer == null) return null;
 		return renderer.getChannelColor(index);
+	}
+
+	/**
+	 * Returns <code>true</code> if it is an image with a lot of channels.
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isNumerousChannel()
+	{
+		if (!(refObject instanceof ImageData)) return false;
+		if (renderer != null) 
+			return renderer.getPixelsDimensionsC() >= Renderer.MAX_CHANNELS;
+		ImageData img = (ImageData) refObject;
+		return img.isLifetime();
 	}
 	
 }

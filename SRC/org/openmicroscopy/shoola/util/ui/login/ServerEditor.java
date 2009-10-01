@@ -179,7 +179,9 @@ public class ServerEditor
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
 		if (row < 0) return;
 		if (model.getColumnCount() < 2) return; 
-		String oldValue = (String) model.getValueAt(row, 1);
+		String oldValue = null;
+		if (row < model.getRowCount())
+			oldValue = (String) model.getValueAt(row, 1);
 		TableCellEditor editor = table.getCellEditor();
 		if (editor != null) editor.stopCellEditing();
 			
@@ -713,9 +715,12 @@ public class ServerEditor
 		Map<String, String> servers = getServers();
 		if (servers != null) n = servers.size();
 		originalRow = -1;
-		if (n == 0) 
+		if (n == 0) {
 			requestFocusOnEditedCell(table.getRowCount()-1, 1);
-		else {
+			addButton.setEnabled(false);
+			editButton.setEnabled(false);
+			removeButton.setEnabled(false);
+		} else {
 			originalRow = n-1;
 			table.setRowSelectionInterval(originalRow, originalRow);
 		}
@@ -726,6 +731,7 @@ public class ServerEditor
 	{
 		DefaultTableModel model= ((DefaultTableModel) table.getModel());
 		int m = model.getRowCount();
+		if (m <= 1) return;
 		String value;
 		List<Integer> rowToDelete = new ArrayList<Integer>();
 		for (int i = 0; i < m; i++) {

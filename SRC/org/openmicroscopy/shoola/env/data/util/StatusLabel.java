@@ -32,7 +32,8 @@ import javax.swing.JLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
-import ome.formats.importer.util.Actions;
+import ome.formats.importer.ImportCandidates;
+import ome.formats.importer.ImportEvent;
 
 /**
  * Component displaying the status of a specific import.
@@ -75,36 +76,43 @@ public class StatusLabel
 	
 	/**
 	 * Displays the status of an on-going import.
-	 * @see IObserver#update(IObservable, Object, Object[])
+	 * @see IObserver#update(IObservable, ImportEvent)
 	 */
-	public void update(IObservable arg0, Object message, Object[] responses) 
-	{
-		if (Actions.LOADING_IMAGE.equals(message)) {
+	public void update(IObservable observable, ImportEvent event) {
+		if (event == null) return;
+		if (event instanceof ImportEvent.LOADING_IMAGE) {
 			setText("prepping");
-		} else if (Actions.LOADED_IMAGE.equals(message)) {
+		} else if (event instanceof  ImportEvent.LOADED_IMAGE) {
 			setText("analyzing");
-		} else if (Actions.IMPORT_DONE.equals(message)) {
+		} else if (event instanceof ImportEvent.IMPORT_DONE) {
 			setText("");
-		} else if (Actions.IMPORT_ARCHIVING.equals(message)) {
+		} else if (event instanceof ImportEvent.IMPORT_ARCHIVING) {
 			setText("archiving");
-		} else if (Actions.DATASET_STORED.equals(message)) {
-			if (responses != null && responses.length >= 7)
-				maxPlanes = (Integer) responses[6];
-		} else if (Actions.IMPORT_STEP.equals(message)) {
-			if (responses != null && responses.length >= 3) {
-				int value = (Integer) responses[1];
+		} else if (event instanceof ImportEvent.DATASET_STORED) {
+			ImportEvent.DATASET_STORED ev = (ImportEvent.DATASET_STORED) event;
+			maxPlanes = ev.size.imageCount;
+		} else if (event instanceof ImportEvent.IMPORT_STEP) {
+			ImportEvent.IMPORT_STEP ev = (ImportEvent.IMPORT_STEP) event;
+			if (ev.step <= maxPlanes) {   
+				int value = ev.step;
 				if (value <= maxPlanes) {
 					String text;
-					int count = (Integer) responses[2];
-					int series = (Integer) responses[0];
+					int count = ev.seriesCount;
+					int series = ev.series;
 					if (count > 1)
 						text = (series+1)+"/"+count+": "+value+"/"+maxPlanes;
 					else
 						text = value+"/"+maxPlanes;
 					setText(text);
 				}
-			}
-		} 
+            }
+		} else if (event instanceof ImportCandidates.SCANNING) {
+			ImportCandidates.SCANNING ev = (ImportCandidates.SCANNING) event;
+			int n = ev.totalFiles;
+			String txt = " file";
+			if (n > 1) txt += "s";
+			setText(n+txt);
+		}
 	}
 	
 }

@@ -69,7 +69,7 @@ public class RendererAction
      */
     protected void onStateChange(ChangeEvent e)
     {
-    	if (model.isLifeTime()) setEnabled(false);
+    	if (model.isNumerousChannel()) setEnabled(false);
     }
     
     /**

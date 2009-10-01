@@ -92,14 +92,15 @@ public class ImagesImporter
      * @param f 	 The file to import.
      * @param status The element indicating the status of the import.
      * @param name	 The name of the imported image.
+     * @param depth  The depth used to set the name.
      */
-    private void importFile(File f, StatusLabel status, String name)
+    private void importFile(File f, StatusLabel status, String name, int depth)
     {
     	partialResult = new HashMap<File, Object>();
     	OmeroImageService os = context.getImageService();
     	try {
     		Object ho = os.importImage(container, f, status, userID, groupID,
-    				archived, name);
+    				archived, name, depth);
     		partialResult.put(f, ho);
 		} catch (Exception e) {
 			partialResult.put(f, e);
@@ -148,8 +149,9 @@ public class ImagesImporter
 				final File f = io.getFile();
 				final String name = io.getName();
 				final StatusLabel label = io.getStatus();
+				final int depth = io.getDepth();
 				add(new BatchCall("Importing file") {
-            		public void doCall() { importFile(f, label, name); }
+            		public void doCall() { importFile(f, label, name, depth); }
             	}); 
 			}
     	}

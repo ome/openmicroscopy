@@ -486,7 +486,7 @@ class PropertiesUI
     	index++;
     	layout.insertRow(index, TableLayout.PREFERRED);
     	
-    	if (!model.isLifetime()) {
+    	if (!model.isNumerousChannel()) {
     		label = UIUtilities.setTextFont("Channels", Font.BOLD, size);
         	content.add(label, "0, "+index);
         	content.add(channelsArea, "2, "+index);

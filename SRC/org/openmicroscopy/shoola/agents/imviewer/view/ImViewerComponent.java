@@ -2712,9 +2712,9 @@ class ImViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#isLifeTime()
+	 * @see ImViewer#isNumerousChannel()
 	 */
-	public boolean isLifeTime() { return model.isLifetime(); }
+	public boolean isNumerousChannel() { return model.isNumerousChannel(); }
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
@@ -2722,7 +2722,7 @@ class ImViewerComponent
 	 */
 	public void onRndLoaded(boolean reload)
 	{
-		if (model.isLifetime()) model.setForLifetime();
+		if (model.isNumerousChannel()) model.setForLifetime();
 		model.onRndLoaded();
 		
 		if (!reload) {

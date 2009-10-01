@@ -764,10 +764,10 @@ public class Factory
     {
     	if (icon == null) return null;
     	if (width <= 0) width = DEFAULT_ICON_WIDTH;
-    	if (height <= 0) width = DEFAULT_ICON_HEIGHT;
+    	if (height <= 0) height = DEFAULT_ICON_HEIGHT;
     	ImageIcon img = (ImageIcon) icon;
-    	BufferedImage bi = new BufferedImage(icon.getIconWidth(), 
-    			icon.getIconHeight(), BufferedImage.TYPE_INT_ARGB);
+    	BufferedImage bi = new BufferedImage(width, 
+    			height, BufferedImage.TYPE_INT_ARGB);
     	Graphics g = bi.createGraphics();
     	g.drawImage(img.getImage(), 0, 0, width, height, null);
     	return (Icon) (new ImageIcon(bi));

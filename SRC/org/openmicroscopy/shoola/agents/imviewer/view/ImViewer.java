@@ -1014,15 +1014,15 @@ public interface ImViewer
 	public void makeMovie();
 	
 	/**
-	 * Returns <code>true</code> if it is a lifetime image,
+	 * Returns <code>true</code> if it is an image with a lot of channels.
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
-	boolean isLifeTime();
+	boolean isNumerousChannel();
 
 	/**
-	 * Notifes the component that the rendering control is loaded.
+	 * Notifies the component that the rendering control is loaded.
 	 * 
 	 * @param reload Pass <code>true</code> if the rendering control has been
 	 * 				 reloaded following an exception, <code>false</code> if 

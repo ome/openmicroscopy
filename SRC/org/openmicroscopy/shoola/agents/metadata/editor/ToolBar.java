@@ -375,7 +375,8 @@ class ToolBar
     	if ((refObject instanceof ImageData) || 
     			(refObject instanceof WellSampleData)) {
     		rndButton.setEnabled(!model.isRendererLoaded());
-    		if (model.isLifetime()) {
+    		
+    		if (model.isNumerousChannel()) {
     			rndButton.setEnabled(false);
     			flimButton.setEnabled(true);
     		} else {

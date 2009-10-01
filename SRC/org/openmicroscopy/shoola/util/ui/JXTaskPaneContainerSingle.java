@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 
 
 //Third-party libraries
@@ -66,25 +67,18 @@ public class JXTaskPaneContainerSingle
 	/** The layout used. */
 	private TableLayout layout;
 	
+	/** Map hosting the displayed components. */
+	private Map<JXTaskPane, Integer> map = new HashMap<JXTaskPane, Integer>();
+	
 	/** Initializes the component. */
 	private void initialize()
 	{
 		setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
 		setBackground(UIUtilities.BACKGROUND);
-		/*
-		setLayout(new GridBagLayout());
-		constraints = new GridBagConstraints();
-		constraints.gridy = 0;
-		constraints.gridwidth = GridBagConstraints.REMAINDER;
-		constraints.fill = GridBagConstraints.HORIZONTAL;
-		constraints.anchor = GridBagConstraints.FIRST_LINE_START;
-		constraints.weightx = 1.0;
-		*/
 		double[] columns = {TableLayout.FILL};
     	layout = new TableLayout();
     	setLayout(layout);
     	layout.setColumn(columns);
-		//setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 	}
 	
 	/** Creates a new instance. */
@@ -113,8 +107,6 @@ public class JXTaskPaneContainerSingle
 		return false;
 	}
 
-	private Map<JXTaskPane, Integer> map = new HashMap<JXTaskPane, Integer>();
-	
 	/**
 	 * Overridden to attach listener to the component if it is a 
 	 * <code>JXTaskPane</code>.
@@ -127,6 +119,8 @@ public class JXTaskPaneContainerSingle
 		else layout.insertRow(row, TableLayout.FILL);
 		map.put(c, row);
 		super.add(c, "0,"+row);
+		layout.insertRow(row+1, 2);
+		super.add(Box.createVerticalStrut(2), "0,"+row);
 		c.addPropertyChangeListener(
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
 	}

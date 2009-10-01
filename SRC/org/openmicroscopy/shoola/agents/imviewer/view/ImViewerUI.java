@@ -772,7 +772,7 @@ class ImViewerUI
 		viewPanel.add(browser.getUI(), "1, 0");
 		viewPanel.add(controlPane.getTimeSliderPane(ImViewer.VIEW_INDEX), 
 						"1, 1");
-		if (model.isLifetime()) {
+		if (model.isNumerousChannel()) {
 			viewPanel.add(
 					controlPane.getLifetimeSliderPane(ImViewer.VIEW_INDEX), 
 			"1, 2");
@@ -1263,8 +1263,8 @@ class ImViewerUI
 			text += "/"+(model.getMaxZ()+1);
 		}
 		text += " T="+(model.getDefaultT()+1)+"/"+(model.getMaxT()+1);
-		if (model.isLifetime()) {
-			text += " Lifetime="+(model.getSelectedBin()+1);
+		if (model.isNumerousChannel()) {
+			text += " L="+(model.getSelectedBin()+1);
 			text += "/"+(model.getMaxLifetimeBin());
 		}
 		setLeftStatus(text);

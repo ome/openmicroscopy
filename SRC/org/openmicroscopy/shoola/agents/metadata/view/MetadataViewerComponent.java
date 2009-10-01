@@ -908,5 +908,11 @@ class MetadataViewerComponent
 		if (!imageIds.contains(img.getId())) return;
 		rnd.reloadUI(false);
 	}
+
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#isNumerousChannel()
+	 */
+	public boolean isNumerousChannel() { return model.isNumerousChannel(); }
 	
 }

@@ -290,7 +290,8 @@ public abstract class ImageDisplay
         		if (owner != null) {
         			ExperimenterData exp = DataBrowserAgent.getUserDetails();
         			if (exp.getId() != owner.getId()) {
-        				JLabel l = new JLabel(icons.getIcon(IconManager.OWNER_8));
+        				JLabel l = new JLabel(
+        						icons.getIcon(IconManager.OWNER_8));
         				l.setToolTipText("Owner: "+
         						EditorUtil.formatExperimenter(
         						DataBrowserAgent.getExperimenter(
@@ -303,7 +304,8 @@ public abstract class ImageDisplay
 			}
     		
     	}
-    	if (EditorUtil.isAnnotated(hierarchyObject)) 
+    	if (EditorUtil.isAnnotated(hierarchyObject) && !(hierarchyObject 
+    			instanceof ImageData)) 
     		nodes.add(new JLabel(icons.getIcon(IconManager.ANNOTATION_8)));
     	
     	if (nodes.size() > 0) setDecoration(nodes);

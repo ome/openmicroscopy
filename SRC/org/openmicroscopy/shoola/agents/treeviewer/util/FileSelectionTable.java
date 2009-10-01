@@ -99,7 +99,7 @@ class FileSelectionTable
 	
 	static {
 		COLUMNS = new Vector<String>(2);
-		COLUMNS.add("File");
+		COLUMNS.add("File or Folder");
 		COLUMNS.add("Import");
 	}
 	
@@ -148,6 +148,8 @@ class FileSelectionTable
 				UIUtilities.BACKGROUND_COLOUR_EVEN, 
 				UIUtilities.BACKGROUND_COLOUR_ODD);
 		table.addHighlighter(h);
+		
+		
 		TableCellRenderer renderer = new StringCellRenderer();
 		for (int i = 0; i < table.getColumnCount(); i++) {
 			tcm.getColumn(i).setHeaderRenderer(renderer);
@@ -180,7 +182,7 @@ class FileSelectionTable
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
-		p.add(new JLabel("Files to import"));
+		p.add(new JLabel("Files or Folders to import"));
 		p.add(Box.createVerticalStrut(5));
 		p.add(new JScrollPane(table));
 		return p;
@@ -313,14 +315,17 @@ class FileSelectionTable
 			if (!inQueue.contains(f.getAbsolutePath())) {
 				element = new FileElement(f);
 				//set the name.
-				element.setName(model.getDisplayedFileName(
-						f.getAbsolutePath()));
+				if (f.isDirectory()) 
+					element.setName(f.getAbsolutePath());
+				else element.setName(model.getDisplayedFileName(
+						f.getAbsolutePath()));	
+				
 				dtm.addRow(new Object[] {element, Boolean.valueOf(true)});
 			}
 		}
 	}
 
-	/**Resets the names of all selected files. */
+	/** Resets the names of all selected files. */
 	void resetFilesName()
 	{
 		int n = table.getRowCount();
@@ -342,8 +347,10 @@ class FileSelectionTable
 		FileElement element;
 		for (int i = 0; i < n; i++) {
 			element = (FileElement) dtm.getValueAt(i, FILE_INDEX);
-			element.setName(model.getDisplayedFileName(
-					element.getFile().getAbsolutePath()));
+			if (!element.isDirectory()) {
+				element.setName(model.getDisplayedFileName(
+						element.getFile().getAbsolutePath()));
+			}
 		}
 		table.repaint();
 	}

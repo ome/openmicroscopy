@@ -46,6 +46,7 @@ import org.jhotdraw.draw.Drawing;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -204,8 +205,13 @@ class MeasurementViewerComponent
         							(int) (model.getSizeY()*f));
         		UIUtilities.setDefaultSize(model.getDrawingView(), d);
         		model.getDrawingView().setSize(d);
+        		//Load ROI from server or not.
+        		Boolean location = (Boolean) 
+        			MeasurementAgent.getRegistry().lookup(
+        					"/roi/location/server");
+        		if (location) model.fireLoadROIFromServer(measurements);
+        		else model.fireROILoading(null);
         		//model.fireROILoading(null);
-        		model.fireLoadROIFromServer(measurements);
         		//fireStateChange();
                 break;
             case DISCARDED:

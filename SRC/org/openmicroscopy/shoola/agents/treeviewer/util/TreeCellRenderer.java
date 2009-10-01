@@ -104,9 +104,12 @@ public class TreeCellRenderer
         		icon = icons.getIcon(IconManager.DATASET_ANNOTATED);
             else icon = icons.getIcon(IconManager.DATASET);
         } else if (usrObject instanceof ImageData) {
+        	/*
             if (EditorUtil.isAnnotated(usrObject))
         		icon = icons.getIcon(IconManager.IMAGE_ANNOTATED);
             else icon = icons.getIcon(IconManager.IMAGE);
+            */
+        	icon = icons.getIcon(IconManager.IMAGE);
         } else if (usrObject instanceof TagAnnotationData) {
         	TagAnnotationData tag = (TagAnnotationData) usrObject;
         	String ns = tag.getNameSpace();

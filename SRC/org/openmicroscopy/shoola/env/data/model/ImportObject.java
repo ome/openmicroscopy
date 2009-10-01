@@ -56,6 +56,9 @@ public class ImportObject
 	/** The name within the system to give to the file. */
 	private String		name;
 	
+	/** The depth. */
+	private int			depth;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -81,8 +84,22 @@ public class ImportObject
 		this.file = file;
 		this.name = name;
 		this.status = status;
+		depth = -1;
 	}
 	
+	/**
+	 * Sets the depth.
+	 * 
+	 * @param depth The value to set.
+	 */
+	public void setDepth(int depth) { this.depth = depth; }
+	
+	/**
+	 * Returns the depth.
+	 * 
+	 * @return See above.
+	 */
+	public int getDepth() { return depth; }
 	/**
 	 * Returns the file to import.
 	 * 

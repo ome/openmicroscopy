@@ -2241,7 +2241,8 @@ class TreeViewerComponent
 			importManager = new ImportManager();
 			importManager.addPropertyChangeListener(controller);
 		}
-		List<ImportObject> list = importManager.initialize(files);
+		List<ImportObject> list = importManager.initialize(files, 
+				toImport.getDepth());
 		if (!view.isImporterVisible())
 			view.setImporterVisibility(importManager.getUIDelegate(), true);
 		view.setImportStatus("Importing...", true);

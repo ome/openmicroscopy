@@ -107,9 +107,6 @@ import pojos.WellSampleData;
 class ImViewerModel
 {
 
-	/** The maximum number of channels. */
-	static final int			MAX_CHANNELS = 6;
-	
 	/** The maximum number of items in the history. */
 	private static final int	MAX_HISTORY = 10;
 	
@@ -951,7 +948,7 @@ class ImViewerModel
 	 */
 	int getMaxLifetimeBin()
 	{
-		if (isLifetime()) return getMaxC();
+		if (isNumerousChannel()) return getMaxC();
 		return 0;
 	}
 	
@@ -961,9 +958,9 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isLifetime()
+	boolean isNumerousChannel()
 	{ 
-		if (getMaxC() > MAX_CHANNELS) return true;
+		if (getMaxC() >= Renderer.MAX_CHANNELS) return true;
 		return getImage().isLifetime(); 
 	}
 	
@@ -976,7 +973,7 @@ class ImViewerModel
 	boolean allowSplitView()
 	{
 		if (getMaxC() <= 1) return false;
-		if (isLifetime()) return false;
+		if (isNumerousChannel()) return false;
 		//if (getMaxX() >= 2*IMAGE_MAX_WIDTH) return false;
 		//if (getMaxY() >= 2*IMAGE_MAX_HEIGHT) return false;
 		return true;
@@ -1999,7 +1996,7 @@ class ImViewerModel
 	/** Sets the rendering engine to handle lifetime image. */
 	void setForLifetime()
 	{
-		if (!isLifetime()) return;
+		if (!isNumerousChannel()) return;
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
 		setColorModel(ImViewer.GREY_SCALE_MODEL);

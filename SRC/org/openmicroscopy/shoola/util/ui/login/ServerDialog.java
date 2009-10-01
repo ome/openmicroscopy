@@ -329,7 +329,6 @@ class ServerDialog
 		content.add(p);
 		return content;
 	}
-	
 
 	/**
 	 * Sets the enabled flag of the {@link #finishButton} depending on 

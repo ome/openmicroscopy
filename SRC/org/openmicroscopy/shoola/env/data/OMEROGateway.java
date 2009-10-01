@@ -60,9 +60,12 @@ import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 //import Ice.Communicator;
 import ome.conditions.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.ImportCandidates;
+import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.system.UpgradeCheck;
@@ -4521,20 +4524,87 @@ class OMEROGateway
 	{
 		try {
 			ImportLibrary importLibrary = new ImportLibrary(getImportStore(), 
-					new OMEROWrapper());
+					new OMEROWrapper(new ImportConfig()));
 			importLibrary.addObserver(status);
-			if (container != null) 
-				importLibrary.setTarget(container.asIObject());
+			IObject object = null;
+			if (container != null) object = container.asIObject();
 			if (name != null && name.trim().length() == 0) name = null;
 			List<Pixels> pixels = 
 				importLibrary.importImage(file, 0, 0, 1, name, null, 
-					archived, true, null);
+					archived, true, null, object);
 			if (pixels != null && pixels.size() > 0) {
 				Pixels p = pixels.get(0);
 				long id = p.getImage().getId().getValue();
 				return getImage(id, new Parameters());
 			}
 		} catch (Throwable e) {
+			String message = getImportFailureMessage(e);
+			throw new ImportException(message, e, getReaderType());
+		}
+		return null;
+	}
+	
+	/**
+	 * Imports the specified file. Returns the image.
+	 * 
+	 * @param container The container where to download the images into.
+	 * @param file 		The file to import.
+	 * @param archived 	Pass <code>true</code> to archived the files, 
+	 * 					<code>false</code> otherwise.
+	 * @param depth		The depth used to set the name. This will be taken into
+	 * 					account if the file is a directory.
+	 * @return See above.
+	 * @throws ImportException If an error occurred while importing.
+	 */
+	Object importFolder(DataObject container, File file, StatusLabel status,
+			boolean archived, int depth)
+		throws ImportException
+	{
+		try {
+			ImportConfig config = new ImportConfig();
+			OMEROWrapper reader = new OMEROWrapper(config);
+			ImportLibrary library = new ImportLibrary(getImportStore(), reader);
+			library.addObserver(status);
+			String[] paths = new String[1];
+			paths[0] = file.getAbsolutePath();
+			ImportCandidates candidates = new ImportCandidates(reader, paths, 
+					status);
+			List<String> containers = 
+				new ArrayList<String>(candidates.getPaths());
+			IObject object = null;
+			if (container != null) object = container.asIObject();
+			List<Pixels> pixels = null;
+			if (containers != null && containers.size() > 0) {
+				Iterator<String> i = containers.iterator();
+				String path;
+				
+				String name;
+				File f;
+				int count = 0;
+				int total = containers.size();
+				while (i.hasNext()) {
+					path = i.next();
+					f = new File(path);
+					name = UIUtilities.getDisplayedFileName(f.getAbsolutePath(),
+							depth);
+					
+					pixels = library.importImage(f, count, total-count, total, 
+							name, null, archived, true, null, object);
+					count++;
+				}
+			}
+			if (pixels != null && pixels.size() > 0) {
+				Pixels p = pixels.get(0);
+				long id = p.getImage().getId().getValue();
+				return getImage(id, new Parameters());
+			}
+			//library.importCandidates(config, candidates);
+			
+			//importLibrary.addObserver(status);
+			
+			
+		} catch (Throwable e) {
+			e.printStackTrace();
 			String message = getImportFailureMessage(e);
 			throw new ImportException(message, e, getReaderType());
 		}

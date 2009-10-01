@@ -418,19 +418,21 @@ public interface OmeroImageService
 	 *  
 	 * @param container The container where to import the images into or 
 	 * 					<code>null</code>.
-	 * @param image		The image to import. Mustn't be <code>null</code>.
+	 * @param file		The file to import. Mustn't be <code>null</code>.
 	 * @param status 	The component indicating status of the import.
 	 * @param userID	The id of the user.
 	 * @param groupID	The id of the group.
 	 * @param archived 	Pass <code>true</code> to archived the files, 
 	 * 					<code>false</code> otherwise.
 	 * @param name		The name of the imported image.
+	 * @param depth 	The depth used to set the name. This will be taken into
+	 * 					account if the file is a directory.
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.                            
 	 */
-	public Object importImage(DataObject container, File image, 
+	public Object importImage(DataObject container, File file, 
 			StatusLabel status, long userID, long groupID, boolean archived,
-			String name)
+			String name, int depth)
 		throws ImportException;
 	
 	/**

@@ -49,8 +49,6 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
-import org.openmicroscopy.shoola.env.log.LogMessage;
-import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -328,7 +326,7 @@ class EditorComponent
 	 */
 	public void loadChannelData()
 	{
-		if (model.isLifetime()) return;
+		if (model.isNumerousChannel()) return;
 		if (model.getRndIndex() == MetadataViewer.RND_GENERAL) {
 			if (model.getChannelData() == null) 
 				model.loadChannelData();
@@ -559,6 +557,7 @@ class EditorComponent
 	public void setRenderingControl(RenderingControl rndControl)
 	{
 		model.setRenderingControl(rndControl);
+		if (model.isNumerousChannel()) return;
 		view.setRenderer();
 		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC)
 			loadChannelData();

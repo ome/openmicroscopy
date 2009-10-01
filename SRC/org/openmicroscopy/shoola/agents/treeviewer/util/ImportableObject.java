@@ -54,6 +54,9 @@ public class ImportableObject
 	/** Flag indicating to archive the files or not. */
 	private boolean 	archived;
 	
+	/** The depth. */
+	private int			depth;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -65,7 +68,22 @@ public class ImportableObject
 	{
 		this.files = files;
 		this.archived = archived;
+		depth = -1;
 	}
+	
+	/**
+	 * Sets the depth.
+	 * 
+	 * @param depth The value to set.
+	 */
+	void setDepth(int depth) { this.depth = depth; }
+	
+	/**
+	 * Returns the depth.
+	 * 
+	 * @return See above.
+	 */
+	public int getDepth() { return depth; }
 	
 	/**
 	 * Returns the collection of files to import.

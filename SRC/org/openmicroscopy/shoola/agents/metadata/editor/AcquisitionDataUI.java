@@ -430,6 +430,7 @@ class AcquisitionDataUI
 			comp = i.next();
 			if (comp.getChannelIndex() == index) {
 				comp.setChannelColor(model.getChannelColor(index));
+				comp.repaint();
 				break;
 			}
 		}

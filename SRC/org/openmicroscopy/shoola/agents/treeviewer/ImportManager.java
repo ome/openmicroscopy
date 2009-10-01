@@ -52,7 +52,6 @@ import layout.TableLayout;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.util.FileImportComponent;
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
-import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
@@ -265,9 +264,11 @@ public class ImportManager
 	 * import.
 	 * 
 	 * @param files The files to import.
+	 * @param depth The depth used for the name. Only taken into account
+	 * 				if the file is a directory.
 	 * @return See above.
 	 */
-	public List<ImportObject> initialize(Map<File, String> files)
+	public List<ImportObject> initialize(Map<File, String> files, int depth)
 	{
 		List<ImportObject> list = new ArrayList<ImportObject>();
 		if (files == null) return null;
@@ -285,6 +286,7 @@ public class ImportManager
 			toImport.add(f);
 			c = new FileImportComponent(this, f);
 			obj = new ImportObject(f, c.getStatus(), (String) entry.getValue());
+			if (f.isDirectory()) obj.setDepth(depth);
 			list.add(obj);
 			c.addPropertyChangeListener(
 					FileImportComponent.SEND_FILE_PROPERTY, this);

@@ -538,17 +538,24 @@ class OmeroImageServiceImpl
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#importImage(DataObject, File, StatusLabel, long, 
-	 * long, boolean, String)
+	 * long, boolean, String, int)
 	 */
 	public Object importImage(DataObject container, File file, 
 			StatusLabel status, long userID, long groupID, boolean archived, 
-			String name) 
+			String name, int depth) 
 		throws ImportException
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No images to import.");
-		Object object = gateway.importImage(container, file, status, archived,
-				name);
+		Object object;
+		if (file.isDirectory()) {
+			object = gateway.importFolder(container, file, status, 
+					archived, depth);
+		} else {
+			object = gateway.importImage(container, file, status, archived, 
+					name);
+		}
+				
 		if (!(object instanceof ImageData)) return object;
 		
 		ImageData image = (ImageData) object;

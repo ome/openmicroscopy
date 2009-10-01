@@ -61,7 +61,7 @@ import pojos.PixelsData;
 public interface Renderer
 	extends ObservableComponent
 {
-
+	
     /** The value after which no ticks are displayed. */
 	public static final int		MAX_NO_TICKS = 10;
     
@@ -73,9 +73,9 @@ public interface Renderer
 	
     /** 
      * The maximum number of channels before displaying the channels 
-     * buttons in a scroll pane.
+     * buttons slider.
      */
-    public static final int		MAX_CHANNELS = 10;
+    public static final int		MAX_CHANNELS = 6;
     
     /** 
      * Bound property name indicating to render the plane with the 

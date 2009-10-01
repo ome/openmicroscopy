@@ -61,6 +61,20 @@ class FileElement
 	}
 	
 	/**
+	 * Returns <code>true</code> if the file is a directory,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isDirectory()
+	{ 
+		if (file.isFile()) return false;
+		File[] list = file.listFiles();
+		if (list == null || list.length == 0) return false;
+		return true;
+	}
+	
+	/**
 	 * Returns the name to give to the imported file.
 	 * 
 	 * @return See above.

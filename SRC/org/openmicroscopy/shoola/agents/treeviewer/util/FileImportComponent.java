@@ -33,6 +33,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -46,6 +47,7 @@ import javax.swing.event.ChangeListener;
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.ImportManager;
 import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
@@ -96,7 +98,7 @@ public class FileImportComponent
 
 	/** The component allowing to launch the viewer. */
 	private JLabel			thumbLabel;
-	
+
 	/** The component displaying the status of the import. */
 	private JLabel			status;
 	
@@ -122,8 +124,15 @@ public class FileImportComponent
 		busyLabel = new JXBusyLabel(SIZE);
 		busyLabel.setVisible(true);
 		busyLabel.setBusy(false);
+		
 		nameLabel = new JPanel();
 		nameLabel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+		IconManager icons = IconManager.getInstance();
+		Icon icon;
+		if (file.isFile()) icon = icons.getIcon(IconManager.IMAGE);
+		else icon = icons.getIcon(IconManager.DIRECTORY);
+		nameLabel.add(new JLabel(icon));
+		nameLabel.add(Box.createHorizontalStrut(4));
 		nameLabel.add(new JLabel(file.getName()));
 		nameLabel.add(Box.createHorizontalStrut(10));
 		//Dimension d = nameLabel.getPreferredSize();

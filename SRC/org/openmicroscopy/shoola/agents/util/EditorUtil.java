@@ -378,7 +378,7 @@ public class EditorUtil
 	public static final String	CUT_OUT_TOLERANCE = "Cut Out Tolerance";
 	
 	/** Identifies a light source settings attenuation. */
-	public static final String	ATTENUATION = "Attenuation";
+	public static final String	ATTENUATION = "Attenuation "+PERCENT;
 	
 	/** The maximum number of field for a detector and its settings. */
 	public static final int		MAX_FIELDS_DETECTOR_AND_SETTINGS = 12;
@@ -427,6 +427,11 @@ public class EditorUtil
 
 	/** Identifies the <code>Violet</code> color. */
 	private static final Color  VIOLET = new Color(238, 130, 238);
+	
+	/** 
+	 * The value to multiply the server value by when it is a percent fraction.
+	 */
+	private static final int	PERCENT_FRACTION = 100;
 	
 	/** Colors available for the color bar. */
 	public static final Map<Color, String>	COLORS_BAR;
@@ -1323,13 +1328,13 @@ public class EditorUtil
     		notSet.add(HUMIDITY);
     		f = 0;
     	}
-    	details.put(HUMIDITY, f*100);
+    	details.put(HUMIDITY, f*PERCENT_FRACTION);
     	f = data.getCo2Percent();
     	if (f < 0) {
     		notSet.add(CO2_PERCENT);
     		f = 0;
     	}
-    	details.put(CO2_PERCENT, f*100);
+    	details.put(CO2_PERCENT, f*PERCENT_FRACTION);
     	details.put(NOT_SET, notSet);
     	return details;
     }
@@ -1513,7 +1518,7 @@ public class EditorUtil
 			double v = 0;
 			if (f == null) notSet.add(ATTENUATION);
 			else v = f;
-			details.put(ATTENUATION, v);
+			details.put(ATTENUATION, v*PERCENT_FRACTION);
 		}
 		Integer i = data.getLigthSettingsWavelength();
         if (details.containsKey(WAVELENGTH)) {
