@@ -169,35 +169,33 @@ public class ImportConfig {
             ini.updateFlexReaderServerMaps();
         }
 
-        hostname = new StrValue("hostname", this, "omero.host");
-        username = new StrValue("username", this, "omero.name");
-        password = new StrValue("password", this, "omero.pass");
-        port = new IntValue("port", this, 4063, "omero.port");
+        hostname     = new StrValue("hostname", this, "omero.host");
+        username     = new StrValue("username", this, "omero.name");
+        password     = new StrValue("password", this, "omero.pass");
+        port         = new IntValue("port", this, 4063, "omero.port");
+        sessionKey   = new StrValue("session", this);
+        email        = new StrValue("email", this);
+        serverList   = new StrValue("serverList", this);
+        name         = new StrValue("imageName", this);
+        description  = new StrValue("imageDescription", this);
+        targetClass  = new StrValue("targetClass", this);
+        targetId     = new LongValue("targetId", this, 0);
 
         savedProject = new LongValue("savedProject", this, 0L);
         savedDataset = new LongValue("savedDataset", this, 0L);
-        savedScreen = new LongValue("savedScreen", this, 0L);
+        savedScreen  = new LongValue("savedScreen", this, 0L);
 
-        sessionKey = new StrValue("session", this);
-        email = new StrValue("email", this);
-        serverList = new StrValue("serverList", this);
-        name = new StrValue("imageName", this);
-        description = new StrValue("imageDescription", this);
-        targetClass = new StrValue("targetClass", this);
-        targetId = new LongValue("targetId", this, 0);
+        debug        = new BoolValue("debug", this, false);
+        contOnError  = new BoolValue("contOnError", this, false);
+        sendReport   = new BoolValue("sendFiles", this, false);
+        sendFiles    = new BoolValue("sendFiles", this, false);
 
-        debug = new BoolValue("debug", this, false);
-        contOnError = new BoolValue("contOnError", this, false);
-        sendReport = new BoolValue("sendFiles", this, false);
-        sendFiles = new BoolValue("sendFiles", this, false);
-
-        useFullPath = new BoolValue("useFullPath", this, true);
+        useFullPath  = new BoolValue("useFullPath", this, true);
         savedFileNaming = new BoolValue("savedFileNaming", this, false);
         overrideImageName = new BoolValue("overrideImageName", this, false);
-
         numOfDirectories = new IntValue("numOfDirectories", this, 0);
-
         savedDirectory = new FileValue("savedDirectory", this);
+
         readersPath = new StrValue("readersPath", this) {
             @Override
             public String get() {
@@ -442,16 +440,48 @@ public class ImportConfig {
         return rv;
     }
 
+    /**
+     * Loads all the values for which it makes sense to have a preferences values.
+     *
+     * @see #saveAll()
+     */
     public void loadAll() {
-        for (Value<?> cv : values()) {
-            cv.load();
-        }
+
+        // Moving to expliti calls.
+        // for (Value<?> cv : values()) {
+        //    cv.load();
+        // }
+        savedProject.load();
+        savedDataset.load();
+        savedScreen.load();
+
+        useFullPath.load();
+        savedFileNaming.load();
+        overrideImageName.load();
+        numOfDirectories.load();
+        savedDirectory.load();
     }
 
+    /**
+     * @see #loadAll()
+     */
     public void saveAll() {
-        for (Value<?> cv : values()) {
-            cv.store();
-        }
+
+        // Moving to explicit calls
+        // for (Value<?> cv : values()) {
+        //    cv.store();
+        // }
+
+        savedProject.store();
+        savedDataset.store();
+        savedScreen.store();
+
+        useFullPath.store();
+        savedFileNaming.store();
+        overrideImageName.store();
+        numOfDirectories.store();
+        savedDirectory.store();
+
         try {
             prefs.flush();
             ini.flushPreferences();

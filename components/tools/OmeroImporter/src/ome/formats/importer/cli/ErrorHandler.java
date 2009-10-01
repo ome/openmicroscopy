@@ -13,6 +13,7 @@ import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
+import ome.formats.importer.ImportCandidates.SCANNING_FILE_EXCEPTION;
 import ome.formats.importer.util.ErrorContainer;
 
 import org.apache.commons.logging.Log;
@@ -45,7 +46,17 @@ public class ErrorHandler extends ome.formats.importer.util.ErrorHandler {
             FILE_EXCEPTION ev = (FILE_EXCEPTION) event;
             log.error(ev.toLog());
         }
-        
+
+        else if (event instanceof SCANNING_FILE_EXCEPTION) {
+            SCANNING_FILE_EXCEPTION ev = (SCANNING_FILE_EXCEPTION) event;
+            log.debug(ev.toLog(), ev.exception);
+        }
+
+        else if (event instanceof EXCEPTION_EVENT) {
+            EXCEPTION_EVENT ev = (EXCEPTION_EVENT) event;
+            log.debug(ev.toLog(), ev.exception);
+        }
+
         else if (event instanceof ImportEvent.DEBUG_SEND) {
 
             for (ErrorContainer error : errors) {
