@@ -56,11 +56,15 @@ public class StatusLabel
 	/** The number of planes. This value is used only for some file formats. */
 	private int maxPlanes;
 	
+	/** The number of imported files. */
+	private int numberOfFiles;
+	
 	/** Creates a new instance. */
 	public StatusLabel()
 	{
 		setForeground(UIUtilities.LIGHT_GREY);
 		maxPlanes = 0;
+		numberOfFiles = 0;
 	}
 
 	/** 
@@ -85,7 +89,9 @@ public class StatusLabel
 		} else if (event instanceof  ImportEvent.LOADED_IMAGE) {
 			setText("analyzing");
 		} else if (event instanceof ImportEvent.IMPORT_DONE) {
-			setText("");
+			if (numberOfFiles == 1) setText("one file");
+			else if (numberOfFiles == 0) setText("");
+			else setText(numberOfFiles+" files");
 		} else if (event instanceof ImportEvent.IMPORT_ARCHIVING) {
 			setText("archiving");
 		} else if (event instanceof ImportEvent.DATASET_STORED) {
@@ -108,10 +114,8 @@ public class StatusLabel
             }
 		} else if (event instanceof ImportCandidates.SCANNING) {
 			ImportCandidates.SCANNING ev = (ImportCandidates.SCANNING) event;
-			int n = ev.totalFiles;
-			String txt = " file";
-			if (n > 1) txt += "s";
-			setText(n+txt);
+			numberOfFiles = ev.totalFiles;
+			setText("scanning");
 		}
 	}
 	
