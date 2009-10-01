@@ -37,7 +37,6 @@ import omero.api.AMD_Exporter_addImage;
 import omero.api.AMD_Exporter_generateTiff;
 import omero.api.AMD_Exporter_generateXml;
 import omero.api.AMD_Exporter_read;
-import omero.api.AMD_Exporter_reset;
 import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
 import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
