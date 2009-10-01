@@ -26,7 +26,7 @@ class DropBox(Ice.Application):
 
     def run(self, args):
 
-        self.props = self.communicator().getProperties()
+        props = self.communicator().getProperties()
         configure_server_logging(props)
 
         # This tests if the FSServer is supported by the platform

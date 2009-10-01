@@ -4,7 +4,6 @@
 
 """
 import logging
-import fsLogger
 log = logging.getLogger("fsserver."+__name__)
         
 import copy

@@ -4,7 +4,6 @@
 
 """
 import logging
-import fsLogger
 log = logging.getLogger("fsserver."+__name__)
 
 import sys, traceback
@@ -103,9 +102,9 @@ class MonitorServerI(monitors.MonitorServer):
         monitorId = self._getNextMonitorId()
 
         try:
-            # blockSize (10) and ignoreDirEvents (True) hardwired until slice is changed.
+            # blockSize (0) and ignoreDirEvents (True) hardwired until slice is changed.
             self.monitors[monitorId] = MonitorFactory.createMonitor(mType, eTypes, pMode, pathString, 
-                                            whitelist, blacklist, timeout, 10, 
+                                            whitelist, blacklist, timeout, 0, 
                                             ignoreSysFiles, True, self, monitorId)
 
         except Exception, e:

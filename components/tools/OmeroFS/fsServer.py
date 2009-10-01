@@ -8,12 +8,13 @@
     
 """
 import logging
-import fsLogger
 log = logging.getLogger("fsserver."+__name__)
 
 import sys
 import Ice
 import IceGrid
+
+from omero.util import configure_server_logging
 
 import fsConfig as config
 
@@ -34,7 +35,10 @@ class Server(Ice.Application):
             :return: Exit state.
             :rtype: int
         """
-        
+
+        props = self.communicator().getProperties()
+        configure_server_logging(props)
+
         try:
             import fsMonitorServer 
         except:

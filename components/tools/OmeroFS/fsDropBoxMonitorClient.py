@@ -510,19 +510,17 @@ class MonitorClientI(monitors.MonitorClient):
             else:
                 self.log.error("Import of %s failed=%s (session=%s)", fileName, str(retCode), key)
                 self.log.error("***** start of output from importer-cli to stderr *****")
-		if os.path.exists(t.name):
-		    f = open(t.name,"r")
+                if os.path.exists(t.name):
+                    f = open(t.name,"r")
                     lines = f.readlines()
                     f.close()
                     for line in lines:
                         self.log.error(line.strip())
-		else:
-		    self.log.error("%s not found !" % t.name)
+                else:
+                    self.log.error("%s not found !" % t.name)
                 self.log.error("***** end of output from importer-cli *****")
 
         finally:
-            client.closeSession()
-            del client
             if os.path.exists(t.name):
                 os.remove(t.name)
 

@@ -4,14 +4,13 @@
 
 """
 import logging
-import fsLogger
 log = logging.getLogger("fsserver."+__name__)
 
 import threading, Queue
 import time
 
 class NotificationScheduler(threading.Thread):
-    def __init__(self, proxy, monitorId, timeout=0.0, blockSize=1):
+    def __init__(self, proxy, monitorId, timeout=0.0, blockSize=0):
         threading.Thread.__init__(self)
         # infinite queue for first test
         self.queue = Queue.Queue(0)
@@ -30,7 +29,7 @@ class NotificationScheduler(threading.Thread):
             qnow = self.queue.qsize()
             if qnow > 0:
                 log.info('Notification queue size = %s', qnow)
-                if qnow >= self.blockSize:
+                if self.blockSize != 0 and qnow >= self.blockSize:
                     qnow = self.blockSize
                 notice = []
                 for i in range(qnow):
