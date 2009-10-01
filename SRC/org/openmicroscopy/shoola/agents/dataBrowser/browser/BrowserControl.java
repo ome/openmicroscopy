@@ -153,7 +153,6 @@ class BrowserControl
      */
     void initialize() { model.accept(this); }
 
-    
     /**
      * Checks if the passed image has pixels set related to it.
      * Returns <code>true</code> if some pixels set are linked, 
@@ -304,7 +303,8 @@ class BrowserControl
     		if (remove) model.removeSelectedDisplay(d);
     		else model.setSelectedDisplay(d, true, true);
     	} else {
-    		if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
+    		//if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
+    		if (isSelectionValid(d)) {
     			if (d instanceof CellDisplay) {
     				setSelectedCell(me.getPoint(), (CellDisplay) d);
     			} else model.setSelectedDisplay(d, false, true);

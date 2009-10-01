@@ -61,7 +61,7 @@ class ProjectionCanvas
 	private static final String DEFAULT_TEXT = "Click here to preview\n" +
 			" a projection of all the z-sections.";
 	
-    /** The mouse listerner. */
+    /** The mouse listener. */
     private MouseAdapter	listener;
     
     /** Does a preview of the projected image. */

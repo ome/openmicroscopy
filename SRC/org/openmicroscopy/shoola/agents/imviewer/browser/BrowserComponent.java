@@ -259,9 +259,16 @@ class BrowserComponent
         //check the unit bar size.
         
         if (!reset) {
+        	if (index == ImViewer.VIEW_INDEX || 
+        			index == ImViewer.PROJECTION_INDEX) {
+        		view.zoomImage();  
+        		projectionView.zoomImage();
+        	}
+        	/*
         	if (index == ImViewer.VIEW_INDEX) view.zoomImage();  
         	else if (index == ImViewer.PROJECTION_INDEX)
         		projectionView.zoomImage();
+        		*/
         }
     }
 
