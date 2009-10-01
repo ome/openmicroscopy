@@ -2758,9 +2758,11 @@ public class OMEROMetadataStoreClient
         try {
             return delegate.postProcess();
         } catch (ServerError e) {
-            // Adding error handling like methods here nearby.
-            // Not sure of the best policy. ~Josh.
-            throw new RuntimeException(e);
+            // Becasuse this method is evolving, we're going to
+            // permit an exception to not stop import. Eventually,
+            // this could be dangerous. ~Josh.
+            log.warn("Failed to launch post-processing", e);
+            return null;
         }
     }
     
