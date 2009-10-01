@@ -23,60 +23,40 @@
 #
 ######################################################################
 
-# Next stages:
-# Create new data dir
-# Create new database
- ;; Use previous properties on later screens
-# Configuration database connection
-# Configuration proper directory, ports, and show how to modify other properties
-# Configuration WEB
-#  - ${EnvVarUpdate} $1 "PYTHONPATH" "A" "HKLM" "C:\Ice-3.3.1\python"
 #  - Check etc with http://nsis.sourceforge.net/TextCompare (TextCompareS)
 #   -- Or use: http://sourceforge.net/projects/nsispatchgen
-#  - Check if any of our INCLUDE_DIR functions are in the distro
-#  - On failure, open InstallLog or send it to the feedback
-#  - Using only zips (with no compression) in bundle
+#   -- VPatch/example.nsi
 #  - DE/REACTIVATE/XXX
-#  - Smarter handling of non-local databases
-#  - http://nsis.sourceforge.net/Uninstall_only_installed_files
-#  - Pop ups only from omero.nsi
-#  - Move all macros, etc. to nsh
-#  - Pop ups if requierments not fulfilled (or abort)
-#  - Decide on InstallOptions: http://forums.winamp.com/showthread.php?threadid=251391, http://nsis.sourceforge.net/Add-on_Custom_Installer_Sample_/w_InstallOptions
 #  - Error handling, e.g. after RMDIR
-#  - Handling going back and forth between windows
-#  - Logging
-#  - Call DoUpgradeCheck
-#  - Call DoBugReport
+#  - Call DoBugReport (requires reading file into for POST)
 #  - !define MUI_PAGE_CUSTOMFUNCTION_LEAVE "checkDirectory"
-#  - do something appropriate with etc
-#    - Test for infinite loops in string replacement
-#    - Handle 64bit and Vista
-#     -- http://forums.winamp.com/showthread.php?threadid=301724
-#    - APPDATA: http://stackoverflow.com/questions/116876/how-do-you-set-directory-permissions-in-nsis
-#    - http://nsis.sourceforge.net/AccessControl_plug-in
-#    - Check all /* comments
-#    - Have installer itself ping registry
-#    - Add "Complete install" for use by uninstaller
-#  - Data directory at beginning: http://forums.winamp.com/printthread.php?s=9ca5d467ad9c9844408db61e71d031e3&threadid=214898
-#    - uninstall
-#      -- use rebootok for itself
-#      -- leave the directory and var and POSSIBLY etc
-#       --- http://nsis.sourceforge.net/Advanced_Uninstall_Log_NSIS_Header
-#      -- should shutdown the server properly
-#      -- Have our own path
-#      -- What about postgres
-#      -- More careful about which registries entries are created
+#  - Test for infinite loops in string replacement
+#  - Running as admin
+#  - APPDATA: http://stackoverflow.com/questions/116876/how-do-you-set-directory-permissions-in-nsis
+#   -- http://nsis.sourceforge.net/AccessControl_plug-in
+#  - Add "Complete install" for use by uninstaller
+#  - On failure, open InstallLog or send it to the feedback
+#  - uninstall
+#    -- use rebootok for itself
+#    -- leave the directory and var and POSSIBLY etc
+#     --- http://nsis.sourceforge.net/Advanced_Uninstall_Log_NSIS_Header
+#    -- should shutdown the server properly
+#     --- Have our own path
+#     --- What about postgres
+#     --- More careful about which registries entries are created
 #
-# REVIEW:
+# REVIEW (i.e. testing/refactoring)
 #   Startup
+#   Logging everywhere
+#   Move all macros, etc. to nsh
 #   Uninstall
 #   POSSIBILITES:
-#    - PG installed/downloaded/not
+#    - PG installed/downloaded/not (remote db)
 #    - Ice installed/downloaded/not
 #    - Java installed/downloaded/not
 #    - OMERO installed/downloaded/not
 #    - DB keep/don't keep
+#  - Handling going back and forth between windows
 #
 # Plugins used:
 #  - http://nsis.sourceforge.net/DumpLog_plug-in
@@ -87,7 +67,11 @@
 #  - http://nsis.sourceforge.net/Nsisdbg_plug-in
 #  - http://nsis.sourceforge.net/Nsisunz_plug-in
 #
-# Future possibilities:
+# Next steps:
+#  - Test for PIL individually (in case python already installed) ~ DONE, but it needs to match the py version
+#  - Handle 64bit and Vista : http://forums.winamp.com/showthread.php?threadid=301724
+#  - Using only zips (with no compression) in bundle
+#  - http://nsis.sourceforge.net/Uninstall_only_installed_files
 #  - http://nsis.sourceforge.net/Move_data_between_ListBoxes (users, etc.)
 #  - http://nsis.sourceforge.net/Category:Text_Files_Manipulation_Functions
 #  - http://nsis.sourceforge.net/Docs/NSISdl/ReadMe.txt (Proxies)
@@ -108,10 +92,13 @@
 #   -- Use RTF for readme and license
 #   -- http://nsis.sourceforge.net/Changing_Title_and_Subtitle_Fonts_on_MUI_Pages
 #   -- InstTypes
+#   -- http://nsis.sourceforge.net/New_header_wizard_and_checkbox_graphics_for_MUI
+#   -- Splash : http://www.theresearchkitchen.com/blog/archives/date/2006/09
 #  - SilentInstall
 #   -- http://nsis.sourceforge.net/Examples/silent.nsi
 #   -- http://pginstaller.projects.postgresql.org/silent.html
 #   -- http://forums.winamp.com/showthread.php?postid=2211896
+#  - 5.2 Predefines (${__LINE__}, ${__SECTION__}, ${__FUNCTION__} for logging)
 
 
 ######################################################################
@@ -144,18 +131,27 @@
 # Variables
 ######################################################################
 
-; Largely constant
+; Constants
 Var INSDIR
 Var INSINI
 Var COMSPEC
 Var ICONS_GROUP
-; Not constant
+; Exec variables (not constant)
 Var CommandLine
 Var ExitCode
 Var Message
-; GUI elements
-Var hnDialog
-Var hnLabel
+; Gui controls (not constant)
+Var Skipping
+Var dLabelX
+Var dStartY
+Var dOffsetY
+Var dFieldX
+Var dLabelW
+Var dLabelH
+Var dFieldW
+Var dFieldH
+Var dCurrentRow
+Var dCurrentY
 
 ######################################################################
 # DEFINITIONS
@@ -220,6 +216,14 @@ Var hnLabel
   !define PG_MD5 "ec22457ddcadc0924bd891550dacb67b"
 !endif
 
+!define NGINX_INSTALLER "nginx-0.7.62.zip"
+!ifndef NGINX_URL
+  !define NGINX_URL "http://sysoev.ru/nginx/nginx-0.7.62.zip"
+!endif
+!ifndef NGINX_MD5
+  !define NGINX_MD5 "4395ff2204477c416b059504467d3f7b"
+!endif
+
 !define PY_INSTALLER "python-2.5.1.msi"
 !ifndef PY_URL
   !define PY_URL "http://www.python.org/ftp/python/2.5.1/python-2.5.1.msi"
@@ -234,6 +238,54 @@ Var hnLabel
 !endif
 !ifndef PYAS_MD5
   !define PYAS_MD5 "c5ed8ea033d35ba87c48885d921f08c9"
+!endif
+
+!define SCIPY_INSTALLER "scipy-0.7.1-win32-superpack-python2.5.exe"
+!ifndef SCIPY_URL
+  !define SCIPY_URL "http://sourceforge.net/projects/scipy/files/scipy/0.7.1/scipy-0.7.1-win32-superpack-python2.5.exe/download"
+!endif
+!ifndef SCIPY_MD5
+  !define SCIPY_MD5 "324248e01f235a301424ac30658b3355"
+!endif
+
+!define SZIP_INSTALLER "szip21-vnet-enc.zip"
+!ifndef SZIP_URL
+  !define SZIP_URL "http://www.hdfgroup.org/ftp/lib-external/szip/2.1/bin/windows/szip21-vnet-enc.zip"
+!endif
+!ifndef SZIP_MD5
+  !define SZIP_MD5 "b18d044f6e259c561935db2d4e0e3ad0"
+!endif
+
+!define ZLIB_INSTALLER "zlib123-vnet.zip"
+!ifndef ZLIB_URL
+  !define ZLIB_URL "http://www.hdfgroup.org/ftp/lib-external/zlib/1.2/bin/windows/zlib123-vnet.zip"
+!endif
+!ifndef ZLIB_MD5
+  !define ZLIB_MD5 "1030239f01683bbc97e90e82a8f4685e"
+!endif
+
+!define HDF_INSTALLER "hdf5_183_xp32_vs2008_ivf101.zip"
+!ifndef HDF_URL
+  !define HDF_URL "http://www.hdfgroup.org/ftp/HDF5/current/bin/windows/hdf5_183_xp32_vs2008_ivf101.zip"
+!endif
+!ifndef HDF_MD5
+  !define HDF_MD5 "b4c32cc622358ca319d417ee824221b9"
+!endif
+
+!define PYTABLES_INSTALLER "tables-2.1.2.win32-py2.5.exe"
+!ifndef PYTABLES_URL
+  !define PYTABLES_URL "http://www.pytables.org/download/stable/tables-2.1.2.win32-py2.5.exe"
+!endif
+!ifndef PYTABLES_MD5
+  !define PYTABLES_MD5 "e300566559965eedb68ea1de66c9ff9e"
+!endif
+
+!define NUMPY_INSTALLER "numpy-1.3.0-win32-superpack-python2.5.exe"
+!ifndef NUMPY_URL
+  !define NUMPY_URL "http://sourceforge.net/projects/numpy/files/NumPy/1.3.0/numpy-1.3.0-win32-superpack-python2.5.exe/download"
+!endif
+!ifndef NUMPY_MD5
+  !define NUMPY_MD5 "e8d2b1f0d30416ee72bc29e3b6762fef"
 !endif
 
 !define PIL_INSTALLER "PIL-1.1.6.win32-py2.5.exe"
@@ -300,7 +352,7 @@ Var hnLabel
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 !define PRODUCT_STARTMENU_REGVAL "OMERO.platform:StartMenuDir"
 
-Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
+Name "${PRODUCT_NAME} ${OMERO_VERSION}"
 OutFile "${INSTALLER_NAME}"
 InstallDir "C:\OMERO-${OMERO_VERSION}"
 ShowInstDetails show
@@ -315,8 +367,6 @@ DirText 'Target directory for OMERO installation. Spaces are NOT allowed. If the
 !define MUI_STARTMENUPAGE_REGISTRY_ROOT "${PRODUCT_UNINST_ROOT_KEY}"
 !define MUI_STARTMENUPAGE_REGISTRY_KEY "${PRODUCT_UNINST_KEY}"
 !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "${PRODUCT_STARTMENU_REGVAL}"
-!define MUI_INSTFILESPAGE_FINISHHEADER_TEXT "Copying files finished"
-!define MUI_INSTFILESPAGE_FINISHHEADER_SUBTEXT "All files have been copied to the install directory"
 !define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\README.txt"
 !define MUI_ABORTWARNING
 !define MUI_STARTMENUPAGE_NODISABLE
@@ -339,7 +389,7 @@ DirText 'Target directory for OMERO installation. Spaces are NOT allowed. If the
 !include WinMessages.nsh          ; Custom pages
 !include nsDialogs.nsh            ; "
 !include MUI.nsh                  ; Look and feel
-!include java.nsh                 ; Java installation
+!include third_party.nsh          ; Java installation, ReplaceInFile, etc.
 !include omero.nsh                ; Our code
 #!include "RelGotoPage.nsh"
 
@@ -354,8 +404,10 @@ DirText 'Target directory for OMERO installation. Spaces are NOT allowed. If the
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
+
 Page custom ConfigInstructions "" ""
-Page custom ConfigNewDatabase LeaveNewDatabase ""
+Page custom ConfigNewDatabaseAdmin LeaveNewDatabaseAdmin ""
+Page custom ConfigNewDatabaseOwner LeaveNewDatabaseOwner ""
 Page custom ConfigDatabase LeaveDatabase ""
 Page custom ConfigServer LeaveServer ""
 Page custom ConfigWeb LeaveWeb ""
@@ -447,6 +499,7 @@ Section "OMERO.web" SECWEB
   !insertmacro StartAction "Web"
 
   ${Requires} "Python"
+  ${Requires} "PIL"
   ${Requires} "Ice"
 
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
@@ -482,10 +535,10 @@ Section "New binary repository" SECDATA
 SectionEnd
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-  !insertmacro MUI_DESCRIPTION_TEXT ${SECSRV}  "$(SECSRV_DESC)"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SECWEB}  "$(SECWEB_DESC)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SECDB}   "$(SECDB_DESC)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SECDATA} "$(SECDATA_DESC)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SECSRV}  "$(SECSRV_DESC)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SECWEB}  "$(SECWEB_DESC)"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 
@@ -541,8 +594,6 @@ Section Uninstall
   Delete "$SMPROGRAMS\$ICONS_GROUP\Website.lnk"
 
   # REGISTRY
-  ${un.EnvVarUpdate} $0 "PATH" "R" "HKLM" "C:\Ice-3.3.1\bin"
-  ${un.EnvVarUpdate} $0 "PYTHONPATH" "R" "HKLM" "C:\Ice-3.3.1\bin"
   DeleteRegKey ${PRODUCT_INST_ROOT_KEY} "${PRODUCT_INST_KEY}"
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
 
@@ -580,9 +631,12 @@ FunctionEnd
 ######################################################################
 
 Function .onInit
+
   ExpandEnvStrings $COMSPEC %COMSPEC%
-  ## DEACTIVATE
-  Goto DoInit
+  Delete "$INSINI"
+  InitPluginsDir
+  Return ; DEACTIVATE
+  Call DoUpgradeCheck
 
   ;
   ; Preventing multiple calls
@@ -632,13 +686,6 @@ Function .onInit
 
   ${EndIf}
 
-  ;
-  ; Actual initialization
-  ;
-  DoInit:
-    Delete "$INSINI"
-    InitPluginsDir
-
 FunctionEnd
 
 Function .onVerifyInstDir
@@ -666,15 +713,6 @@ Function .onInstFailed
   DumpLog::DumpLog "$INSDIR\LogDump.txt" .R0
 FunctionEnd
 
-;XXX
-/*
-Function .onPrevPage
-  ${LogText} "onPrevPage"
-  MessageBox MB_OK "Actions already performed. Please cancel and use the uninstaller"
-  Abort
-FunctionEnd
-*/
-
 Function un.onInit
   MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "Are you sure you want to completely remove $(^Name) and all of its components?" IDYES +2
   Abort
@@ -691,37 +729,59 @@ FunctionEnd
 !define YELLOW "0xfff799"
 !define RED "0xf69679"
 
-!macro CreateDialog LABEL
-  nsDialogs::Create 1018
-  Pop $hnDialog
+!macro CreateDialog DLG LABEL
 
-  StrCpy $R0 0   ; Which row
-  StrCpy $R1 20  ; Label x
-  StrCpy $R2 54  ; y start
-  StrCpy $R3 20  ; y offset
-  StrCpy $R4 150 ; Field x
-  StrCpy $R5 80  ; Label width
-  StrCpy $R6 12  ; Label height
-  StrCpy $R7 140 ; Field width
-  StrCpy $R8 12  ; Field height
+  Var /GLOBAL ${DLG}Dialog
+  Var /GLOBAL ${DLG}Label
+  Var /GLOBAL ${DLG}Counter
+
+  ${If} $${DLG}Counter == ""
+    StrCpy $${DLG}Counter "0"
+  ${Else}
+    IntOp $${DLG}Counter $${DLG}Counter + 1
+  ${EndIf}
+
+  nsDialogs::Create 1018
+  Pop $${DLG}Dialog
+  StrCpy $dCurrentRow  0
+  StrCpy $dLabelX      20
+  StrCpy $dStartY      54
+  StrCpy $dOffsetY     20
+  StrCpy $dFieldX      150
+  StrCpy $dLabelW      80
+  StrCpy $dlabelH      15
+  StrCpy $dFieldW      140
+  StrCpy $dFieldH      15
 
   ${NSD_CreateLabel} 0 0 100% 32u "${LABEL}"
-  Pop $hnLabel
+  Pop $${DLG}Label
 
 !macroend
 
-!macro DialogRow KEY LABEL VALUE TYPE
-  Var /GLOBAL ${KEY}Field
-  Var /GLOBAL ${KEY}Label
-  Var /GLOBAL ${KEY}State
-  IntOp $R9 $R0 * $R3
-  IntOp $R9 $R9 + $R2
-  IntOp $R0 $R0 + 1
-  ${NSD_CreateLabel} $R1 $R9 $R5u $R6u "${LABEL}"
-  Pop $${KEY}Label
+!macro DialogRow DLG KEY LABEL VALUE TYPE
+  Var /GLOBAL ${DLG}${KEY}Field
+  Var /GLOBAL ${DLG}${KEY}Label
+  Var /GLOBAL ${DLG}${KEY}State
+  ; Calculate the proper Y offset
+  IntOp $dCurrentY $dCurrentRow * $dOffsetY
+  IntOp $dCurrentY $dCurrentY + $dStartY
+  IntOp $dCurrentRow $dCurrentRow + 1
+  ${NSD_CreateLabel} $dLabelX $dCurrentY $dLabelW $dLabelH "${LABEL}"
+  Pop $${DLG}${KEY}Label
 
-  ${NSD_Create${TYPE}} $R4 $R9 $R7u $R8u "${VALUE}"
-  Pop $${KEY}Field
+  ${If} $${DLG}Counter == 0
+    StrCpy $${DLG}${KEY}State "${VALUE}"
+    ${LogText} "Set ${DLG}${KEY}Field's  ${DLG}${KEY}State with default: ${VALUE}"
+  ${Else}
+    ${If} "${TYPE}" == "Password"
+      ${LogText} "${DLG}${KEY}Field's ${DLG}${KEY}State currently XXXXXXXXX"
+    ${Else}
+      ${LogText} "${DLG}${KEY}Field's ${DLG}${KEY}State currently $${DLG}${KEY}State"
+    ${EndIf}
+
+  ${EndIf}
+  ${NSD_Create${TYPE}} $dFieldX $dCurrentY $dFieldW $dFieldH "$${DLG}${KEY}State"
+  Pop $${DLG}${KEY}Field
 
 !macroend
 
@@ -730,6 +790,7 @@ FunctionEnd
   ${NSD_GetText} $${KEY}confField $${KEY}confState
   ${If} $${KEY}confState != $${KEY}passState
     MessageBox MB_OK "Passwords don't match"
+    ${NSD_SetFocus} $${KEY}passField
     SetCtlColors $${KEY}passField "" ${YELLOW}
     SetCtlColors $${KEY}confField "" ${YELLOW}
     Abort
@@ -748,85 +809,161 @@ FunctionEnd
   ${EndIf}
 !macroend
 
+!macro assert_section SEC
+  ${Unless} ${SectionIsSelected} ${SEC}
+    ${LogText} "${SEC} not selected. Aborting"
+    StrCpy $Skipping "1"
+    SendMessage $HWNDPARENT "0x408" "1" ""
+  ${EndUnless}
+!macroend
+
+!macro check_skipping
+  ${If} $Skipping != ""
+    StrCpy $Skipping ""
+    Return
+  ${EndIf}
+!macroend
+
 ######################################################################
 # Custom pages for configuration
 ######################################################################
 
 Function ConfigInstructions
-  !insertmacro CreateDialog "Configuration : Now that all the necessary files have been copied to $INSTDIR, it is necessary to configuration your installation. The following pages will present you with several options which you are free to modify. In most cases, the default values will work"
+  !insertmacro MUI_HEADER_TEXT "Configuration" "Now that all the necessary files have been copied to $INSTDIR, it is necessary to configuration your installation. The following pages will present you with several options which you are free to modify. In most cases, the default values will work"
+  !insertmacro CreateDialog INSTR "Most configuration properties can be modified after install by stopping the server and editing the configuration properties. See $SMPROGRAMS\$ICONS_GROUP\ for options"
   nsDialogs::Show
 FunctionEnd
 
-Function ConfigNewDatabase
-  !insertmacro CreateDialog "New database setup : The properties below will be used only during the installation in order to create a new database. The database user entered must have permissions to create a new database (XXX and possibly a new user)"
-  !insertmacro DialogRow newdbhost "Database host" "localhost" Text
-  !insertmacro DialogRow newdbport "Database port" "5432" Number
-  !insertmacro DialogRow newdbuser "Admin login" "postgres" Text
-  !insertmacro DialogRow newdbpass "Admin password" "omero" Password
-  !insertmacro DialogRow newdbconf "Confirm password" "omero" Password
-  !insertmacro DialogRow newdbname "Database name" "omero" Text
-  !insertmacro DialogRow newdbownr "Database owner" "omero" Text
-  !insertmacro DialogRow rootpass "OMERO root password" "omero" Password
-  !insertmacro DialogRow rootconf "Confirm root password" "omero" Password
+Function ConfigNewDatabaseAdmin
+  !insertmacro MUI_HEADER_TEXT "New database setup 1" "First configure the administrative user who can create users and databases"
+  !insertmacro CreateDialog newdb "The properties below will be used only during the installation in order to create the database and owner (if necessary)"
+  !insertmacro DialogRow newdb host "Database host" "localhost" Text
+  !insertmacro DialogRow newdb port "Database port" "5432" Number
+  !insertmacro DialogRow newdb user "Admin login" "postgres" Text
+  !insertmacro DialogRow newdb pass "Admin password" "omero" Password
+  !insertmacro DialogRow newdb conf "Confirm password" "omero" Password
 
-  nsDialogs::Show
+ !insertmacro assert_section ${SECDB}
+ nsDialogs::Show
 
 FunctionEnd
 
-Function LeaveNewDatabase
-  !insertmacro NonEmpty "newdbhost" "Host for the OMERO database"
-  !insertmacro NonEmpty "newdbport" "Port for the OMERO database"
-  !insertmacro NonEmpty "newdbuser" "User for the OMERO database"
-  !insertmacro NonEmpty "newdbpass" "Password for the OMERO database"
-  !insertmacro NonEmpty "newdbname" "Name of the OMERO database"
-  !insertmacro NonEmpty "newdbownr" "Owner of the OMERO database"
-  !insertmacro NonEmpty "rootpass" "Password for OMERO's root user"
+Function LeaveNewDatabaseAdmin
+  !insertmacro check_skipping
+  !insertmacro NonEmpty newdbhost "Host for the OMERO database"
+  !insertmacro NonEmpty newdbport "Port for the OMERO database"
+  !insertmacro NonEmpty newdbuser "User for the OMERO database"
+  !insertmacro NonEmpty newdbpass "Password for the OMERO database"
   !insertmacro assert_passwords_match newdb
-  !insertmacro assert_passwords_match root
-  Push $newdbpassState
+  Push $newdbportState
+  Push $newdbhostState
   Push $newdbuserState
-  Push $newdbnameState
-  Push "noexists"
+  Push $newdbpassState
+  Push "this won't exist and that's good" ; $newdbnameState
+  Push noexists
   Call AssertDatabase
+  ${If} ${Errors}
+    Abort
+  ${EndIf}
+FunctionEnd
+
+Function ConfigNewDatabaseOwner
+  !insertmacro MUI_HEADER_TEXT "New database setup 2" "Then configure the database name and owner you would like to use"
+  !insertmacro CreateDialog newdb2 "The values entered below are the defaults used by most OMERO installations"
+  !insertmacro DialogRow newdb2 name "Database name" "omero" Text
+  !insertmacro DialogRow newdb2 ownr "Database owner" "omero" Text
+  !insertmacro DialogRow newdb2 dbpass "Owner password" "omero" Password
+  !insertmacro DialogRow newdb2 dbconf "Confirm owner password" "omero" Password
+  !insertmacro DialogRow newdb2 omeropass "OMERO root password" "omero" Password
+  !insertmacro DialogRow newdb2 omeroconf "Confirm root password" "omero" Password
+
+ !insertmacro assert_section ${SECDB}
+ nsDialogs::Show
+
+FunctionEnd
+
+Function LeaveNewDatabaseOwner
+  !insertmacro check_skipping
+  !insertmacro NonEmpty newdb2name "Name of the OMERO database"
+  !insertmacro NonEmpty newdb2ownr "Owner of the OMERO database"
+  !insertmacro NonEmpty newdb2dbpass "Password for database owner"
+  !insertmacro NonEmpty newdb2omeropass "Password for OMERO's root user"
+  !insertmacro assert_passwords_match newdb2db
+  !insertmacro assert_passwords_match newdb2omero
+  Push $newdbportState
+  Push $newdbhostState
+  Push $newdbuserState
+  Push $newdbpassState
+  Push $newdb2nameState
+  Push noexists
+  Call AssertDatabase
+  ${If} ${Errors}
+    ${NSD_SetFocus} $newdb2nameField
+    SetCtlColors $newdb2nameField "" ${YELLOW}
+    Abort
+  ${EndIf}
 FunctionEnd
 
 Function ConfigDatabase
-  !insertmacro CreateDialog "Database configuration : The properties below are acceptable for default installations."
-  !insertmacro DialogRow dbhost "Database host" "localhost" Text
-  !insertmacro DialogRow dbport "Database port" "5432" Number
-  !insertmacro DialogRow dbuser "User login" "omero" Text
-  !insertmacro DialogRow dbpass "User password" "omero" Password
-  !insertmacro DialogRow dbconf "Confirm password" "omero" Password
-  !insertmacro DialogRow dbname "Database name" "omero" Text
 
+  ${If} ${SectionIsSelected} ${SECDB}
+    ${LogText} "Skipping ConfigDatabase since new database created"
+    StrCpy $Skipping "1"
+    SendMessage $HWNDPARENT "0x408" "1" ""
+  ${EndIf}
+
+  !insertmacro MUI_HEADER_TEXT "Database setup" "Configure the existing OMERO database you would like to connect to"
+  !insertmacro CreateDialog db "The values entered below are the defaults used by most OMERO installations"
+  !insertmacro DialogRow db host "Database host" "$0" Text
+  !insertmacro DialogRow db port "Database port" "$0" Number
+  !insertmacro DialogRow db user "User login" "$0" Text
+  !insertmacro DialogRow db pass "User password" "omero" Password
+  !insertmacro DialogRow db conf "Confirm password" "omero" Password
+  !insertmacro DialogRow db name "Database name" "$0" Text
+
+  !insertmacro assert_section ${SECSRV}
   nsDialogs::Show
 
 FunctionEnd
 
 Function LeaveDatabase
-  !insertmacro NonEmpty "dbhost" "Host of database"
-  !insertmacro NonEmpty "dbport" "Port of database"
-  !insertmacro NonEmpty "dbname" "Name of database"
-  !insertmacro NonEmpty "dbuser" "Database user name"
-  !insertmacro NonEmpty "dbpass" "Database password"
+  !insertmacro check_skipping
+  !insertmacro NonEmpty dbhost "Host of database"
+  !insertmacro NonEmpty dbport "Port of database"
+  !insertmacro NonEmpty dbname "Name of database"
+  !insertmacro NonEmpty dbuser "Database user name"
+  !insertmacro NonEmpty dbpass "Database password"
   !insertmacro assert_passwords_match db
+  Push $dbportState
+  Push $dbhostState
   Push $dbpassState
   Push $dbuserState
   Push $dbnameState
   Push "may not exist yet since newdb hasn't been run"
   Call AssertDatabase
+  ${If} ${Errors}
+    Abort
+  ${EndIf}
 FunctionEnd
 
 Function ConfigServer
-  !insertmacro CreateDialog "Server configuration : If the directory does not exist or is empty, a selection dialog will be created"
-  !insertmacro DialogRow srvdata "Data directory" "$INSTDIR\DATA" Text
-  !insertmacro DialogRow srvport "Router port" "4063" Number
+  !insertmacro MUI_HEADER_TEXT "Server configuration" "If the directory does not exist or is empty, a selection dialog will be created"
+  !insertmacro CreateDialog srv "Server configuration : If the directory does not exist or is empty, a selection dialog will be created"
+  !insertmacro DialogRow srv data "Data directory" "$INSTDIR\DATA" Text
+  !insertmacro DialogRow srv port "Router port" "4063" Number
 
+  !insertmacro assert_section ${SECSRV}
   nsDialogs::Show
 
 FunctionEnd
 
 Function LeaveServer
+  !insertmacro check_skipping
+  ${If} ${SectionIsSelected} ${SECDATA}
+    MessageBox MB_OK "XXX Expecting non-existant directory"
+  ${Else}
+    MessageBox MB_OK "XXX Expecting existant directory"
+  ${EndIf}
   !insertmacro NonEmpty "srvport" "Router port"
   ${NSD_GetText} $srvdataField $srvdataState
   ClearErrors
@@ -839,17 +976,35 @@ Function LeaveServer
 FunctionEnd
 
 Function ConfigWeb
-  !insertmacro CreateDialog "OMERO.web configuration"
-  !insertmacro DialogRow webport "Web server port" "8000" Number
+  !insertmacro MUI_HEADER_TEXT "OMERO.web configuration" "Select the configuration for your web server"
+  !insertmacro CreateDialog web "OMERO.web configuration"
+  !insertmacro DialogRow web port "Web server port" "8000" Number
 
+  !insertmacro assert_section ${SECWEB}
   nsDialogs::Show
 
 FunctionEnd
 
 Function LeaveWeb
+  !insertmacro check_skipping
   !insertmacro NonEmpty "webport" "Router port"
 FunctionEnd
 
+!macro ErrFatal M
+  StrCpy $Message "${M} : Aborting install..."
+  ${LogText} "$Message"
+  MessageBox MB_OK "$Message"
+  SetErrors
+  Quit
+!macroend
+
+!macro ErrReturn M
+  StrCpy $Message "${M}"
+  ${LogText} "$Message"
+  MessageBox MB_OK "$Message"
+  SetErrors
+  Return
+!macroend
 
 ;
 ; Usage:
@@ -857,12 +1012,14 @@ FunctionEnd
 ;   Push $dbuser
 ;   Push $dbname
 ;   Push "exists" or "noexists"
-;   Call ValidateDatabase
+;   Call AssertDatabase
 Function AssertDatabase
   Pop $R1 ; "exists" or "noexists". If anything else, no action taken.
   Pop $R2 ; dbname
   Pop $R3 ; dbuser
   Pop $R4 ; dbpass
+  Pop $R5 ; dbhost
+  Pop $R6 ; dbport
 
   ${LogText} "Entering AssertDatabase"
 
@@ -874,67 +1031,51 @@ Function AssertDatabase
   FileWrite $0 "localhost:*:*:*:$R4"
   FileClose $0
   ${If} ${Errors}
-    ${LogText} "Failed to create PGPASSFILE"
-    MessageBox MB_OK "Failed to create PGPASSFILE. Cannot initialize database"
-    Goto FatalError
+    !insertmacro ErrFatal "Failed to create PGPASSFILE. Cannot initialize database"
   ${EndIf}
 
   FileOpen $0 "$PLUGINSDIR\now.sql" w
   FileWrite $0 "select now();"
   FileClose $0
   ${If} ${Errors}
-    ${LogText} "Failed to create now script"
-    MessageBox MB_OK "Failed to create now script. Cannot initialize database"
-    Goto FatalError
+    !insertmacro ErrFatal "Failed to create now script. Cannot initialize database"
   ${EndIf}
 
   System::Call 'Kernel32::SetEnvironmentVariableA(t, t) i("PGPASSFILE", "$PLUGINSDIR\pgpass.conf").r0'
   ${If} $0 == 0
-    ${LogText} "Failed to set environment variable PGPASSFILE. Cannot initialize database"
-    MessageBox MB_OK "Failed to set environment variable PGPASSFILE. Cannot initialize database"
-    Goto FatalError
+    !insertmacro ErrFatal "Failed to set environment variable PGPASSFILE. Cannot initialize database"
   ${EndIf}
 
-  StrCpy $CommandLine '"$COMSPEC" /C "psql -U $R3 -c \l"'
-  ${Execute} $CommandLine "Failed to connect to postgres" ""
+  StrCpy $CommandLine '"$COMSPEC" /C "psql -h $R5 -p $R6 -U $R3 -c \l"'
+  ${Execute} $CommandLine "Failed to connect to postgres" "" 0
   ${If} ${Errors}
-    MessageBox MB_OK "Cannot connect to postgres"
-    Abort
+    !insertmacro ErrReturn "Cannot connect to postgres"
+    MessageBox MB_OK "$Message"
+    SetErrors
   ${Else}
-    ${LogText} "Connected to postgres as $R3"
+    ${LogText} "Connected to database as $R3"
   ${EndIf}
 
+  StrCpy $CommandLine '"$COMSPEC" /C "psql -h $R5 -p $R6 -U $R3 $R2" < $PLUGINSDIR\now.sql'
   ${If} $R1 == "noexists"
-  ;${OrIf} $R1 == "noexists" XXX Cancelling for the minute
-    StrCpy $CommandLine '"$COMSPEC" /C "psql -U $R3 $R2" < $PLUGINSDIR\now.sql'
-    ${Execute} $CommandLine "Database already exists $R2" ""
-    ${IfNot} ${Errors}
-      ${If} $R1 == "noexists"
-        MessageBox MB_OK "Database $R2 already exists. Please enter a new one"
-        Abort
-      ${Else}
-        ${LogText} "Database $R2 exists. Good."
-      ${EndIf}
+    ${Execute} $CommandLine "Database already exists $R2" "" 1
+    ${If} ${Errors}
+      !insertmacro ErrReturn "Database $R2 already exists. Please enter a new one"
     ${Else}
-      ${If} $R1 == "exists"
-        MessageBox MB_OK "Database $R2 doesn't exist. Please enter a new one"
-        Abort
-      ${Else}
-        ${LogText} "Database $R2 doesn't exit. Good."
-      ${EndIf}
-   ${EndIf}
- ${EndIf}
+      ${LogText} "Database $R2 doesn't exit. Good."
+    ${EndIf}
+  ${ElseIf} $R1 == "exists"
+    ${Execute} $CommandLine "Database $R2 doesn't exist. Please enter a new one" "" 0
+    ${If} ${Errors}
+      !insertmacro ErrReturn "Database $R2 doesn't exist. Please enter a new one"
+    ${Else}
+      ${LogText} "Database $R2 exists. Good."
+    ${EndIf}
+  ${EndIf}
 
   ${LogText} "Returing from AssertDatabase"
+  Push "ok"
   Return
-
-  ;
-  ; Error handling
-  ;
-  FatalError:
-    ${LogText} "Aborting from AssertDatabase"
-    MessageBox MB_OK "Aborting install..."
-    Quit
 
 FunctionEnd
 
@@ -964,11 +1105,6 @@ Function ActualInstall
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
 
   ;
-  ; Update the environment values
-  ;
-  !insertmacro AppendChosenPath "${Prereq}" "PATH"
-
-  ;
   ; Handle Grid XML replacements
   ;
   StrCpy $5 '<property name="omero.example" value="my_value"/>'
@@ -985,7 +1121,7 @@ Function ActualInstall
   ;
   CreateDirectory "$R6"
   StrCpy $CommandLine '"$COMSPEC" /C "createdb -U $R3 $R2"'
-  ${Execute} $CommandLine "Failed to create database" ""
+  ${Execute} $CommandLine "Failed to create database" "" 0
   ${If} ${Errors}
     Goto FatalError
   ${Else}
@@ -996,7 +1132,7 @@ Function ActualInstall
   ; Create database
   ;
   StrCpy $CommandLine '"$COMSPEC" /C "createlang -U $R3 plpgsql $R2"'
-  ${Execute} $CommandLine "Failed to add plpgsql" ""
+  ${Execute} $CommandLine "Failed to add plpgsql" "" 0
   ${If} ${Errors}
     Goto FatalError
   ${Else}
@@ -1004,7 +1140,7 @@ Function ActualInstall
   ${EndIf}
 
   StrCpy $CommandLine '"python.exe" $INSTDIR\bin\omero db script ${DBVERSION} ${DBPATCH}'
-  ${Execute} $CommandLine "Failed to create database script" "$R0"
+  ${Execute} $CommandLine "Failed to create database script" "$R0" 0
   ${If} ${Errors}
     Goto FatalError
   ${Else}
@@ -1012,7 +1148,7 @@ Function ActualInstall
   ${EndIf}
 
   StrCpy $CommandLine '"$COMSPEC" /C "psql -U $R3 $R2 < "$INSTDIR\${DBVERSION}__${DBPATCH}.sql"'
-  ${Execute} $CommandLine "Failed to execute database script" "$R4"
+  ${Execute} $CommandLine "Failed to execute database script" "$R4" 0
   ${If} ${Errors}
     Goto FatalError
   ${Else}
@@ -1026,16 +1162,3 @@ Function ActualInstall
     Abort "Fatal error during database creation"
 
 FunctionEnd
-
-
-/*
-Function Splash
-  # http://www.theresearchkitchen.com/blog/archives/date/2006/09
-  ;File /oname=$PLUGINSDIR\splash.bmp "installer.bmp"
-  ;splash::show 1000 $PLUGINSDIR\splash
-
-  Pop $0 ; $0 has '1' if the user closed the splash screen early,
-         ; '0' if everything closed normally, and '-1' if some error occurred.
-
-FunctionEnd
-*/

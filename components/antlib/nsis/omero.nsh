@@ -12,11 +12,6 @@
 # Language Strings
 ######################################################################
 
-LangString PREREQ_PAGE_TITLE ${LANG_ENGLISH} "Prerequisites"
-LangString PREREQ_PAGE_SUBTITLE ${LANG_ENGLISH} "Specify installation directories or have prerequisites installed"
-LangString CONFIG_PAGE_TITLE ${LANG_ENGLISH} "Configuration"
-LangString CONFIG_PAGE_SUBTITLE ${LANG_ENGLISH} "Options for your OMERO install"
-
 LangString SECSRV_DESC ${LANG_ENGLISH} "Install and start the OMERO server"
 LangString SECWEB_DESC ${LANG_ENGLISH} "Install and start the OMERO web client"
 LangString SECDB_DESC ${LANG_ENGLISH} "Create a new database based on configuration options"
@@ -26,26 +21,68 @@ LangString SECDATA_DESC ${LANG_ENGLISH} "Create a new binary data repository bas
 # Helpers functions
 ######################################################################
 
+;
+; Callback function used by ${Execute}/_ExecuteMacro to print stdout
+; from commands
+;
 Function ExecuteLog
   IntOp $1 $1 + 1
   Pop $2
   ${LogText} " [ExecDos] Line $1: $2"
 FunctionEnd
 
+;
+; General system call with special handling for logging,
+; expected return codes.
+;
+; Parameters:
+;   Command - with all necessary white space handling
+;   ErrorMsg - Used in logging. Also StrCpy'd to $Message
+;   StandardIn - Not currently used
+;   Expected - 0 if should succeed, not 0 if should fail
+;
 !define Execute "!insertmacro _ExecuteMacro"
-!macro _ExecuteMacro Command ErrorMsg StandardIn
+!macro _ExecuteMacro Command ErrorMsg StandardIn Expected
+
+  ; Setup
   ClearErrors
   StrLen $1 "${StandardIn}"
   ${LogText} "Executing ${Command} with stdin of length $1"
-  # ExecWait ${Command} $ExitCode
   GetFunctionAddress $9 ExecuteLog
+
+  ; Execute
   ExecDos::exec /TOFUNC "${Command}" "${StandardIn}" $9
   Pop $ExitCode
+
+  ; Check
+  ;
   ${If} ${Errors}
-  ${OrIf} $ExitCode != "0"
-    ${LogText} "${ErrorMsg}: ExitCode = $ExitCode"
-    MessageBox MB_OK "${ErrorMsg}: ExitCode = $ExitCode"
-    SetErrors
+    ${If} ${Expected} == "0"
+      ${LogText} "${ErrorMsg}: Errors found when expected success"
+      # MessageBox MB_OK "${ErrorMsg}"
+      SetErrors
+    ${Else}
+      ${LogText} "errors (expected)"
+      ClearErrors
+    ${EndIf}
+  ${Else} ; ---- No errors
+    ${If} ${Expected} == "0"
+      ${If} $ExitCode == "0"
+        ${LogText} "success (expected)"
+      ${Else}
+        ${LogText} "${ErrorMsg}: ExitCode = $ExitCode when expecting success"
+        # MessageBox MB_OK "${ErrorMsg}"
+        SetErrors
+      ${EndIf}
+    ${Else} ; ---- Failure expected
+      ${If} $ExitCode == "0"
+        ${LogText} "${ErrorMsg}: ExitCode = $ExitCode, Expected failure (${Expected})"
+        # MessageBox MB_OK "${ErrorMsg}"
+        SetErrors
+      ${Else}
+        ${LogText} "failure (expected)"
+      ${EndIf}
+    ${EndIf}
   ${EndIf}
 !macroend
 
@@ -64,8 +101,60 @@ FunctionEnd
 # Installation
 ######################################################################
 
+# The installation macros are a litte convoluted, but should be
+# straight-forward to refactor. From the top-level, the call
+# graph is:
+#
+# ${Requires} PostgreSQL|Java|Python|Ice|PIL
+#  |--> IsInstalled X (if false, set errors)
+#  |--> CheckX
+#  | |--> IsXInstalled
+#  | |--> ConfirmInstall X
+#  | \--> GetX
+#  |   |-> Download
+#  |   |-> Check MD5
+#  |   \-> Install
+#  \--> IsInstalled X (if false, set errors)
+#
+
 !define UNNEEDED "Found on PATH. No input needed"
 
+;
+; Asserts that a given section in the main file (omero.nsi)
+; requires the prerequisite ("Prereq")
+;
+!define Requires "!insertmacro _Requires"
+!macro _Requires Prereq
+
+  ${LogText} "Requires ${Prereq}"
+
+  ClearErrors
+  ${IsInstalled} ${Prereq}
+  ${If} ${Errors}
+    ClearErrors
+    !insertmacro Check${Prereq}
+    ${IsInstalled} ${Prereq}
+    ${If} ${Errors}
+      nsDialogs::SelectFolderDialog "$Message : Manually choose a directory for ${Prereq}. Cancelling will abort the install"
+      Pop $ExitCode
+      WriteINIStr "$INSINI" ${Prereq} "State" "$ExitCode"
+      ${LogText} "Setting state for ${Prereq} to $ExitCode after folder dialog"
+    ${EndIf}
+  ${EndIf}
+  ${IsInstalled} ${Prereq}
+  ${If} ${Errors}
+    ${LogText} "${Prereq} *still* not installed. Aborting"
+    Abort
+  ${EndIf}
+
+!macroend
+
+;
+; Checks the current installer state to see if the
+; prereq has already been found installed. This is
+; a short-cut, mostly, in case the back button is
+; used.
+;
 !define IsInstalled "!insertmacro _IsInstalled"
 !macro _IsInstalled Prereq
   ClearErrors
@@ -90,32 +179,6 @@ FunctionEnd
         SetErrors
       ${EndIf}
     ${EndIf}
-  ${EndIf}
-
-!macroend
-
-!define Requires "!insertmacro _Requires"
-!macro _Requires Prereq
-
-  ${LogText} "Requires ${Prereq}"
-
-  ClearErrors
-  ${IsInstalled} $Prereq
-  ${If} ${Errors}
-    ClearErrors
-    !insertmacro Check${Prereq}
-    ${IsInstalled} $Prereq
-    ${If} ${Errors}
-      nsDialogs::SelectFolderDialog "$Message : Manually choose a directory for ${Prereq}. Cancelling will abort the install"
-      Pop $ExitCode
-      WriteINIStr "$INSINI" $Prereq "State" "$ExitCode"
-      ${LogText} "Setting state for $Prereq to $ExitCode after folder dialog"
-    ${EndIf}
-  ${EndIf}
-  ${IsInstalled} ${Prereq}
-  ${If} ${Errors}
-    ${LogText} "${Prereq} *still* not installed. Aborting"
-    Abort
   ${EndIf}
 
 !macroend
@@ -154,6 +217,29 @@ FunctionEnd
   ${EndIf}
 
   PGReady: ; ---------------------------------------------
+
+!macroend
+
+!macro CheckPIL
+
+  Call IsPILInstalled
+  Pop $R0 ; First
+  WriteINIStr "$INSINI" PIL Value  "$R0"
+
+  ; If GLOBAL, installed into python
+  ${If} $R0 == "GLOBAL"
+    ${LogText} "PIL value is GLOBAL"
+    WriteINIStr "$INSINI" "PIL" "State" "${UNNEEDED}"
+    Goto PILReady
+  ${EndIf}
+
+  ${If} $R0 == "" ; None
+    ${LogText} "PIL not found"
+    !insertmacro ConfirmInstall PIL
+    Call GetPIL
+  ${EndIf}
+
+  PILReady: ; ---------------------------------------------
 
 !macroend
 
@@ -241,8 +327,7 @@ FunctionEnd
   ; function is copied code. Adds itself to path
   ;
 
-  !insertmacro StartAction "JavaPage"
-  !insertmacro MUI_HEADER_TEXT $(PREREQ_PAGE_TITLE) $(PREREQ_PAGE_SUBTITLE)
+  !insertmacro StartAction "CheckJava"
 
   Call GetJre
   ${If} ${Errors}
@@ -265,7 +350,10 @@ FunctionEnd
 
 !macroend
 
-
+;
+; Provides downloading and md5 checking of requirements.
+; See the URL and MD5 definitions in omero.nsi
+;
 !define Download "!insertmacro _DownloadMacro"
 !macro _DownloadMacro Source Target MD5
   Push "${SOURCE}"
@@ -393,8 +481,29 @@ Function GetIce
   ${Download} "${ICE_URL}" "$R0" "${ICE_MD5}"
   ${IfNot} ${Errors}
     StrCpy $R0 '"msiexec.exe" /i $R0'
-    ${Execute} $R0 "Ice MSI installer failed" ""
+    ${Execute} $R0 "Ice MSI installer failed" "" 0
   ${EndIf}
+  Call IsIceInstalled
+  Pop $0 ; 3.3.1 VS2005 InstallDir or "GLOBAL"
+  Pop $1 ; 3.3.1 VS2008 InstallDir or "GLOBAL"
+  ${If} $0 == ""
+    ${If} $1 == ""
+      StrCpy $Message "No Ice installation found. Aborting..."
+      ${LogText} "$Message"
+      MessageBox MB_OK "$Message"
+      Quit
+    ${Else}
+      StrCpy $2 $1
+    ${EndIf}
+  ${Else}
+    ${If} $1 != ""
+      ${LogText} "Two Ice installations found on GetIce?!? $1 and $2. Using first."
+    ${EndIf}
+    StrCpy $2 $0
+  ${EndIf}
+  ${LogText} "Updating PATH and PYTHONPATH with $2"
+  ${EnvVarUpdate} $1 "PATH" "A" "HKLM" "$2\bin"
+  ${EnvVarUpdate} $1 "PYTHONPATH" "A" "HKLM" "$2\python"
 FunctionEnd
 
 ;
@@ -409,8 +518,8 @@ FunctionEnd
 
 Function IsPgInstalled
 
-  ExecWait '"psql.exe" --version' $ExitCode
-  ${LogText} "psql exit code: $ExitCode"
+  StrCpy $CommandLine 'psql --version'
+  ${Execute} $CommandLine "PostgreSQL is not installed" "" 0
   ${If} ${Errors}
   ${OrIf} $ExitCode == 1
     ClearErrors
@@ -456,10 +565,10 @@ Function GetPg
     Installing:
       ; Copied from setup.bat
       StrCpy $R2 '"$R4\vcredist_x86.exe"'
-      ${Execute} $R2 "vcredist_x86 failed" ""
+      ${Execute} $R2 "vcredist_x86 failed" "" 0
       IfErrors Failure 0
       StrCpy $R2 '"msiexec.exe" /i "$R4\postgresql-8.3.msi"'
-      ${Execute} $R2 "PostgreSQL MSI installer failed" ""
+      ${Execute} $R2 "PostgreSQL MSI installer failed" "" 0
       # http://pginstaller.projects.postgresql.org/silent.html
       # ExecWait 'msiexec /i postgresql-8.0.0-rc1-int.msi  /qr INTERNALLAUNCH=1 ADDLOCAL=server,psql,docs SERVICEDOMAIN="%COMPUTERNAME%"
       #      SERVICEPASSWORD="SecretWindowsPassword123" SUPERPASSWORD="VerySecret" BASEDIR="c:\postgres" TRANSFORMS=:lang_de'
@@ -480,8 +589,8 @@ FunctionEnd
 ;
 Function IsPythonInstalled
 
-  ExecWait '"python.exe" --version' $ExitCode
-  ${LogText} "python.exe exit code: $ExitCode"
+  StrCpy $CommandLine 'python --version'
+  ${Execute} $CommandLine "Python is not installed" "" 0
   ${If} ${Errors}
   ${OrIf} $ExitCode == 1
     ClearErrors
@@ -509,300 +618,49 @@ Function IsPythonInstalled
 FunctionEnd
 
 Function GetPython
-  # Python
   ClearErrors
   StrCpy $R0 "$INSDIR\${PYAS_INSTALLER}"
   ${Download} "${PYAS_URL}" "$R0" "${PYAS_MD5}"
   ${IfNot} ${Errors}
     StrCpy $R2 '"msiexec.exe" /i $R0'
-    ${Execute} $R2 "Python MSI installer failed" ""
+    ${Execute} $R2 "Python MSI installer failed" "" 0
     # For silent: msiexec /i ActivePython-<version>.msi /qn+ INSTALLDIR=C:\myapps\Python ADDLOCAL=core,doc
     # See: http://docs.activestate.com/activepython/2.4/installnotes.html#install_silent
   ${EndIf}
+FunctionEnd
 
-  # PIL
+;
+; Usage:
+;  Call IsPILInstalled
+;   Pop $0 ; "GLOBAL" or ""
+;
+Function IsPILInstalled
+
+  StrCpy $CommandLine 'python -mImage'
+  ${Execute} $CommandLine "PIL is not installed" "" 0
+  ${If} ${Errors}
+  ${OrIf} $ExitCode == 1
+    push ""
+    ClearErrors
+  ${Else}
+    push "GLOBAL"
+    return
+  ${EndIf}
+FunctionEnd
+
+Function GetPIL
+  ClearErrors
   StrCpy $R1 "$INSDIR\${PIL_INSTALLER}"
-  ${Download} "${PIL_URL}" "$R0" "${PIL_MD5}"
+  ${Download} "${PIL_URL}" "$R1" "${PIL_MD5}"
   ${IfNot} ${Errors}
     StrCpy $R2 '"$R1"'
-    ${Execute} $R2 "PIL installer failed" ""
+    ${Execute} $R2 "PIL installer failed" "" 0
   ${EndIf}
-
 FunctionEnd
 
-
-; StrReplace
-; Replaces all ocurrences of a given needle within a haystack with another string
-; Written by dandaman32
-; http://nsis.sourceforge.net/StrRep
-
-Var STR_REPLACE_VAR_0
-Var STR_REPLACE_VAR_1
-Var STR_REPLACE_VAR_2
-Var STR_REPLACE_VAR_3
-Var STR_REPLACE_VAR_4
-Var STR_REPLACE_VAR_5
-Var STR_REPLACE_VAR_6
-Var STR_REPLACE_VAR_7
-Var STR_REPLACE_VAR_8
-
-Function StrReplace
-  Exch $STR_REPLACE_VAR_2
-  Exch 1
-  Exch $STR_REPLACE_VAR_1
-  Exch 2
-  Exch $STR_REPLACE_VAR_0
-    StrCpy $STR_REPLACE_VAR_3 -1
-    StrLen $STR_REPLACE_VAR_4 $STR_REPLACE_VAR_1
-    StrLen $STR_REPLACE_VAR_6 $STR_REPLACE_VAR_0
-    loop:
-      IntOp $STR_REPLACE_VAR_3 $STR_REPLACE_VAR_3 + 1
-      StrCpy $STR_REPLACE_VAR_5 $STR_REPLACE_VAR_0 $STR_REPLACE_VAR_4 $STR_REPLACE_VAR_3
-      StrCmp $STR_REPLACE_VAR_5 $STR_REPLACE_VAR_1 found
-      StrCmp $STR_REPLACE_VAR_3 $STR_REPLACE_VAR_6 done
-      Goto loop
-    found:
-      StrCpy $STR_REPLACE_VAR_5 $STR_REPLACE_VAR_0 $STR_REPLACE_VAR_3
-      IntOp $STR_REPLACE_VAR_8 $STR_REPLACE_VAR_3 + $STR_REPLACE_VAR_4
-      StrCpy $STR_REPLACE_VAR_7 $STR_REPLACE_VAR_0 "" $STR_REPLACE_VAR_8
-      StrCpy $STR_REPLACE_VAR_0 $STR_REPLACE_VAR_5$STR_REPLACE_VAR_2$STR_REPLACE_VAR_7
-      StrLen $STR_REPLACE_VAR_6 $STR_REPLACE_VAR_0
-      Goto loop
-    done:
-  Pop $STR_REPLACE_VAR_1 ; Prevent "invalid opcode" errors and keep the
-  Pop $STR_REPLACE_VAR_1 ; stack as it was before the function was called
-  Exch $STR_REPLACE_VAR_0
-FunctionEnd
-
-!macro _strReplaceConstructor OUT NEEDLE NEEDLE2 HAYSTACK
-  Push "${HAYSTACK}"
-  Push "${NEEDLE}"
-  Push "${NEEDLE2}"
-  Call StrReplace
-  Pop "${OUT}"
-!macroend
-
-!define StrReplace '!insertmacro "_strReplaceConstructor"'
-
-; Usage:
-;   !insertmacro ReplaceInFile SOURCE_FILE SEARCH_TEXT REPLACEMENT
-;
-; See:
-;   http://nsis.sourceforge.net/ReplaceInFile
-
-!macro ReplaceInFile SOURCE_FILE SEARCH_TEXT REPLACEMENT
-  Push "${SOURCE_FILE}"
-  Push "${SEARCH_TEXT}"
-  Push "${REPLACEMENT}"
-  Call RIF
-!macroend
-
-Function RIF
-
-  ClearErrors  ; want to be a newborn
-
-  Exch $0      ; REPLACEMENT
-  Exch
-  Exch $1      ; SEARCH_TEXT
-  Exch 2
-  Exch $2      ; SOURCE_FILE
-
-  Push $R0     ; SOURCE_FILE file handle
-  Push $R1     ; temporary file handle
-  Push $R2     ; unique temporary file name
-  Push $R3     ; a line to sar/save
-  Push $R4     ; shift puffer
-
-  IfFileExists $2 +1 RIF_error      ; knock-knock
-  FileOpen $R0 $2 "r"               ; open the door
-
-  GetTempFileName $R2               ; who's new?
-  FileOpen $R1 $R2 "w"              ; the escape, please!
-
-  RIF_loop:                         ; round'n'round we go
-    FileRead $R0 $R3                ; read one line
-    IfErrors RIF_leaveloop          ; enough is enough
-    RIF_sar:                        ; sar - search and replace
-      Push "$R3"                    ; (hair)stack
-      Push "$1"                     ; needle
-      Push "$0"                     ; blood
-      Call StrReplace               ; do the bartwalk
-      StrCpy $R4 "$R3"              ; remember previous state
-      Pop $R3                       ; gimme s.th. back in return!
-      StrCmp "$R3" "$R4" +1 RIF_sar ; loop, might change again!
-    FileWrite $R1 "$R3"             ; save the newbie
-  Goto RIF_loop                     ; gimme more
-
-  RIF_leaveloop:                    ; over'n'out, Sir!
-    FileClose $R1                   ; S'rry, Ma'am - clos'n now
-    FileClose $R0                   ; me 2
-
-    Delete "$2.old"                 ; go away, Sire
-    Rename "$2" "$2.old"            ; step aside, Ma'am
-    Rename "$R2" "$2"               ; hi, baby!
-
-    ClearErrors                     ; now i AM a newborn
-    Goto RIF_out                    ; out'n'away
-
-  RIF_error:                        ; ups - s.th. went wrong...
-    SetErrors                       ; ...so cry, boy!
-
-  RIF_out:                          ; your wardrobe?
-  Pop $R4
-  Pop $R3
-  Pop $R2
-  Pop $R1
-  Pop $R0
-  Pop $2
-  Pop $0
-  Pop $1
-
-FunctionEnd
-
-;
-; Usage:
-;   Push "string"
-;   Call CheckForSpaces
-;   Pop $R0
-;  StrCmp $R0 0 NoSpaces
-;
-; See:
-;   http://nsis.sourceforge.net/Check_for_spaces_in_a_directory_path
-;
-Function CheckForSpaces
- Exch $R0
- Push $R1
- Push $R2
- Push $R3
- StrCpy $R1 -1
- StrCpy $R3 $R0
- StrCpy $R0 0
- loop:
-   StrCpy $R2 $R3 1 $R1
-   IntOp $R1 $R1 - 1
-   StrCmp $R2 "" done
-   StrCmp $R2 " " 0 loop
-   IntOp $R0 $R0 + 1
- Goto loop
- done:
- Pop $R3
- Pop $R2
- Pop $R1
- Exch $R0
-FunctionEnd
-
-
-; http://nsis.sourceforge.net/Get_Local_Time
-;----------------------------------------------------------------------------
-; Superseded by     : GetTime function.
-;----------------------------------------------------------------------------
-; Title             : Get Local Time
-; Short Name        : GetLocalTime
-; Last Changed      : 22/Feb/2005
-; Code Type         : Function
-; Code Sub-Type     : One-way Output
-;----------------------------------------------------------------------------
-; Required          : System plugin.
-; Description       : Gets the current local time of the user's computer
-;----------------------------------------------------------------------------
-; Function Call     : Call GetLocalTime
-;
-;                     Pop "$Variable1"
-;                       Day.
-;
-;                     Pop "$Variable2"
-;                       Month.
-;
-;                     Pop "$Variable3"
-;                       Year.
-;
-;                     Pop "$Variable4"
-;                       Day of the week name.
-;
-;                     Pop "$Variable5"
-;                       Hour.
-;
-;                     Pop "$Variable6"
-;                       Minute.
-;
-;                     Pop "$Variable7"
-;                       Second.
-;----------------------------------------------------------------------------
-; Author            : Diego Pedroso
-; Author Reg. Name  : deguix
-;----------------------------------------------------------------------------
- 
-Function GetLocalTime
- 
-  # Prepare variables
-  Push $0
-  Push $1
-  Push $2
-  Push $3
-  Push $4
-  Push $5
-  Push $6
- 
-  # Call GetLocalTime API from Kernel32.dll
-  System::Call '*(&i2, &i2, &i2, &i2, &i2, &i2, &i2, &i2) i .r0'
-  System::Call 'kernel32::GetLocalTime(i) i(r0)'
-  System::Call '*$0(&i2, &i2, &i2, &i2, &i2, &i2, &i2, &i2)i \
-  (.r4, .r5, .r3, .r6, .r2, .r1, .r0,)'
- 
-  # Day of week: convert to name
-  StrCmp $3 0 0 +3
-    StrCpy $3 Sunday
-      Goto WeekNameEnd
-  StrCmp $3 1 0 +3
-    StrCpy $3 Monday
-      Goto WeekNameEnd
-  StrCmp $3 2 0 +3
-    StrCpy $3 Tuesday
-      Goto WeekNameEnd
-  StrCmp $3 3 0 +3
-    StrCpy $3 Wednesday
-      Goto WeekNameEnd
-  StrCmp $3 4 0 +3
-    StrCpy $3 Thursday
-      Goto WeekNameEnd
-  StrCmp $3 5 0 +3
-    StrCpy $3 Friday
-      Goto WeekNameEnd
-  StrCmp $3 6 0 +2
-    StrCpy $3 Saturday
-  WeekNameEnd:
- 
-  # Minute: convert to 2 digits format
-        IntCmp $1 9 0 0 +2
-          StrCpy $1 '0$1'
- 
-  # Second: convert to 2 digits format
-        IntCmp $0 9 0 0 +2
-          StrCpy $0 '0$0'
- 
-  # Return to user
-  Exch $6
-  Exch
-  Exch $5
-  Exch
-  Exch 2
-  Exch $4
-  Exch 2
-  Exch 3
-  Exch $3
-  Exch 3
-  Exch 4
-  Exch $2
-  Exch 4
-  Exch 5
-  Exch $1
-  Exch 5
-  Exch 6
-  Exch $0
-  Exch 6
- 
-FunctionEnd
-;
+######################################################################
+# Connectivty (GET/POST)
+######################################################################
 
 ; Usage: Call DefineOmeroUrls
 ;        Pop $0 ; UPGRADE
@@ -813,6 +671,7 @@ Function DefineOmeroUrls
   ;; POSTing feedback
   ;;
     /*
+    XXX
     Push "HTTP.nsi"
     Call LineCount
     Pop $R0 ; Line count
@@ -860,7 +719,7 @@ Function DoUpgradeCheck
 
   Call DefineOmeroUrls
   Pop $0 ; Upgrade URL
-  Pop $1 ; Unneeded
+  Pop $1 ; Bug URL (unneeded)
 
   Delete "$INSDIR\upgrade_check.txt"
   inetc::get /SILENT \
