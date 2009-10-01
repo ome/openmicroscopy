@@ -469,20 +469,18 @@ java component.
     </target>
 
     <target name="release-nsis" description="Creates a Windows installer with NSIS">
-        <!--
-        <tokenfilter>
-            <replaceregex pattern="hello" replace="world" flags="gi"/>
-        </tokenfilter>
-        -->
         <taskdef name="nsis" classname="net.sf.nsisant.Task">
             <classpath location="lib/repository/nsisant-${versions.nsisant}.jar"/>
         </taskdef>
-        <nsis script="${import.dir}/omero.nsi" verbosity="4" out="target/nsis.log" noconfig="yes" nocd="yes">
+        <property name="nsis.dir" value="${omero.home}/components/antlib/nsis"/>
+        <nsis script="${nsis.dir}/omero.nsi" verbosity="4" noconfig="yes" nocd="yes"><!-- out="target/nsis.log"-->
             <define name="VERSION" value="4.1.0.0"/><!--${omero.version} Last digit build?"-->
             <define name="OMERO_VERSION" value="${omero.version}"/>
-            <define name="INCLUDE_DIR" value="${import.dir}"/>
+            <define name="DBVERSION" value="${omero.db.version}"/>
+            <define name="DBPATCH" value="${omero.db.patch}"/>
+            <define name="INCLUDE_DIR" value="${nsis.dir}"/>
             <define name="INSTALLER_NAME" value="${omero.home}/target/omero_installer.exe"/>
-            <scriptcmd cmd="AutoCloseWindow true"/>
+            <!--scriptcmd cmd="AutoCloseWindow true"/-->
         </nsis>
     </target>
 
