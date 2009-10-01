@@ -94,7 +94,7 @@ def _createConnection (server_id, sUuid=None, username=None, passwd=None, host=N
         logger.error("Critical error during connect, retrying after _purge")
         logger.debug(traceback.format_exc())
         _purge(force=True)
-        return _createConnection(server_id, None, username, passwd, retry=False, host=host, port=port)
+        return _createConnection(server_id, sUuid, username, passwd, retry=False, host=host, port=port)
 
 @timeit
 def _purge (force=False):

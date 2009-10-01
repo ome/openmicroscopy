@@ -174,7 +174,7 @@ class BaseContainer(BaseController):
         self.global_metadata = list()
         self.series_metadata = list()
         for a in self.image.listAnnotations():
-            if a.ns == "openmicroscopy.org/omero/import/companionFile" and a.getFileName().startswith("original_metadata"):
+            if a.ns == omero.constants.namespaces.NSCOMPANIONFILE and a.getFileName().startswith("original_metadata"):
                 self.original_metadata = a
                 temp_file = self.conn.getFile(a.file.id.val, a.file.size.val).split('\n')
                 flag = None
@@ -896,7 +896,7 @@ class BaseContainer(BaseController):
                 self.long_annotations['votes'] += 1
                 self.long_annotations['rate'] += int(ann.longValue)
             elif isinstance(ann._obj, FileAnnotationI):
-                if ann.ns == "openmicroscopy.org/omero/import/companionFile" and ann.getFileName().startswith("original_metadata"):
+                if ann.ns == omero.constants.namespaces.NSCOMPANIONFILE and ann.getFileName().startswith("original_metadata"):
                     pass
                 else:
                     self.file_annotations.append(ann)
