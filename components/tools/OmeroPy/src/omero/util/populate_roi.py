@@ -34,8 +34,9 @@ from getopt import getopt, GetoptError
 
 import omero.clients
 from omero.rtypes import rdouble, rstring, rint
-from omero.model import OriginalFileI, PlateI, PlateAnnotationLinkI, ImageI, FileAnnotationI, RoiI, EllipseI
-from omero.grid import ImageColumn, WellColumn, RoiColumn, DoubleColumn
+from omero.model import OriginalFileI, PlateI, PlateAnnotationLinkI, ImageI, \
+                        FileAnnotationI, RoiI, EllipseI, PointI
+from omero.grid import ImageColumn, WellColumn, RoiColumn, LongColumn, DoubleColumn
 from omero import client
 
 # Handle Python 2.5 built-in ElementTree
@@ -302,7 +303,7 @@ class FlexPlateAnalysisCtx(AbstractPlateAnalysisCtx):
 class InCellPlateAnalysisCtx(AbstractPlateAnalysisCtx):
     """
     InCell dataset concrete class implementation of an analysis context.
-    InCell measurements are from InCell analyzer and are aggregated in a
+    InCell measurements are from InCell Analyzer and are aggregated in a
     single gargantuan (often larger than 100MB per plate) XML file.
     """
 
@@ -368,11 +369,18 @@ class PlateAnalysisCtxFactory(object):
         stack associated with the Image and each annotation's linked
         original file.
         """
+        # The query that follows is doublely linked:
+        #  * Image --> WellSample --> Well
+        #  * Well --> WellSample --> Image
+        # This is to facilitate later "ordered" access of fields/well
+        # samples required by certain measurement contexts (notably InCell).
         return self.query_service.findAllByQuery(
             'select img from Image as img ' \
             'left outer join fetch img.annotationLinks as a_links ' \
             'join fetch img.wellSamples as ws ' \
             'join fetch ws.well as w ' \
+            'join fetch w.wellSamples as w_ws ' \
+            'join fetch w_ws.image ' \
             'join w.plate as p ' \
             'join fetch a_links.child as a ' \
             'join fetch a.file as o_file ' \
@@ -473,8 +481,9 @@ class AbstractMeasurementCtx(object):
         our results and the OMERO database itself.
         """
         columns = self.parse()
+        rois = self.parse_roi()
         if columns is not None:
-            self.populate(columns)
+            self.populate(columns, rois)
    
     ###
     ### Abstract methods
@@ -487,11 +496,18 @@ class AbstractMeasurementCtx(object):
     def parse(self):
         """Parses result files, returning a list of OmeroTables columns."""
         raise Exception("To be implemented by concrete implementations.")
+
+    def parse_roi(self, columns):
+        """
+        Parses ROI from column data, returning a list of OMERO ROI objects to
+        be saved in the OMERO database.
+        """
+        raise Exception("To be implemented by concrete implementations.")
         
-    def populate(self, columns):
+    def populate(self, columns, rois):
         """
         Populates an OmeroTables instance backing our results and the OMERO
-        database itself.
+        database itself with ROIs.
         """
         raise Exception("To be implemented by concrete implementations.")
 
@@ -506,6 +522,13 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
     
     # The OmeroTable RoiColumn index
     ROI_COL = 1
+
+    # Expected columns in NEO datasets
+    NEO_EXPECTED = ['Image', 'ROI', 'Label', 'Row', 'Col', 'Nucleus Area',
+                    'Cell Diam.', 'Cell Type', 'Mean Nucleus Intens.']
+
+    # Expected columns in MNU datasets
+    MNU_EXPECTED = ['Image', 'ROI', 'row', 'col', 'type']
 
     def __init__(self, analysis_ctx, service_factory, original_file_provider,
                  original_file, result_files):
@@ -525,25 +548,6 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
             columns.append(DoubleColumn('', '', list()))
         return columns
 
-    def parse_roi(self, image, row):
-        """
-        Parses an ROI from a given row of tab delimited results linking the
-        resulting ROI to the umbrella file annotation and the source image.
-        """
-        roi = RoiI()
-        ellipse = EllipseI()
-        diameter = rdouble(float(row[4]))
-        ellipse.theZ = rint(0)
-        ellipse.theT = rint(0)
-        ellipse.cx = rdouble(float(row[2]))
-        ellipse.cy = rdouble(float(row[1]))
-        ellipse.rx = diameter
-        ellipse.ry = diameter
-        roi.addShape(ellipse)
-        roi.image = image
-        roi.linkAnnotation(self.file_annotation)
-        return roi
-    
     ###
     ### Abstract method implementations
     ### 
@@ -552,12 +556,10 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
         return self.original_file.name.val[:-4]
         
     def parse(self):
-        rois = list()
         columns = None
         for result_file in self.result_files:
             print "Parsing: %s" % result_file.name.val
             image = self.image_from_original_file(result_file)
-            unloaded_image = ImageI(image.id.val, False)
             provider = self.original_file_provider
             data = provider.get_original_file_data(result_file)
             try:
@@ -573,22 +575,75 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
                         value = float(value)
                         columns[i + 2].values.append(value)
                     columns[self.IMAGE_COL].values.append(image.id.val)
-                    rois.append(self.parse_roi(unloaded_image, row))
                 except ValueError:
                     for i, value in enumerate(row):
                         columns[i + 2].name = value
                     break
-        self.rois = rois
         return columns
+        
+    def _parse_neo_roi(self, columns):
+        """Parses out ROI from OmeroTables columns for 'NEO' datasets."""
+        image_ids = columns[self.IMAGE_COL].values
+        rois = list()
+        for i, image_id in enumerate(image_ids):
+            unloaded_image = ImageI(image_id, False)
+            roi = RoiI()
+            shape = EllipseI()
+            values = columns[6].values
+            diameter = rdouble(float(values[i]))
+            shape.theZ = rint(0)
+            shape.theT = rint(0)
+            values = columns[4].values
+            shape.cx = rdouble(float(values[i]))
+            values = columns[3].values
+            shape.cy = rdouble(float(values[i]))
+            shape.rx = diameter
+            shape.ry = diameter
+            roi.addShape(shape)
+            roi.image = unloaded_image
+            roi.linkAnnotation(self.file_annotation)
+            rois.append(roi)
+        return rois
+        
+    def _parse_mnu_roi(self, columns):
+        """Parses out ROI from OmeroTables columns for 'MNU' datasets."""
+        image_ids = columns[self.IMAGE_COL].values
+        rois = list()
+        for i, image_id in enumerate(image_ids):
+            unloaded_image = ImageI(image_id, False)
+            roi = RoiI()
+            shape = PointI()
+            shape.theZ = rint(0)
+            shape.theT = rint(0)
+            values = columns[3].values
+            shape.cx = rdouble(float(values[i]))
+            values = columns[2].values
+            shape.cy = rdouble(float(values[i]))
+            roi.addShape(shape)
+            roi.image = unloaded_image
+            roi.linkAnnotation(self.file_annotation)
+            rois.append(roi)
+        return rois
+    
+    def parse_roi(self, columns):
+        names = [column.name for column in columns]
+        neo = [name in self.NEO_EXPECTED for name in names]
+        mnu = [name in self.MNU_EXPECTED for name in names]
+        if len(columns) == 9 and False not in neo:
+            return self._parse_neo_roi(columns)
+        elif len(columns) == 5 and False not in mnu:
+            return self._parse_mnu_roi(columns)
+        else:
+            print "WARNING: Unknown ROI type for MIAS dataset: %r" % names
 
-    def populate(self, columns):
-        n_roi = len(self.rois)
+    def populate(self, columns, rois):
+        n_roi = len(rois)
         print "Total ROI count: %d" % n_roi
-        for i in range((len(self.rois) / 1000) + 1):
+        for i in range((len(rois) / 1000) + 1):
             t0 = int(time.time() * 1000)
             a = i * 1000
             b = (i + 1) * 1000
-            to_save = self.rois[a:b]
+            to_save = rois[a:b]
             print "Saving %d ROI at [%d:%d]" % (len(to_save), a, b)
             to_save = self.update_service.saveAndReturnIds(to_save)
             print "ROI update took %sms" % (int(time.time() * 1000) - t0)
@@ -698,14 +753,20 @@ class FlexMeasurementCtx(AbstractMeasurementCtx):
                     name = result.get('name')
                     columns[name].values.append(float(result.text))
         return columns.values()
+        
+    def parse_roi(self, columns):
+        pass
 
-    def populate(self, columns):
+    def populate(self, columns, rois):
         self.update_table(columns)
 
 class InCellMeasurementCtx(AbstractMeasurementCtx):
     """
-    InCell analyzer measurements are located deep within an XML file container.
+    InCell Analyzer measurements are located deep within an XML file container.
     """
+    
+    # Expected centre of gravity columns
+    CG_EXPECTED = ['Cell: cgX', 'Cell: cgY', 'Nucleus: cgX', 'Nucleus: cgY']
 
     def __init__(self, analysis_ctx, service_factory, original_file_provider,
                  original_file, result_files):
@@ -740,13 +801,21 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
             well_data = None
             n_roi = 0
             n_measurements = 0
-            columns = {'Image': ImageColumn('Image', '', list())}
+            columns = {'Image': ImageColumn('Image', '', list()),
+                       'Cell': LongColumn('Cell', '', list()),
+                       'Cell cg ROI': RoiColumn('Cell cg ROI', '', list(),
+                       'Nucleus cG ROI': RoiColumn('Nucleus cg ROI', '', list()),
+                       }
             for event, element in iterparse(data, events=events):
                 if event == 'start' and element.tag == 'WellData' \
                    and element.get('cell') != 'Summary':
                     well_data = element
-                    # FIXME: Haxxor
-                    columns['Image'].values.append(n_roi)
+                    columns['Cell'].values.append(element.get('cell'))
+                    row = int(element.get('row')) - 1
+                    col = int(element.get('col')) - 1
+                    i = int(element.get('field')) - 1
+                    image = self.wells[row][col].copyWellSamples()[i].image
+                    columns['Image'].values.append(image.id.val)
                 elif well_data is not None and event == 'start' \
                      and element.tag == 'Measure':
                     key = element.get('key')
@@ -767,8 +836,47 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
             return columns.values()
         finally:
             data.close()
+            
+    def parse_roi(self, columns_as_list):
+        # First sanity check our provided columns
+        names = [column.name for column in columns_as_list]
+        expected = [name in names for name in self.CG_EXPECTED]
+        if False in expected:
+            print "WARNING: Missing CGs for InCell dataset: %r" % names
+            return None
+        # Reconstruct a column name to column map
+        for column in columns_as_list:
+            columns[column.name] = column
+        image_ids = columns['Image'].values
+        rois = list()
+        # Parse and append ROI
+        for i, image_id in enumerate(image_ids):
+            unloaded_image = ImageI(image_id, False)
+            # Cell centre of gravity
+            roi = RoiI()
+            shape = PointI()
+            shape.theZ = rint(0)
+            shape.theT = rint(0)
+            shape.cx = rdouble(float(columns['Cell: cgX'].values[i]))
+            shape.cy = rdouble(float(columns['Cell: cgY'].values[i]))
+            roi.addShape(shape)
+            roi.image = unloaded_image
+            roi.linkAnnotation(self.file_annotation)
+            rois.append(roi)
+            # Nucleus centre of gravity
+            roi = RoiI()
+            shape = PointI()
+            shape.theZ = rint(0)
+            shape.theT = rint(0)
+            shape.cx = rdouble(float(columns['Nucleus: cgX'].values[i]))
+            shape.cy = rdouble(float(columns['Nucleus: cgY'].values[i]))
+            roi.addShape(shape)
+            roi.image = unloaded_image
+            roi.linkAnnotation(self.file_annotation)
+            rois.append(roi)
+        return rois
 
-    def populate(self, columns):
+    def populate(self, columns, rois):
         self.update_table(columns)
 
 if __name__ == "__main__":
