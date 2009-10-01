@@ -684,21 +684,23 @@ module omero {
          *
          *   long length = e.generateTiff();
          *
-         *   // As soon as "getBytes()" is called, the Exporter is in the
-         *   // "output" state, and will stay there until all data has been
-         *   // read. After all bytes are read, the server-side file is
-         *   // deleted, and the Exporter can be reused. Alternatively,
-         *   // create a second Exporter for working simultaneously. Be sure
-         *   // to close all Exporter instances.
+         *   // As soon as the server-side file is generated, read()
+         *   // can be called to get file segments. To create another
+         *   // file, create a second Exporter. Be sure to close all
+         *   // Exporter instances.
          *
+         *   long read = 0
          *   byte[] buf;
          *   while (true) {
-         *      buf = e.getBytes(1024);
-         *      // Store to file locally
-         *      if (buf.length < 1024) {
+         *      buf = e.read(read, 1000000);
+         *      // Store to file locally here
+         *      if (buf.length < 1000000) {
          *          break;
          *       }
+         *       read += buf.length;
          *   }
+         *   e.close();
+         *
          * </pre>
          **/
         ["ami", "amd"] interface Exporter extends StatefulServiceInterface {
@@ -721,20 +723,17 @@ module omero {
 
             /**
              * Generates an OME-TIFF file. The return value is the length
-             * of the file produced.
+             * of the file produced. This method ends configuration.
              **/
             long generateTiff() throws ServerError;
 
-            // Output ================================================
-
             /**
-             * Returns "size" bytes from the output file. On the first invocation,
-             * this method ends the configuration process, creates a temporary file
-             * in the given format. Once the returned number of bytes is less than
-             * size or equal to 0, the file is completely read and will be removed
-             * from the server. Configuration methods can now safely be called.
+             * Returns "length" bytes from the output file. The file can
+             * be safely read until reset() is called.
              **/
-            Ice::ByteSeq getBytes(int size) throws ServerError;
+	    idempotent Ice::ByteSeq read(long position, int length) throws ServerError;
+
+            // StatefulService: be sure to call close()!
 
         };
 

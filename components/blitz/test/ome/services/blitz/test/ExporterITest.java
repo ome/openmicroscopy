@@ -10,7 +10,8 @@ import ome.services.blitz.impl.OmeroMetadata;
 import ome.services.db.DatabaseIdentity;
 import omero.api.AMD_Exporter_addImage;
 import omero.api.AMD_Exporter_generateTiff;
-import omero.api.AMD_Exporter_getBytes;
+import omero.api.AMD_Exporter_generateXml;
+import omero.api.AMD_Exporter_read;
 import omero.api.AMD_IConfig_getDatabaseUuid;
 import omero.model.Image;
 import omero.model.ImageI;
@@ -77,7 +78,8 @@ public class ExporterITest extends AbstractServantTest {
     public void testBasicExport() throws Exception {
         Image i = assertNewImage();
         assertAddImage(i.getId().getValue());
-        byte[] buf = assertGetBytes(1024 * 1024);
+        assertGenerateXml();
+        byte[] buf = assertRead(0, 1024 * 1024);
         assertNotNull(buf);
         assertTrue(buf.length > 1);
 
@@ -90,7 +92,7 @@ public class ExporterITest extends AbstractServantTest {
         assertEquals(xml1, xml2);
 
         // After reading, nothing should be returned
-        buf = assertGetBytes(1024 * 1024);
+        buf = assertRead(0, 1024 * 1024);
         assertEquals(0, buf.length);
     }
 
@@ -99,7 +101,7 @@ public class ExporterITest extends AbstractServantTest {
         Image i = assertNewImage();
         assertAddImage(i.getId().getValue());
         long size = assertGenerateTiff();
-        byte[] buf = assertGetBytes((int)size);
+        byte[] buf = assertRead(0, (int)size);
         assertTrue(size > 0);
         assertEquals(size, buf.length);
         
@@ -118,6 +120,23 @@ public class ExporterITest extends AbstractServantTest {
         // i.addPixels(new PixelsI(id, false));
         // i = assertSaveAndReturn(i);
         return i;
+    }
+    
+    private long assertGenerateXml() throws Exception {
+
+        final RV rv = new RV();
+        user_e.generateXml_async(new AMD_Exporter_generateXml() {
+
+            public void ice_exception(Exception ex) {
+                rv.ex = ex;
+            }
+
+            public void ice_response(long val) {
+                rv.rv = val;
+            }
+        }, null);
+        rv.assertPassed();
+        return ((Long)rv.rv).longValue();
     }
 
     private long assertGenerateTiff() throws Exception {
@@ -153,10 +172,10 @@ public class ExporterITest extends AbstractServantTest {
         rv.assertPassed();
     }
 
-    private byte[] assertGetBytes(int size) throws Exception {
+    private byte[] assertRead(long pos, int size) throws Exception {
 
         final RV rv = new RV();
-        user_e.getBytes_async(new AMD_Exporter_getBytes() {
+        user_e.read_async(new AMD_Exporter_read() {
 
             public void ice_exception(Exception ex) {
                 rv.ex = ex;
@@ -165,7 +184,7 @@ public class ExporterITest extends AbstractServantTest {
             public void ice_response(byte[] buf) {
                 rv.rv = buf;
             }
-        }, size, null);
+        }, pos, size, null);
         rv.assertPassed();
         return (byte[]) rv.rv;
     }

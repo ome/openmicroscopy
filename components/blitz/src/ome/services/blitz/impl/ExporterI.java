@@ -14,12 +14,10 @@ import java.io.RandomAccessFile;
 
 import javax.xml.transform.TransformerException;
 
-import loci.formats.IFormatWriter;
 import loci.formats.ImageWriter;
 import loci.formats.MetadataTools;
 import loci.formats.meta.IMetadata;
 import loci.formats.meta.MetadataRetrieve;
-import ome.api.IQuery;
 import ome.api.RawPixelsStore;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
@@ -38,7 +36,8 @@ import omero.ServerError;
 import omero.api.AMD_Exporter_addImage;
 import omero.api.AMD_Exporter_generateTiff;
 import omero.api.AMD_Exporter_generateXml;
-import omero.api.AMD_Exporter_getBytes;
+import omero.api.AMD_Exporter_read;
+import omero.api.AMD_Exporter_reset;
 import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
 import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
@@ -90,7 +89,7 @@ public class ExporterI extends AbstractAmdServant implements
             }
 
             if (self.file != null) {
-                return self.offset < 0 ? waiting : output;
+                return output;
             }
 
             return waiting;
@@ -106,13 +105,6 @@ public class ExporterI extends AbstractAmdServant implements
      * then no generate method has been called.
      */
     private volatile File file;
-
-    /**
-     * Offset into the file which we are currently reading. This field. is only
-     * valid when the file field is non-null. If it is less than zero, then the
-     * current file has been completely read.
-     */
-    private volatile long offset = 0;
 
     /**
      * Encapsulates the logic for creating new LSIDs and comparing existing ones
@@ -179,32 +171,44 @@ public class ExporterI extends AbstractAmdServant implements
         return;
     }
 
-    public void getBytes_async(AMD_Exporter_getBytes __cb, int size,
+    public void read_async(AMD_Exporter_read __cb, long pos, int size,
             Current __current) throws ServerError {
 
+        omero.ApiUsageException aue;
         State state = State.check(this);
         switch (state) {
         case waiting:
-            __cb.ice_response(new byte[] {});
+            aue = new omero.ApiUsageException(null,
+                    null, "Add data first");
+            __cb.ice_exception(aue);
             return;
         case config:
-            omero.ApiUsageException aue = new omero.ApiUsageException(null,
+            aue = new omero.ApiUsageException(null,
                     null, "Call a generate method first");
             __cb.ice_exception(aue);
             return;
         case output:
             try {
-                __cb.ice_response(read(size));
+                __cb.ice_response(read(pos, size));
             } catch (Exception e) {
-                omero.InternalException ie = new omero.InternalException(null,
-                        null, "Error during read");
-                IceMapper.fillServerError(ie, e);
-                __cb.ice_exception(ie);
+                if (e instanceof ServerError) {
+                    __cb.ice_exception(e);
+                } else {
+                    omero.InternalException ie = new omero.InternalException(null,
+                            null, "Error during read");
+                    IceMapper.fillServerError(ie, e);
+                    __cb.ice_exception(ie);
+                }
             }
             return;
         default:
             throw new InternalException("Unknown state: " + state);
         }
+    }
+    
+    public void reset_async(AMD_Exporter_reset __cb, Current __current)
+            throws ServerError {
+        
     }
 
     // State methods
@@ -237,7 +241,6 @@ public class ExporterI extends AbstractAmdServant implements
             file = null;
         }
         retrieve = new OmeroMetadata(databaseIdentity);
-        offset = 0;
     }
 
     /**
@@ -268,7 +271,6 @@ public class ExporterI extends AbstractAmdServant implements
                                                 .getOwnerDocument());
                                         fos.close();
                                         retrieve = null;
-                                        offset = 0;
                                         __cb.ice_response(file.length());
                                         return null; // ONLY VALID EXIT
 
@@ -394,7 +396,7 @@ public class ExporterI extends AbstractAmdServant implements
      * Read size bytes, and transition to "waiting" If any exception is thrown,
      * the offset for the current file will not be updated.
      */
-    private byte[] read(int size) {
+    private byte[] read(long pos, int size) throws ServerError {
         if (size > MAX_SIZE) {
             throw new ApiUsageException("Max read size is: " + MAX_SIZE);
         }
@@ -404,26 +406,22 @@ public class ExporterI extends AbstractAmdServant implements
         RandomAccessFile ra = null;
         try {
             ra = new RandomAccessFile(file, "r");
-            ra.seek(offset);
+            
+            long l = ra.length();
+            if (pos + size > l) {
+                size  = (int) (l - pos);
+            }
+            
+            ra.seek(pos);
             int read = ra.read(buf);
 
             // Handle end of file
             if (read < 0) {
-                offset = read; // Transition to waiting
+                buf = new byte[0];
             } else if (read < size) {
-                offset = -1; // Transition to waiting
                 byte[] newBuf = new byte[read];
                 System.arraycopy(buf, 0, newBuf, 0, read);
                 buf = newBuf;
-            } else {
-                // This should be fairly unlikely, but if the last read
-                // brought us to the end of the file, then we should go
-                // ahead and reset so that the next call doesn't block.
-                if ((offset + read) == ra.length()) {
-                    offset = -2; // Transition to waiting
-                } else {
-                    offset += read;
-                }
             }
 
         } catch (IOException io) {
