@@ -49,6 +49,223 @@ FunctionEnd
   ${EndIf}
 !macroend
 
+!macro AppendChosenPath Sec Key
+  StrCpy $1 ""
+  ReadINIStr $1 "$INSINI" "${Sec}" "State"
+  ${If} $1 != ""
+    ${LogText} "Appending $1 to ${Key}"
+    ${EnvVarUpdate} $1 "${Key}" "A" "HKLM" "$1"
+  ${Else}
+    ${LogText} "No ${Key}  value found for ${Sec}"
+  ${EndIf}
+!macroend
+
+######################################################################
+# Installation
+######################################################################
+
+!define UNNEEDED "Found on PATH. No input needed"
+
+!define IsInstalled "!insertmacro _IsInstalled"
+!macro _IsInstalled Prereq
+  ClearErrors
+  ReadINIStr $R1 "$INSINI" "${Prereq}" "State"
+  ${LogText} "Checking ${Prereq}. State=$R1"
+
+  ${If} $R1 == ""
+    StrCpy $Message "${Prereq} is empty"
+    ${LogText} "$Message"
+    SetErrors
+  ${Else}
+    ${If} $R1 == "${UNNEEDED}"
+      StrCpy $Message "${Prereq} == ${UNNEEDED}"
+      ${LogText} "$Message"
+    ${Else}
+      ClearErrors
+      ${If} ${FileExists} "$R1\*.*"
+        ${LogText} "$R1 exists for ${Prereq}"
+      ${Else}
+        StrCpy $Message "$R1 does not exist for ${Prereq}"
+        ${LogText} "$Message"
+        SetErrors
+      ${EndIf}
+    ${EndIf}
+  ${EndIf}
+
+!macroend
+
+!define Requires "!insertmacro _Requires"
+!macro _Requires Prereq
+
+  ${LogText} "Requires ${Prereq}"
+
+  ClearErrors
+  ${IsInstalled} $Prereq
+  ${If} ${Errors}
+    ClearErrors
+    !insertmacro Check${Prereq}
+    ${IsInstalled} $Prereq
+    ${If} ${Errors}
+      nsDialogs::SelectFolderDialog "$Message : Manually choose a directory for ${Prereq}. Cancelling will abort the install"
+      Pop $ExitCode
+      WriteINIStr "$INSINI" $Prereq "State" "$ExitCode"
+      ${LogText} "Setting state for $Prereq to $ExitCode after folder dialog"
+    ${EndIf}
+  ${EndIf}
+  ${IsInstalled} ${Prereq}
+  ${If} ${Errors}
+    ${LogText} "${Prereq} *still* not installed. Aborting"
+    Abort
+  ${EndIf}
+
+!macroend
+
+!macro CheckPostgreSQL
+
+  Call IsPgInstalled
+  Pop $R2 ; Third
+  Pop $R1 ; Second
+  Pop $R0 ; First
+
+  WriteINIStr "$INSINI" PostgreSQL First "$R0"
+  WriteINIStr "$INSINI" PostgreSQL Second "$R1"
+  WriteINIStr "$INSINI" PostgreSQL Third "$R2"
+
+  ; If GLOBAL, all are set
+  ${If} $R0 == "GLOBAL"
+  ${AndIf} $R1 == "GLOBAL"
+  ${AndIf} $R2 == "GLOBAL"
+    ${LogText} "Disabling PostgreSQL (Field 1)"
+    WriteINIStr "$INSINI" "PostgreSQL" "State" "${UNNEEDED}"
+    Goto PGReady
+  ${EndIf}
+
+  ${If} $R0 == "" ; None
+    ${LogText} "No values found for PG (Field 1)"
+    ClearErrors
+    !insertmacro ConfirmInstall PostgreSQL
+    Call GetPg
+  ${Else}
+    ${If} $R1 != ""
+      ${LogText} "Found multiple Postgres instances. Choosing first"
+    ${EndIf}
+    WriteRegStr ${PRODUCT_INST_ROOT_KEY} "${PRODUCT_INST_KEY}" "PgPath" "$R0"
+    WriteINIStr "$INSINI" "PostgreSQL" "State" "$R0"
+  ${EndIf}
+
+  PGReady: ; ---------------------------------------------
+
+!macroend
+
+!macro CheckIce
+
+  Call IsIceInstalled
+  Pop $R1 ; VS2008
+  Pop $R0 ; VS2005
+  WriteINIStr "$INSINI" Ice VS2005 "$R0"
+  WriteINIStr "$INSINI" Ice VS2008 "$R1"
+
+  ; If GLOBAL, both are always set.
+  ${If} $R0 == "GLOBAL"
+  ${AndIf} $R1 == "GLOBAL"
+    ${LogText} "Disabling Ice"
+    WriteINIStr "$INSINI" "Ice" "State" "${UNNEEDED}"
+    Goto IceReady
+  ${EndIf}
+
+  ${If} $R0 == ""
+    ${If} $R1 == ""
+      !insertmacro ConfirmInstall Ice
+      Call GetIce
+    ${Else}
+      ${LogText} "Setting Ice (Field 4) State to $R1"
+      WriteRegStr ${PRODUCT_INST_ROOT_KEY} "${PRODUCT_INST_KEY}" "IcePath" "$R1"
+      WriteINIStr "$INSINI" "Ice" "State" "$R1"
+    ${EndIf}
+  ${ElseIf} $R1 == ""
+    ${If} $R0 != ""
+      ${LogText} "Setting Ice (Field 4) State to $R0"
+      WriteRegStr ${PRODUCT_INST_ROOT_KEY} "${PRODUCT_INST_KEY}" "IcePath" "$R0"
+      WriteINIStr "$INSINI" "Ice" "State" "$R0"
+    ${EndIf}
+  ${Else}
+      MessageBox MB_OK "Two Ices installed: $R0 and $R1. Choosing $R0"
+      ${LogText} "Setting Ice (Field 4) State to $R0"
+      WriteRegStr ${PRODUCT_INST_ROOT_KEY} "${PRODUCT_INST_KEY}" "IcePath" "$R0"
+      WriteINIStr "$INSINI" "Ice" "State" "$R0"
+  ${EndIf}
+
+  IceReady: ; ---------------------------------------------
+  !insertmacro FinishAction "IcePage"
+
+!macroend
+
+!macro CheckPython
+
+  Call IsPythonInstalled
+  Pop $R2 ; Third
+  Pop $R1 ; Second
+  Pop $R0 ; First
+  WriteINIStr "$INSINI" Python First  "$R0"
+  WriteINIStr "$INSINI" Python Second "$R1"
+  WriteINIStr "$INSINI" Python Third  "$R2"
+
+  ; If GLOBAL, all are set
+  ${If} $R0 == "GLOBAL"
+  ${AndIf} $R1 == "GLOBAL"
+  ${AndIf} $R2 == "GLOBAL"
+    ${LogText} "Disabling Python (Field 3)"
+    WriteINIStr "$INSINI" "Python" "State" "${UNNEEDED}"
+    Goto PythonReady
+  ${EndIf}
+
+  ${If} $R0 == "" ; None
+    ${LogText} "No values found for Python (Field 3)"
+    !insertmacro ConfirmInstall Python
+    Call GetPython
+  ${Else}
+    ${If} $R1 != ""
+      ${LogText} "Found multiple Python instances. Choosing first"
+    ${EndIf}
+    WriteRegStr ${PRODUCT_INST_ROOT_KEY} "${PRODUCT_INST_KEY}" "PythonPath" "$R0"
+    WriteINIStr "$INSINI" "Python" "State" "$R0"
+  ${EndIf}
+
+  PythonReady: ; ---------------------------------------------
+
+!macroend
+
+!macro CheckJava
+
+  ; This section is slightly different since the GetJre
+  ; function is copied code. Adds itself to path
+  ;
+
+  !insertmacro StartAction "JavaPage"
+  !insertmacro MUI_HEADER_TEXT $(PREREQ_PAGE_TITLE) $(PREREQ_PAGE_SUBTITLE)
+
+  Call GetJre
+  ${If} ${Errors}
+    ${LogText} "FAILED TO INSTALL JAVA"
+    MessageBox MB_OK "Failed to install Java. Please do so manually and re-run the installer"
+  ${Else}
+    Pop $R2 ; Installer
+    Pop $R1 ; Version
+    Pop $R0 ; Path
+    WriteINIStr "$INSINI" Java Path  "$R0"
+    WriteINIStr "$INSINI" Java Version "$R1"
+    WriteINIStr "$INSINI" Java Installer "$R2"
+    WriteINIStr "$INSINI" Java State "${UNNEEDED}"
+    ${IfNot} $R2 == ""
+      WriteRegStr ${PRODUCT_INST_ROOT_KEY} "${PRODUCT_INST_KEY}" "JavaInstalledPath" "$R0"
+    ${EndIf}
+  ${EndIf}
+
+  # JavaReady: ; ---------------------------------------------
+
+!macroend
+
+
 !define Download "!insertmacro _DownloadMacro"
 !macro _DownloadMacro Source Target MD5
   Push "${SOURCE}"

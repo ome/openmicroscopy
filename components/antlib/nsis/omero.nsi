@@ -24,13 +24,19 @@
 ######################################################################
 
 # Next stages:
+# Create new data dir
+# Create new database
+ ;; Use previous properties on later screens
+# Configuration database connection
+# Configuration proper directory, ports, and show how to modify other properties
+# Configuration WEB
 #  - ${EnvVarUpdate} $1 "PYTHONPATH" "A" "HKLM" "C:\Ice-3.3.1\python"
 #  - Check etc with http://nsis.sourceforge.net/TextCompare (TextCompareS)
 #   -- Or use: http://sourceforge.net/projects/nsispatchgen
 #  - Check if any of our INCLUDE_DIR functions are in the distro
 #  - On failure, open InstallLog or send it to the feedback
 #  - Using only zips (with no compression) in bundle
-#  - DE/REACTIVATE
+#  - DE/REACTIVATE/XXX
 #  - Smarter handling of non-local databases
 #  - http://nsis.sourceforge.net/Uninstall_only_installed_files
 #  - Pop ups only from omero.nsi
@@ -82,6 +88,7 @@
 #  - http://nsis.sourceforge.net/Nsisunz_plug-in
 #
 # Future possibilities:
+#  - http://nsis.sourceforge.net/Move_data_between_ListBoxes (users, etc.)
 #  - http://nsis.sourceforge.net/Category:Text_Files_Manipulation_Functions
 #  - http://nsis.sourceforge.net/Docs/NSISdl/ReadMe.txt (Proxies)
 #  - http://nsis.sourceforge.net/NSIS_Simple_Firewall_Plugin to allow ping
@@ -96,6 +103,7 @@
 #  - http://nsis.sourceforge.net/Silent_database_import_installer
 #  - http://nsis.sourceforge.net/One_Installer_with_Different_Installation_Files_Each_Time
 #  - http://www.symantec.com/connect/articles/update-sql-your-nsis-installer
+#  - http://forums.winamp.com/showthread.php?threadid=288129 (displaying rtfs)
 #  - Look/Feel: Startup Icons
 #   -- Use RTF for readme and license
 #   -- http://nsis.sourceforge.net/Changing_Title_and_Subtitle_Fonts_on_MUI_Pages
@@ -139,17 +147,15 @@
 ; Largely constant
 Var INSDIR
 Var INSINI
-Var PREREQ
 Var COMSPEC
 Var ICONS_GROUP
-; No constant
+; Not constant
 Var CommandLine
 Var ExitCode
 Var Message
 ; GUI elements
 Var hnDialog
 Var hnLabel
-Var hnText
 
 ######################################################################
 # DEFINITIONS
@@ -309,6 +315,8 @@ DirText 'Target directory for OMERO installation. Spaces are NOT allowed. If the
 !define MUI_STARTMENUPAGE_REGISTRY_ROOT "${PRODUCT_UNINST_ROOT_KEY}"
 !define MUI_STARTMENUPAGE_REGISTRY_KEY "${PRODUCT_UNINST_KEY}"
 !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "${PRODUCT_STARTMENU_REGVAL}"
+!define MUI_INSTFILESPAGE_FINISHHEADER_TEXT "Copying files finished"
+!define MUI_INSTFILESPAGE_FINISHHEADER_SUBTEXT "All files have been copied to the install directory"
 !define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\README.txt"
 !define MUI_ABORTWARNING
 !define MUI_STARTMENUPAGE_NODISABLE
@@ -346,13 +354,11 @@ DirText 'Target directory for OMERO installation. Spaces are NOT allowed. If the
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
-Page custom JavaPage JavaLeave ""
-Page custom PostgreSQLPage PostgreSQLLeave ""
-Page custom PythonPage PythonLeave ""
-Page custom IcePage IceLeave ""
-Page custom Config1Page Config1Leave ""
-Page custom Config2Page Config2Leave ""
-Page custom ActualInstall "" ""
+Page custom ConfigInstructions "" ""
+Page custom ConfigNewDatabase LeaveNewDatabase ""
+Page custom ConfigDatabase LeaveDatabase ""
+Page custom ConfigServer LeaveServer ""
+Page custom ConfigWeb LeaveWeb ""
 !insertmacro MUI_PAGE_FINISH
 
 ; UNINSTALLER -----------------
@@ -363,7 +369,7 @@ Page custom ActualInstall "" ""
 !insertmacro MUI_LANGUAGE "English"
 
 ######################################################################
-# SECTIONS
+# Component Sections
 ######################################################################
 
 !macro StartAction SEC
@@ -408,6 +414,10 @@ Section "OMERO.server" SECSRV
 
   !insertmacro StartAction "Server"
 
+  ${Requires} "Python"
+  ${Requires} "Java"
+  ${Requires} "Ice"
+
   File "README.txt"
   File /r "dist/bin"
   File /r "dist/etc"
@@ -436,6 +446,9 @@ Section "OMERO.web" SECWEB
 
   !insertmacro StartAction "Web"
 
+  ${Requires} "Python"
+  ${Requires} "Ice"
+
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
   SetShellVarContext All
   CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
@@ -449,6 +462,10 @@ SectionEnd
 
 Section "New OMERO database" SECDB
 
+  ${Requires} "PostgreSQL"
+  ${Requires} "Python"
+  ${Requires} "Ice"
+
   !insertmacro StartAction "Db"
   !insertmacro FinishAction "Db"
 
@@ -457,9 +474,24 @@ SectionEnd
 Section "New binary repository" SECDATA
 
   !insertmacro StartAction "Data"
+
+  # Requires nothing
+
   !insertmacro FinishAction "Data"
 
 SectionEnd
+
+!insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+  !insertmacro MUI_DESCRIPTION_TEXT ${SECSRV}  "$(SECSRV_DESC)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SECWEB}  "$(SECWEB_DESC)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SECDB}   "$(SECDB_DESC)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SECDATA} "$(SECDATA_DESC)"
+!insertmacro MUI_FUNCTION_DESCRIPTION_END
+
+
+######################################################################
+# Other Sections
+######################################################################
 
 Section -AdditionalIcons
 
@@ -476,36 +508,6 @@ Section -AdditionalIcons
   !insertmacro FinishAction "AdditionalIcons"
 
 SectionEnd
-
-Section -Post
-
-  !insertmacro StartAction "Post"
-
-  #
-  # Installer
-  #
-  WriteRegStr ${PRODUCT_INST_ROOT_KEY} "${PRODUCT_INST_KEY}" "InstallDir" "$INSTDIR"
-
-  #
-  # Uninstaller
-  #
-  WriteUninstaller "$INSTDIR\uninst.exe"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\uninst.exe"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
-
-  !insertmacro FinishAction "Post"
-
-SectionEnd
-
-!insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-  !insertmacro MUI_DESCRIPTION_TEXT ${SECSRV} "SECSRV_DESC"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SECWEB} "SECWEB_DESC"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SECDB} "SECDB_DESC"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SECDATA} "SECDATA_DESC"
-!insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 Section Uninstall
 
@@ -555,8 +557,6 @@ SectionEnd
 # MUI Overrides
 ######################################################################
 
-!insertmacro NSD_FUNCTION_INIFILE
-
 Function myGUIInit
   !ifdef GUI_DEBUG
     nsisdbg::init /NOUNLOAD
@@ -580,6 +580,7 @@ FunctionEnd
 ######################################################################
 
 Function .onInit
+  ExpandEnvStrings $COMSPEC %COMSPEC%
   ## DEACTIVATE
   Goto DoInit
 
@@ -657,19 +658,22 @@ FunctionEnd
 
 Function .onInstSuccess
   ${LogText} "onInstSuccess"
-  DumpLog::DumpLog "$INSDIR\log.txt" .R0
+  DumpLog::DumpLog "$INSDIR\LogDump.txt" .R0
 FunctionEnd
 
 Function .onInstFailed
   ${LogText} "onInstFailed"
-  DumpLog::DumpLog "$INSDIR\log.txt" .R0
+  DumpLog::DumpLog "$INSDIR\LogDump.txt" .R0
 FunctionEnd
 
+;XXX
+/*
 Function .onPrevPage
   ${LogText} "onPrevPage"
   MessageBox MB_OK "Actions already performed. Please cancel and use the uninstaller"
   Abort
 FunctionEnd
+*/
 
 Function un.onInit
   MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "Are you sure you want to completely remove $(^Name) and all of its components?" IDYES +2
@@ -680,343 +684,187 @@ Function un.onUninstSuccess
   MessageBox MB_ICONINFORMATION|MB_OK "$(^Name) was successfully removed from your computer."
 FunctionEnd
 
-######################################################################
-# POST-COPY FUNCTIONS
-######################################################################
+#################################
+# GUI Macros
+#################################
 
-!define UNNEEDED "Found on PATH. No input needed"
+!define YELLOW "0xfff799"
+!define RED "0xf69679"
 
-!macro AppendChosenPath Sec Key
-  StrCpy $1 ""
-  ReadINIStr $1 "$INSINI" "${Sec}" "State"
-  ${If} $1 != ""
-    ${LogText} "Appending $1 to ${Key}"
-    ${EnvVarUpdate} $1 "${Key}" "A" "HKLM" "$1"
-  ${Else}
-    ${LogText} "No ${Key}  value found for ${Sec}"
-  ${EndIf}
-!macroend
+!macro CreateDialog LABEL
+  nsDialogs::Create 1018
+  Pop $hnDialog
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-!macro PrereqStart Prereq
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  StrCpy $R0 0   ; Which row
+  StrCpy $R1 20  ; Label x
+  StrCpy $R2 54  ; y start
+  StrCpy $R3 20  ; y offset
+  StrCpy $R4 150 ; Field x
+  StrCpy $R5 80  ; Label width
+  StrCpy $R6 12  ; Label height
+  StrCpy $R7 140 ; Field width
+  StrCpy $R8 12  ; Field height
 
-Function ${Prereq}Check
-
-  ClearErrors
-  ReadINIStr $R1 "$INSINI" "${Prereq}" "State"
-  ${LogText} "Checking ${Prereq}. State=$R1"
-
-  ${If} $R1 == ""
-    StrCpy $Message "${Prereq} is empty"
-    ${LogText} "$Message"
-    SetErrors
-  ${EndIf}
-
-  ${If} $R1 == "${UNNEEDED}"
-    StrCpy $Message "${Prereq} == ${UNNEEDED}"
-    ${LogText} "$Message"
-  ${Else}
-    ClearErrors
-    ${If} ${FileExists} "$R1\*.*"
-      ${LogText} "$R1 exists for ${Prereq}"
-    ${Else}
-      StrCpy $Message "$R1 does not exist for ${Prereq}"
-      ${LogText} "$Message"
-      SetErrors
-    ${EndIf}
-  ${EndIf}
-
-FunctionEnd
-
-Function ${Prereq}Page
-
-  !insertmacro StartAction "${Prereq}Page"
-  !insertmacro MUI_HEADER_TEXT $(PREREQ_PAGE_TITLE) $(PREREQ_PAGE_SUBTITLE)
-  StrCpy $PREREQ "${Prereq}"
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-!macroend
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-; Your code goes here
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-!macro PrereqEnd Prereq
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-   nsDialogs::Create 1018
-   Pop $hnDialog
-
-   ${If} $hnDialog == error
-     MessageBox MB_OK "Fatal error creating requirements dialog"
-     ${LogText} "Fatal error creating requirements dialog"
-     Quit
-   ${EndIf}
-
-   ClearErrors
-   Call ${Prereq}Check
-   ${If} ${Errors}
-     nsDialogs::SelectFolderDialog "Manually choose a directory for ${Prereq}"
-   ${Else}
-   ${EndIf}
-
-   ${NSD_CreateLabel} 0 0 100% 35u "These are the installation directories found by the installer. If they are incorrect or empty, point to the installation if you know it. If not, you will be asked to install the package."
-   Pop $hnLabel
-
-   ${NSD_CreateLabel} 20 46 38u 35u "${PREREQ}"
-   Pop $hnLabel
-
-   ${NSD_CreateDirRequest} 62 46 180u 35u ""
-   Pop $hnText
-
-   nsDialogs::Show
-
-  !insertmacro FinishAction "${Prereq}Page"
-
-FunctionEnd
-
-Function ${Prereq}Leave
-
-  !insertmacro StartAction "${Prereq}Leave"
-
-  StrCpy $PREREQ "${Prereq}"
-  Call ${Prereq}Check
-  IfErrors 0 Success
-    MessageBox MB_OK "$Message"
-    Abort
-  Success:
-  ${LogText} "Did not abort for ${Prereq}"
-
-  !insertmacro FinishAction "${Prereqs}Leave"
-
-FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-!macroend
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-!insertmacro PrereqStart "PostgreSQL"
-
-  Call IsPgInstalled
-  Pop $R2 ; Third
-  Pop $R1 ; Second
-  Pop $R0 ; First
-  WriteINIStr "$INSINI" PostgreSQL First "$R0"
-  WriteINIStr "$INSINI" PostgreSQL Second "$R1"
-  WriteINIStr "$INSINI" PostgreSQL Third "$R2"
-
-  ; If GLOBAL, all are set
-  ${If} $R0 == "GLOBAL"
-  ${AndIf} $R1 == "GLOBAL"
-  ${AndIf} $R2 == "GLOBAL"
-    ${LogText} "Disabling PostgreSQL (Field 1)"
-    WriteINIStr "$INSINI" "PostgreSQL" "State" "${UNNEEDED}"
-    Goto PGReady
-  ${EndIf}
-
-  ${If} $R0 == "" ; None
-    ${LogText} "No values found for PG (Field 1)"
-    ClearErrors
-    Call GetPg
-  ${Else}
-    ${If} $R1 != ""
-      ${LogText} "Found multiple Postgres instances. Choosing first"
-    ${EndIf}
-    WriteRegStr ${PRODUCT_INST_ROOT_KEY} "${PRODUCT_INST_KEY}" "PgPath" "$R0"
-    WriteINIStr "$INSINI" "PostgreSQL" "State" "$R0"
-  ${EndIf}
-
-  PGReady: ; ---------------------------------------------
-
-!insertmacro PrereqEnd "PostgreSQL"
-
-!insertmacro PrereqStart "Ice"
-
-  Call IsIceInstalled
-  Pop $R1 ; VS2008
-  Pop $R0 ; VS2005
-  WriteINIStr "$INSINI" Ice VS2005 "$R0"
-  WriteINIStr "$INSINI" Ice VS2008 "$R1"
-
-  ; If GLOBAL, both are always set.
-  ${If} $R0 == "GLOBAL"
-  ${AndIf} $R1 == "GLOBAL"
-    ${LogText} "Disabling Ice"
-    WriteINIStr "$INSINI" "Ice" "State" "${UNNEEDED}"
-    Goto IceReady
-  ${EndIf}
-
-  ${If} $R0 == ""
-    ${If} $R1 == ""
-      Call GetIce
-    ${Else}
-      ${LogText} "Setting Ice (Field 4) State to $R1"
-      WriteRegStr ${PRODUCT_INST_ROOT_KEY} "${PRODUCT_INST_KEY}" "IcePath" "$R1"
-      WriteINIStr "$INSINI" "Ice" "State" "$R1"
-    ${EndIf}
-  ${ElseIf} $R1 == ""
-    ${If} $R0 != ""
-      ${LogText} "Setting Ice (Field 4) State to $R0"
-      WriteRegStr ${PRODUCT_INST_ROOT_KEY} "${PRODUCT_INST_KEY}" "IcePath" "$R0"
-      WriteINIStr "$INSINI" "Ice" "State" "$R0"
-    ${EndIf}
-  ${Else}
-      MessageBox MB_OK "Two Ices installed: $R0 and $R1. Choosing $R0"
-      ${LogText} "Setting Ice (Field 4) State to $R0"
-      WriteRegStr ${PRODUCT_INST_ROOT_KEY} "${PRODUCT_INST_KEY}" "IcePath" "$R0"
-      WriteINIStr "$INSINI" "Ice" "State" "$R0"
-  ${EndIf}
-
-  IceReady: ; ---------------------------------------------
-  !insertmacro FinishAction "IcePage"
-
-!insertmacro PrereqEnd "Ice"
-
-!insertmacro PrereqStart "Python"
-
-  Call IsPythonInstalled
-  Pop $R2 ; Third
-  Pop $R1 ; Second
-  Pop $R0 ; First
-  WriteINIStr "$INSINI" Python First  "$R0"
-  WriteINIStr "$INSINI" Python Second "$R1"
-  WriteINIStr "$INSINI" Python Third  "$R2"
-
-  ; If GLOBAL, all are set
-  ${If} $R0 == "GLOBAL"
-  ${AndIf} $R1 == "GLOBAL"
-  ${AndIf} $R2 == "GLOBAL"
-    ${LogText} "Disabling Python (Field 3)"
-    WriteINIStr "$INSINI" "Python" "State" "${UNNEEDED}"
-    Goto PythonReady
-  ${EndIf}
-
-  ${If} $R0 == "" ; None
-    ${LogText} "No values found for Python (Field 3)"
-    Call GetPython
-  ${Else}
-    ${If} $R1 != ""
-      ${LogText} "Found multiple Python instances. Choosing first"
-    ${EndIf}
-    WriteRegStr ${PRODUCT_INST_ROOT_KEY} "${PRODUCT_INST_KEY}" "PythonPath" "$R0"
-    WriteINIStr "$INSINI" "Python" "State" "$R0"
-  ${EndIf}
-
-  PythonReady: ; ---------------------------------------------
-
-!insertmacro PrereqEnd "Python"
-
-!insertmacro PrereqStart "Java"
-
-  ; This section is slightly different since the GetJre
-  ; function is copied code. Adds itself to path
-  ;
-
-  !insertmacro StartAction "JavaPage"
-  !insertmacro MUI_HEADER_TEXT $(PREREQ_PAGE_TITLE) $(PREREQ_PAGE_SUBTITLE)
-
-  Call GetJre
-  ${If} ${Errors}
-    ${LogText} "FAILED TO INSTALL JAVA"
-    MessageBox MB_OK "Failed to install Java. Please do so manually and re-run the installer"
-  ${Else}
-    Pop $R2 ; Installer
-    Pop $R1 ; Version
-    Pop $R0 ; Path
-    WriteINIStr "$INSINI" Java Path  "$R0"
-    WriteINIStr "$INSINI" Java Version "$R1"
-    WriteINIStr "$INSINI" Java Installer "$R2"
-    WriteINIStr "$INSINI" Java State "${UNNEEDED}"
-    ${IfNot} $R2 == ""
-      WriteRegStr ${PRODUCT_INST_ROOT_KEY} "${PRODUCT_INST_KEY}" "JavaInstalledPath" "$R0"
-    ${EndIf}
-  ${EndIf}
-
-  # JavaReady: ; ---------------------------------------------
-
-!insertmacro PrereqEnd "Java"
-
-Function Config1Page
-
-  !insertmacro StartAction "Config1Page"
-
-  !insertmacro MUI_HEADER_TEXT $(CONFIG_PAGE_TITLE) $(CONFIG_PAGE_SUBTITLE)
-
-  ${NSD_CreateLabel} 0 0 100% 35u "Database configuration" "The default properties below are acceptable for default installations."
+  ${NSD_CreateLabel} 0 0 100% 32u "${LABEL}"
   Pop $hnLabel
 
-  ${NSD_CreateLabel} 20 46 38u 35u "Database name"
-  Pop $1
+!macroend
 
-  ${NSD_CreateDirRequest} 62 46 180u 35u "omero"
-  Pop $2
+!macro DialogRow KEY LABEL VALUE TYPE
+  Var /GLOBAL ${KEY}Field
+  Var /GLOBAL ${KEY}Label
+  Var /GLOBAL ${KEY}State
+  IntOp $R9 $R0 * $R3
+  IntOp $R9 $R9 + $R2
+  IntOp $R0 $R0 + 1
+  ${NSD_CreateLabel} $R1 $R9 $R5u $R6u "${LABEL}"
+  Pop $${KEY}Label
+
+  ${NSD_Create${TYPE}} $R4 $R9 $R7u $R8u "${VALUE}"
+  Pop $${KEY}Field
+
+!macroend
+
+!macro assert_passwords_match KEY
+  ${NSD_GetText} $${KEY}passField $${KEY}passState
+  ${NSD_GetText} $${KEY}confField $${KEY}confState
+  ${If} $${KEY}confState != $${KEY}passState
+    MessageBox MB_OK "Passwords don't match"
+    SetCtlColors $${KEY}passField "" ${YELLOW}
+    SetCtlColors $${KEY}confField "" ${YELLOW}
+    Abort
+  ${EndIf}
+!macroend
+
+!macro NonEmpty KEY MSG
+  ${NSD_GetText} $${KEY}Field $${KEY}State
+  StrLen $1 "$${KEY}State"
+  ${If} $1 == 0
+    ${LogText} "${KEY}State is empty"
+    MessageBox MB_OK "${MSG} is required"
+    Abort
+  ${Else}
+    ${LogText} "NonEmpty check: len(${KEY}) = $1"
+  ${EndIf}
+!macroend
+
+######################################################################
+# Custom pages for configuration
+######################################################################
+
+Function ConfigInstructions
+  !insertmacro CreateDialog "Configuration : Now that all the necessary files have been copied to $INSTDIR, it is necessary to configuration your installation. The following pages will present you with several options which you are free to modify. In most cases, the default values will work"
+  nsDialogs::Show
+FunctionEnd
+
+Function ConfigNewDatabase
+  !insertmacro CreateDialog "New database setup : The properties below will be used only during the installation in order to create a new database. The database user entered must have permissions to create a new database (XXX and possibly a new user)"
+  !insertmacro DialogRow newdbhost "Database host" "localhost" Text
+  !insertmacro DialogRow newdbport "Database port" "5432" Number
+  !insertmacro DialogRow newdbuser "Admin login" "postgres" Text
+  !insertmacro DialogRow newdbpass "Admin password" "omero" Password
+  !insertmacro DialogRow newdbconf "Confirm password" "omero" Password
+  !insertmacro DialogRow newdbname "Database name" "omero" Text
+  !insertmacro DialogRow newdbownr "Database owner" "omero" Text
+  !insertmacro DialogRow rootpass "OMERO root password" "omero" Password
+  !insertmacro DialogRow rootconf "Confirm root password" "omero" Password
 
   nsDialogs::Show
 
-  !insertmacro FinishAction "Config1Page"
+FunctionEnd
+
+Function LeaveNewDatabase
+  !insertmacro NonEmpty "newdbhost" "Host for the OMERO database"
+  !insertmacro NonEmpty "newdbport" "Port for the OMERO database"
+  !insertmacro NonEmpty "newdbuser" "User for the OMERO database"
+  !insertmacro NonEmpty "newdbpass" "Password for the OMERO database"
+  !insertmacro NonEmpty "newdbname" "Name of the OMERO database"
+  !insertmacro NonEmpty "newdbownr" "Owner of the OMERO database"
+  !insertmacro NonEmpty "rootpass" "Password for OMERO's root user"
+  !insertmacro assert_passwords_match newdb
+  !insertmacro assert_passwords_match root
+  Push $newdbpassState
+  Push $newdbuserState
+  Push $newdbnameState
+  Push "noexists"
+  Call AssertDatabase
+FunctionEnd
+
+Function ConfigDatabase
+  !insertmacro CreateDialog "Database configuration : The properties below are acceptable for default installations."
+  !insertmacro DialogRow dbhost "Database host" "localhost" Text
+  !insertmacro DialogRow dbport "Database port" "5432" Number
+  !insertmacro DialogRow dbuser "User login" "omero" Text
+  !insertmacro DialogRow dbpass "User password" "omero" Password
+  !insertmacro DialogRow dbconf "Confirm password" "omero" Password
+  !insertmacro DialogRow dbname "Database name" "omero" Text
+
+  nsDialogs::Show
 
 FunctionEnd
 
-!macro GetCfgState
+Function LeaveDatabase
+  !insertmacro NonEmpty "dbhost" "Host of database"
+  !insertmacro NonEmpty "dbport" "Port of database"
+  !insertmacro NonEmpty "dbname" "Name of database"
+  !insertmacro NonEmpty "dbuser" "Database user name"
+  !insertmacro NonEmpty "dbpass" "Database password"
+  !insertmacro assert_passwords_match db
+  Push $dbpassState
+  Push $dbuserState
+  Push $dbnameState
+  Push "may not exist yet since newdb hasn't been run"
+  Call AssertDatabase
+FunctionEnd
 
-  ReadINIStr $R0 "$INSINI" "Config" "ROOTPASS"
-  ReadINIStr $R1 "$INSINI" "Config" "ROOTCONF"
-  ReadINIStr $R2 "$INSINI" "Config" "DBNAME"
-  ReadINIStr $R3 "$INSINI" "Config" "DBUSER"
-  ReadINIStr $R4 "$INSINI" "Config" "DBPASS"
-  ReadINIStr $R5 "$INSINI" "Config" "DBCONF"
-  ReadINIStr $R6 "$INSINI" "Config" "DATADIR"
-  ReadINIStr $R8 "$INSINI" "Config" "WEBPORT"
-  ReadINIStr $R9 "$INSINI" "Config" "ROUTERPORT"
+Function ConfigServer
+  !insertmacro CreateDialog "Server configuration : If the directory does not exist or is empty, a selection dialog will be created"
+  !insertmacro DialogRow srvdata "Data directory" "$INSTDIR\DATA" Text
+  !insertmacro DialogRow srvport "Router port" "4063" Number
 
-!macroend
+  nsDialogs::Show
 
-!macro NonEmpty State Config
-  StrLen $1 "${State}"
-  ${If} $1 == 0
-    ${LogText} "${XXXState} is empty"
-    MessageBox MB_OK "${Field} is required"
-    Abort
-  ${Else}
-    ${LogText} "NonEmpty check: len(${Field}) = $1"
-  ${EndIf}
-!macroend
+FunctionEnd
 
-Function Config1Leave
-
-  !insertmacro StartAction "Config1Leave"
-
-  ExpandEnvStrings $COMSPEC %COMSPEC%
-  Call UpdateINIState
-  !insertmacro GetCfgState
-
-  ;
-  ; Validate non empty
-  ;
-  !insertmacro NonEmpty "$R2" "Name of database"
-  !insertmacro NonEmpty "$R3" "Database user name"
-  !insertmacro NonEmpty "$R6" "Data directory"
-  !insertmacro NonEmpty "$R9" "Router port"
-  !insertmacro NonEmpty "$R0" "Password for OMERO's root user"
-
-  ;
-  ; Confirm passwords equals
-  ;
-  ${If} $R0 != $R1
-    MessageBox MB_OK "Passwords for OMERO's root user don't match"
+Function LeaveServer
+  !insertmacro NonEmpty "srvport" "Router port"
+  ${NSD_GetText} $srvdataField $srvdataState
+  ClearErrors
+  ${If} $srvdataState == ""
+    nsDialogs::SelectFolderDialog "Select a data directory" "$INSTDIR"
+    Pop $srvdataState
+    ${NSD_SetText} $srvdataField $srvdataState
     Abort
   ${EndIf}
+FunctionEnd
 
-  ${If} $R4 != $R5
-    MessageBox MB_OK "Passwords for database user don't match"
-    Abort
-  ${EndIf}
+Function ConfigWeb
+  !insertmacro CreateDialog "OMERO.web configuration"
+  !insertmacro DialogRow webport "Web server port" "8000" Number
 
-  ;
-  ; Validate database settings
-  ;
+  nsDialogs::Show
+
+FunctionEnd
+
+Function LeaveWeb
+  !insertmacro NonEmpty "webport" "Router port"
+FunctionEnd
+
+
+;
+; Usage:
+;   Push $dbpassword
+;   Push $dbuser
+;   Push $dbname
+;   Push "exists" or "noexists"
+;   Call ValidateDatabase
+Function AssertDatabase
+  Pop $R1 ; "exists" or "noexists". If anything else, no action taken.
+  Pop $R2 ; dbname
+  Pop $R3 ; dbuser
+  Pop $R4 ; dbpass
+
+  ${LogText} "Entering AssertDatabase"
 
   ; Setting up a pgpass.conf file to keep commands from blocking
   ; http://www.postgresql.org/docs/8.3/static/libpq-pgpass.html
@@ -1047,9 +895,6 @@ Function Config1Leave
     Goto FatalError
   ${EndIf}
 
-  ; Create the database
-  ; This is the standard invocation as in all the docs.
-
   StrCpy $CommandLine '"$COMSPEC" /C "psql -U $R3 -c \l"'
   ${Execute} $CommandLine "Failed to connect to postgres" ""
   ${If} ${Errors}
@@ -1059,50 +904,64 @@ Function Config1Leave
     ${LogText} "Connected to postgres as $R3"
   ${EndIf}
 
-  StrCpy $CommandLine '"$COMSPEC" /C "psql -U $R3 $R2" < $PLUGINSDIR\now.sql'
-  ${Execute} $CommandLine "Database already exists $R2" ""
-  ${IfNot} ${Errors}
-    MessageBox MB_OK "Database $R2 already exists. Please enter a new one"
-    Abort
-  ${Else}
-    ${LogText} "Database $R2 doesn't exit. Good."
-  ${EndIf}
+  ${If} $R1 == "noexists"
+  ;${OrIf} $R1 == "noexists" XXX Cancelling for the minute
+    StrCpy $CommandLine '"$COMSPEC" /C "psql -U $R3 $R2" < $PLUGINSDIR\now.sql'
+    ${Execute} $CommandLine "Database already exists $R2" ""
+    ${IfNot} ${Errors}
+      ${If} $R1 == "noexists"
+        MessageBox MB_OK "Database $R2 already exists. Please enter a new one"
+        Abort
+      ${Else}
+        ${LogText} "Database $R2 exists. Good."
+      ${EndIf}
+    ${Else}
+      ${If} $R1 == "exists"
+        MessageBox MB_OK "Database $R2 doesn't exist. Please enter a new one"
+        Abort
+      ${Else}
+        ${LogText} "Database $R2 doesn't exit. Good."
+      ${EndIf}
+   ${EndIf}
+ ${EndIf}
 
-  ;
-  ; Validate data directory
-  ;
-  IfFileExists "$R6\*.*" 0 Exists
-    ${LogText} "$R6 (Field 6) exists"
-    MessageBox MB_OK "Data directory already in use"
-  Exists:
-
-
-  !insertmacro FinishAction "Config1Leave"
+  ${LogText} "Returing from AssertDatabase"
   Return
 
   ;
   ; Error handling
   ;
   FatalError:
+    ${LogText} "Aborting from AssertDatabase"
     MessageBox MB_OK "Aborting install..."
     Quit
 
-FunctionEnd
-
-Function Config2Page
-  !insertmacro StartAction "Config2Page"
-  !insertmacro FinishAction "Config2Page"
-FunctionEnd
-Function Config2Leave
-  !insertmacro StartAction "Config2Leave"
-  !insertmacro FinishAction "Config2Leave"
 FunctionEnd
 
 Function ActualInstall
 
   !insertmacro StartAction "ActualInstall"
 
-  Abort "actual install"
+  ReadIniStr $ExitCode "$INSINI" "SECDB" "Finished"
+  MessageBox MB_OK "SECSRV: $ExitCode"
+  MessageBox MB_OK "SECDATA: $ExitCode"
+  MessageBox MB_OK "SECWEB: $ExitCode"
+  MessageBox MB_OK "SECDB: $ExitCode"
+
+  #
+  # Installer
+  #
+  WriteRegStr ${PRODUCT_INST_ROOT_KEY} "${PRODUCT_INST_KEY}" "InstallDir" "$INSTDIR"
+
+  #
+  # Uninstaller
+  #
+  WriteUninstaller "$INSTDIR\uninst.exe"
+  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
+  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\uninst.exe"
+  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
+  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
+  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
 
   ;
   ; Update the environment values
@@ -1167,6 +1026,7 @@ Function ActualInstall
     Abort "Fatal error during database creation"
 
 FunctionEnd
+
 
 /*
 Function Splash

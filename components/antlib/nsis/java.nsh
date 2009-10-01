@@ -1,3 +1,14 @@
+;
+; Added by the Openmicroscopy team.
+;
+!macro ConfirmInstall Prereq
+
+  MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "Component selections requires ${Prereq}. Would you like to install it or abort the install?" IDYES ${Prereq}Confirmed
+    Abort
+  ${Prereq}Confirmed:
+
+!macroend
+
 ; Java Launcher with automatic JRE installation
 ;-----------------------------------------------
 ; http://nsis.sourceforge.net/Java_Launcher_with_automatic_JRE_installation
@@ -71,6 +82,7 @@ Function GetJRE
     ##
     ## Call ElevateToAdmin
     ##
+    !insertmacro ConfirmInstall Java
     StrCpy $2 "$INSDIR\${JRE_INSTALLER}"
     IfFileExists $2 Installing Downloading
     Downloading:
