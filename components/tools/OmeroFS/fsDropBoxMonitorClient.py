@@ -112,7 +112,7 @@ class MonitorState(object):
                 # Last activity
                 timer.start()
 
-        self.log.info("%s entry %s contains %d file(s). Files=%s Timers=%s", msg, key, len(seq), len(self.__entries), self.__timers)
+            self.log.info("%s entry %s contains %d file(s). Files=%s Timers=%s", msg, key, len(seq), len(self.__entries), self.__timers)
 
     def find(self, seq):
         """
