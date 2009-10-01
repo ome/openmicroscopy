@@ -14,6 +14,10 @@ package ome.formats.importer.util;
 import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -143,31 +147,49 @@ public class IniFileLoader {
      */
     public void updateFlexReaderServerMaps() {
         Preferences maps = userPrefs.node("FlexReaderServerMaps");
+        Map<String, List<String>> values = parseFlexMaps(maps);
+        for (Map.Entry<String, List<String>> entry : values.entrySet()) {
+            if (entry.getValue() == null) {
+                continue;
+            }
+            for (String mapValue : entry.getValue()) {
+                mapFlexServer(entry.getKey(), mapValue);
+            }
+        }
+    }
+    
+    public Map<String, List<String>> parseFlexMaps(Preferences maps) {
+        Map<String, List<String>> rv = new HashMap<String, List<String>>();
         try {
             for (String key : maps.keys()) {
                 String mapValues = maps.get(key, null);
                 log.info("Raw Flex reader map values: " + mapValues);
                 if (mapValues == null) {
-                    return;
+                    continue;
                 }
-                for (String mapValue : mapValues.trim().split((";"))) {
-                    try {
-                        FlexReader.mapServer(key, mapValue);
-                        log.info(String.format(
-                                "Added Flex reader server map '%s' = '%s'.",
-                                key, mapValue));
-                    } catch (FormatException e) {
-                        log
-                                .warn(
-                                        String
-                                                .format(
-                                                        "Unable to add Flex reader server map '%s' = '%s'",
-                                                        key, mapValue), e);
-                    }
+                List<String> list = new ArrayList<String>();
+                rv.put(key, list);
+                for(String value : mapValues.split(";")) {
+                    value = value.trim();
+                    value = value.replaceAll("/", "\\\\");
+                    list.add(value);
                 }
             }
         } catch (BackingStoreException e) {
             log.warn("Error updating Flex reader server maps.", e);
+        }
+        return rv;
+    }
+    
+    protected void mapFlexServer(String key, String mapValue) {
+        try {
+            FlexReader.mapServer(key, mapValue);
+            log.info(String.format("Added Flex reader server map '%s' = '%s'.",
+                    key, mapValue));
+        } catch (FormatException e) {
+            log.warn(String.format(
+                    "Unable to add Flex reader server map '%s' = '%s'", key,
+                    mapValue), e);
         }
     }
 
