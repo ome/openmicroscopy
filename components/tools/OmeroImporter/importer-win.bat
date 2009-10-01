@@ -39,7 +39,7 @@ set cp = "
 set cp=!cp!"
 echo !cp!
 
-java -Xms128000000 -Xmx256000000 -cp "%cp%" ome.formats.importer.Main
+java -Xms128000000 -Xmx512000000 -cp "%cp%" ome.formats.importer.Main
 
 REM IMPORTANT NOTE: Windows only supports a short 8k class path. 
 REM If the app fails to start you may need to shorten the path by moving the java app folder 
