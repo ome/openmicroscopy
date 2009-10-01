@@ -105,7 +105,7 @@ FunctionEnd
 # straight-forward to refactor. From the top-level, the call
 # graph is:
 #
-# ${Requires} PostgreSQL|Java|Python|Ice|PIL
+# ${Requires} PostgreSQL|Java|Python|Ice|PIL|Tables|Nginx
 #  |--> IsInstalled X (if false, set errors)
 #  |--> CheckX
 #  | |--> IsXInstalled
@@ -183,173 +183,6 @@ FunctionEnd
 
 !macroend
 
-!macro CheckPostgreSQL
-
-  Call IsPgInstalled
-  Pop $R2 ; Third
-  Pop $R1 ; Second
-  Pop $R0 ; First
-
-  WriteINIStr "$INSINI" PostgreSQL First "$R0"
-  WriteINIStr "$INSINI" PostgreSQL Second "$R1"
-  WriteINIStr "$INSINI" PostgreSQL Third "$R2"
-
-  ; If GLOBAL, all are set
-  ${If} $R0 == "GLOBAL"
-  ${AndIf} $R1 == "GLOBAL"
-  ${AndIf} $R2 == "GLOBAL"
-    ${LogText} "Disabling PostgreSQL (Field 1)"
-    WriteINIStr "$INSINI" "PostgreSQL" "State" "${UNNEEDED}"
-    Goto PGReady
-  ${EndIf}
-
-  ${If} $R0 == "" ; None
-    ${LogText} "No values found for PG (Field 1)"
-    ClearErrors
-    !insertmacro ConfirmInstall PostgreSQL
-    Call GetPg
-  ${Else}
-    ${If} $R1 != ""
-      ${LogText} "Found multiple Postgres instances. Choosing first"
-    ${EndIf}
-    WriteRegStr ${PRODUCT_INST_ROOT_KEY} "${PRODUCT_INST_KEY}" "PgPath" "$R0"
-    WriteINIStr "$INSINI" "PostgreSQL" "State" "$R0"
-  ${EndIf}
-
-  PGReady: ; ---------------------------------------------
-
-!macroend
-
-!macro CheckPIL
-
-  Call IsPILInstalled
-  Pop $R0 ; First
-  WriteINIStr "$INSINI" PIL Value  "$R0"
-
-  ; If GLOBAL, installed into python
-  ${If} $R0 == "GLOBAL"
-    ${LogText} "PIL value is GLOBAL"
-    WriteINIStr "$INSINI" "PIL" "State" "${UNNEEDED}"
-    Goto PILReady
-  ${EndIf}
-
-  ${If} $R0 == "" ; None
-    ${LogText} "PIL not found"
-    !insertmacro ConfirmInstall PIL
-    Call GetPIL
-  ${EndIf}
-
-  PILReady: ; ---------------------------------------------
-
-!macroend
-
-!macro CheckIce
-
-  Call IsIceInstalled
-  Pop $R1 ; VS2008
-  Pop $R0 ; VS2005
-  WriteINIStr "$INSINI" Ice VS2005 "$R0"
-  WriteINIStr "$INSINI" Ice VS2008 "$R1"
-
-  ; If GLOBAL, both are always set.
-  ${If} $R0 == "GLOBAL"
-  ${AndIf} $R1 == "GLOBAL"
-    ${LogText} "Disabling Ice"
-    WriteINIStr "$INSINI" "Ice" "State" "${UNNEEDED}"
-    Goto IceReady
-  ${EndIf}
-
-  ${If} $R0 == ""
-    ${If} $R1 == ""
-      !insertmacro ConfirmInstall Ice
-      Call GetIce
-    ${Else}
-      ${LogText} "Setting Ice (Field 4) State to $R1"
-      WriteRegStr ${PRODUCT_INST_ROOT_KEY} "${PRODUCT_INST_KEY}" "IcePath" "$R1"
-      WriteINIStr "$INSINI" "Ice" "State" "$R1"
-    ${EndIf}
-  ${ElseIf} $R1 == ""
-    ${If} $R0 != ""
-      ${LogText} "Setting Ice (Field 4) State to $R0"
-      WriteRegStr ${PRODUCT_INST_ROOT_KEY} "${PRODUCT_INST_KEY}" "IcePath" "$R0"
-      WriteINIStr "$INSINI" "Ice" "State" "$R0"
-    ${EndIf}
-  ${Else}
-      MessageBox MB_OK "Two Ices installed: $R0 and $R1. Choosing $R0"
-      ${LogText} "Setting Ice (Field 4) State to $R0"
-      WriteRegStr ${PRODUCT_INST_ROOT_KEY} "${PRODUCT_INST_KEY}" "IcePath" "$R0"
-      WriteINIStr "$INSINI" "Ice" "State" "$R0"
-  ${EndIf}
-
-  IceReady: ; ---------------------------------------------
-  !insertmacro FinishAction "IcePage"
-
-!macroend
-
-!macro CheckPython
-
-  Call IsPythonInstalled
-  Pop $R2 ; Third
-  Pop $R1 ; Second
-  Pop $R0 ; First
-  WriteINIStr "$INSINI" Python First  "$R0"
-  WriteINIStr "$INSINI" Python Second "$R1"
-  WriteINIStr "$INSINI" Python Third  "$R2"
-
-  ; If GLOBAL, all are set
-  ${If} $R0 == "GLOBAL"
-  ${AndIf} $R1 == "GLOBAL"
-  ${AndIf} $R2 == "GLOBAL"
-    ${LogText} "Disabling Python (Field 3)"
-    WriteINIStr "$INSINI" "Python" "State" "${UNNEEDED}"
-    Goto PythonReady
-  ${EndIf}
-
-  ${If} $R0 == "" ; None
-    ${LogText} "No values found for Python (Field 3)"
-    !insertmacro ConfirmInstall Python
-    Call GetPython
-  ${Else}
-    ${If} $R1 != ""
-      ${LogText} "Found multiple Python instances. Choosing first"
-    ${EndIf}
-    WriteRegStr ${PRODUCT_INST_ROOT_KEY} "${PRODUCT_INST_KEY}" "PythonPath" "$R0"
-    WriteINIStr "$INSINI" "Python" "State" "$R0"
-  ${EndIf}
-
-  PythonReady: ; ---------------------------------------------
-
-!macroend
-
-!macro CheckJava
-
-  ; This section is slightly different since the GetJre
-  ; function is copied code. Adds itself to path
-  ;
-
-  !insertmacro StartAction "CheckJava"
-
-  Call GetJre
-  ${If} ${Errors}
-    ${LogText} "FAILED TO INSTALL JAVA"
-    MessageBox MB_OK "Failed to install Java. Please do so manually and re-run the installer"
-  ${Else}
-    Pop $R2 ; Installer
-    Pop $R1 ; Version
-    Pop $R0 ; Path
-    WriteINIStr "$INSINI" Java Path  "$R0"
-    WriteINIStr "$INSINI" Java Version "$R1"
-    WriteINIStr "$INSINI" Java Installer "$R2"
-    WriteINIStr "$INSINI" Java State "${UNNEEDED}"
-    ${IfNot} $R2 == ""
-      WriteRegStr ${PRODUCT_INST_ROOT_KEY} "${PRODUCT_INST_KEY}" "JavaInstalledPath" "$R0"
-    ${EndIf}
-  ${EndIf}
-
-  # JavaReady: ; ---------------------------------------------
-
-!macroend
-
 ;
 ; Provides downloading and md5 checking of requirements.
 ; See the URL and MD5 definitions in omero.nsi
@@ -360,6 +193,10 @@ FunctionEnd
   Push "${TARGET}"
   Push "${MD5}"
   Call _DownloadFunction
+  ${If} ${Errors}
+    MessageBox MB_OK "Failed to download/verify ${SOURCE}"
+    Abort
+  ${End}
 !macroend
 Function _DownloadFunction
   Pop $R2 ; MD5 Checksum
@@ -397,266 +234,46 @@ Function _DownloadFunction
 FunctionEnd
 
 ;
-; Usage: !insertmacro TestIce <ice bin path>
-;        ${If} ${Errors} ... ; Failed
+; The most common thing to do with a download (*.exe) is
+; to execute it.
 ;
-!macro TestIce Path
-  ClearErrors
-  GetFunctionAddress $9 ExecuteLog
-  ExecDos::exec /TOFUNC '"${Path}glacier2router.exe" --version' "" $9
-  Pop $ExitCode
-  ${If} $ExitCode == 1
-    ClearErrors
+!define DownloadAndRun "!insertmacro _DownloadAndRunMacro"
+!macro _DownloadAndRunMacro Source Target MD5 Message
+  Push "${SOURCE}"
+  Push "${TARGET}"
+  Push "${MD5}"
+  Push "${Message}"
+  Call _DownloadAndrunFunction
+!macroend
+Function _DownloadAndRunFunction
+  Pop $R3 ; Message
+  Pop $R2 ; MD5 Checksum
+  Pop $R1 ; Target
+  Pop $R0 ; Source
+  ${Download} "$R0" "$R1" "$R2"
+  ${IfNot} ${Errors}
+    StrCpy $R4 '"$R1"'
+    ${Execute} $R4 "$R3" "" 0
   ${EndIf}
-  ExecDos::exec /TOFUNC '"${Path}icegridadmin.exe" --version' "" $9
-  Pop $ExitCode
-  ${If} $ExitCode == 1
-    ClearErrors
-  ${EndIf}
-  ExecDos::exec /TOFUNC '"${Path}icegridnode.exe" --version' "" $9
-  Pop $ExitCode
-  ${If} $ExitCode == 1
-    ClearErrors
-  ${EndIf}
+FunctionEnd
+
+!define ConfirmInstall "!insertmacro _ConfirmInstallMacro"
+!macro _ConfirmInstallMacro Prereq
+
+  MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON1 "Component selections requires ${Prereq}. Would you like to install it? 'No' aborts the install." IDYES ${Prereq}Confirmed
+    Abort
+  ${Prereq}Confirmed:
+
 !macroend
 
-; Usage:
-;   Call IsIceInstalled
-;   Pop $0 ; 3.3.1 VS2005 InstallDir or "GLOBAL"
-;   Pop $1 ; 3.3.1 VS2008 InstallDir or "GLOBAL"
-;   StrCmp $0 "" NotFound Found
-;   StrCmp $1 "" NotFound Found
-;
-; Base on:
-;    http://nsis.sourceforge.net/How_to_Detect_.NET_Framework
-;
-Function IsIceInstalled
+!include check_postgres.nsh
+!include check_ice.nsh
+!include check_java.nsh
+!include check_python.nsh
+!include check_pil.nsh
+!include check_tables.nsh
+!include check_nginx.nsh
 
-  !insertmacro TestIce ""
-  ${If} ${Errors}
-   ClearErrors ; Not found so keep searching
-  ${Else}
-    Push "GLOBAL"
-    Push "GLOBAL"
-    Return
-  ${EndIf}
-
-  Push ""
-  ReadRegStr $R1 HKLM "${ZEROC_VS2008_KEY}" "InstallDir"
-  StrCpy $R1 "$R1" -1 1
-  ${If} ${Errors}
-    ClearErrors
-  ${Else}
-    !insertmacro TestIce "$R1bin\"
-    ${If} ${Errors}
-      ClearErrors
-      ${LogText} "$R1 seems to be deleted. Should be removed from registry."
-    ${Else}
-      Pop $R3
-      Push "$R1"
-    ${EndIf}
-  ${EndIf}
-
-  Push ""
-  ReadRegStr $R0 HKLM "${ZEROC_VS2005_KEY}" "InstallDir"
-  StrCpy $R0 "$R0" -1 1
-  ${If} ${Errors}
-    ClearErrors
-  ${Else}
-    !insertmacro TestIce "$R0bin\"
-    ${If} ${Errors}
-      ClearErrors
-      ${LogText} "$R0 seems to be deleted. Should be removed from registry."
-    ${Else}
-      Pop $R3
-      Push "$R0"
-    ${EndIf}
-  ${EndIf}
-
-FunctionEnd
-
-Function GetIce
-  ClearErrors
-  StrCpy $R0 "$INSDIR\${ICE_INSTALLER}"
-  ${Download} "${ICE_URL}" "$R0" "${ICE_MD5}"
-  ${IfNot} ${Errors}
-    StrCpy $R0 '"msiexec.exe" /i $R0'
-    ${Execute} $R0 "Ice MSI installer failed" "" 0
-  ${EndIf}
-  Call IsIceInstalled
-  Pop $0 ; 3.3.1 VS2005 InstallDir or "GLOBAL"
-  Pop $1 ; 3.3.1 VS2008 InstallDir or "GLOBAL"
-  ${If} $0 == ""
-    ${If} $1 == ""
-      StrCpy $Message "No Ice installation found. Aborting..."
-      ${LogText} "$Message"
-      MessageBox MB_OK "$Message"
-      Quit
-    ${Else}
-      StrCpy $2 $1
-    ${EndIf}
-  ${Else}
-    ${If} $1 != ""
-      ${LogText} "Two Ice installations found on GetIce?!? $1 and $2. Using first."
-    ${EndIf}
-    StrCpy $2 $0
-  ${EndIf}
-  ${LogText} "Updating PATH and PYTHONPATH with $2"
-  ${EnvVarUpdate} $1 "PATH" "A" "HKLM" "$2\bin"
-  ${EnvVarUpdate} $1 "PYTHONPATH" "A" "HKLM" "$2\python"
-FunctionEnd
-
-;
-; Usage:
-;  Call IsPgInstalled
-;   Pop $0 ; First instance, "GLOBAL", or ""
-;   Pop $1 ; Second instance, "GLOBAL", or ""
-;   Pop $2 ; Third instance, "GLOBAL", or ""
-;
-; Based on:
-;  http://nsis.sourceforge.net/EnumUsersReg
-
-Function IsPgInstalled
-
-  StrCpy $CommandLine 'psql --version'
-  ${Execute} $CommandLine "PostgreSQL is not installed" "" 0
-  ${If} ${Errors}
-  ${OrIf} $ExitCode == 1
-    ClearErrors
-  ${Else}
-    push "GLOBAL"
-    push "GLOBAL"
-    push "GLOBAL"
-    return
-  ${EndIf}
-
-  ${LogText} "Looking for PG under ${PG_KEY}"
-  StrCpy $R0 0
-  ${While} $R0 < 3
-    EnumRegKey $R1 HKLM "${PG_KEY}" $R0
-    IntOp $R0 $R0 + 1
-    ${If} $R1 != ""
-      ReadRegStr $R2 HKLM "${PG_KEY}\$R1" "Base Directory"
-      ${LogText} "Found PG: $R1 = $R2"
-      push "$R2bin"
-    ${Else}
-      push ""
-    ${EndIf}
-  ${EndWhile}
-
-FunctionEnd
-
-Function GetPg
-  StrCpy $R0 "$INSDIR\${PG_ZIP}"
-  StrCpy $R4 "$INSDIR\postgres"
-
-  ClearErrors
-  StrCpy $R0 "$INSDIR\${ICE_INSTALLER}"
-  ${Download} "${PG_URL}" "$R0" "${PG_MD5}"
-  ${IfNot} ${Errors}
-    IfFileExists "$R4\setup.bat" Installing Unzipping
-    Unzipping:
-      CreateDirectory "$R4"
-      nsisunz::Unzip "$R0" "$R4"
-      Pop $0
-      StrCmp $0 "success" Installing
-        ${LogText} "Unzip failed: $0"
-      ${LogText} "Unzipping of PostgreSQL installer returned $0"
-    Installing:
-      ; Copied from setup.bat
-      StrCpy $R2 '"$R4\vcredist_x86.exe"'
-      ${Execute} $R2 "vcredist_x86 failed" "" 0
-      IfErrors Failure 0
-      StrCpy $R2 '"msiexec.exe" /i "$R4\postgresql-8.3.msi"'
-      ${Execute} $R2 "PostgreSQL MSI installer failed" "" 0
-      # http://pginstaller.projects.postgresql.org/silent.html
-      # ExecWait 'msiexec /i postgresql-8.0.0-rc1-int.msi  /qr INTERNALLAUNCH=1 ADDLOCAL=server,psql,docs SERVICEDOMAIN="%COMPUTERNAME%"
-      #      SERVICEPASSWORD="SecretWindowsPassword123" SUPERPASSWORD="VerySecret" BASEDIR="c:\postgres" TRANSFORMS=:lang_de'
-  ${EndIf}
-
-  Failure:
-    SetErrors
-    Push "Failed to install PostgreSQL"
-
-FunctionEnd
-
-;
-; Usage:
-;  Call IsPythonInstalled
-;   Pop $0 ; First instance, "GLOBAL", or ""
-;   Pop $1 ; Second instance, "GLOBAL", or ""
-;   Pop $2 ; Third instance, "GLOBAL", or ""
-;
-Function IsPythonInstalled
-
-  StrCpy $CommandLine 'python --version'
-  ${Execute} $CommandLine "Python is not installed" "" 0
-  ${If} ${Errors}
-  ${OrIf} $ExitCode == 1
-    ClearErrors
-  ${Else}
-    push "GLOBAL"
-    push "GLOBAL"
-    push "GLOBAL"
-    return
-  ${EndIf}
-
-  ${LogText} "Looking for Python under ${PY_KEY}"
-  StrCpy $R0 0
-  ${While} $R0 < 3
-    EnumRegKey $R1 HKLM "${PY_KEY}" $R0
-    IntOp $R0 $R0 + 1
-    ${If} $R1 != ""
-      ReadRegStr $R2 HKLM "${PY_KEY}\$R1\InstallPath" ""
-      ${LogText} "Found PY: $R1 = $R2"
-      push "$R2"
-    ${Else}
-      push ""
-    ${EndIf}
-  ${EndWhile}
-
-FunctionEnd
-
-Function GetPython
-  ClearErrors
-  StrCpy $R0 "$INSDIR\${PYAS_INSTALLER}"
-  ${Download} "${PYAS_URL}" "$R0" "${PYAS_MD5}"
-  ${IfNot} ${Errors}
-    StrCpy $R2 '"msiexec.exe" /i $R0'
-    ${Execute} $R2 "Python MSI installer failed" "" 0
-    # For silent: msiexec /i ActivePython-<version>.msi /qn+ INSTALLDIR=C:\myapps\Python ADDLOCAL=core,doc
-    # See: http://docs.activestate.com/activepython/2.4/installnotes.html#install_silent
-  ${EndIf}
-FunctionEnd
-
-;
-; Usage:
-;  Call IsPILInstalled
-;   Pop $0 ; "GLOBAL" or ""
-;
-Function IsPILInstalled
-
-  StrCpy $CommandLine 'python -mImage'
-  ${Execute} $CommandLine "PIL is not installed" "" 0
-  ${If} ${Errors}
-  ${OrIf} $ExitCode == 1
-    push ""
-    ClearErrors
-  ${Else}
-    push "GLOBAL"
-    return
-  ${EndIf}
-FunctionEnd
-
-Function GetPIL
-  ClearErrors
-  StrCpy $R1 "$INSDIR\${PIL_INSTALLER}"
-  ${Download} "${PIL_URL}" "$R1" "${PIL_MD5}"
-  ${IfNot} ${Errors}
-    StrCpy $R2 '"$R1"'
-    ${Execute} $R2 "PIL installer failed" "" 0
-  ${EndIf}
-FunctionEnd
 
 ######################################################################
 # Connectivty (GET/POST)

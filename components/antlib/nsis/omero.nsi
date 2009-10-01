@@ -21,6 +21,15 @@
 # Other:
 #   Define GUI_DEBUG to use the nsisdbg plugin
 #
+# Plugins used:
+#  - http://nsis.sourceforge.net/DumpLog_plug-in
+#  - http://nsis.sourceforge.net/ExecDos_plug-in
+#  - http://nsis.sourceforge.net/GetVersion_(Windows)_plug-in
+#  - http://nsis.sourceforge.net/Inetc_plug-in
+#  - http://nsis.sourceforge.net/MD5_plugin
+#  - http://nsis.sourceforge.net/Nsisdbg_plug-in
+#  - http://nsis.sourceforge.net/Nsisunz_plug-in
+#
 ######################################################################
 
 #  - Check etc with http://nsis.sourceforge.net/TextCompare (TextCompareS)
@@ -58,14 +67,6 @@
 #    - DB keep/don't keep
 #  - Handling going back and forth between windows
 #
-# Plugins used:
-#  - http://nsis.sourceforge.net/DumpLog_plug-in
-#  - http://nsis.sourceforge.net/ExecDos_plug-in
-#  - http://nsis.sourceforge.net/GetVersion_(Windows)_plug-in
-#  - http://nsis.sourceforge.net/Inetc_plug-in
-#  - http://nsis.sourceforge.net/MD5_plugin
-#  - http://nsis.sourceforge.net/Nsisdbg_plug-in
-#  - http://nsis.sourceforge.net/Nsisunz_plug-in
 #
 # Next steps:
 #  - Test for PIL individually (in case python already installed) ~ DONE, but it needs to match the py version
@@ -178,166 +179,6 @@ Var dCurrentY
 !ifndef INSTALLER_NAME
   !define INSTALLER_NAME 'omero_installer.exe'
 !endif
-
-#
-# The following downloads can also be overwritten
-#
-!define ICE_VC80_INSTALLER "Ice-3.3.1-VC80.msi"
-!ifndef ICE_VC80_URL
-  !define ICE_VC80_URL "http://www.zeroc.com/download/Ice/3.3/Ice-3.3.1-VC80.msi"
-!endif
-!ifndef ICE_VC80_MD5
-  !define ICE_VC80_MD5 "a8c1e305a9d267a57e22a1fb78aa0c91"
-!endif
-
-!define ICE_VC90_INSTALLER "Ice-3.3.1-VC90.msi"
-!ifndef ICE_VC90_URL
-  !define ICE_VC90_URL "http://www.zeroc.com/download/Ice/3.3/Ice-3.3.1-VC90.msi"
-!endif
-!ifndef ICE_VC90_MD5
-  !define ICE_VC90_MD5 "b958546a84c98dc49036f7b10d1a8ce2"
-!endif
-
-!ifdef ICE_VC90
-  !define ICE_INSTALLER "${ICE_VC90_INSTALLER}"
-  !define ICE_URL "${ICE_VC90_URL}"
-  !define ICE_MD5 "${ICE_VC90_MD5}"
-!else
-  !define ICE_INSTALLER "${ICE_VC80_INSTALLER}"
-  !define ICE_URL "${ICE_VC80_URL}"
-  !define ICE_MD5 "${ICE_VC80_MD5}"
-!endif
-
-!define PG_ZIP "postgresql-8.3.7-1.zip"
-!ifndef PG_URL
-  !define PG_URL "http://wwwmaster.postgresql.org/redir/198/h/binary/v8.3.7/win32/postgresql-8.3.7-1.zip"
-!endif
-!ifndef PG_MD5
-  !define PG_MD5 "ec22457ddcadc0924bd891550dacb67b"
-!endif
-
-!define NGINX_INSTALLER "nginx-0.7.62.zip"
-!ifndef NGINX_URL
-  !define NGINX_URL "http://sysoev.ru/nginx/nginx-0.7.62.zip"
-!endif
-!ifndef NGINX_MD5
-  !define NGINX_MD5 "4395ff2204477c416b059504467d3f7b"
-!endif
-
-!define PY_INSTALLER "python-2.5.1.msi"
-!ifndef PY_URL
-  !define PY_URL "http://www.python.org/ftp/python/2.5.1/python-2.5.1.msi"
-!endif
-!ifndef PY_MD5
-  !define PY_MD5 "a1d1a9c07bc4c78bd8fa05dd3efec87f"
-!endif
-
-!define PYAS_INSTALLER "python-2.5.4.3-win32-x86.msi"
-!ifndef PYAS_URL
-  !define PYAS_URL "http://downloads.activestate.com/ActivePython/windows/2.5/ActivePython-2.5.4.3-win32-x86.msi"
-!endif
-!ifndef PYAS_MD5
-  !define PYAS_MD5 "c5ed8ea033d35ba87c48885d921f08c9"
-!endif
-
-!define SCIPY_INSTALLER "scipy-0.7.1-win32-superpack-python2.5.exe"
-!ifndef SCIPY_URL
-  !define SCIPY_URL "http://sourceforge.net/projects/scipy/files/scipy/0.7.1/scipy-0.7.1-win32-superpack-python2.5.exe/download"
-!endif
-!ifndef SCIPY_MD5
-  !define SCIPY_MD5 "324248e01f235a301424ac30658b3355"
-!endif
-
-!define SZIP_INSTALLER "szip21-vnet-enc.zip"
-!ifndef SZIP_URL
-  !define SZIP_URL "http://www.hdfgroup.org/ftp/lib-external/szip/2.1/bin/windows/szip21-vnet-enc.zip"
-!endif
-!ifndef SZIP_MD5
-  !define SZIP_MD5 "b18d044f6e259c561935db2d4e0e3ad0"
-!endif
-
-!define ZLIB_INSTALLER "zlib123-vnet.zip"
-!ifndef ZLIB_URL
-  !define ZLIB_URL "http://www.hdfgroup.org/ftp/lib-external/zlib/1.2/bin/windows/zlib123-vnet.zip"
-!endif
-!ifndef ZLIB_MD5
-  !define ZLIB_MD5 "1030239f01683bbc97e90e82a8f4685e"
-!endif
-
-!define HDF_INSTALLER "hdf5_183_xp32_vs2008_ivf101.zip"
-!ifndef HDF_URL
-  !define HDF_URL "http://www.hdfgroup.org/ftp/HDF5/current/bin/windows/hdf5_183_xp32_vs2008_ivf101.zip"
-!endif
-!ifndef HDF_MD5
-  !define HDF_MD5 "b4c32cc622358ca319d417ee824221b9"
-!endif
-
-!define PYTABLES_INSTALLER "tables-2.1.2.win32-py2.5.exe"
-!ifndef PYTABLES_URL
-  !define PYTABLES_URL "http://www.pytables.org/download/stable/tables-2.1.2.win32-py2.5.exe"
-!endif
-!ifndef PYTABLES_MD5
-  !define PYTABLES_MD5 "e300566559965eedb68ea1de66c9ff9e"
-!endif
-
-!define NUMPY_INSTALLER "numpy-1.3.0-win32-superpack-python2.5.exe"
-!ifndef NUMPY_URL
-  !define NUMPY_URL "http://sourceforge.net/projects/numpy/files/NumPy/1.3.0/numpy-1.3.0-win32-superpack-python2.5.exe/download"
-!endif
-!ifndef NUMPY_MD5
-  !define NUMPY_MD5 "e8d2b1f0d30416ee72bc29e3b6762fef"
-!endif
-
-!define PIL_INSTALLER "PIL-1.1.6.win32-py2.5.exe"
-!ifndef PIL_URL
-  !define PIL_URL "http://effbot.org/downloads/PIL-1.1.6.win32-py2.5.exe"
-!endif
-!ifndef PIL_MD5
-  !define PIL_MD5 "e1347e7055f42f3e50c20e5935a4b62e"
-!endif
-
-!define JRE5_INSTALLER "jre-1_5_0_16-windows-i586-p.exe"
-!ifndef JRE5_URL
-  !define JRE5_URL "http://javadl.sun.com/webapps/download/AutoDL?BundleId=22933&/jre-1_5_0_16-windows-i586-p.exe"
-!endif
-!ifndef JRE5_VERSION
-  !define JRE5_VERSION "5.0"
-!endif
-!ifndef JRE5_MD5
-  !define JRE5_MD5 "cfda28a6c4890e82944d267fc7440d5f"
-!endif
-
-!define JRE6_INSTALLER "jre-6u10-windows-i586-p.exe"
-!ifndef JRE6_URL
-  !define JRE6_URL "http://javadl.sun.com/webapps/download/AutoDL?BundleId=24936&/jre-6u10-windows-i586-p.exe"
-!endif
-!ifndef JRE6_VERSION
-  !define JRE6_VERSION "6.0"
-!endif
-!ifndef JRE6_MD5
-  !define JRE6_MD5 "UNKNOWN"
-!endif
-
-!ifdef JAVA5
-  !define JRE_URL "${JRE5_URL}"
-  !define JRE_MD5 "${JRE5_MD5}"
-  !define JRE_VERSION "${JRE5_VERSION}"
-  !define JRE_INSTALLER "${JRE5_INSTALLER}"
-!else
-  !define JRE_URL "${JRE6_URL}"
-  !define JRE_MD5 "${JRE6_MD5}"
-  !define JRE_VERSION "${JRE6_VERSION}"
-  !define JRE_INSTALLER "${JRE6_INSTALLER}"
-!endif
-
-#
-# Registry keys
-#
-!define JRE_KEY "SOFTWARE\JavaSoft\Java Runtime Environment"
-!define ZEROC_VS2005_KEY "Software\ZeroC\Ice 3.3.1 for Visual Studio 2005"
-!define ZEROC_VS2008_KEY "Software\ZeroC\Ice 3.3.1 for Visual Studio 2008"
-!define PG_KEY "SOFTWARE\PostgreSQL\Installations"
-!define PY_KEY "SOFTWARE\Python\PythonCore"
 
 #
 # Unconditionally set
@@ -467,6 +308,7 @@ Section "OMERO.server" SECSRV
   !insertmacro StartAction "Server"
 
   ${Requires} "Python"
+  ${Requires} "Tables"
   ${Requires} "Java"
   ${Requires} "Ice"
 
@@ -481,12 +323,18 @@ Section "OMERO.server" SECSRV
   SetShellVarContext All
   CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Start server.lnk" "python.exe" "$INSTDIR\bin\omero admin start"
+  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Deploy configuration.lnk" "python.exe" "$INSTDIR\bin\omero admin deploy"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Stop server.lnk" "python.exe" "$INSTDIR\bin\omero admin stop"
   CreateDirectory "$SMPROGRAMS\$ICONS_GROUP\configuration"
+  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\logs\All configuration.lnk" "$INSTDIR\etc"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\configuration\Grid descriptor (windefault.xml).lnk" "write.exe" "$INSTDIR\etc\grid\windefault.xml"
+  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\configuration\Shared elements (templates.xml).lnk" "write.exe" "$INSTDIR\etc\grid\templates.xml"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\configuration\Logging (winlog4j.xml).lnk" "write.exe" "$INSTDIR\etc\winlog4j.xml"
   CreateDirectory "$SMPROGRAMS\$ICONS_GROUP\logs"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\logs\All Logs.lnk" "$INSTDIR\var\logs"
+  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\logs\Blitz-0.lnk" "$INSTDIR\var\logs\Blitz-0.log"
+  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\logs\Processor-0.lnk" "$INSTDIR\var\logs\Processor-0.log"
+  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\logs\Tables-0.lnk" "$INSTDIR\var\logs\Tables-0.log"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\README.lnk" $INSTDIR\README.txt
   !insertmacro MUI_STARTMENU_WRITE_END
 
@@ -499,6 +347,7 @@ Section "OMERO.web" SECWEB
   !insertmacro StartAction "Web"
 
   ${Requires} "Python"
+  ${Requires} "Nginx"
   ${Requires} "PIL"
   ${Requires} "Ice"
 
@@ -635,7 +484,6 @@ Function .onInit
   ExpandEnvStrings $COMSPEC %COMSPEC%
   Delete "$INSINI"
   InitPluginsDir
-  Return ; DEACTIVATE
   Call DoUpgradeCheck
 
   ;
@@ -696,10 +544,10 @@ Function .onVerifyInstDir
      ${If} $R0 == 0
        ### OK
      ${Else}
-       Abort "Directory contains spaces"
+       MessageBox MB_OK "Directory contains spaces" # Was abort
      ${EndIf}
    ${Else}
-       Abort "Directory is in use"
+       MessageBox MB_OK "Directory is in use" # WAs abort
    ${EndIf}
 FunctionEnd
 
