@@ -54,7 +54,6 @@
             </fileset>
             <fileset dir="${common.comp}/target/classes">
                 <include name="ome/system/UpgradeCheck.class"/>
-                <include name="ome/system/Pref*.class"/>
             </fileset>
             <fileset dir="${model.comp}/target/classes">
                 <include name="ome/model/IObject.class"/>

@@ -26,7 +26,6 @@ import java.util.prefs.Preferences;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.IniFileLoader;
-import ome.system.PreferenceContext;
 import ome.system.UpgradeCheck;
 
 import org.apache.commons.logging.Log;
@@ -69,12 +68,6 @@ public class ImportConfig {
      * configuration file and a user-defined configuration file.
      */
     private final IniFileLoader ini;
-
-    /**
-     * OMERO configuration context, this allows values set via
-     * "bin/omero config set" to be passed to import.
-     */
-    private final PreferenceContext ctx;
 
     /**
      * {@link Properties} instance which will also be used for lookups. In the
@@ -150,7 +143,7 @@ public class ImportConfig {
      *            Can be null.
      */
     public ImportConfig(final File configFile) {
-        this(prefs(), new PreferenceContext(), new IniFileLoader(configFile),
+        this(prefs(), new IniFileLoader(configFile),
                 System.getProperties());
     }
 
@@ -162,15 +155,13 @@ public class ImportConfig {
      * @param ini
      * @param props
      */
-    public ImportConfig(final Preferences prefs, PreferenceContext ctx,
+    public ImportConfig(final Preferences prefs,
             IniFileLoader ini, Properties props) {
 
         log.debug(prefs);
         this.prefs = prefs;
         this.props = props;
         this.ini = ini;
-        this.ctx = ctx;
-        this.ctx.afterPropertiesSet();
 
         // Various startup requirements
         isUpgradeRequired();
@@ -481,11 +472,10 @@ public class ImportConfig {
         final AtomicReference<T> _current = new AtomicReference<T>();
 
         final String key, omeroKey;
-        final Preferences prefs; // 0
-        final PreferenceContext ctx; // 1
-        final IniFileLoader ini; // 2
-        final Properties props; // 3
-        final T _default; // 4
+        final Preferences prefs;
+        final IniFileLoader ini;
+        final Properties props;
+        final T _default;
 
         /**
          * Records the load location
@@ -507,7 +497,6 @@ public class ImportConfig {
         Value(String key, ImportConfig config, T defValue, String omeroKey) {
             this.key = key;
             this.omeroKey = omeroKey;
-            this.ctx = config.ctx;
             this.ini = config.ini;
             this.prefs = config.prefs;
             this.props = config.props;
@@ -552,9 +541,6 @@ public class ImportConfig {
             if (which instanceof Properties || which instanceof Preferences) {
                 prefs.put(key, toString());
                 log.debug("Saved " + key + " to " + prefs);
-            } else if (which instanceof PreferenceContext) {
-                ctx.setProperty(key, toString());
-                log.debug("Saved " + key + " to " + ctx);
             } else if (which instanceof IniFileLoader) {
                 // FIXME ((IniFileLoader)which).set
                 log.debug("Saved " + key + " to " + ini);
@@ -579,18 +565,6 @@ public class ImportConfig {
                 if (!empty()) {
                     which = props;
                     log.debug("Loaded " + key + " from " + props);
-                    return;
-                }
-            }
-
-            if (empty() && ctx != null) {
-                set(fromString(ctx.getProperty("omero.import." + key)));
-                if (empty() && omeroKey != null) {
-                    set(fromString(ctx.getProperty(omeroKey)));
-                }
-                if (!empty()) {
-                    which = ctx;
-                    log.debug("Loaded " + key + " from " + ctx);
                     return;
                 }
             }
