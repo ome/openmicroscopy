@@ -2424,6 +2424,19 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
             return ImageStageLabelWrapper(self._conn, self._obj.stageLabel)
 
 omero.gateway.ImageWrapper = ImageWrapper
+    
+class ChannelWrapper (omero.gateway.ChannelWrapper):
+            
+    def getLogicalChannel(self):
+        if self._obj.logicalChannel is None:
+            return None
+        else:
+            return LogicalChannelWrapper(self._conn, self._obj.logicalChannel)
+            
+omero.gateway.ChannelWrapper = ChannelWrapper
+
+class LogicalChannelWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
+    pass
 
 class DatasetWrapper (OmeroWebObjectWrapper, omero.gateway.DatasetWrapper):
     LINK_NAME = "copyImageLinks"

@@ -152,6 +152,8 @@ class BaseContainer(BaseController):
             self.orphaned = True
     
     def formatMetadataLine(self, l):
+        if len(l) < 1:
+            return None
         meta = l.split("=")                            
         try:
             splited = []
@@ -184,10 +186,16 @@ class BaseContainer(BaseController):
                     elif l.startswith("[SeriesMetadata]"):
                         flag = 2
                     else:
-                        if flag == 1:                                                            
-                            self.global_metadata.append(self.formatMetadataLine(l))
-                        elif flag == 2:
-                            self.series_metadata.append(self.formatMetadataLine(l))
+                        l = self.formatMetadataLine(l)
+                        if l is not None:
+                            if flag == 1:
+                                self.global_metadata.append(l)
+                            elif flag == 2:
+                                self.series_metadata.append(l)
+    
+    def channelMetadata(self):
+        print type(self.image.getChannels()[0])
+        self.channel_metadata = self.image.getChannels()
     
     def saveMetadata(self, matadataType, metadataValue):
         metadata_rtype = {

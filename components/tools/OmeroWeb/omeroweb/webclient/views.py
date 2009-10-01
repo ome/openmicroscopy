@@ -632,6 +632,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
     form_detectors = list()
     if o1_type =='image' or o2_type == 'image' or o3_type == 'image':
         manager.originalMetadata()
+        manager.channelMetadata()
         
         form_objective = MetadataObjectiveForm(initial={'image': manager.image, 'mediums': list(conn.getEnumerationEntries("MediumI")), 'immersions': list(conn.getEnumerationEntries("ImmersionI")), 'corrections': list(conn.getEnumerationEntries("CorrectionI")) })
         if manager.image.getImagingEnvironment() is not None:
@@ -657,7 +658,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
             for d in detectors:
                 form_detector = MetadataDetectorForm(initial={'detector': d, 'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
                 form_detectors.append(form_detector)
-    
+
     template = None
     if o3_type and o3_id:
         if o3_type == 'image':
