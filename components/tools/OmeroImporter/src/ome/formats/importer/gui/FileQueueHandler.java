@@ -16,7 +16,6 @@ package ome.formats.importer.gui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -25,14 +24,10 @@ import java.io.File;
 import java.util.List;
 import java.util.Vector;
 
-import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 
@@ -127,7 +122,7 @@ public class FileQueueHandler
     public void actionPerformed(ActionEvent e)
     {
         final String action = e.getActionCommand();
-        final File[] files = fileChooser.getSelectedFiles();
+        //final File[] files = fileChooser.getSelectedFiles();
         
         //If the directory changed, don't show an image.
         if (action.equals(JFileChooser.APPROVE_SELECTION)) {
@@ -531,7 +526,7 @@ public class FileQueueHandler
         
         if (event instanceof ImportCandidates.SCANNING_FILE_EXCEPTION)
         {
-            ImportCandidates.SCANNING_FILE_EXCEPTION ev = (ImportCandidates.SCANNING_FILE_EXCEPTION) event;
+            //ImportCandidates.SCANNING_FILE_EXCEPTION ev = (ImportCandidates.SCANNING_FILE_EXCEPTION) event;
         }
 
         if (event instanceof ImportCandidates.SCANNING)
@@ -680,23 +675,3 @@ public class FileQueueHandler
         }
     }   
 }
-
-
-/*
-
-Vector row = new Vector();
-
-String imageName = getImageName(file, useFullPath, numOfDirectories);
-       
-row.add(imageName);
-row.add(project + "/" + dName);
-row.add("added");
-row.add(dataset);
-row.add(file);
-row.add(archiveImage);
-row.add(projectID);
-qTable.table.addRow(row);
-if (qTable.table.getRowCount() == 1)
-    qTable.importBtn.setEnabled(true);
-
-*/
