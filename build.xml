@@ -468,6 +468,24 @@ java component.
             transitive="true" overwrite="true"/>
     </target>
 
+    <target name="release-nsis" description="Creates a Windows installer with NSIS">
+        <!--
+        <tokenfilter>
+            <replaceregex pattern="hello" replace="world" flags="gi"/>
+        </tokenfilter>
+        -->
+        <taskdef name="nsis" classname="net.sf.nsisant.Task">
+            <classpath location="lib/repository/nsisant-${versions.nsisant}.jar"/>
+        </taskdef>
+        <nsis script="${import.dir}/omero.nsi" verbosity="4" out="target/nsis.log" noconfig="yes" nocd="yes">
+            <define name="VERSION" value="4.1.0.0"/><!--${omero.version} Last digit build?"-->
+            <define name="OMERO_VERSION" value="${omero.version}"/>
+            <define name="INCLUDE_DIR" value="${import.dir}"/>
+            <define name="INSTALLER_NAME" value="${omero.home}/target/omero_installer.exe"/>
+            <scriptcmd cmd="AutoCloseWindow true"/>
+        </nsis>
+    </target>
+
     <!--
     Top-level helpers (shared helpers are in components/antlib/resources)
     =====================================================================
@@ -475,6 +493,7 @@ java component.
     <target name="_dist" depends="init"><prepareDist/></target>
     <macrodef name="prepareDist">
         <sequential>
+            <copy file="${omero.home}/LICENSE.txt" todir="${dist.dir}/" overwrite="true"/>
             <copy todir="${dist.dir}/etc" overwrite="true">
                 <fileset dir="${omero.home}/etc">
                     <exclude name="local.properties"/>
