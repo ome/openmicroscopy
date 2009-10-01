@@ -460,6 +460,8 @@ public class ImportConfig {
         overrideImageName.load();
         numOfDirectories.load();
         savedDirectory.load();
+
+        port.load();
     }
 
     /**
