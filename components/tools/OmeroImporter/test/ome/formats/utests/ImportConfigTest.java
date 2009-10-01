@@ -43,7 +43,7 @@ public class ImportConfigTest extends TestCase {
     
     void basic() {
         p = new Properties();
-        config = new ImportConfig(null, null, null, p);
+        config = new ImportConfig(null, null, p);
     }
     
     @Test
