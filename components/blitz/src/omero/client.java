@@ -86,26 +86,26 @@ public class client {
      * Identifier for this client instance. Multiple client uuids may be
      * attached to a single session uuid.
      */
-    private String __uuid;
+    private volatile String __uuid;
 
     /**
      * {@link Ice.InitializationData} from the last communicator used to create
      * the {@link #__ic} if nulled after {@link #closeSession()}.
      */
-    private Ice.InitializationData __previous;
+    private volatile Ice.InitializationData __previous;
 
     /**
      * {@link Ice.ObjectAdapter} containing the {@link ClientCallback} for this
      * instance.
      */
-    private Ice.ObjectAdapter __oa;
+    private volatile Ice.ObjectAdapter __oa;
 
     /**
      * Single communicator for this {@link omero.client}. Nullness is used as a
      * test of what state the client is in, therefore all access is sychronized
      * by {@link #lock}
      */
-    private Ice.Communicator __ic;
+    private volatile Ice.Communicator __ic;
 
     /**
      * Single session for this {@link omero.client}. Nullness is used as a test
@@ -113,7 +113,7 @@ public class client {
      * is synchronized by {@link #lock}
      * 
      */
-    private ServiceFactoryPrx __sf;
+    private volatile ServiceFactoryPrx __sf;
 
     /**
      * If non-null, then has access to this client instance and will
@@ -124,12 +124,7 @@ public class client {
      * {@link #enableKeepAlive(int)} method. Once enabled, the period cannot be
      * adjusted during a single session.
      */
-    private Resources __resources;
-
-    /**
-     * Lock for all access to {@link #__ic} and {@link #__sf}
-     */
-    private final Object lock = new Object();
+    private volatile Resources __resources;
 
     // Creation
     // =========================================================================
@@ -290,45 +285,42 @@ public class client {
             }
         }
 
-        synchronized (lock) {
-
-            if (__ic != null) {
-                throw new ClientError("Client already initialized.");
-            }
-
-            __ic = Ice.Util.initialize(id);
-
-            if (__ic == null) {
-                throw new ClientError("Improper initialization");
-            }
-
-            // Register Object Factories
-            ObjectFactoryRegistrar.registerObjectFactory(__ic,
-                    ObjectFactoryRegistrar.INSTANCE);
-            for (rtypes.ObjectFactory of : rtypes.ObjectFactories.values()) {
-                of.register(__ic);
-            }
-            __ic.addObjectFactory(DetailsI.Factory, DetailsI.ice_staticId());
-            __ic.addObjectFactory(PermissionsI.Factory, PermissionsI
-                    .ice_staticId());
-
-            // Define our unique identifer (used during close/detach)
-            __uuid = UUID.randomUUID().toString();
-            Ice.ImplicitContext ctx = __ic.getImplicitContext();
-            if (ctx == null) {
-                throw new ClientError("Ice.ImplicitContext not set to Shared");
-            }
-            ctx.put(omero.constants.CLIENTUUID.value, __uuid);
-
-            // Register the default client callback.
-            __oa = __ic.createObjectAdapter("omero.ClientCallback");
-            CallbackI cb = new CallbackI(this.__ic, this.__oa);
-            __oa.add(cb, Ice.Util.stringToIdentity("ClientCallback/" + __uuid));
-            __oa.activate();
-
-            // Store this instance for cleanup on shutdown.
-            CLIENTS.add(this);
+        if (__ic != null) {
+            throw new ClientError("Client already initialized.");
         }
+
+        __ic = Ice.Util.initialize(id);
+
+        if (__ic == null) {
+            throw new ClientError("Improper initialization");
+        }
+
+        // Register Object Factories
+        ObjectFactoryRegistrar.registerObjectFactory(__ic,
+                ObjectFactoryRegistrar.INSTANCE);
+        for (rtypes.ObjectFactory of : rtypes.ObjectFactories.values()) {
+            of.register(__ic);
+        }
+        __ic.addObjectFactory(DetailsI.Factory, DetailsI.ice_staticId());
+        __ic.addObjectFactory(PermissionsI.Factory, PermissionsI
+                .ice_staticId());
+
+        // Define our unique identifer (used during close/detach)
+        __uuid = UUID.randomUUID().toString();
+        Ice.ImplicitContext ctx = __ic.getImplicitContext();
+        if (ctx == null) {
+            throw new ClientError("Ice.ImplicitContext not set to Shared");
+        }
+        ctx.put(omero.constants.CLIENTUUID.value, __uuid);
+
+        // Register the default client callback.
+        __oa = __ic.createObjectAdapter("omero.ClientCallback");
+        CallbackI cb = new CallbackI(this.__ic, this.__oa);
+        __oa.add(cb, Ice.Util.stringToIdentity("ClientCallback/" + __uuid));
+        __oa.activate();
+
+        // Store this instance for cleanup on shutdown.
+        CLIENTS.add(this);
 
     }
 
@@ -354,13 +346,12 @@ public class client {
      * exception if null.
      */
     public Ice.Communicator getCommunicator() {
-        synchronized (lock) {
-            if (__ic == null) {
-                throw new ClientError(
-                        "No Ice.Communicator active; call createSession() or create a new client instance.");
-            }
-            return __ic;
+        Ice.Communicator ic = __ic;
+        if (ic == null) {
+            throw new ClientError(
+                    "No Ice.Communicator active; call createSession() or create a new client instance.");
         }
+        return ic;
     }
 
     /**
@@ -369,12 +360,11 @@ public class client {
      * {@link #closeSession()}
      */
     public ServiceFactoryPrx getSession() {
-        synchronized (lock) {
-            if (__sf == null) {
-                throw new ClientError("Call createSession() to login.");
-            }
-            return __sf;
+        ServiceFactoryPrx sf = __sf;
+        if (__sf == null) {
+            throw new ClientError("Call createSession() to login.");
         }
+        return sf;
     }
 
     /**
@@ -398,9 +388,7 @@ public class client {
      * Returns the {@link Ice.Properties active properties} for this instance.
      */
     public Ice.Properties getProperties() {
-        synchronized (lock) {
-            return this.__ic.getProperties();
-        }
+            return getCommunicator().getProperties();
     }
 
     /**
@@ -451,92 +439,88 @@ public class client {
             throws CannotCreateSessionException, PermissionDeniedException,
             ServerError {
 
-        synchronized (lock) {
+        // Checking state
 
-            // Checking state
-
-            if (__sf != null) {
-                throw new ClientError(
-                        "Session already active. Create a new omero.client or closeSession()");
-            }
-
-            if (__ic == null) {
-                if (__previous == null) {
-                    throw new ClientError(
-                            "No previous data to recreate communicator.");
-                }
-                init(__previous);
-                __previous = null;
-            }
-
-            // Check the required properties
-            if (username == null) {
-                username = getProperty("omero.user");
-                if (username == null || "".equals(username)) {
-                    throw new ClientError("No username specified");
-                }
-            }
-            if (password == null) {
-                password = getProperty("omero.pass");
-                if (password == null) {
-                    throw new ClientError("No password specified");
-                }
-            }
-
-            // Acquire router and get the proxy
-            Glacier2.SessionPrx prx = null;
-            int retries = 0;
-            while (retries < 3) {
-                String reason = null;
-                if (retries > 0) {
-                    __ic.getLogger().warning(
-                            reason + " - createSession retry: " + retries);
-                }
-                try {
-                    prx = getRouter(__ic).createSession(username, password);
-                    break;
-                } catch (omero.WrappedCreateSessionException wrapped) {
-                    if (!wrapped.concurrency) {
-                        throw wrapped; // We only retry concurrency issues.
-                    }
-                    reason = wrapped.type + ":" + wrapped.reason;
-                    retries++;
-                } catch (Ice.ConnectTimeoutException cte) {
-                    reason = "Ice.ConnectTimeoutException:" + cte.getMessage();
-                    retries++;
-                }
-            }
-
-            if (null == prx) {
-                throw new ClientError("Obtained null object proxy");
-            }
-
-            // Check type
-            __sf = ServiceFactoryPrxHelper.uncheckedCast(prx);
-            if (__sf == null) {
-                throw new ClientError(
-                        "Obtained object proxy is not a ServiceFactory");
-            }
-
-            // Configure keep alive
-            String keep_alive = __ic.getProperties().getPropertyWithDefault(
-                    "omero.keep_alive", "-1");
-            try {
-                int i = Integer.valueOf(keep_alive);
-                enableKeepAlive(i);
-            } catch (NumberFormatException nfe) {
-                // ignore
-            }
-
-            // Set the client callback on the session
-            // and pass it to icestorm
-            Ice.Identity id = __ic.stringToIdentity("ClientCallback/" + __uuid);
-            Ice.ObjectPrx raw = __oa.createProxy(id);
-            __sf.setCallback(ClientCallbackPrxHelper.uncheckedCast(raw));
-            // __sf.subscribe("/public/HeartBeat", raw);
-            return this.__sf;
-
+        if (__sf != null) {
+            throw new ClientError(
+                    "Session already active. Create a new omero.client or closeSession()");
         }
+
+        if (__ic == null) {
+            if (__previous == null) {
+                throw new ClientError(
+                        "No previous data to recreate communicator.");
+            }
+            init(__previous);
+            __previous = null;
+        }
+
+        // Check the required properties
+        if (username == null) {
+            username = getProperty("omero.user");
+            if (username == null || "".equals(username)) {
+                throw new ClientError("No username specified");
+            }
+        }
+        if (password == null) {
+            password = getProperty("omero.pass");
+            if (password == null) {
+                throw new ClientError("No password specified");
+            }
+        }
+
+        // Acquire router and get the proxy
+        Glacier2.SessionPrx prx = null;
+        int retries = 0;
+        while (retries < 3) {
+            String reason = null;
+            if (retries > 0) {
+                __ic.getLogger().warning(
+                        reason + " - createSession retry: " + retries);
+            }
+            try {
+                prx = getRouter(__ic).createSession(username, password);
+                break;
+            } catch (omero.WrappedCreateSessionException wrapped) {
+                if (!wrapped.concurrency) {
+                    throw wrapped; // We only retry concurrency issues.
+                }
+                reason = wrapped.type + ":" + wrapped.reason;
+                retries++;
+            } catch (Ice.ConnectTimeoutException cte) {
+                reason = "Ice.ConnectTimeoutException:" + cte.getMessage();
+                retries++;
+            }
+        }
+
+        if (null == prx) {
+            throw new ClientError("Obtained null object proxy");
+        }
+
+        // Check type
+        __sf = ServiceFactoryPrxHelper.uncheckedCast(prx);
+        if (__sf == null) {
+            throw new ClientError(
+                    "Obtained object proxy is not a ServiceFactory");
+        }
+
+        // Configure keep alive
+        String keep_alive = __ic.getProperties().getPropertyWithDefault(
+                "omero.keep_alive", "-1");
+        try {
+            int i = Integer.valueOf(keep_alive);
+            enableKeepAlive(i);
+        } catch (NumberFormatException nfe) {
+            // ignore
+        }
+
+        // Set the client callback on the session
+        // and pass it to icestorm
+        Ice.Identity id = __ic.stringToIdentity("ClientCallback/" + __uuid);
+        Ice.ObjectPrx raw = __oa.createProxy(id);
+        __sf.setCallback(ClientCallbackPrxHelper.uncheckedCast(raw));
+        // __sf.subscribe("/public/HeartBeat", raw);
+        return this.__sf;
 
     }
 
@@ -570,42 +554,40 @@ public class client {
      * {@link #__resources} is available currently, one is also created.
      */
     public void enableKeepAlive(int seconds) {
-        synchronized (lock) {
 
-            // A communicator must be configured!
-            Ice.Communicator ic = getCommunicator();
-            // Setting this here guarantees that after closeSession(), the
-            // next createSession() will use the new value despite what was
-            // in the configuration file.
-            ic.getProperties().setProperty("omero.keep_alive", "" + seconds);
+        // A communicator must be configured!
+        Ice.Communicator ic = getCommunicator();
+        // Setting this here guarantees that after closeSession(), the
+        // next createSession() will use the new value despite what was
+        // in the configuration file.
+        ic.getProperties().setProperty("omero.keep_alive", "" + seconds);
 
-            // If it's not null, then there's already an entry for keeping
-            // any existing session alive.
-            if (__resources == null && seconds > 0) {
-                __resources = new Resources(seconds);
-                __resources.add(new Entry() {
-                    // Return true unless prx.keepAlive() throws an exception.
-                    public boolean check() {
-                        ServiceFactoryPrx prx = __sf;
-                        Ice.Communicator ic = __ic;
-                        if (prx != null) {
-                            try {
-                                prx.keepAlive(null);
-                            } catch (Exception e) {
-                                if (ic != null) {
-                                    ic.getLogger().warning(
-                                            "Proxy keep alive failed.");
-                                }
+        // If it's not null, then there's already an entry for keeping
+        // any existing session alive.
+        if (__resources == null && seconds > 0) {
+            __resources = new Resources(seconds);
+            __resources.add(new Entry() {
+                // Return true unless prx.keepAlive() throws an exception.
+                public boolean check() {
+                    ServiceFactoryPrx prx = __sf;
+                    Ice.Communicator ic = __ic;
+                    if (prx != null) {
+                        try {
+                            prx.keepAlive(null);
+                        } catch (Exception e) {
+                            if (ic != null) {
+                                ic.getLogger().warning(
+                                        "Proxy keep alive failed.");
                             }
                         }
-                        return true;
                     }
+                    return true;
+                }
 
-                    public void cleanup() {
-                        // Nothing to do.
-                    }
-                });
-            }
+                public void cleanup() {
+                    // Nothing to do.
+                }
+            });
         }
     }
 
@@ -619,52 +601,50 @@ public class client {
      */
     public void closeSession() {
 
-        synchronized (lock) {
+        ServiceFactoryPrx oldSf = this.__sf;
+        this.__sf = null;
 
-            this.__sf = null;
+        Ice.ObjectAdapter oldOa = this.__oa;
+        this.__oa = null;
 
-            Ice.ObjectAdapter oldOa = this.__oa;
-            this.__oa = null;
+        Ice.Communicator oldIc = this.__ic;
+        this.__ic = null;
 
-            Ice.Communicator oldIc = this.__ic;
-            this.__ic = null;
+        // Only possible if improperly configured
+        if (oldIc == null) {
+            return; // EARLY EXIT !
+        }
 
-            // Only possible if improperly configured
-            if (oldIc == null) {
-                return; // EARLY EXIT !
-            }
-
-            if (oldOa != null) {
-                try {
-                    oldOa.deactivate();
-                } catch (Exception e) {
-                    oldIc.getLogger().warning(
-                            "While deactivating adapter: " + e.getMessage());
-                }
-            }
-
-            __previous = new Ice.InitializationData();
-            __previous.properties = oldIc.getProperties()._clone();
-            __previous.logger = oldIc.getLogger();
-            __previous.stats = oldIc.getStats();
-            // ThreadHook is not support since not available from ic
-
-            // Shutdown keep alive
-            Resources oldR = __resources;
-            __resources = null;
-            if (oldR != null) {
-                try {
-                    oldR.cleanup();
-                } catch (Exception e) {
-                    oldIc.getLogger().warning(
-                            "While cleaning up resources: " + e.getMessage());
-                }
-            }
-
+        if (oldOa != null) {
             try {
-                getRouter(oldIc).destroySession();
-            } catch (Glacier2.SessionNotExistException snee) {
-                // ok. We don't want it to exist
+                oldOa.deactivate();
+            } catch (Exception e) {
+                oldIc.getLogger().warning(
+                        "While deactivating adapter: " + e.getMessage());
+            }
+        }
+
+        __previous = new Ice.InitializationData();
+        __previous.properties = oldIc.getProperties()._clone();
+        __previous.logger = oldIc.getLogger();
+        __previous.stats = oldIc.getStats();
+        // ThreadHook is not support since not available from ic
+
+        // Shutdown keep alive
+        Resources oldR = __resources;
+        __resources = null;
+        if (oldR != null) {
+            try {
+                oldR.cleanup();
+            } catch (Exception e) {
+                oldIc.getLogger().warning(
+                        "While cleaning up resources: " + e.getMessage());
+            }
+        }
+
+        if (oldSf != null) {
+            try {
+                oldSf.destroy();
             } catch (Ice.ConnectionLostException cle) {
                 // ok. Exception will always be thrown
             } catch (Ice.ConnectionRefusedException cle) {
@@ -679,7 +659,6 @@ public class client {
                 oldIc.destroy();
             }
         }
-
     }
 
     // File handling
