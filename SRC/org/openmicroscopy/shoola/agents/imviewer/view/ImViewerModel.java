@@ -998,9 +998,7 @@ class ImViewerModel
 	 */
 	int getMaxC()
 	{ 
-		Renderer rnd = metadataViewer.getRenderer();
-		if (rnd == null) return 0;
-		return rnd.getPixelsDimensionsC(); 
+		return getImage().getDefaultPixels().getSizeC();
 	}
 
 	/** 
