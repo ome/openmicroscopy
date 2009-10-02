@@ -689,7 +689,14 @@ class BrowserComponent
         if (old == b) return;
         TreeImageDisplay[] nodes = model.getSelectedDisplays();
         //setSelectedDisplay(null); 24/03
-        setSelectedDisplays(nodes);
+        if (nodes != null && nodes.length == 1) {
+        	TreeImageDisplay n = nodes[0];
+        	if (!(n.getUserObject() instanceof ExperimenterData)) {
+        		setSelectedDisplays(nodes);
+        	}
+        } else {
+        	 setSelectedDisplays(nodes);
+        }
         model.setSelected(b);
     }
 

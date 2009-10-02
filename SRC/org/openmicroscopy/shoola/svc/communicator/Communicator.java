@@ -58,14 +58,15 @@ public interface Communicator
 	 * @param comment	The comment entered by the user.
 	 * @param extra		Extra information related to the bug.
 	 * @param error		The error message.
-	 * @param applicationName The name of the application
+	 * @param applicationName The name of the application.
+	 * @param applicationVersion The version of the application.
 	 * @param reply		The result of the post.
 	 * @throws TransportException 	Thrown if an error occurred while trying 
 	 * 								to submit the error.
 	 */
 	public void submitError(String invoker, String email, String comment,
 							String extra, String error, 
-							String applicationName,
+							String applicationName, String applicationVersion,
 							StringBuilder reply)
 		throws TransportException;
 	
@@ -77,14 +78,15 @@ public interface Communicator
 	 * 					submitting the bug.
 	 * @param comment	The comment entered by the user.
 	 * @param extra		Extra information related to the bug.
-	 * @param applicationName The name of the application
+	 * @param applicationName The name of the application.
+	 * @param applicationVersion The version of the application.
 	 * @param reply		The result of the post.
 	 * @throws TransportException 	Thrown if an error occurred while trying 
 	 * 								to submit the error.
 	 */
 	public void submitComment(String invoker, String email, String comment, 
 							String extra, String applicationName, 
-							StringBuilder reply)
+							String applicationVersion, StringBuilder reply)
 		throws TransportException;
 	
 	/**

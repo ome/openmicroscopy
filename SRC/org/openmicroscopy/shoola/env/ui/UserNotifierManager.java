@@ -220,6 +220,10 @@ class UserNotifierManager
 		String teamAddress = (String) reg.lookup(LookupNames.DEBUG_EMAIL);
 		CommunicatorDescriptor desc = new CommunicatorDescriptor
 						(HttpChannel.CONNECTION_PER_REQUEST, url, -1);
+		Object version = reg.lookup(LookupNames.VERSION);
+		String v = "";
+    	if (version != null && version instanceof String)
+    		v = (String) version;
 		try {
 			Communicator c = SvcRegistry.getCommunicator(desc);
 			
@@ -227,10 +231,10 @@ class UserNotifierManager
 			String reply = "";
 			if (!bug) c.submitComment(INVOKER_COMMENT,
 								details.getEmail(), details.getComment(), 
-								details.getExtra(), appName, builder);
+								details.getExtra(), appName, v, builder);
 			else c.submitError(INVOKER_ERROR, 
 							details.getEmail(), details.getComment(), 
-					details.getExtra(), error, appName, builder);
+					details.getExtra(), error, appName, v, builder);
 			if (!bug) reply += COMMENT_REPLY;
 			else reply += ERROR_REPLY;
 			

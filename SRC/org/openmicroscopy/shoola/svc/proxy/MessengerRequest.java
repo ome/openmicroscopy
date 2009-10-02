@@ -85,6 +85,9 @@ class MessengerRequest
 	/** Identifies the number associated to the application. */
 	private static final String APP_NAME = "app_name";
 
+	/** Identifies the <code>application version</code>. */
+	private static final String APP_VERSION = "app_version";
+	
 	/** The error message. */
 	private String error;
 	
@@ -103,6 +106,9 @@ class MessengerRequest
 	/** The number associated to the application. */
 	private String applicationNumber;
 	
+	/** The version of the application. */
+	private String applicationVersion;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -110,10 +116,13 @@ class MessengerRequest
 	 * @param comment	The comment entered by the user.
 	 * @param extra		The extra information entered by the user.
 	 * @param error		The error message. 
+	 * @param applicationNumber The reference number for the application.
 	 * @param invoker	The client posting the message.
+	 * @param applicationVersion The version of the application.
 	 */
 	MessengerRequest(String email, String comment, String extra, String error,
-					String applicationNumber, String invoker)
+					String applicationNumber, String invoker, 
+					String applicationVersion)
 	{
 		super();
 		this.error = error;
@@ -122,6 +131,7 @@ class MessengerRequest
 		this.extra = extra;
 		this.invoker = invoker;
 		this.applicationNumber = applicationNumber;
+		this.applicationVersion = applicationVersion;
 	}
 	
 	/**
@@ -139,10 +149,13 @@ class MessengerRequest
         if (comment != null) request.addParameter(COMMENT, comment);
         if (error != null) request.addParameter(ERROR, error);
         	
+        extra = "test extra test";
         if (extra != null) request.addParameter(EXTRA, extra);
         if (applicationNumber != null) 
         	request.addParameter(APP_NAME, applicationNumber);
         if (invoker != null) request.addParameter(INVOKER, invoker);
+        if (applicationVersion != null)
+        	request.addParameter(APP_VERSION, applicationVersion);
         request.addParameter(JAVA_VERSION, 
         							System.getProperty("java.version"));
         request.addParameter(JAVA_CLASS_PATH, 

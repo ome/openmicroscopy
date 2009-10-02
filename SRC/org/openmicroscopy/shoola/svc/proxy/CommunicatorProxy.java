@@ -69,16 +69,16 @@ public class CommunicatorProxy
 	/**
 	 * Implemented as specified by the {@link Communicator} interface.
 	 * @see Communicator#submitComment(String, String, String, String, String,
-	 * 									StringBuilder)
+	 * 									String, StringBuilder)
 	 */
 	public void submitComment(String invoker, String email, String comment, 
 							String extra, String applicationName,
+							String applicationVersion,
 							StringBuilder reply) 
 		throws TransportException 
 	{
 		MessengerRequest out = new MessengerRequest(email, comment, extra, 
-													null, applicationName, 
-													invoker);
+				null, applicationName, invoker, applicationVersion);
 		MessengerReply in = new MessengerReply(reply);
         
         try {
@@ -92,15 +92,15 @@ public class CommunicatorProxy
 	/**
 	 * Implemented as specified by the {@link Communicator} interface.
 	 * @see Communicator#submitError(String, String, String, String, String,
-	 * 								String, StringBuilder)
+	 * 								String, String, StringBuilder)
 	 */
 	public void submitError(String invoker, String email, String comment, 
 							String extra, String error, String applicationName,
-							StringBuilder reply) 
+							String applicationVersion, StringBuilder reply) 
 		throws TransportException
 	{
 		MessengerRequest out = new MessengerRequest(email, comment, extra, 
-												error, applicationName, invoker);
+				error, applicationName, invoker, applicationVersion);
 		MessengerReply in = new MessengerReply(reply);
         
         try {

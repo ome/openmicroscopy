@@ -73,9 +73,12 @@ public class FileUploader
 			(String) context.lookup(LookupNames.PROCESSING_URL);
 		String appName = 
 			(String) context.lookup(LookupNames.APPLICATION_NAME_BUG);
-		String teamAddress = 
-			(String) context.lookup(LookupNames.DEBUG_EMAIL);
 		int timeout = (Integer) context.lookup(LookupNames.POST_TIMEOUT);
+		Object version = context.lookup(LookupNames.VERSION);
+		String v = "";
+    	if (version != null && version instanceof String)
+    		v = (String) version;
+
 		try {
 			Communicator c; 
 			CommunicatorDescriptor desc = new CommunicatorDescriptor
@@ -84,7 +87,8 @@ public class FileUploader
 			StringBuilder token = new StringBuilder();
 			c.submitError("",
 					details.getEmail(), details.getComment(), 
-					details.getExtra(), exception.toString(), appName, token);
+					details.getExtra(), exception.toString(), appName, v, 
+					token);
 			desc = new CommunicatorDescriptor(
 					HttpChannel.CONNECTION_PER_REQUEST, processURL, 
 					timeout);
