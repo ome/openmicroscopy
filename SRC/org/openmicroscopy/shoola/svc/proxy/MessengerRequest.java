@@ -148,8 +148,6 @@ class MessengerRequest
         if (email != null) request.addParameter(EMAIL, email);
         if (comment != null) request.addParameter(COMMENT, comment);
         if (error != null) request.addParameter(ERROR, error);
-        	
-        extra = "test extra test";
         if (extra != null) request.addParameter(EXTRA, extra);
         if (applicationNumber != null) 
         	request.addParameter(APP_NAME, applicationNumber);
