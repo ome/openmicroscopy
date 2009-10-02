@@ -194,8 +194,10 @@ class BaseContainer(BaseController):
                                 self.series_metadata.append(l)
     
     def channelMetadata(self):
-        print type(self.image.getChannels()[0])
-        self.channel_metadata = self.image.getChannels()
+        try:
+            self.channel_metadata = self.image.getChannels()
+        except:
+            self.channel_metadata = list()
     
     def saveMetadata(self, matadataType, metadataValue):
         metadata_rtype = {
