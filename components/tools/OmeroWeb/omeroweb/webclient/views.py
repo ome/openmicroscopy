@@ -644,7 +644,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
             if manager.image.getMicroscopFilters().next() is not None:
                 filters = list(manager.image.getMicroscopFilters())
             else:
-                filters = None
+                filters = list()
         except StopIteration:
             pass
         else:

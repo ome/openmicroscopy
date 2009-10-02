@@ -197,7 +197,7 @@ class BaseContainer(BaseController):
         try:
             self.channel_metadata = self.image.getChannels()
         except:
-            self.channel_metadata = None
+            self.channel_metadata = list()
     
     def saveMetadata(self, matadataType, metadataValue):
         metadata_rtype = {
