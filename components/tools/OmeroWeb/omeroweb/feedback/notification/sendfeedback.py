@@ -43,7 +43,7 @@ class SendFeedback(object):
             conn = httplib.HTTPConnection(self.feedback_url)
             try:
                 try:
-                    p = {'error': feedback['error'], "app_name":feedback['app_name']}
+                    p = {'error': feedback['error'], "app_name":feedback['app_name'], "app_version":feedback['app_version']}
                     if feedback['email'] is not None:
                         p['email'] = feedback['email']
                     if feedback['comment'] is not None:
@@ -115,4 +115,4 @@ class SendFeedback(object):
             pass
         if len(env) == 0:
             env = None
-        self.send_feedback({"email": email, "comment":comment, "error": error, "app_name": 6, "env":env})
+        self.send_feedback({"email": email, "comment":comment, "error": error, "app_name": 6, "app_version": "Beta4.1", "env":env})
