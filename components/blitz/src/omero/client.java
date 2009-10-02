@@ -642,22 +642,22 @@ public class client {
             }
         }
 
-        if (oldSf != null) {
-            try {
+        try {
+            if (oldSf != null) {
                 oldSf.destroy();
-            } catch (Ice.ConnectionLostException cle) {
-                // ok. Exception will always be thrown
-            } catch (Ice.ConnectionRefusedException cle) {
-                // ok. Server probably went down
-            } catch (Ice.ConnectTimeoutException cte) {
-                // ok. Server probably went down
-            } catch (Ice.DNSException dns) {
-                // ok. client is having network issues
-            } catch (Ice.SocketException se) {
-                // ok. client is having network issues
-            } finally {
-                oldIc.destroy();
             }
+        } catch (Ice.ConnectionLostException cle) {
+            // ok. Exception will always be thrown
+        } catch (Ice.ConnectionRefusedException cle) {
+            // ok. Server probably went down
+        } catch (Ice.ConnectTimeoutException cte) {
+            // ok. Server probably went down
+        } catch (Ice.DNSException dns) {
+            // ok. client is having network issues
+        } catch (Ice.SocketException se) {
+            // ok. client is having network issues
+        } finally {
+            oldIc.destroy();
         }
     }
 
