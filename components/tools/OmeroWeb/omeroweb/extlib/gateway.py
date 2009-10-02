@@ -2242,7 +2242,16 @@ class AnnotationLinkWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWra
         return omero.gateway.AnnotationWrapper(self, self.child)
 
 class AnnotationWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
-            
+    
+    def isOriginalMetadat(self):
+        if isinstance(self._obj, FileAnnotationI):
+            try:
+                if self._obj.ns.val == omero.constants.namespaces.NSCOMPANIONFILE and self._obj.file.name.val.startswith("original_metadata"):
+                    return True
+            except:
+                logger.info(traceback.format_exc())
+        return False
+     
     def getFileSize(self):
         if isinstance(self._obj, FileAnnotationI):
             return self._obj.file.size.val
