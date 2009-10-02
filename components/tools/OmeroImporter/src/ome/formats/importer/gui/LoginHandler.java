@@ -135,7 +135,6 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         {
             public void run()
             {
-                String server;
                 if (!NEW_LOGIN)
                 {
                     //SplashWindow.disposeSplash();
@@ -148,7 +147,6 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                 	config.password.set(lc.getPassword());
                 	config.hostname.set(lc.getHostName());
                 	config.port.set(lc.getPort());
-                	server = lc.getHostName();
                 }
             
                 viewer.statusBar.setStatusIcon("gfx/server_trying16.png",

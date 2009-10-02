@@ -64,16 +64,10 @@ public class FileQueueChooser
     
     private Component fileList = null;
     
-    private final ImageReader reader;
-    
-    private final ImportConfig config;
-    
     JButton refreshBtn;
     
-    FileQueueChooser(ImportConfig config, OMEROWrapper wrapper) {
+    FileQueueChooser(ImportConfig config, OMEROWrapper scanReader) {
         
-        this.config = config;
-        this.reader = wrapper.getImageReader();
         try {
             JPanel fp = null;
             JToolBar tb = null;
@@ -195,7 +189,7 @@ public class FileQueueChooser
         setAcceptAllFileFilterUsed(false);
 
         
-        FileFilter[] originalFF = loci.formats.gui.GUITools.buildFileFilters(reader);
+        FileFilter[] originalFF = loci.formats.gui.GUITools.buildFileFilters(scanReader.getImageReader());
         int readerFFSize = originalFF.length;
 
         FileFilter[] ff = new FileFilter[readerFFSize + 6];

@@ -14,26 +14,23 @@
 
 package ome.formats.importer.gui;
 
-import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.swing.JOptionPane;
 
 import loci.formats.FormatException;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
-import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
-import ome.formats.importer.util.ErrorContainer;
 import omero.ResourceError;
-import omero.model.IObject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,7 +48,6 @@ public class ImportHandler implements IObservable {
 
     private static boolean runState = false;
 
-    private final ImportConfig config;
     private final ImportLibrary library;
     private final ImportContainer[] importContainer;
     private final HistoryDB db; // THIS SHOULD NOT BE HERE!
@@ -59,18 +55,15 @@ public class ImportHandler implements IObservable {
     private final GuiImporter viewer;
     private final FileQueueTable qTable;
 
-    private Thread runThread;
     private int numOfPendings = 0;
     private int numOfDone = 0;
     
     final ArrayList<IObserver> observers = new ArrayList<IObserver>();
     
-    private String[] files = null;
-
-    public ImportHandler(GuiImporter viewer, FileQueueTable qTable,
+    public ImportHandler(final ScheduledExecutorService ex, GuiImporter viewer, FileQueueTable qTable,
             ImportConfig config, ImportLibrary library,
             ImportContainer[] containers) {
-        this.config = config;
+
         this.library = library;
         this.importContainer = containers;
         if (viewer.historyTable != null) {
@@ -81,8 +74,6 @@ public class ImportHandler implements IObservable {
 
         if (runState == true) {
             log.error("ImportHandler running twice");
-            if (runThread != null)
-                log.error(runThread);
             throw new RuntimeException("ImportHandler running twice");
         }
         runState = true;
@@ -92,16 +83,23 @@ public class ImportHandler implements IObservable {
             library.addObserver(qTable);
             library.addObserver(viewer);
             library.addObserver(viewer.errorHandler.delegate);
+            library.addObserver(new IObserver(){
+                public void update(IObservable importLibrary, ImportEvent event) {
+                    if (ex.isShutdown()) {
+                        log.info("Cancelling import");
+                        throw new RuntimeException("CLIENT SHUTDOWN");
+                    }
+                }});
 
-            runThread = new Thread() {
-
+            Runnable run = new Runnable() {
                 public void run() {
+                    log.info("Background: Importing images");
                     importImages();
                 }
             };
-            runThread.start();
+            ex.execute(run);
         } finally {
-            runState = false;
+            runState = false; // FIXME this should be set from inside the thread, right?
         }
     }
 
@@ -287,8 +285,6 @@ public class ImportHandler implements IObservable {
                     viewer.appendToDebug(ome.formats.importer.util.ErrorHandler.getStackTrace(error));
                     qTable.setProgressFailed(j);
                     viewer.appendToOutputLn("> [" + j + "] Failure importing.");
-
-                    files = importContainer[j].usedFiles;
 
                     if (importStatus < 0)
                         importStatus = -3;

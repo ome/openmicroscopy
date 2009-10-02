@@ -21,8 +21,11 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -63,13 +66,17 @@ public class FileQueueHandler
     public final static String REFRESH = "refresh";
     
 	private final ImportConfig config;
-    private final OMEROWrapper reader;
+    private final OMEROWrapper importReader, scanReader;
     private final GuiImporter viewer;
     private final GuiCommonElements gui;
     
     private final FileQueueChooser fileChooser;
     private final FileQueueTable qTable;
     private final HistoryTable historyTable;
+    
+    private final AtomicInteger count = new AtomicInteger(0);
+    private final ScheduledExecutorService scanEx;
+    private final ScheduledExecutorService importEx;
     //private JProgressBar directoryProgressBar;
     //private JDialog progressDialog;
     
@@ -78,20 +85,24 @@ public class FileQueueHandler
     /**
      * @param viewer
      */
-    FileQueueHandler(GuiImporter viewer, ImportConfig config)
+    FileQueueHandler(ScheduledExecutorService scanEx, ScheduledExecutorService importEx,
+            GuiImporter viewer, ImportConfig config)
     {
+        this.scanEx = scanEx;
+        this.importEx = importEx;
         this.config = config;
         this.viewer = viewer;
-        this.reader = new OMEROWrapper(config);
         this.gui = new GuiCommonElements(config);
         this.historyTable = viewer.historyTable;
+        this.importReader = new OMEROWrapper(config);
+        this.scanReader = new OMEROWrapper(config);
         
         directoryCount = 0;
         
         //reader.setChannelStatCalculationStatus(true);
         
         setLayout(new BorderLayout());
-        fileChooser = new FileQueueChooser(config, reader);
+        fileChooser = new FileQueueChooser(config, scanReader);
         fileChooser.addActionListener(this);
         fileChooser.addPropertyChangeListener(this);
         
@@ -141,15 +152,34 @@ public class FileQueueHandler
             return;
         }
 
-        String[] paths = new String[_files.length];
+        final String[] paths = new String[_files.length];
         for (int i = 0; i < paths.length; i++) {
             paths[i] = _files[i].getAbsolutePath();
         }
 
-        final ImportCandidates candidates = new ImportCandidates(reader, paths, this);
+        final int which = count.incrementAndGet();
+        final String msg = Arrays.toString(paths);
+        log.info(String.format("Scheduling candidate calculations(%s)=%s", which, msg));
+        final IObserver self = this;
+        Runnable run = new Runnable() {
+            public void run() {
+                log.info(String.format("Background: calculating candidates(%s)=%s", which, msg));
+                final ImportCandidates candidates = new ImportCandidates(scanReader, paths, self);
+                final List<ImportContainer> containers = candidates.getContainers();
+                javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        log.info(String.format("Handling import containers(%s)=%s", which, msg));
+                        handleFiles(containers);
+                    }
+                });
+
+            }
+        };
+        scanEx.execute(run);
         
-        final List<ImportContainer> containers = candidates.getContainers();
-        
+    }
+    
+    private void handleFiles(List<ImportContainer> containers) {
         Boolean spw = spwOrNull(containers);
         if (spw == null) {
             setCursor(Cursor.getDefaultCursor());
@@ -304,10 +334,10 @@ public class FileQueueHandler
 
                     if (candidates != null)
                     {
-                        ImportLibrary library = new ImportLibrary(store(), reader);
+                        ImportLibrary library = new ImportLibrary(store(), importReader);
 
                         if (store() != null) {
-                            ImportHandler importHandler = new ImportHandler(viewer, qTable, config, library, candidates);
+                            ImportHandler importHandler = new ImportHandler(importEx, viewer, qTable, config, library, candidates);
                             importHandler.addObserver(viewer);
                             importHandler.addObserver(qTable);
                         }
@@ -487,41 +517,6 @@ public class FileQueueHandler
         if (qTable.table.getRowCount() == 0)
             qTable.importBtn.setEnabled(false);
     }
-    
-    /**
-     * @param args
-     */
-    public static void main(String[] args)
-    {
-        String laf = UIManager.getSystemLookAndFeelClassName() ;
-        //laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
-        //laf = "javax.swing.plaf.metal.MetalLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
-        
-        if (laf.equals("apple.laf.AquaLookAndFeel"))
-        {
-            System.setProperty("Quaqua.design", "panther");
-            
-            try {
-                UIManager.setLookAndFeel(
-                    "ch.randelshofer.quaqua.QuaquaLookAndFeel"
-                );
-           } catch (Exception e) { System.err.println(laf + " not supported.");}
-        } else {
-            try {
-                UIManager.setLookAndFeel(laf);
-            } catch (Exception e) 
-            { System.err.println(laf + " not supported."); }
-        }
-        
-        FileQueueHandler fqh = new FileQueueHandler(null, null); 
-        JFrame f = new JFrame();   
-        f.getContentPane().add(fqh);
-        f.setVisible(true);
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.pack();
-    }
 
     @SuppressWarnings("unchecked")
     public void update(IObservable observable, ImportEvent event)
@@ -537,7 +532,11 @@ public class FileQueueHandler
         if (event instanceof ImportCandidates.SCANNING)
         {
             ImportCandidates.SCANNING ev = (ImportCandidates.SCANNING) event;
-            
+            if (scanEx.isShutdown()) {
+                log.info("Cancelling scan");
+                ev.cancel();
+            }
+
             /*
             if (ev.totalFiles < 0)
             {

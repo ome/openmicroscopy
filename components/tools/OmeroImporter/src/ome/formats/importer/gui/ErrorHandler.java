@@ -10,6 +10,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
@@ -39,15 +40,15 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
     private static Log log = LogFactory.getLog(ErrorHandler.class);
 
     public final MyErrorHandler delegate; // THIS SHOULD NOT BE PUBLIC
+    private final ScheduledExecutorService ex;
     private final ErrorTable errorTable;
     private final GuiCommonElements gui;
     private JTextPane debugTextPane;
     private StyledDocument debugDocument;
     private Style debugStyle;
 
-    private Thread runThread;
-
-    public ErrorHandler(ImportConfig config) {
+    public ErrorHandler(ScheduledExecutorService ex, ImportConfig config) {
+        this.ex = ex;
         this.setOpaque(false);
         setLayout(new BorderLayout());
 
@@ -59,31 +60,6 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
             add(errorTable, BorderLayout.CENTER);
 
         errorTable.addObserver(this);
-    }
-
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        ImportConfig config = new ImportConfig();
-        ErrorHandler eh = new ErrorHandler(config);
-        JFrame f = new JFrame();
-        f.getContentPane().add(eh);
-        f.setVisible(true);
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.pack();
-
-        Vector<Object> row = new Vector<Object>();
-        row.add(new Boolean(true));
-        row.add("testfile.test");
-        row.add("test/test");
-        row.add(-1);
-        row.add(null);
-        row.add(null);
-        row.add(null);
-        eh.errorTable.addRow(row);
-        eh.errorTable.fireTableDataChanged();
-        eh.errorTable.setProgressSending(0);
     }
 
     class MyErrorHandler extends ome.formats.importer.util.ErrorHandler {
@@ -110,7 +86,7 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
                 ImportEvent.DEBUG_SEND ev = (ImportEvent.DEBUG_SEND) event;
                 sendFiles = ev.sendFiles;
 
-                runThread = new Thread() {
+                Runnable run = new Runnable() {
                     public void run() {
                         try {
                             sendErrors();
@@ -119,7 +95,7 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
                         }
                     }
                 };
-                runThread.start();
+                ex.execute(run);
             }
 
             else if (event instanceof ImportEvent.FILE_UPLOAD_STARTED) {

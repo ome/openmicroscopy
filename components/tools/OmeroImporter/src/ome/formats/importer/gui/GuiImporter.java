@@ -38,6 +38,9 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -148,7 +151,8 @@ public class GuiImporter extends JFrame
 
     private boolean errors_pending = false;
 
-
+    private ScheduledExecutorService scanEx = Executors.newScheduledThreadPool(1);
+    private ScheduledExecutorService importEx = Executors.newScheduledThreadPool(1);
     
     /**
      * Main entry class for the application
@@ -256,7 +260,7 @@ public class GuiImporter extends JFrame
         this.getContentPane().add(statusBar, BorderLayout.SOUTH);
 
         // The file chooser sub-pane
-        fileQueueHandler = new FileQueueHandler(this, config);
+        fileQueueHandler = new FileQueueHandler(scanEx, importEx, this, config);
         //splitPane.setResizeWeight(0.5);
 
         filePanel.add(fileQueueHandler, BorderLayout.CENTER);
@@ -352,7 +356,8 @@ public class GuiImporter extends JFrame
         appendToOutputLn("> Build date: " + getPrintableKeyword(Version.revisionDate));
         appendToOutputLn("> Release date: " + Version.releaseDate);
 
-        errorHandler = new ErrorHandler(config);
+        // TODO : should this be a third executor?
+        errorHandler = new ErrorHandler(importEx, config);
         errorHandler.addObserver(this);
         errorPanel.add(errorHandler, BorderLayout.CENTER);
         
@@ -365,11 +370,38 @@ public class GuiImporter extends JFrame
     protected void shutdown()
     {
         log.debug("Shutdown called");
+     
+        importEx.shutdown();
+        scanEx.shutdown();
+        
+        // How do I know an import is running here and how do I cancel it?
+        waitOnExecutor("Import", importEx, 60);
+        waitOnExecutor("Scanning", scanEx, 60);
+
+        try {
+            loginHandler.getMetadataStore().logout();
+        } catch (Exception e) {
+            log.warn("Exception on metadatastore.logout()", e);
+        }
+        
         // Get and save the UI window placement
         try {
             config.setUIBounds(gui.getUIBounds());
         } finally {
             config.saveAll();
+        }
+    }
+
+    private void waitOnExecutor(String msg, ScheduledExecutorService ex,
+            int secs) {
+        try {
+            boolean terminated = importEx.awaitTermination(secs,
+                    TimeUnit.SECONDS);
+            if (!terminated) {
+                log.error(msg + " still running!");
+            }
+        } catch (Exception e) {
+            log.warn("Exception on awaitTermination of " + msg, e);
         }
     }
     

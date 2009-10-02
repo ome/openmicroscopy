@@ -603,6 +603,11 @@ public class FileQueueTable
 
     public void update(IObservable importLibrary, ImportEvent event)
     {
+        // TODO : Here we might should check for "cancel" and if so
+        // raise some form of exception. This is currently being
+        // done in a similar way in ImportHandler with an anonymous
+        // inner class.
+        
         // TODO: all these setProgress methods could take a base
         // ImportEvent class PROGRESS_EVENT and then we wouldn't
         // need to do the instanceof's here.
@@ -640,12 +645,12 @@ public class FileQueueTable
         else if (event instanceof ImportEvent.IMPORT_QUEUE_STARTED)
         {
             importBtn.setText("Cancel");
-            addBtn.setEnabled(false);
             importing = true;
+            // addBtn.setEnabled(false);
         }
         else if (event instanceof ImportEvent.IMPORT_QUEUE_DONE)
         {
-            addBtn.setEnabled(true);
+            // addBtn.setEnabled(true);
             importBtn.setText("Import");
             importBtn.setEnabled(true);
             queue.setRowSelectionAllowed(true);
@@ -658,6 +663,7 @@ public class FileQueueTable
             cancel = false;
             abort = false;
         }
+        
     }
     
     /**
