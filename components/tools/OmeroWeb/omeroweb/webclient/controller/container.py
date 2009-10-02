@@ -904,10 +904,7 @@ class BaseContainer(BaseController):
                 self.long_annotations['votes'] += 1
                 self.long_annotations['rate'] += int(ann.longValue)
             elif isinstance(ann._obj, FileAnnotationI):
-                if ann.ns == omero.constants.namespaces.NSCOMPANIONFILE and ann.getFileName().startswith("original_metadata"):
-                    pass
-                else:
-                    self.file_annotations.append(ann)
+                self.file_annotations.append(ann)
             elif isinstance(ann._obj, TagAnnotationI):
                 self.tag_annotations.append(ann)
 
