@@ -77,7 +77,7 @@ public class JXTaskPaneContainerSingle
 		setBackground(UIUtilities.BACKGROUND);
 		double[] columns = {TableLayout.FILL};
     	layout = new TableLayout();
-    	setLayout(layout);
+    	//setLayout(layout);
     	layout.setColumn(columns);
 	}
 	
