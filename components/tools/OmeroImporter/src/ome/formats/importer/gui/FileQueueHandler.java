@@ -365,6 +365,10 @@ public class FileQueueHandler
                 JOptionPane.showMessageDialog(viewer, 
                         "You have chosen some Screen-based images and some \n "+
                         "non-screen-based images. Please import only one type at a time.");
+                log.debug("Directory import found SPW and non-SPW data:");
+                for (ImportContainer ic2 : containers) {
+                    log.debug(String.format("  Spw? %5s\t%s",ic2.isSPW,ic2.file));
+                }
                 return null;
             }
             isSPW = importContainer.isSPW;
@@ -526,7 +530,8 @@ public class FileQueueHandler
         
         if (event instanceof ImportCandidates.SCANNING_FILE_EXCEPTION)
         {
-            //ImportCandidates.SCANNING_FILE_EXCEPTION ev = (ImportCandidates.SCANNING_FILE_EXCEPTION) event;
+            ImportCandidates.SCANNING_FILE_EXCEPTION ev = (ImportCandidates.SCANNING_FILE_EXCEPTION) event;
+            log.debug(ev.toLog(), ev.exception);
         }
 
         if (event instanceof ImportCandidates.SCANNING)
@@ -561,7 +566,7 @@ public class FileQueueHandler
                   //if (ev.totalFiles == ev.numFiles) progressDialog.dispose();
             }
             */
-            
+            log.debug(ev.toLog());
             if (ev.totalFiles < 0)
             {
                 if (directoryCount == 0) viewer.appendToOutput("Determining how many directory files to process....\n");

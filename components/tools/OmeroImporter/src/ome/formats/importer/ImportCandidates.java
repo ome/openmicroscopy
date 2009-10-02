@@ -107,15 +107,16 @@ public class ImportCandidates extends DirectoryWalker {
      */
     public static class CANCEL extends RuntimeException {};
     
-    private final static Log log = LogFactory.getLog(ImportCandidates.class);
+    final private static Log log = LogFactory.getLog(ImportCandidates.class);
 
+    final public static int DEPTH = Integer.valueOf(System.getProperty("omero.import.depth","4"));
+    
     final private IObserver observer;
     final private OMEROWrapper reader;
     final private Groups groups;
     final private Set<String> allFiles = new HashSet<String>();
     final private Map<String, Set<String>> usedBy = new HashMap<String, Set<String>>();
     final private List<ImportContainer> containers = new ArrayList<ImportContainer>();
-    final private int depth = Integer.valueOf(System.getProperty("omero.import.depth","4"));
 
     /**
      * Current count of files processed. This will be incremented in two phases:
@@ -141,8 +142,8 @@ public class ImportCandidates extends DirectoryWalker {
     boolean cancelled = false;
 
     /**
-     * Main constructor which iterates over all the paths calling
-     * {@link #walk(File, Collection)}.
+     * Calls {@link #ImportCandidates(int, OMEROWrapper, String[], IObserver)}
+     * with {@link #DEPTH} as the first argument.
      * 
      * @param reader
      *            instance used for parsing each of the paths. Not used once the
@@ -156,7 +157,29 @@ public class ImportCandidates extends DirectoryWalker {
      */
     public ImportCandidates(OMEROWrapper reader, String[] paths,
             IObserver observer) {
-        super(TrueFileFilter.INSTANCE, 4);
+        this(DEPTH, reader, paths, observer);
+    }
+    
+    /**
+     * Main constructor which iterates over all the paths calling
+     * {@link #walk(File, Collection)} and permitting a descent to the given
+     * depth.
+     * 
+     * @param depth
+     *            number of directory levels to search down. 
+     * @param reader
+     *            instance used for parsing each of the paths. Not used once the
+     *            constructor completes.
+     * @param paths
+     *            file paths which are searched. May be directories.
+     * @param observer
+     *            {@link IObserver} which will monitor any exceptions during
+     *            {@link OMEROWrapper#setId(String)}. Otherwise no error
+     *            reporting takes place.
+     */
+    public ImportCandidates(int depth, OMEROWrapper reader, String[] paths,
+            IObserver observer) {
+        super(TrueFileFilter.INSTANCE, depth);
         this.reader = reader;
         this.observer = observer;
 
@@ -192,19 +215,6 @@ public class ImportCandidates extends DirectoryWalker {
         }
         groups = g;
 
-    }
-
-    /**
-     * Takes {@link ImportContainer} array to support explicit candidates. The
-     * {@link Groups} strategy is not currently enforced.
-     */
-    public ImportCandidates(OMEROWrapper reader, ImportContainer[] containers) {
-        this.reader = reader;
-        this.observer = null;
-        this.groups = null;
-        if (containers != null) {
-            this.containers.addAll(Arrays.asList(containers));
-        }
     }
 
     /**
