@@ -27,22 +27,20 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
-import javax.media.opengl.GL2;
+
+
+//Third-party libraries
+import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLEventListener;
-import javax.media.opengl.GLProfile;
-import javax.media.opengl.awt.GLJPanel;
+import javax.media.opengl.GLJPanel;
 import javax.media.opengl.glu.GLU;
 import javax.swing.JPanel;
-
-import com.sun.opengl.util.gl2.GLUT;
 import com.sun.opengl.util.texture.Texture;
 import com.sun.opengl.util.texture.TextureCoords;
 import com.sun.opengl.util.texture.TextureData;
 import com.sun.opengl.util.texture.TextureIO;
-
-//Third-party libraries
 
 //Application-internal dependencies
 
@@ -73,7 +71,7 @@ class ZoomPanel
 	private static GLCapabilities CAPS;
 	
 	static {
-		CAPS = new GLCapabilities(GLProfile.get(GLProfile.GL2));
+		CAPS = new GLCapabilities();//GLProfile.get(GLProfile.GL2));
 		CAPS.setAlphaBits(8);
 	}
 	
@@ -140,17 +138,17 @@ class ZoomPanel
 	 */
 	public void display(GLAutoDrawable drawable)
 	{
-		GL2 gl = drawable.getGL().getGL2();
+		GL gl = drawable.getGL();
 		// Clear The Screen And The Depth Buffer
-		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);	
+		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);	
 		TextureData data = model.getImageAsTexture();
 		if (data == null) return;
 		if (texture == null) texture = TextureIO.newTexture(data);
 		else texture.updateImage(data);
 		texture.enable();
 		texture.bind();
-		gl.glTexEnvi(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE,
-				GL2.GL_REPLACE);
+		gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE,
+				GL.GL_REPLACE);
 		float w = (float) model.getImageWidth();
 		float h =  (float) model.getImageHeight();
 		float xStart = ((float) model.getX())/w;
@@ -159,7 +157,7 @@ class ZoomPanel
 		float yEnd = ((float) model.getY()+model.getHeight())/h;
 
 		TextureCoords coords = new TextureCoords(xStart, yEnd, xEnd, yStart);
-		gl.glBegin(GL2.GL_QUADS);
+		gl.glBegin(GL.GL_QUADS);
 		gl.glTexCoord2f(coords.left(), coords.bottom());
 		gl.glVertex3f(0, 0, 0);
 		gl.glTexCoord2f(coords.right(), coords.bottom());
@@ -179,9 +177,9 @@ class ZoomPanel
 	 */
 	public void init(GLAutoDrawable drawable)
 	{
-		GL2 gl = drawable.getGL().getGL2();
+		GL gl = drawable.getGL();
 		gl.glClearColor(0, 0, 0, 0);
-		gl.glEnable(GL2.GL_DEPTH_TEST);
+		gl.glEnable(GL.GL_DEPTH_TEST);
 	}
 
 	/**
@@ -191,11 +189,11 @@ class ZoomPanel
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width,
 			int height) 
 	{
-		GL2 gl = drawable.getGL().getGL2();
-		gl.glMatrixMode(GL2.GL_PROJECTION);
+		GL gl = drawable.getGL();
+		gl.glMatrixMode(GL.GL_PROJECTION);
 		gl.glLoadIdentity();
 		glu.gluOrtho2D(0, 1, 0, 1);
-		gl.glMatrixMode(GL2.GL_MODELVIEW);
+		gl.glMatrixMode(GL.GL_MODELVIEW);
 		gl.glLoadIdentity();
 	}
 
@@ -205,6 +203,13 @@ class ZoomPanel
 	 * @see GLEventListener#dispose(GLAutoDrawable)
 	 */
 	public void dispose(GLAutoDrawable drawable) {}
+
+	/**
+	 * Required by the {@link GLEventListener} I/F but no-operation in our
+	 * case.
+	 * @see GLEventListener#displayChanged(GLAutoDrawable, boolean, boolean)
+	 */
+	public void displayChanged(GLAutoDrawable drawable, boolean a, boolean b) {}
 	
 }
 

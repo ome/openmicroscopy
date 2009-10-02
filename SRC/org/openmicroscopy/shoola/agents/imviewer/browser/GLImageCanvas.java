@@ -33,16 +33,15 @@ import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 
 //Third-party libraries
-import javax.media.opengl.GL2;
+import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLEventListener;
-import javax.media.opengl.GLProfile;
-import javax.media.opengl.awt.GLJPanel;
+import javax.media.opengl.GLJPanel;
 import javax.media.opengl.glu.GLU;
 
 import com.sun.opengl.util.BufferUtil;
-import com.sun.opengl.util.gl2.GLUT;
+import com.sun.opengl.util.GLUT;
 import com.sun.opengl.util.texture.Texture;
 import com.sun.opengl.util.texture.TextureCoords;
 import com.sun.opengl.util.texture.TextureData;
@@ -81,7 +80,7 @@ class GLImageCanvas
 	private static GLCapabilities CAPS;
 	
 	static {
-		CAPS = new GLCapabilities(GLProfile.get(GLProfile.GL2));
+		CAPS = new GLCapabilities();//GLProfile.get(GLProfile.GL2));
 		CAPS.setAlphaBits(8);
 	}
 	
@@ -115,16 +114,16 @@ class GLImageCanvas
      * @param gl The graphics context.
      * @return See a
      */
-    private int[] copyFrame(GL2 gl)
+    private int[] copyFrame(GL gl)
     { // copies the Frame to an integer array
 		Dimension s = getSize();
 		int w = s.width; // get the canvas' dimensions
 		int h = s.height;
 		// create a ByteBuffer to hold the image data
 		ByteBuffer buffer = BufferUtil.newByteBuffer(w*h*3); 
-		gl.glReadBuffer(GL2.GL_BACK);
-		gl.glPixelStorei(GL2.GL_PACK_ALIGNMENT, 1);
-		gl.glReadPixels(0, 0, w, h, GL2.GL_RGB, GL2.GL_UNSIGNED_BYTE, buffer);
+		gl.glReadBuffer(GL.GL_BACK);
+		gl.glPixelStorei(GL.GL_PACK_ALIGNMENT, 1);
+		gl.glReadPixels(0, 0, w, h, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, buffer);
 
 		int[] pixels = new int[w*h];
 		int p = w*h*3; 
@@ -151,7 +150,7 @@ class GLImageCanvas
      * 
      * @param gl The graphics context.
      */
-    protected void saveDisplayedImage(GL2 gl)
+    protected void saveDisplayedImage(GL gl)
     {
     	if (gl == null || savedFile == null) return;
     	Dimension s = getSize();
@@ -183,7 +182,7 @@ class GLImageCanvas
      * @param gl 	The drawing context.
      * @param width The width of the original image.
      */
-    protected void drawScaleBar(GL2 gl, int width)
+    protected void drawScaleBar(GL gl, int width)
     {
     	float s = (float) (model.getOriginalUnitBarSize())/width;
 		Color c = model.getUnitBarColor();
@@ -211,7 +210,7 @@ class GLImageCanvas
         	
         
 		//draw the scale bar.
-		gl.glBegin(GL2.GL_POLYGON);
+		gl.glBegin(GL.GL_POLYGON);
 		gl.glVertex3f(x1, y1, 0.0f); 
 		gl.glVertex3f(x2, y1, 0.0f); 
 		gl.glVertex3f(x2, y2, 0.0f); 
@@ -227,9 +226,9 @@ class GLImageCanvas
      */
 	protected void onDisplay(GLAutoDrawable drawable, TextureData data)
 	{
-		GL2 gl = drawable.getGL().getGL2();
+		GL gl = drawable.getGL();
 		// Clear The Screen And The Depth Buffer
-		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);	
+		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);	
 		if (data == null) return;
 		if (texture == null) {
 			texture = TextureIO.newTexture(data);
@@ -245,10 +244,10 @@ class GLImageCanvas
 			//image
 			texture.enable();
 			texture.bind();
-			gl.glTexEnvi(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE,
-					GL2.GL_REPLACE);
+			gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE,
+					GL.GL_REPLACE);
 			TextureCoords coords = new TextureCoords(0, 0, 1, 1);
-			gl.glBegin(GL2.GL_QUADS);
+			gl.glBegin(GL.GL_QUADS);
 			gl.glTexCoord2f(coords.left(), coords.bottom());
 			gl.glVertex3f(0, 0, 0);
 			gl.glTexCoord2f(coords.right(), coords.bottom());
@@ -315,14 +314,14 @@ class GLImageCanvas
 	 */
 	public void init(GLAutoDrawable drawable)
 	{
-		GL2 gl = drawable.getGL().getGL2();
+		GL gl = drawable.getGL();
 		gl.glClearColor(0, 0, 0, 0);
-		gl.glEnable(GL2.GL_DEPTH_TEST);
-		gl.glMatrixMode(GL2.GL_PROJECTION);
+		gl.glEnable(GL.GL_DEPTH_TEST);
+		gl.glMatrixMode(GL.GL_PROJECTION);
 		gl.glLoadIdentity();
 		gl.glScaled(1, -1, 1);
 		glu.gluOrtho2D(0, 1, 0, 1);
-		gl.glMatrixMode(GL2.GL_MODELVIEW);
+		gl.glMatrixMode(GL.GL_MODELVIEW);
 		gl.glLoadIdentity();
 	}
 	
@@ -333,15 +332,13 @@ class GLImageCanvas
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width,
 			int height) 
 	{
-		/*
-		 GL2 gl = drawable.getGL().getGL2();
-			gl.glMatrixMode(GL2.GL_PROJECTION);
-			gl.glLoadIdentity();
-			gl.glScaled(1, -1, 1);
-			glu.gluOrtho2D(0, 1, 0, 1);
-			gl.glMatrixMode(GL2.GL_MODELVIEW);
-			gl.glLoadIdentity();
-		 */
+		 GL gl = drawable.getGL();
+		 gl.glMatrixMode(GL.GL_PROJECTION);
+		 gl.glLoadIdentity();
+		 gl.glScaled(1, -1, 1);
+		 glu.gluOrtho2D(0, 1, 0, 1);
+		 gl.glMatrixMode(GL.GL_MODELVIEW);
+		 gl.glLoadIdentity();
 	}
 
 	/**
@@ -357,5 +354,12 @@ class GLImageCanvas
 	 * @see GLEventListener#dispose(GLAutoDrawable)
 	 */
 	public void dispose(GLAutoDrawable drawable) {}
+
+	/**
+	 * Required by the {@link GLEventListener} I/F but no-operation in our
+	 * case.
+	 * @see GLEventListener#displayChanged(GLAutoDrawable, boolean, boolean)
+	 */
+	public void displayChanged(GLAutoDrawable drawable, boolean a, boolean b) {}
 	
 }

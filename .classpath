@@ -31,25 +31,15 @@
 	<classpathentry kind="lib" path="LIB/bio-formats.jar"/>
 	<classpathentry kind="lib" path="LIB/ols-client-1.15.jar"/>
 	<classpathentry kind="lib" path="LIB/saaj-1.2.jar"/>
+	<classpathentry kind="lib" path="LIB/mdbtools-java.jar"/>
 	<classpathentry kind="lib" path="LIB/gluegen-rt.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/jburel/Desktop/jogl-2.0-macosx-universal/lib"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/jburel/Desktop/jogl-1.1.1-macosx-universal/lib"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="LIB/jogl.all.jar" sourcepath="/Users/jburel/Desktop/openGL/jogl-2.0-src">
+	<classpathentry kind="lib" path="LIB/jogl.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/jburel/Desktop/jogl-2.0-macosx-universal/lib"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="LIB/jogl.gl2.osx.jar">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/jburel/Desktop/jogl-2.0-macosx-universal/lib"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="LIB/mdbtools-java.jar"/>
-	<classpathentry kind="lib" path="LIB/nativewindow.all.jar">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/jeanmarie/Desktop/jogl-2.0-macosx-universal/lib"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/jburel/Desktop/jogl-1.1.1-macosx-universal/lib"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="bin"/>

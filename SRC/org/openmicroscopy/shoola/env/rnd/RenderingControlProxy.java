@@ -36,7 +36,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.media.opengl.GL2;
+
+import javax.media.opengl.GL;
 
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
@@ -597,8 +598,8 @@ class RenderingControlProxy
 	 */
 	private TextureData createTexture(int[] data, int w, int h)
 	{
-		TextureData texture = new TextureData(GL2.GL_RGBA, w, h, 0, GL2.GL_BGRA, 
-        		GL2.GL_UNSIGNED_INT_8_8_8_8_REV, false, false, false, 
+		TextureData texture = new TextureData(GL.GL_RGBA, w, h, 0, GL.GL_BGRA, 
+        		GL.GL_UNSIGNED_INT_8_8_8_8_REV, false, false, false, 
         		IntBuffer.wrap(data), null);
 		return texture;
 	}

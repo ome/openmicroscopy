@@ -32,7 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
-import javax.media.opengl.GL2;
+import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
 import com.sun.opengl.util.texture.Texture;
 import com.sun.opengl.util.texture.TextureCoords;
@@ -191,7 +191,7 @@ class GridCanvas
 	 * 
 	 * @param gl The graphics context.
 	 */
-	private void paintGrid(GL2 gl)
+	private void paintGrid(GL gl)
 	{
 		List<GridImage> list = model.getGridImages();
 		Iterator<GridImage> i = list.iterator();
@@ -217,7 +217,7 @@ class GridCanvas
 					if (texture == null) texture = TextureIO.newTexture(data);
 					else texture.updateImage(data);
 					
-					gl.glBegin(GL2.GL_QUADS);
+					gl.glBegin(GL.GL_QUADS);
 					gl.glScaled(ZOOM, -1, 1);
 					gl.glTexCoord2f(coords.left(), coords.bottom());
 					gl.glVertex3f(xStart, yStart, 0);
@@ -250,7 +250,7 @@ class GridCanvas
 	 * 
 	 * @param gl The graphics context.
 	 */
-	private void paintText(GL2 gl)
+	private void paintText(GL gl)
 	{
 		int columns = model.getGridColumn();
 		int col = 0;
@@ -288,7 +288,7 @@ class GridCanvas
 	 * 
 	 * @param gl The graphics context.
 	 */
-	private void paintGridAsRGB(GL2 gl)
+	private void paintGridAsRGB(GL gl)
 	{
 		List<GridImage> list = model.getGridImages();
 		Iterator<GridImage> i = list.iterator();
@@ -311,7 +311,7 @@ class GridCanvas
 			if (img.isActive()) {
 				rgb = img.getRGB();
 				gl.glColorMask(rgb[0], rgb[1], rgb[2], true);
-				gl.glBegin(GL2.GL_QUADS);
+				gl.glBegin(GL.GL_QUADS);
 				gl.glScaled(ZOOM, -1, 1);
 				gl.glTexCoord2f(coords.left(), coords.bottom());
 				gl.glVertex3f(xStart, yStart, 0);
@@ -427,17 +427,17 @@ class GridCanvas
     public void display(GLAutoDrawable drawable) 
 	{
     	TextureData data = model.getRenderedImageAsTexture();
-    	GL2 gl = drawable.getGL().getGL2();
+    	GL gl = drawable.getGL();
 		// Clear The Screen And The Depth Buffer
-		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);	
+		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);	
 		if (data == null) return;
     	//paint the text
     	if (model.isTextVisible() && 
     			model.getGridRatio() > ZOOM) paintText(gl);
     	// pain the grid.
 		
-		gl.glTexEnvi(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE,
-				GL2.GL_REPLACE);
+		gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE,
+				GL.GL_REPLACE);
 		if (texture == null) texture = TextureIO.newTexture(data);
 		else texture.updateImage(data);
 		texture.enable();
@@ -479,7 +479,7 @@ class GridCanvas
     	} else texture.updateImage(data);
     	TextureCoords coords = new TextureCoords(0f, 0f, 1f, 1f);
     	gl.glColorMask(true, true, true, true);
-    	gl.glBegin(GL2.GL_QUADS);
+    	gl.glBegin(GL.GL_QUADS);
 		gl.glScaled(ZOOM, -1, 1);
 		gl.glTexCoord2f(coords.left(), coords.bottom());
 		gl.glVertex3f(xStart, yStart, 0);
