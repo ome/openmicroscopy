@@ -32,7 +32,7 @@ class Directory(object):
 
     """
 
-    def __init__(self, pathString=None, whitelist=None, pathMode='Flat'):
+    def __init__(self, pathString, whitelist=None, pathMode='Flat'):
         """
             Build a tree of the directory given its path.
             
@@ -52,13 +52,7 @@ class Directory(object):
         self.pathString = pathString
         
         #: path as a pathModule path type
-        self.path = None
-        
-        # Use the current working directory if no path string is supplied
-        if self.pathString == None:
-            self.path = pathModule.path.getcwd()
-        else:
-            self.path = pathModule.path(self.pathString)
+        self.path = pathModule.path(self.pathString)
         
         # Use an empty whitelist if necessary.
         if whitelist == None:
