@@ -138,7 +138,7 @@ INSTALLED_APPS = (
     'omeroweb.webgateway',
 )
 
-FEEDBACK_URL = "mage.openmicroscopy.org.uk:80"
+FEEDBACK_URL = "qa.openmicroscopy.org.uk:80"
 
 IGNORABLE_404_ENDS = ('favicon.ico')
 

@@ -154,7 +154,7 @@ class SendEmail(threading.Thread):
         logger.info("Garbage Collector KICK IN")
 
     def error_message(self, details):
-        app = "QA"
+        app = "web"
         # Create the root message and fill in the from, to, and subject headers
         msgRoot = MIMEMultipart('related')
         try:
