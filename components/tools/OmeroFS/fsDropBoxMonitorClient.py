@@ -102,6 +102,11 @@ class MonitorState(object):
                 msg = "Revised"
                 entry.seq = seq
                 entry.timer.reset()
+                # Passing the key returned by as_dictionary
+                # as the argument. This prevents a "subsumed"
+                # candidate from being imported as a standalone
+                # image.
+                entry.timer.args = [key]
                 self.sync(entry)
 
             else: # INSERT
