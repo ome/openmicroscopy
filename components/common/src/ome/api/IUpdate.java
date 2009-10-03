@@ -32,7 +32,10 @@ import ome.model.IObject;
  * <p>{@link #saveAndReturnIds(IObject[])} behaves slightly differently in that
  * it does <em>not</em> handle object modifications. The graph of objects
  * passed in can consist <em>ONLY</em> if either newly created objects without
- * ids or of unloaded objects with ids.
+ * ids or of unloaded objects with ids. <em>Note:</em> The ids of the saved values
+ * may not be in order. This is caused by persistence-by-transitivity. Hibernate
+ * may detect an item later in the array if they are interconnected and therefore
+ * choose to save it first.
  * </p>
  * 
  * <p>
