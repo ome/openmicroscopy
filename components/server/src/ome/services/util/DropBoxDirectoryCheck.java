@@ -8,16 +8,13 @@
 package ome.services.util;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import ome.services.sessions.events.UserGroupUpdateEvent;
-import ome.services.util.Executor.SimpleStatelessWork;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,7 +22,6 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Hook run by the context at startup to create a drop-box directory per user.
@@ -69,7 +65,10 @@ public class DropBoxDirectoryCheck implements ApplicationListener, Runnable {
     @SuppressWarnings("unchecked")
     public Set<String> getCurrentUserNames() {
         List<String> names = isolatedJdbc.query(
-                "select omename from experimenter",
+                "select distinct e.omename from experimenter e, " +
+                "groupexperimentermap m, experimentergroup g " +
+                "where e.id = m.child and m.parent = g.id and " +
+                "g.name = 'user'; ",
                 new ParameterizedRowMapper<String>() {
                     public String mapRow(ResultSet arg0, int arg1)
                             throws SQLException {
