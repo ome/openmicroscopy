@@ -368,14 +368,7 @@ class EditorComponent
 			return b;
 		} 
 	
-		//This assumes that we are editing an existing file.
-		File toEdit = model.getFileToEdit();
-		if (toEdit == null) {		// if not...
-			String fileName = EditorAgent.getEditorHome() + 
-				File.separator + model.getFileName();
-			toEdit = new File(fileName);
-		} 
-		model.fireFileSaving(toEdit);
+		model.fireFileSaving(model.getFileName());
 		model.updateNameSpace(); // refresh namespace of saved file
 		return true;
 	}

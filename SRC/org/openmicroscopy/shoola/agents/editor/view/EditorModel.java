@@ -440,6 +440,22 @@ class EditorModel
 	}
 	
 	/**
+	 * Creates a temporary file in the Editor Home Directory with the 
+	 * given fileName, sends the file to the server by 
+	 * calling {@link #fireFileSaving(File)}, saving according to the 
+	 * current {@link #fileAnnotation}.
+	 * 
+	 * @param fileName		The name of the file 
+	 */
+	void fireFileSaving(String fileName)
+	{
+		String filePath = EditorAgent.getEditorHome() + 
+													File.separator + fileName;
+		File toEdit = new File(filePath);
+		fireFileSaving(toEdit);
+	}
+	
+	/**
 	 * Starts an asynchronous call to save the passed file back to the server.
 	 * 
 	 * @param file The file to save.
