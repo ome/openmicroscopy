@@ -60,7 +60,8 @@ def configure_server_logging(props):
     """
     Takes an Ice.Properties instance and configures logging
     """
-    program_name = props.getProperty("Ice.ProgramName")
+    program_name = props.getProperty("Ice.Admin.ServerId")
+    # Using Ice.ProgramName on Windows failed
     log_name = program_name+".log"
     log_debug = props.getPropertyWithDefault("omero.debug","")
     if log_debug:
