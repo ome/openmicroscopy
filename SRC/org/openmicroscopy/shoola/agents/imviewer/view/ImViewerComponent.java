@@ -2014,9 +2014,6 @@ class ImViewerComponent
 		if (model.getState() != READY) return;
 		if (comp == null) return;
 		view.setMeasurementLaunchingStatus(false);
-		
-		
-		
 		model.getBrowser().addComponent(comp, ImViewer.VIEW_INDEX);
 		comp.setVisible(true);
 		view.repaint();
