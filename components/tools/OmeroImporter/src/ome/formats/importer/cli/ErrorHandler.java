@@ -13,6 +13,7 @@ import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
+import ome.formats.importer.ImportCandidates.SCANNING;
 import ome.formats.importer.ImportCandidates.SCANNING_FILE_EXCEPTION;
 import ome.formats.importer.util.ErrorContainer;
 
@@ -41,6 +42,10 @@ public class ErrorHandler extends ome.formats.importer.util.ErrorHandler {
         if (event instanceof IMPORT_DONE) {
             log.info("Number of errors: " + errors.size());
         }
+        
+        else if (event instanceof SCANNING) {
+            log.debug(event.toLog());
+        }
 
         else if (event instanceof FILE_EXCEPTION) {
             FILE_EXCEPTION ev = (FILE_EXCEPTION) event;
@@ -49,7 +54,7 @@ public class ErrorHandler extends ome.formats.importer.util.ErrorHandler {
 
         else if (event instanceof SCANNING_FILE_EXCEPTION) {
             SCANNING_FILE_EXCEPTION ev = (SCANNING_FILE_EXCEPTION) event;
-            log.debug(ev.toLog(), ev.exception);
+            log.debug(ev.toLog());
         }
 
         else if (event instanceof EXCEPTION_EVENT) {
