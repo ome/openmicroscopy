@@ -483,7 +483,7 @@ java component.
             <define name="DBVERSION" value="${omero.db.version}"/>
             <define name="DBPATCH" value="${omero.db.patch}"/>
             <define name="INCLUDE_DIR" value="${nsis.dir}"/>
-            <define name="INSTALLER_NAME" value="${omero.home}/target/omero_installer.exe"/>
+            <define name="INSTALLER_NAME" value="${omero.home}/target/omero_installer-${omero.version}.exe"/>
             <!--scriptcmd cmd="AutoCloseWindow true"/-->
         </nsis>
     </target>
