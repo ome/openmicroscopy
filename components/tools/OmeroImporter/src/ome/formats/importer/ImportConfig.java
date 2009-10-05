@@ -172,7 +172,18 @@ public class ImportConfig {
         hostname     = new StrValue("hostname", this, "omero.host");
         username     = new StrValue("username", this, "omero.name");
         password     = new StrValue("password", this, "omero.pass");
-        port         = new IntValue("port", this, 4063, "omero.port");
+        port         = new IntValue("port", this, 4063, "omero.port") {
+            @Override
+            public synchronized void load() {
+                super.load();
+                // Handle previous versions in which a null/"" got stored
+                // to preferences.
+                if (_current.compareAndSet(null, _default)) {
+                    log.debug("Replacing port load value with default");
+                }
+            }
+        };
+        
         sessionKey   = new StrValue("session", this);
         email        = new StrValue("email", this);
         serverList   = new StrValue("serverList", this);
