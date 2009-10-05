@@ -14,6 +14,9 @@ import java.util.List;
 import ome.api.RawFileStore;
 import ome.model.core.OriginalFile;
 import ome.model.enums.Format;
+import ome.model.internal.Permissions;
+import ome.model.internal.Permissions.Right;
+import ome.model.internal.Permissions.Role;
 import ome.parameters.Parameters;
 import ome.services.util.Executor;
 import ome.system.Principal;
@@ -134,6 +137,16 @@ public class PopulateRoiJob {
                             }
 
                         });
+                
+                if (!file.getDetails().getPermissions().isGranted(Role.WORLD, Right.READ)) {
+                    log.warn("Making populateroi.py readable...");
+                    ex.execute(principal, new Executor.SimpleWork(this, "chmodPopulateRoi"){
+                        @Transactional(readOnly = false)
+                        public Object doWork(Session session, ServiceFactory sf) {
+                            sf.getAdminService().changePermissions(file, Permissions.WORLD_IMMUTABLE);
+                            return null;
+                        }});
+                }
 
             } catch (Exception e) {
                 throw new RuntimeException("Failed to register populateroi.py",
@@ -171,6 +184,7 @@ public class PopulateRoiJob {
         file.setPath("lib/python/populateroi.py");
         file.setSize(Long.valueOf(buf.length));
         file.setFormat(new Format("text/x-python"));
+        file.getDetails().setPermissions(Permissions.WORLD_IMMUTABLE);
         file = sf.getUpdateService().saveAndReturnObject(file);
 
         RawFileStore rfs = sf.createRawFileStore();

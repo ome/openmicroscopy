@@ -14,6 +14,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import ome.conditions.InternalException;
 import ome.io.nio.OriginalFilesService;
 import ome.model.enums.Format;
+import ome.model.internal.Permissions;
+import ome.model.internal.Permissions.Right;
+import ome.model.internal.Permissions.Role;
 import ome.services.blitz.fire.Registry;
 import ome.services.util.Executor;
 import ome.system.Principal;
@@ -247,6 +250,7 @@ public class LegacyRepositoryI extends _InternalRepositoryDisp {
                     r.setCtime(t);
                     r.setFormat(new Format("Directory"));
                     r.setSize(0L);
+                    r.getDetails().setPermissions(Permissions.WORLD_IMMUTABLE);
                     r = sf.getUpdateService().saveAndReturnObject(r);
                     description = new OriginalFileI(r.getId(), false);
                     fileMaker.writeLine(repoUuid);
@@ -259,6 +263,15 @@ public class LegacyRepositoryI extends _InternalRepositoryDisp {
                     if (r == null) {
                         throw new InternalException(
                                 "Can't find repository object: " + line);
+                    } else {
+                        if (!r.getDetails().getPermissions().isGranted(Role.WORLD, Right.READ)) {
+                            // See changes to SharedResources. The current repository
+                            // usage is at odds to the security system and needs to
+                            // be reviewed.
+                            log.warn("Making repository readable...");
+                            r.getDetails().setPermissions(Permissions.WORLD_IMMUTABLE);
+                            sf.getUpdateService().saveObject(r);
+                        }
                     }
                     description = new OriginalFileI(r.getId(), false);
                     log.info("Opened repository: " + repoUuid);

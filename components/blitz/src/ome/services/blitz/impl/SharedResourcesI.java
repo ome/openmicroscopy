@@ -18,6 +18,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import ome.api.JobHandle;
+import ome.model.IObject;
 import ome.services.blitz.fire.Registry;
 import ome.services.blitz.fire.TopicManager;
 import ome.services.blitz.util.BlitzExecutor;
@@ -27,6 +28,8 @@ import ome.services.util.Executor;
 import ome.system.ServiceFactory;
 import ome.util.Filterable;
 import omero.ApiUsageException;
+import omero.InternalException;
+import omero.RTime;
 import omero.ServerError;
 import omero.ValidationException;
 import omero.grid.AMI_InternalRepository_getDescription;
@@ -53,6 +56,7 @@ import omero.model.Job;
 import omero.model.JobStatus;
 import omero.model.JobStatusI;
 import omero.model.OriginalFile;
+import omero.model.OriginalFileI;
 import omero.util.IceMapper;
 
 import org.apache.commons.logging.Log;
@@ -261,6 +265,45 @@ public class SharedResourcesI extends AbstractAmdServant implements
     public TablePrx newTable(final long repo, String path, Current __current)
             throws ServerError {
 
+        if (true) {
+            // Overriding repository logic for creation. As long as the
+            // security system is still in charge, we need to have the files
+            // being created for the proper user.
+            Format omero_tables = new FormatI();
+            omero_tables.setValue(rstring("OMERO.tables"));
+            final OriginalFile file = new OriginalFileI();
+            RTime time = omero.rtypes.rtime(System.currentTimeMillis());
+            file.setAtime(time);
+            file.setMtime(time);
+            file.setCtime(time);
+            file.setSha1(omero.rtypes.rstring("UNKNOWN"));
+            file.setFormat(omero_tables);
+            file.setSize(omero.rtypes.rlong(0));
+            file.setPath(omero.rtypes.rstring(path));
+            file.setName(omero.rtypes.rstring(path));
+            Long id = (Long) sf.executor.execute(sf.principal, new Executor.SimpleWork(this, "newTable", repo, path) {
+                @Transactional(readOnly = false)
+                public Object doWork(Session session, ServiceFactory sf) {
+                    try {
+                        IObject obj = (IObject) new IceMapper().reverse(file);
+                        return sf.getUpdateService().saveAndReturnObject(obj).getId();
+                    } catch (Exception e) {
+                        log.error(e);
+                        return null;
+                    }
+                }
+                
+            });
+            if (id == null) {
+                throw new InternalException(null, null, "Failed to save file");
+            }
+            file.setId(omero.rtypes.rlong(id));
+            file.unload();
+            return openTable(file, __current);
+        }
+        
+        // NEVER REACHED IN CURRENT CODE.
+        
         // Okay. All's valid.
         InternalRepositoryPrx[] repos = registry.lookupRepositories();
 
