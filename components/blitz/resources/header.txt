@@ -6,12 +6,12 @@
 TITLE
         </title>
         <style media="screen" type="text/css">
-@import "http://users.openmicroscopy.org.uk/~andrew/styleForAPI.css";
+@import "http://hudson.openmicroscopy.org.uk/userContent/styleForAPI.css";
         </style>
     </head>
     <body>
        <div id="wrapper">
           <div id="banner">
-             <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/slice2html/"><img src="http://validator.openmicroscopy.org.uk/static/images/ome_xml_trac_banner.png" alt="OME-XML"></a>
+             <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/slice2html/"><img src="http://hudson.openmicroscopy.org.uk/userContent/ome_docs_trac_banner.png" alt="OME-XML"></a>
           </div>
        </div>

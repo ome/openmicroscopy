@@ -124,7 +124,7 @@ td h3.epydoc {
 table.navbar {
 	padding-top:71px;
 	background-color: #000066;
-	background-image: url(http://validator.openmicroscopy.org.uk/static/images/ome_trac_back_top.png);
+	background-image: url(http://hudson.openmicroscopy.org.uk/userContent/ome_trac_back_top.png);
 	background-repeat: no-repeat;
 	background-position: top right;
 	margin: 2px 0px 2px 0px;
