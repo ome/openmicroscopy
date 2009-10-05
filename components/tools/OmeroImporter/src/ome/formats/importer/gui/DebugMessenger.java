@@ -124,7 +124,8 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         gui.enterPressesWhenFocused(sendBtn);
         
         uploadCheckmark = gui.addCheckBox(mainPanel, "Send selected images.", "1,1,7,c", debug);
-        uploadCheckmark.setSelected(config.sendFiles.get());
+        //uploadCheckmark.setSelected(config.sendFiles.get());
+        uploadCheckmark.setSelected(true);
                 
         // fill out the comments panel (changes according to icon existance)        
         Icon icon = gui.getImageIcon(ICON);
@@ -201,7 +202,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
             {
                 config.email.set(emailText);
                 config.sendFiles.set(uploadCheckmark.isSelected());
-                sendRequest(emailText, commentText, "Extra data goes here.");
+                sendRequest(emailText, commentText, "");
                 dispose();
             }
         }

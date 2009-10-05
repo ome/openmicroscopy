@@ -442,14 +442,17 @@ public class OMEROMetadataStoreClient
     {
         if (executor != null)
         {
-            log.debug("Logout called, keep alive shut down.");
+            log.debug("Logout called, shutting keep alive down.");
             executor.shutdown();
             executor = null;
+            log.debug("keepalive shut down.");
         }
         if (c != null)
         {
+            log.debug("closing client session.");
             c.closeSession();
             c = null;
+            log.debug("client closed.");
         }
 
     }

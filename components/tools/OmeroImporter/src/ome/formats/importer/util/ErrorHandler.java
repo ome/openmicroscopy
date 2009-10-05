@@ -233,6 +233,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
         errorContainer.setOSName(System.getProperty("os.name"));
         errorContainer.setOSArch(System.getProperty("os.arch"));
         errorContainer.setOSVersion(System.getProperty("os.version"));
+        errorContainer.setAppVersion(config.getVersionNumber());
         errorContainer.setError(error);
         addError(errorContainer);
     }

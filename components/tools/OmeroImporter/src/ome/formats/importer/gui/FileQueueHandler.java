@@ -27,12 +27,17 @@ import java.util.Vector;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
+
+import layout.TableLayout;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.IObservable;
@@ -77,10 +82,12 @@ public class FileQueueHandler
     private final AtomicInteger count = new AtomicInteger(0);
     private final ScheduledExecutorService scanEx;
     private final ScheduledExecutorService importEx;
-    //private JProgressBar directoryProgressBar;
-    //private JDialog progressDialog;
+    private JProgressBar directoryProgressBar;
+    private JDialog progressDialog;
     
     private Integer directoryCount;
+
+    protected boolean cancelScan = false;
     
     /**
      * @param viewer
@@ -227,6 +234,7 @@ public class FileQueueHandler
                 ic.setArchive(dialog.archiveImage.isSelected());
                 ic.setProjectID(dialog.project.getId().getValue());
                 ic.setImageName(ic.file.getAbsolutePath());
+                
                 String title =
                 dialog.project.getName().getValue() + " / " +
                 dialog.dataset.getName().getValue();
@@ -438,6 +446,7 @@ public class FileQueueHandler
         
         if (useFullPath != null) {
             imageName = getImageName(container.file, useFullPath, numOfDirectories);
+            container.setUserSpecifiedFileName(imageName);
         } else {
             imageName = container.file.getAbsolutePath();
         }
@@ -532,47 +541,70 @@ public class FileQueueHandler
         if (event instanceof ImportCandidates.SCANNING)
         {
             ImportCandidates.SCANNING ev = (ImportCandidates.SCANNING) event;
-            if (scanEx.isShutdown()) {
+            if (scanEx.isShutdown() || cancelScan) {
                 log.info("Cancelling scan");
                 ev.cancel();
             }
 
-            /*
+            
             if (ev.totalFiles < 0)
             {
                 if (progressDialog == null)
                 {
+                    double layoutTable[][] =
+                    {{10, 180, 100, 10}, // columns
+                    {5, 30, 30, 5}}; // rows
+                    
                     progressDialog = new JDialog((JFrame)null, "Processing Directories");
-                    directoryProgressBar = new JProgressBar();
-                    progressDialog.setSize(300, 75);
+                    progressDialog.setSize(300, 90);
                     progressDialog.setLocationRelativeTo(viewer);
+                    TableLayout layout = new TableLayout(layoutTable);
+                    progressDialog.setLayout(layout);
+                    directoryProgressBar = new JProgressBar();
+                    directoryProgressBar.setString("Please wait.");
+                    directoryProgressBar.setStringPainted(true);
                     directoryProgressBar.setIndeterminate(true);
-                    progressDialog.add(BorderLayout.CENTER, directoryProgressBar);
+                    progressDialog.add(directoryProgressBar,"1,1,2,1");
+                    JButton cancelBtn = new JButton("Cancel");
+                    
+                    cancelBtn.addActionListener(new ActionListener() {
+                        
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            cancelScan  = true;
+                            directoryProgressBar.setString("Cancelling");
+                        }
+                    });      
+
+                    progressDialog.add(cancelBtn, "2,2");
+                    progressDialog.getRootPane().setDefaultButton(cancelBtn);
                     progressDialog.setVisible(true);
-                    //progressDialog.toFront();
+                    progressDialog.toFront();
                 }
-            }
-            else
+            } else
             {
+                viewer.appendToOutput("Processing directories: Scanned " + ev.numFiles + " files of " + ev.totalFiles + " total.\n");
+                
                 if (progressDialog != null)
                 {
+                    directoryProgressBar.setIndeterminate(false);
                     directoryProgressBar.setMaximum(ev.totalFiles);
                     directoryProgressBar.setMinimum(0);
+                    directoryProgressBar.setValue(ev.numFiles);
+                    directoryProgressBar.setString("Scanned " + ev.numFiles + " of " + ev.totalFiles);
                 }
-                  
-                  directoryProgressBar.setValue(ev.numFiles);
-                  
-                  //if (ev.totalFiles == ev.numFiles) progressDialog.dispose();
+
+                  if (ev.totalFiles == ev.numFiles || cancelScan)
+                  {
+                      progressDialog.dispose();
+                      progressDialog = null;
+                      cancelScan = false;
+                  }
+
             }
-            */
+            
             log.debug(ev.toLog());
-            if (ev.totalFiles < 0)
-            {
-                if (directoryCount == 0) viewer.appendToOutput("Determining how many directory files to process....\n");
-                directoryCount += ev.numFiles;
-            } else {
-                viewer.appendToOutput("Processing directories: Scanned " + ev.numFiles + " files of " + ev.totalFiles + " total.\n");
-            }
+
         }
         
         if (event instanceof ImportEvent.REIMPORT)
