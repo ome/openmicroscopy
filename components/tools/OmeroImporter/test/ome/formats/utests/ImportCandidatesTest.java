@@ -59,10 +59,12 @@ public class ImportCandidatesTest extends TestCase {
         }
     };
 
-    IObserver canceler = new IObserver() {
+    static class Canceler implements IObserver {
+        public int count = 0;
         public void update(IObservable importLibrary, ImportEvent event) {
             if (event instanceof ImportCandidates.SCANNING) {
                 ImportCandidates.SCANNING s = (ImportCandidates.SCANNING) event;
+                count++;
                 s.cancel();
             }
         }
@@ -86,8 +88,10 @@ public class ImportCandidatesTest extends TestCase {
 
     @Test
     public void testCancelFunctions() throws Exception {
-        basic(canceler);
+        Canceler cancel = new Canceler();
+        basic(cancel);
         assertEquals(0, c.size());
+        assertEquals(1, cancel.count);
         assertTrue(c.wasCancelled());
     }
 
