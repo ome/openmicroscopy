@@ -481,7 +481,7 @@ class AbstractMeasurementCtx(object):
         our results and the OMERO database itself.
         """
         columns = self.parse()
-        rois = self.parse_roi()
+        rois = self.parse_roi(columns)
         if columns is not None:
             self.populate(columns, rois)
    
