@@ -171,7 +171,7 @@
    *   + The license file, ${base.licensefile}. 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <target name="dist"
-          depends="jar, jar-util, dist-osx-openGL, dist-osx,dist-win, 
+          depends="jar, jar-util, dist-osx-openGL, dist-osx, dist-win, 
   	dist-win-openGL,dist-win64-openGL"
           description="Build and package the app for distribution."> 
     <zip destfile="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}.zip">
@@ -211,11 +211,11 @@
     <available property="hcs-preview-main-available"  
     	file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}.zip"/>
     <available property="hcs-preview-OSX-available"   
-    	file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-OSX.zip"/>
+    	file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-OSX-openGL.zip"/>
     <available property="hcs-preview-win-available"   
-    	file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win.zip"/>
+    	file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win-openGL.zip"/>
     <available property="hcs-preview-win64-available" 
-    	file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win64.zip"/>
+    	file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win64-openGL.zip"/>
     <antcall target="hcs-preview-main"  inheritAll="true" inheritRefs="true"/>
     <antcall target="hcs-preview-OSX"   inheritAll="true" inheritRefs="true"/>
     <antcall target="hcs-preview-win"   inheritAll="true" inheritRefs="true"/>
@@ -225,13 +225,13 @@
     <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}"/>
   </target>
   <target name="hcs-preview-OSX" if="hcs-preview-OSX-available">
-    <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}-OSX"/>
+    <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}-OSX-openGL"/>
   </target>
   <target name="hcs-preview-win" if="hcs-preview-win-available">
-    <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}-win"/>
+    <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}-win-openGL"/>
   </target>
   <target name="hcs-preview-win64" if="hcs-preview-win64-available">
-    <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}-win64"/>
+    <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}-win64-openGL"/>
   </target>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
@@ -276,7 +276,7 @@
 	
   <target name="dist-win-openGL" depends="jar,exe4j-init"
           if="dist.exe4j.exists"
-          description="Build an package the app for Windows distribution.">
+          description="Build an package the app for Windows distribution with OpenGL support.">
     <echo message="Setting exe as: ${exe_location}."/>
     <copy tofile="${build.dir}/Insight.exe4j"
           file="build/Insight_template.exe4j"
@@ -294,7 +294,7 @@
     </copy>
     <exe4j projectfile="${build.dir}/Insight.exe4j"/>
     <zip destfile=
-           "${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win.zip">
+           "${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win-openGL.zip">
       <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
       <zipfileset dir="${app.dir}" includes="lib/*"/>
       <zipfileset file="${app.dir}/${dist.win.exename}.exe"/>
@@ -317,7 +317,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
    <target name="dist-win64-openGL" depends="jar,exe4j-init"
 	          if="dist.exe4j.exists"
-	          description="Build an package the app for Windows 64 distribution.">
+	          description="Build an package the app for Windows 64 distribution with OpenGL support.">
 	    <echo message="Setting exe as: ${exe_location}."/>
 	    <copy tofile="${build.dir}/Insight64.exe4j"
 	          file="build/Insight_template.exe4j"
@@ -335,7 +335,7 @@
 	    </copy>
 	    <exe4j projectfile="${build.dir}/Insight64.exe4j"/>
 	    <zip destfile=
-	           "${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win64.zip">
+	           "${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win64-openGL.zip">
 	      <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
 	      <zipfileset dir="${app.dir}" includes="lib/*"/>
 	      <zipfileset file="${app.dir}/${dist.win.exename}.exe"/>
@@ -389,27 +389,12 @@
   </target> 
 
   <target name="dist-osx-openGL"
-	          depends="jar"
-	          description="Build and package the app for OS X distribution.">
-	    <jarbundler dir="${dist.dir}"
-	                name="${dist.name}"
-	                mainclass="${app.mainclass}"
-	                version="${dist.bundle.version}"
-	                infostring="${dist.name} Java Client, ${dist.bundle.version}"
-	                aboutmenuname="${dist.name}"
-	                screenmenu="true" 
-	                icon="${dist.osx.icon}"
-	                stubfile="${dist.osx.stub}" 
-	               	jvmversion="1.5+"
-	                vmoptions="${dist.vmparameters}">
-	      <jarfileset refid="app.libs"/>
-	      <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
-	    	<jarfileset dir="${base.lib.dir}/osx-native" includes="*.jnilib"/>
-	    </jarbundler>  
+	          depends="dist-osx"
+	          description="Build and package the app for OS X distribution with OpenGL support.">
 	    <zip destfile=
-	           "${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-OSX.zip">
+	           "${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-OSX-openGL.zip">
 	      <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
-	      <fileset dir="${dist.dir}" 
+	      <fileset dir="${dist.dir}/" 
 	               includes="OMERO.insight.app/**"
 	               excludes="**/${dist.osx.stub.name}"/>
 	      <zipfileset file="${dist.osx.stub}" 
@@ -521,7 +506,9 @@ Distribution targets:
   dist: Creates the distribution bundle under ${dist.dir}.
   dist-osx: Creates the Mac OS X distribution bundle under ${dist.dir}.
   dist-win: Creates the Windows distribution bundle under ${dist.dir}.
-  dist-win64: Creates the Windows 64-bit distribution bundle under ${dist.dir}.
+  dist-osx-openGL: Creates the Mac OS X distribution bundle under ${dist.dir} with OpenGL support.
+  dist-win-openGL: Creates the Windows distribution bundle under ${dist.dir} with OpenGL support.
+  dist-win64-openGL: Creates the Windows 64-bit distribution bundle under ${dist.dir} with OpenGL support.
   dist-docs: Create the full documentation bundle under ${dist.dir}. 
   dist-user-docs: Create the user documentation bundle under ${dist.dir}. 
   dist.clean: Remove ${dist.dir}. 
