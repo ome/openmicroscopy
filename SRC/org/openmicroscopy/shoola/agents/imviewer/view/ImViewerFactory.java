@@ -49,6 +49,7 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.view.EditorFactory;
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
@@ -373,6 +374,7 @@ public class ImViewerFactory
 	
 	/** The clear menu items. */
 	private JMenuItem   					clearMenu;
+	
 	/** 
 	 * Indicates if the {@link #windowMenu} is attached to the 
 	 * <code>TaskBar</code>.

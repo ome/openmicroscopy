@@ -30,6 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -37,6 +39,10 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
+import org.openmicroscopy.shoola.agents.measurement.actions.ActivationAction;
+import org.openmicroscopy.shoola.env.ui.TaskBar;
 
 import pojos.ChannelData;
 import pojos.PixelsData;
@@ -63,10 +69,61 @@ public class MeasurementViewerFactory
 	implements ChangeListener
 {
 
-	 /** The sole instance. */
+	/** The name of the windows menu. */
+	private static final String MENU_NAME = "ROI Tool";
+	
+	/** The sole instance. */
     private static final MeasurementViewerFactory  
     					singleton = new MeasurementViewerFactory();
     
+	/** 
+	 * Returns the <code>window</code> menu. 
+	 * 
+	 * @return See above.
+	 */
+	static JMenu getWindowMenu() { return singleton.windowMenu; }
+
+	/** Attaches the {@link #windowMenu} to the <code>TaskBar</code>. */
+	static void attachWindowMenuToTaskBar()
+	{
+		if (singleton.isAttached) return;
+		TaskBar tb = MeasurementAgent.getRegistry().getTaskBar();
+		tb.addToMenu(TaskBar.WINDOW_MENU, singleton.windowMenu);
+		singleton.isAttached = true;
+	}
+	
+	/** 
+	 * Adds all the {@link MeasurementViewer} components that this factory is
+	 * currently tracking to the passed menu.
+	 * 
+	 * @param menu The menu to add the components to. 
+	 */
+	static void register(JMenu menu)
+	{ 
+		//return singleton.viewers; 
+		if (menu == null) return;
+		Iterator<MeasurementViewer> i = singleton.viewers.iterator();
+		menu.removeAll();
+		while (i.hasNext()) 
+			menu.add(new JMenuItem(new ActivationAction(i.next())));
+		
+		/*
+		int n = singleton.recentViewers.size();
+		if (n > 0) {
+			Iterator<ImViewerRecentObject> 
+				j = singleton.recentViewers.iterator();
+			singleton.recentMenu.removeAll();
+			while (j.hasNext()) {
+				singleton.recentMenu.add(new JMenuItem(
+						new ActivateRecentAction(j.next())));
+			}
+			singleton.recentMenu.add(new JSeparator());
+			singleton.recentMenu.add(singleton.clearMenu);
+			menu.add(singleton.recentMenu);
+		}
+		*/
+	}
+	
     /**
      * Returns a viewer to display the image corresponding to the specified id.
      * Recycles or creates a viewer.
@@ -152,11 +209,22 @@ public class MeasurementViewerFactory
     /** All the tracked requests. */
     private Set<MeasurementTool>	requests;
     
+    /** The windows menu. */
+	private JMenu   				windowMenu;
+	
+	/** 
+	 * Indicates if the {@link #windowMenu} is attached to the 
+	 * <code>TaskBar</code>.
+	 */
+	private boolean 				isAttached;
+
     /** Creates a new instance. */
 	private MeasurementViewerFactory()
 	{
 		viewers = new HashSet<MeasurementViewer>();
 		requests = new HashSet<MeasurementTool>();
+		isAttached = false;
+		windowMenu = new JMenu(MENU_NAME);
 	}
 	
 	/**
@@ -193,5 +261,5 @@ public class MeasurementViewerFactory
 		if (comp.getState() == MeasurementViewer.DISCARDED) 
 			viewers.remove(comp);
 	}
-	
+
 }

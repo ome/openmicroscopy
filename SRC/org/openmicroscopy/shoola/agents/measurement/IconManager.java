@@ -115,7 +115,7 @@ public class IconManager
 	/** The <code>Line</code> icon. */
 	public static final int		LINE = 21;
 
-	/** The <code>Lineconnection</code> icon. */
+	/** The <code>Line connection</code> icon. */
 	public static final int		LINECONNECTION = 22;
 
 	/** The <code>Text</code> icon. */
@@ -125,58 +125,61 @@ public class IconManager
 	public static final int		POINTICON_22 = 24;
 
 	 /** The <code>Progress</code> icon. */
-    public static final int           PROGRESS = 25;
+    public static final int     PROGRESS = 25;
 
     /** The <code>GraphPane</code> icon. */
-    public static final int           GRAPHPANE = 26;
+    public static final int		GRAPHPANE = 26;
     
-    /** The <code>Itensity View</code> icon. */
-    public static final int          INTENSITYVIEW = 27;
+    /** The <code>Intensity View</code> icon. */
+    public static final int		INTENSITYVIEW = 27;
     
-    /** The <code>Roi stack</code> icon. */
-    public static final int          ROISTACK = 28;
+    /** The <code>ROI stack</code> icon. */
+    public static final int		ROISTACK = 28;
     
-    /** The <code>Roishape</code> icon. */
-    public static final int          ROISHAPE = 29;
+    /** The <code>ROI Shape</code> icon. */
+    public static final int		ROISHAPE = 29;
     
     /** The <code>Line 16</code> icon. */
-    public static final int          LINE_16 = 30;
+    public static final int		LINE_16 = 30;
     
     /** The <code>Ellipse 16</code> icon. */
-    public static final int          ELLIPSE_16 = 31;
+    public static final int		ELLIPSE_16 = 31;
     
     /** The <code>Rectangle 16</code> icon. */
-    public static final int          RECTANGLE_16 = 32;
+    public static final int		RECTANGLE_16 = 32;
     
     /** The <code>Connection 16</code> icon. */
-    public static final int          CONNECTION_16 = 33;
+    public static final int		CONNECTION_16 = 33;
     
     /** The <code>Polygon 16</code> icon. */
-    public static final int          POLYGON_16 = 34;
+    public static final int		POLYGON_16 = 34;
     
     /** The <code>Scribble 16</code> icon. */
-    public static final int          SCRIBBLE_16 = 35;
+    public static final int		SCRIBBLE_16 = 35;
 
     /** The <code>Point 16</code> icon. */
-    public static final int          POINT_16 = 36;
+    public static final int		POINT_16 = 36;
 
     /** The <code>Text</code> icon. */
-    public static final int          TEXT_16 = 37;
+    public static final int		TEXT_16 = 37;
 
     /** The <code>Question</code> icon. */
-    public static final int          QUESTION_32 = 38;
+    public static final int		QUESTION_32 = 38;
 
     /** The <code>CornerIcon</code> icon. */
-    public static final int          CORNERICON = 39;
+    public static final int		CORNERICON = 39;
     
     /** The <code>Load</code> icon. */
-    public static final int          LOAD = 40;
+    public static final int		LOAD = 40;
+    
+    /** The <code>Measurement tool</code> icon. */
+    public static final int		MEASUREMENT_TOOL = 41;
     
 	/** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int    MAX_ID = 40;
+    private static final int    MAX_ID = 41;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -225,6 +228,7 @@ public class IconManager
         relPaths[QUESTION_32] = "nuvola_filetype32.png";
         relPaths[CORNERICON] = "cornericon.png";
         relPaths[LOAD] = "nuvola_revert16.png";
+        relPaths[MEASUREMENT_TOOL] = "nuvola_designer16.png";
     }
     
     /** 

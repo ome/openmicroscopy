@@ -42,9 +42,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
+import javax.swing.JMenu;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuKeyEvent;
+import javax.swing.event.MenuKeyListener;
+import javax.swing.event.MenuListener;
 
 //Third-party libraries
 
@@ -261,6 +267,7 @@ class MeasurementViewerControl
         model.addPropertyChangeListener(this);
         actionsMap = new HashMap<Integer, MeasurementViewerAction>();
         createActions();
+        
     }
 
     /** 
@@ -300,6 +307,58 @@ class MeasurementViewerControl
 			}
 			
 		});
+    	JMenu menu = MeasurementViewerFactory.getWindowMenu();
+		menu.addMenuListener(new MenuListener() {
+
+			public void menuSelected(MenuEvent e)
+			{ 
+				Object source = e.getSource();
+				if (source instanceof JMenu)
+					MeasurementViewerFactory.register((JMenu) source);
+			}
+
+			/** 
+			 * Required by I/F but not actually needed in our case, 
+			 * no-op implementation.
+			 * @see MenuListener#menuCanceled(MenuEvent)
+			 */ 
+			public void menuCanceled(MenuEvent e) {}
+
+			/** 
+			 * Required by I/F but not actually needed in our case, 
+			 * no-op implementation.
+			 * @see MenuListener#menuDeselected(MenuEvent)
+			 */ 
+			public void menuDeselected(MenuEvent e) {}
+
+		});
+
+		//Listen to keyboard selection
+		menu.addMenuKeyListener(new MenuKeyListener() {
+
+			public void menuKeyReleased(MenuKeyEvent e)
+			{
+				Object source = e.getSource();
+				if (source instanceof JMenu)
+					MeasurementViewerFactory.register((JMenu) source);
+			}
+
+			/** 
+			 * Required by I/F but not actually needed in our case, 
+			 * no-op implementation.
+			 * @see MenuKeyListener#menuKeyPressed(MenuKeyEvent)
+			 */
+			public void menuKeyPressed(MenuKeyEvent e) {}
+
+			/** 
+			 * Required by I/F but not actually needed in our case, 
+			 * no op implementation.
+			 * @see MenuKeyListener#menuKeyTyped(MenuKeyEvent)
+			 */
+			public void menuKeyTyped(MenuKeyEvent e) {}
+
+		});
+		MeasurementViewerFactory.attachWindowMenuToTaskBar();
     }
     
     /** 

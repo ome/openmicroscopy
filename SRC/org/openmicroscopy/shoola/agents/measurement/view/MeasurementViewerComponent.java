@@ -192,6 +192,12 @@ class MeasurementViewerComponent
 
     /** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#activate()
+     */
+    public void activate() { activate(model.getMeasurements()); }
+    
+    /** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#activate(List)
      */
 	public void activate(List<FileAnnotationData> measurements)
@@ -850,5 +856,10 @@ class MeasurementViewerComponent
      * @see MeasurementViewer#isServerROI()
      */
 	public boolean isServerROI() { return model.isServerROI(); }
+
+	public String getViewTitle() {
+		// TODO Auto-generated method stub
+		return model.getImageTitle();
+	}
 	
 }

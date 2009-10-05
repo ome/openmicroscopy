@@ -479,6 +479,13 @@ class MeasurementViewerModel
 	}
 
 	/**
+	 * Returns the measurements.
+	 * 
+	 * @return See above.
+	 */
+	List<FileAnnotationData> getMeasurements() { return measurements; }
+	
+	/**
 	 * Returns the collection of measurements results.
 	 * 
 	 * @return See above.

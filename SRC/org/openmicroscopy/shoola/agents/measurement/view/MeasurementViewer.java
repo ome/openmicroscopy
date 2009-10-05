@@ -97,6 +97,16 @@ public interface MeasurementViewer
     public void activate(List<FileAnnotationData> measurements);
     
     /**
+     * Starts the data loading process when the current state is {@link #NEW} 
+     * and puts the window on screen.
+     * If the state is not {@link #NEW}, then this method simply moves the
+     * window to front.
+     * 
+     * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
+     */
+    public void activate();
+    
+    /**
      * Transitions the viewer to the {@link #DISCARDED} state.
      * Any ongoing data loading is cancelled.
      */
@@ -294,5 +304,7 @@ public interface MeasurementViewer
 	 * @return See above.
 	 */
 	public boolean isServerROI();
+
+	public String getViewTitle();
 	
 }
