@@ -313,11 +313,11 @@ Section "OMERO.server" SECSRV
   ${Requires} "Ice"
 
   File "README.txt"
-  File /r "dist/bin"
-  File /r "dist/etc"
-  #File /r "dist/include" ===== REACTIVATE
-  File /r "dist/lib"
-  File /r "dist/sql"
+  File /r "dist\bin"
+  File /r "dist\etc"
+  #File /r "dist\include" ===== REACTIVATE
+  File /r "dist\lib"
+  File /r "dist\sql"
 
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
   SetShellVarContext All
