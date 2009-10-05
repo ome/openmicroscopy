@@ -258,6 +258,7 @@ public class MetadataPanelsComponent
 			label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
 			label.setBackground(UIUtilities.BACKGROUND_COLOR);
 			
+			area.setEnabled(false);		// don't allow editing.
 			comp = new DataComponent(label, area);
 			comp.setSetField(value != null);
 			cmps.add(comp);
