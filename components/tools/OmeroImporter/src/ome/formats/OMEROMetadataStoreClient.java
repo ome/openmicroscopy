@@ -3888,90 +3888,63 @@ public class OMEROMetadataStoreClient
         addReference(key, new LSID(secondaryExcitationFilter));
     }
 
-    public void setMaskID(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskHeight(String height, int imageIndex, int roiIndex, int shapeIndex)
     {
-
-        //
 
     }
 
-    public void setMaskPixelsBigEndian(Boolean arg0, int arg1, int arg2,
-            int arg3)
+    public void setMaskID(String id, int imageIndex, int roiIndex, int shapeIndex)
     {
-
-        //
 
     }
 
-    public void setMaskPixelsBinData(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskTransform(String transform, int imageIndex, int roiIndex, int shapeIndex)
     {
-
-        //
 
     }
 
-    public void setMaskPixelsExtendedPixelType(String arg0, int arg1, int arg2,
-            int arg3)
+    public void setMaskWidth(String width, int imageIndex, int roiIndex, int shapeIndex)
     {
-
-        //
 
     }
 
-    public void setMaskPixelsID(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskX(String x, int imageIndex, int roiIndex, int shapeIndex)
     {
-
-        //
 
     }
 
-    public void setMaskPixelsSizeX(Integer arg0, int arg1, int arg2, int arg3)
+    public void setMaskY(String y, int imageIndex, int roiIndex, int shapeIndex)
     {
-
-        //
 
     }
 
-    public void setMaskPixelsSizeY(Integer arg0, int arg1, int arg2, int arg3)
+    public void setMaskPixelsBigEndian(Boolean bigEndian, int imageIndex, int roiIndex, int shapeIndex)
     {
-
-        //
 
     }
 
-    public void setMaskHeight(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskPixelsBinData(byte[] binData, int imageIndex, int roiIndex, int shapeIndex)
     {
-
-        //
 
     }
 
-    public void setMaskTransform(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskPixelsExtendedPixelType(String extendedPixelType, int imageIndex, int roiIndex, int shapeIndex)
     {
-
-        //
 
     }
 
-    public void setMaskWidth(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskPixelsID(String id, int imageIndex, int roiIndex, int shapeIndex)
     {
-
-        //
 
     }
 
-    public void setMaskX(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskPixelsSizeX(Integer sizeX, int imageIndex, int roiIndex, int shapeIndex)
     {
-
-        //
 
     }
-    
 
-    public void setMaskY(String arg0, int arg1, int arg2, int arg3)
+    public void setMaskPixelsSizeY(Integer sizeY, int imageIndex, int roiIndex, int shapeIndex)
     {
-
-        //
 
     }
 

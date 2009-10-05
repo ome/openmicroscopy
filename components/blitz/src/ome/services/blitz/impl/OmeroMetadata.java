@@ -1139,9 +1139,9 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Image+/DisplayOptions/ROI+/Union/Shape+/Mask/MaskPixels
-    public String getMaskPixelsBinData(int idxImage, int idxROI, int idxShape) {
+    public byte[] getMaskPixelsBinData(int idxImage, int idxROI, int idxShape) {
         Exception e = null;
-        String rv = null;
+        byte[] rv = null;
         try {
             rv = null;
         } catch (NullPointerException npe) {
