@@ -803,7 +803,7 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
             n_measurements = 0
             columns = {'Image': ImageColumn('Image', '', list()),
                        'Cell': LongColumn('Cell', '', list()),
-                       'Cell cg ROI': RoiColumn('Cell cg ROI', '', list(),
+                       'Cell cg ROI': RoiColumn('Cell cg ROI', '', list()),
                        'Nucleus cG ROI': RoiColumn('Nucleus cg ROI', '', list()),
                        }
             for event, element in iterparse(data, events=events):
