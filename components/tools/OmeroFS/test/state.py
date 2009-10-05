@@ -100,7 +100,7 @@ class TestState(unittest.TestCase):
         self.s.update({'file2':['file1','file2']}, 0.1, clearcb(self.log, self.s, 'file2'))
         self.assertEquals(2, len(self.s.keys()))
         time.sleep(0.25)
-        self.assertEquals(0, len(self.s.keys()), self.s.keys())
+        self.assertEquals(2, len(self.s.keys()), self.s.keys())
 
     def testEntryOutOfSyncSubsume(self):
         self.s.update({'file1':['file1'        ]}, 0.1, nullcb)
