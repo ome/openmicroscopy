@@ -44,7 +44,6 @@
       <server-instance template="FSTemplate"/>
       <server-instance template="ShellTemplate" id="Web" act="on-demand"/>
       <server-instance template="StormTemplate"/>
-      <!-- This requires defining omero.data.dir here -->
       <server-instance template="ProcessorTemplate" index="0" dir=""/><!-- assumes legacy -->
       <server-instance template="TablesTemplate" index="0" dir=""/><!-- assumes legacy -->
     </node>

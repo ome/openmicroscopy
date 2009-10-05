@@ -53,6 +53,8 @@
       <server-instance template="FSTemplate"/>
       <server-instance template="WebTemplate"/>
       <server-instance template="StormTemplate"/>
+      <server-instance template="ProcessorTemplate" index="0" dir=""/><!-- assumes legacy -->
+      <server-instance template="TablesTemplate" index="0" dir=""/><!-- assumes legacy -->
     </node>
 
     <node name="backup">
