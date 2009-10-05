@@ -147,12 +147,14 @@ public interface ImageDataView
      *                  Default value is <code>1</code>
      * @param algorithm The type of projection.
      * @param channels 	The collection of channels to project.
+     * @param openGLSupport Pass <code>true</code> if openGL is supported,
+     * 						<code>false</code> otherwise.
      * @param observer 	Callback handler.
      * @return See above.
      */
     public CallHandle renderProjected(long pixelsID, int startZ, int endZ,
     		int stepping, int algorithm, List<Integer> channels,
-    		AgentEventListener observer);
+    		boolean openGLSupport, AgentEventListener observer);
     
     /**
      * Projects a section of the stack and returns the projected image.

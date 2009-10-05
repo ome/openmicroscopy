@@ -105,7 +105,6 @@ class StatusPanel
 		this.add(lensSize);
 		this.add(new Box.Filler(minSize, prefSize, maxSize));
 		this.add(lensZoom);
-		
 	}
 	
 	/**
@@ -125,7 +124,7 @@ class StatusPanel
 	 */
 	void setLensXY(int x, int y)
 	{
-		if(displayInPixels)
+		if (displayInPixels)
 			lensPosition.setText(LENS_X + x + " " + LENS_Y + y);
 		else
 			lensPosition.setText(LENS_X + 

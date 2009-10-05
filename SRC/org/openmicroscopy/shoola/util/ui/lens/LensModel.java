@@ -127,6 +127,9 @@ class LensModel
 	/** The background color. */
 	private Color			background;
 	
+	/** Flag indicating if we support openGL or not. */
+	private boolean			openGLSupport;
+	
 	/** Flushes the data buffer. */
 	private void flushDataBuffer()
 	{
@@ -224,18 +227,31 @@ class LensModel
 	/**
 	 * Creates a new instance. 
 	 * 
-	 * @param planeImage The image to handle.
-	 *
+	 * @param planeImage 	The image to handle.
+	 *@param openGLSupport 	Pass <code>true</code> to indicate that the 
+     * 						component supports openGL, <code>false</code>
+     * 						otherwise.
 	 */
-	LensModel(BufferedImage planeImage)
+	LensModel(BufferedImage planeImage, boolean openGLSupport)
 	{
 		this.planeImage = planeImage;
+		this.openGLSupport = openGLSupport;
 		x = 0;
 		y = 0;
+		width = LensComponent.LENS_DEFAULT_WIDTH;
+		height = LensComponent.LENS_DEFAULT_WIDTH;
 		setBackgroundColor(DEFAULT_BACKGROUND);
 		zoomedDataBufferSize = DEFAULT_SIZE;
 	}
 
+	/**
+	 * Returns <code>true</code> to indicate that the 
+     * 						component supports openGL, <code>false</code>
+     * 						otherwise.
+	 * @return See above.
+	 */
+	boolean hasOpenGLSupport() { return openGLSupport; }
+	
 	/** 
 	 * Sets the plane image to a new image.
 	 *  
@@ -257,8 +273,12 @@ class LensModel
 	 */
 	int	getImageWidth()
 	{
-		//if (planeImage != null) return planeImage.getWidth();
-		if (planeImageAsTexture != null) return planeImageAsTexture.getWidth();
+		if (hasOpenGLSupport()) {
+			if (planeImageAsTexture != null) 
+				return planeImageAsTexture.getWidth();
+		} else {
+			if (planeImage != null) return planeImage.getWidth();
+		}
 		return 0;
 	}
 	
@@ -269,10 +289,7 @@ class LensModel
 	 */
 	int	getImageScaledWidth()
 	{
-		//if (planeImage != null )
-		//	return (int) (planeImage.getWidth()*imageZoomFactor);
 		return (int) (getImageWidth()*imageZoomFactor);
-		//return 0;
 	}
 
 	/**
@@ -282,11 +299,6 @@ class LensModel
 	 */
 	int	getImageScaledHeight()
 	{
-		/*
-		if (planeImage != null)
-			return (int) (planeImage.getHeight()*imageZoomFactor);
-		return 0;
-		*/
 		return (int) (getImageHeight()*imageZoomFactor);
 	}
 	
@@ -297,8 +309,12 @@ class LensModel
 	 */
 	int	getImageHeight()
 	{
-		//if (planeImage != null) return planeImage.getHeight();
-		if (planeImageAsTexture != null) return planeImageAsTexture.getHeight();
+		if (hasOpenGLSupport()) {
+			if (planeImageAsTexture != null) 
+				return planeImageAsTexture.getHeight();
+		} else {
+			if (planeImage != null) return planeImage.getHeight();
+		}
 		return 0;
 	}
 

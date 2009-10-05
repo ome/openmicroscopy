@@ -32,6 +32,8 @@ import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.JScrollPane;
 
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+
 import com.sun.opengl.util.texture.TextureData;
 
 //Third-party libraries
@@ -57,7 +59,7 @@ class ProjectionUI
 {
 
 	/** The canvas hosting the projected image. */
-	private ProjectionCanvas 		canvas;
+	private JComponent 		canvas;
 	
 	/** Reference to the model. */
 	private BrowserModel			model;
@@ -72,7 +74,9 @@ class ProjectionUI
     private void initComponents()
     {
         layeredPane = new JLayeredPane();
-        canvas = new ProjectionCanvas(model, view);
+        if (ImViewerAgent.hasOpenGLSupport())
+        	canvas = new ProjectionCanvas(model, view);
+        else canvas = new ProjectionBICanvas(model, view);
         //The image canvas is always at the bottom of the pile.
         //layeredPane.setLayout(new BorderLayout(0, 0));
         layeredPane.add(canvas, Integer.valueOf(0));
@@ -104,16 +108,6 @@ class ProjectionUI
 		buildGUI();
 	}
 	
-	/** Sets the size of the canvas. */
-	void setCanvasSize()
-	{
-		BufferedImage image = model.getDisplayedProjectedImage();
-		if (image == null) return;
-		Dimension d = new Dimension(image.getWidth(), image.getHeight());
-        canvas.setPreferredSize(d);
-        canvas.setSize(d);
-	}
-	
     /** 
      * Returns the current size of the viewport. 
      * 
@@ -124,6 +118,20 @@ class ProjectionUI
     /** Displays the zoomed image. */
     void zoomImage()
     {
+    	if (canvas instanceof ProjectionCanvas) {
+    		TextureData img = model.getRenderedImageAsTexture();
+        	if (img == null) return;
+        	double zoom = model.getZoomFactor();
+        	int w = (int) (img.getWidth()*zoom);
+        	int h = (int) (img.getHeight()*zoom);
+        	setComponentsSize(w, h);
+    	} else {
+    		 if (model.getProjectedImage() == null) return;
+    		 model.createDisplayedProjectedImage();
+    		 BufferedImage img = model.getDisplayedProjectedImage();
+    		 if (img == null) return;
+    		 setComponentsSize(img.getWidth(), img.getHeight());
+    	}
     	/*
         if (model.getProjectedImage() == null) return;
         model.createDisplayedProjectedImage();
@@ -135,12 +143,7 @@ class ProjectionUI
         canvas.repaint();
         setBounds(getBounds());
         */
-        TextureData img = model.getRenderedImageAsTexture();
-    	if (img == null) return;
-    	double zoom = model.getZoomFactor();
-    	int w = (int) (img.getWidth()*zoom);
-    	int h = (int) (img.getHeight()*zoom);
-    	setComponentsSize(w, h);
+        
     	getViewport().setViewPosition(new Point(-1, -1));
     	canvas.repaint();
     	setBounds(getBounds());

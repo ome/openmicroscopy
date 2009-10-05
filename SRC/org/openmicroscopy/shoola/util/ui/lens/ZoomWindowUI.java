@@ -23,24 +23,12 @@
 package org.openmicroscopy.shoola.util.ui.lens;
 
 //Java imports
-import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
-
 import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
-import javax.swing.JMenuBar;
-import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
@@ -71,23 +59,23 @@ class ZoomWindowUI
 
 
     /** Flag indicating if the experimenter uses the scrollbars. */
-    private boolean					adjusting;
+    private boolean				adjusting;
     
 	/** Panel holding the zoomed Image */
-	private ZoomPanel          canvas;
+	private JComponent          canvas;
 
-	/**
-	 *
-	 */
+	/** Layered pane hosting the component. */
     private JLayeredPane        layeredPane;
  
-    private LensModel model;
+    /** The lens model. */
+    private LensModel 			model;
     
     /** Initializes the components composing the display. */
     private void initComponents()
     {
     	 layeredPane = new JLayeredPane();
-    	 canvas = new ZoomPanel(model);
+    	 if (model.hasOpenGLSupport()) canvas = new ZoomPanel(model);
+    	 else canvas = new ZoomBIPanel(model);
     	 layeredPane.add(canvas, Integer.valueOf(0));
     	 getVerticalScrollBar().addMouseMotionListener(this);
          getHorizontalScrollBar().addMouseMotionListener(this);
@@ -139,6 +127,7 @@ class ZoomWindowUI
 	void setZoomUISize(int w, int h) 
 	{
 		Dimension d = new Dimension(w, h);
+		System.err.println(d);
 		layeredPane.setPreferredSize(d);
 		layeredPane.setSize(d);
 		canvas.setSize(d);

@@ -61,6 +61,9 @@ class ImageCanvas
 	/** Reference to the Model. */
 	protected BrowserModel	model;
     
+	/** Reference to the Model. */
+	protected BrowserUI 	view;
+	
     /** The string to paint on top of the image. */
     protected String		paintedString;
     
@@ -72,10 +75,12 @@ class ImageCanvas
      *
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-    ImageCanvas(BrowserModel model)
+    ImageCanvas(BrowserModel model, BrowserUI view)
     {
     	if (model == null) throw new NullPointerException("No model.");
+    	if (view == null) throw new NullPointerException("No view.");
         this.model = model;
+        this.view = view;
         setBackground(model.getBackgroundColor());
         setDoubleBuffered(true);
         setFont(getFont().deriveFont(10f));

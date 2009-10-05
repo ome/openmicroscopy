@@ -276,6 +276,18 @@ public class ImgSaver
 				break;
 		}
     }
+
+    /** Invokes when the openGL flag is turned on. */
+    private void saveAsTexture()
+    {
+    	String extendedName = getExtendedName(name, format);
+        SaveObject object = new SaveObject(extendedName, format, 
+        		uiDelegate.getSavingType());
+        if (uiDelegate.isSetDefaultFolder())
+        	UIUtilities.setDefaultFolder(uiDelegate.getCurrentDirectory());
+        firePropertyChange(SAVE_IMAGE_PROPERTY, null, object);
+        close();
+    }
     
     /**
      * Creates a new instance.
@@ -415,7 +427,7 @@ public class ImgSaver
     private void writeSingleImage(BufferedImage image, boolean constrain, 
     							String name)
     {
-    	/*
+    	
     	int width = image.getWidth();
         int h = image.getHeight();
         String v = getUnitBarValue(); 
@@ -431,8 +443,7 @@ public class ImgSaver
         if (constrain)
             ImagePaintingFactory.paintScaleBar(g2, width-s-10, h-10, s, v);
         writeImage(newImage, name);
-        */
-    	 writeImage(image, name);
+        //writeImage(image, name);
     }
     
     /** 
@@ -443,14 +454,11 @@ public class ImgSaver
      */
     void saveImage(boolean init)
     {
-    	String extendedName = getExtendedName(name, format);
-        SaveObject object = new SaveObject(extendedName, format, 
-        		uiDelegate.getSavingType());
-        if (uiDelegate.isSetDefaultFolder())
-        	UIUtilities.setDefaultFolder(uiDelegate.getCurrentDirectory());
-        firePropertyChange(SAVE_IMAGE_PROPERTY, null, object);
-        close();
-    	/*
+    	if (ImViewerAgent.hasOpenGLSupport()) {
+    		saveAsTexture();
+    		return;
+    	}
+
     	UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
     	if (init) createImages(uiDelegate.getSavingType());
         //Builds the image to display.
@@ -489,7 +497,8 @@ public class ImgSaver
                     int n = imageComponents.size();
                     w = width*(n+1)+ImgSaverPreviewer.SPACE*(n-1);
 
-                    newImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+                    newImage = new BufferedImage(w, h, 
+                    		BufferedImage.TYPE_INT_RGB);
                     g2 = (Graphics2D) newImage.getGraphics();
                     g2.setColor(Color.WHITE);
                     ImagePaintingFactory.setGraphicRenderingSettings(g2);
@@ -516,6 +525,7 @@ public class ImgSaver
             	}
             }
 		} catch (Exception e) {
+			e.printStackTrace();
 			 un.notifyInfo("Saving Image", "An error occured while saving " +
 			 		"the image.");
 			 return;
@@ -523,7 +533,6 @@ public class ImgSaver
         un.notifyInfo("Saving Image", saveMessage);
         if (uiDelegate.isSetDefaultFolder())
         	UIUtilities.setDefaultFolder(uiDelegate.getCurrentDirectory());
-        	*/
     }
 
     /**

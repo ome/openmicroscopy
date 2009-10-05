@@ -36,6 +36,8 @@ import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -59,7 +61,7 @@ class GridUI
 {
 
 	/** The canvas hosting the grid image. */
-	private GridCanvas 		canvas;
+	private JComponent 		canvas;
 	
 	/** Reference to the model. */
 	private BrowserModel	model;
@@ -74,8 +76,11 @@ class GridUI
     private void initComponents()
     {
         layeredPane = new JLayeredPane();
-       
-        canvas = new GridCanvas(model, view);
+        if (ImViewerAgent.hasOpenGLSupport()) {
+        	 canvas = new GridCanvas(model, view);
+        } else {
+        	 canvas = new GridBICanvas(model, view);
+        }
         //The image canvas is always at the bottom of the pile.
         //layeredPane.setLayout(new BorderLayout(0, 0));
         layeredPane.add(canvas, Integer.valueOf(0));
@@ -116,8 +121,11 @@ class GridUI
 	 */
 	void activeFileSave(File file, String format)
 	{
-		canvas.activeSave(file, format);
-		canvas.repaint();
+		if (canvas instanceof GridCanvas) {
+			((GridCanvas) canvas).activeSave(file, format);
+			canvas.repaint();
+		}
+		
 	}
 	
 	/** Sets the dimension of the UI components. */
@@ -152,18 +160,19 @@ class GridUI
     }
     
 	/** Determines the size of the canvas. */
-	void paintImage()
-	{ 
-		
-		repaint(); 
-	}
+	void paintImage() { repaint(); }
 	
 	/**
 	 * Returns the grid image.
 	 * 
 	 * @return See above.
 	 */
-	BufferedImage getGridImage() { return canvas.getGridImage(); }
+	BufferedImage getGridImage()
+	{ 
+		if (canvas instanceof GridBICanvas) 
+			return ((GridBICanvas) canvas).getGridImage();
+		return null; 
+	}
 	
 	/** Resets the size of the components when a new ratio is selected. */
 	void setGridRatio()
@@ -184,7 +193,9 @@ class GridUI
 	 */
 	Point isOnImageInGrid(Rectangle rect)
 	{
-		return canvas.isOnImageInGrid(rect);
+		if (canvas instanceof GridBICanvas) 
+			return ((GridBICanvas) canvas).isOnImageInGrid(rect);
+		return new Point(0, 0);
 	}
 	
 	/** 

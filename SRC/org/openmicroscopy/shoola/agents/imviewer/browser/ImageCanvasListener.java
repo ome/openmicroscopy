@@ -31,6 +31,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+
+import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
 //Third-party libraries
@@ -38,7 +40,7 @@ import javax.swing.SwingUtilities;
 //Application-internal dependencies
 
 /** 
- * Holds the listeners added to an {@link ImageCanvas}.
+ * Holds the listeners added to an {@link GLImageCanvas}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -64,7 +66,7 @@ class ImageCanvasListener
     private BrowserUI		view;
     
     /** The canvas this listener is for. */
-    private GLImageCanvas		canvas;
+    private JComponent		canvas;
     
     /** 
      * Flag indicating that the mouse entered or not the area. Control
@@ -93,7 +95,7 @@ class ImageCanvasListener
      * 					Mustn't be <code>null</code>.
      */
     ImageCanvasListener(BrowserUI view, BrowserModel model, 
-    		GLImageCanvas canvas)
+    		JComponent canvas)
     {
     	if (model == null) throw new NullPointerException("No Model.");
     	if (canvas == null) throw new NullPointerException("No canvas.");
@@ -168,7 +170,8 @@ class ImageCanvasListener
 		if (pressedT < 0) return;
 		if (pressedT > maxT)  return;
 		model.setSelectedXYPlane(pressedZ, pressedT);
-		canvas.setPaintedString(pressedZ, pressedT);
+		if (canvas instanceof BrowserBICanvas)
+			((BrowserBICanvas) canvas).setPaintedString(pressedZ, pressedT);
 	}
 
 	/**
@@ -179,7 +182,9 @@ class ImageCanvasListener
 	{
 		pressedPoint = e.getPoint();
 		SwingUtilities.convertPointToScreen(pressedPoint, canvas);
-		canvas.setPaintedString(model.getDefaultZ(), model.getDefaultT());
+		if (canvas instanceof BrowserBICanvas)
+			((BrowserBICanvas) canvas).setPaintedString(model.getDefaultZ(),
+					model.getDefaultT());
 	}
 	
 	/**
@@ -190,7 +195,8 @@ class ImageCanvasListener
 	{
 		pressedPoint = DEFAULT_POINT;
 		SwingUtilities.convertPointToScreen(pressedPoint, canvas);
-		canvas.setPaintedString(-1, -1);
+		if (canvas instanceof BrowserBICanvas)
+			((BrowserBICanvas) canvas).setPaintedString(-1, -1);
 	}
 	
 	/**
@@ -210,15 +216,23 @@ class ImageCanvasListener
             if (up) {
                 if (v <= maxZ) {
                 	model.setSelectedXYPlane(v, -1);
-                	canvas.setPaintedString(v, model.getDefaultT());
-                } else
-                	canvas.setPaintedString(-1, -1);
+                	if (canvas instanceof BrowserBICanvas)
+            			((BrowserBICanvas) canvas).setPaintedString(v, 
+            					model.getDefaultT());
+                } else {
+                	if (canvas instanceof BrowserBICanvas)
+            			((BrowserBICanvas) canvas).setPaintedString(-1, -1);
+                }
             } else { //moving down
                 if (v >= 0) {
                 	model.setSelectedXYPlane(v, -1);
-                	canvas.setPaintedString(v, model.getDefaultT());
-                } else
-                	canvas.setPaintedString(-1, -1);
+                	if (canvas instanceof BrowserBICanvas)
+            			((BrowserBICanvas) canvas).setPaintedString(v, 
+            					model.getDefaultT());
+                } else {
+                	if (canvas instanceof BrowserBICanvas)
+            			((BrowserBICanvas) canvas).setPaintedString(-1, -1);
+                }
             }
         } else {
      

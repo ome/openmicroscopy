@@ -34,12 +34,11 @@ import javax.swing.JFrame;
 
 
 //Third-party libraries
+import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
-import org.apache.commons.digester.WithDefaultsRulesWrapper;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
-import com.sun.opengl.util.texture.TextureData;
 
 /** 
 * The Lens Component is the main component of the lens accessible from outside
@@ -163,17 +162,19 @@ public class LensComponent
 			zoomFactor = LensModel.MAXIMUM_ZOOM;
 		setZoomFactor(zoomFactor);
 	}
-	
+
 	/**
 	 * Creates a new instance which is the container for the lens 
 	 * infrastructure.
 	 * 
-     * @param parent   		The parent of the Dialog.
-	 * @param planeImage 	The image being displayed by the viewer.
+     * @param parent 		The parent of the Dialog.
+     * @param openGLSupport Pass <code>true</code> to indicate that the 
+     * 						component supports openGL, <code>false</code>
+     * 						otherwise.
 	 */
-	public LensComponent(JFrame parent, BufferedImage planeImage)
-	{
-		lensModel = new LensModel(planeImage);
+	public LensComponent(JFrame parent, boolean openGLSupport)
+	{ 
+		lensModel = new LensModel(null, openGLSupport);
 		zoomWindow = new ZoomWindow(parent, this, lensModel);
 		lens = new LensUI(this, LENS_DEFAULT_WIDTH, LENS_DEFAULT_WIDTH);
 		lensController = new LensController(lensModel, lens, zoomWindow);
@@ -187,14 +188,6 @@ public class LensComponent
 		lens.setPopupMenu(menu.getPopupMenu());
 		zoomWindow.setJMenuBar(menu.getMenubar());
 	}
-	
-	/**
-	 * Creates a new instance which is the container for the lens 
-	 * infrastructure.
-	 * 
-     * @param parent   		The parent of the Dialog.
-	 */
-	public LensComponent(JFrame parent) { this(parent, null); }
 	
 	/**
 	 * Sets the colour of the lens to better contrast with the 
@@ -394,8 +387,10 @@ public class LensComponent
 		lens.setImageZoomFactor();
 		//from PlaneImage
 		lensController.setLensLocation(x, y);
-		//zoomWindow.setZoomImage(lensModel.getZoomedImage());
+		setLensSize(lensModel.getWidth(), lensModel.getHeight());
 		zoomWindow.paintImage();
+		if (!zoomWindow.isVisible())
+			zoomWindow.setSize(ZoomWindow.DEFAULT_SIZE);
 	}
 	
 	/**

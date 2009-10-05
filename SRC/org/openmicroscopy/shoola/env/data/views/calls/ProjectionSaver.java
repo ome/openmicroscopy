@@ -70,18 +70,23 @@ public class ProjectionSaver
      *                 	Default is <code>1</code>
      * @param algorithm	The type of projection.
      * @param channels  The collection of channels to project.
+     * @param openGLSupport Pass <code>true</code> if openGL is supported,
+     * 						<code>false</code> otherwise.
      * @return See above.
      */
     private BatchCall makeRenderProjectedCall(final int startZ, final int endZ, 
     		  final int stepping, final int algorithm, 
-    		  final List<Integer> channels)
+    		  final List<Integer> channels, final boolean openGLSupport)
     {
     	return new BatchCall("Preview the projected image.") {
             public void doCall() throws Exception
             {
                 OmeroImageService rds = context.getImageService();
-                result = rds.renderProjectedAsTexture(pixelsID, startZ, endZ, 
-                		stepping, algorithm, channels);
+                if (openGLSupport)
+                	result = rds.renderProjectedAsTexture(pixelsID, startZ, 
+                			endZ, stepping, algorithm, channels);
+                else result = rds.renderProjected(pixelsID, startZ, 
+            			endZ, stepping, algorithm, channels);
             }
         };
     }
@@ -125,15 +130,18 @@ public class ProjectionSaver
      *                 Default is <code>1</code>
      * @param type     The type of projection.
      * @param channels The collection of channels to project.
+     * @param openGLSupport Pass <code>true</code> if openGL is supported,
+     * 						<code>false</code> otherwise.
      */
     public ProjectionSaver(long pixelsID, int startZ, int endZ, int stepping, 
-    		              int type, List<Integer> channels)
+    		              int type, List<Integer> channels, boolean
+    		              openGLSupport)
     {
     	if (pixelsID < 0)
     		throw new IllegalArgumentException("Pixels Id not valid.");
     	this.pixelsID = pixelsID;
     	loadCall = makeRenderProjectedCall(startZ, endZ, stepping, type, 
-    			channels);
+    			channels, openGLSupport);
     }
     
     /**

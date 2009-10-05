@@ -719,8 +719,9 @@ class ImViewerModel
 		pDef.z = getDefaultZ();
 		pDef.slice = omero.romio.XY.value;
 		state = ImViewer.LOADING_IMAGE;
-		//component.setImage(rnd.renderPlane(pDef));
-		component.setImageAsTexture(rnd.renderPlaneAsTexture(pDef));
+		if (ImViewerAgent.hasOpenGLSupport())
+			component.setImageAsTexture(rnd.renderPlaneAsTexture(pDef));
+		else component.setImage(rnd.renderPlane(pDef));
 	}
 
 	/**
@@ -772,32 +773,6 @@ class ImViewerModel
 			if (rnd != null) originalDef = rnd.getRndSettingsCopy();
 		} catch (Exception e) {}
 	}
-	
-	/**
-	 * Sets the rendering control.
-	 * 
-	 * @param rndControl 	The object to set.
-	 */
-	void setRenderingControl(RenderingControl rndControl)
-	{
-		/*
-		if (renderer == null) {
-			renderer = RendererFactory.createRenderer(component, rndControl, 
-					metadataViewer.getEditorUI());
-			state = ImViewer.RENDERING_CONTROL_LOADED;
-			double f = initZoomFactor();
-			if (f > 0)
-				browser.initializeMagnificationFactor(f);
-			try {
-				if (alternativeSettings != null)
-					currentRndControl.resetSettings(alternativeSettings);
-				alternativeSettings = null;
-			} catch (Exception e) {}
-		} else {
-			renderer.setRenderingControl(currentRndControl);
-		}
-		*/
-	} 
 
 	/**
 	 * Returns the {@link Browser}.

@@ -442,8 +442,14 @@ class BrowserComponent
 	{
 		switch (index) {
 			case ImViewer.GRID_INDEX:
-				if (!model.hasGridImagesAsTexture())
-					model.setGridImages();
+				if (ImViewerAgent.hasOpenGLSupport()) {
+					if (!model.hasGridImagesAsTexture())
+						model.setGridImages();
+				} else {
+					if (model.hasNoGridImages())
+						model.setGridImages();
+				}
+				
 				gridView.paintImage();
 				break;
 			case ImViewer.PROJECTION_INDEX:	
@@ -505,11 +511,16 @@ class BrowserComponent
 		//if (model.getCombinedImage() != null)
 		//	return gridView.getGridImage();
 		//model.setGridImages();
-		if (!model.hasGridImagesAsTexture()) {
+		if (ImViewerAgent.hasOpenGLSupport()) {
+			if (!model.hasGridImagesAsTexture()) {
+				model.setGridImages();
+				gridView.paintImage();
+			}
+		} else {
+			if (model.getCombinedImage() != null)
+				return gridView.getGridImage();
 			model.setGridImages();
-			gridView.paintImage();
 		}
-			
 		return gridView.getGridImage();
 	}
 	

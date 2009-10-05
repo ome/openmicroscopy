@@ -164,10 +164,10 @@ class ImageDataViewImpl
      */
 	public CallHandle renderProjected(long pixelsID, int startZ, int endZ, 
 			int stepping, int algorithm, List<Integer> channels, 
-			AgentEventListener observer)
+			boolean openGLSupport, AgentEventListener observer)
     {
 		BatchCallTree cmd = new ProjectionSaver(pixelsID, startZ, endZ, 
-				                  stepping, algorithm, channels);
+				                  stepping, algorithm, channels, openGLSupport);
 		return cmd.exec(observer);
 	}
 

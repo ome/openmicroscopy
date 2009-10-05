@@ -141,13 +141,12 @@
       </manifest> 
     </jar>
   </target> 
- 
-	  <target name="jar-util" depends="dist-init">
-	    <pathconvert property="dist.jar.manifest.cp" 
-	                 pathsep=" " 
+  <target name="jar-util" depends="dist-init">
+     <pathconvert property="dist.jar.manifest.cp" 
+        pathsep=" " 
 	                 dirsep="/" 
 	                 refid="app.libs">
-	      <map from="${base.lib.dir}" to="${dist.app.lib.dir.name}"/>                
+	    <map from="${base.lib.dir}" to="${dist.app.lib.dir.name}"/>                
 	    </pathconvert>   
 	    <jar destfile="${dist.dir}/${dist.util.name}-${dist.bundle.version}.jar">
 	      <fileset dir="${app.compiled.util.dir}"/>
@@ -156,7 +155,7 @@
 	    	        <attribute name="Created-By" value="OMERO Development Team"/>
 	    	      </manifest> 
 	    </jar>
-	  </target> 
+  </target> 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Creates the default distribution bundle under ${dist.dir}.
    * This is a zip file whose name is set to 
@@ -184,12 +183,16 @@
     </zip>
     <antcall target="hcs-preview" inheritAll="true" inheritRefs="true"/>
   </target>
-
-  <target name="hcs-preview" description="Temporary 4.1 target for creating the HCS_PREVIEW files">
+ <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Creates a distribution for HCS preview
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <target name="hcs-preview" 
+  	description="Temporary 4.1 target for creating the HCS_PREVIEW files">
     <delete dir="${dist.dir}/hcs-preview"/>
     <mkdir dir="${dist.dir}/hcs-preview"/>
     <property name="hcs-container" value="hcs-preview/config/container.xml"/>
-    <copy file="${app.config.dir}/container.xml" tofile="${dist.dir}/${hcs-container}"/>
+    <copy file="${app.config.dir}/container.xml" 
+    	tofile="${dist.dir}/${hcs-container}"/>
     <replace file="${dist.dir}/${hcs-container}"
         token='entry name="/roi/location/server" type="boolean"&gt;false&lt;/entry'
         value='entry name="/roi/location/server" type="boolean"&gt;true&lt;/entry'>
@@ -197,16 +200,21 @@
     <macrodef name="hcs-preview-copy">
         <attribute name="zip"/>
         <sequential>
-            <copy file="${dist.dir}/@{zip}.zip" tofile="${dist.dir}/@{zip}-HCS_PREVIEW.zip"/>
+            <copy file="${dist.dir}/@{zip}.zip" 
+            	tofile="${dist.dir}/@{zip}-HCS_PREVIEW.zip"/>
             <zip destfile="${dist.dir}/@{zip}-HCS_PREVIEW.zip" update="true">
                 <zipfileset dir="${dist.dir}/hcs-preview" includes="config/**"/>
             </zip>
         </sequential>
     </macrodef>
-    <available property="hcs-preview-main-available"  file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}.zip"/>
-    <available property="hcs-preview-OSX-available"   file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-OSX.zip"/>
-    <available property="hcs-preview-win-available"   file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win.zip"/>
-    <available property="hcs-preview-win64-available" file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win64.zip"/>
+    <available property="hcs-preview-main-available"  
+    	file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}.zip"/>
+    <available property="hcs-preview-OSX-available"   
+    	file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-OSX.zip"/>
+    <available property="hcs-preview-win-available"   
+    	file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win.zip"/>
+    <available property="hcs-preview-win64-available" 
+    	file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win64.zip"/>
     <antcall target="hcs-preview-main"  inheritAll="true" inheritRefs="true"/>
     <antcall target="hcs-preview-OSX"   inheritAll="true" inheritRefs="true"/>
     <antcall target="hcs-preview-win"   inheritAll="true" inheritRefs="true"/>
@@ -237,6 +245,35 @@
    *   + The license file, ${base.licensefile}. 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="dist-win" depends="jar,exe4j-init"
+	          if="dist.exe4j.exists"
+	          description="Build an package the app for Windows distribution.">
+	    <echo message="Setting exe as: ${exe_location}."/>
+	    <copy tofile="${build.dir}/Insight.exe4j"
+	          file="build/Insight_template.exe4j"
+	          overwrite="true">
+	      <filterset>
+	        <filter token="MAIN_CLASS" value="${app.mainclass}"/>
+	        <!-- exe4j exe names have to be relative paths for some reason. Please
+	             leave the "app" directory prefix and do not replace with
+	             ${app.dir} or you will get strange errors. -->
+			<filter token="EXE_NAME" value="app/${dist.win.exename}"/>
+	        <filter token="APP_NAME" value="${dist.name}"/>
+	        <filter token="ICON_FILE" value="${dist.win.icon}"/>
+	        <filter token="VM_PARAMETERS" value="${dist.vmparameters}"/>
+	      </filterset>
+	    </copy>
+	    <exe4j projectfile="${build.dir}/Insight.exe4j"/>
+	    <zip destfile=
+	           "${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win.zip">
+	      <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
+	      <zipfileset dir="${app.dir}" includes="lib/*"/>
+	      <zipfileset file="${app.dir}/${dist.win.exename}.exe"/>
+	      <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 
+	      <zipfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
+	    </zip> 
+	  </target>
+	
+  <target name="dist-win-openGL" depends="jar,exe4j-init"
           if="dist.exe4j.exists"
           description="Build an package the app for Windows distribution.">
     <echo message="Setting exe as: ${exe_location}."/>
@@ -277,7 +314,7 @@
 	*     jar file, all the the app.libs files, and Windows exe.
 	*   + The license file, ${base.licensefile}.  
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-   <target name="dist-win64" depends="jar,exe4j-init"
+   <target name="dist-win64-openGL" depends="jar,exe4j-init"
 	          if="dist.exe4j.exists"
 	          description="Build an package the app for Windows 64 distribution.">
 	    <echo message="Setting exe as: ${exe_location}."/>
@@ -334,7 +371,6 @@
                 vmoptions="${dist.vmparameters}">
       <jarfileset refid="app.libs"/>
       <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
-    	<jarfileset dir="${base.lib.dir}/osx-native" includes="*.jnilib"/>
     </jarbundler>  
     <zip destfile=
            "${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-OSX.zip">
@@ -351,6 +387,37 @@
     </zip> 
   </target> 
 
+  <target name="dist-osx-openGL"
+	          depends="jar"
+	          description="Build and package the app for OS X distribution.">
+	    <jarbundler dir="${dist.dir}"
+	                name="${dist.name}"
+	                mainclass="${app.mainclass}"
+	                version="${dist.bundle.version}"
+	                infostring="${dist.name} Java Client, ${dist.bundle.version}"
+	                aboutmenuname="${dist.name}"
+	                screenmenu="true" 
+	                icon="${dist.osx.icon}"
+	                stubfile="${dist.osx.stub}" 
+	               	jvmversion="1.5+"
+	                vmoptions="${dist.vmparameters}">
+	      <jarfileset refid="app.libs"/>
+	      <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
+	    	<jarfileset dir="${base.lib.dir}/osx-native" includes="*.jnilib"/>
+	    </jarbundler>  
+	    <zip destfile=
+	           "${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-OSX.zip">
+	      <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
+	      <fileset dir="${dist.dir}" 
+	               includes="OMERO.insight.app/**"
+	               excludes="**/${dist.osx.stub.name}"/>
+	      <zipfileset file="${dist.osx.stub}" 
+	                  fullpath="OMERO.insight.app/Contents/MacOS/${dist.osx.stub.name}"
+	                  filemode="775"/> 
+	      <fileset file="${dist.osx.installfile}"/>
+	      <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 
+	    </zip> 
+	  </target> 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
   * Creates the Mac OS X distribution bundle under ${dist.dir}.
   * This is a zip file whose name is set to 

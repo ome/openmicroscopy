@@ -50,6 +50,7 @@ import javax.swing.UIManager;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.CreateFolderDialog;
@@ -260,8 +261,12 @@ class ImgSaverUI
     	bar.setBorder(null);
     	bar.add(cancelButton);
     	bar.add(Box.createRigidArea(H_SPACER_SIZE));
-    	//bar.add(previewButton);
-    	//bar.add(Box.createRigidArea(H_SPACER_SIZE));
+    	/*
+    	if (!ImViewerAgent.hasOpenGLSupport()) {
+    		bar.add(previewButton);
+        	bar.add(Box.createRigidArea(H_SPACER_SIZE));
+    	}
+    	*/
     	bar.add(saveButton);
     	JPanel controls = new JPanel();
     	controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));

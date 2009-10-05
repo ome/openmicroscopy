@@ -427,17 +427,8 @@ class BrowserModel
     }
 
     /** Creates the images composing the grid. */
-    private void createGridImages()
+    private void createGridImagesAsTextures()
     {
-    	/*
-    	if (originalGridImages == null)
-    		originalGridImages = new ArrayList<BufferedImage>();
-    	gridImages.clear();
-    	if (parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL)) {
-    		createGridImagesForGreyScale();
-    		return;
-    	}
-    	*/
     	if (parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL)) {
     		if (!hasGridImagesAsTexture())
     			gridImagesAsTextures = parent.getGridImagesAsTexture();
@@ -445,8 +436,88 @@ class BrowserModel
     		if (isRenderedImageRGB()) return;
         	gridImagesAsTextures = parent.getGridImagesAsTexture();
     	}
+    }
+    
+    /** Creates the images composing the grid. */
+    private void createGridImages()
+    {
+    	if (originalGridImages == null)
+    		originalGridImages = new ArrayList<BufferedImage>();
+    	gridImages.clear();
+    	if (parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL)) {
+    		createGridImagesForGreyScale();
+    		return;
+    	}
     	
-    	//retrieveGridImages();
+    	List l = parent.getActiveChannels();
+    	int maxC = parent.getMaxC();
+    	switch (l.size()) {
+			case 0:
+				for (int i = 0; i < maxC; i++) 
+					gridImages.add(null);
+				break;
+			case 1:
+			case 2:
+			case 3:
+				if (isImageMappedRGB(l)) {
+					//if (combinedImage == null) 
+						combinedImage = Factory.magnifyImage(gridRatio, 
+								renderedImage);
+					int w = combinedImage.getWidth();
+		        	int h = combinedImage.getHeight();
+		        	DataBuffer buf = combinedImage.getRaster().getDataBuffer();
+		        	List<ChannelData> list = parent.getSortedChannelData();
+		        	Iterator<ChannelData> i = list.iterator();
+		        	int index;
+		        	while (i.hasNext()) {
+						index = i.next().getIndex();
+						if (parent.isChannelActive(index)) {
+							if (parent.isChannelRed(index)) { 
+								gridImages.add(createBandImage(buf, w, h, 
+										Factory.RED_MASK, Factory.BLANK_MASK,
+										Factory.BLANK_MASK));
+							} else if (parent.isChannelGreen(index)) {
+								gridImages.add(createBandImage(buf, w, h,
+										Factory.BLANK_MASK, Factory.GREEN_MASK, 
+										Factory.BLANK_MASK));
+							} else if (parent.isChannelBlue(index)) {
+								gridImages.add(createBandImage(buf, w, h, 
+										Factory.BLANK_MASK, Factory.BLANK_MASK, 
+										Factory.BLUE_MASK));
+							}
+						} else {
+							gridImages.add(null);
+						}
+					}
+		        	/*
+		    		for (int i = 0; i < maxC; i++) {
+						if (parent.isChannelActive(i)) {
+							if (parent.isChannelRed(i)) { 
+								gridImages.add(createBandImage(buf, w, h, 
+										Factory.RED_MASK, Factory.BLANK_MASK,
+										Factory.BLANK_MASK));
+							} else if (parent.isChannelGreen(i)) {
+								gridImages.add(createBandImage(buf, w, h,
+										Factory.BLANK_MASK, Factory.GREEN_MASK, 
+										Factory.BLANK_MASK));
+							} else if (parent.isChannelBlue(i)) {
+								gridImages.add(createBandImage(buf, w, h, 
+										Factory.BLANK_MASK, Factory.BLANK_MASK, 
+										Factory.BLUE_MASK));
+							}
+						} else {
+							gridImages.add(null);
+						}
+					}
+					*/
+		    		
+				} else {
+					retrieveGridImages();
+				}
+				break;
+			default:
+				retrieveGridImages();
+    	}
     }
     
     /** 
@@ -520,10 +591,11 @@ class BrowserModel
     /** Sets the images composing the grid. */
     void setGridImages()
     {
-    	//if (gridImages.size() != 0) return;
-    	//if (originalGridImages != null) originalGridImages.clear();
-    	//if (gridImagesAsTextures == null || gridImagesAsTextures.size() == 0)
-    	createGridImages();
+    	if (gridImages.size() != 0) return;
+    	if (originalGridImages != null) originalGridImages.clear();
+    	if (gridImagesAsTextures == null || gridImagesAsTextures.size() == 0)
+    	if (ImViewerAgent.hasOpenGLSupport()) createGridImagesAsTextures();
+    	else createGridImages();
     }
     
     /**

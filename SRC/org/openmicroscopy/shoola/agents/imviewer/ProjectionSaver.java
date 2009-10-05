@@ -76,7 +76,7 @@ public class ProjectionSaver
 	/** The object hosting the projection's parameters. */
 	private ProjectionParam	ref;
 
-	/** Handle to the async call so that we can cancel it. */
+	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  	handle;
     
     /**
@@ -139,9 +139,10 @@ public class ProjectionSaver
     {
         switch (index) {
 			case PREVIEW:
+				boolean b = ImViewerAgent.hasOpenGLSupport();
 				handle = ivView.renderProjected(ref.getPixelsID(), 
 						ref.getStartZ(), ref.getEndZ(), ref.getStepping(), 
-						ref.getAlgorithm(), ref.getChannels(), 
+						ref.getAlgorithm(), ref.getChannels(), b,
 						this);
 				break;
 			case PROJECTION:

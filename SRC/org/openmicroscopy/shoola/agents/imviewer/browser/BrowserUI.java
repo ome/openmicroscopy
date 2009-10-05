@@ -31,6 +31,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +41,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
+
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 
 
 //Third-party libraries
@@ -76,7 +79,7 @@ class BrowserUI
     private JLayeredPane        	layeredPane;
 
     /** The canvas hosting the image. */
-    private BrowserCanvas       	browserCanvas;
+    private JComponent  			canvas;
     
     /** Reference to the Model. */
     private BrowserModel        	model;
@@ -97,10 +100,16 @@ class BrowserUI
     private void initComponents()
     {
         layeredPane = new JLayeredPane();
-        browserCanvas = new BrowserCanvas(model, this);
+        if (ImViewerAgent.hasOpenGLSupport()) {
+        	canvas = new BrowserCanvas(model, this);
+        } else {
+        	 canvas = new BrowserBICanvas(model, this);
+        }
+       
         //The image canvas is always at the bottom of the pile.
-        layeredPane.add(browserCanvas, Integer.valueOf(0));
-        canvasListener = new ImageCanvasListener(this, model, browserCanvas);
+        layeredPane.add(canvas, Integer.valueOf(0));
+       
+        canvasListener = new ImageCanvasListener(this, model, canvas);
         canvasListener.setHandleKeyDown(true);
         getVerticalScrollBar().addMouseMotionListener(this);
         getHorizontalScrollBar().addMouseMotionListener(this);
@@ -162,8 +171,10 @@ class BrowserUI
 	 */
 	void activeFileSave(File file, String format)
 	{
-		browserCanvas.activeSave(file, format);
-		browserCanvas.repaint();
+		if (canvas instanceof BrowserCanvas) {
+			((BrowserCanvas) canvas).activeSave(file, format);
+			canvas.repaint();
+		}
 	}
 	
     /** 
@@ -210,46 +221,49 @@ class BrowserUI
      */
     void paintMainImage()
     {
-    	/*
-        if (model.getRenderedImage() == null) return;
-        model.createDisplayedImage();
-        BufferedImage img = model.getDisplayedImage();
-        if (img == null) return;
-        canvasListener.setAreaSize(img.getWidth(), img.getHeight());
-        browserCanvas.repaint();
-        */
-    	TextureData img = model.getRenderedImageAsTexture();
-    	if (img == null) return;
-    	double zoom = model.getZoomFactor();
-    	int w = (int) (img.getWidth()*zoom);
-    	int h = (int) (img.getHeight()*zoom);
-    	canvasListener.setAreaSize(w, h);
-    	browserCanvas.repaint();
+    	if (canvas instanceof BrowserCanvas) {
+    		TextureData img = model.getRenderedImageAsTexture();
+        	if (img == null) return;
+        	double zoom = model.getZoomFactor();
+        	int w = (int) (img.getWidth()*zoom);
+        	int h = (int) (img.getHeight()*zoom);
+        	canvasListener.setAreaSize(w, h);
+        	canvas.repaint();
+    	} else {
+    		if (model.getRenderedImage() == null) return;
+    		model.createDisplayedImage();
+    		BufferedImage img = model.getDisplayedImage();
+    		if (img == null) return;
+    		canvasListener.setAreaSize(img.getWidth(), img.getHeight());
+    		canvas.repaint();
+    	}
     }
     
     /** Displays the zoomed image. */
     void zoomImage()
     {
-    	/*
-        if (model.getRenderedImage() == null) return;
-        model.createDisplayedImage();
-        BufferedImage img = model.getDisplayedImage();
-        if (img == null) return;
-        setComponentsSize(img.getWidth(), img.getHeight());
-        canvasListener.setAreaSize(img.getWidth(), img.getHeight());
-        getViewport().setViewPosition(new Point(-1, -1));
-        browserCanvas.repaint();
-        setBounds(getBounds());
-        */
-    	TextureData img = model.getRenderedImageAsTexture();
-    	if (img == null) return;
-    	double zoom = model.getZoomFactor();
-    	int w = (int) (img.getWidth()*zoom);
-    	int h = (int) (img.getHeight()*zoom);
-    	setComponentsSize(w, h);
-    	canvasListener.setAreaSize(img.getWidth(), img.getHeight());
+    	if (canvas instanceof BrowserCanvas) {
+    		TextureData img = model.getRenderedImageAsTexture();
+        	if (img == null) return;
+        	double zoom = model.getZoomFactor();
+        	int w = (int) (img.getWidth()*zoom);
+        	int h = (int) (img.getHeight()*zoom);
+        	setComponentsSize(w, h);
+        	canvasListener.setAreaSize(img.getWidth(), img.getHeight());
+        	
+    	} else {
+    		if (model.getRenderedImage() == null) return;
+    		model.createDisplayedImage();
+    		BufferedImage img = model.getDisplayedImage();
+    		if (img == null) return;
+    		setComponentsSize(img.getWidth(), img.getHeight());
+    		canvasListener.setAreaSize(img.getWidth(), img.getHeight());
+    		getViewport().setViewPosition(new Point(-1, -1));
+    		canvas.repaint();
+    		setBounds(getBounds());
+    	}
     	getViewport().setViewPosition(new Point(-1, -1));
-    	browserCanvas.repaint();
+    	canvas.repaint();
     	setBounds(getBounds());
     }
       
@@ -265,8 +279,8 @@ class BrowserUI
         Dimension d = new Dimension(w, h);
         layeredPane.setPreferredSize(d);
         layeredPane.setSize(d);
-        browserCanvas.setPreferredSize(d);
-        browserCanvas.setSize(d);
+        canvas.setPreferredSize(d);
+        canvas.setSize(d);
     }
     
     /** 
