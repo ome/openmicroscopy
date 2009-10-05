@@ -120,29 +120,6 @@ public class OMEROWrapper extends MinMaxCalculator {
         }
     }
 
-    /**
-     * Returns whether or not the reader for a given file is a screening format
-     * or not.
-     * 
-     * @param string
-     *            Absolute path to the image file to check.
-     * @return <code>true</code> if the reader is an <i>SPW</i> reader and
-     *         <code>false</code> otherwise.
-     */
-    public boolean isSPWReader(String string) {
-        try {
-            if (iReader.getReader(string) instanceof InCellReader
-                    || iReader.getReader(string) instanceof FlexReader
-                    || iReader.getReader(string) instanceof MIASReader) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
     @SuppressWarnings("unchecked")
     public boolean isMinMaxSet() throws FormatException, IOException {
         if (minMaxSet == null) {

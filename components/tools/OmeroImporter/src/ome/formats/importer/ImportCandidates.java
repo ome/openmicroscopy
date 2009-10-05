@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import loci.formats.FormatTools;
 import loci.formats.UnknownFormatException;
 
 import ome.formats.importer.util.ErrorHandler;
@@ -312,9 +313,11 @@ public class ImportCandidates extends DirectoryWalker {
             reader.setId(path);
             format = reader.getFormat();
             usedFiles = reader.getUsedFiles();
+            String[] domains = reader.getReader().getDomains(path);
+            boolean isSPW = Arrays.asList(domains).contains(FormatTools.HCS_DOMAIN);
 
             return new ImportContainer(file, null, null, null, false, null,
-                    format, usedFiles, reader.isSPWReader(path));
+                    format, usedFiles, isSPW);
 
         } catch (UnknownFormatException ufe) {
             safeUpdate(new ErrorHandler.UNKNOWN_FORMAT(path, ufe));
