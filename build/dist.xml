@@ -171,7 +171,8 @@
    *   + The license file, ${base.licensefile}. 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <target name="dist"
-          depends="jar, jar-util,dist-osx,dist-win,dist-win64"
+          depends="jar, jar-util, dist-osx-openGL, dist-osx,dist-win, 
+  	dist-win-openGL,dist-win64-openGL"
           description="Build and package the app for distribution."> 
     <zip destfile="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}.zip">
       <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
@@ -416,6 +417,7 @@
 	                  filemode="775"/> 
 	      <fileset file="${dist.osx.installfile}"/>
 	      <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 
+	     
 	    </zip> 
 	  </target> 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
