@@ -31,6 +31,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.Map;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.Icon;
@@ -254,6 +256,10 @@ public class FileImportComponent
 				if (image == null) setStatusText(null);
 				else if (image instanceof String) {
 					setStatusText((String) image);
+				} else if (image instanceof Map) {
+					Map m = (Map) image;
+					if (m == null || m.size() == 0)
+						setStatusText("Folder imported");
 				} else if (image instanceof ImportException) {
 					ImportException ie = (ImportException) image;
 					setStatusText(ie.getMessage());

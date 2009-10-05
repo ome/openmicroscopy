@@ -303,8 +303,8 @@ class BrowserControl
     		if (remove) model.removeSelectedDisplay(d);
     		else model.setSelectedDisplay(d, true, true);
     	} else {
-    		//if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
-    		if (isSelectionValid(d)) {
+    		if (!(d.equals(previousDisplay)) && isSelectionValid(d)) {
+    		//if (isSelectionValid(d)) {
     			if (d instanceof CellDisplay) {
     				setSelectedCell(me.getPoint(), (CellDisplay) d);
     			} else model.setSelectedDisplay(d, false, true);

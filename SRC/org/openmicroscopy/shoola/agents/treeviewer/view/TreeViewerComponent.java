@@ -2351,6 +2351,8 @@ class TreeViewerComponent
 		if (value == null || value instanceof String || value instanceof
 				Exception) {
 			importManager.setStatus(key, value);
+		} else if (value instanceof Map) {
+			importManager.setStatus(key, value);
 		} else if (value instanceof ImageData) {
 			img = (ImageData) value;
 			browser.setImportedFile(img);

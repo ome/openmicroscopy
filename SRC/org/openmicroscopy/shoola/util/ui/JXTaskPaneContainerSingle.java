@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
@@ -33,12 +35,16 @@ import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 
 
 //Third-party libraries
 import layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
+import org.jdesktop.swingx.plaf.TaskPaneContainerUI;
+import org.jdesktop.swingx.plaf.basic.BasicTaskPaneContainerUI;
 
 //Application-internal dependencies
 
@@ -70,6 +76,8 @@ public class JXTaskPaneContainerSingle
 	/** Map hosting the displayed components. */
 	private Map<JXTaskPane, Integer> map = new HashMap<JXTaskPane, Integer>();
 	
+	GridBagConstraints cst = new GridBagConstraints();
+
 	/** Initializes the component. */
 	private void initialize()
 	{
@@ -78,7 +86,13 @@ public class JXTaskPaneContainerSingle
 		double[] columns = {TableLayout.FILL};
     	layout = new TableLayout();
     	//setLayout(layout);
+    	//setLayout(new GridBagLayout());
     	layout.setColumn(columns);
+    	cst.gridy = 0;
+    	cst.fill = GridBagConstraints.HORIZONTAL;
+    	cst.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+    	cst.weightx = 1;
+    	cst.anchor = GridBagConstraints.NORTH;
 	}
 	
 	/** Creates a new instance. */
@@ -118,9 +132,12 @@ public class JXTaskPaneContainerSingle
 		if (c.isCollapsed()) layout.insertRow(row, TableLayout.PREFERRED);
 		else layout.insertRow(row, TableLayout.FILL);
 		map.put(c, row);
-		super.add(c, "0,"+row);
-		layout.insertRow(row+1, 2);
-		super.add(Box.createVerticalStrut(2), "0,"+row);
+		((JComponent) c.getContentPane()).setBorder(null);
+		//super.add(c, "0,"+row);
+		super.add(c, cst);
+		cst.gridy++;
+		//layout.insertRow(row+1, 2);
+		//super.add(Box.createVerticalStrut(2), "0,"+row);
 		c.addPropertyChangeListener(
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
 	}

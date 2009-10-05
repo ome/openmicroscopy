@@ -4547,7 +4547,7 @@ class OMEROGateway
 	/**
 	 * Imports the specified file. Returns the image.
 	 * 
-	 * @param container The container where to download the images into.
+	 * @param container The container where to import the images into.
 	 * @param file 		The file to import.
 	 * @param archived 	Pass <code>true</code> to archived the files, 
 	 * 					<code>false</code> otherwise.
@@ -4574,6 +4574,8 @@ class OMEROGateway
 			IObject object = null;
 			if (container != null) object = container.asIObject();
 			List<Pixels> pixels = null;
+			Map<File, ImportException> 
+				results = new HashMap<File, ImportException>();
 			if (containers != null && containers.size() > 0) {
 				Iterator<String> i = containers.iterator();
 				String path;
@@ -4587,26 +4589,28 @@ class OMEROGateway
 					f = new File(path);
 					name = UIUtilities.getDisplayedFileName(f.getAbsolutePath(),
 							depth);
-					
-					pixels = library.importImage(f, count, total-count, total, 
-							name, null, archived, true, null, object);
-					count++;
+					try {
+						pixels = library.importImage(f, count, total-count, total, 
+								name, null, archived, true, null, object);
+						count++;
+					} catch (Throwable e) {
+						String message = getImportFailureMessage(e);
+						results.put(f, new ImportException(message, e, 
+								getReaderType()));
+					}
 				}
 			}
+			/*
 			if (pixels != null && pixels.size() > 0) {
 				Pixels p = pixels.get(0);
 				long id = p.getImage().getId().getValue();
 				return getImage(id, new Parameters());
 			}
-			//library.importCandidates(config, candidates);
-			
-			//importLibrary.addObserver(status);
-			
-			
+			*/
+			return results;
 		} catch (Throwable e) {
-			e.printStackTrace();
 			String message = getImportFailureMessage(e);
-			throw new ImportException(message, e, getReaderType());
+			
 		}
 		return null;
 	}

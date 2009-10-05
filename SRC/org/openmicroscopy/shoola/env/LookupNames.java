@@ -235,4 +235,6 @@ public class LookupNames
     /** The value to replace in the FS configuration file. */
     public static final String FS_DEFAUL_DIR = "/services/FS/defaultDirectory";
     
+    /** The value indicating that the roi will come from the server. */
+    public static final String	SERVER_ROI = "/roi/location/server";
 }

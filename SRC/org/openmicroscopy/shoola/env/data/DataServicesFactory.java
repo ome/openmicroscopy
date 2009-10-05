@@ -68,7 +68,7 @@ import pojos.GroupData;
 public class DataServicesFactory
 {
 	
-	/** The name of the fs configuration file in the config directory. */
+	/** The name of the fs configuration file in the configuration directory. */
 	private static final String		FS_CONFIG_FILE = "fs.config";
 
     /** The sole instance. */
@@ -362,6 +362,7 @@ public class DataServicesFactory
 		Iterator i = agents.iterator();
 		AgentInfo agentInfo;
 		Registry reg;
+		Boolean b = (Boolean) registry.lookup(LookupNames.SERVER_ROI);
 		while (i.hasNext()) {
 			agentInfo = (AgentInfo) i.next();
 			reg = agentInfo.getRegistry();
@@ -371,6 +372,7 @@ public class DataServicesFactory
 			reg.bind(LookupNames.USERS_DETAILS, exps);
 			reg.bind(LookupNames.CONNECTION_SPEED, 
 					isFastConnection(uc.getSpeedLevel()));
+			reg.bind(LookupNames.SERVER_ROI, b);
 		}
 	}
 	

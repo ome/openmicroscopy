@@ -70,7 +70,9 @@ import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.saver.SaveObject;
+import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -1948,6 +1950,13 @@ class ImViewerComponent
 	 */
 	public void showMeasurementTool(Point point)
 	{
+		Boolean location = (Boolean) 
+		MeasurementAgent.getRegistry().lookup(
+				LookupNames.SERVER_ROI);
+		if (!location) {
+			postMeasurementEvent(null);
+			return;
+		}
 		Collection measurements = model.getMeasurements();
 		view.setMeasurementLaunchingStatus(true);
 		if (measurements == null || measurements.size() == 0) {

@@ -326,6 +326,22 @@ public class ImportManager
 			//if (image != null) {
 			
 			//}
+			if (image instanceof Map) {
+				Map m = (Map) image;
+				if (m != null && m.size() > 0) {
+					Iterator k = m.entrySet().iterator();
+					Entry entry;
+					while (k.hasNext()) {
+						entry = (Entry) k.next();
+						c = new FileImportComponent(this, (File) entry.getKey());
+						c.setStatus(false, entry.getValue());
+						c.addPropertyChangeListener(
+								FileImportComponent.SEND_FILE_PROPERTY, this);
+						components.put(f.getAbsolutePath(), c);
+					}
+					layoutEntries();
+				}
+			}
 			int index = 0;
 			File ff;
 			Iterator<File> i = toImport.iterator();
