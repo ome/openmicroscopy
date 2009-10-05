@@ -40,6 +40,8 @@
 
 !macro CheckIce
 
+  !insertmacro StartAction "CheckIce"
+
   Call IsIceInstalled
   Pop $R1 ; VS2008
   Pop $R0 ; VS2005
@@ -77,7 +79,7 @@
   ${EndIf}
 
   IceReady: ; ---------------------------------------------
-  !insertmacro FinishAction "IcePage"
+  !insertmacro FinishAction "CheckIce"
 
 !macroend
 

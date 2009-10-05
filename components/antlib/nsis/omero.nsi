@@ -326,7 +326,7 @@ Section "OMERO.server" SECSRV
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Deploy configuration.lnk" "python.exe" "$INSTDIR\bin\omero admin deploy"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Stop server.lnk" "python.exe" "$INSTDIR\bin\omero admin stop"
   CreateDirectory "$SMPROGRAMS\$ICONS_GROUP\configuration"
-  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\logs\All configuration.lnk" "$INSTDIR\etc"
+  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\configuration\All configuration files.lnk" "$INSTDIR\etc"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\configuration\Grid descriptor (windefault.xml).lnk" "write.exe" "$INSTDIR\etc\grid\windefault.xml"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\configuration\Shared elements (templates.xml).lnk" "write.exe" "$INSTDIR\etc\grid\templates.xml"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\configuration\Logging (winlog4j.xml).lnk" "write.exe" "$INSTDIR\etc\winlog4j.xml"
@@ -537,18 +537,22 @@ Function .onInit
 FunctionEnd
 
 Function .onVerifyInstDir
-   ${If} ${FileExists} "$INSTDIR\var\*.*"
-     Push "$INSTDIR\var"
-     Call CheckForSpaces
-     Pop $R0
-     ${If} $R0 == 0
-       ### OK
-     ${Else}
-       MessageBox MB_OK "Directory contains spaces" # Was abort
-     ${EndIf}
-   ${Else}
-       MessageBox MB_OK "Directory is in use" # WAs abort
-   ${EndIf}
+  ${If} ${FileExists} "$INSTDIR\var\*.*"
+    ${LogText} "$R0 is in use"
+    #MessageBox MB_OK "Directory is in use"
+    Abort
+  ${Else}
+    Push "$INSTDIR\var"
+    Call CheckForSpaces
+    Pop $R0
+    ${If} $R0 == 0
+      ### OK
+    ${Else}
+      ${LogText} "$R0 contains spaces"
+      #MessageBox MB_OK "Directory contains spaces"
+      Abort
+    ${EndIf}
+  ${EndIf}
 FunctionEnd
 
 Function .onInstSuccess
@@ -690,6 +694,7 @@ Function ConfigNewDatabaseAdmin
   !insertmacro DialogRow newdb user "Admin login" "postgres" Text
   !insertmacro DialogRow newdb pass "Admin password" "omero" Password
   !insertmacro DialogRow newdb conf "Confirm password" "omero" Password
+  #Don't really need to confirm single use password!
 
  !insertmacro assert_section ${SECDB}
  nsDialogs::Show
@@ -762,12 +767,12 @@ Function ConfigDatabase
 
   !insertmacro MUI_HEADER_TEXT "Database setup" "Configure the existing OMERO database you would like to connect to"
   !insertmacro CreateDialog db "The values entered below are the defaults used by most OMERO installations"
-  !insertmacro DialogRow db host "Database host" "$0" Text
-  !insertmacro DialogRow db port "Database port" "$0" Number
-  !insertmacro DialogRow db user "User login" "$0" Text
+  !insertmacro DialogRow db host "Database host" "localhost" Text
+  !insertmacro DialogRow db port "Database port" "5432" Number
+  !insertmacro DialogRow db user "User login" "omero" Text
   !insertmacro DialogRow db pass "User password" "omero" Password
   !insertmacro DialogRow db conf "Confirm password" "omero" Password
-  !insertmacro DialogRow db name "Database name" "$0" Text
+  !insertmacro DialogRow db name "Database name" "omero" Text
 
   !insertmacro assert_section ${SECSRV}
   nsDialogs::Show

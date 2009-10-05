@@ -21,6 +21,7 @@
 
 !macro CheckPostgreSQL
 
+  !insertmacro StartAction "CheckPG"
   Call IsPgInstalled
   Pop $R2 ; Third
   Pop $R1 ; Second
@@ -53,6 +54,7 @@
   ${EndIf}
 
   PGReady: ; ---------------------------------------------
+  !insertmacro FinishAction "CheckPG"
 
 !macroend
 

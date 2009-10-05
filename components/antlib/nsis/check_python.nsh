@@ -29,6 +29,7 @@
 
 !macro CheckPython
 
+  !insertmacro StartAction "CheckPython"
   Call IsPythonInstalled
   Pop $R2 ; Third
   Pop $R1 ; Second
@@ -59,6 +60,7 @@
   ${EndIf}
 
   PythonReady: ; ---------------------------------------------
+  !insertmacro FinishAction "CheckPython"
 
 !macroend
 

@@ -71,6 +71,7 @@
   ${EndIf}
 
   # JavaReady: ; ---------------------------------------------
+  !insertmacro FinishAction "CheckJava"
 
 !macroend
 

@@ -19,6 +19,7 @@
 
 !macro CheckPIL
 
+  !insertmacro StartAction "CheckPIL"
   Call IsPILInstalled
   Pop $R0 ; First
   WriteINIStr "$INSINI" PIL Value  "$R0"
@@ -37,6 +38,7 @@
   ${EndIf}
 
   PILReady: ; ---------------------------------------------
+  !insertmacro FinishAction "CheckPIL"
 
 !macroend
 

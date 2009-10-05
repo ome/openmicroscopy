@@ -134,12 +134,18 @@ FunctionEnd
     ClearErrors
     !insertmacro Check${Prereq}
     ${IsInstalled} ${Prereq}
-    ${If} ${Errors}
-      nsDialogs::SelectFolderDialog "$Message : Manually choose a directory for ${Prereq}. Cancelling will abort the install"
-      Pop $ExitCode
-      WriteINIStr "$INSINI" ${Prereq} "State" "$ExitCode"
-      ${LogText} "Setting state for ${Prereq} to $ExitCode after folder dialog"
-    ${EndIf}
+ #
+ # This corrective action doesn't make sense for all the libraries,
+ # and most users won't know what to click on anyway. Something like
+ # this may eventually be useful, so just commenting out.
+ #
+ #   ${If} ${Errors}
+ #     nsDialogs::SelectFolderDialog "$Message : Manually choose a directory for ${Prereq}. Cancelling will abort the install"
+ #     Pop $ExitCode
+ #     WriteINIStr "$INSINI" ${Prereq} "State" "$ExitCode"
+ #     ${LogText} "Setting state for ${Prereq} to $ExitCode after folder dialog"
+ #   ${EndIf}
+ #
   ${EndIf}
   ${IsInstalled} ${Prereq}
   ${If} ${Errors}
@@ -196,7 +202,7 @@ FunctionEnd
   ${If} ${Errors}
     MessageBox MB_OK "Failed to download/verify ${SOURCE}"
     Abort
-  ${End}
+  ${EndIf}
 !macroend
 Function _DownloadFunction
   Pop $R2 ; MD5 Checksum
@@ -208,9 +214,9 @@ Function _DownloadFunction
   ClearErrors
   IfFileExists $R1 Checking Downloading
   Downloading:
-    nsisdl::download /TIMEOUT=30000 "$R0" "$R1"
+    inetc::get /CAPTION "Required library download..." /TIMEOUT 30000 /BANNER "Downloading $R0..." "$R0" "$R1"
     Pop $0
-    ${If} $0 == "success"
+    ${If} $0 == "OK"
       ${LogText} "Downloaded $R0 to $R1"
     ${Else}
       ${LogText} "Failed to download: $R0 to $R1"
