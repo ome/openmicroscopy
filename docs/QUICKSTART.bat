@@ -1,4 +1,12 @@
 @echo OFF
+REM
+REM QUICKSTART.bat is intended for getting developers
+REM up and running quickly. You will need to have
+REM passwordless login for the "omero" DB user configured
+REM in postgres.
+REM
+REM For more information, see http://trac.openmicroscopy.org.uk/omero/wiki/OmeroContributing
+
 echo.
 echo -----------------------------------------------------
 echo To prevent needing a restart, this script uses the
@@ -56,7 +64,7 @@ psql -U omero -f OMERO4.1__0.sql %OMERO_CONFIG% 2>quickstart.err >quickstart.out
 if errorlevel 1 goto ERROR
 
 echo Setting PYTHONPATH
-bin\setpythonpath
+call bin\setpythonpath
 if errorlevel 1 goto ERROR
 
 echo Changing etc\grid directory paths
@@ -85,7 +93,7 @@ python bin\omero config set omero.windows.pass "%PASSWORD%"
 if errorlevel 1 goto ERROR
 
 echo Configuring database user
-python bin\omero config set omero.db.user postgres
+python bin\omero config set omero.db.user omero
 if errorlevel 1 goto ERROR
 
 echo Configuring database name
