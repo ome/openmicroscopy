@@ -172,7 +172,7 @@
    *   + The license file, ${base.licensefile}. 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <target name="dist"
-          depends="jar, jar-util"
+          depends="jar, jar-util,dist-osx,dist-win,dist-win64"
           description="Build and package the app for distribution."> 
     <zip destfile="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}.zip">
       <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
@@ -180,8 +180,49 @@
       <fileset dir="${dist.dir}" includes="${dist.jar.file}"/>
       <zipfileset refid="dist.launch.scripts" filemode="775"/>
       <fileset file="${dist.installfile}"/>
-      <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 
-    </zip> 
+      <zipfileset file="${base.licensefile}" fullpath="LICENSE"/>
+    </zip>
+    <antcall target="hcs-preview" inheritAll="true" inheritRefs="true"/>
+  </target>
+
+  <target name="hcs-preview" description="Temporary 4.1 target for creating the HCS_PREVIEW files">
+    <delete dir="${dist.dir}/hcs-preview"/>
+    <mkdir dir="${dist.dir}/hcs-preview"/>
+    <property name="hcs-container" value="hcs-preview/config/container.xml"/>
+    <copy file="${app.config.dir}/container.xml" tofile="${dist.dir}/${hcs-container}"/>
+    <replace file="${dist.dir}/${hcs-container}"
+        token='entry name="/roi/location/server" type="boolean"&gt;false&lt;/entry'
+        value='entry name="/roi/location/server" type="boolean"&gt;true&lt;/entry'>
+    </replace>
+    <macrodef name="hcs-preview-copy">
+        <attribute name="zip"/>
+        <sequential>
+            <copy file="${dist.dir}/@{zip}.zip" tofile="${dist.dir}/@{zip}-HCS_PREVIEW.zip"/>
+            <zip destfile="${dist.dir}/@{zip}-HCS_PREVIEW.zip" update="true">
+                <zipfileset dir="${dist.dir}/hcs-preview" includes="config/**"/>
+            </zip>
+        </sequential>
+    </macrodef>
+    <available property="hcs-preview-main-available"  file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}.zip"/>
+    <available property="hcs-preview-OSX-available"   file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-OSX.zip"/>
+    <available property="hcs-preview-win-available"   file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win.zip"/>
+    <available property="hcs-preview-win64-available" file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win64.zip"/>
+    <antcall target="hcs-preview-main"  inheritAll="true" inheritRefs="true"/>
+    <antcall target="hcs-preview-OSX"   inheritAll="true" inheritRefs="true"/>
+    <antcall target="hcs-preview-win"   inheritAll="true" inheritRefs="true"/>
+    <antcall target="hcs-preview-win64" inheritAll="true" inheritRefs="true"/>
+  </target>
+  <target name="hcs-preview-main" if="hcs-preview-main-available">
+    <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}"/>
+  </target>
+  <target name="hcs-preview-OSX" if="hcs-preview-OSX-available">
+    <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}-OSX"/>
+  </target>
+  <target name="hcs-preview-win" if="hcs-preview-win-available">
+    <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}-win"/>
+  </target>
+  <target name="hcs-preview-win64" if="hcs-preview-win64-available">
+    <hcs-preview-copy zip="${dist.bundle.name}-${dist.bundle.version}-win64"/>
   </target>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
@@ -408,8 +449,10 @@
     <echo level="info">
 Distribution targets:
 --------------------- 
-  dist: Creates the default distribution bundle under ${dist.dir}.
+  dist: Creates the distribution bundle under ${dist.dir}.
   dist-osx: Creates the Mac OS X distribution bundle under ${dist.dir}.
+  dist-win: Creates the Windows distribution bundle under ${dist.dir}.
+  dist-win64: Creates the Windows 64-bit distribution bundle under ${dist.dir}.
   dist-docs: Create the full documentation bundle under ${dist.dir}. 
   dist-user-docs: Create the user documentation bundle under ${dist.dir}. 
   dist.clean: Remove ${dist.dir}. 
