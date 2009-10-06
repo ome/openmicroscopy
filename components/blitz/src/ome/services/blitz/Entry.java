@@ -114,10 +114,19 @@ public class Entry {
             }
         };
 
-        Signal.handle(new Signal("INT"), handler);
-        Signal.handle(new Signal("TERM"), handler);
+        registerSignal(handler, "INT");
+        registerSignal(handler, "TERM");
+        registerSignal(handler, "BREAK");
 
         instance.start();
+    }
+
+    private static void registerSignal(SignalHandler handler, String sig) {
+        try {
+            Signal.handle(new Signal(sig), handler);
+        } catch (IllegalArgumentException iae) {
+            // Ok. BREAK will not exist on non-Windows systems, for example.
+        }
     }
 
     /**
