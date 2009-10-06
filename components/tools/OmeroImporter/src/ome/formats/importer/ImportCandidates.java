@@ -112,6 +112,7 @@ public class ImportCandidates extends DirectoryWalker {
     final private static Log log = LogFactory.getLog(ImportCandidates.class);
 
     final public static int DEPTH = Integer.valueOf(System.getProperty("omero.import.depth","4"));
+    final public static boolean METADATA = Boolean.valueOf(System.getProperty("omero.import.metadata","false"));
     
     final private IObserver observer;
     final private OMEROWrapper reader;
@@ -195,6 +196,8 @@ public class ImportCandidates extends DirectoryWalker {
         super(TrueFileFilter.INSTANCE, depth);
         this.reader = reader;
         this.observer = observer;
+	log.debug(String.format("Depth: %s%s", depth,
+	                       (METADATA ? " - Metadata collected!" : "")));
 
         if (paths != null && paths.length == 2 && "".equals(paths[0])
                 && "".equals(paths[1])) {
@@ -332,6 +335,8 @@ public class ImportCandidates extends DirectoryWalker {
 
             try {
                 setids++;
+                reader.close();
+                reader.setMetadataCollected(METADATA);
                 reader.setId(path);
                 format = reader.getFormat();
                 usedFiles = reader.getUsedFiles();
