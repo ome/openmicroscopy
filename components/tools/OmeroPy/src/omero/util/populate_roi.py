@@ -815,12 +815,19 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
             for event, element in iterparse(data, events=events):
                 if event == 'start' and element.tag == 'WellData' \
                    and element.get('cell') != 'Summary':
-                    well_data = element
                     columns['Cell'].values.append(element.get('cell'))
                     row = int(element.get('row')) - 1
                     col = int(element.get('col')) - 1
                     i = int(element.get('field')) - 1
-                    image = self.wells[row][col].copyWellSamples()[i].image
+                    try:
+                        image = self.wells[row][col].copyWellSamples()[i].image
+                    except KeyError:
+                        # This has the potential to happen alot with the
+                        # datasets we have been given.
+                        print "WARNING: Missing data for row %d column %d" % \
+                                (row, col)
+                        continue
+                    well_data = element
                     columns['Image'].values.append(image.id.val)
                 elif well_data is not None and event == 'start' \
                      and element.tag == 'Measure':
@@ -851,6 +858,7 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
             print "WARNING: Missing CGs for InCell dataset: %r" % names
             return None
         # Reconstruct a column name to column map
+        columns = dict()
         for column in columns_as_list:
             columns[column.name] = column
         image_ids = columns['Image'].values
