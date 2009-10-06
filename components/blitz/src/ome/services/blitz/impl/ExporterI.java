@@ -76,22 +76,19 @@ public class ExporterI extends AbstractAmdServant implements
      * Utility enum for asserting the state of Exporter instances.
      */
     private enum State {
-        config, output, waiting;
+        config, output;
         static State check(ExporterI self) {
 
             if (self.file != null && self.retrieve != null) {
                 throw new InternalException("Doing 2 things at once");
             }
 
-            if (self.retrieve != null) {
-                return config;
-            }
-
-            if (self.file != null) {
+            if (self.retrieve == null) {
                 return output;
             }
 
-            return waiting;
+            return config;
+
         }
     }
 
@@ -114,6 +111,7 @@ public class ExporterI extends AbstractAmdServant implements
     public ExporterI(BlitzExecutor be, DatabaseIdentity databaseIdentity) {
         super(null, be);
         this.databaseIdentity = databaseIdentity;
+        retrieve = new OmeroMetadata(databaseIdentity);
     }
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
@@ -176,11 +174,6 @@ public class ExporterI extends AbstractAmdServant implements
         omero.ApiUsageException aue;
         State state = State.check(this);
         switch (state) {
-        case waiting:
-            aue = new omero.ApiUsageException(null,
-                    null, "Add data first");
-            __cb.ice_exception(aue);
-            return;
         case config:
             aue = new omero.ApiUsageException(null,
                     null, "Call a generate method first");
@@ -213,8 +206,6 @@ public class ExporterI extends AbstractAmdServant implements
      */
     private ServerError assertConfig(State state) {
         switch (state) {
-        case waiting:
-            startConfig(); // Transitions to config, so fall through
         case config:
             return null;
         case output:
@@ -234,7 +225,7 @@ public class ExporterI extends AbstractAmdServant implements
             file.delete();
             file = null;
         }
-        retrieve = new OmeroMetadata(databaseIdentity);
+        
     }
 
     /**
