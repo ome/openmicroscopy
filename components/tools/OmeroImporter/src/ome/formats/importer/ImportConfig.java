@@ -24,6 +24,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import loci.formats.FormatTools;
+
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.IniFileLoader;
 import ome.system.UpgradeCheck;
@@ -168,6 +170,9 @@ public class ImportConfig {
         if (ini != null) {
             ini.updateFlexReaderServerMaps();
         }
+
+        log.info(String.format("Bioformats version: %s revision: %s date: %s",
+             FormatTools.VERSION, FormatTools.SVN_REVISION, FormatTools.DATE));
 
         hostname     = new StrValue("hostname", this, "omero.host");
         username     = new StrValue("username", this, "omero.name");
