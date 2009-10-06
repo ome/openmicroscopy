@@ -100,6 +100,12 @@ echo Configuring database name
 python bin\omero config set omero.db.name %OMERO_CONFIG%
 if errorlevel 1 goto ERROR
 
+if "x%OMERO_MASTER%" == x (goto NoMaster)
+    echo Copying master.cfg to %OMERO_MASTER%.cfg
+    copy etc\master.cfg etc\%OMERO_MASTER%.cfg
+    if errorlevel 1 goto ERROR
+:NoMaster
+
 echo Starting server
 python bin\omero admin start
 if errorlevel 1 goto ERROR
