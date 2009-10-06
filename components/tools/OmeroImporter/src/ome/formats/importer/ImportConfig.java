@@ -231,7 +231,7 @@ public class ImportConfig {
                     }
 
                     if (super.get() == null) {
-                        set("readers.txt");
+                        set("importer_readers.txt");
                     }
                 }
                 return super.get();

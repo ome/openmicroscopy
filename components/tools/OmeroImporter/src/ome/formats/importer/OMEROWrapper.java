@@ -49,12 +49,11 @@ public class OMEROWrapper extends MinMaxCalculator {
         try
         {
             String readers = config.readersPath.get();
+            Class<?> k = getClass();
             if (new File(readers).exists()) {
-                log.info("Using reader: " + readers);
-                iReader = new ImageReader(new ClassList(readers, IFormatReader.class, getClass()));
-            } else {
-                iReader = new ImageReader(new ClassList(IFormatReader.class));
+                k = null;
             }
+            iReader = new ImageReader(new ClassList(readers, IFormatReader.class, k));
             
 //            // Now we apply the invocation handler
 //            iReader =  (ImageReader) Proxy.newProxyInstance(
