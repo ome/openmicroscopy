@@ -10,8 +10,11 @@
 
 import unittest
 from cStringIO import StringIO
-import Image
 import omero
+try:
+    import Image
+except ImportError:
+    print "PIL not installed"
 
 import test.gateway.library as lib
 
