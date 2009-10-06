@@ -17,7 +17,7 @@ echo -----------------------------------------------------
 echo.
 echo Logging in user for service: %USERDOMAIN%\%USERNAME%
 echo.
-SET /P PASSWORD=Password:
+if "x%PASSWORD" == "x" SET /P PASSWORD=Password:
 
 cd "%~dp0\.."
 if exist dist goto AlreadyBuilt
