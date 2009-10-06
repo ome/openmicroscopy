@@ -22,7 +22,6 @@ import loci.formats.FormatTools;
 import loci.formats.UnknownFormatException;
 
 import ome.formats.importer.util.ErrorHandler;
-import ome.formats.importer.util.ErrorHandler.FILE_EXCEPTION;
 
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -87,7 +86,7 @@ public class ImportCandidates extends DirectoryWalker {
     }
 
 
-    public static class SCANNING_FILE_EXCEPTION extends FILE_EXCEPTION {
+    public static class SCANNING_FILE_EXCEPTION extends ErrorHandler.FILE_EXCEPTION {
         public final String filename;
         public final String[] usedFiles;
         public final String reader;

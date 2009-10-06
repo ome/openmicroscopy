@@ -18,6 +18,7 @@ import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportEvent;
+import static ome.formats.importer.ImportCandidates.*;
 
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
@@ -109,18 +110,36 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     }
 
     public final void update(IObservable observable, ImportEvent event) {
+
         if (event instanceof FILE_EXCEPTION) {
             FILE_EXCEPTION ev = (FILE_EXCEPTION) event;
+            log.error(ev.toLog(), ev.exception);
             addError(ev.exception, new File(ev.filename), ev.usedFiles, ev.reader);
         }
+
+        else if (event instanceof SCANNING_FILE_EXCEPTION) {
+            SCANNING_FILE_EXCEPTION ev = (SCANNING_FILE_EXCEPTION) event;
+            log.error(ev.toLog(), ev.exception);
+            addError(ev.exception, new File(ev.filename), ev.usedFiles, ev.reader);
+        }
+
         else if (event instanceof INTERNAL_EXCEPTION) {
             INTERNAL_EXCEPTION ev = (INTERNAL_EXCEPTION) event;
             log.error(event.toLog(), ev.exception);
             addError(ev.exception, new File(ev.filename), ev.usedFiles, ev.reader);
-        } else if (event instanceof UNKNOWN_FORMAT) {
+        }
+
+        else if (event instanceof EXCEPTION_EVENT) {
+            EXCEPTION_EVENT ev = (EXCEPTION_EVENT) event;
+            log.debug(ev.toLog(), ev.exception);
+        }
+
+        else if (event instanceof UNKNOWN_FORMAT) {
             log.debug(event.toLog());
         }
+
         onUpdate(observable, event);
+
     }
     
     public int errorCount() {

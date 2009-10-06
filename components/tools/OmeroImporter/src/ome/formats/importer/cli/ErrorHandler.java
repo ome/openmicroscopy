@@ -47,25 +47,6 @@ public class ErrorHandler extends ome.formats.importer.util.ErrorHandler {
             log.debug(event.toLog());
         }
 
-        else if (event instanceof FILE_EXCEPTION) {
-            FILE_EXCEPTION ev = (FILE_EXCEPTION) event;
-            log.error(ev.toLog(), ev.exception);
-        }
-
-        else if (event instanceof SCANNING_FILE_EXCEPTION) {
-            SCANNING_FILE_EXCEPTION ev = (SCANNING_FILE_EXCEPTION) event;
-            log.debug(ev.toLog());
-        }
-
-        else if (event instanceof UNKNOWN_FORMAT) {
-            log.debug(event.toLog());
-        }
-
-        else if (event instanceof EXCEPTION_EVENT) {
-            EXCEPTION_EVENT ev = (EXCEPTION_EVENT) event;
-            log.debug(ev.toLog(), ev.exception);
-        }
-
         else if (event instanceof ImportEvent.DEBUG_SEND) {
 
             for (ErrorContainer error : errors) {
