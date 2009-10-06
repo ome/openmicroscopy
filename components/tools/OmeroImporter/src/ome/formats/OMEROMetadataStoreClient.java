@@ -277,7 +277,14 @@ public class OMEROMetadataStoreClient
         
         // Fix check for broken 4.0 immersions table
         //checkImmersions();
-
+        
+        // Start our keep alive executor
+        if (executor == null)
+        {
+            executor = new ScheduledThreadPoolExecutor(1);
+            executor.scheduleWithFixedDelay(keepAlive, 60, 60, TimeUnit.SECONDS);
+        }
+        keepAlive.setClient(this);
     }
     
     public IQueryPrx getIQuery()
@@ -297,15 +304,6 @@ public class OMEROMetadataStoreClient
             throw new IllegalArgumentException("No factory.");
         this.serviceFactory = serviceFactory;
         initializeServices();
-        // Start our keep alive executor. Only using this method if a
-        // service factory is passed in. Preferring the centralized
-        // client.enableKeepAlive() if we have a client.
-        if (executor == null)
-        {
-            executor = new ScheduledThreadPoolExecutor(1);
-            executor.scheduleWithFixedDelay(keepAlive, 60, 60, TimeUnit.SECONDS);
-        }
-        keepAlive.setClient(this);
     }
     
     /**
@@ -328,7 +326,6 @@ public class OMEROMetadataStoreClient
     {
         c = new client(server, port);
         serviceFactory = c.createSession(username, password);
-        c.enableKeepAlive(60);
         initializeServices();
     }
     
