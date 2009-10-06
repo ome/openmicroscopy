@@ -81,8 +81,8 @@ public class CommandLineImporter {
 
             // Ensure that we have all of our required login arguments
             if (!config.canLogin()) {
-                config.requestFromUser(); // stdin if anything missing.
-                // usage(); // EXITS TODO this should check for a "quiet" flag
+                // config.requestFromUser(); // stdin if anything missing.
+                usage(); // EXITS TODO this should check for a "quiet" flag
             }
             store = config.createStore();
             library = new ImportLibrary(store, reader);
@@ -161,8 +161,8 @@ public class CommandLineImporter {
                 .println(String
                         .format(
                                 "\n"
-                                        +" Usage:   %s [OPTION]... [DIR|FILE]... \n"
-                                        + "   or:  %s [OPTION]... - \n"
+                                        + " Usage:  %s [OPTION]... [DIR|FILE]... \n"
+                                        + "   or:   %s [OPTION]... - \n"
                                         + "\n"
                                         + "Import any number of files into an OMERO instance.\n"
                                         + "If \"-\" is the only path, a list of files or directories \n"

@@ -272,8 +272,8 @@ public class ImportConfig {
     }
 
     public boolean canLogin() {
-        if (((username == null || password == null) && sessionKey == null)
-                || hostname == null) {
+        if (((username.empty() || password.empty())
+                && sessionKey.empty()) || hostname.empty()) {
             return false;
         }
         return true;
@@ -336,7 +336,7 @@ public class ImportConfig {
     //
 
     public List<String> getServerList() {
-        if (serverList == null || serverList.get().trim().length() == 0) {
+        if (serverList.empty() || serverList.get().trim().length() == 0) {
             return null;
         } else {
             List<String> list = new ArrayList<String>();
@@ -367,7 +367,7 @@ public class ImportConfig {
             return;
         }
 
-        if (serverList == null || serverList.get().length() == 0) {
+        if (serverList.empty() || serverList.get().length() == 0) {
             serverList.set(currentServer.trim());
         } else {
             serverList.set(serverList + SERVER_NAME_SEPARATOR + currentServer);
