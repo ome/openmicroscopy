@@ -957,9 +957,18 @@ Function ActualInstall
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
 
-  ;
-  ; Handle Grid XML replacements
-  ;
+  #
+  # Various cleanup targets
+  #
+  ${LogText} "Disabling bzip2.dll from PyTables"
+  ${Execute} 'python $INSDIR\lib\python\omero\install\bzip2_tool.py disable' "Could not disable bzip2" "" 0
+  ${If} ${Errors}
+    Abort
+  ${EndIf}
+
+  #
+  # Handle Grid XML replacements
+  #
   StrCpy $5 '<property name="omero.example" value="my_value"/>'
   StrCpy $6 'test'
   !insertmacro ReplaceInFile $INSTDIR\etc\grid\windefault.xml "$5" "$6"
@@ -969,9 +978,9 @@ Function ActualInstall
 
   !insertmacro FinishAction "ActualInstall"
 
-  ;
-  ; Data directory
-  ;
+  #
+  # Data directory
+  #
   CreateDirectory "$R6"
   StrCpy $CommandLine '"$COMSPEC" /C "createdb -U $R3 $R2"'
   ${Execute} $CommandLine "Failed to create database" "" 0
