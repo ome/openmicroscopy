@@ -26,7 +26,7 @@ import org.apache.commons.logging.LogFactory;
  * {@link ImportLibrary#importCandidates(ome.formats.importer.ImportConfig, ome.formats.importer.ImportCandidates)}
  * and after the import is finished offers to submit them via the feedback
  * system.
- *
+ * 
  * @since Beta4.1
  */
 public class ErrorHandler extends ome.formats.importer.util.ErrorHandler {
@@ -42,19 +42,23 @@ public class ErrorHandler extends ome.formats.importer.util.ErrorHandler {
         if (event instanceof IMPORT_DONE) {
             log.info("Number of errors: " + errors.size());
         }
-        
+
         else if (event instanceof SCANNING) {
             log.debug(event.toLog());
         }
 
         else if (event instanceof FILE_EXCEPTION) {
             FILE_EXCEPTION ev = (FILE_EXCEPTION) event;
-            log.error(ev.toLog());
+            log.error(ev.toLog(), ev.exception);
         }
 
         else if (event instanceof SCANNING_FILE_EXCEPTION) {
             SCANNING_FILE_EXCEPTION ev = (SCANNING_FILE_EXCEPTION) event;
             log.debug(ev.toLog());
+        }
+
+        else if (event instanceof UNKNOWN_FORMAT) {
+            log.debug(event.toLog());
         }
 
         else if (event instanceof EXCEPTION_EVENT) {
@@ -73,7 +77,7 @@ public class ErrorHandler extends ome.formats.importer.util.ErrorHandler {
 
                 sendFiles = ((ImportEvent.DEBUG_SEND) event).sendFiles;
                 log.info("Sending error report "
-                    + ( sendFiles ? "with files " : " ") + "...");
+                        + (sendFiles ? "with files " : " ") + "...");
                 sendErrors();
             }
 
