@@ -83,7 +83,6 @@ class UserDiskSpace
 	/** Builds and lays out the GUI. */
 	void buildGUI()
 	{
-		if (data.getComponentCount() <= 0) return;
 		data.removeAll();
 		List list = view.isDiskSpaceLoaded();
 		if (list != null) {

@@ -4538,6 +4538,7 @@ class OMEROGateway
 				return getImage(id, new Parameters());
 			}
 		} catch (Throwable e) {
+			e.printStackTrace();
 			String message = getImportFailureMessage(e);
 			throw new ImportException(message, e, getReaderType());
 		}
@@ -4838,11 +4839,26 @@ class OMEROGateway
 		FileOutputStream stream = null;
 		try {
 			stream = new FileOutputStream(f);
-			ExporterPrx service = getExporterService();
-			service.addImage(imageID);
-			long size = service.generateTiff();
-			
-			
+			ExporterPrx store = getExporterService();
+			store.addImage(imageID);
+			long size = store.generateTiff();
+			int offset = 0;
+			int length = (int) size;
+			try {
+				try {
+					for (offset = 0; (offset+INC) < size;) {
+						stream.write(store.read(offset, INC));
+						offset += INC;
+					}	
+				} finally {
+					stream.write(store.read(offset, length-offset)); 
+					stream.close();
+				}
+			} catch (Exception e) {
+				if (stream != null) stream.close();
+				if (f != null) f.delete();
+			}
+			/*
 			int offset = 0;
 			int length = (int) size;
 			int read = 0;
@@ -4861,7 +4877,12 @@ class OMEROGateway
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
+			*/
+			try {
+				exporterService.close();
+				exporterService = null;
+			} catch (Exception e) {
+			}
 			return f;
 		} catch (Throwable t) {
 			
@@ -4877,7 +4898,7 @@ class OMEROGateway
 			exporterService = null;
 			if (f != null) f.delete();
 			try {
-				//exporterService.close();
+				exporterService.close();
 				exporterService = null;
 				//if (stream != null) stream.close();
 			} catch (Exception e) {}

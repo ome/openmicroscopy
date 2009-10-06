@@ -79,7 +79,7 @@ class CustomizedFileChooser
 	private 	RegExFileFilter filter;
 	
 	/** 
-	 * Initiliazes the components composing the display. 
+	 * Initializes the components composing the display. 
 	 * 
 	 * @param accept Determines whether the all files filter is turned
      * 				 on or off. Default value is <code>false</code>.

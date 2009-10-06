@@ -81,6 +81,5 @@ public abstract class CustomizedFileFilter
 	 * @return See above.
 	 */
 	public abstract String getExtension();
-	
-	
+
 }

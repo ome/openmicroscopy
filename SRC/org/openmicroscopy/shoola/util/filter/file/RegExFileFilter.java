@@ -124,42 +124,10 @@ public class RegExFileFilter
     	this(regEx, false);
     }
 
-    /**
-     * Overridden to control is the file is supported.
-     * @see CustomizedFileFilter#accept(File)
-     */
-    public boolean accept(File file) 
-    {
-    	if (file == null) return false;
-    	return accept(file.getName());
-    }
-
-	/**
-	 * 	Overriden to return the extension of the filter.
-	 * 	@see CustomizedFileFilter#getExtensions()
-	 */
-	public String[] getExtensions()
-	{ 
-		String[] extensions = new String[1];
-		extensions[0] = originalEx;
-		return extensions; 
-	}
-	
-    /**
-	 * 	Overriden to return the extension of the filter.
-	 * 	@see CustomizedFileFilter#getExtension()
-	 */
-	public String getExtension() { return originalEx; }
-	
-    /**
-     * Overriden to return the description of the filter.
-     * @see FileFilter#getDescription()
-     */
-	public String getDescription() { return originalEx; }
-		
 	/**
 	 * Returns the regular expression of the method.
-	 * @return see above.
+	 * 
+	 * @return See above.
 	 */
 	public String getRegExpression() { return pattern.pattern(); }
 	
@@ -179,6 +147,39 @@ public class RegExFileFilter
     	else this.regEx = filter;
         pattern = Pattern.compile(this.regEx);
 	}
+	
+    /**
+     * Overridden to control is the file is supported.
+     * @see CustomizedFileFilter#accept(File)
+     */
+    public boolean accept(File file) 
+    {
+    	if (file == null) return false;
+    	return accept(file.getName());
+    }
+
+	/**
+	 * Overridden to return the extension of the filter.
+	 * @see CustomizedFileFilter#getExtensions()
+	 */
+	public String[] getExtensions()
+	{ 
+		String[] extensions = new String[1];
+		extensions[0] = originalEx;
+		return extensions; 
+	}
+	
+    /**
+	 * Overridden to return the extension of the filter.
+	 * @see CustomizedFileFilter#getExtension()
+	 */
+	public String getExtension() { return originalEx; }
+	
+    /**
+     * Overridden to return the description of the filter.
+     * @see FileFilter#getDescription()
+     */
+	public String getDescription() { return originalEx; }
 	
 	/**
 	 * Overridden to accept the file identified by its name.

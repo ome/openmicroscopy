@@ -49,7 +49,7 @@ public class ExportActivityParam
 {
 
 	/** Indicates to export the image as OME TIFF. */
-	public static final int	EXPORT_AS_OME_TIFFF = 0;
+	public static final int	EXPORT_AS_OME_TIFF = 0;
 	
 	/** The image to export. */
     private ImageData 	image;
@@ -63,6 +63,9 @@ public class ExportActivityParam
     /** The icon associated to the parameters. */
     private Icon		icon;
       
+    /** The name to give to the exported image. */
+    private String		name;
+    
 	/**
 	 * Creates a new instance.
 	 * 
@@ -74,11 +77,13 @@ public class ExportActivityParam
 	{
 		if (image == null)
 			throw new IllegalArgumentException("No image to export");
+		if (folder == null)
+			throw new IllegalArgumentException("No image name");
 		this.image = image;
 		this.folder = folder;
 		this.index = index;
 	}
-	
+
 	/**
 	 * Sets the icon associated to the activity.
 	 * 

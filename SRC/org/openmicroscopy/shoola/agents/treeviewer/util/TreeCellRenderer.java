@@ -259,7 +259,7 @@ public class TreeCellRenderer
         if (ho instanceof ImageData)
         	w += fm.stringWidth(node.getNodeName());
         else if (node instanceof TreeFileSet)
-        	w +=  fm.stringWidth(getText())+40; //TODO: figure why I  have to do that.
+        	w +=  fm.stringWidth(getText())+40;
         else w += fm.stringWidth(getText());
         setPreferredSize(new Dimension(w, fm.getHeight()+4));//4 b/c GTK L&F
         setEnabled(node.isSelectable());

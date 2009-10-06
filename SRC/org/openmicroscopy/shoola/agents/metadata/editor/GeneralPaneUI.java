@@ -40,6 +40,8 @@ import javax.swing.JScrollPane;
 //Third-party libraries
 import layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
+import org.jdesktop.swingx.JXTaskPaneContainer;
+import org.jdesktop.swingx.VerticalLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
@@ -136,7 +138,7 @@ class GeneralPaneUI
 	
 	/** Flag indicating to build the UI once. */
 	private boolean 					init;
-	
+
 	/**
 	 * Loads or cancels any on-going loading of containers hosting
 	 * the edited object.
@@ -155,6 +157,7 @@ class GeneralPaneUI
     /** Initializes the UI components. */
 	private void initComponents()
 	{
+		content = new ScrollablePanel();
 		if (model.getBrowser() != null) {
 			browserTaskPane = EditorUtil.createTaskPane(Browser.TITLE);
 			browserTaskPane.add(model.getBrowser().getUI());
@@ -197,28 +200,21 @@ class GeneralPaneUI
 	/** Builds and lays out the components. */
 	private void buildGUI()
 	{
-		content = new ScrollablePanel();
+
 		content.setBackground(UIUtilities.BACKGROUND);
 		double[][]	size = {{TableLayout.FILL}, 
 				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
 				TableLayout.PREFERRED, 0, 5, 0}};
 		int i = 0;
 		content.setLayout(new TableLayout(size));
-
 		content.add(propertiesTaskPane, "0, "+i);
-		i++;
-		i++;
+		i = i+2;
 		annotationLayoutIndex = i;
 		content.add(annotationTaskPane, "0, "+i);
-		i++;
-		i++;
-		//textualAnnotationsLayoutIndex = i;
-		//content.add(textualAnnotationsUI, "0, "+i);
-		//i++;
+		i = i+2;
 		protocolsIndex = i;
 		content.add(protocolComponent, "0, "+i);
-		i++;
-		i++;
+		i = i+2;
 		browserIndex = i;
 		content.add(browserTaskPane, "0, "+i);
 		getViewport().add(content);
@@ -316,7 +312,7 @@ class GeneralPaneUI
 		this.controller = controller;
 		this.view = view;
 		initComponents();
-        buildGUI();
+        //buildGUI();
 		init = false;
 	}
 
@@ -331,6 +327,7 @@ class GeneralPaneUI
 		annotationUI.buildUI();
 		textualAnnotationsUI.buildUI();
 		propertiesTaskPane.setTitle(propertiesUI.getText()+DETAILS);
+
 		TableLayout layout = (TableLayout) content.getLayout();
 		double h = 0;
 		String s = "";
@@ -424,6 +421,10 @@ class GeneralPaneUI
 	/** Updates display when the new root node is set. */
 	void setRootObject()
 	{
+		if (!init) {
+			buildGUI();
+			init = true;
+		}		
 		clearData();
 		textualAnnotationsUI.clearDisplay();
 		propertiesUI.clearDisplay();
@@ -434,11 +435,9 @@ class GeneralPaneUI
     	TableLayout layout = (TableLayout) content.getLayout();
     	if (uo instanceof AnnotationData) { //hide everything
     		layout.setRow(annotationLayoutIndex, 0);
-    		//layout.setRow(textualAnnotationsLayoutIndex, 0);
     		layout.setRow(browserIndex, 0);
     	} else {
     		layout.setRow(annotationLayoutIndex, TableLayout.PREFERRED);
-    		//layout.setRow(textualAnnotationsLayoutIndex, TableLayout.PREFERRED);
     		if (model.isMultiSelection()) layout.setRow(browserIndex, 0);
     		else layout.setRow(browserIndex, TableLayout.PREFERRED);
     	}

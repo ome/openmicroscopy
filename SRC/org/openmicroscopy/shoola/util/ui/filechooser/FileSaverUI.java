@@ -389,7 +389,7 @@ class FileSaverUI
 	
 	/**
 	 * Returns <code>true</code> if the default folder is set when
-	 * saving the file, <code>false</code> toherwise.
+	 * saving the file, <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
@@ -421,7 +421,7 @@ class FileSaverUI
 	}
 	
 	/**
-     * Sets the tooltip text of the <code>Approve</code> button.
+     * Sets the tool tip text of the <code>Approve</code> button.
      * 
      * @param text The value to set.
      */

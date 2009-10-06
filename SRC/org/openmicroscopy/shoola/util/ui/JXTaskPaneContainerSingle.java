@@ -26,25 +26,15 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
 
 
 //Third-party libraries
-import layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
-import org.jdesktop.swingx.plaf.TaskPaneContainerUI;
-import org.jdesktop.swingx.plaf.basic.BasicTaskPaneContainerUI;
+import org.jdesktop.swingx.VerticalLayout;
 
 //Application-internal dependencies
 
@@ -69,30 +59,14 @@ public class JXTaskPaneContainerSingle
 
 	/** Bound property indicating the selection of a new task pane. */
 	public static final String SELECTED_TASKPANE_PROPERTY = "selectedTaskPane";
-	
-	/** The layout used. */
-	private TableLayout layout;
-	
-	/** Map hosting the displayed components. */
-	private Map<JXTaskPane, Integer> map = new HashMap<JXTaskPane, Integer>();
-	
-	GridBagConstraints cst = new GridBagConstraints();
 
 	/** Initializes the component. */
 	private void initialize()
 	{
+		VerticalLayout layout = (VerticalLayout) getLayout();
+		layout.setGap(2);
 		setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
 		setBackground(UIUtilities.BACKGROUND);
-		double[] columns = {TableLayout.FILL};
-    	layout = new TableLayout();
-    	//setLayout(layout);
-    	//setLayout(new GridBagLayout());
-    	layout.setColumn(columns);
-    	cst.gridy = 0;
-    	cst.fill = GridBagConstraints.HORIZONTAL;
-    	cst.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-    	cst.weightx = 1;
-    	cst.anchor = GridBagConstraints.NORTH;
 	}
 	
 	/** Creates a new instance. */
@@ -128,16 +102,7 @@ public class JXTaskPaneContainerSingle
 	 */
 	public void add(JXTaskPane c)
 	{
-		int row = layout.getNumRow();
-		if (c.isCollapsed()) layout.insertRow(row, TableLayout.PREFERRED);
-		else layout.insertRow(row, TableLayout.FILL);
-		map.put(c, row);
-		((JComponent) c.getContentPane()).setBorder(null);
-		//super.add(c, "0,"+row);
-		super.add(c, cst);
-		cst.gridy++;
-		//layout.insertRow(row+1, 2);
-		//super.add(Box.createVerticalStrut(2), "0,"+row);
+		super.add(c);
 		c.addPropertyChangeListener(
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
 	}
@@ -150,7 +115,6 @@ public class JXTaskPaneContainerSingle
 	{
 		JXTaskPane src = (JXTaskPane) evt.getSource();
 		if (src.isCollapsed()) {
-			layout.setRow(map.get(src), TableLayout.PREFERRED);
 			if (hasTaskPaneExpanded()) return;
 			firePropertyChange(SELECTED_TASKPANE_PROPERTY, null, src);
 			return;
@@ -163,12 +127,10 @@ public class JXTaskPaneContainerSingle
 			if (c instanceof JXTaskPane) {
 				JXTaskPane p = (JXTaskPane) c;
 				if (p != src) {
-					layout.setRow(map.get(p), TableLayout.PREFERRED);
 					p.setCollapsed(true);
 				}
 			}
 		}
-		layout.setRow(map.get(src), TableLayout.FILL);
 		firePropertyChange(SELECTED_TASKPANE_PROPERTY, null, src);
 	}
 	

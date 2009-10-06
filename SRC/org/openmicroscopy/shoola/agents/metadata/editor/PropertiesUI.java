@@ -175,6 +175,9 @@ class PropertiesUI
 	/** The text associated to the data object. */
 	private String				text;
 	
+	/** Flag indicating to build the UI once. */
+	private boolean 			init;
+	
 	/** Initializes the components composing this display. */
     private void initComponents()
     {
@@ -391,6 +394,12 @@ class PropertiesUI
         }
     }
     
+    /**
+     * Returns the pixels size as a string.
+     * 
+     * @param details The map to convert.
+     * @return See above.
+     */
     private String isValidPixelsSize(Map details)
     {
     	String x = (String) details.get(EditorUtil.PIXEL_SIZE_X);
@@ -704,7 +713,8 @@ class PropertiesUI
        this.controller = controller;
        title = TITLE;
        initComponents();
-       buildGUI();
+       //buildGUI();
+       init = false;
     }   
 
     /**
@@ -713,6 +723,10 @@ class PropertiesUI
 	 */
 	protected void buildUI()
 	{
+		if (!init) {
+			buildGUI();
+			init = true;
+		}
 		removeAll();
 		if (model.isMultiSelection()) return;
 		namePane.getDocument().removeDocumentListener(this);

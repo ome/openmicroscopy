@@ -76,19 +76,19 @@ public class WordFilter
 	}
 	
     /**
-	 * 	Overriden to return the extension of the filter.
-	 * 	@see CustomizedFileFilter#getExtension()
+	 * Overridden to return the extension of the filter.
+	 * @see CustomizedFileFilter#getExtension()
 	 */
 	public String getExtension() { return WORD; }
 	
     /**
-     * Overriden to return the description of the filter.
+     * Overridden to return the description of the filter.
      * @see FileFilter#getDescription()
      */
     public String getDescription() { return description; }
     
     /**
-     * Overriden to accept file with the declared file extensions.
+     * Overridden to accept file with the declared file extensions.
      * @see FileFilter#accept(File)
      */
     public boolean accept(File f)

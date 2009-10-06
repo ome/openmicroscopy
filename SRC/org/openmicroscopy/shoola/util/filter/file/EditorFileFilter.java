@@ -75,13 +75,13 @@ public class EditorFileFilter
 	}
 	
 	/**
-	 * 	Overriden to return the extension of the filter.
+	 * 	Overridden to return the extension of the filter.
 	 * 	@see CustomizedFileFilter#getExtension()
 	 */
 	public String getExtension() { return CPE_XML; }
 	
     /**
-     * Overriden to return the description of the filter.
+     * Overridden to return the description of the filter.
      * @see FileFilter#getDescription()
      */
 	public String getDescription() { return description; }

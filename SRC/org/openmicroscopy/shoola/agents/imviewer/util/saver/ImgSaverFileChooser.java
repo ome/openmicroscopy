@@ -78,7 +78,7 @@ class ImgSaverFileChooser
     /** The text area where to enter the name of the file to save. */
     private JTextField	nameArea;
     
-    /** Initiliazes the components composing the display. */
+    /** Initializes the components composing the display. */
     private void initComponents()
     {
     	nameArea = (JTextField) UIUtilities.findComponent(this, 

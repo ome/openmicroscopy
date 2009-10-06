@@ -52,7 +52,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Component hosting a two knobs slider and the text fields displaying the 
- * values. The synchronisation between the components is handled by this class.
+ * values. Synchronizes the various components.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -184,6 +184,7 @@ public class TextualTwoKnobsSlider
 	private void initComponents(int absMin, int absMax, int min, int max, 
 			int start, int end)
 	{
+		
 		sliderLabel = new JLabel();
 		startLabel = new JLabel("Start");
 		endLabel = new JLabel("End");
@@ -495,6 +496,34 @@ public class TextualTwoKnobsSlider
 	 * @return See above.
 	 */
 	public TwoKnobsSlider getSlider() { return slider; }
+	
+	/**
+	 * Resets the default value of the slider.
+	 * 
+	 * @param absoluteMax 	The absolute maximum value of the slider.
+	 * @param absoluteMin 	The absolute minimum value of the slider.
+	 * @param max       	The maximum value.
+	 * @param min       	The minimum value.
+	 * @param start     	The value of the start knob.
+	 * @param end       	The value of the end knob.
+	 */
+	public void setValues(int absoluteMax, int absoluteMin, 
+			int max, int min, int start, int end)
+	{
+		slider.setValues(absoluteMax, absoluteMin, max, min, start, end);
+		removeListeners();
+		endField.setMaximum(absoluteMax);
+		endField.setMinimum(absoluteMin);
+		startField.setMaximum(absoluteMax);
+		startField.setMinimum(absoluteMin);
+		endField.setText(""+end);
+		startField.setText(""+start);
+		endField.setMinimum(start);
+		startField.setMaximum(end);
+		this.start = start;
+		this.end = end;
+		attachListeners();
+	}
 	
 	/**
 	 * Returns the text field corresponding to the passed index.

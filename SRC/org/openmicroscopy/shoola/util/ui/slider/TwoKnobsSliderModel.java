@@ -194,6 +194,7 @@ class TwoKnobsSliderModel
 		else partialMin = minimum;
 		if (endValue > maximum) partialMax = endValue;
 		else partialMax = maximum;
+		System.err.println(endValue);
 	}
 
 	/**

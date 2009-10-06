@@ -31,8 +31,8 @@ import java.io.File;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
+import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.ImageData;
 
 
@@ -73,17 +73,17 @@ public class ExportActivity
      */
     private String getFileName()
     {
-    	ImageData image = parameters.getImage();
-		File folder = parameters.getFolder();
-		String extension = null;
+    	File folder = parameters.getFolder();
+		String extension = "";
+		String path = folder.getAbsolutePath();
 		switch (parameters.getIndex()) {
-			case ExportActivityParam.EXPORT_AS_OME_TIFFF:
-				extension = ".tiff";
+			case ExportActivityParam.EXPORT_AS_OME_TIFF:
+				if (!path.endsWith(OMETIFFFilter.OME_TIF) ||
+					!path.endsWith(OMETIFFFilter.OME_TIFF))
+					extension = "."+OMETIFFFilter.OME_TIF;
 				break;
 		}
-    	String name = folder.getAbsolutePath()+File.separator+
-			UIUtilities.removeFileExtension(image.getName())+extension;
-    	return name;
+    	return folder.getAbsolutePath()+extension;
     }
     
     /**
@@ -94,7 +94,7 @@ public class ExportActivity
      * @param registry		Convenience reference for subclasses.
      * @param parameters  	The parameters used to export the image.
      */
-	public ExportActivity(UserNotifier viewer,  Registry registry,
+	public ExportActivity(UserNotifier viewer, Registry registry,
 			ExportActivityParam parameters)
 	{
 		super(viewer, registry, CREATION_AS_OME_TIFF, parameters.getIcon());
@@ -103,7 +103,7 @@ public class ExportActivity
 		this.parameters = parameters;
 		messageLabel.setText(getFileName());
 		switch (parameters.getIndex()) {
-			case ExportActivityParam.EXPORT_AS_OME_TIFFF:
+			case ExportActivityParam.EXPORT_AS_OME_TIFF:
 				type.setText(CREATION_AS_OME_TIFF);
 				break;
 		}

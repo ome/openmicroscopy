@@ -682,7 +682,7 @@ class EditorComponent
 		if (!(refObject instanceof ImageData)) return;
 		if (folder == null) folder = UIUtilities.getDefaultFolder();
 		ExportActivityParam param = new ExportActivityParam(folder, 
-				(ImageData) refObject, ExportActivityParam.EXPORT_AS_OME_TIFFF);
+				(ImageData) refObject, ExportActivityParam.EXPORT_AS_OME_TIFF);
 		IconManager icons = IconManager.getInstance();
 		param.setIcon(icons.getIcon(IconManager.EXPORT_22));
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();

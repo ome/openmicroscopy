@@ -52,7 +52,7 @@ public class ScrollablePanel
 	/** The default increment value. */
 	private static int INCREMENT = 50;
 	
-	/** Teh increment value. */
+	/** The increment value. */
 	private int increment;
 	
 	/** The unit increment. */

@@ -163,6 +163,9 @@ class AnnotationDataUI
 	/** Indicates if the image has been published or not. */
 	private JCheckBox						publishedBox;
 	
+	/** Flag indicating to build the UI once. */
+	private boolean 						init;
+	
 	/**
 	 * Creates the selection menu.
 	 * 
@@ -196,6 +199,9 @@ class AnnotationDataUI
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
+		content = new JPanel();
+    	content.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		tagFlag = false;
 		docFlag = false;
 		tagNames = new ArrayList<String>();
@@ -287,9 +293,7 @@ class AnnotationDataUI
 		JLabel l = new JLabel();
 		Font f = l.getFont();
 		int size = f.getSize()-1;
-		content = new JPanel();
-    	content.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+		
     	double[] columns = {TableLayout.PREFERRED, 5,
     			TableLayout.PREFERRED, 5, TableLayout.PREFERRED};//DEFAULT_WIDTH};
     	TableLayout layout = new TableLayout();
@@ -509,7 +513,7 @@ class AnnotationDataUI
 			throw new IllegalArgumentException("No control.");
 		this.controller = controller;
 		initComponents();
-		buildGUI();
+		init = false;
 	}
 	
 	/** Sets the thumbnails. */
@@ -536,6 +540,10 @@ class AnnotationDataUI
 	protected void buildUI()
 	{
 		//rating
+		if (!init) {
+			buildGUI();
+			init = true;
+		}
 		selectedValue = 0;
 		if (!model.isMultiSelection()) 
 		    selectedValue = model.getUserRating();
@@ -957,6 +965,10 @@ class AnnotationDataUI
 	 */
 	protected void clearData()
 	{
+		if (!init) {
+			buildGUI();
+			init = true;
+		}
 		tagNames.clear();
 		existingTags.clear();
 		selectedValue = 0;

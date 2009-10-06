@@ -133,9 +133,6 @@ class BrowserUI
     
     /** Reference to the selection listener. */
     private TreeSelectionListener	selectionListener;
-    
-    /** The component hosting the tree. */
-    private JScrollPane             scrollPane;
 
     /** Collections of nodes whose <code>enabled</code> flag has to be reset. */
     private Set<TreeImageDisplay>	nodesToReset;
@@ -227,9 +224,6 @@ class BrowserUI
         rightMenuBar.setFloatable(false);
        
         JButton button;
-        
-        
-        
         leftMenuBar = new JToolBar();
         leftMenuBar.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
         leftMenuBar.setRollover(true);

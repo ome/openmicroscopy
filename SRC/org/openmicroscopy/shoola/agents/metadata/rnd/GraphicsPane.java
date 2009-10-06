@@ -142,8 +142,7 @@ class GraphicsPane
         if (lowestBound < absMin) lowestBound = absMin;
         int highestBound = (int) (max+range);
         if (highestBound > absMax) highestBound = absMax;
-        domainSlider.getSlider().setValues(highestBound, lowestBound, max, min, 
-        		s, e);
+        domainSlider.setValues(highestBound, lowestBound, max, min, s, e);
     }
     
     /** Initializes the components. */

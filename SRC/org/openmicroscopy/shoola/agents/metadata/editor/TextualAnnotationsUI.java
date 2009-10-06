@@ -107,6 +107,9 @@ class TextualAnnotationsUI
 	/** Component hosting the previous comments. */
 	private JScrollPane			previousComments;
 	
+	/** Flag indicating to build the UI once. */
+	private boolean 			init;
+	
 	/**
 	 * Builds and lays out the component hosting the previous annotations.
 	 * 
@@ -270,7 +273,7 @@ class TextualAnnotationsUI
 		this.controller = controller;
 		title = TITLE;
 		initComponents();
-		buildGUI();
+		init = false; 
 	}
 	
 	/**
@@ -279,6 +282,10 @@ class TextualAnnotationsUI
 	 */
 	protected void buildUI()
 	{
+		if (!init) {
+			buildGUI();
+			init = true;
+		}
 		TextualAnnotationData data = model.getLastUserAnnotation();
 		if (data != null) {
 			boolean b = false;

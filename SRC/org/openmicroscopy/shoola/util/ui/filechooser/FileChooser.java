@@ -93,7 +93,7 @@ public class FileChooser
 	/** Indicates to add the button to the right of the controls. */
 	public static final int 	RIGHT = 102;
 	
-	/** which approval option the user chose. */
+	/** The approval option the user chose. */
 	private int 				option;
 	
     /** The UI delegate. */

@@ -602,4 +602,11 @@ public class EditorUI
 		acquisitionPane.onChannelColorChanged(index);
 	}
 
+	/**
+	 * Returns the name of the object if any.
+	 * 
+	 * @return See above.
+	 */
+	String getRefObjectName() { return model.getRefObjectName(); }
+	
 }

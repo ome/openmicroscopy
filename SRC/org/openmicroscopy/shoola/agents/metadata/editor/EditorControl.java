@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.filter.file.HTMLFilter;
 import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
+import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
 import org.openmicroscopy.shoola.util.filter.file.PDFFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.filter.file.PowerPointFilter;
@@ -140,6 +141,9 @@ class EditorControl
 	/** Collection of supported file formats. */
 	private List<FileFilter>	filters; 
 	
+	/** Collection of supported export formats. */
+	private List<FileFilter>	exportFilters;
+	
 	/** Creates the collection of supported file filters. */
 	private void createFileFilters()
 	{
@@ -155,6 +159,8 @@ class EditorControl
 		filters.add(new XMLFilter());
 		filters.add(new TIFFFilter());
 		filters.add(new TEXTFilter());
+		exportFilters = new ArrayList<FileFilter>();
+		exportFilters.add(new OMETIFFFilter());
 	}
 
 	/** 
@@ -233,8 +239,11 @@ class EditorControl
 	private void export()
 	{
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		FileChooser chooser = new FileChooser(f, FileChooser.FOLDER_CHOOSER, 
-				"Export", "Select where to export the image as OME-TIFF.");
+		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
+				"Export", "Select where to export the image as OME-TIFF.",
+				exportFilters);
+		chooser.setSelectedFile(
+				UIUtilities.removeFileExtension(view.getRefObjectName()));
 		chooser.setApproveButtonText("Export");
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.EXPORT_AS_OMETIFF_48));

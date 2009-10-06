@@ -68,6 +68,8 @@ import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -827,12 +829,22 @@ class TreeViewerModel
 	 * 
 	 * @return See above.
 	 */
-	String getRefImageName()
+	String getRefImagePartialName()
 	{
 		if (refImage == null) return null;
 		return EditorUtil.getPartialName(refImage.getName());
 	}
 	
+	/**
+	 * Returns the name of the image to copy and paste.
+	 * 
+	 * @return See above.
+	 */
+	String getRefImageName()
+	{
+		if (refImage == null) return null;
+		return UIUtilities.removeFileExtension(refImage.getName());
+	}
 	/**
 	 * Returns the type of nodes to copy or <code>null</code> if no nodes 
 	 * to copy or cut.

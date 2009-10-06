@@ -30,9 +30,13 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
+
 //Third-party libraries
 import layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
+import org.jdesktop.swingx.JXTaskPaneContainer;
+import org.jdesktop.swingx.VerticalLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -95,11 +99,20 @@ class UserUI
 		diskTask.add(diskSpace, null, 0);
 		diskTask.addPropertyChangeListener(
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
+		/*
 		double[][] size = {{TableLayout.FILL}, 
 				{TableLayout.PREFERRED, TableLayout.PREFERRED}};
 		setLayout(new TableLayout(size));
 		add(pane, "0, 0");
 		add(diskTask, "0, 1");
+		*/
+		JXTaskPaneContainer container = new JXTaskPaneContainer();
+		container.setBackground(UIUtilities.BACKGROUND_COLOR);
+		container.setLayout(new VerticalLayout(2));
+		container.add(pane);
+		container.add(diskTask);
+		setBorder(BorderFactory.createEmptyBorder());
+		add(container);
 	}
 	
 	/**
@@ -156,7 +169,7 @@ class UserUI
 	}
 
 	/**
-	 * No-op implementation in our case.
+	 * Removes all components.
 	 * @see AnnotationUI#clearData()
 	 */
 	protected void clearData()
@@ -182,7 +195,7 @@ class UserUI
 	}
 
 	/**
-	 * No-op implementation in our case.
+	 * No-operation implementation in our case.
 	 * @see AnnotationUI#getAnnotationToRemove()
 	 */
 	protected List<AnnotationData> getAnnotationToRemove()
@@ -191,7 +204,7 @@ class UserUI
 	}
 
 	/**
-	 * No-op implementation in our case.
+	 * No-operation implementation in our case.
 	 * @see AnnotationUI#getAnnotationToSave()
 	 */
 	protected List<AnnotationData> getAnnotationToSave()

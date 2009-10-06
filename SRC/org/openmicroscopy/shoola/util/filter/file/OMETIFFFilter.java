@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.util.filter.file.TIFFFilter
+ * org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,8 +20,8 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.util.filter.file;
+
 
 //Java imports
 import java.io.File;
@@ -32,39 +32,26 @@ import javax.swing.filechooser.FileFilter;
 //Application-internal dependencies
 
 /** 
- * 
- * Filters the <code>TIFF</code> files.
+ * Filters the <code>OME-TIFF</code> files.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2 
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
  * </small>
- * @since OME2.2
+ * @since 3.0-Beta4
  */
-public class TIFFFilter
+public class OMETIFFFilter 
 	extends CustomizedFileFilter
 {
-	
-	/** Possible file extension. */
-	public static final String 	TIFF = "tiff";
     
     /** Possible file extension. */
-	public static final String 	TIF = "tif";
-	
-	 /** Possible file extension. */
-	public static final String 	TF_2 = "tf2";
-	
-	 /** Possible file extension. */
-	public static final String 	TF_8 = "tf8";
-	
-	 /** Possible file extension. */
-	public static final String 	BTF = "btf";
-	
+    public static final String  OME_TIFF = "ome.tiff";
+
+    /** Possible file extension. */
+    public static final String  OME_TIF = "ome.tif";
+    
 	/** The possible extensions. */
 	public static final String[] 	extensions;
 	
@@ -72,14 +59,10 @@ public class TIFFFilter
 	private static final String		description;
 	
 	static {
-		extensions = new String[5];
-		extensions[0] = TIFF;
-		extensions[1] = TIF;
-		extensions[2] = TF_2;
-		extensions[3] = TF_8;
-		extensions[4] = BTF;
-		
-		String s = "Tagged Image File Format (";
+		extensions = new String[2];
+		extensions[0] = OME_TIF;
+		extensions[1] = OME_TIFF;
+		String s = "OME-TIFF (";
 		for (int i = 0; i < extensions.length; i++) {
 			s += "*."+extensions[i];
 			if (i < extensions.length-1)
@@ -89,29 +72,29 @@ public class TIFFFilter
 		description = s;
 	}
 	
-	/**
-	 * Overridden to return the extension of the filter.
-	 * @see CustomizedFileFilter#getExtension()
+    /**
+	 * 	Overridden to return the extension of the filter.
+	 * 	@see CustomizedFileFilter#getExtension()
 	 */
-	public String getExtension() { return TIFF; }
+	public String getExtension() { return OME_TIF; }
 	
     /**
      * Overridden to return the description of the filter.
      * @see FileFilter#getDescription()
      */
-	public String getDescription() { return description; }
-		
+    public String getDescription() { return description; }
+        
     /**
      * Overridden to accept file with the declared file extensions.
      * @see FileFilter#accept(File)
      */
-	public boolean accept(File f)
-	{
-		if (f == null) return false;
+    public boolean accept(File f)
+    {
+    	if (f == null) return false;
 		if (f.isDirectory()) return true;
 		return isSupported(f.getName(), extensions);
-	}
-	
+    }
+    
     /**
 	 * Overridden to accept the file identified by its name.
 	 * @see CustomizedFileFilter#accept(String)
@@ -120,5 +103,4 @@ public class TIFFFilter
 	{
 		return isSupported(fileName, extensions);
 	}
-	
 }
