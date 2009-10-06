@@ -134,6 +134,9 @@ class GeneralPaneUI
 	/** The default height of a <code>JXTaskPane</code>. */
 	private double						defaultProtocolHeight;
 	
+	/** Flag indicating to build the UI once. */
+	private boolean 					init;
+	
 	/**
 	 * Loads or cancels any on-going loading of containers hosting
 	 * the edited object.
@@ -314,11 +317,16 @@ class GeneralPaneUI
 		this.view = view;
 		initComponents();
         buildGUI();
+		init = false;
 	}
 
 	/** Lays out the UI when data are loaded. */
 	void layoutUI()
 	{
+		if (!init) {
+			buildGUI();
+			init = true;
+		}
 		propertiesUI.buildUI();
 		annotationUI.buildUI();
 		textualAnnotationsUI.buildUI();

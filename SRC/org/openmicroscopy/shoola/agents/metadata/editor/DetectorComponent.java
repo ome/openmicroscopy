@@ -184,7 +184,7 @@ class DetectorComponent
             		notSet.add(key);
             	}
             	binningBox.setEditedColor(UIUtilities.EDITED_COLOR);
-            	area = parent.replaceCombobox(binningBox);
+            	area = binningBox;//parent.replaceCombobox(binningBox);
             } else if (EditorUtil.TYPE.equals(key)) {
             	selected = model.getChannelEnumerationSelected(
             			Editor.DETECTOR_TYPE, (String) value);
@@ -196,7 +196,7 @@ class DetectorComponent
             		detectorBox.setSelectedIndex(detectorBox.getItemCount()-1);
             	}
             	detectorBox.setEditedColor(UIUtilities.EDITED_COLOR);
-            	area = parent.replaceCombobox(detectorBox);
+            	area = detectorBox;//parent.replaceCombobox(detectorBox);
             } else if (value instanceof Number) {
             	area = UIUtilities.createComponent(NumericalTextField.class, 
             			null);

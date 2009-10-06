@@ -194,7 +194,7 @@ class LightSourceComponent
     						set = false;
                 	}
                 	laserTypeBox.setEditedColor(UIUtilities.EDITED_COLOR);
-                	area = parent.replaceCombobox(laserTypeBox);
+                	area = laserTypeBox;//parent.replaceCombobox(laserTypeBox);
             	} else if (EditorUtil.MEDIUM.equals(key)) {
                 	selected = model.getChannelEnumerationSelected(
                 			Editor.LASER_MEDIUM, 
@@ -206,7 +206,7 @@ class LightSourceComponent
     						set = false;
                 	}
                 	laserMediumBox.setEditedColor(UIUtilities.EDITED_COLOR);
-                	area = parent.replaceCombobox(laserMediumBox);
+                	area = laserMediumBox;//parent.replaceCombobox(laserMediumBox);
             	} else if (EditorUtil.PULSE.equals(key)) {
             		selected = model.getChannelEnumerationSelected(
                 			Editor.LASER_PULSE, 
@@ -220,7 +220,7 @@ class LightSourceComponent
                 	}
                 		
                 	laserPulseBox.setEditedColor(UIUtilities.EDITED_COLOR);
-                	area = parent.replaceCombobox(laserPulseBox);
+                	area = laserPulseBox;//parent.replaceCombobox(laserPulseBox);
             	} else if (EditorUtil.TUNEABLE.equals(key)) { 
             		boolean b;
             		if (value != null) {
@@ -237,7 +237,7 @@ class LightSourceComponent
             			set = false;
             		}
             		laserTuneableBox.setEditedColor(UIUtilities.EDITED_COLOR);
-            		area = parent.replaceCombobox(laserTuneableBox);
+            		area = laserTuneableBox;//parent.replaceCombobox(laserTuneableBox);
             	} else if (EditorUtil.POCKEL_CELL.equals(key)) {
             		boolean b;
             		if (value != null) {
@@ -254,7 +254,7 @@ class LightSourceComponent
             					AnnotationDataUI.NO_SET_TEXT);
             		}
             		laserPockelCellBox.setEditedColor(UIUtilities.EDITED_COLOR);
-            		area = parent.replaceCombobox(laserPockelCellBox);
+            		area = laserPockelCellBox;//parent.replaceCombobox(laserPockelCellBox);
             	} 
             } else if (LightSourceData.ARC.equals(kind)) {
             	if (EditorUtil.TYPE.equals(key)) {
@@ -267,7 +267,7 @@ class LightSourceComponent
     						set = false;
                 	}
                 	arcTypeBox.setEditedColor(UIUtilities.EDITED_COLOR);
-                	area = parent.replaceCombobox(arcTypeBox);
+                	area = arcTypeBox;//parent.replaceCombobox(arcTypeBox);
             	}
             } else if (LightSourceData.FILAMENT.equals(kind)) {
             	if (EditorUtil.TYPE.equals(key)) {
@@ -280,7 +280,7 @@ class LightSourceComponent
     						set = false;
                 	}
                 	filamentTypeBox.setEditedColor(UIUtilities.EDITED_COLOR);
-                	area = parent.replaceCombobox(filamentTypeBox);
+                	area = filamentTypeBox;//parent.replaceCombobox(filamentTypeBox);
             	}
             } else if (LightSourceData.LIGHT_EMITTING_DIODE.equals(
             		kind)) {
@@ -290,7 +290,7 @@ class LightSourceComponent
             	}
             } else {
             	lightTypeBox.setSelectedIndex(lightTypeBox.getItemCount()-1);
-            	area = parent.replaceCombobox(lightTypeBox);
+            	area = lightTypeBox;//parent.replaceCombobox(lightTypeBox);
             }
             if (value instanceof Number) {
             	area = UIUtilities.createComponent(NumericalTextField.class, 

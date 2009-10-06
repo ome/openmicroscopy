@@ -154,10 +154,10 @@ class AnnotationDataUI
 	 */
 	private JPopupMenu						docSelectionMenu;
 	
-	/** Collection of tags documents objects. */
+	/** Collection of tags objects. */
 	private List<DocComponent>				tagsDocList;
 	
-	/** Collection of tags documents objects. */
+	/** Collection of files objects. */
 	private List<DocComponent>				filesDocList;
 	
 	/** Indicates if the image has been published or not. */

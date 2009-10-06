@@ -295,7 +295,7 @@ class ChannelAcquisitionComponent
             	}
             			
             	illuminationBox.setEditedColor(UIUtilities.EDITED_COLOR);
-            	area = parent.replaceCombobox(illuminationBox);
+            	area = illuminationBox;//parent.replaceCombobox(illuminationBox);
             } else if (EditorUtil.CONTRAST_METHOD.equals(key)) {
             	selected = model.getChannelEnumerationSelected(
             			Editor.ILLUMINATION_TYPE, 
@@ -309,7 +309,7 @@ class ChannelAcquisitionComponent
             	}
             			
             	contrastMethodBox.setEditedColor(UIUtilities.EDITED_COLOR);
-            	area = parent.replaceCombobox(contrastMethodBox);
+            	area = contrastMethodBox;//parent.replaceCombobox(contrastMethodBox);
             } else if (EditorUtil.MODE.equals(key)) {
             	selected = model.getChannelEnumerationSelected(Editor.MODE, 
             			(String) value);
@@ -319,7 +319,7 @@ class ChannelAcquisitionComponent
             		modeBox.setSelectedIndex(modeBox.getItemCount()-1);
             	}
             	modeBox.setEditedColor(UIUtilities.EDITED_COLOR);
-            	area = parent.replaceCombobox(modeBox);
+            	area = modeBox;//parent.replaceCombobox(modeBox);
             } else {
             	if (value instanceof Number) {
             		area = UIUtilities.createComponent(
