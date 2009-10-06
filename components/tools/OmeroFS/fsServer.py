@@ -16,8 +16,6 @@ import IceGrid
 
 from omero.util import configure_server_logging
 
-import fsConfig as config
-
 class Server(Ice.Application):
     """
         A fairly vanilla ICE server application.
@@ -47,9 +45,11 @@ class Server(Ice.Application):
             
         # Create a MonitorServer, its adapter and activate it.
         try:
+            serverIdString = self.getFSServerIdString(self.communicator())
+            serverAdapterName = self.getFSServerAdapterName(self.communicator())
             mServer = fsMonitorServer.MonitorServerI()
-            adapter = self.communicator().createObjectAdapter(config.serverAdapterName)
-            mServerPrx = adapter.add(mServer, self.communicator().stringToIdentity(config.serverIdString))
+            adapter = self.communicator().createObjectAdapter(serverAdapterName)
+            mServerPrx = adapter.add(mServer, self.communicator().stringToIdentity(serverIdString))
             adapter.activate() 
         except:
             log.exception("Failed create OMERO.fs Server: \n")
@@ -62,6 +62,21 @@ class Server(Ice.Application):
         
         log.info('Stopping OMERO.fs Server')
         return 0
+
+    def getFSServerIdString(self, communicator):
+        """
+            Get serverIdString from the communicator properties.
+            
+        """
+        return communicator.getProperties().getPropertyWithDefault("omero.fs.serverIdString","")
+        
+    def getFSServerAdapterName(self, communicator):
+        """
+            Get serverIdString from the communicator properties.
+            
+        """
+        return communicator.getProperties().getPropertyWithDefault("omero.fs.serverAdapterName","")
+
 
 if __name__ == '__main__':
     try:

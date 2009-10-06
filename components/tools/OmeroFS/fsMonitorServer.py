@@ -58,7 +58,7 @@ class MonitorServerI(monitors.MonitorServer):
         Methods published in the slice interface omerofs.ice
     
     """
-    def createMonitor(self, mType, eTypes, pMode, pathString, whitelist, blacklist, proxy, timeout, ignoreSysFiles, current=None):
+    def createMonitor(self, mType, eTypes, pMode, pathString, whitelist, blacklist, timeout, blockSize, ignoreSysFiles, ignoreDirEvents, proxy, current=None):
         """
             Create a the Monitor for a given path.
         
@@ -81,14 +81,20 @@ class MonitorServerI(monitors.MonitorServer):
                 blacklist : list<string>
                     A list of subdirectories to be excluded.
 
-                proxy :
-                    A proxy to be informed of events
-                    
                 timeout : float
                     A timeout used by some types of monitor.
                     
+                blockSize : intt
+                    Number of events to pack into one notification.
+                    
                 ignoreSysFiles : boolean
                     Flag. If true platform-dependent system files are ignored
+                    
+                ignoreDirEvents : boolean
+                    Flag. If true directory events are ignored
+                    
+                proxy :
+                    A proxy to be informed of events
                     
                 current 
                     An ICE context, this parameter is required to be present
@@ -104,8 +110,8 @@ class MonitorServerI(monitors.MonitorServer):
         try:
             # blockSize (0) and ignoreDirEvents (True) hardwired until slice is changed.
             self.monitors[monitorId] = MonitorFactory.createMonitor(mType, eTypes, pMode, pathString, 
-                                            whitelist, blacklist, timeout, 0, 
-                                            ignoreSysFiles, True, self, monitorId)
+                                            whitelist, blacklist, timeout, blockSize, 
+                                            ignoreSysFiles, ignoreDirEvents, self, monitorId)
 
         except Exception, e:
             log.exception('Failed to create monitor: ')

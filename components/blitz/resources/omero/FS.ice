@@ -135,7 +135,9 @@ module monitors {
          * @param pMode, path mode of monitor (PathMode).
          * @param proxy, a proxy of the client to which notifications will be sent (MonitorClient*).
          * @param timeout, time in seconds fo monitor to time out (float).
+         * @param blockSize, the number of events to pack into each notification (int).
          * @param ignoreSysFiles, ignore system files or not (bool).
+         * @param ignoreDirEvents, ignore directory events (bool).
          * @return monitorId, a uuid1 (string).
          * @throws omero::OmeroFSError
          **/
@@ -145,9 +147,11 @@ module monitors {
                                 string pathString,
                                 Ice::StringSeq whitelist,
                                 Ice::StringSeq blacklist,
-                                MonitorClient* proxy,
                                 float timeout,
-                                bool ignoreSysFiles)
+                                int blockSize,
+                                bool ignoreSysFiles,
+                                bool ignoreDirEvents,
+                                MonitorClient* proxy)
             throws omero::OmeroFSError;
 
         /**
@@ -454,7 +458,7 @@ module monitors {
      *  This interface must be implemented by a client that
      *  wishes to subscribe to an OMERO.fs server.
      **/
-    interface  MonitorClient {
+    interface MonitorClient {
 
         /**
          * Callback, called by the monitor upon the proxy of the OMERO.fs client.
@@ -466,7 +470,7 @@ module monitors {
         void fsEventHappened(string id, EventList el) throws omero::ServerError;
 
     }; /* end interface MonitorClient */
-
+    
 }; /* end module monitors */
 }; /* end module grid */
 }; /* end module omero */

@@ -32,9 +32,6 @@ from omero.util.decorators import remoted, locked, perf
 from omero.util.import_candidates import as_dictionary
 from omero.util.concurrency import Timer, get_event
 
-import fsConfig as config
-
-
 class MonitorState(object):
     """
     Concurrent state which is tracked by a MonitorClientI
@@ -248,6 +245,7 @@ class MonitorWorker(threading.Thread):
             except:
                 self.log.exception("Callback error")
 
+
 class MonitorClientI(monitors.MonitorClient):
     """
         Implementation of the MonitorClient.
@@ -272,6 +270,8 @@ class MonitorClientI(monitors.MonitorClient):
         self.serverProxy = None
         self.selfProxy = None
         self.dropBoxDir = dir
+        self.host = ""
+        self.port = 0
         self.dirImportWait = 0
         #: Id
         self.id = ''
@@ -292,11 +292,12 @@ class MonitorClientI(monitors.MonitorClient):
         self.workers = [MonitorWorker(worker_wait, worker_batch, self.event, self.queue, self.callback) for x in range(worker_count)]
         for worker in self.workers:
             worker.start()
-
-        # Finally, configure our communicator
-        ObjectFactory().registerObjectFactory(self.communicator)
-        for of in omero.rtypes.ObjectFactories.values():
-            of.register(self.communicator)
+## Moved upwards to fsDropBox so that a registered communicator
+## can be used by more than one MonitorClient
+##        # Finally, configure our communicator
+##        ObjectFactory().registerObjectFactory(self.communicator)
+##        for of in omero.rtypes.ObjectFactories.values():
+##            of.register(self.communicator)
         self.eventRecord("Directory", self.dropBoxDir)
 
 
@@ -427,7 +428,7 @@ class MonitorClientI(monitors.MonitorClient):
     # Helpers
     #
 
-    def getExperimenterFromPath(self, fileId):
+    def getExperimenterFromPath(self, fileId=""):
         """
             Extract experimenter name from path. If the experimenter
             cannot be extracted, then null will be returned, in which
@@ -443,7 +444,7 @@ class MonitorClientI(monitors.MonitorClient):
             if len(fileParts) >= 3:
                 exName = fileParts[1]
         if not exName:
-            self.log.info("File added outside user directories: %s" % fileId)
+            self.log.error("File added outside user directories: %s" % fileId)
         return exName
 
     def checkRoot(self):
@@ -507,7 +508,7 @@ class MonitorClientI(monitors.MonitorClient):
             t.close() # Forcing deletion due to Windows sharing issues
 
             cli = omero.cli.CLI()
-            cli.invoke(["import", "---errs=%s"%t.name, "-s", config.host, "-k", key, fileName])
+            cli.invoke(["import", "---errs=%s"%t.name, "-s", self.host, "-p", self.port, "-k", key, fileName])
             retCode = cli.rv
 
             if retCode == 0:
@@ -608,13 +609,20 @@ class MonitorClientI(monitors.MonitorClient):
             :return: No explicit return value.
 
         """
-
         self.dirImportWait = dirImportWait
+
+    def setHostAndPort(self, host, port):
+        """
+            Set the host and port from the communicator properties.
+            
+        """
+        self.host = host
+        self.port = port
+            
 
     #
     # Various trivial helpers
     #
-
     def eventRecord(self, category, value):
         self.log.info("EVENT_RECORD::%s::%s::%s::%s" % ("Cookie", time.time(), category, value))
 
@@ -627,3 +635,34 @@ class MonitorClientI(monitors.MonitorClient):
         self.log.error(message, *arguments)
         exc.message = (message % arguments)
         raise exc
+
+class SingleUserMonitorClient(MonitorClientI):
+    """
+        Subclass of MonitorClient providing for a single user to import outside 
+        of the DrpBox structure.
+        
+        
+    """
+    def __init__(self, user, dir, communicator, getUsedFiles = as_dictionary, getRoot = internal_service_factory,\
+                       worker_wait = 60, worker_count = 1, worker_batch = 10):
+        """
+            Initialise via the superclass
+            
+        """
+        MonitorClientI.__init__(self, dir, communicator, getUsedFiles=getUsedFiles, getRoot=getRoot,\
+                       worker_wait=worker_wait, worker_count=worker_count, worker_batch=worker_batch)
+        
+        self.user = user
+        ret = self.loginUser(self.user)
+        if not ret:
+            raise Exception("No such user " + self.user)
+            
+            
+    def getExperimenterFromPath(self, fileId=""):
+        """
+            Extract experimenter name from path. If the experimenter
+            cannot be extracted, then null will be returned, in which
+            case no import should take place.
+        """
+        return self.user
+        
