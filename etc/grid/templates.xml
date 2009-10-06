@@ -151,7 +151,7 @@
       <parameter name="index"/>
       <parameter name="dir"/>
       <parameter name="exe" default="python"/>
-      <server id="Processor-${index}" exe="${exe}" activation="always">
+      <server id="Processor-${index}" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
         <option>${OMEROPY_HOME}runProcessor.py</option>
         <env>${PYTHONPATH}</env>
         <adapter name="ProcessorAdapter" register-process="true" endpoints="tcp">
@@ -171,7 +171,7 @@
       <parameter name="index"/>
       <parameter name="dir"/>
       <parameter name="exe" default="python"/>
-      <server id="Tables-${index}" exe="${exe}" activation="always">
+      <server id="Tables-${index}" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
         <option>${OMEROPY_HOME}runTables.py</option>
         <env>${PYTHONPATH}</env>
         <adapter name="TablesAdapter" register-process="true" endpoints="tcp">
