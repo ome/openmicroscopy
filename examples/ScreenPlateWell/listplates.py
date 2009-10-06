@@ -20,8 +20,8 @@ for i in range(len(plates)):
     wells = {}
 
     for well in plate.copyWells():
-        row = well.getRow() and well.getRow().getValue() or "Unknown"
-        col = well.getColumn() and well.getColumn().getValue() or "Unknown"
+        row = well.getRow() and well.getRow().getValue() or -1
+        col = well.getColumn() and well.getColumn().getValue() or -1
         if row in wells:
             row_list = wells[row];
         else:
