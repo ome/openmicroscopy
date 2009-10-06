@@ -26,7 +26,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * 
+ * Top of the error handling hierarchy. Will add errors to a queue
+ * which can be sent with {@link #sendErrors()}. Subclasses will get
+ * a change to handle all {@link ImportEvent} instances, but should
+ * try not to duplicate handling.
+ *
  * @since Beta4.1
  */
 public abstract class ErrorHandler implements IObserver, IObservable {
@@ -38,7 +42,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
             this.exception = exception;
         }
     }
-    
+
     public static class INTERNAL_EXCEPTION extends EXCEPTION_EVENT {
         public final String filename;
         public final String[] usedFiles;
@@ -74,7 +78,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
             return super.toLog() + ": "+filename;
         }
     }
-    
+
     public static class FILE_EXCEPTION extends EXCEPTION_EVENT {
         public final String filename;
         public final String[] usedFiles;
@@ -90,7 +94,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
             return super.toLog() + ": "+filename;
         }
     }
-    
+
     final protected Log log = LogFactory.getLog(getClass());
 
     final protected ArrayList<IObserver> observers = new ArrayList<IObserver>();
@@ -98,13 +102,13 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     final protected ArrayList<ErrorContainer> errors = new ArrayList<ErrorContainer>();
 
     final protected ImportConfig config;
-    
+
     protected boolean cancelUploads = false;
 
     protected boolean sendFiles = true;
 
     protected int totalErrors = 0;
-    
+
     public ErrorHandler(ImportConfig config) {
         this.config = config;
     }
@@ -129,23 +133,23 @@ public abstract class ErrorHandler implements IObserver, IObservable {
             addError(ev.exception, new File(ev.filename), ev.usedFiles, ev.reader);
         }
 
-        else if (event instanceof EXCEPTION_EVENT) {
-            EXCEPTION_EVENT ev = (EXCEPTION_EVENT) event;
-            log.debug(ev.toLog(), ev.exception);
-        }
-
         else if (event instanceof UNKNOWN_FORMAT) {
             log.debug(event.toLog());
+        }
+
+        else if (event instanceof EXCEPTION_EVENT) {
+            EXCEPTION_EVENT ev = (EXCEPTION_EVENT) event;
+            log.error(ev.toLog(), ev.exception);
         }
 
         onUpdate(observable, event);
 
     }
-    
+
     public int errorCount() {
         return errors.size();
     }
-    
+
     protected abstract void onUpdate(IObservable importLibrary, ImportEvent event);
 
     protected void sendErrors() {

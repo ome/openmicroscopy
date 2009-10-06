@@ -160,7 +160,6 @@ public class ImportConfig {
     public ImportConfig(final Preferences prefs,
             IniFileLoader ini, Properties props) {
 
-        log.debug(prefs);
         this.prefs = prefs;
         this.props = props;
         this.ini = ini;
@@ -588,15 +587,15 @@ public class ImportConfig {
         public synchronized void store() {
             if (which instanceof Properties || which instanceof Preferences) {
                 prefs.put(key, toString());
-                log.debug("Saved " + key + " to " + prefs);
+                log.trace("Saved " + key + " to " + prefs);
             } else if (which instanceof IniFileLoader) {
                 // FIXME ((IniFileLoader)which).set
-                log.debug("Saved " + key + " to " + ini);
+                log.trace("Saved " + key + " to " + ini);
             } else if (which == null && prefs != null) { // Loaded from defaults
                 prefs.put(key, toString());
-                log.debug("Freshly saved " + key + " to " + prefs);
+                log.trace("Freshly saved " + key + " to " + prefs);
             } else {
-                log.debug("WHICH:" + which); // Unknown state
+                log.trace("WHICH:" + which); // Unknown state
             }
 
         }
@@ -612,7 +611,7 @@ public class ImportConfig {
                 set(fromString(props.getProperty(key)));
                 if (!empty()) {
                     which = props;
-                    log.debug("Loaded " + key + " from " + props);
+                    log.trace("Loaded " + key + " from " + props);
                     return;
                 }
             }
@@ -621,20 +620,20 @@ public class ImportConfig {
                 set(fromString(prefs.get(key, "")));
                 if (!empty()) {
                     which = prefs;
-                    log.debug("Loaded " + key + " from " + prefs);
+                    log.trace("Loaded " + key + " from " + prefs);
                     return;
                 }
             }
 
             if (empty() && ini != null) {
                 // set(fromString((ini.getProperty(key));
-                log.debug("Loaded " + key + " from " + ini);
+                log.trace("Loaded " + key + " from " + ini);
                 // break; FIXME
             }
 
             if (empty()) {
                 set(_default);
-                log.debug("Loaded " + key + " from default");
+                log.trace("Loaded " + key + " from default");
                 which = null;
             }
         }
@@ -679,7 +678,7 @@ public class ImportConfig {
 
         @Override
         public synchronized void store() {
-            log.debug("Skipping password storage");
+            log.trace("Skipping password storage");
         }
     }
 
