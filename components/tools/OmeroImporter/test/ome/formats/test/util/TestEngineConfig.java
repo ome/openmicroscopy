@@ -85,7 +85,7 @@ public class TestEngineConfig extends IniPreferences
 
     public static final String CONFIG_FEEDBACK_COMMENT_URL = "comment_url";
     
-    public static final String DEFAULT_COMMENT_URL = "http://mage.openmicroscopy.org.uk/qa/initial/";
+    public static final String DEFAULT_COMMENT_URL = "http://qa.openmicroscopy.org.uk/qa/initial/";
     
 	/**
 	 * Test engine configuration, backed by an initiation file.

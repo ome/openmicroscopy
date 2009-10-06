@@ -163,7 +163,7 @@ public class ImportLibrary implements IObservable
                         log.info("Exiting on error");
                         return;
                     } else {
-                        log.info("Continuing after errror");
+                        log.info("Continuing after error");
                     }
                 }
             }
@@ -370,7 +370,11 @@ public class ImportLibrary implements IObservable
             	log.warn(String.format("Original file number mismatch, %d!=%d.", 
             			fileNameList.size(), originalFileMap.size()));
             }
-            notifyObservers(new ImportEvent.IMPORT_ARCHIVING(index, null, userSpecifiedTarget, null, 0, null));
+            
+            if (archive)
+            {
+                notifyObservers(new ImportEvent.IMPORT_ARCHIVING(index, null, userSpecifiedTarget, null, 0, null));
+            }
         	store.writeFilesToFileStore(fileNameList, originalFileMap);
             
             if (saveSha1)

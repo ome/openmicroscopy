@@ -36,6 +36,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 
 import layout.TableLayout;
 
@@ -187,9 +188,11 @@ public class FileQueueHandler
     }
     
     private void handleFiles(List<ImportContainer> containers) {
+                
         Boolean spw = spwOrNull(containers);
         if (spw == null) {
             setCursor(Cursor.getDefaultCursor());
+            containers.clear();
             return; // Invalid containers.
         }
         
@@ -398,6 +401,7 @@ public class FileQueueHandler
      */
     private Boolean spwOrNull(final List<ImportContainer> containers) {
         Boolean isSPW = null;
+
         for (ImportContainer importContainer : containers) {
             if (isSPW != null && importContainer.isSPW != isSPW.booleanValue()) {
                 JOptionPane.showMessageDialog(viewer, 
@@ -532,6 +536,8 @@ public class FileQueueHandler
     {
         final OMEROMetadataStoreClient store = viewer.loginHandler.getMetadataStore();  
         
+        log.info("Calling event: " + event.getClass().getName());
+        
         if (event instanceof ImportCandidates.SCANNING_FILE_EXCEPTION)
         {
             ImportCandidates.SCANNING_FILE_EXCEPTION ev = (ImportCandidates.SCANNING_FILE_EXCEPTION) event;
@@ -553,9 +559,9 @@ public class FileQueueHandler
                 {
                     double layoutTable[][] =
                     {{10, 180, 100, 10}, // columns
-                    {5, 30, 30, 5}}; // rows
+                    {5, 20, 5, 30, 5}}; // rows
                     
-                    progressDialog = new JDialog((JFrame)null, "Processing Directories");
+                    progressDialog = new JDialog(viewer, "Processing Directories");
                     progressDialog.setSize(300, 90);
                     progressDialog.setLocationRelativeTo(viewer);
                     TableLayout layout = new TableLayout(layoutTable);
@@ -564,45 +570,45 @@ public class FileQueueHandler
                     directoryProgressBar.setString("Please wait.");
                     directoryProgressBar.setStringPainted(true);
                     directoryProgressBar.setIndeterminate(true);
-                    progressDialog.add(directoryProgressBar,"1,1,2,1");
+                    progressDialog.add(directoryProgressBar,"1,1,2,c");
                     JButton cancelBtn = new JButton("Cancel");
+                    
+                    progressDialog.setDefaultCloseOperation(
+                            WindowConstants.DO_NOTHING_ON_CLOSE); 
                     
                     cancelBtn.addActionListener(new ActionListener() {
                         
                         public void actionPerformed(ActionEvent e)
                         {
                             cancelScan  = true;
+                            directoryProgressBar.setIndeterminate(false);
                             directoryProgressBar.setString("Cancelling");
                         }
                     });      
 
-                    progressDialog.add(cancelBtn, "2,2");
+                    progressDialog.add(cancelBtn, "2,3,r,c");
                     progressDialog.getRootPane().setDefaultButton(cancelBtn);
                     progressDialog.setVisible(true);
                     progressDialog.toFront();
                 }
             } else
-            {
-                viewer.appendToOutput("Processing directories: Scanned " + ev.numFiles + " files of " + ev.totalFiles + " total.\n");
-                
+            {               
                 if (progressDialog != null)
                 {
-                    directoryProgressBar.setIndeterminate(false);
-                    directoryProgressBar.setMaximum(ev.totalFiles);
-                    directoryProgressBar.setMinimum(0);
-                    directoryProgressBar.setValue(ev.numFiles);
-                    directoryProgressBar.setString("Scanned " + ev.numFiles + " of " + ev.totalFiles);
+                    updateProgress(ev.totalFiles, ev.numFiles);
                 }
 
                   if (ev.totalFiles == ev.numFiles || cancelScan)
                   {
+                      cancelScan = false;
                       progressDialog.dispose();
                       progressDialog = null;
-                      cancelScan = false;
+                      setCursor(Cursor.getDefaultCursor());
                   }
-
             }
             
+            viewer.appendToOutput("Processing directories: Scanned " + ev.numFiles + " files of " + ev.totalFiles + " total.\n");
+
             log.debug(ev.toLog());
 
         }
@@ -709,5 +715,18 @@ public class FileQueueHandler
             if (qTable.table.getRowCount() >  0)
                 qTable.importBtn.setEnabled(true);
         }
+    }
+
+    private void updateProgress(final int totalFiles, final int numFiles)
+    {
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                directoryProgressBar.setIndeterminate(false);
+                directoryProgressBar.setMaximum(totalFiles);
+                directoryProgressBar.setMinimum(0);
+                directoryProgressBar.setValue(numFiles);
+                directoryProgressBar.setString("Scanned " + numFiles + " of " + totalFiles);   
+            }
+        });
     }   
 }
