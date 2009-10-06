@@ -22,12 +22,40 @@
       by `bin/omero config` values.
       -->
       <property name="omero.example"  value="my_value"/>
-	  <!-- config settings for OmeroFS (moved from fsConfig)-->
+	  <!-- config settings for OmeroFS (moved from fsConfig) -->
+	  <!-- These duplicate info that could be got from elsewhere -->
+	  <!-- They should ultimately be removed from here. -->
+	  <property name="omero.fs.host"  value="localhost"/>
+	  <property name="omero.fs.port"  value="4063"/>
+      <property name="omero.fs.clientIdString"  value="DropBox"/>
+      <property name="omero.fs.clientAdapterName"  value="omerofs.DropBox"/>
+      <property name="omero.fs.serverIdString"  value="FSServer"/>
+      <property name="omero.fs.serverAdapterName"  value="omerofs.MonitorServer"/>
+	  <!-- general -->
 	  <property name="omero.fs.maxRetries"  value="5"/>
 	  <property name="omero.fs.retryInterval"  value="3"/>
-	  <property name="omero.fs.dropBoxDir"  value="DropBox"/>
-	  <property name="omero.fs.eventType"  value="Create"/>
+	  <property name="omero.fs.defaultDropBoxDir"  value="DropBox"/>
+	  <!-- The remaining items can take the form of a semicolon separated list,
+	 	   one item for each user in the first property. Properties that
+	       are lists themselves are then comma-separated.
+	       default is a standard all-user dropbox.
+	    e.g.
+	  <property name="omero.fs.importUsers"  value="default;root"/>
+	    the empty first element below defers to the default system dropbox location
+	  <property name="omero.fs.watchDir"  value=";/OMERODEV/OtherBox"/>
+	  <property name="omero.fs.eventTypes"  value="Creation,Modification;Creation"/>
+	    ...
+	  -->
+	  <property name="omero.fs.importUsers"  value="default"/>
+	  <property name="omero.fs.watchDir"  value=""/>
+	  <property name="omero.fs.eventTypes"  value="Creation,Modification"/>
 	  <property name="omero.fs.pathMode"  value="Follow"/>
+	  <property name="omero.fs.whitelist"  value=""/>
+	  <property name="omero.fs.blacklist"  value=""/>
+	  <property name="omero.fs.timeout"  value="0.0"/>
+	  <property name="omero.fs.blockSize"  value="0"/>
+	  <property name="omero.fs.ignoreSysFiles"  value="True"/>
+	  <property name="omero.fs.ignoreDirEvents"  value="True"/>
 	  <property name="omero.fs.dirImportWait"  value="60"/>
     </properties>
 
