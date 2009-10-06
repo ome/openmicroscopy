@@ -535,16 +535,13 @@ public class FileQueueHandler
     public void update(IObservable observable, ImportEvent event)
     {
         final OMEROMetadataStoreClient store = viewer.loginHandler.getMetadataStore();  
-        
-        log.info("Calling event: " + event.getClass().getName());
-        
-        if (event instanceof ImportCandidates.SCANNING_FILE_EXCEPTION)
+
+        if (event instanceof ome.formats.importer.util.ErrorHandler.EXCEPTION_EVENT)
         {
-            ImportCandidates.SCANNING_FILE_EXCEPTION ev = (ImportCandidates.SCANNING_FILE_EXCEPTION) event;
-            log.debug(ev.toLog(), ev.exception);
+            viewer.errorHandler.update(observable, event);
         }
 
-        if (event instanceof ImportCandidates.SCANNING)
+        else if (event instanceof ImportCandidates.SCANNING)
         {
             ImportCandidates.SCANNING ev = (ImportCandidates.SCANNING) event;
             if (scanEx.isShutdown() || cancelScan) {
@@ -614,7 +611,7 @@ public class FileQueueHandler
 
         }
         
-        if (event instanceof ImportEvent.REIMPORT)
+        else if (event instanceof ImportEvent.REIMPORT)
         {
             
             String objectName = "", projectName = "", fileName = "";
