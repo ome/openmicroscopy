@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.sql.Timestamp;
+import java.util.Date;
 
 import ome.conditions.InternalException;
 
@@ -29,11 +31,9 @@ public class FileMaker {
 
     private/* final */String dbUuid;
 
-    private File repoLock;
-
-    private RandomAccessFile raf;
-
-    private FileChannel channel;
+    private File repoUuidFile, dotLockFile;
+    
+    private RandomAccessFile repoUuidRaf, dotLockRaf;
 
     private FileLock lock;
 
@@ -72,9 +72,10 @@ public class FileMaker {
                 log.info("Creating " + uuidDir);
             }
 
-            repoLock = new File(uuidDir, "repo_uuid");
-            raf = new RandomAccessFile(repoLock, "rw");
-            channel = raf.getChannel();
+            repoUuidFile = new File(uuidDir, "repo_uuid");
+            dotLockFile = new File(uuidDir, ".lock");
+            repoUuidRaf = new RandomAccessFile(repoUuidFile, "rw");
+            dotLockRaf = new RandomAccessFile(dotLockFile, "rw");
 
         }
     }
@@ -86,11 +87,14 @@ public class FileMaker {
                 throw new InternalException("Not initialized");
             }
 
-            lock = channel.lock();
+            lock = dotLockRaf.getChannel().lock();
+            dotLockRaf.seek(0);
+            dotLockRaf.writeUTF(new Date().toString());
+
             String line = null;
             try {
-                raf.seek(0);
-                line = raf.readUTF();
+                repoUuidRaf.seek(0);
+                line = repoUuidRaf.readUTF();
             } catch (EOFException eof) {
                 // pass
             }
@@ -106,8 +110,8 @@ public class FileMaker {
                 throw new InternalException("Not initialized");
             }
 
-            raf.seek(0);
-            raf.writeUTF(line);
+            repoUuidRaf.seek(0);
+            repoUuidRaf.writeUTF(line);
         }
     }
 
@@ -126,15 +130,22 @@ public class FileMaker {
             }
 
             try {
-                raf.close();
+                repoUuidRaf.close();
             } catch (IOException e) {
-                log.warn("Failed to close RandomAccessFile");
+                log.warn("Failed to close repo_uuid");
+            }
+            
+            try {
+                dotLockRaf.close();
+            } catch (IOException e) {
+                log.warn("Failed to close .lock");
             }
 
             dbUuid = null;
-            repoLock = null;
-            raf = null;
-            channel = null;
+            repoUuidFile = null;
+            dotLockFile = null;
+            repoUuidRaf = null;
+            dotLockRaf = null;
 
         }
     }

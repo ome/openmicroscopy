@@ -12,6 +12,7 @@ import java.io.RandomAccessFile;
 import java.util.UUID;
 
 import ome.model.core.OriginalFile;
+import ome.model.internal.Permissions;
 import ome.services.blitz.fire.Registry;
 import ome.services.blitz.repo.LegacyRepositoryI;
 import ome.services.util.Executor;
@@ -54,7 +55,7 @@ public class LegacyRepositoryUnitTest extends AbstractRepoUnitTest {
         sf.mockConfig.expects(atLeastOnce()).method("getDatabaseUuid").will(
                 returnValue("mockuuid"));
         sf.mockQuery.expects(atLeastOnce()).method("findByString").will(
-                returnValue(new OriginalFile(1L, false)));
+                returnValue(file()));
 
         exMock.expects(atLeastOnce()).method("execute").will(
                 new ExecutorStub(sf));
@@ -66,9 +67,15 @@ public class LegacyRepositoryUnitTest extends AbstractRepoUnitTest {
                 .getAbsolutePath());
     }
 
+    private OriginalFile file() {
+        OriginalFile f = new OriginalFile(1L, true);
+        f.getDetails().setPermissions(Permissions.WORLD_IMMUTABLE);
+        return f;
+    }
+    
     private void newRepoObject() {
         sf.mockUpdate.expects(once()).method("saveAndReturnObject").will(
-                returnValue(new OriginalFile(1L, false)));
+                returnValue(file()));
     }
 
     private void addsRepoServices() {
