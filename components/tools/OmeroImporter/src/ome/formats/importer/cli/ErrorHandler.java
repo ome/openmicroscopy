@@ -14,7 +14,6 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.ImportCandidates.SCANNING;
-import ome.formats.importer.ImportCandidates.SCANNING_FILE_EXCEPTION;
 import ome.formats.importer.util.ErrorContainer;
 
 import org.apache.commons.logging.Log;
