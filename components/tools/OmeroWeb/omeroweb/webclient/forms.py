@@ -22,17 +22,22 @@
 # Version: 1.0
 #
 
-import re
+import datetime
+import time
 
 from django import forms
 from django.db import models
-from django.forms import ModelForm
 from django.forms.widgets import Textarea
 from django.forms.widgets import HiddenInput
 from django.core.urlresolvers import reverse
 
 from omeroweb.webadmin.models import Gateway
 
+from custom_forms import UrlField, MetadataModelChoiceField, \
+                         AnnotationModelMultipleChoiceField
+from omeroweb.webadmin.custom_forms import ExperimenterModelChoiceField, \
+                        GroupModelChoiceField, ExperimenterModelMultipleChoiceField
+                        
 ##################################################################
 # Static values
 
@@ -47,43 +52,9 @@ help_enable = '<span id="enable" title="Enable/Disable - <small>This option allo
 
 help_expire = '<span id="expire" title="Expire date - <small>This date defines when share will stop being available. Date format: YY-MM-DD.</small>"><img src="%s" /></span>' % help_button
 
-##################################################################
-# Model
-
-class EmailTemplate(models.Model):
-    template = models.CharField(max_length=100)
-    content_html = models.TextField()
-    content_txt = models.TextField()
-    
-    def __unicode__(self):
-        t = "%s" % (self.template)
-        return t
-
-class EmailToSend(models.Model):
-    host = models.CharField(max_length=100)
-    blitz = models.ForeignKey(Gateway)
-    share = models.PositiveIntegerField()
-    sender = models.CharField(max_length=100, blank=True, null=True)
-    sender_email = models.CharField(max_length=100, blank=True, null=True)
-    recipients = models.TextField()
-    template = models.ForeignKey(EmailTemplate)
-    
-    def __init__(self, *args, **kwargs):
-        super(EmailToSend, self).__init__(*args, **kwargs)
-        
-    def __unicode__(self):
-        e = "%s %s on %s" % (self.sender, self.template, self.blitz.host)
-        return e
-
 #################################################################
 # Non-model Form
-from custom_forms import UrlField, MetadataModelChoiceField, \
-                         AnnotationModelMultipleChoiceField
-from omeroweb.webadmin.custom_forms import ExperimenterModelChoiceField, \
-                        GroupModelChoiceField, ExperimenterModelMultipleChoiceField
 
-import datetime
-import time
 class ShareForm(forms.Form):
     
     def __init__(self, *args, **kwargs):

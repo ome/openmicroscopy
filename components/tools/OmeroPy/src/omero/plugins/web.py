@@ -142,7 +142,7 @@ class WebControl(BaseControl):
         details["passwd"] = self._get_password_hash()
         self._create_superuser(details["user"]["username"], details["user"]["email"], details["passwd"])
 
-    def _setup_server(self, location, email_server=None, app_host=None):
+    def _setup_server(self, location, email_server=None, app_host=None, sender_address=None, smtp_server=None):
         settings = dict()
 
         if location.exists():
@@ -156,56 +156,41 @@ class WebControl(BaseControl):
                 continue
             settings["APPLICATION_HOST"] = app_host
             break
-
-        while not email_server or len(email_server) < 1 or email_server != "yes" or email_server != "no":
-            email_server = self.ctx.input("Would you like to set up email server? (yes/no): ")
-            if email_server != "yes" and email_server != "no":
-                self.ctx.err("Please enter 'yes' or 'no'.")
+        
+        while not sender_address or len(sender_address) < 1 :
+            sender_address = self.ctx.input("Please enter the Email address you want to send from (omero_admin@example.com): ")
+            if sender_address == None or sender_address == "":
+                self.ctx.err("Email cannot be empty")
                 continue
-            if email_server == "yes":
-                notification = True
-                sender_address = None
-                smtp_server = None
+        
+        while not smtp_server or len(smtp_server) < 1 :
+            smtp_server = self.ctx.input("Please enter the SMTP server host you want to send from (smtp.example.com): ")
+            if smtp_server == None or smtp_server == "":
+                self.ctx.err("SMTP server host cannot be empty")
+                continue
 
-                smtp_port = None
-                smtp_user = None
-                smtp_password = None
-                smtp_tls = None
-                while not sender_address or len(sender_address) < 1 or not smtp_server or len(smtp_server) < 1 :
-                    sender_address = self.ctx.input("Please enter the Email address you want to send from (omero_admin@example.com): ")
-                    if sender_address == None or sender_address == "":
-                        self.ctx.err("Email cannot be empty")
-                        continue
-                    smtp_server = self.ctx.input("Please enter the SMTP server host you want to send from (smtp.example.com): ")
-                    if smtp_server == None or smtp_server == "":
-                        self.ctx.err("SMTP server host cannot be empty")
-                        continue
-
-                    smtp_port = self.ctx.input("Optional: please enter the SMTP server port (default 25): ")
-                    smtp_user = self.ctx.input("Optional: Please enter the SMTP server username: ")
-                    smtp_password = self.ctx.input("Optional: Password: ", hidden=True)
-                    smtp_tls = self.ctx.input("Optional: TSL? (yes/no): ")
-                    if smtp_tls == "yes":
-                        smtp_tls = True
-                    else:
-                        smtp_tls = False
-                    break
-
-                settings["NOTIFICATION"] = notification
-                settings["SENDER_ADDRESS"] = sender_address
-                settings["SMTP_SERVER"] = smtp_server
-
-                if smtp_port:
-                    settings["SMTP_PORT"] = smtp_port
-                if smtp_user:
-                    settings["SMTP_USER"] = smtp_user
-                if smtp_password:
-                    settings["SMTP_PASSWORD"] = smtp_password
-                if smtp_tls:
-                    settings["SMTP_TLS"] = smtp_tls
+            smtp_port = self.ctx.input("Optional: please enter the SMTP server port (default 25): ")
+            smtp_user = self.ctx.input("Optional: Please enter the SMTP server username: ")
+            smtp_password = self.ctx.input("Optional: Password: ", hidden=True)
+            smtp_tls = self.ctx.input("Optional: TSL? (yes/no): ")
+            if smtp_tls == "yes":
+                smtp_tls = True
             else:
-                settings["NOTIFICATION"] = False
+                smtp_tls = False
             break
+
+        settings["SERVER_EMAIL"] = sender_address
+        settings["EMAIL_HOST"] = smtp_server
+
+        if smtp_port:
+            settings["EMAIL_PORT"] = smtp_port
+        if smtp_user:
+            settings["EMAIL_HOST_USER"] = smtp_user
+        if smtp_password:
+            settings["EMAIL_HOST_PASSWORD"] = smtp_password
+        if smtp_tls:
+            settings["EMAIL_USE_TLS"] = smtp_tls
+        
         return settings
 
     def _update_settings(self, location, settings=None):
@@ -241,29 +226,28 @@ class WebControl(BaseControl):
 
 # Notification
 # Application allows to notify user about new shares
-EMAIL_NOTIFICATION = %s
-""" % (str(settings["NOTIFICATION"])))
-            if settings.has_key('SENDER_ADDRESS'):
-                output.write("""EMAIL_SENDER_ADDRESS = '%s'
-""" % settings["SENDER_ADDRESS"])
-            if settings.has_key('SMTP_SERVER'):
-                output.write("""EMAIL_SMTP_SERVER = '%s'
-""" % settings["SMTP_SERVER"])
-            if settings.has_key('SMTP_PORT'):
-                output.write("""EMAIL_SMTP_PORT = %s
-""" % settings["SMTP_PORT"])
-            if settings.has_key('SMTP_USER'):
-                output.write("""EMAIL_SMTP_USER = '%s'
-""" % settings["SMTP_USER"])
-            if settings.has_key('SMTP_PASSWORD'):
-                output.write("""EMAIL_SMTP_PASSWORD = '%s'
-""" % settings["SMTP_PASSWORD"])
-            if settings.has_key('SMTP_TLS'):
-                if settings["SMTP_TLS"]:
-                    output.write("""EMAIL_SMTP_TLS = 'True'
+""")
+            if settings.has_key('SERVER_EMAIL'):
+                output.write("""SERVER_EMAIL = '%s'
+""" % settings["SERVER_EMAIL"])
+            if settings.has_key('EMAIL_HOST'):
+                output.write("""EMAIL_HOST = '%s'
+""" % settings["EMAIL_HOST"])
+            if settings.has_key('EMAIL_PORT'):
+                output.write("""EMAIL_PORT = %s
+""" % settings["EMAIL_PORT"])
+            if settings.has_key('EMAIL_HOST_USER'):
+                output.write("""EMAIL_HOST_USER = '%s'
+""" % settings["EMAIL_HOST_USER"])
+            if settings.has_key('EMAIL_HOST_PASSWORD'):
+                output.write("""EMAIL_HOST_PASSWORD = '%s'
+""" % settings["EMAIL_HOST_PASSWORD"])
+            if settings.has_key('EMAIL_USE_TLS'):
+                if settings["EMAIL_USE_TLS"]:
+                    output.write("""EMAIL_USE_TLS = 'True'
 """)
                 else:
-                    output.write("""EMAIL_SMTP_TLS = 'False'
+                    output.write("""EMAIL_USE_TLS = 'False'
 """)
 
             output.write("""

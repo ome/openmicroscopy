@@ -29,12 +29,11 @@ from django.contrib import admin
 from django.views.static import serve
 
 from omeroweb.webadmin.models import Gateway
-from omeroweb.feedback.models import EmailToSend, EmailTemplate
+from omeroweb.feedback.models import EmailTemplate
 
 # make admin enable
 admin.autodiscover()
 admin.site.register(Gateway)
-admin.site.register(EmailToSend)
 admin.site.register(EmailTemplate)
 
 # error handler

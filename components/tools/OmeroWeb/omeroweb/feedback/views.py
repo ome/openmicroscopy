@@ -42,17 +42,9 @@ from django.views.defaults import page_not_found, server_error
 from django.views import debug
 
 from omeroweb.feedback.models import ErrorForm
-from omeroweb.feedback.notification.sendfeedback import SendFeedback
 
 logger = logging.getLogger('views-feedback')
 
-try:
-    if settings.ERROR2EMAIL_NOTIFICATION and settings.EMAIL_NOTIFICATION:
-        import omeroweb.feedback.notification.handlesender as sender
-        logger.info("Email sender imported")
-except:
-    logger.error(traceback.format_exc())
-    
 ###############################################################################
 def thanks(request):
     return render_to_response("thanks.html",None)
@@ -113,26 +105,6 @@ def handler500(request):
     
     error500 = debug.technical_500_response(request, *exc_info)
     
-    if settings.ERROR2EMAIL_NOTIFICATION and settings.EMAIL_NOTIFICATION:
-        try:
-            import omeroweb.feedback.notification.handlesender as sender
-            sender.handler()
-        except:
-            logger.error(traceback.format_exc())
-            
-        try:
-            from omeroweb.feedback.models import EmailTemplate
-            t = EmailTemplate.objects.get(template="error_message")
-            from omeroweb.feedback.models import EmailToSend
-            recipients = ",".join([a[1] for a in settings.ADMINS])
-            e = EmailToSend(sender=request.session.get('username'), recipients=recipients, template=t, message_html=str(error500))
-            e.save()            
-            logger.info('handler500: Email to queue')
-        except:
-            logger.error('handler500: Email could not be sent')
-            logger.error(traceback.format_exc())
-    else:
-        logger.error("Email notification not set.")
     return custom_server_error(request, error500)
 
 def handler404(request):
@@ -141,26 +113,7 @@ def handler404(request):
     logger.error(traceback.format_exc())
     
     error404 = debug.technical_404_response(request, exc_info[1])
-    if settings.ERROR2EMAIL_NOTIFICATION and settings.EMAIL_NOTIFICATION:
-        try:
-            import omeroweb.feedback.notification.handlesender as sender
-            sender.handler()
-        except:
-            logger.error(traceback.format_exc())
-            
-        try:
-            from omeroweb.feedback.models import EmailTemplate
-            t = EmailTemplate.objects.get(template="error_message")
-            from omeroweb.feedback.models import EmailToSend
-            recipients = ",".join([a[1] for a in settings.ADMINS])
-            e = EmailToSend(sender=request.session.get('username'), recipients=recipients, template=t, message_html=str(error404))
-            e.save()
-            logger.info('handler404: Email to queue')
-        except:
-            logger.error('handler404: Email could not be sent')
-            logger.error(traceback.format_exc())
-    else:
-        logger.error("Email notification not set.")
+    
     return page_not_found(request, "404.html")
 
 def handlerInternalError(error):

@@ -56,14 +56,6 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-# ADMIN notification
-# If you wish to help us catching errors, please set the Error notifier to True (please
-# be sure you turned on EMAIL_NOTIFICATION and set ADMIN details).
-# That mechanism sent to the administrator every errors.
-# We are very appreciative if you can deliver them to:
-#   Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>
-ERROR2EMAIL_NOTIFICATION = False
-
 # Local time zone for this installation. Choices can be found here:
 # http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
 # although not all variations may be possible on all operating systems.
@@ -140,7 +132,7 @@ INSTALLED_APPS = (
 
 FEEDBACK_URL = "qa.openmicroscopy.org.uk:80"
 
-IGNORABLE_404_ENDS = ('favicon.ico')
+IGNORABLE_404_ENDS = ('*.ico')
 
 # Cookies config
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True # False
@@ -205,40 +197,46 @@ except ImportError:
         "it's causing an ImportError somehow.)\n" % __file__)
     sys.exit(1)
 
-# Notification
-# Application allows to notify user about new shares
-EMAIL_NOTIFICATION = custom_settings.EMAIL_NOTIFICATION
 try:
-    EMAIL_SENDER_ADDRESS = custom_settings.EMAIL_SENDER_ADDRESS
+    ADMINS = custom_settings.ADMINS
 except:
     pass
 try:
-    EMAIL_SMTP_SERVER = custom_settings.EMAIL_SMTP_SERVER
+    EMAIL_HOST = custom_settings.EMAIL_HOST
 except:
     pass
 try:
-    EMAIL_SMTP_PORT = custom_settings.EMAIL_SMTP_PORT
+    EMAIL_HOST_PASSWORD = custom_settings.EMAIL_HOST_PASSWORD
 except:
     pass
 try:
-    EMAIL_SMTP_USER = custom_settings.EMAIL_SMTP_USER
+    EMAIL_HOST_USER = custom_settings.EMAIL_HOST_USER
 except:
     pass
 try:
-    EMAIL_SMTP_PASSWORD = custom_settings.EMAIL_SMTP_PASSWORD
+    EMAIL_PORT = custom_settings.EMAIL_PORT
 except:
     pass
 try:
-    EMAIL_SMTP_TLS = custom_settings.EMAIL_SMTP_TLS
+    EMAIL_SUBJECT_PREFIX = custom_settings.EMAIL_SUBJECT_PREFIX
 except:
     pass
+try:
+    EMAIL_USE_TLS = custom_settings.EMAIL_USE_TLS
+except:
+    pass
+try:
+    SERVER_EMAIL = custom_settings.SERVER_EMAIL
+except:
+    pass
+
+EMAIL_SUBJECT_PREFIX = '[OMERO.web] '
 
 # APPLICATIONS CONFIG
 try:
     APPLICATION_HOST=custom_settings.APPLICATION_HOST
 except:
     pass
-
 
 # Ice handling: When manage.py is called by icegridnode
 # an extra argument "--Ice.Config=..." is added. For now,

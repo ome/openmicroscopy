@@ -35,10 +35,6 @@ except ImportError:
     sys.stderr.write("Error: Can't find the file 'settings.py' in the directory containing %r. It appears you've customized things.\nYou'll have to run django-admin.py, passing it your settings module.\n(If the file settings.py does indeed exist, it's causing an ImportError somehow.)\n" % __file__)
     sys.exit(1)
 
-
-if not settings.EMAIL_NOTIFICATION:
-    logger.error("Settings.py has not been configured. EmailServerError: The application will not send any emails. Sharing notification is not available.\n" )
-
 if __name__ == "__main__":
     logger = logging.getLogger()
     logger.info("Application Starting...")

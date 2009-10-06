@@ -43,6 +43,8 @@ from types import IntType, ListType, TupleType, UnicodeType, StringType
 
 from django.utils.translation import ugettext as _
 from django.conf import settings
+from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 
 import Ice
 import Glacier2
@@ -1607,6 +1609,20 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         u = self.getUpdateService()
         u.deleteObject(obj)
     
+    def prepareRecipients(self, recipients):
+        recps = list()
+        for m in recipients:
+            try:
+                e = hasattr(m.email, 'val') and m.email.val or m.email
+                if e is not None:
+                    recps.append(e)
+            except:
+                logger.error(traceback.format_exc())
+        logger.info(recps)
+        if len(recps) == 0:
+            raise AttributeError("Recipients list is empty")
+        return recps
+        
     def addComment(self, host, blitz_id, share_id, comment):
         sh = self.getShareService()
         new_cm = sh.addComment(long(share_id), str(comment))
@@ -1617,28 +1633,35 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             members.append(sh.getOwnerAsExperimetner())
         
         if sh.active:
-            if settings.EMAIL_NOTIFICATION:
+            try:
+                for m in members:
+                    try:
+                        if m.id == self.getEventContext().userId:
+                            members.remove(m)
+                    except:
+                        logger.error(traceback.format_exc())
+                recipients = self.prepareRecipients(members)
+            except Exception, x:
+                logger.error(x)
+                logger.error(traceback.format_exc())
+            else:
+                from omeroweb.webadmin.models import Gateway
+                blitz = Gateway.objects.get(id=blitz_id)
+                from omeroweb.feedback.models import EmailTemplate
+                t = EmailTemplate.objects.get(template="add_comment_to_share")
+                message = t.content_txt % (settings.APPLICATION_HOST, share_id, blitz_id)
+                message_html = t.content_html % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id)
+                
                 try:
-                    for m in members:
-                        try:
-                            if m.id == self.getEventContext().userId:
-                                members.remove(m)
-                        except:
-                            logger.error(traceback.format_exc())
-                    from omeroweb.feedback.notification.sendemail import prepareRecipientsAsString
-                    recipients = prepareRecipientsAsString(members)
-                except Exception, x:
-                    logger.error(x)
+                    title = 'OMERO.qa - new comment'
+                    text_content = message
+                    html_content = message_html
+                    msg = EmailMultiAlternatives(title, text_content, settings.SERVER_EMAIL, recipients)
+                    msg.attach_alternative(html_content, "text/html")
+                    msg.send()
+                except:
                     logger.error(traceback.format_exc())
-                else:
-                    from omeroweb.webadmin.models import Gateway
-                    blitz = Gateway.objects.get(id=blitz_id)
-                    from omeroweb.feedback.models import EmailToSend, EmailTemplate
-                    t = EmailTemplate.objects.get(template="add_comment_to_share")
-                    message = t.content_txt % (settings.APPLICATION_HOST, share_id, blitz_id)
-                    message_html = t.content_html % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id)
-                    e = EmailToSend(recipients=recipients, template=t, sender=self.getUser().getFullName(), sender_email=self.getUser().email, message=message, message_html=message_html)
-                    e.save()
+                
     
     def createShare(self, host, blitz_id, imageInBasket, message, members, enable, expiration=None):
         sh = self.getShareService()
@@ -1680,20 +1703,26 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         
         #send email if avtive
         if enable:
-            if settings.EMAIL_NOTIFICATION:
+            try:
+                recipients = self.prepareRecipients(ms)
+            except Exception, x:
+                logger.error(x)
+                logger.error(traceback.format_exc())
+            else:
+                from omeroweb.feedback.models import EmailTemplate
+                t = EmailTemplate.objects.get(template="create_share")
+                message = t.content_txt % (settings.APPLICATION_HOST, sid, blitz_id, self.getUser().getFullName())
+                message_html = t.content_html % (settings.APPLICATION_HOST, sid, blitz_id, settings.APPLICATION_HOST, sid, blitz_id, self.getUser().getFullName())
+                
                 try:
-                    from omeroweb.feedback.notification.sendemail import prepareRecipientsAsString
-                    recipients = prepareRecipientsAsString(ms)
-                except Exception, x:
-                    logger.error(x)
-                    logger.error(traceback.format_exc())
-                else:
-                    from omeroweb.feedback.models import EmailToSend, EmailTemplate
-                    t = EmailTemplate.objects.get(template="create_share")
-                    message = t.content_txt % (settings.APPLICATION_HOST, sid, blitz_id, self.getUser().getFullName())
-                    message_html = t.content_html % (settings.APPLICATION_HOST, sid, blitz_id, settings.APPLICATION_HOST, sid, blitz_id, self.getUser().getFullName())
-                    e = EmailToSend(recipients=recipients, template=t, sender=self.getUser().getFullName(), sender_email=self.getUser().email, message=message, message_html=message_html)
-                    e.save()
+                    title = 'OMERO.qa - new share'
+                    text_content = message
+                    html_content = message_html
+                    msg = EmailMultiAlternatives(title, text_content, settings.SERVER_EMAIL, recipients)
+                    msg.attach_alternative(html_content, "text/html")
+                    msg.send()
+                except:
+                    logger.error(traceback.format_exc())                
     
     def updateShareOrDiscussion (self, host, blitz_id, share_id, message, add_members, rm_members, enable, expiration=None):
         sh = self.getShareService()
@@ -1706,40 +1735,52 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             sh.removeUsers(long(share_id), rm_members)
         
         #send email if avtive
-        if settings.EMAIL_NOTIFICATION:
-		if len(add_members) > 0:
-                    try:
-	                from omeroweb.feedback.notification.sendemail import prepareRecipientsAsString
-	                recipients = prepareRecipientsAsString(add_members)
-	            except Exception, x:
-	                logger.error(x)
-	                logger.error(traceback.format_exc())
-	            else:
-	                from omeroweb.webadmin.models import Gateway
-	                blitz = Gateway.objects.get(id=blitz_id)
-	                from omeroweb.feedback.models import EmailToSend, EmailTemplate
-	                t = EmailTemplate.objects.get(template="add_member_to_share")
-	                message = t.content_txt % (settings.APPLICATION_HOST, share_id, blitz_id, self.getUser().getFullName())
-                    message_html = t.content_html % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id, self.getUser().getFullName())
-                    e = EmailToSend(recipients=recipients, template=t, sender=self.getUser().getFullName(), sender_email=self.getUser().email, message=message, message_html=message_html)
-                    e.save()
+        if len(add_members) > 0:
+            try:
+                recipients = self.prepareRecipients(add_members)
+            except Exception, x:
+                logger.error(x)
+                logger.error(traceback.format_exc())
+            else:
+                from omeroweb.webadmin.models import Gateway
+                blitz = Gateway.objects.get(id=blitz_id)
+                from omeroweb.feedback.models import EmailTemplate
+                t = EmailTemplate.objects.get(template="add_member_to_share")
+                message = t.content_txt % (settings.APPLICATION_HOST, share_id, blitz_id, self.getUser().getFullName())
+                message_html = t.content_html % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id, self.getUser().getFullName())
+                try:
+                    title = 'OMERO.qa - update share'
+                    text_content = message
+                    html_content = message_html
+                    msg = EmailMultiAlternatives(title, text_content, settings.SERVER_EMAIL, recipients)
+                    msg.attach_alternative(html_content, "text/html")
+                    msg.send()
+                except:
+                    logger.error(traceback.format_exc())
 			
-                if len(rm_members) > 0:
-                    try:
-	                from omeroweb.feedback.notification.sendemail import prepareRecipientsAsString
-	                recipients = prepareRecipientsAsString(rm_members)
-	            except Exception, x:
-	                logger.error(x)
-	                logger.error(traceback.format_exc())
-	            else:
-	                from omeroweb.webadmin.models import Gateway
-	                blitz = Gateway.objects.get(id=blitz_id)
-	                from omeroweb.feedback.models import EmailToSend, EmailTemplate
-	                t = EmailTemplate.objects.get(template="remove_member_from_share")
-                    message = t.content_txt % (settings.APPLICATION_HOST, share_id, blitz_id)
-                    message_html = t.content_html % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id)
-                    e = EmailToSend(recipients=recipients, template=t, sender=self.getUser().getFullName(), sender_email=self.getUser().email, message=message, message_html=message_html)
-                    e.save()
+        if len(rm_members) > 0:
+            try:
+                recipients = self.prepareRecipients(rm_members)
+            except Exception, x:
+                logger.error(x)
+                logger.error(traceback.format_exc())
+            else:
+                from omeroweb.webadmin.models import Gateway
+                blitz = Gateway.objects.get(id=blitz_id)
+                from omeroweb.feedback.models import EmailTemplate
+                t = EmailTemplate.objects.get(template="remove_member_from_share")
+                message = t.content_txt % (settings.APPLICATION_HOST, share_id, blitz_id)
+                message_html = t.content_html % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id)
+                
+                try:
+                    title = 'OMERO.qa - update share'
+                    text_content = message
+                    html_content = message_html
+                    msg = EmailMultiAlternatives(title, text_content, settings.SERVER_EMAIL, recipients)
+                    msg.attach_alternative(html_content, "text/html")
+                    msg.send()
+                except:
+                    logger.error(traceback.format_exc())
     
     def setFile(self, buf):
         f = self.createRawFileStore()

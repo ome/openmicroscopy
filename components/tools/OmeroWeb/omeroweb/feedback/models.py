@@ -42,18 +42,3 @@ class EmailTemplate(models.Model):
     def __unicode__(self):
         t = "%s" % (self.template)
         return t
-
-class EmailToSend(models.Model):
-    sender = models.CharField(max_length=100, blank=True, null=True)
-    sender_email = models.CharField(max_length=100, blank=True, null=True)
-    recipients = models.TextField()
-    template = models.ForeignKey(EmailTemplate)
-    message = models.TextField()
-    message_html = models.TextField()
-    
-    def __init__(self, *args, **kwargs):
-        super(EmailToSend, self).__init__(*args, **kwargs)
-        
-    def __unicode__(self):
-        e = "%s - %s" % (self.message, self.template)
-        return e
