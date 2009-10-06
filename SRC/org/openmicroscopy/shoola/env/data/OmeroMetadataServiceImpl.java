@@ -1902,6 +1902,7 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
 				exclude.add(FileAnnotationData.MOVIE_MPEG_NS);
 				exclude.add(FileAnnotationData.MOVIE_QUICK_TIME_NS);
+				exclude.add(FileAnnotationData.COMPANION_FILE_NS);
 		}
 		ParametersI po = new ParametersI();
 		long userID = getUserDetails().getId();
