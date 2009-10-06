@@ -2205,7 +2205,7 @@ class ExperimenterWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterWrap
     def getFullName(self):
         try:
             if self.middleName is not None and self.middleName != '':
-                name = "%s %s. %s" % (self.lastName, self.middleName, self.lastName)
+                name = "%s %s. %s" % (self.firstName, self.middleName[:1], self.lastName)
             else:
                 name = "%s %s" % (self.firstName, self.lastName)
             

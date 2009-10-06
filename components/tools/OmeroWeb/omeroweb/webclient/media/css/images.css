@@ -150,6 +150,9 @@ div#view, div#view2  {
     padding-top: 5px;
 }
 
+table.formsm {
+    width: 100%;
+}
 table.formsm td{
     border-bottom: 1px dotted #bbb;
 }
