@@ -1415,7 +1415,7 @@ class TreeViewerComponent
 					while (i.hasNext()) {
 						id = (Long) i.next();
 						if (m.containsKey(id)) {
-							s += EditorUtil.getPartialName(m.get(i).getName());
+							s += EditorUtil.getPartialName(m.get(id).getName());
 							s += "\n";
 						}
 					}

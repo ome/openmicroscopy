@@ -326,7 +326,11 @@ class ImViewerComponent
 				}
 			}
 			return true;
-		} else if (option == MessageBox.CANCEL) return false;
+		} else if (option == MessageBox.CANCEL) {
+			return false;
+		} else if (option == MessageBox.NO_OPTION) {
+			model.resetMappingSettings(model.getOriginalDef());
+		}
 		return true;
 	}
 
