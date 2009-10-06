@@ -666,7 +666,8 @@ public class GuiImporter extends JFrame
             statusBar.setStatusIcon("gfx/import_icon_16.png", "Prepping file \"" + 
                     ev.shortName + "\" (file " + ev.numDone + " of " + ev.total + " imports)");
         }
-        if (event instanceof ImportEvent.LOADED_IMAGE)
+
+        else if (event instanceof ImportEvent.LOADED_IMAGE)
         {
             ImportEvent.LOADED_IMAGE ev = (ImportEvent.LOADED_IMAGE) event;
             
@@ -677,7 +678,7 @@ public class GuiImporter extends JFrame
                     ev.shortName + "\" (file " + ev.numDone + " of " + ev.total + " imports)");            
         }
         
-        if (event instanceof ImportEvent.DATASET_STORED)
+        else if (event instanceof ImportEvent.DATASET_STORED)
         {
             ImportEvent.DATASET_STORED ev = (ImportEvent.DATASET_STORED) event;
             
@@ -694,7 +695,7 @@ public class GuiImporter extends JFrame
             appendToOutput("> Importing plane: ");
         }
         
-        if (event instanceof ImportEvent.DATA_STORED)
+        else if (event instanceof ImportEvent.DATA_STORED)
         {
             ImportEvent.DATA_STORED ev = (ImportEvent.DATA_STORED) event;
             
@@ -702,7 +703,7 @@ public class GuiImporter extends JFrame
             appendToOutputLn("> [" + ev.filename + "] Image imported successfully!");
         }
         
-        if (event instanceof FILE_EXCEPTION)
+        else if (event instanceof FILE_EXCEPTION)
         {
             FILE_EXCEPTION ev = (FILE_EXCEPTION) event;
             if (IOException.class.isAssignableFrom(ev.exception.getClass())) {
@@ -723,33 +724,36 @@ public class GuiImporter extends JFrame
                 dialog.pack();
                 dialog.setVisible(true);
             }
-        } else if (event instanceof EXCEPTION_EVENT)
+        }
+
+        else if (event instanceof EXCEPTION_EVENT)
         {
             EXCEPTION_EVENT ev = (EXCEPTION_EVENT) event;
             log.error("EXCEPTION_EVENT", ev.exception);
         }
-        
-        if (event instanceof INTERNAL_EXCEPTION) 
+
+        else if (event instanceof INTERNAL_EXCEPTION)
         {
             INTERNAL_EXCEPTION e = (INTERNAL_EXCEPTION) event;
             log.error("INTERNAL_EXCEPTION", e.exception);
             
-            // What else should we do here?
+            // What else should we do here? Why are EXCEPTION_EVENTs being
+            // handled here?
         }
         
         
-        if (event instanceof ImportEvent.ERRORS_PENDING)
+        else if (event instanceof ImportEvent.ERRORS_PENDING)
         {
             tPane.setIconAt(4, gui.getImageIcon(ERROR_ICON_ANIM));
             errors_pending  = true;
         }
         
-        if (event instanceof ImportEvent.ERRORS_COMPLETE)
+        else if (event instanceof ImportEvent.ERRORS_COMPLETE)
         {
             tPane.setIconAt(4, gui.getImageIcon(ERROR_ICON));
         }
         
-        if (event instanceof ImportEvent.IMPORT_QUEUE_DONE && errors_pending == true)
+        else if (event instanceof ImportEvent.IMPORT_QUEUE_DONE && errors_pending == true)
         {
             errors_pending = false;
             importErrorsCollected(this); 

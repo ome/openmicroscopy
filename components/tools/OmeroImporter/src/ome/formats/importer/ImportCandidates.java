@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import loci.formats.FormatTools;
+import loci.formats.MissingLibraryException;
 import loci.formats.UnknownFormatException;
 
 import ome.formats.importer.util.ErrorHandler;
@@ -82,23 +83,6 @@ public class ImportCandidates extends DirectoryWalker {
             String f = file.toString().substring(l);
             return super.toLog() + String.format(": Depth:%s Num: %4s Tot: %4s File: %s",
                     depth, numFiles, (totalFiles < 0 ? "n/a" : totalFiles), f);
-        }
-    }
-
-
-    public static class SCANNING_FILE_EXCEPTION extends ErrorHandler.FILE_EXCEPTION {
-        public final String filename;
-        public final String[] usedFiles;
-        public final String reader;
-        public SCANNING_FILE_EXCEPTION(String filename, Exception exception, String[] usedFiles, String reader) {
-            super(filename, exception, usedFiles, reader);
-            this.filename = filename;
-            this.usedFiles = usedFiles;
-            this.reader = reader;
-        }
-        @Override
-        public String toLog() {
-            return super.toLog() + ": "+filename;
         }
     }
     
@@ -351,8 +335,10 @@ public class ImportCandidates extends DirectoryWalker {
             
         } catch (UnknownFormatException ufe) {
             safeUpdate(new ErrorHandler.UNKNOWN_FORMAT(path, ufe));
+        } catch (MissingLibraryException mle) {
+            safeUpdate(new ErrorHandler.MISSING_LIBRARY(path, mle, usedFiles, format));
         } catch (Exception e) {
-            safeUpdate(new SCANNING_FILE_EXCEPTION(path, e, usedFiles, format));
+            safeUpdate(new ErrorHandler.FILE_EXCEPTION(path, e, usedFiles, format));
         }
 
         return null;

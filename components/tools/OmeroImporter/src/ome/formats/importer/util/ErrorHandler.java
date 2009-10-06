@@ -14,11 +14,13 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
+import loci.formats.MissingLibraryException;
+
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
+import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportEvent;
-import static ome.formats.importer.ImportCandidates.*;
 
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
@@ -79,6 +81,17 @@ public abstract class ErrorHandler implements IObserver, IObservable {
         }
     }
 
+    /**
+     * {@link FILE_EXCEPTION}s are thrown any time in the context of a particular
+     * file and otherwise unspecified exception takes place. An example of an
+     * exception which receives separate handling is {@link UKNOWN_FORMAT} which
+     * can be considered less serious than {@link FILE_EXCEPTION}. Subclasses of
+     * this class may should receive special handling. For example,
+     * {@link ImportCandidates#SCANNING_FILE_EXCEPTION} may be considered less
+     * significant if the user was trying to import a large directory.
+     * {@link MISSING_LIBRARY} below is probably more of a warn situation rather
+     * than an error.
+     */
     public static class FILE_EXCEPTION extends EXCEPTION_EVENT {
         public final String filename;
         public final String[] usedFiles;
@@ -92,6 +105,17 @@ public abstract class ErrorHandler implements IObserver, IObservable {
         @Override
         public String toLog() {
             return super.toLog() + ": "+filename;
+        }
+    }
+
+
+    /**
+     * A {@link FILE_EXCEPTION} caused specifically by some library (native
+     * or otherwise) not being installed locally.
+     */
+    public static class MISSING_LIBRARY extends FILE_EXCEPTION {
+        public MISSING_LIBRARY(String filename, MissingLibraryException exception, String[] usedFiles, String reader) {
+            super(filename, exception, usedFiles, reader);
         }
     }
 
@@ -115,14 +139,14 @@ public abstract class ErrorHandler implements IObserver, IObservable {
 
     public final void update(IObservable observable, ImportEvent event) {
 
-        if (event instanceof FILE_EXCEPTION) {
-            FILE_EXCEPTION ev = (FILE_EXCEPTION) event;
-            log.error(ev.toLog(), ev.exception);
-            addError(ev.exception, new File(ev.filename), ev.usedFiles, ev.reader);
+
+        if (event instanceof MISSING_LIBRARY) {
+            MISSING_LIBRARY ev = (MISSING_LIBRARY) event;
+            log.warn(ev.toLog(), ev.exception);
         }
 
-        else if (event instanceof SCANNING_FILE_EXCEPTION) {
-            SCANNING_FILE_EXCEPTION ev = (SCANNING_FILE_EXCEPTION) event;
+        else if (event instanceof FILE_EXCEPTION) {
+            FILE_EXCEPTION ev = (FILE_EXCEPTION) event;
             log.error(ev.toLog(), ev.exception);
             addError(ev.exception, new File(ev.filename), ev.usedFiles, ev.reader);
         }
