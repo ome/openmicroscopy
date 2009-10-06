@@ -91,7 +91,7 @@ class DownloadingOriginalFileProvider(object):
         file handle to that temporary file seeked to zero. The caller is
         responsible for closing the temporary file.
         """
-        print "Reading from: %d" % original_file.id.val
+        print "Downloading original file: %d" % original_file.id.val
         self.raw_file_store.setFileId(original_file.id.val)
         temporary_file = TemporaryFile()
         size = original_file.size.val
@@ -356,7 +356,8 @@ class PlateAnalysisCtxFactory(object):
     returning a plate analysis context instance for a given plate.
     """
 
-    implementations = [FlexPlateAnalysisCtx, MIASPlateAnalysisCtx]
+    implementations = [FlexPlateAnalysisCtx, MIASPlateAnalysisCtx,
+                       InCellPlateAnalysisCtx]
 
     def __init__(self, service_factory):
         self.service_factory = service_factory
@@ -579,10 +580,12 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
                     for i, value in enumerate(row):
                         columns[i + 2].name = value
                     break
+        print "Returning %d columns" % len(columns)
         return columns
         
     def _parse_neo_roi(self, columns):
         """Parses out ROI from OmeroTables columns for 'NEO' datasets."""
+        print "Parsing %s NEO ROIs..." % (len(columns[0].values))
         image_ids = columns[self.IMAGE_COL].values
         rois = list()
         for i, image_id in enumerate(image_ids):
@@ -607,6 +610,7 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
         
     def _parse_mnu_roi(self, columns):
         """Parses out ROI from OmeroTables columns for 'MNU' datasets."""
+        print "Parsing %s MNU ROIs..." % (len(columns[0].values))
         image_ids = columns[self.IMAGE_COL].values
         rois = list()
         for i, image_id in enumerate(image_ids):
@@ -629,6 +633,8 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
         names = [column.name for column in columns]
         neo = [name in self.NEO_EXPECTED for name in names]
         mnu = [name in self.MNU_EXPECTED for name in names]
+        for name in names:
+            print "Column: %s" % name
         if len(columns) == 9 and False not in neo:
             return self._parse_neo_roi(columns)
         elif len(columns) == 5 and False not in mnu:
