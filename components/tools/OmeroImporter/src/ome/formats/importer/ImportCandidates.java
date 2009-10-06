@@ -81,7 +81,8 @@ public class ImportCandidates extends DirectoryWalker {
                 l = 0;
             }
             String f = file.toString().substring(l);
-            return super.toLog() + String.format(": Depth:%s Num: %4s Tot: %4s File: %s", depth, numFiles, totalFiles, f);
+            return super.toLog() + String.format(": Depth:%s Num: %4s Tot: %4s File: %s",
+                    depth, numFiles, (totalFiles < 0 ? "n/a" : totalFiles), f);
         }
     }
 
@@ -118,6 +119,17 @@ public class ImportCandidates extends DirectoryWalker {
     final private Set<String> allFiles = new HashSet<String>();
     final private Map<String, Set<String>> usedBy = new HashMap<String, Set<String>>();
     final private List<ImportContainer> containers = new ArrayList<ImportContainer>();
+    final private long start = System.currentTimeMillis();
+
+    /**
+     * Time take for {@link IFormatReader#setId()}
+     */
+    long readerTime = 0;
+
+    /**
+     * Current count of calls to {@link IFormatReader#setId()}.
+     */
+    int setids = 0;
 
     /**
      * Current count of files processed. This will be incremented in two phases:
@@ -208,7 +220,17 @@ public class ImportCandidates extends DirectoryWalker {
             execute(paths);
             g = new Groups(usedBy);
             g.parse(containers);
+            long totalElapsed = System.currentTimeMillis() - start;
+            log.info(String.format("%s file(s) parsed into "
+                    + "%s groups with %s calls to setId in "
+                    + "%sms. (%sms total)", this.total, size(), this.setids,
+                    readerTime, totalElapsed));
         } catch (CANCEL c) {
+            log.info(String.format("Cancelling search after %sms "
+                    + "with %s containers found (%sms in %s calls to setIds)",
+                    (System.currentTimeMillis() - start), containers.size(),
+                    readerTime, setids));
+            containers.clear();
             cancelled = true;
             g = null;
             total = -1;
@@ -289,11 +311,7 @@ public class ImportCandidates extends DirectoryWalker {
                 }
                 // Forcing an event for each path, so that at least one
                 // event is raised per file despite the count of handlefile.
-                SCANNING s = new SCANNING(f, 0, count, total);
-                observer.update(null, s);
-                if (s.cancel) {
-                    throw new CANCEL();
-                }
+                scanWithCancel(f, 0);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -309,16 +327,24 @@ public class ImportCandidates extends DirectoryWalker {
         String path = file.getAbsolutePath();
         String format = null;
         String[] usedFiles = new String[] { path };
+        long start = System.currentTimeMillis();
         try {
-            reader.setId(path);
-            format = reader.getFormat();
-            usedFiles = reader.getUsedFiles();
-            String[] domains = reader.getReader().getDomains(path);
-            boolean isSPW = Arrays.asList(domains).contains(FormatTools.HCS_DOMAIN);
 
-            return new ImportContainer(file, null, null, null, false, null,
-                    format, usedFiles, isSPW);
+            try {
+                setids++;
+                reader.setId(path);
+                format = reader.getFormat();
+                usedFiles = reader.getUsedFiles();
+                String[] domains = reader.getReader().getDomains(path);
+                boolean isSPW = Arrays.asList(domains).contains(FormatTools.HCS_DOMAIN);
+    
+                return new ImportContainer(file, null, null, null, false, null,
+                        format, usedFiles, isSPW);
 
+            } finally {
+                readerTime += (System.currentTimeMillis() - start);
+            }
+            
         } catch (UnknownFormatException ufe) {
             safeUpdate(new ErrorHandler.UNKNOWN_FORMAT(path, ufe));
         } catch (Exception e) {
@@ -329,6 +355,14 @@ public class ImportCandidates extends DirectoryWalker {
 
     }
 
+    private void scanWithCancel(File f, int d) throws CANCEL{
+        SCANNING s = new SCANNING(f, d, count, total);
+        safeUpdate(s);
+        if (s.cancel) {
+            throw new CANCEL();
+        }
+    }
+    
     private void safeUpdate(ImportEvent event) {
         try {
             observer.update(null, event);
@@ -351,7 +385,7 @@ public class ImportCandidates extends DirectoryWalker {
 
         // If this is the 100th file, publish an event
         if (count%100 == 0) {
-            observer.update(null, new SCANNING(file, depth, count, total));
+            scanWithCancel(file, depth);
         }
 
         // If this is just a count, return
