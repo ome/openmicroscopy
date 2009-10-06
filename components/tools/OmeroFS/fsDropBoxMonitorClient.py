@@ -508,7 +508,7 @@ class MonitorClientI(monitors.MonitorClient):
             t.close() # Forcing deletion due to Windows sharing issues
 
             cli = omero.cli.CLI()
-            cli.invoke(["import", "---errs=%s"%t.name, "-s", self.host, "-p", self.port, "-k", key, fileName])
+            cli.invoke(["import", "---errs=%s"%t.name, "-s", self.host, "-p", str(self.port), "-k", key, fileName])
             retCode = cli.rv
 
             if retCode == 0:

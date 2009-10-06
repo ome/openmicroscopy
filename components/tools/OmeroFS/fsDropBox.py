@@ -83,7 +83,6 @@ class DropBox(Ice.Application):
                     dataDir = configService.getConfigValue("omero.data.dir")
                     defaultDropBoxDir = self.communicator().getProperties().getPropertyWithDefault("omero.fs.defaultDropBoxDir","DropBox")
                     monitorParameters['default']['watchDir'] = os.path.join(dataDir, defaultDropBoxDir)
-            log.info("default drop box base = %s", monitorParameters['default']['watchDir'])
         except:
             log.exception("Failed to use a query service : \n")
             return -1
