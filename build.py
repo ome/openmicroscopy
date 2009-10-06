@@ -75,13 +75,15 @@ def choose_omero_version():
     """
     try:
         omero_build = os.environ["OMERO_BUILD"]
-        command = [ find_java() ]
-        command.extend( calculate_memory_args() )
-        command.extend(["omero","-q","version"])
-        p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        omero_version,err = p.communicate()
-        omero_version = omero_version.split()[1]
-        return [ "-Domero.version=%s-%s" % (omero_version, omero_build) ]
+        command = [ find_java(), "omero","-q","version" ]
+        try:
+            p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            omero_version,err = p.communicate()
+            omero_version = omero_version.split()[1]
+            return [ "-Domero.version=%s-%s" % (omero_version, omero_build) ]
+        except:
+            print "Error getting version for OMERO_BUILD=%s" % omero_build
+            print err
     except KeyError, ke:
         return [] # Use default
 
