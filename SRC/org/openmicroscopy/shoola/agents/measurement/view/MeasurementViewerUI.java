@@ -883,7 +883,7 @@ class MeasurementViewerUI
     	getDrawingView().repaint();
     	if (!model.isServerROI()) {
     		roiInspector.setModelData(figure);
-        	roiManager.update();
+        	//roiManager.update();
         	roiResults.refreshResults();
     	}
     }

@@ -505,7 +505,6 @@ class MeasurementViewerControl
 	 */
 	public void figureRemoved(DrawingEvent e)
 	{
-		System.err.println("Remove");
 		if (model.getState() != MeasurementViewer.READY) return;
 		Figure f = e.getFigure();
 		if (f instanceof ROIFigure) view.removeROI((ROIFigure) f);

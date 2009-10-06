@@ -145,38 +145,33 @@ class ObjectManager
 			
 			public void valueChanged(TreeSelectionEvent e)
 			{
-				TreeSelectionModel tsm=objectsTable.getTreeSelectionModel();
-				if (tsm.isSelectionEmpty())
-				{}
+				TreeSelectionModel tsm = objectsTable.getTreeSelectionModel();
+				if (tsm.isSelectionEmpty()) return;
+				int[] index = tsm.getSelectionRows();
+				if (index.length == 0) return;
+				if (index.length == 1)
+				{
+					ROINode node = (ROINode) objectsTable.getNodeAtRow(
+							objectsTable.getSelectedRow());
+					if (node == null) return;
+					Object nodeValue = node.getUserObject();
+					if (nodeValue instanceof ROIShape) 
+						view.selectFigure(((ROIShape) nodeValue).getFigure());
+					int col = objectsTable.getSelectedColumn();
+					int row = objectsTable.getSelectedRow();
+					
+					if (row < 0|| col < 0) return;
+				}
 				else
 				{
-					int[] index=tsm.getSelectionRows();
-					if (index.length==0) return;
-					if (index.length==1)
+					for (int i = 0; i < index.length; i++)
 					{
-						ROINode node=
-								(ROINode)objectsTable.getNodeAtRow(objectsTable
-									.getSelectedRow());
-						if (node==null) return;
-						Object nodeValue=node.getUserObject();
-						if (nodeValue instanceof ROIShape) view
-							.selectFigure(((ROIShape) nodeValue).getFigure());
-						int col=objectsTable.getSelectedColumn();
-						int row=objectsTable.getSelectedRow();
-						
-						if (row<0||col<0) return;
-					}
-					else
-					{
-						for (int i=0; i<index.length; i++)
+						ROIShape shape = objectsTable.getROIShapeAtRow(
+								index[i]);
+						if (shape != null)
 						{
-							ROIShape shape=
-									objectsTable.getROIShapeAtRow(index[i]);
-							if (shape!=null)
-							{
-								view.selectFigure(shape.getFigure());
-								requestFocus();
-							}
+							view.selectFigure(shape.getFigure());
+							requestFocus();
 						}
 					}
 				}
@@ -187,7 +182,8 @@ class ObjectManager
 		
 	     ColumnFactory columnFactory = new ColumnFactory() {
             @Override
-            public void configureTableColumn(TableModel model, TableColumnExt columnExt) {
+            public void configureTableColumn(TableModel model, 
+            		TableColumnExt columnExt) {
                 super.configureTableColumn(model, columnExt);
                 if (columnExt.getModelIndex() == 1) {
                 	
@@ -279,10 +275,11 @@ class ObjectManager
 	{
 		Iterator i=l.iterator();
 		ROI roi;
+		Iterator<ROIShape> j;
 		while (i.hasNext())
 		{
-			roi=(ROI) i.next();
-			Iterator<ROIShape> j = roi.getShapes().values().iterator();
+			roi = (ROI) i.next();
+			j = roi.getShapes().values().iterator();
 			while (j.hasNext())
 			{
 				objectsTable.addROIShape(j.next());

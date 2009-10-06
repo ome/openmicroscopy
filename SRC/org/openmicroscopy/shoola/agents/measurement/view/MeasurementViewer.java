@@ -233,7 +233,7 @@ public interface MeasurementViewer
 	public void setStatsShapes(Map result);
 	
 	/**
-	 * Analyses the specifed list of ROIShapes.
+	 * Analyses the specified list of ROIShapes.
 	 * 
 	 * @param shape The list of ROIShapes to analyse. 
 	 * 				Mustn't be <code>null</code>.
