@@ -550,6 +550,7 @@ public class FileQueueHandler
             if (scanEx.isShutdown() || cancelScan) {
                 log.info("Cancelling scan");
                 ev.cancel();
+                cancelScan = false;
             }
 
             
@@ -581,8 +582,9 @@ public class FileQueueHandler
                         public void actionPerformed(ActionEvent e)
                         {
                             cancelScan  = true;
-                            directoryProgressBar.setIndeterminate(false);
-                            directoryProgressBar.setString("Cancelling");
+                            progressDialog.dispose();
+                            progressDialog = null;
+                            setCursor(Cursor.getDefaultCursor());
                         }
                     });      
 
@@ -598,9 +600,8 @@ public class FileQueueHandler
                     updateProgress(ev.totalFiles, ev.numFiles);
                 }
 
-                  if (ev.totalFiles == ev.numFiles || cancelScan)
+                  if (ev.totalFiles == ev.numFiles && progressDialog != null)
                   {
-                      cancelScan = false;
                       progressDialog.dispose();
                       progressDialog = null;
                       setCursor(Cursor.getDefaultCursor());
