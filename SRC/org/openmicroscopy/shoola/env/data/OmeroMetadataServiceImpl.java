@@ -1075,6 +1075,9 @@ class OmeroMetadataServiceImpl
 		List<String> toExclude = new ArrayList<String>();
 		if (nameSpace != null) 
 			toInclude.add(nameSpace);
+		if (FileAnnotationData.class.equals(annotationType)) {
+			toExclude.add(FileAnnotationData.COMPANION_FILE_NS);
+		}
 		return gateway.loadSpecificAnnotation(annotationType, toInclude, 
 				toExclude, po);
 	}

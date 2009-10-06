@@ -25,9 +25,12 @@ package org.openmicroscopy.shoola.agents.util;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -62,7 +65,6 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
-
 import pojos.TagAnnotationData;
 
 /** 
@@ -216,9 +218,7 @@ public class SelectionWizard
 		getRootPane().setDefaultButton(cancelButton);
 	}
 
-	/**
-	 * Creates a copy of the original selections  
-	 */
+	/** Creates a copy of the original selections. */
 	private void createOriginalSelections()
 	{
 		originalItems = new ArrayList<Object>();
@@ -383,9 +383,8 @@ public class SelectionWizard
 	{
 		JPanel container = new JPanel();
 		container.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		
 		double[][] size = {{TableLayout.FILL, 40, TableLayout.FILL},
-				{TableLayout.FILL, TableLayout.PREFERRED}};
+				{TableLayout.FILL}};
 		container.setLayout(new TableLayout(size));
 		container.add(createAvailableItemsPane(), "0, 0");
 		container.add(createSelectionPane(), "1, 0, c, c");
@@ -404,7 +403,9 @@ public class SelectionWizard
 	{
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout());
-		if (!addCreation) c.add(layoutSelectionPane(), BorderLayout.CENTER);
+		
+		if (!addCreation || !TagAnnotationData.class.equals(type)) 
+			c.add(layoutSelectionPane(), BorderLayout.CENTER);
 		else {
 			JPanel container = new JPanel();
 			container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
@@ -475,19 +476,16 @@ public class SelectionWizard
 	private JPanel createAdditionPane()
 	{
 		JPanel p = new JPanel();
-		p.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		double[][] size = {{TableLayout.PREFERRED}, {TableLayout.PREFERRED,
-			TableLayout.PREFERRED}};
-		
-		p.setLayout(new TableLayout(size));
+		p.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		String text = null;
 		String tip = null;
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		if (TagAnnotationData.class.equals(type)) {
 			tip = "Enter the new Tags, use comma to separate them.";
 			text = "New Tag: ";
 		}
 		if (tip != null) {
-			p.add(new JLabel(tip), "0, 0, l, t");
+			p.add(UIUtilities.buildComponentPanel(new JLabel(tip)));
 		}
 		if (text != null) {
 			JPanel pane = new JPanel();
@@ -495,9 +493,9 @@ public class SelectionWizard
 			pane.add(UIUtilities.setTextFont(text));
 			pane.add(addField);
 			pane.add(addNewButton);
-			p.add(pane, "0, 1, l, t");
+			p.add(pane);
 		}
-		return p;
+		return UIUtilities.buildComponentPanel(p);
 	}
 	
 	/**
@@ -655,7 +653,7 @@ public class SelectionWizard
 	 * Sets the title, the text and the icon displayed in the header.
 	 * 
 	 * @param title		The title to set.
-	 * @param text		Tht text to set.
+	 * @param text		The text to set.
 	 */
 	public void setTitle(String title, String text)
 	{
@@ -666,7 +664,7 @@ public class SelectionWizard
 	 * Sets the title, the text and the icon displayed in the header.
 	 * 
 	 * @param title		The title to set.
-	 * @param text		Tht text to set.
+	 * @param text		The text to set.
 	 * @param titleIcon	The icon to set.
 	 */
 	public void setTitle(String title, String text, Icon titleIcon)
@@ -676,8 +674,8 @@ public class SelectionWizard
 			IconManager icons = IconManager.getInstance();
 			titleIcon = icons.getIcon(IconManager.WIZARD_48);
 		}
-		TitlePanel tp = new TitlePanel(title, text,	titleIcon);
-		getContentPane().add(tp, BorderLayout.NORTH);
+		TitlePanel titlePanel = new TitlePanel(title, text, titleIcon);
+		getContentPane().add(titlePanel, BorderLayout.NORTH);
 	}
 	
 	/**
