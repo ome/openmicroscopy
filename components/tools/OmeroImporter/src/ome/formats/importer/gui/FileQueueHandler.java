@@ -232,7 +232,7 @@ public class FileQueueHandler
             viewer.candidateErrorsCollected(viewer);
             candidatesFormatException = false;
         }
-        
+                
         if (spw == null) {
             setCursor(Cursor.getDefaultCursor());
             containers.clear();
@@ -444,6 +444,12 @@ public class FileQueueHandler
         Boolean isSPW = null;
 
         for (ImportContainer importContainer : containers) {
+
+            // Temporary fix for ome.tiff and ome.xml to dataset and not spw
+            if (importContainer.reader.equals("OME-TIFF") ||
+                    importContainer.reader.equals("OME-XML"))
+                return false;
+            
             if (isSPW != null && importContainer.isSPW != isSPW.booleanValue()) {
                 JOptionPane.showMessageDialog(viewer, 
                         "You have chosen some Screen-based images and some \n "+
