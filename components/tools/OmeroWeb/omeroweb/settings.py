@@ -149,7 +149,10 @@ DEFAULT_USER = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__),
 # LOGS
 # Configure logging and set place to store logs.
 # Logging levels: logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR logging.CRITICAL
-LEVEL = logging.INFO
+if DEBUG:
+    LEVEL = logging.DEBUG
+else:
+    LEVEL = logging.INFO
 INTERNAL_IPS = ()
 LOGGING_LOG_SQL = False
 
@@ -164,7 +167,10 @@ if not os.path.isdir(LOGDIR):
         exctype, value = sys.exc_info()[:2]
         raise exctype, value
 
-LOGFILE = ('OMEROweb.log')
+if DEBUG:
+    LOGFILE = ('OMEROweb-dev.log')
+else:
+    LOGFILE = ('OMEROweb.log')
 logging.basicConfig(level=LEVEL,
                 format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                 datefmt='%a, %d %b %Y %H:%M:%S',
@@ -230,13 +236,19 @@ try:
 except:
     pass
 
+SEND_BROKEN_LINK_EMAILS = True
 EMAIL_SUBJECT_PREFIX = '[OMERO.web] '
 
 # APPLICATIONS CONFIG
 try:
-    APPLICATION_HOST=custom_settings.APPLICATION_HOST
+    if custom_settings.APPLICATION_HOST.endswith("/"):
+        APPLICATION_HOST=custom_settings.APPLICATION_HOST
+    else:
+        APPLICATION_HOST=custom_settings.APPLICATION_HOST+"/"
 except:
-    pass
+    logger.error("custom_settings.py has not been configured. APPLICATION_HOST is not set.\n" ) 
+    sys.stderr.write("custom_settings.py has not been configured. APPLICATION_HOST is not set.\n")
+    sys.exit(1)
 
 # Ice handling: When manage.py is called by icegridnode
 # an extra argument "--Ice.Config=..." is added. For now,
