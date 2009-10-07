@@ -36,6 +36,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Transactional;
 
+import Glacier2.SessionControlPrx;
 import Ice.Current;
 
 /**
@@ -67,6 +68,8 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
     private final ReadWriteLock rwl = new ReentrantReadWriteLock();
 
     private final Principal principal;
+    
+    private final SessionControlPrx control;
 
     private boolean detach = false;
     
@@ -89,13 +92,14 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
      * @param timeout
      */
     public InteractiveProcessorI(Principal p, SessionManager mgr, Executor ex,
-            ProcessorPrx prx, Job job, long timeout) {
+            ProcessorPrx prx, Job job, long timeout, SessionControlPrx control) {
         this.principal = p;
         this.ex = ex;
         this.mgr = mgr;
         this.prx = prx;
         this.job = job;
         this.timeout = timeout;
+        this.control = control;
         this.session = UNINITIALIZED;
     }
 
@@ -165,6 +169,11 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
             // Execute
             try {
                 currentProcess = prx.processJob(session.getUuid(), job);
+                // Have to add the process to the control, otherwise the
+                // user won't be able to view it: ObjectNotExistException!
+                // ticket:1522
+                control.identities().add(
+                        new Ice.Identity[]{currentProcess.ice_getIdentity()});
             } catch (ServerError se) {
                 log.debug("Error while processing job", se);
                 throw se;

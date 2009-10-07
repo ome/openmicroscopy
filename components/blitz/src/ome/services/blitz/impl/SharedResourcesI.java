@@ -504,7 +504,8 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         long timeout = System.currentTimeMillis() + 60 * 60 * 1000L;
         InteractiveProcessorI ip = new InteractiveProcessorI(sf.principal,
-                sf.sessionManager, sf.executor, server, unloadedJob, timeout);
+                sf.sessionManager, sf.executor, server, unloadedJob, timeout,
+                sf.control);
         Ice.Identity id = new Ice.Identity();
         id.category = current.id.name;
         id.name = Ice.Util.generateUUID();
