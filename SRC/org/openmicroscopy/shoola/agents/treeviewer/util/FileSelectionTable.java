@@ -310,14 +310,18 @@ class FileSelectionTable
 			inQueue.add(element.getFile().getAbsolutePath());
 		}
 		Iterator<File> i = files.iterator();
+		File[] list;
 		while (i.hasNext()) {
 			f = i.next();
 			if (!inQueue.contains(f.getAbsolutePath())) {
 				element = new FileElement(f);
 				//set the name.
-				if (f.isDirectory()) 
-					element.setName(f.getAbsolutePath());
-				else element.setName(model.getDisplayedFileName(
+				if (f.isDirectory())  {
+					list = f.listFiles();
+					if (list != null && list.length > 0) {
+						element.setName(f.getAbsolutePath());
+					}
+				} else element.setName(model.getDisplayedFileName(
 						f.getAbsolutePath()));	
 				
 				dtm.addRow(new Object[] {element, Boolean.valueOf(true)});
