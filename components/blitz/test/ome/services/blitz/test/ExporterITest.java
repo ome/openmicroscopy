@@ -96,6 +96,13 @@ public class ExporterITest extends AbstractServantTest {
         assertEquals(0, buf.length);
     }
 
+//    Used for manually testing
+//    @Test(enabled = false)
+//    public void testBasicExportDicom() throws Exception {
+//        assertAddImage(root_e, 701);
+//        assertGenerateTiff(root_e);
+//    }
+
     @Test
     public void testTiffGeneration() throws Exception {
         Image i = assertNewImage();
@@ -140,9 +147,13 @@ public class ExporterITest extends AbstractServantTest {
     }
 
     private long assertGenerateTiff() throws Exception {
+        return assertGenerateTiff(user_e);
+    }        
+    
+    private long assertGenerateTiff(ExporterI e) throws Exception {
 
         final RV rv = new RV();
-        user_e.generateTiff_async(new AMD_Exporter_generateTiff() {
+        e.generateTiff_async(new AMD_Exporter_generateTiff() {
 
             public void ice_exception(Exception ex) {
                 rv.ex = ex;
@@ -155,11 +166,15 @@ public class ExporterITest extends AbstractServantTest {
         rv.assertPassed();
         return ((Long)rv.rv).longValue();
     }
-    
+
     private void assertAddImage(long id) throws Exception {
+        assertAddImage(user_e, id);
+    }
+    
+    private void assertAddImage(ExporterI e, long id) throws Exception {
 
         final RV rv = new RV();
-        user_e.addImage_async(new AMD_Exporter_addImage() {
+        e.addImage_async(new AMD_Exporter_addImage() {
 
             public void ice_exception(Exception ex) {
                 rv.ex = ex;

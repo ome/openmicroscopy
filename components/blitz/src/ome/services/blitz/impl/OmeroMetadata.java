@@ -43,6 +43,7 @@ import java.util.UUID;
 
 import loci.formats.meta.MetadataRetrieve;
 import loci.formats.meta.MetadataStore;
+import ome.conditions.ApiUsageException;
 import ome.services.db.DatabaseIdentity;
 import ome.services.util.Executor;
 import ome.services.util.Executor.SimpleWork;
@@ -189,29 +190,41 @@ public class OmeroMetadata implements MetadataRetrieve {
         for (Image image : imageList) {
             if (!image.isLoaded()) {
 
-                final Image i = image;
+                final long id = image.getId().getValue(); 
                 QueryBuilder qb = new QueryBuilder();
                 qb.select("i");
                 qb.from("Image", "i");
-                qb.join("i.details.owner", "i_o", false, true);
-                qb.join("i.details.group", "i_g", false, true);
-                qb.join("i.pixels", "p", true, true);
-                qb.join("p.details.owner", "p_o", false, true);
-                qb.join("p.details.group", "p_g", false, true);
-                qb.join("p.pixelsType", "pt", false, true);
-                qb.join("p.dimensionOrder", "do", false, true);
-                qb.join("p.channels", "c", true, true);
-                qb.join("c.logicalChannel", "l", true, true);
-                qb.join("i.instrument", "n", true, true);
-                qb.join("n.objective", "o", true, true);
-                qb.join("o.correction", "o_cor", true, true);
-                qb.join("o.immersion", "o_imm", true, true);
-                qb.join("n.details.owner", "n_o", false, true);
-                qb.join("n.details.group", "n_g", false, true);
+                qb.join("i.details.owner",  "i_o",  false, true);
+                qb.join("i.details.group",  "i_g",  false, true);
+                qb.join("i.pixels",         "p",    false, true);
+                qb.join("p.details.owner",  "p_o",  false, true);
+                qb.join("p.details.group",  "p_g",  false, true);
+                qb.join("p.pixelsType",     "pt",   false, true);
+                qb.join("p.dimensionOrder", "do",   false, true);
+                qb.join("p.channels",       "c",    false, true);
+                qb.join("c.logicalChannel", "l",    false, true);
                 qb.where();
-                qb.and("i.id = " + i.getId().getValue());
-                lookups.put(image, (ome.model.core.Image) qb.query(session).uniqueResult());
-
+                qb.and("i.id = " + id);
+                ome.model.core.Image _i =(ome.model.core.Image) qb.query(session).uniqueResult();
+                if (_i == null) {
+                    throw new ApiUsageException("Cannot load image: " + id);
+                }
+                lookups.put(image, _i);
+                // Now load instrument if available
+                if (_i.getInstrument() != null) {
+                    qb = new QueryBuilder();
+                    qb.select("i");
+                    qb.from("Image","i");
+                    qb.join("i.instrument",    "n",     true,  true);
+                    qb.join("n.objective",     "o",     true,  true);
+                    qb.join("o.correction",    "o_cor", true,  true);
+                    qb.join("o.immersion",     "o_imm", true,  true);
+                    qb.join("n.details.owner", "n_o",   true,  true);
+                    qb.join("n.details.group", "n_g",   true,  true);
+                    qb.where();
+                    qb.and("i.id = "+ id);
+                    qb.query(session);
+                }
             }
         }
         session.clear();
