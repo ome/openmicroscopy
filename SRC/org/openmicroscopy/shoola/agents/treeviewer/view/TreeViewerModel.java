@@ -729,8 +729,13 @@ class TreeViewerModel
 	        
 	        if (node != null) {
 	            Object p =  node.getUserObject();
-	            if (!(object instanceof ProjectData))//root.
-	            	data = ((DataObject) p);
+	            if (object instanceof DatasetData) {
+	            	if (p instanceof ProjectData)
+	            		data = ((DataObject) p);
+	            } else if (object instanceof PlateData) {
+	            	if (p instanceof ScreenData)
+	            		data = ((DataObject) p);
+	            }
 	        }
 		}
 		
