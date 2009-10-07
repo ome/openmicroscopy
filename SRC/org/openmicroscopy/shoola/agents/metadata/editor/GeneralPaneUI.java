@@ -94,7 +94,7 @@ class GeneralPaneUI
 	/** The UI component displaying the textual annotations. */
 	private TextualAnnotationsUI		textualAnnotationsUI;
 	
-	/** Component hosting the tags, rating, urls and attachments. */
+	/** Component hosting the tags, rating, URLs and attachments. */
 	private AnnotationDataUI			annotationUI;
 	
 	/** The component hosting the {@link #browser}. */
@@ -122,7 +122,7 @@ class GeneralPaneUI
 	private int							protocolsIndex;
 	
 	/** The component hosting the various protocols. */
-	private JPanel						protocolComponent;
+	private JXTaskPaneContainer			protocolComponent;
 	
 	/** Collection of preview panels. */
 	private List<PreviewPanel>			previews;
@@ -164,7 +164,8 @@ class GeneralPaneUI
 			browserTaskPane.addPropertyChangeListener(controller);
 		}
 		
-		protocolComponent = new JPanel();
+		protocolComponent = new JXTaskPaneContainer();
+		protocolComponent.setLayout(new VerticalLayout(2));
 		protocolComponent.setBackground(UIUtilities.BACKGROUND);
 		propertiesUI = new PropertiesUI(model, controller);
 		textualAnnotationsUI = new TextualAnnotationsUI(model, controller);
@@ -248,7 +249,7 @@ class GeneralPaneUI
 		double[] size = {TableLayout.FILL};
 		layout.setColumn(size);
 		
-		protocolComponent.setLayout(layout);
+		//protocolComponent.setLayout(layout);
 		if (list.size() == 0) return 0;
 		Iterator i = list.iterator();
 		FileAnnotationData fa;
@@ -274,17 +275,17 @@ class GeneralPaneUI
 					pane = EditorUtil.createTaskPane(fa.getFileName());
 					pane.addPropertyChangeListener(controller);
 					defaultProtocolHeight = 
-						pane.getMinimumSize().getHeight()/2+2;
+						pane.getMinimumSize().getHeight()/2+5;
 					panes.put(pane, index);
 					indexes.put(index, defaultProtocolHeight);
 					
 					pane.add(preview);
-					layout.insertRow(index, defaultProtocolHeight);
+					//layout.insertRow(index, defaultProtocolHeight);
 					protocolComponent.add(pane, "0, "+index);
 					index++;
-					layout.insertRow(index, 5);
-					protocolComponent.add(new JLabel(), "0, "+index);
-					index++;
+					//layout.insertRow(index, 5);
+					//protocolComponent.add(new JLabel(), "0, "+index);
+					//index++;
 				}
 			}
 		}
@@ -536,6 +537,7 @@ class GeneralPaneUI
 		if  (source.equals(browserTaskPane)) 
 			loadParents(!browserTaskPane.isCollapsed());
 		else {
+			/*
 			if (panes.size() == 0) return;
 			Iterator i = panes.entrySet().iterator();
 			Entry entry;
@@ -556,6 +558,7 @@ class GeneralPaneUI
 			}
 			protocolComponent.validate();
 			protocolComponent.repaint();
+			*/
 		}
 	}
 

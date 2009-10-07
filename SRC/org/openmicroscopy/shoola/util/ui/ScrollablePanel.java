@@ -58,22 +58,40 @@ public class ScrollablePanel
 	/** The unit increment. */
 	private int unitIncrement;
 	
+	/** 
+	 * Flag returned by the 
+	 * {@link Scrollable#getScrollableTracksViewportHeight()}.
+	 */
+	private boolean scrollableViewportHeight;
+	
+	/** 
+	 * Creates a default instance. 
+	 * 
+	 * @param scrollableViewportHeight The value to set.
+	 */
+	public ScrollablePanel(boolean scrollableViewportHeight)
+	{
+		this(INCREMENT, scrollableViewportHeight);
+	}
+	
 	/** Creates a default instance. */
 	public ScrollablePanel()
 	{
-		this(INCREMENT);
+		this(INCREMENT, false);
 	}
 	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param increment The increment value.
+	 * @param scrollableViewportHeight The value to set.
 	 */
-	public ScrollablePanel(int increment)
+	public ScrollablePanel(int increment, boolean scrollableViewportHeight)
 	{
 		if (increment < 0) increment = INCREMENT;
 		this.increment = increment;
 		unitIncrement = 1;
+		this.scrollableViewportHeight = scrollableViewportHeight;
 	}
 	
 	/**
@@ -108,7 +126,10 @@ public class ScrollablePanel
 	 * Returns <code>false</code>.
 	 * @see Scrollable#getScrollableTracksViewportHeight()
 	 */
-	public boolean getScrollableTracksViewportHeight() { return false; }
+	public boolean getScrollableTracksViewportHeight()
+	{ 
+		return scrollableViewportHeight;
+	}
 
 	/**
 	 * Implemented as specified by the {@link Scrollable} interface.

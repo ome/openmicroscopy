@@ -72,6 +72,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 import org.openmicroscopy.shoola.util.ui.filechooser.OMEFileChooser;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -188,8 +189,8 @@ class BrowserUI
     private void buildGUI()
     {
     	setLayout(new BorderLayout(0, 0));
-        add(buildToolBar(), BorderLayout.NORTH);
-        add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
+    	add(buildToolBar(), BorderLayout.NORTH);
+    	add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
         
         treeDisplay.addMouseListener(new MouseAdapter() {
     		

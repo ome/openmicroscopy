@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 import pojos.DataObject;
@@ -71,7 +72,7 @@ import pojos.ImageData;
  * @since OME3.0
  */
 class DataBrowserUI
-	extends JPanel
+	extends ScrollablePanel//JPanel
 {
 
 	/** ID to select the thumbnail view. */
@@ -122,7 +123,10 @@ class DataBrowserUI
 	}
 	
 	/** Creates a new instance. */
-	DataBrowserUI() {}
+	DataBrowserUI()
+	{
+		super(true);
+	}
 	
 	/**
 	 * Links the components composing the MVC triad.
