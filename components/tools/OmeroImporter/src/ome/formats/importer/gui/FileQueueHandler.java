@@ -21,6 +21,7 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
@@ -30,15 +31,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSplitPane;
-import javax.swing.UIManager;
 import javax.swing.WindowConstants;
+import javax.swing.filechooser.FileFilter;
 
 import layout.TableLayout;
+import loci.formats.IFormatReader;
+import loci.formats.gui.FormatFileFilter;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.IObservable;
@@ -189,9 +191,41 @@ public class FileQueueHandler
         
     }
     
-    private void handleFiles(List<ImportContainer> containers) {
-                
-        Boolean spw = spwOrNull(containers);
+    private void handleFiles(List<ImportContainer> allContainers)
+    {
+    	// Retrieve the file chooser's selected reader then iterate over
+    	// each of our supplied containers filtering out those whose format
+    	// do not match those of the selected reader.
+    	FileFilter selectedFilter = fileChooser.getFileFilter();
+    	IFormatReader selectedReader = null;
+    	if (selectedFilter instanceof FormatFileFilter)
+    	{
+    		log.debug("Selected file filter: " + selectedFilter);
+    		selectedReader = ((FormatFileFilter) selectedFilter).getReader();
+    	}
+    	List<ImportContainer> containers = new ArrayList<ImportContainer>();
+    	for (ImportContainer ic : allContainers)
+    	{
+    		if (selectedReader == null)
+    		{
+    			// The user selected "All supported file types"
+    			containers = allContainers;
+    			break;
+    		}
+        	String a = selectedReader.getFormat();
+        	String b = ic.reader;
+        	if (a.equals(b))
+        	{
+        		containers.add(ic);
+        	}
+        	else
+        	{
+        		log.debug(String.format("Skipping %s (%s != %s)",
+        				ic.file.getAbsoluteFile(), a, b));        		
+        	}
+    	}
+
+    	Boolean spw = spwOrNull(containers);
         
         if (candidatesFormatException)
         {
@@ -213,7 +247,7 @@ public class FileQueueHandler
             if (dialog.cancelled == true || dialog.screen == null) 
                 return;                    
             for (ImportContainer ic : containers)
-            {             
+            {
                 ic.setTarget(dialog.screen);
                 ic.setImageName(ic.file.getAbsolutePath());
                 String title = dialog.screen.getName().getValue(); 
@@ -232,13 +266,11 @@ public class FileQueueHandler
             if (dialog.cancelled == true || dialog.dataset == null) 
                 return;  
 
-            
             Double[] pixelSizes = new Double[] {dialog.pixelSizeX, dialog.pixelSizeY, dialog.pixelSizeZ};
             Boolean useFullPath = gui.config.useFullPath.get();
             if (dialog.fileCheckBox.isSelected() == false)
                 useFullPath = null; //use the default bio-formats naming
                 
-            
             for (ImportContainer ic : containers)
             {
                 ic.setTarget(dialog.dataset);
