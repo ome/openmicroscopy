@@ -461,7 +461,7 @@
 
     
     <div id="metadata-postit" class="postit" style="width: 500px">
-      <h1> Image Information </h1>
+      <h1> Image details </h1>
       <table>
         <tr class="odd"><td class="title">Image name:</td><td id="wblitz-image-name"></td></tr>
         <tr class="odd"><td class="title">Image date:</td><td id="wblitz-image-timestamp"></td></tr>
@@ -574,13 +574,13 @@
           </div>
         </div>
         <div class="box">
-          <h1>Image Data</h1>
-            <a href="#" onclick="$('#metadata-postit').toggle(); return false;">Image Information</a><br />
-            <a href="#" onclick="$('#rdef-postit').toggle(); return false;">Rendering Details</a><br />
+          <h1>Image data</h1>
+            <a href="#" onclick="$('#metadata-postit').toggle(); return false;">Image details</a><br />
+            <a href="#" onclick="$('#rdef-postit').toggle(); return false;">Rendering details</a><br />
             <a href="#" onmouseover="this.href=viewport.getUrl('img_detail')"
                onclick="$('#curr-link input').attr('value', location.href.substring(0,location.href.length - location.search.length).replace(/(.*?\/)\d+(?:\/\d+)?(?:\/)?$/,'$1') + viewport.getCurrentImgUrlPath() +'?'+ viewport.getQuery(true));
                         show_tooltip(this, 'curr-link'); return false;">
-                Image Link
+                Image link
             </a><br />
         </div>
 

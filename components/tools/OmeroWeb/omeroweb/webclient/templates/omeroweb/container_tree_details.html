@@ -8,7 +8,7 @@
     <div>
         <h1>{{ manager.image.splitedName }}</h1>
         <p>{% if not manager.image.canWrite %} <img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}{% if manager.image.countAnnotations %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ manager.image.countAnnotations }}]{% endif %}</p>
-        {{ manager.image.shortDescription|default_if_none:"no description"|wikify|safe|linebreaks }}
+        {{ manager.image.shortdescription|default_if_none:"no description"|linebreaks }}
     </div>
     <div>
         <p><a href="#" onclick="return popup('{% url image_viewer manager.image.id %}')"><img class="imgzoom" src="{% url render_thumbnail_resize 200 manager.image.id %}" alt="image" title="{{ manager.image.name }}"/></a></p>
@@ -21,7 +21,7 @@
     <div>
         <h1>{{ manager.dataset.splitedName }}</h1>
         <p><img src="{% url webstatic "images/image12.png" %}" title="image" alt="image"/>[{{ manager.dataset.countChild }}] {% if not manager.dataset.canWrite %} <img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}{% if manager.dataset.countAnnotations %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ manager.dataset.countAnnotations }}]{% endif %}</p>
-        {{ manager.dataset.shortDescription|default_if_none:"no description"|wikify|safe|linebreaks }}
+        {{ manager.dataset.shortdescription|default_if_none:"no description"|linebreaks }}
     </div>
     <div>
         <p><a href="{% url manage_data nav.whos "dataset" manager.dataset.id %}?view=table" target="_blank">{% trans "More details in new tab" %}...</a></p>
@@ -31,7 +31,7 @@
     <div>
         <h1>{{ manager.project.splitedName }}</h1>
         <p><img src="{% url webstatic "images/folder_image16.png" %}" title="image" alt="image"/>[{{ manager.project.countChild }}]{% if not manager.project.canWrite %} <img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}{% if manager.project.countAnnotations %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ manager.project.countAnnotations }}]{% endif %}</p>
-        {{ manager.project.shortDescription|default_if_none:"no description"|wikify|safe|linebreaks }}
+        {{ manager.project.shortdescription|default_if_none:"no description"|linebreaks }}
     </div>
     <div>
         <p><a href="{% url manage_data nav.whos "project" manager.project.id %}?view=table" target="_blank">{% trans "More details in new tab" %}...</a></p>

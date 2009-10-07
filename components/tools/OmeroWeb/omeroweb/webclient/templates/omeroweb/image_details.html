@@ -99,7 +99,7 @@
 </div>
 
 <div class="clear"></div>
-<div><p>{{ manager.image.description|default_if_none:"no description"|wikify|safe|linebreaks }}</p></div>
+<div><p>{{ manager.image.description|default_if_none:"no description"|linebreaks }}</p></div>
 <div class="separate70"></div>
 
 <p><a href="#" onclick="return popup('{% url image_viewer manager.image.id %}')">Open full viewer</a></p>

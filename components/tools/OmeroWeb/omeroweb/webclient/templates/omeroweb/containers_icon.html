@@ -163,7 +163,7 @@
     </div>
     
     <div class="clear"></div>
-    <div><p>{{ manager.dataset.description|default_if_none:"no description"|wikify|safe|linebreaks }}</p></div>
+    <div><p>{{ manager.dataset.description|default_if_none:"no description"|linebreaks }}</p></div>
     
     <div class="separate70"></div>
 {% else %}
@@ -175,7 +175,7 @@
         </div>
         
         <div class="clear"></div>
-        <div><p>{{ manager.project.description|default_if_none:"no description"|wikify|safe|linebreaks }}</p></div>
+        <div><p>{{ manager.project.description|default_if_none:"no description"|linebreaks }}</p></div>
         
         <div class="separate70"></div>
     {% endif %}
@@ -190,7 +190,7 @@
     </div>
     
     <div class="clear"></div>
-    <div><p>{{ manager.plate.description|default_if_none:"no description"|wikify|safe|linebreaks }}</p></div>
+    <div><p>{{ manager.plate.description|default_if_none:"no description"|linebreaks }}</p></div>
     
     <div class="separate70"></div>
 {% else %}
@@ -202,7 +202,7 @@
         </div>
 
         <div class="clear"></div>
-        <div><p>{{ manager.screen.description|default_if_none:"no description"|wikify|safe|linebreaks }}</p></div>
+        <div><p>{{ manager.screen.description|default_if_none:"no description"|linebreaks }}</p></div>
 
         <div class="separate70"></div>
     {% endif %}

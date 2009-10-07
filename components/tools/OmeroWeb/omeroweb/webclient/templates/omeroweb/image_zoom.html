@@ -61,7 +61,7 @@
 <div class="clear"></div>
 <div>
     <div><h1>{% trans "Description" %}: </h1>
-        {{ image.image.description|default_if_none:"no description"|wikify|safe|linebreaks }}
+        {{ image.image.description|default_if_none:"no description"|linebreaks }}
     </div>
 </div>
 
