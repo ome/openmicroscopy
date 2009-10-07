@@ -83,8 +83,8 @@ import org.openmicroscopy.shoola.util.ui.login.ScreenLogo;
  */
 
 public class GuiImporter extends JFrame 
-    implements  ActionListener, WindowListener, IObserver, PropertyChangeListener, 
-                WindowStateListener, WindowFocusListener
+implements  ActionListener, WindowListener, IObserver, PropertyChangeListener, 
+WindowStateListener, WindowFocusListener
 {
 
     private static final long   serialVersionUID = 1228000122345370913L;
@@ -97,14 +97,14 @@ public class GuiImporter extends JFrame
      * is called.
      */
     private static Log          log     = LogFactory.getLog(GuiImporter.class);
-   
+
     // -- Constants --
     private final static boolean useSplashScreenAbout   = false;
     static boolean USE_QUAQUA = false;
-    
-    
+
+
     public final static String TITLE            = "OMERO.importer";
-    
+
     public final static String splash           = "gfx/importer_splash.png";
     public static final String ICON = "gfx/icon.png";
     public static final String QUIT_ICON = "gfx/nuvola_exit16.png";
@@ -120,7 +120,7 @@ public class GuiImporter extends JFrame
     public static final String ERROR_ICON_ANIM = "gfx/warning_msg16_anim.gif";
     public static final String ERROR_ICON = "gfx/warning_msg16.png";
     public static final String LOGFILE_ICON = "gfx/nuvola_output16.png";
-    
+
     public final ImportConfig         config;
     public final GuiCommonElements    gui;
     public final ErrorHandler         errorHandler;
@@ -139,44 +139,44 @@ public class GuiImporter extends JFrame
     private JMenuItem           helpComment;
     private JMenuItem           helpHome;
     private JMenuItem           helpAbout;
-    
+
     public Boolean              loggedIn;
 
     private JTextPane           outputTextPane;
     private JTextPane           debugTextPane;
     private JPanel              historyPanel;
     private JPanel              errorPanel;
-    
+
     private JTabbedPane         tPane;
 
     private boolean errors_pending = false;
 
     private ScheduledExecutorService scanEx = Executors.newScheduledThreadPool(1);
     private ScheduledExecutorService importEx = Executors.newScheduledThreadPool(1);
-    
+
     /**
      * Main entry class for the application
      */
     public GuiImporter(ImportConfig config)
     {
         //super(TITLE);
-        
+
         javax.swing.ToolTipManager.sharedInstance().setDismissDelay(0);
 
         this.config = config;
         this.gui = new GuiCommonElements(config);
-        
+
         historyHandler = new HistoryHandler(this);
         historyTable = historyHandler.table;
-        
+
         // Add a shutdown hook for when app closes
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
                 log.debug("Running shutdown hook.");
                 shutdown();
-                }
+            }
         });
-        
+
         // Set app defaults
         setTitle(config.getAppTitle());
         setIconImage(gui.getImageIcon(GuiImporter.ICON).getImage());
@@ -202,7 +202,7 @@ public class GuiImporter extends JFrame
                 gui.bounds = getBounds();               
             }
         });
-        
+
         // menu bar
         menubar = new JMenuBar();
         fileMenu = new JMenu("File");
@@ -219,7 +219,7 @@ public class GuiImporter extends JFrame
             options.addActionListener(this);        
             fileMenu.add(options);
         }
-        */
+         */
         fileQuit = new JMenuItem("Quit", gui.getImageIcon(QUIT_ICON));
         fileQuit.setActionCommand("quit");
         fileQuit.addActionListener(this);
@@ -245,17 +245,17 @@ public class GuiImporter extends JFrame
         helpMenu.add(helpAbout);
         // Help --> About
         setJMenuBar(menubar);
-      
+
         // tabbed panes
         tPane = new JTabbedPane();
         tPane.setOpaque(false); // content panes must be opaque
 
         // file chooser pane
         JPanel filePanel = new JPanel(new BorderLayout());
-        
+
         statusBar = new StatusBar();
         statusBar.setStatusIcon("gfx/server_disconn16.png",
-                "Server disconnected.");
+        "Server disconnected.");
         statusBar.setProgress(false, 0, "");
         this.getContentPane().add(statusBar, BorderLayout.SOUTH);
 
@@ -272,11 +272,11 @@ public class GuiImporter extends JFrame
         historyPanel = new JPanel();
         historyPanel.setOpaque(false);
         historyPanel.setLayout(new BorderLayout());
-        
+
         tPane.addTab("Import History", gui.getImageIcon(HISTORY_ICON), historyPanel,
-                "Import history is displayed here.");
+        "Import history is displayed here.");
         tPane.setMnemonicAt(0, KeyEvent.VK_4);
-       
+
         // output text pane
         JPanel outputPanel = new JPanel();
         outputPanel.setLayout(new BorderLayout());
@@ -285,22 +285,22 @@ public class GuiImporter extends JFrame
 
         JScrollPane outputScrollPane = new JScrollPane();
         outputScrollPane.getViewport().add(outputTextPane);
-        
+
         outputScrollPane.getVerticalScrollBar().addAdjustmentListener(
                 new AdjustmentListener()
-        {
-            public void adjustmentValueChanged(AdjustmentEvent e)
-            {
-                outputTextPane.setCaretPosition(outputTextPane.getDocument().
-                        getLength());
-            }
-        }
+                {
+                    public void adjustmentValueChanged(AdjustmentEvent e)
+                    {
+                        outputTextPane.setCaretPosition(outputTextPane.getDocument().
+                                getLength());
+                    }
+                }
         );
 
         outputPanel.add(outputScrollPane, BorderLayout.CENTER);
 
         tPane.addTab("Output Text", gui.getImageIcon(OUTPUT_ICON), outputPanel,
-                "Standard output text goes here.");
+        "Standard output text goes here.");
         tPane.setMnemonicAt(0, KeyEvent.VK_2);
 
 
@@ -315,19 +315,19 @@ public class GuiImporter extends JFrame
 
         debugScrollPane.getVerticalScrollBar().addAdjustmentListener(
                 new AdjustmentListener()
-        {
-            public void adjustmentValueChanged(AdjustmentEvent e)
-            {
-                debugTextPane.setCaretPosition(debugTextPane.getDocument().
-                        getLength());
-            }
-        }
+                {
+                    public void adjustmentValueChanged(AdjustmentEvent e)
+                    {
+                        debugTextPane.setCaretPosition(debugTextPane.getDocument().
+                                getLength());
+                    }
+                }
         );
 
         debugPanel.add(debugScrollPane, BorderLayout.CENTER);
 
         tPane.addTab("Debug Text", gui.getImageIcon(BUG_ICON), debugPanel,
-                "Debug messages are displayed here.");
+        "Debug messages are displayed here.");
         tPane.setMnemonicAt(0, KeyEvent.VK_3);
 
         // Error Pane
@@ -338,18 +338,18 @@ public class GuiImporter extends JFrame
         tPane.addTab("Import Errors", gui.getImageIcon(ERROR_ICON), errorPanel,
         "Import errors are displayed here.");
         tPane.setMnemonicAt(0, KeyEvent.VK_5);
-        
+
         tPane.setSelectedIndex(0);
-        
+
         // Add the tabbed pane to this panel.
         add(tPane);
 
         this.setVisible(false);
 
         historyPanel.add(historyHandler, BorderLayout.CENTER);
-        
+
         loginHandler = new LoginHandler(this, historyTable);
-        
+
         LogAppender.getInstance().setTextArea(debugTextPane);
         appendToOutputLn("> Starting the importer (revision "
                 + getPrintableKeyword(Version.revision) + ").");
@@ -360,20 +360,20 @@ public class GuiImporter extends JFrame
         errorHandler = new ErrorHandler(importEx, config);
         errorHandler.addObserver(this);
         errorPanel.add(errorHandler, BorderLayout.CENTER);
-        
+
         macMenuFix();
-        
+
         //displayLoginDialog(this, true);
     }
-    
+
     // save ini file and gui settings on exist
     protected void shutdown()
     {
         log.debug("Shutdown called");
-     
+
         importEx.shutdown();
         scanEx.shutdown();
-        
+
         // How do I know an import is running here and how do I cancel it?
         waitOnExecutor("Import", importEx, 60);
         waitOnExecutor("Scanning", scanEx, 60);
@@ -383,7 +383,7 @@ public class GuiImporter extends JFrame
         } catch (Exception e) {
             log.warn("Exception on metadatastore.logout()", e);
         }
-        
+
         // Get and save the UI window placement
         try {
             config.setUIBounds(gui.getUIBounds());
@@ -404,7 +404,7 @@ public class GuiImporter extends JFrame
             log.warn("Exception on awaitTermination of " + msg, e);
         }
     }
-    
+
     /* Fixes menu issues with the about this app quit functions on mac */
     private void macMenuFix()
     {
@@ -418,7 +418,7 @@ public class GuiImporter extends JFrame
 
         } catch (Throwable e) {}
     }
-    
+
     /**
      * @param s This method appends data to the output window.
      */
@@ -434,12 +434,12 @@ public class GuiImporter extends JFrame
             StyleConstants.setBold(style, false);
 
             doc.insertString(doc.getLength(), s, style);
-            
+
             //trim the document size so it doesn't grow to big
             int maxChars = 200000;
             if (doc.getLength() > maxChars)
                 doc.remove(0, doc.getLength() - maxChars);
-            
+
             //outputTextPane.setDocument(doc);
         } catch (BadLocationException e) {}
     }
@@ -461,7 +461,7 @@ public class GuiImporter extends JFrame
         try
         {          
             StyledDocument doc = (StyledDocument) debugTextPane.getDocument();
-            
+
             Style style = doc.addStyle("StyleName", null);
             StyleConstants.setForeground(style, Color.black);
             StyleConstants.setFontFamily(style, "SansSerif");
@@ -469,12 +469,12 @@ public class GuiImporter extends JFrame
             StyleConstants.setBold(style, false);
 
             doc.insertString(doc.getLength(), s, style);
-            
+
             //trim the document size so it doesn't grow to big
             int maxChars = 200000;
             if (doc.getLength() > maxChars)
                 doc.remove(0, doc.getLength() - maxChars);
-            
+
             //debugTextPane.setDocument(doc);
         } catch (BadLocationException e) {}
     }
@@ -486,7 +486,7 @@ public class GuiImporter extends JFrame
     {
         appendToDebug(s + "\n");
     }
-    
+
     public void actionPerformed(ActionEvent e)
     {
         String cmd = e.getActionCommand();
@@ -548,7 +548,7 @@ public class GuiImporter extends JFrame
                         + path.getAbsolutePath(), ex);
             }
         }
-        
+
     }
 
     /**
@@ -620,10 +620,10 @@ public class GuiImporter extends JFrame
     {  
         LogAppenderProxy.configure(new File(IniFileLoader.LOGFILE));
         ImportConfig config = new ImportConfig(args.length > 0 ? new File(args[0]) : null);
-        
+
         config.loadAll();
         USE_QUAQUA = config.getUseQuaqua();
-        
+
         String laf = UIManager.getSystemLookAndFeelClassName() ;
 
         //laf = "ch.randelshofer.quaqua.QuaquaLookAndFeel";
@@ -635,17 +635,17 @@ public class GuiImporter extends JFrame
         if (laf.equals("apple.laf.AquaLookAndFeel") && USE_QUAQUA)
         {
             System.setProperty("Quaqua.design", "panther");
-            
+
             try {
                 UIManager.setLookAndFeel("ch.randelshofer.quaqua.QuaquaLookAndFeel");
-           } catch (Exception e) { System.err.println(laf + " not supported.");}
+            } catch (Exception e) { System.err.println(laf + " not supported.");}
         } else {
             try {
                 UIManager.setLookAndFeel(laf);
             } catch (Exception e) 
-           { System.err.println(laf + " not supported."); }
+            { System.err.println(laf + " not supported."); }
         }
-        
+
         new GuiImporter(config);
     }
 
@@ -660,7 +660,7 @@ public class GuiImporter extends JFrame
         if (event instanceof ImportEvent.LOADING_IMAGE)
         {
             ImportEvent.LOADING_IMAGE ev = (ImportEvent.LOADING_IMAGE) event;
-            
+
             statusBar.setProgress(true, -1, "Loading file " + ev.numDone + " of " + ev.total);
             appendToOutput("> [" + ev.index + "] Loading image \"" + ev.shortName + "\"...\n");
             statusBar.setStatusIcon("gfx/import_icon_16.png", "Prepping file \"" + 
@@ -670,18 +670,18 @@ public class GuiImporter extends JFrame
         else if (event instanceof ImportEvent.LOADED_IMAGE)
         {
             ImportEvent.LOADED_IMAGE ev = (ImportEvent.LOADED_IMAGE) event;
-            
+
             statusBar.setProgress(true, -1, "Analyzing file " + ev.numDone + " of " + ev.total);
             appendToOutput(" Succesfully loaded.\n");
             appendToOutput("> [" + ev.index + "] Importing metadata for " + "image \"" + ev.shortName + "\"... ");
             statusBar.setStatusIcon("gfx/import_icon_16.png", "Analyzing the metadata for file \"" + 
                     ev.shortName + "\" (file " + ev.numDone + " of " + ev.total + " imports)");            
         }
-        
+
         else if (event instanceof ImportEvent.DATASET_STORED)
         {
             ImportEvent.DATASET_STORED ev = (ImportEvent.DATASET_STORED) event;
-            
+
             int num = ev.numDone;
             int tot = ev.total;
             int pro = num - 1;
@@ -694,20 +694,20 @@ public class GuiImporter extends JFrame
                     ev.filename + "\" (file " + num + " of " + tot + " imports)");
             appendToOutput("> Importing plane: ");
         }
-        
+
         else if (event instanceof ImportEvent.DATA_STORED)
         {
             ImportEvent.DATA_STORED ev = (ImportEvent.DATA_STORED) event;
-            
+
             appendToOutputLn("> Successfully stored with pixels id \"" + ev.pixId + "\".");
             appendToOutputLn("> [" + ev.filename + "] Image imported successfully!");
         }
-        
+
         else if (event instanceof FILE_EXCEPTION)
         {
             FILE_EXCEPTION ev = (FILE_EXCEPTION) event;
             if (IOException.class.isAssignableFrom(ev.exception.getClass())) {
-            
+
                 final JOptionPane optionPane = new JOptionPane( 
                         "The importer cannot retrieve one of your images in a timely manner.\n" +
                         "The file in question is:\n'" + ev.filename + "'\n\n" +
@@ -717,7 +717,7 @@ public class GuiImporter extends JFrame
                         " - An archived file has not been fully retrieved from backup.\n\n" +
                         "The importer will now try to continue with the remainer of your imports.\n",
                         JOptionPane.ERROR_MESSAGE);
-            
+
                 final JDialog dialog = new JDialog(this, "IO Error");
                 dialog.setAlwaysOnTop(true);
                 dialog.setContentPane(optionPane);
@@ -736,60 +736,90 @@ public class GuiImporter extends JFrame
         {
             INTERNAL_EXCEPTION e = (INTERNAL_EXCEPTION) event;
             log.error("INTERNAL_EXCEPTION", e.exception);
-            
+
             // What else should we do here? Why are EXCEPTION_EVENTs being
             // handled here?
         }
-        
-        
+
+
         else if (event instanceof ImportEvent.ERRORS_PENDING)
         {
             tPane.setIconAt(4, gui.getImageIcon(ERROR_ICON_ANIM));
             errors_pending  = true;
         }
-        
+
         else if (event instanceof ImportEvent.ERRORS_COMPLETE)
         {
             tPane.setIconAt(4, gui.getImageIcon(ERROR_ICON));
         }
-        
+
         else if (event instanceof ImportEvent.IMPORT_QUEUE_DONE && errors_pending == true)
         {
             errors_pending = false;
             importErrorsCollected(this); 
         }
-        
+
     }
 
     private void importErrorsCollected(Component frame)
     {
-            final JOptionPane optionPane = new JOptionPane("\nYour import has produced one or more errors, "
-                            + "\nvisit the 'Import Errors' tab for details.", JOptionPane.WARNING_MESSAGE);
-            final JDialog errorDialog = new JDialog(this, "Errors Collected", false);
-            errorDialog.setContentPane(optionPane);
-            
-            optionPane.addPropertyChangeListener(
-                    new PropertyChangeListener() {
-                        public void propertyChange(PropertyChangeEvent e) {
-                            String prop = e.getPropertyName();
+        final JOptionPane optionPane = new JOptionPane("\nYour import has produced one or more errors, "
+                + "\nvisit the 'Import Errors' tab for details.", JOptionPane.WARNING_MESSAGE);
+        final JDialog errorDialog = new JDialog(this, "Errors Collected", false);
+        errorDialog.setContentPane(optionPane);
 
-                            if (errorDialog.isVisible() 
-                             && (e.getSource() == optionPane)
-                             && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
-                                //If you were going to check something
-                                //before closing the window, you'd do
-                                //it here.
-                                errorDialog.setVisible(false);
-                            }
+        optionPane.addPropertyChangeListener(
+                new PropertyChangeListener() {
+                    public void propertyChange(PropertyChangeEvent e) {
+                        String prop = e.getPropertyName();
+
+                        if (errorDialog.isVisible() 
+                                && (e.getSource() == optionPane)
+                                && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                            //If you were going to check something
+                            //before closing the window, you'd do
+                            //it here.
+                            errorDialog.setVisible(false);
                         }
-                    });
+                    }
+                });
 
-            errorDialog.toFront();
-            errorDialog.pack();
-            errorDialog.setLocationRelativeTo(frame);
-            errorDialog.setVisible(true);
+        errorDialog.toFront();
+        errorDialog.pack();
+        errorDialog.setLocationRelativeTo(frame);
+        errorDialog.setVisible(true);
     }
-    
+
+    public void candidateErrorsCollected(Component frame)
+    {
+        errors_pending = false;
+        final JOptionPane optionPane = new JOptionPane("\nAdding these files to the queue has produced one or more errors and some"
+                + "\n files will not be displayed on the queue. View the 'Import Errors' tab for details.", JOptionPane.WARNING_MESSAGE);
+        final JDialog errorDialog = new JDialog(this, "Errors Collected", true);
+        errorDialog.setContentPane(optionPane);
+
+        optionPane.addPropertyChangeListener(
+                new PropertyChangeListener() {
+                    public void propertyChange(PropertyChangeEvent e) {
+                        String prop = e.getPropertyName();
+
+                        if (errorDialog.isVisible() 
+                                && (e.getSource() == optionPane)
+                                && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                            //If you were going to check something
+                            //before closing the window, you'd do
+                            //it here.
+                            errorDialog.setVisible(false);
+                        }
+                    }
+                });
+
+        errorDialog.toFront();
+        errorDialog.pack();
+        errorDialog.setLocationRelativeTo(frame);
+        errorDialog.setVisible(true);
+    }
+
     public void propertyChange(PropertyChangeEvent evt)
     {
         String name = evt.getPropertyName();
@@ -810,8 +840,8 @@ public class GuiImporter extends JFrame
             setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
             About.show(this, config, useSplashScreenAbout);
         }
-        
-        
+
+
     }
 
     public void login(LoginCredentials lc) {}

@@ -37,6 +37,8 @@ import javax.swing.JOptionPane;
 
 import ome.formats.importer.ImportConfig;
 
+import loci.formats.FormatTools;
+
 /**
  * About is a small program for displaying version information in a dialog box.
  * It is intended to be used as a main class for JAR libraries to easily
@@ -83,16 +85,19 @@ public abstract class About
                         }
                         in.close();
                         msg = sb.toString();
-                        msg = msg + "\n\n Version: " + config.getVersionNumber();
                     }
                 } catch (IOException exc)
                 {
                     if (title == null) title = "About";
                     msg = "OMERO.importer developer's edition.";
+                    exc.printStackTrace();
                 }
             }
             if (config.getAppTitle() != null)
                 title = "About " + config.getAppTitle();
+            msg = msg + "\n\n Version: " + config.getVersionNumber();
+            msg = msg + "\n Bio-Formats " + FormatTools.VERSION + 
+            " (SVN " + FormatTools.SVN_REVISION + ", " + FormatTools.DATE + ")";
             JOptionPane.showMessageDialog(c, msg, title,
                     JOptionPane.INFORMATION_MESSAGE); 
             c.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);

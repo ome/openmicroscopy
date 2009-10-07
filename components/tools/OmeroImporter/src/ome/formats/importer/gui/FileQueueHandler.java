@@ -89,6 +89,8 @@ public class FileQueueHandler
     private Integer directoryCount;
 
     protected boolean cancelScan = false;
+
+    private boolean candidatesFormatException = false;
     
     /**
      * @param viewer
@@ -190,6 +192,13 @@ public class FileQueueHandler
     private void handleFiles(List<ImportContainer> containers) {
                 
         Boolean spw = spwOrNull(containers);
+        
+        if (candidatesFormatException)
+        {
+            viewer.candidateErrorsCollected(viewer);
+            candidatesFormatException = false;
+        }
+        
         if (spw == null) {
             setCursor(Cursor.getDefaultCursor());
             containers.clear();
@@ -539,6 +548,11 @@ public class FileQueueHandler
         if (event instanceof ome.formats.importer.util.ErrorHandler.EXCEPTION_EVENT)
         {
             viewer.errorHandler.update(observable, event);
+            if (((ome.formats.importer.util.ErrorHandler.EXCEPTION_EVENT) event).exception
+                    instanceof loci.formats.FormatException)
+            {
+                candidatesFormatException  = true;
+            }
         }
 
         else if (event instanceof ImportCandidates.SCANNING)
@@ -559,7 +573,7 @@ public class FileQueueHandler
                     {{10, 180, 100, 10}, // columns
                     {5, 20, 5, 30, 5}}; // rows
                     
-                    progressDialog = new JDialog(viewer, "Processing Directories");
+                    progressDialog = new JDialog(viewer, "Processing Files");
                     progressDialog.setSize(300, 90);
                     progressDialog.setLocationRelativeTo(viewer);
                     TableLayout layout = new TableLayout(layoutTable);
@@ -605,7 +619,7 @@ public class FileQueueHandler
                   }
             }
             
-            viewer.appendToOutput("Processing directories: Scanned " + ev.numFiles + " files of " + ev.totalFiles + " total.\n");
+            viewer.appendToOutput("Processing files: Scanned " + ev.numFiles + " of " + ev.totalFiles + " total.\n");
 
             log.debug(ev.toLog());
 
