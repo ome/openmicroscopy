@@ -393,7 +393,7 @@ public class ErrorTable
     {
         
         private static final long serialVersionUID = 1L;
-        private String[] columnNames = {"", "Image Filename (use checkmark to send file)", "Error Message", "Status", "FilePath", "DatasetID", "ProjectID"};
+        private String[] columnNames = {"", "Image Filename (checkmark to send)", "Error Message", "Status", "FilePath", "DatasetID", "ProjectID"};
     
         public void tableChanged(TableModelEvent arg0) { }
         

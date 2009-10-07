@@ -180,6 +180,12 @@ public abstract class ErrorHandler implements IObserver, IObservable {
 
         for (int i = 0; i < errors.size(); i++) {
 
+            if (!isSend(i)) 
+            {
+                onSent(i);
+                continue; // Don't send file if not selected
+            }
+            
             if (cancelUploads) {
                 onCancel();
                 break;

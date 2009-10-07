@@ -455,6 +455,23 @@ public class ImportConfig {
         return rv;
     }
 
+    
+    /**
+     * Loads gui specific values for which it makes sense to have a preferences values.
+     *
+     * @see #saveAll()
+     */    public void loadGiu() {
+         email.load();
+    }
+
+     /**
+      * Saves gui specific values for which it makes sense to have a preferences values.
+      *
+      * @see #saveAll()
+      */    public void saveGiu() {
+          email.store();
+     }
+     
     /**
      * Loads all the values for which it makes sense to have a preferences values.
      *
@@ -479,6 +496,7 @@ public class ImportConfig {
         port.load();
     }
 
+   
     /**
      * @see #loadAll()
      */
