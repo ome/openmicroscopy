@@ -57,7 +57,10 @@ Syntax: %(program_name)s upload pytable <filename> [1..n]
 
     def createOriginalFile(self, id, name, filename):
         file = open(filename, 'rb')
-        ofile = omero.model.OriginalFileI(rlong(id))
+        if(id != None):
+            ofile = omero.model.OriginalFileI(rlong(id))
+        else:
+            ofile = omero.model.OriginalFileI();
         try:
             size = os.path.getsize(file.name)
             ofile.size = rlong(size)
@@ -122,7 +125,7 @@ Syntax: %(program_name)s upload pytable <filename> [1..n]
             if not os.path.exists(filename):
                 raise Exception("File does not exist: " + filename)
             
-            originalFile = self.createOriginalFile(id, script, filename);
+            originalFile = self.createOriginalFile(None, script, filename);
             self.uploadFile(filename, originalFile);
 
     def uploadFromCommandline(self, commandline):
