@@ -107,7 +107,7 @@ class BrowserControl
     }
     
     /**
-     * Finds the first {@link ImageDisplay} in <code>x</code>'s containement
+     * Finds the first {@link ImageDisplay} in <code>x</code>'s containment
      * hierarchy.
      * 
      * @param x A component.
@@ -277,7 +277,8 @@ class BrowserControl
     	ImageDisplay d = findParentDisplay(me.getSource());
     	d.moveToFront();
     	ImageDisplay previousDisplay = model.getLastSelectedDisplay();
-    	boolean b = (me.isControlDown() || me.isMetaDown());//me.isShiftDown();
+    	boolean b = (me.isControlDown() || me.isMetaDown() ||
+    			me.isShiftDown());//me.isShiftDown();
     	if (me.isPopupTrigger()) {
     		popupTrigger = true;
     		return;

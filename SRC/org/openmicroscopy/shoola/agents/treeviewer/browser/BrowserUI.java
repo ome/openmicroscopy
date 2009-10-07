@@ -72,7 +72,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
-import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 import org.openmicroscopy.shoola.util.ui.filechooser.OMEFileChooser;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -143,6 +142,9 @@ class BrowserUI
     
     /** The file chooser used to handle the file system. */
     private OMEFileChooser			chooser;
+    
+    /** Indicates if the <code>control</code> key is down. */
+    private boolean 				ctrl;
     
     /**
      * Handles the mouse pressed and released.
@@ -581,7 +583,11 @@ class BrowserUI
         //Add Listeners
         //treeDisplay.requestFocus();
         treeDisplay.addMouseListener(new MouseAdapter() {
-           public void mousePressed(MouseEvent e) { onClick(e, false); }
+           public void mousePressed(MouseEvent e)
+           { 
+        	   ctrl = e.isControlDown();
+        	   onClick(e, false); 
+           }
            public void mouseReleased(MouseEvent e) { onClick(e, true); }
            
           // public void mouseMoved(MouseEvent e) { rollOver(e); }
@@ -600,7 +606,8 @@ class BrowserUI
             	for (int i = 0; i < paths.length; i++) {
             		if (e.isAddedPath(paths[i])) added.add(paths[i]);
 				}
-                controller.onClick(added);
+            	System.err.println(ctrl);
+            	if (!ctrl) controller.onClick(added);
             }
         };
         treeDisplay.addTreeSelectionListener(selectionListener);
@@ -608,6 +615,7 @@ class BrowserUI
 	
 			public void keyPressed(KeyEvent e)
 			{
+				
 				switch (e.getKeyCode()) {
 					case KeyEvent.VK_ENTER:
 						ViewCmd cmd = new ViewCmd(model.getParentModel());
@@ -624,6 +632,12 @@ class BrowserUI
 						}
 				}
 			}
+			
+			public void keyReleased(KeyEvent e)
+			{
+				ctrl = false;
+			}
+			
 		});
     }
 
