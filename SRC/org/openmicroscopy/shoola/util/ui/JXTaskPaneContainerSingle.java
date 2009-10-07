@@ -28,7 +28,13 @@ import java.awt.Component;
 import java.awt.Container;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+
+import layout.TableLayout;
 
 
 //Third-party libraries
@@ -60,11 +66,19 @@ public class JXTaskPaneContainerSingle
 	/** Bound property indicating the selection of a new task pane. */
 	public static final String SELECTED_TASKPANE_PROPERTY = "selectedTaskPane";
 
+	private Map<JXTaskPane, Integer> panes;
+	
 	/** Initializes the component. */
 	private void initialize()
 	{
-		VerticalLayout layout = (VerticalLayout) getLayout();
-		layout.setGap(2);
+		//VerticalLayout layout = (VerticalLayout) getLayout();
+		//layout.setGap(2);
+		panes = new HashMap<JXTaskPane, Integer>();
+		TableLayout layout = new TableLayout();
+		double[] size = {TableLayout.FILL};
+		layout.setColumn(size);
+		setLayout(layout);
+		//setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
 		setBackground(UIUtilities.BACKGROUND);
 	}
@@ -102,7 +116,15 @@ public class JXTaskPaneContainerSingle
 	 */
 	public void add(JXTaskPane c)
 	{
-		super.add(c);
+		//super.add(c);
+		int index = panes.size();
+		TableLayout layout = (TableLayout) getLayout();
+		double h;
+		if (c.isCollapsed()) h = TableLayout.PREFERRED;
+		else  h = TableLayout.FILL;
+		layout.insertRow(index, h);
+		super.add(c, "0, "+index);
+		panes.put(c, index);
 		c.addPropertyChangeListener(
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
 	}
@@ -114,7 +136,9 @@ public class JXTaskPaneContainerSingle
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		JXTaskPane src = (JXTaskPane) evt.getSource();
+		TableLayout layout = (TableLayout) getLayout();
 		if (src.isCollapsed()) {
+			layout.setRow(panes.get(src), TableLayout.PREFERRED);
 			if (hasTaskPaneExpanded()) return;
 			firePropertyChange(SELECTED_TASKPANE_PROPERTY, null, src);
 			return;
@@ -127,6 +151,7 @@ public class JXTaskPaneContainerSingle
 			if (c instanceof JXTaskPane) {
 				JXTaskPane p = (JXTaskPane) c;
 				if (p != src) {
+					layout.setRow(panes.get(src), TableLayout.FILL);
 					p.setCollapsed(true);
 				}
 			}

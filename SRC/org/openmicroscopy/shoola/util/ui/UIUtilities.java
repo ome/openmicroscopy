@@ -1538,7 +1538,7 @@ public class UIUtilities
     		 int n = l.length;
              if (n >= 1) name = l[n-1]; 
     	} else {
-    		if (Pattern.compile(".").matcher(name).find()) {
+    		if (Pattern.compile("\\.").matcher(name).find()) {
         		l = name.split("\\.");
         		if (l.length >= 1) {
         			name = "";
@@ -1549,10 +1549,11 @@ public class UIUtilities
         			}
         		}
         	}
+    		if (name.length() == 0) name = originalName;
     		return name;
     	}
     	   	
-    	if (Pattern.compile(".").matcher(name).find()) {
+    	if (Pattern.compile("\\.").matcher(name).find()) {
     		l = name.split("\\.");
     		if (l.length >= 1) {
     			name = "";
@@ -1563,6 +1564,7 @@ public class UIUtilities
     			}
     		}
     	}
+    	if (name.length() == 0) name = originalName;
         return name;
     }
     
