@@ -98,6 +98,7 @@ public class ConfigUnitTest extends MockObjectTestCase {
         match(pattern, "4.0.0", "4.0.0");
         match(pattern, "4.0.0", "A-4.0.0-B");
         match(pattern, "4.0.10", "A.5-4.0.10-B.6");
+        match(pattern, "4.1.0", "My-Work-4.1.0-r1234-b4321");
         match(pattern, "123.456.789", "foo.4kj4ma.4k-123.456.789-rc1^$^##@^%&");
     }
 

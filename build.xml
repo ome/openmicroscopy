@@ -517,6 +517,17 @@ omero.version=${omero.version}
             <ivy:retrieve conf="server" pattern="${dist.dir}/lib/server/[module].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
             <ivy:resolve file="ivy.xml" type="jar,egg" conf="client" settingsRef="ivy.toplevel" log="quiet"/>
             <ivy:retrieve conf="client" pattern="${dist.dir}/lib/client/[module].[ext]" sync="false" log="quiet" settingsRef="ivy.toplevel"/>
+
+            <!-- Must update the jars with the modified omero.properties file in order for the version to be updated -->
+            <jar update="true" destfile="${dist.dir}/lib/server/blitz.jar">
+                <fileset dir="etc" includes="omero.properties"/>
+            </jar>
+            <jar update="true" destfile="${dist.dir}/lib/client/omero_client.jar">
+                <fileset dir="etc" includes="omero.properties"/>
+            </jar>
+            <jar update="true" destfile="${dist.dir}/lib/client/OmeroImporter.jar">
+                <fileset dir="etc" includes="omero.properties"/>
+            </jar>
        </sequential>
     </macrodef>
 
