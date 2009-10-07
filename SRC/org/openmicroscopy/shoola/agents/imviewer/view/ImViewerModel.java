@@ -1695,6 +1695,7 @@ class ImViewerModel
 				channels, ref.getImageName());
 		param.setDescription(buf.toString());
 		param.setDatasets(ref.getDatasets());
+		param.setDatasetParent(getGrandParent());
 		param.setChannels(getActiveChannels());
 		ProjectionSaver loader = new ProjectionSaver(component, param, 
 							ProjectionSaver.PROJECTION, ref.isApplySettings());

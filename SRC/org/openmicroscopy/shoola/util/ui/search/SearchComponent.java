@@ -463,11 +463,13 @@ public class SearchComponent
 				break;
 			case OWNER:
 				userIndex = OWNER;
-				firePropertyChange(OWNER_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+				firePropertyChange(OWNER_PROPERTY, Boolean.valueOf(false), 
+						Boolean.valueOf(true));
 				break;
 			case ANNOTATOR:
 				userIndex = ANNOTATOR;
-				firePropertyChange(OWNER_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+				firePropertyChange(OWNER_PROPERTY, Boolean.valueOf(false), 
+						Boolean.valueOf(true));
 				break;
 			case HELP:
 				help();

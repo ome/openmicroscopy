@@ -481,7 +481,7 @@ class OmeroImageServiceImpl
 				OmeroDataService svc = context.getDataService();
 				while (i.hasNext()) {
 					existing.add((DatasetData) svc.createDataObject(i.next(), 
-										null, null));
+										ref.getDatasetParent(), null));
 				} 
 			}
 			List<IObject> links = new ArrayList<IObject>(datasets.size());

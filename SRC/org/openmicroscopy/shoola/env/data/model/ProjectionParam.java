@@ -31,7 +31,6 @@ import java.util.List;
 
 //Application-internal dependencies
 import omero.constants.projection.ProjectionType;
-
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import pojos.DatasetData;
 
@@ -122,6 +121,9 @@ public class ProjectionParam
 	
 	/** The id of the pixels set to project. */
 	private long			  	pixelsID;
+	
+	/** The parent of the dataset to create. */
+	private pojos.DataObject	parent;
 	
 	/**
 	 * Checks if the passed algorithm is supported or not.
@@ -236,7 +238,7 @@ public class ProjectionParam
 	public int getAlgorithm() { return algorithm; }
 	
 	/**
-	 * Returns the freqence between each step. Default is <code>1</code>.
+	 * Returns the gap between each step. Default is <code>1</code>.
 	 * 
 	 * @return See above.
 	 */
@@ -258,7 +260,7 @@ public class ProjectionParam
 	
 	/**
 	 * Returns the type of the newly created pixels set.
-	 * This value shoudl only be set when the projection's algorithm is
+	 * This value should only be set when the projection's algorithm is
 	 * <code>Sum projection</code>.
 	 * 
 	 * @return See above.
@@ -288,6 +290,23 @@ public class ProjectionParam
 	{ 
 		this.datasets = datasets;
 	}
+	
+	/** 
+	 * Sets the parent of the dataset to create if a dataset has to be created.
+	 * 
+	 * @param parent The value to set.
+	 */
+	public void setDatasetParent(pojos.DataObject parent)
+	{
+		this.parent = parent;
+	}
+	
+	/**
+	 * Returns the parent of the dataset to create.
+	 * 
+	 * @return See above.
+	 */
+	public pojos.DataObject getDatasetParent() { return parent; }
 	
 	/**
 	 * Returns the description of the image.

@@ -417,9 +417,7 @@ public class ProjSavingDialog
         	Iterator i = selection.keySet().iterator();
         	JCheckBox box;
         	while (i.hasNext()) {
-        		box = (JCheckBox) i.next();
-        		box.setSelected(false);
-        		selectionPane.add(box);
+        		selectionPane.add((JCheckBox) i.next());
         	}
         }
 		selection.put(newBox, d);
@@ -482,6 +480,27 @@ public class ProjSavingDialog
 		close();
     }
     
+    /**
+     * Returns the list of the already selected datasets.
+     * 
+     * @return See above.
+     */
+    private List<String> getSelectedDatasets()
+    {
+    	List<String> selected = new ArrayList<String>();
+    	if (selection == null) return selected;
+    	Iterator i = selection.entrySet().iterator();
+		Entry entry;
+		JCheckBox box;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			box = (JCheckBox) entry.getKey();
+			if (box.isSelected())
+				selected.add(((DatasetData) entry.getValue()).getName());
+		}
+		return selected;
+    }
+    
 	/**
 	 * Creates a new instance.
 	 * 
@@ -524,21 +543,22 @@ public class ProjSavingDialog
 	public void setContainers(Collection datasets)
 	{
 		if (datasets == null) return;
+		List<String> selected = getSelectedDatasets();
+		JCheckBox box;
+		DatasetData d;
 		if (selection == null)
 			selection = new LinkedHashMap<JCheckBox, DatasetData>();
-		else selection.clear();
+		else {
+			selection.clear();
+		}
 		if (datasets != null && datasets.size() > 0) {
 			List l = sorter.sort(datasets);
 			Iterator j = l.iterator();
-			JCheckBox box;
-			DatasetData d;
-			int index = 0;
 			while (j.hasNext()) {
 				d = (DatasetData) j.next();
 				box = new JCheckBox(d.getName());
 				selection.put(box, d);
-				if (index == 0) box.setSelected(true);
-				index++;
+				box.setSelected(selected.contains(d.getName()));
 			}
 			selectionPane.removeAll();
 			Iterator i = selection.keySet().iterator();

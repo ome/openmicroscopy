@@ -226,7 +226,7 @@ class ToolBar
     	busyLabel.setVisible(false);
     	
     	measurementLabel = new JXBusyLabel(d);
-    	measurementLabel.setToolTipText("Loading ROIs. Please wait.");
+    	measurementLabel.setToolTipText("Loading Measurements. Please wait.");
     	measurementLabel.setEnabled(true);
     	measurementLabel.setVisible(true);
     }
