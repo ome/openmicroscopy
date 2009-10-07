@@ -87,7 +87,7 @@ public class BasicAnalyseDialog
 	{
 		setLayout(new BorderLayout());
 		JPanel p = new JPanel();
-		p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		//p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 		p.add(new JLabel("Image ID: "));
 		p.add(field);

@@ -481,7 +481,7 @@ public class MessengerDialog
 	private JPanel buildDebugPane()
 	{
 		JPanel panel = new JPanel();
-		panel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		//panel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         panel.setOpaque(false);
         double tableSize[][] = {{TableLayout.FILL}, // columns
         						{TableLayout.FILL, 32}}; // rows
@@ -489,7 +489,7 @@ public class MessengerDialog
         panel.setLayout(layout);       
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         JScrollPane pane = new JScrollPane(debugArea);
-        pane.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+        //pane.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         panel.add(pane, "0, 0");
         panel.add(copyButton, "0, 1, c, b");
         return panel;
@@ -503,7 +503,7 @@ public class MessengerDialog
 	private JPanel buildFilesToSubmitPane(Map toSubmit)
 	{
 		JPanel panel = new JPanel();
-		panel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		//panel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         panel.setOpaque(false);
         
         
@@ -514,7 +514,7 @@ public class MessengerDialog
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         table = new FileTable(toSubmit);
         JScrollPane pane = new JScrollPane(table);
-        pane.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+        //pane.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         panel.add(pane, "0, 0");
         return panel;
 	}
@@ -528,7 +528,7 @@ public class MessengerDialog
 	private JPanel buildCommentPane(String comment)
 	{
 		JPanel commentPanel = new JPanel();
-		commentPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		//commentPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         int iconSpace = 0;
         double tableSize[][] =  {{iconSpace, (160 - iconSpace), 
         						TableLayout.FILL}, // columns
@@ -559,7 +559,7 @@ public class MessengerDialog
 	{
         JTabbedPane tPane = new JTabbedPane();
         tPane.setOpaque(false);
-        tPane.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+        //tPane.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
        
         if (dialogType == SUBMIT_ERROR_TYPE) {
         	tPane.addTab("Comments", null, buildCommentPane(COMMENT_FIELD), 
@@ -586,17 +586,17 @@ public class MessengerDialog
     	JPanel bars = new JPanel();
     	bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
     	JPanel p = UIUtilities.buildComponentPanel(submitStatus);
-    	p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+    	//p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
     	bars.add(p);
     	JPanel bar = new JPanel();
-    	bar.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+    	//bar.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
     	bar.setLayout(new BoxLayout(bar, BoxLayout.X_AXIS));
     	bar.add(cancelButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(sendButton);
     	bar.add(Box.createHorizontalStrut(10));
     	p = UIUtilities.buildComponentPanelRight(bar);
-    	p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+    	//p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
     	bars.add(p);
     	return bars;
     }

@@ -127,17 +127,17 @@ public class OptionsDialog
     private void createComponents()
     {
     	body = new JPanel();
-    	body.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+    	//body.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
     	mainPanel = new JPanel();
-    	mainPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+    	//mainPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
     	controlPanel = new JPanel();
-    	controlPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+    	//controlPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         contentPanel = new JXHeader();
         noButton = new JButton("No");
-        noButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+        //noButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         yesButton = new JButton("Yes");
-        yesButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
-        getContentPane().setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+        //yesButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+        //getContentPane().setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         getRootPane().setDefaultButton(yesButton);
     }
     
@@ -175,9 +175,13 @@ public class OptionsDialog
 	 */
 	private JPanel buildCommentPanel(String instructions, Icon icon)
 	{
+		/*
     	contentPanel.setBackgroundPainter(
     			new RectanglePainter(UIUtilities.WINDOW_BACKGROUND_COLOR, 
     					null));
+    					*/
+		contentPanel.setBackgroundPainter(
+    			new RectanglePainter(getBackground(), null));
 		contentPanel.setDescription(instructions);
 		contentPanel.setIcon(icon);
 		contentPanel.setIconPosition(IconPosition.LEFT);
@@ -191,7 +195,7 @@ public class OptionsDialog
 	 */
 	private JPanel buildControlPanel()
 	{
-		controlPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		//controlPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		controlPanel.setBorder(null);
 		controlPanel.add(yesButton);
 		controlPanel.add(Box.createRigidArea(H_SPACER_SIZE));
@@ -199,11 +203,11 @@ public class OptionsDialog
 		controlPanel.add(Box.createRigidArea(H_SPACER_SIZE));
 		JPanel bar = new JPanel();
 		bar.setLayout(new BoxLayout(bar, BoxLayout.Y_AXIS));
-		bar.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		//bar.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		bar.add(controlPanel);
 		bar.add(Box.createVerticalStrut(10));
 		JPanel p = UIUtilities.buildComponentPanelRight(bar);
-		p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		//p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		return p;
 	}
 	
@@ -281,7 +285,7 @@ public class OptionsDialog
 	 */
 	public void addBodyComponent(JComponent c) 
 	{
-		c.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		//c.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		body.add(c);
 		body.validate();
 		body.repaint();
@@ -345,7 +349,7 @@ public class OptionsDialog
 	{
 		if (cancelButton == null) {
 			cancelButton = new JButton("Cancel");
-			cancelButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+			//cancelButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 			cancelButton.addActionListener(new ActionListener() {
 	            public void actionPerformed(ActionEvent e) { cancel(); }
 	        });

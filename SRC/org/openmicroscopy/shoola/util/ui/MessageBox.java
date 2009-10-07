@@ -140,7 +140,7 @@ public class MessageBox
 					Icon icon)
 	{
 		super(owner, title, message, icon);
-		setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		//setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		pack();
 	}
 	
@@ -157,7 +157,7 @@ public class MessageBox
 	public MessageBox(JFrame owner, String title, String message, Icon icon)
 	{
 		super(owner, title, message, icon);
-		setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		//setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		pack();
 	}
 	

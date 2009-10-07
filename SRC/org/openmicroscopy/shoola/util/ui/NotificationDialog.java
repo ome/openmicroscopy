@@ -117,7 +117,7 @@ public class NotificationDialog
         messagePanel.setOpaque(true);
 		controlsPanel = new JPanel();
 		okButton = new JButton("OK");
-		okButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		//okButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		getRootPane().setDefaultButton(okButton);
 	}
 	
@@ -153,9 +153,11 @@ public class NotificationDialog
 	 */
 	private JPanel buildCommentPanel(String msg, Icon icon)
 	{
+		/*
 		contentPanel.setBackgroundPainter(
     			new RectanglePainter(UIUtilities.WINDOW_BACKGROUND_COLOR, 
     					null));
+    					*/
 		contentPanel.setDescription(msg);
 		contentPanel.setIcon(icon);
 		contentPanel.setIconPosition(IconPosition.LEFT);
@@ -170,12 +172,12 @@ public class NotificationDialog
 	 */
 	private JPanel buildControlPanel()
 	{
-		controlsPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		//controlsPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		controlsPanel.setBorder(null);
 		controlsPanel.add(okButton);
 		controlsPanel.add(Box.createRigidArea(H_SPACER_SIZE));
 		JPanel p = UIUtilities.buildComponentPanelRight(controlsPanel);
-		p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		//p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		return p;
 	}
 	
@@ -188,7 +190,7 @@ public class NotificationDialog
 	 */
 	private void buildGUI(String message, Icon messageIcon)
 	{
-		mainPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+		//mainPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		//mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 	    mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 	    mainPanel.setLayout(new GridBagLayout());

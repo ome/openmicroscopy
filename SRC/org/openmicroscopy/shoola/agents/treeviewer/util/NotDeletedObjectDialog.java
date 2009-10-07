@@ -191,12 +191,12 @@ public class NotDeletedObjectDialog
     public JPanel buildToolBar()
     {
     	JPanel bar = new JPanel();
-    	bar.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+    	//bar.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
     	bar.setLayout(new BoxLayout(bar, BoxLayout.X_AXIS));
     	bar.add(closeButton);
     	bar.add(Box.createHorizontalStrut(10));
     	JPanel p = UIUtilities.buildComponentPanelRight(bar);
-    	p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
+    	//p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
     	return p;
     }
     
