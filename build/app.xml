@@ -92,6 +92,15 @@
     <copy todir="${app.config.dir}">
       <fileset refid="app.config"/>
     </copy> 
+    <tstamp>
+        <format property="about.time" pattern="MMMM dd, yyyy hh:mm aa"/>
+    </tstamp>
+    <replace file="${app.config.dir}/about.xml"
+        token="@VERSION@"
+        value="${dist.bundle.version}"/>
+    <replace file="${app.config.dir}/about.xml"
+        token="@DATE@"
+        value="${about.time}"/>
     <copy todir="${app.lib.dir}">
       <fileset refid="app.libs"/>
     </copy> 
@@ -146,7 +155,6 @@
    * it (in theory) non-portable.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <target name="run"
-          depends="compile" 
           description="Run the app in its own JVM."> 
     <echo message="Launching OMERO.insight ..."/>
     <java classname="${app.mainclass}"
@@ -154,6 +162,7 @@
           fork="yes"
           failonerror="yes">
       <jvmarg line="-Xms256M -Xmx512M"/> 
+      <jvmarg value="-Dinsight.switch_user=true"/>
       <arg line="container.xml"/>
       <arg value="${app.dir}"/> 
     </java>  
