@@ -66,6 +66,7 @@ import org.jdesktop.swingx.JXTaskPane;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.actions.NoiseReductionAction;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -283,10 +284,7 @@ public class DomainPane
     /** Initializes the components composing the display. */
     private void initComponents()
     {
-    	taskPane = new JXTaskPane();
-    	taskPane.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	taskPane.setTitle(ADVANCED_OPTIONS);
-    	taskPane.setCollapsed(true);
+    	taskPane = EditorUtil.createTaskPane(ADVANCED_OPTIONS);
         graphicsPane = new GraphicsPane(model, controller);
         familyBox = new JComboBox(model.getFamilies().toArray());
         familyBox.setBackground(UIUtilities.BACKGROUND_COLOR);

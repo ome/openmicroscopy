@@ -1302,7 +1302,7 @@ class ImViewerUI
 			
 		PlaneInfo info;
 		String s, toolTipText;
-		Map<Integer, Color> colors = model.getActiveChannelsColorMap();
+		Map<Integer, Color> colors = model.getChannelsColorMap();
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		Map<String, Object> details;
@@ -1314,7 +1314,7 @@ class ImViewerUI
 		int index;
 		while (c.hasNext()) {
 			index = c.next().getIndex();
-			if (indexes.contains(index)) {
+			//if (indexes.contains(index)) {
 				s = "";
 				toolTipText = "";
 				tips = new ArrayList<String>();
@@ -1337,7 +1337,7 @@ class ImViewerUI
 					comp.setText(s);
 					panel.add(comp);
 				}
-			}
+			//}
 		}
 		statusBar.setCenterStatus(panel);
 	}
@@ -2134,7 +2134,7 @@ class ImViewerUI
 	int getMaxZ() { return model.getMaxZ(); }
 	
 	/**
-	 * Returns the index of the selected tabbed.
+	 * Returns the index of the selected tab.
 	 * 
 	 * @return See above.
 	 */

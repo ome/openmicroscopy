@@ -25,9 +25,11 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
 //Java imports
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Iterator;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -62,9 +64,6 @@ class StatusBar
     extends JPanel
 {
 
-	/** Dimension of the horizontal space between UI components. */
-	private static final		Dimension HBOX = new Dimension(5, 5);
-	
     /** Displays the status message displayed on the left hand side. */
     private JLabel              leftStatus;
     
@@ -72,7 +71,7 @@ class StatusBar
     private JLabel              rigthStatus;
     
     /** Displays some of the plane information. */
-    private JPanel				centerStatus;
+    private JComponent			centerStatus;
     
     /** Button to display plane info. */
     private JButton				statusButton;
@@ -108,7 +107,7 @@ class StatusBar
         add(statusButton);
         add(Box.createHorizontalStrut(10));
         add(leftStatus);
-        add(Box.createRigidArea(HBOX));
+        add(Box.createHorizontalStrut(15));
         add(centerStatus);
         add(UIUtilities.buildComponentPanelRight(rigthStatus));
         add(Box.createRigidArea(new Dimension(20, 5)));
@@ -149,9 +148,17 @@ class StatusBar
      */
     void setCenterStatus(JComponent comp)
     { 
-    	centerStatus.removeAll();
+    	//centerStatus.removeAll();
     	if (comp != null) {
-    		centerStatus.add(comp);
+    		Component[] comps = getComponents();
+    		int index = -1;
+    		for (int i = 0; i < comps.length; i++) {
+				if (comps[i] == centerStatus) 
+					index = i;
+			}
+    		centerStatus = comp;
+    		remove(centerStatus);
+    		if (index >= 0) add(centerStatus, index);
     		revalidate();
     		repaint();
     	}

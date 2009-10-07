@@ -1301,6 +1301,19 @@ class ImViewerModel
 		return m;
 	}
 
+	/**
+	 * Returns a collection of pairs (channel's index, channel's color).
+	 * 
+	 * @return See above.
+	 */
+	Map<Integer, Color> getChannelsColorMap()
+	{
+		Map<Integer, Color> m = new HashMap<Integer, Color>(getMaxC());
+		for (int i = 0; i < getMaxC(); i++) 
+			m.put(i, getChannelColor(i));
+		return m;
+	}
+	
 	/** Sets the settings before turning on/off channels in the grid view. */
 	void setLastSettingsRef()
 	{
