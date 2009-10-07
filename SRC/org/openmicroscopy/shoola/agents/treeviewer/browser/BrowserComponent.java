@@ -910,9 +910,11 @@ class BrowserComponent
 			throw new IllegalArgumentException("Node not valid.");
 		switch (model.getState()) {
 			case DISCARDED:
+				throw new IllegalStateException(
+	                    "This method cannot be invoked in the DISCARDED.");
 			case LOADING_LEAVES:
 				throw new IllegalStateException(
-	                    "This method cannot be invoked in the DISCARDED or " +
+	                    "This method cannot be invoked in the" +
 	                    "LOADING_LEAVES state.");
 		}   
 		

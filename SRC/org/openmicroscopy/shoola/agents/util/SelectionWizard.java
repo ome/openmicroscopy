@@ -215,7 +215,7 @@ public class SelectionWizard
 		//Field creation
 		addField = new JTextField(20);
 		addField.getDocument().addDocumentListener(this);
-		getRootPane().setDefaultButton(cancelButton);
+		//getRootPane().setDefaultButton(cancelButton);
 	}
 
 	/** Creates a copy of the original selections. */
