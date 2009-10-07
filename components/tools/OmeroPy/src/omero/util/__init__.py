@@ -436,13 +436,17 @@ class Environment:
     Simple class for creating an executable environment
     """
 
-    def __init__(self,*args):
+    def __init__(self, *args):
         """
         Takes an number of environment variable names which
         should be copied to the target environment if present
         in the current execution environment.
         """
-        self.env = {}
+        if sys.platform == "win32":
+            # Prevents SocketException. See ticket:1518
+            self.env = os.environ.copy()
+        else:
+            self.env = {}
         for arg in args:
             if os.environ.has_key(arg):
                 self.env[arg] = os.environ[arg]

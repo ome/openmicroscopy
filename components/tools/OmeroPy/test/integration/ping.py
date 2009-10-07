@@ -71,11 +71,7 @@ print "This was my environment:"
 for k,v in os.environ.items():
     print "%s => %s" %(k,v)
 
-#
-# Must use pysys because of a naming clash with
-# with the omero.sys package.
-#
-pysys.stderr.write("Oh, and this is stderr.");
+sys.stderr.write("Oh, and this is stderr.");
 
 """
 

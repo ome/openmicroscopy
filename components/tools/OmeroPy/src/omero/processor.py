@@ -42,7 +42,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
     is being used solely to calculate the parameters for the script
     ("omero.scripts.parse=true")
 
-    If kill is True, then on cleanup, this process will reap the
+    If iskill is True, then on cleanup, this process will reap the
     attached session completely.
     """
 
