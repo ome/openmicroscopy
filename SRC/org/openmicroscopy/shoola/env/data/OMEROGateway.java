@@ -1102,17 +1102,18 @@ class OMEROGateway
 	 * 
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.
 	 */
 	private SearchPrx getSearchService()
 		throws DSAccessException, DSOutOfServiceException
 	{
 		try {
-			if (searchService == null) {
-				searchService = entry.createSearchService(); 
-				services.add(searchService);
-			}
+			//if (searchService == null) {
+				//searchService = entry.createSearchService(); 
+				//services.add(searchService);
+			//}
+			return entry.createSearchService();
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Search service.");
 		}
@@ -1124,7 +1125,7 @@ class OMEROGateway
 	 * 
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.
 	 */
 	private IProjectionPrx getProjectionService()
@@ -3464,8 +3465,8 @@ class OMEROGateway
 		if (types == null || types.size() == 0) return new HashMap();
 		if (scopes == null || scopes.size() == 0) return new HashMap();
 		isSessionAlive();
+		SearchPrx service = getSearchService();
 		try {
-			SearchPrx service = getSearchService();
 			//service.clearQueries();
 			//service.resetDefaults();
 			service.setAllowLeadingWildcard(false);
@@ -3592,6 +3593,12 @@ class OMEROGateway
 			service.close();
 			return results;
 		} catch (Throwable e) {
+			try {
+				service.close();
+			} catch (Exception ex) {
+				//digest the exception
+			}
+			e.printStackTrace();
 			handleException(e, "Cannot perform the search.");
 		}
 		return null;

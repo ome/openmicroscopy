@@ -76,9 +76,8 @@ class SearchModel
 		this.results = results;
 		numberOfImages = results.size();
 		long userID = DataBrowserAgent.getUserDetails().getId();
-		Set visTrees = DataBrowserTranslator.transformObjects(results, userID, 
-															0);
-        browser = BrowserFactory.createBrowser(visTrees);
+		Set vis = DataBrowserTranslator.transformObjects(results, userID, 0);
+        browser = BrowserFactory.createBrowser(vis);
         layoutBrowser();
 	}
 	

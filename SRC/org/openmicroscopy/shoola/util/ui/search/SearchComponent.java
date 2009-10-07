@@ -201,7 +201,7 @@ public class SearchComponent
 	}
 	
 	/**
-	 * Builds and lays out the toolbar.
+	 * Builds and lays out the tool bar.
 	 * 
 	 * @return See above.
 	 */

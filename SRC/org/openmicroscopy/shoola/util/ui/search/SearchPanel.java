@@ -974,7 +974,7 @@ class SearchPanel
 		
 		add(UIUtilities.buildTaskPane(buildScope(), SCOPE_TITLE, false), 
 							"0, 2");
-		add(UIUtilities.buildTaskPane(buildUsers(), USER_TITLE, true), "0, 3");
+		//add(UIUtilities.buildTaskPane(buildUsers(), USER_TITLE, true), "0, 3");
 		add(UIUtilities.buildTaskPane(buildDate(), DATE_TITLE, true), "0, 4");
 
 		setDateIndex();
