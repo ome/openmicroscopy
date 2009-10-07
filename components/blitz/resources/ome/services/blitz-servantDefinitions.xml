@@ -77,6 +77,10 @@
         </bean>
     </constructor-arg>
   </bean>
+  <bean id="makeMovieJob" class="ome.services.scripts.MakeMovieJob" lazy-init="false">
+      <constructor-arg ref="uuid"/>
+      <constructor-arg ref="executor"/>
+  </bean>
 
   <bean id="omero.api.Exporter" class="omero.api._ExporterTie" singleton="false">
     <constructor-arg>
