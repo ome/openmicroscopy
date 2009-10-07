@@ -24,12 +24,22 @@ PINGFILE = """
 
 import sys
 from pprint import pprint
+print "PATH:"
 pprint(sys.path)
 
+print "CONFIG"
+f = open("config","r")
+print "".join(f.readlines())
+f.close()
+
 import os, uuid
-from omero_ext import pysys
 import omero, omero.scripts as s
 from omero.rtypes import *
+
+import Ice
+ic = Ice.initialize()
+print ic.getProperties().getPropertiesForPrefix("Ice")
+print ic.getProperties().getPropertiesForPrefix("omero")
 
 #
 # Unique name so that IScript does not reject us
@@ -77,14 +87,18 @@ class TestPing(lib.ITest):
 
     def testUploadAndPing(self):
         pingfile = tempfile.NamedTemporaryFile(mode='w+t')
+        pingfile.close();
         try:
+            name = pingfile.name
+            pingfile = open(name, "w")
             pingfile.write(PINGFILE)
             pingfile.flush()
-            file = self.root.upload(pingfile.name, type="text/x-python", permissions = PUBLIC)
+            pingfile.close()
+            file = self.root.upload(name, type="text/x-python", permissions = PUBLIC)
             j = omero.model.ScriptJobI()
             j.linkOriginalFile(file)
 
-            p = self.client.sf.acquireProcessor(j, 100)
+            p = self.client.sf.sharedResources().acquireProcessor(j, 100)
             jp = p.params()
             self.assert_(jp, "Non-zero params")
 
@@ -98,7 +112,8 @@ class TestPing(lib.ITest):
             output = p.getResults(process)
             self.assert_( 1 == output.val["a"].val )
         finally:
-            pingfile.close()
+            if os.path.exists(name):
+                os.remove(name)
 
     def _getProcessor(self):
         scripts = self.root.getSession().getScriptService()

@@ -141,7 +141,7 @@ def client(name, description = None, *args, **kwargs):
 
 def handleParse(c):
     if len(c.getProperty("omero.scripts.parse")) > 0: # TODO Add to omero/Constants.ice
-        c.createSession()
+        c.createSession().detachOnDestroy()
         c.setOutput("omero.scripts.parse", rinternal(c.params))
         raise ParseExit(c.params)
 
