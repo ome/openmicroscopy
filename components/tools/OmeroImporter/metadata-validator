@@ -58,6 +58,7 @@ Runs the metadata validation tests on a given set of targets.
 
 Options:
   -f            Reads targets from a file ("-" reads from STDIN)
+  -t            Number of parallel threads for TestNG to use (default 2)
   --hudson      Prepares the TestNG XML for use by Hudson
 
 Examples:
@@ -67,9 +68,13 @@ Examples:
 Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % (error, cmd, cmd, cmd)
 	sys.exit(2)
 
-def create_testng_xml_file(targets, revision, bioformats_revision, hudson):
+def create_testng_xml_file(targets, revision, bioformats_revision, hudson,
+                           thread_count):
     """Creates a temporary file with TestNG XML content for each target."""
     root = Element("suite")
+    root.set("name", "metadata-validator")
+    root.set("parallel", "tests")
+    root.set("thread-count", str(thread_count))
     if revision is not None:
         parameter = Element("parameter")
         parameter.set("name", "omero_revision")
@@ -80,7 +85,6 @@ def create_testng_xml_file(targets, revision, bioformats_revision, hudson):
         parameter.set("name", "bioformats_revision")
         parameter.set("value", bioformats_revision)
         root.append(parameter)
-    root.set("name", "metadata-validator")
     for target in targets:
         target = target.strip().lstrip()
         test_name = target.replace("/", "_")
@@ -110,12 +114,13 @@ def create_testng_xml_file(targets, revision, bioformats_revision, hudson):
 
 if __name__ == '__main__':
     try:
-        options, args = getopt(sys.argv[1:], "f:", ['hudson'])
+        options, args = getopt(sys.argv[1:], "f:t:", ['hudson'])
     except GetoptError, (msg, opt):
         usage(msg)
 
     targets = list()
     hudson = False
+    thread_count = 2
     for option, argument in options:
         if option == "-f":
             if argument == "-":
@@ -123,6 +128,8 @@ if __name__ == '__main__':
             else:
                 f = open(argument)
             targets += f.readlines()
+        if option == "-t":
+            thread_count = int(argument)
         if option == "--hudson":
             hudson = True
 
@@ -155,11 +162,10 @@ if __name__ == '__main__':
         pass
 
     xml_file = create_testng_xml_file(targets, revision, bioformats_revision,
-                                      hudson)
+                                      hudson, thread_count)
     cmd = 'java -Dlog4j.configuration=log4j-metadata-validator.properties ' \
           '%s -cp "%s" %s %s' % (JAVA_ARGS, classpath, START_CLASS, \
                                  xml_file.name)
     print cmd
     os.system(cmd)
     xml_file.close()
-
