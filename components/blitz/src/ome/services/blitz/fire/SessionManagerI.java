@@ -276,7 +276,9 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                         "Could not unregister servant: could not create session id");
             }
             Ice.Object obj = curr.adapter.find(id);
-            if (obj instanceof ServiceFactoryI) {
+            if (obj == null) {
+                log.info("ServiceFactory null: "+id.name);
+            } else if (obj instanceof ServiceFactoryI) {
                 ServiceFactoryI sf = (ServiceFactoryI) obj;
                 sf.unregisterServant(Ice.Util.stringToIdentity(key));
             } else {
@@ -321,7 +323,9 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                     } else {
                         ServiceFactoryI sf = (ServiceFactoryI) obj;
                         sf.doDestroy();
-                        adapter.remove(sf.sessionId());
+                        Ice.Identity id = sf.sessionId();
+                        log.info("Removing " + id.name);
+                        adapter.remove(id);
                     }
                 } catch (Ice.ObjectAdapterDeactivatedException oade) {
                     log.warn("Cannot reap session " + sessionId
