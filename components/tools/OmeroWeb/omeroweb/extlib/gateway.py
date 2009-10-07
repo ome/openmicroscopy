@@ -2257,6 +2257,17 @@ class ExperimenterWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterWrap
         except:
             logger.error(traceback.format_exc())
             return _("Unknown name")
+    
+    def getInitialName(self):
+        try:
+            if self.firstName is not None and self.lastName is not None:
+                name = "%s. %s" % (self.firstName[:1], self.lastName)
+            else:
+                name = self.omeName
+            return name
+        except:
+            logger.error(traceback.format_exc())
+            return _("Unknown name")
 
 omero.gateway.ExperimenterWrapper = ExperimenterWrapper
 

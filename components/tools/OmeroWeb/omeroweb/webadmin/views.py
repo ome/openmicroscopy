@@ -232,7 +232,7 @@ def login(request):
         return HttpResponseRedirect(reverse("waindex"))
     else:
         if request.method == 'POST' and request.REQUEST['server']:
-            error = "Connection not available, please chceck your user name and password."
+            error = "Connection not available, please check your user name and password."
         try:
             request.session['server'] = request.REQUEST['server']
         except:

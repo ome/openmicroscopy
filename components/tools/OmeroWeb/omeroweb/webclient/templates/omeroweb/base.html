@@ -15,7 +15,7 @@
 
 <div id="breadcrumb">
     <ol class="breadcrumb">
-        <li><a href="{% url webindex %}">{{ eContext.user.omeName|capfirst }}</a></li>
+        <li><a href="{% url webindex %}">{{ eContext.user.getInitialName }}</a></li>
         {% for b in eContext.breadcrumb %}
             <li> > {{ b|safe }}</li>
         {% endfor %}
