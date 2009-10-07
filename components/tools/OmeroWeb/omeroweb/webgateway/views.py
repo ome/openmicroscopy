@@ -187,7 +187,7 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
         if ckey.startswith('S:') and not force_key:
             ckey = 'S:'
         logger.debug('creating new connection with "%s"' % (ckey))
-        if force_key:
+        if force_key or username:
             sUuid = None
         else:
             sUuid = request.session.get(browsersession_connection_key, None)

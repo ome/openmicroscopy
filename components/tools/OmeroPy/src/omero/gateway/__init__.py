@@ -306,7 +306,7 @@ class _BlitzGateway (object):
             else:
                 self._session_cb.create(self)
     
-    def _createSession (self):
+    def _createSession (self, skipSUuid=False):
         """
         Creates a new session for the principal given in the constructor.
         """
@@ -541,7 +541,7 @@ class _BlitzGateway (object):
         if self._session is None:
             ss = self.c.sf.getSessionService()
             self._session = ss.getSession(self._sessionUuid)
-        if self._session.getDetails().getGroup() == group:
+        if self._session.getDetails().getGroup().getId().val == group.getId():
             # Already correct
             return
         a = self.getAdminService()
@@ -550,6 +550,7 @@ class _BlitzGateway (object):
             return
         self._lastGroup = self._session.getDetails().getGroup()
         self._session.getDetails().setGroup(group._obj)
+        self._session.setTimeToIdle(None)
         self.getSessionService().updateSession(self._session)
 
     def revertGroupForSession (self):
@@ -669,7 +670,11 @@ class _BlitzGateway (object):
         @return:    omero.gateway.ProxyObjectWrapper
         """
         
-        return self._proxies['rendering']
+        rv = self._proxies['rendering']
+        if rv._tainted:
+            rv = self._proxies['rendering'] = rv.clone()
+        rv.taint()
+        return rv
 
     def getRenderingSettingsService (self):
         return self._proxies['rendsettings']
@@ -1022,7 +1027,11 @@ class ProxyObjectWrapper (object):
         self._obj = None
         self._func_str = func_str
         self._resyncConn(conn)
+        self._tainted = False
     
+    def clone (self):
+        return ProxyObjectWrapper(self._conn, self._func_str)
+
     def _connect (self): #pragma: no cover
         """
         Returns True if connected.
@@ -1041,6 +1050,12 @@ class ProxyObjectWrapper (object):
         self._obj = self._create_func()
         logger.debug("proxy_connect: d");
         return True
+
+    def taint (self):
+        self._tainted = True
+
+    def untaint (self):
+        self._tainted = False
 
     def close (self):
         """
@@ -1062,9 +1077,12 @@ class ProxyObjectWrapper (object):
         self._sf = conn.c.sf
         self._create_func = getattr(self._sf, self._func_str)
         if self._obj is not None:
-            logger.debug("## - refreshing %s" % (self._func_str))
-            obj = conn.c.ic.stringToProxy(str(self._obj))
-            self._obj = self._obj.checkedCast(obj)
+            try:
+                logger.debug("## - refreshing %s" % (self._func_str))
+                obj = conn.c.ic.stringToProxy(str(self._obj))
+                self._obj = self._obj.checkedCast(obj)
+            except Ice.ObjectNotExistException:
+                self._obj = None
 
     def _getObj (self):
         """
@@ -1940,6 +1958,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         self.CHILD_WRAPPER_CLASS = None
         self.PARENT_WRAPPER_CLASS = 'DatasetWrapper'
 
+    def __del__ (self):
+        self._re and self._re.untaint()
 
     def __loadedHotSwap__ (self):
         self._obj = self._conn.getContainerService().getImages(self.OMERO_CLASS, (self._oid,), None)[0]
