@@ -1778,6 +1778,8 @@ class TreeViewerComponent
 	public void setSearchResult(Object result)
 	{
 		Collection<DataObject> results = (Collection<DataObject>) result;
+		MetadataViewer metadata = model.getMetadataViewer();
+		if (metadata != null) metadata.setRootObject(null);
 		if (results == null || results.size() == 0) {
 			//UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
         	//un.notifyInfo("Search", "No results found.");
@@ -1793,6 +1795,7 @@ class TreeViewerComponent
 			view.addComponent(db.getUI());
 			model.setDataViewer(db);
 		}
+		
 	}
 
 	/**

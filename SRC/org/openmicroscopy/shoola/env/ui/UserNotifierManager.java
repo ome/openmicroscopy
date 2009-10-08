@@ -444,6 +444,7 @@ class UserNotifierManager
 		activityDialog.addDownloadEntry(activity);
 		if (!activityDialog.isVisible())
 			UIUtilities.centerAndShow(activityDialog);
+		activityDialog.toFront();
 	}
 	
 	/**
