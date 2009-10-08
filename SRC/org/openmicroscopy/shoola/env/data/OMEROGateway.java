@@ -4446,7 +4446,7 @@ class OMEROGateway
 			Iterator<Integer> i = channels.iterator();
 			while (i.hasNext()) 
 				set.add(omero.rtypes.rlong(i.next()));
-			long id = svc.getScriptID("makemovie2");
+			long id = svc.getScriptID("makemovie.py");
 			if (id <= 0) return -1;
 			ParametersI parameters = new ParametersI();
 			parameters.map.put("imageId", omero.rtypes.rlong(imageID));

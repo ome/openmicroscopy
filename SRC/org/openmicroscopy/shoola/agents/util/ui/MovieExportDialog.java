@@ -196,12 +196,21 @@ public class MovieExportDialog
 		zInterval = new JCheckBox("Z-section Interval");
 		zInterval.setFont(zInterval.getFont().deriveFont(Font.BOLD));
 		if (maxT > 1) timeInterval.setSelected(true);
+		else timeInterval.setEnabled(false);
 		
-		if (maxZ > 1 && !timeInterval.isSelected())
+		if (maxZ > 1 && !timeInterval.isSelected()) {
+			zInterval.setEnabled(false);
 			zInterval.setSelected(true);
+		}
+		if (maxZ <= 1) {
+			timeInterval.setEnabled(false);
+			zInterval.setEnabled(false);
+		}
+			
 		showScaleBar = new JCheckBox("Scale Bar");
 		showScaleBar.setFont(showScaleBar.getFont().deriveFont(Font.BOLD));
 		showScaleBar.setSelected(true);
+		showScaleBar.setActionCommand(""+SCALE_BAR);
 		showScaleBar.addActionListener(this);
 		scaleBar = new NumericalTextField();
 		scaleBar.setText(""+DEFAULT_SCALE);

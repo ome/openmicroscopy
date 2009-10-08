@@ -53,6 +53,9 @@ public class ExportLoader
 	/** Indicates to export the image as OMETiff. */
 	public static final int	EXPORT_AS_OME_TIFF = 0;
 	
+	/** Indicates to export the image as OME-XML. */
+	public static final int	EXPORT_AS_OME_XML = 1;
+	
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  			handle;
     
@@ -122,11 +125,11 @@ public class ExportLoader
 			case EXPORT_AS_OME_TIFF:
 				activity.notifyError("Unable to export as OME-TIFF");
 				break;
-	
+			case EXPORT_AS_OME_XML:
+				activity.notifyError("Unable to export as OME-XML");
 			default:
 				break;
 		}
-    	
     }
  
     /** 

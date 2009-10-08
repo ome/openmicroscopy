@@ -32,8 +32,6 @@ import java.io.File;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.ImageData;
 
 
 /**
