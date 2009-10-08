@@ -35,6 +35,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
+import org.openmicroscopy.shoola.agents.events.iviewer.ImageProjected;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
@@ -125,6 +126,24 @@ public class TreeViewerAgent
     	TreeViewerFactory.onRndSettingsCopied(ids);
     }
     
+	/**
+     * Handles the {@link ImageProjected} event.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleImageProjected(ImageProjected evt)
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	ExperimenterData exp = (ExperimenterData) registry.lookup(
+			        				LookupNames.CURRENT_USER_DETAILS);
+    	GroupData gp = exp.getDefaultGroup();
+    	long id = -1;
+    	if (gp != null) id = gp.getId();
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+        if (viewer != null) viewer.refreshTree();
+    }
+    
     /**
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate()
@@ -159,6 +178,7 @@ public class TreeViewerAgent
         bus.register(this, CopyRndSettings.class);
         bus.register(this, SaveEventRequest.class);
         bus.register(this, RndSettingsCopied.class);
+        bus.register(this, ImageProjected.class);
     }
 
     /**
@@ -189,6 +209,8 @@ public class TreeViewerAgent
 			handleSaveEventRequest((SaveEventRequest) e);
 		else if (e instanceof RndSettingsCopied)
     		handleRndSettingsCopied((RndSettingsCopied) e);
+		else if (e instanceof ImageProjected)
+    		handleImageProjected((ImageProjected) e);
 	}
 
 }

@@ -194,13 +194,6 @@ public class LookupNames
      */
     public static final String LOGIN_TIME_OUT = "/services/LOGIN/omeds/timeout";
     
-    /** Field to access the URL of the server where to post comments. */
-    public static final String DEBUG_URL_COMMENT = 
-    							"/services/DEBUGGER/hostnameComment";
-    
-    /** Field to access the URL of the server where to post error messages. */
-    public static final String DEBUG_URL_BUG = "/services/DEBUGGER/hostnameBug";
-    
     /** Field to access the URL of the server where obtain an token. */
     public static final String TOKEN_URL = "/services/DEBUGGER/hostnameToken";
     

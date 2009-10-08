@@ -52,6 +52,7 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.ChannelSelection;
+import org.openmicroscopy.shoola.agents.events.iviewer.ImageProjected;
 import org.openmicroscopy.shoola.agents.events.iviewer.ImageRendered;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
@@ -2495,6 +2496,8 @@ class ImViewerComponent
 			else
 				notifyProjection("The projected image has been " +
 						"successfully created.", image);
+			EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+			bus.post(new ImageProjected(image));
 		}
 		fireStateChange();
 	}

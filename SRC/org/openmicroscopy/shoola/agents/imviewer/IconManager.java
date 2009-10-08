@@ -313,7 +313,7 @@ public class IconManager
         relPaths[PROJECTION_48] = "projBlack48.png"; 
         relPaths[PROJECTION_12] = "projection12.png"; 
         relPaths[CREATE_MOVIE] = "openOffice_stock_insert-video-plugin-16.png";
-        relPaths[PROJECTION_48] = "viewer16.png"; 
+        relPaths[VIEWER_48] = "viewer16.png"; 
     }
     
     /** The sole instance. */
