@@ -35,10 +35,10 @@ def make_logname(self):
     log_name = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
     return log_name
 
-def configure_logging(logdir, logfile, loglevel = logging.INFO, format = LOGFORMAT, filemode = LOGMODE, time_rollover = False):
+def configure_logging(logdir, logfile, loglevel = logging.INFO, format = LOGFORMAT, filemode = LOGMODE, maxBytes = LOGSIZE, backupCount = LOGNUM, time_rollover = False):
 
     if not time_rollover:
-        fileLog = logging.handlers.RotatingFileHandler(os.path.join(logdir, logfile), maxBytes = LOGSIZE, backupCount = LOGNUM)
+        fileLog = logging.handlers.RotatingFileHandler(os.path.join(logdir, logfile), maxBytes = maxBytes, backupCount = backupCount)
     else:
         fileLog = logging.handlers.TimedRotatingFileHandler(os.path.join(logdir, logfile),'midnight',1)
         # Windows will not allow renaming (or deleting) a file that's open.
@@ -68,7 +68,9 @@ def configure_server_logging(props):
         log_level = logging.DEBUG
     else:
         log_level = logging.INFO
-    configure_logging(LOGDIR, log_name, loglevel=log_level)
+    log_size = int(props.getPropertyWithDefault("omero.logging.logsize",str(LOGSIZE)))
+    log_num = int(props.getPropertyWithDefault("omero.logging.lognum",str(LOGNUM)))
+    configure_logging(LOGDIR, log_name, loglevel=log_level, maxBytes=log_size, backupCount=log_num)
 
 def internal_service_factory(communicator, user="root", group=None, retries=6, interval=10, client_uuid=None, stop_event = None):
     """

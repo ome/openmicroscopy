@@ -22,6 +22,9 @@
       by `bin/omero config` values.
       -->
       <property name="omero.example"  value="my_value"/>
+	  <!-- Default logging settings for Python servers. -->
+      <property name="omero.logging.logsize" value="5000000"/>
+      <property name="omero.logging.lognum" value="9"/>
 	  <!-- config settings for OmeroFS (moved from fsConfig) -->
 	  <!-- These duplicate info that could be got from elsewhere -->
 	  <!-- They should ultimately be removed from here. -->
