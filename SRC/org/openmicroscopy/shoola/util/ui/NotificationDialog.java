@@ -46,7 +46,6 @@ import org.jdesktop.swingx.JXHeader;
 import org.jdesktop.swingx.JXHeader.IconPosition;
 import org.jdesktop.swingx.painter.RectanglePainter;
 
-
 //Application-internal dependencies
 
 /** 
@@ -113,6 +112,8 @@ public class NotificationDialog
 	{
 		mainPanel = new JPanel();
 		contentPanel = new JXHeader();
+		contentPanel.setBackgroundPainter(
+    			new RectanglePainter(getBackground(), null));
 		messagePanel = new JPanel();
         messagePanel.setOpaque(true);
 		controlsPanel = new JPanel();

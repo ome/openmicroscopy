@@ -1080,7 +1080,7 @@ class MeasurementViewerModel
 		EventBus bus = MeasurementAgent.getRegistry().getEventBus();
 		event = new SaveRelatedData(getPixelsID(), 
 					new SaveData(getPixelsID(), SaveData.MEASUREMENT_TYPE), 
-									"The ROI", false);
+									"The ROI", toSave);
 		bus.post(event);
 		if (!toSave) event = null;
 	}

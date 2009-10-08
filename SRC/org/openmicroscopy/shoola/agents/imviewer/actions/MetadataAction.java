@@ -65,7 +65,7 @@ public class MetadataAction
      */
     protected void onStateChange(ChangeEvent e)
     {
-    	if (model.isNumerousChannel()) setEnabled(false);
+    	//if (model.isNumerousChannel()) setEnabled(false);
     }
     
 	/**
