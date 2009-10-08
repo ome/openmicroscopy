@@ -32,6 +32,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 
 import ome.util.LSID;
@@ -77,6 +78,25 @@ public class ChannelProcessor implements ModelProcessor
     	}
     	
     	List<Image> images = store.getSourceObjects(Image.class);
+    	String[] domains = null;
+    	try
+    	{
+    		domains = reader.getDomains(null);
+    	}
+    	catch (Exception e)
+    	{
+    		String s = "Error while retrieving domains."; 
+    		log.error(s, e);
+    		throw new ModelException(s);
+    	}
+    	boolean isGraphicsDomain = false;
+    	for (String domain : domains)
+    	{
+    		if (domain.equals(FormatTools.GRAPHICS_DOMAIN))
+    		{
+    			isGraphicsDomain = true;
+    		}
+    	}
     	for (int i = 0; i < images.size(); i++)
     	{
     		Pixels pixels = 
@@ -101,7 +121,7 @@ public class ChannelProcessor implements ModelProcessor
     					store.getIObjectContainer(Channel.class, indexes);
     				sourceObject = container.sourceObject;
     			}
-                if (sizeC == 3 || sizeC == 4)
+                if ((sizeC == 3 || sizeC == 4) && isGraphicsDomain)
                 {
                     populateColor((Channel) sourceObject, c);
                 }
@@ -117,7 +137,7 @@ public class ChannelProcessor implements ModelProcessor
                         store.getIObjectContainer(LogicalChannel.class, indexes);
                     sourceObject = container.sourceObject;
     			}
-    			if (sizeC == 3 || sizeC == 4)
+    			if ((sizeC == 3 || sizeC == 4) && isGraphicsDomain)
     			{
     			    populateName((LogicalChannel) sourceObject, c);
     			}
