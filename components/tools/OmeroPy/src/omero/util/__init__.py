@@ -113,7 +113,7 @@ def internal_service_factory(communicator, user="root", group=None, retries=6, i
             tryCount += 1
             log.info("Failed to get session on attempt %s", str(tryCount))
             excpt = e
-            stop_even.wait(interval)
+            stop_event.wait(interval)
 
     log.warn("Reason: %s", str(excpt))
     raise excpt
