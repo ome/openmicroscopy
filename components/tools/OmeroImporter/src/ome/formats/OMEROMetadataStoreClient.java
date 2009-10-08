@@ -2373,11 +2373,12 @@ public class OMEROMetadataStoreClient
     {
     	Hashtable globalMetadata = reader.getGlobalMetadata();
     	Hashtable seriesMetadata = reader.getSeriesMetadata();
+    	File metadataFile = null;
     	FileOutputStream stream = null;
     	OutputStreamWriter writer= null;
     	try
     	{
-    		File metadataFile = File.createTempFile("metadata", ".txt");
+    		metadataFile = File.createTempFile("metadata", ".txt");
     		stream = new FileOutputStream(metadataFile);
     		writer = new OutputStreamWriter(stream);
     		metadataFile.deleteOnExit();
@@ -2413,6 +2414,10 @@ public class OMEROMetadataStoreClient
     			if (stream != null)
     			{
     				stream.close();
+    			}
+    			if (metadataFile != null)
+    			{
+    				metadataFile.delete();
     			}
     		}
     		catch (IOException e)
