@@ -26,18 +26,15 @@ package org.openmicroscopy.shoola.env.rnd;
 //Java imports
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.nio.Buffer;
 import java.util.List;
 
 
 //Third-party libraries
+import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-
-import com.sun.opengl.util.texture.TextureData;
-
 import pojos.ChannelData;
 import pojos.PixelsData;
 
@@ -60,6 +57,9 @@ import pojos.PixelsData;
  */
 public interface RenderingControl
 {
+	
+	/** The maximum number of channels. */
+	public static final int		MAX_CHANNELS = 6;
 	
 	/** Flag to indicate that the image is not compressed. */
 	public static final int		UNCOMPRESSED = 0;

@@ -30,17 +30,12 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-
-import layout.TableLayout;
-
 
 //Third-party libraries
+import layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
-import org.jdesktop.swingx.VerticalLayout;
 
 //Application-internal dependencies
 
@@ -71,14 +66,11 @@ public class JXTaskPaneContainerSingle
 	/** Initializes the component. */
 	private void initialize()
 	{
-		//VerticalLayout layout = (VerticalLayout) getLayout();
-		//layout.setGap(2);
 		panes = new HashMap<JXTaskPane, Integer>();
 		TableLayout layout = new TableLayout();
 		double[] size = {TableLayout.FILL};
 		layout.setColumn(size);
 		setLayout(layout);
-		//setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
 		setBackground(UIUtilities.BACKGROUND);
 	}

@@ -34,7 +34,6 @@ import java.util.List;
 //Third-party libraries
 import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
-import com.sun.opengl.util.texture.Texture;
 import com.sun.opengl.util.texture.TextureCoords;
 import com.sun.opengl.util.texture.TextureData;
 import com.sun.opengl.util.texture.TextureIO;

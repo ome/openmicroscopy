@@ -1095,7 +1095,7 @@ class ImViewerUI
 		addComponentListener(controller);
 		planes = new HashMap<Integer, PlaneInfoComponent>();
 		ImageIcon icon = IconManager.getInstance().getImageIcon(
-				IconManager.VIEWER_48);
+				IconManager.VIEWER);
 		if (icon != null) setIconImage(icon.getImage());
 	}
 
