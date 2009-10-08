@@ -81,7 +81,7 @@ public class ChannelProcessor implements ModelProcessor
     	String[] domains = null;
     	try
     	{
-    		domains = reader.getDomains(null);
+    		domains = reader.getDomains(reader.getCurrentFile());
     	}
     	catch (Exception e)
     	{
