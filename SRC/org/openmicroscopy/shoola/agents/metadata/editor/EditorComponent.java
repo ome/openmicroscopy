@@ -557,7 +557,7 @@ class EditorComponent
 	public void setRenderingControl(RenderingControl rndControl)
 	{
 		model.setRenderingControl(rndControl);
-		if (model.isNumerousChannel()) return;
+		//if (model.isNumerousChannel()) return;
 		view.setRenderer();
 		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC)
 			loadChannelData();

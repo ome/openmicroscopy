@@ -75,7 +75,7 @@ public interface Renderer
      * The maximum number of channels before displaying the channels 
      * buttons slider.
      */
-    public static final int		MAX_CHANNELS = 6;
+    public static final int		MAX_CHANNELS = 6; 
     
     /** 
      * Bound property name indicating to render the plane with the 

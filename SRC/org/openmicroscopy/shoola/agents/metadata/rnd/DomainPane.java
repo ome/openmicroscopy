@@ -351,7 +351,12 @@ public class DomainPane
         UIUtilities.unifiedButtonLookAndFeel(colorModel);
         colorModel.setVisible(false);
         channelList = new ArrayList<ChannelButton>();
-        channelButtonPanel = createChannelButtons();
+        if (model.getMaxC() < Renderer.MAX_CHANNELS)
+        	channelButtonPanel = createChannelButtons();
+        else {
+        	channelButtonPanel = new JPanel();
+        	channelButtonPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+        }
         int maxZ = model.getMaxZ()-1;
         int maxT = model.getMaxT()-1;
         zSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
@@ -459,7 +464,8 @@ public class DomainPane
     	JPanel p = new JPanel();
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
     	p.setLayout(new BorderLayout());
-    	p.add(channelButtonPanel, BorderLayout.WEST);
+    	if (channelButtonPanel != null)
+    		p.add(channelButtonPanel, BorderLayout.WEST);
     	p.add(graphicsPane, BorderLayout.CENTER);
     	if (model.isGeneralIndex()) 
     		p.add(buildPlaneSelectionPanel(), BorderLayout.SOUTH);

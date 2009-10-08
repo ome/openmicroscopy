@@ -259,9 +259,12 @@ class GraphicsPane
    	 	content.add(p);
    	 	JPanel controls = new JPanel();
    	 	controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
-   	 	JPanel comp = UIUtilities.buildComponentPanel(rangeButton);
-   	 	comp.setBackground(UIUtilities.BACKGROUND_COLOR);
-   	 	controls.add(comp);
+   	 	JPanel comp;
+   	 	if (model.getMaxC() < Renderer.MAX_CHANNELS) {
+	   	 	comp = UIUtilities.buildComponentPanel(rangeButton);
+	   	 	comp.setBackground(UIUtilities.BACKGROUND_COLOR);
+	   	 	controls.add(comp);
+   	 	}
    	 	if (model.isGeneralIndex()) {
 	   	 	comp = UIUtilities.buildComponentPanel(applyButton);
 	   	 	comp.setBackground(UIUtilities.BACKGROUND_COLOR);

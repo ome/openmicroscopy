@@ -54,6 +54,7 @@ import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -72,6 +73,8 @@ import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.model.PlaneInfo;
+
+import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
@@ -1091,6 +1094,9 @@ class ImViewerUI
 		refInsets = rendererSplit.getInsets();
 		addComponentListener(controller);
 		planes = new HashMap<Integer, PlaneInfoComponent>();
+		ImageIcon icon = IconManager.getInstance().getImageIcon(
+				IconManager.VIEWER_48);
+		if (icon != null) setIconImage(icon.getImage());
 	}
 
 	/** 

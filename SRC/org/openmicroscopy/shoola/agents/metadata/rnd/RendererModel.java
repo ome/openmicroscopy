@@ -125,7 +125,20 @@ class RendererModel
     /** The index of the rendering. */
     private int					rndIndex;
     
+    /** The collection of sorted channels. */
     private List<ChannelData>	sortedChannel;
+    
+    /** 
+     * The global minimum of all channels if the number of channels is
+     * greater than {@code Renderer#MAX_CHANNELS}.
+     */
+    private Double				globalMinChannels;
+    
+    /** 
+     * The global maximum of all channels if the number of channels is
+     * greater than {@code Renderer#MAX_CHANNELS}.
+     */
+    private Double				globalMaxChannels;
     
 	/**
 	 * Creates a new instance.
@@ -141,6 +154,8 @@ class RendererModel
 		this.rndControl = rndControl;
 		this.rndIndex = rndIndex;
 		visible = false;
+		globalMaxChannels = null;
+		globalMinChannels = null;
 	}
 	
 	/**
@@ -210,6 +225,8 @@ class RendererModel
 
 	/**
 	 * Sets the pixels intensity interval for the specified channel.
+	 * or for all channels if the number of channels is greater than 
+	 * {@link Renderer#MAX_CHANNELS}
 	 * 
 	 * @param index The index of the channel.
 	 * @param start	The lower bound of the interval.
@@ -222,7 +239,13 @@ class RendererModel
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (rndControl == null) return;
-		rndControl.setChannelWindow(index, start, end); 
+		if (getMaxC() > Renderer.MAX_CHANNELS) {
+			for (int i = 0; i < getMaxC(); i++) {
+				rndControl.setChannelWindow(i, start, end); 
+			}
+		} else {
+			rndControl.setChannelWindow(index, start, end); 
+		}
 	}
 
 	/**
@@ -511,18 +534,52 @@ class RendererModel
 	}
 
 	/**
-	 * Returns the global minimum of the currently selected channel.
+	 * Returns the global minimum of the currently selected channel
+	 * or of all channels if the number of channels is greater
+	 * {@link Renderer#MAX_CHANNELS}.
 	 * 
 	 * @return See above.
 	 */
-	double getGlobalMin() { return getGlobalMin(selectedChannelIndex); }
+	double getGlobalMin()
+	{ 
+		if (getMaxC() > Renderer.MAX_CHANNELS) {
+			if (globalMinChannels == null) {
+				double min = Double.MAX_VALUE;
+				double value;
+				for (int i = 0; i < getMaxC(); i++) {
+					value = getGlobalMin(i); 
+					if (value < min) min = value;
+				}
+				globalMinChannels = min;
+			}
+			return globalMinChannels.doubleValue();
+		}
+		return getGlobalMin(selectedChannelIndex); 
+	}
 
 	/**
-	 * Returns the global maximum of the currently selected channel.
+	 * Returns the global maximum of the currently selected channel
+	 * or of all channels if the number of channels is greater
+	 * {@link Renderer#MAX_CHANNELS}.
 	 * 
 	 * @return See above.
 	 */
-	double getGlobalMax() { return getGlobalMax(selectedChannelIndex); }
+	double getGlobalMax()
+	{ 
+		if (getMaxC() > Renderer.MAX_CHANNELS) {
+			if (globalMaxChannels == null) {
+				double max = Double.MIN_VALUE;
+				double value;
+				for (int i = 0; i < getMaxC(); i++) {
+					value = getGlobalMax(i); 
+					if (value > max) max = value;
+				}
+				globalMaxChannels = max;
+			}
+			return globalMaxChannels.doubleValue();
+		}
+		return getGlobalMax(selectedChannelIndex);
+	}
 
 	/**
 	 * Returns the global maximum of the passed channel.
