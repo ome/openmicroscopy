@@ -95,11 +95,11 @@ class ImageTable
 		COLUMNS = new Vector<String>(3);
 		COLUMNS.add(NAME);
 		COLUMNS.add(DATE);
-		COLUMNS.add(ANNOTATED);
+		//COLUMNS.add(ANNOTATED);
 		RENDERERS = new HashMap<Integer, Class>();
 		RENDERERS.put(NAME_COL, ImageTableNode.class);
 		RENDERERS.put(DATE_COL, String.class);
-		RENDERERS.put(ANNOTATED_COL, Icon.class);
+		//RENDERERS.put(ANNOTATED_COL, Icon.class);
 	}
 	
 	/** The root node of the table. */

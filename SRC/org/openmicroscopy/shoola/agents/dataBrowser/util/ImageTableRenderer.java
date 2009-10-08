@@ -84,9 +84,12 @@ public class ImageTableRenderer
 		ImageTableNode node = (ImageTableNode) value;
 		Object v = node.getHierarchyObject();
 		if (v instanceof ImageData) {
+			/*
 			if (EditorUtil.isAnnotated(v))
 				setIcon(icons.getIcon(IconManager.IMAGE_ANNOTATED));
 		    else setIcon(icons.getIcon(IconManager.IMAGE));
+		    */
+			setIcon(icons.getIcon(IconManager.IMAGE));
 			setText(node.getUserObject().toString());
 		} else if (v instanceof DatasetData) {
 			setIcon(icons.getIcon(IconManager.DATASET));
