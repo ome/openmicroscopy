@@ -52,6 +52,8 @@ import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.IObject;
 import ome.model.acquisition.Filter;
+import ome.model.acquisition.Laser;
+import ome.model.acquisition.LightSource;
 import ome.model.acquisition.TransmittanceRange;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
@@ -559,6 +561,57 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     }
     
     /**
+     * Returns the cut in value if available.
+     * 
+     * @param f The filter to handle.
+     * @return See above.
+     */
+    private String getValueFromFilter(Filter f)
+    {
+    	if (f == null) return null;
+    	TransmittanceRange transmittance = f.getTransmittanceRange();
+    	if (transmittance == null) return null;
+    	return  ""+transmittance.getCutIn();
+    }
+    
+    /**
+     * Determines the name of the channel if possible.
+     * 
+     * @param lc The channel to handle.
+     * @return See above.
+     */
+    private String getChannelName(LogicalChannel lc)
+    {
+    	String name;
+    	Integer value = lc.getEmissionWave();
+    	if (value != null) return ""+value.intValue();
+    	if (lc.getFilterSet() != null) {
+    		Filter f = lc.getFilterSet().getEmFilter();
+    		name  = getValueFromFilter(f);
+    		if (name != null) return name;
+    	}
+    	name = getValueFromFilter(lc.getSecondaryEmissionFilter());
+    	if (name != null) return name;
+    	//Laser
+    	if (lc.getLightSourceSettings() != null) {
+    		LightSource src = lc.getLightSourceSettings().getLightSource();
+    		if (src instanceof Laser) {
+    			Laser laser = (Laser) src;
+    			value = laser.getWavelength();
+    			if (value != null) return ""+value.intValue();
+    		}
+    	}
+    	value = lc.getExcitationWave();
+    	if (value != null) return ""+value.intValue();
+    	if (lc.getFilterSet() != null) {
+    		Filter f = lc.getFilterSet().getExFilter();
+    		name  = getValueFromFilter(f);
+    		if (name != null) return name;
+    	}
+    	return getValueFromFilter(lc.getSecondaryExcitationFilter());
+    }
+    
+    /**
      * Resets the channel bindings for the current active pixels set.
      * 
      * @param def
@@ -592,6 +645,9 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         Map<ChannelBinding, Boolean> m = new HashMap<ChannelBinding, Boolean>();
         List<Boolean> values = new ArrayList<Boolean>();
         boolean v;
+        String name;
+        List<LogicalChannel> toUpdate = new ArrayList<LogicalChannel>();
+        
         for (Channel channel : pixels.<Channel>collectChannels(null)) {
             family = quantumFactory.getFamily(QuantumFactory.LINEAR);
     
@@ -607,6 +663,16 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             lc = channel.getLogicalChannel();
             if (lc != null) lc = loadLogicalChannel(lc.getId());
             v = ColorsFactory.hasEmissionData(lc);
+            //Update the name of the channel if no name, to be moved.
+            name = lc.getName();
+            if (name == null || name.trim().length() == 0) {
+            	name = getChannelName(lc);
+            	if (name != null) {
+            		lc.setName(name);
+            		toUpdate.add(lc);
+            	}
+            }
+            
             if (!v) values.add(v);
             m.put(channelBinding, v);
             
@@ -656,6 +722,16 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             	channelBinding.setInputStart(stats.getGlobalMin().doubleValue());
             	channelBinding.setInputEnd(stats.getGlobalMax().doubleValue());
             }
+        }
+        
+        //update the value.
+        if (toUpdate.size() > 0) {
+        	 StopWatch s1 = new CommonsLogStopWatch(
+     		"omero.resetChannelBindings.saveAndReturn");
+     	    LogicalChannel[] toSaveArray = 
+     	    	toUpdate.toArray(new LogicalChannel[toUpdate.size()]);
+     	    iUpdate.saveAndReturnArray(toSaveArray);
+     	    s1.stop();
         }
     }
    

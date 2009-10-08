@@ -585,14 +585,19 @@ public class MetadataImpl
     		Iterator<A> i = list.iterator();
     		FileAnnotation fa;
     		OriginalFile of;
+    		List<Annotation> toRemove = new ArrayList<Annotation>();
     		while (i.hasNext()) {
     			fa = (FileAnnotation) i.next();
-    			of = iQuery.findByQuery(LOAD_ORIGINAL_FILE, 
-       				 new Parameters().addId(fa.getFile().getId()));
-       		 	fa.setFile(of);
+    			if (fa.getFile() != null) {
+    				of = iQuery.findByQuery(LOAD_ORIGINAL_FILE, 
+    	       				 new Parameters().addId(fa.getFile().getId()));
+    	       		 fa.setFile(of);
+    			} else toRemove.add(fa);
 			}
+    		if (toRemove.size() > 0) list.removeAll(toRemove);
     	}
     	if (list == null) return new HashSet<A>();
+    	
     	return new HashSet<A>(list);
     }
     
