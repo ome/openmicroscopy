@@ -1886,6 +1886,8 @@ class ChannelWrapper (BlitzObjectWrapper):
 
     def getEmissionWave (self):
         lc = self._obj.getLogicalChannel()
+        if lc is not None and lc.name is not None:
+            return lc.name.val
         emWave = lc.getEmissionWave()
         if emWave is None: #pragma: no cover
             # This is probably deprecated, as even tinyTest now gets an emissionWave
