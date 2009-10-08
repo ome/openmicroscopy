@@ -64,9 +64,12 @@
                 <defineVariables/>
 		<makeDirectories/>
 		<copyResource file="${root.dir}/etc/local.properties"/>
-		<copyResource file="${root.dir}/etc/omero.properties"/>
 		<copyResource file="${root.dir}/etc/hibernate.properties"/>
 		<copyResource file="${root.dir}/etc/log4j.xml"/>
+		<copyResource file="${root.dir}/etc/omero.properties"/>
+		<echo file="${classes.dir}/omero.properties" append="true">
+omero.version=${omero.version}
+		</echo>
 		<!-- Used (at least) by server.xml and omero.xml -->
                 <property name="omero.db.url" value="jdbc:postgresql://${omero.db.host}/${omero.db.name}"/>
 		<presetdef name="sql_run">
