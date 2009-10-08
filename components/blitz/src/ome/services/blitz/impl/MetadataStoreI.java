@@ -49,10 +49,13 @@ import omero.api._MetadataStoreOperations;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.SharedResourcesPrx;
 import omero.metadatastore.IObjectContainer;
+import omero.model.Image;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.ScriptJob;
 import omero.model.ScriptJobI;
+import omero.model.Well;
+import omero.model.WellSample;
 import omero.util.IceMapper;
 
 import org.apache.commons.logging.Log;
@@ -70,7 +73,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
 
     private final static Log log = LogFactory.getLog(MetadataStoreI.class);
 
-    protected final List<Long> savedPixels = new ArrayList<Long>();
+    protected final List<Long> savedPlates = new ArrayList<Long>();
 
     protected OMEROMetadataStore store;
 
@@ -109,10 +112,21 @@ public class MetadataStoreI extends AbstractAmdServant implements
      * 
      * @see #processing()
      */
-    private void savePixels(List<Pixels> pixels) {
-        synchronized (savedPixels) {
+    private void parsePixels(List<Pixels> pixels) {
+        synchronized (savedPlates) {
             for (Pixels p : pixels) {
-                savedPixels.add(p.getId());
+                ome.model.core.Image i = p.getImage();
+                if (i != null) {
+                    for (ome.model.screen.WellSample ws : i.unmodifiableWellSamples()) {
+                        ome.model.screen.Well w = ws.getWell();
+                        if (w != null) {
+                            Plate plate = w.getPlate();
+                            if (plate != null) {
+                                savedPlates.add(plate.getId());
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -163,7 +177,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     @Transactional(readOnly = false)
                     public Object doWork(Session session, ServiceFactory sf) {
                         List<Pixels> pix = store.saveToDB();
-                        savePixels(pix);
+                        parsePixels(pix);
                         return pix;
                     }
                 }));
@@ -209,9 +223,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     }
                 }));
     }
-
-    public static String plate_query = "select distinct p from Plate p join p.wells w join w.wellSamples ws " +
-    		"join ws.image i join i.pixels pix where pix.id in (:pixels)";
     
     /**
      * Called after some number of Passes the {@link #savedPixels} to a
@@ -237,24 +248,17 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory _sf) {
 
-                        synchronized (savedPixels) {
+                        synchronized (savedPlates) {
 
-                            copy.addAll(savedPixels);
+                            copy.addAll(savedPlates);
                             if (copy.size() == 0) {
                                 return null;
                             }
                             
-                            Parameters p = new Parameters();
-                            p.addList("pixels", copy);
-                            List<IObject> plates = _sf.getQueryService().findAllByQuery(plate_query, p);
-                            if (plates == null || plates.size() == 0) {
-                                return null;
-                            }
-                            
-                            for (IObject plate : plates) {
+                            for (Long id : copy) {
                                 
                                 RMap inputs = omero.rtypes.rmap("plate_id",
-                                        omero.rtypes.rlong(plate.getId()));
+                                        omero.rtypes.rlong(id));
                                 
                                 ScriptJob job = popRoi.createJob();
                                 InteractiveProcessorPrx prx;
@@ -264,7 +268,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                                     prx.execute(inputs);
                                     prx.setDetach(true);
                                     procs.add(prx);
-                                    log.info("Launched populateroi.py on " + plate);
+                                    log.info("Launched populateroi.py on plate " + id);
                                 } catch (ServerError e) {
                                     String msg = "Error acquiring post processor";
                                     log.error(msg, e);
@@ -273,7 +277,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                             
                             }
                             
-                            savedPixels.clear();
+                            savedPlates.clear();
                             return procs;
                         }
                     }
