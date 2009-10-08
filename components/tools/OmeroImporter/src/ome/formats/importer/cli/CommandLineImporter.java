@@ -7,7 +7,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import loci.formats.meta.MetadataStore;
@@ -22,8 +21,6 @@ import omero.model.Screen;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 /**
  * The base entry point for the CLI version of the OMERO importer.
@@ -186,7 +183,7 @@ public class CommandLineImporter {
                                         + "  -p\tOMERO server port [defaults to 4063]\n"
                                         + "  -h\tDisplay this help and exit\n"
                                         + "\n"
-                                        + "  --debug\tTurn debug logging on\n"
+                                        + "  --debug[=0|1|2]\tTurn debug logging on (optional level)\n"
                                         + "  --report\tReport errors to the OME team\n"
                                         + "  --upload\tUpload broken files with report\n"
                                         + "  --email=...\tEmail for reported errors\n "
@@ -226,7 +223,7 @@ public class CommandLineImporter {
         config.contOnError.set(false);
         config.debug.set(false);
         
-        LongOpt debug = new LongOpt("debug", LongOpt.NO_ARGUMENT, null, 1);
+        LongOpt debug = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 1);
         LongOpt report = new LongOpt("report", LongOpt.NO_ARGUMENT, null, 2);
         LongOpt upload = new LongOpt("upload", LongOpt.NO_ARGUMENT, null, 3);
         LongOpt email = new LongOpt("email", LongOpt.REQUIRED_ARGUMENT, null, 4);
@@ -239,11 +236,14 @@ public class CommandLineImporter {
         while ((a = g.getopt()) != -1) {
             switch (a) {
             case 1: {
-                // We're modifying the Log4j logging level of everything
-                // under the ome.format package hierarchically.
-                Logger l = Logger.getLogger("ome.formats");
-                l.setLevel(Level.DEBUG);
-                config.debug.set(true);
+                String s = g.getOptarg();
+                Integer level = 0;
+                try {
+                    level = Integer.valueOf(s);
+                } catch (Exception e) {
+                    // ok
+                }
+                config.configureDebug(level);                
                 break;
             }
             case 2: {

@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import loci.common.LogTools;
 import loci.formats.FormatTools;
 
 import ome.formats.OMEROMetadataStoreClient;
@@ -32,6 +33,8 @@ import ome.system.UpgradeCheck;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  * Utility class which configures the Import.
@@ -251,10 +254,54 @@ public class ImportConfig {
     public boolean isUpgradeRequired() {
         ResourceBundle bundle = ResourceBundle.getBundle("omero");
         omeroVersion = bundle.getString("omero.version");
+        log.info("OMERO Version: " + omeroVersion);
         String url = bundle.getString("omero.upgrades.url");
         UpgradeCheck check = new UpgradeCheck(url, omeroVersion, "importer");
         check.run();
         return check.isUpgradeNeeded();
+    }
+    
+    /**
+     * Modifes the Log4j logging level of everything under the ome.format
+     * package hierarchically. Also enables Loci debugging.
+     * 
+     * @param level if null, then {@link #ini#getDebugLevel()} will be used.
+     */
+    public void configureDebug(Integer level) {
+        
+        if (level == null) {
+            level = Integer.valueOf(ini.getDebugLevel()); 
+        }
+        
+        if (level.intValue() < 0) {
+            return;
+        }
+        
+        log.info("Debugging at level " + level);
+        debug.set(true);        
+        
+        Logger l = Logger.getLogger("ome.formats");
+        l.setLevel(Level.DEBUG);
+        LogTools.setDebug(true);
+        
+        final Logger loci = Logger.getLogger("loci.common.Log");
+        loci.setLevel(Level.DEBUG);
+
+        LogTools.setDebug(true);
+        LogTools.setDebugLevel(level);
+        LogTools.setLog(new loci.common.Log() {
+            @Override
+            public void print(String x) {
+                loci.debug(x);
+            }
+            @Override
+            public void flush() {
+                // noop
+            }
+        } );
+
+
+
     }
     
     //
@@ -465,7 +512,8 @@ public class ImportConfig {
      * Loads gui specific values for which it makes sense to have a preferences values.
      *
      * @see #saveAll()
-     */    public void loadGiu() {
+     */
+    public void loadGui() {
          email.load();
     }
 
@@ -473,7 +521,8 @@ public class ImportConfig {
       * Saves gui specific values for which it makes sense to have a preferences values.
       *
       * @see #saveAll()
-      */    public void saveGiu() {
+      */
+     public void saveGui() {
           email.store();
      }
      

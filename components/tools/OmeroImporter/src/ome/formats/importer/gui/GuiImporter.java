@@ -389,7 +389,7 @@ WindowStateListener, WindowFocusListener
             config.setUIBounds(gui.getUIBounds());
         } finally {
             config.saveAll();
-            config.saveGiu();
+            config.saveGui();
         }
     }
 
@@ -621,9 +621,10 @@ WindowStateListener, WindowFocusListener
     {  
         LogAppenderProxy.configure(new File(IniFileLoader.LOGFILE));
         ImportConfig config = new ImportConfig(args.length > 0 ? new File(args[0]) : null);
-
+        config.configureDebug(null); // Uses ini
+        
         config.loadAll();
-        config.loadGiu();
+        config.loadGui();
         USE_QUAQUA = config.getUseQuaqua();
 
         String laf = UIManager.getSystemLookAndFeelClassName() ;

@@ -107,6 +107,14 @@ public class IniFileLoader {
 
     // ////////////// [General] Section ////////////////
 
+    /**
+     * Returns the level of debugging which should be set on {@link ImportConfig}
+     * Any value lower than null will not call configureDebug.
+     */
+    public int getDebugLevel() {
+        return userPrefs.node("General").getInt("debug", -1);
+    }
+    
     public boolean getUseQuaqua() {
         return userPrefs.node("General").getBoolean("useQuaqua", true);
     }
