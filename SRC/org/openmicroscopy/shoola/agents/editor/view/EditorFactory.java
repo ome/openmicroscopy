@@ -293,6 +293,11 @@ public class EditorFactory
 			if (m.getFileName().equals(model.getFileName())) {
 				return comp;
 			}
+			// if the model is "blank" (no file open) then open the current file
+			if (BLANK_MODEL.equals(m.getFileName())) {
+				m.setFileToEdit(model.getFileToEdit());
+				return comp;
+			}
 		}
 		comp = new EditorComponent(model);	// creates View and Controller
 		comp.initialize();		// initialises MVC
