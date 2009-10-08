@@ -161,7 +161,7 @@ p {
 table {
     text-align: center;
 }
-.forms {
+table.forms {
     margin-left: 10px;
 }
 td {

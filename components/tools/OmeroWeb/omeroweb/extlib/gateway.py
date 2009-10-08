@@ -1054,6 +1054,31 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         sql = "select im from Image im " \
               "join fetch im.details.owner join fetch im.details.group " \
               "left outer join fetch im.pixels as p " \
+              "left outer join fetch p.pixelsType as pt " \
+              "left outer join fetch p.channels as c " \
+              "left outer join fetch c.logicalChannel as lc " \
+              "left outer join fetch lc.detectorSettings as ds " \
+              "left outer join fetch lc.lightSourceSettings as lss " \
+              "left outer join fetch lc.mode as mode " \
+              "left outer join fetch lc.filterSet as filter " \
+              "left outer join fetch filter.dichroic as dichroic " \
+              "left outer join fetch filter.emFilter as ef " \
+              "left outer join fetch filter.exFilter as exf " \
+              "left outer join fetch lc.secondaryEmissionFilter as emfilter " \
+              "left outer join fetch lc.secondaryExcitationFilter as exfilter " \
+              "left outer join fetch exfilter.transmittanceRange as exfilterTrans " \
+              "left outer join fetch emfilter.transmittanceRange as emfilterTrans " \
+              "left outer join fetch emfilter.type as emt " \
+              "left outer join fetch exfilter.type as ext " \
+              "left outer join fetch ef.type as et1 " \
+              "left outer join fetch exf.type as ext1 " \
+              "left outer join fetch exf.transmittanceRange as exfTrans " \
+              "left outer join fetch ef.transmittanceRange as efTrans " \
+              "left outer join fetch ds.detector as detector " \
+              "left outer join fetch detector.type as dt " \
+              "left outer join fetch ds.binning as binning " \
+              "left outer join fetch lss.lightSource as light " \
+              "left outer join fetch light.type as lt " \
               "left outer join fetch im.stageLabel as stageLabel  " \
               "left outer join fetch im.imagingEnvironment as imagingEnvironment " \
               "left outer join fetch im.objectiveSettings as os " \
@@ -1062,6 +1087,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
               "left outer join fetch objective.immersion as immersion " \
               "left outer join fetch objective.correction as co " \
               "where im.id=:oid "
+                      
         img = query_serv.findByQuery(sql,p)
         if img is not None:
             return ImageWrapper(self, img)
@@ -2338,9 +2364,6 @@ class ImageImagingEnvironmentWrapper (omero.gateway.BlitzObjectWrapper):
 class ImageObjectiveSettingsWrapper (omero.gateway.BlitzObjectWrapper):
     pass
 
-class ImageMediumWrapper (omero.gateway.BlitzObjectWrapper):
-    pass
-
 class ImageObjectiveWrapper (omero.gateway.BlitzObjectWrapper):
     pass
 
@@ -2458,7 +2481,7 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
         if self._obj.objectiveSettings.medium is None:
             return None
         else:
-            return ImageMediumWrapper(self._conn, self._obj.objectiveSettings.medium)
+            return EnumerationWrapper(self._conn, self._obj.objectiveSettings.medium)
 
     def getObjective(self):
         if self._obj.objectiveSettings.objective is None:
@@ -2489,10 +2512,12 @@ omero.gateway.ImageWrapper = ImageWrapper
 class ChannelWrapper (omero.gateway.ChannelWrapper):
             
     def getLogicalChannel(self):
-        if self._obj.logicalChannel is None:
+        meta_serv = self._conn.getMetadataService()
+        if self._obj is None:
             return None
         else:
-            return LogicalChannelWrapper(self._conn, self._obj.logicalChannel)
+            lc = meta_serv.loadChannelAcquisitionData([long(self._obj.id.val)])[0]
+            return LogicalChannelWrapper(self._conn, lc)
             
 omero.gateway.ChannelWrapper = ChannelWrapper
 
@@ -2517,18 +2542,57 @@ class LogicalChannelWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWra
             return EnumerationWrapper(self._conn, self._obj.mode)
     
     def getEmissionFilter(self):
-        if self._obj.filterSet is None:
+        if self._obj.secondaryEmissionFilter is None:
             return None
         else:
-            return ImageFilterWrapper(self._conn, self._obj.filterSet)
+            return ImageFilterWrapper(self._conn, self._obj.secondaryEmissionFilter)
+    
+    def getDichroic(self):
+        if self._obj.filterSet is None:
+            return None
+        elif self._obj.filterSet.dichroic is None:
+            return None
+        else:
+            return DichroicWrapper(self._conn, self._obj.filterSet.dichroic)
     
     def getDetectorSettings(self):
         if self._obj.detectorSettings is None:
             return None
+        elif self._obj.detectorSettings.detector is None:
+            return None
         else:
-            return ImageDetectorWrapper(self._conn, self._obj.detectorSettings)
+            return ImageDetectorWrapper(self._conn, self._obj.detectorSettings.detector)
     
-omero.gateway.LogicalChannelWrapper = LogicalChannelWrapper
+    def getLightSource(self):
+        if self._obj.lightSourceSettings is None:
+            return None
+        elif self._obj.lightSourceSettings.lightSource is None:
+            return None
+        else:
+            return LightSourceWrapper(self._conn, self._obj.lightSourceSettings.lightSource)
+
+class LightSourceWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
+    
+    def getLightSourceType(self):
+        if self._obj.type is None:
+            return None
+        else:
+            return TypeWrapper(self._conn, self._obj.type)
+    
+    def getLaserMedium(self):
+        if self._obj.laserMedium is None:
+            return None
+        else:
+            return EnumerationWrapper(self._conn, self._obj.laserMedium)
+    
+    def getPulse(self):
+        if self._obj.pulse is None:
+            return None
+        else:
+            return EnumerationWrapper(self._conn, self._obj.pulse)
+    
+class DichroicWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
+    pass
 
 class DatasetWrapper (OmeroWebObjectWrapper, omero.gateway.DatasetWrapper):
     LINK_NAME = "copyImageLinks"

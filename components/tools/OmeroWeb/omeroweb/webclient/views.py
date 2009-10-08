@@ -75,6 +75,7 @@ from forms import ShareForm, ShareCommentForm, ContainerForm, CommentAnnotationF
                     UriAnnotationForm, UploadFileForm, MyGroupsForm, MyUserForm, ActiveGroupForm, HistoryTypeForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                     MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
+                    MetadataLightSourceForm, \
                     TagListForm, UrlListForm, CommentListForm, FileListForm, TagFilterForm
 from omeroweb.webadmin.forms import MyAccountForm, MyAccountLdapForm, UploadPhotoForm, LoginForm
 
@@ -623,10 +624,14 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                                     'illuminations': list(conn.getEnumerationEntries("IlluminationI")), 
                                     'contrastMethods': list(conn.getEnumerationEntries("ContrastMethodI")), 
                                     'modes': list(conn.getEnumerationEntries("AcquisitionModeI"))}), 
-                #'form_emission_filter': MetadataFilterForm(initial={'filter': ch.getLogicalChannel().getEmissionFilter(),
-                #                    'types':list(conn.getEnumerationEntries("FilterTypeI"))}), 
-                #'form_detector_settings': MetadataDetectorForm(initial={'detector': ch.getLogicalChannel().getDetectorSettings(),
-                #                    'types':list(conn.getEnumerationEntries("DetectorTypeI"))}), 
+                'form_emission_filter': MetadataFilterForm(initial={'filter': ch.getLogicalChannel().getEmissionFilter(),
+                                    'types':list(conn.getEnumerationEntries("FilterTypeI"))}), 
+                'form_detector_settings': MetadataDetectorForm(initial={'detector': ch.getLogicalChannel().getDetectorSettings(),
+                                    'types':list(conn.getEnumerationEntries("DetectorTypeI"))}), 
+                'form_light_source': MetadataLightSourceForm(initial={'lightSource': ch.getLogicalChannel().getLightSource(),
+                                    'types':list(conn.getEnumerationEntries("FilterTypeI")), 
+                                    'mediums': list(conn.getEnumerationEntries("MediumI")),
+                                    'pulses': list(conn.getEnumerationEntries("PulseI"))}), 
                 'name': ch.getEmissionWave(), 
                 'color': ch.getColor().getHtml()})
         
