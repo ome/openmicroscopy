@@ -323,7 +323,7 @@ public class ImportCandidates extends DirectoryWalker {
                 reader.setId(path);
                 format = reader.getFormat();
                 usedFiles = reader.getUsedFiles();
-                String[] domains = reader.getReader().getDomains(path);
+                String[] domains = reader.getReader().getPossibleDomains(path);
                 boolean isSPW = Arrays.asList(domains).contains(FormatTools.HCS_DOMAIN);
     
                 return new ImportContainer(file, null, null, null, false, null,

@@ -78,17 +78,7 @@ public class ChannelProcessor implements ModelProcessor
     	}
     	
     	List<Image> images = store.getSourceObjects(Image.class);
-    	String[] domains = null;
-    	try
-    	{
-    		domains = reader.getDomains(reader.getCurrentFile());
-    	}
-    	catch (Exception e)
-    	{
-    		String s = "Error while retrieving domains."; 
-    		log.error(s, e);
-    		throw new ModelException(s);
-    	}
+    	String[] domains = reader.getDomains();
     	boolean isGraphicsDomain = false;
     	for (String domain : domains)
     	{
