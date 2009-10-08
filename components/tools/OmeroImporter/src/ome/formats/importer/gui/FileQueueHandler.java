@@ -188,7 +188,6 @@ public class FileQueueHandler
             }
         };
         scanEx.execute(run);
-        
     }
     
     private void handleFiles(List<ImportContainer> allContainers)
@@ -586,13 +585,28 @@ public class FileQueueHandler
         if (event instanceof ome.formats.importer.util.ErrorHandler.EXCEPTION_EVENT)
         {
             viewer.errorHandler.update(observable, event);
-            if (((ome.formats.importer.util.ErrorHandler.EXCEPTION_EVENT) event).exception
-                    instanceof loci.formats.FormatException)
+            
+            if (event instanceof ome.formats.importer.util.ErrorHandler.UNKNOWN_FORMAT 
+                    && fileChooser.getSelectedFiles().length == 1 && fileChooser.getSelectedFile().isFile())
+            {
+                JOptionPane.showMessageDialog(viewer, 
+                        "This file's format is not recognized. \n" +
+                        "Perhaps the file is damaged?", "Unknown Format", JOptionPane.WARNING_MESSAGE);               
+            }
+            
+            if (event instanceof ome.formats.importer.util.ErrorHandler.FILE_EXCEPTION)
             {
                 candidatesFormatException  = true;
             }
         }
 
+        if (event instanceof ome.formats.importer.util.ErrorHandler.MISSING_LIBRARY)
+        {
+            JOptionPane.showMessageDialog(viewer, 
+                    "You appear to be missing a required library needed for \n" +
+                    "this file import. See the debug log messages for details."); 
+        }
+        
         else if (event instanceof ImportCandidates.SCANNING)
         {
             ImportCandidates.SCANNING ev = (ImportCandidates.SCANNING) event;
