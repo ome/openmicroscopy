@@ -284,6 +284,7 @@ class ChannelAcquisitionComponent
             label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
             label.setBackground(UIUtilities.BACKGROUND_COLOR);
             if (EditorUtil.ILLUMINATION.equals(key)) {
+            	System.err.println(value);
             	selected = model.getChannelEnumerationSelected(
             			Editor.ILLUMINATION_TYPE, 
             			(String) value);
@@ -461,7 +462,8 @@ class ChannelAcquisitionComponent
 			resetBoxes();
 			removeAll();
 	    	fieldsGeneral.clear();
-	    	
+	    	ChannelAcquisitionData data = model.getChannelAcquisitionData(
+	    			channel.getIndex());
 	    	Map<String, Object> details =
 	    		EditorUtil.transformChannelData(channel);
 	    	List notSet = (List) details.get(EditorUtil.NOT_SET);
@@ -470,9 +472,6 @@ class ChannelAcquisitionComponent
 	    		transformGeneralSource(details);
 				generalPane.setVisible(true);
 			}
-			ChannelAcquisitionData data = model.getChannelAcquisitionData(
-	    			channel.getIndex());
-			LogicalChannel lc = (LogicalChannel) data.asIObject();
 			//if no detector info: don't display.
 			details = EditorUtil.transformDetectorAndSettings(data);
 			notSet = (List) details.get(EditorUtil.NOT_SET);

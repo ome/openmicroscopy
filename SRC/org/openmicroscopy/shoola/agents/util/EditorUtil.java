@@ -1016,7 +1016,7 @@ public class EditorUtil
 			notSet.add(FLUOR);
         details.put(FLUOR, s);
         try {
-        	 s = data.getIllumination(); //Check how this can be null.
+        	s = data.getIllumination(); //Check how this can be null.
 		} catch (Exception e) {
 			s = null;
 		}

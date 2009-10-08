@@ -215,61 +215,60 @@ class BrowserComponent
 	                    "between "+ZoomAction.MIN_ZOOM_FACTOR+" and "+
 	                    ZoomAction.MAX_ZOOM_FACTOR);
     	} else {
-    		/*
-    		BufferedImage img = null;
-    		Dimension viewport = null;
-    		if (index == ImViewer.VIEW_INDEX) {
-    			img = model.getRenderedImage();
-    			viewport = view.getViewportSize();
-    		} else if (index == ImViewer.PROJECTION_INDEX) {
-    			img = model.getProjectedImage();
-    			viewport = projectionView.getViewportSize();
-    		}
-    		if (img != null) {
-    			int width = img.getWidth();
-        		int height = img.getHeight();
-        		double zoomFactorX = 0;
-        		if (width > 0) zoomFactorX = viewport.getWidth()/width;
-        		double zoomFactorY = 0;
-        		if (height > 0) zoomFactorY = viewport.getHeight()/height;
-        		factor = Math.min(zoomFactorX, zoomFactorY); 
-    		}
-    		*/
-    		
-    		TextureData img = null;
-    		Dimension viewport = null;
-    		if (index == ImViewer.VIEW_INDEX) {
-    			img = model.getRenderedImageAsTexture();
-    			viewport = view.getViewportSize();
-    		} else if (index == ImViewer.PROJECTION_INDEX) {
-    			img = model.getProjectedImageAsTexture();
-    			viewport = projectionView.getViewportSize();
-    		}
-    		if (img != null) {
-    			int width = img.getWidth();
-        		int height = img.getHeight();
-        		double zoomFactorX = 0;
-        		if (width > 0) zoomFactorX = viewport.getWidth()/width;
-        		double zoomFactorY = 0;
-        		if (height > 0) zoomFactorY = viewport.getHeight()/height;
-        		factor = Math.min(zoomFactorX, zoomFactorY); 
+    		if (ImViewerAgent.hasOpenGLSupport()) {
+    			TextureData img = null;
+        		Dimension viewport = null;
+        		if (index == ImViewer.VIEW_INDEX) {
+        			img = model.getRenderedImageAsTexture();
+        			viewport = view.getViewportSize();
+        		} else if (index == ImViewer.PROJECTION_INDEX) {
+        			img = model.getProjectedImageAsTexture();
+        			viewport = projectionView.getViewportSize();
+        		}
+        		if (img != null) {
+        			int width = img.getWidth();
+            		int height = img.getHeight();
+            		double zoomFactorX = 0;
+            		if (width > 0) zoomFactorX = viewport.getWidth()/width;
+            		double zoomFactorY = 0;
+            		if (height > 0) zoomFactorY = viewport.getHeight()/height;
+            		factor = Math.min(zoomFactorX, zoomFactorY); 
+        		}
+        		model.setZoomFactor(factor);
+        		if (!reset) {
+        			if (index == ImViewer.VIEW_INDEX) view.zoomImage();  
+        			else if (index == ImViewer.PROJECTION_INDEX)
+        				projectionView.zoomImage();
+        		}
+    		} else {
+    			BufferedImage img = null;
+        		Dimension viewport = null;
+        		if (index == ImViewer.VIEW_INDEX) {
+        			img = model.getRenderedImage();
+        			viewport = view.getViewportSize();
+        		} else if (index == ImViewer.PROJECTION_INDEX) {
+        			img = model.getProjectedImage();
+        			viewport = projectionView.getViewportSize();
+        		}
+        		if (img != null) {
+        			int width = img.getWidth();
+            		int height = img.getHeight();
+            		double zoomFactorX = 0;
+            		if (width > 0) zoomFactorX = viewport.getWidth()/width;
+            		double zoomFactorY = 0;
+            		if (height > 0) zoomFactorY = viewport.getHeight()/height;
+            		factor = Math.min(zoomFactorX, zoomFactorY); 
+        		}
+        		model.setZoomFactor(factor);
+        		if (!reset) {
+        			if (index == ImViewer.VIEW_INDEX || 
+        					index == ImViewer.PROJECTION_INDEX) {
+        				view.zoomImage();  
+        				projectionView.zoomImage();
+        			}
+        		}
     		}
     	}
-        model.setZoomFactor(factor);
-        //check the unit bar size.
-        
-        if (!reset) {
-        	if (index == ImViewer.VIEW_INDEX || 
-        			index == ImViewer.PROJECTION_INDEX) {
-        		view.zoomImage();  
-        		projectionView.zoomImage();
-        	}
-        	/*
-        	if (index == ImViewer.VIEW_INDEX) view.zoomImage();  
-        	else if (index == ImViewer.PROJECTION_INDEX)
-        		projectionView.zoomImage();
-        		*/
-        }
     }
 
     /** 

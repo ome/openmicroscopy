@@ -242,8 +242,8 @@ class EditorControl
 		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
 				"Export", "Select where to export the image as OME-TIFF.",
 				exportFilters);
-		chooser.setSelectedFile(
-				UIUtilities.removeFileExtension(view.getRefObjectName()));
+		String s = UIUtilities.removeFileExtension(view.getRefObjectName());
+		if (s != null && s.trim().length() > 0) chooser.setSelectedFile(s);
 		chooser.setApproveButtonText("Export");
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.EXPORT_AS_OMETIFF_48));
