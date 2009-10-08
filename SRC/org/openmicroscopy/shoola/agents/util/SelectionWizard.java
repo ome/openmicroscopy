@@ -33,6 +33,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -61,6 +63,8 @@ import layout.TableLayout;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -214,6 +218,15 @@ public class SelectionWizard
 		
 		//Field creation
 		addField = new JTextField(20);
+		addField.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent e)
+			{
+				switch (e.getKeyCode()) {
+					case KeyEvent.VK_ENTER:
+						addNewObjects();
+				}
+			}
+		});
 		addField.getDocument().addDocumentListener(this);
 		//getRootPane().setDefaultButton(cancelButton);
 	}
