@@ -40,6 +40,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -237,9 +238,18 @@ class OriginalMetadataComponent
 		String[] values;
 		Object[][] data = new Object[list.size()][2];
 		int index = 0;
+		String line;
+		String s;
+		String[] numbers;
+		int count;
 		while (i.hasNext()) {
-			values =  i.next().split("=");
+			line = i.next();
+			values = line.split("=");
+			
 			switch (values.length) {
+				case 0:
+					data[index][0] = line;
+					break;
 				case 1:
 					data[index][0] = values[0];
 					break;
@@ -247,6 +257,38 @@ class OriginalMetadataComponent
 					data[index][0] = values[0];
 					data[index][1] = values[1];
 					break;
+				default:
+					s = values[values.length-1];
+					numbers = s.split(" ");
+					if (numbers != null) {
+						count = 0;
+						for (int j = 0; j < numbers.length; j++) {
+							try {
+								Double.parseDouble(numbers[j]);
+								count++;
+							} catch (Exception e) {
+							}
+						}
+						if (count == numbers.length && count > 1) {
+							//It is a number.
+							s = "";
+							for (int j = 0; j < values.length-1; j++) {
+								s += values[j];
+								if (j < values.length-2) s += "=";
+							}
+							
+							data[index][0] = s;
+							data[index][1] = values[values.length-1];
+						} else {
+							data[index][0] = values[0];
+							s = "";
+							for (int j = 1; j < values.length; j++) {
+								s += values[j];
+								if (j < values.length-1) s += "=";
+							}
+							data[index][1] = s;
+						}
+					} else data[index][0] = line;
 			}
 			index++;
 		}
@@ -305,14 +347,15 @@ class OriginalMetadataComponent
 				String key = null;
 				while ((line = input.readLine()) != null) {
 					if (line.contains("=")) {
-						if (key != null) {
+						if (key != null && key.trim().length() > 0) {
 							l = components.get(key);
 							if (l != null) l.add(line);
 						}
 					} else {
 						if (line.trim().length() > 0) {
 							key = line.substring(1, line.length()-1);
-							components.put(key, new ArrayList<String>());
+							if (key != null && key.trim().length() > 0)
+								components.put(key, new ArrayList<String>());
 						}
 					}
 				}
