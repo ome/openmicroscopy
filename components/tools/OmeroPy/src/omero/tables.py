@@ -445,6 +445,10 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
     spreadsheet like functionality across the OMERO.grid.
     This servant serves as a session-less, user-less
     resource for obtaining omero.grid.Table proxies.
+
+    The first major step in initialization is getting
+    a session. This will block until the Blitz server
+    is reachable.
     """
 
     def __init__(self,\
@@ -452,7 +456,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         table_cast = omero.grid.TablePrx.uncheckedCast,\
         internal_repo_cast = omero.grid.InternalRepositoryPrx.checkedCast):
 
-        omero.util.Servant.__init__(self, ctx)
+        omero.util.Servant.__init__(self, ctx, session = True)
 
         # Storing these methods, mainly to allow overriding via
         # test methods. Static methods are evil.
@@ -461,18 +465,9 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
 
         self._lock = threading.RLock()
         self.__stores = []
-        self._get_sf()
         self._get_dir()
         self._get_uuid()
         self._get_repo()
-
-    def _get_sf(self):
-        """
-        First step in initialization is to setup a session with the
-        server.
-        """
-        self.sf = omero.util.internal_service_factory(self.communicator)
-        self.resources.add(omero.util.SessionHolder(self.sf))
 
     def _get_dir(self):
         """

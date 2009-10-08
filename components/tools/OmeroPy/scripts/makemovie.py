@@ -404,7 +404,7 @@ def writeMovie(commandArgs, session):
 		frameNo +=1;
 	buildAVI(sizeX, sizeY, filelist, commandArgs["fps"], commandArgs["output"], commandArgs["format"]);
 	uploadMovie(client, session, omeroImage, commandArgs["output"], commandArgs["format"])
-	
+
 if __name__ == "__main__":
 	client = scripts.client('makemovie','MakeMovie creates a movie of the image and attaches it to the originating image.', \
 	scripts.Long("imageId").inout(), scripts.String("output").inout(), scripts.Long("zStart").inout(),\
@@ -413,7 +413,7 @@ if __name__ == "__main__":
 	scripts.Long("fps").inout(), scripts.Long("scalebar").inout(),scripts.Long("fileAnnotation").out(), \
 	scripts.String("format").inout(), scripts.Long("overlayColour").inout(), scripts.Map("planeMap").inout())
 
-	session = client.createSession();
+	session = client.getSession();
 	gateway = session.createGateway();
 	commandArgs = {"image":client.getInput("imageId").getValue(), "output":client.getInput("output").getValue(), \
 	"zStart":client.getInput("zStart").getValue(),"zEnd":client.getInput("zEnd").getValue(),"tStart":client.getInput("tStart").getValue(),\

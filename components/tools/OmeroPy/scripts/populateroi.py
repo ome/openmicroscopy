@@ -20,7 +20,6 @@ client = scripts.client('populateroi',\
     'Generates regions of interest from the measurement files associated with a plate',\
     scripts.Long("plate_id"))
 
-session = client.createSession();
 factory = PlateAnalysisCtxFactory(session)
 analysis_ctx = factory.get_analysis_ctx(client.getInput("plate_id").val)
 n_measurements = analysis_ctx.get_measurement_count()

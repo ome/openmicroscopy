@@ -237,29 +237,79 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
     }
     
     /**
-     * Cancels the current process, nulls the value, and returns immediately.
+     * Cancels the current process, nulls the value, and returns immediately
+     * if detach is false.
      */
-    public void stop(Current __current) {
+    public void stop(Current __current) throws ServerError {
         rwl.writeLock().lock();
+        
+        if (stop) {
+            return; // Already stopped.
+        }
+        
         try {
-            if (currentProcess != null) {
-                if (!detach) {
-                    currentProcess.cancel();
-                } else {
-                    log.info("Detaching from "+currentProcess);
+            
+            if (detach) {
+                if (currentProcess != null) {
+                    log.info("Detaching from " + currentProcess);
                 }
+            } else {
+                doStop();
             }
-            currentProcess = null;
-            stop = true;
+
+        stop = true;
+            
         } finally {
             rwl.writeLock().unlock();
         }
     }
 
+    protected void doStop() throws ServerError {
+        // Then perform cleanup
+        Exception pException = null;
+        Exception sException = null;
+        
+        if (currentProcess != null) {
+            try {
+                ProcessPrx p = ProcessPrxHelper.uncheckedCast(
+                        currentProcess.ice_oneway());
+                p.shutdown();
+                currentProcess = null;
+            } catch (Exception ex) {
+                log.warn("Failed to stop process", ex);
+                pException = ex;
+            }
+        }
+        
+        if (session != null && session != UNINITIALIZED) {
+            try {
+                while (mgr.close(session.getUuid()) > 0);
+                session = null;
+            } catch (Exception ex) {
+                log.warn("Failed to close session " + session.getUuid(), ex);
+                sException = ex;
+            }
+        }
+        
+        if (pException != null || sException != null) {
+            omero.InternalException ie = new omero.InternalException();
+            StringBuilder sb = new StringBuilder();
+            if (pException != null) {
+                sb.append("Failed to shutdown process: " + pException.getMessage());
+            }
+            if (sException != null) {
+                sb.append("Failed to close session: " + sException.getMessage());
+            }
+            ie.message = sb.toString();
+            throw ie;
+        }
+
+    }
+    
     // Helpers
     // =========================================================================
 
-    private void finishedOrThrow() throws ApiUsageException {
+    private void finishedOrThrow() throws ServerError {
         if (currentProcess == null) {
             throw new ApiUsageException(null, null, "No current process.");
         } else if (currentProcess.poll() == null) {

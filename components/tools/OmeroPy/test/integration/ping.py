@@ -10,7 +10,7 @@
 """
 
 import test.integration.library as lib
-import tempfile, unittest, os, sys
+import tempfile, unittest, os, sys, uuid
 
 import omero
 import omero.clients
@@ -52,7 +52,6 @@ print "I am the script named %s" % uuid
 # Creation
 #
 client = s.client(uuid, "simple ping script", s.Long("a").inout(), s.String("b").inout())
-client.createSession()
 print "Session", client.getSession()
 
 #
@@ -78,6 +77,22 @@ sys.stderr.write("Oh, and this is stderr.");
 PUBLIC = omero.model.PermissionsI()
 PUBLIC.setGroupRead(True)
 PUBLIC.setWorldRead(True)
+
+class CallbackI(omero.grid.ProcessCallback):
+
+    def __init__(self):
+        self.finish = []
+        self.cancel = []
+        self.kill = []
+
+    def processFinished(self, rv, current = True):
+        self.finish.append(rv)
+
+    def processCancelled(self, rv, current = True):
+        self.cancel.append(rv)
+
+    def processKilled(self, rv, current = True):
+        self.kill.append(rv)
 
 class TestPing(lib.ITest):
 
@@ -116,7 +131,7 @@ class TestPing(lib.ITest):
         id = scripts.uploadScript(PINGFILE)
         j = omero.model.ScriptJobI()
         j.linkOriginalFile(omero.model.OriginalFileI(rlong(id),False))
-        p = self.client.sf.acquireProcessor(j, 100)
+        p = self.client.sf.sharedResources().acquireProcessor(j, 100)
         return p
 
     def testPingViaISCript(self):
@@ -150,6 +165,10 @@ class TestPing(lib.ITest):
         finally:
             tmpfile.close()
 
+    def assertIO(self, output):
+        self._checkstd(output, "stdout")
+        self._checkstd(output, "stderr")
+
     def testPingStdout(self):
         p = self._getProcessor()
         params = p.params()
@@ -157,10 +176,85 @@ class TestPing(lib.ITest):
 
         process = p.execute(rmap({}))
         process.wait()
-        output = p.getResults(process)
 
-        self._checkstd(output, "stdout")
-        self._checkstd(output, "stderr")
+        output = p.getResults(process)
+        self.assertIO(output)
+
+    def testProcessCallback(self):
+
+        callback = CallbackI()
+
+        id = self.client.getCommunicator().stringToIdentity(str(uuid.uuid4()))
+        cb = self.client.getAdapter().add(callback, id)
+        cb = omero.grid.ProcessCallbackPrx.uncheckedCast(cb)
+        p = self._getProcessor()
+        params = p.params()
+        self.assert_( params.stdoutFormat )
+
+        process = p.execute(rmap({}))
+        process.registerCallback(cb)
+        process.wait()
+        output = p.getResults(process)
+        self.assertIO(output)
+
+        self.assertTrue( len(callback.finish) > 0 )
+
+    def testProcessShutdown(self):
+        p = self._getProcessor()
+        process = p.execute(rmap({}))
+        process.shutdown()
+
+        output = p.getResults(process)
+        # Probably doesn't have IO since killed
+        # self.assertIO(output)
+
+    def testProcessShutdownOneway(self):
+        p = self._getProcessor()
+        process = p.execute(rmap({}))
+        oneway = omero.grid.ProcessPrx.uncheckedCast( process.ice_oneway() )
+        oneway.shutdown()
+        # Depending on what's faster this may or may not throw
+        try:
+            p.getResults(process)
+        except omero.ServerError:
+            pass
+
+        self.assert_(process.poll())
+        output = p.getResults(process)
+        # Probably doesn't have IO since killed
+        # self.assertIO(output)
+
+    def testProcessorGetResultsBeforeFinished(self):
+        p = self._getProcessor()
+        process = p.execute(None)
+        self.assertRaises(omero.ServerError, p.getResults, process)
+        process.wait()
+
+        output = p.getResults(process)
+        self.assertIO(output)
+
+    #
+    # Execution-less tests
+    #
+
+    def testProcessorExpires(self):
+        p = self._getProcessor()
+        self.assertTrue( p.expires() > 0 )
+
+    def testProcessorGetJob(self):
+        p = self._getProcessor()
+        self.assert_( p.getJob() )
+
+    def testProcessorStop(self):
+        p = self._getProcessor()
+        process = p.execute(rmap({}))
+        p.stop()
+
+    def testProcessorDetach(self):
+        p = self._getProcessor()
+        process = p.execute(rmap({}))
+        p.setDetach(True)
+        p.stop()
 
 if __name__ == '__main__':
     unittest.main()

@@ -28,7 +28,7 @@ try:
     from omero.rtypes import rstring
     from omero.rtypes import rdouble
     from omero.rtypes import rfloat
-    
+
 finally:
     __name__ = __save__
     del __save__
@@ -262,6 +262,19 @@ class BaseClient(object):
             if not self.__ic:
                 raise ClientError("No Ice.Communicator active; call createSession() or create a new client instance")
             return self.__ic
+        finally:
+            self.__lock.release()
+
+    def getAdapter(self):
+        """
+        Returns the Ice.ObjectAdapter for this instance or throws
+        an exception if None.
+        """
+        self.__lock.acquire()
+        try:
+            if not self.__oa:
+                raise ClientError("No Ice.ObjectAdapter active; call createSession() or create a new client instance")
+            return self.__oa
         finally:
             self.__lock.release()
 
@@ -633,7 +646,12 @@ class BaseClient(object):
 
         s = omero.model.SessionI()
         s.uuid = rstring(sf.ice_getIdentity().name)
-        svc = sf.getSessionService()
+        try:
+            svc = sf.getSessionService()
+        except:
+            self.__logger.warning("Cannot get session service for killSession. Using closeSession")
+            self.closeSession()
+            return
         count = 0
         try:
             r = 1

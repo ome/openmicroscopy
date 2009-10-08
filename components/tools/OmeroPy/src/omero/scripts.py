@@ -107,7 +107,8 @@ def client(name, description = None, *args, **kwargs):
 
     Providing your own client is possible via the kwarg "client = ...",
     but be careful since this may break usage with the rest of the
-    scripting framework.
+    scripting framework. The client should not have a session, and
+    must be configured for the argumentless version of createSession()
     """
 
     # Checking kwargs
@@ -136,12 +137,12 @@ def client(name, description = None, *args, **kwargs):
         if p._out:
             c.params.outputs[p.name] = param
 
+    c.createSession().detachOnDestroy()
     handleParse(c) # May throw
     return c
 
 def handleParse(c):
     if len(c.getProperty("omero.scripts.parse")) > 0: # TODO Add to omero/Constants.ice
-        c.createSession().detachOnDestroy()
         c.setOutput("omero.scripts.parse", rinternal(c.params))
         raise ParseExit(c.params)
 

@@ -51,10 +51,10 @@ def remoted(func):
             #log.info("%s(%s,%s)=>%s" % (func, args, kwargs, rv))
             return rv
         except exceptions.Exception, e:
-            log.info("%s=>%s(%s)" % (func, type(e), e))
             if isinstance(e, omero.ServerError):
-                raise e
+                raise
             else:
+                log.warn("%s raised a non-ServerError (%s): %s", func, type(e), e)
                 msg = traceback.format_exc()
                 raise omero.InternalException(msg, None, "Internal exception")
     exc_handler = wraps(func)(exc_handler)

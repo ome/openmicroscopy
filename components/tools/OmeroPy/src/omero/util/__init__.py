@@ -23,7 +23,7 @@ import omero.util.concurrency
 from omero.util.decorators import locked
 
 LOGDIR = os.path.join("var","log")
-LOGFORMAT =  """%(asctime)s %(levelname)-5s [%(name)40s] (%(threadName)-10s) %(message)s"""
+LOGFORMAT =  """%(asctime)s %(levelname)-5.5s [%(name)40s] (%(threadName)-10s) %(message)s"""
 LOGSIZE = 500000000
 LOGNUM = 9
 LOGMODE = "a"
@@ -70,7 +70,7 @@ def configure_server_logging(props):
         log_level = logging.INFO
     configure_logging(LOGDIR, log_name, loglevel=log_level)
 
-def internal_service_factory(communicator, user="root", group=None, retries=6, interval=10, client_uuid=None):
+def internal_service_factory(communicator, user="root", group=None, retries=6, interval=10, client_uuid=None, stop_event = None):
     """
     Try to return a ServiceFactory from the grid.
 
@@ -87,6 +87,8 @@ def internal_service_factory(communicator, user="root", group=None, retries=6, i
         client_uuid  := Uuid of the client which should be used
     """
     log = logging.getLogger("omero.utils")
+    if stop_event == None:
+        stop_event = omero.util.concurrency.get_event()
 
     tryCount = 0
     excpt = None
@@ -97,6 +99,8 @@ def internal_service_factory(communicator, user="root", group=None, retries=6, i
         client_uuid = str(uuid.uuid4())
 
     while tryCount < retries:
+        if stop_event.isSet(): # Something is shutting down, exit.
+            return None
         try:
             blitz = query.findAllObjectsByType("::Glacier2::SessionManager")[0]
             blitz = Glacier2.SessionManagerPrx.checkedCast(blitz)
@@ -107,7 +111,7 @@ def internal_service_factory(communicator, user="root", group=None, retries=6, i
             tryCount += 1
             log.info("Failed to get session on attempt %s", str(tryCount))
             excpt = e
-            time.sleep(interval)
+            stop_even.wait(interval)
 
     log.warn("Reason: %s", str(excpt))
     raise excpt
@@ -166,11 +170,15 @@ def long_to_path(id, root=""):
 class ServerContext(object):
     """
     Simple server context passed to all servants.
+    server_id, communicator, and stop_event will be
+    constructed by the top-level Server instance. A
+    servant may want to stop its session_holder here.
     """
     def __init__(self, server_id, communicator, stop_event):
         self.server_id = server_id
         self.communicator = communicator
         self.stop_event = stop_event
+        self.session_holder = None
 
 class Server(Ice.Application):
     """
@@ -284,11 +292,21 @@ class Servant(SimpleServant):
     generated dispatch class as the base type of high-level servants.
     These provide resource cleanup as per the omero.util.Server
     class.
+
+    By passing "session = True" to this constructor, an internal
+    session will be created and stored in self.ctx.session_holder
+    as well as registered with self.resources
     """
 
-    def __init__(self, ctx):
+    def __init__(self, ctx, session = False):
         SimpleServant.__init__(self, ctx)
         self.resources = omero.util.Resources(sleeptime = 60, stop_event = self.stop_event)
+        if session:
+            sf = omero.util.internal_service_factory(self.communicator, stop_event = self.stop_event)
+            if sf is None:
+                raise omero.InternalException(None, None, "Could not acquire an internal service factory")
+            self.ctx.session_holder = omero.util.SessionHolder(sf)
+            self.resources.add(self.ctx.session_holder)
 
     def cleanup(self):
         """
@@ -301,6 +319,17 @@ class Servant(SimpleServant):
             self.logger.info("Cleaning up")
             resources.cleanup()
             self.logger.info("Done")
+        session_holder = self.ctx.session_holder
+        self.ctx.session_holder = None
+        if session_holder:
+            sf = session_holder.sf
+            if sf:
+                try:
+                    sf.destroy()
+                except:
+                    pass
+                self.logger.debug("%s destroyed" % sf)
+
 
     def __del__(self):
         self.cleanup()
@@ -331,6 +360,7 @@ class Resources:
 
         if sleeptime < 5:
             raise exceptions.Exception("Sleep time should be greater than 5: " % sleeptime)
+
         self.sleeptime = sleeptime
         self.stuff = []
 
@@ -344,45 +374,71 @@ class Resources:
                 while not ctx.stop_event.isSet():
                     try:
                         ctx.logger.debug("Executing")
-
-                        # With a first lock, copy stuff
-                        ctx._lock.acquire()
-                        try:
-                            copy = list(ctx.stuff)
-                        finally:
-                            ctx._lock.release()
-
-                        remove = []
-                        for m in copy:
-                            ctx.logger.info("Checking %s" % m[0])
-                            method = getattr(m[0],m[2])
-                            rv = None
-                            try:
-                                rv = method()
-                            except:
-                                ctx.logger.warn("Error from %s" % method, exc_info = True)
-                            if not method():
-                                remove.append(m)
-
-                        # In a second lock, remove items
-                        ctx._lock.acquire()
-                        try:
-                            for r in remove:
-                                ctx.logger.info("Removing %s" % r[0])
-                                ctx.stuff.remove(r)
-                        finally:
-                            ctx._lock.release()
-
+                        copy = ctx.copyStuff()
+                        remove = ctx.checkAll(copy)
+                        ctx.removeAll(remove)
                     except:
                         ctx.logger.error("Exception during execution", exc_info = True)
 
                     ctx.logger.debug("Sleeping %s" % ctx.sleeptime)
                     ctx.stop_event.wait(ctx.sleeptime)
+
                 ctx.logger.info("Halted")
 
         self.thread = Task()
         self.thread.ctx = self
         self.thread.start()
+
+    @locked
+    def copyStuff(self):
+        """
+        Within a lock, copy the "stuff" list and reverse it.
+        The list is reversed so that entries added
+        later, which may depend on earlier added entries
+        get a chance to be cleaned up first.
+        """
+        copy = list(self.stuff)
+        copy.reverse()
+        return copy
+
+    # Not locked
+    def checkAll(self, copy):
+        """
+        While stop_event is unset, go through the copy
+        of stuff and call the check method on each
+        entry. Any that throws an exception or returns
+        a False value will be returned in the remove list.
+        """
+        remove = []
+        for m in copy:
+            if self.stop_event.isSet():
+                return # Let cleanup handle this
+            self.logger.debug("Checking %s" % m[0])
+            method = getattr(m[0],m[2])
+            rv = None
+            try:
+                rv = method()
+            except:
+                self.logger.warn("Error from %s" % method, exc_info = True)
+            if not rv:
+                remove.append(m)
+        return remove
+
+    @locked
+    def removeAll(self, remove):
+        """
+        Finally, within another lock, call the "cleanup"
+        method on all the entries in remove, and remove
+        them from the official stuff list. (If stop_event
+        is set during execution, we return with the assumption
+        that Resources.cleanup() will take care of them)
+        """
+        for r in remove:
+            if self.stop_event.isSet():
+                return # Let cleanup handle this
+            self.logger.debug("Removing %s" % r[0])
+            self.safeClean(r)
+            self.stuff.remove(r)
 
     @locked
     def add(self, object, cleanupMethod = "cleanup", checkMethod = "check"):
@@ -394,15 +450,17 @@ class Resources:
     def cleanup(self):
         self.stop_event.set()
         for m in self.stuff:
+            self.safeClean(m)
+        self.stuff = None
+        self.logger.info("Cleanup done")
+
+    def safeClean(self, m):
             try:
-                m = self.stuff.pop(0)
-                self.logger.info("Cleaning %s" % m[0])
+                self.logger.debug("Cleaning %s" % m[0])
                 method = getattr(m[0],m[1])
                 method()
             except:
                 self.logger.error("Error cleaning resource: %s" % m[0], exc_info=1)
-        self.stuff = None
-        self.logger.info("Stopping")
 
     def __del__(self):
         self.cleanup()
@@ -410,8 +468,10 @@ class Resources:
 class SessionHolder(object):
     """
     Simple session holder to be put into omero.util.Resources
-    Calls sf.keepAlive(None) during ever check call, and
-    sf.destroy() on cleanup()
+    Calls sf.keepAlive(None) during every check call, and
+    does nothing on cleanup. The sf instance must be manually
+    cleaned. (Note: Usually indicates server shutdown, so should
+    be in frequent)
     """
 
     def __init__(self, sf):
@@ -419,17 +479,24 @@ class SessionHolder(object):
         self.logger = logging.getLogger("omero.util.SessionHolder")
 
     def check(self):
-        self.sf.keepAlive(None)
+        sf = self.sf
+        if sf:
+            try:
+                sf.keepAlive(None)
+            except excptions.Exception, e:
+                self.logger.debug("KeepAlive failed for %s: %s", self, e)
+                # TODO: we will probably want to try to reconnect here!
+        return True
 
     def cleanup(self):
-        try:
-            self.sf.destroy()
-        except Ice.ConnectionLostException, cle:
-            pass
-        except Ice.ConnectionRefusedException, cre:
-            pass
-        except exceptions.Exception, e:
-            self.logger.debug("Exception destroying session: %s", exc_info = 1)
+        """
+        Does nothing. SessionHolder clean up must happen manually
+        since later activities may want to reuse it. Servants using
+        a SessionHolder should cleanup the instance *after* Resources
+        is cleaned up
+        """
+
+        self.sf = None
 
 class Environment:
     """

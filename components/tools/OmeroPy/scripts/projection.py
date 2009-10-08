@@ -158,14 +158,13 @@ def parseInputs(client, session):
 		commandArgs["y1"] = sizeY;
 	if("channels" not in commandArgs):
 		commandArgs["channels"] = range(0,sizeC);
-	return commandArgs;	
+	return commandArgs
 
-if __name__ == "__main__":	
-	client = scripts.client('projection', 'Project the image and create a new image from the projection.', scripts.Long("imageId").inout(), 
+if __name__ == "__main__":
+	client = scripts.client('projection', 'Project the image and create a new image from the projection.', scripts.Long("imageId").inout(),
 	scripts.Long("newImageId").inout(), scripts.String("method").inout(),scripts.Long("zStart").inout(), scripts.Long("zEnd").inout(), \
 	scripts.Long("tStart").inout(), scripts.Long("tEnd").inout(), scripts.Long("x0").inout(), \
 	scripts.Long("y0").inout(), scripts.Long("x1").inout(), scripts.Long("y1").inout(), scripts.Set("channels").inout());
-	session = client.createSession();
-	commandArgs = parseInputs(client, session);
+	commandArgs = parseInputs(client, client.getSession())
 	projection(client, session, commandArgs);
 

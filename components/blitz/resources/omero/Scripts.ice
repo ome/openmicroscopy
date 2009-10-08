@@ -123,18 +123,18 @@ module omero {
              * Returns the return code of the process, or null
              * if unfinished.
              **/
-            omero::RInt poll();
+            omero::RInt poll() throws omero::ServerError;
 
             /**
              * Blocks until poll() would return a non-null return code.
              **/
-            int wait();
+            int wait() throws omero::ServerError;
 
             /**
              * Signal to the Process that it should terminate. This may
              * be done "softly" for a given time period.
              **/
-            bool cancel();
+            bool cancel() throws omero::ServerError;
 
             /**
              * Terminate the Process immediately.
@@ -142,14 +142,22 @@ module omero {
             bool kill();
 
             /**
+             * First attempts cancel() several times and finally
+             * resorts to kill to force the process to shutdown
+             * cleanly. This method doesn't return any value or
+             * throw an exception so that it can be called oneway.
+             **/
+             void shutdown();
+
+            /**
              * Add a callback for end-of-life events
              **/
-            void registerCallback(ProcessCallback* cb);
+            void registerCallback(ProcessCallback* cb) throws omero::ServerError;
 
             /**
              * Remove a callback for end-of-life events
              **/
-            void unregisterCallback(ProcessCallback* cb);
+            void unregisterCallback(ProcessCallback* cb) throws omero::ServerError;
         };
 
         /**
