@@ -5,7 +5,7 @@ public class Version {
     
     public static String        dbVersion = "300";
     
-    public static String versionNumber = "3.1";
+    public static String versionNote = "";
     
     /** The data of the last release date. */
     public static String        releaseDate      

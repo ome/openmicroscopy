@@ -77,6 +77,11 @@ public class ImportConfig {
      */
     private final Properties props;
 
+    /**
+     * Stores the omeroVersion from omero.properties
+     */
+    private String omeroVersion = "Unknown";    
+    
     //
     // MUTABLE STATE : To prevent every class from having it's own
     // username/password/port/etc field, all are available here. On save, these
@@ -245,13 +250,13 @@ public class ImportConfig {
      */
     public boolean isUpgradeRequired() {
         ResourceBundle bundle = ResourceBundle.getBundle("omero");
-        String version = bundle.getString("omero.version");
+        omeroVersion = bundle.getString("omero.version");
         String url = bundle.getString("omero.upgrades.url");
-        UpgradeCheck check = new UpgradeCheck(url, version, "importer");
+        UpgradeCheck check = new UpgradeCheck(url, omeroVersion, "importer");
         check.run();
         return check.isUpgradeNeeded();
     }
-
+    
     //
     // Login methods
     //
@@ -296,7 +301,7 @@ public class ImportConfig {
     }
 
     public String getVersionNumber() {
-        return ini.getVersionNumber();
+        return this.omeroVersion + " " + ini.getVersionNote();
     }
 
     public String getUserSettingsDirectory() {

@@ -127,10 +127,10 @@ public class IniFileLoader {
         this.flushPreferences();
     }
 
-    public String getVersionNumber() {
+    public String getVersionNote() {
         // return Main.versionNumber;
-        return staticPrefs.node("General").get("appVersion",
-                Version.versionNumber);
+        return staticPrefs.node("General").get("appVersionNote",
+                Version.versionNote);
     }
 
     public Boolean isDebugConsole() {
