@@ -1060,6 +1060,43 @@ class BrowserModel
 		double max = ZoomGridAction.MAX_ZOOM_FACTOR;
 		if (gridRatio > max) return;
 		this.gridRatio = gridRatio; 
+		if (ImViewerAgent.hasOpenGLSupport()) return;
+		if (originalGridImages == null || originalGridImages.size() == 0) {
+			createGridImages(); 
+			return;
+		}
+		int n = originalGridImages.size();
+		gridImages.clear();
+		int maxC = parent.getMaxC();
+		switch (n) {
+			case 0:
+				for (int i = 0; i < maxC; i++) 
+					gridImages.add(null);
+				break;
+			case 1:
+			case 2:
+			case 3:
+				//TODO: Review that code.
+				if (isImageMappedRGB(parent.getActiveChannels())) {
+					createGridImages(); 
+				} else {
+					combinedImage = Factory.magnifyImage(gridRatio, 
+														renderedImage);
+					Iterator i = originalGridImages.iterator();
+					while (i.hasNext()) {
+    	        		gridImages.add(Factory.magnifyImage(gridRatio, 
+    	        							(BufferedImage) i.next()));
+    	    		}
+				}
+				break;
+			default:
+				combinedImage = Factory.magnifyImage(gridRatio, renderedImage);
+				Iterator i = originalGridImages.iterator();
+				while (i.hasNext()) {
+		    		gridImages.add(Factory.magnifyImage(gridRatio, 
+		    							(BufferedImage) i.next()));
+				}
+		}
 	}
 	
 	/**
