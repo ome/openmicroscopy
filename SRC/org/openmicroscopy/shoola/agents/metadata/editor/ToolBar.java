@@ -216,8 +216,8 @@ class ToolBar
     	//if (model.isLifetime()) {
     	bar.add(Box.createHorizontalStrut(5));
         bar.add(exportButton);
-    	bar.add(Box.createHorizontalStrut(5));
-        bar.add(flimButton);
+    	//bar.add(Box.createHorizontalStrut(5));
+        //bar.add(flimButton);
     	return bar;
     }
     

@@ -24,9 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 //Third-party libraries
@@ -57,7 +55,7 @@ public class ChannelDataLoader
     /** The id of the pixels set. */
     private long        pixelsID;
     
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
     
     /**

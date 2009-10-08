@@ -1909,7 +1909,8 @@ class EditorModel
 		if (renderer != null) 
 			return renderer.getPixelsDimensionsC() >= Renderer.MAX_CHANNELS;
 		ImageData img = (ImageData) refObject;
-		return img.isLifetime();
+		return img.getDefaultPixels().getSizeC() >= Renderer.MAX_CHANNELS;
+		//return img.isLifetime();
 	}
 	
 }
