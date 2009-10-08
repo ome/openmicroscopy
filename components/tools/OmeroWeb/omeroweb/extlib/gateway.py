@@ -2497,7 +2497,38 @@ class ChannelWrapper (omero.gateway.ChannelWrapper):
 omero.gateway.ChannelWrapper = ChannelWrapper
 
 class LogicalChannelWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
-    pass
+    
+    def getIllumination(self):
+        if self._obj.illumination is None:
+            return None
+        else:
+            return EnumerationWrapper(self._conn, self._obj.illumination)
+    
+    def getContrastMethod(self):
+        if self._obj.contrastMethod is None:
+            return None
+        else:
+            return EnumerationWrapper(self._conn, self._obj.contrastMethod)
+    
+    def getMode(self):
+        if self._obj.mode is None:
+            return None
+        else:
+            return EnumerationWrapper(self._conn, self._obj.mode)
+    
+    def getEmissionFilter(self):
+        if self._obj.filterSet is None:
+            return None
+        else:
+            return ImageFilterWrapper(self._conn, self._obj.filterSet)
+    
+    def getDetectorSettings(self):
+        if self._obj.detectorSettings is None:
+            return None
+        else:
+            return ImageDetectorWrapper(self._conn, self._obj.detectorSettings)
+    
+omero.gateway.LogicalChannelWrapper = LogicalChannelWrapper
 
 class DatasetWrapper (OmeroWebObjectWrapper, omero.gateway.DatasetWrapper):
     LINK_NAME = "copyImageLinks"

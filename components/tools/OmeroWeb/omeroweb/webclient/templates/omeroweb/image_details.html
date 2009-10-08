@@ -200,18 +200,31 @@
             </table>
         </div></div>
     </li>
-    {% for ch in manager.channel_metadata %}
-    <li><a href='#'>{% trans "Channel" %} : <span style="padding:0 3px; color:#000; border:1px solid #bbb; ;background-color: #{{ ch.getColor.getHtml }};">{{ ch.getEmissionWave }}</span></a>
+    {% for ch in form_channels %}
+    <li><a href='#'>{% trans "Channel" %} : <span style="padding:0 3px; color:#000; border:1px solid #bbb; ;background-color: #{{ ch.color }};">{{ ch.name }}</span></a>
         <div><div class="metadata_details">
             <table class="forms">
-                <tr><th>{% trans "Info" %}:</th></tr>
-                <tr><td><label>Name</label></td><td>{{ ch.getLogicalChannel.name|default_if_none:"" }}</td></tr>
-                <tr><td><label>Excitation</label></td><td>{{ ch.getLogicalChannel.excitationWave|default_if_none:"" }}</td></tr>
-                <tr><td><label>Emission</label></td><td>{{ ch.getLogicalChannel.emissionWave|default_if_none:"" }}</td></tr>
-                <tr><td><label>NDFilter [%]</label></td><td>{{ ch.getLogicalChannel.ndFilter|default_if_none:"" }}</td></tr>
-                <tr><td><label>Pinhole size [&micro;m]</label></td><td>{{ ch.getLogicalChannel.pinHoleSize|default_if_none:"" }}</td></tr>
-                <tr><td><label>Fluor</label></td><td>{{ ch.getLogicalChannel.fluor|default_if_none:"" }}</td></tr>
-                <tr><td><label>Pockel Cell</label></td><td>{{ ch.getLogicalChannel.pockelCellSetting|default_if_none:"" }}</td></tr>
+                {% for field in ch.form %}
+                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                </tr>
+                {% endfor %}
+                {% if ch.form_emission_filter %}
+                <tr><th>{% trans "Filter" %}:</th></tr>
+                {% for field in ch.form_emission_filter %}
+                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+                {% if ch.form_detector_settings %}
+                <tr><th>{% trans "Detector" %}:</th></tr>
+                {% for field in ch.form_detector_settings %}
+                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                </tr>
+                {% endfor %}
+                {% endif %}
             </table>
         </div></div>
     </li>

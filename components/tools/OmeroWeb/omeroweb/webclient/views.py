@@ -73,7 +73,7 @@ from omeroweb.webadmin.controller.uploadfile import BaseUploadFile
 from webadmin.models import Gateway
 from forms import ShareForm, ShareCommentForm, ContainerForm, CommentAnnotationForm, TagAnnotationForm, \
                     UriAnnotationForm, UploadFileForm, MyGroupsForm, MyUserForm, ActiveGroupForm, HistoryTypeForm, \
-                    MetadataFilterForm, MetadataDetectorForm, \
+                    MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                     MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
                     TagListForm, UrlListForm, CommentListForm, FileListForm, TagFilterForm
 from omeroweb.webadmin.forms import MyAccountForm, MyAccountLdapForm, UploadPhotoForm, LoginForm
@@ -613,9 +613,22 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
     form_stageLabel = None
     form_filters = list()
     form_detectors = list()
+    form_channels = list()
     if o1_type =='image' or o2_type == 'image' or o3_type == 'image':
         manager.originalMetadata()
         manager.channelMetadata()
+        for ch in manager.channel_metadata:
+            form_channels.append({
+                'form':MetadataChannelForm(initial={'logicalChannel': ch.getLogicalChannel(), 
+                                    'illuminations': list(conn.getEnumerationEntries("IlluminationI")), 
+                                    'contrastMethods': list(conn.getEnumerationEntries("ContrastMethodI")), 
+                                    'modes': list(conn.getEnumerationEntries("AcquisitionModeI"))}), 
+                #'form_emission_filter': MetadataFilterForm(initial={'filter': ch.getLogicalChannel().getEmissionFilter(),
+                #                    'types':list(conn.getEnumerationEntries("FilterTypeI"))}), 
+                #'form_detector_settings': MetadataDetectorForm(initial={'detector': ch.getLogicalChannel().getDetectorSettings(),
+                #                    'types':list(conn.getEnumerationEntries("DetectorTypeI"))}), 
+                'name': ch.getEmissionWave(), 
+                'color': ch.getColor().getHtml()})
         
         form_objective = MetadataObjectiveForm(initial={'image': manager.image, 'mediums': list(conn.getEnumerationEntries("MediumI")), 'immersions': list(conn.getEnumerationEntries("ImmersionI")), 'corrections': list(conn.getEnumerationEntries("CorrectionI")) })
         if manager.image.getImagingEnvironment() is not None:
@@ -1039,7 +1052,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
     elif template is not None and view == 'tree' and o1_type=='ajaxorphaned':
         context = {'manager':manager, 'eContext':manager.eContext}
     else:
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group, 'form_environment':form_environment, 'form_objective':form_objective, 'form_filters':form_filters, 'form_detectors':form_detectors, 'form_stageLabel':form_stageLabel, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group, 'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 'form_filters':form_filters, 'form_detectors':form_detectors, 'form_stageLabel':form_stageLabel, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files}
     
     t = template_loader.get_template(template)
     c = Context(request,context)
