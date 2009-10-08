@@ -511,9 +511,7 @@ public class TestServiceFactory implements ServiceFactoryPrx
 
     public long keepAllAlive(ServiceInterfacePrx[] arg0)
     {
-        // TODO Auto-generated method stub
-        //return 0;
-        throw new RuntimeException("Not implemented yet.");
+		return arg0.length;
     }
 
     public long keepAllAlive(ServiceInterfacePrx[] arg0,
