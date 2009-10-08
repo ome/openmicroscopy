@@ -45,8 +45,8 @@ class Server(Ice.Application):
             
         # Create a MonitorServer, its adapter and activate it.
         try:
-            serverIdString = self.getFSServerIdString(self.communicator())
-            serverAdapterName = self.getFSServerAdapterName(self.communicator())
+            serverIdString = self.getFSServerIdString(props)
+            serverAdapterName = self.getFSServerAdapterName(props)
             mServer = fsMonitorServer.MonitorServerI()
             adapter = self.communicator().createObjectAdapter(serverAdapterName)
             mServerPrx = adapter.add(mServer, self.communicator().stringToIdentity(serverIdString))
@@ -63,19 +63,19 @@ class Server(Ice.Application):
         log.info('Stopping OMERO.fs Server')
         return 0
 
-    def getFSServerIdString(self, communicator):
+    def getFSServerIdString(self, props):
         """
             Get serverIdString from the communicator properties.
             
         """
-        return communicator.getProperties().getPropertyWithDefault("omero.fs.serverIdString","")
+        return props.getPropertyWithDefault("omero.fs.serverIdString","")
         
-    def getFSServerAdapterName(self, communicator):
+    def getFSServerAdapterName(self, props):
         """
             Get serverIdString from the communicator properties.
             
         """
-        return communicator.getProperties().getPropertyWithDefault("omero.fs.serverAdapterName","")
+        return props.getPropertyWithDefault("omero.fs.serverAdapterName","")
 
 
 if __name__ == '__main__':

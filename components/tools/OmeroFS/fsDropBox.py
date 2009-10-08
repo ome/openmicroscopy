@@ -48,15 +48,15 @@ class DropBox(Ice.Application):
             of.register(self.communicator())
         
         try:
-            host, port = self.getHostAndPort(self.communicator())
+            host, port = self.getHostAndPort(props)
             omero.client(host, port)
         except:
             log.exception("Failed to get client: \n")
             return -1
           
         try:
-            maxRetries = int(self.communicator().getProperties().getPropertyWithDefault("omero.fs.maxRetries","5"))
-            retryInterval = int(self.communicator().getProperties().getPropertyWithDefault("omero.fs.retryInterval","3"))
+            maxRetries = int(props.getPropertyWithDefault("omero.fs.maxRetries","5"))
+            retryInterval = int(props.getPropertyWithDefault("omero.fs.retryInterval","3"))
             sf = omero.util.internal_service_factory(
                     self.communicator(), "root", "system",
                     retries=maxRetries, interval=retryInterval)
@@ -71,7 +71,7 @@ class DropBox(Ice.Application):
             return -1
             
         try:
-            monitorParameters = self.getMonitorParameters(self.communicator())
+            monitorParameters = self.getMonitorParameters(props)
             log.info("monitor params = %s", str(monitorParameters))
         except:
             log.exception("Failed get properties from templates.xml: \n", )
@@ -81,7 +81,7 @@ class DropBox(Ice.Application):
             if 'default' in monitorParameters.keys():
                 if not monitorParameters['default']['watchDir']:
                     dataDir = configService.getConfigValue("omero.data.dir")
-                    defaultDropBoxDir = self.communicator().getProperties().getPropertyWithDefault("omero.fs.defaultDropBoxDir","DropBox")
+                    defaultDropBoxDir = props.getPropertyWithDefault("omero.fs.defaultDropBoxDir","DropBox")
                     monitorParameters['default']['watchDir'] = os.path.join(dataDir, defaultDropBoxDir)
         except:
             log.exception("Failed to use a query service : \n")
@@ -94,12 +94,12 @@ class DropBox(Ice.Application):
             return -1
 
         try:
-            serverIdString = self.getFSServerIdString(self.communicator())
+            serverIdString = self.getFSServerIdString(props)
             fsServer = self.communicator().stringToProxy(serverIdString)
             fsServer = monitors.MonitorServerPrx.checkedCast(fsServer.ice_twoway())
 
-            clientAdapterName = self.getFSClientAdapterName(self.communicator())
-            clientIdString = self.getFSClientIdString(self.communicator())
+            clientAdapterName = self.getFSClientAdapterName(props)
+            clientIdString = self.getFSClientIdString(props)
             adapter = self.communicator().createObjectAdapter(clientAdapterName)
             mClient = {}
             
@@ -133,6 +133,7 @@ class DropBox(Ice.Application):
                     mClient[user].setServerProxy(fsServer)
                     mClient[user].setSelfProxy(mClientProxy)
                     mClient[user].setDirImportWait(monitorParameters[user]['dirImportWait'])
+                    mClient[user].setReaders(monitorParameters[user]['readers'])
                     mClient[user].setHostAndPort(host,port)
                     mClient[user].setMaster(self)
                     fsServer.startMonitor(serverId)
@@ -165,55 +166,56 @@ class DropBox(Ice.Application):
         log.info('Stopping OMERO.fs DropBox client')
         return 0
 
-    def getHostAndPort(self, communicator):
+    def getHostAndPort(self, props):
         """
             Get the host and port from the communicator properties.
             
         """
-        host = communicator.getProperties().getPropertyWithDefault("omero.fs.host","localhost")
-        port = int(communicator.getProperties().getPropertyWithDefault("omero.fs.port","4063"))
+        host = props.getPropertyWithDefault("omero.fs.host","localhost")
+        port = int(props.getPropertyWithDefault("omero.fs.port","4063"))
             
         return host, port
             
-    def getFSServerIdString(self, communicator):
+    def getFSServerIdString(self, props):
         """
             Get serverIdString from the communicator properties.
             
         """
-        return communicator.getProperties().getPropertyWithDefault("omero.fs.serverIdString","")
+        return props.getPropertyWithDefault("omero.fs.serverIdString","")
         
-    def getFSClientIdString(self, communicator):
+    def getFSClientIdString(self, props):
         """
             Get serverIdString from the communicator properties.
             
         """
-        return communicator.getProperties().getPropertyWithDefault("omero.fs.clientIdString","")
+        return props.getPropertyWithDefault("omero.fs.clientIdString","")
 
-    def getFSClientAdapterName(self, communicator):
+    def getFSClientAdapterName(self, props):
         """
             Get serverIdString from the communicator properties.
             
         """
-        return communicator.getProperties().getPropertyWithDefault("omero.fs.clientAdapterName","")
+        return props.getPropertyWithDefault("omero.fs.clientAdapterName","")
 
-    def getMonitorParameters(self, communicator):
+    def getMonitorParameters(self, props):
         """
             Get the monitor parameters from the communicator properties.
             
         """
         monitorParams = {}
         try:
-            importUser = list(communicator.getProperties().getPropertyWithDefault("omero.fs.importUsers","default").split(';'))
-            watchDir = list(communicator.getProperties().getPropertyWithDefault("omero.fs.watchDir","").split(';'))   
-            eventTypes = list(communicator.getProperties().getPropertyWithDefault("omero.fs.eventTypes","All").split(';'))      
-            pathMode = list(communicator.getProperties().getPropertyWithDefault("omero.fs.pathMode","Follow").split(';'))   
-            whitelist = list(communicator.getProperties().getPropertyWithDefault("omero.fs.whitelist","").split(';'))   
-            blacklist = list(communicator.getProperties().getPropertyWithDefault("omero.fs.blacklist","").split(';'))   
-            timeout = list(communicator.getProperties().getPropertyWithDefault("omero.fs.timeout","0.0").split(';'))   
-            blockSize = list(communicator.getProperties().getPropertyWithDefault("omero.fs.blockSize","0").split(';'))   
-            ignoreSysFiles = list(communicator.getProperties().getPropertyWithDefault("omero.fs.ignoreSysFiles","True").split(';'))   
-            ignoreDirEvents = list(communicator.getProperties().getPropertyWithDefault("omero.fs.ignoreDirEvents","True").split(';'))   
-            dirImportWait = list(communicator.getProperties().getPropertyWithDefault("omero.fs.dirImportWait","60").split(';'))   
+            importUser = list(props.getPropertyWithDefault("omero.fs.importUsers","default").split(';'))
+            watchDir = list(props.getPropertyWithDefault("omero.fs.watchDir","").split(';'))   
+            eventTypes = list(props.getPropertyWithDefault("omero.fs.eventTypes","All").split(';'))      
+            pathMode = list(props.getPropertyWithDefault("omero.fs.pathMode","Follow").split(';'))   
+            whitelist = list(props.getPropertyWithDefault("omero.fs.whitelist","").split(';'))   
+            blacklist = list(props.getPropertyWithDefault("omero.fs.blacklist","").split(';'))   
+            timeout = list(props.getPropertyWithDefault("omero.fs.timeout","0.0").split(';'))   
+            blockSize = list(props.getPropertyWithDefault("omero.fs.blockSize","0").split(';'))   
+            ignoreSysFiles = list(props.getPropertyWithDefault("omero.fs.ignoreSysFiles","True").split(';'))   
+            ignoreDirEvents = list(props.getPropertyWithDefault("omero.fs.ignoreDirEvents","True").split(';'))   
+            dirImportWait = list(props.getPropertyWithDefault("omero.fs.dirImportWait","60").split(';'))   
+            readers = list(props.getPropertyWithDefault("omero.fs.readers","").split(';'))   
 
             for i in range(len(importUser)):
                 if importUser[i].strip(string.whitespace):
@@ -270,6 +272,16 @@ class DropBox(Ice.Application):
                         monitorParams[importUser[i]]['dirImportWait'] = int(dirImportWait[i].strip(string.whitespace))
                     except:
                         monitorParams[importUser[i]]['dirImportWait'] = 60 # seconds                                                                                                                                                                     
+                                                                                                                                                                                           
+                    try:
+                        readersFile = readers[i].strip(string.whitespace)
+                        if os.path.isfile(readersFile):
+                            monitorParams[importUser[i]]['readers'] = readersFile
+                        else:
+                            monitorParams[importUser[i]]['readers'] = ""
+                    except:
+                        monitorParams[importUser[i]]['readers'] = ""
+                                                                                                                                                                                      
         except:
             raise
         

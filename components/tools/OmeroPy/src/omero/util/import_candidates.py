@@ -22,15 +22,18 @@ def _to_list(path):
             path = list(path)
 	return path
 
-def as_stdout(path):
+def as_stdout(path, readers=""):
         path = _to_list(path)
         cli = CLI()
         cli.loadplugins()
-        cli.invoke(["import", "-f"]+path)
+        if readers:
+            cli.invoke(["import", "-l", readers, "-f"]+path)
+        else:
+            cli.invoke(["import", "-f"]+path)
         if cli.rv != 0:
             raise omero.InternalException(None, None, "'import -f' failed")
 
-def as_dictionary(path):
+def as_dictionary(path, readers=""):
     """
     Run as_stdout, parses the output and returns a dictionary of the form::
         {
@@ -51,7 +54,7 @@ def as_dictionary(path):
     path = _to_list(path)
     path.insert(0, "---file=%s" % t.name)
     try:
-        as_stdout(path)
+        as_stdout(path, readers=readers)
         f = open(t.name,"r")
         output = f.readlines()
         f.close()

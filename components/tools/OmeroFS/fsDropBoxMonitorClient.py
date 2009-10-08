@@ -273,6 +273,7 @@ class MonitorClientI(monitors.MonitorClient):
         self.host = ""
         self.port = 0
         self.dirImportWait = 0
+        self.readers = ""
         #: Id
         self.id = ''
 
@@ -292,12 +293,14 @@ class MonitorClientI(monitors.MonitorClient):
         self.workers = [MonitorWorker(worker_wait, worker_batch, self.event, self.queue, self.callback) for x in range(worker_count)]
         for worker in self.workers:
             worker.start()
+            
 ## Moved upwards to fsDropBox so that a registered communicator
 ## can be used by more than one MonitorClient
 ##        # Finally, configure our communicator
 ##        ObjectFactory().registerObjectFactory(self.communicator)
 ##        for of in omero.rtypes.ObjectFactories.values():
 ##            of.register(self.communicator)
+
         self.eventRecord("Directory", self.dropBoxDir)
 
 
@@ -401,7 +404,7 @@ class MonitorClientI(monitors.MonitorClient):
     def callback(self, ids):
         try:
             self.log.info("Getting filesets on : %s", ids)
-            fileSets = self.getUsedFiles(list(ids))
+            fileSets = self.getUsedFiles(list(ids), readers=self.readers)
             self.eventRecord("Filesets", str(fileSets))
         except:
             self.log.exception("Failed to get filesets")
@@ -618,6 +621,14 @@ class MonitorClientI(monitors.MonitorClient):
         """
         self.host = host
         self.port = port
+            
+    def setReaders(self, readers):
+        """
+            Set the readers file from the communicator properties.
+            
+        """
+        self.readers = readers
+
             
 
     #
