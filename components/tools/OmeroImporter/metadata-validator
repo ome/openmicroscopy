@@ -33,6 +33,7 @@ import sys
 import os
 import re
 
+from xml.sax.saxutils import escape
 from tempfile import NamedTemporaryFile
 from getopt import getopt, GetoptError
 
@@ -73,8 +74,9 @@ def create_testng_xml_file(targets, revision, bioformats_revision, hudson,
     """Creates a temporary file with TestNG XML content for each target."""
     root = Element("suite")
     root.set("name", "metadata-validator")
-    root.set("parallel", "tests")
-    root.set("thread-count", str(thread_count))
+	# Disabling parallelization
+    #root.set("parallel", "tests")
+    #root.set("thread-count", str(thread_count))
     if revision is not None:
         parameter = Element("parameter")
         parameter.set("name", "omero_revision")
@@ -87,7 +89,7 @@ def create_testng_xml_file(targets, revision, bioformats_revision, hudson,
         root.append(parameter)
     for target in targets:
         target = target.strip().lstrip()
-        test_name = target.replace("/", "_")
+        test_name = escape(target.replace("/", "_"))
         klass = Element("class")
         klass.set("name", TEST_CLASS)
         klasses = Element("classes")
