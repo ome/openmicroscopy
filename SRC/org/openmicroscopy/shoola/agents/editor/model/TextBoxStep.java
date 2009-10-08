@@ -98,11 +98,16 @@ public class TextBoxStep
 	
 	/**
 	 * Implemented as specified by the {@link IField} interface.
-	 * Don't allow adding of parameters
+	 * Don't allow adding of parameters, except TextBoxParam
 	 */
 	public void addContent(IFieldContent param) {
 		if ((param != null) && (! (param instanceof AbstractParam)))
 			super.addContent(param);
+		
+		
+		if ((param != null) && (param instanceof TextBoxParam)) {
+			super.addContent(param);
+		}
 	}
 	
 	/**
