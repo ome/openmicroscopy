@@ -18,7 +18,7 @@ from omero.columns import *
 from path import path
 from uuid import uuid4
 
-logging.basicConfig(level=logging.CRITICAL)
+logging.basicConfig(level=logging.DEBUG)
 
 class communicator_provider(object):
     def __init__(self, ic = None):
@@ -126,16 +126,36 @@ class TestTables(lib.TestCase):
 
     def setUp(self):
         lib.TestCase.setUp(self)
-        omero.util.internal_service_factory = mocked_internal_service_factory()
-        self.sf = omero.util.internal_service_factory.sf
-        self.communicator = communicator_provider(mock_communicator())
-        self.current = mock_current(self.communicator())
-        omero.tables.TablesI.communicator = self.communicator()
+
+        # Session
+        self.sf_provider = mocked_internal_service_factory()
+        omero.util.internal_service_factory = self.sf_provider
+        self.sf = self.sf_provider()
+
+        # Context
+        serverid = "mock_table"
+        self.communicator = mock_communicator()
+        self.communicator_provider = communicator_provider(self.communicator)
+        self.stop_event = omero.util.concurrency.get_event()
+        self.ctx = omero.util.ServerContext(serverid, self.communicator, self.stop_event)
+
+        self.current = mock_current(self.communicator)
+        self.__tables = []
+
+    def tearDown(self):
+        """
+        To prevent cleanup from taking place, we hold on to all the tables until the end.
+        This is caused by the reuse of TableI instances after the Tables go out of scope.
+        """
+        for t in self.__tables:
+            t.__del__()
 
     def tablesI(self, internal_repo = None):
         if internal_repo is None:
             internal_repo = mock_internal_repo(self.tmp)
-        return omero.tables.TablesI(mock_table(), internal_repo)
+        t = omero.tables.TablesI(self.ctx, mock_table(), internal_repo)
+        self.__tables.append(t)
+        return t
 
     def repouuid(self):
         """
@@ -145,7 +165,7 @@ class TestTables(lib.TestCase):
 
     def repodir(self, make = True):
         self.tmp = path(self.tmpdir())
-        self.communicator().getProperties().setProperty("omero.repo.dir", str(self.tmp))
+        self.communicator.getProperties().setProperty("omero.repo.dir", str(self.tmp))
         repo = self.tmp / ".omero" / "repository"
         if make:
             repo.makedirs()
@@ -165,25 +185,25 @@ class TestTables(lib.TestCase):
 
     def testTablesIGetDirNoRepoSet(self):
         self.sf.return_values.append(self.tmpdir())
-        self.assertRaises(omero.ResourceError, omero.tables.TablesI)
+        self.assertRaises(omero.ResourceError, omero.tables.TablesI, self.ctx)
 
     def testTablesIGetDirNoRepoCreated(self):
         self.repodir(False)
-        self.assertRaises(omero.ResourceError, omero.tables.TablesI)
+        self.assertRaises(omero.ResourceError, omero.tables.TablesI, self.ctx)
 
     def testTablesIGetDirGetsRepoThenNoSF(self):
         self.repodir()
         omero.util.internal_service_factory = mocked_internal_service_factory(None)
-        self.assertRaises(exceptions.Exception, omero.tables.TablesI)
+        self.assertRaises(exceptions.Exception, omero.tables.TablesI, self.ctx)
 
     def testTablesIGetDirGetsRepoGetsSFCantFindRepoFile(self):
         self.repodir()
-        self.assertRaises(exceptions.IOError, omero.tables.TablesI)
+        self.assertRaises(exceptions.IOError, omero.tables.TablesI, self.ctx)
 
     def testTablesIGetDirGetsRepoGetsSFCantFindRepoObject(self):
         self.repofile(self.sf.db_uuid)
         self.sf.return_values.append( omero.ApiUsageException(None, None, "Cant Find") )
-        self.assertRaises(omero.ApiUsageException, omero.tables.TablesI)
+        self.assertRaises(omero.ApiUsageException, omero.tables.TablesI, self.ctx)
 
     def testTablesIGetDirGetsRepoGetsSFGetsRepo(self):
         self.repofile(self.sf.db_uuid)
@@ -198,11 +218,13 @@ class TestTables(lib.TestCase):
         tables = self.tablesI()
         table = tables.getTable(f, self.current)
         self.assert_( table )
+        self.assert_( table.table )
+        self.assert_( table.table.storage )
         return table
 
     def testTableIncrDecr(self):
         storage = mock_storage()
-        table = omero.tables.TableI(omero.model.OriginalFileI(1,None), storage)
+        table = omero.tables.TableI(self.ctx, omero.model.OriginalFileI(1,None), storage)
         self.assertTrue(storage.up)
         table.cleanup()
         self.assertTrue(storage.down)
@@ -212,7 +234,7 @@ class TestTables(lib.TestCase):
         table1 = mocktable.table
         storage = table1.storage
         storage.initialize([LongColumnI("a",None,[])])
-        table2 = omero.tables.TableI(omero.model.OriginalFileI(1, None), storage)
+        table2 = omero.tables.TableI(self.ctx, omero.model.OriginalFileI(1, None), storage)
         table2.cleanup()
         table1.cleanup()
 
@@ -239,6 +261,9 @@ class TestTables(lib.TestCase):
     def testTableAddData(self, newfile = True, cleanup = True):
         mocktable = self.testTables(newfile)
         table = mocktable.table
+        storage = table.storage
+        self.assert_(storage)
+
         table.initialize([LongColumnI("a", None,[]), DoubleColumnI("b", None, [])])
         template = table.getHeaders(self.current)
         template[0].values = [ 1 ]*5

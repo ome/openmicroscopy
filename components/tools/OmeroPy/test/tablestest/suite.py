@@ -20,3 +20,7 @@ def _additional_tests():
     suite.addTest(load("test.tablestest.hdfstorage"))
     suite.addTest(load("test.tablestest.servants"))
     return suite
+
+if __name__ == "__main__":
+    suite = _additional_tests()
+    unittest.TextTestRunner(verbosity=2).run(suite)
