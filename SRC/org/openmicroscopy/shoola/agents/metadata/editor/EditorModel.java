@@ -1769,6 +1769,7 @@ class EditorModel
 	 */
 	void fireRenderingControlLoading(long pixelsID, int index)
 	{
+		if (isRendererLoaded()) return;
 		RenderingControlLoader loader = new RenderingControlLoader(component, 
 				pixelsID, index);
 		loader.load();

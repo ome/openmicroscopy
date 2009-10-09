@@ -614,6 +614,7 @@ class EditorComponent
 	 */
 	public void selectRenderer(int type)
 	{
+		/*
 		int index = EditorUI.RND_INDEX; 
 		if (type == MetadataViewer.RENDERER_TAB) {
 			if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC)
@@ -623,7 +624,8 @@ class EditorComponent
 				index = EditorUI.ACQUISITION_INDEX;
 			else index = EditorUI.GENERAL_INDEX;
 		}
-		view.setSelectedTab(index);
+		*/
+		view.setSelectedTab(type);
 	}
 
 	/** 

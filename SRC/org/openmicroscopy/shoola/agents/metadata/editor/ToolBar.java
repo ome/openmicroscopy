@@ -235,10 +235,12 @@ class ToolBar
     	bar.add(saveButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(refreshButton);
+    	/*
     	if (model.getRndIndex() == MetadataViewer.RND_GENERAL) {
     		bar.add(Box.createHorizontalStrut(5));
         	bar.add(rndButton);
     	}
+    	*/
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(downloadButton);
     	return bar;

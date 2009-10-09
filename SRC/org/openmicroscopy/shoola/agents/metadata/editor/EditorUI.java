@@ -92,6 +92,13 @@ public class EditorUI
 	/** Identifies the rendering component of the tab pane. */
 	static final int	RND_INDEX = 2;
 	
+	/** The name of the tab pane. */
+	private static final String			RENDERER_NAME = "Renderer";
+	
+	/** The description of the tab pane. */
+	private static final String			RENDERER_DESCRIPTION = 
+		"Renderer Control";
+	
 	/** Reference to the controller. */
 	private EditorControl				controller;
 	
@@ -127,24 +134,36 @@ public class EditorUI
     /** The default component. */
     private JPanel						defaultPane;
     
-    /** Adds the renderer to the tab pane. */
-	private void populateTabbedPane()
+    /** The dummy panel displayed instead of the rendering component. */
+    private JPanel						dummyPanel;
+    
+    /** Adds the renderer to the tab pane. 
+     * 
+     * @param init 	Pass <code>true</code> if it is invoked at initialization
+     * 				time, <code>false</code> otherwise.
+     */
+	private void populateTabbedPane(boolean init)
 	{
 		tabPane.addTab("General", null, generalPane, "General Information.");
 		tabPane.addTab("Acquisition", null, new JScrollPane(acquisitionPane), 
 			"Acquisition Metadata.");
+		if (init) tabPane.addTab(RENDERER_NAME, null, dummyPanel, 
+				RENDERER_DESCRIPTION);
+			
 	}
 	
 	/** Initializes the UI components. */
 	private void initComponents()
 	{
+		dummyPanel = new JPanel();
 		userUI = new UserUI(model, controller);
 		toolBar = new ToolBar(model, controller);
 		generalPane = new GeneralPaneUI(this, model, controller);
 		acquisitionPane = new AcquisitionDataUI(this, model, controller);
 		tabPane = new JTabbedPane();
+		tabPane.addChangeListener(controller);
 		tabPane.setBackground(UIUtilities.BACKGROUND_COLOR);
-		populateTabbedPane();
+		populateTabbedPane(true);
 		tabPane.setEnabledAt(ACQUISITION_INDEX, false);
 		defaultPane = new JPanel();
 		defaultPane.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -245,9 +264,17 @@ public class EditorUI
 			if (model.isMultiSelection()) {
 				tabPane.setSelectedIndex(GENERAL_INDEX);
 				tabPane.setEnabledAt(ACQUISITION_INDEX, false);
+				tabPane.setEnabledAt(RND_INDEX, false);
 			} else {
 				if (uo instanceof ImageData) {
 					load = true;
+					tabPane.setEnabledAt(ACQUISITION_INDEX, true);
+					tabPane.setEnabledAt(RND_INDEX, true);
+					if (tabPane.getSelectedIndex() == RND_INDEX) {
+						tabPane.setComponentAt(RND_INDEX, dummyPanel);
+						tabPane.setSelectedIndex(GENERAL_INDEX);
+					}
+					/*
 					if (model.getRndIndex() == MetadataViewer.RND_GENERAL) {
 						tabPane.setEnabledAt(ACQUISITION_INDEX, true);
 						if (tabPane.getComponentCount() > 2) {
@@ -257,24 +284,34 @@ public class EditorUI
 							if (b) tabPane.setSelectedIndex(GENERAL_INDEX);
 						}
 					}
+					*/
 				} else if (uo instanceof WellSampleData) {
 					ImageData img = ((WellSampleData) uo).getImage();
+					if (tabPane.getSelectedIndex() == RND_INDEX) {
+						tabPane.setComponentAt(RND_INDEX, dummyPanel);
+						tabPane.setSelectedIndex(GENERAL_INDEX);
+					}
 					if (img != null && img.getId() >= 0) {
 						load = true;
 						tabPane.setEnabledAt(ACQUISITION_INDEX, true);
+						tabPane.setEnabledAt(RND_INDEX, true);
 					} else {
 						tabPane.setSelectedIndex(GENERAL_INDEX);
 						tabPane.setEnabledAt(ACQUISITION_INDEX, false);
+						tabPane.setEnabledAt(RND_INDEX, false);
 					}
+					/*
 					if (tabPane.getComponentCount() > 2) {
 						boolean b = 
 							tabPane.getSelectedIndex() == RND_INDEX;
 						tabPane.remove(RND_INDEX);
 						if (b) tabPane.setSelectedIndex(GENERAL_INDEX);
 					}
+					*/
 				} else {
 					tabPane.setSelectedIndex(GENERAL_INDEX);
 					tabPane.setEnabledAt(ACQUISITION_INDEX, false);
+					tabPane.setEnabledAt(RND_INDEX, false);
 				}
 				load = true;
 			}
@@ -540,6 +577,14 @@ public class EditorUI
 	/** Sets the renderer. */
 	void setRenderer()
 	{
+		tabPane.removeAll();
+		
+		populateTabbedPane(false);
+		tabPane.addTab(RENDERER_NAME, null, 
+				new JScrollPane(model.getRenderer().getUI()), 
+				RENDERER_DESCRIPTION);
+		setSelectedTab(RND_INDEX);
+		/*
 		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC) {
 			tabPane.removeAll();
 			tabPane.addTab("Renderer", null, 
@@ -554,6 +599,7 @@ public class EditorUI
 			}
 			tabPane.setSelectedIndex(RND_INDEX);
 		}
+		*/
 		
 	}
 
@@ -571,12 +617,14 @@ public class EditorUI
 	 */
 	void setSelectedTab(int index)
 	{
+		tabPane.removeChangeListener(controller);
 		switch (index) {
 			case GENERAL_INDEX:
 			case ACQUISITION_INDEX:
 			case RND_INDEX:
 				tabPane.setSelectedIndex(index);
 		}
+		tabPane.addChangeListener(controller);
 	}
 
 	/** Analyzes the data. */

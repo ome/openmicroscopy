@@ -38,6 +38,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 import javax.swing.JFrame;
+import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
@@ -46,6 +49,7 @@ import javax.swing.filechooser.FileFilter;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -87,7 +91,7 @@ import pojos.TagAnnotationData;
  * @since OME3.0
  */
 class EditorControl
-	implements ActionListener, PropertyChangeListener
+	implements ActionListener, ChangeListener, PropertyChangeListener
 {
 
 	/** Bound property indicating that the save status has been modified. */
@@ -313,6 +317,19 @@ class EditorControl
 	 */
 	boolean isSingleMode() { return view.isSingleMode(); }
 
+	/**
+	 * Reacts to state changes in the {@link ImViewer}.
+	 * @see ChangeListener#stateChanged(ChangeEvent)
+	 */
+	public void stateChanged(ChangeEvent e)
+	{
+		if (e.getSource() instanceof JTabbedPane) {
+			JTabbedPane pane = (JTabbedPane) e.getSource();
+			if (pane.getSelectedIndex() == EditorUI.RND_INDEX)
+				model.loadRenderingControl();
+		}
+	}
+	
 	/**
 	 * Reacts to property change.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

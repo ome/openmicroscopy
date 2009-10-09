@@ -63,6 +63,12 @@ public interface Editor
 	extends ObservableComponent
 {
 
+	/** Indicates to select the renderer tab. */
+	public static final int		RENDERER_TAB = EditorUI.RND_INDEX;
+	
+	/** Indicates to select the general tab. */
+	public static final int		GENERAL_TAB = EditorUI.GENERAL_INDEX;
+	
 	/** Identified the <code>Immersion</code> enumeration. */
 	public static final String IMMERSION = OmeroMetadataService.IMMERSION;
 	
