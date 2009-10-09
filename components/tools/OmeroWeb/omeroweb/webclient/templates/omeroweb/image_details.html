@@ -243,6 +243,14 @@
                 </tr>
                 {% endfor %}
                 {% endif %}
+                {% if ch.form_dichroic %}
+                <tr><th><br/>{% trans "Dichroic" %}:</th><td colspan="2"></td></tr>
+                {% for field in ch.form_dichroic %}
+                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                </tr>
+                {% endfor %}
+                {% endif %}
             </table>
         </div></div>
     </li>

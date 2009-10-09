@@ -75,7 +75,7 @@ from forms import ShareForm, ShareCommentForm, ContainerForm, CommentAnnotationF
                     UriAnnotationForm, UploadFileForm, MyGroupsForm, MyUserForm, ActiveGroupForm, HistoryTypeForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                     MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
-                    MetadataLightSourceForm, \
+                    MetadataLightSourceForm, MetadataDichroicForm, \
                     TagListForm, UrlListForm, CommentListForm, FileListForm, TagFilterForm
 from omeroweb.webadmin.forms import MyAccountForm, MyAccountLdapForm, UploadPhotoForm, LoginForm
 
@@ -636,6 +636,8 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                                         'types':list(conn.getEnumerationEntries("FilterTypeI")), 
                                         'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
                                         'pulses': list(conn.getEnumerationEntries("PulseI"))})
+                if ch.getLogicalChannel().getDichroic() is not None:
+                    channel['form_dichroic'] = MetadataDichroicForm(initial={'logicalchannel': ch.getLogicalChannel()})
                 channel['name'] = ch.getEmissionWave()
                 channel['color'] = ch.getColor().getHtml()
                 form_channels.append(channel)
