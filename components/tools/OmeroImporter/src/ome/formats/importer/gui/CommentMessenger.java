@@ -185,13 +185,14 @@ public class CommentMessenger extends JDialog implements ActionListener
         postList.add(new StringPart("extra", extra));
         postList.add(new StringPart("comment", comment));
         postList.add(new StringPart("email", email));
-        postList.add(new StringPart("app_name", "2"));
+        postList.add(new StringPart("app_name", "1"));
         postList.add(new StringPart("import_session", "test"));
 
         try {
-            HtmlMessenger messenger = new HtmlMessenger(config.getFeedbackUrl(), postList);
+            HtmlMessenger messenger = new HtmlMessenger(config.getTokenUrl(), postList);
             @SuppressWarnings("unused")
             String serverReply = messenger.executePost();
+            System.err.println(serverReply);
             if (serverReply != null)
                 JOptionPane.showMessageDialog(this, "Thank you for your feedback.\n\n" +
                 		"If you included your email address, you\n" +
@@ -224,6 +225,6 @@ public class CommentMessenger extends JDialog implements ActionListener
      */
     public static void main(String[] args) throws Exception
     {
-        new CommentMessenger(null, "Comment Dialog Test", new ImportConfig(), true, true);
+        new CommentMessenger(null, "Comment Dialog Test", new ImportConfig(), true, false);
     }
 }

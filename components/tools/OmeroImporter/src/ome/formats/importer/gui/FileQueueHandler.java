@@ -443,7 +443,14 @@ public class FileQueueHandler
         Boolean isSPW = null;
 
         for (ImportContainer importContainer : containers) {
-            
+
+            /*
+            // Temporary fix for ome.tiff and ome.xml to dataset and not spw 
+            if (importContainer.reader.equals("OME-TIFF") || 
+                    importContainer.reader.equals("OME-XML")) 
+                return false;
+                */
+
             if (isSPW != null && importContainer.isSPW != isSPW.booleanValue()) {
                 JOptionPane.showMessageDialog(viewer, 
                         "You have chosen some Screen-based images and some \n "+
@@ -482,27 +489,6 @@ public class FileQueueHandler
         } else {
             return false;
         }
-    }
-    
-    @SuppressWarnings("unchecked")
-    private void addFileToQueue(ImportContainer container, String pdsString, Boolean useFullPath, int numOfDirectories) {
-        Vector row = new Vector();
-        String imageName;
-        
-        if (useFullPath != null) {
-            imageName = getImageName(container.file, useFullPath, numOfDirectories);
-            container.setUserSpecifiedFileName(imageName);
-        } else {
-            imageName = container.file.getAbsolutePath();
-        }
-
-        row.add(imageName);
-        row.add(pdsString);
-        row.add("added");
-        row.add(container);
-        qTable.table.addRow(row);
-        if (qTable.table.getRowCount() == 1)
-            qTable.importBtn.setEnabled(true);
     }
     
     /**
@@ -696,6 +682,7 @@ public class FileQueueHandler
                 fileName = (String) historyTable.table.getValueAt(r, 0);
                 file = new File((String) historyTable.table.getValueAt(r, 4));
                 
+                
                 if (projectID == null || projectID == 0)
                 {
                     object = null;
@@ -730,6 +717,8 @@ public class FileQueueHandler
                     }
                 }
                 
+                ImportContainer container = new ImportContainer(file, projectID, object, fileName, cancelScan, null, fileName, null, cancelScan);
+                
                 finalCount = finalCount + 1;
                 
                 Double[] pixelSizes = new Double[] {1.0, 1.0, 1.0};
@@ -745,7 +734,7 @@ public class FileQueueHandler
                 }
                 // WHY ISN'T THIS CODE USING addFiletoQueue?!!?
                 row.add("added");
-                row.add(object);
+                row.add(container);
                 row.add(file);
                 row.add(false);
                 row.add(projectID);
@@ -776,6 +765,28 @@ public class FileQueueHandler
         }
     }
 
+    
+    @SuppressWarnings("unchecked")
+    private void addFileToQueue(ImportContainer container, String pdsString, Boolean useFullPath, int numOfDirectories) {
+        Vector row = new Vector();
+        String imageName;
+        
+        if (useFullPath != null) {
+            imageName = getImageName(container.file, useFullPath, numOfDirectories);
+            container.setUserSpecifiedFileName(imageName);
+        } else {
+            imageName = container.file.getAbsolutePath();
+        }
+
+        row.add(imageName);
+        row.add(pdsString);
+        row.add("added");
+        row.add(container);
+        qTable.table.addRow(row);
+        if (qTable.table.getRowCount() == 1)
+            qTable.importBtn.setEnabled(true);
+    }
+    
     private void updateProgress(final int totalFiles, final int numFiles)
     {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {

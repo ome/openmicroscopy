@@ -239,17 +239,17 @@ public class IniFileLoader {
 
     public String getUploaderTokenURL() {
         return staticPrefs.node("Uploader").get("TokenURL",
-                "http://mage.openmicroscopy.org.uk/qa/initial/");
+                "http://qa.openmicroscopy.org.uk/qa/initial/");
     }
 
     public String getUploaderURL() {
         return staticPrefs.node("Uploader").get("URL",
-                "http://mage.openmicroscopy.org.uk/qa/upload_processing/");
+                "http://qa.openmicroscopy.org.uk/qa/upload_processing/");
     }
 
     public String getBugTrackerURL() {
         return staticPrefs.node("Uploader").get("BugTrackerURL",
-                "http://mage.openmicroscopy.org.uk/qa/upload_processing/");
+                "http://qa.openmicroscopy.org.uk/qa/upload_processing/");
     }
 
     /**

@@ -528,7 +528,7 @@ WindowStateListener, WindowFocusListener
         }
         else if ("comment".equals(cmd))
         {
-            new CommentMessenger(this, "OMERO.importer Comment Dialog", config, true, true);
+            new CommentMessenger(this, "OMERO.importer Comment Dialog", config, true, false);
         }
         else if ("home".equals(cmd))
         {
