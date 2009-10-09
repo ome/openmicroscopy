@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -208,17 +209,20 @@ class PropertiesUI
        	parentLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
        	idLabel = UIUtilities.setTextFont("");
     	namePane = createTextPane();
+    	/*
     	namePane.addMouseListener(new MouseAdapter() {
     		public void mousePressed(MouseEvent e) {
     			if (e.getClickCount() == 2)
     				editField(namePanel, namePane, editName, true);
     		}
 		});
+		*/
     	namePane.setEditable(false);
     	namePane.addFocusListener(this);
     	descriptionPane = createTextPane();
-    	descriptionPane.setLineWrap(true);
-    	descriptionPane.setColumns(20);
+    	//descriptionPane.setLineWrap(true);
+    	//descriptionPane.setColumns(20);
+    	/*
     	descriptionPane.addMouseListener(new MouseAdapter() {
     		public void mousePressed(MouseEvent e) {
     			if (e.getClickCount() == 2)
@@ -226,6 +230,7 @@ class PropertiesUI
     						editDescription, true);
     		}
 		});
+		*/
     	descriptionPane.addPropertyChangeListener(controller);
     	descriptionPane.setText(DEFAULT_TEXT);
     	descriptionPane.addFocusListener(this);
@@ -500,8 +505,6 @@ class PropertiesUI
         	content.add(label, "0, "+index);
         	content.add(channelsArea, "2, "+index);
     	}
-    	
-    	
     	JPanel p = UIUtilities.buildComponentPanel(content);
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
         return p;
@@ -668,7 +671,10 @@ class PropertiesUI
 			} else {
 				namePane.setText(EditorUtil.getPartialName(text));
 			}
+			
 			namePane.getDocument().addDocumentListener(this);
+			namePane.select(0, 0);
+			namePane.setCaretPosition(0);
 		}
 	}
 	
@@ -816,6 +822,11 @@ class PropertiesUI
 		Object object =  model.getRefObject();
 		String name = namePane.getText().trim();
 		String desc = descriptionPane.getText().trim();
+		if (name != null) {
+			if (name.equals(originalName) || name.equals(originalDisplayedName))
+				name = "";
+		}
+		
 		if (object instanceof ProjectData) {
 			ProjectData p = (ProjectData) object;
 			if (name.length() > 0) p.setName(name);
@@ -1028,6 +1039,7 @@ class PropertiesUI
 				namePane.setText(modifiedName);
 				namePane.getDocument().addDocumentListener(this);
 			}
+			//namePane.setCaretPosition(0);
 		} else if (src == descriptionPane) {
 			editField(descriptionPanel, descriptionPane, editDescription, 
 					false);
@@ -1054,10 +1066,11 @@ class PropertiesUI
 			String text = namePane.getText();
 			if (text != null) {
 				
-				namePane.selectAll();
+				//namePane.selectAll();
 				//int n = text.length()-1;
 				//if (n >= 0) namePane.setCaretPosition(n);
 			}
+			//namePane.select(0, 0);
 			//namePane.setCaretPosition(0);
 		} else if (src == descriptionPane) {
 			String text = descriptionPane.getText();
@@ -1068,7 +1081,7 @@ class PropertiesUI
 					int n = text.length()-1;
 					if (n >= 0) descriptionPane.setCaretPosition(n);
 				}
-				descriptionPane.selectAll();
+				//descriptionPane.selectAll();
 			}
 		}
 	}
