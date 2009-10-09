@@ -246,10 +246,10 @@ public class ImportCandidates extends DirectoryWalker {
             return;
         }
         for (ImportContainer container : containers) {
-            if (containers.size() > 1) {
-                System.out.println("#======================================\n");
-                System.out.println("# Group: " + container.usedFiles[0]);
-            }
+            System.out.println("#======================================");
+            System.out.println(String.format(
+                    "# Group: %s SPW: %s Reader: %s", container.usedFiles[0], 
+                    container.isSPW, container.reader));
             for (String file : container.usedFiles) {
                 System.out.println(file);
             }
