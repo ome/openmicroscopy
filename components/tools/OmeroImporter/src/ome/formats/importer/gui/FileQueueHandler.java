@@ -21,6 +21,7 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,6 +40,8 @@ import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileFilter;
 
 import layout.TableLayout;
+import loci.formats.FormatException;
+import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.gui.FormatFileFilter;
 
@@ -155,6 +158,8 @@ public class FileQueueHandler
 
     private void addFiles()
     {
+        boolean filesOnly = true;
+        
         setCursor(java.awt.Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         final File[] _files = fileChooser.getSelectedFiles();                    
 
@@ -173,6 +178,30 @@ public class FileQueueHandler
         final String msg = Arrays.toString(paths);
         log.info(String.format("Scheduling candidate calculations(%s)=%s", which, msg));
         final IObserver self = this;
+
+        for (File file: fileChooser.getSelectedFiles())
+        {
+            if (file.isDirectory()) filesOnly = false;
+        }
+        
+        if (filesOnly)
+        {
+            boolean isSPW = false;
+            final List<ImportContainer> containers = new ArrayList<ImportContainer>();
+            for (File file: fileChooser.getSelectedFiles())
+            {
+                String fileStr = file.toString();
+                String fileExt = fileStr.substring(fileStr.lastIndexOf('.')+1, fileStr.length());
+                System.err.println(fileExt);
+                if (fileExt.equals("flex".toLowerCase()) || fileExt.equals("xdce".toLowerCase())) isSPW = true;
+                ImportContainer container = new ImportContainer(file, null, null, null, false, null, null, null, isSPW);
+                containers.add(container);
+            }
+            log.info(String.format("Handling import containers(%s)=%s", which, msg));
+            handleFiles(containers);
+            return;
+        }
+        
         Runnable run = new Runnable() {
             public void run() {
                 log.info(String.format("Background: calculating candidates(%s)=%s", which, msg));
@@ -184,7 +213,6 @@ public class FileQueueHandler
                         handleFiles(containers);
                     }
                 });
-
             }
         };
         scanEx.execute(run);
