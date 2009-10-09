@@ -443,11 +443,6 @@ public class FileQueueHandler
         Boolean isSPW = null;
 
         for (ImportContainer importContainer : containers) {
-
-            // Temporary fix for ome.tiff and ome.xml to dataset and not spw
-            if (importContainer.reader.equals("OME-TIFF") ||
-                    importContainer.reader.equals("OME-XML"))
-                return false;
             
             if (isSPW != null && importContainer.isSPW != isSPW.booleanValue()) {
                 JOptionPane.showMessageDialog(viewer, 

@@ -12,16 +12,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import loci.formats.FileInfo;
 import loci.formats.FormatTools;
+import loci.formats.IFormatReader;
 import loci.formats.MissingLibraryException;
 import loci.formats.UnknownFormatException;
-
 import ome.formats.importer.util.ErrorHandler;
 
 import org.apache.commons.io.DirectoryWalker;
@@ -101,7 +102,7 @@ public class ImportCandidates extends DirectoryWalker {
     final private OMEROWrapper reader;
     final private Groups groups;
     final private Set<String> allFiles = new HashSet<String>();
-    final private Map<String, Set<String>> usedBy = new HashMap<String, Set<String>>();
+    final private Map<String, List<String>> usedBy = new LinkedHashMap<String, List<String>>();
     final private List<ImportContainer> containers = new ArrayList<ImportContainer>();
     final private long start = System.currentTimeMillis();
 
@@ -114,6 +115,11 @@ public class ImportCandidates extends DirectoryWalker {
      * Current count of calls to {@link IFormatReader#setId()}.
      */
     int setids = 0;
+    
+    /**
+     * Number of times UNKNOWN_EVENT was raised
+     */
+    int unknown = 0;
 
     /**
      * Current count of files processed. This will be incremented in two phases:
@@ -209,8 +215,8 @@ public class ImportCandidates extends DirectoryWalker {
             long totalElapsed = System.currentTimeMillis() - start;
             log.info(String.format("%s file(s) parsed into "
                     + "%s groups with %s call(s) to setId in "
-                    + "%sms. (%sms total)", this.total, size(), this.setids,
-                    readerTime, totalElapsed));
+                    + "%sms. (%sms total) [%s unknowns]", this.total, size(), this.setids,
+                    readerTime, totalElapsed, unknown));
         } catch (CANCEL c) {
             log.info(String.format("Cancelling search after %sms "
                     + "with %s containers found (%sms in %s calls to setIds)",
@@ -231,10 +237,22 @@ public class ImportCandidates extends DirectoryWalker {
      * other software layers. The format is: 1) any empty lines are ignored, 2)
      * any blocks of comments separate groups, 3) each group is begun by the
      * "key", 4) all other files in a group will also be imported.
+     * 
+     * Similar logic is contained in {@link Groups#print()} but it does not
+     * take the ordering of the used files into account.
      */
     public void print() {
-        if (groups != null) {
-            groups.print();
+        if (containers == null) {
+            return;
+        }
+        for (ImportContainer container : containers) {
+            if (containers.size() > 1) {
+                System.out.println("#======================================\n");
+                System.out.println("# Group: " + container.usedFiles[0]);
+            }
+            for (String file : container.usedFiles) {
+                System.out.println(file);
+            }
         }
     }
 
@@ -286,7 +304,7 @@ public class ImportCandidates extends DirectoryWalker {
      *
      * @param paths
      */
-    private void execute(String[] paths) {
+    protected void execute(String[] paths) {
         for (String string : paths) {
             try {
                 File f = new File(string);
@@ -304,7 +322,7 @@ public class ImportCandidates extends DirectoryWalker {
         }
     }
 
-    private ImportContainer singleFile(File file) {
+    protected ImportContainer singleFile(File file) {
 
         if (file == null) {
             return null;
@@ -322,18 +340,19 @@ public class ImportCandidates extends DirectoryWalker {
                 reader.setMetadataCollected(METADATA);
                 reader.setId(path);
                 format = reader.getFormat();
-                usedFiles = reader.getUsedFiles();
+                usedFiles = getOrderedFiles();
                 String[] domains = reader.getReader().getPossibleDomains(path);
                 boolean isSPW = Arrays.asList(domains).contains(FormatTools.HCS_DOMAIN);
-    
+
                 return new ImportContainer(file, null, null, null, false, null,
                         format, usedFiles, isSPW);
 
             } finally {
                 readerTime += (System.currentTimeMillis() - start);
             }
-            
+
         } catch (UnknownFormatException ufe) {
+            unknown++;
             safeUpdate(new ErrorHandler.UNKNOWN_FORMAT(path, ufe));
         } catch (MissingLibraryException mle) {
             safeUpdate(new ErrorHandler.MISSING_LIBRARY(path, mle, usedFiles, format));
@@ -345,6 +364,30 @@ public class ImportCandidates extends DirectoryWalker {
 
     }
 
+    /**
+     * This method uses the {@link FileInfo#usedToInitialize} flag to re-order
+     * used files. All files which can be used to initialize a fileset are
+     * returned first.
+     */
+    private String[] getOrderedFiles() {
+
+        FileInfo[] infos = reader.getAdvancedUsedFiles(false);
+        String[] usedFiles = new String[infos.length];
+        
+        int count = 0;
+        for (int i = 0; i < usedFiles.length; i++) {
+            if (infos[i].usedToInitialize) {
+                usedFiles[count++] = infos[i].filename;
+            }
+        }
+        for (int i = 0; i < usedFiles.length; i++) {
+            if (!infos[i].usedToInitialize) {
+                usedFiles[count++] = infos[i].filename;
+            }
+        }
+        return usedFiles;
+    }
+    
     private void scanWithCancel(File f, int d) throws CANCEL{
         SCANNING s = new SCANNING(f, d, count, total);
         safeUpdate(s);
@@ -396,9 +439,9 @@ public class ImportCandidates extends DirectoryWalker {
         containers.add(info);
         allFiles.addAll(Arrays.asList(info.usedFiles));
         for (String string : info.usedFiles) {
-            Set<String> users = usedBy.get(string);
+            List<String> users = usedBy.get(string);
             if (users == null) {
-                users = new HashSet<String>();
+                users = new ArrayList<String>();
                 usedBy.put(string, users);
             }
             users.add(file.getAbsolutePath());
@@ -409,20 +452,23 @@ public class ImportCandidates extends DirectoryWalker {
      * The {@link Groups} class servers as an algorithm for sorting the usedBy
      * map from the {@link ImportCandidates#walk(File, Collection)} method.
      * These objects should never leave the outer class.
+     * 
+     * It is important that the Groups keep their used files ordered.
+     * @see ImportCandidates#getOrderedFiles()
      */
     private static class Groups {
 
         private class Group {
             String key;
-            Set<String> theyUseMe;
-            Set<String> iUseThem;
+            List<String> theyUseMe;
+            List<String> iUseThem;
 
             public Group(String key) {
                 this.key = key;
-                this.theyUseMe = new HashSet(usedBy.get(key));
+                this.theyUseMe = new ArrayList<String>(usedBy.get(key));
                 this.theyUseMe.remove(key);
-                this.iUseThem = new HashSet<String>();
-                for (Map.Entry<String, Set<String>> entry : usedBy.entrySet()) {
+                this.iUseThem = new ArrayList<String>();
+                for (Map.Entry<String, List<String>> entry : usedBy.entrySet()) {
                     if (entry.getValue().contains(key)) {
                         iUseThem.add(entry.getKey());
                     }
@@ -471,11 +517,11 @@ public class ImportCandidates extends DirectoryWalker {
 
         }
 
-        private final Map<String, Set<String>> usedBy;
-        private final Map<String, Group> groups = new HashMap<String, Group>();
+        private final Map<String, List<String>> usedBy;
+        private final Map<String, Group> groups = new LinkedHashMap<String, Group>();
         private List<String> ordering;
 
-        Groups(Map<String, Set<String>> usedBy) {
+        Groups(Map<String, List<String>> usedBy) {
             this.usedBy = usedBy;
             for (String key : usedBy.keySet()) {
                 groups.put(key, new Group(key));
@@ -495,7 +541,7 @@ public class ImportCandidates extends DirectoryWalker {
             if (ordering != null) {
                 throw new RuntimeException("Already ordered");
             }
-            for (Group g : new HashSet<Group>(groups.values())) {
+            for (Group g : new ArrayList<Group>(groups.values())) {
                 g.removeSelfIfSingular();
             }
             ordering = new ArrayList<String>(groups.keySet());
@@ -538,7 +584,7 @@ public class ImportCandidates extends DirectoryWalker {
             System.out.println("\n# ************ " + s + " ************ \n");
         }
 
-        static Groups test(int count, Map<String, Set<String>> t) {
+        static Groups test(int count, Map<String, List<String>> t) {
 
             System.out.println("\n\n");
             line("TEST " + count);
@@ -560,20 +606,25 @@ public class ImportCandidates extends DirectoryWalker {
                     .println("#  This runs the test suite. If you would like to");
             System.out.println("#  import the current directory use \"\".");
 
-            Map<String, Set<String>> t = new HashMap<String, Set<String>>();
-            t.put("a.dv.log", new HashSet(Arrays.asList("b.dv")));
-            t.put("b.dv", new HashSet(Arrays.asList("b.dv")));
+            Map<String, List<String>> t = new LinkedHashMap<String, List<String>>();
+            t.put("a.dv.log", Arrays.asList("b.dv"));
+            t.put("b.dv", Arrays.asList("b.dv"));
             test(1, t);
 
-            t = new HashMap<String, Set<String>>();
-            t.put("a.png", new HashSet(Arrays.asList("a.png")));
+            t = new LinkedHashMap<String, List<String>>();
+            t.put("a.png", Arrays.asList("a.png"));
             test(2, t);
 
-            t = new HashMap<String, Set<String>>();
-            t.put("a.tiff", new HashSet(Arrays.asList("a.tiff", "c.lei")));
-            t.put("b.tiff", new HashSet(Arrays.asList("b.tiff", "c.lei")));
-            t.put("c.lei", new HashSet(Arrays.asList("c.lei")));
-            return test(3, t);
+            t = new LinkedHashMap<String, List<String>>();
+            t.put("a.tiff", Arrays.asList("a.tiff", "c.lei"));
+            t.put("b.tiff", Arrays.asList("b.tiff", "c.lei"));
+            t.put("c.lei", Arrays.asList("c.lei"));
+            test(3, t);
+
+            t = new LinkedHashMap<String, List<String>>();
+            t.put("overlay.tiff", Arrays.asList("overlay.tiff"));
+            t.put("b.tiff", Arrays.asList("b.tiff", "overlay.tiff"));
+            return test(4, t);
 
         }
 
