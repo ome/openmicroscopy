@@ -2515,8 +2515,10 @@ class ChannelWrapper (omero.gateway.ChannelWrapper):
         meta_serv = self._conn.getMetadataService()
         if self._obj is None:
             return None
+        elif self._obj.logicalChannel is None:
+            return None
         else:
-            lc = meta_serv.loadChannelAcquisitionData([long(self._obj.id.val)])
+            lc = meta_serv.loadChannelAcquisitionData([long(self._obj.logicalChannel.id.val)])
             if lc is not None and len(lc) > 0:
                 return LogicalChannelWrapper(self._conn, lc[0])
             return None
