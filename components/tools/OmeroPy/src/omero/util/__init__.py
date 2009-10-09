@@ -312,6 +312,12 @@ class Servant(SimpleServant):
             self.ctx.session_holder = omero.util.SessionHolder(sf)
             self.resources.add(self.ctx.session_holder)
 
+    def getSession(self):
+        """
+        For the moment, just access the sf, but should eventually reload if necessary.
+        """
+        return self.ctx.session_holder.sf
+
     def cleanup(self):
         """
         Cleanups all resoures created by this servant. Calling

@@ -480,7 +480,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
 
         if not self.repo_dir:
             # Implies this is the legacy directory. Obtain from server
-            self.repo_dir = self.sf.getConfigService().getConfigValue("omero.data.dir")
+            self.repo_dir = self.getSession().getConfigService().getConfigValue("omero.data.dir")
 
         self.repo_cfg = path(self.repo_dir) / ".omero" / "repository"
         start = time.time()
@@ -499,7 +499,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         for this grid instance. Multiple OMERO.grids could be watching
         the same directory.
         """
-        cfg = self.sf.getConfigService()
+        cfg = self.getSession().getConfigService()
         self.db_uuid = cfg.getDatabaseUuid()
         self.instance = self.repo_cfg / self.db_uuid
 
