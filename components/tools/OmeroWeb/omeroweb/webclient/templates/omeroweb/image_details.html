@@ -145,28 +145,31 @@
         <div><div class="metadata_details">
             <table class="forms">
             {% if form_objective %}
-            <tr><th><br/>{% trans "Objective" %}:</th></tr>
+            <tr><th>{% trans "Objective" %}:</th><td colspan="2"></td></tr>
                 {% for field in form_objective %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
                     <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
                 </tr>
                 {% endfor %}
+                <tr><th><br/></th><td colspan="2"></td></tr>
             {% endif %}
             {% if form_environment %}
-            <tr><th><br/>{% trans "Environment" %}:</th></tr>
+            <tr><th>{% trans "Environment" %}:</th><td colspan="2"></td></tr>
                 {% for field in form_environment %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
                     <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
                 </tr>
                 {% endfor %}
+                <tr><th><br/></th><td colspan="2"></td></tr>
             {% endif %}
             {% if form_stageLabel %}
-            <tr><th><br/>{% trans "Stage label" %}:</th></tr>
+            <tr><th>{% trans "Stage label" %}:</th><td colspan="2"></td></tr>
                 {% for field in form_stageLabel %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
                     <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
                 </tr>
                 {% endfor %}
+                <tr><th><br/></th><td colspan="2"></td></tr>
             {% endif %}
             </table>
         </div></div>
@@ -177,31 +180,31 @@
         <div><div class="metadata_details">
             <table class="forms">
             {% if form_objective %}
-            <tr><th>{% trans "Objective" %}:</th></tr>
+            <tr><th>{% trans "Objective" %}:</th><td colspan="2"></td></tr>
                 {% for field in form_objective %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
                     <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
                 </tr>
                 {% endfor %}
-            <tr><th><br/></th></tr>
+            <tr><th><br/></th><td colspan="2"></td></tr>
             {% endif %}
             {% for form in form_filters %}
-                <tr><th>{% trans "Filter" %}:</th></tr>
+                <tr><th>{% trans "Filter" %}:</th><td colspan="2"></td></tr>
                 {% for field in form %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
                     <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
                 </tr>
                 {% endfor %}
-            <tr><th><br/></th></tr>
+            <tr><th><br/></th><td colspan="2"></td></tr>
             {% endfor %}
             {% for form in form_detectors %}
-                <tr><th>{% trans "Detector" %}:</th></tr>
+                <tr><th>{% trans "Detector" %}:</th><td colspan="2"></td></tr>
                 {% for field in form %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
                     <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
                 </tr>
                 {% endfor %}
-            <tr><th><br/></th></tr>
+            <tr><th><br/></th><td colspan="2"></td></tr>
             {% endfor %}
             </table>
         </div></div>
@@ -217,7 +220,7 @@
                 </tr>
                 {% endfor %}
                 {% if ch.form_emission_filter %}
-                <tr><th><br/>{% trans "Filter" %}:</th></tr>
+                <tr><th><br/>{% trans "Filter" %}:</th><td colspan="2"></td></tr>
                 {% for field in ch.form_emission_filter %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
                     <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
@@ -225,7 +228,7 @@
                 {% endfor %}
                 {% endif %}
                 {% if ch.form_detector_settings %}
-                <tr><th><br/>{% trans "Detector" %}:</th></tr>
+                <tr><th><br/>{% trans "Detector" %}:</th><td colspan="2"></td></tr>
                 {% for field in ch.form_detector_settings %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
                     <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
@@ -233,7 +236,7 @@
                 {% endfor %}
                 {% endif %}
                 {% if ch.form_light_source %}
-                <tr><th><br/>{% trans "Light source" %}:</th></tr>
+                <tr><th><br/>{% trans "Light source" %}:</th><td colspan="2"></td></tr>
                 {% for field in ch.form_light_source %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
                     <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
