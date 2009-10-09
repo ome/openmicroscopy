@@ -282,24 +282,27 @@ public class ImportConfig {
         
         Logger l = Logger.getLogger("ome.formats");
         l.setLevel(Level.DEBUG);
-        LogTools.setDebug(true);
         
-        final Logger loci = Logger.getLogger("loci.common.Log");
-        loci.setLevel(Level.DEBUG);
-
-        LogTools.setDebug(true);
-        LogTools.setDebugLevel(level);
-        LogTools.setLog(new loci.common.Log() {
-            @Override
-            public void print(String x) {
-                loci.debug(x);
-            }
-            @Override
-            public void flush() {
-                // noop
-            }
-        } );
-
+        // loci.* prints so much, that at 0 we're ignoring it
+        // beyond that, we set loci's level to level - 1
+        if (level.intValue() > 0) {
+            final Logger loci = Logger.getLogger("loci.common.Log");
+            LogTools.setDebug(true);
+            loci.setLevel(Level.DEBUG);
+    
+            LogTools.setDebug(true);
+            LogTools.setDebugLevel(level-1);
+            LogTools.setLog(new loci.common.Log() {
+                @Override
+                public void print(String x) {
+                    loci.debug(x);
+                }
+                @Override
+                public void flush() {
+                    // noop
+                }
+            } );
+        }
 
 
     }

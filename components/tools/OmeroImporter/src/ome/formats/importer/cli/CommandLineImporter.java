@@ -243,7 +243,7 @@ public class CommandLineImporter {
                 } catch (Exception e) {
                     // ok
                 }
-                config.configureDebug(level);                
+                config.configureDebug(level);
                 break;
             }
             case 2: {
