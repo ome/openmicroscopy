@@ -108,7 +108,6 @@ public class JXTaskPaneContainerSingle
 	 */
 	public void add(JXTaskPane c)
 	{
-		//super.add(c);
 		int index = panes.size();
 		TableLayout layout = (TableLayout) getLayout();
 		double h;

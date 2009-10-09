@@ -72,6 +72,7 @@ import ome.system.UpgradeCheck;
 import omero.AuthenticationException;
 import omero.InternalException;
 import omero.RLong;
+import omero.RMap;
 import omero.RType;
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -106,7 +107,9 @@ import omero.grid.Column;
 import omero.grid.Data;
 import omero.grid.DoubleColumn;
 import omero.grid.ImageColumn;
+import omero.grid.InteractiveProcessorPrx;
 import omero.grid.LongColumn;
+import omero.grid.ProcessPrx;
 import omero.grid.RoiColumn;
 import omero.grid.StringColumn;
 import omero.grid.TablePrx;
@@ -142,6 +145,8 @@ import omero.model.ProjectI;
 import omero.model.RenderingDef;
 import omero.model.Screen;
 import omero.model.ScreenI;
+import omero.model.ScriptJob;
+import omero.model.ScriptJobI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TimestampAnnotation;
@@ -3565,30 +3570,29 @@ class OMEROGateway
 					fMust = formatText(must, "url");
 					fNone = formatText(none, "url");
 				}
-				
 				owner = owners.iterator();
-				if (fSome != null) {
-					while (owner.hasNext()) {
-						d = owner.next();
-						service.onlyOwnedBy(d);
-						service.bySomeMustNone(fSome, fMust, fNone);
-						size = handleSearchResult(
-								convertTypeForSearch(Image.class), rType, 
-								service);
-						if (size instanceof Integer)
+				//if (fSome != null) {
+				while (owner.hasNext()) {
+					d = owner.next();
+					service.onlyOwnedBy(d);
+					service.bySomeMustNone(fSome, fMust, fNone);
+					size = handleSearchResult(
+							convertTypeForSearch(Image.class), rType, 
+							service);
+					if (size instanceof Integer)
+						results.put(key, size);
+					service.clearQueries();
+					if (!(size instanceof Integer) && fSomeSec != null) {
+						service.bySomeMustNone(fSomeSec, fMustSec, 
+								fNoneSec);
+						size = handleSearchResult(Image.class.getName(), 
+								rType, service);
+						if (size instanceof Integer) 
 							results.put(key, size);
 						service.clearQueries();
-						if (!(size instanceof Integer) && fSomeSec != null) {
-							service.bySomeMustNone(fSomeSec, fMustSec, 
-									fNoneSec);
-							size = handleSearchResult(Image.class.getName(), 
-									rType, service);
-							if (size instanceof Integer) 
-								results.put(key, size);
-							service.clearQueries();
-						}
 					}
 				}
+				//}
 			}
 			service.close();
 			return results;
@@ -4468,10 +4472,22 @@ class OMEROGateway
 					param.getFormatAsString()));
 			parameters.map.put("overlayColour", omero.rtypes.rlong(
 					param.getColor()));
-			Map<String, RType> result = svc.runScript(id, parameters.map);
+			/*
+			ScriptJob job = new ScriptJobI();
+			job.linkOriginalFile(new OriginalFileI(id, false));
+			InteractiveProcessorPrx prx = 
+				entry.sharedResources().acquireProcessor(job, 60); 
+			ProcessPrx proc = prx.execute(omero.rtypes.rmap(parameters.map));
+			//prx.wait();
+			//Map<String, RType> result = svc.runScript(id, parameters.map);
+			RMap map = prx.getResults(proc);
+			if (map == null) return -1;
+			Map<String, RType> result = prx.getResults(proc).getValue();
 			RLong type = (RLong) result.get("fileAnnotation");
 			if (type == null) return -1;
 			return type.getValue();
+			*/
+			return -1;
 		} catch (Exception e) {
 			handleException(e, "Cannot create a movie for image: "+imageID);
 		}

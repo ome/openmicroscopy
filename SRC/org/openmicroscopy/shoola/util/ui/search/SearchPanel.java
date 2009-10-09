@@ -1279,14 +1279,13 @@ class SearchPanel
 	void advancedSearch(boolean advancedSearch)
 	{
 		this.advancedSearch = advancedSearch;
-		if (advancedSearch) {
-			fullTextArea.setEnabled(false);
-			atLeastTermsArea.requestFocus();
-		} else {
-			fullTextArea.setEnabled(true);
-			fullTextArea.requestFocus();
-		}
+		if (advancedSearch) fullTextArea.setEnabled(false);
+		else fullTextArea.setEnabled(true);
+		
 		buildSearchFor();
+		if (advancedSearch) atLeastTermsArea.requestFocus();
+		else fullTextArea.requestFocus();
+		
 		revalidate();
 		repaint();
 	}
