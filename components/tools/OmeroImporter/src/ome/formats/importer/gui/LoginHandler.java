@@ -398,7 +398,12 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     {
         for (IObserver observer:observers)
         {
-            observer.update(this, event);
+            try {
+                observer.update(this, event);
+            } catch (Exception e) 
+            {
+                log.error(e);
+            }
         }
     }
 
