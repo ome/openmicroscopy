@@ -41,6 +41,7 @@ from django.template import RequestContext as Context
 from django.views.defaults import page_not_found, server_error
 from django.views import debug
 
+from omeroweb.feedback.sendfeedback import SendFeedback 
 from omeroweb.feedback.models import ErrorForm
 
 logger = logging.getLogger('views-feedback')

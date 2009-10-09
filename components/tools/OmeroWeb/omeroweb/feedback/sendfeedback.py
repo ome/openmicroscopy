@@ -43,7 +43,7 @@ class SendFeedback(object):
             conn = httplib.HTTPConnection(self.feedback_url)
             try:
                 try:
-                    p = {'error': feedback['error'], "app_name":feedback['app_name'], "app_version":feedback['app_version']}
+                    p = {'error': feedback['error'], "app_name":feedback['app_name'], "app_version":feedback['app_version'], "extra":""}
                     if feedback['email'] is not None:
                         p['email'] = feedback['email']
                     if feedback['comment'] is not None:

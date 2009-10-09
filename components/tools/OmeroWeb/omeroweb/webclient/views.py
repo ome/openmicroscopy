@@ -619,23 +619,32 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
         manager.originalMetadata()
         manager.channelMetadata()
         for ch in manager.channel_metadata:
-            form_channels.append({
-                'form':MetadataChannelForm(initial={'logicalChannel': ch.getLogicalChannel(), 
-                                    'illuminations': list(conn.getEnumerationEntries("IlluminationI")), 
-                                    'contrastMethods': list(conn.getEnumerationEntries("ContrastMethodI")), 
-                                    'modes': list(conn.getEnumerationEntries("AcquisitionModeI"))}), 
-                'form_emission_filter': MetadataFilterForm(initial={'filter': ch.getLogicalChannel().getEmissionFilter(),
-                                    'types':list(conn.getEnumerationEntries("FilterTypeI"))}), 
-                'form_detector_settings': MetadataDetectorForm(initial={'detector': ch.getLogicalChannel().getDetectorSettings(),
-                                    'types':list(conn.getEnumerationEntries("DetectorTypeI"))}), 
-                'form_light_source': MetadataLightSourceForm(initial={'lightSource': ch.getLogicalChannel().getLightSource(),
-                                    'types':list(conn.getEnumerationEntries("FilterTypeI")), 
-                                    'mediums': list(conn.getEnumerationEntries("MediumI")),
-                                    'pulses': list(conn.getEnumerationEntries("PulseI"))}), 
-                'name': ch.getEmissionWave(), 
-                'color': ch.getColor().getHtml()})
+            if ch.getLogicalChannel() is not None:
+                channel = dict()
+                channel['form'] = MetadataChannelForm(initial={'logicalChannel': ch.getLogicalChannel(), 
+                                        'illuminations': list(conn.getEnumerationEntries("IlluminationI")), 
+                                        'contrastMethods': list(conn.getEnumerationEntries("ContrastMethodI")), 
+                                        'modes': list(conn.getEnumerationEntries("AcquisitionModeI"))})
+                if ch.getLogicalChannel().getEmissionFilter() is not None:
+                    channel['form_emission_filter'] = MetadataFilterForm(initial={'filter': ch.getLogicalChannel().getEmissionFilter(),
+                                        'types':list(conn.getEnumerationEntries("FilterTypeI"))})
+                if ch.getLogicalChannel().getDetectorSettings() is not None:
+                    channel['form_detector_settings'] = MetadataDetectorForm(initial={'detector': ch.getLogicalChannel().getDetectorSettings(),
+                                        'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
+                if ch.getLogicalChannel().getLightSource() is not None:
+                    channel['form_light_source'] = MetadataLightSourceForm(initial={'lightSource': ch.getLogicalChannel().getLightSource(),
+                                        'types':list(conn.getEnumerationEntries("FilterTypeI")), 
+                                        'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
+                                        'pulses': list(conn.getEnumerationEntries("PulseI"))})
+                channel['name'] = ch.getEmissionWave()
+                channel['color'] = ch.getColor().getHtml()
+                form_channels.append(channel)
         
-        form_objective = MetadataObjectiveForm(initial={'image': manager.image, 'mediums': list(conn.getEnumerationEntries("MediumI")), 'immersions': list(conn.getEnumerationEntries("ImmersionI")), 'corrections': list(conn.getEnumerationEntries("CorrectionI")) })
+        if manager.image.getObjectiveSettings() is not None:
+            form_objective = MetadataObjectiveForm(initial={'image': manager.image, 
+                                    'mediums': list(conn.getEnumerationEntries("MediumI")), 
+                                    'immersions': list(conn.getEnumerationEntries("ImmersionI")), 
+                                    'corrections': list(conn.getEnumerationEntries("CorrectionI")) })
         if manager.image.getImagingEnvironment() is not None:
             form_environment = MetadataEnvironmentForm(initial={'image': manager.image})
         if manager.image.getStageLabel() is not None:
