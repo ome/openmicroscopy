@@ -173,16 +173,94 @@ def long_to_path(id, root=""):
 
 class ServerContext(object):
     """
-    Simple server context passed to all servants.
+    Context passed to all servants.
+
     server_id, communicator, and stop_event will be
-    constructed by the top-level Server instance. A
-    servant may want to stop its session_holder here.
+    constructed by the top-level Server instance.
+
+    A context instance may also be configured to hold
+    on to an internal session (ServiceFactoryPrx) and
+    keep it alive.
+
+    This instance obeys the Resources API and calls
+    sf.keepAlive(None) on every check call, but does
+    nothing on cleanup. The sf instance must be manually
+    cleaned as the final operation of a servant.
+
+    (Note: cleanup of the server context indicates
+    server shutdown, so should be infrequent)
     """
+
     def __init__(self, server_id, communicator, stop_event):
+        self._lock = threading.RLock()
+        self.logger = logging.getLogger("omero.util.ServerContext")
         self.server_id = server_id
         self.communicator = communicator
         self.stop_event = stop_event
-        self.session_holder = None
+
+    def newSession(self):
+        self.session = internal_service_factory(self.communicator, stop_event = self.stop_event)
+
+    def hasSession(self):
+        return hasattr(self, "session")
+
+    @locked
+    def getSession(self, recreate = False):
+        """
+        Returns the ServiceFactoryPrx configured for the context if
+        available. If the context was not configured for sessions,
+        an ApiUsageException will be thrown: servants should know
+        whether or not they were configured for sessions.
+        See Servant(..., needs_session = True)
+
+        Otherwise, if there is no ServiceFactoryPrx, an attempt will
+        be made to create one if recreate == True. If the value is None
+        or non can be recreated, an InternalException will be thrown.
+
+        TODO : currently no arguments are provided for re-creating these,
+        but also not in Servant.__init__
+        """
+        if not self.hasSession():
+            raise omero.ApiUsageException("Not configured for server connection")
+
+        if self.session:
+            try:
+                self.session.keepAlive(None)
+            except exceptions.Exception, e:
+                self.logger.warn("Connection failure: %s" % e)
+                self.session = None
+
+        if self.session is None and recreate:
+            try:
+                self.newSession()
+            except exceptions.Exception, e:
+                self.logger.warn("Failed to re-establish connection: %s" % e)
+
+        if self.session is None:
+            raise omero.InternalException("No conection to server")
+
+        return self.session
+
+    def check(self):
+        """
+        Calls getSession() but always returns True. This keeps the context
+        available in the resources for later uses, and tries to re-establish
+        a connection in case Blitz goes down.
+        """
+        try:
+            self.getSession()
+        except:
+            pass
+        return True
+
+    def cleanup(self):
+        """
+        Does nothing. Context clean up must happen manually
+        since later activities may want to reuse it. Servants using
+        a server connection should cleanup the instance *after* Resources
+        is cleaned up
+        """
+        pass
 
 class Server(Ice.Application):
     """
@@ -297,26 +375,17 @@ class Servant(SimpleServant):
     These provide resource cleanup as per the omero.util.Server
     class.
 
-    By passing "session = True" to this constructor, an internal
-    session will be created and stored in self.ctx.session_holder
-    as well as registered with self.resources
+    By passing "needs_session = True" to this constructor, an internal
+    session will be created and stored in ServerContext as well as
+    registered with self.resources
     """
 
-    def __init__(self, ctx, session = False):
+    def __init__(self, ctx, needs_session = False):
         SimpleServant.__init__(self, ctx)
         self.resources = omero.util.Resources(sleeptime = 60, stop_event = self.stop_event)
-        if session:
-            sf = omero.util.internal_service_factory(self.communicator, stop_event = self.stop_event)
-            if sf is None:
-                raise omero.InternalException(None, None, "Could not acquire an internal service factory")
-            self.ctx.session_holder = omero.util.SessionHolder(sf)
-            self.resources.add(self.ctx.session_holder)
-
-    def getSession(self):
-        """
-        For the moment, just access the sf, but should eventually reload if necessary.
-        """
-        return self.ctx.session_holder.sf
+        if needs_session:
+            self.ctx.newSession()
+            self.resources.add(self.ctx)
 
     def cleanup(self):
         """
@@ -329,17 +398,13 @@ class Servant(SimpleServant):
             self.logger.info("Cleaning up")
             resources.cleanup()
             self.logger.info("Done")
-        session_holder = self.ctx.session_holder
-        self.ctx.session_holder = None
-        if session_holder:
-            sf = session_holder.sf
-            if sf:
-                try:
-                    sf.destroy()
-                except:
-                    pass
-                self.logger.debug("%s destroyed" % sf)
-
+        if self.ctx.hasSession():
+            try:
+                sf = self.ctx.getSession(recreate=False)
+                self.logger.debug("Destroying %s" % sf)
+                sf.destroy()
+            except:
+                pass
 
     def __del__(self):
         self.cleanup()
@@ -478,39 +543,6 @@ class Resources:
 
     def __del__(self):
         self.cleanup()
-
-class SessionHolder(object):
-    """
-    Simple session holder to be put into omero.util.Resources
-    Calls sf.keepAlive(None) during every check call, and
-    does nothing on cleanup. The sf instance must be manually
-    cleaned. (Note: Usually indicates server shutdown, so should
-    be in frequent)
-    """
-
-    def __init__(self, sf):
-        self.sf = sf
-        self.logger = logging.getLogger("omero.util.SessionHolder")
-
-    def check(self):
-        sf = self.sf
-        if sf:
-            try:
-                sf.keepAlive(None)
-            except excptions.Exception, e:
-                self.logger.debug("KeepAlive failed for %s: %s", self, e)
-                # TODO: we will probably want to try to reconnect here!
-        return True
-
-    def cleanup(self):
-        """
-        Does nothing. SessionHolder clean up must happen manually
-        since later activities may want to reuse it. Servants using
-        a SessionHolder should cleanup the instance *after* Resources
-        is cleaned up
-        """
-
-        self.sf = None
 
 class Environment:
     """

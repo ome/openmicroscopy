@@ -69,11 +69,6 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         self.stopped = None                   #: time of deactivation
         # Non arguments (immutable state)
         self.uuid = properties["omero.user"]  #: session this instance is tied to
-        self.holder = self.ctx.session_holder #: session_holder used to keep session alive
-        if self.holder is None or self.holder.sf is None:
-            # They must exist, but the sf may change so don't
-            # hold onto a reference.
-            raise omero.InternalException(None, None, "SessionHolder cannot be None")
 
         # More fields set by these methods
         self.make_files()
@@ -245,14 +240,9 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         if not self.wasActivated():
             return True # This should only happen on startup, so ignore
 
-        # Are we already cleaned up?
-        holder = self.holder
-        if not holder:
-            return False
-
         try:
             self.poll()
-            holder.sf.getSessionService().getSession(self.uuid)
+            self.ctx.getSession().getSessionService().getSession(self.uuid)
             return True
         except:
             self.status("Keep alive failed")
@@ -269,23 +259,25 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         if self.isRunning():
             self.deactivate()
 
-        holder = self.holder
-        self.holder = None
-        if holder:
-            self.status("Cleaning")
-            svc = holder.sf.getSessionService()
-            obj = omero.model.SessionI()
-            obj.uuid = omero.rtypes.rstring(self.uuid)
-            try:
-                if self.iskill:
-                    self.status("Killing session")
-                    while svc.closeSession(obj) > 0:
-                        pass
-                # No action to be taken when iskill == False if
-                # we don't have an actual client to worry with.
-            except:
-                self.logger.error("Error on session cleanup, kill=%s" % self.iskill, exc_info = True)
-            holder = None
+        try:
+            sf = self.ctx.getSession()
+        except:
+            self.logger.warn("Can't get session for cleanup")
+            return
+
+        self.status("Cleaning")
+        svc = sf.getSessionService()
+        obj = omero.model.SessionI()
+        obj.uuid = omero.rtypes.rstring(self.uuid)
+        try:
+            if self.iskill:
+                self.status("Killing session")
+                while svc.closeSession(obj) > 0:
+                    pass
+            # No action to be taken when iskill == False if
+            # we don't have an actual client to worry with.
+        except:
+            self.logger.error("Error on session cleanup, kill=%s" % self.iskill, exc_info = True)
 
     def cleanup_output(self):
         """
@@ -356,16 +348,19 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         Remove all known files and finally the temporary directory.
         If other files exist, an exception will be raised.
         """
-        for path in [self.config_name, self.stdout_name, self.stderr_name, self.script_name]:
-            if os.path.exists(path):
+        for p in [self.config_name, self.stdout_name, self.stderr_name, self.script_name]:
+            if os.path.exists(p):
                 try:
-                    os.remove(path)
+                    os.remove(p)
                 except:
-                    self.logger.error("Failed to remove file %s" % path, exc_info = True)
+                    self.logger.error("Failed to remove file %s" % p, exc_info = True)
         try:
-            os.removedirs(self.dir)
+            path(self.dir).rmtree(onerror = self.on_cleanup_error)
         except:
             self.logger.error("Failed to remove dir %s" % self.dir, exc_info = True)
+
+    def on_cleanup_error(self, func, path, exc_info):
+        self.logger.error("Error on %s for %s" % (func, path))
 
 
     #
@@ -541,7 +536,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
 class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
     def __init__(self, ctx):
-        omero.util.Servant.__init__(self, ctx, session = True)
+        omero.util.Servant.__init__(self, ctx, needs_session = True)
         self.cfg = os.path.join(os.curdir, "etc", "ice.config")
         self.cfg = os.path.abspath(self.cfg)
 

@@ -456,14 +456,13 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         table_cast = omero.grid.TablePrx.uncheckedCast,\
         internal_repo_cast = omero.grid.InternalRepositoryPrx.checkedCast):
 
-        omero.util.Servant.__init__(self, ctx, session = True)
+        omero.util.Servant.__init__(self, ctx, needs_session = True)
 
         # Storing these methods, mainly to allow overriding via
         # test methods. Static methods are evil.
         self._table_cast = table_cast
         self._internal_repo_cast = internal_repo_cast
 
-        self._lock = threading.RLock()
         self.__stores = []
         self._get_dir()
         self._get_uuid()
@@ -480,7 +479,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
 
         if not self.repo_dir:
             # Implies this is the legacy directory. Obtain from server
-            self.repo_dir = self.getSession().getConfigService().getConfigValue("omero.data.dir")
+            self.repo_dir = self.ctx.getSession().getConfigService().getConfigValue("omero.data.dir")
 
         self.repo_cfg = path(self.repo_dir) / ".omero" / "repository"
         start = time.time()
@@ -499,7 +498,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         for this grid instance. Multiple OMERO.grids could be watching
         the same directory.
         """
-        cfg = self.getSession().getConfigService()
+        cfg = self.ctx.getSession().getConfigService()
         self.db_uuid = cfg.getDatabaseUuid()
         self.instance = self.repo_cfg / self.db_uuid
 
@@ -517,7 +516,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         self.repo_uuid = self.repo_uuid[2:]
 
         # Using the repo_uuid, find our OriginalFile object
-        self.repo_obj = self.getSession().getQueryService().findByQuery("select f from OriginalFile f where sha1 = :uuid",
+        self.repo_obj = self.ctx.getSession().getQueryService().findByQuery("select f from OriginalFile f where sha1 = :uuid",
             omero.sys.ParametersI().add("uuid", rstring(self.repo_uuid)))
         self.repo_mgr = self.communicator.stringToProxy("InternalRepository-%s" % self.repo_uuid)
         self.repo_mgr = self._internal_repo_cast(self.repo_mgr)
