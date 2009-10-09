@@ -1514,12 +1514,10 @@ public class EditorUtil
         	return details;
 		}
 		Double f = data.getLigthSettingsAttenuation();
-		if (f == null) {
-			double v = 0;
-			if (f == null) notSet.add(ATTENUATION);
-			else v = f;
-			details.put(ATTENUATION, v*PERCENT_FRACTION);
-		}
+		double v = 0;
+		if (f == null) notSet.add(ATTENUATION);
+		else v = f;
+		details.put(ATTENUATION, v*PERCENT_FRACTION);
 		Integer i = data.getLigthSettingsWavelength();
         if (details.containsKey(WAVELENGTH)) {
         	
@@ -1527,10 +1525,10 @@ public class EditorUtil
         		details.put(WAVELENGTH, i);
         	}
         } else {
-        	int v = 0;
+        	int vi = 0;
 			if (i == null) notSet.add(WAVELENGTH);
-			else v = i;
-			details.put(WAVELENGTH, v);
+			else vi = i;
+			details.put(WAVELENGTH, vi);
         }
         details.put(NOT_SET, notSet);
     	return details;
