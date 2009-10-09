@@ -1,11 +1,11 @@
 """
     OMERO.fs Monitor module .
 
+    Copyright 2009 University of Dundee. All rights reserved.
+    Use is subject to license terms supplied in LICENSE.txt
 
 """
 import logging
-log = logging.getLogger("fsserver."+__name__)
-
 import threading
 import os, sys, traceback
 import uuid
@@ -61,6 +61,7 @@ class AbstractMonitor(object):
             Initialise Monitor.
 
         """
+        self.log = logging.getLogger("fsclient."+__name__)
         self.proxy = proxy
         self.monitorId = monitorId
         self.pMonitor = PlatformMonitor.PlatformMonitor(eventTypes, pathMode, pathString, whitelist, blacklist, 
@@ -173,7 +174,7 @@ class InactivityMonitor(AbstractMonitor):
         AbstractMonitor.__init__(self, eventTypes, pathMode, pathString, whitelist, blacklist, 
                             ignoreSysFiles, ignoreDirEvents, proxy, monitorId)
         self.timer = threading.Timer(timeout, self.inactive)
-        log.info('Inactivity monitor created. Timer: %s', str(self.timer))
+        self.log.info('Inactivity monitor created. Timer: %s', str(self.timer))
 
     def inactive(self):
         """
@@ -241,16 +242,16 @@ class OneShotMonitor(AbstractMonitor):
         AbstractMonitor.__init__(self, eventTypes, pathMode, pathString, whitelist, blacklist, 
                             ignoreSysFiles, ignoreDirEvents, proxy, monitorId)
         self.timer = threading.Timer(timeout, self.inactive)
-        log.info('OneShot monitor created. Timer: %s', str(self.timer))
+        self.log.info('OneShot monitor created. Timer: %s', str(self.timer))
 
     def inactive(self):
         """
         
         """
-        log.info('Timed out. Timer: %s', str(self.timer))
+        self.log.info('Timed out. Timer: %s', str(self.timer))
         self.stop()
         self.callback([("Timed out", monitors.EventType.System)])
-        log.info('Stopped! Timer: %s', str(self.timer))
+        self.log.info('Stopped! Timer: %s', str(self.timer))
         
     def start(self):
         """
@@ -291,8 +292,8 @@ class OneShotMonitor(AbstractMonitor):
             :return: No explicit return value.
 
         """
-        log.info('File arrived. Timer: %s', str(self.timer))
+        self.log.info('File arrived. Timer: %s', str(self.timer))
         self.stop()
         self.proxy.callback(self.monitorId, eventList)
-        log.info('Stopped! Timer: %s', str(self.timer))
+        self.log.info('Stopped! Timer: %s', str(self.timer))
 

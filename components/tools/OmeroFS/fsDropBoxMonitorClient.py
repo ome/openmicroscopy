@@ -1,6 +1,9 @@
 """
     OMERO.fs  DropBox implementation of a MonitorClient
 
+    Copyright 2009 University of Dundee. All rights reserved.
+    Use is subject to license terms supplied in LICENSE.txt
+
 """
 
 import logging
@@ -48,7 +51,7 @@ class MonitorState(object):
             return "<Entry:%s>"%id(self)
 
     def __init__(self):
-        self.log = logging.getLogger("fsclient.MonitorState")
+        self.log = logging.getLogger("fsclient."+__name__)
         self._lock = threading.RLock()
         self.__entries = {}
         self.__timers = 0
@@ -200,7 +203,7 @@ class MonitorWorker(threading.Thread):
     """
     def __init__(self, wait, batch, event, queue, callback):
         threading.Thread.__init__(self)
-        self.log = logging.getLogger("fsclient.MonitorWorker")
+        self.log = logging.getLogger("fsclient."+__name__)
         # numbers
         self.wait = wait
         self.batch = batch

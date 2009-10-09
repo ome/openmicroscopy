@@ -1,11 +1,11 @@
 """
     OMERO.fs Monitor module for Linux.
 
+    Copyright 2009 University of Dundee. All rights reserved.
+    Use is subject to license terms supplied in LICENSE.txt
 
 """
 import logging
-log = logging.getLogger("fsserver."+__name__)
-        
 import copy
 import threading
 import sys, traceback
@@ -20,14 +20,15 @@ import path as pathModule
 from omero.grid import monitors
 from fsAbstractPlatformMonitor import AbstractPlatformMonitor
 
+importlog = logging.getLogger("fsserver."+__name__)     
 import pyinotify
 try:
     # pyinotify 0.8
-    log.info("Imported pyinotify version %s", pyinotify.__version__)
+    importlog.info("Imported pyinotify version %s", pyinotify.__version__)
     EventsCodes = pyinotify
 except:
     # pyinotify 0.7 or below
-    log.info("Imported pyinotify version <= 0.7.x")
+    importlog.info("Imported pyinotify version <= 0.7.x")
     try:
         from pyinotify import EventsCodes
     except:
@@ -77,6 +78,7 @@ class PlatformMonitor(AbstractPlatformMonitor):
                     
         """
         AbstractPlatformMonitor.__init__(self, eventTypes, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, ignoreDirEvents, proxy)
+        self.log = logging.getLogger("fsserver."+__name__)
 
         recurse = False
         follow = False
@@ -87,30 +89,10 @@ class PlatformMonitor(AbstractPlatformMonitor):
             recurse = True
         
         self.wm = MyWatchManager()
-        self.notifier = pyinotify.ThreadedNotifier(self.wm, ProcessEvent(wm=self.wm, cb=self.callback, et=self.eTypes,  ignoreDirEvents=self.ignoreDirEvents))      
+        self.notifier = pyinotify.ThreadedNotifier(self.wm, ProcessEvent(wm=self.wm, cb=self.propagateEvents, et=self.eTypes,  ignoreDirEvents=self.ignoreDirEvents))      
         self.wm.addBaseWatch(self.pathsToMonitor, (EventsCodes.ALL_EVENTS), rec=recurse, auto_add=follow)
-        log.info('Monitor set-up on =' + str(self.pathsToMonitor))
-
-    def callback(self, eventList):
-        """
-            Callback.
-        
-            :Parameters:
-                    
-                id : string
-                    watch id.
-                    
-                eventPath : string
-                    File paths of the event.
-                    
-            :return: No explicit return value.
-            
-        """
-        try:          
-            log.info('Event notification => ' + str(eventList))
-            self.proxy.callback(eventList)
-        except:
-            self.exception("Notification failed : ")
+        self.log.info('Monitor set-up on %s', str(self.pathsToMonitor))
+        self.log.info('Monitoring %s events', str(self.eTypes))
 
                 
     def start(self):
@@ -154,6 +136,7 @@ class MyWatchManager(pyinotify.WatchManager):
     """
     watchPaths = {}
     watchParams = {}
+    log = logging.getLogger("fsserver."+__name__)
     
     def isPathWatched(self, pathString):
         return pathString in self.watchPaths.keys()
@@ -165,7 +148,7 @@ class MyWatchManager(pyinotify.WatchManager):
         if rec:
             for d in pathModule.path(path).dirs():
                 self.addWatch(str(d), mask)
-        log.info('Base watch created on: %s', path)
+        self.log.info('Base watch created on: %s', path)
 
     def addWatch(self, path, mask):
         if not self.isPathWatched(path):
@@ -175,25 +158,25 @@ class MyWatchManager(pyinotify.WatchManager):
             if self.watchParams[path].getRec():
                 for d in pathModule.path(path).dirs():
                     self.addWatch(str(d), mask)
-            log.info('Watch added on: %s', path)
+            self.log.info('Watch added on: %s', path)
 
     def removeWatch(self, path):
         if self.isPathWatched(path):
             removeDict = {}
-            log.info('Trying to remove : %s', path)
+            self.log.info('Trying to remove : %s', path)
             removeDict[self.watchPaths[path]] = path
             for d in self.watchPaths.keys():
                 if d.find(path+'/') == 0:
-                    log.info('    ... and : %s', d)
+                    self.log.info('    ... and : %s', d)
                     removeDict[self.watchPaths[d]] = d
             res = pyinotify.WatchManager.rm_watch(self, removeDict.keys())
             for wd in res.keys():
                 if res[wd]: 
                     self.watchPaths.pop(removeDict[wd], True)
                     self.watchParams.pop(removeDict[wd], True)
-                    log.info('Watch removed on: %s', removeDict[wd])
+                    self.log.info('Watch removed on: %s', removeDict[wd])
                 else:
-                    log.info('Watch remove failed, wd=%s, on: %s', wd, removeDict[wd]) 
+                    self.log.info('Watch remove failed, wd=%s, on: %s', wd, removeDict[wd]) 
 
     def getWatchPaths(self):
         for (path,wd) in self.watchPaths.items():
@@ -217,6 +200,7 @@ class WatchParameters(object):
 class ProcessEvent(pyinotify.ProcessEvent):
     def __init__(self, **kwargs):
         pyinotify.ProcessEvent.__init__(self)
+        self.log = logging.getLogger("fsserver."+__name__)
         self.wm = kwargs['wm']
         self.cb = kwargs['cb']
         self.et = kwargs['et']
@@ -241,150 +225,173 @@ class ProcessEvent(pyinotify.ProcessEvent):
         # events seem to have otherwise good paths. So, remove the suffix and 
         # allow the event to be dealt with as normal. 
         if name.find('-unknown-path') > 0:
-            log.debug('Event with "-unknown-path" of type %s : %s', maskname, name)
+            self.log.debug('Event with "-unknown-path" of type %s : %s', maskname, name)
             name = name.replace('-unknown-path','')
             
         # New directory within watch area, either created or moved into.
         if event.mask == (EventsCodes.IN_CREATE | EventsCodes.IN_ISDIR) \
                 or event.mask ==  (EventsCodes.IN_MOVED_TO | EventsCodes.IN_ISDIR):
-            log.info('New directory event of type %s at: %s', maskname, name)
+            self.log.info('New directory event of type %s at: %s', maskname, name)
             if "Creation" in self.et:
                 if name.find('untitled folder') == -1:
                     if not self.ignoreDirEvents:
                         el.append((name, monitors.EventType.Create))
                     else:
-                        log.info('Not propagated.')
+                        self.log.info('Not propagated.')
                     # Handle the recursion plus create any potentially missed Create events
                     if self.wm.watchParams[pathModule.path(name).parent].getAutoAdd():
                         self.wm.addWatch(name, self.wm.watchParams[pathModule.path(name).parent].getMask())
                         if self.wm.watchParams[pathModule.path(name).parent].getRec():
                             for d in pathModule.path(name).walkdirs():
-                                log.info('NON-INOTIFY event: New directory at: %s', str(d))
+                                self.log.info('NON-INOTIFY event: New directory at: %s', str(d))
                                 if not self.ignoreDirEvents:
                                     el.append((str(d), monitors.EventType.Create))
                                 else:
-                                    log.info('Not propagated.')
+                                    self.log.info('Not propagated.')
                                 self.wm.addWatch(str(d), self.wm.watchParams[pathModule.path(name).parent].getMask())
                             for f in pathModule.path(name).walkfiles():
-                                log.info('NON-INOTIFY event: New file at: %s', str(f))
+                                self.log.info('NON-INOTIFY event: New file at: %s', str(f))
                                 el.append((str(f), monitors.EventType.Create))
                         else:
                             for d in pathModule.path(name).dirs():
-                                log.info('NON-INOTIFY event: New directory at: %s', str(d))
+                                self.log.info('NON-INOTIFY event: New directory at: %s', str(d))
                                 if not self.ignoreDirEvents:
                                     el.append((str(d), monitors.EventType.Create))
                                 else:
-                                    log.info('Not propagated.')
+                                    self.log.info('Not propagated.')
                             for f in pathModule.path(name).files():
-                                log.info('NON-INOTIFY event: New file at: %s', str(f))
+                                self.log.info('NON-INOTIFY event: New file at: %s', str(f))
                                 el.append((str(f), monitors.EventType.Create))
                 else:
-                    log.info('Created "untitled folder" ignored.')
+                    self.log.info('Created "untitled folder" ignored.')
             else:
-                log.info('Not propagated.')
+                self.log.info('Not propagated.')
                 
         # Deleted directory or one moved out of the watch area.
         elif event.mask ==  (EventsCodes.IN_MOVED_FROM | EventsCodes.IN_ISDIR) \
                 or event.mask ==  (EventsCodes.IN_DELETE | EventsCodes.IN_ISDIR):
-            log.info('Deleted directory event of type %s at: %s', maskname, name)
+            self.log.info('Deleted directory event of type %s at: %s', maskname, name)
             if "Deletion" in self.et:
                 if name.find('untitled folder') == -1:
                     if not self.ignoreDirEvents:
                         el.append((name, monitors.EventType.Delete))
                     else:
-                        log.info('Not propagated.')
-                    log.info('Files and subfolders within %s may have been deleted without notice', name)
+                        self.log.info('Not propagated.')
+                    self.log.info('Files and subfolders within %s may have been deleted without notice', name)
                     self.wm.removeWatch(name)
                 else:
-                    log.info('Deleted "untitled folder" ignored.')
+                    self.log.info('Deleted "untitled folder" ignored.')
             else:
-                log.info('Not propagated.')
+                self.log.info('Not propagated.')
         
         # New file within watch area, either created or moved into.
         # The file may have been created but it may not be complete and closed.
         # Modifications should be watched
         elif event.mask == EventsCodes.IN_CREATE:
-            log.info('New file event of type %s at: %s', maskname, name)
+            self.log.info('New file event of type %s at: %s', maskname, name)
             if "Creation" in self.et:
                 self.waitingCreates.add(name)
             else:
-                log.info('Not propagated.')
+                self.log.info('Not propagated.')
 
         # New file within watch area.
         elif event.mask == EventsCodes.IN_MOVED_TO:
-            log.info('New file event of type %s at: %s', maskname, name)
+            self.log.info('New file event of type %s at: %s', maskname, name)
             if "Creation" in self.et:
                 el.append((name, monitors.EventType.Create))
             else:
-                log.info('Not propagated.')
+                self.log.info('Not propagated.')
 
         # Modified file within watch area.
         elif event.mask == EventsCodes.IN_CLOSE_WRITE:
-            log.info('Modified file event of type %s at: %s', maskname, name)
+            self.log.info('Modified file event of type %s at: %s', maskname, name)
             if name in self.waitingCreates:
                 if "Creation" in self.et:
                     el.append((name, monitors.EventType.Create))
                     self.waitingCreates.remove(name)
                 else:
-                    log.info('Not propagated.')
+                    self.log.info('Not propagated.')
             else:
                 if "Modification" in self.et:
                     el.append((name, monitors.EventType.Modify))
                 else:
-                    log.info('Not propagated.')
+                    self.log.info('Not propagated.')
 
         # Modified file within watch area, only notify if file is not waitingCreate.
         elif event.mask == EventsCodes.IN_MODIFY:
-            log.info('Modified file event of type %s at: %s', maskname, name)
+            self.log.info('Modified file event of type %s at: %s', maskname, name)
             if name not in self.waitingCreates:
                 if "Modification" in self.et:
                     el.append((name, monitors.EventType.Modify))
                 else:
-                    log.info('Not propagated.')
+                    self.log.info('Not propagated.')
                     
 
         # Deleted file  or one moved out of the watch area.
         elif event.mask == EventsCodes.IN_MOVED_FROM or event.mask == EventsCodes.IN_DELETE:
-            log.info('Deleted file event of type %s at: %s', maskname, name)
+            self.log.info('Deleted file event of type %s at: %s', maskname, name)
             if "Deletion" in self.et:
                 el.append((name, monitors.EventType.Delete))
             else:
-                log.info('Not propagated.')
+                self.log.info('Not propagated.')
 
         # These are all the currently ignored events.
         elif event.mask == EventsCodes.IN_ATTRIB:
             # Attributes have changed? Useful?
-            log.debug('Ignored event of type %s at: %s', maskname, name)
+            self.log.debug('Ignored event of type %s at: %s', maskname, name)
         elif event.mask == EventsCodes.IN_DELETE_SELF or event.mask == EventsCodes.IN_IGNORED:
             # This is when a directory being watched is removed, handled above.
-            log.debug('Ignored event of type %s at: %s', maskname, name)
+            self.log.debug('Ignored event of type %s at: %s', maskname, name)
         elif event.mask == EventsCodes.IN_MOVE_SELF:
             # This is when a directory being watched is moved out of the watch area (itself!), handled above.
-            log.debug('Ignored event of type %s at: %s', maskname, name)
+            self.log.debug('Ignored event of type %s at: %s', maskname, name)
         elif event.mask == EventsCodes.IN_OPEN | EventsCodes.IN_ISDIR :
             # Event, dir open, we can ignore for now to reduce the log volume at any rate.
-            log.debug('Ignored event of type %s at: %s', maskname, name)
+            self.log.debug('Ignored event of type %s at: %s', maskname, name)
         elif event.mask == EventsCodes.IN_CLOSE_NOWRITE | EventsCodes.IN_ISDIR :
             # Event, dir close, we can ignore for now to reduce the log volume at any rate.
-            log.debug('Ignored event of type %s at: %s', maskname, name)
+            self.log.debug('Ignored event of type %s at: %s', maskname, name)
         elif event.mask == EventsCodes.IN_ACCESS | EventsCodes.IN_ISDIR :
             # Event, dir access, we can ignore for now to reduce the log volume at any rate.
-            log.debug('Ignored event of type %s at: %s', maskname, name)
+            self.log.debug('Ignored event of type %s at: %s', maskname, name)
         elif event.mask == EventsCodes.IN_OPEN :
             # Event, file open, we can ignore for now to reduce the log volume at any rate.
-            log.debug('Ignored event of type %s at: %s', maskname, name)
+            self.log.debug('Ignored event of type %s at: %s', maskname, name)
         elif event.mask == EventsCodes.IN_CLOSE_NOWRITE :
             # Event, file close, we can ignore for now to reduce the log volume at any rate.
-            log.debug('Ignored event of type %s at: %s', maskname, name)
+            self.log.debug('Ignored event of type %s at: %s', maskname, name)
         elif event.mask == EventsCodes.IN_ACCESS :
             # Event, file access, we can ignore for now to reduce the log volume at any rate.
-            log.debug('Ignored event of type %s at: %s', maskname, name)
+            self.log.debug('Ignored event of type %s at: %s', maskname, name)
         
         # Other events, log them since they really should be caught above    
         else:
-            log.info('Uncaught event of type %s at: %s', maskname, name)
-            log.info('Not propagated.')
+            self.log.info('Uncaught event of type %s at: %s', maskname, name)
+            self.log.info('Not propagated.')
         
-        if len(el) > 0:  
-            self.cb(el)
+        self.cb(el)
 
+
+if __name__ == "__main__":
+    class Proxy(object):
+        def callback(self, eventList):
+            for event in eventList:
+                #pass
+                log.info("EVENT_RECORD::%s::%s::%s" % (time.time(), event[1], event[0]))
+    
+    import logging
+    from logging import handlers
+    log = logging.getLogger("fstestserver")
+    file_handler = logging.FileHandler("/TEST/logs/fstestserver.out")
+    file_handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s: %(name)s - %(message)s"))
+    log.addHandler(file_handler)
+    log.setLevel(logging.INFO)
+    log = logging.getLogger("fstestserver."+__name__)
+
+    p = Proxy()
+    m = PlatformMonitor([monitors.WatchEventType.Creation,monitors.WatchEventType.Modification], monitors.PathMode.Follow, "\OMERO\DropBox", [], [], True, True, p)
+    try:
+        m.start()
+    except:
+        m.stop()
+    

@@ -5,10 +5,12 @@
     The Server class is a wrapper to the MonitorServer. It handles the ICE
     formalities. It controls the shutdown.
 
-    
+    Copyright 2009 University of Dundee. All rights reserved.
+    Use is subject to license terms supplied in LICENSE.txt
+
 """
 import logging
-log = logging.getLogger("fsserver."+__name__)
+log = logging.getLogger("fsserver.FSServer")
 
 import sys
 import Ice

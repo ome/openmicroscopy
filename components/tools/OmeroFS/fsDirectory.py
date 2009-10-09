@@ -4,7 +4,9 @@
     The Directory module contains classes to represent 
     a snaphot of a directory tree.
 
-    
+    Copyright 2009 University of Dundee. All rights reserved.
+    Use is subject to license terms supplied in LICENSE.txt
+
 """
 
 from time import localtime, strftime

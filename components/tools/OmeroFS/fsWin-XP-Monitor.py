@@ -1,11 +1,11 @@
 """
     OMERO.fs Monitor module for Window XP.
 
+    Copyright 2009 University of Dundee. All rights reserved.
+    Use is subject to license terms supplied in LICENSE.txt
 
 """
 import logging
-log = logging.getLogger("fsserver."+__name__)
-
 import threading, Queue
 import os, sys, traceback
 import uuid
@@ -63,6 +63,7 @@ class PlatformMonitor(AbstractPlatformMonitor):
                     A proxy to be informed of events         
         """
         AbstractPlatformMonitor.__init__(self, eventTypes, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, ignoreDirEvents, proxy)
+        self.log = logging.getLogger("fsserver."+__name__)
 
         self.actions = {
             1 : monitors.EventType.Create, # Created
@@ -75,8 +76,8 @@ class PlatformMonitor(AbstractPlatformMonitor):
         self.recurse = not (self.pathMode == "Flat")
         
         self.event = threading.Event()
-        log.info('Monitor set-up on =' + str(self.pathsToMonitor))
-        log.info('Monitoring %s events', str(self.eTypes))
+        self.log.info('Monitor set-up on %s', str(self.pathsToMonitor))
+        self.log.info('Monitoring %s events', str(self.eTypes))
                 
     def run(self):
         """
@@ -135,59 +136,53 @@ class PlatformMonitor(AbstractPlatformMonitor):
             if results:
                 for action, file in results:
                     filename = os.path.join(self.pathsToMonitor, file)
-                    log.info("Event : %s %s", str(self.actions[action]), filename)    
+                    self.log.info("Event : %s %s", str(self.actions[action]), filename)    
                     if self.ignoreDirEvents and pathModule.path(filename).isdir():
-                        log.info('Directory event, not propagated.')
+                        self.log.info('Directory event, not propagated.')
                     else:
                         if action == 1:
                             if "Creation" in self.eTypes:
                                 # Ignore default name for GUI created folders.
                                 if self.ignoreSysFiles and filename.find('New Folder') >= 0:
-                                    log.info('Created "New Folder" ignored.')
+                                    self.log.info('Created "New Folder" ignored.')
                                 else:
                                     eventType = self.actions[action]
                                     # Should have richer filename matching here.
                                     if (len(self.whitelist) == 0) or (pathModule.path(filename).ext in self.whitelist):
                                         eventList.append((filename.replace('\\\\','\\').replace('\\','/'), eventType))
                             else:
-                                log.info('Not propagated.')
+                                self.log.info('Not propagated.')
 
                         elif action == 2:
                             if "Deletion" in self.eTypes:
                                 # Ignore default name for GUI created folders.
                                 if self.ignoreSysFiles and filename.find('New Folder') >= 0:
-                                    log.info('Deleted "New Folder" ignored.')
+                                    self.log.info('Deleted "New Folder" ignored.')
                                 else:
                                     eventType = self.actions[action]
                                     # Should have richer filename matching here.
                                     if (len(self.whitelist) == 0) or (pathModule.path(filename).ext in self.whitelist):
                                         eventList.append((filename.replace('\\\\','\\').replace('\\','/'), eventType))
                             else:
-                                log.info('Not propagated.')
+                                self.log.info('Not propagated.')
 
                         elif action in (3,4,5):
                             if "Modification" in self.eTypes:
                                 # Ignore default name for GUI created folders.
                                 if self.ignoreSysFiles and filename.find('New Folder') >= 0:
-                                    log.info('Modified "New Folder" ignored.')
+                                    self.log.info('Modified "New Folder" ignored.')
                                 else:
                                     eventType = self.actions[action]
                                     # Should have richer filename matching here.
                                     if (len(self.whitelist) == 0) or (pathModule.path(filename).ext in self.whitelist):
                                         eventList.append((filename.replace('\\\\','\\').replace('\\','/'), eventType))
                             else:
-                                log.info('Not propagated.')
+                                self.log.info('Not propagated.')
 
                         else:
-                            log.error('Unknown event type.')
+                            self.log.error('Unknown event type.')
                     
-            if len(eventList) > 0:
-                try:
-                    log.info('Event notification => ' + str(eventList))
-                    self.proxy.callback(eventList)
-                except:
-                    log.exception("Failed to make callback: ")
-
+                self.propagateEvents(eventList)
             
 if __name__ == "__main__":
     class Proxy(object):

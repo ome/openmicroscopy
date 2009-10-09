@@ -2,9 +2,12 @@
     OMERO.fs List classes
 
     These are fairly trivial classes to wrap sets. In the present
-    implementation there is no fucntional difference between
+    implementation there is no functional difference between
     Whitelist and Blacklist. They have been factored out for literal
     reasons and to leave the door open for future changes.
+    
+    Copyright 2009 University of Dundee. All rights reserved.
+    Use is subject to license terms supplied in LICENSE.txt
 
 """
 

@@ -1,6 +1,8 @@
 """
     OMERO.fs Abstract Monitor module.
 
+    Copyright 2009 University of Dundee. All rights reserved.
+    Use is subject to license terms supplied in LICENSE.txt
 
 """
 import threading
@@ -48,5 +50,26 @@ class AbstractPlatformMonitor(threading.Thread):
         """
         # pass
         
+    def propagateEvents(self, eventList):
+        """
+            Propagate events to proxy.
+        
+            :Parameters:
+                    
+                eventPath : List
+                    events.
+                    
+            :return: No explicit return value.
+            
+        """
+        if len(eventList) > 0:
+            try:          
+                self.log.info('Event notification : %s', str(eventList))
+                self.proxy.callback(eventList)
+            except:
+                self.log.exception("Notification failed : ")
+        else:
+            self.log.info('No notifications propagated')    
+
 
             

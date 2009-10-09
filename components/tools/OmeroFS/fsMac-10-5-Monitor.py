@@ -1,11 +1,11 @@
 """
     OMERO.fs Monitor module for Mac Os.
 
+    Copyright 2009 University of Dundee. All rights reserved.
+    Use is subject to license terms supplied in LICENSE.txt
 
 """
 import logging
-log = logging.getLogger("fsserver."+__name__)
-
 from Foundation import NSAutoreleasePool, NSMutableArray, NSString
 import FSEvents
 
@@ -71,6 +71,7 @@ class PlatformMonitor(AbstractPlatformMonitor):
                     
         """
         AbstractPlatformMonitor.__init__(self, eventTypes, pathMode, pathString, whitelist, blacklist, ignoreSysFiles, ignoreDirEvents, proxy)
+        self.log = logging.getLogger("fsserver."+__name__)
         
         #: an FSEvents.FSEventStream StreamRef object reference.
         self.streamRef = None
@@ -112,6 +113,9 @@ class PlatformMonitor(AbstractPlatformMonitor):
              
         if self.streamRef == None:
             raise Exception('Failed to create FSEvent Stream')
+            
+        self.log.info('Monitor set-up on %s', str(self.pathsToMonitor))
+        self.log.info('Monitoring %s events', str(self.eTypes))
 
     def run(self):
         """
@@ -197,43 +201,20 @@ class PlatformMonitor(AbstractPlatformMonitor):
             
                 new, old, chg = dir.getChangedFiles(eventPaths[i])
 
-                log.info("Event set : %s", str(i))
-                log.info("New files     : %s", str(new))
-                log.info("Changed files : %s", str(chg))
-                log.info("Old files 1   : %s", str(old))
-                # The new and changed files are only potentially new. In both cases
-                # zero-sized files are files that have been opened for writing but
-                # not written to and closed. It is possible that a zero-sized file
-                # has been created genuinely. Such files are unlikely to be of 
-                # interest! --- Famous last words.
-
-                # So, the following two methods prune out zero-sized files. This is
-                # preferable to having the getChangedFiles() method return pruned
-                # lists.
-            
-                # Files that are new but are not zero-sized. The are likely to 
-                # include files that have been moved, renamed or copied.
-                #if len(new) > 0: 
-                #    new = dir.pruneZeroFiles(new)
-                #log.info("New files 2: %s", str(new))
-                
-                # Files that have changed but are not zero-sized. These 
-                # could include new files or files that have had their size, ctime,
-                # etc, changed.
-                #if len(chg) > 0:
-                #    new.extend(dir.pruneZeroFiles(chg))    
-                #log.info("New files 3: %s", str(new))
-                      
+                self.log.info("Full event set : %s", str(eventPaths))
+                self.log.info("New files      : %s", str(new))
+                self.log.info("Changed files  : %s", str(chg))
+                self.log.info("Old files      : %s", str(old))
+                     
                 # Prune out new directories, those are not of interest.
                 if self.ignoreDirEvents:
                     if len(new) > 0: 
                         new = dir.pruneDirectories(new)
                     if len(chg) > 0: 
                         chg = dir.pruneDirectories(chg)
-                #log.info("New files 4: %s", str(new))
-            
+                    # old cannot be pruned as the dirs are no longer in the tree.
+                    
                 # Prune out 'system files if necessary.
-                # (this should be buried deeper, ie they shouldn't even be part of the underlying tree)
                 if self.ignoreSysFiles:
                     
                     if len(new) > 0:
@@ -296,10 +277,32 @@ class PlatformMonitor(AbstractPlatformMonitor):
                             eventType = monitors.EventType.Delete
                             eventList.append((fileName,eventType))
                 
-                if len(eventList) > 0:
-                    log.info('Event notification => %s', str(eventList))
-                    self.proxy.callback(eventList)
-                        
+                self.propagateEvents(eventList)
+
         else:
-            log.info("Notification not for this monitor : %s != %s", self.clientInfo, clientInfo)
-                    
+            self.log.info("Notification not for this monitor : %s != %s", self.clientInfo, clientInfo)
+
+
+if __name__ == "__main__":
+    class Proxy(object):
+        def callback(self, eventList):
+            for event in eventList:
+                #pass
+                log.info("EVENT_RECORD::%s::%s::%s" % (time.time(), event[1], event[0]))
+    
+    import logging
+    from logging import handlers
+    log = logging.getLogger("fstestserver")
+    file_handler = logging.FileHandler("/TEST/logs/fstestserver.out")
+    file_handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s: %(name)s - %(message)s"))
+    log.addHandler(file_handler)
+    log.setLevel(logging.INFO)
+    log = logging.getLogger("fstestserver."+__name__)
+
+    p = Proxy()
+    m = PlatformMonitor([monitors.WatchEventType.Creation,monitors.WatchEventType.Modification], monitors.PathMode.Follow, "\OMERODEV\DropBox", [], [], True, True, p)
+    try:
+        m.start()
+    except:
+        m.stop()
+    
