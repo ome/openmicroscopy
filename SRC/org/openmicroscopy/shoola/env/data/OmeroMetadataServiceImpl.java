@@ -1975,6 +1975,7 @@ class OmeroMetadataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		
+		/*
 		List<Long> ids = null;
 		if (userID != -1) {
 			ids = new ArrayList<Long>(1);
@@ -2001,7 +2002,8 @@ class OmeroMetadataServiceImpl
 			}
 		}
 		return list;
-		//return gateway.loadROIMeasurements(id, userID);
+		*/
+		return gateway.loadROIMeasurements(id, userID);
 	}
 	
 }
