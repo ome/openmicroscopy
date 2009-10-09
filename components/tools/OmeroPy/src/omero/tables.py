@@ -517,7 +517,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         self.repo_uuid = self.repo_uuid[2:]
 
         # Using the repo_uuid, find our OriginalFile object
-        self.repo_obj = self.sf.getQueryService().findByQuery("select f from OriginalFile f where sha1 = :uuid",
+        self.repo_obj = self.getSession().getQueryService().findByQuery("select f from OriginalFile f where sha1 = :uuid",
             omero.sys.ParametersI().add("uuid", rstring(self.repo_uuid)))
         self.repo_mgr = self.communicator.stringToProxy("InternalRepository-%s" % self.repo_uuid)
         self.repo_mgr = self._internal_repo_cast(self.repo_mgr)
