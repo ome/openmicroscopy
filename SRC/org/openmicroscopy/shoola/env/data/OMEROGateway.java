@@ -4489,28 +4489,12 @@ class OMEROGateway
 					param.getFormatAsString()));
 			parameters.map.put("overlayColour", omero.rtypes.rlong(
 					param.getColor()));
-			/*
 			Map<String, RType> result = svc.runScript(id, parameters.map);
 			RLong type = (RLong) result.get("fileAnnotation");
+
 			if (type == null) return -1;
 			return type.getValue();
-			*/
-			
-			ScriptJob job = new ScriptJobI();
-			job.linkOriginalFile(new OriginalFileI(id, false));
-            InteractiveProcessorPrx proc = entry.sharedResources()
-                    .acquireProcessor(job, 60);
-            omero.grid.ProcessPrx prx = proc.execute(rmap(parameters.map));
-            prx._wait();
-			
-			//Map<String, RType> result = svc.runScript(id, parameters.map);
-			RMap map = proc.getResults(prx);
-			if (map == null) return -1;
-			System.err.println(map.getValue());
-			Map<String, RType> result = map.getValue();
-			RLong type = (RLong) result.get("fileAnnotation");
-			if (type == null) return -1;
-			return type.getValue();
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			handleException(e, "Cannot create a movie for image: "+imageID);
