@@ -251,7 +251,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
             return False
 
         try:
-            self.status("Checking")
+            self.poll()
             holder.sf.getSessionService().getSession(self.uuid)
             return True
         except:
