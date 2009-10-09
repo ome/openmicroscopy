@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.util.ui.border.SeparatorOneLineBorder;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import pojos.AnnotationData;
 import pojos.TextualAnnotationData;
+import pojos.URLAnnotationData;
 
 
 /** 
@@ -286,19 +287,37 @@ class TextualAnnotationsUI
 			buildGUI();
 			init = true;
 		}
+		URLAnnotationData url = model.getLastUserUrlAnnotation();
+		String urlText = null;
+		if (url != null) urlText = url.getURL();
 		TextualAnnotationData data = model.getLastUserAnnotation();
 		if (data != null) {
 			boolean b = false;
 			String text = data.getText();
 			if (text == null || text.trim().length() == 0) {
-				text = DEFAULT_TEXT_COMMENT;
-				b = true;
+				if (urlText == null) {
+					text = DEFAULT_TEXT_COMMENT;
+					b = true;
+				}
+			}
+			if (urlText != null) {
+				StringBuffer buffer = new StringBuffer();
+				buffer.append(urlText);
+				buffer.append("\n");
+				buffer.append(text);
+				text = buffer.toString();
 			}
 			text = text.trim();
 			originalText = text;
 			setAreaText(text, b);
 			
+		} else {
+			if (urlText != null) {
+				originalText = urlText;
+				setAreaText(urlText, false);
+			}
 		}
+		
 		TableLayout layout = (TableLayout) getLayout();
 		layout.setRow(2, 0);
 		layout.setRow(3, 0);

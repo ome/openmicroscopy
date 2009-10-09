@@ -56,7 +56,6 @@ import org.jdesktop.swingx.JXTaskPane;
 import omero.model.AcquisitionMode;
 import omero.model.ContrastMethod;
 import omero.model.Illumination;
-import omero.model.LogicalChannel;
 import omero.model.PlaneInfo;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -284,7 +283,6 @@ class ChannelAcquisitionComponent
             label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
             label.setBackground(UIUtilities.BACKGROUND_COLOR);
             if (EditorUtil.ILLUMINATION.equals(key)) {
-            	System.err.println(value);
             	selected = model.getChannelEnumerationSelected(
             			Editor.ILLUMINATION_TYPE, 
             			(String) value);

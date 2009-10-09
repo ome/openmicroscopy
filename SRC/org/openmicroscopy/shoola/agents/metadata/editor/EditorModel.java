@@ -94,6 +94,7 @@ import pojos.RatingAnnotationData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
+import pojos.URLAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
 
@@ -823,6 +824,37 @@ class EditorModel
 		List l = m.get(userID);
 		if (l == null || l.size() == 0) return null;
 		return (TextualAnnotationData) l.get(0);
+	}
+	
+	URLAnnotationData getLastUserUrlAnnotation()
+	{
+		Map<Long, List> map = new HashMap<Long, List>();
+		Collection original = getUrls();
+		if (original == null) return null;
+        Iterator i = original.iterator();
+        AnnotationData annotation;
+        Long ownerID;
+        List<AnnotationData> userAnnos;
+        while (i.hasNext()) {
+            annotation = (AnnotationData) i.next();
+            ownerID = Long.valueOf(annotation.getOwner().getId());
+            userAnnos = map.get(ownerID);
+            if (userAnnos == null) {
+                userAnnos = new ArrayList<AnnotationData>();
+                map.put(ownerID, userAnnos);
+            }
+            userAnnos.add(annotation);
+        }
+        i = map.keySet().iterator();
+        
+        while (i.hasNext()) {
+            ownerID = (Long) i.next();
+            sortAnnotationByDate(map.get(ownerID));
+        }
+		long userID = MetadataViewerAgent.getUserDetails().getId();
+		List l = map.get(userID);
+		if (l == null || l.size() == 0) return null;
+		return (URLAnnotationData) l.get(0);
 	}
 	
 	/**

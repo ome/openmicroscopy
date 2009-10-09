@@ -132,6 +132,7 @@ class MetadataViewerComponent
 				Boolean.valueOf(true));
 				*/
 		
+		
 		if (parameters == null) return;
 		Object refObject = model.getRefObject();
 		if (!(refObject instanceof ImageData)) return;
@@ -142,6 +143,7 @@ class MetadataViewerComponent
 		IconManager icons = IconManager.getInstance();
 		activity.setIcon(icons.getIcon(IconManager.MOVIE_22));
 		un.notifyActivity(activity);
+		
 		//model.createMovie(parameters);
 	}
 	

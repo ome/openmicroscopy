@@ -566,6 +566,7 @@ class AnnotationDataUI
 			layoutTags(model.getTags());
 			hTag = TableLayout.PREFERRED;
 		}
+		
 		//if (refObject instanceof ImageData) hPublished = TableLayout.PREFERRED;
 		layout.setRow(publishedRow, hPublished);
 		layout.setRow(viewedByRow, h);

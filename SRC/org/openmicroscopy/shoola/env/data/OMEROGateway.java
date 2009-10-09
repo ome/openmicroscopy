@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import static omero.rtypes.rmap;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -43,6 +45,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.swing.filechooser.FileSystemView;
 
 //Third-party libraries
@@ -4450,7 +4454,20 @@ class OMEROGateway
 			Iterator<Integer> i = channels.iterator();
 			while (i.hasNext()) 
 				set.add(omero.rtypes.rlong(i.next()));
-			long id = svc.getScriptID("makemovie.py");
+			Map<Long, String> scripts = svc.getScripts();
+			if (scripts == null) return -1;
+			long id = -1;
+			Entry en;
+			Iterator j = scripts.entrySet().iterator();
+			long value;
+			while (j.hasNext()) {
+				en = (Entry) j.next();
+				if (en.getValue().equals("makemovie.py")) {
+					value = (Long) en.getKey();
+					if (value > id) id = value;
+				}
+			}
+			//long id = svc.getScriptID("makemovie.py");
 			if (id <= 0) return -1;
 			ParametersI parameters = new ParametersI();
 			parameters.map.put("imageId", omero.rtypes.rlong(imageID));
@@ -4473,22 +4490,29 @@ class OMEROGateway
 			parameters.map.put("overlayColour", omero.rtypes.rlong(
 					param.getColor()));
 			/*
-			ScriptJob job = new ScriptJobI();
-			job.linkOriginalFile(new OriginalFileI(id, false));
-			InteractiveProcessorPrx prx = 
-				entry.sharedResources().acquireProcessor(job, 60); 
-			ProcessPrx proc = prx.execute(omero.rtypes.rmap(parameters.map));
-			//prx.wait();
-			//Map<String, RType> result = svc.runScript(id, parameters.map);
-			RMap map = prx.getResults(proc);
-			if (map == null) return -1;
-			Map<String, RType> result = prx.getResults(proc).getValue();
+			Map<String, RType> result = svc.runScript(id, parameters.map);
 			RLong type = (RLong) result.get("fileAnnotation");
 			if (type == null) return -1;
 			return type.getValue();
 			*/
-			return -1;
+			
+			ScriptJob job = new ScriptJobI();
+			job.linkOriginalFile(new OriginalFileI(id, false));
+            InteractiveProcessorPrx proc = entry.sharedResources()
+                    .acquireProcessor(job, 60);
+            omero.grid.ProcessPrx prx = proc.execute(rmap(parameters.map));
+            prx._wait();
+			
+			//Map<String, RType> result = svc.runScript(id, parameters.map);
+			RMap map = proc.getResults(prx);
+			if (map == null) return -1;
+			System.err.println(map.getValue());
+			Map<String, RType> result = map.getValue();
+			RLong type = (RLong) result.get("fileAnnotation");
+			if (type == null) return -1;
+			return type.getValue();
 		} catch (Exception e) {
+			e.printStackTrace();
 			handleException(e, "Cannot create a movie for image: "+imageID);
 		}
 		return -1;

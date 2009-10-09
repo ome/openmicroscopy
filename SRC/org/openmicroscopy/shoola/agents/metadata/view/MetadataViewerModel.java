@@ -40,7 +40,6 @@ import org.openmicroscopy.shoola.agents.metadata.ExperimenterEditor;
 import org.openmicroscopy.shoola.agents.metadata.FretAnalyser;
 import org.openmicroscopy.shoola.agents.metadata.MetadataLoader;
 import org.openmicroscopy.shoola.agents.metadata.ContainersLoader;
-import org.openmicroscopy.shoola.agents.metadata.MovieCreator;
 import org.openmicroscopy.shoola.agents.metadata.StructuredDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.browser.BrowserFactory;
@@ -526,10 +525,12 @@ class MetadataViewerModel
 	{
 		if (parameters == null) return;
 		if (!(refObject instanceof ImageData)) return;
+		/*
 		ImageData img = (ImageData) refObject;
 		MovieCreator loader = new MovieCreator(component, parameters, 
 				null, img);
 		loader.load();
+		*/
 	}
 	
 	/**
