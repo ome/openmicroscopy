@@ -396,15 +396,19 @@ class IntensityResultsView
 			// Add the ROI for the current plane to the image.
 			//TODO: Need to check that.
 			model.setAttributes(MeasurementAttributes.SHOWID, true);
-			model.getDrawingView().print(image.getGraphics());
+			
 			model.setAttributes(MeasurementAttributes.SHOWID, false);
 			try {
-				writer.addImageToWorkbook("ThumbnailImage", image); 
+				if (image != null) {
+					model.getDrawingView().print(image.getGraphics());
+					writer.addImageToWorkbook("ThumbnailImage", image); 
+					int col = writer.getMaxColumn(0);
+					writer.writeImage(0, col+1, 256, 256,	"ThumbnailImage");
+				}
 			} catch (Exception e) {
-				//TODO
+				//no image available
 			}
-			int col = writer.getMaxColumn(0);
-			writer.writeImage(0, col+1, 256, 256,	"ThumbnailImage");
+			
 
 			writer.close();
 		
