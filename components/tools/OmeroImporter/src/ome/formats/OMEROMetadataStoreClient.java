@@ -1377,7 +1377,7 @@ public class OMEROMetadataStoreClient
         // Thu Oct  8 11:05:37 BST 2009
         // Chris Allan <callan at lifesci dot dundee dot ac dot uk>
         // http://trac.openmicroscopy.org.uk/omero/ticket/1523
-        if (name.length() == 0)
+        if (name != null && name.length() == 0)
         {
             return;
         }
