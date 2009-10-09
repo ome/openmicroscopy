@@ -312,7 +312,8 @@ def buildPlaneMapFromRanges(zRange, tRange):
 	for t in tRange:
 		for z in zRange:
 			planeMap.append([t,z]);
-			
+        return planeMap
+
 def strToRange(key):
 	splitKey = key.split('-');
 	if(len(splitKey)==1):
@@ -327,7 +328,7 @@ def unrollPlaneMap(planeMap):
 			for z in strToRange(zValue.getValue()):
 				unrolledPlaneMap.append([int(t),int(z)]);
 	return unrolledPlaneMap
-	
+
 def calculateRanges(sizeZ, sizeT, commandArgs):
 	planeMap = {};
 	if(commandArgs["planeMap"]=={}):
@@ -349,7 +350,7 @@ def calculateRanges(sizeZ, sizeT, commandArgs):
 		print map
 		planeMap = unrollPlaneMap(map);
 	return planeMap;
-		
+
 def writeMovie(commandArgs, session):
 	gateway = session.createGateway();
 	scriptService = session.getScriptService();
@@ -357,7 +358,7 @@ def writeMovie(commandArgs, session):
 	pixelsList = gateway.getPixelsFromImage(commandArgs["image"])
 	pixels = pixelsList[0];
 	pixelsId = pixels.getId().getValue();
-	
+
 	sizeX = pixels.getSizeX().getValue();
 	sizeY = pixels.getSizeY().getValue();
 	sizeZ = pixels.getSizeZ().getValue();
@@ -380,7 +381,7 @@ def writeMovie(commandArgs, session):
 	os.mkdir(commandArgs["output"])
 	os.chdir(commandArgs["output"])
 	renderingEngine = getRenderingEngine(session, pixelsId, sizeC, cRange)
-	
+
 	for tz in tzList:
 		t = tz[0];
 		z = tz[1];
@@ -406,27 +407,51 @@ def writeMovie(commandArgs, session):
 	uploadMovie(client, session, omeroImage, commandArgs["output"], commandArgs["format"])
 
 if __name__ == "__main__":
-	client = scripts.client('makemovie','MakeMovie creates a movie of the image and attaches it to the originating image.', \
-	scripts.Long("imageId").inout(), scripts.String("output").inout(), scripts.Long("zStart").inout(),\
-	scripts.Long("zEnd").inout(), scripts.Long("tStart").inout(), scripts.Long("tEnd").inout(), \
-	scripts.Set("channels").inout(), scripts.Bool("splitView").inout(), scripts.Bool("showTime").inout(),scripts.Bool("showPlaneInfo").inout(), \
-	scripts.Long("fps").inout(), scripts.Long("scalebar").inout(),scripts.Long("fileAnnotation").out(), \
-	scripts.String("format").inout(), scripts.Long("overlayColour").inout(), scripts.Map("planeMap").inout())
+	client = scripts.client('makemovie','MakeMovie creates a movie of the image and attaches it to the originating image.',\
+	scripts.Long("imageId").inout(),\
+	scripts.String("output").inout(),\
+	scripts.Long("zStart").inout(),\
+	scripts.Long("zEnd").inout(),\
+	scripts.Long("tStart").inout(),\
+	scripts.Long("tEnd").inout(),\
+	scripts.Set("channels").inout(),\
+	scripts.Bool("splitView").inout(),\
+	scripts.Bool("showTime").inout(),\
+	scripts.Bool("showPlaneInfo").inout(),\
+	scripts.Long("fps").inout(),
+	scripts.Long("scalebar").inout(),\
+	scripts.String("format").inout(),\
+	scripts.Long("overlayColour").inout(),\
+	scripts.Map("planeMap", optional=True).inout(),\
+	scripts.Long("fileAnnotation").out())
 
 	session = client.getSession();
 	gateway = session.createGateway();
-	commandArgs = {"image":client.getInput("imageId").getValue(), "output":client.getInput("output").getValue(), \
-	"zStart":client.getInput("zStart").getValue(),"zEnd":client.getInput("zEnd").getValue(),"tStart":client.getInput("tStart").getValue(),\
-	"tEnd":client.getInput("tEnd").getValue(),"channels":client.getInput("channels").getValue(), "fps":client.getInput("fps").getValue(),\
-	"showTime":client.getInput("showTime").getValue(),"showPlaneInfo":client.getInput("showPlaneInfo").getValue(), \
-	"scalebar":client.getInput("scalebar").getValue(), "format":client.getInput("format").getValue(), \
-	"planeMap":client.getInput("planeMap").getValue()}
+	commandArgs = {
+	"image":client.getInput("imageId").getValue(),
+	"output":client.getInput("output").getValue(),
+	"zStart":client.getInput("zStart").getValue(),
+	"zEnd":client.getInput("zEnd").getValue(),
+	"tStart":client.getInput("tStart").getValue(),
+	"tEnd":client.getInput("tEnd").getValue(),
+	"channels":client.getInput("channels").getValue(),
+	"fps":client.getInput("fps").getValue(),
+	"showTime":client.getInput("showTime").getValue(),
+	"showPlaneInfo":client.getInput("showPlaneInfo").getValue(),
+	"scalebar":client.getInput("scalebar").getValue(),
+	"format":client.getInput("format").getValue()
+	}
 
-	inputKeys = client.getInputKeys();
-	if(validColourRange(client.getInput("overlayColour").getValue())):
-		commandArgs["overlayColour"] = RGBToPIL(client.getInput("overlayColour").getValue())			
+	planeMap = client.getInput("planeMap") # optional
+	if planeMap is not None:
+		commandArgs["planeMap"] = planeMap.getValue()
 	else:
-		commandArgs["overlayColour"] = OVERLAYCOLOUR;			
+		commandArgs["planeMap"] = {}
+
+	if(validColourRange(client.getInput("overlayColour").getValue())):
+		commandArgs["overlayColour"] = RGBToPIL(client.getInput("overlayColour").getValue())
+	else:
+		commandArgs["overlayColour"] = OVERLAYCOLOUR;
 
 	writeMovie(commandArgs, session)
 

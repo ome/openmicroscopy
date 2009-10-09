@@ -19,7 +19,6 @@ import ome.api.RawFileStore;
 import ome.model.core.OriginalFile;
 import ome.model.enums.Format;
 import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Role;
 import ome.model.jobs.JobOriginalFileLink;
 import ome.parameters.Parameters;
 import ome.services.blitz.util.BlitzExecutor;
@@ -30,7 +29,6 @@ import ome.system.ServiceFactory;
 import ome.util.Utils;
 import omero.ApiUsageException;
 import omero.InternalException;
-import omero.RMap;
 import omero.RType;
 import omero.ServerError;
 import omero.ValidationException;
@@ -49,6 +47,8 @@ import omero.grid.Param;
 import omero.model.OriginalFileI;
 import omero.model.ScriptJobI;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,6 +65,8 @@ import Ice.Current;
 public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         ServiceFactoryAware, BlitzOnly {
 
+    private final static Log log = LogFactory.getLog(ScriptI.class);
+    
     /** The text representation of the format in a python script. */
     private final static String PYTHONSCRIPT = "text/x-python";
 
@@ -343,9 +345,19 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         runnableCall(__current, new Runnable() {
 
             public void run() {
+
+                InteractiveProcessorPrx proc = null;
+
                 try {
 
-                    Map<String, RType> params = getParams(id, __current);
+                    log.info(String.format(
+                            "runScript: %s param keys: %s",
+                            id, map == null ? null : map.keySet()));
+
+                    ScriptJobI job = buildJob(id);
+                    proc = factory.sharedResources().acquireProcessor(job, 10);
+                    JobParams params = proc.params();
+                    
                     if (params == null) {
                         cb
                                 .ice_exception(new ApiUsageException(
@@ -356,20 +368,27 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                         return; // EARLY EXIT
 
                     }
-                    for (Map.Entry<String, RType> entry : params.entrySet()) {
+                    for (Map.Entry<String, Param> entry : params.inputs.entrySet()) {
                         String paramName = entry.getKey();
-                        RType scriptParamType = entry.getValue();
-                        if (!map.containsKey(paramName)) {
-                            cb
+                        Param param = entry.getValue();
+                        RType scriptParamType = param.prototype;
+                        RType inputParamType = map.get(paramName);
+
+                        if (inputParamType == null) {
+                            if (param.optional) {
+                                continue;
+                            } else {
+                                cb
                                     .ice_exception(new ApiUsageException(
                                             null,
                                             null,
-                                            "Script takes parameter "
+                                            "Script takes required parameter "
                                                     + paramName
                                                     + " which has not supplied input params to runScript."));
-                            return; // EARLY EXIT
+                                return; // EARLY EXIT
+                            }
                         }
-                        RType inputParamType = map.get(paramName);
+
                         if (!scriptParamType.getClass().equals(
                                 inputParamType.getClass())) {
                             cb
@@ -386,9 +405,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                             return; // EARLY EXIT
                         }
                     }
-                    ScriptJobI job = buildJob(id);
-                    InteractiveProcessorPrx proc = factory.sharedResources()
-                            .acquireProcessor(job, 10);
+
                     omero.grid.ProcessPrx prx = proc.execute(rmap(map));
                     prx._wait();
                     Map<String, RType> results = proc.getResults(prx)
@@ -403,6 +420,14 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                     cb.ice_response(results);
                 } catch (Exception e) {
                     cb.ice_exception(e);
+                } finally {
+                    if (proc != null) {
+                        try {
+                            proc.stop();
+                        } catch (Exception e) {
+                            log.warn("Err on proc.stop(): " + e.getMessage());
+                        }
+                    }
                 }
             }
         });

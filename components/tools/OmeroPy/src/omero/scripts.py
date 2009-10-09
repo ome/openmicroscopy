@@ -22,7 +22,7 @@ class Type:
     def __init__(self, name, optional = False, out = False):
         self.name = name
         self.type = None
-        self.optional = False
+        self.optional = optional
         self._in = True
         self._out = out
     def out(self):
