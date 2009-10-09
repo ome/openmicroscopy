@@ -150,7 +150,7 @@
    * This section is mainly used by developers to make their Agents available
    * to a Shoola instance.  System administrator may decide to remove some of
    * the Agents in exceptional cases.  (This is easily done by deleting an
-   * agent tag altogheter.)
+   * agent tag altogether.)
    * 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <agents>
@@ -229,7 +229,7 @@
           javax.swing.plaf.metal.MetalLookAndFeel: the Java look and feel.
         
        If you want to use a custom L&F then you can just drop the L&F jar file
-       into the lib directory and then specify here the fully-qualifed name
+       into the lib directory and then specify here the fully-qualified name
        (FQN) of the L&F class to use - this name can usually be found in the
        documents accompanying the L&F.
   -->

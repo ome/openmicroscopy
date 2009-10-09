@@ -150,7 +150,7 @@
    * This section is mainly used by developers to make their Agents available
    * to a Shoola instance.  System administrator may decide to remove some of
    * the Agents in exceptional cases.  (This is easily done by deleting an
-   * agent tag altogheter.)
+   * agent tag altogether.)
    * 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <agents>
@@ -283,7 +283,7 @@
     <entry name="Forum">http://www.openmicroscopy.org.uk/community/</entry>
     
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   * Information indicating where the roi will be stored. 
+   * Information indicating where the ROI will be stored. 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
     <entry name="/roi/location/server" type="boolean">false</entry>
 </container>
