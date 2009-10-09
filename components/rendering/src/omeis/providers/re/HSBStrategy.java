@@ -210,7 +210,7 @@ class HSBStrategy extends RenderingStrategy {
 
         // Get all objects we need to create the tasks.
         CodomainChain cc = renderer.getCodomainChain();
-        RenderingStats performanceStats = renderer.getStats();
+        //RenderingStats performanceStats = renderer.getStats();
         List<Plane2D> wData = getWavelengthData(def);
         List<int[]> colors = getColors();
         List<QuantumStrategy> strategies = getStrategies();
@@ -243,7 +243,7 @@ class HSBStrategy extends RenderingStrategy {
             QuantizationException {
         // Set the context and retrieve objects we're gonna use.
         renderer = ctx;
-        RenderingStats performanceStats = renderer.getStats();
+        //RenderingStats performanceStats = renderer.getStats();
         Pixels metadata = renderer.getMetadata();
 
         // Initialize sizeX1 and sizeX2 according to the plane definition and

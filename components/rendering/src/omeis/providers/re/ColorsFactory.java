@@ -158,7 +158,6 @@ public class ColorsFactory {
     	return isFilterHasEmissionData(lc.getSecondaryExcitationFilter());
     }
     
-    
     /**
      * Determines the color usually associated to the specified
      * wavelength or explicitly defined for a particular channel.
@@ -178,8 +177,8 @@ public class ColorsFactory {
             	// We've got a color image of some type that has explicitly
             	// specified which channel is Red, Green, Blue or some other wacky
             	// color.
-            	if (red == 0 && green == 0 && blue == 0 && alpha == 0)
-            		alpha = DEFAULT_ALPHA;
+            	//if (red == 0 && green == 0 && blue == 0 && alpha == 0)
+            	//	alpha = DEFAULT_ALPHA;
                 return new int[] { red, green, blue, alpha };
             }
             return null;
