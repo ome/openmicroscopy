@@ -66,7 +66,7 @@ public class FinderAction
      */
     protected void onBrowserStateChange(Browser browser)
     {
-        //TODO review that code.
+        if (browser == null) setEnabled(false);
         int state = browser.getState();
         setEnabled((state == Browser.READY) || (state == Browser.NEW));
     }
