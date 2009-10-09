@@ -8,16 +8,16 @@
 package ome.services.blitz.impl;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ome.conditions.InternalException;
 import ome.formats.OMEROMetadataStore;
 import ome.model.IObject;
 import ome.model.core.Pixels;
 import ome.model.screen.Plate;
-import ome.parameters.Parameters;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
@@ -31,7 +31,6 @@ import omero.RBool;
 import omero.RDouble;
 import omero.RFloat;
 import omero.RInt;
-import omero.RList;
 import omero.RLong;
 import omero.RMap;
 import omero.RString;
@@ -49,13 +48,7 @@ import omero.api._MetadataStoreOperations;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.SharedResourcesPrx;
 import omero.metadatastore.IObjectContainer;
-import omero.model.Image;
-import omero.model.OriginalFile;
-import omero.model.OriginalFileI;
 import omero.model.ScriptJob;
-import omero.model.ScriptJobI;
-import omero.model.Well;
-import omero.model.WellSample;
 import omero.util.IceMapper;
 
 import org.apache.commons.logging.Log;
@@ -73,7 +66,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
 
     private final static Log log = LogFactory.getLog(MetadataStoreI.class);
 
-    protected final List<Long> savedPlates = new ArrayList<Long>();
+    protected final Set<Long> savedPlates = new HashSet<Long>();
 
     protected OMEROMetadataStore store;
 
