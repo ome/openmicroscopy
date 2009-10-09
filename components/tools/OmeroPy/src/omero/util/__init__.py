@@ -391,7 +391,11 @@ class Resources:
                         ctx.logger.error("Exception during execution", exc_info = True)
 
                     ctx.logger.debug("Sleeping %s" % ctx.sleeptime)
-                    ctx.stop_event.wait(ctx.sleeptime)
+                    # ticket:1531 - Attempting to catch threading issues
+                    try:
+                        ctx.stop_event.wait(ctx.sleeptime)
+                    except ValueError:
+                        pass
 
                 ctx.logger.info("Halted")
 
