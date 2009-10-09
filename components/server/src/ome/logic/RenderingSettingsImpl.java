@@ -478,7 +478,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         // Set the rendering model to RGB if there is more than one channel,
         // otherwise set it to greyscale.
         RenderingModel defaultModel = null;
-        if (pixels.getSizeC() > 1) {
+        int sizeC = pixels.getSizeC();
+        if (sizeC > 1 && sizeC < Renderer.MAX_CHANNELS) {
             for (RenderingModel model : renderingModels)
             {
                 if (model.getValue().equals(Renderer.MODEL_RGB))
