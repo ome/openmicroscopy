@@ -2348,7 +2348,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                 img = self.renderImage(z,t, compression)
                 if fsize > 0:
                     draw = ImageDraw.ImageDraw(img)
-                    draw.text((2,2), "w=%i" % (self.getChannels()[i].getEmissionWave()), font=font, fill="#fff")
+                    draw.text((2,2), "w=%s" % (str(self.getChannels()[i].getEmissionWave())), font=font, fill="#fff")
                 canvas.paste(img, (px, py))
             pxc += 1
             if pxc < dims['gridx']:
