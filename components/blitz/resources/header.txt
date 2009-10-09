@@ -12,6 +12,7 @@ TITLE
     <body>
        <div id="wrapper">
           <div id="banner">
-             <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/slice2html/"><img src="http://hudson.openmicroscopy.org.uk/userContent/ome_docs_trac_banner.png" alt="OME-XML"></a>
+             <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/"><img src="http://hudson.openmicroscopy.org.uk/userContent/ome_docs_trac_banner.png" alt="OME-XML"></a>
           </div>
+          <div id="version-top"><p>Version: @VERSION@</p><div/>
        </div>

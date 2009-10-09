@@ -326,11 +326,20 @@ java component.
         </emma>
     </target>
 
+    <target name="release-docs" depends="release-javadoc,release-epydoc,release-slice2html" description="Generate Docs for all components under dist/docs/api"/>
+
     <target name="release-slice2html" description="The Ice API Documentation">
+      <mkdir dir="${omero.home}/target/docs"/>
+      <copy file="${blitz.comp}/resources/header.txt" tofile="${omero.home}/target/docs/header.txt" overwrite="true"/>
+      <copy file="${blitz.comp}/resources/footer.txt" tofile="${omero.home}/target/docs/footer.txt" overwrite="true"/>
+      <replace file="${omero.home}/target/docs/header.txt" token="@VERSION@" value="${omero.version}"/>
+      <replace file="${omero.home}/target/docs/footer.txt" token="@VERSION@" value="${omero.version}"/>
       <mkdir dir="${dist.dir}/docs/api/slice2html"/>
       <apply executable="slice2html" parallel="true" failonerror="true">
            <arg value="--hdr"/>
-           <arg value="${blitz.comp}/resources/header.txt"/>
+           <arg value="${omero.home}/target/docs/header.txt"/>
+           <!-- <arg value="-REMOVETHISTEXTBETWEENDASHES-ftr"/> Commented out as causing a crash in slice2html
+           <arg value="${omero.home}/target/docs/footer.txt"/> -->
            <arg value="-I"/>
            <arg value="${blitz.comp}/generated"/>
            <arg value="-I"/>
@@ -351,6 +360,7 @@ java component.
     <target name="release-epydoc"  description="The OmeroPy API Documentation">
        <mkdir dir="${dist.dir}/docs/api/epydoc"/>
        <exec executable="epydoc" failonerror="true">
+           <arg value="--navlink=@NAVLINK@"/>
            <arg value="--html"/>
            <arg value="--exclude-introspect=monitors"/><!-- causes a crash if included, review with next release -->
            <arg value="-n"/>
@@ -361,9 +371,10 @@ java component.
            <arg value="${dist.dir}/docs/api/epydoc"/>
            <arg value="${dist.dir}/lib/python/omero"/>
        </exec>
+       <replace dir="${dist.dir}/docs/api/epydoc" 
+          token="@NAVLINK@" 
+          value="&lt;div name=&quot;name-and-version&quot;&gt;OmeroPy API ${omero.version}&lt;/div&gt;&lt;div name=&quot;top-logo&quot; style=&quot;display:none&quot;&gt;&amp;nbsp;&lt;a href=&quot;http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/&quot;&gt;&lt;div name=&quot;ome-logo-inner&quot;&gt;&lt;img src=&quot;http://hudson.openmicroscopy.org.uk/userContent/ome_docs_trac_banner.png&quot; alt=&quot;OME Docs&quot;&gt;&lt;/a&gt;&lt;/div&gt;"/>
     </target>
-
-    <target name="release-docs" depends="release-javadoc,release-epydoc,release-slice2html" description="Generate Docs for all components under dist/docs/api"/>
 
     <target name="release-javadoc" description="Generate Javadocs for all components under dist/docs/api">
         <mkdir dir="${dist.dir}/docs/api"/>
@@ -374,7 +385,9 @@ java component.
             <include name="target/generated/src/**/*.java"/>
             <exclude name="xxx/**"/>
         </patternset>
-
+        <mkdir dir="target/docs"/>
+        <copy file="docs/overview.html" tofile="target/docs/overview.html" overwrite="true"/>
+        <replace file="target/docs/overview.html" token="@VERSION@" value="${omero.version}"/>
         <javadoc
             failonerror="true"
             Verbose="false"
@@ -385,14 +398,14 @@ java component.
             use="true"
             breakiterator="true"
             windowtitle="OMERO (OME Remote Objects) Server"
-            overview="docs/overview.html"
+            overview="target/docs/overview.html"
             stylesheetfile="docs/javadocsstyle.css">
 
             <classpath>
                 <fileset dir="lib">
                     <include name="**/*.jar"/>
-		    <exclude name="repository/omero/**"/>
-		    <exclude name="repository/omero-tools/**"/>
+                    <exclude name="repository/omero/**"/>
+                    <exclude name="repository/omero-tools/**"/>
                 </fileset>
             </classpath>
 
@@ -419,6 +432,8 @@ java component.
 
             <doctitle><![CDATA[<h1> Omero API </h1>]]></doctitle>
             <bottom><![CDATA[
+            <div name="ome-logo-for-top" style="display:none"><a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/"><div name="ome-logo-inner"><img src="http://hudson.openmicroscopy.org.uk/userContent/ome_docs_trac_banner.png" alt="OME Docs"></a></div></div>
+            <p><i>Version: ${omero.version}</i></p>
             <p><b><i>Copyright &#169; 2009 The University of Dundee. All Rights Reserved.</i></b></p>
             ]]></bottom>
 
