@@ -369,7 +369,8 @@ class ProcessEvent(pyinotify.ProcessEvent):
             self.log.info('Uncaught event of type %s at: %s', maskname, name)
             self.log.info('Not propagated.')
         
-        self.cb(el)
+        if len(el) > 0:
+            self.cb(el)
 
 
 if __name__ == "__main__":
