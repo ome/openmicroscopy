@@ -718,7 +718,7 @@ WindowStateListener, WindowFocusListener
                         " - The file has been deleted.\n" +
                         " - There was a networking error retrieving a remotely saved file.\n" +
                         " - An archived file has not been fully retrieved from backup.\n\n" +
-                        "The importer will now try to continue with the remainer of your imports.\n",
+                        "The importer should now continue with the remainer of your imports.\n",
                         JOptionPane.ERROR_MESSAGE);
 
                 final JDialog dialog = new JDialog(this, "IO Error");
@@ -726,6 +726,18 @@ WindowStateListener, WindowFocusListener
                 dialog.setContentPane(optionPane);
                 dialog.pack();
                 dialog.setVisible(true);
+                optionPane.addPropertyChangeListener(
+                        new PropertyChangeListener() {
+                            public void propertyChange(PropertyChangeEvent e) {
+                                String prop = e.getPropertyName();
+
+                                if (dialog.isVisible() 
+                                 && (e.getSource() == optionPane)
+                                 && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                                    dialog.dispose();
+                                }
+                            }
+                        });
             }
         }
 

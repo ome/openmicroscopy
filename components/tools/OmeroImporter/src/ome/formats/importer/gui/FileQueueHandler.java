@@ -54,6 +54,7 @@ import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.formats.importer.util.ErrorHandler;
 import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Screen;
@@ -188,18 +189,35 @@ public class FileQueueHandler
         {
             boolean isSPW = false;
             final List<ImportContainer> containers = new ArrayList<ImportContainer>();
+            boolean runCandidates = false;
             for (File file: fileChooser.getSelectedFiles())
             {
                 String fileStr = file.toString();
                 String fileExt = fileStr.substring(fileStr.lastIndexOf('.')+1, fileStr.length());
                 System.err.println(fileExt);
-                if (fileExt.equals("flex".toLowerCase()) || fileExt.equals("xdce".toLowerCase())) isSPW = true;
+                if (fileExt.equals("flex".toLowerCase()) 
+                        || fileExt.equals("xdce".toLowerCase())
+                        || fileExt.equals("mea".toLowerCase())
+                        || fileExt.equals("res".toLowerCase()))
+                {
+                    isSPW = true;
+                } 
+                else if (fileExt.equals("txt".toLowerCase()) || fileExt.equals("xml".toLowerCase())) 
+                { // arbitrary file extension so we must do candidates
+                    runCandidates = true;
+                    break;
+                }
+
                 ImportContainer container = new ImportContainer(file, null, null, null, false, null, null, null, isSPW);
                 containers.add(container);
             }
-            log.info(String.format("Handling import containers(%s)=%s", which, msg));
-            handleFiles(containers);
-            return;
+            
+            if (!runCandidates)
+            {
+                log.info(String.format("Handling import containers(%s)=%s", which, msg));
+                handleFiles(containers);
+                return;
+            }
         }
         
         Runnable run = new Runnable() {

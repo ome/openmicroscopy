@@ -240,16 +240,6 @@ public class ImportHandler implements IObservable {
                         importStatus = -3;
                     else
                         importStatus = -1;
-
-                    JOptionPane
-                            .showMessageDialog(
-                                    viewer,
-                                    "\nThe importer has encountered an error while attempting\n"
-                                            + "to read data from the hard drive. This could indicate a\n"
-                                            + "problem with a remote drive being inaccessable.\n\n"
-                                            + " The file in question is: "
-                                            + "\n"
-                                            + importContainer[j].file.getAbsolutePath() + "");
                     try {
                         if (db != null) {
                             db.updateImportStatus(importKey, "incomplete");
