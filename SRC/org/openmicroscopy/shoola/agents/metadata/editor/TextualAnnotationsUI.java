@@ -300,7 +300,7 @@ class TextualAnnotationsUI
 					b = true;
 				}
 			}
-			if (urlText != null) {
+			if (urlText != null && !text.contains(urlText)) {
 				StringBuffer buffer = new StringBuffer();
 				buffer.append(urlText);
 				buffer.append("\n");
