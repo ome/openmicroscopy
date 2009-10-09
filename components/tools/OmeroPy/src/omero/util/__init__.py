@@ -68,9 +68,11 @@ def configure_server_logging(props):
         log_level = logging.DEBUG
     else:
         log_level = logging.INFO
+    log_timed = props.getPropertyWithDefault("omero.logging.timedlog","False")[0] in ('T', 't')
+    log_num = int(props.getPropertyWithDefault("omero.logging.lognum",str(LOGNUM)))
     log_size = int(props.getPropertyWithDefault("omero.logging.logsize",str(LOGSIZE)))
     log_num = int(props.getPropertyWithDefault("omero.logging.lognum",str(LOGNUM)))
-    configure_logging(LOGDIR, log_name, loglevel=log_level, maxBytes=log_size, backupCount=log_num)
+    configure_logging(LOGDIR, log_name, loglevel=log_level, maxBytes=log_size, backupCount=log_num, time_rollover = log_timed)
 
 def internal_service_factory(communicator, user="root", group=None, retries=6, interval=10, client_uuid=None, stop_event = None):
     """
