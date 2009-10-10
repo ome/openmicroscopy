@@ -46,6 +46,7 @@ import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.Pixels;
 import omero.util.IceMapper;
+import omero.util.TempFileManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -246,7 +247,7 @@ public class ExporterI extends AbstractAmdServant implements
 
                                     try {
 
-                                        file = File.createTempFile(
+                                        file = TempFileManager.create_path(
                                                 "__omero_export__", ".ome.xml");
                                         file.deleteOnExit();
                                         FileOutputStream fos = new FileOutputStream(

@@ -34,11 +34,21 @@ class TempFileManager(object):
     """
 
     def __init__(self, prefix = "omero"):
+        """
+        Initializes a TempFileManager instance with a userDir containing
+        the given prefix value, or "omero" by default. Also registers
+        an atexit callback to call self.cleanup() on exit.
+        """
         self.logger = logging.getLogger("omero.util.TempFileManager")
         self.is_win32 = ( sys.platform == "win32" )
         self.prefix = prefix
-        self.userdir = path(tempfile.gettempdir()) / ("%s_%s" % (self.prefix, self.username()))
-        # If the given userdir is not accessible, we attempt to use an alternative
+
+        self.userdir = self.tmpdir() / ("%s_%s" % (self.prefix, self.username()))
+        """
+        User-accessible directory of the form $TMPDIR/omero_$USERNAME.
+        If the given directory is not writable, an attempt is made
+        to use an alternative
+        """
         if not self.create(self.userdir) and not self.access(self.userdir):
             i = 0
             while i < 10:
@@ -47,10 +57,20 @@ class TempFileManager(object):
                     self.userdir = t
                     break
             raise exceptions.Exception("Failed to create temporary directory: %s" % self.userdir)
-        self.dir = self.userdir / str(os.getpid())
+        self.dir = self.userdir / self.pid()
+        """
+        Directory under which all temporary files and folders will be created.
+        An attempt to remove a path not in this directory will lead to an
+        exception.
+        """
         if not self.dir.exists():
             self.dir.makedirs()
         self.lock = open(str(self.dir / ".lock"), "a+")
+        """
+        .lock file under self.dir which is used to prevent other
+        TempFileManager instances (also in other languages) from
+        cleaning up this directory.
+        """
         try:
             portalocker.lock(self.lock, portalocker.LOCK_EX|portalocker.LOCK_NB)
         except:
@@ -59,22 +79,46 @@ class TempFileManager(object):
         atexit.register(self.cleanup)
 
     def cleanup(self):
-        self.logger.debug("Cleaning...")
+        """
+        Deletes self.dir and releases self.lock
+        """
         self.clean_tempdir()
         self.lock.close() # Allow others access
 
+    def tmpdir(self):
+        """
+        Returns a platform-specific user-writable temporary directory
+        """
+        return path(tempfile.gettempdir())
+
     def username(self):
+        """
+        Returns the current OS-user's name
+        """
         if self.is_win32:
             import win32api
             return win32api.GetUserName()
         else:
             return os.getlogin()
 
+    def pid(self):
+        """
+        Returns some representation of the current process's id
+        """
+        return str(os.getpid())
+
     def access(self, dir):
+        """
+        Returns True if the current user can write to the given directory
+        """
         dir = str(dir)
         return os.access(dir, os.W_OK)
 
     def create(self, dir):
+        """
+        If the given directory doesn't exist, creates it (with mode 0700) and returns True.
+        Otherwise False.
+        """
         dir = path(dir)
         if not dir.exists():
             dir.makedirs(0700)
@@ -82,9 +126,17 @@ class TempFileManager(object):
         return False
 
     def gettempdir(self):
+        """
+        Returns the directory under which all temporary
+        files and folders will be created.
+        """
         return self.dir
 
     def create_path(self, prefix, suffix, folder = False, text = False, mode = "r+"):
+        """
+        Uses tempfile.mkdtemp and tempfile.mkstemp to create temporary
+        folders and files, respectively, under self.dir
+        """
 
         if folder:
             name = tempfile.mkdtemp(prefix = prefix, suffix = suffix, dir = self.dir)
@@ -100,6 +152,10 @@ class TempFileManager(object):
         return path(name)
 
     def remove_path(self, name):
+        """
+        If the given path is under self.dir, then it is deleted
+        whether file or folder. Otherwise, an exception is thrown.
+        """
         p = path(name)
         parpath = p.parpath(self.dir)
         if len(parpath) < 1:
@@ -111,14 +167,22 @@ class TempFileManager(object):
                 self.logger.debug("Removed folder %s", name)
             else:
                 p.remove()
-                self.logger.debug("Removed %s", name)
+                self.logger.debug("Removed file %s", name)
 
     def clean_tempdir(self):
+        """
+        Deletes self.dir
+        """
         dir = self.gettempdir()
         self.logger.debug("Removing tree: %s", dir)
         dir.rmtree(onerror = self.on_rmtree)
 
     def clean_userdir(self):
+        """
+        Attempts to delete all directories under self.userdir
+        other than the one owned by this process. If a directory
+        is locked, it is skipped.
+        """
         self.logger.debug("Cleaning user dir: %s" % self.userdir)
         dirs = self.userdir.dirs()
         for dir in dirs:
@@ -136,12 +200,13 @@ class TempFileManager(object):
             print "Deleted: %s" % dir
 
     def on_rmtree(self, func, name, exc):
-        self.logger.error("rmtree error: %s of %s => %s", func, name, exc)
+        self.logger.error("rmtree error: %s('%s') => %s", func.__name__, name, exc[1])
 
 manager = TempFileManager()
 """
-Global TempFileManager instance which is registered with the
-atexit module for cleaning up all created files on exit.
+Global TempFileManager instance for use by the current process and
+registered with the atexit module for cleaning up all created files on exit.
+Other instances can be created for specialized purposes.
 """
 
 def create_path(prefix = "omero", suffix = ".tmp", folder = False):
@@ -158,6 +223,9 @@ def remove_path(file):
     return manager.remove_path(file)
 
 def gettempdir():
+    """
+    Returns the dir value for the global TempFileManager.
+    """
     return manager.gettempdir()
 
 if __name__ == "__main__":
@@ -181,7 +249,8 @@ if __name__ == "__main__":
         elif "lock" in args:
             print "Locking %s" % manager.gettempdir()
             raw_input("Waiting on user input...")
-    else:
-        print "Usage: %s clean" % sys.argv[0]
-        print "   or: %s dir  " % sys.argv[0]
-        sys.exit(2)
+            sys.exit(0)
+
+    print "Usage: %s clean" % sys.argv[0]
+    print "   or: %s dir  " % sys.argv[0]
+    sys.exit(2)

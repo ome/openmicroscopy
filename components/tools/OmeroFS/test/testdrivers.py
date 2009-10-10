@@ -20,7 +20,7 @@ import omero.grid.monitors as monitors
 
 from uuid import uuid4
 from path import path
-from omero.util.temp_files import gettempdir
+from omero.util.temp_files import create_path
 from omero_ext.functional import wraps
 from test.drivers import *
 
@@ -59,7 +59,7 @@ class TestSimulator(unittest.TestCase):
 
     def beforeMethod(self):
         self.uuid = str(uuid4())
-        self.dir = gettempdir() / "test-omero" / self.uuid
+        self.dir = create_path(folder=True) / self.uuid
         self.dir.makedirs()
         self.sim = Simulator(self.dir)
         self.driver = Driver(self.sim)

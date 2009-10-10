@@ -24,6 +24,7 @@ import java.util.prefs.Preferences;
 import loci.formats.FormatException;
 import loci.formats.in.FlexReader;
 import ome.formats.importer.Version;
+import omero.util.TempFileManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -267,7 +268,7 @@ public class IniFileLoader {
         File staticFile = new File(staticConfigFile);
         if (!staticFile.exists() || !staticFile.canRead()) {
             try {
-                staticFile = File.createTempFile(".omero.importer", "ini");
+                staticFile = TempFileManager.createTempFile(".omero.importer", "ini");
                 log.warn("Creating temporary ini file: "
                         + staticFile.getAbsolutePath());
             } catch (IOException e) {

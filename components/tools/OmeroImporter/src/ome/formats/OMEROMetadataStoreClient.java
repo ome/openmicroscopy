@@ -151,6 +151,7 @@ import omero.model.TransmittanceRange;
 import omero.model.TransmittanceRangeI;
 import omero.model.Well;
 import omero.model.WellSample;
+import omero.util.TempFileManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -2377,7 +2378,7 @@ public class OMEROMetadataStoreClient
     	OutputStreamWriter writer= null;
     	try
     	{
-    		File metadataFile = File.createTempFile("metadata", ".txt");
+    		File metadataFile = TempFileManager.createTempFile("metadata", ".txt");
     		stream = new FileOutputStream(metadataFile);
     		writer = new OutputStreamWriter(stream);
     		metadataFile.deleteOnExit();

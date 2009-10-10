@@ -21,7 +21,7 @@ import omero.grid.monitors as monitors
 from uuid import uuid4
 from path import path
 from omero_ext.functional import wraps
-from omero.util.temp_files import gettempdir
+from omero.util.temp_files import create_path
 from fsDropBoxMonitorClient import *
 
 LOGFORMAT =  """%(asctime)s %(levelname)-5s [%(name)40s] (%(threadName)-10s) %(message)s"""
@@ -138,7 +138,7 @@ def with_driver(func, errors = 0):
     """ Decorator for running a test with a Driver """
     def handler(*args, **kwargs):
         self = args[0]
-        self.dir = gettempdir() / "test-omero" / str(uuid4()) / "DropBox"
+        self.dir = create_path(folder=True) / "DropBox"
         self.simulator = Simulator(self.dir)
         self.client = MockMonitor(self.dir, pre=[self.simulator], post=[])
         try:

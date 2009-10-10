@@ -64,10 +64,14 @@ class TestTemps(unittest.TestCase):
         self.assertTrue(p.isdir())
         return p
 
-    def testFolderDelete(self):
+    def testFolderWrite(self):
         p = self.testFolderSimple()
         f = p / "file"
         f.write_text("hi")
+        return p
+
+    def testFolderDelete(self):
+        p = self.testFolderWrite()
         p.rmtree()
 
     #

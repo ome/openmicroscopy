@@ -14,22 +14,15 @@ import portalocker
 import tables
 
 from path import path
+from omero.util.temp_files import create_path
 
 class TestCase(unittest.TestCase):
 
     def setUp (self):
         unittest.TestCase.setUp(self)
-        self.dir = path(tempfile.gettempdir()) / "test-omero"
-        if not self.dir.exists():
-            self.dir.mkdir()
-        # Creates a single tempdir under /tmp/test-omero
-        # and under *that* directory we'll create more
-        # directories for each test. That prevents the
-        # horrendous of directories that might otherwise
-        # getet created.
         self.dir = self.tmpdir()
 
     def tmpdir(self):
         """
         """
-        return tempfile.mkdtemp(dir=str(self.dir))
+        return create_path(folder=True)
