@@ -29,9 +29,14 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.swing.Action;
 
 
@@ -52,6 +57,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.FilteringDialog;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.QuickFiltering;
+import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailManager;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
@@ -59,6 +65,7 @@ import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 import pojos.DataObject;
+import pojos.DatasetData;
 
 /** 
  * The DataBrowser's Controller.
@@ -346,7 +353,26 @@ class DataBrowserControl
 		} else if (Browser.CELL_SELECTION_PROPERTY.equals(name)) {
 			CellDisplay cell = (CellDisplay) evt.getNewValue();
 			model.setSelectedCell(cell);
-		}
+		} else if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(name)) {
+			Map m = (Map) evt.getNewValue();
+			if (m == null || m.size() != 1) return;
+			Set set = m.entrySet();
+			Entry entry;
+			Iterator i = set.iterator();
+			Class type;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				type = (Class) entry.getKey();
+				if (DatasetData.class.equals(type)) {
+					model.addToDatasets((Collection) entry.getValue());
+				}
+			}
+		} 
+	}
+
+	void loadExistingDatasets()
+	{
+		model.loadExistingDatasets();
 	}
 
 }

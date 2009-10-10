@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.DataObjectCreator 
+ * org.openmicroscopy.shoola.agents.dataBrowser.DataObjectSaver 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -22,22 +22,22 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser;
 
-
-//Java imports
 import java.util.Collection;
 import java.util.List;
+
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import pojos.DataObject;
+
+//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.DataObject;
 
 /** 
- * Creates a data objects e.g. a dataset and links it to the specified children.
- * This class calls the <code>filterByAnnotation</code> method in the
- * <code>createDataObject</code>.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,44 +47,41 @@ import pojos.DataObject;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
-public class DataObjectCreator
+public class DataObjectSaver 
 	extends DataBrowserLoader
 {
-
-	/** The parent of the <code>DataObject</code> to create. */
-	private DataObject	parent;
 	
-	/** The <code>DataObject</code> to create. */
-	private DataObject	data;
+	/** The nodes to add to the passed objects. */
+	private Collection	datasets;
 	
-	/** The nodes to add to the newly created object. */
-	private Collection	children;
+	/** The nodes to add to the passed objects. */
+	private Collection	images;
 	
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle	handle;
-   
+
     /**
      * Creates a new instance.
      * 
      * @param viewer	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
-     * @param parent	The parent of the <code>DataObject</code> to create
-     * 					or <code>null</code>.
-     * @param data		The <code>DataObject</code> to create.
+     * @param datasets	The datasets to add the images to.
      * 					Mustn't be <code>null</code>.
-     * @param children	The nodes to add to the newly created object.
+     * @param images	The images to add. Mustn't be <code>null</code>.
      */
-    public DataObjectCreator(DataBrowser viewer, DataObject parent, 
-    						DataObject data, Collection children)
+    public DataObjectSaver(DataBrowser viewer, Collection datasets,
+    		Collection images)
     {
     	super(viewer);
-    	if (data == null) 
-    		throw new IllegalArgumentException("No object to create.");
-    	this.data = data;
-    	this.parent = parent;
-    	this.children = children;
+    	if (datasets == null || datasets.size() == 0) 
+    		throw new IllegalArgumentException("No datasets to add the images" +
+    				" to.");
+    	if (images == null || images.size() == 0) 
+    		throw new IllegalArgumentException("No images to add.");
+    	this.datasets = datasets;
+    	this.images = images;
     }
     
     /** 
@@ -94,12 +91,13 @@ public class DataObjectCreator
 	public void cancel() { handle.cancel(); }
 
 	/** 
-	 * Creates a new <code>DataObject</code>.
+	 * Adds the passed images to the datasets.
 	 * @see DataBrowserLoader#load()
 	 */
 	public void load()
 	{
-		handle = mhView.createDataObject(parent, data, children, this);
+
+        handle = dmView.addExistingObjects(datasets, images, this);
 	}
 	
 	/**
@@ -109,9 +107,7 @@ public class DataObjectCreator
     public void handleResult(Object result) 
     {
     	if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
-    	List list = (List) result;
-    	if (list.size() == 1)
-    		viewer.setDataObjectCreated((DataObject) list.get(0), parent);
+    	viewer.refresh();
     }
     
 }

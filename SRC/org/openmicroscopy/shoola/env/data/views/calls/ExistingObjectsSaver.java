@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -69,18 +70,27 @@ public class ExistingObjectsSaver
      * Creates a {@link BatchCall} to add the given children to the 
      * specified parent.
      * 
-     * @param parent    The <code>DataObject</code> to update. Either a 
+     * @param parent    The <code>DataObject</code>s to update. Either a 
      *                  <code>ProjectData</code> or <code>DatasetData</code>.
      * @param children  The items to add.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(final DataObject parent, final Set children)
+    private BatchCall makeBatchCall(final Collection parent, 
+    		final Collection children)
     {
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                os.addExistingObjects(parent, children);
+                Iterator i = parent.iterator();
+                Object obj;
+                while (i.hasNext()) {
+					obj = i.next();
+					if (obj instanceof DataObject) {
+						os.addExistingObjects((DataObject) obj, children);
+					}
+				}
+                
                 result = parent;
             }
         };
@@ -156,12 +166,13 @@ public class ExistingObjectsSaver
      *                  <code>ProjectData</code> or <code>DatasetData</code>.
      * @param children  The items to add.
      */
-    public ExistingObjectsSaver(DataObject parent, Set children)
+    public ExistingObjectsSaver(Collection parent, Collection children)
     {
         if (children == null || children.size() == 0)
             throw new IllegalArgumentException("No item to add.");
         if (parent == null)
             throw new IllegalArgumentException("No parent to update.");
+        /*
         if (parent instanceof ProjectData) {
             try {
                 children.toArray(new DatasetData[] {});
@@ -178,6 +189,7 @@ public class ExistingObjectsSaver
             }
         } else
             throw new IllegalArgumentException("parent object not supported");
+            */
         call = makeBatchCall(parent, children);
     }
 

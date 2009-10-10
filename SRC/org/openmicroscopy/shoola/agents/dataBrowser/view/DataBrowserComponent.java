@@ -35,12 +35,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
+import javax.swing.Icon;
 import javax.swing.JComponent;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
+import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailProvider;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
@@ -53,6 +56,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -64,6 +68,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
@@ -101,6 +106,27 @@ class DataBrowserComponent
 	/** The View sub-component. */
 	private DataBrowserUI       view;
 	
+	/** Displays the existing datasets. */
+	private void showExistingDatasets()
+	{
+		Collection datasets = model.getExisitingDatasets();
+		if (datasets == null || datasets.size() == 0) {
+			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Existing datasets", "No Datasets already created.");
+			return;
+		}
+		IconManager icons = IconManager.getInstance();
+		String title = "Datasets Selection";
+		String text = "Select the Datasets to add the images to";
+		Icon icon = icons.getIcon(IconManager.DATASET_48);
+		SelectionWizard wizard = new SelectionWizard(
+				DataBrowserAgent.getRegistry().getTaskBar().getFrame(),
+				datasets, DatasetData.class);
+		wizard.setTitle(title, text, icon);
+		wizard.addPropertyChangeListener(controller);
+		UIUtilities.centerAndShow(wizard);
+	}
+
 	/**
 	 * Creates a new instance.
 	 * The {@link #initialize() initialize} method should be called straight 
@@ -521,7 +547,7 @@ class DataBrowserComponent
 		}
 		if (images == null || images.size() == 0) {
 			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Dataset Creation", "No images has been selected");
+			un.notifyInfo("Dataset Creation", "No images selected");
 			return;
 		}
 		model.fireDataSaving(data, images);
@@ -1161,6 +1187,71 @@ class DataBrowserComponent
 	{
 		firePropertyChange(CREATE_NEW_EXPERIMENT_PROPERTY, Boolean.FALSE, 
 				Boolean.TRUE);
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#loadExistingDatasets()
+	 */
+	public void loadExistingDatasets()
+	{
+		if (model.getExisitingDatasets() == null) {
+			model.fireExisitingDatasetsLoading();
+		} else showExistingDatasets();
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#setExistingDatasets(Collection)
+	 */
+	public void setExistingDatasets(Collection result)
+	{
+		model.setExistingDatasets(result);
+		showExistingDatasets();
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#addToDatasets(Collection)
+	 */
+	public void addToDatasets(Collection selected)
+	{
+		if (selected == null || selected.size() == 0) return;
+		Browser browser = model.getBrowser();
+		Collection images;
+		Collection set = browser.getSelectedDisplays();
+		if (set != null && set.size() > 0) {
+			images = new HashSet();
+			Iterator i = set.iterator();
+			ImageDisplay display;
+			Object ho;
+			while (i.hasNext()) {
+				display = (ImageDisplay) i.next();
+				ho = display.getHierarchyObject();
+				if (ho instanceof ImageData) {
+					images.add(ho);
+				}
+			}
+		} else {
+			images = browser.getVisibleImages();
+		}
+		if (images == null || images.size() == 0) {
+			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Dataset Creation", "No images selected");
+			return;
+		}
+		model.fireDataSaving(selected, images);
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#refresh()
+	 */
+	public void refresh()
+	{
+		firePropertyChange(ADDED_TO_DATA_OBJECT_PROPERTY, 
+				Boolean.valueOf(false), Boolean.valueOf(true));
+		
 	}
 	
 }

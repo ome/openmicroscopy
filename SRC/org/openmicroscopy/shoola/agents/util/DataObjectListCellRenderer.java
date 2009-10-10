@@ -36,6 +36,7 @@ import javax.swing.JList;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.ui.IconManager;
+import pojos.DatasetData;
 import pojos.FileAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.URLAnnotationData;
@@ -143,6 +144,10 @@ public class DataObjectListCellRenderer
 			URLAnnotationData url = (URLAnnotationData) value;
 			setText(url.getURL());
 			setIcon(icons.getIcon(IconManager.BROWSER));
+		} else if (value instanceof DatasetData) {
+			DatasetData d = (DatasetData) value;
+			setText(d.getName());
+			setIcon(icons.getIcon(IconManager.DATASET));
 		}
 		return this;
 	}

@@ -147,13 +147,13 @@ public interface DataManagerView
 	/**
 	 * Adds the specified items to the parent.
 	 * 
-	 * @param parent    The <code>DataObject</code> to update. Either a 
+	 * @param parents    The <code>DataObject</code>s to update. Either a 
 	 *                  <code>ProjectData</code> or <code>DatasetData</code>.
 	 * @param children  The items to add.
 	 * @param observer  Callback handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle addExistingObjects(DataObject parent, Set children, 
+	public CallHandle addExistingObjects(Collection parent, Collection children, 
 			AgentEventListener observer);
 
 	/**

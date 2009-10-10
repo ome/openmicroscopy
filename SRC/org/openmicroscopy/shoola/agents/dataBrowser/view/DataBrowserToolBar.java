@@ -103,7 +103,7 @@ class DataBrowserToolBar
 	/** ID to bring up the add thumbnail view to the node.. */
 	private static final int	ROLL_OVER = 10;
 	
-	/** ID to bring up the metadata browser. */
+	/** ID to create a new dataset. */
 	private static final int	NEW_OBJECT = 11;
 	
 	/** ID to bring a slide show view with the displayed images. */
@@ -117,6 +117,9 @@ class DataBrowserToolBar
 
 	/** ID to bring up the metadata browser. */
 	private static final int	REPORT = 15;
+	
+	/** ID to select an existing dataset. */
+	private static final int	EXISTING_OBJECT = 16;
 	
 	/** Reference to the control. */
 	private DataBrowserControl 	controller;
@@ -187,8 +190,35 @@ class DataBrowserToolBar
 	/** Button to create an image Tags report. */
 	private JButton				reportButton;
 	
+	private JPopupMenu			createMenu;
+	
 	/**
-	 * Creates the menu displaying various management options options.
+	 * Creates the menu displaying various create options.
+	 * 
+	 * @return See above.
+	 */
+	private JPopupMenu createNewObjectMenu()
+	{
+		if (createMenu != null) return createMenu;
+		IconManager icons = IconManager.getInstance();
+		createMenu = new JPopupMenu();
+		JMenuItem menuItem = new JMenuItem("New Dataset");
+		menuItem.setToolTipText("Create a Dataset.");
+		menuItem.setIcon(icons.getIcon(IconManager.CREATE));
+		menuItem.addActionListener(this);
+		menuItem.setActionCommand(""+NEW_OBJECT);
+		createMenu.add(menuItem);
+		menuItem = new JMenuItem("Existing Dataset");
+		menuItem.setToolTipText("Select a dataset to the images to.");
+		menuItem.setIcon(icons.getIcon(IconManager.DATASET));
+		menuItem.addActionListener(this);
+		menuItem.setActionCommand(""+EXISTING_OBJECT);
+		createMenu.add(menuItem);
+		return createMenu;
+	}
+	
+	/**
+	 * Creates the menu displaying various management options.
 	 * 
 	 * @return See above.
 	 */
@@ -411,9 +441,21 @@ class DataBrowserToolBar
 				"the displayed images.");
 		UIUtilities.unifiedButtonLookAndFeel(createDatasetButton);
 		createDatasetButton.setIcon(icons.getIcon(IconManager.DATASET));
-		createDatasetButton.addActionListener(this);
-		createDatasetButton.setActionCommand(""+NEW_OBJECT);
+		//createDatasetButton.addActionListener(this);
+		//createDatasetButton.setActionCommand(""+NEW_OBJECT);
+		createDatasetButton.addMouseListener(new MouseAdapter() {
+			
+			/**
+			 * Brings up the create menu.
+			 * @see MouseAdapter#mouseReleased(MouseEvent)
+			 */
+			public void mouseReleased(MouseEvent e) {
+				createNewObjectMenu().show(createDatasetButton, e.getX(), 
+						e.getY());
+			}
 		
+		});
+
 		itemsPerRow = new JTextField(3);
 		itemsPerRow.setToolTipText(ITEMS_PER_ROW_TEXT);
 		itemsPerRow.addActionListener(this);
@@ -755,6 +797,9 @@ class DataBrowserToolBar
 				break;
 			case REPORT:
 				report();
+				break;
+			case EXISTING_OBJECT:
+				controller.loadExistingDatasets();
 		}
 	}
 	

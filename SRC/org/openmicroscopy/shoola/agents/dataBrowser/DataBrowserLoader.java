@@ -33,6 +33,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
+import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -78,6 +79,9 @@ public abstract class DataBrowserLoader
     /** Convenience reference for subclasses. */
     protected final MetadataHandlerView		mhView;
     
+    /** Convenience reference for subclasses. */
+    protected final DataManagerView			dmView;
+    
     /**
      * Creates a new instance.
      * 
@@ -95,6 +99,8 @@ public abstract class DataBrowserLoader
         			registry.getDataServicesView(DataHandlerView.class);
         mhView = (MetadataHandlerView) 
      				registry.getDataServicesView(MetadataHandlerView.class);
+        dmView = (DataManagerView) 
+			registry.getDataServicesView(DataManagerView.class);
     }
     
     /**

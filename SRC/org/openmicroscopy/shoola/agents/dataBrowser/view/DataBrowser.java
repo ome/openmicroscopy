@@ -101,12 +101,19 @@ public interface DataBrowser
 	public static final String		TAG_WIZARD_PROPERTY = "tagWizard";
 	
 	/** 
-	 * Bound property indicating that a <code>Dataobject</code> has 
+	 * Bound property indicating that a <code>DataObject</code> has 
 	 * been created.
 	 */
 	public static final String		DATA_OBJECT_CREATED_PROPERTY = 
 										"dataObjectCreated";
 	
+	/** 
+	 * Bound property indicating that the images have been added to a collection
+	 * of <code>DataObject</code>s.
+	 */
+	public static final String		ADDED_TO_DATA_OBJECT_PROPERTY = 
+										"addedToDataObject";
+
 	/** 
 	 * Bound property name indicating an {@link ImageDisplay} object has been
 	 * selected in the visualization tree. 
@@ -561,5 +568,25 @@ public interface DataBrowser
 	 * @param cell The selected cell.
 	 */
 	public void setSelectedCell(CellDisplay cell);
+
+	/** Loads the existing owned by the user. */
+	public void loadExistingDatasets();
+
+	/**
+	 * Sets the existing datasets.
+	 * 
+	 * @param result The value to set.
+	 */
+	public void setExistingDatasets(Collection result);
+
+	/**
+	 * Adds the selected images to the passed datasets.
+	 * 
+	 * @param selected The collection of selected datasets
+	 */
+	public void addToDatasets(Collection selected);
+
+	/** Indicates to refresh when images are added to datasets. */
+	public void refresh();
 	
 }

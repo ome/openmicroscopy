@@ -824,9 +824,9 @@ class OmeroDataServiceImpl
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#addExistingObjects(DataObject, Set)
+	 * @see OmeroDataService#addExistingObjects(DataObject, Collection)
 	 */
-	public void addExistingObjects(DataObject parent, Set children)
+	public void addExistingObjects(DataObject parent, Collection children)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (parent instanceof ProjectData) {

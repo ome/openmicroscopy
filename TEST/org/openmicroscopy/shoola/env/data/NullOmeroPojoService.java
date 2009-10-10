@@ -62,9 +62,9 @@ public class NullOmeroPojoService
 
 	/**
      * No-op implementation
-     * @see OmeroDataService#addExistingObjects(DataObject, Set)
+     * @see OmeroDataService#addExistingObjects(DataObject, Collection)
      */
-	public void addExistingObjects(DataObject parent, Set children) 
+	public void addExistingObjects(DataObject parent, Collection children) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 	}

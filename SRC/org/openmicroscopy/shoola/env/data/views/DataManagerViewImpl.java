@@ -146,13 +146,13 @@ class DataManagerViewImpl
 	
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#addExistingObjects(DataObject, Set, 
+	 * @see DataManagerView#addExistingObjects(Collection, Collection, 
 	 *                                          AgentEventListener)
 	 */
-	public CallHandle addExistingObjects(DataObject parent, Set children, 
+	public CallHandle addExistingObjects(Collection parents, Collection children, 
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ExistingObjectsSaver(parent, children);
+		BatchCallTree cmd = new ExistingObjectsSaver(parents, children);
 		return cmd.exec(observer);
 	}
 

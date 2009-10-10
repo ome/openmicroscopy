@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.DataObjectCreator 
+ * org.openmicroscopy.shoola.agents.dataBrowser.DatasetsLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -22,22 +22,23 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser;
 
+import java.util.Collection;
+
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import pojos.DatasetData;
+import pojos.TagAnnotationData;
 
 //Java imports
-import java.util.Collection;
-import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.DataObject;
 
 /** 
- * Creates a data objects e.g. a dataset and links it to the specified children.
- * This class calls the <code>filterByAnnotation</code> method in the
- * <code>createDataObject</code>.
+ * Loads the datasets owned by the user.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,59 +48,44 @@ import pojos.DataObject;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
-public class DataObjectCreator
+public class DatasetsLoader
 	extends DataBrowserLoader
 {
 
-	/** The parent of the <code>DataObject</code> to create. */
-	private DataObject	parent;
-	
-	/** The <code>DataObject</code> to create. */
-	private DataObject	data;
-	
-	/** The nodes to add to the newly created object. */
-	private Collection	children;
-	
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle	handle;
-   
+    
     /**
      * Creates a new instance.
      * 
-     * @param viewer	The viewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
-     * @param parent	The parent of the <code>DataObject</code> to create
-     * 					or <code>null</code>.
-     * @param data		The <code>DataObject</code> to create.
-     * 					Mustn't be <code>null</code>.
-     * @param children	The nodes to add to the newly created object.
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
      */
-    public DataObjectCreator(DataBrowser viewer, DataObject parent, 
-    						DataObject data, Collection children)
-    {
-    	super(viewer);
-    	if (data == null) 
-    		throw new IllegalArgumentException("No object to create.");
-    	this.data = data;
-    	this.parent = parent;
-    	this.children = children;
-    }
-    
-    /** 
+	public DatasetsLoader(DataBrowser viewer)
+	{
+		super(viewer);
+	}
+
+	/** 
 	 * Cancels the data loading. 
 	 * @see DataBrowserLoader#cancel()
 	 */
 	public void cancel() { handle.cancel(); }
 
+	/** Overridden so the status is not displayed. */
+	public void onEnd() {}
+	
 	/** 
-	 * Creates a new <code>DataObject</code>.
+	 * Loads the tags for the specified nodes.
 	 * @see DataBrowserLoader#load()
 	 */
 	public void load()
 	{
-		handle = mhView.createDataObject(parent, data, children, this);
+		long userID = MetadataViewerAgent.getUserDetails().getId();
+		handle = dmView.loadContainerHierarchy(DatasetData.class, null, 
+				false, userID, this);	
 	}
 	
 	/**
@@ -109,9 +95,7 @@ public class DataObjectCreator
     public void handleResult(Object result) 
     {
     	if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
-    	List list = (List) result;
-    	if (list.size() == 1)
-    		viewer.setDataObjectCreated((DataObject) list.get(0), parent);
+    	viewer.setExistingDatasets((Collection) result);
     }
     
 }

@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -105,7 +107,9 @@ public class ExistingObjectsSaver
      */
     public void load()
     {
-        handle = dmView.addExistingObjects(parent, children, this);
+    	List l = new ArrayList();
+    	l.add(parent);
+        handle = dmView.addExistingObjects(l, children, this);
     }
 
     /** 

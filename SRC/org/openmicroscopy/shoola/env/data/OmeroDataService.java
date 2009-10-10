@@ -254,7 +254,7 @@ public interface OmeroDataService
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	public void addExistingObjects(DataObject parent, Set children)
+	public void addExistingObjects(DataObject parent, Collection children)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

@@ -670,6 +670,8 @@ class TreeViewerControl
 				else model.onDataObjectSave(data, parent, 
 									TreeViewer.CREATE_OBJECT);
 			}
+		} else if (DataBrowser.ADDED_TO_DATA_OBJECT_PROPERTY.equals(name)) {
+			 model.getSelectedBrowser().refreshLoggedExperimenterData();
 		} else if (DataBrowser.COPY_RND_SETTINGS_PROPERTY.equals(name)) {
 			Object data = pce.getNewValue();
 			if (data != null) model.copyRndSettings((ImageData) data);

@@ -40,6 +40,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.CommentsFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataObjectCreator;
+import org.openmicroscopy.shoola.agents.dataBrowser.DataObjectSaver;
+import org.openmicroscopy.shoola.agents.dataBrowser.DatasetsLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.RateFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.ReportLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.TagsFilter;
@@ -126,6 +128,9 @@ abstract class DataBrowserModel
     
     /** The collection of existing tags. */
     private Collection			existingTags;
+    
+    /** The collection of existing datasets. */
+    private Collection			existingDatasets;
     
 	/** Flag indicating that the thumbnails are loaded or not. */
 	protected boolean			thumbnailLoaded;
@@ -433,6 +438,13 @@ abstract class DataBrowserModel
 		loader.load();
 	}
 	
+	/** Starts an asynchronous call to load the existing datasets. */
+	void fireExisitingDatasetsLoading()
+	{
+		DatasetsLoader loader = new DatasetsLoader(component);
+		loader.load();
+	}
+	
 	/** 
 	 * Starts an asynchronous retrieval all the full size image.
 	 * 
@@ -485,9 +497,20 @@ abstract class DataBrowserModel
 					p = null;
 			}
 		}
-		
-		
 		DataObjectCreator loader = new DataObjectCreator(component, p, data, 
+														images);
+		loader.load();
+	}
+	
+	/**
+	 * Starts an asynchronous retrieval 
+	 * 
+	 * @param data 		The <code>DataObject</code> to create.
+	 * @param images	The images to add to the <code>DataObject</code>.
+	 */
+	void fireDataSaving(Collection datasets, Collection images)
+	{
+		DataObjectSaver loader = new DataObjectSaver(component, datasets, 
 														images);
 		loader.load();
 	}
@@ -516,6 +539,23 @@ abstract class DataBrowserModel
 	{ 
 		existingTags = tags; 
 	}
+	
+	/**
+	 * Sets the collection of existing datasets.
+	 * 
+	 * @param datasets The value to set.
+	 */
+	void setExistingDatasets(Collection datasets)
+	{
+		existingDatasets = datasets; 
+	}
+	
+	/**
+	 * Returns the collection of existing tags.
+	 * 
+	 * @return See above.
+	 */
+	Collection getExisitingDatasets() { return existingDatasets; }
 	
 	/**
 	 * Returns <code>true</code> if the model is of type
@@ -586,6 +626,5 @@ abstract class DataBrowserModel
      * @return See above.
      */
     protected abstract List<ImageDisplay> getNodes();
-
     
 }

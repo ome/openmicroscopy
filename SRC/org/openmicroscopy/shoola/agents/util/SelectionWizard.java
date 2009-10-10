@@ -25,12 +25,9 @@ package org.openmicroscopy.shoola.agents.util;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -41,7 +38,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -58,13 +54,11 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import layout.TableLayout;
 
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -235,11 +229,16 @@ public class SelectionWizard
 	private void createOriginalSelections()
 	{
 		originalItems = new ArrayList<Object>();
-		for (Object item : availableItems)
-			originalItems.add(item);
+		if (availableItems != null) {
+			for (Object item : availableItems)
+				originalItems.add(item);
+		}
+		
 		originalSelectedItems  = new ArrayList<Object>();
-		for (Object item : selectedItems)
-			originalSelectedItems.add(item);
+		if (selectedItems != null) {
+			for (Object item : selectedItems)
+				originalSelectedItems.add(item);
+		}
 	}
 	
 	/** Adds an item to the list and then sorts the list to maintain order.  */
@@ -266,8 +265,9 @@ public class SelectionWizard
 	/** Sorts the lists. */
 	private void sortLists()
 	{
-		availableItems = sorter.sort(availableItems);
-		selectedItems = sorter.sort(selectedItems);
+		if (availableItems != null) 
+			availableItems = sorter.sort(availableItems);
+		if (selectedItems != null) selectedItems = sorter.sort(selectedItems);
 	}
 	
 	/** Adds all the items to the selection. */
@@ -637,7 +637,7 @@ public class SelectionWizard
 	/**
 	 * Creates a new instance. 
 	 * 
-	 *@param owner		    The owner of this dialog.
+	 * @param owner		    The owner of this dialog.
 	 * @param available	    The collection of available items.
 	 * @param selected	    The collection of selected items.
 	 * @param type			The type of object to handle.
@@ -651,7 +651,8 @@ public class SelectionWizard
 	{
 		super(owner);
 		setModal(true);
-		if (selectedItems == null) selectedItems = new ArrayList<Object>();
+		if (selected == null) selected = new ArrayList<Object>();
+		if (available == null) available = new ArrayList<Object>();
 		this.availableItems = available;
 		this.selectedItems = selected;
 		this.type = type;
