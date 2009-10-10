@@ -21,19 +21,19 @@ from portalocker import lock, LockException, LOCK_NB, LOCK_EX
 class TestTemps(unittest.TestCase):
 
     def testBasicUsage(self):
-        p = t_f.create_path(["test"],"foo",".bar")
+        p = t_f.create_path("foo",".bar")
         self.assertTrue(p.exists())
         t_f.remove_path(p)
         self.assertFalse(p.exists())
 
     def testBasicUsagePassString(self):
-        p = t_f.create_path(["test"],"foo",".bar")
+        p = t_f.create_path("foo",".bar")
         self.assertTrue(p.exists())
         t_f.remove_path(str(p))
         self.assertFalse(p.exists())
 
     def testNoCleanUp(self):
-        p = t_f.create_path(["test"],"foo",".bar")
+        p = t_f.create_path("foo",".bar")
         self.assertTrue(p.exists())
         # Logger should print out one file
 
@@ -42,24 +42,24 @@ class TestTemps(unittest.TestCase):
         #self.assertRaises(LockException, lock, f, LOCK_NB)
 
     def testUsingThePath(self):
-        p = t_f.create_path(["test"], "write", ".txt")
+        p = t_f.create_path("write", ".txt")
         p.write_text("hi")
         self.assertEquals(["hi"], p.lines())
 
     def testUsingThePath2(self):
-        p = t_f.create_path(["test"], "write2", ".txt")
+        p = t_f.create_path("write2", ".txt")
         p.write_text("hi2")
         self.assertEquals(["hi2"], p.lines())
 
     def testUsingThePathAndAFile(self):
-        p = t_f.create_path(["test"], "write", ".txt")
+        p = t_f.create_path("write", ".txt")
         p.write_text("hi")
         f = open(str(p), "r")
         self.assertEquals(["hi"], f.readlines())
         f.close()
 
     def testFolderSimple(self):
-        p = t_f.create_path(["test"], "close", ".dir", folder = True)
+        p = t_f.create_path("close", ".dir", folder = True)
         self.assertTrue(p.exists())
         self.assertTrue(p.isdir())
         return p
@@ -86,7 +86,7 @@ class TestTemps(unittest.TestCase):
         dir = mgr.gettempdir()
         mgr.clean_tempdir() # start with a blank dir
         self.assertFalse(dir.exists())
-        p = mgr.create_path(["test"], "test",".tmp")
+        p = mgr.create_path("test",".tmp")
         self.assertTrue(dir.exists())
         mgr.clean_tempdir()
         # There should still be one file lock

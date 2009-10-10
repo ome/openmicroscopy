@@ -511,7 +511,7 @@ class MonitorClientI(monitors.MonitorClient):
         try:
             self.log.info("Importing %s (session=%s)", fileName, key)
 
-            t = create_path(["fs","dropbox"],"import","err")
+            t = create_path("dropbox", "err")
 
             cli = omero.cli.CLI()
             cli.invoke(["import", "---errs=%s"%t, "-s", self.host, "-p", str(self.port), "-k", key, fileName])

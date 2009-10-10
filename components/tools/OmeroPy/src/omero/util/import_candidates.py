@@ -48,7 +48,7 @@ def as_dictionary(path, readers=""):
         }
     """
 
-    t = create_path()
+    t = create_path("candidates", "err")
 
     path = _to_list(path)
     path.insert(0, "---file=%s" % t)

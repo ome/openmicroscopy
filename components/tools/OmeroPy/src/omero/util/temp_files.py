@@ -84,22 +84,13 @@ class TempFileManager(object):
     def gettempdir(self):
         return self.dir
 
-    def tempsubdir(self, categories):
-        cat = list(categories)
-        dir = self.gettempdir()
-        for c in cat:
-            dir = dir / c
-        self.create(dir)
-        return dir
-
-    def create_path(self, categories, prefix, suffix, folder = False, text = False, mode = "r+"):
-        dir = self.tempsubdir(categories)
+    def create_path(self, prefix, suffix, folder = False, text = False, mode = "r+"):
 
         if folder:
-            name = tempfile.mkdtemp(prefix = prefix, suffix = suffix, dir = dir)
+            name = tempfile.mkdtemp(prefix = prefix, suffix = suffix, dir = self.dir)
             self.logger.debug("Added folder %s", name)
         else:
-            fd, name = tempfile.mkstemp(prefix = prefix, suffix = suffix, dir = dir, text = text)
+            fd, name = tempfile.mkstemp(prefix = prefix, suffix = suffix, dir = self.dir, text = text)
             self.logger.debug("Added file %s", name)
             try:
                 os.close(fd)
@@ -153,11 +144,11 @@ Global TempFileManager instance which is registered with the
 atexit module for cleaning up all created files on exit.
 """
 
-def create_path(categories, prefix = "omero", suffix = ".tmp", folder = False):
+def create_path(prefix = "omero", suffix = ".tmp", folder = False):
     """
     Uses the global TempFileManager to create a temporary file.
     """
-    return manager.create_path(categories, prefix, suffix, folder = folder)
+    return manager.create_path(prefix, suffix, folder = folder)
 
 def remove_path(file):
     """

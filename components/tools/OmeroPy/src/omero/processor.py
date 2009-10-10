@@ -94,7 +94,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         self.env.set("ICE_CONFIG", self.config_name)
 
     def make_files(self):
-        self.dir = create_path(["processor"], folder = True)
+        self.dir = create_path("process", ".dir", folder = True)
         self.script_name = os.path.join(self.dir, "script")
         self.config_name = os.path.join(self.dir, "config")
         self.stdout_name = os.path.join(self.dir, "out")
