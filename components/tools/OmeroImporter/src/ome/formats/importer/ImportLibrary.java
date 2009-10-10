@@ -147,16 +147,22 @@ public class ImportLibrary implements IObservable
      * Primary user method for importing a number 
      */
     public void importCandidates(ImportConfig config, ImportCandidates candidates) {
-        List<String> paths = new ArrayList<String>(candidates.getPaths());
-        if (paths != null) {
+        List<ImportContainer> containers = candidates.getContainers();
+        if (containers != null) {
             int numDone = 0;
-            for (int index = 0; index < paths.size(); index++) {
-                String path = paths.get(index);
+            for (int index = 0; index < containers.size(); index++) {
+                ImportContainer ic = containers.get(index);
                 
                 try {
-                    importImage(new File(path), 
-                            index, numDone, paths.size(), path, "",
-                            false, false, null, null);
+                    importImage(
+                            ic.file,
+                            index, numDone, containers.size(),
+                            ic.getUserSpecifiedName(),
+                            "",
+                            ic.getArchive(),
+                            true,
+                            ic.getUserPixels(),
+                            ic.getTarget());
                     numDone++;
                 } catch (Exception e) {                    
                     if (!config.contOnError.get()) {
