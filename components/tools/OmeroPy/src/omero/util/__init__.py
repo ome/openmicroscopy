@@ -35,25 +35,28 @@ def make_logname(self):
     log_name = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
     return log_name
 
-def configure_logging(logdir, logfile, loglevel = logging.INFO, format = LOGFORMAT, filemode = LOGMODE, maxBytes = LOGSIZE, backupCount = LOGNUM, time_rollover = False):
+def configure_logging(logdir = None, logfile = None, loglevel = logging.INFO,\
+    format = LOGFORMAT, filemode = LOGMODE, maxBytes = LOGSIZE, backupCount = LOGNUM, time_rollover = False):
 
-    if not time_rollover:
-        fileLog = logging.handlers.RotatingFileHandler(os.path.join(logdir, logfile), maxBytes = maxBytes, backupCount = backupCount)
+    if logdir is None or logfile is None:
+        handler = logging.StreamHandler()
+    elif not time_rollover:
+        handler = logging.handlers.RotatingFileHandler(os.path.join(logdir, logfile), maxBytes = maxBytes, backupCount = backupCount)
     else:
-        fileLog = logging.handlers.TimedRotatingFileHandler(os.path.join(logdir, logfile),'midnight',1)
+        handler = logging.handlers.TimedRotatingFileHandler(os.path.join(logdir, logfile),'midnight',1)
         # Windows will not allow renaming (or deleting) a file that's open.
         # There's nothing the logging package can do about that.
         try:
             sys.getwindowsversion()
         except:
-            fileLog.doRollover()
+            handler.doRollover()
 
-    fileLog.setLevel(loglevel)
+    handler.setLevel(loglevel)
     formatter = logging.Formatter(format)
-    fileLog.setFormatter(formatter)
+    handler.setFormatter(formatter)
     rootLogger = logging.getLogger()
     rootLogger.setLevel(loglevel)
-    rootLogger.addHandler(fileLog)
+    rootLogger.addHandler(handler)
     return rootLogger
 
 def configure_server_logging(props):

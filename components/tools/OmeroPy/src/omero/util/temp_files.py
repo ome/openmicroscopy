@@ -19,8 +19,6 @@ import portalocker
 
 from path import path
 
-logging.basicConfig()
-
 # TODO:
 #  - locking for command-line cleanup
 #  - plugin for cleaning unlocked files
@@ -192,12 +190,19 @@ def gettempdir():
     return manager.gettempdir()
 
 if __name__ == "__main__":
+
+    from omero.util import configure_logging
+    configure_logging()
+
     if len(sys.argv) > 1:
         args = sys.argv[1:]
+        if "--debug" in args:
+            logging.getLogger().setLevel(logging.DEBUG)
         if "clean" in args:
             manager.clean_tempdir()
             sys.exit(0)
         elif "dir" in args:
+            print manager.gettempdir()
             sys.exit(0)
     else:
         print "Usage: %s clean" % sys.argv[0]
