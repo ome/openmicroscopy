@@ -14,5 +14,5 @@ TITLE
           <div id="banner">
              <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/"><img src="http://hudson.openmicroscopy.org.uk/userContent/ome_docs_trac_banner.png" alt="OME-XML"></a>
           </div>
-          <div id="version-top"><p>Version: @VERSION@</p><div/>
+          <div id="version-top"><p>Version: @VERSION@</p></div>
        </div>

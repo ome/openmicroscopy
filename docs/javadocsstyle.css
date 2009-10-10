@@ -1,4 +1,6 @@
-/* @override http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/stylesheet.css */
+/* @override 
+	http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/javadocsstyle.css
+*/
 
 /* Javadoc style sheet */
 
@@ -26,7 +28,8 @@ h1 {
 }
 
 hr {
-	opacity: 0.35;
+	opacity: 0;
+	margin-bottom: -4px;
 }
 
 /* Table colors */
@@ -171,3 +174,10 @@ div#omero-spacer {
 	z-index: 1;
 	height: 24em;
 }
+
+div#ome-logo-for-top {
+display: inline !important;	position: absolute;
+	top: 13px;
+	left: 10px;
+}
+

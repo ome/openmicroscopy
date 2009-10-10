@@ -21,6 +21,17 @@ html {
 	background-color: #B3B3E6;
 }
 
+div#name-and-version {
+	margin-right: 2px;
+}
+
+div#top-logo {
+	display: inline !important;
+	position: absolute;
+	top: -5px;
+	left: 10px;
+}
+
 body {
 	background: #ffffff;
 	color: #000000;
@@ -122,7 +133,7 @@ td h3.epydoc {
 }
 
 table.navbar {
-	padding-top:71px;
+	padding-top:81px;
 	background-color: #000066;
 	background-image: url(http://hudson.openmicroscopy.org.uk/userContent/ome_trac_back_top.png);
 	background-repeat: no-repeat;
@@ -145,6 +156,7 @@ table.navbar th {
 	border-top: 3px solid #B3B3E6;
 	border-bottom: 3px solid #B3B3E6;
 	border-left: 0px solid #B3B3E6;
+	padding-right: 2px;
 }
 
 th.navbar-select {
