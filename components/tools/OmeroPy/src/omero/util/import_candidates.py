@@ -9,10 +9,10 @@
 """
 
 import sys, os
-import tempfile
 import omero
 import omero_ServerErrors_ice
 
+from omero.util.temp_files import create_path, remove_path
 from omero.cli import CLI
 
 def _to_list(path):
@@ -48,19 +48,17 @@ def as_dictionary(path, readers=""):
         }
     """
 
-    t = tempfile.NamedTemporaryFile()
-    t.close() # Forcing deletion due to Windows sharing issues
+    t = create_path()
 
     path = _to_list(path)
-    path.insert(0, "---file=%s" % t.name)
+    path.insert(0, "---file=%s" % t)
     try:
         as_stdout(path, readers=readers)
-        f = open(t.name,"r")
+        f = open(str(t),"r")
         output = f.readlines()
         f.close()
     finally:
-        if os.path.exists(t.name):
-            os.remove(t.name)
+        remove_path(t)
 
     gline = -1
     key = None

@@ -11,7 +11,6 @@ import time
 import numpy
 import signal
 import logging
-import tempfile
 import threading
 import traceback
 import subprocess

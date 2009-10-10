@@ -7,7 +7,6 @@
 """
 
 import logging
-import tempfile
 import exceptions
 import string
 import os
@@ -34,6 +33,7 @@ from omero.util import make_logname, internal_service_factory, Resources, Sessio
 from omero.util.decorators import remoted, locked, perf
 from omero.util.import_candidates import as_dictionary
 from omero.util.concurrency import Timer, get_event
+from omero.util.temp_files import create_path, remove_path
 
 class MonitorState(object):
     """
@@ -102,11 +102,12 @@ class MonitorState(object):
                 msg = "Revised"
                 entry.seq = seq
                 entry.timer.reset()
-                # Passing the key returned by as_dictionary
+                # Passing the first file returned by as_dictionary
                 # as the argument. This prevents a "subsumed"
                 # candidate from being imported as a standalone
-                # image.
-                entry.timer.args = [key]
+                # image, or late scragglers from taking over
+                # a fileset.
+                entry.timer.args = [seq[0]]
                 self.sync(entry)
 
             else: # INSERT
@@ -510,11 +511,10 @@ class MonitorClientI(monitors.MonitorClient):
         try:
             self.log.info("Importing %s (session=%s)", fileName, key)
 
-            t = tempfile.NamedTemporaryFile()
-            t.close() # Forcing deletion due to Windows sharing issues
+            t = create_path(["fs","dropbox"],"import","err")
 
             cli = omero.cli.CLI()
-            cli.invoke(["import", "---errs=%s"%t.name, "-s", self.host, "-p", str(self.port), "-k", key, fileName])
+            cli.invoke(["import", "---errs=%s"%t, "-s", self.host, "-p", str(self.port), "-k", key, fileName])
             retCode = cli.rv
 
             if retCode == 0:
@@ -522,19 +522,18 @@ class MonitorClientI(monitors.MonitorClient):
             else:
                 self.log.error("Import of %s failed=%s (session=%s)", fileName, str(retCode), key)
                 self.log.error("***** start of output from importer-cli to stderr *****")
-                if os.path.exists(t.name):
-                    f = open(t.name,"r")
+                if t.exists():
+                    f = open(str(t),"r")
                     lines = f.readlines()
                     f.close()
                     for line in lines:
                         self.log.error(line.strip())
                 else:
-                    self.log.error("%s not found !" % t.name)
+                    self.log.error("%s not found !" % t)
                 self.log.error("***** end of output from importer-cli *****")
 
         finally:
-            if os.path.exists(t.name):
-                os.remove(t.name)
+            remove_path(t)
 
     #
     # Setters

@@ -10,7 +10,6 @@ import sys
 import time
 import signal
 import logging
-import tempfile
 import traceback
 import subprocess
 import exceptions
@@ -22,6 +21,7 @@ import omero.clients
 import omero.util
 import omero.util.concurrency
 
+from omero.util.temp_files import create_path, remove_path
 from omero.util.decorators import remoted, perf, locked
 from omero.rtypes import *
 
@@ -94,7 +94,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         self.env.set("ICE_CONFIG", self.config_name)
 
     def make_files(self):
-        self.dir = tempfile.mkdtemp()
+        self.dir = create_path(["processor"], folder = True)
         self.script_name = os.path.join(self.dir, "script")
         self.config_name = os.path.join(self.dir, "config")
         self.stdout_name = os.path.join(self.dir, "out")
@@ -348,20 +348,10 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         Remove all known files and finally the temporary directory.
         If other files exist, an exception will be raised.
         """
-        for p in [self.config_name, self.stdout_name, self.stderr_name, self.script_name]:
-            if os.path.exists(p):
-                try:
-                    os.remove(p)
-                except:
-                    self.logger.error("Failed to remove file %s" % p, exc_info = True)
         try:
-            path(self.dir).rmtree(onerror = self.on_cleanup_error)
+            remove_path(self.dir)
         except:
             self.logger.error("Failed to remove dir %s" % self.dir, exc_info = True)
-
-    def on_cleanup_error(self, func, path, exc_info):
-        self.logger.error("Error on %s for %s" % (func, path))
-
 
     #
     # popen methods
