@@ -29,7 +29,7 @@ import omero_FS_ice
 monitors = Ice.openModule('omero.grid.monitors')
 
 from omero.clients import ObjectFactory
-from omero.util import make_logname, internal_service_factory, Resources, SessionHolder
+from omero.util import make_logname, ServerContext, Resources
 from omero.util.decorators import remoted, locked, perf
 from omero.util.import_candidates import as_dictionary
 from omero.util.concurrency import Timer, get_event
@@ -83,6 +83,16 @@ class MonitorState(object):
         this method.
         """
         return self.__entries.keys()
+
+    @perf
+    @locked
+    def count(self):
+        """
+        Returns the current timers stored. This is mostly used
+        for testing. None of the import logic depends on using
+        this method.
+        """
+        return self.__timers
 
     @perf
     @locked
@@ -259,7 +269,7 @@ class MonitorClientI(monitors.MonitorClient):
 
     """
 
-    def __init__(self, dir, communicator, getUsedFiles = as_dictionary, getRoot = internal_service_factory,\
+    def __init__(self, dir, communicator, getUsedFiles = as_dictionary, ctx = None,\
                        worker_wait = 60, worker_count = 1, worker_batch = 10):
         """
             Intialise the instance variables.
@@ -268,7 +278,6 @@ class MonitorClientI(monitors.MonitorClient):
         self.log = logging.getLogger("fsclient."+__name__)
         self.communicator = communicator
 
-        self.root = None
         self.master = None
         #: Reference back to FSServer.
         self.serverProxy = None
@@ -283,7 +292,6 @@ class MonitorClientI(monitors.MonitorClient):
 
         # Overriding methods to allow for simpler testing
         self.getUsedFiles = perf(getUsedFiles)
-        self.getRoot = perf(getRoot)
 
         # Threading primitives
         self.worker_wait = worker_wait
@@ -293,11 +301,17 @@ class MonitorClientI(monitors.MonitorClient):
         self.queue = Queue.Queue(0)
         self.state = MonitorState()
         self.resources = Resources(stop_event = self.event)
-        self.checkRoot()
+        if ctx:
+            # Primarily used for testing
+            self.ctx = ctx
+        else:
+            self.ctx = ServerContext(serverid = "DropBox", communicator = communicator, stop_event = self.event)
+        self.resources.add(self.ctx)
+
         self.workers = [MonitorWorker(worker_wait, worker_batch, self.event, self.queue, self.callback) for x in range(worker_count)]
         for worker in self.workers:
             worker.start()
-            
+
 ## Moved upwards to fsDropBox so that a registered communicator
 ## can be used by more than one MonitorClient
 ##        # Finally, configure our communicator
@@ -454,27 +468,17 @@ class MonitorClientI(monitors.MonitorClient):
             self.log.error("File added outside user directories: %s" % fileId)
         return exName
 
-    def checkRoot(self):
-        """
-        Checks that
-        """
-        has = bool(self.root)
-        if has:
-            try:
-                self.root.keepAlive(None)
-            except:
-                has = False
-        if not has:
-            self.root = self.getRoot(self.communicator)
-            if self.root:
-                self.resources.add(SessionHolder(self.root))
-
     def loginUser(self, exName):
         """
         Logins in the given user and returns the client
         """
-        self.checkRoot()
-        if not self.root:
+        sf = None
+        try:
+            sf = self.ctx.getSession()
+        except:
+            pass
+
+        if not sf:
             self.log.error("No connection")
             return None
 
@@ -484,8 +488,8 @@ class MonitorClientI(monitors.MonitorClient):
         p.eventType = "User"
 
         try:
-            exp = self.root.getAdminService().lookupExperimenter(exName)
-            sess = self.root.getSessionService().createSessionWithTimeout(p, 60000L)
+            exp = sf.getAdminService().lookupExperimenter(exName)
+            sess = sf.getSessionService().createSessionWithTimeout(p, 60000L)
             return sess.uuid.val
         except omero.ApiUsageException:
             self.log.info("User unknown: %s", exName)
@@ -656,13 +660,13 @@ class SingleUserMonitorClient(MonitorClientI):
         
         
     """
-    def __init__(self, user, dir, communicator, getUsedFiles = as_dictionary, getRoot = internal_service_factory,\
+    def __init__(self, user, dir, communicator, getUsedFiles = as_dictionary, ctx = None,\
                        worker_wait = 60, worker_count = 1, worker_batch = 10):
         """
             Initialise via the superclass
             
         """
-        MonitorClientI.__init__(self, dir, communicator, getUsedFiles=getUsedFiles, getRoot=getRoot,\
+        MonitorClientI.__init__(self, dir, communicator, getUsedFiles=getUsedFiles, ctx = None,\
                        worker_wait=worker_wait, worker_count=worker_count, worker_batch=worker_batch)
         
         self.user = user

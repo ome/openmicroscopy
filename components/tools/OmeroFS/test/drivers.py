@@ -20,6 +20,7 @@ import omero.grid.monitors as monitors
 
 from uuid import uuid4
 from path import path
+from omero.util import ServerContext
 from omero_ext.functional import wraps
 from omero.util.temp_files import create_path
 from fsDropBoxMonitorClient import *
@@ -313,6 +314,10 @@ class mock_communicator(object):
     def addObjectFactory(self, *args):
         pass
 
+class MockServerContext(ServerContext):
+    def __init__(self, get_root):
+        self.getSession = get_root
+
 class MockMonitor(MonitorClientI):
     """
     Mock Monitor Client which can also delegate to other clients.
@@ -326,7 +331,7 @@ class MockMonitor(MonitorClientI):
     def __init__(self, dir=None, pre = [], post = []):
         self.root = None
         ic = mock_communicator()
-        MonitorClientI.__init__(self, dir, ic, getUsedFiles = self.used_files, getRoot = self.get_root, worker_wait = 0.1)
+        MonitorClientI.__init__(self, dir, ic, getUsedFiles = self.used_files, ctx = MockServerContext(self.get_root), worker_wait = 0.1)
         self.log = logging.getLogger("MockMonitor")
         self.events = []
         self.files = {}
