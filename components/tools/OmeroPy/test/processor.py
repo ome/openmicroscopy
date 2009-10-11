@@ -155,7 +155,7 @@ class TestProcess(unittest.TestCase):
     #
 
     def testPopen(self):
-        f = open(self.process.script_name, "w")
+        f = open(str(self.process.script_path), "w")
         f.write("""
 print "Hello"
         """)
@@ -168,7 +168,7 @@ print "Hello"
     def testParameters(self):
         p = self.props()
         p["omero.scripts.parse"] = "1"
-        f = open(self.process.script_name, "w")
+        f = open(str(self.process.script_path), "w")
         f.write("""
 import omero, omero.scripts s
 client = s.client("name","description",s.Long("l"))
@@ -180,7 +180,7 @@ client = s.client("name","description",s.Long("l"))
     testParameters = with_process(testParameters, subprocess.Popen)
 
     def testKillProcess(self):
-        f = open(self.process.script_name, "w")
+        f = open(str(self.process.script_path), "w")
         f.write("import time\n")
         f.write("time.sleep(100)\n")
         f.close()

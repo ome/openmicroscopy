@@ -91,20 +91,20 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         # not currently possible with IceGrid (without using icepatch --
         # see 39.17.2 "node.datadir).
         self.env.append("PYTHONPATH", str(path.getcwd() / "lib" / "python"))
-        self.env.set("ICE_CONFIG", self.config_name)
+        self.env.set("ICE_CONFIG", str(self.config_path))
 
     def make_files(self):
         self.dir = create_path("process", ".dir", folder = True)
-        self.script_name = os.path.join(self.dir, "script")
-        self.config_name = os.path.join(self.dir, "config")
-        self.stdout_name = os.path.join(self.dir, "out")
-        self.stderr_name = os.path.join(self.dir, "err")
+        self.script_path = self.dir / "script"
+        self.config_path = self.dir / "config"
+        self.stdout_path = self.dir / "out"
+        self.stderr_path = self.dir / "err"
 
     def make_config(self):
         """
         Creates the ICE_CONFIG file used by the client.
         """
-        config_file = open(self.config_name, "w")
+        config_file = open(str(self.config_path), "w")
         try:
             for key in self.properties.iterkeys():
                 config_file.write("%s=%s\n"%(key, self.properties[key]))
@@ -118,7 +118,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         by the process
         """
         try:
-            client = omero.client(["--Ice.Config=%s" % self.config_name])
+            client = omero.client(["--Ice.Config=%s" % str(self.config_path)])
             client.createSession().detachOnDestroy()
             self.logger.debug("client: %s" % client.sf)
             return client
@@ -140,9 +140,9 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         if self.isActive():
             raise omero.ApiUsageException(None, None, "Already activated")
 
-        self.stdout = open(self.stdout_name, "w")
-        self.stderr = open(self.stderr_name, "w")
-        self.popen = self.Popen([self.interpreter, "./script"], cwd=self.dir, env=self.env(), stdout=self.stdout, stderr=self.stderr)
+        self.stdout = open(str(self.stdout_path), "w")
+        self.stderr = open(str(self.stderr_path), "w")
+        self.popen = self.Popen([self.interpreter, "./script"], cwd=str(self.dir), env=self.env(), stdout=self.stdout, stderr=self.stderr)
         self.pid = self.popen.pid
         self.started = time.time()
         self.stopped = None
@@ -317,8 +317,8 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
                 err_format = out_format
                 upload = False
 
-            self._upload(upload, client, self.stdout_name, "stdout", out_format)
-            self._upload(upload, client, self.stderr_name, "stderr", err_format)
+            self._upload(upload, client, self.stdout_path, "stdout", out_format)
+            self._upload(upload, client, self.stderr_path, "stderr", err_format)
         finally:
                 client.__del__() # Safe closeSession
 
@@ -327,6 +327,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         if not upload or not format:
             return
 
+        filename = str(filename) # Might be path.path
         sz = os.path.getsize(filename)
         if not sz:
             self.logger.info("No %s" % name)
@@ -609,7 +610,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         self.logger.info("processJob: Session = %s, JobId = %s" % (session, job.id.val))
         process = ProcessI(self.ctx, "python", properties, params, iskill)
         self.resources.add(process)
-        client.download(file, process.script_name)
+        client.download(file, str(process.script_path))
         self.logger.info("Downloaded file: %s" % file.id.val)
         process.activate()
 
