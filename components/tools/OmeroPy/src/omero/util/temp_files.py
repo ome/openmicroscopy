@@ -80,10 +80,15 @@ class TempFileManager(object):
 
     def cleanup(self):
         """
-        Deletes self.dir and releases self.lock
+        Releases self.lock and deletes self.dir.
+        The lock is released first since on some platforms like Windows
+        the lock file cannot be deleted even by the owner of the lock.
         """
+        try:
+            self.lock.close() # Allow others access
+        except:
+            self.logger.error("Failed to release lock", exc_info = True)
         self.clean_tempdir()
-        self.lock.close() # Allow others access
 
     def tmpdir(self):
         """
@@ -234,22 +239,24 @@ if __name__ == "__main__":
 
     if len(sys.argv) > 1:
         args = sys.argv[1:]
+    else:
+        args = []
 
-        if "--debug" in args:
-            configure_logging(loglevel=logging.DEBUG)
-        else:
-            configure_logging()
+    if "--debug" in args:
+        configure_logging(loglevel=logging.DEBUG)
+    else:
+        configure_logging()
 
-        if "clean" in args:
-            manager.clean_userdir()
-            sys.exit(0)
-        elif "dir" in args:
-            print manager.gettempdir()
-            sys.exit(0)
-        elif "lock" in args:
-            print "Locking %s" % manager.gettempdir()
-            raw_input("Waiting on user input...")
-            sys.exit(0)
+    if "clean" in args:
+        manager.clean_userdir()
+        sys.exit(0)
+    elif "dir" in args:
+        print manager.gettempdir()
+        sys.exit(0)
+    elif "lock" in args:
+        print "Locking %s" % manager.gettempdir()
+        raw_input("Waiting on user input...")
+        sys.exit(0)
 
     print "Usage: %s clean" % sys.argv[0]
     print "   or: %s dir  " % sys.argv[0]

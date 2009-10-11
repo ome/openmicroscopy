@@ -139,15 +139,18 @@ public class TempFileManager {
     }
 
     /**
-     * Deletes{@link #dir} for this instance and finally releases the
-     * {@link #lock}
-     * 
-     * @throws IOException
+     * Releases {@link #lock} and deletes {@link #dir}.
+     * The lock is released first since on some platforms like Windows
+     * the lock file cannot be deleted even by the owner of the lock.
      */
     protected void cleanup() throws IOException {
+        try {
+            this.lock.release();
+            this.raf.close();
+        } catch (Exception e) {
+            log.error("Failed to release lock", e);
+        }
         this.cleanTempDir();
-        this.lock.release();
-        this.raf.close();
     }
 
     /**
