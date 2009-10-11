@@ -171,11 +171,11 @@ public class CommandLineImporter {
                                         + "  -u\tOMERO experimenter name (username)\n"
                                         + "  -w\tOMERO experimenter password\n"
                                         + "  -k\tOMERO session key (can be used in place of -u and -w)\n"
+                                        + "  -f\tDisplay the used files (does not require other mandatory arguments)\n"
                                         + "\n"
                                         + "Optional arguments:\n"
                                         + "  -c\tContinue importing after errors\n"
                                         + "  -l\tUse the list of readers rather than the default\n"
-                                        + "  -f\tDisplay the used files [does not require mandatory arguments]\n"
                                         + "  -d\tOMERO dataset Id to import image into\n"
                                         + "  -r\tOMERO screen Id to import plate into\n"
                                         + "  -n\tImage name to use\n"
@@ -203,7 +203,7 @@ public class CommandLineImporter {
      * <li>1 on argument parsing failure</li>
      * <li>2 on exception during import</li>
      * </ul>
-     * 
+     *
      * Return codes for the "-f" option (getUsedFiles) are:
      * <ul>
      * <li>0 on success, even if errors exist in the files</li>
@@ -213,16 +213,16 @@ public class CommandLineImporter {
      *            Command line arguments.
      */
     public static void main(String[] args) {
-        
+
         ImportConfig config = new ImportConfig();
-        
+
         // Defaults
         config.email.set("");
         config.sendFiles.set(false);
         config.sendReport.set(false);
         config.contOnError.set(false);
         config.debug.set(false);
-        
+
         LongOpt debug = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 1);
         LongOpt report = new LongOpt("report", LongOpt.NO_ARGUMENT, null, 2);
         LongOpt upload = new LongOpt("upload", LongOpt.NO_ARGUMENT, null, 3);
@@ -321,8 +321,7 @@ public class CommandLineImporter {
         String[] rest = new String[args.length - g.getOptind()];
         System.arraycopy(args, g.getOptind(), rest, 0, args.length
                 - g.getOptind());
-        
-                
+
         CommandLineImporter c = null;
         int rc = 0;
         try {
@@ -330,7 +329,7 @@ public class CommandLineImporter {
             if (rest.length == 1 && "-".equals(rest[0])) {
                 rest = stdin();
             }
-            
+
             c = new CommandLineImporter(config, rest, getUsedFiles);
             rc = c.start();
         } catch (Throwable t) {
