@@ -24,6 +24,7 @@
 package ome.formats.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -127,19 +128,19 @@ public class ReferenceProcessor implements ModelProcessor
             		// Add our LSIDs to the string based reference cache.
             		references.add(reference.toString());
             	}
+            	String lsid = targetClass == null? target.toString()
+            					: container.LSID;
+            	// We don't want to overwrite any existing references that may
+            	// have come from other LSID mappings (such as a generated
+            	// LSID) so add any existing LSIDs to the list of references.
+            	if (referenceStringCache.containsKey(lsid))
+            	{
+            		String[] existing = referenceStringCache.get(lsid);
+            		references.addAll(Arrays.asList(existing));
+            	}
         		String[] referencesAsString = 
         			references.toArray(new String[references.size()]);
-            	if (targetClass == null)
-            	{
-
-            		referenceStringCache.put(target.toString(),
-            				                 referencesAsString);
-            	}
-            	else
-            	{
-            		referenceStringCache.put(container.LSID,
-            				                 referencesAsString);
-            	}
+           		referenceStringCache.put(lsid, referencesAsString);
             }
             store.setReferenceStringCache(referenceStringCache);
         }
