@@ -24,6 +24,7 @@ from omero.util.decorators import locked
 
 LOGDIR = os.path.join("var","log")
 LOGFORMAT =  """%(asctime)s %(levelname)-5.5s [%(name)40s] (%(threadName)-10s) %(message)s"""
+LOGLEVEL = logging.INFO
 LOGSIZE = 500000000
 LOGNUM = 9
 LOGMODE = "a"
@@ -35,7 +36,7 @@ def make_logname(self):
     log_name = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
     return log_name
 
-def configure_logging(logdir = None, logfile = None, loglevel = logging.INFO,\
+def configure_logging(logdir = None, logfile = None, loglevel = LOGLEVEL,\
     format = LOGFORMAT, filemode = LOGMODE, maxBytes = LOGSIZE, backupCount = LOGNUM, time_rollover = False):
 
     if logdir is None or logfile is None:
@@ -66,15 +67,11 @@ def configure_server_logging(props):
     program_name = props.getProperty("Ice.Admin.ServerId")
     # Using Ice.ProgramName on Windows failed
     log_name = program_name+".log"
-    log_debug = props.getPropertyWithDefault("omero.debug","")
-    if log_debug:
-        log_level = logging.DEBUG
-    else:
-        log_level = logging.INFO
     log_timed = props.getPropertyWithDefault("omero.logging.timedlog","False")[0] in ('T', 't')
     log_num = int(props.getPropertyWithDefault("omero.logging.lognum",str(LOGNUM)))
     log_size = int(props.getPropertyWithDefault("omero.logging.logsize",str(LOGSIZE)))
     log_num = int(props.getPropertyWithDefault("omero.logging.lognum",str(LOGNUM)))
+    log_level = int(props.getPropertyWithDefault("omero.logging.level",str(LOGLEVEL)))
     configure_logging(LOGDIR, log_name, loglevel=log_level, maxBytes=log_size, backupCount=log_num, time_rollover = log_timed)
 
 def internal_service_factory(communicator, user="root", group=None, retries=6, interval=10, client_uuid=None, stop_event = None):

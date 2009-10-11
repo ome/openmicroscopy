@@ -47,6 +47,15 @@
       <property name="omero.logging.timedlog" value="False"/>
       <property name="omero.logging.logsize" value="5000000"/>
       <property name="omero.logging.lognum" value="9"/>
+      <property name="omero.logging.level" value="20"/>
+      <!-- From the python documentation
+            CRITICAL  50
+            ERROR     40
+            WARNING   30
+            INFO      20
+            DEBUG     10
+            NOTSET    0
+      -->
    </properties>
 
    <properties id="DropBox">
