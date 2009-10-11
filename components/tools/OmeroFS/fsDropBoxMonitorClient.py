@@ -305,7 +305,7 @@ class MonitorClientI(monitors.MonitorClient):
             # Primarily used for testing
             self.ctx = ctx
         else:
-            self.ctx = ServerContext(serverid = "DropBox", communicator = communicator, stop_event = self.event)
+            self.ctx = ServerContext(server_id = "DropBox", communicator = communicator, stop_event = self.event)
         self.resources.add(self.ctx)
 
         self.workers = [MonitorWorker(worker_wait, worker_batch, self.event, self.queue, self.callback) for x in range(worker_count)]
