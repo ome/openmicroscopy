@@ -102,51 +102,73 @@ public class TempFileManager {
         }
         this.userDir = userDir;
         this.dir = new File(this.userDir, this.pid());
+        
+        // Now create the directory. If a later step throws an
+        // exception, we should try to rollback this change.
+        boolean created = false;
         if (!this.dir.exists()) {
             this.dir.mkdirs();
+            created = true;
         }
 
         try {
-            this.raf = new RandomAccessFile(new File(this.dir, ".lock"), "rw");
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException("Failed to open lock file", e);
-        }
-
-        try {
-            lock = this.raf.getChannel().tryLock();
-            if (lock == null) {
-                throw new RuntimeException("Failed to acquire lock");
-            }
-        } catch (Exception e) {
             try {
-                this.raf.close();
-            } catch (Exception e2) {
-                log.warn("Exception on lock file close", e2);
+                this.raf = new RandomAccessFile(new File(this.dir, ".lock"),
+                        "rw");
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException("Failed to open lock file", e);
             }
-            throw new RuntimeException("Failed to lock file", e);
-        }
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
+            try {
+                lock = this.raf.getChannel().tryLock();
+                if (lock == null) {
+                    throw new RuntimeException("Failed to acquire lock");
+                }
+            } catch (Exception e) {
+                try {
+                    this.raf.close();
+                } catch (Exception e2) {
+                    log.warn("Exception on lock file close", e2);
+                }
+                throw new RuntimeException("Failed to lock file", e);
+            }
+
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        cleanup();
+                    } catch (IOException io) {
+                        log.error("Failed to cleanup TempFileManager", io);
+                    }
+                }
+            });
+        } catch (RuntimeException e) {
+            if (created) {
                 try {
                     cleanup();
-                } catch (IOException io) {
-                    log.error("Failed to cleanup TempFileManager", io);
+                } catch (Exception e2) {
+                    log.warn("Error on cleanup after error", e2);
                 }
+                
             }
-        });
+            throw e;
+        }
     }
 
     /**
-     * Releases {@link #lock} and deletes {@link #dir}.
-     * The lock is released first since on some platforms like Windows
-     * the lock file cannot be deleted even by the owner of the lock.
+     * Releases {@link #lock} and deletes {@link #dir}. The lock is released
+     * first since on some platforms like Windows the lock file cannot be
+     * deleted even by the owner of the lock.
      */
     protected void cleanup() throws IOException {
         try {
-            this.lock.release();
-            this.raf.close();
+            if (this.lock != null) {
+                this.lock.release();
+            }
+            if (this.raf != null) {
+                this.raf.close();
+            }
         } catch (Exception e) {
             log.error("Failed to release lock", e);
         }
@@ -252,7 +274,7 @@ public class TempFileManager {
      */
     protected void cleanTempDir() throws IOException {
         log.debug("Removing tree: " + dir.getAbsolutePath());
-        FileUtils.deleteDirectory(dir);
+        FileUtils.deleteDirectory(dir); // Checks if dir exists
     }
 
     /**

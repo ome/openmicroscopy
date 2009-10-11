@@ -63,20 +63,36 @@ class TempFileManager(object):
         An attempt to remove a path not in this directory will lead to an
         exception.
         """
+
+        # Now create the directory. If a later step throws an
+        # exception, we should try to rollback this change.
         if not self.dir.exists():
             self.dir.makedirs()
-        self.lock = open(str(self.dir / ".lock"), "a+")
-        """
-        .lock file under self.dir which is used to prevent other
-        TempFileManager instances (also in other languages) from
-        cleaning up this directory.
-        """
+        self.logger.debug("Using temp dir: %s" % self.dir)
+
+        self.lock = None
         try:
-            portalocker.lock(self.lock, portalocker.LOCK_EX|portalocker.LOCK_NB)
-        except:
-            self.lock.close()
-            raise
-        atexit.register(self.cleanup)
+            self.lock = open(str(self.dir / ".lock"), "a+")
+            """
+            .lock file under self.dir which is used to prevent other
+            TempFileManager instances (also in other languages) from
+            cleaning up this directory.
+            """
+            try:
+                portalocker.lock(self.lock, portalocker.LOCK_EX|portalocker.LOCK_NB)
+                atexit.register(self.cleanup)
+            except:
+                lock = self.lock
+                self.lock = None
+                if lock:
+                    self.lock.close()
+                raise
+        finally:
+            try:
+                if not self.lock:
+                    self.cleanup()
+            except:
+                self.logger.warn("Error on cleanup after error", e
 
     def cleanup(self):
         """
@@ -85,7 +101,8 @@ class TempFileManager(object):
         the lock file cannot be deleted even by the owner of the lock.
         """
         try:
-            self.lock.close() # Allow others access
+            if self.lock:
+                self.lock.close() # Allow others access
         except:
             self.logger.error("Failed to release lock", exc_info = True)
         self.clean_tempdir()
@@ -179,8 +196,9 @@ class TempFileManager(object):
         Deletes self.dir
         """
         dir = self.gettempdir()
-        self.logger.debug("Removing tree: %s", dir)
-        dir.rmtree(onerror = self.on_rmtree)
+        if dir.exists():
+            self.logger.debug("Removing tree: %s", dir)
+            dir.rmtree(onerror = self.on_rmtree)
 
     def clean_userdir(self):
         """
