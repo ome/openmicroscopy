@@ -92,7 +92,7 @@ class TempFileManager(object):
                 if not self.lock:
                     self.cleanup()
             except:
-                self.logger.warn("Error on cleanup after error", e
+                self.logger.warn("Error on cleanup after error", exc_info = True)
 
     def cleanup(self):
         """
