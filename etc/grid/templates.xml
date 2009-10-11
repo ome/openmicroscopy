@@ -6,6 +6,15 @@
     Use is subject to license terms supplied in LICENSE.txt
 -->
 
+    <!--
+    The properties elements are referenced in the server-template
+    elements below, e.g. <properties refid="Blitz"/> Properties
+    added later in each block override earlier properties. Every
+    server-template references the "Profile" properties block
+    defined in default.xml and windefault.xml which can be used
+    for customizations.
+    -->
+
     <properties id="Blitz">
       <property name="Ice.Default.CollocationOptimized" value="0"/>
     </properties>
@@ -33,6 +42,50 @@
       <property name="Ice.ThreadPool.Server.SizeMax" value="100"/>
     </properties>
 
+    <properties id="PythonServer">
+      <!-- Default logging settings for Python servers. -->
+      <property name="omero.logging.timedlog" value="False"/>
+      <property name="omero.logging.logsize" value="5000000"/>
+      <property name="omero.logging.lognum" value="9"/>
+   </properties>
+
+   <properties id="DropBox">
+       <!-- config settings for OmeroFS (moved from fsConfig) -->
+       <!-- These duplicate info that could be got from elsewhere -->
+       <!-- They should ultimately be removed from here. -->
+       <property name="omero.fs.host"  value="localhost"/>
+       <property name="omero.fs.port"  value="4063"/>
+       <!-- general -->
+       <property name="omero.fs.maxRetries"  value="5"/>
+       <property name="omero.fs.retryInterval"  value="3"/>
+       <property name="omero.fs.defaultDropBoxDir"  value="DropBox"/>
+       <!--
+          The remaining items can take the form of a semicolon separated list,
+          one item for each user in the first property. Properties that
+          are lists themselves are then comma-separated.
+
+          default is a standard all-user dropbox.
+          e.g. <property name="omero.fs.importUsers"  value="default;root"/>
+
+          The empty first element below defers to the default system dropbox location:
+              <property name="omero.fs.watchDir"  value=";/OMERODEV/OtherBox"/>
+              <property name="omero.fs.eventTypes"  value="Creation,Modification;Creation"/>
+              ...
+        -->
+        <property name="omero.fs.importUsers"  value="default"/>
+        <property name="omero.fs.watchDir"  value=""/>
+        <property name="omero.fs.eventTypes"  value="Creation,Modification"/>
+        <property name="omero.fs.pathMode"  value="Follow"/>
+        <property name="omero.fs.whitelist"  value=""/>
+        <property name="omero.fs.blacklist"  value=""/>
+        <property name="omero.fs.timeout"  value="0.0"/>
+        <property name="omero.fs.blockSize"  value="0"/>
+        <property name="omero.fs.ignoreSysFiles"  value="True"/>
+        <property name="omero.fs.ignoreDirEvents"  value="True"/>
+        <property name="omero.fs.dirImportWait"  value="60"/>
+        <property name="omero.fs.readers"  value=""/>
+    </properties>
+
     <server-template id="BlitzTemplate">
       <parameter name="index"/>
       <parameter name="config" default="default"/>
@@ -43,10 +96,10 @@
         <env>${PYTHONPATH}</env>
         <adapter name="BlitzAdapter" replica-group="BlitzAdapters" register-process="true" endpoints="tcp"/>
         <properties>
-          <properties refid="Profile"/>
-          <properties refid="Blitz"/>
           <properties refid="Basics"/>
+          <properties refid="Blitz"/>
           <properties refid="MultiThreaded"/>
+          <properties refid="Profile"/>
           <property name="omero.name" value="${server}"/>
         </properties>
       </server>
@@ -64,10 +117,10 @@
         <option>lib\server\blitz.jar</option>
         <adapter name="BlitzAdapter" replica-group="BlitzAdapters" register-process="true" endpoints="tcp"/>
         <properties>
-          <properties refid="Profile"/>
-          <properties refid="Blitz"/>
           <properties refid="Basics"/>
+          <properties refid="Blitz"/>
           <properties refid="MultiThreaded"/>
+          <properties refid="Profile"/>
         </properties>
       </server>
     </server-template>
@@ -89,10 +142,10 @@
           <object identity="Repository-${index}" type="::omero::grid::InternalRepository"/>
         </adapter>
         <properties>
-          <properties refid="Profile"/>
           <properties refid="Basics"/>
           <properties refid="MultiThreaded"/>
           <properties refid="Repository"/>
+          <properties refid="Profile"/>
         </properties>
       </server>
     </server-template>
@@ -107,10 +160,10 @@
         <env>${PYTHONPATH}</env>
         <adapter name="IndexerAdapter" register-process="true" endpoints="tcp"/>
         <properties>
-          <properties refid="Profile"/>
-          <properties refid="Blitz"/>
           <properties refid="Basics"/>
+          <properties refid="Blitz"/>
           <properties refid="SingleThreaded"/>
+          <properties refid="Profile"/>
         </properties>
       </server>
     </server-template>
@@ -128,10 +181,10 @@
         <option>ome.fulltext</option>
         <adapter name="IndexerAdapter" register-process="true" endpoints="tcp"/>
         <properties>
-          <properties refid="Profile"/>
-          <properties refid="Blitz"/>
           <properties refid="Basics"/>
+          <properties refid="Blitz"/>
           <properties refid="SingleThreaded"/>
+          <properties refid="Profile"/>
         </properties>
       </server>
     </server-template>
@@ -144,6 +197,10 @@
         <option>--noreload</option>
         <env>${PYTHONPATH}</env>
         <adapter name="WebAdapter" register-process="true" endpoints="tcp" server-lifetime="false"/>
+        <properties>
+          <properties refid="SingleThreaded"/>
+          <properties refid="Profile"/>
+        </properties>
       </server>
     </server-template>
 
@@ -158,10 +215,11 @@
           <object identity="Processor-${index}" type="::omero::grid::Processor"/>
         </adapter>
         <properties>
-          <properties refid="Profile"/>
           <properties refid="Basics"/>
+          <properties refid="PythonServer"/>
           <properties refid="MultiThreaded"/>
           <properties refid="Repository"/>
+          <properties refid="Profile"/>
           <property name="omero.repo.dir" value="${dir}"/>
         </properties>
       </server>
@@ -178,10 +236,11 @@
           <object identity="Tables-${index}" type="::omero::grid::Tables"/>
         </adapter>
         <properties>
-          <properties refid="Profile"/>
           <properties refid="Basics"/>
+          <properties refid="PythonServer"/>
           <properties refid="MultiThreaded"/>
           <properties refid="Repository"/>
+          <properties refid="Profile"/>
           <property name="omero.repo.dir" value="${dir}"/>
         </properties>
       </server>
@@ -196,9 +255,12 @@
           <object identity="FSServer" type="::monitors::MonitorServer"/>
         </adapter>
         <properties>
-          <properties refid="Profile"/>
           <properties refid="Basics"/>
+          <properties refid="PythonServer"/>
           <properties refid="MultiThreaded"/>
+          <properties refid="Profile"/>
+          <property name="omero.fs.serverIdString" value="FSServer"/>
+          <property name="omero.fs.serverAdapterName" value="omerofs.MonitorServer"/>
         </properties>
       </server>
     </server-template>
@@ -210,9 +272,13 @@
         <env>${PYTHONPATH}</env>
         <adapter name="omerofs.DropBox" register-process="true" endpoints="tcp"/>
         <properties>
-          <properties refid="Profile"/>
           <properties refid="Basics"/>
+          <properties refid="PythonServer"/>
           <properties refid="MultiThreaded"/>
+          <properties refid="DropBox"/>
+          <properties refid="Profile"/>
+          <property name="omero.fs.clientIdString" value="DropBox"/>
+          <property name="omero.fs.clientAdapterName" value="omerofs.DropBox"/>
         </properties>
       </server>
     </server-template>
@@ -225,6 +291,9 @@
         <option>lib/python/shellserver.py</option>
         <option>${id}</option>
         <adapter name="${id}Adapter" register-process="true" endpoints="tcp"/>
+        <properties>
+          <properties refid="Profile"/>
+        </properties>
       </server>
     </server-template>
 
@@ -237,6 +306,7 @@
            <object identity="${instance-name}/server" type="::IcePatch2::FileServer"/>
          </adapter>
          <properties>
+            <properties refid="Profile"/>
             <property name="IcePatch2.Admin.Endpoints" value="tcp -h 127.0.0.1"/>
             <property name="IcePatch2.Admin.RegisterProcess" value="1"/>
             <property name="IcePatch2.InstanceName" value="${instance-name}"/>
@@ -253,6 +323,7 @@
        <server id="${instance-name}" exe="glacier2router" activation="always">
          <properties>
            <properties refid="Basics"/>
+           <properties refid="Profile"/>
            <property name="Glacier2.Client.Endpoints" value="${client-endpoints}"/>
            <property name="Glacier2.Server.Endpoints" value="${server-endpoints}"/>
            <property name="Glacier2.InstanceName" value="${instance-name}"/>
@@ -276,6 +347,7 @@
         </adapter>
         <adapter name="${service}.Publish" id="${instance-name}.Publish" endpoints="${publish-endpoints}"/>
         <properties>
+          <properties refid="Profile"/>
           <property name="Ice.Trace.Network" value="0"/>
           <property name="${service}.InstanceName" value="${instance-name}"/>
           <property name="${service}.Flush.Timeout" value="${flush-timeout}"/>
@@ -300,6 +372,7 @@
             publish-endpoints="${publish-endpoints}"
             flush-timeout="${flush-timeout}"/>
         <properties>
+          <properties refid="Profile"/>
           <property name="IceBox.InheritProperties" value="1"/>
           <property name="Ice.Override.ConnectTimeout" value="5000"/>
         </properties>

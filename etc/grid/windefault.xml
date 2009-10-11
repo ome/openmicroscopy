@@ -25,52 +25,11 @@
 
     <properties id="Profile">
       <!--
-      Any properties beginning with "omero" set here will
-      be passed to the servers as if via "-Domero.example=value"
-      were set on the command line. These values may be overwritten
-      by `bin/omero config` values.
+        Properties set here will override all properties defined in templates.xml
+        This can be used to keep all your settings in one place, since templates.xml
+        is more likely to change between releases.
       -->
       <property name="omero.example" value="my_value"/>
-	  <!-- Default logging settings for Python servers. -->
-      <property name="omero.logging.timedlog" value="False"/>
-      <property name="omero.logging.logsize" value="5000000"/>
-      <property name="omero.logging.lognum" value="9"/>
-	  <!-- config settings for OmeroFS (moved from fsConfig) -->
-	  <!-- These duplicate info that could be got from elsewhere -->
-	  <!-- They should ultimately be removed from here. -->
-	  <property name="omero.fs.host"  value="localhost"/>
-	  <property name="omero.fs.port"  value="4063"/>
-      <property name="omero.fs.clientIdString"  value="DropBox"/>
-      <property name="omero.fs.clientAdapterName"  value="omerofs.DropBox"/>
-      <property name="omero.fs.serverIdString"  value="FSServer"/>
-      <property name="omero.fs.serverAdapterName"  value="omerofs.MonitorServer"/>
-	  <!-- general -->
-	  <property name="omero.fs.maxRetries"  value="5"/>
-	  <property name="omero.fs.retryInterval"  value="3"/>
-	  <property name="omero.fs.defaultDropBoxDir"  value="DropBox"/>
-	  <!-- The remaining items can take the form of a semicolon separated list,
-	 	   one item for each user in the first property. Properties that
-	       are lists themselves are then comma-separated.
-	       default is a standard all-user dropbox.
-	    e.g.
-	  <property name="omero.fs.importUsers"  value="default;root"/>
-	    the empty first element below defers to the default system dropbox location
-	  <property name="omero.fs.watchDir"  value=";/OMERODEV/OtherBox"/>
-	  <property name="omero.fs.eventTypes"  value="Creation,Modification;Creation"/>
-	    ...
-	  -->
-	  <property name="omero.fs.importUsers"  value="default"/>
-	  <property name="omero.fs.watchDir"  value=""/>
-	  <property name="omero.fs.eventTypes"  value="Creation,Modification"/>
-	  <property name="omero.fs.pathMode"  value="Follow"/>
-	  <property name="omero.fs.whitelist"  value=""/>
-	  <property name="omero.fs.blacklist"  value=""/>
-	  <property name="omero.fs.timeout"  value="0.0"/>
-	  <property name="omero.fs.blockSize"  value="0"/>
-	  <property name="omero.fs.ignoreSysFiles"  value="True"/>
-	  <property name="omero.fs.ignoreDirEvents"  value="True"/>
-	  <property name="omero.fs.dirImportWait"  value="60"/>
-	  <property name="omero.fs.readers"  value=""/>
     </properties>
 
     <include file="templates.xml"/>
@@ -88,18 +47,6 @@
       <server-instance template="StormTemplate"/>
       <server-instance template="ProcessorTemplate" index="0" dir=""/><!-- assumes legacy -->
       <server-instance template="TablesTemplate" index="0" dir=""/><!-- assumes legacy -->
-    </node>
-
-    <node name="backup">
-      <server-instance template="BlitzTemplate" index="1" config="backup"/>
-    </node>
-
-    <node name="node1">
-      <server-instance template="ProcessorTemplate" index="1" dir="/MOUNT1"/>
-    </node>
-
-    <node name="node2">
-      <server-instance template="ProcessorTemplate" index="2" dir="/MOUNT2"/>
     </node>
 
   </application>
