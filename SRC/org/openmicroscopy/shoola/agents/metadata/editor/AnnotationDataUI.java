@@ -557,16 +557,15 @@ class AnnotationDataUI
 		Object refObject = model.getRefObject();
 		TableLayout layout = (TableLayout) content.getLayout();
 		double h = 0;
-		double hTag = 0;
+		double hTag = TableLayout.PREFERRED;//0;
 		double hPublished = 0;
 		if (!model.isMultiSelection()) {
 			if (refObject instanceof ImageData) {
 				if (layoutViewedBy()) h = TableLayout.PREFERRED;
 			} 
 			layoutTags(model.getTags());
-			hTag = TableLayout.PREFERRED;
+			//hTag = TableLayout.PREFERRED;
 		}
-		
 		//if (refObject instanceof ImageData) hPublished = TableLayout.PREFERRED;
 		layout.setRow(publishedRow, hPublished);
 		layout.setRow(viewedByRow, h);
@@ -993,8 +992,8 @@ class AnnotationDataUI
 		docPane.add(doc);
 		tagFlag = false;
 		docFlag = false;
-		double h = 0;
-		if (!model.isMultiSelection()) h = TableLayout.PREFERRED;
+		double h = TableLayout.PREFERRED;
+		//if (!model.isMultiSelection()) h = TableLayout.PREFERRED;
 		TableLayout layout = (TableLayout) content.getLayout();
 		layout.setRow(tagRow, h);
 		content.revalidate();

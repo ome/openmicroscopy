@@ -259,6 +259,11 @@ class EditorControl
 					File folder = (File) evt.getNewValue();
 					if (folder == null)
 						folder = UIUtilities.getDefaultFolder();
+					Object src = evt.getSource();
+					if (src instanceof FileChooser) {
+						((FileChooser) src).setVisible(false);
+						((FileChooser) src).dispose();
+					}
 					model.exportImageAsOMETIFF(folder);
 				}
 			}

@@ -28,6 +28,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ import java.util.TreeMap;
 import java.util.Map.Entry;
 
 //Third-party libraries
+import com.sun.opengl.util.texture.TextureData;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.DrawingEditor;
@@ -154,8 +156,8 @@ class MeasurementViewerModel
      */
     private SaveRelatedData 		event;
     
-    /** The rendered image. */
-    private BufferedImage 			rndImage;
+    /** The rendered image either a buffered image or a texture data. */
+    private Object 			rndImage;
 
     /** The roi file previously saved if any. */
     private String					fileSaved;
@@ -1153,7 +1155,7 @@ class MeasurementViewerModel
 	 * 
 	 * @param rndImage The value to set.
 	 */
-	void setRenderedImage(BufferedImage rndImage)
+	void setRenderedImage(Object rndImage)
 	{
 		this.rndImage = rndImage;
 	}
@@ -1163,7 +1165,17 @@ class MeasurementViewerModel
 	 * 
 	 * @return See above.
 	 */
-	BufferedImage getRenderedImage() { return rndImage; }
+	BufferedImage getRenderedImage()
+	{ 
+		if (rndImage instanceof BufferedImage)
+			return (BufferedImage) rndImage;
+		else if (rndImage instanceof TextureData) {
+			TextureData data = (TextureData) rndImage;
+			data.getBuffer();
+			return null;
+		}
+		return null; 
+	}
 
 	/**
 	 * Returns <code>true</code> if data to save, <code>false</code>

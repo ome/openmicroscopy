@@ -261,14 +261,15 @@ class UserNotifierManager
 	 * Returns the name to give to the file.
 	 * 
 	 * @param files		Collection of files in the currently selected directory.
-	 * @param f			The original file.
+	 * @param fileName	The name of the original file.
 	 * @param original	The name of the file. 
 	 * @param dirPath	Path to the directory.
 	 * @param index		The index of the file.
+	 * @param extension The extension to check or <code>null</code>.
 	 * @return See above.
 	 */
-	private String getFileName(File[] files, OriginalFile f, String original, 
-								String dirPath, int index)
+	static String getFileName(File[] files, String fileName, String original, 
+								String dirPath, int index, String extension)
 	{
 		String path = dirPath+original;
 		boolean exist = false;
@@ -281,16 +282,41 @@ class UserNotifierManager
 			}
 		}
         if (!exist) return original;
-        if (f == null) return original;
-        String name = f.getName().getValue();
-    	int lastDot = name.lastIndexOf(".");
-    	if (lastDot != -1) {
-    		String extension = name.substring(lastDot, name.length());
-    		String v = name.substring(0, lastDot)+" ("+index+")"+extension;
+        if (fileName == null || fileName.trim().length() == 0) return original;
+    	
+    	if (extension != null && extension.trim().length() > 0) {
+    		int n = fileName.lastIndexOf(extension);
+    		String v = fileName.substring(0, n)+" ("+index+")"+extension;
     		index++;
-    		return getFileName(files, f, v, dirPath, index);
-    	} 
+    		return getFileName(files, fileName, v, dirPath, index, extension);
+    	} else {
+    		int lastDot = fileName.lastIndexOf(".");
+    		if (lastDot != -1) {
+        		extension = fileName.substring(lastDot, fileName.length());
+        		String v = fileName.substring(0, lastDot)+
+        		" ("+index+")"+extension;
+        		index++;
+        		return getFileName(files, fileName, v, dirPath, index);
+        	} 
+    	}
+    	
     	return original;
+	}
+	
+	/**
+	 * Returns the name to give to the file.
+	 * 
+	 * @param files		Collection of files in the currently selected directory.
+	 * @param fileName	The name of the original file.
+	 * @param original	The name of the file. 
+	 * @param dirPath	Path to the directory.
+	 * @param index		The index of the file.
+	 * @return See above.
+	 */
+	static String getFileName(File[] files, String fileName, String original, 
+								String dirPath, int index)
+	{
+		return getFileName(files, fileName, original, dirPath, index, null);
 	}
 	
 	/**
@@ -360,14 +386,15 @@ class UserNotifierManager
 		
         File[] files = directory.listFiles();
         String dirPath = directory+File.separator;
-        log.debug(this, "dirPath: "+dirPath);
-        String name = getFileName(files, file, file.getName().getValue(), 
-        		dirPath, 1);
+        //log.debug(this, "dirPath: "+dirPath);
+        String value = null;
+        if (file != null) value = file.getName().getValue();
+        String name = getFileName(files, value, value, dirPath, 1);
         
-        log.debug(this, "name: "+name);
+        //log.debug(this, "name: "+name);
         
         String path = dirPath+name;
-        log.debug(this, "name and path: "+path);
+        //log.debug(this, "name and path: "+path);
 		FileLoader loader = new FileLoader(component, 
 									container.getRegistry(), 
 										path, file.getId().getValue(), 
@@ -410,10 +437,12 @@ class UserNotifierManager
         String path;
         OriginalFile file;
         FileLoader loader;
+        String value;
+        
         while (i.hasNext()) {
+        	value = null;
         	file = (OriginalFile) i.next();
-        	name = getFileName(files, file, file.getName().getValue(), 
-        			dirPath, 1);
+        	name = getFileName(files, value, value, dirPath, 1);
         	path = dirPath+name;
         	loader = new FileLoader(component, container.getRegistry(), 
 						path, file.getId().getValue(), 
@@ -444,6 +473,7 @@ class UserNotifierManager
 		activityDialog.addDownloadEntry(activity);
 		if (!activityDialog.isVisible())
 			UIUtilities.centerAndShow(activityDialog);
+		activityDialog.requestFocusInWindow();
 		activityDialog.toFront();
 	}
 	

@@ -802,9 +802,9 @@ class MeasurementViewerComponent
 	
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#setRndImage(BufferedImage)
+     * @see MeasurementViewer#setRndImage(Object)
      */
-	public void setRndImage(BufferedImage rndImage)
+	public void setRndImage(Object rndImage)
 	{
 		if (model.getState() == DISCARDED) return;
 		model.setRenderedImage(rndImage);

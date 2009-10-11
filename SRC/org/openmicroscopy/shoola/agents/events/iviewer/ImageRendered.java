@@ -56,7 +56,7 @@ public class ImageRendered
     private BufferedImage	thumbnail;
     
     /** The rendered image. */
-    private BufferedImage	renderedImage;
+    private Object	renderedImage;
  
     /**
      * Creates a new instance.
@@ -66,7 +66,7 @@ public class ImageRendered
      * @param renderedImage	The rendered image.
      */
     public ImageRendered(long pixelsID, BufferedImage thumbnail, 
-    				BufferedImage renderedImage)
+    				Object renderedImage)
     {
     	if (pixelsID < 0) 
             throw new IllegalArgumentException("Pixels set ID not valid.");
@@ -94,6 +94,6 @@ public class ImageRendered
      * 
      * @return See above. 
      */
-    public BufferedImage getRenderedImage() { return renderedImage; }
+    public Object getRenderedImage() { return renderedImage; }
     
 }

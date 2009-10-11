@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
-import java.io.File;
-
 import javax.media.opengl.GLAutoDrawable;
 
 //Third-party libraries

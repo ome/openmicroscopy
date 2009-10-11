@@ -276,11 +276,11 @@ public interface MeasurementViewer
 	public void setIconImage(BufferedImage thumbnail);
 	
 	/**
-	 * Sets the rendered image.
+	 * Sets the rendered image either a buffered image or a texture data.
 	 * 
 	 * @param rndImage	The rendered image.
 	 */
-	public void setRndImage(BufferedImage rndImage);
+	public void setRndImage(Object rndImage);
 	
 	/**
 	 * Returns <code>true</code> if data to save, <code>false</code>
