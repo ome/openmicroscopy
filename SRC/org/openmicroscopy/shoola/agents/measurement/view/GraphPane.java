@@ -294,11 +294,8 @@ class GraphPane
 		if (channelNames.size() == 0 || data.size() == 0 || 
 			channelColours.size() == 0)
 			return null;
-		if(channelNames.size() != channelColours.size())
+		if(channelNames.size() != channelColours.size() && channelNames.size() != data.size())
 			return null;
-		System.err.println(data.size());
-		System.err.println(channelNames.size());
-		System.err.println(channelColours.size());
 		LinePlot plot = new LinePlot(title, channelNames, data, 
 			channelColours, channelMinValue(), channelMaxValue());
 		plot.setYAxisName("Intensity");
