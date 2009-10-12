@@ -286,6 +286,7 @@
           <properties refid="MultiThreaded"/>
           <properties refid="DropBox"/>
           <properties refid="Profile"/>
+          <property name="omero.fs.serverIdString" value="FSServer"/>
           <property name="omero.fs.clientIdString" value="DropBox"/>
           <property name="omero.fs.clientAdapterName" value="omerofs.DropBox"/>
         </properties>
