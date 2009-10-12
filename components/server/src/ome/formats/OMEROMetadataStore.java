@@ -47,6 +47,7 @@ import ome.model.acquisition.LightSource;
 import ome.model.acquisition.OTF;
 import ome.model.acquisition.Objective;
 import ome.model.acquisition.ObjectiveSettings;
+import ome.model.acquisition.StageLabel;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.FileAnnotation;
 import ome.model.containers.Dataset;
@@ -152,6 +153,10 @@ public class OMEROMetadataStore
     	if (sourceObject instanceof Image)
     	{
     		handle(lsid, (Image) sourceObject, indexes);
+    	}
+    	else if (sourceObject instanceof StageLabel)
+    	{
+    		handle(lsid, (StageLabel) sourceObject, indexes);
     	}
     	else if (sourceObject instanceof Pixels)
     	{
@@ -584,6 +589,20 @@ public class OMEROMetadataStore
     {
     	int instrumentIndex = indexes.get("instrumentIndex");
     	instrumentList.put(instrumentIndex, sourceObject);
+    }
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, StageLabel sourceObject,
+    		            Map<String, Integer> indexes)
+    {
+    	Image i = getImage(indexes.get("imageIndex"));
+    	i.setStageLabel(sourceObject);
     }
     
     /**
