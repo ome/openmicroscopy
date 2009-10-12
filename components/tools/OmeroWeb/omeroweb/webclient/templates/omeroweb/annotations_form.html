@@ -83,13 +83,13 @@
                 <table>
                     {% for field in form_tag %}
                         <tr>
-                            <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
+                            <td></td><td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
                         </tr>
                         <tr>
-                            <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
+                            <td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
                         </tr>
                     {% endfor %}
-                    <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
+                    <tr><td></td><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
                     </table>
                 </form>
             </div>

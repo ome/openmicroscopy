@@ -101,7 +101,7 @@ $.widget("ui.tabs", {
 									$toShow.attr('id', toShowId); // restore id
 								}, 500);
 							}
-							scrollTo(0, 0);
+							scrollTo(0, ($(location.hash).offset().top-160));
 							return false; // break
 						}
 					});

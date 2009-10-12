@@ -77,6 +77,25 @@
                     });
                 return false; 
             });
+            {% if nav.loadAnn %}
+            $("div#annotation").html('<p>{% trans "Loading annotations... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+            $("div#annotation").load(
+                {% if manager.dataset %}
+                    "{% url manage_annotations "dataset" manager.dataset.id %}", 
+                {% endif %}
+                {% if manager.project %}
+                    "{% url manage_annotations "project" manager.project.id %}", 
+                {% endif %}
+                {% if manager.plate %}
+                    "{% url manage_annotations "plate" manager.plate.id %}", 
+                {% endif %}
+                {% if manager.screen %}
+                    "{% url manage_annotations "screen" manager.screen.id %}", 
+                {% endif %}
+                function() {  
+                    $("a.loadAnnotation").remove();                        
+                });
+            {% else %}
             $("a.loadAnnotation").click(function()
             {
                 $("div#annotation").html('<p>{% trans "Loading annotations... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
@@ -98,7 +117,7 @@
                     });
                 return false; 
             });
-            
+            {% endif %}
             $("#annotation_tabs").tabs();
             
         });

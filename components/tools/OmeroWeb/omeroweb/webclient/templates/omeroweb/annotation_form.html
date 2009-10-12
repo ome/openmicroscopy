@@ -25,7 +25,7 @@
 {% block center %}
 
 {% if form %}
-<div>
+
     {% if manager.comment %}
     <h1>{% trans "Edit comment" %}</h1>
     <form action="{% url manage_action_containers "save" "comment" manager.comment.id %}?url={{url}}" method="post">
@@ -71,7 +71,6 @@
         </table>
     </form>
     {% endif %}
-</div>
 
 {% endif %}
 

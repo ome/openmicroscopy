@@ -502,7 +502,7 @@ def logout(request, **kwargs):
 def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, **kwargs):
     request.session['nav']['menu'] = whos
     request.session['nav']['whos'] = whos
-    
+    request.session['nav']['loadAnn'] = False
     conn = None
     try:
         conn = kwargs["conn"]
@@ -804,6 +804,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                         manager.createImageCommentAnnotation(content)
                     #elif o1_type == 'screen':
                     #    manager.createScreenCommentAnnotation(content)
+                request.session['nav']['loadAnn'] = True
                 form_comment = CommentAnnotationForm()
             form_tag = TagAnnotationForm()
             form_uri = UriAnnotationForm(initial={'link':'http://'})
@@ -836,6 +837,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                         manager.createImageUriAnnotation(content)
                     #elif o1_type == 'screen':
                     #    manager.createScreenUriAnnotation(content)
+                request.session['nav']['loadAnn'] = True
                 form_uri = UriAnnotationForm(initial={'link':'http://'})
             form_tag = TagAnnotationForm()
             form_comment = CommentAnnotationForm()
@@ -869,6 +871,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                         manager.createImageTagAnnotation(tag, desc)
                     #elif o1_type == 'screen':
                     #    manager.createScreenTagAnnotation(tag, desc)
+                request.session['nav']['loadAnn'] = True
                 form_tag = TagAnnotationForm()
             form_uri = UriAnnotationForm(initial={'link':'http://'})
             form_comment = CommentAnnotationForm()
@@ -902,6 +905,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                             manager.createImageFileAnnotation(f)
                         #elif o1_type == 'screen':
                         #    manager.createScreenFileAnnotation(f)
+                    request.session['nav']['loadAnn'] = True
                     form_file = UploadFileForm()
             form_tag = TagAnnotationForm()
             form_comment = CommentAnnotationForm()
@@ -936,6 +940,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                         #elif o1_type == 'screen':
                         #    manager.createScreenAnnotationLinks('tag',tags)
                     form_tags = TagListForm(initial={'tags':manager.listTags()})
+                    request.session['nav']['loadAnn'] = True
             
             form_urls = UrlListForm(initial={'urls':url_list})
             form_comments = CommentListForm(initial={'comments':comment_list})
@@ -971,6 +976,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                         #elif o1_type == 'screen':
                         #    manager.createScreenAnnotationLinks('comment',comments)
                     form_comments = CommentListForm(initial={'comments':manager.listComments()})
+                    request.session['nav']['loadAnn'] = True
             
             form_tags = TagListForm(initial={'tags':tag_list})
             form_urls = UrlListForm(initial={'urls':url_list})
@@ -1006,7 +1012,8 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                         #elif o1_type == 'screen':
                         #    manager.createScreenAnnotationLinks('url',urls)
                     form_urls = UrlListForm(initial={'urls':manager.listUrls()})
-                    
+                    request.session['nav']['loadAnn'] = True
+                
             form_comments = CommentListForm(initial={'comments':comment_list})
             form_tags = TagListForm(initial={'tags':tag_list})
             form_files = FileListForm(initial={'files':file_list})
@@ -1041,7 +1048,8 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                         #elif o1_type == 'screen':
                         #    manager.createScreenAnnotationLinks('file',files)
                     form_files = FileListForm(initial={'files':manager.listFiles()})
-            
+                    request.session['nav']['loadAnn'] = True
+                    
             form_comments = CommentListForm(initial={'comments':comment_list})
             form_tags = TagListForm(initial={'tags':tag_list})
             form_urls = UrlListForm(initial={'urls':url_list})

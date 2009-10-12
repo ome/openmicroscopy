@@ -77,6 +77,33 @@
                         });
                     return false; 
                 });
+                
+                {% if nav.loadAnn %}
+                $("div#annotation").html('<p>{% trans "Loading annotations... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                {% if manager.dataset %}
+                    $("div#annotation").load("{% url manage_annotations "dataset" manager.dataset.id %}?url={{ url }}", function() {  
+                        $("a.loadAnnotation").remove();                        
+                    });
+                {% else %}
+                    {% if manager.project %}
+                        $("div#annotation").load("{% url manage_annotations "project" manager.project.id %}?url={{ url }}", function() {  
+                            $("a.loadAnnotation").remove();                        
+                        });
+                    {% else %}
+                        {% if manager.plate %}
+                            $("div#annotation").load("{% url manage_annotations "plate" manager.plate.id %}?url={{ url }}", function() {  
+                                $("a.loadAnnotation").remove();                        
+                            });
+                        {% else %}
+                            {% if manager.screen %}
+                                $("div#annotation").load("{% url manage_annotations "screen" manager.screen.id %}?url={{ url }}", function() {  
+                                    $("a.loadAnnotation").remove();                        
+                                });
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+                {% else %}
                 $("a.loadAnnotation").click(function()
                 {
                     $("div#annotation").html('<p>{% trans "Loading annotations... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
@@ -105,7 +132,7 @@
                     {% endif %}    
                     return false; 
                 });
-                
+                {% endif %}
                 $("#annotation_tabs").tabs();
         })
     </script>
@@ -270,24 +297,24 @@
     <tbody> 
         {% for c in manager.containers.projects %}
         <tr> 
-            <td class="product">{% if c.isOwned %}<a href="{% url manage_data "mydata" "project" c.id %}"><img id="{{ c.id }}" src="{% url webstatic "images/folder32.png" %}" title="{{ c.name }}" alt="project"/></a>{% else %}<a href="{% url manage_data "userdata" "project" c.id %}?filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder32.png" %}" title="{{ c.name }}" alt="project"/></a>{% endif %}</td> 
-            <td>{% if c.isOwned %}<a href="{% url manage_data "mydata" "project" c.id %}">{{ c.shortName }}</a>{% else %}<a href="{% url manage_data "userdata" "project" c.id %}?filter=experimenter&experimenter={{ c.details.owner.id.val }}">{{ c.shortName }}</a>{% endif %} <img alt="dataset" title="dataset" src="{% url webstatic "images/folder_image16.png" %}"/>[{{ c.countChild }}]{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
+            <td class="product">{% if c.isOwned %}<a href="{% url manage_data "mydata" "project" c.id %}"><img id="{{ c.id }}" src="{% url webstatic "images/folder32.png" %}" title="Project" alt="Project"/></a>{% else %}<a href="{% url manage_data "userdata" "project" c.id %}?filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder32.png" %}" title="Project" alt="Project"/></a>{% endif %}</td> 
+            <td>{% if c.isOwned %}<a href="{% url manage_data "mydata" "project" c.id %}" title="{{ c.name }}" >{{ c.shortName }}</a>{% else %}<a href="{% url manage_data "userdata" "project" c.id %}?filter=experimenter&experimenter={{ c.details.owner.id.val }}" title="{{ c.name }}" >{{ c.shortName }}</a>{% endif %} <img alt="dataset" title="dataset" src="{% url webstatic "images/folder_image16.png" %}"/>[{{ c.countChild }}]{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
             <td></td>
             <td>{{ c.creationEventDate|date:"Y m d H:i:s" }}</td>
         </tr> 
         {% endfor %}
         {% for c in manager.containers.datasets %}
         <tr> 
-            <td class="product">{% if c.isOwned %}<a href="{% if manager.project %}{% url manage_data "mydata" "project" manager.project.id "dataset" c.id %}{% else %}{% url manage_data "mydata" "dataset" c.id %}{% endif %}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_image32.png" %}" title="{{ c.name }}" alt="project"/></a>{% else %}<a href="{% if manager.project %}{% url manage_data "userdata" "project" manager.project.id "dataset" c.id %}{% else %}{% url manage_data "userdata" "dataset" c.id %}{% endif %}?filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_image32.png" %}" title="{{ c.name }}" alt="project"/></a>{% endif %}</td> 
-            <td>{% if c.isOwned %}<a href="{% if manager.project %}{% url manage_data "mydata" "project" manager.project.id "dataset" c.id %}{% else %}{% url manage_data "mydata" "dataset" c.id %}{% endif %}">{{ c.shortName }}</a>{% else %}<a href="{% if manager.project %}{% url manage_data "userdata" "project" manager.project.id "dataset" c.id %}{% else %}{% url manage_data "userdata" "dataset" c.id %}{% endif %}?filter=experimenter&experimenter={{ c.details.owner.id.val }}">{{ c.shortName }}</a>{% endif %} <img src="{% url webstatic "images/image16.png" %}" title="image" alt="image"/>[{{ c.countChild }}]{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
+            <td class="product">{% if c.isOwned %}<a href="{% if manager.project %}{% url manage_data "mydata" "project" manager.project.id "dataset" c.id %}{% else %}{% url manage_data "mydata" "dataset" c.id %}{% endif %}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_image32.png" %}" title="Dataset" alt="Dataset"/></a>{% else %}<a href="{% if manager.project %}{% url manage_data "userdata" "project" manager.project.id "dataset" c.id %}{% else %}{% url manage_data "userdata" "dataset" c.id %}{% endif %}?filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_image32.png" %}" title="Dataset" alt="Dataset"/></a>{% endif %}</td> 
+            <td>{% if c.isOwned %}<a href="{% if manager.project %}{% url manage_data "mydata" "project" manager.project.id "dataset" c.id %}{% else %}{% url manage_data "mydata" "dataset" c.id %}{% endif %}" title="{{ c.name }}">{{ c.shortName }}</a>{% else %}<a href="{% if manager.project %}{% url manage_data "userdata" "project" manager.project.id "dataset" c.id %}{% else %}{% url manage_data "userdata" "dataset" c.id %}{% endif %}?filter=experimenter&experimenter={{ c.details.owner.id.val }}" title="{{ c.name }}">{{ c.shortName }}</a>{% endif %} <img src="{% url webstatic "images/image16.png" %}" title="image" alt="image"/>[{{ c.countChild }}]{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
             <td>{% if c.isOwned %}<a href="#" onclick="copyToClipboard('dataset', '{{ c.id }}'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> {% if manager.project %}<a href="{% url manage_action_containers "remove" %}?parent=pr-{{ manager.project.id }}&source=ds-{{ c.id }}&url={{ url }}" onClick="return confirm('Unlink dataset?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}{% endif %}</td>
             <td>{{ c.creationEventDate|date:"Y m d H:i:s" }}</td>
         </tr> 
         {% endfor %}
         {% for c in manager.containers.images %}
         <tr> 
-            <td class="product">{% if c.isOwned %}<a href="{% if manager.project %}{% url manage_data "mydata" "project" manager.project.id "dataset" manager.dataset.id "image" c.id %}{% else %}{% if manager.dataset %}{% url manage_data "mydata" "dataset" manager.dataset.id "image" c.id %}{% else %}{% url manage_data "mydata" "image" c.id %}{% endif %}{% endif %}"><img id="{{ c.id }}" src="{% url webstatic "images/image32.png" %}" title="{{ c.name }}" alt="image"/></a>{% else %}<a href="{% if manager.project %}{% url manage_data "userdata" "project" manager.project.id "dataset" manager.dataset.id "image" c.id %}{% else %}{% if manager.dataset %}{% url manage_data "userdata" "dataset" manager.dataset.id "image" c.id %}{% else %}{% url manage_data "userdata" "image" c.id %}{% endif %}{% endif %}"><img id="{{ c.id }}" src="{% url webstatic "images/image32.png" %}" title="{{ c.name }}" alt="image"/></a>{% endif %}</td> 
-            <td>{% if c.isOwned %}<a href="{% if manager.project %}{% url manage_data "mydata" "project" manager.project.id "dataset" manager.dataset.id "image" c.id %}{% else %}{% if manager.dataset %}{% url manage_data "mydata" "dataset" manager.dataset.id "image" c.id %}{% else %}{% url manage_data "mydata" "image" c.id %}{% endif %}{% endif %}">{{ c.shortName }}</a> {% else %}<a href="{% if manager.project %}{% url manage_data "userdata" "project" manager.project.id "dataset" manager.dataset.id "image" c.id %}{% else %}{% if manager.dataset %}{% url manage_data "userdata" "dataset" manager.dataset.id "image" c.id %}{% else %}{% url manage_data "userdata" "image" c.id %}{% endif %}{% endif %}">{{ c.shortName }}</a>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td>
+            <td class="product">{% if c.isOwned %}<a href="{% if manager.project %}{% url manage_data "mydata" "project" manager.project.id "dataset" manager.dataset.id "image" c.id %}{% else %}{% if manager.dataset %}{% url manage_data "mydata" "dataset" manager.dataset.id "image" c.id %}{% else %}{% url manage_data "mydata" "image" c.id %}{% endif %}{% endif %}"><img id="{{ c.id }}" src="{% url webstatic "images/image32.png" %}" title="Image" alt="Image"/></a>{% else %}<a href="{% if manager.project %}{% url manage_data "userdata" "project" manager.project.id "dataset" manager.dataset.id "image" c.id %}{% else %}{% if manager.dataset %}{% url manage_data "userdata" "dataset" manager.dataset.id "image" c.id %}{% else %}{% url manage_data "userdata" "image" c.id %}{% endif %}{% endif %}"><img id="{{ c.id }}" src="{% url webstatic "images/image32.png" %}" title="Image" alt="Image"/></a>{% endif %}</td> 
+            <td>{% if c.isOwned %}<a href="{% if manager.project %}{% url manage_data "mydata" "project" manager.project.id "dataset" manager.dataset.id "image" c.id %}{% else %}{% if manager.dataset %}{% url manage_data "mydata" "dataset" manager.dataset.id "image" c.id %}{% else %}{% url manage_data "mydata" "image" c.id %}{% endif %}{% endif %}" title="{{ c.name }}">{{ c.shortName }}</a> {% else %}<a href="{% if manager.project %}{% url manage_data "userdata" "project" manager.project.id "dataset" manager.dataset.id "image" c.id %}{% else %}{% if manager.dataset %}{% url manage_data "userdata" "dataset" manager.dataset.id "image" c.id %}{% else %}{% url manage_data "userdata" "image" c.id %}{% endif %}{% endif %}" title="{{ c.name }}">{{ c.shortName }}</a>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td>
             <td><a href="#" onclick="return popup('{% url image_viewer c.id %}')"><img src="{% url webstatic "images/kview16.png" %}" title="{{ c.name }}" alt="image"/></a> <a href="{% url manage_image_zoom c.id %}?keepThis=true&TB_iframe=true&height=500&width=860" alt="{{ c.shortName }}" class="thickbox" rel="gallery-omero" title="{{ c.shortName }} by {{ c.getOwnerFullName }} ({{ c.details.group.name.val }} {{ c.details.permissions }})"><img src="{% url webstatic "images/kpresenter16.png" %}" alt="p" title="presentation"/></a>{% if c.isOwned %} <a href="#" onclick="toBasket('image', '{{ c.id }}'); return false;"><img src="{% url webstatic "images/basket16.png" %}" alt="b" title="basket"/></a> <a href="#" onclick="copyToClipboard('image', '{{ c.id }}'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> {% if manager.dataset %}<a href="{% url manage_action_containers "remove" %}?parent=ds-{{ manager.dataset.id }}&source=img-{{ c.id }}&url={{ url }}" onClick="return confirm('Unlink image?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}{% endif %}</td>
             <td>{{ c.getDate|date:"Y m d H:i:s" }}</td>
         </tr> 

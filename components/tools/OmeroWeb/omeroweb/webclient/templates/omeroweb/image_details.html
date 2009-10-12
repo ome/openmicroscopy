@@ -37,6 +37,23 @@
         
     <script>
         $(document).ready(function(){
+            {% if nav.loadAnn %}
+            $("div#annotation").html('<p>{% trans "Loading annotations... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+            $("div#annotation").load("{% url manage_annotations "image" manager.image.id %}?url={{ url }}", function() {  
+                    $("a.loadAnnotation").remove();                        
+                });
+            
+            {% else %}            
+            $("a.loadAnnotation").click(function()
+            {
+                $("div#annotation").html('<p>{% trans "Loading annotations... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                $("div#annotation").load("{% url manage_annotations "image" manager.image.id %}?url={{ url }}", function() {  
+                        $("a.loadAnnotation").remove();                        
+                    });
+                return false; 
+            });
+            {% endif %}
+            
             $("a.loadData").click(function()
             {
                 $("div#hierarchy").html('<p>{% trans "Loading hierarchy... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
@@ -46,15 +63,6 @@
                     });
                 return false; 
             });
-            $("a.loadAnnotation").click(function()
-            {
-                $("div#annotation").html('<p>{% trans "Loading annotations... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                $("div#annotation").load("{% url manage_annotations "image" manager.image.id %}?url={{ url }}", function() {  
-                        $("a.loadAnnotation").remove();                        
-                    });
-                return false; 
-            });
-        
             $("#metadata").accordion( { 
                 autoHeight: false,
                 active: false,
