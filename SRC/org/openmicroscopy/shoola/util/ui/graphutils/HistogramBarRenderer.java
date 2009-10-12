@@ -64,6 +64,7 @@ class HistogramBarRenderer
 			throw new IllegalArgumentException("List of colours cannot " +
 					"be null.");
 		this.colours = colours;
+		this.setShadowVisible(false);
 	}
 	
 	/**
