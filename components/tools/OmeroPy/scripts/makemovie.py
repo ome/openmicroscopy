@@ -349,12 +349,12 @@ def writeMovie(commandArgs, session):
 	sizeC = pixels.getSizeC().getValue();
 	sizeT = pixels.getSizeT().getValue();
 
-    if(sizeX==None or sizeY==None or sizeZ==None or sizeT==None or SizeC==None):
-        return; 
-    
+	if(sizeX==None or sizeY==None or sizeZ==None or sizeT==None or SizeC==None):
+		return; 
+
 	if(pixels.getPhysicalSizeX()==None):
-	   commandArgs["scalebar"]=0;
-    
+		commandArgs["scalebar"]=0;
+
 	xRange = range(0,sizeX);
 	yRange = range(0,sizeY);
 	cRange = commandArgs["channels"]
