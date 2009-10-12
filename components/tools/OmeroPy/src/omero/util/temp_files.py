@@ -10,6 +10,7 @@ OMERO Support for temporary files and directories
 import os
 import sys
 import atexit
+import getpass
 import logging
 import tempfile
 import threading
@@ -122,11 +123,7 @@ class TempFileManager(object):
         """
         Returns the current OS-user's name
         """
-        if self.is_win32:
-            import win32api
-            return win32api.GetUserName()
-        else:
-            return os.getlogin()
+	return getpass.getuser()
 
     def pid(self):
         """
