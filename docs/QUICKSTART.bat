@@ -33,7 +33,7 @@ if exist dist goto AlreadyBuilt
 cd dist
 
 echo Stopping server...
-python bin\omero admin stop
+python bin\omero admin status && python bin\omero admin stop
 if errorlevel 1 echo "Wasn't running?"
 
 if "x%OMERO_CONFIG%" == "x" (set OMERO_CONFIG=quickstart)
