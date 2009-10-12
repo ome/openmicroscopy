@@ -64,8 +64,8 @@ from struct import *
 from omero.rtypes import *
 import PIL
 from PIL import Image
+from PIL import ImageDraw
 import omero_Constants_ice
-import ImageDraw
 
 try: 
 	import hashlib 
