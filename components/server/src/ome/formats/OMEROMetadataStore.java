@@ -60,6 +60,7 @@ import ome.model.core.PlaneInfo;
 import ome.model.experiment.Experiment;
 import ome.model.roi.Ellipse;
 import ome.model.roi.Line;
+import ome.model.roi.Mask;
 import ome.model.roi.Point;
 import ome.model.roi.Polygon;
 import ome.model.roi.Polyline;
@@ -280,7 +281,10 @@ public class OMEROMetadataStore
         {
             handle(lsid, (Line) sourceObject, indexes);
         }
-    	
+        else if (sourceObject instanceof Mask)
+        {
+            handle(lsid, (Mask) sourceObject, indexes);
+        }
         else
     	{
     		throw new ApiUsageException(
@@ -905,6 +909,22 @@ public class OMEROMetadataStore
      * object.
      */
     private void handle(String LSID, Line sourceObject,
+                        Map<String, Integer> indexes)
+    {
+        int imageIndex = indexes.get("imageIndex");
+        int roiIndex = indexes.get("roiIndex");
+        Roi r = getRoi(imageIndex, roiIndex);
+        r.addShape(sourceObject);
+    }
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, Mask sourceObject,
                         Map<String, Integer> indexes)
     {
         int imageIndex = indexes.get("imageIndex");
