@@ -31,7 +31,6 @@ import java.util.Map;
 
 import ome.api.IQuery;
 import ome.api.IUpdate;
-import ome.api.local.LocalUpdate;
 import ome.model.IObject;
 import ome.model.acquisition.Arc;
 import ome.model.acquisition.Detector;
@@ -204,6 +203,10 @@ public class OMEROMetadataStore
     	else if (sourceObject instanceof Arc)
     	{
     		handle(lsid, (LightSource) sourceObject, indexes);
+    	}
+    	else if (sourceObject instanceof OTF)
+    	{
+    		handle(lsid, (OTF) sourceObject, indexes);
     	}
     	else if (sourceObject instanceof ImagingEnvironment)
     	{
@@ -622,6 +625,20 @@ public class OMEROMetadataStore
     {
     	Instrument i = instrumentList.get(indexes.get("instrumentIndex"));
     	i.addLightSource(sourceObject);
+    }
+    
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, OTF sourceObject,
+    		            Map<String, Integer> indexes)
+    {
+    	Instrument i = instrumentList.get(indexes.get("instrumentIndex"));
+    	i.addOTF(sourceObject);
     }
     
     /**
