@@ -3912,44 +3912,50 @@ public class OMEROMetadataStoreClient
 
     public void setMaskHeight(String height, int imageIndex, int roiIndex, int shapeIndex)
     {
-    	Mask o = getMask(imageIndex, roiIndex, shapeIndex);
-    	o.setHeight(toRType(Double.parseDouble(height)));
+    	// XXX: Disabled for now
+    	//Mask o = getMask(imageIndex, roiIndex, shapeIndex);
+    	//o.setHeight(toRType(Double.parseDouble(height)));
     }
 
     public void setMaskID(String id, int imageIndex, int roiIndex, int shapeIndex)
     {
-    	checkDuplicateLSID(Mask.class, id);
-        LinkedHashMap<String, Integer> indexes =
-        	new LinkedHashMap<String, Integer>();
-        indexes.put("imageIndex", imageIndex);
-        indexes.put("roiIndex", roiIndex);
-        indexes.put("shapeIndex", shapeIndex);
-        IObjectContainer o = getIObjectContainer(Mask.class, indexes);
-        o.LSID = id;
+    	// XXX: Disabled for now
+    	//checkDuplicateLSID(Mask.class, id);
+        //LinkedHashMap<String, Integer> indexes =
+        //	new LinkedHashMap<String, Integer>();
+        //indexes.put("imageIndex", imageIndex);
+        //indexes.put("roiIndex", roiIndex);
+        //indexes.put("shapeIndex", shapeIndex);
+        //IObjectContainer o = getIObjectContainer(Mask.class, indexes);
+        //o.LSID = id;
     }
 
     public void setMaskTransform(String transform, int imageIndex, int roiIndex, int shapeIndex)
     {
-    	Mask o = getMask(imageIndex, roiIndex, shapeIndex);
-    	o.setTransform(toRType(transform));
+    	// XXX: Disabled for now
+    	//Mask o = getMask(imageIndex, roiIndex, shapeIndex);
+    	//o.setTransform(toRType(transform));
     }
 
     public void setMaskWidth(String width, int imageIndex, int roiIndex, int shapeIndex)
     {
-    	Mask o = getMask(imageIndex, roiIndex, shapeIndex);
-    	o.setWidth(toRType(Double.parseDouble(width)));
+    	// XXX: Disabled for now
+    	//Mask o = getMask(imageIndex, roiIndex, shapeIndex);
+    	//o.setWidth(toRType(Double.parseDouble(width)));
     }
 
     public void setMaskX(String x, int imageIndex, int roiIndex, int shapeIndex)
     {
-    	Mask o = getMask(imageIndex, roiIndex, shapeIndex);
-    	o.setX(toRType(Double.parseDouble(x)));
+    	// XXX: Disabled for now
+    	//Mask o = getMask(imageIndex, roiIndex, shapeIndex);
+    	//o.setX(toRType(Double.parseDouble(x)));
     }
 
     public void setMaskY(String y, int imageIndex, int roiIndex, int shapeIndex)
     {
-    	Mask o = getMask(imageIndex, roiIndex, shapeIndex);
-    	o.setY(toRType(Double.parseDouble(y)));
+    	// XXX: Disabled for now
+    	//Mask o = getMask(imageIndex, roiIndex, shapeIndex);
+    	//o.setY(toRType(Double.parseDouble(y)));
     }
 
     public void setMaskPixelsBigEndian(Boolean bigEndian, int imageIndex, int roiIndex, int shapeIndex)
@@ -3958,8 +3964,9 @@ public class OMEROMetadataStoreClient
 
     public void setMaskPixelsBinData(byte[] binData, int imageIndex, int roiIndex, int shapeIndex)
     {
-    	Mask o = getMask(imageIndex, roiIndex, shapeIndex);
-    	o.setBytes(binData);
+    	// XXX: Disabled for now
+    	//Mask o = getMask(imageIndex, roiIndex, shapeIndex);
+    	//o.setBytes(binData);
     }
 
     public void setMaskPixelsExtendedPixelType(String extendedPixelType, int imageIndex, int roiIndex, int shapeIndex)
