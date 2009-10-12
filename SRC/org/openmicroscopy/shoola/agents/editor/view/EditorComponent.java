@@ -368,7 +368,14 @@ class EditorComponent
 			return b;
 		} 
 	
-		model.fireFileSaving(model.getFileName());
+		// now we are saving to server....
+		String fileName = model.getFileName();
+		// make sure the fileName contains no file separators 
+		// else the temporary file of this name will not be created and found
+		int lastSlash = fileName.lastIndexOf(File.separator);
+		fileName = fileName.substring(lastSlash + 1);
+		if (fileName.length() == 0)		fileName = "new_protocol.cpe.xml";
+		model.fireFileSaving(fileName);
 		model.updateNameSpace(); // refresh namespace of saved file
 		return true;
 	}
