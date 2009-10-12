@@ -158,16 +158,16 @@ public class CommentMessenger extends JDialog implements ActionListener
             emailText = emailTextField.getText();
             commentText = commentTextArea.getText();
             
-            if (!validEmail(emailText))
-            {
-                JOptionPane.showMessageDialog(this, 
-                        "Your email address must be valid\n" +
-                        "(or blank) to send a comment.");              
-            }
-            else
+            if (validEmail(emailText) || emailText.trim().length() == 0)
             {
                 config.email.set(emailText);
-                sendRequest(emailText, commentText, "");               
+                sendRequest(emailText, commentText, "");  
+            }
+            else
+            {                
+                JOptionPane.showMessageDialog(this, 
+                    "Your email address must be valid\n" +
+                    "(or blank) to send a comment.");                  
             }
             
         }

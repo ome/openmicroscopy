@@ -192,18 +192,18 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
             emailText = emailTextField.getText();
             commentText = commentTextArea.getText();
             
-            if (!validEmail(emailText))
-            {
-                JOptionPane.showMessageDialog(this, 
-                        "Your email address must be valid\n" +
-                        "(or blank) to send feedback.");              
-            }
-            else
+            if (validEmail(emailText) || emailText.trim().length() == 0)
             {
                 config.email.set(emailText);
                 config.sendFiles.set(uploadCheckmark.isSelected());
                 sendRequest(emailText, commentText, "");
                 dispose();
+            }
+            else
+            {
+                JOptionPane.showMessageDialog(this, 
+                        "Your email address must be valid\n" +
+                        "(or blank) to send feedback.");   
             }
         }
         
