@@ -259,7 +259,7 @@ public class FileQueueHandler
     		}
         	String a = selectedReader.getFormat();
         	String b = ic.reader;
-        	if (a.equals(b))
+        	if (a.equals(b) || b == null)
         	{
         		containers.add(ic);
         	}
