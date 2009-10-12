@@ -118,7 +118,7 @@ public class ImportFixture
      * @param step an action to take per plane. not null.
      * @throws Exception
      */
-    public void doImport() throws Exception
+    public void doImport() throws Throwable
     {
         for (File file : fads.keySet())
         {

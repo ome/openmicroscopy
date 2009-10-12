@@ -270,7 +270,7 @@ public class ImportHandler implements IObservable {
                         log.error("SQL exception updating history DB.", sqle);
                     }
 
-                } catch (Exception error) {
+                } catch (Throwable error) {
                     log.error("Generic error while importing image.", error);
                     viewer.appendToDebug(ome.formats.importer.util.ErrorHandler.getStackTrace(error));
                     qTable.setProgressFailed(j);

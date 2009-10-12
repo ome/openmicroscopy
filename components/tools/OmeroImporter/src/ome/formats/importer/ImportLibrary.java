@@ -164,7 +164,7 @@ public class ImportLibrary implements IObservable
                             ic.getUserPixels(),
                             ic.getTarget());
                     numDone++;
-                } catch (Exception e) {                    
+                } catch (Throwable t) {                    
                     if (!config.contOnError.get()) {
                         log.info("Exiting on error");
                         return;
@@ -265,7 +265,7 @@ public class ImportLibrary implements IObservable
     		                        String userSpecifiedImageDescription,
     		                        boolean archive, boolean useMetadataFile,
     		                        Double[] userPixels, IObject userSpecifiedTarget)
-    	throws FormatException, IOException, Exception
+    	throws FormatException, IOException, Throwable
     {   
 
         String fileName = file.getAbsolutePath();
@@ -411,6 +411,9 @@ public class ImportLibrary implements IObservable
         } catch (Exception e) {
             notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(fileName, e, usedFiles, format));
             throw e;
+        } catch (Throwable t) {
+        	notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(fileName, new RuntimeException(t), usedFiles, format));
+        	throw t;
         } finally {
             store.createRoot(); // CLEAR MetadataStore
         }
