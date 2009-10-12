@@ -106,7 +106,8 @@ public class FileUploader implements IObservable
 
                     public void update(long bytesRead)
                     {
-                        long partsDone = bytesRead / (fileLength/10);
+                        long partsDone = 0;
+                        if (fileLength != 0) partsDone = bytesRead / (fileLength/10);
                         if (parts == partsDone) {
                             return;
                         }

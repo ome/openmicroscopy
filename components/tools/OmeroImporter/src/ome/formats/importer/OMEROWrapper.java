@@ -5,12 +5,14 @@ import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
 
 import loci.formats.ChannelFiller;
 import loci.formats.ChannelSeparator;
 import loci.formats.ClassList;
 import loci.formats.FormatException;
+import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.MinMaxCalculator;
@@ -157,6 +159,13 @@ public class OMEROWrapper extends MinMaxCalculator {
     public ImageReader getImageReader() {
         return iReader;
     }
+    
+    public boolean isSPWReader()
+    {
+        String[] domains = reader.getDomains();
+        return Arrays.asList(domains).contains(FormatTools.HCS_DOMAIN);
+    }
+    
 }
 
 class ReaderInvocationHandler implements InvocationHandler {
