@@ -212,6 +212,8 @@ def calculateAquisitionTime(session, pixelsId, cRange, tzList):
 		
 def addScalebar(scalebar, image, pixels, commandArgs):
 	draw = ImageDraw.Draw(image)
+	if(pixels.getPhysicalSizeX()==None):
+	   return;
 	pixelSizeX = pixels.getPhysicalSizeX().getValue()
 	if(pixelSizeX<=0):
 		return;
@@ -238,23 +240,6 @@ def addTimePoints(time, z, t, image, pixels, commandArgs):
 		planeCoord = "z:"+str(z+1)+" t:"+str(t+1);
 		draw.text((textX, planeInfoTextY), planeCoord, fill=commandArgs["overlayColour"])		
 	return image;
-
-def rmdir_recursive(dir):
-	for name in os.listdir(dir):
-		full_name = os.path.join(dir, name)
-		# on Windows, if we don't have write permission we can't remove
-		# the file/directory either, so turn that on
-		if not os.access(full_name, os.W_OK):
-			os.chmod(full_name, 0600)
-		if os.path.isdir(full_name):
-			rmdir_recursive(full_name)
-		else:
-			os.remove(full_name)
-	os.rmdir(dir)
-
-def cleanup(output):
-	os.chdir('..')
-	rmdir_recursive(output)
 	
 def getRenderingEngine(session, pixelsId, sizeC, cRange):	
 	renderingEngine = session.createRenderingEngine();
@@ -305,7 +290,6 @@ def validColourRange(colour):
 def RGBToPIL(RGB):
 	hexval = hex(int(RGB));
 	return '#'+(6-len(hexval[2:]))*'0'+hexval[2:];
-
 
 def buildPlaneMapFromRanges(zRange, tRange):
 	planeMap = [];
@@ -365,6 +349,12 @@ def writeMovie(commandArgs, session):
 	sizeC = pixels.getSizeC().getValue();
 	sizeT = pixels.getSizeT().getValue();
 
+    if(sizeX==None or sizeY==None or sizeZ==None or sizeT==None or SizeC==None):
+        return; 
+    
+	if(pixels.getPhysicalSizeX()==None):
+	   commandArgs["scalebar"]=0;
+    
 	xRange = range(0,sizeX);
 	yRange = range(0,sizeY);
 	cRange = commandArgs["channels"]
@@ -374,6 +364,8 @@ def writeMovie(commandArgs, session):
 	tzList = calculateRanges(sizeZ, sizeT, commandArgs);
 
 	timeMap = calculateAquisitionTime(session, pixelsId, cRange, tzList)
+	if(timeMap==None):
+	   commandArgs["showTime"]=0;
 
 	pixelTypeString = pixels.getPixelsType().getValue().getValue();
 	frameNo = 1;
