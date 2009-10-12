@@ -294,6 +294,11 @@ class GraphPane
 		if (channelNames.size() == 0 || data.size() == 0 || 
 			channelColours.size() == 0)
 			return null;
+		if(channelNames.size() != channelColours.size())
+			return null;
+		System.err.println(data.size());
+		System.err.println(channelNames.size());
+		System.err.println(channelColours.size());
 		LinePlot plot = new LinePlot(title, channelNames, data, 
 			channelColours, channelMinValue(), channelMaxValue());
 		plot.setYAxisName("Intensity");
@@ -355,7 +360,7 @@ class GraphPane
 			{
 				cData = model.getMetadata(channel);
 				if (cData != null)
-				channelName.add(cData.getChannelLabeling());
+				channelName.add(channel+":"+cData.getChannelLabeling());
 				c = model.getActiveChannelColor(channel);
 				if (c == null) c = Color.WHITE;
 				channelColour.add(c);
