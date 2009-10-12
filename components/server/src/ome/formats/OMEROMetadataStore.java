@@ -132,7 +132,8 @@ public class OMEROMetadataStore
     	new LinkedHashMap<Integer, Instrument>();
     
     /** A map of imageIndex vs. ROIs */    
-    private Map<Integer, List<Roi>> roiMap = new HashMap<Integer, List<Roi>>();
+    private Map<Integer, Map<Integer, Roi>> roiMap = 
+    	new HashMap<Integer, Map<Integer, Roi>>();
     
     /** A list of all objects we've received from the client and their LSIDs. */
     private Map<LSID, IObject> lsidMap = new HashMap<LSID, IObject>();
@@ -827,14 +828,15 @@ public class OMEROMetadataStore
                         Map<String, Integer> indexes)
     {
         int imageIndex = indexes.get("imageIndex");
+        int roiIndex = indexes.get("roiIndex");
         Image i = getImage(imageIndex);
-        List<Roi> rois = roiMap.get(imageIndex);
+        Map<Integer, Roi> rois = roiMap.get(imageIndex);
         if (rois == null)
         {
-            rois = new ArrayList<Roi>();
+            rois = new HashMap<Integer, Roi>();
             roiMap.put(imageIndex, rois);
         }
-        rois.add(sourceObject);
+        rois.put(roiIndex, sourceObject);
         i.addRoi(sourceObject);
     }
 
@@ -1342,8 +1344,7 @@ public class OMEROMetadataStore
      */
     private Roi getRoi(int imageIndex, int roiIndex)
     {
-        List<Roi> rois = roiMap.get(imageIndex);
-        return rois.get(roiIndex);
+        return roiMap.get(imageIndex).get(roiIndex);
     }
     
     /**
