@@ -23,7 +23,7 @@ public class configuration {
     }
 
     // Configuration with port information
-    omero.client client3 = new omero.client("localhost", 10463);
+    omero.client client3 = new omero.client("localhost", 24063);
     try {
         client3.createSession("root", "ome");
     } finally {

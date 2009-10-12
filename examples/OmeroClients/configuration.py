@@ -15,7 +15,7 @@ client2.createSession("root","ome")
 client2.closeSession()
 
 # Configuration with port information
-client3 = omero.client("localhost", 10463)
+client3 = omero.client("localhost", 24063)
 client3.createSession("root","ome")
 client3.closeSession()
 
