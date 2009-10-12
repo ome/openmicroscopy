@@ -86,7 +86,7 @@ public class TempFileManager {
      * {@link #cleanup()} on exit.
      */
     public TempFileManager(String prefix) {
-        File tmp = new File(tmpdir());
+        File tmp = tmpdir();
         File userDir = new File(tmp, String.format("%s_%s", prefix, username()));
         if (!this.create(userDir) && !this.access(userDir)) {
             int i = 0;
@@ -178,8 +178,11 @@ public class TempFileManager {
     /**
      * Returns a platform-specific user-writable temporary directory
      */
-    protected String tmpdir() {
-        return System.getProperty("java.io.tmpdir");
+    protected File tmpdir() {
+        File home = new File(System.getProperty("user.home"));
+        File omero = new File(home, "omero");
+        File tmp = new File(omero, "tmp");
+        return tmp;
     }
 
     /**

@@ -111,7 +111,12 @@ class TempFileManager(object):
         """
         Returns a platform-specific user-writable temporary directory
         """
-        return path(tempfile.gettempdir())
+        try:
+            from win32com.shell import shellcon, shell
+            homedir = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
+        except ImportError:
+            homedir = os.path.expanduser("~")
+        return path(homedir) / "omero" / "tmp"
 
     def username(self):
         """
