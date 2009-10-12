@@ -349,7 +349,7 @@ def writeMovie(commandArgs, session):
 	sizeC = pixels.getSizeC().getValue();
 	sizeT = pixels.getSizeT().getValue();
 
-	if(sizeX==None or sizeY==None or sizeZ==None or sizeT==None or SizeC==None):
+	if(sizeX==None or sizeY==None or sizeZ==None or sizeT==None or sizeC==None):
 		return; 
 
 	if(pixels.getPhysicalSizeX()==None):
