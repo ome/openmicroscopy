@@ -2453,6 +2453,9 @@ public class OMEROMetadataStoreClient
     		LSID pixelsKey = new LSID(Pixels.class, series, 0);
     		LSID imageKey = new LSID(Image.class, series);
     		
+    		Image image = (Image) getSourceObject(imageKey);
+    		image.setArchived(toRType(archive));
+    		
     		// If we have been asked to create a metadata file with all the
     		// metadata dumped out, do so, add it to the collection we're to
     		// return and create an OriginalFile object to hold state on the

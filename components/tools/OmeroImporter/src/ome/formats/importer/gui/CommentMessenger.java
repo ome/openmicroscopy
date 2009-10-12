@@ -167,7 +167,7 @@ public class CommentMessenger extends JDialog implements ActionListener
             else
             {
                 config.email.set(emailText);
-                sendRequest(emailText, commentText, "Extra data goes here.");               
+                sendRequest(emailText, commentText, "");               
             }
             
         }
