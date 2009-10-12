@@ -260,7 +260,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
             self.deactivate()
 
         try:
-            sf = self.ctx.getSession()
+            sf = self.ctx.getSession(recreate = False)
         except:
             self.logger.warn("Can't get session for cleanup")
             return

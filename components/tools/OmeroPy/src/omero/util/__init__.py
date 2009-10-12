@@ -205,7 +205,7 @@ class ServerContext(object):
         return hasattr(self, "session")
 
     @locked
-    def getSession(self, recreate = False):
+    def getSession(self, recreate = True):
         """
         Returns the ServiceFactoryPrx configured for the context if
         available. If the context was not configured for sessions,
