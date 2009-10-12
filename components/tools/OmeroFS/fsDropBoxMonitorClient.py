@@ -472,11 +472,16 @@ class MonitorClientI(monitors.MonitorClient):
         """
         Logins in the given user and returns the client
         """
+        
+        if not self.ctx.hasSession():
+             self.ctx.newSession()
+             
         sf = None
         try:
             sf = self.ctx.getSession()
         except:
-            pass
+            self.log.exception("Failed to get sf \n")
+            
 
         if not sf:
             self.log.error("No connection")
