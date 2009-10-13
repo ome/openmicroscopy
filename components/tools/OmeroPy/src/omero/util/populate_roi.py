@@ -27,8 +27,6 @@ import time
 import sys
 import csv
 import re
-import os
-import tempfile
 from StringIO import StringIO
 from getpass import getpass
 from getopt import getopt, GetoptError
@@ -38,6 +36,7 @@ from omero.rtypes import rdouble, rstring, rint
 from omero.model import OriginalFileI, PlateI, PlateAnnotationLinkI, ImageI, \
                         FileAnnotationI, RoiI, EllipseI, PointI
 from omero.grid import ImageColumn, WellColumn, RoiColumn, LongColumn, DoubleColumn
+from omero.util.temp_files import create_path, remove_path
 from omero import client
 
 # Handle Python 2.5 built-in ElementTree
@@ -85,6 +84,7 @@ class DownloadingOriginalFileProvider(object):
     def __init__(self, service_factory):
         self.service_factory = service_factory
         self.raw_file_store = self.service_factory.createRawFileStore()
+	self.dir = create_path("populate_roi", "dir", folder = True)
 
     def get_original_file_data(self, original_file):
         """
@@ -94,7 +94,7 @@ class DownloadingOriginalFileProvider(object):
         """
         print "Downloading original file: %d" % original_file.id.val
         self.raw_file_store.setFileId(original_file.id.val)
-        temporary_file = tempfile.TemporaryFile(dir=os.getcwd())
+        temporary_file = tempfile.TemporaryFile(dir=str(self.dir))
         size = original_file.size.val
         for i in range((size / self.BUFFER_SIZE) + 1):
             index = i * self.BUFFER_SIZE
