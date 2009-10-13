@@ -33,7 +33,6 @@ import java.util.List;
 import javax.swing.BorderFactory;
 
 //Third-party libraries
-import layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;

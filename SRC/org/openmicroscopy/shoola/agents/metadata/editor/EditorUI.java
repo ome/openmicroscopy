@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Application-internal dependencies
@@ -126,7 +127,7 @@ public class EditorUI
     private JTabbedPane					tabPane;
     
     /** The tab pane hosting the user's information. */
-    private JTabbedPane					userTabbedPane;
+    private JComponent					userTabbedPane;
     
     /** The component currently displayed.. */
     private JComponent					component;
@@ -168,8 +169,11 @@ public class EditorUI
 		defaultPane = new JPanel();
 		defaultPane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		component = defaultPane;
-		userTabbedPane = new JTabbedPane();
-		userTabbedPane.addTab("Profile", null, userUI, "User's details.");
+		userTabbedPane = new JScrollPane(userUI);
+		//userTabbedPane.add(userUI);
+		//userTabbedPane = new JTabbedPane();
+		//userTabbedPane.addTab("Profile", null, new JScrollPane(userUI),
+		//		"User's details.");
 	}
 	
 	/** Builds and lays out the components. */
