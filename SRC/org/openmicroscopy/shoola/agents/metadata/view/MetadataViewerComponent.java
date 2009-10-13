@@ -135,8 +135,13 @@ class MetadataViewerComponent
 		
 		if (parameters == null) return;
 		Object refObject = model.getRefObject();
-		if (!(refObject instanceof ImageData)) return;
-		ImageData img = (ImageData) refObject;
+		ImageData img = null;
+		if (refObject instanceof ImageData)
+			img = (ImageData) refObject;
+		else if (refObject instanceof WellSampleData) {
+			img = ((WellSampleData) refObject).getImage();
+		}
+		if (img == null) return;
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
 		MovieActivityParam activity = new MovieActivityParam(parameters, null,
 				img);

@@ -40,7 +40,6 @@ import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -287,15 +286,21 @@ class ToolBar
     void setControls()
     { 
     	Object refObject = model.getRefObject();
+    	ImageData img = null;
+    	
     	if (refObject instanceof ImageData) {
-    		ImageData img = (ImageData) refObject;
+    		img = (ImageData) refObject;
+    	} else if (refObject instanceof WellSampleData) {
+    		img = ((WellSampleData) refObject).getImage();
+    	}
+    	if (img != null) {
     		PixelsData data = null;
     		try {
     			data = img.getDefaultPixels();
     			createMovieButton.setEnabled(data.getSizeT() > 1 || 
     					data.getSizeZ() > 1);
 			} catch (Exception e) {}
-    	} 
+    	}
     	downloadButton.setEnabled(model.isArchived()); 
     }
     
@@ -384,8 +389,7 @@ class ToolBar
     		} else {
     			flimButton.setEnabled(false);
     		}
-    		//TODO: improve code
-    		if (model.isMultiSelection()) 
+    		if (model.isMultiSelection() && refObject instanceof ImageData) 
     			downloadButton.setEnabled(model.isArchived());
     		imageBar.setVisible(!model.isMultiSelection());
     	} else {

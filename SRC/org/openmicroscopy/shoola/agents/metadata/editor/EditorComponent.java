@@ -681,10 +681,16 @@ class EditorComponent
 	public void exportImageAsOMETIFF(File folder)
 	{
 		Object refObject = model.getRefObject();
-		if (!(refObject instanceof ImageData)) return;
+		ImageData image = null;
+		if (refObject instanceof ImageData)
+			image = (ImageData) refObject;
+		else if (refObject instanceof WellSampleData) {
+			image = ((WellSampleData) refObject).getImage();
+		}
+		if (image == null) return;
 		if (folder == null) folder = UIUtilities.getDefaultFolder();
 		ExportActivityParam param = new ExportActivityParam(folder, 
-				(ImageData) refObject, ExportActivityParam.EXPORT_AS_OME_TIFF);
+				image, ExportActivityParam.EXPORT_AS_OME_TIFF);
 		IconManager icons = IconManager.getInstance();
 		param.setIcon(icons.getIcon(IconManager.EXPORT_22));
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
