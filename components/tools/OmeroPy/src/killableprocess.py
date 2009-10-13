@@ -1,3 +1,7 @@
+#
+# http://svn.smedbergs.us/python-processes/trunk/killableprocess.py
+#
+
 # killableprocess - subprocesses which can be reliably killed
 #
 # Parts of this module are copied from the subprocess.py file contained

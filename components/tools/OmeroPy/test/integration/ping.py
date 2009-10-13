@@ -10,7 +10,7 @@
 """
 
 import test.integration.library as lib
-import tempfile, unittest, os, sys, uuid
+import unittest, os, sys, uuid
 
 import omero
 import omero.clients
@@ -18,6 +18,7 @@ import omero.model
 import omero.api
 import omero_api_IScript_ice
 from omero.rtypes import *
+from omero.util.temp_files import create_path, remove_path
 
 PINGFILE = """
 #!/usr/bin/env python
@@ -97,10 +98,9 @@ class CallbackI(omero.grid.ProcessCallback):
 class TestPing(lib.ITest):
 
     def testUploadAndPing(self):
-        pingfile = tempfile.NamedTemporaryFile(mode='w+t')
-        pingfile.close();
+        pingpath = create_path("pingtest")
         try:
-            name = pingfile.name
+            name = str(pingpath)
             pingfile = open(name, "w")
             pingfile.write(PINGFILE)
             pingfile.flush()
@@ -123,8 +123,7 @@ class TestPing(lib.ITest):
             output = p.getResults(process)
             self.assert_( 1 == output.val["a"].val )
         finally:
-            if os.path.exists(name):
-                os.remove(name)
+            remove_path(pingpath)
 
     def _getProcessor(self):
         scripts = self.root.getSession().getScriptService()
@@ -158,12 +157,12 @@ class TestPing(lib.ITest):
         ofile = rfile.val
         self.assert_( ofile )
 
-        tmpfile = tempfile.NamedTemporaryFile(mode='w+t')
+        tmppath = create_path("pingtest")
         try:
-            self.client.download(ofile, tmpfile.name)
-            self.assert_( os.path.getsize(tmpfile.name) )
+            self.client.download(ofile, str(tmppath))
+            self.assert_( os.path.getsize(str(tmppath)))
         finally:
-            tmpfile.close()
+            remove_path(tmppath)
 
     def assertIO(self, output):
         self._checkstd(output, "stdout")
