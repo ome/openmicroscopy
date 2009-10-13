@@ -354,6 +354,7 @@ public class TestEngine
         postList.add(new StringPart("email", email));
         postList.add(new StringPart("app_name", "5"));
         postList.add(new StringPart("import_session", "test"));
+        postList.add(new StringPart("extra", ""));
         
         try {
             HtmlMessenger messenger = new HtmlMessenger(comment_url, postList);

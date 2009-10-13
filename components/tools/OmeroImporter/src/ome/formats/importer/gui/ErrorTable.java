@@ -115,8 +115,8 @@ public class ErrorTable
                 
         String message = "All errors accumulated during your import are collected here, " +
                 "allowing you to review and send us feedback on the problem. " +
-                "To help us test your files you can also upload them to us by selecting " +
-                "the \"Upload\" checkbox besides each error.";
+                "To help us, you can upload them to us by selecting the \"Upload\" checkbox " +
+                "besides each error.";
 
         
         @SuppressWarnings("unused")
