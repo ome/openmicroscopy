@@ -27,6 +27,8 @@ import time
 import sys
 import csv
 import re
+import os
+import tempfile
 from StringIO import StringIO
 from getpass import getpass
 from getopt import getopt, GetoptError
@@ -92,7 +94,7 @@ class DownloadingOriginalFileProvider(object):
         """
         print "Downloading original file: %d" % original_file.id.val
         self.raw_file_store.setFileId(original_file.id.val)
-        temporary_file = TemporaryFile()
+        temporary_file = tempfile.TemporaryFile(dir=os.getcwd())
         size = original_file.size.val
         for i in range((size / self.BUFFER_SIZE) + 1):
             index = i * self.BUFFER_SIZE
