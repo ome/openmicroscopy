@@ -93,8 +93,11 @@ class HdfList(object):
 
     @locked
     def remove(self, hdfpath, hdffile):
-        del self.__filenos[hdffile.fileno()]
-        del self.__paths[hdfpath]
+        try:
+            del self.__filenos[hdffile.fileno()]
+            del self.__paths[hdfpath]
+        finally:
+            hdffile.close()
 
 # Global object for maintaining files
 HDFLIST = HdfList()
@@ -303,7 +306,7 @@ class HdfStorage(object):
     def slice(self, stamp, colNumbers, rowNumbers, current):
         self.__initcheck()
         if rowNumbers is None or len(rowNumbers) == 0:
-	    rows = self.__mea.read()
+            rows = self.__mea.read()
         else:
             rows = self.__mea.readCoordinates(rowNumbers)
         cols = self.cols(None, current)
@@ -331,7 +334,7 @@ class HdfStorage(object):
         if self.__ome:
             self.__ome = None
         if self.__hdf_file:
-            HDFLIST.remove(self.__hdf_path, self.__hdf_file)
+            HDFLIST.remove(self.__hdf_path, self.__hdf_file) # closes.
         self.__hdffile = None
 
 # End class HdfStorage
@@ -377,9 +380,9 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     def close(self, current = None):
         try:
             self.cleanup()
-            self.log.info("Closed %s", self)
+            self.logger.info("Closed %s", self)
         except:
-            self.log.warn("Closed %s with errors", self)
+            self.logger.warn("Closed %s with errors", self)
 
     # TABLES READ API ============================
 
