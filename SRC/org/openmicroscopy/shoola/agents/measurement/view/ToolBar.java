@@ -230,17 +230,7 @@ class ToolBar
 		if (component instanceof JToggleButton)
 			setUpToggleButton((JToggleButton) component);
 		
-		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, connectionTool, 
-	    			CREATE_KEY+FigureUtil.LINE_CONNECTION_TYPE);
-		 component = toolBar.getComponent(
-			toolBar.getComponentCount()-1);
-		 if (component instanceof JToggleButton)
-		 {
-			 JToggleButton button = (JToggleButton) component;
-			 button.setToolTipText("Connector");
-			 setUpToggleButton(button);	
-		 }
-		 DrawingToolBarButtonFactory.addToolTo(toolBar, editor, polylineTool, 
+		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, polylineTool, 
 				  CREATE_KEY+FigureUtil.SCRIBBLE_TYPE);
 		 component = toolBar.getComponent(toolBar.getComponentCount()-1);
 		if (component instanceof JToggleButton)
@@ -256,6 +246,17 @@ class ToolBar
 		component = toolBar.getComponent(toolBar.getComponentCount()-1);
 		if (component instanceof JToggleButton)
 			setUpToggleButton((JToggleButton) component);
+		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, connectionTool, 
+    			CREATE_KEY+FigureUtil.LINE_CONNECTION_TYPE);
+		component = toolBar.getComponent(
+		toolBar.getComponentCount()-1);
+		if (component instanceof JToggleButton)
+		{
+			JToggleButton button = (JToggleButton) component;
+			button.setToolTipText("Connector");
+			setUpToggleButton(button);	
+		}
+
 	}
 	
 	/**
