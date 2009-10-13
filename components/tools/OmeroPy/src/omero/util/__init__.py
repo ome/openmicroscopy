@@ -366,7 +366,7 @@ class SimpleServant(object):
         self.stop_event = ctx.stop_event
         self.communicator = ctx.communicator
         self.logger = logging.getLogger(make_logname(self))
-        self.logger.info("Initialized")
+        self.logger.debug("Created")
 
 class Servant(SimpleServant):
     """

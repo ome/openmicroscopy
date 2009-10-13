@@ -342,12 +342,13 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     Spreadsheet implementation based on pytables.
     """
 
-    def __init__(self, ctx, file_obj, storage):
+    def __init__(self, ctx, file_obj, storage, uuid = "unknown"):
         omero.util.SimpleServant.__init__(self, ctx)
         self.file_obj = file_obj
         self.storage = storage
         self.storage.incr(self)
         self.stamp = time.time()
+        self.uuid = uuid
 
     def check(self):
         """
@@ -369,15 +370,16 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
                 self.storage = None
 
     def __str__(self):
-        if hasattr(self, "uuid"):
-            return "Table-%s" % self.uuid
-        else:
-            return "Table-uninitialized"
+        return "Table-%s" % self.uuid
 
     @remoted
     @perf
     def close(self, current = None):
-        self.cleanup()
+        try:
+            self.cleanup()
+            self.log.info("Closed %s", self)
+        except:
+            self.log.warn("Closed %s with errors", self)
 
     # TABLES READ API ============================
 
@@ -426,6 +428,8 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @perf
     def initialize(self, cols, current = None):
         self.storage.initialize(cols)
+        if cols:
+            self.logger.info("Initialized %s with %s cols", self, len(cols))
 
     @remoted
     @perf
@@ -436,6 +440,8 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @perf
     def addData(self, cols, current = None):
         self.storage.append(cols)
+        if cols and cols[0].values:
+            self.logger.info("Added %s rows of data to %s", len(cols[0].values), self)
 
 
 class TablesI(omero.grid.Tables, omero.util.Servant):
@@ -543,8 +549,10 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
             p.makedirs()
 
         storage = HDFLIST.getOrCreate(file_path)
-        table = TableI(self.ctx, file_obj, storage)
+        id = Ice.Identity()
+        id.name = Ice.generateUUID()
+        table = TableI(self.ctx, file_obj, storage, uuid = id.name)
         self.resources.add(table)
 
-        prx = current.adapter.addWithUUID(table)
+        prx = current.adapter.add(table, id)
         return self._table_cast(prx)

@@ -49,6 +49,8 @@ class mock_adapter(object):
         self.ic = communicator
     def addWithUUID(self, arg):
         return arg
+    def add(self, arg, id):
+        return arg
     def getCommunicator(self):
         return self.ic
 
