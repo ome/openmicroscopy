@@ -2424,9 +2424,9 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * Populates archive flags on all images currently processed. This method
-     * should only be called <b>after</b> a full Bio-Formats metadata parsing
-     * cycle. 
+     * Populates archive flags on all images currently processed links
+     * relevant original metadata files as requested and performs graph logic
+     * to have the scafolding in place for later original file upload.
      * @param archive Whether or not the user requested the original files to
      * be archived.
      * @param useMetadataFile Whether or not to dump all metadata to a flat
@@ -2452,8 +2452,14 @@ public class OMEROMetadataStoreClient
     		formatString = formatString.replace("Reader", "");
     		LSID pixelsKey = new LSID(Pixels.class, series, 0);
     		LSID imageKey = new LSID(Image.class, series);
-    		
-    		Image image = (Image) getSourceObject(imageKey);
+    		LinkedHashMap<String, Integer> imageIndexes =
+    			new LinkedHashMap<String, Integer>();
+    		imageIndexes.put("imageIndex", series);
+
+    		// Populate the archived flag on the image. This inadvertently
+    		// ensures that an Image object (and corresponding container)
+    		// exists.
+    		Image image = getSourceObject(Image.class, imageIndexes);
     		image.setArchived(toRType(archive));
     		
     		// If we have been asked to create a metadata file with all the
