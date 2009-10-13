@@ -1672,6 +1672,7 @@ public class EditorUtil
         	notSet.add(ZOOM);
         	notSet.add(AMPLIFICATION);
         	notSet.add(TYPE);
+        	notSet.add(OFFSET);
         	details.put(NOT_SET, notSet);
         	return details;
         }

@@ -168,59 +168,58 @@ class DetectorComponent
 		boolean set;
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
-            key = (String) entry.getKey();
-            set = !notSet.contains(key);
-            value = entry.getValue();
-           
-            label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
-            label.setBackground(UIUtilities.BACKGROUND_COLOR);
-            if (EditorUtil.BINNING.equals(key)) {
-            	selected = model.getChannelEnumerationSelected(Editor.BINNING, 
-            			(String) value);
-            	if (selected != null) binningBox.setSelectedItem(selected);
-            	else {
-            		set = false;
-            		binningBox.setSelectedIndex(binningBox.getItemCount()-1);
-            		notSet.add(key);
-            	}
-            	binningBox.setEditedColor(UIUtilities.EDITED_COLOR);
-            	area = binningBox;//parent.replaceCombobox(binningBox);
-            } else if (EditorUtil.TYPE.equals(key)) {
-            	selected = model.getChannelEnumerationSelected(
-            			Editor.DETECTOR_TYPE, (String) value);
-            	if (selected != null) {
-            		detectorBox.setSelectedItem(selected);
-            	} else {
-            		set = false;
-            		notSet.add(key);
-            		detectorBox.setSelectedIndex(detectorBox.getItemCount()-1);
-            	}
-            	detectorBox.setEditedColor(UIUtilities.EDITED_COLOR);
-            	area = detectorBox;//parent.replaceCombobox(detectorBox);
-            } else if (value instanceof Number) {
-            	area = UIUtilities.createComponent(NumericalTextField.class, 
-            			null);
-            	if (value instanceof Double) 
-            		((NumericalTextField) area).setNumberType(Double.class);
-            	else if (value instanceof Float) 
-            		((NumericalTextField) area).setNumberType(Float.class);
-            	((NumericalTextField) area).setText(""+value);
-            	((NumericalTextField) area).setEditedColor(
-            			UIUtilities.EDITED_COLOR);
-            } else {
-            	area = UIUtilities.createComponent(OMETextArea.class, null);
-            	if (value == null || value.equals("")) 
-                	value = AnnotationUI.DEFAULT_TEXT;
-            	 ((OMETextArea) area).setEditable(false);
-            	 ((OMETextArea) area).setText((String) value);
-            	 ((OMETextArea) area).setEditedColor(UIUtilities.EDITED_COLOR);
-            }
-            area.setEnabled(!set);
-            comp = new DataComponent(label, area);
-            comp.setEnabled(false);
+			key = (String) entry.getKey();
+			set = !notSet.contains(key);
+			value = entry.getValue();
+			label = UIUtilities.setTextFont(key, Font.BOLD, sizeLabel);
+			label.setBackground(UIUtilities.BACKGROUND_COLOR);
+			if (EditorUtil.BINNING.equals(key)) {
+				selected = model.getChannelEnumerationSelected(Editor.BINNING, 
+						(String) value);
+				if (selected != null) binningBox.setSelectedItem(selected);
+				else {
+					set = false;
+					binningBox.setSelectedIndex(binningBox.getItemCount()-1);
+					notSet.add(key);
+				}
+				binningBox.setEditedColor(UIUtilities.EDITED_COLOR);
+				area = binningBox;//parent.replaceCombobox(binningBox);
+			} else if (EditorUtil.TYPE.equals(key)) {
+				selected = model.getChannelEnumerationSelected(
+						Editor.DETECTOR_TYPE, (String) value);
+				if (selected != null) {
+					detectorBox.setSelectedItem(selected);
+				} else {
+					set = false;
+					notSet.add(key);
+					detectorBox.setSelectedIndex(detectorBox.getItemCount()-1);
+				}
+				detectorBox.setEditedColor(UIUtilities.EDITED_COLOR);
+				area = detectorBox;//parent.replaceCombobox(detectorBox);
+			} else if (value instanceof Number) {
+				area = UIUtilities.createComponent(NumericalTextField.class, 
+						null);
+				if (value instanceof Double) 
+					((NumericalTextField) area).setNumberType(Double.class);
+				else if (value instanceof Float) 
+					((NumericalTextField) area).setNumberType(Float.class);
+				((NumericalTextField) area).setText(""+value);
+				((NumericalTextField) area).setEditedColor(
+						UIUtilities.EDITED_COLOR);
+			} else {
+				area = UIUtilities.createComponent(OMETextArea.class, null);
+				if (value == null || value.equals("")) 
+					value = AnnotationUI.DEFAULT_TEXT;
+				((OMETextArea) area).setEditable(false);
+				((OMETextArea) area).setText((String) value);
+				((OMETextArea) area).setEditedColor(UIUtilities.EDITED_COLOR);
+			}
+			area.setEnabled(!set);
+			comp = new DataComponent(label, area);
+			comp.setEnabled(false);
 			comp.setSetField(!notSet.contains(key));
 			fieldsDetector.put(key, comp);
-        }
+		}
 	}
 	
 	/** Builds and lays out the UI. */

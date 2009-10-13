@@ -154,7 +154,7 @@ class DocComponent
 	
 	/** 
 	 * Index indicating that the attachment is an image that
-	 * can be displayed as a thumbnail e.g. Tiff, jpeg, png etc.
+	 * can be displayed as a thumbnail e.g. TIFF, JPEG, PNG, etc.
 	 */
 	private int 		imageToLoad;
 	
@@ -168,8 +168,6 @@ class DocComponent
 	private void openFile()
 	{
 		if (!(data instanceof FileAnnotationData)) return;
-		FileAnnotationData fa = (FileAnnotationData) data;
-		String ns = fa.getNameSpace();
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
 		bus.post(new EditFileEvent((FileAnnotationData) data));
 	}

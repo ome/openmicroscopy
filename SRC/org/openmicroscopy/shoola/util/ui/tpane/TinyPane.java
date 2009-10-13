@@ -411,7 +411,7 @@ public class TinyPane
     /**
      * Sets the highlight mode of this frame.
      * If a color is specified, then the title bar will be highlighted using
-     * that color.  If you pass <code>null</code>, then the title bar will
+     * that color. If you pass <code>null</code>, then the title bar will
      * be painted in the normal background.
      * 
      * @param highlight A color for highlighting or <code>null</code> to
@@ -445,29 +445,30 @@ public class TinyPane
     }
 
     /**
-     * Tells if this frame is in sinlge or multi-view mode
+     * Tells if this frame is in single or multiple-view mode
      * 
      * @return <code>true</code> for single-view mode, <code>false</code> for
-     *         multi-view mode.
+     *         multiple-view mode.
      * @see #setSingleViewMode(boolean)
      */
     public boolean isSingleViewMode() { return model.isSingleViewMode(); }
     
     /**
      * Sets the view mode of this frame.
-     * Two modes are possible: single-view and multi-view.  In the single-view
+     * Two modes are possible: single-view and multiple-view. In the single-view
      * mode, only one of the components in the internal desktop is shown at a
-     * time.  The user can choose which one from a drop-down menu triggred by
-     * a button in the title bar.  In the multi-view mode (the default) all of
+     * time.  The user can choose which one from a drop-down menu triggered by
+     * a button in the title bar. In the multiple-view mode (the default) all of
      * the components are shown in the internal desktop.  (However, you're 
      * required to lay them out manually.)  Note that by default the frame is
-     * in multi-view mode and the only title bar that has controls for managing
-     * the single-view mode is the {@link #FULL_BAR}.  So you shouldn't set the
-     * single-view mode unless the frame is fitted with a {@link #FULL_BAR}. 
+     * in multiple-view mode and the only title bar that has controls for 
+     * managing the single-view mode is the {@link #FULL_BAR}. 
+     * So you shouldn't set the single-view mode unless the frame is fitted
+     * with a {@link #FULL_BAR}. 
      *  
      * @param singleViewMode <code>true</code> to switch to the single-view
      *                       mode, <code>false</code> to return to the default
-     *                       multi-view mode.
+     *                       multiple-view mode.
      */
     public void setSingleViewMode(boolean singleViewMode)
     {
@@ -558,7 +559,8 @@ public class TinyPane
     }
     
     /**
-     * Returns the resizable state.
+     * Returns <code>true</code> if the component can be resized, 
+     * <code>false</code> otherwise.
      * 
      * @return See above.
      */
@@ -683,4 +685,14 @@ public class TinyPane
      */
     public String toString() { return getTitle(); }
     
+    /**
+     * Overridden to set the text to display in the tool tip of the
+     * title bar.
+     * @see JPanel#setToolTipText(String)
+     */
+    public void setToolTipText(String text)
+    {
+    	super.setToolTipText(text);
+    	uiDelegate.getTitleBar().setToolTipText(text);
+    }
 }

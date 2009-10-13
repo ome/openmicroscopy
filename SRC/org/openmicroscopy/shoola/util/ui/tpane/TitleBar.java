@@ -69,7 +69,7 @@ class TitleBar
     
     /** 
      * Paints the background when the frame is not highlighted.
-     * It's stateless, so we share it.
+     * It's state-less, so we share it.
      */
     private static final Painter NORMAL_PAINTER = new BgPainter();
     
@@ -150,7 +150,7 @@ class TitleBar
     private void detachAll()
     {
         TinyObserver[] comp = new TinyObserver[] 
-                                              {sizeButton, closeButton, title};
+                                               {sizeButton, closeButton, title};
         for (int i = 0; i < comp.length; ++i)
             if (comp[i] != null) {
                 comp[i].detach();

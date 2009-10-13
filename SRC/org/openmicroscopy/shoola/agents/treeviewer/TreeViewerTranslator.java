@@ -115,10 +115,17 @@ public class TreeViewerTranslator
         String title = null;
         Object uo = node.getUserObject();
         if (uo instanceof ImageData) {
-            Timestamp time = EditorUtil.getAcquisitionTime((ImageData) uo);
+        	ImageData img = (ImageData) uo;
+            Timestamp time = EditorUtil.getAcquisitionTime(img);
             if (time == null) title = EditorUtil.DATE_NOT_AVAILABLE;
             else title = UIUtilities.formatTime(time); 
-            toolTip = UIUtilities.formatToolTipText(title);
+            StringBuffer buf = new StringBuffer();
+    		buf.append("<html><body>");
+    		buf.append(UIUtilities.formatString(img.getName(), -1));
+    		buf.append("<br>");
+    		buf.append(title);
+            toolTip = UIUtilities.formatToolTipText(buf.toString());
+            
             node.setToolTip(toolTip); 
         } else if (uo instanceof WellData) {
         	toolTip = UIUtilities.formatToolTipText(

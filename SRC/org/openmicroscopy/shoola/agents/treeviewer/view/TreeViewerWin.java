@@ -190,8 +190,7 @@ class TreeViewerWin
             
             browser = (Browser) browsers.get(Browser.IMAGES_EXPLORER);
             container.add(new TaskPaneBrowser(browser));
-            
-            browsersDisplay = container;
+            browsersDisplay = new JScrollPane(container);
     		
     	} else {
     		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 

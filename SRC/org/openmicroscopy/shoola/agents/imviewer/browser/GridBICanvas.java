@@ -126,8 +126,8 @@ class GridBICanvas
                     		name = channel.getName();
                     		textWidth = fm.stringWidth(name)+4;
                     		if (textWidth < w) {
-                    			g2D.setColor(BACKGROUND);
-                            	g2D.fillRect(x, y, textWidth, 3*height/2);
+                    			//g2D.setColor(BACKGROUND);
+                            	//g2D.fillRect(x, y, textWidth, 3*height/2);
                             	g2D.setColor(getBackground());
                                 g2D.drawString(name, x+2, y+height);
                     		}
@@ -168,8 +168,8 @@ class GridBICanvas
             		name = combined.getName();
             		textWidth = fm.stringWidth(name)+4;
             		if (textWidth < w) {
-            			g2D.setColor(BACKGROUND);
-                    	g2D.fillRect(x, y, textWidth, 3*height/2);
+            			//g2D.setColor(BACKGROUND);
+                    	//g2D.fillRect(x, y, textWidth, 3*height/2);
                     	g2D.setColor(getBackground());
                         g2D.drawString(name, x+2, y+height);
             		}

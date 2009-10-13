@@ -147,7 +147,7 @@ public abstract class TreeImageDisplay
     /** Indicates to display a truncated name. */
     private boolean						partialName;
 
-    /** Flag indicating if the node is selectable. */
+    /** Flag indicating if the node can be selected. */
     protected boolean					selectable;
     
     /** The number of items. */
@@ -255,7 +255,7 @@ public abstract class TreeImageDisplay
      */
     public boolean hasChildrenDisplay()
     { 
-        return (childrenDisplay.size() != 0);
+    	return (childrenDisplay.size() != 0);
     }
     
     /**
@@ -401,7 +401,7 @@ public abstract class TreeImageDisplay
     public String getToolTip() { return tooltip; }
     
     /**
-     * Returns <code>true</code> if the node is selectable,
+     * Returns <code>true</code> if the node can be selected,
      * <code>false</code> otherwise.
      * 
      * @return See above.
@@ -409,7 +409,7 @@ public abstract class TreeImageDisplay
     public boolean isSelectable() { return selectable; }
     
     /**
-     * Returns <code>true</code> if the node is selectable,
+     * Returns <code>true</code> if the node can be selected,
      * <code>false</code> otherwise.
      * 
      * @param selectable The value to set.
@@ -642,7 +642,7 @@ public abstract class TreeImageDisplay
     public abstract boolean isChildrenLoaded();
     
     /**
-     * Indicates if the children were requested for this node.
+     * Indicates that the children were requested for this node or not.
      * 
      * @param childrenLoaded    The value to set.
      */

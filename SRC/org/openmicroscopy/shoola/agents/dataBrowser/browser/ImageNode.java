@@ -30,6 +30,8 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.Date;
 
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -125,8 +127,15 @@ public class ImageNode
         super(title, "", hierarchyObject);
         //Probably cleaner to use a visitor but for performance reason better
         //that way.
+        StringBuffer buf = new StringBuffer();
+		buf.append("<html><body>");
+		buf.append(UIUtilities.formatString(title, -1));
+		buf.append("<br>");
+		buf.append(getFormattedAcquisitionTime());
+		
         setTitle(getPartialName(title+LEFT+getFormattedAcquisitionTime()+
         						RIGHT));
+        setToolTipText(buf.toString());
         setNodeDecoration();
         //if (t == null) throw new NullPointerException("No thumbnail.");
         thumbnail = t;
@@ -135,7 +144,7 @@ public class ImageNode
             getInternalDesktop().add(canvas, Integer.valueOf(0));
             setCanvasSize(t.getWidth(), t.getHeight());
             //setCanvasToolTip(getNodeName());
-            setCanvasToolTip(getTitle());
+            setCanvasToolTip(getToolTipText());
         }
         setTitleBarType(titleBar);
     }

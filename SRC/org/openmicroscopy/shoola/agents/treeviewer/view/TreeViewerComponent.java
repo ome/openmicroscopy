@@ -802,8 +802,8 @@ class TreeViewerComponent
 			}
 		}
 		browser = model.getSelectedBrowser();
-		browser.refreshEdition(data, parent, operation);
-		
+		//browser.refreshEdition(data, parent, operation);
+		browser.refreshTree();
 		if (operation == REMOVE_OBJECT || operation == CREATE_OBJECT) {
 			
 			DataBrowserFactory.discardAll();

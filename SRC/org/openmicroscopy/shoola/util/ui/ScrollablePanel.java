@@ -123,7 +123,6 @@ public class ScrollablePanel
 
 	/**
 	 * Implemented as required by the {@link Scrollable} interface.
-	 * Returns <code>false</code>.
 	 * @see Scrollable#getScrollableTracksViewportHeight()
 	 */
 	public boolean getScrollableTracksViewportHeight()

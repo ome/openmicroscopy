@@ -441,8 +441,6 @@ class DataBrowserToolBar
 				"the displayed images.");
 		UIUtilities.unifiedButtonLookAndFeel(createDatasetButton);
 		createDatasetButton.setIcon(icons.getIcon(IconManager.DATASET));
-		//createDatasetButton.addActionListener(this);
-		//createDatasetButton.setActionCommand(""+NEW_OBJECT);
 		createDatasetButton.addMouseListener(new MouseAdapter() {
 			
 			/**

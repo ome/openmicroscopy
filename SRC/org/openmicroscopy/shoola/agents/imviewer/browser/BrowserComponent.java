@@ -214,6 +214,12 @@ class BrowserComponent
 	            throw new IllegalArgumentException("The zoom factor is value " +
 	                    "between "+ZoomAction.MIN_ZOOM_FACTOR+" and "+
 	                    ZoomAction.MAX_ZOOM_FACTOR);
+	        model.setZoomFactor(factor);
+    		if (!reset) {
+    			if (index == ImViewer.VIEW_INDEX) view.zoomImage();  
+    			else if (index == ImViewer.PROJECTION_INDEX)
+    				projectionView.zoomImage();
+    		}
     	} else {
     		if (ImViewerAgent.hasOpenGLSupport()) {
     			TextureData img = null;

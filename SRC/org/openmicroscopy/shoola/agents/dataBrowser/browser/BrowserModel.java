@@ -602,6 +602,11 @@ class BrowserModel
 		List<ImageDisplay> found = finder.getFoundNodes();
 		//to reset color if parent is selected.
 		setNodesColor(found, getSelectedDisplays());
+		if (found.size() == 0) {
+			setSelectedDisplay(null, false, false);
+			return;
+		}
+		
 		boolean b = found.size() > 1;
 		Iterator<ImageDisplay> i = found.iterator();
 		while (i.hasNext()) 

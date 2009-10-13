@@ -130,7 +130,7 @@ public class DataBrowserTranslator
     	if (id >= 0) name = is.getName();
         ThumbnailProvider provider = new ThumbnailProvider(is);
         ImageNode node = new ImageNode(name, is, provider);
-        formatToolTipFor(node);  
+        //formatToolTipFor(node);  
         provider.setImageNode(node);
         if (parent != null) parent.addChildDisplay(node);
         return node;

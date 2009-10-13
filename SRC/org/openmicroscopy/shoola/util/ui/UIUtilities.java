@@ -102,6 +102,9 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 public class UIUtilities
 {
 
+	/** The maximum number of characters in a line for the tool tip. */
+	public static final int					MAX_CHARACTER = 40;
+	
 	/** A light grey colour for line borders etc. */
 	public static final Color 				LIGHT_GREY = 
 												new Color(200, 200, 200);
@@ -1606,4 +1609,29 @@ public class UIUtilities
     	}
     	return null;
 	}
+	
+	/**
+	 * Formats the passed string.
+	 * 
+	 * @param name The string to format.
+	 * @param max  The maximum number of characters per line.
+	 * @return See above.
+	 */
+	public static final String formatString(String name, int max) 
+	{
+		if (name == null) return "";
+		if (max <= 0) max = MAX_CHARACTER;
+		StringBuffer buf = new StringBuffer();
+		int index = 0;
+		for (int i = 0; i < name.length(); i++) {
+			if (index == max) {
+				index = 0;
+				buf.append("<br>");
+			}
+			buf.append(name.charAt(i));
+			index++;
+		}
+		return buf.toString();
+	}
+	
 }
