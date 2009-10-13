@@ -358,7 +358,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     }
     
     protected void onException(Exception e) {
-        
+        notifyObservers(new ImportEvent.ERRORS_FAILED());
     }
     
     protected void finishCancelled() {

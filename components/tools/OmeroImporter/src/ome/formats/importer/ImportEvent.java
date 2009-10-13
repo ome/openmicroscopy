@@ -100,6 +100,10 @@ public class ImportEvent {
 
     }
 
+    public static class ERRORS_FAILED extends ImportEvent {
+
+    }
+    
     public static class ERRORS_UPLOAD_CANCELLED extends ImportEvent {
 
     }

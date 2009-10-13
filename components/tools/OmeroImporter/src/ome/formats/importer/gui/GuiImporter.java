@@ -768,6 +768,11 @@ WindowStateListener, WindowFocusListener
             tPane.setIconAt(4, gui.getImageIcon(ERROR_ICON));
         }
 
+        else if (event instanceof ImportEvent.ERRORS_FAILED)
+        {
+            sendingErrorsFailed(this);
+        }
+        
         else if (event instanceof ImportEvent.IMPORT_QUEUE_DONE && errors_pending == true)
         {
             errors_pending = false;
@@ -791,10 +796,7 @@ WindowStateListener, WindowFocusListener
                         if (errorDialog.isVisible() 
                                 && (e.getSource() == optionPane)
                                 && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
-                            //If you were going to check something
-                            //before closing the window, you'd do
-                            //it here.
-                            errorDialog.setVisible(false);
+                            errorDialog.dispose();
                         }
                     }
                 });
@@ -821,10 +823,7 @@ WindowStateListener, WindowFocusListener
                         if (errorDialog.isVisible() 
                                 && (e.getSource() == optionPane)
                                 && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
-                            //If you were going to check something
-                            //before closing the window, you'd do
-                            //it here.
-                            errorDialog.setVisible(false);
+                            errorDialog.dispose();
                         }
                     }
                 });
@@ -835,6 +834,32 @@ WindowStateListener, WindowFocusListener
         errorDialog.setVisible(true);
     }
 
+    public void sendingErrorsFailed(Component frame)
+    {
+        final JOptionPane optionPane = new JOptionPane("\nDue to an error we were not able to send your error messages." +
+        		"\nto our feedback server. Please try again.", JOptionPane.WARNING_MESSAGE);
+        final JDialog failedDialog = new JDialog(this, "Feedback Failed!", true);
+        failedDialog.setContentPane(optionPane);
+
+        optionPane.addPropertyChangeListener(
+                new PropertyChangeListener() {
+                    public void propertyChange(PropertyChangeEvent e) {
+                        String prop = e.getPropertyName();
+
+                        if (failedDialog.isVisible() 
+                                && (e.getSource() == optionPane)
+                                && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                            failedDialog.dispose();
+                        }
+                    }
+                });
+
+        failedDialog.toFront();
+        failedDialog.pack();
+        failedDialog.setLocationRelativeTo(frame);
+        failedDialog.setVisible(true);
+    }
+    
     public void propertyChange(PropertyChangeEvent evt)
     {
         String name = evt.getPropertyName();
