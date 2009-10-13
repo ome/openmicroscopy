@@ -33,6 +33,14 @@ from omero_ext.functional import wraps
 sys = __import__("sys") # Python sys
 tables = __import__("tables") # Pytables
 
+def slen(rv):
+    """
+    Returns the length of the argument or None
+    if the argument is None
+    """
+    if rv is None:
+        return None
+    return len(rv)
 
 def stamped(func, update = False):
     """
@@ -393,22 +401,29 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @remoted
     @perf
     def getOriginalFile(self, current = None):
+        self.logger.info("%s.getOriginalFile() => %s", self, self.file_obj)
         return self.file_obj
 
     @remoted
     @perf
     def getHeaders(self, current = None):
-        return self.storage.cols(None, current)
+        rv = self.storage.cols(None, current)
+        self.logger.info("%s.getHeaders() => size=%s", self, slen(rv))
+        return rv
 
     @remoted
     @perf
     def getMetadata(self, current = None):
-        return self.storage.meta()
+        rv = self.storage.meta()
+        self.logger.info("%s.getMetadata() => size=%s", self, slen(rv))
+        return rv
 
     @remoted
     @perf
     def getNumberOfRows(self, current = None):
-        return self.storage.rows()
+        rv = self.storage.rows()
+        self.logger.info("%s.getNumberOfRows() => %s", self, rv)
+        return long(rv)
 
     @remoted
     @perf
@@ -417,16 +432,20 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
             stop = None
         if step == 0:
             step = None
-        return self.storage.getWhereList(self.stamp, condition, variables, None, start, stop, step)
+        rv = self.storage.getWhereList(self.stamp, condition, variables, None, start, stop, step)
+        self.logger.info("%s.getWhereList(%s, %s, %s, %s, %s) => size=%s", self, condition, variables, start, stop, step, slen(rv))
+        return rv
 
     @remoted
     @perf
     def readCoordinates(self, rowNumbers, current = None):
-        return self.storage.readCoordinates(self.stamp, rowNumbers, current)
+        self.logger.info("%s.readCoordinates(size=%s)", self, slen(rowNumbers))
+        self.storage.readCoordinates(self.stamp, rowNumbers, current)
 
     @remoted
     @perf
     def slice(self, colNumbers, rowNumbers, current = None):
+        self.logger.info("%s.slice(size=%s, size=%s)", self, slen(colNumbers), slen(rowNumbers))
         return self.storage.slice(self.stamp, colNumbers, rowNumbers, current)
 
     # TABLES WRITE API ===========================
@@ -436,7 +455,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     def initialize(self, cols, current = None):
         self.storage.initialize(cols)
         if cols:
-            self.logger.info("Initialized %s with %s cols", self, len(cols))
+            self.logger.info("Initialized %s with %s cols", self, slen(cols))
 
     @remoted
     @perf
@@ -448,7 +467,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     def addData(self, cols, current = None):
         self.storage.append(cols)
         if cols and cols[0].values:
-            self.logger.info("Added %s rows of data to %s", len(cols[0].values), self)
+            self.logger.info("Added %s rows of data to %s", slen(cols[0].values), self)
 
 
 class TablesI(omero.grid.Tables, omero.util.Servant):
