@@ -329,7 +329,7 @@
        <parameter name="instance-name" default="${application}.Glacier2"/>
        <parameter name="client-endpoints"/>
        <parameter name="server-endpoints"/>
-       <parameter name="session-timeout" default="0"/>
+       <parameter name="session-timeout" default="600"/><!-- 10 min -->
        <server id="${instance-name}" exe="glacier2router" activation="always">
          <properties>
            <properties refid="Basics"/>

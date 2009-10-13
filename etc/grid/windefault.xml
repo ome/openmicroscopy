@@ -37,7 +37,6 @@
     <node name="master">
       <server-instance template="Glacier2Template"
         client-endpoints="tcp -p ${ROUTERPORT}"
-        session-timeout="300"
         server-endpoints="tcp -h 127.0.0.1"/>
       <server-instance template="WinBlitzTemplate" index="0" config="default"/>
       <server-instance template="WinIndexerTemplate" index="0"/>
