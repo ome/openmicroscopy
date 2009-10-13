@@ -63,8 +63,8 @@
        <!-- These duplicate info that could be got from elsewhere -->
        <!-- They should ultimately be removed from here. -->
        <property name="omero.fs.host"  value="localhost"/>
-       <property name="omero.fs.port"  value="4063"/>
        <!-- general -->
+       <property name="omero.fs.port"  value="${ROUTERPORT}"/>
        <property name="omero.fs.maxRetries"  value="5"/>
        <property name="omero.fs.retryInterval"  value="3"/>
        <property name="omero.fs.defaultDropBoxDir"  value="DropBox"/>
