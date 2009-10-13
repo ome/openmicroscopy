@@ -38,21 +38,21 @@ import Ice.Current;
  * functionality to provide access to blitz (as opposed to also using Spring)
  * and should be in sync with the OmeroPy omero.client class as well as the
  * OmeroCpp omero::client class.
- * 
+ *
  * In order to more closely map the destructors in Python and C++, this class
  * keeps a {@link #CLIENTS collection} of {@link omero.client} instances, which
  * are destroyed on program termination.
- * 
+ *
  * Typical usage: <code>
  *   omero.client client = new omero.client();           // Uses ICE_CONFIG
  *   omero.client client = new omero.client(host);       // Defines "omero.host"
  *   omero.client client = new omero.client(host, port); // Defines "omero.host" and "omero.port"
  *</code>
- * 
+ *
  * More more information, see <a
  * href="https://trac.openmicroscopy.org.uk/omero/wiki/ClientDesign">
  * https://trac.openmicroscopy.org.uk/omero/wiki/ClientDesign </a>
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
@@ -238,6 +238,8 @@ public class client {
 
         // Strictly necessary for this class to work
         id.properties.setProperty("Ice.ImplicitContext", "Shared");
+        id.properties.setProperty("Ice.ACM.Client", "0");
+        id.properties.setProperty("Ice.RetryIntervals", "-1");
 
         // Setting MessageSizeMax
         String messageSize = id.properties.getProperty("Ice.MessageSizeMax");

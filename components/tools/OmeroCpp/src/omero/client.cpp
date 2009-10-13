@@ -31,6 +31,8 @@ namespace omero {
 
 	// Strictly necessary for this class to work
 	id.properties->setProperty("Ice.ImplicitContext", "Shared");
+        id.properties->setProperty("Ice.ACM.Client", "0");
+        id.properties->setProperty("Ice.RetryIntervals", "-1");
 
 	// C++ only
 	std::string gcInterval = id.properties->getProperty("Ice.GC.Interval");
