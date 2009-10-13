@@ -177,6 +177,7 @@ class TreeViewerWin
     	if (getLayoutType().equals("JXTaskPane")) {
     		JXTaskPaneContainerSingle 
     			container = new JXTaskPaneContainerSingle();
+    		container.addPropertyChangeListener(controller);
             browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
             JXTaskPane pane = new TaskPaneBrowser(browser);
             pane.setCollapsed(false);
