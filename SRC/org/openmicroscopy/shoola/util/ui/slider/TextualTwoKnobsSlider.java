@@ -33,6 +33,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.JComponent;
@@ -67,7 +69,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class TextualTwoKnobsSlider 
 	extends JPanel
 	implements ActionListener, DocumentListener, FocusListener, 
-	PropertyChangeListener
+	PropertyChangeListener, KeyListener
 {
 
 	/** Indicates to layout all the components. */
@@ -154,6 +156,7 @@ public class TextualTwoKnobsSlider
 		field.setActionCommand(""+id);  
         field.addActionListener(this);
         field.addFocusListener(this);
+        field.addKeyListener(this);
         Document doc = field.getDocument();
         doc.addDocumentListener(this);
         doc.putProperty(NAME_DOC, ""+id);
@@ -216,7 +219,7 @@ public class TextualTwoKnobsSlider
             return;
         }
         start = val;
-        endField.setMinimum(start);
+        //endField.setMinimum(start);
         removeSliderListeners();
         int old = slider.getStartValue();
         slider.setStartValue(start);
@@ -240,7 +243,7 @@ public class TextualTwoKnobsSlider
         }
         end = val;
         removeSliderListeners();
-        startField.setMaximum(end);
+        //startField.setMaximum(end);
         int old = slider.getEndValue();
         slider.setEndValue(end);
         firePropertyChange(TwoKnobsSlider.KNOB_RELEASED_PROPERTY, old, end);
@@ -284,14 +287,25 @@ public class TextualTwoKnobsSlider
 	 */
 	private void updateTextValue(Document doc)
 	{
+		if (slider == null || endField == null || startField == null) return;
 		String value = (String) doc.getProperty(NAME_DOC);
 		int index = Integer.parseInt(value);
+		Integer v;
+		Integer ref;
 		switch (index) {
 			case START:
-				setStartValue();
+				//setStartValue();
+				v = (Integer) startField.getValueAsNumber();
+				ref = (Integer) endField.getValueAsNumber();
+				if (ref == null || v == null) return;
+				if (ref > v) startField.setMaximum(slider.getPartialMaximum());
 				break;
 			case END:
-				setEndValue();
+				v = (Integer) endField.getValueAsNumber();
+				ref = (Integer) startField.getValueAsNumber();
+				if (ref == null || v == null) return;
+				if (ref > v) endField.setMinimum(slider.getPartialMinimum());
+				//setEndValue();
 				break;
 		}
 	}
@@ -553,8 +567,8 @@ public class TextualTwoKnobsSlider
 		startField.setText(""+s);
 		slider.setStartValue(s);
 		slider.setEndValue(e);
-		endField.setMinimum(s);
-		startField.setMaximum(e);
+		//endField.setMinimum(s);
+		//startField.setMaximum(e);
 		start = s;
 		end = e;
 		attachListeners();
@@ -632,7 +646,8 @@ public class TextualTwoKnobsSlider
 	 */
 	public void insertUpdate(DocumentEvent e)
 	{  
-		updateTextValue(e.getDocument());
+		
+		//updateTextValue(e.getDocument());
 	}
 
 	/**
@@ -646,16 +661,43 @@ public class TextualTwoKnobsSlider
 
 	/**
 	 * Required by the {@link DocumentListener} I/F but not actually needed in
-     * our case, no op implementation.
+     * our case, no-operation implementation.
 	 * @see DocumentListener#changedUpdate(DocumentEvent)
 	 */
 	public void changedUpdate(DocumentEvent e) {}
 	
 	/** 
      * Required by {@link FocusListener} I/F but not actually needed in
-     * our case, no op implementation.
+     * our case, no-operation implementation.
      * @see FocusListener#focusGained(FocusEvent)
      */ 
     public void focusGained(FocusEvent e) {}
+
+    /**
+     * Sets the start or end value depending on the selected fields
+     * @see KeyListener#keyPressed(KeyEvent)
+     */
+	public void keyPressed(KeyEvent e)
+	{
+		if (KeyEvent.VK_ENTER == e.getKeyCode()) {
+			Object source = e.getSource();
+			if (source == startField) setStartValue();
+			else if (source == endField) setEndValue();
+		}
+	}
+
+	/** 
+     * Required by {@link KeyListener} I/F but not actually needed in
+     * our case, no-operation implementation.
+     * @see KeyListener#keyReleased(KeyEvent)
+     */ 
+	public void keyReleased(KeyEvent e) {}
+
+	/** 
+     * Required by {@link KeyListener} I/F but not actually needed in
+     * our case, no-operation implementation.
+     * @see KeyListener#keyTyped(KeyEvent)
+     */ 
+	public void keyTyped(KeyEvent e) {}
 	
 }
