@@ -11,8 +11,9 @@ import time
 import signal
 import logging
 import traceback
-import subprocess
 import exceptions
+import killableprocess as subprocess
+
 from path import path
 
 import Ice
@@ -402,16 +403,24 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         self.allcallbacks("processFinished", self.rcode)
         return self.rcode
 
-    def _send(self, sig):
+    def _send(self, iskill):
         """
         Helper method for sending signals. This method only
         makes a call is the process is active.
         """
         if self.isRunning():
-            self.status("Signalling %s" % sig)
             try:
                 if self.popen.poll() is None:
-                    os.kill(self.popen.pid, sig)
+                    if iskill:
+                        self.status("popen.kill(True)")
+                        self.popen.kill(True)
+                    else:
+                        try:
+                            self.status("os.kill(TERM)")
+                            os.kill(self.popen.pid, signal.SIGTERM)
+                        except AttributeError:
+                            self.logger.debug("No os.kill(TERM). Skipping cancel")
+
                 else:
                     self.status("Skipped signal")
             except OSError, oserr:
@@ -427,7 +436,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         if self.alreadyDone():
             return True
 
-        self._send(signal.SIGTERM)
+        self._send(iskill=False)
         finished = self.isFinished()
         if finished:
             self.deactivate()
@@ -441,7 +450,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         if self.alreadyDone():
             return True
 
-        self._send(signal.SIGKILL)
+        self._send(iskill=True)
         finished = self.isFinished()
         if finished:
             self.deactivate()

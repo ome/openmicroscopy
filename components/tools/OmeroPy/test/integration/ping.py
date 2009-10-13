@@ -216,11 +216,11 @@ class TestPing(lib.ITest):
         # Depending on what's faster this may or may not throw
         try:
             p.getResults(process)
+            self.assert_(process.poll())
+            output = p.getResults(process)
         except omero.ServerError:
             pass
 
-        self.assert_(process.poll())
-        output = p.getResults(process)
         # Probably doesn't have IO since killed
         # self.assertIO(output)
 
