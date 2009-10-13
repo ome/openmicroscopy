@@ -93,11 +93,8 @@ class HdfList(object):
 
     @locked
     def remove(self, hdfpath, hdffile):
-        try:
-            del self.__filenos[hdffile.fileno()]
-            del self.__paths[hdfpath]
-        finally:
-            hdffile.close()
+        del self.__filenos[hdffile.fileno()]
+        del self.__paths[hdfpath]
 
 # Global object for maintaining files
 HDFLIST = HdfList()
@@ -121,7 +118,7 @@ class HdfStorage(object):
         if file_path is None or str(file_path) == "":
             raise omero.ValidationException(None, None, "Invalid file_path")
 
-        self.__log = logging.getLogger("omero.tables.HdfStorage")
+        self.logger = logging.getLogger("omero.tables.HdfStorage")
         self.__hdf_path = path(file_path)
         self.__hdf_file = self.__openfile("a")
         self.__tables = []
@@ -161,7 +158,7 @@ class HdfStorage(object):
             return tables.openFile(self.__hdf_path, mode=mode, title="OMERO HDF Measurement Storege", rootUEP="/")
         except IOError, io:
             msg = "HDFStorage initialized with bad path: %s" % self.__hdf_path
-            self.__log.error(msg)
+            self.logger.error(msg)
             raise omero.ValidationException(None, None, msg)
 
     def __initcheck(self):
@@ -203,20 +200,25 @@ class HdfStorage(object):
 
     @locked
     def incr(self, table):
+        sz = len(self.__tables)
+        self.logger.info("Size: %s - Attaching %s to %s" % (sz, table, self.__hdf_path))
         if table in self.__tables:
+            self.logger.warn("Already added")
             raise omero.ApiUsageException(None, Non, "Already added")
         self.__tables.append(table)
-        return len(self.__tables)
+        return sz + 1
 
     @locked
     def decr(self, table):
+        sz = len(self.__tables)
+        self.logger.info("Size: %s - Detaching %s from %s", sz, table, self.__hdf_path)
         if not (table in self.__tables):
+            self.logger.warn("Unknown table")
             raise omero.ApiUsageException(None, None, "Unknown table")
         self.__tables.remove(table)
-        l = len(self.__tables)
-        if l == 0:
+        if sz <= 1:
             self.cleanup()
-        return l
+        return sz - 1
 
     @locked
     def uptodate(self, stamp):
@@ -323,19 +325,21 @@ class HdfStorage(object):
     #
 
     def check(self):
-        return False
+        return True
 
     @locked
     def cleanup(self):
-        self.__log.info("Cleaning storage: %s" % self.__hdf_path)
+        self.logger.info("Cleaning storage: %s", self.__hdf_path)
         if self.__mea:
             self.__mea.flush()
             self.__mea = None
         if self.__ome:
             self.__ome = None
         if self.__hdf_file:
-            HDFLIST.remove(self.__hdf_path, self.__hdf_file) # closes.
-        self.__hdffile = None
+            HDFLIST.remove(self.__hdf_path, self.__hdf_file)
+        hdffile = self.__hdf_file
+        self.__hdf_file = None
+        hdffile.close() # Resources freed
 
 # End class HdfStorage
 
@@ -346,12 +350,12 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     """
 
     def __init__(self, ctx, file_obj, storage, uuid = "unknown"):
-        omero.util.SimpleServant.__init__(self, ctx)
-        self.file_obj = file_obj
-        self.storage = storage
-        self.storage.incr(self)
-        self.stamp = time.time()
         self.uuid = uuid
+        self.file_obj = file_obj
+        self.stamp = time.time()
+        self.storage = storage
+        omero.util.SimpleServant.__init__(self, ctx)
+        self.storage.incr(self)
 
     def check(self):
         """
@@ -545,7 +549,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         """
 
         # Will throw an exception if not allowed.
-        self.logger.info("getTable: %s" % file_obj and file_obj.id and file_obj.id.val)
+        self.logger.info("getTable: %s", (file_obj and file_obj.id and file_obj.id.val))
         file_path = self.repo_mgr.getFilePath(file_obj)
         p = path(file_path).dirname()
         if not p.exists():
