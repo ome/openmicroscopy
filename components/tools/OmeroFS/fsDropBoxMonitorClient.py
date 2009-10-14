@@ -6,6 +6,7 @@
 
 """
 
+import shlex
 import logging
 import exceptions
 import string
@@ -469,16 +470,16 @@ class MonitorClientI(monitors.MonitorClient):
         """
         Logins in the given user and returns the client
         """
-        
+
         if not self.ctx.hasSession():
              self.ctx.newSession()
-             
+
         sf = None
         try:
             sf = self.ctx.getSession()
         except:
             self.log.exception("Failed to get sf \n")
-            
+
 
         if not sf:
             self.log.error("No connection")
@@ -516,15 +517,20 @@ class MonitorClientI(monitors.MonitorClient):
 
         try:
             self.log.info("Importing %s (session=%s)", fileName, key)
-            
+
             imageId = []
-            
+
             t = create_path("dropbox", "err")
             to = create_path("dropbox", "out")
 
             cli = omero.cli.CLI()
-            # self.importerArgs could be shlex'ed here to provide client specific args.
-            cli.invoke(["import", "---errs=%s"%t, "---file=%s"%to, "-s", self.host, "-p", str(self.port), "-k", key, fileName])
+            cmd = ["import"]
+            cmd.extend(shlex.split(self.importerArgs))
+            cmd.extend(["---errs=%s"%t, "---file=%s"%to])
+            cmd.extend(["-s", self.host, "-p", str(self.port), "-k", key])
+            cmd.append(fileName)
+            self.log.debug("cli.invoke(%s)" % cmd)
+            cli.invoke(cmd)
             retCode = cli.rv
 
             if retCode == 0:
@@ -537,7 +543,7 @@ class MonitorClientI(monitors.MonitorClient):
                         for line in lines:
                             imageId.append(line.strip())
                     else:
-                        self.log.error("No lines in output file. No image ID.")           
+                        self.log.error("No lines in output file. No image ID.")
                 else:
                     self.log.error("%s not found !" % to)
 
@@ -556,7 +562,7 @@ class MonitorClientI(monitors.MonitorClient):
         finally:
             remove_path(t)
             remove_path(to)
-        
+
         return imageId
 
     #

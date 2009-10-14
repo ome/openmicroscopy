@@ -79,6 +79,7 @@
           The empty first element below defers to the default system dropbox location:
               <property name="omero.fs.watchDir"  value=";/OMERODEV/OtherBox"/>
               <property name="omero.fs.eventTypes"  value="Creation,Modification;Creation"/>
+              <property name="omero.fs.importArgs"  value="--report;--report --send --email=test@example.com"/>
               ...
         -->
         <property name="omero.fs.importUsers"  value="default"/>
@@ -93,7 +94,7 @@
         <property name="omero.fs.ignoreDirEvents"  value="True"/>
         <property name="omero.fs.dirImportWait"  value="60"/>
         <property name="omero.fs.readers"  value=""/>
-        <property name="omero.fs.importArgs"  value="--report --email=blah@blah --send"/>
+        <property name="omero.fs.importArgs"  value=""/>
     </properties>
 
     <server-template id="BlitzTemplate">
