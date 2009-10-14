@@ -446,7 +446,7 @@ public class IconManager
         relPaths[SERVER] = "nuvola_server16.png";
         relPaths[HISTORY] = "eclipse_history_list16.png";
         relPaths[ROLL_OVER] = "nuvola_mouse16.png";
-        relPaths[BROWSER] = "zoom16.png";
+        relPaths[BROWSER] = "thumbnail_view16.png";
         relPaths[DISK_SPACE] = "nuvola_kcmpartitions16.png";
         relPaths[DATE] = "nuvola_date16.png";
         relPaths[REDO] = "nuvola_undo16.png";

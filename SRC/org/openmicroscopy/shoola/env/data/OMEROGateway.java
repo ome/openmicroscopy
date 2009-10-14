@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
-import static omero.rtypes.rmap;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -76,7 +74,6 @@ import ome.system.UpgradeCheck;
 import omero.AuthenticationException;
 import omero.InternalException;
 import omero.RLong;
-import omero.RMap;
 import omero.RType;
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -111,9 +108,7 @@ import omero.grid.Column;
 import omero.grid.Data;
 import omero.grid.DoubleColumn;
 import omero.grid.ImageColumn;
-import omero.grid.InteractiveProcessorPrx;
 import omero.grid.LongColumn;
-import omero.grid.ProcessPrx;
 import omero.grid.RoiColumn;
 import omero.grid.StringColumn;
 import omero.grid.TablePrx;
@@ -149,8 +144,6 @@ import omero.model.ProjectI;
 import omero.model.RenderingDef;
 import omero.model.Screen;
 import omero.model.ScreenI;
-import omero.model.ScriptJob;
-import omero.model.ScriptJobI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TimestampAnnotation;
@@ -4467,7 +4460,7 @@ class OMEROGateway
 					if (value > id) id = value;
 				}
 			}
-			//long id = svc.getScriptID("makemovie.py");
+			System.err.println(id);
 			if (id <= 0) return -1;
 			ParametersI parameters = new ParametersI();
 			parameters.map.put("imageId", omero.rtypes.rlong(imageID));
