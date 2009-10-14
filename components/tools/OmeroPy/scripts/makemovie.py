@@ -160,7 +160,6 @@ def macOSX():
 def buildAVI(sizeX, sizeY, filelist, fps, output, format):
 	program = 'mencoder'
 	args = "";
-	print format
 	formatExtension = formatExtensionMap[format];
 	if(format==MPEG):
 		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=png -ovc lavc -lavcopts vcodec=mpeg4 -oac copy -o '+commandArgs["output"]+"."+formatExtension;
@@ -180,8 +179,6 @@ def rangeToStr(range):
 	return string;
 
 def rangeFromList(list, index):
-	print list
-	print index
 	minValue = list[0][index];
 	maxValue = list[0][index];
 	for i in list:
@@ -213,10 +210,10 @@ def calculateAquisitionTime(session, pixelsId, cRange, tzList):
 def addScalebar(scalebar, image, pixels, commandArgs):
 	draw = ImageDraw.Draw(image)
 	if(pixels.getPhysicalSizeX()==None):
-	   return;
+	   return image;
 	pixelSizeX = pixels.getPhysicalSizeX().getValue()
 	if(pixelSizeX<=0):
-		return;
+		return image;
 	scaleBarY = pixels.getSizeY().getValue()-30;
 	scaleBarX = pixels.getSizeX().getValue()-scalebar/pixelSizeX-20;
 	scaleBarTextY = scaleBarY-15;
@@ -331,7 +328,6 @@ def calculateRanges(sizeZ, sizeT, commandArgs):
 		planeMap = buildPlaneMapFromRanges(zRange, tRange);
 	else:
 		map = commandArgs["planeMap"];
-		print map
 		planeMap = unrollPlaneMap(map);
 	return planeMap;
 
