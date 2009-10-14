@@ -25,7 +25,7 @@ class ImportControl(BaseControl):
         client_dir = self.ctx.dir / "lib" / "client"
         log4j = "-Dlog4j.configuration=log4j-cli.properties"
         classpath = [ file.abspath() for file in client_dir.files("*.jar") ]
-        xargs = [ log4j, "-Xmx2048M", "-cp", os.pathsep.join(classpath) ]
+        xargs = [ log4j, "-Xmx1024M", "-cp", os.pathsep.join(classpath) ]
 
         # Here we permit passing ---file=some_output_file in order to
         # facilitate the omero.util.import_candidates.as_dictionary
