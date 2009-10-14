@@ -93,6 +93,7 @@
         <property name="omero.fs.ignoreDirEvents"  value="True"/>
         <property name="omero.fs.dirImportWait"  value="60"/>
         <property name="omero.fs.readers"  value=""/>
+        <property name="omero.fs.importArgs"  value="--report --email=blah@blah --send"/>
     </properties>
 
     <server-template id="BlitzTemplate">
@@ -293,14 +294,30 @@
       </server>
     </server-template>
 
-    <!-- Added to allow a one-shot commandline "server" to interact. -->
     <server-template id="TestDropBoxTemplate">
       <parameter name="exe" default="python"/>
       <server id="TestDropBox" exe="${exe}" activation="manual" pwd="${OMERO_HOME}">
+        <option>${OMEROPY_HOME}fsDropBox.py</option>
+        <env>${PYTHONPATH}</env>
         <adapter name="omerofs.TestDropBox" register-process="true" endpoints="tcp"/>
+        <properties>
+          <properties refid="Basics"/>
+          <properties refid="PythonServer"/>
+          <properties refid="MultiThreaded"/>
+          <properties refid="DropBox"/>
+          <properties refid="Profile"/>
+          <!-- Overridden values? -->
+          <property name="omero.fs.importUsers" value="root"/>
+          <property name="omero.fs.watchDir" value="/OMERO/TestBox"/>
+          <!-- Test file -->
+          <property name="omero.fstest.srcFile" value="/Users/cblackburn/Work/testimages/tinyTest.d3d.dv"/>
+          <property name="omero.fs.serverIdString" value="FSServer"/>
+          <property name="omero.fs.clientIdString" value="TestDropBox"/>
+          <property name="omero.fs.clientAdapterName" value="omerofs.TestDropBox"/>
+        </properties>
       </server>
     </server-template>
-	<!-- End of TestDropBox -->
+	
 	
     <server-template id="ShellTemplate">
       <parameter name="id"/>

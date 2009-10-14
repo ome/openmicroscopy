@@ -12,6 +12,13 @@ log = logging.getLogger("fsclient.DropBox")
 import time, os, sys
 import string
 import uuid
+import threading
+import shutil
+
+# Third party path package. It provides much of the 
+# functionality of os.path but without the complexity.
+# Imported as pathModule to avoid clashes.
+import path as pathModule
 
 import omero
 import omero.rtypes
@@ -29,13 +36,25 @@ from omero.clients import ObjectFactory
 import fsDropBoxMonitorClient
 
 class DropBox(Ice.Application):
+    imageId = []
+    event = threading.Event()
 
     def run(self, args):
-
+        # Configure our communicator
+        ObjectFactory().registerObjectFactory(self.communicator())
+        for of in omero.rtypes.ObjectFactories.values():
+            of.register(self.communicator())
+        
+        retVal = -1
         
         props = self.communicator().getProperties()
         configure_server_logging(props)
-
+        
+        log.info("Properties\n%s",str(props))
+        
+        isTestClient = (props.getPropertyWithDefault("Ice.ProgramName","") == "TestDropBox")
+        
+        
         # This tests if the FSServer is supported by the platform
         # if not there's no point starting the FSDropBox client
         import fsUtil
@@ -43,42 +62,42 @@ class DropBox(Ice.Application):
             fsUtil.monitorPackage()
         except:
             log.exception("System requirements not met: \n")
-            return -1
+            log.error("Quitting")
+            return retVal
 
-        # Configure our communicator
-        ObjectFactory().registerObjectFactory(self.communicator())
-        for of in omero.rtypes.ObjectFactories.values():
-            of.register(self.communicator())
-        
         try:
             host, port = self.getHostAndPort(props)
             omero.client(host, port)
         except:
             log.exception("Failed to get client: \n")
-            return -1
+            log.error("Quitting")
+            return retVal
           
         try:
-            maxRetries = int(props.getPropertyWithDefault("omero.fs.maxRetries","5"))
-            retryInterval = int(props.getPropertyWithDefault("omero.fs.retryInterval","3"))
+            self.maxRetries = int(props.getPropertyWithDefault("omero.fs.maxRetries","5"))
+            self.retryInterval = int(props.getPropertyWithDefault("omero.fs.retryInterval","3"))
             sf = omero.util.internal_service_factory(
                     self.communicator(), "root", "system",
-                    retries=maxRetries, interval=retryInterval)
+                    retries=self.maxRetries, interval=self.retryInterval)
         except:
             log.exception("Failed to get Session: \n")
-            return -1
+            log.error("Quitting")
+            return retVal
             
         try:
             configService = sf.getConfigService()
         except:
             log.exception("Failed to get configService: \n")
-            return -1
+            log.error("Quitting")
+            return retVal
             
         try:
             monitorParameters = self.getMonitorParameters(props)
             log.info("Monitor parameters = %s", str(monitorParameters))
         except:
             log.exception("Failed get properties from templates.xml: \n", )
-            return -1
+            log.error("Quitting")
+            return retVal
 
         try:
             if 'default' in monitorParameters.keys():
@@ -88,13 +107,15 @@ class DropBox(Ice.Application):
                     monitorParameters['default']['watchDir'] = os.path.join(dataDir, defaultDropBoxDir)
         except:
             log.exception("Failed to use a query service : \n")
-            return -1
+            log.error("Quitting")
+            return retVal
 
         try:
             sf.destroy()
         except:
             log.exception("Failed to get close session: \n")
-            return -1
+            log.error("Quitting")
+            return retVal
 
         try:
             serverIdString = self.getFSServerIdString(props)
@@ -108,11 +129,16 @@ class DropBox(Ice.Application):
             monitorId = {}
             
             for user in monitorParameters.keys():
-                log.info("Creating client for user: %s", user)
-                if user == 'default':
-                    mClient[user] = fsDropBoxMonitorClient.MonitorClientI(monitorParameters[user]['watchDir'], self.communicator())
+                if isTestClient:
+                    log.info("Creating test client for user: %s", user)
+                    testUser = user
+                    mClient[user] = fsDropBoxMonitorClient.TestMonitorClient(user, monitorParameters[user]['watchDir'], self.communicator())
                 else:
-                    mClient[user] = fsDropBoxMonitorClient.SingleUserMonitorClient(user, monitorParameters[user]['watchDir'], self.communicator())
+                    log.info("Creating client for user: %s", user)
+                    if user == 'default':
+                        mClient[user] = fsDropBoxMonitorClient.MonitorClientI(monitorParameters[user]['watchDir'], self.communicator())
+                    else:
+                        mClient[user] = fsDropBoxMonitorClient.SingleUserMonitorClient(user, monitorParameters[user]['watchDir'], self.communicator())
             
                 identity = self.communicator().stringToIdentity(clientIdString + "." + user)
                 adapter.add(mClient[user], identity)
@@ -138,6 +164,7 @@ class DropBox(Ice.Application):
                     mClient[user].setSelfProxy(mClientProxy)
                     mClient[user].setDirImportWait(monitorParameters[user]['dirImportWait'])
                     mClient[user].setReaders(monitorParameters[user]['readers'])
+                    mClient[user].setImportArgs(monitorParameters[user]['importArgs'])
                     mClient[user].setHostAndPort(host,port)
                     mClient[user].setMaster(self)
                     fsServer.startMonitor(monitorId[user])
@@ -150,9 +177,16 @@ class DropBox(Ice.Application):
 
         if not mClient:
             log.error("Failed to create any monitors.")
-            return -1
+            log.error("Quitting")
+            return retVal
             
         log.info('Started OMERO.fs DropBox client')
+        
+        # If this is TestDropBox then try to copy and import a file.
+        if isTestClient:
+            srcFile = props.getPropertyWithDefault("omero.fstest.srcFile","")
+            retVal = self.injectTestFile(srcFile, monitorParameters[testUser]['watchDir'])
+
         self.communicator().waitForShutdown()
 
         for user in mClient.keys():
@@ -171,7 +205,77 @@ class DropBox(Ice.Application):
                 log.exception("Failed to stop DropBoxMonitorClient for: %s", user)
 
         log.info('Stopping OMERO.fs DropBox client')
-        return 0
+        log.info("Exiting with exit code: %d", retVal)
+        if retVal != 0:
+            log.error("Quitting")
+            
+        return retVal
+
+
+    def injectTestFile(self, srcFile, dstDir):
+        """
+           Copy test file and wait for import to complete.
+            
+        """
+
+        try:
+            ext = pathModule.path(srcFile).ext
+            dstFile = os.path.join(dstDir, str(uuid.uuid1())+ext)
+        except:
+            log.exception("Error source files:")
+            return -1
+            
+        try:
+            shutil.copy(srcFile, dstFile)
+        except:
+            log.exception("Error copying file:")
+            return -1
+        
+        while not self.event.isSet():    
+            time.sleep(1)
+        
+        try:
+            sf = omero.util.internal_service_factory(
+                    self.communicator(), "root", "system",
+                    retries=self.maxRetries, interval=self.retryInterval)
+        except:
+            log.exception("Failed to get Session: \n")
+            return -1
+
+        p = omero.sys.Parameters()     
+#        query = "select i from Image i where i.name = " + "'" + dstFile + "'"
+#        out = sf.getQueryService().findAllByQuery(query, p)
+#        log.info("Query 1 says: %s item(s) found.", str(len(out)))
+        
+        retVal = 0
+        for i in self.imageId:
+            query = "select i from Image i where i.id = " + "'" + i + "'"
+            out = sf.getQueryService().findAllByQuery(query, p)
+        
+            if len(out) > 0:
+                for item in out:
+                    fname = item._name._val
+                    log.info("Query on id=%s returned file %s", i, fname)
+            else:
+                log.error("No of items found.")
+                retVal = -1
+            
+        try:
+            sf.destroy()
+        except:
+            log.exception("Failed to get close session: \n")
+
+        return retVal
+        
+    def notifyTestFile(self, imageId, fileId):
+        """
+            Called back by overridden importFileWrapper
+            
+        """
+        log.info("%s import attempted. image id=%s", fileId, imageId)
+        self.imageId = imageId
+        self.event.set()
+        
 
     def getHostAndPort(self, props):
         """
@@ -223,6 +327,7 @@ class DropBox(Ice.Application):
             ignoreDirEvents = list(props.getPropertyWithDefault("omero.fs.ignoreDirEvents","True").split(';'))   
             dirImportWait = list(props.getPropertyWithDefault("omero.fs.dirImportWait","60").split(';'))   
             readers = list(props.getPropertyWithDefault("omero.fs.readers","").split(';'))   
+            importArgs = list(props.getPropertyWithDefault("omero.fs.importArgs","").split(';'))   
 
             for i in range(len(importUser)):
                 if importUser[i].strip(string.whitespace):
@@ -288,6 +393,12 @@ class DropBox(Ice.Application):
                             monitorParams[importUser[i]]['readers'] = ""
                     except:
                         monitorParams[importUser[i]]['readers'] = ""
+                        
+                    try:
+                        monitorParams[importUser[i]]['importArgs'] = importArgs[i].strip(string.whitespace) 
+                    except:
+                        monitorParams[importUser[i]]['importArgs'] = ""
+
                                                                                                                                                                                       
         except:
             raise

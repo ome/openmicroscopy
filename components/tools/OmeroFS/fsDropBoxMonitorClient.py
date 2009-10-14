@@ -288,6 +288,7 @@ class MonitorClientI(monitors.MonitorClient):
         self.port = 0
         self.dirImportWait = 0
         self.readers = ""
+        self.importArgs = ""
         #: Id
         self.id = ''
 
@@ -312,13 +313,6 @@ class MonitorClientI(monitors.MonitorClient):
         self.workers = [MonitorWorker(worker_wait, worker_batch, self.event, self.queue, self.callback) for x in range(worker_count)]
         for worker in self.workers:
             worker.start()
-
-## Moved upwards to fsDropBox so that a registered communicator
-## can be used by more than one MonitorClient
-##        # Finally, configure our communicator
-##        ObjectFactory().registerObjectFactory(self.communicator)
-##        for of in omero.rtypes.ObjectFactories.values():
-##            of.register(self.communicator)
 
         self.eventRecord("Directory", self.dropBoxDir)
 
@@ -523,12 +517,13 @@ class MonitorClientI(monitors.MonitorClient):
         try:
             self.log.info("Importing %s (session=%s)", fileName, key)
             
-            imageId = None
+            imageId = []
             
             t = create_path("dropbox", "err")
             to = create_path("dropbox", "out")
 
             cli = omero.cli.CLI()
+            # self.importerArgs could be shlex'ed here to provide client specific args.
             cli.invoke(["import", "---errs=%s"%t, "---file=%s"%to, "-s", self.host, "-p", str(self.port), "-k", key, fileName])
             retCode = cli.rv
 
@@ -538,12 +533,9 @@ class MonitorClientI(monitors.MonitorClient):
                     f = open(str(to),"r")
                     lines = f.readlines()
                     f.close()
-                    if len(lines) == 1:
-                        imageId = lines[0].strip()
-                    elif len(lines) > 1:
-                        self.log.error("Too many lines in output file:")
+                    if len(lines) > 0:
                         for line in lines:
-                            self.log.error(line.strip())
+                            imageId.append(line.strip())
                     else:
                         self.log.error("No lines in output file. No image ID.")           
                 else:
@@ -663,7 +655,15 @@ class MonitorClientI(monitors.MonitorClient):
         """
         self.readers = readers
 
+    def setImportArgs(self, importArgs):
+        """
+            Set the importArgs from the communicator properties.
             
+        """
+        self.importArgs = importArgs
+
+            
+
 
     #
     # Various trivial helpers
