@@ -122,7 +122,8 @@ public class OmeroReader extends FormatReader {
         super.initFile(id);
 
         String ptype = pix.getPixelsType().getValue().getValue();
-
+        String dorder = pix.getDimensionOrder().getValue().getValue();
+        
         core[0].sizeX = sizeX;
         core[0].sizeY = sizeY;
         core[0].sizeZ = sizeZ;
@@ -130,8 +131,8 @@ public class OmeroReader extends FormatReader {
         core[0].sizeT = sizeT;
         core[0].rgb = false;
         core[0].littleEndian = false;
-        core[0].dimensionOrder = "XYZCT";
-        core[0].imageCount = getSizeZ() * getSizeC() * getSizeT();
+        core[0].dimensionOrder = dorder;
+        core[0].imageCount = planes;
         core[0].pixelType = FormatTools.pixelTypeFromString(ptype);
 
         double px = pix.getSizeX().getValue();
