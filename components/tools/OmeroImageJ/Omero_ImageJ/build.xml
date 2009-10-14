@@ -14,10 +14,33 @@
     <import file="${import.dir}/lifecycle.xml"/>
     <import file="../../common.xml"/>
 
-	<target name="compress" depends="package" description="generate the distribution from Eclipse bin/ directory">
+	<!-- exclude the jar in the libs folder with "_"
+	jars like Image_5D are also transformed b/c a user may already have 
+	it installed so this will avoid possible conflict.
+	-->
+	<patternset id="ex1">
+	  <exclude name="libs/*_*.jar"/>
+	</patternset>
+	
+	<target name="compress" depends="package" 
+		description="generate the distribution from Eclipse bin/ directory">
+		<!-- copy jars without "_" -->
 		<copy flatten="true" todir="${pluginsDir}/OmeroJ">
-			<fileset dir="${target.dir}" includes="libs/*.jar,${ivy.module}.jar"/>
-			<!-- fileset dir="${target.dir}" includes="${ivy.module}.jar"/-->
+		  <fileset dir="${target.dir}">
+		    <patternset refid="ex1"/>
+		    <include name="libs/*.jar"/>
+		  </fileset>
+		</copy>
+		<!-- include plugin -->
+		<copy flatten="true" todir="${pluginsDir}/OmeroJ">
+			<fileset dir="${target.dir}" includes="${ivy.module}.jar"/>
+		</copy>
+		<!-- convert jar with "_" -->
+		<copy flatten="true" todir="${pluginsDir}/OmeroJ">
+		  <fileset dir="${target.dir}">
+		    <include name="libs/*_*.jar"/>
+		  </fileset>
+		  	<mapper type="regexp" from="libs/(.*)_(.*).jar" to="\1-\2.jar"/>
 		</copy>
 	</target>
 
