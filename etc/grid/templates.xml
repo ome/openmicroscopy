@@ -306,19 +306,16 @@
           <properties refid="MultiThreaded"/>
           <properties refid="DropBox"/>
           <properties refid="Profile"/>
-          <!-- Overridden values? -->
-          <property name="omero.fs.importUsers" value="root"/>
-          <property name="omero.fs.watchDir" value="/OMERO/TestBox"/>
-          <!-- Test file -->
-          <property name="omero.fstest.srcFile" value="/Users/cblackburn/Work/testimages/tinyTest.d3d.dv"/>
           <property name="omero.fs.serverIdString" value="FSServer"/>
           <property name="omero.fs.clientIdString" value="TestDropBox"/>
           <property name="omero.fs.clientAdapterName" value="omerofs.TestDropBox"/>
+          <!-- By adding an omero.fstest.config property, the behavior of the
+          DropBox sever will change! -->
+          <property name="omero.fstest.config" value="${OMERO_ETC}test.config"/>
         </properties>
       </server>
     </server-template>
-	
-	
+
     <server-template id="ShellTemplate">
       <parameter name="id"/>
       <parameter name="exe" default="python"/>

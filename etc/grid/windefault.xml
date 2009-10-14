@@ -18,6 +18,7 @@
       especially in templates.xml
     -->
     <variable name="OMERO_HOME"   value="c:\\omero_dist"/>
+    <variable name="OMERO_ETC"    value="${OMERO_HOME}\\etc\\"/>
     <variable name="OMEROPY_HOME" value="${OMERO_HOME}\\lib\\python\\"/>
     <variable name="OMEROPY_SERV" value="${OMERO_HOME}\\lib\\python\\omero\\"/>
     <variable name="PYTHONPATH"   value="PYTHONPATH=${OMEROPY_HOME};%PYTHONPATH%"/>
@@ -46,6 +47,7 @@
       <server-instance template="StormTemplate"/>
       <server-instance template="ProcessorTemplate" index="0" dir=""/><!-- assumes legacy -->
       <server-instance template="TablesTemplate" index="0" dir=""/><!-- assumes legacy -->
+      <server-instance template="TestDropBoxTemplate"/>
     </node>
 
   </application>

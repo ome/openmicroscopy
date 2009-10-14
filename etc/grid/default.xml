@@ -9,9 +9,10 @@
   <application name="OMERO">
 
     <variable name="OMERO_HOME"   value="."/>
+    <variable name="OMERO_ETC"    value="etc/"/>
     <variable name="OMEROPY_HOME" value="lib/python/"/>
     <variable name="OMEROPY_SERV" value="lib/python/omero/"/>
-    <variable name="PYTHONPATH"   value="PYTHONPATH=lib\python:$${PYTHONPATH}:lib/python"/>
+    <variable name="PYTHONPATH"   value="PYTHONPATH=${OMEROPY_HOME}:$${PYTHONPATH}"/>
     <variable name="ROUTERPORT"   value="4063"/>
 
     <properties id="Profile">
@@ -43,6 +44,7 @@
       <server-instance template="StormTemplate"/>
       <server-instance template="ProcessorTemplate" index="0" dir=""/><!-- assumes legacy -->
       <server-instance template="TablesTemplate" index="0" dir=""/><!-- assumes legacy -->
+      <server-instance template="TestDropBoxTemplate"/>
     </node>
 
   </application>

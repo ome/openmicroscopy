@@ -15,7 +15,7 @@ import uuid
 import threading
 import shutil
 
-# Third party path package. It provides much of the 
+# Third party path package. It provides much of the
 # functionality of os.path but without the complexity.
 # Imported as pathModule to avoid clashes.
 import path as pathModule
@@ -44,17 +44,21 @@ class DropBox(Ice.Application):
         ObjectFactory().registerObjectFactory(self.communicator())
         for of in omero.rtypes.ObjectFactories.values():
             of.register(self.communicator())
-        
+
         retVal = -1
-        
+
         props = self.communicator().getProperties()
         configure_server_logging(props)
-        
-        log.info("Properties\n%s",str(props))
-        
-        isTestClient = (props.getPropertyWithDefault("Ice.ProgramName","") == "TestDropBox")
-        
-        
+
+        log.info("Grid Properties:\n%s",str(props))
+
+        testConfig = props.getPropertyWithDefault("omero.fstest.config", "")
+        isTestClient = bool(testConfig)
+
+        if isTestClient:
+            props.load(testConfig)
+            log.info("Updated Test Properties:\n%s",str(props))
+
         # This tests if the FSServer is supported by the platform
         # if not there's no point starting the FSDropBox client
         import fsUtil
@@ -72,7 +76,7 @@ class DropBox(Ice.Application):
             log.exception("Failed to get client: \n")
             log.error("Quitting")
             return retVal
-          
+
         try:
             self.maxRetries = int(props.getPropertyWithDefault("omero.fs.maxRetries","5"))
             self.retryInterval = int(props.getPropertyWithDefault("omero.fs.retryInterval","3"))
@@ -83,14 +87,14 @@ class DropBox(Ice.Application):
             log.exception("Failed to get Session: \n")
             log.error("Quitting")
             return retVal
-            
+
         try:
             configService = sf.getConfigService()
         except:
             log.exception("Failed to get configService: \n")
             log.error("Quitting")
             return retVal
-            
+
         try:
             monitorParameters = self.getMonitorParameters(props)
             log.info("Monitor parameters = %s", str(monitorParameters))
@@ -127,7 +131,7 @@ class DropBox(Ice.Application):
             adapter = self.communicator().createObjectAdapter(clientAdapterName)
             mClient = {}
             monitorId = {}
-            
+
             for user in monitorParameters.keys():
                 if isTestClient:
                     log.info("Creating test client for user: %s", user)
@@ -139,25 +143,25 @@ class DropBox(Ice.Application):
                         mClient[user] = fsDropBoxMonitorClient.MonitorClientI(monitorParameters[user]['watchDir'], self.communicator())
                     else:
                         mClient[user] = fsDropBoxMonitorClient.SingleUserMonitorClient(user, monitorParameters[user]['watchDir'], self.communicator())
-            
+
                 identity = self.communicator().stringToIdentity(clientIdString + "." + user)
                 adapter.add(mClient[user], identity)
                 mClientProxy = monitors.MonitorClientPrx.uncheckedCast(adapter.createProxy(identity))
-                
+
                 monitorType = monitors.MonitorType.__dict__["Persistent"]
-                try:           
-                    monitorId[user] = fsServer.createMonitor(monitorType, 
-                                                        monitorParameters[user]['eventTypes'], 
-                                                        monitorParameters[user]['pathMode'], 
-                                                        monitorParameters[user]['watchDir'], 
-                                                        monitorParameters[user]['whitelist'], 
-                                                        monitorParameters[user]['blacklist'], 
-                                                        monitorParameters[user]['timeout'], 
-                                                        monitorParameters[user]['blockSize'], 
-                                                        monitorParameters[user]['ignoreSysFiles'], 
+                try:
+                    monitorId[user] = fsServer.createMonitor(monitorType,
+                                                        monitorParameters[user]['eventTypes'],
+                                                        monitorParameters[user]['pathMode'],
+                                                        monitorParameters[user]['watchDir'],
+                                                        monitorParameters[user]['whitelist'],
+                                                        monitorParameters[user]['blacklist'],
+                                                        monitorParameters[user]['timeout'],
+                                                        monitorParameters[user]['blockSize'],
+                                                        monitorParameters[user]['ignoreSysFiles'],
                                                         monitorParameters[user]['ignoreDirEvents'],
                                                         mClientProxy)
-                                                    
+
                     log.info("Created monitor with id = %s",str(monitorId[user]))
                     mClient[user].setId(monitorId[user])
                     mClient[user].setServerProxy(fsServer)
@@ -179,9 +183,9 @@ class DropBox(Ice.Application):
             log.error("Failed to create any monitors.")
             log.error("Quitting")
             return retVal
-            
+
         log.info('Started OMERO.fs DropBox client')
-        
+
         # If this is TestDropBox then try to copy and import a file.
         if isTestClient:
             srcFile = props.getPropertyWithDefault("omero.fstest.srcFile","")
@@ -198,7 +202,7 @@ class DropBox(Ice.Application):
                     log.warn("Failed to destroy MonitorClient for : %s  FSServer may have already stopped.", user)
             except:
                 log.warn("Failed to stop and destroy MonitorClient for : %s  FSServer may have already stopped.", user)
-                
+
             try:
                 mClient[user].stop()
             except:
@@ -208,14 +212,14 @@ class DropBox(Ice.Application):
         log.info("Exiting with exit code: %d", retVal)
         if retVal != 0:
             log.error("Quitting")
-            
+
         return retVal
 
 
     def injectTestFile(self, srcFile, dstDir):
         """
            Copy test file and wait for import to complete.
-            
+
         """
 
         try:
@@ -224,16 +228,16 @@ class DropBox(Ice.Application):
         except:
             log.exception("Error source files:")
             return -1
-            
+
         try:
             shutil.copy(srcFile, dstFile)
         except:
             log.exception("Error copying file:")
             return -1
-        
-        while not self.event.isSet():    
+
+        while not self.event.isSet():
             time.sleep(1)
-        
+
         try:
             sf = omero.util.internal_service_factory(
                     self.communicator(), "root", "system",
@@ -242,16 +246,16 @@ class DropBox(Ice.Application):
             log.exception("Failed to get Session: \n")
             return -1
 
-        p = omero.sys.Parameters()     
+        p = omero.sys.Parameters()
 #        query = "select i from Image i where i.name = " + "'" + dstFile + "'"
 #        out = sf.getQueryService().findAllByQuery(query, p)
 #        log.info("Query 1 says: %s item(s) found.", str(len(out)))
-        
+
         retVal = 0
         for i in self.imageId:
             query = "select i from Image i where i.id = " + "'" + i + "'"
             out = sf.getQueryService().findAllByQuery(query, p)
-        
+
             if len(out) > 0:
                 for item in out:
                     fname = item._name._val
@@ -259,82 +263,81 @@ class DropBox(Ice.Application):
             else:
                 log.error("No of items found.")
                 retVal = -1
-            
+
         try:
             sf.destroy()
         except:
             log.exception("Failed to get close session: \n")
 
         return retVal
-        
+
     def notifyTestFile(self, imageId, fileId):
         """
             Called back by overridden importFileWrapper
-            
+
         """
         log.info("%s import attempted. image id=%s", fileId, imageId)
         self.imageId = imageId
         self.event.set()
-        
 
     def getHostAndPort(self, props):
         """
             Get the host and port from the communicator properties.
-            
+
         """
         host = props.getPropertyWithDefault("omero.fs.host","localhost")
         port = int(props.getPropertyWithDefault("omero.fs.port","4063"))
-            
+
         return host, port
-            
+
     def getFSServerIdString(self, props):
         """
             Get serverIdString from the communicator properties.
-            
+
         """
         return props.getPropertyWithDefault("omero.fs.serverIdString","")
-        
+
     def getFSClientIdString(self, props):
         """
             Get serverIdString from the communicator properties.
-            
+
         """
         return props.getPropertyWithDefault("omero.fs.clientIdString","")
 
     def getFSClientAdapterName(self, props):
         """
             Get serverIdString from the communicator properties.
-            
+
         """
         return props.getPropertyWithDefault("omero.fs.clientAdapterName","")
 
     def getMonitorParameters(self, props):
         """
             Get the monitor parameters from the communicator properties.
-            
+
         """
         monitorParams = {}
         try:
             importUser = list(props.getPropertyWithDefault("omero.fs.importUsers","default").split(';'))
-            watchDir = list(props.getPropertyWithDefault("omero.fs.watchDir","").split(';'))   
-            eventTypes = list(props.getPropertyWithDefault("omero.fs.eventTypes","All").split(';'))      
-            pathMode = list(props.getPropertyWithDefault("omero.fs.pathMode","Follow").split(';'))   
-            whitelist = list(props.getPropertyWithDefault("omero.fs.whitelist","").split(';'))   
-            blacklist = list(props.getPropertyWithDefault("omero.fs.blacklist","").split(';'))   
-            timeout = list(props.getPropertyWithDefault("omero.fs.timeout","0.0").split(';'))   
-            blockSize = list(props.getPropertyWithDefault("omero.fs.blockSize","0").split(';'))   
-            ignoreSysFiles = list(props.getPropertyWithDefault("omero.fs.ignoreSysFiles","True").split(';'))   
-            ignoreDirEvents = list(props.getPropertyWithDefault("omero.fs.ignoreDirEvents","True").split(';'))   
-            dirImportWait = list(props.getPropertyWithDefault("omero.fs.dirImportWait","60").split(';'))   
-            readers = list(props.getPropertyWithDefault("omero.fs.readers","").split(';'))   
-            importArgs = list(props.getPropertyWithDefault("omero.fs.importArgs","").split(';'))   
+            watchDir = list(props.getPropertyWithDefault("omero.fs.watchDir","").split(';'))
+            eventTypes = list(props.getPropertyWithDefault("omero.fs.eventTypes","All").split(';'))
+            pathMode = list(props.getPropertyWithDefault("omero.fs.pathMode","Follow").split(';'))
+            whitelist = list(props.getPropertyWithDefault("omero.fs.whitelist","").split(';'))
+            blacklist = list(props.getPropertyWithDefault("omero.fs.blacklist","").split(';'))
+            timeout = list(props.getPropertyWithDefault("omero.fs.timeout","0.0").split(';'))
+            blockSize = list(props.getPropertyWithDefault("omero.fs.blockSize","0").split(';'))
+            ignoreSysFiles = list(props.getPropertyWithDefault("omero.fs.ignoreSysFiles","True").split(';'))
+            ignoreDirEvents = list(props.getPropertyWithDefault("omero.fs.ignoreDirEvents","True").split(';'))
+            dirImportWait = list(props.getPropertyWithDefault("omero.fs.dirImportWait","60").split(';'))
+            readers = list(props.getPropertyWithDefault("omero.fs.readers","").split(';'))
+            importArgs = list(props.getPropertyWithDefault("omero.fs.importArgs","").split(';'))
 
             for i in range(len(importUser)):
                 if importUser[i].strip(string.whitespace):
                     monitorParams[importUser[i].strip(string.whitespace)] = {}
 
                     try:
-                        monitorParams[importUser[i]]['watchDir'] = watchDir[i].strip(string.whitespace) 
+                        monitorParams[importUser[i]]['watchDir'] = watchDir[i].strip(string.whitespace)
                     except:
                         monitorParams[importUser[i]]['watchDir'] = ""
 
@@ -344,47 +347,47 @@ class DropBox(Ice.Application):
                             monitorParams[importUser[i]]['eventTypes'].append(monitors.WatchEventType.__dict__[eType.strip(string.whitespace)])
                         except:
                             monitorParams[importUser[i]]['eventTypes'] = [monitors.WatchEventType.__dict__["All"]]
-                                                                                            
+
                     try:
                         monitorParams[importUser[i]]['pathMode'] = monitors.PathMode.__dict__[pathMode[i].strip(string.whitespace)]
                     except:
                         monitorParams[importUser[i]]['pathMode'] = monitors.PathMode.__dict__["Follow"]
-                                                                                              
+
                     monitorParams[importUser[i]]['whitelist'] = []
                     for white in whitelist[i].split(','):
                         if white.strip(string.whitespace):
                             monitorParams[importUser[i]]['whitelist'].append(white.strip(string.whitespace))
-                                                                                            
+
                     monitorParams[importUser[i]]['blacklist'] = []
                     for black in blacklist[i].split(','):
                         if black.strip(string.whitespace):
                             monitorParams[importUser[i]]['blacklist'].append(black.strip(string.whitespace))
-                                                                                            
+
                     try:
                         monitorParams[importUser[i]]['timeout'] = float(timeout[i].strip(string.whitespace))
                     except:
                         monitorParams[importUser[i]]['timeout'] = 0.0 # seconds
-                                                                                                                                                                                           
+
                     try:
                         monitorParams[importUser[i]]['blockSize'] = int(blockSize[i].strip(string.whitespace))
                     except:
                         monitorParams[importUser[i]]['blockSize'] = 0 # number
-                                                                                                                                                                                           
+
                     try:
                         monitorParams[importUser[i]]['ignoreSysFiles'] = ignoreSysFiles[i].strip(string.whitespace)[0] in ('T', 't')
                     except:
                         monitorParams[importUser[i]]['ignoreSysFiles'] = False
-                                                                                                                                                                                           
+
                     try:
                         monitorParams[importUser[i]]['ignoreDirEvents'] = ignoreDirEvents[i].strip(string.whitespace)[0] in ('T', 't')
                     except:
                         monitorParams[importUser[i]]['ignoreDirEvents'] = False
-                                                                                                                                                                                           
+
                     try:
                         monitorParams[importUser[i]]['dirImportWait'] = int(dirImportWait[i].strip(string.whitespace))
                     except:
-                        monitorParams[importUser[i]]['dirImportWait'] = 60 # seconds                                                                                                                                                                     
-                                                                                                                                                                                           
+                        monitorParams[importUser[i]]['dirImportWait'] = 60 # seconds
+
                     try:
                         readersFile = readers[i].strip(string.whitespace)
                         if os.path.isfile(readersFile):
@@ -393,18 +396,17 @@ class DropBox(Ice.Application):
                             monitorParams[importUser[i]]['readers'] = ""
                     except:
                         monitorParams[importUser[i]]['readers'] = ""
-                        
+
                     try:
-                        monitorParams[importUser[i]]['importArgs'] = importArgs[i].strip(string.whitespace) 
+                        monitorParams[importUser[i]]['importArgs'] = importArgs[i].strip(string.whitespace)
                     except:
                         monitorParams[importUser[i]]['importArgs'] = ""
 
-                                                                                                                                                                                      
         except:
             raise
-        
+
         return monitorParams
-        
+
 
 if __name__ == '__main__':
     try:
@@ -418,4 +420,3 @@ if __name__ == '__main__':
     exitCode = app.main(sys.argv)
     log.info("Exiting with exit code: %d", exitCode)
     sys.exit(exitCode)
-    
