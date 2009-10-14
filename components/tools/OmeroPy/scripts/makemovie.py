@@ -168,7 +168,7 @@ def buildAVI(sizeX, sizeY, filelist, fps, output, format):
 	if(format==WMV):
 		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=wmv2 -o '+commandArgs["output"]+"."+formatExtension;
 	elif(format==QT):	
-		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=mjpeg:vbitrate=800  -o ' +commandArgs["output"]+"."+formatExtension;
+		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=png -ovc lavc -lavcopts vcodec=mjpeg:vbitrate=800  -o ' +commandArgs["output"]+"."+formatExtension;
 	else:
 		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=mpeg4 -o '+commandArgs["output"]+"."+formatExtension;
 	os.system(program+ args);
@@ -384,14 +384,20 @@ def writeMovie(commandArgs, session):
 		planeImage = planeImage.byteswap();
 		planeImage = planeImage.reshape(sizeX, sizeY);
 		image = Image.frombuffer('RGBA',(sizeX,sizeY),planeImage.data,'raw','ARGB',0,1)
-		filename = commandArgs["output"]+str(frameNo)+'.jpg';
+		if(commandArgs["format"]==QT):
+			filename = commandArgs["output"]+str(frameNo)+'.png';
+		else:
+			filename = commandArgs["output"]+str(frameNo)+'.jpg';
 		if(commandArgs["scalebar"]!=0):
 			image = addScalebar(commandArgs["scalebar"], image, pixels, commandArgs);
 		if(commandArgs["showTime"]==1 or commandArgs["showPlaneInfo"]==1):
 			planeInfo = "z:"+str(z)+"t:"+str(t);
 			time = timeMap[planeInfo]
 			image = addTimePoints(time, z, t, image, pixels, commandArgs);
-		image.save(filename,"JPEG")
+		if(commandArgs["format"]==QT):
+			image.save(filename,"PNG")
+		else:
+			image.save(filename,"JPEG")
 		if(frameNo==1):
 			filelist = filename
 		else:
