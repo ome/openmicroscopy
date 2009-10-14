@@ -108,6 +108,7 @@ module omero {
         const string NSEDITOREXPERIMENT = "openmicroscopy.org/omero/editor/experiment";
         const string NSMOVIEMPEG = "openmicroscopy.org/omero/movie/mpeg";
         const string NSMOVIEQT = "openmicroscopy.org/omero/movie/qt";
+        const string NSMOVIEWMV = "openmicroscopy.org/omero/movie/wmv";
         
     };
 

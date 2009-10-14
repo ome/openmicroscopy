@@ -76,11 +76,13 @@ except:
 
 MPEG = 'video/mpeg'
 QT = 'video/quicktime'
+WMV = 'video/wmv'
 MPEG_NS = omero_Constants_ice._M_omero.constants.metadata.NSMOVIEMPEG;
 QT_NS = omero_Constants_ice._M_omero.constants.metadata.NSMOVIEQT;
+WMV_NS = omero_Constants_ice._M_omero.constants.metadata.NSMOVIEWMV;
 
-formatNSMap = {MPEG:MPEG_NS, QT:QT_NS};
-formatExtensionMap = {MPEG:"avi", QT:"avi"};
+formatNSMap = {MPEG:MPEG_NS, QT:QT_NS, WMV:WMV_NS};
+formatExtensionMap = {MPEG:"avi", QT:"avi", WMV:"avi"};
 OVERLAYCOLOUR = "#666666";
 
 def getFormat(session, fmt):
@@ -99,6 +101,8 @@ def createFile(session, filename, format):
  	tempFile = omero.model.OriginalFileI();
 	tempFile.setName(omero.rtypes.rstring(filename));
 	tempFile.setPath(omero.rtypes.rstring(filename));
+	if(format==WMV):
+		format=MPEG;
 	tempFile.setFormat(getFormat(session, format));
 	tempFile.setSize(omero.rtypes.rlong(os.path.getsize(filename)));
 	tempFile.setSha1(omero.rtypes.rstring(calcSha1(filename)));
@@ -161,10 +165,12 @@ def buildAVI(sizeX, sizeY, filelist, fps, output, format):
 	program = 'mencoder'
 	args = "";
 	formatExtension = formatExtensionMap[format];
-	if(format==MPEG):
-		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=png -ovc lavc -lavcopts vcodec=mpeg4 -oac copy -o '+commandArgs["output"]+"."+formatExtension;
-	else:	
-		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=png -ovc lavc -lavcopts vcodec=mjpeg:vbitrate=800  -o ' +commandArgs["output"]+"."+formatExtension;
+	if(format==WMV):
+		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=wmv2 -o '+commandArgs["output"]+"."+formatExtension;
+	elif(format==QT):	
+		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=mjpeg:vbitrate=800  -o ' +commandArgs["output"]+"."+formatExtension;
+	else:
+		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=mpeg4 -o '+commandArgs["output"]+"."+formatExtension;
 	os.system(program+ args);
 	
 def rangeToStr(range):
@@ -378,14 +384,14 @@ def writeMovie(commandArgs, session):
 		planeImage = planeImage.byteswap();
 		planeImage = planeImage.reshape(sizeX, sizeY);
 		image = Image.frombuffer('RGBA',(sizeX,sizeY),planeImage.data,'raw','ARGB',0,1)
-		filename = commandArgs["output"]+str(frameNo)+'.png';
+		filename = commandArgs["output"]+str(frameNo)+'.jpg';
 		if(commandArgs["scalebar"]!=0):
 			image = addScalebar(commandArgs["scalebar"], image, pixels, commandArgs);
 		if(commandArgs["showTime"]==1 or commandArgs["showPlaneInfo"]==1):
 			planeInfo = "z:"+str(z)+"t:"+str(t);
 			time = timeMap[planeInfo]
 			image = addTimePoints(time, z, t, image, pixels, commandArgs);
-		image.save(filename,"PNG")
+		image.save(filename,"JPEG")
 		if(frameNo==1):
 			filelist = filename
 		else:

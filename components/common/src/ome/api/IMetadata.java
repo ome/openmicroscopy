@@ -96,6 +96,13 @@ public interface IMetadata
     public static final String MOVIE_QT_NS = 
     	"openmicroscopy.org/omero/movie/qt";
     
+	/** 
+     * The name space used to indicate that the <code>FileAnnotation</code> 
+     * is an <code>WMV</code> file.
+     */
+    public static final String MOVIE_WMV_NS = 
+    	"openmicroscopy.org/omero/movie/wmv";
+    
 	/**
 	 * Loads the <code>logical channels</code> and the acquisition metadata 
 	 * related to them.
