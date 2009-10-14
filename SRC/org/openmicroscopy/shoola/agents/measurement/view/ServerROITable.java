@@ -140,7 +140,7 @@ class ServerROITable
 					rowIDs.put((Long) rows[j][i], j);
 			}
 		}
-		table = new JXTable(new ServerROITableModel(rows, columns));
+		table = new JTable(new ServerROITableModel(rows, columns));
 		TableColumnModel tcm = table.getColumnModel();
 		TableColumn tc = tcm.getColumn(VISIBILITY_INDEX);
 		tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
