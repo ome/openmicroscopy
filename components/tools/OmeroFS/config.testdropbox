@@ -1,0 +1,44 @@
+# Server configuration
+Ice.Admin.ServerId=TestDropBox
+Ice.Admin.Endpoints=tcp -h 127.0.0.1
+Ice.ProgramName=TestDropBox
+# Object adapter omerofs.TestDropBox
+omerofs.TestDropBox.Locator=IceGrid/Locator:tcp -h 127.0.0.1 -p 4061
+omerofs.TestDropBox.Endpoints=tcp
+omerofs.TestDropBox.AdapterId=TestDropBox.omerofs.TestDropBox
+# Server descriptor properties
+Ice.MessageSizeMax=65536
+Ice.Override.ConnectTimeout=5000
+Ice.ThreadPool.Client.Size=2
+Ice.ThreadPool.Client.SizeMax=50
+Ice.ThreadPool.Server.Size=10
+Ice.ThreadPool.Server.SizeMax=100
+Ice.Default.Locator=IceGrid/Locator:tcp -h 127.0.0.1 -p 4061
+omero.logging.timedlog=False
+omero.logging.logsize=5000000
+omero.logging.lognum=9
+omero.logging.level=20
+omero.fs.host=localhost
+omero.fs.port=4063
+omero.fs.maxRetries=5
+omero.fs.retryInterval=3
+omero.fs.defaultDropBoxDir=DropBox
+omero.fs.importUsers=root
+omero.fs.watchDir=
+omero.fs.eventTypes=Creation,Modification
+omero.fs.pathMode=Follow
+omero.fs.whitelist=
+omero.fs.blacklist=
+omero.fs.timeout=0.0
+omero.fs.blockSize=0
+omero.fs.ignoreSysFiles=True
+omero.fs.ignoreDirEvents=True
+omero.fs.dirImportWait=60
+omero.fs.readers=
+omero.fs.serverIdString=FSServer
+omero.fs.clientIdString=TestDropBox
+omero.fs.clientAdapterName=omerofs.TestDropBox
+omero.fstest.watchDir=/OMERODEV/TestBox/
+omero.fstest.srcFile=/Users/cblackburn/Work/testimages/tinyTest.d3d.dv
+omero.fstest.logDir=/Users/cblackburn/Work/Trunk/dist/var/log
+omero.fstest.logFile=TestDropBox.log

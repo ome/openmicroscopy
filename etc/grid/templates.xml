@@ -293,6 +293,15 @@
       </server>
     </server-template>
 
+    <!-- Added to allow a one-shot commandline "server" to interact. -->
+    <server-template id="TestDropBoxTemplate">
+      <parameter name="exe" default="python"/>
+      <server id="TestDropBox" exe="${exe}" activation="manual" pwd="${OMERO_HOME}">
+        <adapter name="omerofs.TestDropBox" register-process="true" endpoints="tcp"/>
+      </server>
+    </server-template>
+	<!-- End of TestDropBox -->
+	
     <server-template id="ShellTemplate">
       <parameter name="id"/>
       <parameter name="exe" default="python"/>

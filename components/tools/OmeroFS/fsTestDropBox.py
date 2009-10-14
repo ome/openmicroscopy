@@ -7,19 +7,22 @@
 """
 
 import logging
-log = logging.getLogger("fsclient.DropBox")
+log = logging.getLogger("TestDropBox")
 
 import time, os, sys
 import string
 import uuid
+import threading
+import shutil
 
 import omero
 import omero.rtypes
+import omero.sys
 import Ice
 import IceGrid
 import Glacier2
 
-from omero.util import configure_server_logging
+from omero.util import configure_logging
 
 import omero_FS_ice
 monitors = Ice.openModule('omero.grid.monitors')
@@ -28,13 +31,30 @@ from omero.clients import ObjectFactory
 
 import fsDropBoxMonitorClient
 
-class DropBox(Ice.Application):
-
+class TestDropBox(Ice.Application):
+    
+    watchDir = ''
+    srcFile = ''
+    dstFile = ''
+    imageId = None
+    event = threading.Event()
+    
     def run(self, args):
 
+        # Configure our communicator
+        ObjectFactory().registerObjectFactory(self.communicator())
+        for of in omero.rtypes.ObjectFactories.values():
+            of.register(self.communicator())
         
         props = self.communicator().getProperties()
-        configure_server_logging(props)
+
+        self.srcFile =  props.getPropertyWithDefault("omero.fstest.srcFile","")
+        self.watchDir = props.getPropertyWithDefault("omero.fstest.watchDir","")
+        logDir = getPropertyWithDefault("omero.fstest.logDir","")
+        logFile = self.props.getPropertyWithDefault("omero.fstest.logFile","")
+
+        configure_logging(logdir=logDir, logfile=logFile)
+        log.info('Trying to start OMERO.fs TestDropBox client')
 
         # This tests if the FSServer is supported by the platform
         # if not there's no point starting the FSDropBox client
@@ -45,18 +65,13 @@ class DropBox(Ice.Application):
             log.exception("System requirements not met: \n")
             return -1
 
-        # Configure our communicator
-        ObjectFactory().registerObjectFactory(self.communicator())
-        for of in omero.rtypes.ObjectFactories.values():
-            of.register(self.communicator())
-        
         try:
             host, port = self.getHostAndPort(props)
             omero.client(host, port)
         except:
             log.exception("Failed to get client: \n")
             return -1
-          
+      
         try:
             maxRetries = int(props.getPropertyWithDefault("omero.fs.maxRetries","5"))
             retryInterval = int(props.getPropertyWithDefault("omero.fs.retryInterval","3"))
@@ -66,28 +81,18 @@ class DropBox(Ice.Application):
         except:
             log.exception("Failed to get Session: \n")
             return -1
-            
+        
         try:
             configService = sf.getConfigService()
         except:
             log.exception("Failed to get configService: \n")
             return -1
-            
+        
         try:
             monitorParameters = self.getMonitorParameters(props)
             log.info("Monitor parameters = %s", str(monitorParameters))
         except:
             log.exception("Failed get properties from templates.xml: \n", )
-            return -1
-
-        try:
-            if 'default' in monitorParameters.keys():
-                if not monitorParameters['default']['watchDir']:
-                    dataDir = configService.getConfigValue("omero.data.dir")
-                    defaultDropBoxDir = props.getPropertyWithDefault("omero.fs.defaultDropBoxDir","DropBox")
-                    monitorParameters['default']['watchDir'] = os.path.join(dataDir, defaultDropBoxDir)
-        except:
-            log.exception("Failed to use a query service : \n")
             return -1
 
         try:
@@ -103,46 +108,44 @@ class DropBox(Ice.Application):
 
             clientAdapterName = self.getFSClientAdapterName(props)
             clientIdString = self.getFSClientIdString(props)
-            adapter = self.communicator().createObjectAdapter(clientAdapterName)
+            
             mClient = {}
-            monitorId = {}
+            monitorId = {}      
+            user = monitorParameters.keys()[0]
+            log.info("Creating test client for test user: %s", user)
             
-            for user in monitorParameters.keys():
-                log.info("Creating client for user: %s", user)
-                if user == 'default':
-                    mClient[user] = fsDropBoxMonitorClient.MonitorClientI(monitorParameters[user]['watchDir'], self.communicator())
-                else:
-                    mClient[user] = fsDropBoxMonitorClient.SingleUserMonitorClient(user, monitorParameters[user]['watchDir'], self.communicator())
-            
-                identity = self.communicator().stringToIdentity(clientIdString + "." + user)
-                adapter.add(mClient[user], identity)
-                mClientProxy = monitors.MonitorClientPrx.uncheckedCast(adapter.createProxy(identity))
-                
-                monitorType = monitors.MonitorType.__dict__["Persistent"]
-                try:           
-                    monitorId[user] = fsServer.createMonitor(monitorType, 
-                                                        monitorParameters[user]['eventTypes'], 
-                                                        monitorParameters[user]['pathMode'], 
-                                                        monitorParameters[user]['watchDir'], 
-                                                        monitorParameters[user]['whitelist'], 
-                                                        monitorParameters[user]['blacklist'], 
-                                                        monitorParameters[user]['timeout'], 
-                                                        monitorParameters[user]['blockSize'], 
-                                                        monitorParameters[user]['ignoreSysFiles'], 
-                                                        monitorParameters[user]['ignoreDirEvents'],
-                                                        mClientProxy)
-                                                    
-                    log.info("Created monitor with id = %s",str(monitorId[user]))
-                    mClient[user].setId(monitorId[user])
-                    mClient[user].setServerProxy(fsServer)
-                    mClient[user].setSelfProxy(mClientProxy)
-                    mClient[user].setDirImportWait(monitorParameters[user]['dirImportWait'])
-                    mClient[user].setReaders(monitorParameters[user]['readers'])
-                    mClient[user].setHostAndPort(host,port)
-                    mClient[user].setMaster(self)
-                    fsServer.startMonitor(monitorId[user])
-                except:
-                    log.exception("Failed create or start monitor : \n")
+            mClient[user] = fsDropBoxMonitorClient.TestMonitorClient(user, monitorParameters[user]['watchDir'], self.communicator())
+            adapter = self.communicator().createObjectAdapter(clientAdapterName)
+            identity = self.communicator().stringToIdentity(clientIdString + "." + user)
+            mClientProxy = monitors.MonitorClientPrx.uncheckedCast(adapter.createProxy(identity))
+            adapter.add(mClient[user], identity)
+        
+            monitorType = monitors.MonitorType.__dict__["Persistent"]
+            try:           
+                monitorId[user] = fsServer.createMonitor(monitorType, 
+                                                    monitorParameters[user]['eventTypes'], 
+                                                    monitorParameters[user]['pathMode'], 
+                                                    self.watchDir,
+                                                    monitorParameters[user]['whitelist'], 
+                                                    monitorParameters[user]['blacklist'], 
+                                                    monitorParameters[user]['timeout'], 
+                                                    monitorParameters[user]['blockSize'], 
+                                                    monitorParameters[user]['ignoreSysFiles'], 
+                                                    monitorParameters[user]['ignoreDirEvents'],
+                                                    mClientProxy)
+                                            
+                log.info("Created monitor with id = %s",str(monitorId[user]))
+                mClient[user].setId(monitorId[user])
+                mClient[user].setServerProxy(fsServer)
+                mClient[user].setSelfProxy(mClientProxy)
+                mClient[user].setDirImportWait(monitorParameters[user]['dirImportWait'])
+                mClient[user].setReaders(monitorParameters[user]['readers'])
+                mClient[user].setHostAndPort(host,port)
+                mClient[user].setMaster(self)
+                fsServer.startMonitor(monitorId[user])
+            except:
+                log.exception("Failed create or start monitor : \n")
+        
             adapter.activate()
         except:
             log.exception("Failed to access proxy : \n")
@@ -151,10 +154,53 @@ class DropBox(Ice.Application):
         if not mClient:
             log.error("Failed to create any monitors.")
             return -1
-            
-        log.info('Started OMERO.fs DropBox client')
-        self.communicator().waitForShutdown()
+        
+        log.info('Started OMERO.fs Test DropBox client')
+        
+        self.dstFile = os.path.join(self.watchDir, str(uuid.uuid1())+".dv")
+        
+        try:
+            shutil.copy(self.srcFile, self.dstFile)
+        except:
+            log.exception("Error copying file:")
+            return -1
+        
+        while not self.event.isSet():    
+            time.sleep(1)
+        
+        try:
+            sf = omero.util.internal_service_factory(
+                    self.communicator(), "root", "system",
+                    retries=maxRetries, interval=retryInterval)
+        except:
+            log.exception("Failed to get Session: \n")
+            return -1
 
+        p = omero.sys.Parameters()
+        
+        query = "select i from Image i where i.name = " + "'" + self.dstFile + "'"
+        out = sf.getQueryService().findAllByQuery(query, p)
+        log.info("Query 1 says: %s item(s) found.", str(len(out)))
+        
+        query = "select i from Image i where i.id = " + "'" + self.imageId + "'"
+        out = sf.getQueryService().findAllByQuery(query, p)
+        
+        if len(out) == 1:
+            fname = out[0]._name._val
+            log.error("Query on id=%s returned file %s", self.imageId, fname)
+            if fname == self.dstFile:
+                retVal = 0
+            else:
+                log.error("Filenames do not match %s != %s", fname, self.dstFile)
+                retVal = -1
+        else:
+            log.error("Incorrect number of items found: %s", len(out))
+            
+        try:
+            sf.destroy()
+        except:
+            log.exception("Failed to get close session: \n")
+    
         for user in mClient.keys():
             try:
                 fsServer.stopMonitor(monitorId[user])
@@ -170,9 +216,19 @@ class DropBox(Ice.Application):
             except:
                 log.exception("Failed to stop DropBoxMonitorClient for: %s", user)
 
-        log.info('Stopping OMERO.fs DropBox client')
-        return 0
+        log.info('Stopping OMERO.fs Test DropBox client')
+        log.info("Exiting with exit code: %d", retVal)
+        return retVal
 
+    def notifyTestFile(self, imageId, fileId):
+        """
+            Called back by overridden importFileWrapper
+            
+        """
+        log.info("%s import attempted. image id=%s", fileId, imageId)
+        self.imageId = imageId
+        self.event.set()
+        
     def getHostAndPort(self, props):
         """
             Get the host and port from the communicator properties.
@@ -294,17 +350,9 @@ class DropBox(Ice.Application):
         
         return monitorParams
         
-
-if __name__ == '__main__':
-    try:
-        log.info('Trying to start OMERO.fs DropBox client')
-        app = DropBox()
-    except:
-        log.exception("Failed to start the client:\n")
-        log.info("Exiting with exit code: -1")
-        sys.exit(-1)
-
-    exitCode = app.main(sys.argv)
-    log.info("Exiting with exit code: %d", exitCode)
-    sys.exit(exitCode)
     
+if __name__ == '__main__':
+    
+    app = TestDropBox()
+    exitCode = app.main(sys.argv, "config.testdropbox")
+    sys.exit(exitCode)

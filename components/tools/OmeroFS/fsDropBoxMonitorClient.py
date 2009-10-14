@@ -229,6 +229,7 @@ class MonitorWorker(threading.Thread):
             self.execute()
         self.log.info("Stopping")
 
+        
     @perf
     def execute(self):
 
@@ -342,6 +343,7 @@ class MonitorClientI(monitors.MonitorClient):
         try:
             state = self.state
             self.state = None
+            self.log.info("Stopping state...")
             if state: state.stop()
         except:
             self.log.exception("Error stopping state")
@@ -349,6 +351,7 @@ class MonitorClientI(monitors.MonitorClient):
         try:
             resources = self.resources
             self.resources = None
+            self.log.info("Cleaning up resources state...")
             if resources: resources.cleanup()
         except:
             self.log.exception("Error cleaning resources")
@@ -519,15 +522,33 @@ class MonitorClientI(monitors.MonitorClient):
 
         try:
             self.log.info("Importing %s (session=%s)", fileName, key)
-
+            
+            imageId = None
+            
             t = create_path("dropbox", "err")
+            to = create_path("dropbox", "out")
 
             cli = omero.cli.CLI()
-            cli.invoke(["import", "---errs=%s"%t, "-s", self.host, "-p", str(self.port), "-k", key, fileName])
+            cli.invoke(["import", "---errs=%s"%t, "---file=%s"%to, "-s", self.host, "-p", str(self.port), "-k", key, fileName])
             retCode = cli.rv
 
             if retCode == 0:
                 self.log.info("Import of %s completed (session=%s)", fileName, key)
+                if to.exists():
+                    f = open(str(to),"r")
+                    lines = f.readlines()
+                    f.close()
+                    if len(lines) == 1:
+                        imageId = lines[0].strip()
+                    elif len(lines) > 1:
+                        self.log.error("Too many lines in output file:")
+                        for line in lines:
+                            self.log.error(line.strip())
+                    else:
+                        self.log.error("No lines in output file. No image ID.")           
+                else:
+                    self.log.error("%s not found !" % to)
+
             else:
                 self.log.error("Import of %s failed=%s (session=%s)", fileName, str(retCode), key)
                 self.log.error("***** start of output from importer-cli to stderr *****")
@@ -540,9 +561,11 @@ class MonitorClientI(monitors.MonitorClient):
                 else:
                     self.log.error("%s not found !" % t)
                 self.log.error("***** end of output from importer-cli *****")
-
         finally:
             remove_path(t)
+            remove_path(to)
+        
+        return imageId
 
     #
     # Setters
@@ -688,3 +711,35 @@ class SingleUserMonitorClient(MonitorClientI):
         """
         return self.user
         
+class TestMonitorClient(SingleUserMonitorClient):
+    """
+        Subclass of MonitorClient providing for a single user to import outside 
+        of the DrpBox structure.
+        
+        
+    """
+    def __init__(self, user, dir, communicator, getUsedFiles = as_dictionary, ctx = None,\
+                       worker_wait = 60, worker_count = 1, worker_batch = 10):
+        """
+            Initialise via the superclass
+            
+        """
+        SingleUserMonitorClient.__init__(self, user, dir, communicator, getUsedFiles=getUsedFiles, ctx = None,\
+                       worker_wait=worker_wait, worker_count=worker_count, worker_batch=worker_batch)
+
+
+            
+    #
+    # Called from state callback (timer)
+    #
+    def importFileWrapper(self, fileId):
+        """
+        Wrapper method which allows plugging error handling code around
+        the main call to importFile. In all cases, the key will be removed
+        on execution.
+        """
+        self.state.clear(fileId)
+        exName = self.getExperimenterFromPath(fileId)
+        imageId = self.importFile(fileId, exName)
+        self.log.info("Test file imported or not: %s for test user %s", fileId, exName)
+        self.master.notifyTestFile(imageId, fileId)
