@@ -63,6 +63,9 @@ public class MovieExportParam
 	
 	/** Identify the <code>Quick time</code> format. */
 	public static final int		QT = 1;
+
+	/** Identify the <code>WMV</code> format. */
+	public static final int		WMV = 2;
 	
 	/** The supported formats. */
 	public static final Map<Integer, String> FORMATS;
@@ -72,6 +75,9 @@ public class MovieExportParam
 
 	/** The extension corresponding to the {@link #MPEG} movie. */
 	private static final String MPEG_EXTENSION = ".avi";
+
+	/** The extension corresponding to the {@link #WMV} movie. */
+	private static final String WMV_EXTENSION = ".wmv";
 		
 	/** The extension corresponding to the {@link #QT} movie. */
 	private static final String QT_EXTENSION = ".avi";
@@ -80,6 +86,7 @@ public class MovieExportParam
 		FORMATS = new LinkedHashMap<Integer, String>(2);
 		FORMATS.put(MPEG, "MPEG");
 		FORMATS.put(QT, "QuickTime");
+		FORMATS.put(WMV, "WindowsMediaPlayer");
 	}
 	
 	/** The name of the image. */
@@ -148,6 +155,12 @@ public class MovieExportParam
 					name = name.substring(0, 
 							name.length()-MPEG_EXTENSION.length());
 				return name;
+			case WMV:
+				if (name.endsWith(WMV_EXTENSION)) 
+					name = name.substring(0, 
+							name.length()-WMV_EXTENSION.length());
+				return name;
+
 			case QT:
 				if (name.endsWith(QT_EXTENSION)) 
 					name = name.substring(0, 
@@ -302,6 +315,7 @@ public class MovieExportParam
 		switch (format) {
 			case MPEG: return "video/mpeg";
 			case QT: return "video/quicktime";
+			case WMV: return "video/wmv";
 			default:
 				return "";
 		}

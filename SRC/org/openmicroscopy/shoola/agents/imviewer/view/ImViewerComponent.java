@@ -743,7 +743,6 @@ class ImViewerComponent
 			if (view.isLensVisible()) view.setLensPlaneImage();
 			view.createHistoryItem(null);
 		}
-		
 		view.setCursor(Cursor.getDefaultCursor());
 		fireStateChange();
 	}
