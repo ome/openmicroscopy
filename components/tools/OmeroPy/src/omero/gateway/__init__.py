@@ -2046,7 +2046,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         
     def getDate(self):
         try:
-            if self._obj.acquisitionDate.val is not None:
+            if self._obj.acquisitionDate.val is not None and self._obj.acquisitionDate.val > 0:
                 t = self._obj.acquisitionDate.val
             else:
                 t = self._obj.details.creationEvent.time.val

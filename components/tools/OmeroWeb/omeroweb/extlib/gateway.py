@@ -2428,13 +2428,6 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
         f.seek(0)
         return f.read()
     
-    def getDateAsTimestamp(self):
-        try:
-            return time.ctime(self._obj.acquisitionDate.val / 1000)
-        except:
-            logger.info(traceback.format_exc())
-            return _("unknown")
-    
     # metadata getters
     # from metadata service
     def getMicroscopInstruments(self):
