@@ -23,7 +23,7 @@
 
 from ez_setup import use_setuptools
 use_setuptools()
-from setuptools import setup
+from setuptools import setup, find_packages
 from omero_version import omero_version as ov
 
 setup(name="omero_client",
@@ -37,13 +37,7 @@ Python bindings to the OMERO.blitz server.
       url="https://trac.openmicroscopy.org.uk/omero/wiki/OmeroPy",
       download_url="https://trac.openmicroscopy.org.uk/omero/wiki/OmeroPy",
       package_dir = {"": "target"},
-      packages=['', 'xmlrunner',\
-        'omero', 'omero.plugins',\
-	'omero.api','omero.install','omero.model',\
-	'omero.sys','omero.util','omero.romio',\
-	'omero_ext','omero.gateway','omero.gateway.scripts',\
-	'omero.grid', 'omero.grid.monitors', 'omero.fs',\
-        'IPython'],
+      packages=find_packages("target")+[""],
       package_data={'omero.gateway':['pilfonts/*'], 'omero.gateway.scripts':['imgs/*']},
       test_suite='test.suite'
 )
