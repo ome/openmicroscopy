@@ -17,7 +17,11 @@ echo -----------------------------------------------------
 echo.
 echo Logging in user for service: %USERDOMAIN%\%USERNAME%
 echo.
+
 if "x%PASSWORD%" == "x" (SET /P PASSWORD=Password:)
+REM Other defaults
+if "x%ROUTER%" == "x" (SET ROUTER=4063)
+if "x%REGISTRY%" == "x" (SET REGISTRY=4061)
 
 cd "%~dp0\.."
 if exist dist goto AlreadyBuilt
@@ -67,8 +71,12 @@ echo Setting PYTHONPATH
 call bin\setpythonpath
 if errorlevel 1 goto ERROR
 
-echo Changing etc\grid directory paths
+echo Setting etc\grid directory paths to %CD%
 python lib\python\omero\install\win_set_path.py
+if errorlevel 1 goto ERROR
+
+echo Setting etc\grid ports to %ROUTER% and %REGISTRY%
+python lib\python\omero\install\change_ports.py %ROUTER% %REGISTRY%
 if errorlevel 1 goto ERROR
 
 REM Required because of environment-less service
