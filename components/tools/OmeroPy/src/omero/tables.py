@@ -440,7 +440,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @perf
     def readCoordinates(self, rowNumbers, current = None):
         self.logger.info("%s.readCoordinates(size=%s)", self, slen(rowNumbers))
-        self.storage.readCoordinates(self.stamp, rowNumbers, current)
+        return self.storage.readCoordinates(self.stamp, rowNumbers, current)
 
     @remoted
     @perf
