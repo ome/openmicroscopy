@@ -141,6 +141,9 @@ class TreeViewerWin
 	/** Dialog displaying the supported file formats. */
 	private TinyDialog			formatDialog;
 	
+	/** Flag indicating that the tree is visible or hidden. */
+	private boolean				treeVisible;
+	
     /**
      * Checks if the specified {@link Browser} is already visible.
      * 
@@ -394,6 +397,7 @@ class TreeViewerWin
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
+    	treeVisible = true;
     	rightPane = new JSplitPane();
     	rightPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     	rightPane.setOneTouchExpandable(true);
@@ -708,14 +712,16 @@ class TreeViewerWin
     /** Shows or hides the Tree Viewer. */
 	void setInspectorVisibility()
 	{
-		if (leftComponent == null) {
-			leftComponent = splitPane.getLeftComponent();
+		if (treeVisible) {
+			if (leftComponent == null)
+				leftComponent = splitPane.getLeftComponent();
 			dividerLocation = splitPane.getDividerLocation();
 			splitPane.remove(leftComponent);
+			treeVisible = false;
 		} else {
 			splitPane.add(leftComponent);
 			splitPane.setDividerLocation(dividerLocation);
-			leftComponent = null;
+			treeVisible = true;
 		}
 	}
 	
