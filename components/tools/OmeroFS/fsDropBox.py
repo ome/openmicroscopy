@@ -134,6 +134,7 @@ class DropBox(Ice.Application):
 
             for user in monitorParameters.keys():
                 if isTestClient:
+                    self.callbackOnInterrupt()
                     log.info("Creating test client for user: %s", user)
                     testUser = user
                     mClient[user] = fsDropBoxMonitorClient.TestMonitorClient(user, monitorParameters[user]['watchDir'], self.communicator())
@@ -186,12 +187,22 @@ class DropBox(Ice.Application):
 
         log.info('Started OMERO.fs DropBox client')
 
-        # If this is TestDropBox then try to copy and import a file.
-        if isTestClient:
-            srcFile = props.getPropertyWithDefault("omero.fstest.srcFile","")
-            retVal = self.injectTestFile(srcFile, monitorParameters[testUser]['watchDir'])
-
-        self.communicator().waitForShutdown()
+        try:
+            # If this is TestDropBox then try to copy and import a file.
+            if isTestClient:
+                timeout = int(props.getPropertyWithDefault("omero.fstest.timeout","120"))
+                srcFile = props.getPropertyWithDefault("omero.fstest.srcFile","")
+                targetDir = monitorParameters[testUser]['watchDir']
+                if not srcFile or not targetDir:
+                    log.error("Bad configuration")
+                else:
+                    log.info("Copying test file %s to %s" % (srcFile, targetDir))
+                    retVal = self.injectTestFile(srcFile, targetDir, timeout)
+            else:
+                self.communicator().waitForShutdown()
+        except:
+            # Catching here guarantees cleanup.
+            log.exception("Executor error")
 
         for user in mClient.keys():
             try:
@@ -215,8 +226,14 @@ class DropBox(Ice.Application):
 
         return retVal
 
+    def interruptCallback(self, sig):
+        """
+        Called when this is a test run in order to prevent long hangs.
+        """
+        log.info("Setting event on sig %s" % sig)
+        self.event.set();
 
-    def injectTestFile(self, srcFile, dstDir):
+    def injectTestFile(self, srcFile, dstDir, timeout):
         """
            Copy test file and wait for import to complete.
 
@@ -235,8 +252,10 @@ class DropBox(Ice.Application):
             log.exception("Error copying file:")
             return -1
 
-        while not self.event.isSet():
-            time.sleep(1)
+        self.event.wait(timeout)
+
+        if not hasattr(self, "imageId"):
+            log.error("notifyTestFile never called")
 
         try:
             sf = omero.util.internal_service_factory(
