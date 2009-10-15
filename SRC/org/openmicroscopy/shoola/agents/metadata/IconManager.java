@@ -355,7 +355,7 @@ public class IconManager
         relPaths[TAG_SET] = "nuvola_knotesRedRed16.png";
         relPaths[DOWNLOAD_12] = "nuvola_download_manager11.png";
         relPaths[EDITOR_12] = "omeroEditorLink11.png";
-        relPaths[MOVIE] = "video16.png";//"openOffice_stock_insert-video-plugin-16.png";
+        relPaths[MOVIE] = "crystal_video16.png";//"openOffice_stock_insert-video-plugin-16.png";
         relPaths[TEMPORARY_HISTOGRAM] = "histogram_temporary.png";
         relPaths[HISTOGRAM] = "histogram16.png";
         relPaths[CONTRAST_STRETCHING] = "openOffice_stock_new-drawing-16.png";
@@ -369,7 +369,7 @@ public class IconManager
         relPaths[ANALYSE_48] = "nuvola_kchart48.png";
         relPaths[EXPORT_AS_OMETIFF] = "download_image16.png";
         relPaths[EXPORT_AS_OMETIFF_48] = "download_image48.png";
-        relPaths[MOVIE_22] = "video22.png";//openOffice_stock_insert-video-plugin-22.png";
+        relPaths[MOVIE_22] = "crystal_video22.png";//openOffice_stock_insert-video-plugin-22.png";
         relPaths[EXPORT_22] = "download_image22.png";
         relPaths[DOWNLOAD_22] = "download_image22.png";
 	}

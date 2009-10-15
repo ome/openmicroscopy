@@ -421,6 +421,7 @@ public class EditorUI
 	{
 		saved = false;
 		generalPane.clearData();
+		tabPane.setComponentAt(RND_INDEX, dummyPanel);
 		setCursor(Cursor.getDefaultCursor());
 	}
 	

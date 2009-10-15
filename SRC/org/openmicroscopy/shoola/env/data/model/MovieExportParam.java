@@ -58,7 +58,7 @@ public class MovieExportParam
 	/** Movie across time. */
 	public static final int		ZT_MOVIE = 2;
 	
-	/** Identify the <code>mpeg</code> format. */
+	/** Identify the <code>MPEG</code> format. */
 	public static final int		MPEG = 0;
 	
 	/** Identify the <code>Quick time</code> format. */
