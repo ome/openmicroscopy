@@ -162,7 +162,7 @@ public class FileAnnotationData extends AnnotationData {
      * The <code>Microsoft Word</code> file format as defined by specification
      * corresponding to the extension.
      */
-    private static final String SERVER_MS_WORD = "application/ms-word";
+    private static final String SERVER_MS_WORD = "application/msword";
 
     /**
      * The <code>Microsoft PowerPoint</code> file format as defined by
