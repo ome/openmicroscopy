@@ -61,7 +61,7 @@ public class ResetRndSettingsAction
     											"settings.";
     
     /** 
-     * Sets the enabled flag depending on the tabbed selected.
+     * Sets the enabled flag depending on the tab selected.
      * @see ViewerAction#onTabSelection()
      */
     protected void onTabSelection()

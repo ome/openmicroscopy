@@ -191,8 +191,7 @@ class GraphicsPane
         rangeButton.setActionCommand(""+RANGE);
         rangeButton.setToolTipText("Apply maximum range to all channels.");
         applyButton = new JButton("Apply to All");
-        applyButton.setToolTipText("Apply settings to all selected or " +
-        		"displayed images.");
+        applyButton.setToolTipText("Apply settings to the displayed images.");
         applyButton.setBackground(UIUtilities.BACKGROUND_COLOR);
         applyButton.addActionListener(this);
         applyButton.setActionCommand(""+APPLY);

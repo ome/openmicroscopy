@@ -56,7 +56,7 @@ public class BrowserRefreshAction
     private static final String NAME = "Refresh current tree";
     
     /** Description of the action. */
-    private static final String DESCRIPTION = "Reload the tree.";
+    private static final String DESCRIPTION = "Refresh the tree.";
     
     
     /** 

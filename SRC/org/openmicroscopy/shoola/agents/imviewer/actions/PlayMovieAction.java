@@ -90,7 +90,7 @@ public class PlayMovieAction
     }
     
     /** 
-     * Overriden to make sure that the movie player is not enabled when 
+     * Overridden to make sure that the movie player is not enabled when 
      * there is only one channel.
      * @see ViewerAction#onStateChange(ChangeEvent)
      */
@@ -118,7 +118,7 @@ public class PlayMovieAction
      * Creates a new instance.
      * 
      * @param model Reference to the model. Mustn't be <code>null</code>.
-     * @param index	One fo the constants defined by this class.
+     * @param index	One of the constants defined by this class.
      */
 	public PlayMovieAction(ImViewer model, int index)
     {

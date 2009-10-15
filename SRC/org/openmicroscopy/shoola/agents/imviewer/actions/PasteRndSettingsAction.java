@@ -57,11 +57,11 @@ public class PasteRndSettingsAction
     private static final String NAME = "Paste Settings";
     
 	/** The description of the action. */
-    private static final String DESCRIPTION = "Paste the current image's " +
-    											"settings.";
+    private static final String DESCRIPTION = 
+    	"Apply Saved Rendering Settings to the Current Image.";
     
     /** 
-     * Sets the enabled flag depending on the tabbed selected.
+     * Sets the enabled flag depending on the tab selected.
      * @see ViewerAction#onTabSelection()
      */
     protected void onTabSelection()
