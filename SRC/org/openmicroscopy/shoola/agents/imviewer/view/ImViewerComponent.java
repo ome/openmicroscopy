@@ -642,10 +642,10 @@ class ImViewerComponent
 
 		switch (key) {
 			case ColorModelAction.GREY_SCALE_MODEL:
-				model.setColorModel(GREY_SCALE_MODEL);
+				model.setColorModel(GREY_SCALE_MODEL, true);
 				break;
 			case ColorModelAction.RGB_MODEL:
-				model.setColorModel(RGB_MODEL);
+				model.setColorModel(RGB_MODEL, true);
 				break;
 			default:
 				throw new IllegalArgumentException("Color Model not supported");		
@@ -1174,7 +1174,7 @@ class ImViewerComponent
 		String oldColorModel = model.getColorModel();
 		Map<Integer, BufferedImage> map = 
 			new HashMap<Integer, BufferedImage>(n);
-		model.setColorModel(colorModel);
+		model.setColorModel(colorModel, false);
 		BufferedImage img = null, splitImage;
 		while (i.hasNext()) {
 			index = (Integer) i.next();
@@ -1186,7 +1186,7 @@ class ImViewerComponent
 						model.getZoomFactor(), 0);
 			map.put(index, img);
 		}
-		model.setColorModel(oldColorModel);
+		model.setColorModel(oldColorModel, false);
 		i = l.iterator();
 		while (i.hasNext()) { //reset values.
 			index = ((Integer) i.next()).intValue();
@@ -1246,9 +1246,9 @@ class ImViewerComponent
 				model.setChannelActive((Integer) w.next(), true);
 			}
 			if (active.size() != 0) {
-				model.setColorModel(RGB_MODEL);
+				model.setColorModel(RGB_MODEL, false);
 				images.add(model.getSplitComponentImage());
-				model.setColorModel(GREY_SCALE_MODEL);
+				model.setColorModel(GREY_SCALE_MODEL, false);
 			}
 
 		} else {
@@ -1364,9 +1364,9 @@ class ImViewerComponent
 			model.setChannelActive(index, true);
 		}
 		if (active.size() != 0) {
-			model.setColorModel(RGB_MODEL);
+			model.setColorModel(RGB_MODEL, false);
 			image = model.getSplitComponentImage();
-			model.setColorModel(GREY_SCALE_MODEL);
+			model.setColorModel(GREY_SCALE_MODEL, false);
 		}
 		
 		active = model.getActiveChannels();
@@ -1913,7 +1913,7 @@ class ImViewerComponent
 		int index;
 		String oldColorModel = model.getColorModel();
 		List<BufferedImage> images = new ArrayList<BufferedImage>(l.size());
-		model.setColorModel(colorModel);
+		model.setColorModel(colorModel, false);
 		while (i.hasNext()) {
 			index = ((Integer) i.next()).intValue();
 			for (int j = 0; j < model.getMaxC(); j++)
@@ -1921,7 +1921,7 @@ class ImViewerComponent
 			images.add(view.createZoomedLensImage(
 					model.getSplitComponentImage()));
 		}
-		model.setColorModel(oldColorModel);
+		model.setColorModel(oldColorModel, false);
 		i = l.iterator();
 		while (i.hasNext()) { //reset values.
 			index = ((Integer) i.next()).intValue();

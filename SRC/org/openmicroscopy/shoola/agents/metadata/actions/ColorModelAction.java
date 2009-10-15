@@ -130,9 +130,9 @@ public class ColorModelAction
     {
     	String c = model.getColorModel();
     	if (Renderer.GREY_SCALE_MODEL.equals(c)) 
-    		model.setColorModel(Renderer.RGB_MODEL);
+    		model.setColorModel(Renderer.RGB_MODEL, true);
     	else if (Renderer.RGB_MODEL.equals(c)) 
-    		model.setColorModel(Renderer.GREY_SCALE_MODEL);
+    		model.setColorModel(Renderer.GREY_SCALE_MODEL, true);
     }
 
     /**

@@ -862,18 +862,20 @@ class ImViewerModel
 	 * Sets the color model.
 	 * 
 	 * @param colorModel	The color model to set.
+	 * @param update		Flag indicating to fire a property change 
+	 * 						indicating to update the image.
 	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	void setColorModel(String colorModel)
+	void setColorModel(String colorModel, boolean update)
 	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
 		if (ImViewer.GREY_SCALE_MODEL.equals(colorModel))
-			rnd.setColorModel(colorModel);
+			rnd.setColorModel(colorModel, update);
 		else if (ImViewer.RGB_MODEL.equals(colorModel))
-			rnd.setColorModel(ImViewer.RGB_MODEL);
+			rnd.setColorModel(ImViewer.RGB_MODEL, update);
 	}
 
 	/**
@@ -1986,7 +1988,7 @@ class ImViewerModel
 		if (!isNumerousChannel()) return;
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
-		setColorModel(ImViewer.GREY_SCALE_MODEL);
+		setColorModel(ImViewer.GREY_SCALE_MODEL, true);
 		List<ChannelData> channels = getChannelData();
 		ChannelData c;
 		Iterator<ChannelData> i = channels.iterator();

@@ -398,7 +398,7 @@ class RendererComponent
 			view.setChannelColor(index);
 			firePropertyChange(CHANNEL_COLOR_PROPERTY, -1, index);
 			if (GREY_SCALE_MODEL.equals(model.getColorModel()))
-				setColorModel(RGB_MODEL);
+				setColorModel(RGB_MODEL, true);
 			else {
 				if (model.isGeneralIndex()) model.saveRndSettings();
 				firePropertyChange(RENDER_PLANE_PROPERTY, 
@@ -421,9 +421,9 @@ class RendererComponent
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#setColorModel(String)
+     * @see Renderer#setColorModel(String, boolean)
      */
-	public void setColorModel(String index)
+	public void setColorModel(String index, boolean update)
 	{
 		try {
 			List active = model.getActiveChannels();
@@ -485,8 +485,9 @@ class RendererComponent
 				model.saveRndSettings();
 			firePropertyChange(COLOR_MODEL_PROPERTY, Boolean.valueOf(false), 
    		 			Boolean.valueOf(true));
-            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.valueOf(false), 
-           		 			Boolean.valueOf(true));
+			if (update)
+				firePropertyChange(RENDER_PLANE_PROPERTY,
+						Boolean.valueOf(false), Boolean.valueOf(true));
 		} catch (Exception e) {
 			handleException(e);
 		}

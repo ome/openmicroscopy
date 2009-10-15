@@ -269,9 +269,11 @@ public interface Renderer
 	/**
 	 * Sets the color model.
 	 * 
-	 * @param index One of the constants defined by this class.
+	 * @param index 	One of the constants defined by this class.
+	 * @param update	Flag indicating to fire a property change 
+	 * 					indicating to update the image.
 	 */
-	void setColorModel(String index);
+	void setColorModel(String index, boolean update);
 
 	/**
 	 * Returns the color model.
