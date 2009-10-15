@@ -159,7 +159,8 @@ public class CommentMessenger extends JDialog implements ActionListener
             commentText = commentTextArea.getText();
             
             if (validEmail(emailText) || emailText.trim().length() == 0)
-            {
+            {            
+                sendBtn.setEnabled(false);
                 config.email.set(emailText);
                 sendRequest(emailText, commentText, "");  
             }
@@ -167,7 +168,7 @@ public class CommentMessenger extends JDialog implements ActionListener
             {                
                 JOptionPane.showMessageDialog(this, 
                     "Your email address must be valid\n" +
-                    "(or blank) to send a comment.");                  
+                    "(or blank) to send a comment.");    
             }
             
         }
@@ -206,6 +207,7 @@ public class CommentMessenger extends JDialog implements ActionListener
                     "send your comment information. \n\n" +
                     "You can still send us your comments by emailing us at \n" +
                     "comments@openmicroscopy.org.uk.");
+            sendBtn.setEnabled(true);
         }
     }
         
