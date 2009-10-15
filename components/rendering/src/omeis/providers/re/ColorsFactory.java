@@ -139,6 +139,9 @@ public class ColorsFactory {
     	}
     	if (isFilterHasEmissionData(lc.getSecondaryEmissionFilter()))
     		return true;
+    	
+    	if (!full) return false;
+    	//Excitation
     	//Laser
     	if (lc.getLightSourceSettings() != null) {
     		LightSource src = lc.getLightSourceSettings().getLightSource();
@@ -147,9 +150,6 @@ public class ColorsFactory {
     			if (laser.getWavelength() != null) return true;
     		}
     	}
-    	if (!full) return false;
-    	//Excitation
-
     	if (lc.getExcitationWave() != null) return true;
     	if (lc.getFilterSet() != null) {
     		Filter f = lc.getFilterSet().getExFilter();
