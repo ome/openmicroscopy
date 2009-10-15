@@ -79,7 +79,8 @@
           The empty first element below defers to the default system dropbox location:
               <property name="omero.fs.watchDir"  value=";/OMERODEV/OtherBox"/>
               <property name="omero.fs.eventTypes"  value="Creation,Modification;Creation"/>
-              <property name="omero.fs.importArgs"  value="--report;--report --send --email=test@example.com"/>
+              <property name="omero.fs.importArgs"  value="-report;-report -send -email=test@example.com"/>
+              Hyphens in the preceeding value should be doubled. Not allowed in XML comments.
               ...
         -->
         <property name="omero.fs.importUsers"  value="default"/>
