@@ -139,8 +139,12 @@ public class FullTextIndexer implements Work {
             session.flush();
             count++;
         } while (doMore(count));
-        log.info(String.format("INDEXED %s objects in %s batch(es) [%s ms.]",
-                perbatch, (count - 1), (System.currentTimeMillis() - start)));
+        if (perbatch > 0) {
+            log.info(String.format("INDEXED %s objects in %s batch(es) [%s ms.]",
+                    perbatch, (count - 1), (System.currentTimeMillis() - start)));
+        } else {
+            log.debug("No objects indexed");
+        }
         return null;
     }
 

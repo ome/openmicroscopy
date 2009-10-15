@@ -170,6 +170,7 @@
         <option>indexer</option>
         <option>-Domero.name=${server}</option>
         <env>${PYTHONPATH}</env>
+        <env>JAVA_OPTS=-Dlog4j.configuration=${OMERO_ETC}log4j-indexing.xml</env>
         <adapter name="IndexerAdapter" register-process="true" endpoints="tcp"/>
         <properties>
           <properties refid="Basics"/>
