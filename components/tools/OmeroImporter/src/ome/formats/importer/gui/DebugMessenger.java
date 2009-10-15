@@ -194,6 +194,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
             
             if (validEmail(emailText) || emailText.trim().length() == 0)
             {
+                sendBtn.setEnabled(false);
                 config.email.set(emailText);
                 config.sendFiles.set(uploadCheckmark.isSelected());
                 sendRequest(emailText, commentText, "");
