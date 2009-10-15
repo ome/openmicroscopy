@@ -106,7 +106,7 @@
         <option>blitz</option>
         <option>-Domero.name=Blitz-${index}</option>
         <env>${PYTHONPATH}</env>
-        <adapter name="BlitzAdapter" replica-group="BlitzAdapters" register-process="true" endpoints="tcp"/>
+        <adapter name="BlitzAdapter" replica-group="BlitzAdapters" endpoints="tcp"/>
         <properties>
           <properties refid="Basics"/>
           <properties refid="Blitz"/>
@@ -127,7 +127,7 @@
         <option>-Domero.name=Blitz-${index}</option>
         <option>-jar</option>
         <option>lib\server\blitz.jar</option>
-        <adapter name="BlitzAdapter" replica-group="BlitzAdapters" register-process="true" endpoints="tcp"/>
+        <adapter name="BlitzAdapter" replica-group="BlitzAdapters" endpoints="tcp"/>
         <properties>
           <properties refid="Basics"/>
           <properties refid="Blitz"/>
@@ -150,7 +150,7 @@
         <option>-jar</option>
         <option>lib/server/blitz.jar</option>
         <option>OMERO.repository</option>
-        <adapter name="RepositoryAdapter" register-process="true" endpoints="tcp">
+        <adapter name="RepositoryAdapter" endpoints="tcp">
           <object identity="Repository-${index}" type="::omero::grid::InternalRepository"/>
         </adapter>
         <properties>
@@ -171,7 +171,7 @@
         <option>-Domero.name=${server}</option>
         <env>${PYTHONPATH}</env>
         <env>JAVA_OPTS=-Dlog4j.configuration=${OMERO_ETC}log4j-indexing.xml</env>
-        <adapter name="IndexerAdapter" register-process="true" endpoints="tcp"/>
+        <adapter name="IndexerAdapter" endpoints="tcp"/>
         <properties>
           <properties refid="Basics"/>
           <properties refid="Blitz"/>
@@ -192,7 +192,7 @@
         <option>-jar</option>
         <option>lib\server\blitz.jar</option>
         <option>ome.fulltext</option>
-        <adapter name="IndexerAdapter" register-process="true" endpoints="tcp"/>
+        <adapter name="IndexerAdapter" endpoints="tcp"/>
         <properties>
           <properties refid="Basics"/>
           <properties refid="Blitz"/>
@@ -209,7 +209,7 @@
         <option>runserver</option>
         <option>--noreload</option>
         <env>${PYTHONPATH}</env>
-        <adapter name="WebAdapter" register-process="true" endpoints="tcp" server-lifetime="false"/>
+        <adapter name="WebAdapter" endpoints="tcp" server-lifetime="false"/>
         <properties>
           <properties refid="SingleThreaded"/>
           <properties refid="Profile"/>
@@ -224,7 +224,7 @@
       <server id="Processor-${index}" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
         <option>${OMEROPY_HOME}runProcessor.py</option>
         <env>${PYTHONPATH}</env>
-        <adapter name="ProcessorAdapter" register-process="true" endpoints="tcp">
+        <adapter name="ProcessorAdapter" endpoints="tcp">
           <object identity="Processor-${index}" type="::omero::grid::Processor"/>
         </adapter>
         <properties>
@@ -245,7 +245,7 @@
       <server id="Tables-${index}" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
         <option>${OMEROPY_HOME}runTables.py</option>
         <env>${PYTHONPATH}</env>
-        <adapter name="TablesAdapter" register-process="true" endpoints="tcp">
+        <adapter name="TablesAdapter" endpoints="tcp">
           <object identity="Tables-${index}" type="::omero::grid::Tables"/>
         </adapter>
         <properties>
@@ -264,7 +264,7 @@
       <server id="FSServer" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
         <option>${OMEROPY_HOME}fsServer.py</option>
         <env>${PYTHONPATH}</env>
-        <adapter name="omerofs.MonitorServer" register-process="true" endpoints="tcp">
+        <adapter name="omerofs.MonitorServer" endpoints="tcp">
           <object identity="FSServer" type="::monitors::MonitorServer"/>
         </adapter>
         <properties>
@@ -283,7 +283,7 @@
       <server id="DropBox" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
         <option>${OMEROPY_HOME}fsDropBox.py</option>
         <env>${PYTHONPATH}</env>
-        <adapter name="omerofs.DropBox" register-process="true" endpoints="tcp"/>
+        <adapter name="omerofs.DropBox" endpoints="tcp"/>
         <properties>
           <properties refid="Basics"/>
           <properties refid="PythonServer"/>
@@ -302,7 +302,7 @@
       <server id="TestDropBox" exe="${exe}" activation="manual" pwd="${OMERO_HOME}">
         <option>${OMEROPY_HOME}fsDropBox.py</option>
         <env>${PYTHONPATH}</env>
-        <adapter name="omerofs.TestDropBox" register-process="true" endpoints="tcp"/>
+        <adapter name="omerofs.TestDropBox" endpoints="tcp"/>
         <properties>
           <properties refid="Basics"/>
           <properties refid="PythonServer"/>
@@ -326,7 +326,7 @@
       <server id="${id}" exe="${exe}" activation="${act}">
         <option>lib/python/shellserver.py</option>
         <option>${id}</option>
-        <adapter name="${id}Adapter" register-process="true" endpoints="tcp"/>
+        <adapter name="${id}Adapter" endpoints="tcp"/>
         <properties>
           <properties refid="Profile"/>
         </properties>
