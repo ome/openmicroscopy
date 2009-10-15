@@ -964,6 +964,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	List<Pixels> pixels = new ArrayList<Pixels>();
     	updatePixelsForNodes(pixels, klass, nodeIds);
     	Pixels pixelsFrom = null;
+    	
     	for (Pixels p : pixels)
     	{
     		if (p.getId() == from)
@@ -971,10 +972,12 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     			pixelsFrom = p;
     		}
     	}
+    	/*
     	if (pixelsFrom == null)
     	{
     		throw new ValidationException("No pixels set with ID: " + from);
     	}
+    	*/
     	
     	// Perform the actual work of copying rendering settings, collecting
     	// the settings that need to be saved and saving the newly modified or
@@ -984,10 +987,11 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	List<RenderingDef> toSave = new ArrayList<RenderingDef>(pixels.size());
     	Map<Long, RenderingDef> settingsMap = loadRenderingSettings(pixels);
     	RenderingDef settingsFrom = settingsMap.get(from);
-    	pixels.remove(pixelsFrom);
+    	if (pixelsFrom != null) pixels.remove(pixelsFrom);
+    	RenderingDef settingsTo;
     	for (Pixels p : pixels)
     	{
-    		RenderingDef settingsTo = settingsMap.get(p.getId());
+    		settingsTo = settingsMap.get(p.getId());
             settingsTo = applySettings(pixelsFrom, p, settingsFrom, settingsTo);
             if (settingsTo == null)
             {
