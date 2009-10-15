@@ -313,7 +313,7 @@
           <property name="omero.fs.clientAdapterName" value="omerofs.TestDropBox"/>
           <!-- By adding an omero.fstest.config property, the behavior of the
           DropBox sever will change! -->
-          <property name="omero.fstest.config" value="${OMERO_ETC}test.config"/>
+          <property name="omero.fstest.config" value="${OMERO_ETC}testdropbox.config"/>
         </properties>
       </server>
     </server-template>
