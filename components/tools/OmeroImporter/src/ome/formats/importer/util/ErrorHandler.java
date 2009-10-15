@@ -246,7 +246,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
                 HtmlMessenger messenger = new HtmlMessenger(sendUrl, postList);
                 String serverReply = messenger.executePost();
 
-                if (isSend(i)) {
+                if (sendFiles) {
                     onSending(i);
                     errorContainer.setToken(serverReply);
 
@@ -342,7 +342,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
         if (errors.get(index).getSelectedFile() == null) {
             return false;
         }
-        return sendFiles;
+        return true;
     }
  
     protected void onSending(int index) {
