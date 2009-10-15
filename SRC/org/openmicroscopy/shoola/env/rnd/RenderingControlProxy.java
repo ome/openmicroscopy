@@ -998,6 +998,8 @@ class RenderingControlProxy
      */
     public String getChannelFamily(int w)
     { 
+    	ChannelBindingsProxy channel = rndDef.getChannel(w);
+    	if (channel == null) return "";
         return rndDef.getChannel(w).getFamily();
     }
 
@@ -1007,7 +1009,9 @@ class RenderingControlProxy
      */
     public boolean getChannelNoiseReduction(int w)
     {
-        return rndDef.getChannel(w).isNoiseReduction();
+    	ChannelBindingsProxy channel = rndDef.getChannel(w);
+    	if (channel == null) return false;
+        return channel.isNoiseReduction();
     }
 
     /** 
@@ -1016,7 +1020,9 @@ class RenderingControlProxy
      */
     public double getChannelCurveCoefficient(int w)
     {
-        return rndDef.getChannel(w).getCurveCoefficient();
+    	ChannelBindingsProxy channel = rndDef.getChannel(w);
+    	if (channel == null) return 1;
+        return channel.getCurveCoefficient();
     }
 
     /** 
@@ -1043,7 +1049,9 @@ class RenderingControlProxy
      */
     public double getChannelWindowStart(int w)
     {
-        return rndDef.getChannel(w).getInputStart();
+    	ChannelBindingsProxy channel = rndDef.getChannel(w);
+    	if (channel == null) return 0;
+        return channel.getInputStart();
     }
 
     /** 
@@ -1052,7 +1060,9 @@ class RenderingControlProxy
      */
     public double getChannelWindowEnd(int w)
     {
-        return rndDef.getChannel(w).getInputEnd();
+    	ChannelBindingsProxy channel = rndDef.getChannel(w);
+    	if (channel == null) return 0;
+        return channel.getInputEnd();
     }
 
     /** 
@@ -1080,7 +1090,9 @@ class RenderingControlProxy
      */
     public Color getRGBA(int w)
     {
-        int[] rgba = rndDef.getChannel(w).getRGBA();
+    	ChannelBindingsProxy channel = rndDef.getChannel(w);
+    	if (channel == null) return Color.black;
+        int[] rgba = channel.getRGBA();
         return new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
     }
 
@@ -1107,7 +1119,9 @@ class RenderingControlProxy
      */
     public boolean isActive(int w)
     { 
-        return rndDef.getChannel(w).isActive();
+    	ChannelBindingsProxy channel = rndDef.getChannel(w);
+    	if (channel == null) return false;
+        return channel.isActive();
     }
 
     /** 
@@ -1391,7 +1405,9 @@ class RenderingControlProxy
 	 */
 	public double getPixelsTypeLowerBound(int w)
 	{
-		return rndDef.getChannel(w).getLowerBound();
+		ChannelBindingsProxy channel = rndDef.getChannel(w);
+    	if (channel == null) return 0;
+		return channel.getLowerBound();
 	}
 
 	/** 
@@ -1400,7 +1416,9 @@ class RenderingControlProxy
 	 */
 	public double getPixelsTypeUpperBound(int w)
 	{
-		return rndDef.getChannel(w).getUpperBound();
+		ChannelBindingsProxy channel = rndDef.getChannel(w);
+    	if (channel == null) return 0;
+		return channel.getUpperBound();
 	}
 
 	/** 
