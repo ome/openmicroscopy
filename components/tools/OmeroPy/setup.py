@@ -21,10 +21,16 @@
 
 """
 
+import os
 from ez_setup import use_setuptools
 use_setuptools()
 from setuptools import setup, find_packages
 from omero_version import omero_version as ov
+
+if os.path.exists("target"):
+    packages = find_packages("target")+[""]
+else:
+    packages = [""]
 
 setup(name="omero_client",
       version=ov,
@@ -37,7 +43,7 @@ Python bindings to the OMERO.blitz server.
       url="https://trac.openmicroscopy.org.uk/omero/wiki/OmeroPy",
       download_url="https://trac.openmicroscopy.org.uk/omero/wiki/OmeroPy",
       package_dir = {"": "target"},
-      packages=find_packages("target")+[""],
+      packages=packages,
       package_data={'omero.gateway':['pilfonts/*'], 'omero.gateway.scripts':['imgs/*']},
       test_suite='test.suite'
 )
