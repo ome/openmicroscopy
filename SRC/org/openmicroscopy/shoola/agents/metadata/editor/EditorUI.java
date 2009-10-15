@@ -246,6 +246,7 @@ public class EditorUI
 	void setRootObject()
 	{
 		Object uo = model.getRefObject();
+		tabPane.setComponentAt(RND_INDEX, dummyPanel);
 		setDataToSave(false);
 		toolBar.buildUI();
 		toolBar.setStatus(false);
@@ -422,6 +423,7 @@ public class EditorUI
 		saved = false;
 		generalPane.clearData();
 		tabPane.setComponentAt(RND_INDEX, dummyPanel);
+		tabPane.repaint();
 		setCursor(Cursor.getDefaultCursor());
 	}
 	
