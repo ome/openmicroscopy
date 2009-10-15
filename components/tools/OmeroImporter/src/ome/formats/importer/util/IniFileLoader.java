@@ -193,7 +193,8 @@ public class IniFileLoader {
             FlexReader.mapServer(key, mapValue.toArray(new String[0]));
             log.info(String.format("Added Flex reader server map '%s' = '%s'.",
                     key, mapValue));
-        } catch (FormatException e) {
+        // Temporarily catching Exception to fix build
+        } catch (Exception e) {
             log.warn(String.format(
                     "Unable to add Flex reader server map '%s' = '%s'", key,
                     mapValue), e);
