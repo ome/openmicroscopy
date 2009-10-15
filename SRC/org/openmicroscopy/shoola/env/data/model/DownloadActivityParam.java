@@ -61,9 +61,10 @@ public class DownloadActivityParam
     /**
      * Downloads the passed file.
      * 
-     * @param file 	 The file to download.
-     * @param folder The folder where to download the file.
-     * @param icon	 The associated icon.
+     * @param file 	 	The file to download.
+     * @param folder 	The folder where to download the file.
+     * @param icon	 	The associated icon.
+     * @param fileName 	The file name to set.
      */
     public DownloadActivityParam(OriginalFile file, File folder, Icon icon)
     {
@@ -73,7 +74,7 @@ public class DownloadActivityParam
     	this.folder = folder;
     	this.icon = icon;
     }
-    
+
 	/**
 	 * Returns the icon if set or <code>null</code>.
 	 * 

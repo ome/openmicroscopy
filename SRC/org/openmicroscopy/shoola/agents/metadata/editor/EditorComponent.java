@@ -301,7 +301,6 @@ class EditorComponent
 			activity = new DownloadActivityParam(file,
 					folder, icons.getIcon(IconManager.DOWNLOAD_22));
 			un.notifyActivity(activity);
-			
 		}
 	}
 
@@ -545,7 +544,7 @@ class EditorComponent
 	public void download(File folder)
 	{
 		model.download(folder);
-		setStatus(true);
+		//setStatus(true);
 	}
 
 	/** 

@@ -52,7 +52,7 @@ public class DownloadActivity
 {
 
 	/** The description of the activity when finished. */
-	private static final String		DESCRIPTION = "File download";
+	private static final String		DESCRIPTION = "File downloaded";
 	
     /** The parameters hosting information about the file to download. */
     private DownloadActivityParam parameters;
@@ -65,9 +65,11 @@ public class DownloadActivity
     private String getFileName()
     {
     	OriginalFile file = parameters.getFile();
-    	File directory = parameters.getFolder();
+    	File folder = parameters.getFolder();
+    	File directory = folder.getParentFile();
+    	
     	File[] files = directory.listFiles();
-    	String dirPath = directory+File.separator;
+    	String dirPath = directory.getAbsolutePath()+File.separator;
     	//log.debug(this, "dirPath: "+dirPath);
     	String value = null;
     	if (file != null) value = file.getName().getValue();
@@ -89,7 +91,8 @@ public class DownloadActivity
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
-		File directory = parameters.getFolder();
+		File folder = parameters.getFolder();
+    	File directory = folder.getParentFile();
 		messageLabel.setText(directory+File.separator+getFileName());
     }
     
@@ -100,7 +103,8 @@ public class DownloadActivity
 	protected UserNotifierLoader createLoader()
 	{
 		OriginalFile f = parameters.getFile();
-		File directory = parameters.getFolder();
+		File folder = parameters.getFolder();
+    	File directory = folder.getParentFile();
 		return new FileLoader(viewer, registry, 
 				directory+File.separator+getFileName(), 
 				f.getId().getValue(), f.getSize().getValue(), this);

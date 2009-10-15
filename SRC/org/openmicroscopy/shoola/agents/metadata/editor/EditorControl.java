@@ -223,8 +223,12 @@ class EditorControl
 	private void download()
 	{
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		FileChooser chooser = new FileChooser(f, FileChooser.FOLDER_CHOOSER, 
-				"Download", "Select where to download the file.");
+		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
+				"Download", "Select where to download the file.", null, true);
+		chooser.setSelectedFileFull(view.getRefObjectName());
+		IconManager icons = IconManager.getInstance();
+		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
+		chooser.setApproveButtonText("Download");
 		chooser.addPropertyChangeListener(new PropertyChangeListener() {
 		
 			public void propertyChange(PropertyChangeEvent evt) {

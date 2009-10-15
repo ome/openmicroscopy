@@ -116,8 +116,12 @@ class OriginalMetadataComponent
 	private void download()
 	{
 		JFrame f = EditorAgent.getRegistry().getTaskBar().getFrame();
-		FileChooser chooser = new FileChooser(f, FileChooser.FOLDER_CHOOSER, 
-				"Download", "Select where to download the file.");
+		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
+				"Download", "Select where to download the file.", null, true);
+		chooser.setSelectedFileFull(EditorModel.ORIGINAL_METADATA_NAME);
+		chooser.setApproveButtonText("Download");
+		IconManager icons = IconManager.getInstance();
+		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
 		chooser.addPropertyChangeListener(this);
 		chooser.centerDialog();
 	}

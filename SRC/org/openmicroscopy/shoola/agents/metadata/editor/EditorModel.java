@@ -119,6 +119,9 @@ import pojos.WellSampleData;
 class EditorModel 
 {
 	
+	/** The default name for the original metadata file. */
+	static final String ORIGINAL_METADATA_NAME = "original_metadata.txt";
+	
 	/** The parent of this editor. */
 	private  MetadataViewer			parent;
 	
@@ -615,7 +618,7 @@ class EditorModel
 			if (FileAnnotationData.COMPANION_FILE_NS.equals(ns)) {
 				//tmp
 				String name = f.getFileName();
-				if (name.contains("original_metadata"))
+				if (name.contains(ORIGINAL_METADATA_NAME))
 					originalMetadata = f;
 			}
 		}
@@ -1350,6 +1353,7 @@ class EditorModel
 			data = img.getDefaultPixels();
 			ids.add(data.getId());
 		}
+		
 		OriginalFileLoader loader = new OriginalFileLoader(component, ids, 
 				folder);
 		loader.load();

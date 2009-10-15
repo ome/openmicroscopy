@@ -473,9 +473,18 @@ class DocComponent
 	 */
 	private void download()
 	{
+		String name = null;
+		if (data instanceof FileAnnotationData) {
+			name = ((FileAnnotationData) data).getFileName();
+		}
 		JFrame f = EditorAgent.getRegistry().getTaskBar().getFrame();
-		FileChooser chooser = new FileChooser(f, FileChooser.FOLDER_CHOOSER, 
-				"Download", "Select where to download the file.");
+		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
+				"Download", "Select where to download the file.", null, true);
+		if (name != null && name.trim().length() > 0) 
+			chooser.setSelectedFileFull(name);
+		IconManager icons = IconManager.getInstance();
+		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
+		chooser.setApproveButtonText("Download");
 		chooser.addPropertyChangeListener(this);
 		chooser.centerDialog();
 	}

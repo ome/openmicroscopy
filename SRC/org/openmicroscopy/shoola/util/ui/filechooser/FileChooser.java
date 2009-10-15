@@ -28,7 +28,6 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.List;
 import java.util.regex.Pattern;
-
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -385,6 +384,18 @@ public class FileChooser
      * 
      * @param name The name to set.
      */
+    public void setSelectedFileFull(String name) 
+    { 
+    	if (name == null || name.trim().length() == 0)
+    		throw new IllegalArgumentException("File name not valid.");
+    	uiDelegate.setSelectedFile(new File(name));
+    }
+    
+    /**
+     * Sets the name of the file to save.
+     * 
+     * @param name The name to set.
+     */
     public void setSelectedFile(File name) 
     { 
     	if (name == null)
@@ -493,7 +504,8 @@ public class FileChooser
     }
 
     /**
-     * Sets the tooltip text of the <code>Approve</code> button.
+     * Sets the text displayed in the tool tip of the <code>Approve</code>
+     * button.
      * 
      * @param text The value to set.
      */
