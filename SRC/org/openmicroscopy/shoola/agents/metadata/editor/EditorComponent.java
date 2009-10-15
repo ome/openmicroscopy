@@ -40,6 +40,8 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.OriginalFile;
+
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
@@ -48,7 +50,9 @@ import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
+import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -289,7 +293,17 @@ class EditorComponent
 		setStatus(false);
 		if (files == null || files.size() == 0) return;
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
-		un.notifyDownload(files, folder);
+		IconManager icons = IconManager.getInstance();
+		Iterator i = files.iterator();
+		OriginalFile file;
+		DownloadActivityParam activity;
+		while (i.hasNext()) {
+			file = (OriginalFile) i.next();
+			activity = new DownloadActivityParam(file,
+					folder, icons.getIcon(IconManager.DOWNLOAD_22));
+			un.notifyActivity(activity);
+			
+		}
 	}
 
 	/** 

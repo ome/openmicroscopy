@@ -61,6 +61,8 @@ import layout.TableLayout;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.OriginalFile;
+
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.Highlighter;
@@ -68,11 +70,14 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
+
+import pojos.FileAnnotationData;
 
 /**
  * Displays the original metadata.
@@ -392,7 +397,16 @@ class OriginalMetadataComponent
 			if (folder == null)
 				folder = UIUtilities.getDefaultFolder();
 			UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
-			un.notifyDownload(model.getOriginalMetadata(), folder);
+			FileAnnotationData fa = model.getOriginalMetadata();
+			if (fa == null) return;
+			OriginalFile f = (OriginalFile) fa.getContent();
+			IconManager icons = IconManager.getInstance();
+			
+			DownloadActivityParam activity = new DownloadActivityParam(f,
+					folder, icons.getIcon(IconManager.DOWNLOAD_22));
+			un.notifyActivity(activity);
+			
+			//un.notifyDownload(model.getOriginalMetadata(), folder);
 		}
 	}
 	

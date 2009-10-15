@@ -526,6 +526,9 @@ public class TextualTwoKnobsSlider
 	{
 		slider.setValues(absoluteMax, absoluteMin, max, min, start, end);
 		removeListeners();
+		int length = (""+max).length(); 
+		startField.setColumns(length);
+		endField.setColumns(length);
 		endField.setMaximum(absoluteMax);
 		endField.setMinimum(absoluteMin);
 		startField.setMaximum(absoluteMax);

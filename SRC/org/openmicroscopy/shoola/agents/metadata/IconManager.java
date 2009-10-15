@@ -283,11 +283,14 @@ public class IconManager
     /** A 22x22 version of the <code>Export</code> icon. */
     public static final int 		  EXPORT_22 = 76;
     
+    /** A 22x22 version of the <code>Download</code> icon. */
+    public static final int           DOWNLOAD_22 = 77;
+    
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 76;
+	private static final int          MAX_ID = 77;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -368,6 +371,7 @@ public class IconManager
         relPaths[EXPORT_AS_OMETIFF_48] = "download_image48.png";
         relPaths[MOVIE_22] = "video22.png";//openOffice_stock_insert-video-plugin-22.png";
         relPaths[EXPORT_22] = "download_image22.png";
+        relPaths[DOWNLOAD_22] = "download_image22.png";
 	}
    
 	/** The sole instance. */

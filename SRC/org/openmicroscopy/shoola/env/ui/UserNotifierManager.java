@@ -26,19 +26,14 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -111,10 +106,7 @@ class UserNotifierManager
 	
 	/** Back pointer to the component. */
 	private UserNotifier					component;
-	
-	/** The dialog keeping track of the downloaded files. */
-	private DownloadsDialog					download;
-	
+
 	/** Map keeping track of the ongoing data loading. */
 	private Map<String, UserNotifierLoader> loaders;
 	
@@ -256,68 +248,6 @@ class UserNotifierManager
 		source.setVisible(false);
 		source.dispose();
 	}
-
-	/**
-	 * Returns the name to give to the file.
-	 * 
-	 * @param files		Collection of files in the currently selected directory.
-	 * @param fileName	The name of the original file.
-	 * @param original	The name of the file. 
-	 * @param dirPath	Path to the directory.
-	 * @param index		The index of the file.
-	 * @param extension The extension to check or <code>null</code>.
-	 * @return See above.
-	 */
-	static String getFileName(File[] files, String fileName, String original, 
-								String dirPath, int index, String extension)
-	{
-		String path = dirPath+original;
-		boolean exist = false;
-		if (files != null) {
-			for (int i = 0; i < files.length; i++) {
-	        	 if ((files[i].getAbsolutePath()).equals(path)) {
-	                 exist = true;
-	                 break;
-	             }
-			}
-		}
-        if (!exist) return original;
-        if (fileName == null || fileName.trim().length() == 0) return original;
-    	
-    	if (extension != null && extension.trim().length() > 0) {
-    		int n = fileName.lastIndexOf(extension);
-    		String v = fileName.substring(0, n)+" ("+index+")"+extension;
-    		index++;
-    		return getFileName(files, fileName, v, dirPath, index, extension);
-    	} else {
-    		int lastDot = fileName.lastIndexOf(".");
-    		if (lastDot != -1) {
-        		extension = fileName.substring(lastDot, fileName.length());
-        		String v = fileName.substring(0, lastDot)+
-        		" ("+index+")"+extension;
-        		index++;
-        		return getFileName(files, fileName, v, dirPath, index);
-        	} 
-    	}
-    	
-    	return original;
-	}
-	
-	/**
-	 * Returns the name to give to the file.
-	 * 
-	 * @param files		Collection of files in the currently selected directory.
-	 * @param fileName	The name of the original file.
-	 * @param original	The name of the file. 
-	 * @param dirPath	Path to the directory.
-	 * @param index		The index of the file.
-	 * @return See above.
-	 */
-	static String getFileName(File[] files, String fileName, String original, 
-								String dirPath, int index)
-	{
-		return getFileName(files, fileName, original, dirPath, index, null);
-	}
 	
 	/**
 	 * Creates a new instance.
@@ -343,117 +273,6 @@ class UserNotifierManager
 			container.getRegistry().lookup(LookupNames.CURRENT_USER_DETAILS);
 		if (exp == null) return null;
 		return (ExperimenterData) exp;
-	}
-	
-	/**
-	 * Sets the loading status.
-	 * 
-	 * @param percent 	The value to set.
-	 * @param fileID	The id of the file corresponding to the status.
-	 * @param fileName	The name of the file.
-	 */
-	void setLoadingStatus(int percent, long fileID, String fileName)
-	{
-		if (download == null) return;
-		download.setLoadingStatus(percent, fileName, fileID);
-		loaders.remove(fileName);
-	}
-	
-	/**
-	 * Starts to download the file corresponding to the passed object.
-	 * 
-	 * @param file 		The file to handle.
-	 * @param directory The directory where to save locally the file.
-	 */
-	void saveFileToDisk(OriginalFile file, File directory)
-	{
-		Logger log = container.getRegistry().getLogger();
-		log.debug(this, "original: "+file);
-		if (file == null) return;
-		if (download == null) {
-			Registry reg = getRegistry();
-			JFrame f = reg.getTaskBar().getFrame();
-			download = new DownloadsDialog(f, IconManager.getInstance(reg));
-			download.addPropertyChangeListener(this);
-		}
-		if (directory == null) {
-			//Need to make sure that file with same name does not exist.
-			JFileChooser chooser = new JFileChooser();
-	        //Get the current directory
-			directory = chooser.getCurrentDirectory();
-		}
-		
-		
-        File[] files = directory.listFiles();
-        String dirPath = directory+File.separator;
-        //log.debug(this, "dirPath: "+dirPath);
-        String value = null;
-        if (file != null) value = file.getName().getValue();
-        String name = getFileName(files, value, value, dirPath, 1);
-        
-        //log.debug(this, "name: "+name);
-        
-        String path = dirPath+name;
-        //log.debug(this, "name and path: "+path);
-		FileLoader loader = new FileLoader(component, 
-									container.getRegistry(), 
-										path, file.getId().getValue(), 
-										file.getSize().getValue());
-		loader.load();
-		download.addDowloadEntry(dirPath, name, file.getId().getValue());
-		loaders.put(path, loader);
-		if (!download.isVisible())
-			UIUtilities.centerAndShow(download);
-	}
-	
-	/**
-	 * Starts to download the file corresponding to the passed object.
-	 * 
-	 * @param data 		The data to handle.
-	 * @param directory The directory where to save locally the files.
-	 */
-	void saveFileToDisk(Collection data, File directory)
-	{
-		if (data == null) return;
-		if (download == null) {
-			Registry reg = getRegistry();
-			JFrame f = reg.getTaskBar().getFrame();
-			download = new DownloadsDialog(f, IconManager.getInstance(reg));
-			download.addPropertyChangeListener(this);
-		}
-		if (directory == null) {
-			JFileChooser chooser = new JFileChooser();
-			//File dir = UIUtilities.getDefaultFolder();
-	        //if (dir != null) chooser.setCurrentDirectory(dir);
-			
-	        //Get the current directory
-			directory = chooser.getCurrentDirectory();
-		}
-		
-        File[] files = directory.listFiles();
-        String dirPath = directory+File.separator;
-        Iterator i = data.iterator();
-        String name;
-        String path;
-        OriginalFile file;
-        FileLoader loader;
-        String value;
-        
-        while (i.hasNext()) {
-        	value = null;
-        	file = (OriginalFile) i.next();
-        	name = getFileName(files, value, value, dirPath, 1);
-        	path = dirPath+name;
-        	loader = new FileLoader(component, container.getRegistry(), 
-						path, file.getId().getValue(), 
-						file.getSize().getValue());
-        	loader.load();
-        	download.addDowloadEntry(dirPath, name, file.getId().getValue());
-        	loaders.put(path, loader);
-		}
-		
-		if (!download.isVisible())
-			UIUtilities.centerAndShow(download);
 	}
 	
 	/**

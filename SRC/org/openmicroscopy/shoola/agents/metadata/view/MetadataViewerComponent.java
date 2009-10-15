@@ -42,7 +42,7 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.util.BasicAnalyseDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.MovieExportDialog;
+import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
@@ -728,14 +729,20 @@ class MetadataViewerComponent
 	 */
 	public void uploadMovie(FileAnnotationData data, File folder)
 	{
-		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
 		if (data == null) {
 			if (folder == null) 
 				un.notifyInfo("Movie Creation", "A problem occured while " +
 					"creating the movie");
 		} else {
 			if (folder == null) folder = UIUtilities.getDefaultFolder();
-			un.notifyDownload(data, folder);
+			OriginalFile f = (OriginalFile) data.getContent();
+			IconManager icons = IconManager.getInstance();
+			
+			DownloadActivityParam activity = new DownloadActivityParam(f,
+					folder, icons.getIcon(IconManager.DOWNLOAD_22));
+			un.notifyActivity(activity);
+			//un.notifyDownload(data, folder);
 		}
 		firePropertyChange(CREATING_MOVIE_PROPERTY, Boolean.valueOf(true), 
 				Boolean.valueOf(false));
@@ -881,14 +888,22 @@ class MetadataViewerComponent
 	 */
 	public void uploadFret(FileAnnotationData data, File folder)
 	{
-		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
 		if (data == null) {
 			if (folder == null) 
 				un.notifyInfo("Data Analysis", "A problem occured while " +
 					"analyzing the data.");
 		} else {
 			if (folder == null) folder = UIUtilities.getDefaultFolder();
-			un.notifyDownload(data, folder);
+			if (data == null) return;
+			OriginalFile f = (OriginalFile) data.getContent();
+			IconManager icons = IconManager.getInstance();
+			
+			DownloadActivityParam activity = new DownloadActivityParam(f,
+					folder, icons.getIcon(IconManager.DOWNLOAD_22));
+			un.notifyActivity(activity);
+
+			//un.notifyDownload(data, folder);
 		}
 		firePropertyChange(ANALYSE_PROPERTY, Boolean.valueOf(true), 
 				Boolean.valueOf(false));

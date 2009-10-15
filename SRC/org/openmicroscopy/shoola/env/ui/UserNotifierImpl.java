@@ -24,10 +24,8 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
-import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Collection;
 import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.JFrame;
@@ -35,15 +33,14 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
 
 /** 
  * Implements the {@link UserNotifier} interface. 
@@ -287,53 +284,6 @@ public class UserNotifierImpl
 
 	/** 
 	 * Implemented as specified by {@link UserNotifier}. 
-	 * @see UserNotifier#notifyDownload(FileAnnotationData, File)
-	 */ 
-	public void notifyDownload(FileAnnotationData data, File directory)
-	{
-		if (data == null) return;
-		OriginalFile f = (OriginalFile) data.getContent();
-		manager.saveFileToDisk(f, directory);
-	}
-	
-	/** 
-	 * Implemented as specified by {@link UserNotifier}. 
-	 * @see UserNotifier#notifyDownload(Collection, File)
-	 */ 
-	public void notifyDownload(Collection data, File directory)
-	{
-		manager.saveFileToDisk(data, directory);
-	}
-	
-	/** 
-	 * Implemented as specified by {@link UserNotifier}. 
-	 * @see UserNotifier#notifyDownload(FileAnnotationData)
-	 */ 
-	public void notifyDownload(FileAnnotationData data)
-	{
-		notifyDownload(data, null);
-	}
-
-	/** 
-	 * Implemented as specified by {@link UserNotifier}. 
-	 * @see UserNotifier#notifyDownload(Collection)
-	 */ 
-	public void notifyDownload(Collection data)
-	{
-		manager.saveFileToDisk(data, null);
-	}
-	
-	/** 
-	 * Implemented as specified by {@link UserNotifier}. 
-	 * @see UserNotifier#setLoadingStatus(int, long, String)
-	 */ 
-	public void setLoadingStatus(int percent, long fileID, String fileName)
-	{
-		manager.setLoadingStatus(percent, fileID, fileName);
-	}
-
-	/** 
-	 * Implemented as specified by {@link UserNotifier}. 
 	 * @see UserNotifier#notifyActivity(Object)
 	 */ 
 	public void notifyActivity(Object activity)
@@ -346,6 +296,9 @@ public class UserNotifierImpl
 		} else if (activity instanceof ExportActivityParam) {
 			ExportActivityParam p = (ExportActivityParam) activity;
 			comp = new ExportActivity(this, manager.getRegistry(), p);
+		} else if (activity instanceof DownloadActivityParam) {
+			DownloadActivityParam p = (DownloadActivityParam) activity;
+			comp = new DownloadActivity(this, manager.getRegistry(), p);
 		}
 		if (comp != null) {
 			UserNotifierLoader loader = comp.createLoader();

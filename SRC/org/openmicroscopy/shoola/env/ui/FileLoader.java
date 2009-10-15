@@ -62,6 +62,12 @@ class FileLoader
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle	handle;
     
+    /** Reference to the activity. */
+    private ActivityComponent 		activity;
+    
+    /** Notifies the user that an error occurred. */
+    protected void onException() { handleNullResult(); }
+    
     /**
      * Creates a new instance.
      * 
@@ -70,11 +76,13 @@ class FileLoader
      * @param path	 The absolute path to the file.
      * @param fileID The file ID.
      * @param size   The size of the file.
+     * @param activity 	The activity associated to this loader.
      */
 	FileLoader(UserNotifier viewer, Registry reg, String path, long fileID, 
-			long size)
+			long size, ActivityComponent activity)
 	{
 		super(viewer, reg);
+		this.activity = activity;
 		file = new File(path);
 		this.fileID = fileID;
 		this.size = size;
@@ -107,16 +115,22 @@ class FileLoader
     {
         String info = "The data retrieval has been cancelled.";
         registry.getLogger().info(this, info);
-        viewer.setLoadingStatus(-1, fileID, file.getAbsolutePath());
+        //viewer.setLoadingStatus(-1, fileID, file.getAbsolutePath());
     }
     
-	/**
-     * Feeds the result back to the viewer.
+    /**
+     * Notifies the user that it wasn't possible to download the file.
+     * @see UserNotifierLoader#handleNullResult()
+     */
+    public void handleNullResult()
+    { 
+    	activity.notifyError("Unable to download the file");
+    }
+    
+    /** 
+     * Feeds the result back to the viewer. 
      * @see UserNotifierLoader#handleResult(Object)
      */
-    public void handleResult(Object result) 
-    {
-    	viewer.setLoadingStatus(0, fileID, file.getAbsolutePath());
-    }
+    public void handleResult(Object result) { activity.endActivity(); }
     
 }

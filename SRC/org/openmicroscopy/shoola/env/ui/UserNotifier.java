@@ -23,16 +23,12 @@
 package org.openmicroscopy.shoola.env.ui;
 
 // Java Imports
-import java.io.File;
-import java.util.Collection;
 import java.util.Map;
-
 import javax.swing.Icon;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import pojos.FileAnnotationData;
 
 /** 
  * Acts as a centralized place where user notifications are collected and 
@@ -151,45 +147,6 @@ public interface UserNotifier
      * @param emailAddress	The e-mail address of the current user.
      */
     public void submitMessage(String emailAddress);
-    
-    /**
-     * Brings up a dialog displaying the downloading process.
-     * 
-     * @param data	The data to handle.
-     */
-    public void notifyDownload(FileAnnotationData data);
-    
-    /**
-     * Brings up a dialog displaying the downloading process.
-     * 
-     * @param data	The data to handle.
-     */
-    public void notifyDownload(Collection data);
-    
-    /**
-     * Brings up a dialog displaying the downloading process.
-     * 
-     * @param data		The data to handle.
-     * @param directory The directory where to save locally the file.
-     */
-    public void notifyDownload(FileAnnotationData data, File directory);
-    
-    /**
-     * Brings up a dialog displaying the downloading process.
-     * 
-     * @param data		The data to handle.
-     * @param directory The directory where to save locally the file.
-     */
-    public void notifyDownload(Collection data, File directory);
-    
-    /**
-     * Sets the loading status.
-     * 
-     * @param percent	The value to set.
-     * @param id		The id of the original file.
-     * @param path		The absolute path.
-     */
-    public void setLoadingStatus(int percent, long id, String path);
     
     /**
      * Notifies the user of an activity such as movie creation.

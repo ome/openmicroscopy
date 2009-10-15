@@ -206,8 +206,8 @@ public class DomainPane
      * @param slider	The slider to handle.
      * @param max		The maximum value.
      * @param v			The default value.
-     * @param toolTip	The tooltip text.
-     * @param endLabel	The text for the tooltip which is displayed when 
+     * @param toolTip	The text displayed in the tool tip.
+     * @param endLabel	The text displayed in the tool tip when 
      * 					slider changes value, as well as the label shown at 
      * 					the end of the text. 
      */

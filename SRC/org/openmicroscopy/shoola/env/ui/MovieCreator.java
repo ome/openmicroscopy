@@ -35,7 +35,9 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -156,7 +158,15 @@ public class MovieCreator
 					String name = evt.getPropertyName();
 					if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
 						File folder = (File) evt.getNewValue();
-						viewer.notifyDownload(data, folder);
+						if (data == null) return;
+						OriginalFile f = (OriginalFile) data.getContent();
+						IconManager icons = IconManager.getInstance(registry);
+						
+						DownloadActivityParam activity = 
+							new DownloadActivityParam(f,
+								folder, icons.getIcon(IconManager.DOWNLOAD_22));
+						viewer.notifyActivity(activity);
+						//viewer.notifyDownload(data, folder);
 					}
 				}
 			});

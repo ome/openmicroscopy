@@ -262,9 +262,9 @@ public class MovieExportDialog
 	private void buildGUI()
 	{
 		IconManager icons = IconManager.getInstance();
-		TitlePanel tp = new TitlePanel(TITLE, "Create a movie and save it " +
-				"to the server.", "The movie will be attached to the image.",
-				icons.getIcon(IconManager.MOVIE_48));
+		TitlePanel tp = new TitlePanel(TITLE, "Create a movie.", 
+				"The movie will be saved to the server and " +
+				"attached to the image.", icons.getIcon(IconManager.MOVIE_48));
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout(5, 5));
 		c.add(tp, BorderLayout.NORTH);

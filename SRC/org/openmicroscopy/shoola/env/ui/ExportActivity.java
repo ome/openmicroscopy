@@ -85,8 +85,7 @@ public class ExportActivity
 		File parent = folder.getParentFile();
 		String name = folder.getAbsolutePath();
 		if (parent != null) {
-			name = UserNotifierManager.getFileName(
-					parent.listFiles(), folder.getName()+extension, 
+			name = getFileName(parent.listFiles(), folder.getName()+extension, 
 					folder.getName()+extension, 
 					parent.getAbsolutePath()+File.separator, 1, extension);
 			return parent+File.separator+name;

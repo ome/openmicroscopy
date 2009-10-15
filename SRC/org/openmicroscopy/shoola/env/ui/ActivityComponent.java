@@ -30,6 +30,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -97,6 +99,51 @@ public abstract class ActivityComponent
     /** Convenience reference for subclasses. */
     protected final UserNotifier		viewer;
     
+    /**
+	 * Returns the name to give to the file.
+	 * 
+	 * @param files		Collection of files in the currently selected directory.
+	 * @param fileName	The name of the original file.
+	 * @param original	The name of the file. 
+	 * @param dirPath	Path to the directory.
+	 * @param index		The index of the file.
+	 * @param extension The extension to check or <code>null</code>.
+	 * @return See above.
+	 */
+	String getFileName(File[] files, String fileName, String original, 
+								String dirPath, int index, String extension)
+	{
+		String path = dirPath+original;
+		boolean exist = false;
+		if (files != null) {
+			for (int i = 0; i < files.length; i++) {
+	        	 if ((files[i].getAbsolutePath()).equals(path)) {
+	                 exist = true;
+	                 break;
+	             }
+			}
+		}
+        if (!exist) return original;
+        if (fileName == null || fileName.trim().length() == 0) return original;
+    	
+    	if (extension != null && extension.trim().length() > 0) {
+    		int n = fileName.lastIndexOf(extension);
+    		String v = fileName.substring(0, n)+" ("+index+")"+extension;
+    		index++;
+    		return getFileName(files, fileName, v, dirPath, index, extension);
+    	} else {
+    		int lastDot = fileName.lastIndexOf(".");
+    		if (lastDot != -1) {
+        		extension = fileName.substring(lastDot, fileName.length());
+        		String v = fileName.substring(0, lastDot)+
+        		" ("+index+")"+extension;
+        		index++;
+        		return getFileName(files, fileName, v, dirPath, index, null);
+        	} 
+    	}
+    	
+    	return original;
+	}
 	/** 
 	 * Initializes the components. 
 	 * 
