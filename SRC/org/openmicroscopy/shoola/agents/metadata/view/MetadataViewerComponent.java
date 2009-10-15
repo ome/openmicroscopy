@@ -935,5 +935,19 @@ class MetadataViewerComponent
 	{
 		model.getEditor().setSelectedTab(index);
 	}
+
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#export()
+	 */
+	public void export()
+	{
+		Object ref = model.getRefObject();
+		if ((ref instanceof ImageData) || (ref instanceof WellSampleData)) {
+			firePropertyChange(EXPORT_PROPERTY, Boolean.valueOf(false), 
+					Boolean.valueOf(true));
+		}
+		
+	}
 	
 }

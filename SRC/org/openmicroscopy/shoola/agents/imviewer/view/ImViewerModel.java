@@ -1962,6 +1962,13 @@ class ImViewerModel
 				getBrowser().getUnitBarColor());
 	}
 	
+	/** Exports the image. */
+	void export()
+	{
+		if (metadataViewer == null) return;
+		metadataViewer.export();
+	}
+	
 	/**
 	 * Sets the selected lifetime bin.
 	 * 

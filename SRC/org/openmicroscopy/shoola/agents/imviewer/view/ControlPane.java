@@ -681,19 +681,31 @@ class ControlPane
         JToolBar bar = createBar();
         bar.add(colorModelButton);
         if (!model.isNumerousChannel()) {
-        	bar.add(Box.createRigidArea(VBOX));
-            bar.add(channelMovieButton);
+        	//bar.add(Box.createRigidArea(VBOX));
+            //bar.add(channelMovieButton);
             bar.add(Box.createRigidArea(VBOX));
             bar.add(colorPickerButton);
         } else {
         	bar.add(Box.createRigidArea(VBOX));
             bar.add(Box.createRigidArea(VBOX));
-            bar.add(Box.createRigidArea(VBOX));
+            //bar.add(Box.createRigidArea(VBOX));
         }
         
         return bar;
     }
     
+    /** 
+     * Builds the tool bar displayed on the left side of the image.
+     * 
+     * @return See above.
+     */
+    private JToolBar buildBottomToolBar()
+    {
+        JToolBar bar = createBar();
+        bar.add(channelMovieButton);
+        bar.add(Box.createRigidArea(VBOX));
+        return bar;
+    }
     /** 
      * Builds the tool bar displayed on the left side of the  grid view.
      * 
@@ -762,11 +774,14 @@ class ControlPane
     			p.add(button);
                 p.add(Box.createRigidArea(VBOX));
     		}
+            //channels movie button.
+            //p.add(buildBottomToolBar());
         }
         JPanel controls = new JPanel();
         double size[][] = {{TableLayout.PREFERRED}, 
         				{TableLayout.PREFERRED, TableLayout.PREFERRED,
-        				TableLayout.PREFERRED, SLIDER_HEIGHT}};
+        				TableLayout.PREFERRED, TableLayout.PREFERRED, 
+        				SLIDER_HEIGHT}};
         controls.setLayout(new TableLayout(size));
         
         controls.add(Box.createVerticalStrut(20), "0, 0");
@@ -779,6 +794,10 @@ class ControlPane
         	sp.setPreferredSize(d);
         	controls.add(sp, "0, "+k+", r, c");
         } else controls.add(p, "0, "+k);
+        k++;
+        if (!model.isNumerousChannel()) {
+        	controls.add(buildBottomToolBar(), "0, "+k+", c, c");
+        }
         k++;
         controls.add(ratioSlider, "0, "+k+", c, c");
         return UIUtilities.buildComponentPanel(controls);

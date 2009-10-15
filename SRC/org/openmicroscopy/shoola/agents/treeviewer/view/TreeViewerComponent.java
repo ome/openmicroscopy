@@ -686,8 +686,8 @@ class TreeViewerComponent
 		MetadataViewer mv = model.getMetadataViewer();
 		if (hasDataToSave()) {
 			MessageBox dialog = new MessageBox(view, "Save data", 
-					"Do you want to save the modified \n" +
-					"data before selecting a new item?");
+					"Do you want to save the modified " +
+					"data \n before selecting a new item?");
 			if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
 			else mv.clearDataToSave();
 		}

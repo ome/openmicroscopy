@@ -130,6 +130,9 @@ public interface MetadataViewer
 	/** Bound property indicating that the settings have been applied. */
 	public static final String	SETTINGS_APPLIED_PROPERTY = "settingsApplied";
 	
+	/** Bound property indicating to export the image. */
+	public static final String	EXPORT_PROPERTY = "export";
+	
 	/** Flag to denote the <i>New</i> state. */
 	public static final int     NEW = 1;
 
@@ -357,6 +360,9 @@ public interface MetadataViewer
 	 */
 	public void makeMovie(int scaleBar, Color overlayColor);
 
+	/** Exports the image. */
+	public void export();
+	
 	/**
 	 * Uploads the movie.
 	 * 

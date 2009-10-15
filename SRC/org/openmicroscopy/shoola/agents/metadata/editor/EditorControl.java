@@ -410,7 +410,9 @@ class EditorControl
 		} else if (MetadataViewer.ANALYSE_PROPERTY.equals(name)) {
 			boolean b = (Boolean) evt.getNewValue();
 			view.analyse(b);
-		} 
+		} else if (MetadataViewer.EXPORT_PROPERTY.equals(name)) {
+			export();
+		}
 	}
 
 	/**

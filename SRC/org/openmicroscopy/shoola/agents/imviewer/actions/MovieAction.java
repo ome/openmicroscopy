@@ -62,7 +62,7 @@ public class MovieAction
     private static final String DESCRIPTION = "Bring up the movie player.";
     
     /** 
-     * Sets the enabled flag depending on the tabbed selected.
+     * Sets the enabled flag depending on the tab selected.
      * @see ViewerAction#onTabSelection()
      */
     protected void onTabSelection()
@@ -71,7 +71,7 @@ public class MovieAction
     }
     
     /**
-     * Sets the enabled flag depending on the tabbed selected.
+     * Sets the enabled flag depending on the tab selected.
      * @see ViewerAction#onStateChange(ChangeEvent)
      */
     protected void onStateChange(ChangeEvent e)

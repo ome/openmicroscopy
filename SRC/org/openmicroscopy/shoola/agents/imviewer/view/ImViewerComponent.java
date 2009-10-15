@@ -2894,5 +2894,15 @@ class ImViewerComponent
 		if (value == null) return;
 		model.getBrowser().saveImage(value);
 	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#export()
+	 */
+	public void export()
+	{
+		if (model.getState() == DISCARDED) return;
+		model.export();
+	}
 	
 }

@@ -63,6 +63,8 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.CompressionAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.CopyRndSettingsAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.CreateMovieAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ExportImageAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.HistoryAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.LensAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.MetadataAction;
@@ -321,6 +323,9 @@ class ImViewerControl
 	/** Identifies the <code>Channels Off</code> action. */
 	static final Integer     CHANNELS_OFF = Integer.valueOf(71);
 	
+	/** Identifies the <code>Export</code> action. */
+	static final Integer     EXPORT = Integer.valueOf(72);
+	
 	/** 
 	 * Reference to the {@link ImViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -423,6 +428,8 @@ class ImViewerControl
 		actionsMap.put(METADATA, new MetadataAction(model));
 		actionsMap.put(CHANNELS_ON, new ChannelsSelectionAction(model, true));
 		actionsMap.put(CHANNELS_OFF, new ChannelsSelectionAction(model, false));
+		actionsMap.put(EXPORT, new ExportImageAction(model));
+		actionsMap.put(CREATE_MOVIE, new CreateMovieAction(model));
 		//TO be modified.
 		actionsMap.put(PLAY_LIFETIME_MOVIE, new PlayMovieAction(model, 
 				PlayMovieAction.ACROSS_T));

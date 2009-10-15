@@ -588,8 +588,20 @@ class ImViewerUI
 		item = new JMenuItem(action);
 		item.setText(action.getName());
 		menu.add(item);
+		
+		//movie and export
+		menu.add(new JSeparator(JSeparator.HORIZONTAL));
+		action = controller.getAction(ImViewerControl.CREATE_MOVIE);
+		item = new JMenuItem(action);
+		item.setText(action.getName());
+		menu.add(item);
+		action = controller.getAction(ImViewerControl.EXPORT);
+		item = new JMenuItem(action);
+		item.setText(action.getName());
+		menu.add(item);
+		 
 		//Color model
-		 menu.add(new JSeparator(JSeparator.HORIZONTAL));
+		menu.add(new JSeparator(JSeparator.HORIZONTAL));
 		colorModelGroup = new ButtonGroup();
 		action = controller.getAction(ImViewerControl.GREY_SCALE_MODEL);
 		item = new JCheckBoxMenuItem();

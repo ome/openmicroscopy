@@ -1088,5 +1088,8 @@ public interface ImViewer
 	 * @param value The object hosting the information about the file to save.
 	 */
 	public void saveImage(SaveObject value);
+
+	/** Exports the image. */
+	public void export();
 	
 }
