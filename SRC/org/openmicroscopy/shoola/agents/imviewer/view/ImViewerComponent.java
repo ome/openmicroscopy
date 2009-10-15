@@ -72,6 +72,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.saver.SaveObject;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -2364,6 +2365,7 @@ class ImViewerComponent
 					"NEW state.");
 		}
 		if (index == RENDERER_INDEX || index == METADATA_INDEX) {
+			
 			view.showRenderer(false, index);
 			controller.setPreferences();
 		} else {

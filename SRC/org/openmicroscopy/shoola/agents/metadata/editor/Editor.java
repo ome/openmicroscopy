@@ -69,6 +69,9 @@ public interface Editor
 	/** Indicates to select the general tab. */
 	public static final int		GENERAL_TAB = EditorUI.GENERAL_INDEX;
 	
+	/** Indicates to select the acquisition tab. */
+	public static final int		ACQUISITION_TAB = EditorUI.ACQUISITION_INDEX;
+	
 	/** Identified the <code>Immersion</code> enumeration. */
 	public static final String IMMERSION = OmeroMetadataService.IMMERSION;
 	
@@ -330,16 +333,6 @@ public interface Editor
 			Object uiView);
 
 	/**
-	 * Selects the renderer view. This will only be applied if the 
-	 * type of the component is {@link MetadataViewer#RND_SPECIFIC}.
-	 * 
-	 * @param index One of the following constants: 
-	 * 				{@link MetadataViewer#RENDERER_TAB} or
-	 * 				{@link MetadataViewer#GENERAL_TAB}.
-	 */
-	public void selectRenderer(int index);
-
-	/**
 	 * Returns the renderer. This method will always return 
 	 * <code>null</code> if the type is not {@link MetadataViewer#RND_SPECIFIC}.
 	 * 
@@ -373,5 +366,12 @@ public interface Editor
 	 * @param index The index of the channel.
 	 */
 	public void onChannelColorChanged(int index);
+	
+	/** 
+	 * Set the index of the selected tab.
+	 * 
+	 * @param index The selected index.
+	 */
+	public void setSelectedTab(int index);
 	
 }

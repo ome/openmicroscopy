@@ -818,16 +818,6 @@ class MetadataViewerComponent
 		firePropertyChange(RND_LOADED_PROPERTY, Boolean.valueOf(!reload), 
 				Boolean.valueOf(reload));
 	}
-	
-	/**
-	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#selectRenderer(int)
-	 */
-	public void selectRenderer(int index)
-	{
-		if (getRndIndex() != RND_SPECIFIC) return;
-		model.getEditor().selectRenderer(index);
-	}
 
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
@@ -936,5 +926,14 @@ class MetadataViewerComponent
 	 * @see MetadataViewer#isNumerousChannel()
 	 */
 	public boolean isNumerousChannel() { return model.isNumerousChannel(); }
+
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#setSelectedTab(int)
+	 */
+	public void setSelectedTab(int index)
+	{
+		model.getEditor().setSelectedTab(index);
+	}
 	
 }

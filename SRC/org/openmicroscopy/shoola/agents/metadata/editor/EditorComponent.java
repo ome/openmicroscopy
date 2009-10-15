@@ -52,7 +52,6 @@ import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
-import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -624,26 +623,6 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#selectRenderer(int)
-	 */
-	public void selectRenderer(int type)
-	{
-		/*
-		int index = EditorUI.RND_INDEX; 
-		if (type == MetadataViewer.RENDERER_TAB) {
-			if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC)
-				index = EditorUI.GENERAL_INDEX;
-		} else if (type == MetadataViewer.GENERAL_TAB) {
-			if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC)
-				index = EditorUI.ACQUISITION_INDEX;
-			else index = EditorUI.GENERAL_INDEX;
-		}
-		*/
-		view.setSelectedTab(type);
-	}
-
-	/** 
-	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#getRenderer()
 	 */
 	public Renderer getRenderer()
@@ -718,6 +697,23 @@ class EditorComponent
 	public void onChannelColorChanged(int index)
 	{
 		view.onChannelColorChanged(index);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#onChannelColorChanged(int)
+	 */
+	public void setSelectedTab(int index)
+	{
+		switch (index) {
+			case RENDERER_TAB:
+			case ACQUISITION_TAB:
+			case GENERAL_TAB:
+				view.setSelectedTab(index);
+				break;
+			default:
+				return;
+		}
 	}
 
 }

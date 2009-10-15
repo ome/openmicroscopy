@@ -2012,25 +2012,6 @@ class ImViewerModel
 	}
 
 	/** 
-	 * Sets the renderer. 
-	 * 
-	 * @param index The index of the tab to select.
-	 */
-	void selectRenderer(int index)
-	{ 
-		int type;
-		switch (index) {
-			case ImViewer.RENDERER_INDEX:
-			default:
-				type = MetadataViewer.RENDERER_TAB;
-				break;
-			case ImViewer.METADATA_INDEX:
-				type = MetadataViewer.GENERAL_TAB;
-		}
-		metadataViewer.selectRenderer(type); 
-	}
-
-	/** 
 	 * Sets the selected channel.
 	 * 
 	 * @param index The index of the channel.

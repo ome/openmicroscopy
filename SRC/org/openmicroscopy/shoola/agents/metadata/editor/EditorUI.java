@@ -32,7 +32,6 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -40,15 +39,13 @@ import javax.swing.JTabbedPane;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
-import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-//Application-internal dependencies
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;

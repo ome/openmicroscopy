@@ -37,6 +37,7 @@ import javax.swing.JComponent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
+import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -69,10 +70,13 @@ public interface MetadataViewer
 {
 	
 	/** Indicates to select the renderer tab. */
-	public static final int		RENDERER_TAB = 0;
+	public static final int		RENDERER_TAB = Editor.RENDERER_TAB;
 	
 	/** Indicates to select the general tab. */
-	public static final int		GENERAL_TAB = 1;
+	public static final int		GENERAL_TAB =  Editor.GENERAL_TAB;
+	
+	/** Indicates to select the general tab. */
+	public static final int		ACQUISITION_TAB =  Editor.ACQUISITION_TAB;
 	
 	/** Indicates that the renderer is for general purpose. */
 	public static final int 	RND_GENERAL = 0;
@@ -382,15 +386,6 @@ public interface MetadataViewer
 	
 	/** Notifies that the settings have been applied. */
 	void onSettingsApplied();
-
-	/**
-	 * Selects the renderer view. This will only be applied if the 
-	 * type of the component is {@link #RND_SPECIFIC}.
-	 * 
-	 * @param index One of the following constants: {@link #RENDERER_TAB} or
-	 * 				{@link #GENERAL_TAB}.
-	 */
-	public void selectRenderer(int index);
 	
 	/**
 	 * Returns the renderer. This method will always return 
@@ -449,5 +444,12 @@ public interface MetadataViewer
 	 * @return See above.
 	 */
 	public boolean isNumerousChannel();
+	
+	/** 
+	 * Set the index of the selected tab.
+	 * 
+	 * @param index The selected index.
+	 */
+	public void setSelectedTab(int index);
 	
 }

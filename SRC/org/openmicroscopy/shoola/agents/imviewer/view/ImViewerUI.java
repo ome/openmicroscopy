@@ -88,6 +88,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.PlaneInfoComponent;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -1905,7 +1906,12 @@ class ImViewerUI
 		rndItem.setSelected(isRendererShown());
 		toolBar.displayRenderer();
 		layoutComponents(fromPreferences);
-		if (show) model.selectRenderer(index);
+		if (show) {
+			int v = MetadataViewer.RENDERER_TAB;
+			if (index == ImViewer.METADATA_INDEX)
+				v = MetadataViewer.GENERAL_TAB;
+			model.getMetadataViewer().setSelectedTab(v);
+		}
 	}
 	
 	/**
