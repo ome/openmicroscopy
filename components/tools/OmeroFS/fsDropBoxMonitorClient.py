@@ -526,7 +526,7 @@ class MonitorClientI(monitors.MonitorClient):
             cli = omero.cli.CLI()
             cmd = ["import"]
             cmd.extend(shlex.split(self.importArgs))
-            cmd.extend(["---errs=%s"%t, "---file=%s"%to])
+            cmd.extend([str("---errs=%s"%t), str("---file=%s"%to)])
             cmd.extend(["-s", self.host, "-p", str(self.port), "-k", key])
             cmd.append(fileName)
             self.log.debug("cli.invoke(%s)" % cmd)
@@ -649,26 +649,26 @@ class MonitorClientI(monitors.MonitorClient):
     def setHostAndPort(self, host, port):
         """
             Set the host and port from the communicator properties.
-
+            
         """
         self.host = host
         self.port = port
-
+            
     def setReaders(self, readers):
         """
             Set the readers file from the communicator properties.
-
+            
         """
         self.readers = readers
 
     def setImportArgs(self, importArgs):
         """
             Set the importArgs from the communicator properties.
-
+            
         """
         self.importArgs = importArgs
 
-
+            
 
 
     #
