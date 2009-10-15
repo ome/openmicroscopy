@@ -76,7 +76,7 @@ class CustomizedFileChooser
 	private JTextField			nameArea;
 	
 	/** User defined file filter. */
-	private 	RegExFileFilter filter;
+	private RegExFileFilter 	filter;
 	
 	/** 
 	 * Initializes the components composing the display. 
@@ -92,8 +92,8 @@ class CustomizedFileChooser
 		if (nameArea != null) {
 			nameArea.setVisible(true);
 			nameArea.getDocument().addDocumentListener(this);
-			if (model.getChooserType() == FileChooser.LOAD)
-				nameArea.addKeyListener(this);
+			//if (model.getChooserType() == FileChooser.LOAD)
+				//nameArea.addKeyListener(this);
 		}
 	}
 		
@@ -403,26 +403,29 @@ class CustomizedFileChooser
 		if (model.getChooserType() == FileChooser.FOLDER_CHOOSER)
 			return super.getSelectedFile();
 		if (nameArea == null) return super.getSelectedFile();
-		return new File(getCurrentDirectory().toString(), nameArea.getText());
+		String name = nameArea.getText();
+		if (name == null || name.trim().length() == 0)
+			return super.getSelectedFile();
+		return new File(getCurrentDirectory().toString(), name);
 	}
 	
 	/**
-	 * Required by the {@link DocumentListener} I/F but no-op implementation
-	 * in our case.
+	 * Required by the {@link DocumentListener} I/F but no-operation
+	 * implementation in our case.
 	 * @see DocumentListener#changedUpdate(DocumentEvent)
 	 */
 	public void changedUpdate(DocumentEvent e) {}
 
 	/**
-	 * Required by the {@link KeyListener} I/F but no-op implementation
-	 * in our case.
+	 * Required by the {@link KeyListener} I/F but no-operation
+	 * implementation in our case.
 	 * @see KeyListener#keyPressed(KeyEvent)
 	 */
 	public void keyPressed(KeyEvent e) {}
 
 	/**
-	 * Required by the {@link KeyListener} I/F but no-op implementation
-	 * in our case.
+	 * Required by the {@link KeyListener} I/F but no-operation
+	 * implementation in our case.
 	 * @see KeyListener#keyTyped(KeyEvent)
 	 */
 	public void keyTyped(KeyEvent e) {}
