@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -429,7 +430,21 @@ class PropertiesUI
     	if (value.length() == 0) return null;
     	return label+"="+value;
     }
-    
+
+    private boolean isPixelsSizeNumber(Map details)
+    {
+    	String x = (String) details.get(EditorUtil.PIXEL_SIZE_X);
+    	String y = (String) details.get(EditorUtil.PIXEL_SIZE_Y);
+    	String z = (String) details.get(EditorUtil.PIXEL_SIZE_Z);
+    	try {
+			Double.parseDouble(x);
+			Double.parseDouble(y);
+			Double.parseDouble(z);
+			return true;
+		} catch (Exception e) {
+		}
+		return false;
+    }
     
 	/**
      * Builds the panel hosting the information
@@ -472,6 +487,7 @@ class PropertiesUI
     	
     	String s = isValidPixelsSize(details);
     	if (s != null) {
+    		boolean isANumber = isPixelsSizeNumber(details);
     		String[] split = s.split("=");
     		index++;
         	layout.insertRow(index, TableLayout.PREFERRED);
@@ -481,6 +497,10 @@ class PropertiesUI
         	value.setText(split[1]);
         	content.add(label, "0, "+index);
         	content.add(value, "2, "+index);
+        	if (!isANumber) {
+        		value.setForeground(Color.RED);
+        		value.setToolTipText("Values stored in the file...");
+        	}
     	}
     	index++;
     	layout.insertRow(index, TableLayout.PREFERRED);
