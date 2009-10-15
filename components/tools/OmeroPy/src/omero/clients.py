@@ -442,7 +442,7 @@ class BaseClient(object):
                                 sf.keepAlive(None)
                             except exceptions.Exception, e:
                                 if ic != None:
-                                    ic.getLogger().warning("Proxy keep alive failed.")
+                                    self.__logger.warning("Proxy keep alive failed.")
                         return True
                 self.__resources.add(Entry(self))
         finally:
@@ -611,7 +611,7 @@ class BaseClient(object):
                 try:
                     oldR.cleanup()
                 except exceptions.Exception, e:
-                    oldIc.getLogger().warning(
+                    self.__logger.warning(
                         "While cleaning up resources: " + str(e))
 
             try:
@@ -792,10 +792,10 @@ class BaseClient(object):
         def execute(self, myCallable, action):
             try:
                 myCallable()
-                self.ic.getLogger().trace("ClientCallback", action + " run")
+                self.__logger.debug("ClientCallback", action + " run")
             except:
                 try:
-                    self.ic.getLogger().error("Error performing %s" % action)
+                    self.__logger.error("Error performing %s" % action)
                 except:
                     print "Error performing %s" % action
 
