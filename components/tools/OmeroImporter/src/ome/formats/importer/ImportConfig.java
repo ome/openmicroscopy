@@ -215,7 +215,7 @@ public class ImportConfig {
 
         useFullPath  = new BoolValue("useFullPath", this, true);
         savedFileNaming = new BoolValue("savedFileNaming", this, false);
-        overrideImageName = new BoolValue("overrideImageName", this, false);
+        overrideImageName = new BoolValue("overrideImageName", this, true);
         numOfDirectories = new IntValue("numOfDirectories", this, 0);
         savedDirectory = new FileValue("savedDirectory", this);
 
