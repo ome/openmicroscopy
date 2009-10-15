@@ -293,8 +293,12 @@ public interface Renderer
 	/** Applies the rendering settings to the selected or displayed images. */
 	void applyToAll();
 	
-	/** Notifies that the rendering settings have been applied. */
-	void onSettingsApplied();
+	/** 
+	 * Notifies that the rendering settings have been applied. 
+	 * 
+	 * @param rndControl The rendering control to reset.
+	 */
+	void onSettingsApplied(RenderingControl rndControl);
 	
 	/**
 	 * Returns the sizeX.

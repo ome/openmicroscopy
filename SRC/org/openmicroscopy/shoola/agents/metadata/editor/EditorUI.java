@@ -606,13 +606,6 @@ public class EditorUI
 		*/
 		
 	}
-
-	/** Updates the view when the rendering settings have been applied. */
-	void onSettingsApplied()
-	{
-		Renderer rnd = model.getRenderer();
-		if (rnd != null) rnd.onSettingsApplied();
-	}
 	
 	/**
 	 * Sets the selected tab.
@@ -660,5 +653,17 @@ public class EditorUI
 	 * @return See above.
 	 */
 	String getRefObjectName() { return model.getRefObjectName(); }
+
+	/** Cleans up the view or adds the components
+	 * 
+	 * @param cleanup 	Pass <code>true</code> to clean up, <code>false</code>
+	 * 					to add the component.
+	 */
+	void onSettingsApplied(boolean cleanup)
+	{ 
+		if (cleanup) tabPane.setComponentAt(RND_INDEX, dummyPanel);
+		else tabPane.setComponentAt(RND_INDEX, 
+				new JScrollPane(model.getRenderer().getUI()));
+	}
 	
 }

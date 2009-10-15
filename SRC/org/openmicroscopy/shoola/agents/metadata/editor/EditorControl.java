@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
@@ -331,7 +332,7 @@ class EditorControl
 		if (e.getSource() instanceof JTabbedPane) {
 			JTabbedPane pane = (JTabbedPane) e.getSource();
 			if (pane.getSelectedIndex() == EditorUI.RND_INDEX)
-				model.loadRenderingControl();
+				model.loadRenderingControl(RenderingControlLoader.LOAD);
 		}
 	}
 	
@@ -404,7 +405,8 @@ class EditorControl
 			boolean b = (Boolean) evt.getNewValue();
 			view.createMovie(b);
 		} else if (MetadataViewer.SETTINGS_APPLIED_PROPERTY.equals(name)) {
-			view.onSettingsApplied();
+			model.loadRenderingControl(RenderingControlLoader.RELOAD);
+			view.onSettingsApplied(true);
 		} else if (MetadataViewer.ANALYSE_PROPERTY.equals(name)) {
 			boolean b = (Boolean) evt.getNewValue();
 			view.analyse(b);
@@ -441,7 +443,7 @@ class EditorControl
 				view.makeMovie(-1, null);
 				break;
 			case RENDERER:
-				model.loadRenderingControl();
+				model.loadRenderingControl(RenderingControlLoader.LOAD);
 				break;
 			case ANALYSE_FLIM:
 				view.analyse();

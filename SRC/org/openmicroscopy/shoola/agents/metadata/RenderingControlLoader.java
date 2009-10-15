@@ -151,12 +151,11 @@ public class RenderingControlLoader
         //if (viewer.getState() == Editor.DISCARDED) return;  //Async cancel.
         switch (index) {
 			case LOAD:
+			case RELOAD:
 				viewer.setRenderingControl((RenderingControl) result);
 				//viewer.setRenderingControl((RenderingControl) result);
 				break;
-			case RELOAD:
 				//viewer.setRenderingControlReloaded(false);
-				break;
 			case RESET:
 				//viewer.setRenderingControlReloaded(true);
 		}

@@ -159,6 +159,17 @@ class RendererModel
 	}
 	
 	/**
+	 * Sets the rendering control.
+	 * 
+	 * @param rndControl  Reference to the component that controls the
+	 *                    rendering settings. Mustn't be <code>null</code>.
+	 */
+	void setRenderingControl(RenderingControl rndControl)
+	{
+		this.rndControl = rndControl;
+	}
+	
+	/**
 	 * Returns the index of a channel or <code>-1</code>.
 	 * 
 	 * @return See above.

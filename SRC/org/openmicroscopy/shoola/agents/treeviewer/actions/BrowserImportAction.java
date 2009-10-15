@@ -98,6 +98,7 @@ public class BrowserImportAction
         		setEnabled(model.isObjectWritable(ho));
         	}
         } else setEnabled(false);
+        setEnabled(false);
     }
     
     /**

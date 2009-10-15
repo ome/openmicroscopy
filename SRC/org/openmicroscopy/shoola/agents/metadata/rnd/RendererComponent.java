@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -535,7 +536,12 @@ class RendererComponent
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#onSettingsApplied()
      */
-	public void onSettingsApplied() { view.onSettingsApplied(); }
+	public void onSettingsApplied(RenderingControl rndControl)
+	{ 
+		if (rndControl == null) return;
+		model.setRenderingControl(rndControl);
+		view.onSettingsApplied();
+	}
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.

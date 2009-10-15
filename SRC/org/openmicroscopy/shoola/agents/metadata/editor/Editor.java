@@ -319,8 +319,12 @@ public interface Editor
 	 */
 	public void setRenderingControl(RenderingControl rndControl);
 
-	/** Loads the rendering control for the first selected image. */
-	public void loadRenderingControl();
+	/** 
+	 * Loads the rendering control for the first selected image. 
+	 * 
+	 * @param index One of the loading index.
+	 */
+	public void loadRenderingControl(int index);
 
 	/**
 	 * Sets the result back to the viewer.

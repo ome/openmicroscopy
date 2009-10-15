@@ -1801,7 +1801,7 @@ class EditorModel
 	 */
 	void fireRenderingControlLoading(long pixelsID, int index)
 	{
-		if (isRendererLoaded()) return;
+		if (isRendererLoaded() && index == RenderingControlLoader.LOAD) return;
 		RenderingControlLoader loader = new RenderingControlLoader(component, 
 				pixelsID, index);
 		loader.load();
@@ -1814,7 +1814,11 @@ class EditorModel
 	 */
 	void setRenderingControl(RenderingControl rndControl)
 	{
-		renderer = RendererFactory.createRenderer(rndControl, getRndIndex());
+		if (renderer != null) {
+			renderer.onSettingsApplied(rndControl);
+		} else {
+			renderer = RendererFactory.createRenderer(rndControl, getRndIndex());
+		}
 	}
 	
 	/**

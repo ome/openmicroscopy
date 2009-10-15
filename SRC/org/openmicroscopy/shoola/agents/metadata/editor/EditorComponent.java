@@ -191,7 +191,7 @@ class EditorComponent
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		view.setRootObject();
 		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC)
-			loadRenderingControl();
+			loadRenderingControl(RenderingControlLoader.LOAD);
 	}
 
 	/** 
@@ -569,7 +569,9 @@ class EditorComponent
 	 */
 	public void setRenderingControl(RenderingControl rndControl)
 	{
+		boolean loaded = model.isRendererLoaded();
 		model.setRenderingControl(rndControl);
+		if (loaded) view.onSettingsApplied(false);
 		//if (model.isNumerousChannel()) return;
 		view.setRenderer();
 		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC)
@@ -582,7 +584,7 @@ class EditorComponent
 	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#loadRenderingControl()
 	 */
-	public void loadRenderingControl()
+	public void loadRenderingControl(int index)
 	{
 		Object ref = model.getRefObject();
 		if (ref instanceof WellSampleData) {
@@ -598,11 +600,19 @@ class EditorComponent
 				un.notifyInfo("Renderer", "The selected image is not valid.");
 				return;
 			}
-			model.fireRenderingControlLoading(pixels.getId(), 
-					RenderingControlLoader.LOAD);
+			int value;
+			switch (index) {
+				case RenderingControlLoader.LOAD:
+				case RenderingControlLoader.RELOAD:
+					value = index;
+					break;
+				default:
+					value = index;
+			}
+			model.fireRenderingControlLoading(pixels.getId(), value);
 		} 
 	}
-
+	
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setLoadedFile(FileAnnotationData, File, Object)
