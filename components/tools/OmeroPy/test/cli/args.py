@@ -70,5 +70,9 @@ class TestArgs(unittest.TestCase):
         a = Arguments(" a b c ")
         self.assert_(len(a) == 3)
 
+    def testUnicode(self):
+        a = Arguments([unicode("unicode")])
+        self.assert_(len(a) == 1)
+
 if __name__ == '__main__':
     unittest.main()

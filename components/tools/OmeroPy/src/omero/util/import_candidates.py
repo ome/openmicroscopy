@@ -16,14 +16,19 @@ from omero.util.temp_files import create_path, remove_path
 from omero.cli import CLI
 
 def _to_list(path):
-        if isinstance(path,str):
-            path = [path]
-        else:
-            path = list(path)
-	return path
+    """
+    Guarantees that a list of strings will be returned.
+    Handles unicode caused by "%s" % path.path.
+    """
+    if isinstance(path,str) or isinstance(path,unicode):
+        path = [str(path)]
+    else:
+        path = [str(x) for x in path]
+        return path
 
 def as_stdout(path, readers=""):
         path = _to_list(path)
+        readers = str(readers)
         cli = CLI()
         cli.loadplugins()
         if readers:

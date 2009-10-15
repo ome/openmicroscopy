@@ -100,7 +100,7 @@ class Arguments:
     and it will handle the above cases as well as wrapping other Argument
     instances. If the method takes varargs and it is desired to test for
     single argument of the above type, then use::
-    
+
         args = Arguments(*args)
 
     """
@@ -117,7 +117,7 @@ class Arguments:
             self.make_argmap()
         elif isinstance(args, list):
             for l in args:
-                assert isinstance(l, str)
+                assert (isinstance(l, str) or isinstance(l, unicode))
             self.args = args
             self.make_argmap()
         else:
