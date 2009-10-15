@@ -792,7 +792,7 @@ class BaseClient(object):
         def execute(self, myCallable, action):
             try:
                 myCallable()
-                self.__logger.debug("ClientCallback", action + " run")
+                self.__logger.debug("ClientCallback %s run", action)
             except:
                 try:
                     self.__logger.error("Error performing %s" % action)
