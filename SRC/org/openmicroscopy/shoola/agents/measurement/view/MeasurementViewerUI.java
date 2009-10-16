@@ -30,6 +30,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -58,6 +59,7 @@ import org.jhotdraw.draw.Figure;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.ImageViewport;
 import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
+import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -379,6 +381,8 @@ class MeasurementViewerUI
 	MeasurementViewerUI(String title)
     {
         super(WINDOW_TITLE+title);
+        IconManager icons = IconManager.getInstance();
+        setIconImage(icons.getImageIcon(IconManager.MEASUREMENT_TOOL).getImage());
         loadingWindow = new LoadingWindow(this);
     }
     

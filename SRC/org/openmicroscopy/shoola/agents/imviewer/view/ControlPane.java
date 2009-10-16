@@ -629,6 +629,7 @@ class ControlPane
     	bar.setRollover(true);
     	bar.setBorder(null);
     	bar.add(button);
+    	bar.setPreferredSize(button.getPreferredSize());
     	return bar;
     }
     

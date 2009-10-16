@@ -45,6 +45,7 @@ import org.jdesktop.swingx.JXTreeTable;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.ImageTableRenderer;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeTableModel;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.NumberCellRenderer;
@@ -162,6 +163,7 @@ class ImageTable
 	/** Initializes the component. */
 	private void initialize()
 	{
+		setBackground(UIUtilities.BACKGROUND_COLOR);
 		nodes  = new ArrayList<ImageTableNode>();
 		setTableModel(new OMETreeTableModel(tableRoot, COLUMNS, RENDERERS));
 		setTreeCellRenderer(new ImageTableRenderer());

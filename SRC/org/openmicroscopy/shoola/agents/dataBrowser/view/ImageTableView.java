@@ -38,6 +38,8 @@ import javax.swing.JScrollPane;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DataObject;
 
 /** 
@@ -91,7 +93,10 @@ class ImageTableView
 	private void buildGUI()
 	{
 		setLayout(new BorderLayout());
-		add(new JScrollPane(table), BorderLayout.CENTER);
+		setBackground(UIUtilities.BACKGROUND_COLOR);
+		JScrollPane pane = new JScrollPane(table);
+		pane.setBackground(UIUtilities.BACKGROUND_COLOR);
+		add(pane, BorderLayout.CENTER);
 	}
 	
 	/** 

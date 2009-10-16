@@ -312,6 +312,8 @@ class DataBrowserUI
 				}
 				//}
 				if (existed == null) v.addPropertyChangeListener(controller);
+				v.revalidate();
+				v.repaint();
 				add(v, BorderLayout.CENTER);
 		}
     	add(statusBar, BorderLayout.SOUTH);

@@ -228,7 +228,7 @@ public class IconManager
         relPaths[QUESTION_32] = "nuvola_filetype32.png";
         relPaths[CORNERICON] = "cornericon.png";
         relPaths[LOAD] = "nuvola_revert16.png";
-        relPaths[MEASUREMENT_TOOL] = "nuvola_designer16.png";
+        relPaths[MEASUREMENT_TOOL] = "crystal_roi16.png";//"nuvola_designer16.png";
     }
     
     /** 
