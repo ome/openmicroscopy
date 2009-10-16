@@ -10,19 +10,40 @@ blitz = os.path.abspath( os.path.join(os.path.curdir, os.path.pardir, os.path.pa
 sys.path.append( blitz )
 from blitz_tools import *
 
-BOOST_DEBUG="boost_unit_test_framework-mt-d"
-BOOST_NDEBUG="boost_unit_test_framework-mt"
+BOOST_ALL=[
+    # 1.39
+    "boost_unit_test_framework-mt-d",
+    "boost_unit_test_framework-mt",
+    "boost_unit_test_framework-xgcc40-mt",
+    # 1.40
+    "boost_unit_test_framework"
+    ]
 
 #
 # At the moment, execution of this script requires,
 # ant tools-init to have been run
 #
 
+env = OmeroEnvironment(CPPPATH=["src","target"])
+
 boost_check = """
+//
+// boost_check function from OmeroCpp/SConstruct
+// Checks for the existnce of the unit_test.hpp
+// header in the current INCLUDE paths. If found,
+// A search will be made for the following
+// dynamic libs:
+//
+// %s
+//
+// INCLUDE paths: %s
+// LIBRARY paths: %s
+//
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/included/unit_test.hpp>
-"""
+""" % (BOOST_ALL, env["CPPPATH"], env["LIBPATH"])
+
 def CheckBoost(context):
     context.Message('Checking for boost_unit_test...')
     result = context.TryLink(boost_check, '.cpp')
@@ -31,7 +52,6 @@ def CheckBoost(context):
 
 boost_libs = []
 
-env = OmeroEnvironment(CPPPATH=["src","target"])
 if not env.GetOption('clean'):
     conf = Configure(env, custom_tests = {'CheckBoost':CheckBoost})
     if not conf.CheckCXXHeader(os.path.join("Ice","Ice.h")):
@@ -39,12 +59,18 @@ if not env.GetOption('clean'):
         env.Exit(1)
     has_boost = conf.CheckBoost()
     if has_boost:
-	if conf.CheckLib(BOOST_DEBUG):
-	    boost_libs.append(BOOST_DEBUG)
-	elif conf.CheckLib(BOOST_NDEBUG):
-	    boost_libs.append(BOOST_NDEBUG)
-	else:
-	    print "Has boost but doesn't have boost?"
+        found = False
+        for b in BOOST_ALL:
+            if conf.CheckLib(b):
+                print "Using %s" % b
+                boost_libs.append(b)
+                found = True
+                break
+        if not found:
+            print "*"*50
+            print " boost_unit_test header found but no library!"
+            print " checked: %s" % BOOST_ALL
+            print "*"*50
             env.Exit(1)
     conf.Finish()
 else:
@@ -53,17 +79,35 @@ else:
 #
 # Build the library
 #
-library = env.SharedLibrary("omero_client",
-    env.Glob("target/**/**/*.cpp") +
-    env.Glob("target/**/*.cpp") +
-    env.Glob("src/**/**/*.cpp") +
-    env.Glob("src/**/*.cpp"),
-    LIBS=["Ice","Glacier2","IceUtil"])
+srcs = env.Glob("target/**/**/*.cpp") + \
+       env.Glob("target/**/*.cpp") + \
+       env.Glob("src/**/**/*.cpp") + \
+       env.Glob("src/**/*.cpp")
+
+target = "omero_client"
+if sys.platform == "win32":
+    target += ".dll"
+
+library = env.SharedLibrary(\
+    target = target,
+    source = srcs,
+    LIBS = ["Ice","Glacier2","IceUtil"])
+
 env.Alias('lib', library)
 
 install = env.Install('../target/lib', library)
 env.Alias('install', install)
 
+#
+# Visual Studio
+#
+
+if target.endswith("dll"):
+    msproj = env.MSVSProject(target = 'omero_client' + env['MSVSPROJECTSUFFIX'],
+        srcs = srcs,
+        buildtarget = lib,
+        variant = 'Release')
+    env.Alias('msproj', msproj)
 
 #
 # Build tests
@@ -71,7 +115,7 @@ env.Alias('install', install)
 if not has_boost:
     if "test" in COMMAND_LINE_TARGETS:
         print "*" * 55
-        print " WARNING: boost_unit_test_framework-mt not installed"
+        print " WARNING: boost_unit_test_framework not installed"
         print "*" * 55
         # env.Exit(1)
 else:

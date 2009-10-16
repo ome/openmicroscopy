@@ -29,15 +29,17 @@
         <scons_py>
             <arg value="test"/>
         </scons_py>
+        <available file="test/unit.exe" property="unit.exe-exists"/>
+        <available file="test/integration.exe" property="integration.exe-exists"/>
     </target>
 
-    <target name="test" depends="test-compile" unless="env.NOMAKE">
+    <target name="test" depends="test-compile" if="unit.exe-exists" unless="env.NOMAKE">
         <exec dir="${basedir}" executable="test/unit.exe" failonerror="${test.with.fail}">
             <env key="ICE_HOME" value="${ice.home}"/>
         </exec>
     </target>
 
-    <target name="integration" depends="test-compile" unless="env.NOMAKE">
+    <target name="integration" depends="test-compile" if="integration.exe-exists" unless="env.NOMAKE">
         <exec dir="${basedir}" executable="test/integration.exe" failonerror="${test.with.fail}">
             <env key="ICE_HOME" value="${ice.home}"/>
         </exec>
