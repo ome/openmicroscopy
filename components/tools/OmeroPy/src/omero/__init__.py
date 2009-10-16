@@ -10,6 +10,9 @@
 
 """
 
+import exceptions
+
+
 def client_wrapper(*args, **kwargs):
     import omero.gateway
     return omero.gateway.BlitzGateway(*args, **kwargs)
