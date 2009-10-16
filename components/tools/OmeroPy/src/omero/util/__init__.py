@@ -77,22 +77,31 @@ def configure_server_logging(props):
     log_level = int(props.getPropertyWithDefault("omero.logging.level",str(LOGLEVEL)))
     configure_logging(LOGDIR, log_name, loglevel=log_level, maxBytes=log_size, backupCount=log_num, time_rollover = log_timed)
 
-    class StreamRedirect(object):
-        """
-        Since all server components should exclusively using the logging module
-        any output to stdout or stderr is caught and logged at "WARN". This is
-        useful, especially in the case of Windows, where stdout/stderr is eaten.
-        """
-
-        def __init__(self, logger):
-            self.logger = logger
-
-        def write(self, msg):
-            msg = msg.strip()
-            self.logger.warn(msg)
-
     sys.stdout = StreamRedirect(logging.getLogger("stdout"))
     sys.stderr = StreamRedirect(logging.getLogger("stderr"))
+
+class StreamRedirect(object):
+    """
+    Since all server components should exclusively using the logging module
+    any output to stdout or stderr is caught and logged at "WARN". This is
+    useful, especially in the case of Windows, where stdout/stderr is eaten.
+    """
+
+    def __init__(self, logger):
+        self.logger = logger
+        self.internal = logging.getLogger("StreamRedirect")
+        self.softspace = False
+
+    def flush(self):
+        pass
+
+    def write(self, msg):
+        msg = msg.strip()
+        if msg:
+            self.logger.warn(msg)
+
+    def __getattr__(self, name):
+        self.internal.warn("No attribute: %s" % name)
 
 def internal_service_factory(communicator, user="root", group=None, retries=6, interval=10, client_uuid=None, stop_event = None):
     """
