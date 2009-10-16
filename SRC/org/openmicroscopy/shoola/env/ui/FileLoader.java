@@ -108,7 +108,7 @@ class FileLoader
 	}
 	
 	/** 
-	 * Notifies the user that the data retrieval has been cancelled.
+	 * Notifies the user that the data retrieval has been canceled.
 	 * @see UserNotifierLoader#handleResult(Object)
 	 */
     public void handleCancellation() 

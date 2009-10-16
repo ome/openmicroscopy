@@ -51,7 +51,7 @@ public class MovieActivity
 {
 
 	/** The description of the activity. */
-	private static final String		DESCRIPTION_CREATION = "Create movie for";
+	private static final String		DESCRIPTION_CREATION = "Creating movie for";
 	
 	/** The description of the activity when finished. */
 	private static final String		DESCRIPTION_CREATED = "Movie created for";

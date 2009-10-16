@@ -33,6 +33,7 @@ import omero.model.OriginalFile;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
+import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
 
 /** 
  * Activity to download an image or file.
@@ -70,9 +71,25 @@ public class DownloadActivity
     	
     	File[] files = directory.listFiles();
     	String dirPath = directory.getAbsolutePath()+File.separator;
-    	//log.debug(this, "dirPath: "+dirPath);
-    	String value = null;
-    	if (file != null) value = file.getName().getValue();
+    	String value = folder.getName();
+    	String extension = null;
+    	if (value != null && value.trim().length() > 0) {
+    		int lastDot = value.lastIndexOf(".");
+    		if (lastDot == -1) { //no extension specified.
+    			//get the extension from the file.
+    			String s = file.getName().getValue();
+        		if (s.endsWith(OMETIFFFilter.OME_TIF) ||
+        				s.endsWith(OMETIFFFilter.OME_TIFF))
+        			extension = OMETIFFFilter.OME_TIFF;
+        		else {
+        			lastDot = s.lastIndexOf(".");
+        			extension = s.substring(lastDot, s.length());
+        		}
+        		value = value+extension;
+    		}
+    		return getFileName(files, value, value, dirPath, 1, extension);
+    	}
+    	value = file.getName().getValue();
     	return getFileName(files, value, value, dirPath, 1, null);
     }
     

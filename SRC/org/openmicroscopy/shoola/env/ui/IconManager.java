@@ -231,14 +231,17 @@ public class IconManager
     /** ID of the <code>forum</code> icon. */
     static final int        FORUM = 16;
     
-    /** ID of the <code>Download</code> icon. */
+    /** A 22x22 <code>Download</code> icon. */
     static final int        DOWNLOAD_22 = 17;
+    
+    /** A 48x48 <code>Download</code> icon. */
+    static final int        DOWNLOAD_48 = 18;
     
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int      MAX_ID = 17;
+	private static int      MAX_ID = 18;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -259,7 +262,8 @@ public class IconManager
         relPaths[DOCUMENT_32] = "nuvola_fileexport32.png";
         relPaths[CANCEL] = "nuvola_background16.png";
 		relPaths[REMOVE] = "nuvola_artscontrol16.png";
-		relPaths[DOWNLOAD_22] = "nuvola_chat16.png";
+		relPaths[DOWNLOAD_22] = "nuvola_download_manager22.png";
+        relPaths[DOWNLOAD_48] = "nuvola_download_manager48.png";
 	}
 	
 	/** The sole instance. */

@@ -55,6 +55,9 @@ abstract class AnnotationUI
 	extends JPanel
 {
 
+	/** Color indicating that a value needs to be highlighted to the user. */
+	static final Color	WARNING = Color.red;
+	
 	/** The border when an editable field are is editable. */
 	static final Border EDIT_BORDER = BorderFactory.createLineBorder(
 			Color.LIGHT_GRAY);

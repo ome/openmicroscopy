@@ -150,8 +150,12 @@ public class MovieCreator
 		"The movie has been created. Do you want to download it?");
         
 		if (box.centerMsgBox() == MessageBox.YES_OPTION) {
-			FileChooser chooser = new FileChooser(f, FileChooser.FOLDER_CHOOSER, 
-					"Download", "Select where to download the file.");
+			FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
+					"Download", "Select where to download the file.", null, 
+					true);
+			IconManager icons = IconManager.getInstance(registry);
+			chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
+			chooser.setApproveButtonText("Download");
 			chooser.addPropertyChangeListener(new PropertyChangeListener() {
 			
 				public void propertyChange(PropertyChangeEvent evt) {

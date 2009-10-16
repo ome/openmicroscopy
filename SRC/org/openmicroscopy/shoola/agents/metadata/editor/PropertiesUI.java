@@ -498,7 +498,7 @@ class PropertiesUI
         	content.add(label, "0, "+index);
         	content.add(value, "2, "+index);
         	if (!isANumber) {
-        		value.setForeground(Color.RED);
+        		value.setForeground(AnnotationUI.WARNING);
         		value.setToolTipText("Values stored in the file...");
         	}
     	}
