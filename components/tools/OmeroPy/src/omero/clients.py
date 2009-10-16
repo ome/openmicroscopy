@@ -834,16 +834,3 @@ class ObjectFactory(Ice.ObjectFactory):
         # Nothing to do
         pass
 
-
-
-class ClientError(exceptions.Exception):
-    """
-    Top of client exception hierarchy.
-    """
-    pass
-
-class UnloadedEntityException(ClientError):
-    pass
-
-class UnloadedCollectionException(ClientError):
-    pass

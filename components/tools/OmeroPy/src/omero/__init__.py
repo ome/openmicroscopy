@@ -17,3 +17,15 @@ def client_wrapper(*args, **kwargs):
 def client(*args, **kwargs):
     import omero.clients
     return omero.clients.BaseClient(*args, **kwargs)
+
+class ClientError(exceptions.Exception):
+    """
+    Top of client exception hierarchy.
+    """
+    pass
+
+class UnloadedEntityException(ClientError):
+    pass
+
+class UnloadedCollectionException(ClientError):
+    pass
