@@ -18,11 +18,10 @@ def additional_tests():
     load = unittest.defaultTestLoader.loadTestsFromName
     suite = unittest.TestSuite()
     suite.addTest(load("test.cli.suite"))
-    suite.addTest(load("test.tables.suite"))
+    suite.addTest(load("test.tablestest.suite"))
     suite.addTest(load("test.t_model"))
     suite.addTest(load("test.t_parameters"))
     suite.addTest(load("test.t_permissions"))
     suite.addTest(load("test.scripts.harness"))
-    suite.addTests(load("test.gateway.suite._additional_tests"))
     suite.addTest(load("test.processor"))
     return suite
