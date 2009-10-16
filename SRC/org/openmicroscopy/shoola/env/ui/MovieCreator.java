@@ -119,7 +119,9 @@ public class MovieCreator
      */
     public void load()
     {
-        handle = ivView.createMovie(image.getId(), channels, param, this);
+    	long pixelsID = image.getDefaultPixels().getId();
+        handle = ivView.createMovie(image.getId(), pixelsID, channels, param, 
+        		this);
     }
     
     /**
@@ -155,6 +157,7 @@ public class MovieCreator
 					true);
 			IconManager icons = IconManager.getInstance(registry);
 			chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
+			chooser.setSelectedFileFull(data.getFileName());
 			chooser.setApproveButtonText("Download");
 			chooser.addPropertyChangeListener(new PropertyChangeListener() {
 			

@@ -284,7 +284,9 @@ public class MovieExportDialog
         			TableLayout.FILL}, //columns
         				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
         				TableLayout.PREFERRED, 5, TableLayout.PREFERRED,
-        				5, TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5,
+        				TableLayout.PREFERRED,
+        				5, TableLayout.PREFERRED, TableLayout.PREFERRED,
+        				5, TableLayout.PREFERRED, 5,
         				TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 10}}; //rows
         TableLayout layout = new TableLayout(tl);
         content.setLayout(layout);
@@ -301,12 +303,23 @@ public class MovieExportDialog
         content.add(fps, "1, "+i);
         content.add(new JLabel("fps"), "2, "+i);
         i = i+2;
-        content.add(timeInterval, "0, "+i+", l, c");
+        content.add(timeInterval, "0, "+i+", l, t");
         content.add(UIUtilities.buildComponentPanel(timeRange), 
         		"1, "+i+", 2, "+i);
+        i = i+1;
+        JLabel l = new JLabel();
+        content.add(UIUtilities.setTextFont("If not selected the default " +
+        		"time-point will be selected", Font.ITALIC, 
+        		l.getFont().getSize()-2), 
+        		"1, "+i+", 2, "+i);
         i = i+2;
-        content.add(zInterval, "0, "+i+", l, c");
+        content.add(zInterval, "0, "+i+", l, t");
         content.add(UIUtilities.buildComponentPanel(zRange), 
+        		"1, "+i+", 2, "+i);
+        i = i+1;
+        content.add(UIUtilities.setTextFont("If not selected the default " +
+        		"z-section will be selected", Font.ITALIC, 
+        		l.getFont().getSize()-2), 
         		"1, "+i+", 2, "+i);
         i = i+2;
         content.add(showScaleBar, "0, "+i);
@@ -344,10 +357,14 @@ public class MovieExportDialog
 		else if (timeInterval.isSelected() && !zInterval.isSelected()) 
 			type = MovieExportParam.T_MOVIE;
 		param = new MovieExportParam(name, f, format, scale, type);
-		param.setTimeInterval(timeRange.getStartValue()-1, 
-				timeRange.getEndValue()-1);
-		param.setZsectionInterval(zRange.getStartValue()-1, 
-				zRange.getEndValue()-1);
+		if (type == MovieExportParam.T_MOVIE || 
+			type == MovieExportParam.ZT_MOVIE)
+			param.setTimeInterval(timeRange.getStartValue()-1, 
+					timeRange.getEndValue()-1);
+		if (type == MovieExportParam.Z_MOVIE || 
+				type == MovieExportParam.ZT_MOVIE)
+			param.setZsectionInterval(zRange.getStartValue()-1, 
+					zRange.getEndValue()-1);
 		param.setLabelVisible(labelVisible.isSelected());
 		
 		int index = colorBox.getSelectedIndex();

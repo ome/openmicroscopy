@@ -653,10 +653,10 @@ class OmeroImageServiceImpl
 	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#createMovie(long, List, MovieExportParam)
+	 * @see OmeroImageService#createMovie(long, long, List, MovieExportParam)
 	 */
-	public DataObject createMovie(long imageID, List<Integer> channels,
-			MovieExportParam param)
+	public DataObject createMovie(long imageID, long pixelsID, 
+			List<Integer> channels, MovieExportParam param)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (imageID <= 0)
@@ -665,7 +665,10 @@ class OmeroImageServiceImpl
 			throw new IllegalArgumentException("No parameters specified.");
 		if (channels == null)
 			channels = new ArrayList<Integer>();
-		long id = gateway.createMovie(imageID, channels, param);
+		ExperimenterData exp = (ExperimenterData) context.lookup(
+				LookupNames.CURRENT_USER_DETAILS);
+		long id = gateway.createMovie(imageID, pixelsID, exp.getId(), channels, 
+				param);
 		if (id < 0) return null;
 		return context.getMetadataService().loadAnnotation(id);
 	}

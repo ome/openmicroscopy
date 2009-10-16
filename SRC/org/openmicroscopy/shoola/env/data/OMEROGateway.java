@@ -4428,6 +4428,8 @@ class OMEROGateway
 	 * Creates a movie. Returns the id of the annotation hosting the movie.
 	 * 
 	 * @param imageID 	The id of the image.	
+	 * @param pixelsID	The id of the pixels.
+	 * @param userID	The id of the user.
      * @param channels 	The channels to map.
      * @param param 	The parameters to create the movie.
 	 * @return See above.
@@ -4436,8 +4438,8 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	long createMovie(long imageID, List<Integer> channels,
-			MovieExportParam param)
+	long createMovie(long imageID, long pixelsID, long userID, 
+			List<Integer> channels, MovieExportParam param)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -4460,15 +4462,29 @@ class OMEROGateway
 					if (value > id) id = value;
 				}
 			}
-			System.err.println(id);
 			if (id <= 0) return -1;
+			RenderingDef def = null;
+			int startZ = param.getStartZ();
+			int endZ = param.getEndZ();
+			if (!param.isZSectionSet()) {
+				def = getRenderingDef(pixelsID, userID);
+				startZ = def.getDefaultZ().getValue();
+				endZ = def.getDefaultZ().getValue();
+			}
+			int startT = param.getStartT();
+			int endT = param.getEndT();
+			if (!param.isTimeIntervalSet()) {
+				if (def == null) def = getRenderingDef(pixelsID, userID);
+				startT = def.getDefaultT().getValue();
+				endT = def.getDefaultT().getValue();
+			}
 			ParametersI parameters = new ParametersI();
 			parameters.map.put("imageId", omero.rtypes.rlong(imageID));
 			parameters.map.put("output", omero.rtypes.rstring(param.getName()));
-			parameters.map.put("zStart", omero.rtypes.rlong(param.getStartZ()));
-			parameters.map.put("zEnd", omero.rtypes.rlong(param.getEndZ()));
-			parameters.map.put("tStart", omero.rtypes.rlong(param.getStartT()));
-			parameters.map.put("tEnd", omero.rtypes.rlong(param.getEndT()));
+			parameters.map.put("zStart", omero.rtypes.rlong(startZ));
+			parameters.map.put("zEnd", omero.rtypes.rlong(endZ));
+			parameters.map.put("tStart", omero.rtypes.rlong(startT));
+			parameters.map.put("tEnd", omero.rtypes.rlong(endT));
 			parameters.map.put("channels", omero.rtypes.rset(set));
 			parameters.map.put("fps", omero.rtypes.rlong(param.getFps()));
 			parameters.map.put("showPlaneInfo", 

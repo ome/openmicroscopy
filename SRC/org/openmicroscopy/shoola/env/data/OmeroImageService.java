@@ -452,7 +452,8 @@ public interface OmeroImageService
 	/**
 	 * Creates a movie. Returns the annotation hosting the movie.
 	 * 
-	 * @param imageID 	The id of the image.	
+	 * @param imageID 	The id of the image.
+	 * @param pixelsID 	The id of the pixels set.	
      * @param channels 	The channels to map.
      * @param param 	The parameters to create the movie.
 	 * @return See above.
@@ -461,8 +462,8 @@ public interface OmeroImageService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public DataObject createMovie(long imageID, List<Integer> channels,
-			MovieExportParam param)
+	public DataObject createMovie(long imageID, long pixelsID, 
+			List<Integer> channels, MovieExportParam param)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**

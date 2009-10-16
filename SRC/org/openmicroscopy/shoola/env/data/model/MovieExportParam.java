@@ -233,6 +233,28 @@ public class MovieExportParam
 	}
 	
 	/**
+	 * Returns <code>true</code> if the z-section has been set,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isZSectionSet()
+	{
+		return !(startZ == -1 && endZ == -1);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the time-point has been set,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isTimeIntervalSet()
+	{
+		return !(startT == -1 && endT == -1);
+	}
+	
+	/**
 	 * Returns the name of the file.
 	 * 
 	 * @return See above.

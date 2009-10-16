@@ -82,7 +82,7 @@ public class TitlePanel
     {
     	super.setTitle(title);
     	String s = subTitle;
-    	if (text != null) s += "\n "+text;
+    	if (text != null) s += "\n"+text;
     	setDescription(s);
     	if (icon != null) setIcon(icon);
     	Color translucent = new Color(BG_COLOR.getRed(), BG_COLOR.getGreen(), 
@@ -145,7 +145,7 @@ public class TitlePanel
     {
     	String s = super.getDescription();
     	if (text != null)
-    		s += "\n "+text;
+    		s += "\n"+text;
     	setTextHeader(s);
     }
    

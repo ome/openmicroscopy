@@ -657,12 +657,6 @@ class OmeroDataServiceImpl
 			boolean withLeaves, long userID)
 		throws DSOutOfServiceException, DSAccessException 
 	{
-		/*
-		Set s = gateway.loadSpecificAnnotation(FileAnnotationData.class, 
-				new ArrayList(), new ArrayList(), new ParametersI());
-		Set images = getExperimenterImages(0);
-		System.err.println(images);
-		*/
 		ParametersI param = new ParametersI();
 		if (rootNodeIDs == null) param.exp(omero.rtypes.rlong(userID));
 		if (withLeaves) param.leaves();

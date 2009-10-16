@@ -301,13 +301,15 @@ class ImageDataViewImpl
 
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#createMovie(long, List, MovieExportParam, 
+     * @see ImageDataView#createMovie(long, long, List, MovieExportParam, 
      * 	AgentEventListener)
      */
-	public CallHandle createMovie(long imageID, List<Integer> channels,
-			MovieExportParam param, AgentEventListener observer)
+	public CallHandle createMovie(long imageID, long pixelsID,
+			List<Integer> channels, MovieExportParam param, 
+			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new MovieCreator(imageID, channels, param);
+		BatchCallTree cmd = new MovieCreator(imageID, pixelsID, channels,
+				param);
 		return cmd.exec(observer);
 	}
 

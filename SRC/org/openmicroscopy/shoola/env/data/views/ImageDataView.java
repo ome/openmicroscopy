@@ -277,14 +277,16 @@ public interface ImageDataView
 	/**
 	 * Creates a movie.
 	 * 
-	 * @param imageID 	The id of the image.	
+	 * @param imageID 	The id of the image.
+	 * @param pixelsID 	The id of the pixels set.	
      * @param channels 	The channels to map.
      * @param param 	The parameters to create the movie.
 	 * @param observer	Callback handler.
 	 * @return See above.
 	 */
-	public CallHandle createMovie(long imageID, List<Integer> channels,
-			MovieExportParam param, AgentEventListener observer);
+	public CallHandle createMovie(long imageID, long pixelsID, 
+			List<Integer> channels, MovieExportParam param, 
+			AgentEventListener observer);
 
 	/**
 	 * Performs a basic fit.

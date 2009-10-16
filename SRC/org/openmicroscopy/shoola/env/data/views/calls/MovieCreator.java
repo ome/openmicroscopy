@@ -61,18 +61,19 @@ public class MovieCreator
      * Creates a {@link BatchCall} to create a movie.
      * 
      * @param imageID 	The id of the image.	
+     * @param pixelsID 	The id of the pixels set.
      * @param channels 	The channels to map.
      * @param param 	The parameters to create the movie.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(final long imageID, 
+    private BatchCall makeBatchCall(final long imageID, final long pixelsID, 
     		final List<Integer> channels, final MovieExportParam param)
     {
         return new BatchCall("Creating movie: ") {
             public void doCall() throws Exception
             {
                 OmeroImageService os = context.getImageService();
-                results = os.createMovie(imageID, channels, param);
+                results = os.createMovie(imageID, pixelsID, channels, param);
             }
         };
     }
@@ -95,13 +96,14 @@ public class MovieCreator
      * Creates a new instance.
      * 
      * @param imageID 	The id of the image.	
+     * @param pixelsID 	The id of the pixels set.
      * @param channels 	The channels to map.
      * @param param 	The parameters to create the movie.
      */
-	public MovieCreator(long imageID, List<Integer> channels, 
+	public MovieCreator(long imageID, long pixelsID, List<Integer> channels, 
 			MovieExportParam param)
 	{
-		loadCall = makeBatchCall(imageID, channels, param);
+		loadCall = makeBatchCall(imageID, pixelsID, channels, param);
 	}
 	
 }
