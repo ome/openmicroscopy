@@ -7,10 +7,15 @@
 
 package pojos;
 
+
+//Java imports
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import static omero.rtypes.*;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;

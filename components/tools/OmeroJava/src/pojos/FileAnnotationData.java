@@ -22,10 +22,14 @@
  */
 package pojos;
 
-import static omero.rtypes.rstring;
 
+//Java imports
 import java.io.File;
 
+//Third-party libraries
+
+//Application-internal dependencies
+import static omero.rtypes.rstring;
 import omero.RString;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
@@ -107,11 +111,17 @@ public class FileAnnotationData extends AnnotationData {
     /** Identifies the <code>Word</code> file formats. */
     public static final String MS_WORD = "doc";
 
+    /** Identifies the <code>Word</code> file formats. */
+    public static final String MS_WORD_X = "docx";
+    
     /** Identifies the <code>Excel</code> file formats. */
     public static final String MS_EXCEL = "xls";
 
     /** Identifies the <code>Power point</code> file formats. */
     public static final String MS_POWER_POINT = "ppt";
+    
+    /** Identifies the <code>Power point</code> file formats. */
+    public static final String MS_POWER_POINT_X = "pptx";
 
     /** Identifies the <code>Power point</code> file formats. */
     public static final String MS_POWER_POINT_SHOW = "pps";
@@ -219,12 +229,14 @@ public class FileAnnotationData extends AnnotationData {
             format = XML;
         } else if (path.endsWith(HTML) || path.endsWith(HTM)) {
             format = HTML;
-        } else if (path.endsWith(MS_WORD)) {
+        } else if (path.endsWith(MS_WORD) ||
+        		path.endsWith(MS_WORD_X)) {
             format = MS_WORD;
         } else if (path.endsWith(MS_EXCEL)) {
             format = MS_EXCEL;
         } else if (path.endsWith(MS_POWER_POINT)
-                || path.endsWith(MS_POWER_POINT_SHOW)) {
+                || path.endsWith(MS_POWER_POINT_SHOW) ||
+                path.endsWith(MS_POWER_POINT_X)) {
             format = MS_POWER_POINT;
         } else if (path.endsWith(RTF)) {
             format = RTF;
@@ -327,14 +339,15 @@ public class FileAnnotationData extends AnnotationData {
         if (format.equals(RTF)) {
             return SERVER_RTF;
         }
-        if (format.equals(MS_WORD)) {
+        if (format.equals(MS_WORD) || format.equals(MS_WORD_X)) {
             return SERVER_MS_WORD;
         }
         if (format.equals(MS_EXCEL)) {
             return SERVER_MS_EXCEL;
         }
         if (format.equals(MS_POWER_POINT) || 
-        		format.equals(MS_POWER_POINT_SHOW)) {
+        		format.equals(MS_POWER_POINT_SHOW) || 
+        		format.equals(MS_POWER_POINT_X)) {
             return SERVER_MS_POWERPOINT;
         }
         return SERVER_OCTET_STREAM;
@@ -386,12 +399,13 @@ public class FileAnnotationData extends AnnotationData {
             return "PDF Document";
         } else if (XML.equals(format)) {
             return "XML Document";
-        } else if (MS_WORD.equals(format)) {
+        } else if (MS_WORD.equals(format) || MS_WORD_X.equals(format)) {
             return "Microsoft Word Document";
         } else if (MS_EXCEL.equals(format)) {
             return "Microsoft Excel Document";
         } else if (MS_POWER_POINT.equals(format)
-                || MS_POWER_POINT_SHOW.equals(format)) {
+                || MS_POWER_POINT_SHOW.equals(format) ||
+                MS_POWER_POINT_X.equals(format)) {
             return "Microsoft Powerpoint Document";
         } else if (TEXT.equals(format)) {
             return "Plain Text Document";

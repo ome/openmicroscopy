@@ -22,6 +22,11 @@
  */
 package pojos;
 
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
 import static omero.rtypes.*;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;

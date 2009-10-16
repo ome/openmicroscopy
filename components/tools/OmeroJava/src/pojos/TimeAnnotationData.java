@@ -22,8 +22,12 @@
  */
 package pojos;
 
+//Java imports
 import java.sql.Timestamp;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import static omero.rtypes.rtime;
 import omero.model.TimestampAnnotation;
 

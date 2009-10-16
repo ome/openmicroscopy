@@ -22,6 +22,11 @@
  */
 package pojos;
 
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
 import static omero.rtypes.*;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;

@@ -22,11 +22,15 @@
  */
 package pojos;
 
+//Java imports
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import static omero.rtypes.*;
 import omero.model.Plate;
 import omero.model.PlateI;

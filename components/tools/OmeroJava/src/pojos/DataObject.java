@@ -7,8 +7,7 @@
 
 package pojos;
 
-import static omero.rtypes.rlong;
-
+//Java imports
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,6 +18,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+//Third-party libraries
+
+//Application-internal dependencies
+import static omero.rtypes.rlong;
 import ome.model.IAnnotated;
 import ome.model.IMutable;
 import omero.model.Annotation;

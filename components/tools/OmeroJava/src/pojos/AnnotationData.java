@@ -7,8 +7,12 @@
 
 package pojos;
 
+//Java imports
 import java.sql.Timestamp;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import static omero.rtypes.*;
 import omero.model.Annotation;
 

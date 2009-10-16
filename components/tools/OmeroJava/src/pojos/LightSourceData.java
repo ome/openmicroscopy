@@ -22,6 +22,13 @@
  */
 package pojos;
 
+
+
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
 import omero.RBool;
 import omero.RDouble;
 import omero.RInt;
@@ -38,12 +45,6 @@ import omero.model.LightEmittingDiode;
 import omero.model.LightSource;
 import omero.model.LogicalChannel;
 import omero.model.Pulse;
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * Object hosting a light source: filament, arc, laser or light emiting diode

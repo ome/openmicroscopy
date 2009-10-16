@@ -22,14 +22,18 @@
  */
 package pojos;
 
-import static omero.rtypes.rstring;
 
+//Java imports
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+//Third-party libraries
+
+//Application-internal dependencies
+import static omero.rtypes.rstring;
 import omero.RString;
 import omero.model.CommentAnnotation;
 import omero.model.DatasetAnnotationLink;

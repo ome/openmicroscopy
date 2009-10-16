@@ -7,13 +7,16 @@
 
 package pojos;
 
-import static omero.rtypes.rstring;
-
+//Java imports
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+//Third-party libraries
+
+//Application-internal dependencies
+import static omero.rtypes.rstring;
 import omero.model.Annotation;
 import omero.model.CommentAnnotation;
 import omero.model.Dataset;
