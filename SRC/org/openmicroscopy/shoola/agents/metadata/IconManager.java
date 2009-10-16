@@ -370,10 +370,10 @@ public class IconManager
         relPaths[RGB] = "rgb16.png";
         relPaths[ANALYSE] = "nuvola_kchart16.png";
         relPaths[ANALYSE_48] = "nuvola_kchart48.png";
-        relPaths[EXPORT_AS_OMETIFF] = "download_image16.png";
-        relPaths[EXPORT_AS_OMETIFF_48] = "download_image48.png";
+        relPaths[EXPORT_AS_OMETIFF] = "export16.png";//download_image16.png";
+        relPaths[EXPORT_AS_OMETIFF_48] = "export48.png";//"download_image48.png";
         relPaths[MOVIE_22] = "crystal_video22.png";//openOffice_stock_insert-video-plugin-22.png";
-        relPaths[EXPORT_22] = "download_image22.png";
+        relPaths[EXPORT_22] = "export22.png";//"download_image22.png";
         relPaths[DOWNLOAD_22] = "nuvola_download_manager22.png";
         relPaths[DOWNLOAD_48] = "nuvola_download_manager48.png";
 	}
