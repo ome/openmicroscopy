@@ -24,9 +24,9 @@ importlog = logging.getLogger("fsserver."+__name__)
 import pyinotify
 try:
     # pyinotify 0.8
-    importlog.info("Imported pyinotify version %s", pyinotify.__version__)
+    importlog.info("Imported pyinotify version %s", str(pyinotify.__version__))
     EventsCodes = pyinotify
-except:
+except AttributeError:
     # pyinotify 0.7 or below
     importlog.info("Imported pyinotify version <= 0.7.x")
     try:
