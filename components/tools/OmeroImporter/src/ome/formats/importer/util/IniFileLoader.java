@@ -161,7 +161,9 @@ public class IniFileLoader {
             if (entry.getValue() == null) {
                 continue;
             }
-            mapFlexServer(entry.getKey(), entry.getValue());
+            for (String mapValue : entry.getValue()) {
+                mapFlexServer(entry.getKey(), mapValue);
+            }
         }
     }
     
@@ -188,9 +190,9 @@ public class IniFileLoader {
         return rv;
     }
     
-    protected void mapFlexServer(String key, List<String> mapValue) {
+    protected void mapFlexServer(String key, String mapValue) {
         try {
-            FlexReader.mapServer(key, mapValue.toArray(new String[0]));
+            FlexReader.appendServerMap(key, mapValue);
             log.info(String.format("Added Flex reader server map '%s' = '%s'.",
                     key, mapValue));
         // Temporarily catching Exception to fix build
