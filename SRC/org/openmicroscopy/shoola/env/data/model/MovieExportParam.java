@@ -59,13 +59,13 @@ public class MovieExportParam
 	public static final int		ZT_MOVIE = 2;
 	
 	/** Identify the <code>MPEG</code> format. */
-	public static final int		MPEG = 0;
+	public static final int		MPEG = 2;
 	
 	/** Identify the <code>Quick time</code> format. */
 	public static final int		QT = 1;
 
 	/** Identify the <code>WMV</code> format. */
-	public static final int		WMV = 2;
+	public static final int		WMV = 0;
 	
 	/** The supported formats. */
 	public static final Map<Integer, String> FORMATS;
@@ -84,9 +84,9 @@ public class MovieExportParam
 	
 	static {
 		FORMATS = new LinkedHashMap<Integer, String>(2);
-		FORMATS.put(MPEG, "MPEG");
-		FORMATS.put(QT, "QuickTime");
 		FORMATS.put(WMV, "WindowsMediaPlayer");
+		FORMATS.put(QT, "QuickTime");
+		FORMATS.put(MPEG, "MPEG");
 	}
 	
 	/** The name of the image. */

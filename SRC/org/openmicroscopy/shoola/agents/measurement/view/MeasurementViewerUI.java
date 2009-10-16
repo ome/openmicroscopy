@@ -382,7 +382,8 @@ class MeasurementViewerUI
     {
         super(WINDOW_TITLE+title);
         IconManager icons = IconManager.getInstance();
-        setIconImage(icons.getImageIcon(IconManager.MEASUREMENT_TOOL).getImage());
+        setIconImage(icons.getImageIcon(
+        		IconManager.MEASUREMENT_TOOL).getImage());
         loadingWindow = new LoadingWindow(this);
     }
     
