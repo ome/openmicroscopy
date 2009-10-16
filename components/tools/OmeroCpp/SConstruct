@@ -92,11 +92,7 @@ library = env.SharedLibrary(\
     target = target,
     source = srcs,
     LIBS = ["Ice","Glacier2","IceUtil"])
-
 env.Alias('lib', library)
-
-install = env.Install('../target/lib', library)
-env.Alias('install', install)
 
 #
 # Visual Studio
@@ -104,10 +100,15 @@ env.Alias('install', install)
 
 if target.endswith("dll"):
     msproj = env.MSVSProject(target = 'omero_client' + env['MSVSPROJECTSUFFIX'],
-        srcs = srcs,
-        buildtarget = lib,
+        srcs = [ str(x) for x in srcs ],
+        buildtarget = library[0],
         variant = 'Release')
     env.Alias('msproj', msproj)
+    install = env.Install('../target/lib', library[0])
+    env.Alias('install', install)
+else:
+    install = env.Install('../target/lib', library)
+    env.Alias('install', install)
 
 #
 # Build tests
