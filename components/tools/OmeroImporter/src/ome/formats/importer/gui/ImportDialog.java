@@ -15,11 +15,14 @@ package ome.formats.importer.gui;
 
 import static omero.rtypes.rstring;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
 
 import javax.swing.ButtonGroup;
@@ -28,10 +31,12 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
 
 import layout.TableLayout;
 import ome.formats.OMEROMetadataStoreClient;
@@ -79,7 +84,7 @@ public class ImportDialog extends JDialog implements ActionListener
     private DecimalNumberField xPixelSize, yPixelSize, zPixelSize;
     private WholeNumberField rChannel, gChannel, bChannel;
 
-    public JCheckBox archiveImage;
+    public JCheckBox archiveImage, fileCheckBox;
 
     private JButton             addProjectBtn;
     private JButton             addDatasetBtn;
@@ -110,12 +115,8 @@ public class ImportDialog extends JDialog implements ActionListener
 
     public OMEROMetadataStoreClient store;
 
-    public JCheckBox fileCheckBox;
-
-
     ImportDialog(GuiCommonElements gui, JFrame owner, String title, boolean modal, OMEROMetadataStoreClient store)
     {
-        super(owner);
         this.store = store;
 
         if (store != null)
@@ -193,6 +194,7 @@ public class ImportDialog extends JDialog implements ActionListener
 
         fileCheckBox = gui.addCheckBox(namedPanel, "Override default file naming. Instead use:", "0,0,1", debug);
         fileCheckBox.setSelected(gui.config.overrideImageName.get());
+        
 
         String fullPathTooltip = "The full file+path name for " +
         "the file. For example: \"c:/myfolder/mysubfolder/myfile.dv\"";
@@ -322,7 +324,7 @@ public class ImportDialog extends JDialog implements ActionListener
         //this.add(mainPanel);
 
         importBtn.setEnabled(false);
-        this.getRootPane().setDefaultButton(importBtn);
+        //this.getRootPane().setDefaultButton(importBtn);
 
         fullPathButton.addActionListener(this);
         partPathButton.addActionListener(this);
@@ -330,7 +332,7 @@ public class ImportDialog extends JDialog implements ActionListener
         cancelBtn.addActionListener(this);
         importBtn.addActionListener(this);
         pbox.addActionListener(this);
-
+        fileCheckBox.addActionListener(this);
         buildProjectsAndDatasets();
         setVisible(true);
     }
@@ -420,36 +422,69 @@ public class ImportDialog extends JDialog implements ActionListener
             }                        
         }
     }
+    
+    public void sendingNamingWarning(Component frame)
+    {
+        final JOptionPane optionPane = new JOptionPane("\nNOTE: Some file formats do not include the file name in their metadata, " +
+        		"\nand disabling this option may result in files being imported without a " +
+        		"\nreference to their original file name.", JOptionPane.WARNING_MESSAGE);
+        final JDialog warningDialog = new JDialog(this, "Naming Warning!", true);
+        warningDialog.setContentPane(optionPane);
+
+        optionPane.addPropertyChangeListener(
+                new PropertyChangeListener() {
+                    public void propertyChange(PropertyChangeEvent e) {
+                        String prop = e.getPropertyName();
+
+                        if (warningDialog.isVisible() 
+                                && (e.getSource() == optionPane)
+                                && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                            warningDialog.dispose();
+                        }
+                    }
+                });
+
+        warningDialog.toFront();
+        warningDialog.pack();
+        warningDialog.setLocationRelativeTo(frame);
+        warningDialog.setVisible(true);
+    }
+
+    
     public void actionPerformed(ActionEvent e)
     {
-        if (e.getSource() == addProjectBtn)
+       
+        if (e.getSource() == fileCheckBox)
+        {
+            System.err.println("Bar");
+            sendingNamingWarning(this);   
+        } 
+        else if (e.getSource() == addProjectBtn)
         {
             new AddProjectDialog(gui, this, "Add a new Project", true, store);
             refreshAndSetProject();
-        }
-
-        if (e.getSource() == addDatasetBtn)
+        } 
+        else if (e.getSource() == addDatasetBtn)
         {
             project = ((ProjectItem) pbox.getSelectedItem()).getProject();
             new AddDatasetDialog(gui, this, "Add a new Dataset to: " + project.getName().getValue(), true, project, store);
             refreshAndSetDataset(project);
-        }
-        
-        if (e.getSource() == fullPathButton)
+        } 
+        else if (e.getSource() == fullPathButton)
         {
             gui.config.useFullPath.set(true);
 
         }
-        if (e.getSource() == partPathButton)
+        else if (e.getSource() == partPathButton)
         {
             gui.config.useFullPath.set(false);
         }
-        if (e.getSource() == cancelBtn)
+        else if (e.getSource() == cancelBtn)
         {
             cancelled = true;
             this.dispose();
         }
-        if (e.getSource() == importBtn)
+        else if (e.getSource() == importBtn)
         {
             cancelled = false;
             importBtn.requestFocus();
@@ -472,7 +507,7 @@ public class ImportDialog extends JDialog implements ActionListener
             
             this.dispose();
         }
-        if (e.getSource() == pbox)
+        else if (e.getSource() == pbox)
         {
             cancelled = false;
 
@@ -523,6 +558,11 @@ public class ImportDialog extends JDialog implements ActionListener
 
         ImportDialog dialog = new ImportDialog(null, null, "Import Dialog", true, null);
         if (dialog != null) System.exit(0);
+    }
+
+    public void stateChanged(ChangeEvent e)
+    {
+        System.err.println("TESt");
     }
 }
 

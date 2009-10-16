@@ -151,6 +151,7 @@ import omero.model.TransmittanceRange;
 import omero.model.TransmittanceRangeI;
 import omero.model.Well;
 import omero.model.WellSample;
+import omero.sys.ParametersI;
 import omero.util.TempFileManager;
 
 import org.apache.commons.logging.Log;
@@ -2803,7 +2804,7 @@ public class OMEROMetadataStoreClient
         try
         {
             List<IObject> objects = 
-                iContainer.loadContainerHierarchy(Project.class.getName(), null, null);
+                iContainer.loadContainerHierarchy(Project.class.getName(), null, new ParametersI().exp(rlong(getExperimenterID())));
             List<Project> projects = new ArrayList<Project>(objects.size());
             for (IObject object : objects)
             {
