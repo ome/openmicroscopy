@@ -2036,107 +2036,52 @@ public class OMEROMetadataStoreClient
     public void setScreenAcquisitionEndTime(String endTime, int screenIndex,
             int screenAcquisitionIndex)
     {
-        ScreenAcquisition o = 
-            getScreenAcquisition(screenIndex, screenAcquisitionIndex);
-        
-        try
-        {
-            SimpleDateFormat parser =
-                new SimpleDateFormat("yyyy-MM-d'T'HH:mm:ssZ");
-            Timestamp ts = new Timestamp(parser.parse(endTime).getTime());
-            o.setEndTime(toRType(ts));
-        }
-        catch (ParseException e)
-        {
-            log.error(String.format("Parsing start time failed!"), e);
-        }
-    }
-
-    private ScreenAcquisition getScreenAcquisition(int screenIndex,
-            int screenAcquisitionIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("screenIndex", screenIndex);
-        indexes.put("screenAcquisitionIndex", screenAcquisitionIndex);
-        return getSourceObject(ScreenAcquisition.class, indexes);
+        // Disabled
     }
 
     public void setScreenAcquisitionID(String id, int screenIndex,
             int screenAcquisitionIndex)
     {
-    	checkDuplicateLSID(ScreenAcquisition.class, id);
-        LSID lsid = 
-            new LSID(ScreenAcquisition.class, screenIndex, screenAcquisitionIndex);
-        IObjectContainer o = containerCache.get(lsid);
-        o.LSID = id;
+        // Disabled
     }
 
     public void setScreenAcquisitionStartTime(String startTime,
             int screenIndex, int screenAcquisitionIndex)
     {
-        ScreenAcquisition o = 
-            getScreenAcquisition(screenIndex, screenAcquisitionIndex);
-        
-        try
-        {
-            SimpleDateFormat parser =
-                new SimpleDateFormat("yyyy-MM-d'T'HH:mm:ssZ");
-            Timestamp ts = new Timestamp(parser.parse(startTime).getTime());
-            o.setStartTime(toRType(ts));
-        }
-        catch (ParseException e)
-        {
-            log.error(String.format("Parsing start time failed!"), e);
-        }
+        // Disabled
     }
 
     public void setScreenID(String id, int screenIndex)
     {
-    	checkDuplicateLSID(Screen.class, id);
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("screenIndex", screenIndex); 
-        IObjectContainer o = getIObjectContainer(Screen.class, indexes);
-        o.LSID = id;
+        // Disabled
     }
 
     public void setScreenName(String name, int screenIndex)
     {
-        Screen o = getScreen(screenIndex);
-        o.setName(toRType(name));
-    }
-
-    private Screen getScreen(int screenIndex)
-    {
-        LinkedHashMap<String, Integer> indexes = new LinkedHashMap<String, Integer>();
-        indexes.put("screenIndex", screenIndex);
-        return getSourceObject(Screen.class, indexes);
+        // Disabled
     }
 
     public void setScreenProtocolDescription(String protocolDescription,
             int screenIndex)
     {
-        Screen o = getScreen(screenIndex);
-        o.setProtocolDescription(toRType(protocolDescription));
+        // Disabled
     }
 
     public void setScreenProtocolIdentifier(String protocolIdentifier,
             int screenIndex)
     {
-        Screen o = getScreen(screenIndex);
-        o.setProtocolIdentifier(toRType(protocolIdentifier));
+        // Disabled
     }
 
     public void setScreenReagentSetDescription(String reagentSetDescription,
             int screenIndex)
     {
-        Screen o = getScreen(screenIndex);
-        o.setReagentSetDescription(toRType(reagentSetDescription));
+        // Disabled
     }
 
     public void setScreenType(String type, int screenIndex)
     {
-        Screen o = getScreen(screenIndex);
-        o.setType(toRType(type));
+        // Disabled
     }
 
     public void setStageLabelName(String name, int imageIndex)
