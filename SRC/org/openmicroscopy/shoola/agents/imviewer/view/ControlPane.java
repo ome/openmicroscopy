@@ -797,7 +797,9 @@ class ControlPane
         } else controls.add(p, "0, "+k);
         k++;
         if (!model.isNumerousChannel()) {
-        	controls.add(buildBottomToolBar(), "0, "+k+", c, c");
+        	
+        	controls.add(channelMovieButton, "0, "+k+", c, c");
+        	//controls.add(buildBottomToolBar(), "0, "+k+", c, c");
         }
         k++;
         controls.add(ratioSlider, "0, "+k+", c, c");
@@ -1294,7 +1296,8 @@ class ControlPane
 			case ImViewer.GRID_INDEX:
 				JPanel p = new JPanel();
 	        	p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-	        	p.add(createMovieButtonBar(playTMovieGrid));
+	        	//p.add(createMovieButtonBar(playTMovieGrid));
+	        	p.add(playTMovieGrid);
 	        	p.add(tSliderGrid);
 	        	return p;
 			case ImViewer.PROJECTION_INDEX:

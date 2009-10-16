@@ -259,13 +259,12 @@ class OmeroImageServiceImpl
 			while (i.hasNext()) {
 				id = (Long) i.next();
 				values = (byte[]) m.get(id);
-				if (values == null)
+				if (values == null || values.length == 0)
 					r.put(id, null);
 				else {
 					try {
 						r.put(id, createImage(values));
 					} catch (Exception e) {
-						e.printStackTrace();
 						r.put(id, null);
 					}
 				}

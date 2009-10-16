@@ -2256,6 +2256,7 @@ class OMEROGateway
 			ThumbnailStorePrx service = getThumbService();
 			return service.getThumbnailByLongestSideSet(
 					omero.rtypes.rint(maxLength), pixelsID);
+					
 		} catch (Throwable t) {
 			if (thumbnailService != null) {
 				try {
