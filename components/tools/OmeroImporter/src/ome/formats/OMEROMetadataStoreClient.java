@@ -4242,8 +4242,9 @@ public class OMEROMetadataStoreClient
 
     public void setScreenDescription(String description, int screenIndex)
     {
-    	Screen o = getScreen(screenIndex);
-    	o.setDescription(toRType(description));
+    	//Screen o = getScreen(screenIndex);
+    	//o.setDescription(toRType(description));
+    	// Disabled
     }
 
     public void setScreenExtern(String extern, int screenIndex)
@@ -4254,8 +4255,9 @@ public class OMEROMetadataStoreClient
     public void setScreenReagentSetIdentifier(String reagentSetIdentifier,
     		                                  int screenIndex)
     {
-    	Screen o = getScreen(screenIndex);
-    	o.setReagentSetIdentifier(toRType(reagentSetIdentifier));
+    	//Screen o = getScreen(screenIndex);
+    	//o.setReagentSetIdentifier(toRType(reagentSetIdentifier));
+    	// Disabled
     }
 
     public void setScreenRefID(String arg0, int arg1, int arg2)
