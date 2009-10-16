@@ -289,11 +289,11 @@ class DataBrowserControl
 	 * 
 	 * @param name The name of the file.
 	 */
-	void createReport(String name)
-	{
-		model.createReport(name);
-	}
+	void createReport(String name) { model.createReport(name); }
 	
+	/** Loads the existing datasets. */
+	void loadExistingDatasets() { model.loadExistingDatasets(); }
+
 	/**
 	 * Loads data, filters nodes or sets the selected node.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -369,10 +369,5 @@ class DataBrowserControl
 			}
 		} 
 	}
-
-	void loadExistingDatasets()
-	{
-		model.loadExistingDatasets();
-	}
-
+	
 }

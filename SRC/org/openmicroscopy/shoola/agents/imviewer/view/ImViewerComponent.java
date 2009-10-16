@@ -734,7 +734,7 @@ class ImViewerComponent
 			BufferedImage icon = model.getImageIcon();
 			bus.post(new ImageRendered(model.getPixelsID(), icon, 
 					model.getBrowser().getRenderedImage()));
-			if (icon != null) view.setIconImage(icon);
+			//if (icon != null) view.setIconImage(icon);
 		}
 			
 		if (!model.isPlayingMovie() && !model.isPlayingChannelMovie()) {
@@ -2868,7 +2868,7 @@ class ImViewerComponent
 			BufferedImage icon = model.getImageIcon();
 			bus.post(new ImageRendered(model.getPixelsID(), icon, 
 					model.getBrowser().getRenderedImage()));
-			if (icon != null) view.setIconImage(icon);
+			//if (icon != null) view.setIconImage(icon);
 		}
 			
 		if (!model.isPlayingMovie() && !model.isPlayingChannelMovie()) {

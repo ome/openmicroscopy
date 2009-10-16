@@ -312,7 +312,7 @@ class DataBrowserUI
 				}
 				//}
 				if (existed == null) v.addPropertyChangeListener(controller);
-				v.revalidate();
+				v.validate();
 				v.repaint();
 				add(v, BorderLayout.CENTER);
 		}

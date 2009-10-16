@@ -797,7 +797,7 @@ class MeasurementViewerComponent
 	public void setIconImage(BufferedImage thumbnail)
 	{
 		if (model.getState() == DISCARDED) return;
-		view.setIconImage(thumbnail);
+		//view.setIconImage(thumbnail);
 	}
 	
 	/** 

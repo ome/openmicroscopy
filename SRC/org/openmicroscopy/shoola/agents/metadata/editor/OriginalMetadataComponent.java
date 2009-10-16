@@ -40,8 +40,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Pattern;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -55,14 +53,11 @@ import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 import javax.swing.table.DefaultTableModel;
 
-import layout.TableLayout;
-
-
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
-
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.Highlighter;
@@ -76,7 +71,6 @@ import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
-
 import pojos.FileAnnotationData;
 
 /**
@@ -254,7 +248,6 @@ class OriginalMetadataComponent
 		while (i.hasNext()) {
 			line = i.next();
 			values = line.split("=");
-			
 			switch (values.length) {
 				case 0:
 					data[index][0] = line;

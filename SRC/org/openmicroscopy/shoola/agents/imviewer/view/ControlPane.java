@@ -629,7 +629,6 @@ class ControlPane
     	bar.setRollover(true);
     	bar.setBorder(null);
     	bar.add(button);
-    	bar.setPreferredSize(button.getPreferredSize());
     	return bar;
     }
     
@@ -645,8 +644,7 @@ class ControlPane
 				{TableLayout.FILL, TableLayout.PREFERRED}};
     	pane.setLayout(new TableLayout(tl));
     	pane.add(zSlider, "0, 0");
-    	
-    	pane.add(createMovieButtonBar(playZMovie), "0, 1");
+    	pane.add(playZMovie, "0, 1");
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.add(pane);
@@ -665,7 +663,7 @@ class ControlPane
 				{TableLayout.FILL, TableLayout.PREFERRED}};
     	pane.setLayout(new TableLayout(tl));
     	pane.add(zSliderGrid, "0, 0");
-    	pane.add(createMovieButtonBar(playZMovieGrid), "0, 1");
+    	pane.add(playZMovieGrid, "0, 1");
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.add(pane);
@@ -677,36 +675,18 @@ class ControlPane
      * 
      * @return See above.
      */
-    private JToolBar buildToolBar()
+    private JComponent buildToolBar()
     {
-        JToolBar bar = createBar();
-        bar.add(colorModelButton);
         if (!model.isNumerousChannel()) {
-        	//bar.add(Box.createRigidArea(VBOX));
-            //bar.add(channelMovieButton);
+        	JToolBar bar = createBar();
+            bar.add(colorModelButton);
             bar.add(Box.createRigidArea(VBOX));
             bar.add(colorPickerButton);
-        } else {
-        	bar.add(Box.createRigidArea(VBOX));
-            bar.add(Box.createRigidArea(VBOX));
-            //bar.add(Box.createRigidArea(VBOX));
+            return bar;
         }
-        
-        return bar;
+        return colorModelButton;
     }
-    
-    /** 
-     * Builds the tool bar displayed on the left side of the image.
-     * 
-     * @return See above.
-     */
-    private JToolBar buildBottomToolBar()
-    {
-        JToolBar bar = createBar();
-        bar.add(channelMovieButton);
-        bar.add(Box.createRigidArea(VBOX));
-        return bar;
-    }
+
     /** 
      * Builds the tool bar displayed on the left side of the  grid view.
      * 
@@ -944,9 +924,9 @@ class ControlPane
         JToolBar bar = buildGridBar();
         bar.add(Box.createRigidArea(VBOX));
         controls.add(bar, "0, 1, c, c");
-        bar = createBar();
-        bar.add(textVisibleButton);
-        controls.add(bar, "0, 2, c, c");
+        //bar = createBar();
+        //bar.add(textVisibleButton);
+        controls.add(textVisibleButton, "0, 2, c, c");
         if (channelButtonsGrid.size() > ImViewer.MAX_CHANNELS) {
         	JScrollPane sp = new JScrollPane(buttons);
         	d = new Dimension(2*w, h*ImViewer.MAX_CHANNELS);
@@ -1306,7 +1286,8 @@ class ControlPane
 			default:
 				JPanel pane = new JPanel();
 	        	pane.setLayout(new BoxLayout(pane, BoxLayout.X_AXIS));
-	        	pane.add(createMovieButtonBar(playTMovie));
+	        	//pane.add(createMovieButtonBar(playTMovie));
+	        	pane.add(playTMovie);
 	        	pane.add(tSlider);
 	        	return pane;
 		}

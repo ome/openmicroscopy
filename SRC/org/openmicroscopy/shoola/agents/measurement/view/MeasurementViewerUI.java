@@ -30,7 +30,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -43,6 +42,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -381,9 +381,6 @@ class MeasurementViewerUI
 	MeasurementViewerUI(String title)
     {
         super(WINDOW_TITLE+title);
-        IconManager icons = IconManager.getInstance();
-        setIconImage(icons.getImageIcon(
-        		IconManager.MEASUREMENT_TOOL).getImage());
         loadingWindow = new LoadingWindow(this);
     }
     
@@ -408,6 +405,9 @@ class MeasurementViewerUI
         this.model = model;
         this.controller = controller;
         controller.attachListeners();
+        ImageIcon icon = IconManager.getInstance().getImageIcon(
+        		IconManager.MEASUREMENT_TOOL);
+        if (icon != null) setIconImage(icon.getImage());
         initComponents();
         buildGUI();
     }
