@@ -169,9 +169,10 @@ public class SelectionWizard
 	{
 		sorter = new ViewerSorter();
 		availableItemsListbox = new JList();
-		availableItemsListbox.setCellRenderer(new DataObjectListCellRenderer());
+		DataObjectListCellRenderer rnd = new DataObjectListCellRenderer();
+		availableItemsListbox.setCellRenderer(rnd);
 		selectedItemsListbox = new JList();
-		selectedItemsListbox.setCellRenderer(new DataObjectListCellRenderer());
+		selectedItemsListbox.setCellRenderer(rnd);
 		IconManager icons = IconManager.getInstance();
 		addButton = new JButton(icons.getIcon(IconManager.RIGHT_ARROW));
 		removeButton = new JButton(icons.getIcon(IconManager.LEFT_ARROW));

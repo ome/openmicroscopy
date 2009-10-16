@@ -124,9 +124,11 @@ public class DataObjectListCellRenderer
         			FileAnnotationData.HTM.equals(format)) 
         		icon = icons.getIcon(IconManager.FILE_HTML);
         	else if (FileAnnotationData.MS_POWER_POINT.equals(format) ||
-        			FileAnnotationData.MS_POWER_POINT_SHOW.equals(format)) 
+        			FileAnnotationData.MS_POWER_POINT_SHOW.equals(format) ||
+        			FileAnnotationData.MS_POWER_POINT_X.equals(format)) 
         		icon = icons.getIcon(IconManager.FILE_PPT);
-        	else if (FileAnnotationData.MS_WORD.equals(format)) 
+        	else if (FileAnnotationData.MS_WORD.equals(format) ||
+        			FileAnnotationData.MS_WORD_X.equals(format)) 
         		icon = icons.getIcon(IconManager.FILE_WORD);
         	else if (FileAnnotationData.MS_EXCEL.equals(format)) 
         		icon = icons.getIcon(IconManager.FILE_EXCEL);
