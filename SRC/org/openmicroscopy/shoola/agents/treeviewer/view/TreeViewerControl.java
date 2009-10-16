@@ -300,6 +300,30 @@ class TreeViewerControl
 	/** The loading window. */
 	private LoadingWindow   				loadingWindow;
 	
+	/** 
+	 * Handles the selection of a <code>JXTaskPane</code>.
+	 * 
+	 * @param pane The selected component.
+	 */
+	private void handleTaskPaneSelection(JXTaskPane pane)
+	{
+		JXTaskPaneContainerSingle container = 
+			(JXTaskPaneContainerSingle) pane.getParent();
+		if (pane.isCollapsed() && container.hasTaskPaneExpanded()) return;
+		model.clearFoundResults();
+
+		if (!container.hasTaskPaneExpanded())
+			model.setSelectedBrowser(null);
+		else {
+			if (pane instanceof TaskPaneBrowser) {
+				TaskPaneBrowser p = (TaskPaneBrowser) pane;
+				model.setSelectedBrowser(p.getBrowser());
+			} else {
+				model.setSelectedBrowser(null);
+			}
+		}
+	}
+	
 	/** Helper method to create all the UI actions. */
 	private void createActions()
 	{
@@ -793,25 +817,6 @@ class TreeViewerControl
 		} else if (JXTaskPaneContainerSingle.SELECTED_TASKPANE_PROPERTY.equals(
 				name)) {
 			handleTaskPaneSelection((JXTaskPane) pce.getNewValue());
-		}
-	}
-
-	private void handleTaskPaneSelection(JXTaskPane pane)
-	{
-		JXTaskPaneContainerSingle container = 
-			(JXTaskPaneContainerSingle) pane.getParent();
-		if (pane.isCollapsed() && container.hasTaskPaneExpanded()) return;
-		model.clearFoundResults();
-
-		if (!container.hasTaskPaneExpanded())
-			model.setSelectedBrowser(null);
-		else {
-			if (pane instanceof TaskPaneBrowser) {
-				TaskPaneBrowser p = (TaskPaneBrowser) pane;
-				model.setSelectedBrowser(p.getBrowser());
-			} else {
-				model.setSelectedBrowser(null);
-			}
 		}
 	}
 	

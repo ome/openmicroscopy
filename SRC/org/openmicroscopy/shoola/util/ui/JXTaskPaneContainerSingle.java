@@ -61,6 +61,7 @@ public class JXTaskPaneContainerSingle
 	/** Bound property indicating the selection of a new task pane. */
 	public static final String SELECTED_TASKPANE_PROPERTY = "selectedTaskPane";
 
+	/** The map hosting the <code>JXTaskPane</code>s. */
 	private Map<JXTaskPane, Integer> panes;
 	
 	/** Initializes the component. */
