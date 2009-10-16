@@ -58,7 +58,7 @@ class TestModel(unittest.TestCase):
         self.assert_( not img.getName() ) # no other single-valued field is
         img.unload()
         self.assert_( not img.isLoaded() )
-        self.assert_( not img.getDetails() )
+        self.assertRaises( omero.UnloadedEntityException, img.getDetails )
 
     def testUnloadField(self):
         img = ImageI()

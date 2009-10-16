@@ -40,7 +40,7 @@ class TestParameters(unittest.TestCase):
         self.assertFalse(p.isEndTime())
         self.assertFalse(p.isStartTime())
         self.assertFalse(p.isPagination())
-        self.assertFalse(p.isUnique())
+        self.assertFalse(p.getUnique())
 
     def testExperimenter(self):
         p = ParametersI()
