@@ -157,8 +157,8 @@ INTERNAL_IPS = ()
 LOGGING_LOG_SQL = False
 
 # LOGDIR path
-# LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), '../'), 'var'), 'log').replace('\\','/')
-LOGDIR = os.path.join(os.path.dirname(__file__), 'log').replace('\\','/')
+LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), '../'), 'var'), 'log').replace('\\','/')
+# LOGDIR = os.path.join(os.path.dirname(__file__), 'log').replace('\\','/')
 
 if not os.path.isdir(LOGDIR):
     try:
