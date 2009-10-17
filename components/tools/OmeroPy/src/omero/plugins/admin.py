@@ -18,7 +18,7 @@ import time
 import exceptions
 
 from path import path
-from which import which
+from which import whichall
 
 import omero
 import omero_ServerErrors_ice
@@ -418,17 +418,30 @@ OMERO Diagnostics %s
 %s
         """ % ("="*80, VERSION, "="*80))
 
-        def item(msg):
-            msg = "%s" % msg
-            msg = "%-40s" % msg
+        def sz_str(sz):
+            for x in ["KB", "MB", "GB"]:
+                sz /= 1000
+                if sz < 1000:
+                    break
+            sz = "%.1f %s" % (sz, x)
+            return sz
+
+        def item(cat, msg):
+            cat = cat + ":"
+            cat = "%-12s" % cat
+            self.ctx.out(cat, False)
+            msg = "%-30s " % msg
             self.ctx.out(msg, False)
 
         def exists(p):
-            if not p.exists():
-                self.ctx.out("doesn't exist")
-            else:
-                if p.isdir():
+            if p.isdir():
+                if not p.exists():
+                    self.ctx.out("doesn't exist")
+                else:
                     self.ctx.out("exists")
+            else:
+                if not p.exists():
+                    self.ctx.out("n/a")
                 else:
                     warn = 0
                     err = 0
@@ -440,10 +453,10 @@ OMERO Diagnostics %s
                     msg = ""
                     if warn or err:
                         msg = " errors=%-4s warnings=%-4s" % (err, warn)
-                    self.ctx.out("exists size=%-5s %s" % (p.size, msg))
+                    self.ctx.out("%-12s %s" % (sz_str(p.size), msg))
 
         def version(cmd):
-            item("Commands:  %s" % " ".join(cmd))
+            item("Commands","%s" % " ".join(cmd))
             try:
                 p = self.ctx.popen(cmd)
             except OSError:
@@ -459,7 +472,15 @@ OMERO Diagnostics %s
                 v = "%-10s" % m.group(1)
                 self.ctx.out(v, False)
                 try:
-                    where = which(cmd[0])
+                    where = whichall(cmd[0])
+                    sz = len(where)
+                    if sz == 0:
+                        where = unknown
+                    else:
+                        where = where[0]
+                        if sz > 1:
+                            where += " -- %s others" % sz
+
                 except:
                     where = "unknown"
                 self.ctx.out("(%s)" % where)
@@ -474,7 +495,7 @@ OMERO Diagnostics %s
 
 
         self.ctx.out("")
-        item("Server:    icegridnode")
+        item("Server", "icegridnode")
         p = self.ctx.popen(self._cmd() + ["-e", "server list"]) # popen
         rv = p.wait()
         io = p.communicate()
@@ -489,7 +510,7 @@ OMERO Diagnostics %s
             servers = io[0].split()
             servers.sort()
             for s in servers:
-                item("Server:    %s" % s)
+                item("Server", "%s" % s)
                 p2 = self.ctx.popen(self._cmd() + ["-e", "server state %s" % s]) # popen
                 rv2 = p2.wait()
                 io2 = p2.communicate()
@@ -500,28 +521,33 @@ OMERO Diagnostics %s
                 else:
                     self.ctx.err("UNKNOWN!")
 
-        self.ctx.out("")
-        var_log = path(".") / "var" / "log"
-        item("Log dir:   %s" % var_log.abspath())
-        exists(var_log)
-        self.ctx.out("")
+        def log_dir(log, cat, cat2, knownfiles):
+            self.ctx.out("")
+            item(cat, "%s" % log.abspath())
+            exists(log)
+            self.ctx.out("")
 
-        if var_log.exists():
-            files = var_log.files()
-            files = set([x.basename() for x in files])
-            # Adding known names just in case
-            files.add("Blitz-0.log")
-            files.add("Tables-0.log")
-            files.add("Processor-0.log")
-            files.add("Indexer-0.log")
-            files.add("FSServer.log")
-            files.add("DropBox.log")
-            files.add("TestDropBox.log")
-            files = list(files)
-            files.sort()
-            for x in files:
-                item("Log files: " + x)
-                exists(var_log / x)
+            if log.exists():
+                files = log.files()
+                files = set([x.basename() for x in files])
+                # Adding known names just in case
+                for x in knownfiles:
+                    files.add(x)
+                files = list(files)
+                files.sort()
+                for x in files:
+                    item(cat2, x)
+                    exists(log / x)
+                item(cat2, "Total size")
+                sz = 0
+                for x in log.walkfiles():
+                    sz += x.size
+                self.ctx.out("%-.2f MB" % (float(sz)/1000000.0))
+
+        log_dir(path(".") / "var" / "log", "Log dir", "Log files",\
+            ["Blitz-0.log", "Tables-0.log", "Processor-0.log", "Indexer-0.log", "FSServer.log", "DropBox.log", "TestDropBox.log", "OMEROweb.log"])
+        log_dir(path(".") / "lib" / "python" / "omeroweb" / "log", "Web logs" , "Web log files",\
+            ["OMEROweb.log"])
 
 try:
     register("admin", AdminControl)
