@@ -15,6 +15,7 @@ BOOST_ALL=[
     "boost_unit_test_framework-mt-d",
     "boost_unit_test_framework-mt",
     "boost_unit_test_framework-xgcc40-mt",
+    "boost_unit_test_framework-vc90-mt-gd-1_39",
     # 1.40
     "boost_unit_test_framework"
     ]
