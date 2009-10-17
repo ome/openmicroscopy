@@ -104,8 +104,12 @@ if target.endswith("dll"):
         buildtarget = library[0],
         variant = 'Release')
     env.Alias('msproj', msproj)
-    install = env.Install('../target/lib', library[0])
+
+    install = env.Install('target/lib', library[0])
+    install2 = env.Install('target/lib', library[1])
+    env.Depends(install, install2)
     env.Alias('install', install)
+
 else:
     install = env.Install('../target/lib', library)
     env.Alias('install', install)

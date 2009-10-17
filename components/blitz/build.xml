@@ -211,10 +211,6 @@
 	    <fileset dir="${resrc.dest}" includes="**/*.ice,**/*.h"/>
 	    <fileset dir="${basedir}/generated" includes="**/*.ice,**/*.h"/>
 	  </copy>
-          <zip destfile="${omero.home}/target/OMERO.java-src-${omero.version}.zip">
-            <zipfileset dir="${basedir}/src"    prefix="OMERO.java-src-${omero.version}" includes="**/*.cpp"/>
-            <zipfileset dir="${basedir}/target" prefix="OMERO.java-src-${omero.version}" includes="**/*.cpp"/>
-          </zip>
 	</target>
 
 </project>

@@ -90,7 +90,13 @@
 
     <target name="tools-build" depends="tools-init,install" description="Creates all artifacts for tools/target"/>
 
-    <target name="tools-dist" depends="tools-build" description="Copy artifacts to tools/target"/>
+    <target name="tools-dist" depends="tools-build" description="Copy artifacts to tools/target">
+        <zip destfile="${omero.home}/target/OMERO.java-${omero.version}.zip">
+            <zipfileset dir="${blitz.comp}/src"    prefix="OMERO.java-${omero.version}" includes="**/*.cpp"/>
+            <zipfileset dir="${blitz.comp}/target" prefix="OMERO.java-${omero.version}" includes="**/*.cpp"/>
+            <zipfileset dir="${target.dir}"        prefix="OMERO.java-${omero.version}" includes="omero_client.jar"/>
+        </zip>
+    </target>
 
     <target name="tools-clean" depends="clean">
 	<delete dir="${basedir}/target"/>

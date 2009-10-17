@@ -5,7 +5,7 @@
 #   Use is subject to license terms supplied in LICENSE.txt
 #
 
-import os, glob, exceptions, subprocess
+import sys, os, glob, exceptions, subprocess
 from SCons.Script.SConscript import *
 from SCons.SConf import *
 
@@ -76,6 +76,9 @@ def make_slice(command):
 
 def slice_cpp(env, where, dir):
     command = ["slice2cpp", "--include-dir=%s"%dir] + common( "%s/%s" % (generated, dir) )
+    if sys.platform == "win32":
+        command.append("--dll-export")
+        command.append("OMERO_API")
     actions = []
     for basename, filename in basenames(where, dir):
         c = env.Command(
@@ -127,7 +130,13 @@ class OmeroEnvironment(SConsEnvironment):
     """
 
     def __init__(self, **kwargs):
-        SConsEnvironment.__init__(self, **kwargs)
+        try:
+            tools = list(kwargs.pop("tools"))
+            tools.append('packaging')
+        except KeyError:
+            tools = ['default', 'packaging']
+
+        SConsEnvironment.__init__(self, tools=tools, **kwargs)
         self.Decider('MD5-timestamp')
         self["ENV"] = os.environ
         win32 = self["PLATFORM"] == "win32"
@@ -141,6 +150,7 @@ class OmeroEnvironment(SConsEnvironment):
         if os.environ.has_key("CXX"):
             self.Replace(CXX = os.environ["CXX"])
         # CXXFLAGS
+        self.Append(CPPFLAGS="-DOMERO_API_EXPORTS")
         self.Append(CPPFLAGS="-D_REENTRANT")
         if os.environ.has_key("CXXFLAGS"):
             self.Append(CPPFLAGS=self.Split(os.environ["CXXFLAGS"]))
