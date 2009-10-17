@@ -307,16 +307,15 @@ public class ExporterI extends AbstractAmdServant implements
                                 Image image = retrieve.getImage(0);
                                 Pixels pix = image.getPixels(0);
 
-                                file = File.createTempFile("__omero_export__",
+                                file = TempFileManager.create_path("__omero_export__",
                                         ".ome.tiff");
-                                file.deleteOnExit();
 
                                 raw = sf.createRawPixelsStore();
                                 raw.setPixelsId(pix.getId().getValue(), true);
-                                
+
                                 reader = new OmeroReader(raw, pix);
                                 reader.setId("OMERO");
-                                
+
                                 writer = new ImageWriter();
                                 writer.setMetadataRetrieve(retrieve);
                                 writer.setId(file.getAbsolutePath());
@@ -331,19 +330,18 @@ public class ExporterI extends AbstractAmdServant implements
                                                     i == planeCount - 1);
                                 }
                                 retrieve = null;
+                                __cb.ice_response(file.length());
                             } catch (Exception e) {
                                 omero.InternalException ie = new omero.InternalException(
                                         null, null,
                                         "Error during TIFF generation");
                                 IceMapper.fillServerError(ie, e);
                                 __cb.ice_exception(ie);
-                                return null;
                             } finally {
                                 cleanup(raw, reader, writer);
                             }
 
-                            __cb.ice_response(file.length());
-                            return null; // ONLY VALID EXIT
+                            return null; // see calls to __cb above
                         }
 
                         private void cleanup(RawPixelsStore raw,
@@ -392,12 +390,12 @@ public class ExporterI extends AbstractAmdServant implements
         RandomAccessFile ra = null;
         try {
             ra = new RandomAccessFile(file, "r");
-            
+
             long l = ra.length();
             if (pos + size > l) {
                 size  = (int) (l - pos);
             }
-            
+
             ra.seek(pos);
             int read = ra.read(buf);
 
@@ -468,16 +466,16 @@ public class ExporterI extends AbstractAmdServant implements
                 file.delete();
                 file = null;
             }
-    
+
             InternalMessage msg = new UnregisterServantMessage(this,
                     factory.principal.getName(), __current);
             factory.context.publishEvent(msg);
-            
+
             __cb.ice_response();
         } catch (Exception e) {
             __cb.ice_exception(e);
         }
-        
+
     }
 
     public void getCurrentEventContext_async(
