@@ -117,11 +117,7 @@ namespace omero {
 
 	// Register Object Factory
 	omero::registerObjectFactory(__ic);
-	map<std::string, omero::rtypes::ObjectFactoryPtr> factories = omero::rtypes::objectFactories();
-	map<std::string, omero::rtypes::ObjectFactoryPtr>::iterator itr;
-	for(itr = factories.begin(); itr != factories.end(); itr++) {
-	    (*itr).second->register_(__ic);
-	}
+        omero::rtypes::registerObjectFactory(__ic);
 
 	// Define our unique identifier (used during close/detach)
 	__uuid = IceUtil::generateUUID();

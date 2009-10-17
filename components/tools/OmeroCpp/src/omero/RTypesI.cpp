@@ -8,6 +8,7 @@
 
 #include <omero/RTypesI.h>
 #include <omero/ClientErrors.h>
+#include <omero/ObjectFactoryRegistrar.h>
 
 
 namespace omero {
@@ -592,27 +593,22 @@ namespace omero {
 	// Object factories
 	// =========================================================================
 
-	std::map<std::string, ObjectFactoryPtr> objectFactories() {
-	    static std::map<std::string, ObjectFactoryPtr> of;
-	    if (of.size() == 0) {
-		of[RBoolI::ice_staticId()] = new RBoolIFactory();
-		of[RDoubleI::ice_staticId()] = new RDoubleIFactory();
-		of[RFloatI::ice_staticId()] = new RFloatIFactory();
-		of[RIntI::ice_staticId()] = new RIntIFactory();
-		of[RLongI::ice_staticId()] = new RLongIFactory();
-		of[RTimeI::ice_staticId()] = new RTimeIFactory();
-		of[RClassI::ice_staticId()] = new RClassIFactory();
-		of[RStringI::ice_staticId()] = new RStringIFactory();
-		of[RInternalI::ice_staticId()] = new RInternalIFactory();
-		of[RObjectI::ice_staticId()] = new RObjectIFactory();
-		of[RArrayI::ice_staticId()] = new RArrayIFactory();
-		of[RListI::ice_staticId()] = new RListIFactory();
-		of[RSetI::ice_staticId()] = new RSetIFactory();
-		of[RMapI::ice_staticId()] = new RMapIFactory();
-	    }
-	    return of;
-	}
-
+        void registerObjectFactory(const Ice::CommunicatorPtr ic) {
+            omero::conditionalAdd(RBoolI::ice_staticId(), ic, new RBoolIFactory());
+            omero::conditionalAdd(RDoubleI::ice_staticId(), ic, new RDoubleIFactory());
+            omero::conditionalAdd(RFloatI::ice_staticId(), ic, new RFloatIFactory());
+            omero::conditionalAdd(RIntI::ice_staticId(), ic, new RIntIFactory());
+            omero::conditionalAdd(RLongI::ice_staticId(), ic, new RLongIFactory());
+            omero::conditionalAdd(RTimeI::ice_staticId(), ic, new RTimeIFactory());
+            omero::conditionalAdd(RClassI::ice_staticId(), ic, new RClassIFactory());
+            omero::conditionalAdd(RStringI::ice_staticId(), ic, new RStringIFactory());
+            omero::conditionalAdd(RInternalI::ice_staticId(), ic, new RInternalIFactory());
+            omero::conditionalAdd(RObjectI::ice_staticId(), ic, new RObjectIFactory());
+            omero::conditionalAdd(RArrayI::ice_staticId(), ic, new RArrayIFactory());
+            omero::conditionalAdd(RListI::ice_staticId(), ic, new RListIFactory());
+            omero::conditionalAdd(RSetI::ice_staticId(), ic, new RSetIFactory());
+            omero::conditionalAdd(RMapI::ice_staticId(), ic, new RMapIFactory());
+        }
     }
 
 }

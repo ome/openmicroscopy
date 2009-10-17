@@ -264,7 +264,7 @@ namespace omero {
 	// Object factories
 	// =========================================================================
 
-	std::map<std::string, ObjectFactoryPtr> objectFactories();
+        void registerObjectFactory(const Ice::CommunicatorPtr ic);
 
     }
 
