@@ -63,6 +63,7 @@
 		<defineClasspath/>
                 <defineVariables/>
 		<makeDirectories/>
+		<copyResource file="${root.dir}/lib/log4j-build.xml"/>
 		<copyResource file="${root.dir}/etc/local.properties"/>
 		<copyResource file="${root.dir}/etc/hibernate.properties"/>
 		<copyResource file="${root.dir}/etc/log4j.xml"/>
@@ -152,6 +153,7 @@ omero.version=${omero.version}
 			</classpath>
 			<files/>
 			<jvmarg value="-Demma.coverage.out.file=${target.dir}/coverage.emma" />
+			<jvmarg value="-Dlog4j.configuration=log4j-build.xml"/>
 		</testng>
 		</sequential>
 	</macrodef>

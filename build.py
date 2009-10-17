@@ -13,7 +13,8 @@ import subprocess
 
 def build_hudson():
     """
-    Top-level build called by hudson for testing the 
+    Top-level build called by hudson for testing all components,
+    generating documentation, etc.
     """
     #
     # Cleaning to prevent strange hudson errors about
@@ -49,6 +50,8 @@ def build_hudson():
 
 def java_omero(args):
     command = [ find_java() ]
+    p = os.path.join( os.path.curdir, "lib", "log4j-build.xml")
+    command.append("-Dlog4j.configuration=%s" % p)
     command.extend( calculate_memory_args() )
     command.extend(["omero"])
     command.extend(choose_omero_version())

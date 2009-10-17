@@ -15,9 +15,13 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Log configuration which is pointed to by the -Dlog4j.configuration setting in
-lib/omero/java.py but can be overwritten by setting omero.blitz.xargs. This
-file is periodically read during runtime, and any changes cause the log4j
+etc/grid/templates.xml
+
+This file is periodically read during runtime, and any changes cause the log4j
 system to be re-configured.
+
+Previously, pointed to by lib/omero/java.py but could be overwritten by setting
+omero.blitz.xargs.
 
 -->
 
