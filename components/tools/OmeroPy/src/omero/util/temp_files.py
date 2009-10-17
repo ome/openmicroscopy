@@ -123,7 +123,11 @@ class TempFileManager(object):
         """
         Returns the current OS-user's name
         """
-	return getpass.getuser()
+        try:
+            return getpass.getuser() # Uses environment variable or pwd
+        except ImportError: # No pwd on Windows
+            import win32api
+            return win32api.GetUserName()
 
     def pid(self):
         """
