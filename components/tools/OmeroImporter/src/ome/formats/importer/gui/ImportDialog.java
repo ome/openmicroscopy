@@ -425,9 +425,11 @@ public class ImportDialog extends JDialog implements ActionListener
     
     public void sendingNamingWarning(Component frame)
     {
-        final JOptionPane optionPane = new JOptionPane("\nNOTE: Some file formats do not include the file name in their metadata, " +
+        final JOptionPane optionPane = new JOptionPane(
+                "\nNOTE: Some file formats do not include the file name in their metadata, " +
         		"\nand disabling this option may result in files being imported without a " +
-        		"\nreference to their original file name.", JOptionPane.WARNING_MESSAGE);
+        		"\nreference to their file name. For example, 'myfile.lsm [image001]' " +
+        		"\nwould show up as 'image001' with this optioned turned off.", JOptionPane.WARNING_MESSAGE);
         final JDialog warningDialog = new JDialog(this, "Naming Warning!", true);
         warningDialog.setContentPane(optionPane);
 
@@ -454,7 +456,7 @@ public class ImportDialog extends JDialog implements ActionListener
     public void actionPerformed(ActionEvent e)
     {
        
-        if (e.getSource() == fileCheckBox)
+        if (e.getSource() == fileCheckBox && !fileCheckBox.isSelected())
         {
             System.err.println("Bar");
             sendingNamingWarning(this);   
