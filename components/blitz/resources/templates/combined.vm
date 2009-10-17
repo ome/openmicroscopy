@@ -92,6 +92,16 @@ DECLARATION BLOCK:
 [$hdr] \#include <omero/model/${Pojo}.h>
 [$hdr] \#include <omero/templates.h>
 
+[$hdr] #ifndef OMERO_API
+[$hdr] #   ifdef OMERO_API_EXPORTS
+[$hdr] #       define OMERO_API ICE_DECLSPEC_EXPORT
+[$hdr] #   else
+[$hdr] #       define OMERO_API ICE_DECLSPEC_IMPORT
+[$hdr] #   endif
+[$hdr] #endif
+[$cpp] #ifndef OMERO_API_EXPORTS
+[$cpp] #   define OMERO_API_EXPORTS
+[$cpp] #endif
 
 [$ice] module omero {
 [$ice]   module model {
@@ -132,7 +142,7 @@ Note how the whitespace for the python definitions is important.
 [$pyc]
 [$hdr] namespace omero {
 [$hdr]   namespace model {
-[$hdr]     class ${PojoI} : virtual public ${Pojo} {
+[$hdr]     class OMERO_API ${PojoI} : virtual public ${Pojo} {
 
 [$cpp] \#include <omero/model/${Pojo}I.h>
 [$cpp] \#include <omero/RTypesI.h>
