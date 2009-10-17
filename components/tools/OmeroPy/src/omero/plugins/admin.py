@@ -12,10 +12,13 @@
 
 """
 
+import re
 import os
 import time
-from path import path
+import exceptions
 
+from path import path
+from which import which
 
 import omero
 import omero_ServerErrors_ice
@@ -416,7 +419,7 @@ OMERO Diagnostics %s
         """ % ("="*80, VERSION, "="*80))
 
         def item(msg):
-            msg = "%s ..... " % msg
+            msg = "%s" % msg
             msg = "%-40s" % msg
             self.ctx.out(msg, False)
 
@@ -439,6 +442,38 @@ OMERO Diagnostics %s
                         msg = " errors=%-4s warnings=%-4s" % (err, warn)
                     self.ctx.out("exists size=%-5s %s" % (p.size, msg))
 
+        def version(cmd):
+            item("Commands:  %s" % " ".join(cmd))
+            try:
+                p = self.ctx.popen(cmd)
+            except OSError:
+                self.ctx.err("not found")
+                return
+            rv = p.wait()
+            io = p.communicate()
+            try:
+                v = io[0].split()
+                v.extend(io[1].split())
+                v = "".join(v)
+                m = re.match("^\D*(\d[.\d]+\d)\D.*$", v)
+                v = "%-10s" % m.group(1)
+                self.ctx.out(v, False)
+                try:
+                    where = which(cmd[0])
+                except:
+                    where = "unknown"
+                self.ctx.out("(%s)" % where)
+            except exceptions.Exception, e:
+                self.ctx.err("error:%s" % e)
+
+        version(["java",         "-version"])
+        version(["python",       "-V"])
+        version(["icegridnode",  "--version"])
+        version(["icegridadmin", "--version"])
+        version(["psql",         "--version"])
+
+
+        self.ctx.out("")
         item("Server:    icegridnode")
         p = self.ctx.popen(self._cmd() + ["-e", "server list"]) # popen
         rv = p.wait()

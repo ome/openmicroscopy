@@ -483,6 +483,13 @@
   License File: path.txt
 
 
+  Artifacts:    components/tools/OmeroPy/src/which.py
+  Project:      GNU which replacement
+  Web Site:     http://code.google.com/p/which/
+  License:      MIT
+  License File: which.txt
+
+
   Artifacts:    components/tools/OmeroPy/src/xmlrunner
   Project:      unittest-xml-reporting - PyUnit-based TestRunner
   Web Site:     http://github.com/danielfm/unittest-xml-reporting
