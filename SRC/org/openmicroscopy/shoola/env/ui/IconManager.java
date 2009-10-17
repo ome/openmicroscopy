@@ -255,7 +255,7 @@ public class IconManager
 		relPaths[CONNECT_DS_BIG] = "nuvola_server48.png";
 		relPaths[WELCOME] = "nuvola_background16.png";
 		relPaths[HOW_TO] = "nuvola_artscontrol16.png";
-		relPaths[SW_UPDATES] = "nuvola_download_manager16.png";
+		relPaths[SW_UPDATES] = "nuvola_messagebox_info16.png";//"nuvola_download_manager16.png";
         relPaths[QUESTION] = "nuvola_filetypes48.png";
         relPaths[COMMENT] = "nuvola_mail_send16.png";
         relPaths[DOCUMENT_12] = "nuvola_fileexport12.png";
@@ -264,6 +264,7 @@ public class IconManager
 		relPaths[REMOVE] = "nuvola_artscontrol16.png";
 		relPaths[DOWNLOAD_22] = "nuvola_download_manager22.png";
         relPaths[DOWNLOAD_48] = "nuvola_download_manager48.png";
+        relPaths[FORUM] = "nuvola_chat16.png";
 	}
 	
 	/** The sole instance. */

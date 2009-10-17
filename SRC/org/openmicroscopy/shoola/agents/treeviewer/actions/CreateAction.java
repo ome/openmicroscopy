@@ -193,6 +193,7 @@ public class CreateAction
             name = NAME_IMAGE;
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_IMAGE));
+            setEnabled(false);
         } else if (ho instanceof TagAnnotationData) {
         	String ns = ((TagAnnotationData) ho).getNameSpace();
         	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
