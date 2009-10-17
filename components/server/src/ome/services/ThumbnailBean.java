@@ -639,7 +639,6 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         
         // If the XY widths already have a pool (an instance that only differs
         // by object reference) find it and use that as our hash key.
-        Set<Long> pool;
         for (Dimension poolDimensions : pools.keySet())
         {
             if (poolDimensions.equals(dimensions))
@@ -650,7 +649,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         }
         
         // Insert the Pixels set into
-        pool = pools.get(dimensions);
+        Set<Long> pool = pools.get(dimensions);
         if (pool == null)
         {
             pool = new HashSet<Long>();
@@ -714,7 +713,6 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	StopWatch s1 = new CommonsLogStopWatch(
 			"omero.createMissingThumbnailMetadata");
     	List<Thumbnail> toSave = new ArrayList<Thumbnail>();
-    	Set<Long> manipulatedPixels = new HashSet<Long>();
     	Map<Dimension, Set<Long>> temporaryDimensionPools = 
     		new HashMap<Dimension, Set<Long>>();
     	for (Long pixelsId : pixelsMap.keySet())
@@ -730,7 +728,6 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     					toSave.add(createThumbnailMetadata(
     							pixelsMap.get(pixelsId), dimension));
     					addToDimensionPool(temporaryDimensionPools, pixels, size);
-    					manipulatedPixels.add(pixelsId);
     				}
     			}
     		}
@@ -1193,6 +1190,29 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     		settingsUserMap.put(pixelsId, details.getOwner().getId());
     		addToDimensionPool(dimensionPools, pixels,
     		                   (int) checkedDimensions.getWidth());
+    	}
+    	
+    	// For dimension pooling to work correctly for the purpose of thumbnail
+    	// metadata creation we now need to load the Pixels sets that had no
+    	// rendering settings.
+    	Set<Long> pixelsIdsWithoutSettings = new HashSet<Long>();
+    	Set<Long> pixelsIdsWithSettings = pixelsMap.keySet(); 
+    	for (Long pixelsId : pixelsIds)
+    	{
+    		if (!pixelsIdsWithSettings.contains(pixelsId))
+    		{
+    			pixelsIdsWithoutSettings.add(pixelsId);
+    		}
+    	}
+    	Parameters parameters = new Parameters();
+    	parameters.addIds(pixelsIdsWithoutSettings);
+    	List<Pixels> pixelsWithoutSettings = iQuery.findAllByQuery(
+    			"select p from Pixels as p where id in (:ids)", parameters);
+    	for (Pixels pixels : pixelsWithoutSettings)
+    	{
+    		pixelsMap.put(pixels.getId(), pixels);
+    		addToDimensionPool(dimensionPools, pixels,
+    				           (int) checkedDimensions.getWidth());
     	}
     	
     	// Now we're going to attempt to efficiently retrieve the thumbnail
