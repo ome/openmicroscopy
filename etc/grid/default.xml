@@ -8,15 +8,15 @@
 
   <application name="OMERO">
 
-    <variable name="OMERO_HOME"   value="."/>
-    <variable name="OMERO_ETC"    value="etc/"/>
-    <variable name="OMERO_JARS"   value="lib/server/"/>
-    <variable name="OMERO_LOGS"   value="var/log/"/>
-    <variable name="OMEROPY_HOME" value="lib/python/"/>
-    <variable name="OMEROPY_SERV" value="lib/python/omero/"/>
-    <variable name="PYTHONPATH"   value="PYTHONPATH=${OMEROPY_HOME}:$${PYTHONPATH}"/>
-    <variable name="ROUTERPORT"   value="4063"/>
-    <variable name="LOGFILE"      value="${OMERO_LOGS}$${omero.name}.log"/>
+    <variable name="OMERO_HOME"    value="."/>
+    <variable name="OMERO_ETC"     value="etc/"/>
+    <variable name="OMERO_JARS"    value="lib/server/"/>
+    <variable name="OMERO_LOGS"    value="var/log/"/>
+    <variable name="OMERO_LOGFILE" value="${OMERO_LOGS}$${omero.name}.log"/>
+    <variable name="OMEROPY_HOME"  value="lib/python/"/>
+    <variable name="OMEROPY_SERV"  value="lib/python/omero/"/>
+    <variable name="PYTHONPATH"    value="PYTHONPATH=${OMEROPY_HOME}:$${PYTHONPATH}"/>
+    <variable name="ROUTERPORT"    value="4063"/>
 
     <properties id="Profile">
       <!--
