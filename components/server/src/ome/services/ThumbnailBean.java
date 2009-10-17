@@ -1250,6 +1250,9 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	        }
     	        else
     	        {
+    	        	// Prime a shallowly loaded Pixels object that we've
+    	        	// already queried for.
+    	        	pixels = pixelsMap.get(pixelsId);
     	            if (!setPixelsId(pixelsId))
     	            {
     	                _resetDefaults();
