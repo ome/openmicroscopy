@@ -13,6 +13,9 @@
 
 """
 
+import logging
+logging.basicConfig(level=logging.WARN)
+
 import unittest
 import xmlrunner
 
