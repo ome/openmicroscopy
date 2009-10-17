@@ -33,6 +33,8 @@ finally:
     __name__ = __save__
     del __save__
 
+ClientError = omero.ClientError
+
 class BaseClient(object):
     """
     Central client-side blitz entry point, and should be in sync with OmeroJava's omero.client
@@ -157,7 +159,7 @@ class BaseClient(object):
                     if not found:
                         found = original[j]
                     else:
-                        raise omero.ClientError("Found two arguments of same type: " + str(types[i]))
+                        raise ClientError("Found two arguments of same type: " + str(types[i]))
             if found:
                 repaired[i] = found
         return repaired
@@ -644,7 +646,7 @@ class BaseClient(object):
 
         sf = self.sf
         if not sf:
-            raise omero.ClientError("No session avaliable")
+            raise ClientError("No session avaliable")
 
         s = omero.model.SessionI()
         s.uuid = rstring(sf.ice_getIdentity().name)
