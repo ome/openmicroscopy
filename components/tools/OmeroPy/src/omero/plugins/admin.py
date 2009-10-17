@@ -22,6 +22,7 @@ import omero_ServerErrors_ice
 from omero.cli import Arguments
 from omero.cli import BaseControl
 from omero.cli import NonZeroReturnCode
+from omero.cli import VERSION
 
 try:
     import win32service
@@ -38,6 +39,9 @@ class AdminControl(BaseControl):
 Syntax: %(program_name)s admin  [ start | update | stop | status ]
 
                                              : No argument opens a command shell
+
+           Main Commands
+           -------------
 
            start [filename] [targets]        : Start icegridnode daemon and waits for required components
                                              : to come up, i.e. status == 0
@@ -62,13 +66,24 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
 
            status                            : Status of server. Returns with 0 status if a node ping is successful
                                              : and if some SessionManager returns an OMERO-specific exception on
-                                             : a bad login.
+                                             : a bad login. This can be used in shell scripts, e.g.:
+                                             :
+                                             :     omero admin status && echo "server started"
+                                             :
 
            ice [arg1 arg2 ...]               : Drop user into icegridadmin console or execute arguments
 
-           waitup                            : Used by start after calling startasync
-           waitdown                          : Used by stop after calling stopasync
-           events                            : Print event log
+
+           Other Commands
+           --------------
+
+           diagnostics                       : Run a set of checks on the current, preferably active server
+
+           waitup                            : Used by start after calling startasync to wait on status==0
+
+           waitdown                          : Used by stop after calling stopasync to wait on status!=0
+
+           events                            : Print event log (Windows-only)
 
         """)
         DISABLED = """ see: http://www.zeroc.com/forums/bug-reports/4237-sporadic-freeze-errors-concurrent-icegridnode-access.html
@@ -391,6 +406,87 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
             return self.ctx.call(command)
         else:
             rv = self.ctx.call(command)
+
+    def diagnostics(self, args):
+        args = Arguments(args)
+        self.ctx.out("""
+%s
+OMERO Diagnostics %s
+%s
+        """ % ("="*80, VERSION, "="*80))
+
+        def item(msg):
+            msg = "%s ..... " % msg
+            msg = "%-40s" % msg
+            self.ctx.out(msg, False)
+
+        def exists(p):
+            if not p.exists():
+                self.ctx.out("doesn't exist")
+            else:
+                if p.isdir():
+                    self.ctx.out("exists")
+                else:
+                    warn = 0
+                    err = 0
+                    for l in p.lines():
+                        if l.find("ERROR") >= 0:
+                            err += 1
+                        elif l.find("WARN") >= 0:
+                            warn += 1
+                    msg = ""
+                    if warn or err:
+                        msg = " errors=%-4s warnings=%-4s" % (err, warn)
+                    self.ctx.out("exists size=%-5s %s" % (p.size, msg))
+
+        item("Server:    icegridnode")
+        p = self.ctx.popen(self._cmd() + ["-e", "server list"]) # popen
+        rv = p.wait()
+        io = p.communicate()
+        if rv != 0:
+            self.ctx.out("not started")
+            self.ctx.dbg("""
+            Stdout:\n%s
+            Stderr:\n%s
+            """ % io)
+        else:
+            self.ctx.out("running")
+            servers = io[0].split()
+            servers.sort()
+            for s in servers:
+                item("Server:    %s" % s)
+                p2 = self.ctx.popen(self._cmd() + ["-e", "server state %s" % s]) # popen
+                rv2 = p2.wait()
+                io2 = p2.communicate()
+                if io2[1]:
+                    self.ctx.err(io2[1].strip())
+                elif io2[0]:
+                    self.ctx.out(io2[0].strip())
+                else:
+                    self.ctx.err("UNKNOWN!")
+
+        self.ctx.out("")
+        var_log = path(".") / "var" / "log"
+        item("Log dir:   %s" % var_log.abspath())
+        exists(var_log)
+        self.ctx.out("")
+
+        if var_log.exists():
+            files = var_log.files()
+            files = set([x.basename() for x in files])
+            # Adding known names just in case
+            files.add("Blitz-0.log")
+            files.add("Tables-0.log")
+            files.add("Processor-0.log")
+            files.add("Indexer-0.log")
+            files.add("FSServer.log")
+            files.add("DropBox.log")
+            files.add("TestDropBox.log")
+            files = list(files)
+            files.sort()
+            for x in files:
+                item("Log files: " + x)
+                exists(var_log / x)
 
 try:
     register("admin", AdminControl)
