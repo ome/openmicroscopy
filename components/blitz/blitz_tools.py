@@ -155,6 +155,7 @@ class OmeroEnvironment(SConsEnvironment):
 	    else:
                 if self["CC"] == "cl":
                     self.Append(CPPFLAGS=self.Split("/MD"))
+                    self.Append(CPPFLAGS=self.Split("/EHsc"))
         #
         # CPPPATH
         #
