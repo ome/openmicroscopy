@@ -42,12 +42,16 @@
     <target name="test" depends="test-compile" if="unit.exe-exists" unless="env.NOMAKE">
         <exec dir="${basedir}" executable="test/unit.exe" failonerror="${test.with.fail}">
             <env key="ICE_HOME" value="${ice.home}"/>
+	    <env key="LD_LIBRARY_PATH" value="${env.LD_LIBRARY_PATH}:${basedir}"/>
+	    <env key="DYLD_LIBRARY_PATH" value="${env.DYLD_LIBRARY_PATH}:${basedir}"/>
         </exec>
     </target>
 
     <target name="integration" depends="test-compile" if="integration.exe-exists" unless="env.NOMAKE">
         <exec dir="${basedir}" executable="test/integration.exe" failonerror="${test.with.fail}">
             <env key="ICE_HOME" value="${ice.home}"/>
+	    <env key="LD_LIBRARY_PATH" value="${env.LD_LIBRARY_PATH}:${basedir}"/>
+	    <env key="DYLD_LIBRARY_PATH" value="${env.DYLD_LIBRARY_PATH}:${basedir}"/>
         </exec>
     </target>
 
