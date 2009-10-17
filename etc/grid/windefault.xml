@@ -19,10 +19,13 @@
     -->
     <variable name="OMERO_HOME"   value="c:\\omero_dist"/>
     <variable name="OMERO_ETC"    value="${OMERO_HOME}\\etc\\"/>
+    <variable name="OMERO_JARS"   value="${OMERO_HOME}\\lib\\server\\"/>
+    <variable name="OMERO_LOGS"   value="${OMERO_HOME}\\var\\log\\"/>
     <variable name="OMEROPY_HOME" value="${OMERO_HOME}\\lib\\python\\"/>
     <variable name="OMEROPY_SERV" value="${OMERO_HOME}\\lib\\python\\omero\\"/>
     <variable name="PYTHONPATH"   value="PYTHONPATH=${OMEROPY_HOME};%PYTHONPATH%"/>
     <variable name="ROUTERPORT"   value="4063"/>
+    <variable name="LOGFILE"      value="${OMERO_LOGS}$${omero.name}.log"/>
 
     <properties id="Profile">
       <!--
@@ -39,8 +42,8 @@
       <server-instance template="Glacier2Template"
         client-endpoints="tcp -p ${ROUTERPORT}"
         server-endpoints="tcp -h 127.0.0.1"/>
-      <server-instance template="WinBlitzTemplate" index="0" config="default"/>
-      <server-instance template="WinIndexerTemplate" index="0"/>
+      <server-instance template="ExplicitBlitzTemplate" index="0" config="default"/>
+      <server-instance template="ExplicitIndexerTemplate" index="0"/>
       <server-instance template="DropBoxTemplate"/>
       <server-instance template="FSTemplate"/>
       <server-instance template="WebTemplate"/>
