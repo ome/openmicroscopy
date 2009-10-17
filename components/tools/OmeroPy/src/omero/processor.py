@@ -403,6 +403,17 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         self.allcallbacks("processFinished", self.rcode)
         return self.rcode
 
+    def _term(self):
+        """
+        Attempts to cancel the process by sending SIGTERM
+        (or similar)
+        """
+        try:
+            self.status("os.kill(TERM)")
+            os.kill(self.popen.pid, signal.SIGTERM)
+        except AttributeError:
+            self.logger.debug("No os.kill(TERM). Skipping cancel")
+
     def _send(self, iskill):
         """
         Helper method for sending signals. This method only
@@ -415,16 +426,12 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
                         self.status("popen.kill(True)")
                         self.popen.kill(True)
                     else:
-                        try:
-                            self.status("os.kill(TERM)")
-                            os.kill(self.popen.pid, signal.SIGTERM)
-                        except AttributeError:
-                            self.logger.debug("No os.kill(TERM). Skipping cancel")
+                        self._term()
 
                 else:
                     self.status("Skipped signal")
             except OSError, oserr:
-                self.logger.debug("err on pid=%s sig=%s : %s", self.popen.pid, sig, oserr)
+                self.logger.debug("err on pid=%s iskill=%s : %s", self.popen.pid, iskill, oserr)
 
     @perf
     @remoted

@@ -27,12 +27,10 @@ def make_client(self):
     self.client = None
     self.uuid = "mock_uuid"
 
-rcode = 0
-def _send(self, sig):
-    if self.rcode is None:
-        self.rcode = rcode
+def _term(self, *args):
+    self.rcode = -9
 
-omero.processor.ProcessI._send = _send
+omero.processor.ProcessI._term = _term
 omero.processor.ProcessI.make_client = make_client
 
 class Callback(object):
@@ -60,6 +58,9 @@ class MockPopen(object):
     def poll(self):
         return self.rcode
     def wait(self):
+        return self.rcode
+    def kill(self, *args):
+        self.rcode = -9
         return self.rcode
 
 def with_process(func, Popen = MockPopen):
