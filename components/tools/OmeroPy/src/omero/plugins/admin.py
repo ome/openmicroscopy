@@ -213,7 +213,7 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
 	"""
 
         import Ice
-        key = "IceGrid.Registry.DefaultTemplates"
+        key = "IceGrid.Node.Data"
         properties = Ice.createProperties([self._icecfg()])
         templates = properties.getProperty(key)
         if not os.path.exists(templates):
@@ -221,10 +221,8 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
             %s does not exist. Aborting...
 
             Please see the installation instructions on modifying
-            the files for your installation (%s):
-
-              etc\Windows.cfg
-              etc\grid\windefault.xml
+            the files for your installation (%s)
+            via bin\winconfig.bat
 
             """ % (templates, self.ctx.dir))
 
