@@ -1204,17 +1204,21 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     			pixelsIdsWithoutSettings.add(pixelsId);
     		}
     	}
-    	Parameters parameters = new Parameters();
-    	parameters.addIds(pixelsIdsWithoutSettings);
-    	List<Pixels> pixelsWithoutSettings = iQuery.findAllByQuery(
-    			"select p from Pixels as p where id in (:ids)", parameters);
-    	for (Pixels pixels : pixelsWithoutSettings)
+
+    	if (pixelsIdsWithoutSettings.size() > 0)
     	{
-    		pixelsMap.put(pixels.getId(), pixels);
-    		addToDimensionPool(dimensionPools, pixels,
-    				           (int) checkedDimensions.getWidth());
+        	Parameters parameters = new Parameters();
+        	parameters.addIds(pixelsIdsWithoutSettings);
+        	List<Pixels> pixelsWithoutSettings = iQuery.findAllByQuery(
+        			"select p from Pixels as p where id in (:ids)", parameters);
+        	for (Pixels pixels : pixelsWithoutSettings)
+        	{
+        		pixelsMap.put(pixels.getId(), pixels);
+        		addToDimensionPool(dimensionPools, pixels,
+        				           (int) checkedDimensions.getWidth());
+        	}
     	}
-    	
+
     	// Now we're going to attempt to efficiently retrieve the thumbnail
     	// metadata based on our dimension pools above. To save significant
     	// time later we're also going to pre-create thumbnail metadata where
