@@ -91,7 +91,6 @@ CPPPATH=%(CPPPATH)s
 CXX=%(CXX)s
 CXXVERSION=%(CXXVERSION)s
 LIBPATH=%(LIBPATH)s
-LIBS=%(LIBS)s
 64BIT=unknown
 DEBUG=unknown
 """ % env)
