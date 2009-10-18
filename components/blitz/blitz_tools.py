@@ -173,16 +173,16 @@ class OmeroEnvironment(SConsEnvironment):
         # CPPPATH
         #
         self.AppendUnique(CPPPATH = [blitz_generated] )
-        if ice_home:
-            self.Append(CPPPATH = [os.path.join(ice_home, "include")] )
         if os.environ.has_key("CPPPATH"):
             self.AppendUnique(CPPPATH=os.environ["CPPPATH"].split(os.path.pathsep))
+        if ice_home:
+            self.Append(CPPPATH = [os.path.join(ice_home, "include")] )
 
         #
         # LIBPATH
         #
         self.AppendUnique(LIBPATH=omerocpp_dir)
-        if ice_home:
-            self.Append(LIBPATH=[os.path.join(ice_home, "lib")])
         if os.environ.has_key("LIBPATH"):
             self.AppendUnique(LIBPATH=os.environ["LIBPATH"].split(os.path.pathsep))
+        if ice_home:
+            self.Append(LIBPATH=[os.path.join(ice_home, "lib")])
