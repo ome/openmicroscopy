@@ -15,6 +15,14 @@
 #include <string>
 #include <map>
 
+#ifndef OMERO_API
+#   ifdef OMERO_API_EXPORTS
+#       define OMERO_API ICE_DECLSPEC_EXPORT
+#   else
+#       define OMERO_API ICE_DECLSPEC_IMPORT
+#   endif
+#endif
+
 /**
  * Header which is responsible for creating rtypes from static
  * factory methods. Where possible, factory methods return cached values
@@ -32,33 +40,33 @@ namespace omero {
 	// Static factory methods (primitives)
 	// =========================================================================
 
-	const omero::RBoolPtr rbool(bool val);
-	const omero::RDoublePtr rdouble(Ice::Double val);
-	const omero::RFloatPtr rfloat(Ice::Float val);
-	const omero::RIntPtr rint(Ice::Int val);
-	const omero::RLongPtr rlong(Ice::Long val);
-	const omero::RTimePtr rtime(Ice::Long val);
+	OMERO_API const omero::RBoolPtr rbool(bool val);
+	OMERO_API const omero::RDoublePtr rdouble(Ice::Double val);
+	OMERO_API const omero::RFloatPtr rfloat(Ice::Float val);
+	OMERO_API const omero::RIntPtr rint(Ice::Int val);
+	OMERO_API const omero::RLongPtr rlong(Ice::Long val);
+	OMERO_API const omero::RTimePtr rtime(Ice::Long val);
 
 	// Static factory methods (objects)
 	// =========================================================================
 
-	const omero::RInternalPtr rinternal(const omero::InternalPtr& val);
-	const omero::RObjectPtr robject(const omero::model::IObjectPtr& val);
-	const omero::RClassPtr rclass(const std::string& val);
-	const omero::RStringPtr rstring(const std::string& val);
+	OMERO_API const omero::RInternalPtr rinternal(const omero::InternalPtr& val);
+	OMERO_API const omero::RObjectPtr robject(const omero::model::IObjectPtr& val);
+	OMERO_API const omero::RClassPtr rclass(const std::string& val);
+	OMERO_API const omero::RStringPtr rstring(const std::string& val);
 
 	// Static factory methods (collections)
 	// =========================================================================
 
-	const omero::RArrayPtr rarray();
-	const omero::RListPtr rlist();
-	const omero::RSetPtr rset();
-	const omero::RMapPtr rmap();
+	OMERO_API const omero::RArrayPtr rarray();
+	OMERO_API const omero::RListPtr rlist();
+	OMERO_API const omero::RSetPtr rset();
+	OMERO_API const omero::RMapPtr rmap();
 
 	// Implementations (primitives)
 	// =========================================================================
 
-	class RBoolI : virtual public omero::RBool {
+	class OMERO_API RBoolI : virtual public omero::RBool {
 	protected:
 	    virtual ~RBoolI(); // protected as outlined in Ice Docs
 	public:
@@ -67,7 +75,7 @@ namespace omero {
 	    virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
 	};
 
-	class RDoubleI : virtual public omero::RDouble {
+	class OMERO_API RDoubleI : virtual public omero::RDouble {
 	protected:
 	    virtual ~RDoubleI(); // as above
 	public:
@@ -76,7 +84,7 @@ namespace omero {
 	    virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
 	};
 
-	class RFloatI : virtual public omero::RFloat {
+	class OMERO_API RFloatI : virtual public omero::RFloat {
 	protected:
 	    virtual ~RFloatI(); // as above
 	public:
@@ -86,7 +94,7 @@ namespace omero {
 
 	};
 
-	class RIntI : virtual public omero::RInt {
+	class OMERO_API RIntI : virtual public omero::RInt {
 	protected:
 	    virtual ~RIntI(); // as above
 	public:
@@ -96,7 +104,7 @@ namespace omero {
 
 	};
 
-	class RLongI : virtual public omero::RLong {
+	class OMERO_API RLongI : virtual public omero::RLong {
 	protected:
 	    virtual ~RLongI(); // as above
 	public:
@@ -106,7 +114,7 @@ namespace omero {
 
 	};
 
-	class RTimeI : virtual public omero::RTime {
+	class OMERO_API RTimeI : virtual public omero::RTime {
 	protected:
 	    virtual ~RTimeI(); // as above
 	public:
@@ -118,7 +126,7 @@ namespace omero {
 	// Implementations (objects)
 	// =========================================================================
 
-	class RInternalI : virtual public omero::RInternal {
+	class OMERO_API RInternalI : virtual public omero::RInternal {
 	protected:
 	    virtual ~RInternalI(); // as above
 	public:
@@ -127,7 +135,7 @@ namespace omero {
 	    virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
 	};
 
-	class RObjectI : virtual public omero::RObject {
+	class OMERO_API RObjectI : virtual public omero::RObject {
 	protected:
 	    virtual ~RObjectI(); // as above
 	public:
@@ -136,7 +144,7 @@ namespace omero {
 	    virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
 	};
 
-	class RStringI : virtual public omero::RString {
+	class OMERO_API RStringI : virtual public omero::RString {
 	protected:
 	    virtual ~RStringI(); // as above
 	public:
@@ -145,7 +153,7 @@ namespace omero {
 	    virtual Ice::Int compare(const RTypePtr& rhs, const Ice::Current& current = Ice::Current());
 	};
 
-	class RClassI : virtual public omero::RClass {
+	class OMERO_API RClassI : virtual public omero::RClass {
 	protected:
 	    virtual ~RClassI(); // as above
 	public:
@@ -160,7 +168,7 @@ namespace omero {
 	/**
 	 * Guaranteed to never contain an empty list.
 	 */
-	class RArrayI : virtual public omero::RArray {
+	class OMERO_API RArrayI : virtual public omero::RArray {
 	protected:
 	    virtual ~RArrayI(); // as above
 	public:
@@ -178,7 +186,7 @@ namespace omero {
 	/**
 	 * Guaranteed to never contain an empty list.
 	 */
-	class RListI : virtual public omero::RList {
+	class OMERO_API RListI : virtual public omero::RList {
 	protected:
 	    virtual ~RListI(); // as above
 	public:
@@ -196,7 +204,7 @@ namespace omero {
 	/**
 	 * Guaranteed to never contain an empty list.
 	 */
-	class RSetI : virtual public omero::RSet {
+	class OMERO_API RSetI : virtual public omero::RSet {
 	protected:
 	    virtual ~RSetI(); // as above
 	public:
@@ -211,7 +219,7 @@ namespace omero {
 	    virtual void addAll(const omero::RTypeSeq& values, const Ice::Current& current = Ice::Current());
 	};
 
-	class RMapI : virtual public omero::RMap {
+	class OMERO_API RMapI : virtual public omero::RMap {
 	protected:
 	    virtual ~RMapI(); // as above
 	public:
@@ -264,7 +272,7 @@ namespace omero {
 	// Object factories
 	// =========================================================================
 
-        void registerObjectFactory(const Ice::CommunicatorPtr ic);
+        OMERO_API void registerObjectFactory(const Ice::CommunicatorPtr ic);
 
     }
 

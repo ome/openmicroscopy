@@ -9,17 +9,26 @@
 #ifndef OMERO_CLIENT_ERRORS_H
 #define OMERO_CLIENT_ERRORS_H
 
+#include <Ice/Ice.h>
 #include <ostream>
 #include <iostream>
 #include <exception>
 
+#ifndef OMERO_API
+#   ifdef OMERO_API_EXPORTS
+#       define OMERO_API ICE_DECLSPEC_EXPORT
+#   else
+#       define OMERO_API ICE_DECLSPEC_IMPORT
+#   endif
+#endif
+
 /*
  * Client-side exceptions thrown, especially by the generated
- * model entities. 
+ * model entities.
  */
 namespace omero {
 
-  class ClientError : public std::exception
+  class OMERO_API ClientError : public std::exception
   {
   protected:
     int _line;
@@ -35,11 +44,11 @@ namespace omero {
   };
 
   /*
-   * Thrown if an object is unloaded (see loaded field) and any 
-   * method which is expecting valid state is called. (The id 
+   * Thrown if an object is unloaded (see loaded field) and any
+   * method which is expecting valid state is called. (The id
    * of an unloaded object will always be sent by the server.)
    */
-  class UnloadedEntityException : public ClientError
+  class OMERO_API UnloadedEntityException : public ClientError
   {
   public:
     UnloadedEntityException(const char*, int, const char* message);
@@ -49,7 +58,7 @@ namespace omero {
    * Thrown if a collection is unloaded (see collectionNameLoaded fields)
    * and any method which is expecting a valid collection is called.
    */
-  class UnloadedCollectionException : public ClientError
+  class OMERO_API UnloadedCollectionException : public ClientError
   {
   public:
     UnloadedCollectionException(const char*, int, const char* message);

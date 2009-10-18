@@ -16,6 +16,14 @@
 #include <string>
 #include <vector>
 
+#ifndef OMERO_API
+#   ifdef OMERO_API_EXPORTS
+#       define OMERO_API ICE_DECLSPEC_EXPORT
+#   else
+#       define OMERO_API ICE_DECLSPEC_IMPORT
+#   endif
+#endif
+
 namespace omero { namespace model {
 
   /*
@@ -28,7 +36,7 @@ namespace omero { namespace model {
    *  -- [is|set]Locked
    *
    */
-class PermissionsI : virtual public Permissions {
+class OMERO_API PermissionsI : virtual public Permissions {
 
 protected:
     ~PermissionsI(); // protected as outlined in Ice docs.
