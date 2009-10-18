@@ -67,6 +67,22 @@
             <fileset dir="target" includes="**/*.h"/>
         </copy>
 
+        <property prefix="src" file="${basedir}/compiler.log"/>
+        <property name="src.build" value="OMERO.cpp-src-${omero.version}"/>
+        <zip destfile="${omero.home}/target/${src.build}.zip">
+             <zipfileset dir="${basedir}/src"        prefix="${src.build}"      includes="**/*.cpp,**/*.h"/>
+             <zipfileset dir="${basedir}/target"     prefix="${src.build}"      includes="**/*.cpp,**/*.h"/>
+        </zip>
+
+        <property prefix="compiler" file="${basedir}/compiler.log"/>
+        <property name="compiler.build" value="OMERO.cpp-${omero.version}-${compiler.CXX}-${compiler.CXXVERSION}"/>
+        <zip destfile="${omero.home}/target/${compiler.build}.zip">
+             <zipfileset dir="${basedir}/src"        prefix="${compiler.build}"      includes="**/*.cpp,**/*.h"/>
+             <zipfileset dir="${basedir}/target"     prefix="${compiler.build}"      includes="**/*.cpp,**/*.h"/>
+             <zipfileset dir="${basedir}/target/lib" prefix="${compiler.build}"      includes="*omero_client*"/>
+             <zipfileset dir="${basedir}/"           prefix="${compiler.build}/logs" includes="*.log"/>
+        </zip>
+
     </target>
 
    <target name="tools-clean">
