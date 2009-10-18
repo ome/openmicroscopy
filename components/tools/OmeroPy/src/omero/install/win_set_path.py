@@ -36,23 +36,31 @@ def win_set_path(new_name = dir.abspath(), old_name = r"c:\omero_dist"):
     if new_name.find(" ") >= 0:
         raise exceptions.Exception("Contains whitespace: '%s'" % new_name)
 
+    print "Converting from %s to %s" % (old_name, new_name)
+
     new_name2 = new_name.replace("\\","\\\\")
     old_name2 = old_name.replace("\\","\\\\")
 
+    count = 0
     for line in fileinput.input([str(cfg),str(xml)], inplace=1):
         if line.find(old_name) >= 0:
+            count += 1
             print line.replace(old_name,new_name),
         elif line.find(old_name2) >= 0:
+            count += 1
             print line.replace(old_name2,new_name2),
         else:
             print line,
 
     fileinput.close()
+    print "Changes made: %s" % count
+    return count
 
 if __name__ == "__main__":
     try:
-        if len(sys.argv) == 1:
-            print "Using default: %s" % dir.abspath()
+        if "-h" in sys.argv or "--help" in sys.argv:
+            pass
+        elif len(sys.argv) == 1:
             win_set_path()
             sys.exit(0)
         elif len(sys.argv) == 2:

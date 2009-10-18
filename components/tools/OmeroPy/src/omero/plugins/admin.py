@@ -206,25 +206,42 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
             self.ctx.err("No descriptor given. Using %s" % os.path.sep.join(["etc","grid",__d__]))
         return descript
 
-    def _checkWindows(self):
+    def checkwindows(self, *args):
         """
-	Checks that the templates file as defined in etc\Windows.cfg
-	can be found.
-	"""
+        Checks that the templates file as defined in etc\Windows.cfg
+        can be found.
+        """
 
+        if not self._isWindows():
+            self.ctx.die(123, "Not Windows")
+
+        args = Arguments(*args)
         import Ice
         key = "IceGrid.Node.Data"
         properties = Ice.createProperties([self._icecfg()])
-        templates = properties.getProperty(key)
-        if not os.path.exists(templates):
-            self.ctx.die(200, """
-            %s does not exist. Aborting...
+        nodedata = properties.getProperty(key)
+        if not nodedata:
+            self.ctx.die(300, "Bad configuration: No IceGrid.Node.Data property")
+        nodepath = path(nodedata)
+        pp = nodepath.parpath(self.ctx.dir)
+        if pp:
+            return
+        if nodepath == r"c:\omero_dist\var\master":
+            self.ctx.out("Found default value: %s" % nodepath)
+            self.ctx.out("Attempting to correct...")
+            from omero.install.win_set_path import win_set_path
+            count = win_set_path()
+            if count:
+                return
+        self.ctx.die(400, """
+
+            %s is not in this directory. Aborting...
 
             Please see the installation instructions on modifying
             the files for your installation (%s)
-            via bin\winconfig.bat
+            with bin\winconfig.bat
 
-            """ % (templates, self.ctx.dir))
+            """ % (nodedata, self.ctx.dir))
 
     ##############################################
     #
@@ -254,11 +271,11 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         descript = self._descript(first, other)
 
         if self._isWindows():
-            self._checkWindows()
+            self.checkwindows()
             svc_name = "OMERO.%s" % self._node()
             output = self._query_service(svc_name)
 
-	    # Now check if the server exists
+            # Now check if the server exists
             if 0 <= output.find("DOESNOTEXIST"):
                 command = [
                    "sc", "create", svc_name,
@@ -283,7 +300,7 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
 
             # Then check if the server is already running
             if 0 <= output.find("RUNNING"):
-	         self.ctx.die(201, "%s is already running. Use stop first" % svc_name)
+                 self.ctx.die(201, "%s is already running. Use stop first" % svc_name)
 
             # Finally start the service
             output = self.ctx.popen(["sc","start",svc_name]).communicate()[0] # popen
@@ -371,7 +388,7 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
             else:
                 self.ctx.out(".", newline = False)
                 time.sleep(10)
-	self.ctx.rv = 0
+        self.ctx.rv = 0
 
     def stopasync(self, args):
         ##if 0 == self.status(args):
@@ -380,7 +397,7 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
             svc_name = "OMERO.%s" % self._node()
             output = self._query_service(svc_name)
             if 0 <= output.find("DOESNOTEXIST"):
-	        self.ctx.die(203, "%s does not exist. Use 'start' first." % svc_name)
+                self.ctx.die(203, "%s does not exist. Use 'start' first." % svc_name)
             self.ctx.out(self.ctx.popen(["sc","stop",svc_name]).communicate()[0]) # popen
             self.ctx.out(self.ctx.popen(["sc","delete",svc_name]).communicate()[0]) # popen
         else:
