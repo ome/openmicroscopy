@@ -237,6 +237,14 @@ java component.
                 includes="bin/omero"
                 filemode="755"/>
         </zip>
+        <zip destfile="${omero.home}/target/OMERO.java-${omero.version}.zip">
+            <zipfileset dir="${blitz.comp}/src"         prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
+            <zipfileset dir="${blitz.comp}/target"      prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
+            <zipfileset dir="${blitz.comp}/generated"   prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
+            <zipfileset dir="${OmeroImporter.comp}/src" prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
+            <zipfileset dir="${OmeroJava.comp}/src"     prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
+            <zipfileset dir="${dist.dir}/lib/client"    prefix="OMERO.java-${omero.version}/libs" includes="**/*.jar"/>
+        </zip>
         <!-- TODO: This should probably be made into another tools target tools-zip -->
 	<copy todir="target">
 	    <fileset dir="components/tools/OmeroImporter/target" includes="*.zip"/>
