@@ -1218,8 +1218,8 @@ class ImViewerModel
 	 */
 	long getImageID()
 	{ 
-		if (image == null) return imageID;
-		return image.getId(); 
+		if (image == null) return -1;
+		return getImage().getId(); 
 	}
 
 	/** 
@@ -2045,7 +2045,8 @@ class ImViewerModel
     void fireMeasurementsLoading()
     {
     	if (parent instanceof WellData) {
-    		PlateData p = ((WellData) parent).getPlate();
+    		//PlateData p = ((WellData) parent).getPlate();
+    		ImageData p = getImage();
     		MeasurementsLoader loader = new MeasurementsLoader(component, p);
     		loader.load();
     	}
