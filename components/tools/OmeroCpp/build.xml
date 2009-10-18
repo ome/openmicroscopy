@@ -40,7 +40,8 @@
     </target>
 
     <target name="test" depends="test-compile" if="unit.exe-exists" unless="env.NOMAKE">
-        <exec dir="${basedir}" executable="test/unit.exe" failonerror="${test.with.fail}">
+        <!-- http://forums.sun.com/thread.jspa?threadID=416069 -->
+        <exec dir="${basedir}" executable="${basedir}/test/unit.exe" failonerror="${test.with.fail}">
             <env key="ICE_HOME" value="${ice.home}"/>
 	    <env key="LD_LIBRARY_PATH" value="${env.LD_LIBRARY_PATH}:${basedir}"/>
 	    <env key="DYLD_LIBRARY_PATH" value="${env.DYLD_LIBRARY_PATH}:${basedir}"/>
@@ -48,7 +49,8 @@
     </target>
 
     <target name="integration" depends="test-compile" if="integration.exe-exists" unless="env.NOMAKE">
-        <exec dir="${basedir}" executable="test/integration.exe" failonerror="${test.with.fail}">
+        <!-- http://forums.sun.com/thread.jspa?threadID=416069 -->
+        <exec dir="${basedir}" executable="${basedir}/test/integration.exe" failonerror="${test.with.fail}">
             <env key="ICE_HOME" value="${ice.home}"/>
 	    <env key="LD_LIBRARY_PATH" value="${env.LD_LIBRARY_PATH}:${basedir}"/>
 	    <env key="DYLD_LIBRARY_PATH" value="${env.DYLD_LIBRARY_PATH}:${basedir}"/>
