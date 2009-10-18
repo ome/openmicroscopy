@@ -19,7 +19,7 @@ omero.home/build.py as well as the ant scripts in omero.home/components/ant/reso
 
 -->
 
-<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="true">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
 
   <appender name="PRIMARY" class="org.apache.log4j.ConsoleAppender">
     <param name="Threshold" value="WARN"/>
