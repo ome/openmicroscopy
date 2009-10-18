@@ -360,8 +360,12 @@ java component.
     <target name="release-epydoc"  description="The OmeroPy API Documentation">
        <mkdir dir="${dist.dir}/docs/api/epydoc"/>
        <exec executable="epydoc" failonerror="true">
+           <arg value="--verbose"/>
+           <arg value="--parse-only"/>
+           <arg value="--show-imports"/>
            <arg value="--navlink=@NAVLINK@"/>
            <arg value="--html"/>
+           <arg value="--graph=all"/>
            <arg value="--exclude-introspect=monitors"/><!-- causes a crash if included, review with next release -->
            <arg value="-n"/>
            <arg value="OmeroPy API Documentation"/>

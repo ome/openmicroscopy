@@ -699,13 +699,14 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
 
     def populate(self, columns):
         """
-        first_roi = columns[self.ROI_COL].values[0]
-        first_roi = self.query_service.findByQuery(
-                'select roi from Roi as roi ' \
-                'join fetch roi.annotationLinks as link ' \
-                'join fetch link.child ' \
-                'where roi.id = %d' % first_roi, None)
-        self.file_annotation = first_roi.copyAnnotationLinks()[0].child
+	Query performed::
+		first_roi = columns[self.ROI_COL].values[0]
+		first_roi = self.query_service.findByQuery(
+			'select roi from Roi as roi ' \
+			'join fetch roi.annotationLinks as link ' \
+			'join fetch link.child ' \
+			'where roi.id = %d' % first_roi, None)
+		self.file_annotation = first_roi.copyAnnotationLinks()[0].child
         """
         self.update_table(columns)
 

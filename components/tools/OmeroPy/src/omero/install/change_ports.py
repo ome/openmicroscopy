@@ -28,12 +28,12 @@ def change_ports(glacier2, registry, revert = False):
     the current port values. If the files have
     been noticeably changed, this method may fail.
 
-    Example:
+    Example::
 
-       ./grid/default.xml:    <variable name="ROUTERPORT"   value="4063"/>
-       ./grid/windefault.xml:    <variable name="ROUTERPORT"   value="4063"/>
-       ./internal.cfg:Ice.Default.Locator=IceGrid/Locator:tcp -h 127.0.0.1 -p 4061
-       ./master.cfg:IceGrid.Registry.Client.Endpoints=tcp -h 127.0.0.1 -p 4061
+        ./grid/default.xml:    <variable name="ROUTERPORT"   value="4063"/>
+        ./grid/windefault.xml:    <variable name="ROUTERPORT"   value="4063"/>
+        ./internal.cfg:Ice.Default.Locator=IceGrid/Locator:tcp -h 127.0.0.1 -p 4061
+        ./master.cfg:IceGrid.Registry.Client.Endpoints=tcp -h 127.0.0.1 -p 4061
 
     """
 
