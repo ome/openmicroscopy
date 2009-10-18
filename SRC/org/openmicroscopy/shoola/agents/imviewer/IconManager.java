@@ -290,7 +290,7 @@ public class IconManager
         relPaths[GRIDVIEW] = "gridView16.png";
         relPaths[CHANNEL_SPLIT] = "gridView16.png";
         relPaths[TEXT] = "nuvola_font_truetype16.png";
-        relPaths[MEASUREMENT_TOOL] = "crystal_roi16.png";//nuvola_designer16.png";
+        relPaths[MEASUREMENT_TOOL] = "nuvola_designer16.png";//crystal_roi16.png";
         relPaths[ZOOM_IN] = "nuvola_viewmag+16.png";
         relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
         relPaths[ZOOM_FIT] = "nuvola_viewmagfit16.png";

@@ -289,7 +289,6 @@ public class StructuredAnnotationLoader
     public StructuredAnnotationLoader(int index, Object object, 
     									long userID)
     {
-
     	if (object == null)
     		throw new IllegalArgumentException("Object not defined.");
     	switch (index) {

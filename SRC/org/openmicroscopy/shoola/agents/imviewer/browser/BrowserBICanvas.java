@@ -65,7 +65,7 @@ class BrowserBICanvas
      */
     public void paintComponent(Graphics g)
     {
-        super.paintComponent(g);
+        //super.paintComponent(g);
         BufferedImage img = model.getDisplayedImage();
         if (img == null) return;
         Graphics2D g2D = (Graphics2D) g;
