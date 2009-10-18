@@ -77,6 +77,26 @@ if not env.GetOption('clean'):
 else:
     has_boost = True
 
+f = open("scons.log", "w")
+f.write(env.Dump())
+f.close()
+
+f = open("compiler.log", "w")
+f.write("""
+#
+# Scons Compile Log
+#
+CPPFLAGS=%(CPPFLAGS)s
+CPPPATH=%(CPPPATH)s
+CXX=%(CXX)s
+CXXVERSION=%(CXXVERSION)s
+LIBPATH=%(LIBPATH)s
+LIBS=%(LIBS)s
+64BIT=unknown
+DEBUG=unknown
+""" % env)
+f.close()
+
 #
 # Build the library
 #

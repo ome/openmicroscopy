@@ -66,10 +66,13 @@
             <fileset dir="src"    includes="**/*.h"/>
             <fileset dir="target" includes="**/*.h"/>
         </copy>
-        <zip destfile="${omero.home}/target/OMERO.cpp-${omero.version}.zip">
-            <zipfileset dir="${basedir}/src"        prefix="OMERO.cpp-${omero.version}" includes="**/*.cpp,**/*.h"/>
-            <zipfileset dir="${basedir}/target"     prefix="OMERO.cpp-${omero.version}" includes="**/*.cpp,**/*.h"/>
-            <zipfileset dir="${basedir}/target/lib" prefix="OMERO.cpp-${omero.version}" includes="*omero_client*"/>
+	<property prefix="compiler" file="${basedir}/compiler.log"/>
+	<property name="compiler.build" value="OMERO.cpp-${omero.version}-${compiler.CXX}-${compiler.CXXVERSION}"/>
+        <zip destfile="${omero.home}/target/${compiler.build}.zip">
+            <zipfileset dir="${basedir}/src"        prefix="${compiler.build}"      includes="**/*.cpp,**/*.h"/>
+            <zipfileset dir="${basedir}/target"     prefix="${compiler.build}"      includes="**/*.cpp,**/*.h"/>
+            <zipfileset dir="${basedir}/target/lib" prefix="${compiler.build}"      includes="*omero_client*"/>
+            <zipfileset dir="${basedir}/"           prefix="${compiler.build}/logs" includes="*.log"/>
         </zip>
     </target>
 
@@ -80,7 +83,7 @@
         <delete dir="${copy.dir}"/>
         <delete dir="${basedir}/.sconf_temp"/>
         <delete file="${basedir}/.sconsign.dblite"/>
-        <delete file="${basedir}/config.log"/>
+        <delete file="${basedir}/*.log"/>
     </target>
 
     <!-- Temporary: this will be moved to scons.xml -->
