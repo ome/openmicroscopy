@@ -5,7 +5,7 @@
 #   Use is subject to license terms supplied in LICENSE.txt
 #
 
-import sys, os, glob
+import sys, os, glob, time
 blitz = os.path.abspath( os.path.join(os.path.curdir, os.path.pardir, os.path.pardir, "blitz") )
 sys.path.append( blitz )
 from blitz_tools import *
@@ -81,19 +81,32 @@ f = open("scons.log", "w")
 f.write(env.Dump())
 f.close()
 
+compiler_env = dict()
+compiler_env["timestamp"] = time.ctime()
+compiler_env["64BIT"] = env.get("64BIT","unknown")
+compiler_env["DEBUG"] = env.get("DEBUG","unknown")
+compiler_env["LIBPATH"] = env.get("LIBPATH","unknown")
+compiler_env["CPPPATH"] = env.get("CPPPATH","unknown")
+compiler_env["CPPFLAGS"] = env.get("CPPFLAGS","unknown")
+compiler_env["CXX"] = env.get("CXX","unknown")
+try:
+    compiler_env["CXXVERSION"] = env.get("CXXVERSION")
+except KeyError:
+    compiler_env["CXXVERSION"] = env.get("MSVS_VERSION")
+
 f = open("compiler.log", "w")
 f.write("""
 #
-# Scons Compile Log
+# Scons Compile Log : %(timestamp)s
 #
 CPPFLAGS=%(CPPFLAGS)s
 CPPPATH=%(CPPPATH)s
 CXX=%(CXX)s
 CXXVERSION=%(CXXVERSION)s
 LIBPATH=%(LIBPATH)s
-64BIT=unknown
-DEBUG=unknown
-""" % env)
+64BIT=%(64BIT)s
+DEBUG=%(DEBUG)s
+""" % compiler_env)
 f.close()
 
 #
