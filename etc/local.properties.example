@@ -14,7 +14,7 @@ omero.db.profile=psql
 ############################################
 # Defaults used in antlib/resources/lifecycle.xml
 # override in <COMPONENT>/build.xml files or
-# in etc/local.properties 
+# in etc/local.properties
 javac.source=1.5
 javac.target=1.5
 javac.debug=on
@@ -22,8 +22,13 @@ javac.debuglevel=lines,vars,source
 # "300m" suffices on 32 bit machines
 javac.maxmem=400000000
 javadoc.maxmem=400000000
-ice.home=/usr/share/Ice
 exe4j.home=/opt/exe4j
+
+# This will be set by antlib/resources/global.xml
+# to a best guess if not specified either first
+# in the environment via ICE_HOME or second, in
+# a properties file.
+#ice.home=/usr/share/Ice
 
 ############################################
 # Testing
@@ -35,7 +40,7 @@ test.with.fail=false
 emma.enabled=false
 
 # Determines which Ivy resolver to use for
-# finding the loci libraries. Look in 
+# finding the loci libraries. Look in
 # etc/ivyconf.xml for more information.
 loci.resolver=omero-resolver
 

@@ -66,6 +66,31 @@
         <!-- Post-import properties -->
         <property name="sql.dir"  value="${omero.home}/sql/${omero.db.profile}/${omero.db.version}__${omero.db.patch}"/>
 
+        <!-- Now we've taken from the environment, and from the files
+             try to find ICE_HOME ourselves -->
+        <condition property="ice.home" value="C:\Ice-3.3.1">
+            <available file="C:\Ice-3.3.1"/>
+        </condition>
+        <condition property="ice.home" value="C:\Ice-3.3.1-VC90">
+            <available file="C:\Ice-3.3.1-VC90"/>
+        </condition>
+        <condition property="ice.home" value="C:\Ice-3.3.0">
+            <available file="C:\Ice-3.3.0"/>
+        </condition>
+        <condition property="ice.home" value="C:\Ice-3.3.0-VC90">
+            <available file="C:\Ice-3.3.0-VC90"/>
+        </condition>
+        <condition property="ice.home" value="/opt/Ice-3.3">
+            <available file="/opt/Ice-3.3"/>
+        </condition>
+        <condition property="ice.home" value="/opt/Ice-3.3.1">
+            <available file="/opt/Ice-3.3.1"/>
+        </condition>
+        <condition property="ice.home" value="/opt/Ice-3.3.0">
+            <available file="/opt/Ice-3.3.0"/>
+        </condition>
+        <property name="ice.home" value="/usr/share/Ice"/>
+
         <!--
           The idea for this macro is taken from maven2. Use deps-buildlist
           to create deps.build.path if you do not have one specified.
