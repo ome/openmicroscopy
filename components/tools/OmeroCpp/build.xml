@@ -78,6 +78,9 @@
             <arg value="-c"/>
         </scons_py>
         <delete dir="${copy.dir}"/>
+        <delete dir="${basedir}/.sconf_temp"/>
+        <delete file="${basedir}/.sconsign.dblite"/>
+        <delete file="${basedir}/config.log"/>
     </target>
 
     <!-- Temporary: this will be moved to scons.xml -->

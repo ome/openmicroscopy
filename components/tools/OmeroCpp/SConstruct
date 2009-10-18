@@ -112,7 +112,7 @@ if target.endswith("dll"):
     env.Alias('install', install)
 
 else:
-    install = env.Install('../target/lib', library)
+    install = env.Install('target/lib', library)
     env.Alias('install', install)
 
 #
