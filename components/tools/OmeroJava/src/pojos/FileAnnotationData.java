@@ -78,10 +78,10 @@ public class FileAnnotationData extends AnnotationData {
     
     /** 
      * The name space used to indicate that the <code>FileAnnotation</code> 
-     * is an <code>MPEG</code> file.
+     * is an <code>Quick Time</code> file.
      */
     public static final String MOVIE_QUICK_TIME_NS = 
-    	"openmicroscopy.org/omero/movie/quicktime";
+    	"openmicroscopy.org/omero/movie/qt";
     
     /** 
      * The name space used to indicate that the <code>FileAnnotation</code> 
