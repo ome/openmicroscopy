@@ -2847,6 +2847,7 @@ class OMEROGateway
 		isSessionAlive();
 		RawFileStorePrx store = null;
 		OriginalFile save = null;
+		boolean fileCreated = false;
 		try {
 			store = getRawFileService();
 			OriginalFile oFile;
@@ -2862,6 +2863,7 @@ class OMEROGateway
 				
 				save = (OriginalFile) saveAndReturnObject(oFile, null);
 				store.setFileId(save.getId().getValue());
+				fileCreated = true;
 			} else {
 				oFile = (OriginalFile) findIObject(OriginalFile.class.getName(), 
 					originalFileID);
@@ -2896,6 +2898,7 @@ class OMEROGateway
 			stream.close();
 		} catch (Exception e) {
 			try {
+				if (fileCreated) deleteObject(save);
 				if (stream != null) stream.close();
 			} catch (Exception ex) {}
 			

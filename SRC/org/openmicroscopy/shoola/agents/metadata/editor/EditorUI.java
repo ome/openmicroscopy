@@ -43,8 +43,8 @@ import org.jdesktop.swingx.JXTaskPane;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -469,6 +469,19 @@ public class EditorUI
 	void attachFile(File file)
 	{
 		if (file == null) return;
+		//Check if valid file
+		//file w/o extension
+		String name = file.getName();
+		int dot = name.lastIndexOf(".")+1;
+		String extension = name.substring(dot);
+		if (extension == null ||extension.trim().length() == 0 || 
+			extension.equals(name)) {
+			UserNotifier un = 
+				MetadataViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Attachment Selection", "The selected file " +
+					"has no extension. It is not possible to upload it.");
+			return;
+		}
 		generalPane.attachFile(file);
 	}
 
