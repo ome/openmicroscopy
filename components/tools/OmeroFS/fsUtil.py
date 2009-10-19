@@ -74,10 +74,14 @@ def monitorPackage():
                     # 0.8.x has a __version__ attribute.
                     version = pyinotify.__version__.split('.')
                     if int(version[0]) == 0 and int(version[1]) == 8:
-                        if sys.version[:3] == '2.5':
+                        try:
+                            pyinotify.PyinotifyLogger
                             current = 'LINUX_2_6_13+pyinotify_0_8'
-                        else:
-                            errorString = "pynotify version %s is not compatible with python < 2.5. Install 0.7.x to use DropBox" % (pyinotify.__version__) 
+                        except AttributeError:
+                            if sys.version[:3] == '2.5':
+                                current = 'LINUX_2_6_13+pyinotify_0_8'
+                            else:
+                                errorString = "pynotify version %s is not compatible with Python 2.4. Install 0.8.5 or lower to use DropBox" % pyinotify.__version__ 
                     # This pyinotofy has a __version__ attribute but isn't 0.8.
                     else:
                         errorString = "pyinotify 0.7 or 0.8 required. Unknown version found."
