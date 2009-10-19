@@ -40,6 +40,7 @@ import javax.swing.filechooser.FileFilter;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.RegExFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -116,6 +117,9 @@ public class FileChooser
      */
     private String 				folderPath;
     
+    /** Ask if a file should be overwritten. */
+    private boolean 			checkOverwrite;
+    
     /** Sets the properties of the dialog. */
     private void setProperties()
     {
@@ -191,17 +195,20 @@ public class FileChooser
     /**
      * Creates a new instance.
      * 
-     * @param owner 		The owner of this dialog.
-     * @param dialogType	One of the constants defined by this class.
-     * @param title 		Title of the dialog.
-     * @param message 		Message of the dialog.
-     * @param filters 		The list of filters.
-     * @param accept		Determines whether the all files filter is turned
-     * 						on or off. Default value is <code>false</code>.
+     * @param owner 			The owner of this dialog.
+     * @param dialogType		One of the constants defined by this class.
+     * @param title 			Title of the dialog.
+     * @param message 			Message of the dialog.
+     * @param filters 			The list of filters.
+     * @param accept			Determines whether the all files filter is 
+     * 							turned on or off. Default value is 
+     * 							<code>false</code>.
+     * @param checkOverwrite	Ask for confirmation if the user selects a file 
+     * 							That already exists.
      */
     public FileChooser(JFrame owner, int dialogType, String title, 
     					String message, List<FileFilter> filters, boolean
-    					accept)
+    					accept, boolean checkOverwrite)
     {
         super(owner);
         checkType(dialogType);
@@ -209,6 +216,7 @@ public class FileChooser
         this.title = title;
         this.message = message;
         this.filters = filters;
+        this.checkOverwrite = checkOverwrite;
         setProperties();
         folderPath = null;
        	uiDelegate = new FileSaverUI(this, accept);
@@ -223,11 +231,27 @@ public class FileChooser
      * @param title 		Title of the dialog.
      * @param message 		Message of the dialog.
      * @param filters 		The list of filters.
+     * @param accept		Determines whether the all files filter is turned
+     */
+    public FileChooser(JFrame owner, int dialogType, String title, 
+    					String message, List<FileFilter> filters, boolean accept)
+    {
+    	this(owner, dialogType, title, message, filters, accept, false);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param owner 		The owner of this dialog.
+     * @param dialogType	One of the constants defined by this class.
+     * @param title 		Title of the dialog.
+     * @param message 		Message of the dialog.
+     * @param filters 		The list of filters.
      */
     public FileChooser(JFrame owner, int dialogType, String title, 
     					String message, List<FileFilter> filters)
     {
-    	this(owner, dialogType, title, message, filters, false);
+    	this(owner, dialogType, title, message, filters, false, false);
     }
     
     /**
@@ -306,7 +330,14 @@ public class FileChooser
         	&& getChooserType() != FileChooser.FOLDER_CHOOSER)
         	UIUtilities.setDefaultFolder(
         			uiDelegate.getCurrentDirectory().toString());
-    	
+        if(this.getSelectedFile().exists() && checkOverwrite)
+        {
+        	MessageBox msg = new MessageBox(this, "Overwrite existing file.", 
+        	"Do you wish to overwrite the existing file?");
+        	int option = msg.centerMsgBox();
+        	if (option == MessageBox.NO_OPTION) 
+        		return;
+		}
     	setVisible(false);
     	dispose();
     }

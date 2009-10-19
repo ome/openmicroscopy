@@ -43,6 +43,7 @@ import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.actions.SaveNewCmd;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
@@ -51,6 +52,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
@@ -132,7 +134,8 @@ class MeasurementViewerComponent
 		
 		List<FileFilter> filters = new ArrayList<FileFilter>();
 		filters.add(new XMLFilter());
-		FileChooser chooser = new FileChooser(view, type, title, text, filters);
+		FileChooser chooser = new FileChooser(view, type, title, text, filters,
+					false, true);
 		File f = UIUtilities.getDefaultFolder();
 		if (f != null) chooser.setCurrentDirectory(f);
 		try
@@ -445,7 +448,7 @@ class MeasurementViewerComponent
 		if (!s.endsWith(XMLFilter.XML)) {
 			String fileName = s+"."+XMLFilter.XML;
 			file = new File(fileName);
-		}
+		}			
 		saveBackROI(file.getAbsolutePath());
 	}
 	
