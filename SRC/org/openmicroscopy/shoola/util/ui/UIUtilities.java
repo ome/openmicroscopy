@@ -1372,30 +1372,29 @@ public class UIUtilities
 		return l;
 	}
 	
-
 	/**
-	 * Builds the task pane and inserts a component.
+	 * Initializes a <code>JXTaskPane</code>.
 	 * 
-	 * @param comp		The component to add.
-	 * @param title		The title of the task pane.
-	 * @param collapse  Pass <code>true</code> to collapse the task pane, 
-	 * 					<code>false</code> otherwise.
+	 * @param title The title of the component.
+	 * @param background The background color.
 	 * @return See above.
 	 */
-	public static JXTaskPane buildTaskPane(JComponent comp, String title, 
-								boolean collapse)
+	public static JXTaskPane createTaskPane(String title, Color background)
 	{
-		JXTaskPane pane = new JXTaskPane();
-		Container c = pane.getContentPane();
+		JXTaskPane taskPane = new JXTaskPane();
+		Container c = taskPane.getContentPane();
+		if (background != null) {
+			c.setBackground(background);
+			taskPane.setBackground(background);
+		}
 		if (c instanceof JComponent) 
 			((JComponent) c).setBorder(BorderFactory.createEmptyBorder(
 					1, 1, 1, 1));
-		if (comp == null) return pane;
-		if (title == null) title = "";
-		pane.add(comp, null, 0);
-		pane.setTitle(title);
-		pane.setCollapsed(collapse);
-		return pane;
+		taskPane.setTitle(title);
+		taskPane.setCollapsed(true);
+		Font font = taskPane.getFont();
+		taskPane.setFont(font.deriveFont(font.getSize2D()-2));
+		return taskPane;
 	}
 	
 	/**

@@ -972,14 +972,12 @@ class SearchPanel
 		SeparatorPane sep = new SeparatorPane();
 		sep.setBackground(UIUtilities.BACKGROUND_COLOR);
 		add(sep, "0, 1");
-		JXTaskPane pane = UIUtilities.buildTaskPane(buildScope(), SCOPE_TITLE, 
-				false);
-		Font font = pane.getFont();
-		pane.setFont(font.deriveFont(font.getSize2D()-2));
+		JXTaskPane pane = UIUtilities.createTaskPane(SCOPE_TITLE, null); 
+		pane.add(buildScope());
 		add(pane, "0, 2");
 		//add(UIUtilities.buildTaskPane(buildUsers(), USER_TITLE, true), "0, 3");
-		pane = UIUtilities.buildTaskPane(buildDate(), DATE_TITLE, true);
-		pane.setFont(font.deriveFont(font.getSize2D()-2));
+		pane = UIUtilities.createTaskPane(DATE_TITLE, null); 
+		pane.add(buildDate());
 		add(pane, "0, 4");
 
 		setDateIndex();

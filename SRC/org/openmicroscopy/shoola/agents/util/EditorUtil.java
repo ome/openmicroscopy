@@ -1903,18 +1903,7 @@ public class EditorUtil
 	 */
 	public static JXTaskPane createTaskPane(String title)
 	{
-		JXTaskPane taskPane = new JXTaskPane();
-		Container c = taskPane.getContentPane();
-		c.setBackground(UIUtilities.BACKGROUND_COLOR);
-		if (c instanceof JComponent) 
-			((JComponent) c).setBorder(BorderFactory.createEmptyBorder(
-					1, 1, 1, 1));
-		taskPane.setBackground(UIUtilities.BACKGROUND_COLOR);
-		taskPane.setTitle(title);
-		taskPane.setCollapsed(true);
-		Font font = taskPane.getFont();
-		taskPane.setFont(font.deriveFont(font.getSize2D()-2));
-		return taskPane;
+		return UIUtilities.createTaskPane(title, UIUtilities.BACKGROUND_COLOR);
 	}
 
 	/**
