@@ -21,6 +21,7 @@ import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportEvent;
+import ome.formats.importer.ImportLibrary;
 
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
@@ -71,9 +72,11 @@ public abstract class ErrorHandler implements IObserver, IObservable {
      */
     public static class UNKNOWN_FORMAT extends EXCEPTION_EVENT {
         public final String filename;
-        public UNKNOWN_FORMAT(String filename, Exception exception) {
+        public final Object source;
+        public UNKNOWN_FORMAT(String filename, Exception exception, Object source) {
             super(exception);
             this.filename = filename;
+            this.source = source;
         }
         @Override
         public String toLog() {
@@ -158,6 +161,10 @@ public abstract class ErrorHandler implements IObserver, IObservable {
         }
 
         else if (event instanceof UNKNOWN_FORMAT) {
+            UNKNOWN_FORMAT ev = (UNKNOWN_FORMAT) event;
+            String[] usedFiles = {ev.filename};
+            if (ev.source instanceof ImportLibrary)
+                addError(ev.exception, new File(ev.filename), usedFiles, "");
             log.debug(event.toLog());
         }
 

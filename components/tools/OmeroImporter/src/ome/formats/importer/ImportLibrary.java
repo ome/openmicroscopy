@@ -403,7 +403,7 @@ public class ImportLibrary implements IObservable
             notifyObservers(new ErrorHandler.FILE_EXCEPTION(fileName, io, usedFiles, format));
             throw io;
         } catch (UnknownFormatException ufe) {
-            notifyObservers(new ErrorHandler.UNKNOWN_FORMAT(fileName, ufe));
+            notifyObservers(new ErrorHandler.UNKNOWN_FORMAT(fileName, ufe, this));
             throw ufe;
         } catch (FormatException fe) {
             notifyObservers(new ErrorHandler.FILE_EXCEPTION(fileName, fe, usedFiles, format));

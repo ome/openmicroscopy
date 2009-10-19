@@ -353,7 +353,7 @@ public class ImportCandidates extends DirectoryWalker {
 
         } catch (UnknownFormatException ufe) {
             unknown++;
-            safeUpdate(new ErrorHandler.UNKNOWN_FORMAT(path, ufe));
+            safeUpdate(new ErrorHandler.UNKNOWN_FORMAT(path, ufe, this));
         } catch (MissingLibraryException mle) {
             safeUpdate(new ErrorHandler.MISSING_LIBRARY(path, mle, usedFiles, format));
         } catch (Exception e) {
