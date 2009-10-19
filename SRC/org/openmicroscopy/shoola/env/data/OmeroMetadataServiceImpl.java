@@ -1974,11 +1974,8 @@ class OmeroMetadataServiceImpl
 	public Collection loadROIMeasurements(Class type, long id, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		System.err.println(type+" "+id);
 		if (ImageData.class.equals(type)) {
-			System.err.println(type+" "+id+" "+gateway.loadROIMeasurements(id, userID));
 			return gateway.loadROIMeasurements(id, userID);
-		
 		}
 			
 		

@@ -47,7 +47,7 @@ import com.sun.opengl.util.texture.TextureData;
 
 /** 
  * The Lens model controls the manipulation of the lens, creating the zoomed 
- * verison of the image to be displayed in the zoomPanel. 
+ * version of the image to be displayed in the zoomPanel. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

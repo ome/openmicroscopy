@@ -23,9 +23,6 @@
 package org.openmicroscopy.shoola.util.ui.lens;
 
 //Java imports
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
 
 
 
@@ -36,7 +33,6 @@ import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLEventListener;
 import javax.media.opengl.GLJPanel;
 import javax.media.opengl.glu.GLU;
-import javax.swing.JPanel;
 import com.sun.opengl.util.texture.Texture;
 import com.sun.opengl.util.texture.TextureCoords;
 import com.sun.opengl.util.texture.TextureData;

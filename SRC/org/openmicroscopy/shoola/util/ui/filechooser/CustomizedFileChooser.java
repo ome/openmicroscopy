@@ -429,5 +429,9 @@ class CustomizedFileChooser
 	 * @see KeyListener#keyTyped(KeyEvent)
 	 */
 	public void keyTyped(KeyEvent e) {}
+
+	void resetSelection(String name) {
+		super.setSelectedFile(new File(name));
+	}
 	
 }

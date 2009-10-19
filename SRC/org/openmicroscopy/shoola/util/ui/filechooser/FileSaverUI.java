@@ -146,6 +146,8 @@ class FileSaverUI
 	private void initComponents(boolean accept)
 	{
 		chooser = new CustomizedFileChooser(model, this, accept);
+		
+		chooser.addPropertyChangeListener(this);
 		settings = new JCheckBox();
 		settings.setText("Set the current directory as default.");
 		settings.setSelected(true);
@@ -337,6 +339,8 @@ class FileSaverUI
 		chooser.setCurrentDirectory(directory);
 	}
 
+	private String original;
+	
 	/**
 	 * Sets the current file of the file chooser. 
 	 * 
@@ -344,6 +348,8 @@ class FileSaverUI
 	 */
 	void setSelectedFile(File file)
 	{
+		original = file.getName();
+		System.err.println(original);
 		chooser.setSelectedFile(file);
 	}
 
@@ -490,7 +496,7 @@ class FileSaverUI
      * @return See above.
      */
 	FileFilter getSelectedFilter() { return chooser.getFileFilter(); }
-	
+
 	/**
 	 * Reacts to click on buttons.
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -521,10 +527,20 @@ class FileSaverUI
 	 */
 	public void propertyChange(PropertyChangeEvent evt)
 	{
-		String name = (String) evt.getNewValue();
-		chooser.createFolder(name);
-		chooser.rescanCurrentDirectory();
-		chooser.repaint();
+		String propName = evt.getPropertyName();
+		if (CreateFolderDialog.CREATE_FOLDER_PROPERTY.equals(propName)) {
+			String name = (String) evt.getNewValue();
+			chooser.createFolder(name);
+			chooser.rescanCurrentDirectory();
+			chooser.repaint();
+		} else if (JFileChooser.SELECTED_FILE_CHANGED_PROPERTY.equals(propName))
+		{
+			File f = (File) evt.getNewValue();
+			if (f == null) return;
+			if (!f.getName().equals(original))
+				chooser.resetSelection(original);
+		}
+		
 	}
 
 }

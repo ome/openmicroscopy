@@ -127,24 +127,10 @@ class ZoomWindowUI
 	void setZoomUISize(int w, int h) 
 	{
 		Dimension d = new Dimension(w, h);
-		System.err.println(d);
 		layeredPane.setPreferredSize(d);
 		layeredPane.setSize(d);
 		canvas.setSize(d);
 		canvas.setPreferredSize(d);
-		//setSize(d);
-		//zoomPanel.setMinimumSize(d);
-		//zoomPanel.setMaximumSize(d);
-		/*
-		JViewport currentView = getViewport();
-        int viewportW = currentView.getWidth();
-	    int viewportH = currentView.getHeight();
-	    int x = w/2-viewportW/2;
-	    if (x < 0) x = 0;
-	    int y = h/2-viewportH/2;
-	    if (y < 0) y = 0;  
-	    currentView.setViewPosition(new Point(x, y));
-	    */
 	}
 
 	/** Updates the background color of the view port. */
