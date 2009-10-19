@@ -132,7 +132,7 @@ public class NumericalTextField
 		addFocusListener(this);
 		numberType = Integer.class;
 		accepted = NUMERIC;
-		negativeAccepted = false;
+		setNegativeAccepted(min < 0);
 	}
 	
 	/**
@@ -185,7 +185,11 @@ public class NumericalTextField
 	 * 
 	 * @param min The value to set.
 	 */
-	public void setMinimum(double min) { document.setMinimum(min); }
+	public void setMinimum(double min)
+	{ 
+		document.setMinimum(min);
+		if (min < 0) setNegativeAccepted(true);
+	}
 	
 	/**
 	 * Sets the maximum value.

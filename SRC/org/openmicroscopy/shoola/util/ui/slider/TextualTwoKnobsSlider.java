@@ -194,7 +194,9 @@ public class TextualTwoKnobsSlider
 		slider = new TwoKnobsSlider(absMin, absMax, min, max, start, end);
 		setSliderPaintingDefault(false);
 		int length = (""+max).length(); 
+		System.err.println(absMin);
 		startField = new NumericalTextField(absMin, absMax);
+		
 		startField.setColumns(length);
 		endField = new NumericalTextField(absMin, absMax);
 		endField.setColumns(length);

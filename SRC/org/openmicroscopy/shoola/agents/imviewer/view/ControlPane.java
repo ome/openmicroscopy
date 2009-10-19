@@ -622,7 +622,7 @@ class ControlPane
      * @param button The button to add.
      * @return See above
      */
-    private JToolBar createButtonToolBar(JButton button)
+    private JToolBar createButtonToolBar(JComponent button)
     {
     	JToolBar bar = new JToolBar();
     	bar.setFloatable(false);
@@ -927,7 +927,7 @@ class ControlPane
         controls.add(bar, "0, 1, c, c");
         //bar = createBar();
         //bar.add(textVisibleButton);
-        controls.add(textVisibleButton, "0, 2, c, c");
+        controls.add(createButtonToolBar(textVisibleButton), "0, 2, c, c");
         if (channelButtonsGrid.size() > ImViewer.MAX_CHANNELS) {
         	JScrollPane sp = new JScrollPane(buttons);
         	d = new Dimension(2*w, h*ImViewer.MAX_CHANNELS);
