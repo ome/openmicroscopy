@@ -1898,6 +1898,7 @@ class OmeroMetadataServiceImpl
 			case MOVIE:
 				include.add(FileAnnotationData.MOVIE_MPEG_NS);
 				include.add(FileAnnotationData.MOVIE_QUICK_TIME_NS);
+				include.add(FileAnnotationData.MOVIE_WINDOWS_MEDIA_NS);
 				break;
 			case OTHER:
 			default:
@@ -1905,7 +1906,9 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
 				exclude.add(FileAnnotationData.MOVIE_MPEG_NS);
 				exclude.add(FileAnnotationData.MOVIE_QUICK_TIME_NS);
+				exclude.add(FileAnnotationData.MOVIE_WINDOWS_MEDIA_NS);
 				exclude.add(FileAnnotationData.COMPANION_FILE_NS);
+				exclude.add(FileAnnotationData.MEASUREMENT_NS);
 		}
 		ParametersI po = new ParametersI();
 		long userID = getUserDetails().getId();
@@ -1933,14 +1936,17 @@ class OmeroMetadataServiceImpl
 			case MOVIE:
 				include.add(FileAnnotationData.MOVIE_MPEG_NS);
 				include.add(FileAnnotationData.MOVIE_QUICK_TIME_NS);
+				include.add(FileAnnotationData.MOVIE_WINDOWS_MEDIA_NS);
 				break;
 			case OTHER:
 			default:
 				exclude.add(FileAnnotationData.MOVIE_MPEG_NS);
 				exclude.add(FileAnnotationData.MOVIE_QUICK_TIME_NS);
+				exclude.add(FileAnnotationData.MOVIE_WINDOWS_MEDIA_NS);
 				exclude.add(FileAnnotationData.EDITOR_PROTOCOL_NS);
 				exclude.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
 				exclude.add(FileAnnotationData.COMPANION_FILE_NS);
+				exclude.add(FileAnnotationData.MEASUREMENT_NS);
 		}
 		ParametersI po = new ParametersI();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
