@@ -65,23 +65,29 @@ def monitorPackage():
         if int(kernel[0]) == 2 and int(kernel[1]) == 6 and int(kernel[2]) >= 13:
             try:
                 # pyinotify versions have slightly different APIs
-                # so the version needs to be determined.
+                # so the version needs to be determined. They also
+                # interact differently with different python versions
+                # so the python version is also needed.
                 import pyinotify
+                import sys
                 try:
                     # 0.8.x has a __version__ attribute.
                     version = pyinotify.__version__.split('.')
                     if int(version[0]) == 0 and int(version[1]) == 8:
-                        current = 'LINUX_2_6_13+pyinotify_0_8'
+                        if sys.version[:3] == '2.5':
+                            current = 'LINUX_2_6_13+pyinotify_0_8'
+                        else:
+                            errorString = "pynotify version %s is not compatible with python < 2.5. Install 0.7.x to use DropBox" % (pyinotify.__version__) 
                     # This pyinotofy has a __version__ attribute but isn't 0.8.
                     else:
-                        errorString = "Pyinotify 0.7 or above required. Unknown version found."
+                        errorString = "pyinotify 0.7 or 0.8 required. Unknown version found."
                 except:
                     # 0.7.x doesn't have a __version__ attribute but there is
                     # a possibility that the installed version is 0.6 or less.
                     # That isn't tested for and might be a point of failure.
                     current = 'LINUX_2_6_13+pyinotify_0_7'
             except:
-                errorString = "Pyinotify 0.7 or above required. Package not found."
+                errorString = "pyinotify 0.7 or 0.8 required. Package not found."
         # Unsupported Linux kernel version.    
         else:
             errorString = "Linux kernel 2.6.13 or above required. "
