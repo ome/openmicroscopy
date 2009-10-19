@@ -55,6 +55,6 @@ urlpatterns = patterns('',
     (r'(?i)^feedback/', include('omeroweb.feedback.urls')),
     (r'(?i)^webgateway/', include('omeroweb.webgateway.urls')),
     
-    #(r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/webadmin/static/images/ome.ico'}),
+    (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/webadmin/static/images/ome.ico'}),
 
 )
