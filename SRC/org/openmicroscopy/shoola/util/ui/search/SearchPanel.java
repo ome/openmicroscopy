@@ -59,6 +59,7 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 import layout.TableLayout;
 import org.jdesktop.swingx.JXDatePicker;
+import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
@@ -971,11 +972,15 @@ class SearchPanel
 		SeparatorPane sep = new SeparatorPane();
 		sep.setBackground(UIUtilities.BACKGROUND_COLOR);
 		add(sep, "0, 1");
-		
-		add(UIUtilities.buildTaskPane(buildScope(), SCOPE_TITLE, false), 
-							"0, 2");
+		JXTaskPane pane = UIUtilities.buildTaskPane(buildScope(), SCOPE_TITLE, 
+				false);
+		Font font = pane.getFont();
+		pane.setFont(font.deriveFont(font.getSize2D()-2));
+		add(pane, "0, 2");
 		//add(UIUtilities.buildTaskPane(buildUsers(), USER_TITLE, true), "0, 3");
-		add(UIUtilities.buildTaskPane(buildDate(), DATE_TITLE, true), "0, 4");
+		pane = UIUtilities.buildTaskPane(buildDate(), DATE_TITLE, true);
+		pane.setFont(font.deriveFont(font.getSize2D()-2));
+		add(pane, "0, 4");
 
 		setDateIndex();
 	}
