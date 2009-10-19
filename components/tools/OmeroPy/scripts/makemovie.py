@@ -97,10 +97,12 @@ def calcSha1(filename):
 	fileHandle.close()
 	return hash;
 
-def createFile(session, filename, format):
+def createFile(session, filename, format, ofilename=None):
  	tempFile = omero.model.OriginalFileI();
-	tempFile.setName(omero.rtypes.rstring(filename));
-	tempFile.setPath(omero.rtypes.rstring(filename));
+ 	if(ofilename == None):
+ 		ofilename = filename;
+	tempFile.setName(omero.rtypes.rstring(ofilename));
+	tempFile.setPath(omero.rtypes.rstring(ofilename));
 	if(format==WMV):
 		format=MPEG;
 	tempFile.setFormat(getFormat(session, format));
@@ -121,8 +123,9 @@ def attachMovieToImage(client, session, image, file, format):
 	client.setOutput("fileAnnotation",l.getChild().getId());	
 
 def uploadMovie(client,session, image, output, format):
-	filename = output+'.'+formatExtensionMap[format];	
-	file = createFile(session, filename, format);
+	filename = 'movie.'+formatExtensionMap[format];	
+	originalFilename = output+'.'+formatExtensionMap[format];
+	file = createFile(session, filename, format, originalFilename);
 	rawFileStore = session.createRawFileStore();
 	rawFileStore.setFileId(file.getId().getValue());
 	fileSize = file.getSize().getValue();
@@ -141,6 +144,7 @@ def uploadMovie(client,session, image, output, format):
 		rawFileStore.write(block, cnt, blockSize);
 		cnt = cnt+blockSize;
 	attachMovieToImage(client, session, image, file, format)	
+
 
 def downloadPlane(gateway, pixels, pixelsId, x, y, z, c, t):
 	rawPlane = gateway.getPlane(pixelsId, z, c, t);
@@ -166,11 +170,11 @@ def buildAVI(sizeX, sizeY, filelist, fps, output, format):
 	args = "";
 	formatExtension = formatExtensionMap[format];
 	if(format==WMV):
-		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=wmv2 -o '+commandArgs["output"]+"."+formatExtension;
+		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=wmv2 -o movie.'+formatExtension;
 	elif(format==QT):	
-		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=png -ovc lavc -lavcopts vcodec=mjpeg:vbitrate=800  -o ' +commandArgs["output"]+"."+formatExtension;
+		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=png -ovc lavc -lavcopts vcodec=mjpeg:vbitrate=800  -o movie.'+formatExtension;
 	else:
-		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=mpeg4 -o '+commandArgs["output"]+"."+formatExtension;
+		args = ' mf://'+filelist+' -mf w='+str(sizeX)+':h='+str(sizeY)+':fps='+str(fps)+':type=jpg -ovc lavc -lavcopts vcodec=mpeg4 -o movie.'+formatExtension;
 	os.system(program+ args);
 	
 def rangeToStr(range):
@@ -372,8 +376,6 @@ def writeMovie(commandArgs, session):
 	pixelTypeString = pixels.getPixelsType().getValue().getValue();
 	frameNo = 1;
 	filelist='';
-	os.mkdir(commandArgs["output"])
-	os.chdir(commandArgs["output"])
 	renderingEngine = getRenderingEngine(session, pixelsId, sizeC, cRange)
 
 	for tz in tzList:
@@ -385,9 +387,9 @@ def writeMovie(commandArgs, session):
 		planeImage = planeImage.reshape(sizeX, sizeY);
 		image = Image.frombuffer('RGBA',(sizeX,sizeY),planeImage.data,'raw','ARGB',0,1)
 		if(commandArgs["format"]==QT):
-			filename = commandArgs["output"]+str(frameNo)+'.png';
+			filename = str(frameNo)+'.png';
 		else:
-			filename = commandArgs["output"]+str(frameNo)+'.jpg';
+			filename = str(frameNo)+'.jpg';
 		if(commandArgs["scalebar"]!=0):
 			image = addScalebar(commandArgs["scalebar"], image, pixels, commandArgs);
 		if(commandArgs["showTime"]==1 or commandArgs["showPlaneInfo"]==1):
