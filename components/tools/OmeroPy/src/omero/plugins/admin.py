@@ -561,8 +561,8 @@ OMERO Diagnostics %s
 
         log_dir(path(".") / "var" / "log", "Log dir", "Log files",\
             ["Blitz-0.log", "Tables-0.log", "Processor-0.log", "Indexer-0.log", "FSServer.log", "DropBox.log", "TestDropBox.log", "OMEROweb.log"])
-        log_dir(path(".") / "lib" / "python" / "omeroweb" / "log", "Web logs" , "Web log files",\
-            ["OMEROweb.log"])
+        #log_dir(path(".") / "lib" / "python" / "omeroweb" / "log", "Web logs" , "Web log files",\
+        #    ["OMEROweb.log"])
 
 try:
     register("admin", AdminControl)
