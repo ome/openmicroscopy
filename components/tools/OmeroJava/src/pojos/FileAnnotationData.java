@@ -85,6 +85,13 @@ public class FileAnnotationData extends AnnotationData {
     
     /** 
      * The name space used to indicate that the <code>FileAnnotation</code> 
+     * is an <code>Windows Media</code> file.
+     */
+    public static final String MOVIE_WINDOWS_MEDIA_NS = 
+    	"openmicroscopy.org/omero/movie/wmv";
+    
+    /** 
+     * The name space used to indicate that the <code>FileAnnotation</code> 
      * is a <code>Measurement</code> file.
      */
     public static final String MEASUREMENT_NS = 
@@ -521,7 +528,8 @@ public class FileAnnotationData extends AnnotationData {
     public boolean isMovieFile() 
     {
     	String ns = getNameSpace();
-    	if (MOVIE_MPEG_NS.equals(ns) || MOVIE_QUICK_TIME_NS.equals(ns))
+    	if (MOVIE_MPEG_NS.equals(ns) || MOVIE_QUICK_TIME_NS.equals(ns) ||
+    			MOVIE_WINDOWS_MEDIA_NS.equals(ns))
     		return true;
     	String format = getOriginalFormat();
     	return (SERVER_MPEG.equals(format) || SERVER_QT.equals(format));
