@@ -458,12 +458,17 @@ class TreeViewerComponent
 	public void setSelectedBrowser(Browser browser)
 	{
 		switch (model.getState()) {
-		case DISCARDED:
-		case SAVE:
-			throw new IllegalStateException(
-					"This method cannot be invoked in the DISCARDED or SAVE " +
-			"state.");
+			case DISCARDED:
+			case SAVE:
+				throw new IllegalStateException(
+						"This method cannot be invoked in the DISCARDED or " +
+						"SAVE state.");
 		}
+		if (view.getDisplayMode() == TreeViewer.SEARCH_MODE) {
+			view.showAdvancedFinder();
+			view.removeAllFromWorkingPane();
+		}
+			
 		Browser oldBrowser = model.getSelectedBrowser();
 		if (oldBrowser == null || !oldBrowser.equals(browser)) {
 			model.setSelectedBrowser(browser);
@@ -1755,6 +1760,7 @@ class TreeViewerComponent
 		DataBrowser db = DataBrowserFactory.getSearchBrowser();
 		int newMode = view.getDisplayMode();
 		view.removeAllFromWorkingPane();
+		model.getAdvancedFinder().requestFocusOnField();
 		switch (newMode) {
 			case EXPLORER_MODE:
 				onSelectedDisplay();

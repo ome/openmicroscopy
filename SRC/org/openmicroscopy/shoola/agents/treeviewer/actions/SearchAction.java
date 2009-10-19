@@ -54,7 +54,7 @@ public class SearchAction
 {
 
 	/** The description of the action. */
-    private static final String NAME = "Search ";
+    public static final String NAME = "Search ";
     
 	/** The description of the action. */
     private static final String DESCRIPTION = "Toggle between File " +

@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -33,6 +34,8 @@ import javax.swing.JComponent;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.SearchAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -55,7 +58,7 @@ class TaskPaneBrowser
 {
 
 	/** The browser to host. */
-	private Browser browser;
+	private Object browser;
 	
 	/** Initializes the component. */
 	private void initialize()
@@ -66,11 +69,19 @@ class TaskPaneBrowser
 			((JComponent) c).setBorder(BorderFactory.createEmptyBorder(
 					1, 1, 1, 1));
 		setBackground(UIUtilities.BACKGROUND_COLOR);
-		setTitle(browser.getTitle());
-		setIcon(browser.getIcon());
 		setCollapsed(true);
 		setLayout(new BorderLayout(0, 0));
-		add(browser.getUI(), BorderLayout.CENTER);
+		if (browser instanceof Browser) {
+			Browser b = (Browser) browser;
+			setTitle(b.getTitle());
+			setIcon(b.getIcon());
+			add(b.getUI(), BorderLayout.CENTER);
+		} else {
+			setTitle(SearchAction.NAME);
+			IconManager icons = IconManager.getInstance();
+			setIcon(icons.getIcon(IconManager.SEARCH));
+			add((JComponent) browser, BorderLayout.CENTER);
+		}
 	}
 	
 	/**
@@ -78,7 +89,7 @@ class TaskPaneBrowser
 	 * 
 	 * @param browser The browser to host.
 	 */
-	TaskPaneBrowser(Browser browser)
+	TaskPaneBrowser(Object browser)
 	{
 		super();
 		this.browser = browser;
@@ -90,6 +101,10 @@ class TaskPaneBrowser
 	 * 
 	 * @return See above.
 	 */
-	Browser getBrowser() { return browser; }
+	Browser getBrowser()
+	{ 
+		if (browser instanceof Browser) return (Browser) browser;
+		return null; 
+	}
 	
 }

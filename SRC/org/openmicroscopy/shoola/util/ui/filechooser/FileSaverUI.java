@@ -339,8 +339,7 @@ class FileSaverUI
 		chooser.setCurrentDirectory(directory);
 	}
 
-	private String original;
-	
+
 	/**
 	 * Sets the current file of the file chooser. 
 	 * 
@@ -348,8 +347,7 @@ class FileSaverUI
 	 */
 	void setSelectedFile(File file)
 	{
-		original = file.getName();
-		System.err.println(original);
+		chooser.setOriginalName(file.getName());
 		chooser.setSelectedFile(file);
 	}
 
@@ -533,12 +531,13 @@ class FileSaverUI
 			chooser.createFolder(name);
 			chooser.rescanCurrentDirectory();
 			chooser.repaint();
-		} else if (JFileChooser.SELECTED_FILE_CHANGED_PROPERTY.equals(propName))
+		} else if (JFileChooser.SELECTED_FILE_CHANGED_PROPERTY.equals(propName) ||
+			JFileChooser.DIRECTORY_CHANGED_PROPERTY.equals(propName))
 		{
 			File f = (File) evt.getNewValue();
 			if (f == null) return;
-			if (!f.getName().equals(original))
-				chooser.resetSelection(original);
+			//if (!f.getName().equals(original))
+			chooser.resetSelection();
 		}
 		
 	}

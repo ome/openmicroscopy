@@ -78,6 +78,9 @@ class CustomizedFileChooser
 	/** User defined file filter. */
 	private RegExFileFilter 	filter;
 	
+	/** The original file name if any. */
+	private String 				originalName; 
+	
 	/** 
 	 * Initializes the components composing the display. 
 	 * 
@@ -86,6 +89,7 @@ class CustomizedFileChooser
 	 */
 	private void initComponents(boolean accept)
 	{
+		originalName = "";
 		setAcceptAllFileFilterUsed(accept);
 		nameArea = (JTextField) 
 					UIUtilities.findComponent(this, JTextField.class);
@@ -204,6 +208,7 @@ class CustomizedFileChooser
 	{
 		if (nameArea == null) return; //should happen
 		String text = nameArea.getText();
+		originalName = text;
 		boolean b = (text == null || text.trim().length() == 0);
 		view.setControlsEnabled(!b);
 	}
@@ -255,7 +260,14 @@ class CustomizedFileChooser
 		initComponents(accept);
 		buildGUI();
 	}
-		
+	
+	/** 
+	 * Sets the original name.
+	 * 
+	 * @param name The value to set.
+	 */
+	void setOriginalName(String name) { originalName = name; }
+	
 	/**
 	 * Returns <code>true</code> if the control buttons are shown,
 	 * <code>false</code> otherwise.
@@ -308,6 +320,12 @@ class CustomizedFileChooser
 		}
 	}
 	
+	/** Resets the selection. */
+	void resetSelection()
+	{
+		super.setSelectedFile(new File(originalName));
+	}
+	
 	/**
 	 * Enables or not the <code>Save</code> and <code>Preview</code> options
 	 * depending on the text entered in the {@link #nameArea}.
@@ -329,7 +347,7 @@ class CustomizedFileChooser
 	}
 	
 	/**
-	 * Creates a Regex filter.
+	 * Creates a Regular Expression filter.
 	 * @see KeyListener#keyReleased(KeyEvent)
 	 */
 	public void keyReleased(KeyEvent e)
@@ -429,9 +447,5 @@ class CustomizedFileChooser
 	 * @see KeyListener#keyTyped(KeyEvent)
 	 */
 	public void keyTyped(KeyEvent e) {}
-
-	void resetSelection(String name) {
-		super.setSelectedFile(new File(name));
-	}
 	
 }

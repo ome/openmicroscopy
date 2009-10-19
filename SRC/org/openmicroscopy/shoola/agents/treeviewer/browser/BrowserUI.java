@@ -193,7 +193,7 @@ class BrowserUI
     	setLayout(new BorderLayout(0, 0));
     	add(buildToolBar(), BorderLayout.NORTH);
     	add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
-        
+    	//add(treeDisplay, BorderLayout.CENTER);
         treeDisplay.addMouseListener(new MouseAdapter() {
     		
         	/**

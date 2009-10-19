@@ -74,6 +74,9 @@ class ToolBar
     /** Reference to the model. */
     private TreeViewerModel	   model;
     
+    /** Reference to the view. */
+    private TreeViewerWin	   view;
+    
     /** The component indicating the status of the import. */
     private JXBusyLabel			importLabel;
     
@@ -141,7 +144,6 @@ class ToolBar
         b = new JButton(controller.getAction(TreeViewerControl.IMPORT));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
-        bar.add(new JSeparator(JSeparator.VERTICAL));
         return bar;
     }
     
@@ -156,10 +158,9 @@ class ToolBar
         bar.setFloatable(false);
         bar.setRollover(true);
         bar.setBorder(null);
-        JToggleButton b = new JToggleButton(
-        		controller.getAction(TreeViewerControl.SEARCH));
-        //UIUtilities.unifiedButtonLookAndFeel(b);
-        bar.add(b);
+        bar.add(new JSeparator(JSeparator.VERTICAL));
+        bar.add(new JToggleButton(
+        		controller.getAction(TreeViewerControl.SEARCH)));
         return bar;
     }
     
@@ -190,7 +191,10 @@ class ToolBar
         bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
         bars.add(createManagementBar());
         //bars.add(createEditBar());
-        bars.add(createSearchBar());
+        if (!view.getLayoutType().equals(TreeViewerWin.JXTASKPANE_TYPE)) {
+        	bars.add(createSearchBar());
+        }
+        	
         outerPanel.setBorder(null);
         outerPanel.setLayout(new BoxLayout(outerPanel, BoxLayout.X_AXIS));
         outerPanel.add(bars);
@@ -227,15 +231,21 @@ class ToolBar
      *                      Mustn't be <code>null</code>.
      * @param model    		Reference to the model. 
      *                      Mustn't be <code>null</code>.
+     * @param view    		Reference to the view. 
+     *                      Mustn't be <code>null</code>.
      */
-    ToolBar(TreeViewerControl controller, TreeViewerModel model)
+    ToolBar(TreeViewerControl controller, TreeViewerModel model, 
+    		TreeViewerWin view)
     {
         if (controller == null) 
             throw new NullPointerException("No controller.");
         if (model == null) 
             throw new NullPointerException("No model.");
+        if (view == null) 
+            throw new NullPointerException("No view.");
         this.model = model;
         this.controller = controller;
+        this.view = view;
         initComponents();
         buildGUI();
     }

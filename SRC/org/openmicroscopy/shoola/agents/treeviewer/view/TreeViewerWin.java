@@ -68,6 +68,7 @@ import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle;
+import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 
@@ -87,6 +88,9 @@ class TreeViewerWin
 	extends TopWindow
 {
     
+	/** Identifies the <code>JXTaskPane</code> layout. */
+	static final String			JXTASKPANE_TYPE = "JXTaskPane";
+	
     /** The default title of the window. */
     private static final String TITLE = "Data Manager";
     
@@ -158,30 +162,17 @@ class TreeViewerWin
         }
         return false;
     }
-
-    /** 
-     * Returns the type of layout of the browser.
-     * 
-     * @return See above.
-     */
-    private String getLayoutType()
-    {
-    	String type = (String) 
-		TreeViewerAgent.getRegistry().lookup("BrowserLayout");
-    	if (type == null) type = "";
-		return type;
-    }
     
     /** Creates the components hosting the browsers. */
     private void layoutBrowsers()
     {
     	Map browsers = model.getBrowsers();
     	Browser browser;
-    	if (getLayoutType().equals("JXTaskPane")) {
+    	if (getLayoutType().equals(JXTASKPANE_TYPE)) {
     		JXTaskPaneContainerSingle 
     			container = new JXTaskPaneContainerSingle();
     		container.addPropertyChangeListener(controller);
-            browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
+    		browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
             JXTaskPane pane = new TaskPaneBrowser(browser);
             pane.setCollapsed(false);
             container.add(pane);
@@ -194,7 +185,12 @@ class TreeViewerWin
             
             browser = (Browser) browsers.get(Browser.IMAGES_EXPLORER);
             container.add(new TaskPaneBrowser(browser));
-            browsersDisplay = new JScrollPane(container);
+            AdvancedFinder finder = model.getAdvancedFinder();
+    		finder.addPropertyChangeListener(controller);
+    		container.add(new TaskPaneBrowser(finder));
+    		JScrollPane s = new JScrollPane(container);
+    		s.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+            browsersDisplay = s;
     		
     	} else {
     		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
@@ -237,7 +233,7 @@ class TreeViewerWin
         List<JMenu> menus = new ArrayList<JMenu>();
         menus.add(createFileMenu());
         menus.add(createEditMenu());
-        if (!getLayoutType().equals("JXTaskPane")) 
+        if (!getLayoutType().equals(JXTASKPANE_TYPE)) 
         	menus.add(createViewMenu());
         
         JMenuBar bar = tb.getTaskBarMenuBar();
@@ -449,7 +445,7 @@ class TreeViewerWin
         displayMode = TreeViewer.EXPLORER_MODE;
         statusBar = new StatusBar(controller);
         statusBar.addPropertyChangeListener(controller);
-        toolBar = new ToolBar(controller, model);
+        toolBar = new ToolBar(controller, model, this);
         initComponents();
         setJMenuBar(createMenuBar());
         buildGUI();
@@ -458,6 +454,19 @@ class TreeViewerWin
         setTitle(title+TITLE);
     }
 
+    /** 
+     * Returns the type of layout of the browser.
+     * 
+     * @return See above.
+     */
+    String getLayoutType()
+    {
+    	String type = (String) 
+		TreeViewerAgent.getRegistry().lookup("BrowserLayout");
+    	if (type == null) type = "";
+		return type;
+    }
+    
     /** Closes and disposes of the window. */
     void closeViewer()
     {
@@ -595,26 +604,33 @@ class TreeViewerWin
     /** Displays or hides the search component. */
     void showAdvancedFinder()
     {
-    	if (displayMode == TreeViewer.SEARCH_MODE)
-    		displayMode = TreeViewer.EXPLORER_MODE;
-    	else if (displayMode == TreeViewer.EXPLORER_MODE)
-    		displayMode = TreeViewer.SEARCH_MODE;
-    	splitPane.setDividerLocation(splitPane.getDividerLocation());
-    	if (finderScrollPane == null) {
-    		AdvancedFinder finder = model.getAdvancedFinder();
-    		finder.addPropertyChangeListener(controller);
-    		finderScrollPane = new JScrollPane(finder);
+    	if (!getLayoutType().equals(JXTASKPANE_TYPE)) {
+    		if (displayMode == TreeViewer.SEARCH_MODE)
+        		displayMode = TreeViewer.EXPLORER_MODE;
+        	else if (displayMode == TreeViewer.EXPLORER_MODE)
+        		displayMode = TreeViewer.SEARCH_MODE;
+        	splitPane.setDividerLocation(splitPane.getDividerLocation());
+        	if (finderScrollPane == null) {
+        		AdvancedFinder finder = model.getAdvancedFinder();
+        		finder.addPropertyChangeListener(controller);
+        		finderScrollPane = new JScrollPane(finder);
+        	}
+        	switch (displayMode) {
+    			case TreeViewer.SEARCH_MODE:
+    				splitPane.remove(browsersDisplay);
+    	    		splitPane.setLeftComponent(finderScrollPane);
+    				break;
+    			case TreeViewer.EXPLORER_MODE:
+    				splitPane.remove(finderScrollPane);
+    	    		splitPane.setLeftComponent(browsersDisplay);
+    				break;
+    		}
+    	} else {
+    		if (displayMode == TreeViewer.SEARCH_MODE)
+        		displayMode = TreeViewer.EXPLORER_MODE;
+        	else if (displayMode == TreeViewer.EXPLORER_MODE)
+        		displayMode = TreeViewer.SEARCH_MODE;
     	}
-    	switch (displayMode) {
-			case TreeViewer.SEARCH_MODE:
-				splitPane.remove(browsersDisplay);
-	    		splitPane.setLeftComponent(finderScrollPane);
-				break;
-			case TreeViewer.EXPLORER_MODE:
-				splitPane.remove(finderScrollPane);
-	    		splitPane.setLeftComponent(browsersDisplay);
-				break;
-		}
     }
     
     /**

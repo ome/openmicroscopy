@@ -444,6 +444,12 @@ public class SearchComponent
 		repaint();
 	}
 	
+	/** Requests focus on the search field. */
+	public void requestFocusOnField()
+	{
+		uiDelegate.advancedSearch(false);
+	}
+	
 	/**
 	 * Cancels or searches.
 	 * @see {@link ActionListener#actionPerformed(ActionEvent)}
