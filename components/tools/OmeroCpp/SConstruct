@@ -88,11 +88,14 @@ compiler_env["DEBUG"] = env.get("DEBUG","unknown")
 compiler_env["LIBPATH"] = env.get("LIBPATH","unknown")
 compiler_env["CPPPATH"] = env.get("CPPPATH","unknown")
 compiler_env["CPPFLAGS"] = env.get("CPPFLAGS","unknown")
-compiler_env["CXX"] = env.get("CXX","unknown")
 try:
-    compiler_env["CXXVERSION"] = env.get("CXXVERSION")
+    compiler_env["CXX"] = env["CC"] # Windows
 except KeyError:
-    compiler_env["CXXVERSION"] = env.get("MSVS_VERSION")
+    compiler_env["CXX"] = env.get("CXX","unknown")
+try:
+    compiler_env["CXXVERSION"] = env["MSVS_VERSION"] # Windows
+except KeyError:
+    compiler_env["CXXVERSION"] = env.get("CXXVERSION", "unknown")
 
 f = open("compiler.log", "w")
 f.write("""
