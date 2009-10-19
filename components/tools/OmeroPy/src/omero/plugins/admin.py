@@ -253,8 +253,13 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
         """
+
+        if self._isWindows():
+            self.checkwindows()
+
         ##if 0 != self.status(args):
         ##    self.ctx.err("Server already running")
+
         self._initDir()
         props = self._properties()
         # Do a check to see if we've started before.
@@ -271,7 +276,6 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         descript = self._descript(first, other)
 
         if self._isWindows():
-            self.checkwindows()
             svc_name = "OMERO.%s" % self._node()
             output = self._query_service(svc_name)
 
