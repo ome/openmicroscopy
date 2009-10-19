@@ -202,13 +202,13 @@ class ControlPane
     /** Slider to set the magnification factor of the image. */
     private OneKnobSlider			projectionRatioSlider;
     
-    /** One  {@link ChannelButton} per channel. */
+    /** One {@link ChannelButton} per channel. */
     private List<ChannelButton>		channelButtons;
 
-    /** One  {@link ChannelButton} per channel. */
+    /** One {@link ChannelButton} per channel. */
     private List<ChannelButton>		channelButtonsGrid;
     
-    /** One  {@link ChannelButton} per channel. */
+    /** One {@link ChannelButton} per channel. */
     private List<ChannelButton>		channelButtonsProjection;
    
     /** Button to play movie across channel. */
@@ -523,8 +523,8 @@ class ControlPane
      * @param slider	The slider to handle.
      * @param max		The maximum value.
      * @param v			The default value.
-     * @param toolTip	The tooltip text.
-     * @param endLabel	The text for the tooltip which is displayed when 
+     * @param toolTip	The text displayed in the tool tip.
+     * @param endLabel	The text displayed in the tool tip when 
      * 					slider changes value, as well as the label shown at 
      * 					the end of the text. 
      */
@@ -548,7 +548,7 @@ class ControlPane
     
     /**
      * Initializes the value of the components displaying the currently selected
-     * z-section and timepoint.
+     * z-section and time-point.
      */
     private void initializeValues()
     {
@@ -622,7 +622,7 @@ class ControlPane
      * @param button The button to add.
      * @return See above
      */
-    private JToolBar createMovieButtonBar(JButton button)
+    private JToolBar createButtonToolBar(JButton button)
     {
     	JToolBar bar = new JToolBar();
     	bar.setFloatable(false);
@@ -644,7 +644,7 @@ class ControlPane
 				{TableLayout.FILL, TableLayout.PREFERRED}};
     	pane.setLayout(new TableLayout(tl));
     	pane.add(zSlider, "0, 0");
-    	pane.add(playZMovie, "0, 1");
+    	pane.add(createButtonToolBar(playZMovie), "0, 1");
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.add(pane);
@@ -663,7 +663,7 @@ class ControlPane
 				{TableLayout.FILL, TableLayout.PREFERRED}};
     	pane.setLayout(new TableLayout(tl));
     	pane.add(zSliderGrid, "0, 0");
-    	pane.add(playZMovieGrid, "0, 1");
+    	pane.add(createButtonToolBar(playZMovieGrid), "0, 1");
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.add(pane);
@@ -778,7 +778,8 @@ class ControlPane
         k++;
         if (!model.isNumerousChannel()) {
         	
-        	controls.add(channelMovieButton, "0, "+k+", c, c");
+        	controls.add(createButtonToolBar(channelMovieButton), 
+        			"0, "+k+", c, c");
         	//controls.add(buildBottomToolBar(), "0, "+k+", c, c");
         }
         k++;
@@ -1277,7 +1278,7 @@ class ControlPane
 				JPanel p = new JPanel();
 	        	p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 	        	//p.add(createMovieButtonBar(playTMovieGrid));
-	        	p.add(playTMovieGrid);
+	        	p.add(createButtonToolBar(playTMovieGrid));
 	        	p.add(tSliderGrid);
 	        	return p;
 			case ImViewer.PROJECTION_INDEX:
@@ -1287,7 +1288,7 @@ class ControlPane
 				JPanel pane = new JPanel();
 	        	pane.setLayout(new BoxLayout(pane, BoxLayout.X_AXIS));
 	        	//pane.add(createMovieButtonBar(playTMovie));
-	        	pane.add(playTMovie);
+	        	pane.add(createButtonToolBar(playTMovie));
 	        	pane.add(tSlider);
 	        	return pane;
 		}
