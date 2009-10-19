@@ -68,6 +68,7 @@ import omero.model.WellSample;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -136,6 +137,16 @@ public class MetadataValidatorTest
         		+ store.countCachedReferences(null, null)
         		+ " entries.");
 	}
+    
+    @AfterTest
+    public void tearDown() throws Exception
+    {
+    	wrapper.close();
+    	store = null;
+    	wrapper = null;
+    	containerCache = null;
+    	referenceCache = null;
+    }
 	
 	/**
 	 * Examines the container cache and returns whether or not an LSID is
