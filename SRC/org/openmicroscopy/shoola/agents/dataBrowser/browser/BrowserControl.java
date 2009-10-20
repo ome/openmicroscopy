@@ -321,7 +321,8 @@ class BrowserControl
      */
     public void mouseReleased(MouseEvent me) 
     {
-        if (popupTrigger || me.isPopupTrigger())
+        if (me.isPopupTrigger() || SwingUtilities.isRightMouseButton(me) ||
+    			(me.isControlDown() && SwingUtilities.isLeftMouseButton(me)))
                 model.setPopupPoint(me.getPoint(), true);
         else {
             Object src = me.getSource();
