@@ -182,7 +182,7 @@
       <fileset file="${dist.installfile}"/>
       <zipfileset file="${base.licensefile}" fullpath="LICENSE"/>
     </zip>
-    <antcall target="hcs-preview" inheritAll="true" inheritRefs="true"/>
+    <!--<antcall target="hcs-preview" inheritAll="true" inheritRefs="true"/>-->
   </target>
  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Creates a distribution for HCS preview
@@ -247,7 +247,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="dist-win" depends="jar,exe4j-init"
 	          if="dist.exe4j.exists"
-	          description="Build an package the app for Windows distribution.">
+	          description="Build and package the app for Windows distribution.">
 	    <echo message="Setting exe as: ${exe_location}."/>
 	    <copy tofile="${build.dir}/Insight.exe4j"
 	          file="build/Insight_template.exe4j"
@@ -264,19 +264,25 @@
 	      </filterset>
 	    </copy>
 	    <exe4j projectfile="${build.dir}/Insight.exe4j"/>
-	    <zip destfile=
-	           "${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win.zip">
-	      <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
-	      <zipfileset dir="${app.dir}" includes="lib/*"/>
-	      <zipfileset file="${app.dir}/${dist.win.exename}.exe"/>
-	      <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 
-	      <zipfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
+	    <property name="dist.zip.prefix.win"
+	              value="${dist.bundle.name}-${dist.bundle.version}-win"/>
+	    <zip destfile="${dist.dir}/${dist.zip.prefix.win}.zip">
+	      <zipfileset prefix="${dist.zip.prefix.win}/${dist.app.config.dir.name}"
+	                  refid="app.config"/>
+	      <zipfileset prefix="${dist.zip.prefix.win}/libs" dir="${app.lib.dir}"
+	                  includes="*"/>
+	      <zipfileset prefix="${dist.zip.prefix.win}"
+	                  file="${app.dir}/${dist.win.exename}.exe"/>
+	      <zipfileset file="${base.licensefile}"
+	                  fullpath="${dist.zip.prefix.win}/LICENSE"/> 
+	      <zipfileset prefix="${dist.zip.prefix.win}" dir="${dist.dir}"
+	                  includes="${dist.jar.file}"/>
 	    </zip> 
 	  </target>
 	
   <target name="dist-win-openGL" depends="jar,exe4j-init"
           if="dist.exe4j.exists"
-          description="Build an package the app for Windows distribution with OpenGL support.">
+          description="Build and package the app for Windows distribution with OpenGL support.">
     <echo message="Setting exe as: ${exe_location}."/>
     <copy tofile="${build.dir}/Insight.exe4j"
           file="build/Insight_template.exe4j"
@@ -293,14 +299,22 @@
       </filterset>
     </copy>
     <exe4j projectfile="${build.dir}/Insight.exe4j"/>
+    <property name="dist.zip.prefix.win.openGL"
+              value="${dist.bundle.name}-${dist.bundle.version}-win-openGL"/>
     <zip destfile=
-           "${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win-openGL.zip">
-      <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
-      <zipfileset dir="${app.dir}" includes="lib/*"/>
-      <zipfileset file="${app.dir}/${dist.win.exename}.exe"/>
-      <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 
-      <zipfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
-      <zipfileset dir="${base.lib.dir}/win-native" prefix="lib/" includes="*"/>
+           "${dist.dir}/${dist.zip.prefix.win.openGL}.zip">
+      <zipfileset prefix="${dist.zip.prefix.win.openGL}/${dist.app.config.dir.name}"
+                  refid="app.config"/>
+      <zipfileset prefix="${dist.zip.prefix.win.openGL}/libs" dir="${app.lib.dir}"
+                  includes="*"/>
+      <zipfileset prefix="${dist.zip.prefix.win.openGL}"
+                  file="${app.dir}/${dist.win.exename}.exe"/>
+      <zipfileset fullpath="${dist.zip.prefix.win.openGL}/LICENSE"
+                  file="${base.licensefile}"/> 
+      <zipfileset prefix="${dist.zip.prefix.win.openGL}" dir="${dist.dir}"
+                  includes="${dist.jar.file}"/>
+      <zipfileset prefix="${dist.zip.prefix.win.openGL}/libs"
+                  dir="${base.lib.dir}/win-native" includes="*"/>
     </zip> 
   </target>
   
@@ -317,7 +331,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
    <target name="dist-win64-openGL" depends="jar,exe4j-init"
 	          if="dist.exe4j.exists"
-	          description="Build an package the app for Windows 64 distribution with OpenGL support.">
+	          description="Build and package the app for Windows 64 distribution with OpenGL support.">
 	    <echo message="Setting exe as: ${exe_location}."/>
 	    <copy tofile="${build.dir}/Insight64.exe4j"
 	          file="build/Insight_template.exe4j"
@@ -334,14 +348,22 @@
 	      </filterset>
 	    </copy>
 	    <exe4j projectfile="${build.dir}/Insight64.exe4j"/>
-	    <zip destfile=
-	           "${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-win64-openGL.zip">
-	      <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
-	      <zipfileset dir="${app.dir}" includes="lib/*"/>
-	      <zipfileset file="${app.dir}/${dist.win.exename}.exe"/>
-	      <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 
-	      <zipfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
-	      <zipfileset dir="${base.lib.dir}/win64-native" prefix="lib/" includes="*"/>
+	    <property name="dist.zip.prefix.win64.openGL"
+                value="${dist.bundle.name}-${dist.bundle.version}-win64-openGL"/>
+	    <zip destfile="${dist.dir}/${dist.zip.prefix.win64.openGL}.zip">
+	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}/${dist.app.config.dir.name}"
+	                  refid="app.config"/>
+	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}/libs" dir="${app.lib.dir}"
+	                  includes="*"/>
+	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}"
+	                  file="${app.dir}/${dist.win.exename}.exe"/>
+	      <zipfileset file="${base.licensefile}"
+	                  fullpath="${dist.zip.prefix.win64.openGL}/LICENSE"/> 
+	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}" dir="${dist.dir}"
+	                  includes="${dist.jar.file}"/>
+	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}/libs"
+	                  dir="${base.lib.dir}/win64-native"
+	                  includes="*"/>
 	    </zip> 
 	  </target>
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
@@ -372,37 +394,42 @@
                 vmoptions="${dist.vmparameters}">
       <jarfileset refid="app.libs"/>
       <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
-    </jarbundler>  
-    <zip destfile=
-           "${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-OSX.zip">
-       
-      <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
-      <fileset dir="${dist.dir}" 
+    </jarbundler>
+    <property name="dist.zip.prefix.osx"
+              value="${dist.bundle.name}-${dist.bundle.version}-OSX"/>
+    <zip destfile="${dist.dir}/${dist.zip.prefix.osx}.zip">
+      <zipfileset prefix="${dist.zip.prefix.osx}/${dist.app.config.dir.name}"
+                  refid="app.config"/>
+      <zipfileset prefix="${dist.zip.prefix.osx}" dir="${dist.dir}" 
                includes="OMERO.insight.app/**"
                excludes="**/${dist.osx.stub.name}"/>
       <zipfileset file="${dist.osx.stub}" 
-                  fullpath="OMERO.insight.app/Contents/MacOS/${dist.osx.stub.name}"
+                  fullpath="${dist.zip.prefix.osx}/OMERO.insight.app/Contents/MacOS/${dist.osx.stub.name}"
                   filemode="775"/> 
-      <fileset file="${dist.osx.installfile}"/>
-      <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 
+      <zipfileset prefix="${dist.zip.prefix.osx}" file="${dist.osx.installfile}"/>
+      <zipfileset file="${base.licensefile}"
+                  fullpath="${dist.zip.prefix.osx}/LICENSE"/> 
     </zip> 
   </target> 
 
   <target name="dist-osx-openGL"
 	          depends="dist-osx"
 	          description="Build and package the app for OS X distribution with OpenGL support.">
-	    <zip destfile=
-	           "${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-OSX-openGL.zip">
-	      <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
-	      <fileset dir="${dist.dir}/" 
+      <property name="dist.zip.prefix.osx.openGL"
+                value="${dist.bundle.name}-${dist.bundle.version}-OSX-openGL"/>
+	    <zip destfile="${dist.dir}/${dist.zip.prefix.osx.openGL}.zip">
+	      <zipfileset refid="app.config"
+	                  prefix="${dist.zip.prefix.osx.openGL}/${dist.app.config.dir.name}"/>
+	      <zipfileset prefix="${dist.zip.prefix.osx.openGL}" dir="${dist.dir}/" 
 	               includes="OMERO.insight.app/**"
 	               excludes="**/${dist.osx.stub.name}"/>
 	      <zipfileset file="${dist.osx.stub}" 
-	                  fullpath="OMERO.insight.app/Contents/MacOS/${dist.osx.stub.name}"
+	                  fullpath="${dist.zip.prefix.osx.openGL}/OMERO.insight.app/Contents/MacOS/${dist.osx.stub.name}"
 	                  filemode="775"/> 
-	      <fileset file="${dist.osx.installfile}"/>
-	      <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 
-	     
+	      <zipfileset prefix="${dist.zip.prefix.osx.openGL}"
+	                  file="${dist.osx.installfile}"/>
+	      <zipfileset file="${base.licensefile}"
+	                  fullpath="${dist.zip.prefix.osx.openGL}/LICENSE"/> 
 	    </zip> 
 	  </target> 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
@@ -435,17 +462,21 @@
 	  <jarfileset refid="app.libs"/>
 	  <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
   </jarbundler>  
-	  <zip destfile=
-	         "${dist.dir}/${distEditor.bundle.name}-${dist.bundle.version}-OSX.zip">
-	     <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
-	     <fileset dir="${dist.dir}" 
+  <property name="dist.zip.prefix.editor.osx"
+            value="${distEditor.bundle.name}-${dist.bundle.version}-OSX"/>
+	  <zip destfile="${dist.dir}/${dist.zip.prefix.editor.osx}.zip">
+	     <zipfileset prefix="${dist.zip.prefix.editor.osx}/${dist.app.config.dir.name}"
+	                 refid="app.config" />
+	     <zipfileset prefix="${dist.zip.prefix.editor.osx}" dir="${dist.dir}"
 	               includes="OMERO.editor.app/**"
 	               excludes="**/${dist.osx.stub.name}"/>
 	     <zipfileset file="${dist.osx.stub}" 
-	                  fullpath="OMERO.editor.app/Contents/MacOS/${dist.osx.stub.name}"
-	                  filemode="775"/> 
-	     <fileset file="${dist.osx.installfile}"/>
-	     <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 
+	                 fullpath="${dist.zip.prefix.editor.osx}/OMERO.editor.app/Contents/MacOS/${dist.osx.stub.name}"
+	                 filemode="775"/> 
+	     <zipfileset prefix="${dist.zip.prefix.editor.osx}"
+	                 file="${dist.osx.installfile}"/>
+	     <zipfileset file="${base.licensefile}"
+	                 fullpath="${dist.zip.prefix.editor.osx}/LICENSE"/> 
 	  </zip> 
   </target> 
 	

@@ -46,7 +46,7 @@
   <property name="app.dir" location="${build.dir}/app"/>
   <property name="app.compiled.dir" location="${app.dir}/compiled"/> 
   <property name="app.config.dir" location="${app.dir}/config"/> 
-  <property name="app.lib.dir" location="${app.dir}/lib"/> 
+  <property name="app.lib.dir" location="${app.dir}/libs"/> 
   <available classname="javax.media.j3d.SceneGraphObject" property="app.j3d"/>  
   <patternset id="app.sources">
     <include name="**/*.java"/>
