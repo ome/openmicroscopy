@@ -250,7 +250,7 @@ public class OmeroMetadata implements MetadataRetrieve {
 
     }
 
-    private Float dbl2flt(double value) {
+    private Float dbl2float(double value) {
         return Double.valueOf(value).floatValue();
     }
 
@@ -272,11 +272,6 @@ public class OmeroMetadata implements MetadataRetrieve {
 
     private String flt2str(float value) {
         return Float.toString(value);
-    }
-
-    // HACK
-    private Boolean dbl2booleanXXX(double value) {
-        throw new UnsupportedOperationException("THIS SHOULD BE FIXED");
     }
 
     public String getUUID() {
@@ -2190,12 +2185,12 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Plate+/Well+/WellSample+
-    public Float getWellSamplePosX(int idxPlate, int idxWell, int idxWellSample) {
+    public Double getWellSamplePosX(int idxPlate, int idxWell, int idxWellSample) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(plateList.get(idxPlate).copyWells().get(idxWell)
-                    .copyWellSamples().get(idxWellSample).getPosX().getValue());
+            rv = plateList.get(idxPlate).copyWells().get(idxWell)
+                    .copyWellSamples().get(idxWellSample).getPosX().getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -2222,11 +2217,11 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Plate+/Well+/WellSample+
-    public Float getWellSamplePosY(int idxPlate, int idxWell, int idxWellSample) {
+    public Double getWellSamplePosY(int idxPlate, int idxWell, int idxWellSample) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(plateList.get(idxPlate).copyWells().get(idxWell)
+            rv = new Double(plateList.get(idxPlate).copyWells().get(idxWell)
                     .copyWellSamples().get(idxWellSample).getPosY().getValue());
         } catch (NullPointerException npe) {
             e = npe;
@@ -2481,13 +2476,13 @@ public class OmeroMetadata implements MetadataRetrieve {
     // - StagePosition property retrieval -
 
     // Image+/Pixels+/Plane+/StagePosition
-    public Float getStagePositionPositionZ(int idxImage, int idxPixels,
+    public Double getStagePositionPositionZ(int idxImage, int idxPixels,
             int idxPlane) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(imageList.get(idxImage).copyPixels().get(idxPixels)
-                    .copyPlaneInfo().get(idxPlane).getPositionZ().getValue());
+            rv = imageList.get(idxImage).copyPixels().get(idxPixels)
+                    .copyPlaneInfo().get(idxPlane).getPositionZ().getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -2514,13 +2509,13 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Image+/Pixels+/Plane+/StagePosition
-    public Float getStagePositionPositionX(int idxImage, int idxPixels,
+    public Double getStagePositionPositionX(int idxImage, int idxPixels,
             int idxPlane) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(imageList.get(idxImage).copyPixels().get(idxPixels)
-                    .copyPlaneInfo().get(idxPlane).getPositionX().getValue());
+            rv = imageList.get(idxImage).copyPixels().get(idxPixels)
+                    .copyPlaneInfo().get(idxPlane).getPositionX().getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -2547,13 +2542,13 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Image+/Pixels+/Plane+/StagePosition
-    public Float getStagePositionPositionY(int idxImage, int idxPixels,
+    public Double getStagePositionPositionY(int idxImage, int idxPixels,
             int idxPlane) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(imageList.get(idxImage).copyPixels().get(idxPixels)
-                    .copyPlaneInfo().get(idxPlane).getPositionY().getValue());
+            rv = imageList.get(idxImage).copyPixels().get(idxPixels)
+                    .copyPlaneInfo().get(idxPlane).getPositionY().getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -3003,14 +2998,14 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Image+/LogicalChannel+
-    public Float getLogicalChannelPinholeSize(int idxImage,
+    public Double getLogicalChannelPinholeSize(int idxImage,
             int idxLogicalChannel) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(imageList.get(idxImage).getPrimaryPixels()
+            rv = imageList.get(idxImage).getPrimaryPixels()
                     .copyChannels().get(idxLogicalChannel).getLogicalChannel()
-                    .getPinHoleSize().getValue());
+                    .getPinHoleSize().getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -3337,13 +3332,13 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Image+/LogicalChannel+
-    public Float getLogicalChannelNdFilter(int idxImage, int idxLogicalChannel) {
+    public Double getLogicalChannelNdFilter(int idxImage, int idxLogicalChannel) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(imageList.get(idxImage).getPrimaryPixels()
+            rv = imageList.get(idxImage).getPrimaryPixels()
                     .copyChannels().get(idxLogicalChannel).getLogicalChannel()
-                    .getNdFilter().getValue());
+                    .getNdFilter().getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -4028,12 +4023,12 @@ public class OmeroMetadata implements MetadataRetrieve {
     // - Detector property retrieval -
 
     // Instrument+/Detector+
-    public Float getDetectorGain(int idxInstrument, int idxDetector) {
+    public Double getDetectorGain(int idxInstrument, int idxDetector) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(instrumentList.get(idxInstrument).copyDetector().get(
-                    idxDetector).getGain().getValue());
+            rv = instrumentList.get(idxInstrument).copyDetector().get(
+                    idxDetector).getGain().getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -4092,12 +4087,12 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Instrument+/Detector+
-    public Float getDetectorZoom(int idxInstrument, int idxDetector) {
+    public Double getDetectorZoom(int idxInstrument, int idxDetector) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(instrumentList.get(idxInstrument).copyDetector().get(
-                    idxDetector).getZoom().getValue());
+            rv = instrumentList.get(idxInstrument).copyDetector().get(
+                    idxDetector).getZoom().getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -4124,12 +4119,12 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Instrument+/Detector+
-    public Float getDetectorAmplificationGain(int idxInstrument, int idxDetector) {
+    public Double getDetectorAmplificationGain(int idxInstrument, int idxDetector) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(instrumentList.get(idxInstrument).copyDetector().get(
-                    idxDetector).getAmplificationGain().getValue());
+            rv = instrumentList.get(idxInstrument).copyDetector().get(
+                    idxDetector).getAmplificationGain().getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -4156,12 +4151,12 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Instrument+/Detector+
-    public Float getDetectorVoltage(int idxInstrument, int idxDetector) {
+    public Double getDetectorVoltage(int idxInstrument, int idxDetector) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(instrumentList.get(idxInstrument).copyDetector().get(
-                    idxDetector).getVoltage().getValue());
+            rv = instrumentList.get(idxInstrument).copyDetector().get(
+                    idxDetector).getVoltage().getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -4188,12 +4183,12 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Instrument+/Detector+
-    public Float getDetectorOffset(int idxInstrument, int idxDetector) {
+    public Double getDetectorOffset(int idxInstrument, int idxDetector) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(instrumentList.get(idxInstrument).copyDetector().get(
-                    idxDetector).getOffsetValue().getValue());
+            rv = instrumentList.get(idxInstrument).copyDetector().get(
+                    idxDetector).getOffsetValue().getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -4447,12 +4442,12 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Instrument+/LightSource+
-    public Float getLightSourcePower(int idxInstrument, int idxLightSource) {
+    public Double getLightSourcePower(int idxInstrument, int idxLightSource) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(instrumentList.get(idxInstrument).copyLightSource()
-                    .get(idxLightSource).getPower().getValue());
+            rv = instrumentList.get(idxInstrument).copyLightSource()
+                    .get(idxLightSource).getPower().getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -4972,13 +4967,13 @@ public class OmeroMetadata implements MetadataRetrieve {
     // - PlaneTiming property retrieval -
 
     // Image+/Pixels+/Plane+/PlaneTiming
-    public Float getPlaneTimingExposureTime(int idxImage, int idxPixels,
+    public Double getPlaneTimingExposureTime(int idxImage, int idxPixels,
             int idxPlane) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(imageList.get(idxImage).copyPixels().get(idxPixels)
-                    .copyPlaneInfo().get(idxPlane).getExposureTime().getValue());
+            rv = imageList.get(idxImage).copyPixels().get(idxPixels)
+                    .copyPlaneInfo().get(idxPlane).getExposureTime().getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -5005,12 +5000,12 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Image+/Pixels+/Plane+/PlaneTiming
-    public Float getPlaneTimingDeltaT(int idxImage, int idxPixels, int idxPlane) {
+    public Double getPlaneTimingDeltaT(int idxImage, int idxPixels, int idxPlane) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(imageList.get(idxImage).copyPixels().get(idxPixels)
-                    .copyPlaneInfo().get(idxPlane).getDeltaT().getValue());
+            rv = imageList.get(idxImage).copyPixels().get(idxPixels)
+                    .copyPlaneInfo().get(idxPlane).getDeltaT().getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -5039,12 +5034,12 @@ public class OmeroMetadata implements MetadataRetrieve {
     // - ImagingEnvironment property retrieval -
 
     // Image+/ImagingEnvironment
-    public Float getImagingEnvironmentCO2Percent(int idxImage) {
+    public Double getImagingEnvironmentCO2Percent(int idxImage) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(imageList.get(idxImage).getImagingEnvironment()
-                    .getCo2percent().getValue());
+            rv = imageList.get(idxImage).getImagingEnvironment()
+                    .getCo2percent().getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -5071,12 +5066,12 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Image+/ImagingEnvironment
-    public Float getImagingEnvironmentTemperature(int idxImage) {
+    public Double getImagingEnvironmentTemperature(int idxImage) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(imageList.get(idxImage).getImagingEnvironment()
-                    .getTemperature().getValue());
+            rv = imageList.get(idxImage).getImagingEnvironment()
+                    .getTemperature().getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -5103,12 +5098,12 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Image+/ImagingEnvironment
-    public Float getImagingEnvironmentAirPressure(int idxImage) {
+    public Double getImagingEnvironmentAirPressure(int idxImage) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(imageList.get(idxImage).getImagingEnvironment()
-                    .getAirPressure().getValue());
+            rv = imageList.get(idxImage).getImagingEnvironment()
+                    .getAirPressure().getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -5135,12 +5130,12 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Image+/ImagingEnvironment
-    public Float getImagingEnvironmentHumidity(int idxImage) {
+    public Double getImagingEnvironmentHumidity(int idxImage) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(imageList.get(idxImage).getImagingEnvironment()
-                    .getHumidity().getValue());
+            rv = imageList.get(idxImage).getImagingEnvironment()
+                    .getHumidity().getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -5694,13 +5689,13 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Instrument+/LightSource+/Laser
-    public Boolean getLaserRepetitionRate(int idxInstrument, int idxLightSource) {
+    public Double getLaserRepetitionRate(int idxInstrument, int idxLightSource) {
         Exception e = null;
-        Boolean rv = null;
+        Double rv = null;
         try {
-            rv = dbl2booleanXXX(((Laser) instrumentList.get(idxInstrument)
+            rv = ((Laser) instrumentList.get(idxInstrument)
                     .copyLightSource().get(idxLightSource)).getRepetitionRate()
-                    .getValue());
+                    .getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -6138,12 +6133,12 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Instrument+/Objective+
-    public Float getObjectiveWorkingDistance(int idxInstrument, int idxObjective) {
+    public Double getObjectiveWorkingDistance(int idxInstrument, int idxObjective) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(instrumentList.get(idxInstrument).copyObjective().get(
-                    idxObjective).getWorkingDistance().getValue());
+            rv = instrumentList.get(idxInstrument).copyObjective().get(
+                    idxObjective).getWorkingDistance().getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -6266,12 +6261,12 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Instrument+/Objective+
-    public Float getObjectiveLensNA(int idxInstrument, int idxObjective) {
+    public Double getObjectiveLensNA(int idxInstrument, int idxObjective) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(instrumentList.get(idxInstrument).copyObjective().get(
-                    idxObjective).getLensNA().getValue());
+            rv = instrumentList.get(idxInstrument).copyObjective().get(
+                    idxObjective).getLensNA().getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -6363,13 +6358,13 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Instrument+/Objective+
-    public Float getObjectiveCalibratedMagnification(int idxInstrument,
+    public Double getObjectiveCalibratedMagnification(int idxInstrument,
             int idxObjective) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(instrumentList.get(idxInstrument).copyObjective().get(
-                    idxObjective).getCalibratedMagnification().getValue());
+            rv = instrumentList.get(idxInstrument).copyObjective().get(
+                    idxObjective).getCalibratedMagnification().getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -6759,15 +6754,15 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Image+/MicrobeamManipulation+/LightSourceRef+
-    public Float getLightSourceRefAttenuation(int idxImage,
+    public Double getLightSourceRefAttenuation(int idxImage,
             int idxMicrobeamManipulation, int idxLightSourceRef) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(imageList.get(idxImage).getExperiment()
+            rv = imageList.get(idxImage).getExperiment()
                     .copyMicrobeamManipulation().get(idxMicrobeamManipulation)
                     .copyLightSourceSettings().get(idxLightSourceRef)
-                    .getAttenuation().getValue());
+                    .getAttenuation().getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -7451,9 +7446,9 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Image+/DisplayOptions/GreyChannel
-    public Float getGreyChannelBlackLevel(int idxImage) {
+    public Double getGreyChannelBlackLevel(int idxImage) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
             rv = null;
         } catch (NullPointerException npe) {
@@ -7482,9 +7477,9 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Image+/DisplayOptions/GreyChannel
-    public Float getGreyChannelWhiteLevel(int idxImage) {
+    public Double getGreyChannelWhiteLevel(int idxImage) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
             rv = null;
         } catch (NullPointerException npe) {
@@ -7513,9 +7508,9 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Image+/DisplayOptions/GreyChannel
-    public Float getGreyChannelGamma(int idxImage) {
+    public Double getGreyChannelGamma(int idxImage) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
             rv = null;
         } catch (NullPointerException npe) {
@@ -8783,12 +8778,12 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Image+/DisplayOptions/ROI+/Union/Shape+
-    public Float getShapeStrokeOpacity(int idxImage, int idxROI, int idxShape) {
+    public Double getShapeStrokeOpacity(int idxImage, int idxROI, int idxShape) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = imageList.get(idxImage).copyRois().get(idxROI).copyShapes()
-                    .get(idxShape).getStrokeOpacity().getValue();
+            rv = new Double(imageList.get(idxImage).copyRois().get(idxROI).copyShapes()
+                    .get(idxShape).getStrokeOpacity().getValue());
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -9738,12 +9733,12 @@ public class OmeroMetadata implements MetadataRetrieve {
     // - StageLabel property retrieval -
 
     // Image+/StageLabel
-    public Float getStageLabelY(int idxImage) {
+    public Double getStageLabelY(int idxImage) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(imageList.get(idxImage).getStageLabel().getPositionY()
-                    .getValue());
+            rv = imageList.get(idxImage).getStageLabel().getPositionY()
+                    .getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -9770,12 +9765,12 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Image+/StageLabel
-    public Float getStageLabelX(int idxImage) {
+    public Double getStageLabelX(int idxImage) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(imageList.get(idxImage).getStageLabel().getPositionX()
-                    .getValue());
+            rv = imageList.get(idxImage).getStageLabel().getPositionX()
+                    .getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -9802,12 +9797,12 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Image+/StageLabel
-    public Float getStageLabelZ(int idxImage) {
+    public Double getStageLabelZ(int idxImage) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
-            rv = dbl2flt(imageList.get(idxImage).getStageLabel().getPositionZ()
-                    .getValue());
+            rv = imageList.get(idxImage).getStageLabel().getPositionZ()
+                    .getValue();
         } catch (NullPointerException npe) {
             e = npe;
             rv = null;
@@ -10153,9 +10148,9 @@ public class OmeroMetadata implements MetadataRetrieve {
     }
 
     // Image+/DisplayOptions
-    public Float getDisplayOptionsZoom(int idxImage) {
+    public Double getDisplayOptionsZoom(int idxImage) {
         Exception e = null;
-        Float rv = null;
+        Double rv = null;
         try {
             rv = null;
         } catch (NullPointerException npe) {
@@ -11201,45 +11196,45 @@ public class OmeroMetadata implements MetadataRetrieve {
         return null;
     }
 
-    public Float getDetectorSettingsGain(int imageIndex, int logicalChannelIndex) {
+    public Double getDetectorSettingsGain(int imageIndex, int logicalChannelIndex) {
         // Currently non-generated method
         return null;
     }
 
-    public Float getDetectorSettingsOffset(int imageIndex,
+    public Double getDetectorSettingsOffset(int imageIndex,
             int logicalChannelIndex) {
         // Currently non-generated method
         return null;
     }
 
-    public Float getDetectorSettingsReadOutRate(int imageIndex,
+    public Double getDetectorSettingsReadOutRate(int imageIndex,
             int logicalChannelIndex) {
         // Currently non-generated method
         return null;
     }
 
-    public Float getDetectorSettingsVoltage(int imageIndex,
+    public Double getDetectorSettingsVoltage(int imageIndex,
             int logicalChannelIndex) {
         // Currently non-generated method
         return null;
     }
 
-    public Float getDimensionsPhysicalSizeX(int imageIndex, int pixelsIndex) {
+    public Double getDimensionsPhysicalSizeX(int imageIndex, int pixelsIndex) {
         // Currently non-generated method
         return null;
     }
 
-    public Float getDimensionsPhysicalSizeY(int imageIndex, int pixelsIndex) {
+    public Double getDimensionsPhysicalSizeY(int imageIndex, int pixelsIndex) {
         // Currently non-generated method
         return null;
     }
 
-    public Float getDimensionsPhysicalSizeZ(int imageIndex, int pixelsIndex) {
+    public Double getDimensionsPhysicalSizeZ(int imageIndex, int pixelsIndex) {
         // Currently non-generated method
         return null;
     }
 
-    public Float getDimensionsTimeIncrement(int imageIndex, int pixelsIndex) {
+    public Double getDimensionsTimeIncrement(int imageIndex, int pixelsIndex) {
         // Currently non-generated method
         return null;
     }
@@ -11330,7 +11325,7 @@ public class OmeroMetadata implements MetadataRetrieve {
         return null;
     }
 
-    public Float getLightSourceSettingsAttenuation(int imageIndex,
+    public Double getLightSourceSettingsAttenuation(int imageIndex,
             int logicalChannelIndex) {
         // Currently non-generated method
         return null;
@@ -11348,7 +11343,7 @@ public class OmeroMetadata implements MetadataRetrieve {
         return null;
     }
 
-    public Float getObjectiveSettingsCorrectionCollar(int imageIndex) {
+    public Double getObjectiveSettingsCorrectionCollar(int imageIndex) {
         // Currently non-generated method
         return null;
     }
@@ -11363,7 +11358,7 @@ public class OmeroMetadata implements MetadataRetrieve {
         return null;
     }
 
-    public Float getObjectiveSettingsRefractiveIndex(int imageIndex) {
+    public Double getObjectiveSettingsRefractiveIndex(int imageIndex) {
         // Currently non-generated method
         return null;
     }

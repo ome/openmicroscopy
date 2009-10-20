@@ -1115,10 +1115,7 @@ public class OMEROMetadataStoreClient
     {
     }
 
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDetectorGain(java.lang.Float, int, int)
-     */
-    public void setDetectorGain(Float gain, int instrumentIndex,
+    public void setDetectorGain(Double gain, int instrumentIndex,
             int detectorIndex)
     {
         Detector o = getDetector(instrumentIndex, detectorIndex);
@@ -1157,7 +1154,7 @@ public class OMEROMetadataStoreClient
         o.setModel(toRType(model));
     }
 
-    public void setDetectorOffset(Float offset, int instrumentIndex,
+    public void setDetectorOffset(Double offset, int instrumentIndex,
             int detectorIndex)
     {
         Detector o = getDetector(instrumentIndex, detectorIndex);
@@ -1194,28 +1191,28 @@ public class OMEROMetadataStoreClient
         o.setBinning((Binning) getEnumeration(Binning.class, binning));
     }
 
-    public void setDetectorSettingsReadOutRate(Float readOutRate,
+    public void setDetectorSettingsReadOutRate(Double readOutRate,
             int imageIndex, int logicalChannelIndex)
     {
         DetectorSettings o = getDetectorSettings(imageIndex, logicalChannelIndex);
         o.setReadOutRate(toRType(readOutRate));
     }
 
-    public void setDetectorSettingsVoltage(Float voltage, int imageIndex,
+    public void setDetectorSettingsVoltage(Double voltage, int imageIndex,
             int logicalChannelIndex)
     {
         DetectorSettings o = getDetectorSettings(imageIndex, logicalChannelIndex);
         o.setVoltage(toRType(voltage));
     }
 
-    public void setDetectorSettingsGain(Float gain, int imageIndex,
+    public void setDetectorSettingsGain(Double gain, int imageIndex,
             int logicalChannelIndex)
     {
         DetectorSettings o = getDetectorSettings(imageIndex, logicalChannelIndex);
         o.setGain(toRType(gain));
     }
 
-    public void setDetectorSettingsOffset(Float offset, int imageIndex,
+    public void setDetectorSettingsOffset(Double offset, int imageIndex,
             int logicalChannelIndex)
     {
         DetectorSettings o = getDetectorSettings(imageIndex, logicalChannelIndex);
@@ -1229,14 +1226,14 @@ public class OMEROMetadataStoreClient
         o.setType((DetectorType) getEnumeration(DetectorType.class, type));
     }
 
-    public void setDetectorVoltage(Float voltage, int instrumentIndex,
+    public void setDetectorVoltage(Double voltage, int instrumentIndex,
             int detectorIndex)
     {
         Detector o = getDetector(instrumentIndex, detectorIndex);
         o.setVoltage(toRType(voltage));
     }
 
-    public void setDimensionsPhysicalSizeX(Float physicalSizeX, int imageIndex,
+    public void setDimensionsPhysicalSizeX(Double physicalSizeX, int imageIndex,
             int pixelsIndex)
     {
         Pixels o = getPixels(imageIndex, pixelsIndex);
@@ -1253,21 +1250,21 @@ public class OMEROMetadataStoreClient
         return p;
     }
 
-    public void setDimensionsPhysicalSizeY(Float physicalSizeY, int imageIndex,
+    public void setDimensionsPhysicalSizeY(Double physicalSizeY, int imageIndex,
             int pixelsIndex)
     {
         Pixels o = getPixels(imageIndex, pixelsIndex);
         o.setPhysicalSizeY(toRType(physicalSizeY));
     }
 
-    public void setDimensionsPhysicalSizeZ(Float physicalSizeZ, int imageIndex,
+    public void setDimensionsPhysicalSizeZ(Double physicalSizeZ, int imageIndex,
             int pixelsIndex)
     {
         Pixels o = getPixels(imageIndex, pixelsIndex);
         o.setPhysicalSizeZ(toRType(physicalSizeZ));
     }
 
-    public void setDimensionsTimeIncrement(Float timeIncrement, int imageIndex,
+    public void setDimensionsTimeIncrement(Double timeIncrement, int imageIndex,
             int pixelsIndex)
     {
     }
@@ -1286,7 +1283,7 @@ public class OMEROMetadataStoreClient
     {
     }
 
-    public void setDisplayOptionsZoom(Float zoom, int imageIndex)
+    public void setDisplayOptionsZoom(Double zoom, int imageIndex)
     {
     }
 
@@ -1387,7 +1384,7 @@ public class OMEROMetadataStoreClient
         o.setName(toRType(name));
     }
 
-    public void setImagingEnvironmentAirPressure(Float airPressure,
+    public void setImagingEnvironmentAirPressure(Double airPressure,
             int imageIndex)
     {
         ImagingEnvironment o = getImagingEnvironment(imageIndex);
@@ -1401,19 +1398,19 @@ public class OMEROMetadataStoreClient
         return getSourceObject(ImagingEnvironment.class, indexes);
     }
 
-    public void setImagingEnvironmentCO2Percent(Float percent, int imageIndex)
+    public void setImagingEnvironmentCO2Percent(Double percent, int imageIndex)
     {
         ImagingEnvironment o = getImagingEnvironment(imageIndex);
         o.setCo2percent(toRType(percent));
     }
 
-    public void setImagingEnvironmentHumidity(Float humidity, int imageIndex)
+    public void setImagingEnvironmentHumidity(Double humidity, int imageIndex)
     {
         ImagingEnvironment o = getImagingEnvironment(imageIndex);
         o.setHumidity(toRType(humidity));
     }
 
-    public void setImagingEnvironmentTemperature(Float temperature,
+    public void setImagingEnvironmentTemperature(Double temperature,
             int imageIndex)
     {
         ImagingEnvironment o = getImagingEnvironment(imageIndex);
@@ -1435,6 +1432,13 @@ public class OMEROMetadataStoreClient
         indexes.put("instrumentIndex", instrumentIndex);
         IObjectContainer o = getIObjectContainer(Instrument.class, indexes);
         o.LSID = id;
+    }
+    
+    public void setLaserRepetitionRate(Double repetitionRate,
+    		int instrumentIndex, int lightSourceIndex)
+    {
+    	Laser o = getLaser(instrumentIndex, lightSourceIndex);
+        o.setRepetitionRate(toRType(repetitionRate));
     }
 
     public void setLaserFrequencyMultiplication(
@@ -1521,7 +1525,7 @@ public class OMEROMetadataStoreClient
         o.setModel(toRType(model)); 
     }
 
-    public void setLightSourcePower(Float power, int instrumentIndex,
+    public void setLightSourcePower(Double power, int instrumentIndex,
             int lightSourceIndex)
     {
         LightSource o = getLightSource(instrumentIndex, lightSourceIndex);
@@ -1535,7 +1539,7 @@ public class OMEROMetadataStoreClient
         o.setSerialNumber(toRType(serialNumber)); 
     }
 
-    public void setLightSourceSettingsAttenuation(Float attenuation,
+    public void setLightSourceSettingsAttenuation(Double attenuation,
             int imageIndex, int logicalChannelIndex)
     {
         LightSettings o = getLightSettings(imageIndex, logicalChannelIndex);
@@ -1637,7 +1641,7 @@ public class OMEROMetadataStoreClient
         o.setName(toRType(name));
     }
 
-    public void setLogicalChannelNdFilter(Float ndFilter, int imageIndex,
+    public void setLogicalChannelNdFilter(Double ndFilter, int imageIndex,
             int logicalChannelIndex)
     {
         LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
@@ -1653,7 +1657,7 @@ public class OMEROMetadataStoreClient
                     PhotometricInterpretation.class, photometricInterpretation));
     }
 
-    public void setLogicalChannelPinholeSize(Float pinholeSize,
+    public void setLogicalChannelPinholeSize(Double pinholeSize,
             int imageIndex, int logicalChannelIndex)
     {
         LogicalChannel o = getLogicalChannel(imageIndex, logicalChannelIndex);
@@ -1732,7 +1736,7 @@ public class OMEROMetadataStoreClient
     }
 
     public void setObjectiveCalibratedMagnification(
-            Float calibratedMagnification, int instrumentIndex,
+            Double calibratedMagnification, int instrumentIndex,
             int objectiveIndex)
     {
         Objective o = getObjective(instrumentIndex, objectiveIndex);
@@ -1764,7 +1768,7 @@ public class OMEROMetadataStoreClient
         o.setImmersion((Immersion) getEnumeration(Immersion.class, immersion));
     }
 
-    public void setObjectiveLensNA(Float lensNA, int instrumentIndex,
+    public void setObjectiveLensNA(Double lensNA, int instrumentIndex,
             int objectiveIndex)
     {
         Objective o = getObjective(instrumentIndex, objectiveIndex);
@@ -1799,7 +1803,7 @@ public class OMEROMetadataStoreClient
         o.setSerialNumber(toRType(serialNumber));
     }
 
-    public void setObjectiveWorkingDistance(Float workingDistance,
+    public void setObjectiveWorkingDistance(Double workingDistance,
             int instrumentIndex, int objectiveIndex)
     {
         Objective o = getObjective(instrumentIndex, objectiveIndex);
@@ -1896,14 +1900,14 @@ public class OMEROMetadataStoreClient
         o.setTheZ(toRType(theZ));
     }
 
-    public void setPlaneTimingDeltaT(Float deltaT, int imageIndex,
+    public void setPlaneTimingDeltaT(Double deltaT, int imageIndex,
             int pixelsIndex, int planeIndex)
     {
         PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
         o.setDeltaT(toRType(deltaT));
     }
 
-    public void setPlaneTimingExposureTime(Float exposureTime, int imageIndex,
+    public void setPlaneTimingExposureTime(Double exposureTime, int imageIndex,
             int pixelsIndex, int planeIndex)
     {
         PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
@@ -2098,39 +2102,39 @@ public class OMEROMetadataStoreClient
         return getSourceObject(StageLabel.class, indexes);
     }
 
-    public void setStageLabelX(Float x, int imageIndex)
+    public void setStageLabelX(Double x, int imageIndex)
     {
         StageLabel o = getStageLabel(imageIndex);
         o.setPositionX(toRType(x));
     }
 
-    public void setStageLabelY(Float y, int imageIndex)
+    public void setStageLabelY(Double y, int imageIndex)
     {
         StageLabel o = getStageLabel(imageIndex);
         o.setPositionY(toRType(y));
     }
 
-    public void setStageLabelZ(Float z, int imageIndex)
+    public void setStageLabelZ(Double z, int imageIndex)
     {
         StageLabel o = getStageLabel(imageIndex);
         o.setPositionZ(toRType(z));
     }
 
-    public void setStagePositionPositionX(Float positionX, int imageIndex,
+    public void setStagePositionPositionX(Double positionX, int imageIndex,
             int pixelsIndex, int planeIndex)
     {    
         PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
         o.setPositionX(toRType(positionX));
     }
 
-    public void setStagePositionPositionY(Float positionY, int imageIndex,
+    public void setStagePositionPositionY(Double positionY, int imageIndex,
             int pixelsIndex, int planeIndex)
     {
         PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
         o.setPositionY(toRType(positionY));
     }
 
-    public void setStagePositionPositionZ(Float positionZ, int imageIndex,
+    public void setStagePositionPositionZ(Double positionZ, int imageIndex,
             int pixelsIndex, int planeIndex)
     {
         PlaneInfo o = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
@@ -2237,7 +2241,7 @@ public class OMEROMetadataStoreClient
     {
     }
 
-    public void setWellSamplePosX(Float posX, int plateIndex, int wellIndex,
+    public void setWellSamplePosX(Double posX, int plateIndex, int wellIndex,
             int wellSampleIndex)
     {
         WellSample o = getWellSample(plateIndex, wellIndex, wellSampleIndex);
@@ -2254,7 +2258,7 @@ public class OMEROMetadataStoreClient
         return getSourceObject(WellSample.class, indexes);
     }
 
-    public void setWellSamplePosY(Float posY, int plateIndex, int wellIndex,
+    public void setWellSamplePosY(Double posY, int plateIndex, int wellIndex,
             int wellSampleIndex)
     {
         WellSample o = getWellSample(plateIndex, wellIndex, wellSampleIndex);
@@ -3091,7 +3095,7 @@ public class OMEROMetadataStoreClient
 
     /* ---- Objective Settings ---- */
     
-    public void setObjectiveSettingsCorrectionCollar(Float correctionCollar,
+    public void setObjectiveSettingsCorrectionCollar(Double correctionCollar,
             int imageIndex)
     {
         ObjectiveSettings o = getObjectiveSettings(imageIndex);
@@ -3117,7 +3121,7 @@ public class OMEROMetadataStoreClient
         addReference(key, new LSID(objective));
     }
 
-    public void setObjectiveSettingsRefractiveIndex(Float refractiveIndex,
+    public void setObjectiveSettingsRefractiveIndex(Double refractiveIndex,
             int imageIndex)
     {
         ObjectiveSettings o = getObjectiveSettings(imageIndex);
@@ -3371,7 +3375,7 @@ public class OMEROMetadataStoreClient
 
     }
 
-    public void setDetectorAmplificationGain(Float amplificationGain,
+    public void setDetectorAmplificationGain(Double amplificationGain,
     		                                 int instrumentIndex,
                                              int detectorIndex)
     {
@@ -3379,7 +3383,7 @@ public class OMEROMetadataStoreClient
     	o.setAmplificationGain(toRType(amplificationGain));
     }
 
-    public void setDetectorZoom(Float zoom, int instrumentIndex,
+    public void setDetectorZoom(Double zoom, int instrumentIndex,
     		                    int detectorIndex)
     {
     	Detector o = getDetector(instrumentIndex, detectorIndex);
@@ -3719,7 +3723,7 @@ public class OMEROMetadataStoreClient
         return getSourceObject(LightSettings.class, indexes);
     }
 
-    public void setLightSourceRefAttenuation(Float attenuation, int imageIndex,
+    public void setLightSourceRefAttenuation(Double attenuation, int imageIndex,
     		                                 int microbeamManipulationIndex,
     		                                 int lightSourceRefIndex)
     {
@@ -4481,7 +4485,7 @@ public class OMEROMetadataStoreClient
 			int imageIndex, int roiIndex, int shapeIndex) {
 	}
 
-	public void setShapeStrokeOpacity(Float strokeOpacity, int imageIndex,
+	public void setShapeStrokeOpacity(Double strokeOpacity, int imageIndex,
 			int roiIndex, int shapeIndex) {
 	}
 
