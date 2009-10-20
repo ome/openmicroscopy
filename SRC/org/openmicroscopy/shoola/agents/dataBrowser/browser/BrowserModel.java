@@ -423,14 +423,14 @@ class BrowserModel
 	
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#setPopupPoint(java.awt.Point)
+	 * @see Browser#setPopupPoint(Point, boolean)
 	 */
-	public void setPopupPoint(Point p)
+	public void setPopupPoint(Point p, boolean fireProperty)
 	{
 	    thumbSelected = false;
 	    Object oldValue = popupPoint;
 	    popupPoint = p;
-	    firePropertyChange(POPUP_POINT_PROPERTY, oldValue, p);
+	    if (fireProperty) firePropertyChange(POPUP_POINT_PROPERTY, oldValue, p);
 	}
 	
 	/**

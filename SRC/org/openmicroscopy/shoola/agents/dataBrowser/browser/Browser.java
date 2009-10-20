@@ -159,9 +159,11 @@ public interface Browser
 	 * the browser component.
 	 * 
 	 * @param p The point at which the event occurred, <i>relative</i> to the 
-	 *          cooordinates of the currently selected display.
+	 *          coordinates of the currently selected display.
+	 * @param fireProperty 	Pass <code>true</code> to fire a property, 
+	 * 						<code>false</code> otherwise.
 	 */
-	public void setPopupPoint(Point p);
+	public void setPopupPoint(Point p, boolean fireProperty);
 	
 	/**
 	 * Returns the point at which the last pop-up trigger event occurred within 
@@ -171,7 +173,7 @@ public interface Browser
 	 * two events are mutually exclusive.
 	 * 
 	 * @return The point at which the event occurred, <i>relative</i> to the 
-	 *         cooordinates of the currently selected display.
+	 *         coordinates of the currently selected display.
 	 */
 	public Point getPopupPoint();
 	

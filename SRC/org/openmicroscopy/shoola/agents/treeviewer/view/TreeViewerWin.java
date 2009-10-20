@@ -68,7 +68,6 @@ import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle;
-import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 
@@ -388,6 +387,7 @@ class TreeViewerWin
     {
         layoutBrowsers();
         workingPane = new JScrollPane();
+        workingPane.setBackground(UIUtilities.BACKGROUND_COLOR);
     }
 
     /** Builds and lays out the GUI. */
@@ -398,6 +398,7 @@ class TreeViewerWin
     	rightPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     	rightPane.setOneTouchExpandable(true);
     	rightPane.setContinuousLayout(true);
+    	rightPane.setBackground(UIUtilities.BACKGROUND_COLOR);
     	rightPane.setLeftComponent(workingPane);
     	rightPane.setRightComponent(model.getMetadataViewer().getEditorUI());
     	rightPane.setResizeWeight(0.7);

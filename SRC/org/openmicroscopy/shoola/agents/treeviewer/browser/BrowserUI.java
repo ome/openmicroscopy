@@ -53,6 +53,7 @@ import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
@@ -145,6 +146,9 @@ class BrowserUI
     
     /** Indicates if the <code>control</code> key is down. */
     private boolean 				ctrl;
+    
+    /** Flag indicating if the left mouse button is pressed. */
+    private boolean					leftMouseButton;
     
     /**
      * Handles the mouse pressed and released.
@@ -586,6 +590,7 @@ class BrowserUI
            public void mousePressed(MouseEvent e)
            { 
         	   ctrl = e.isControlDown();
+        	   leftMouseButton = SwingUtilities.isLeftMouseButton(e);
         	   onClick(e, false); 
            }
            public void mouseReleased(MouseEvent e) { onClick(e, true); }
@@ -601,11 +606,13 @@ class BrowserUI
         
             public void valueChanged(TreeSelectionEvent e)
             {
+            	if (ctrl && leftMouseButton) return;
             	TreePath[] paths = e.getPaths();
             	List<TreePath> added = new ArrayList<TreePath>();
             	for (int i = 0; i < paths.length; i++) {
             		if (e.isAddedPath(paths[i])) added.add(paths[i]);
 				}
+            	System.err.println(ctrl);
             	if (!ctrl) controller.onClick(added);
             }
         };
@@ -614,7 +621,7 @@ class BrowserUI
 	
 			public void keyPressed(KeyEvent e)
 			{
-				
+				ctrl = false;
 				switch (e.getKeyCode()) {
 					case KeyEvent.VK_ENTER:
 						ViewCmd cmd = new ViewCmd(model.getParentModel());
@@ -629,6 +636,9 @@ class BrowserUI
 							default:
 								model.delete();
 						}
+						break;
+					case KeyEvent.VK_CONTROL:
+						ctrl = true;
 				}
 			}
 			
@@ -854,7 +864,8 @@ class BrowserUI
 	 * @param expNode	The experimenter node to refresh.
 	 * @param r			The data to display.
 	 */
-	private void refreshFileFolder(TreeImageDisplay expNode, Map<Integer, Set> r)
+	private void refreshFileFolder(TreeImageDisplay expNode, 
+			Map<Integer, Set> r)
 	{
 		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
 		expNode.setChildrenLoaded(Boolean.TRUE);
@@ -882,7 +893,8 @@ class BrowserUI
 	 * @param expNode	The experimenter node to refresh.
 	 * @param r			The data to display.
 	 */
-	private void refreshTimeFolder(TreeImageDisplay expNode, Map<Integer, Set> r)
+	private void refreshTimeFolder(TreeImageDisplay expNode,
+			Map<Integer, Set> r)
 	{
 		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
 		expNode.setChildrenLoaded(Boolean.TRUE);

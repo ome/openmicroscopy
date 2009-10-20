@@ -277,9 +277,10 @@ class BrowserControl
     	ImageDisplay d = findParentDisplay(me.getSource());
     	d.moveToFront();
     	ImageDisplay previousDisplay = model.getLastSelectedDisplay();
-    	boolean b = (me.isControlDown() || me.isMetaDown() ||
+    	boolean b = (me.isMetaDown() ||
     			me.isShiftDown());//me.isShiftDown();
     	if (me.isPopupTrigger()) {
+    		model.setPopupPoint(me.getPoint(), true);
     		popupTrigger = true;
     		return;
     	}
@@ -311,7 +312,6 @@ class BrowserControl
     			} else model.setSelectedDisplay(d, false, true);
     		}
     	}
-        if (me.isPopupTrigger()) popupTrigger = true;
     }
 
     /**
@@ -322,7 +322,7 @@ class BrowserControl
     public void mouseReleased(MouseEvent me) 
     {
         if (popupTrigger || me.isPopupTrigger())
-                model.setPopupPoint(me.getPoint());
+                model.setPopupPoint(me.getPoint(), true);
         else {
             Object src = me.getSource();
             ImageDisplay d = findParentDisplay(src);
