@@ -125,7 +125,7 @@ public class IniFileLoader {
     }
     
     public String getHomeUrl() {
-        return staticPrefs.node("General").get("url", "http://trac.openmicroscopy.org.uk/shoola/wiki/OmeroInsightGettingStarted");
+        return staticPrefs.node("General").get("url", "https://www.openmicroscopy.org/site/support/omero4/products/feature-list");
     }
     public String getAppTitle() {
         return staticPrefs.node("General").get("appTitle", "OMERO.importer");
