@@ -112,13 +112,17 @@ public class AddScreenDialog extends JDialog implements ActionListener
             screenName = nameField.getText();
             screenDescription = descriptionArea.getText();
             
-            if (screenName.trim().length() > 0)
+            if (screenName.length() > 255)
+            {
+                JOptionPane.showMessageDialog(this, "The screen's name can not be longer than 255 characters.");                
+            }
+            else if (screenName.trim().length() > 0)
             {
                 screen = store.addScreen(screenName, screenDescription);
                 gui.config.savedScreen.set(screen.getId().getValue());
                 dispose();
             } else {
-                JOptionPane.showMessageDialog(owner, "The screen's name can not be blank.");
+                JOptionPane.showMessageDialog(this, "The screen's name can not be blank.");
             }
         }
         

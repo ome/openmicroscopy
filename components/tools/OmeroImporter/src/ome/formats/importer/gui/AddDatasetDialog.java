@@ -142,13 +142,17 @@ public class AddDatasetDialog extends JDialog implements ActionListener
             datasetName = nameField.getText();
             datasetDescription = descriptionArea.getText();
             
-            if (datasetName.trim().length() > 0)
+            if (datasetName.length() > 255)
+            {
+                JOptionPane.showMessageDialog(owner, "The dataset's name can not be longer than 255 characters.");                
+            }
+            else if (datasetName.trim().length() > 0)
             {
                 dataset = store.addDataset(datasetName, datasetDescription, project);
                 gui.config.savedDataset.set(dataset.getId().getValue());
                 dispose();
             } else {
-                JOptionPane.showMessageDialog(owner, "The project's name can not be blank.");
+                JOptionPane.showMessageDialog(owner, "The dataset's name can not be blank.");
             }
         }
         

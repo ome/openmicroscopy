@@ -115,7 +115,11 @@ public class AddProjectDialog extends JDialog implements ActionListener
             projectName = nameField.getText();
             projectDescription = descriptionArea.getText();
             
-            if (projectName.trim().length() > 0)
+            if (projectName.length() > 255)
+            {
+                JOptionPane.showMessageDialog(owner, "The project's name can not be longer than 255 characters.");                
+            }
+            else if (projectName.trim().length() > 0)
             {
                 project = store.addProject(projectName, projectDescription);
                 gui.config.savedProject.set(project.getId().getValue());
