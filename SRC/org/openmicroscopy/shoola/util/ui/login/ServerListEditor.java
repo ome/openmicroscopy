@@ -76,7 +76,7 @@ public class ServerListEditor
 	private ServerTable		table;
 	
 	/**
-	 * Returns the text of the textfield.
+	 * Returns the text of the component
 	 * 
 	 * @return See above.
 	 */

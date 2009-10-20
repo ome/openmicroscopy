@@ -353,6 +353,7 @@ class ServerDialog
 		if (original == -1)
 			finishButton.setEnabled(true);
 		else {
+			
 			if (editor.isOriginalRow())
 				finishButton.setEnabled(originalIndexSpeed != factor);
 			else finishButton.setEnabled(true);
@@ -400,6 +401,9 @@ class ServerDialog
 			Boolean value = (Boolean) evt.getNewValue();
 			if (editor.isEditing()) finishButton.setEnabled(value);
 			else {
+				if (originalIndexSpeed == -1) {
+					setControlEnabled(originalIndexSpeed);
+				} 
 				if (buttonsGroup != null) {
 					Enumeration en = buttonsGroup.getElements();
 					JRadioButton button;

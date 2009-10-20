@@ -263,8 +263,9 @@ class ServerTable
 			if (editor != null) editor.stopCellEditing();
 			if (v == null || v.trim().length() == 0) v = null;
 		}
-		if (row >= 0 && model.getColumnCount() == 3)
+		if (row >= 0 && model.getColumnCount() == 3) {
 			handleTextModification((String) model.getValueAt(row, 1));
+		}
 		parent.changeSelection(row, previousRow, v);
 		previousRow = row;
 		//if (parent.isEditing()) {//if (editCellAt(row, column)) {
@@ -299,7 +300,7 @@ class ServerTable
 	    
 		/**
 		 * Overridden so that only the cells displaying the server's name
-		 * are editable.
+		 * can be edited.
 		 * @see DefaultTableModel#isCellEditable(int, int)
 		 */
 	    public boolean isCellEditable(int row, int column)

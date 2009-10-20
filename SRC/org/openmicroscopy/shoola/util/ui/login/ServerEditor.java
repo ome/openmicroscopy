@@ -487,6 +487,7 @@ public class ServerEditor
 	void changeSelection(int row, int previousRow, String text)
 	{
 		fireEditProperty(row != -1);
+		//if (previousRow == row) return;
 		if (previousRow == -1 || previousRow == row) return;
 		//if (!editing) return;
 		editing = false;
@@ -510,7 +511,7 @@ public class ServerEditor
 		}
 		handleServers(activeServer, activePort);
 		if (found || text == null || text.trim().length() == 0) {
-			removeRow(previousRow);
+			if (previousRow != -1) removeRow(previousRow);
 			//showMessagePanel(false);
 		}
 		TableCellEditor editor = table.getCellEditor();

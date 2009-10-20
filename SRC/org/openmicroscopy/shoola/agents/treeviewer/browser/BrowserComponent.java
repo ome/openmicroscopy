@@ -1074,12 +1074,19 @@ class BrowserComponent
 	    int n = root.getChildCount();
 	    Map<Long, RefreshExperimenterDef> 
 	    	m = new HashMap<Long, RefreshExperimenterDef>(n);
+	    Collection foundNodes;
+	    Map topNodes;
+	    int type = model.getBrowserType();
 	    for (int i = 0; i < n; i++) {
 	    	expNode = (TreeImageSet) root.getChildAt(i);
 	    	expNode.accept(v, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+	    	foundNodes = v.getFoundNodes();
+	    	topNodes = v.getExpandedTopNodes();
+	    	if (type == Browser.IMAGES_EXPLORER)
+	    		countExperimenterImages(expNode);
 	    	def = new RefreshExperimenterDef(expNode, v.getFoundNodes(), 
-	    									v.getExpandedTopNodes());
-	    	m.put(expNode.getUserObjectId(), def);
+					v.getExpandedTopNodes());
+    		m.put(expNode.getUserObjectId(), def);
 		}
 	    model.loadRefreshExperimenterData(m);
 		fireStateChange();

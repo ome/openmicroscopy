@@ -171,7 +171,8 @@ public abstract class TreeViewerAction
         	int displayMode = ((Integer) evt.getNewValue()).intValue();
         	switch (displayMode) {
 				case TreeViewer.SEARCH_MODE:
-					setEnabled(false);
+					//setEnabled(false);
+					setEnabled(true);
 					break;
 				case TreeViewer.EXPLORER_MODE:
 					setEnabled(true);
