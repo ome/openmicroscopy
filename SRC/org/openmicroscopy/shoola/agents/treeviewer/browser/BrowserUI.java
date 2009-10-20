@@ -593,7 +593,11 @@ class BrowserUI
         	   leftMouseButton = SwingUtilities.isLeftMouseButton(e);
         	   onClick(e, false); 
            }
-           public void mouseReleased(MouseEvent e) { onClick(e, true); }
+           public void mouseReleased(MouseEvent e)
+           { 
+        	   leftMouseButton = SwingUtilities.isLeftMouseButton(e);
+        	   onClick(e, true);
+           }
            
           // public void mouseMoved(MouseEvent e) { rollOver(e); }
         });
@@ -606,7 +610,11 @@ class BrowserUI
         
             public void valueChanged(TreeSelectionEvent e)
             {
-            	if (ctrl && leftMouseButton) return;
+            	if (ctrl && leftMouseButton) {
+            		TreeImageDisplay[] nodes = model.getSelectedDisplays();
+            		setFoundNode(nodes);
+            		return;
+            	}
             	TreePath[] paths = e.getPaths();
             	List<TreePath> added = new ArrayList<TreePath>();
             	for (int i = 0; i < paths.length; i++) {
