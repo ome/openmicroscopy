@@ -81,7 +81,7 @@ class BrowserControl
     /** The View controlled by this Controller.*/
     private RootDisplay     view;
     
-    /** Flag to indicate that a popupTrigger event occured. */
+    /** Flag to indicate that a popupTrigger event occurred. */
     private boolean         popupTrigger;
     
     /** The selected cell, only used when displaying Plate. */
@@ -123,7 +123,19 @@ class BrowserControl
         }
         return null;
     }
-    
+
+    /**
+     * Attaches the listeners to the specified node.
+     * 
+     * @param node The node to handle.
+     */
+    private void attachListeners(ImageNode node)
+    {
+    	if (node == null) return;
+    	node.addMouseListenerToComponents(this);
+    	node.addPropertyChangeListener(this);
+    }
+
     /**
      * Creates a new Controller for the specified <code>model</code> and
      * <code>view</code>.
@@ -173,26 +185,13 @@ class BrowserControl
 		} catch (Exception e) {
 			UserNotifier un = 
 				DataBrowserAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Image Not valid", 
-					"The selected image is not valid");
+			un.notifyInfo("Image Not valid", "The selected image is not valid");
 			node.setHighlight(
 					Colors.getInstance().getDeselectedHighLight(node));
 			return false;
 		}
     }
-    
-    /**
-     * Attaches the listeners to the specified node.
-     * 
-     * @param node The node to handle.
-     */
-    private void attachListeners(ImageNode node)
-    {
-    	if (node == null) return;
-    	node.addMouseListenerToComponents(this);
-    	node.addPropertyChangeListener(this);
-    }
-    
+
     /**
      * Registers this object as mouse listeners with each node.
      * @see ImageDisplayVisitor#visit(ImageNode)
@@ -279,7 +278,8 @@ class BrowserControl
     	ImageDisplay previousDisplay = model.getLastSelectedDisplay();
     	boolean b = (me.isMetaDown() ||
     			me.isShiftDown());//me.isShiftDown();
-    	if (me.isPopupTrigger()) {
+    	if (me.isPopupTrigger() || SwingUtilities.isRightMouseButton(me) ||
+    			(me.isControlDown() && SwingUtilities.isLeftMouseButton(me))) {
     		model.setPopupPoint(me.getPoint(), true);
     		popupTrigger = true;
     		return;
