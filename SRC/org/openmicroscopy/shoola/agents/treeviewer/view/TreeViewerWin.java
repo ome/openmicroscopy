@@ -388,6 +388,7 @@ class TreeViewerWin
         layoutBrowsers();
         workingPane = new JScrollPane();
         workingPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+        workingPane.getViewport().setBackground(UIUtilities.BACKGROUND_COLOR);
     }
 
     /** Builds and lays out the GUI. */

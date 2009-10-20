@@ -255,7 +255,7 @@ public class IconManager
         relPaths[STATUS_INFO] = "nuvola_messagebox_info16.png";
         relPaths[RENDERER] = "render16.png";
         relPaths[MOVIE] = "nuvola_kaboodle16.png";
-        relPaths[SAVE] = "nuvola_filesaveas16.png";
+        relPaths[SAVE] = "download_image16.png";//"nuvola_filesaveas16.png";
         relPaths[LENS] = "nuvola_viewmag16.png";
         relPaths[TINY_INFO] = "messagebox_info8.png";
         relPaths[DOMAIN] = "nuvola_kmplot16.png";
@@ -272,7 +272,7 @@ public class IconManager
         relPaths[PAUSE] = "nuvola_player_pause16.png";
         relPaths[STOP] = "nuvola_player_stop16.png";
         relPaths[HISTOGRAM_48] = "histogram16.png";
-        relPaths[SAVE_48] = "nuvola_filesaveas48.png";
+        relPaths[SAVE_48] = "download_image48.png";//"nuvola_filesaveas48.png";
         relPaths[QUESTION] = "nuvola_filetypes32.png";
         relPaths[CANCEL] = "eclipse_delete_edit16.png";
         relPaths[VIEWER] = "viewer16.png";
@@ -313,7 +313,7 @@ public class IconManager
         relPaths[PROJECTION_48] = "projBlack48.png"; 
         relPaths[PROJECTION_12] = "projection12.png"; 
         relPaths[CREATE_MOVIE] = "crystal_video16.png";//openOffice_stock_insert-video-plugin-16.png";
-        relPaths[EXPORT] = "download_image16.png";
+        relPaths[EXPORT] = "export16.png";
     }
     
     /** The sole instance. */
