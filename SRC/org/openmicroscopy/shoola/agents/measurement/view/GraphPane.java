@@ -294,7 +294,7 @@ class GraphPane
 		if (channelNames.size() == 0 || data.size() == 0 || 
 			channelColours.size() == 0)
 			return null;
-		if(channelNames.size() != channelColours.size() && channelNames.size() != data.size())
+		if(channelNames.size() != channelColours.size() || channelNames.size() != data.size())
 			return null;
 		LinePlot plot = new LinePlot(title, channelNames, data, 
 			channelColours, channelMinValue(), channelMaxValue());
@@ -316,6 +316,11 @@ class GraphPane
 	private HistogramPlot drawHistogram(String title,  List<String> channelNames, 
 			List<double[]> data, List<Color> channelColours, int bins)
 	{
+		if (channelNames.size() == 0 || data.size() == 0 || 
+				channelColours.size() == 0)
+				return null;
+			if(channelNames.size() != channelColours.size() || channelNames.size() != data.size())
+				return null;
 		HistogramPlot plot = new HistogramPlot(title, channelNames, data, 
 			channelColours, bins, channelMinValue(), channelMaxValue());
 		plot.setXAxisName("Intensity");
