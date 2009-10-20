@@ -28,11 +28,15 @@ public class FileUploader implements IObservable
     private String[] files;
 
     private String session_id;
+    
+    private PostMethod method = null;
 
 
     ArrayList<IObserver> observers = new ArrayList<IObserver>();
 
     private HttpClient client;
+
+    private boolean cancelUpload;
 
     public FileUploader(HttpClient httpClient)
     {
@@ -64,16 +68,17 @@ public class FileUploader implements IObservable
         this.files = upload.getFiles();
         setSessionId(upload.getToken());
 
-        PostMethod method = null;
-
         int fileCount = 0;
         
         for (String f : files)
-        {
+        {                 
+            if (cancelUpload)
+                return;
+            
             fileCount++;
             final int count = fileCount;
             final File file = new File(f);
-
+           
             try {
                 HttpClientParams params = new HttpClientParams();
                 params.setConnectionManagerTimeout(timeout);
@@ -181,6 +186,10 @@ public class FileUploader implements IObservable
         }
     }
 
+    public void cancel()
+    {
+        //this.cancelUpload = true;
+    }
 
     public static void main(String[] args)
     {

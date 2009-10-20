@@ -136,6 +136,8 @@ public abstract class ErrorHandler implements IObserver, IObservable {
 
     protected int totalErrors = 0;
 
+    private FileUploader fileUploader;
+
     public ErrorHandler(ImportConfig config) {
         this.config = config;
     }
@@ -257,7 +259,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
                     onSending(i);
                     errorContainer.setToken(serverReply);
 
-                    FileUploader fileUploader = new FileUploader(messenger.getHttpClient());
+                    fileUploader = new FileUploader(messenger.getHttpClient());
                     fileUploader.addObserver(this);
 
                     fileUploader.uploadFiles(config.getUploaderUrl(), 2000, errorContainer);
@@ -338,7 +340,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     //
     
     protected void onCancel() {
-
+        fileUploader.cancel();
     }
  
     
@@ -369,6 +371,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     }
     
     protected void finishCancelled() {
+        fileUploader.cancel();
     }
 
     protected void finishComplete() {
