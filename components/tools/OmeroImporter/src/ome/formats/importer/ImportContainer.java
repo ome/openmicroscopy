@@ -44,6 +44,15 @@ public class ImportContainer
 		this.isSPW = isSPW;
 	}
 	
+	/**
+	 * Package-private setter added during the 4.1 release to fix name ordering.
+	 * A better solution would be to have a copy-constructor which also takes
+	 * a chosen file.
+	 */
+	void setFile(File file)
+	{
+	    this.file = file;
+	}
     
     /**
      * @return Returns the fileInfo.

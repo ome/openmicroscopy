@@ -100,7 +100,6 @@ public class ImportCandidates extends DirectoryWalker {
     
     final private IObserver observer;
     final private OMEROWrapper reader;
-    final private Groups groups;
     final private Set<String> allFiles = new HashSet<String>();
     final private Map<String, List<String>> usedBy = new LinkedHashMap<String, List<String>>();
     final private List<ImportContainer> containers = new ArrayList<ImportContainer>();
@@ -194,13 +193,11 @@ public class ImportCandidates extends DirectoryWalker {
             // Easter egg for testing.
             // groups is not null, therefore usage() won't need to be
             // called.
-            groups = Groups.test();
             System.exit(0);
             return;
         }
 
         if (paths == null || paths.length == 0) {
-            groups = null;
             return;
         }
 
@@ -228,7 +225,6 @@ public class ImportCandidates extends DirectoryWalker {
             total = -1;
             count = -1;
         }
-        groups = g;
 
     }
 
@@ -248,7 +244,7 @@ public class ImportCandidates extends DirectoryWalker {
         for (ImportContainer container : containers) {
             System.out.println("#======================================");
             System.out.println(String.format(
-                    "# Group: %s SPW: %s Reader: %s", container.usedFiles[0], 
+                    "# Group: %s SPW: %s Reader: %s", container.file,
                     container.isSPW, container.reader));
             for (String file : container.usedFiles) {
                 System.out.println(file);
@@ -349,6 +345,7 @@ public class ImportCandidates extends DirectoryWalker {
 
             } finally {
                 readerTime += (System.currentTimeMillis() - start);
+                reader.close();
             }
 
         } catch (UnknownFormatException ufe) {
@@ -555,6 +552,11 @@ public class ImportCandidates extends DirectoryWalker {
                         containers.add(importContainer);
                     }
                 }
+            }
+            // Now rewrite the filename chosen based on the first file in the
+            // getUsedFiles.
+            for (ImportContainer c : containers) {
+                c.setFile(new File(c.usedFiles[0]));
             }
             return this;
         }
