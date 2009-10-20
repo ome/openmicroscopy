@@ -54,7 +54,7 @@ public class Callback extends Task {
         try {
             Object retVal = invoker.invoke(service, current, mapper, args);
             response(retVal);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             exception(e);
         }
     }
