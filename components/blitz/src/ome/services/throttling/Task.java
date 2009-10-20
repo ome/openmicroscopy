@@ -13,6 +13,9 @@ import java.lang.reflect.Method;
 import omero.InternalException;
 import omero.util.IceMapper;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Simple base task which contains logic for routing calls reflectively to
  * ice_response and ice_exception of any AMD callback.
@@ -20,6 +23,8 @@ import omero.util.IceMapper;
  * @since Beta4
  */
 public abstract class Task implements Runnable {
+
+    private final static Log log = LogFactory.getLog(Task.class);
 
     protected final Object cb;
 
@@ -70,8 +75,11 @@ public abstract class Task implements Runnable {
         }
     }
 
-    protected void exception(Exception ex) {
+    protected void exception(Throwable ex) {
         try {
+            if (!(ex instanceof Exception)) {
+                log.error("Throwable thrown!", ex);
+            }
             exception.invoke(cb, ex);
         } catch (Exception e) {
             throw new RuntimeException("Failed to invoke exception()", e);
