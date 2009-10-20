@@ -620,7 +620,6 @@ class BrowserUI
             	for (int i = 0; i < paths.length; i++) {
             		if (e.isAddedPath(paths[i])) added.add(paths[i]);
 				}
-            	System.err.println(ctrl);
             	if (!ctrl) controller.onClick(added);
             }
         };
