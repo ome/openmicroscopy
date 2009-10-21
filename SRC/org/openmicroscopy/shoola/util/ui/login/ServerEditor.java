@@ -169,6 +169,9 @@ public class ServerEditor
 	/** The original row selected corresponding to the server. */
 	private int				originalRow;
 	
+	/** Indicates the edited row. */
+	private int				editedRow;
+	
 	/** 
 	 * Removes the selected server from the list. 
 	 * 
@@ -200,6 +203,7 @@ public class ServerEditor
 		if (model.getRowCount() == 0) setEditing(false);
 		handleServers(activeServer, activePort);
 		editing = false;
+		editedRow = -1;
 		fireEditProperty(model.getRowCount() != 0);
 		firePropertyChange(REMOVE_PROPERTY, oldValue, newValue);
 	}
@@ -264,7 +268,9 @@ public class ServerEditor
 		editButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) 
 			{ 
-				requestFocusOnEditedCell(table.getSelectedRow(), 1);
+				int row = table.getSelectedRow();
+				if (editedRow == row) requestFocusOnEditedCell(row, 2);
+				else requestFocusOnEditedCell(row, 1);
 			}
 		});
 		addButton.setEnabled(enabled);
@@ -425,6 +431,7 @@ public class ServerEditor
 		if (servers != null) n = servers.size();
 		initComponents(servers, n != 0);
 		editing = false;
+		editedRow = -1;
 		buildGUI();
 	}
 	
@@ -447,6 +454,7 @@ public class ServerEditor
 		addButton.setEnabled(!b);
 		editButton.setEnabled(!b);
 		editing = b; 
+		if (!b) editedRow = -1;
 	}
 	
 	/**
@@ -467,7 +475,7 @@ public class ServerEditor
 	{
 		if (col == 0) return;
 		if (table.getColumnCount() > 1) {
-			editing = true;
+			editedRow = row;
 			TableCellEditor editor = table.getCellEditor();
 			if (editor != null) editor.stopCellEditing();
 			table.editCellAt(row, col);
@@ -490,6 +498,7 @@ public class ServerEditor
 		if (previousRow == -1 || previousRow == row) return;
 		//if (!editing) return;
 		editing = false;
+		editedRow = -1;
 		List<String> values = new ArrayList<String>();
 		for (int i = 0; i < table.getRowCount(); i++) {
 			if (i != previousRow) {
@@ -551,6 +560,7 @@ public class ServerEditor
 	{
 		if (!editing) return;
 		editing = false;
+		editedRow = -1;
 		setButtonsEnabled(true);
 		if (warning || text == null || text.length() == 0) {
 			removeRow(table.getSelectedRow());
