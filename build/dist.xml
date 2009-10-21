@@ -476,7 +476,7 @@
           <zipfileset prefix="${dist.zip.prefix.editor.win}/libs" dir="${app.lib.dir}"
                       includes="*"/>
           <zipfileset prefix="${dist.zip.prefix.editor.win}"
-                      file="${app.dir}/${dist.win.exename}.exe"/>
+                      file="${app.dir}/${distEditor.win.exename}.exe"/>
           <zipfileset file="${base.licensefile}"
                       fullpath="${dist.zip.prefix.editor.win}/LICENSE"/> 
           <zipfileset prefix="${dist.zip.prefix.editor.win}" dir="${dist.dir}"
