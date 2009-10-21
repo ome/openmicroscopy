@@ -294,7 +294,8 @@ class OriginalMetadataComponent
 			}
 			index++;
 		}
-		JXTable table = new JXTable(new DefaultTableModel(data, COLUMNS));
+		JXTable table = new JXTable(
+				new OriginalMetadataTableModel(data, COLUMNS));
 		Highlighter h = HighlighterFactory.createAlternateStriping(
 				UIUtilities.BACKGROUND_COLOUR_EVEN, 
 				UIUtilities.BACKGROUND_COLOUR_ODD);
@@ -405,6 +406,34 @@ class OriginalMetadataComponent
 			
 			//un.notifyDownload(model.getOriginalMetadata(), folder);
 		}
+	}
+	
+	/** Extends the table model so that the cells cannot be edited. */
+	class OriginalMetadataTableModel 
+		extends DefaultTableModel
+	{
+		/**
+	     *  Constructs a <code>DefaultTableModel</code> and initializes the table
+	     *  by passing <code>data</code> and <code>columnNames</code>
+	     *  to the <code>setDataVector</code>
+	     *  method. The first index in the <code>Object[][]</code> array is
+	     *  the row index and the second is the column index.
+	     *
+	     * @param data              the data of the table
+	     * @param columnNames       the names of the columns
+	     * @see #getDataVector
+	     * @see #setDataVector
+	     */
+		OriginalMetadataTableModel(Object[][] data, Object[] columnNames)
+	    {
+	        super(data, columnNames);
+	    }
+		
+	   /**
+	    * Overridden so that the cell cannot be edited.
+	    * @see OriginalMetadataTableModel#isCellEditable(int, int)
+	    */
+	    public boolean isCellEditable(int row, int column) { return false; }
 	}
 	
 }
