@@ -1679,7 +1679,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 message_html = t.content_html % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id)
                 
                 try:
-                    title = 'OMERO.qa - new comment'
+                    title = 'OMERO.web - new comment'
                     text_content = message
                     html_content = message_html
                     msg = EmailMultiAlternatives(title, text_content, settings.SERVER_EMAIL, recipients)
@@ -1741,7 +1741,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 message_html = t.content_html % (settings.APPLICATION_HOST, sid, blitz_id, settings.APPLICATION_HOST, sid, blitz_id, self.getUser().getFullName())
                 
                 try:
-                    title = 'OMERO.qa - new share'
+                    title = 'OMERO.web - new share'
                     text_content = message
                     html_content = message_html
                     msg = EmailMultiAlternatives(title, text_content, settings.SERVER_EMAIL, recipients)
@@ -1775,7 +1775,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 message = t.content_txt % (settings.APPLICATION_HOST, share_id, blitz_id, self.getUser().getFullName())
                 message_html = t.content_html % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id, self.getUser().getFullName())
                 try:
-                    title = 'OMERO.qa - update share'
+                    title = 'OMERO.web - update share'
                     text_content = message
                     html_content = message_html
                     msg = EmailMultiAlternatives(title, text_content, settings.SERVER_EMAIL, recipients)
@@ -1799,7 +1799,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 message_html = t.content_html % (settings.APPLICATION_HOST, share_id, blitz_id, settings.APPLICATION_HOST, share_id, blitz_id)
                 
                 try:
-                    title = 'OMERO.qa - update share'
+                    title = 'OMERO.web - update share'
                     text_content = message
                     html_content = message_html
                     msg = EmailMultiAlternatives(title, text_content, settings.SERVER_EMAIL, recipients)
