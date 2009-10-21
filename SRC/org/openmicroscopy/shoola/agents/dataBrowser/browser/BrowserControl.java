@@ -33,7 +33,6 @@ import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
@@ -41,9 +40,8 @@ import javax.swing.SwingUtilities;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourObject;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 
@@ -183,11 +181,13 @@ class BrowserControl
 			img.getDefaultPixels();
 			return true;
 		} catch (Exception e) {
+			/*
 			UserNotifier un = 
 				DataBrowserAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Image Not valid", "The selected image is not valid");
 			node.setHighlight(
 					Colors.getInstance().getDeselectedHighLight(node));
+					*/
 			return false;
 		}
     }
@@ -276,14 +276,30 @@ class BrowserControl
     	ImageDisplay d = findParentDisplay(me.getSource());
     	d.moveToFront();
     	ImageDisplay previousDisplay = model.getLastSelectedDisplay();
+    	
+    	boolean macOS = UIUtilities.isMacOS();
+    	
     	boolean b = (me.isMetaDown() ||
     			me.isShiftDown());//me.isShiftDown();
-    	if (me.isPopupTrigger() || SwingUtilities.isRightMouseButton(me) ||
-    			(me.isControlDown() && SwingUtilities.isLeftMouseButton(me))) {
-    		model.setPopupPoint(me.getPoint(), true);
-    		popupTrigger = true;
+    
+    	if (!macOS) b = b || me.isControlDown();
+    	
+    	Point p = me.getPoint();
+    	if (me.isPopupTrigger() && b &&
+    		previousDisplay != null && previousDisplay.getBounds().contains(p))
+    	{
+    		model.setPopupPoint(p, true);
     		return;
     	}
+    	if (me.isPopupTrigger() ||
+    			(SwingUtilities.isRightMouseButton(me) && !macOS) ||
+        		(me.isControlDown() && SwingUtilities.isLeftMouseButton(me) &&
+        				macOS)) {
+        		model.setPopupPoint(p, true);
+        		popupTrigger = true;
+        		return;
+        }
+    	
     	if (b) { //multi selection
     		ImageDisplay previous = model.getLastSelectedDisplay();
     		if (previous == null) return;
@@ -321,6 +337,7 @@ class BrowserControl
      */
     public void mouseReleased(MouseEvent me) 
     {
+    	/*
         if (me.isPopupTrigger() || SwingUtilities.isRightMouseButton(me) ||
     			(me.isControlDown() && SwingUtilities.isLeftMouseButton(me)))
                 model.setPopupPoint(me.getPoint(), true);
@@ -333,6 +350,37 @@ class BrowserControl
             }   
         }
         popupTrigger = false; 
+        */
+    	int count = me.getClickCount();
+    	/*
+    	if (count == 1) {
+    		System.err.println(me.isPopupTrigger() +" "+SwingUtilities.isRightMouseButton(me));
+    		if (UIUtilities.isMacOS()) {
+    			if (me.isPopupTrigger() || //SwingUtilities.isRightMouseButton(me) ||
+    	    			(me.isControlDown() && SwingUtilities.isLeftMouseButton(me)))
+    	                model.setPopupPoint(me.getPoint(), true);
+    		}
+    	}
+    	*/
+    	if (count == 2) {
+    		if (UIUtilities.isMacOS()) {
+        		if (!me.isControlDown()) {
+        			Object src = me.getSource();
+                    ImageDisplay d = findParentDisplay(src);
+                    if (d instanceof ImageNode && !(d.getTitleBar() == src) 
+                        && isSelectionValid(d)) {
+                    	model.viewDisplay(d);
+                    }   
+        		} 
+        	} else {
+        		Object src = me.getSource();
+                ImageDisplay d = findParentDisplay(src);
+                if (d instanceof ImageNode && !(d.getTitleBar() == src) 
+                    && isSelectionValid(d)) {
+                	model.viewDisplay(d);
+                }   
+        	}
+    	}
     }
 
     /**

@@ -1633,4 +1633,16 @@ public class UIUtilities
 		return buf.toString();
 	}
 	
+	/**
+	 * Returns <code>true</code> if the OS is MAC, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public static final boolean isMacOS()
+	{
+		 String osName = System.getProperty("os.name").toLowerCase();
+		 return osName.startsWith("mac os");
+	}
+	
 }
