@@ -182,7 +182,7 @@
 
     <server-template id="WebTemplate">
       <parameter name="act" default="on-demand"/>
-      <server id="Web" exe="python" activation="${act}" pwd="${OMEROPY_HOME}omeroweb">
+      <server id="Web" exe="python" activation-timeout="0" deactivation-timeout="0" activation="${act}" pwd="${OMEROPY_HOME}omeroweb">
         <option>manage.py</option>
         <option>runserver</option>
         <option>--noreload</option>
