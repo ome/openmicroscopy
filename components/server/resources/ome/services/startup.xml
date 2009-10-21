@@ -30,12 +30,21 @@
      <constructor-arg ref="executor"/>
   </bean>
 
+  <!--
+
+  Disabling DropBox directory creation for 4.1. The directories
+  were not being created on-time, possibly confusing. In addition,
+  there is no provision for setting ownership or permissions on
+  these directories. Instead, it is the sysadmin's responsibility
+  for creating those directories. Added to docs. ~Josh.
+
   <bean id="dropBoxDirectoryCheck"
      class="ome.services.util.DropBoxDirectoryCheck"
      init-method="run" lazy-init="false">
      <constructor-arg value="${omero.data.dir}"/>
      <constructor-arg ref="isolatedJdbcTemplate"/>
   </bean>
+  -->
 
   <bean id="serverVersionCheck"
      class="ome.services.util.ServerVersionCheck"
