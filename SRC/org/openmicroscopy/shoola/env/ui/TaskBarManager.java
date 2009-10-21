@@ -153,19 +153,6 @@ public class TaskBarManager
 	}
 	
 	/**
-	 * Opens the URL. 
-	 * 
-	 * @param url The URL to open.
-	 */
-	void openURL(String url)
-	{
-		BrowserLauncher launcher = new BrowserLauncher(
-				AbstractIconManager.getOMEIcon());
-		launcher.openURL(url);
-		if (suDialog != null) suDialog.close();
-	}
-	
-	/**
 	 * Reads the content of the specified file and returns it as a string.
 	 * 
 	 * @param file	Absolute pathname to the file.
@@ -506,10 +493,7 @@ public class TaskBarManager
 		bus.register(this, ServiceActivationResponse.class);
         bus.register(this, ExitApplication.class);
         bus.register(this, SaveEventResponse.class);
-        String osName = System.getProperty("os.name").toLowerCase();
-		if (osName.startsWith("mac os")) {
-        	//new MacOSMenuHandler(view);
-	    	//view.addPropertyChangeListener(this);
+		if (UIUtilities.isMacOS()) {
 			try {
 				MacOSMenuHandler handler = new MacOSMenuHandler(view);
 				handler.initialize();
@@ -589,6 +573,19 @@ public class TaskBarManager
 	{ 
 		return (String) container.getRegistry().lookup(
 				LookupNames.SOFTWARE_NAME);
+	}
+	
+	/**
+	 * Opens the URL. 
+	 * 
+	 * @param url The URL to open.
+	 */
+	void openURL(String url)
+	{
+		BrowserLauncher launcher = new BrowserLauncher(
+				AbstractIconManager.getOMEIcon());
+		launcher.openURL(url);
+		if (suDialog != null) suDialog.close();
 	}
 	
 	/**
