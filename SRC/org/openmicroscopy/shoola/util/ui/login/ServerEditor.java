@@ -169,6 +169,9 @@ public class ServerEditor
 	/** The original row selected corresponding to the server. */
 	private int				originalRow;
 	
+	/** Indicates the edited row. */
+	private int				editedRow;
+	
 	/** 
 	 * Removes the selected server from the list. 
 	 * 
@@ -239,6 +242,7 @@ public class ServerEditor
 	 */
 	private void initComponents(Map<String, String> servers, boolean enabled)
 	{
+		editedRow = -1;
 		table = new ServerTable(this, servers, 
 				icons.getIcon(IconManager.SERVER_22));
 		removeButton = new JButton(icons.getIcon(IconManager.REMOVE));
@@ -264,7 +268,9 @@ public class ServerEditor
 		editButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) 
 			{ 
-				requestFocusOnEditedCell(table.getSelectedRow(), 1);
+				int row = table.getSelectedRow();
+				if (editedRow == row) requestFocusOnEditedCell(row, 2);
+				else requestFocusOnEditedCell(row, 1);
 			}
 		});
 		addButton.setEnabled(enabled);
@@ -425,6 +431,7 @@ public class ServerEditor
 		if (servers != null) n = servers.size();
 		initComponents(servers, n != 0);
 		editing = false;
+		editedRow = -1;
 		buildGUI();
 	}
 	
@@ -468,12 +475,13 @@ public class ServerEditor
 		if (col == 0) return;
 		if (table.getColumnCount() > 1) {
 			editing = true;
+			editedRow = row;
 			TableCellEditor editor = table.getCellEditor();
 			if (editor != null) editor.stopCellEditing();
 			table.editCellAt(row, col);
 			table.changeSelection(row, col, false, false);
 			table.requestFocus();
-			editing = true;
+			
 		}
 	}
 	
