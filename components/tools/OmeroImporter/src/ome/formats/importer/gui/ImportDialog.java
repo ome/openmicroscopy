@@ -193,7 +193,7 @@ public class ImportDialog extends JDialog implements ActionListener
         namedPanel = gui.addBorderedPanel(importPanel, namedTable, "File Naming", debug);
 
         fileCheckBox = gui.addCheckBox(namedPanel, "Override default file naming. Instead use:", "0,0,1", debug);
-        fileCheckBox.setSelected(gui.config.overrideImageName.get());
+       	fileCheckBox.setSelected(!gui.config.overrideImageName.get());
         
 
         String fullPathTooltip = "The full file+path name for " +
@@ -458,7 +458,6 @@ public class ImportDialog extends JDialog implements ActionListener
        
         if (e.getSource() == fileCheckBox && !fileCheckBox.isSelected())
         {
-            System.err.println("Bar");
             sendingNamingWarning(this);   
         } 
         else if (e.getSource() == addProjectBtn)
@@ -496,7 +495,7 @@ public class ImportDialog extends JDialog implements ActionListener
             gui.config.savedProject.set(
                     ((ProjectItem) pbox.getSelectedItem()).getProject().getId().getValue());
             gui.config.savedDataset.set(dataset.getId().getValue());
-            gui.config.overrideImageName.set(fileCheckBox.isSelected());
+            gui.config.overrideImageName.set(!fileCheckBox.isSelected());
             gui.config.savedFileNaming.set(fullPathButton.isSelected());
             
             pixelSizeX = xPixelSize.getValue();
