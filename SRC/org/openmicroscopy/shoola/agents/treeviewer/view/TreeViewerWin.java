@@ -147,6 +147,9 @@ class TreeViewerWin
 	/** Flag indicating that the tree is visible or hidden. */
 	private boolean				treeVisible;
 	
+	/** The first selected pane. */
+    private JXTaskPane 			firstPane;
+   
     /**
      * Checks if the specified {@link Browser} is already visible.
      * 
@@ -173,7 +176,7 @@ class TreeViewerWin
     		container.addPropertyChangeListener(controller);
     		browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
             JXTaskPane pane = new TaskPaneBrowser(browser);
-            pane.setCollapsed(false);
+            firstPane = pane;
             container.add(pane);
             
             browser = (Browser) browsers.get(Browser.FILES_EXPLORER);
@@ -456,6 +459,12 @@ class TreeViewerWin
         setTitle(title+TITLE);
     }
 
+    /** Expands the first pane. */
+    void selectPane()
+    { 
+    	if (firstPane != null) firstPane.setCollapsed(false);
+    }
+    
     /** 
      * Returns the type of layout of the browser.
      * 

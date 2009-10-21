@@ -415,8 +415,9 @@ class TreeViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-				model.getSelectedBrowser().activate(); 
 				view.setOnScreen();
+				view.selectPane();
+				model.getSelectedBrowser().activate();
 				model.setState(READY);
 				break;
 			case DISCARDED:
