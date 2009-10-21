@@ -192,7 +192,7 @@ public class LoginDialog extends JDialog
         StyleConstants.setFontSize(style, 12);
         StyleConstants.setBold(style, true);
         
-        versionInfo = gui.addTextPane(mainPanel, gui.config.getVersionNumber(), "0, 1, l, b", 
+        versionInfo = gui.addTextPane(mainPanel, gui.config.getIniVersionNumber(), "0, 1, l, b", 
                 context, style, debug);
         
         // Add an action listener to the uname to move to pswd

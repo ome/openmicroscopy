@@ -354,6 +354,10 @@ public class ImportConfig {
         return this.omeroVersion + " " + ini.getVersionNote();
     }
 
+    public String getIniVersionNumber() {
+    	return ini.getVersionNumber();
+    }
+    
     public String getUserSettingsDirectory() {
         return ini.getUserSettingsDirectory();
     }
