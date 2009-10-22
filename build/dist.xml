@@ -208,7 +208,7 @@
             <copy file="${dist.dir}/@{zip}.zip" 
             	tofile="${dist.dir}/@{zip}-HCS_PREVIEW.zip"/>
             <zip destfile="${dist.dir}/@{zip}-HCS_PREVIEW.zip" update="true">
-                <zipfileset dir="${dist.dir}/hcs-preview" includes="config/**"/>
+                <zipfileset dir="${dist.dir}/hcs-preview" prefix="@{zip}" includes="config/**"/>
             </zip>
         </sequential>
     </macrodef>
