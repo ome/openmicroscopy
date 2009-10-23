@@ -163,7 +163,7 @@ class HSVColourWheelUI
         add(empty, "1, 1");
         JPanel p = new JPanel();
         p.add(alphaTextbox);
-        add(p, "2, 1, t, l");
+        add(p, "2, 1, LEFT, TOP");
 	}
 
 	/**
