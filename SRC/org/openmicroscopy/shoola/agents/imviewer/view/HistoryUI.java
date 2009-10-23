@@ -35,7 +35,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 
 //Third-party libraries
-import layout.TableLayout;
+import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;

@@ -56,7 +56,7 @@ import javax.swing.event.DocumentListener;
 
 
 //Third-party libraries
-import layout.TableLayout;
+import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXDatePicker;
 
 //Application-internal dependencies

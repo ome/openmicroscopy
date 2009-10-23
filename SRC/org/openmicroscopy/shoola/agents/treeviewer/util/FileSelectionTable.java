@@ -45,7 +45,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 //Third-party libraries
-import layout.TableLayout;
+import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.jdesktop.swingx.JXTable;

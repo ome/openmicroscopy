@@ -68,7 +68,7 @@ import javax.swing.text.TabStop;
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Third-party libraries
-import layout.TableLayout;
+import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 

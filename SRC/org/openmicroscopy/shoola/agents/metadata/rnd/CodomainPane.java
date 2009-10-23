@@ -36,7 +36,7 @@ import org.openmicroscopy.shoola.agents.metadata.IconManager;
 
 
 //Third-party libraries
-import layout.TableLayout;
+import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 

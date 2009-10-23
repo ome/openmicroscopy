@@ -60,7 +60,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 //Third-party libraries
-import layout.TableLayout;
+import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies

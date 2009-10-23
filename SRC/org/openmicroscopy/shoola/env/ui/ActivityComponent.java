@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -41,7 +43,6 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
 //Third-party libraries
-import layout.TableLayout;
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies

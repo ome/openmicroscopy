@@ -67,8 +67,6 @@ public class MeasureTextFigure
 	/** Is this figure read only. */
 	private boolean readOnly;
 	
-	private Shape				cachedTransformedShape;
-
 	/** This is used to perform faster drawing and hit testing.    */
 	protected	Rectangle2D 		bounds;
 	

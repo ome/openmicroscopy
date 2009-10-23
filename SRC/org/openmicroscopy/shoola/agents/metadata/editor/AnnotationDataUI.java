@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -57,7 +59,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 
 //Third-party libraries
-import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;

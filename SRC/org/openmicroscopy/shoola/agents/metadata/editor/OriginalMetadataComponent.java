@@ -54,7 +54,7 @@ import javax.swing.JToolBar;
 import javax.swing.table.DefaultTableModel;
 
 //Third-party libraries
-import layout.TableLayout;
+import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;

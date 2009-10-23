@@ -46,7 +46,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
 //Third-party libraries
-import layout.TableLayout;
+import info.clearthought.layout.TableLayout; 
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
