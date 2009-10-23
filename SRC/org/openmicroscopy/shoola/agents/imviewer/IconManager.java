@@ -282,7 +282,7 @@ public class IconManager
         relPaths[PLUS] = "nuvola_edit_add16.png";
         relPaths[MINUS] = "nuvola_edit_remove16.png";
         relPaths[TEMPORARY_HISTOGRAM] = "histogram_temporary.png";
-        relPaths[COLOR_PICKER] = "nuvola_colorpicker16.png";
+        relPaths[COLOR_PICKER] = "nuvola_kcoloredit16.png";//nuvola_colorpicker16.png";
         relPaths[INFO] = "nuvola_messagebox_info16.png";
         relPaths[INFO_48] = "nuvola_messagebox_info48.png";
         relPaths[DOWNLOAD] = "nuvola_download_manager16.png";
