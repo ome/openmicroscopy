@@ -28,7 +28,10 @@ import java.awt.Component;
 import java.awt.Container;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
 
@@ -102,6 +105,19 @@ public class JXTaskPaneContainerSingle
 		return false;
 	}
 
+	/**
+	 * Return the list of JXTaskPanes in the component.
+	 * @return See above.
+	 */
+	public List<JXTaskPane> getTaskPanes()
+	{
+		List<JXTaskPane> list = new ArrayList<JXTaskPane>();
+		Iterator<JXTaskPane> iterator = panes.keySet().iterator();
+		while(iterator.hasNext())
+			list.add(iterator.next());
+		return list;
+	}
+	
 	/**
 	 * Overridden to attach listener to the component if it is a 
 	 * <code>JXTaskPane</code>.
