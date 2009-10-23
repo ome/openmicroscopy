@@ -16,7 +16,6 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -38,15 +37,12 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import ome.formats.importer.Main;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
-import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.util.ETable;
-import omero.model.IObject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -495,7 +491,7 @@ public class FileQueueTable
             if (queue.getValueAt(row, 2).equals("failed"))
             { setForeground(Color.red);} 
             else if (queue.getValueAt(row, 2).equals("unreadable"))
-            { setForeground(queue.DARK_ORANGE);} 
+            { setForeground(ETable.DARK_ORANGE);} 
             else
             { setForeground(null);}
             
@@ -513,8 +509,8 @@ public class FileQueueTable
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
 
-            Component comp = super.getTableCellRendererComponent(
-                    table, value, isSelected, hasFocus, row, column);
+            //Component c = super.getTableCellRendererComponent(
+            //        table, value, isSelected, hasFocus, row, column);
 
             setFont(UIManager.getFont("TableCell.font"));
             setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
@@ -530,7 +526,7 @@ public class FileQueueTable
             if (queue.getValueAt(row, 2).equals("failed"))
             { setForeground(Color.red);} 
             else if (queue.getValueAt(row, 2).equals("unreadable"))
-            { setForeground(queue.DARK_ORANGE);} 
+            { setForeground(ETable.DARK_ORANGE);} 
             else
             { setForeground(null);}
             

@@ -151,7 +151,8 @@ class ServerDialog
 	private boolean		isBookmarksShowing;
 	
 	/** Collection of predefined servers or <code>null</code>. */
-	private List		existingServers;
+	@SuppressWarnings("unchecked")
+    private List		existingServers;
 	
 	/** Available server. */
 	private JList		servers;
@@ -241,7 +242,8 @@ class ServerDialog
 	}
 	
 	/** Adds the list of existing servers to the {@link #bookmarks}. */
-	private void populateBookmarks()
+	@SuppressWarnings("unchecked")
+    private void populateBookmarks()
 	{
 		//bookmarks.removeAll();
 		final Object[][] objects = new Object[existingServers.size()][2];
@@ -266,7 +268,8 @@ class ServerDialog
 	 * 
 	 * @return See above.
 	 */
-	private String[] listToArray()
+	@SuppressWarnings("unchecked")
+    private String[] listToArray()
 	{
 		if (existingServers != null && existingServers.size() != 0) {
 			String[] array = new String[existingServers.size()];
@@ -450,7 +453,8 @@ class ServerDialog
 	 * 
 	 * @param servers Collection of predefined servers or <code>null</code>.
 	 */
-	ServerDialog(List servers)
+	@SuppressWarnings("unchecked")
+    ServerDialog(List servers)
 	{
 		super();
 		existingServers = servers;

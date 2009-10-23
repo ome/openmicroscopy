@@ -142,7 +142,6 @@ import omero.model.Pulse;
 import omero.model.Reagent;
 import omero.model.Rect;
 import omero.model.Screen;
-import omero.model.ScreenAcquisition;
 import omero.model.ScreenI;
 import omero.model.Shape;
 import omero.model.StageLabel;

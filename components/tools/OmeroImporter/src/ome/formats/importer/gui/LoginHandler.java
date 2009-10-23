@@ -252,6 +252,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         viewer.setVisible(true);
     }
     
+    @SuppressWarnings("unused")
     private boolean displayLoginDialog(GuiImporter viewer, boolean modal)
     {
         if (modal == true)

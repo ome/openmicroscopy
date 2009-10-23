@@ -51,6 +51,7 @@ public class ErrorTable
     implements ActionListener, PropertyChangeListener, IObserver, IObservable, MouseListener
 {
     /** Logger for this class */
+    @SuppressWarnings("unused")
     private static Log log = LogFactory.getLog(ErrorTable.class);
 
     ArrayList<IObserver> observers = new ArrayList<IObserver>();
@@ -118,8 +119,6 @@ public class ErrorTable
                 "To help us, you can upload them to us by selecting the \"Upload\" checkbox " +
                 "besides each error.";
 
-        
-        @SuppressWarnings("unused")
         JTextPane instructions = 
                 gui.addTextPane(mainPanel, message, "1,1,4,0", debug);
         instructions.setMargin(new Insets(10,10,10,10));

@@ -36,8 +36,6 @@ import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 
 import layout.TableLayout;
-import loci.formats.ImageReader;
-import ome.formats.importer.Main;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 

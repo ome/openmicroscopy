@@ -191,7 +191,6 @@ public class CommentMessenger extends JDialog implements ActionListener
 
         try {
             HtmlMessenger messenger = new HtmlMessenger(config.getTokenUrl(), postList);
-            @SuppressWarnings("unused")
             String serverReply = messenger.executePost();
             System.err.println(serverReply);
             if (serverReply != null)

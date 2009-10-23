@@ -18,10 +18,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
@@ -72,7 +69,6 @@ import ome.formats.importer.util.ErrorHandler.INTERNAL_EXCEPTION;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.PropertyConfigurator;
 import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
 import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
@@ -517,7 +513,8 @@ WindowStateListener, WindowFocusListener
                 System.exit(0);
             }
         } else if ("options".equals(cmd)) {
-            OptionsDialog dialog = 
+            @SuppressWarnings("unused")
+            final OptionsDialog dialog = 
                 new OptionsDialog(gui, this, "Import", true);
         }
         else if ("about".equals(cmd))

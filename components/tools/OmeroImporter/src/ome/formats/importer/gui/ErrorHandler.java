@@ -1,51 +1,33 @@
 package ome.formats.importer.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.swing.JEditorPane;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextPane;
-import javax.swing.text.Style;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyledDocument;
 
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.util.ErrorContainer;
-import ome.formats.importer.util.FileUploader;
-import ome.formats.importer.util.HtmlMessenger;
 
-import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 @SuppressWarnings("serial")
 public class ErrorHandler extends JPanel implements IObserver, IObservable {
     /** Logger for this class */
+    @SuppressWarnings("unused")
     private static Log log = LogFactory.getLog(ErrorHandler.class);
 
     public final MyErrorHandler delegate; // THIS SHOULD NOT BE PUBLIC
     private final ScheduledExecutorService ex;
     private final ErrorTable errorTable;
     private final GuiCommonElements gui;
-    private JTextPane debugTextPane;
-    private StyledDocument debugDocument;
-    private Style debugStyle;
 
     public ErrorHandler(ScheduledExecutorService ex, ImportConfig config) {
         this.ex = ex;

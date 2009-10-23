@@ -240,7 +240,10 @@ public class LoginDialog extends JDialog
     {
         if (e.getSource() == loginBtn)
         {
+            @SuppressWarnings("unused")
             String username = uname.getText();
+            
+            @SuppressWarnings("unused")
             String password = new String(pswd.getPassword());
             //server = srvr.getText();
             //port = prt.getText();

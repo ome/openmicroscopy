@@ -16,10 +16,7 @@ import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.MinMaxCalculator;
-import loci.formats.in.FlexReader;
-import loci.formats.in.InCellReader;
 import loci.formats.in.LeicaReader;
-import loci.formats.in.MIASReader;
 import loci.formats.meta.MetadataStore;
 import omero.model.Channel;
 import omero.model.Pixels;
@@ -29,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class OMEROWrapper extends MinMaxCalculator {
 
+    @SuppressWarnings("unused")
     private final static Log log = LogFactory.getLog(OMEROWrapper.class);
 
     private ChannelSeparator separator;

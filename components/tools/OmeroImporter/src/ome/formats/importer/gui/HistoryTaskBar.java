@@ -25,6 +25,8 @@ import org.jdesktop.swingx.VerticalLayout;
 
 public class HistoryTaskBar extends JXPanel implements ActionListener
 {
+    private static final long serialVersionUID = 1L;
+
     JXTaskPaneContainer  tpContainer = new JXTaskPaneContainer();
     
     DefaultListModel today = new DefaultListModel(); 
@@ -105,6 +107,7 @@ public class HistoryTaskBar extends JXPanel implements ActionListener
 }
 
 class ImportCellRenderer extends JLabel implements ListCellRenderer {
+    private static final long serialVersionUID = 1L;
 
     public ImportCellRenderer() {
         setOpaque(true);

@@ -40,7 +40,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import javax.swing.DefaultListModel;
-import javax.swing.JOptionPane;
 
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;

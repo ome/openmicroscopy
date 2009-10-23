@@ -21,7 +21,6 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,8 +39,6 @@ import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileFilter;
 
 import layout.TableLayout;
-import loci.formats.FormatException;
-import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.gui.FormatFileFilter;
 
@@ -54,7 +51,6 @@ import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
-import ome.formats.importer.util.ErrorHandler;
 import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Screen;
@@ -91,8 +87,6 @@ public class FileQueueHandler
     private final ScheduledExecutorService importEx;
     private JProgressBar directoryProgressBar;
     private JDialog progressDialog;
-    
-    private Integer directoryCount;
 
     protected boolean cancelScan = false;
 
@@ -112,9 +106,7 @@ public class FileQueueHandler
         this.historyTable = viewer.historyTable;
         this.importReader = new OMEROWrapper(config);
         this.scanReader = new OMEROWrapper(config);
-        
-        directoryCount = 0;
-        
+
         //reader.setChannelStatCalculationStatus(true);
         
         setLayout(new BorderLayout());

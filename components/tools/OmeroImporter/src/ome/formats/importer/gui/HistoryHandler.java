@@ -1,14 +1,10 @@
 package ome.formats.importer.gui;
 
 import java.awt.BorderLayout;
-import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
-
-import ome.formats.OMEROMetadataStoreClient;
-import ome.formats.importer.IObserver;
 
 @SuppressWarnings("serial")
 public class HistoryHandler 

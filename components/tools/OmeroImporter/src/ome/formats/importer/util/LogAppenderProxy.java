@@ -15,7 +15,6 @@ package ome.formats.importer.util;
 
 import java.io.File;
 
-import ome.formats.importer.ImportConfig;
 import ome.formats.importer.gui.LogAppender;
 
 import org.apache.log4j.Appender;

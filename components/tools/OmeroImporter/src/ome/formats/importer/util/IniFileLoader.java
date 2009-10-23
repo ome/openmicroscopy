@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import loci.formats.FormatException;
 import loci.formats.in.FlexReader;
 import ome.formats.importer.Version;
 import omero.util.TempFileManager;
@@ -54,7 +53,6 @@ public class IniFileLoader {
 
     // Dynamic user settings
     private String userSettingsDirectory;
-    private String userSettingsFile;
     private Preferences userPrefs;
 
     // Static config settings
