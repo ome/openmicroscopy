@@ -28,12 +28,15 @@ import java.awt.Component;
 import java.awt.Container;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
 
 //Third-party libraries
-import layout.TableLayout;
+import info.clearthought.layout.TableLayout; 
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 
@@ -80,6 +83,19 @@ public class JXTaskPaneContainerSingle
 	public JXTaskPaneContainerSingle()
 	{
 		initialize();
+	}
+	
+	/**
+	 * Return the list of JXTaskPanes in the component.
+	 * @return See above.
+	 */
+	public List<JXTaskPane> getTaskPanes()
+	{
+		List<JXTaskPane> list = new ArrayList<JXTaskPane>();
+		Iterator<JXTaskPane> iterator = panes.keySet().iterator();
+		while(iterator.hasNext())
+			list.add(iterator.next());
+		return list;
 	}
 	
 	/**

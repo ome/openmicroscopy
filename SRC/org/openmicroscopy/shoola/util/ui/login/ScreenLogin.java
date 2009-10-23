@@ -56,7 +56,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 //Third-party libraries
-import layout.TableLayout;
+import info.clearthought.layout.TableLayout; 
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
@@ -412,7 +412,7 @@ public class ScreenLogin
 		mainPanel.add(pleaseLogIn, "0, 0, l, c");
 		mainPanel.add(UIUtilities.buildComponentPanelRight(p, 0, 0, false), 
 				"0, 0, 4, 0");
-		mainPanel.add(configButton, "5, 0, t, c");
+		mainPanel.add(configButton, "5, 0, CENTER, TOP");
 		
 		//second row
 		JTextPane l = UIUtilities.buildTextPane(USER_TEXT, TEXT_COLOR);

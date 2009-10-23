@@ -36,7 +36,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 //Third-party libraries
-import layout.TableLayout;
+import info.clearthought.layout.TableLayout; 
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;

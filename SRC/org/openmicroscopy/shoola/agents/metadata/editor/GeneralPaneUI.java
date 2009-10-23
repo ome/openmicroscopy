@@ -38,7 +38,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 //Third-party libraries
-import layout.TableLayout;
+import info.clearthought.layout.TableLayout; 
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;

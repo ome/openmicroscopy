@@ -38,7 +38,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 //Third-party libraries
-import layout.TableLayout;
+import info.clearthought.layout.TableLayout; 
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies

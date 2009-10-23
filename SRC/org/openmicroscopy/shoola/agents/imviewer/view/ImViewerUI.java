@@ -68,7 +68,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
 //Third-party libraries
-import layout.TableLayout;
+import info.clearthought.layout.TableLayout; 
 import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies

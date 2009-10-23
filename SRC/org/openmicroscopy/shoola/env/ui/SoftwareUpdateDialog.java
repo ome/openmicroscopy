@@ -50,7 +50,7 @@ import javax.swing.WindowConstants;
 
 
 //Third-party libraries
-import layout.TableLayout;
+import info.clearthought.layout.TableLayout; 
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;

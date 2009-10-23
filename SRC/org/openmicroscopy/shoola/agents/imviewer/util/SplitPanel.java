@@ -30,7 +30,7 @@ import javax.swing.JPanel;
 
 
 //Third-party libraries
-import layout.TableLayout;
+import info.clearthought.layout.TableLayout; 
 
 //Application-internal dependencies
 

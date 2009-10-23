@@ -44,7 +44,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import layout.TableLayout;
+import info.clearthought.layout.TableLayout; 
 
 
 //Third-party libraries

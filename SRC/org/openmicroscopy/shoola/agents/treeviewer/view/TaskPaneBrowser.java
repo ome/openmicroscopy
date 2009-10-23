@@ -63,6 +63,7 @@ class TaskPaneBrowser
 	/** Initializes the component. */
 	private void initialize()
 	{
+        setAnimated(false);
 		Container c = getContentPane();
 		c.setBackground(UIUtilities.BACKGROUND_COLOR);
 		if (c instanceof JComponent) 

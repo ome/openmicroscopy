@@ -36,7 +36,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 //Third-party libraries
-import layout.TableLayout;
+import info.clearthought.layout.TableLayout; 
 //Application-internal dependencies
 
 
