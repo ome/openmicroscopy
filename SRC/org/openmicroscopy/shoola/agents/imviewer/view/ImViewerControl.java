@@ -813,8 +813,10 @@ class ImViewerControl
 						(Boolean) entry.getValue());
 			}
 			*/
+		} else if (ChannelColorMenuItem.CHANNEL_COLOR_PROPERTY.equals(pName)) {
+			model.showColorPicker(((Integer) pce.getNewValue()).intValue());
 		} else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(pName) ||
-				ChannelColorMenuItem.CHANNEL_COLOR_PROPERTY.equals(pName)) {
+			ChannelColorMenuItem.CHANNEL_COLOR_PROPERTY.equals(pName)) {
 			if (view.isSourceDisplayed(pce.getSource()))
 				model.showColorPicker(((Integer) pce.getNewValue()).intValue());
 		} else if (ColourPicker.COLOUR_PROPERTY.equals(pName)) { 

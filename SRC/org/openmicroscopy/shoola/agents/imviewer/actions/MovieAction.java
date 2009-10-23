@@ -67,7 +67,15 @@ public class MovieAction
      */
     protected void onTabSelection()
     {
-    	setEnabled(model.getSelectedIndex() != ImViewer.PROJECTION_INDEX);
+    	if (model.getSelectedIndex() == ImViewer.PROJECTION_INDEX) {
+			setEnabled(false);
+		} else {
+			if (model.isPlayingMovie()) setEnabled(false);
+			else {
+				int max = Math.max(model.getMaxZ(), model.getMaxT());
+				setEnabled(max != 0);
+			}
+		}
     }
     
     /**
