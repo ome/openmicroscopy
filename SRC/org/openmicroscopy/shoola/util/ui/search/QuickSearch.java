@@ -329,10 +329,10 @@ public class QuickSearch
 	        bar.setRollover(true);
 	        bar.setBorder(null);
 	        bar.add(menuButton);
-			searchPanel.add(bar, "1, 0, f, c");
+			searchPanel.add(bar, "1, 0, FULL, CENTER");
 		}
 			
-		searchPanel.add(searchArea, "2, 0, f, c");
+		searchPanel.add(searchArea, "2, 0, FULL, CENTER");
 		if (clearButton != null) {
 			cleanBar = new JToolBar();
 			cleanBar.setFloatable(false);
@@ -340,7 +340,7 @@ public class QuickSearch
 			cleanBar.setBorder(null);
 			cleanBar.add(clearButton);
 			cleanBar.setVisible(false);
-			searchPanel.add(cleanBar, "3, 0, f, c");
+			searchPanel.add(cleanBar, "3, 0, FULL, CENTER");
 		}
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		setOpaque(true);

@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -59,6 +57,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 
 //Third-party libraries
+import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -327,7 +326,7 @@ class AnnotationDataUI
 		p.add(UIUtilities.setTextFont("tag", Font.BOLD, size));
 		p.add(createBar(addTagsButton));
 		
-		content.add(p, "0, "+i+", l, t");
+		content.add(p, "0, "+i+", LEFT, TOP");
 		content.add(tagsPane, "2, "+i);
 		tagRow = i;
 		i++;
@@ -336,12 +335,12 @@ class AnnotationDataUI
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.add(UIUtilities.setTextFont("attachment", Font.BOLD, size));
 		p.add(createBar(addDocsButton));
-		content.add(p, "0, "+i+", l, t");
+		content.add(p, "0, "+i+", LEFT, TOP");
 		content.add(docPane, "2, "+i);
 		i++;
 		layout.insertRow(i, 0);
 		content.add(UIUtilities.setTextFont("viewed by", Font.BOLD, size),
-				"0, "+i+", l, t");
+				"0, "+i+", LEFT, TOP");
 		p = UIUtilities.buildComponentPanel(viewedByPane, 0, 0);
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		content.add(viewedByPane, "2, "+i);
@@ -575,8 +574,6 @@ class AnnotationDataUI
 		content.repaint();
 		revalidate();
 		repaint();
-		
-		//
 	}
 	
 	/**

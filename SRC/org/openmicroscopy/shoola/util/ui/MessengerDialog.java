@@ -430,8 +430,8 @@ public class MessengerDialog
         JLabel label = new JLabel(comment);
         label.setOpaque(false);
         label.setDisplayedMnemonic(mnemonic);
-        panel.add(label, "0, 0, l, c");
-        panel.add(areaScrollPane, "0, 1, f, f");
+        panel.add(label, "0, 0, LEFT, CENTER");
+        panel.add(areaScrollPane, "0, 1");
         return panel;
 	}
 	
@@ -464,11 +464,11 @@ public class MessengerDialog
         label.setLabelFor(emailArea);
         label.setOpaque(false);
 
-        panel.add(label, "0, 0, r, c");        
-        panel.add(emailArea, "1, 0, f, c");
+        panel.add(label, "0, 0, RIGHT, CENTER");        
+        panel.add(emailArea, "1, 0, FULL, CENTER");
 
         if (EMAIL_SUFFIX.length() != 0)
-            panel.add(new JLabel(EMAIL_SUFFIX), "2, 0, l, c");
+            panel.add(new JLabel(EMAIL_SUFFIX), "2, 0, LEFT, CENTER");
 
 		return panel;
 	}
@@ -491,7 +491,7 @@ public class MessengerDialog
         JScrollPane pane = new JScrollPane(debugArea);
         //pane.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         panel.add(pane, "0, 0");
-        panel.add(copyButton, "0, 1, c, b");
+        panel.add(copyButton, "0, 1, CENTER, BOTTOM");
         return panel;
 	}
 	
@@ -568,7 +568,8 @@ public class MessengerDialog
         			buildFilesToSubmitPane(toSubmit),
         	"The files to send to the development team.");
         } else {
-        	tPane.addTab("Comments", null, buildCommentPane(DEBUG_COMMENT_FIELD), 
+        	tPane.addTab("Comments", null, 
+        			buildCommentPane(DEBUG_COMMENT_FIELD), 
         		"Your comments go here.");
         	tPane.addTab("Error Message", null, buildDebugPane(),
         	"The Exception Message.");

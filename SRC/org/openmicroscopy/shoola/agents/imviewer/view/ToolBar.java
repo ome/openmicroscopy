@@ -45,6 +45,7 @@ import javax.swing.JToolBar;
 //Application-internal dependencies
 import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ActivityImageAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ROIToolAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UserAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -210,15 +211,11 @@ class ToolBar
         button = new JButton(controller.getAction(ImViewerControl.SAVE));
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);
-        button = new JButton(controller.getAction(
-        		ImViewerControl.CREATE_MOVIE));
+        a = controller.getAction(ImViewerControl.ACTIVITY);
+        button = new JButton(a);
+        button.addMouseListener((ActivityImageAction) a);
         UIUtilities.unifiedButtonLookAndFeel(button);
-        bar.add(button);
-        button = new JButton(controller.getAction(
-        		ImViewerControl.EXPORT));
-        UIUtilities.unifiedButtonLookAndFeel(button);
-        bar.add(button);
-        
+        bar.add(button);        
         
         a = controller.getAction(ImViewerControl.USER);
         button = new JButton(a);

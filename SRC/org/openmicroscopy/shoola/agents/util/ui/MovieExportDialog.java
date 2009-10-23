@@ -303,7 +303,7 @@ public class MovieExportDialog
         content.add(fps, "1, "+i);
         content.add(new JLabel("fps"), "2, "+i);
         i = i+2;
-        content.add(timeInterval, "0, "+i+", l, t");
+        content.add(timeInterval, "0, "+i+", LEFT, TOP");
         content.add(UIUtilities.buildComponentPanel(timeRange), 
         		"1, "+i+", 2, "+i);
         i = i+1;
@@ -313,7 +313,7 @@ public class MovieExportDialog
         		l.getFont().getSize()-2), 
         		"1, "+i+", 2, "+i);
         i = i+2;
-        content.add(zInterval, "0, "+i+", l, t");
+        content.add(zInterval, "0, "+i+", LEFT, TOP");
         content.add(UIUtilities.buildComponentPanel(zRange), 
         		"1, "+i+", 2, "+i);
         i = i+1;

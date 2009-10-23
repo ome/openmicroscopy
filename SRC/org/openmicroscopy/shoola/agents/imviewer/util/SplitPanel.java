@@ -148,7 +148,7 @@ public class SplitPanel
 	}
 	
 	/** 
-	 * Sets the rigth component.
+	 * Sets the right component.
 	 * 
 	 * @param c The component to add. Mustn't be <code>null</code>.
 	 */

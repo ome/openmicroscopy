@@ -289,4 +289,5 @@ class CodomainPane
             contrastStretchingButton.setEnabled(false);
             */
     }
+    
 }

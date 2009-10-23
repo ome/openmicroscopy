@@ -93,7 +93,7 @@ class TreeComponentNode
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		add(iconLabel, "0, 0, l, c");
+		add(iconLabel, "0, 0, LEFT, CENTER");
 		if (expanded) {
 			layout.setRow(1, TableLayout.FILL);
 			add(elapse, "1, 0, 1, 1");
@@ -204,7 +204,7 @@ class TreeComponentNode
 	boolean isExpanded() { return expanded; }
 	
 	/**
-	 * Allows or not the user to expand/collpase the node.
+	 * Allows or not the user to expand/collapse the node.
 	 * 
 	 * @param enabled Pass <code>true</code> to allow operation, 
 	 * 				<code>false</code> otherwise.

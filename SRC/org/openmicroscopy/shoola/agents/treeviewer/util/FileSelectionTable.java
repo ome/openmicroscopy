@@ -195,7 +195,7 @@ class FileSelectionTable
 		double[][] size = {{TableLayout.PREFERRED, 10, TableLayout.FILL}, 
 				{TableLayout.FILL}};
 		setLayout(new TableLayout(size));
-		add(buildControls(), "0, 0, l, c");
+		add(buildControls(), "0, 0, LEFT, CENTER");
 		add(buildTablePane(), "2, 0");
 	}
 

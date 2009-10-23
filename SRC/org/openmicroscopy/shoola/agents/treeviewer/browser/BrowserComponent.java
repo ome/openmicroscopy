@@ -188,6 +188,8 @@ class BrowserComponent
 				rootType = DatasetData.class;
 			else if (type == TAGS_EXPLORER)
 				rootType = TagAnnotationData.class;
+			else if (type == SCREENS_EXPLORER)
+				rootType = PlateData.class;
 		}
 		ContainerFinder finder = new ContainerFinder(rootType);
 		accept(finder, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
@@ -370,7 +372,7 @@ class BrowserComponent
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setLeaves(Set, TreeImageSet, TreeImageSet)
      */
-    public void setLeaves(Set leaves, TreeImageSet parent, 
+    public void setLeaves(Collection leaves, TreeImageSet parent, 
     						TreeImageSet expNode)
     {
         if (model.getState() != LOADING_LEAVES) return;
@@ -395,7 +397,13 @@ class BrowserComponent
         if (parent != null && 
         		parent.getUserObject() instanceof TagAnnotationData)
         	countItems(DatasetData.class);
-        model.getParentModel().setLeaves(parent, leaves);
+        Object p = null;
+        if (parent != null && 
+        		parent.getUserObject() instanceof PlateData) {
+        	p = parent.getUserObject();
+        }
+        if (!(p instanceof PlateData))
+        	model.getParentModel().setLeaves(parent, leaves);
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
     }

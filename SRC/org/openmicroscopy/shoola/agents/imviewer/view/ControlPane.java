@@ -767,23 +767,22 @@ class ControlPane
         
         controls.add(Box.createVerticalStrut(20), "0, 0");
         int k = 1;
-        controls.add(buildToolBar(), "0, "+k+", c, c");
+        controls.add(buildToolBar(), "0, "+k+", CENTER, CENTER");
         k++;
         if (channelButtons.size() > ImViewer.MAX_CHANNELS) {
         	JScrollPane sp = new JScrollPane(p);
         	d = new Dimension(2*w, h*ImViewer.MAX_CHANNELS);
         	sp.setPreferredSize(d);
-        	controls.add(sp, "0, "+k+", r, c");
+        	controls.add(sp, "0, "+k+", RIGHT, CENTER");
         } else controls.add(p, "0, "+k);
         k++;
         if (!model.isNumerousChannel()) {
         	
         	controls.add(createButtonToolBar(channelMovieButton), 
-        			"0, "+k+", c, c");
-        	//controls.add(buildBottomToolBar(), "0, "+k+", c, c");
+        			"0, "+k+", CENTER, CENTER");
         }
         k++;
-        controls.add(ratioSlider, "0, "+k+", c, c");
+        controls.add(ratioSlider, "0, "+k+", CENTER, CENTER");
         return UIUtilities.buildComponentPanel(controls);
     }
     
@@ -924,17 +923,18 @@ class ControlPane
         controls.add(Box.createVerticalStrut(10), "0, 0");
         JToolBar bar = buildGridBar();
         bar.add(Box.createRigidArea(VBOX));
-        controls.add(bar, "0, 1, c, c");
+        controls.add(bar, "0, 1, CENTER, CENTER");
         //bar = createBar();
         //bar.add(textVisibleButton);
-        controls.add(createButtonToolBar(textVisibleButton), "0, 2, c, c");
+        controls.add(createButtonToolBar(textVisibleButton), "0, 2, " +
+        		"CENTER, CENTER");
         if (channelButtonsGrid.size() > ImViewer.MAX_CHANNELS) {
         	JScrollPane sp = new JScrollPane(buttons);
         	d = new Dimension(2*w, h*ImViewer.MAX_CHANNELS);
         	sp.setPreferredSize(d);
-        	controls.add(sp, "0, 3, r, c");
+        	controls.add(sp, "0, 3, RIGHT, CENTER");
         } else controls.add(buttons, "0, 3");
-        controls.add(gridRatioSlider, "0, 4, c, c");
+        controls.add(gridRatioSlider, "0, 4, CENTER, CENTER");
         
         JPanel content = new JPanel();
         content.setLayout(new BoxLayout(content, BoxLayout.X_AXIS));
@@ -998,16 +998,16 @@ class ControlPane
         controls.setLayout(new TableLayout(size));
         controls.add(Box.createVerticalStrut(20), "0, 0");
         int k = 1;
-        controls.add(buildProjectionBar(), "0, "+k+", c, c");
+        controls.add(buildProjectionBar(), "0, "+k+", CENTER, CENTER");
         k++;
         if (channelButtonsProjection.size() > ImViewer.MAX_CHANNELS) {
         	JScrollPane sp = new JScrollPane(buttons);
         	d = new Dimension(2*w, h*ImViewer.MAX_CHANNELS);
         	sp.setPreferredSize(d);
-        	controls.add(sp, "0, "+k+", r, c");
-        } else controls.add(buttons, "0, "+k+", c, c");
+        	controls.add(sp, "0, "+k+", RIGHT, CENTER");
+        } else controls.add(buttons, "0, "+k+", CENTER, CENTER");
         k++;
-        controls.add(projectionRatioSlider, "0, "+k+", c, c");
+        controls.add(projectionRatioSlider, "0, "+k+", CENTER, CENTER");
         
         JPanel content = new JPanel();
         content.setLayout(new BoxLayout(content, BoxLayout.X_AXIS));

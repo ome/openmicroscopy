@@ -182,8 +182,8 @@ public class DMRefreshLoader
             public void doCall() throws Exception
             {
             	results = new HashMap<Long, Object>(nodes.size());
-                retrieveData(ProjectData.class, nodes);
-                retrieveData(ScreenData.class, nodes);
+                //retrieveData(ProjectData.class, nodes);
+                retrieveData(rootNodeType, nodes);
             }
         };
     }
@@ -310,8 +310,8 @@ public class DMRefreshLoader
             throw new IllegalArgumentException("No container with images.");
         if (ImageData.class.equals(rootNodeType)) 
         	loadCall = makeImagesBatchCall(nodes);
-        else if (ProjectData.class.equals(rootNodeType))// ||
-        		//ScreenData.class.equals(rootNodeType))
+        else if (ProjectData.class.equals(rootNodeType) ||
+        		ScreenData.class.equals(rootNodeType))
         	loadCall = makeBatchCall(rootNodeType, nodes);
         else if (FileAnnotationData.class.equals(rootNodeType)) {
         	loadCall = makeFilesBatchCall(nodes);

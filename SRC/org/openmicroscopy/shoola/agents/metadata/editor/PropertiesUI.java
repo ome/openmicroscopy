@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -560,7 +559,7 @@ class PropertiesUI
     	bar.setFloatable(false);
     	bar.setBackground(UIUtilities.BACKGROUND_COLOR);
     	bar.add(button);
-    	p.add(bar, "0, 0, l, t");
+    	p.add(bar, "0, 0, LEFT, TOP");
     	p.add(c, "1, 0, 1, 1");
     	
     	JPanel content = UIUtilities.buildComponentPanel(p, 0, 0);

@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.util;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Font;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
@@ -37,8 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;

@@ -40,6 +40,7 @@ import javax.swing.tree.DefaultTreeModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import pojos.DatasetData;
+import pojos.PlateData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -116,17 +117,19 @@ public class ContainersManager
             node = (TreeImageSet) i.next();
             userObject = node.getUserObject();
             if (userObject instanceof DatasetData) 
-                id = Long.valueOf(((DatasetData) userObject).getId());
-           else if (userObject instanceof TagAnnotationData) 
-                id = Long.valueOf(((TagAnnotationData) userObject).getId());
+            	id = Long.valueOf(((DatasetData) userObject).getId());
+            else if (userObject instanceof PlateData) 
+            	id = Long.valueOf(((PlateData) userObject).getId());
+            else if (userObject instanceof TagAnnotationData) 
+            	id = Long.valueOf(((TagAnnotationData) userObject).getId());
             if (id != null) {
-                p = (Set) providers.get(id);
-                if (p == null) {
-                    totalIDs++;
-                    p = new HashSet();
-                    providers.put(id, p);
-                }
-                p.add(node);
+            	p = (Set) providers.get(id);
+            	if (p == null) {
+            		totalIDs++;
+            		p = new HashSet();
+            		providers.put(id, p);
+            	}
+            	p.add(node);
             }
         }
     }

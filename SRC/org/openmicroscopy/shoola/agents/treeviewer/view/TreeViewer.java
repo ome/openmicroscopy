@@ -629,7 +629,7 @@ public interface TreeViewer
 	 * @param parent 	The node the leaves are related to.
 	 * @param leaves	The leaves to convert and add to the node.
 	 */
-	public void setLeaves(TreeImageSet parent, Set leaves);
+	public void setLeaves(TreeImageSet parent, Collection leaves);
 	
 	/**
 	 * Sets the selected node.

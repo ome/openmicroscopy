@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -1962,12 +1964,6 @@ class ImViewerModel
 				getBrowser().getUnitBarColor());
 	}
 	
-	/** Exports the image. */
-	void export()
-	{
-		if (metadataViewer == null) return;
-		metadataViewer.export();
-	}
 	
 	/**
 	 * Sets the selected lifetime bin.
@@ -2089,6 +2085,19 @@ class ImViewerModel
 		}
 		*/
 		return initZoomFactor();
+	}
+
+	/**
+	 * Brings up the activity options.
+	 * 
+	 * @param source   The source of the mouse pressed.
+	 * @param location The location of the mouse pressed.
+	 */
+	void activityOptions(Component source, Point location)
+	{
+		if (metadataViewer == null) return;
+		metadataViewer.activityOptions(source, location);
+		
 	}
 	
 }

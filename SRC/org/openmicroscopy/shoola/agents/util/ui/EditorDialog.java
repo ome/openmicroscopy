@@ -237,9 +237,9 @@ public class EditorDialog
         content.setLayout(layout);
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
        
-        content.add(UIUtilities.setTextFont("Name"), "0, 0, l, t");
+        content.add(UIUtilities.setTextFont("Name"), "0, 0, LEFT, TOP");
         content.add(nameArea, "1, 0");
-        content.add(UIUtilities.setTextFont("Description"), "0, 2, l, t");
+        content.add(UIUtilities.setTextFont("Description"), "0, 2, LEFT, TOP");
         content.add(new JScrollPane(descriptionArea), "1, 2");
         //content.add(buildPermissions(), "1, 4, l, t");
         return content;

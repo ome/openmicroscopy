@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -33,11 +35,15 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
+import pojos.PlateData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -58,7 +64,7 @@ public class ContainerCounterLoader
 {
 
     /** The lastly retrieved map. */
-    private Map			currentMap;
+    private Object result;
 
     /** The batch call. */
     private BatchCall	loadCall;
@@ -78,8 +84,27 @@ public class ContainerCounterLoader
 		    public void doCall() throws Exception
 		    { 
 		        OmeroDataService os = context.getDataService();
-		        currentMap = os.getCollectionCount(type, 
+		        if (PlateData.class.equals(type)) {
+		        	Iterator<Long> i = ids.iterator();
+		        	OmeroMetadataService ms = context.getMetadataService();
+		        	Collection c; 
+		        	Long id;
+		        	ExperimenterData exp = (ExperimenterData) context.lookup(
+							LookupNames.CURRENT_USER_DETAILS);
+		        	//Long userID = context.get
+		        	Map<Long, Long> m = new HashMap<Long, Long>();
+		        	long userID = exp.getId();
+		        	while (i.hasNext()) {
+						id = i.next();
+						m.put(id, new Long(
+								ms.loadROIMeasurements(type, id, userID).size()));
+					}
+		        	
+		        	result = m;
+		        } else {
+		        	 result = os.getCollectionCount(type, 
 		                		OmeroDataService.IMAGES_PROPERTY, ids);
+		        }
 		    }
 		};
     }
@@ -89,23 +114,13 @@ public class ContainerCounterLoader
      * @see BatchCallTree#buildTree()
      */
     protected void buildTree() { add(loadCall); }
-    
-    /**
-     * Returns the lastly retrieved thumbnail.
-     * This will be packed by the framework into a feedback event and
-     * sent to the provided call observer, if any.
-     * 
-     * @return 	A Map whose key is the containerID and the value the number of 
-     * 			items contained in the container.
-     */
-    //protected Object getPartialResult() { return currentMap; }
 
     /**
      * Returns <code>null</code> as there's no final result.
      * In fact, values are progressively delivered with feedback events.
      * @see BatchCallTree#getResult()
      */
-    protected Object getResult() { return currentMap; }
+    protected Object getResult() { return result; }
 
     /**
      * Creates a new instance.
@@ -130,6 +145,9 @@ public class ContainerCounterLoader
             } else if (root instanceof TagAnnotationData) {
             	rootType = TagAnnotationData.class;
                 id = Long.valueOf(((TagAnnotationData) root).getId());
+            } else if (root instanceof PlateData) {
+            	rootType = PlateData.class;
+                id = Long.valueOf(((PlateData) root).getId());
             }
             if (id != null) ids.add(id);
         }

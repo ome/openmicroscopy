@@ -27,7 +27,9 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Point;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
@@ -210,7 +212,6 @@ public class EditorUI
     	Object uo = model.getRefObject();
     	remove(component);
     	setDataToSave(false);
-    	toolBar.setStatus(false);
     	boolean add = true;
     	if (uo instanceof ExperimenterData)  {
     		ExperimenterData exp = (ExperimenterData) uo;
@@ -248,12 +249,11 @@ public class EditorUI
 		Object uo = model.getRefObject();
 		tabPane.setComponentAt(RND_INDEX, dummyPanel);
 		setDataToSave(false);
+		toolBar.setRootObject();
 		toolBar.buildUI();
-		toolBar.setStatus(false);
 		if (!(uo instanceof DataObject)) {
 			setDataToSave(false);
 			toolBar.buildUI();
-    		toolBar.setStatus(false);
 			remove(component);
 			component = defaultPane;
 			add(component, BorderLayout.CENTER);
@@ -373,22 +373,6 @@ public class EditorUI
     	generalPane.setChannelData();
     	acquisitionPane.setChannelData();
     }
-
-    /**
-     * Displays the movie components depending on the passed value.
-     * 
-     * @param b Pass <code>true</code> if movie creation,
-     * 			<code>false</code> when it is done.
-     */
-    void createMovie(boolean b) { toolBar.createMovie(b); }
-    
-    /**
-     * displays the analyze components depending on the passed value.
-     * 
-     * @param b Pass <code>true</code> if movie creation,
-     * 			<code>false</code> when it is done.
-     */
-    void analyse(boolean b) { toolBar.analyse(b); }
     
     /**
      * Enables the saving controls depending on the passed value.
@@ -677,6 +661,17 @@ public class EditorUI
 		if (cleanup) tabPane.setComponentAt(RND_INDEX, dummyPanel);
 		else tabPane.setComponentAt(RND_INDEX, 
 				new JScrollPane(model.getRenderer().getUI()));
+	}
+
+	/**
+	 * Brings up the activity options.
+	 * 
+	 * @param source   The source of the mouse pressed.
+	 * @param location The location of the mouse pressed.
+	 */
+	void activityOptions(Component source, Point p)
+	{
+		toolBar.launchOptions(source, p);
 	}
 	
 }

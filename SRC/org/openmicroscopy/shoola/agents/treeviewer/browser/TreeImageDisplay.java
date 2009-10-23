@@ -125,7 +125,7 @@ public abstract class TreeImageDisplay
     protected List<TreeImageDisplay>	childrenDisplay;
     
     /**
-     * The tooltip: annotation if the <code>DataObject</code>
+     * The text of the tool tip: annotation if the <code>DataObject</code>
      * can be annotated and the inserted date if any.
      */
     private String              		tooltip;
@@ -464,8 +464,8 @@ public abstract class TreeImageDisplay
         	return name;
         } else if (uo instanceof ExperimenterData)
         	return getNodeName();
-        else if (uo instanceof PlateData)
-        	return getNodeName();
+        //else if (uo instanceof PlateData)
+        //	return getNodeName();
         else if (uo instanceof FileAnnotationData)
         	return getNodeName();
         else if (uo instanceof File)
@@ -521,7 +521,7 @@ public abstract class TreeImageDisplay
     	Object uo = getUserObject();
     	if ((uo instanceof ProjectData) || (uo instanceof ScreenData) ||
     		(uo instanceof PlateData) || (uo instanceof DatasetData) ||
-    		(uo instanceof TagAnnotationData)) {
+    		(uo instanceof TagAnnotationData) || (uo instanceof PlateData)) {
     		if (numberItems > 0) return true;
         	return hasChildrenDisplay();
     	}

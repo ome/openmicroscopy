@@ -132,7 +132,8 @@ public class DataBrowserFactory
 	 * @return See above.
 	 */
 	public static final DataBrowser getDataBrowser(Object grandParent, 
-										Object parent, Set<ImageData> images)
+										Object parent, 
+										Collection<ImageData> images)
 	{
 		return singleton.createImagesDataBrowser(grandParent, parent, images);
 	}
@@ -147,8 +148,7 @@ public class DataBrowserFactory
 	 * @return See above.
 	 */
 	public static final DataBrowser getTagsBrowser(TagAnnotationData parent, 
-												Set<DataObject> nodes, 
-												boolean withImages)
+			Collection<DataObject> nodes, boolean withImages)
 	{
 		return singleton.createTagsDataBrowser(parent, nodes, withImages);
 	}
@@ -362,7 +362,7 @@ public class DataBrowserFactory
 	 * @return See above.
 	 */
 	private DataBrowser createImagesDataBrowser(Object grandParent, 
-									Object parent, Set<ImageData> images)
+									Object parent, Collection<ImageData> images)
 	{
 		DataBrowserModel model = new ImagesModel(parent, images);
 		model.setGrandParent(grandParent);
@@ -429,7 +429,7 @@ public class DataBrowserFactory
 	 * @return See above.
 	 */
 	private DataBrowser createTagsDataBrowser(DataObject parent, 
-			Set<DataObject> dataObjects, boolean withImages)
+			Collection<DataObject> dataObjects, boolean withImages)
 	{
 		DataBrowserModel model = new TagsModel(parent, dataObjects, withImages);
 		DataBrowserComponent comp = new DataBrowserComponent(model);

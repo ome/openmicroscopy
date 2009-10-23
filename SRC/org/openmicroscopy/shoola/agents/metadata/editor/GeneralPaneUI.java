@@ -32,8 +32,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -149,7 +147,6 @@ class GeneralPaneUI
 	{
 		if (b) controller.loadParents();
 		else {
-			view.setStatus(false);
 			model.cancelParentsLoading();
 		}
 	}

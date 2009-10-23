@@ -3,7 +3,6 @@
 	<classpathentry kind="src" path="SRC"/>
 	<classpathentry kind="src" path="TEST"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="LIB/TableLayout-2006-11-27.jar"/>
 	<classpathentry kind="lib" path="LIB/test/junit-3.8.1.jar"/>
 	<classpathentry kind="lib" path="LIB/log4j-1.2.14.jar"/>
 	<classpathentry kind="lib" path="LIB/commons-codec-1.3.jar"/>
@@ -42,5 +41,6 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/jburel/Desktop/jogl-1.1.1-macosx-universal/lib"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="LIB/TableLayout-bin-jdk1.5-2009-08-26.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

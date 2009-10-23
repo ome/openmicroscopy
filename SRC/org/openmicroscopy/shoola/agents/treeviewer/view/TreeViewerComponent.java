@@ -1490,9 +1490,9 @@ class TreeViewerComponent
 	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setLeaves(TreeImageSet, Set)
+	 * @see TreeViewer#setLeaves(TreeImageSet, Collection)
 	 */
-	public void setLeaves(TreeImageSet parent, Set leaves)
+	public void setLeaves(TreeImageSet parent, Collection leaves)
 	{
 		if (parent instanceof TreeFileSet) {
 			view.removeAllFromWorkingPane();

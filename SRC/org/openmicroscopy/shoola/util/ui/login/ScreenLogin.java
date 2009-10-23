@@ -419,10 +419,10 @@ public class ScreenLogin
 		//second row
 		JTextPane l = UIUtilities.buildTextPane(USER_TEXT, TEXT_COLOR);
 		
-		mainPanel.add(l, "0, 1, l, c");
+		mainPanel.add(l, "0, 1, LEFT, CENTER");
 		mainPanel.add(user, "1, 1, 2, 1");
 		l = UIUtilities.buildTextPane(" "+PASSWORD_TEXT, TEXT_COLOR);
-		mainPanel.add(l, "3, 1, r, c");
+		mainPanel.add(l, "3, 1, RIGHT, CENTER");
 		mainPanel.add(pass, "4, 1, 5, 1");
 		//third row
 		
@@ -437,9 +437,9 @@ public class ScreenLogin
 		p = new JPanel();
 		p.setOpaque(false);
 		p.setLayout(new TableLayout(s));
-		p.add(versionInfo, "0, 0, l, c");
+		p.add(versionInfo, "0, 0, LEFT, CENTER");
 		p.add(UIUtilities.buildComponentPanelRight(cPanel, 0, 0, false), 
-				"1, 0, r, c");
+				"1, 0, RIGHT, CENTER");
 		mainPanel.add(p, "0, 2, 5, 2");
 		return mainPanel;
 	}

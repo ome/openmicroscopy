@@ -343,10 +343,10 @@ public class FilteringDialog
 		if (calendarBox.isSelected()) {
 			Date d = fromDate.getDate();
 			Timestamp start = null;
-			if (d != null) start =  new Timestamp(d.getTime());
+			if (d != null) start = new Timestamp(d.getTime());
 			Timestamp end = null;
 			d = toDate.getDate();
-			if (d != null) end =  new Timestamp(d.getTime());
+			if (d != null) end = new Timestamp(d.getTime());
 			context.setTimeInterval(start, end);
 			filter = true;
 		}
@@ -520,11 +520,7 @@ public class FilteringDialog
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		//IconManager icons = IconManager.getInstance();
-		//TitlePanel tp = new TitlePanel(TITLE, "foo", 
-		//				icons.getIcon(IconManager.FILTERING_48));
 		Container c = getContentPane();
-		//c.add(tp, BorderLayout.NORTH);
 		c.add(buildSelectionPane(), BorderLayout.CENTER);
 		c.add(buildToolBar(), BorderLayout.SOUTH);
 	}

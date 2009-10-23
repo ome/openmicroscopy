@@ -25,8 +25,10 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -938,15 +940,14 @@ class MetadataViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#export()
+	 * @see MetadataViewer#activityOptions(Component, Point)
 	 */
-	public void export()
+	public void activityOptions(Component source, Point location)
 	{
-		Object ref = model.getRefObject();
-		if ((ref instanceof ImageData) || (ref instanceof WellSampleData)) {
-			firePropertyChange(EXPORT_PROPERTY, Boolean.valueOf(false), 
-					Boolean.valueOf(true));
-		}
+		List<Object> l = new ArrayList<Object>();
+		l.add(source);
+		l.add(location);
+		firePropertyChange(ACTIVITY_OPTIONS_PROPERTY, null, l);
 		
 	}
 	

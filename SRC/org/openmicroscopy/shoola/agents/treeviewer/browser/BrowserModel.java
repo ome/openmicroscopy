@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterImageLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterImagesCounter;
 import org.openmicroscopy.shoola.agents.treeviewer.FilesChecker;
 import org.openmicroscopy.shoola.agents.treeviewer.ImageDataLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.PlateMeasurementLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.agents.treeviewer.ScreenPlateLoader;
@@ -309,6 +310,9 @@ class BrowserModel
     	} else {
     		Object ho = node.getUserObject();
             if (ho instanceof PlateData) {
+            	currentLoader = new PlateMeasurementLoader(component, 
+        				(TreeImageSet) expNode, (TreeImageSet) node);
+        		currentLoader.load();
             	//currentLoader = new PlateWellsLoader(getParentModel(), 
     			//		(TreeImageSet) node, ((PlateData) ho).getId());
             } else {
@@ -524,7 +528,7 @@ class BrowserModel
 		}
 		switch (browserType) {
 			case Browser.PROJECT_EXPLORER:
-				index = ExperimenterDataLoader.ALL;//ExperimenterDataLoader.PROJECT;
+				index = ExperimenterDataLoader.PROJECT;
 				break;
 			case Browser.IMAGES_EXPLORER:
 				index = ExperimenterDataLoader.IMAGE;

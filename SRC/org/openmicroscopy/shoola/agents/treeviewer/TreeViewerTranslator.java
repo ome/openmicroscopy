@@ -80,12 +80,6 @@ import pojos.WellData;
  */
 public class TreeViewerTranslator
 {
-   
-	/** Text of the dummy TreeImageSet containing the orphaned datasets. */
-	//public static final String ORPHANED_DATASETS = "Orphaned Datasets";
-	
-	/** Text of the dummy TreeImageSet containing the orphaned categories.*/
-	public static final String ORPHANED_CATEGORIES = "Ungrouped Tags";
 	
 	/**
      * Returns the creation time associate to the image.

@@ -237,16 +237,13 @@ public class IconManager
     public static final int           PROJECTION_12 = 60;
     
     /** The <code>Create Movie</code> icon. */
-    public static final int           CREATE_MOVIE = 61;
-    
-    /** The <code>Create Movie</code> icon. */
-    public static final int           EXPORT = 62;
+    public static final int           ACTIVITY = 61;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 62;
+    private static final int          MAX_ID = 61;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -312,8 +309,7 @@ public class IconManager
         relPaths[PROJECTION] = "projBlack16.png";//"projection16.png";
         relPaths[PROJECTION_48] = "projBlack48.png"; 
         relPaths[PROJECTION_12] = "projection12.png"; 
-        relPaths[CREATE_MOVIE] = "crystal_video16.png";//openOffice_stock_insert-video-plugin-16.png";
-        relPaths[EXPORT] = "export16.png";
+        relPaths[ACTIVITY] = "nuvola_kcmsystem16.png";
     }
     
     /** The sole instance. */

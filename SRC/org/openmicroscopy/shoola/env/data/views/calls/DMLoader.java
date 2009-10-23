@@ -111,9 +111,11 @@ public class DMLoader
                 Set r  = os.loadContainerHierarchy(ProjectData.class, 
                 		null, false, userID);
                 results.addAll(r);
+                /*
                 r = os.loadContainerHierarchy(ScreenData.class, 
                 		null, false, userID);
                 results.addAll(r);
+                */
             }
         };
     }

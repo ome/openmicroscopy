@@ -59,7 +59,7 @@ class ImagesModel
 {
 
 	/** The images to lay out. */
-	private Set<ImageData> images;
+	private Collection<ImageData> images;
 	
 	/**
 	 * Creates a new instance.
@@ -67,7 +67,7 @@ class ImagesModel
 	 * @param parent The parent.
 	 * @param images The collection to images the model is for.
 	 */
-	ImagesModel(Object parent, Set<ImageData> images)
+	ImagesModel(Object parent, Collection<ImageData> images)
 	{
 		super();
 		if (images  == null) 

@@ -56,6 +56,7 @@ import javax.swing.event.MenuListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.actions.ActivityImageAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ChannelMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ChannelsSelectionAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ClearHistoryAction;
@@ -63,8 +64,6 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.CompressionAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.CopyRndSettingsAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.CreateMovieAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.ExportImageAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.HistoryAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.LensAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.MetadataAction;
@@ -310,21 +309,18 @@ class ImViewerControl
 
 	/** Identifies the <code>Metadata</code> action in the menu. */
 	static final Integer     METADATA = Integer.valueOf(67);    
-	
-	/** Identifies the <code>Create Movie</code> action in the menu. */
-	static final Integer     CREATE_MOVIE = Integer.valueOf(68); 
-	
+
 	/** Identifies the <code>Play movie across life time bin</code> action. */
-	static final Integer     PLAY_LIFETIME_MOVIE = Integer.valueOf(69);
+	static final Integer     PLAY_LIFETIME_MOVIE = Integer.valueOf(68);
 	
 	/** Identifies the <code>Channels On</code> action. */
-	static final Integer     CHANNELS_ON = Integer.valueOf(70);
+	static final Integer     CHANNELS_ON = Integer.valueOf(69);
 	
 	/** Identifies the <code>Channels Off</code> action. */
-	static final Integer     CHANNELS_OFF = Integer.valueOf(71);
+	static final Integer     CHANNELS_OFF = Integer.valueOf(70);
 	
-	/** Identifies the <code>Export</code> action. */
-	static final Integer     EXPORT = Integer.valueOf(72);
+	/** Identifies the <code>Activity</code> action. */
+	static final Integer     ACTIVITY = Integer.valueOf(71);
 	
 	/** 
 	 * Reference to the {@link ImViewer} component, which, in this context,
@@ -428,8 +424,7 @@ class ImViewerControl
 		actionsMap.put(METADATA, new MetadataAction(model));
 		actionsMap.put(CHANNELS_ON, new ChannelsSelectionAction(model, true));
 		actionsMap.put(CHANNELS_OFF, new ChannelsSelectionAction(model, false));
-		actionsMap.put(EXPORT, new ExportImageAction(model));
-		actionsMap.put(CREATE_MOVIE, new CreateMovieAction(model));
+		actionsMap.put(ACTIVITY, new ActivityImageAction(model));
 		//TO be modified.
 		actionsMap.put(PLAY_LIFETIME_MOVIE, new PlayMovieAction(model, 
 				PlayMovieAction.ACROSS_T));
@@ -813,8 +808,10 @@ class ImViewerControl
 						(Boolean) entry.getValue());
 			}
 			*/
+		} else if (ChannelColorMenuItem.CHANNEL_COLOR_PROPERTY.equals(pName)) {
+			model.showColorPicker(((Integer) pce.getNewValue()).intValue());
 		} else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(pName) ||
-				ChannelColorMenuItem.CHANNEL_COLOR_PROPERTY.equals(pName)) {
+			ChannelColorMenuItem.CHANNEL_COLOR_PROPERTY.equals(pName)) {
 			if (view.isSourceDisplayed(pce.getSource()))
 				model.showColorPicker(((Integer) pce.getNewValue()).intValue());
 		} else if (ColourPicker.COLOUR_PROPERTY.equals(pName)) { 

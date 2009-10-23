@@ -167,7 +167,7 @@ class HSVColourWheelUI
 	}
 
 	/**
-	 * Createw the HSV Colour wheel, and addw the listener which will notify
+	 * Creates the HSV Colour wheel, and adds the listener which will notify
      * this component when its been picked by the user.  
 	 */
 	private void createWheel()
@@ -313,7 +313,7 @@ class HSVColourWheelUI
 	void findPuck() { wheel.findPuck(); }
 	
 	/**
-	 * Adds change listeners to the components. Used in conjuntion with 
+	 * Adds change listeners to the components. Used in conjunction with 
 	 * {@link #removeListeners()} to get round spurious event 
 	 * triggers when updating components.
 	 */
@@ -325,7 +325,7 @@ class HSVColourWheelUI
 	}
 
 	/**
-	 * Removes change listeners to the components. Used in conjuntion with 
+	 * Removes change listeners to the components. Used in conjunction with 
 	 * {@link #addListeners()} to get round spurious event 
 	 * triggers when updating components.
 	 */

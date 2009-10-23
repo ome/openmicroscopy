@@ -300,9 +300,9 @@ public class UserManagerDialog
 		JPanel content = new JPanel();
 		content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 		content.setLayout(new TableLayout(tl));
-		content.add( UIUtilities.setTextFont("Groups"), "0, 0, l, t");
+		content.add( UIUtilities.setTextFont("Groups"), "0, 0, LEFT, TOP");
 		content.add(groups, "1, 0");
-		content.add(UIUtilities.setTextFont("Users"), "0, 2, l, t");
+		content.add(UIUtilities.setTextFont("Users"), "0, 2, LEFT, TOP");
 		content.add(new JScrollPane(users), "1, 2");
 		return content;
 	}

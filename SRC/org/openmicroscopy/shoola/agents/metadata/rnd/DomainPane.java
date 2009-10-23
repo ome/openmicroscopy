@@ -527,7 +527,7 @@ public class DomainPane
     /**
      * Adds the specified component to the passed <code>Panel</code>.
      * 
-     * @param c		The layout contraints for the component to be added.
+     * @param c		The layout constraints for the component to be added.
      * @param l		The text corresponding to the component to be added.
      * @param comp	The component to be added.
      * @param p		The panel the component is added to.

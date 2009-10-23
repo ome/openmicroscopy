@@ -352,11 +352,11 @@ public class ProjSavingDialog
         content.setLayout(new TableLayout(tl));
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
        
-        content.add(UIUtilities.setTextFont("Name "), "0, 1, l, c");
-        content.add(nameField, "1, 1, f, c");
+        content.add(UIUtilities.setTextFont("Name "), "0, 1, LEFT, CENTER");
+        content.add(nameField, "1, 1, FULL, CENTER");
         content.add(new JLabel(), "0, 2, 1, 2");
-        content.add(UIUtilities.setTextFont("Save in "), "0, 3, l, c");
-        content.add(UIUtilities.setTextFont("datasets "), "0, 4, l, c");
+        content.add(UIUtilities.setTextFont("Save in "), "0, 3, LEFT, CENTER");
+        content.add(UIUtilities.setTextFont("datasets "), "0, 4, LEFT, CENTER");
         content.add(UIUtilities.buildComponentPanel(buildControls()), 
         		"0, 5, l, c");
     	content.add(new JScrollPane(selectionPane), "1, 3, 1, 6");
@@ -366,7 +366,8 @@ public class ProjSavingDialog
         		selectionPane.add((JComponent) i.next());
         }
         content.add(new JLabel(), "0, 7, 1, 7");
-        content.add(UIUtilities.setTextFont("Parameters "), "0, 8, l, c");
+        content.add(UIUtilities.setTextFont("Parameters "), "0, 8," +
+        		"LEFT, CENTER");
         content.add(buildParametersPanel(), "1, 8, 1, 9");
 		return content;
 	}

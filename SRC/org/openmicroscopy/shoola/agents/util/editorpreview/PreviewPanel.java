@@ -156,7 +156,7 @@ public class PreviewPanel
     			{TableLayout.PREFERRED, TableLayout.FILL}};
     	p.setLayout(new TableLayout(size));
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	if (fileID > 0) p.add(bar, "0, 0, l, t");
+    	if (fileID > 0) p.add(bar, "0, 0, LEFT, TOP");
     	p.add(UIUtilities.setTextFont(getTitle()), "1, 0, 1, 1");
     	
     	JPanel content = UIUtilities.buildComponentPanel(p, 0, 0);
@@ -346,7 +346,7 @@ public class PreviewPanel
 	}
 	
 	/**
-	 * Sets the XML description (XML that summarises an OMERO.editor file),
+	 * Sets the XML description (XML that summarizes an OMERO.editor file),
 	 * as retrieved from the description of a File-Annotation for an Editor file. 
 	 * 
 	 * @param xmlDescription

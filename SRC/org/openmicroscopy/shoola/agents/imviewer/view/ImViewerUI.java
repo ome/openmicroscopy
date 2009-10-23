@@ -591,11 +591,7 @@ class ImViewerUI
 		
 		//movie and export
 		menu.add(new JSeparator(JSeparator.HORIZONTAL));
-		action = controller.getAction(ImViewerControl.CREATE_MOVIE);
-		item = new JMenuItem(action);
-		item.setText(action.getName());
-		menu.add(item);
-		action = controller.getAction(ImViewerControl.EXPORT);
+		action = controller.getAction(ImViewerControl.ACTIVITY);
 		item = new JMenuItem(action);
 		item.setText(action.getName());
 		menu.add(item);
@@ -852,7 +848,7 @@ class ImViewerUI
 		boundsAdapter = new HierarchyBoundsAdapter() {
 
 			/**
-			 * Stores the size of the tabbed pane when the frame is resized.
+			 * Stores the size of the tab pane when the frame is resized.
 			 * @see HierarchyBoundsListener#ancestorResized(HierarchyEvent)
 			 */
 			public void ancestorResized(HierarchyEvent e) {

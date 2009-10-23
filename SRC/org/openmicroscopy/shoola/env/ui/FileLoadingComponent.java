@@ -150,7 +150,7 @@ class FileLoadingComponent
 		toolBar.removeAll();
 		cancelButton.setVisible(false);
 		if (init) {
-			barPane.add(new JLabel(fileName), "0, 0, c, c");
+			barPane.add(new JLabel(fileName), "0, 0, CENTER, CENTER");
 			JProgressBar bar = new JProgressBar();
 			bar.setIndeterminate(true);
 			//bar.setPreferredSize(new Dimension(20, 60));
@@ -162,9 +162,9 @@ class FileLoadingComponent
 			toolBar.add(cancelButton);
 			add(toolBar, "2, 0");
 		} else {
-			barPane.add(new JLabel(fileName), "0, 0, c, c");
+			barPane.add(new JLabel(fileName), "0, 0, CENTER, CENTER");
 			barPane.add(UIUtilities.setTextFont(message, Font.ITALIC, 10), 
-												"0, 1, c, c");
+												"0, 1, CENTER, CENTER");
 			toolBar.add(removeButton);
 			add(toolBar, "2, 0");
 		}

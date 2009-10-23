@@ -150,7 +150,7 @@ class TreeViewerWin
 	/** The first selected pane. */
     private JXTaskPane 			firstPane;
     
-    JXTaskPaneContainerSingle 	container;
+    private JXTaskPaneContainerSingle 	container;
    
     /**
      * Checks if the specified {@link Browser} is already visible.
@@ -174,12 +174,14 @@ class TreeViewerWin
     	Browser browser;
     	if (getLayoutType().equals(JXTASKPANE_TYPE)) {
     		 
-    			container = new JXTaskPaneContainerSingle();
+    		container = new JXTaskPaneContainerSingle();
     		container.addPropertyChangeListener(controller);
     		browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
             JXTaskPane pane = new TaskPaneBrowser(browser);
             firstPane = pane;
             container.add(pane);
+            browser = (Browser) browsers.get(Browser.SCREENS_EXPLORER);
+            container.add(new TaskPaneBrowser(browser));
             
             browser = (Browser) browsers.get(Browser.FILES_EXPLORER);
             container.add(new TaskPaneBrowser(browser));
@@ -465,9 +467,11 @@ class TreeViewerWin
     void selectPane()
     { 
     	if (firstPane != null) firstPane.setCollapsed(false);
-    	List<JXTaskPane> list = container.getTaskPanes();
-    	for(JXTaskPane pane: list)
-    		pane.setAnimated(true);
+    	if (!UIUtilities.isLinuxOS()) {
+    		List<JXTaskPane> list = container.getTaskPanes();
+    		for(JXTaskPane pane: list) 
+        		pane.setAnimated(true);
+    	}
     }
     
     /** 

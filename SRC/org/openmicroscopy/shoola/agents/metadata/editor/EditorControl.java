@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.Component;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -405,17 +407,12 @@ class EditorControl
 		} else if (PreviewPanel.OPEN_FILE_PROPERTY.equals(name)) {
 			Long id = (Long) evt.getNewValue();
 			if (id != null) viewProtocol(id.longValue());
-		} else if (MetadataViewer.CREATING_MOVIE_PROPERTY.equals(name)) {
-			boolean b = (Boolean) evt.getNewValue();
-			view.createMovie(b);
 		} else if (MetadataViewer.SETTINGS_APPLIED_PROPERTY.equals(name)) {
 			model.loadRenderingControl(RenderingControlLoader.RELOAD);
 			view.onSettingsApplied(true);
-		} else if (MetadataViewer.ANALYSE_PROPERTY.equals(name)) {
-			boolean b = (Boolean) evt.getNewValue();
-			view.analyse(b);
-		} else if (MetadataViewer.EXPORT_PROPERTY.equals(name)) {
-			export();
+		} else if (MetadataViewer.ACTIVITY_OPTIONS_PROPERTY.equals(name)) {
+			List l = (List) evt.getNewValue();
+			view.activityOptions((Component) l.get(0), (Point) l.get(1));
 		}
 	}
 

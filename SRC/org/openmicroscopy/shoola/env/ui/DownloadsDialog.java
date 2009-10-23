@@ -184,7 +184,7 @@ class DownloadsDialog
 		while (i.hasNext()) {
 			layout.insertRow(index, TableLayout.PREFERRED);
 			c = (JComponent) i.next();
-			entries.add(c, "0, "+index+", f, c");
+			entries.add(c, "0, "+index+", FULL, CENTER");
 			if (index%2 == 0)
 				c.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
 			else 

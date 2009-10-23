@@ -25,7 +25,9 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
@@ -130,8 +132,8 @@ public interface MetadataViewer
 	/** Bound property indicating that the settings have been applied. */
 	public static final String	SETTINGS_APPLIED_PROPERTY = "settingsApplied";
 	
-	/** Bound property indicating to export the image. */
-	public static final String	EXPORT_PROPERTY = "export";
+	/** Bound property indicating to bring up the activity options. */
+	public static final String	ACTIVITY_OPTIONS_PROPERTY = "activityOptions";
 	
 	/** Flag to denote the <i>New</i> state. */
 	public static final int     NEW = 1;
@@ -359,9 +361,6 @@ public interface MetadataViewer
 	 * @param overlayColor The color of the scale bar and text. 
 	 */
 	public void makeMovie(int scaleBar, Color overlayColor);
-
-	/** Exports the image. */
-	public void export();
 	
 	/**
 	 * Uploads the movie.
@@ -457,5 +456,13 @@ public interface MetadataViewer
 	 * @param index The selected index.
 	 */
 	public void setSelectedTab(int index);
+
+	/**
+	 * Brings up the activity options.
+	 * 
+	 * @param source   The source of the mouse pressed.
+	 * @param location The location of the mouse pressed.
+	 */
+	public void activityOptions(Component source, Point location);
 	
 }

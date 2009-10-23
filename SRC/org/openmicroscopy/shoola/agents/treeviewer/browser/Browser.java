@@ -250,7 +250,7 @@ public interface Browser
      * @throws IllegalStateException If the current state is not 
      *                               {@link #LOADING_LEAVES}.
      */
-    public void setLeaves(Set leaves, TreeImageSet parent, 
+    public void setLeaves(Collection leaves, TreeImageSet parent, 
     					TreeImageSet expNode);
     
     /** 

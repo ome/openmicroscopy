@@ -1382,6 +1382,8 @@ public class UIUtilities
 	public static JXTaskPane createTaskPane(String title, Color background)
 	{
 		JXTaskPane taskPane = new JXTaskPane();
+		if (isLinuxOS()) taskPane.setAnimated(false);
+		
 		Container c = taskPane.getContentPane();
 		if (background != null) {
 			c.setBackground(background);
@@ -1643,6 +1645,31 @@ public class UIUtilities
 	{
 		 String osName = System.getProperty("os.name").toLowerCase();
 		 return osName.startsWith("mac os");
+	}
+	
+	/**
+	 * Returns <code>true</code> if the OS is Windows, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public static final boolean isWindowsOS()
+	{
+		 String osName = System.getProperty("os.name").toLowerCase();
+		 return osName.startsWith("windows");
+	}
+	
+	/**
+	 * Returns <code>true</code> if the OS is MAC, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public static final boolean isLinuxOS()
+	{
+		if (isWindowsOS()) return false;
+		if (isMacOS()) return false;
+		return true;
 	}
 	
 }

@@ -35,7 +35,6 @@ import javax.swing.Action;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -79,7 +78,7 @@ public class ColorPickerAction
 
     /** 
      * Sets the location of the point where the <code>mousePressed</code>
-     * event occured. 
+     * event occurred. 
      * @see MouseListener#mousePressed(MouseEvent)
      */
     public void mousePressed(MouseEvent me) { point = me.getPoint(); }
@@ -92,7 +91,8 @@ public class ColorPickerAction
     {
         Object source = me.getSource();
         if (source instanceof Component && isEnabled())
-            model.showMenu(TreeViewer.MANAGER_MENU, (Component) source, point);
+            model.showMenu(ImViewer.COLOR_PICKER_MENU, (Component) source, 
+            		point);
     }
     
     /** 

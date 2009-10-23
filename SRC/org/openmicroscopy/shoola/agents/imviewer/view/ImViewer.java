@@ -213,8 +213,11 @@ public interface ImViewer
 	/** Bound Property name indicating to register the component.	 */
 	public static final String  REGISTER_PROPERTY = "register";
 	
-	/** Identifies the <code>Color Picket</code> menu. */
+	/** Identifies the <code>Color Picker</code> menu. */
 	public static final int 	COLOR_PICKER_MENU = 0;
+
+	/** Identifies the <code>Activity</code> menu. */
+	public static final int 	ACTIVITY_MENU = 1;
 
 	/** Identifies the index of the image viewer panel. */
 	public static final int		VIEW_INDEX = 0;
@@ -1088,8 +1091,5 @@ public interface ImViewer
 	 * @param value The object hosting the information about the file to save.
 	 */
 	public void saveImage(SaveObject value);
-
-	/** Exports the image. */
-	public void export();
 	
 }

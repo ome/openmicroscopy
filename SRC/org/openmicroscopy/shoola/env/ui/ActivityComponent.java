@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -43,6 +42,7 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
 //Third-party libraries
+import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
@@ -178,8 +178,8 @@ public abstract class ActivityComponent
 		double[][] size = {{TableLayout.FILL}, 
 						{TableLayout.PREFERRED, TableLayout.PREFERRED}};
 		barPane.setLayout(new TableLayout(size));
-		barPane.add(type, "0, 0, c, c");
-		barPane.add(messageLabel, "0, 1, c, c");
+		barPane.add(type, "0, 0, CENTER, CENTER");
+		barPane.add(messageLabel, "0, 1, CENTER, CENTER");
 		
 		JToolBar toolBar = new JToolBar();
 		toolBar.setOpaque(false);
@@ -190,7 +190,7 @@ public abstract class ActivityComponent
 		double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL, 
 			TableLayout.PREFERRED}, {TableLayout.PREFERRED}};
 		setLayout(new TableLayout(tl));
-		add(statusPane, "0, 0, c, c");
+		add(statusPane, "0, 0, CENTER, CENTER");
 		add(barPane, "1, 0");
 		add(toolBar, "2, 0");
 	}
@@ -203,7 +203,7 @@ public abstract class ActivityComponent
 		status.setVisible(false);
 		statusPane = iconLabel;
 		remove(statusPane);
-		add(statusPane, "0, 0, c, c");
+		add(statusPane, "0, 0, CENTER, CENTER");
 		repaint();
 	}
 	

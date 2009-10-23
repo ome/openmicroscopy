@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -41,7 +40,6 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.OptionsDialog;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
  * Basic modal dialog used to collect parameters for analysis routines.

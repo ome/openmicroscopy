@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.actions.ExportImageAction 
+ * org.openmicroscopy.shoola.agents.imviewer.actions.ActivityImageAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -22,23 +22,24 @@
  */
 package org.openmicroscopy.shoola.agents.imviewer.actions;
 
-import java.awt.event.ActionEvent;
 
+//Java imports
+import java.awt.Component;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 
-import org.openmicroscopy.shoola.agents.imviewer.IconManager;
-import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Brings up the activity dialog.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -50,8 +51,9 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta4
  */
-public class ExportImageAction 
+public class ActivityImageAction 
 	extends ViewerAction
+	implements MouseListener
 {
 
 	/** Name of the action. */
@@ -75,7 +77,7 @@ public class ExportImageAction
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-	public ExportImageAction(ImViewer model)
+	public ActivityImageAction(ImViewer model)
 	{
 		super(model);
 		setEnabled(true);
@@ -83,13 +85,47 @@ public class ExportImageAction
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager icons = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.EXPORT));
+        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.ACTIVITY));
 	}
-	
-	/** 
-     * Brings up the dialog. 
-     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+		
+    /** 
+     * Brings up the menu. 
+     * @see MouseListener#mouseReleased(MouseEvent)
      */
-    public void actionPerformed(ActionEvent e) {  model.export(); }
+    public void mouseReleased(MouseEvent me)
+    {
+        Object source = me.getSource();
+        if (source instanceof Component && isEnabled())
+            model.showMenu(ImViewer.ACTIVITY_MENU, (Component) source, 
+            		me.getPoint());
+    }
+    
+    /** 
+     * Required by {@link MouseListener} I/F but not actually needed in our
+     * case, no-op implementation.
+     * @see MouseListener#mouseEntered(MouseEvent)
+     */   
+    public void mouseEntered(MouseEvent e) {}
+
+    /** 
+     * Required by {@link MouseListener} I/F but not actually needed in our
+     * case, no-op implementation.
+     * @see MouseListener#mouseExited(MouseEvent)
+     */   
+    public void mouseExited(MouseEvent e) {}
+    
+    /** 
+     * Required by {@link MouseListener} I/F but not actually needed in our
+     * case, no-op implementation.
+     * @see MouseListener#mouseClicked(MouseEvent)
+     */   
+    public void mouseClicked(MouseEvent e) {}
+ 
+    /** 
+     * Required by {@link MouseListener} I/F but not actually needed in our
+     * case, no-op implementation.
+     * @see MouseListener#mousePressed(MouseEvent)
+     */
+    public void mousePressed(MouseEvent me) {}
     
 }

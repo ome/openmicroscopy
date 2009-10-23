@@ -401,7 +401,7 @@ public class SelectionWizard
 				{TableLayout.FILL}};
 		container.setLayout(new TableLayout(size));
 		container.add(createAvailableItemsPane(), "0, 0");
-		container.add(createSelectionPane(), "1, 0, c, c");
+		container.add(createSelectionPane(), "1, 0, CENTER, CENTER");
 		container.add(createSelectedItemsPane(), "2, 0");
 		return container;
 	}

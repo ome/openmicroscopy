@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -40,9 +39,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
@@ -54,8 +51,6 @@ import javax.swing.event.DocumentListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import sun.swing.DefaultLookup;
 
 
 /** 

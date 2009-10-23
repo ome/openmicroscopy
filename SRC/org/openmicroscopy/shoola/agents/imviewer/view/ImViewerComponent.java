@@ -1673,6 +1673,9 @@ class ImViewerComponent
 				if (model.getMaxC() == 1) showColorPicker(0);
 				else view.showMenu(menuID, source, location);
 				break;
+			case ACTIVITY_MENU:
+				model.activityOptions(source, location);
+				break;
 			default:
 				throw new IllegalArgumentException("Menu not supported.");
 		}
@@ -2895,14 +2898,4 @@ class ImViewerComponent
 		model.getBrowser().saveImage(value);
 	}
 
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#export()
-	 */
-	public void export()
-	{
-		if (model.getState() == DISCARDED) return;
-		model.export();
-	}
-	
 }
