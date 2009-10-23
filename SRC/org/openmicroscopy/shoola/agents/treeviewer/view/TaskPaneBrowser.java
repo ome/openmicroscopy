@@ -64,6 +64,7 @@ class TaskPaneBrowser
 	private void initialize()
 	{
 		Container c = getContentPane();
+        setAnimated(false);
 		c.setBackground(UIUtilities.BACKGROUND_COLOR);
 		if (c instanceof JComponent) 
 			((JComponent) c).setBorder(BorderFactory.createEmptyBorder(

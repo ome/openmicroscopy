@@ -463,6 +463,7 @@ class TreeViewerWin
     void selectPane()
     { 
     	if (firstPane != null) firstPane.setCollapsed(false);
+    	
     }
     
     /** 
