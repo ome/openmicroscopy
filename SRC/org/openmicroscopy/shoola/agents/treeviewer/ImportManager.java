@@ -47,7 +47,7 @@ import javax.swing.JScrollPane;
 import javax.swing.border.LineBorder;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout; 
+import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.util.FileImportComponent;

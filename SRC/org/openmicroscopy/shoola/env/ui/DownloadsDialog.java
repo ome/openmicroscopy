@@ -44,7 +44,7 @@ import javax.swing.border.LineBorder;
 
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout; 
+import layout.TableLayout;
 
 
 //Application-internal dependencies

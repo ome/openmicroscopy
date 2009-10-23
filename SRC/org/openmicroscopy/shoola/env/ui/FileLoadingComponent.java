@@ -36,7 +36,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JToolBar;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout; 
+import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;

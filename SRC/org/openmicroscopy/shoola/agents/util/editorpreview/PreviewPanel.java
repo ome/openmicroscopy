@@ -48,7 +48,7 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout; 
+import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.DataComponent;

@@ -42,7 +42,7 @@ import javax.swing.JSeparator;
 import javax.swing.ListSelectionModel;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout; 
+import layout.TableLayout;
 
 //Application-internal dependencies
 

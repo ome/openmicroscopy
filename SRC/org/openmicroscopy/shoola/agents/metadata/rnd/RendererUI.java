@@ -33,7 +33,7 @@ import javax.swing.JPanel;
 
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import info.clearthought.layout.TableLayout; 
+import layout.TableLayout;
 
 //Third-party libraries
 

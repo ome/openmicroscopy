@@ -36,7 +36,7 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout; 
+import layout.TableLayout;
 
 //Application-internal dependencies
 
