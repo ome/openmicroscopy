@@ -163,7 +163,7 @@ class HdfStorage(object):
 
     def __openfile(self, mode):
         try:
-            return tables.openFile(self.__hdf_path, mode=mode, title="OMERO HDF Measurement Storege", rootUEP="/")
+            return tables.openFile(self.__hdf_path, mode=mode, title="OMERO HDF Measurement Storage", rootUEP="/")
         except IOError, io:
             msg = "HDFStorage initialized with bad path: %s" % self.__hdf_path
             self.logger.error(msg)
@@ -218,6 +218,8 @@ class HdfStorage(object):
 
     @locked
     def decr(self, table):
+        import traceback
+        self.logger.warn("DECREMENTING.... %s", "\t\t".join(traceback.format_stack()))
         sz = len(self.__tables)
         self.logger.info("Size: %s - Detaching %s from %s", sz, table, self.__hdf_path)
         if not (table in self.__tables):
@@ -250,7 +252,7 @@ class HdfStorage(object):
             try:
                 col = ic.findObjectFactory(t).create(t)
                 col.name = n
-                col.size(size)
+                col.setsize(size)
                 cols.append(col)
             except:
                 msg = traceback.format_exc()
@@ -281,10 +283,10 @@ class HdfStorage(object):
         arrays = []
         names = []
         for col in cols:
-            names.append(col.name)
-            arrays.append(col.array())
-        data = numpy.rec.fromarrays(arrays, names=names)
-        self.__mea.append(data)
+            names.extend(col.names())
+            arrays.extend(col.arrays())
+        records = numpy.rec.fromarrays(arrays, names=names)
+        self.__mea.append(records)
         self.__mea.flush()
 
     #
@@ -296,7 +298,10 @@ class HdfStorage(object):
         self.__initcheck()
         return self.__mea.getWhereList(condition, variables, None, start, stop, step).tolist()
 
-    def _data(self, cols, rowNumbers):
+    def _as_data(self, cols, rowNumbers):
+        """
+        Constructs a omero.grid.Data object for returning to the client.
+        """
         data = omero.grid.Data()
         data.columns = cols
         data.rowNumbers = rowNumbers
@@ -306,27 +311,23 @@ class HdfStorage(object):
     @stamped
     def readCoordinates(self, stamp, rowNumbers, current):
         self.__initcheck()
-        rows = self.__mea.readCoordinates(rowNumbers)
         cols = self.cols(None, current)
         for col in cols:
-            col.values = rows[col.name].tolist()
-        return self._data(cols, rowNumbers)
+            col.readCoordinates(self.__mea, rowNumbers)
+        return self._as_data(cols, rowNumbers)
 
     @stamped
     def slice(self, stamp, colNumbers, rowNumbers, current):
         self.__initcheck()
-        if rowNumbers is None or len(rowNumbers) == 0:
-            rows = self.__mea.read()
-        else:
-            rows = self.__mea.readCoordinates(rowNumbers)
         cols = self.cols(None, current)
         rv   = []
         for i in range(len(cols)):
             if colNumbers is None or len(colNumbers) == 0 or i in colNumbers:
                 col = cols[i]
-                col.values = rows[col.name].tolist()
+                col.readCoordinates(self.__mea, rowNumbers)
                 rv.append(col)
-        return self._data(rv, rowNumbers)
+        self.logger.info(rv)
+        return self._as_data(rv, rowNumbers)
 
     #
     # Lifecycle methods
@@ -371,7 +372,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         False if this resource can be cleaned up. (Resources API)
         """
         self.logger.debug("Checking %s" % self)
-        return False
+        return True
 
     def cleanup(self):
         """
@@ -440,7 +441,14 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @perf
     def readCoordinates(self, rowNumbers, current = None):
         self.logger.info("%s.readCoordinates(size=%s)", self, slen(rowNumbers))
-        return self.storage.readCoordinates(self.stamp, rowNumbers, current)
+        try:
+            return self.storage.readCoordinates(self.stamp, rowNumbers, current)
+        except tables.HDF5ExtError, err:
+            aue = omero.ApiUsageException()
+            aue.message = "Error reading coordinates. Most likely out of range"
+            aue.serverStackTrace = "".join(traceback.format_exc())
+            aue.serverExceptionClass = str(err.__class__.__name__)
+            raise aue
 
     @remoted
     @perf
@@ -466,8 +474,9 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @perf
     def addData(self, cols, current = None):
         self.storage.append(cols)
-        if cols and cols[0].values:
-            self.logger.info("Added %s rows of data to %s", slen(cols[0].values), self)
+        sz = 0
+        if cols and cols[0] and cols[0].getsize():
+            self.logger.info("Added %s rows of data to %s", cols[0].getsize(), self)
 
 
 class TablesI(omero.grid.Tables, omero.util.Servant):

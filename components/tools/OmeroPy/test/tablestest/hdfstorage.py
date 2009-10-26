@@ -9,10 +9,12 @@
 """
 
 import unittest, os, tempfile, exceptions, time
+import omero.columns
 import omero.tables
 import portalocker
 import logging
 import tables
+import Ice
 
 from tablestest.library import TestCase
 from path import path
@@ -20,8 +22,21 @@ from path import path
 
 logging.basicConfig(level=logging.CRITICAL)
 
+class MockAdapter(object):
+    def __init__(self, ic):
+        self.ic = ic
+    def getCommunicator(self):
+        return self.ic
 
 class TestHdfStorage(TestCase):
+
+    def setUp(self):
+        self.ic = Ice.initialize()
+        self.current = Ice.Current()
+        self.current.adapter = MockAdapter(self.ic)
+
+        for of in omero.columns.ObjectFactories.values():
+            of.register(self.ic)
 
     def cols(self):
         a = omero.columns.LongColumnI('a','first',None)
@@ -126,6 +141,33 @@ class TestHdfStorage(TestCase):
 
     def testVersion(self):
         self.fail()
+
+    #
+    # ROIs
+    #
+
+    def testMaskColumn(self):
+        hdf = omero.tables.HdfStorage(self.hdfpath())
+        mask = omero.columns.MaskColumnI('mask', 'desc', None)
+        hdf.initialize([mask], None)
+        mask.imageId = [1, 2]
+        mask.theZ = [2, 2]
+        mask.theT = [3, 3]
+        mask.x = [4, 4]
+        mask.y = [5, 5]
+        mask.w = [6, 6]
+        mask.h = [7, 7]
+        mask.bytes = [[0],[0]]
+        hdf.append([mask])
+        data = hdf.readCoordinates(hdf._stamp, [0,1], self.current)
+        test = data.columns[0]
+        self.assertEquals(1, test.imageId[0])
+        self.assertEquals(2, test.theZ[0])
+        self.assertEquals(3, test.theT[0])
+        self.assertEquals(2, test.imageId[1])
+        self.assertEquals(2, test.theZ[1])
+        self.assertEquals(3, test.theT[1])
+        hdf.cleanup()
 
 def test_suite():
     return 1
