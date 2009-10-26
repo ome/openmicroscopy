@@ -21,6 +21,6 @@
      <!-- Gui -->
      <dependency org="gui" name="swingx" rev="${versions.swingx}"/>
      <dependency org="gui" name="TableLayout" rev="${versions.tablelayout}"/>
-    <dependency org="gui"  name="omero-clients-util" rev="r6779-b12"/>
+    <dependency org="gui"  name="omero-clients-util" rev="${versions.clients-util}"/>
   </dependencies>
 </ivy-module>
