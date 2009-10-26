@@ -6,7 +6,9 @@
            - Long        --
            - String      --
            - Bool        --
-
+           - List 
+           - Map
+           - Set 
        - Functions:
            - client      -- Produces an omero.client object with given input/output constraints.
 
@@ -65,7 +67,11 @@ class Map(Type):
     def __init__(self, name, optional = False, out = False, **contents):
         Type.__init__(self, name, optional, out)
         self.type = rmap(contents)
-
+class List(Type):
+    def __init__(self, name, optional = False, out = False, **contents):
+        Type.__init__(self, name, optional, out)
+        self.type = rlist(contents)
+        
 class ParseExit(exceptions.Exception):
     """
     Raised when this script should just parse parameters and return.
