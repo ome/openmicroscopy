@@ -53,7 +53,7 @@ public class LightSourceSettingsArcTest extends TestCase
 		store.setLightSourceSettingsLightSource(
 				"Arc:0", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
 		store.setLightSourceSettingsAttenuation(
-				1.0f, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				1.0, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
 		
 		// Second Arc, Second LightSourceSettings
 		store.setLightSourceModel(
@@ -64,7 +64,7 @@ public class LightSourceSettingsArcTest extends TestCase
 		store.setLightSourceSettingsLightSource(
 				"Arc:1", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
 		store.setLightSourceSettingsAttenuation(
-				1.0f, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+				1.0, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
 	}
 	
 	public void testLightSourceSettingsLightSourceNotMLS()

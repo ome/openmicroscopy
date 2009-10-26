@@ -60,26 +60,26 @@ public class ContainerCacheOrderTest extends TestCase
 				"Model", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
 		store.setLightSourceID(
 				"Laser:0", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
-		store.setLightSourcePower(1.0f, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
+		store.setLightSourcePower(1.0, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
 		store.setLaserFrequencyMultiplication(
 				1, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX);
 		store.setLightSourceSettingsLightSource(
 				"Laser:0", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
 		store.setLightSourceSettingsAttenuation(
-				1.0f, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				1.0, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
 		
 		// Second Laser, Second LightSourceSettings
 		store.setLightSourceModel(
 				"Model", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
 		store.setLightSourceID(
 				"Laser:1", INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
-		store.setLightSourcePower(1.0f, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
+		store.setLightSourcePower(1.0, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
 		store.setLaserFrequencyMultiplication(
 				1, INSTRUMENT_INDEX, LIGHTSOURCE_INDEX + 1);
 		store.setLightSourceSettingsLightSource(
 				"Laser:1", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
 		store.setLightSourceSettingsAttenuation(
-				1.0f, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+				1.0, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
 				
 		// Third Laser, Third LightSourceSettings (different orientation)
 		store.setLaserLaserMedium(
@@ -91,15 +91,15 @@ public class ContainerCacheOrderTest extends TestCase
 		store.setLightSourceSettingsLightSource(
 				"Laser:2", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 2);
 		store.setLightSourceSettingsAttenuation(
-				1.0f, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 2);
+				1.0, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 2);
 		
 		// First Objective, First ObjectiveSettings
-		store.setObjectiveLensNA(1.0f, INSTRUMENT_INDEX, OBJECTIVE_INDEX);
+		store.setObjectiveLensNA(1.0, INSTRUMENT_INDEX, OBJECTIVE_INDEX);
 		store.setObjectiveID("Objective:0", INSTRUMENT_INDEX, OBJECTIVE_INDEX);
 		store.setObjectiveSettingsObjective("Objective:0", IMAGE_INDEX);
 		
 		// Second Objective, Second ObjectiveSettings
-		store.setObjectiveLensNA(1.0f, INSTRUMENT_INDEX, OBJECTIVE_INDEX + 1);
+		store.setObjectiveLensNA(1.0, INSTRUMENT_INDEX, OBJECTIVE_INDEX + 1);
 		store.setObjectiveID("Objective:1", INSTRUMENT_INDEX, OBJECTIVE_INDEX + 1);
 		store.setObjectiveSettingsObjective("Objective:1", IMAGE_INDEX + 1);
 		

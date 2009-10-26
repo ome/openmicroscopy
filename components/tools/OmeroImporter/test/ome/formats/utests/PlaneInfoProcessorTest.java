@@ -35,7 +35,7 @@ public class PlaneInfoProcessorTest extends TestCase
         store.setPlaneTheC(2, IMAGE_INDEX, PIXELS_INDEX, PLANE_INFO_INDEX + 2);
         store.setPlaneTheZ(2, IMAGE_INDEX, PIXELS_INDEX, PLANE_INFO_INDEX + 2);
         store.setPlaneTheT(2, IMAGE_INDEX, PIXELS_INDEX, PLANE_INFO_INDEX + 2);
-        store.setPlaneTimingDeltaT(1.0f, IMAGE_INDEX, PIXELS_INDEX,
+        store.setPlaneTimingDeltaT(1.0, IMAGE_INDEX, PIXELS_INDEX,
         		                   PLANE_INFO_INDEX +2);
 	}
 	
