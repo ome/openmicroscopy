@@ -58,6 +58,12 @@ class AbstractColumn(object):
         else:
             self.recarrtypes = [(self.name, d.recarrtype)]
 
+    def append(self, tbl):
+        """
+        Called by tables.py to give columns. By default, does nothing.
+        """
+        pass
+
     def readCoordinates(self, tbl, rowNumbers):
         if rowNumbers is None or len(rowNumbers) == 0:
             rows = tbl.read()
@@ -198,6 +204,25 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
         omero.grid.MaskColumn.__init__(self, name, *args)
         AbstractColumn.__init__(self)
 
+    def __noneorsame(self, a, b):
+        if a is None:
+            if b is None:
+                return
+        # a not none
+        if b is not None:
+            if len(a) == len(b):
+                return
+        raise omero.ValidationException(None, None, "Columns don't match")
+
+    def __sanitycheck(self):
+        self.__noneorsame(self.imageId, self.theZ)
+        self.__noneorsame(self.imageId, self.theT)
+        self.__noneorsame(self.imageId, self.x)
+        self.__noneorsame(self.imageId, self.y)
+        self.__noneorsame(self.imageId, self.w)
+        self.__noneorsame(self.imageId, self.h)
+        self.__noneorsame(self.imageId, self.bytes)
+
     def descriptor(self, pos):
         class MaskDescription(tables.IsDescription):
             _v_pos = pos
@@ -214,6 +239,7 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
         return [x[0] for x in self.recarrtypes]
 
     def arrays(self):
+        self.__sanitycheck()
         a = [
             numpy.array(self.imageId, dtype=self.recarrtypes[0][1]),
             numpy.array(self.theZ, dtype=self.recarrtypes[1][1]),
@@ -226,6 +252,7 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
         return a
 
     def getsize(self):
+        self.__sanitycheck()
         if self.imageId is None:
             return None
         else:
@@ -249,8 +276,19 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
             self.w       = numpy.zeroes(size, dtype = self.recarrtypes[5][1])
             self.h       = numpy.zeroes(size, dtype = self.recarrtypes[6][1])
 
+    def readCoordinates(self, tbl, rowNumbers):
+        self.__sanitycheck()
+        AbstractColumn.readCoordinates(self, tbl, rowNumbers) # calls fromrows
+        masks = self._getmasks(tbl)
+        if rowNumbers is None or len(rowNumbers) == 0:
+            rowNumbers = range(masks.nrows)
+        self.bytes = []
+        for idx in rowNumbers:
+            self.bytes.append(masks[idx].tolist())
+
     def fromrows(self, all_rows):
         rows = all_rows[self.name]
+        # WORKAROUND: http://www.zeroc.com/forums/bug-reports/4165-icepy-can-not-handle-buffers-longs-i64.html#post20468
         self.imageId = rows["i"].tolist()
         self.theZ = rows["z"]
         self.theT = rows["t"]
@@ -258,6 +296,24 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
         self.y = rows["y"]
         self.w = rows["w"]
         self.h = rows["h"]
+
+    def append(self, tbl):
+        self.__sanitycheck()
+        masks = self._getmasks(tbl)
+        for x in self.bytes:
+            masks.append(numpy.fromstring(x, count=len(x), dtype=tables.UInt8Atom()))
+
+    def _getmasks(self, tbl):
+        n = tbl._v_name
+        f = tbl._v_file
+        p = tbl._v_parent
+        # http://www.zeroc.com/doc/Ice-3.3.1/manual/Slice.5.8.html#200
+        # Ice::Byte can be -128 to 127 OR 0 to 255, but using UInt8 for the moment
+        try:
+            masks = getattr(p, "%s_masks" % n)
+        except tables.NoSuchNodeError:
+            masks = f.createVLArray(p, "%s_masks" % n, tables.UInt8Atom())
+        return masks
 
 # Helpers
 # ========================================================================

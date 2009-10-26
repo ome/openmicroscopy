@@ -157,16 +157,27 @@ class TestHdfStorage(TestCase):
         mask.y = [5, 5]
         mask.w = [6, 6]
         mask.h = [7, 7]
-        mask.bytes = [[0],[0]]
+        mask.bytes = [[0],[0,1,2,3,4]]
         hdf.append([mask])
         data = hdf.readCoordinates(hdf._stamp, [0,1], self.current)
         test = data.columns[0]
         self.assertEquals(1, test.imageId[0])
         self.assertEquals(2, test.theZ[0])
         self.assertEquals(3, test.theT[0])
+        self.assertEquals(4, test.x[0])
+        self.assertEquals(5, test.y[0])
+        self.assertEquals(6, test.w[0])
+        self.assertEquals(7, test.h[0])
+        self.assertEquals([0], test.bytes[0])
+
         self.assertEquals(2, test.imageId[1])
         self.assertEquals(2, test.theZ[1])
         self.assertEquals(3, test.theT[1])
+        self.assertEquals(4, test.x[1])
+        self.assertEquals(5, test.y[1])
+        self.assertEquals(6, test.w[1])
+        self.assertEquals(7, test.h[1])
+        self.assertEquals([0,1,2,3,4], test.bytes[1])
         hdf.cleanup()
 
 def test_suite():
