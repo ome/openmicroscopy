@@ -32,30 +32,30 @@
 
     <import file="../common.xml"/>
 
-	<path id="jarbundler.classpath">
-		<fileset dir="${omero.home}/lib/repository" includes="jarbundler*.jar"/>
-	</path>
+    <path id="jarbundler.classpath">
+        <fileset dir="${omero.home}/lib/repository" includes="jarbundler*.jar"/>
+    </path>
 
-	<taskdef name="jarbundler"
-		classpathref="jarbundler.classpath"
-		classname="net.sourceforge.jarbundler.JarBundler"/>
+    <taskdef name="jarbundler"
+             classpathref="jarbundler.classpath"
+             classname="net.sourceforge.jarbundler.JarBundler"/>
 
-	<target name="exe4j-check-exists">
-		<condition property="exe4j.exists">
-			<available file="${exe4j.home}/bin/ant.jar"/>
-		</condition>
-	</target>
+    <target name="exe4j-check-exists">
+        <condition property="exe4j.exists">
+            <available file="${exe4j.home}/bin/ant.jar"/>
+        </condition>
+    </target>
 
-	<target name="exe4j-echo-on-missing" unless="exe4j.exists">
-		<echo message="exe4j not present at ${exe4j.home}/bin/ant.jar, skipping exe4j tasks."/>
-	</target>
+    <target name="exe4j-echo-on-missing" unless="exe4j.exists">
+        <echo message="exe4j not present at ${exe4j.home}/bin/ant.jar, skipping exe4j tasks."/>
+    </target>
 
-	<target name="exe4j-init" depends="exe4j-check-exists,exe4j-echo-on-missing" if="exe4j.exists">
-		<echo message="exe4j present at ${exe4j.home}, preparing exe4j tasks."/>
-		<taskdef name="exe4j"
-			classpath="${exe4j.home}/bin/ant.jar"
-			classname="com.exe4j.Exe4JTask"/>
-	</target>
+    <target name="exe4j-init" depends="exe4j-check-exists,exe4j-echo-on-missing" if="exe4j.exists">
+        <echo message="exe4j present at ${exe4j.home}, preparing exe4j tasks."/>
+        <taskdef name="exe4j"
+                 classpath="${exe4j.home}/bin/ant.jar"
+                 classname="com.exe4j.Exe4JTask"/>
+    </target>
 
     <target name="package" depends="lifecycle.package">
         <copy todir="${target.dir}">
@@ -70,76 +70,77 @@
             <fileset dir="${src.dir}" includes="ome/formats/importer/importer_readers.txt"/>
         </jar>
     </target>
-	
-	<target name="release-zip" depends="package,install"
-		description="Zip the OMERO.importer releases up">
-	  <zip destfile="target/${importer.name}-${omero.version}.zip">
-		  <zipfileset dir="${basedir}" prefix="${importer.name}-${omero.version}"
-			  includes="config/**/*"/>
-		  <zipfileset dir="${target.dir}" prefix="${importer.name}-${omero.version}"
-			  includes="libs/**/*,${ivy.module}.jar"/>
-		  <zipfileset dir="${basedir}" prefix="${importer.name}-${omero.version}"
-			  includes="importer-*" filemode="755"/>
-      </zip>
-	</target>
 
-	<target name="release-osx" depends="package,install"
-		description="Create a MacOS X executable bundle">
-		<jarbundler dir="${basedir}"
-			name="OMERO.importer"
-			mainclass="ome.formats.importer.Main"
-			version="${omero.version}"
-			infostring="OMERO.importer Java Client, ${omero.version}"
-			aboutmenuname="OMERO.importer"
-			screenmenu="true"
-			icon="${basedir}/resources/omeroImporterLogo.icns"
-			stubfile="${basedir}/JavaApplicationStub"
-			jvmversion="1.5+"
-			vmoptions="-Xmx512M">
-			<jarfileset dir="${target.dir}/libs" includes="**"/>
-			<jarfileset dir="${target.dir}" includes="${ivy.module}.jar"/>
-		</jarbundler>
-	</target>
+    <target name="release-zip" depends="package,install"
+            description="Zip the OMERO.importer releases up">
+        <zip destfile="target/${importer.name}-${omero.version}.zip">
+            <zipfileset dir="${basedir}" prefix="${importer.name}-${omero.version}"
+                includes="config/**/*"/>
+            <zipfileset dir="${target.dir}/client-libs" prefix="${importer.name}-${omero.version}/libs"
+                includes="**/*"/>
+            <zipfileset dir="${target.dir}" prefix="${importer.name}-${omero.version}"
+                includes="${ivy.module}.jar"/>
+            <zipfileset dir="${basedir}" prefix="${importer.name}-${omero.version}"
+                includes="importer-*" filemode="755"/>
+        </zip>
+    </target>
 
-	<target name="release-osx-zip" depends="release-osx"
-		description="Zip up the OMERO.importer release for MacOS X">
-	  <zip destfile="target/${importer.name}-${omero.version}-mac.zip">
-		  <zipfileset dir="${basedir}" prefix="${importer.name}-${omero.version}"
-			  includes="config/**/*,OMERO.importer.app/**/*"
-			  excludes="**/JavaApplicationStub"/>
-		  <zipfileset file="${basedir}/JavaApplicationStub" 
-			  fullpath="${importer.name}-${omero.version}/OMERO.importer.app/Contents/MacOS/JavaApplicationStub"
-			  filemode="755"/> 
-      </zip>
-	</target>
+    <target name="release-osx" depends="package,install"
+            description="Create a MacOS X executable bundle">
+        <jarbundler dir="${basedir}"
+                name="OMERO.importer"
+                mainclass="ome.formats.importer.Main"
+                version="${omero.version}"
+                infostring="OMERO.importer Java Client, ${omero.version}"
+                aboutmenuname="OMERO.importer"
+                screenmenu="true"
+                icon="${basedir}/resources/omeroImporterLogo.icns"
+                stubfile="${basedir}/JavaApplicationStub"
+                jvmversion="1.5+"
+                vmoptions="-Xmx512M">
+            <jarfileset dir="${target.dir}/client-libs" includes="**"/>
+            <jarfileset dir="${target.dir}" includes="${ivy.module}.jar"/>
+        </jarbundler>
+    </target>
 
-	<target name="release-win" depends="package,install,exe4j-init" if="exe4j.exists"
-		description="Create a Windows executable bundle">
-		<exe4j projectfile="OmeroImporter.exe4j"/>
-	</target>
+    <target name="release-osx-zip" depends="release-osx"
+            description="Zip up the OMERO.importer release for MacOS X">
+        <zip destfile="target/${importer.name}-${omero.version}-mac.zip">
+            <zipfileset dir="${basedir}" prefix="${importer.name}-${omero.version}"
+                includes="config/**/*,OMERO.importer.app/**/*"
+                excludes="**/JavaApplicationStub"/>
+            <zipfileset file="${basedir}/JavaApplicationStub"
+                fullpath="${importer.name}-${omero.version}/OMERO.importer.app/Contents/MacOS/JavaApplicationStub"
+                filemode="755"/>
+        </zip>
+    </target>
 
-	<target name="release-win-zip" depends="release-win"
-		description="Zip up the OMERO.importer release for Windows">
-	  <zip destfile="target/${importer.name}-${omero.version}-win.zip">
-		  <zipfileset dir="${basedir}" prefix="${importer.name}-${omero.version}"
-			  includes="config/**/*"/>
-		  <zipfileset dir="${target.dir}" prefix="${importer.name}-${omero.version}"
-			  includes="libs/**/*,${ivy.module}.jar,*.exe"/>
-      </zip>
-	</target>
+    <target name="release-win" depends="package,install,exe4j-init" if="exe4j.exists"
+            description="Create a Windows executable bundle">
+            <exe4j projectfile="OmeroImporter.exe4j"/>
+    </target>
+
+    <target name="release-win-zip" depends="release-win"
+            description="Zip up the OMERO.importer release for Windows">
+        <zip destfile="target/${importer.name}-${omero.version}-win.zip">
+            <zipfileset dir="${basedir}" prefix="${importer.name}-${omero.version}"
+                includes="config/**/*"/>
+            <zipfileset dir="${target.dir}/client-libs" prefix="${importer.name}-${omero.version}/libs"
+                includes="**/*"/>
+            <zipfileset dir="${target.dir}" prefix="${importer.name}-${omero.version}"
+                includes="${ivy.module}.jar,*.exe"/>
+        </zip>
+    </target>
 
     <target name="tools-init"/>
 
-    <target name="tools-build" depends="tools-init,install" description="Creates all artifacts for tools/target"/>
+    <target name="tools-build" depends="tools-init,install" description="Creates all artifacts for tools/target">
+        <ivy:resolve file="${basedir}/ivy.xml" type="jar" conf="client" settingsRef="ivy.${ant.project.name}" log="quiet"/>
+        <ivy:retrieve conf="client" pattern="${target.dir}/client-libs/[module]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.${ant.project.name}"/>
+    </target>
 
     <target name="tools-dist" depends="tools-build,release-zip" description="Copied artifacts to tools/target" unless="skip.compile"/>
 
     <target name="tools-clean" depends="clean"/>
-
-    <target name="retrieve-client-libs" description="Utility target for getting client libs">
-        <installIvy/>
-        <ivy:resolve file="${basedir}/ivy.xml" type="jar" conf="client" settingsRef="ivy.${ant.project.name}" log="quiet"/>
-        <ivy:retrieve conf="client" pattern="${target.dir}/client-libs/[module]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.${ant.project.name}"/>
-    </target>
 
 </project>
