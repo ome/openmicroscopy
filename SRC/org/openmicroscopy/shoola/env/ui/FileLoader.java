@@ -131,6 +131,6 @@ class FileLoader
      * Feeds the result back to the viewer. 
      * @see UserNotifierLoader#handleResult(Object)
      */
-    public void handleResult(Object result) { activity.endActivity(); }
+    public void handleResult(Object result) { activity.endActivity(result); }
     
 }

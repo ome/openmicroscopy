@@ -271,13 +271,13 @@ class DownloadsDialog
 	}
 	
 	/**
-	 * Adds a new entry for the file to download.
+	 * Adds a new activity entry.
 	 * 
 	 * @param directory		The directory where to download the file.
 	 * @param fileName 		The name of the file.
 	 * @param fileID		The id of the file.
 	 */
-	void addDowloadEntry(String directory, String fileName, long fileID)
+	void addActivityEntry(String directory, String fileName, long fileID)
 	{
 		FileLoadingComponent c = new FileLoadingComponent(directory, 
 											fileName, fileID, icons);
@@ -291,7 +291,7 @@ class DownloadsDialog
 	 * 
 	 * @param component The component to add.
 	 */
-	void addDownloadEntry(JComponent component)
+	void addActivityEntry(JComponent component)
 	{
 		if (component == null) return;
 		component.addPropertyChangeListener(this);

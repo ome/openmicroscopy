@@ -302,7 +302,6 @@ public class UserNotifierImpl
 		}
 		if (comp != null) {
 			UserNotifierLoader loader = comp.createLoader();
-			
 			if (loader == null) return;
 			manager.registerActivity(comp);
 			comp.startActivity();

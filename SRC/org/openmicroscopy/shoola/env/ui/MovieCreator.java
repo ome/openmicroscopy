@@ -25,23 +25,15 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.util.ui.MessageBox;
-import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
 
@@ -143,42 +135,6 @@ public class MovieCreator
      * Feeds the result back to the viewer. 
      * @see UserNotifierLoader#handleResult(Object)
      */
-    public void handleResult(Object result)
-    {
-        data = (FileAnnotationData) result;
-        activity.endActivity();
-        JFrame f = registry.getTaskBar().getFrame();
-        MessageBox box = new MessageBox(f, "Movie Created",
-		"The movie has been created. Do you want to download it?");
-        
-		if (box.centerMsgBox() == MessageBox.YES_OPTION) {
-			FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
-					"Download", "Select where to download the file.", null, 
-					true);
-			IconManager icons = IconManager.getInstance(registry);
-			chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
-			chooser.setSelectedFileFull(data.getFileName());
-			chooser.setApproveButtonText("Download");
-			chooser.addPropertyChangeListener(new PropertyChangeListener() {
-			
-				public void propertyChange(PropertyChangeEvent evt) {
-					String name = evt.getPropertyName();
-					if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-						File folder = (File) evt.getNewValue();
-						if (data == null) return;
-						OriginalFile f = (OriginalFile) data.getContent();
-						IconManager icons = IconManager.getInstance(registry);
-						
-						DownloadActivityParam activity = 
-							new DownloadActivityParam(f,
-								folder, icons.getIcon(IconManager.DOWNLOAD_22));
-						viewer.notifyActivity(activity);
-						//viewer.notifyDownload(data, folder);
-					}
-				}
-			});
-			chooser.centerDialog();
-		}
-    }
+    public void handleResult(Object result) { activity.endActivity(result); }
 	
 }

@@ -25,13 +25,21 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
-
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
+import pojos.FileAnnotationData;
 
 /**
  * Activity to create a movie.
@@ -70,11 +78,14 @@ public class MovieActivity
 	public MovieActivity(UserNotifier viewer,  Registry registry,
 			MovieActivityParam	parameters)
 	{
-		super(viewer, registry, DESCRIPTION_CREATION, parameters.getIcon());
+		super(viewer, registry, DESCRIPTION_CREATION, parameters.getIcon(), 
+				ActivityComponent.ADVANCED);
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
-		messageLabel.setText(parameters.getImage().getName());
+		String name = parameters.getImage().getName();
+		messageLabel.setText(UIUtilities.getPartialName(name));
+		messageLabel.setToolTipText(name);
 	}
 
 	/**
@@ -94,6 +105,41 @@ public class MovieActivity
 	protected void notifyActivityEnd()
 	{
 		type.setText(DESCRIPTION_CREATED);
+	}
+	
+	/** Notifies to dowload the file. */
+	protected void notifyDownload()
+	{
+		if (!(result instanceof FileAnnotationData)) {
+			downloadButton.setEnabled(false);
+			return;
+		}
+		final FileAnnotationData data = (FileAnnotationData) result;
+		JFrame f = registry.getTaskBar().getFrame();
+		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
+				"Download", "Select where to download the file.", null, 
+				true);
+		IconManager icons = IconManager.getInstance(registry);
+		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
+		chooser.setSelectedFileFull(data.getFileName());
+		chooser.setApproveButtonText("Download");
+		chooser.addPropertyChangeListener(new PropertyChangeListener() {
+		
+			public void propertyChange(PropertyChangeEvent evt) {
+				String name = evt.getPropertyName();
+				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
+					File folder = (File) evt.getNewValue();
+					if (data == null) return;
+					OriginalFile f = (OriginalFile) data.getContent();
+					IconManager icons = IconManager.getInstance(registry);
+					DownloadActivityParam activity = 
+						new DownloadActivityParam(f,
+							folder, icons.getIcon(IconManager.DOWNLOAD_22));
+					viewer.notifyActivity(activity);
+				}
+			}
+		});
+		chooser.centerDialog();
 	}
 	
 }

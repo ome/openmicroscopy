@@ -289,7 +289,7 @@ class UserNotifierManager
 			activityDialog = new DownloadsDialog(f, 
 					IconManager.getInstance(reg), DownloadsDialog.ACTIVITY);
 		}
-		activityDialog.addDownloadEntry(activity);
+		activityDialog.addActivityEntry(activity);
 		if (!activityDialog.isVisible())
 			UIUtilities.centerAndShow(activityDialog);
 		activityDialog.requestFocusInWindow();
