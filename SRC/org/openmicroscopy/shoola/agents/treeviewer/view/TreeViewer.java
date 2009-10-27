@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -832,5 +833,12 @@ public interface TreeViewer
 	
 	/** Brings up the import dialog. */
 	public void showImporter();
+
+	/**
+	 * Indicates that an activity has just terminated.
+	 * 
+	 * @param activity The activity to handle.
+	 */
+	void onActivityTerminated(ActivityComponent activity);
 	
 }

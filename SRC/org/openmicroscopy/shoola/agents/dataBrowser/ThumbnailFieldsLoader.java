@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader 
+ * org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailFieldsLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.dataBrowser;
 
 
-
 //Java imports
 import java.util.Collection;
 import java.util.Iterator;
@@ -39,9 +38,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ImageData;
 
 /** 
- * Loads all thumbnails for the specified images.
- * This class calls the <code>loadThumbnails</code> method in the
- * <code>HierarchyBrowsingView</code>.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -51,63 +48,49 @@ import pojos.ImageData;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
-public class ThumbnailLoader 
+public class ThumbnailFieldsLoader 
 	extends DataBrowserLoader
 {
 
-	/** The number of thumbnails to load. */
-	private int                     max;
-	
 	/** 
 	 * The <code>ImageData</code> objects for the images whose thumbnails 
 	 * have to be fetched.
 	 */
     private Collection<ImageData>	images;
     
-    /** Flag indicating to retrieve thumbnail. */
-    private boolean					thumbnail;
-    
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle 	 			handle;
 
-    /**
-     * Creates a new instance.
-     * 
-     * @param viewer 	The viewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
-     * @param images 	The <code>ImageData</code> objects for the images whose 
-     *               	thumbnails have to be fetched. 
-     * 					Mustn't be <code>null</code>.
-     */
-    public ThumbnailLoader(DataBrowser viewer, Collection<ImageData> images)
-    {
-        this(viewer, images, true);
-    }
+    /** The row identifying the well. */
+    private int 					row;
+    
+    /** The column identifying the well. */
+    private int 					column;
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer 	The viewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
-     * @param images 	The <code>ImageData</code> objects for the images whose 
-     *               	thumbnails have to be fetched. 
-     * 					Mustn't be <code>null</code>.
-     * @param thumbnail	Pass <code>true</code> to retrieve image at a thumbnail
-     * 					size, <code>false</code> otherwise.
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param images The <code>ImageData</code> objects for the images whose 
+     *               thumbnails have to be fetched. 
+     *               Mustn't be <code>null</code>.
+     * @param row	 The row identifying the well.
+     * @param column The column identifying the well.
      */
-    public ThumbnailLoader(DataBrowser viewer, Collection<ImageData> images, 
-    		              boolean thumbnail)
+    public ThumbnailFieldsLoader(DataBrowser viewer, Collection<ImageData> images, 
+    		              int row, int column)
     {
         super(viewer);
         if (images == null)
             throw new IllegalArgumentException("Collection shouldn't be null.");
         this.images = images;
-        this.thumbnail = thumbnail;
-        max = images.size();
+        this.row = row;
+        this.column = column;
     }
-
+    
     /**
      * Retrieves the thumbnails.
      * @see DataBrowserLoader#load()
@@ -115,17 +98,10 @@ public class ThumbnailLoader
     public void load()
     {
     	long userID = DataBrowserAgent.getUserDetails().getId();
-    	if (thumbnail) 
-    		handle = hiBrwView.loadThumbnails(images, 
-                    ThumbnailProvider.THUMB_MAX_WIDTH,
-                    ThumbnailProvider.THUMB_MAX_HEIGHT,
-                    userID, this);
-    	else 
-    		handle = hiBrwView.loadThumbnails(images, 
-                    3*ThumbnailProvider.THUMB_MAX_WIDTH,
-                    3*ThumbnailProvider.THUMB_MAX_HEIGHT,
-                    userID, this);
-    		//handle = hiBrwView.loadImagesAsThumbnails(images, userID, this);
+    	handle = hiBrwView.loadThumbnails(images, 
+                ThumbnailProvider.THUMB_MAX_WIDTH,
+                ThumbnailProvider.THUMB_MAX_HEIGHT,
+                userID, this);
     }
     
     /** 
@@ -141,39 +117,9 @@ public class ThumbnailLoader
     public void update(DSCallFeedbackEvent fe) 
     {
         if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
-        String status = fe.getStatus();
-        int percDone = fe.getPercentDone();
-        if (thumbnail) {
-        	if (status == null) 
-                status = (percDone == 100) ? "Done" :  //Else
-                                         ""; //Description wasn't available.   
-            viewer.setStatus(status, percDone);
-            List l = (List) fe.getPartialResult();
-            if (l != null) {
-            	Iterator i = l.iterator();
-            	ThumbnailData td;
-            	while (i.hasNext()) {
-            		td = (ThumbnailData) i.next();
-            		viewer.setThumbnail(td.getImageID(), td.getThumbnail(), 
-            				td.isValidImage(), max);
-				}
-            }
-        } else {
-        	if (status == null) 
-        		status = (percDone == 100) ? "Done" :  //Else
-        			""; //Description wasn't available.   
-        	viewer.setSlideViewStatus(status, percDone);
-        	List l = (List) fe.getPartialResult();
-            if (l != null) {
-            	Iterator i = l.iterator();
-            	ThumbnailData td;
-            	while (i.hasNext()) {
-            		td = (ThumbnailData) i.next();
-            		viewer.setSlideViewImage(td.getImageID(), 
-            				td.getThumbnail());
-				}
-            }
-        }
+        List l = (List) fe.getPartialResult();
+        if (l != null) 
+        	viewer.setThumbnailsFieldsFor(l, row, column);
     }
     
     /**

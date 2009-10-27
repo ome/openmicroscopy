@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
 import org.openmicroscopy.shoola.agents.dataBrowser.PlateSaver;
+import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailFieldsLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
@@ -54,8 +55,9 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.ui.PlateGrid;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourObject;
 import pojos.DataObject;
 import pojos.ImageData;
@@ -100,6 +102,18 @@ class WellsModel
 	
 	/** The selected field. */
 	private int					selectedField;
+	
+	/** The selected node. */
+	private WellImageSet		selectedNode;
+	
+	/** Indicates how to display a row. */
+	private int					rowSequenceIndex;
+	
+	/** Indicates how to display a column. */
+	private int					columnSequenceIndex;
+	
+	/** Value indicating if the wells are valid or not. */
+	private boolean[][]			validWells;
 	
 	/** 
 	 * Sorts the passed nodes by row.
@@ -230,12 +244,13 @@ class WellsModel
 		if (wells  == null) 
 			throw new IllegalArgumentException("No wells.");
 		wellDimension = null;
+		
 		this.parent = parent;
 		wellNodes = sortByRow(DataBrowserTranslator.transformHierarchy(wells, 
 				DataBrowserAgent.getUserDetails().getId(), 0));
 		PlateData plate = (PlateData) parent;
-		int columSequenceIndex = plate.getColumnSequenceIndex();
-		int rowSequenceIndex = plate.getRowSequenceIndex();
+		columnSequenceIndex = plate.getColumnSequenceIndex();
+		rowSequenceIndex = plate.getRowSequenceIndex();
 		selectedField = plate.getDefaultSample();
 		if (selectedField < 0) selectedField = 0;
 		Set<ImageDisplay> samples = new HashSet<ImageDisplay>();
@@ -247,7 +262,7 @@ class WellsModel
 		WellImageSet node;
 		ImageNode selected;
 		int f;
-		String columSequence;
+		String columnSequence;
 		String rowSequence;
 		Map<Integer, ColourObject> cMap = new HashMap<Integer, ColourObject>();
 		Map<Integer, ColourObject> rMap = new HashMap<Integer, ColourObject>();
@@ -255,8 +270,23 @@ class WellsModel
 		String type;
 		ColourObject co;
 		Color color;
+		//make sure we first have the correct size.
 		while (j.hasNext()) {
 			node = (WellImageSet) j.next();
+			row = node.getRow();
+			column = node.getColumn();
+			if (row > rows) rows = row;
+			if (column > columns) columns = column;
+		}
+		int n = PlateGrid.MAX_ROWS;
+		int m = PlateGrid.MAX_COLUMNS;
+		if (rows > n) n = rows+1;
+		if (columns > m) m = columns+1;
+		validWells = new boolean[n][m];
+		j = wellNodes.iterator();
+		while (j.hasNext()) {
+			node = (WellImageSet) j.next();
+			
 			row = node.getRow();
 			column = node.getColumn();
 			data = (WellData) node.getHierarchyObject();
@@ -288,25 +318,27 @@ class WellsModel
 			}
 			if (row > rows) rows = row;
 			if (column > columns) columns = column;
-			columSequence = "";
-			if (columSequenceIndex == PlateData.ASCENDING_LETTER)
-				columSequence = EditorUtil.LETTERS.get(column+1);
-			else if (columSequenceIndex == PlateData.ASCENDING_NUMBER)
-				columSequence = ""+(column+1);
+			columnSequence = "";
+			if (columnSequenceIndex == PlateData.ASCENDING_LETTER)
+				columnSequence = UIUtilities.LETTERS.get(column+1);
+			else if (columnSequenceIndex == PlateData.ASCENDING_NUMBER)
+				columnSequence = ""+(column+1);
 			rowSequence = "";
 			if (rowSequenceIndex == PlateData.ASCENDING_LETTER)
-				rowSequence = EditorUtil.LETTERS.get(row+1);
+				rowSequence = UIUtilities.LETTERS.get(row+1);
 			else if (rowSequenceIndex == PlateData.ASCENDING_NUMBER)
 				rowSequence = ""+(row+1);
-			node.setCellDisplay(columSequence, rowSequence);
+			node.setCellDisplay(columnSequence, rowSequence);
 			f = node.getNumberOfSamples();
 			if (fieldsNumber < f) fieldsNumber = f;
 			node.setSelectedWellSample(selectedField);
 			selected = node.getSelectedWellSample();
 			samples.add(selected);
-			if (((DataObject) selected.getHierarchyObject()).getId() >= 0 &&
-					wellDimension == null) {
+			if (((DataObject) selected.getHierarchyObject()).getId() >= 0) {
 				wellDimension = selected.getThumbnail().getOriginalSize();
+				validWells[row][column] = true;
+			} else {
+				validWells[row][column] = false;
 			}
 		}
 		
@@ -315,12 +347,12 @@ class WellsModel
 		
 		CellDisplay cell;
 		for (int k = 1; k <= columns; k++) {
-			columSequence = "";
-			if (columSequenceIndex == PlateData.ASCENDING_LETTER)
-				columSequence = EditorUtil.LETTERS.get(k+1);
-			else if (columSequenceIndex == PlateData.ASCENDING_NUMBER)
-				columSequence = ""+k;
-			cell = new CellDisplay(k-1, columSequence);
+			columnSequence = "";
+			if (columnSequenceIndex == PlateData.ASCENDING_LETTER)
+				columnSequence = UIUtilities.LETTERS.get(k+1);
+			else if (columnSequenceIndex == PlateData.ASCENDING_NUMBER)
+				columnSequence = ""+k;
+			cell = new CellDisplay(k-1, columnSequence);
 			co = cMap.get(k-1);
 			if (co != null) {
 				cell.setHighlight(co.getColor());
@@ -332,7 +364,7 @@ class WellsModel
 		for (int k = 1; k <= rows; k++) {
 			rowSequence = "";
 			if (rowSequenceIndex == PlateData.ASCENDING_LETTER)
-				rowSequence = EditorUtil.LETTERS.get(k);
+				rowSequence = UIUtilities.LETTERS.get(k);
 			else if (rowSequenceIndex == PlateData.ASCENDING_NUMBER)
 				rowSequence = ""+k;
 			
@@ -350,7 +382,38 @@ class WellsModel
 	}
 	
 	/**
-	 * Returns the number of fields per well
+	 * Indicates how to display a column. 
+	 * 
+	 * @return See above.
+	 */
+	int getColumnSequenceIndex()
+	{
+		if (columnSequenceIndex == PlateData.ASCENDING_LETTER)
+			return PlateGrid.ASCENDING_LETTER;
+		return PlateGrid.ASCENDING_NUMBER;
+	}
+	
+	/**
+	 * Indicates how to display a row. 
+	 * 
+	 * @return See above.
+	 */
+	int getRowSequenceIndex()
+	{
+		if (rowSequenceIndex == PlateData.ASCENDING_LETTER)
+			return PlateGrid.ASCENDING_LETTER;
+		return PlateGrid.ASCENDING_NUMBER;
+	}
+	
+	/** 
+	 * Returns an array indicating the valid wells.
+	 * 
+	 * @return See above.
+	 */
+	boolean[][] getValidWells() { return validWells; }
+	
+	/**
+	 * Returns the number of fields per well.
 	 * 
 	 * @return See above.
 	 */
@@ -364,9 +427,27 @@ class WellsModel
 	int getSelectedField() { return selectedField; }
 	
 	/**
+	 * Sets the selected well. This should only be needed for the fields
+	 * view.
+	 * 
+	 * @param node The selected node.
+	 */
+	void setSelectedWell(WellImageSet node)
+	{
+		selectedNode = node;
+	}
+	
+	/**
+	 * Returns the selected well.
+	 * 
+	 * @return See above.
+	 */
+	WellImageSet getSelectedWell() { return selectedNode; }
+	
+	/**
 	 * Views the selected field. 
 	 * 
-	 * @param index 	The index of the field to view.
+	 * @param index The index of the field to view.
 	 */
 	void viewField(int index)
 	{
@@ -416,6 +497,7 @@ class WellsModel
 		loader.load();
 	}
 	
+	
 	/**
 	 * Sets the values for the row or the column.
 	 * Returns the collection of wells to update.
@@ -449,6 +531,84 @@ class WellsModel
 			DataBrowserLoader loader = new PlateSaver(component, results);
 			loader.load();
 		}
+	}
+	
+	/**
+	 * Returns the number of rows.
+	 * 
+	 * @return See above.
+	 */
+	int getRows() { return rows; }
+	
+	/**
+	 * Returns the number of columns.
+	 * 
+	 * @return See above.
+	 */
+	int getColumns() { return columns; }
+	
+	/**
+	 * Returns <code>true</code> is the selected well corresponds to the passed
+	 * one, <code>false</code> otherwise.
+	 * 
+	 * @param row 	 The row identifying the well.
+	 * @param column The column identifying the well.
+	 * @return See above.
+	 */
+	boolean isSameWell(int row, int column)
+	{
+		if (selectedNode == null) return false;
+		return (selectedNode.getRow() == row 
+				&& selectedNode.getColumn() == column);
+	}
+	
+	/**
+	 * Creates a concrete loader.
+	 * 
+	 * @param row The row identifying the well.
+	 * @param column The column identifying the well.
+	 * @return See above.
+	 */
+	DataBrowserLoader createFieldsLoader(int row, int column)
+	{
+		List l = getNodes();
+		Iterator i = l.iterator();
+		ImageSet node;
+		List<ImageData> images = new ArrayList<ImageData>();
+		ImageNode selected;
+		WellSampleData data;
+		Thumbnail thumb;
+		WellImageSet wis;
+		List<WellSampleNode> nodes;
+		Iterator<WellSampleNode> j;
+		WellSampleNode n;
+		while (i.hasNext()) {
+			node = (ImageSet) i.next();
+			if (node instanceof WellImageSet) {
+				wis = (WellImageSet) node;
+				if (wis.getRow() == row && wis.getColumn() == column) {
+					selectedNode = wis;
+					nodes = wis.getWellSamples();
+					j = nodes.iterator();
+					while (j.hasNext()) {
+						n = j.next();
+						data = (WellSampleData) n.getHierarchyObject();
+						
+						if (data.getId() < 0) {
+							thumb = n.getThumbnail();
+							thumb.setValid(false);
+							thumb.setFullScaleThumb(
+								Factory.createDefaultImageThumbnail(
+									wellDimension.width, wellDimension.height));
+						} else 
+							images.add(data.getImage());
+					}
+				}
+			}
+		}
+
+		if (images.size() == 0) return null;
+		return new ThumbnailFieldsLoader(component, images, row, column);
 	}
 	
 	/**
@@ -497,5 +657,5 @@ class WellsModel
 	 * @see DataBrowserModel#getNodes()
 	 */
 	protected List<ImageDisplay> getNodes() { return wellNodes; }
-	
+
 }

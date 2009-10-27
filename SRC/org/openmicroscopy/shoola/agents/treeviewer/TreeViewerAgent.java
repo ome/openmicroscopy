@@ -47,6 +47,8 @@ import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.ActivityFinishedEvent;
+
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -145,6 +147,26 @@ public class TreeViewerAgent
     }
     
     /**
+     * Handles the {@link ActivityFinishedEvent} event.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleActivityFinished(ActivityFinishedEvent evt)
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	ExperimenterData exp = (ExperimenterData) registry.lookup(
+			        				LookupNames.CURRENT_USER_DETAILS);
+    	GroupData gp = exp.getDefaultGroup();
+    	long id = -1;
+    	if (gp != null) id = gp.getId();
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+        if (viewer != null) {
+        	viewer.onActivityTerminated(evt.getActivity());
+        }
+    }
+    
+    /**
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate()
      */
@@ -179,6 +201,7 @@ public class TreeViewerAgent
         bus.register(this, SaveEventRequest.class);
         bus.register(this, RndSettingsCopied.class);
         bus.register(this, ImageProjected.class);
+        bus.register(this, ActivityFinishedEvent.class);
     }
 
     /**
@@ -211,6 +234,8 @@ public class TreeViewerAgent
     		handleRndSettingsCopied((RndSettingsCopied) e);
 		else if (e instanceof ImageProjected)
     		handleImageProjected((ImageProjected) e);
+		else if (e instanceof ActivityFinishedEvent)
+			handleActivityFinished((ActivityFinishedEvent) e);
 	}
 
 }

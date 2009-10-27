@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,12 +33,20 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jdesktop.swingx.JXBusyLabel;
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
+import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
+import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.DatasetData;
 
 /** 
  * The tool bar of {@link DataBrowser} displaying wells. 
@@ -54,8 +63,12 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class DataBrowserWellToolBar
 	extends JPanel
+	implements ActionListener
 {
 
+	/** ID to bring up the add thumbnail view to the node.. */
+	private static final int	ROLL_OVER = 0;
+	
 	/** Reference to the control. */
 	private DataBrowserControl 	controller;
 
@@ -65,15 +78,40 @@ class DataBrowserWellToolBar
 	/** Button to refresh the display. */
 	private JButton				refreshButton;
 	
+	/** Button to view all the fields for a given well. */
+	private JToggleButton		fieldsViewButton;
+	
+	/** 
+	 * Button to display a magnified thumbnail if selected when 
+	 * the user mouses over a node.
+	 */
+	private JToggleButton 		rollOverButton;
+	
 	/** Displays the possible fields per well. */
 	private JComboBox			fields;
+	
+	/** The fields indicating the loading state of the field. */
+	private JXBusyLabel			busyLabel;
 	
 	/** Initializes the components. */
 	private void initComponents()
 	{
+		IconManager icons = IconManager.getInstance();
+		rollOverButton = new JToggleButton();
+		rollOverButton.setIcon(icons.getIcon(IconManager.ROLL_OVER));
+		rollOverButton.setToolTipText("Turn on/off the magnification " +
+				"of a thumbnail while mousing over it.");
+		rollOverButton.addActionListener(this);
+		rollOverButton.setActionCommand(""+ROLL_OVER);
+		busyLabel = new JXBusyLabel(new Dimension(
+				UIUtilities.DEFAULT_ICON_WIDTH, 
+				UIUtilities.DEFAULT_ICON_HEIGHT));
+		busyLabel.setVisible(false);
 		refreshButton = new JButton(controller.getAction(
 				DataBrowserControl.REFRESH));
 		UIUtilities.unifiedButtonLookAndFeel(refreshButton);
+		fieldsViewButton = new JToggleButton(controller.getAction(
+				DataBrowserControl.FIELDS_VIEW));
 		int f = view.getFieldsNumber();
 		if (f > 1) { 
 			String[] values = new String[f];
@@ -103,7 +141,13 @@ class DataBrowserWellToolBar
 		bar.setBorder(null);
 		bar.setRollover(true);
 		bar.add(refreshButton);
-		if (fields != null) bar.add(fields);
+		bar.add(rollOverButton);
+		//if (fields != null) { //tmp
+			//bar.add(fields);
+			bar.add(fieldsViewButton);
+			bar.add(busyLabel);
+		//}
+		
 		return bar;
 	}
 	
@@ -136,6 +180,33 @@ class DataBrowserWellToolBar
 		this.view = view;
 		initComponents();
 		buildGUI();
+	}
+	
+	/**
+	 * Indicates the status of the fields loading.
+	 * 
+	 * @param busy  Pass <code>true</code> when the fields are loading,
+	 * 				<code>false</code> when they are loaded.
+	 */
+	void setStatus(boolean busy)
+	{
+		busyLabel.setVisible(busy);
+		busyLabel.setBusy(busy);
+	}
+	
+	/** 
+	 * Sets the specified view.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		int index = Integer.parseInt(e.getActionCommand());
+		switch (index) {
+			case ROLL_OVER:
+				//view.setRollOver(rollOverItem.isSelected());
+				view.setRollOver(rollOverButton.isSelected());
+				break;
+		}
 	}
 	
 }

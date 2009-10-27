@@ -75,9 +75,9 @@ class ROIAssistantTable
 		columnWidth = 0;
 		FontMetrics metrics = getFontMetrics(getFont());
 		int w;
-		for(int i = 0 ; i < getColumnCount(); i++)
+		for (int i = 0 ; i < getColumnCount(); i++)
 		{
-			w =  metrics.stringWidth(model.getColumnName(i));
+			w = metrics.stringWidth(model.getColumnName(i));
 			columnWidth = Math.max(w, COLUMNWIDTH);
 			columnWidth = Math.max(columnWidth, metrics.stringWidth(""+i));
 		}
@@ -130,7 +130,6 @@ class ROIAssistantTable
 	{
         return new ROIAssistantCellRenderer();
     }
-	
 
 }
 

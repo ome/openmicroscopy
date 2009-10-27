@@ -33,7 +33,6 @@ import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
@@ -41,13 +40,10 @@ import javax.swing.SwingUtilities;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourObject;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
-
 import pojos.ImageData;
 
 /** 
@@ -287,7 +283,8 @@ class BrowserControl
 
     	Point p = me.getPoint();
     	if (me.isPopupTrigger() && b &&
-    			previousDisplay != null && previousDisplay.getBounds().contains(p))
+    			previousDisplay != null && 
+    			previousDisplay.getBounds().contains(p))
     	{
     		model.setPopupPoint(p, true);
     		return;

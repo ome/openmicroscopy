@@ -95,7 +95,7 @@ class ROIAssistantModel
 	 * on the images, and their type.
 	 * 
 	 * @param numRow 		The number of z sections in the image. 
-	 * @param numCol 		The numer of time points in the image. 
+	 * @param numCol 		The number of time points in the image. 
 	 * @param currentPlane 	The current plane of the image.
 	 * @param roi			The ROI which will be propagated.
 	 */

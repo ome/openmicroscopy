@@ -33,7 +33,6 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.ImageTableNode;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;

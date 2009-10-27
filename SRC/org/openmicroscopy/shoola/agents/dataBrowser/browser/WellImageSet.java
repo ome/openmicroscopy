@@ -73,7 +73,7 @@ public class WellImageSet
 	
 	/** 
 	 * Sets the default value for the row and column display.
-	 * Sets the tooltip.
+	 * Sets the text displayed in the tool tip.
 	 */
 	private void setDefault()
 	{

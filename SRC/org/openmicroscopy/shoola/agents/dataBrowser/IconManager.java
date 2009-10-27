@@ -67,7 +67,7 @@ public class IconManager
     /** The <code>Column view</code> icon. */
     public static final int			COLUMN_VIEW = 3;
     
-    /** The <code>Filtering 48</code> icon. */
+    /** The 48x48 <code>Filtering</code> icon. */
     public static final int			FILTERING_48 = 4;
     
     /** The <code>Filtering</code> icon. */
@@ -124,40 +124,40 @@ public class IconManager
     /** The <code>Create</code> icon. */
     public static final int         CREATE = 22;
     
-    /** The <code>Create 48x48</code> icon. */
+    /** The 48x48 <code>Create</code> icon. */
     public static final int         CREATE_48 = 23;
     
     /** The <code>Sort by date</code> icon. */
-    public static final int           SORT_BY_DATE = 24;
+    public static final int         SORT_BY_DATE = 24;
     
     /** The <code>Sort by name</code> icon. */
-    public static final int           SORT_BY_NAME = 25;
+    public static final int         SORT_BY_NAME = 25;
     
     /** The <code>View</code> icon. */
-    public static final int           VIEWER = 26;
+    public static final int         VIEWER = 26;
     
     /** The <code>Copy</code> icon. */
-    public static final int           COPY = 27;
+    public static final int         COPY = 27;
     
     /** The <code>Paste</code> icon. */
-    public static final int           PASTE = 28;
+    public static final int         PASTE = 28;
     
     /** The <code>Remove</code> icon. */
-    public static final int           REMOVE = 29;
+    public static final int         REMOVE = 29;
     
     /** The <code>Refresh</code> icon. */
-    public static final int           REFRESH = 30;
+    public static final int         REFRESH = 30;
     
     /** The <code>Cut</code> icon. */
-    public static final int           CUT = 31;
+    public static final int         CUT = 31;
     
-    /** The <code>Redo</code> icon. */
-    public static final int           UNDO = 32;
+    /** The <code>Undo</code> icon. */
+    public static final int         UNDO = 32;
     
     /** The <code>Tag</code> icon. */
-    public static final int           SET_ORIGINAL_RND_SETTINGS = 33;
+    public static final int         SET_ORIGINAL_RND_SETTINGS = 33;
     
-    /** The <code>Owner 8</code> icon. */
+    /** The 8x8 <code>Owner</code> icon. */
     public static final int			OWNER_8 = 34;
     
     /** The <code>Image annotated</code> icon. */
@@ -169,10 +169,10 @@ public class IconManager
     /** The <code>Report</code> icon. */
     public static final int			REPORT = 37;
     
-    /** The <code>Report 48</code> icon. */
+    /** The <48x48 code>Report</code> icon. */
     public static final int			REPORT_48 = 38;
     
-    /** The <code>Save As 48</code> icon. */
+    /** The 48x48 <code>Save As</code> icon. */
     public static final int			SAVE_AS_48 = 39;
     
     /** The <code>Tag</code> icon. */
@@ -181,17 +181,20 @@ public class IconManager
     /** The <code>Editor</code> icon. */
     public static final int			EDITOR = 41;
     
-    /** The <code>Edit</code> icon. */
+    /** The 8x8 <code>Edit</code> icon. */
     public static final int			EDIT_8 = 42;
     
-    /** The <code>Dataset 48x48</code> icon. */
+    /** The 48x48 <code>Dataset</code> icon. */
     public static final int			DATASET_48 = 43;
+    
+    /** The 48x48 <code>Dataset</code> icon. */
+    public static final int			FIELDS_VIEW = 44;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 43;
+    private static final int          MAX_ID = 44;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -242,6 +245,7 @@ public class IconManager
         relPaths[EDITOR] = "omeroEditorLink16.png";
         relPaths[EDIT_8] = "nuvola_ksig8.png";
         relPaths[DATASET_48] = "nuvola_folder_image48.png";
+        relPaths[FIELDS_VIEW] = "nuvola_view_multicolumn16.png";
     }
     
     /** The sole instance. */

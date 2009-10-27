@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
@@ -65,6 +66,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
+import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle;
@@ -868,6 +870,23 @@ class TreeViewerWin
 		model.getDataViewer().reloadThumbnails(ids);
 	}
 	
+	/**
+	 * Indicates that an activity has just terminated.
+	 * 
+	 * @param activity The activity to handle.
+	 */
+	void onActivityTerminated(ActivityComponent activity) {
+		TinyDialog d = new TinyDialog(this, activity.getActivityType(), 
+				TinyDialog.CLOSE_ONLY);
+		d.getContentPane().setBackground(Color.MAGENTA);
+		d.addPropertyChangeListener(TinyDialog.CLOSED_PROPERTY, 
+				controller);
+		d.pack();
+		Point p = new Point(0, 2*statusBar.getPreferredSize().height);
+		setCloseAfter(true);
+		showJDialogAsSheet(d, p, UP_RIGHT);
+	}
+	
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()
     {
@@ -876,5 +895,7 @@ class TreeViewerWin
         UIUtilities.incrementRelativeToAndShow(invokerBounds, this);
         invokerBounds = null;
     }
+
+
 
 }

@@ -123,6 +123,9 @@ abstract class DataBrowserModel
     /** Used to sort the nodes by date or alphabetically. */
     protected ViewerSorter      sorter;
     
+    /** The current fields loader. */
+    private	DataBrowserLoader 	fieldsLoader;
+    
     /** The current data loader. */
     private DataBrowserLoader	loader;
     
@@ -247,6 +250,28 @@ abstract class DataBrowserModel
     	}
     	state = DataBrowser.LOADING;
     	loader.load();
+    }
+    
+    /**
+     * Loads the fields for the specified well. Returns <code>true</code>
+     * if a loader was created, <code>false</code> otherwise.
+     * 
+     * @param row 	 The row identifying the well.
+     * @param column The column identifying the well.
+     * @return See above.
+     */
+    boolean loadFields(int row, int column)
+    {
+    	if (!(this instanceof WellsModel)) return false;
+    	fieldsLoader = ((WellsModel) this).createFieldsLoader(row, column);
+    	if (fieldsLoader == null) return false;
+    	fieldsLoader.load();
+    	return true;
+    }
+    
+    void cancelFieldsLoading()
+    {
+    	if (fieldsLoader != null) fieldsLoader.cancel();
     }
     
     /**

@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.MagnificationVisitor;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
@@ -80,6 +81,9 @@ class DataBrowserUI
 	/** ID to select the columns view. */
 	static final int			COLUMNS_VIEW = 1;
 	
+	/** ID to select the fields view. */
+	static final int			FIELDS_VIEW = 2;
+	
 	/** ID to sort the node alphabetically. */
 	static final int			SORT_BY_NAME = 2;
 	
@@ -109,6 +113,9 @@ class DataBrowserUI
 	
 	 /** The pop-up menu. */
 	private PopupMenu				popupMenu;
+	
+	/** Component displaying the fields. */
+	private WellFieldsView			fieldsView;
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
@@ -144,9 +151,9 @@ class DataBrowserUI
 		this.model = model;
 		this.controller = controller;
 		//if (model.getType() == DataBrowserModel.WELLS)
-			wellToolBar = new DataBrowserWellToolBar(this, controller);
+		wellToolBar = new DataBrowserWellToolBar(this, controller);
 		//else
-			toolBar = new DataBrowserToolBar(this, controller);
+		toolBar = new DataBrowserToolBar(this, controller);
 
 		statusBar = new DataBrowserStatusBar(this);
 		selectedView = THUMB_VIEW;
@@ -236,7 +243,7 @@ class DataBrowserUI
      * 
      * @param hideProgressBar Whether or not to hide the progress bar.
      * @param progressPerc  The percentage value the progress bar should
-     *                      display.  If negative, it is iterpreted as
+     *                      display. If negative, it is interpreted as
      *                      not available and the progress bar will be
      *                      set to indeterminate mode.  This argument is
      *                      only taken into consideration if the progress
@@ -284,9 +291,24 @@ class DataBrowserUI
     	switch (index) {
 			case THUMB_VIEW:
 				selectedView = index;
-				layoutUI();
-				add(toolBar, BorderLayout.NORTH);
+				if (model.getType() == DataBrowserModel.WELLS) {
+					add(wellToolBar, BorderLayout.NORTH);
+				} else {
+					add(toolBar, BorderLayout.NORTH);
+					layoutUI();
+				}
 				add(model.getBrowser().getUI(), BorderLayout.CENTER);
+				break;
+			case FIELDS_VIEW:
+				selectedView = index;
+				add(wellToolBar, BorderLayout.NORTH);
+				if (fieldsView == null) {
+					fieldsView  = new WellFieldsView((WellsModel) model, 
+							controller);
+				}
+				
+				add(fieldsView, BorderLayout.CENTER);
+				//Create the grid from the 
 				break;
 			case COLUMNS_VIEW:
 				selectedView = index;
@@ -371,7 +393,7 @@ class DataBrowserUI
 	/** 
 	 * Sorts the thumbnails either alphabetically or by date.
 	 * 
-	 * @param index Th e sorting index.
+	 * @param index The sorting index.
 	 */
 	void sortBy(int index)
 	{
@@ -510,4 +532,24 @@ class DataBrowserUI
 		setMagnificationFactor(statusBar.getMagnificationFactor());
 	}
 
+	/**
+	 * Indicates the status of the fields loading.
+	 * 
+	 * @param status Pass <code>true</code> while loading the fields,
+	 * 				 <code>false</code> otherwise.
+	 */
+	void setFieldsStatus(boolean status) { wellToolBar.setStatus(status); }
+
+	/**
+	 * Displays the passed fields.
+	 * 
+	 * @param nodes The nodes hosting the fields.
+	 */
+	void displayFields(List<WellSampleNode> nodes)
+	{
+		if (fieldsView == null) return;
+		setFieldsStatus(false);
+		fieldsView.displayFields(nodes);
+	}
+	
 }

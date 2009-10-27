@@ -2140,7 +2140,7 @@ class ImViewerUI
 		d.pack();
 		Point p = new Point(0, 2*statusBar.getPreferredSize().height);
 		setCloseAfter(true);
-		showJDialogAsSheet(d, p, UP);
+		showJDialogAsSheet(d, p, UP_MIDDLE);
 	}
 	
 	/** Hides the plane information. */

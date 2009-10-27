@@ -78,7 +78,7 @@ class ROIAssistant
 	implements ActionListener
 {	
 	
-	/** Action command ID to accept the current roi assistant results.*/
+	/** Action command ID to accept the current ROI assistant results.*/
 	private static final int CLOSE = 0;
 
 	/** 
@@ -95,10 +95,10 @@ class ROIAssistant
 	/** Text field showing the current type of the selected shape. */
 	private 	JTextField				shapeType;
 	
-	/** Text field showing the x coord of the selected shape. */
+	/** Text field showing the x coordinate of the selected shape. */
 	private 	JTextField				xCoord;
 	
-	/** Text field showing the y coord of the selected shape. */
+	/** Text field showing the y coordinate of the selected shape. */
 	private 	JTextField				yCoord;
 	
 	/** Text field showing the width of the selected shape. */
@@ -122,10 +122,10 @@ class ROIAssistant
 	/** button closes windows. */
 	private 	JButton					closeButton;
 	
-	/** Model for the measyrement tool. */
+	/** Model for the measurement tool. */
 	private 	MeasurementViewerUI		view;
 		
-	/** The initial shape selected when lauching the ROIAssistant. */
+	/** The initial shape selected when launching the ROIAssistant. */
 	private 	ROIShape 				initialShape;
 	
 	/** The panel showing the corner z\t graphic. */
@@ -186,7 +186,7 @@ class ROIAssistant
 	 * Create the table and model.
 	 *  
 	 * @param numRow The number of z sections in the image. 
-	 * @param numCol The numer of time points in the image. 
+	 * @param numCol The number of time points in the image. 
 	 * @param currentPlane the current plane of the image.
 	 * @param selectedROI The ROI which will be propagated.
 	 */

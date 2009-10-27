@@ -82,6 +82,7 @@ import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -2436,6 +2437,16 @@ class TreeViewerComponent
 			importDialog.resetObject(o);
 		}
 		importDialog.centerDialog();
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#onActivityTerminated(ActivityComponent)
+	 */
+	public void onActivityTerminated(ActivityComponent activity)
+	{
+		if (model.getState() == DISCARDED) return;
+		view.onActivityTerminated(activity);
 	}
 	
 }

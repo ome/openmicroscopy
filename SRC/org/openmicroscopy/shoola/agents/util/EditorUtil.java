@@ -29,7 +29,6 @@ import java.awt.Font;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -85,9 +84,6 @@ import pojos.WellData;
  */
 public class EditorUtil 
 {
-	
-    /** Letter corresponding to number. */
-	public static final Map<Integer, String> LETTERS;
 	
 	/** Default text displayed in the acquisition date is not available. */
 	public static final String DATE_NOT_AVAILABLE = "Not available";
@@ -434,33 +430,7 @@ public class EditorUtil
 	public static final Map<Color, String>	COLORS_BAR;
 	
 	static {
-		LETTERS = new HashMap<Integer, String>();
-		LETTERS.put(1, "A");
-		LETTERS.put(2, "B");
-		LETTERS.put(3, "C");
-		LETTERS.put(4, "D");
-		LETTERS.put(5, "E");
-		LETTERS.put(6, "F");
-		LETTERS.put(7, "G");
-		LETTERS.put(8, "H");
-		LETTERS.put(9, "I");
-		LETTERS.put(10, "J");
-		LETTERS.put(11, "K");
-		LETTERS.put(12, "L");
-		LETTERS.put(13, "M");
-		LETTERS.put(14, "N");
-		LETTERS.put(15, "O");
-		LETTERS.put(16, "P");
-		LETTERS.put(17, "Q");
-		LETTERS.put(18, "R");
-		LETTERS.put(19, "S");
-		LETTERS.put(20, "T");
-		LETTERS.put(21, "U");
-		LETTERS.put(22, "V");
-		LETTERS.put(23, "W");
-		LETTERS.put(24, "X");
-		LETTERS.put(25, "Y");
-		LETTERS.put(26, "Z");
+		
 		
 		PIXELS_TYPE_DESCRIPTION = new LinkedHashMap<String, String>();
 		PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.INT_8, 
@@ -794,7 +764,7 @@ public class EditorUtil
 		if (set.size() > 1) return true;
 		return !set.contains(userID);
 	}
-	
+
 	/**
      * Returns the partial name of the image's name
      * 
@@ -803,33 +773,9 @@ public class EditorUtil
      */
     public static String getPartialName(String originalName)
     {
-    	if (originalName == null) return null;
-    	String[] l = UIUtilities.splitString(originalName);
-    	String extension = null;
-    	if (originalName.endsWith("\\")) extension = "\\";
-    	else if (originalName.endsWith("/")) extension = "/";
-    	String sep = UIUtilities.getStringSeparator(originalName);
-    	if (sep == null) sep = "";
-    	if (l != null) {
-    		int n = l.length;
-    		switch (n) {
-				case 0: return originalName;
-				case 1: 
-					if (extension != null) return l[0]+extension;
-					return l[0];
-				case 2: 
-					if (extension != null) 
-						return l[n-2]+sep+l[n-1]+extension;
-					return l[n-2]+sep+l[n-1];
-				default: 
-					if (extension != null) 
-						return UIUtilities.DOTS+l[n-2]+sep+l[n-1]+extension;
-					return UIUtilities.DOTS+l[n-2]+sep+l[n-1]; 
-			}
-    	}
-        return originalName;
+    	return UIUtilities.getPartialName(originalName);
     }
-
+    
     /**
      * Returns the last portion of the file name.
      * 

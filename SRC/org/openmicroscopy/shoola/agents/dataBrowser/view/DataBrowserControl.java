@@ -44,6 +44,7 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.CreateExperimentAction;
+import org.openmicroscopy.shoola.agents.dataBrowser.actions.FieldsViewAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageObjectAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.RefreshAction;
@@ -61,6 +62,7 @@ import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailManager;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.util.ui.PlateGrid;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
@@ -113,7 +115,7 @@ class DataBrowserControl
 	 */
 	static final Integer    SET_ORIGINAL_RND_SETTINGS = Integer.valueOf(8);
 	
-	/** Identifies the <code>Refresh action</code>. */
+	/** Identifies the <code>Refresh</code> action. */
 	static final Integer    REFRESH = Integer.valueOf(9);
 	
 	/** Identifies the <code>Save As</code> action. */
@@ -124,6 +126,9 @@ class DataBrowserControl
 
 	/** Identifies the <code>New Experiment</code> action. */
 	static final Integer    NEW_EXPERIMENT = Integer.valueOf(12);
+	
+	/** Identifies the <code>Fields View</code> action. */
+	static final Integer    FIELDS_VIEW = Integer.valueOf(13);
 	
 	/** 
 	 * Reference to the {@link DataBrowser} component, which, in this context,
@@ -162,6 +167,7 @@ class DataBrowserControl
     	actionsMap.put(SAVE_AS, new SaveAction(model));
     	actionsMap.put(TAG, new TaggingAction(model));
     	actionsMap.put(NEW_EXPERIMENT, new CreateExperimentAction(model));
+    	actionsMap.put(FIELDS_VIEW, new FieldsViewAction(model));
     }
     
 	/** 
@@ -367,7 +373,11 @@ class DataBrowserControl
 					model.addToDatasets((Collection) entry.getValue());
 				}
 			}
-		} 
+		} else if (PlateGrid.WELL_FIELDS_PROPERTY.equals(name)) {
+			Point p = (Point) evt.getNewValue();
+			if (p == null) return;
+			model.viewFieldsFor(p.x, p.y);
+		}
 	}
 	
 }
