@@ -68,6 +68,7 @@ public class CommandLineImporter {
         this.reader = new OMEROWrapper(config);
         this.handler = new ErrorHandler(config);
         candidates = new ImportCandidates(reader, paths, handler);
+        this.reader.setMetadataCollected(true);
 
         if (paths == null || paths.length == 0 || getUsedFiles) {
 
