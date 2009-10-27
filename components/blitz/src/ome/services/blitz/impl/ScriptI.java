@@ -153,6 +153,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                             return; // EARLY EXIT
                         }
                         writeContent(file, script);
+                        file.setSize((long) script.getBytes().length);
+                        file.setSha1(Utils.bufferToSha1(script.getBytes()));
+                        file = updateFile(file);
                         deleteOriginalFile(tempFile);
                         cb.ice_response(file.getId());
                     }
