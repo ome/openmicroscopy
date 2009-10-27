@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
@@ -72,10 +73,13 @@ public class AnimatedJFrame
 	public static final int 	OUTGOING = -1;
 	
 	/** Orientation of the animation .*/
-	public static final int		UP = 0;
+	public static final int		UP_MIDDLE = 0;
 	
 	/** Orientation of the animation .*/
 	public static final int		DOWN = 1;
+	
+	/** Orientation of the animation .*/
+	public static final int		UP_RIGHT = 2;
 	
 	/** The color of the line's border. */
 	private static final Color	LINE_COLOR = Color.black;
@@ -152,18 +156,30 @@ public class AnimatedJFrame
 		animatingPane.setSource(sheet);
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridy = 0;
-		if (orientation == DOWN) {
-			c.anchor = GridBagConstraints.NORTH;
-			glass.add(animatingPane, c);
-			c.gridy++;
-			c.weighty = Integer.MAX_VALUE;
-			glass.add(Box.createGlue(), c);
-		} else {
-			c.anchor = GridBagConstraints.SOUTH;
-			int h = glass.getHeight()-sheet.getHeight()-location.y;
-			glass.add(Box.createVerticalStrut(h), c);
-			c.gridy++;
-			glass.add(animatingPane, c);
+		int h;
+		switch (orientation) {
+			case DOWN:
+				c.anchor = GridBagConstraints.NORTH;
+				glass.add(animatingPane, c);
+				c.gridy++;
+				c.weighty = Integer.MAX_VALUE;
+				glass.add(Box.createGlue(), c);
+				break;
+			case UP_MIDDLE:
+				c.anchor = GridBagConstraints.SOUTHEAST;
+				h = glass.getHeight()-sheet.getHeight()-location.y;
+				glass.add(Box.createVerticalStrut(h), c);
+				c.gridy++;
+				glass.add(animatingPane, c);
+				break;
+			case UP_RIGHT:
+				c.anchor = GridBagConstraints.SOUTHEAST;
+				h = glass.getHeight()-sheet.getHeight()-location.y;
+				glass.add(Box.createVerticalStrut(h), c);
+				c.weightx = 0.9;
+				c.gridy++;
+				glass.add(animatingPane, c);
+				break;
 		}
 		glass.setVisible(true);
 		animationStart = System.currentTimeMillis();
@@ -185,18 +201,34 @@ public class AnimatedJFrame
 	{
 		glass.removeAll();
 		GridBagConstraints c = new GridBagConstraints();
-		c.anchor = GridBagConstraints.NORTH;
 		c.gridy = 0;
-		if (orientation == DOWN) {
-			glass.add(sheet, c);
-			c.gridy++;
-			c.weighty = Integer.MAX_VALUE;
-			glass.add(Box.createGlue(), c);
-		} else {
-			int h = glass.getHeight()-sheet.getHeight()-location.y;
-			glass.add(Box.createVerticalStrut(h), c);
-			c.gridy++;
-			glass.add(sheet, c);
+		c.gridx = 0;
+		int h;
+		c.anchor = GridBagConstraints.SOUTHWEST;
+		switch (orientation) {
+			case DOWN:
+				c.anchor = GridBagConstraints.NORTH;
+				glass.add(sheet, c);
+				c.gridy++;
+				c.weighty = Integer.MAX_VALUE;
+				glass.add(Box.createGlue(), c);
+				break;
+			case UP_MIDDLE:
+				h = glass.getHeight()-sheet.getHeight()-location.y;
+				glass.add(Box.createVerticalStrut(h), c);
+				c.gridy++;
+				glass.add(sheet, c);
+				break;
+			case UP_RIGHT:
+				h = glass.getHeight()-sheet.getHeight()-location.y;
+				glass.add(Box.createVerticalStrut(h), c);
+				c.gridy++;
+				Dimension d = getSize();
+				int w = d.width-sheet.getPreferredSize().width;
+				glass.add(Box.createHorizontalStrut(w), c);
+				c.gridx++;
+				glass.add(sheet, c);
+				
 		}
 		glass.revalidate();
 		glass.repaint();
@@ -268,12 +300,13 @@ public class AnimatedJFrame
 	public void setOrientation(int orientation)
 	{
 		switch (orientation) {
-			case UP:
-				this.orientation = UP;
+			case UP_MIDDLE:
+			case UP_RIGHT:
+				this.orientation = orientation;
 				border = new OneLineBorder(OneLineBorder.BOTTOM, LINE_COLOR);
 				break;
 			case DOWN:	
-				default:
+			default:
 				this.orientation = DOWN;
 				border = new OneLineBorder(OneLineBorder.TOP, LINE_COLOR);
 				break;

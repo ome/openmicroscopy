@@ -60,7 +60,7 @@ class AnimatedPane
 	/** The source of the animation. */
 	private JComponent 				source;
 	
-	/** The offscreen image. */
+	/** The off-screen image. */
 	private BufferedImage			image;
 	
 	/** The graphics configuration. */
@@ -70,7 +70,7 @@ class AnimatedPane
 	private AnimatedJFrame			parent;
 	
 	/**
-	 * Create an offscreen image for the passed source.
+	 * Create an off-screen image for the passed source.
 	 * 
 	 * @param src The source where to paint the image.
 	 */
@@ -107,7 +107,7 @@ class AnimatedPane
 		this.source = source;
 		if (source == null) return;
 		animatedSize.width = source.getWidth();
-		if (parent.getOrientation() == AnimatedJFrame.UP)
+		if (parent.getOrientation() != AnimatedJFrame.DOWN)
 			animatedSize.height = source.getHeight();
 		makeOffscreenImage(source);
 	}
@@ -120,7 +120,7 @@ class AnimatedPane
 	void setAnimatingHeight(int height)
 	{
 		animatedSize.height = height;
-		if (parent.getOrientation() != AnimatedJFrame.UP)
+		if (parent.getOrientation() == AnimatedJFrame.DOWN)
 			setSize(animatedSize);
 	}
 
@@ -143,7 +143,7 @@ class AnimatedPane
 	public Dimension getMaximumSize() { return animatedSize; }
 	
 	/**
-	 * Overridden to paint the offscreen image.
+	 * Overridden to paint the off-screen image.
 	 * @see JPanel#paintComponent(Graphics)
 	 */
 	public void paintComponent(Graphics g)
@@ -152,18 +152,22 @@ class AnimatedPane
 		if (image == null) return;
 		BufferedImage img;
 		try {
-			if (parent.getOrientation() == AnimatedJFrame.UP) {
-				img = image.getSubimage(0, 0, source.getWidth(), 
-						animatedSize.height);
-				g.drawImage(img, 0, 
-						source.getHeight()-animatedSize.height, this);
-			} else {
-				img = image.getSubimage(0, image.getHeight()-animatedSize.height, 
-						source.getWidth(), animatedSize.height);
-				g.drawImage(img, 0, 0, this);
+			switch (parent.getOrientation()) {
+				case AnimatedJFrame.UP_MIDDLE:
+				case AnimatedJFrame.UP_RIGHT:
+					img = image.getSubimage(0, 0, source.getWidth(), 
+							animatedSize.height);
+					g.drawImage(img, 0, 
+							source.getHeight()-animatedSize.height, this);
+					break;
+	
+				default:
+					img = image.getSubimage(0, 
+							image.getHeight()-animatedSize.height, 
+							source.getWidth(), animatedSize.height);
+					g.drawImage(img, 0, 0, this);
 			}
 		} catch (Exception e) {} //ignore
-		
 	}
 	
 }

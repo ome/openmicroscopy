@@ -92,10 +92,11 @@ public class TinyPane
      * Identifies the full title bar.
      * Use this constant to fit the frame with a title bar having the frame
      * icon and title, a button to collapse/expand the frame, and a button to
-     * switch between single-view and multi-view mode.  In the single-view mode,
-     * only one of the components in the internal desktop is shown at a time.
-     * The user can choose which one from a drop-down menu triggred by the
-     * button.  In the multi-view mode (the default) all of the components
+     * switch between single-view and multiple-view mode. 
+     * In the single-view mode, only one of the components in the internal 
+     * desktop is shown at a time.
+     * The user can choose which one from a drop-down menu triggered by the
+     * button. In the multiple-view mode (the default) all of the components
      * are shown in the internal desktop.  (However, you're required to 
      * lay them out manually.) 
      */
@@ -139,7 +140,7 @@ public class TinyPane
     /** Bound property name indicating if the frame can be moved. */
     public final static String  BORDER_LISTENER_PROPERTY = "borderListener";
     
-    /** Bound property name indicating if the frame is resizable. */
+    /** Bound property name indicating if the frame can be resized. */
     public final static String  RESIZABLE_PROPERTY = "resizable";  
     
     /** Bound property name indicating if the frame is decorated. */
@@ -291,7 +292,7 @@ public class TinyPane
     }
     
     /**
-     * Invokes when the draggring or resizing of the component is finished.
+     * Invokes when the dragging or resizing of the component is finished.
      */
 	void notifyEndMoving()
 	{
