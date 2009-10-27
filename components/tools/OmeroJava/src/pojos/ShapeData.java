@@ -27,6 +27,7 @@ package pojos;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.rtypes;
 import omero.RInt;
 import omero.RString;
 import omero.model.Shape;
@@ -48,8 +49,14 @@ public abstract class ShapeData
 	extends DataObject
 {
 
+	/** Flag stating that the ROI is read only. */
+	public static boolean READONLY_FLAG = true; 
+	
 	/** The representation of the shape. */
 	private ShapeSettingsData settings;
+	
+	/** Has this shape been created client side. */
+	private boolean clientObject;
 	
 	/**
 	 * Creates a new instance.
@@ -59,8 +66,21 @@ public abstract class ShapeData
 	protected ShapeData(Shape shape)
 	{
 		super();
+		setClientObject(false);
 		setValue(shape);
 		settings = new ShapeSettingsData(shape);
+	}
+	
+	/** 
+	 * Create a new instance of shapeData, this is a client side instance, 
+	 * and so has to have the shape, shapeSettings set by the client.
+	 */
+	protected ShapeData()
+	{
+		super();
+		setClientObject(true);
+		setValue(null);
+		settings = null;
 	}
 	
 	/**
@@ -73,6 +93,60 @@ public abstract class ShapeData
 		return settings;
 	}
 	
+	/**
+	 * Set the settings associated to the shape.
+	 * 
+	 * @param shape See above.
+	 */
+	protected void setShapeSettings(Shape shape)
+	{
+		settings = new ShapeSettingsData(shape);
+	}
+	
+	/**
+	 * Is the object a read-only object.
+	 * @return See above.
+	 */
+	protected boolean isReadOnly()
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		return (shape.getLocked().getValue()==READONLY_FLAG);
+	}
+	
+	/**
+	 * Set the Shape object to be readOnly
+	 * @param readOnly See above.
+	 */
+	protected void setReadOnly(boolean readOnly)
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setLocked(rtypes.rbool(readOnly));
+	}
+	
+	/**
+	 * Is the object one that has been created client side. If so the id will
+	 * be null, or invalid.
+	 * @return See above.
+	 */
+	protected boolean isClientObject()
+	{
+		return clientObject;
+	}
+	
+	/**
+	 * Set the object to be a client side object. If so the id will be null
+	 * or invalid.
+	 * @param clientSideObject See above.
+	 */
+	protected void setClientObject(boolean clientSideObject)
+	{
+		clientObject = clientSideObject;
+	}
+			
 	/**
 	 * Returns the z-section.
 	 * 
@@ -89,6 +163,19 @@ public abstract class ShapeData
 	}
 
 	/**
+	 * Set the z-section.
+	 * @param See above.
+	 */
+	public void setZ(int theZ)
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setTheZ(rtypes.rint(theZ));
+	}
+
+	
+	/**
 	 * Returns the timepoint.
 	 * 
 	 * @return See above.
@@ -104,6 +191,18 @@ public abstract class ShapeData
 	}
 
 	/**
+	 * Set the timepoint.
+	 * @param See above.
+	 */
+	public void setT(int theT)
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setTheT(rtypes.rint(theT));
+	}
+	
+	/**
 	 * Returns the transformation.
 	 * 
 	 * @return See above.
@@ -117,6 +216,20 @@ public abstract class ShapeData
 		if (value == null) return "";
 		return value.getValue();
 	}
+	
+	/**
+	 * Set the Affine transform of the shape.
+	 * 
+	 * @param See above.
+	 */
+	public void setTransform(String transform)
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setTransform(rtypes.rstring(transform));
+	}
+
 	
 	
 }

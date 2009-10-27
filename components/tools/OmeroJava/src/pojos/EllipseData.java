@@ -28,7 +28,9 @@ package pojos;
 
 //Application-internal dependencies
 import omero.RDouble;
+import omero.rtypes;
 import omero.model.Ellipse;
+import omero.model.EllipseI;
 import omero.model.Shape;
 
 /**
@@ -49,13 +51,40 @@ public class EllipseData
 {
 
 	/**
-	 * Creates a new instance.
+	 * Creates a new instance of Ellipse data from an existing shape.
 	 * 
 	 * @param shape The shape this object represents.
 	 */
 	public EllipseData(Shape shape)
 	{
 		super(shape);
+	}
+	
+	/**
+	 * Create a new instance of EllipseData, creating a new EllipseI Object.
+	 */
+	public EllipseData()
+	{
+		this(0.0, 0.0, 0.0, 0.0);
+	}
+	
+	/**
+	 * Create a new instance of the EllipseData, set the centre and major, minor
+	 * axes.
+	 * @param cx Centre x.
+	 * @param cy Centre y.
+	 * @param rx Radius x.
+	 * @param ry Radius y.
+	 */
+	public EllipseData(double cx, double cy, double rx, double ry)
+	{
+		Ellipse shape = new EllipseI();
+		setValue(shape);
+		setShapeSettings(shape);
+		setX(cx);
+		setY(cy);
+		setRadiusX(rx);
+		setRadiusY(ry);
 	}
 	
 	/**
@@ -72,6 +101,22 @@ public class EllipseData
 	}
 	
 	/**
+	 * Sets the x-coordinate of the centre of the ellipse.
+	 * 
+	 * @param x See above.
+	 */
+	public void setX(double x)
+	{
+		if(isReadOnly())
+			throw new IllegalArgumentException("Shape ReadOnly");
+		Ellipse shape = (Ellipse) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setCx(rtypes.rdouble(x));
+	}
+
+	
+	/**
 	 * Returns the x-coordinate of the center of the ellipse.
 	 * 
 	 * @return See above.
@@ -85,16 +130,48 @@ public class EllipseData
 	}
 	
 	/**
+	 * Sets the y-coordinate of the centre of the ellipse.
+	 * 
+	 * @param y See above.
+	 */
+	public void setY(double y)
+	{
+		if(isReadOnly())
+			throw new IllegalArgumentException("Shape ReadOnly");
+		Ellipse shape = (Ellipse) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setCy(rtypes.rdouble(y));
+	}
+	
+	/**
 	 * Returns the radius along the X-axis.
 	 * 
 	 * @return See above.
 	 */
 	public double getRadiusX()
 	{
+		if(isReadOnly())
+			throw new IllegalArgumentException("Shape ReadOnly");
 		Ellipse shape = (Ellipse) asIObject();
 		RDouble value = shape.getRx();
 		if (value == null) return 0;
 		return value.getValue();
+	}
+	
+	/**
+	 * Sets the radius along the X-axis.
+	 * 
+	 * @param x See above.
+	 */
+	public void setRadiusX(double x)
+	{
+		if(isReadOnly())
+			throw new IllegalArgumentException("Shape ReadOnly");
+		Ellipse shape = (Ellipse) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setRx(rtypes.rdouble(x));
 	}
 	
 	/**
@@ -108,6 +185,21 @@ public class EllipseData
 		RDouble value = shape.getRy();
 		if (value == null) return 0;
 		return value.getValue();
+	}
+	
+	/**
+	 * Sets the radius along the Y-axis.
+	 * 
+	 * @param y See above.
+	 */
+	public void setRadiusY(double y)
+	{
+		if(isReadOnly())
+			throw new IllegalArgumentException("Shape ReadOnly");
+		Ellipse shape = (Ellipse) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setRy(rtypes.rdouble(y));
 	}
 	
 }

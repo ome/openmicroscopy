@@ -32,6 +32,7 @@ import java.awt.Font;
 //Application-internal dependencies
 import omero.RInt;
 import omero.RString;
+import omero.rtypes;
 import omero.model.Shape;
 
 /**
@@ -96,6 +97,38 @@ public class ShapeSettingsData
 	}
 	
 	/**
+	 * Converts the colour into a string.
+	 * 
+	 * @param value The value to convert.
+	 * @return
+	 */
+	private String ColourToString(Color value)
+	{
+		if (value == null) return null;
+		return encode(value);
+	}
+	
+	/**
+	 * Encode a colour to a string that decode can read. 
+	 * @param color See above. 
+	 * @return See above.
+	 */
+	private String encode(Color color)
+	{
+		if (color==null) { return "none"; }
+		
+		String value;
+		value="000000"+Integer.toHexString(color.getRGB());
+		value="#"+value.substring(value.length()-6);
+		if (value.charAt(1)==value.charAt(2)&&value.charAt(3)==value.charAt(4)
+				&&value.charAt(5)==value.charAt(6))
+		{
+			value="#"+value.charAt(1)+value.charAt(3)+value.charAt(5);
+		}
+		return value;
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param shape The shape the settings are for.
@@ -120,6 +153,19 @@ public class ShapeSettingsData
 	}
 	
 	/**
+	 * Set the fill rule.
+	 * 
+	 * @param fillRule See above.
+	 */
+	public void setFillRule(String fillRule)
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setFillRule(rtypes.rstring(fillRule));
+	}
+	
+	/**
 	 * Returns the fill color.
 	 * 
 	 * @return See above.
@@ -133,6 +179,20 @@ public class ShapeSettingsData
 		if (c == null) return DEFAULT_FILL_COLOUR;
 		return c;
 	}
+	
+	/**
+	 * Set the fill colour.
+	 * 
+	 * @param fillColour See above.
+	 */
+	public void setFillColor(Color fillColour)
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setFillColor(rtypes.rstring(ColourToString(fillColour)));
+	}
+
 	
 	/**
 	 * Returns the color of the stroke.
@@ -150,6 +210,19 @@ public class ShapeSettingsData
 	}
 
 	/**
+	 * Set the stroke colour.
+	 * 
+	 * @param strokeColour See above.
+	 */
+	public void setStrokeColor(Color strokeColour)
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setStrokeColor(rtypes.rstring(ColourToString(strokeColour)));
+	}
+	
+	/**
 	 * Returns the stroke's width.
 	 * 
 	 * @return See above.
@@ -160,6 +233,19 @@ public class ShapeSettingsData
 		RInt value = shape.getStrokeWidth();
 		if (value == null) return 1;
 		return value.getValue();
+	}
+
+	/**
+	 * Set the stroke width.
+	 * 
+	 * @param strokeWidth See above.
+	 */
+	public void setStrokeWidth(double strokeWidth)
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setStrokeWidth(rtypes.rint((int)strokeWidth));
 	}
 	
 	/**
@@ -181,6 +267,23 @@ public class ShapeSettingsData
 	}
 	
 	/**
+	 * Set the stroke dashes.
+	 * 
+	 * @param See above.
+	 */
+	public void setStrokeDashArray(double [] dashArray)
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		String values = "";
+		for(int i = 0 ; i < dashArray.length-1 ; i++)
+			values = values + dashArray[i] + ",";
+		values = values + dashArray[dashArray.length-1];
+		shape.setStrokeDashArray(rtypes.rstring(values));
+	}
+	
+	/**
 	 * Returns the stroke.
 	 * 
 	 * @return See above.
@@ -198,6 +301,33 @@ public class ShapeSettingsData
 	}
 	
 	/**
+	 * Set the line cap.
+	 * 
+	 * @param lineCap See above.
+	 */
+	public void setLineCap(int lineCap)
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		switch(lineCap)
+		{
+			case BasicStroke.CAP_BUTT:
+				shape.setStrokeLineCap(rtypes.rstring(LINE_CAP_BUTT));
+				break;
+			case BasicStroke.CAP_ROUND:
+				shape.setStrokeLineCap(rtypes.rstring(LINE_CAP_BUTT));
+				break;
+			case BasicStroke.CAP_SQUARE:
+				shape.setStrokeLineCap(rtypes.rstring(LINE_CAP_BUTT));
+				break;
+			default:
+				shape.setStrokeLineCap(rtypes.rstring(LINE_CAP_BUTT));
+				break;
+		}
+	}
+	
+	/**
 	 * Returns the stroke.
 	 * 
 	 * @return See above.
@@ -206,6 +336,7 @@ public class ShapeSettingsData
 	{
 		return DEFAULT_FONT_FAMILY;
 	}
+
 	
 	/**
 	 * Returns the stroke.

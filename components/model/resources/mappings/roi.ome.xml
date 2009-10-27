@@ -77,6 +77,7 @@
                         <!-- Offset of the text: specifies the coordinates of the top-left
                              corner of the text box -->
                         <optional name="x" type="double"/>
+                        <optional name="y" type="double"/>
                         <!-- Text values -->
                         <optional name="textValue" type="text"/>
                         <optional name="anchor" type="string"/><!-- start, middle, end -->
