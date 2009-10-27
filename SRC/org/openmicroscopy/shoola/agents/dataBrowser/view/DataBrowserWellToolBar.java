@@ -29,6 +29,7 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -37,16 +38,12 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 //Third-party libraries
+import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
-import org.jdesktop.swingx.JXBusyLabel;
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
-import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
-import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import pojos.DatasetData;
 
 /** 
  * The tool bar of {@link DataBrowser} displaying wells. 
@@ -68,6 +65,9 @@ class DataBrowserWellToolBar
 
 	/** ID to bring up the add thumbnail view to the node.. */
 	private static final int	ROLL_OVER = 0;
+	
+	/** The layout options for the fields. */
+	private static final String[] LAYOUT;
 	
 	/** Reference to the control. */
 	private DataBrowserControl 	controller;
@@ -93,9 +93,27 @@ class DataBrowserWellToolBar
 	/** The fields indicating the loading state of the field. */
 	private JXBusyLabel			busyLabel;
 	
+	/** The type of possible layout of the fields. */
+	private JComboBox			layoutBox;
+	
+	/** Defines the static values. */
+	static {
+		LAYOUT = new String[2];
+		LAYOUT[WellFieldsView.ROW_LAYOUT] = "As a row";
+		LAYOUT[WellFieldsView.SPATIAL_LAYOUT] = "Spatial";
+	}
+	
 	/** Initializes the components. */
 	private void initComponents()
 	{
+		layoutBox = new JComboBox(LAYOUT);
+		layoutBox.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				view.setSelectedFieldLayout(layoutBox.getSelectedIndex());
+				
+			}
+		});
 		IconManager icons = IconManager.getInstance();
 		rollOverButton = new JToggleButton();
 		rollOverButton.setIcon(icons.getIcon(IconManager.ROLL_OVER));
@@ -127,6 +145,7 @@ class DataBrowserWellToolBar
 			
 			});
 		}
+		displayFieldsOptions(false);
 	}
 	
 	/**
@@ -145,6 +164,8 @@ class DataBrowserWellToolBar
 		//if (fields != null) { //tmp
 			//bar.add(fields);
 			bar.add(fieldsViewButton);
+			bar.add(layoutBox);
+			bar.add(Box.createHorizontalStrut(5));
 			bar.add(busyLabel);
 		//}
 		
@@ -192,6 +213,17 @@ class DataBrowserWellToolBar
 	{
 		busyLabel.setVisible(busy);
 		busyLabel.setBusy(busy);
+	}
+	
+	/**
+	 * Shows or hides the options only available in the fields view.
+	 * 
+	 * @param show  Pass <code>true</code> to show the options, 
+	 * 				<code>false</code> to hide them.
+	 */
+	void displayFieldsOptions(boolean show)
+	{
+		layoutBox.setVisible(show);
 	}
 	
 	/** 

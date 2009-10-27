@@ -27,6 +27,10 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
@@ -56,6 +60,12 @@ class WellFieldsView
 	extends JPanel
 {
 
+	/** Indicates to lay out the fields in a row. */
+	static final int			ROW_LAYOUT = 0;
+	
+	/** Indicates to lay out the fields in a spatial position. */
+	static final int			SPATIAL_LAYOUT = 1;
+	
 	/** The grid representing the plate. */
 	private PlateGrid 			grid;
 	
@@ -71,9 +81,24 @@ class WellFieldsView
 	/** The collection of nodes to display. */
 	private List<WellSampleNode> nodes;
 	
+	/** The type of layout of the fields. */
+	private int					 layoutFields;
+	
+	/** 
+	 * Handles the mouse clicked on the canvas.
+	 * 
+	 * @param p The location of the mouse clicked.
+	 */
+	private void handleSelection(Point p)
+	{
+		WellSampleNode node = canvas.getNode(p);
+		if (node != null) model.viewNode(node);
+	}
+	
 	/** Initializes the components. */
 	private void initComponents()
 	{
+		layoutFields = ROW_LAYOUT;
 		grid = new PlateGrid(model.getRowSequenceIndex(), 
 				model.getColumnSequenceIndex(), model.getValidWells());
 		grid.addPropertyChangeListener(controller);
@@ -81,6 +106,14 @@ class WellFieldsView
 		if (node != null)
 			grid.selectCell(node.getRow(), node.getColumn());
 		canvas = new WellFieldsCanvas(this);
+		canvas.addMouseListener(new MouseAdapter() {
+			
+			public void mouseReleased(MouseEvent e) {
+				if (e.getClickCount() == 2) 
+					handleSelection(e.getPoint());
+			}
+		});
+		
 		nodes = null;
 	}
 	
@@ -106,6 +139,20 @@ class WellFieldsView
 		initComponents();
 		buildGUI();
 	}
+	
+	/**
+	 * Sets the index indicating how to layout the fields.
+	 * 
+	 * @param layoutFields The value to set.
+	 */
+	void setLayoutFields(int layoutFields) { this.layoutFields = layoutFields; }
+	
+	/**
+	 * Returns the index identifying the type of layout of the fields.
+	 * 
+	 * @return See above
+	 */
+	int getLayoutFields() { return layoutFields; }
 	
 	/** 
 	 * Returns the fields to display if any.

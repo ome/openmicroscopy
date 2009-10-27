@@ -27,9 +27,15 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.JPanel;
 
 
@@ -38,6 +44,8 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
+
+import pojos.WellSampleData;
 
 /** 
  * Display all the fields for a given well.
@@ -59,6 +67,9 @@ class WellFieldsCanvas
 	/** Reference to the parent. */
 	private WellFieldsView parent;
 	
+	/** Collection of rectangles indicating where the image is painted. */
+	private Map<Rectangle, WellSampleNode> locations;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -69,6 +80,25 @@ class WellFieldsCanvas
 		this.parent = parent;
 		setBackground(Color.black);
 		setDoubleBuffered(true);
+		locations = new HashMap<Rectangle, WellSampleNode>();
+	}
+	
+	/**
+	 * Returns the node corresponding to the passed location, or 
+	 * <code>null</code> if no nodes found.
+	 * 
+	 * @param p The location.
+	 * @return See above.
+	 */
+	WellSampleNode getNode(Point p)
+	{
+		Iterator<Rectangle> i = locations.keySet().iterator();
+		Rectangle r;
+		while (i.hasNext()) {
+			r = i.next();
+			if (r.contains(p)) return locations.get(r);
+		}
+		return null;
 	}
 	
 	/**
@@ -77,22 +107,45 @@ class WellFieldsCanvas
      */
     public void paintComponent(Graphics g)
     {
-        //super.paintComponent(g);
+    	super.paintComponent(g);
+    	locations.clear();
     	List<WellSampleNode> l = parent.getNodes();
         if (l == null || l.size() == 0) return;
         Graphics2D g2D = (Graphics2D) g;
         ImagePaintingFactory.setGraphicRenderingSettings(g2D);
         Iterator<WellSampleNode> i = l.iterator();
         WellSampleNode n;
-        //TODO: need to lay out the well according to the position
-        int w = 0;
         BufferedImage img;
-        while (i.hasNext()) {
-			n = i.next();
-			img = n.getThumbnail().getFullScaleThumb();
-			g2D.drawImage(img, null, w, 0); 
-			w += img.getWidth();
+        WellSampleData data;
+        Rectangle r;
+        switch (parent.getLayoutFields()) {
+			case WellFieldsView.ROW_LAYOUT:
+			default:
+				int w = 0;
+		        while (i.hasNext()) {
+					n = i.next();
+					img = n.getThumbnail().getFullScaleThumb();
+					r = new Rectangle(w, 0, img.getWidth(), img.getHeight());
+					locations.put(r, n);
+					g2D.drawImage(img, null, w, 0); 
+					w += img.getWidth()+1;
+				}
+				break;
+			case WellFieldsView.SPATIAL_LAYOUT:
+				int x = 0;
+				int y = 0;
+		        while (i.hasNext()) {
+					n = i.next();
+					data = (WellSampleData) n.getHierarchyObject();
+					img = n.getThumbnail().getFullScaleThumb();
+					x = (int) data.getPositionX();
+					y = (int) data.getPositionY();
+					r = new Rectangle(x, y, img.getWidth(), img.getHeight());
+					g2D.drawImage(img, null, x, y); 
+					locations.put(r, n);
+				}
 		}
+        
         g2D.dispose();
     }
     

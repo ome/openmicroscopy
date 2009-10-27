@@ -66,7 +66,7 @@ public class PlateGrid
 	public final static int		MAX_ROWS = 16;
 	
 	/** The maximum number of columns. */
-	public final static int		MAX_COLUMNS = 22;
+	public final static int		MAX_COLUMNS = 24;
 	
 	/** Bound property indicating that a well is selected. */
 	public static final String  WELL_FIELDS_PROPERTY = "wellFields";

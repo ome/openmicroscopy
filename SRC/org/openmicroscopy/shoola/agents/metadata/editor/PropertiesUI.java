@@ -98,6 +98,9 @@ class PropertiesUI
 	/** The title associated to this component. */
 	static final String			TITLE = "Properties";
 
+	/** The default text indicating the type of plate displayed. */
+	private static final String	DEFAULT_PLATE_TYPE ="-Well Plate";
+	
 	/** The default description. */
     private static final String	DEFAULT_DESCRIPTION_TEXT = "Description";
     
@@ -130,6 +133,9 @@ class PropertiesUI
     
     /** The component hosting the name of the <code>DataObject</code>. */
     private JTextArea			namePane;
+    
+    /** The component hosting the name of the <code>DataObject</code>. */
+    private JTextArea			typePane;
     
     /** The component hosting the description of the <code>DataObject</code>. */
     private JTextArea			descriptionPane;
@@ -214,6 +220,8 @@ class PropertiesUI
     		}
 		});
 		*/
+    	typePane = createTextPane();
+    	typePane.setEditable(false);
     	namePane.setEditable(false);
     	namePane.addFocusListener(this);
     	descriptionPane = createTextPane();
@@ -235,10 +243,13 @@ class PropertiesUI
     	
     	f = namePane.getFont();
     	namePane.setFont(f.deriveFont(Font.BOLD));
+    	
     	f = descriptionPane.getFont();
     	descriptionPane.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
     	descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
     	
+    	typePane.setFont(f.deriveFont(Font.BOLD));
+    	typePane.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
     	
     	f = parentLabel.getFont();
     	parentLabel.setFont(f.deriveFont(Font.BOLD));
@@ -430,6 +441,13 @@ class PropertiesUI
     	return label+"="+value;
     }
 
+    /**
+     * Returns <code>true</code> if the pixels size is a number, 
+     * <code>false</code> otherwise.
+     * 
+     * @param details The map to handle.
+     * @return See above.
+     */
     private boolean isPixelsSizeNumber(Map details)
     {
     	String x = (String) details.get(EditorUtil.PIXEL_SIZE_X);
@@ -601,6 +619,13 @@ class PropertiesUI
         	 p.add(Box.createVerticalStrut(5));
         	 descriptionPanel = layoutEditablefield(editDescription, 
         			 			descriptionPane);
+        	 /*
+        	 if (refObject instanceof PlateData) {
+        		 PlateData plate = (PlateData) refObject;
+        		 
+        		 typePane.setText()
+        	 }
+        	 */
         	 p.add(descriptionPanel);
          }
          p.add(Box.createVerticalStrut(5));

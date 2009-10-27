@@ -270,20 +270,7 @@ class WellsModel
 		String type;
 		ColourObject co;
 		Color color;
-		//make sure we first have the correct size.
-		while (j.hasNext()) {
-			node = (WellImageSet) j.next();
-			row = node.getRow();
-			column = node.getColumn();
-			if (row > rows) rows = row;
-			if (column > columns) columns = column;
-		}
-		int n = PlateGrid.MAX_ROWS;
-		int m = PlateGrid.MAX_COLUMNS;
-		if (rows > n) n = rows+1;
-		if (columns > m) m = columns+1;
-		validWells = new boolean[n][m];
-		j = wellNodes.iterator();
+		validWells = new boolean[PlateGrid.MAX_ROWS][PlateGrid.MAX_COLUMNS];
 		while (j.hasNext()) {
 			node = (WellImageSet) j.next();
 			
@@ -379,6 +366,16 @@ class WellsModel
 		}
         browser = BrowserFactory.createBrowser(samples);
 		layoutBrowser(LayoutFactory.PLATE_LAYOUT);
+	}
+	
+	/**
+	 * Views the passed node if supported.
+	 * 
+	 * @param node The node to handle.
+	 */
+	void viewNode(WellSampleNode node)
+	{
+		browser.viewDisplay(node);
 	}
 	
 	/**

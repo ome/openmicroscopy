@@ -293,6 +293,7 @@ class DataBrowserUI
 				selectedView = index;
 				if (model.getType() == DataBrowserModel.WELLS) {
 					add(wellToolBar, BorderLayout.NORTH);
+					wellToolBar.displayFieldsOptions(false);
 				} else {
 					add(toolBar, BorderLayout.NORTH);
 					layoutUI();
@@ -306,7 +307,7 @@ class DataBrowserUI
 					fieldsView  = new WellFieldsView((WellsModel) model, 
 							controller);
 				}
-				
+				wellToolBar.displayFieldsOptions(true);
 				add(fieldsView, BorderLayout.CENTER);
 				//Create the grid from the 
 				break;
@@ -550,6 +551,18 @@ class DataBrowserUI
 		if (fieldsView == null) return;
 		setFieldsStatus(false);
 		fieldsView.displayFields(nodes);
+	}
+
+	/**
+	 * Sets the layout used to display the fields.
+	 * 
+	 * @param index The index of the layout.
+	 */
+	void setSelectedFieldLayout(int index)
+	{
+		if (fieldsView == null) return;
+		fieldsView.setLayoutFields(index);
+		fieldsView.displayFields(fieldsView.getNodes());
 	}
 	
 }
