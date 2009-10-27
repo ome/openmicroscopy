@@ -299,6 +299,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 qb.and("fa.ns = '" + NSMEASUREMENT.value + "'");
                 qb.and("rfa.id = fa.id");
                 qb.and("i.id = :id");
+                qb.and("i.id = roi.image");
                 qb.param("id", imageId);
                 qb.filter("fa", filter(opts));
                 return qb.query(session).list();
