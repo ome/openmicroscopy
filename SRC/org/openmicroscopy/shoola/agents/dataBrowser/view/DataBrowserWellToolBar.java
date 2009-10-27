@@ -42,7 +42,6 @@ import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -223,6 +222,8 @@ class DataBrowserWellToolBar
 	 */
 	void displayFieldsOptions(boolean show)
 	{
+		refreshButton.setEnabled(!show);
+		if (fields != null) fields.setEnabled(!show);
 		layoutBox.setVisible(show);
 	}
 	
