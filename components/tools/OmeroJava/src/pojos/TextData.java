@@ -175,52 +175,6 @@ public class TextData
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setY(rtypes.rdouble(y));
 	}
-
-	
-	
-	
-	/**
-	 * Sets the radius along the X-axis.
-	 * 
-	 * @param x See above.
-	 */
-	public void setRadiusX(double x)
-	{
-		if(isReadOnly())
-			throw new IllegalArgumentException("Shape ReadOnly");
-		Ellipse shape = (Ellipse) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		shape.setRx(rtypes.rdouble(x));
-	}
-	
-	/**
-	 * Returns the radius along the Y-axis.
-	 * 
-	 * @return See above.
-	 */
-	public double getRadiusY()
-	{
-		Ellipse shape = (Ellipse) asIObject();
-		RDouble value = shape.getRy();
-		if (value == null) return 0;
-		return value.getValue();
-	}
-	
-	/**
-	 * Sets the radius along the Y-axis.
-	 * 
-	 * @param y See above.
-	 */
-	public void setRadiusY(double y)
-	{
-		if(isReadOnly())
-			throw new IllegalArgumentException("Shape ReadOnly");
-		Ellipse shape = (Ellipse) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		shape.setRy(rtypes.rdouble(y));
-	}
 	
 }
 
