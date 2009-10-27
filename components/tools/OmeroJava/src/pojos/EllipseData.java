@@ -28,10 +28,12 @@ package pojos;
 
 //Application-internal dependencies
 import omero.RDouble;
+import omero.RString;
 import omero.rtypes;
 import omero.model.Ellipse;
 import omero.model.EllipseI;
 import omero.model.Shape;
+import omero.model.Text;
 
 /**
  * Represents an ellipse in the Euclidean space <b>R</b><sup>2</sup>.
@@ -85,6 +87,34 @@ public class EllipseData
 		setY(cy);
 		setRadiusX(rx);
 		setRadiusY(ry);
+	}
+	
+	/**
+	 * Returns the text of the shape.
+	 * 
+	 * @return See above.
+	 */
+	public String getText()
+	{
+		Ellipse shape = (Ellipse) asIObject();
+		RString value = shape.getTextValue();
+		if (value == null) return "";
+		return value.getValue();
+	}
+	
+	/**
+	 * Sets the text of the shape.
+	 * 
+	 * @param text See above.
+	 */
+	public void setText(String text)
+	{
+		if(isReadOnly())
+			throw new IllegalArgumentException("Shape ReadOnly");
+		Ellipse shape = (Ellipse) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setTextValue(rtypes.rstring(text));
 	}
 	
 	/**

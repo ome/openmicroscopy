@@ -28,6 +28,8 @@ package pojos;
 
 //Application-internal dependencies
 import omero.RDouble;
+import omero.RString;
+import omero.rtypes;
 import omero.model.Line;
 import omero.model.Shape;
 
@@ -59,6 +61,35 @@ public class LineData
 	}
 	
 	/**
+	 * Returns the text of the shape.
+	 * 
+	 * @return See above.
+	 */
+	public String getText()
+	{
+		Line shape = (Line) asIObject();
+		RString value = shape.getTextValue();
+		if (value == null) return "";
+		return value.getValue();
+	}
+	
+	/**
+	 * Sets the text of the shape.
+	 * 
+	 * @param text See above.
+	 */
+	public void setText(String text)
+	{
+		if(isReadOnly())
+			throw new IllegalArgumentException("Shape ReadOnly");
+		Line shape = (Line) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setTextValue(rtypes.rstring(text));
+	}
+	
+	
+	/**
 	 * Returns the x-coordinate of the starting point of an untransformed line.
 	 * 
 	 * @return See above.
@@ -69,6 +100,21 @@ public class LineData
 		RDouble value = shape.getX1();
 		if (value == null) return 0;
 		return value.getValue();
+	}
+	
+	/**
+	 * Set the x-coordinate of the starting point of an untransformed line.
+	 * 
+	 * @param x1 See above.
+	 */
+	public void setX1(double x1)
+	{
+		if(isReadOnly())
+			throw new IllegalArgumentException("Shape ReadOnly");
+		Line shape = (Line) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setX1(rtypes.rdouble(x1));
 	}
 	
 	/**
@@ -85,6 +131,21 @@ public class LineData
 	}
 	
 	/**
+	 * Set the x-coordinate of the end point of an untransformed line.
+	 * 
+	 * @param x2 See above.
+	 */
+	public void setX2(double x2)
+	{
+		if(isReadOnly())
+			throw new IllegalArgumentException("Shape ReadOnly");
+		Line shape = (Line) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setX1(rtypes.rdouble(x2));
+	}
+	
+	/**
 	 * Returns the y-coordinate of the starting point of an untransformed line.
 	 * 
 	 * @return See above.
@@ -95,6 +156,21 @@ public class LineData
 		RDouble value = shape.getY1();
 		if (value == null) return 0;
 		return value.getValue();
+	}
+	
+	/**
+	 * Set the y-coordinate of the starting point of an untransformed line.
+	 * 
+	 * @param y1 See above.
+	 */
+	public void setY1(double y1)
+	{
+		if(isReadOnly())
+			throw new IllegalArgumentException("Shape ReadOnly");
+		Line shape = (Line) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setY1(rtypes.rdouble(y1));
 	}
 	
 	/**
@@ -110,4 +186,19 @@ public class LineData
 		return value.getValue();
 	}
 
+	/**
+	 * Set the y-coordinate of the end point of an untransformed line.
+	 * 
+	 * @param y2 See above.
+	 */
+	public void setY2(double y2)
+	{
+		if(isReadOnly())
+			throw new IllegalArgumentException("Shape ReadOnly");
+		Line shape = (Line) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setY2(rtypes.rdouble(y2));
+	}
+	
 }

@@ -33,6 +33,7 @@ import java.awt.geom.Point2D;
 //Application-internal dependencies
 import omero.RDouble;
 import omero.RString;
+import omero.rtypes;
 import omero.model.Shape;
 import omero.model.Polyline;
 
@@ -76,6 +77,60 @@ public class PolylineData
 	{
 		return points;
 	}
+	
+	
+	/**
+	 * Set the points in the polygon.
+	 * 
+	 * @param points See above.
+	 */
+	public void setPoints(List<Point2D> points)
+	{
+		if(isReadOnly())
+			throw new IllegalArgumentException("Shape ReadOnly");
+		Polyline shape = (Polyline) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		String pts = "";
+		Point2D pt;
+		for(int cnt = 0 ; cnt < points.size()-1 ; cnt++)
+		{
+			pt = points.get(cnt);
+			pts = pts + pt.getX() + "," + pt.getY() + ",";
+		}
+		pt = points.get(points.size()-1);
+		pts = pts + pt.getX() + "," + pt.getY();
+		shape.setPoints(rtypes.rstring(pts));
+	}
+	
+	/**
+	 * Returns the text of the shape.
+	 * 
+	 * @return See above.
+	 */
+	public String getText()
+	{
+		Polyline shape = (Polyline) asIObject();
+		RString value = shape.getTextValue();
+		if (value == null) return "";
+		return value.getValue();
+	}
+	
+	/**
+	 * Sets the text of the shape.
+	 * 
+	 * @param text See above.
+	 */
+	public void setText(String text)
+	{
+		if(isReadOnly())
+			throw new IllegalArgumentException("Shape ReadOnly");
+		Polyline shape = (Polyline) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setTextValue(rtypes.rstring(text));
+	}
+	
 	
 	/** 
 	* Parse the points list from the Polyline object to a list of 

@@ -91,7 +91,7 @@ public class TextData
 	}
 	
 	/**
-	 * Returns the text of the text field.
+	 * Returns the text of the shape.
 	 * 
 	 * @return See above.
 	 */
@@ -104,7 +104,7 @@ public class TextData
 	}
 	
 	/**
-	 * Sets the text of the text field.
+	 * Sets the text of the shape.
 	 * 
 	 * @param text See above.
 	 */

@@ -31,6 +31,8 @@ import java.awt.Color;
 
 //Application-internal dependencies
 import omero.RDouble;
+import omero.RString;
+import omero.rtypes;
 import omero.model.Mask;
 import omero.model.Shape;
 
@@ -63,6 +65,34 @@ public class MaskData
 	}
 	
 	/**
+	 * Returns the text of the shape.
+	 * 
+	 * @return See above.
+	 */
+	public String getText()
+	{
+		Mask shape = (Mask) asIObject();
+		RString value = shape.getTextValue();
+		if (value == null) return "";
+		return value.getValue();
+	}
+	
+	/**
+	 * Sets the text of the shape.
+	 * 
+	 * @param text See above.
+	 */
+	public void setText(String text)
+	{
+		if(isReadOnly())
+			throw new IllegalArgumentException("Shape ReadOnly");
+		Mask shape = (Mask) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setTextValue(rtypes.rstring(text));
+	}
+	
+	/**
 	 * Returns the x-coordinate of the top left corner of the mask.
 	 * 
 	 * @return See above.
@@ -73,6 +103,21 @@ public class MaskData
 		RDouble value = shape.getX();
 		if (value == null) return 0;
 		return value.getValue();
+	}
+	
+	/**
+	 * set the x-coordinate top-left corner of an untransformed mask.
+	 * 
+	 * @param x See above.
+	 */
+	public void setX(double x)
+	{
+		if(isReadOnly())
+			throw new IllegalArgumentException("Shape ReadOnly");
+		Mask shape = (Mask) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setX(rtypes.rdouble(x));
 	}
 	
 	/**
@@ -89,6 +134,21 @@ public class MaskData
 	}
 	
 	/**
+	 * set the y-coordinate top-left corner of an untransformed mask.
+	 * 
+	 * @param y See above.
+	 */
+	public void setY(double y)
+	{
+		if(isReadOnly())
+			throw new IllegalArgumentException("Shape ReadOnly");
+		Mask shape = (Mask) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setY(rtypes.rdouble(y));
+	}
+	
+	/**
 	 * Returns the width of the mask.
 	 * 
 	 * @return See above.
@@ -99,6 +159,21 @@ public class MaskData
 		RDouble value = shape.getWidth();
 		if (value == null) return 0;
 		return value.getValue();
+	}
+	
+	/**
+	 * set width of an untransformed mask.
+	 * 
+	 * @param width See above.
+	 */
+	public void setWidth(double width)
+	{
+		if(isReadOnly())
+			throw new IllegalArgumentException("Shape ReadOnly");
+		Mask shape = (Mask) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setWidth(rtypes.rdouble(width));
 	}
 	
 	/**
@@ -114,6 +189,21 @@ public class MaskData
 		return value.getValue();
 	}
 
+	/**
+	 * set height of an untransformed mask.
+	 * 
+	 * @param height See above.
+	 */
+	public void setHeight(double height)
+	{
+		if(isReadOnly())
+			throw new IllegalArgumentException("Shape ReadOnly");
+		Mask shape = (Mask) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setHeight(rtypes.rdouble(height));
+	}
+	
 	/**
 	 * Returns the mask image.
 	 * 

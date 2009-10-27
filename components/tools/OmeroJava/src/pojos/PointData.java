@@ -28,6 +28,8 @@ package pojos;
 
 //Application-internal dependencies
 import omero.RDouble;
+import omero.RString;
+import omero.rtypes;
 import omero.model.Point;
 import omero.model.Shape;
 
@@ -59,7 +61,36 @@ public class PointData
 	}
 	
 	/**
-	 * Returns the x-coordinate of the point.
+	 * Returns the text of the shape.
+	 * 
+	 * @return See above.
+	 */
+	public String getText()
+	{
+		Point shape = (Point) asIObject();
+		RString value = shape.getTextValue();
+		if (value == null) return "";
+		return value.getValue();
+	}
+	
+	/**
+	 * Sets the text of the shape.
+	 * 
+	 * @param text See above.
+	 */
+	public void setText(String text)
+	{
+		if(isReadOnly())
+			throw new IllegalArgumentException("Shape ReadOnly");
+		Point shape = (Point) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setTextValue(rtypes.rstring(text));
+	}
+	
+	
+	/**
+	 * Returns the x-coordinate of the shape.
 	 * 
 	 * @return See above.
 	 */
@@ -72,7 +103,22 @@ public class PointData
 	}
 	
 	/**
-	 * Returns the y-coordinate of the point.
+	 * set the x-coordinate of the shape.
+	 * 
+	 * @param x See above.
+	 */
+	public void setX(double x)
+	{
+		if(isReadOnly())
+			throw new IllegalArgumentException("Shape ReadOnly");
+		Point shape = (Point) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setCx(rtypes.rdouble(x));
+	}
+	
+	/**
+	 * Returns the y coordinate of the shape.
 	 * 
 	 * @return See above.
 	 */
@@ -82,6 +128,21 @@ public class PointData
 		RDouble value = shape.getCy();
 		if (value == null) return 0;
 		return value.getValue();
+	}
+	
+	/**
+	 * set the y-coordinate of the shape.
+	 * 
+	 * @param y See above.
+	 */
+	public void setY(double y)
+	{
+		if(isReadOnly())
+			throw new IllegalArgumentException("Shape ReadOnly");
+		Point shape = (Point) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setCy(rtypes.rdouble(y));
 	}
 	
 }

@@ -107,7 +107,7 @@ public abstract class ShapeData
 	 * Is the object a read-only object.
 	 * @return See above.
 	 */
-	protected boolean isReadOnly()
+	public boolean isReadOnly()
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
@@ -119,7 +119,7 @@ public abstract class ShapeData
 	 * Set the Shape object to be readOnly
 	 * @param readOnly See above.
 	 */
-	protected void setReadOnly(boolean readOnly)
+	public void setReadOnly(boolean readOnly)
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
@@ -132,7 +132,7 @@ public abstract class ShapeData
 	 * be null, or invalid.
 	 * @return See above.
 	 */
-	protected boolean isClientObject()
+	public boolean isClientObject()
 	{
 		return clientObject;
 	}
@@ -142,7 +142,7 @@ public abstract class ShapeData
 	 * or invalid.
 	 * @param clientSideObject See above.
 	 */
-	protected void setClientObject(boolean clientSideObject)
+	public void setClientObject(boolean clientSideObject)
 	{
 		clientObject = clientSideObject;
 	}
