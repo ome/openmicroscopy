@@ -102,6 +102,7 @@
                         <optional name="width" type="double"/>
                         <optional name="height" type="double"/>
                         <optional name="rx" type="double"/>
+                        <optional name="textValue" type="text"/>
                 </properties>
         </type>
         <type id="ome.model.roi.Mask" discriminator="mask" superclass="ome.model.roi.Shape">
@@ -111,6 +112,7 @@
                         <optional name="width" type="double"/>
                         <optional name="height" type="double"/>
                         <optional name="pixels" type="ome.model.core.Pixels"/>
+                        <optional name="textValue" type="text"/>
 			<optional name="bytes" type="byte[]"/>
                 </properties>
         </type>
@@ -120,12 +122,14 @@
                         <optional name="cy" type="double"/>
                         <optional name="rx" type="double"/>
                         <optional name="ry" type="double"/>
+                        <optional name="textValue" type="text"/>
                 </properties>
         </type>
         <type id="ome.model.roi.Point" discriminator="point" superclass="ome.model.roi.Shape">
                 <properties>
                         <optional name="cx" type="double"/>
                         <optional name="cy" type="double"/>
+                        <optional name="textValue" type="text"/>
                 </properties>
         </type>
         <type id="ome.model.roi.Path" discriminator="path" superclass="ome.model.roi.Shape">
@@ -136,11 +140,13 @@
         <type id="ome.model.roi.Polygon" discriminator="polygon" superclass="ome.model.roi.Shape">
                 <properties>
                         <optional name="points" type="string"/>
+                        <optional name="textValue" type="text"/>
                 </properties>
         </type>
         <type id="ome.model.roi.Polyline" discriminator="polyline" superclass="ome.model.roi.Shape">
                 <properties>
                         <optional name="points" type="string"/>
+                        <optional name="textValue" type="text"/>
                 </properties>
         </type>
         <type id="ome.model.roi.Line" discriminator="line" superclass="ome.model.roi.Shape">
@@ -149,6 +155,7 @@
                         <optional name="y1" type="double"/>
                         <optional name="x2" type="double"/>
                         <optional name="y2" type="double"/>
+                        <optional name="textValue" type="text"/>
                 </properties>
         </type>
         <!-- MISSING:
