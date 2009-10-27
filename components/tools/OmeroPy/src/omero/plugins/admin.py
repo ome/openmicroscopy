@@ -563,10 +563,8 @@ OMERO Diagnostics %s
                     sz += x.size
                 self.ctx.out("%-.2f MB" % (float(sz)/1000000.0))
 
-        log_dir(path(".") / "var" / "log", "Log dir", "Log files",\
+        log_dir(self.ctx.dir / "var" / "log", "Log dir", "Log files",\
             ["Blitz-0.log", "Tables-0.log", "Processor-0.log", "Indexer-0.log", "FSServer.log", "DropBox.log", "TestDropBox.log", "OMEROweb.log"])
-        #log_dir(path(".") / "lib" / "python" / "omeroweb" / "log", "Web logs" , "Web log files",\
-        #    ["OMEROweb.log"])
 
 try:
     register("admin", AdminControl)
