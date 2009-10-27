@@ -133,6 +133,8 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     protected boolean cancelUploads = false;
 
     protected boolean sendFiles = true;
+    
+    protected boolean sendLogs = true;
 
     protected int totalErrors = 0;
 
@@ -255,6 +257,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
                 HtmlMessenger messenger = new HtmlMessenger(sendUrl, postList);
                 String serverReply = messenger.executePost();
 
+                // TODO add code here for sendLogs
                 if (sendFiles) {
                     onSending(i);
                     errorContainer.setToken(serverReply);

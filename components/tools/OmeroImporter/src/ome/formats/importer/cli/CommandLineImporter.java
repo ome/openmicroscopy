@@ -68,6 +68,7 @@ public class CommandLineImporter {
         this.reader = new OMEROWrapper(config);
         this.handler = new ErrorHandler(config);
         candidates = new ImportCandidates(reader, paths, handler);
+        this.reader.setMetadataCollected(true);
 
         if (paths == null || paths.length == 0 || getUsedFiles) {
 
@@ -134,8 +135,9 @@ public class CommandLineImporter {
     void report() {
         boolean report = config.sendReport.get();
         boolean files = config.sendFiles.get();
+        boolean logs = config.sendLogFile.get();
         if (report) {
-           handler.update(null, new ImportEvent.DEBUG_SEND(files));
+           handler.update(null, new ImportEvent.DEBUG_SEND(files, logs));
         }
     }
 
@@ -219,6 +221,7 @@ public class CommandLineImporter {
         // Defaults
         config.email.set("");
         config.sendFiles.set(false);
+        config.sendLogFile.set(false);
         config.sendReport.set(false);
         config.contOnError.set(false);
         config.debug.set(false);

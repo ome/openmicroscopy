@@ -56,8 +56,10 @@ public class ErrorHandler extends ome.formats.importer.util.ErrorHandler {
             if (errors.size() > 0) {
 
                 sendFiles = ((ImportEvent.DEBUG_SEND) event).sendFiles;
+                sendLogs = ((ImportEvent.DEBUG_SEND) event).sendLogs;
                 log.info("Sending error report "
                         + (sendFiles ? "with files " : " ") + "...");
+                if (sendLogs) log.info("Sending log file...");
                 sendErrors();
             }
 

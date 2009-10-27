@@ -87,7 +87,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
 	private ArrayList<ErrorContainer> errorsArrayList;
 
 
-	private JCheckBox uploadCheckmark;
+	private JCheckBox uploadCheckmark, logUploadCheckmark;
     
     DebugMessenger(JFrame owner, String title, ImportConfig config, Boolean modal, ArrayList<ErrorContainer> errorsArrayList)
     {
@@ -123,10 +123,14 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         this.getRootPane().setDefaultButton(sendBtn);
         gui.enterPressesWhenFocused(sendBtn);
         
-        uploadCheckmark = gui.addCheckBox(mainPanel, "Send selected images.", "1,1,7,c", debug);
+        uploadCheckmark = gui.addCheckBox(mainPanel, "Send the image files for these errors.", "1,1,7,c", debug);
         //uploadCheckmark.setSelected(config.sendFiles.get());
         uploadCheckmark.setSelected(true);
-                
+       
+        logUploadCheckmark = gui.addCheckBox(mainPanel, "Send importer log file.", "1,2,7,c", debug);
+        //uploadCheckmark.setSelected(config.sendFiles.get());
+        logUploadCheckmark.setSelected(true);
+        
         // fill out the comments panel (changes according to icon existance)        
         Icon icon = gui.getImageIcon(ICON);
         
@@ -197,6 +201,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
                 sendBtn.setEnabled(false);
                 config.email.set(emailText);
                 config.sendFiles.set(uploadCheckmark.isSelected());
+                config.sendLogFile.set(logUploadCheckmark.isSelected());
                 sendRequest(emailText, commentText, "");
                 dispose();
             }
@@ -230,7 +235,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
             errorContainer.setExtra(extraText);
     	}
 
-    	notifyObservers(new ImportEvent.DEBUG_SEND(uploadCheckmark.isSelected()));
+    	notifyObservers(new ImportEvent.DEBUG_SEND(uploadCheckmark.isSelected(), logUploadCheckmark.isSelected()));
     }
     
 

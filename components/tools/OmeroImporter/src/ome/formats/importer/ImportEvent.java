@@ -191,9 +191,11 @@ public class ImportEvent {
 
     public static class DEBUG_SEND extends ImportEvent {
         public final boolean sendFiles;
+        public final boolean sendLogs;
 
-        public DEBUG_SEND(boolean sendFiles) {
+        public DEBUG_SEND(boolean sendFiles, boolean sendLogs) {
             this.sendFiles = sendFiles;
+            this.sendLogs = sendLogs;
         }
     }
 
