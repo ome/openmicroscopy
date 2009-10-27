@@ -113,8 +113,10 @@ class AbstractColumn(object):
         self.values = rows[self.name]
         # WORKAROUND: http://www.zeroc.com/forums/bug-reports/4165-icepy-can-not-handle-buffers-longs-i64.html#post20468
         d = self.recarrtypes[0][1]
-        if (isinstance(d, str) and d.endswith("i8")) or \
-           (d.endswithd.kind == "i" and d.itemsize == "8"):
+        if isinstance(d, str):
+            if d.endswith("i8"):
+                self.values = self.values.tolist()
+        elif d.kind == "i" and d.itemsize == "8":
             self.values = self.values.tolist()
 
 class FileColumnI(AbstractColumn, omero.grid.FileColumn):
