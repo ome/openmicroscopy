@@ -415,15 +415,17 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         for (int i = 0; i < ctx.planeSizeInPixels; i++)
         {
             projectedValue = 0;
+            int projectedPlaneCount = 0;
             for (int z = start; z < end; z += stepping)
             {
                 currentPlaneStart = ctx.planeSizeInPixels * z;
                 stackValue = ctx.from.getPixelValue(currentPlaneStart + i);
                 projectedValue += stackValue;
+                projectedPlaneCount++;
             }
             if (mean)
             {
-                projectedValue = projectedValue / (end - start) / stepping;
+                projectedValue = projectedValue / projectedPlaneCount;
             }
             if (projectedValue > planeMaximum)
             {
