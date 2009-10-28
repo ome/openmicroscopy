@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.agents.metadata.util.SplitViewFigureDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -101,6 +102,12 @@ class EditorComponent
 	/** The View sub-component. */
 	private EditorUI		view;
 
+	/** 
+	 * Indicates to load the rendering control for the purpose of the 
+	 * split view figures making.
+	 */
+	private boolean			splitViewFigure;
+	
 	/**
 	 * Shows the selection wizard.
 	 * 
@@ -577,6 +584,10 @@ class EditorComponent
 			loadChannelData();
 		model.getRenderer().addPropertyChangeListener(controller);
 		model.onRndLoaded(false);
+		if (splitViewFigure) {
+			createSplitViewFigure();
+			splitViewFigure = false;
+		}
 	}
 
 	/** 
@@ -722,6 +733,25 @@ class EditorComponent
 				break;
 			default:
 				return;
+		}
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#createSplitViewFigure()
+	 */
+	public void createSplitViewFigure()
+	{
+		if (model.isRendererLoaded()) {
+			JFrame f = 
+				MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+			String name = model.getRefObjectName();
+			SplitViewFigureDialog dialog = new SplitViewFigureDialog(f, name, 
+					model.getRenderer());
+			dialog.centerDialog();
+		} else {
+			splitViewFigure = true;
+			loadRenderingControl(RenderingControlLoader.LOAD);
 		}
 	}
 

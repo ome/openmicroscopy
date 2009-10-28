@@ -773,4 +773,58 @@ public class Factory
     	return (Icon) (new ImageIcon(bi));
     }
     
+    /**
+     * Scales the passed buffered image.
+     * 
+     * @param image  The image to scale.
+     * @param width  The width of the new image.
+     * @param height The height of the new image.
+     * @return See above.
+     */
+    public static BufferedImage scaleBufferedImage(BufferedImage image, int
+    		width, int height) {
+        
+        ColorModel cm = image.getColorModel();
+        WritableRaster r = cm.createCompatibleWritableRaster(width, height);
+        BufferedImage thumbImage = new BufferedImage(cm, r, false, null);
+
+        // Do the actual scaling and return the result
+        Graphics2D graphics2D = thumbImage.createGraphics();
+        graphics2D.drawImage(image, 0, 0, width, height, null);
+        return thumbImage;
+    }
+    
+    /**
+     * Creates a buffered image.
+     * 
+     * @param buf		The buffer hosting the data.
+     * @param sizeX		The image's width.
+     * @param sizeY		The image's height.
+     * @param redMask	The mask applied on the red component.
+     * @param greenMask	The mask applied on the green component.
+     * @param blueMask	The mask applied on the blue component.
+     * @return See above.
+     */
+    public static BufferedImage createBandImage(DataBuffer buf, int sizeX,
+    		int sizeY, int redMask, int greenMask, int blueMask)
+    {
+    	int[] masks = {redMask, greenMask, blueMask};
+    	
+    	switch (buf.getDataType()) {
+			case DataBuffer.TYPE_BYTE:
+				DataBufferByte bufferByte = (DataBufferByte) buf;
+	            byte[] values = bufferByte.getData();
+	            int i = 0, j = 0, l = values.length/3;
+	    		int[] buffer = new int[l];
+	    		while (i<l)
+	        		buffer[i++] = (values[j++]) | (values[j++]<<8) | 
+	        						(values[j++]<<16);
+				return Factory.createImage(buffer, 24, masks, sizeX, sizeY);
+			case DataBuffer.TYPE_INT:
+				return Factory.createImage(buf, 32, masks, sizeX, sizeY);
+				 
+		}
+    	return null;
+    }
+    
 }

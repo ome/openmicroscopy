@@ -292,11 +292,14 @@ public class IconManager
     /** The <code>Activity</code> icon. */
     public static final int           ACTIVITY = 79;
     
+    /** The <code>Split View</code> icon. */
+    public static final int           SPLIT_VIEW = 80;
+    
     /** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 79;
+	private static final int          MAX_ID = 80;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -380,6 +383,7 @@ public class IconManager
         relPaths[DOWNLOAD_22] = "nuvola_download_manager22.png";
         relPaths[DOWNLOAD_48] = "nuvola_download_manager48.png";
         relPaths[ACTIVITY] = "nuvola_kcmsystem16.png";
+        relPaths[SPLIT_VIEW] = "nuvola_kcmsystem16.png";
 	}
    
 	/** The sole instance. */

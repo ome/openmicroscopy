@@ -1857,13 +1857,20 @@ class EditorModel
 		return getPublishedAnnotation() != null;
 	}
 
+	/**
+	 * Loads the specified file.
+	 * 
+	 * @param data   The file to load.
+	 * @param uiView The view to notify.
+	 */
 	void loadFile(FileAnnotationData data, Object uiView)
 	{
 		FileLoader loader = new FileLoader(component, data, uiView);
 		loader.load();
 	}
 	
-	/** Notifies that the rendering control has been loaded. 
+	/** 
+	 * Notifies that the rendering control has been loaded. 
 	 * 
 	 * @param reload Pass <code>true</code> if the rendering control has been
 	 * 				 reloaded following an exception, <code>false</code> if 

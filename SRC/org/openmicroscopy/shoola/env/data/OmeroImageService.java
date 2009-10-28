@@ -34,6 +34,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 
 //Third-party libraries
+import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.constants.projection.ProjectionType;
@@ -45,9 +46,6 @@ import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-
-import com.sun.opengl.util.texture.TextureData;
-
 import pojos.DataObject;
 import pojos.ImageData;
 import pojos.PixelsData;

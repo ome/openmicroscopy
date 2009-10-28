@@ -707,7 +707,7 @@ public class UIUtilities
     
     /**
      * Adds the specified {@link JComponent} to a {@link JPanel} 
-     * with a left flowlayout.
+     * with a left flow layout.
      * 
      * @param component The component to add.
      * @return See below.
@@ -719,7 +719,7 @@ public class UIUtilities
     
     /**
      * Adds the specified {@link JComponent} to a {@link JPanel} 
-     * with a left flowlayout.
+     * with a left flow layout.
      * 
      * @param component The component to add.
      * @param isOpaque  Pass <code>true</code> if this component should be 
@@ -734,7 +734,7 @@ public class UIUtilities
 
     /**
      * Adds the specified {@link JComponent} to a {@link JPanel} 
-     * with a left flowlayout.
+     * with a left flow layout.
      * 
      * @param component The component to add.
      * @param hgap    	The horizontal gap between components and between the 
@@ -753,7 +753,7 @@ public class UIUtilities
     
     /**
      * Adds the specified {@link JComponent} to a {@link JPanel} 
-     * with a left flowlayout.
+     * with a left flow layout.
      * 
      * @param component The component to add.
      * @param hgap    	The horizontal gap between components and between the 
@@ -781,7 +781,7 @@ public class UIUtilities
     
     /**
      * Adds the specified {@link JComponent} to a {@link JPanel} 
-     * with a right flowlayout.
+     * with a right flow layout.
      * 
      * @param component The component to add.
      * @return See below.
@@ -793,7 +793,7 @@ public class UIUtilities
     
     /**
      * Adds the specified {@link JComponent} to a {@link JPanel} 
-     * with a right flowlayout.
+     * with a right flow layout.
      * 
      * @param component The component to add.
      * @param hgap    	The horizontal gap between components and between the 
@@ -821,7 +821,7 @@ public class UIUtilities
     
     /**
      * Adds the specified {@link JComponent} to a {@link JPanel} 
-     * with a right flowlayout.
+     * with a right flow layout.
      * 
      * @param component The component to add.
      * @param isOpaque  Pass <code>true</code> if this component should be 
@@ -836,7 +836,7 @@ public class UIUtilities
 
     /**
      * Adds the specified {@link JComponent} to a {@link JPanel} 
-     * with a right flowlayout.
+     * with a right flow layout.
      * 
      * @param component The component to add.
      * @return See below.

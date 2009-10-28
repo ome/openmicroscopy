@@ -295,4 +295,5 @@ class ToolBar
 		dialog.setLocation(p);
 		dialog.setVisible(true);
 	}
+	
 }

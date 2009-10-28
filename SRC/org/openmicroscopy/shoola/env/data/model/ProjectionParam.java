@@ -24,7 +24,9 @@ package org.openmicroscopy.shoola.env.data.model;
 
 
 //Java imports
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 
 //Third-party libraries
@@ -85,6 +87,15 @@ public class ProjectionParam
 
 	/** Identifies the type used to store pixel values. */
 	public static final String 	DOUBLE = OmeroImageService.DOUBLE;
+	
+	 /** The type of projections supported. */
+	public static final Map<Integer, String>	PROJECTIONS;
+	
+	static {
+		PROJECTIONS = new LinkedHashMap<Integer, String>();
+		PROJECTIONS.put(MAXIMUM_INTENSITY, "Maximum");
+		PROJECTIONS.put(MEAN_INTENSITY, "Mean");
+	}
 	
 	/** The first timepoint to project. */
 	private int               	startT;

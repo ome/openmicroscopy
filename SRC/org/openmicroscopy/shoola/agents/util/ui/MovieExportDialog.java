@@ -104,7 +104,7 @@ public class MovieExportDialog
 	/** Button to close the dialog. */
 	private JButton					closeButton;
 	
-	/** Button to close the dialog. */
+	/** Button to save the result. */
 	private JButton					saveButton;
 	
 	/** The name of the file. */
@@ -413,7 +413,7 @@ public class MovieExportDialog
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param owner The owner of the frame.
+	 * @param owner The owner of the dialog.
 	 * @param name  The name of the movie.
 	 * @param maxT  The maximum number of time points.
 	 * @param maxZ  The maximum number of z-sections.
@@ -505,15 +505,13 @@ public class MovieExportDialog
 	}
 
 	/**
-	 * Required by the {@link DocumentListener} I/F but no-op implementation
-	 * in our case.
+	 * Sets the <code>enabled</code> flag of the controls.
 	 * @see DocumentListener#insertUpdate(DocumentEvent)
 	 */
 	public void insertUpdate(DocumentEvent e) { handleText(); }
 
 	/**
-	 * Required by the {@link DocumentListener} I/F but no-op implementation
-	 * in our case.
+	 * Sets the <code>enabled</code> flag of the controls.
 	 * @see DocumentListener#removeUpdate(DocumentEvent)
 	 */
 	public void removeUpdate(DocumentEvent e) { handleText(); }

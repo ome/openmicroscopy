@@ -108,20 +108,10 @@ public interface ImViewer
      */
     public static final int		MAX_CHANNELS = 10;
     
-	/** Identifies the <code>Maximum intensity</code> projection. */
-	public static final int 	MAX_INTENSITY = OmeroImageService.MAX_INTENSITY;
-	
-	/** Identifies the <code>Mean intensity</code> projection. */
-	public static final int 	MEAN_INTENSITY = 
-								OmeroImageService.MEAN_INTENSITY;
-	
-	/** Identifies the <code>Sum intensity</code> projection. */
-	public static final int 	SUM_INTENSITY = OmeroImageService.SUM_INTENSITY;
-	
 	/** The minimum size of an original image. */
 	public static final int		MINIMUM_SIZE = 96;
 	
-	/** The maxinimum size of an original image. */
+	/** The maximum size of an original image. */
 	public static final int		MAXIMUM_SIZE = 256;
 	
 	/** Flag to denote the <i>New</i> state. */
@@ -760,7 +750,7 @@ public interface ImViewer
 	public boolean isChannelBlue(int index);
 
 	/**
-	 * Returns <code>true</code> if the specifed channel is active,
+	 * Returns <code>true</code> if the specified channel is active,
 	 * <code>false</code> otherwise.
 	 * 
 	 * @param index The index of the channel.

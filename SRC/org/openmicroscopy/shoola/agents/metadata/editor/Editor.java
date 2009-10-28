@@ -377,5 +377,10 @@ public interface Editor
 	 * @param index The selected index.
 	 */
 	public void setSelectedTab(int index);
+
+	/**
+	 * Loads the rendering control if not already loaded for the primary select.
+	 */
+	public void createSplitViewFigure();
 	
 }

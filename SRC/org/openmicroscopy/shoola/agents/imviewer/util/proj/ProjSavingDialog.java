@@ -64,9 +64,9 @@ import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
-import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.CreateFolderDialog;
@@ -210,7 +210,7 @@ public class ProjSavingDialog
 		}
 		pixelsType = new JComboBox(data);
 		pixelsType.setSelectedIndex(selectedIndex);
-		pixelsType.setEnabled(algorithm == ImViewer.SUM_INTENSITY);
+		pixelsType.setEnabled(algorithm == ProjectionParam.SUM_INTENSITY);
 		
 		selectionPane =  new JPanel();
 		selectionPane.setLayout(new BoxLayout(selectionPane, BoxLayout.Y_AXIS));

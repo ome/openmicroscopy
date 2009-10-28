@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
+import org.openmicroscopy.shoola.agents.metadata.util.SplitViewFigureDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
@@ -136,8 +137,11 @@ class EditorControl
 	/** Action ID to refresh the selected tab. */
 	static final int	REFRESH = 10;
 	
-	/** Action ID to export the image. */
-	static final int	EXPORT = 11;
+	/** Action ID to export the image as OME-TIFF. */
+	static final int	EXPORT_AS_OMETIFF = 11;
+	
+	/** Action ID to create a figure with split view of images. */
+	static final int	SPLIT_VIEW_FIGURE = 12;
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -454,8 +458,11 @@ class EditorControl
 			case REFRESH:
 				model.refresh();
 				break;
-			case EXPORT:
+			case EXPORT_AS_OMETIFF:
 				export();
+				break;
+			case SPLIT_VIEW_FIGURE:
+				model.createSplitViewFigure();
 		}
 	}
 	

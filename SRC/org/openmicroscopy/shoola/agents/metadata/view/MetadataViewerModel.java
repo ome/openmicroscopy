@@ -335,9 +335,16 @@ class MetadataViewerModel
 	boolean isSameObject(DataObject uo)
 	{
 		if (uo == null || !(refObject instanceof DataObject)) return false;
-		if (!uo.getClass().equals(refObject.getClass()))
+		Class klass = refObject.getClass();
+		if (refObject instanceof WellSampleData) {
+			klass = ((WellSampleData) refObject).getImage().getClass();
+		}
+		if (!uo.getClass().equals(klass))
 			return false;
-		DataObject object = (DataObject) refObject;
+		DataObject object;
+		if (refObject instanceof WellSampleData)
+			object = ((WellSampleData) refObject).getImage();
+		else object = (DataObject) refObject;
 		if (uo.getId() != object.getId()) return false;
 		if (data == null) return false;
 		Object o = data.getRelatedObject();

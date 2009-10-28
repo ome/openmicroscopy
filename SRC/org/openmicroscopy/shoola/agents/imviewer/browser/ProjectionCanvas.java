@@ -24,21 +24,15 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
-import java.awt.Color;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 
-import javax.media.opengl.GLAutoDrawable;
 
 
 //Third-party libraries
+import javax.media.opengl.GLAutoDrawable;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 
 /** 
  * Paints the projected image.

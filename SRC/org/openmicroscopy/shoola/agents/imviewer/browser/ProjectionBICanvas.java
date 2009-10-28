@@ -22,6 +22,9 @@
  */
 package org.openmicroscopy.shoola.agents.imviewer.browser;
 
+
+
+//Java imports
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -30,16 +33,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
-import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
-
-//Java imports
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 
 /** 
- * 
+ * Displays the projected image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

@@ -36,7 +36,6 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -152,16 +151,6 @@ class ControlPane
     
     /** Dimension of the box between the channel buttons. */
     private static final Dimension VBOX = new Dimension(1, 10);
-    
-    /** The type of projections supported. */
-	private static final Map<Integer, String>	projections;
-	
-    static {
-    	projections = new LinkedHashMap<Integer, String>();
-    	projections.put(ImViewer.MAX_INTENSITY, "Maximum");
-    	projections.put(ImViewer.MEAN_INTENSITY, "Mean");
-    	//projections.put(ImViewer.SUM_INTENSITY, "Sum");
-    }
 
     /** Reference to the Control. */
     private ImViewerControl 		controller;
@@ -484,10 +473,10 @@ class ControlPane
 	    	field.addActionListener(this);
 	    	field.setActionCommand(""+FREQUENCY);
 	    }
-	    String[] names = new String[projections.size()];
+	    String[] names = new String[ProjectionParam.PROJECTIONS.size()];
         int index = 0;
         Entry entry;
-        Iterator i = projections.entrySet().iterator();
+        Iterator i = ProjectionParam.PROJECTIONS.entrySet().iterator();
         projectionTypes = new HashMap<Integer, Integer>();
         int j;
         while (i.hasNext()) {
@@ -1529,7 +1518,7 @@ class ControlPane
 	String getProjectionTypeName()
 	{
 		int index = projectionTypesBox.getSelectedIndex();
-		return projections.get(index);
+		return ProjectionParam.PROJECTIONS.get(index);
 	}
 	
 	/**

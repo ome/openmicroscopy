@@ -80,12 +80,12 @@ public class ChannelButton
      */
     public static final String  	CHANNEL_COLOR_PROPERTY = "channelColor";
     
+    /** The minimum size of the font. */
+	public static final int			MIN_FONT_SIZE = 10;
+	
     /** The description associated to this channel. */
 	private static final String		DESCRIPTION = "Toggle channel on/off.";
-	 
-	/** The minimum size of the font. */
-	private static final int		MIN_FONT_SIZE = 10;
-	
+
     /** The index of the channel. */
     protected final int               index;
     

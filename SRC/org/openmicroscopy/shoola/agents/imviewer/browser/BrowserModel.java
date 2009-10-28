@@ -167,39 +167,6 @@ class BrowserModel
     private Map<Integer, TextureData>	gridImagesAsTextures;
     
     /**
-     * Creates a buffered image.
-     * 
-     * @param buf		The buffer hosting the data.
-     * @param sizeX		The image's width.
-     * @param sizeY		The image's height.
-     * @param redMask	The mask applied on the red component.
-     * @param greenMask	The mask applied on the green component.
-     * @param blueMask	The mask applied on the blue component.
-     * @return See above.
-     */
-    private BufferedImage createBandImage(DataBuffer buf, int sizeX, int sizeY, 
-    							int redMask, int greenMask, int blueMask)
-    {
-    	int[] masks = {redMask, greenMask, blueMask};
-    	
-    	switch (buf.getDataType()) {
-			case DataBuffer.TYPE_BYTE:
-				DataBufferByte bufferByte = (DataBufferByte) buf;
-	            byte[] values = bufferByte.getData();
-	            int i = 0, j = 0, l = values.length/3;
-	    		int[] buffer = new int[l];
-	    		while (i<l)
-	        		buffer[i++] = (values[j++]) | (values[j++]<<8) | 
-	        						(values[j++]<<16);
-				return Factory.createImage(buffer, 24, masks, sizeX, sizeY);
-			case DataBuffer.TYPE_INT:
-				return Factory.createImage(buf, 32, masks, sizeX, sizeY);
-				 
-		}
-    	return null;
-    }
-
-    /**
      * Returns <code>true</code> if the channel is mapped to <code>Red</code>,
      * <code>Green</code> or <code>Blue</code>, <code>false</code> otherwise.
      * 
@@ -325,15 +292,18 @@ class BrowserModel
 						index = i.next().getIndex();
 						if (l.contains(index)) {
 							if (parent.isChannelRed(index)) { 
-								gridImages.add(createBandImage(buf, w, h, 
+								gridImages.add(
+										Factory.createBandImage(buf, w, h, 
 										Factory.RED_MASK, Factory.RED_MASK, 
 										Factory.RED_MASK));
 							} else if (parent.isChannelGreen(index)) {
-								gridImages.add(createBandImage(buf, w, h,
+								gridImages.add(
+										Factory.createBandImage(buf, w, h,
 										Factory.GREEN_MASK, Factory.GREEN_MASK, 
 										Factory.GREEN_MASK));
 							} else if (parent.isChannelBlue(index)) {
-								gridImages.add(createBandImage(buf, w, h, 
+								gridImages.add(
+										Factory.createBandImage(buf, w, h, 
 										Factory.BLUE_MASK, Factory.BLUE_MASK,
 										Factory.BLUE_MASK));
 							}
@@ -473,15 +443,18 @@ class BrowserModel
 						index = i.next().getIndex();
 						if (parent.isChannelActive(index)) {
 							if (parent.isChannelRed(index)) { 
-								gridImages.add(createBandImage(buf, w, h, 
+								gridImages.add(
+										Factory.createBandImage(buf, w, h, 
 										Factory.RED_MASK, Factory.BLANK_MASK,
 										Factory.BLANK_MASK));
 							} else if (parent.isChannelGreen(index)) {
-								gridImages.add(createBandImage(buf, w, h,
+								gridImages.add(
+										Factory.createBandImage(buf, w, h,
 										Factory.BLANK_MASK, Factory.GREEN_MASK, 
 										Factory.BLANK_MASK));
 							} else if (parent.isChannelBlue(index)) {
-								gridImages.add(createBandImage(buf, w, h, 
+								gridImages.add(
+										Factory.createBandImage(buf, w, h, 
 										Factory.BLANK_MASK, Factory.BLANK_MASK, 
 										Factory.BLUE_MASK));
 							}

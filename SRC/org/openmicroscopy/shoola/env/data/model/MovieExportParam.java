@@ -83,7 +83,7 @@ public class MovieExportParam
 	private static final String QT_EXTENSION = ".avi";
 	
 	static {
-		FORMATS = new LinkedHashMap<Integer, String>(2);
+		FORMATS = new LinkedHashMap<Integer, String>(3);
 		FORMATS.put(WMV, "WindowsMediaPlayer");
 		FORMATS.put(QT, "QuickTime");
 		FORMATS.put(MPEG, "MPEG");

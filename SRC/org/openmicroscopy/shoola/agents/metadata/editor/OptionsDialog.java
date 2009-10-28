@@ -44,8 +44,6 @@ import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.WellSampleData;
@@ -82,6 +80,9 @@ class OptionsDialog
 	/** The text associated to the FLIM action. */
 	private static final String FLIM_TEXT = "";
 	
+	/** The text associated to the SPLIT_VIEW_FIGURE action. */
+	private static final String SPLIT_VIEW_FIGURE_TEXT = "";
+	
 	/** Reference to the control. */
 	private EditorControl controller;
 	
@@ -96,6 +97,9 @@ class OptionsDialog
 	
 	/** Button to perform <code>FLIM</code> analysis. */
 	private JButton flimButton;
+	
+	/** Button to create a split view figure of a collection of images. */
+	private JButton splitViewFigureButton;
 	
 	/**
 	 * Creates a button.
@@ -124,10 +128,13 @@ class OptionsDialog
 				MOVIE_TEXT, EditorControl.CREATE_MOVIE);
 		exportAsOmeTiffButton = createButton(
 				icons.getIcon(IconManager.EXPORT_AS_OMETIFF), 
-				EXPORT_AS_OME_TIFF_TEXT, EditorControl.EXPORT);
+				EXPORT_AS_OME_TIFF_TEXT, EditorControl.EXPORT_AS_OMETIFF);
 		flimButton = createButton(icons.getIcon(IconManager.ANALYSE), 
 				FLIM_TEXT, EditorControl.ANALYSE_FLIM);
-		
+		splitViewFigureButton = createButton(
+				icons.getIcon(IconManager.SPLIT_VIEW), 
+				SPLIT_VIEW_FIGURE_TEXT, EditorControl.SPLIT_VIEW_FIGURE);
+		splitViewFigureButton.setEnabled(true);
 	}
 	
 	/** Sets the properties of the dialog. */
@@ -151,6 +158,8 @@ class OptionsDialog
     	bar.add(movieButton);
     	bar.add(Box.createHorizontalStrut(HORIZONTAL_STRUT));
         bar.add(exportAsOmeTiffButton);
+        bar.add(Box.createHorizontalStrut(HORIZONTAL_STRUT));
+        bar.add(splitViewFigureButton);
         JXTaskPane pane = EditorUtil.createTaskPane("Publish");
 		pane.setCollapsed(false);
     	pane.addPropertyChangeListener(this);
@@ -221,6 +230,7 @@ class OptionsDialog
     	ImageData img = null;
     	exportAsOmeTiffButton.setEnabled(false);
     	movieButton.setEnabled(false);
+    	splitViewFigureButton.setEnabled(false);
     	if (refObject instanceof ImageData) {
     		img = (ImageData) refObject;
     	} else if (refObject instanceof WellSampleData) {
@@ -233,6 +243,7 @@ class OptionsDialog
     			exportAsOmeTiffButton.setEnabled(true);
     			movieButton.setEnabled(data.getSizeT() > 1 || 
     					data.getSizeZ() > 1);
+    			splitViewFigureButton.setEnabled(data.getSizeC() > 1);
 			} catch (Exception e) {}
     	}
     	flimButton.setEnabled(!model.isNumerousChannel());
