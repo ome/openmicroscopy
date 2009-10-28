@@ -58,7 +58,8 @@ public abstract class ErrorHandler implements IObserver, IObservable {
         }
         @Override
         public String toLog() {
-            return super.toLog() + ": "+filename;
+        	return String.format("%s: %s\n%s", super.toLog(), filename,
+        			             getStackTrace(exception));
         }
     }
 
