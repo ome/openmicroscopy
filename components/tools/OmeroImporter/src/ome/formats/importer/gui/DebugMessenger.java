@@ -298,7 +298,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
             else
                 file_info = "Send the image files for these errors. " + file_info;
            
-            System.out.println(file_info);
+            //System.out.println(file_info);
             uploadCheckmark.setText(file_info);
             uploadCheckmark.repaint();
         }
