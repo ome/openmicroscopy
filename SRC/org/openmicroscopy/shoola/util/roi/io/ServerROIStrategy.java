@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.util.roi.io;
 
 
 //Java imports
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -34,6 +36,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
+import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 
@@ -55,12 +58,16 @@ public class ServerROIStrategy
 
 	/** Used to read the ROIs from the server. */
 	private InputServerStrategy  inputStrategy;
+	
+	/** Used to write the ROIs to the server. */
+	private OutputServerStrategy outputStrategy;
 
 
 	/** Creates a new instance. */
 	public ServerROIStrategy()
 	{
 		inputStrategy = new InputServerStrategy();
+		outputStrategy = new OutputServerStrategy();
 	}
 	
 	/**
@@ -80,7 +87,21 @@ public class ServerROIStrategy
 				ROICreationException	   
 	{
 		if (rois == null || rois.size() == 0) return new ArrayList<ROI>();
-		return inputStrategy.readROI(rois, component, readOnly);
+		return inputStrategy.readROI(rois, component);
+	}
+	
+	/**
+	 * 
+	 * @param output
+	 * @param component
+	 * @throws ParsingException
+	 */
+	public void write(ROIComponent component)
+		throws ParsingException
+	{
+		if(component.getROIMap().size() == 0)
+			return;
+		outputStrategy.writeROI(component);
 	}
 	
 }

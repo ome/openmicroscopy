@@ -177,16 +177,16 @@ class ToolBar
 	{
 		lineConnectionProperties = new FigureProperties(
 				defaultConnectionAttributes);
-		ellipseTool = new DrawingObjectCreationTool(new MeasureEllipseFigure());
-		rectTool = new DrawingObjectCreationTool(new MeasureRectangleFigure());
-		textTool = new DrawingObjectCreationTool(new MeasureTextFigure());
-		lineTool = new DrawingObjectCreationTool(new MeasureLineFigure());
+		ellipseTool = new DrawingObjectCreationTool(new MeasureEllipseFigure(false, true));
+		rectTool = new DrawingObjectCreationTool(new MeasureRectangleFigure(false, true));
+		textTool = new DrawingObjectCreationTool(new MeasureTextFigure(false, true));
+		lineTool = new DrawingObjectCreationTool(new MeasureLineFigure(false, true));
 		connectionTool = new DrawingConnectionTool(
 						new MeasureLineConnectionFigure(), 
 						lineConnectionProperties.getProperties());
-		pointTool = new DrawingPointCreationTool(new MeasurePointFigure());
-	    polygonTool = new DrawingBezierTool(new MeasureBezierFigure(true));
-	    polylineTool = new DrawingBezierTool(new MeasureBezierFigure(false));
+		pointTool = new DrawingPointCreationTool(new MeasurePointFigure(false, true));
+	    polygonTool = new DrawingBezierTool(new MeasureBezierFigure(true, false, true));
+	    polylineTool = new DrawingBezierTool(new MeasureBezierFigure(false, false, true));
 	    
 	    Component component;
 	    

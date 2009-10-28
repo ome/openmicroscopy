@@ -74,6 +74,12 @@ public class MeasureLineConnectionFigure
 	/** Is this figure read only. */
 	private boolean readOnly;
 	
+	/** Is this figure a client object. */
+	private boolean clientObject;
+	
+	/** has the figure been modified. */
+	private boolean dirty;
+	
 	/** The bounds of the bezier figure. */
 	private ArrayList<Rectangle2D> 			boundsArray = new ArrayList<Rectangle2D>();
 	
@@ -574,6 +580,56 @@ public class MeasureLineConnectionFigure
 	{ 
 		this.readOnly = readOnly; 
 		setEditable(!readOnly);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#isClientObject()
+	 */
+	public boolean isClientObject() 
+	{
+		return clientObject;
+	}
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setClientObject(boolean)
+	 */
+	public void setClientObject(boolean clientSide) 
+	{
+		clientObject = clientSide;
+	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#isDirty()
+	 */
+	public boolean isDirty() 
+	{
+		return dirty;
+	}
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setObjectDirty(boolean)
+	 */
+	public void setObjectDirty(boolean dirty) 
+	{
+		this.dirty = dirty;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * MeasureLineConnectionFigure#clone()
+	 */
+	public MeasureLineConnectionFigure clone()
+	{
+		MeasureLineConnectionFigure that = (MeasureLineConnectionFigure) super.clone();
+		that.setReadOnly(this.isReadOnly());
+		that.setClientObject(this.isClientObject());
+		that.setObjectDirty(true);
+		return that;
 	}
 
 }

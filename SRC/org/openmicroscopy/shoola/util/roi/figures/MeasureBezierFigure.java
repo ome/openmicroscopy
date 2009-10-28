@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.util.roi.util.FigureSelectionHandle;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.BezierTextFigure;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
+import org.openmicroscopy.shoola.util.ui.drawingtools.figures.PointTextFigure;
 
 /** 
  * 
@@ -76,6 +77,12 @@ public class MeasureBezierFigure
 	/** Is this figure read only. */
 	private boolean readOnly;
 
+	/** Is this figure a client object. */
+	private boolean clientObject;
+
+	/** has the figure been modified. */
+	private boolean dirty;
+	
 	/** The list of X coords of the nodes on the line. */
 	private List<Double>			pointArrayX;
 
@@ -160,8 +167,15 @@ public class MeasureBezierFigure
 	/** Creates an instance of the bezier figure. */
 	public MeasureBezierFigure()
 	{
-		this(false);
+		this(false, false, true);
 	}
+	
+	/** Creates an instance of the bezier figure. */
+	public MeasureBezierFigure(boolean closed)
+	{
+		this(closed, false, true);
+	}
+	
 	
 	/**
 	 * Creates an instance of the bezier figure.
@@ -169,9 +183,9 @@ public class MeasureBezierFigure
 	 * @param closed Pass <code>true</code> if the figure is a polygon,
 	 * 				 <code>false</code> if it is a polyline.
 	 */
-	public MeasureBezierFigure(boolean closed)
+	public MeasureBezierFigure(boolean closed, boolean readOnly, boolean clientObject)
 	{
-		this(ROIFigure.DEFAULT_TEXT, closed);
+		this(ROIFigure.DEFAULT_TEXT, closed, readOnly, clientObject);
 	}
 	
 	/**
@@ -181,7 +195,7 @@ public class MeasureBezierFigure
 	 */
 	public MeasureBezierFigure(String text)
 	{
-		this(text, false, false);
+		this(text, false, false, true);
 	}
 	
 	/**
@@ -193,7 +207,7 @@ public class MeasureBezierFigure
 	 */
 	public MeasureBezierFigure(String text, boolean closed)
 	{
-		this(text, closed, false);
+		this(text, closed, false, true);
 	}
 	
 	/**
@@ -203,8 +217,10 @@ public class MeasureBezierFigure
 	 * @param closed Pass <code>true</code> if the figure is a polygon,
 	 * 				 <code>false</code> if it is a polyline.
 	 * @param readOnly The figure is read only.
+	 * @param clientObject The figure is a client object.
 	 */
-	public MeasureBezierFigure(String text, boolean closed, boolean readOnly)
+	public MeasureBezierFigure(String text, boolean closed, boolean readOnly, 
+			boolean clientObject)
 	{
 		super(text, closed);
 		this.readOnly = readOnly;
@@ -213,6 +229,7 @@ public class MeasureBezierFigure
 		lengthArray = new ArrayList<Double>();
 		status = IDLE;
 		setReadOnly(readOnly);
+		setClientObject(clientObject);
 	}
 
     /**
@@ -526,14 +543,6 @@ public class MeasureBezierFigure
 	}
 	
 	
-	/**
-	 * Overridden to return a copy of the figure
-	 * @see BezierTextFigure#clone()
-	 */
-	public MeasureBezierFigure clone()
-	{
-		return (MeasureBezierFigure) super.clone();
-	}
 	
 	/**
 	 * Returns the points(pixels) in the polygon return this as an array.
@@ -654,6 +663,57 @@ public class MeasureBezierFigure
 			return handles;
 		}
 	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#isClientObject()
+	 */
+	public boolean isClientObject() 
+	{
+		return clientObject;
+	}
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setClientObject(boolean)
+	 */
+	public void setClientObject(boolean clientSide) 
+	{
+		clientObject = clientSide;
+	}
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#isDirty()
+	 */
+	public boolean isDirty() 
+	{
+		return dirty;
+	}
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setObjectDirty(boolean)
+	 */
+	public void setObjectDirty(boolean dirty) 
+	{
+		this.dirty = dirty;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * BezierFigure#clone()
+	 */
+	public MeasureBezierFigure clone()
+	{
+		MeasureBezierFigure that = (MeasureBezierFigure) super.clone();
+		that.setReadOnly(this.isReadOnly());
+		that.setClientObject(this.isClientObject());
+		that.setObjectDirty(true);
+		return that;
+	}
+	
 }
 
 

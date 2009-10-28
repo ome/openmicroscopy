@@ -117,7 +117,7 @@ public class XMLFileIOStrategy
 		{
 			throw new ParsingException("Unable to close output file.");
 		}
-}
+	}
 	
 }
 

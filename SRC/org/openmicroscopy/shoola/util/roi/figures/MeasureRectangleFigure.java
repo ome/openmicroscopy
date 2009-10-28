@@ -74,6 +74,12 @@ public class MeasureRectangleFigure
 	/** Is this figure read only. */
 	private boolean readOnly;
 	
+	/** Is this figure a client object. */
+	private boolean clientObject;
+
+	/** has the figure been modified. */
+	private boolean dirty;
+	
 	/**
     * This is used to perform faster drawing and hit testing.
     */
@@ -97,15 +103,15 @@ public class MeasureRectangleFigure
     /** Creates a new instance. */
     public MeasureRectangleFigure() 
     {
-        this("Text", 0, 0, 0, 0, false);
+        this("Text", 0, 0, 0, 0, false, true);
     }
 
     /** Creates a new instance. 
 	 * @param readOnly The figure is read only.
 	 */
-    public MeasureRectangleFigure(boolean readOnly) 
+    public MeasureRectangleFigure(boolean readOnly, boolean clientObject) 
     {
-        this("Text", 0, 0, 0, 0, readOnly);
+        this("Text", 0, 0, 0, 0, readOnly, clientObject);
     }
 
     /** 
@@ -114,7 +120,7 @@ public class MeasureRectangleFigure
      * */
     public MeasureRectangleFigure(String text) 
     {
-        this(text, 0, 0, 0, 0, false);
+        this(text, 0, 0, 0, 0, false, true);
     }
  
     /** 
@@ -127,7 +133,7 @@ public class MeasureRectangleFigure
     public MeasureRectangleFigure(double x, double y, double width, 
 			double height) 
     {
-    	this("Text", x, y, width, height, false);
+    	this("Text", x, y, width, height, false, true);
     }
 
     
@@ -140,9 +146,9 @@ public class MeasureRectangleFigure
  	 * @param readOnly The figure is read only.
      * */
     public MeasureRectangleFigure(double x, double y, double width, 
-			double height, boolean readOnly) 
+			double height, boolean readOnly, boolean clientObject) 
     {
-    	this("Text", x, y, width, height, readOnly);
+    	this("Text", x, y, width, height, readOnly, clientObject);
     }
     
     /** 
@@ -155,7 +161,7 @@ public class MeasureRectangleFigure
  	 * @param readOnly The figure is read only.
  	 * */
     public MeasureRectangleFigure(String text, double x, double y, double width, 
-    							double height, boolean readOnly) 
+    							double height, boolean readOnly, boolean clientObject) 
     {
 		super(text, x, y, width, height);
 		setAttributeEnabled(MeasurementAttributes.HEIGHT, true);
@@ -166,6 +172,7 @@ public class MeasureRectangleFigure
 		roi = null;
 		status = IDLE;
 		setReadOnly(readOnly);
+		setClientObject(clientObject);
     }
     
     /** 
@@ -500,7 +507,58 @@ public class MeasureRectangleFigure
 		this.readOnly = readOnly; 
 		setEditable(!readOnly);
 	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#isClientObject()
+	 */
+	public boolean isClientObject() 
+	{
+		return clientObject;
+	}
 
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setClientObject(boolean)
+	 */
+	public void setClientObject(boolean clientSide) 
+	{
+		clientObject = clientSide;
+	}
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#isDirty()
+	 */
+	public boolean isDirty() 
+	{
+		return dirty;
+	}
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setObjectDirty(boolean)
+	 */
+	public void setObjectDirty(boolean dirty) 
+	{
+		this.dirty = dirty;
+	}
+	
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * MeasureRectangleFigure#clone()
+	 */
+	public MeasureRectangleFigure clone()
+	{
+		MeasureRectangleFigure that = (MeasureRectangleFigure) super.clone();
+		that.setReadOnly(this.isReadOnly());
+		that.setClientObject(this.isClientObject());
+		that.setObjectDirty(true);
+		return that;
+	}
+	
 }
 
 

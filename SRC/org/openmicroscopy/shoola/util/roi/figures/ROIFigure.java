@@ -145,6 +145,31 @@ public interface ROIFigure
 	 * @param readOnly See above.
 	 */
 	public void setReadOnly(boolean readOnly);
+	
+	/**
+	 * If set the ROIFigure has been created by user on client.
+	 * @param clientSide See above.
+	 */
+	public void setClientObject(boolean clientSide);
+	
+	/**
+	 * If set the ROIFigure has been created by user on client.
+	 * @return See above.
+	 */
+	public boolean isClientObject();
+	
+	/**
+	 * If set the ROIFigure has been modified by user on client.
+	 * @param dirty See above.
+	 */
+	public void setObjectDirty(boolean dirty);
+	
+	/**
+	 * If set the ROIFigure has been modified by user on client.
+	 * @return See above.
+	 */
+	public boolean isDirty();
+	
+	
 }
-
 

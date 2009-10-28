@@ -67,6 +67,12 @@ public class MeasureTextFigure
 	/** Is this figure read only. */
 	private boolean readOnly;
 	
+	/** Is this figure a client object. */
+	private boolean clientObject;
+
+	/** has the figure been modified. */
+	private boolean dirty;
+	
 	/** This is used to perform faster drawing and hit testing.    */
 	protected	Rectangle2D 		bounds;
 	
@@ -88,8 +94,18 @@ public class MeasureTextFigure
     /** Creates a new instance. Default value <code>(0, 0) </code>.*/
     public MeasureTextFigure() 
     {
-        this(0, 0, false);
+        this(0, 0, false, true);
     }
+    
+    /** Creates a new instance. Default value <code>(0, 0) </code>.
+	 * @param readOnly The figure is read only.
+	 * @param clientObject The figure is created clientside.
+     */
+    public MeasureTextFigure(boolean readOnly, boolean clientObject) 
+    {
+        this(0, 0, readOnly,clientObject);
+    }
+
     
     /**
      * Creates a new instance.
@@ -99,7 +115,7 @@ public class MeasureTextFigure
   	 */
     public MeasureTextFigure(double x, double y)
     {
-    	this(x, y, false);
+    	this(x, y, false, true);
     }
     
     /**
@@ -107,9 +123,11 @@ public class MeasureTextFigure
      * 
      * @param x	The x-coordinate of the top-left corner.
      * @param y The y-coordinate of the top-left corner.
- 	 * @param readOnly The figure is read only.
+	 * @param readOnly The figure is read only.
+	 * @param clientObject The figure is created clientside.
  	 */
-    public MeasureTextFigure(double x, double y, boolean readOnly) 
+    public MeasureTextFigure(double x, double y, boolean readOnly, 
+    							boolean clientObject) 
     {
     	super();
     	this.willChange();
@@ -119,6 +137,7 @@ public class MeasureTextFigure
    		roi = null;
    		status = IDLE;
    		setReadOnly(readOnly);
+   		setClientObject(clientObject);
    }
 	
 	/**
@@ -238,7 +257,57 @@ public class MeasureTextFigure
 		this.readOnly = readOnly; 
 		setEditable(!readOnly);
 	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#isClientObject()
+	 */
+	public boolean isClientObject() 
+	{
+		return clientObject;
+	}
 
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setClientObject(boolean)
+	 */
+	public void setClientObject(boolean clientSide) 
+	{
+		clientObject = clientSide;
+	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#isDirty()
+	 */
+	public boolean isDirty() 
+	{
+		return dirty;
+	}
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setObjectDirty(boolean)
+	 */
+	public void setObjectDirty(boolean dirty) 
+	{
+		this.dirty = dirty;
+	}
+	
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * MeasureTextFigure#clone()
+	 */
+	public MeasureTextFigure clone()
+	{
+		MeasureTextFigure that = (MeasureTextFigure) super.clone();
+		that.setReadOnly(this.isReadOnly());
+		that.setClientObject(this.isClientObject());
+		that.setObjectDirty(true);
+		return that;
+	}
 }
 
 

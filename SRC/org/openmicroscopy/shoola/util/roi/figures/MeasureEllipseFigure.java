@@ -36,10 +36,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.AttributeKeys;
+import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.Handle;
 
 //Application-internal dependencies
@@ -75,6 +77,12 @@ public class MeasureEllipseFigure
 	/** Is this figure read only. */
 	private boolean 			readOnly;
 	
+	/** Is this figure a client object. */
+	private boolean clientObject;
+	
+	/** has the figure been modified. */
+	private boolean dirty;
+
 	/** Bounds of the measurement. */
 	private Rectangle2D			measurementBounds;
 	
@@ -96,7 +104,7 @@ public class MeasureEllipseFigure
 	/** Creates a new instance. */
 	public MeasureEllipseFigure()
 	{
-		this("Text", 0, 0, 0, 0, false);
+		this("Text", 0, 0, 0, 0, false, true);
 	}
 	
 	/** 
@@ -108,9 +116,10 @@ public class MeasureEllipseFigure
 	 * @param width	The width of the figure. 
 	 * @param height The height of the figure. 
 	 * @param readOnly The figure is read only.
+     * @param clientObject the figure is a client object
 	 */
 	public MeasureEllipseFigure(String text, double x, double y, double width,
-			double height, boolean readOnly)
+			double height, boolean readOnly, boolean clientObject)
 	{
 		super(text, x, y, width, height);
 		setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
@@ -118,6 +127,7 @@ public class MeasureEllipseFigure
 		roi = null;
 		status = IDLE;
 		setReadOnly(readOnly);
+		setClientObject(clientObject);
 		
 	}
 	
@@ -128,7 +138,7 @@ public class MeasureEllipseFigure
 	 */
 	public MeasureEllipseFigure(String text)
 	{
-		this(text, 0, 0, 0, 0, false);
+		this(text, 0, 0, 0, 0, false, true);
 	}
 
 	/** 
@@ -136,10 +146,11 @@ public class MeasureEllipseFigure
 	 * 
 	 * @param readOnly Pass <code>true</code> if the ROI is read only, 
 	 * 				   <code>false</code> otherwise.
+     * @param clientObject the figure is a client object
 	 */
-	public MeasureEllipseFigure(boolean readOnly)
+	public MeasureEllipseFigure(boolean readOnly, boolean isClientObject)
 	{
-		this("Text", 0, 0, 0, 0, readOnly);
+		this("Text", 0, 0, 0, 0, readOnly, isClientObject);
 	}
 	
 	/** 
@@ -152,7 +163,7 @@ public class MeasureEllipseFigure
 	 */
 	public MeasureEllipseFigure(double x, double y, double width, double height)
 	{
-		this(ROIFigure.DEFAULT_TEXT, x, y, width, height, false);
+		this(ROIFigure.DEFAULT_TEXT, x, y, width, height, false, true);
 	}
 	
 	/** 
@@ -576,15 +587,53 @@ public class MeasureEllipseFigure
 		setEditable(!readOnly);
 	}
 	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#isClientObject()
+	 */
+	public boolean isClientObject() 
+	{
+		return clientObject;
+	}
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setClientObject(boolean)
+	 */
+	public void setClientObject(boolean clientSide) 
+	{
+		clientObject = clientSide;
+	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#isDirty()
+	 */
+	public boolean isDirty() 
+	{
+		return dirty;
+	}
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setObjectDirty(boolean)
+	 */
+	public void setObjectDirty(boolean dirty) 
+	{
+		this.dirty = dirty;
+	}
+	
 	/*
 	 * (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.RotateEllipseFigure#clone()
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * MeasureEllipseFigure#clone()
 	 */
 	public MeasureEllipseFigure clone()
 	{
 		MeasureEllipseFigure that = (MeasureEllipseFigure) super.clone();
 		that.setReadOnly(this.isReadOnly());
+		that.setClientObject(this.isClientObject());
+		that.setObjectDirty(true);
 		return that;
 	}
-	
 }

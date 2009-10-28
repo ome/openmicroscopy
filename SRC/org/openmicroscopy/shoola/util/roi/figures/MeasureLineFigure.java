@@ -77,6 +77,12 @@ public class MeasureLineFigure
 	/** Is this figure read only. */
 	private boolean readOnly;
 
+	/** Is this figure a client object. */
+	private boolean clientObject;
+	
+	/** has the figure been modified. */
+	private boolean dirty;
+	
 	/** The bounds of the bezier figure. */
 	private List<Rectangle2D> 		boundsArray;
 	
@@ -127,24 +133,26 @@ public class MeasureLineFigure
 	/** Creates a new instance. */
 	public MeasureLineFigure()
 	{
-		this("text", false);
+		this("text", false, true);
 	}
 
 
 	/** Creates a new instance. 
 	 * @param readOnly the figure is read only.
+     * @param clientObject the figure is a client object
 	 */
-	public MeasureLineFigure(boolean readOnly)
+	public MeasureLineFigure(boolean readOnly, boolean clientObject)
 	{
-		this("text", readOnly);
+		this("text", readOnly, clientObject);
 	}
 	
 	/**
 	 * Create instance of the line figure.
 	 * @param text The text to add to the figure.
 	 * @param readOnly the figure is read only.
+     * @param clientObject the figure is a client object
 	 */
-	public MeasureLineFigure(String text, boolean readOnly)
+	public MeasureLineFigure(String text, boolean readOnly, boolean clientObject)
 	{
 		super(text);
 		boundsArray = new ArrayList<Rectangle2D>();
@@ -156,6 +164,7 @@ public class MeasureLineFigure
 		roi = null;
 		status = IDLE;
 		setReadOnly(readOnly);
+		setClientObject(clientObject);
 	}
 	
 	/**
@@ -618,7 +627,57 @@ public class MeasureLineFigure
 		this.readOnly = readOnly; 
 		setEditable(!readOnly);
 	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#isClientObject()
+	 */
+	public boolean isClientObject() 
+	{
+		return clientObject;
+	}
 
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setClientObject(boolean)
+	 */
+	public void setClientObject(boolean clientSide) 
+	{
+		clientObject = clientSide;
+	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#isDirty()
+	 */
+	public boolean isDirty() 
+	{
+		return dirty;
+	}
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setObjectDirty(boolean)
+	 */
+	public void setObjectDirty(boolean dirty) 
+	{
+		this.dirty = dirty;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * MeasureLineFigure#clone()
+	 */
+	public MeasureLineFigure clone()
+	{
+		MeasureLineFigure that = (MeasureLineFigure) super.clone();
+		that.setReadOnly(this.isReadOnly());
+		that.setClientObject(this.isClientObject());
+		that.setObjectDirty(true);
+		return that;
+	}
+	
 }
 
 

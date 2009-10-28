@@ -78,6 +78,12 @@ public class MeasureMaskFigure
 	/** Is this figure read only. */
 	private boolean readOnly;
 	
+	/** Is this figure a client object. */
+	private boolean clientObject;
+	
+	/** has the figure been modified. */
+	private boolean dirty;
+	
 	/**
 	 * This is used to perform faster drawing and hit testing.
 	 */
@@ -104,7 +110,7 @@ public class MeasureMaskFigure
     /** Creates a new instance. */
     public MeasureMaskFigure() 
     {
-        this("Text", 0, 0, 0, 0, null, false);
+        this("Text", 0, 0, 0, 0, null, false, true);
     }
 
     /** 
@@ -113,7 +119,7 @@ public class MeasureMaskFigure
      * */
     public MeasureMaskFigure(String text) 
     {
-        this(text, 0, 0, 0, 0, null, false);
+        this(text, 0, 0, 0, 0, null, false, true);
     }
     
     /** 
@@ -126,7 +132,7 @@ public class MeasureMaskFigure
     public MeasureMaskFigure(double x, double y, double width, 
 			double height, BufferedImage mask) 
     {
-    	this("Text", x, y, width, height, mask, false);
+    	this("Text", x, y, width, height, mask, false, true);
     }
     
 
@@ -137,11 +143,12 @@ public class MeasureMaskFigure
      * @param width of the figure. 
      * @param height of the figure. 
      * @param readOnly Is the figure read only.
+     * @param clientObject the figure is a client object
      * */
     public MeasureMaskFigure(double x, double y, double width, 
-			double height, BufferedImage mask, boolean readOnly) 
+			double height, BufferedImage mask, boolean readOnly, boolean clientObject) 
     {
-    	this("Text", x, y, width, height, mask, readOnly);
+    	this("Text", x, y, width, height, mask, readOnly, clientObject);
     }
     
     /** 
@@ -152,9 +159,10 @@ public class MeasureMaskFigure
      * @param width of the figure. 
      * @param height of the figure. 
      * @param readOnly the figure is readOnly
+     * @param clientObject the figure is a client object
      * */
     public MeasureMaskFigure(String text, double x, double y, double width, 
-    							double height, BufferedImage mask, boolean readOnly) 
+    	double height, BufferedImage mask, boolean readOnly, boolean clientObject) 
     {
 		super(text, x, y, width, height);
 		this.mask = mask;
@@ -166,6 +174,7 @@ public class MeasureMaskFigure
 		roi = null;
 		status = IDLE;
 		setReadOnly(readOnly);
+		setClientObject(clientObject);
     }
     
     /**
@@ -532,6 +541,56 @@ public class MeasureMaskFigure
 		this.readOnly = readOnly; 
 		setEditable(!readOnly);
 	}
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#isClientObject()
+	 */
+	public boolean isClientObject() 
+	{
+		return clientObject;
+	}
 
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setClientObject(boolean)
+	 */
+	public void setClientObject(boolean clientSide) 
+	{
+		clientObject = clientSide;
+	}
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#isDirty()
+	 */
+	public boolean isDirty() 
+	{
+		return dirty;
+	}
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface
+	 * @see ROIFigure#setObjectDirty(boolean)
+	 */
+	public void setObjectDirty(boolean dirty) 
+	{
+		this.dirty = dirty;
+	}
+	
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * MeasureMaskFigure#clone()
+	 */
+	public MeasureMaskFigure clone()
+	{
+		MeasureMaskFigure that = (MeasureMaskFigure) super.clone();
+		that.setReadOnly(this.isReadOnly());
+		that.setClientObject(this.isClientObject());
+		that.setObjectDirty(true);
+		return that;
+	}
+	
 }
 
