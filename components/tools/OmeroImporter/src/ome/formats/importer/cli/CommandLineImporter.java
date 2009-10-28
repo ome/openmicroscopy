@@ -190,7 +190,7 @@ public class CommandLineImporter {
                                         + "  --upload\tUpload broken files with report\n"
                                         + "  --email=...\tEmail for reported errors\n "
                                         + "\n"
-                                        + "ex. %s -s localhost -u bart -w simpson -d 50 foo.tiff\n"
+                                        + "usage ex: %s -s localhost -u bart -w simpson -d 50 foo.tiff\n"
                                         + "\n"
                                         + "Report bugs to <ome-users@openmicroscopy.org.uk>",
                                 APP_NAME, APP_NAME, APP_NAME));

@@ -17,6 +17,9 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
 import java.util.ArrayList;
 
 import javax.swing.Icon;
@@ -42,12 +45,13 @@ import ome.formats.importer.util.ErrorContainer;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.io.FileUtils;
 
 /**
  * @author TheBrain
  *
  */
-public class DebugMessenger extends JDialog implements ActionListener, IObservable
+public class DebugMessenger extends JDialog implements ActionListener, IObservable, IObserver
 {
     private static final long serialVersionUID = -1026712513033611084L;
 
@@ -86,8 +90,13 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
 
 	private ArrayList<ErrorContainer> errorsArrayList;
 
-
 	private JCheckBox uploadCheckmark, logUploadCheckmark;
+	
+    private long total_files, total_file_length;
+	
+	private FileSizeChecker checker;
+
+    private String file_info; 
     
     DebugMessenger(JFrame owner, String title, ImportConfig config, Boolean modal, ArrayList<ErrorContainer> errorsArrayList)
     {
@@ -104,6 +113,8 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         setResizable(true);
         setSize(new Dimension(680, 400));
         setLocationRelativeTo(owner);
+        
+        file_info = "(Calculating file info)";
         
         // Set up the main panel for tPane, quit, and send buttons
         double mainTable[][] =
@@ -123,7 +134,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         this.getRootPane().setDefaultButton(sendBtn);
         gui.enterPressesWhenFocused(sendBtn);
         
-        uploadCheckmark = gui.addCheckBox(mainPanel, "Send the image files for these errors.", "1,1,7,c", debug);
+        uploadCheckmark = gui.addCheckBox(mainPanel, "Send the image files for these errors. " + file_info, "1,1,7,c", debug);
         //uploadCheckmark.setSelected(config.sendFiles.get());
         uploadCheckmark.setSelected(true);
        
@@ -169,8 +180,20 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         
         add(mainPanel, BorderLayout.CENTER);
         
-        setVisible(true);      
+        setVisible(true); 
+        
+        checker = new FileSizeChecker(errorsArrayList);
+        checker.addObserver(this);
+        checker.run();
+        
+        this.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) {
+                checker.doStop();
+            }
+        });
+       
     }
+
 
     public void actionPerformed(ActionEvent e)
     {
@@ -224,7 +247,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
             debugTextPane.copy();
         }
     }
-
+    
     private void sendRequest(String emailText, String commentText, String extraText)
     {
         
@@ -260,6 +283,27 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
     }
     
     
+    public void update(IObservable importLibrary, ImportEvent event)
+    {
+        if (event instanceof ImportEvent.FILE_SIZE_STEP)
+        {
+            ImportEvent.FILE_SIZE_STEP ev = (ImportEvent.FILE_SIZE_STEP) event;
+            
+            total_files = ev.total_files;
+            total_file_length = ev.total_files_length;
+                    
+            file_info = "Total files: " + total_files + " ("+ FileUtils.byteCountToDisplaySize(total_file_length) + ")";
+            if (ev.total_files > 100 || ev.total_files_length >= 104857600) 
+                file_info = "<html>Send the image files for these errors. <font color='AA0000'>" + file_info + "</font></html>";
+            else
+                file_info = "Send the image files for these errors. " + file_info;
+           
+            System.out.println(file_info);
+            uploadCheckmark.setText(file_info);
+            uploadCheckmark.repaint();
+        }
+    }
+    
     // Validate the basic construct for the user's email
     public boolean validEmail(String emailAddress)
     {
@@ -284,6 +328,79 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         catch (Exception e)
         {
             new DebugMessenger(null, "Error Dialog Test", new ImportConfig(), true, null);
+        }
+    }
+}
+
+class FileSizeChecker implements Runnable, IObservable {
+
+    private boolean stop = false;
+    private long total_files = 0;
+    private long total_file_length = 0;
+    
+    ArrayList<ErrorContainer> errorsArrayList;
+    
+    ArrayList<IObserver> observers = new ArrayList<IObserver>();
+    
+    FileSizeChecker(ArrayList<ErrorContainer> errorsArrayList)
+    {
+        this.errorsArrayList = errorsArrayList;
+    }
+    
+    public synchronized void doStop(){
+        stop = true;
+    }
+    
+    public void run()
+    {
+
+        File f;
+        int count = 0;
+
+        for (ErrorContainer e: errorsArrayList)
+        { 
+            count++; 
+            total_files += e.getFiles().length;
+
+            if (stop) return;
+
+            for (String path : e.getFiles())
+            {
+                if (stop) return;
+
+                f = new File(path);
+                if(f.exists())
+                {
+                    total_file_length += f.length();
+                }
+            }
+
+            if (count%100 == 0) // update count eveyy 100 files
+                notifyObservers(new ImportEvent.FILE_SIZE_STEP(total_files, total_file_length)); 
+        }
+
+        if (count%100 != 0) // last update if there is a remainder
+            notifyObservers(new ImportEvent.FILE_SIZE_STEP(total_files, total_file_length));
+
+    }
+
+    // Observable methods    
+    public boolean addObserver(IObserver object)
+    {
+        return observers.add(object);
+    }
+    
+    public boolean deleteObserver(IObserver object)
+    {
+        return observers.remove(object);
+        
+    }
+
+    public synchronized void notifyObservers(ImportEvent event)
+    {
+        for (IObserver observer:observers)
+        {
+            observer.update(this, event);
         }
     }
 }
