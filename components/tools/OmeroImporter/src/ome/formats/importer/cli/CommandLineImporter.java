@@ -255,6 +255,7 @@ public class CommandLineImporter {
             }
             case 3: {
                 config.sendFiles.set(true);
+                config.sendLogFile.set(true);
                 break;
             }
             case 4: {
