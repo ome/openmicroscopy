@@ -139,6 +139,14 @@ div#view, div#view2  {
     width: 600px;
     position: relative;
 }
+.miniplateview {
+    /* This is for the miniviewer in image_details */
+    float: left;
+    width: 600px;
+    height: 500px;
+    position: relative;
+    overflow: auto;
+}
 .metadata {
     float: right;
     margin: -8px 0 20px 0;
@@ -148,6 +156,9 @@ div#view, div#view2  {
     max-height: 430px;
     overflow: auto;
     padding-top: 5px;
+}
+table.plate td{
+    width: 25px;
 }
 
 table.formsm {

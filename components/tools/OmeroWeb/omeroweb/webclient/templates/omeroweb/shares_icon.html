@@ -128,7 +128,7 @@
                     {% endif %}
                 {% endifequal %}
             </a>
-            <div class="center">{% if c.annotation_counter %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} {% if c.members_counter %}<img src="{% url webstatic "images/kuser12.png" %}" alt="ms" title="members"/>[{{ c.members_counter }}]{% endif %}<br/>{{ c.tinyMessage }}</div>
+            <div class="center">{% if c.annotation_counter %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} {% if c.child_counter %}<img src="{% url webstatic "images/kuser12.png" %}" alt="ms" title="members"/>[{{ c.child_counter }}]{% endif %}<br/>{{ c.tinyMessage }}</div>
         </li>
         {% endfor %}
     {% else %}
@@ -151,7 +151,7 @@
                     <img src="{% url webstatic "images/folder_locked64.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
                 {% endif %}
             {% endifequal %}
-            <div class="center">{% if c.annotation_counter %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} {% if c.members_counter %}<img src="{% url webstatic "images/kuser12.png" %}" alt="ms" title="members"/>[{{ c.members_counter }}]{% endif %}<br/>{{ c.tinyMessage }}</div>
+            <div class="center">{% if c.annotation_counter %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} {% if c.child_counter %}<img src="{% url webstatic "images/kuser12.png" %}" alt="ms" title="members"/>[{{ c.child_counter }}]{% endif %}<br/>{{ c.tinyMessage }}</div>
         </li>
         {% endfor %}
     {% endif %}

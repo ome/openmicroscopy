@@ -130,7 +130,7 @@
                 {% endif %}
             {% endifequal %} {{ c.getShareType }}
         </a></td> 
-        <td><a href="{% url manage_share "view" c.id %}">{{ c.shortMessage }}</a> {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} {% if c.members_counter %}<img src="{% url webstatic "images/kuser16.png" %}" alt="ms" title="members"/>[{{ c.members_counter }}]{% endif %}</td> 
+        <td><a href="{% url manage_share "view" c.id %}">{{ c.shortMessage }}</a> {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} {% if c.child_counter %}<img src="{% url webstatic "images/kuser16.png" %}" alt="ms" title="members"/>[{{ c.child_counter }}]{% endif %}</td> 
         <td><a href="{% url manage_share "view" c.id %}"><img src="{% url webstatic "images/kview16.png" %}" alt="v" title="view"/></a> <a href="{% url manage_share "edit" c.id %}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a></td>
         <td>{{ c.getStartDate|date:"Y m d H:i:s" }} - {% if c.getExpirationDate %}{{ c.getExpirationDate|date:"Y m d H:i:s" }}{% else %}never{% endif %}</td>
     </tr> 
@@ -183,7 +183,7 @@
             {% endif %}
         {% endifequal %} 
         </td> 
-        <td>{% if c.active %}<a href="{% url manage_share "view" c.id %}">{{ c.shortMessage }}</a>{% else %}{{ c.shortMessage }}{% endif %} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} {% if c.members_counter %}<img src="{% url webstatic "images/kuser16.png" %}" alt="ms" title="members"/>[{{ c.members_counter }}]{% endif %}</td> 
+        <td>{% if c.active %}<a href="{% url manage_share "view" c.id %}">{{ c.shortMessage }}</a>{% else %}{{ c.shortMessage }}{% endif %} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} {% if c.child_counter %}<img src="{% url webstatic "images/kuser16.png" %}" alt="ms" title="members"/>[{{ c.child_counter }}]{% endif %}</td> 
         <td>{{ c.getShareOwnerFullName }}</td> 
         <td>{% if c.active %}<a href="{% url manage_share "view" c.id %}"><img src="{% url webstatic "images/kview16.png" %}" alt="v" title="view"/></a>{% endif %}</td>
         <td>{{ c.getStartDate|date:"Y m d H:i:s" }} - {% if c.getExpirationDate %}{{ c.getExpirationDate|date:"Y m d H:i:s" }}{% else %}never{% endif %}</td>

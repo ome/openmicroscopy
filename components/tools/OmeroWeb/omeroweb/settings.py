@@ -157,8 +157,8 @@ INTERNAL_IPS = ()
 LOGGING_LOG_SQL = False
 
 # LOGDIR path
-LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), '../'), 'var'), 'log').replace('\\','/')
-# LOGDIR = os.path.join(os.path.dirname(__file__), 'log').replace('\\','/')
+#LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), '../'), 'var'), 'log').replace('\\','/')
+LOGDIR = os.path.join(os.path.dirname(__file__), 'log').replace('\\','/')
 
 if not os.path.isdir(LOGDIR):
     try:
@@ -273,11 +273,11 @@ while True:
 # For more information, see
 # http://trac.openmicroscopy.org.uk/omero/wiki/UpgradeCheck
 #
-try:
-    from omero.util.upgrade_check import UpgradeCheck
-    check = UpgradeCheck("web")
-    check.run()
-    if check.isUpgradeNeeded():
-        logger.error("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads.\n")
-except Exception, x:
-    logger.error("Upgrade check error: %s" % x)
+#try:
+#    from omero.util.upgrade_check import UpgradeCheck
+#    check = UpgradeCheck("web")
+#    check.run()
+#    if check.isUpgradeNeeded():
+#        logger.error("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads.\n")
+#except Exception, x:
+#    logger.error("Upgrade check error: %s" % x)

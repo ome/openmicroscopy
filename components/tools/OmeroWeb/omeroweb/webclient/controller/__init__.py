@@ -152,4 +152,3 @@ class BaseController(object):
             prev = page - 1
         
         return {'page': page, 'total':total, 'next':next, "prev":prev}
-    

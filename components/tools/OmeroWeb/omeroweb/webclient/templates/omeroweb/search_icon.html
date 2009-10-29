@@ -126,7 +126,7 @@
         {% for c in controller.projects %}
         <li class="product"><em>{{ c.name }}</em>
             {% if c.isOwned %}<a href="{% url manage_data "mydata" "project" c.id %}?view=icon"><img id="{{ c.id }}" class="catzoom" src="{% url webstatic "images/folder64.png" %}" title="{{ c.name }}" alt="project"/></a>{% else %}<a href="{% url manage_data "userdata" "project" c.id %}?filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" class="catzoom" src="{% url webstatic "images/folder64.png" %}" title="{{ c.name }}" alt="project"/></a>{% endif %}
-            <div class="center"><img src="{% url webstatic "images/folder_image12.png" %}" title="image" alt="image"/>[{{ c.countChild }}]{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</div>
+            <div class="center"><img src="{% url webstatic "images/folder_image12.png" %}" title="image" alt="image"/>[{{ c.countChildren2 }}]{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</div>
             <div class="center">{{ c.tinyName }}</div>
         </li>
         {% endfor %}

@@ -1281,7 +1281,10 @@ class BlitzObjectWrapper (object):
         @return: Long. The number of child objects available
         """
         
-        self._cached_countChildren = len(self._conn.getQueryService().findAllByQuery("from %s as c where c.parent.id=%i" % (self.LINK_CLASS, self._oid), None))
+        childw = self._getChildWrapper()
+        klass = "%sLinks" % childw().OMERO_CLASS.lower()
+        #self._cached_countChildren = len(self._conn.getQueryService().findAllByQuery("from %s as c where c.parent.id=%i" % (self.LINK_CLASS, self._oid), None))
+        self._cached_countChildren = self._conn.getContainerService().getCollectionCount(self.OMERO_CLASS, klass, [self._oid])[self._oid]
         return self._cached_countChildren
 
     def countChildren_cached (self):
@@ -1300,30 +1303,35 @@ class BlitzObjectWrapper (object):
     def listChildren (self, ns=None, val=None, params=None):
         """
         Lists available child objects.
-        
+
         @return: Generator yielding child objects.
         """
-        
+
         childw = self._getChildWrapper()
-        if not params:
-            params = omero.sys.Parameters()
-        if not params.map:
-            params.map = {}
-        params.map["dsid"] = omero_type(self._oid)
-        query = "select c from %s as c" % self.LINK_CLASS
-        if ns is not None:
-            params.map["ns"] = omero_type(ns)
-            query += """ join c.child.annotationLinks ial
-                         join ial.child as a """
-        query += " where c.parent.id=:dsid"
-        if ns is not None:
-            query += " and a.ns=:ns"
-            if val is not None:
-                if isinstance(val, StringTypes):
-                    params.map["val"] = omero_type(val)
-                    query +=" and a.textValue=:val"
-        query += " order by c.child.name"
-        childnodes = [ x.child for x in self._conn.getQueryService().findAllByQuery(query, params)]
+        klass = childw().OMERO_CLASS
+        if getattr(self, 'is%sLinksLoaded' % klass)():
+            childnodes = getattr(self, 'copy%sLinks' % klass)()
+            logger.debug('listChildren for %s %d: already loaded' % (self.OMERO_CLASS, self.getId()))
+        else:
+            if not params:
+                params = omero.sys.Parameters()
+            if not params.map:
+                params.map = {}
+            params.map["dsid"] = omero_type(self._oid)
+            query = "select c from %s as c" % self.LINK_CLASS
+            if ns is not None:
+                params.map["ns"] = omero_type(ns)
+                query += """ join c.child.annotationLinks ial
+                             join ial.child as a """
+            query += " where c.parent.id=:dsid"
+            if ns is not None:
+                query += " and a.ns=:ns"
+                if val is not None:
+                    if isinstance(val, StringTypes):
+                        params.map["val"] = omero_type(val)
+                        query +=" and a.textValue=:val"
+            query += " order by c.child.name"
+            childnodes = [ x.child for x in self._conn.getQueryService().findAllByQuery(query, params)]
         for child in childnodes:
             yield childw(self._conn, child, self._cache)
 

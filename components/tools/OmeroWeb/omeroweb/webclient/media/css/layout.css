@@ -229,6 +229,12 @@ ul.errorlist li {
     margin: 0px;
     padding: 0px;
 }
+.separate30 {
+    clear: both;
+    height: 30px;
+    margin: 0px;
+    padding: 0px;
+}
 
 .details {
     border-bottom:1px solid #BBBBBB;

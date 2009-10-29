@@ -49,9 +49,9 @@ from webclient.controller import BaseController
 class BaseContainer(BaseController):
     
     project = None
-    #screen = None
+    screen = None
     dataset = None
-    #plate = None
+    plate = None
     image = None
     tag = None
     comment = None
@@ -74,7 +74,7 @@ class BaseContainer(BaseController):
     
     orphaned = False
     
-    def __init__(self, conn, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, metadata=False, tags=None, rtags=None, **kw):
+    def __init__(self, conn, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, metadata=False, tags=None, rtags=None, index=None, **kw):
         BaseController.__init__(self, conn)
         if o1_type == "project":
             self.project = self.conn.getProject(o1_id)
@@ -94,24 +94,30 @@ class BaseContainer(BaseController):
                         raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
                     if self.image._obj is None:
                         raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
-        #elif o1_type == "screen":
-        #    self.screen = self.conn.getScreen(o1_id)
-        #    if self.screen is None:
-        #        raise AttributeError("We are sorry, but that screen does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
-        #    if self.screen._obj is None:
-        #        raise AttributeError("We are sorry, but that screen does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
-        #    if o2_type == "plate":
-        #        self.plate = self.conn.getPlate(o2_id)
-        #        if self.plate is None:
-        #            raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
-        #        if self.plate._obj is None:
-        #            raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.") 
-        #elif o1_type == "plate":
-        #    self.plate = self.conn.getPlate(o1_id)
-        #    if self.plate is None:
-        #        raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
-        #    if self.plate._obj is None:
-        #        raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")               
+        elif o1_type == "screen":
+            self.screen = self.conn.getScreen(o1_id)
+            if self.screen is None:
+                raise AttributeError("We are sorry, but that screen does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+            if self.screen._obj is None:
+                raise AttributeError("We are sorry, but that screen does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+            if o2_type == "plate":
+                self.plate = self.conn.getPlate(o2_id)
+                if self.plate is None:
+                    raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+                if self.plate._obj is None:
+                    raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.") 
+        elif o1_type == "plate":
+            self.plate = self.conn.getPlate(o1_id)
+            if self.plate is None:
+                raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+            if self.plate._obj is None:
+                raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")  
+        elif o1_type == "well":
+            self.well = self.conn.lookupWell(o1_id, index)
+            if self.well is None:
+                raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+            if self.well._obj is None:
+                raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")             
         elif o1_type == "dataset":
             self.dataset = self.conn.getDataset(o1_id)
             if self.dataset is None:
@@ -175,27 +181,49 @@ class BaseContainer(BaseController):
         # TODO: hardcoded values.
         self.global_metadata = list()
         self.series_metadata = list()
-        for a in self.image.listAnnotations():
-            if a.ns == omero.constants.namespaces.NSCOMPANIONFILE and a.getFileName().startswith("original_metadata"):
-                self.original_metadata = a
-                temp_file = self.conn.getFile(a.file.id.val, a.file.size.val).split('\n')
-                flag = None
-                for l in temp_file:
-                    if l.startswith("[GlobalMetadata]"):
-                        flag = 1
-                    elif l.startswith("[SeriesMetadata]"):
-                        flag = 2
-                    else:
-                        l = self.formatMetadataLine(l)
-                        if l is not None:
-                            if flag == 1:
-                                self.global_metadata.append(l)
-                            elif flag == 2:
-                                self.series_metadata.append(l)
+        if self.image is not None:
+            for a in self.image.listAnnotations():
+                if a.ns == omero.constants.namespaces.NSCOMPANIONFILE and a.getFileName().startswith("original_metadata"):
+                    self.original_metadata = a
+                    temp_file = self.conn.getFile(a.file.id.val, a.file.size.val).split('\n')
+                    flag = None
+                    for l in temp_file:
+                        if l.startswith("[GlobalMetadata]"):
+                            flag = 1
+                        elif l.startswith("[SeriesMetadata]"):
+                            flag = 2
+                        else:
+                            l = self.formatMetadataLine(l)
+                            if l is not None:
+                                if flag == 1:
+                                    self.global_metadata.append(l)
+                                elif flag == 2:
+                                    self.series_metadata.append(l)
+        elif self.well is not None:
+            for a in self.well.selectedWellSample().image().listAnnotations():
+                if a.ns == omero.constants.namespaces.NSCOMPANIONFILE and a.getFileName().startswith("original_metadata"):
+                    self.original_metadata = a
+                    temp_file = self.conn.getFile(a.file.id.val, a.file.size.val).split('\n')
+                    flag = None
+                    for l in temp_file:
+                        if l.startswith("[GlobalMetadata]"):
+                            flag = 1
+                        elif l.startswith("[SeriesMetadata]"):
+                            flag = 2
+                        else:
+                            l = self.formatMetadataLine(l)
+                            if l is not None:
+                                if flag == 1:
+                                    self.global_metadata.append(l)
+                                elif flag == 2:
+                                    self.series_metadata.append(l)
     
     def channelMetadata(self):
         try:
-            self.channel_metadata = self.image.getChannels()
+            if self.image is not None:
+                self.channel_metadata = self.image.getChannels()
+            elif self.well is not None:
+                self.channel_metadata = self.well.selectedWellSample().image().getChannels()
         except:
             self.channel_metadata = list()
     
@@ -266,10 +294,10 @@ class BaseContainer(BaseController):
                 self.eContext['breadcrumb'] = ['Edit project: %s' % (self.project.breadcrumbName())]
             elif self.dataset is not None:
                 self.eContext['breadcrumb'] = ['Edit dataset: %s' % (self.dataset.breadcrumbName())]
-            #elif self.screen is not None:
-            #    self.eContext['breadcrumb'] = ['Edit screen: %s' % (self.screen.breadcrumbName())]
-            #elif self.plate is not None:
-            #    self.eContext['breadcrumb'] = ['Edit plate: %s' % (self.plate.breadcrumbName())]
+            elif self.screen is not None:
+                self.eContext['breadcrumb'] = ['Edit screen: %s' % (self.screen.breadcrumbName())]
+            elif self.plate is not None:
+                self.eContext['breadcrumb'] = ['Edit plate: %s' % (self.plate.breadcrumbName())]
             elif self.image is not None:
                 self.eContext['breadcrumb'] = ['Edit image: %s' % (self.image.breadcrumbName())]
             elif self.tag is not None:
@@ -301,11 +329,14 @@ class BaseContainer(BaseController):
                     self.eContext['breadcrumb'].append('<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu, "project", self.project.id, "dataset", self.dataset.id]), self.dataset.breadcrumbName()))
                     if self.image is not None:
                         self.eContext['breadcrumb'].append('%s' % self.image.breadcrumbName())
-            #elif self.screen is not None:
-            #    self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()),  
-            #                '<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu, "screen", self.screen.id]), self.screen.breadcrumbName())]
-            #    if self.plate is not None:
-            #        self.eContext['breadcrumb'].append('<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu, "plate", self.plate.id, "dataset", self.plate.id]), self.plate.breadcrumbName()))
+            elif self.screen is not None:
+                self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()),  
+                            '<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu, "screen", self.screen.id]), self.screen.breadcrumbName())]
+                if self.plate is not None:
+                    self.eContext['breadcrumb'].append('<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu, "screen", self.screen.id, "plate", self.plate.id]), self.plate.breadcrumbName()))
+            elif self.plate is not None:
+                self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()),  
+                            '<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu, "plate", self.plate.id]), self.plate.breadcrumbName())]
             elif self.dataset is not None:
                 self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()), '<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu, "dataset", self.dataset.id]), self.dataset.breadcrumbName())]
                 if self.image is not None:
@@ -386,11 +417,14 @@ class BaseContainer(BaseController):
     def listMyRoots(self):
         pr_list = list(self.conn.lookupProjects())
         ds_list = list(self.conn.lookupOrphanedDatasets())
-        #sc_list = list(self.conn.lookupScreens())
+        sc_list = list(self.conn.lookupScreens())
+        pl_list = list(self.conn.lookupOrphanedPlates())
+        
         
         pr_list_with_counters = list()
         ds_list_with_counters = list()
-        #sc_list_with_counters = list()
+        sc_list_with_counters = list()
+        pl_list_with_counters = list()
         
         pr_ids = [pr.id for pr in pr_list]
         if len(pr_ids) > 0:
@@ -412,24 +446,33 @@ class BaseContainer(BaseController):
                 ds.annotation_counter = ds_annotation_counter.get(ds.id)
                 ds_list_with_counters.append(ds)
         
-        #sc_ids = [sc.id for sc in sc_list]
-        #if len(sc_ids) > 0:
-        #    sc_child_counter = self.conn.getCollectionCount("Screen", "plateLinks", sc_ids)
-        #    sc_annotation_counter = self.conn.getCollectionCount("Screen", "annotationLinks", sc_ids)
-        #    
-        #    for sc in sc_list:
-        #        sc.child_counter = sc_child_counter.get(sc.id)
-        #        sc.annotation_counter = sc_annotation_counter.get(sc.id)
-        #        sc_list_with_counters.append(sc)
+        sc_ids = [sc.id for sc in sc_list]
+        if len(sc_ids) > 0:
+            sc_child_counter = self.conn.getCollectionCount("Screen", "plateLinks", sc_ids)
+            sc_annotation_counter = self.conn.getCollectionCount("Screen", "annotationLinks", sc_ids)
+            
+            for sc in sc_list:
+                sc.child_counter = sc_child_counter.get(sc.id)
+                sc.annotation_counter = sc_annotation_counter.get(sc.id)
+                sc_list_with_counters.append(sc)
+        
+        pl_ids = [pl.id for pl in pl_list]
+        if len(pl_ids) > 0:
+            pl_child_counter = self.conn.getCollectionCount("Plate", "wellLinks", ds_ids)
+            pl_annotation_counter = self.conn.getCollectionCount("Plate", "annotationLinks", ds_ids)
+            
+            for pl in pl_list:
+                pl.child_counter = pl_child_counter.get(pl.id)
+                pl.annotation_counter = pl_annotation_counter.get(pl.id)
+                pl_list_with_counters.append(pl)
         
         pr_list_with_counters = self.sortByAttr(pr_list_with_counters, "name")
         ds_list_with_counters = self.sortByAttr(ds_list_with_counters, "name")
-        #sc_list_with_counters = self.sortByAttr(sc_list_with_counters, "name")
+        sc_list_with_counters = self.sortByAttr(sc_list_with_counters, "name")
+        pl_list_with_counters = self.sortByAttr(pl_list_with_counters, "name")
         
-        #self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters, 'screens': sc_list_with_counters}
-        #self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(sc_list_with_counters)
-        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}
-        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)
+        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters, 'screens': sc_list_with_counters, 'plates': pl_list_with_counters}
+        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(sc_list_with_counters)+len(pl_list_with_counters)
 
     def listMyDatasetsInProject(self, project_id, page):
         ds_list = list(self.conn.lookupDatasetsInProject(oid=project_id, page=page))
@@ -450,7 +493,7 @@ class BaseContainer(BaseController):
         self.c_size = self.conn.getCollectionCount("Project", "datasetLinks", [long(project_id)])[long(project_id)]
         
         self.paging = self.doPaging(page, len(ds_list_with_counters), self.c_size)
-
+    
     def listMyPlatesInScreen(self, screen_id, page):
         pl_list = list(self.conn.lookupPlatesInScreens(oid=screen_id, page=page))
         pl_list_with_counters = list()
@@ -469,6 +512,40 @@ class BaseContainer(BaseController):
         
         self.paging = self.doPaging(page, len(pl_list_with_counters), self.c_size)
     
+    def listMyPlate(self, plate_id, index, page):
+        wl_list = list(self.conn.lookupWellsInPlate(oid=plate_id, index=index))
+        wl_list_with_counters = dict()
+        wl_ids = list()
+        self.fields = None
+        
+        row_count = -1
+        col_count = -1
+        for wl in wl_list:
+            wl_ids.append(wl.id)
+            row_count = wl.row > row_count and wl.row or row_count
+            col_count = wl.column > col_count and wl.column or col_count
+        
+        if row_count >= 0 or col_count >= 0:             
+            for r in range(0, row_count+1):
+                wl_list_with_counters[r] = dict()
+                for c in range(0, col_count+1):
+                    wl_list_with_counters[r][c] = None
+
+            if len(wl_ids) > 0:
+                wl_annotation_counter = self.conn.getCollectionCount("Well", "annotationLinks", wl_ids)
+
+                for wl in wl_list:
+                    if self.fields is None:
+                        self.fields = wl.countWellSample()
+                    wl.annotation_counter = wl_annotation_counter.get(wl.id)
+                    wl_list_with_counters[wl.row][wl.column]= wl
+            self.c_dimention = "%sx%s" % (str(row_count+1), str(col_count+1))
+        
+        self.index = index is None and 0 or index
+        self.containers = {'wells': wl_list_with_counters}
+        self.c_size = len(wl_list) #self.conn.getCollectionCount("Plate", "wellLinks", [long(plate_id)])[long(plate_id)]
+        # self.paging = self.doPaging(page, len(pl_list_with_counters), self.c_size)
+        
     def listMyImagesInDataset(self, dataset_id, page):
         im_list = list(self.conn.lookupImagesInDataset(oid=dataset_id, page=page))
         im_list_with_counters = list()
@@ -930,10 +1007,10 @@ class BaseContainer(BaseController):
             return list(self.conn.listTags("dataset", self.dataset.id))
         elif self.project is not None:
             return list(self.conn.listTags("project", self.project.id))
-        #elif self.plate is not None:
-        #    return list(self.conn.listTags("plate", self.plate.id))
-        #elif self.screen is not None:
-        #    return list(self.conn.listTags("screen", self.screen.id))
+        elif self.plate is not None:
+            return list(self.conn.listTags("plate", self.plate.id))
+        elif self.screen is not None:
+            return list(self.conn.listTags("screen", self.screen.id))
     
     def listComments(self):
         if self.image is not None:
@@ -942,10 +1019,10 @@ class BaseContainer(BaseController):
             return list(self.conn.listComments("dataset", self.dataset.id))
         elif self.project is not None:
             return list(self.conn.listComments("project", self.project.id))
-        #elif self.plate is not None:
-        #    return list(self.conn.listComments("plate", self.plate.id))
-        #elif self.screen is not None:
-        #    return list(self.conn.listComments("screen", self.screen.id))
+        elif self.plate is not None:
+            return list(self.conn.listComments("plate", self.plate.id))
+        elif self.screen is not None:
+            return list(self.conn.listComments("screen", self.screen.id))
     
     def listUrls(self):
         if self.image is not None:
@@ -954,10 +1031,10 @@ class BaseContainer(BaseController):
             return list(self.conn.listUrls("dataset", self.dataset.id))
         elif self.project is not None:
             return list(self.conn.listUrls("project", self.project.id))
-        #elif self.plate is not None:
-        #    return list(self.conn.listUrls("plate", self.plate.id))
-        #elif self.screen is not None:
-        #    return list(self.conn.listUrls("screen", self.screen.id))
+        elif self.plate is not None:
+            return list(self.conn.listUrls("plate", self.plate.id))
+        elif self.screen is not None:
+            return list(self.conn.listUrls("screen", self.screen.id))
     
     def listFiles(self):
         if self.image is not None:
@@ -966,10 +1043,10 @@ class BaseContainer(BaseController):
             return list(self.conn.listFiles("dataset", self.dataset.id))
         elif self.project is not None:
             return list(self.conn.listFiles("project", self.project.id))
-        #elif self.plate is not None:
-        #    return list(self.conn.listFiles("plate", self.plate.id))
-        #elif self.screen is not None:
-        #    return list(self.conn.listFiles("screen", self.screen.id))
+        elif self.plate is not None:
+            return list(self.conn.listFiles("plate", self.plate.id))
+        elif self.screen is not None:
+            return list(self.conn.listFiles("screen", self.screen.id))
     
     ####################################################################
     # Creation
@@ -1184,15 +1261,15 @@ class BaseContainer(BaseController):
         self.conn.saveObject(l_ia)
     
     def createDatasetFileAnnotation(self, newFile):
-        if newFile.content_type.startswith("image"):
-            f = newFile.content_type.split("/") 
-            try:
-                format = self.conn.getFileFormt(f[1].upper())
-            except:
-                format = self.conn.getFileFormt("application/octet-stream")
-        else:
+        format = None
+        try:
             format = self.conn.getFileFormt(newFile.content_type)
+        except:
+            pass
         
+        if format is None:
+            format = self.conn.getFileFormt("application/octet-stream")
+
         oFile = OriginalFileI()
         oFile.setName(rstring(str(newFile.name)));
         oFile.setPath(rstring(str(newFile.name)));

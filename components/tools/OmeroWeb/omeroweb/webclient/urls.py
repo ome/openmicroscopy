@@ -59,6 +59,7 @@ urlpatterns = patterns('',
     url( r'^hierarchy/$', views.manage_container_hierarchies, name="manage_container_hierarchies" ),
     url( r'^hierarchy/(?P<o_type>[a-zA-Z]+)/(?P<o_id>[0-9]+)/$', views.manage_container_hierarchies, name="manage_container_hierarchies_id" ),
     url( r'^tree_details/(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/$', views.manage_tree_details, name="manage_tree_details" ),
+    url( r'^well_details/(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/(?P<index>[0-9]+)/$', views.manage_well_details, name="manage_well_details" ),
     
     url( r'^image_zoom/(?P<iid>[0-9]+)/$', views.manage_image_zoom, name="manage_image_zoom" ),
     

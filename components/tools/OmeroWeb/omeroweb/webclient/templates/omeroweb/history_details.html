@@ -92,7 +92,7 @@
     {% for c in i.project %}
     <tr> 
         <td class="product"><a href="{% url manage_data "mydata" "project" c.id %}"><img id="{{ c.id }}" src="{% url webstatic "images/folder32.png" %}" title="{{ c.name }}" alt="project"/></a></td> 
-        <td><a href="{% url manage_data "mydata" "project" c.id %}">{{ c.shortName }}</a> <img alt="dataset" title="dataset" src="{% url webstatic "images/folder_image16.png" %}"/>[{{ c.countChild }}]{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
+        <td><a href="{% url manage_data "mydata" "project" c.id %}">{{ c.shortName }}</a> <img alt="dataset" title="dataset" src="{% url webstatic "images/folder_image16.png" %}"/>[{{ c.countChildren2 }}]{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
         <td></td>
         <td>{{ c.creationEventDate|date:"Y m d H:i:s" }}</td>
     </tr>
@@ -100,7 +100,7 @@
     {% for c in i.dataset %}
     <tr> 
         <td class="product"><a href="{% if manager.project %}{% url manage_data "mydata" "project" manager.project.id "dataset" c.id %}{% else %}{% url manage_data "mydata" "dataset" c.id %}{% endif %}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_image32.png" %}" title="{{ c.name }}" alt="project"/></a></td> 
-        <td><a href="{% if manager.project %}{% url manage_data "mydata" "project" manager.project.id "dataset" c.id %}{% else %}{% url manage_data "mydata" "dataset" c.id %}{% endif %}">{{ c.shortName }}</a> <img src="{% url webstatic "images/image16.png" %}" title="image" alt="image"/>[{{ c.countChild }}]{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
+        <td><a href="{% if manager.project %}{% url manage_data "mydata" "project" manager.project.id "dataset" c.id %}{% else %}{% url manage_data "mydata" "dataset" c.id %}{% endif %}">{{ c.shortName }}</a> <img src="{% url webstatic "images/image16.png" %}" title="image" alt="image"/>[{{ c.countChildren2 }}]{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
         <td><!--<a href="#" onclick="toBasket('dataset', '{{ c.id }}'); return false;"><img src="{% url webstatic "images/basket16.png" %}" alt="b" title="add to basket"/></a> --><a href="#" onclick="copyToClipboard('dataset', '{{ c.id }}'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit12.png" %}" alt="c" title="copy"/></a></td>
         <td>{{ c.creationEventDate|date:"Y m d H:i:s" }}</td>
     </tr>
