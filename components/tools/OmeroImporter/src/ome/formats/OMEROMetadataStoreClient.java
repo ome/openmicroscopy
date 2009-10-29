@@ -343,6 +343,15 @@ public class OMEROMetadataStoreClient
         serviceFactory = c.joinSession(sessionKey);
         initializeServices();
     }
+    
+    /**
+     * Returns the currently active service factory.
+     * @return See above.
+     */
+    public ServiceFactoryPrx getServiceFactory()
+    {
+    	return serviceFactory;
+    }
 
     /**
      * Pings all registered OMERO Blitz proxies. 
