@@ -33,9 +33,11 @@ import java.io.StringWriter;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.media.opengl.GL;
 
@@ -82,7 +84,18 @@ class RenderingControlProxy
 	/** Default error message. */
 	private static final String	ERROR = "An error occurred while trying to " +
 										"set the ";
-    
+	/** The Red Color index. */
+	private static final Integer RED_INDEX = 0;
+	
+	/** The Green Color index. */
+	private static final Integer GREEN_INDEX = 1;
+	
+	/** The Blue Color index. */
+	private static final Integer BLUE_INDEX = 2;
+	
+	/** The Non-Primary Color index. */
+	private static final Integer NON_PRIMARY_INDEX = -1;
+	
     /** List of supported families. */
     private List              		families;
     
@@ -115,6 +128,48 @@ class RenderingControlProxy
     
     /** The size of the image. */
     private int						imageSize;
+    
+    /**
+     * Maps the color channel Red to {@link #RED_INDEX}, Blue to 
+     * {@link #BLUE_INDEX}, Green to {@link #GREEN_INDEX} and
+     * non primary colors map to {@link #NON_PRIMARY_COLOUR}.
+     * 
+     * @param channel
+     * @return see above.
+     */
+    private Integer colourIndex(int channel)
+    {
+    	if (isChannelBlue(channel)) return BLUE_INDEX;
+    	if (isChannelRed(channel)) return RED_INDEX;
+    	if (isChannelGreen(channel)) return GREEN_INDEX;
+    	return NON_PRIMARY_INDEX;
+    }
+    
+    /**
+     * Returns <code>true</code> if the active channels are mapped
+     * to <code>Red</code>, <code>Green</code> or <code>Blue</code>,
+     * <code>false</code> otherwise or if the number of active channels is 0
+     * or greater than 3.
+     * 
+     * @param channels The collection of channels to handle.
+     * @return See above.
+     */
+    private boolean isImageRGB(List channels)
+    {
+    	if (channels == null) return false;
+    	int n = channels.size();
+    	if (n == 0 || n > 3) return false;
+    	List<Boolean> rgb = new ArrayList<Boolean>();
+    	int index;
+    	Iterator i;
+    	i = channels.iterator();
+		while (i.hasNext()) {
+			index = (Integer) i.next();
+			if (colourIndex(index) != NON_PRIMARY_INDEX) rgb.add(true);
+		}
+		return (n == rgb.size());
+    }
+    
     
     /**
      * Helper method to handle exceptions thrown by the connection library.
@@ -1715,5 +1770,28 @@ class RenderingControlProxy
 	     if (isCompressed()) return renderPlaneCompressedAsTexture(pDef);
 	     return renderPlaneUncompressedAsTexture(pDef);
 	}
-	
+
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#isActiveImageRGB(List)
+	 */
+	public boolean isMappedImageRGB(List channels)
+	{
+		if (channels == null) channels = getActiveChannels();
+		if (channels.size() == 0) return false;
+		Set<Integer> rgb = new HashSet<Integer>();
+    	int cIndex;
+    	int index;
+		Iterator i = channels.iterator();
+    	while (i.hasNext()) {
+			index = (Integer) i.next();
+			cIndex = colourIndex(index);
+			if (cIndex != NON_PRIMARY_INDEX) {
+				if (rgb.contains(cIndex)) return false;
+				else rgb.add(cIndex);
+			}
+		}
+    	return true;
+	}
+
 }

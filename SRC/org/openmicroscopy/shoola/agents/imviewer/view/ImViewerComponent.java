@@ -73,6 +73,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.saver.SaveObject;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -2074,7 +2075,7 @@ class ImViewerComponent
 	 */
 	public boolean isChannelRed(int index)
 	{
-		return model.isColorComponent(0, index);
+		return model.isColorComponent(Renderer.RED_BAND, index);
 	}
 
 	/** 
@@ -2083,7 +2084,7 @@ class ImViewerComponent
 	 */
 	public boolean isChannelGreen(int index)
 	{
-		return model.isColorComponent(1, index);
+		return model.isColorComponent(Renderer.GREEN_BAND, index);
 	}
 
 	/** 
@@ -2092,7 +2093,7 @@ class ImViewerComponent
 	 */
 	public boolean isChannelBlue(int index)
 	{
-		return model.isColorComponent(2, index);
+		return model.isColorComponent(Renderer.BLUE_BAND, index);
 	}
 
 	/** 
@@ -2896,6 +2897,19 @@ class ImViewerComponent
 		}
 		if (value == null) return;
 		model.getBrowser().saveImage(value);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#isMappedImageRGB(List)
+	 */
+	public boolean isMappedImageRGB(List channels)
+	{
+		switch (model.getState()) {
+			case DISCARDED:
+				return false;
+		}
+		return model.isMappedImageRGB(channels);
 	}
 
 }

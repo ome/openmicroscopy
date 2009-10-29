@@ -31,10 +31,10 @@ import java.util.List;
 import javax.swing.JComponent;
 
 //Third-party libraries
+import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
-
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -45,9 +45,6 @@ import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-
-import com.sun.opengl.util.texture.TextureData;
-
 import pojos.ChannelData;
 import pojos.PixelsData;
 
@@ -839,7 +836,10 @@ class RendererComponent
 		}
 	}
 	
-	/** Sets the maximum range for channels. */
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#setRangeAllChannels()
+     */
 	public void setRangeAllChannels()
 	{
 		try {
@@ -858,6 +858,47 @@ class RendererComponent
 		} catch (Throwable e) {
 			handleException(e);
 		}
+	}
+
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#isMappedImageRGB(List)
+     */
+	public boolean isMappedImageRGB(List channels)
+	{
+		return model.isMappedImageRGB(channels);
+	}
+
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#createSingleChannelImage(int, Color, PlaneDef)
+     */
+	public BufferedImage createSingleChannelImage(boolean color, int channel, 
+			PlaneDef pDef)
+	{
+		try {
+			String cm = model.getColorModel();
+			if (!color) model.setColorModel(GREY_SCALE_MODEL);
+			List active = model.getActiveChannels();
+			for (int i = 0; i < model.getMaxC(); i++) {
+				model.setActive(i, channel == i);
+			}
+			BufferedImage img = model.renderPlane(pDef);
+			//reset active channels
+			model.setActive(channel, false);
+			if (active != null) {
+				Iterator i = active.iterator();
+				while (i.hasNext()) {
+					model.setActive((Integer) i.next(), true);
+				}
+			}
+			if (!color) model.setColorModel(cm);
+			return img;
+		} catch (Exception e) {
+			handleException(e);
+		}
+		
+		return null;
 	}
 
 }

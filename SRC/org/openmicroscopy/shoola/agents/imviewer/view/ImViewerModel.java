@@ -2099,5 +2099,19 @@ class ImViewerModel
 		metadataViewer.activityOptions(source, location);
 		
 	}
+
+    /**
+     * Returns <code>true</code> if the passed channels compose an RGB image, 
+     * <code>false</code> otherwise.
+     * 
+     * @param channels The collection of channels to handle.
+     * @return See above.
+     */
+	boolean isMappedImageRGB(List channels)
+	{
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return false;
+		return rnd.isMappedImageRGB(channels);
+	}
 	
 }

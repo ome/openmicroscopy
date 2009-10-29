@@ -1170,4 +1170,16 @@ class RendererModel
 		return rndControl.isSameSettings(def, checkPlane);
 	}
 	
+    /**
+     * Returns <code>true</code> if the image with the active channels
+     * is an RGB image, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+	boolean isMappedImageRGB(List channels)
+	{
+		if (rndControl == null) return false;
+		return rndControl.isMappedImageRGB(channels);
+	}
+	
 }

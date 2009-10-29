@@ -62,6 +62,16 @@ public interface Renderer
 	extends ObservableComponent
 {
 	
+	/** Identifies the <code>red</code> color band. */
+	public static final int		RED_BAND = 0;
+	
+	/** Identifies the <code>green</code> color band. */
+	public static final int		GREEN_BAND = 1;
+	
+	/** Identifies the <code>blue</code> color band. */
+	public static final int		BLUE_BAND = 2;
+	
+	
     /** The value after which no ticks are displayed. */
 	public static final int		MAX_NO_TICKS = 10;
     
@@ -411,9 +421,9 @@ public interface Renderer
 
 	/**
 	 * Returns <code>true</code> if the channel is mapped
-	 * to <code>Red</code> if the band is <code>0</code>, 
-	 * to <code>Green</code> if the band is <code>1</code>,
-	 * to <code>Blue</code> if the band is <code>2</code>,
+	 * to <code>Red</code> if the band is {@link #RED_BAND}, 
+	 * to <code>Green</code> if the band is {@link #GREEN_BAND},
+	 * to <code>Blue</code> if the band is {@link #BLUE_BAND},
 	 * <code>false</code> otherwise.
 	 * 
 	 * @param band  The color band.
@@ -541,5 +551,27 @@ public interface Renderer
 	 * @return See above.
 	 */
 	TextureData renderPlaneAsTexture(PlaneDef pDef);
+	
+    /**
+     * Returns <code>true</code> if the passed channels compose an RGB image, 
+     * <code>false</code> otherwise.
+     * 
+     * @param channels The collection of channels to handle.
+     * @return See above.
+     */
+	boolean isMappedImageRGB(List channels);
+
+	/**
+	 * Creates an image with only the passed channel turned on.
+	 * All active channels will turn off then back on when the has been created.
+	 * 
+	 * @param color		Pass <code>true</code> for a color image,
+	 * 					<code>false</code> for a greyscale image.
+	 * @param channel 	The channel to handle.
+	 * @param pDef 		The plane to render.
+	 * @return See above.
+	 */
+	BufferedImage createSingleChannelImage(boolean color, int channel, 
+			PlaneDef pDef);
 	
 }

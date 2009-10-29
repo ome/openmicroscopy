@@ -33,6 +33,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -51,7 +52,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
@@ -82,7 +82,6 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import pojos.ChannelData;
-import sun.tools.jconsole.CreateMBeanDialog;
 
 /** 
  * Modal dialog displaying option to create a figure of a collection of 
@@ -119,7 +118,14 @@ public class SplitViewFigureDialog
     
     /** The possible options for row names. */
     private static final String[]	ROW_NAMES;
-    
+
+	static {
+		ROW_NAMES = new String[3];
+		ROW_NAMES[SplitViewFigureParam.IMAGE_NAME] = "Image's name";
+		ROW_NAMES[SplitViewFigureParam.DATASET_NAME] = "Datasets";
+		ROW_NAMES[SplitViewFigureParam.TAG_NAME] = "Tags";
+	}
+	
 	/** The name to give to the figure. */
 	private JTextField 						nameField;
 	
@@ -166,31 +172,66 @@ public class SplitViewFigureDialog
 	
 	/** The default plate object. */
 	private PlaneDef 						pDef;
-	
-	/** Component displaying the name of the merged image. */
-	private JLabel							mergeArea;
-	
+
 	/** The component displaying the merger image. */
 	private SplitViewCanvas					mergeCanvas;
 	
-	static {
-		ROW_NAMES = new String[3];
-		ROW_NAMES[SplitViewFigureParam.IMAGE_NAME] = "Image's name";
-		ROW_NAMES[SplitViewFigureParam.DATASET_NAME] = "Dataset's name";
-		ROW_NAMES[SplitViewFigureParam.TAG_NAME] = "Tag's name";
+	/** The image with all the active channels. */
+	private BufferedImage					mergeImage;
+ 
+	/** The width of a thumbnail. */
+	private int 							thumbnailWidth;
+
+	/** The height of a thumbnail. */
+	private int 							thumbnailHeight;
+
+	/**
+	 * Sets the channel selection.
+	 * 
+	 * @param channel   The selected channel.
+	 * @param active	Pass <code>true</code> to set the channel active,
+	 * 					<code>false</code> otherwise.
+	 */
+	private void setChannelSelection(int channel, boolean active)
+	{
+		renderer.setActive(channel, active);
+		mergeImage = getMergedImage();
+		mergeCanvas.setImage(mergeImage);
+		Iterator<ChannelButton> i = channelList.iterator();
+        ChannelButton btn;
+        List<Integer> actives = renderer.getActiveChannels();
+        int index;
+        while (i.hasNext()) {
+			btn = i.next();
+			index = btn.getChannelIndex();
+			btn.setSelected(actives.contains(index));
+		}
+        SplitViewComponent comp = components.get(channel);
+        comp.resetImage(!active);
 	}
-	 
+	
 	/**
 	 * Returns the merged image.
 	 * 
 	 * @return See above.
 	 */
-	BufferedImage getMergedImage()
+	private BufferedImage getMergedImage()
 	{
-		Dimension d = Factory.computeThumbnailSize(Factory.THUMB_DEFAULT_WIDTH,
-				Factory.THUMB_DEFAULT_HEIGHT, 
+		return scaleImage(renderer.renderPlane(pDef));
+	}
+	
+	/**
+	 * Scales the passed image.
+	 * 
+	 * @param image The image to scale down.
+	 * @return See above.
+	 */
+	private BufferedImage scaleImage(BufferedImage image)
+	{
+		Dimension d = Factory.computeThumbnailSize(
+				thumbnailWidth, thumbnailHeight, 
         		renderer.getPixelsSizeX(), renderer.getPixelsSizeY());
-		return Factory.scaleBufferedImage(renderer.renderPlane(pDef), d.width, 
+		return Factory.scaleBufferedImage(image, d.width, 
 				d.height);
 	}
 	
@@ -202,11 +243,37 @@ public class SplitViewFigureDialog
 	 */
 	BufferedImage getChannelImage(int index)
 	{
-		Dimension d = Factory.computeThumbnailSize(
-				Factory.THUMB_DEFAULT_WIDTH, Factory.THUMB_DEFAULT_HEIGHT, 
-        		renderer.getPixelsSizeX(), renderer.getPixelsSizeY());
-		return Factory.scaleBufferedImage(renderer.renderPlane(pDef), d.width, 
-				d.height);
+		//merge image is RGB
+		if (renderer.isChannelActive(index)) {
+			if (renderer.isMappedImageRGB(renderer.getActiveChannels())) {
+				//if red
+				DataBuffer buf = mergeImage.getRaster().getDataBuffer();
+				if (renderer.isColorComponent(Renderer.RED_BAND, index)) {
+					return Factory.createBandImage(buf,
+							thumbnailWidth, thumbnailHeight, 
+							Factory.RED_MASK, Factory.BLANK_MASK,
+							Factory.BLANK_MASK);
+				} else if (renderer.isColorComponent(Renderer.GREEN_BAND, 
+						index)) {
+					return Factory.createBandImage(buf,
+							thumbnailWidth, thumbnailHeight,  
+							Factory.BLANK_MASK, Factory.GREEN_MASK, 
+							Factory.BLANK_MASK);
+				} else if (renderer.isColorComponent(Renderer.BLUE_BAND, 
+						index)) {
+					return Factory.createBandImage(buf,
+							thumbnailWidth, thumbnailHeight, 
+							Factory.BLANK_MASK, Factory.BLANK_MASK,
+							Factory.BLUE_MASK);
+				}
+			} else { //not rgb 
+				return scaleImage(renderer.createSingleChannelImage(true, index, 
+						pDef));
+			}
+		}
+		//turn off all other channels, create an image and reset channels
+		return scaleImage(renderer.createSingleChannelImage(true, index, 
+				pDef));
 	}
 	
 	/** 
@@ -216,19 +283,18 @@ public class SplitViewFigureDialog
 	 */
 	private void initComponents(String name)
 	{
+		thumbnailHeight = Factory.THUMB_DEFAULT_HEIGHT;
+		thumbnailWidth = Factory.THUMB_DEFAULT_WIDTH;
 		pDef = new PlaneDef();
 		pDef.t = renderer.getDefaultT();
 		pDef.z = renderer.getDefaultZ();
 		pDef.slice = omero.romio.XY.value;
 		
 		mergeCanvas = new SplitViewCanvas();
-		BufferedImage img = getMergedImage();
-		if (img != null) {
-			mergeCanvas.setPreferredSize(new Dimension(img.getWidth(), 
-					img.getHeight()));
-		}
-		mergeCanvas.setImage(img);
-		mergeArea = new JLabel("Merge");
+		mergeImage = getMergedImage();
+		mergeCanvas.setPreferredSize(new Dimension(thumbnailWidth, 
+				thumbnailHeight));
+		mergeCanvas.setImage(mergeImage);
 		channelList = new ArrayList<ChannelButton>();
 		components = new LinkedHashMap<Integer, SplitViewComponent>();
 		closeButton = new JButton("Cancel");
@@ -301,9 +367,10 @@ public class SplitViewFigureDialog
         while (k.hasNext()) {
 			d = k.next();
 			j = d.getIndex();
-			split = new SplitViewComponent(renderer.getChannelColor(j), 
-					d.getChannelLabeling());
-			split.setOriginalImage(getChannelImage(index));
+			split = new SplitViewComponent(this, renderer.getChannelColor(j), 
+					d.getChannelLabeling(), j);
+			split.setOriginalImage(getChannelImage(j));
+			split.setCanvasSize(thumbnailWidth, thumbnailHeight);
 			if (!active.contains(j))
 				split.resetImage(true);
 			components.put(j, split);
@@ -550,6 +617,19 @@ public class SplitViewFigureDialog
 		pack();
 	}
 
+	/**
+	 * Creates and returns a greyScale image with only the selected channel
+	 * turned on.
+	 * 
+	 * @param channel The index of the channel.
+	 * @return See above.
+	 */
+	BufferedImage createSingleGreyScaleImage(int channel)
+	{
+		return scaleImage(renderer.createSingleChannelImage(false, channel, 
+				pDef));
+	}
+	
     /**
      * Centers and shows the dialog. Returns the option selected by the user. 
      * 
@@ -614,30 +694,6 @@ public class SplitViewFigureDialog
 			}
 		}
 	}
-
-	/**
-	 * Sets the channel selection.
-	 * 
-	 * @param channel   The selected channel.
-	 * @param active	Pass <code>true</code> to set the channel active,
-	 * 					<code>false</code> otherwise.
-	 */
-	private void setChannelSelection(int channel, boolean active)
-	{
-		renderer.setActive(channel, active);
-		mergeCanvas.setImage(getMergedImage());
-		Iterator<ChannelButton> i = channelList.iterator();
-        ChannelButton btn;
-        List<Integer> actives = renderer.getActiveChannels();
-        int index;
-        while (i.hasNext()) {
-			btn = i.next();
-			index = btn.getChannelIndex();
-			btn.setSelected(actives.contains(index));
-		}
-        SplitViewComponent comp = components.get(channel);
-        comp.resetImage(!active);
-	}
 	
 	/**
 	 * Reacts to change in the type of split i.e. either grey or color.
@@ -648,9 +704,16 @@ public class SplitViewFigureDialog
 		boolean grey = splitPanelGrey.isSelected();
 		Iterator<Integer> i = components.keySet().iterator();
 		SplitViewComponent comp;
+		List active = renderer.getActiveChannels();
+		Integer index;
 		while (i.hasNext()) {
-			comp = components.get(i.next());
-			comp.resetImage(grey);
+			index = i.next();
+			comp = components.get(index);
+			if (grey) comp.resetImage(grey);
+			else {
+				if (active.contains(index)) comp.resetImage(grey);
+				else comp.resetImage(!grey);
+			}
 		}
 	}
 	

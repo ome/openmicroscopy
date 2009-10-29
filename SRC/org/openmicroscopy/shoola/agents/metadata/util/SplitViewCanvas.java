@@ -53,13 +53,17 @@ class SplitViewCanvas
 {
 
 	/** The image to paint. */
-	private BufferedImage image;
+	private BufferedImage  image;
+	
+	/** Indicates if the image should be visible. */
+	private boolean			imageVisible;
 	
 	/** Creates a new instance. */
 	SplitViewCanvas()
 	{
 		setBackground(getBackground());
 		setDoubleBuffered(true);
+		imageVisible = true;
 	}
 	
 	/**
@@ -74,13 +78,25 @@ class SplitViewCanvas
 	}
 	
 	/**
+	 * Sets the flag.
+	 * 
+	 * @param imageVisible  Pass <code>true</code> to show the image 
+	 * 						(if not <code>null</code>), <code>false</code>
+	 * 						to hide it.
+	 */
+	void setImageVisible(boolean imageVisible)
+	{
+		this.imageVisible = imageVisible;
+	}
+	
+	/**
      * Overridden to paint the image.
      * @see javax.swing.JComponent#paintComponent(Graphics)
      */
     public void paintComponent(Graphics g)
     {
     	super.paintComponent(g);
-    	if (image == null) return;
+    	if (image == null || !imageVisible) return;
     	Graphics2D g2D = (Graphics2D) g;
     	ImagePaintingFactory.setGraphicRenderingSettings(g2D);
     	g2D.drawImage(image, null, 0, 0); 

@@ -29,16 +29,14 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.swing.Icon;
 
 //Third-party libraries
+import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
@@ -53,9 +51,6 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ViewerPreferences;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import com.sun.opengl.util.texture.TextureData;
-
 import pojos.ChannelData;
 
 /** 
@@ -77,22 +72,10 @@ class BrowserModel
 {
 	
 	/** The text above the combined image. */
-	private static final String	COMBINED = "Combined";
+	private static final String	COMBINED = "Merged";
 	
 	/** Channel prefix. */
 	private static final String PREFIX ="w=";
-	
-	/** Red Colour index. */
-	private static final Integer RED_INDEX = 0;
-	
-	/** Green Colour index. */
-	private static final Integer GREEN_INDEX = 1;
-	
-	/** Blue Colour index. */
-	private static final Integer BLUE_INDEX = 2;
-	
-	/** Non-Primary Colour index. */
-	private static final Integer NON_PRIMARY_INDEX = -1;
 	
 	/** Gap between the images. */
 	static final int 			GAP = 0;//2;
@@ -142,7 +125,7 @@ class BrowserModel
     /** The default color of the unit bar. */
     private Color				unitBarColor;
     
-    /** The bacground color of the canvas. */
+    /** The background color of the canvas. */
     private Color				backgroundColor;
 
     /** Collection of images composing the grid. */
@@ -165,63 +148,7 @@ class BrowserModel
     
     /** Collection of retrieved images composing the grid. */
     private Map<Integer, TextureData>	gridImagesAsTextures;
-    
-    /**
-     * Returns <code>true</code> if the channel is mapped to <code>Red</code>,
-     * <code>Green</code> or <code>Blue</code>, <code>false</code> otherwise.
-     * 
-     * @param index The index of the channel.
-     * @return See above.
-     */
-    private boolean isChannelRGB(int index)
-    {
-    	if (parent.isChannelRed(index)) return true;
-		if (parent.isChannelGreen(index)) return true; 
-		return parent.isChannelBlue(index);
-    }
-    
-    /**
-     * Returns <code>true</code> if the active channels are mapped
-     * to <code>Red</code>, <code>Green</code> or <code>Blue</code>,
-     * <code>false</code> otherwise or if the number of active channels is 0
-     * or greater than 3.
-     * 
-     * @param channels The collection of channels to handle.
-     * @return See above.
-     */
-    private boolean isImageRGB(List channels)
-    {
-    	if (channels == null) return false;
-    	int n = channels.size();
-    	if (n == 0 || n > 3) return false;
-    	List<Boolean> rgb = new ArrayList<Boolean>();
-    	int index;
-    	Iterator i;
-    	i = channels.iterator();
-		while (i.hasNext()) {
-			index = (Integer) i.next();
-			if (isChannelRGB(index)) rgb.add(true);
-		}
-		return (n == rgb.size());
-    }
-    
-    /**
-     * map the colour channel R==RED_INDEX, B==BLUE_INDEX, G==GREEN_INDEX and
-     * non primary colours map to NON_PRIMARY_COLOUR.
-     * @param channel
-     * @return see above.
-     */
-    private Integer colourIndex(int channel)
-    {
-    	if(parent.isChannelBlue(channel))
-    		return BLUE_INDEX;
-    	if(parent.isChannelRed(channel))
-    		return RED_INDEX;
-    	if(parent.isChannelGreen(channel))
-    		return GREEN_INDEX;
-    	return NON_PRIMARY_INDEX;
-    }
-    
+
     /**
      * Returns <code>true</code> if the active channels are mapped
      * to <code>Red</code>, <code>Green</code> or <code>Blue</code>,
@@ -233,23 +160,7 @@ class BrowserModel
      */
     private boolean isImageMappedRGB(List channels)
     {
-    	if(!isImageRGB(channels)) return false;
-    	Set<Integer> rgb = new HashSet<Integer>();
-    	int cIndex;
-    	int index;
-		Iterator i = channels.iterator();
-    	while (i.hasNext()) {
-			index = (Integer) i.next();
-			cIndex = colourIndex(index);
-			if(cIndex != NON_PRIMARY_INDEX)
-			{
-				if(rgb.contains(cIndex))
-					return false;
-				else
-					rgb.add(cIndex);
-			}
-		}
-    	return true;
+    	return parent.isMappedImageRGB(channels);
     }
     
     /** 

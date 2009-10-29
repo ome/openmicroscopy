@@ -37,17 +37,14 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 //Third-party libraries
+import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.imviewer.util.saver.SaveObject;
-import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-
-import com.sun.opengl.util.texture.TextureData;
-
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -1081,5 +1078,14 @@ public interface ImViewer
 	 * @param value The object hosting the information about the file to save.
 	 */
 	public void saveImage(SaveObject value);
+
+    /**
+     * Returns <code>true</code> if the passed channels compose an RGB image, 
+     * <code>false</code> otherwise.
+     * 
+     * @param channels The collection of channels to handle.
+     * @return See above.
+     */
+	public boolean isMappedImageRGB(List channels);
 	
 }

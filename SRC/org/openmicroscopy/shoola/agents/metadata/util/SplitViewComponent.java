@@ -75,22 +75,31 @@ class SplitViewComponent
 	 * The component displaying the label of the channel so that
 	 * the use can edit it.
 	 */
-	private JTextField		field;
+	private JTextField				field;
 	
 	/** The box to remove the channel from the split. */
-	private JCheckBox	  	box;
+	private JCheckBox	  			box;
 	
 	/** The color associated to the channel. */
-	private JLabel			colorLabel;
+	private JLabel					colorLabel;
 	
 	/** The image associated to that channel. */
-	private BufferedImage 	image;
+	private BufferedImage 			image;
+	
+	/** Reference to the grey version of the image. */
+	private BufferedImage			greyImage;
 	
 	/** The image associated to that channel. */
-	private BufferedImage 	displayedImage;
+	private BufferedImage 			displayedImage;
 	
 	/** The color associated to the channel. */
-	private Color			color;
+	private Color					color;
+	
+	/** The index of the channel. */
+	private int						index;
+	
+	/** Reference to the model. */
+	private SplitViewFigureDialog 	model;
 	
 	/** 
 	 * Initializes the components composing the display.
@@ -128,12 +137,17 @@ class SplitViewComponent
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param model  Reference to the model.
 	 * @param color  The color associated to the channel the channel.
 	 * @param name	 The name to give to the channel.
+	 * @param index  The index of the channel.
 	 */
-	SplitViewComponent(Color color, String name)
+	SplitViewComponent(SplitViewFigureDialog model, Color color, String name,
+			int index)
 	{
+		this.model = model;
 		this.color = color;
+		this.index = index;
 		initComponents(name);
 		buildGUI();
 	}
@@ -153,20 +167,30 @@ class SplitViewComponent
 	 */
 	void resetImage(boolean grey)
 	{
+		if (image == null) return;
 		if (grey) {
-			int r = color.getRed();
-			int g = color.getGreen();
-			int b = color.getBlue();
-			int mask = -1;
-			//red
-			if (r == 255 && g == 0 && b == 0) mask = Factory.RED_MASK;
-			else if (r == 0 && g == 255 && b == 0) mask = Factory.GREEN_MASK;
-			else if (r == 0 && g == 0 && b == 255) mask = Factory.BLUE_MASK;
-			if (mask != -1) {
-				DataBuffer buf = image.getRaster().getDataBuffer();
-				displayedImage = Factory.createBandImage(buf, image.getWidth(), 
-						image.getHeight(), mask, mask, mask);
+			if (greyImage == null) {
+				int r = color.getRed();
+				int g = color.getGreen();
+				int b = color.getBlue();
+				int mask = -1;
+				//red
+				if (r == 255 && g == 0 && b == 0) 
+					mask = Factory.RED_MASK;
+				else if (r == 0 && g == 255 && b == 0) 
+					mask = Factory.GREEN_MASK;
+				else if (r == 0 && g == 0 && b == 255) 
+					mask = Factory.BLUE_MASK;
+				if (mask != -1) { //not primary color
+					DataBuffer buf = image.getRaster().getDataBuffer();
+					greyImage = Factory.createBandImage(buf, 
+							image.getWidth(), 
+							image.getHeight(), mask, mask, mask);
+				} else {
+					greyImage = model.createSingleGreyScaleImage(index);
+				}
 			}
+			displayedImage = greyImage;
 		} else 
 			displayedImage = image;
 		canvas.setImage(displayedImage);
@@ -182,12 +206,19 @@ class SplitViewComponent
 		this.image = image;
 		displayedImage = image;
 		canvas.setImage(image);
-		if (image != null) {
-			Dimension d = new Dimension(image.getWidth(), image.getHeight());
-			canvas.setPreferredSize(d);
-		}
 	}
 
+	/**
+	 * Sets the size of the canvas.
+	 * 
+	 * @param width	 The width to set.
+	 * @param height The height to set.
+	 */
+	void setCanvasSize(int width, int height)
+	{
+		canvas.setPreferredSize(new Dimension(width, height));
+	}
+	
 	/**
 	 * Listens to the check box selection.
 	 * @see ChangeListener#stateChanged(ChangeEvent)
@@ -195,8 +226,9 @@ class SplitViewComponent
 	public void stateChanged(ChangeEvent e)
 	{
 		if (!(e.getSource() instanceof JCheckBox)) return;
+		canvas.setImageVisible(box.isSelected());
 		if (box.isSelected()) canvas.setImage(displayedImage);
-		else canvas.setImage(null);
+		canvas.repaint();
 	}
 
 }

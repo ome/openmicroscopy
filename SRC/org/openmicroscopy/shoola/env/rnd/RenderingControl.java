@@ -718,6 +718,14 @@ public interface RenderingControl
      */
     public long getPixelsID();
     
+    /**
+     * Returns <code>true</code> if the passed channels compose an RGB image, 
+     * <code>false</code> otherwise.
+     * 
+     * @param channels The channels to handle
+     * @return See above.
+     */
+    public boolean isMappedImageRGB(List channels);
     
 	/**
 	 * Renders the specified {@link PlaneDef 2D-plane}.
