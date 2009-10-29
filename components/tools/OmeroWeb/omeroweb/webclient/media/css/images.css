@@ -146,6 +146,7 @@ div#view, div#view2  {
     height: 500px;
     position: relative;
     overflow: auto;
+    border: 1px solid #bbb;
 }
 .metadata {
     float: right;
@@ -156,9 +157,6 @@ div#view, div#view2  {
     max-height: 430px;
     overflow: auto;
     padding-top: 5px;
-}
-table.plate td{
-    width: 25px;
 }
 
 table.formsm {

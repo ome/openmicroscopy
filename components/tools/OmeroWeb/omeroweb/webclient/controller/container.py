@@ -518,6 +518,8 @@ class BaseContainer(BaseController):
         wl_ids = list()
         self.fields = None
         
+        row_names = set()
+        column_names = set()
         row_count = -1
         col_count = -1
         for wl in wl_list:
@@ -527,22 +529,50 @@ class BaseContainer(BaseController):
         
         if row_count >= 0 or col_count >= 0:             
             for r in range(0, row_count+1):
+                if self.plate.rowNamingConvention.isdigit():
+                    row_names.add(r+int(self.plate.rowNamingConvention))
+                elif self.plate.rowNamingConvention.isalpha():
+                    row_names.add(chr(r+ord(self.plate.rowNamingConvention)))
                 wl_list_with_counters[r] = dict()
                 for c in range(0, col_count+1):
+                    if self.plate.columnNamingConvention.isdigit():
+                        column_names.add(c+int(self.plate.columnNamingConvention))
+                    elif self.plate.columnNamingConvention.isalpha():
+                        column_names.add(chr(c+ord(self.plate.columnNamingConvention)))
                     wl_list_with_counters[r][c] = None
 
             if len(wl_ids) > 0:
                 wl_annotation_counter = self.conn.getCollectionCount("Well", "annotationLinks", wl_ids)
 
                 for wl in wl_list:
-                    if self.fields is None:
+                    if self.fields is None or self.fields == 0:
                         self.fields = wl.countWellSample()
                     wl.annotation_counter = wl_annotation_counter.get(wl.id)
                     wl_list_with_counters[wl.row][wl.column]= wl
-            self.c_dimention = "%sx%s" % (str(row_count+1), str(col_count+1))
+        
+        if self.plate.rowNamingConvention.isalpha():
+            row_names = list(row_names).sort()
+        if self.plate.columnNamingConvention.isalpha():
+            column_names = list(column_names).sort()
+        
+        wl_list_with_counters_final = list()
+        for key,val in wl_list_with_counters.items():
+            row_final = list()
+            for k,v in val.items():
+                if self.plate.columnNamingConvention.isalpha():
+                    k = chr(k+ord(self.plate.columnNamingConvention))
+                if self.plate.columnNamingConvention.isdigit():
+                    k = k+int(self.plate.columnNamingConvention)
+                row_final.append((k,v))
+            if self.plate.rowNamingConvention.isalpha():
+                key = chr(key+ord(self.plate.rowNamingConvention))
+            if self.plate.rowNamingConvention.isdigit():
+                key = key+int(self.plate.rowNamingConvention)
+            wl_list_with_counters_final.append((key,row_final))
         
         self.index = index is None and 0 or index
-        self.containers = {'wells': wl_list_with_counters}
+        self.containers = {'wells': wl_list_with_counters_final}
+        self.names = {'row_names':row_names, 'column_names':column_names}
         self.c_size = len(wl_list) #self.conn.getCollectionCount("Plate", "wellLinks", [long(plate_id)])[long(plate_id)]
         # self.paging = self.doPaging(page, len(pl_list_with_counters), self.c_size)
         

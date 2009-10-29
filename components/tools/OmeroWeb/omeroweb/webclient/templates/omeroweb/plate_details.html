@@ -1,0 +1,235 @@
+{% extends "omeroweb/base.html" %}
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+{% load wikitags %}
+
+{% block link %}
+  <link rel="stylesheet" href="{% url webstatic "css/annotation.css" %}" type="text/css" media="screen"/>
+  <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
+  <link rel="stylesheet" href="{% url webstatic "css/tree.css" %}" type="text/css" media="screen"/>
+  <link rel="stylesheet" href="{% url webstatic "css/spw.css" %}" type="text/css" media="screen"/>
+  
+<link rel="stylesheet" href="/webgateway/appmedia/css/jquery-plugin-slider.css" type="text/css" media="screen"/>
+<link rel="stylesheet" href="/webgateway/appmedia/css/weblitz-viewport.css" type="text/css" media="screen"/>
+{% endblock %}
+
+{% block jscript %}
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
+
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.accordion.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.tabs.js" %}"></script>
+
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
+    <script type="text/javascript" src="/webgateway/appmedia/js/weblitz-viewport.js"></script>
+    <script type="text/javascript" src="/webgateway/appmedia/js/jquery-plugin-viewportImage.js"></script>
+    <script type="text/javascript" src="/webgateway/appmedia/js/jquery-plugin-slider.js"></script>
+    <script type="text/javascript" src="/webgateway/appmedia/js/gs_utils.js"></script>
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/image.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/basket.js" %}"></script>
+   
+    <script>
+
+        $(document).ready(function(){
+            {% if nav.loadAnn %}
+            $("div#annotation").html('<p>{% trans "Loading annotations... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+            $("div#annotation").load(
+                {% if manager.plate %}
+                    "{% url manage_annotations "plate" manager.plate.id %}", 
+                {% endif %}
+                {% if manager.screen %}
+                    "{% url manage_annotations "screen" manager.screen.id %}", 
+                {% endif %}
+                function() {  
+                    $("a.loadAnnotation").remove();                        
+                });
+            {% else %}
+            $("a.loadAnnotation").click(function()
+            {
+                $("div#annotation").html('<p>{% trans "Loading annotations... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                $("div#annotation").load(
+                    {% if manager.plate %}
+                        "{% url manage_annotations "plate" manager.plate.id %}", 
+                    {% endif %}
+                    {% if manager.screen %}
+                        "{% url manage_annotations "screen" manager.screen.id %}", 
+                    {% endif %}
+                    function() {  
+                        $("a.loadAnnotation").remove();                        
+                    });
+                return false; 
+            });
+            {% endif %}           
+            $("a.loadData").click(function()
+            {
+                $("div#hierarchy").html('<p>{% trans "Loading hierarchy... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                $("div#hierarchy").load(
+                    {% if manager.project or manager.dataset %}
+                        {% if manager.plate %}
+                            "{% url manage_container_hierarchies_id "plate" manager.plate.id %}", 
+                        {% endif %}
+                        {% if manager.screen %}
+                            "{% url manage_container_hierarchies_id "screen" manager.screen.id %}", 
+                        {% endif %}
+                    {% else %}
+                        "{% url manage_container_hierarchies %}", 
+                    {% endif %}
+                    function() {  
+                        $("a.loadData").remove();                        
+                    });
+                return false;
+            });
+            
+            $("#annotation_tabs").tabs();
+
+            
+            
+            $("a.swapWell").click(function()
+            {
+                $("div#well_details").html('<p>{% trans "Loading image details... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                $("div#well_details").load('/webclient/well_details/well/'+this.rel+'/');
+                
+                return false;
+            });
+                        
+        });
+    </script>
+    <script>
+    var popup = function (url) {
+          window.open(url,'_blank','toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800');
+          return false;
+    }
+    </script>
+    
+{% endblock %}
+
+{% block center %}
+
+{% if form_users %}
+<div class="box">
+    {% for field in form_users %}{{ field.label_tag }} {{ field }} <br/>{% if field.errors %} {{ field.errors }} {% endif %} {{ field.help_text }}{% endfor %}
+</div>
+{% endif %}
+
+<!--{% if form_mygroups %}
+<div class="box">&nbsp;
+    {% for field in form_mygroups %}{{ field.label_tag }} {{ field }}{% if field.errors %} {{ field.errors }} {% endif %} {{ field.help_text }}{% endfor %}
+</div>
+{% endif %}-->
+
+<div class="clear"></div>
+
+{% if manager.plate %}
+    <div class="screen"><h1>{% trans "Plate" %} ({% if manager.c_size %}{{ manager.c_size }} {% trans "wells" %}{% else %}{% trans "No wells." %}{% endif %})
+    : {{ manager.plate.fullNameWrapped }} {% if not manager.plate.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}</h1>
+    </div>
+
+    <div class="toolbar">
+        {% if manager.plate.isOwned %}<!--| <a href="#" onclick="toBasket('plate', '{{ manager.plate.id }}'); return false;">{% trans "Select" %} <img src="{% url webstatic "images/basket16.png" %}" alt="b" title="add to basket"/></a>--> 
+        | <a href="#" onclick="copyToClipboard('plate', '{{ manager.plate.id }}'); return false;">{% trans "Copy" %} <img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> 
+        | <a href="#" onclick="pasteFromClipboard('plate', '{{ manager.plate.id }}', '{{ url }}'); return false;">{% trans "Paste" %} <img src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="p" title="paste"/></a> 
+        | <a href="{% url manage_action_containers "edit" "plate" manager.plate.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a> {% endif %}
+        | <a href="#annotation_form">{% trans "Annotate" %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotate"/></a> |
+    </div>
+    
+    <div class="clear"></div>
+    <div><p>{{ manager.plate.description|default_if_none:"no description"|linebreaks }}</p></div>
+    
+    <div class="separate30"></div>
+    
+    <div class="clear"></div>
+
+    <div>
+        <form action="" method="POST">
+        <table>
+          <tbody>
+            {% for field in form_well_index %}
+            <tr><th>{{ field.label_tag }}</th><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        </form>
+    </div>
+    <div class="miniplateview">
+    <table class="spw">
+        <tr><th></th>
+            {% for cn in manager.names.column_names %}
+            <th>{{ cn }}</th>
+            {% endfor %}
+        </tr>
+        {% for row in manager.containers.wells %}
+        <tr>
+            <th>{{ row.0 }}</th>
+            {% for col in row.1 %}
+            {% if col.1.isWellSample %}
+            <td class="full"><a href="#" rel="{{ col.1.id }}/{{ manager.index }}" class="swapWell"><img class="imgzoom" src="{% url render_thumbnail_resize 25 col.1.selectedWellSample.image.id %}" alt="" title="{{ row.0 }}-{{ col.0 }}"/></a></td>
+            {% else %}
+            <td></td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table></div>
+    
+    <div id="well_details" class="metadata"></div>
+    
+    {% include "omeroweb/container_paging.html" %}
+
+    <div class="clear"> </div>
+
+    <div class="separate70"></div>
+
+    <div id="annotation">
+    <h1>{% trans "Annotations" %}:</h1>
+    {% if manager.dataset %}
+        {% if manager.dataset.countAnnotations %}<a href="#" class="loadAnnotation">{% trans "Show annotations associated with" %}... [{{ manager.dataset.countAnnotations }}]</a>
+        {% endif %}
+    {% else %}
+        {% if manager.project %}
+            {% if manager.project.countAnnotations %}<a href="#" class="loadAnnotation">{% trans "Show annotations associated with" %}... [{{ manager.project.countAnnotations }}]</a>{% endif %}
+        {% else %}
+            {% if manager.plate %}
+                {% if manager.plate.countAnnotations %}<a href="#" class="loadAnnotation">{% trans "Show annotations associated with" %}... [{{ manager.plate.countAnnotations }}]</a>{% endif %}
+            {% else %}
+                {% if manager.screen %}
+                    {% if manager.screen.countAnnotations %}<a href="#" class="loadAnnotation">{% trans "Show annotations associated with" %}... [{{ manager.screen.countAnnotations }}]</a>{% endif %}
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    {% endif %}
+    </div>
+
+    {% include "omeroweb/annotations_form.html" %}
+    <div class="clear"> </div>
+
+    <div>
+        {% if manager.dataset %}
+            <h1>{% trans "Where this dataset is is linked?" %}</h1>
+        {% else %}
+            {% if manager.project %}
+                <h1>{% trans "Where this project is linked?" %}</h1>
+            {% else %}
+                {% if manager.plate %}
+                    <h1>{% trans "Where this plate is linked?" %}</h1>
+                {% else %}
+                    {% if manager.screen %}<h1>{% trans "Where this screen is linked?" %}</h1>{% endif %}
+                {% endif %}
+            {% endif %}
+        {% endif %}
+        <a href="#" class="loadData">{% trans "Show the hierarchy structure" %}...</a></div>
+    <div id="hierarchy"> </div>
+
+{% endif %}
+
+{% endblock %}
+
+{% block advice %}
+    {% include "omeroweb/advice.html" %}
+{% endblock %}

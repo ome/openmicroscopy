@@ -1,0 +1,9 @@
+table.spw td {
+    border: 1px solid #bbb;
+    width: 25px;
+}
+table.spw td.full {
+    border: 1px solid #bbb;
+    width: 25px;
+    background: #eee;
+}
