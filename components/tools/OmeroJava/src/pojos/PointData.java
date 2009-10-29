@@ -30,7 +30,10 @@ package pojos;
 import omero.RDouble;
 import omero.RString;
 import omero.rtypes;
+import omero.model.Line;
+import omero.model.LineI;
 import omero.model.Point;
+import omero.model.PointI;
 import omero.model.Shape;
 
 /**
@@ -58,6 +61,29 @@ public class PointData
 	public PointData(Shape shape)
 	{
 		super(shape);
+	}
+	
+
+	/**
+	 * Create a new instance of PointData, creating a new pointI Object.
+	 */
+	public PointData()
+	{
+		this(0.0, 0.0);
+	}
+	
+	/**
+	 * Create a new instance of the PointData, 
+	 * @param x x-coordinate of the shape.
+	 * @param y y-coordinate of the shape.
+	 */
+	public PointData(double x, double y)
+	{
+		Point shape = new PointI();
+		setValue(shape);
+		setShapeSettings(shape);
+		setX(x);
+		setY(y);
 	}
 	
 	/**

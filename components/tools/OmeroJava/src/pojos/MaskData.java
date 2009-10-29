@@ -33,7 +33,10 @@ import java.awt.Color;
 import omero.RDouble;
 import omero.RString;
 import omero.rtypes;
+import omero.model.Line;
+import omero.model.LineI;
 import omero.model.Mask;
+import omero.model.MaskI;
 import omero.model.Shape;
 
 
@@ -62,6 +65,35 @@ public class MaskData
 	public MaskData(Shape shape)
 	{
 		super(shape);
+	}
+	
+	/**
+	 * Create a new instance of MaskData, creating a new MaskI Object.
+	 */
+	public MaskData()
+	{
+		this(0.0, 0.0, 0.0, 0.0, null);
+	}
+	
+	/**
+	 * Create a new instance of the MaskData, 
+	 * @param x x-coordinate of the shape.
+	 * @param y y-coordinate of the shape.
+	 * @param widht width of the shape.
+	 * @param height height of the shape.
+	 * @param mask The mask image.
+	 */
+	public MaskData(double x, double y, double width, double height,
+			BufferedImage mask)
+	{
+		Mask shape = new MaskI();
+		setValue(shape);
+		setShapeSettings(shape);
+		this.setX(x);
+		this.setY(y);
+		this.setWidth(width);
+		this.setHeight(height);
+		this.setMask(mask);
 	}
 	
 	/**
@@ -202,6 +234,15 @@ public class MaskData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setHeight(rtypes.rdouble(height));
+	}
+	
+	/**
+	 * Set the mask image.
+	 * @param mask See above.
+	 */
+	public void setMask(BufferedImage mask)
+	{
+		
 	}
 	
 	/**

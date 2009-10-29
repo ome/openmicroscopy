@@ -88,6 +88,8 @@ public class ROIData
 		}
 	}
 	
+	
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -98,6 +100,34 @@ public class ROIData
 		super();
 		setValue(roi);
 		if (roi != null) initialize();
+	}
+	
+	/**
+	 * Create a new instance of an ROIData object.
+	 */
+	public ROIData()
+	{
+		super();
+		roiShapes = new TreeMap<ROICoordinate, List<ShapeData>>
+		(new ROICoordinate());
+	}
+
+	/**
+	 * Add ShapeData object to ROIData.
+	 * @param shape See above.
+	 */
+	public void addShapeData(ShapeData shape)
+	{
+		ROICoordinate coord = shape.getROICoordinate();
+		List<ShapeData> shapeList;
+		if(!roiShapes.containsKey(coord))
+		{
+			shapeList = new ArrayList<ShapeData>();
+			roiShapes.put(coord, shapeList);
+		}
+		else
+			shapeList = roiShapes.get(coord);
+		shapeList.add(shape);
 	}
 	
 	/**

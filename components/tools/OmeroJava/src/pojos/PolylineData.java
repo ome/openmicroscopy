@@ -34,6 +34,9 @@ import java.awt.geom.Point2D;
 import omero.RDouble;
 import omero.RString;
 import omero.rtypes;
+import omero.model.Polygon;
+import omero.model.PolygonI;
+import omero.model.PolylineI;
 import omero.model.Shape;
 import omero.model.Polyline;
 
@@ -66,6 +69,26 @@ public class PolylineData
 	{
 		super(shape);
 		points = parsePointsToList();
+	}
+	
+	/**
+	 * Create a new instance of Polyline, creating a new PolylineI Object.
+	 */
+	public PolylineData()
+	{
+		this(new ArrayList<Point2D>());
+	}
+	
+	/**
+	 * Create a new instance of the Polyline, set the points in the polyline.
+	 * @param points See Above.
+	 */
+	public PolylineData(List<Point2D> points)
+	{
+		Polyline shape = new PolylineI();
+		setValue(shape);
+		setShapeSettings(shape);
+		setPoints(points);
 	}
 	
 	/**

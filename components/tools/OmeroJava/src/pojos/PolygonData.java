@@ -34,6 +34,9 @@ import java.awt.geom.Point2D;
 import omero.RDouble;
 import omero.RString;
 import omero.rtypes;
+import omero.model.PolygonI;
+import omero.model.Rect;
+import omero.model.RectI;
 import omero.model.Shape;
 import omero.model.Polygon;
 
@@ -66,6 +69,26 @@ public class PolygonData
 	{
 		super(shape);
 		points = parsePointsToList();
+	}
+	
+	/**
+	 * Create a new instance of PolygonData, creating a new PolygonI Object.
+	 */
+	public PolygonData()
+	{
+		this(new ArrayList<Point2D>());
+	}
+	
+	/**
+	 * Create a new instance of the PolygonData, set the points in the polygon.
+	 * @param points See Above.
+	 */
+	public PolygonData(List<Point2D> points)
+	{
+		Polygon shape = new PolygonI();
+		setValue(shape);
+		setShapeSettings(shape);
+		setPoints(points);
 	}
 	
 	/**

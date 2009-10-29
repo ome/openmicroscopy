@@ -30,7 +30,10 @@ package pojos;
 import omero.RDouble;
 import omero.RString;
 import omero.rtypes;
+import omero.model.Ellipse;
+import omero.model.EllipseI;
 import omero.model.Rect;
+import omero.model.RectI;
 import omero.model.Shape;
 
 /**
@@ -58,6 +61,33 @@ public class RectangleData
 	public RectangleData(Shape shape)
 	{
 		super(shape);
+	}
+	
+	/**
+	 * Create a new instance of RectangleData, creating a new EllipseI Object.
+	 */
+	public RectangleData()
+	{
+		this(0.0, 0.0, 0.0, 0.0);
+	}
+	
+	/**
+	 * Create a new instance of the RectangleData, set the x, y coord and 
+	 * Width and height.
+	 * @param x See Above.
+	 * @param y See Above..
+	 * @param width See Above.
+	 * @param height See Above.
+	 */
+	public RectangleData(double x, double y, double width, double height)
+	{
+		Rect shape = new RectI();
+		setValue(shape);
+		setShapeSettings(shape);
+		setX(x);
+		setY(y);
+		setWidth(width);
+		setHeight(height);
 	}
 	
 	/**

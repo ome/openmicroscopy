@@ -202,6 +202,32 @@ public abstract class ShapeData
 		shape.setTheT(rtypes.rint(theT));
 	}
 	
+	/** 
+	 * Set the ROICoordinate for the ShapeData 
+	 * @param roiCoordinate See above.
+	 */
+	public void setROICoordinate(ROICoordinate coord)
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		setZ(coord.getZSection());
+		setT(coord.getTimePoint());
+	}
+	
+	/** 
+	 * Get the ROICoordinate for the ShapeData 
+	 * @return See above.
+	 */
+	public ROICoordinate getROICoordinate()
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		return new ROICoordinate(getZ(), getT());
+	}
+	
+	
 	/**
 	 * Returns the transformation.
 	 * 
@@ -230,6 +256,12 @@ public abstract class ShapeData
 		shape.setTransform(rtypes.rstring(transform));
 	}
 
-	
-	
+	/**
+	 * Has the figure been changed from the server side version.
+	 * @param dirty See above. 
+	 */
+	public void setDirty(boolean dirty)
+	{
+		super.setDirty(dirty);
+	}
 }
