@@ -239,7 +239,13 @@ public abstract class ErrorHandler implements IObserver, IObservable {
                 postList.add(new StringPart("absolute_path", errorContainer
                         .getAbsolutePath()));
 
+                if (sendLogs)
+                {
+                    errorContainer.addFile(config.getLogFile());
+                }
+                
                 String[] files = errorContainer.getFiles();
+                
                 if (files != null && files.length > 0) {
                     for (String f : errorContainer.getFiles()) {
                         File file = new File(f);

@@ -23,6 +23,8 @@
 package ome.formats.importer.util;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Brian W. Loranger
@@ -46,17 +48,23 @@ public class ErrorContainer
     private File selected_file = null;
     private String file_type = "";
     private String file_format = "";
-    private String[] files;
+    private List<String> filesArray = new ArrayList<String>();
     private String absolute_path;
     private int status = -1;
     private int index = 0;
+    
+    public void addFile(String s)
+    {
+        filesArray.add(s);
+    }
     
     /**
      * @return Returns the files.
      */
     public String[] getFiles()
     {
-        return files;
+        String[] files = new String[filesArray.size()];
+        return filesArray.toArray(files);
     }
     
     /**
@@ -64,7 +72,10 @@ public class ErrorContainer
      */
     public void setFiles(String[] files)
     {
-        this.files = files;
+        for (String f : files)
+        {
+            filesArray.add(f);
+        }
     }
     
     /**
