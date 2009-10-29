@@ -187,7 +187,7 @@ public class CommandLineImporter {
                                         + "\n"
                                         + "  --debug[=0|1|2]\tTurn debug logging on (optional level)\n"
                                         + "  --report\tReport errors to the OME team\n"
-                                        + "  --upload\tUpload broken files with report\n"
+                                        + "  --upload\tUpload broken files and log file with report\n"
                                         + "  --email=...\tEmail for reported errors\n "
                                         + "\n"
                                         + "usage ex: %s -s localhost -u bart -w simpson -d 50 foo.tiff\n"
