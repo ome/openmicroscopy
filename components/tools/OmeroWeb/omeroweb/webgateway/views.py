@@ -317,7 +317,7 @@ def getImgDetailsFromReq (request, as_string=False):
     return rv
 
 @timeit
-def render_thumbnail (request, server_id, iid, **kwargs):
+def render_thumbnail (request, iid, server_id=None, **kwargs):
     """ Returns an HttpResponse wrapped jpeg with the rendered thumbnail for image 'iid' """
     jpeg_data = webgateway_cache.getThumb(request, server_id, iid)
     if jpeg_data is None:
