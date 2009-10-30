@@ -43,6 +43,7 @@ import java.util.List;
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.Handle;
+import org.jhotdraw.geom.BezierPath;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -255,7 +256,10 @@ public class MeasureLineFigure
 	public void transform(AffineTransform tx)
 	{
 		if(!readOnly)
+		{
 			super.transform(tx);
+			this.setObjectDirty(true);
+		}
 	}
 		
 	/**
@@ -265,7 +269,10 @@ public class MeasureLineFigure
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
 		if(!readOnly)
+		{
 			super.setBounds(anchor, lead);
+			this.setObjectDirty(true);
+		}
 	}
 		
 	/**
@@ -598,7 +605,11 @@ public class MeasureLineFigure
 	/**
 	 * Overridden method for bezier, make public what 7.0 made private.
 	 */
-	public void removeAllNodes() { super.removeAllNodes(); }
+	public void removeAllNodes() 
+	{ 
+		super.removeAllNodes(); 
+		this.setObjectDirty(true);
+	}
 	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
@@ -677,7 +688,105 @@ public class MeasureLineFigure
 		that.setObjectDirty(true);
 		return that;
 	}
-	
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * BezierFigure#setClosed(boolean)
+	 */
+	public void setClosed(boolean newValue) 
+	{
+		super.setClosed(newValue);
+		this.setObjectDirty(true);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * BezierFigure#setBezierPath(BezierPath)
+	 */
+	public void setBezierPath(BezierPath newValue) 
+	{
+		super.setBezierPath(newValue);
+		this.setObjectDirty(true);
+	}
+	   
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * BezierFigure#setEndPoint(Point2D)
+	 */
+	public void setEndPoint(Point2D.Double p) 
+	{
+		super.setEndPoint(p);
+		this.setObjectDirty(true);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * BezierFigure#setNode(Point2D)
+	 */
+	public void setNode(int index, BezierPath.Node p) 
+	{
+		super.setNode(index, p);
+		this.setObjectDirty(true);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * BezierFigure#setPoint(int, int, Point2D)
+	 */
+	public void setPoint(int index, int coord, Point2D.Double p) 
+	{
+		super.setPoint(index, coord, p);
+		this.setObjectDirty(true);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * BezierFigure#setStartPoint(Point2D)
+	 */
+	public void setStartPoint(Point2D.Double p) 
+	{
+		super.setStartPoint(p);
+		this.setObjectDirty(true);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * BezierFigure#splitSegment(Point2D)
+	 */
+	public int splitSegment(Point2D.Double split) 
+	{
+		this.setObjectDirty(true);
+		return super.splitSegment(split);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * BezierFigure#splitSegment(Point2D, float)
+	 */
+	public int splitSegment(Point2D.Double split, float tolerance) 
+	{
+		this.setObjectDirty(true);
+		return super.splitSegment(split, tolerance);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * BezierFigure#joinSegments(Point2D, float)
+	 */
+	public int joinSegments(Point2D.Double join, float tolerance) 
+	{
+		this.setObjectDirty(true);
+		return super.joinSegments(join, tolerance);
+	}
+
 }
 
 

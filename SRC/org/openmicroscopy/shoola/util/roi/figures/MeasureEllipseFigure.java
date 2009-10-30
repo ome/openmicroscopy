@@ -518,7 +518,10 @@ public class MeasureEllipseFigure
 	public void transform(AffineTransform tx)
 	{
 		if (!readOnly)
+		{
+			this.setObjectDirty(true);
 			super.transform(tx);
+		}
 	}
 		
 	/**
@@ -528,7 +531,10 @@ public class MeasureEllipseFigure
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
 		if (!readOnly)
+		{
+			this.setObjectDirty(true);
 			super.setBounds(anchor, lead);
+		}
 	}
 	
 	/**

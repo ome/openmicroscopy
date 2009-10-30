@@ -282,10 +282,12 @@ public class MeasurePointFigure
 	public void transform(AffineTransform tx)
 	{
 		if(!readOnly)
+		{
 			super.transform(tx);
+			this.setObjectDirty(true);
+		}
 	}
-	
-	
+		
 	/**
 	 * Overridden to stop updating shape if readonly.
 	 * @see AbstractAttributedFigure#setBounds(Double, Double)
@@ -293,7 +295,10 @@ public class MeasurePointFigure
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
 		if(!readOnly)
+		{
 			super.setBounds(anchor, lead);
+			this.setObjectDirty(true);
+		}
 	}
 	
 
