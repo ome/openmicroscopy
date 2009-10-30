@@ -94,10 +94,10 @@ public class ServerROIStrategy
 	 * 
 	 * @param output
 	 * @param component
-	 * @throws ParsingException
+	 * @throws Exception 
 	 */
 	public void write(ROIComponent component)
-		throws ParsingException
+		throws Exception
 	{
 		if(component.getROIMap().size() == 0)
 			return;

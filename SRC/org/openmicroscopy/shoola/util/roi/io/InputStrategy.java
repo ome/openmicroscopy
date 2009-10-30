@@ -413,7 +413,7 @@ public class InputStrategy
 	}
 		
 	/**
-	 * Add the annotaiton to the shape from the xml element.
+	 * Add the annotation to the shape from the XML element.
 	 * @param annotationElement the element.
 	 * @param shape the ROI shape.
 	 */
