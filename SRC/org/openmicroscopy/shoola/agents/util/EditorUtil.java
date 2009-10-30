@@ -85,6 +85,9 @@ import pojos.WellData;
 public class EditorUtil 
 {
 	
+	/** The default value for the scale bar. */
+	public static final int		DEFAULT_SCALE = 5;
+
 	/** Default text displayed in the acquisition date is not available. */
 	public static final String DATE_NOT_AVAILABLE = "Not available";
 	

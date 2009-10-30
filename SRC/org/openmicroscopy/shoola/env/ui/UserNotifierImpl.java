@@ -36,6 +36,7 @@ import javax.swing.JFrame;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
+import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
@@ -299,6 +300,9 @@ public class UserNotifierImpl
 		} else if (activity instanceof DownloadActivityParam) {
 			DownloadActivityParam p = (DownloadActivityParam) activity;
 			comp = new DownloadActivity(this, manager.getRegistry(), p);
+		} else if (activity instanceof FigureActivityParam) {
+			FigureActivityParam p = (FigureActivityParam) activity;
+			comp = new FigureActivity(this, manager.getRegistry(), p);
 		}
 		if (comp != null) {
 			UserNotifierLoader loader = comp.createLoader();

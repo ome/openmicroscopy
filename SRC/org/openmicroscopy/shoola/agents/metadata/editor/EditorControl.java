@@ -417,6 +417,9 @@ class EditorControl
 		} else if (MetadataViewer.ACTIVITY_OPTIONS_PROPERTY.equals(name)) {
 			List l = (List) evt.getNewValue();
 			view.activityOptions((Component) l.get(0), (Point) l.get(1));
+		} else if (SplitViewFigureDialog.SPLIT_FIGURE_PROPERTY.equals(
+				name)) {
+			view.createFigure(evt.getNewValue());
 		}
 	}
 

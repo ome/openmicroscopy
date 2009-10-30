@@ -51,18 +51,18 @@ import pojos.ImageData;
 import pojos.PixelsData;
 
 /** 
-* List of methods to view images or thumbnails.
-*
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
-* <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
-* @version 3.0
-* <small>
-* (<b>Internal version:</b> $Revision: $ $Date: $)
-* </small>
-* @since OME2.2
-*/
+ * List of methods to view images or thumbnails.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * </small>
+ * @since OME2.2
+ */
 public interface OmeroImageService
 {
   
@@ -513,4 +513,17 @@ public interface OmeroImageService
 	public Object exportImageAsOMETiff(long imageID, File folder)
 		throws DSOutOfServiceException, DSAccessException;
 
+	/**
+	 * Creates a figure composed of the specified images.
+	 * 
+	 * @param parameters The parameters to create the figure.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Object createFigure(List<Long> imageIDs, Object parameters)
+		throws DSOutOfServiceException, DSAccessException;
+	
 }

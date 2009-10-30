@@ -338,7 +338,6 @@ public class NullRenderingService
 	public TextureData renderProjectedAsTexture(long pixelsID, int startZ,
 			int endZ, int stepping, int type, List<Integer> channels)
 			throws RenderingServiceException, DSOutOfServiceException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -354,8 +353,17 @@ public class NullRenderingService
 
 	public Object importImage(DataObject container, File file,
 			StatusLabel status, long userID, long groupID, boolean archived,
-			String name, int depth) throws ImportException {
-		// TODO Auto-generated method stub
+			String name, int depth) throws ImportException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#createFigure(List, Object)
+     */
+	public Object createFigure(List<Long> imageIDs, Object parameters)
+			throws DSOutOfServiceException, DSAccessException {
 		return null;
 	}
 

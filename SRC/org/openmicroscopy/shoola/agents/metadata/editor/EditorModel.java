@@ -1963,7 +1963,13 @@ class EditorModel
 			return renderer.getPixelsDimensionsC() >= Renderer.MAX_CHANNELS;
 		ImageData img = (ImageData) refObject;
 		return img.getDefaultPixels().getSizeC() >= Renderer.MAX_CHANNELS;
-		//return img.isLifetime();
 	}
+
+	/**
+	 * Creates a figure.
+	 * 
+	 * @param value The value containing the parameters for the figure.
+	 */
+	void createFigure(Object value) { parent.createFigure(value); }
 	
 }

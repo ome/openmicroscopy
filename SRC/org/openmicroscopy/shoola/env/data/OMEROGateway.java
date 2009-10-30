@@ -38,6 +38,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -55,6 +56,7 @@ import loci.formats.FormatException;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
+import org.openmicroscopy.shoola.env.data.model.SplitViewFigureParam;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
@@ -4515,6 +4517,105 @@ class OMEROGateway
 		return -1;
 	}
 	
+	/**
+	 * Creates a split view figure. 
+	 * Returns the id of the annotation hosting the figure.
+	 * 
+	 * @param imageIDs		The id of the image composing the figure.
+	 * @param param 	The parameters to use.	
+	 * @param userID		The id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	long createSplitViewFigure(List<Long> imageIDs,
+			SplitViewFigureParam param, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			IScriptPrx svc = getScripService();
+			Map<Long, String> scripts = svc.getScripts();
+			if (scripts == null) return -1;
+			long id = -1;
+			Entry en;
+			Iterator j = scripts.entrySet().iterator();
+			long value;
+			while (j.hasNext()) {
+				en = (Entry) j.next();
+				if (en.getValue().equals("splitViewFigure.py")) {
+					value = (Long) en.getKey();
+					if (value > id) id = value;
+				}
+			}
+			if (id <= 0) return -1;
+
+			List<RType> ids = new ArrayList<RType>(imageIDs.size());
+			Iterator<Long> i = imageIDs.iterator();
+			while (i.hasNext()) 
+				ids.add(omero.rtypes.rlong(i.next()));
+			
+			//merge channels
+			Map<String, RType> merge = new LinkedHashMap<String, RType>();
+			Entry entry;
+			Map<Integer, Integer> mergeChannels = param.getMergeChannels();
+			j = mergeChannels.entrySet().iterator();
+			while (j.hasNext()) {
+				entry = (Entry) j.next();
+				merge.put(""+(Integer) entry.getKey(), 
+						omero.rtypes.rlong((Integer) entry.getValue()));
+			}
+			//split
+			Map<String, RType> split = new LinkedHashMap<String, RType>();
+			Map<Integer, String> splitChannels = param.getSplitChannels();
+			j = mergeChannels.entrySet().iterator();
+			while (j.hasNext()) {
+				entry = (Entry) j.next();
+				split.put(""+(Integer) entry.getKey(), 
+						omero.rtypes.rstring((String) entry.getValue()));
+			}
+			
+			ParametersI parameters = new ParametersI();
+			parameters.map.put("imageIds", omero.rtypes.rlist(ids));
+			parameters.map.put("zStart", omero.rtypes.rlong(param.getStartZ()));
+			parameters.map.put("zEnd", omero.rtypes.rlong(param.getEndZ()));
+			
+			parameters.map.put("splitChannelNames", omero.rtypes.rmap(split));
+			parameters.map.put("mergedColours", omero.rtypes.rmap(merge));
+			parameters.map.put("splitPanelsGrey", 
+					omero.rtypes.rbool(param.isSplitGrey()));
+			parameters.map.put("scalebar", omero.rtypes.rlong(
+					param.getScaleBar()));
+			parameters.map.put("overlayColour", omero.rtypes.rlong(
+					param.getColor()));
+			parameters.map.put("width", omero.rtypes.rlong(param.getWidth()));
+			parameters.map.put("height", omero.rtypes.rlong(param.getHeight()));
+			parameters.map.put("stepping", 
+					omero.rtypes.rlong(param.getStepping()));
+			parameters.map.put("format", 
+					omero.rtypes.rstring(param.getFormatAsString()));
+			parameters.map.put("algorithm", 
+					omero.rtypes.rlong(param.getProjectionType()));
+			parameters.map.put("figureName", 
+					omero.rtypes.rstring(param.getName()));
+			parameters.map.put("imageLabels", 
+					omero.rtypes.rstring(param.getLabelAsString()));
+			Map<String, RType> result = svc.runScript(id, parameters.map);
+			RLong type = (RLong) result.get("fileAnnotation");
+
+			if (type == null) return -1;
+			return type.getValue();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			handleException(e, "Cannot create a spit view figure " +
+					"for specified images.");
+		}
+		return -1;
+	}
+
 	/**
 	 * Performs a basic fit. Returns the file hosting the results.
 	 * 

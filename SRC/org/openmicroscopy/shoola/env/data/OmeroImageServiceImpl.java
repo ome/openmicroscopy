@@ -60,6 +60,7 @@ import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
+import org.openmicroscopy.shoola.env.data.model.SplitViewFigureParam;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
@@ -713,6 +714,26 @@ class OmeroImageServiceImpl
 		if (file == null)
 			throw new IllegalArgumentException("No File specified.");
 		return gateway.exportImageAsOMETiff(file, imageID);
+	}
+
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#createFigure(List, Object)
+	 */
+	public Object createFigure(List<Long> imageIDs, Object parameters)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		if (parameters == null)
+			throw new IllegalArgumentException("No parameters");
+		ExperimenterData exp = (ExperimenterData) context.lookup(
+				LookupNames.CURRENT_USER_DETAILS);
+		if (parameters instanceof SplitViewFigureParam) {
+			SplitViewFigureParam p = (SplitViewFigureParam) parameters;
+			long id = gateway.createSplitViewFigure(imageIDs, p, exp.getId());
+			if (id < 0) return null;
+			return context.getMetadataService().loadAnnotation(id);
+		}
+		return null;
 	}
 	
 }

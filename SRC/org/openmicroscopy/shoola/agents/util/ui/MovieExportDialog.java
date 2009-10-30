@@ -98,9 +98,6 @@ public class MovieExportDialog
 	/** The title of the dialog. */
 	private static final String		TITLE = "Movie Creation";
 	
-	/** The default value for the scale bar. */
-	private static final int		DEFAULT_SCALE = 5;
-	
 	/** Button to close the dialog. */
 	private JButton					closeButton;
 	
@@ -213,7 +210,7 @@ public class MovieExportDialog
 		showScaleBar.setActionCommand(""+SCALE_BAR);
 		showScaleBar.addActionListener(this);
 		scaleBar = new NumericalTextField();
-		scaleBar.setText(""+DEFAULT_SCALE);
+		scaleBar.setText(""+EditorUtil.DEFAULT_SCALE);
 		
 		fps = new JSpinner();
 		fps.setValue(MovieExportParam.DEFAULT_FPS);

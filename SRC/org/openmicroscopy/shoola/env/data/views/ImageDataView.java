@@ -74,7 +74,7 @@ public interface ImageDataView
      * 
      * @param pixelsID  The id of the pixels set.
      * @param index		One of the constants defined by this class.
-     * @param observer  Callback handler.
+     * @param observer  Call-back handler.
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle loadRenderingControl(long pixelsID, int index,
@@ -85,7 +85,7 @@ public interface ImageDataView
      * 
      * @param pixelsID  The id of the pixels set.
      * @param pd        The plane to render.
-     * @param observer  Callback handler.
+     * @param observer  Call-back handler.
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle render(long pixelsID, PlaneDef pd, 
@@ -95,7 +95,7 @@ public interface ImageDataView
      * Retrieves the pixels set.
      * 
      * @param pixelsID	The id of the pixels set.
-     * @param observer	Callback handler.
+     * @param observer	Call-back handler.
      * @return See above.
      */
     public CallHandle loadPixels(long pixelsID, 
@@ -109,7 +109,7 @@ public interface ImageDataView
      * 					Mustn't be <code>null</code>.
      * @param shapes	Collection of shapes to analyze. 
      * 					Mustn't be <code>null</code>.
-     * @param observer	Callback handler.
+     * @param observer	Call-back handler.
      * @return See above.
      */
     public CallHandle analyseShapes(PixelsData pixels, List channels, 
@@ -119,7 +119,7 @@ public interface ImageDataView
      * Retrieves all the rendering settings associated to a given set of pixels.
      * 
      * @param pixelsID The id of the pixels set.
-     * @param observer	Callback handler.
+     * @param observer	Call-back handler.
      * @return See above.
      */
     public CallHandle getRenderingSettings(long pixelsID, 
@@ -131,7 +131,7 @@ public interface ImageDataView
      * 
      * @param pixelsID 	The id of the pixels set.
      * @param userID	The if of the users.
-     * @param observer	Callback handler.
+     * @param observer	Call-back handler.
      * @return See above.
      */
     public CallHandle getRenderingSettings(long pixelsID, long userID,
@@ -149,7 +149,7 @@ public interface ImageDataView
      * @param channels 	The collection of channels to project.
      * @param openGLSupport Pass <code>true</code> if openGL is supported,
      * 						<code>false</code> otherwise.
-     * @param observer 	Callback handler.
+     * @param observer 	Call-back handler.
      * @return See above.
      */
     public CallHandle renderProjected(long pixelsID, int startZ, int endZ,
@@ -160,7 +160,7 @@ public interface ImageDataView
      * Projects a section of the stack and returns the projected image.
      * 
      * @param ref 		The object hosting the projection's parameters.
-     * @param observer 	Callback handler.
+     * @param observer 	Call-back handler.
      * @return See above.
      */
     public CallHandle projectImage(ProjectionParam ref, 
@@ -175,7 +175,7 @@ public interface ImageDataView
      * @param rndToCopy The rendering settings to copy to the newly created one.
      * @param indexes	Collection of channel's indexes. 
      * 					Mustn't be <code>null</code>.
-     * @param observer 	Callback handler.
+     * @param observer 	Call-back handler.
      * @return See above.
      */
     public CallHandle createRndSetting(long pixelsID, RndProxyDef rndToCopy,
@@ -185,7 +185,7 @@ public interface ImageDataView
      * Loads the acquisition metadata for an image or a given channel.
      * 
      * @param refObject Either an image or a channel.
-     * @param observer	Callback handler.
+     * @param observer	Call-back handler.
      * @return See above.
      */
     public CallHandle loadAcquisitionData(Object refObject, 
@@ -196,7 +196,7 @@ public interface ImageDataView
      * 
      * @param refObject Object hosting the metadata for either an image or
      * 					a channel.
-     * @param observer	Callback handler.
+     * @param observer	Call-back handler.
      * @return See above.
      */
     public CallHandle saveAcquisitionData(Object refObject, 
@@ -209,7 +209,7 @@ public interface ImageDataView
      * @param z 		The selected z-section or <code>-1</code>.
      * @param t 		The selected timepoint or <code>-1</code>.
      * @param channel 	The selected timepoint or <code>-1</code>.
-     * @param observer	Callback handler.
+     * @param observer	Call-back handler.
      * @return See above.
      */
     public CallHandle loadPlaneInfo(long pixelsID, int z, int t, int channel, 
@@ -218,7 +218,7 @@ public interface ImageDataView
     /**
      * Loads the enumerations used for the image metadata.
      * 
-     * @param observer	Callback handler.
+     * @param observer	Call-back handler.
      * @return See above.
      */
 	public CallHandle loadImageMetadataEnumerations(AgentEventListener observer);
@@ -226,7 +226,7 @@ public interface ImageDataView
 	/**
      * Loads the enumerations used for the channel metadata.
      * 
-     * @param observer	Callback handler.
+     * @param observer	Call-back handler.
      * @return See above.
      */
 	public CallHandle loadChannelMetadataEnumerations(
@@ -242,7 +242,7 @@ public interface ImageDataView
 	 * @param groupID	The id of the group.
 	 * @param archived 	Pass <code>true</code> to archived the files, 
 	 * 					<code>false</code> otherwise.
-	 * @param observer	Callback handler.
+	 * @param observer	Call-back handler.
 	 * @return See above.
 	 */
 	public CallHandle importImages(DataObject container, List<ImportObject>
@@ -257,7 +257,7 @@ public interface ImageDataView
 	 * 					<code>null</code>.
 	 * @param userID	The id of the user.
 	 * @param groupID	The id of the group.
-	 * @param observer	Callback handler.
+	 * @param observer	Call-back handler.
 	 * @return See above.
 	 */
 	public CallHandle monitorDirectory(File directory, DataObject container, 
@@ -268,7 +268,7 @@ public interface ImageDataView
 	 * 
 	 * @param imageID 	The id of the image to load.
 	 * @param userID	The id of the user.
-	 * @param observer	Callback handler.
+	 * @param observer	Call-back handler.
 	 * @return See above.
 	 */
 	public CallHandle loadImage(long imageID, long userID, 
@@ -281,7 +281,7 @@ public interface ImageDataView
 	 * @param pixelsID 	The id of the pixels set.	
      * @param channels 	The channels to map.
      * @param param 	The parameters to create the movie.
-	 * @param observer	Callback handler.
+	 * @param observer	Call-back handler.
 	 * @return See above.
 	 */
 	public CallHandle createMovie(long imageID, long pixelsID, 
@@ -289,12 +289,23 @@ public interface ImageDataView
 			AgentEventListener observer);
 
 	/**
+	 * Creates a figure.
+	 * 
+	 * @param imageIds 	The id of the images.
+     * @param param 	The parameters to create the movie.
+	 * @param observer	Call-back handler.
+	 * @return See above.
+	 */
+	public CallHandle createFigure(List<Long> imageIds, Object param, 
+			AgentEventListener observer);
+	
+	/**
 	 * Performs a basic fit.
 	 * 
 	 * @param controlID   The id of the control image.
 	 * @param toAnalyzeID The id of the image to analyze.
 	 * @param irfID		  The id of the function linked to the control.
-	 * @param observer Callback handler.
+	 * @param observer Call-back handler.
 	 * @return See above.
 	 */
 	public CallHandle analyseFretFit(long controlID, long toAnalyzeID, 
@@ -304,7 +315,7 @@ public interface ImageDataView
 	 * Loads the instrument and its components.
 	 * 
 	 * @param instrumentID   The id of instrument
-	 * @param observer Callback handler.
+	 * @param observer Call-back handler.
 	 * @return See above.
 	 */
 	public CallHandle loadInstrumentData(long instrumentID, 
@@ -316,7 +327,7 @@ public interface ImageDataView
 	 * @param imageID 	The image's id.
 	 * @param fileID	The id of the file.
 	 * @param userID	The user's id.
-	 * @param observer	Callback handler.
+	 * @param observer	Call-back handler.
 	 * @return See above.
 	 */
 	public CallHandle loadROI(long imageID, List<Long> fileID, long userID, 
@@ -327,7 +338,7 @@ public interface ImageDataView
 	 * 
 	 * @param imageID	The image's id.
 	 * @param file		The file where to export the image.
-	 * @param observer 	Callback handler.
+	 * @param observer 	Call-back handler.
 	 * @return See above.
 	 */
 	public CallHandle exportImageAsOMETiff(long imageID, File file,

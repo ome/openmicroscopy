@@ -141,7 +141,7 @@ public class ProjectionParam
 	 * 
 	 * @param value The value to check.
 	 */
-	private void checkAlgorithm(int value)
+	static void checkProjectionAlgorithm(int value)
 	{
 		//for some strange reasons, cannot use a switch
 		if (value == MAXIMUM_INTENSITY) return;
@@ -173,7 +173,7 @@ public class ProjectionParam
 			throw new IllegalArgumentException("Optical Interval not valid.");
 		if (name == null)
 			throw new IllegalArgumentException("Image name cannot be null.");
-		checkAlgorithm(algorithm);
+		checkProjectionAlgorithm(algorithm);
 		this.algorithm = algorithm;
 		if (stepping < 1) stepping = 1;
 		this.startZ = startZ;
@@ -242,7 +242,7 @@ public class ProjectionParam
 	public int getEndZ() { return endZ; }
 	
 	/**
-	 * Returns the projeciton's algorithm. 
+	 * Returns the projection's algorithm. 
 	 * 
 	 * @return See above.
 	 */

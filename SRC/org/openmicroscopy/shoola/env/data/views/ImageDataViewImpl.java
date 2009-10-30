@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.AcquisitionDataSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.Analyser;
 import org.openmicroscopy.shoola.env.data.views.calls.EnumerationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ExportLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.FigureCreator;
 import org.openmicroscopy.shoola.env.data.views.calls.FretAnalyser;
 import org.openmicroscopy.shoola.env.data.views.calls.ImageRenderer;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesImporter;
@@ -313,6 +314,17 @@ class ImageDataViewImpl
 		return cmd.exec(observer);
 	}
 
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#createFigure(List, Object, AgentEventListener)
+     */
+	public CallHandle createFigure(List<Long> imageIds, Object param, 
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new FigureCreator(imageIds, param);
+		return cmd.exec(observer);
+	}
+	
 	/**
      * Implemented as specified by the view interface.
      * @see ImageDataView#analyseFretFit(long, long, long, AgentEventListener)

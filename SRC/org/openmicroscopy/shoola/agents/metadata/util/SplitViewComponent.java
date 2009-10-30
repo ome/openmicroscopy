@@ -157,7 +157,13 @@ class SplitViewComponent
 	 * 
 	 * @return See above.
 	 */
-	String getChannelLabel() { return field.getText(); }
+	String getChannelLabel()
+	{ 
+		String value = field.getText(); 
+		if (value == null || value.trim().length() == 0)
+			return ""+index;
+		return value.trim(); 
+	}
 	
 	/**
 	 * Resets the image.
@@ -218,6 +224,14 @@ class SplitViewComponent
 	{
 		canvas.setPreferredSize(new Dimension(width, height));
 	}
+	
+	/**
+	 * Returns <code>true</code> if the component is selected, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isSelected() { return box.isSelected(); }
 	
 	/**
 	 * Listens to the check box selection.

@@ -135,6 +135,9 @@ public interface MetadataViewer
 	/** Bound property indicating to bring up the activity options. */
 	public static final String	ACTIVITY_OPTIONS_PROPERTY = "activityOptions";
 	
+	/** Bound property indicating to create a split view figure. */
+	public static final String	SPLIT_VIEW_FIGURE_PROPERTY = "splitViewFigure";
+	
 	/** Flag to denote the <i>New</i> state. */
 	public static final int     NEW = 1;
 
@@ -464,5 +467,12 @@ public interface MetadataViewer
 	 * @param location The location of the mouse pressed.
 	 */
 	public void activityOptions(Component source, Point location);
+
+	/**
+	 * Creates a figure.
+	 * 
+	 * @param value The parameters for the figure.
+	 */
+	public void createFigure(Object value);
 	
 }

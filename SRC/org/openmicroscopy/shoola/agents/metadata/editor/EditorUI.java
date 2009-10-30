@@ -673,5 +673,12 @@ public class EditorUI
 	{
 		toolBar.launchOptions(source, p);
 	}
+
+	/**
+	 * Creates a figure.
+	 * 
+	 * @param value The value containing the parameters for the figure.
+	 */
+	void createFigure(Object value) { model.createFigure(value); }
 	
 }

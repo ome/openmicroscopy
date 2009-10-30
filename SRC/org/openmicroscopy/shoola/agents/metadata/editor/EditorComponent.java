@@ -748,6 +748,7 @@ class EditorComponent
 			String name = model.getRefObjectName();
 			SplitViewFigureDialog dialog = new SplitViewFigureDialog(f, name, 
 					model.getRenderer());
+			dialog.addPropertyChangeListener(controller);
 			dialog.centerDialog();
 		} else {
 			splitViewFigure = true;

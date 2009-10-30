@@ -39,9 +39,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
@@ -59,6 +64,7 @@ import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.ImportManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ActivationAction;
@@ -106,10 +112,14 @@ import org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject;
 import org.openmicroscopy.shoola.agents.util.finder.Finder;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
+import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
+import org.openmicroscopy.shoola.env.data.model.SplitViewFigureParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
+import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -795,12 +805,11 @@ class TreeViewerControl
 				model.copyRndSettings((ImageData) object);
 				//improve code to speed it up
 				List l = model.getSelectedBrowser().getSelectedDataObjects();
-				PasteRndSettingsCmd cmd = null;
 				Collection toUpdate;
 				if (l.size() > 1) toUpdate = l;
 				else toUpdate = model.getDisplayedImages();
 				if (toUpdate != null) {
-					cmd = new PasteRndSettingsCmd(model, 
+					PasteRndSettingsCmd cmd = new PasteRndSettingsCmd(model, 
 							PasteRndSettingsCmd.PASTE, toUpdate);
 					cmd.execute();
 				}
@@ -819,6 +828,63 @@ class TreeViewerControl
 		} else if (JXTaskPaneContainerSingle.SELECTED_TASKPANE_PROPERTY.equals(
 				name)) {
 			handleTaskPaneSelection((JXTaskPane) pce.getNewValue());
+		} else if (MetadataViewer.SPLIT_VIEW_FIGURE_PROPERTY.equals(name)) {
+			Object object = pce.getNewValue();
+			if (!(object instanceof SplitViewFigureParam)) return;
+			Collection l = model.getSelectedBrowser().getSelectedDataObjects();
+			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+			IconManager icons = IconManager.getInstance();
+			Icon icon = icons.getIcon(IconManager.SPLIT_VIEW_FIGURE_22);
+			FigureActivityParam activity;
+			List<Long> imageIds = new ArrayList<Long>();
+			Iterator i;
+			DataObject obj;
+			if (l.size() > 1) {
+				i = l.iterator();
+				while (i.hasNext()) {
+					obj = (DataObject) i.next();
+					if (obj instanceof ImageData) {
+						imageIds.add(obj.getId());
+					}
+				}
+				if (imageIds.size() == 0) return;
+				activity = new FigureActivityParam(object, imageIds, 
+						FigureActivityParam.SPLIT_VIEW_FIGURE);
+				un.notifyActivity(activity);
+				return;
+			}
+			//Ask question
+			MessageBox msg = new MessageBox(view, "Create Split View Figure", 
+			"Make a figure of the ");
+			ButtonGroup group = new ButtonGroup();
+			JRadioButton displayed = new JRadioButton("Displayed Images");
+			JRadioButton selected = new JRadioButton("Selected Image");
+			group.add(displayed);
+			group.add(selected);
+			displayed.setSelected(true);
+			JPanel p = new JPanel();
+			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+			p.add(displayed);
+			p.add(selected);
+			msg.addBodyComponent(p);
+			
+			if (msg.centerMsgBox() == MessageBox.YES_OPTION) {
+				if (displayed.isSelected()) {
+					l = model.getDisplayedImages();
+				}
+				i = l.iterator();
+				while (i.hasNext()) {
+					obj = (DataObject) i.next();
+					if (obj instanceof ImageData) {
+						imageIds.add(obj.getId());
+					}
+				}
+				if (imageIds.size() == 0) return;
+				activity = new FigureActivityParam(object, imageIds, 
+						FigureActivityParam.SPLIT_VIEW_FIGURE);
+				un.notifyActivity(activity);
+				
+			}
 		}
 	}
 	

@@ -58,6 +58,7 @@ import org.openmicroscopy.shoola.agents.util.ui.MovieExportDialog;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
+import org.openmicroscopy.shoola.env.data.model.SplitViewFigureParam;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -950,7 +951,17 @@ class MetadataViewerComponent
 		l.add(source);
 		l.add(location);
 		firePropertyChange(ACTIVITY_OPTIONS_PROPERTY, null, l);
-		
+	}
+	
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#createFigure(Object)
+	 */
+	public void createFigure(Object value)
+	{
+		if (value == null) return;
+		if (value instanceof SplitViewFigureParam)
+			firePropertyChange(SPLIT_VIEW_FIGURE_PROPERTY, null, value);
 	}
 	
 }

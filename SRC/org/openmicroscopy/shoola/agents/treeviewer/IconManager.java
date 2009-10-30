@@ -374,11 +374,14 @@ public class IconManager
     /** The <code>Movie folder</code> icon. */
     public static final int           MOVIE_FOLDER = 106;
     
+    /** The <code>Split view figure</code> icon. */
+    public static final int           SPLIT_VIEW_FIGURE_22 = 107;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 106;
+    private static final int          MAX_ID = 107;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -494,6 +497,7 @@ public class IconManager
         relPaths[FILE_SYSTEM_EXPLORER] = "nuvola_fsview16.png";
         relPaths[INFO] = "nuvola_messagebox_info16.png";
         relPaths[MOVIE_FOLDER] = "nuvola_folder_video16.png";
+        relPaths[SPLIT_VIEW_FIGURE_22] = "nuvola_folder_video16.png";
     }
     
     /** The sole instance. */
