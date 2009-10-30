@@ -40,6 +40,8 @@ import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 
+import pojos.ROIData;
+
 /**
  * Converts server ROI into the corresponding UI objects.
  *
@@ -96,12 +98,12 @@ public class ServerROIStrategy
 	 * @param component
 	 * @throws Exception 
 	 */
-	public void write(ROIComponent component)
+	public List<ROIData> write(ROIComponent component)
 		throws Exception
 	{
 		if(component.getROIMap().size() == 0)
-			return;
-		outputStrategy.writeROI(component);
+			return new ArrayList<ROIData>();
+		return outputStrategy.writeROI(component);
 	}
 	
 }

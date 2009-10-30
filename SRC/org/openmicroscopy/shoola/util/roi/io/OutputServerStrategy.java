@@ -100,12 +100,12 @@ public class OutputServerStrategy
 	 * @param component See above.
 	 * @throws Exception 
 	 */
-	public void writeROI(ROIComponent component) throws Exception
+	public List<ROIData> writeROI(ROIComponent component) throws Exception
 	{
 		this.component = component;
 		this.ROIList = new ArrayList<ROIData>();
 		parseROI();
-		writeROIData();
+		return ROIList;
 	}
 	
 	/**
@@ -123,14 +123,6 @@ public class OutputServerStrategy
 			ROIData serverROI = createServerROI(roi);
 			ROIList.add(serverROI);
 		}
-	}
-
-	/**
-	 * Write the list of ROIData to the server
-	 */
-	private void writeROIData()
-	{
-		
 	}
 	
 	/**
@@ -503,7 +495,6 @@ public class OutputServerStrategy
 		}
 		return str;
 	}
-	
 	
 }
 

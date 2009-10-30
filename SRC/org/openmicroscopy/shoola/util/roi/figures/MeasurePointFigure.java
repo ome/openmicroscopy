@@ -523,6 +523,16 @@ public class MeasurePointFigure
 		return that;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * MeasurePointFigure#setText(String)
+	 */
+	public void setText(String text)
+	{
+		super.setText(text);
+		this.setObjectDirty(true);
+	}
 }
 
 

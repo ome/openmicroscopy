@@ -642,4 +642,16 @@ public class MeasureEllipseFigure
 		that.setObjectDirty(true);
 		return that;
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * MeasureEllipseFigure#setText(String)
+	 */
+	public void setText(String text)
+	{
+		super.setText(text);
+		this.setObjectDirty(true);
+	}
+
 }

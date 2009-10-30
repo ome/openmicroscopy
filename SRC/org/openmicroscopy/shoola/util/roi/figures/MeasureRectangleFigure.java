@@ -565,6 +565,17 @@ public class MeasureRectangleFigure
 		return that;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * MeasureRectangleFigure#setText(String)
+	 */
+	public void setText(String text)
+	{
+		super.setText(text);
+		this.setObjectDirty(true);
+	}
+	
 }
 
 

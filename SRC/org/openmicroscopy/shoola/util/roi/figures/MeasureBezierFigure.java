@@ -819,6 +819,17 @@ public class MeasureBezierFigure
 		this.setObjectDirty(true);
 		return super.joinSegments(join, tolerance);
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * BezierTextFigure#setText(String)
+	 */
+	public void setText(String text)
+	{
+		super.setText(text);
+		this.setObjectDirty(true);
+	}
 
 
 }

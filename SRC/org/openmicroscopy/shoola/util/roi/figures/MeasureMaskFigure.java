@@ -598,5 +598,16 @@ public class MeasureMaskFigure
 		return that;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
+	 * MeasureMaskFigure#setText(String)
+	 */
+	public void setText(String text)
+	{
+		super.setText(text);
+		this.setObjectDirty(true);
+	}
+
 }
 
