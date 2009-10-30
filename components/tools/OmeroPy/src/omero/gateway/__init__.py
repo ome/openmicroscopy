@@ -1310,7 +1310,8 @@ class BlitzObjectWrapper (object):
         childw = self._getChildWrapper()
         klass = childw().OMERO_CLASS
         if getattr(self, 'is%sLinksLoaded' % klass)():
-            childnodes = getattr(self, 'copy%sLinks' % klass)()
+            childns = getattr(self, 'copy%sLinks' % klass)()
+            childnodes = [ x.child for x in childns]
             logger.debug('listChildren for %s %d: already loaded' % (self.OMERO_CLASS, self.getId()))
         else:
             if not params:
