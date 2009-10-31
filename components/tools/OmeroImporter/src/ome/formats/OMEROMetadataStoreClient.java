@@ -240,6 +240,14 @@ public class OMEROMetadataStoreClient
     /** Executor that will run our keep alive task. */
     private ScheduledThreadPoolExecutor executor;
     
+    /** Emission filter LSID suffix. */
+    public static final String OMERO_EMISSION_FILTER_SUFFIX =
+    	":OMERO_EMISSION_FILTER";
+    
+    /** Excitation filter LSID suffix. */
+    public static final String OMERO_EXCITATION_FILTER_SUFFIX =
+    	":OMERO_EXCITATION_FILTER";
+    
     /** Companion file namespace */
     private static final String NS_COMPANION =
     	"openmicroscopy.org/omero/import/companionFile";
@@ -3624,7 +3632,7 @@ public class OMEROMetadataStoreClient
     	// processing logic does not easily handle multiple A --> B or B --> A 
     	// linkages of the same type so we'll compromise.
     	// Thu Jul 16 13:34:37 BST 2009 -- Chris Allan <callan@blackcat.ca>
-    	emFilter += ":OMERO_EMISSION_FILTER";
+    	emFilter += OMERO_EMISSION_FILTER_SUFFIX;
         LSID key = new LSID(FilterSet.class, instrumentIndex, filterSetIndex);
         addReference(key, new LSID(emFilter));
     }
@@ -3636,7 +3644,7 @@ public class OMEROMetadataStoreClient
     	// processing logic does not easily handle multiple A --> B or B --> A 
     	// linkages of the same type so we'll compromise.
     	// Thu Jul 16 13:34:37 BST 2009 -- Chris Allan <callan@blackcat.ca>
-    	exFilter += ":OMERO_EXCITATION_FILTER";
+    	exFilter += OMERO_EXCITATION_FILTER_SUFFIX;
         LSID key = new LSID(FilterSet.class, instrumentIndex, filterSetIndex);
         addReference(key, new LSID(exFilter));
     }
@@ -3844,7 +3852,7 @@ public class OMEROMetadataStoreClient
     	// processing logic does not easily handle multiple A --> B or B --> A 
     	// linkages of the same type so we'll compromise.
     	// Thu Jul  2 12:08:19 BST 2009 -- Chris Allan <callan@blackcat.ca>
-    	secondaryEmissionFilter += ":OMERO_EMISSION_FILTER";
+    	secondaryEmissionFilter += OMERO_EMISSION_FILTER_SUFFIX;
         LSID key = new LSID(LogicalChannel.class, imageIndex,
 	                        logicalChannelIndex);
         addReference(key, new LSID(secondaryEmissionFilter));
@@ -3858,7 +3866,7 @@ public class OMEROMetadataStoreClient
     	// processing logic does not easily handle multiple A --> B or B --> A 
     	// linkages of the same type so we'll compromise.
     	// Thu Jul  2 12:08:19 BST 2009 -- Chris Allan <callan@blackcat.ca>
-    	secondaryExcitationFilter += ":OMERO_EXCITATION_FILTER";
+    	secondaryExcitationFilter += OMERO_EXCITATION_FILTER_SUFFIX;
         LSID key = new LSID(LogicalChannel.class, imageIndex,
         		            logicalChannelIndex);
         addReference(key, new LSID(secondaryExcitationFilter));
