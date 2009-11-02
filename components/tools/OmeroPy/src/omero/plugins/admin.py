@@ -487,7 +487,7 @@ OMERO Diagnostics %s
                 v = io[0].split()
                 v.extend(io[1].split())
                 v = "".join(v)
-                m = re.match("^\D*(\d[.\d]+\d)\D.*$", v)
+                m = re.match("^\D*(\d[.\d]+\d)\D?.*$", v)
                 v = "%-10s" % m.group(1)
                 self.ctx.out(v, False)
                 try:
