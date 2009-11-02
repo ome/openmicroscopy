@@ -878,7 +878,7 @@ class TreeViewerWin
 	void onActivityTerminated(ActivityComponent activity) {
 		TinyDialog d = new TinyDialog(this, activity.getActivityType(), 
 				TinyDialog.CLOSE_ONLY);
-		d.getContentPane().setBackground(Color.MAGENTA);
+		d.getContentPane().setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
 		d.addPropertyChangeListener(TinyDialog.CLOSED_PROPERTY, 
 				controller);
 		d.pack();

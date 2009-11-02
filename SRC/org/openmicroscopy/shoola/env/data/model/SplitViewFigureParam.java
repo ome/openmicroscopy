@@ -200,8 +200,11 @@ public class SplitViewFigureParam
 		while (i.hasNext()) {
 			index = i.next();
 			c = (Color) channels.get(index);
-			value = c.getRGB() & 0x00ffffff;
-			System.err.println(new Color(value));
+			value = ((c.getAlpha() & 0xFF) << 24) |
+            	((c.getRed() & 0xFF) << 16) |
+            ((c.getGreen() & 0xFF) << 8)  |
+            ((c.getBlue() & 0xFF) << 0);
+			//value = c.getRGB() & 0x00ffffff;
 			mergeChannels.put(index, value);
 		}
 	}

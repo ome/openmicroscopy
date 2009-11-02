@@ -335,7 +335,7 @@ public abstract class ActivityComponent
 	{
 		reset();
 		if (text != null) type.setText(text);
-		if (index == ADVANCED) downloadButton.setEnabled(true);
+		if (index == ADVANCED) downloadButton.setEnabled(false);
 	}
 	
 	/**

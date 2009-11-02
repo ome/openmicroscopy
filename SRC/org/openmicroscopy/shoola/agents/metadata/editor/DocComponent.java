@@ -609,6 +609,8 @@ class DocComponent
 			
 			DownloadActivityParam activity = new DownloadActivityParam(f,
 					folder, icons.getIcon(IconManager.DOWNLOAD_22));
+			//Check Name space
+			activity.setLegend(fa.getDescription());
 			un.notifyActivity(activity);
 			//un.notifyDownload((FileAnnotationData) data, folder);
 		}

@@ -58,6 +58,9 @@ public class DownloadActivityParam
     /** The file to download. */
     private OriginalFile	file;
     
+    /** Create a legend as a separate text file. */
+    private String			legend;
+    
     /**
      * Downloads the passed file.
      * 
@@ -73,8 +76,23 @@ public class DownloadActivityParam
     	this.file = file;
     	this.folder = folder;
     	this.icon = icon;
+    	legend = null;
     }
 
+    /**
+     * Sets the legend associated to the file.
+     * 
+     * @param legend The value to set.
+     */
+    public void setLegend(String legend) { this.legend = legend; }
+    
+    /**
+     * Returns the legend associated to the text. 
+     * 
+     * @return See above.
+     */
+    public String getLegend() { return legend; }
+    
 	/**
 	 * Returns the icon if set or <code>null</code>.
 	 * 

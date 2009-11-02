@@ -108,6 +108,7 @@ public class FigureActivity
 	/** Notifies to dowload the file. */
 	protected void notifyDownload()
 	{
+		//Check name space.
 		if (!(result instanceof FileAnnotationData)) {
 			downloadButton.setEnabled(false);
 			return;
@@ -133,6 +134,7 @@ public class FigureActivity
 					DownloadActivityParam activity = 
 						new DownloadActivityParam(f,
 							folder, icons.getIcon(IconManager.DOWNLOAD_22));
+					activity.setLegend(data.getDescription());
 					viewer.notifyActivity(activity);
 				}
 			}

@@ -25,7 +25,11 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.OutputStream;
+
 import omero.model.OriginalFile;
 
 //Third-party libraries
@@ -33,7 +37,9 @@ import omero.model.OriginalFile;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
+import org.openmicroscopy.shoola.util.file.IOUtil;
 import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Activity to download an image or file.
@@ -55,8 +61,14 @@ public class DownloadActivity
 	/** The description of the activity when finished. */
 	private static final String		DESCRIPTION = "File downloaded";
 	
+	/** The text and extension added to the name of the file. */
+	private static final String		LEGEND_TEXT = "Legend.txt";
+	
     /** The parameters hosting information about the file to download. */
     private DownloadActivityParam parameters;
+    
+    /** The name of the file. */
+    private String				 fileName;
     
     /**
      * Returns the name of the file. 
@@ -110,7 +122,8 @@ public class DownloadActivity
 		this.parameters = parameters;
 		File folder = parameters.getFolder();
     	File directory = folder.getParentFile();
-		messageLabel.setText(directory+File.separator+getFileName());
+    	fileName = getFileName();
+		messageLabel.setText(directory+File.separator+fileName);
     }
     
 	/**
@@ -123,7 +136,7 @@ public class DownloadActivity
 		File folder = parameters.getFolder();
     	File directory = folder.getParentFile();
 		return new FileLoader(viewer, registry, 
-				directory+File.separator+getFileName(), 
+				directory+File.separator+fileName, 
 				f.getId().getValue(), f.getSize().getValue(), this);
 	}
 
@@ -131,6 +144,28 @@ public class DownloadActivity
 	 * Modifies the text of the component. 
 	 * @see ActivityComponent#notifyActivityEnd()
 	 */
-	protected void notifyActivityEnd() { type.setText(DESCRIPTION); }
+	protected void notifyActivityEnd()
+	{ 
+		type.setText(DESCRIPTION); 
+		String legend = parameters.getLegend();
+		if (legend != null && legend.trim().length() > 0) {
+			//Write the description if any 
+			File folder = parameters.getFolder();
+	    	File directory = folder.getParentFile();
+	    	BufferedWriter out = null;
+	    	String n = UIUtilities.removeFileExtension(fileName);
+	    	try {
+	    		String name = directory+File.separator+n;
+	    		name += LEGEND_TEXT;
+	    		out = new BufferedWriter(new FileWriter(name));
+	            out.write(legend);
+	            out.close();
+			} catch (Exception e) {
+				try {
+					if (out != null) out.close();
+				} catch (Exception ex) {}
+			}
+		}
+	}
 
 }
