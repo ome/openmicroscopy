@@ -196,12 +196,13 @@ public class SplitViewFigureParam
 		Color c;
 		Integer index;
 		mergeChannels = new LinkedHashMap<Integer, Integer>(channels.size());
-		int color;
+		int value;
 		while (i.hasNext()) {
 			index = i.next();
 			c = (Color) channels.get(index);
-			color = c.getRGB() & 0x00ffffff;
-			mergeChannels.put(index, color);
+			value = c.getRGB() & 0x00ffffff;
+			System.err.println(new Color(value));
+			mergeChannels.put(index, value);
 		}
 	}
 	
@@ -353,12 +354,12 @@ public class SplitViewFigureParam
 	/**
 	 * Sets the color of the scale bar.
 	 * 
-	 * @param color The value to set.
+	 * @param c The value to set.
 	 */
-	public void setColor(Color color)
+	public void setColor(Color c)
 	{ 
-		if (color == null) return;
-		this.color = color.getRGB() & 0x00ffffff;
+		if (c == null) return;
+		this.color = c.getRGB() & 0x00ffffff;
 	}
 	
 	/**
@@ -409,6 +410,20 @@ public class SplitViewFigureParam
 			case JPEG: return "image/jpeg";
 			case PNG: return "image/png";
 		}
+	}
+	
+	/**
+	 * Returns the projection type as a string.
+	 * 
+	 * @return See above.
+	 */
+	public String getProjectionTypeAsString()
+	{
+		if (projectionType == ProjectionParam.MAXIMUM_INTENSITY)
+			return "MAXIMUMINTENSITY";
+		else if (projectionType == ProjectionParam.MEAN_INTENSITY)
+			return "MEANINTENSITY";
+		return "";
 	}
 	
 }

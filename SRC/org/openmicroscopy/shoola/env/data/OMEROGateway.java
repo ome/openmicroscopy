@@ -4551,7 +4551,6 @@ class OMEROGateway
 				}
 			}
 			if (id <= 0) return -1;
-
 			List<RType> ids = new ArrayList<RType>(imageIDs.size());
 			Iterator<Long> i = imageIDs.iterator();
 			while (i.hasNext()) 
@@ -4570,15 +4569,14 @@ class OMEROGateway
 			//split
 			Map<String, RType> split = new LinkedHashMap<String, RType>();
 			Map<Integer, String> splitChannels = param.getSplitChannels();
-			j = mergeChannels.entrySet().iterator();
+			j = splitChannels.entrySet().iterator();
 			while (j.hasNext()) {
 				entry = (Entry) j.next();
 				split.put(""+(Integer) entry.getKey(), 
 						omero.rtypes.rstring((String) entry.getValue()));
 			}
-			
 			ParametersI parameters = new ParametersI();
-			parameters.map.put("imageIds", omero.rtypes.rlist(ids));
+			parameters.map.put("imageIds", omero.rtypes.rset(ids));
 			parameters.map.put("zStart", omero.rtypes.rlong(param.getStartZ()));
 			parameters.map.put("zEnd", omero.rtypes.rlong(param.getEndZ()));
 			
@@ -4588,8 +4586,8 @@ class OMEROGateway
 					omero.rtypes.rbool(param.isSplitGrey()));
 			parameters.map.put("scalebar", omero.rtypes.rlong(
 					param.getScaleBar()));
-			parameters.map.put("overlayColour", omero.rtypes.rlong(
-					param.getColor()));
+			//parameters.map.put("overlayColour", omero.rtypes.rlong(
+			//		param.getColor()));
 			parameters.map.put("width", omero.rtypes.rlong(param.getWidth()));
 			parameters.map.put("height", omero.rtypes.rlong(param.getHeight()));
 			parameters.map.put("stepping", 
@@ -4597,19 +4595,18 @@ class OMEROGateway
 			parameters.map.put("format", 
 					omero.rtypes.rstring(param.getFormatAsString()));
 			parameters.map.put("algorithm", 
-					omero.rtypes.rlong(param.getProjectionType()));
+					omero.rtypes.rstring(param.getProjectionTypeAsString()));
 			parameters.map.put("figureName", 
 					omero.rtypes.rstring(param.getName()));
 			parameters.map.put("imageLabels", 
 					omero.rtypes.rstring(param.getLabelAsString()));
 			Map<String, RType> result = svc.runScript(id, parameters.map);
 			RLong type = (RLong) result.get("fileAnnotation");
-
+			//RLong type = null;
 			if (type == null) return -1;
 			return type.getValue();
 
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot create a spit view figure " +
 					"for specified images.");
 		}
