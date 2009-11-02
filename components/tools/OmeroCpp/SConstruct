@@ -92,6 +92,9 @@ try:
     compiler_env["CXX"] = env["CC"] # Windows
 except KeyError:
     compiler_env["CXX"] = env.get("CXX","unknown")
+# Handle the absolute path required on Windows
+compiler_env["CXX"] = os.path.basename(compiler_env["CXX"]).split(".")[0]
+
 try:
     compiler_env["CXXVERSION"] = env["MSVS_VERSION"] # Windows
 except KeyError:
@@ -122,6 +125,7 @@ srcs = env.Glob("target/**/**/*.cpp") + \
 
 target = "omero_client"
 if env.iswin32():
+    env.AppendUnique(CXXFLAGS=["/Fdomero_client.pdb"])
     target += ".dll"
 
 library = env.SharedLibrary(\

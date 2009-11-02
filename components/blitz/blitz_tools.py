@@ -1,5 +1,6 @@
 #
 #   $Id$
+#   $Id$
 #
 #   Copyright 2008 Glencoe Software, Inc. All rights reserved.
 #   Use is subject to license terms supplied in LICENSE.txt
@@ -144,7 +145,7 @@ class OmeroEnvironment(SConsEnvironment):
                   nargs=1,
                   action='store',
                   metavar='RELEASE',
-                  help='Release version')
+                  help='Release version [debug (default) or Os]')
 
         AddOption('--arch',
                   dest='arch',
@@ -152,9 +153,12 @@ class OmeroEnvironment(SConsEnvironment):
                   nargs=1,
                   action='store',
                   metavar='ARCH',
-                  help='Architecture to build for')
+                  help='Architecture to build for [x86, x64, or detect (default)]')
 
-        SConsEnvironment.__init__(self, ENV = os.environ, tools=tools, **kwargs)
+        # Very odd error: using ENV = os.environ, rather than ENV = dict(os.environ)
+        # causes *sub*processes to receive a fresh environment with registry values
+        # for PATH, LIB, etc. *pre*pended to the variables.
+        SConsEnvironment.__init__(self, ENV = dict(os.environ), tools=tools, **kwargs)
         self.Decider('MD5-timestamp')
 
         # Print statements
@@ -189,12 +193,25 @@ class OmeroEnvironment(SConsEnvironment):
         else:
             self.AppendUnique(CPPDEFINES=["WIN32_LEAN_AND_MEAN"])
             if self["CC"] == "cl":
-                self.AppendUnique(CPPFLAGS=self.Split("/MD"))
+                self.AppendUnique(CPPFLAGS=self.Split("/bigobj"))
                 self.AppendUnique(CPPFLAGS=self.Split("/EHsc"))
                 if self.isdebug():
-                    self.Append(CXXFLAGS=["/Zi"])
+                    self.Append(CXXFLAGS=["/Zi","/Od"])
+                    self.AppendUnique(CPPFLAGS = ["/MDd"])
                 else:
                     self.Append(CXXFLAGS=["/Os"])
+                    self.AppendUnique(CPPFLAGS = ["/MD"])
+
+
+                # Correcting for registry lookup under WoW64
+                # Though here the PATH adheres to the values set by
+                # vcvarsall etc., in subprocesses it revernts (via
+                # the registry?) to the default values.
+                self['LINK'] = self.which('link')
+                self['AR'] = self.which('lib')
+                self['CC'] = self.which('cl')
+                self['CXX'] = '$CC'
+                # Now CC has a non "cl" value. Can no longer use that check.
 
         # Now let user override
         if "CXXFLAGS" in os.environ:
@@ -204,12 +221,20 @@ class OmeroEnvironment(SConsEnvironment):
         # LINKFLAGS
         #
         if self.iswin32():
-            if self.isdebug():
-                self.Append(LINKFLAGS = ["/LDd"])
+            try:
+                verbosity = int(os.environ.get("VERBOSE",0))
+                if verbosity > 1:
+                    # This is VERY verbose
+                    self.AppendUnique(LINKFLAGS = ["/verbose"])
+            except ValueError:
+                pass
+
             if self.is64bit():
                 self.Append(ARFLAGS = ['/MACHINE:X64'])
                 self.Append(LINKFLAGS = ['/MACHINE:X64'])
 
+            if self.is64bit():
+                self.Append(LINKFLAGS = ['/DEBUG'])
 
         # Now let user override
         if "LINKFLAGS" in os.environ:
@@ -230,6 +255,11 @@ class OmeroEnvironment(SConsEnvironment):
         self.AppendUnique(LIBPATH=omerocpp_dir)
         if os.environ.has_key("LIBPATH"):
             self.AppendUnique(LIBPATH=os.environ["LIBPATH"].split(os.path.pathsep))
+        if self.iswin32():
+            if "LIB" in os.environ:
+                # Only LIB contains the path to the Windows SDK x64 library when starting
+                # from the VS2008 x64 command line batch.
+                self.AppendUnique(LIBPATH=os.environ["LIB"].split(os.path.pathsep))
         if ice_home:
             if self.iswin32() and self.is64bit():
                 self.Append(LIBPATH=[os.path.join(ice_home, "lib", "x64")])
@@ -267,14 +297,14 @@ class OmeroEnvironment(SConsEnvironment):
             return self._bit64
 
         ARCH = GetOption("arch")
-        if ARCH == "x86_64":
+        if ARCH == "x64":
             self._bit64 = True
         elif ARCH == "x86":
             self._bit64 = False
         else:
-            if ARCH not in [None,"default"]:
+            if ARCH not in [None,"detect"]:
                 import warnings
-                warnings.warn("Unknown arch value. Using 'defaut'")
+                warnings.warn("Unknown arch value. Using 'detect'")
             if self.iswin32():
                 # Work around for 32bit Windows executables
                 try:
@@ -295,7 +325,22 @@ class OmeroEnvironment(SConsEnvironment):
         return self._bit64
 
     def icelibs(self):
-        if self.iswin32() and self.is64bit():
+        if self.iswin32() and self.isdebug():
             return ["Iced", "IceUtild", "Glacier2d"]
         else:
             return ["Ice", "IceUtil", "Glacier2"]
+
+    def which(self, exe):
+        import which
+        file = which.which(exe)
+        rv = file
+        if file:
+            if self.iswin32():
+                import win32api
+                try:
+                    rv = win32api.GetShortPathName(file)
+                    if not os.path.exists(rv):
+                        rv = file
+                except:
+                    pass
+        return rv
