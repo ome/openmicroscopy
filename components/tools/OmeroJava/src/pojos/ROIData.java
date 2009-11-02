@@ -57,6 +57,9 @@ public class ROIData
 	/** Map hosting the shapes per plane. */
 	private TreeMap<ROICoordinate, List<ShapeData>> roiShapes;
 	
+	/** Is the object client side. */
+	private boolean clientSide;
+	
 	/** Initializes the map. */
 	private void initialize()
 	{
@@ -118,6 +121,9 @@ public class ROIData
 	 */
 	public void addShapeData(ShapeData shape)
 	{
+		Roi roi = (Roi) asIObject();
+		if (roi == null) 
+			throw new IllegalArgumentException("No Roi specified.");
 		ROICoordinate coord = shape.getROICoordinate();
 		List<ShapeData> shapeList;
 		if(!roiShapes.containsKey(coord))
@@ -128,6 +134,7 @@ public class ROIData
 		else
 			shapeList = roiShapes.get(coord);
 		shapeList.add(shape);
+		roi.addShape((Shape) shape.asIObject());
 	}
 	
 	/**
@@ -185,5 +192,21 @@ public class ROIData
 		return roiShapes.subMap(start, end).values().iterator();
 	}
 	
+	/**
+	 * Is the object a clientside object
+	 * @return See above.
+	 */
+	public boolean isClientSide()
+	{
+		return clientSide;
+	}
 	
+	/**
+	 * Is the object a clientside object
+	 * @param clientSide See above.
+	 */
+	public void setClientSide(boolean clientSide)
+	{
+		this.clientSide = clientSide;
+	}
 }
