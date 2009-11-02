@@ -33,6 +33,9 @@ import java.util.List;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
+
+import org.openmicroscopy.shoola.env.data.DSAccessException;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
@@ -40,6 +43,7 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.DataObject;
 import pojos.PixelsData;
+import pojos.ROIData;
 
 /** 
  * Provides methods to support image viewing and analysing.
@@ -331,6 +335,15 @@ public interface ImageDataView
 	 * @return See above.
 	 */
 	public CallHandle loadROI(long imageID, List<Long> fileID, long userID, 
+			AgentEventListener observer);
+	/**
+	 * Save the ROI for the image to the server..
+	 * 
+	 * @param imageID 	The image's ID.
+	 * @param userID	The user's ID.
+	 * @param roiList	The list of ROI to save.
+	 */
+	public CallHandle saveROI(long imageID,  long userID, List<ROIData> roiList,
 			AgentEventListener observer);
 
 	/**

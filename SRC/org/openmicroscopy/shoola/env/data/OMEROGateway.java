@@ -144,6 +144,7 @@ import omero.model.PlateI;
 import omero.model.Project;
 import omero.model.ProjectI;
 import omero.model.RenderingDef;
+import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.ScreenI;
 import omero.model.TagAnnotation;
@@ -170,6 +171,7 @@ import pojos.LongAnnotationData;
 import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ROIData;
 import pojos.RatingAnnotationData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
@@ -4933,6 +4935,38 @@ class OMEROGateway
 		}
 		return results;
 	}
+	
+	/**
+	 * Save the ROI for the image to the server..
+	 * 
+	 * @param imageID 	The image's ID.
+	 * @param userID	The user's ID.
+	 * @param roiList	The list of ROI to save.
+	 * @return True if the save is successful.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Boolean saveROI(long imageID,  long userID, List<ROIData> roiList)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try 
+		{
+			IUpdatePrx updateService = this.getUpdateService();
+			for(ROIData roi: roiList)
+			{
+				Roi serverRoi = (Roi)roi.asIObject();	
+				updateService.saveObject(serverRoi);
+			}
+			return true;
+		} catch (Exception e) {
+			handleException(e, "Cannot Save the ROI for image: "+imageID);
+		}
+		return false;
+	}
+	
 	
 	/**
 	 * Loads the <code>FileAnnotationData</code>s for the passed image.

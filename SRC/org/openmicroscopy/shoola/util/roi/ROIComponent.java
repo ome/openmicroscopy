@@ -158,7 +158,7 @@ public class ROIComponent
     		AttributeKeys.STROKE_COLOR.set(fig, STROKE_COLOR);
     	}
     }
-    
+        
     /**
      * Helper method to set the annotations of the newly created shape.
      * 
@@ -414,9 +414,30 @@ public class ROIComponent
 	public ROI createROI(long id)
 		throws ROICreationException
 	{
-		return roiCollection.createROI(id);
+		return roiCollection.createROI(id, true);
 	}
 
+	/**
+	 * Creates a ROI with an ROI id == id. This method is called from the IO
+	 * strategy to create a pre-existing ROI from file.
+	 * 
+	 * Note : if a ROI is created with the same ID the new ROI will replace the
+	 * old one.
+	 * 
+	 * @param id The ROI id. 
+	 * @param clientSideObject Is this object a clientside object
+	 * @return See above.
+	 * @throws ROICreationException			If an error occurred while creating 
+	 * 									   	an ROI, basic assumption is this is 
+	 * 									   	linked to memory issues.
+	 */
+	public ROI createROI(long id, boolean clientSideObject)
+		throws ROICreationException
+	{
+		return roiCollection.createROI(id, clientSideObject);
+	}
+
+	
 	/**
 	 * Create a new ROI, assign it an ROI from the getNextID call.
 	 * 

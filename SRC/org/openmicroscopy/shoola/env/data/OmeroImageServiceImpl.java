@@ -78,6 +78,7 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PixelsData;
+import pojos.ROIData;
 
 
 /** 
@@ -702,6 +703,19 @@ class OmeroImageServiceImpl
 		return gateway.loadROI(imageID, fileID, userID);
 	}
 
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#saveROI(long, long, List)
+	 */
+	public Boolean saveROI(long imageID, long userID, List<ROIData> 
+			roiList)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (imageID <= 0)
+			throw new IllegalArgumentException("No image specified.");
+		return gateway.saveROI(imageID, userID, roiList);
+	}
+	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#exportImageAsOMETiff(long, File)

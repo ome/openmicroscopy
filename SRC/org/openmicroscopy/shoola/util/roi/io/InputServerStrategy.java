@@ -158,7 +158,7 @@ class InputServerStrategy
 		throws NoSuchROIException, ROICreationException
 	{
 		long id = roi.getId();
-		ROI newROI = component.createROI(id);
+		ROI newROI = component.createROI(id, true);
 		ROIShape shape;
 		ShapeData shapeData;
 		Iterator<List<ShapeData>> i = roi.getIterator();

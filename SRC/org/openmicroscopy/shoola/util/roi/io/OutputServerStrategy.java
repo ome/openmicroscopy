@@ -135,6 +135,9 @@ public class OutputServerStrategy
 	{
 		
 		ROIData roiData = new ROIData();
+		roiData.setClientSide(roi.isClientSide());
+		if(!roi.isClientSide())
+			roiData.setId(roi.getID());
 		TreeMap<Coord3D, ROIShape> shapes =  roi.getShapes();
 		Iterator<ROIShape> shapeIterator = shapes.values().iterator();
 		while(shapeIterator.hasNext())

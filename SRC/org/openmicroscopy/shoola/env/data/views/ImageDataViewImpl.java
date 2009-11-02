@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.PlaneInfoLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ProjectionSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ROILoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ROISaver;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingControlLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
@@ -58,6 +59,7 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.DataObject;
 import pojos.PixelsData;
+import pojos.ROIData;
 
 
 /** 
@@ -346,7 +348,17 @@ class ImageDataViewImpl
 		BatchCallTree cmd = new ROILoader(imageID, fileID, userID);
 		return cmd.exec(observer);
 	}
-
+	
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#saveROI(long, Long, long, AgentEventListener)
+     */
+	public CallHandle saveROI(long imageID, long userID, List<ROIData> roiList,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ROISaver(imageID, userID, roiList);
+		return cmd.exec(observer);
+	}
 	/**
      * Implemented as specified by the view interface.
      * @see ImageDataView#exportImageAsOMETiff(long, File, AgentEventListener)

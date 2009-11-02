@@ -121,14 +121,27 @@ public class ROICollection
 	}
 	
 	/**
-	 * Create an ROI with id. Add the ROI to the ROIMap.
+	 * Create an ROI with id. Add the ROI to the ROIMap. The ROI is a client
+	 * side object.
 	 * @param id see above.
 	 * @return see above.
 	 */
 	public ROI createROI(long id)
 	{
-		ROI newROI = new ROI(id);
-		lastID = id+1;
+		return createROI(id, true);
+	}
+	
+	/**
+	 * Create an ROI with id. Add the ROI to the ROIMap, specifying if the ROI
+	 * is clientside.
+	 * @param id see above.
+	 * @param clientSideObject see above.
+	 * @return see above.
+	 */
+	public ROI createROI(long id, boolean clientSideObject)
+	{
+		ROI newROI = new ROI(id, clientSideObject);
+		if(lastID<id) lastID=id+1;
 		roiMap.add(newROI.getID(), newROI);
 		return newROI;
 	}
@@ -139,7 +152,7 @@ public class ROICollection
 	 */
 	public ROI createROI()
 	{
-		ROI newROI = new ROI(getNextID());
+		ROI newROI = new ROI(getNextID(), true);
 		roiMap.add(newROI.getID(), newROI);
 		return newROI;
 	}

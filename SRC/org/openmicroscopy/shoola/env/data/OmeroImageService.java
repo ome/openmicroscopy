@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.DataObject;
 import pojos.ImageData;
 import pojos.PixelsData;
+import pojos.ROIData;
 
 /** 
  * List of methods to view images or thumbnails.
@@ -514,6 +515,21 @@ public interface OmeroImageService
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
+	 * Saves the ROI related to the specified image to the server
+	 * 
+	 * @param imageID 	The image's ID.
+	 * @param userID	The user's ID.
+	 * @param roiList	The list of roi to save.
+	 * @return True if save successful.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Boolean saveROI(long imageID, long userID, List<ROIData> roiList)
+		throws DSOutOfServiceException, DSAccessException;
+
+	/**
 	 * Creates a figure composed of the specified images.
 	 * 
 	 * @param parameters The parameters to create the figure.
@@ -525,5 +541,5 @@ public interface OmeroImageService
 	 */
 	public Object createFigure(List<Long> imageIDs, Object parameters)
 		throws DSOutOfServiceException, DSAccessException;
-	
+
 }

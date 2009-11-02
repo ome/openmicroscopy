@@ -65,6 +65,9 @@ public class ROI
 	/** The id of the ROI. */
 	private long							id;
 	
+	/** Is the object a serverside or clientside object. */
+	private boolean clientSide;
+	
 	/** The TreeMap containing the ROI shapes of the ROI. */ 
 	TreeMap<Coord3D, ROIShape> 				roiShapes;
 	
@@ -85,9 +88,9 @@ public class ROI
      * Construct the ROI with id.
      * @param id see above.
      */
-	public ROI(long id)	
+	public ROI(long id, boolean clientSide)	
 	{
-		init(id);
+		init(id, clientSide);
 	}
 	
 	/**
@@ -125,9 +128,9 @@ public class ROI
 	 * @param coord the coord of the ROIShape being constructed with the ROI. 
 	 * @param shape the ROIShape being constructed with the ROI. 
 	 */
-	public ROI(long id, Coord3D coord, ROIShape shape)
+	public ROI(long id, boolean clientSide, Coord3D coord, ROIShape shape)
 	{
-		init(id);
+		init(id, clientSide);
 		roiShapes.put(coord, shape);
 	}
 	
@@ -136,9 +139,10 @@ public class ROI
 	 * the ROIShapes of the ROI and there mapping the coord3D they exist on.
 	 * @param id id of the ROI.
 	 */
-	private void init(long id)
+	private void init(long id, boolean clientSide)
 	{
 		this.id = id;
+		this.clientSide = clientSide;
 		roiShapes = new TreeMap<Coord3D, ROIShape>(new Coord3D());
 	}
 	
@@ -149,6 +153,15 @@ public class ROI
 	public long getID()
 	{
 		return id;
+	}
+	
+	/**
+	 * Is the object a clientSide object.
+	 * @return See above.
+	 */
+	public boolean isClientSide()
+	{
+		return clientSide;
 	}
 	
 	/** Get the range of the T sections this ROI spans. 
