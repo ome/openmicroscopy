@@ -4547,12 +4547,13 @@ class OMEROGateway
 			long value;
 			while (j.hasNext()) {
 				en = (Entry) j.next();
-				if (en.getValue().equals("splitViewFigure.py")) {
+				if (en.getValue().equals("splitViewFigureNew5.py")) {
 					value = (Long) en.getKey();
 					if (value > id) id = value;
 				}
 			}
 			if (id <= 0) return -1;
+			System.err.println(id);
 			List<RType> ids = new ArrayList<RType>(imageIDs.size());
 			Iterator<Long> i = imageIDs.iterator();
 			while (i.hasNext()) 

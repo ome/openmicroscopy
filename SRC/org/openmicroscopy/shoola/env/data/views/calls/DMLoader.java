@@ -91,14 +91,9 @@ public class DMLoader
     }
     
     /**
-     * Creates a {@link BatchCall} to retrieve a Container tree, either
-     * Project, Dataset, CategoryGroup or Category.
+     * Creates a {@link BatchCall} to retrieve a Container tree.
      * 
-     * @param rootNodeType  The type of the root node.
-     * @param rootNodeIDs   A set of the IDs of top-most containers.
-     * @param withLeaves    Passes <code>true</code> to retrieve the leaves
-     *                      nodes, <code>false</code> otherwise.
-     * @param userID		The Id of the user.
+     * @param userID The Id of the user.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final long userID)
@@ -107,11 +102,11 @@ public class DMLoader
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                results = new HashSet();
-                Set r  = os.loadContainerHierarchy(ProjectData.class, 
+                results = os.loadContainerHierarchy(ProjectData.class, 
                 		null, false, userID);
-                results.addAll(r);
+                
                 /*
+                 * results.addAll(r);
                 r = os.loadContainerHierarchy(ScreenData.class, 
                 		null, false, userID);
                 results.addAll(r);

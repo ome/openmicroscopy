@@ -832,6 +832,7 @@ class TreeViewerControl
 			Object object = pce.getNewValue();
 			if (!(object instanceof SplitViewFigureParam)) return;
 			Collection l = model.getSelectedBrowser().getSelectedDataObjects();
+			if (l == null) return;
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			IconManager icons = IconManager.getInstance();
 			Icon icon = icons.getIcon(IconManager.SPLIT_VIEW_FIGURE_22);

@@ -235,8 +235,13 @@ public class SplitViewFigureDialog
 			index = btn.getChannelIndex();
 			btn.setSelected(actives.contains(index));
 		}
+        boolean grey = splitPanelGrey.isSelected();
+
         SplitViewComponent comp = components.get(channel);
-        comp.resetImage(!active);
+        if (active) {
+        	if (grey) comp.resetImage(grey);
+        	else comp.resetImage(!active);
+        } else comp.resetImage(!active);
 	}
 	
 	/**
@@ -573,7 +578,7 @@ public class SplitViewFigureDialog
         p.add(formats, "1, "+i);
         
         i = i+2;
-        p.add(UIUtilities.setTextFont("Row Name"), "0, "+i+"");
+        p.add(UIUtilities.setTextFont("Image Label"), "0, "+i+"");
         p.add(rowName, "1, "+i);
         i = i+2;
         p.add(showScaleBar, "0, "+i);
