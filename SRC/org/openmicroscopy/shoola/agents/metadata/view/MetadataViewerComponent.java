@@ -489,6 +489,8 @@ class MetadataViewerComponent
 			*/
 		} else if (refObject instanceof ImageData) {
 			model.fireSaving(toAdd, toRemove, metadata, toSave);
+		} else if (refObject instanceof WellSampleData) {
+			model.fireSaving(toAdd, toRemove, metadata, toSave);
 		} else if (refObject instanceof TagAnnotationData) {
 			//Only update properties.
 			if ((toAdd.size() == 0 && toRemove.size() == 0)) {

@@ -1281,8 +1281,13 @@ class EditorModel
 			List<AnnotationData> toRemove, List<Object> metadata)
 	{
 		Object ref = getRefObject();
-		if (ref instanceof DataObject)
-			parent.saveData(toAdd, toRemove, metadata, (DataObject) ref);
+		if (ref instanceof DataObject) {
+			DataObject data = (DataObject) ref;
+			if (data instanceof WellSampleData) {
+				data = ((WellSampleData) ref).getImage();
+			}
+			parent.saveData(toAdd, toRemove, metadata, data);
+		}
 	}
 	
 	/**
