@@ -91,6 +91,7 @@ public interface ImageDataView
     public CallHandle render(long pixelsID, PlaneDef pd, 
                             AgentEventListener observer);
     
+    
     /**
      * Retrieves the pixels set.
      * 

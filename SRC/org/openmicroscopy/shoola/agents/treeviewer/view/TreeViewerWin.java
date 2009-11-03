@@ -182,7 +182,8 @@ class TreeViewerWin
             firstPane = pane;
             //pane.setCollapsed(false);
             container.add(pane);
-            
+            browser = (Browser) browsers.get(Browser.SCREENS_EXPLORER);
+            container.add(new TaskPaneBrowser(browser));
             browser = (Browser) browsers.get(Browser.FILES_EXPLORER);
             container.add(new TaskPaneBrowser(browser));
             

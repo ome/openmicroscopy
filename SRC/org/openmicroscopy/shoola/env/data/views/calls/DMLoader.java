@@ -107,13 +107,15 @@ public class DMLoader
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                results = new HashSet();
-                Set r  = os.loadContainerHierarchy(ProjectData.class, 
+                results  = os.loadContainerHierarchy(ProjectData.class, 
                 		null, false, userID);
+                
+                /*
                 results.addAll(r);
                 r = os.loadContainerHierarchy(ScreenData.class, 
                 		null, false, userID);
                 results.addAll(r);
+                */
             }
         };
     }

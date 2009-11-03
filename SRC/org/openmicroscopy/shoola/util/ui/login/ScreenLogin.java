@@ -423,15 +423,22 @@ public class ScreenLogin
 		mainPanel.add(l, "3, 1, r, c");
 		mainPanel.add(pass, "4, 1, 5, 1");
 		//third row
-		mainPanel.add(versionInfo, "0, 2, l, c");
+		//mainPanel.add(versionInfo, "0, 2, l, c");
 		
 		JPanel cPanel = new JPanel();
 		cPanel.setOpaque(false);
 		cPanel.add(login);
 		cPanel.add(cancel);
 		
-		mainPanel.add(UIUtilities.buildComponentPanelRight(cPanel, 0, 0, false),
-				"2, 2, 5, 2");
+		double[][] s = {{TableLayout.FILL, TableLayout.PREFERRED},
+				{TableLayout.PREFERRED}};
+		p = new JPanel();
+		p.setOpaque(false);
+		p.setLayout(new TableLayout(s));
+		p.add(versionInfo, "0, 0, l, c");
+		p.add(UIUtilities.buildComponentPanelRight(cPanel, 0, 0, false), 
+		"1, 0, r, c");
+		mainPanel.add(p, "0, 2, 5, 2");
 		return mainPanel;
 	}
 

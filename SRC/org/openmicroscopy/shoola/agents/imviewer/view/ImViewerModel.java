@@ -719,9 +719,13 @@ class ImViewerModel
 		pDef.z = getDefaultZ();
 		pDef.slice = omero.romio.XY.value;
 		state = ImViewer.LOADING_IMAGE;
+		
 		if (ImViewerAgent.hasOpenGLSupport())
 			component.setImageAsTexture(rnd.renderPlaneAsTexture(pDef));
 		else component.setImage(rnd.renderPlane(pDef));
+		
+		//ImageLoader loader = new ImageLoader(component, getPixelsID(), pDef);
+		//loader.load();
 	}
 
 	/**
