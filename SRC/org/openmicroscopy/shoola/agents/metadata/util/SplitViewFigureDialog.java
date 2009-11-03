@@ -77,6 +77,7 @@ import info.clearthought.layout.TableLayout;
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 import org.jdesktop.swingx.JXTaskPane;
+import org.jhotdraw.draw.action.ColorIcon;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -176,7 +177,8 @@ public class SplitViewFigureDialog
     /** Components displaying the image. */
     private Map<Integer, SplitViewComponent> components;
     
-    private List<ChannelButton>				channelList;
+    /** List of channel buttons. */
+    private List<ChannelComponent>			channelList;
     
 	/** Option chosen by the user. */
 	private int								option;
@@ -226,8 +228,8 @@ public class SplitViewFigureDialog
 		renderer.setActive(channel, active);
 		mergeImage = getMergedImage();
 		mergeCanvas.setImage(mergeImage);
-		Iterator<ChannelButton> i = channelList.iterator();
-        ChannelButton btn;
+		Iterator<ChannelComponent> i = channelList.iterator();
+		ChannelComponent btn;
         List<Integer> actives = renderer.getActiveChannels();
         int index;
         while (i.hasNext()) {
@@ -339,7 +341,7 @@ public class SplitViewFigureDialog
 		mergeCanvas.setPreferredSize(new Dimension(thumbnailWidth, 
 				thumbnailHeight));
 		mergeCanvas.setImage(mergeImage);
-		channelList = new ArrayList<ChannelButton>();
+		
 		components = new LinkedHashMap<Integer, SplitViewComponent>();
 		closeButton = new JButton("Cancel");
 		closeButton.setToolTipText(UIUtilities.formatToolTipText(
@@ -422,15 +424,21 @@ public class SplitViewFigureDialog
 		}
 
         k = data.iterator();
+        channelList = new ArrayList<ChannelComponent>();
+        ChannelComponent comp;
         while (k.hasNext()) {
         	d = k.next();
 			j = d.getIndex();
+			/*
 			item = new ChannelButton("", renderer.getChannelColor(j), j);
 			item.setPreferredSize(BUTTON_SIZE);
 			item.setBackground(UIUtilities.BACKGROUND_COLOR);
-			channelList.add(item);
-			item.setSelected(active.contains(j));
-			item.addPropertyChangeListener(this);
+			*/
+			comp = new ChannelComponent(j, renderer.getChannelColor(j), 
+					active.contains(j));
+			channelList.add(comp);
+			//comp.setSelected(active.contains(j));
+			comp.addPropertyChangeListener(this);
 		}
         
         showScaleBar = new JCheckBox("Scale Bar");
@@ -634,7 +642,7 @@ public class SplitViewFigureDialog
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
 		
-		Iterator<ChannelButton> i = channelList.iterator();
+		Iterator<ChannelComponent> i = channelList.iterator();
 		while (i.hasNext()) {
 			buttonPanel.add(i.next());
 			buttonPanel.add(Box.createHorizontalStrut(5));
@@ -895,6 +903,9 @@ public class SplitViewFigureDialog
 				setChannelSelection(index.intValue(), 
 						((Boolean) entry.getValue()));
 			}
+		} else if (ChannelComponent.CHANNEL_SELECTION_PROPERTY.equals(name)) {
+			ChannelComponent comp = (ChannelComponent) evt.getNewValue();
+			setChannelSelection(comp.getChannelIndex(), comp.isActive());
 		}
 	}
 	

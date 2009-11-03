@@ -31,7 +31,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
-
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -65,9 +64,6 @@ class SplitViewComponent
 	implements ChangeListener
 {
 
-	/** The size of the button. */
-	private static final Dimension BUTTON_SIZE = new Dimension(16, 16);
-	
 	/** Reference to the canvas displaying the image. */
 	private SplitViewCanvas canvas;
 	
