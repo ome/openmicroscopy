@@ -28,18 +28,17 @@ package org.openmicroscopy.shoola.env.ui;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.OutputStream;
 
-import omero.model.OriginalFile;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
-import org.openmicroscopy.shoola.util.file.IOUtil;
 import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import omero.model.OriginalFile;
 
 /** 
  * Activity to download an image or file.
@@ -62,7 +61,7 @@ public class DownloadActivity
 	private static final String		DESCRIPTION = "File downloaded";
 	
 	/** The text and extension added to the name of the file. */
-	private static final String		LEGEND_TEXT = "Legend.txt";
+	private static final String		LEGEND_TEXT = "_legend.txt";
 	
     /** The parameters hosting information about the file to download. */
     private DownloadActivityParam parameters;
