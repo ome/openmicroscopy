@@ -56,6 +56,7 @@ import pojos.DataObject;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PixelsData;
+import pojos.ROIData;
 
 
 /** 
@@ -364,6 +365,16 @@ public class NullRenderingService
      */
 	public Object createFigure(List<Long> imageIDs, Object parameters)
 			throws DSOutOfServiceException, DSAccessException {
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#saveROI(long, long, List)
+     */
+	public Boolean saveROI(long imageID, long userID, List<ROIData> roiList)
+			throws DSOutOfServiceException, DSAccessException {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
