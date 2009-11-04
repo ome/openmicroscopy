@@ -249,7 +249,12 @@ public class ImportLibrary implements IObservable
 				miasReader.setAutomaticallyParseMasks(true);
 				ServiceFactoryPrx sf = store.getServiceFactory();
 				OverlayMetadataStore s = new OverlayMetadataStore();
-				s.initialize(sf, pixelsList);
+				boolean haveTableSupport = s.initialize(sf, pixelsList);
+				if (!haveTableSupport)
+				{
+					log.warn("No OmeroTables, skipping MIAS overlays.");
+					return;
+				}
 				reader.setMetadataStore(s);
 				miasReader.close();
 				miasReader.setAutomaticallyParseMasks(true);
@@ -359,7 +364,7 @@ public class ImportLibrary implements IObservable
                 
                 notifyObservers(new ImportEvent.DATASET_STORED(index, fileName, userSpecifiedTarget, pixId, series, size, numDone, total));
         
-                MessageDigest md = importData(pixId, fileName, series, size);
+                MessageDigest md = null; // XXX: HAX HAX HAXimportData(pixId, fileName, series, size);
                 if (md != null)
                 {
                 	String s = OMEROMetadataStoreClient.byteArrayToHexString(md.digest());
@@ -431,8 +436,8 @@ public class ImportLibrary implements IObservable
             }
 
             // XXX: Disabled for the moment.
-            //notifyObservers(new ImportEvent.IMPORT_OVERLAYS(index, null, userSpecifiedTarget, null, 0, null));
-            //importOverlays(pixList);
+            notifyObservers(new ImportEvent.IMPORT_OVERLAYS(index, null, userSpecifiedTarget, null, 0, null));
+            importOverlays(pixList);
             notifyObservers(new ImportEvent.IMPORT_THUMBNAILING(index, null, userSpecifiedTarget, null, 0, null));
             store.resetDefaultsAndGenerateThumbnails(plateIds, pixelsIds);
             store.launchProcessing(); // Use or return value here later. TODO

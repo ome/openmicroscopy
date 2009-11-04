@@ -1,5 +1,7 @@
 package ome.formats;
 
+import static omero.rtypes.rstring;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,10 +9,29 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import omero.ServerError;
+import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
+import omero.grid.Column;
+import omero.grid.ImageColumn;
 import omero.grid.MaskColumn;
+import omero.grid.RoiColumn;
 import omero.grid.TablePrx;
+import omero.model.FileAnnotation;
+import omero.model.FileAnnotationI;
+import omero.model.IObject;
+import omero.model.Image;
+import omero.model.ImageI;
+import omero.model.OriginalFileI;
 import omero.model.Pixels;
+import omero.model.Plate;
+import omero.model.PlateAnnotationLink;
+import omero.model.PlateAnnotationLinkI;
+import omero.model.PlateI;
+import omero.model.Roi;
+import omero.model.RoiAnnotationLink;
+import omero.model.RoiAnnotationLinkI;
+import omero.model.RoiI;
+import omero.model.WellSample;
 
 import loci.formats.meta.MetadataStore;
 
@@ -32,6 +53,12 @@ public class OverlayMetadataStore implements MetadataStore {
 	
 	private static final int DEFAULT_BUFFER_SIZE = 10;
 	
+	private static final int IMAGE_COLUMN = 0;
+	
+	private static final int ROI_COLUMN = 1;
+	
+	private static final int MASK_COLUMN = 2;
+	
 	private int currentIndex = 0;
 	
 	private int currentImageIndex = 0;
@@ -40,43 +67,87 @@ public class OverlayMetadataStore implements MetadataStore {
 	
 	private int currentShapeIndex = 0;
 	
-	private MaskColumn maskColumn;
+	private Column[] columns;
 	
 	private TablePrx table;
+	
+	private long tableFileId;
+	
+	private Plate plate;
+	
+	private FileAnnotation fileAnnotation;
+	
+	private long fileAnnotationId;
+	
+	private IUpdatePrx updateService;
 	
 	/**
 	 * Initializes the metadata store implementation, creating an empty mask
 	 * column and a new table to store results.
 	 * @param sf Client side service factory.
 	 * @param pixelsList List of pixels already saved in the database.
+	 * @return <code>true</code> if table support was available and the table
+	 * was created successfully. <code>false</code> otherwise.
 	 * @throws ServerError Thrown if there was an error communicating with the
 	 * server during table creation.
 	 */
-	public void initialize(ServiceFactoryPrx sf, List<Pixels> pixelsList)
+	public boolean initialize(ServiceFactoryPrx sf, List<Pixels> pixelsList)
 		throws ServerError {
 		this.pixelsList = pixelsList;
 		this.sf = sf;
-		maskColumn = createColumn(DEFAULT_BUFFER_SIZE);
+		updateService = sf.getUpdateService();
+		columns = createColumns(DEFAULT_BUFFER_SIZE);
 		table = sf.sharedResources().newTable(1, "Overlays");
-		table.initialize(new MaskColumn[] { maskColumn });
-		log.info("New table: " + table.getOriginalFile().getId().getValue());
+		if (table == null)
+		{
+			return false;
+		}
+		table.initialize(columns);
+		tableFileId = table.getOriginalFile().getId().getValue();
+		
+		WellSample ws = pixelsList.get(0).getImage().copyWellSamples().get(0); 
+		plate = ws.getWell().getPlate();
+		// Create our measurement file annotation
+		fileAnnotation = new FileAnnotationI();
+		fileAnnotation.setDescription(rstring("Overlays"));
+		fileAnnotation.setNs(rstring(
+				omero.constants.namespaces.NSMEASUREMENT.value));
+		fileAnnotation.setFile(new OriginalFileI(tableFileId, false));
+		fileAnnotation = (FileAnnotation) 
+			updateService.saveAndReturnObject(fileAnnotation);
+		fileAnnotationId = fileAnnotation.getId().getValue();
+		log.info(String.format("New table %d annotation %d", 
+				tableFileId, fileAnnotationId));
+		return true;
 	}
 	
 	/**
 	 * Completes overlay population, performing the correct original file
-	 * linkages and flushing buffered overlays to the backing OMERO table.
+	 * linkages, annotation creation and flushing buffered overlays to the
+	 * backing OMERO table.
+	 * @throws ServerError Thrown if there was an error linking the table to
+	 * the plate.
 	 */
-	public void complete() {
+	public void complete() throws ServerError {
 		saveIfNecessary(true);
+
+		PlateAnnotationLink link = new PlateAnnotationLinkI();
+		link.setParent(new PlateI(plate.getId().getValue(), false));
+		link.setChild(new FileAnnotationI(fileAnnotationId, false));
+		updateService.saveObject(link);
 	}
 	
 	/**
-	 * Creates a new, empty column with the default buffer size.
-	 * @param length Number of rows the column should have.
+	 * Creates new, empty columns.
+	 * @param length Number of rows the columns should have.
 	 * @return See above.
 	 */
-	private MaskColumn createColumn(int length) {
-		return new MaskColumn("Overlays", "", 
+	private Column[] createColumns(int length) {
+		Column[] newColumns = new Column[3];
+		newColumns[IMAGE_COLUMN] = 
+			new ImageColumn("Image", "", new long[length]);
+		newColumns[ROI_COLUMN] = new RoiColumn("ROI", "", new long[length]);
+		newColumns[MASK_COLUMN] = new MaskColumn("Overlays", "", 
 				new long[length],    // imageId
 				new int[length],     // theZ
 				new int[length],     // theT
@@ -85,6 +156,7 @@ public class OverlayMetadataStore implements MetadataStore {
 				new double[length],  // w
 				new double[length],  // h
 				new byte[length][]); // bytes
+		return newColumns;
 	}
 	
 	/**
@@ -120,6 +192,34 @@ public class OverlayMetadataStore implements MetadataStore {
 	}
 	
 	/**
+	 * Writes ROI objects to the server and updates the ROI column with their
+	 * IDs. 
+	 */
+	private void saveAndUpdateROI() throws ServerError {
+		ImageColumn imageColumn = (ImageColumn) columns[IMAGE_COLUMN];
+		RoiColumn roiColumn = (RoiColumn) columns[ROI_COLUMN];
+		List<IObject> toSave = new ArrayList<IObject>();
+		for (int i = 0; i < imageColumn.values.length; i++)
+		{
+			Image unloadedImage = new ImageI(imageColumn.values[i], false);
+			RoiAnnotationLink link = new RoiAnnotationLinkI();
+			Roi roi = new RoiI();
+			roi.setDescription(rstring("Overlay"));
+			roi.setImage(unloadedImage);
+			link.setParent(roi);
+			link.setChild(new FileAnnotationI(fileAnnotationId, false));
+			roi.addRoiAnnotationLink(link);
+			toSave.add(roi);
+		}
+		toSave = updateService.saveAndReturnArray(toSave);
+		log.debug(String.format("Saved %d ROI objects.", toSave.size()));
+		for (int i = 0; i < toSave.size(); i++)
+		{
+			roiColumn.values[i] = toSave.get(i).getId().getValue();
+		}
+	}
+	
+	/**
 	 * Updates the mask column in the table if the buffer size is reached.
 	 * @param force Whether or not to force an update.
 	 */
@@ -128,10 +228,15 @@ public class OverlayMetadataStore implements MetadataStore {
 		{
 			try
 			{
+				MaskColumn maskColumn = (MaskColumn) columns[MASK_COLUMN];
+				ImageColumn imageColumn = (ImageColumn) columns[IMAGE_COLUMN];
 				if (currentIndex != DEFAULT_BUFFER_SIZE)
 				{
 					int size = currentIndex + 1;
-					MaskColumn c = createColumn(currentIndex + 1);
+					Column[] newColumns = createColumns(currentIndex + 1);
+					
+					// Copy values for the Mask column
+					MaskColumn c = (MaskColumn) newColumns[MASK_COLUMN];
 					System.arraycopy(maskColumn.imageId, 0, c.imageId, 0, size);
 					System.arraycopy(maskColumn.theZ, 0, c.theZ, 0, size);
 					System.arraycopy(maskColumn.theT, 0, c.theT, 0, size);
@@ -143,7 +248,13 @@ public class OverlayMetadataStore implements MetadataStore {
 					{
 						c.bytes[i] = maskColumn.bytes[i];
 					}
-					maskColumn = c;
+					// Copy values for the Image column
+					ImageColumn c2 = (ImageColumn) newColumns[IMAGE_COLUMN];
+					System.arraycopy(imageColumn.values, 0, c2.values, 0, size);
+					// Update our references
+					columns = newColumns;
+					maskColumn = (MaskColumn) columns[MASK_COLUMN];
+					imageColumn = (ImageColumn) columns[IMAGE_COLUMN];
 				}
 				for (int i = 0; i < maskColumn.imageId.length; i++)
 				{
@@ -159,9 +270,10 @@ public class OverlayMetadataStore implements MetadataStore {
 							maskColumn.h[i],
 							maskColumn.bytes[i] == null? -1 : maskColumn.bytes[i].length));
 				}
-				table.addData(new MaskColumn[] { maskColumn });
+				saveAndUpdateROI();
+				table.addData(columns);
 				log.debug("Saved " + maskColumn.imageId.length + " masks.");
-				maskColumn = createColumn(DEFAULT_BUFFER_SIZE);
+				columns = createColumns(DEFAULT_BUFFER_SIZE);
 				currentIndex = 0;
 			}
 			catch (Throwable t)
@@ -176,6 +288,9 @@ public class OverlayMetadataStore implements MetadataStore {
 		log.debug(String.format("Mask height - %d, %d, %d: %s", imageIndex, roiIndex, shapeIndex, height));
 		long imageId = pixelsList.get(imageIndex).getImage().getId().getValue();
 		int index = getTableIndex(imageIndex, roiIndex, shapeIndex);
+		MaskColumn maskColumn = (MaskColumn) columns[MASK_COLUMN];
+		ImageColumn imageColumn = (ImageColumn) columns[IMAGE_COLUMN];
+		imageColumn.values[index] = imageId;
 		maskColumn.imageId[index] = imageId;
 		maskColumn.h[index] = Double.parseDouble(height);
 	}
@@ -195,6 +310,9 @@ public class OverlayMetadataStore implements MetadataStore {
 		log.debug(String.format("Mask width - %d, %d, %d: %s", imageIndex, roiIndex, shapeIndex, width));
 		long imageId = pixelsList.get(imageIndex).getImage().getId().getValue();
 		int index = getTableIndex(imageIndex, roiIndex, shapeIndex);
+		MaskColumn maskColumn = (MaskColumn) columns[MASK_COLUMN];
+		ImageColumn imageColumn = (ImageColumn) columns[IMAGE_COLUMN];
+		imageColumn.values[index] = imageId;
 		maskColumn.imageId[index] = imageId;
 		maskColumn.w[index] = Double.parseDouble(width);
 	}
@@ -204,6 +322,9 @@ public class OverlayMetadataStore implements MetadataStore {
 		log.debug(String.format("Mask X - %d, %d, %d: %s", imageIndex, roiIndex, shapeIndex, x));
 		long imageId = pixelsList.get(imageIndex).getImage().getId().getValue();
 		int index = getTableIndex(imageIndex, roiIndex, shapeIndex);
+		MaskColumn maskColumn = (MaskColumn) columns[MASK_COLUMN];
+		ImageColumn imageColumn = (ImageColumn) columns[IMAGE_COLUMN];
+		imageColumn.values[index] = imageId;
 		maskColumn.imageId[index] = imageId;
 		maskColumn.x[index] = Double.parseDouble(x);
 	}
@@ -213,6 +334,9 @@ public class OverlayMetadataStore implements MetadataStore {
 		log.debug(String.format("Mask Y - %d, %d, %d: %s", imageIndex, roiIndex, shapeIndex, y));
 		long imageId = pixelsList.get(imageIndex).getImage().getId().getValue();
 		int index = getTableIndex(imageIndex, roiIndex, shapeIndex);
+		MaskColumn maskColumn = (MaskColumn) columns[MASK_COLUMN];
+		ImageColumn imageColumn = (ImageColumn) columns[IMAGE_COLUMN];
+		imageColumn.values[index] = imageId;
 		maskColumn.imageId[index] = imageId;
 		maskColumn.y[index] = Double.parseDouble(y);
 	}
@@ -227,6 +351,9 @@ public class OverlayMetadataStore implements MetadataStore {
 		log.debug(String.format("Mask bin data - %d, %d, %d: mask[%d]", imageIndex, roiIndex, shapeIndex, binData.length));
 		long imageId = pixelsList.get(imageIndex).getImage().getId().getValue();
 		int index = getTableIndex(imageIndex, roiIndex, shapeIndex);
+		MaskColumn maskColumn = (MaskColumn) columns[MASK_COLUMN];
+		ImageColumn imageColumn = (ImageColumn) columns[IMAGE_COLUMN];
+		imageColumn.values[index] = imageId;
 		maskColumn.imageId[index] = imageId;
 		maskColumn.bytes[index] = binData;
 	}
