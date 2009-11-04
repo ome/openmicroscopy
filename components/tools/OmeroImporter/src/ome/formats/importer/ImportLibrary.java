@@ -364,7 +364,7 @@ public class ImportLibrary implements IObservable
                 
                 notifyObservers(new ImportEvent.DATASET_STORED(index, fileName, userSpecifiedTarget, pixId, series, size, numDone, total));
         
-                MessageDigest md = null; // XXX: HAX HAX HAXimportData(pixId, fileName, series, size);
+                MessageDigest md = importData(pixId, fileName, series, size);
                 if (md != null)
                 {
                 	String s = OMEROMetadataStoreClient.byteArrayToHexString(md.digest());
@@ -435,7 +435,6 @@ public class ImportLibrary implements IObservable
                 store.populateMinMax();
             }
 
-            // XXX: Disabled for the moment.
             notifyObservers(new ImportEvent.IMPORT_OVERLAYS(index, null, userSpecifiedTarget, null, 0, null));
             importOverlays(pixList);
             notifyObservers(new ImportEvent.IMPORT_THUMBNAILING(index, null, userSpecifiedTarget, null, 0, null));
