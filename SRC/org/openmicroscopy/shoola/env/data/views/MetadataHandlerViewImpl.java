@@ -134,43 +134,48 @@ class MetadataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#saveData(Collection, List, List, long, 
+	 * @see MetadataHandlerView#saveData(Collection, List, List, List, long, 
 	 * 									AgentEventListener)
 	 */
 	public CallHandle saveData(Collection<DataObject> data, 
 			List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
-			List<Object> metadata, long userID, AgentEventListener observer)
+			List<AnnotationData> toDelete, List<Object> metadata, long userID, 
+			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new StructuredAnnotationSaver(data, 
-									toAdd, toRemove, metadata, userID, false);
+								toAdd, toRemove, toDelete, metadata, userID, 
+								false);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#saveBatchData(Collection, List, List, long, 
-	 * 									AgentEventListener)
+	 * @see MetadataHandlerView#saveBatchData(Collection, List, List, List, 
+	 * 						long, AgentEventListener)
 	 */
 	public CallHandle saveBatchData(Collection<DataObject> data, 
 			List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
-			long userID, AgentEventListener observer)
+			List<AnnotationData> toDelete, long userID, 
+			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new StructuredAnnotationSaver(data, 
-									toAdd, toRemove, null, userID, true);
+									toAdd, toRemove, toDelete,
+									null, userID, true);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#saveBatchData(TimeRefObject, List, List, long, 
-	 * 									AgentEventListener)
+	 * @see MetadataHandlerView#saveBatchData(TimeRefObject, List, List, List,
+	 *  long, AgentEventListener)
 	 */
 	public CallHandle saveBatchData(TimeRefObject refObject, 
 			List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
+			List<AnnotationData> toDelete, 
 			long userID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new StructuredAnnotationSaver(refObject, 
-									toAdd, toRemove, userID);
+									toAdd, toRemove, toDelete, userID);
 		return cmd.exec(observer);
 	}
 	

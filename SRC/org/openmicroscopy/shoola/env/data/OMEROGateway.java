@@ -2661,7 +2661,7 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
-	Map<Integer, List> getArchivedFiles(String path, long pixelsID) 
+	synchronized Map<Integer, List> getArchivedFiles(String path, long pixelsID) 
 		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive();
@@ -2745,7 +2745,7 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
-	File downloadFile(File file, long fileID, long size)
+	synchronized File downloadFile(File file, long fileID, long size)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive();
@@ -2854,7 +2854,8 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
-	OriginalFile uploadFile(File file, String format, long originalFileID)
+	synchronized OriginalFile uploadFile(File file, String format, 
+			long originalFileID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		if (file == null)

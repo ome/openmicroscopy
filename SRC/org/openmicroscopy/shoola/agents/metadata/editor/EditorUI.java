@@ -83,6 +83,9 @@ public class EditorUI
 	/** Identifies the collection of data to remove. */
 	static final int 	TO_REMOVE = 1;
 	
+	/** Identifies the collection of data to delete. */
+	static final int 	TO_DELETE = 2;
+	
 	/** Identifies the general component of the tab pane. */
 	static final int	GENERAL_INDEX = 0;
 	
@@ -507,6 +510,16 @@ public class EditorUI
 		generalPane.removeAttachedFile(file);
 	}
 
+	/**
+	 * Adds the annotation to the collection of objects to be deleted.
+	 * 
+	 * @param annotation The value to add.
+	 */
+	void deleteAnnotation(AnnotationData annotation)
+	{
+		model.deleteAnnotation(annotation);
+	}
+	
 	/** Sets the image acquisition metadata. */
 	void setImageAcquisitionData()
 	{

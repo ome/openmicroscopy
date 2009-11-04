@@ -398,10 +398,11 @@ class MetadataViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#saveData(List, List, List, DataObject)
+	 * @see MetadataViewer#saveData(List, List, List, List, DataObject)
 	 */
 	public void saveData(List<AnnotationData> toAdd, 
-				List<AnnotationData> toRemove, List<Object> metadata,
+				List<AnnotationData> toRemove, List<AnnotationData> toDelete,
+				List<Object> metadata,
 				DataObject data)
 	{
 		if (data == null) return;
@@ -425,11 +426,11 @@ class MetadataViewerComponent
 		
 		MessageBox dialog;
 		if (refObject instanceof ProjectData) {
-			model.fireSaving(toAdd, toRemove, metadata, toSave);
+			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave);
 		} else if (refObject instanceof ScreenData) {
-			model.fireSaving(toAdd, toRemove, metadata, toSave);
+			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave);
 		} else if (refObject instanceof PlateData) {
-			model.fireSaving(toAdd, toRemove, metadata, toSave);
+			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave);
 			/*
 			if ((toAdd.size() == 0 && toRemove.size() == 0)) {
 				model.fireSaving(toAdd, toRemove, metadata, toSave);
@@ -459,7 +460,7 @@ class MetadataViewerComponent
 			}
 			*/
 		} else if (refObject instanceof DatasetData) {
-			model.fireSaving(toAdd, toRemove, metadata, toSave);
+			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave);
 			//Only update properties.
 			/*
 			if ((toAdd.size() == 0 && toRemove.size() == 0)) {
@@ -491,13 +492,13 @@ class MetadataViewerComponent
 			}
 			*/
 		} else if (refObject instanceof ImageData) {
-			model.fireSaving(toAdd, toRemove, metadata, toSave);
+			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave);
 		} else if (refObject instanceof WellSampleData) {
-			model.fireSaving(toAdd, toRemove, metadata, toSave);
+			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave);
 		} else if (refObject instanceof TagAnnotationData) {
 			//Only update properties.
 			if ((toAdd.size() == 0 && toRemove.size() == 0)) {
-				model.fireSaving(toAdd, toRemove, metadata, toSave);
+				model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave);
 				return;
 			}	
 			/*

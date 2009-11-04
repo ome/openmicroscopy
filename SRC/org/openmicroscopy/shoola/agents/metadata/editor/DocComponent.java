@@ -102,8 +102,8 @@ class DocComponent
 	/** Flag indicates to load the image from the local machine. */
 	static final int		LOAD_FROM_LOCAL = 1;
 	
-	/** Action id to delete the annotation. */
-	private static final int DELETE = 0;
+	/** Action id to unlink the annotation. */
+	private static final int UNLINK = 0;
 	
 	/** Action id to edit the annotation. */
 	private static final int EDIT = 1;
@@ -111,8 +111,11 @@ class DocComponent
 	/** Action id to download the file. */
 	private static final int DOWNLOAD = 2;
 	
-	/** Action id to edit the annotation. */
+	/** Action id to open the annotation. */
 	private static final int OPEN = 3;
+	
+	/** Action id to open the annotation. */
+	private static final int DELETE = 4;
 	
 	/** Collection of filters supported. */
 	private static final List<CustomizedFileFilter> FILTERS;
@@ -131,8 +134,8 @@ class DocComponent
 	/** Reference to the model. */
 	private EditorModel	model;
 	
-	/** Button to delete the annotation. */
-	private JButton		deleteButton;
+	/** Button to unlink the annotation. */
+	private JButton		unlinkButton;
 	
 	/** Button to edit the annotation. */
 	private JButton		editButton;
@@ -142,6 +145,9 @@ class DocComponent
 	
 	/** Button to open the file linked to the annotation. */
 	private JButton		openButton;
+	
+	/** Button to open the delete the file annotation. */
+	private JButton		deleteButton;
 	
 	/** Component displaying the file name. */
 	private JLabel		label;
@@ -294,20 +300,28 @@ class DocComponent
 		}
 	}
 	
-	/** Initializes the {@link #deleteButton}. */
+	/** Initializes the {@link #unlinkButton}. */
 	private void initButton()
 	{
 		IconManager icons = IconManager.getInstance();
-		deleteButton = new JButton(icons.getIcon(IconManager.MINUS_12));
-		UIUtilities.unifiedButtonLookAndFeel(deleteButton);
-		deleteButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		deleteButton.addActionListener(this);
-		deleteButton.setActionCommand(""+DELETE);
+		unlinkButton = new JButton(icons.getIcon(IconManager.MINUS_12));
+		UIUtilities.unifiedButtonLookAndFeel(unlinkButton);
+		unlinkButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+		unlinkButton.addActionListener(this);
+		unlinkButton.setActionCommand(""+UNLINK);
+
 		if (data instanceof FileAnnotationData) {
 			FileAnnotationData fa = (FileAnnotationData) data;
-			deleteButton.setToolTipText("Remove the attachment.");
+			unlinkButton.setToolTipText("Remove the attachment.");
 			
 			if (fa.getId() > 0) {
+				deleteButton = new JButton(icons.getIcon(
+						IconManager.DELETE_12));
+				UIUtilities.unifiedButtonLookAndFeel(deleteButton);
+				deleteButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+				deleteButton.addActionListener(this);
+				deleteButton.setActionCommand(""+DELETE);
+				
 				downloadButton = new JButton(icons.getIcon(
 						IconManager.DOWNLOAD_12));
 				downloadButton.setOpaque(false);
@@ -332,10 +346,10 @@ class DocComponent
 				} 
 				if (FileAnnotationData.COMPANION_FILE_NS.equals(ns) ||
 					FileAnnotationData.MEASUREMENT_NS.equals(ns))
-					deleteButton = null;
+					unlinkButton = null;
 			}
 		} else if (data instanceof TagAnnotationData) {
-			deleteButton.setToolTipText("Remove the Tag.");
+			unlinkButton.setToolTipText("Remove the Tag.");
 			editButton = new JButton(icons.getIcon(IconManager.EDIT_12));
 			editButton.setOpaque(false);
 			UIUtilities.unifiedButtonLookAndFeel(editButton);
@@ -444,9 +458,10 @@ class DocComponent
 		bar.setBorder(null);
 		bar.setOpaque(true);
 		if (editButton != null) bar.add(editButton);
-		if (deleteButton != null) bar.add(deleteButton);
+		if (unlinkButton != null) bar.add(unlinkButton);
 		if (downloadButton != null) bar.add(downloadButton);
 		if (openButton != null) bar.add(openButton);
+		if (deleteButton != null) bar.add(deleteButton);
 		if (bar.getComponentCount() > 0) add(bar);
 	}
 	
@@ -569,8 +584,12 @@ class DocComponent
 	{
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
-			case DELETE:
+			case UNLINK:
 				firePropertyChange(AnnotationUI.REMOVE_ANNOTATION_PROPERTY,
+						null, this);
+				break;
+			case DELETE:
+				firePropertyChange(AnnotationUI.DELETE_ANNOTATION_PROPERTY,
 						null, this);
 				break;
 			case EDIT:

@@ -394,14 +394,16 @@ class MetadataViewerModel
 	 * 
 	 * @param toAdd		Collection of annotations to add.
 	 * @param toRemove	Collection of annotations to remove.
+	 * @param toDelete	Collection of annotations to delete.
 	 * @param metadata	The acquisition metadata to save.
 	 * @param data		The object to update.
 	 */
 	void fireSaving(List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
-					List<Object> metadata, Collection<DataObject> data)
+			List<AnnotationData> toDelete, List<Object> metadata, 
+			Collection<DataObject> data)
 	{
 		DataSaver loader = new DataSaver(component, data, toAdd, toRemove, 
-				metadata);
+				toDelete, metadata);
 		loader.load();
 		state = MetadataViewer.SAVING;
 	}
@@ -456,13 +458,15 @@ class MetadataViewerModel
 	 * 
 	 * @param toAdd		Collection of annotations to add.
 	 * @param toRemove	Collection of annotations to remove.
+	 * @param toDelete	Collection of annotations to delete.
 	 * @param toSave    Collection of data objects to handle.
 	 */
 	void fireBatchSaving(List<AnnotationData> toAdd, List<AnnotationData> 
-						toRemove, Collection<DataObject> toSave)
+						toRemove, List<AnnotationData> toDelete,
+						Collection<DataObject> toSave)
 	{
 		DataBatchSaver loader = new DataBatchSaver(component, toSave, toAdd, 
-				toRemove);
+				toRemove, toDelete);
 		loader.load();
 		state = MetadataViewer.BATCH_SAVING;
 	}

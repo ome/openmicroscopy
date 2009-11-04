@@ -788,7 +788,7 @@ class AnnotationDataUI
 	protected String getComponentTitle() { return ""; }
 	
 	/**
-	 * Returns the collection of rating to remove.
+	 * Returns the collection of annotation to remove.
 	 * @see AnnotationUI#getAnnotationToRemove()
 	 */
 	protected List<AnnotationData> getAnnotationToRemove()

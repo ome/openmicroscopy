@@ -63,6 +63,9 @@ abstract class AnnotationUI
 			Color.LIGHT_GRAY);
 	
 	/** Bound property indicating to remove the annotation from the view. */
+	static final String	DELETE_ANNOTATION_PROPERTY = "deleteAnnotation";
+	
+	/** Bound property indicating to remove the annotation from the view. */
 	static final String	REMOVE_ANNOTATION_PROPERTY = "removeAnnotation";
 	
 	/** Bound property indicating to remove the annotation from the view. */

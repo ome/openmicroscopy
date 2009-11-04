@@ -186,6 +186,9 @@ class EditorModel
 	/** Reference to the renderer. */
 	private Renderer 					renderer;
 	
+	/** Collection of annotations to unlink and delete. */
+	private List<AnnotationData>		toDelete;
+	
     /** 
      * Sorts the passed collection of annotations by date starting with the
      * most recent.
@@ -280,6 +283,25 @@ class EditorModel
 		loaders = new ArrayList<EditorLoader>();
 		sorter = new ViewerSorter();
 	}
+	
+	/**
+	 * Adds the annotation to the collection of annotation to be deleted.
+	 * 
+	 * @param annotation The value to add.
+	 */
+	void deleteAnnotation(AnnotationData annotation)
+	{
+		if (annotation == null) return;
+		if (toDelete == null) toDelete = new ArrayList<AnnotationData>();
+		toDelete.add(annotation);
+	}
+	
+	/**
+	 * Returns the collection of annotation to delete.
+	 * 
+	 * @return See above.
+	 */
+	List<AnnotationData> getAnnotationToDelete() { return toDelete; }
 	
 	/**
 	 * Returns <code>true</code> if multiple selection is on, 
@@ -1286,7 +1308,7 @@ class EditorModel
 			if (data instanceof WellSampleData) {
 				data = ((WellSampleData) ref).getImage();
 			}
-			parent.saveData(toAdd, toRemove, metadata, data);
+			parent.saveData(toAdd, toRemove, toDelete, metadata, data);
 		}
 	}
 	
@@ -1297,7 +1319,7 @@ class EditorModel
 	 */
 	void fireDataObjectSaving(ExperimenterData exp)
 	{
-		parent.saveData(null, null, null, exp);
+		parent.saveData(null, null, null,null, exp);
 	}
 	
 	/**

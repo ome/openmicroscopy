@@ -328,7 +328,8 @@ public interface OmeroMetadataService
 	 * 
 	 * @param data		The data object to handle.
 	 * @param toAdd		Collection of annotations to add.
-	 * @param toRemove	Collection of annotations to remove.
+	 * @param toRemove	Collection of annotations to remove. 
+	 * @param toDelete	Collection of annotations to delete.
 	 * @param userID	The id of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
@@ -338,7 +339,8 @@ public interface OmeroMetadataService
 	 */
 	public Object saveData(Collection<DataObject> data, 
 							List<AnnotationData> toAdd, 
-							List<AnnotationData> toRemove, long userID)
+							List<AnnotationData> toRemove, 
+							List<AnnotationData> toDelete, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
@@ -348,6 +350,7 @@ public interface OmeroMetadataService
 	 * @param data		The data object to handle.
 	 * @param toAdd		Collection of annotations to add.
 	 * @param toRemove	Collection of annotations to remove.
+	 * @param toDelete	Collection of annotations to delete.
 	 * @param userID	The id of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
@@ -357,7 +360,8 @@ public interface OmeroMetadataService
 	 */
 	public Object saveBatchData(Collection<DataObject> data, 
 							List<AnnotationData> toAdd, 
-							List<AnnotationData> toRemove, long userID)
+							List<AnnotationData> toRemove, 
+							List<AnnotationData> toDelete, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
@@ -367,6 +371,7 @@ public interface OmeroMetadataService
 	 * @param data		The data object to handle.
 	 * @param toAdd		Collection of annotations to add.
 	 * @param toRemove	Collection of annotations to remove.
+	 * @param toDelete	Collection of annotations to delete.
 	 * @param userID	The id of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
@@ -376,7 +381,8 @@ public interface OmeroMetadataService
 	 */
 	public Object saveBatchData(TimeRefObject data, 
 							List<AnnotationData> toAdd, 
-							List<AnnotationData> toRemove, long userID)
+							List<AnnotationData> toRemove, 
+							List<AnnotationData> toDelete, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**

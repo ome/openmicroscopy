@@ -773,6 +773,7 @@ public class SplitViewFigureDialog
 	private void handleDimensionChange(NumericalTextField field)
 	{
 		Integer n = (Integer) field.getValueAsNumber();
+		if (n == null) return;
 		Dimension d = Factory.computeThumbnailSize(n, n, 
         		renderer.getPixelsSizeX(), renderer.getPixelsSizeY());
 		Document doc;

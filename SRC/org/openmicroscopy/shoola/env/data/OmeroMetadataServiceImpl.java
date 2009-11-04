@@ -67,6 +67,7 @@ import omero.sys.ParametersI;
 
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
@@ -1084,11 +1085,11 @@ class OmeroMetadataServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroMetadataService#saveData(Collection, List, List, long)
+	 * @see OmeroMetadataService#saveData(Collection, List, List, List, long)
 	 */
 	public Object saveData(Collection<DataObject> data, 
 			        List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
-			        long userID) 
+			        List<AnnotationData> toDelete, long userID) 
 			throws DSOutOfServiceException, DSAccessException
 	{
 		if (data == null)
@@ -1123,16 +1124,28 @@ class OmeroMetadataServiceImpl
 				}
 			}
 		}
+		//now delete the annotation
+		if (toDelete != null && toDelete.size() > 0) {
+			List<DeletableObject> l = new ArrayList<DeletableObject>();
+			Iterator<AnnotationData> k = toDelete.iterator();
+			while (k.hasNext()) {
+				l.add(new DeletableObject(k.next()));
+			}
+			try {
+				context.getDataService().delete(l);
+			} catch (Exception ex) {}
+		}
 		return data;
 	}
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroMetadataService#saveBatchData(Collection, List, List, long)
+	 * @see OmeroMetadataService#saveBatchData(Collection, List, List, List,
+	 * long)
 	 */
 	public Object saveBatchData(Collection<DataObject> data, 
 				List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
-				long userID) 
+				List<AnnotationData> toDelete, long userID) 
 			throws DSOutOfServiceException, DSAccessException
 	{
 		if (data == null)
@@ -1229,10 +1242,12 @@ class OmeroMetadataServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroMetadataService#saveBatchData(TimeRefObject, List, List, long)
+	 * @see OmeroMetadataService#saveBatchData(TimeRefObject, List, List, List,
+	 * long)
 	 */
 	public Object saveBatchData(TimeRefObject data, List<AnnotationData> toAdd,
-			                  List<AnnotationData> toRemove, long userID) 
+			                  List<AnnotationData> toRemove, 
+			                  List<AnnotationData> toDelete, long userID) 
 			throws DSOutOfServiceException, DSAccessException
 	{
 		if (data == null)

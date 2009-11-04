@@ -372,10 +372,21 @@ class EditorControl
 				DocComponent doc = (DocComponent) object;
 				Object data = doc.getData();
 				if (data instanceof File) view.removeAttachedFile(data);
-				else if ((data instanceof FileAnnotationData))
+				else if (data instanceof FileAnnotationData)
 					view.removeAttachedFile(data);
 				else if (data instanceof TagAnnotationData)
 					view.removeTag((TagAnnotationData) data);
+			} 
+		} else if (AnnotationUI.DELETE_ANNOTATION_PROPERTY.equals(name)) {
+			Object object = evt.getNewValue();
+			if (object instanceof DocComponent) {
+				DocComponent doc = (DocComponent) object;
+				Object data = doc.getData();
+				if (data instanceof FileAnnotationData) {
+					view.deleteAnnotation((FileAnnotationData) data);
+					view.removeAttachedFile(data);
+				}
+					
 			} 
 		} else if (AnnotationUI.EDIT_TAG_PROPERTY.equals(name)) {
 			Object object = evt.getNewValue();
