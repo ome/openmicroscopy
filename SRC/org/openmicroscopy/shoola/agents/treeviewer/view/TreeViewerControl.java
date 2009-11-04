@@ -119,7 +119,6 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
-import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -840,6 +839,7 @@ class TreeViewerControl
 			List<Long> imageIds = new ArrayList<Long>();
 			Iterator i;
 			DataObject obj;
+			System.err.println("icon:"+icon);
 			if (l.size() > 1) {
 				i = l.iterator();
 				while (i.hasNext()) {
@@ -858,6 +858,8 @@ class TreeViewerControl
 			//Ask question
 			MessageBox msg = new MessageBox(view, "Create Split View Figure", 
 			"Make a figure of the ");
+			msg.setYesText("OK");
+			msg.setNoText("Cancel");
 			ButtonGroup group = new ButtonGroup();
 			JRadioButton displayed = new JRadioButton("Displayed Images");
 			JRadioButton selected = new JRadioButton("Selected Image");

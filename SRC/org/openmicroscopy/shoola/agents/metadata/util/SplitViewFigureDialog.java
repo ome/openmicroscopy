@@ -428,15 +428,9 @@ public class SplitViewFigureDialog
         while (k.hasNext()) {
         	d = k.next();
 			j = d.getIndex();
-			/*
-			item = new ChannelButton("", renderer.getChannelColor(j), j);
-			item.setPreferredSize(BUTTON_SIZE);
-			item.setBackground(UIUtilities.BACKGROUND_COLOR);
-			*/
 			comp = new ChannelComponent(j, renderer.getChannelColor(j), 
 					active.contains(j));
 			channelList.add(comp);
-			//comp.setSelected(active.contains(j));
 			comp.addPropertyChangeListener(this);
 		}
         
@@ -457,7 +451,9 @@ public class SplitViewFigureDialog
 			cols[index] = new Object[]{entry.getKey(), entry.getValue()};
 			index++;
 		}
+		
 		colorBox.setModel(new DefaultComboBoxModel(cols));	
+		colorBox.setSelectedIndex(cols.length-1);
 		colorBox.setRenderer(new ColorListRenderer());
         
 		showScaleBar.setSelected(false);
@@ -774,18 +770,21 @@ public class SplitViewFigureDialog
 	{
 		Integer n = (Integer) field.getValueAsNumber();
 		if (n == null) return;
-		Dimension d = Factory.computeThumbnailSize(n, n, 
-        		renderer.getPixelsSizeX(), renderer.getPixelsSizeY());
 		Document doc;
+		int v;
 		if (field == widthField) {
+			v = (int) ((n*renderer.getPixelsDimensionsY())/
+					renderer.getPixelsDimensionsX());
 			doc = heightField.getDocument();
 			doc.removeDocumentListener(this);
-			heightField.setText(""+d.height);
+			heightField.setText(""+v);
 			doc.addDocumentListener(this);
 		} else {
+			v = (int) ((n*renderer.getPixelsDimensionsX())/
+					renderer.getPixelsDimensionsY());
 			doc = widthField.getDocument();
 			doc.removeDocumentListener(this);
-			widthField.setText(""+d.width);
+			widthField.setText(""+v);
 			doc.addDocumentListener(this);
 		}
 	}

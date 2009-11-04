@@ -29,7 +29,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
-import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
 //Third-party libraries
@@ -68,14 +67,13 @@ public class ColorListRenderer
 	/** Border colour of the cell when the icon is not selected. */
 	private Border emptyBorder;
 
-	/**
-	 * Creates a new instance. Sets the background to opaque.
-	 */
+	/** Creates a new instance. Sets the background to opaque. */
 	public ColorListRenderer()
 	{
 		setOpaque(true);
-        setHorizontalAlignment(CENTER);
+        setHorizontalAlignment(LEFT);
         setVerticalAlignment(CENTER);
+        setIconTextGap(GAP);
         icon = new ColourIcon(12, 12);
         lineBorder = BorderFactory.createLineBorder(Color.gray, 1);
         emptyBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
@@ -97,8 +95,6 @@ public class ColorListRenderer
 			icon.setColour(new Color(c.getRed(), c.getGreen(), c.getBlue()));
 		
 		setIcon(icon);
-		setVerticalAlignment(SwingConstants.CENTER);
-		setIconTextGap(GAP);
 		setText((String) array[1]);
 		if (isSelected) {
 			setForeground(list.getSelectionForeground());
