@@ -4603,8 +4603,8 @@ class OMEROGateway
 					omero.rtypes.rbool(param.isSplitGrey()));
 			parameters.map.put("scalebar", omero.rtypes.rlong(
 					param.getScaleBar()));
-			//parameters.map.put("overlayColour", omero.rtypes.rlong(
-			//		param.getColor()));
+			parameters.map.put("overlayColour", omero.rtypes.rlong(
+					param.getColor()));
 			parameters.map.put("width", omero.rtypes.rlong(param.getWidth()));
 			parameters.map.put("height", omero.rtypes.rlong(param.getHeight()));
 			parameters.map.put("stepping", 
