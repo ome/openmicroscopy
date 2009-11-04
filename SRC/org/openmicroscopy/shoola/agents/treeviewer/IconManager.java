@@ -497,7 +497,7 @@ public class IconManager
         relPaths[FILE_SYSTEM_EXPLORER] = "nuvola_fsview16.png";
         relPaths[INFO] = "nuvola_messagebox_info16.png";
         relPaths[MOVIE_FOLDER] = "nuvola_folder_video16.png";
-        relPaths[SPLIT_VIEW_FIGURE_22] = "nuvola_folder_video16.png";
+        relPaths[SPLIT_VIEW_FIGURE_22] = "splitViewFigure22.png";
     }
     
     /** The sole instance. */

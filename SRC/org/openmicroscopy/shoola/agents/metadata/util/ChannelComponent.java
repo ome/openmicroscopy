@@ -24,26 +24,23 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
-
-import javax.swing.BoxLayout;
+import java.awt.Dimension;
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
-import org.openmicroscopy.shoola.util.ui.ColourIcon;
-import org.openmicroscopy.shoola.util.ui.ColouredButton;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * Component to turn on or off a channel.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,6 +59,9 @@ class ChannelComponent
 
 	/** Bound property indicating to turn on or off the channel. */
 	static final String	CHANNEL_SELECTION_PROPERTY = "channelSelection";
+	
+	/** The default size of the panel. */
+	private static final Dimension SIZE = new Dimension(22, 22);
 	
 	/** The index of the channel. */
 	private int index;
@@ -88,9 +88,12 @@ class ChannelComponent
 		activeBox.setSelected(active);
 		activeBox.addChangeListener(this);
 		colorLabel = new JPanel();
-		colorLabel.setPreferredSize(ChannelButton.DEFAULT_MIN_SIZE);
+		double[][] tl = {{TableLayout.PREFERRED}, //columns
+				{TableLayout.PREFERRED}}; //rows
+		colorLabel.setLayout(new TableLayout(tl));
+		//colorLabel.setPreferredSize(SIZE);
 		//p.add(colorLabel);
-		colorLabel.add(activeBox);
+		colorLabel.add(activeBox, "0, 0, CENTER, CENTER");
 		colorLabel.setBackground(color);
 	}
 	

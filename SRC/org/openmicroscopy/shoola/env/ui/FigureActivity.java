@@ -83,7 +83,6 @@ public class FigureActivity
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
-		
 	}
 
 	/**

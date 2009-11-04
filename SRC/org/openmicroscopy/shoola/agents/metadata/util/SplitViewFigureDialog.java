@@ -77,7 +77,6 @@ import info.clearthought.layout.TableLayout;
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 import org.jdesktop.swingx.JXTaskPane;
-import org.jhotdraw.draw.action.ColorIcon;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -443,7 +442,6 @@ public class SplitViewFigureDialog
         
         showScaleBar = new JCheckBox("Scale Bar");
 		showScaleBar.setFont(showScaleBar.getFont().deriveFont(Font.BOLD));
-		showScaleBar.setSelected(true);
 		showScaleBar.setActionCommand(""+SCALE_BAR);
 		showScaleBar.addActionListener(this);
 		scaleBar = new NumericalTextField();
@@ -452,8 +450,6 @@ public class SplitViewFigureDialog
         colorBox = new JComboBox();
 		Map<Color, String> colors = EditorUtil.COLORS_BAR;
 		Object[][] cols = new Object[colors.size()][2];
-		
-		
 		index = 0;
 		i = colors.entrySet().iterator();
 		while (i.hasNext()) {
@@ -464,6 +460,8 @@ public class SplitViewFigureDialog
 		colorBox.setModel(new DefaultComboBoxModel(cols));	
 		colorBox.setRenderer(new ColorListRenderer());
         
+		showScaleBar.setSelected(false);
+		scaleBar.setEnabled(false);
         
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
@@ -478,7 +476,7 @@ public class SplitViewFigureDialog
 		TitlePanel tp = new TitlePanel("Split View Figure",
 				"Create a Split View Figure.", 
 				"The figure will be saved to the server.", 
-				icons.getIcon(IconManager.ATTACHMENT_48));
+				icons.getIcon(IconManager.SPLIT_VIEW_48));
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout(5, 5));
 		c.add(tp, BorderLayout.NORTH);
@@ -537,7 +535,6 @@ public class SplitViewFigureDialog
 		return UIUtilities.buildComponentPanel(p);
 	}
 
-	
 	/**
 	 * Builds the projection component.
 	 * 
@@ -604,7 +601,6 @@ public class SplitViewFigureDialog
 	 */
 	private JPanel buildChannelsComponent()
 	{
-		
 		JPanel p = new JPanel();
 		Iterator<Integer> i = components.keySet().iterator();
 		while (i.hasNext()) {

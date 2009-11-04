@@ -289,17 +289,23 @@ public class IconManager
     /** A 48x48 version of the <code>Download</code> icon. */
     public static final int           DOWNLOAD_48 = 78;
     
-    /** The <code>Activity</code> icon. */
-    public static final int           ACTIVITY = 79;
+    /** The <code>publishing</code> icon. */
+    public static final int           PUBLISHING = 79;
     
     /** The <code>Split View</code> icon. */
     public static final int           SPLIT_VIEW = 80;
+    
+    /** The 48x48 <code>Split View</code> icon. */
+    public static final int           SPLIT_VIEW_48 = 81;
+    
+    /** The <code>Analysis</code> icon. */
+    public static final int           ANALYSIS = 82;
     
     /** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 80;
+	private static final int          MAX_ID = 82;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -382,8 +388,10 @@ public class IconManager
         relPaths[EXPORT_22] = "export22.png";//"download_image22.png";
         relPaths[DOWNLOAD_22] = "nuvola_download_manager22.png";
         relPaths[DOWNLOAD_48] = "nuvola_download_manager48.png";
-        relPaths[ACTIVITY] = "nuvola_kcmsystem16.png";
-        relPaths[SPLIT_VIEW] = "nuvola_kcmsystem16.png";
+        relPaths[PUBLISHING] = "nuvola_kcmsystem16.png";
+        relPaths[SPLIT_VIEW] = "splitViewFigure16.png";
+        relPaths[SPLIT_VIEW_48] = "splitViewFigure48.png";
+        relPaths[ANALYSIS] = "nuvola_kcmsystem16.png";
 	}
    
 	/** The sole instance. */

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.OptionsDialog
+ * org.openmicroscopy.shoola.agents.metadata.editor.AnalysisDialog 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -22,7 +22,8 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
-//Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -34,22 +35,24 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
-
-//Third-party libraries
-import info.clearthought.layout.TableLayout;
-
-//Application-internal dependencies
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.WellSampleData;
 
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
+
 /** 
- * Displays the various publishing options, and analysis options.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -61,7 +64,7 @@ import pojos.WellSampleData;
  * </small>
  * @since 3.0-Beta4
  */
-class OptionsDialog
+public class AnalysisDialog 
 	extends JDialog
 	implements PropertyChangeListener
 {
@@ -69,37 +72,15 @@ class OptionsDialog
 	/** Horizontal gap between components. */
 	private static final int	HORIZONTAL_STRUT = 5;
 	
-	/** The text associated to the movie action. */
-	private static final String MOVIE_TEXT = "Make a movie of the " +
-			"selected image.";
-	
-	/** The text associated to the export as OME-TIFF action. */
-	private static final String EXPORT_AS_OME_TIFF_TEXT = "Export the image" +
-			" as OME-TIFF.";
 	
 	/** The text associated to the FLIM action. */
 	private static final String FLIM_TEXT = "";
-	
-	/** The text associated to the SPLIT_VIEW_FIGURE action. */
-	private static final String SPLIT_VIEW_FIGURE_TEXT = "";
 	
 	/** Reference to the control. */
 	private EditorControl controller;
 	
 	/** Reference to the Model. */
 	private EditorModel   model;
-	
-	/** Button to make a movie. */
-	private JButton movieButton;
-	
-	/** Button to export an image as OME-TIFF. */
-	private JButton exportAsOmeTiffButton;
-	
-	/** Button to perform <code>FLIM</code> analysis. */
-	private JButton flimButton;
-	
-	/** Button to create a split view figure of a collection of images. */
-	private JButton splitViewFigureButton;
 	
 	/**
 	 * Creates a button.
@@ -123,18 +104,6 @@ class OptionsDialog
 	/** Initializes the components. */
 	private void initComponents()
 	{
-		IconManager icons = IconManager.getInstance();
-		movieButton = createButton(icons.getIcon(IconManager.MOVIE), 
-				MOVIE_TEXT, EditorControl.CREATE_MOVIE);
-		exportAsOmeTiffButton = createButton(
-				icons.getIcon(IconManager.EXPORT_AS_OMETIFF), 
-				EXPORT_AS_OME_TIFF_TEXT, EditorControl.EXPORT_AS_OMETIFF);
-		flimButton = createButton(icons.getIcon(IconManager.ANALYSE), 
-				FLIM_TEXT, EditorControl.ANALYSE_FLIM);
-		splitViewFigureButton = createButton(
-				icons.getIcon(IconManager.SPLIT_VIEW), 
-				SPLIT_VIEW_FIGURE_TEXT, EditorControl.SPLIT_VIEW_FIGURE);
-		splitViewFigureButton.setEnabled(true);
 	}
 	
 	/** Sets the properties of the dialog. */
@@ -143,29 +112,6 @@ class OptionsDialog
 		//setResizable(false);
 	}
 	
-	/** 
-	 * Creates the component displaying the publishing controls.
-	 * 
-	 * @return See above.
-	 */
-	private JXTaskPane createPublishingControls()
-	{
-		JToolBar bar = new JToolBar();
-		bar.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	bar.setFloatable(false);
-    	bar.setRollover(true);
-    	bar.setBorder(null);
-    	bar.add(movieButton);
-    	bar.add(Box.createHorizontalStrut(HORIZONTAL_STRUT));
-        bar.add(exportAsOmeTiffButton);
-        bar.add(Box.createHorizontalStrut(HORIZONTAL_STRUT));
-        bar.add(splitViewFigureButton);
-        JXTaskPane pane = EditorUtil.createTaskPane("Publish");
-		pane.setCollapsed(false);
-    	pane.addPropertyChangeListener(this);
-		pane.add(bar);
-        return pane;
-	}
 	
 	/** 
 	 * Creates the component displaying the first level of routines.
@@ -199,9 +145,6 @@ class OptionsDialog
 		p.setLayout(layout);
 		int index = 0;
 		layout.insertRow(index, TableLayout.PREFERRED);
-		p.add(createPublishingControls(), "0, "+index);
-		index++;
-		layout.insertRow(index, TableLayout.PREFERRED);
 		p.add(createAnalysingControls(), "0, "+index);
 		getContentPane().add(p, BorderLayout.NORTH);
 	}
@@ -211,7 +154,7 @@ class OptionsDialog
 	 * 
 	 * @param controller Reference to the controller.
 	 */
-	OptionsDialog(EditorControl controller, EditorModel model)
+	AnalysisDialog(EditorControl controller, EditorModel model)
 	{
 		super(MetadataViewerAgent.getRegistry().getTaskBar().getFrame());
 		this.controller = controller;
@@ -228,25 +171,6 @@ class OptionsDialog
 	{
 		Object refObject = model.getRefObject();
     	ImageData img = null;
-    	exportAsOmeTiffButton.setEnabled(false);
-    	movieButton.setEnabled(false);
-    	splitViewFigureButton.setEnabled(false);
-    	if (refObject instanceof ImageData) {
-    		img = (ImageData) refObject;
-    	} else if (refObject instanceof WellSampleData) {
-    		img = ((WellSampleData) refObject).getImage();
-    	}
-    	if (img != null) {
-    		PixelsData data = null;
-    		try {
-    			data = img.getDefaultPixels();
-    			exportAsOmeTiffButton.setEnabled(true);
-    			movieButton.setEnabled(data.getSizeT() > 1 || 
-    					data.getSizeZ() > 1);
-    			splitViewFigureButton.setEnabled(data.getSizeC() > 1);
-			} catch (Exception e) {}
-    	}
-    	flimButton.setEnabled(!model.isNumerousChannel());
 	}
 
 	/**
@@ -261,5 +185,4 @@ class OptionsDialog
 			//TODO:
 		}
 	}
-
 }

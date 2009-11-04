@@ -1017,6 +1017,7 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{
 		try {
+			/*
 			if (fileStore != null) {
 				services.remove(fileStore);
 				try {
@@ -1025,6 +1026,8 @@ class OMEROGateway
 			}
 			fileStore = entry.createRawFileStore();
 			services.add(fileStore);
+			*/
+			fileStore = entry.createRawFileStore();
 			return fileStore;
 		} catch (Throwable e) {
 			handleException(e, "Cannot access RawFileStore service.");
@@ -2722,6 +2725,11 @@ class OMEROGateway
 											fullPath, e);
 			}
 		}
+		try {
+			store.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		result.put(files.size(), notDownloaded);
 		return result;
 	}
@@ -2770,7 +2778,12 @@ class OMEROGateway
 			if (file != null) file.delete();
 			throw new DSAccessException("Cannot create file  " +path, e);
 		}
-		//store.close();
+		try {
+			store.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
 		return file;
 	}
 	
@@ -2900,6 +2913,7 @@ class OMEROGateway
 				bbuf.limit(rlen);
 			}
 			stream.close();
+			store.close();
 		} catch (Exception e) {
 			try {
 				if (fileCreated) deleteObject(save);
@@ -4547,13 +4561,12 @@ class OMEROGateway
 			long value;
 			while (j.hasNext()) {
 				en = (Entry) j.next();
-				if (en.getValue().equals("splitViewFigureNew5.py")) {
+				if (en.getValue().equals("splitViewFigure.py")) {
 					value = (Long) en.getKey();
 					if (value > id) id = value;
 				}
 			}
 			if (id <= 0) return -1;
-			System.err.println(id);
 			List<RType> ids = new ArrayList<RType>(imageIDs.size());
 			Iterator<Long> i = imageIDs.iterator();
 			while (i.hasNext()) 

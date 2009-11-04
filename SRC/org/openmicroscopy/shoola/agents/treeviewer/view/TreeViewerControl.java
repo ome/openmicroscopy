@@ -851,6 +851,7 @@ class TreeViewerControl
 				if (imageIds.size() == 0) return;
 				activity = new FigureActivityParam(object, imageIds, 
 						FigureActivityParam.SPLIT_VIEW_FIGURE);
+				activity.setIcon(icon);
 				un.notifyActivity(activity);
 				return;
 			}

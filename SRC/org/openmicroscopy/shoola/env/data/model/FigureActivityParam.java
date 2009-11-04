@@ -24,12 +24,8 @@ package org.openmicroscopy.shoola.env.data.model;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.Icon;
-
-import pojos.ImageData;
 
 //Third-party libraries
 

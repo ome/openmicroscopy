@@ -79,8 +79,11 @@ class ToolBar
 	/** Button to refresh the selected tab. */
 	private JButton			refreshButton;
 
-	/** Button to bring up the activity panel. */
-	private JButton			activityButton;
+	/** Button to bring up the analysis list. */
+	private JButton			analysisButton;
+	
+	/** Button to bring up the publishing list. */
+	private JButton			publishingButton;
 	
 	/** Indicates the loading progress. */
 	private JXBusyLabel		busyLabel;
@@ -92,7 +95,7 @@ class ToolBar
 	private EditorModel 	model;
 
 	/** The option dialog. */
-	private OptionsDialog  dialog;
+	private PublishingDialog  dialog;
 	
 	/** Initializes the components. */
 	private void initComponents()
@@ -124,11 +127,24 @@ class ToolBar
 		refreshButton.addActionListener(controller);
 		refreshButton.setActionCommand(""+EditorControl.REFRESH);
 		
-		activityButton = new JButton(icons.getIcon(IconManager.ACTIVITY));
-		activityButton.setToolTipText("Display the publishing, " +
-				"analysis options.");
-		activityButton.setEnabled(false);
-		activityButton.addMouseListener(new MouseAdapter() {
+		publishingButton = new JButton(icons.getIcon(IconManager.PUBLISHING));
+		publishingButton.setToolTipText("Display the publishing options.");
+		publishingButton.setEnabled(false);
+		publishingButton.addMouseListener(new MouseAdapter() {
+			
+			/**
+			 * Launches the dialog when the user releases the mouse.
+			 * MouseAdapter#mouseReleased(MouseEvent)
+			 */
+			public void mouseReleased(MouseEvent e)
+			{
+				launchOptions((Component) e.getSource(), e.getPoint());
+			}
+		});
+		analysisButton = new JButton(icons.getIcon(IconManager.ANALYSIS));
+		analysisButton.setToolTipText("Display the analysis options.");
+		analysisButton.setEnabled(false);
+		analysisButton.addMouseListener(new MouseAdapter() {
 			
 			/**
 			 * Launches the dialog when the user releases the mouse.
@@ -146,7 +162,8 @@ class ToolBar
 		UIUtilities.unifiedButtonLookAndFeel(rndButton);
 		UIUtilities.unifiedButtonLookAndFeel(refreshButton);
 
-		UIUtilities.unifiedButtonLookAndFeel(activityButton);
+		UIUtilities.unifiedButtonLookAndFeel(publishingButton);
+		UIUtilities.unifiedButtonLookAndFeel(analysisButton);
 		Dimension d = new Dimension(UIUtilities.DEFAULT_ICON_WIDTH, 
 				UIUtilities.DEFAULT_ICON_HEIGHT);
     	busyLabel = new JXBusyLabel(d);
@@ -171,7 +188,9 @@ class ToolBar
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(downloadButton);
     	bar.add(Box.createHorizontalStrut(5));
-    	bar.add(activityButton);
+    	bar.add(publishingButton);
+    	bar.add(Box.createHorizontalStrut(5));
+    	bar.add(analysisButton);
     	/*
     	JButton b = new JButton("P");
     	b.addActionListener(new ActionListener() {
@@ -272,14 +291,13 @@ class ToolBar
 	void setRootObject()
 	{ 
 		if (model.getRefObject() instanceof ExperimenterData) {
-			activityButton.setEnabled(false);
+			publishingButton.setEnabled(false);
 			return;
 		}
-		activityButton.setEnabled(true);
+		publishingButton.setEnabled(true);
 		if (dialog != null) dialog.setRootObject();
 	}
-	
-    
+
 	/**
 	 * Launches the Options.
 	 * 
@@ -290,7 +308,7 @@ class ToolBar
 	{
 		SwingUtilities.convertPointToScreen(p, source);
 		if (dialog == null)
-			dialog = new OptionsDialog(controller, model);
+			dialog = new PublishingDialog(controller, model);
 		
 		dialog.setLocation(p);
 		dialog.setVisible(true);
