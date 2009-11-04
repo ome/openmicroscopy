@@ -782,7 +782,7 @@ if __name__ == '__main__':
 	for aFilename in ["samples/completesamplenopre.xml","samples/completesample.xml","samples/completesamplenoenc.xml",
  			"samples/sdub.ome", "samples/sdub-fix.ome", "samples/sdub-fix-pre.ome", 
  			"samples/tiny.ome", "samples/broke.ome",
-			"samples/tiny2008-02-V1.ome", "samples/tiny2008-09-V1.ome"]:
+			"samples/tiny2008-02-V1.ome", "samples/tiny2008-09-V1.ome", "samples/tiny2009-09-V1.ome", "samples/fail2009-09-V1.ome"]:
 			print "============ XML file %s ============ " % aFilename
 			print XmlReport.validateFile(aFilename)
 	
