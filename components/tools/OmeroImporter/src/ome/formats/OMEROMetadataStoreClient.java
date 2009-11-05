@@ -183,6 +183,10 @@ public class OMEROMetadataStoreClient
     private Map<LSID, List<LSID>> referenceCache = 
     	new HashMap<LSID, List<LSID>>();
     
+    /** Our authoritative LSID container cache. */
+    private Map<String, IObjectContainer> authoritativeContainerCache =
+    	new HashMap<String, IObjectContainer>();
+    
     /** 
      * Our string based reference cache. This will be populated after all
      * model population has been completed by a ReferenceProcessor. 
@@ -683,6 +687,14 @@ public class OMEROMetadataStoreClient
         return referenceCache;
     }
     
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#getAuthoritativeContainerCache()
+     */
+    public Map<String, IObjectContainer> getAuthoritativeContainerCache()
+    {
+    	return authoritativeContainerCache;
+    }
+    
     /**
      * Adds a reference to the reference cache.
      * @param source Source LSID to add.
@@ -1154,6 +1166,7 @@ public class OMEROMetadataStoreClient
         indexes.put("detectorIndex", detectorIndex);
         IObjectContainer o = getIObjectContainer(Detector.class, indexes);
         o.LSID = id;
+        authoritativeContainerCache.put(id, o);
     }
 
     public void setDetectorManufacturer(String manufacturer,
@@ -1378,6 +1391,7 @@ public class OMEROMetadataStoreClient
         indexes.put("imageIndex", imageIndex);
         IObjectContainer o = getIObjectContainer(Image.class, indexes);
         o.LSID = id;
+        authoritativeContainerCache.put(id, o);
     }
 
     public void setImageInstrumentRef(String instrumentRef, int imageIndex)
@@ -1448,6 +1462,7 @@ public class OMEROMetadataStoreClient
         indexes.put("instrumentIndex", instrumentIndex);
         IObjectContainer o = getIObjectContainer(Instrument.class, indexes);
         o.LSID = id;
+        authoritativeContainerCache.put(id, o);
     }
     
     public void setLaserRepetitionRate(Double repetitionRate,
@@ -1517,6 +1532,7 @@ public class OMEROMetadataStoreClient
         indexes.put("lightSourceIndex", lightSourceIndex);  
         IObjectContainer o = getIObjectContainer(LightSource.class, indexes);
         o.LSID = id;
+        authoritativeContainerCache.put(id, o);
     }
 
     public void setLightSourceManufacturer(String manufacturer,
@@ -1632,6 +1648,7 @@ public class OMEROMetadataStoreClient
         indexes.put("logicalChannelIndex", logicalChannelIndex);  
         IObjectContainer o = getIObjectContainer(LogicalChannel.class, indexes);
         o.LSID = id;
+        authoritativeContainerCache.put(id, o);
     }
 
     public void setLogicalChannelIlluminationType(String illuminationType,
@@ -1700,6 +1717,7 @@ public class OMEROMetadataStoreClient
         indexes.put("otfIndex", otfIndex);  
         IObjectContainer o = getIObjectContainer(OTF.class, indexes);
         o.LSID = id;
+        authoritativeContainerCache.put(id, o);
     }
 
     public void setOTFOpticalAxisAveraged(Boolean opticalAxisAveraged,
@@ -1775,6 +1793,7 @@ public class OMEROMetadataStoreClient
         indexes.put("objectiveIndex", objectiveIndex);  
         IObjectContainer o = getIObjectContainer(Objective.class, indexes);
         o.LSID = id;
+        authoritativeContainerCache.put(id, o);
     }
 
     public void setObjectiveImmersion(String immersion, int instrumentIndex,
@@ -1846,6 +1865,7 @@ public class OMEROMetadataStoreClient
         indexes.put("pixelsIndex", pixelsIndex);  
         IObjectContainer o = getIObjectContainer(Pixels.class, indexes);
         o.LSID = id;
+        authoritativeContainerCache.put(id, o);
     }
 
     public void setPixelsPixelType(String pixelType, int imageIndex,
@@ -1957,6 +1977,7 @@ public class OMEROMetadataStoreClient
         indexes.put("plateIndex", plateIndex); 
         IObjectContainer o = getIObjectContainer(Plate.class, indexes);
         o.LSID = id;
+        authoritativeContainerCache.put(id, o);
     }
 
     public void setPlateName(String name, int plateIndex)
@@ -2034,6 +2055,7 @@ public class OMEROMetadataStoreClient
         indexes.put("reagentIndex", reagentIndex);  
         IObjectContainer o = getIObjectContainer(Reagent.class, indexes);
         o.LSID = id;
+        authoritativeContainerCache.put(id, o);
     }
 
     public void setReagentName(String name, int screenIndex, int reagentIndex)
@@ -2232,6 +2254,7 @@ public class OMEROMetadataStoreClient
         indexes.put("wellIndex", wellIndex);  
         IObjectContainer o = getIObjectContainer(Well.class, indexes);
         o.LSID = id;
+        authoritativeContainerCache.put(id, o);
     }
 
     public void setWellRow(Integer row, int plateIndex, int wellIndex)
@@ -2250,6 +2273,7 @@ public class OMEROMetadataStoreClient
         indexes.put("wellSampleIndex", wellSampleIndex);
         IObjectContainer o = getIObjectContainer(WellSample.class, indexes);
         o.LSID = id;
+        authoritativeContainerCache.put(id, o);
     }
 
     public void setWellSampleIndex(Integer index, int plateIndex,
@@ -3075,6 +3099,7 @@ public class OMEROMetadataStoreClient
         indexes.put("experimentIndex", experimentIndex);
         IObjectContainer o = getIObjectContainer(Experiment.class, indexes);
         o.LSID = id;
+        authoritativeContainerCache.put(id, o);
     }
 
     public void setExperimentType(String type, int experimentIndex)
@@ -4641,6 +4666,7 @@ public class OMEROMetadataStoreClient
         indexes.put("dichroicIndex", dichroicIndex);
         IObjectContainer o = getIObjectContainer(Dichroic.class, indexes);
         o.LSID = id;
+        authoritativeContainerCache.put(id, o);
 	}
 
 	public void setFilterID(String id, int instrumentIndex, int filterIndex)
@@ -4652,6 +4678,7 @@ public class OMEROMetadataStoreClient
         indexes.put("filterIndex", filterIndex);
         IObjectContainer o = getIObjectContainer(Filter.class, indexes);
         o.LSID = id;
+        authoritativeContainerCache.put(id, o);
 	}
 
 	public void setFilterSetID(String id, int instrumentIndex,
@@ -4664,7 +4691,7 @@ public class OMEROMetadataStoreClient
         indexes.put("filterSetIndex", filterSetIndex);
         IObjectContainer o = getIObjectContainer(FilterSet.class, indexes);
         o.LSID = id;
-		
+        authoritativeContainerCache.put(id, o);
 	}
 
 	public void setRoiLinkDirection(String arg0, int arg1, int arg2, int arg3) {

@@ -115,6 +115,13 @@ public interface IObjectContainerStore
     void setUserSpecifiedPhysicalPixelSizes(Double physicalSizeX,
     		                                Double physicalSizeY,
     		                                Double physicalSizeZ);
+
+    /**
+     * Returns the current authoritative LSID container cache. This container
+     * cache records the explicitly set LSID to container references.
+     * @return See above.
+     */
+    Map<String, IObjectContainer> getAuthoritativeContainerCache();
     
     /**
      * Returns the current container cache.

@@ -206,18 +206,42 @@ public class ChannelData
 			LSID target, Class<? extends IObject> referencedClass)
 	{
 		List<IObjectContainer> toReturn = new ArrayList<IObjectContainer>();
+		Map<String, IObjectContainer> containerCache = 
+			store.getAuthoritativeContainerCache();
 		if (referenceCache.containsKey(target))
 		{
-			List<IObjectContainer> containers = 
-				store.getIObjectContainers(referencedClass);
 			List<LSID> references = referenceCache.get(target);
-			for (IObjectContainer container : containers)
+			IObjectContainer container = null;
+			for (LSID reference : references)
 			{
-				if (references.contains(new LSID(container.LSID))
-					|| references.contains(new LSID(container.LSID + 
+				if (containerCache.containsKey(reference.toString()))
+				{
+					container = containerCache.get(reference.toString());
+				}
+				else if (reference.toString().endsWith(
 						OMEROMetadataStoreClient.OMERO_EMISSION_FILTER_SUFFIX))
-					|| references.contains(new LSID(container.LSID + 
-						OMEROMetadataStoreClient.OMERO_EXCITATION_FILTER_SUFFIX)))
+				{
+					String lsid = reference.toString().replaceAll(
+						OMEROMetadataStoreClient.OMERO_EMISSION_FILTER_SUFFIX,
+						"");
+					if (containerCache.containsKey(lsid))
+					{
+						container = containerCache.get(lsid);
+					}
+				}
+				else if (reference.toString().endsWith(
+						OMEROMetadataStoreClient.OMERO_EXCITATION_FILTER_SUFFIX))
+				{
+					String lsid = reference.toString().replaceAll(
+						OMEROMetadataStoreClient.OMERO_EXCITATION_FILTER_SUFFIX,
+						"");
+					if (containerCache.containsKey(lsid))
+					{
+						container = containerCache.get(lsid);
+					}
+				}
+				if (container != null
+					&& referencedClass.isInstance(container.sourceObject))
 				{
 					toReturn.add(container);
 				}
