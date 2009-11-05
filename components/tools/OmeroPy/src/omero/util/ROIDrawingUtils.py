@@ -19,7 +19,6 @@
 #
 #------------------------------------------------------------------------------
 
-
 ###
 #
 # ROIDrawingCanvas draws the shapes from the obejct visited. 
@@ -35,6 +34,40 @@
 # </small>
 # @since 3.0-Beta4
 #
+
+"""
+
+Example code to draw 10 ellipses randomly on an image.
+
+import ROI_utils;
+import ROIDrawingUtils;
+from random import randint;
+
+l = [];
+for i in range(0,10):
+    e = ROI_utils.EllipseData(ROI_utils.ROICoordinate(), randint(100, 300), randint(100, 300), randint(20, 50), randint(20, 50))
+    l.append(e);
+d = ROIDrawingUtils.DrawingCanvas();
+d.createImage(400,400)
+v = d.drawElements(l);
+d.image.show() 
+
+
+Example code to draw a pilyline on an image an display it in PIL.
+from PIL import Image
+from PIL import ImageDraw
+import ROI_utils
+import ROIDrawingUtils
+
+drawingCanvas = ROIDrawingUtils.DrawingCanvas();
+points = [10,30, 40, 80, 100, 150]
+polygonData = ROI_utils.PolylineData(ROI_utils.ROICoordinate(), points);
+drawingCanvas.createImage(400,400);
+drawingCanvas.drawElements([polygonData]);
+drawingCanvas.image.show() 
+
+
+"""
 
 from PIL import ImageDraw;
 from PIL import Image;
