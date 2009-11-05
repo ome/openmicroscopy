@@ -53,7 +53,7 @@ v = d.drawElements(l);
 d.image.show() 
 
 
-Example code to draw a pilyline on an image an display it in PIL.
+Example code to draw a polyline on an image an display it in PIL.
 from PIL import Image
 from PIL import ImageDraw
 import ROI_utils
