@@ -208,37 +208,33 @@ public class ChannelData
 		List<IObjectContainer> toReturn = new ArrayList<IObjectContainer>();
 		Map<String, IObjectContainer> containerCache = 
 			store.getAuthoritativeContainerCache();
+		String lsid = null;
 		if (referenceCache.containsKey(target))
 		{
 			List<LSID> references = referenceCache.get(target);
 			IObjectContainer container = null;
 			for (LSID reference : references)
 			{
-				if (containerCache.containsKey(reference.toString()))
-				{
-					container = containerCache.get(reference.toString());
-				}
-				else if (reference.toString().endsWith(
+				container = containerCache.get(reference.toString());
+				if (referencedClass.equals(Filter.class)
+					&& container == null
+					&& reference.toString().endsWith(
 						OMEROMetadataStoreClient.OMERO_EMISSION_FILTER_SUFFIX))
 				{
-					String lsid = reference.toString().replaceAll(
-						OMEROMetadataStoreClient.OMERO_EMISSION_FILTER_SUFFIX,
-						"");
-					if (containerCache.containsKey(lsid))
-					{
-						container = containerCache.get(lsid);
-					}
+					lsid = reference.toString();
+					lsid = lsid.substring(0, lsid.lastIndexOf(':'));
+					System.err.println(lsid);
+					container = containerCache.get(lsid);
 				}
-				else if (reference.toString().endsWith(
-						OMEROMetadataStoreClient.OMERO_EXCITATION_FILTER_SUFFIX))
+				else if (referencedClass.equals(Filter.class)
+						 && container == null
+						 && reference.toString().endsWith(
+					OMEROMetadataStoreClient.OMERO_EXCITATION_FILTER_SUFFIX))
 				{
-					String lsid = reference.toString().replaceAll(
-						OMEROMetadataStoreClient.OMERO_EXCITATION_FILTER_SUFFIX,
-						"");
-					if (containerCache.containsKey(lsid))
-					{
-						container = containerCache.get(lsid);
-					}
+					lsid = reference.toString();
+					lsid = lsid.substring(0, lsid.lastIndexOf(':'));
+					System.err.println(lsid);
+					container = containerCache.get(lsid);
 				}
 				if (container != null
 					&& referencedClass.isInstance(container.sourceObject))
