@@ -111,7 +111,6 @@ public class IObjectContainerStoreTest extends TestCase
 		}
 		long t0 = System.currentTimeMillis();
 		store.getIObjectContainers(Image.class);
-		assertEquals(0, System.currentTimeMillis() - t0);
-		//assertTrue(() == 100);
+		assertTrue((System.currentTimeMillis() - t0) < 100);
 	}
 }
