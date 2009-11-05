@@ -4593,7 +4593,7 @@ class OMEROGateway
 						omero.rtypes.rstring((String) entry.getValue()));
 			}
 			ParametersI parameters = new ParametersI();
-			parameters.map.put("imageIds", omero.rtypes.rset(ids));
+			parameters.map.put("imageIds", omero.rtypes.rlist(ids));
 			parameters.map.put("zStart", omero.rtypes.rlong(param.getStartZ()));
 			parameters.map.put("zEnd", omero.rtypes.rlong(param.getEndZ()));
 			
