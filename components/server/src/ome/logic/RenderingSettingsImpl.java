@@ -709,7 +709,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             channelBinding.setNoiseReduction(false);
             i++;
         }
-        if (values.size() != m.size()) {
+        if (values.size() > 0 && values.size() != m.size()) {
         	Iterator<ChannelBinding> k = m.keySet().iterator();
             while (k.hasNext()) {
     			channelBinding = k.next();
