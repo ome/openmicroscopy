@@ -202,7 +202,10 @@ public class PolylineData
 		pts = pts + "points1["+points1Values+"] ";
 		pts = pts + "points2["+points2Values+"] ";
 		pts = pts + "mask["+maskValues+"] ";
-		
+		this.points = points;
+		this.points1 = points1;
+		this.points2 = points2;
+		this.mask = maskList;
 		shape.setPoints(rtypes.rstring(pts));
 	}
 	

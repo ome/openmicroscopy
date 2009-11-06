@@ -147,7 +147,7 @@ public abstract class ShapeData
 	{
 		clientObject = clientSideObject;
 	}
-			
+	
 	/**
 	 * Returns the z-section.
 	 * 
