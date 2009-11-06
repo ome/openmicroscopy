@@ -55,7 +55,7 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
-import org.openmicroscopy.shoola.agents.metadata.util.SplitViewFigureDialog;
+import org.openmicroscopy.shoola.agents.metadata.util.FigureDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
@@ -154,6 +154,8 @@ class EditorControl
 	
 	/** Collection of supported export formats. */
 	private List<FileFilter>	exportFilters;
+	
+	private FigureDialog		figureDialog;
 	
 	/** Creates the collection of supported file filters. */
 	private void createFileFilters()
@@ -334,6 +336,30 @@ class EditorControl
 	boolean isSingleMode() { return view.isSingleMode(); }
 
 	/**
+	 * Creates or recycles the existing figure dialog.
+	 * 
+	 * @param name  The name to display.
+	 * @param maxZ  The number of z-sections.
+	 * @return See above.
+	 */
+	FigureDialog createFigureDialog(String name, int maxZ)
+	{
+		if (figureDialog != null) return figureDialog;
+		JFrame f = 
+			MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+		figureDialog = new FigureDialog(f, name, maxZ);
+		figureDialog.addPropertyChangeListener(this);
+		return figureDialog;
+	}
+	
+	/**
+	 * Returns the dialog.
+	 * 
+	 * @return See above.
+	 */
+	FigureDialog getFigureDialog() { return figureDialog; }
+	
+	/**
 	 * Reacts to state changes in the {@link ImViewer}.
 	 * @see ChangeListener#stateChanged(ChangeEvent)
 	 */
@@ -428,10 +454,11 @@ class EditorControl
 		} else if (MetadataViewer.ACTIVITY_OPTIONS_PROPERTY.equals(name)) {
 			List l = (List) evt.getNewValue();
 			view.activityOptions((Component) l.get(0), (Point) l.get(1));
-		} else if (SplitViewFigureDialog.SPLIT_FIGURE_PROPERTY.equals(
+		} else if (FigureDialog.SPLIT_FIGURE_PROPERTY.equals(
 				name)) {
 			view.createFigure(evt.getNewValue());
-		}
+		} else if (FigureDialog.CLOSE_FIGURE_PROPERTY.equals(name))
+			figureDialog = null;
 	}
 
 	/**
@@ -476,7 +503,7 @@ class EditorControl
 				export();
 				break;
 			case SPLIT_VIEW_FIGURE:
-				model.createSplitViewFigure();
+				model.createFigure(FigureDialog.SPLIT);
 		}
 	}
 	

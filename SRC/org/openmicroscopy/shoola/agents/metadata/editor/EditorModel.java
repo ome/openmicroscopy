@@ -2019,4 +2019,23 @@ class EditorModel
 	 */
 	void createFigure(Object value) { parent.createFigure(value); }
 	
+	/** 
+	 * Returns the number of z-sections.
+	 * 
+	 * @return
+	 */
+	int getMaxZ()
+	{
+		Object object = getPrimarySelect();
+		ImageData img = null;
+		if (object instanceof WellSampleData)
+			img = ((WellSampleData) object).getImage();
+		if (object instanceof ImageData)
+			img = (ImageData) object;
+		if (img == null) return -1;
+		PixelsData pixs = img.getDefaultPixels();
+		if (pixs == null) return -1;
+		return pixs.getSizeZ();
+	}
+	
 }

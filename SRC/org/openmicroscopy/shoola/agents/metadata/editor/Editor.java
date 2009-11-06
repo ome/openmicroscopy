@@ -380,7 +380,9 @@ public interface Editor
 
 	/**
 	 * Loads the rendering control if not already loaded for the primary select.
+	 * 
+	 * @param index The index of the figure to create.
 	 */
-	public void createSplitViewFigure();
+	public void createFigure(int index);
 	
 }

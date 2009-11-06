@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.util.SplitViewCanvas 
+ * org.openmicroscopy.shoola.agents.metadata.util.FigureCanvas 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -48,7 +48,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
  * </small>
  * @since 3.0-Beta4
  */
-class SplitViewCanvas
+class FigureCanvas
 	extends JPanel
 {
 
@@ -59,7 +59,7 @@ class SplitViewCanvas
 	private boolean			imageVisible;
 	
 	/** Creates a new instance. */
-	SplitViewCanvas()
+	FigureCanvas()
 	{
 		setBackground(getBackground());
 		setDoubleBuffered(true);

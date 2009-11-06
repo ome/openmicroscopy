@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.util.SplitViewComponent 
+ * org.openmicroscopy.shoola.agents.metadata.util.FigureComponent 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -59,13 +59,13 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta4
  */
-class SplitViewComponent
+class FigureComponent
 	extends JPanel
 	implements ChangeListener
 {
 
 	/** Reference to the canvas displaying the image. */
-	private SplitViewCanvas canvas;
+	private FigureCanvas canvas;
 	
 	/** 
 	 * The component displaying the label of the channel so that
@@ -95,7 +95,7 @@ class SplitViewComponent
 	private int						index;
 	
 	/** Reference to the model. */
-	private SplitViewFigureDialog 	model;
+	private FigureDialog 	model;
 	
 	/** 
 	 * Initializes the components composing the display.
@@ -108,7 +108,7 @@ class SplitViewComponent
 		Font f = field.getFont();
 		field.setFont(f.deriveFont(f.getStyle(), ChannelButton.MIN_FONT_SIZE));
 		field.setColumns(8);
-		canvas = new SplitViewCanvas();
+		canvas = new FigureCanvas();
 		ColourIcon icon = new ColourIcon(color);
 		icon.paintLineBorder(true);
 		box = new JCheckBox();
@@ -138,7 +138,7 @@ class SplitViewComponent
 	 * @param name	 The name to give to the channel.
 	 * @param index  The index of the channel.
 	 */
-	SplitViewComponent(SplitViewFigureDialog model, Color color, String name,
+	FigureComponent(FigureDialog model, Color color, String name,
 			int index)
 	{
 		this.model = model;

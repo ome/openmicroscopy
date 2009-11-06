@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.util.SplitViewFigureDialog 
+ * org.openmicroscopy.shoola.agents.metadata.util.FigureDialog 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -76,6 +76,8 @@ import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
+
+import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
@@ -105,14 +107,27 @@ import pojos.ChannelData;
  * </small>
  * @since 3.0-Beta4
  */
-public class SplitViewFigureDialog 
+public class FigureDialog 
 	extends JDialog
 	implements ActionListener, ChangeListener, DocumentListener, 
 	PropertyChangeListener
 {
 
+	/** Indicates that the dialog is for a split view. */
+	public static final int			SPLIT = 0;
+	
+	/** Indicates that the dialog is for a split view and ROI. */
+	public static final int			SPLIT_ROI = 1;
+	
 	/** Bound property indicating to create a split view figure. */
 	public static final String		SPLIT_FIGURE_PROPERTY = "splitFigure";
+	
+	/** Bound property indicating to create a split view figure with ROI. */
+	public static final String		SPLIT_FIGURE_ROI_PROPERTY = 
+		"splitFigureROI";
+	
+	/** Bound property indicating to close the dialog. */
+	public static final String		CLOSE_FIGURE_PROPERTY = "closeFigure";
 	
 	/** Action id indicating to close the dialog. */
 	public static final int 		CLOSE = 0;
@@ -174,7 +189,7 @@ public class SplitViewFigureDialog
     private JComboBox						rowName;
       
     /** Components displaying the image. */
-    private Map<Integer, SplitViewComponent> components;
+    private Map<Integer, FigureComponent> components;
     
     /** List of channel buttons. */
     private List<ChannelComponent>			channelList;
@@ -189,7 +204,7 @@ public class SplitViewFigureDialog
 	private PlaneDef 						pDef;
 
 	/** The component displaying the merger image. */
-	private SplitViewCanvas					mergeCanvas;
+	private FigureCanvas					mergeCanvas;
 	
 	/** The image with all the active channels. */
 	private BufferedImage					mergeImage;
@@ -215,6 +230,15 @@ public class SplitViewFigureDialog
 	/** The selected color for scale bar. */
 	private JComboBox						colorBox;
 	
+	/** The index of the dialog. One of the constants. */
+	private int								index;
+	
+	/** The number of z-sections. */
+	private int								maxZ;
+	
+	/** The components hosting the channel components. */
+	private JXTaskPane						channelsPane;
+	
 	/**
 	 * Sets the channel selection.
 	 * 
@@ -238,7 +262,7 @@ public class SplitViewFigureDialog
 		}
         boolean grey = splitPanelGrey.isSelected();
 
-        SplitViewComponent comp = components.get(channel);
+        FigureComponent comp = components.get(channel);
         if (active) {
         	if (grey) comp.resetImage(grey);
         	else comp.resetImage(!active);
@@ -311,13 +335,13 @@ public class SplitViewFigureDialog
 				pDef));
 	}
 	
-	/** 
-	 * Initializes the components composing the display. 
-	 * 
-	 * @param name The default name of the file.
-	 */
-	private void initComponents(String name)
+	/** Initializes the channels components. */
+	private void initChannelComponents()
 	{
+		pDef = new PlaneDef();
+		pDef.t = renderer.getDefaultT();
+		pDef.z = renderer.getDefaultZ();
+		pDef.slice = omero.romio.XY.value;
 		widthField = new NumericalTextField(0, renderer.getPixelsDimensionsX());
 		widthField.setColumns(5);
 		widthField.setText(""+renderer.getPixelsDimensionsX());
@@ -328,20 +352,57 @@ public class SplitViewFigureDialog
 		
 		widthField.getDocument().addDocumentListener(this);
 		heightField.getDocument().addDocumentListener(this);
-		thumbnailHeight = Factory.THUMB_DEFAULT_HEIGHT;
-		thumbnailWidth = Factory.THUMB_DEFAULT_WIDTH;
-		pDef = new PlaneDef();
-		pDef.t = renderer.getDefaultT();
-		pDef.z = renderer.getDefaultZ();
-		pDef.slice = omero.romio.XY.value;
 		
-		mergeCanvas = new SplitViewCanvas();
+		mergeCanvas = new FigureCanvas();
 		mergeImage = getMergedImage();
 		mergeCanvas.setPreferredSize(new Dimension(thumbnailWidth, 
 				thumbnailHeight));
 		mergeCanvas.setImage(mergeImage);
 		
-		components = new LinkedHashMap<Integer, SplitViewComponent>();
+		components = new LinkedHashMap<Integer, FigureComponent>();
+		//Initializes the channels
+		List<ChannelData> data = renderer.getChannelData();
+        ChannelData d;
+        //ChannelToggleButton item;
+        ChannelButton item;
+        Iterator<ChannelData> k = data.iterator();
+        List<Integer> active = renderer.getActiveChannels();
+        FigureComponent split;
+        int j;
+        while (k.hasNext()) {
+			d = k.next();
+			j = d.getIndex();
+			split = new FigureComponent(this, renderer.getChannelColor(j), 
+					d.getChannelLabeling(), j);
+			split.setOriginalImage(getChannelImage(j));
+			split.setCanvasSize(thumbnailWidth, thumbnailHeight);
+			if (!active.contains(j))
+				split.resetImage(true);
+			components.put(j, split);
+		}
+
+        k = data.iterator();
+        channelList = new ArrayList<ChannelComponent>();
+        ChannelComponent comp;
+        while (k.hasNext()) {
+        	d = k.next();
+			j = d.getIndex();
+			comp = new ChannelComponent(j, renderer.getChannelColor(j), 
+					active.contains(j));
+			channelList.add(comp);
+			comp.addPropertyChangeListener(this);
+		}
+	}
+	
+	/** 
+	 * Initializes the components composing the display. 
+	 * 
+	 * @param name The default name of the file.
+	 */
+	private void initComponents(String name)
+	{	
+		thumbnailHeight = Factory.THUMB_DEFAULT_HEIGHT;
+		thumbnailWidth = Factory.THUMB_DEFAULT_WIDTH;	
 		closeButton = new JButton("Cancel");
 		closeButton.setToolTipText(UIUtilities.formatToolTipText(
 				"Close the window."));
@@ -368,7 +429,6 @@ public class SplitViewFigureDialog
 			entry = (Entry) i.next();
 			f[(Integer) entry.getKey()] = (String) entry.getValue();
 		}
-		int maxZ = renderer.getPixelsDimensionsZ();
 		formats = new JComboBox(f);
 		zRange = new TextualTwoKnobsSlider(1, maxZ, 1, maxZ);
 		zRange.layoutComponents();
@@ -402,38 +462,6 @@ public class SplitViewFigureDialog
 		group.add(splitPanelColor);
 		splitPanelColor.setSelected(true);
 		
-		//Initializes the channels
-		List<ChannelData> data = renderer.getChannelData();
-        ChannelData d;
-        //ChannelToggleButton item;
-        ChannelButton item;
-        Iterator<ChannelData> k = data.iterator();
-        List<Integer> active = renderer.getActiveChannels();
-        SplitViewComponent split;
-        while (k.hasNext()) {
-			d = k.next();
-			j = d.getIndex();
-			split = new SplitViewComponent(this, renderer.getChannelColor(j), 
-					d.getChannelLabeling(), j);
-			split.setOriginalImage(getChannelImage(j));
-			split.setCanvasSize(thumbnailWidth, thumbnailHeight);
-			if (!active.contains(j))
-				split.resetImage(true);
-			components.put(j, split);
-		}
-
-        k = data.iterator();
-        channelList = new ArrayList<ChannelComponent>();
-        ChannelComponent comp;
-        while (k.hasNext()) {
-        	d = k.next();
-			j = d.getIndex();
-			comp = new ChannelComponent(j, renderer.getChannelColor(j), 
-					active.contains(j));
-			channelList.add(comp);
-			comp.addPropertyChangeListener(this);
-		}
-        
         showScaleBar = new JCheckBox("Scale Bar");
 		showScaleBar.setFont(showScaleBar.getFont().deriveFont(Font.BOLD));
 		showScaleBar.setActionCommand(""+SCALE_BAR);
@@ -541,7 +569,7 @@ public class SplitViewFigureDialog
 		JPanel p = new JPanel();
 		double[][] tl = {{TableLayout.PREFERRED, TableLayout.PREFERRED, 
 			TableLayout.PREFERRED, TableLayout.PREFERRED,
-			TableLayout.FILL}, //columns
+			TableLayout.PREFERRED}, //columns
 				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED}}; //rows
 		p.setLayout(new TableLayout(tl));
 		int i = 0;
@@ -667,17 +695,31 @@ public class SplitViewFigureDialog
 		pane.add(buildTypeComponent());
 		int i = 0;
 		p.add(pane, "0, "+i);
-		if (renderer.getPixelsDimensionsZ() > 1) {
+		if (maxZ > 1) {
 			pane = EditorUtil.createTaskPane("Projection");
 			pane.add(buildProjectionComponent());
 			i++;
 			p.add(pane, "0, "+i);
 		}
 		i++;
-		pane = EditorUtil.createTaskPane("Channels");
-		pane.setCollapsed(false);
-		pane.add(buildChannelsComponent());
-		p.add(pane, "0, "+i);
+		channelsPane = EditorUtil.createTaskPane("Channels");
+		channelsPane.setCollapsed(false);
+		channelsPane.add(buildDefaultPane());
+		p.add(channelsPane, "0, "+i);
+		return p;
+	}
+	
+	/**
+	 * Builds the default component.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildDefaultPane()
+	{
+		JPanel p = new JPanel();
+		JXBusyLabel label = new JXBusyLabel();
+		label.setBusy(true);
+		p.add(label);
 		return p;
 	}
 	
@@ -685,6 +727,8 @@ public class SplitViewFigureDialog
 	private void close()
 	{
 		option = CLOSE;
+		firePropertyChange(CLOSE_FIGURE_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
 		setVisible(false);
 		dispose();
 	}
@@ -697,12 +741,12 @@ public class SplitViewFigureDialog
 		int format = formats.getSelectedIndex();
 		int label = rowName.getSelectedIndex();
 		Map<Integer, String> split = new LinkedHashMap<Integer, String>();
-		SplitViewComponent comp;
+		FigureComponent comp;
 		Entry entry;
 		Iterator i = components.entrySet().iterator();
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
-			comp = (SplitViewComponent) entry.getValue();
+			comp = (FigureComponent) entry.getValue();
 			if (comp.isSelected()) {
 				split.put((Integer) entry.getKey(), comp.getChannelLabel());
 			}
@@ -748,7 +792,6 @@ public class SplitViewFigureDialog
 				projectionTypes.get(projectionTypesBox.getSelectedIndex()));
 		close();
 		firePropertyChange(SPLIT_FIGURE_PROPERTY, null, p);
-		//close();
 	}
 	
 	/** 
@@ -792,19 +835,26 @@ public class SplitViewFigureDialog
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param owner 	The owner of the dialog.
-	 * @param name  	The default name for the file.
-	 * @param renderer 	Reference to the renderer.
+	 * @param owner The owner of the dialog.
+	 * @param name  The default name for the file.
+	 * @param maxZ 	The number of z-sections.
 	 */
-	public SplitViewFigureDialog(JFrame owner, String name, Renderer renderer)
+	public FigureDialog(JFrame owner, String name, int maxZ)
 	{
 		super(owner, true);
-		this.renderer = renderer;
+		this.maxZ = maxZ;
 		initComponents(name);
 		buildGUI();
-		pack();
+		setSize(500, 700);
 	}
 
+	/**
+	 * Sets the dialog index.
+	 * 
+	 * @param index The value to set.
+	 */
+	public void setIndex(int index) { this.index = index; }
+	
 	/**
 	 * Creates and returns a greyScale image with only the selected channel
 	 * turned on.
@@ -816,6 +866,21 @@ public class SplitViewFigureDialog
 	{
 		return scaleImage(renderer.createSingleChannelImage(false, channel, 
 				pDef));
+	}
+	
+	/**
+	 * Sets the renderer.
+	 * 
+	 * @param renderer 	Reference to the renderer.
+	 */
+	public void setRenderer(Renderer renderer)
+	{
+		this.renderer = renderer;
+		initChannelComponents();
+		channelsPane.removeAll();
+		channelsPane.add(buildChannelsComponent());
+		saveButton.setEnabled(true);
+		pack();
 	}
 	
     /**
@@ -900,8 +965,15 @@ public class SplitViewFigureDialog
 						((Boolean) entry.getValue()));
 			}
 		} else if (ChannelComponent.CHANNEL_SELECTION_PROPERTY.equals(name)) {
-			ChannelComponent comp = (ChannelComponent) evt.getNewValue();
-			setChannelSelection(comp.getChannelIndex(), comp.isActive());
+			switch (index) {
+				case SPLIT:
+					ChannelComponent c = (ChannelComponent) evt.getNewValue();
+					setChannelSelection(c.getChannelIndex(), c.isActive());
+					break;
+				case SPLIT_ROI:
+					
+			}
+			
 		}
 	}
 	
@@ -912,8 +984,9 @@ public class SplitViewFigureDialog
 	public void stateChanged(ChangeEvent e)
 	{
 		boolean grey = splitPanelGrey.isSelected();
+		if (components == null) return;
 		Iterator<Integer> i = components.keySet().iterator();
-		SplitViewComponent comp;
+		FigureComponent comp;
 		List active = renderer.getActiveChannels();
 		Integer index;
 		while (i.hasNext()) {
