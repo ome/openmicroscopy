@@ -284,10 +284,10 @@ public interface MetadataViewer
 	
 	/**
 	 * Sets to <code>true</code> if single selection, 
-	 * to <code>false</code> if multi selection.
+	 * to <code>false</code> if multiple nodes are selected.
 	 * 
-	 * @param single Pass <code>true</code> when single selection, 
-	 * 				 <code>false</code> otherwise.
+	 * @param single	Pass <code>true</code> when single selection, 
+	 * 				 	<code>false</code> otherwise.
 	 */
 	public void setSelectionMode(boolean single);
 	
@@ -299,15 +299,19 @@ public interface MetadataViewer
 	 */
 	public boolean isSingleMode();
 	
-	public Collection getRelatedNodes();
+	/**
+	 * Returns the collection of related nodes.
+	 * 
+	 * @return See above.
+	 */
+	public List getRelatedNodes();
 	
 	/**
-	 * Sets the nodes related to the root nodes when multi selection is
-	 * on.
+	 * Sets the nodes related to the root node when multiple nodes are selected.
 	 * 
 	 * @param nodes The nodes to set.
 	 */
-	public void setRelatedNodes(Collection nodes);
+	public void setRelatedNodes(List nodes);
 
 	/**
 	 * Updates the view when the experimented details have been modified.

@@ -699,7 +699,7 @@ class TreeViewerComponent
 			else mv.clearDataToSave();
 		}
 		
-		Collection siblings = (Collection) l.get(0);
+		List siblings = (List) l.get(0);
 		int size = siblings.size();
 		if (view.getDisplayMode() != SEARCH_MODE) {
 			Browser browser = model.getSelectedBrowser();

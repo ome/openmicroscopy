@@ -391,7 +391,7 @@ class MetadataViewerComponent
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#getRelatedNodes()
 	 */
-	public Collection getRelatedNodes()
+	public List getRelatedNodes()
 	{
 		return model.getRelatedNodes();
 	}
@@ -614,9 +614,9 @@ class MetadataViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#setRelatedNodes(Collection)
+	 * @see MetadataViewer#setRelatedNodes(List)
 	 */
-	public void setRelatedNodes(Collection nodes)
+	public void setRelatedNodes(List nodes)
 	{
 		model.setRelatedNodes(nodes);
 	}
@@ -964,5 +964,5 @@ class MetadataViewerComponent
 		if (value instanceof SplitViewFigureParam)
 			firePropertyChange(SPLIT_VIEW_FIGURE_PROPERTY, null, value);
 	}
-	
+
 }

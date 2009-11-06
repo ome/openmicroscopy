@@ -116,11 +116,11 @@ class MetadataViewerModel
 	private boolean									singleMode;
 	
 	/** Collection of nodes related to the node of reference. */
-	private Collection								relatedNodes;
+	private List									relatedNodes;
 	
 	/** 
-	 * One of the rnd constants defined by the <code>MetadataViewer</code>
-	 * I/F.
+	 * One of the Rendering constants defined by the 
+	 * <code>MetadataViewer</code> interface.
 	 */
 	private int										index;
 	
@@ -495,7 +495,7 @@ class MetadataViewerModel
 	 * 
 	 * @param relateNodes The value to set.
 	 */
-	void setRelatedNodes(Collection relateNodes)
+	void setRelatedNodes(List relateNodes)
 	{ 
 		this.relatedNodes = relateNodes;
 	}
@@ -505,7 +505,7 @@ class MetadataViewerModel
 	 * 
 	 * @return See above.
 	 */
-	Collection getRelatedNodes() { return relatedNodes; }
+	List getRelatedNodes() { return relatedNodes; }
 
 	/**
 	 * Sets the state.

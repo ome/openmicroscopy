@@ -311,6 +311,7 @@ class EditorModel
 	 */
 	boolean isMultiSelection() { return !parent.isSingleMode(); }
 	
+	
 	/**
 	 * Returns the observable.
 	 * 
@@ -377,7 +378,7 @@ class EditorModel
 	String getRefObjectName() 
 	{
 		String name = "";
-		Object ref = getRefObject();
+		Object ref = getPrimarySelect();
 		if (ref instanceof ImageData)
 			name = ((ImageData) ref).getName();
 		else if (ref instanceof DatasetData)
@@ -401,7 +402,7 @@ class EditorModel
 		if (name == null) return "";
 		return name.trim();
 	}
-
+	
 	/**
 	 * Returns the description of the object if any.
 	 * 
@@ -410,7 +411,7 @@ class EditorModel
 	String getRefObjectDescription() 
 	{
 		String description = "";
-		Object ref = getRefObject();
+		Object ref = getPrimarySelect();
 		if (ref instanceof ImageData)
 			description = ((ImageData) ref).getDescription();
 		else if (ref instanceof DatasetData)
@@ -460,6 +461,19 @@ class EditorModel
 		Object o = data.getRelatedObject();
 		//if (o != null && o instanceof FolderData) return o;
 		return refObject; 
+	}
+	
+	/**
+	 * Returns the primary select object.
+	 * 
+	 * @return See above.
+	 */
+	Object getPrimarySelect()
+	{
+		if (!isMultiSelection()) return getRefObject();
+		List list = parent.getRelatedNodes();
+		if (list == null || list.size() == 0) return getRefObject();
+		return list.get(0);
 	}
 	
 	/**

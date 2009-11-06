@@ -579,7 +579,7 @@ class EditorComponent
 		model.setRenderingControl(rndControl);
 		if (loaded) view.onSettingsApplied(false);
 		//if (model.isNumerousChannel()) return;
-		view.setRenderer();
+		if (!splitViewFigure) view.setRenderer();
 		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC)
 			loadChannelData();
 		model.getRenderer().addPropertyChangeListener(controller);
@@ -596,7 +596,7 @@ class EditorComponent
 	 */
 	public void loadRenderingControl(int index)
 	{
-		Object ref = model.getRefObject();
+		Object ref = model.getPrimarySelect();
 		if (ref instanceof WellSampleData) {
 			WellSampleData wsd = (WellSampleData) ref;
 			ref = wsd.getImage();
