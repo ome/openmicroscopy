@@ -24,7 +24,6 @@
 	<classpathentry kind="lib" path="LIB/axis-1.4.jar"/>
 	<classpathentry kind="lib" path="LIB/poi-3.5-beta4-20081128.jar"/>
 	<classpathentry kind="lib" path="LIB/monitors.jar"/>
-	<classpathentry kind="lib" path="LIB/OmeroImporter-Beta-4.1.0-DEV.jar"/>
 	<classpathentry kind="lib" path="LIB/loci-common.jar"/>
 	<classpathentry kind="lib" path="LIB/bio-formats.jar"/>
 	<classpathentry kind="lib" path="LIB/ols-client-1.15.jar"/>
@@ -41,6 +40,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="LIB/TableLayout-bin-jdk1.5-2009-08-26.jar"/>
-	<classpathentry kind="lib" path="LIB/omero_client-Beta-4.2.0.jar"/>
+	<classpathentry kind="lib" path="LIB/omero_client.jar"/>
+	<classpathentry kind="lib" path="LIB/OmeroImporter.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
