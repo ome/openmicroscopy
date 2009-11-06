@@ -39,7 +39,7 @@ import omero.model.Text;
 import omero.model.TextI;
 
 /**
- *
+ * Represents a Text in the Euclidean space <b>R</b><sup>2</sup>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -65,28 +65,23 @@ public class TextData
 		super(shape);
 	}
 	
-	/**
-	 * Create a new instance of TextData, creating a new TextI Object.
-	 */
+	/** Creates a new instance of TextData, creating a new TextI Object. */
 	public TextData()
 	{
 		this("String", 0.0, 0.0);
 	}
 	
 	/**
-	 * Create a new instance of the TextData, set the centre and major, minor
+	 * Creates a new instance of the TextData, sets the centre and major, minor
 	 * axes.
+	 * 
 	 * @param text Object text.
 	 * @param x X-Coordinate of the text.
 	 * @param y Y-Coordinate of the text.
 	 */
 	public TextData(String text, double x, double y)
 	{
-		//Text shape = new TextI();
-		//setValue(shape);
-		//setShapeSettings(shape);
-		// XXX: Replacing above three lines with the following to fix build
-		super(new TextI());
+		super(new TextI(), true);
 		setX(x);
 		setY(y);
 		setText(text);
@@ -112,7 +107,7 @@ public class TextData
 	 */
 	public void setText(String text)
 	{
-		if(isReadOnly())
+		if (isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
 		Text shape = (Text) asIObject();
 		if (shape == null) 
