@@ -34,12 +34,15 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.Image;
+
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 
+import pojos.ImageData;
 import pojos.ROIData;
 
 /**
@@ -96,14 +99,15 @@ public class ServerROIStrategy
 	 * 
 	 * @param output
 	 * @param component
+	 * @param image The image the ROI is on.
 	 * @throws Exception 
 	 */
-	public List<ROIData> write(ROIComponent component)
+	public List<ROIData> write(ROIComponent component, ImageData image)
 		throws Exception
 	{
 		if(component.getROIMap().size() == 0)
 			return new ArrayList<ROIData>();
-		return outputStrategy.writeROI(component);
+		return outputStrategy.writeROI(component, image);
 	}
 	
 }

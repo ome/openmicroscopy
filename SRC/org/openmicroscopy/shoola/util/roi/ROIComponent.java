@@ -38,6 +38,8 @@ import java.util.TreeMap;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.Image;
+
 import org.jhotdraw.draw.AttributeKeys;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
@@ -61,6 +63,7 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 
+import pojos.ImageData;
 import pojos.ROIData;
 
 /** 
@@ -329,15 +332,15 @@ public class ROIComponent
 	
 	/** 
 	 * Convert the ROI in the component to ROIData and return. 
-	 * 
+	 * @param image The image the ROI are on.
 	 * @return See above.
 	 * @throws Exception 
 	 */
-	public List<ROIData> saveROI() 
+	public List<ROIData> saveROI(ImageData image) 
 		throws Exception
 	{
 		if (serverStrategy == null) serverStrategy = new ServerROIStrategy();
-		return serverStrategy.write(this);
+		return serverStrategy.write(this, image);
 	}
 	
 	/**

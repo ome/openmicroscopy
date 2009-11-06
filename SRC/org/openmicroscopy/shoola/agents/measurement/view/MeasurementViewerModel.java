@@ -890,7 +890,7 @@ class MeasurementViewerModel
 		List<ROIData> roiList;
 		System.err.println("MvModel.saveROIToServer");
 		try {
-			roiList = roiComponent.saveROI();
+			roiList = roiComponent.saveROI(pixels.getImage());
 			ExperimenterData exp = 
 				(ExperimenterData) MeasurementAgent.getUserDetails();
 			currentSaver = new ROISaver(component, getImageID(), exp.getId(), 

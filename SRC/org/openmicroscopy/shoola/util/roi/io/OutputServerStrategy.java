@@ -37,6 +37,7 @@ import java.util.TreeMap;
 
 //Application-internal dependencies
 import omero.rtypes;
+import omero.model.Image;
 
 import org.jhotdraw.geom.BezierPath;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
@@ -54,6 +55,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 import pojos.EllipseData;
+import pojos.ImageData;
 import pojos.LineData;
 import pojos.MaskData;
 import pojos.PointData;
@@ -98,29 +100,31 @@ public class OutputServerStrategy
 	/**
 	 * Write the ROI from the ROI component to the server. 
 	 * @param component See above.
+	 * @param image The image the ROI is on.
 	 * @throws Exception 
 	 */
-	public List<ROIData> writeROI(ROIComponent component) throws Exception
+	public List<ROIData> writeROI(ROIComponent component, ImageData image) throws Exception
 	{
 		this.component = component;
 		this.ROIList = new ArrayList<ROIData>();
-		parseROI();
+		parseROI(image);
 		return ROIList;
 	}
 	
 	/**
 	 * Parse the ROI in the ROIComponent to create the appropriate ROIDAta 
 	 * object to supply to the server.
+	 * @param image The image the ROI is on.
 	 * @throws Exception 
 	 */
-	private void parseROI() throws Exception
+	private void parseROI(ImageData image) throws Exception
 	{
 		TreeMap<Long, ROI> map = component.getROIMap();
 		Iterator<ROI> roiIterator = map.values().iterator();
 		while(roiIterator.hasNext())
 		{
 			ROI roi = roiIterator.next();
-			ROIData serverROI = createServerROI(roi);
+			ROIData serverROI = createServerROI(roi, image);
 			ROIList.add(serverROI);
 		}
 	}
@@ -128,16 +132,18 @@ public class OutputServerStrategy
 	/**
 	 * Creates an ROIData object from an ROI. 
 	 * @param roi See above.
+	 * @param image The image the ROI is on.
 	 * @return See above.
 	 * @throws Exception 
 	 */
-	private ROIData createServerROI(ROI roi) throws Exception
+	private ROIData createServerROI(ROI roi, ImageData image) throws Exception
 	{
 		
 		ROIData roiData = new ROIData();
 		roiData.setClientSide(roi.isClientSide());
 		if(!roi.isClientSide())
 			roiData.setId(roi.getID());
+		roiData.setImage(image.asImage());
 		TreeMap<Coord3D, ROIShape> shapes =  roi.getShapes();
 		Iterator<ROIShape> shapeIterator = shapes.values().iterator();
 		while(shapeIterator.hasNext())
@@ -206,7 +212,8 @@ public class OutputServerStrategy
 		ellipse.setZ(shape.getZ());
 		ellipse.setText(fig.getText());
 		AffineTransform t=TRANSFORM.get(fig);
-		ellipse.setTransform(toTransform(t));
+		if(t!=null)
+			ellipse.setTransform(toTransform(t));
 		return ellipse;
 	}
 	
@@ -239,7 +246,8 @@ public class OutputServerStrategy
 		line.setT(shape.getT());
 		line.setZ(shape.getZ());
 		line.setPoints(points, points1, points2, maskList);
-		line.setTransform(toTransform(t));
+		if(t!=null)
+			line.setTransform(toTransform(t));
 		line.setText(fig.getText());
 		return line;
 	}
@@ -277,7 +285,8 @@ public class OutputServerStrategy
 		point.setZ(shape.getZ());
 		point.setText(fig.getText());
 		AffineTransform t=TRANSFORM.get(fig);
-		point.setTransform(toTransform(t));
+		if(t!=null)
+			point.setTransform(toTransform(t));
 		return point;
 	}
 	
@@ -302,7 +311,8 @@ public class OutputServerStrategy
 		text.setT(shape.getT());
 		text.setZ(shape.getZ());
 		AffineTransform t=TRANSFORM.get(fig);
-		text.setTransform(toTransform(t));
+		if(t!=null)
+			text.setTransform(toTransform(t));
 		return text;
 	}
 	
@@ -330,7 +340,8 @@ public class OutputServerStrategy
 		rectangle.setZ(shape.getZ());
 		rectangle.setText(fig.getText());
 		AffineTransform t=TRANSFORM.get(fig);
-		rectangle.setTransform(toTransform(t));
+		if(t!=null)
+			rectangle.setTransform(toTransform(t));
 		return rectangle;
 	}
 	
@@ -363,7 +374,8 @@ public class OutputServerStrategy
 		poly.setT(shape.getT());
 		poly.setZ(shape.getZ());
 		poly.setPoints(points, points1, points2, maskList);
-		poly.setTransform(toTransform(t));
+		if(t!=null)
+			poly.setTransform(toTransform(t));
 		poly.setText(fig.getText());
 		return poly;	
 	}
@@ -397,7 +409,8 @@ public class OutputServerStrategy
 		poly.setT(shape.getT());
 		poly.setZ(shape.getZ());
 		poly.setPoints(points, points1, points2, maskList);
-		poly.setTransform(toTransform(t));
+		if(t!=null)
+			poly.setTransform(toTransform(t));
 		poly.setText(fig.getText());
 		return poly;	
 	}
