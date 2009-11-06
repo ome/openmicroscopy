@@ -298,5 +298,65 @@ public class MetaShape extends Shape
 	public void unloadDetails(Current arg0) {
 		throw new RuntimeException("Not implemented yet.");
 	}
+
+	public RString getFontFamily(Current arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public RInt getFontSize(Current arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public RString getFontStretch(Current arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public RString getFontStyle(Current arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public RString getFontVariant(Current arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public RString getFontWeight(Current arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void setFontFamily(RString arg0, Current arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setFontSize(RInt arg0, Current arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setFontStretch(RString arg0, Current arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setFontStyle(RString arg0, Current arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setFontVariant(RString arg0, Current arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setFontWeight(RString arg0, Current arg1) {
+		// TODO Auto-generated method stub
+		
+	}
  
 }
