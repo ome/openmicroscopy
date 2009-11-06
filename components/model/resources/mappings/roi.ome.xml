@@ -59,6 +59,13 @@
                         <optional name="strokeMiterLimit" type="int"/>
                         <optional name="strokeOpacity" type="float"/>
                         <optional name="strokeWidth" type="int"/>
+                        <!-- Font -->
+                        <optional name="fontFamily" type="string"/><!-- e.g. monospace, serif -->
+                        <optional name="fontSize" type="int"/>
+                        <optional name="fontStretch" type="string"/><!-- normal, wider, narrower, expanded, ultra-condensed, extra-condensed -->
+                        <optional name="fontStyle" type="string"/><!-- normal, italic, oblique -->
+                        <optional name="fontVariant" type="string"/><!-- normal, small-caps -->
+                        <optional name="fontWeight" type="string"/><!-- normal, bold, bolder, lighter, 100, 900 -->
                          <!-- Marker
                         To support something of the form:
                         <marker id="startArrow" viewBox="0 0 10 10" refX="1" refY="5" markerUnits="strokeWidth" orient="auto" markerWidth="5" markerHeight="4">
@@ -86,14 +93,7 @@
                         <optional name="glyphOrientationVertical" type="int"/><!-- 0, 90, 180, 270 -->
                         <optional name="direction" type="string"/><!-- ltr, rtl -->
                         <optional name="writingMode" type="string"/><!-- r-tb | rl-tb | tb-rl | lr | rl | tb -->
-                        <!-- Font -->
-                        <optional name="fontFamily" type="string"/><!-- e.g. monospace, serif -->
-                        <optional name="fontSize" type="int"/>
-                        <optional name="fontStretch" type="string"/><!-- normal, wider, narrower, expanded, ultra-condensed, extra-condensed -->
-                        <optional name="fontStyle" type="string"/><!-- normal, italic, oblique -->
-                        <optional name="fontVariant" type="string"/><!-- normal, small-caps -->
-                        <optional name="fontWeight" type="string"/><!-- normal, bold, bolder, lighter, 100, 900 -->
-                </properties>
+                 </properties>
         </type>
         <type id="ome.model.roi.Rect" discriminator="rect" superclass="ome.model.roi.Shape">
                 <properties>
@@ -134,18 +134,19 @@
         </type>
         <type id="ome.model.roi.Path" discriminator="path" superclass="ome.model.roi.Shape">
                 <properties>
-                        <optional name="d" type="string"/><!-- e.g. "M 100 100 L 300 100 L 200 300 z" -->
-                </properties>
+                        <optional name="d" type="text"/><!-- e.g. "M 100 100 L 300 100 L 200 300 z" -->
+                         <optional name="textValue" type="text"/>
+               </properties>
         </type>
         <type id="ome.model.roi.Polygon" discriminator="polygon" superclass="ome.model.roi.Shape">
                 <properties>
-                        <optional name="points" type="string"/>
+                        <optional name="points" type="text"/>
                         <optional name="textValue" type="text"/>
                 </properties>
         </type>
         <type id="ome.model.roi.Polyline" discriminator="polyline" superclass="ome.model.roi.Shape">
                 <properties>
-                        <optional name="points" type="string"/>
+                        <optional name="points" type="text"/>
                         <optional name="textValue" type="text"/>
                 </properties>
         </type>
