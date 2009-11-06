@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.util.roi.io;
 //Java imports
 import static org.jhotdraw.draw.AttributeKeys.TRANSFORM;
 
+import java.awt.Font;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -52,6 +53,7 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 import pojos.EllipseData;
@@ -63,6 +65,7 @@ import pojos.PolygonData;
 import pojos.PolylineData;
 import pojos.ROIData;
 import pojos.ShapeData;
+import pojos.ShapeSettingsData;
 import pojos.TextData;
 import pojos.RectangleData;
 
@@ -147,7 +150,11 @@ public class OutputServerStrategy
 		TreeMap<Coord3D, ROIShape> shapes =  roi.getShapes();
 		Iterator<ROIShape> shapeIterator = shapes.values().iterator();
 		while(shapeIterator.hasNext())
-			roiData.addShapeData(createShapeData(shapeIterator.next()));
+		{
+			ROIShape roiShape = shapeIterator.next();
+			ShapeData shape = createShapeData(roiShape);
+			addShapeAttributes(roiShape.getFigure(), shape);
+		}
 		return roiData;
 	}
 	
@@ -413,6 +420,38 @@ public class OutputServerStrategy
 			poly.setTransform(toTransform(t));
 		poly.setText(fig.getText());
 		return poly;	
+	}
+	
+	/**
+	 * Add the ShapeSettings attributes to the shape.
+	 * @param fig The figure in the measurement tool.
+	 * @param shape The shape to add setting to.
+	 */
+	private void addShapeAttributes(ROIFigure fig, ShapeData shape)
+	{
+		ShapeSettingsData settings = shape.getShapeSettings();
+		if(MeasurementAttributes.FILL_COLOR.get(fig)!=null)
+			settings.setFillColor(MeasurementAttributes.FILL_COLOR.get(fig));
+		if(MeasurementAttributes.STROKE_COLOR.get(fig)!=null)
+			settings.setStrokeColor(MeasurementAttributes.STROKE_COLOR.get(fig));
+		if(MeasurementAttributes.STROKE_WIDTH.get(fig)!=null)
+			settings.setStrokeWidth(MeasurementAttributes.STROKE_WIDTH.get(fig));
+		if(MeasurementAttributes.FONT_FACE.get(fig)!=null)
+			settings.setFontFamily(MeasurementAttributes.FONT_FACE.get(fig).getName());
+		else
+			settings.setFontFamily(ShapeSettingsData.DEFAULT_FONT_FAMILY);
+		if(MeasurementAttributes.FONT_SIZE.get(fig)!=null)
+			settings.setFontSize(MeasurementAttributes.FONT_SIZE.get(fig).intValue());
+		else
+			settings.setFontSize(ShapeSettingsData.DEFAULT_FONT_SIZE);
+		if(MeasurementAttributes.FONT_BOLD.get(fig)!=null)
+			settings.setFontWeight(ShapeSettingsData.FONT_BOLD);
+		else
+			settings.setFontWeight(ShapeSettingsData.DEFAULT_FONT_WEIGHT);
+		if(MeasurementAttributes.FONT_ITALIC.get(fig)!=null)
+			settings.setFontStyle(ShapeSettingsData.FONT_ITALIC);
+		else
+			settings.setFontStyle(ShapeSettingsData.DEFAULT_FONT_STYLE);
 	}
 	
 	/*
