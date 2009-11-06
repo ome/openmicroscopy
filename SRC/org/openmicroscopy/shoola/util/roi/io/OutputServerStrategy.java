@@ -154,6 +154,7 @@ public class OutputServerStrategy
 			ROIShape roiShape = shapeIterator.next();
 			ShapeData shape = createShapeData(roiShape);
 			addShapeAttributes(roiShape.getFigure(), shape);
+			roiData.addShapeData(shape);
 		}
 		return roiData;
 	}
@@ -224,40 +225,6 @@ public class OutputServerStrategy
 		return ellipse;
 	}
 	
-	/**
-	 * Create a line figure server side object from a MeasureLineFigure 
-	 * client side object.
-	 * @param shape See above.
-	 * @return See above.
-	 * @throws ParsingException 
-	 */
-	private PolylineData createLineFigure(ROIShape shape) 
-				throws ParsingException
-	{
-		MeasureLineFigure fig = (MeasureLineFigure)shape.getFigure();
-		AffineTransform t=TRANSFORM.get(fig);
-		List<Point2D> points=new LinkedList<Point2D>();
-		List<Point2D> points1=new LinkedList<Point2D>();
-		List<Point2D> points2=new LinkedList<Point2D>();
-		List<Integer> maskList=new LinkedList<Integer>();
-		
-		BezierPath bezier=fig.getBezierPath();
-		for (BezierPath.Node node : bezier)
-		{
-			points.add(new Point2D.Double(node.x[0], node.y[0]));
-			points1.add(new Point2D.Double(node.x[1], node.y[1]));
-			points2.add(new Point2D.Double(node.x[2], node.y[2]));
-			maskList.add(Integer.valueOf(node.getMask()));
-		}
-		PolylineData line = new PolylineData();
-		line.setT(shape.getT());
-		line.setZ(shape.getZ());
-		line.setPoints(points, points1, points2, maskList);
-		if(t!=null)
-			line.setTransform(toTransform(t));
-		line.setText(fig.getText());
-		return line;
-	}
 	
 	/**
 	 * Create a mask figure server side object from a MeasureMaskFigure 
@@ -346,6 +313,7 @@ public class OutputServerStrategy
 		rectangle.setT(shape.getT());
 		rectangle.setZ(shape.getZ());
 		rectangle.setText(fig.getText());
+		
 		AffineTransform t=TRANSFORM.get(fig);
 		if(t!=null)
 			rectangle.setTransform(toTransform(t));
@@ -385,6 +353,41 @@ public class OutputServerStrategy
 			poly.setTransform(toTransform(t));
 		poly.setText(fig.getText());
 		return poly;	
+	}
+	
+	/**
+	 * Create a line figure server side object from a MeasureLineFigure 
+	 * client side object.
+	 * @param shape See above.
+	 * @return See above.
+	 * @throws ParsingException 
+	 */
+	private PolylineData createLineFigure(ROIShape shape) 
+				throws ParsingException
+	{
+		MeasureLineFigure fig = (MeasureLineFigure)shape.getFigure();
+		AffineTransform t=TRANSFORM.get(fig);
+		List<Point2D> points=new LinkedList<Point2D>();
+		List<Point2D> points1=new LinkedList<Point2D>();
+		List<Point2D> points2=new LinkedList<Point2D>();
+		List<Integer> maskList=new LinkedList<Integer>();
+		
+		BezierPath bezier=fig.getBezierPath();
+		for (BezierPath.Node node : bezier)
+		{
+			points.add(new Point2D.Double(node.x[0], node.y[0]));
+			points1.add(new Point2D.Double(node.x[1], node.y[1]));
+			points2.add(new Point2D.Double(node.x[2], node.y[2]));
+			maskList.add(Integer.valueOf(node.getMask()));
+		}
+		PolylineData line = new PolylineData();
+		line.setT(shape.getT());
+		line.setZ(shape.getZ());
+		line.setPoints(points, points1, points2, maskList);
+		if(t!=null)
+			line.setTransform(toTransform(t));
+		line.setText(fig.getText());
+		return line;
 	}
 	
 	/**
