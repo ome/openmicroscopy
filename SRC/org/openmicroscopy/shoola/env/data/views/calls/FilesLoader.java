@@ -26,11 +26,16 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Java imports
 import java.io.File;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.FileAnnotation;
+import omero.model.OriginalFile;
+
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
@@ -105,6 +110,38 @@ public class FilesLoader
     }
     
     /**
+     * Creates a {@link BatchCall} to download files previously loaded.
+     * 
+	 * @param files	The files to download.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall makeBatchCall(final Map<FileAnnotationData, File> files)
+    {
+        return new BatchCall("Downloading files.") {
+            public void doCall() throws Exception
+            {
+                OmeroMetadataService service = context.getMetadataService();
+                Map<FileAnnotationData, File> m = 
+                	new HashMap<FileAnnotationData, File>();
+                Entry entry;
+                FileAnnotationData fa;
+                File f ;
+                OriginalFile of;
+                Iterator i = files.entrySet().iterator();
+                while (i.hasNext()) {
+                	entry = (Entry) i.next();
+					fa = (FileAnnotationData) entry.getKey();
+					f = (File) entry.getValue();
+					of = ((FileAnnotation) fa.asAnnotation()).getFile();
+					service.downloadFile(f, of.getId().getValue(), 
+							of.getSize().getValue());
+				}
+                result = files;
+            }
+        };
+    }
+    
+    /**
      * Creates a {@link BatchCall} to load the files identified by
      * the passed type.
      * 
@@ -146,6 +183,16 @@ public class FilesLoader
     {
     	if (file == null) loadCall = makeBatchCall(fileID);
     	else loadCall = makeBatchCall(file, fileID, size);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+	 * @param files The files to load.
+     */
+    public FilesLoader(Map<FileAnnotationData, File> files)
+    {
+    	loadCall = makeBatchCall(files);
     }
     
     /**

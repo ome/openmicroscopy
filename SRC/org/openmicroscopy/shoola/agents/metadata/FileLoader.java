@@ -25,6 +25,11 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 //Java imports
 import java.io.File;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 
 //Third-party libraries
@@ -65,6 +70,12 @@ public class FileLoader
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  		handle;
     
+    /** The files to load. */
+    private Map<FileAnnotationData, Object> files;
+    
+    /** The files to load. */
+    private Map<FileAnnotationData, File> filesMap;
+    
 	/**
 	 * Creates a new instance.
 	 * 
@@ -84,6 +95,21 @@ public class FileLoader
 				+File.separator+data.getFileName());
 	}
 	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param viewer 	The viewer this data loader is for.
+	 * 					Mustn't be <code>null</code>.
+	 * @param files		The files to load.
+	 */
+	public FileLoader(Editor viewer, Map<FileAnnotationData, Object> files)
+	{
+		super(viewer);
+		if (files == null)
+			throw new IllegalArgumentException("No data set.");
+		this.files = files;
+	}
+	
 	/** 
 	 * Cancels the data loading. 
 	 * @see EditorLoader#cancel()
@@ -91,7 +117,17 @@ public class FileLoader
 	public void cancel()
 	{ 
 		handle.cancel();
-		file.delete();
+		if (file != null) file.delete();
+		if (filesMap != null) {
+			Entry entry;
+    		Iterator i = filesMap.entrySet().iterator();
+    		File f;
+    		while (i.hasNext()) {
+				entry = (Entry) i.next();
+				f = (File) entry.getValue();
+				f.delete();
+			}
+		}
 	}
 
 	/** 
@@ -100,9 +136,26 @@ public class FileLoader
 	 */
 	public void load()
 	{
-		OriginalFile f = ((FileAnnotation) data.asAnnotation()).getFile();
-		handle = mhView.loadFile(file, f.getId().getValue(), 
-				f.getSize().getValue(), this);
+		if (data != null) {
+			OriginalFile f = ((FileAnnotation) data.asAnnotation()).getFile();
+			handle = mhView.loadFile(file, f.getId().getValue(), 
+					f.getSize().getValue(), this);
+		} else {
+			Entry entry;
+    		Iterator i = files.entrySet().iterator();
+    		FileAnnotationData fa;
+    		filesMap = new HashMap<FileAnnotationData, File>(files.size());
+    		File f;
+    		while (i.hasNext()) {
+				entry = (Entry) i.next();
+				fa = (FileAnnotationData) entry.getKey();
+				f = new File(MetadataViewerAgent.getOmeroHome()
+						+File.separator+fa.getFileName());
+				filesMap.put(fa, f);
+			}
+			handle = mhView.loadFiles(filesMap, this);
+		}
+		
 	}
 
 	/**
@@ -111,7 +164,21 @@ public class FileLoader
      */
     public void handleResult(Object result) 
     {
-    	viewer.setLoadedFile(data, file, uiView);
+    	if (data != null) {
+    		viewer.setLoadedFile(data, file, uiView);
+    	} else {
+    		Map m = (Map) result;
+    		Entry entry;
+    		Iterator i = m.entrySet().iterator();
+    		FileAnnotationData fa;
+    		while (i.hasNext()) {
+    			entry = (Entry) i.next();
+				fa = (FileAnnotationData) entry.getKey();
+				viewer.setLoadedFile(fa, (File) entry.getValue(), 
+						files.get(fa));
+			}
+    	}
+    	
     }
     
 }

@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,6 +62,7 @@ import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -444,12 +446,22 @@ class AnnotationDataUI
 		DocComponent doc;
 		if (list != null && list.size() > 0) {
 			Iterator i = list.iterator();
-			
+			Map<FileAnnotationData, Object> 
+				loadThumbnails = 
+					new LinkedHashMap<FileAnnotationData, Object>();
 			while (i.hasNext()) {
 				doc = new DocComponent(i.next(), model);
 				doc.addPropertyChangeListener(controller);
+				if (doc.hasThumbnailToLoad()) {
+					loadThumbnails.put((FileAnnotationData) doc.getData(), doc);
+				}
 				filesDocList.add(doc);
 				docPane.add(doc);
+			}
+			//load the thumbnails 
+			if (loadThumbnails.size() > 0  
+					&& MetadataViewerAgent.isFastConnection()) {
+				model.loadFiles(loadThumbnails);
 			}
 		}
 		if (filesDocList.size() == 0) {

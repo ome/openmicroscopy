@@ -103,6 +103,7 @@ import omero.api.RoiResult;
 import omero.api.SearchPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceInterfacePrx;
+import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.constants.projection.ProjectionType;
 import omero.grid.BoolColumn;
@@ -2680,7 +2681,7 @@ class OMEROGateway
 
 		Map<Integer, List> result = new HashMap<Integer, List>();
 		if (files == null || files.size() == 0) return result;
-		RawFileStorePrx store = getRawFileService();
+		RawFileStorePrx store;
 		Iterator i = files.iterator();
 		OriginalFile of;
 
@@ -2692,6 +2693,7 @@ class OMEROGateway
 		String fullPath;
 		while (i.hasNext()) {
 			of = (OriginalFile) i.next();
+			store = getRawFileService();
 			try {
 				store.setFileId(of.getId().getValue()); 
 			} catch (Exception e) {
@@ -2717,19 +2719,18 @@ class OMEROGateway
 					if (stream != null) stream.close();
 					if (f != null) f.delete();
 					notDownloaded.add(of.getName().getValue());
+					closeService(store);
 				}
 			} catch (IOException e) {
 				if (f != null) f.delete();
 				notDownloaded.add(of.getName().getValue());
+				closeService(store);
 				throw new DSAccessException("Cannot create file with path " +
 											fullPath, e);
 			}
+			closeService(store);
 		}
-		try {
-			store.close();
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
+		
 		result.put(files.size(), notDownloaded);
 		return result;
 	}
@@ -2753,6 +2754,7 @@ class OMEROGateway
 		try {
 			store.setFileId(fileID);
 		} catch (Throwable e) {
+			closeService(store);
 			handleException(e, "Cannot set the file's id.");
 		}
 		String path = file.getAbsolutePath();
@@ -2771,20 +2773,32 @@ class OMEROGateway
 					stream.close();
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 				if (stream != null) stream.close();
 				if (file != null) file.delete();
 			}
 		} catch (IOException e) {
 			if (file != null) file.delete();
+			closeService(store);
 			throw new DSAccessException("Cannot create file  " +path, e);
 		}
-		try {
-			store.close();
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
+		closeService(store);
 		
 		return file;
+	}
+	
+	/**
+	 * Closes the specified service.
+	 * 
+	 * @param svc The service to handle.
+	 */
+	private void closeService(StatefulServiceInterfacePrx svc)
+	{
+		try {
+			svc.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -2898,6 +2912,7 @@ class OMEROGateway
 			}
 			
 		} catch (Exception e) {
+			closeService(store);
 			handleException(e, "Cannot set the file's id.");
 		}
 		byte[] buf = new byte[INC]; 
@@ -2914,11 +2929,12 @@ class OMEROGateway
 				bbuf.limit(rlen);
 			}
 			stream.close();
-			store.close();
+			closeService(store);
 		} catch (Exception e) {
 			try {
 				if (fileCreated) deleteObject(save);
 				if (stream != null) stream.close();
+				closeService(store);
 			} catch (Exception ex) {}
 			
 			throw new DSAccessException("Cannot upload the file with path " +

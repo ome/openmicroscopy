@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.views;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
@@ -327,6 +328,17 @@ class MetadataHandlerViewImpl
 		BatchCallTree cmd = new StructuredAnnotationLoader(
  				StructuredAnnotationLoader.ROI_MEASUREMENT, dataObject, 
  					userID);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#loadFiles(Map, AgentEventListener)
+	 */
+	public CallHandle loadFiles(Map<FileAnnotationData, File> files,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new FilesLoader(files); 
 		return cmd.exec(observer);
 	}
 	

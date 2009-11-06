@@ -410,11 +410,12 @@ class DocComponent
 					case LOAD_FROM_LOCAL:
 						if (thumbnail == null) setThumbnail(f.getFilePath());
 						break;
+						/*
 					case LOAD_FROM_SERVER:
 						if (thumbnail == null) {
-							//Load the file, copy locally and delete it.
 							model.loadFile((FileAnnotationData) data, this);
 						}
+						*/
 				}
 			} else if (data instanceof File) {
 				initButton();
@@ -519,6 +520,17 @@ class DocComponent
 		this.data = data;
 		initComponents();
 		buildGUI();
+	}
+	
+	/**
+	 * Returns <code>true</code> if a thumbnail has to be loaded,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasThumbnailToLoad()
+	{
+		return (imageToLoad == LOAD_FROM_SERVER && thumbnail == null);
 	}
 	
 	/**

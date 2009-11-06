@@ -374,7 +374,7 @@ public class IconManager
     /** The <code>Movie folder</code> icon. */
     public static final int           MOVIE_FOLDER = 106;
     
-    /** The <code>Split view figure</code> icon. */
+    /** The 22x22 <code>Split view figure</code> icon. */
     public static final int           SPLIT_VIEW_FIGURE_22 = 107;
     
     /** 

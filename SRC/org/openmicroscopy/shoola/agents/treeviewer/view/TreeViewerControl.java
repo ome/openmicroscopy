@@ -839,7 +839,6 @@ class TreeViewerControl
 			List<Long> imageIds = new ArrayList<Long>();
 			Iterator i;
 			DataObject obj;
-			System.err.println("icon:"+icon);
 			if (l.size() > 1) {
 				i = l.iterator();
 				while (i.hasNext()) {

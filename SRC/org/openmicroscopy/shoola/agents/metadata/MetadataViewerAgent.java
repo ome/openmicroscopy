@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import pojos.ExperimenterData;
 
 /** 
@@ -76,6 +77,18 @@ public class MetadataViewerAgent
 	{ 
 		return (ExperimenterData) registry.lookup(
 								LookupNames.CURRENT_USER_DETAILS);
+	}
+	
+	/**
+	 * Helper method returning <code>true</code> if the connection is fast,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public static boolean isFastConnection()
+	{
+		int value = (Integer) registry.lookup(LookupNames.CONNECTION_SPEED);
+		return value == RenderingControl.UNCOMPRESSED;
 	}
 	
 	/** 

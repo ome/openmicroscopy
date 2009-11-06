@@ -1891,6 +1891,17 @@ class EditorModel
 		loader.load();
 	}
 	
+	/**
+	 * Loads the specified files.
+	 * 
+	 * @param files  The file to load.
+	 */
+	void loadFiles(Map<FileAnnotationData, Object> files)
+	{
+		FileLoader loader = new FileLoader(component, files);
+		loader.load();
+	}
+	
 	/** 
 	 * Notifies that the rendering control has been loaded. 
 	 * 

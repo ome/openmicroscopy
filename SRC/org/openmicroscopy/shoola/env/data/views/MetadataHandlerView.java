@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.env.data.views;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
@@ -349,5 +350,15 @@ public interface MetadataHandlerView
 	 */
 	public CallHandle loadROIMeasurement(Object dataObject, long userID,
 										AgentEventListener observer);
+
+	/**
+	 * Loads the original files hosted by the file annotation.
+	 * 
+	 * @param files	The files to handle. Mustn't be <code>null</code>.
+	 * @param observer  Call-back handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadFiles(Map<FileAnnotationData, File> files,
+			AgentEventListener observer);
 	
 }
