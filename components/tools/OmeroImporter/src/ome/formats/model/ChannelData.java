@@ -89,7 +89,10 @@ public class ChannelData
 			IObjectContainerStore store, int imageIndex, int channelIndex)
 	{
 		Map<LSID, List<LSID>> referenceCache = store.getReferenceCache();
+		Map<Class<? extends IObject>, Map<String, IObjectContainer>>
+			containerCache = store.getAuthoritativeContainerCache();
 		ChannelData data = new ChannelData();
+		String lsidString;
 		
 		// Channel
 		data.channel = (Channel) store.getSourceObject(
@@ -123,48 +126,69 @@ public class ChannelData
 			data.logicalChannel = (LogicalChannel) container.sourceObject;
 		}
 		// ... LogicalChannel --> FilterSet
-		IObjectContainer filterSetContainer = getFirstReferencedContainer(
-				referenceCache, store, logicalChannelLSID, FilterSet.class);
-		if (filterSetContainer != null)
+		List<LSID> references = referenceCache.get(logicalChannelLSID);
+		Map<String, IObjectContainer> filterSetContainers =
+			containerCache.get(FilterSet.class);
+		Map<String, IObjectContainer> filterContainers =
+			containerCache.get(Filter.class);
+		for (LSID reference : references)
 		{
-			data.filterSet = (FilterSet) filterSetContainer.sourceObject;
-			// ... LogicalChannel --> FilterSet --> Filter (Em) AND
-			// ... LogicalChannel --> FilterSet --> Filter (Ex)
-			LSID filterSetLSID = new LSID(FilterSet.class, 
-					filterSetContainer.indexes.get("instrumentIndex"),
-					filterSetContainer.indexes.get("filterSetIndex"));
-			List<IObjectContainer> filterContainers = getReferencedContainers(
-					referenceCache, store, filterSetLSID, Filter.class);
-			List<LSID> references = referenceCache.get(filterSetLSID);
-			for (IObjectContainer container : filterContainers)
+			lsidString = reference.toString();
+			if (filterSetContainers.containsKey(lsidString))
 			{
-				if (references.contains(new LSID(container.LSID + 
-						OMEROMetadataStoreClient.OMERO_EMISSION_FILTER_SUFFIX)))
+				IObjectContainer filterSetContainer =
+					filterSetContainers.get(lsidString);
+				LSID filterSetLSID = new LSID(FilterSet.class,
+						filterSetContainer.indexes.get("instrumentIndex"),
+						filterSetContainer.indexes.get("filterSetIndex"));
+				data.filterSet = (FilterSet) filterSetContainer.sourceObject;
+				// ... LogicalChannel --> FilterSet --> Filter (Em) AND
+				// ... LogicalChannel --> FilterSet --> Filter (Ex)
+				List<LSID> filterSetReferences = 
+					referenceCache.get(filterSetLSID);
+				if (filterSetReferences == null)
 				{
-					data.filterSetEmFilter = (Filter) container.sourceObject;
+					continue;
 				}
-				if (references.contains(new LSID(container.LSID + 
-						OMEROMetadataStoreClient.OMERO_EXCITATION_FILTER_SUFFIX)))
+				for (LSID filterSetReference : filterSetReferences)
 				{
-					data.filterSetExFilter = (Filter) container.sourceObject;
+					lsidString = filterSetReference.toString();
+					String unsuffixed = 
+						lsidString.substring(0, lsidString.lastIndexOf(':'));
+					if (lsidString.endsWith(
+							OMEROMetadataStoreClient.OMERO_EMISSION_FILTER_SUFFIX))
+					{
+						data.filterSetEmFilter = (Filter) 
+							filterContainers.get(unsuffixed).sourceObject;
+					}
+					if (lsidString.endsWith(
+							OMEROMetadataStoreClient.OMERO_EXCITATION_FILTER_SUFFIX))
+					{
+						data.filterSetExFilter = (Filter) 
+							filterContainers.get(unsuffixed).sourceObject;
+					}
 				}
 			}
 		}
 		// ... LogicalChannel --> Filter (SecondaryEm)
-		List<IObjectContainer> filterContainers = getReferencedContainers(
-				referenceCache, store, logicalChannelLSID, Filter.class);
-		List<LSID> references = referenceCache.get(logicalChannelLSID);
-		for (IObjectContainer container : filterContainers)
+		// ... LogicalChannel --> Filter (SecondaryEx)
+		references = referenceCache.get(logicalChannelLSID);
+		for (LSID reference : references)
 		{
-			if (references.contains(new LSID(container.LSID + 
-					OMEROMetadataStoreClient.OMERO_EMISSION_FILTER_SUFFIX)))
+			lsidString = reference.toString();
+			String unsuffixed = 
+				lsidString.substring(0, lsidString.lastIndexOf(':'));
+			if (lsidString.endsWith(
+					OMEROMetadataStoreClient.OMERO_EMISSION_FILTER_SUFFIX))
 			{
-				data.secondaryEmFilter = (Filter) container.sourceObject;
+				data.secondaryEmFilter = (Filter) 
+					filterContainers.get(unsuffixed).sourceObject;
 			}
-			if (references.contains(new LSID(container.LSID + 
-					OMEROMetadataStoreClient.OMERO_EXCITATION_FILTER_SUFFIX)))
+			else if (lsidString.endsWith(
+					OMEROMetadataStoreClient.OMERO_EXCITATION_FILTER_SUFFIX))
 			{
-				data.secondaryExFilter = (Filter) container.sourceObject;
+				data.secondaryExFilter = (Filter) 
+					filterContainers.get(unsuffixed).sourceObject;
 			}
 		}
 		// ... LogicalChannel --> LightSettings
@@ -175,106 +199,20 @@ public class ChannelData
 		if (data.lightSourceSettings != null)
 		{
 			// ... LogicalChannel --> LightSettings --> LightSource
-			IObjectContainer lightSourceContainer = 
-				getFirstReferencedContainer(
-						referenceCache, store,
-						lightSettingsLSID, LightSource.class);
-			if (lightSourceContainer != null)
+			Map<String, IObjectContainer> lightSourceContainers =
+				containerCache.get(LightSource.class);
+			references = referenceCache.get(lightSettingsLSID);
+			for (LSID reference : references)
 			{
-				data.lightSource =
-					(LightSource) lightSourceContainer.sourceObject;
+				lsidString = reference.toString();
+				if (lightSourceContainers.containsKey(lsidString))
+				{
+					data.lightSource = (LightSource)
+						lightSourceContainers.get(lsidString).sourceObject;
+				}
 			}
 		}
 		return data;
-	}
-	
-	/**
-	 * Returns the all the referenced containers of a certain type for a given
-	 * target LSID. 
-	 * @param referenceCache Reference cache to pull references from.
-	 * @param store Container store which is holding all object containers.
-	 * @param target LSID of the target object.
-	 * @param referencedClass Type filter for the retrieved containers.
-	 * @see getFirstReferencedContainer()
-	 * @return A list of the referenced containers.
-	 * <code>list.size() == 0</code> if no containers could be found.
-	 * <b>Note:</b> This is different than the
-	 * {@link getFirstReferencedContainer()} return value logic.
-	 */
-	private static List<IObjectContainer> getReferencedContainers(
-			Map<LSID, List<LSID>> referenceCache, IObjectContainerStore store,
-			LSID target, Class<? extends IObject> referencedClass)
-	{
-		List<IObjectContainer> toReturn = new ArrayList<IObjectContainer>();
-		Map<String, IObjectContainer> containerCache = 
-			store.getAuthoritativeContainerCache();
-		String lsid = null;
-		if (referenceCache.containsKey(target))
-		{
-			List<LSID> references = referenceCache.get(target);
-			IObjectContainer container = null;
-			for (LSID reference : references)
-			{
-				lsid = reference.toString();
-				if (containerCache.containsKey(lsid))
-				{
-					toReturn.add(containerCache.get(lsid));
-				}
-				else if (referencedClass.equals(Filter.class))
-				{
-					if (lsid.endsWith(
-							OMEROMetadataStoreClient.OMERO_EMISSION_FILTER_SUFFIX))
-					{
-						lsid = lsid.substring(0, lsid.lastIndexOf(':'));
-						container = containerCache.get(lsid);
-					}
-					else if (lsid.endsWith(
-							OMEROMetadataStoreClient.OMERO_EXCITATION_FILTER_SUFFIX))
-					{
-						lsid = lsid.substring(0, lsid.lastIndexOf(':'));
-						container = containerCache.get(lsid);
-					}
-					if (container != null)
-					{
-						toReturn.add(container);
-					}
-				}
-			}
-		}
-		return toReturn;
-	}
-	
-	/**
-	 * Returns the the first referenced container of a certain type for a given
-	 * target LSID. 
-	 * @param referenceCache Reference cache to pull references from.
-	 * @param store Container store which is holding all object containers.
-	 * @param target LSID of the target object.
-	 * @param referencedClass Type filter for the retrieved containers.
-	 * @see getFirstReferencedContainer()
-	 * @return A referenced container or <code>null</code> if no container 
-	 * could be found. <b>Note:</b> This is different than the
-	 * {@link getReferencedContainers()} return value logic.
-	 * @throws ModelException If the number of containers that match
-	 * <code>target</code> and <code>referencedClass</code> is > 1.
-	 */
-	private static IObjectContainer getFirstReferencedContainer(
-			Map<LSID, List<LSID>> referenceCache, IObjectContainerStore store,
-			LSID target, Class<? extends IObject> referencedClass)
-	{
-		List<IObjectContainer> containers = getReferencedContainers(
-				referenceCache, store, target, referencedClass);
-		if (containers.size() == 0)
-		{
-			return null;
-		}
-		if (containers.size() != 1)
-		{
-			throw new ModelException(String.format(
-					"Container count of references for %s of type %s > 1: %d.",
-					target, referencedClass, containers.size()));
-		}
-		return containers.get(0);
 	}
 	
 	/**

@@ -121,7 +121,8 @@ public interface IObjectContainerStore
      * cache records the explicitly set LSID to container references.
      * @return See above.
      */
-    Map<String, IObjectContainer> getAuthoritativeContainerCache();
+    Map<Class<? extends IObject>, Map<String, IObjectContainer>>
+    	getAuthoritativeContainerCache();
     
     /**
      * Returns the current container cache.
