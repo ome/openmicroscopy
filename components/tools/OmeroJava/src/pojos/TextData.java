@@ -82,9 +82,11 @@ public class TextData
 	 */
 	public TextData(String text, double x, double y)
 	{
-		Text shape = new TextI();
-		setValue(shape);
-		setShapeSettings(shape);
+		//Text shape = new TextI();
+		//setValue(shape);
+		//setShapeSettings(shape);
+		// XXX: Replacing above three lines with the following to fix build
+		super(new TextI());
 		setX(x);
 		setY(y);
 		setText(text);

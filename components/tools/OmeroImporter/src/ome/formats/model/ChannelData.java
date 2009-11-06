@@ -218,7 +218,7 @@ public class ChannelData
 				lsid = reference.toString();
 				if (containerCache.containsKey(lsid))
 				{
-					container = containerCache.get(lsid);
+					toReturn.add(containerCache.get(lsid));
 				}
 				else if (referencedClass.equals(Filter.class))
 				{
@@ -234,10 +234,10 @@ public class ChannelData
 						lsid = lsid.substring(0, lsid.lastIndexOf(':'));
 						container = containerCache.get(lsid);
 					}
-				}
-				if (container != null)
-				{
-					toReturn.add(container);
+					if (container != null)
+					{
+						toReturn.add(container);
+					}
 				}
 			}
 		}
