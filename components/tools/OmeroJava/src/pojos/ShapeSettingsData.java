@@ -76,13 +76,22 @@ public class ShapeSettingsData
 	public static final int 	DEFAULT_FONT_SIZE = 12;
 	
 	/** The default font style. */
-	public static final int 	DEFAULT_FONT_STYLE = Font.PLAIN;
+	public static final String 	DEFAULT_FONT_STYLE = "normal";
+	
+	/** The default font weight. */
+	public static final String 	DEFAULT_FONT_WEIGHT = "normal";
 	
 	/** The default font family. */
 	public static final String 	DEFAULT_FONT_FAMILY = "Courier";
 	
 	/** The default stroke width. */
 	public final static double DEFAULT_STROKE_WIDTH =  1.0f;
+
+	/** Set if font italic. */
+	public final static String FONT_ITALIC = "italic";
+	
+	/** Set if font bold. */
+	public final static String FONT_BOLD = "bold";
 	
 	/**
 	 * Converts the string into a color.
@@ -327,6 +336,21 @@ public class ShapeSettingsData
 		}
 	}
 	
+	/** 
+	 * Get the style of the font for Shape. 
+	 * @return See above.
+	 */
+	public Font getFont()
+	{
+		int style = Font.PLAIN;
+		if(getFontWeight()==FONT_BOLD)
+			style = style | Font.BOLD;
+		if(getFontWeight()==FONT_ITALIC)
+			style = style | Font.ITALIC;
+		
+		return new Font(getFontFamily(), style,getFontSize());
+	}
+	
 	/**
 	 * Returns the stroke.
 	 * 
@@ -334,9 +358,27 @@ public class ShapeSettingsData
 	 */
 	public String getFontFamily()
 	{
-		return DEFAULT_FONT_FAMILY;
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		if(shape.getFontFamily()!=null)
+			return shape.getFontFamily().getValue();
+		else
+			return DEFAULT_FONT_FAMILY;
 	}
 
+	/**
+	 * Returns the stroke.
+	 * 
+	 * @return See above.
+	 */
+	public void setFontFamily(String fontFamily)
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setFontFamily(rtypes.rstring(fontFamily));
+	}
 	
 	/**
 	 * Returns the stroke.
@@ -345,19 +387,88 @@ public class ShapeSettingsData
 	 */
 	public int getFontSize()
 	{
-		return DEFAULT_FONT_SIZE;
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		if(shape.getFontSize()!=null)
+			return shape.getFontSize().getValue();
+		else
+			return DEFAULT_FONT_SIZE;
 	}
 
 	/**
-	 * Returns the stroke.
+	 * Set the size of the font.
 	 * 
 	 * @return See above.
 	 */
-	public int getFontStyle()
+	public void setFontSize(int fontSize)
 	{
-		return DEFAULT_FONT_STYLE;
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setFontSize(rtypes.rint(fontSize));
 	}
 
+	
+	/**
+	 * Returns the font style.
+	 * 
+	 * @return See above.
+	 */
+	public String getFontStyle()
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		if(shape.getFontStyle()!=null)
+			return shape.getFontStyle().getValue();
+		else
+			return DEFAULT_FONT_STYLE;
+	}
+
+	/**
+	 * Set the style of the font.
+	 * 
+	 * @return See above.
+	 */
+	public void setFontStyle(String fontStyle)
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setFontStyle(rtypes.rstring(fontStyle));
+	}
+	
+	/**
+	 * Get the weight of the font.
+	 * 
+	 * @return See above.
+	 */
+	public String getFontWeight()
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		if(shape.getFontWeight()!=null)
+			return shape.getFontWeight().getValue();
+		else
+			return DEFAULT_FONT_WEIGHT;
+	}
+	
+	/**
+	 * Set the weight of the font.
+	 * 
+	 * @return See above.
+	 */
+	public void setFontWeight(String fontWeight)
+	{
+		Shape shape = (Shape) asIObject();
+		if (shape == null) 
+			throw new IllegalArgumentException("No shape specified.");
+		shape.setFontWeight(rtypes.rstring(fontWeight));
+	}
+	
+	
 	/**
 	 * Returns the stroke.
 	 * 
@@ -389,22 +500,12 @@ public class ShapeSettingsData
 	}
 	
 	/**
-	 * Returns the font.
-	 * 
-	 * @return See above.
-	 */
-	public Font getFont()
-	{
-		return new Font(getFontFamily(), getFontStyle(), getFontSize());
-	}
-	
-	/**
 	 * Returns <code>true</code> if it is italic, <code>false</code>
 	 * otherwise.
 	 * 
 	 * @return See above.
 	 */
-	public boolean isFontItalic() { return getFontStyle() == Font.ITALIC; }
+	public boolean isFontItalic() { return getFontStyle() == FONT_ITALIC; }
 	
 	/**
 	 * Returns <code>true</code> if it is bold, <code>false</code>
@@ -412,6 +513,6 @@ public class ShapeSettingsData
 	 * 
 	 * @return See above.
 	 */
-	public boolean isFontBold() { return getFontStyle() == Font.BOLD; }
+	public boolean isFontBold() { return getFontWeight() == FONT_BOLD; }
 	
 }
