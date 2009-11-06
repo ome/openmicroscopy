@@ -33,8 +33,10 @@ import java.util.Map;
 
 //Application-internal dependencies
 import omero.model.Ellipse;
+import omero.model.Image;
 import omero.model.Rect;
 import omero.model.Roi;
+import omero.model.RoiI;
 import omero.model.Shape;
 
 /**
@@ -111,10 +113,35 @@ public class ROIData
 	public ROIData()
 	{
 		super();
+		setValue(new RoiI());
 		roiShapes = new TreeMap<ROICoordinate, List<ShapeData>>
 		(new ROICoordinate());
 	}
 
+	/**
+	 * Set the imageId for the ROI.
+	 * @param imageId See above.
+	 */
+	public void setImage(Image image)
+	{
+		Roi roi = (Roi) asIObject();
+		if (roi == null) 
+			throw new IllegalArgumentException("No Roi specified.");
+		roi.setImage(image);
+	}
+	
+	/**
+	 * Get the image for the ROI.
+	 * @return See above.
+	 */
+	public Image getImage()
+	{
+		Roi roi = (Roi) asIObject();
+		if (roi == null) 
+			throw new IllegalArgumentException("No Roi specified.");
+		return roi.getImage();
+	}
+	
 	/**
 	 * Add ShapeData object to ROIData.
 	 * @param shape See above.

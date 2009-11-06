@@ -37,8 +37,6 @@ import omero.RDouble;
 import omero.RString;
 import omero.rtypes;
 import omero.model.PolygonI;
-import omero.model.Rect;
-import omero.model.RectI;
 import omero.model.Shape;
 import omero.model.Polygon;
 
@@ -200,7 +198,8 @@ public class PolygonData
 		String maskValues = "";
 		for( int i = 0 ; i < maskList.size()-1; i++)
 			maskValues = maskValues + maskList.get(i)+",";
-		maskValues = maskValues+maskList.get(maskList.size()-1)+"";
+		if(maskList.size()!=0)
+			maskValues = maskValues+maskList.get(maskList.size()-1)+"";
 		String pts = "points["+pointsValues+"] ";
 		pts = pts + "points1["+points1Values+"] ";
 		pts = pts + "points2["+points2Values+"] ";

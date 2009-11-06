@@ -70,6 +70,7 @@ public abstract class ShapeData
 		super();
 		setClientObject(clientObject);
 		setValue(shape);
+		shape.setLocked(rtypes.rbool(false));
 		settings = new ShapeSettingsData(shape);
 	}
 	

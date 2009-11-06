@@ -1,5 +1,5 @@
 /*
- * pojos.PolygonData
+ * pojos.PolylineData
  *
 Ê*------------------------------------------------------------------------------
  * Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -34,8 +34,6 @@ import java.awt.geom.Point2D;
 import omero.RDouble;
 import omero.RString;
 import omero.rtypes;
-import omero.model.Polygon;
-import omero.model.PolygonI;
 import omero.model.PolylineI;
 import omero.model.Shape;
 import omero.model.Polyline;
@@ -99,7 +97,7 @@ public class PolylineData
 	public PolylineData(List<Point2D> points, List<Point2D> points1, 
 			List<Point2D> points2, List<Integer> maskList)
 	{
-		super(new PolygonI(), true);
+		super(new PolylineI(), true);
 		setPoints(points, points1, points2, maskList);
 	}
 		
@@ -185,7 +183,7 @@ public class PolylineData
 	{
 		if(isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
-		Polygon shape = (Polygon) asIObject();
+		Polyline shape = (Polyline) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		
@@ -198,7 +196,8 @@ public class PolylineData
 		String maskValues = "";
 		for( int i = 0 ; i < maskList.size()-1; i++)
 			maskValues = maskValues + maskList.get(i)+",";
-		maskValues = maskValues+maskList.get(maskList.size()-1)+"";
+		if(maskList.size()!=0)
+			maskValues = maskValues+maskList.get(maskList.size()-1)+"";
 		String pts = "points["+pointsValues+"] ";
 		pts = pts + "points1["+points1Values+"] ";
 		pts = pts + "points2["+points2Values+"] ";
@@ -214,7 +213,7 @@ public class PolylineData
 	 */
 	private String fromPoints(String type)
 	{
-		Polygon shape = (Polygon) asIObject();
+		Polyline shape = (Polyline) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		String pts = shape.getPoints().getValue();
