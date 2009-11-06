@@ -879,9 +879,11 @@ class TreeViewerComponent
 		//case LOADING_THUMBNAIL:
 		case DISCARDED:
 		case SAVE:  
+			/*
 			throw new IllegalStateException("This method cannot be " +
-					"invoked in the DISCARDED, SAVE or LOADING_THUMBNAIL " +
-			"state");
+					"invoked in the DISCARDED, SAVE state");
+					*/
+			return;
 		}
 		//removeEditor(); //remove the currently selected editor.
 		Browser browser = model.getSelectedBrowser();
