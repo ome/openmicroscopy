@@ -86,9 +86,7 @@ public class MaskData
 	public MaskData(double x, double y, double width, double height,
 			BufferedImage mask)
 	{
-		Mask shape = new MaskI();
-		setValue(shape);
-		setShapeSettings(shape);
+		super(new MaskI(), true);
 		this.setX(x);
 		this.setY(y);
 		this.setWidth(width);

@@ -81,9 +81,7 @@ public class RectangleData
 	 */
 	public RectangleData(double x, double y, double width, double height)
 	{
-		Rect shape = new RectI();
-		setValue(shape);
-		setShapeSettings(shape);
+		super(new RectI(), true);
 		setX(x);
 		setY(y);
 		setWidth(width);

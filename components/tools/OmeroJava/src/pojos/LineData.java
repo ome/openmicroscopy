@@ -80,9 +80,7 @@ public class LineData
 	 */
 	public LineData(double x1, double y1, double x2, double y2)
 	{
-		Line shape = new LineI();
-		setValue(shape);
-		setShapeSettings(shape);
+		super(new LineI(), true);
 		setX1(x1);
 		setY1(y1);
 		setX2(x2);

@@ -61,18 +61,17 @@ public class PolylineData
 	private static final String NUMREGEX = "\\[.*\\]";
 
 	/** The points in the polyline as list. */
-	List<Point2D> points;
+	private List<Point2D> points;
 
 	/** The points in the polyline as list. */
-	List<Point2D> points1;
+	private List<Point2D> points1;
 
 	/** The points in the polyline as list. */
-	List<Point2D> points2;
+	private List<Point2D> points2;
 	
 	/** The points in the polyline as list. */
-	List<Integer> mask;
+	private List<Integer> mask;
 
-	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -100,9 +99,7 @@ public class PolylineData
 	public PolylineData(List<Point2D> points, List<Point2D> points1, 
 			List<Point2D> points2, List<Integer> maskList)
 	{
-		Polygon shape = new PolygonI();
-		setValue(shape);
-		setShapeSettings(shape);
+		super(new PolygonI(), true);
 		setPoints(points, points1, points2, maskList);
 	}
 		
@@ -221,11 +218,11 @@ public class PolylineData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		String pts = shape.getPoints().getValue();
-		if(pts.length()==0)
+		if (pts.length() == 0)
 			return "";
 		String exp = type+NUMREGEX;
 		String[] match = pts.split(exp);
-		if(match.length!=1)
+		if (match.length != 1)
 			return "";
 		String list = match[0].substring(match[0].indexOf("["),
 								match[0].indexOf("["));
@@ -272,7 +269,7 @@ public class PolylineData
 		StringBuilder buf=new StringBuilder();
 		for (int i=0; i<points.length; i++)
 		{
-			if (i!=0)
+			if (i != 0)
 			{
 				buf.append(", ");
 			}

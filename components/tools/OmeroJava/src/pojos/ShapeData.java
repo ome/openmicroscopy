@@ -57,6 +57,21 @@ public abstract class ShapeData
 	
 	/** Has this shape been created client side. */
 	private boolean clientObject;
+
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param shape       The shape to host.
+	 * @param clientObject Pass <code>true</code> if it is a client object, 
+	 * 						<code>false</code> otherwise.
+	 */
+	protected ShapeData(Shape shape, boolean clientObject)
+	{
+		super();
+		setClientObject(clientObject);
+		setValue(shape);
+		settings = new ShapeSettingsData(shape);
+	}
 	
 	/**
 	 * Creates a new instance.
@@ -65,22 +80,7 @@ public abstract class ShapeData
 	 */
 	protected ShapeData(Shape shape)
 	{
-		super();
-		setClientObject(false);
-		setValue(shape);
-		settings = new ShapeSettingsData(shape);
-	}
-	
-	/** 
-	 * Create a new instance of shapeData, this is a client side instance, 
-	 * and so has to have the shape, shapeSettings set by the client.
-	 */
-	protected ShapeData()
-	{
-		super();
-		setClientObject(true);
-		setValue(null);
-		settings = null;
+		this(shape, false);
 	}
 	
 	/**

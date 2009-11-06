@@ -80,9 +80,7 @@ public class EllipseData
 	 */
 	public EllipseData(double cx, double cy, double rx, double ry)
 	{
-		Ellipse shape = new EllipseI();
-		setValue(shape);
-		setShapeSettings(shape);
+		super(new EllipseI(), true);
 		setX(cx);
 		setY(cy);
 		setRadiusX(rx);

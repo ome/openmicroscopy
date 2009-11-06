@@ -101,9 +101,7 @@ public class PolygonData
 	public PolygonData(List<Point2D> points, List<Point2D> points1, 
 			List<Point2D> points2, List<Integer> maskList)
 	{
-		Polygon shape = new PolygonI();
-		setValue(shape);
-		setShapeSettings(shape);
+		super(new PolygonI(), true);
 		setPoints(points, points1, points2, maskList);
 	}
 	

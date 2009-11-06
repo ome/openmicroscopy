@@ -79,9 +79,7 @@ public class PointData
 	 */
 	public PointData(double x, double y)
 	{
-		Point shape = new PointI();
-		setValue(shape);
-		setShapeSettings(shape);
+		super(new PointI(), true);
 		setX(x);
 		setY(y);
 	}
