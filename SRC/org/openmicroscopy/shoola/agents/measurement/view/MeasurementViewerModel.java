@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.agents.measurement.Analyser;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
 import org.openmicroscopy.shoola.agents.measurement.ROILoader;
+import org.openmicroscopy.shoola.agents.measurement.ROISaver;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
@@ -80,6 +81,7 @@ import pojos.ChannelData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.PixelsData;
+import pojos.ROIData;
 
 /** 
  * The Model component in the <code>MeasurementViewer</code> MVC triad.
@@ -146,6 +148,11 @@ class MeasurementViewerModel
      * <code>null</code> depending on the current state. 
      */
     private MeasurementViewerLoader	currentLoader;
+    
+    /** 
+     * The ROISaver. 
+     */
+    private MeasurementViewerLoader	currentSaver;
     
     /** Reference to the component that embeds this model. */
     private MeasurementViewer		component;
@@ -870,6 +877,31 @@ class MeasurementViewerModel
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot close the stream "+e.getMessage());
 		}
+	}
+	
+	/**
+	 * Saves the current ROISet in the ROI component to server.
+	 * 
+	 * @param post		Pass <code>true</code> to post an event, 
+	 * 					<code>false</code> otherwise.
+	 */
+	void saveROIToServer()
+	{
+		List<ROIData> roiList;
+		System.err.println("MvModel.saveROIToServer");
+		try {
+			roiList = roiComponent.saveROI();
+			ExperimenterData exp = 
+				(ExperimenterData) MeasurementAgent.getUserDetails();
+			currentSaver = new ROISaver(component, getImageID(), exp.getId(), 
+					roiList);
+			currentSaver.load();
+		} catch (Exception e) {
+			e.printStackTrace();
+			Logger log = MeasurementAgent.getRegistry().getLogger();
+			log.warn(this, "Cannot save to server "+e.getMessage());
+		}
+		
 	}
 	
 	/**

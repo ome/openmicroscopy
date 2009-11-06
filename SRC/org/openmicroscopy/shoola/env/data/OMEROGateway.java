@@ -4967,6 +4967,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
+		System.err.println("ROI");
 		try 
 		{
 			IUpdatePrx updateService = this.getUpdateService();

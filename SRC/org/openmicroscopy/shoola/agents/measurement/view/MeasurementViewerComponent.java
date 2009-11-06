@@ -454,6 +454,15 @@ class MeasurementViewerComponent
 	
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#saveROIToServer()
+     */
+	public void saveROIToServer()
+	{
+		model.saveROIToServer();
+	}
+	
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#refreshResultsTable()
      */
 	public void refreshResultsTable() 

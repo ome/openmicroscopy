@@ -92,7 +92,7 @@ public class SaveROIAction
      * Saves the ROI.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e) { model.saveROI(); }
+    public void actionPerformed(ActionEvent e) { model.saveROIToServer(); }
 
     /**
      * Sets the enabled flag to <code>true</code> if ROI to save.

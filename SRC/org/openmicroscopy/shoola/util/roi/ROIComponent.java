@@ -61,6 +61,8 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 
+import pojos.ROIData;
+
 /** 
  * The ROI Component is the main interface to the object which control the 
  * creations, storage, deletion and manipulation of ROIs. 
@@ -323,6 +325,19 @@ public class ROIComponent
 			throw new NullPointerException("No input stream specified.");
 		if (ioStrategy == null) ioStrategy = new XMLFileIOStrategy();
 		ioStrategy.write(output, this);
+	}
+	
+	/** 
+	 * Convert the ROI in the component to ROIData and return. 
+	 * 
+	 * @return See above.
+	 * @throws Exception 
+	 */
+	public List<ROIData> saveROI() 
+		throws Exception
+	{
+		if (serverStrategy == null) serverStrategy = new ServerROIStrategy();
+		return serverStrategy.write(this);
 	}
 	
 	/**

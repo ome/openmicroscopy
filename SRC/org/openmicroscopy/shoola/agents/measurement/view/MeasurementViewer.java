@@ -306,5 +306,8 @@ public interface MeasurementViewer
 	public boolean isServerROI();
 
 	public String getViewTitle();
+
+	/** Saves the ROI to the server. */
+	public void saveROIToServer();
 	
 }
