@@ -32,6 +32,7 @@ import java.util.Map;
 import loci.common.DataTools;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
+import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.UnknownFormatException;
 import loci.formats.in.MIASReader;
@@ -313,7 +314,9 @@ public class ImportLibrary implements IObservable
         String fileName = file.getAbsolutePath();
         String shortName = file.getName();
         String format = null;
+        String[] domains = null;
         String[] usedFiles = new String[1];
+        boolean isScreeningDomain = false;
         usedFiles[0] = file.getAbsolutePath();
 
         try {
@@ -322,7 +325,24 @@ public class ImportLibrary implements IObservable
         
             open(file.getAbsolutePath());
             format = reader.getFormat();
-            if (reader.getUsedFiles() != null) usedFiles = reader.getUsedFiles();
+            domains = reader.getDomains();
+            if (reader.getUsedFiles() != null)
+            {
+            	usedFiles = reader.getUsedFiles();
+            }
+            for (String domain : domains)
+            {
+            	if (domain.equals(FormatTools.HCS_DOMAIN))
+            	{
+            		isScreeningDomain = true;
+            		break;
+            	}
+            }
+            if (isScreeningDomain)
+            {
+            	log.info("Reader is of HCS domain, disabling metafile.");
+            	useMetadataFile = false;
+            }
             
             notifyObservers(new ImportEvent.LOADED_IMAGE(shortName, index, numDone, total));
             

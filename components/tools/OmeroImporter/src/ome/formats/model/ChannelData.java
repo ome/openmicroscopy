@@ -131,41 +131,44 @@ public class ChannelData
 			containerCache.get(FilterSet.class);
 		Map<String, IObjectContainer> filterContainers =
 			containerCache.get(Filter.class);
-		for (LSID reference : references)
+		if (references != null)
 		{
-			lsidString = reference.toString();
-			if (filterSetContainers.containsKey(lsidString))
+			for (LSID reference : references)
 			{
-				IObjectContainer filterSetContainer =
-					filterSetContainers.get(lsidString);
-				LSID filterSetLSID = new LSID(FilterSet.class,
-						filterSetContainer.indexes.get("instrumentIndex"),
-						filterSetContainer.indexes.get("filterSetIndex"));
-				data.filterSet = (FilterSet) filterSetContainer.sourceObject;
-				// ... LogicalChannel --> FilterSet --> Filter (Em) AND
-				// ... LogicalChannel --> FilterSet --> Filter (Ex)
-				List<LSID> filterSetReferences = 
-					referenceCache.get(filterSetLSID);
-				if (filterSetReferences == null)
+				lsidString = reference.toString();
+				if (filterSetContainers.containsKey(lsidString))
 				{
-					continue;
-				}
-				for (LSID filterSetReference : filterSetReferences)
-				{
-					lsidString = filterSetReference.toString();
-					String unsuffixed = 
-						lsidString.substring(0, lsidString.lastIndexOf(':'));
-					if (lsidString.endsWith(
-							OMEROMetadataStoreClient.OMERO_EMISSION_FILTER_SUFFIX))
+					IObjectContainer filterSetContainer =
+						filterSetContainers.get(lsidString);
+					LSID filterSetLSID = new LSID(FilterSet.class,
+							filterSetContainer.indexes.get("instrumentIndex"),
+							filterSetContainer.indexes.get("filterSetIndex"));
+					data.filterSet = (FilterSet) filterSetContainer.sourceObject;
+					// ... LogicalChannel --> FilterSet --> Filter (Em) AND
+					// ... LogicalChannel --> FilterSet --> Filter (Ex)
+					List<LSID> filterSetReferences = 
+						referenceCache.get(filterSetLSID);
+					if (filterSetReferences == null)
 					{
-						data.filterSetEmFilter = (Filter) 
-							filterContainers.get(unsuffixed).sourceObject;
+						continue;
 					}
-					if (lsidString.endsWith(
-							OMEROMetadataStoreClient.OMERO_EXCITATION_FILTER_SUFFIX))
+					for (LSID filterSetReference : filterSetReferences)
 					{
-						data.filterSetExFilter = (Filter) 
+						lsidString = filterSetReference.toString();
+						String unsuffixed = 
+							lsidString.substring(0, lsidString.lastIndexOf(':'));
+						if (lsidString.endsWith(
+								OMEROMetadataStoreClient.OMERO_EMISSION_FILTER_SUFFIX))
+						{
+							data.filterSetEmFilter = (Filter) 
 							filterContainers.get(unsuffixed).sourceObject;
+						}
+						if (lsidString.endsWith(
+								OMEROMetadataStoreClient.OMERO_EXCITATION_FILTER_SUFFIX))
+						{
+							data.filterSetExFilter = (Filter) 
+							filterContainers.get(unsuffixed).sourceObject;
+						}
 					}
 				}
 			}
@@ -173,22 +176,25 @@ public class ChannelData
 		// ... LogicalChannel --> Filter (SecondaryEm)
 		// ... LogicalChannel --> Filter (SecondaryEx)
 		references = referenceCache.get(logicalChannelLSID);
-		for (LSID reference : references)
+		if (references != null)
 		{
-			lsidString = reference.toString();
-			String unsuffixed = 
-				lsidString.substring(0, lsidString.lastIndexOf(':'));
-			if (lsidString.endsWith(
-					OMEROMetadataStoreClient.OMERO_EMISSION_FILTER_SUFFIX))
+			for (LSID reference : references)
 			{
-				data.secondaryEmFilter = (Filter) 
+				lsidString = reference.toString();
+				String unsuffixed = 
+					lsidString.substring(0, lsidString.lastIndexOf(':'));
+				if (lsidString.endsWith(
+						OMEROMetadataStoreClient.OMERO_EMISSION_FILTER_SUFFIX))
+				{
+					data.secondaryEmFilter = (Filter) 
 					filterContainers.get(unsuffixed).sourceObject;
-			}
-			else if (lsidString.endsWith(
-					OMEROMetadataStoreClient.OMERO_EXCITATION_FILTER_SUFFIX))
-			{
-				data.secondaryExFilter = (Filter) 
+				}
+				else if (lsidString.endsWith(
+						OMEROMetadataStoreClient.OMERO_EXCITATION_FILTER_SUFFIX))
+				{
+					data.secondaryExFilter = (Filter) 
 					filterContainers.get(unsuffixed).sourceObject;
+				}
 			}
 		}
 		// ... LogicalChannel --> LightSettings

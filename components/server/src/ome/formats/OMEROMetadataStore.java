@@ -25,12 +25,15 @@ package ome.formats;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ome.api.IQuery;
 import ome.api.IUpdate;
+import ome.model.IEnum;
 import ome.model.IObject;
 import ome.model.acquisition.Arc;
 import ome.model.acquisition.Detector;
@@ -57,6 +60,12 @@ import ome.model.core.LogicalChannel;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.PlaneInfo;
+import ome.model.enums.AcquisitionMode;
+import ome.model.enums.Binning;
+import ome.model.enums.ContrastMethod;
+import ome.model.enums.Illumination;
+import ome.model.enums.Medium;
+import ome.model.enums.PhotometricInterpretation;
 import ome.model.experiment.Experiment;
 import ome.model.roi.Ellipse;
 import ome.model.roi.Line;
@@ -1438,6 +1447,230 @@ public class OMEROMetadataStore
     		pixelsList.set(i, imageIdPixelsMap.get(imageId));
     	}
     }
+    
+    /**
+     * Compares two enumerations by reference and by ID.
+     * @param a First OMERO model object.
+     * @param b Second OMERO model object.
+     * @return <code>true</code> if <code>a == null && b == null</code>, 
+     * <code>a == b</code> or <code>a.getId() == b.getId()</code>.
+     */
+    private static boolean compare(IEnum a, IEnum b)
+    {
+    	if (a == null && b == null)
+    	{
+    		return true;
+    	}
+    	if (a == null || b == null)
+    	{
+    		return false;
+    	}
+    	return a.getId() == b.getId();
+    }
+    
+    /**
+     * Compares two strings by reference existence and by value.
+     * @param a First string.
+     * @param b Second string.
+     * @return <code>true</code> if <code>a == null && b == null</code> or
+     * <code>a.equals(b)</code>.
+     */
+    private static boolean compare(String a, String b)
+    {
+    	if (a == null && b == null)
+    	{
+    		return true;
+    	}
+    	if (a == null || b == null)
+    	{
+    		return false;
+    	}
+    	return a.equals(b);
+    }
+    
+    /**
+     * Checks the entire object graph for sections that may be collapsed if
+     * the data is derived from a Plate. Collapsible points:
+     * <ul>
+     *   <li>Image --> ObjectiveSettings</li>
+     *   <li>Image --> Channel --> LogicalChannel --> LightSettings</li>
+     *   <li>Image --> Channel --> LogicalChannel --> DetectorSettings</li>
+     * </ul>
+     */
+    private void checkAndCollapseGraph()
+    {
+    	// Ensure we're working with an SPW data set.
+    	if (plateList.size() == 0)
+    	{
+    		return;
+    	}
+    	// Collapse down ObjectiveSettings by uniqueness
+    	Set<ObjectiveSettings> objectiveSettings =
+    		new HashSet<ObjectiveSettings>();
+    	Set<LightSettings> lightSettings = new HashSet<LightSettings>();
+    	Set<DetectorSettings> detectorSettings = 
+    		new HashSet<DetectorSettings>();
+    	Set<LogicalChannel> logicalChannels = new HashSet<LogicalChannel>();
+    	Pixels pixels;
+    	Channel channel;
+    	LogicalChannel lc;
+    	for (Image image : imageList.values())
+    	{
+    		pixels = image.getPrimaryPixels();
+    		image.setObjectiveSettings(
+    				getUniqueObjectiveSettings(objectiveSettings, image));
+    		for (int c = 0; c < pixels.sizeOfChannels(); c++)
+    		{
+    			channel = pixels.getChannel(c);
+    			lc = channel.getLogicalChannel();
+    			lc.setLightSourceSettings(
+    					getUniqueLightSettings(lightSettings, lc));
+    			lc.setDetectorSettings(
+    					getUniqueDetectorSettings(detectorSettings, lc));
+    			channel.setLogicalChannel(
+    					getUniqueLogicalChannel(logicalChannels, lc));
+    		}
+    	}
+    	log.info("Unique objective settings: " + objectiveSettings.size());
+    	log.info("Unique light settings: " + lightSettings.size());
+    	log.info("Unique detector settings: " + detectorSettings.size());
+    	log.info("Unique logical channels: " + logicalChannels.size());
+    }
+    
+    /**
+     * Finds the matching unique settings for an image.
+     * @param uniqueSettings Set of existing unique settings.
+     * @param image Image to find unique settings for.
+     * @return Matched unique settings or <code>null</code> if
+     * <code>lc.getObjectiveSettings() == null</code>.
+     */
+    private ObjectiveSettings getUniqueObjectiveSettings(
+    		Set<ObjectiveSettings> uniqueSettings, Image image)
+    {
+    	ObjectiveSettings s1 = image.getObjectiveSettings();
+    	if (s1 == null)
+    	{
+    		return null;
+    	}
+    	for (ObjectiveSettings s2 : uniqueSettings)
+    	{
+    		if (s1.getCorrectionCollar() == s2.getCorrectionCollar()
+    			&& compare(s1.getMedium(), s2.getMedium())
+    			&& s1.getObjective() == s2.getObjective()
+    			&& s1.getRefractiveIndex() == s2.getRefractiveIndex())
+    		{
+    			return s2;
+    		}
+    	}
+    	uniqueSettings.add(s1);
+    	return s1;
+    }
+    
+    /**
+     * Finds the matching unique settings for a logical channel.
+     * @param uniqueSettings Set of existing unique settings.
+     * @param lc Logical channel to find unique settings for.
+     * @return Matched unique settings or <code>null</code> if
+     * <code>lc.getLightSourceSettings() == null</code>.
+     */
+    private LightSettings getUniqueLightSettings(
+    		Set<LightSettings> uniqueSettings, LogicalChannel lc)
+    {
+    	LightSettings s1 = lc.getLightSourceSettings();
+    	if (s1 == null)
+    	{
+    		return null;
+    	}
+    	for (LightSettings s2 : uniqueSettings)
+    	{
+    		if (s1.getAttenuation() == s2.getAttenuation()
+    			&& s1.getLightSource() == s2.getLightSource()
+    			&& s1.getMicrobeamManipulation()
+    			   == s2.getMicrobeamManipulation()
+    			&& s1.getWavelength() == s2.getWavelength())
+    		{
+    			return s2;
+    		}
+    	}
+    	uniqueSettings.add(s1);
+    	return s1;
+    }
+    
+    /**
+     * Finds the matching unique settings for a logical channel.
+     * @param uniqueSettings Set of existing unique settings.
+     * @param lc Logical channel to find unique settings for.
+     * @return Matched unique settings or <code>null</code> if
+     * <code>lc.getDetectorSettings() == null</code>.
+     */
+    private DetectorSettings getUniqueDetectorSettings(
+    		Set<DetectorSettings> uniqueSettings, LogicalChannel lc)
+    {
+    	DetectorSettings s1 = lc.getDetectorSettings();
+    	if (s1 == null)
+    	{
+    		return null;
+    	}
+    	for (DetectorSettings s2 : uniqueSettings)
+    	{
+    		if (compare(s1.getBinning(), s2.getBinning())
+    			&& s1.getDetector() == s2.getDetector()
+    			&& s1.getGain() == s2.getGain()
+    			&& s1.getOffsetValue() == s2.getOffsetValue()
+    			&& s1.getReadOutRate() == s2.getReadOutRate()
+    			&& s1.getVoltage() == s2.getVoltage())
+    		{
+    			return s2;
+    		}
+    	}
+    	uniqueSettings.add(s1);
+    	return s1;
+    }
+    
+    /**
+     * Finds the matching unique logical channel.
+     * @param uniqueChannels Set of existing unique logical channels.
+     * @param lc Logical channel to compare for uniqueness.
+     * @return Matched unique logical channel or <code>null</code> if
+     * <code>lc == null</code>.
+     */
+    private LogicalChannel getUniqueLogicalChannel(
+    		Set<LogicalChannel> uniqueChannels, LogicalChannel lc)
+    {
+    	if (lc == null)
+    	{
+    		return null;
+    	}
+    	for (LogicalChannel lc2 : uniqueChannels)
+    	{
+    		if (compare(lc.getMode(), lc2.getMode())
+    			&& compare(lc.getContrastMethod(), lc2.getContrastMethod())
+    			&& compare(lc.getIllumination(), lc2.getIllumination())
+    			&& compare(lc.getPhotometricInterpretation(),
+    					   lc2.getPhotometricInterpretation())
+    			&& lc.getDetectorSettings() == lc2.getDetectorSettings()
+    			&& lc.getEmissionWave() == lc2.getEmissionWave()
+    			&& lc.getExcitationWave() == lc2.getExcitationWave()
+    			&& lc.getFilterSet() == lc2.getFilterSet()
+    			&& compare(lc.getFluor(), lc2.getFluor())
+    			&& lc.getLightSourceSettings() == lc2.getLightSourceSettings()
+    			&& compare(lc.getName(), lc2.getName())
+    			&& lc.getNdFilter() == lc2.getNdFilter()
+    			&& lc.getOtf() == lc.getOtf()
+    			&& lc.getPinHoleSize() == lc2.getPinHoleSize()
+    			&& lc.getPockelCellSetting() == lc2.getPockelCellSetting()
+    			&& lc.getSamplesPerPixel() == lc2.getSamplesPerPixel()
+    			&& lc.getSecondaryEmissionFilter()
+    			   == lc2.getSecondaryEmissionFilter()
+    			&& lc.getSecondaryExcitationFilter()
+    			   == lc2.getSecondaryExcitationFilter())
+    		{
+    			return lc2;
+    		}
+    	}
+    	uniqueChannels.add(lc);
+    	return lc;
+    }
 
     /**
      * Saves the current object graph to the database.
@@ -1447,6 +1680,9 @@ public class OMEROMetadataStore
      */
     public List<Pixels> saveToDB()
     {
+    	// Check the entire object graph, optimizing and sections that may
+    	// be collapsed.
+    	checkAndCollapseGraph();
     	// Save the entire Image rooted graph using the "insert only"
     	// saveAndReturnIds() local update service only method.
     	StopWatch s1 = new CommonsLogStopWatch("omero.saveImportGraph");
