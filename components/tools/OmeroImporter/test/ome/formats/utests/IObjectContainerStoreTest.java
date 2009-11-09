@@ -91,4 +91,26 @@ public class IObjectContainerStoreTest extends TestCase
 		assertTrue(store.hasReference(new LSID(ObjectiveSettings.class,
 				                      IMAGE_INDEX), new LSID("Objective:0")));
 	}
+	
+	public void testCount10000CachedContainers()
+	{
+		for (int i = 0; i < 10000; i++)
+		{
+			store.setImageName(String.valueOf(i), i);
+		}
+		long t0 = System.currentTimeMillis();
+		store.countCachedContainers(Image.class, null);
+		assertTrue((System.currentTimeMillis() - t0) < 100);
+	}
+	
+	public void testGet10000ContainersByClass()
+	{
+		for (int i = 0; i < 10000; i++)
+		{
+			store.setImageName(String.valueOf(i), i);
+		}
+		long t0 = System.currentTimeMillis();
+		store.getIObjectContainers(Image.class);
+		assertTrue((System.currentTimeMillis() - t0) < 100);
+	}
 }

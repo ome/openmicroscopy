@@ -184,6 +184,11 @@ public class OMEROMetadataStoreClient
     private Map<LSID, List<LSID>> referenceCache = 
     	new HashMap<LSID, List<LSID>>();
     
+    /** Our authoritative LSID container cache. */
+    private Map<Class<? extends IObject>, Map<String, IObjectContainer>>
+    	authoritativeContainerCache = 
+    		new HashMap<Class<? extends IObject>, Map<String, IObjectContainer>>();
+    
     /** 
      * Our string based reference cache. This will be populated after all
      * model population has been completed by a ReferenceProcessor. 
@@ -240,6 +245,14 @@ public class OMEROMetadataStoreClient
     
     /** Executor that will run our keep alive task. */
     private ScheduledThreadPoolExecutor executor;
+    
+    /** Emission filter LSID suffix. */
+    public static final String OMERO_EMISSION_FILTER_SUFFIX =
+    	":OMERO_EMISSION_FILTER";
+    
+    /** Excitation filter LSID suffix. */
+    public static final String OMERO_EXCITATION_FILTER_SUFFIX =
+    	":OMERO_EXCITATION_FILTER";
     
     /** Companion file namespace */
     private static final String NS_COMPANION =
@@ -343,6 +356,15 @@ public class OMEROMetadataStoreClient
         c = new client(server, port);
         serviceFactory = c.joinSession(sessionKey);
         initializeServices();
+    }
+    
+    /**
+     * Returns the currently active service factory.
+     * @return See above.
+     */
+    public ServiceFactoryPrx getServiceFactory()
+    {
+    	return serviceFactory;
     }
 
     /**
@@ -464,6 +486,8 @@ public class OMEROMetadataStoreClient
         try
         {
             log.debug("Creating root!");
+            authoritativeContainerCache = 
+            	new HashMap<Class<? extends IObject>, Map<String, IObjectContainer>>();
             containerCache = 
                 new TreeMap<LSID, IObjectContainer>(new OMEXMLModelComparator());
             referenceCache = new HashMap<LSID, List<LSID>>();
@@ -665,6 +689,35 @@ public class OMEROMetadataStoreClient
     public Map<LSID, List<LSID>> getReferenceCache()
     {
         return referenceCache;
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#getAuthoritativeContainerCache()
+     */
+    public Map<Class<? extends IObject>, Map<String, IObjectContainer>>
+    	getAuthoritativeContainerCache()
+    {
+    	return authoritativeContainerCache;
+    }
+    
+    /**
+     * Adds a container to the authoritative LSID cache.
+     * @param klass Type of container we're adding.
+     * @param lsid String LSID of the container.
+     * @param container Container to add.
+     */
+    private void addAuthoritativeContainer(Class<? extends IObject> klass,
+    		                               String lsid,
+    		                               IObjectContainer container)
+    {
+    	Map<String, IObjectContainer> lsidContainerMap =
+    		authoritativeContainerCache.get(klass);
+    	if (lsidContainerMap == null)
+    	{
+    		lsidContainerMap = new HashMap<String, IObjectContainer>(); 
+    		authoritativeContainerCache.put(klass, lsidContainerMap);
+    	}
+    	lsidContainerMap.put(lsid, container);
     }
     
     /**
@@ -1141,6 +1194,7 @@ public class OMEROMetadataStoreClient
         indexes.put("detectorIndex", detectorIndex);
         IObjectContainer o = getIObjectContainer(Detector.class, indexes);
         o.LSID = id;
+        addAuthoritativeContainer(Detector.class, id, o);
     }
 
     public void setDetectorManufacturer(String manufacturer,
@@ -1365,6 +1419,7 @@ public class OMEROMetadataStoreClient
         indexes.put("imageIndex", imageIndex);
         IObjectContainer o = getIObjectContainer(Image.class, indexes);
         o.LSID = id;
+        addAuthoritativeContainer(Image.class, id, o);
     }
 
     public void setImageInstrumentRef(String instrumentRef, int imageIndex)
@@ -1435,6 +1490,7 @@ public class OMEROMetadataStoreClient
         indexes.put("instrumentIndex", instrumentIndex);
         IObjectContainer o = getIObjectContainer(Instrument.class, indexes);
         o.LSID = id;
+        addAuthoritativeContainer(Instrument.class, id, o);
     }
 
     public void setLaserFrequencyMultiplication(
@@ -1497,6 +1553,7 @@ public class OMEROMetadataStoreClient
         indexes.put("lightSourceIndex", lightSourceIndex);  
         IObjectContainer o = getIObjectContainer(LightSource.class, indexes);
         o.LSID = id;
+        addAuthoritativeContainer(LightSource.class, id, o);
     }
 
     public void setLightSourceManufacturer(String manufacturer,
@@ -1612,6 +1669,7 @@ public class OMEROMetadataStoreClient
         indexes.put("logicalChannelIndex", logicalChannelIndex);  
         IObjectContainer o = getIObjectContainer(LogicalChannel.class, indexes);
         o.LSID = id;
+        addAuthoritativeContainer(LogicalChannel.class, id, o);
     }
 
     public void setLogicalChannelIlluminationType(String illuminationType,
@@ -1680,6 +1738,7 @@ public class OMEROMetadataStoreClient
         indexes.put("otfIndex", otfIndex);  
         IObjectContainer o = getIObjectContainer(OTF.class, indexes);
         o.LSID = id;
+        addAuthoritativeContainer(OTF.class, id, o);
     }
 
     public void setOTFOpticalAxisAveraged(Boolean opticalAxisAveraged,
@@ -1755,6 +1814,7 @@ public class OMEROMetadataStoreClient
         indexes.put("objectiveIndex", objectiveIndex);  
         IObjectContainer o = getIObjectContainer(Objective.class, indexes);
         o.LSID = id;
+        addAuthoritativeContainer(Objective.class, id, o);
     }
 
     public void setObjectiveImmersion(String immersion, int instrumentIndex,
@@ -1826,6 +1886,7 @@ public class OMEROMetadataStoreClient
         indexes.put("pixelsIndex", pixelsIndex);  
         IObjectContainer o = getIObjectContainer(Pixels.class, indexes);
         o.LSID = id;
+        addAuthoritativeContainer(Pixels.class, id, o);
     }
 
     public void setPixelsPixelType(String pixelType, int imageIndex,
@@ -1937,6 +1998,7 @@ public class OMEROMetadataStoreClient
         indexes.put("plateIndex", plateIndex); 
         IObjectContainer o = getIObjectContainer(Plate.class, indexes);
         o.LSID = id;
+        addAuthoritativeContainer(Plate.class, id, o);
     }
 
     public void setPlateName(String name, int plateIndex)
@@ -2014,6 +2076,7 @@ public class OMEROMetadataStoreClient
         indexes.put("reagentIndex", reagentIndex);  
         IObjectContainer o = getIObjectContainer(Reagent.class, indexes);
         o.LSID = id;
+        addAuthoritativeContainer(Reagent.class, id, o);
     }
 
     public void setReagentName(String name, int screenIndex, int reagentIndex)
@@ -2212,6 +2275,7 @@ public class OMEROMetadataStoreClient
         indexes.put("wellIndex", wellIndex);  
         IObjectContainer o = getIObjectContainer(Well.class, indexes);
         o.LSID = id;
+        addAuthoritativeContainer(Well.class, id, o);
     }
 
     public void setWellRow(Integer row, int plateIndex, int wellIndex)
@@ -2230,6 +2294,7 @@ public class OMEROMetadataStoreClient
         indexes.put("wellSampleIndex", wellSampleIndex);
         IObjectContainer o = getIObjectContainer(WellSample.class, indexes);
         o.LSID = id;
+        addAuthoritativeContainer(WellSample.class, id, o);
     }
 
     public void setWellSampleIndex(Integer index, int plateIndex,
@@ -3055,6 +3120,7 @@ public class OMEROMetadataStoreClient
         indexes.put("experimentIndex", experimentIndex);
         IObjectContainer o = getIObjectContainer(Experiment.class, indexes);
         o.LSID = id;
+        addAuthoritativeContainer(Experiment.class, id, o);
     }
 
     public void setExperimentType(String type, int experimentIndex)
@@ -3612,7 +3678,7 @@ public class OMEROMetadataStoreClient
     	// processing logic does not easily handle multiple A --> B or B --> A 
     	// linkages of the same type so we'll compromise.
     	// Thu Jul 16 13:34:37 BST 2009 -- Chris Allan <callan@blackcat.ca>
-    	emFilter += ":OMERO_EMISSION_FILTER";
+    	emFilter += OMERO_EMISSION_FILTER_SUFFIX;
         LSID key = new LSID(FilterSet.class, instrumentIndex, filterSetIndex);
         addReference(key, new LSID(emFilter));
     }
@@ -3624,7 +3690,7 @@ public class OMEROMetadataStoreClient
     	// processing logic does not easily handle multiple A --> B or B --> A 
     	// linkages of the same type so we'll compromise.
     	// Thu Jul 16 13:34:37 BST 2009 -- Chris Allan <callan@blackcat.ca>
-    	exFilter += ":OMERO_EXCITATION_FILTER";
+    	exFilter += OMERO_EXCITATION_FILTER_SUFFIX;
         LSID key = new LSID(FilterSet.class, instrumentIndex, filterSetIndex);
         addReference(key, new LSID(exFilter));
     }
@@ -3832,7 +3898,7 @@ public class OMEROMetadataStoreClient
     	// processing logic does not easily handle multiple A --> B or B --> A 
     	// linkages of the same type so we'll compromise.
     	// Thu Jul  2 12:08:19 BST 2009 -- Chris Allan <callan@blackcat.ca>
-    	secondaryEmissionFilter += ":OMERO_EMISSION_FILTER";
+    	secondaryEmissionFilter += OMERO_EMISSION_FILTER_SUFFIX;
         LSID key = new LSID(LogicalChannel.class, imageIndex,
 	                        logicalChannelIndex);
         addReference(key, new LSID(secondaryEmissionFilter));
@@ -3846,7 +3912,7 @@ public class OMEROMetadataStoreClient
     	// processing logic does not easily handle multiple A --> B or B --> A 
     	// linkages of the same type so we'll compromise.
     	// Thu Jul  2 12:08:19 BST 2009 -- Chris Allan <callan@blackcat.ca>
-    	secondaryExcitationFilter += ":OMERO_EXCITATION_FILTER";
+    	secondaryExcitationFilter += OMERO_EXCITATION_FILTER_SUFFIX;
         LSID key = new LSID(LogicalChannel.class, imageIndex,
         		            logicalChannelIndex);
         addReference(key, new LSID(secondaryExcitationFilter));
@@ -4621,6 +4687,7 @@ public class OMEROMetadataStoreClient
         indexes.put("dichroicIndex", dichroicIndex);
         IObjectContainer o = getIObjectContainer(Dichroic.class, indexes);
         o.LSID = id;
+        addAuthoritativeContainer(Dichroic.class, id, o);
 	}
 
 	public void setFilterID(String id, int instrumentIndex, int filterIndex)
@@ -4632,6 +4699,7 @@ public class OMEROMetadataStoreClient
         indexes.put("filterIndex", filterIndex);
         IObjectContainer o = getIObjectContainer(Filter.class, indexes);
         o.LSID = id;
+        addAuthoritativeContainer(Filter.class, id, o);
 	}
 
 	public void setFilterSetID(String id, int instrumentIndex,
@@ -4644,7 +4712,7 @@ public class OMEROMetadataStoreClient
         indexes.put("filterSetIndex", filterSetIndex);
         IObjectContainer o = getIObjectContainer(FilterSet.class, indexes);
         o.LSID = id;
-		
+        addAuthoritativeContainer(FilterSet.class, id, o);
 	}
 
 	public void setRoiLinkDirection(String arg0, int arg1, int arg2, int arg3) {

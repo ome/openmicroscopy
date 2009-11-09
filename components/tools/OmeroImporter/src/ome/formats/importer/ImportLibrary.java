@@ -32,11 +32,16 @@ import java.util.Map;
 import loci.common.DataTools;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
+import loci.formats.FormatTools;
+import loci.formats.IFormatReader;
 import loci.formats.UnknownFormatException;
+import loci.formats.in.MIASReader;
 import ome.formats.OMEROMetadataStoreClient;
+// XXX: Overlay import ome.formats.OverlayMetadataStore;
 import ome.formats.importer.util.ErrorHandler;
 import ome.formats.model.InstanceProvider;
 import omero.ServerError;
+import omero.api.ServiceFactoryPrx;
 import omero.model.Annotation;
 import omero.model.FileAnnotation;
 import omero.model.IObject;
@@ -227,6 +232,46 @@ public class ImportLibrary implements IObservable
         return pixelsList;
     }
     
+	/**
+	 * If available, populates overlays for a given set of pixels objects.
+	 * @param pixelsList Pixels objects to populate overlays for.
+	 */
+/* XXX: Overlay
+	protected void importOverlays(List<Pixels> pixelsList)
+		throws ServerError, FormatException, IOException
+	{
+		IFormatReader baseReader = reader.getImageReader().getReader();
+		if (baseReader instanceof MIASReader)
+		{
+			try
+			{
+				MIASReader miasReader = (MIASReader) baseReader;
+				String currentFile = miasReader.getCurrentFile();
+				reader.close();
+				miasReader.setAutomaticallyParseMasks(true);
+				ServiceFactoryPrx sf = store.getServiceFactory();
+				OverlayMetadataStore s = new OverlayMetadataStore();
+				boolean haveTableSupport = s.initialize(sf, pixelsList);
+				if (!haveTableSupport)
+				{
+					log.warn("No OmeroTables, skipping MIAS overlays.");
+					return;
+				}
+				reader.setMetadataStore(s);
+				miasReader.close();
+				miasReader.setAutomaticallyParseMasks(true);
+				miasReader.setId(currentFile);
+				s.complete();
+			}
+			finally
+			{
+				reader.close();
+				reader.setMetadataStore(store);
+			}
+		}
+	}
+XXX: Overlay */
+	
     /**
      * Perform an image import.  <em>Note: this method both notifes {@link #observers}
      * of error states AND throws the exception to cancel processing.</em>
@@ -271,7 +316,9 @@ public class ImportLibrary implements IObservable
         String fileName = file.getAbsolutePath();
         String shortName = file.getName();
         String format = null;
+        String[] domains = null;
         String[] usedFiles = new String[1];
+        boolean isScreeningDomain = false;
         usedFiles[0] = file.getAbsolutePath();
 
         try {
@@ -280,7 +327,24 @@ public class ImportLibrary implements IObservable
         
             open(file.getAbsolutePath());
             format = reader.getFormat();
-            if (reader.getUsedFiles() != null) usedFiles = reader.getUsedFiles();
+            domains = reader.getDomains();
+            if (reader.getUsedFiles() != null)
+            {
+            	usedFiles = reader.getUsedFiles();
+            }
+            for (String domain : domains)
+            {
+            	if (domain.equals(FormatTools.HCS_DOMAIN))
+            	{
+            		isScreeningDomain = true;
+            		break;
+            	}
+            }
+            if (isScreeningDomain)
+            {
+            	log.info("Reader is of HCS domain, disabling metafile.");
+            	useMetadataFile = false;
+            }
             
             notifyObservers(new ImportEvent.LOADED_IMAGE(shortName, index, numDone, total));
             
@@ -392,7 +456,9 @@ public class ImportLibrary implements IObservable
             {
                 store.populateMinMax();
             }
-                    
+
+            notifyObservers(new ImportEvent.IMPORT_OVERLAYS(index, null, userSpecifiedTarget, null, 0, null));
+            // XXX: Overlay importOverlays(pixList);
             notifyObservers(new ImportEvent.IMPORT_THUMBNAILING(index, null, userSpecifiedTarget, null, 0, null));
             store.resetDefaultsAndGenerateThumbnails(plateIds, pixelsIds);
             store.launchProcessing(); // Use or return value here later. TODO

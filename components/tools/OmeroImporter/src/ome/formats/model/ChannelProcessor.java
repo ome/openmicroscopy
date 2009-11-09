@@ -26,8 +26,11 @@ package ome.formats.model;
 import static omero.rtypes.rint;
 import static omero.rtypes.rstring;
 
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,12 +39,16 @@ import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 
 import ome.util.LSID;
-import omero.metadatastore.IObjectContainer;
+import omero.RInt;
+import omero.RString;
 import omero.model.Channel;
-import omero.model.IObject;
+import omero.model.Filter;
 import omero.model.Image;
+import omero.model.Laser;
+import omero.model.LightSource;
 import omero.model.LogicalChannel;
 import omero.model.Pixels;
+import omero.model.TransmittanceRange;
 
 /**
  * Processes the pixels sets of an IObjectContainerStore and ensures
@@ -49,6 +56,7 @@ import omero.model.Pixels;
  * populating channel name and colour where appropriate.
  *   
  * @author Chris Allan <callan at blackcat dot ca>
+ * @author Jean-Marie <jburel at dundee dot ac dot uk>
  *
  */
 public class ChannelProcessor implements ModelProcessor
@@ -84,9 +92,14 @@ public class ChannelProcessor implements ModelProcessor
     	{
     		if (domain.equals(FormatTools.GRAPHICS_DOMAIN))
     		{
+    			log.debug("Images are of the grahpics domain.");
     			isGraphicsDomain = true;
+    			break;
     		}
     	}
+    	List<Boolean> values;
+    	boolean v;
+    	Map<ChannelData, Boolean> m;
     	for (int i = 0; i < images.size(); i++)
     	{
     		Pixels pixels = 
@@ -95,55 +108,82 @@ public class ChannelProcessor implements ModelProcessor
     		{
     			throw new ModelException("Unable to locate Pixels:" + i);
     		}
+    		//Require to reset transmitted light
+    		values = new ArrayList<Boolean>();
+    		m = new HashMap<ChannelData, Boolean>();
     		
+    		//Think of strategy for images with high number of channels
+    		//i.e. > 6
     		int sizeC = pixels.getSizeC().getValue();
     		for (int c = 0; c < sizeC; c++)
     		{
-    			IObject sourceObject =
-    				store.getSourceObject(new LSID(Channel.class, i, c));
-    			if (sourceObject == null)
-    			{
-    				LinkedHashMap<String, Integer> indexes = 
-    					new LinkedHashMap<String, Integer>();
-    				indexes.put("imageIndex", i);
-    				indexes.put("logicalChannelIndex", c);
-    				IObjectContainer container =
-    					store.getIObjectContainer(Channel.class, indexes);
-    				sourceObject = container.sourceObject;
-    			}
-                if ((sizeC == 3 || sizeC == 4) && isGraphicsDomain)
-                {
-                    populateColor((Channel) sourceObject, c);
+    			ChannelData channelData = 
+    				ChannelData.fromObjectContainerStore(store, i, c);
+    			//Color section
+    			populateColor(channelData, isGraphicsDomain);
+
+                //only retrieve if not graphcis
+                if (!isGraphicsDomain) {
+                	//See logical channel retrieval
+                	//See the color = ColorsFactory.getColor(Channel channel, LogicalChannel lc) to
+                	//determine the color of the channel
+                	//Do we have emission data
+                	v = ColorsFactory.hasEmissionData(channelData);
+                	if (!v)
+                	{
+                		values.add(v);
+                	}
+                    m.put(channelData, v);
                 }
-    			sourceObject =
-    				store.getSourceObject(new LSID(LogicalChannel.class, i, c));
-    			if (sourceObject == null)
-    			{
-    				LinkedHashMap<String, Integer> indexes = 
-    					new LinkedHashMap<String, Integer>();
-    				indexes.put("imageIndex", i);
-    				indexes.put("logicalChannelIndex", c);
-                    IObjectContainer container =
-                        store.getIObjectContainer(LogicalChannel.class, indexes);
-                    sourceObject = container.sourceObject;
-    			}
-    			if ((sizeC == 3 || sizeC == 4) && isGraphicsDomain)
-    			{
-    			    populateName((LogicalChannel) sourceObject, c);
-    			}
+   			    populateName(channelData, isGraphicsDomain);
     		}
+    		
+	    	//Need to reset the color of transmitted light
+	    	//i.e. images with several "emission channels"
+	    	//check if 0 size
+	    	if (values.size() != m.size()) {
+	    		Iterator<ChannelData> k = m.keySet().iterator();
+	    		while (k.hasNext()) {
+	    			ChannelData channelData = k.next();
+	    			if (!m.get(channelData)) {
+	    				int[] defaultColor = ColorsFactory.newWhiteColor();
+	    				Channel channel = channelData.getChannel();
+	    				channel.setRed(
+	    						rint(defaultColor[ColorsFactory.RED_INDEX]));
+	    				channel.setGreen(
+	    						rint(defaultColor[ColorsFactory.GREEN_INDEX]));
+	    				channel.setBlue(
+	    						rint(defaultColor[ColorsFactory.BLUE_INDEX]));
+	    				channel.setAlpha(
+	    						rint(defaultColor[ColorsFactory.ALPHA_INDEX]));
+	    			}
+	    		}
+	    	}
     	}
     }
     
     /**
      * Populates the default color for the channel if one does not already
-     * exist and the image is RGB(A) or indexed color.
-     * @param channel Channel object.
-     * @param channelIndex Channel index.
+     * exist.
+     * @param channelData Channel data to use to inform our name decision.
+     * @param isGraphicsDomaind Whether or not the image is in the graphics
+	 * domain according to Bio-Formats.
      */
-    private void populateColor(Channel channel, int channelIndex)
+    private void populateColor(ChannelData channelData,
+    		                   boolean isGraphicsDomain)
     {
-    	if (reader.isRGB() || reader.isIndexed())
+    	
+    	int[] channelColor = ColorsFactory.getColor(channelData);
+    	int channelIndex = channelData.getChannelIndex();
+    	Channel channel = channelData.getChannel();
+    	if (channelColor != null && !isGraphicsDomain)
+    	{
+	        channel.setRed(rint(channelColor[0]));
+	        channel.setGreen(rint(channelColor[1]));
+	        channel.setBlue(rint(channelColor[2]));
+	        channel.setAlpha(rint(channelColor[3]));
+    	}
+    	if (isGraphicsDomain)
 		{
     	    log.debug("Setting color channel to RGB.");
     	    // red
@@ -183,41 +223,123 @@ public class ChannelProcessor implements ModelProcessor
     	    }
 		}
     }
+    
+    /**
+     * Returns a channel name string from a given filter.
+     * @param filter Filter to retrieve a channel name from.
+     * @return See above.
+     */
+    private RString getValueFromFilter(Filter filter)
+    {
+        if (filter == null)
+        {
+        	return null;
+        }
+        TransmittanceRange t = filter.getTransmittanceRange();
+        return t == null? null : 
+        	rstring(String.valueOf(t.getCutIn().getValue()));
+    }
+    
+    /**
+     * Returns the concrete value of an OMERO rtype.
+     * @param value OMERO rtype to get the value of.
+     * @return Concrete value of <code>value</code> or <code>null</code> if
+     * <code>value == null</code>.
+     */
+    private static Integer getValue(RInt value)
+    {
+    	return value == null? null : value.getValue();
+    }
+    
+    private RString getChannelName(ChannelData channelData)
+    {
+    	LogicalChannel lc = channelData.getLogicalChannel();
+    	Integer value = getValue(lc.getEmissionWave());
+    	RString name;
+    	if (value != null)
+    	{
+    		return rstring(value.toString());
+    	}
+    	name = getValueFromFilter(channelData.getFilterSetEmissionFilter());
+    	if (name != null)
+    	{
+    		return name;
+    	}
+    	name = getValueFromFilter(channelData.getSecondaryEmissionFilter());
+    	if (name != null)
+    	{
+    		return name;
+    	}
+    	//Laser
+    	LightSource ls = channelData.getLightSource();
+    	if (ls != null)
+    	{
+    		if (ls instanceof Laser)
+    		{
+    			Laser laser = (Laser) ls;
+    			value = getValue(laser.getWavelength());
+    			if (value != null)
+    			{
+    				return rstring(value.toString());
+    			}
+    		}
+    	}
+    	value = getValue(lc.getExcitationWave());
+    	if (value != null)
+    	{
+    		return rstring(value.toString());
+    	}
+    	name = getValueFromFilter(channelData.getFilterSetExcitationFilter());
+    	if (name != null)
+    	{
+    		return name;
+    	}
+    	return getValueFromFilter(channelData.getSecondaryExcitationFilter());
+    }
 
 	/**
 	 * Populates the default channel name for the logical channel if one does 
-	 * not already exist and the image is RGB(A) or indexed-color.
-	 * @param channel Channel object.
-	 * @param channelIndex Channel index.
+	 * not already exist.
+	 * @param channelData Channel data to use to inform our name decision.
+	 * @param isGraphicsDomaind Whether or not the image is in the graphics
+	 * domain according to Bio-Formats.
 	 */
-	private void populateName(LogicalChannel lc, int logicalChannelIndex)
+	private void populateName(ChannelData channelData, boolean isGraphicsDomain)
 	{
-		if (reader.isRGB() || reader.isIndexed())
+		LogicalChannel lc = channelData.getLogicalChannel();
+		int logicalChannelIndex = channelData.getChannelIndex();
+		RString name = getChannelName(channelData);
+		if (lc.getName() == null)
 		{
-		    log.debug("Setting channels name to Red, Green, Blue or Alpha.");
-		    // red
-		    if (lc.getName() == null && logicalChannelIndex == 0)
-		    {
-		        lc.setName(rstring("Red"));
-		    }
-
-		    // green
-		    if (lc.getName() == null && logicalChannelIndex == 1)
-		    {
-		        lc.setName(rstring("Green"));
-		    }
-
-		    // blue
-		    if (lc.getName() == null && logicalChannelIndex == 2)
-		    {
-		        lc.setName(rstring("Blue"));
-		    }
-
-		    // alpha
-		    if (lc.getName() == null && logicalChannelIndex == 3)
-		    {
-		        lc.setName(rstring("Alpha"));
-		    }
+			lc.setName(name);
+			return;
+		}
+		if (isGraphicsDomain)
+		{
+			log.debug("Setting channels name to Red, Green, Blue or Alpha.");
+			// red
+			if (lc.getName() == null && logicalChannelIndex == 0)
+			{
+				lc.setName(rstring("Red"));
+			}
+	
+			// green
+			if (lc.getName() == null && logicalChannelIndex == 1)
+			{
+				lc.setName(rstring("Green"));
+			}
+	
+			// blue
+			if (lc.getName() == null && logicalChannelIndex == 2)
+			{
+				lc.setName(rstring("Blue"));
+			}
+	
+			// alpha
+			if (lc.getName() == null && logicalChannelIndex == 3)
+			{
+				lc.setName(rstring("Alpha"));
+			}
 		}
 	}
 }

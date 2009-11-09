@@ -262,6 +262,13 @@ public class ImportEvent {
             super(index, filename, target, pixId, series, size, null, null);
         }
     }
+    
+    public static class IMPORT_OVERLAYS extends PROGRESS_EVENT {
+        public IMPORT_OVERLAYS(int index, String filename, IObject target,
+                Long pixId, int series, ImportSize size) {
+            super(index, filename, target, pixId, series, size, null, null);
+        }
+    }
 
     public static class IMPORT_THUMBNAILING extends PROGRESS_EVENT {
         public IMPORT_THUMBNAILING(int index, String filename, IObject target,
