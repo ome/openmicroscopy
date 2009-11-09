@@ -154,11 +154,11 @@ class InputServerStrategy
 	 * @param readOnly The object is readOnly.
 	 * @return See above.
 	 */
-	private ROI createROI(ROIData roi)
+	private ROI createROI(ROIData roi, boolean readOnly)
 		throws NoSuchROIException, ROICreationException
 	{
 		long id = roi.getId();
-		ROI newROI = component.createROI(id, true);
+		ROI newROI = component.createROI(id, readOnly);
 		ROIShape shape;
 		ShapeData shapeData;
 		Iterator<List<ShapeData>> i = roi.getIterator();
@@ -169,7 +169,7 @@ class InputServerStrategy
 			j = list.iterator();
 			while (j.hasNext()) {
 				shapeData = (ShapeData) j.next();
-				shape = createROIShape(shapeData, newROI);
+				shape = createROIShape(shapeData, newROI, readOnly);
 				if (shape != null) {
 					shape.getFigure().setMeasurementUnits(
 							component.getMeasurementUnits());
@@ -189,13 +189,13 @@ class InputServerStrategy
 	 * @param readOnly The object is readOnly.
 	 * @return See above.
 	 */
-	private ROIShape createROIShape(ShapeData data, ROI roi)
+	private ROIShape createROIShape(ShapeData data, ROI roi, boolean readOnly)
 	{
 		int z = data.getZ();
 		int t = data.getT();
 		if (z < 0 || t < 0) return null;
 		Coord3D coord = new Coord3D(z, t);
-		ROIFigure fig = createROIFigure(data);
+		ROIFigure fig = createROIFigure(data, readOnly);
 		// Check that the parent element is not a text element, as they have not
 		// got any other text associated with them.
 		MeasurementAttributes.TEXT.set(fig, "Dangerous");
@@ -209,6 +209,19 @@ class InputServerStrategy
 	 * 
 	 * @param shape The shape to transform.
  	 * @param readOnly The object is readOnly.
+	 * @return See above.
+	 */
+	private ROIFigure createROIFigure(ShapeData shape, boolean readOnly)
+	{
+		ROIFigure fig = createROIFigure(shape);
+		fig.setReadOnly(readOnly);
+		return fig;
+	}
+	
+	/**
+	 * Creates a figure corresponding to the passed shape.
+	 * 
+	 * @param shape The shape to transform.
 	 * @return See above.
 	 */
 	private ROIFigure createROIFigure(ShapeData shape)
@@ -448,7 +461,7 @@ class InputServerStrategy
 	 * @throws NoSuchROIException if there is an error creating line connection 
 	 * figure.
 	 */
-	List<ROI> readROI(Collection rois, ROIComponent component)
+	List<ROI> readROI(Collection rois, ROIComponent component, boolean readOnly)
 			throws ROICreationException, NoSuchROIException
 	{
 		if (component == null)
@@ -459,7 +472,7 @@ class InputServerStrategy
 		while (i.hasNext()) {
 			o = i.next();
 			if (o instanceof ROIData) 
-				roiList.add(createROI((ROIData) o));
+				roiList.add(createROI((ROIData) o, readOnly));
 		}
 		return roiList;
 	}

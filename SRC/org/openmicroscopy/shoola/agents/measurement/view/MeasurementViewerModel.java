@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
 import org.openmicroscopy.shoola.agents.measurement.ROILoader;
 import org.openmicroscopy.shoola.agents.measurement.ROISaver;
+import org.openmicroscopy.shoola.agents.measurement.ServerSideROILoader;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
@@ -521,9 +522,7 @@ class MeasurementViewerModel
 		
 		while (r.hasNext()) {
 			result = (ROIResult) r.next();
-			roiList.addAll(roiComponent.loadROI(result.getFileID(), 
-					result.getROIs(), readOnly));
-
+			roiList.addAll(roiComponent.loadROI(result.getROIs(), readOnly));
 		}
 		if (roiList == null) return false;
 		serverROI = true;
@@ -784,6 +783,21 @@ class MeasurementViewerModel
 			AnnotationKeys.TEXT.set(shape, 
 				MeasurementAttributes.TEXT.get(figure));
 		}
+	}
+	
+	/** 
+	 * Fires an asynchronous retrieval of the ROI related to the pixels set. 
+	 * 
+	 * @param fileName The name of the file to load. If <code>null</code>
+	 * 					the {@link #roiFileName} is selected.
+	 */
+	void fireLoadROIServerOrClient()
+	{
+		state = MeasurementViewer.LOADING_ROI;
+		ExperimenterData exp = 
+			(ExperimenterData) MeasurementAgent.getUserDetails();
+		currentLoader = new ServerSideROILoader(component, getImageID(), exp.getId());
+		currentLoader.load();
 	}
 	
 	/** 

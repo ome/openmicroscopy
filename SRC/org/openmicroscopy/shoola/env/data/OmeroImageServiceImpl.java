@@ -750,4 +750,17 @@ class OmeroImageServiceImpl
 		return null;
 	}
 	
+	
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#loadROIFromServer(long, long)
+	 */
+	public List<ROIResult> loadROIFromServer(long imageID, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (imageID <= 0)
+			throw new IllegalArgumentException("No image specified.");
+		return gateway.loadROI(imageID, null, userID);
+	}
+
 }

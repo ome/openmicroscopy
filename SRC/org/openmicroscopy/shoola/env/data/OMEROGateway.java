@@ -5130,7 +5130,6 @@ class OMEROGateway
 		}
 	}
 	
-	//tmp
-	//static MonitorServerPrx getMonitorServer() { return monitorPrx; }
+	
 	
 }

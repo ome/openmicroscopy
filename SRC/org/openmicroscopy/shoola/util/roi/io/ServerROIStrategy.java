@@ -86,13 +86,13 @@ public class ServerROIStrategy
 	 * @throws ROICreationException
 	 * @returns See above.
 	 */
-	public List<ROI> read(Collection rois, ROIComponent component, 
-			boolean readOnly)
+	public List<ROI> read(Collection rois, ROIComponent component, boolean
+			readOnly)
 		throws NoSuchROIException, ROICreationException, 
 				ROICreationException	   
 	{
 		if (rois == null || rois.size() == 0) return new ArrayList<ROI>();
-		return inputStrategy.readROI(rois, component);
+		return inputStrategy.readROI(rois, component, readOnly);
 	}
 	
 	/**

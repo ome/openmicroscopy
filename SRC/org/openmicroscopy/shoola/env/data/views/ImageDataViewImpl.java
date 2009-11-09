@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.PlaneInfoLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ProjectionSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ROILoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ServerSideROILoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ROISaver;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingControlLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsLoader;
@@ -370,5 +371,18 @@ class ImageDataViewImpl
 				ExportLoader.EXPORT_AS_OMETIFF);
 		return cmd.exec(observer);
 	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#loadROIFromServer(long, Long, AgentEventListener)
+     */
+	public CallHandle loadROIFromServer(long imageID, long userID, 
+								AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ServerSideROILoader(imageID, userID);
+		return cmd.exec(observer);
+	}
+
+
 	
 }

@@ -159,6 +159,12 @@ public class OutputServerStrategy
 		return roiData;
 	}
 	
+	/**
+	 * Create the shapedata object for the ROIShape figure object.
+	 * @param clientShape See above.
+	 * @return See above.
+	 * @throws Exception
+	 */
 	private ShapeData createShapeData(ROIShape clientShape) throws Exception
 	{
 		ROIFigure fig = clientShape.getFigure();
@@ -543,6 +549,8 @@ public class OutputServerStrategy
 	
 	/**
 	 * Returns a double array as a number attribute value.
+	 * @param number the number to convert.
+	 * @return See above.
 	 */
 	private static String toNumber(double number)
 	{

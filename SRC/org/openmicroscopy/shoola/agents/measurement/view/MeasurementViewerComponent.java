@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -215,11 +216,14 @@ class MeasurementViewerComponent
         		UIUtilities.setDefaultSize(model.getDrawingView(), d);
         		model.getDrawingView().setSize(d);
         		//Load ROI from server or not.
+        		/*
         		Boolean location = (Boolean) 
         			MeasurementAgent.getRegistry().lookup(
         					LookupNames.SERVER_ROI);
         		if (location) model.fireLoadROIFromServer(measurements);
-        		else model.fireROILoading(null);
+        		else
+        		*/	
+        		model.fireLoadROIServerOrClient();
         		//model.fireROILoading(null);
         		//fireStateChange();
                 break;
@@ -852,9 +856,6 @@ class MeasurementViewerComponent
 		view.layoutUI();
 		//view.rebuildManagerTable();
 		
-		
-		
-		
 		view.updateDrawingArea();
 		view.setReadyStatus();
 		fireStateChange();
@@ -872,6 +873,50 @@ class MeasurementViewerComponent
 	public String getViewTitle() {
 		// TODO Auto-generated method stub
 		return model.getImageTitle();
+	}
+
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#setLoadingFromServerClient(Collection)
+     */
+	public void setLoadingFromServerClient(Collection result) 
+	{
+		if (model.getState() != LOADING_ROI)
+			throw new IllegalArgumentException("The method can only " +
+					"be invoked in the LOADING_ROI state.");
+		try 
+		{
+			Iterator<ROIResult> i = result.iterator();
+			ROIResult roiResult;
+			boolean hasResult = false;
+			if(i.hasNext())
+			{
+				roiResult = i.next();
+				if(roiResult.getROIs().size()!=0)
+					hasResult = true;
+			}
+			if(hasResult)
+			{ //some ROI previously saved.
+				model.setServerROI(result, false);
+			} 	
+			else
+			{
+				model.fireROILoading(null);
+				return;
+			}
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+		}
+		view.rebuildManagerTable();
+		view.updateDrawingArea();
+		view.setReadyStatus();
+		fireStateChange();
+		//Now we are ready to go. We can post an event to add component to
+		//Viewer
+		postEvent(MeasurementToolLoaded.ADD);
+		return;
 	}
 	
 }

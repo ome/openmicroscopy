@@ -82,6 +82,25 @@ public class ROILoader
 		this.fileID = fileID;
 	}
 	
+    /**
+     * This loader will check that there are ROI's on the server and if so
+     * load those ROIs. If there are no ROI, the measurement tool will check
+     * to see if there is an XML ROI file to load roi's from. 
+     * 
+     * @param viewer	The viewer this data loader is for.
+     *                  Mustn't be <code>null</code>.
+     * @param imageID	The id of the image the ROIs are related to.
+     * @param userID	The id of the user.
+     */
+	public ROILoader(MeasurementViewer viewer, long imageID, long userID)
+	{
+		super(viewer);
+		if (imageID < 0) 
+			throw new IllegalArgumentException("No image specified.");
+		this.imageID = imageID;
+		this.userID = userID;
+	}
+	
 	/**
      * Loads the ROI.
      * @see MeasurementViewerLoader#load()

@@ -309,5 +309,14 @@ public interface MeasurementViewer
 
 	/** Saves the ROI to the server. */
 	public void saveROIToServer();
+
+	/** 
+	 * Called when the results  have been loaded from the server.
+	 * If the results are null, then try and load ROI from an XML file if 
+	 * possible.
+	 * @param result
+	 */
+	public void setLoadingFromServerClient(Collection result);
+
 	
 }

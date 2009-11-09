@@ -378,4 +378,14 @@ public class NullRenderingService
 		return null;
 	}
 
+	/**
+     * No-op implementation
+     * @see OmeroImageService#loadROIFromServer(long, long)
+     */
+	public List<ROIResult> loadROIFromServer(long imageID, long userID)
+			throws DSOutOfServiceException, DSAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

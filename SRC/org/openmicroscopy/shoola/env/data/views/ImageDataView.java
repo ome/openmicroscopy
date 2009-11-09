@@ -356,5 +356,16 @@ public interface ImageDataView
 	 */
 	public CallHandle exportImageAsOMETiff(long imageID, File file,
 			AgentEventListener observer);
+
+		/**
+	 * Loads the ROI if possible from the server.
+	 * 
+	 * @param imageID 	The image's id.
+	 * @param userID	The user's id.
+	 * @param observer	Call-back handler.
+	 * @return See above.
+	 */
+	public CallHandle loadROIFromServer(long imageID, long userID,
+			AgentEventListener serverSideROILoader);
 	
 }

@@ -501,6 +501,20 @@ public interface OmeroImageService
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
+	 * Loads the ROI related to the specified image.
+	 * 
+	 * @param imageID 	The image's ID.
+	 * @param userID	The user's ID.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public List<ROIResult> loadROIFromServer(long imageID, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
 	 * Exports the passed image as an XML file.
 	 * 
 	 * @param imageID The ID of the image.

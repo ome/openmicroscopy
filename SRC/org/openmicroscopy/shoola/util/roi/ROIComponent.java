@@ -395,6 +395,27 @@ public class ROIComponent
 	}
 	
 	/**
+	 * Reads the ROIs from the server and returns the UI representations.
+	 * 
+	 * @param fileID The id of the file.
+	 * @param rois The collection of ROIs to convert.
+	 * @param readOnly Are the ROI readOnly.
+	 * @return See above.
+	 * @throws NoSuchROIException
+	 * @throws ROICreationException
+	 */
+	public List<ROI> loadROI(Collection rois, boolean readOnly) 
+		throws NoSuchROIException, ROICreationException	
+	{
+		if (rois == null)
+			throw new NullPointerException("No rois to transform.");
+		if (serverStrategy == null)
+			serverStrategy = new ServerROIStrategy();
+		List<ROI> l = serverStrategy.read(rois, this, readOnly);
+		return l;
+	}
+	
+	/**
 	 * Returns the list of ROIs associated to that file.
 	 * 
 	 * @param fileID The id of the file.
