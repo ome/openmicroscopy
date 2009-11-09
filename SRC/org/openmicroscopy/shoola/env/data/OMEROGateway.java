@@ -1534,6 +1534,24 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Returns the version of the server.
+	 * 
+	 * @return
+	 */
+	String getServerVersion()
+		throws DSOutOfServiceException
+	{
+		if (entry == null) return null;
+		try {
+			return entry.getConfigService().getVersion();
+		} catch (Exception e) {
+			String s = "Can't retrieve the server version.\n\n";
+			s += printErrorText(e);
+			throw new DSOutOfServiceException(s, e);  
+		}
+	}
+	
+	/**
 	 * Returns the ladp details or an empty string.
 	 * 
 	 * @param userID The id of the user.
