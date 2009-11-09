@@ -532,14 +532,17 @@ public class OMEROMetadataStoreClient
      */
     private void checkDuplicateLSID(Class<? extends IObject> klass, String lsid)
     {
-    	List<IObjectContainer> containers = getIObjectContainers(klass);
-    	for (IObjectContainer container : containers)
+    	if (log.isTraceEnabled())
     	{
-    		if (container.LSID.equals(lsid))
+    		List<IObjectContainer> containers = getIObjectContainers(klass);
+    		for (IObjectContainer container : containers)
     		{
-    			log.warn(String.format("Duplicate LSID %s exists in %s,%s",
-    					lsid, container.sourceObject, container.LSID));
-    			return;
+    			if (container.LSID.equals(lsid))
+    			{
+    				log.trace(String.format("Duplicate LSID %s exists in %s,%s",
+    						lsid, container.sourceObject, container.LSID));
+    					return;
+    			}
     		}
     	}
     }
