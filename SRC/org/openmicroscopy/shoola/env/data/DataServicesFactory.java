@@ -226,6 +226,51 @@ public class DataServicesFactory
 		}
 	}
 	
+    /**
+     * Returns <code>true</code> if the server and the client are compatible,
+     * <code>false</code> otherwise.
+     * 
+     * @param server The version of the server.
+     * @param client The version of the client.
+     * @return See above.
+     */
+    private boolean checkClientServerCompatibility(String server, String client)
+    {
+    	if (server.contains("-"))
+    		server = server.split("-")[0];
+    	if (client.contains("-"))
+    		client = client.split("-")[0];
+    	if (client.startsWith("Beta"));
+    		client = client.substring(4);
+    	String[] values = server.split("\\.");
+    	String[] valuesClient = client.split("\\.");
+    	Integer.parseInt(values[0]);
+    	if (values.length < 2 || valuesClient.length < 2) return false;
+    	int s1 = Integer.parseInt(values[0]);
+    	int s2 = Integer.parseInt(values[1]);
+    	int c1 = Integer.parseInt(valuesClient[0]);
+    	int c2 = Integer.parseInt(valuesClient[1]);
+    	if (s1 < c1) return false;
+    	if (c2 < s2) return false;
+    	return true;
+    }
+    
+    /** 
+     * Notifies the user that the client and the server are not compatible.
+     * 
+     * @param clientVersion The version of the client.
+     * @param hostname The name of the server.
+     */
+    private void notifyIncompatibility(String clientVersion, String hostname)
+    {
+    	UserNotifier un = registry.getUserNotifier();
+    	String message = "The client version ("+clientVersion+") is not " +
+    			"comptabible with the following server:\n"+hostname+
+    			".\nThe application will exit. ";
+    	un.notifyInfo("Client Server not compatible", message);
+		exitApplication();
+    }
+    
 	/** 
 	 * Brings up a dialog indicating that the session has expired and
 	 * quits the application.
@@ -288,7 +333,7 @@ public class DataServicesFactory
     {
         return (LoginService) registry.lookup(LookupNames.LOGIN);
     }
-
+    
 	/**
 	 * Attempts to connect to <i>OMERO</i> server.
 	 * 
@@ -307,6 +352,24 @@ public class DataServicesFactory
                                                     uc.getHostName(),
                                                     determineCompression(
                                                     	uc.getSpeedLevel()));
+        
+        Object v = container.getRegistry().lookup(LookupNames.VERSION);
+    	String clientVersion = "";
+    	if (v != null && v instanceof String)
+    		clientVersion = (String) v;
+    	
+        //Check if client and server are compatible.
+        String version = omeroGateway.getServerVersion();
+        if (version == null) { //not able to determine the version we exit
+        	notifyIncompatibility(clientVersion, uc.getHostName());
+        	return;
+        } 
+       
+        if (!checkClientServerCompatibility(version, clientVersion)) {
+        	notifyIncompatibility(clientVersion, uc.getHostName());
+        	return;
+        }
+        
         
         KeepClientAlive kca = new KeepClientAlive(container, omeroGateway);
         executor = new ScheduledThreadPoolExecutor(1);

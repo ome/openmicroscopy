@@ -1499,8 +1499,6 @@ class OMEROGateway
 	    UpgradeCheck check = new UpgradeCheck(url, version, "insight"); 
 	    check.run();
 	    return check.isUpgradeNeeded();
-	    
-		//return false;
 	}
 	
 	/**
@@ -1529,9 +1527,7 @@ class OMEROGateway
 			entry = blitzClient.createSession(userName, password);
 			blitzClient.getProperties().setProperty("Ice.Override.Timeout", 
 					""+5000);
-			//metadataStore = new OMEROMetadataStore(entry);
 			connected = true;
-			//fillEnumerations();
 			return getUserDetails(userName);
 		} catch (Throwable e) {
 			connected = false;
@@ -1542,7 +1538,25 @@ class OMEROGateway
 	}
 	
 	/**
-	 * Returns the ladp details or an empty string.
+	 * Returns the version of the server.
+	 * 
+	 * @return
+	 */
+	String getServerVersion()
+		throws DSOutOfServiceException
+	{
+		if (entry == null) return null;
+		try {
+			return entry.getConfigService().getVersion();
+		} catch (Exception e) {
+			String s = "Can't retrieve the server version.\n\n";
+			s += printErrorText(e);
+			throw new DSOutOfServiceException(s, e);  
+		}
+	}
+	
+	/**
+	 * Returns the LDAP details or an empty string.
 	 * 
 	 * @param userID The id of the user.
 	 * @return See above.
