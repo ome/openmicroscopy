@@ -53,7 +53,7 @@ public class ChannelDataTest extends TestCase
 		store.setLightSourceSettingsLightSource(
 				"Filament:0", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
 		store.setLightSourceSettingsAttenuation(
-				1.0, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+				1.0f, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
 		
 		// Second Filament, Second LightSourceSettings
 		store.setLightSourceID(
@@ -65,7 +65,7 @@ public class ChannelDataTest extends TestCase
 		store.setLightSourceSettingsLightSource(
 				"Filament:1", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
 		store.setLightSourceSettingsAttenuation(
-				2.0, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
+				2.0f, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
 		
 		// FilterSet
 		store.setFilterSetID("FilterSet:0", INSTRUMENT_INDEX,
