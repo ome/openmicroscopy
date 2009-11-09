@@ -847,7 +847,7 @@ class MeasurementViewerComponent
 					"be invoked in the LOADING_ROI state.");
 		try {
 			if (result != null) { //some ROI previously saved.
-				model.setServerROI(result, true);
+				model.setServerROI(result, true, true);
 			} 	
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -897,7 +897,7 @@ class MeasurementViewerComponent
 			}
 			if(hasResult)
 			{ //some ROI previously saved.
-				model.setServerROI(result, false);
+				model.setServerROI(result, false, false);
 			} 	
 			else
 			{

@@ -511,7 +511,7 @@ class MeasurementViewerModel
 	 * @throws ROICreationException
 	 * @throws NoSuchROIException
 	 */
-	boolean setServerROI(Collection rois, boolean readOnly)
+	boolean setServerROI(Collection rois, boolean readOnly, boolean SPW)
 		throws ROICreationException, NoSuchROIException
 	{
 		measurementResults = rois;
@@ -525,7 +525,7 @@ class MeasurementViewerModel
 			roiList.addAll(roiComponent.loadROI(result.getROIs(), readOnly));
 		}
 		if (roiList == null) return false;
-		serverROI = true;
+		serverROI = SPW;
 		Iterator<ROI> i = roiList.iterator();
 		ROI roi;
 		TreeMap<Coord3D, ROIShape> shapeList;
