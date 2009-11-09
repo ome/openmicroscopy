@@ -306,12 +306,12 @@ class ToolBar
 	 */
 	void launchOptions(Component source, Point p)
 	{
-		SwingUtilities.convertPointToScreen(p, source);
+		//SwingUtilities.convertPointToScreen(p, source);
 		if (dialog == null)
 			dialog = new PublishingDialog(controller, model);
-		
-		dialog.setLocation(p);
-		dialog.setVisible(true);
+		dialog.displayAsMenu().show(source, p.x, p.y);
+		//dialog.setLocation(p);
+		//dialog.setVisible(true);
 	}
 	
 }
