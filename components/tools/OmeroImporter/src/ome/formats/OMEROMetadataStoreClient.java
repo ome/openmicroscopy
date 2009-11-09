@@ -2506,6 +2506,7 @@ public class OMEROMetadataStoreClient
     			String usedFilename = usedFiles[i];
     			File usedFile = new File(usedFilename);
     			String absolutePath = usedFile.getAbsolutePath();
+    			log.debug("Series: " + i + " file: " + absolutePath);
     			boolean isCompanionFile = companionFiles == null? false :
     				                      companionFiles.contains(usedFilename);
     			if (archive || isCompanionFile)
