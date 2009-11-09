@@ -179,7 +179,7 @@
   	dist-win-openGL,dist-win64-openGL"
           description="Build and package the app for distribution."> 
     <zip destfile="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}.zip">
-      <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
+      <zipfileset dir="${app.config.dir}" prefix="${dist.app.config.dir.name}"/>
       <zipfileset refid="app.libs" prefix="${dist.app.lib.dir.name}"/> 
       <fileset dir="${dist.dir}" includes="${dist.jar.file}"/>
       <zipfileset refid="dist.launch.scripts" filemode="775"/>
@@ -272,7 +272,7 @@
 	              value="${dist.bundle.name}-${dist.bundle.version}-win"/>
 	    <zip destfile="${dist.dir}/${dist.zip.prefix.win}.zip">
 	      <zipfileset prefix="${dist.zip.prefix.win}/${dist.app.config.dir.name}"
-	                  refid="app.config"/>
+	                  dir="${app.config.dir}"/>
 	      <zipfileset prefix="${dist.zip.prefix.win}/libs" dir="${app.lib.dir}"
 	                  includes="*"/>
 	      <zipfileset prefix="${dist.zip.prefix.win}"
@@ -308,7 +308,7 @@
     <zip destfile=
            "${dist.dir}/${dist.zip.prefix.win.openGL}.zip">
       <zipfileset prefix="${dist.zip.prefix.win.openGL}/${dist.app.config.dir.name}"
-                  refid="app.config"/>
+                  dir="${app.config.dir}"/>
       <zipfileset prefix="${dist.zip.prefix.win.openGL}/libs" dir="${app.lib.dir}"
                   includes="*"/>
       <zipfileset prefix="${dist.zip.prefix.win.openGL}"
@@ -356,7 +356,7 @@
                 value="${dist.bundle.name}-${dist.bundle.version}-win64-openGL"/>
 	    <zip destfile="${dist.dir}/${dist.zip.prefix.win64.openGL}.zip">
 	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}/${dist.app.config.dir.name}"
-	                  refid="app.config"/>
+	                  dir="${app.config.dir}"/>
 	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}/libs" dir="${app.lib.dir}"
 	                  includes="*"/>
 	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}"
@@ -403,7 +403,7 @@
               value="${dist.bundle.name}-${dist.bundle.version}-OSX"/>
     <zip destfile="${dist.dir}/${dist.zip.prefix.osx}.zip">
       <zipfileset prefix="${dist.zip.prefix.osx}/${dist.app.config.dir.name}"
-                  refid="app.config"/>
+                  dir="${app.config.dir}"/>
       <zipfileset prefix="${dist.zip.prefix.osx}" dir="${dist.dir}" 
                includes="OMERO.insight.app/**"
                excludes="**/${dist.osx.stub.name}"/>
@@ -422,7 +422,7 @@
       <property name="dist.zip.prefix.osx.openGL"
                 value="${dist.bundle.name}-${dist.bundle.version}-OSX-openGL"/>
 	    <zip destfile="${dist.dir}/${dist.zip.prefix.osx.openGL}.zip">
-	      <zipfileset refid="app.config"
+	      <zipfileset dir="${app.config.dir}"
 	                  prefix="${dist.zip.prefix.osx.openGL}/${dist.app.config.dir.name}"/>
 	      <zipfileset prefix="${dist.zip.prefix.osx.openGL}" dir="${dist.dir}/" 
 	               includes="OMERO.insight.app/**"
@@ -472,7 +472,7 @@
                   value="${distEditor.bundle.name}-${dist.bundle.version}-win"/>
         <zip destfile="${dist.dir}/${dist.zip.prefix.editor.win}.zip">
           <zipfileset prefix="${dist.zip.prefix.editor.win}/${dist.app.config.dir.name}"
-                      refid="app.config"/>
+                      dir="${app.config.dir}"/>
           <zipfileset prefix="${dist.zip.prefix.editor.win}/libs" dir="${app.lib.dir}"
                       includes="*"/>
           <zipfileset prefix="${dist.zip.prefix.editor.win}"
@@ -518,7 +518,7 @@
             value="${distEditor.bundle.name}-${dist.bundle.version}-OSX"/>
 	  <zip destfile="${dist.dir}/${dist.zip.prefix.editor.osx}.zip">
 	     <zipfileset prefix="${dist.zip.prefix.editor.osx}/${dist.app.config.dir.name}"
-	                 refid="app.config" />
+	                 dir="${app.config.dir}" />
 	     <zipfileset prefix="${dist.zip.prefix.editor.osx}" dir="${dist.dir}"
 	               includes="OMERO.editor.app/**"
 	               excludes="**/${dist.osx.stub.name}"/>
