@@ -58,6 +58,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
+import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -917,6 +918,24 @@ class MeasurementViewerComponent
 		//Viewer
 		postEvent(MeasurementToolLoaded.ADD);
 		return;
+	}
+
+	/**
+	 * Update the collection by removing all roi and reloading the 
+	 * ROI from the server.
+	 */
+	public void setUpdateROIComponent(Collection result) 
+	{
+		Registry reg = MeasurementAgent.getRegistry();
+		UserNotifier un = reg.getUserNotifier();
+		try {
+			model.removeAllROI();
+		} catch (NoSuchROIException e) {
+			reg.getLogger().error(this, "Cannot save the ROI "+e.getMessage());
+			un.notifyInfo("Save ROI", "Cannot save ROI " +
+										"for "+model.getImageID());
+		}
+		model.fireLoadROIServerOrClient();
 	}
 	
 }

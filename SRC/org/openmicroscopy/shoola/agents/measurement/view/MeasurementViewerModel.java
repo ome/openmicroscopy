@@ -699,6 +699,18 @@ class MeasurementViewerModel
 			roiComponent.deleteROI(id);
 	}
 	
+	/**
+	 * Removes all the <code>ROI</code> in the system..
+	 * 
+	 * @throws NoSuchROIException If the ROI does not exist.
+	 */
+	void removeAllROI() throws NoSuchROIException
+	{
+		Long[] idList = new Long[roiComponent.getROIMap().size()];
+		roiComponent.getROIMap().keySet().toArray(idList);
+		for(long id: idList)
+			removeROI(id);
+	}
 	
 	/**
 	 * Returns the <code>ROI</code> corresponding to the passed id.
@@ -902,7 +914,6 @@ class MeasurementViewerModel
 	void saveROIToServer()
 	{
 		List<ROIData> roiList;
-		System.err.println("MvModel.saveROIToServer");
 		try {
 			roiList = roiComponent.saveROI(pixels.getImage());
 			ExperimenterData exp = 

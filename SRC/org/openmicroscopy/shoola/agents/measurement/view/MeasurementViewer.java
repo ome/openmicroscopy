@@ -318,5 +318,11 @@ public interface MeasurementViewer
 	 */
 	public void setLoadingFromServerClient(Collection result);
 
+	/**
+	 * The return result after the ROI has been saved to the server. 
+	 * @param result The List of ROIData that have been saved.
+	 */
+	public void setUpdateROIComponent(Collection result);
+
 	
 }

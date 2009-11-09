@@ -54,6 +54,9 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
  */
 public class ROIShape 
 {
+	/** The id of the ROIShape. */
+	long id;
+	
 	/** The ROI containing the ROIShape. */
 	private ROI					parent;
 	
@@ -112,6 +115,25 @@ public class ROIShape
 		this.figure.setROI(parent);
 		this.boundingBox = boundingBox;
 	}
+	
+	/**
+	 * This id will only be used by server objects.
+	 * @return See above.
+	 */
+	public long getROIShapeID()
+	{
+		return id;
+	}
+	
+	/**
+	 * This id will only be used by server objects.
+	 * @param id The id of the 
+	 */
+	public void setROIShapeID(long id)
+	{
+		this.id = id;
+	}
+	
 	
 	/**
 	 * Get the id of the ROI the ROIShape belongs to.

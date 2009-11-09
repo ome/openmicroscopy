@@ -107,7 +107,7 @@ public class ROISaver
     public void handleResult(Object result)
     {
     	if (viewer.getState() == MeasurementViewer.DISCARDED) return;  //Async cancel.
-    	// TODO : ADD RETURN  
+    	viewer.setUpdateROIComponent((Collection) result);
     }
 
 }

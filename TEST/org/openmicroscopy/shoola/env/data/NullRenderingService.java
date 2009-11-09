@@ -372,7 +372,7 @@ public class NullRenderingService
      * No-op implementation
      * @see OmeroImageService#saveROI(long, long, List)
      */
-	public Boolean saveROI(long imageID, long userID, List<ROIData> roiList)
+	public List<ROIData> saveROI(long imageID, long userID, List<ROIData> roiList)
 			throws DSOutOfServiceException, DSAccessException {
 		// TODO Auto-generated method stub
 		return null;

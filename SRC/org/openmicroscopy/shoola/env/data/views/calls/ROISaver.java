@@ -54,7 +54,7 @@ public class ROISaver
 	private BatchCall	saveCall;
 	
 	/** Was the save successful. */
-	private Boolean 	result;
+	private List<ROIData> 	result;
 	
 	/**
 	 * Creates a {@link BatchCall} to load the ROIs.

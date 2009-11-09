@@ -148,6 +148,7 @@ import omero.model.RenderingDef;
 import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.ScreenI;
+import omero.model.Shape;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TimestampAnnotation;
@@ -175,6 +176,7 @@ import pojos.ProjectData;
 import pojos.ROIData;
 import pojos.RatingAnnotationData;
 import pojos.ScreenData;
+import pojos.ShapeData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
 import pojos.TimeAnnotationData;
@@ -4987,30 +4989,45 @@ class OMEROGateway
 	 * @param imageID 	The image's ID.
 	 * @param userID	The user's ID.
 	 * @param roiList	The list of ROI to save.
-	 * @return True if the save is successful.
+	 * @return updated list of ROIData objects.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Boolean saveROI(long imageID,  long userID, List<ROIData> roiList)
+	List<ROIData> saveROI(long imageID,  long userID, List<ROIData> roiList)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
-		System.err.println("ROI");
 		try 
 		{
 			IUpdatePrx updateService = this.getUpdateService();
-			for(ROIData roi: roiList)
+			for(int i = 0 ; i < roiList.size(); i++)
 			{
+				ROIData roi = roiList.get(i);
 				Roi serverRoi = (Roi)roi.asIObject();	
-				updateService.saveObject(serverRoi);
+				updateService.saveAndReturnObject(serverRoi);
+				//roi.setId(returnedROI.getId().getValue());
+				//roi.setClientSide(false);
+				/*for(int cnt = 0 ; cnt < returnedROI.sizeOfShapes(); cnt++)
+				{
+					Shape shape = returnedROI.getShape(i);
+					List<ShapeData> shapeList = roi.getShapes(
+					shape.getTheZ().getValue(), shape.getTheT().getValue());
+					if(shapeList.size()!=1)
+						throw new Exception("Measurement tool can only read" +
+								"one ROI per ROIShape");
+					ShapeData shapeData = shapeList.get(0);
+					shapeData.setId(shape.getId().getValue());
+					shapeData.setDirty(false);
+					shapeData.setClientObject(false);
+				}*/
 			}
-			return true;
+			return roiList;
 		} catch (Exception e) {
 			handleException(e, "Cannot Save the ROI for image: "+imageID);
 		}
-		return false;
+		return new ArrayList<ROIData>();
 	}
 	
 	

@@ -198,9 +198,9 @@ class InputServerStrategy
 		ROIFigure fig = createROIFigure(data, readOnly);
 		// Check that the parent element is not a text element, as they have not
 		// got any other text associated with them.
-		MeasurementAttributes.TEXT.set(fig, "Dangerous");
 		addMissingAttributes(fig);
 		ROIShape shape = new ROIShape(roi, coord, fig, fig.getBounds());
+		shape.setROIShapeID(data.getId());
 		return shape;
 	}
 	
@@ -260,9 +260,11 @@ class InputServerStrategy
 		double y = cy-ry;
 		double width = rx*2d;
 		double height = ry*2d;
-		MeasureEllipseFigure fig = new MeasureEllipseFigure(data.isReadOnly(), data.isClientObject());
+		MeasureEllipseFigure fig = new MeasureEllipseFigure(data.isReadOnly(), 
+					data.isClientObject());
 		fig.setEllipse(x, y, width, height);
 		addShapeSettings(fig, data.getShapeSettings());
+		fig.setText(data.getText());
 		AffineTransform transform;
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
@@ -292,6 +294,7 @@ class InputServerStrategy
 		MeasureRectangleFigure fig = new MeasureRectangleFigure(x, y, width, 
 				height, data.isReadOnly(), data.isClientObject());
 		addShapeSettings(fig, data.getShapeSettings());
+		fig.setText(data.getText());
 		AffineTransform transform;
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
@@ -322,6 +325,7 @@ class InputServerStrategy
 		MeasureMaskFigure fig = new MeasureMaskFigure(x, y, width, 
 				height, mask, data.isReadOnly(), data.isClientObject());
 		addShapeSettings(fig, data.getShapeSettings());
+		fig.setText(data.getText());
 		AffineTransform transform;
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
@@ -356,6 +360,7 @@ class InputServerStrategy
 		fig.addNode(new Node(new Double(x2), new Double(y2)));
 		
 		addShapeSettings(fig, data.getShapeSettings());
+		fig.setText(data.getText());
 		AffineTransform transform;
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
@@ -386,6 +391,7 @@ class InputServerStrategy
 
 	
 		addShapeSettings(fig, data.getShapeSettings());
+		fig.setText(data.getText());
 		AffineTransform transform;
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
@@ -415,6 +421,7 @@ class InputServerStrategy
 
 	
 		addShapeSettings(fig, data.getShapeSettings());
+		fig.setText(data.getText());
 		AffineTransform transform;
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());

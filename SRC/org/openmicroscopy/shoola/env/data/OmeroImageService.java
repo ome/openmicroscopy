@@ -540,7 +540,7 @@ public interface OmeroImageService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Boolean saveROI(long imageID, long userID, List<ROIData> roiList)
+	public List<ROIData> saveROI(long imageID, long userID, List<ROIData> roiList)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

@@ -153,6 +153,8 @@ public class OutputServerStrategy
 		{
 			ROIShape roiShape = shapeIterator.next();
 			ShapeData shape = createShapeData(roiShape);
+			if(!roi.isClientSide())
+				shape.setId(roiShape.getROIShapeID());
 			addShapeAttributes(roiShape.getFigure(), shape);
 			roiData.addShapeData(shape);
 		}

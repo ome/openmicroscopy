@@ -22,20 +22,21 @@
 */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
-import java.util.List;
-
-import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import org.openmicroscopy.shoola.env.data.views.BatchCall;
-import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.views.BatchCall;
+import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
 /**
- *
+ * Loads the serverside ROIs into the measurment tool. Also if there are no
+ * ROI it will check to see if there is an ROI.xml file and try and load from
+ * it.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -58,12 +59,12 @@ public class ServerSideROILoader
     private BatchCall	loadCall;
     
     /**
-     * Creates a {@link BatchCall} to load the ROIs.
+     * This loader will check that there are ROI's on the server and if so
+     * load those ROIs. If there are no ROI, the measurement tool will check
+     * to see if there is an XML ROI file to load roi's from. 
      * 
-     * @param imageID The id of the image.
-     * @param fileID  The id of the file.
-     * @param userID  The id of the user. 
-     * @return The {@link BatchCall}.
+     * @param imageID	The id of the image the ROIs are related to.
+     * @param userID	The id of the user.
      */
     private BatchCall makeLoadCalls(final long imageID, final long userID)
     {
