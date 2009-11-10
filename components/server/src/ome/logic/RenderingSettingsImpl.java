@@ -613,6 +613,24 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     }
     
     /**
+     * Returns the original color if set at import or <code>null</code>.
+     * if no color was set.
+     * 
+     * @param channel The channel to handle.
+     * @return See above.
+     */
+    private int[] hasOriginalColor(Channel channel)
+    {
+    	Integer red = channel.getRed();
+        Integer green = channel.getGreen();
+        Integer blue = channel.getBlue();
+        Integer alpha = channel.getAlpha();
+        if (red != null && green != null && blue != null && alpha != null)
+        	return new int[] { red, green, blue, alpha };
+        return null;
+    }
+    
+    /**
      * Resets the channel bindings for the current active pixels set.
      * 
      * @param def
@@ -660,24 +678,29 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             // active, otherwise only activate the first.
             channelBinding.setActive(i < 3);
 
+            
             // Handle updating or recreating a color for this channel.
-            lc = channel.getLogicalChannel();
-            if (lc != null) lc = loadLogicalChannel(lc.getId());
-            v = ColorsFactory.hasEmissionData(lc);
-            //Update the name of the channel if no name, to be moved.
-            name = lc.getName();
-            if (name == null || name.trim().length() == 0) {
-            	name = getChannelName(lc);
-            	if (name != null) {
-            		lc.setName(name);
-            		toUpdate.add(lc);
-            	}
-            }
-            
-            if (!v) values.add(v);
-            m.put(channelBinding, v);
-            
-            defaultColor = ColorsFactory.getColor(i, channel, lc);
+            defaultColor = hasOriginalColor(channel);
+            if (defaultColor == null) {
+            	lc = channel.getLogicalChannel();
+                if (lc != null) lc = loadLogicalChannel(lc.getId());
+                v = ColorsFactory.hasEmissionData(lc);
+                //Update the name of the channel if no name, to be moved.
+                /*
+                name = lc.getName();
+                if (name == null || name.trim().length() == 0) {
+                	name = getChannelName(lc);
+                	if (name != null) {
+                		lc.setName(name);
+                		toUpdate.add(lc);
+                	}
+                }
+                
+                if (!v) values.add(v);
+                m.put(channelBinding, v);
+                */
+                defaultColor = ColorsFactory.getColor(i, channel, lc);
+            } 
             channelBinding.setRed(defaultColor[ColorsFactory.RED_INDEX]);
             channelBinding.setGreen(defaultColor[ColorsFactory.GREEN_INDEX]);
             channelBinding.setBlue(defaultColor[ColorsFactory.BLUE_INDEX]);
