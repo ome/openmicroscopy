@@ -60,7 +60,7 @@ import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
-import org.openmicroscopy.shoola.env.data.model.SplitViewFigureParam;
+import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
@@ -741,8 +741,8 @@ class OmeroImageServiceImpl
 			throw new IllegalArgumentException("No parameters");
 		ExperimenterData exp = (ExperimenterData) context.lookup(
 				LookupNames.CURRENT_USER_DETAILS);
-		if (parameters instanceof SplitViewFigureParam) {
-			SplitViewFigureParam p = (SplitViewFigureParam) parameters;
+		if (parameters instanceof FigureParam) {
+			FigureParam p = (FigureParam) parameters;
 			long id = gateway.createSplitViewFigure(imageIDs, p, exp.getId());
 			if (id < 0) return null;
 			return context.getMetadataService().loadAnnotation(id);

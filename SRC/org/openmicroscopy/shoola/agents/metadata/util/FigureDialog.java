@@ -80,12 +80,8 @@ import javax.swing.text.Document;
 import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTaskPane;
-import org.jhotdraw.draw.DelegationSelectionTool;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.DrawingView;
-import org.jhotdraw.draw.Figure;
-import org.jhotdraw.draw.FigureSelectionEvent;
-import org.jhotdraw.draw.FigureSelectionListener;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
@@ -95,7 +91,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
-import org.openmicroscopy.shoola.env.data.model.SplitViewFigureParam;
+import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -162,11 +158,35 @@ public class FigureDialog
     /** The possible options for row names. */
     private static final String[]	ROW_NAMES;
 
+    /** The possible options for row names. */
+    private static final String[]	MAGNIFICATION;
+    
+    /** Index to <code>100%</code>. */
+    private static final int		ZOOM_100 = 0;
+    
+    /** Index to <code>200%</code>. */
+    private static final int		ZOOM_200 = 1;
+    
+    /** Index to <code>300%</code>. */
+    private static final int		ZOOM_300 = 2;
+    
+    /** Index to <code>400%</code>. */
+    private static final int		ZOOM_400 = 3;
+    
+    /** Index to <code>500%</code>. */
+    private static final int		ZOOM_500 = 4;
+    
 	static {
 		ROW_NAMES = new String[3];
-		ROW_NAMES[SplitViewFigureParam.IMAGE_NAME] = "Image's name";
-		ROW_NAMES[SplitViewFigureParam.DATASET_NAME] = "Datasets";
-		ROW_NAMES[SplitViewFigureParam.TAG_NAME] = "Tags";
+		ROW_NAMES[FigureParam.IMAGE_NAME] = "Image's name";
+		ROW_NAMES[FigureParam.DATASET_NAME] = "Datasets";
+		ROW_NAMES[FigureParam.TAG_NAME] = "Tags";
+		MAGNIFICATION = new String[5];
+		MAGNIFICATION[ZOOM_100] = "100%";
+		MAGNIFICATION[ZOOM_200] = "200%";
+		MAGNIFICATION[ZOOM_300] = "300%";
+		MAGNIFICATION[ZOOM_400] = "400%";
+		MAGNIFICATION[ZOOM_500] = "500%";
 	}
 	
 	/** The name to give to the figure. */
@@ -267,6 +287,9 @@ public class FigureDialog
 	/** The size of the thumbnail. */
 	private Dimension						size;
 	
+	/** The magnification factor. */
+	private JComboBox						zoomBox;
+	
 	/**
 	 * Sets the channel selection.
 	 * 
@@ -334,19 +357,19 @@ public class FigureDialog
 				DataBuffer buf = mergeImage.getRaster().getDataBuffer();
 				if (renderer.isColorComponent(Renderer.RED_BAND, index)) {
 					return Factory.createBandImage(buf,
-							thumbnailWidth, thumbnailHeight, 
+							size.width, size.height, 
 							Factory.RED_MASK, Factory.BLANK_MASK,
 							Factory.BLANK_MASK);
 				} else if (renderer.isColorComponent(Renderer.GREEN_BAND, 
 						index)) {
 					return Factory.createBandImage(buf,
-							thumbnailWidth, thumbnailHeight,  
+							size.width, size.height,  
 							Factory.BLANK_MASK, Factory.GREEN_MASK, 
 							Factory.BLANK_MASK);
 				} else if (renderer.isColorComponent(Renderer.BLUE_BAND, 
 						index)) {
 					return Factory.createBandImage(buf,
-							thumbnailWidth, thumbnailHeight, 
+							size.width,  size.height, 
 							Factory.BLANK_MASK, Factory.BLANK_MASK,
 							Factory.BLUE_MASK);
 				}
@@ -406,6 +429,7 @@ public class FigureDialog
 		initialize();
 		//draw the roi.
 		//Determine the scaling factor.
+		zoomBox = new JComboBox(MAGNIFICATION);
 		DrawingView canvasView = drawingComponent.getDrawingView();
 		double factor = getMagnificationFactor();
 		if (factor != -1)
@@ -525,7 +549,7 @@ public class FigureDialog
 			saveButton.setEnabled(true);
 		}
 		nameField.getDocument().addDocumentListener(this);
-		Map<Integer, String> map = SplitViewFigureParam.FORMATS;
+		Map<Integer, String> map = FigureParam.FORMATS;
 		String[] f = new String[map.size()];
 		Entry entry;
 		Iterator i = map.entrySet().iterator();
@@ -705,7 +729,6 @@ public class FigureDialog
 	    p.add(UIUtilities.setTextFont("Z-sections Range"), c);
 	    c.gridx++;
         p.add(UIUtilities.buildComponentPanel(zRange), c);
-        
 		return UIUtilities.buildComponentPanel(p);
 	}
 	
@@ -740,6 +763,7 @@ public class FigureDialog
         p.add(scaleBar, "1, "+i);
         p.add(new JLabel("microns"), "2, "+i);
         i = i+2;
+        p.add(UIUtilities.setTextFont("Overlay color"), "0, "+i);
         p.add(UIUtilities.buildComponentPanel(colorBox), "1, "+i);
 		return p;
 	}
@@ -751,31 +775,42 @@ public class FigureDialog
 	 */
 	private JPanel buildChannelsROIComponent()
 	{
-		JComponent c = drawingComponent.getDrawingView();
-		Dimension d = mergeCanvas.getPreferredSize();
-		c.setSize(d);
-		c.setPreferredSize(d);
-		mergeCanvas.setSize(d);
-		pane.setPreferredSize(d);
-		pane.setSize(d);
-		pane.add(mergeCanvas, new Integer(0));
-		pane.add(c, new Integer(1));
-		JPanel buttonPanel = new JPanel();
-		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
 		
-		Iterator<ChannelComponent> i = channelList.iterator();
+		/*
+		Iterator<Integer> i = components.keySet().iterator();
 		while (i.hasNext()) {
-			buttonPanel.add(i.next());
-			buttonPanel.add(Box.createHorizontalStrut(5));
+			p.add(components.get(i.next()));
 		}
+		*/
+		//Add the final one
+	
+		JPanel splitPanel = new JPanel();
+		splitPanel.add(UIUtilities.setTextFont("Split Panel"));
+		splitPanel.add(splitPanelColor);
+		splitPanel.add(splitPanelGrey);
+		
+		JPanel zoomPanel = new JPanel();
+		zoomPanel.add(UIUtilities.setTextFont("Zoom"));
+		zoomPanel.add(zoomBox);
+		
 		JPanel p = new JPanel();
-		p.setLayout(new BorderLayout(0, 0));
-		JPanel f = UIUtilities.buildComponentPanelCenter(buttonPanel);
-		f.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
-		p.add(f, BorderLayout.NORTH);
-		p.add(UIUtilities.buildComponentPanelCenter(pane), 
-				BorderLayout.CENTER);
-		return p;
+		p.add(buildMergeComponent());
+		p.add(Box.createHorizontalStrut(5));
+		
+		JPanel controls = new JPanel();
+		double size[][] = {{TableLayout.FILL}, 
+				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5,
+			TableLayout.PREFERRED, 5, TableLayout.PREFERRED}};
+		controls.setLayout(new TableLayout(size));
+		int i = 0;
+		controls.add(splitPanel, "0, "+i+", LEFT, CENTER");
+		i = i+2;
+		controls.add(zoomPanel, "0, "+i+", LEFT, CENTER");
+		i = i+2;
+		controls.add(p, "0, "+i);
+		i = i+2;
+		controls.add(buildDimensionComponent(), "0, "+i);
+		return controls;
 	}
 	
 	/** 
@@ -819,6 +854,19 @@ public class FigureDialog
 	 */
 	private JPanel buildMergeComponent()
 	{
+		JComponent comp = mergeCanvas;
+		if (index == SPLIT_ROI) {
+			JComponent c = drawingComponent.getDrawingView();
+			Dimension d = mergeCanvas.getPreferredSize();
+			c.setSize(d);
+			c.setPreferredSize(d);
+			mergeCanvas.setSize(d);
+			pane.setPreferredSize(d);
+			pane.setSize(d);
+			pane.add(mergeCanvas, new Integer(0));
+			pane.add(c, new Integer(1));
+			comp = pane;
+		}
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
 		
@@ -832,7 +880,7 @@ public class FigureDialog
 		JPanel f = UIUtilities.buildComponentPanelCenter(buttonPanel);
 		f.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
 		p.add(f, BorderLayout.NORTH);
-		p.add(UIUtilities.buildComponentPanelCenter(mergeCanvas), 
+		p.add(UIUtilities.buildComponentPanelCenter(comp), 
 				BorderLayout.CENTER);
 		return p;
 	}
@@ -893,13 +941,48 @@ public class FigureDialog
 		dispose();
 	}
 	
+	/**
+	 * Collects the parameters.
+	 * 
+	 * @param p The value to fill.
+	 */
+	private void collectParam(FigureParam p)
+	{
+		p.setWidth((Integer) widthField.getValueAsNumber());
+		p.setHeight((Integer) heightField.getValueAsNumber());
+		p.setSplitGrey(splitPanelGrey.isSelected());
+		
+		//scale bar
+		int scale = -1;
+		if (showScaleBar.isSelected()) {
+			Number n = scaleBar.getValueAsNumber();
+			if (n != null) scale = n.intValue();
+		}
+		p.setScaleBar(scale);
+		index = colorBox.getSelectedIndex();
+		
+		Map<Color, String> m = EditorUtil.COLORS_BAR;
+		Iterator i = m.entrySet().iterator();
+		int j = 0;
+		Entry entry;
+		Color c = null;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			if (j == index) c = (Color) entry.getKey();
+			j++;
+		}
+		p.setColor(c);
+		//projection
+		p.setZStart(zRange.getStartValue()-1);
+		p.setZEnd(zRange.getEndValue()-1);
+		p.setStepping((Integer) projectionFrequency.getValue());
+		p.setProjectionType(
+				projectionTypes.get(projectionTypesBox.getSelectedIndex()));
+	}
+	
 	/** Collects the parameters to create a figure. */
 	private void saveSplitFigure()
 	{
-		SplitViewFigureParam p;
-		String name = nameField.getText().trim();
-		int format = formats.getSelectedIndex();
-		int label = rowName.getSelectedIndex();
 		Map<Integer, String> split = new LinkedHashMap<Integer, String>();
 		FigureComponent comp;
 		Entry entry;
@@ -919,37 +1002,13 @@ public class FigureDialog
 			index = (Integer) i.next();
 			merge.put(index, renderer.getChannelColor(index));
 		}
-		p = new SplitViewFigureParam(format, name, split, merge, label);
 		
-		p.setWidth((Integer) widthField.getValueAsNumber());
-		p.setHeight((Integer) heightField.getValueAsNumber());
-		p.setSplitGrey(splitPanelGrey.isSelected());
-		//scale bar
-		int scale = -1;
-		if (showScaleBar.isSelected()) {
-			Number n = scaleBar.getValueAsNumber();
-			if (n != null) scale = n.intValue();
-		}
-		p.setScaleBar(scale);
-		index = colorBox.getSelectedIndex();
+		String name = nameField.getText().trim();
+		int format = formats.getSelectedIndex();
+		int label = rowName.getSelectedIndex();
+		FigureParam p = new FigureParam(format, name, split, merge, label);
 		
-		Map<Color, String> m = EditorUtil.COLORS_BAR;
-		i = m.entrySet().iterator();
-		int j = 0;
-		Color c = null;
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			if (j == index) c = (Color) entry.getKey();
-			j++;
-		}
-		p.setColor(c);
-		//projection
-		p.setZStart(zRange.getStartValue()-1);
-		p.setZEnd(zRange.getEndValue()-1);
-		p.setStepping((Integer) projectionFrequency.getValue());
-		
-		p.setProjectionType(
-				projectionTypes.get(projectionTypesBox.getSelectedIndex()));
+		collectParam(p);
 		close();
 		firePropertyChange(SPLIT_FIGURE_PROPERTY, null, p);
 	}
@@ -957,7 +1016,41 @@ public class FigureDialog
 	/** Collects the parameters to create a ROI figure. */
 	private void saveROIFigure()
 	{
+		Map<Integer, String> split = new LinkedHashMap<Integer, String>();	
+		Map<Integer, Color> merge = new LinkedHashMap<Integer, Color>();
+		List<Integer> active = renderer.getActiveChannels();
+		Iterator i = active.iterator();
+		int index;
+		while (i.hasNext()) {
+			index = (Integer) i.next();
+			merge.put(index, renderer.getChannelColor(index));
+			split.put(index, ""+index);
+		}
 		
+		String name = nameField.getText().trim();
+		int format = formats.getSelectedIndex();
+		int label = rowName.getSelectedIndex();
+		FigureParam p = new FigureParam(format, name, split, merge, label);
+		p.setIndex(FigureParam.SPLIT_VIEW_ROI);
+		collectParam(p);
+		double zoom = 1;
+		switch (zoomBox.getSelectedIndex()) {
+			case ZOOM_200:
+				zoom = 2;
+				break;
+			case ZOOM_300:
+				zoom = 3;
+				break;
+			case ZOOM_400:
+				zoom = 4;
+				break;
+			case ZOOM_500:
+				zoom = 5;
+		}
+		p.setMagnificationFactor(zoom);
+		
+		close();
+		firePropertyChange(SPLIT_FIGURE_ROI_PROPERTY, null, p);
 	}
 	
 	/** Collects the parameters to create a figure. */

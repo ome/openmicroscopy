@@ -100,4 +100,5 @@ public class FigureCreator
 	{
 		loadCall = makeBatchCall(imageIds, param);
 	}
+	
 }

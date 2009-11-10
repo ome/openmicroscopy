@@ -146,12 +146,14 @@ public class FileLoader
     		FileAnnotationData fa;
     		filesMap = new HashMap<FileAnnotationData, File>(files.size());
     		File f;
+    		int index = 0;
     		while (i.hasNext()) {
 				entry = (Entry) i.next();
 				fa = (FileAnnotationData) entry.getKey();
 				f = new File(MetadataViewerAgent.getOmeroHome()
-						+File.separator+fa.getFileName());
+						+File.separator+index+fa.getFileName());
 				filesMap.put(fa, f);
+				index++;
 			}
 			handle = mhView.loadFiles(filesMap, this);
 		}

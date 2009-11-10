@@ -56,7 +56,7 @@ import loci.formats.FormatException;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
-import org.openmicroscopy.shoola.env.data.model.SplitViewFigureParam;
+import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
@@ -148,7 +148,6 @@ import omero.model.RenderingDef;
 import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.ScreenI;
-import omero.model.Shape;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TimestampAnnotation;
@@ -4580,7 +4579,7 @@ class OMEROGateway
 	 *                                  retrieve data from OMEDS service.
 	 */
 	long createSplitViewFigure(List<Long> imageIDs,
-			SplitViewFigureParam param, long userID)
+			FigureParam param, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -4592,9 +4591,18 @@ class OMEROGateway
 			Entry en;
 			Iterator j = scripts.entrySet().iterator();
 			long value;
+			String scriptName = null;
+			int scriptIndex = param.getIndex();
+			switch (scriptIndex) {
+				case FigureParam.SPLIT_VIEW_ROI:
+					scriptName = "splitViewROIFigure.py";
+					break;
+				default:
+					scriptName = "splitViewFigure.py";
+			}
 			while (j.hasNext()) {
 				en = (Entry) j.next();
-				if (en.getValue().equals("splitViewFigure.py")) {
+				if (en.getValue().equals(scriptName)) {
 					value = (Long) en.getKey();
 					if (value > id) id = value;
 				}
@@ -4649,6 +4657,11 @@ class OMEROGateway
 					omero.rtypes.rstring(param.getName()));
 			parameters.map.put("imageLabels", 
 					omero.rtypes.rstring(param.getLabelAsString()));
+			if (scriptIndex == FigureParam.SPLIT_VIEW_ROI) {
+				parameters.map.put("roiZoom", 
+						omero.rtypes.rlong((long) 
+								param.getMagnificationFactor()));
+			}
 			Map<String, RType> result = svc.runScript(id, parameters.map);
 			RLong type = (RLong) result.get("fileAnnotation");
 			//RLong type = null;

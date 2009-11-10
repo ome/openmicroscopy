@@ -458,7 +458,8 @@ class EditorControl
 			List l = (List) evt.getNewValue();
 			view.activityOptions((Component) l.get(0), (Point) l.get(1));
 		} else if (FigureDialog.SPLIT_FIGURE_PROPERTY.equals(
-				name)) {
+				name) || FigureDialog.SPLIT_FIGURE_ROI_PROPERTY.equals(
+						name)) {
 			view.createFigure(evt.getNewValue());
 		} else if (FigureDialog.CLOSE_FIGURE_PROPERTY.equals(name))
 			figureDialog = null;

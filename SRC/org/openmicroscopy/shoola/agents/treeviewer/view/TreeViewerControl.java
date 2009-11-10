@@ -113,7 +113,7 @@ import org.openmicroscopy.shoola.agents.util.finder.Finder;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
-import org.openmicroscopy.shoola.env.data.model.SplitViewFigureParam;
+import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle;
@@ -829,7 +829,7 @@ class TreeViewerControl
 			handleTaskPaneSelection((JXTaskPane) pce.getNewValue());
 		} else if (MetadataViewer.SPLIT_VIEW_FIGURE_PROPERTY.equals(name)) {
 			Object object = pce.getNewValue();
-			if (!(object instanceof SplitViewFigureParam)) return;
+			if (!(object instanceof FigureParam)) return;
 			Collection l = model.getSelectedBrowser().getSelectedDataObjects();
 			if (l == null) return;
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();

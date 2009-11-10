@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.SplitViewFigureParam 
+ * org.openmicroscopy.shoola.env.data.model.FigureParam 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -33,7 +33,8 @@ import java.util.Map;
 //Application-internal dependencies
 
 /** 
- * Hosts the parameters needed for the creation of a split view figure.
+ * Hosts the parameters needed for the creation of a figure, either a 
+ * split figure or a ROI split figure.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,9 +46,15 @@ import java.util.Map;
  * </small>
  * @since 3.0-Beta4
  */
-public class SplitViewFigureParam
+public class FigureParam
 {
 
+	/** Indicates to create a split view figure. */
+	public static final int		SPLIT_VIEW = 0;
+	
+	/** Indicates to create a ROI split view figure. */
+	public static final int		SPLIT_VIEW_ROI = 1;
+	
     /** Indicates to use the image's name as the name a row. */
 	public static final int		IMAGE_NAME = 0;
     
@@ -120,6 +127,12 @@ public class SplitViewFigureParam
 	/** Channels composing the merge image. */
 	private Map<Integer, Integer> mergeChannels;
 	
+	/** The type of figure. */
+	private int index;
+	
+	/** The magnification used the ROI figure. */
+	private double	magnificationFactor;
+	
 	/** Sets the default value. */
 	private void setDefault()
 	{
@@ -133,6 +146,7 @@ public class SplitViewFigureParam
 		zStart = 0;
 		zEnd = 0;
 		splitGrey = false;
+		index = SPLIT_VIEW;
 	}
 	
 	/**
@@ -180,7 +194,7 @@ public class SplitViewFigureParam
 	 * @param channels The channels composing the merge image.
 	 * @param label  One of the constants defined by this class.
 	 */
-	public SplitViewFigureParam(int format, String name, Map<Integer, String>
+	public FigureParam(int format, String name, Map<Integer, String>
 		splitChannels, Map<Integer, Color> channels, int label)
 	{
 		setDefault();
@@ -207,6 +221,30 @@ public class SplitViewFigureParam
 			mergeChannels.put(index, value);
 		}
 	}
+	
+	/**
+	 * Sets the index.
+	 * 
+	 * @param index The value to set.
+	 */
+	public void setIndex(int index)
+	{
+		switch (index) {
+			case SPLIT_VIEW_ROI:
+				this.index = index;
+				break;
+			case SPLIT_VIEW:
+			default:
+				this.index = SPLIT_VIEW;
+		}
+	}
+	
+	/**
+	 * Returns the index.
+	 * 
+	 * @return See above.
+	 */
+	public int getIndex() { return index; }
 	
 	/**
 	 * Returns the channels composing the merge image.
@@ -426,6 +464,26 @@ public class SplitViewFigureParam
 		else if (projectionType == ProjectionParam.MEAN_INTENSITY)
 			return "MEANINTENSITY";
 		return "";
+	}
+	
+	/**
+	 * Sets the magnification factor.
+	 * 
+	 * @param magnificationFactor The value to set.
+	 */
+	public void setMagnificationFactor(double magnificationFactor)
+	{
+		this.magnificationFactor = magnificationFactor;
+	}
+
+	/**
+	 * Returns the magnification factor.
+	 * 
+	 * @return See above.
+	 */
+	public double getMagnificationFactor()
+	{
+		return magnificationFactor;
 	}
 	
 }
