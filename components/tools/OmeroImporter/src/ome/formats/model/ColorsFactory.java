@@ -245,7 +245,7 @@ public class ColorsFactory {
      * @param value The value to handle.
      * @return
      */
-    private static int[] determineColor(Integer value)
+    public static int[] determineColor(Integer value)
     {
     	if (value == null) return null;
     	if (rangeBlue(value)) return newBlueColor();
