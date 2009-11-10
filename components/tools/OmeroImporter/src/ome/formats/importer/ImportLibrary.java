@@ -37,7 +37,7 @@ import loci.formats.IFormatReader;
 import loci.formats.UnknownFormatException;
 import loci.formats.in.MIASReader;
 import ome.formats.OMEROMetadataStoreClient;
-// XXX: Overlay import ome.formats.OverlayMetadataStore;
+import ome.formats.OverlayMetadataStore;
 import ome.formats.importer.util.ErrorHandler;
 import ome.formats.model.InstanceProvider;
 import omero.ServerError;
@@ -236,7 +236,6 @@ public class ImportLibrary implements IObservable
 	 * If available, populates overlays for a given set of pixels objects.
 	 * @param pixelsList Pixels objects to populate overlays for.
 	 */
-/* XXX: Overlay
 	protected void importOverlays(List<Pixels> pixelsList)
 		throws ServerError, FormatException, IOException
 	{
@@ -270,7 +269,6 @@ public class ImportLibrary implements IObservable
 			}
 		}
 	}
-XXX: Overlay */
 	
     /**
      * Perform an image import.  <em>Note: this method both notifes {@link #observers}
@@ -458,7 +456,7 @@ XXX: Overlay */
             }
 
             notifyObservers(new ImportEvent.IMPORT_OVERLAYS(index, null, userSpecifiedTarget, null, 0, null));
-            // XXX: Overlay importOverlays(pixList);
+            importOverlays(pixList);
             notifyObservers(new ImportEvent.IMPORT_THUMBNAILING(index, null, userSpecifiedTarget, null, 0, null));
             store.resetDefaultsAndGenerateThumbnails(plateIds, pixelsIds);
             store.launchProcessing(); // Use or return value here later. TODO
