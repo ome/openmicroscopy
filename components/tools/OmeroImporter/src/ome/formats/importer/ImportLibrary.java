@@ -43,12 +43,15 @@ import ome.formats.model.InstanceProvider;
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Annotation;
+import omero.model.Dataset;
+import omero.model.DatasetI;
 import omero.model.FileAnnotation;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Plate;
+import omero.model.Screen;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -157,6 +160,15 @@ public class ImportLibrary implements IObservable
             int numDone = 0;
             for (int index = 0; index < containers.size(); index++) {
                 ImportContainer ic = containers.get(index);
+                
+                if (config.targetClass.get() == "omero.model.Dataset")
+                {
+                	ic.setTarget(store.getTarget(Dataset.class, config.targetId.get()));
+                }
+                else if (config.targetClass.get() == "omero.model.Screen")
+                {
+                	ic.setTarget(store.getTarget(Screen.class, config.targetId.get()));                	
+                }
                 
                 try {
                     importImage(
@@ -638,5 +650,4 @@ public class ImportLibrary implements IObservable
     public void clear() {
         store.createRoot();
     }
-
 }

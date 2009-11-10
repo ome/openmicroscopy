@@ -82,6 +82,7 @@ public class CommandLineImporter {
                 // config.requestFromUser(); // stdin if anything missing.
                 usage(); // EXITS TODO this should check for a "quiet" flag
             }
+                       
             store = config.createStore();
             library = new ImportLibrary(store, reader);
         }
@@ -121,7 +122,7 @@ public class CommandLineImporter {
             }
         }
 
-        else {
+        else {       	
             library.addObserver(new LoggingImportMonitor());
             library.addObserver(new ErrorHandler(config));
             library.importCandidates(config, candidates);
