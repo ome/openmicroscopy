@@ -1469,13 +1469,13 @@ public class OMEROMetadataStore
     }
     
     /**
-     * Compares two strings by reference existence and by value.
-     * @param a First string.
-     * @param b Second string.
+     * Compares two objects by reference existence and by value.
+     * @param a First object.
+     * @param b Second object.
      * @return <code>true</code> if <code>a == null && b == null</code> or
      * <code>a.equals(b)</code>.
      */
-    private static boolean compare(String a, String b)
+    private static boolean compare(Object a, Object b)
     {
     	if (a == null && b == null)
     	{
@@ -1554,10 +1554,10 @@ public class OMEROMetadataStore
     	}
     	for (ObjectiveSettings s2 : uniqueSettings)
     	{
-    		if (s1.getCorrectionCollar() == s2.getCorrectionCollar()
+    		if (compare(s1.getCorrectionCollar(), s2.getCorrectionCollar())
     			&& compare(s1.getMedium(), s2.getMedium())
     			&& s1.getObjective() == s2.getObjective()
-    			&& s1.getRefractiveIndex() == s2.getRefractiveIndex())
+    			&& compare(s1.getRefractiveIndex(), s2.getRefractiveIndex()))
     		{
     			return s2;
     		}
@@ -1583,11 +1583,11 @@ public class OMEROMetadataStore
     	}
     	for (LightSettings s2 : uniqueSettings)
     	{
-    		if (s1.getAttenuation() == s2.getAttenuation()
+    		if (compare(s1.getAttenuation(), s2.getAttenuation())
     			&& s1.getLightSource() == s2.getLightSource()
     			&& s1.getMicrobeamManipulation()
     			   == s2.getMicrobeamManipulation()
-    			&& s1.getWavelength() == s2.getWavelength())
+    			&& compare(s1.getWavelength(), s2.getWavelength()))
     		{
     			return s2;
     		}
@@ -1615,10 +1615,10 @@ public class OMEROMetadataStore
     	{
     		if (compare(s1.getBinning(), s2.getBinning())
     			&& s1.getDetector() == s2.getDetector()
-    			&& s1.getGain() == s2.getGain()
-    			&& s1.getOffsetValue() == s2.getOffsetValue()
-    			&& s1.getReadOutRate() == s2.getReadOutRate()
-    			&& s1.getVoltage() == s2.getVoltage())
+    			&& compare(s1.getGain(), s2.getGain())
+    			&& compare(s1.getOffsetValue(), s2.getOffsetValue())
+    			&& compare(s1.getReadOutRate(), s2.getReadOutRate())
+    			&& compare(s1.getVoltage(), s2.getVoltage()))
     		{
     			return s2;
     		}
@@ -1649,17 +1649,17 @@ public class OMEROMetadataStore
     			&& compare(lc.getPhotometricInterpretation(),
     					   lc2.getPhotometricInterpretation())
     			&& lc.getDetectorSettings() == lc2.getDetectorSettings()
-    			&& lc.getEmissionWave() == lc2.getEmissionWave()
-    			&& lc.getExcitationWave() == lc2.getExcitationWave()
+    			&& compare(lc.getEmissionWave(), lc2.getEmissionWave())
+    			&& compare(lc.getExcitationWave(), lc2.getExcitationWave())
     			&& lc.getFilterSet() == lc2.getFilterSet()
     			&& compare(lc.getFluor(), lc2.getFluor())
     			&& lc.getLightSourceSettings() == lc2.getLightSourceSettings()
     			&& compare(lc.getName(), lc2.getName())
-    			&& lc.getNdFilter() == lc2.getNdFilter()
+    			&& compare(lc.getNdFilter(), lc2.getNdFilter())
     			&& lc.getOtf() == lc.getOtf()
-    			&& lc.getPinHoleSize() == lc2.getPinHoleSize()
-    			&& lc.getPockelCellSetting() == lc2.getPockelCellSetting()
-    			&& lc.getSamplesPerPixel() == lc2.getSamplesPerPixel()
+    			&& compare(lc.getPinHoleSize(), lc2.getPinHoleSize())
+    			&& compare(lc.getPockelCellSetting(), lc2.getPockelCellSetting())
+    			&& compare(lc.getSamplesPerPixel(), lc2.getSamplesPerPixel())
     			&& lc.getSecondaryEmissionFilter()
     			   == lc2.getSecondaryEmissionFilter()
     			&& lc.getSecondaryExcitationFilter()
