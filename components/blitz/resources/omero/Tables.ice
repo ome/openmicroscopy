@@ -77,6 +77,24 @@ module omero {
             omero::api::StringArray values;
         };
 
+        //
+        // Inline ROIs.
+        //
+
+        /**
+         * Column requiring special handling.
+         **/
+        class MaskColumn extends Column {
+            omero::api::LongArray imageId;
+            omero::api::IntegerArray theZ;
+            omero::api::IntegerArray theT;
+            omero::api::DoubleArray x;
+            omero::api::DoubleArray y;
+            omero::api::DoubleArray w;
+            omero::api::DoubleArray h;
+            omero::api::ByteArrayArray bytes;
+        };
+
         sequence<Column> ColumnArray;
 
         class Data {

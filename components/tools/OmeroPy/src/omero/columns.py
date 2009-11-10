@@ -16,6 +16,7 @@ to PyTables types.
 """
 
 import omero, Ice
+import omero_Tables_ice
 
 try:
     import numpy
@@ -45,62 +46,218 @@ class AbstractColumn(object):
 
     def __init__(self):
         d = self.descriptor(0)
-        self.recarrtype = d.recarrtype
+        if isinstance(d, tables.IsDescription):
+            cols = d.columns
+            try:
+                del cols["_v_pos"]
+            except KeyError:
+                pass
+            self.recarrtypes = [None for x in range(len(cols))]
+            for k, v in cols.items():
+                self.recarrtypes[v._v_pos] = ("%s/%s" % (self.name, k), v.recarrtype)
+        else:
+            self.recarrtypes = [(self.name, d.recarrtype)]
 
-    def size(self, size):
+    def readCoordinates(self, tbl, rowNumbers):
+        if rowNumbers is None or len(rowNumbers) == 0:
+            rows = tbl.read()
+        else:
+            rows = tbl.readCoordinates(rowNumbers)
+        self.fromrows(rows)
+
+    def getsize(self):
+        """
+        Any method which does not use the "values" field
+        will need to override this method.
+        """
+        if self.values is None:
+            return None
+        else:
+            return len(self.values)
+
+    def setsize(self, size):
+        """
+        Any method which does not use the "values" field
+        will need to override this method.
+        """
         if size is None:
             self.values = None
         else:
             self.values = [None for x in range(size)]
 
-    def array(self):
-        return numpy.array(self.values, dtype=self.recarrtype)
+    def names(self):
+        """
+        Any method which does not use the "values" field
+        will need to override this method.
+        """
+        return [self.name]
+
+    def arrays(self):
+        """
+        Any method which does not use the "values" field
+        will need to override this method.
+        """
+        return [numpy.array(self.values, dtype=self.recarrtypes[0][1])]
+
+    def fromrows(self, rows):
+        """
+        Any method which does not use the "values" field
+        will need to override this method.
+        """
+        self.values = rows[self.name]
+        # WORKAROUND: http://www.zeroc.com/forums/bug-reports/4165-icepy-can-not-handle-buffers-longs-i64.html#post20468
+        d = self.recarrtypes[0][1]
+        if (isinstance(d, str) and d.endswith("i8")) or \
+           (d.endswithd.kind == "i" and d.itemsize == "8"):
+            self.values = self.values.tolist()
 
 class FileColumnI(AbstractColumn, omero.grid.FileColumn):
-    def __init__(self, *args): AbstractColumn.__init__(self); omero.grid.FileColumn.__init__(self, *args)
+
+    def __init__(self, name = "Unknown", *args):
+        omero.grid.FileColumn.__init__(self, name, *args)
+        AbstractColumn.__init__(self)
+
     def descriptor(self, pos):
         return tables.Int64Col(pos=pos)
 
 class ImageColumnI(AbstractColumn, omero.grid.ImageColumn):
-    def __init__(self, *args): AbstractColumn.__init__(self); omero.grid.ImageColumn.__init__(self, *args)
+
+    def __init__(self, name = "Unknown", *args):
+        omero.grid.ImageColumn.__init__(self, name, *args)
+        AbstractColumn.__init__(self)
+
     def descriptor(self, pos):
         return tables.Int64Col(pos=pos)
 
 class WellColumnI(AbstractColumn, omero.grid.WellColumn):
-    def __init__(self, *args): AbstractColumn.__init__(self); omero.grid.WellColumn.__init__(self, *args)
+
+    def __init__(self, name = "Unknown", *args):
+        omero.grid.WellColumn.__init__(self, name, *args)
+        AbstractColumn.__init__(self)
+
     def descriptor(self, pos):
         return tables.Int64Col(pos=pos)
 
 class RoiColumnI(AbstractColumn, omero.grid.RoiColumn):
-    def __init__(self, *args): AbstractColumn.__init__(self); omero.grid.RoiColumn.__init__(self, *args)
+
+    def __init__(self, name = "Unknown", *args):
+        omero.grid.RoiColumn.__init__(self, name, *args)
+        AbstractColumn.__init__(self)
+
     def descriptor(self, pos):
         return tables.Int64Col(pos=pos)
 
 class ImageColumnI(AbstractColumn, omero.grid.ImageColumn):
-    def __init__(self, *args): AbstractColumn.__init__(self); omero.grid.ImageColumn.__init__(self, *args)
+
+    def __init__(self, name = "Unknown", *args):
+        omero.grid.ImageColumn.__init__(self, name, *args)
+        AbstractColumn.__init__(self)
+
     def descriptor(self, pos):
         return tables.Int64Col(pos=pos)
 
 class BoolColumnI(AbstractColumn, omero.grid.BoolColumn):
-    def __init__(self, *args): AbstractColumn.__init__(self); omero.grid.BoolColumn.__init__(self, *args)
+
+    def __init__(self, name = "Unknown", *args):
+        omero.grid.BoolColumn.__init__(self, name, *args)
+        AbstractColumn.__init__(self)
+
     def descriptor(self, pos):
         return tables.BoolCol(pos=pos)
 
 class DoubleColumnI(AbstractColumn, omero.grid.DoubleColumn):
-    def __init__(self, *args): AbstractColumn.__init__(self); omero.grid.DoubleColumn.__init__(self, *args)
+
+    def __init__(self, name = "Unknown", *args):
+        omero.grid.DoubleColumn.__init__(self, name, *args)
+        AbstractColumn.__init__(self)
+
     def descriptor(self, pos):
         return tables.Float64Col(pos=pos)
 
 class LongColumnI(AbstractColumn, omero.grid.LongColumn):
-    def __init__(self, *args): AbstractColumn.__init__(self); omero.grid.LongColumn.__init__(self, *args)
+
+    def __init__(self, name = "Unknown", *args):
+        omero.grid.LongColumn.__init__(self, name, *args)
+        AbstractColumn.__init__(self)
+
     def descriptor(self, pos):
         return tables.Int64Col(pos=pos)
 
 class StringColumnI(AbstractColumn, omero.grid.StringColumn):
-    def __init__(self, *args): AbstractColumn.__init__(self); omero.grid.StringColumn.__init__(self, *args)
+
+    def __init__(self, name = "Unknown", *args):
+        omero.grid.StringColumn.__init__(self, name, *args)
+        AbstractColumn.__init__(self)
+
     def descriptor(self, pos):
         return tables.StringCol(pos=pos)
 
+class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
+
+    def __init__(self, name = "Unknown", *args):
+        omero.grid.MaskColumn.__init__(self, name, *args)
+        AbstractColumn.__init__(self)
+
+    def descriptor(self, pos):
+        class MaskDescription(tables.IsDescription):
+            _v_pos = pos
+            i = tables.Int64Col(pos=0)
+            z = tables.Int32Col(pos=1)
+            t = tables.Int32Col(pos=2)
+            x = tables.Float64Col(pos=3)
+            y = tables.Float64Col(pos=4)
+            w = tables.Float64Col(pos=5)
+            h = tables.Float64Col(pos=6)
+        return MaskDescription()
+
+    def names(self):
+        return [x[0] for x in self.recarrtypes]
+
+    def arrays(self):
+        a = [
+            numpy.array(self.imageId, dtype=self.recarrtypes[0][1]),
+            numpy.array(self.theZ, dtype=self.recarrtypes[1][1]),
+            numpy.array(self.theT, dtype=self.recarrtypes[2][1]),
+            numpy.array(self.x, dtype=self.recarrtypes[3][1]),
+            numpy.array(self.y, dtype=self.recarrtypes[4][1]),
+            numpy.array(self.w, dtype=self.recarrtypes[5][1]),
+            numpy.array(self.h, dtype=self.recarrtypes[6][1]),
+            ]
+        return a
+
+    def getsize(self):
+        if self.imageId is None:
+            return None
+        else:
+            return len(self.imageId)
+
+    def setsize(self, size):
+        if size is None:
+            self.imageId = None
+            self.theZ = None
+            self.theT = None
+            self.x = None
+            self.y = None
+            self.w = None
+            self.h = None
+        else:
+            self.imageId = numpy.zeroes(size, dtype = self.recarrtypes[0][1])
+            self.theZ    = numpy.zeroes(size, dtype = self.recarrtypes[1][1])
+            self.theT    = numpy.zeroes(size, dtype = self.recarrtypes[2][1])
+            self.x       = numpy.zeroes(size, dtype = self.recarrtypes[3][1])
+            self.y       = numpy.zeroes(size, dtype = self.recarrtypes[4][1])
+            self.w       = numpy.zeroes(size, dtype = self.recarrtypes[5][1])
+            self.h       = numpy.zeroes(size, dtype = self.recarrtypes[6][1])
+
+    def fromrows(self, all_rows):
+        rows = all_rows[self.name]
+        self.imageId = rows["i"].tolist()
+        self.theZ = rows["z"]
+        self.theT = rows["t"]
+        self.x = rows["x"]
+        self.y = rows["y"]
+        self.w = rows["w"]
+        self.h = rows["h"]
 
 # Helpers
 # ========================================================================
@@ -134,5 +291,6 @@ ObjectFactories = {
     BoolColumnI: ObjectFactory(BoolColumnI, lambda: BoolColumnI()),
     DoubleColumnI: ObjectFactory(DoubleColumnI, lambda: DoubleColumnI()),
     LongColumnI: ObjectFactory(LongColumnI, lambda: LongColumnI()),
-    StringColumnI: ObjectFactory(StringColumnI, lambda: StringColumnI())
+    StringColumnI: ObjectFactory(StringColumnI, lambda: StringColumnI()),
+    MaskColumnI: ObjectFactory(MaskColumnI, lambda: MaskColumnI())
     }
