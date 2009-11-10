@@ -480,12 +480,12 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	}
 
-	public void setDetectorAmplificationGain(Double arg0, int arg1, int arg2) {
+	public void setDetectorAmplificationGain(Float arg0, int arg1, int arg2) {
 		// Unused
 
 	}
 
-	public void setDetectorGain(Double arg0, int arg1, int arg2) {
+	public void setDetectorGain(Float arg0, int arg1, int arg2) {
 		// Unused
 
 	}
@@ -505,7 +505,7 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	}
 
-	public void setDetectorOffset(Double arg0, int arg1, int arg2) {
+	public void setDetectorOffset(Float arg0, int arg1, int arg2) {
 		// Unused
 
 	}
@@ -525,22 +525,22 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	}
 
-	public void setDetectorSettingsGain(Double arg0, int arg1, int arg2) {
+	public void setDetectorSettingsGain(Float arg0, int arg1, int arg2) {
 		// Unused
 
 	}
 
-	public void setDetectorSettingsOffset(Double arg0, int arg1, int arg2) {
+	public void setDetectorSettingsOffset(Float arg0, int arg1, int arg2) {
 		// Unused
 
 	}
 
-	public void setDetectorSettingsReadOutRate(Double arg0, int arg1, int arg2) {
+	public void setDetectorSettingsReadOutRate(Float arg0, int arg1, int arg2) {
 		// Unused
 
 	}
 
-	public void setDetectorSettingsVoltage(Double arg0, int arg1, int arg2) {
+	public void setDetectorSettingsVoltage(Float arg0, int arg1, int arg2) {
 		// Unused
 
 	}
@@ -550,12 +550,12 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	}
 
-	public void setDetectorVoltage(Double arg0, int arg1, int arg2) {
+	public void setDetectorVoltage(Float arg0, int arg1, int arg2) {
 		// Unused
 
 	}
 
-	public void setDetectorZoom(Double arg0, int arg1, int arg2) {
+	public void setDetectorZoom(Float arg0, int arg1, int arg2) {
 		// Unused
 
 	}
@@ -580,22 +580,22 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	}
 
-	public void setDimensionsPhysicalSizeX(Double arg0, int arg1, int arg2) {
+	public void setDimensionsPhysicalSizeX(Float arg0, int arg1, int arg2) {
 		// Unused
 
 	}
 
-	public void setDimensionsPhysicalSizeY(Double arg0, int arg1, int arg2) {
+	public void setDimensionsPhysicalSizeY(Float arg0, int arg1, int arg2) {
 		// Unused
 
 	}
 
-	public void setDimensionsPhysicalSizeZ(Double arg0, int arg1, int arg2) {
+	public void setDimensionsPhysicalSizeZ(Float arg0, int arg1, int arg2) {
 		// Unused
 
 	}
 
-	public void setDimensionsTimeIncrement(Double arg0, int arg1, int arg2) {
+	public void setDimensionsTimeIncrement(Float arg0, int arg1, int arg2) {
 		// Unused
 
 	}
@@ -620,7 +620,7 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	}
 
-	public void setDisplayOptionsZoom(Double arg0, int arg1) {
+	public void setDisplayOptionsZoom(Float arg0, int arg1) {
 		// Unused
 
 	}
@@ -880,22 +880,22 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	}
 
-	public void setImagingEnvironmentAirPressure(Double arg0, int arg1) {
+	public void setImagingEnvironmentAirPressure(Float arg0, int arg1) {
 		// Unused
 
 	}
 
-	public void setImagingEnvironmentCO2Percent(Double arg0, int arg1) {
+	public void setImagingEnvironmentCO2Percent(Float arg0, int arg1) {
 		// Unused
 
 	}
 
-	public void setImagingEnvironmentHumidity(Double arg0, int arg1) {
+	public void setImagingEnvironmentHumidity(Float arg0, int arg1) {
 		// Unused
 
 	}
 
-	public void setImagingEnvironmentTemperature(Double arg0, int arg1) {
+	public void setImagingEnvironmentTemperature(Float arg0, int arg1) {
 		// Unused
 
 	}
@@ -925,7 +925,7 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	}
 
-	public void setLaserRepetitionRate(Double arg0, int arg1, int arg2) {
+	public void setLaserRepetitionRate(Boolean arg0, int arg1, int arg2) {
 		// Unused
 
 	}
@@ -960,12 +960,12 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	}
 
-	public void setLightSourcePower(Double arg0, int arg1, int arg2) {
+	public void setLightSourcePower(Float arg0, int arg1, int arg2) {
 		// Unused
 
 	}
 
-	public void setLightSourceRefAttenuation(Double arg0, int arg1, int arg2,
+	public void setLightSourceRefAttenuation(Float arg0, int arg1, int arg2,
 			int arg3) {
 		// Unused
 
@@ -988,7 +988,7 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	}
 
-	public void setLightSourceSettingsAttenuation(Double arg0, int arg1,
+	public void setLightSourceSettingsAttenuation(Float arg0, int arg1,
 			int arg2) {
 		// Unused
 
@@ -1092,7 +1092,7 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	}
 
-	public void setLogicalChannelNdFilter(Double arg0, int arg1, int arg2) {
+	public void setLogicalChannelNdFilter(Float arg0, int arg1, int arg2) {
 		// Unused
 
 	}
@@ -1108,7 +1108,7 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	}
 
-	public void setLogicalChannelPinholeSize(Double arg0, int arg1, int arg2) {
+	public void setLogicalChannelPinholeSize(Float arg0, int arg1, int arg2) {
 		// Unused
 
 	}
@@ -1218,7 +1218,7 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	}
 
-	public void setObjectiveCalibratedMagnification(Double arg0, int arg1,
+	public void setObjectiveCalibratedMagnification(Float arg0, int arg1,
 			int arg2) {
 		// Unused
 
@@ -1244,7 +1244,7 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	}
 
-	public void setObjectiveLensNA(Double arg0, int arg1, int arg2) {
+	public void setObjectiveLensNA(Float arg0, int arg1, int arg2) {
 		// Unused
 
 	}
@@ -1270,7 +1270,7 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	}
 
-	public void setObjectiveSettingsCorrectionCollar(Double arg0, int arg1) {
+	public void setObjectiveSettingsCorrectionCollar(Float arg0, int arg1) {
 		// Unused
 
 	}
@@ -1285,12 +1285,12 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	}
 
-	public void setObjectiveSettingsRefractiveIndex(Double arg0, int arg1) {
+	public void setObjectiveSettingsRefractiveIndex(Float arg0, int arg1) {
 		// Unused
 
 	}
 
-	public void setObjectiveWorkingDistance(Double arg0, int arg1, int arg2) {
+	public void setObjectiveWorkingDistance(Float arg0, int arg1, int arg2) {
 		// Unused
 
 	}
@@ -1375,12 +1375,12 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	}
 
-	public void setPlaneTimingDeltaT(Double arg0, int arg1, int arg2, int arg3) {
+	public void setPlaneTimingDeltaT(Float arg0, int arg1, int arg2, int arg3) {
 		// Unused
 
 	}
 
-	public void setPlaneTimingExposureTime(Double arg0, int arg1, int arg2,
+	public void setPlaneTimingExposureTime(Float arg0, int arg1, int arg2,
 			int arg3) {
 		// Unused
 
@@ -1845,7 +1845,7 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	}
 
-	public void setShapeStrokeOpacity(Double arg0, int arg1, int arg2, int arg3) {
+	public void setShapeStrokeOpacity(Float arg0, int arg1, int arg2, int arg3) {
 		// Unused
 
 	}
@@ -1910,34 +1910,34 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	}
 
-	public void setStageLabelX(Double arg0, int arg1) {
+	public void setStageLabelX(Float arg0, int arg1) {
 		// Unused
 
 	}
 
-	public void setStageLabelY(Double arg0, int arg1) {
+	public void setStageLabelY(Float arg0, int arg1) {
 		// Unused
 
 	}
 
-	public void setStageLabelZ(Double arg0, int arg1) {
+	public void setStageLabelZ(Float arg0, int arg1) {
 		// Unused
 
 	}
 
-	public void setStagePositionPositionX(Double arg0, int arg1, int arg2,
+	public void setStagePositionPositionX(Float arg0, int arg1, int arg2,
 			int arg3) {
 		// Unused
 
 	}
 
-	public void setStagePositionPositionY(Double arg0, int arg1, int arg2,
+	public void setStagePositionPositionY(Float arg0, int arg1, int arg2,
 			int arg3) {
 		// Unused
 
 	}
 
-	public void setStagePositionPositionZ(Double arg0, int arg1, int arg2,
+	public void setStagePositionPositionZ(Float arg0, int arg1, int arg2,
 			int arg3) {
 		// Unused
 
@@ -2071,12 +2071,12 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	}
 
-	public void setWellSamplePosX(Double arg0, int arg1, int arg2, int arg3) {
+	public void setWellSamplePosX(Float arg0, int arg1, int arg2, int arg3) {
 		// Unused
 
 	}
 
-	public void setWellSamplePosY(Double arg0, int arg1, int arg2, int arg3) {
+	public void setWellSamplePosY(Float arg0, int arg1, int arg2, int arg3) {
 		// Unused
 
 	}
