@@ -628,7 +628,14 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         self.resources.add(process)
         client.download(file, str(process.script_path))
         self.logger.info("Downloaded file: %s" % file.id.val)
-        process.activate()
+        s = client.sha1(str(process.script_path))
+        if not s == file.sha1.val:
+            msg = "Sha1s don't match! expected %s, found %s" % (file.sha1.val, s)
+            self.logger.error(msg)
+            process.cleanup()
+            raise omero.InternalException(None, None, msg)
+        else:
+            process.activate()
 
         prx = current.adapter.addWithUUID(process)
         return omero.grid.ProcessPrx.uncheckedCast(prx)
