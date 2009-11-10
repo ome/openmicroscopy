@@ -209,7 +209,7 @@ WindowStateListener, WindowFocusListener
         login.addActionListener(this);        
         fileMenu.add(login);
         
-        //if (gui.getIsMac())
+        if (gui.getIsMac())
         {
             options = new JMenuItem("Options...", gui.getImageIcon(CONFIG_ICON));
             options.setActionCommand("options");

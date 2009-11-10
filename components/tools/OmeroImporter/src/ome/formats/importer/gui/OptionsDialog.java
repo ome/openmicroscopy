@@ -224,7 +224,6 @@ public class OptionsDialog extends JDialog implements ActionListener
         group.add(singlePaneBtn);
         group.add(triplePaneBtn);
         
-        log.debug("Using Quaqua?" + gui.config.getUseQuaqua());
         if (gui.config.getUseQuaqua() == true)
         {
             triplePaneBtn.setSelected(true);
@@ -241,7 +240,7 @@ public class OptionsDialog extends JDialog implements ActionListener
         if (gui.getIsMac())
             tabbedPane.addTab("FileChooser Settings", null, fileChooserPanel, "FileChooser Settings");
         
-        tabbedPane.addTab("Debug Settings", null, debugOptionsPanel, "Debug Settings");
+        //tabbedPane.addTab("Debug Settings", null, debugOptionsPanel, "Debug Settings");
         //this.add(mainPanel);
         
         this.add(mainPanel);
