@@ -59,13 +59,13 @@ public class PolylineData
 	private static final String NUMREGEX = "\\[.*\\]";
 
 	/** The points in the polyline as list. */
-	private List<Point2D> points;
+	private List<Point2D.Double> points;
 
 	/** The points in the polyline as list. */
-	private List<Point2D> points1;
+	private List<Point2D.Double> points1;
 
 	/** The points in the polyline as list. */
-	private List<Point2D> points2;
+	private List<Point2D.Double> points2;
 	
 	/** The points in the polyline as list. */
 	private List<Integer> mask;
@@ -86,16 +86,16 @@ public class PolylineData
 	 */
 	public PolylineData()
 	{
-		this(new ArrayList<Point2D>(),new ArrayList<Point2D>(),
-				new ArrayList<Point2D>(), new ArrayList<Integer>());
+		this(new ArrayList<Point2D.Double>(),new ArrayList<Point2D.Double>(),
+				new ArrayList<Point2D.Double>(), new ArrayList<Integer>());
 	}
 	
 	/**
 	 * Create a new instance of the PolylineData, set the points in the polyline.
 	 * @param points See Above.
 	 */
-	public PolylineData(List<Point2D> points, List<Point2D> points1, 
-			List<Point2D> points2, List<Integer> maskList)
+	public PolylineData(List<Point2D.Double> points, List<Point2D.Double> points1, 
+			List<Point2D.Double> points2, List<Integer> maskList)
 	{
 		super(new PolylineI(), true);
 		setPoints(points, points1, points2, maskList);
@@ -134,7 +134,7 @@ public class PolylineData
 	 * 
 	 * @return See above.
 	 */
-	public List<Point2D> getPoints()
+	public List<Point2D.Double> getPoints()
 	{
 		String pts =  fromPoints("points");
 		return parsePointsToPoint2DList(pts);
@@ -145,7 +145,7 @@ public class PolylineData
 	 * 
 	 * @return See above.
 	 */
-	public List<Point2D> getPoints1()
+	public List<Point2D.Double> getPoints1()
 	{
 		String pts =  fromPoints("points1");
 		return parsePointsToPoint2DList(pts);
@@ -156,7 +156,7 @@ public class PolylineData
 	 * 
 	 * @return See above.
 	 */
-	public List<Point2D> getPoints2()
+	public List<Point2D.Double> getPoints2()
 	{
 		String pts = fromPoints("points2");
 		return parsePointsToPoint2DList(pts);
@@ -178,8 +178,8 @@ public class PolylineData
 	 * 
 	 * @param points See above.
 	 */
-	public void setPoints(List<Point2D> points, List<Point2D> points1, 
-			List<Point2D> points2, List<Integer> maskList)
+	public void setPoints(List<Point2D.Double> points, List<Point2D.Double> points1, 
+			List<Point2D.Double> points2, List<Integer> maskList)
 	{
 		if(isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
@@ -222,13 +222,11 @@ public class PolylineData
 		String pts = shape.getPoints().getValue();
 		if (pts.length() == 0)
 			return "";
-		String exp = type+NUMREGEX;
-		String[] match = pts.split(exp);
-		if (match.length != 1)
-			return "";
-		String list = match[0].substring(match[0].indexOf("["),
-								match[0].indexOf("["));
-		return list;
+		String exp = type+'[';
+		int typeStr = pts.indexOf(exp,0);
+		int start = pts.indexOf('[',typeStr);
+		int end = pts.indexOf(']',start);
+		return pts.substring(start+1,end);
 	}
 	
 	
@@ -236,11 +234,11 @@ public class PolylineData
 	* Parse the points list from the string to a list of point2d objects.
 	* @param str the string to convert to points.
 	*/
-	private List<Point2D> parsePointsToPoint2DList(String str)
+	private List<Point2D.Double> parsePointsToPoint2DList(String str)
 	{
-		List<Point2D> points = new ArrayList<Point2D>();
+		List<Point2D.Double> points = new ArrayList<Point2D.Double>();
 	
-		StringTokenizer tt=new StringTokenizer(str, " ,");
+		StringTokenizer tt=new StringTokenizer(str, ",");
 		int numTokens = tt.countTokens()/2;
 		for (int i=0; i< numTokens; i++)
 			points.add(
@@ -257,8 +255,10 @@ public class PolylineData
 	{
 		List<Integer> points = new ArrayList<Integer>();
 	
-		StringTokenizer tt=new StringTokenizer(str, " ,");
-		points.add(new Integer(tt.nextToken()));
+		StringTokenizer tt=new StringTokenizer(str, ",");
+		int numTokens = tt.countTokens();
+		for (int i=0; i< numTokens; i++)
+			points.add(new Integer(tt.nextToken()));
 		return points;
 	}
 	

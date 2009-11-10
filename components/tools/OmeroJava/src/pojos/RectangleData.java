@@ -210,7 +210,7 @@ public class RectangleData
 	public double getHeight()
 	{
 		Rect shape = (Rect) asIObject();
-		RDouble value = shape.getWidth();
+		RDouble value = shape.getHeight();
 		if (value == null) return 0;
 		return value.getValue();
 	}

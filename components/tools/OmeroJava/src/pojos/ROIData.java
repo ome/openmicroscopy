@@ -34,10 +34,16 @@ import java.util.Map;
 //Application-internal dependencies
 import omero.model.Ellipse;
 import omero.model.Image;
+import omero.model.Line;
+import omero.model.Mask;
+import omero.model.Point;
+import omero.model.Polygon;
+import omero.model.Polyline;
 import omero.model.Rect;
 import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.Shape;
+import omero.model.Text;
 
 /**
  * Converts the ROI object.
@@ -82,6 +88,20 @@ public class ROIData
 				s = new RectangleData(shape);
 			else if (shape instanceof Ellipse)
 				s = new EllipseData(shape);
+			else if (shape instanceof Point)
+				s = new PointData(shape);
+			else if (shape instanceof Polyline)
+				s = new PolylineData(shape);
+			else if (shape instanceof Polygon)
+				s = new PolygonData(shape);
+			else if (shape instanceof Text)
+				s = new TextData(shape);
+			else if (shape instanceof Text)
+				s = new TextData(shape);
+			else if (shape instanceof Line)
+				s = new LineData(shape);
+			else if (shape instanceof Mask)
+				s = new MaskData(shape);
 			if (s != null) {
 				coord = new ROICoordinate(s.getZ(), s.getT());
 				if (!roiShapes.containsKey(coord)) {
