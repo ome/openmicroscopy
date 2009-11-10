@@ -736,6 +736,7 @@ class MeasurementViewerComponent
 			reg.getLogger().error(this, "Cannot save the ROI "+e.getMessage());
 			un.notifyInfo("Save ROI", "Cannot save ROI " +
 										"for "+model.getImageID());
+			e.printStackTrace();
 		}
 		un.notifyInfo("Save ROI", "The Regions of Interests have been " +
 									"successfully saved. ");
@@ -934,6 +935,7 @@ class MeasurementViewerComponent
 			reg.getLogger().error(this, "Cannot save the ROI "+e.getMessage());
 			un.notifyInfo("Save ROI", "Cannot save ROI " +
 										"for "+model.getImageID());
+			e.printStackTrace();
 		}
 		model.fireLoadROIServerOrClient();
 	}

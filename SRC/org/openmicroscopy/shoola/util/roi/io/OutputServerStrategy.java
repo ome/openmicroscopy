@@ -153,8 +153,6 @@ public class OutputServerStrategy
 		{
 			ROIShape roiShape = shapeIterator.next();
 			ShapeData shape = createShapeData(roiShape);
-			if(!roi.isClientSide())
-				shape.setId(roiShape.getROIShapeID());
 			addShapeAttributes(roiShape.getFigure(), shape);
 			roiData.addShapeData(shape);
 		}
@@ -222,7 +220,7 @@ public class OutputServerStrategy
 		
 		EllipseData ellipse = new EllipseData(cx, cy, rx, ry); 
 		if(!fig.isClientObject())
-			ellipse.setId(shape.getID());
+			ellipse.setId(shape.getROIShapeID());
 		ellipse.setDirty(fig.isDirty());
 		ellipse.setT(shape.getT());
 		ellipse.setZ(shape.getZ());
@@ -260,8 +258,6 @@ public class OutputServerStrategy
 		double cy=fig.getCentre().getY();
 		
 		PointData point = new PointData(cx, cy); 
-		if(!fig.isClientObject())
-			point.setId(shape.getID());
 		point.setDirty(fig.isDirty());
 		point.setT(shape.getT());
 		point.setZ(shape.getZ());
@@ -269,6 +265,8 @@ public class OutputServerStrategy
 		AffineTransform t=TRANSFORM.get(fig);
 		if(t!=null)
 			point.setTransform(toTransform(t));
+		if(!fig.isClientObject())
+			point.setId(shape.getROIShapeID());
 		return point;
 	}
 	
@@ -287,14 +285,14 @@ public class OutputServerStrategy
 		double y=fig.getY();
 		
 		TextData text = new TextData(fig.getText(),x, y); 
-		if(!fig.isClientObject())
-			text.setId(shape.getID());
 		text.setDirty(fig.isDirty());
 		text.setT(shape.getT());
 		text.setZ(shape.getZ());
 		AffineTransform t=TRANSFORM.get(fig);
 		if(t!=null)
 			text.setTransform(toTransform(t));
+		if(!fig.isClientObject())
+			text.setId(shape.getROIShapeID());
 		return text;
 	}
 	
@@ -315,8 +313,6 @@ public class OutputServerStrategy
 		double height = fig.getHeight();
 		
 		RectangleData rectangle = new RectangleData(x, y, width, height); 
-		if(!fig.isClientObject())
-			rectangle.setId(shape.getID());
 		rectangle.setDirty(fig.isDirty());
 		rectangle.setT(shape.getT());
 		rectangle.setZ(shape.getZ());
@@ -325,6 +321,8 @@ public class OutputServerStrategy
 		AffineTransform t=TRANSFORM.get(fig);
 		if(t!=null)
 			rectangle.setTransform(toTransform(t));
+		if(!fig.isClientObject())
+			rectangle.setId(shape.getROIShapeID());
 		return rectangle;
 	}
 	
@@ -340,9 +338,9 @@ public class OutputServerStrategy
 	{
 		MeasureBezierFigure fig = (MeasureBezierFigure)shape.getFigure();
 		AffineTransform t=TRANSFORM.get(fig);
-		List<Point2D> points=new LinkedList<Point2D>();
-		List<Point2D> points1=new LinkedList<Point2D>();
-		List<Point2D> points2=new LinkedList<Point2D>();
+		List<Point2D.Double> points=new LinkedList<Point2D.Double>();
+		List<Point2D.Double> points1=new LinkedList<Point2D.Double>();
+		List<Point2D.Double> points2=new LinkedList<Point2D.Double>();
 		List<Integer> maskList=new LinkedList<Integer>();
 		
 		BezierPath bezier=fig.getBezierPath();
@@ -360,6 +358,8 @@ public class OutputServerStrategy
 		if(t!=null)
 			poly.setTransform(toTransform(t));
 		poly.setText(fig.getText());
+		if(!fig.isClientObject())
+			poly.setId(shape.getROIShapeID());
 		return poly;	
 	}
 	
@@ -375,9 +375,9 @@ public class OutputServerStrategy
 	{
 		MeasureLineFigure fig = (MeasureLineFigure)shape.getFigure();
 		AffineTransform t=TRANSFORM.get(fig);
-		List<Point2D> points=new LinkedList<Point2D>();
-		List<Point2D> points1=new LinkedList<Point2D>();
-		List<Point2D> points2=new LinkedList<Point2D>();
+		List<Point2D.Double> points=new LinkedList<Point2D.Double>();
+		List<Point2D.Double> points1=new LinkedList<Point2D.Double>();
+		List<Point2D.Double> points2=new LinkedList<Point2D.Double>();
 		List<Integer> maskList=new LinkedList<Integer>();
 		
 		BezierPath bezier=fig.getBezierPath();
@@ -395,6 +395,8 @@ public class OutputServerStrategy
 		if(t!=null)
 			line.setTransform(toTransform(t));
 		line.setText(fig.getText());
+		if(!fig.isClientObject())
+			line.setId(shape.getROIShapeID());
 		return line;
 	}
 	
@@ -410,9 +412,9 @@ public class OutputServerStrategy
 	{
 		MeasureBezierFigure fig = (MeasureBezierFigure)shape.getFigure();
 		AffineTransform t=TRANSFORM.get(fig);
-		List<Point2D> points=new LinkedList<Point2D>();
-		List<Point2D> points1=new LinkedList<Point2D>();
-		List<Point2D> points2=new LinkedList<Point2D>();
+		List<Point2D.Double> points=new LinkedList<Point2D.Double>();
+		List<Point2D.Double> points1=new LinkedList<Point2D.Double>();
+		List<Point2D.Double> points2=new LinkedList<Point2D.Double>();
 		List<Integer> maskList=new LinkedList<Integer>();
 		
 		BezierPath bezier=fig.getBezierPath();
@@ -430,6 +432,9 @@ public class OutputServerStrategy
 		if(t!=null)
 			poly.setTransform(toTransform(t));
 		poly.setText(fig.getText());
+		poly.setText(fig.getText());
+		if(!fig.isClientObject())
+			poly.setId(shape.getROIShapeID());
 		return poly;	
 	}
 	

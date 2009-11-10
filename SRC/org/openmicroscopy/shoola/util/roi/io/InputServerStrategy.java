@@ -51,11 +51,13 @@ import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.geom.BezierPath.Node;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
+import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureMaskFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureRectangleFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.io.util.SVGTransform;
@@ -65,6 +67,7 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import pojos.EllipseData;
 import pojos.LineData;
+import pojos.PointData;
 import pojos.ROIData;
 import pojos.RectangleData;
 import pojos.ShapeData;
@@ -232,6 +235,8 @@ class InputServerStrategy
 			return createEllipseFigure((EllipseData) shape);
 		} else if (shape instanceof LineData) {
 			return createLineFigure((LineData) shape);			
+		} else if (shape instanceof PointData) {
+			return createPointFigure((PointData) shape);	
 		} else if (shape instanceof PolylineData) {
 			return createPolylineFigure((PolylineData) shape);			
 		} else if (shape instanceof PolygonData) {
@@ -276,6 +281,35 @@ class InputServerStrategy
 		
 		return fig;
 	}
+	
+	/**
+	 * Transforms the passed ellipse into its UI corresponding object.
+	 * 
+	 * @param data The ellipse to transform.
+	 * @return See above.
+	 */
+	private MeasurePointFigure createPointFigure(PointData data)
+	{
+		double r = 5;
+		double x = data.getX()-r;
+		double y = data.getY()-r;
+		
+		MeasurePointFigure fig = new MeasurePointFigure(data.getText(), x, y, 
+				2*r, 2*r, data.isReadOnly(), data.isClientObject());
+
+		addShapeSettings(fig, data.getShapeSettings());
+		AffineTransform transform;
+		try {
+			transform = SVGTransform.toTransform(data.getTransform());
+			TRANSFORM.set(fig, transform);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			// e.printStackTrace();
+		}
+		
+		return fig;
+	}
+	
 	
 	/**
 	 * Transforms the passed rectangle into its UI corresponding object.
@@ -383,13 +417,19 @@ class InputServerStrategy
 	private MeasureBezierFigure createPolygonFigure(PolygonData data)
 	{
 		
-		MeasureBezierFigure fig = new MeasureBezierFigure(true, data.isReadOnly(),
+		MeasureBezierFigure fig = new MeasureBezierFigure(false, data.isReadOnly(),
 				data.isClientObject());
-		List<Point2D> points = data.getPoints();
-		for(Point2D point : points)
-			fig.addNode(new Node(point.getX(), point.getY()));
-
-	
+		List<Point2D.Double> points = data.getPoints();
+		List<Point2D.Double> points1 = data.getPoints1();
+		List<Point2D.Double> points2 = data.getPoints2();
+		List<Integer> mask = data.getMaskPoints();
+		for (int i=0; i<points.size(); i++)
+		{
+			Node newNode = new Node(mask.get(i), points.get(i), points1.get(i), 
+					points2.get(i));
+			fig.addNode(newNode);
+		}
+		
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
 		AffineTransform transform;
@@ -400,7 +440,7 @@ class InputServerStrategy
 			// TODO Auto-generated catch block
 			// e.printStackTrace();
 		}
-		fig.setClosed(true);
+		fig.setClosed(true);		
 		return fig;
 	}
 	
@@ -415,11 +455,16 @@ class InputServerStrategy
 		
 		MeasureBezierFigure fig = new MeasureBezierFigure(false, data.isReadOnly(),
 				data.isClientObject());
-		List<Point2D> points = data.getPoints();
-		for(Point2D point : points)
-			fig.addNode(new Node(point.getX(), point.getY()));
-
-	
+		List<Point2D.Double> points = data.getPoints();
+		List<Point2D.Double> points1 = data.getPoints1();
+		List<Point2D.Double> points2 = data.getPoints2();
+		List<Integer> mask = data.getMaskPoints();
+		for (int i=0; i<points.size(); i++)
+		{
+			Node newNode = new Node(mask.get(i), points.get(i), points1.get(i), points2.get(i));
+			fig.addNode(newNode);
+		}
+		
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
 		AffineTransform transform;

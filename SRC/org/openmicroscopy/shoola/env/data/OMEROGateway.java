@@ -5039,6 +5039,7 @@ class OMEROGateway
 			return roiList;
 		} catch (Exception e) {
 			handleException(e, "Cannot Save the ROI for image: "+imageID);
+			e.printStackTrace();
 		}
 		return new ArrayList<ROIData>();
 	}
