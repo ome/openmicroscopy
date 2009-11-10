@@ -185,6 +185,8 @@
             <attribute name="failonerror" default="true"/>
             <element name="args" implicit="yes"/>
             <sequential>
+                <property name="env.ARCH" value="detect"/>
+                <property name="env.RELEASE" value="debug"/>
                 <echo>Building with ICE_HOME=${ice.home}</echo>
                 <exec executable="python" dir="@{dir}" failonerror="@{failonerror}">
                     <env key="ICE_HOME" value="${ice.home}"/>
@@ -192,6 +194,8 @@
                     <arg value="-Q"/>
                     <arg value="-j"/>
                     <arg value="${env.J}"/>
+                    <arg value="--arch=${env.ARCH}"/>
+                    <arg value="--release=${env.RELEASE}"/>
                     <args/>
                 </exec>
             </sequential>
