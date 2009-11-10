@@ -14,6 +14,30 @@ import loci.formats.meta.MetadataStore;
 
 public class TestReader implements IFormatReader {
 
+	
+	/** The reader's domains. */
+	private String[] domains;
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param graphicsDomain Pass <code>true</code> to add the graphics domain,
+	 * 						 <code>false</code> otherwise.
+	 */
+	public TestReader(boolean graphicsDomain)
+	{
+		if (graphicsDomain) 
+			domains = new String[] { FormatTools.LM_DOMAIN, 
+				FormatTools.GRAPHICS_DOMAIN };
+		else domains = new String[] { FormatTools.LM_DOMAIN };
+	}
+	
+	/** Creates a default instance. */
+	public TestReader()
+	{
+		this(false);
+	}
+	
 	public void close(boolean arg0) throws IOException {
 		// TODO Auto-generated method stub
 
@@ -70,7 +94,7 @@ public class TestReader implements IFormatReader {
 	}
 
 	public String[] getDomains() {
-		return new String[] { FormatTools.LM_DOMAIN };
+		return domains;
 	}
 
 	public int getEffectiveSizeC() {

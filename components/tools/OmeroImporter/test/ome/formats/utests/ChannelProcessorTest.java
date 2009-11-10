@@ -122,7 +122,7 @@ public class ChannelProcessorTest extends TestCase
 		store.setLogicalChannelSecondaryExcitationFilter(
 				"Filter:5", IMAGE_INDEX, LOGICAL_CHANNEL_INDEX + 1);
 	}
-	
+
 	public void testBaseDataChannelOne()
 	{
 		ChannelProcessor processor = new ChannelProcessor();
@@ -142,6 +142,8 @@ public class ChannelProcessorTest extends TestCase
 		assertNull(data.getLogicalChannel().getName());
 	}
 	
+	
+	
 	public void testBaseDataChannelTwo()
 	{
 		ChannelProcessor processor = new ChannelProcessor();
@@ -159,6 +161,27 @@ public class ChannelProcessorTest extends TestCase
 		assertEquals(255, data.getChannel().getAlpha().getValue());
 		assertNotNull(data.getLogicalChannel());
 		assertNull(data.getLogicalChannel().getName());
+	}
+	
+	public void testGraphicsDomain()
+	{
+		ChannelProcessor processor = new ChannelProcessor();
+		store.setReader(new TestReader(true));
+		processor.process(store);
+		ChannelData data = ChannelData.fromObjectContainerStore(
+				store, IMAGE_INDEX, LOGICAL_CHANNEL_INDEX);
+		assertNotNull(data.getChannel());
+		assertNotNull(data.getChannel().getRed());
+		assertEquals(255, data.getChannel().getRed().getValue());
+		assertNotNull(data.getChannel().getGreen());
+		assertEquals(0, data.getChannel().getGreen().getValue());
+		assertNotNull(data.getChannel().getBlue());
+		assertEquals(0, data.getChannel().getBlue().getValue());
+		assertNotNull(data.getChannel().getAlpha());
+		assertEquals(255, data.getChannel().getAlpha().getValue());
+		assertNotNull(data.getLogicalChannel().getName());
+		assertEquals(ChannelProcessor.RED_TEXT, 
+				data.getLogicalChannel().getName().getValue());
 	}
 	
 	public void testLogicalChannelGreenEmissionWavelength()
