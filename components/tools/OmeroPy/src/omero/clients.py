@@ -443,8 +443,8 @@ class BaseClient(object):
                             try:
                                 sf.keepAlive(None)
                             except exceptions.Exception, e:
-                                if ic != None:
-                                    self.__logger.warning("Proxy keep alive failed.")
+                                self.c._BaseClient__logger.warning("Proxy keep alive failed.")
+                                return False
                         return True
                 self.__resources.add(Entry(self))
         finally:
