@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -36,6 +34,7 @@ import javax.swing.event.ChangeListener;
 
 
 //Third-party libraries
+import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 

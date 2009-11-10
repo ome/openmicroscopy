@@ -143,6 +143,9 @@ class EditorControl
 	/** Action ID to create a figure with split view of images. */
 	static final int	SPLIT_VIEW_FIGURE = 12;
 	
+	/** Action ID to create a figure with split view of images. */
+	static final int	SPLIT_VIEW_ROI_FIGURE = 13;
+	
     /** Reference to the Model. */
     private Editor		model;
     
@@ -504,6 +507,10 @@ class EditorControl
 				break;
 			case SPLIT_VIEW_FIGURE:
 				model.createFigure(FigureDialog.SPLIT);
+				break;
+			case SPLIT_VIEW_ROI_FIGURE:
+				model.createFigure(FigureDialog.SPLIT_ROI);
+				break;
 		}
 	}
 	

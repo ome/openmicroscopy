@@ -590,31 +590,25 @@ class EditorComponent
 	 */
 	public void loadRenderingControl(int index)
 	{
-		Object ref = model.getPrimarySelect();
-		if (ref instanceof WellSampleData) {
-			WellSampleData wsd = (WellSampleData) ref;
-			ref = wsd.getImage();
+		ImageData image = model.getImage();
+		if (image == null) return;
+		PixelsData pixels = image.getDefaultPixels();
+		if  (pixels == null) {
+			UserNotifier un = 
+				MetadataViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Renderer", "The selected image is not valid.");
+			return;
 		}
-		if (ref instanceof ImageData) {
-			ImageData image = (ImageData) ref;
-			PixelsData pixels = image.getDefaultPixels();
-			if  (pixels == null) {
-				UserNotifier un = 
-					MetadataViewerAgent.getRegistry().getUserNotifier();
-				un.notifyInfo("Renderer", "The selected image is not valid.");
-				return;
-			}
-			int value;
-			switch (index) {
-				case RenderingControlLoader.LOAD:
-				case RenderingControlLoader.RELOAD:
-					value = index;
-					break;
-				default:
-					value = index;
-			}
-			model.fireRenderingControlLoading(pixels.getId(), value);
-		} 
+		int value;
+		switch (index) {
+			case RenderingControlLoader.LOAD:
+			case RenderingControlLoader.RELOAD:
+				value = index;
+				break;
+			default:
+				value = index;
+		}
+		model.fireRenderingControlLoading(pixels.getId(), value); 
 	}
 	
 	/** 
@@ -738,9 +732,48 @@ class EditorComponent
 	{
 		if (controller.getFigureDialog() == null) {
 			String name = model.getRefObjectName();
+			switch (index) {
+				case FigureDialog.SPLIT:
+					int maxZ = model.getMaxZ();
+					FigureDialog dialog = controller.createFigureDialog(name, 
+							maxZ);
+					dialog.setIndex(index);
+					if (!model.isRendererLoaded()) {
+						loadRenderingControl(RenderingControlLoader.LOAD);
+					} else {
+						dialog.setRenderer(model.getRenderer());
+					}
+					dialog.centerDialog();
+					break;
+				case FigureDialog.SPLIT_ROI:
+					model.fireROILoading();
+					break;
+			}
+		}
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#setROI(Collection, long)
+	 */
+	public void setROI(Collection rois, long imageID)
+	{
+		ImageData img = model.getImage();
+		if (img == null || img.getId() != imageID) return;  
+		if (rois == null || rois.size() == 0) {
+			UserNotifier un = 
+				MetadataViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("ROI Figure", "The primary select does not have " +
+					"Region of Interests.");
+			return;
+		}
+		if (controller.getFigureDialog() == null) {
+			String name = model.getRefObjectName();
 			int maxZ = model.getMaxZ();
-			FigureDialog dialog = controller.createFigureDialog(name, maxZ);
-			dialog.setIndex(index);
+			FigureDialog dialog = controller.createFigureDialog(name, 
+					maxZ);
+			dialog.setROIs(rois);
+			dialog.setIndex(FigureDialog.SPLIT_ROI);
 			if (!model.isRendererLoaded()) {
 				loadRenderingControl(RenderingControlLoader.LOAD);
 			} else {

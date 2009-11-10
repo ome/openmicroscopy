@@ -2094,7 +2094,6 @@ class ImViewerModel
 	{
 		if (metadataViewer == null) return;
 		metadataViewer.activityOptions(source, location);
-		
 	}
 
     /**

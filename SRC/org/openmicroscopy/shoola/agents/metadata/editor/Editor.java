@@ -385,4 +385,12 @@ public interface Editor
 	 */
 	public void createFigure(int index);
 	
+	/**
+	 * Sets the ROI associated to the specified image. 
+	 * 
+	 * @param roi The collection of ROI.
+	 * @param imageID The id of the image.
+	 */
+	public void setROI(Collection roi, long imageID);
+	
 }

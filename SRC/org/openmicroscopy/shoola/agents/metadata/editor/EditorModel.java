@@ -58,6 +58,7 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.OriginalFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.PasswordEditor;
 import org.openmicroscopy.shoola.agents.metadata.PlaneInfoLoader;
+import org.openmicroscopy.shoola.agents.metadata.ROILoader;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.metadata.TagsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ThumbnailLoader;
@@ -2026,16 +2027,38 @@ class EditorModel
 	 */
 	int getMaxZ()
 	{
+		ImageData img = getImage();
+		if (img == null) return -1;
+		PixelsData pixs = img.getDefaultPixels();
+		if (pixs == null) return -1;
+		return pixs.getSizeZ();
+	}
+	
+	/**
+	 * Returns the image or <code>null</code> if the primary select
+	 * node is an image or a well.
+	 * 
+	 * @return See above.
+	 */
+	ImageData getImage()
+	{
 		Object object = getPrimarySelect();
 		ImageData img = null;
 		if (object instanceof WellSampleData)
 			img = ((WellSampleData) object).getImage();
 		if (object instanceof ImageData)
 			img = (ImageData) object;
-		if (img == null) return -1;
-		PixelsData pixs = img.getDefaultPixels();
-		if (pixs == null) return -1;
-		return pixs.getSizeZ();
+		return img;
+	}
+	
+	/** Loads the ROI for the selected image. */
+	void fireROILoading()
+	{
+		ImageData img = getImage();
+		if (img == null) return;
+		long userID = MetadataViewerAgent.getUserDetails().getId();
+		ROILoader loader = new ROILoader(component, img.getId(), userID);
+		loader.load();
 	}
 	
 }

@@ -31,6 +31,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -40,12 +41,14 @@ import java.awt.image.DataBuffer;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -55,9 +58,11 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
@@ -73,23 +78,35 @@ import javax.swing.text.Document;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
+import org.jdesktop.swingx.JXBusyLabel;
+import org.jdesktop.swingx.JXTaskPane;
+import org.jhotdraw.draw.DelegationSelectionTool;
+import org.jhotdraw.draw.Drawing;
+import org.jhotdraw.draw.DrawingView;
+import org.jhotdraw.draw.Figure;
+import org.jhotdraw.draw.FigureSelectionEvent;
+import org.jhotdraw.draw.FigureSelectionListener;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
-
-import org.jdesktop.swingx.JXBusyLabel;
-import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.SplitViewFigureParam;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.roi.ROIComponent;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.ShapeList;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.ColorListRenderer;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.drawingtools.DrawingComponent;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import pojos.ChannelData;
 
@@ -141,9 +158,6 @@ public class FigureDialog
 	/** Default text describing the compression check box.  */
     private static final String		PROJECTION_DESCRIPTION = 
     				"Select the type of projection.";
-    
-    /** The size of the channel button. */
-    private static final Dimension	BUTTON_SIZE = new Dimension(22, 22);
     
     /** The possible options for row names. */
     private static final String[]	ROW_NAMES;
@@ -238,6 +252,20 @@ public class FigureDialog
 	
 	/** The components hosting the channel components. */
 	private JXTaskPane						channelsPane;
+
+	/** The component hosting the canvas. */
+	private JLayeredPane					pane;
+	
+	/** Component hosting the ROI. */
+	private ROIComponent					roiComponent;
+
+	/** 
+	 * The drawing component to create drawing, view and editor and link them.
+	 */
+	private DrawingComponent 				drawingComponent;
+	
+	/** The size of the thumbnail. */
+	private Dimension						size;
 	
 	/**
 	 * Sets the channel selection.
@@ -287,11 +315,8 @@ public class FigureDialog
 	 */
 	private BufferedImage scaleImage(BufferedImage image)
 	{
-		Dimension d = Factory.computeThumbnailSize(
-				thumbnailWidth, thumbnailHeight, 
-        		renderer.getPixelsSizeX(), renderer.getPixelsSizeY());
-		return Factory.scaleBufferedImage(image, d.width, 
-				d.height);
+		return Factory.scaleBufferedImage(image, size.width, 
+				size.height);
 	}
 	
 	/**
@@ -335,9 +360,12 @@ public class FigureDialog
 				pDef));
 	}
 	
-	/** Initializes the channels components. */
-	private void initChannelComponents()
+	/** Initializes the components. */
+	private void initialize()
 	{
+		size = Factory.computeThumbnailSize(thumbnailWidth, thumbnailHeight, 
+        		renderer.getPixelsDimensionsX(), 
+        		renderer.getPixelsDimensionsY());
 		pDef = new PlaneDef();
 		pDef.t = renderer.getDefaultT();
 		pDef.z = renderer.getDefaultZ();
@@ -352,13 +380,88 @@ public class FigureDialog
 		
 		widthField.getDocument().addDocumentListener(this);
 		heightField.getDocument().addDocumentListener(this);
-		
 		mergeCanvas = new FigureCanvas();
 		mergeImage = getMergedImage();
 		mergeCanvas.setPreferredSize(new Dimension(thumbnailWidth, 
 				thumbnailHeight));
 		mergeCanvas.setImage(mergeImage);
+	}
+	
+	private double getMagnificationFactor()
+	{
+		int maxY = renderer.getPixelsDimensionsY();
+		int maxX = renderer.getPixelsDimensionsX();
+		if (maxX > thumbnailWidth || maxY >thumbnailHeight) {
+			double ratioX = (double) thumbnailWidth/maxX;
+			double ratioY = (double) thumbnailHeight/maxY;
+			if (ratioX < ratioY) return ratioX;
+			return ratioY;
+		}
+		return -1;
+	}
+	
+	/** Initializes the ROI channels components. */
+	private void initChannelROIComponents()
+	{
+		initialize();
+		//draw the roi.
+		//Determine the scaling factor.
+		DrawingView canvasView = drawingComponent.getDrawingView();
+		double factor = getMagnificationFactor();
+		if (factor != -1)
+			canvasView.setScaleFactor(factor);
+		Coord3D c = new Coord3D(renderer.getDefaultZ(), renderer.getDefaultT());
+		try {
+			ShapeList list = roiComponent.getShapeList(c);
+			ROIFigure figure;
+			Drawing drawing = drawingComponent.getDrawing();
+			if (list != null) {
+				TreeMap map = list.getList();
+				Iterator i = map.values().iterator();
+				ROIShape shape;
+				while (i.hasNext()) {
+					shape = (ROIShape) i.next();
+					if (shape != null) {
+						figure = shape.getFigure();
+						//canvasView.addToSelection(figure);
+						drawing.add(figure);
+					}
+				}
+				drawingComponent.getDrawingView().setDrawing(drawing);
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+
 		
+		
+		
+		List<ChannelData> data = renderer.getChannelData();
+        ChannelData d;
+        //ChannelToggleButton item;
+        ChannelButton item;
+        Iterator<ChannelData> k = data.iterator();
+        List<Integer> active = renderer.getActiveChannels();
+        int j;
+
+
+        k = data.iterator();
+        channelList = new ArrayList<ChannelComponent>();
+        ChannelComponent comp;
+        while (k.hasNext()) {
+        	d = k.next();
+			j = d.getIndex();
+			comp = new ChannelComponent(j, renderer.getChannelColor(j), 
+					active.contains(j));
+			channelList.add(comp);
+			comp.addPropertyChangeListener(this);
+		}
+	}
+	
+	/** Initializes the channels components. */
+	private void initChannelComponents()
+	{
+		initialize();
 		components = new LinkedHashMap<Integer, FigureComponent>();
 		//Initializes the channels
 		List<ChannelData> data = renderer.getChannelData();
@@ -401,6 +504,7 @@ public class FigureDialog
 	 */
 	private void initComponents(String name)
 	{	
+		pane = new JLayeredPane();
 		thumbnailHeight = Factory.THUMB_DEFAULT_HEIGHT;
 		thumbnailWidth = Factory.THUMB_DEFAULT_WIDTH;	
 		closeButton = new JButton("Cancel");
@@ -567,6 +671,7 @@ public class FigureDialog
 	private JPanel buildProjectionComponent()
 	{
 		JPanel p = new JPanel();
+		/*
 		double[][] tl = {{TableLayout.PREFERRED, TableLayout.PREFERRED, 
 			TableLayout.PREFERRED, TableLayout.PREFERRED,
 			TableLayout.PREFERRED}, //columns
@@ -580,7 +685,28 @@ public class FigureDialog
         i = i+2;
         p.add(UIUtilities.setTextFont("Z-sections Range"), "0, "+i+"");
         p.add(UIUtilities.buildComponentPanel(zRange), "1, "+i+", 4, "+i);
-		return p;
+        */
+		p.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.WEST;
+		c.insets = new Insets(0, 2, 2, 0);
+		c.gridy = 0;
+		c.gridx = 0;
+		p.add(UIUtilities.setTextFont("Intensity"), c);
+		c.gridx++;
+		p.add(projectionTypesBox, c);
+		c.gridx++;
+		p.add(UIUtilities.setTextFont("Every n-th slice"), c);
+		c.gridx++;
+	    p.add(projectionFrequency, c);
+	    c.gridy++;
+		c.gridx = 0;
+	    p.add(UIUtilities.setTextFont("Z-sections Range"), c);
+	    c.gridx++;
+        p.add(UIUtilities.buildComponentPanel(zRange), c);
+        
+		return UIUtilities.buildComponentPanel(p);
 	}
 	
 	/**
@@ -620,6 +746,40 @@ public class FigureDialog
 	
 	/** 
 	 * Builds and lays out the component displaying the channels
+	 * 
+	 * @return See above
+	 */
+	private JPanel buildChannelsROIComponent()
+	{
+		JComponent c = drawingComponent.getDrawingView();
+		Dimension d = mergeCanvas.getPreferredSize();
+		c.setSize(d);
+		c.setPreferredSize(d);
+		mergeCanvas.setSize(d);
+		pane.setPreferredSize(d);
+		pane.setSize(d);
+		pane.add(mergeCanvas, new Integer(0));
+		pane.add(c, new Integer(1));
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+		
+		Iterator<ChannelComponent> i = channelList.iterator();
+		while (i.hasNext()) {
+			buttonPanel.add(i.next());
+			buttonPanel.add(Box.createHorizontalStrut(5));
+		}
+		JPanel p = new JPanel();
+		p.setLayout(new BorderLayout(0, 0));
+		JPanel f = UIUtilities.buildComponentPanelCenter(buttonPanel);
+		f.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
+		p.add(f, BorderLayout.NORTH);
+		p.add(UIUtilities.buildComponentPanelCenter(pane), 
+				BorderLayout.CENTER);
+		return p;
+	}
+	
+	/** 
+	 * Builds and lays out the component displaying the channels.
 	 * 
 	 * @return See above
 	 */
@@ -734,7 +894,7 @@ public class FigureDialog
 	}
 	
 	/** Collects the parameters to create a figure. */
-	private void save()
+	private void saveSplitFigure()
 	{
 		SplitViewFigureParam p;
 		String name = nameField.getText().trim();
@@ -792,6 +952,24 @@ public class FigureDialog
 				projectionTypes.get(projectionTypesBox.getSelectedIndex()));
 		close();
 		firePropertyChange(SPLIT_FIGURE_PROPERTY, null, p);
+	}
+	
+	/** Collects the parameters to create a ROI figure. */
+	private void saveROIFigure()
+	{
+		
+	}
+	
+	/** Collects the parameters to create a figure. */
+	private void save()
+	{
+		switch (index) {
+			case SPLIT:
+				saveSplitFigure();
+				break;
+			case SPLIT_ROI:
+				saveROIFigure();
+		}
 	}
 	
 	/** 
@@ -876,11 +1054,40 @@ public class FigureDialog
 	public void setRenderer(Renderer renderer)
 	{
 		this.renderer = renderer;
-		initChannelComponents();
 		channelsPane.removeAll();
-		channelsPane.add(buildChannelsComponent());
+		switch (index) {
+			case SPLIT:
+				initChannelComponents();
+				channelsPane.add(buildChannelsComponent());
+				break;
+			case SPLIT_ROI:
+				initChannelROIComponents();
+				channelsPane.add(buildChannelsROIComponent());
+				break;
+		}
 		saveButton.setEnabled(true);
 		pack();
+	}
+	
+	/**
+	 * Sets the collection of ROIs related to the primary select.
+	 * 
+	 * @param rois The value to set.
+	 */
+	public void setROIs(Collection rois)
+	{
+		if (rois == null) return;
+		drawingComponent = new DrawingComponent();
+		drawingComponent.getDrawingView().setScaleFactor(1.0);
+		roiComponent = new ROIComponent();
+		Iterator r = rois.iterator();
+		ROIResult result;
+		try {
+			while (r.hasNext()) {
+				result = (ROIResult) r.next();
+				roiComponent.loadROI(result.getROIs(), true);
+			}
+		} catch (Exception e) {}
 	}
 	
     /**
@@ -1006,5 +1213,6 @@ public class FigureDialog
 	 * @see DocumentListener#changedUpdate(DocumentEvent)
 	 */
 	public void changedUpdate(DocumentEvent e) {}
+
 
 }

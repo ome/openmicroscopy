@@ -29,7 +29,6 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -197,7 +196,7 @@ class PublishingDialog
 		splitViewROIFigureItem = createMenuItem(
 				icons.getIcon(IconManager.SPLIT_VIEW), 
 				SPLIT_VIEW_ROI_FIGURE_TOOLTIP, SPLIT_VIEW_ROI_FIGURE_TEXT,
-				EditorControl.SPLIT_VIEW_FIGURE);
+				EditorControl.SPLIT_VIEW_ROI_FIGURE);
 		splitViewFigureButton.setEnabled(true);
 	}
 	
