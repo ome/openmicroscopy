@@ -136,7 +136,8 @@ public class ChannelData
 			for (LSID reference : references)
 			{
 				lsidString = reference.toString();
-				if (filterSetContainers.containsKey(lsidString))
+				if (filterSetContainers != null
+				    && filterSetContainers.containsKey(lsidString))
 				{
 					IObjectContainer filterSetContainer =
 						filterSetContainers.get(lsidString);
@@ -208,13 +209,16 @@ public class ChannelData
 			Map<String, IObjectContainer> lightSourceContainers =
 				containerCache.get(LightSource.class);
 			references = referenceCache.get(lightSettingsLSID);
-			for (LSID reference : references)
+			if (references != null)
 			{
-				lsidString = reference.toString();
-				if (lightSourceContainers.containsKey(lsidString))
+				for (LSID reference : references)
 				{
-					data.lightSource = (LightSource)
-						lightSourceContainers.get(lsidString).sourceObject;
+					lsidString = reference.toString();
+					if (lightSourceContainers.containsKey(lsidString))
+					{
+						data.lightSource = (LightSource)
+							lightSourceContainers.get(lsidString).sourceObject;
+					}
 				}
 			}
 		}
