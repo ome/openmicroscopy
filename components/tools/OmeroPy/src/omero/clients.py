@@ -553,7 +553,7 @@ class BaseClient(object):
 
         return ofile
 
-    def download(self, ofile, filename, block_size = 1024):
+    def download(self, ofile, filename, block_size = 1024*1024):
         file = open(filename, 'wb')
         try:
             prx = self.__sf.createRawFileStore()
@@ -573,6 +573,7 @@ class BaseClient(object):
                         break
                     file.write(block)
                     offset += len(block)
+                file.flush()
             finally:
                 prx.close()
         finally:
