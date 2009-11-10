@@ -73,7 +73,7 @@ public class OverlayMetadataStore implements MetadataStore {
 	
 	private long tableFileId;
 	
-	private Plate plate;
+	private long plateId;
 	
 	private FileAnnotation fileAnnotation;
 	
@@ -86,27 +86,28 @@ public class OverlayMetadataStore implements MetadataStore {
 	 * column and a new table to store results.
 	 * @param sf Client side service factory.
 	 * @param pixelsList List of pixels already saved in the database.
+	 * @param plateIds List of plate Ids already saved in the database. (This
+	 * should have <code>plateIds.size() == 1</code>).
 	 * @return <code>true</code> if table support was available and the table
 	 * was created successfully. <code>false</code> otherwise.
 	 * @throws ServerError Thrown if there was an error communicating with the
 	 * server during table creation.
 	 */
-	public boolean initialize(ServiceFactoryPrx sf, List<Pixels> pixelsList)
+	public boolean initialize(ServiceFactoryPrx sf, List<Pixels> pixelsList,
+			                  List<Long> plateIds)
 		throws ServerError {
 		this.pixelsList = pixelsList;
 		this.sf = sf;
 		updateService = sf.getUpdateService();
 		columns = createColumns(DEFAULT_BUFFER_SIZE);
 		table = sf.sharedResources().newTable(1, "Overlays");
-		if (table == null)
+		if (table == null || plateIds == null || plateIds.size() != 1)
 		{
 			return false;
 		}
 		table.initialize(columns);
 		tableFileId = table.getOriginalFile().getId().getValue();
-		
-		WellSample ws = pixelsList.get(0).getImage().copyWellSamples().get(0); 
-		plate = ws.getWell().getPlate();
+		plateId = plateIds.get(0);
 		// Create our measurement file annotation
 		fileAnnotation = new FileAnnotationI();
 		fileAnnotation.setDescription(rstring("Overlays"));
@@ -132,7 +133,7 @@ public class OverlayMetadataStore implements MetadataStore {
 		saveIfNecessary(true);
 
 		PlateAnnotationLink link = new PlateAnnotationLinkI();
-		link.setParent(new PlateI(plate.getId().getValue(), false));
+		link.setParent(new PlateI(plateId, false));
 		link.setChild(new FileAnnotationI(fileAnnotationId, false));
 		updateService.saveObject(link);
 	}

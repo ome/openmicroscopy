@@ -51,6 +51,7 @@ import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.Screen;
+import omero.model.WellSample;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -211,10 +212,6 @@ public class ImportLibrary implements IObservable
      * 
      * @param userSpecifiedImageName A user specified image name.
      * @param userSpecifiedImageDescription A user specified description.
-     * @param archive Whether or not the user requested the original files to
-     * be archived.
-     * @param useMetadataFile Whether or not to dump all metadata to a flat
-     * file annotation on the server.
      * @return the newly created {@link Pixels} id.
 	 * @throws FormatException if there is an error parsing metadata.
 	 * @throws IOException if there is an error reading the file.
@@ -223,8 +220,6 @@ public class ImportLibrary implements IObservable
 	                                    IObject userSpecifiedTarget,
 	                                    String userSpecifiedImageName,
 			                            String userSpecifiedImageDescription,
-			                            boolean archive,
-			                            boolean useMetadataFile,
 			                            Double[] userPixels
 			                            )
     	throws FormatException, IOException
@@ -247,8 +242,9 @@ public class ImportLibrary implements IObservable
 	/**
 	 * If available, populates overlays for a given set of pixels objects.
 	 * @param pixelsList Pixels objects to populate overlays for.
+	 * @param plateIds Plate object IDs to populate overlays for.
 	 */
-	protected void importOverlays(List<Pixels> pixelsList)
+	protected void importOverlays(List<Pixels> pixelsList, List<Long> plateIds)
 		throws ServerError, FormatException, IOException
 	{
 		IFormatReader baseReader = reader.getImageReader().getReader();
@@ -262,7 +258,8 @@ public class ImportLibrary implements IObservable
 				miasReader.setAutomaticallyParseMasks(true);
 				ServiceFactoryPrx sf = store.getServiceFactory();
 				OverlayMetadataStore s = new OverlayMetadataStore();
-				boolean haveTableSupport = s.initialize(sf, pixelsList);
+				boolean haveTableSupport = 
+					s.initialize(sf, pixelsList, plateIds);
 				if (!haveTableSupport)
 				{
 					log.warn("No OmeroTables, skipping MIAS overlays.");
@@ -350,12 +347,6 @@ public class ImportLibrary implements IObservable
             		break;
             	}
             }
-            if (isScreeningDomain)
-            {
-            	log.info("Reader is of HCS domain, disabling metafile.");
-            	useMetadataFile = false;
-            }
-            
             notifyObservers(new ImportEvent.LOADED_IMAGE(shortName, index, numDone, total));
             
             String formatString = reader.getImageReader().getReader().getClass().toString();
@@ -363,12 +354,24 @@ public class ImportLibrary implements IObservable
             formatString = formatString.replace("Reader", "");
             
             // Save metadata and prepare the RawPixelsStore for our arrival.
-            List<File> metadataFiles = store.setArchive(archive, useMetadataFile);
+            List<File> metadataFiles;
+            if (isScreeningDomain)
+            {
+            	log.info("Reader is of HCS domain, disabling metafile.");
+            	
+            	metadataFiles = store.setArchiveScreeningDomain(archive);
+            }
+            else
+            {
+            	log.info("Reader is not of HCS domain, use metafile: "
+            			 + useMetadataFile);
+            	metadataFiles = store.setArchive(archive, useMetadataFile);
+            }
             List<Pixels> pixList = 
             	importMetadata(userSpecifiedTarget,
             	               userSpecifiedImageName,
             			       userSpecifiedImageDescription,
-            			       archive, useMetadataFile, userPixels);
+            			       userPixels);
         	List<Long> plateIds = new ArrayList<Long>();
         	Image image = pixList.get(0).getImage();
         	if (image.sizeOfWellSamples() > 0)
@@ -426,6 +429,19 @@ public class ImportLibrary implements IObservable
         		{
         			originalFileMap.put(of.getPath().getValue(), of);
         		}
+        		for (WellSample ws : i.copyWellSamples())
+        		{
+        			Plate plate = ws.getWell().getPlate();
+        			for (Annotation annotation : plate.linkedAnnotationList())
+        			{
+        				if (annotation instanceof FileAnnotation)
+        				{
+        					FileAnnotation fa = (FileAnnotation) annotation;
+            				OriginalFile of = fa.getFile();
+            				originalFileMap.put(of.getPath().getValue(), of);
+        				}
+        			}
+        		}
         	}
         	
         	List<File> fileNameList = new ArrayList<File>();
@@ -468,7 +484,7 @@ public class ImportLibrary implements IObservable
             }
 
             notifyObservers(new ImportEvent.IMPORT_OVERLAYS(index, null, userSpecifiedTarget, null, 0, null));
-            importOverlays(pixList);
+            importOverlays(pixList, plateIds);
             notifyObservers(new ImportEvent.IMPORT_THUMBNAILING(index, null, userSpecifiedTarget, null, 0, null));
             store.resetDefaultsAndGenerateThumbnails(plateIds, pixelsIds);
             store.launchProcessing(); // Use or return value here later. TODO
