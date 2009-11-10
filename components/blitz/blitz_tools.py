@@ -7,13 +7,15 @@
 
 import sys, os, glob, exceptions, subprocess
 from SCons.Script.SConscript import *
+from SCons.Script import AddOption, GetOption
 from SCons.SConf import *
+from SCons.Variables import *
 
 #
 # Global Directories
 #
-dir = os.path.abspath( os.path.dirname( __file__ ) )
-top = os.path.abspath( os.path.join( dir, os.path.pardir, os.path.pardir ) )
+cwd = os.path.abspath( os.path.dirname( __file__ ) )
+top = os.path.abspath( os.path.join( cwd, os.path.pardir, os.path.pardir ) )
 slice_directory = os.path.abspath( os.path.join( top, "target", "Ice", "slice" ) )
 blitz_resources = os.path.abspath( os.path.join( top, "components", "blitz", "resources") )
 blitz_generated = os.path.abspath( os.path.join( top, "components", "blitz", "generated") )
@@ -136,10 +138,25 @@ class OmeroEnvironment(SConsEnvironment):
         except KeyError:
             tools = ['default', 'packaging']
 
-        SConsEnvironment.__init__(self, tools=tools, **kwargs)
+        AddOption('--release',
+                  dest='release',
+                  type='string',
+                  nargs=1,
+                  action='store',
+                  metavar='RELEASE',
+                  help='Release version')
+
+        AddOption('--arch',
+                  dest='arch',
+                  type='string',
+                  nargs=1,
+                  action='store',
+                  metavar='ARCH',
+                  help='Architecture to build for')
+
+        SConsEnvironment.__init__(self, ENV = os.environ, tools=tools, **kwargs)
         self.Decider('MD5-timestamp')
-        self["ENV"] = os.environ
-        win32 = self["PLATFORM"] == "win32"
+
         # Print statements
         if not os.environ.has_key("VERBOSE"):
             self.Replace(CXXCOMSTR  = "Compiling $TARGET")
@@ -152,22 +169,51 @@ class OmeroEnvironment(SConsEnvironment):
             self.Replace(CXX = os.environ["CXX"])
 
         # CXXFLAGS
-        self.AppendUnique(CPPFLAGS=["-DOMERO_API_EXPORTS","-D_REENTRANT"])
-        if not win32:
-            self.Append(CPPFLAGS=self.Split("-O0 -g -Wall"))
-            self.Append(CPPFLAGS=self.Split("-ansi"))
+        self.AppendUnique(CPPDEFINES=["OMERO_API_EXPORTS","_REENTRANT"])
+        if self.isdebug():
+            self.AppendUnique(CPPDEFINES=["DEBUG"])
+        else:
+            self.AppendUnique(CPPDEFINES=["NDEBUG"])
+
+        if not self.iswin32():
+            self.Append(CPPFLAGS=self.Split("-Wall -ansi"))
             # self.Append(CPPFLAGS=self.Split("-pedantic -ansi")) Ice fails pedantic due to extra ";"
             self.Append(CPPFLAGS=self.Split("-Wno-long-long -Wnon-virtual-dtor"))
             # self.Append(CPPFLAGS=self.Split("-Wno-long-long -Wctor-dtor-privacy -Wnon-virtual-dtor")) Ice fails the ctor check.
             self.Append(CPPFLAGS=self.Split("-Wno-unused-parameter -Wno-unused-function -Wunused-variable -Wunused-value -Werror"))
+            if self.isdebug():
+                self.Append(CPPFLAGS=self.Split("-O0 -g"))
+            else:
+                self.Append(CPPFLAGS=self.Split("-Os"))
+
         else:
+            self.AppendUnique(CPPDEFINES=["WIN32_LEAN_AND_MEAN"])
             if self["CC"] == "cl":
                 self.AppendUnique(CPPFLAGS=self.Split("/MD"))
                 self.AppendUnique(CPPFLAGS=self.Split("/EHsc"))
+                if self.isdebug():
+                    self.Append(CXXFLAGS=["/Zi"])
+                else:
+                    self.Append(CXXFLAGS=["/Os"])
 
         # Now let user override
-        if os.environ.has_key("CXXFLAGS"):
+        if "CXXFLAGS" in os.environ:
             self.Append(CPPFLAGS=self.Split(os.environ["CXXFLAGS"]))
+
+        #
+        # LINKFLAGS
+        #
+        if self.iswin32():
+            if self.isdebug():
+                self.Append(LINKFLAGS = ["/LDd"])
+            if self.is64bit():
+                self.Append(ARFLAGS = ['/MACHINE:X64'])
+                self.Append(LINKFLAGS = ['/MACHINE:X64'])
+
+
+        # Now let user override
+        if "LINKFLAGS" in os.environ:
+            self.Append(CPPFLAGS=self.Split(os.environ["LINKFLAGS"]))
 
         #
         # CPPPATH
@@ -185,4 +231,71 @@ class OmeroEnvironment(SConsEnvironment):
         if os.environ.has_key("LIBPATH"):
             self.AppendUnique(LIBPATH=os.environ["LIBPATH"].split(os.path.pathsep))
         if ice_home:
+            if self.iswin32() and self.is64bit():
+                self.Append(LIBPATH=[os.path.join(ice_home, "lib", "x64")])
             self.Append(LIBPATH=[os.path.join(ice_home, "lib")])
+
+    def isdebug(self):
+
+        if hasattr(self, "_isdbg"):
+            return self._isdbg
+
+        RELEASE = GetOption("release")
+        if RELEASE == "Os":
+            self._isdbg = False
+        else:
+            self._isdbg = True
+            if RELEASE not in [None, "debug"]:
+                import warnings
+                warnings.warn("Unknown release value. Using 'debug'")
+
+        print "Debug setting: %s (%s)" % (self._isdbg, RELEASE)
+        return self._isdbg
+
+
+    def iswin32(self):
+
+        if hasattr(self, "_win32"):
+            return self._win32
+
+        self._win32 = self["PLATFORM"] == "win32"
+        return self._win32
+
+    def is64bit(self):
+
+        if hasattr(self, "_bit64"):
+            return self._bit64
+
+        ARCH = GetOption("arch")
+        if ARCH == "x86_64":
+            self._bit64 = True
+        elif ARCH == "x86":
+            self._bit64 = False
+        else:
+            if ARCH not in [None,"default"]:
+                import warnings
+                warnings.warn("Unknown arch value. Using 'defaut'")
+            if self.iswin32():
+                # Work around for 32bit Windows executables
+                try:
+                    import win32process
+                    self._bit64 = win32process.IsWow64Process()
+                except:
+                    import ctypes, sys
+                    i = ctypes.c_int()
+                    kernel32 = ctypes.windll.kernel32
+                    process = kernel32.GetCurrentProcess()
+                    kernel32.IsWow64Process(process, ctypes.byref(i))
+                    self._bit64 = (i.value != 0)
+            else:
+                import platform
+                self._bit64 = platform.architecture()[0] == "64bit"
+
+        print "64-Bit build: %s (%s)" % (self._bit64, ARCH)
+        return self._bit64
+
+    def icelibs(self):
+        if self.iswin32() and self.is64bit():
+            return ["Iced", "IceUtild", "Glacier2d"]
+        else:
+            return ["Ice", "IceUtil", "Glacier2"]

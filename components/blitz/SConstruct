@@ -8,7 +8,7 @@
 import os, glob
 from blitz_tools import *
 
-env = OmeroEnvironment( ENV = os.environ )
+env = OmeroEnvironment()
 env.Repository(["generated","resources"])
 
 #

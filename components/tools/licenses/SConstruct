@@ -8,7 +8,7 @@ blitz = os.path.abspath( os.path.join(os.path.curdir, os.path.pardir, os.path.pa
 sys.path.append( blitz )
 from blitz_tools import *
 
-env = OmeroEnvironment( ENV = os.environ )
+env = OmeroEnvironment()
 env.Repository(["generated", "resources"])
 env.Append(CPPPATH=["generated",tools_include])
 
@@ -57,7 +57,7 @@ env.Alias("slice", actions)
 if build_cpp:
     lib = env.SharedLibrary("omero_licenses",
         ["omero/LicensesAPI.cpp"],
-        LIBS=["omero_client","Ice","Glacier2","IceUtil"])
+        LIBS=env.icelibs()+["omero_client"])
 
     env.Alias("lib", lib)
     env.Depends(lib, "slice")

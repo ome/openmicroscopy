@@ -83,8 +83,8 @@ f.close()
 
 compiler_env = dict()
 compiler_env["timestamp"] = time.ctime()
-compiler_env["64BIT"] = env.get("64BIT","unknown")
-compiler_env["DEBUG"] = env.get("DEBUG","unknown")
+compiler_env["ARCH"] = (env.is64bit() and "64" or "32")
+compiler_env["RELEASE"] = (env.isdebug() and "dbg" or "rel")
 compiler_env["LIBPATH"] = env.get("LIBPATH","unknown")
 compiler_env["CPPPATH"] = env.get("CPPPATH","unknown")
 compiler_env["CPPFLAGS"] = env.get("CPPFLAGS","unknown")
@@ -107,8 +107,8 @@ CPPPATH=%(CPPPATH)s
 CXX=%(CXX)s
 CXXVERSION=%(CXXVERSION)s
 LIBPATH=%(LIBPATH)s
-64BIT=%(64BIT)s
-DEBUG=%(DEBUG)s
+ARCH=%(ARCH)s
+RELEASE=%(RELEASE)s
 """ % compiler_env)
 f.close()
 
@@ -121,13 +121,13 @@ srcs = env.Glob("target/**/**/*.cpp") + \
        env.Glob("src/**/*.cpp")
 
 target = "omero_client"
-if sys.platform == "win32":
+if env.iswin32():
     target += ".dll"
 
 library = env.SharedLibrary(\
     target = target,
     source = srcs,
-    LIBS = ["Ice","Glacier2","IceUtil"])
+    LIBS = env.icelibs())
 env.Alias('lib', library)
 
 #
@@ -170,7 +170,7 @@ else:
     def define_test(dir):
         test =  tenv.Program("test/%s.exe" % dir,
             [main, fixture] + tenv.Glob("test/%s/*.cpp" % dir),
-            LIBS=["Ice","Glacier2","IceUtil","omero_client"]+boost_libs)
+            LIBS = ["omero_client"]+env.icelibs()+boost_libs)
         return test
 
     unit = define_test("unit")
