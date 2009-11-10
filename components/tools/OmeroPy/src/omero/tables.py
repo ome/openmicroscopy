@@ -186,6 +186,13 @@ class HdfStorage(object):
         if self.__initialized:
             raise omero.ValidationException(None, None, "Already initialized.")
 
+        if not cols:
+            raise omero.ApiUsageException(None, None, "No columns provided")
+
+        for c in cols:
+            if not c.name:
+                raise omero.ApiUsageException(None, None, "Column unnamed: %s" % c)
+
         self.__definition = columns2definition(cols)
         self.__ome = self.__hdf_file.createGroup("/", "OME")
         self.__mea = self.__hdf_file.createTable(self.__ome, "Measurements", self.__definition)
@@ -218,8 +225,6 @@ class HdfStorage(object):
 
     @locked
     def decr(self, table):
-        import traceback
-        self.logger.warn("DECREMENTING.... %s", "\t\t".join(traceback.format_stack()))
         sz = len(self.__tables)
         self.logger.info("Size: %s - Detaching %s from %s", sz, table, self.__hdf_path)
         if not (table in self.__tables):
@@ -282,9 +287,16 @@ class HdfStorage(object):
         # Optimize!
         arrays = []
         names = []
+        sz = None
         for col in cols:
+            if sz is None:
+                sz = col.getsize()
+            else:
+                if sz != col.getsize():
+                    raise omero.ValidationException("Columns are of differing length")
             names.extend(col.names())
             arrays.extend(col.arrays())
+            col.append(self.__mea) # Potential corruption !!!
         records = numpy.rec.fromarrays(arrays, names=names)
         self.__mea.append(records)
         self.__mea.flush()
@@ -326,7 +338,6 @@ class HdfStorage(object):
                 col = cols[i]
                 col.readCoordinates(self.__mea, rowNumbers)
                 rv.append(col)
-        self.logger.info(rv)
         return self._as_data(rv, rowNumbers)
 
     #
