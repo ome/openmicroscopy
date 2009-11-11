@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.util.roi.io;
 //Java imports
 import static org.jhotdraw.draw.AttributeKeys.TRANSFORM;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -40,6 +41,7 @@ import java.util.TreeMap;
 import omero.rtypes;
 import omero.model.Image;
 
+import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.geom.BezierPath;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
@@ -446,8 +448,12 @@ public class OutputServerStrategy
 	private void addShapeAttributes(ROIFigure fig, ShapeData shape)
 	{
 		ShapeSettingsData settings = shape.getShapeSettings();
-		if(MeasurementAttributes.FILL_COLOR.get(fig)!=null)
-			settings.setFillColor(MeasurementAttributes.FILL_COLOR.get(fig));
+		
+		if(AttributeKeys.FILL_COLOR.get(fig)!=null)
+		{
+			Color c = AttributeKeys.FILL_COLOR.get(fig);
+			settings.setFillColor(c);
+		}
 		if(MeasurementAttributes.STROKE_COLOR.get(fig)!=null)
 			settings.setStrokeColor(MeasurementAttributes.STROKE_COLOR.get(fig));
 		if(MeasurementAttributes.STROKE_WIDTH.get(fig)!=null)

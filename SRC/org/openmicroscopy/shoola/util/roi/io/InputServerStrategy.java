@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.util.roi.io;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
