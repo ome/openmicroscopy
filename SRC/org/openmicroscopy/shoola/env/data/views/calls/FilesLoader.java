@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -37,6 +38,7 @@ import omero.model.FileAnnotation;
 import omero.model.OriginalFile;
 
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -64,6 +66,12 @@ public class FilesLoader
     
     /** The result of the call. */
     private Object		result;
+    
+    /** The result of the call. */
+    private Object		currentFile;
+    
+    /** The files to load. */
+    private Map<FileAnnotationData, File> files;
     
     /**
      * Creates a {@link BatchCall} to download a file previously loaded.
@@ -141,6 +149,25 @@ public class FilesLoader
         };
     }
     
+    private void loadFile(final FileAnnotationData fa, final File f)
+    {
+    	OmeroMetadataService service = context.getMetadataService();
+        Map<FileAnnotationData, File> m = 
+        	new HashMap<FileAnnotationData, File>();
+        OriginalFile of;
+        of = ((FileAnnotation) fa.asAnnotation()).getFile();
+        try {
+        	service.downloadFile(f, of.getId().getValue(), 
+    				of.getSize().getValue());
+        	m.put(fa, f);
+        	currentFile = m;
+		} catch (Exception e) {
+			context.getLogger().error(this, 
+        			"Cannot retrieve fie: "+e.getMessage());
+		}
+    }
+    
+    
     /**
      * Creates a {@link BatchCall} to load the files identified by
      * the passed type.
@@ -164,13 +191,39 @@ public class FilesLoader
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
-    protected void buildTree() { add(loadCall); }
+    protected void buildTree()
+    { 
+    	if (files == null) add(loadCall);
+    	else {
+    		Iterator i = files.entrySet().iterator();
+    		Entry entry;
+    		String description = "Loading file";
+    		while (i.hasNext()) {
+    			entry = (Entry) i.next();
+				final FileAnnotationData 
+					fa = (FileAnnotationData) entry.getKey();
+				final File f = (File) entry.getValue();
+				add(new BatchCall(description) {
+            		public void doCall() { loadFile(fa, f); }
+            	});  
+			}
+    	}
+    }
 
     /**
      * Returns the collection of archives files.
      * @see BatchCallTree#getResult()
      */
     protected Object getResult() { return result; }
+    
+    /**
+     * Returns the lastly retrieved file.
+     * This will be packed by the framework into a feedback event and
+     * sent to the provided call observer, if any.
+     * 
+     * @return A Map containing the file and file annotation.
+     */
+    protected Object getPartialResult() { return currentFile; }
     
     /**
      * Creates a new instance.
@@ -192,7 +245,10 @@ public class FilesLoader
      */
     public FilesLoader(Map<FileAnnotationData, File> files)
     {
-    	loadCall = makeBatchCall(files);
+    	if (files == null) 
+    		throw new IllegalArgumentException("No files to load.");
+    	this.files = files;
+    	//loadCall = makeBatchCall(files);
     }
     
     /**

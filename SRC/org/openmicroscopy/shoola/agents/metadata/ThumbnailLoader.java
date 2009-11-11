@@ -158,7 +158,7 @@ public class ThumbnailLoader
     }
     
     /**
-     * Does nothing as the async call returns <code>null</code>.
+     * Does nothing as the asynchronous call returns <code>null</code>.
      * The actual payload (thumbnails) is delivered progressively
      * during the updates.
      * @see EditorLoader#handleNullResult()

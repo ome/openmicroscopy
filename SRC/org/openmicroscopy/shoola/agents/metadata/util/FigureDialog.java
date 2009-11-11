@@ -161,27 +161,31 @@ public class FigureDialog
     /** The possible options for row names. */
     private static final String[]	MAGNIFICATION;
     
-    /** Index to <code>100%</code>. */
-    private static final int		ZOOM_100 = 0;
+    /** Index to <code>Auto</code>. */
+    private static final int		ZOOM_AUTO = 0;
     
-    /** Index to <code>200%</code>. */
-    private static final int		ZOOM_200 = 1;
+    /** Index to <code>100%</code> magnification. */
+    private static final int		ZOOM_100 = 1;
     
-    /** Index to <code>300%</code>. */
-    private static final int		ZOOM_300 = 2;
+    /** Index to <code>200%</code> magnification. */
+    private static final int		ZOOM_200 = 2;
     
-    /** Index to <code>400%</code>. */
-    private static final int		ZOOM_400 = 3;
+    /** Index to <code>300%</code> magnification. */
+    private static final int		ZOOM_300 = 3;
     
-    /** Index to <code>500%</code>. */
-    private static final int		ZOOM_500 = 4;
+    /** Index to <code>400%</code> magnification. */
+    private static final int		ZOOM_400 = 4;
+    
+    /** Index to <code>500%</code> magnification. */
+    private static final int		ZOOM_500 = 5;
     
 	static {
 		ROW_NAMES = new String[3];
 		ROW_NAMES[FigureParam.IMAGE_NAME] = "Image's name";
 		ROW_NAMES[FigureParam.DATASET_NAME] = "Datasets";
 		ROW_NAMES[FigureParam.TAG_NAME] = "Tags";
-		MAGNIFICATION = new String[5];
+		MAGNIFICATION = new String[6];
+		MAGNIFICATION[ZOOM_AUTO] = "Auto";
 		MAGNIFICATION[ZOOM_100] = "100%";
 		MAGNIFICATION[ZOOM_200] = "200%";
 		MAGNIFICATION[ZOOM_300] = "300%";
@@ -304,20 +308,29 @@ public class FigureDialog
 		mergeCanvas.setImage(mergeImage);
 		Iterator<ChannelComponent> i = channelList.iterator();
 		ChannelComponent btn;
-        List<Integer> actives = renderer.getActiveChannels();
-        int index;
+		List<Integer> actives = renderer.getActiveChannels();
+        int v;
         while (i.hasNext()) {
 			btn = i.next();
-			index = btn.getChannelIndex();
-			btn.setSelected(actives.contains(index));
+			v = btn.getChannelIndex();
+			btn.setSelected(actives.contains(v));
 		}
-        boolean grey = splitPanelGrey.isSelected();
-
         FigureComponent comp = components.get(channel);
-        if (active) {
-        	if (grey) comp.resetImage(grey);
-        	else comp.resetImage(!active);
-        } else comp.resetImage(!active);
+		switch (index) {
+			case SPLIT:
+		        boolean grey = splitPanelGrey.isSelected();
+		        if (active) {
+		        	if (grey) comp.resetImage(grey);
+		        	else comp.resetImage(!active);
+		        } else comp.resetImage(!active);
+				break;
+
+			case SPLIT_ROI:
+				comp.setSelected(active);
+				comp.setEnabled(active);
+		}
+		
+		
 	}
 	
 	/**
@@ -457,19 +470,31 @@ public class FigureDialog
 			// TODO: handle exception
 		}
 
-		
-		
-		
+		components = new LinkedHashMap<Integer, FigureComponent>();
+		//Initializes the channels
 		List<ChannelData> data = renderer.getChannelData();
         ChannelData d;
         //ChannelToggleButton item;
         ChannelButton item;
         Iterator<ChannelData> k = data.iterator();
         List<Integer> active = renderer.getActiveChannels();
+        FigureComponent split;
         int j;
-
-
-        k = data.iterator();
+        while (k.hasNext()) {
+			d = k.next();
+			j = d.getIndex();
+			split = new FigureComponent(this, renderer.getChannelColor(j), 
+					d.getChannelLabeling(), j);
+			if (!active.contains(j)) {
+				split.setSelected(false);
+				split.setEnabled(false);
+			}
+			split.setCanvasSize(thumbnailWidth, thumbnailHeight);
+			components.put(j, split);
+		}
+		
+		
+		k = data.iterator();
         channelList = new ArrayList<ChannelComponent>();
         ChannelComponent comp;
         while (k.hasNext()) {
@@ -695,21 +720,6 @@ public class FigureDialog
 	private JPanel buildProjectionComponent()
 	{
 		JPanel p = new JPanel();
-		/*
-		double[][] tl = {{TableLayout.PREFERRED, TableLayout.PREFERRED, 
-			TableLayout.PREFERRED, TableLayout.PREFERRED,
-			TableLayout.PREFERRED}, //columns
-				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED}}; //rows
-		p.setLayout(new TableLayout(tl));
-		int i = 0;
-        p.add(UIUtilities.setTextFont("Intensity"), "0, "+i+"");
-        p.add(projectionTypesBox, "1, "+i);
-        p.add(UIUtilities.setTextFont("Every n-th slice"), "2, "+i+"");
-        p.add(projectionFrequency, "3, "+i);
-        i = i+2;
-        p.add(UIUtilities.setTextFont("Z-sections Range"), "0, "+i+"");
-        p.add(UIUtilities.buildComponentPanel(zRange), "1, "+i+", 4, "+i);
-        */
 		p.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -763,7 +773,7 @@ public class FigureDialog
         p.add(scaleBar, "1, "+i);
         p.add(new JLabel("microns"), "2, "+i);
         i = i+2;
-        p.add(UIUtilities.setTextFont("Overlay color"), "0, "+i);
+        p.add(UIUtilities.setTextFont("Overlay"), "0, "+i);
         p.add(UIUtilities.buildComponentPanel(colorBox), "1, "+i);
 		return p;
 	}
@@ -775,15 +785,6 @@ public class FigureDialog
 	 */
 	private JPanel buildChannelsROIComponent()
 	{
-		
-		/*
-		Iterator<Integer> i = components.keySet().iterator();
-		while (i.hasNext()) {
-			p.add(components.get(i.next()));
-		}
-		*/
-		//Add the final one
-	
 		JPanel splitPanel = new JPanel();
 		splitPanel.add(UIUtilities.setTextFont("Split Panel"));
 		splitPanel.add(splitPanelColor);
@@ -792,25 +793,32 @@ public class FigureDialog
 		JPanel zoomPanel = new JPanel();
 		zoomPanel.add(UIUtilities.setTextFont("Zoom"));
 		zoomPanel.add(zoomBox);
-		
+
 		JPanel p = new JPanel();
 		p.add(buildMergeComponent());
 		p.add(Box.createHorizontalStrut(5));
+		Iterator<Integer> j = components.keySet().iterator();
+		while (j.hasNext()) {
+			p.add(components.get(j.next()));
+		}
 		
 		JPanel controls = new JPanel();
-		double size[][] = {{TableLayout.FILL}, 
+		double size[][] = {{TableLayout.PREFERRED, 5, TableLayout.PREFERRED}, 
 				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5,
-			TableLayout.PREFERRED, 5, TableLayout.PREFERRED}};
+			TableLayout.PREFERRED}};
 		controls.setLayout(new TableLayout(size));
 		int i = 0;
 		controls.add(splitPanel, "0, "+i+", LEFT, CENTER");
 		i = i+2;
 		controls.add(zoomPanel, "0, "+i+", LEFT, CENTER");
 		i = i+2;
-		controls.add(p, "0, "+i);
-		i = i+2;
-		controls.add(buildDimensionComponent(), "0, "+i);
-		return controls;
+		controls.add(buildDimensionComponent(), "2, 0, 2,"+i);
+		
+		JPanel content = new JPanel();
+		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+		content.add(controls);
+		content.add(p);
+		return UIUtilities.buildComponentPanel(content);
 	}
 	
 	/** 
@@ -825,16 +833,16 @@ public class FigureDialog
 		while (i.hasNext()) {
 			p.add(components.get(i.next()));
 		}
+		p.add(Box.createHorizontalStrut(5));
+		p.add(buildMergeComponent());
 		//Add the final one
 	
 		JPanel splitPanel = new JPanel();
 		splitPanel.add(UIUtilities.setTextFont("Split Panel"));
 		splitPanel.add(splitPanelColor);
 		splitPanel.add(splitPanelGrey);
+		//splitPanel.add(buildDimensionComponent());
 		
-		//content.add(p);
-		p.add(Box.createHorizontalStrut(5));
-		p.add(buildMergeComponent());
 		
 		JPanel controls = new JPanel();
 		double size[][] = {{TableLayout.FILL}, 
@@ -1033,8 +1041,11 @@ public class FigureDialog
 		FigureParam p = new FigureParam(format, name, split, merge, label);
 		p.setIndex(FigureParam.SPLIT_VIEW_ROI);
 		collectParam(p);
-		double zoom = 1;
+		double zoom = 0;
 		switch (zoomBox.getSelectedIndex()) {
+			case ZOOM_100:
+				zoom = 1;
+				break;
 			case ZOOM_200:
 				zoom = 2;
 				break;
@@ -1265,15 +1276,8 @@ public class FigureDialog
 						((Boolean) entry.getValue()));
 			}
 		} else if (ChannelComponent.CHANNEL_SELECTION_PROPERTY.equals(name)) {
-			switch (index) {
-				case SPLIT:
-					ChannelComponent c = (ChannelComponent) evt.getNewValue();
-					setChannelSelection(c.getChannelIndex(), c.isActive());
-					break;
-				case SPLIT_ROI:
-					
-			}
-			
+			ChannelComponent c = (ChannelComponent) evt.getNewValue();
+			setChannelSelection(c.getChannelIndex(), c.isActive());
 		}
 	}
 	
@@ -1283,19 +1287,21 @@ public class FigureDialog
 	 */
 	public void stateChanged(ChangeEvent e)
 	{
-		boolean grey = splitPanelGrey.isSelected();
-		if (components == null) return;
-		Iterator<Integer> i = components.keySet().iterator();
-		FigureComponent comp;
-		List active = renderer.getActiveChannels();
-		Integer index;
-		while (i.hasNext()) {
-			index = i.next();
-			comp = components.get(index);
-			if (grey) comp.resetImage(grey);
-			else {
-				if (active.contains(index)) comp.resetImage(grey);
-				else comp.resetImage(!grey);
+		if (index == SPLIT) {
+			boolean grey = splitPanelGrey.isSelected();
+			if (components == null) return;
+			Iterator<Integer> i = components.keySet().iterator();
+			FigureComponent comp;
+			List active = renderer.getActiveChannels();
+			Integer index;
+			while (i.hasNext()) {
+				index = i.next();
+				comp = components.get(index);
+				if (grey) comp.resetImage(grey);
+				else {
+					if (active.contains(index)) comp.resetImage(grey);
+					else comp.resetImage(!grey);
+				}
 			}
 		}
 	}

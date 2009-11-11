@@ -28,7 +28,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 
 
@@ -38,6 +37,8 @@ import java.util.Map.Entry;
 import omero.model.FileAnnotation;
 import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.FileAnnotationData;
 
@@ -159,7 +160,41 @@ public class FileLoader
 		}
 		
 	}
-
+	
+    /** 
+     * Feeds the file back to the viewer, as they arrive. 
+     * @see EditorLoader#update(DSCallFeedbackEvent)
+     */
+    public void update(DSCallFeedbackEvent fe) 
+    {
+       if (data == null) {
+    	   Map m = (Map) fe.getPartialResult();
+    	   if (m != null) {
+    		   Entry entry;
+        	   Iterator i = m.entrySet().iterator();
+        	   FileAnnotationData fa;
+        	   while (i.hasNext()) {
+        		   entry = (Entry) i.next();
+        		   fa = (FileAnnotationData) entry.getKey();
+        		   viewer.setLoadedFile(fa, (File) entry.getValue(), 
+        				   files.get(fa));
+        	   }
+    	   }
+       }
+    }
+    
+    /**
+     * Does nothing as the asynchronous call returns <code>null</code>.
+     * The actual payload is delivered progressively during the updates
+     * if data is <code>null</code>.
+     * @see EditorLoader#handleNullResult()
+     */
+    public void handleNullResult()
+    {
+    	if (data != null)
+    		 handleException(new Exception("No data available."));
+    }
+    
 	/**
      * Feeds the result back to the viewer.
      * @see EditorLoader#handleResult(Object)
@@ -169,6 +204,7 @@ public class FileLoader
     	if (data != null) {
     		viewer.setLoadedFile(data, file, uiView);
     	} else {
+    		/*
     		Map m = (Map) result;
     		Entry entry;
     		Iterator i = m.entrySet().iterator();
@@ -179,6 +215,7 @@ public class FileLoader
 				viewer.setLoadedFile(fa, (File) entry.getValue(), 
 						files.get(fa));
 			}
+			*/
     	}
     	
     }

@@ -27,16 +27,21 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.ColourIcon;
+
 
 /** 
  * Component to turn on or off a channel.
@@ -58,10 +63,7 @@ class ChannelComponent
 
 	/** Bound property indicating to turn on or off the channel. */
 	static final String	CHANNEL_SELECTION_PROPERTY = "channelSelection";
-	
-	/** The default size of the panel. */
-	private static final Dimension SIZE = new Dimension(22, 22);
-	
+
 	/** The index of the channel. */
 	private int index;
 	
@@ -82,18 +84,17 @@ class ChannelComponent
 	{
 		
 		activeBox = new JCheckBox();
-		//activeBox.setIcon(icon);
-		activeBox.setBackground(color);
+		activeBox.setBorder(BorderFactory.createEmptyBorder());
+		//activeBox.setBackground(color);
 		activeBox.setSelected(active);
 		activeBox.addChangeListener(this);
 		colorLabel = new JPanel();
-		double[][] tl = {{TableLayout.PREFERRED}, //columns
-				{TableLayout.PREFERRED}}; //rows
-		colorLabel.setLayout(new TableLayout(tl));
-		//colorLabel.setPreferredSize(SIZE);
-		//p.add(colorLabel);
-		colorLabel.add(activeBox, "0, 0, CENTER, CENTER");
-		colorLabel.setBackground(color);
+		ColourIcon icon = new ColourIcon(color);
+		icon.paintLineBorder(true);
+		colorLabel.setLayout(new BoxLayout(colorLabel, BoxLayout.Y_AXIS));
+		colorLabel.add(new JLabel(icon));
+		colorLabel.add(Box.createVerticalStrut(2));
+		colorLabel.add(activeBox);
 	}
 	
 	/** Builds and lays out the UI. */

@@ -31,6 +31,9 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -125,7 +128,11 @@ class FigureComponent
 		p.add(box);
 		p.add(field);
 		setLayout(new BorderLayout(0, 0));
-		add(p, BorderLayout.NORTH);
+		JPanel content = new JPanel();
+		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+		content.add(Box.createVerticalStrut(15));
+		content.add(p);
+		add(content, BorderLayout.NORTH);
 		add(UIUtilities.buildComponentPanelCenter(canvas), BorderLayout.CENTER);
 	}
 	
@@ -228,6 +235,23 @@ class FigureComponent
 	 * @return See above.
 	 */
 	boolean isSelected() { return box.isSelected(); }
+	
+	/**
+	 * Selects or not the selection box.
+	 * 
+	 * @param selected The value to set.
+	 */
+	void setSelected(boolean selected) { box.setSelected(selected); }
+	
+	/**
+	 * Overridden to set the enabled flag of the selection box.
+	 * @see JPanel#setEnabled(boolean)
+	 */
+	public void setEnabled(boolean enabled)
+	{
+		box.setEnabled(enabled);
+		field.setEnabled(enabled);
+	}
 	
 	/**
 	 * Listens to the check box selection.
