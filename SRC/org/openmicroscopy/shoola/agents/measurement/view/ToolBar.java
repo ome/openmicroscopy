@@ -89,6 +89,15 @@ class ToolBar
 	private final static HashMap<AttributeKey, Object>	
 	defaultConnectionAttributes;
 	
+	/** Add the polyline tool to the toolbar. */
+	private final static boolean addPolyline = false;
+
+	/** Add the polygon tool to the toolbar. */
+	private final static boolean addPolygon = false;
+	
+	/** Add the connection tool to the toolbar. */
+	private final static boolean addConnection = false;
+	
 	static
 	{
 		defaultConnectionAttributes = new HashMap<AttributeKey, Object>();
@@ -230,33 +239,40 @@ class ToolBar
 		if (component instanceof JToggleButton)
 			setUpToggleButton((JToggleButton) component);
 		
-		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, polylineTool, 
+		if(addPolyline)
+		{
+			DrawingToolBarButtonFactory.addToolTo(toolBar, editor, polylineTool, 
 				  CREATE_KEY+FigureUtil.SCRIBBLE_TYPE);
-		 component = toolBar.getComponent(toolBar.getComponentCount()-1);
-		if (component instanceof JToggleButton)
-			setUpToggleButton((JToggleButton) component);
+			component = toolBar.getComponent(toolBar.getComponentCount()-1);
+			if (component instanceof JToggleButton)
+				setUpToggleButton((JToggleButton) component);
+		}
+		if(addPolygon)
+		{
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, polygonTool, 
 	    	  CREATE_KEY+FigureUtil.POLYGON_TYPE);
 		component = toolBar.getComponent(toolBar.getComponentCount()-1);
 		if (component instanceof JToggleButton)
 			setUpToggleButton((JToggleButton) component);
-		
+		}
 		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, textTool, 
 			CREATE_KEY+FigureUtil.TEXT_TYPE);
 		component = toolBar.getComponent(toolBar.getComponentCount()-1);
 		if (component instanceof JToggleButton)
 			setUpToggleButton((JToggleButton) component);
-		DrawingToolBarButtonFactory.addToolTo(toolBar, editor, connectionTool, 
-    			CREATE_KEY+FigureUtil.LINE_CONNECTION_TYPE);
-		component = toolBar.getComponent(
-		toolBar.getComponentCount()-1);
-		if (component instanceof JToggleButton)
+		if(addConnection)
 		{
-			JToggleButton button = (JToggleButton) component;
-			button.setToolTipText("Connector");
-			setUpToggleButton(button);	
+			DrawingToolBarButtonFactory.addToolTo(toolBar, editor, connectionTool, 
+    			CREATE_KEY+FigureUtil.LINE_CONNECTION_TYPE);
+			component = toolBar.getComponent(
+					toolBar.getComponentCount()-1);
+			if (component instanceof JToggleButton)
+			{
+				JToggleButton button = (JToggleButton) component;
+				button.setToolTipText("Connector");
+				setUpToggleButton(button);	
+			}
 		}
-
 	}
 	
 	/**
@@ -355,10 +371,12 @@ class ToolBar
 		rectTool.setResetToSelect(option);
 		textTool.setResetToSelect(option); 
 		lineTool.setResetToSelect(option); 
-		// TODO : connectionTool.setResetToSelect(option); 
+		// TODO : connectionTool.setResetToSelect(option);
 		pointTool.setResetToSelect(option);
-	    polygonTool.setResetToSelect(option);
-	    polylineTool.setResetToSelect(option); 
+	    if(addPolygon)
+	    	polygonTool.setResetToSelect(option);
+	    if(addPolyline)
+	    	polylineTool.setResetToSelect(option); 
 	}
 	
 	/**
