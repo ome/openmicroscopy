@@ -226,40 +226,61 @@ class MonitorWorker(threading.Thread):
         self.callback = callback
 
     def run(self):
+        """
+        Repeatedly calls self.execute until self.event is set.
+        """
         while not self.event.isSet():
             self.execute()
         self.log.info("Stopping")
 
-        
     @perf
     def execute(self):
+        """
+        Loops until either:
+         * the number of ids >= self.batch
+         * self.wait seconds have passed
+         * self.event (a stop Event) is set
 
-            count = 0
-            ids = set()
+        If event is set or no ids are found, this method returns.
+        If batch ids are found, pass them to self.callback()
+
+        An inner loop is used since there is no way to signal
+        to the Queue that it should cease blocking activities.
+        """
+        count = 0    # Count of possibly duplicate entries
+        ids = set()  # Unique entries
+        start = time.time()
+        while (len(ids) < self.batch) \
+                and (time.time() < (start+self.wait)) \
+                and not self.event.isSet():
+
             try:
-                ids.add(self.queue.get(timeout=self.wait).fileId)
-                count += 1
+                while True:
+                    entry = self.queue.get_nowait()
+                    if entry:
+                        count += 1
+                        ids.add(entry.fileId)
+                        if len(ids) >= self.batch:
+                            break;
             except Queue.Empty:
                 pass
 
-            if len(ids) == 0:
-                self.log.debug("No events found")
-                return
+            # Slowing down this thread to prevent a very busy wait
+            self.event.wait(2)
 
-            try:
-                while len(ids) < self.batch:
-                    ids.add(self.queue.get_nowait().fileId)
-                    count += 1
-            except Queue.Empty:
-                pass
-
-            self.log.info("Processing %s events (%s ids). %s remaining"\
-                % (count, len(ids), self.queue.qsize()))
-
-            try:
-                self.callback(ids)
-            except:
-                self.log.exception("Callback error")
+        if len(ids) == 0:
+            self.log.debug("No events found")
+        else:
+            if self.event.isSet():
+                self.log.warn("Skipping processing of %s events (%s ids). %s remaining"\
+                    % (count, len(ids), self.queue.qsize()))
+            else:
+                self.log.info("Processing %s events (%s ids). %s remaining"\
+                    % (count, len(ids), self.queue.qsize()))
+                try:
+                    self.callback(ids)
+                except:
+                    self.log.exception("Callback error")
 
 
 class MonitorClientI(monitors.MonitorClient):
