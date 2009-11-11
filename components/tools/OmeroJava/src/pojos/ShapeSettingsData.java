@@ -30,6 +30,7 @@ import java.awt.Font;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.RFloat;
 import omero.RInt;
 import omero.RString;
 import omero.rtypes;
@@ -186,7 +187,11 @@ public class ShapeSettingsData
 		if (value == null) return DEFAULT_FILL_COLOUR;
 		Color c = stringToColor(value.getValue());
 		if (c == null) return DEFAULT_FILL_COLOUR;
-		return c;
+		RFloat alphaValue = shape.getFillOpacity();
+		if (alphaValue == null) return DEFAULT_FILL_COLOUR;
+		int alpha = (int) (255*alphaValue.getValue());
+		Color newColour = new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha);
+		return newColour;
 	}
 	
 	/**
@@ -200,6 +205,7 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setFillColor(rtypes.rstring(ColourToString(fillColour)));
+		shape.setFillOpacity(rtypes.rfloat(fillColour.getAlpha()/255.0f));
 	}
 
 	
@@ -215,7 +221,11 @@ public class ShapeSettingsData
 		if (value == null) return DEFAULT_STROKE_COLOUR;
 		Color c = stringToColor(value.getValue());
 		if (c == null) return DEFAULT_STROKE_COLOUR;
-		return c;
+		RFloat alphaValue = shape.getStrokeOpacity();
+		if (alphaValue == null) return DEFAULT_STROKE_COLOUR;
+		int alpha = (int) (255*alphaValue.getValue());
+		Color newColour = new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha);
+		return newColour;
 	}
 
 	/**
@@ -229,6 +239,7 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setStrokeColor(rtypes.rstring(ColourToString(strokeColour)));
+		shape.setStrokeOpacity(rtypes.rfloat(strokeColour.getAlpha()/255.0f));
 	}
 	
 	/**
