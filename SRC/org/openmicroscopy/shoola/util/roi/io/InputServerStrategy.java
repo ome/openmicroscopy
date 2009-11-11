@@ -238,7 +238,7 @@ class InputServerStrategy
 		} else if (shape instanceof PointData) {
 			return createPointFigure((PointData) shape);	
 		} else if (shape instanceof PolylineData) {
-			return createPolylineFigure((PolylineData) shape);			
+			return createPolyOrlineFigure((PolylineData) shape);			
 		} else if (shape instanceof PolygonData) {
 			return createPolygonFigure((PolygonData) shape);			
 		} else if (shape instanceof MaskData) {
@@ -445,23 +445,46 @@ class InputServerStrategy
 	}
 	
 	/**
-	 * Transforms the passed polyline into its UI corresponding object.
+	 * Test to see if the polyline object passed in is actually a line/multi
+	 * segment line or a polyline.
 	 * 
 	 * @param data The polyline to transform.
 	 * @return See above.
 	 */
-	private MeasureBezierFigure createPolylineFigure(PolylineData data)
+	private ROIFigure createPolyOrlineFigure(PolylineData data)
 	{
-		
-		MeasureBezierFigure fig = new MeasureBezierFigure(false, data.isReadOnly(),
-				data.isClientObject());
-		List<Point2D.Double> points = data.getPoints();
-		List<Point2D.Double> points1 = data.getPoints1();
-		List<Point2D.Double> points2 = data.getPoints2();
 		List<Integer> mask = data.getMaskPoints();
+		
+		boolean line = true;
+		for(int i = 0 ; i < mask.size(); i++)
+		{
+			if(mask.get(i)!=0)
+				line = false;
+		}
+		
+		if(line)
+			return createLineFromPolylineFigure(data);
+		else
+			return createPolylineFromPolylineFigure(data);
+	}	
+		
+	/**
+	 * Transforms the passed polyline into a line figure are it has only move
+	 * to operations.
+	 * 
+	 * @param data The polyline to transform.
+	 * @return See above.
+	 */
+	private ROIFigure createLineFromPolylineFigure(PolylineData data)
+	{
+		List<Point2D.Double> points = data.getPoints();
+		MeasureLineFigure fig = new MeasureLineFigure(data.isReadOnly(), 
+				data.isClientObject());
+		fig.removeAllNodes();
+		
 		for (int i=0; i<points.size(); i++)
 		{
-			Node newNode = new Node(mask.get(i), points.get(i), points1.get(i), points2.get(i));
+			Node newNode = new Node(points.get(i));
 			fig.addNode(newNode);
 		}
 		
@@ -474,8 +497,42 @@ class InputServerStrategy
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			// e.printStackTrace();
+		}	
+		return fig;
+	}
+	
+	/**
+	 * Transforms the passed polyline into a Polyline shape.
+	 * 
+	 * @param data The polyline to transform.
+	 * @return See above.
+	 */
+	private ROIFigure createPolylineFromPolylineFigure(PolylineData data)
+	{
+		List<Point2D.Double> points = data.getPoints();
+		List<Point2D.Double> points1 = data.getPoints1();
+		List<Point2D.Double> points2 = data.getPoints2();
+		List<Integer> mask = data.getMaskPoints();
+		MeasureBezierFigure fig = new MeasureBezierFigure(false, 
+				data.isReadOnly(), data.isClientObject());
+	
+		for (int i=0; i<points.size(); i++)
+		{
+			Node newNode = new Node(mask.get(i), points.get(i), 
+					points1.get(i), points2.get(i));
+			fig.addNode(newNode);
 		}
-		fig.setClosed(false);		
+		
+		addShapeSettings(fig, data.getShapeSettings());
+		fig.setText(data.getText());
+		AffineTransform transform;
+		try {
+			transform = SVGTransform.toTransform(data.getTransform());
+			TRANSFORM.set(fig, transform);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			// e.printStackTrace();
+		}	
 		return fig;
 	}
 	

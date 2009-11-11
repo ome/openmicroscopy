@@ -301,8 +301,7 @@ public class MeasureBezierFigure
 						g.setColor(
 						MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 						g.drawString(
-								this.getROI().getID()+"", 
-								(int) path.getCenter().getX(), 
+								polygonLength+"", (int) path.getCenter().getX(), 
 								(int) path.getCenter().getY());
 					}
 					if (MeasurementAttributes.SHOWID.get(this))
