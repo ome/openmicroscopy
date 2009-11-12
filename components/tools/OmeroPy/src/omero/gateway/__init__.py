@@ -450,7 +450,7 @@ class _BlitzGateway (object):
                     raise
                 except:
                     logger.info("BlitzGateway.connect().createSession(): " + traceback.format_exc())
-                    logger.info(str(self._ic_props))
+                    #logger.debug(str(self._ic_props))
                     logger.info('first create session had errors, hold off 10 secs and retry (but only once)')
                     #time.sleep(10)
                     logger.info("(3) calling createSession()")
