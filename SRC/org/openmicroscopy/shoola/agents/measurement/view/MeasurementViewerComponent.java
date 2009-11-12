@@ -224,7 +224,7 @@ class MeasurementViewerComponent
         		if (location) model.fireLoadROIFromServer(measurements);
         		else
         		*/	
-        		model.fireLoadROIServerOrClient();
+        		model.fireLoadROIServerOrClient(false);
         		//model.fireROILoading(null);
         		//fireStateChange();
                 break;
@@ -937,7 +937,7 @@ class MeasurementViewerComponent
 										"for "+model.getImageID());
 			e.printStackTrace();
 		}
-		model.fireLoadROIServerOrClient();
+		model.fireLoadROIServerOrClient(false);
 	}
 	
 }

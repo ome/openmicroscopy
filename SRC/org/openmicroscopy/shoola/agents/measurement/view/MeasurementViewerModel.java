@@ -800,16 +800,16 @@ class MeasurementViewerModel
 	/** 
 	 * Fires an asynchronous retrieval of the ROI related to the pixels set. 
 	 * 
-	 * @param fileName The name of the file to load. If <code>null</code>
-	 * 					the {@link #roiFileName} is selected.
+	 * @param dataChanged has the roi been changed.
 	 */
-	void fireLoadROIServerOrClient()
+	void fireLoadROIServerOrClient(boolean dataChanged)
 	{
 		state = MeasurementViewer.LOADING_ROI;
 		ExperimenterData exp = 
 			(ExperimenterData) MeasurementAgent.getUserDetails();
 		currentLoader = new ServerSideROILoader(component, getImageID(), exp.getId());
 		currentLoader.load();
+		nofityDataChanged(dataChanged);
 	}
 	
 	/** 
@@ -921,6 +921,7 @@ class MeasurementViewerModel
 			currentSaver = new ROISaver(component, getImageID(), exp.getId(), 
 					roiList);
 			currentSaver.load();
+			nofityDataChanged(false);
 		} catch (Exception e) {
 			e.printStackTrace();
 			Logger log = MeasurementAgent.getRegistry().getLogger();
