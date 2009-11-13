@@ -1439,7 +1439,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.seek(0)
         return f.read()
     
-    def getFileFormt(self, format):
+    def getFileFormat(self, format):
         query_serv = self.getQueryService()
         return query_serv.findByString("Format", "value", format);
     

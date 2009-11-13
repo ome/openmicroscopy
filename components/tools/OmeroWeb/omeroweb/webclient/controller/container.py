@@ -1129,16 +1129,18 @@ class BaseContainer(BaseController):
         self.conn.saveObject(t_ann)
     
     # File annotation
-    def createProjectFileAnnotation(self, newFile):
-        if newFile.content_type.startswith("image"):
-            f = newFile.content_type.split("/") 
-            try:
-                format = self.conn.getFileFormt(f[1].upper())
-            except:
-                format = self.conn.getFileFormt("application/octet-stream")
-        else:
-            format = self.conn.getFileFormt(newFile.content_type)
+    def getFileFormat(newFile):
+        format = None
+        try:
+            format = self.conn.getFileFormat(newFile.content_type)
+        except:
+            pass
+        if format is None:
+            format = self.conn.getFileFormat("application/octet-stream")
+        return format
         
+    def createProjectFileAnnotation(self, newFile):
+        format = self.getFileFormat(newFile)
         oFile = OriginalFileI()
         oFile.setName(rstring(str(newFile.name)));
         oFile.setPath(rstring(str(newFile.name)));
@@ -1157,15 +1159,7 @@ class BaseContainer(BaseController):
         self.conn.saveObject(l_ia)
     
     def createScreenFileAnnotation(self, newFile):
-        if newFile.content_type.startswith("image"):
-            f = newFile.content_type.split("/") 
-            try:
-                format = self.conn.getFileFormt(f[1].upper())
-            except:
-                format = self.conn.getFileFormt("application/octet-stream")
-        else:
-            format = self.conn.getFileFormt(newFile.content_type)
-        
+        format = self.getFileFormat(newFile)
         oFile = OriginalFileI()
         oFile.setName(rstring(str(newFile.name)));
         oFile.setPath(rstring(str(newFile.name)));
@@ -1184,15 +1178,7 @@ class BaseContainer(BaseController):
         self.conn.saveObject(l_ia)
     
     def createDatasetFileAnnotation(self, newFile):
-        if newFile.content_type.startswith("image"):
-            f = newFile.content_type.split("/") 
-            try:
-                format = self.conn.getFileFormt(f[1].upper())
-            except:
-                format = self.conn.getFileFormt("application/octet-stream")
-        else:
-            format = self.conn.getFileFormt(newFile.content_type)
-        
+        format = self.getFileFormat(newFile)
         oFile = OriginalFileI()
         oFile.setName(rstring(str(newFile.name)));
         oFile.setPath(rstring(str(newFile.name)));
@@ -1211,15 +1197,7 @@ class BaseContainer(BaseController):
         self.conn.saveObject(l_ia)
     
     def createPlateFileAnnotation(self, newFile):
-        if newFile.content_type.startswith("image"):
-            f = newFile.content_type.split("/") 
-            try:
-                format = self.conn.getFileFormt(f[1].upper())
-            except:
-                format = self.conn.getFileFormt("application/octet-stream")
-        else:
-            format = self.conn.getFileFormt(newFile.content_type)
-        
+        format = self.getFileFormat(newFile)
         oFile = OriginalFileI()
         oFile.setName(rstring(str(newFile.name)));
         oFile.setPath(rstring(str(newFile.name)));
@@ -1238,16 +1216,7 @@ class BaseContainer(BaseController):
         self.conn.saveObject(l_ia)
     
     def createImageFileAnnotation(self, newFile):
-        if newFile.content_type.startswith("image"):
-            f = newFile.content_type.split("/") 
-            format = None
-            try:
-                format = self.conn.getFileFormt(f[1].upper())
-            except:
-                format = self.conn.getFileFormt("application/octet-stream")
-        else:
-            format = self.conn.getFileFormt(newFile.content_type)
-        
+        format = self.getFileFormat(newFile)
         oFile = OriginalFileI()
         oFile.setName(rstring(str(newFile.name)));
         oFile.setPath(rstring(str(newFile.name)));
