@@ -2061,4 +2061,11 @@ class EditorModel
 		loader.load();
 	}
 	
+	/** Discards the renderer. */
+	void discardRenderer()
+	{
+		if (renderer != null) renderer.discard();
+		renderer = null;
+	}
+	
 }

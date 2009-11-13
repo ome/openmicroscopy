@@ -103,6 +103,9 @@ import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.ExperimenterData;
+import pojos.ImageData;
+import pojos.PixelsData;
+import pojos.WellSampleData;
 
 
 /** 
@@ -890,6 +893,19 @@ class ImViewerControl
 		} else if (MetadataViewer.SELECTED_CHANNEL_PROPERTY.equals(pName)) {
 			int index = (Integer) pce.getNewValue();
 			model.onChannelSelection(index);
+		} else if (MetadataViewer.CLOSE_RENDERER_PROPERTY.equals(pName)) {
+			Object ref = pce.getNewValue();
+			ImageData image = null;
+			if (ref instanceof ImageData) {
+				image = (ImageData) ref;
+			} else if (ref instanceof WellSampleData) {
+				image = ((WellSampleData) ref).getImage();
+			}
+			if (image != null) {
+				PixelsData pixs = image.getDefaultPixels();
+				if (pixs != null && pixs.getId() == view.getPixelsID()) 
+					model.discard();
+			}
 		}
 	}
 

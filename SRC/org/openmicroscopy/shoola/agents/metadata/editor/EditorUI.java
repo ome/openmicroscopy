@@ -694,4 +694,16 @@ public class EditorUI
 	 */
 	void createFigure(Object value) { model.createFigure(value); }
 	
+	/** 
+	 * Discards the renderer. 
+	 * 
+	 * @param ref The object of reference.
+	 */
+	void discardRenderer(Object ref)
+	{
+		if (ref != model.getRefObject());
+		model.discardRenderer();
+		clearData();
+	}
+	
 }

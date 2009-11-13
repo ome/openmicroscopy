@@ -31,13 +31,13 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.ChannelData;
 import pojos.PixelsData;
@@ -113,8 +114,23 @@ class RendererComponent
 				un.notifyInfo("Image", "Due to an out of Memory error, " +
 						"\nit is not possible to render the image.");
 			} else {
-				un.notifyError(ImViewerAgent.ERROR, logMsg.toString(), 
-						e.getCause());
+				
+				JFrame f = 
+					MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+				MessageBox box = new MessageBox(f, "Rendering Error", "An " +
+						"error occurred while modifying the settings.\nDo you " +
+						"want to reload the settings?");
+				if (box.centerMsgBox() == MessageBox.YES_OPTION) {
+					logger.debug(this, "Reload rendering Engine.");
+					firePropertyChange(RELOAD_PROPERTY, Boolean.valueOf(false), 
+							Boolean.valueOf(true));
+				} else {
+					firePropertyChange(RELOAD_PROPERTY, Boolean.valueOf(true), 
+							Boolean.valueOf(false));
+				}
+				
+				//un.notifyError(ImViewerAgent.ERROR, logMsg.toString(), 
+				//		e.getCause());
 			}
 			//model.discard();
 			//fireStateChange();

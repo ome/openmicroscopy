@@ -461,8 +461,11 @@ class EditorControl
 				FigureDialog.SPLIT_FIGURE_ROI_PROPERTY.equals(name) || 
 						FigureDialog.MOVIE_FIGURE_PROPERTY.equals(name)) {
 			view.createFigure(evt.getNewValue());
-		} else if (FigureDialog.CLOSE_FIGURE_PROPERTY.equals(name))
+		} else if (FigureDialog.CLOSE_FIGURE_PROPERTY.equals(name)) {
 			figureDialog = null;
+		} else if (MetadataViewer.CLOSE_RENDERER_PROPERTY.equals(name)) {
+			view.discardRenderer(evt.getNewValue());
+		}
 	}
 
 	/**

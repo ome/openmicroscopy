@@ -187,11 +187,13 @@ class RenderingControlProxy
     private void handleException(Throwable e, String message)
     	throws RenderingServiceException, DSOutOfServiceException
     {
+    	/*
     	if (e instanceof ServerError) {
     		shutDown();
     		throw new DSOutOfServiceException(message+"\n\n"+
 					printErrorText(e), e);
     	}
+    	*/
     	throw new RenderingServiceException(message+"\n\n"+
 				printErrorText(e), e);
     }
@@ -982,6 +984,9 @@ class RenderingControlProxy
     { 
     	//DataServicesFactory.isSessionAlive(context);
     	try {
+    		int maxZ = getPixelsDimensionsZ();
+    		if (z < 0) z = 0;
+    		if (z >= maxZ) z = maxZ-1;
     		servant.setDefaultZ(z);
             rndDef.setDefaultZ(z);
 		} catch (Exception e) {
@@ -999,6 +1004,9 @@ class RenderingControlProxy
     { 
     	//DataServicesFactory.isSessionAlive(context);
     	try {
+    		int maxT = getPixelsDimensionsT();
+    		if (t < 0) t = 0;
+    		if (t >= maxT) t = maxT-1;
     		servant.setDefaultT(t);
             rndDef.setDefaultT(t);
 		} catch (Exception e) {
