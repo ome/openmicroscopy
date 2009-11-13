@@ -9,6 +9,7 @@ package omeis.providers.re;
 
 // Java imports
 import java.util.List;
+import java.util.Map;
 
 // Third-party libraries
 
@@ -215,6 +216,13 @@ public interface RenderingEngine extends StatefulServiceInterface {
      * <code>RenderingDef</code> is incompatible due to differing pixels sets.
      */
     public void loadRenderingDef(long renderingDefId);
+    
+    /**
+     * Informs the rendering engine that it should render a set of overlays on
+     * each rendered frame. These are expected to be binary masks.
+     * @param overlays Binary mask to color map.
+     */
+    public void setOverlays(Map<byte[], Integer> overlays);
 
     /** Creates a instance of the rendering engine. */
     public void load();

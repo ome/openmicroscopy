@@ -16,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import ome.io.nio.PixelData;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.Plane2D;
+import omeis.providers.re.quantum.BinaryMaskQuantizer;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumStrategy;
 

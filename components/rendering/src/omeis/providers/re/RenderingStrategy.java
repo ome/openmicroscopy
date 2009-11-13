@@ -67,6 +67,19 @@ abstract class RenderingStrategy {
     protected int sizeX2;
     
     /**
+     * The maximum number of tasks that we will be using during rendering.
+     */
+    protected int maxTasks;
+    
+    /**
+     * Constructs a strategy.
+     */
+    protected RenderingStrategy()
+    {
+    	maxTasks = Runtime.getRuntime().availableProcessors();
+    }
+    
+    /**
      * Returns an RGB buffer for usage. Note that the buffer is reallocated
      * upon each call. Should only be called within the context of a
      * "render" operation as it requires a {@link renderer}.

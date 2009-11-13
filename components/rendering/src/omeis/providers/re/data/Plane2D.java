@@ -92,7 +92,7 @@ public class Plane2D {
      * @param data
      *            The raw pixels.
      */
-    protected Plane2D(PlaneDef pDef, Pixels pixels, PixelData data) {
+    public Plane2D(PlaneDef pDef, Pixels pixels, PixelData data) {
         this.planeDef = pDef;
         this.sizeX = pixels.getSizeX();
         this.sizeY = pixels.getSizeY();

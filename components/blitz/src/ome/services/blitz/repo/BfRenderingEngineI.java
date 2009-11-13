@@ -6,6 +6,9 @@
  */
 package ome.services.blitz.repo;
 
+import java.util.Map;
+
+import omero.RLong;
 import omero.ServerError;
 import omero.api.AMD_RenderingEngine_addCodomainMap;
 import omero.api.AMD_RenderingEngine_getAvailableFamilies;
@@ -27,6 +30,7 @@ import omero.api.AMD_RenderingEngine_getQuantumDef;
 import omero.api.AMD_RenderingEngine_getRGBA;
 import omero.api.AMD_RenderingEngine_isActive;
 import omero.api.AMD_RenderingEngine_isPixelsTypeSigned;
+import omero.api.AMD_RenderingEngine_setOverlays;
 import omero.api.AMD_RenderingEngine_load;
 import omero.api.AMD_RenderingEngine_loadRenderingDef;
 import omero.api.AMD_RenderingEngine_lookupPixels;
@@ -216,6 +220,13 @@ public class BfRenderingEngineI extends _RenderingEngineDisp {
             Current __current) throws ServerError {
         // TODO Auto-generated method stub
         
+    }
+    
+    public void setOverlays_async(AMD_RenderingEngine_setOverlays __cb,
+    		RLong tableId, RLong imageId, Map<Long, Integer> rowColorMap,
+    		Current __current) throws ServerError {
+    	// TODO Auto-generated method stub
+
     }
 
     public void load_async(AMD_RenderingEngine_load __cb, Current __current)

@@ -41,6 +41,9 @@ public class PixelData
     /** Identifies the type used to store pixel values. */
     public static final int DOUBLE = 5;
     
+    /** Identifies the type used to store pixel values. */
+    public static final int BIT = 6;
+    
     /** Type of the pixel data. */
     protected PixelsType pixelsType;
     
@@ -125,6 +128,12 @@ public class PixelData
 		    javaType = DOUBLE;
 		    minimum = Double.MIN_VALUE;
 		    maximum = Double.MAX_VALUE;
+		} else if (value.equals("bit")) {
+		    isSigned = false;
+		    isFloat = false;
+		    javaType = BIT;
+		    minimum = 0;
+		    maximum = 1;
 		} else {
 	          throw new IllegalArgumentException(
 	                    "Unknown pixel type: " + pixelsType.getValue());
@@ -155,6 +164,10 @@ public class PixelData
      */
     public int bytesPerPixel()
     {
+    	if (pixelsType.getValue().equals("bit"))
+    	{
+    		return 1;
+    	}
     	return PixelsService.getBitDepth(pixelsType) / 8;
     }
 
@@ -219,7 +232,7 @@ public class PixelData
      */
     public void setPixelValue(int offset, double value)
     {
-        setPixelValueDirect(offset * bytesPerPixel, value);
+   		setPixelValueDirect(offset * bytesPerPixel, value);
     }
     
     /**
@@ -234,6 +247,16 @@ public class PixelData
     {
         switch (javaType)
         {
+        	case BIT:
+        		int byteOffset = offset / 8;
+        		byte x = data.get(byteOffset);
+        		if (value == 0)
+        		{
+        			data.put(byteOffset, (byte) (x & ~(1 << (7 - (offset % 8)))));
+        			break;
+        		}
+        		data.put(byteOffset, (byte) (x | 1 << (7 - (offset % 8))));
+        		break;
             case BYTE:
                 data.put(offset, (byte) value);
                 break;
@@ -292,6 +315,8 @@ public class PixelData
     	} else {
     		switch (javaType)
         	{
+				case BIT:
+					return data.get(offset / 8) >> (7 - (offset % 8)) & 1;
 	        	case BYTE:
 	        		return (short) (data.get(offset) & 0xFF);
 	        	case SHORT:
@@ -344,6 +369,6 @@ public class PixelData
      */
     public int size()
     {
-    	return data.capacity() / bytesPerPixel();
+    	return data.capacity() / bytesPerPixel;
     }
 }

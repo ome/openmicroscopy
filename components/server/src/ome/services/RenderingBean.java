@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ome.annotations.RevisionDate;
@@ -374,6 +375,17 @@ public class RenderingBean implements RenderingEngine, Serializable {
         } finally {
             rwl.writeLock().unlock();
         }
+    }
+    
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
+     * @see RenderingEngine#setOverlays()
+     */
+    @RolesAllowed("user")
+    public void setOverlays(Map<byte[], Integer> overlays)
+    {
+    	renderer.setOverlays(overlays);
     }
 
     /**
