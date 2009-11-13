@@ -149,6 +149,7 @@ module omero {
         // Dictionaries
 
         dictionary<long,   string>                     LongStringMap;
+        dictionary<long,   int>                        LongIntMap;
         dictionary<long,   ByteArray>                  LongByteArrayMap;
         dictionary<long,   omero::model::Pixels>       LongPixelsMap;
         dictionary<string, omero::RType>               StringRTypeMap;

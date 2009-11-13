@@ -151,6 +151,8 @@ public class PixelsService extends AbstractFileSystemService {
 			return 32;
 		} else if (type.getValue().equals("double")) {
 			return 64;
+		} else if (type.getValue().equals("bit")) {
+			return 1;
 		}
 
 		throw new RuntimeException("Pixels type '" + type.getValue()

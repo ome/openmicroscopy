@@ -7,8 +7,18 @@
 
 package ome.services.blitz.impl;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
+import org.perf4j.StopWatch;
+import org.perf4j.commonslog.CommonsLogStopWatch;
+
 import ome.services.blitz.util.BlitzExecutor;
+import ome.services.blitz.util.ServiceFactoryAware;
 import omeis.providers.re.RenderingEngine;
+import omero.InternalException;
+import omero.RLong;
 import omero.ServerError;
 import omero.api.AMD_RenderingEngine_addCodomainMap;
 import omero.api.AMD_RenderingEngine_getAvailableFamilies;
@@ -30,6 +40,7 @@ import omero.api.AMD_RenderingEngine_getQuantumDef;
 import omero.api.AMD_RenderingEngine_getRGBA;
 import omero.api.AMD_RenderingEngine_isActive;
 import omero.api.AMD_RenderingEngine_isPixelsTypeSigned;
+import omero.api.AMD_RenderingEngine_setOverlays;
 import omero.api.AMD_RenderingEngine_load;
 import omero.api.AMD_RenderingEngine_loadRenderingDef;
 import omero.api.AMD_RenderingEngine_lookupPixels;
@@ -59,12 +70,18 @@ import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
 import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
+import omero.api.IRoiPrx;
 import omero.api._RenderingEngineOperations;
 import omero.constants.projection.ProjectionType;
+import omero.grid.Column;
+import omero.grid.Data;
+import omero.grid.MaskColumn;
+import omero.grid.TablePrx;
 import omero.model.Family;
 import omero.model.RenderingModel;
 import omero.romio.CodomainMapContext;
 import omero.romio.PlaneDef;
+import omero.util.IceMapper;
 import Ice.Current;
 
 /**
@@ -75,11 +92,20 @@ import Ice.Current;
  * @see omeis.providers.re.RenderingEngine
  */
 public class RenderingEngineI extends AbstractAmdServant implements
-        _RenderingEngineOperations {
-
+        _RenderingEngineOperations, ServiceFactoryAware {
+	
+	private ServiceFactoryI sf;
+	
+	private IRoiPrx roiService;
+	
     public RenderingEngineI(RenderingEngine service, BlitzExecutor be) {
         super(service, be);
     }
+    
+	public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
+		this.sf = sf;
+		this.roiService = sf.getRoiService();
+	}
 
     // Interface methods
     // =========================================================================
@@ -220,6 +246,74 @@ public class RenderingEngineI extends AbstractAmdServant implements
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, renderingDefId);
 
+    }
+    
+    public void setOverlays_async(AMD_RenderingEngine_setOverlays __cb,
+    		RLong tableId, RLong imageId, Map<Long, Integer> rowColorMap,
+    		Current __current) throws ServerError {
+    	try
+    	{
+    		// Translate our set of rows to an array for table slicing
+    		Set<Long> rowsAsSet = rowColorMap.keySet();
+    		long[] rows = new long[rowsAsSet.size()];
+    		int rowIndex = 0;
+    		for (Long row : rowsAsSet)
+    		{
+    			rows[rowIndex] = row.longValue();
+    			rowIndex++;
+    		}
+
+    		// Load the table and find the index of the mask column, throwing an
+    		// exception if the mask column does not exist.
+    		StopWatch s1 = new CommonsLogStopWatch("omero.getTable");
+    		TablePrx table = roiService.getTable(tableId.getValue());
+    		s1.stop();
+    		s1 = new CommonsLogStopWatch("omero.getHeaders");
+    		Column[] columns = table.getHeaders();
+    		s1.stop();
+    		int maskColumnIndex = 0;
+    		for (; maskColumnIndex < columns.length; maskColumnIndex++)
+    		{
+    			if (columns[maskColumnIndex] instanceof MaskColumn)
+    			{
+    				break;
+    			}
+    			maskColumnIndex++;
+    		}
+    		if (maskColumnIndex == columns.length)
+    		{
+    			throw new IllegalArgumentException(
+    					"Unable to find mask column in table: " + tableId);
+    		}
+
+    		// Slice the table and feed the byte array encoded bit masks to the
+    		// rendering engine servant.
+    		s1 = new CommonsLogStopWatch("omero.sliceAndBuildREMap");
+    		Data data = table.slice(new long[] { maskColumnIndex }, rows);
+    		MaskColumn maskColumn = (MaskColumn) data.columns[0];
+    		final Map<byte[], Integer> forRenderingEngine = 
+    			new LinkedHashMap<byte[], Integer>();
+    		for (int i = 0; i < rows.length; i++)
+    		{
+    			forRenderingEngine.put(maskColumn.bytes[i],
+    					rowColorMap.get(rows[i]));
+    		}
+    		s1.stop();
+    		final IceMapper mapper = new IceMapper(IceMapper.VOID);
+    		callInvokerOnMappedArgs(mapper, __cb, __current,
+    				                forRenderingEngine);
+    	}
+    	catch (Throwable t)
+    	{
+    		if (!(t instanceof Exception))
+    		{
+    			__cb.ice_exception(new InternalException());
+    		}
+    		else
+    		{
+    			__cb.ice_exception((Exception) t);
+    		}
+    	}
     }
 
     public void load_async(AMD_RenderingEngine_load __cb, Current __current)

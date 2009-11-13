@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 // Third-party libraries
 import org.apache.commons.logging.Log;
@@ -131,6 +132,9 @@ public class Renderer {
 
     /** Renderer optimizations. */
     private Optimizations optimizations = new Optimizations();
+    
+    /** Map of overlays we've currently been told to render. */
+    private Map<byte[], Integer> overlays;
 
     /**
      * Returns a copy of a list of channel bindings with one element removed;
@@ -363,6 +367,24 @@ public class Renderer {
      */
     public void setDefaultT(int t) {
         rndDef.setDefaultT(Integer.valueOf(t));
+    }
+    
+    /**
+     * Sets a map of overlays to be rendered.
+     * @param overlays Overlay to color map.
+     */
+    public void setOverlays(Map<byte[], Integer> overlays) {
+    	this.overlays = overlays;
+    	checkOptimizations();
+    	optimizations.primaryColorEnabled = false;
+    }
+    
+    /**
+     * Returns the current set of overlays to be rendered.
+     * @return Overlay to color map.
+     */
+    public Map<byte[], Integer> getOverlays() {
+    	return overlays;
     }
 
     /**
