@@ -426,7 +426,7 @@ class MonitorClientI(monitors.MonitorClient):
 
             # Checking name first since it's faster
             exName = self.getExperimenterFromPath(fileId)
-            if exName:
+            if exName and self.userExists(exName):
                 # Creation or modification handled by state/timeout system
                 if str(fileInfo.type) == "Create" or str(fileInfo.type) == "Modify":
                     self.queue.put(fileInfo)
@@ -481,8 +481,12 @@ class MonitorClientI(monitors.MonitorClient):
             fileParts = fileId.splitall()
             i = -1 * len(parpath)
             fileParts = fileParts[i:]
-            if len(fileParts) >= 3:
-                exName = fileParts[1]
+            # For .../DropBox/user structure
+            if len(fileParts) >= 2:
+                exName = fileParts[0]
+            # For .../DropBox/u/user structure
+            #if len(fileParts) >= 3:
+            #    exName = fileParts[1]
         if not exName:
             self.log.error("File added outside user directories: %s" % fileId)
         return exName
@@ -501,13 +505,12 @@ class MonitorClientI(monitors.MonitorClient):
         except:
             self.log.exception("Failed to get sf \n")
 
-
         if not sf:
             self.log.error("No connection")
             return None
 
         p = omero.sys.Principal()
-        p.name  = exName
+        p.name  = exName 
         p.group = "user"
         p.eventType = "User"
 
@@ -521,6 +524,36 @@ class MonitorClientI(monitors.MonitorClient):
         except:
             self.log.exception("Unknown exception during loginUser")
             return None
+
+    def userExists(self, exName):
+        """
+            Tests if the given user exists.
+            
+        """
+
+        if not self.ctx.hasSession():
+             self.ctx.newSession()
+
+        sf = None
+        try:
+            sf = self.ctx.getSession()
+        except:
+            self.log.exception("Failed to get sf \n")
+
+        if not sf:
+            self.log.error("No connection")
+            return False
+
+        try:
+            exp = sf.getAdminService().lookupExperimenter(exName)
+            return True
+        except omero.ApiUsageException:
+            self.log.info("User unknown: %s", exName)
+            return False
+        except:
+            self.log.exception("Unknown exception during loginUser")
+            return False
+            
 
     @perf
     def importFile(self, fileName, exName):
@@ -711,8 +744,7 @@ class MonitorClientI(monitors.MonitorClient):
 class SingleUserMonitorClient(MonitorClientI):
     """
         Subclass of MonitorClient providing for a single user to import outside 
-        of the DrpBox structure.
-        
+        of the DropBox structure.
         
     """
     def __init__(self, user, dir, communicator, getUsedFiles = as_dictionary, ctx = None,\
@@ -740,8 +772,8 @@ class SingleUserMonitorClient(MonitorClientI):
         
 class TestMonitorClient(SingleUserMonitorClient):
     """
-        Subclass of MonitorClient providing for a single user to import outside 
-        of the DrpBox structure.
+        Subclass of SingleUserMonitorClient providing for a test import outside 
+        of the DropBox structure to be made by copying a given file.
         
         
     """
@@ -761,9 +793,9 @@ class TestMonitorClient(SingleUserMonitorClient):
     #
     def importFileWrapper(self, fileId):
         """
-        Wrapper method which allows plugging error handling code around
-        the main call to importFile. In all cases, the key will be removed
-        on execution.
+            Import a file and then notify the DropBox that the file has been imported
+            successfully or not.
+            
         """
         self.state.clear(fileId)
         exName = self.getExperimenterFromPath(fileId)
