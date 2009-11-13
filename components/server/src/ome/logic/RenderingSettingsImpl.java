@@ -1,3 +1,4 @@
+
 /*
  *   $Id$
  *------------------------------------------------------------------------------
@@ -1011,6 +1012,17 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	Map<Long, RenderingDef> settingsMap = loadRenderingSettings(pixels);
     	RenderingDef settingsFrom = settingsMap.get(from);
     	if (pixelsFrom != null) pixels.remove(pixelsFrom);
+    	else {
+    		//load pixels from
+    		Set<Long> ids = new HashSet<Long>();
+    		ids.add(from);
+    		List<Pixels> l = loadPixels(ids);
+    		if (l.size() != 1) 
+    			throw new ValidationException("No pixels set with ID: " + from);
+    		pixelsFrom = l.get(0);
+    	}
+    	
+    	
     	RenderingDef settingsTo;
     	for (Pixels p : pixels)
     	{
