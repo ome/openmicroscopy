@@ -147,7 +147,7 @@ public class UserNotifierImpl
     		title = DEFAULT_ERROR_TITLE;
     	MessengerDialog d = new MessengerDialog(SHARED_FRAME, title, 
     			getEmail(email), e); 
-    	d.setVersion(manager.getVersionNumber());
+    	d.setServerVersion(manager.getServerVersion());
     	d.addPropertyChangeListener(manager);
     	d.setModal(true);
     	UIUtilities.centerAndShow(d);
@@ -199,7 +199,7 @@ public class UserNotifierImpl
     	if (email == null) email = "";
     	MessengerDialog d = new MessengerDialog(SHARED_FRAME, title, 
     			getEmail(email), toSubmit); 
-    	d.setVersion(manager.getVersionNumber());
+    	d.setServerVersion(manager.getServerVersion());
     	d.addPropertyChangeListener(manager);
     	d.setModal(true);
     	UIUtilities.centerAndShow(d);
@@ -302,7 +302,6 @@ public class UserNotifierImpl
 		}
 		if (comp != null) {
 			UserNotifierLoader loader = comp.createLoader();
-			
 			if (loader == null) return;
 			manager.registerActivity(comp);
 			comp.startActivity();

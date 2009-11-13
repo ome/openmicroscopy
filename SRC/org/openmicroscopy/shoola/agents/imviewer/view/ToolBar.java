@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 //Java imports
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-
 import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -41,9 +40,9 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 //Third-party libraries
+import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
-import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ROIToolAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UserAction;
@@ -249,16 +248,6 @@ class ToolBar
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
-    	/*
-    	setBorder(null);
-    	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-    	JPanel p = new JPanel();
-    	p.setBorder(null);
-    	p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-    	p.add(UIUtilities.buildComponentPanel(bar));
-    	p.add(UIUtilities.buildComponentPanelRight(busyLabel));
-        add(p);
-        */
     	JPanel p = new JPanel();
 		JLabel l = new JLabel("Compression:");
 		p.add(l);
@@ -270,7 +259,6 @@ class ToolBar
     	bars.setBorder(null);
     	bars.add(bar);
     	bars.add(p);
-    	//add(UIUtilities.buildComponentPanel(bar));
     	add(UIUtilities.buildComponentPanel(bars));
     	add(UIUtilities.buildComponentPanelRight(busyLabel));
     }
@@ -379,9 +367,7 @@ class ToolBar
     		bar.revalidate();
     		bar.repaint();
     	} 
-
 	}
-	
 	
     /**
      * Sets the enabled flag of the components.

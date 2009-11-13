@@ -118,7 +118,7 @@ class OmeroMetadataServiceImpl
 	//private FolderData				folder;
 	
 	/**
-	 * Creates ro recycles the folder wrapping the passed file.
+	 * Creates or recycles the folder wrapping the passed file.
 	 * 
 	 * @param file The file to wrap.
 	 * @return See above.
@@ -1983,8 +1983,6 @@ class OmeroMetadataServiceImpl
 		if (ImageData.class.equals(type)) {
 			return gateway.loadROIMeasurements(id, userID);
 		}
-			
-		
 		List<Long> ids = null;
 		if (userID != -1) {
 			ids = new ArrayList<Long>(1);

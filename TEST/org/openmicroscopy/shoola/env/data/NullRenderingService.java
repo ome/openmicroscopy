@@ -337,8 +337,8 @@ public class NullRenderingService
      */
 	public TextureData renderProjectedAsTexture(long pixelsID, int startZ,
 			int endZ, int stepping, int type, List<Integer> channels)
-			throws RenderingServiceException, DSOutOfServiceException {
-		// TODO Auto-generated method stub
+			throws RenderingServiceException, DSOutOfServiceException
+	{
 		return null;
 	}
 
@@ -352,10 +352,26 @@ public class NullRenderingService
 		return null;
 	}
 
+	/**
+     * No-op implementation
+     * @see OmeroImageService#importImage(DataObject, File, StatusLabel, long, 
+     * long, boolean, String, int)
+     */
 	public Object importImage(DataObject container, File file,
 			StatusLabel status, long userID, long groupID, boolean archived,
-			String name, int depth) throws ImportException {
-		// TODO Auto-generated method stub
+			String name, int depth) throws ImportException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#renderOverLays(long, PlaneDef, long, Map, boolean)
+     */
+	public Object renderOverLays(long pixelsID, PlaneDef pd, long tableID,
+			Map<Long, Integer> overlays, boolean asTexture)
+			throws RenderingServiceException
+	{
 		return null;
 	}
 

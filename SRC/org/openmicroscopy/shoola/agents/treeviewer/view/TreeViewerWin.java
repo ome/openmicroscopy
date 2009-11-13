@@ -177,13 +177,23 @@ class TreeViewerWin
     	if (getLayoutType().equals(JXTASKPANE_TYPE)) {
    			container = new JXTaskPaneContainerSingle();
     		container.addPropertyChangeListener(controller);
-    		browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
-            JXTaskPane pane = new TaskPaneBrowser(browser);
-            firstPane = pane;
-            //pane.setCollapsed(false);
-            container.add(pane);
-            browser = (Browser) browsers.get(Browser.SCREENS_EXPLORER);
-            container.add(new TaskPaneBrowser(browser));
+    		JXTaskPane pane;
+    		if (isSPWFirst()) {
+    			 browser = (Browser) browsers.get(Browser.SCREENS_EXPLORER);
+    			 pane = new TaskPaneBrowser(browser);
+    			 firstPane = pane;
+    			 container.add(pane);
+    			 browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
+    			 container.add(new TaskPaneBrowser(browser));
+    		} else {
+    			browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
+    			pane = new TaskPaneBrowser(browser);
+   			 	firstPane = pane;
+   			 	container.add(pane);
+   			 	browser = (Browser) browsers.get(Browser.SCREENS_EXPLORER);
+   			 	container.add(new TaskPaneBrowser(browser));
+    		}
+            
             browser = (Browser) browsers.get(Browser.FILES_EXPLORER);
             container.add(new TaskPaneBrowser(browser));
             
@@ -425,6 +435,18 @@ class TreeViewerWin
         c.add(toolBar, BorderLayout.NORTH);
         c.add(splitPane, BorderLayout.CENTER);
         c.add(statusBar, BorderLayout.SOUTH);
+    }
+
+    /**
+     * Returns <code>true</code>
+     * @return
+     */
+    private boolean isSPWFirst()
+    {
+    	Boolean type = (Boolean) 
+		TreeViewerAgent.getRegistry().lookup("BrowserSPW");
+    	if (type == null) return false;
+		return type;
     }
     
     /**

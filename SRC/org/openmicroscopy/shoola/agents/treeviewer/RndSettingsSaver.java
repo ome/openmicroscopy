@@ -174,8 +174,9 @@ public class RndSettingsSaver
 	 * @param viewer	The TreeViewer this data loader is for.
 	 *               	Mustn't be <code>null</code>.
 	 * @param rootType	The type of nodes. Supported type 
-	 * 					<code>ImageData</code>, <code>DatasetData</code> or
-	 * 					<code>CategoryData</code>.
+	 * 					<code>ImageData</code>, <code>DatasetData</code>, 
+	 * 					<code>ProjectData</code>, <code>ScreenData</code>,
+	 * 					<code>PlateData</code>.
 	 * @param ids		Collection of nodes ids. If the rootType equals 
 	 * 					<code>DatasetData</code>, the settings will be applied
 	 * 					to the images contained in the specified containers.

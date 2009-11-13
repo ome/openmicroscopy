@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 //Third-party libraries
+import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.model.PlaneInfo;
@@ -48,6 +49,7 @@ import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.ImageDataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.MeasurementsLoader;
+import org.openmicroscopy.shoola.agents.imviewer.OverlaysRenderer;
 import org.openmicroscopy.shoola.agents.imviewer.PlaneInfoLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ProjectionSaver;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingSettingsCreator;
@@ -67,20 +69,17 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
-
-import com.sun.opengl.util.texture.TextureData;
-
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PixelsData;
-import pojos.PlateData;
 import pojos.WellData;
 import pojos.WellSampleData;
 
@@ -107,6 +106,9 @@ import pojos.WellSampleData;
 class ImViewerModel
 {
 
+	/** Text identifying the overlays. */
+	static final String			OVERLAYS = "Overlays";
+	
 	/** The maximum number of items in the history. */
 	private static final int	MAX_HISTORY = 10;
 	
@@ -250,11 +252,14 @@ class ImViewerModel
      */
     private Collection 					measurements;
     
+    /** The id of the table containing the overlay. */
+    private long						overlayTableID;
+    
     /**  
      * Flag indicating if the viewer should be opened as a separate window
      * or not. The default value is <code>true</code>.
      */
-    private boolean		separateWindow;
+    private boolean						separateWindow;
     
     /**
 	 * Transforms 3D coordinates into linear coordinates.
@@ -728,6 +733,30 @@ class ImViewerModel
 		//loader.load();
 	}
 
+	/**
+	 * Renders the overlays.
+	 * 
+	 * @param overlays
+	 */
+	void renderOverlays(Map<Long, Integer> overlays)
+	{
+		//Need asynchronous call.
+		/*
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return;
+		rnd.setOverlays(overlayTableID, overlays);
+		fireImageRetrieval();
+		*/
+		PlaneDef pDef = new PlaneDef();
+		pDef.t = getDefaultT();
+		pDef.z = getDefaultZ();
+		pDef.slice = omero.romio.XY.value;
+		state = ImViewer.LOADING_IMAGE;
+		OverlaysRenderer loader = new OverlaysRenderer(component, getPixelsID(), 
+				pDef, overlayTableID, overlays);
+		loader.load();
+	}
+	
 	/**
 	 * This method should only be invoked when we save the displayed image
 	 * and split its components.
@@ -1761,7 +1790,7 @@ class ImViewerModel
 		this.grandParent = grandParent;
 		if (metadataViewer != null)
 			metadataViewer.setParentRootObject(parent);
-		fireMeasurementsLoading();
+		if (isServerROI()) fireMeasurementsLoading();
 	}
 	
 	/**
@@ -2074,10 +2103,47 @@ class ImViewerModel
 	Collection getMeasurements() { return measurements; }
 	
 	/**
+	 * Returns the overlays associated to that image.
+	 * 
+	 * @return See above.
+	 */
+	Map<Integer, Integer> getOverLays()
+	{
+		Iterator i = measurements.iterator();
+		Object object;
+		TableResult table = null;
+		
+		while (i.hasNext()) {
+			object = i.next();
+			if (object instanceof TableResult) {
+				table = (TableResult) object;
+				overlayTableID = table.getTableID();
+				break;
+			}
+		}
+		if (table == null) return null;
+		Object[][] data = table.getData();
+		Map<Integer, Integer> overlays = new LinkedHashMap<Integer, Integer>();
+		int index = 0;
+		Color c = null;
+		for (int j = 0; j < data.length; j++) {
+			if (index == 0) c = Color.red;
+			else if (index == 1) c = Color.green;
+			else if (index == 2) c = Color.blue;
+			overlays.put((Integer) data[j][0], c.getRGB() & 0x00ffffff);
+			index++;
+			if (index%3 == 0) index = 0;
+		}
+		
+		return overlays;
+	}
+	
+	/**
 	 * Sets the retrieved image, returns the a magnification or <code>-1</code>
 	 * if no magnification factor computed. 
 	 * 
-	 * @param image The image to set.
+	 * @param image The image to set
+	 * .
 	 * @return See above.
 	 */
 	double setImageAsTexture(TextureData image)
@@ -2093,6 +2159,18 @@ class ImViewerModel
 		}
 		*/
 		return initZoomFactor();
+	}
+	
+	/**
+	 * Returns <code>true</code> if server ROI are supported, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isServerROI()
+	{
+		return (Boolean) 
+			ImViewerAgent.getRegistry().lookup(LookupNames.SERVER_ROI);
 	}
 	
 }

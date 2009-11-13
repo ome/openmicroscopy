@@ -102,8 +102,9 @@ public class RenderingSettingsSaver
 	 * 
 	 * @param pixelsID		The id of the pixels set of reference.
 	 * @param rootType		The type of nodes. Can either be 
-	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
-	 * 						<code>CategoryData</code>.
+	 * 						<code>ImageData</code>, <code>DatasetData</code>, 
+	 * 						<code>ProjectData</code>, <code>ScreenData</code>,
+	 * 						<code>PlateData</code>.
 	 * @param ids			The id of the nodes to apply settings to. 
 	 * @param index 		One of the constants defined by this class.
 	 * @return The {@link BatchCall}.
@@ -220,8 +221,9 @@ public class RenderingSettingsSaver
 	 * Creates a new instance.
 	 * 
 	 * @param rootNodeType	The type of nodes. Can either be 
-	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
-	 * 						<code>CategoryData</code>.
+	 * 						<code>ImageData</code>, <code>DatasetData</code>, 
+	 * 						<code>ProjectData</code>, <code>ScreenData</code>,
+	 * 						<code>PlateData</code>.
 	 * @param ids			The nodes to apply settings to. 
 	 * 						Mustn't be <code>null</code>.
 	 * @param index			One of the constants defined by this class.
@@ -239,8 +241,9 @@ public class RenderingSettingsSaver
 	 * 
 	 * @param pixelsID		The id of the pixels set of reference.
 	 * @param rootNodeType	The type of nodes. Can either be 
-	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
-	 * 						<code>CategoryData</code>.
+	 * 						<code>ImageData</code>, <code>DatasetData</code>, 
+	 * 						<code>ProjectData</code>, <code>ScreenData</code>,
+	 * 						<code>PlateData</code>.
 	 * @param ids			The nodes to apply settings to. 
 	 * 						Mustn't be <code>null</code>.
 	 */

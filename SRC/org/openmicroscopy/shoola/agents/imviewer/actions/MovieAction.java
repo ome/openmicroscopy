@@ -73,7 +73,7 @@ public class MovieAction
 			if (model.isPlayingMovie()) setEnabled(false);
 			else {
 				int max = Math.max(model.getMaxZ(), model.getMaxT());
-				setEnabled(max != 0);
+				setEnabled(max > 1);
 			}
 		}
     }

@@ -301,11 +301,12 @@ class UserNotifierManager
 	 * 
 	 * @return See above.
 	 */
-	String getVersionNumber()
+	String getServerVersion()
 	{
 		if (container == null) return "";
-		Object version = container.getRegistry().lookup(LookupNames.VERSION);
-		return (String) version;
+		String version = 
+			container.getRegistry().getDataService().getServerVersion();
+		return "Server version: "+version;
 	}
 	
 	/**
@@ -327,7 +328,7 @@ class UserNotifierManager
 		if (commentDialog != null) return commentDialog;
 		commentDialog = new MessengerDialog(frame, DEFAULT_COMMENT_TITLE, 
 				email);   
-		commentDialog.setVersion(getVersionNumber());
+		commentDialog.setServerVersion(getServerVersion());
 		commentDialog.addPropertyChangeListener(this);
 		commentDialog.setModal(false);
 		commentDialog.setAlwaysOnTop(false);

@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -1170,4 +1171,18 @@ class RendererModel
 		return rndControl.isSameSettings(def, checkPlane);
 	}
 	
+    /**
+     * Sets the overlays.
+     * 
+     * @param tableID  The id of the table.
+     * @param overlays The overlays to set, or <code>null</code> to turn 
+     * the overlays off.
+     */
+    void setOverlays(long tableID, Map<Long, Integer> overlays)
+    	throws RenderingServiceException, DSOutOfServiceException
+    {
+    	if (rndControl == null) return;
+    	rndControl.setOverlays(tableID, overlays);
+    }
+    
 }

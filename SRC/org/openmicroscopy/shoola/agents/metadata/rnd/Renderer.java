@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -542,4 +544,13 @@ public interface Renderer
 	 */
 	TextureData renderPlaneAsTexture(PlaneDef pDef);
 	
+    /**
+     * Sets the overlays.
+     * 
+     * @param tableID  The id of the table.
+     * @param overlays The overlays to set, or <code>null</code> to turn 
+     * the overlays off.
+     */
+    public void setOverlays(long tableID, Map<Long, Integer> overlays); 
+    
 }

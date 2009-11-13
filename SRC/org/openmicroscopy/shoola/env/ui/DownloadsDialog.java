@@ -228,6 +228,7 @@ class DownloadsDialog
 	DownloadsDialog(JFrame owner, IconManager icons, int index)
 	{
 		super(owner);
+		setModal(false);
 		if (icons == null)
 			throw new IllegalArgumentException("No icons manager specified.");
 		setDialogIndex(index);

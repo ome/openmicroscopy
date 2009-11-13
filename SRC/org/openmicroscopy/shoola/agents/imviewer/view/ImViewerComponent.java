@@ -1976,12 +1976,18 @@ class ImViewerComponent
 			i = measurements.iterator();
 			FileAnnotationData fa;
 			JCheckBox box;
+			Object object;
 			while (i.hasNext()) {
-				fa = (FileAnnotationData) i.next();
-				box = new JCheckBox(fa.getDescription());
-				box.setSelected(true);
-				p.add(box);
-				boxes.put(box, fa);
+				object = i.next();
+				if (object instanceof FileAnnotationData) {
+					fa = (FileAnnotationData) object;
+					if (!ImViewerModel.OVERLAYS.equals(fa.getDescription())) {
+						box = new JCheckBox(fa.getDescription());
+						box.setSelected(true);
+						p.add(box);
+						boxes.put(box, fa);
+					}
+				}
 			}
 		}
 		
@@ -2751,8 +2757,6 @@ class ImViewerComponent
 				model.firePlaneInfoRetrieval();
 			view.setLeftStatus();
 		} else {
-			//TODO
-			//clean history, reset UI element
 			model.resetHistory();
 			view.switchRndControl();
 		}
@@ -2818,6 +2822,8 @@ class ImViewerComponent
 			a.setEnabled(false);
 		}
 		model.setMeasurements(result);
+		//Notify UI to build overlays 
+		view.buildOverlays();
 	}
 
 	/** 
@@ -2903,6 +2909,28 @@ class ImViewerComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		model.export();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#renderOverlays(int, boolean)
+	 */
+	public void renderOverlays(int index, boolean selected)
+	{
+		switch (model.getState()) {
+			case NEW:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED or " +
+						"NEW state.");
+		}
+		view.renderOverlays(index, selected);
+		Map<Long, Integer> m = null;
+		if (index < 0) {
+			if (selected) m = view.getSelectedOverlays();
+		} else m = view.getSelectedOverlays();
+		model.renderOverlays(m);
+		fireStateChange();
 	}
 	
 }

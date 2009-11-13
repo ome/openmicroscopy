@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.data.views;
 //Java imports
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -332,6 +333,24 @@ public interface ImageDataView
 	 * @return See above.
 	 */
 	public CallHandle exportImageAsOMETiff(long imageID, File file,
+			AgentEventListener observer);
+
+	/**
+	 * Renders the image with the overlays if the passed map is not 
+	 * <code>null</code>, renders the image without the overlays if 
+	 * <code>null</code>.
+	 * 
+	 * @param pixelsID 	The id of the pixels set.
+	 * @param pd		The plane to render.
+	 * @param tableID	The id of the table hosting the mask.
+	 * @param overlays	The overlays to render or <code>null</code>.
+	 * @param asTexture	Pass <code>true</code> to return a texture,
+	 * 					<code>false</code> to return a buffered image.
+	 * @param observer Callback handler.
+	 * @return See above.
+	 */
+	public CallHandle renderOverLays(long pixelsID, PlaneDef pd, long tableID,
+			Map<Long, Integer> overlays, boolean asTexture,
 			AgentEventListener observer);
 	
 }

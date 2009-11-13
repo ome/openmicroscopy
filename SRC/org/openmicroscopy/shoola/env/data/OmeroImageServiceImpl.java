@@ -714,5 +714,21 @@ class OmeroImageServiceImpl
 			throw new IllegalArgumentException("No File specified.");
 		return gateway.exportImageAsOMETiff(file, imageID);
 	}
+
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#renderOverLays(long, PlaneDef, long, Map, boolean)
+	 */
+	public Object renderOverLays(long pixelsID, PlaneDef pd, long tableID,
+			Map<Long, Integer> overlays, boolean asTexture)
+			throws RenderingServiceException
+	{
+		try {
+			return PixelsServicesFactory.renderOverlays(context,
+					pixelsID, pd, tableID, overlays, asTexture);
+		} catch (Exception e) {
+			throw new RenderingServiceException("RenderImage", e);
+		}
+	}
 	
 }

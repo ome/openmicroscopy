@@ -399,7 +399,7 @@ class DocComponent
 					case LOAD_FROM_SERVER:
 						if (thumbnail == null) {
 							//Load the file, copy locally and delete it.
-							model.loadFile((FileAnnotationData) data, this);
+							//model.loadFile((FileAnnotationData) data, this);
 						}
 				}
 			} else if (data instanceof File) {

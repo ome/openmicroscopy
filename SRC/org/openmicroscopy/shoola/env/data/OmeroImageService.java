@@ -514,5 +514,22 @@ public interface OmeroImageService
 	 */
 	public Object exportImageAsOMETiff(long imageID, File folder)
 		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Renders the passed plane with or without overlays depending on the 
+	 * parameters.
+	 * 
+	 * @param pixelsID 	The id of the pixels set.
+	 * @param pd		The plane to render.
+	 * @param tableID	The id of the table hosting the mask.
+	 * @param overlays	The overlays to render or <code>null</code>.
+	 * @param asTexture	Pass <code>true</code> to return a texture,
+	 * 					<code>false</code> to return a buffered image.
+	 * @return See above.
+	 * @throws RenderingServiceException If the server cannot render the image.
+	 */
+	public Object renderOverLays(long pixelsID, PlaneDef pd, long tableID,
+			Map<Long, Integer> overlays, boolean asTexture)
+		throws RenderingServiceException; 
 
 }

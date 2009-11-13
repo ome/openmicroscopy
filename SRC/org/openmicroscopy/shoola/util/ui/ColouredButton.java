@@ -137,6 +137,13 @@ public class ColouredButton
 	}
 
 	/**
+	 * Returns the color.
+	 * 
+	 * @return See above.
+	 */
+	public Color getColor() { return color; }
+	
+	/**
 	 * Sets the index of the derived font used to paint the text.
 	 * 
 	 * @param index The font index. 

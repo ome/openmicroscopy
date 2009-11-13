@@ -585,6 +585,9 @@ class EditorComponent
 	 */
 	public void loadRenderingControl(int index)
 	{
+		if (model.getRenderer() == null && 
+				index == RenderingControlLoader.RELOAD)
+			return;
 		Object ref = model.getRefObject();
 		if (ref instanceof WellSampleData) {
 			WellSampleData wsd = (WellSampleData) ref;

@@ -64,7 +64,7 @@ public class ImageLoader
     /** The plane to render. */
     private PlaneDef    pd;
     
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
     
     /**

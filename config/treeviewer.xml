@@ -32,4 +32,6 @@
    * and JXTaskPane.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <entry name="BrowserLayout">JXTaskPane</entry> 
+  <!-- Indicates that the first browser is the SPW browser -->
+  <entry name="BrowserSPW" type="boolean">true</entry>
 </agent>

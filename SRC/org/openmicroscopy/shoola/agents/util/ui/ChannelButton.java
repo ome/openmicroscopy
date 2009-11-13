@@ -76,6 +76,12 @@ public class ChannelButton
     											"channelSelected";
     
     /** 
+     * Bound property name indicating that the channel is or is not selected. 
+     */
+    public static final String  	CHANNEL_OVERLAY_PROPERTY = 
+    											"channelOverlay";
+    
+    /** 
      * Bound property name indicating that the channel is mapped to a new color. 
      */
     public static final String  	CHANNEL_COLOR_PROPERTY = "channelColor";
@@ -95,6 +101,9 @@ public class ChannelButton
     /** Flag indicating if right-click are supported. */
     private boolean					rightClickSupported;
     
+    /** Flag indicating that the button is an overlay. */
+    private boolean					overlay;
+    
     /** Fires an event to select the channel. */
     private final void setChannelSelected()
     {
@@ -102,7 +111,10 @@ public class ChannelButton
         if (isSelected()) value = Boolean.FALSE;
         Map<Integer, Boolean> map = new HashMap<Integer, Boolean>(1);
         map.put(Integer.valueOf(index), value);
-        firePropertyChange(CHANNEL_SELECTED_PROPERTY, null, map);
+        if (overlay) 
+        	firePropertyChange(CHANNEL_OVERLAY_PROPERTY, null, map);
+        else
+        	firePropertyChange(CHANNEL_SELECTED_PROPERTY, null, map);
     }
   
     /**
@@ -236,10 +248,19 @@ public class ChannelButton
         this(text, color, index, false);
     }
     
+    /**
+     * Sets the overlay flag.
+     * 
+     * @param overlay Pass <code>true</code> to indicate that it is a button
+     * 				  for overlay, <code>false</code> otherwise.
+     */
+    public void setOverlay(boolean overlay) { this.overlay = overlay; }
+    
     /** Fires a property change to bring up on screen the color picker. */
     void showColorPicker()
     {
-        firePropertyChange(CHANNEL_COLOR_PROPERTY, null, Integer.valueOf(index));
+        firePropertyChange(CHANNEL_COLOR_PROPERTY, null, 
+        		Integer.valueOf(index));
     }
     
     /**

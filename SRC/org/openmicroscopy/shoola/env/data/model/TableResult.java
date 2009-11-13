@@ -44,6 +44,9 @@ package org.openmicroscopy.shoola.env.data.model;
 public class TableResult
 {
 
+	/** The id of the table hosting the result. */
+	private long tableID;
+	
 	/** The columns. */
 	private String[] columns;
 	
@@ -79,6 +82,20 @@ public class TableResult
 		this.columns = columns;
 		this.columnsDescription = columnsDescription;
 	}
+	
+	/**
+	 * Sets the id of the table.
+	 * 
+	 * @param tableID The value to set.
+	 */
+	public void setTableID(long tableID) { this.tableID = tableID; }
+	
+	/**
+	 * Returns the id of the table.
+	 * 
+	 * @return See above.
+	 */
+	public long getTableID() { return tableID; }
 	
 	/**
 	 * Returns the name of the columns.

@@ -691,6 +691,17 @@ class ImViewerControl
 	void renderXYPlane() { model.renderXYPlane(); }
 	
 	/**
+	 * Renders the overlays. 
+	 * 
+	 * @param selected  Pass <code>true</code> if the overlays have to be 
+	 * 					displayed, <code>false</code> otherwise.
+	 */
+	void renderOverlays(boolean selected)
+	{ 
+		model.renderOverlays(-1, selected); 
+	}
+	
+	/**
 	 * Reacts to change fired by buttons used to select the color
 	 * models.
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -738,6 +749,7 @@ class ImViewerControl
 			case ImViewer.LOADING_IMAGE:
 				if (historyState == ImViewer.LOADING_METADATA)
 					view.getLoadingWindow().setVisible(false);
+				view.setStatus(true);
 				view.onStateChange(false);
 				historyState = state;
 				break;  
@@ -786,6 +798,20 @@ class ImViewerControl
 				entry = (Entry) i.next();
 				index = (Integer) entry.getKey();
 				model.setChannelSelection(index.intValue(), 
+						(Boolean) entry.getValue());
+			}
+		} else if (ChannelButton.CHANNEL_OVERLAY_PROPERTY.equals(pName)) {
+			Map map = (Map) pce.getNewValue();
+			if (map == null) return;
+			if (map.size() != 1) return;
+			Set set = map.entrySet();
+			Entry entry;
+			Iterator i = set.iterator();
+			Integer index;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				index = (Integer) entry.getKey();
+				model.renderOverlays(index.intValue(), 
 						(Boolean) entry.getValue());
 			}
 		} else if (LoadingWindow.CLOSED_PROPERTY.equals(pName)) {

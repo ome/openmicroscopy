@@ -148,8 +148,7 @@ public interface Registry
      * @return See above.
      */
     public CacheService getCacheService();
-    
-    
+
     /**
      * Returns an implementation of the specified <code>view</code>.
      * The <code>view</code> argument specifies the interface class that

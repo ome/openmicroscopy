@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.env.rnd;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.Map;
 
 
 //Third-party libraries
@@ -718,6 +719,15 @@ public interface RenderingControl
      */
     public long getPixelsID();
     
+    /**
+     * Sets the overlays.
+     * 
+     * @param tableID  The id of the table.
+     * @param overlays The overlays to set, or <code>null</code> to turn 
+     * the overlays off.
+     */
+    public void setOverlays(long tableID, Map<Long, Integer> overlays)
+    	throws RenderingServiceException, DSOutOfServiceException;
     
 	/**
 	 * Renders the specified {@link PlaneDef 2D-plane}.

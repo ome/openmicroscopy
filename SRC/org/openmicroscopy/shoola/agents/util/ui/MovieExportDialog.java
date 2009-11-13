@@ -380,8 +380,8 @@ public class MovieExportDialog
 		}
 		param.setColor(c);
 		option = SAVE;
-		firePropertyChange(CREATE_MOVIE_PROPERTY, null, param);
 		close();
+		firePropertyChange(CREATE_MOVIE_PROPERTY, null, param);
 	}
 	
 	/** 
@@ -420,7 +420,8 @@ public class MovieExportDialog
 	 */
 	public MovieExportDialog(JFrame owner, String name, int maxT, int maxZ)
 	{
-		super(owner, true);
+		super(owner);
+		setModal(true);
 		param = null;
 		initComponents(name, maxT, maxZ);
 		buildGUI();
