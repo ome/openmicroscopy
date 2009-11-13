@@ -35,6 +35,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Enumeration;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -69,6 +70,8 @@ import ome.formats.importer.util.ErrorHandler.INTERNAL_EXCEPTION;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
 import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
@@ -162,6 +165,9 @@ WindowStateListener, WindowFocusListener
 
         this.config = config;
         this.gui = new GuiCommonElements(config);
+        
+        Level level = org.apache.log4j.Level.toLevel(config.getDebugLevel());
+        setLoggingLevel(level);
 
         historyHandler = new HistoryHandler(this);
         historyTable = historyHandler.table;
@@ -623,7 +629,7 @@ WindowStateListener, WindowFocusListener
         config.loadAll();
         config.loadGui();
         USE_QUAQUA = config.getUseQuaqua();
-
+        
         String laf = UIManager.getSystemLookAndFeelClassName() ;
 
         //laf = "ch.randelshofer.quaqua.QuaquaLookAndFeel";
@@ -855,6 +861,20 @@ WindowStateListener, WindowFocusListener
         failedDialog.pack();
         failedDialog.setLocationRelativeTo(frame);
         failedDialog.setVisible(true);
+    }
+    
+    public void setLoggingLevel(Level level)
+    {        
+        Enumeration<?> loggers = org.apache.log4j.LogManager.getCurrentLoggers();
+        
+        if (loggers != null)
+        {
+            while (loggers.hasMoreElements())
+            {
+                Logger logger = (Logger) loggers.nextElement();
+                logger.setLevel(level);
+            }
+        }
     }
     
     public void propertyChange(PropertyChangeEvent evt)

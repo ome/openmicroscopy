@@ -129,6 +129,11 @@ public class IniFileLoader {
         return staticPrefs.node("General").get("appTitle", "OMERO.importer");
     }
 
+    public void setDebugLevel(int level) {
+        userPrefs.node("General").putInt("debug", level);
+        this.flushPreferences();
+    }
+    
     public void setUseQuaqua(boolean b) {
         userPrefs.node("General").putBoolean("useQuaqua", b);
         this.flushPreferences();

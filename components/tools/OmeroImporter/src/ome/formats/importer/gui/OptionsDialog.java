@@ -19,6 +19,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Enumeration;
+import java.util.Iterator;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -37,6 +39,8 @@ import ome.formats.importer.ImportConfig;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 
 /**
@@ -52,7 +56,6 @@ public class OptionsDialog extends JDialog implements ActionListener
 
     private JTabbedPane tabbedPane;
     
-
     private JPanel mainPanel;
     private JPanel debugOptionsPanel;
     private JPanel  fileChooserPanel;
@@ -69,6 +72,7 @@ public class OptionsDialog extends JDialog implements ActionListener
     private JButton             okBtn;
 
     public boolean    cancelled = true;
+    private boolean oldQuaquaLevel;
 
     /** Logger for this class. */
     private static Log          log     = LogFactory.getLog(OptionsDialog.class);
@@ -88,7 +92,8 @@ public class OptionsDialog extends JDialog implements ActionListener
     final String infoDescription = "This level of debugging captures messages provided by the developer. Most metadata " +
     		"messages are provided to the log file through this level of debugging information.";
     
-    final String offDescription = "This option turns off all debugging information.";
+    final String offDescription = "This option turns off almost all debugging information, and any information that appears " +
+    		"should be very brief.";
     
     final DebugItem[] debugItems = {
             new DebugItem("All", Priority.ALL_INT, allDescription),
@@ -126,6 +131,8 @@ public class OptionsDialog extends JDialog implements ActionListener
         tabbedPane.setOpaque(false); // content panes must be opaque
 
         this.gui = gui;
+        
+        oldQuaquaLevel = gui.config.getUseQuaqua();
 
         /////////////////////// START MAIN PANEL ////////////////////////
 
@@ -163,6 +170,14 @@ public class OptionsDialog extends JDialog implements ActionListener
         gui.addTextPane(debugOptionsPanel, message, "0, 1, 0, 0", debug);
         dBox = gui.addComboBox(debugOptionsPanel, "Debug Level: ", debugItems, 'D',
                 "Choose the level of detail for your log file's data.", 95, "0,3,f,c", debug);
+        
+        int debugLevel = gui.config.getDebugLevel();
+        
+        for (int i = 0; i < dBox.getItemCount(); i++)
+        {
+            if (((DebugItem) dBox.getItemAt(i)).getLevel() == debugLevel)
+                dBox.setSelectedIndex(i);
+        }
         dBox.addActionListener(this);
         
         String description = ((DebugItem) dBox.getSelectedItem()).getDescription();
@@ -240,8 +255,8 @@ public class OptionsDialog extends JDialog implements ActionListener
         if (gui.getIsMac())
             tabbedPane.addTab("FileChooser Settings", null, fileChooserPanel, "FileChooser Settings");
         
-        //tabbedPane.addTab("Debug Settings", null, debugOptionsPanel, "Debug Settings");
-        //this.add(mainPanel);
+        tabbedPane.addTab("Debug Settings", null, debugOptionsPanel, "Debug Settings");
+        this.add(mainPanel);
         
         this.add(mainPanel);
         
@@ -261,8 +276,17 @@ public class OptionsDialog extends JDialog implements ActionListener
                 gui.config.setUseQuaqua(false);
             else
                 gui.config.setUseQuaqua(true);
+            
+            gui.config.setDebugLevel(((DebugItem) dBox.getSelectedItem()).getLevel());
+            
+            // Test code to see if this works
+            Level level = org.apache.log4j.Level.toLevel(((DebugItem) dBox.getSelectedItem()).getLevel());
+            ((GuiImporter) owner).setLoggingLevel(level);
+            
             this.dispose();
-            gui.restartNotice(owner, null);
+            
+            if (gui.config.getUseQuaqua() != oldQuaquaLevel)
+                gui.restartNotice(owner, null);
         }
         
         if (e.getSource() == dBox)

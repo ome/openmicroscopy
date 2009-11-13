@@ -368,6 +368,17 @@ public class ImportConfig {
         ini.setUseQuaqua(b);
     }
 
+
+    public void setDebugLevel(int level)
+    {
+        ini.setDebugLevel(level);
+    }
+
+    public int getDebugLevel()
+    {
+        return ini.getDebugLevel();
+    }
+    
     public Rectangle getUIBounds() {
         return ini.getUIBounds();
     }
@@ -834,5 +845,4 @@ public class ImportConfig {
             }
         }
     }
-
 }
