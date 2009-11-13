@@ -2912,4 +2912,25 @@ class ImViewerComponent
 		return model.isMappedImageRGB(channels);
 	}
 
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#renderOverlays(int, boolean)
+	 */
+	public void renderOverlays(int index, boolean selected)
+	{
+		switch (model.getState()) {
+			case NEW:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED or " +
+						"NEW state.");
+		}
+		view.renderOverlays(index, selected);
+		Map<Long, Integer> m = null;
+		if (index < 0) {
+			if (selected) m = view.getSelectedOverlays();
+		} else m = view.getSelectedOverlays();
+		model.renderOverlays(m);
+	}
+	
 }

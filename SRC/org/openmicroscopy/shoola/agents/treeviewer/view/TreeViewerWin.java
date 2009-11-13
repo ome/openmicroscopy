@@ -154,6 +154,18 @@ class TreeViewerWin
     private JXTaskPaneContainerSingle 	container;
    
     /**
+     * Returns <code>true</code>
+     * @return
+     */
+    private boolean isSPWFirst()
+    {
+    	Boolean type = (Boolean) 
+		TreeViewerAgent.getRegistry().lookup("BrowserSPW");
+    	if (type == null) return false;
+		return type;
+    }
+    
+    /**
      * Checks if the specified {@link Browser} is already visible.
      * 
      * @param browser The specified {@link Browser}.
@@ -177,12 +189,22 @@ class TreeViewerWin
     		 
     		container = new JXTaskPaneContainerSingle();
     		container.addPropertyChangeListener(controller);
-    		browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
-            JXTaskPane pane = new TaskPaneBrowser(browser);
-            firstPane = pane;
-            container.add(pane);
-            browser = (Browser) browsers.get(Browser.SCREENS_EXPLORER);
-            container.add(new TaskPaneBrowser(browser));
+    		JXTaskPane pane;
+    		if (isSPWFirst()) {
+    			 browser = (Browser) browsers.get(Browser.SCREENS_EXPLORER);
+    			 pane = new TaskPaneBrowser(browser);
+    			 firstPane = pane;
+    			 container.add(pane);
+    			 browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
+    			 container.add(new TaskPaneBrowser(browser));
+    		} else {
+    			browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
+    			pane = new TaskPaneBrowser(browser);
+   			 	firstPane = pane;
+   			 	container.add(pane);
+   			 	browser = (Browser) browsers.get(Browser.SCREENS_EXPLORER);
+   			 	container.add(new TaskPaneBrowser(browser));
+    		}
             
             browser = (Browser) browsers.get(Browser.FILES_EXPLORER);
             container.add(new TaskPaneBrowser(browser));

@@ -74,8 +74,9 @@ public class RndSettingsSaver
 
 	/** 
 	 * One of the following supported types:
-	 * <code>ImageData</code>, <code>DatasetData</code> or
-	 * <code>CategoryData</code>.
+	 * <code>ImageData</code>, <code>DatasetData</code>, 
+	 * <code>ProjectData</code>, <code>PlateData</code> 
+	 * or <code>ScreenData</code>.
 	 */
 	private Class			rootType;
 
@@ -128,11 +129,13 @@ public class RndSettingsSaver
 	 * @param viewer	The TreeViewer this data loader is for.
 	 *               	Mustn't be <code>null</code>.
 	 * @param rootType	The type of nodes. Supported type 
-	 * 					<code>ImageData</code>, <code>DatasetData</code> or
-	 * 					<code>CategoryData</code>.
+	 * 					<code>ImageData</code>, <code>DatasetData</code>, 
+	 * 					<code>ProjectData</code>, <code>PlateData</code> 
+	 * 					or <code>ScreenData</code>.
 	 * @param ids		Collection of nodes ids. If the rootType equals 
-	 * 					<code>DatasetData</code> or
-	 * 					<code>CategoryData</code>, the settings will be applied
+	 * 					<code>DatasetData</code>, 
+	 * 					<code>ProjectData</code>, <code>PlateData</code> 
+	 * 					or <code>ScreenData</code>, the settings will be applied
 	 * 					to the images contained in the specified containers.
 	 * @param index 	One of the constants defined by this class.
 	 */
@@ -174,10 +177,13 @@ public class RndSettingsSaver
 	 * @param viewer	The TreeViewer this data loader is for.
 	 *               	Mustn't be <code>null</code>.
 	 * @param rootType	The type of nodes. Supported type 
-	 * 					<code>ImageData</code>, <code>DatasetData</code> or
-	 * 					<code>CategoryData</code>.
+	 * 					<code>ImageData</code>, <code>DatasetData</code>, 
+	 * 					<code>ProjectData</code>, <code>PlateData</code> 
+	 * 					or <code>ScreenData</code>.
 	 * @param ids		Collection of nodes ids. If the rootType equals 
-	 * 					<code>DatasetData</code>, the settings will be applied
+	 * 					<code>DatasetData</code>, 
+	 * 					<code>ProjectData</code>, <code>PlateData</code> 
+	 * 					or <code>ScreenData</code>, the settings will be applied
 	 * 					to the images contained in the specified containers.
 	 * @param pixelsID	The id of the pixels of reference.
 	 */

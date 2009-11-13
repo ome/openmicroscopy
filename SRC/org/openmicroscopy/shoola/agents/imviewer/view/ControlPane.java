@@ -43,6 +43,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
@@ -200,6 +201,9 @@ class ControlPane
     /** One {@link ChannelButton} per channel. */
     private List<ChannelButton>		channelButtonsProjection;
    
+    /** One {@link ChannelButton} per channel. */
+    private List<ChannelButton>		overlayButtons;
+    
     /** Button to play movie across channel. */
     private JButton         		channelMovieButton;
     
@@ -250,6 +254,12 @@ class ControlPane
     
     /** Helper reference. */
     private IconManager     		icons; 
+    
+    /** The controls. */
+    private  JPanel 				controls;
+    
+    /** The Box to turn on or off the overlays.*/
+    private JCheckBox 				overlays;
 
     /**
      * Sets the selected plane.
@@ -504,6 +514,12 @@ class ControlPane
 	    }
 	    gridImageLabel = new JXBusyLabel(d);
 	    gridImageLabel.setVisible(false);
+	    controls = new JPanel();
+        double size[][] = {{TableLayout.PREFERRED}, 
+        				{TableLayout.PREFERRED, TableLayout.PREFERRED,
+        				TableLayout.PREFERRED, TableLayout.PREFERRED, 
+        				SLIDER_HEIGHT, TableLayout.PREFERRED}};
+        controls.setLayout(new TableLayout(size));
     }
     
     /**
@@ -747,12 +763,6 @@ class ControlPane
             //channels movie button.
             //p.add(buildBottomToolBar());
         }
-        JPanel controls = new JPanel();
-        double size[][] = {{TableLayout.PREFERRED}, 
-        				{TableLayout.PREFERRED, TableLayout.PREFERRED,
-        				TableLayout.PREFERRED, TableLayout.PREFERRED, 
-        				SLIDER_HEIGHT}};
-        controls.setLayout(new TableLayout(size));
         
         controls.add(Box.createVerticalStrut(20), "0, 0");
         int k = 1;
@@ -766,7 +776,6 @@ class ControlPane
         } else controls.add(p, "0, "+k);
         k++;
         if (!model.isNumerousChannel()) {
-        	
         	controls.add(createButtonToolBar(channelMovieButton), 
         			"0, "+k+", CENTER, CENTER");
         }
@@ -1556,6 +1565,109 @@ class ControlPane
 			if (i.next() == source) return true;
 		}
 		return false;
+	}
+	
+	/** Builds the overlays. */
+	void buildOverlays()
+	{
+		overlays = new JCheckBox("Overlays");
+		overlays.addChangeListener(new ChangeListener() {
+			
+			public void stateChanged(ChangeEvent e) {
+				controller.renderOverlays(!overlays.isSelected());
+			}
+		});
+		TableLayout layout = (TableLayout) controls.getLayout();
+		int row = layout.getNumRow()-1;
+		Map m = model.getOverLays();
+		overlayButtons = new ArrayList<ChannelButton>();
+		Iterator i = m.entrySet().iterator();
+		Entry entry;
+		int index;
+		ChannelButton button;
+		Color c;
+		JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        int j = 0;
+        int w = 0;
+        int h = 0;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			index = (Integer) entry.getKey();
+			c = new Color((Integer) entry.getValue());
+			button = new ChannelButton(""+j, c, index, true);
+			button.setOverlay(true);
+			button.addPropertyChangeListener(controller);
+			overlayButtons.add(button);
+			p.add(button);
+            p.add(Box.createRigidArea(VBOX));
+            w = button.getPreferredSize().width;
+            h = button.getPreferredSize().height;
+            j++;
+		}
+		if (overlayButtons.size() > ImViewer.MAX_CHANNELS) {
+        	JScrollPane sp = new JScrollPane(p);
+        	Dimension d = new Dimension(2*w, h*ImViewer.MAX_CHANNELS);
+        	sp.setPreferredSize(d);
+        	controls.add(sp, "0, 3, r, c");
+        } else controls.add(p, "0, 3");
+		
+		JPanel pane = new JPanel();
+		double size[][] = {{TableLayout.PREFERRED}, 
+				{TableLayout.PREFERRED, TableLayout.PREFERRED}};
+		pane.setLayout(new TableLayout(size));
+		pane.add(overlays, "0, 0, c, c");
+		if (channelButtonsGrid.size() > ImViewer.MAX_CHANNELS) {
+        	JScrollPane sp = new JScrollPane(p);
+        	Dimension d = new Dimension(2*w, h*ImViewer.MAX_CHANNELS);
+        	sp.setPreferredSize(d);
+        	pane.add(sp, "0, 1, r, c");
+        } else pane.add(p, "0, 1, c, c");
+		
+		controls.add(pane, "0, "+row+", l, c");
+	}
+	
+	/**
+	 * Turns on or off the selected overlay.
+	 * 
+	 * @param index     The index of the overlay.
+	 * @param selected  Pass <code>true</code> to turn the overlay on,
+	 * 					<code>false</code> to turn it off.
+	 */
+	void renderOverlays(int index, boolean selected)
+	{
+		if (index == -1) return;
+		Iterator<ChannelButton> i = overlayButtons.iterator();
+		ChannelButton b;
+		while (i.hasNext()) {
+			b = i.next();
+			if (b.getChannelIndex() == index) {
+				b.setSelected(selected);
+				break;
+			}
+		}
+	}
+	
+	/**
+	 * Returns the selected overlays if displayed otherwise returns 
+	 * <code>null</code>.
+	 * 
+	 * @return See above.
+	 */
+	Map<Long, Integer> getSelectedOverlays()
+	{
+		Map<Long, Integer> m = new HashMap<Long, Integer>();
+		Iterator<ChannelButton> i = overlayButtons.iterator();
+		ChannelButton b;
+		Color c;
+		while (i.hasNext()) {
+			b = i.next();
+			c = b.getColor();
+			if (b.isSelected() && c != null) {
+				m.put((long) b.getChannelIndex(), c.getRGB() & 0x00ffffff);
+			}
+		}
+		return m;
 	}
 	
     /**

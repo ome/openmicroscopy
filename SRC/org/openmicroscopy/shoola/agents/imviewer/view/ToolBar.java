@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 //Java imports
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-
 import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -41,9 +40,9 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 //Third-party libraries
+import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
-import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivityImageAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ROIToolAction;

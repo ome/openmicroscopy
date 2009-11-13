@@ -28,14 +28,12 @@ package org.openmicroscopy.shoola.env.data.views;
 //Java imports
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
-
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
@@ -357,7 +355,7 @@ public interface ImageDataView
 	public CallHandle exportImageAsOMETiff(long imageID, File file,
 			AgentEventListener observer);
 
-		/**
+	/**
 	 * Loads the ROI if possible from the server.
 	 * 
 	 * @param imageID 	The image's id.
@@ -367,5 +365,23 @@ public interface ImageDataView
 	 */
 	public CallHandle loadROIFromServer(long imageID, long userID,
 			AgentEventListener serverSideROILoader);
+	
+	/**
+	 * Renders the image with the overlays if the passed map is not 
+	 * <code>null</code>, renders the image without the overlays if 
+	 * <code>null</code>.
+	 * 
+	 * @param pixelsID 	The id of the pixels set.
+	 * @param pd		The plane to render.
+	 * @param tableID	The id of the table hosting the mask.
+	 * @param overlays	The overlays to render or <code>null</code>.
+	 * @param asTexture	Pass <code>true</code> to return a texture,
+	 * 					<code>false</code> to return a buffered image.
+	 * @param observer Call-back handler.
+	 * @return See above.
+	 */
+	public CallHandle renderOverLays(long pixelsID, PlaneDef pd, long tableID,
+			Map<Long, Integer> overlays, boolean asTexture,
+			AgentEventListener observer);
 	
 }

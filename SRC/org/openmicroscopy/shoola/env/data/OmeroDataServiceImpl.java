@@ -1254,4 +1254,18 @@ class OmeroDataServiceImpl
 		return l;
 	}
 
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#getServerVersion()
+	 */
+	public String getServerVersion()
+	{
+		try {
+			return gateway.getServerVersion();
+		} catch (Exception e) {
+			//ignore it.
+		}
+		return "";
+	}
+	
 }

@@ -132,12 +132,18 @@ public class FigureDialog
 	/** Indicates that the dialog is for a split view and ROI. */
 	public static final int			SPLIT_ROI = 1;
 	
+	/** Indicates that the dialog is for a movie figure. */
+	public static final int			MOVIE = 2;
+	
 	/** Bound property indicating to create a split view figure. */
 	public static final String		SPLIT_FIGURE_PROPERTY = "splitFigure";
 	
 	/** Bound property indicating to create a split view figure with ROI. */
 	public static final String		SPLIT_FIGURE_ROI_PROPERTY = 
 		"splitFigureROI";
+	
+	/** Bound property indicating to create movie figure. */
+	public static final String		MOVIE_FIGURE_PROPERTY = "movieFigure";
 	
 	/** Bound property indicating to close the dialog. */
 	public static final String		CLOSE_FIGURE_PROPERTY = "closeFigure";
@@ -329,8 +335,6 @@ public class FigureDialog
 				comp.setSelected(active);
 				comp.setEnabled(active);
 		}
-		
-		
 	}
 	
 	/**
@@ -918,7 +922,7 @@ public class FigureDialog
 			p.add(pane, "0, "+i);
 		}
 		i++;
-		channelsPane = EditorUtil.createTaskPane("Channels");
+		channelsPane = EditorUtil.createTaskPane("Image");
 		channelsPane.setCollapsed(false);
 		channelsPane.add(buildDefaultPane());
 		p.add(channelsPane, "0, "+i);
@@ -1064,6 +1068,13 @@ public class FigureDialog
 		firePropertyChange(SPLIT_FIGURE_ROI_PROPERTY, null, p);
 	}
 	
+	/** Saves the movie figure. */
+	private void saveMovieFigure()
+	{
+		close();
+		firePropertyChange(MOVIE_FIGURE_PROPERTY, null, null);
+	}
+	
 	/** Collects the parameters to create a figure. */
 	private void save()
 	{
@@ -1073,6 +1084,9 @@ public class FigureDialog
 				break;
 			case SPLIT_ROI:
 				saveROIFigure();
+				break;
+			case MOVIE:
+				saveMovieFigure();
 		}
 	}
 	

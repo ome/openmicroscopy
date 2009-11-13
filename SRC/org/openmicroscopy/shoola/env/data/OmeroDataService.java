@@ -460,4 +460,11 @@ public interface OmeroDataService
 			Collection<DeletableObject> objects)
 		throws DSOutOfServiceException, DSAccessException;
 	
+	/**
+	 * Returns the version of the server if available.
+	 * 
+	 * @return See above.
+	 */
+	public String getServerVersion();
+	
 }

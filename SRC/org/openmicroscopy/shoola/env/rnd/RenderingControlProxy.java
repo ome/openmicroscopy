@@ -28,6 +28,7 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.IntBuffer;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.imageio.ImageIO;
 import javax.media.opengl.GL;
 
 //Third-party libraries
@@ -485,6 +487,32 @@ class RenderingControlProxy
 			//initializeCache(pDef);
 			//cache(pDef, values);
 			return WriterImage.bytesToDataBufferJPEG(values);
+		} catch (Throwable e) {
+			handleException(e, ERROR+"cannot render the compressed image.");
+		} 
+		return null;
+	}
+
+	/**
+	 * Renders the compressed image.
+	 * 
+	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
+	 *            or <i>Z</i> axes.
+	 * @return See above.
+	 * @throws RenderingServiceException 	If an error occurred while setting 
+	 * 										the value.
+	 * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	private BufferedImage renderPlaneCompressedBI(PlaneDef pDef)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		//Need to adjust the cache.
+		Object array = getFromCache(pDef);
+		try {
+			byte[] values = servant.renderCompressed(pDef);
+			imageSize = values.length;
+			ByteArrayInputStream stream = new ByteArrayInputStream(values);
+			return ImageIO.read(stream);
 		} catch (Throwable e) {
 			handleException(e, ERROR+"cannot render the compressed image.");
 		} 
@@ -1509,7 +1537,7 @@ class RenderingControlProxy
         if (pDef == null) 
             throw new IllegalArgumentException("Plane def cannot be null.");
         //DataServicesFactory.isSessionAlive(context);
-        if (isCompressed()) return renderPlaneUncompressed(pDef);//renderPlaneCompressed(pDef);
+        if (isCompressed()) return renderPlaneCompressedBI(pDef);
         return renderPlaneUncompressed(pDef);
     }
     
@@ -1792,6 +1820,23 @@ class RenderingControlProxy
 			}
 		}
     	return true;
+	}
+	
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#setOverlays(long, Map)
+	 */
+	public void setOverlays(long tableID, Map<Long, Integer> overlays)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		if (tableID < 0) return;
+		try {
+			//servant.setOverlays(omero.rtypes.rlong(tableID), 
+			//		pixs.getImage().getId(), overlays);
+		} catch (Exception e) {
+			handleException(e, ERROR+"overlays.");
+		}
+		
 	}
 
 }

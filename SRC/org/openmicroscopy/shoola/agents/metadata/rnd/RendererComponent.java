@@ -28,6 +28,8 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -901,4 +903,17 @@ class RendererComponent
 		return null;
 	}
 
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#setOverlays(long, Map)
+     */
+	public void setOverlays(long tableID, Map<Long, Integer> overlays)
+	{
+		try {
+			model.setOverlays(tableID, overlays);
+		} catch (Exception e) {
+			handleException(e);
+		}
+	}
+	
 }

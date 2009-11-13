@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.data.views;
 //Java imports
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -47,6 +48,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.ImageRenderer;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesImporter;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.MovieCreator;
+import org.openmicroscopy.shoola.env.data.views.calls.OverlaysRenderer;
 import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.PlaneInfoLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ProjectionSaver;
@@ -383,6 +385,18 @@ class ImageDataViewImpl
 		return cmd.exec(observer);
 	}
 
-
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#renderOverLays(long, PlaneDef, long, Map, boolean, 
+     * AgentEventListener)
+     */
+	public CallHandle renderOverLays(long pixelsID, PlaneDef pd, long tableID,
+			Map<Long, Integer> overlays, boolean asTexture,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new OverlaysRenderer(pixelsID, pd, tableID, 
+				overlays, asTexture);
+		return cmd.exec(observer);
+	}
 	
 }

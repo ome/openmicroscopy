@@ -1088,4 +1088,13 @@ public interface ImViewer
      */
 	public boolean isMappedImageRGB(List channels);
 	
+	/**
+	 * Renders the overlays. 
+	 * 
+	 * @param index    The index of the selected channel or <code>-1</code>.
+	 * @param selected Pass <code>true</code> if the channel is selected,
+	 * 				   <code>false</code> otherwise.
+	 */
+	public void renderOverlays(int index, boolean selected);
+	
 }

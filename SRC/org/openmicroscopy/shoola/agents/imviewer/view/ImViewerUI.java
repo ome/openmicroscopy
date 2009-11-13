@@ -2315,6 +2315,35 @@ class ImViewerUI
 		return controlPane.isSourceDisplayed(source);
 	}
 		
+	/** Builds the UI to handle overlays. */
+	void buildOverlays()
+	{
+		controlPane.buildOverlays();
+	}
+	
+	/** 
+	 * Renders the image with the overlays or not. 
+	 * 
+	 * @param index 	The index of the selected channel.
+	 * @param selected  Pass <code>true</code> to turn the overlay on,
+	 * 					<code>false</code> to turn it off.
+	 */
+	void renderOverlays(int index, boolean selected)
+	{
+		controlPane.renderOverlays(index, selected);
+	}
+
+	/**
+	 * Returns the selected overlays if displayed otherwise returns 
+	 * <code>null</code>.
+	 * 
+	 * @return See above.
+	 */
+	Map<Long, Integer> getSelectedOverlays()
+	{
+		return controlPane.getSelectedOverlays();
+	}
+	
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 

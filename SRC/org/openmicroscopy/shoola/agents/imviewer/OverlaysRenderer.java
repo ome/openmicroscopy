@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.PlaneInfoLoader
+ * org.openmicroscopy.shoola.agents.imviewer.OverlaysRenderer 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,92 +20,81 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.imviewer;
 
-
-
 //Java imports
-import java.util.Collection;
+import java.awt.image.BufferedImage;
+import java.util.Map;
 
 //Third-party libraries
+import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
-
+import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- * Loads the plane info related to a given pixels set.
- * This class calls <code>loadPlaneInfo</code> method in the
- * <code>ImViewerView</code>.
+ * Call to render the image with or without the overlays.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since 3.0-Beta4
  */
-public class PlaneInfoLoader
-    extends DataLoader
+public class OverlaysRenderer
+	extends DataLoader
 {
 
-    /** The ID of the pixels set. */
-    private long        pixelsID;
+	/** The ID of the pixels set. */
+    private long        		pixelsID;
+    
+    /** The plane to render. */
+    private PlaneDef    		pd;
+    
+    /** The id of the table. */
+    private long 				tableID;
+    
+    /** The overlays to render. */
+    private Map<Long, Integer> overlays;
     
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
     
-    /** The selected z-section or <code>-1</code>. */
-    private int			defaultZ;
-    
-    /** The selected timepoint or <code>-1</code>. */
-    private int 		defaultT;
-    
     /**
      * Creates a new instance
      * 
      * @param viewer    The view this loader is for.
      *                  Mustn't be <code>null</code>.
-     * @param pixelsID  The id of pixels set.
-     * @param defaultZ  The selected z-section.
-     * @param defaultT  The selected timepoint.
+     * @param pixelsID  The id of the pixels set.
+     * @param pd        The plane to render. 
+     * @param tableID	The id of the table.
+     * @param overlays	The overlays to render.
      */
-    public PlaneInfoLoader(ImViewer viewer, long pixelsID, 
-    		int defaultZ, int defaultT)
+    public OverlaysRenderer(ImViewer viewer, long pixelsID, PlaneDef pd, 
+    		long tableID, Map<Long, Integer> overlays)
     {
         super(viewer);
         this.pixelsID = pixelsID;
-        this.defaultZ = defaultZ;
-        this.defaultT = defaultT;
-    }
-    
-    /**
-     * Creates a new instance
-     * 
-     * @param viewer    The view this loader is for.
-     *                  Mustn't be <code>null</code>.
-     * @param pixelsID  The id of pixels set.
-     */
-    public PlaneInfoLoader(ImViewer viewer, long pixelsID)
-    {
-       this(viewer, pixelsID, -1, -1);
+        this.pd = pd;
+        this.tableID = tableID;
+        this.overlays = overlays;
     }
 
     /**
-     * Loads the plane information
+     * Renders a 2D-plane.
      * @see DataLoader#load()
      */
     public void load()
     {
-    	if (defaultT < 0 || defaultZ < 0)
-    		handle = ivView.loadPlaneInfo(pixelsID, -1, -1, -1, this);
+    	boolean asTexture = ImViewerAgent.hasOpenGLSupport();
+    	handle = ivView.renderOverLays(pixelsID, pd, tableID, overlays, 
+    			asTexture, this);
     }
 
     /**
@@ -113,7 +102,7 @@ public class PlaneInfoLoader
      * @see DataLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
-
+    
     /** 
      * Feeds the result back to the viewer. 
      * @see DataLoader#handleResult(Object)
@@ -121,7 +110,11 @@ public class PlaneInfoLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
-        viewer.setPlaneInfo((Collection) result);
+        if ((ImViewerAgent.hasOpenGLSupport())) {
+        	viewer.setImageAsTexture((TextureData) result);
+    	} else {
+    		viewer.setImage((BufferedImage) result);
+    	}
     }
     
 }

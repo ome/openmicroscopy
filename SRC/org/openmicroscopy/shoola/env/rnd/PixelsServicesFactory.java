@@ -401,7 +401,7 @@ public class PixelsServicesFactory
 	 * @param pDef      The plane to render.
 	 * @return See above.
 	 * 
-     * @throws RenderingServiceException 	If an error occured while setting 
+     * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
@@ -419,6 +419,41 @@ public class PixelsServicesFactory
 		return proxy.renderPlane(pDef);
 	}
 
+	/**
+	 * Renders the specified {@link PlaneDef 2D-plane}.
+	 * 
+	 * @param context   Reference to the registry. To ensure that agents cannot
+	 *                  call the method. It must be a reference to the
+	 *                  container's registry.
+	 * @param pixelsID  The id of the pixels set.
+	 * @param pDef      The plane to render.
+	 * @param tableID	The id of the table hosting the mask.
+	 * @param overlays	The overlays to render or <code>null</code>.
+	 * @param asTexture	Pass <code>true</code> to return a texture,
+	 * 					<code>false</code> to return a buffered image.
+	 * @return See above.
+	 * 
+     * @throws RenderingServiceException 	If an error occurred while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	public static Object renderOverlays(Registry context, long pixelsID, 
+			PlaneDef pd, long tableID, Map<Long, Integer> overlays, 
+			boolean asTexture)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		if (!(context.equals(registry)))
+			throw new IllegalArgumentException("Not allow to access method.");
+		RenderingControlProxy proxy = 
+			(RenderingControlProxy) singleton.rndSvcProxies.get(pixelsID);
+		if (proxy == null) 
+			throw new RuntimeException("No rendering service " +
+			"initialized for the specified pixels set.");
+		proxy.setOverlays(tableID, overlays);
+		if (asTexture) return proxy.renderPlaneAsTexture(pd);
+		return proxy.renderPlane(pd);
+	}
+	
 	/**
 	 * Renders the projected images.
 	 * 

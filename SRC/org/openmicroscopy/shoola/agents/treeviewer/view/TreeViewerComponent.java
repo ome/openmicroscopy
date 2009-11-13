@@ -1714,6 +1714,7 @@ class TreeViewerComponent
 			Browser browser = model.getSelectedBrowser();
 			if (browser == null) return;
 			TreeImageDisplay node = browser.getLastSelectedDisplay();
+			if (node == null) return;
 			Object o = node.getUserObject();
 			if (!(o instanceof ImageData)) return;
 			image = (ImageData) o;

@@ -1810,7 +1810,7 @@ class EditorModel
 		if (!(ref instanceof ImageData)) return;
 		ImageData img = (ImageData) ref;
 		PlaneInfoLoader loader = new PlaneInfoLoader(component, 
-				img.getDefaultPixels().getId(), channel);
+				img.getDefaultPixels().getId(), channel, 0);
 		loader.load();
 	}
 

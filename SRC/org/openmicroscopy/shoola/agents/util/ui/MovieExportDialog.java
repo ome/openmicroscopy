@@ -377,8 +377,8 @@ public class MovieExportDialog
 		}
 		param.setColor(c);
 		option = SAVE;
-		firePropertyChange(CREATE_MOVIE_PROPERTY, null, param);
 		close();
+		firePropertyChange(CREATE_MOVIE_PROPERTY, null, param);
 	}
 	
 	/** 

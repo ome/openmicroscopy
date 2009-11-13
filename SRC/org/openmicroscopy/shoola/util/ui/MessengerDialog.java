@@ -208,8 +208,8 @@ public class MessengerDialog
 	/** Button to copy the message on the clipBoard. */
 	private JButton			copyButton;
 	
-	/** The version of the software. */
-	private String			version;
+	/** The version of the server. */
+	private String			serverVersion;
 	
 	/** A brief description of the error. */
 	private String			errorDescription;
@@ -268,7 +268,7 @@ public class MessengerDialog
 		String error = null;
 		if (debugArea != null)  error = debugArea.getText().trim();
 		MessengerDetails details = new MessengerDetails(email, comment);
-		details.setExtra(version);
+		details.setExtra(serverVersion);
 		details.setError(error);
 		firePropertyChange(propertyName, null, details);
 		close();
@@ -291,7 +291,7 @@ public class MessengerDialog
 				String email = emailArea.getText().trim();
 				String comment = commentArea.getText().trim();
 				MessengerDetails details = new MessengerDetails(email, comment);
-				details.setExtra(version);
+				details.setExtra(serverVersion);
 				details.setObjectToSubmit(files);
 				submitStatus.setVisible(true);
 				submitStatus.setBusy(true);
@@ -713,11 +713,14 @@ public class MessengerDialog
 	}
 	
 	/** 
-	 * Sets the version of the software.
+	 * Sets the version of the server.
 	 * 
-	 * @param version The value to set.
+	 * @param serverVersion The value to set.
 	 */
-	public void setVersion(String version) { this.version = version; }
+	public void setServerVersion(String serverVersion)
+	{ 
+		this.serverVersion = serverVersion; 
+	}
 	
 	/**
 	 * Returns the type associated to this widget. 

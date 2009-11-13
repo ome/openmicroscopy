@@ -62,7 +62,7 @@ class BrowserControl
     /**
      * Creates a new instance.
      * The {@link #initialize(BrowserModel, BrowserUI) initialize} 
-     * method should be called straigh 
+     * method should be called straight
      * after to link this Controller to the other MVC components.
      */
     BrowserControl() {}

@@ -55,6 +55,9 @@ public class PlaneInfoLoader
     /** The selected channel. */
     private int 		channel;
     
+    /** The selected z-section or <code>-1</code>. */
+    private int			defaultZ;
+    
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
     
@@ -64,13 +67,31 @@ public class PlaneInfoLoader
      * @param viewer	The view this loader is for.
      *                  Mustn't be <code>null</code>.
      * @param pixelsID  The id of pixels set.
+     * @param defaultZ  The selected z-section.
      * @param channel	The selected channel.
      */
-	public PlaneInfoLoader(Editor viewer, long pixelsID, int channel)
+	public PlaneInfoLoader(Editor viewer, long pixelsID, int channel, 
+			int defaultZ)
 	{
 		super(viewer);
 		this.pixelsID = pixelsID;
 		this.channel = channel;
+		this.defaultZ = defaultZ;
+	}
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer	The view this loader is for.
+     *                  Mustn't be <code>null</code>.
+     * @param pixelsID  The id of pixels set.
+     */
+	public PlaneInfoLoader(Editor viewer, long pixelsID)
+	{
+		super(viewer);
+		this.pixelsID = pixelsID;
+		this.channel = -1;
+		this.defaultZ = -1;
 	}
 	
     /**
@@ -79,7 +100,7 @@ public class PlaneInfoLoader
      */
     public void load()
     {
-    	handle = imView.loadPlaneInfo(pixelsID, 0, -1, channel, this);
+    	handle = imView.loadPlaneInfo(pixelsID, defaultZ, -1, channel, this);
     }
 
     /**

@@ -119,7 +119,7 @@ class OmeroMetadataServiceImpl
 	//private FolderData				folder;
 	
 	/**
-	 * Creates ro recycles the folder wrapping the passed file.
+	 * Creates or recycles the folder wrapping the passed file.
 	 * 
 	 * @param file The file to wrap.
 	 * @return See above.

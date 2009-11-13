@@ -175,7 +175,6 @@ import pojos.ProjectData;
 import pojos.ROIData;
 import pojos.RatingAnnotationData;
 import pojos.ScreenData;
-import pojos.ShapeData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
 import pojos.TimeAnnotationData;
@@ -205,6 +204,9 @@ class OMEROGateway
 	
 	/** Indicates that the server is out of service.. */
 	static final int SERVER_OUT_OF_SERVICE = 1;
+	
+	/** String used to identify the overlays. */
+	private static final String				OVERLAYS = "Overlays";
 	
 	/** Maximum size of pixels read at once. */
 	private static final int				INC = 262144;//256000;
@@ -350,6 +352,72 @@ class OMEROGateway
 	/** The service to import files. */
 	private OMEROMetadataStoreClient				importStore;
 	
+	/**
+	 * Creates a table with the overlays.
+	 * 
+	 * @param imageID The id of the image.
+	 * @param table   The table to handle.
+	 * @return See above
+	 * @throws DSAccessException If an error occurred while trying to 
+	 *                           retrieve data from OMEDS service.
+	 */
+	private TableResult createOverlay(long imageID, TablePrx table)
+		throws DSAccessException
+	{
+		if (table == null) return null;
+		try {
+			Column[] cols = table.getHeaders();
+			int length = 2;
+			String[] headers = new String[length];
+			String[] headersDescriptions = new String[length];
+			
+			for (int i = 0; i < length; i++) {
+				headers[i] = cols[i].name;
+				headersDescriptions[i] = cols[i].description;
+			}
+			int n = (int) table.getNumberOfRows();
+			Data d;
+			Column column;
+			long[] a = new long[length];
+			long[] b = new long[0];
+			for (int i = 0; i < length; i++) {
+				a[i] = i; 
+			}
+			d = table.slice(a, b);
+			List<Integer> rows = new ArrayList<Integer>();
+			column = d.columns[0];
+			Long value;
+			if (column instanceof ImageColumn) {
+				for (int j = 0; j < n; j++) {
+					value = ((ImageColumn) column).values[j];
+					if (value == imageID)
+						rows.add(j);
+				}
+			}
+			
+			Integer row;
+			Object[][] data = new Object[rows.size()][length];
+			int k = 0;
+			Iterator<Integer> r = rows.iterator();
+			column = d.columns[1];
+			while (r.hasNext()) {
+				row = r.next();
+				data[k][0] = row;
+				data[k][1] = ((RoiColumn) column).values[row];
+				k++;
+			}
+			table.close();
+			return new TableResult(data, headers);
+		} catch (Exception e) {
+			try {
+				if (table != null) table.close();
+			} catch (Exception ex) {
+				//Digest exception
+			}
+			new DSAccessException("Unable to read the table.");
+		}
+		return null;
+	}
 	
 	/**
 	 * Transforms the passed table.
@@ -3267,7 +3335,9 @@ class OMEROGateway
 			Iterator i = nodes.iterator();
 			long id;
 			if (ImageData.class.equals(rootNodeType)) {
-				Map m = service.applySettingsToImages(pixelsID, nodes);
+				//Map m = service.applySettingsToImages(pixelsID, nodes);
+				Map m = service.applySettingsToSet(pixelsID, 
+						convertPojos(rootNodeType).getName(), nodes);
 				success = (List<Long>) m.get(Boolean.TRUE);
 				failure = (List<Long>) m.get(Boolean.FALSE);
 			} else if (DatasetData.class.equals(rootNodeType) ||
@@ -5064,14 +5134,35 @@ class OMEROGateway
 			IRoiPrx svc = getROIService();
 			RoiOptions options = new RoiOptions();
 			options.userId = omero.rtypes.rlong(userID);
-			return PojoMapper.asDataObjects(svc.getRoiMeasurements(imageID, 
-					options));
+			Collection files = PojoMapper.asDataObjects(
+					svc.getRoiMeasurements(imageID, options));
+			List results = new ArrayList();
+			if (files != null) {
+				Iterator i = files.iterator();
+				FileAnnotationData fa;
+				long tableID;
+				TableResult table;
+				while (i.hasNext()) {
+					fa = (FileAnnotationData) i.next();
+					if (OVERLAYS.equals(fa.getDescription())) {
+						//load the table
+						tableID = fa.getId();
+						table = createOverlay(imageID, svc.getTable(tableID));
+						if (table != null) {
+							table.setTableID(tableID);
+							results.add(table);
+						}
+					} else
+						results.add(fa);
+				}
+			}
+			return results;
 			
 		} catch (Exception e) {
 			handleException(e, "Cannot load the ROI measurements for image: "+
 					imageID);
 		}
-		return new ArrayList<DataObject>();
+		return new ArrayList<Object>();
 	}
 	
 	/**

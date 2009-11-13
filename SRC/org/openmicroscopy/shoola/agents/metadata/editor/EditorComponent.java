@@ -558,9 +558,11 @@ class EditorComponent
 		if (!(ref instanceof ImageData)) return;
 		ImageData img = (ImageData) ref;
 		if (pixelsID != img.getDefaultPixels().getId()) return;
-		model.setPlaneInfo(channel, result);
-		view.setPlaneInfo(channel);
-		view.setStatus(false);
+		if (channel >= 0) {
+			model.setPlaneInfo(channel, result);
+			view.setPlaneInfo(channel);
+			view.setStatus(false);
+		} 
 	}
 	
 	/** 
@@ -590,13 +592,18 @@ class EditorComponent
 	 */
 	public void loadRenderingControl(int index)
 	{
+		if (model.getRenderer() == null && 
+				index == RenderingControlLoader.RELOAD)
+			return;
 		ImageData image = model.getImage();
 		if (image == null) return;
 		PixelsData pixels = image.getDefaultPixels();
 		if  (pixels == null) {
+			/*
 			UserNotifier un = 
 				MetadataViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Renderer", "The selected image is not valid.");
+			*/
 			return;
 		}
 		int value;
@@ -608,7 +615,7 @@ class EditorComponent
 			default:
 				value = index;
 		}
-		model.fireRenderingControlLoading(pixels.getId(), value); 
+		model.fireRenderingControlLoading(pixels.getId(), value);
 	}
 	
 	/** 

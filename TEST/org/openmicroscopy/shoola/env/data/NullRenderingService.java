@@ -364,7 +364,8 @@ public class NullRenderingService
      * @see OmeroImageService#createFigure(List, Object)
      */
 	public Object createFigure(List<Long> imageIDs, Object parameters)
-			throws DSOutOfServiceException, DSAccessException {
+			throws DSOutOfServiceException, DSAccessException
+	{
 		return null;
 	}
 
@@ -372,9 +373,9 @@ public class NullRenderingService
      * No-op implementation
      * @see OmeroImageService#saveROI(long, long, List)
      */
-	public List<ROIData> saveROI(long imageID, long userID, List<ROIData> roiList)
-			throws DSOutOfServiceException, DSAccessException {
-		// TODO Auto-generated method stub
+	public List<ROIData> saveROI(long imageID, long userID, List<ROIData> list)
+			throws DSOutOfServiceException, DSAccessException
+	{
 		return null;
 	}
 
@@ -383,8 +384,19 @@ public class NullRenderingService
      * @see OmeroImageService#loadROIFromServer(long, long)
      */
 	public List<ROIResult> loadROIFromServer(long imageID, long userID)
-			throws DSOutOfServiceException, DSAccessException {
-		// TODO Auto-generated method stub
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#renderOverLays(long, PlaneDef, long, Map, boolean)
+     */
+	public Object renderOverLays(long pixelsID, PlaneDef pd, long tableID,
+			Map<Long, Integer> overlays, boolean asTexture)
+			throws RenderingServiceException
+	{
 		return null;
 	}
 
