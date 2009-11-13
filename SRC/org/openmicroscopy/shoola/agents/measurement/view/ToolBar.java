@@ -31,7 +31,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.util.HashMap;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -193,7 +192,7 @@ class ToolBar
 		toolBar = DrawingToolBarButtonFactory.createDefaultBar();
 		DrawingEditor editor = model.getDrawingEditor();
 		DrawingToolBarButtonFactory.addSelectionToolTo(toolBar, editor,
-				true);
+				model.isServerROI());
 		component = toolBar.getComponent(toolBar.getComponentCount()-1);
 		if (component instanceof JToggleButton)
 			setUpToggleButton((JToggleButton) component);

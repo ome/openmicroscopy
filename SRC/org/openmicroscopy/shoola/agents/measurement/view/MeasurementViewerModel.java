@@ -28,7 +28,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
