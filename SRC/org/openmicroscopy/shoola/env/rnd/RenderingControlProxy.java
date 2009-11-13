@@ -132,11 +132,13 @@ class RenderingControlProxy
     private void handleException(Throwable e, String message)
     	throws RenderingServiceException, DSOutOfServiceException
     {
+    	/*
     	if (e instanceof ServerError) {
     		shutDown();
     		throw new DSOutOfServiceException(message+"\n\n"+
 					printErrorText(e), e);
     	}
+    	*/
     	throw new RenderingServiceException(message+"\n\n"+
 				printErrorText(e), e);
     }

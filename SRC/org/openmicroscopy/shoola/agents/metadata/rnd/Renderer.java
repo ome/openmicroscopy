@@ -111,6 +111,9 @@ public interface Renderer
 	/** Bound property indicating that the color of a channel has changed. */
 	public static final String	CHANNEL_COLOR_PROPERTY = "channelColor";
 	
+	/** Bound property indicating to reload the rendering engine. */
+	public static final String	RELOAD_PROPERTY = "Reload";
+	
     /** 
      * Sets the pixels intensity interval for the
      * currently selected channel.

@@ -1958,5 +1958,12 @@ class EditorModel
 		return img.getDefaultPixels().getSizeC() >= Renderer.MAX_CHANNELS;
 		//return img.isLifetime();
 	}
+
+	/** Discards the renderer. */
+	void discardRenderer()
+	{
+		if (renderer != null) renderer.discard();
+		renderer = null;
+	}
 	
 }

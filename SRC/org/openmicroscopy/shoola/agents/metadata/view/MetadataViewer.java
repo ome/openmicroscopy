@@ -133,6 +133,9 @@ public interface MetadataViewer
 	/** Bound property indicating to export the image. */
 	public static final String	EXPORT_PROPERTY = "export";
 	
+	/** Bound property indicating to close the renderer. */
+	public static final String	CLOSE_RENDERER_PROPERTY = "closeRenderer";
+	
 	/** Flag to denote the <i>New</i> state. */
 	public static final int     NEW = 1;
 
@@ -457,5 +460,14 @@ public interface MetadataViewer
 	 * @param index The selected index.
 	 */
 	public void setSelectedTab(int index);
+
+	/**
+	 * Reloads the renderer if the passed value is <code>true</code>,
+	 * discards the components if <code>false</code>.
+	 * 
+	 * @param value Pass <code>true</code> to reload, 
+	 * 				<code>false</code> to discard.
+	 */
+	public void reloadRenderingControl(boolean value);
 	
 }

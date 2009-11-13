@@ -31,13 +31,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.JPanel;
 
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
+//Third-party libraries
 import layout.TableLayout;
 
-//Third-party libraries
-
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * The {@link Renderer} view. Provides a menu bar, a status bar and a 

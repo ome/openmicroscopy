@@ -678,5 +678,17 @@ public class EditorUI
 		else tabPane.setComponentAt(RND_INDEX, 
 				new JScrollPane(model.getRenderer().getUI()));
 	}
+
+	/** 
+	 * Discards the renderer. 
+	 * 
+	 * @param ref The object of reference.
+	 */
+	void discardRenderer(Object ref)
+	{
+		if (ref != model.getRefObject());
+		model.discardRenderer();
+		clearData();
+	}
 	
 }

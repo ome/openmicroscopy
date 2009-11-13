@@ -45,6 +45,7 @@ import javax.swing.JFrame;
 import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
@@ -949,7 +950,21 @@ class MetadataViewerComponent
 			firePropertyChange(EXPORT_PROPERTY, Boolean.valueOf(false), 
 					Boolean.valueOf(true));
 		}
-		
+	}
+
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#reloadRenderingControl(Boolean)
+	 */
+	public void reloadRenderingControl(boolean value)
+	{
+		if (value)
+			model.getEditor().loadRenderingControl(
+					RenderingControlLoader.RELOAD);
+		else {
+			firePropertyChange(CLOSE_RENDERER_PROPERTY, null, 
+					model.getRefObject());
+		}
 	}
 	
 }

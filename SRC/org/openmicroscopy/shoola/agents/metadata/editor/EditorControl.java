@@ -416,6 +416,8 @@ class EditorControl
 			view.analyse(b);
 		} else if (MetadataViewer.EXPORT_PROPERTY.equals(name)) {
 			export();
+		} else if (MetadataViewer.CLOSE_RENDERER_PROPERTY.equals(name)) {
+			view.discardRenderer(evt.getNewValue());
 		}
 	}
 

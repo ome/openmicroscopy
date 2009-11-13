@@ -180,6 +180,8 @@ class MetadataViewerControl
 			model.onChannelSelected((Integer) evt.getNewValue());
 		} else if (Renderer.CHANNEL_COLOR_PROPERTY.equals(name)) {
 			view.onChannelColorChanged((Integer) evt.getNewValue());
+		} else if (Renderer.RELOAD_PROPERTY.equals(name)) {
+			model.reloadRenderingControl((Boolean) evt.getNewValue());
 		}
 	}
 	
