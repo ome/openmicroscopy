@@ -292,8 +292,8 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
         rows = all_rows[self.name]
         # WORKAROUND: http://www.zeroc.com/forums/bug-reports/4165-icepy-can-not-handle-buffers-longs-i64.html#post20468
         self.imageId = rows["i"].tolist()
-        self.theZ = rows["z"]
-        self.theT = rows["t"]
+        self.theZ = rows["z"].tolist() # ticket:1665
+        self.theT = rows["t"].tolist() # ticket:1665
         self.x = rows["x"]
         self.y = rows["y"]
         self.w = rows["w"]
