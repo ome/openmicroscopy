@@ -75,6 +75,8 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -2126,32 +2128,18 @@ class ImViewerModel
 		Map<Integer, Integer> overlays = new LinkedHashMap<Integer, Integer>();
 		int index = 0;
 		Color c = null;
-		int value;
 		for (int j = 0; j < data.length; j++) {
 			if (index == 0) c = Color.red;
 			else if (index == 1) c = Color.green;
 			else if (index == 2) c = Color.blue;
-			overlays.put((Integer) data[j][0], convertColor(c));
+			overlays.put((Integer) data[j][0], UIUtilities.convertColor(c));
 			index++;
 			if (index%3 == 0) index = 0;
 		}
 		
 		return overlays;
 	}
-	
-	/**
-	 * Converts the passed color.
-	 * 
-	 * @param c The color to handle.
-	 * @return See above.
-	 */
-	private int convertColor(Color c)
-	{
-		return ((255 & 0xFF) << 24) |
-    	((c.getRed() & 0xFF) << 16) |
-    	((c.getGreen() & 0xFF) << 8)  |
-    	((c.getBlue() & 0xFF) << 0);
-	}
+
 	
 	/**
 	 * Sets the retrieved image, returns the a magnification or <code>-1</code>

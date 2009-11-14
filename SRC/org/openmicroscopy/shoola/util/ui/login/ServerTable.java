@@ -240,7 +240,9 @@ class ServerTable
 	 */
 	void removeRow(int row)
 	{
-		DefaultTableModel model= (DefaultTableModel) getModel();
+		DefaultTableModel model = (DefaultTableModel) getModel();
+		int n = model.getRowCount();
+		if (row >= n) return;
 		model.removeRow(row);
 		previousRow = row-1;
 	}
