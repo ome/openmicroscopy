@@ -1605,26 +1605,20 @@ class ControlPane
             h = button.getPreferredSize().height;
             j++;
 		}
-		if (overlayButtons.size() > ImViewer.MAX_CHANNELS) {
-        	JScrollPane sp = new JScrollPane(p);
-        	Dimension d = new Dimension(2*w, h*ImViewer.MAX_CHANNELS);
-        	sp.setPreferredSize(d);
-        	controls.add(sp, "0, 3, r, c");
-        } else controls.add(p, "0, 3");
-		
+
 		JPanel pane = new JPanel();
 		double size[][] = {{TableLayout.PREFERRED}, 
 				{TableLayout.PREFERRED, TableLayout.PREFERRED}};
 		pane.setLayout(new TableLayout(size));
-		pane.add(overlays, "0, 0, c, c");
-		if (channelButtonsGrid.size() > ImViewer.MAX_CHANNELS) {
+		pane.add(overlays, "0, 0, CENTER, CENTER");
+		if (overlayButtons.size() > ImViewer.MAX_OVERLAYS) {
         	JScrollPane sp = new JScrollPane(p);
-        	Dimension d = new Dimension(2*w, h*ImViewer.MAX_CHANNELS);
+        	Dimension d = new Dimension(2*w, h*ImViewer.MAX_OVERLAYS);
         	sp.setPreferredSize(d);
-        	pane.add(sp, "0, 1, r, c");
-        } else pane.add(p, "0, 1, c, c");
+        	pane.add(sp, "0, 1, CENTER, CENTER");
+        } else pane.add(p, "0, 1, CENTER, CENTER");
 		
-		controls.add(pane, "0, "+row+", l, c");
+		controls.add(pane, "0, "+row+", LEFT, CENTER");
 	}
 	
 	/**

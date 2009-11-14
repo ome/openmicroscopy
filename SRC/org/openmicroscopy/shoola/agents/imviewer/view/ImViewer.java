@@ -42,6 +42,7 @@ import com.sun.opengl.util.texture.TextureData;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.imviewer.util.saver.SaveObject;
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -99,11 +100,17 @@ public interface ImViewer
 	/** The title of the <code>Projection</code> view. */
 	public static final String 	TITLE_PROJECTION_INDEX = "Projection";
 	
+	/** 
+	 * The maximum number of overlays before displaying them in a 
+	 * Scroll Pane. 
+	 */
+    public static final int		MAX_OVERLAYS = 8;
+    
     /** 
      * The maximum number of channels before displaying the channels 
-     * buttons in a scrollpane.
+     * buttons in a scroll pane.
      */
-    public static final int		MAX_CHANNELS = 10;
+    public static final int		MAX_CHANNELS = Renderer.MAX_CHANNELS;
     
 	/** The minimum size of an original image. */
 	public static final int		MINIMUM_SIZE = 96;

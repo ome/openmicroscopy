@@ -76,6 +76,8 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -2142,7 +2144,7 @@ class ImViewerModel
 			if (index == 0) c = Color.red;
 			else if (index == 1) c = Color.green;
 			else if (index == 2) c = Color.blue;
-			overlays.put((Integer) data[j][0], c.getRGB() & 0x00ffffff);
+			overlays.put((Integer) data[j][0], UIUtilities.convertColor(c));
 			index++;
 			if (index%3 == 0) index = 0;
 		}

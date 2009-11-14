@@ -1673,7 +1673,7 @@ public class UIUtilities
 	 * @param max  The maximum number of characters per line.
 	 * @return See above.
 	 */
-	public static final String formatString(String name, int max) 
+	public static String formatString(String name, int max) 
 	{
 		if (name == null) return "";
 		if (max <= 0) max = MAX_CHARACTER;
@@ -1696,7 +1696,7 @@ public class UIUtilities
 	 * 
 	 * @return See above.
 	 */
-	public static final boolean isMacOS()
+	public static boolean isMacOS()
 	{
 		 String osName = System.getProperty("os.name").toLowerCase();
 		 return osName.startsWith("mac os");
@@ -1708,7 +1708,7 @@ public class UIUtilities
 	 * 
 	 * @return See above.
 	 */
-	public static final boolean isWindowsOS()
+	public static boolean isWindowsOS()
 	{
 		 String osName = System.getProperty("os.name").toLowerCase();
 		 return osName.startsWith("windows");
@@ -1720,7 +1720,7 @@ public class UIUtilities
 	 * 
 	 * @return See above.
 	 */
-	public static final boolean isLinuxOS()
+	public static boolean isLinuxOS()
 	{
 		if (isWindowsOS()) return false;
 		if (isMacOS()) return false;
@@ -1762,4 +1762,19 @@ public class UIUtilities
         return originalName;
     }
     
+	/**
+	 * Converts the passed color.
+	 * 
+	 * @param c The color to handle.
+	 * @return See above.
+	 */
+	public static int convertColor(Color c)
+	{
+		int alpha = c.getAlpha();
+		if (alpha == 0) alpha = 255;
+		return ((alpha & 0xFF) << 24) |
+    	((c.getRed() & 0xFF) << 16) |
+    	((c.getGreen() & 0xFF) << 8)  |
+    	((c.getBlue() & 0xFF) << 0);
+	}
 }
