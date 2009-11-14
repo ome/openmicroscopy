@@ -1646,11 +1646,11 @@ class ControlPane
 				{TableLayout.PREFERRED, TableLayout.PREFERRED}};
 		pane.setLayout(new TableLayout(size));
 		pane.add(overlays, "0, 0, c, c");
-		if (overlayButtons.size() > ImViewer.MAX_CHANNELS) {
+		if (overlayButtons.size() > ImViewer.MAX_OVERLAYS) {
         	JScrollPane sp = new JScrollPane(p);
-        	Dimension d = new Dimension(2*w, h*ImViewer.MAX_CHANNELS);
+        	Dimension d = new Dimension(2*w, h*ImViewer.MAX_OVERLAYS);
         	sp.setPreferredSize(d);
-        	pane.add(sp, "0, 1, r, c");
+        	pane.add(sp, "0, 1, c, c");
         } else pane.add(p, "0, 1, c, c");
 		
 		controls.add(pane, "0, "+row+", l, c");

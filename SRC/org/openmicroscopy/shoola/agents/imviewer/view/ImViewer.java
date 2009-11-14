@@ -41,6 +41,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.imviewer.util.saver.SaveObject;
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -102,11 +103,14 @@ public interface ImViewer
 	/** The title of the <code>Projection</code> view. */
 	public static final String 	TITLE_PROJECTION_INDEX = "Projection";
 	
+	/** The maximum number of overlays. */
+    public static final int		MAX_OVERLAYS = 8;
+    
     /** 
      * The maximum number of channels before displaying the channels 
      * buttons in a scrollpane.
      */
-    public static final int		MAX_CHANNELS = 10;
+    public static final int		MAX_CHANNELS = Renderer.MAX_CHANNELS;
     
 	/** Identifies the <code>Maximum intensity</code> projection. */
 	public static final int 	MAX_INTENSITY = OmeroImageService.MAX_INTENSITY;
