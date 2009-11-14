@@ -137,7 +137,7 @@ class WebControl(BaseControl):
             output.flush()
             output.close()
         
-        self.ctx.write("Saved to " + location)
+        self.ctx.out("Saved to " + location)
 
     def _setup_server(self, email_server=None, app_host=None, sender_address=None, smtp_server=None):
         settings = dict()
