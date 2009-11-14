@@ -23,7 +23,7 @@
       <envVar name="JDK_HOME" />
     </searchSequence>
     <classPath>
-      <scanDirectory location="./client-libs" failOnError="false" />
+      <scanDirectory location="./libs" failOnError="false" />
       <scanDirectory location="." failOnError="false" />
     </classPath>
     <nativeLibraryDirectories />
