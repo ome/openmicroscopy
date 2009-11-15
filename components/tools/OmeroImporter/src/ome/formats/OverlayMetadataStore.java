@@ -23,7 +23,6 @@ import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.OriginalFileI;
 import omero.model.Pixels;
-import omero.model.Plate;
 import omero.model.PlateAnnotationLink;
 import omero.model.PlateAnnotationLinkI;
 import omero.model.PlateI;
@@ -31,7 +30,6 @@ import omero.model.Roi;
 import omero.model.RoiAnnotationLink;
 import omero.model.RoiAnnotationLinkI;
 import omero.model.RoiI;
-import omero.model.WellSample;
 
 import loci.formats.meta.MetadataStore;
 
@@ -100,25 +98,7 @@ public class OverlayMetadataStore implements MetadataStore {
 		this.sf = sf;
 		updateService = sf.getUpdateService();
 		columns = createColumns(DEFAULT_BUFFER_SIZE);
-		table = sf.sharedResources().newTable(1, "Overlays");
-		if (table == null || plateIds == null || plateIds.size() != 1)
-		{
-			return false;
-		}
-		table.initialize(columns);
-		tableFileId = table.getOriginalFile().getId().getValue();
 		plateId = plateIds.get(0);
-		// Create our measurement file annotation
-		fileAnnotation = new FileAnnotationI();
-		fileAnnotation.setDescription(rstring("Overlays"));
-		fileAnnotation.setNs(rstring(
-				omero.constants.namespaces.NSMEASUREMENT.value));
-		fileAnnotation.setFile(new OriginalFileI(tableFileId, false));
-		fileAnnotation = (FileAnnotation) 
-			updateService.saveAndReturnObject(fileAnnotation);
-		fileAnnotationId = fileAnnotation.getId().getValue();
-		log.info(String.format("New table %d annotation %d", 
-				tableFileId, fileAnnotationId));
 		return true;
 	}
 	
@@ -130,12 +110,14 @@ public class OverlayMetadataStore implements MetadataStore {
 	 * the plate.
 	 */
 	public void complete() throws ServerError {
-		saveIfNecessary(true);
-
-		PlateAnnotationLink link = new PlateAnnotationLinkI();
-		link.setParent(new PlateI(plateId, false));
-		link.setChild(new FileAnnotationI(fileAnnotationId, false));
-		updateService.saveObject(link);
+		long saved = saveIfNecessary(true);
+		if (saved > 0)
+		{
+			PlateAnnotationLink link = new PlateAnnotationLinkI();
+			link.setParent(new PlateI(plateId, false));
+			link.setChild(new FileAnnotationI(fileAnnotationId, false));
+			updateService.saveObject(link);
+		}
 	}
 	
 	/**
@@ -158,6 +140,29 @@ public class OverlayMetadataStore implements MetadataStore {
 				new double[length],  // h
 				new byte[length][]); // bytes
 		return newColumns;
+	}
+	
+	/**
+	 * Creates a new table, initializing with the current set of rows and
+	 * a measurement file annotation to identify the table.
+	 * @throws ServerError Thrown if there was an error initializing the table
+	 * or creating the annotation.
+	 */
+	private void createTable() throws ServerError {
+		table = sf.sharedResources().newTable(1, "Overlays");
+		table.initialize(columns);
+		tableFileId = table.getOriginalFile().getId().getValue();
+		// Create our measurement file annotation
+		fileAnnotation = new FileAnnotationI();
+		fileAnnotation.setDescription(rstring("Overlays"));
+		fileAnnotation.setNs(rstring(
+				omero.constants.namespaces.NSMEASUREMENT.value));
+		fileAnnotation.setFile(new OriginalFileI(tableFileId, false));
+		fileAnnotation = (FileAnnotation) 
+			updateService.saveAndReturnObject(fileAnnotation);
+		fileAnnotationId = fileAnnotation.getId().getValue();
+		log.info(String.format("New table %d annotation %d", 
+				tableFileId, fileAnnotationId));
 	}
 	
 	/**
@@ -223,14 +228,21 @@ public class OverlayMetadataStore implements MetadataStore {
 	/**
 	 * Updates the mask column in the table if the buffer size is reached.
 	 * @param force Whether or not to force an update.
+	 * @return The number of rows saved.
 	 */
-	private void saveIfNecessary(boolean force) {
-		if (currentIndex == DEFAULT_BUFFER_SIZE || force == true)
+	private long saveIfNecessary(boolean force) {
+		long saved = 0;
+		if (currentIndex != 0
+			&& (currentIndex == DEFAULT_BUFFER_SIZE || force == true))
 		{
 			try
 			{
 				MaskColumn maskColumn = (MaskColumn) columns[MASK_COLUMN];
 				ImageColumn imageColumn = (ImageColumn) columns[IMAGE_COLUMN];
+				if (table == null)
+				{
+					createTable();
+				}
 				if (currentIndex != DEFAULT_BUFFER_SIZE)
 				{
 					int size = currentIndex + 1;
@@ -273,7 +285,8 @@ public class OverlayMetadataStore implements MetadataStore {
 				}
 				saveAndUpdateROI();
 				table.addData(columns);
-				log.debug("Saved " + maskColumn.imageId.length + " masks.");
+				saved = maskColumn.imageId.length;
+				log.debug("Saved " + saved + " masks.");
 				columns = createColumns(DEFAULT_BUFFER_SIZE);
 				currentIndex = 0;
 			}
@@ -282,6 +295,7 @@ public class OverlayMetadataStore implements MetadataStore {
 				throw new RuntimeException(t);
 			}
 		}
+		return saved;
 	}
 	
 	public void setMaskHeight(String height, int imageIndex, int roiIndex,
