@@ -329,6 +329,7 @@ class GraphicsPane
     /** Updates the controls when a new channel is selected. */
     void setSelectedChannel()
     {
+    	if (!model.hasSelectedChannel()) return;
         int min = (int) model.getGlobalMin();
         int max = (int) model.getGlobalMax();
         minLabel.setText(""+min);

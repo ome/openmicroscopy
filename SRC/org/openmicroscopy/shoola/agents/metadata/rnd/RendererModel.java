@@ -546,6 +546,14 @@ class RendererModel
 	}
 
 	/**
+	 * Returns <code>true</code> if one channel is selected, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasSelectedChannel() { return selectedChannelIndex >= 0; }
+	
+	/**
 	 * Returns the global minimum of the currently selected channel
 	 * or of all channels if the number of channels is greater
 	 * {@link Renderer#MAX_CHANNELS}.
