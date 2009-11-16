@@ -1960,13 +1960,11 @@ class ImViewerComponent
 			return;
 		}
 		Collection measurements = model.getMeasurements();
-		view.setMeasurementLaunchingStatus(true);
 		if (measurements == null || measurements.size() == 0) {
 			postMeasurementEvent(null);
 			return;
 		}
-		MessageBox msg = new MessageBox(view, "Measurements", 
-		"Select the measurements to display alongside the image.");
+		
 		Map<JCheckBox, FileAnnotationData> boxes = 
 			new LinkedHashMap<JCheckBox, FileAnnotationData>();
 		JPanel p = new JPanel();
@@ -1981,15 +1979,19 @@ class ImViewerComponent
 				object = i.next();
 				if (object instanceof FileAnnotationData) {
 					fa = (FileAnnotationData) object;
-					if (!ImViewerModel.OVERLAYS.equals(fa.getDescription())) {
-						box = new JCheckBox(fa.getDescription());
-						box.setSelected(true);
-						p.add(box);
-						boxes.put(box, fa);
-					}
+					box = new JCheckBox(fa.getDescription());
+					box.setSelected(true);
+					p.add(box);
+					boxes.put(box, fa);
 				}
 			}
 		}
+		
+		if (boxes.size() == 0)  return;
+		
+		view.setMeasurementLaunchingStatus(true);
+		MessageBox msg = new MessageBox(view, "Measurements", 
+			"Select the measurements to display alongside the image.");
 		
 		msg.setNoText("Cancel");
 		msg.setYesText("Display");
@@ -2817,11 +2819,32 @@ class ImViewerComponent
 	public void setMeasurements(Collection result)
 	{
 		if (model.getState() == DISCARDED) return;
-		if (result == null || result.size() == 0) {
+		model.setMeasurements(result);
+		
+		Collection measurements = model.getMeasurements();
+		boolean enabled = true;
+		if (measurements == null || measurements.size() == 0) {
+			enabled = false;
+		} else {
+			Iterator i;
+			i = measurements.iterator();
+			FileAnnotationData fa;
+			JCheckBox box;
+			Object object;
+			List<Object> l = new ArrayList<Object>();
+			while (i.hasNext()) {
+				object = i.next();
+				if (object instanceof FileAnnotationData)
+					l.add(object);
+			}
+			if (l.size() == 0) enabled = false;
+		}
+		
+		if (!enabled) {
 			Action a = controller.getAction(ImViewerControl.MEASUREMENT_TOOL);
 			a.setEnabled(false);
 		}
-		model.setMeasurements(result);
+		
 		//Notify UI to build overlays 
 		view.buildOverlays();
 	}
