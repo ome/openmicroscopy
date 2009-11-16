@@ -1129,7 +1129,7 @@ class BaseContainer(BaseController):
         self.conn.saveObject(t_ann)
     
     # File annotation
-    def getFileFormat(newFile):
+    def getFileFormat(self, newFile):
         format = None
         try:
             format = self.conn.getFileFormat(newFile.content_type)
