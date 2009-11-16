@@ -23,6 +23,7 @@
 #
 
 
+import exceptions
 import tempfile
 import time
 import sys
@@ -120,6 +121,7 @@ class AbstractPlateAnalysisCtx(object):
                  plate_id, service_factory):
         super(AbstractPlateAnalysisCtx, self).__init__()
         self.images = images
+        self.maxcols, self.maxrows = self.guess_geometry(self.images)
         self.original_files = original_files
         self.original_file_image_map = original_file_image_map
         self.plate_id = plate_id
@@ -127,7 +129,31 @@ class AbstractPlateAnalysisCtx(object):
         self.log_files = dict()
         self.detail_files = dict()
         self.measurements = dict()
-    
+
+    def guess_geometry(self, images):
+        max_col = 0
+        max_row = 0
+        for image in images:
+            ws = image.copyWellSamples()[0] # Using only first well sample link
+            well = ws.well
+            max_col = max(max_col, well.column.val)
+            max_row = max(max_row, well.row.val)
+        return (max_col, max_row)
+
+    def colrow_from_wellnumber(self, width, wellnumber):
+        x = wellnumber - 1
+        col = x % width
+        row = x / width
+        return (col,row)
+
+    def image_from_wellnumber(self, wellnumber):
+        col, row = self.colrow_from_wellnumber(self.maxcols, wellnumber)
+        for image in self.images:
+            well = image.copyWellSamples()[0].well
+            if well.column.val == col and well.row.val == row:
+                return image
+        raise exceptions.Exception("Could not find image for (col,row)==(%s,%s)" % (col,row))
+
     ###
     ### Abstract methods
     ### 
@@ -170,7 +196,7 @@ class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
     
     # Regular expression matching a result filename
     detail_regex = re.compile(
-        '^Well\d+_.*_detail_(\d+-\d+-\d+-\d+h\d+m\d+s).txt$')
+        '^Well(\d+)_(.*)_detail_(\d+-\d+-\d+-\d+h\d+m\d+s).txt$')
 
     # Companion file format
     companion_format = 'Companion/MIAS'
@@ -188,7 +214,7 @@ class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         Strips out erroneous files and collects the log and result original
         files based on regular expression matching.
         """
-        for original_file in self.original_files.values():
+        for original_file in self.original_files:
             if original_file.format.value.val != self.companion_format:
                 continue
             name = original_file.name.val
@@ -199,7 +225,7 @@ class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
                 continue
             match = self.detail_regex.match(name)
             if match:
-                d = time.strptime(match.group(1), self.datetime_format)
+                d = time.strptime(match.group(3), self.datetime_format)
                 self.detail_files[d] = original_file
                 continue
     
@@ -223,13 +249,13 @@ class MIASPlateAnalysisCtx(AbstractPlateAnalysisCtx):
                     self.measurements[log_timestamp].append(
                         self.detail_files[detail_timestamp])
                     break
-    
+
     ###
     ### Abstract method implementations
     ### 
     
     def is_this_type(klass, original_files):
-        for original_file in original_files.values():
+        for original_file in original_files:
             format = original_file.format.value.val
             if format == klass.companion_format \
                and klass.log_regex.match(original_file.name.val):
@@ -268,7 +294,7 @@ class FlexPlateAnalysisCtx(AbstractPlateAnalysisCtx):
                 images, original_files, original_file_image_map, plate_id,
                 service_factory)
         path_original_file_map = dict()
-        for original_file in original_files.values():
+        for original_file in original_files:
             path = original_file.path.val
             format = original_file.format.value.val
             if format == self.companion_format and path.endswith('.res'):
@@ -280,7 +306,7 @@ class FlexPlateAnalysisCtx(AbstractPlateAnalysisCtx):
     ### 
 
     def is_this_type(klass, original_files):
-        for original_file in original_files.values():
+        for original_file in original_files:
             path = original_file.path.val
             format = original_file.format.value.val
             if format == klass.companion_format and path.endswith('.res'):
@@ -318,7 +344,7 @@ class InCellPlateAnalysisCtx(AbstractPlateAnalysisCtx):
                 images, original_files, original_file_image_map, plate_id,
                 service_factory)
         path_original_file_map = dict()
-        for original_file in original_files.values():
+        for original_file in original_files:
             path = original_file.path.val
             format = original_file.format.value.val
             if format == self.companion_format and path.endswith('.xml'):
@@ -330,7 +356,7 @@ class InCellPlateAnalysisCtx(AbstractPlateAnalysisCtx):
     ### 
 
     def is_this_type(klass, original_files):
-        for original_file in original_files.values():
+        for original_file in original_files:
             path = original_file.path.val
             format = original_file.format.value.val
             if format == klass.companion_format and path.endswith('.xml'):
@@ -379,29 +405,47 @@ class PlateAnalysisCtxFactory(object):
         # samples required by certain measurement contexts (notably InCell).
         return self.query_service.findAllByQuery(
             'select img from Image as img ' \
-            'left outer join fetch img.annotationLinks as a_links ' \
             'join fetch img.wellSamples as ws ' \
             'join fetch ws.well as w ' \
             'join fetch w.wellSamples as w_ws ' \
             'join fetch w_ws.image ' \
-            'join w.plate as p ' \
-            'join fetch a_links.child as a ' \
-            'join fetch a.file as o_file ' \
-            'join fetch o_file.format ' \
+            'join fetch w.plate as p ' \
+            'left outer join fetch img.annotationLinks as ia_links ' \
+            'left outer join fetch ia_links.child as ia ' \
+            'left outer join fetch ia.file as i_o_file ' \
+            'left outer join fetch i_o_file.format ' \
+            'left outer join fetch p.annotationLinks as pa_links ' \
+            'left outer join fetch pa_links.child as pa ' \
+            'left outer join fetch pa.file as p_o_file ' \
+            'left outer join fetch p_o_file.format ' \
             'where p.id = %d' % plate_id, None)
+
+    def gather_original_files(self, obj, original_files, original_file_obj_map):
+        for annotation_link in obj.copyAnnotationLinks():
+            annotation = annotation_link.child
+            if isinstance(annotation, FileAnnotationI):
+                f = annotation.file
+                original_files.add(f)
+                if original_file_obj_map is not None:
+                    original_file_obj_map[f.id.val] = obj
 
     def get_analysis_ctx(self, plate_id):
         """Retrieves a plate analysis context for a given plate."""
-        original_files = dict()
+        # Using a set since 1) no one was using the image.id key and 2)
+        # we are now also collecting original files from plates (MIAS)
+        # for which there's no clear key. Since all the files are loaded
+        # in a single shot, double linking should not cause a problem.
+        plates = set()
+        original_files = set()
         original_file_image_map = dict()
         images = self.find_images_for_plate(plate_id)
         for i, image in enumerate(images):
-            for annotation_link in image.copyAnnotationLinks():
-                annotation = annotation_link.child
-                if isinstance(annotation, FileAnnotationI):
-                    f = annotation.file
-                    original_files[f.id.val] = f
-                    original_file_image_map[f.id.val] = image
+            for ws in image.copyWellSamples():
+                plate = ws.well.plate
+                if plate not in plates:
+                    plates.add(plate)
+                    self.gather_original_files(plate, original_files, None)
+            self.gather_original_files(image, original_files, original_file_image_map)
         for klass in self.implementations:
             if klass.is_this_type(original_files):
                 return klass(images, original_files,
@@ -585,6 +629,25 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
         for i in range(n_columns):
             columns.append(DoubleColumn('', '', list()))
         return columns
+
+    ###
+    ### Overriding abstract implementation
+    ###
+
+    def image_from_original_file(self, original_file):
+        """
+        Overriding the abstract implementation since the companion
+        files are no longer attached to the images, but only to the plate
+        for MIAS. Instead, we use the filename itself to find the image.
+        """
+        name = original_file.name.val
+        # Copy: '^Well(\d+)_(.*)_detail_(\d+-\d+-\d+-\d+h\d+m\d+s).txt$'
+        match = MIASPlateAnalysisCtx.detail_regex.match(name)
+        if match:
+            well_num = int(match.group(1))
+            return self.analysis_ctx.image_from_wellnumber(well_num)
+        else:
+            raise exceptions.Exception("Not a detail file")
 
     ###
     ### Abstract method implementations
