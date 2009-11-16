@@ -57,13 +57,13 @@ public class OverlayMetadataStore implements MetadataStore {
 	
 	private static final int MASK_COLUMN = 2;
 	
-	private int currentIndex = 0;
+	private Integer currentIndex;
 	
-	private int currentImageIndex = 0;
+	private Integer currentImageIndex;
 	
-	private int currentRoiIndex = 0;
+	private Integer currentRoiIndex;
 	
-	private int currentShapeIndex = 0;
+	private Integer currentShapeIndex;
 	
 	private Column[] columns;
 	
@@ -86,12 +86,10 @@ public class OverlayMetadataStore implements MetadataStore {
 	 * @param pixelsList List of pixels already saved in the database.
 	 * @param plateIds List of plate Ids already saved in the database. (This
 	 * should have <code>plateIds.size() == 1</code>).
-	 * @return <code>true</code> if table support was available and the table
-	 * was created successfully. <code>false</code> otherwise.
 	 * @throws ServerError Thrown if there was an error communicating with the
 	 * server during table creation.
 	 */
-	public boolean initialize(ServiceFactoryPrx sf, List<Pixels> pixelsList,
+	public void initialize(ServiceFactoryPrx sf, List<Pixels> pixelsList,
 			                  List<Long> plateIds)
 		throws ServerError {
 		this.pixelsList = pixelsList;
@@ -99,7 +97,6 @@ public class OverlayMetadataStore implements MetadataStore {
 		updateService = sf.getUpdateService();
 		columns = createColumns(DEFAULT_BUFFER_SIZE);
 		plateId = plateIds.get(0);
-		return true;
 	}
 	
 	/**
@@ -173,7 +170,27 @@ public class OverlayMetadataStore implements MetadataStore {
 	 * @return See above.
 	 */
 	private int getTableIndex(int imageIndex, int roiIndex, int shapeIndex) {
-		if (currentImageIndex != imageIndex)
+        if (table == null)
+        {
+            try
+            {
+                createTable();
+            }
+            catch (ServerError e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+        if (currentImageIndex == null
+            && currentRoiIndex == null
+            && currentShapeIndex == null)
+        {
+            currentIndex = 0;
+            currentImageIndex = imageIndex;
+            currentRoiIndex = roiIndex;
+            currentShapeIndex = shapeIndex;
+        }
+        else if (currentImageIndex != imageIndex)
 		{
 			currentIndex++;
 			saveIfNecessary(false);
@@ -239,10 +256,6 @@ public class OverlayMetadataStore implements MetadataStore {
 			{
 				MaskColumn maskColumn = (MaskColumn) columns[MASK_COLUMN];
 				ImageColumn imageColumn = (ImageColumn) columns[IMAGE_COLUMN];
-				if (table == null)
-				{
-					createTable();
-				}
 				if (currentIndex != DEFAULT_BUFFER_SIZE)
 				{
 					int size = currentIndex + 1;
@@ -300,9 +313,9 @@ public class OverlayMetadataStore implements MetadataStore {
 	
 	public void setMaskHeight(String height, int imageIndex, int roiIndex,
 			int shapeIndex) {
-		log.debug(String.format("Mask height - %d, %d, %d: %s", imageIndex, roiIndex, shapeIndex, height));
 		long imageId = pixelsList.get(imageIndex).getImage().getId().getValue();
 		int index = getTableIndex(imageIndex, roiIndex, shapeIndex);
+		log.debug(String.format("Mask height(%d) - %d, %d, %d: %s", index, imageIndex, roiIndex, shapeIndex, height));
 		MaskColumn maskColumn = (MaskColumn) columns[MASK_COLUMN];
 		ImageColumn imageColumn = (ImageColumn) columns[IMAGE_COLUMN];
 		imageColumn.values[index] = imageId;
@@ -322,9 +335,9 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	public void setMaskWidth(String width, int imageIndex, int roiIndex,
 			int shapeIndex) {
-		log.debug(String.format("Mask width - %d, %d, %d: %s", imageIndex, roiIndex, shapeIndex, width));
 		long imageId = pixelsList.get(imageIndex).getImage().getId().getValue();
 		int index = getTableIndex(imageIndex, roiIndex, shapeIndex);
+		log.debug(String.format("Mask width(%d) - %d, %d, %d: %s", index, imageIndex, roiIndex, shapeIndex, width));
 		MaskColumn maskColumn = (MaskColumn) columns[MASK_COLUMN];
 		ImageColumn imageColumn = (ImageColumn) columns[IMAGE_COLUMN];
 		imageColumn.values[index] = imageId;
@@ -334,9 +347,9 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	public void setMaskX(String x, int imageIndex, int roiIndex,
 			int shapeIndex) {
-		log.debug(String.format("Mask X - %d, %d, %d: %s", imageIndex, roiIndex, shapeIndex, x));
 		long imageId = pixelsList.get(imageIndex).getImage().getId().getValue();
 		int index = getTableIndex(imageIndex, roiIndex, shapeIndex);
+		log.debug(String.format("Mask X(%d) - %d, %d, %d: %s", index, imageIndex, roiIndex, shapeIndex, x));
 		MaskColumn maskColumn = (MaskColumn) columns[MASK_COLUMN];
 		ImageColumn imageColumn = (ImageColumn) columns[IMAGE_COLUMN];
 		imageColumn.values[index] = imageId;
@@ -346,9 +359,9 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	public void setMaskY(String y, int imageIndex, int roiIndex,
 			int shapeIndex) {
-		log.debug(String.format("Mask Y - %d, %d, %d: %s", imageIndex, roiIndex, shapeIndex, y));
 		long imageId = pixelsList.get(imageIndex).getImage().getId().getValue();
 		int index = getTableIndex(imageIndex, roiIndex, shapeIndex);
+		log.debug(String.format("Mask Y(%d) - %d, %d, %d: %s", index, imageIndex, roiIndex, shapeIndex, y));
 		MaskColumn maskColumn = (MaskColumn) columns[MASK_COLUMN];
 		ImageColumn imageColumn = (ImageColumn) columns[IMAGE_COLUMN];
 		imageColumn.values[index] = imageId;
@@ -363,9 +376,9 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	public void setMaskPixelsBinData(byte[] binData, int imageIndex,
 			int roiIndex, int shapeIndex) {
-		log.debug(String.format("Mask bin data - %d, %d, %d: mask[%d]", imageIndex, roiIndex, shapeIndex, binData.length));
 		long imageId = pixelsList.get(imageIndex).getImage().getId().getValue();
 		int index = getTableIndex(imageIndex, roiIndex, shapeIndex);
+		log.debug(String.format("Mask bin data(%d) - %d, %d, %d: mask[%d]", index, imageIndex, roiIndex, shapeIndex, binData.length));
 		MaskColumn maskColumn = (MaskColumn) columns[MASK_COLUMN];
 		ImageColumn imageColumn = (ImageColumn) columns[IMAGE_COLUMN];
 		imageColumn.values[index] = imageId;
