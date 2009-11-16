@@ -1,21 +1,32 @@
 #!/usr/bin/env python
 
+#
+# Add: screen/plate
+# Add: plotting
+#
+
+import re
 import os
 import Ice
 import sys
 import path
 import time
+import uuid
 import omero
+import tables
 import logging
 import optparse
 import fileinput
 import exceptions
+
+import omero.cli
 import omero.util
 import omero.util.temp_files
 import omero_Constants_ice
 
+command_pattern = "^\s*(\w+)(\((.*)\))?(:(.*))?$"
+command_pattern_compiled = re.compile(command_pattern)
 log = logging.getLogger("omero.perf")
-
 
 FILE_FORMAT = """
 File format:
@@ -26,8 +37,15 @@ File format:
     Import(Screen:<id>):<file>                  Import given file into screen
     Import(Dataset:<id>):<file>                 Import given file into project/dataset
     Import(Project:<id>,Dataset:<id>):<file>    Import given file into project/dataset
+    Import(Dataset:some name):<file>            Import given file into a new dataset
+    Import(Dataset):<file>                      Import given file into last created dataset (or create a new one)
+
+    #
     # "Import" is the name of a command available in the current context
-"""
+    # Use the "--list" command to print them all. All lines must be of the
+    # form: %s
+
+""" % command_pattern
 
 parser = optparse.OptionParser(usage = """usage: %%prog [options] file1 file2
 
@@ -45,8 +63,14 @@ parser.add_option('-C', '--Ice.Config', action='store', help='config file for co
 
 
 #
-# Support classes
+# Main classes
 #
+
+class ItemException(exceptions.Exception): pass
+class BadCommand(ItemException): pass
+class BadLine(ItemException): pass
+class BadPath(ItemException): pass
+class BadImport(ItemException): pass
 
 
 class Item(object):
@@ -56,12 +80,119 @@ class Item(object):
 
     def __init__(self, line):
         self.line = line.strip()
+        if not self.comment():
+            match = command_pattern_compiled.match(self.line)
+            if not match:
+                raise BadLine("Unexpected line: %s" % line)
+            self.command = match.group(1)
+            self.arguments = match.group(3)
+            self.path = match.group(5)
+            self.props = dict()
+
+            if self.arguments:
+                args = self.arguments.split(",")
+                for arg in args:
+                    parts = arg.split("=", 1)
+                    value = (len(parts) == 2 and parts[1] or "")
+                    self.props[parts[0]] = value
+
+            log.debug("Found line: %s, %s, %s, %s", self.command, self.arguments, self.path, self.props)
+
+    def repeat(self):
+        return int(self.props.get("repeat","1"))
 
     def comment(self):
-        rv = bool(self.line)
-        rv &= self.line.startswith("#")
-        return rv
+        if len(self.line) == 0:
+            return True
+        elif self.line.startswith("#"):
+            return True
 
+    def execute(self, ctx):
+        if self.comment():
+            return
+        m = getattr(self, "_op_%s" % self.command, None)
+        if m is None:
+            raise BadCommand("Unknown command: %s" % self.command)
+
+        m(ctx)
+
+    def create_obj(self, ctx, name):
+        id = None
+        id_path = ctx.dir / ("%s.id" % name)
+        prop = self.props.get(name)
+        # Do nothing if not in props
+        if prop is None:
+            return None
+        # If an integer, use that as an id
+        try:
+            id = int(prop)
+            log.debug("Using specified %s:%s" % (name, id))
+        except:
+            # Otherwise, create/re-use
+            if prop == "":
+                try:
+                    id = int(id_path.lines()[0])
+                except exceptions.Exception, e:
+                    log.debug("No %s.id: %s", name, e)
+                    prop = str(uuid.uuid4())
+            # Now, if there's still no id, create one
+            if id is not None:
+                log.debug("Using reload %s:%s" % (name, id))
+            else:
+                kls = getattr(omero.model, "%sI" % name)
+                obj = kls()
+                obj.name = omero.rtypes.rstring(prop)
+                obj = ctx.update_service().saveAndReturnObject(obj)
+                id = obj.id.val
+                log.debug("Created obj %s:%s" % (name, id))
+        id_path.write_text(str(id))
+        return id
+
+    def create_link(self, ctx, kls_name, parent, child):
+        link = ctx.query_service().findByQuery(\
+            "select link from %s link where link.parent.id = %s and link.child.id = %s"\
+            % (kls_name, parent.id.val, child.id.val), None)
+        if link:
+            log.debug("Found link %s:%s" % (kls_name, link.id.val))
+        else:
+            kls = getattr(omero.model, "%sI" % kls_name)
+            obj = kls()
+            obj.parent = parent
+            obj.child = child
+            obj = ctx.update_service().saveAndReturnObject(obj)
+            log.debug("Created link %s:%s" % (kls_name, obj.id.val))
+
+    def _op_Import(self, ctx):
+        p = path.path(self.path)
+        if not p.exists():
+            raise BadPath("File does not exist: %s" % self.path)
+
+        f = str(p.abspath())
+        out =  ctx.dir / ("import_%s.out" % ctx.count)
+        err =  ctx.dir / ("import_%s.err" % ctx.count)
+
+        args = ["import", "---file=%s" % str(out), "---errs=%s" % str(err), "-s", ctx.host(), "-k", ctx.key(), f]
+        s_id = self.create_obj(ctx, "Screen")
+        if s_id:
+            args.extend(["-r", str(s_id)])
+        p_id = self.create_obj(ctx, "Project")
+        d_id = self.create_obj(ctx, "Dataset")
+        if p_id and d_id:
+            self.create_link(ctx, "ProjectDatasetLink", omero.model.ProjectI(p_id, False), omero.model.DatasetI(d_id, False))
+        if d_id:
+            args.extend(["-d", str(d_id)])
+
+        ctx.cli.invoke(args)
+        if ctx.cli.rv != 0:
+            raise BadImport("Failed import: rv=%s" % ctx.cli.rv)
+        num_pix = len(out.lines())
+        log.debug("Import count: %s", num_pix)
+
+    def _op_ServerTime(self, ctx):
+        ctx.config_service().getServerTime()
+
+    def _op_LoadFormats(self, ctx):
+        ctx.query_service().findAll("Format", None)
 
 class Context(object):
     """
@@ -71,16 +202,46 @@ class Context(object):
 
     def __init__(self, id, reporter = None):
 
-        if reporter is None:
-            reporter = CsvReporter()
-        self.reporter = reporter
-
+        self.reporters = []
+        self.count = 0
+        self.id = id
         self.client = omero.client(id)
         self.client.createSession()
         self.services = {}
+        self.cli = omero.cli.CLI()
+        self.cli.loadplugins()
+        self.setup_dir()
 
-    def report(self, handler, start, stop, rv):
-        self.reporter.report(handler, start, stop, rv)
+    def add_reporter(self, reporter):
+        self.reporters.append(reporter)
+
+    def setup_dir(self):
+        self.dir = path.path(".") / ("perfdir-%s" % os.getpid())
+        if self.dir.exists():
+            raise exceptions.Exception("%s exists!" % self.dir)
+        self.dir.makedirs()
+
+        # Adding a file logger
+        handler = logging.handlers.RotatingFileHandler(str(self.dir / "perf.log"), maxBytes = 10000000, backupCount = 5)
+        handler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter(omero.util.LOGFORMAT)
+        handler.setFormatter(formatter)
+        logging.getLogger().addHandler(handler)
+        #log.addHandler(handler)
+        log.debug("Started: %s", time.ctime())
+
+    def incr(self):
+        self.count += 1
+
+    def host(self):
+        return self.client.getProperty("omero.host")
+
+    def key(self):
+        return self.client.sf.ice_getIdentity().name
+
+    def report(self, command, start, stop, loops, rv):
+        for reporter in self.reporters:
+            reporter.report(command, start, stop, loops, rv)
 
     def _stateless(self, name, prx):
         svc = self.services.get(name)
@@ -98,120 +259,48 @@ class Context(object):
     def config_service(self):
         return self._stateless(omero.constants.CONFIGSERVICE, omero.api.IConfigPrx)
 
-#
-# Abstract handlers
-#
+    def update_service(self):
+        return self._stateless(omero.constants.UPDATESERVICE, omero.api.IUpdatePrx)
 
 
 class PerfHandler(object):
-    """
-    Abstract base class of all handlers
-    """
 
     def __init__(self, ctx = None):
         self.ctx = ctx
-        self.count = 0
 
     def __call__(self, line):
+
+        (self.ctx.dir/"line.log").write_text(line, append = True)
 
         item = Item(line)
         if item.comment():
             return
 
-        self.count += 1
+        values = {}
+        total = 0.0
+        self.ctx.incr()
         start = time.time()
-        try:
-            rv = self.handle(item)
-        except exceptions.Exception, e:
-            rv = e
+        loops = item.repeat()
+        for i in range(loops):
+            try:
+                rv = item.execute(self.ctx)
+            except ItemException, ie:
+                log.exception("Error")
+                sys.exit(1)
+            except exceptions.Exception, e:
+                log.debug("Error during execution: %s" % item.line.strip(), exc_info = True)
+                rv = e
+                errs = values.get("errs",0)
+                errs += 1
+                values["errs"] = errs
+
+        if loops > 1:
+            values["avg"] = total / loops
+
         stop = time.time()
-        self.ctx.report(self, start, stop, rv)
+        total += (stop - start)
+        self.ctx.report(item.command, start, stop, loops, values)
 
-    def handle(self, item):
-        raise exceptions.Exception("Not implemented")
-
-
-class RepeatHandler(PerfHandler):
-
-    def __init__(self, ctx = None, repeat = 10):
-        PerfHandler.__init__(self, ctx)
-        self.repeat = repeat
-
-    def handle(self, item):
-        for i in range(self.repeat):
-            try:
-                self.single(item)
-            except:
-                log.exception("Error during repetition %s", i)
-        return {"repeats": self.repeat}
-
-    def single(self, item):
-        raise exceptions.Exception("Not implemented")
-
-
-class CompositeHandler(PerfHandler):
-
-    def __init__(self, handlers = []):
-        self.handlers = handlers
-        self.count = 0
-
-    def __call__(self, line):
-        self.count += 1
-        for handler in self.handlers:
-            try:
-                handler(line)
-            except:
-                log.exception("Error in handler %s", handler)
-
-
-
-#
-# Individual handlers performing a single task
-#
-
-
-class ServerTimeHandler(RepeatHandler):
-    """
-    Handler intended primarily for testing.
-    """
-
-    def single(self, item):
-        self.ctx.config_service().getServerTime()
-
-
-class LoadEnumsHandler(RepeatHandler):
-    """
-    Handler intended primarily for testing.
-    """
-
-    def single(self, item):
-        self.ctx.query_service().findAll("Format", None)
-
-
-class ThrowingHandler(PerfHandler):
-    """
-    Handler intended primarily for testing.
-    """
-
-    def handle(self, item):
-        raise exceptions.Exception("Throwing...")
-
-
-#
-# Composite types which run full test suites
-#
-
-
-class FullPerfTest(CompositeHandler):
-
-    def __init__(self, ctx):
-        handlers = list()
-        handlers.append(ServerTimeHandler(ctx))
-        handlers.append(LoadEnumsHandler(ctx))
-        #handlers.append(HierarchySizeHandler(ctx))
-        #handlers.append(ImportHandler(ctx))
-        #handlers.append(RepositorySizeHandler(ctx))
-        CompositeHandler.__init__(self, handlers)
 
 #
 # Reporter hierarchy
@@ -223,20 +312,64 @@ class Reporter(object):
     Abstract base class of all reporters
     """
 
-    def report(self, handler, start, stop, rv):
+    def report(self, command, start, stop, loops, rv):
         raise exceptions.Exception("Not implemented")
 
 
 class CsvReporter(Reporter):
 
-    def __init__(self, stream = sys.stdout):
-        self.stream = stream
-        print "Start,Stop,HandlerClass,Success,ReturnValue"
+    def __init__(self, dir = None):
+        if dir is None:
+            self.stream = sys.stdout
+        else:
+            self.file = str(dir / "report.csv")
+            self.stream = open(self.file, "w")
+        print >>self.stream, "Command,Start,Stop,Elapsed,Average,Values"
 
-    def report(self, handler, start, stop, rv):
-        success = not isinstance(rv, exceptions.Exception)
-        print >>self.stream, "%s,%s,%s,%s,%s,%s" % (handler.count, handler.__class__.__name__, start, stop, success, rv)
+    def report(self, command, start, stop, loops, values):
+        print >>self.stream, "%s,%s,%s,%s,%s,%s" % (command, start, stop, (stop-start), (stop-start)/loops, values)
+        self.stream.flush()
 
+
+class HdfReporter(Reporter):
+
+    def __init__(self, dir):
+        self.file = str(dir / "report.hdf")
+        self.hdf = tables.openFile(self.file, "w")
+        self.tbl = self.hdf.createTable("/", "report", {
+            "Command":tables.StringCol(pos=0, itemsize = 64),
+            "Start":tables.Float64Col(pos=1),
+            "Stop":tables.Float64Col(pos=2),
+            "Elapsed":tables.Float64Col(pos=3),
+            "Average":tables.Float64Col(pos=4),
+            "Values":tables.StringCol(pos=5, itemsize = 1000)
+            })
+        self.row = self.tbl.row
+
+    def report(self, command, start, stop, loops, values):
+        self.row["Command"] = command
+        self.row["Start"] = start
+        self.row["Stop"] = stop
+        self.row["Elapsed"] = (stop-start)
+        self.row["Average"] = (stop-start)/loops
+        self.row["Values"] = values
+        self.row.append()
+        self.hdf.flush()
+
+
+class PlotReporter(Reporter):
+
+    def __init__(self):
+        return
+        import matplotlib.pyplot as plt
+        self.fig = plt.figure()
+        self.ax = fig.add_subplot(111)
+
+    def report(self, command, start, stop, loops, values):
+        return
+        ax.set_ylim(-2,25)
+        ax.set_xlim(0, (last-first))
+        plt.show()
 
 ########################################################
 
@@ -249,33 +382,15 @@ def usage(prog = sys.argv[0]):
     return parser.format_help()
 
 
-def setup_dir():
-    perf_dir = path.path(".") / ("perfdir-%s" % os.getpid())
-    if perf_dir.exists():
-        raise exceptions.Exception("%s exists!" % perf_dir)
-    perf_dir.makedirs()
-
-    # Adding a file logger
-    handler = logging.handlers.RotatingFileHandler(str(perf_dir / "perf.log"), maxBytes = 10000000, backupCount = 5)
-    handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter(omero.util.LOGFORMAT)
-    handler.setFormatter(formatter)
-    log.addHandler(handler)
-    log.debug("Started: %s", time.ctime())
-
-    return perf_dir
-
-
 def handle(handler, files):
     """
     Primary method used by the command-line execution of
     this module.
     """
-    setup_dir()
 
     for line in fileinput.input(files):
         handler(line)
-    log.debug("Handled %s lines" % handler.count)
+    log.debug("Handled %s lines" % handler.ctx.count)
 
 
 def main(args, prog = sys.argv[0]):
@@ -283,19 +398,10 @@ def main(args, prog = sys.argv[0]):
     parser.prog = prog
     opts, files = parser.parse_args(args)
     if opts.list:
-        import inspect
-        import pprint
-        for k, v in globals().items():
-            if isinstance(v, type):
-                found = False
-                parent = v
-                while not found:
-                    parent = inspect.getclasstree([parent])[0][0]
-                    if parent == object:
-                        found = True
-                    elif parent == PerfHandler:
-                        print k
-                        found = True
+        ops = [ x[4:] for x in dir(Item) if x.startswith("_op_") ]
+        ops.sort()
+        for op in ops:
+            print op
         sys.exit(0)
     elif not files:
         print "No files"
@@ -312,9 +418,12 @@ def main(args, prog = sys.argv[0]):
     id = Ice.InitializationData()
     id.properties = Ice.createProperties(props)
 
-    reporter = CsvReporter()
-    context = Context(id, reporter)
-    handler = FullPerfTest(context)
+    ctx = Context(id)
+    print "Running performance tests in %s" % ctx.dir
+    ctx.add_reporter(CsvReporter(ctx.dir))
+    ctx.add_reporter(HdfReporter(ctx.dir))
+    ctx.add_reporter(PlotReporter())
+    handler = PerfHandler(ctx)
 
     log.debug("Running perf on files: %s", files)
     handle(handler, files)
