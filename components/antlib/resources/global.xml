@@ -33,6 +33,11 @@
         file any build script will have had to define the import.dir variable-->
         <import file="${import.dir}/directories.xml"/>
 
+        <taskdef resource="net/sf/antcontrib/antcontrib.properties"
+                 classpath="${lib.dir}/repository/ant-contrib-1.0b1.jar"/>
+        <taskdef resource="net/sf/antcontrib/antlib.xml"
+                 classpath="${lib.dir}/repository/ant-contrib-1.0b1.jar"/>
+
         <!-- Define properties :
                 The user's environment (env) overrides all other
                 variables, then comes the user defined
@@ -267,6 +272,94 @@
 		</move>
             </sequential>
         </macrodef>
+
+        <macrodef name = "git">
+            <attribute name = "command" />
+            <attribute name = "dir" default = "${env.PWD}" />
+            <attribute name = "output" />
+            <element name = "args" optional = "true" />
+            <sequential>
+                <exec executable = "git" dir = "@{dir}" outputproperty = "@{output}">
+                    <arg value = "@{command}" />
+                    <args/>
+                </exec>
+            </sequential>
+        </macrodef>
+
+        <macrodef name = "svn">
+            <attribute name = "command" />
+            <attribute name = "dir" default = "${env.PWD}" />
+            <attribute name = "output" />
+            <element name = "args" optional = "true" />
+            <sequential>
+                <exec executable = "svn" dir = "@{dir}" outputproperty = "@{output}">
+                    <arg value = "@{command}" />
+                    <args/>
+                </exec>
+            </sequential>
+        </macrodef>
+
+        <macrodef name = "git-rev-parse">
+            <sequential>
+                <git command = "rev-parse" output = "git.sha1">
+                    <args>
+                        <arg value = "--short"/>
+                        <arg value = "head"/>
+                    </args>
+                </git>
+            </sequential>
+        </macrodef>
+
+        <macrodef name = "git-branch-parse">
+            <sequential>
+                <git command = "symbolic-ref" output = "git.branch.file">
+                    <args>
+                        <arg value = "HEAD"/>
+                    </args>
+                </git>
+                <basename file="${git.branch.file}" property="git.branch"/>
+            </sequential>
+        </macrodef>
+
+        <macrodef name = "svn-info">
+            <sequential>
+                <svn command="info" output="svn.info"/>
+                <!--
+                Example:
+                ==========================================================
+                Path: .
+                URL: svn+ssh://cvs/home/svn/shoola-omero/branches/Beta4.1
+                Repository Root: svn+ssh://cvs/home/svn/shoola-omero
+                Repository UUID: 6f2cb1de-eb0d-0410-b157-e593188b5901
+                Revision: 6815
+                Node Kind: directory
+                Schedule: normal
+                Last Changed Author: jburel
+                Last Changed Rev: 6813
+                Last Changed Date: 2009-11-03 11:37:49 +0100 (Tue, 03 Nov 2009)
+                -->
+                <propertyregex property="svn.root" input="${svn.info}" select="\1">
+                    <regexp pattern="Repository Root: (.*)"/>
+                </propertyregex>
+                <propertyregex property="svn.rev" input="${svn.info}" select="\1">
+                    <regexp pattern="Revision: (.*)"/>
+                </propertyregex>
+                <propertyregex property="svn.url" input="${svn.info}" select="\1">
+                    <regexp pattern="URL: (.*)"/>
+                </propertyregex>
+                <basename file="${svn.url}" property="svn.branch"/>
+            </sequential>
+        </macrodef>
+
+        <target name="scm-init">
+            <git-rev-parse/>
+            <git-branch-parse/>
+            <svn-info/>
+            <echo>Git branch: ${git.branch}</echo>
+            <echo>Git sha1: ${git.sha1}</echo>
+            <echo>SVN branch: ${svn.branch}</echo>
+            <echo>SVN rev: ${svn.rev}</echo>
+        </target>
 
         <target name="help">
                 <echo>
