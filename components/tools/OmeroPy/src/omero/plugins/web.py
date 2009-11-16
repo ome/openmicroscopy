@@ -305,10 +305,10 @@ APPLICATION_HOST='%s'
                 try:
                     os.remove(os.path.join(omero_web, 'db.sqlite3'))
                 except Exception, e:
-                    self.ctx.err("db.sqlite3 was not deleted becuase: %s" % str(e))
+                    self.ctx.err("'db.sqlite3' was not deleted becuase: %s" % str(e))
                     sys.exit()
                 else:
-                    self.ctx.out("db.sqlite3 was deleted successfully.")
+                    self.ctx.out("Old database file 'db.sqlite3' was deleted successfully.")
         
         if not os.path.isfile(os.path.join(omero_web, 'custom_settings.py')):
             self.ctx.err("custom_settings.py does not exist. Please run bin/omero web custom_settings")
@@ -318,11 +318,14 @@ APPLICATION_HOST='%s'
             sys.exit()
                 
         try:
-            subprocess.call(["python","manage.py","syncdb","--noinput"], cwd=str(omero_web), env = os.environ)
+            rv = subprocess.call(["python","manage.py","syncdb","--noinput"], cwd=str(omero_web), env = os.environ)
         except:
             self.ctx.out("OMERO.web was not prepared.\n")
         else:
-            self.ctx.out("OMERO.web was prepared. Please start the application.\n")
+            if rv != 0:
+                self.ctx.out("OMERO.web was not prepared.\n")
+            else:
+                self.ctx.out("OMERO.web was prepared. Please start the application.\n")
 
     def settings(self, *args):
         self.custom_settings(do_exit=False)
