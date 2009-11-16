@@ -253,6 +253,13 @@ public class RenderingEngineI extends AbstractAmdServant implements
     		Current __current) throws ServerError {
     	try
     	{
+    		final IceMapper mapper = new IceMapper(IceMapper.VOID);
+    		// Sanity check so that we do not attempt to slice the entire table
+    		if (rowColorMap.size() == 0)
+    		{
+    			callInvokerOnMappedArgs(mapper, __cb, __current, new Object[] { null});
+    			return;
+    		}
     		// Translate our set of rows to an array for table slicing
     		Set<Long> rowsAsSet = rowColorMap.keySet();
     		long[] rows = new long[rowsAsSet.size()];
@@ -270,6 +277,7 @@ public class RenderingEngineI extends AbstractAmdServant implements
     		s1.stop();
     		s1 = new CommonsLogStopWatch("omero.getHeaders");
     		Column[] columns = table.getHeaders();
+    		System.err.println("Total columns: " + columns.length);
     		s1.stop();
     		int maskColumnIndex = 0;
     		for (; maskColumnIndex < columns.length; maskColumnIndex++)
@@ -278,12 +286,12 @@ public class RenderingEngineI extends AbstractAmdServant implements
     			{
     				break;
     			}
-    			maskColumnIndex++;
+    			System.err.println("Column " + maskColumnIndex + " " + columns[maskColumnIndex].name + " not mask.");
     		}
     		if (maskColumnIndex == columns.length)
     		{
     			throw new IllegalArgumentException(
-    					"Unable to find mask column in table: " + tableId);
+    					"Unable to find mask column in table: " + tableId.getValue());
     		}
 
     		// Slice the table and feed the byte array encoded bit masks to the
@@ -299,7 +307,6 @@ public class RenderingEngineI extends AbstractAmdServant implements
     					rowColorMap.get(rows[i]));
     		}
     		s1.stop();
-    		final IceMapper mapper = new IceMapper(IceMapper.VOID);
     		callInvokerOnMappedArgs(mapper, __cb, __current,
     				                forRenderingEngine);
     	}

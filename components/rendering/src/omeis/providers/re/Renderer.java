@@ -220,6 +220,7 @@ public class Renderer {
     		{
     			log.info("Disabling PriColor rendering, have overlays.");
     			optimizations.setPrimaryColorEnabled(false);
+    			return;
     		}
     		if (channelsActive > 3)
     		{
