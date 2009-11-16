@@ -12,20 +12,23 @@ from omero.cli import Arguments, BaseControl, VERSION
 import omero.java
 import time
 
-HELP=""" omero web [settings|superuser|syncdb]
+HELP=""" omero web settings
 
 OMERO.web tools:
 
-     settings   - Configuration for web
-     superuser  - Creates a superuser for managing OMERO.web local database
-     syncdb     - Local database synchronisation
+     settings           - Configuration for web
+     
+For advance use:
+     custom_settings    - Creates only custom_settings.py
+     initial            - Creates initial_data.json
+     syncdb             - Synchronise local database
 
 """
 class WebControl(BaseControl):
 
     def help(self, args = None):
         self.ctx.out(HELP)
-
+    
     def _get_password_hash(self, root_pass=None):
 
         root_pass = self._ask_for_password(" for OMERO.web administrator")
@@ -52,11 +55,9 @@ class WebControl(BaseControl):
             break
         return {"username":username, "email":email}
 
-    def _create_superuser(self, username, email, passwd):
-        location = self.ctx.dir / "lib" / "python" / "omeroweb" / "initial_data.json"
+    def _create_superuser(self, location, username, email, passwd):
         output = open(location, 'w')
-        print "Saving to " + location
-
+        
         try:
             output.write("""[
   {
@@ -135,20 +136,12 @@ class WebControl(BaseControl):
         finally:
             output.flush()
             output.close()
+        
+        self.ctx.out("Saved to " + location)
 
-    def superuser(self, *args):
-        details = dict()
-        details["user"] = self._get_username_and_email()
-        details["passwd"] = self._get_password_hash()
-        self._create_superuser(details["user"]["username"], details["user"]["email"], details["passwd"])
-
-    def _setup_server(self, location, email_server=None, app_host=None, sender_address=None, smtp_server=None):
+    def _setup_server(self, email_server=None, app_host=None, sender_address=None, smtp_server=None):
         settings = dict()
 
-        if location.exists():
-            self.ctx.out("Reconfiguring OMERO.web...")
-        else:
-            self.ctx.out("You just installed OMERO, which means you didn't have settings configured in OMERO.web.")
         while not app_host or len(app_host) < 1:
             app_host = self.ctx.input("Please enter the domain you want to run OMERO.web on (http://www.domain.com:8000/):")
             if app_host == None or app_host == "":
@@ -162,6 +155,7 @@ class WebControl(BaseControl):
             if sender_address == None or sender_address == "":
                 self.ctx.err("Email cannot be empty")
                 continue
+            break
         
         while not smtp_server or len(smtp_server) < 1 :
             smtp_server = self.ctx.input("Please enter the SMTP server host you want to send from (smtp.example.com): ")
@@ -195,8 +189,7 @@ class WebControl(BaseControl):
 
     def _update_settings(self, location, settings=None):
         output = open(location, 'w')
-        print "Saving to " + location
-
+        
         try:
             output.write("""#!/usr/bin/env python
 # 
@@ -257,16 +250,89 @@ APPLICATION_HOST='%s'
             output.flush()
             output.close()
 
-    def settings(self, *args):
+        self.ctx.out("Saved to " + location)
+    
+    def _get_yes_or_no(self, file_name, answer=None):
+        while answer != "yes" and answer != "no":
+            answer = self.ctx.input("%s already exist. Do you want to ovewrite it? (yes/no)" % file_name)
+            if answer != "yes" and answer != "no":
+                self.ctx.err("Answer yes or no")
+                continue
+            break
+        return answer
+    
+    def custom_settings(self, do_exit=True, *args):
         location = self.ctx.dir / "lib" / "python" / "omeroweb" / "custom_settings.py"
-        settings = self._setup_server(location)
+        print 'custom'
+        if location.exists():
+            if self._get_yes_or_no("%s" % location) == 'no':
+                if do_exit:
+                    sys.exit()
+                else:
+                    return
+        else:
+            self.ctx.out("You just installed OMERO, which means you didn't have settings configured in OMERO.web.")
+            
+        settings = self._setup_server()
         self._update_settings(location, settings)
-
-    def syncdb(self, *args):
-        sys.stderr.write("Database synchronization... \n")
+    
+    def initial(self, do_exit=True, *args):
+        details = dict()
+        location = self.ctx.dir / "lib" / "python" / "omeroweb" / "initial_data.json"
+        
+        if location.exists():
+            if self._get_yes_or_no("%s" % location) == 'no':
+                if do_exit:
+                    sys.exit()
+                else:
+                    return
+        
+        details["user"] = self._get_username_and_email()
+        details["passwd"] = self._get_password_hash()
+        self._create_superuser(location, details["user"]["username"], details["user"]["email"], details["passwd"])
+    
+    def syncdb(self, do_exit=True, *args):
+        self.ctx.out("Database synchronization...")
         omero_web = self.ctx.dir / "lib" / "python" / "omeroweb"
-        subprocess.call(["python","manage.py","syncdb","--noinput"], cwd=str(omero_web), env = os.environ)
-        sys.stderr.write("OMERO.web was prepared. Please start the application.\n")
+        
+        if os.path.isfile(os.path.join(omero_web, 'db.sqlite3')):
+            if self._get_yes_or_no("Local database") == 'no':
+                if do_exit:
+                    sys.exit()
+                else:
+                    return
+            else:
+                try:
+                    os.remove(os.path.join(omero_web, 'db.sqlite3'))
+                except Exception, e:
+                    self.ctx.err("'db.sqlite3' was not deleted becuase: %s" % str(e))
+                    sys.exit()
+                else:
+                    self.ctx.out("Old database file 'db.sqlite3' was deleted successfully.")
+        
+        if not os.path.isfile(os.path.join(omero_web, 'custom_settings.py')):
+            self.ctx.err("custom_settings.py does not exist. Please run bin/omero web custom_settings")
+            sys.exit()
+        if not os.path.isfile(os.path.join(omero_web, 'initial_data.json')):
+            self.ctx.out("initial_data.json does not exist. Please run bin/omero web initial")
+            sys.exit()
+                
+        try:
+            rv = subprocess.call(["python","manage.py","syncdb","--noinput"], cwd=str(omero_web), env = os.environ)
+        except:
+            self.ctx.out("OMERO.web was not prepared.\n")
+        else:
+            if rv != 0:
+                self.ctx.out("OMERO.web was not prepared.\n")
+            else:
+                self.ctx.out("OMERO.web was prepared. Please start the application.\n")
+
+    def settings(self, *args):
+        self.custom_settings(do_exit=False)
+        self.ctx.out("\n")
+        self.initial(do_exit=False)
+        self.ctx.out("\n")
+        self.syncdb(do_exit=False)
 
 try:
     register("web", WebControl)
