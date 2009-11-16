@@ -833,7 +833,6 @@ class CLI(cmd.Cmd, Context):
         else:
             pypath = "%s%s%s" % (pypath, os.path.pathsep, home)
         env["PYTHONPATH"] = pypath
-	print env["PYTHONPATH"]
         return env
 
     def _cwd(self, cwd):
