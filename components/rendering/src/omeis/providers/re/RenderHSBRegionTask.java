@@ -204,6 +204,7 @@ class RenderHSBRegionTask implements RenderingTask {
         int[] buf = ((RGBIntBuffer) dataBuffer).getDataBuffer();
         boolean isPrimaryColor = optimizations.isPrimaryColorEnabled();
         boolean isAlphaless = optimizations.isAlphalessRendering();
+        boolean isMask = false;
         for (Plane2D plane : wData) {
             int[] color = colors.get(i);
             QuantumStrategy qs = strategies.get(i);
@@ -218,6 +219,8 @@ class RenderHSBRegionTask implements RenderingTask {
             // enabled.
             if (isPrimaryColor)
             	colorOffset = getColorOffset(color);
+            if (qs instanceof BinaryMaskQuantizer)
+            	isMask = true;
             
             float alpha = new Integer(color[ColorsFactory.ALPHA_INDEX]).floatValue() / 255;
             for (int x2 = x2Start; x2 < x2End; ++x2) {
@@ -258,6 +261,17 @@ class RenderHSBRegionTask implements RenderingTask {
                     	newBValue *= alpha;
                     }
 
+                    if (isMask && discreteValue == 255) {
+                    	// Since the mask is a hard value, we do not want to
+                    	// compromise on colour fidelity. Packed each colour
+                    	// component along with a 1.0 alpha into the buffer so
+                    	// that buffered images that use this buffer can be
+                    	// type 1 (3 bands, pre-multiplied alpha) or type 2
+                        // (4 bands, alpha component included).
+                        buf[pix] = 0xFF000000 | newRValue << 16
+                                   | newGValue << 8 | newBValue;
+                        continue;
+                    }
                     // Add the existing colour component values to the new
                     // colour component values.
                     rValue = ((buf[pix] & 0x00FF0000) >> 16) + newRValue;
