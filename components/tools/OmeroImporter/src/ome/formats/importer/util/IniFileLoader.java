@@ -145,6 +145,12 @@ public class IniFileLoader {
                 Version.versionNote);
     }
 
+    public String getVersionNumber() {
+        // return Main.versionNumber;
+        return staticPrefs.node("General").get("appVersionNumber",
+                "Dev Build");
+    }    
+    
     public Boolean isDebugConsole() {
         return staticPrefs.node("General").getBoolean("displayDebugConsole",
                 true);

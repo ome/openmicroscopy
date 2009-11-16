@@ -276,7 +276,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         view = new ScreenLogin(config.getAppTitle(),
                 gui.getImageIcon("gfx/login_background.png"),
                 img,
-                config.getVersionNumber(), Integer.toString(config.port.get()));
+                config.getIniVersionNumber(), Integer.toString(config.port.get()));
         view.showConnectionSpeed(false);
         viewTop = new ScreenLogo(config.getAppTitle(), gui.getImageIcon(GuiImporter.splash), img);
         viewTop.setStatusVisible(false);
