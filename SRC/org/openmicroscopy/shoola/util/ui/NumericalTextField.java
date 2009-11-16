@@ -199,6 +199,20 @@ public class NumericalTextField
 	public void setMaximum(double max) { document.setMaximum(max); }
 	
 	/**
+	 * Returns the maximum value.
+	 * 
+	 * @return See above.
+	 */
+	public double getMaximum() { return document.getMaximum(); }
+	
+	/**
+	 * Returns the minimum value.
+	 * 
+	 * @return See above.
+	 */
+	public double getMinimum() { return document.getMinimum(); }
+	
+	/**
 	 * Sets the edited color. 
 	 * 
 	 * @param editedColor The value to set.
@@ -338,6 +352,13 @@ public class NumericalTextField
 		 * @return See above.
 		 */
 		double getMinimum() { return min; }
+		
+		/** 
+		 * Returns the maximum value.
+		 * 
+		 * @return See above.
+		 */
+		double getMaximum() { return max; }
 		
 		/**
 		 * Overridden to make sure that the value inserted is a numerical
