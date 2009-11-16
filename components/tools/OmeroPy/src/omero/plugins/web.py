@@ -263,7 +263,7 @@ APPLICATION_HOST='%s'
     
     def custom_settings(self, do_exit=True, *args):
         location = self.ctx.dir / "lib" / "python" / "omeroweb" / "custom_settings.py"
-        print 'custom'
+        
         if location.exists():
             if self._get_yes_or_no("%s" % location) == 'no':
                 if do_exit:
