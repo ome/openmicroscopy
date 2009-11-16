@@ -1684,18 +1684,20 @@ public class OMEROMetadataStore
     	// be collapsed.
     	checkAndCollapseGraph();
     	// Save the entire Image rooted graph using the "insert only"
-    	// saveAndReturnIds() local update service only method.
+    	// saveAndReturnIds(). DISABLED until we can find out what is causing
+    	// the extreme memory usage on the graph reload.
     	StopWatch s1 = new CommonsLogStopWatch("omero.saveImportGraph");
     	Image[] imageArray = 
     		imageList.values().toArray(new Image[imageList.size()]);
-    	List<Long> imageIdList = iUpdate.saveAndReturnIds(imageArray);
+    	IObject[] saved = iUpdate.saveAndReturnArray(imageArray);
     	s1.stop();
     	
     	// To conform loosely with the method contract, reload a subset of
     	// the original graph so that it may be manipulated by the caller.
-    	StopWatch s2 = new CommonsLogStopWatch("omero.buildReturnCollection");
-    	Parameters p = new Parameters();
-    	p.addIds(imageIdList);
+    	//StopWatch s2 = new CommonsLogStopWatch("omero.buildReturnCollection");
+    	//Parameters p = new Parameters();
+    	//p.addIds(imageIdList);
+    	/*
     	List<Pixels> toReturn = iQuery.findAllByQuery(
     			"select p from Pixels as p " +
     			"left outer join fetch p.channels as c " +
@@ -1712,11 +1714,18 @@ public class OMEROMetadataStore
     			"where i.id in (:ids)", p);
     	reorderPixelsListByImageIds(toReturn, imageIdList);
     	pixelsList = new LinkedHashMap<Integer, Pixels>();
-    	for (int i = 0; i < toReturn.size(); i++)
+    	*/
+    	List<Pixels> toReturn = new ArrayList<Pixels>();
+    	Image image;
+    	Pixels pixels;
+    	for (int i = 0; i < saved.length; i++)
     	{
-    		pixelsList.put(i, toReturn.get(i));
+    		image = (Image) saved[i];
+    		pixels = image.getPrimaryPixels();
+    		pixelsList.put(i, pixels);
+    		toReturn.add(pixels);
     	}
-    	s2.stop();
+    	//s2.stop();
    		return toReturn;
     }
     
