@@ -173,6 +173,24 @@ class HdfStorage(object):
         if not self.__initialized:
             raise omero.ApiUsageException(None, None, "Not yet initialized")
 
+    def __sizecheck(self, colNumbers, rowNumbers):
+        if colNumbers:
+            maxcol = max(colNumbers)
+            totcol = len(self.__types)
+            if maxcol >= totcol:
+                raise omero.ApiUsageException(None, None, "Column overflow: %s >= %s" % (maxcol, totcol))
+        else:
+            raise omero.ApiUsageException(None, None, "Columns not specified: %s" % colNumbers)
+
+
+        if rowNumbers:
+            maxrow = max(rowNumbers)
+            totrow = self.__mea.nrows
+            if maxrow >= totrow:
+                raise omero.ApiUsageException(None, None, "Row overflow: %s >= %s" % (maxrow, totrow))
+        else:
+            raise omero.ApiUsageException(None, None, "Rows not specified: %s" % rowNumbers)
+
     #
     # Locked methods
     #
@@ -330,6 +348,7 @@ class HdfStorage(object):
     @stamped
     def readCoordinates(self, stamp, rowNumbers, current):
         self.__initcheck()
+        self.__sizecheck(None, rowNumbers)
         cols = self.cols(None, current)
         for col in cols:
             col.readCoordinates(self.__mea, rowNumbers)
@@ -338,6 +357,7 @@ class HdfStorage(object):
     @stamped
     def slice(self, stamp, colNumbers, rowNumbers, current):
         self.__initcheck()
+        self.__sizecheck(colNumbers, rowNumbers)
         cols = self.cols(None, current)
         rv   = []
         for i in range(len(cols)):
