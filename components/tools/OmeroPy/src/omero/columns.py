@@ -71,6 +71,10 @@ class AbstractColumn(object):
             rows = tbl.readCoordinates(rowNumbers)
         self.fromrows(rows)
 
+    def read(self, tbl, start, stop):
+        rows = tbl.read(start, stop)
+        self.fromrows(rows)
+
     def getsize(self):
         """
         Any method which does not use the "values" field
