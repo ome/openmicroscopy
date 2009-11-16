@@ -171,6 +171,14 @@ class RendererModel
 	}
 	
 	/**
+	 * Returns <code>true</code> if one channel is selected, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasSelectedChannel() { return selectedChannelIndex >= 0; }
+	
+	/**
 	 * Returns the index of a channel or <code>-1</code>.
 	 * 
 	 * @return See above.

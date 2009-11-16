@@ -67,10 +67,10 @@ class ColouredButtonUI
 	extends BasicButtonUI
 {
 
-	/** set the matte painter. */
+	/** Identifies the matte painter. */
 	private static final int MATTE = 0;
 	
-	/** set the specular painter. */
+	/** Identifies the specular painter. */
 	private static final int SPEC = 1;
 		
 	/** The stroke of the graphics context. */
@@ -79,11 +79,14 @@ class ColouredButtonUI
 	/** The default value for width or height. */
 	private static final int DEFAULT_SIZE = 32;
 	
+	/** The default insets for the painter. */
+	private static final Insets INSETS = new Insets(3, 3, 3, 3);
+	
     /** Current Colour of the button. */
     private Color           colour;
 
     /** Reference to parent button. */
-    final private ColouredButton  button;
+    private final ColouredButton  button;
     
     /** The button's size, used by paint to draw onto component. */
     private Rectangle       buttonRect;
@@ -129,36 +132,6 @@ class ColouredButtonUI
     
     /** The grey-mask face painter. */
     private Painter 		selectedGreyMaskPainter;
-
-    
-    /**
-     * Buttons can be greyed out, representing that the current model is
-     * in greyscale, not RGB, HSV. This is done by adding an alpha blended
-     * grey mask over the button. This method adds teh grey mask to the 
-     * button.
-     *   
-     * @param g Graphics2D drawing context. 
-     */
-    private void drawGreyMask(final Graphics2D g)
-    {
-    	// Draw the gradient mask.
-    	invokePainter(g, greyMaskPainter);
-    }
-    
-    /**
-     * Buttons can be greyed out, representing that the current model is
-     * in greyscale, not RGB, HSV. This is done by adding an alpha blended
-     * grey mask over the button. This method adds teh grey mask to the 
-     * button.
-     *   
-     * @param g Graphics2D drawing context. 
-     */
-    private void drawSelectedGreyMask(final Graphics2D g)
-    {
-    	// Draw the gradient mask.
-    	invokePainter(g, selectedGreyMaskPainter);
-    }
-    
     
     /**
      * This method calculates the start and end colours for the gradient on
@@ -236,31 +209,8 @@ class ColouredButtonUI
         g.drawString(button.getText(), x, y);
     }
     
-    
-    /** 
-     * Render the button face, using the colours for the gradient set in
-     * {@link #setGradientColours()}.
-     * 
-     * @param g Graphics2D render context.
-     */
-    private void drawButtonFace(final Graphics2D g)
-    {
-    	invokePainter(g, buttonFacePainter);
-    }
-
     /**
-     * The button has been selected. Draw the button face, inverting the 
-     * gradient and darkening the colours used in the gradient fill.
-     *  
-     * @param g Graphics2D render context.
-     */
-    private void drawSelectedButtonFace(final Graphics2D g)
-    {
-    	invokePainter(g, selectedButtonFacePainter);
-    }
-    
-    /**
-     * Draws a bevelled border for an unselected Button, the top and left 
+     * Draws a beveled border for an unselected Button, the top and left 
      * bevels will be lighter than the bottom and Right.
      * 
      * @param g Graphics2D render context.
@@ -435,38 +385,49 @@ class ColouredButtonUI
         // draw mask and draw the grey mask selected border. 
         if (button.isSelected()) 
         {
-            if (!greyedOut) 
-            {
-            	drawSelectedButtonFace(g);
-            	drawSelectedBorder(g);
-            }
-            else
-            {
-            	drawSelectedGreyMask(g);
+        	if (button.isEnabled()) {
+        		if (!greyedOut) 
+                {
+        			invokePainter(g, selectedButtonFacePainter);
+                	drawSelectedBorder(g);
+                }
+                else
+                {
+                	invokePainter(g, selectedGreyMaskPainter);
+                    drawGreySelectedBorder(g);
+                }
+        	} else {
+        		invokePainter(g, selectedGreyMaskPainter);
                 drawGreySelectedBorder(g);
-            }
+        	}
         } 
         else 
         {
             // If the button is not selected draw unselected button face.  
             // Check to see if it's greyed out, if not draw border else
             // draw mask and draw the grey mask unselected border.
-            if (greyedOut) 
-            { 
-                drawGreyMask(g);
+        	if (button.isEnabled()) {
+        		if (greyedOut) 
+                { 
+        			invokePainter(g, greyMaskPainter);
+                    drawGreyBorder(g);
+                }
+                else 
+                {
+                	invokePainter(g, buttonFacePainter);
+                	drawBorder(g);    
+                }
+        	} else {
+        		invokePainter(g, greyMaskPainter);
                 drawGreyBorder(g);
-            }
-            else 
-            {
-            	drawButtonFace(g);
-            	drawBorder(g);    
-            }
+        	}
+            
         }
          // Draw text in centre of button.
         drawText(g);
     }
 
-    /**  Creates painters for the different button options. */
+    /** Creates painters for the different button options. */
     private void createPainters()
     {
     	buttonFacePainter = getPainter(colour, SPEC);
@@ -485,9 +446,9 @@ class ColouredButtonUI
      */
     private Painter<JXButton> getPainter(Color colour, int spec) 
 	{
-		int startX = (int)(getWidth()*0.2);
+		int startX = (int) (getWidth()*0.2);
 		int startY = 6;
-		int colourStartX = (int)(getWidth()*0.3);
+		int colourStartX = (int) (getWidth()*0.3);
 		int colourStartY = 18;
 		int radius = (int) Math.max(18, getWidth()*0.9);
 		int matteEndX = 10;
@@ -526,15 +487,15 @@ class ColouredButtonUI
 			    		new Color(1.0f, 1.0f, 1.0f, colourAlpha),
 			    new Point2D.Double(colourStartX, colourStartY),  
 			    new Color(1.0f, 1.0f, 1.0f, 0.0f) ));
-		
-	    if (spec == SPEC)
-	    	return new CompoundPainter<JXButton>(gradientWhite, 
-					gradientBrighterDarker, gradientLight);
-	    if (spec == MATTE)
-	    	return new CompoundPainter<JXButton>( gradientWhite, 
-	    			gradientBrighterDarker);
-	 
-	    return null;
+		switch (spec) {
+			case SPEC:
+				return new CompoundPainter<JXButton>(gradientWhite, 
+						gradientBrighterDarker, gradientLight);
+			case MATTE:
+				return new CompoundPainter<JXButton>( gradientWhite, 
+		    			gradientBrighterDarker);
+		}
+		return null;
 	}
 
     /**
@@ -553,10 +514,9 @@ class ColouredButtonUI
         	painter.paint(g2d, this, getWidth(), getHeight());
         else 
         {
-        	Insets ins = new Insets(3,3,3,3);
-        	g2d.translate(ins.left, ins.top);
-        	painter.paint(g2d, this, getWidth()-ins.left-ins.right,
-        			getHeight()-ins.top-ins.bottom);
+        	g2d.translate(INSETS.left, INSETS.top);
+        	painter.paint(g2d, this, getWidth()-INSETS.left-INSETS.right,
+        			getHeight()-INSETS.top-INSETS.bottom);
         }
 
     }
