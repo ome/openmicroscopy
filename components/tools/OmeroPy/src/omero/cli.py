@@ -820,21 +820,42 @@ class CLI(cmd.Cmd, Context):
         except KeyError, ke:
             self.die(11, "Missing required plugin: "+ str(ke))
 
-    def call(self, args, strict = True):
+    def _env(self):
+        """
+        Configure environment with PYTHONPATH as
+        setup by bin/omero
+        """
+        home = str(self.dir / "lib" / "python")
+        env = dict(os.environ)
+        pypath = env.get("PYTHONPATH", None)
+        if pypath is None:
+            pypath = home
+        else:
+            pypath += os.path.sep
+            pypath += home
+        env["PYTHONPATH"] = pypath
+        return env
+
+    def _cwd(self, cwd):
+        if cwd is None:
+            cwd = str(OMERODIR)
+        else:
+            cwd = str(cwd)
+        return cwd
+
+    def call(self, args, strict = True, cwd = None):
         """
         Calls the string in a subprocess and dies if the return value is not 0
-        If stdout is True, then rather than executing
-        Yes, stdout is something of a misnomer.
         """
         self.dbg("Executing: %s" % args)
-        rv = subprocess.call(args, env = os.environ, cwd = OMERODIR)
+        rv = subprocess.call(args, env = self._env(), cwd = self._cwd(cwd))
         if strict and not rv == 0:
             raise NonZeroReturnCode(rv, "%s => %d" % (" ".join(args), rv))
         return rv
 
-    def popen(self, args):
+    def popen(self, args, cwd = None):
         self.dbg("Returning popen: %s" % args)
-        return subprocess.Popen(args, env = os.environ, cwd = OMERODIR, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        return subprocess.Popen(args, env = self._env(), cwd = self._cwd(cwd), stdout = subprocess.PIPE, stderr = subprocess.PIPE)
 
     def readDefaults(self):
         try:
