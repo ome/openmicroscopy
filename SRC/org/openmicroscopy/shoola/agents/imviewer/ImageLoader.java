@@ -85,7 +85,8 @@ public class ImageLoader
      */
     public void load()
     {
-        handle = ivView.render(pixelsID, pd, this);
+    	boolean asTexture = ImViewerAgent.hasOpenGLSupport();
+        handle = ivView.render(pixelsID, pd, asTexture, this);
     }
 
     /**

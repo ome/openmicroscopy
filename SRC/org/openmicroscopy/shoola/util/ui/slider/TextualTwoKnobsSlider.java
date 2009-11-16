@@ -212,7 +212,8 @@ public class TextualTwoKnobsSlider
 		int val = 0;
 		try {
             val = Integer.parseInt(startField.getText());
-            if (slider.getPartialMinimum() <= val && val < end) valid = true;
+            //if (slider.getPartialMinimum() <= val && val < end) valid = true;
+            if (startField.getMinimum() <= val && val < end) valid = true;
         } catch(NumberFormatException nfe) {}
         if (!valid) {
             startField.selectAll();
@@ -220,11 +221,14 @@ public class TextualTwoKnobsSlider
         }
         start = val;
         //endField.setMinimum(start);
+        if (start > slider.getPartialMinimum()) {
+        	val = slider.getPartialMinimum();
+        }
         removeSliderListeners();
         int old = slider.getStartValue();
-        slider.setStartValue(start);
+        slider.setStartValue(val);
        
-        firePropertyChange(TwoKnobsSlider.KNOB_RELEASED_PROPERTY, old, start);
+        firePropertyChange(TwoKnobsSlider.KNOB_RELEASED_PROPERTY, old, val);
         attachSliderListeners();
 	}
 	
@@ -235,18 +239,22 @@ public class TextualTwoKnobsSlider
 		int val = 0;
 		try {
             val = Integer.parseInt(endField.getText());
-            if (start < val && val <= slider.getPartialMaximum()) valid = true;
+            //if (start < val && val <= slider.getPartialMaximum()) valid = true;
+            if (start < val && val <= endField.getMaximum()) valid = true;
         } catch(NumberFormatException nfe) {}
         if (!valid) {
             endField.selectAll();
             return;
         }
         end = val;
+        if (end > slider.getPartialMaximum()) {
+        	val = slider.getPartialMaximum();
+        }
         removeSliderListeners();
         //startField.setMaximum(end);
         int old = slider.getEndValue();
-        slider.setEndValue(end);
-        firePropertyChange(TwoKnobsSlider.KNOB_RELEASED_PROPERTY, old, end);
+        slider.setEndValue(val);
+        firePropertyChange(TwoKnobsSlider.KNOB_RELEASED_PROPERTY, old, val);
         attachSliderListeners();
 	}
 	
@@ -261,7 +269,7 @@ public class TextualTwoKnobsSlider
 		start = value;
 		uninstallFieldListeners(startField);
 		startField.setText(""+start);
-		endField.setMinimum(start);
+		//endField.setMinimum(start);
 		installFieldListeners(startField, START);
 	}
 	
@@ -276,7 +284,7 @@ public class TextualTwoKnobsSlider
 		end = value;
 		uninstallFieldListeners(endField);
 		endField.setText(""+end);
-		startField.setMaximum(end);
+		//startField.setMaximum(end);
 		installFieldListeners(endField, END);
 	}
 	
@@ -298,13 +306,13 @@ public class TextualTwoKnobsSlider
 				v = (Integer) startField.getValueAsNumber();
 				ref = (Integer) endField.getValueAsNumber();
 				if (ref == null || v == null) return;
-				if (ref > v) startField.setMaximum(slider.getPartialMaximum());
+				//if (ref > v) startField.setMaximum(slider.getPartialMaximum());
 				break;
 			case END:
 				v = (Integer) endField.getValueAsNumber();
 				ref = (Integer) startField.getValueAsNumber();
 				if (ref == null || v == null) return;
-				if (ref > v) endField.setMinimum(slider.getPartialMinimum());
+				//if (ref > v) endField.setMinimum(slider.getPartialMinimum());
 				//setEndValue();
 				break;
 		}
@@ -524,23 +532,45 @@ public class TextualTwoKnobsSlider
 	public void setValues(int absoluteMax, int absoluteMin, 
 			int max, int min, int start, int end)
 	{
-		slider.setValues(absoluteMax, absoluteMin, max, min, start, end);
+		setValues(absoluteMax, absoluteMin, absoluteMax, absoluteMin, max, min,
+				start, end);
+	}
+	
+	/**
+	 * Resets the default value of the slider.
+	 * 
+	 * @param absoluteMaxSlider	The absolute maximum value of the slider.
+	 * @param absoluteMinSlider The absolute minimum value of the slider.
+	 * @param absoluteMaxText 	The absolute maximum value of the slider.
+	 * @param absoluteMinText 	The absolute minimum value of the slider.
+	 * @param max       		The maximum value.
+	 * @param min       		The minimum value.
+	 * @param start     		The value of the start knob.
+	 * @param end       		The value of the end knob.
+	 */
+	public void setValues(int absoluteMaxSlider, int absoluteMinSlider, 
+			int absoluteMaxText, int absoluteMinText, 
+			int max, int min, int start, int end)
+	{
+		slider.setValues(absoluteMaxSlider, absoluteMinSlider, max, min, start, 
+				end);
 		removeListeners();
 		int length = (""+max).length(); 
 		startField.setColumns(length);
 		endField.setColumns(length);
-		endField.setMaximum(absoluteMax);
-		endField.setMinimum(absoluteMin);
-		startField.setMaximum(absoluteMax);
-		startField.setMinimum(absoluteMin);
+		endField.setMaximum(absoluteMaxText);
+		endField.setMinimum(absoluteMinText);
+		startField.setMaximum(absoluteMaxText);
+		startField.setMinimum(absoluteMinText);
 		endField.setText(""+end);
 		startField.setText(""+start);
-		endField.setMinimum(start);
-		startField.setMaximum(end);
+		//endField.setMinimum(absoluteMinText);
+		//startField.setMaximum(absoluteMaxText);
 		this.start = start;
 		this.end = end;
 		attachListeners();
 	}
+	
 	
 	/**
 	 * Returns the text field corresponding to the passed index.

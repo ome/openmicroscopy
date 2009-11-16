@@ -399,14 +399,17 @@ public class PixelsServicesFactory
 	 *                  container's registry.
 	 * @param pixelsID  The id of the pixels set.
 	 * @param pDef      The plane to render.
+	 * @param asTexture	Pass <code>true</code> to return a texture,
+	 * 					<code>false</code> to return a buffered image.
+	 * @return          The image representing the plane.
 	 * @return See above.
 	 * 
      * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	public static BufferedImage render(Registry context, Long pixelsID, 
-			PlaneDef pDef)
+	public static Object render(Registry context, Long pixelsID, 
+			PlaneDef pDef, boolean asTexture)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (!(context.equals(registry)))
@@ -416,6 +419,7 @@ public class PixelsServicesFactory
 		if (proxy == null) 
 			throw new RuntimeException("No rendering service " +
 			"initialized for the specified pixels set.");
+		if (asTexture) return proxy.renderPlaneAsTexture(pDef);
 		return proxy.renderPlane(pDef);
 	}
 

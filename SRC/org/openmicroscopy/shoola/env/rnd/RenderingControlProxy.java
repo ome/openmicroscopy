@@ -807,7 +807,7 @@ class RenderingControlProxy
                 }
             }
             
-            //tmpSolutionForNoiseReduction();
+            tmpSolutionForNoiseReduction();
             
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1295,7 +1295,6 @@ class RenderingControlProxy
     		 setModel(RGB);
     		 invalidateCache();
     		 initialize();
-    		 //tmpSolutionForNoiseReduction();
 		} catch (Throwable e) {
 			handleException(e, ERROR+"default settings.");
 		}

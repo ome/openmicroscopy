@@ -367,25 +367,45 @@ class OMEROGateway
 		if (table == null) return null;
 		try {
 			Column[] cols = table.getHeaders();
-			int length = 2;
-			String[] headers = new String[length];
-			String[] headersDescriptions = new String[length];
-			
-			for (int i = 0; i < length; i++) {
-				headers[i] = cols[i].name;
-				headersDescriptions[i] = cols[i].description;
+			int imageIndex = -1;
+			int roiIndex = -1;
+			int colorIndex = -1;
+			int size = 0;
+			for (int i = 0; i < cols.length; i++) {
+				if (cols[i] instanceof ImageColumn) {
+					imageIndex = i;
+					size++;
+				} else if (cols[i] instanceof RoiColumn) {
+					roiIndex = i;
+					size++;
+				} else if (cols[i] instanceof LongColumn) {
+					if ("Color".equals(cols[i].name)) {
+						colorIndex = i;
+						size++;
+					}
+				}
 			}
+			if (imageIndex == -1 || roiIndex == -1) return null;;
+			String[] headers = new String[size];
+			String[] headersDescriptions = new String[size];
+			headers[0] = cols[imageIndex].name;
+			headersDescriptions[0] = cols[imageIndex].description;
+			
+			headers[1] = cols[roiIndex].name;
+			headersDescriptions[1] = cols[roiIndex].description;
+			
+			headers[1] = cols[roiIndex].name;
+			headersDescriptions[1] = cols[roiIndex].description;
+			
 			int n = (int) table.getNumberOfRows();
 			Data d;
 			Column column;
-			long[] a = new long[length];
+			long[] a = {imageIndex, roiIndex, colorIndex};
 			long[] b = new long[0];
-			for (int i = 0; i < length; i++) {
-				a[i] = i; 
-			}
+	
 			d = table.slice(a, b);
 			List<Integer> rows = new ArrayList<Integer>();
-			column = d.columns[0];
+			column = d.columns[imageIndex];
 			Long value;
 			if (column instanceof ImageColumn) {
 				for (int j = 0; j < n; j++) {
@@ -396,14 +416,18 @@ class OMEROGateway
 			}
 			
 			Integer row;
-			Object[][] data = new Object[rows.size()][length];
+			Object[][] data = new Object[rows.size()][size];
 			int k = 0;
 			Iterator<Integer> r = rows.iterator();
-			column = d.columns[1];
+			column = d.columns[roiIndex];
+			Column columnColor = null;
+			if (colorIndex != -1) columnColor = d.columns[colorIndex];
 			while (r.hasNext()) {
 				row = r.next();
 				data[k][0] = row;
 				data[k][1] = ((RoiColumn) column).values[row];
+				if (columnColor != null) 
+					data[k][2] = ((LongColumn) columnColor).values[row];
 				k++;
 			}
 			table.close();
@@ -418,7 +442,7 @@ class OMEROGateway
 		}
 		return null;
 	}
-	
+		
 	/**
 	 * Transforms the passed table.
 	 * 

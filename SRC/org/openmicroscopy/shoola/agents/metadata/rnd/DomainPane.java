@@ -55,6 +55,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.JToolBar;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -440,9 +441,15 @@ public class DomainPane
         controls.setBackground(UIUtilities.BACKGROUND_COLOR);
         int k = 0;
         if (model.isGeneralIndex()) {
-        	 colorModel.setVisible(true);
-        	 controls.add(colorModel, "0, "+k);
-             k = k+2;
+        	colorModel.setVisible(true);
+        	JToolBar bar = new JToolBar(JToolBar.VERTICAL);
+        	bar.setBackground(colorModel.getBackground());
+        	bar.setFloatable(false);
+        	bar.setRollover(true);
+        	bar.setBorder(null);
+        	bar.add(colorModel);
+        	controls.add(bar, "0, "+k+", CENTER, CENTER");
+        	k = k+2;
         }
         if (channelList.size() > Renderer.MAX_CHANNELS) 
         	controls.add(new JScrollPane(p), "0, "+k);

@@ -142,7 +142,9 @@ class GraphicsPane
         if (lowestBound < absMin) lowestBound = absMin;
         int highestBound = (int) (max+range);
         if (highestBound > absMax) highestBound = absMax;
-        domainSlider.setValues(highestBound, lowestBound, max, min, s, e);
+        //domainSlider.setValues(highestBound, lowestBound, max, min, s, e);
+        domainSlider.setValues(max, min, highestBound, lowestBound,
+        		max, min, s, e);
         if (model.getMaxC() > Renderer.MAX_CHANNELS)
         	domainSlider.setInterval(min, max);
 
@@ -168,7 +170,11 @@ class GraphicsPane
         domainSlider = new TextualTwoKnobsSlider((int) model.getLowestValue(), 
     			(int) model.getHighestValue(), (int) model.getGlobalMin(), 
     			(int) model.getGlobalMax(), s, e);
-    	
+        domainSlider.setValues((int) model.getGlobalMax(), 
+        		(int) model.getGlobalMin(), (int) model.getHighestValue(), 
+        		(int) model.getLowestValue(), (int) model.getGlobalMin(), 
+    			(int) model.getGlobalMax(), s, e);
+        
         domainSlider.setBackground(UIUtilities.BACKGROUND_COLOR);
         initDomainSlider();
         domainSlider.getSlider().setPaintLabels(false);

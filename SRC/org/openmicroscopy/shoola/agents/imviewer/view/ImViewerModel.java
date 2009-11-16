@@ -109,6 +109,9 @@ import pojos.WellSampleData;
 class ImViewerModel
 {
 
+	/** The sizeXxsizeY after which images are retrieved asynchronously. */
+	private static final int	MAX_SIZE = 1048576; //1024x1024
+	
 	/** The maximum number of items in the history. */
 	private static final int	MAX_HISTORY = 10;
 	
@@ -261,6 +264,9 @@ class ImViewerModel
     /** The id of the table containing the overlay. */
     private long						overlayTableID;
     
+    /** Flag indicating to load the image asynchronously. */
+    private Boolean						asynchronousCall;
+    
     /**
 	 * Transforms 3D coordinates into linear coordinates.
 	 * The returned value <code>L</code> is calculated as follows: 
@@ -332,6 +338,7 @@ class ImViewerModel
 	 */
 	private void initialize(Rectangle bounds, boolean separateWindow)
 	{
+		asynchronousCall = null;
 		this.separateWindow = separateWindow;
 		requesterBounds = bounds;
 		state = ImViewer.NEW;
@@ -724,9 +731,16 @@ class ImViewerModel
 		pDef.z = getDefaultZ();
 		pDef.slice = omero.romio.XY.value;
 		state = ImViewer.LOADING_IMAGE;
-		if (ImViewerAgent.hasOpenGLSupport())
-			component.setImageAsTexture(rnd.renderPlaneAsTexture(pDef));
-		else component.setImage(rnd.renderPlane(pDef));
+		if (asynchronousCall == null)
+			asynchronousCall = (getMaxX()*getMaxY() >= MAX_SIZE);
+		if (asynchronousCall) {
+			//ImageLoader loader = new ImageLoader(component, getPixelsID(), pDef);
+			//loader.load();
+		} else {
+			if (ImViewerAgent.hasOpenGLSupport())
+				component.setImageAsTexture(rnd.renderPlaneAsTexture(pDef));
+			else component.setImage(rnd.renderPlane(pDef));
+		}
 	}
 
 	/**
@@ -2140,11 +2154,17 @@ class ImViewerModel
 		Map<Integer, Integer> overlays = new LinkedHashMap<Integer, Integer>();
 		int index = 0;
 		Color c = null;
+		Long value = -1L;
 		for (int j = 0; j < data.length; j++) {
-			if (index == 0) c = Color.red;
-			else if (index == 1) c = Color.green;
-			else if (index == 2) c = Color.blue;
-			overlays.put((Integer) data[j][0], UIUtilities.convertColor(c));
+			value = (Long) data[j][2];
+			if (value != null) {
+				overlays.put((Integer) data[j][0], value.intValue());
+			} else {
+				if (index == 0) c = Color.red;
+				else if (index == 1) c = Color.green;
+				else if (index == 2) c = Color.blue;
+				overlays.put((Integer) data[j][0], UIUtilities.convertColor(c));
+			}
 			index++;
 			if (index%3 == 0) index = 0;
 		}
