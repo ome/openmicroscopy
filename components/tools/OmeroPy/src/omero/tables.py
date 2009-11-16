@@ -174,22 +174,24 @@ class HdfStorage(object):
             raise omero.ApiUsageException(None, None, "Not yet initialized")
 
     def __sizecheck(self, colNumbers, rowNumbers):
-        if colNumbers:
-            maxcol = max(colNumbers)
-            totcol = len(self.__types)
-            if maxcol >= totcol:
-                raise omero.ApiUsageException(None, None, "Column overflow: %s >= %s" % (maxcol, totcol))
-        else:
-            raise omero.ApiUsageException(None, None, "Columns not specified: %s" % colNumbers)
+        if colNumbers is not None:
+            if len(colNumbers) > 0:
+                maxcol = max(colNumbers)
+                totcol = len(self.__types)
+                if maxcol >= totcol:
+                    raise omero.ApiUsageException(None, None, "Column overflow: %s >= %s" % (maxcol, totcol))
+            else:
+                raise omero.ApiUsageException(None, None, "Columns not specified: %s" % colNumbers)
 
 
-        if rowNumbers:
-            maxrow = max(rowNumbers)
-            totrow = self.__mea.nrows
-            if maxrow >= totrow:
-                raise omero.ApiUsageException(None, None, "Row overflow: %s >= %s" % (maxrow, totrow))
-        else:
-            raise omero.ApiUsageException(None, None, "Rows not specified: %s" % rowNumbers)
+        if rowNumbers is not None:
+            if len(rowNumbers) > 0:
+                maxrow = max(rowNumbers)
+                totrow = self.__mea.nrows
+                if maxrow >= totrow:
+                    raise omero.ApiUsageException(None, None, "Row overflow: %s >= %s" % (maxrow, totrow))
+            else:
+                raise omero.ApiUsageException(None, None, "Rows not specified: %s" % rowNumbers)
 
     #
     # Locked methods
@@ -355,6 +357,15 @@ class HdfStorage(object):
         return self._as_data(cols, rowNumbers)
 
     @stamped
+    def read(self, stamp, colNumbers, start, stop, current):
+        self.__initcheck()
+        self.__sizecheck(colNumbers, None)
+        cols = self.cols(None, current)
+        for col in cols:
+            col.read(self.__mea, start, stop)
+        return self._as_data(cols, [])
+
+    @stamped
     def slice(self, stamp, colNumbers, rowNumbers, current):
         self.__initcheck()
         self.__sizecheck(colNumbers, rowNumbers)
@@ -485,6 +496,19 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         self.logger.info("%s.readCoordinates(size=%s)", self, slen(rowNumbers))
         try:
             return self.storage.readCoordinates(self.stamp, rowNumbers, current)
+        except tables.HDF5ExtError, err:
+            aue = omero.ApiUsageException()
+            aue.message = "Error reading coordinates. Most likely out of range"
+            aue.serverStackTrace = "".join(traceback.format_exc())
+            aue.serverExceptionClass = str(err.__class__.__name__)
+            raise aue
+
+    @remoted
+    @perf
+    def read(self, colNumbers, start, stop, current = None):
+        self.logger.info("%s.read(%s, %s, %s)", self, colNumbers, start, stop)
+        try:
+            return self.storage.read(self.stamp, colNumbers, start, stop, current)
         except tables.HDF5ExtError, err:
             aue = omero.ApiUsageException()
             aue.message = "Error reading coordinates. Most likely out of range"

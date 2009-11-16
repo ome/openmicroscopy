@@ -144,6 +144,13 @@ module omero {
                 throws omero::ServerError;
 
             /**
+             * http://www.pytables.org/docs/manual/ch04.html#Table.read
+             **/
+            Data
+                read(omero::api::LongArray colNumbers, long start, long stop)
+                throws omero::ServerError;
+
+            /**
              * Simple slice method which will return only the given columns
              * and rows. If colNumbers or rowNumbers is empty (or None), then all values
              * will be returned.
