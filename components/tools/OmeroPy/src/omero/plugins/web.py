@@ -316,16 +316,13 @@ APPLICATION_HOST='%s'
         if not os.path.isfile(os.path.join(omero_web, 'initial_data.json')):
             self.ctx.out("initial_data.json does not exist. Please run bin/omero web initial")
             sys.exit()
-                
-        try:
-            rv = subprocess.call(["python","manage.py","syncdb","--noinput"], cwd=str(omero_web), env = os.environ)
-        except:
-            self.ctx.out("OMERO.web was not prepared.\n")
+
+        args = ["python", "manage.py", "syncdb", "--noinput"]
+        rv = self.ctx.call(args, cwd = omero_web)
+        if rv != 0:
+            self.ctx.die(121, "OMERO.web was not prepared.\n")
         else:
-            if rv != 0:
-                self.ctx.out("OMERO.web was not prepared.\n")
-            else:
-                self.ctx.out("OMERO.web was prepared. Please start the application.\n")
+            self.ctx.out("OMERO.web was prepared. Please start the application.\n")
 
     def settings(self, *args):
         self.custom_settings(do_exit=False)
