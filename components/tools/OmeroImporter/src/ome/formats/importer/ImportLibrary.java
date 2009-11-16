@@ -492,6 +492,7 @@ public class ImportLibrary implements IObservable
             return pixList;
         } catch (MissingLibraryException mle) {
             notifyObservers(new ErrorHandler.MISSING_LIBRARY(fileName, mle, usedFiles, format));
+            throw mle;
         } catch (IOException io) {
             notifyObservers(new ErrorHandler.FILE_EXCEPTION(fileName, io, usedFiles, format));
             throw io;
