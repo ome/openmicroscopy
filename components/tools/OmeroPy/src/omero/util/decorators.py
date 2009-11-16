@@ -53,10 +53,16 @@ def remoted(func):
     log = logging.getLogger("omero.remote")
     def exc_handler(*args, **kwargs):
         try:
+            self = args[0]
+            log.info(" Meth: %s.%s", self.__class__.__name__, func.func_name)
+            start = time.time()
             rv = func(*args, **kwargs)
-            #log.info("%s(%s,%s)=>%s" % (func, args, kwargs, rv))
+            stop = time.time()
+            log.info(" Rslt: %20.20s in %ss", rv, (stop-start))
             return rv
         except exceptions.Exception, e:
+            stop = time.time()
+            log.info(" Excp: %20.20s in %ss.", e, (stop-start))
             if isinstance(e, omero.ServerError):
                 raise
             else:
