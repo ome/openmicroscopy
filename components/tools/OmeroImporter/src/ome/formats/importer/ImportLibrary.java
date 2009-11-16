@@ -34,6 +34,7 @@ import loci.formats.FormatException;
 import loci.formats.FormatReader;
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
+import loci.formats.MissingLibraryException;
 import loci.formats.UnknownFormatException;
 import loci.formats.in.MIASReader;
 import ome.formats.OMEROMetadataStoreClient;
@@ -489,6 +490,8 @@ public class ImportLibrary implements IObservable
             notifyObservers(new ImportEvent.IMPORT_DONE(index, null, userSpecifiedTarget, null, 0, null, pixList));
             
             return pixList;
+        } catch (MissingLibraryException mle) {
+            notifyObservers(new ErrorHandler.MISSING_LIBRARY(fileName, mle, usedFiles, format));
         } catch (IOException io) {
             notifyObservers(new ErrorHandler.FILE_EXCEPTION(fileName, io, usedFiles, format));
             throw io;
