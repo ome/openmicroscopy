@@ -1273,6 +1273,12 @@ class ControlPane
         //projection stuff
         if (projectionTypesBox != null) projectionTypesBox.setEnabled(b);
     	if (projectionFrequency != null) projectionFrequency.setEnabled(b);
+    	if (overlays != null) overlays.setEnabled(b);
+    	if (overlayButtons != null) {
+    		i = overlayButtons.iterator();
+    		while (i.hasNext())
+    			((ChannelButton) i.next()).setEnabled(b);
+    	}
     }
     
     /**
@@ -1606,6 +1612,8 @@ class ControlPane
 	/** Builds the overlays. */
 	void buildOverlays()
 	{
+		Map m = model.getOverLays();
+		if (m == null || m.size() == 0) return;
 		overlays = new JCheckBox("Overlays");
 		overlays.addActionListener(new ActionListener() {
 			
@@ -1615,7 +1623,7 @@ class ControlPane
 		});
 		TableLayout layout = (TableLayout) controls.getLayout();
 		int row = layout.getNumRow()-1;
-		Map m = model.getOverLays();
+		
 		overlayButtons = new ArrayList<ChannelButton>();
 		Iterator i = m.entrySet().iterator();
 		Entry entry;

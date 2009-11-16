@@ -67,10 +67,10 @@ class ColouredButtonUI
 	extends BasicButtonUI
 {
 
-	/** set the matte painter. */
+	/** Identifies the matte painter. */
 	private static final int MATTE = 0;
 	
-	/** set the specular painter. */
+	/** Identifies the specular painter. */
 	private static final int SPEC = 1;
 		
 	/** The stroke of the graphics context. */
@@ -79,11 +79,14 @@ class ColouredButtonUI
 	/** The default value for width or height. */
 	private static final int DEFAULT_SIZE = 32;
 	
+	/** The default insets for the painter. */
+	private static final Insets INSETS = new Insets(3, 3, 3, 3);
+	
     /** Current Colour of the button. */
     private Color           colour;
 
     /** Reference to parent button. */
-    final private ColouredButton  button;
+    private final ColouredButton  button;
     
     /** The button's size, used by paint to draw onto component. */
     private Rectangle       buttonRect;
@@ -435,16 +438,21 @@ class ColouredButtonUI
         // draw mask and draw the grey mask selected border. 
         if (button.isSelected()) 
         {
-            if (!greyedOut) 
-            {
-            	drawSelectedButtonFace(g);
-            	drawSelectedBorder(g);
-            }
-            else
-            {
-            	drawSelectedGreyMask(g);
+        	if (button.isEnabled()) {
+        		if (!greyedOut) 
+                {
+                	drawSelectedButtonFace(g);
+                	drawSelectedBorder(g);
+                }
+                else
+                {
+                	drawSelectedGreyMask(g);
+                    drawGreySelectedBorder(g);
+                }
+        	} else {
+        		drawSelectedGreyMask(g);
                 drawGreySelectedBorder(g);
-            }
+        	}
         } 
         else 
         {
@@ -466,7 +474,7 @@ class ColouredButtonUI
         drawText(g);
     }
 
-    /**  Creates painters for the different button options. */
+    /** Creates painters for the different button options. */
     private void createPainters()
     {
     	buttonFacePainter = getPainter(colour, SPEC);
@@ -526,15 +534,15 @@ class ColouredButtonUI
 			    		new Color(1.0f, 1.0f, 1.0f, colourAlpha),
 			    new Point2D.Double(colourStartX, colourStartY),  
 			    new Color(1.0f, 1.0f, 1.0f, 0.0f) ));
-		
-	    if (spec == SPEC)
-	    	return new CompoundPainter<JXButton>(gradientWhite, 
-					gradientBrighterDarker, gradientLight);
-	    if (spec == MATTE)
-	    	return new CompoundPainter<JXButton>( gradientWhite, 
-	    			gradientBrighterDarker);
-	 
-	    return null;
+		switch (spec) {
+			case SPEC:
+				return new CompoundPainter<JXButton>(gradientWhite, 
+						gradientBrighterDarker, gradientLight);
+			case MATTE:
+				return new CompoundPainter<JXButton>( gradientWhite, 
+		    			gradientBrighterDarker);
+		}
+		return null;
 	}
 
     /**
@@ -553,10 +561,9 @@ class ColouredButtonUI
         	painter.paint(g2d, this, getWidth(), getHeight());
         else 
         {
-        	Insets ins = new Insets(3,3,3,3);
-        	g2d.translate(ins.left, ins.top);
-        	painter.paint(g2d, this, getWidth()-ins.left-ins.right,
-        			getHeight()-ins.top-ins.bottom);
+        	g2d.translate(INSETS.left, INSETS.top);
+        	painter.paint(g2d, this, getWidth()-INSETS.left-INSETS.right,
+        			getHeight()-INSETS.top-INSETS.bottom);
         }
 
     }
