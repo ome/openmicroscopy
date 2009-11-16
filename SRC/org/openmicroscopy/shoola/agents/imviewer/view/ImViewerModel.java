@@ -108,9 +108,6 @@ import pojos.WellSampleData;
 class ImViewerModel
 {
 
-	/** Text identifying the overlays. */
-	static final String			OVERLAYS = "Overlays";
-	
 	/** The maximum number of items in the history. */
 	private static final int	MAX_HISTORY = 10;
 	
@@ -2128,15 +2125,20 @@ class ImViewerModel
 		Map<Integer, Integer> overlays = new LinkedHashMap<Integer, Integer>();
 		int index = 0;
 		Color c = null;
+		Long value = -1L;
 		for (int j = 0; j < data.length; j++) {
-			if (index == 0) c = Color.red;
-			else if (index == 1) c = Color.green;
-			else if (index == 2) c = Color.blue;
-			overlays.put((Integer) data[j][0], UIUtilities.convertColor(c));
+			value = (Long) data[j][2];
+			if (value != null) {
+				overlays.put((Integer) data[j][0], value.intValue());
+			} else {
+				if (index == 0) c = Color.red;
+				else if (index == 1) c = Color.green;
+				else if (index == 2) c = Color.blue;
+				overlays.put((Integer) data[j][0], UIUtilities.convertColor(c));
+			}
 			index++;
 			if (index%3 == 0) index = 0;
 		}
-		
 		return overlays;
 	}
 
