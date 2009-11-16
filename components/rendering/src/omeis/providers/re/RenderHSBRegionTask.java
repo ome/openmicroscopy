@@ -204,10 +204,10 @@ class RenderHSBRegionTask implements RenderingTask {
         int[] buf = ((RGBIntBuffer) dataBuffer).getDataBuffer();
         boolean isPrimaryColor = optimizations.isPrimaryColorEnabled();
         boolean isAlphaless = optimizations.isAlphalessRendering();
-        boolean isMask = false;
         for (Plane2D plane : wData) {
             int[] color = colors.get(i);
             QuantumStrategy qs = strategies.get(i);
+            boolean isMask = qs instanceof BinaryMaskQuantizer? true : false;
             redRatio = color[ColorsFactory.RED_INDEX] > 0? color[ColorsFactory.RED_INDEX] / 255.0 : 0.0;
             greenRatio = color[ColorsFactory.GREEN_INDEX] > 0? color[ColorsFactory.GREEN_INDEX] / 255.0 : 0.0;
             blueRatio = color[ColorsFactory.BLUE_INDEX] > 0? color[ColorsFactory.BLUE_INDEX] / 255.0 : 0.0;
@@ -219,8 +219,6 @@ class RenderHSBRegionTask implements RenderingTask {
             // enabled.
             if (isPrimaryColor)
             	colorOffset = getColorOffset(color);
-            if (qs instanceof BinaryMaskQuantizer)
-            	isMask = true;
             
             float alpha = new Integer(color[ColorsFactory.ALPHA_INDEX]).floatValue() / 255;
             for (int x2 = x2Start; x2 < x2End; ++x2) {

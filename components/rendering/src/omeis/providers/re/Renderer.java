@@ -214,8 +214,13 @@ public class Renderer {
     		// First lets check and see if we have more than 3 channels active.
     		if (channelBinding.getActive() == false)
     			continue;
-    		
     		channelsActive++;
+    		
+    		if (overlays != null && overlays.size() > 0)
+    		{
+    			log.info("Disabling PriColor rendering, have overlays.");
+    			optimizations.setPrimaryColorEnabled(false);
+    		}
     		if (channelsActive > 3)
     		{
     			log.info("Disabling PriColor rendering, active channels > 3");
@@ -376,7 +381,6 @@ public class Renderer {
     public void setOverlays(Map<byte[], Integer> overlays) {
     	this.overlays = overlays;
     	checkOptimizations();
-    	optimizations.primaryColorEnabled = false;
     }
     
     /**
