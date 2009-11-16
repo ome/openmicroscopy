@@ -196,14 +196,15 @@ class OmeroImageServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#renderImage(long, PlaneDef)
+	 * @see OmeroImageService#renderImage(long, PlaneDef, boolean)
 	 */
-	public BufferedImage renderImage(long pixelsID, PlaneDef pDef)
+	public Object renderImage(long pixelsID, PlaneDef pDef, boolean
+			asTexture)
 		throws RenderingServiceException
 	{
 		try {
 			return PixelsServicesFactory.render(context, new Long(pixelsID), 
-					pDef);
+					pDef, asTexture);
 		} catch (Exception e) {
 			throw new RenderingServiceException("RenderImage", e);
 		}

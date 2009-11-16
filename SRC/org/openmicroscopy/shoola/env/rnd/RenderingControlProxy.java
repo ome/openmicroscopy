@@ -751,7 +751,7 @@ class RenderingControlProxy
                 }
             }
             
-            //tmpSolutionForNoiseReduction();
+            tmpSolutionForNoiseReduction();
             
 		} catch (Exception e) {
 			e.printStackTrace();

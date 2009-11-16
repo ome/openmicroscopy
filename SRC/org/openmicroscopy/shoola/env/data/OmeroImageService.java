@@ -125,10 +125,13 @@ public interface OmeroImageService
 	 * 
 	 * @param pixelsID  The ID of the pixels set.
 	 * @param pd        The plane to render.
-	 * @return          The buffered image representing the plane.
+	 * @param asTexture	Pass <code>true</code> to return a texture,
+	 * 					<code>false</code> to return a buffered image.
+	 * @return          The image representing the plane.
 	 * @throws RenderingServiceException If the server cannot render the image.
 	 */
-	public BufferedImage renderImage(long pixelsID, PlaneDef pd)
+	public Object renderImage(long pixelsID, PlaneDef pd, 
+			boolean asTexture)
 		throws RenderingServiceException;    
 
 	/**

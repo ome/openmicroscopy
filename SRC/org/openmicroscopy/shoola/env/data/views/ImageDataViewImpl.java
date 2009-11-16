@@ -106,12 +106,12 @@ class ImageDataViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#render(long, PlaneDef, AgentEventListener)
+     * @see ImageDataView#render(long, PlaneDef, boolean, AgentEventListener)
      */
-    public CallHandle render(long pixelsID, PlaneDef pd, 
+    public CallHandle render(long pixelsID, PlaneDef pd, boolean asTexture,
                         AgentEventListener observer)
     {
-        BatchCallTree cmd = new ImageRenderer(pixelsID, pd);
+        BatchCallTree cmd = new ImageRenderer(pixelsID, pd, asTexture);
         return cmd.exec(observer);
     }
 

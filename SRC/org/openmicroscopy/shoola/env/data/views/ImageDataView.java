@@ -86,13 +86,14 @@ public interface ImageDataView
      * 
      * @param pixelsID  The id of the pixels set.
      * @param pd        The plane to render.
-     * @param observer  Callback handler.
+     * @param asTexture	Pass <code>true</code> to return a texture,
+	 * 					<code>false</code> to return a buffered image.
+     * @param observer  Call-back handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle render(long pixelsID, PlaneDef pd, 
+    public CallHandle render(long pixelsID, PlaneDef pd, boolean asTexture,
                             AgentEventListener observer);
-    
-    
+
     /**
      * Retrieves the pixels set.
      * 
