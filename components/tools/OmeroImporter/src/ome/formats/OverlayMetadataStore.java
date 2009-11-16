@@ -13,6 +13,7 @@ import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.grid.Column;
 import omero.grid.ImageColumn;
+import omero.grid.LongColumn;
 import omero.grid.MaskColumn;
 import omero.grid.RoiColumn;
 import omero.grid.TablePrx;
@@ -55,7 +56,9 @@ public class OverlayMetadataStore implements MetadataStore {
 	
 	private static final int ROI_COLUMN = 1;
 	
-	private static final int MASK_COLUMN = 2;
+	private static final int COLOR_COLUMN = 2;
+	
+	private static final int MASK_COLUMN = 3;
 	
 	private Integer currentIndex;
 	
@@ -123,10 +126,12 @@ public class OverlayMetadataStore implements MetadataStore {
 	 * @return See above.
 	 */
 	private Column[] createColumns(int length) {
-		Column[] newColumns = new Column[3];
+		Column[] newColumns = new Column[4];
 		newColumns[IMAGE_COLUMN] = 
 			new ImageColumn("Image", "", new long[length]);
 		newColumns[ROI_COLUMN] = new RoiColumn("ROI", "", new long[length]);
+		newColumns[COLOR_COLUMN] = 
+			new LongColumn("Color", "", new long[length]);
 		newColumns[MASK_COLUMN] = new MaskColumn("Overlays", "", 
 				new long[length],    // imageId
 				new int[length],     // theZ
@@ -256,6 +261,7 @@ public class OverlayMetadataStore implements MetadataStore {
 			{
 				MaskColumn maskColumn = (MaskColumn) columns[MASK_COLUMN];
 				ImageColumn imageColumn = (ImageColumn) columns[IMAGE_COLUMN];
+				LongColumn colorColumn = (LongColumn) columns[COLOR_COLUMN];
 				if (currentIndex != DEFAULT_BUFFER_SIZE)
 				{
 					int size = currentIndex + 1;
@@ -277,16 +283,22 @@ public class OverlayMetadataStore implements MetadataStore {
 					// Copy values for the Image column
 					ImageColumn c2 = (ImageColumn) newColumns[IMAGE_COLUMN];
 					System.arraycopy(imageColumn.values, 0, c2.values, 0, size);
+					// Copy values for the Color column
+					LongColumn c3 = (LongColumn) newColumns[COLOR_COLUMN];
+					System.arraycopy(colorColumn.values, 0, c3.values, 0, size);
 					// Update our references
 					columns = newColumns;
 					maskColumn = (MaskColumn) columns[MASK_COLUMN];
 					imageColumn = (ImageColumn) columns[IMAGE_COLUMN];
+					colorColumn = (LongColumn) columns[COLOR_COLUMN];
 				}
 				for (int i = 0; i < maskColumn.imageId.length; i++)
 				{
 					log.debug(String.format(
-							"[%d] i:%d z:%d t:%d x:%f y:%f w:%f h:%f mask:%d",
+							"[%d] image:%d color:%d i:%d z:%d t:%d x:%f y:%f w:%f h:%f mask:%d",
 							i,
+							imageColumn.values[i],
+							colorColumn.values[i],
 							maskColumn.imageId[i],
 							maskColumn.theZ[i],
 							maskColumn.theT[i],
@@ -309,6 +321,19 @@ public class OverlayMetadataStore implements MetadataStore {
 			}
 		}
 		return saved;
+	}
+	
+	public void setShapeStrokeColor(String strokeColor, int imageIndex,
+			int roiIndex, int shapeIndex) {
+		long imageId = pixelsList.get(imageIndex).getImage().getId().getValue();
+		int index = getTableIndex(imageIndex, roiIndex, shapeIndex);
+		log.debug(String.format("Shape stroke color(%d) - %d, %d, %d: %s", index, imageIndex, roiIndex, shapeIndex, strokeColor));
+		MaskColumn maskColumn = (MaskColumn) columns[MASK_COLUMN];
+		LongColumn colorColumn = (LongColumn) columns[COLOR_COLUMN];
+		ImageColumn imageColumn = (ImageColumn) columns[IMAGE_COLUMN];
+		imageColumn.values[index] = imageId;
+		maskColumn.imageId[index] = imageId;
+		colorColumn.values[index] = Integer.parseInt(strokeColor);
 	}
 	
 	public void setMaskHeight(String height, int imageIndex, int roiIndex,
@@ -1842,11 +1867,6 @@ public class OverlayMetadataStore implements MetadataStore {
 
 	public void setShapeStrokeAttribute(String arg0, int arg1, int arg2,
 			int arg3) {
-		// Unused
-
-	}
-
-	public void setShapeStrokeColor(String arg0, int arg1, int arg2, int arg3) {
 		// Unused
 
 	}
