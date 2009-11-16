@@ -381,7 +381,8 @@ class OMEROGateway
 				}
 					
 			}
-			if (imageIndex == -1 || roiIndex == -1) return null;;
+			if (imageIndex == -1 || roiIndex == -1 || colorIndex == -1) 
+				return null;
 			String[] headers = new String[size];
 			String[] headersDescriptions = new String[size];
 			headers[0] = cols[imageIndex].name;
@@ -390,16 +391,15 @@ class OMEROGateway
 			headers[1] = cols[roiIndex].name;
 			headersDescriptions[1] = cols[roiIndex].description;
 			
-			headers[1] = cols[roiIndex].name;
-			headersDescriptions[1] = cols[roiIndex].description;
+			headers[2] = cols[colorIndex].name;
+			headersDescriptions[2] = cols[colorIndex].description;
+			
 			
 			int n = (int) table.getNumberOfRows();
 			Data d;
 			Column column;
 			long[] a = {imageIndex, roiIndex, colorIndex};
-			long[] b = new long[0];
-
-			d = table.slice(a, b);
+			d = table.read(a, 0, n);
 			List<Integer> rows = new ArrayList<Integer>();
 			column = d.columns[imageIndex];
 			Long value;
@@ -417,21 +417,25 @@ class OMEROGateway
 			Iterator<Integer> r = rows.iterator();
 			column = d.columns[roiIndex];
 			Column columnColor = null;
-			if (colorIndex != -1) columnColor = d.columns[colorIndex];
+			columnColor = d.columns[colorIndex];
 			while (r.hasNext()) {
 				row = r.next();
 				data[k][0] = row;
 				data[k][1] = ((RoiColumn) column).values[row];
+				data[k][2] = 255;
 				if (columnColor != null) 
 					data[k][2] = ((LongColumn) columnColor).values[row];
+				else data[k][2] = 255L;
 				k++;
 			}
 			table.close();
 			return new TableResult(data, headers);
 		} catch (Exception e) {
+			e.printStackTrace();
 			try {
 				if (table != null) table.close();
 			} catch (Exception ex) {
+				ex.printStackTrace();
 				//Digest exception
 			}
 			new DSAccessException("Unable to read the table.");
@@ -464,11 +468,10 @@ class OMEROGateway
 			Data d;
 			Column column;
 			long[] a = new long[cols.length];
-			long[] b = new long[0];
 			for (int i = 0; i < cols.length; i++) {
 				a[i] = i; 
 			}
-			d = table.slice(a, b);
+			d = table.read(a, 0, n);
 			for (int i = 0; i < cols.length; i++) {
 				column = d.columns[i];
 				if (column instanceof LongColumn) {
