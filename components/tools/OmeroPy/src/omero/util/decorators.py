@@ -15,12 +15,18 @@ import omero
 
 from omero_ext.functional import wraps
 
+perf_log = logging.getLogger("omero.perf")
+
 def perf(func):
     """ Decorator for (optionally) printing performance statistics """
-    log = logging.getLogger("omero.perf")
-    if not log.isEnabledFor(logging.DEBUG):
-        return func
     def handler(*args, **kwargs):
+
+        # Early Exit. Can't do this in up a level
+        # because logging hasn't been configured yet.
+        lvl = perf_log.getEffectiveLevel()
+        if lvl > logging.DEBUG:
+            return func(*args, **kwargs)
+
         try:
             self = args[0]
             mod = self.__class__.__module__
@@ -37,7 +43,7 @@ def perf(func):
             diff = stop - start
             startMillis = int(start * 1000)
             timeMillis = int(diff * 1000)
-            log.debug("start[%d] time[%d] tag[%s]", startMillis, timeMillis, tag)
+            perf_log.debug("start[%d] time[%d] tag[%s]", startMillis, timeMillis, tag)
     handler = wraps(func)(handler)
     return handler
 

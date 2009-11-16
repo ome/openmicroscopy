@@ -308,7 +308,14 @@ class HdfStorage(object):
     @stamped
     def getWhereList(self, stamp, condition, variables, unused, start, stop, step):
         self.__initcheck()
-        return self.__mea.getWhereList(condition, variables, None, start, stop, step).tolist()
+        try:
+            return self.__mea.getWhereList(condition, variables, None, start, stop, step).tolist()
+        except (exceptions.NameError, exceptions.SyntaxError, exceptions.TypeError, exceptions.ValueError), err:
+            aue = omero.ApiUsageException()
+            aue.message = "Bad condition: %s, %s" % (condition, variables)
+            aue.serverStackTrace = "".join(traceback.format_exc())
+            aue.serverExceptionClass = str(err.__class__.__name__)
+            raise aue
 
     def _as_data(self, cols, rowNumbers):
         """
@@ -413,7 +420,11 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @remoted
     @perf
     def getOriginalFile(self, current = None):
-        self.logger.info("%s.getOriginalFile() => %s", self, self.file_obj)
+        msg = "unknown"
+        if self.file_obj:
+            if self.file_obj.id:
+                msg = self.file_obj.id.val
+        self.logger.info("%s.getOriginalFile() => id=%s", self, msg)
         return self.file_obj
 
     @remoted

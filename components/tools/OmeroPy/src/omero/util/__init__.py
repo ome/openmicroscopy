@@ -361,7 +361,7 @@ class Server(Ice.Application):
                 self.logger.error("Failed activation", exc_info=1)
                 sys.exit(200)
 
-            self.logger.info("Blocking until shutdown")
+            self.logger.info("Entering main loop")
             self.communicator().waitForShutdown()
         finally:
             self.stop_event.set() # Let's all waits shutdown
