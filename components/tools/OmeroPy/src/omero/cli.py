@@ -831,8 +831,7 @@ class CLI(cmd.Cmd, Context):
         if pypath is None:
             pypath = home
         else:
-            pypath += os.path.sep
-            pypath += home
+            pypath = "%s%s%s" % (pypath, os.path.pathsep, home)
         env["PYTHONPATH"] = pypath
         return env
 
