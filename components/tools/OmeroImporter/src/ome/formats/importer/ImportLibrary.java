@@ -258,18 +258,16 @@ public class ImportLibrary implements IObservable
 				miasReader.setAutomaticallyParseMasks(true);
 				ServiceFactoryPrx sf = store.getServiceFactory();
 				OverlayMetadataStore s = new OverlayMetadataStore();
-				boolean haveTableSupport = 
-					s.initialize(sf, pixelsList, plateIds);
-				if (!haveTableSupport)
-				{
-					log.warn("No OmeroTables, skipping MIAS overlays.");
-					return;
-				}
+				s.initialize(sf, pixelsList, plateIds);
 				reader.setMetadataStore(s);
 				miasReader.close();
 				miasReader.setAutomaticallyParseMasks(true);
 				miasReader.setId(currentFile);
 				s.complete();
+			}
+			catch (ServerError e)
+			{
+				log.warn("Error while populating MIAS overlays.", e);
 			}
 			finally
 			{
