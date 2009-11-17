@@ -386,6 +386,7 @@
   <target name="dist-osx"
           depends="jar"
           description="Build and package the app for OS X distribution.">
+    <delete dir="${dist.dir}/OMERO.insight.app"/>
     <jarbundler dir="${dist.dir}"
                 name="${dist.name}"
                 mainclass="${app.mainclass}"
@@ -420,6 +421,7 @@
   <target name="dist-osx-openGL"
           depends="jar"
           description="Build and package the app for OS X distribution with OpenGL support.">
+    <delete dir="${dist.dir}/OMERO.insight.app"/>
     <jarbundler dir="${dist.dir}"
                 name="${dist.name}"
                 mainclass="${app.mainclass}"
@@ -437,8 +439,6 @@
       <jarfileset dir="${base.lib.dir}/osx-native" includes="*"/>
     </jarbundler>
     <delete dir="${dist.dir}/hcs-preview"/>
-    <mkdir dir="${dist.dir}/hcs-preview"/>
-    <property name="hcs-container" value="hcs-preview/config/container.xml"/>
     <copy file="${app.config.dir}/imviewer.xml"
       tofile="${dist.dir}/opengl-imviewer.xml"/>
     <replace file="${dist.dir}/opengl-imviewer.xml"
