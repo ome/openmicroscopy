@@ -840,8 +840,6 @@ class FlexMeasurementCtx(AbstractMeasurementCtx):
 
     def parse(self):
         print "Parsing: %s" % self.original_file.name.val
-        image = self.image_from_original_file(self.original_file)
-        unloaded_image = ImageI(image.id.val, False)
         provider = self.original_file_provider
         data = provider.get_original_file_data(self.original_file)
         try:
@@ -934,8 +932,6 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
 
     def parse(self):
         print "Parsing: %s" % self.original_file.name.val
-        image = self.image_from_original_file(self.original_file)
-        unloaded_image = ImageI(image.id.val, False)
         provider = self.original_file_provider
         data = provider.get_original_file_data(self.original_file)
         try:
