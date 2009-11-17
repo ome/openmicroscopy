@@ -226,40 +226,61 @@ class MonitorWorker(threading.Thread):
         self.callback = callback
 
     def run(self):
+        """
+        Repeatedly calls self.execute until self.event is set.
+        """
         while not self.event.isSet():
             self.execute()
         self.log.info("Stopping")
 
-        
     @perf
     def execute(self):
+        """
+        Loops until either:
+         * the number of ids >= self.batch
+         * self.wait seconds have passed
+         * self.event (a stop Event) is set
 
-            count = 0
-            ids = set()
+        If event is set or no ids are found, this method returns.
+        If batch ids are found, pass them to self.callback()
+
+        An inner loop is used since there is no way to signal
+        to the Queue that it should cease blocking activities.
+        """
+        count = 0    # Count of possibly duplicate entries
+        ids = set()  # Unique entries
+        start = time.time()
+        while (len(ids) < self.batch) \
+                and (time.time() < (start+self.wait)) \
+                and not self.event.isSet():
+
             try:
-                ids.add(self.queue.get(timeout=self.wait).fileId)
-                count += 1
+                while True:
+                    entry = self.queue.get_nowait()
+                    if entry:
+                        count += 1
+                        ids.add(entry.fileId)
+                        if len(ids) >= self.batch:
+                            break;
             except Queue.Empty:
                 pass
 
-            if len(ids) == 0:
-                self.log.debug("No events found")
-                return
+            # Slowing down this thread to prevent a very busy wait
+            self.event.wait(2)
 
-            try:
-                while len(ids) < self.batch:
-                    ids.add(self.queue.get_nowait().fileId)
-                    count += 1
-            except Queue.Empty:
-                pass
-
-            self.log.info("Processing %s events (%s ids). %s remaining"\
-                % (count, len(ids), self.queue.qsize()))
-
-            try:
-                self.callback(ids)
-            except:
-                self.log.exception("Callback error")
+        if len(ids) == 0:
+            self.log.debug("No events found")
+        else:
+            if self.event.isSet():
+                self.log.warn("Skipping processing of %s events (%s ids). %s remaining"\
+                    % (count, len(ids), self.queue.qsize()))
+            else:
+                self.log.info("Processing %s events (%s ids). %s remaining"\
+                    % (count, len(ids), self.queue.qsize()))
+                try:
+                    self.callback(ids)
+                except:
+                    self.log.exception("Callback error")
 
 
 class MonitorClientI(monitors.MonitorClient):
@@ -405,7 +426,7 @@ class MonitorClientI(monitors.MonitorClient):
 
             # Checking name first since it's faster
             exName = self.getExperimenterFromPath(fileId)
-            if exName:
+            if exName and self.userExists(exName):
                 # Creation or modification handled by state/timeout system
                 if str(fileInfo.type) == "Create" or str(fileInfo.type) == "Modify":
                     self.queue.put(fileInfo)
@@ -460,8 +481,12 @@ class MonitorClientI(monitors.MonitorClient):
             fileParts = fileId.splitall()
             i = -1 * len(parpath)
             fileParts = fileParts[i:]
-            if len(fileParts) >= 3:
-                exName = fileParts[1]
+            # For .../DropBox/user structure
+            if len(fileParts) >= 2:
+                exName = fileParts[0]
+            # For .../DropBox/u/user structure
+            #if len(fileParts) >= 3:
+            #    exName = fileParts[1]
         if not exName:
             self.log.error("File added outside user directories: %s" % fileId)
         return exName
@@ -480,13 +505,12 @@ class MonitorClientI(monitors.MonitorClient):
         except:
             self.log.exception("Failed to get sf \n")
 
-
         if not sf:
             self.log.error("No connection")
             return None
 
         p = omero.sys.Principal()
-        p.name  = exName
+        p.name  = exName 
         p.group = "user"
         p.eventType = "User"
 
@@ -500,6 +524,36 @@ class MonitorClientI(monitors.MonitorClient):
         except:
             self.log.exception("Unknown exception during loginUser")
             return None
+
+    def userExists(self, exName):
+        """
+            Tests if the given user exists.
+            
+        """
+
+        if not self.ctx.hasSession():
+             self.ctx.newSession()
+
+        sf = None
+        try:
+            sf = self.ctx.getSession()
+        except:
+            self.log.exception("Failed to get sf \n")
+
+        if not sf:
+            self.log.error("No connection")
+            return False
+
+        try:
+            exp = sf.getAdminService().lookupExperimenter(exName)
+            return True
+        except omero.ApiUsageException:
+            self.log.info("User unknown: %s", exName)
+            return False
+        except:
+            self.log.exception("Unknown exception during loginUser")
+            return False
+            
 
     @perf
     def importFile(self, fileName, exName):
@@ -690,8 +744,7 @@ class MonitorClientI(monitors.MonitorClient):
 class SingleUserMonitorClient(MonitorClientI):
     """
         Subclass of MonitorClient providing for a single user to import outside 
-        of the DrpBox structure.
-        
+        of the DropBox structure.
         
     """
     def __init__(self, user, dir, communicator, getUsedFiles = as_dictionary, ctx = None,\
@@ -719,8 +772,8 @@ class SingleUserMonitorClient(MonitorClientI):
         
 class TestMonitorClient(SingleUserMonitorClient):
     """
-        Subclass of MonitorClient providing for a single user to import outside 
-        of the DrpBox structure.
+        Subclass of SingleUserMonitorClient providing for a test import outside 
+        of the DropBox structure to be made by copying a given file.
         
         
     """
@@ -740,9 +793,9 @@ class TestMonitorClient(SingleUserMonitorClient):
     #
     def importFileWrapper(self, fileId):
         """
-        Wrapper method which allows plugging error handling code around
-        the main call to importFile. In all cases, the key will be removed
-        on execution.
+            Import a file and then notify the DropBox that the file has been imported
+            successfully or not.
+            
         """
         self.state.clear(fileId)
         exName = self.getExperimenterFromPath(fileId)

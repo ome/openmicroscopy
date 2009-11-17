@@ -50,7 +50,7 @@ class DropBox(Ice.Application):
         props = self.communicator().getProperties()
         configure_server_logging(props)
 
-        log.info("Grid Properties:\n%s",str(props))
+        log.debug("Grid Properties:\n%s",str(props))
 
         testConfig = props.getPropertyWithDefault("omero.fstest.config", "")
         isTestClient = bool(testConfig)
@@ -178,7 +178,7 @@ class DropBox(Ice.Application):
             adapter.activate()
         except:
             log.exception("Failed to access proxy : \n")
-            return -1
+            return retVal
 
         if not mClient:
             log.error("Failed to create any monitors.")
@@ -211,8 +211,10 @@ class DropBox(Ice.Application):
                     fsServer.destroyMonitor(monitorId[user])
                 except:
                     log.warn("Failed to destroy MonitorClient for : %s  FSServer may have already stopped.", user)
+                    retVal = 0
             except:
                 log.warn("Failed to stop and destroy MonitorClient for : %s  FSServer may have already stopped.", user)
+                retVal = 0
 
             try:
                 mClient[user].stop()
