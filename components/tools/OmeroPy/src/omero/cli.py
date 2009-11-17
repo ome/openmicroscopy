@@ -831,7 +831,7 @@ class CLI(cmd.Cmd, Context):
         if pypath is None:
             pypath = home
         else:
-            if pypath.endswith(":"):
+            if pypath.endswith(os.path.pathsep):
                 pypath = "%s%s" % (pypath, home)
             else:
                 pypath = "%s%s%s" % (pypath, os.path.pathsep, home)
