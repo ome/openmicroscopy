@@ -642,6 +642,7 @@ class ImViewerComponent
 
 		switch (key) {
 			case ColorModelAction.GREY_SCALE_MODEL:
+				view.removeOverlays();
 				model.setColorModel(GREY_SCALE_MODEL, true);
 				break;
 			case ColorModelAction.RGB_MODEL:

@@ -2348,6 +2348,9 @@ class ImViewerUI
 		return controlPane.getSelectedOverlays();
 	}
 	
+	/** Removes the overlays. */
+	void removeOverlays() { controlPane.removeOverlays(); }
+	
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 

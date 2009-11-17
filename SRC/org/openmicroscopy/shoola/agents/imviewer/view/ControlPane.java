@@ -272,6 +272,9 @@ class ControlPane
     /** The Box to turn on or off the overlays.*/
     private JCheckBox 				overlays;
     
+    /** The listener attached to the overlays. */
+    private ActionListener			overlaysListener;
+    
     /**
      * Sets the selected plane.
      * 
@@ -1594,7 +1597,7 @@ class ControlPane
 	 */
 	Map<Long, Integer> getSelectedOverlays()
 	{
-		//if (!overlays.isSelected()) return null;
+		if (!overlays.isSelected()) return null;
 		Map<Long, Integer> m = new HashMap<Long, Integer>();
 		Iterator<ChannelButton> i = overlayButtons.iterator();
 		ChannelButton b;
@@ -1609,18 +1612,28 @@ class ControlPane
 		return m;
 	}
 	
+	/** Removes the overlays. */
+	void removeOverlays() 
+	{
+		if (overlays == null) return;
+		overlays.removeActionListener(overlaysListener);
+		overlays.setSelected(false);
+		overlays.addActionListener(overlaysListener);
+	}
+	
 	/** Builds the overlays. */
 	void buildOverlays()
 	{
 		Map m = model.getOverLays();
 		if (m == null || m.size() == 0) return;
 		overlays = new JCheckBox("Overlays");
-		overlays.addActionListener(new ActionListener() {
+		overlaysListener = new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
 				controller.renderOverlays(overlays.isSelected());
 			}
-		});
+		};
+		overlays.addActionListener(overlaysListener);
 		TableLayout layout = (TableLayout) controls.getLayout();
 		int row = layout.getNumRow()-1;
 		
