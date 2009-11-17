@@ -492,7 +492,6 @@ class RenderingControlProxy
 		} catch (Throwable e) {
 			handleException(e, ERROR+"cannot render the plane.");
 		}
-        
         return img;
 	}
 	
@@ -511,8 +510,8 @@ class RenderingControlProxy
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		//See if the requested image is in cache.
-		TextureData img = (TextureData) getFromCache(pDef);
-        if (img != null) return img;
+		TextureData img = null;//(TextureData) getFromCache(pDef);
+        //if (img != null) return img;
         try {
             Point p = getSize(pDef);
             //imageSize = 3*buf.length;
@@ -1759,14 +1758,13 @@ class RenderingControlProxy
 	{
 		if (tableID < 0) return;
 		try {
-			//System.err.println(overlays);
+			eraseCache();
 			if (overlays == null) overlays = new HashMap<Long, Integer>();
 			servant.setOverlays(omero.rtypes.rlong(tableID), 
 					pixs.getImage().getId(), overlays);
 		} catch (Exception e) {
 			handleException(e, ERROR+"overlays.");
 		}
-		
 	}
 	
 }
