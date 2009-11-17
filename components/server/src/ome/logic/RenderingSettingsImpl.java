@@ -1020,6 +1020,12 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     		if (l.size() != 1) 
     			throw new ValidationException("No pixels set with ID: " + from);
     		pixelsFrom = l.get(0);
+			if (settingsFrom == null) {
+				List<Pixels> list = new ArrayList<Pixels>(1);
+			    list.add(pixelsFrom);
+			    Map<Long, RenderingDef> map = loadRenderingSettings(list);
+			    settingsFrom = map.get(from);
+			}
     	}
     	
     	
