@@ -438,7 +438,6 @@
       <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
       <jarfileset dir="${base.lib.dir}/osx-native" includes="*"/>
     </jarbundler>
-    <delete dir="${dist.dir}/hcs-preview"/>
     <copy file="${app.config.dir}/imviewer.xml"
       tofile="${dist.dir}/opengl-imviewer.xml"/>
     <replace file="${dist.dir}/opengl-imviewer.xml"
