@@ -41,6 +41,8 @@ import org.jdesktop.swingx.JXBusyLabel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.WellSampleData;
@@ -301,7 +303,10 @@ class ToolBar
     					data.getSizeZ() > 1);
 			} catch (Exception e) {}
     	}
-    	downloadButton.setEnabled(model.isArchived()); 
+    	if (refObject instanceof FileAnnotationData) {
+    		downloadButton.setEnabled(true); 
+    	} else 
+    		downloadButton.setEnabled(model.isArchived()); 
     }
     
     /**
@@ -379,6 +384,9 @@ class ToolBar
     void buildUI()
     {
     	Object refObject = model.getRefObject();
+    	rndButton.setEnabled(false);
+		imageBar.setVisible(false);
+		downloadButton.setEnabled(false);
     	if ((refObject instanceof ImageData) || 
     			(refObject instanceof WellSampleData)) {
     		rndButton.setEnabled(!model.isRendererLoaded());
@@ -389,13 +397,11 @@ class ToolBar
     		} else {
     			flimButton.setEnabled(false);
     		}
-    		if (model.isMultiSelection() && refObject instanceof ImageData) 
+    		if (refObject instanceof ImageData) 
     			downloadButton.setEnabled(model.isArchived());
     		imageBar.setVisible(!model.isMultiSelection());
-    	} else {
-    		rndButton.setEnabled(false);
-    		imageBar.setVisible(false);
-    		downloadButton.setEnabled(false);
+    	} else if (refObject instanceof FileAnnotationData) {
+    		downloadButton.setEnabled(true);
     	}
     	revalidate();
     	repaint();
