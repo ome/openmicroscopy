@@ -160,6 +160,9 @@ class ToolBar
     /** The connection creation tool. */
     private DrawingConnectionTool		connectionTool;
     
+    /** The button to bring up the assistant. */
+    private JButton						assistantButton;
+    
     /**
      * Sets the property of the toggle button.
      * 
@@ -277,10 +280,10 @@ class ToolBar
 				MeasurementViewerControl.LOAD));
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);
-        button = new JButton(controller.getAction(
+        assistantButton = new JButton(controller.getAction(
         	MeasurementViewerControl.ROI_ASSISTANT));
-        UIUtilities.unifiedButtonLookAndFeel(button);
-    	bar.add(button);
+        UIUtilities.unifiedButtonLookAndFeel(assistantButton);
+    	bar.add(assistantButton);
     	bar.add(new JSeparator());
 		return bar;
 	}
@@ -336,7 +339,7 @@ class ToolBar
 	 */
 	protected boolean rightClick(MouseEvent e)
 	{
-		if(e.getButton() == MouseEvent.BUTTON3 || 
+		if (e.getButton() == MouseEvent.BUTTON3 || 
 				(e.getButton() == MouseEvent.BUTTON1 && e.isControlDown()))
 			return true;
 		return false;
@@ -358,6 +361,13 @@ class ToolBar
 		pointTool.setResetToSelect(option);
 	    polygonTool.setResetToSelect(option);
 	    polylineTool.setResetToSelect(option); 
+	}
+	
+	/** Invokes when figures are selected. */
+	void onFigureSelected()
+	{
+		int size = view.getDrawingView().getSelectedFigures().size();
+		assistantButton.getAction().setEnabled(size == 1);
 	}
 	
 	/**

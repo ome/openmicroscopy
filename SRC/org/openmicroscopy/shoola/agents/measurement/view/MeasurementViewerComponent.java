@@ -43,7 +43,6 @@ import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.editor.actions.SaveNewCmd;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
@@ -454,41 +453,11 @@ class MeasurementViewerComponent
 	
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#refreshResultsTable()
-     */
-	public void refreshResultsTable() 
-	{
-		view.refreshResultsTable();
-	}
-	
-	/** 
-     * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#rebuildManagerTable()
      */
 	public void rebuildManagerTable() 
 	{
 		view.rebuildManagerTable();
-	}
-
-	/** 
-	 * Implemented as specified by the {@link MeasurementViewer} interface.
-	 * @see MeasurementViewer#saveResultsTable()
-	 */
-	public void saveResultsTable() 
-	{
-		Registry reg = MeasurementAgent.getRegistry();
-		UserNotifier un = reg.getUserNotifier();
-		boolean saved = false;
-		try {
-			saved = view.saveResultsTable();
-		} catch (Exception e) {
-			reg.getLogger().error(this, 
-					"Cannot save the results "+e.getMessage());
-			un.notifyInfo("Save ROI results", "Cannot save the ROI results");
-		}
-		if (saved)
-			un.notifyInfo("Save ROI results", "The ROI results have been " +
-											"successfully saved.");
 	}
 	
 	/** 
@@ -500,15 +469,6 @@ class MeasurementViewerComponent
 		model.figureAttributeChanged(key, figure);
 	}
 
-	/** 
-	 * Implemented as specified by the {@link MeasurementViewer} interface.
-	 * @see MeasurementViewer#showResultsWizard()
-	 */
-	public void showResultsWizard()
-	{
-		view.showResultsWizard();
-	}
-	
 	/** 
 	 * Implemented as specified by the {@link MeasurementViewer} interface.
 	 * @see MeasurementViewer#showROIAssistant()
@@ -535,7 +495,7 @@ class MeasurementViewerComponent
 	{
 		model.showMeasurementsInMicrons(inMicrons);
 		view.updateDrawingArea();
-		refreshResultsTable();
+		view.refreshResultsTable();
 	}
 
 	/** 

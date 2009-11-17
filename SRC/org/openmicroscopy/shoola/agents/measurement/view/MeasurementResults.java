@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -60,6 +62,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.MeasurementObject
 import org.openmicroscopy.shoola.agents.measurement.util.ui.AttributeUnits;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ResultsCellRenderer;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
@@ -88,7 +91,7 @@ import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
  */
 class MeasurementResults
 	extends JPanel
-	implements TabPaneInterface
+	implements ActionListener, TabPaneInterface
 {
 	
 	/** Index to identify tab */
@@ -105,6 +108,15 @@ class MeasurementResults
 	
 	/** Z-Section Column no for the wizard. */
 	private static final int	Z_COLUMN = 2;
+	
+	/** Identifies the save action. */
+	private static final int	SAVE = 0;
+	
+	/** Identifies the refresh action. */
+	private static final int	REFRESH = 1;
+	
+	/** Identifies the wizard action. */
+	private static final int	WIZARD = 2;
 	
 	/** The name of the panel. */
 	private static final String	NAME = "Results";
@@ -156,13 +168,21 @@ class MeasurementResults
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
-		saveButton = new JButton(
-				controller.getAction(MeasurementViewerControl.SAVE_RESULTS));
-		resultsWizardButton = new JButton(
-				controller.getAction(MeasurementViewerControl.RESULTS_WIZARD));
+		saveButton = new JButton("Save To Excel...");
+		saveButton.setToolTipText("Save the results to Excel.");
+		saveButton.setActionCommand(""+SAVE);
+		saveButton.addActionListener(this);
+		refreshButton = new JButton("Refresh");
+		refreshButton.setToolTipText("Refresh the results table.");
+		refreshButton.setActionCommand(""+REFRESH);
+		refreshButton.addActionListener(this);
+		resultsWizardButton = new JButton("Results Wizard...");
+		resultsWizardButton.setToolTipText("Bring up the results wizard.");
+		resultsWizardButton.setActionCommand(""+WIZARD);
+		resultsWizardButton.addActionListener(this);
 		
-		refreshButton = new JButton(
-				controller.getAction(MeasurementViewerControl.REFRESH_RESULTS));
+		refreshButton.setEnabled(false);
+		saveButton.setEnabled(false);
 		//Create table model.
 		createAllFields();
 		createDefaultFields();
@@ -213,6 +233,7 @@ class MeasurementResults
 		};
 
 		results.getSelectionModel().addListSelectionListener(listener);
+		
 	}
 	
 	/** Builds and lays out the GUI. */
@@ -463,7 +484,7 @@ class MeasurementResults
 	 * @throws IOException Thrown if the data cannot be written.
 	 * @return true if results saved, false if users cancels save.
 	 */
-	boolean saveResults()
+	private boolean saveResults()
 		throws IOException
 	{
 		List<FileFilter> filterList = new ArrayList<FileFilter>();
@@ -511,13 +532,19 @@ class MeasurementResults
 	}
 
 	/** Refreshes the result table. */
-	public void refreshResults() { populate(); }
+	void refreshResults()
+	{
+		populate(); 
+		int rows = results.getRowCount();
+		refreshButton.setEnabled(rows > 0);
+		saveButton.setEnabled(rows > 0);
+	}
 	
 	/**
 	 * Shows the results wizard and updates the fields based on the users 
 	 * selection.
 	 */
-	void showResultsWizard()
+	private void showResultsWizard()
 	{
 		ResultsWizard resultsWizard = new ResultsWizard(view, fields, allFields);
 		resultsWizard.pack();
@@ -537,6 +564,41 @@ class MeasurementResults
 												fields.get(i).getName()));
 		populate();
 		results.repaint();
+	}
+
+	/**
+	 * Reacts to controls selection.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		int index = Integer.parseInt(e.getActionCommand());
+		switch (index) {
+			case REFRESH:
+				if (!model.isServerROI())
+		    		refreshResults();
+				break;
+			case SAVE:
+				Registry reg = MeasurementAgent.getRegistry();
+				UserNotifier un = reg.getUserNotifier();
+				boolean saved = false;
+				try {
+					saved = saveResults();
+				} catch (Exception ex) {
+					reg.getLogger().error(this, 
+							"Cannot save the results "+ex.getMessage());
+					un.notifyInfo("Save ROI results", 
+							"Cannot save the ROI results");
+				}
+				if (saved)
+					un.notifyInfo("Save ROI results", 
+							"The ROI results have been " +
+													"successfully saved.");
+				break;
+			case WIZARD:
+				showResultsWizard();
+		}
+		
 	}
 	
 	/** Basic inner class use to set the cell renderer. */

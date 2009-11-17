@@ -169,15 +169,9 @@ public interface MeasurementViewer
 
 	/** Saves the ROI. */
 	public void saveROI();
-
-	/** Rebuild the results table in the measurement results component. */
-	public void refreshResultsTable();
 	
 	/** Rebuild the table in the measurement manager component. */
 	public void rebuildManagerTable();
-	
-	/** Save the results table in the measurement results component. */
-	public void saveResultsTable();
 	
 	/**
 	 * Invokes when a figures attributes have changed. 
@@ -188,9 +182,6 @@ public interface MeasurementViewer
 	 * @param fig	The affected figure.
 	 */
 	public void figureAttributeChanged(AttributeKey key, ROIFigure fig);
-
-	/** Brings up on screen the results wizard. */
-	public void showResultsWizard();
 
 	/** Brings up on screen the ROI Assistant. */
 	public void showROIAssistant();

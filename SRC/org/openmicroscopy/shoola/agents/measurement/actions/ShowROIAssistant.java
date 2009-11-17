@@ -25,11 +25,14 @@ package org.openmicroscopy.shoola.agents.measurement.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.util.Collection;
+
 import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -64,6 +67,14 @@ public class ShowROIAssistant
 	protected void onStateChange()
 	{
 		if (model.isServerROI()) setEnabled(false);
+		else {
+			if (model.getState() == ImViewer.READY) {
+				Collection values = model.getSelectedFigures();
+				if (values != null) {
+					setEnabled(values.size() == 1);
+				}
+			} else setEnabled(false);
+		}
 	}
 	
 	/**

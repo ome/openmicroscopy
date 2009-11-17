@@ -35,7 +35,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -763,6 +762,9 @@ class MeasurementViewerUI
 		} else {
 			roiInspector.setSelectedFigures(roiShapeList);
 			roiManager.setSelectedFigures(roiShapeList, false);
+			intensityResultsView.onFigureSelected();
+			intensityView.onFigureSelected();
+			toolBar.onFigureSelected();
 		}
     }
     
@@ -803,6 +805,9 @@ class MeasurementViewerUI
 		} else {
 			roiInspector.setSelectedFigures(shapeList);
 			roiManager.setSelectedFigures(shapeList, true);
+			intensityResultsView.onFigureSelected();
+			intensityView.onFigureSelected();
+			toolBar.onFigureSelected();
 		}
 	}
     
@@ -926,25 +931,7 @@ class MeasurementViewerUI
     	if (!model.isServerROI())
     		roiInspector.repaint();
     } 
-    
-    /** 
-     * Saves the results table.
-     * 
-     * @throws IOException Thrown if the data cannot be written.
-     * @return See above.
-     */
-    boolean saveResultsTable() 
-    	throws IOException
-    { 
-    	return roiResults.saveResults(); 
-    }
-    
-    /**
-	 * Shows the results wizard and updates the fields based on the users 
-	 * selection.
-	 */
-	void showResultsWizard() { roiResults.showResultsWizard(); }
-    
+
     /**
      * Handles the exception thrown by the <code>ROIComponent</code>.
      * 

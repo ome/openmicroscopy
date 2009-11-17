@@ -47,6 +47,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableModel;
 
@@ -106,10 +108,10 @@ class IntensityResultsView
 							"selected ROI to results table.";
 
 	/** The addAll button name. */
-	private final static String ADDALL_NAME = "Add All";
+	private final static String ADD_ALL_NAME = "Add All";
 	
 	/** Tooltip for the add button. */
-	private final static String ADDALL_DESCRIPTION = "Add Intensities for " +
+	private final static String ADD_ALL_DESCRIPTION = "Add Intensities for " +
 							"all ROIShapes of the selected ROI to results table.";
 	
 	/** The remove button name. */
@@ -182,7 +184,7 @@ class IntensityResultsView
 	private static final int			ADD = 1;
 
 	/** Action command id indicating to add new row. */
-	private static final int			ADDALL = 4;
+	private static final int			ADD_ALL = 4;
 	
 	/** Action command id indicating to remove all the rows. */
 	private static final int			REMOVE_ALL = 2;
@@ -192,9 +194,6 @@ class IntensityResultsView
 	
 	/** Reference to the model. */
 	private MeasurementViewerModel		model;
-	
-	/** The map of <ROIShape, ROIStats> .*/
-	private Map							ROIStats;
 	
 	/** list of the channel names. */
 	private Map<Integer, String> channelName = new TreeMap<Integer, String>();
@@ -236,7 +235,7 @@ class IntensityResultsView
 	private Map<Coord3D, Map<Integer, Double>> sumStats;
 	
 	/** Map of the coord to a shape. */
-	private Map<Coord3D, ROIShape> shapeMap;
+	//private Map<Coord3D, ROIShape> shapeMap;
 	
 	/** The current coord of the ROI being depicted in the slider. */
 	Coord3D coord;
@@ -270,16 +269,17 @@ class IntensityResultsView
 				UIUtilities.formatToolTipText(ADD_DESCRIPTION));
 		addButton.setActionCommand(""+ADD);
 		addButton.addActionListener(this);
-		addAllButton = new JButton(ADDALL_NAME);
+		addAllButton = new JButton(ADD_ALL_NAME);
 		addAllButton.setToolTipText(
-				UIUtilities.formatToolTipText(ADDALL_DESCRIPTION));
-		addAllButton.setActionCommand(""+ADDALL);
+				UIUtilities.formatToolTipText(ADD_ALL_DESCRIPTION));
+		addAllButton.setActionCommand(""+ADD_ALL);
 		addAllButton.addActionListener(this);
 		removeAllButton = new JButton(REMOVE_ALL_NAME);
 		removeAllButton.setToolTipText(
 				UIUtilities.formatToolTipText(REMOVE_ALL_DESCRIPTION));
 		removeAllButton.setActionCommand(""+REMOVE_ALL);
 		removeAllButton.addActionListener(this);
+		onFigureSelected();
 	}
 	
 	/**
@@ -307,6 +307,14 @@ class IntensityResultsView
 		resultsModel.addColumn("Mean");
 		resultsModel.addColumn("stdDev");
 		results = new JTable(resultsModel);
+		results.getSelectionModel().addListSelectionListener(
+				new ListSelectionListener() {
+			
+			public void valueChanged(ListSelectionEvent e) {
+				onFigureSelected();
+				
+			}
+		});
 		JPanel centrePanel = new JPanel();
 		centrePanel.setLayout(new BorderLayout());
 		JScrollPane scrollPane = new JScrollPane(results);
@@ -437,6 +445,7 @@ class IntensityResultsView
 		for (int i = rows.length-1 ; i >= 0 ; i--)
 			resultsModel.removeRow(rows[i]);
 		setButtonsEnabled(results.getRowCount() >0);
+		onFigureSelected();
 	}
 	
 	/** Removes the results from the table. */
@@ -445,7 +454,8 @@ class IntensityResultsView
 		int count = results.getRowCount();
 		for (int i = count-1 ; i >= 0 ; i--)
 			resultsModel.removeRow(i);
-		setButtonsEnabled(results.getRowCount() >0);
+		setButtonsEnabled(false);
+		onFigureSelected();
 	}
 	
 	/**
@@ -455,8 +465,10 @@ class IntensityResultsView
 	 */
 	private boolean validFigures(Set<Figure> selectedFigures)
 	{
-		for(Figure figure : selectedFigures)
-			if(figure instanceof MeasureTextFigure)
+		if (selectedFigures == null || selectedFigures.size() == 0)
+			return false;
+		for (Figure figure : selectedFigures)
+			if (figure instanceof MeasureTextFigure)
 				return false;
 		return true;
 	}
@@ -466,8 +478,9 @@ class IntensityResultsView
 	 */
 	private void addResults()
 	{
-		Set<Figure> selectedFigures = view.getDrawingView().getSelectedFigures();
-		if(!validFigures(selectedFigures))
+		Set<Figure> selectedFigures = 
+			view.getDrawingView().getSelectedFigures();
+		if (!validFigures(selectedFigures))
 				return;
 		if (selectedFigures.size() == 0 || state == State.ANALYSING) return;
 		state = State.ANALYSING;
@@ -477,13 +490,10 @@ class IntensityResultsView
 		while (iterator.hasNext())
 		{
 			fig = (ROIFigure) iterator.next();
-			if (fig instanceof MeasureTextFigure)
-				continue;
 			shapeList.add(fig.getROIShape());
 		}
 		view.calculateStats(shapeList);
 		state = State.READY;
-		setButtonsEnabled(true);
 	}
 	
 	/**
@@ -491,34 +501,36 @@ class IntensityResultsView
 	 */
 	private void addAllResults()
 	{
-		Set<Figure> selectedFigures = view.getDrawingView().getSelectedFigures();
-		if(!validFigures(selectedFigures))
-				return;
+		Set<Figure> selectedFigures = 
+			view.getDrawingView().getSelectedFigures();
 		if (selectedFigures.size() == 0 || state == State.ANALYSING) return;
+		//if (selectedFigures.size() != 1)
+			//return;
 		state = State.ANALYSING;
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();
-		if(selectedFigures.size() != 1)
-			return;
-		Iterator<Figure> iterator =  selectedFigures.iterator();
+		
+		Iterator<Figure> i =  selectedFigures.iterator();
 		ROIFigure fig;
-		fig = (ROIFigure) iterator.next();
-		if (fig instanceof MeasureTextFigure)
-			return;
-		TreeMap<Coord3D, ROIShape> shapeMap = fig.getROI().getShapes();
-		Iterator<Coord3D> shapeCoordIterator = shapeMap.keySet().iterator();
-		while(shapeCoordIterator.hasNext())
-		{
-			ROIShape shape = shapeMap.get(shapeCoordIterator.next());
-			shapeList.add(shape);		
+		TreeMap<Coord3D, ROIShape> shapeMap;
+		Iterator<Coord3D> j;
+		ROIShape shape;
+		while (i.hasNext()) {
+			fig = (ROIFigure) i.next();
+			if (!(fig instanceof MeasureTextFigure)) {
+				shapeMap = fig.getROI().getShapes();
+				j = shapeMap.keySet().iterator();
+				while (j.hasNext()) {
+					shape = shapeMap.get(j.next());
+					shapeList.add(shape);		
+				}
+			}
 		}
-		if(shapeList.size()==0)
+		if (shapeList.size() == 0)
 			return;
 		view.calculateStats(shapeList);
 		state = State.READY;
-		setButtonsEnabled(true);
 	}
-	
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -562,10 +574,9 @@ class IntensityResultsView
 	 */
 	void displayAnalysisResults()
 	{
-		this.ROIStats = model.getAnalysisResults();
-		if (ROIStats == null || ROIStats.size() == 0) return;
+		Map roistats = model.getAnalysisResults();
+		if (roistats == null || roistats.size() == 0) return;
 		
-		shapeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
 		minStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
 		maxStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
 		meanStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
@@ -573,7 +584,7 @@ class IntensityResultsView
 		stdDevStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
 		
 		Entry entry;
-		Iterator j  = ROIStats.entrySet().iterator();
+		Iterator j  = roistats.entrySet().iterator();
 		channelName = new TreeMap<Integer, String>();
 		nameMap = new HashMap<String, Integer>();
 		Map<StatsType, Map> shapeStats;
@@ -582,20 +593,19 @@ class IntensityResultsView
 		int channel;
 		List<ChannelData> metadata = model.getMetadata();
 		Iterator<ChannelData> i;
-		
-		
-		
 		while (j.hasNext())
 		{
 			entry = (Entry) j.next();
 			shape = (ROIShape) entry.getKey();
-			shapeMap.put(shape.getCoord3D(), shape);
+			c3D = shape.getCoord3D();
+			
+			//shapeMap.put(c3D, shape);
 			if (shape.getFigure() instanceof MeasureTextFigure)
 			{
 				state = State.READY;
 				return;
 			}
-			c3D = shape.getCoord3D();
+			
 			shapeStats = AnalysisStatsWrapper.convertStats(
 					(Map) entry.getValue());
 				
@@ -630,17 +640,32 @@ class IntensityResultsView
 			}
 		
 			coord = c3D;
-		}
-		Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
-		while(shapeIterator.hasNext())
-		{
-			ROIShape shape = shapeMap.get(shapeIterator.next());
 			getResults(shape);
 		}
-
 		state = State.READY;
+		setButtonsEnabled(true);
+		onFigureSelected();
 	}
 
+	/** Invokes when figures are selected. */
+	void onFigureSelected()
+	{
+		Set<Figure> selectedFigures = 
+			view.getDrawingView().getSelectedFigures();
+		boolean valid = validFigures(selectedFigures);
+		addButton.setEnabled(valid);
+		addAllButton.setEnabled(valid);// && selectedFigures.size() == 1);
+		if (results != null) {
+			int count = results.getRowCount();
+			int[] rows = results.getSelectedRows();
+			removeButton.setEnabled(rows != null && rows.length > 0);
+			removeAllButton.setEnabled(count > 0);
+		} else {
+			removeButton.setEnabled(false);
+			removeAllButton.setEnabled(false);
+		}
+	}
+	
 	/**
 	 * Listens to the controls.
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -653,7 +678,7 @@ class IntensityResultsView
 			case ADD:
 				addResults();
 				break;
-			case ADDALL:
+			case ADD_ALL:
 				addAllResults();
 				break;
 			case SAVE:
