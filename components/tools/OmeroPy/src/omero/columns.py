@@ -288,6 +288,16 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
         masks = self._getmasks(tbl)
         if rowNumbers is None or len(rowNumbers) == 0:
             rowNumbers = range(masks.nrows)
+        self.getbytes(masks, rowNumbers)
+
+    def read(self, tbl, start, stop):
+        self.__sanitycheck()
+        AbstractColumn.read(self, tbl, start, stop) # calls fromrows
+        masks = self._getmasks(tbl)
+        rowNumbers = range(start, stop)
+        self.getbytes(masks, rowNumbers)
+
+    def getbytes(self, masks, rowNumbers):
         self.bytes = []
         for idx in rowNumbers:
             self.bytes.append(masks[idx].tolist())
