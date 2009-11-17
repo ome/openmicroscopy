@@ -253,72 +253,73 @@ public class OverlayMetadataStore implements MetadataStore {
 	 * @return The number of rows saved.
 	 */
 	private long saveIfNecessary(boolean force) {
-		long saved = 0;
-		if (currentIndex != 0
-			&& (currentIndex == DEFAULT_BUFFER_SIZE || force == true))
+		if (currentIndex == null || currentIndex == 0
+			|| (currentIndex != DEFAULT_BUFFER_SIZE && force == false))
 		{
-			try
+			return 0;
+		}
+		long saved = 0;
+		try
+		{
+			MaskColumn maskColumn = (MaskColumn) columns[MASK_COLUMN];
+			ImageColumn imageColumn = (ImageColumn) columns[IMAGE_COLUMN];
+			LongColumn colorColumn = (LongColumn) columns[COLOR_COLUMN];
+			if (currentIndex != DEFAULT_BUFFER_SIZE)
 			{
-				MaskColumn maskColumn = (MaskColumn) columns[MASK_COLUMN];
-				ImageColumn imageColumn = (ImageColumn) columns[IMAGE_COLUMN];
-				LongColumn colorColumn = (LongColumn) columns[COLOR_COLUMN];
-				if (currentIndex != DEFAULT_BUFFER_SIZE)
+				int size = currentIndex + 1;
+				Column[] newColumns = createColumns(currentIndex + 1);
+
+				// Copy values for the Mask column
+				MaskColumn c = (MaskColumn) newColumns[MASK_COLUMN];
+				System.arraycopy(maskColumn.imageId, 0, c.imageId, 0, size);
+				System.arraycopy(maskColumn.theZ, 0, c.theZ, 0, size);
+				System.arraycopy(maskColumn.theT, 0, c.theT, 0, size);
+				System.arraycopy(maskColumn.x, 0, c.x, 0, size);
+				System.arraycopy(maskColumn.y, 0, c.y, 0, size);
+				System.arraycopy(maskColumn.w, 0, c.w, 0, size);
+				System.arraycopy(maskColumn.h, 0, c.h, 0, size);
+				for (int i = 0; i < size; i++)
 				{
-					int size = currentIndex + 1;
-					Column[] newColumns = createColumns(currentIndex + 1);
-					
-					// Copy values for the Mask column
-					MaskColumn c = (MaskColumn) newColumns[MASK_COLUMN];
-					System.arraycopy(maskColumn.imageId, 0, c.imageId, 0, size);
-					System.arraycopy(maskColumn.theZ, 0, c.theZ, 0, size);
-					System.arraycopy(maskColumn.theT, 0, c.theT, 0, size);
-					System.arraycopy(maskColumn.x, 0, c.x, 0, size);
-					System.arraycopy(maskColumn.y, 0, c.y, 0, size);
-					System.arraycopy(maskColumn.w, 0, c.w, 0, size);
-					System.arraycopy(maskColumn.h, 0, c.h, 0, size);
-					for (int i = 0; i < size; i++)
-					{
-						c.bytes[i] = maskColumn.bytes[i];
-					}
-					// Copy values for the Image column
-					ImageColumn c2 = (ImageColumn) newColumns[IMAGE_COLUMN];
-					System.arraycopy(imageColumn.values, 0, c2.values, 0, size);
-					// Copy values for the Color column
-					LongColumn c3 = (LongColumn) newColumns[COLOR_COLUMN];
-					System.arraycopy(colorColumn.values, 0, c3.values, 0, size);
-					// Update our references
-					columns = newColumns;
-					maskColumn = (MaskColumn) columns[MASK_COLUMN];
-					imageColumn = (ImageColumn) columns[IMAGE_COLUMN];
-					colorColumn = (LongColumn) columns[COLOR_COLUMN];
+					c.bytes[i] = maskColumn.bytes[i];
 				}
-				for (int i = 0; i < maskColumn.imageId.length; i++)
-				{
-					log.debug(String.format(
-							"[%d] image:%d color:%d i:%d z:%d t:%d x:%f y:%f w:%f h:%f mask:%d",
-							i,
-							imageColumn.values[i],
-							colorColumn.values[i],
-							maskColumn.imageId[i],
-							maskColumn.theZ[i],
-							maskColumn.theT[i],
-							maskColumn.x[i],
-							maskColumn.y[i],
-							maskColumn.w[i],
-							maskColumn.h[i],
-							maskColumn.bytes[i] == null? -1 : maskColumn.bytes[i].length));
-				}
-				saveAndUpdateROI();
-				table.addData(columns);
-				saved = maskColumn.imageId.length;
-				log.debug("Saved " + saved + " masks.");
-				columns = createColumns(DEFAULT_BUFFER_SIZE);
-				currentIndex = 0;
+				// Copy values for the Image column
+				ImageColumn c2 = (ImageColumn) newColumns[IMAGE_COLUMN];
+				System.arraycopy(imageColumn.values, 0, c2.values, 0, size);
+				// Copy values for the Color column
+				LongColumn c3 = (LongColumn) newColumns[COLOR_COLUMN];
+				System.arraycopy(colorColumn.values, 0, c3.values, 0, size);
+				// Update our references
+				columns = newColumns;
+				maskColumn = (MaskColumn) columns[MASK_COLUMN];
+				imageColumn = (ImageColumn) columns[IMAGE_COLUMN];
+				colorColumn = (LongColumn) columns[COLOR_COLUMN];
 			}
-			catch (Throwable t)
+			for (int i = 0; i < maskColumn.imageId.length; i++)
 			{
-				throw new RuntimeException(t);
+				log.debug(String.format(
+						"[%d] image:%d color:%d i:%d z:%d t:%d x:%f y:%f w:%f h:%f mask:%d",
+						i,
+						imageColumn.values[i],
+						colorColumn.values[i],
+						maskColumn.imageId[i],
+						maskColumn.theZ[i],
+						maskColumn.theT[i],
+						maskColumn.x[i],
+						maskColumn.y[i],
+						maskColumn.w[i],
+						maskColumn.h[i],
+						maskColumn.bytes[i] == null? -1 : maskColumn.bytes[i].length));
 			}
+			saveAndUpdateROI();
+			table.addData(columns);
+			saved = maskColumn.imageId.length;
+			log.debug("Saved " + saved + " masks.");
+			columns = createColumns(DEFAULT_BUFFER_SIZE);
+			currentIndex = 0;
+		}
+		catch (Throwable t)
+		{
+			throw new RuntimeException(t);
 		}
 		return saved;
 	}
