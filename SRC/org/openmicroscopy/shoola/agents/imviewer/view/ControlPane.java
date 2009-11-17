@@ -1276,11 +1276,14 @@ class ControlPane
         //projection stuff
         if (projectionTypesBox != null) projectionTypesBox.setEnabled(b);
     	if (projectionFrequency != null) projectionFrequency.setEnabled(b);
-    	if (overlays != null) overlays.setEnabled(b);
-    	if (overlayButtons != null) {
-    		i = overlayButtons.iterator();
-    		while (i.hasNext())
-    			((ChannelButton) i.next()).setEnabled(b);
+    	if (b) onColorModelChanged();
+    	else {
+    		if (overlays != null) overlays.setEnabled(false);
+        	if (overlayButtons != null) {
+        		i = overlayButtons.iterator();
+        		while (i.hasNext())
+        			((ChannelButton) i.next()).setEnabled(false);
+        	}
     	}
     }
     
@@ -1613,12 +1616,26 @@ class ControlPane
 	}
 	
 	/** Removes the overlays. */
-	void removeOverlays() 
+	void onColorModelChanged() 
 	{
-		if (overlays == null) return;
-		overlays.removeActionListener(overlaysListener);
-		overlays.setSelected(false);
-		overlays.addActionListener(overlaysListener);
+		String colorModel = model.getColorModel();
+		if (ImViewer.GREY_SCALE_MODEL.equals(colorModel)) {
+			if (overlays == null) return;
+			overlays.removeActionListener(overlaysListener);
+			overlays.setSelected(false);
+			overlays.addActionListener(overlaysListener);
+			overlays.setEnabled(false);
+			Iterator<ChannelButton> i = overlayButtons.iterator();
+			while (i.hasNext()) 
+				 i.next().setEnabled(false);
+		} else {
+			boolean ready = model.getState() == ImViewer.READY;
+			if (overlays == null) return;
+			overlays.setEnabled(ready);
+			Iterator<ChannelButton> i = overlayButtons.iterator();
+			while (i.hasNext()) 
+				 i.next().setEnabled(ready);
+		}
 	}
 	
 	/** Builds the overlays. */
@@ -1699,6 +1716,14 @@ class ControlPane
 			}
 		}
 	}
+	
+	/**
+	 * Returns <code>true</code> if the overlays are turned on,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isOverlayActive() { return overlays.isSelected(); }
 	
     /**
      * Reacts to the selection of an item in the projection box
