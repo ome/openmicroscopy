@@ -86,51 +86,6 @@ class WebControl(BaseControl):
           "host": "localhost",
           "port": 4063
       }
-  },
-  {
-      "pk": 1,
-      "model": "feedback.emailtemplate",
-      "fields": {
-          "content_html": "%%s",
-          "template": "error_message",
-          "content_txt": "%%s"
-      }
-  },
-  {
-    "pk": 2,
-    "model": "feedback.emailtemplate",
-    "fields": {
-      "content_html": "<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href='%%swebclient/share/view/%%i/?server=%%i'>%%swebclient/share/view/%%i/?server=%%i</a>.</p><p>-- %%s</p>",
-      "template": "create_share",
-      "content_txt": "Hi, I would like to share some of my data with you. Please find it on the %%swebclient/share/view/%%i/?server=%%i. /n -- %%s"
-    }
-  },
-  {
-    "pk": 3,
-    "model": "feedback.emailtemplate",
-    "fields": {
-      "content_html": "<p>Hi,</p><p>I would like to share some of my data with you.<br/>Please find it on the <a href='%%swebclient/share/view/%%i/?server=%%i'>%%swebclient/share/view/%%i/?server=%%i</a>.</p><p>-- %%s</p>",
-      "template": "add_member_to_share",
-      "content_txt": "Hi, I would like to share some of my data with you. Please find it on the %%swebclient/share/view/%%i/?server=%%i. /n -- %%s"
-    }
-  },
-  {
-    "pk": 4,
-    "model": "feedback.emailtemplate",
-    "fields": {
-      "content_html": "<p>You were removed from the share <a href='%%swebclient/share/view/%%i/?server=%%i'>%%swebclient/share/view/%%i/?server=%%i</a>. This share is no longer available for you.</p>",
-      "template": "remove_member_from_share",
-      "content_txt": "You were removed from the share %%swebclient/share/view/%%i/?server=%%i. This share is no longer available for you."
-    }
-  },
-  {
-    "pk": 5,
-    "model": "feedback.emailtemplate",
-    "fields": {
-      "content_html": "<p>New comment is available on share <a href='%%swebclient/share/view/%%i/?server=%%i'>%%swebclient/share/view/%%i/?server=%%i</a>.</p>",
-      "template": "add_comment_to_share",
-      "content_txt": "New comment is available on share %%swebclient/share/view/%%i/?server=%%i."
-    }
   }
 ]""" % (username, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), passwd, email, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
         finally:
@@ -316,6 +271,7 @@ APPLICATION_HOST='%s'
         if not os.path.isfile(os.path.join(omero_web, 'initial_data.json')):
             self.ctx.out("initial_data.json does not exist. Please run bin/omero web initial")
             sys.exit()
+                
 
         args = ["python", "manage.py", "syncdb", "--noinput"]
         rv = self.ctx.call(args, cwd = omero_web)

@@ -115,10 +115,10 @@ class Arguments:
         elif isinstance(args, str):
             self.args = self.shlex(args)
             self.make_argmap()
-        elif isinstance(args, list) or isinstance(args, tuple):
+        elif isinstance(args, list):
             for l in args:
                 assert (isinstance(l, str) or isinstance(l, unicode))
-            self.args = list(args)
+            self.args = args
             self.make_argmap()
         else:
             raise exceptions.Exception("Unknown argument: %s" % args)
@@ -831,7 +831,10 @@ class CLI(cmd.Cmd, Context):
         if pypath is None:
             pypath = home
         else:
-            pypath = "%s%s%s" % (pypath, os.path.pathsep, home)
+            if pypath.endswith(":"):
+                pypath = "%s%s" % (pypath, home)
+            else:
+                pypath = "%s%s%s" % (pypath, os.path.pathsep, home)
         env["PYTHONPATH"] = pypath
         return env
 
