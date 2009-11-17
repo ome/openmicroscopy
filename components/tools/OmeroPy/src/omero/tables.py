@@ -361,9 +361,12 @@ class HdfStorage(object):
         self.__initcheck()
         self.__sizecheck(colNumbers, None)
         cols = self.cols(None, current)
-        for col in cols:
+        rv   = []
+        for i in colNumbers:
+            col = cols[i]
             col.read(self.__mea, start, stop)
-        return self._as_data(cols, [])
+            rv.append(col)
+        return self._as_data(rv, [])
 
     @stamped
     def slice(self, stamp, colNumbers, rowNumbers, current):
@@ -371,13 +374,11 @@ class HdfStorage(object):
         self.__sizecheck(colNumbers, rowNumbers)
         cols = self.cols(None, current)
         rv   = []
-        for i in range(len(cols)):
-            if colNumbers is None or len(colNumbers) == 0 or i in colNumbers:
-                col = cols[i]
-                col.readCoordinates(self.__mea, rowNumbers)
-                rv.append(col)
+        for i in colNumbers:
+            col = cols[i]
+            col.readCoordinates(self.__mea, rowNumbers)
+            rv.append(col)
         return self._as_data(rv, rowNumbers)
-
     #
     # Lifecycle methods
     #
