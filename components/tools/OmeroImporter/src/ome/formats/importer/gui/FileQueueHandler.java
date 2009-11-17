@@ -194,7 +194,6 @@ public class FileQueueHandler
             {
                 String fileStr = file.toString();
                 String fileExt = fileStr.substring(fileStr.lastIndexOf('.')+1, fileStr.length());
-                System.err.println(fileExt);
                 if (fileExt.equals("flex".toLowerCase()) 
                         || fileExt.equals("xdce".toLowerCase())
                         || fileExt.equals("mea".toLowerCase())
