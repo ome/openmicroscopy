@@ -289,7 +289,7 @@ public interface Editor
 	public void loadExistingAttachments();
 
 	/** 
-	 * Downloads the archived images. 
+	 * Downloads the archived files 
 	 * 
 	 * @param folder The folder to save the file into.
 	 */

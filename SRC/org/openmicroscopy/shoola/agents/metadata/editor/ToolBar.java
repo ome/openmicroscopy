@@ -36,7 +36,6 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
-import javax.swing.SwingUtilities;
 
 
 //Third-party libraries
@@ -45,8 +44,8 @@ import org.jdesktop.swingx.JXBusyLabel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.WellSampleData;
 
@@ -242,8 +241,10 @@ class ToolBar
     /** Enables the various controls. */
     void setControls()
     { 
-    	
-    	downloadButton.setEnabled(model.isArchived()); 
+    	if (model.getRefObject() instanceof FileAnnotationData) {
+    		downloadButton.setEnabled(true); 
+    	} else 
+    		downloadButton.setEnabled(model.isArchived()); 
     }
     
     /**
@@ -271,17 +272,20 @@ class ToolBar
     void buildUI()
     {
     	Object refObject = model.getRefObject();
+    	rndButton.setEnabled(false);
+		downloadButton.setEnabled(false);
     	if ((refObject instanceof ImageData) || 
     			(refObject instanceof WellSampleData)) {
     		rndButton.setEnabled(!model.isRendererLoaded());
     		
     		if (model.isNumerousChannel())
     			rndButton.setEnabled(false);
-    		if (model.isMultiSelection() && refObject instanceof ImageData) 
+    		if (refObject instanceof ImageData) {
     			downloadButton.setEnabled(model.isArchived());
-    	} else {
-    		rndButton.setEnabled(false);
-    		downloadButton.setEnabled(false);
+    		}
+    			
+    	} else if (refObject instanceof FileAnnotationData) {
+    		downloadButton.setEnabled(true);
     	}
     	revalidate();
     	repaint();

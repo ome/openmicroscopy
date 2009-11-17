@@ -315,7 +315,11 @@ class GLImageCanvas
 	public void init(GLAutoDrawable drawable)
 	{
 		GL gl = drawable.getGL();
-		gl.glClearColor(0, 0, 0, 0);
+		Color c = getBackground();
+		if (c == null) c = Color.LIGHT_GRAY;
+		float[] array = new float[4];
+		array = c.getRGBColorComponents(array);
+		gl.glClearColor(array[0], array[1], array[2], array[3]);
 		gl.glEnable(GL.GL_DEPTH_TEST);
 		gl.glMatrixMode(GL.GL_PROJECTION);
 		gl.glLoadIdentity();

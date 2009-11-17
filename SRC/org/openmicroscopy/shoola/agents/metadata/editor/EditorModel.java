@@ -44,7 +44,10 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
+
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
@@ -53,6 +56,7 @@ import org.openmicroscopy.shoola.agents.metadata.DiskSpaceLoader;
 import org.openmicroscopy.shoola.agents.metadata.EditorLoader;
 import org.openmicroscopy.shoola.agents.metadata.EnumerationLoader;
 import org.openmicroscopy.shoola.agents.metadata.FileLoader;
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.InstrumentDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.OriginalFileLoader;
@@ -68,11 +72,13 @@ import org.openmicroscopy.shoola.agents.metadata.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
@@ -189,6 +195,75 @@ class EditorModel
 	
 	/** Collection of annotations to unlink and delete. */
 	private List<AnnotationData>		toDelete;
+	
+	/**
+	 * Downloads the files.
+	 * 
+	 * @param folder The folder to save the file into.
+	 */
+	private void downloadFiles(File folder)
+	{
+		UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
+		FileAnnotationData fa = (FileAnnotationData) getRefObject();
+		OriginalFile f = (OriginalFile) fa.getContent();
+		IconManager icons = IconManager.getInstance();
+		
+		DownloadActivityParam activity = new DownloadActivityParam(f,
+				folder, icons.getIcon(IconManager.DOWNLOAD_22));
+		un.notifyActivity(activity);
+		
+		Collection l = parent.getRelatedNodes();
+		if (l == null) return;
+		Iterator i = l.iterator();
+		Object o;
+		while (i.hasNext()) {
+			o = i.next();
+			if (o instanceof FileAnnotationData) {
+				fa = (FileAnnotationData) o;
+				f = (OriginalFile) fa.getContent();
+				activity = new DownloadActivityParam(f,
+						folder, icons.getIcon(IconManager.DOWNLOAD_22));
+				un.notifyActivity(activity);
+			}
+		}
+	}
+	
+	/** 
+	 * Downloads the archived images. 
+	 * 
+	 * @param folder The folder to save the file into.
+	 */
+	private void downloadImages(File folder)
+	{
+		Set<Long> ids = new HashSet<Long>();
+		Collection l = parent.getRelatedNodes();
+		ImageData img;
+		PixelsData data;
+		if (l != null) {
+			Iterator i = l.iterator();
+			Object o;
+			while (i.hasNext()) {
+				o = (Object) i.next();
+				if (o instanceof ImageData) {
+					img = (ImageData) o;
+					if (img.isArchived()) {
+						data = img.getDefaultPixels();
+						ids.add(data.getId());
+					}
+				}
+			}
+		}
+		img = (ImageData) getRefObject();
+		if (img.isArchived()) {
+			data = img.getDefaultPixels();
+			ids.add(data.getId());
+		}
+		
+		OriginalFileLoader loader = new OriginalFileLoader(component, ids, 
+				folder);
+		loader.load();
+		loaders.add(loader);
+	}
 	
     /** 
      * Sorts the passed collection of annotations by date starting with the
@@ -1371,35 +1446,11 @@ class EditorModel
 	void download(File folder)
 	{
 		Object ref = getRefObject();
-		if (!(ref instanceof ImageData)) return;
-		Set<Long> ids = new HashSet<Long>();
-		Collection l = parent.getRelatedNodes();
-		ImageData img;
-		PixelsData data;
-		if (l != null) {
-			Iterator i = l.iterator();
-			Object o;
-			while (i.hasNext()) {
-				o = (Object) i.next();
-				if (o instanceof ImageData) {
-					img = (ImageData) o;
-					if (img.isArchived()) {
-						data = img.getDefaultPixels();
-						ids.add(data.getId());
-					}
-				}
-			}
+		if (refObject instanceof ImageData) {
+			downloadImages(folder);
+		} else if (refObject instanceof FileAnnotationData) {
+			downloadFiles(folder);
 		}
-		img = (ImageData) ref;
-		if (img.isArchived()) {
-			data = img.getDefaultPixels();
-			ids.add(data.getId());
-		}
-		
-		OriginalFileLoader loader = new OriginalFileLoader(component, ids, 
-				folder);
-		loader.load();
-		loaders.add(loader);
 	}
 
 	/** Starts an asynchronous call to retrieve disk space information. */

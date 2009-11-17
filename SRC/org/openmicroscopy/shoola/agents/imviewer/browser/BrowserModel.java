@@ -322,6 +322,7 @@ class BrowserModel
     /** Creates the images composing the grid. */
     private void createGridImages()
     {
+    	if (combinedImage == null) return;
     	if (originalGridImages == null)
     		originalGridImages = new ArrayList<BufferedImage>();
     	gridImages.clear();
