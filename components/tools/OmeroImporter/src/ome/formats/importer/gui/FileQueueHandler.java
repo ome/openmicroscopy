@@ -423,6 +423,7 @@ public class FileQueueHandler
                     if (candidates != null)
                     {
                         ImportLibrary library = new ImportLibrary(store(), importReader);
+                        library.addObserver(new LoggingImportMonitor());
 
                         if (store() != null) {
                             ImportHandler importHandler = new ImportHandler(importEx, viewer, qTable, config, library, candidates);

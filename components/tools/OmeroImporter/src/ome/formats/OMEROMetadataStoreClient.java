@@ -2811,6 +2811,7 @@ public class OMEROMetadataStoreClient
             
             if (log.isDebugEnabled())
             {
+            	log.debug("Starting containers....");
                 for (LSID key : containerCache.keySet())
                 {
                     String s = String.format("%s == %s,%s", 
@@ -2818,12 +2819,8 @@ public class OMEROMetadataStoreClient
                             containerCache.get(key).LSID);
                     log.debug(s);
                 }
-            }
-            
-            log.debug("Starting references....");
 
-            if (log.isDebugEnabled())
-            {
+                log.debug("Starting references....");
                 for (String key : referenceStringCache.keySet())
                 {
                 	for (String value : referenceStringCache.get(key))
@@ -2850,7 +2847,7 @@ public class OMEROMetadataStoreClient
                 for (Pixels pixels : pixelsList)
                 {
                     pixelsId = pixels.getId().getValue();
-                    log.debug("Saving pixels id: "  + pixelsId);
+                    log.debug("Saved Pixels with ID: "  + pixelsId);
                 }
             }
             return pixelsList;

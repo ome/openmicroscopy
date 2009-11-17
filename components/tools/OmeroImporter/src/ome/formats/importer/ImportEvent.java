@@ -238,12 +238,22 @@ public class ImportEvent {
                 Integer total) {
             super(shortName, index, numDone, total);
         }
+        
+        @Override
+        public String toLog() {
+            return String.format("%s: %s", super.toLog(), shortName);
+        }
     }
 
     public static class LOADED_IMAGE extends COUNT_EVENT {
         public LOADED_IMAGE(String shortName, Integer index, Integer numDone,
                 Integer total) {
             super(shortName, index, numDone, total);
+        }
+        
+        @Override
+        public String toLog() {
+            return String.format("%s: %s", super.toLog(), shortName);
         }
     }
 
@@ -253,7 +263,35 @@ public class ImportEvent {
     // possibly
     // be moved closer to the classes using them.
     //
+    
+    public static class BEGIN_POST_PROCESS extends PROGRESS_EVENT {
+        public BEGIN_POST_PROCESS(int index, String filename, IObject target,
+                Long pixId, int series, ImportSize size) {
+            super(index, filename, target, pixId, series, size, null, null);
+        }
+    }
 
+    public static class END_POST_PROCESS extends PROGRESS_EVENT {
+        public END_POST_PROCESS(int index, String filename, IObject target,
+                Long pixId, int series, ImportSize size) {
+            super(index, filename, target, pixId, series, size, null, null);
+        }
+    }
+    
+    public static class BEGIN_SAVE_TO_DB extends PROGRESS_EVENT {
+        public BEGIN_SAVE_TO_DB(int index, String filename, IObject target,
+                Long pixId, int series, ImportSize size) {
+            super(index, filename, target, pixId, series, size, null, null);
+        }
+    }
+
+    public static class END_SAVE_TO_DB extends PROGRESS_EVENT {
+        public END_SAVE_TO_DB(int index, String filename, IObject target,
+                Long pixId, int series, ImportSize size) {
+            super(index, filename, target, pixId, series, size, null, null);
+        }
+    }
+    
     public static class DATASET_STORED extends PROGRESS_EVENT {
         public DATASET_STORED(int index, String filename, IObject target,
                 Long pixId, int series, ImportSize size, Integer numDone, Integer total) {
