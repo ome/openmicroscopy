@@ -1758,7 +1758,7 @@ class RenderingControlProxy
 	{
 		if (tableID < 0) return;
 		try {
-			eraseCache();
+			invalidateCache();
 			if (overlays == null) overlays = new HashMap<Long, Integer>();
 			servant.setOverlays(omero.rtypes.rlong(tableID), 
 					pixs.getImage().getId(), overlays);
