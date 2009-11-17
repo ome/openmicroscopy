@@ -25,6 +25,7 @@
 
 import exceptions
 import tempfile
+import logging
 import time
 import sys
 import csv
@@ -47,6 +48,8 @@ try:
 except ImportError:
         from cElementTree import XML, Element, SubElement, ElementTree, dump, iterparse
 
+log = logging.getLogger("omero.util.populate_roi")
+
 def usage(error):
     """Prints usage so that we don't have to. :)"""
     cmd = sys.argv[0]
@@ -61,6 +64,7 @@ Options:
   -p    OMERO port to use [defaults to 4063]
   -m    Measurement index to populate
   -i    Dump measurement information and exit (no population)
+  -d    Print debug statements
 
 Examples:
   %s -h localhost -p 4063 -u bob 27
@@ -121,7 +125,7 @@ class AbstractPlateAnalysisCtx(object):
                  plate_id, service_factory):
         super(AbstractPlateAnalysisCtx, self).__init__()
         self.images = images
-        self.maxcols, self.maxrows = self.guess_geometry(self.images)
+        self.numcols, self.numrows = self.guess_geometry(self.images)
         self.original_files = original_files
         self.original_file_image_map = original_file_image_map
         self.plate_id = plate_id
@@ -138,7 +142,7 @@ class AbstractPlateAnalysisCtx(object):
             well = ws.well
             max_col = max(max_col, well.column.val)
             max_row = max(max_row, well.row.val)
-        return (max_col, max_row)
+        return (max_col+1, max_row+1)
 
     def colrow_from_wellnumber(self, width, wellnumber):
         x = wellnumber - 1
@@ -147,7 +151,8 @@ class AbstractPlateAnalysisCtx(object):
         return (col,row)
 
     def image_from_wellnumber(self, wellnumber):
-        col, row = self.colrow_from_wellnumber(self.maxcols, wellnumber)
+        col, row = self.colrow_from_wellnumber(self.numcols, wellnumber)
+        log.debug("Finding image for %s (%s,%s)..." % (wellnumber, col, row))
         for image in self.images:
             well = image.copyWellSamples()[0].well
             if well.column.val == col and well.row.val == row:
@@ -403,22 +408,30 @@ class PlateAnalysisCtxFactory(object):
         #  * Well --> WellSample --> Image
         # This is to facilitate later "ordered" access of fields/well
         # samples required by certain measurement contexts (notably InCell).
-        return self.query_service.findAllByQuery(
+        log.debug("Loading image...")
+        images = self.query_service.findAllByQuery(
             'select img from Image as img ' \
             'join fetch img.wellSamples as ws ' \
             'join fetch ws.well as w ' \
-            'join fetch w.wellSamples as w_ws ' \
-            'join fetch w_ws.image ' \
-            'join fetch w.plate as p ' \
+            'join w.plate as p ' \
             'left outer join fetch img.annotationLinks as ia_links ' \
             'left outer join fetch ia_links.child as ia ' \
             'left outer join fetch ia.file as i_o_file ' \
             'left outer join fetch i_o_file.format ' \
+            'where p.id = %d' % plate_id, None)
+        log.debug("Loading plate...")
+        plate = self.query_service.findByQuery(
+            'select p from Plate p ' \
             'left outer join fetch p.annotationLinks as pa_links ' \
             'left outer join fetch pa_links.child as pa ' \
             'left outer join fetch pa.file as p_o_file ' \
             'left outer join fetch p_o_file.format ' \
             'where p.id = %d' % plate_id, None)
+        log.debug("Linking plate and images...")
+        for image in images:
+            for ws in image.copyWellSamples():
+                ws.well.plate = plate
+        return images
 
     def gather_original_files(self, obj, original_files, original_file_obj_map):
         for annotation_link in obj.copyAnnotationLinks():
@@ -1050,7 +1063,7 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
 
 if __name__ == "__main__":
     try:
-        options, args = getopt(sys.argv[1:], "h:p:u:m:k:i")
+        options, args = getopt(sys.argv[1:], "h:p:u:m:k:id")
     except GetoptError, (msg, opt):
         usage(msg)
 
@@ -1066,6 +1079,7 @@ if __name__ == "__main__":
     measurement = None
     info = False
     session_key = None
+    logging_level = logging.WARN
     for option, argument in options:
         if option == "-u":
             username = argument
@@ -1079,6 +1093,8 @@ if __name__ == "__main__":
             info = True
         if option == "-k":
             session_key = argument
+        if option == "-d":
+            logging_level = logging.DEBUG
     if session_key is None and username is None:
         usage("Username must be specified!")
     if session_key is None and hostname is None:
@@ -1086,6 +1102,7 @@ if __name__ == "__main__":
     if session_key is None:
         password = getpass()
     
+    logging.basicConfig(level = logging_level)
     c = client(hostname, port)
     c.enableKeepAlive(60)
     try:
