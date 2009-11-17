@@ -31,7 +31,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.util.HashMap;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -170,6 +169,9 @@ class ToolBar
     /** The connection creation tool. */
     private DrawingConnectionTool		connectionTool;
     
+    /** The button to bring up the assistant. */
+    private JButton						assistantButton;
+   
     /**
      * Sets the property of the toggle button.
      * 
@@ -294,10 +296,10 @@ class ToolBar
 				MeasurementViewerControl.LOAD));
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);
-        button = new JButton(controller.getAction(
+        assistantButton = new JButton(controller.getAction(
         	MeasurementViewerControl.ROI_ASSISTANT));
-        UIUtilities.unifiedButtonLookAndFeel(button);
-    	bar.add(button);
+        UIUtilities.unifiedButtonLookAndFeel(assistantButton);
+    	bar.add(assistantButton);
     	bar.add(new JSeparator());
 		return bar;
 	}
@@ -377,6 +379,13 @@ class ToolBar
 	    	polygonTool.setResetToSelect(option);
 	    if(addPolyline)
 	    	polylineTool.setResetToSelect(option); 
+	}
+	
+	/** Invokes when figures are selected. */
+	void onFigureSelected()
+	{
+		int size = view.getDrawingView().getSelectedFigures().size();
+		assistantButton.getAction().setEnabled(size == 1);
 	}
 	
 	/**

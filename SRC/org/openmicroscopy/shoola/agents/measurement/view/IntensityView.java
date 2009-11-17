@@ -40,6 +40,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 import javax.swing.Box;
@@ -59,6 +60,7 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
@@ -278,14 +280,17 @@ class IntensityView
 		channelSummaryTable = new ChannelSummaryTable(channelSummaryModel);
 	
 		showIntensityTable = new JButton("Intensity Values");
+		showIntensityTable.setEnabled(false);
 		showIntensityTable.addActionListener(this);
 		showIntensityTable.setActionCommand(""+SHOW_TABLE_ACTION);
 		channelSelection = new JComboBox();
+		channelSelection.setEnabled(false);
 		channelSelection.addActionListener(this);
 		channelSelection.setActionCommand(""+CHANNEL_SELECTION);
 		saveButton = new JButton("Export to Excel");
 		saveButton.addActionListener(this);
 		saveButton.setActionCommand(""+SAVE_ACTION);
+		saveButton.setEnabled(false);
 		state = State.READY;
 
 		zSlider = new OneKnobSlider();
@@ -464,6 +469,7 @@ class IntensityView
 				|| selectedChannel < 0)
 			return;
 		channelSelection.setSelectedIndex(selectedChannel);
+		channelSelection.setEnabled(true);
 	}
 	
 	/** 
@@ -1156,9 +1162,27 @@ class IntensityView
 		coord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
 		shape = shapeMap.get(coord);
 		populateData(coord, selectedChannel);	
+		saveButton.setEnabled(tableModel.getRowCount() > 0);
 		state = State.READY;
 	}
 
+	/** Invokes when figures are selected. */
+	void onFigureSelected()
+	{
+		Set<Figure> selectedFigures = 
+			view.getDrawingView().getSelectedFigures();
+		if (selectedFigures == null || selectedFigures.size() == 0) {
+			int row = tableModel.getRowCount();
+			showIntensityTable.setEnabled(row > 0);
+			channelSelection.setEnabled(row > 0);
+		} else {
+			int size = 0;
+			size = channelSelection.getModel().getSize();
+			channelSelection.setEnabled(size > 0);
+			showIntensityTable.setEnabled(size > 0);
+		}
+	}
+	
 	/** 
 	 * Reacts to the controls.
 	 * @see ActionListener#actionPerformed(ActionEvent)

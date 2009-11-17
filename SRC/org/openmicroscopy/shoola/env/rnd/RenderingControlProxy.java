@@ -1838,6 +1838,7 @@ class RenderingControlProxy
 	{
 		if (tableID < 0) return;
 		try {
+			invalidateCache();
 			//servant.setOverlays(omero.rtypes.rlong(tableID), 
 			//		pixs.getImage().getId(), overlays);
 		} catch (Exception e) {

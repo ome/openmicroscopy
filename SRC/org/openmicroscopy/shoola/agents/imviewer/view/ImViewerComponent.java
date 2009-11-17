@@ -651,6 +651,7 @@ class ImViewerComponent
 			default:
 				throw new IllegalArgumentException("Color Model not supported");		
 		}
+		view.onColorModelChanged();
 		//Remove 21/09
 		//firePropertyChange(COLOR_MODEL_CHANGED_PROPERTY, 
 		//		Integer.valueOf(1), Integer.valueOf(-1));
@@ -2953,6 +2954,7 @@ class ImViewerComponent
 						"NEW state.");
 		}
 		view.renderOverlays(index, selected);
+		if (!view.isOverlayActive()) return;
 		Map<Long, Integer> m = null;
 		if (index < 0) {
 			if (selected) m = view.getSelectedOverlays();

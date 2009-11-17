@@ -65,10 +65,7 @@ import org.jhotdraw.draw.FigureSelectionListener;
 import org.openmicroscopy.shoola.agents.measurement.actions.CreateFigureAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.LoadROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
-import org.openmicroscopy.shoola.agents.measurement.actions.RefreshResultsTableAction;
-import org.openmicroscopy.shoola.agents.measurement.actions.ResultsWizardAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.SaveROIAction;
-import org.openmicroscopy.shoola.agents.measurement.actions.SaveResultsAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.ShowROIAssistant;
 import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
@@ -106,15 +103,6 @@ class MeasurementViewerControl
     
     /** Identifies the <code>LOAD</code> action in the menu. */
     static final Integer     LOAD =  Integer.valueOf(1);
-    
-    /** Identifies the <code>SAVE Results</code> action in the menu. */
-    static final Integer     SAVE_RESULTS =  Integer.valueOf(2);
-    
-    /** Identifies the <code>Refresh Results</code> action in the menu. */
-    static final Integer     REFRESH_RESULTS =  Integer.valueOf(3);
-    
-    /** Identifies the <code>Results Wizard</code> action in the menu. */
-    static final Integer     RESULTS_WIZARD =  Integer.valueOf(4);
 
     /** Identifies the <code>ROI Assistant</code> action in the menu. */
     static final Integer     ROI_ASSISTANT =  Integer.valueOf(5);
@@ -160,9 +148,6 @@ class MeasurementViewerControl
     {
     	actionsMap.put(SAVE, new SaveROIAction(model));
     	actionsMap.put(LOAD, new LoadROIAction(model));
-    	actionsMap.put(SAVE_RESULTS, new SaveResultsAction(model));
-    	actionsMap.put(REFRESH_RESULTS, new RefreshResultsTableAction(model));
-    	actionsMap.put(RESULTS_WIZARD, new ResultsWizardAction(model));
     	actionsMap.put(ROI_ASSISTANT, new ShowROIAssistant(model));
     	actionsMap.put(IN_MICRONS, new UnitsAction(model, true));
     	actionsMap.put(IN_PIXELS, new UnitsAction(model, false));

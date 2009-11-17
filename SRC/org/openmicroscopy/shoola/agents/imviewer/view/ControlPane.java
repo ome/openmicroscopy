@@ -261,6 +261,9 @@ class ControlPane
     /** The Box to turn on or off the overlays.*/
     private JCheckBox 				overlays;
 
+    /** The listener attached to the overlays. */
+    private ActionListener			overlaysListener;
+    
     /**
      * Sets the selected plane.
      * 
@@ -1260,11 +1263,14 @@ class ControlPane
         //projection stuff
         if (projectionTypesBox != null) projectionTypesBox.setEnabled(b);
     	if (projectionFrequency != null) projectionFrequency.setEnabled(b);
-    	if (overlays != null) overlays.setEnabled(b);
-    	if (overlayButtons != null) {
-    		i = overlayButtons.iterator();
-    		while (i.hasNext())
-    			((ChannelButton) i.next()).setEnabled(b);
+    	if (b) onColorModelChanged();
+    	else {
+    		if (overlays != null) overlays.setEnabled(false);
+        	if (overlayButtons != null) {
+        		i = overlayButtons.iterator();
+        		while (i.hasNext())
+        			((ChannelButton) i.next()).setEnabled(false);
+        	}
     	}
     }
     
@@ -1573,18 +1579,42 @@ class ControlPane
 		return false;
 	}
 	
+	/** Removes the overlays. */
+	void onColorModelChanged() 
+	{
+		String colorModel = model.getColorModel();
+		if (ImViewer.GREY_SCALE_MODEL.equals(colorModel)) {
+			if (overlays == null) return;
+			overlays.removeActionListener(overlaysListener);
+			overlays.setSelected(false);
+			overlays.addActionListener(overlaysListener);
+			overlays.setEnabled(false);
+			Iterator<ChannelButton> i = overlayButtons.iterator();
+			while (i.hasNext()) 
+				 i.next().setEnabled(false);
+		} else {
+			boolean ready = model.getState() == ImViewer.READY;
+			if (overlays == null) return;
+			overlays.setEnabled(ready);
+			Iterator<ChannelButton> i = overlayButtons.iterator();
+			while (i.hasNext()) 
+				 i.next().setEnabled(ready);
+		}
+	}
+	
 	/** Builds the overlays. */
 	void buildOverlays()
 	{
 		Map m = model.getOverLays();
 		if (m == null || m.size() == 0) return;
 		overlays = new JCheckBox("Overlays");
-		overlays.addChangeListener(new ChangeListener() {
+		overlaysListener = new ActionListener() {
 			
-			public void stateChanged(ChangeEvent e) {
-				controller.renderOverlays(!overlays.isSelected());
+			public void actionPerformed(ActionEvent e) {
+				controller.renderOverlays(overlays.isSelected());
 			}
-		});
+		};
+		overlays.addActionListener(overlaysListener);
 		TableLayout layout = (TableLayout) controls.getLayout();
 		int row = layout.getNumRow()-1;
 		overlayButtons = new ArrayList<ChannelButton>();
@@ -1670,6 +1700,14 @@ class ControlPane
 		}
 		return m;
 	}
+	
+	/**
+	 * Returns <code>true</code> if the overlays are turned on,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isOverlayActive() { return overlays.isSelected(); }
 	
     /**
      * Reacts to the selection of an item in the projection box

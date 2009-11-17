@@ -891,9 +891,10 @@ class ImViewerModel
 	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
-		if (ImViewer.GREY_SCALE_MODEL.equals(colorModel))
+		if (ImViewer.GREY_SCALE_MODEL.equals(colorModel)) {
+			rnd.setOverlays(overlayTableID, null);
 			rnd.setColorModel(colorModel, update);
-		else if (ImViewer.RGB_MODEL.equals(colorModel))
+		} else if (ImViewer.RGB_MODEL.equals(colorModel))
 			rnd.setColorModel(ImViewer.RGB_MODEL, update);
 	}
 

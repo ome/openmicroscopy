@@ -2335,6 +2335,14 @@ class ImViewerUI
 	}
 
 	/**
+	 * Returns <code>true</code> if the overlays are turned on,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isOverlayActive() { return controlPane.isOverlayActive(); }
+	
+	/**
 	 * Returns the selected overlays if displayed otherwise returns 
 	 * <code>null</code>.
 	 * 
@@ -2344,6 +2352,9 @@ class ImViewerUI
 	{
 		return controlPane.getSelectedOverlays();
 	}
+	
+	/** Invokes when the color model changes. */
+	void onColorModelChanged() { controlPane.onColorModelChanged(); }
 	
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
