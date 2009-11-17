@@ -69,7 +69,7 @@ class ServerControl(BaseControl):
         args = Arguments(args)
         sys.stderr.write("Starting django... \n")
         omero_web = self.ctx.dir / "lib" / "python" / "omeroweb"
-        subprocess.call(["python","manage.py","syncdb","--noinput"], cwd=str(omero_web), env = os.environ)
+        # subprocess.call(["python","manage.py","syncdb","--noinput"], cwd=str(omero_web), env = os.environ)
         # Now exec
         os.chdir(str(omero_web))
         django = ["python","manage.py","runserver","--noreload"]+list(args)
