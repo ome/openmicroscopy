@@ -294,6 +294,16 @@ public class FileQueueTable
         doneFiles = true;
         table.fireTableDataChanged();
     }
+
+    public void setProgressSaveToDb(int row)
+    {
+        table.setValueAt("updating db", row, 2);       
+    }
+    
+    public void setProgressOverlays(int row)
+    {
+        table.setValueAt("overlays", row, 2);       
+    }
     
     public void setProgressArchiving(int row)
     {
@@ -637,6 +647,14 @@ public class FileQueueTable
         else if (event instanceof ImportEvent.IMPORT_ARCHIVING) {
             ImportEvent.IMPORT_ARCHIVING ev = (ImportEvent.IMPORT_ARCHIVING) event;
             setProgressArchiving(ev.index);
+        }
+        else if (event instanceof ImportEvent.BEGIN_SAVE_TO_DB) {
+            ImportEvent.BEGIN_SAVE_TO_DB ev = (ImportEvent.BEGIN_SAVE_TO_DB) event;
+        	setProgressSaveToDb(ev.index);
+        }
+        else if (event instanceof ImportEvent.IMPORT_OVERLAYS) {
+            ImportEvent.IMPORT_OVERLAYS ev = (ImportEvent.IMPORT_OVERLAYS) event;
+        	setProgressOverlays(ev.index);
         }
         else if (event instanceof ImportEvent.IMPORT_THUMBNAILING) {
             ImportEvent.IMPORT_THUMBNAILING ev = (ImportEvent.IMPORT_THUMBNAILING) event;

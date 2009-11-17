@@ -195,7 +195,7 @@ public class ImportLibrary implements IObservable
     }
 
     /** opens the file using the {@link FormatReader} instance */
-    protected void open(String fileName) throws IOException, FormatException
+    private void open(String fileName) throws IOException, FormatException
     {
         reader.close();
         reader.setMetadataStore(store);
@@ -210,13 +210,15 @@ public class ImportLibrary implements IObservable
      * Uses the {@link OMEROMetadataStoreClient} to save the current all
      * image metadata provided.
      * 
+     * @param index Index of the file being imported.
      * @param userSpecifiedImageName A user specified image name.
      * @param userSpecifiedImageDescription A user specified description.
      * @return the newly created {@link Pixels} id.
 	 * @throws FormatException if there is an error parsing metadata.
 	 * @throws IOException if there is an error reading the file.
      */
-	protected List<Pixels> importMetadata(
+	private List<Pixels> importMetadata(
+			                            int index,
 	                                    IObject userSpecifiedTarget,
 	                                    String userSpecifiedImageName,
 			                            String userSpecifiedImageDescription,
@@ -225,17 +227,18 @@ public class ImportLibrary implements IObservable
     	throws FormatException, IOException
     {
     	// 1st we post-process the metadata that we've been given.
-    	log.debug("Post-processing metadata.");
-
+    	notifyObservers(new ImportEvent.BEGIN_POST_PROCESS(index, null, userSpecifiedTarget, null, 0, null));
     	store.setUserSpecifiedImageName(userSpecifiedImageName);
     	store.setUserSpecifiedImageDescription(userSpecifiedImageDescription);
     	if (userPixels != null)
     	    store.setUserSpecifiedPhysicalPixelSizes(userPixels[0], userPixels[1], userPixels[2]);
     	store.setUserSpecifiedTarget(userSpecifiedTarget);
         store.postProcess();
+        notifyObservers(new ImportEvent.END_POST_PROCESS(index, null, userSpecifiedTarget, null, 0, null));
         
-        log.debug("Saving pixels to DB.");
+        notifyObservers(new ImportEvent.BEGIN_SAVE_TO_DB(index, null, userSpecifiedTarget, null, 0, null));
         List<Pixels> pixelsList = store.saveToDB();
+        notifyObservers(new ImportEvent.END_SAVE_TO_DB(index, null, userSpecifiedTarget, null, 0, null));
         return pixelsList;
     }
     
@@ -244,7 +247,7 @@ public class ImportLibrary implements IObservable
 	 * @param pixelsList Pixels objects to populate overlays for.
 	 * @param plateIds Plate object IDs to populate overlays for.
 	 */
-	protected void importOverlays(List<Pixels> pixelsList, List<Long> plateIds)
+	private void importOverlays(List<Pixels> pixelsList, List<Long> plateIds)
 		throws ServerError, FormatException, IOException
 	{
 		IFormatReader baseReader = reader.getImageReader().getReader();
@@ -366,7 +369,8 @@ public class ImportLibrary implements IObservable
             	metadataFiles = store.setArchive(archive, useMetadataFile);
             }
             List<Pixels> pixList = 
-            	importMetadata(userSpecifiedTarget,
+            	importMetadata(index,
+            			       userSpecifiedTarget,
             	               userSpecifiedImageName,
             			       userSpecifiedImageDescription,
             			       userPixels);
