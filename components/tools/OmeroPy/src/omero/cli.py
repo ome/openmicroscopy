@@ -115,10 +115,10 @@ class Arguments:
         elif isinstance(args, str):
             self.args = self.shlex(args)
             self.make_argmap()
-        elif isinstance(args, list):
+        elif isinstance(args, list) or isinstance(args, tuple):
             for l in args:
                 assert (isinstance(l, str) or isinstance(l, unicode))
-            self.args = args
+            self.args = list(args)
             self.make_argmap()
         else:
             raise exceptions.Exception("Unknown argument: %s" % args)
