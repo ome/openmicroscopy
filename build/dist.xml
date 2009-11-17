@@ -303,13 +303,21 @@
         <filter token="VM_PARAMETERS" value="${dist.vmparameters}"/>
       </filterset>
     </copy>
+    <copy file="${app.config.dir}/imviewer.xml"
+      tofile="${dist.dir}/opengl-imviewer.xml"/>
+    <replace file="${dist.dir}/opengl-imviewer.xml"
+        token='entry name="/library/opengl" type="boolean"&gt;false&lt;/entry'
+        value='entry name="/library/opengl" type="boolean"&gt;true&lt;/entry'>
+    </replace>
     <exe4j projectfile="${build.dir}/Insight.exe4j"/>
     <property name="dist.zip.prefix.win.openGL"
               value="${dist.bundle.name}-${dist.bundle.version}-win-openGL"/>
     <zip destfile=
            "${dist.dir}/${dist.zip.prefix.win.openGL}.zip">
       <zipfileset prefix="${dist.zip.prefix.win.openGL}/${dist.app.config.dir.name}"
-                  refid="app.config"/>
+                  dir="${base.config.dir}"
+                  includes="**"
+                  excludes="imviewer.xml"/>
       <zipfileset prefix="${dist.zip.prefix.win.openGL}/libs" dir="${app.lib.dir}"
                   includes="*"/>
       <zipfileset prefix="${dist.zip.prefix.win.openGL}"
@@ -320,6 +328,8 @@
                   includes="${dist.jar.file}"/>
       <zipfileset prefix="${dist.zip.prefix.win.openGL}/libs"
                   dir="${base.lib.dir}/win-native" includes="*"/>
+      <zipfileset file="${dist.dir}/opengl-imviewer.xml"
+                  fullpath="${dist.zip.prefix.win.openGL}/${dist.app.config.dir.name}/imviewer.xml"/>
     </zip> 
   </target>
   
@@ -352,12 +362,20 @@
 	        <filter token="VM_PARAMETERS" value="${dist.vmparameters}"/>
 	      </filterset>
 	    </copy>
+      <copy file="${app.config.dir}/imviewer.xml"
+        tofile="${dist.dir}/opengl-imviewer.xml"/>
+      <replace file="${dist.dir}/opengl-imviewer.xml"
+          token='entry name="/library/opengl" type="boolean"&gt;false&lt;/entry'
+          value='entry name="/library/opengl" type="boolean"&gt;true&lt;/entry'>
+      </replace>
 	    <exe4j projectfile="${build.dir}/Insight64.exe4j"/>
 	    <property name="dist.zip.prefix.win64.openGL"
                 value="${dist.bundle.name}-${dist.bundle.version}-win64-openGL"/>
 	    <zip destfile="${dist.dir}/${dist.zip.prefix.win64.openGL}.zip">
 	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}/${dist.app.config.dir.name}"
-	                  refid="app.config"/>
+                    dir="${base.config.dir}"
+                    includes="**"
+                    excludes="imviewer.xml"/>
 	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}/libs" dir="${app.lib.dir}"
 	                  includes="*"/>
 	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}"
@@ -369,6 +387,8 @@
 	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}/libs"
 	                  dir="${base.lib.dir}/win64-native"
 	                  includes="*"/>
+        <zipfileset file="${dist.dir}/opengl-imviewer.xml"
+                    fullpath="${dist.zip.prefix.win64.openGL}/${dist.app.config.dir.name}/imviewer.xml"/>
 	    </zip> 
 	  </target>
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
