@@ -12,7 +12,6 @@
 """
 
 import sys
-import omero.install.perf_test as perf_test
 from omero.cli import Arguments, BaseControl, VERSION
 
 PROG_NAME = "%s perf" % sys.argv[0]
@@ -30,6 +29,7 @@ class PerfControl(BaseControl):
             self.help()
             return
 
+	import omero.install.perf_test as perf_test
         perf_test.main(args.args, prog = PROG_NAME)
 
 try:
