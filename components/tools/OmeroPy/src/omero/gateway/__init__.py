@@ -450,7 +450,7 @@ class _BlitzGateway (object):
                     raise
                 except:
                     logger.info("BlitzGateway.connect().createSession(): " + traceback.format_exc())
-                    #logger.debug(str(self._ic_props))
+                    logger.debug(str(self._ic_props))
                     logger.info('first create session had errors, hold off 10 secs and retry (but only once)')
                     #time.sleep(10)
                     logger.info("(3) calling createSession()")
@@ -1284,7 +1284,7 @@ class BlitzObjectWrapper (object):
         childw = self._getChildWrapper()
         klass = "%sLinks" % childw().OMERO_CLASS.lower()
         #self._cached_countChildren = len(self._conn.getQueryService().findAllByQuery("from %s as c where c.parent.id=%i" % (self.LINK_CLASS, self._oid), None))
-        self._cached_countChildren = self._conn.getContainerService().getCollectionCount(self.OMERO_CLASS, klass, [self._oid])[self._oid]
+        self._cached_countChildren = self._conn.getContainerService().getCollectionCount(self.OMERO_CLASS, klass, [self._oid], None)[self._oid]
         return self._cached_countChildren
 
     def countChildren_cached (self):
