@@ -413,6 +413,7 @@ class PlateAnalysisCtxFactory(object):
             'select img from Image as img ' \
             'join fetch img.wellSamples as ws ' \
             'join fetch ws.well as w ' \
+            'join fetch w.wellSamples as ws2 ' \
             'join w.plate as p ' \
             'left outer join fetch img.annotationLinks as ia_links ' \
             'left outer join fetch ia_links.child as ia ' \
@@ -504,7 +505,44 @@ class AbstractMeasurementCtx(object):
         self.result_files = result_files
 
         # Establish the rest of our initial state
-        self.n_columns = None
+        self.wellimages = dict()
+        for image in self.analysis_ctx.images:
+            for well_sample in image.copyWellSamples():
+                well = well_sample.well
+                idx = well.copyWellSamples().index(well_sample)
+                row = well.row.val
+                column = well.column.val
+                if row not in self.wellimages:
+                    self.wellimages[row] = dict()
+	        if column not in self.wellimages[row]:
+	            self.wellimages[row][column] = []
+                # Now we save the image at it's proper index
+                l = self.wellimages[row][column]
+                for x in range(idx - len(l) + 1):
+                    l.append(None)
+                l[idx] = image
+
+    def get_well_images(self, row, col):
+        """
+        Takes a row and a col index and returns a tuple
+        of Well and image. Either might be None. Uses the
+        first image found to find the Well and therefore
+        must be loaded (image->wellSample->well)
+        """
+        try:
+            images = self.wellimages[row][col]
+            if not images:
+                return (None, None)
+            image = images[0]
+            well = image.copyWellSamples()[0].well
+            return (well, images)
+        except KeyError:
+            # This has the potential to happen alot with the
+            # datasets we have given the split machine acquisition
+            # ".flex" file storage.
+            print "WARNING: Missing data for row %d column %d" % \
+                    (row, col)
+            return (None, None)
 
     def update_table(self, columns):
         """Updates the OmeroTables instance backing our results."""
@@ -811,16 +849,7 @@ class FlexMeasurementCtx(AbstractMeasurementCtx):
         super(FlexMeasurementCtx, self).__init__(
                 analysis_ctx, service_factory, original_file_provider,
                 original_file, result_files)
-        self.wells = dict()
-        for image in self.analysis_ctx.images:
-            for well_sample in image.copyWellSamples():
-                well = well_sample.well
-                row = well.row.val
-                column = well.column.val
-                if row not in self.wells.keys():
-                    self.wells[row] = dict()
-                self.wells[row][column] = well
-    
+
     def get_empty_columns(self, headers):
         """
         Retrieves a set of empty OmeroTables columns for the analysis results
@@ -866,13 +895,12 @@ class FlexMeasurementCtx(AbstractMeasurementCtx):
                 column = int(well.get('col')) - 1
                 try:
                     v = columns['Well'].values
-                    v.append(self.wells[row][column].id.val)
-                except KeyError:
-                    # This has the potential to happen alot with the
-                    # datasets we have given the split machine acquisition
-                    # ".flex" file storage.
-                    print "WARNING: Missing data for row %d column %d" % \
-                            (row, column)
+                    well, images = self.get_well_images(row, column)
+                    if not well:
+                        continue
+                    v.append(well.id.val)
+                except:
+                    log.exception("ERROR: Failed to get well images")
                     continue
                 results = well.findall(self.RESULT_XPATH)
                 for result in results:
@@ -908,15 +936,6 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
         super(InCellMeasurementCtx, self).__init__(
                 analysis_ctx, service_factory, original_file_provider,
                 original_file, result_files)
-        self.wells = dict()
-        for image in self.analysis_ctx.images:
-            for well_sample in image.copyWellSamples():
-                well = well_sample.well
-                row = well.row.val
-                column = well.column.val
-                if row not in self.wells.keys():
-                    self.wells[row] = dict()
-                self.wells[row][column] = well
 
     ###
     ### Abstract method implementations
@@ -954,12 +973,12 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
                     col = int(element.get('col')) - 1
                     i = int(element.get('field')) - 1
                     try:
-                        image = self.wells[row][col].copyWellSamples()[i].image
-                    except KeyError:
-                        # This has the potential to happen alot with the
-                        # datasets we have been given.
-                        print "WARNING: Missing data for row %d column %d" % \
-                                (row, col)
+                        well, images = self.get_well_images(row, col)
+                        if not images:
+                            continue
+                        image = images[i]
+                    except:
+                        log.exception("ERROR: Failed to get well images")
                         continue
                     cells_columns['Cell'].values.append(element.get('cell'))
                     nuclei_columns['Cell'].values.append(element.get('cell'))
