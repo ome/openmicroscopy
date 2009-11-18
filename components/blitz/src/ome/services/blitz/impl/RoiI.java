@@ -385,6 +385,10 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 OriginalFile file = (OriginalFile) qb.query(session)
                         .uniqueResult();
 
+                if (file == null) {
+                    throw new ome.conditions.ApiUsageException("No such file annotation: " + annotationId);
+                }
+
                 try {
                     return factory.sharedResources(__current).openTable(
                             new OriginalFileI(file.getId(), false));
