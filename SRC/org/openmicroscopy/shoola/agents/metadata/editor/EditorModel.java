@@ -219,6 +219,7 @@ class EditorModel
 				f = (OriginalFile) fa.getContent();
 				activity = new DownloadActivityParam(f,
 						folder, icons.getIcon(IconManager.DOWNLOAD_22));
+				activity.setFileName(fa.getFileName());
 				un.notifyActivity(activity);
 			}
 		}

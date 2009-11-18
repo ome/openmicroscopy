@@ -72,6 +72,8 @@ public class DownloadActivity
     	File[] files = directory.listFiles();
     	String dirPath = directory.getAbsolutePath()+File.separator;
     	String value = folder.getName();
+    	if (parameters.getFileName() != null)
+    		value = parameters.getFileName();
     	String extension = null;
     	if (value != null && value.trim().length() > 0) {
     		int lastDot = value.lastIndexOf(".");
