@@ -76,7 +76,7 @@ class ProjectionUI
         layeredPane = new JLayeredPane();
         if (ImViewerAgent.hasOpenGLSupport())
         	canvas = new ProjectionCanvas(model, view);
-        else canvas = new ProjectionBICanvas(model, view);
+        else canvas = new ProjectionBICanvas(model, view, this);
         //The image canvas is always at the bottom of the pile.
         //layeredPane.setLayout(new BorderLayout(0, 0));
         layeredPane.add(canvas, Integer.valueOf(0));

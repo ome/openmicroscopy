@@ -60,6 +60,9 @@ class ProjectionBICanvas
     /** The mouse listener. */
     private MouseAdapter	listener;
     
+    /** Reference to the UI hosting this canvas. */
+    private ProjectionUI	ui;
+    
     /** Does a preview of the projected image. */
     private void projectionPreview()
     {
@@ -79,15 +82,19 @@ class ProjectionBICanvas
 		addMouseListener(listener);
     }
     
-	/**
+    /**
      * Creates a new instance.
      *
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      * @param view  Reference to the View. Mustn't be <code>null</code>.
+     * @param ui  Reference to the View. Mustn't be <code>null</code>.
      */
-	ProjectionBICanvas(BrowserModel model, BrowserUI view)
+	ProjectionBICanvas(BrowserModel model, BrowserUI view, ProjectionUI ui)
 	{
 		super(model, view);
+		if (ui == null)
+			throw new IllegalArgumentException("No UI specified.");
+		this.ui = ui;
 	}
 	
 	/**
@@ -117,7 +124,7 @@ class ProjectionBICanvas
         }
        
         g2D.drawImage(img, null, 0, 0); 
-        paintScaleBar(g2D, img.getWidth(), img.getHeight(), view.getViewport());
+        paintScaleBar(g2D, img.getWidth(), img.getHeight(), ui.getViewport());
         g2D.dispose();
     }
     
