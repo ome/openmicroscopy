@@ -112,6 +112,7 @@ public class ImportConfig {
     public final BoolValue sendReport;
     public final BoolValue sendFiles;
     public final BoolValue sendLogFile;
+    public final BoolValue companionFile;
 
     public final BoolValue useFullPath;
     public final BoolValue savedFileNaming;
@@ -213,6 +214,7 @@ public class ImportConfig {
         contOnError  = new BoolValue("contOnError", this, false);
         sendReport   = new BoolValue("sendFiles", this, false);
         sendFiles    = new BoolValue("sendFiles", this, false);
+        companionFile = new BoolValue("companionFile", this, true);
         sendLogFile  = new BoolValue("sendFiles", this, false);
 
         useFullPath  = new BoolValue("useFullPath", this, true);
@@ -566,6 +568,7 @@ public class ImportConfig {
         overrideImageName.load();
         numOfDirectories.load();
         savedDirectory.load();
+        companionFile.load();
 
         port.load();
     }
@@ -590,6 +593,7 @@ public class ImportConfig {
         overrideImageName.store();
         numOfDirectories.store();
         savedDirectory.store();
+        companionFile.store();
 
         try {
             prefs.flush();
@@ -648,7 +652,9 @@ public class ImportConfig {
          * touch the persistent stores, but only accesses the value in-memory.
          */
         public T get() {
-            return _current.get();
+            if (_current.get() == null)
+                return _default;
+            else return _current.get();
         }
 
         /**

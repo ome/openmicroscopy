@@ -59,11 +59,14 @@ public class ImportHandler implements IObservable {
     private int numOfDone = 0;
     
     final ArrayList<IObserver> observers = new ArrayList<IObserver>();
+
+    private ImportConfig config;
     
     public ImportHandler(final ScheduledExecutorService ex, GuiImporter viewer, FileQueueTable qTable,
             ImportConfig config, ImportLibrary library,
             ImportContainer[] containers) {
 
+        this.config = config;
         this.library = library;
         this.importContainer = containers;
         if (viewer.historyTable != null) {
@@ -182,7 +185,7 @@ public class ImportHandler implements IObservable {
                     library.importImage(importContainer[j].file, j, numOfDone,
                             numOfPendings, importContainer[j]
                                     .getUserSpecifiedName(), null, // Description
-                            container.getArchive(), true, // Metadata file creation
+                            container.getArchive(), config.companionFile.get(), // Metadata file creation
                             // (TODO: Enable in container and UI)
                             container.getUserPixels(), container.getTarget());
                     this.library.clear();

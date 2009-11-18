@@ -188,6 +188,7 @@ public class CommandLineImporter {
                                         + "  --debug[=0|1|2]\tTurn debug logging on (optional level)\n"
                                         + "  --report\tReport errors to the OME team\n"
                                         + "  --upload\tUpload broken files and log file with report\n"
+                                        + "  --companion[=on|off]\tEnable|Disable the metadata companion file\n"                                        
                                         + "  --email=...\tEmail for reported errors\n "
                                         + "\n"
                                         + "usage ex: %s -s localhost -u bart -w simpson -d 50 foo.tiff\n"
@@ -225,13 +226,15 @@ public class CommandLineImporter {
         config.sendReport.set(false);
         config.contOnError.set(false);
         config.debug.set(false);
+        config.companionFile.set(true);
 
         LongOpt debug = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 1);
         LongOpt report = new LongOpt("report", LongOpt.NO_ARGUMENT, null, 2);
         LongOpt upload = new LongOpt("upload", LongOpt.NO_ARGUMENT, null, 3);
-        LongOpt email = new LongOpt("email", LongOpt.REQUIRED_ARGUMENT, null, 4);
+        LongOpt companion = new LongOpt("companion", LongOpt.OPTIONAL_ARGUMENT, null, 4);
+        LongOpt email = new LongOpt("email", LongOpt.REQUIRED_ARGUMENT, null, 5);
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
-                new LongOpt[] { debug, report, upload, email });
+                new LongOpt[] { debug, report, upload, companion, email });
         int a;
 
         boolean getUsedFiles = false;
@@ -259,6 +262,18 @@ public class CommandLineImporter {
                 break;
             }
             case 4: {
+                String s = g.getOptarg();
+                if (s.toLowerCase().equals("on"))
+                {
+                    config.companionFile.set(true);
+                }
+                if (s.toLowerCase().equals("off"))
+                {
+                    config.companionFile.set(false);
+                }
+                break;
+            }
+            case 5: {
                 config.email.set(g.getOptarg());
                 break;
             }

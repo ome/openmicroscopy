@@ -167,7 +167,7 @@ WindowStateListener, WindowFocusListener
         this.gui = new GuiCommonElements(config);
         
         Level level = org.apache.log4j.Level.toLevel(config.getDebugLevel());
-        setLoggingLevel(level);
+        LogAppender.setLoggingLevel(level);
 
         historyHandler = new HistoryHandler(this);
         historyTable = historyHandler.table;
@@ -862,21 +862,7 @@ WindowStateListener, WindowFocusListener
         failedDialog.setLocationRelativeTo(frame);
         failedDialog.setVisible(true);
     }
-    
-    public void setLoggingLevel(Level level)
-    {        
-        Enumeration<?> loggers = org.apache.log4j.LogManager.getCurrentLoggers();
         
-        if (loggers != null)
-        {
-            while (loggers.hasMoreElements())
-            {
-                Logger logger = (Logger) loggers.nextElement();
-                logger.setLevel(level);
-            }
-        }
-    }
-    
     public void propertyChange(PropertyChangeEvent evt)
     {
         String name = evt.getPropertyName();

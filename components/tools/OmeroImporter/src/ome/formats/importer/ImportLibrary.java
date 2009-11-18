@@ -178,7 +178,7 @@ public class ImportLibrary implements IObservable
                             ic.getUserSpecifiedName(),
                             "",
                             ic.getArchive(),
-                            true,
+                            config.companionFile.get(),
                             ic.getUserPixels(),
                             ic.getTarget());
                     numDone++;
@@ -328,8 +328,8 @@ public class ImportLibrary implements IObservable
         String[] domains = null;
         String[] usedFiles = new String[1];
         boolean isScreeningDomain = false;
-        usedFiles[0] = file.getAbsolutePath();
-
+        usedFiles[0] = file.getAbsolutePath();      
+        
         try {
             
             notifyObservers(new ImportEvent.LOADING_IMAGE(shortName, index, numDone, total));
@@ -494,6 +494,7 @@ public class ImportLibrary implements IObservable
             notifyObservers(new ImportEvent.IMPORT_DONE(index, null, userSpecifiedTarget, null, 0, null, pixList));
             
             return pixList;
+            
         } catch (MissingLibraryException mle) {
             notifyObservers(new ErrorHandler.MISSING_LIBRARY(fileName, mle, usedFiles, format));
             throw mle;

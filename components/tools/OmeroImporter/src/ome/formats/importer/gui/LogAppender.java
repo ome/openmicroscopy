@@ -14,11 +14,16 @@
 
 package ome.formats.importer.gui;
 
+import java.util.Enumeration;
+
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 public class LogAppender
 {
@@ -79,5 +84,25 @@ public class LogAppender
     public void setTextArea(JTextPane debugTextPane)
     {
         this.t = debugTextPane;
+    }
+    
+
+    /**
+     * Sets the logging detail level for all loggers attached to the importer.
+     * 
+     * @param level
+     */
+    public static void setLoggingLevel(Level level)
+    {        
+        Enumeration<?> loggers = org.apache.log4j.LogManager.getCurrentLoggers();
+        
+        if (loggers != null)
+        {
+            while (loggers.hasMoreElements())
+            {
+                Logger logger = (Logger) loggers.nextElement();
+                logger.setLevel(level);
+            }
+        }
     }
 }

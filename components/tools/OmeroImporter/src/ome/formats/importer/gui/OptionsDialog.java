@@ -19,11 +19,10 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Enumeration;
-import java.util.Iterator;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -40,7 +39,6 @@ import ome.formats.importer.ImportConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 
 /**
@@ -58,9 +56,10 @@ public class OptionsDialog extends JDialog implements ActionListener
     
     private JPanel mainPanel;
     private JPanel debugOptionsPanel;
-    private JPanel  fileChooserPanel;
-    private JPanel  singlePanePanel;
-    private JPanel  triplePanePanel;
+    private JPanel otherOptionsPanel;
+    private JPanel fileChooserPanel;
+    private JPanel singlePanePanel;
+    private JPanel triplePanePanel;
 
     private JRadioButton singlePaneBtn;
     private JRadioButton triplePaneBtn;
@@ -113,6 +112,8 @@ public class OptionsDialog extends JDialog implements ActionListener
     private JComboBox dBox;
 
     private JTextPane descriptionText;
+
+    private JCheckBox companionFileCheckbox;
 
     OptionsDialog(GuiCommonElements gui, JFrame owner, String title, boolean modal)
     {
@@ -186,6 +187,19 @@ public class OptionsDialog extends JDialog implements ActionListener
         final Font font = new Font(textFieldFont.getFamily(), Font.ITALIC, textFieldFont.getSize());
         descriptionText.setFont(font);
         
+        /////////////////////// START OTHER OPTIONS PANEL ////////////////////////
+        
+        double otherOptionTable[][] =
+            {{TableLayout.FILL}, // columns
+            {10,TableLayout.PREFERRED,20,30,15,TableLayout.FILL}}; // rows
+        
+        otherOptionsPanel = gui.addMainPanel(tabbedPane, otherOptionTable, 0, 10, 10, 10, debug);  
+                
+        companionFileCheckbox = gui.addCheckBox(otherOptionsPanel, "<html>Attached a text file to each imported" +
+        		" file containing all collected metadata.</html>", "0,1", debug);
+        
+        companionFileCheckbox.setEnabled(gui.config.companionFile.get());
+        
         /////////////////////// START FILECHOOSER PANEL ////////////////////////
         
         // Set up the import panel for tPane, quit, and send buttons
@@ -252,11 +266,9 @@ public class OptionsDialog extends JDialog implements ActionListener
     
         /////////////////////// START TABBED PANE ////////////////////////
         
-        if (gui.getIsMac())
-            tabbedPane.addTab("FileChooser Settings", null, fileChooserPanel, "FileChooser Settings");
-        
-        tabbedPane.addTab("Debug Settings", null, debugOptionsPanel, "Debug Settings");
-        this.add(mainPanel);
+        if (gui.getIsMac()) tabbedPane.addTab("FileChooser", null, fileChooserPanel, "FileChooser Settings");
+        tabbedPane.addTab("Debug", null, debugOptionsPanel, "Debug Settings");
+        tabbedPane.addTab("Other", null, otherOptionsPanel, "Other Settings");
         
         this.add(mainPanel);
         
@@ -277,11 +289,16 @@ public class OptionsDialog extends JDialog implements ActionListener
             else
                 gui.config.setUseQuaqua(true);
             
+            if (companionFileCheckbox.isSelected())
+                gui.config.companionFile.set(true);
+            else
+                gui.config.companionFile.set(false);
+            
             gui.config.setDebugLevel(((DebugItem) dBox.getSelectedItem()).getLevel());
             
             // Test code to see if this works
             Level level = org.apache.log4j.Level.toLevel(((DebugItem) dBox.getSelectedItem()).getLevel());
-            ((GuiImporter) owner).setLoggingLevel(level);
+            LogAppender.setLoggingLevel(level);
             
             this.dispose();
             
@@ -295,7 +312,7 @@ public class OptionsDialog extends JDialog implements ActionListener
             this.repaint();
         }
     }
-
+    
     public static void main (String[] args) {
 
         String laf = UIManager.getSystemLookAndFeelClassName() ;
@@ -311,7 +328,7 @@ public class OptionsDialog extends JDialog implements ActionListener
 
         ImportConfig config = new ImportConfig(null);
         
-        OptionsDialog dialog = new OptionsDialog(new GuiCommonElements(config), null, "Options Dialog", true);
+        OptionsDialog dialog = new OptionsDialog(new GuiCommonElements(config), null, "Optional Settings", true);
         if (dialog != null) System.exit(0);
     }
 }
