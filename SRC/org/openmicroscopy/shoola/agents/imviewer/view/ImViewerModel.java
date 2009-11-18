@@ -338,8 +338,9 @@ class ImViewerModel
 	 */
 	private void initialize(Rectangle bounds, boolean separateWindow)
 	{
-		asynchronousCall = null;
 		this.separateWindow = separateWindow;
+		asynchronousCall = null;
+		overlayTableID = -1;
 		requesterBounds = bounds;
 		state = ImViewer.NEW;
 		initMagnificationFactor = false;

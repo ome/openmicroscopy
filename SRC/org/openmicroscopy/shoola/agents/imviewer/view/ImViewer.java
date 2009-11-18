@@ -1104,4 +1104,11 @@ public interface ImViewer
 	 */
 	public void renderOverlays(int index, boolean selected);
 	
+	/**
+	 * Indicates that the color of the channel has changed.
+	 * 
+	 * @param index The index of the channel.
+	 */
+	public void onChannelColorChnaged(int index);
+	
 }

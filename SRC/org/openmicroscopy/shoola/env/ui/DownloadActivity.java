@@ -94,9 +94,11 @@ public class DownloadActivity
         			extension = OMETIFFFilter.OME_TIFF;
         		else {
         			lastDot = s.lastIndexOf(".");
-        			extension = s.substring(lastDot, s.length());
+        			if (lastDot != -1)
+        				extension = s.substring(lastDot, s.length());
+        			
         		}
-        		value = value+extension;
+        		if (extension != null) value = value+extension;
     		}
     		return getFileName(files, value, value, dirPath, 1, extension);
     	}
