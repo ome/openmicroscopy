@@ -895,10 +895,10 @@ class FlexMeasurementCtx(AbstractMeasurementCtx):
                 column = int(well.get('col')) - 1
                 try:
                     v = columns['Well'].values
-                    well, images = self.get_well_images(row, column)
-                    if not well:
+                    wellobj, images = self.get_well_images(row, column)
+                    if not wellobj:
                         continue
-                    v.append(well.id.val)
+                    v.append(wellobj.id.val)
                 except:
                     log.exception("ERROR: Failed to get well images")
                     continue
