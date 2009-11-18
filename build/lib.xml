@@ -15,8 +15,8 @@
  *        (http://www.junit.org/).  Version: 3.8.1.
  *  + xalan-2.6.0.jar: The Xalan-J XSLT library from Apache
  *        (http://xml.apache.org/xalan-j/).  Version: 2_6_0.
- *  + jarbundler-1.4.jar: The Jar Bunlder utility to make Mac OS X application
- *        bundles (http://www.loomcom.com/jarbundler/).  Version: 1.4. 
+ *  + jarbundler-1.6.jar: The Jar Bundler utility to make Mac OS X application
+ *        bundles (http://informagen.com/JarBundler/).  Version: 1.6. 
  *  + bsf-2.3.0-rc1.jar: The Bean Scripting Framework from Jakarta
  *        (http://jakarta.apache.org/bsf/).  Version: 2.3.0-rc1.
  *  + rhino-1_5R3.jar: The Rhino JavaScript engine from Mozilla
@@ -503,13 +503,13 @@
    * 
    * DESCRIPTION: 
    * Third-party task to create a Mac OS X distribution bundle.
-   * The Jar Bundler task comes from http://www.loomcom.com/jarbundler/.  
+   * The Jar Bundler task comes from http://informagen.com/JarBundler/.  
    * See their docs for parameters and usage.
    *
    * EXTERNAL DEPENDENCIES:
-   *  + jarbundler-1.4.jar: The Jar Bundler jar.  Version: 1.4.
+   *  + jarbundler-1.6.jar: The Jar Bundler jar.  Version: 1.6.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <taskdef name="jarbundler"
-           classname="com.loomcom.ant.tasks.jarbundler.JarBundler" />
+           classname="net.sourceforge.jarbundler.JarBundler" />
 
 </antlib>
