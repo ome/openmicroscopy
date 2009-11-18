@@ -339,6 +339,7 @@ class ImViewerModel
 	private void initialize(Rectangle bounds, boolean separateWindow)
 	{
 		asynchronousCall = null;
+		overlayTableID = -1;
 		this.separateWindow = separateWindow;
 		requesterBounds = bounds;
 		state = ImViewer.NEW;

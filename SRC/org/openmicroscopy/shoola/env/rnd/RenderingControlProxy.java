@@ -1756,7 +1756,7 @@ class RenderingControlProxy
 	public void setOverlays(long tableID, Map<Long, Integer> overlays)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		if (tableID < 0) return;
+		if (tableID <= 0) return;
 		try {
 			invalidateCache();
 			if (overlays == null) overlays = new HashMap<Long, Integer>();
