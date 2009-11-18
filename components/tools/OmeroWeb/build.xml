@@ -49,7 +49,7 @@
 
     <target name="tools-dist" depends="tools-build" description="Copies files into tools/target">
         <copy todir="${basedir}/../target/lib/python/omeroweb">
-            <fileset dir="omeroweb" excludes="**/*.pyc,logs,log,db.sqlite3"/>
+            <fileset dir="omeroweb" excludes="**/*.pyc,logs,log,db.sqlite3,custom_settings.py,initial_data.json"/>
         </copy>
     </target>
 
