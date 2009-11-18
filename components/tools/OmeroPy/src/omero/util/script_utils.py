@@ -91,6 +91,13 @@ def rmdir_recursive(dir):
 	os.rmdir(dir)
 
 def calcSha1(filename):
+	"""
+	Returns a hash of the file identified by filename
+	
+	@param  filename:	pathName of the file
+	@return:			The hash of the file
+	"""
+	
 	fileHandle = open(filename)
 	h = hash_sha1()
 	h.update(fileHandle.read())
@@ -101,21 +108,45 @@ def calcSha1(filename):
 def getFormat(queryService, format):
 	return queryService.findByQuery("from Format as f where f.value='"+format+"'", None)
 
-def createFile(updateService, filename, format):
+
+def createFile(updateService, filename, format, ofilename=None):
+	"""
+	Creates an original file, saves it to the server and returns the result
+	
+	@param queryService:	The query service  E.g. session.getQueryService()
+	@param updateService:	The update service E.g. session.getUpdateService()
+	@param filename:		The file path and name (or name if in same folder). String
+	@param format:			The Format object representing the file format
+	@param ofileName:		Optional name for the original file
+	@return: 				The saved OriginalFileI, as returned from the server
+	"""
+	
  	originalFile = omero.model.OriginalFileI();
-	originalFile.setName(omero.rtypes.rstring(filename));
-	originalFile.setPath(omero.rtypes.rstring(filename));
+	if(ofilename == None):
+ 		ofilename = filename;
+	originalFile.setName(omero.rtypes.rstring(ofilename));
+	originalFile.setPath(omero.rtypes.rstring(ofilename));
 	originalFile.setFormat(format);
 	originalFile.setSize(omero.rtypes.rlong(os.path.getsize(filename)));
 	originalFile.setSha1(omero.rtypes.rstring(calcSha1(filename)));
 	return updateService.saveAndReturnObject(originalFile);	
 	
-def uploadFile(rawFileStore, file):
-	rawFileStore.setFileId(file.getId().getValue());
-	fileSize = file.getSize().getValue();
+
+def uploadFile(rawFileStore, originalFile, filePath=None):
+	"""
+	Uploads an OriginalFile to the server
+	
+	@param rawFileStore:	The Omero rawFileStore
+	@param originalFile:	The OriginalFileI
+	@param filePath:	Where to find the file to upload. If None, use originalFile.getName().getValue()
+	"""
+	rawFileStore.setFileId(originalFile.getId().getValue());
+	fileSize = originalFile.getSize().getValue();
 	increment = 10000;
 	cnt = 0;
-	fileHandle = open(file.getName().getValue(), filename, 'rb');
+	if filePath == None:
+		filePath = originalFile.getName().getValue()
+	fileHandle = open(filePath, 'rb');
 	done = 0
 	while(done!=1):
 		if(increment+cnt<fileSize):
@@ -129,15 +160,61 @@ def uploadFile(rawFileStore, file):
 		cnt = cnt+blockSize;
 	fileHandle.close();
 	
-def attachFileToImage(updateService, image, file, nameSpace):
+	
+def attachFileToParent(updateService, parent, originalFile, description=None, namespace=None):
+	"""
+	Attaches the original file (file) to a Project, Dataset or Image (parent) 
+	
+	@param updateService:		The update service
+	@param parent:				A ProjectI, DatasetI or ImageI to attach the file to
+	@param originalFile:		The OriginalFileI to attach
+	@param description:			Optional description for the file annotation. String
+	@param namespace:			Optional namespace for file annotataion. String
+	@return:				The saved and returned *AnnotationLinkI (* = Project, Dataset or Image)
+	"""
 	fa = omero.model.FileAnnotationI();
-	fa.setFile(file);
-	fa.setNs(omero.rtypes.rstring(nameSpace))
-	l = omero.model.ImageAnnotationLinkI();
-	l.setParent(image);
+	fa.setFile(originalFile);
+	if description:
+		fa.setDescription(omero.rtypes.rstring(description))
+	if namespace:
+		fa.setNs(omero.rtypes.rstring(namespace))
+	if type(parent) == omero.model.DatasetI:
+		l = omero.model.DatasetAnnotationLinkI()
+	elif type(parent) == omero.model.ProjectI:
+		l = omero.model.ProjectAnnotationLinkI()
+	elif type(parent) == omero.model.ImageI:
+		l = omero.model.ImageAnnotationLinkI()
+	else:
+		return
+	l.setParent(parent);
 	l.setChild(fa);
 	return updateService.saveAndReturnObject(l);
 
+
+def uploadAndAttachFile(queryService, updateService, rawFileStore, parent, output, format, description=None):
+	"""
+	Uploads a local file to the server, as an Original File and attaches it to the 
+	parent (Project, Dataset or Image)
+	
+	@param queryService:	The query service
+	@param updateService:	The update service
+	@param rawFileStore:	The rawFileStore
+	@param parent:			The ProjectI or DatasetI or ImageI to attach file to
+	@param output:			Full Name (and path) of the file to upload. String
+	@param format:			The format. E.g. "image/png". String
+	@param description:		Optional description for the file annotation. String
+	@return:			The id of the originalFile. (ID object, not value)
+	"""
+	
+	filename = output
+	originalFilename = output
+	fileformat = getFormat(queryService, format)
+	originalFile = createFile(updateService, filename, fileformat, originalFilename);
+	uploadFile(rawFileStore, originalFile, originalFilename)
+	attachFileToParent(updateService, parent, originalFile, description)
+	return originalFile.getId()
+	
+	
 def addAnnotationToImage(updateService, image, annotation):
 	l = omero.model.ImageAnnotationLinkI();
 	l.setParent(image);
