@@ -40,7 +40,7 @@
       <scanDirectory location="." failOnError="false" />
     </classPath>
     <nativeLibraryDirectories>
-      <directory name="lib" />
+      <directory name="libs" />
     </nativeLibraryDirectories>
   </java>
   <includedFiles />
