@@ -107,6 +107,7 @@ class BrowserControl
 	
 	/** Identifies the <code>Refresh</code> action. */
 	static final Integer    REFRESH = Integer.valueOf(10);
+
     /** 
      * Reference to the {@link Browser} component, which, in this context,
      * is regarded as the Model.

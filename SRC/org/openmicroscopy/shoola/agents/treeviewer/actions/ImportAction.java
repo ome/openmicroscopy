@@ -76,7 +76,7 @@ public class ImportAction
 	        default:
 	        	setEnabled(!model.isImporting());
         }
-        setEnabled(false);
+        //setEnabled(false);
     }
     
     /**
