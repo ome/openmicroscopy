@@ -46,8 +46,6 @@ import java.util.Map.Entry;
 //Application-internal dependencies
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
-
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
@@ -203,7 +201,7 @@ class EditorModel
 	 */
 	private void downloadFiles(File folder)
 	{
-		UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
+		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
 		FileAnnotationData fa = (FileAnnotationData) getRefObject();
 		OriginalFile f = (OriginalFile) fa.getContent();
 		IconManager icons = IconManager.getInstance();
@@ -223,6 +221,7 @@ class EditorModel
 				f = (OriginalFile) fa.getContent();
 				activity = new DownloadActivityParam(f,
 						folder, icons.getIcon(IconManager.DOWNLOAD_22));
+				activity.setFileName(fa.getFileName());
 				un.notifyActivity(activity);
 			}
 		}

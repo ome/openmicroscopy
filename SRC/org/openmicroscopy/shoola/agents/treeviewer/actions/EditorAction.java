@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.util.List;
-
 import javax.swing.Action;
 
 
@@ -37,8 +36,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
@@ -103,6 +102,27 @@ public class EditorAction
 		}
 	}
 	
+	/**
+	 * Returns <code>true</code> if the selected file is an editor file, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param fa The file to handle.
+	 * @return See above.
+	 */
+	private boolean isEditorFile(FileAnnotationData fa)
+	{
+		if (fa == null) return false;
+		String name = fa.getFileName();
+		String ns = fa.getNameSpace();
+		if (name == null) return false;
+		if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns) ||
+			FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns) ||
+			FileAnnotationData.COMPANION_FILE_NS.equals(ns) ||
+			EditorUtil.isEditorFile(name))
+			return true;
+		return false;
+	}
+	
 	/** 
      * Enables the action if the browser is not ready.
      * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
@@ -127,7 +147,11 @@ public class EditorAction
 	    			if (l == null || l.size() != 1) setEnabled(false);
 	    			else {
 	    				Object object = l.get(0);
-	    				setEnabled(object instanceof FileAnnotationData);
+	    				if (object instanceof FileAnnotationData) {
+	    					FileAnnotationData fa = (FileAnnotationData) object;
+	    					setEnabled(isEditorFile(fa));
+	    				} else 
+	    					setEnabled(false);
 	    			}
 	    		} else setEnabled(false);
 				break;

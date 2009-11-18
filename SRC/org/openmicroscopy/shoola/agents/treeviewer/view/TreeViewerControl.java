@@ -77,6 +77,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateTopContainerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CutAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.DeleteAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.DownloadAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.EditorAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ExitApplicationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FinderAction;
@@ -291,6 +292,9 @@ class TreeViewerControl
 	/** Identifies the <code>Import</code> in the menu. */
 	static final Integer    IMPORT = Integer.valueOf(53);
 	
+	/** Identifies the <code>Download</code> in the menu. */
+	static final Integer    DOWNLOAD = Integer.valueOf(54);
+
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -403,6 +407,7 @@ class TreeViewerControl
 		actionsMap.put(INSPECTOR, new InspectorVisibilityAction(model));
 		actionsMap.put(IMPORTER, new ImporterVisibilityAction(model));
 		actionsMap.put(IMPORT, new ImportAction(model));
+		actionsMap.put(DOWNLOAD, new DownloadAction(model));
 	}
 
 	/** 

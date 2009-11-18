@@ -76,6 +76,9 @@ class PopupMenu
 	/** Button to delete the selected elements. */
 	private JMenuItem           deleteElement;
 
+	/** Button to download the selected elements. */
+	private JMenuItem           downloadElement;
+
 	/** Button to remove experimenter node from the display. */
 	private JMenuItem			removeExperimenterElement;
 
@@ -171,7 +174,10 @@ class PopupMenu
 						TreeViewerControl.EDITOR_WITH_SELECTION);
 				editFile = new JMenuItem(a);
 				initMenuItem(editFile, a.getActionName());
-				
+				a = controller.getAction(TreeViewerControl.DOWNLOAD);
+				downloadElement = new JMenuItem(a);
+				initMenuItem(downloadElement, a.getActionName());
+
 				a = controller.getAction(TreeViewerControl.TAGGING);
 				tagElement = new JMenuItem(a);
 				initMenuItem(tagElement, a.getActionName());
@@ -289,6 +295,7 @@ class PopupMenu
 				add(browse);
 				add(view);
 				add(editFile);
+				add(downloadElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(newElement);
 				add(cutElement);

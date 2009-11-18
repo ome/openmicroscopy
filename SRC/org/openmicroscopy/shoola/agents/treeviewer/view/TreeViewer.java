@@ -840,5 +840,12 @@ public interface TreeViewer
 	 * @param activity The activity to handle.
 	 */
 	void onActivityTerminated(ActivityComponent activity);
+
+	/**
+	 * Downloads the currently selected files to the specified folder.
+	 * 
+	 * @param folder The folder where to download the files.
+	 */
+	void download(File folder);
 	
 }

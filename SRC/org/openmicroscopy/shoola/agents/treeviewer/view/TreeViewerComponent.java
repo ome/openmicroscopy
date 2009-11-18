@@ -45,8 +45,11 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.OriginalFile;
+
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
@@ -78,6 +81,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
@@ -141,7 +145,28 @@ class TreeViewerComponent
 	
     /** The file chooser. */
     private ImportDialog 		importDialog;
-    
+
+	/**
+	 * Downloads the files.
+	 * 
+	 * @param folder 	The folder to save the file into.
+	 * @param override 	Pass <code>true</code> to keep the name of the 
+	 * 					file, <code>false</code> otherwise.
+	 * @param fa The file to download.
+	 */
+	private void downloadFile(File folder, boolean override, 
+			FileAnnotationData fa)
+	{
+		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+		OriginalFile f = (OriginalFile) fa.getContent();
+		IconManager icons = IconManager.getInstance();
+		DownloadActivityParam activity = new DownloadActivityParam(f,
+				folder, icons.getIcon(IconManager.DOWNLOAD_22));
+		if (override)
+			activity.setFileName(fa.getFileName());
+		un.notifyActivity(activity);
+	}
+	
 	/** 
 	 * Prepares the file to import.
 	 * 
@@ -2451,6 +2476,33 @@ class TreeViewerComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		view.onActivityTerminated(activity);
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#download(File)
+	 */
+	public void download(File folder)
+	{
+		Browser browser = model.getSelectedBrowser();
+		if (browser == null) return;
+		List l = browser.getSelectedDataObjects();
+		if (l == null) return;
+		Iterator i = l.iterator();
+		Object object;
+		List<ImageData> images = new ArrayList<ImageData>();
+		boolean override = l.size() > 1;
+		while (i.hasNext()) {
+			object = i.next();
+			if (object instanceof ImageData) {
+				images.add((ImageData) object);
+			} else if (object instanceof FileAnnotationData) {
+				downloadFile(folder, override, (FileAnnotationData) object);
+			}
+		}
+		if (images.size() > 0 ) {
+			
+		}
 	}
 	
 }
