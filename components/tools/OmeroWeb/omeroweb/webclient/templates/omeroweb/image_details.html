@@ -8,17 +8,21 @@
     <link rel="stylesheet" href="{% url webstatic "css/annotation.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/tree.css" %}" type="text/css" media="screen"/>
-
-  <link rel="stylesheet" href="/webgateway/appmedia/css/jquery-plugin-slider.css" type="text/css" media="screen"/>
-  <link rel="stylesheet" href="/webgateway/appmedia/css/weblitz-viewport.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/autocomplete.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
+    
+    <link rel="stylesheet" href="/webgateway/appmedia/css/jquery-plugin-slider.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="/webgateway/appmedia/css/weblitz-viewport.css" type="text/css" media="screen"/>
 
 {% endblock %}
 
 {% block jscript %}
     <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
     
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.autocomplete.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
+  
     <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.accordion.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.tabs.js" %}"></script>
     
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
@@ -37,23 +41,6 @@
         
     <script>
         $(document).ready(function(){
-            {% if nav.loadAnn %}
-            $("div#annotation").html('<p>{% trans "Loading annotations... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-            $("div#annotation").load("{% url manage_annotations "image" manager.image.id %}?url={{ url }}", function() {  
-                    $("a.loadAnnotation").remove();                        
-                });
-            
-            {% else %}            
-            $("a.loadAnnotation").click(function()
-            {
-                $("div#annotation").html('<p>{% trans "Loading annotations... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                $("div#annotation").load("{% url manage_annotations "image" manager.image.id %}?url={{ url }}", function() {  
-                        $("a.loadAnnotation").remove();                        
-                    });
-                return false; 
-            });
-            {% endif %}
-            
             $("a.loadData").click(function()
             {
                 $("div#hierarchy").html('<p>{% trans "Loading hierarchy... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
@@ -63,20 +50,71 @@
                     });
                 return false; 
             });
-            $("#metadata").accordion( { 
-                autoHeight: false,
-                active: false,
-                alwaysOpen: false, 
-                navigation: true
-            });
             
             $("#annotation_tabs").tabs();
             
             var viewport = $.WeblitzViewport($("#viewport"), "/webgateway" );
             viewport.load({{ manager.image.id }});
             
+            /*$.ajax({  
+                type: "GET",  
+                url: "{% url autocomplete_tags %}",  
+                contentType: "application/json; charset=utf-8",  
+                cache:false,
+				async: false,
+				dataType: "json",  
+                success: function(json){  
+                    prepareAutocomplete(json);
+                    $("div#tagloader").remove();
+                    $("div#tag").show();
+                },  
+                error: function(xhr, msg){  
+                    alert("{% trans 'Could not load tag component. Please contact Administrator.' %}");  
+                }
+            });
+            
+            function prepareAutocomplete(myjson){
+                $("#id_tag").autocomplete(myjson, {
+                    //width: 320,
+                    max: 10,
+                    scroll: true,
+                    scrollHeight: 200,
+                    highlightItem: true,
+                    //multiple: true,
+                    //multipleSeparator: ";",
+                    formatItem: function(row, i, max, term) {
+                        if(row.desc!=null) {
+                            return row.tag + "<br/><small>" + row.desc + "</small>";
+                        } else {
+                            return row.tag
+                        }
+                    },
+                    formatMatch: function(row, i, max) {
+                        return row.tag + " " + row.id;
+                    },
+                    formatResult: function(row) {
+                        return row.tag;
+                    }
+                });
+            }*/            
+            
         });
       </script>
+      <script type="text/javascript">
+          $(function() {
+              $("{% for t in manager.tag_annotations %}#tagdesc{{ t.id }}, {% endfor %}#tag").tooltip({ 
+                  track: true, 
+                  delay: 0, 
+                  showURL: false, 
+                  opacity: 1, 
+                  fixPNG: true, 
+                  showBody: " - ", 
+                  top: -15, 
+                  left: 5 
+              });
+          });
+      </script>
+      
       <script>
       var popup = function (url) {
             window.open(url,'_blank','toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800');
@@ -89,199 +127,37 @@
 {% block center %}
 
 <div class="image">
-    <h1>{% trans "Image" %}: {{ manager.image.fullNameWrapped }} {% if not manager.image.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}</h1>
+    <h1>{% trans "Image" %}: {{ manager.image.shortName }} {% if not manager.image.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}</h1>
 </div>
 
 <div class="toolbar">
-{% if manager.image.isOwned %}
-    | <a href="#" onclick="return popup('{% url image_viewer manager.image.id %}')">{% trans "View" %} <img src="{% url webstatic "images/tree/kview.png" %}" alt="v" title="view"/></a> 
-    {% if manager.image.isOwned %}| <a href="#" onclick="toBasket('image', '{{ manager.image.id }}'); return false;">{% trans "Select" %} <img src="{% url webstatic "images/basket16.png" %}" alt="b" title="add to basket"/></a> 
+    <p>| <a href="#" onclick="return popup('{% url image_viewer manager.image.id %}')">{% trans "View" %} <img src="{% url webstatic "images/tree/kview.png" %}" alt="v" title="view"/></a> 
+    | <a href="#" onclick="toBasket('image', '{{ manager.image.id }}'); return false;">{% trans "Select" %} <img src="{% url webstatic "images/basket16.png" %}" alt="b" title="add to basket"/></a> 
     | <a href="#" onclick="copyToClipboard('image', '{{ manager.image.id }}'); return false;">{% trans "Copy" %} <img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> 
-    | <a href="{% url manage_action_containers "edit" "image" manager.image.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}
-{% else %}
-    | <a href="#" onclick="window.open('{% url image_viewer manager.image.id %}', '_blank','toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800'); return false;">{% trans "View" %} <img src="{% url webstatic "images/tree/kview.png" %}" alt="v" title="view"/></a> 
-    {% if manager.image.isOwned %}| <a href="#" onclick="copyToClipboard('image', '{{ manager.image.id }}'); return false;">{% trans "Copy" %} <img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> 
-    | <a href="{% url manage_action_containers "edit" "image" manager.image.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}
-{% endif %}
-| <a href="#annotation_form">{% trans "Annotate" %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotate"/></a> |
+    | <a href="{% url manage_action_containers "edit" "image" manager.image.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a></p>
 </div>
 
-<div class="clear"></div>
-<div><p>{{ manager.image.description|default_if_none:"no description"|linebreaks }}</p></div>
-<div class="separate70"></div>
+<div class="separate30"></div>
 
-<p><a href="#" onclick="return popup('{% url image_viewer manager.image.id %}')">Open full viewer</a></p>
+<div class="miniview_header"><a href="#" onclick="return popup('{% url image_viewer manager.image.id %}')">{% trans "Open full viewer" %} <img src="{% url webstatic "images/tree/kview.png" %}" alt="v" title="view"/></a> </div>
+<div class="image_details">
+    {% include "omeroweb/annotations_image_form.html" %}
+</div>
+
 <div class="miniview" id="viewport"></div>
-<div class="metadata">
-    
-<ul id="metadata" class="ui-accordion-metadata" >
-    <li><a href='#'>{% trans "Image details" %}:</a>
-        <div class="metadata_details">
-            <table class="forms">
-                <tr><td><label>{% trans "Image date" %} </label></td><td>{{ manager.image.getDate|date:"Y m d H:i:s" }}</td></tr>
-                <tr><td><label>{% trans "Dimensions" %} (XY) [px] </label></td><td>{{ manager.image.getWidth }} x {{ manager.image.getHeight }}</td></tr>
-                <tr><td><label>{% trans "Pixel size" %} (XYZ) [&micro;m] </label></td><td>{{ manager.image.getPixelSizeX|default_if_none:"-" }} x {{ manager.image.getPixelSizeY|default_if_none:"-" }} x {{ manager.image.getPixelSizeZ|default_if_none:"-" }}</td></tr>
-                <tr><td><label>{% trans "Z-sections" %} </label></td><td>{{ manager.image.z_count }}</td></tr>
-                <tr><td><label>{% trans "Timepoints" %} </label></td><td>{{ manager.image.t_count }}</td></tr>
-            </table>
-        </div>
-    </li>
-    {% if manager.global_metadata %}
-    <li><a href='#'>{% trans "Global metadata" %}:</a>
-        <div><div class="metadata_details"><input type="button" value="Download {{ manager.original_metadata.getFileName }}" onClick="document.location.href='{% url manage_annotation "download" manager.original_metadata.id %}';"/>
-            <table class="formsm">
-            {% for gm in manager.global_metadata %}
-                <tr><td><label>{{ gm.0 }}</label></td><td>{{ gm.1 }}</td></tr>
-            {% endfor %}
-            </table>
-        </div></div>
-    </li>
-    {% endif %}
-    {% if manager.series_metadata %}
-    <li><a href='#'>{% trans "Series metadata" %}:</a>
-        <div><div class="metadata_details"><input type="button" value="Download {{ manager.original_metadata.getFileName }}" onClick="document.location.href='{% url manage_annotation "download" manager.original_metadata.id %}';"/>
-            <table class="formsm">
-            {% for sm in manager.series_metadata %}
-                <tr><td><label>{{ sm.0 }}</label></td><td>{{ sm.1 }}</td></tr>
-            {% endfor %}
-            </table>
-        </div></div>
-    </li>
-    {% endif %}
-    {% if form_objective or form_environment or form_stageLabel %}
-    <li><a href='#'>{% trans "Image" %}:</a>
-        <div><div class="metadata_details">
-            <table class="forms">
-            {% if form_objective %}
-            <tr><th>{% trans "Objective" %}:</th><td colspan="2"></td></tr>
-                {% for field in form_objective %}
-                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-                {% endfor %}
-                <tr><th><br/></th><td colspan="2"></td></tr>
-            {% endif %}
-            {% if form_environment %}
-            <tr><th>{% trans "Environment" %}:</th><td colspan="2"></td></tr>
-                {% for field in form_environment %}
-                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-                {% endfor %}
-                <tr><th><br/></th><td colspan="2"></td></tr>
-            {% endif %}
-            {% if form_stageLabel %}
-            <tr><th>{% trans "Stage label" %}:</th><td colspan="2"></td></tr>
-                {% for field in form_stageLabel %}
-                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-                {% endfor %}
-                <tr><th><br/></th><td colspan="2"></td></tr>
-            {% endif %}
-            </table>
-        </div></div>
-    </li>
-    {% endif %}
-    {% if form_objective or form_filters or form_detectors %}
-    <li><a href='#'>{% trans "Microscope" %}:</a>
-        <div><div class="metadata_details">
-            <table class="forms">
-            {% if form_objective %}
-            <tr><th>{% trans "Objective" %}:</th><td colspan="2"></td></tr>
-                {% for field in form_objective %}
-                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-                {% endfor %}
-            <tr><th><br/></th><td colspan="2"></td></tr>
-            {% endif %}
-            {% for form in form_filters %}
-                <tr><th>{% trans "Filter" %}:</th><td colspan="2"></td></tr>
-                {% for field in form %}
-                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-                {% endfor %}
-            <tr><th><br/></th><td colspan="2"></td></tr>
-            {% endfor %}
-            {% for form in form_detectors %}
-                <tr><th>{% trans "Detector" %}:</th><td colspan="2"></td></tr>
-                {% for field in form %}
-                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-                {% endfor %}
-            <tr><th><br/></th><td colspan="2"></td></tr>
-            {% endfor %}
-            </table>
-        </div></div>
-    </li>
-    {% endif %}
-    {% for ch in form_channels %}
-    <li><a href='#'>{% trans "Channel" %} : <span style="padding:0 3px; color:#000; border:1px solid #bbb; ;background-color: #{{ ch.color }};">{{ ch.name }}</span></a>
-        <div><div class="metadata_details">
-            <table class="forms">
-                {% for field in ch.form %}
-                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-                {% endfor %}
-                {% if ch.form_emission_filter %}
-                <tr><th><br/>{% trans "Filter" %}:</th><td colspan="2"></td></tr>
-                {% for field in ch.form_emission_filter %}
-                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-                {% endfor %}
-                {% endif %}
-                {% if ch.form_detector_settings %}
-                <tr><th><br/>{% trans "Detector" %}:</th><td colspan="2"></td></tr>
-                {% for field in ch.form_detector_settings %}
-                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-                {% endfor %}
-                {% endif %}
-                {% if ch.form_light_source %}
-                <tr><th><br/>{% trans "Light source" %}:</th><td colspan="2"></td></tr>
-                {% for field in ch.form_light_source %}
-                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-                {% endfor %}
-                {% endif %}
-                {% if ch.form_dichroic %}
-                <tr><th><br/>{% trans "Dichroic" %}:</th><td colspan="2"></td></tr>
-                {% for field in ch.form_dichroic %}
-                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-                </tr>
-                {% endfor %}
-                {% endif %}
-            </table>
-        </div></div>
-    </li>
-    {% endfor %}
-</ul>
-<br/><p>*{% trans "N/A - this value is not available." %}</p>
-</div>
 
 <div class="miniview_desc">
-    <br/><p class="center">{{ manager.image.name }}</p>
-    <p class="center">created by {{ manager.image.getOwnerFullName }}</p>
-</div>
-<div class="clear"></div>
-
-<div id="annotation">
-<h1>{% trans "Annotations" %}:</h1>
-{% if manager.image.countAnnotations %}<a href="#" class="loadAnnotation">{% trans "Show annotations associated with" %}... [{{ manager.image.countAnnotations }}]</a>{% endif %}
+    <p class="center">{% trans "Created by" %} {{ manager.image.getOwnerFullName }}</p>
+    <br/>
+    <p>Description:</p>
+    <div class="description">{{ manager.image.description|default_if_none:"no description"|linebreaks }}</div>
 </div>
 
-{% include "omeroweb/annotations_form.html" %}
-<div class="clear"> </div>
+<div class="separate30"></div>
 
+<div class="link_box">
 <h1>{% trans "Where this image is linked?" %}</h1>
 <div id="hierarchy"><a href="#" class="loadData">{% trans "Show the hierarchy structure" %}...</a></div>
+</div>
 
 {% endblock %}

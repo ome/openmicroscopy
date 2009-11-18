@@ -130,79 +130,75 @@ div#view, div#view2  {
 .miniview {
     /* This is for the miniviewer in image_details */
     float: left;
-    width: 600px;
-    height: 500px;
+    width: 370px;
+    height: 370px;
     position: relative;
 }
 .miniview_desc {
     float: left;
-    width: 600px;
+    width: 370px;
     position: relative;
+    margin-top: 20px;
+}
+.miniview_header {
+    margin-bottom: 10px;
+    float: left;
+    width: 370px;
+    position: relative;
+    text-align: center;
 }
 .miniplateview {
     /* This is for the miniviewer in image_details */
     float: left;
-    width: 600px;
-    height: 500px;
+    width: 370px;
+    height: 370px;
     position: relative;
     overflow: auto;
     border: 1px solid #bbb;
+    margin-top:-10px;
 }
-.metadata {
-    float: right;
-    margin: -8px 0 20px 0;
+.miniplateview_desc {
+    width: 370px;
     position: relative;
+    margin-top: 20px;
+}
+.image_details {
+    float: right;
+    margin: -15px 0 0 0;
+    position: relative;
+    width: 590px;
+    min-height: 520px;
 }
 .metadata_details {
-    max-height: 430px;
+    max-height: 400px;
     overflow: auto;
-    padding-top: 5px;
+    border: 1px solid #bbb;
+    padding: 10px;
 }
-
-table.formsm {
+.description {
+    width: 370px;
+    height: 120px;
+    border: 1px solid #bbb;
+    overflow: auto;
+}
+.metadata_details table {
     width: 100%;
 }
-table.formsm td{
+.metadata_details table td{
     border-bottom: 1px dotted #bbb;
 }
-.ui-accordion-help {
-    list-style-type:none;
-    margin:0;
-    padding:0;
-    width: 220px;
+#metadata_tab table td{
+    width: 50%;
 }
-
-.ui-accordion-metadata {
-    list-style-type:none;
-    margin:0;
-    padding:0;
-    width: 360px;
+#metadata_tab table th{
+    background: #fff;
 }
-.ui-accordion-metadata  table td {
-    padding: 2px;
-}
-.ui-accordion-header {
-    border-bottom: 1px solid #bbb;
-    padding: 5px 5px 1px 10px;
-    display:block;
-    height:20px;
-    position:relative;
-    text-decoration:none;
-}
-a.ui-accordion-header  {
-    text-decoration: none;
-}
-a.ui-accordion-header:hover,a.ui-accordion-header:link,a.ui-accordion-header:visited {
-    text-decoration: none;
-}
-
-a.selected {
+#metadata_tab table th.header{
     background: #eee;
+    border: 1px solid #bbb;
 }
-
-.disable {
-    background-color: #fff;
-    color: #555;
+#metadata_tab table th.header h1{
+    margin-left: 10px;
 }
 .disabled {
     background-color: #fff;

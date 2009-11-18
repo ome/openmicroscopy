@@ -92,11 +92,13 @@ class ContainerForm(forms.Form):
     
     name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':61}))
     description = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 60}), required=False, help_text=help_wiki)
-
+    
 class CommentAnnotationForm(forms.Form):
-    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 9, 'cols': 60}))
+    
+    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 5, 'cols': 50}))
 
 class UriAnnotationForm(forms.Form):
+    
     link = UrlField(widget=forms.TextInput(attrs={'size':55}))
 
 class TagFilterForm(forms.Form):
@@ -136,35 +138,35 @@ class TagFilterForm(forms.Form):
         self.fields.keyOrder = ['tag', 'tag2', 'tag3', 'tag4', 'tag5']
 
 class TagAnnotationForm(forms.Form):
-    tag = forms.CharField(widget=forms.TextInput(attrs={'size':45}))
-    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 39}), required=False)
+    tag = forms.CharField(widget=forms.TextInput(attrs={'size':23}))
+    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 20}), required=False, label="Desc")
 
 class TagListForm(forms.Form):
     
     def __init__(self, *args, **kwargs):
         super(TagListForm, self).__init__(*args, **kwargs)
-        self.fields['tags'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['tags'], widget=forms.SelectMultiple(attrs={'size':10, 'class':'existing'}))
+        self.fields['tags'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['tags'], widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}))
         self.fields.keyOrder = ['tags']
 
 class CommentListForm(forms.Form):
     
     def __init__(self, *args, **kwargs):
         super(CommentListForm, self).__init__(*args, **kwargs)
-        self.fields['comments'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['comments'], widget=forms.SelectMultiple(attrs={'size':10, 'class':'existing'}))
+        self.fields['comments'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['comments'], widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}))
         self.fields.keyOrder = ['comments']
 
 class UrlListForm(forms.Form):
     
     def __init__(self, *args, **kwargs):
         super(UrlListForm, self).__init__(*args, **kwargs)
-        self.fields['urls'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['urls'], widget=forms.SelectMultiple(attrs={'size':10, 'class':'existing'}))
+        self.fields['urls'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['urls'], widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}))
         self.fields.keyOrder = ['urls']
 
 class FileListForm(forms.Form):
     
     def __init__(self, *args, **kwargs):
         super(FileListForm, self).__init__(*args, **kwargs)
-        self.fields['files'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['files'], widget=forms.SelectMultiple(attrs={'size':10, 'class':'existing'}))
+        self.fields['files'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['files'], widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}))
         self.fields.keyOrder = ['files']
 
 class UploadFileForm(forms.Form):

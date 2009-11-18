@@ -141,7 +141,7 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
     passwd = request.session.get('password', r.get('password', None))
     host = request.session.get('host', r.get('host', None))
     port = request.session.get('port', r.get('port', None))
-    logger.debug(':: %s %s ::' % (str(username), str(passwd)))
+    #logger.debug(':: %s %s ::' % (str(username), str(passwd)))
 
     if r.has_key('logout'):
         logger.debug('logout required by HTTP GET or POST')

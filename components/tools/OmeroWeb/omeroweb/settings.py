@@ -29,15 +29,41 @@ import os.path
 import sys
 import datetime
 import logging
-import logging.handlers
+
+# LOGS
+# NEVER DEPLOY a site into production with DEBUG turned on.
 
 # Debuging mode. 
 # A boolean that turns on/off debug mode.
-# For logging configuration please change 'LEVEL = logging.INFO' below
-# 
-# NEVER DEPLOY a site into production with DEBUG turned on.
-DEBUG = False # handler404 and handler500 works only when False
+DEBUG = True # handler404 and handler500 works only when False
 TEMPLATE_DEBUG = DEBUG
+
+# Configure logging and set place to store logs.
+INTERNAL_IPS = ()
+LOGGING_LOG_SQL = False
+
+# LOG path
+# Logging levels: logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR logging.CRITICAL
+
+if DEBUG:
+    LOGDIR = os.path.join(os.path.dirname(__file__), 'log').replace('\\','/')
+    LOGFILE = ('OMEROweb-dev.log')
+    LOGLEVEL = logging.DEBUG
+else:
+    # LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), '../'), 'var'), 'log').replace('\\','/')
+    LOGDIR = os.path.join(os.path.dirname(__file__), 'log').replace('\\','/')
+    LOGFILE = ('OMEROweb.log')
+    LOGLEVEL = logging.INFO
+    
+if not os.path.isdir(LOGDIR):
+    try:
+        os.mkdir(LOGDIR)
+    except Exception, x:
+        exctype, value = sys.exc_info()[:2]
+        raise exctype, value
+
+import logconfig
+logconfig.get_logger(os.path.join(LOGDIR, LOGFILE), LOGLEVEL)
 
 # Database settings
 DATABASE_ENGINE = 'sqlite3'    # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
@@ -145,53 +171,6 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440 #default 2621440
 STATIC_LOGO = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'logo.png').replace('\\','/')
 DEFAULT_IMG = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'image128.png').replace('\\','/')
 DEFAULT_USER = os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'media'), "images", 'personal32.png').replace('\\','/')
-
-# LOGS
-# Configure logging and set place to store logs.
-# Logging levels: logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR logging.CRITICAL
-if DEBUG:
-    LEVEL = logging.DEBUG
-else:
-    LEVEL = logging.INFO
-INTERNAL_IPS = ()
-LOGGING_LOG_SQL = False
-
-# LOGDIR path
-#LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), '../'), 'var'), 'log').replace('\\','/')
-LOGDIR = os.path.join(os.path.dirname(__file__), 'log').replace('\\','/')
-
-if not os.path.isdir(LOGDIR):
-    try:
-        os.mkdir(LOGDIR)
-    except Exception, x:
-        exctype, value = sys.exc_info()[:2]
-        raise exctype, value
-
-if DEBUG:
-    LOGFILE = ('OMEROweb-dev.log')
-else:
-    LOGFILE = ('OMEROweb.log')
-logging.basicConfig(level=LEVEL,
-                format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-                datefmt='%a, %d %b %Y %H:%M:%S',
-                filename=os.path.join(LOGDIR, LOGFILE),
-                filemode='a')
-
-fileLog = logging.handlers.TimedRotatingFileHandler(os.path.join(LOGDIR, LOGFILE),'midnight',1)
-
-# Windows will not allow renaming (or deleting) a file that's open. 
-# There's nothing the logging package can do about that.
-try:
-    sys.getwindowsversion()
-except:
-    fileLog.doRollover()
-
-fileLog.setLevel(LEVEL)
-formatter = logging.Formatter('%(asctime)s %(name)-12s: %(levelname)-8s %(message)s')
-fileLog.setFormatter(formatter)
-logging.getLogger().addHandler(fileLog)
-
-logger = logging.getLogger()
 
 # CUSTOM CONFIG
 try:

@@ -40,9 +40,9 @@ class BaseUploadFile(BaseController):
         if has is not None:
             if newFile.content_type.startswith("image"):
                 f = newFile.content_type.split("/") 
-                format = self.conn.getFileFormt(f[1].upper())
+                format = self.conn.getFileFormat(f[1].upper())
             else:
-                format = self.conn.getFileFormt(newFile.content_type)
+                format = self.conn.getFileFormat(newFile.content_type)
             
             oFile = has._obj.file
             oFile.setName(rstring(str(newFile.name)));
@@ -58,9 +58,9 @@ class BaseUploadFile(BaseController):
         else:
             if newFile.content_type.startswith("image"):
                 f = newFile.content_type.split("/") 
-                format = self.conn.getFileFormt(f[1].upper())
+                format = self.conn.getFileFormat(f[1].upper())
             else:
-                format = self.conn.getFileFormt(newFile.content_type)
+                format = self.conn.getFileFormat(newFile.content_type)
             oFile = OriginalFileI()
             oFile.setName(rstring(str(newFile.name)));
             oFile.setPath(rstring(str(newFile.name)));

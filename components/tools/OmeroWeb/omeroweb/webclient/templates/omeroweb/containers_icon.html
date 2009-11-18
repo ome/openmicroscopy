@@ -148,19 +148,19 @@
 <div class="clear"></div>
 
 {% if manager.dataset %}
-    <div class="dataset"><h1>{% trans "Dataset" %}: {{ manager.dataset.fullNameWrapped }} {% if not manager.dataset.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}</h1>
+    <div class="dataset"><h1>{% trans "Dataset" %}: {{ manager.dataset.shortName }} {% if not manager.dataset.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}</h1>
     </div>
 {% else %}
     {% if manager.project %}
-        <div class="project"><h1>{% trans "Project" %}: {{ manager.project.fullNameWrapped }} {% if not manager.project.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}</h1>
+        <div class="project"><h1>{% trans "Project" %}: {{ manager.project.shortName }} {% if not manager.project.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}</h1>
         </div>
     {% else %}
         {% if manager.plate %}
-            <div class="screen"><h1>{% trans "Plate" %}: {{ manager.plate.fullNameWrapped }} {% if not manager.plate.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}</h1>
+            <div class="screen"><h1>{% trans "Plate" %}: {{ manager.plate.shortName }} {% if not manager.plate.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}</h1>
             </div>
         {% else %}
             {% if manager.screen %}
-                <div class="screen"><h1>{% trans "Screen" %}: {{ manager.screen.fullNameWrapped }} {% if not manager.screen.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}</h1>
+                <div class="screen"><h1>{% trans "Screen" %}: {{ manager.screen.shortName }} {% if not manager.screen.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}</h1>
                 </div>
             {% else %}
                 {% if manager.orphaned %}

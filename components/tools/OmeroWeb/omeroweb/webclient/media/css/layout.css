@@ -161,9 +161,7 @@ p {
 table {
     text-align: center;
 }
-table.forms {
-    margin-left: 10px;
-}
+
 td {
     text-align: left;
     padding: 0px;
@@ -229,6 +227,12 @@ ul.errorlist li {
     margin: 0px;
     padding: 0px;
 }
+.separate50 {
+    clear: both;
+    height: 50px;
+    margin: 0px;
+    padding: 0px;
+}
 .separate30 {
     clear: both;
     height: 30px;
@@ -241,7 +245,7 @@ ul.errorlist li {
 }
 .center {
     text-align: center;
-    padding: 1px 0;
+    padding: 5px 10px;
 }
 label {
     font-weight: bold;
@@ -249,4 +253,8 @@ label {
 .box {
     float:left;
     margin:15px 0 10px 0;
+}
+
+.link_box {
+    border-top:1px solid #BBBBBB;
 }

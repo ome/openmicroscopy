@@ -33,6 +33,8 @@ from omero_model_OriginalFileI import OriginalFileI
 from omero_model_ImageAnnotationLinkI import ImageAnnotationLinkI
 from omero_model_DatasetAnnotationLinkI import DatasetAnnotationLinkI
 from omero_model_ProjectAnnotationLinkI import ProjectAnnotationLinkI
+from omero_model_PlateAnnotationLinkI import PlateAnnotationLinkI
+from omero_model_ScreenAnnotationLinkI import ScreenAnnotationLinkI
 from omero_model_DatasetI import DatasetI
 from omero_model_ProjectI import ProjectI
 from omero_model_ScreenI import ScreenI
@@ -160,22 +162,7 @@ class BaseContainer(BaseController):
     def formatMetadataLine(self, l):
         if len(l) < 1:
             return None
-        meta = l.split("=")                            
-        try:
-            splited = []
-            for v in range(0,len(meta[0]),20):
-                splited.append(meta[0][v:v+20]+"\n")
-            meta[0] = "".join(splited)
-        except:
-            pass                            
-        try:
-            splited = []
-            for v in range(0,len(meta[1]),20):
-                splited.append(meta[1][v:v+20]+"\n")
-            meta[1] = "".join(splited)
-        except:
-            pass
-        return meta
+        return l.split("=")
         
     def originalMetadata(self):
         # TODO: hardcoded values.
@@ -217,7 +204,9 @@ class BaseContainer(BaseController):
                                     self.global_metadata.append(l)
                                 elif flag == 2:
                                     self.series_metadata.append(l)
-    
+        self.global_metadata.sort()
+        self.series_metadata.sort()
+
     def channelMetadata(self):
         try:
             if self.image is not None:
@@ -401,7 +390,7 @@ class BaseContainer(BaseController):
                     pr_list.append(o)
                 if isinstance(o._obj, DatasetI):
                     ds_list.append(o)
-
+                    
             self.hierarchy={'projects': self.sortByAttr(pr_list, 'name'), 'datasets': self.sortByAttr(ds_list, 'name')}
         #1015    
         #elif self.dataset is not None:
@@ -458,7 +447,7 @@ class BaseContainer(BaseController):
         
         pl_ids = [pl.id for pl in pl_list]
         if len(pl_ids) > 0:
-            pl_child_counter = self.conn.getCollectionCount("Plate", "wellLinks", ds_ids)
+            pl_child_counter = {}#self.conn.getCollectionCount("Plate", "wellLinks", ds_ids)
             pl_annotation_counter = self.conn.getCollectionCount("Plate", "annotationLinks", ds_ids)
             
             for pl in pl_list:
@@ -520,8 +509,8 @@ class BaseContainer(BaseController):
         
         row_names = set()
         column_names = set()
-        row_count = -1
-        col_count = -1
+        row_count = 0
+        col_count = 0
         for wl in wl_list:
             wl_ids.append(wl.id)
             row_count = wl.row > row_count and wl.row or row_count
@@ -996,13 +985,15 @@ class BaseContainer(BaseController):
         self.file_annotations = list()
         self.tag_annotations = list()
         
-        aList = None
+        aList = list()
         if self.image is not None:
             aList = self.image.listAnnotations()
         elif self.dataset is not None:
             aList = self.dataset.listAnnotations()
         elif self.project is not None:
             aList = self.project.listAnnotations()
+        elif self.screen is not None:
+            aList = self.screen.listAnnotations()
         
         for ann in aList:
             if isinstance(ann._obj, CommentAnnotationI):
@@ -1017,7 +1008,7 @@ class BaseContainer(BaseController):
             elif isinstance(ann._obj, TagAnnotationI):
                 self.tag_annotations.append(ann)
 
-        self.text_annotations = self.sortByAttr(self.text_annotations, "details.creationEvent.time")
+        self.text_annotations = self.sortByAttr(self.text_annotations, "details.creationEvent.time", True)
         self.url_annotations = self.sortByAttr(self.url_annotations, "textValue")
         self.file_annotations = self.sortByAttr(self.file_annotations, "details.creationEvent.time")
         self.tag_annotations = self.sortByAttr(self.tag_annotations, "textValue")
@@ -1191,9 +1182,16 @@ class BaseContainer(BaseController):
     
     # Tag annotation
     def createImageTagAnnotation(self, tag, desc):
-        ann = TagAnnotationI()
-        ann.textValue = rstring(str(tag))
-        ann.setDescription(rstring(str(desc)))
+        ann = None
+        try:
+            ann = self.conn.findTag(tag, desc)._obj
+        except:
+            pass
+        if ann is None:
+            ann = TagAnnotationI()
+            ann.textValue = rstring(str(tag))
+            ann.setDescription(rstring(str(desc)))
+        
         t_ann = ImageAnnotationLinkI()
         t_ann.setParent(self.image._obj)
         t_ann.setChild(ann)
@@ -1236,16 +1234,19 @@ class BaseContainer(BaseController):
         self.conn.saveObject(t_ann)
     
     # File annotation
-    def createProjectFileAnnotation(self, newFile):
-        if newFile.content_type.startswith("image"):
-            f = newFile.content_type.split("/") 
-            try:
-                format = self.conn.getFileFormt(f[1].upper())
-            except:
-                format = self.conn.getFileFormt("application/octet-stream")
-        else:
-            format = self.conn.getFileFormt(newFile.content_type)
+    def getFileFormat(self, newFile):
+        format = None
+        try:
+            format = self.conn.getFileFormat(newFile.content_type)
+        except:
+            pass
         
+        if format is None:
+            format = self.conn.getFileFormat("application/octet-stream")
+        return format
+    
+    def createProjectFileAnnotation(self, newFile):
+        format = self.getFileFormat(newFile)
         oFile = OriginalFileI()
         oFile.setName(rstring(str(newFile.name)));
         oFile.setPath(rstring(str(newFile.name)));
@@ -1264,15 +1265,7 @@ class BaseContainer(BaseController):
         self.conn.saveObject(l_ia)
     
     def createScreenFileAnnotation(self, newFile):
-        if newFile.content_type.startswith("image"):
-            f = newFile.content_type.split("/") 
-            try:
-                format = self.conn.getFileFormt(f[1].upper())
-            except:
-                format = self.conn.getFileFormt("application/octet-stream")
-        else:
-            format = self.conn.getFileFormt(newFile.content_type)
-        
+        format = self.getFileFormat(newFile)
         oFile = OriginalFileI()
         oFile.setName(rstring(str(newFile.name)));
         oFile.setPath(rstring(str(newFile.name)));
@@ -1291,15 +1284,7 @@ class BaseContainer(BaseController):
         self.conn.saveObject(l_ia)
     
     def createDatasetFileAnnotation(self, newFile):
-        format = None
-        try:
-            format = self.conn.getFileFormt(newFile.content_type)
-        except:
-            pass
-        
-        if format is None:
-            format = self.conn.getFileFormt("application/octet-stream")
-
+        format = self.getFileFormat(newFile)
         oFile = OriginalFileI()
         oFile.setName(rstring(str(newFile.name)));
         oFile.setPath(rstring(str(newFile.name)));
@@ -1318,15 +1303,7 @@ class BaseContainer(BaseController):
         self.conn.saveObject(l_ia)
     
     def createPlateFileAnnotation(self, newFile):
-        if newFile.content_type.startswith("image"):
-            f = newFile.content_type.split("/") 
-            try:
-                format = self.conn.getFileFormt(f[1].upper())
-            except:
-                format = self.conn.getFileFormt("application/octet-stream")
-        else:
-            format = self.conn.getFileFormt(newFile.content_type)
-        
+        format = self.getFileFormat(newFile)
         oFile = OriginalFileI()
         oFile.setName(rstring(str(newFile.name)));
         oFile.setPath(rstring(str(newFile.name)));
@@ -1345,16 +1322,7 @@ class BaseContainer(BaseController):
         self.conn.saveObject(l_ia)
     
     def createImageFileAnnotation(self, newFile):
-        if newFile.content_type.startswith("image"):
-            f = newFile.content_type.split("/") 
-            format = None
-            try:
-                format = self.conn.getFileFormt(f[1].upper())
-            except:
-                format = self.conn.getFileFormt("application/octet-stream")
-        else:
-            format = self.conn.getFileFormt(newFile.content_type)
-        
+        format = self.getFileFormat(newFile)
         oFile = OriginalFileI()
         oFile.setName(rstring(str(newFile.name)));
         oFile.setPath(rstring(str(newFile.name)));
@@ -1470,6 +1438,14 @@ class BaseContainer(BaseController):
     
     ################################################################
     # Update
+    
+    def updateDescription(self, description):
+        img = self.image._obj
+        if description != "" :
+            img.description = rstring(str(description))
+        else:
+            img.description = None
+        self.conn.saveObject(img)
     
     def updateImage(self, name, description):
         img = self.image._obj

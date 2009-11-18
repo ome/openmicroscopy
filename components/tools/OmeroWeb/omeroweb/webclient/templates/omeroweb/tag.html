@@ -61,7 +61,7 @@
     				async: false,
     				dataType: "json",  
                     success: function(json){  
-                        prepareAutocomplite(json);
+                        prepareAutocomplete(json);
                         $("div#tagloader").remove();
                         $("div#tag").show();
                     },  
@@ -70,7 +70,7 @@
                     }
                 });
                 
-                function prepareAutocomplite(myjson){
+                function prepareAutocomplete(myjson){
                     $("#id_tag, #id_tag2, #id_tag3, #id_tag4, #id_tag5").autocomplete(myjson, {
                         //width: 320,
                         max: 10,

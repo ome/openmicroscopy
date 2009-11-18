@@ -3,10 +3,9 @@
     margin-top: 50px;
 }
 #annotation_form {
-    margin-top: 30px;
-    padding-bottom: 50px;
-    border-bottom:1px solid #BBBBBB;
-    height: 300px;
+    padding-bottom: 10px;
+    height: 500px;
+    width: 590px;
 }
 
 #annotation_tabs {
@@ -17,7 +16,7 @@
 
 }
 select.existing {
-    width: 450px;
+    width: 300px;
 }
 
 div.comment {
@@ -25,7 +24,12 @@ div.comment {
 }
 div.excomment {
     float: right;
-    margin-top: 25px;
+}
+div.lncomments{
+    max-height: 305px;
+    overflow: auto;
+    border: 1px solid #bbb;
+    padding: 10px;
 }
 div.urls {
     float: left;
@@ -39,12 +43,23 @@ div.tags {
 div.extags {
     float: left;
 }
-
+div.lntags{
+    max-height: 345px;
+    overflow: auto;
+    border: 1px solid #bbb;
+    padding: 0 10px;
+}
 div.file {
     float: right;
 }
 div.exfile {
     float: left;
+}
+div.lnfiles{
+    max-height: 345px;
+    overflow: auto;
+    border: 1px solid #bbb;
+    padding: 0 10px;
 }
 /* tabs */
 
@@ -68,7 +83,7 @@ div.exfile {
 .ui-tabs-nav li.ui-tabs-selected {  
     background: #eee;
 }
-.ui-tabs-panel { padding: 10px 0;  display: block; border: 0; background: none; border-top:1px solid #BBBBBB;}
+.ui-tabs-panel { padding: 10px;  display: block; border: 0; background: none; border-top:1px solid #BBBBBB;}
 .ui-tabs-hide { display: none !important; }
 
 /* comment display page */
@@ -156,3 +171,18 @@ div.exfile {
 	padding: 0px 20px;
 }
 
+#ann_comment_wrapper {
+    width: 100%;
+
+}
+#ann_comment_wrapper div.avatar {
+    float: left;
+    width:50px;
+    padding: 5px 5px 0 10px;
+}
+#ann_comment_wrapper div.ann_comment{
+    width: 100%;
+}
+#ann_comment_wrapper .ann_comment_header{
+    font-weight: bold;
+}

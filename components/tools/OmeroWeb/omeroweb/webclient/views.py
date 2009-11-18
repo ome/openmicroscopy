@@ -544,7 +544,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
     except AttributeError, x:
         return handlerInternalError(x)
     manager.buildBreadcrumb(whos)
-        
+    
     form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups']})
     
     form_users = None
@@ -782,7 +782,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
     
     form_tags = None
     form_urls = None
-    form_comments = None
+    #form_comments = None
     form_files = None
     
     tag_list = manager.listTags()
@@ -801,7 +801,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
             
             form_tags = TagListForm(initial={'tags':tag_list})
             form_urls = UrlListForm(initial={'urls':url_list})
-            form_comments = CommentListForm(initial={'comments':comment_list})
+            #form_comments = CommentListForm(initial={'comments':comment_list})
             form_files = FileListForm(initial={'files':file_list})
     else:
         if action == "comment":
@@ -836,7 +836,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
 
                 form_tags = TagListForm(initial={'tags':tag_list})
                 form_urls = UrlListForm(initial={'urls':url_list})
-                form_comments = CommentListForm(initial={'comments':comment_list})
+                #form_comments = CommentListForm(initial={'comments':comment_list})
                 form_files = FileListForm(initial={'files':file_list})
         elif action == "url":
             if request.method == 'POST':
@@ -870,7 +870,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
 
                 form_tags = TagListForm(initial={'tags':tag_list})
                 form_urls = UrlListForm(initial={'urls':url_list})
-                form_comments = CommentListForm(initial={'comments':comment_list})
+                #form_comments = CommentListForm(initial={'comments':comment_list})
                 form_files = FileListForm(initial={'files':file_list})
         elif action == "tag":
             if request.method == 'POST':
@@ -905,7 +905,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
 
                 form_tags = TagListForm(initial={'tags':tag_list})
                 form_urls = UrlListForm(initial={'urls':url_list})
-                form_comments = CommentListForm(initial={'comments':comment_list})
+                #form_comments = CommentListForm(initial={'comments':comment_list})
                 form_files = FileListForm(initial={'files':file_list})
         elif action == "file":
             if request.method == 'POST':
@@ -939,7 +939,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
             
             form_tags = TagListForm(initial={'tags':tag_list})
             form_urls = UrlListForm(initial={'urls':url_list})
-            form_comments = CommentListForm(initial={'comments':comment_list})
+            #form_comments = CommentListForm(initial={'comments':comment_list})
             form_files = FileListForm(initial={'files':file_list})
         elif action == "usetag":
             if request.method == 'POST':
@@ -969,7 +969,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                     request.session['nav']['loadAnn'] = True
             
             form_urls = UrlListForm(initial={'urls':url_list})
-            form_comments = CommentListForm(initial={'comments':comment_list})
+            #form_comments = CommentListForm(initial={'comments':comment_list})
             form_files = FileListForm(initial={'files':file_list})
                     
             form_tag = TagAnnotationForm()
@@ -979,7 +979,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
         
         elif action == "usecomment":
             if request.method == 'POST':
-                form_comments = CommentListForm(data=request.REQUEST.copy(), initial={'comments':comment_list})
+                #form_comments = CommentListForm(data=request.REQUEST.copy(), initial={'comments':comment_list})
                 if form_comments.is_valid():
                     comments = request.POST.getlist('comments')
                     if o3_type and o3_id:
@@ -1001,7 +1001,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                             manager.createImageAnnotationLinks('comment',comments)
                         elif o1_type == 'screen':
                             manager.createScreenAnnotationLinks('comment',comments)
-                    form_comments = CommentListForm(initial={'comments':manager.listComments()})
+                    #form_comments = CommentListForm(initial={'comments':manager.listComments()})
                     request.session['nav']['loadAnn'] = True
             
             form_tags = TagListForm(initial={'tags':tag_list})
@@ -1040,7 +1040,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                     form_urls = UrlListForm(initial={'urls':manager.listUrls()})
                     request.session['nav']['loadAnn'] = True
                 
-            form_comments = CommentListForm(initial={'comments':comment_list})
+            #form_comments = CommentListForm(initial={'comments':comment_list})
             form_tags = TagListForm(initial={'tags':tag_list})
             form_files = FileListForm(initial={'files':file_list})
                     
@@ -1076,7 +1076,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                     form_files = FileListForm(initial={'files':manager.listFiles()})
                     request.session['nav']['loadAnn'] = True
                     
-            form_comments = CommentListForm(initial={'comments':comment_list})
+            #form_comments = CommentListForm(initial={'comments':comment_list})
             form_tags = TagListForm(initial={'tags':tag_list})
             form_urls = UrlListForm(initial={'urls':url_list})
             
@@ -1085,24 +1085,26 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
             form_uri = UriAnnotationForm(initial={'link':'http://'})
             form_file = UploadFileForm()
     
+    manager.annotationList()
+    
     if template is None and view =='icon':
         template = "omeroweb/containers_icon.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group, 'form_tags':form_tags, 'form_urls':form_urls, 'form_files':form_files}
     elif template is None and view =='table':
         template = "omeroweb/containers_table.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group, 'form_tags':form_tags, 'form_urls':form_urls, 'form_files':form_files}
     elif template is None and view =='tree' and o1_type is not None and o1_id > 0:
         template = "omeroweb/containers_table.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group, 'form_tags':form_tags, 'form_urls':form_urls, 'form_files':form_files}
     elif template is None and view =='tree' and o1_type is None and o1_id is None:
         template = "omeroweb/containers_tree.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group, 'form_tags':form_tags, 'form_urls':form_urls, 'form_files':form_files}
     elif template is not None and view == 'tree' and o1_type=='ajaxdataset' and o1_id > 0:
         context = {'manager':manager, 'eContext':manager.eContext}
     elif template is not None and view == 'tree' and o1_type=='ajaxorphaned':
         context = {'manager':manager, 'eContext':manager.eContext}
     else:
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group, 'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 'form_filters':form_filters, 'form_detectors':form_detectors, 'form_stageLabel':form_stageLabel, 'form_tags':form_tags, 'form_comments':form_comments, 'form_urls':form_urls, 'form_files':form_files, 'form_well_index':form_well_index}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_active_group':form_active_group, 'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 'form_filters':form_filters, 'form_detectors':form_detectors, 'form_stageLabel':form_stageLabel, 'form_tags':form_tags, 'form_urls':form_urls, 'form_files':form_files, 'form_well_index':form_well_index}
     
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -1253,6 +1255,8 @@ def manage_annotations(request, o_type, o_id, **kwargs):
         template = "omeroweb/annotations.html"
     elif o_type == "image":
         template = "omeroweb/annotations.html"
+    elif o_type == "screen":
+        template = "omeroweb/annotations.html"
     else:
         return handlerInternalError("Annotations cannot be displayed for - %s (id:%s)." % (o_type, o_id))
     
@@ -1297,7 +1301,7 @@ def manage_tree_details(request, c_type, c_id, **kwargs):
 
 @isUserConnected
 def manage_well_details(request, c_type, c_id, index, **kwargs):
-    template = "omeroweb/well_details.html"
+    template = "omeroweb/annotations_image_form.html"
     
     conn = None
     try:
@@ -1326,6 +1330,8 @@ def manage_well_details(request, c_type, c_id, index, **kwargs):
     form_filters = list()
     form_detectors = list()
     form_channels = list()
+    
+    manager.annotationList()
     
     manager.originalMetadata()
     manager.channelMetadata()

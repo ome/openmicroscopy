@@ -27,7 +27,7 @@ import cStringIO
 import traceback
 import logging
 
-logger = logging.getLogger('gateway')
+logger = logging.getLogger('wrapper')
 
 try:
     import Image,ImageDraw
@@ -87,7 +87,13 @@ class OmeroWebObjectWrapper (object):
         if self.child_counter is not None:
             return self.child_counter
         else:
-            return self.countChildren()
+            try:
+                a = self.countChildren()
+            except:
+                print traceback.format_exc()
+                a = None
+                
+            return a
     
     def listAnnotations (self):
         #container = self._conn.getContainerService()
@@ -131,21 +137,6 @@ class OmeroWebObjectWrapper (object):
                 splited = []
                 for v in range(0,len(name),45):
                     splited.append(name[v:v+45]+"\n")
-                return "".join(splited)
-        except:
-            logger.info(traceback.format_exc())
-            return self._obj.name.val
-    
-    def fullNameWrapped(self):
-        try:
-            name = self._obj.name.val
-            l = len(name)
-            if l <= 60:
-                return name
-            elif l > 60:
-                splited = []
-                for v in range(0,len(name),60):
-                    splited.append(name[v:v+60]+"\n")
                 return "".join(splited)
         except:
             logger.info(traceback.format_exc())
@@ -331,9 +322,9 @@ class AnnotationWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper
             try:
                 name = self._obj.file.name.val
                 l = len(name)
-                if l < 65:
+                if l < 35:
                     return name
-                return name[:30] + "..." + name[l - 30:] 
+                return name[:16] + "..." + name[l - 16:] 
             except:
                 logger.info(traceback.format_exc())
                 return self._obj.file.name.val

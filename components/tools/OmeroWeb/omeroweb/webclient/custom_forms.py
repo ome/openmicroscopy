@@ -117,8 +117,8 @@ class AnnotationQuerySetIterator(object):
             elif isinstance(obj._obj, TagAnnotationI):
                 if obj.textValue is not None:
                     if obj.description is not None and obj.description is not "":
-                        textValue = "%s (%s)" % ((obj.textValue[:45]+"...", obj.textValue)[ len(obj.textValue)<45 ], \
-                            (obj.description[:25]+"...", obj.description)[ len(obj.description)<25 ])
+                        textValue = "%s (%s)" % ((obj.textValue[:25]+"...", obj.textValue)[ len(obj.textValue)<25 ], \
+                            (obj.description[:20]+"...", obj.description)[ len(obj.description)<20 ])
                     else:
                         textValue = obj.textValue
             else:

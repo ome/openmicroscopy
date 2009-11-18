@@ -1414,6 +1414,24 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             else:
                 yield AnnotationWrapper(self, e)
     
+    def findTag (self, name, desc):
+        query_serv = self.getQueryService()
+        res = list()
+        p = omero.sys.Parameters()
+        p.map = {} 
+        p.map["text"] = rstring(str(name))
+        p.map["desc"] = rstring(str(desc))
+        p.map["eid"] = rlong(self.getEventContext().userId)
+        f = omero.sys.Filter()
+        f.limit = rint(1)
+        p.theFilter = f
+        sql = "select tg from TagAnnotation tg " \
+              "where tg.textValue=:text and tg.description=:desc and tg.details.owner.id=:eid and tg.ns is null order by tg.textValue"
+        res = query_serv.findByQuery(sql, p)
+        if res is None:
+            return None
+        return AnnotationWrapper(self, res)
+    
     def getFileAnnotation (self, oid):
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
@@ -1543,7 +1561,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.seek(0)
         return f.read()
     
-    def getFileFormt(self, format):
+    def getFileFormat(self, format):
         query_serv = self.getQueryService()
         return query_serv.findByString("Format", "value", format);
     
