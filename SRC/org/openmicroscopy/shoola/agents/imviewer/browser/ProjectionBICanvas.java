@@ -22,6 +22,8 @@
  */
 package org.openmicroscopy.shoola.agents.imviewer.browser;
 
+
+//Java imports
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -30,16 +32,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
-import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
-
-//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 
 /** 
- * 
+ * Canvas displaying the projected image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -59,6 +59,9 @@ class ProjectionBICanvas
 	
     /** The mouse listener. */
     private MouseAdapter	listener;
+    
+    /** Reference to the UI hosting this canvas. */
+    private ProjectionUI	ui;
     
     /** Does a preview of the projected image. */
     private void projectionPreview()
@@ -84,10 +87,14 @@ class ProjectionBICanvas
      *
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      * @param view  Reference to the View. Mustn't be <code>null</code>.
+     * @param ui  Reference to the View. Mustn't be <code>null</code>.
      */
-	ProjectionBICanvas(BrowserModel model, BrowserUI view)
+	ProjectionBICanvas(BrowserModel model, BrowserUI view, ProjectionUI ui)
 	{
 		super(model, view);
+		if (ui == null)
+			throw new IllegalArgumentException("No UI specified.");
+		this.ui = ui;
 	}
 	
 	/**
@@ -115,9 +122,9 @@ class ProjectionBICanvas
         	}
         	return;
         }
-       
+      
         g2D.drawImage(img, null, 0, 0); 
-        paintScaleBar(g2D, img.getWidth(), img.getHeight(), view.getViewport());
+        paintScaleBar(g2D, img.getWidth(), img.getHeight(), ui.getViewport());
         g2D.dispose();
     }
     
