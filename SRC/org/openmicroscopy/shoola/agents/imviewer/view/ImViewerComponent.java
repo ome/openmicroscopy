@@ -2958,5 +2958,21 @@ class ImViewerComponent
 		model.renderOverlays(m);
 		fireStateChange();
 	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#renderOverlays(int, boolean)
+	 */
+	public void onChannelColorChnaged(int index)
+	{
+		switch (model.getState()) {
+			case NEW:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED or " +
+						"NEW state.");
+		}
+		view.setChannelColor(index, model.getChannelColor(index));
+	}
 	
 }

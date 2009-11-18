@@ -136,6 +136,12 @@ public interface MetadataViewer
 	/** Bound property indicating to close the renderer. */
 	public static final String	CLOSE_RENDERER_PROPERTY = "closeRenderer";
 	
+	/** 
+	 * Bound property indicating that the color of a channel has been modified. 
+	 */
+	public static final String	CHANNEL_COLOR_CHANGED_PROPERTY = 
+		"channelColorChanged";
+
 	/** Flag to denote the <i>New</i> state. */
 	public static final int     NEW = 1;
 
@@ -469,5 +475,12 @@ public interface MetadataViewer
 	 * 				<code>false</code> to discard.
 	 */
 	public void reloadRenderingControl(boolean value);
+	
+	/** 
+	 * Indicates that the color of the passed channel has changed.
+	 * 
+	 * @param index The index of the channel.
+	 */
+	void onChannelColorChanged(int index);
 	
 }

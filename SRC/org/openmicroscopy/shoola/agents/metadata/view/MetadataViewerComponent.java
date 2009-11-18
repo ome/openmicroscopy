@@ -966,5 +966,15 @@ class MetadataViewerComponent
 					model.getRefObject());
 		}
 	}
+
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#onChannelColorChanged(int)
+	 */
+	public void onChannelColorChanged(int index)
+	{
+		view.onChannelColorChanged(index);
+		firePropertyChange(CHANNEL_COLOR_CHANGED_PROPERTY, -1, index);
+	}
 	
 }

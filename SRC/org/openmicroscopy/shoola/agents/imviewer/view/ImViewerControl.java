@@ -912,6 +912,10 @@ class ImViewerControl
 				if (pixs != null && pixs.getId() == view.getPixelsID()) 
 					model.discard();
 			}
+		} else if (MetadataViewer.CHANNEL_COLOR_CHANGED_PROPERTY.equals(
+				pName)) {
+			int index = (Integer) pce.getNewValue();
+			model.onChannelColorChnaged(index);
 		}
 	}
 
