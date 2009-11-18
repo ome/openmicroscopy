@@ -206,13 +206,22 @@
   	description="Temporary 4.1 target for creating the HCS_PREVIEW files">
     <delete dir="${dist.dir}/hcs-preview"/>
     <mkdir dir="${dist.dir}/hcs-preview"/>
+    <!-- Configuration -->
     <property name="hcs-container" value="hcs-preview/config/container.xml"/>
-    <copy file="${app.config.dir}/container.xml" 
+    <property name="hcs-treeviewer" value="hcs-preview/config/treeviewer.xml"/>
+    <copy file="${app.config.dir}/container.xml"
     	tofile="${dist.dir}/${hcs-container}"/>
     <replace file="${dist.dir}/${hcs-container}"
         token='entry name="/roi/location/server" type="boolean"&gt;false&lt;/entry'
         value='entry name="/roi/location/server" type="boolean"&gt;true&lt;/entry'>
     </replace>
+    <copy file="${app.config.dir}/treeviewer.xml"
+        tofile="${dist.dir}/${hcs-treeviewer}"/>
+    <replace file="${dist.dir}/${hcs-treeviewer}"
+        token='entry name="BrowserSPW" type="boolean"&gt;false&lt;/entry'
+        value='entry name="BrowserSPW" type="boolean"&gt;true&lt;/entry'>
+    </replace>
+
     <available property="hcs-preview-main-available"  
     	file="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}.zip"/>
     <available property="hcs-preview-OSX-available"   
