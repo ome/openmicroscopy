@@ -27,12 +27,14 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 //Java imports
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
@@ -48,6 +50,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsSaver;
 import org.openmicroscopy.shoola.agents.treeviewer.ImagesImporter;
+import org.openmicroscopy.shoola.agents.treeviewer.OriginalFileLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.PlateWellsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ProjectsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RndSettingsSaver;
@@ -76,6 +79,7 @@ import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PermissionData;
+import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -160,8 +164,14 @@ class TreeViewerModel
 	private AdvancedFinder			advancedFinder;
 	
 	/** Reference to the component that embeds this model. */
-	protected TreeViewer            component;
+	protected TreeViewer            	component;
 
+	/** Collection of importers. */
+	private Map<Integer, ImagesImporter>	importLoaders;
+	
+	/** The id associated to an import. */
+	private int					importID;
+	
 	/**
 	 * Builds the map linking the nodes to copy and the parents.
 	 * 
@@ -279,6 +289,8 @@ class TreeViewerModel
 	{
 		state = TreeViewer.NEW;
 		browsers = new HashMap<Integer, Browser>();
+		importLoaders = new HashMap<Integer, ImagesImporter>();
+		importID = 0;
 		recycled = false;
 		refImage = null;
 	}
@@ -893,8 +905,11 @@ class TreeViewerModel
 	void importFiles(List<TreeImageDisplay> nodes, List<ImportObject> files,
 			boolean archived)
 	{
+		
 		ImagesImporter loader = new ImagesImporter(component, nodes, files,
-			archived);
+			archived, importID);
+		importLoaders.put(importID, loader);
+		importID++;
 		loader.load();
 	}
 	
@@ -910,8 +925,32 @@ class TreeViewerModel
 			boolean archived)
 	{
 		ImagesImporter loader = new ImagesImporter(component, node, files,
-				archived);
+				archived, importID);
+		importLoaders.put(importID, loader);
+		importID++;
 		loader.load();
+	}
+	
+	/**
+	 * Removes the loaders from the map.
+	 * 
+	 * @param importID The id of the loader.
+	 */
+	void removeLoader(int importID)
+	{
+		importLoaders.remove(importID);
+	}
+	
+	/** Cancels on-going imports. */
+	void cancelImport()
+	{
+		Entry entry;
+		Iterator i = importLoaders.entrySet().iterator();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			((ImagesImporter) entry.getValue()).cancel();
+		}
+		importLoaders.clear();
 	}
 	
 	/**
@@ -994,6 +1033,36 @@ class TreeViewerModel
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Starts an asynchronous call to download the images.
+	 * 
+	 * @param images The image to download.
+	 * @param folder The folder where to download the image.
+	 */ 
+	void downloadImages(List<ImageData> images, File folder)
+	{
+		if (images == null || images.isEmpty()) return;
+		Set<Long> ids = new HashSet<Long>();
+		
+		ImageData img;
+		PixelsData data;
+		Iterator i = images.iterator();
+		Object o;
+		while (i.hasNext()) {
+			o = (Object) i.next();
+			if (o instanceof ImageData) {
+				img = (ImageData) o;
+				if (img.isArchived()) {
+					data = img.getDefaultPixels();
+					ids.add(data.getId());
+				}
+			}
+		}
+		OriginalFileLoader loader = new OriginalFileLoader(component, ids, 
+				folder);
+		loader.load();
 	}
 	
 }

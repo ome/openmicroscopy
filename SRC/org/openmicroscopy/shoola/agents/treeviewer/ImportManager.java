@@ -80,6 +80,9 @@ public class ImportManager
 	/** Bound property indicating to send the files. */
 	public static final String SEND_FILES_PROPERTY = "sendFiles";
 	
+	/** Bound property indicating to cancel on-going import. */
+	public static final String CANCEL_IMPORT_PROPERTY = "cancelImport";
+	
 	/** The title of the dialog. */
 	private static final String	TITLE = "Import";
 	
@@ -92,6 +95,9 @@ public class ImportManager
 	
 	/** Action ID indicating to send the list files that failed to import. */
 	private static final int	SEND = 1;
+	
+	/** Action ID indicating to cancel an on-going import. */
+	private static final int	CANCEL = 2;
 	
 	/** The components to lay out. */
 	private LinkedHashMap<String, FileImportComponent>	components;
@@ -108,8 +114,11 @@ public class ImportManager
 	/** Button to clear the list of imported files. */
 	private JButton clearButton;
 	
-	/** Button to send the selected file that failed to import.. */
+	/** Button to send the selected file that failed to import. */
 	private JButton sendButton;
+	
+	/** Button to cancel any on-going import. */
+	private JButton cancelButton;
 
 	/** The number of files to import. */
 	private int		total;
@@ -132,6 +141,11 @@ public class ImportManager
 		sendButton.setActionCommand(""+SEND);
 		sendButton.addActionListener(this);
 		sendButton.setEnabled(false);
+		cancelButton = new JButton("Cancel");
+		cancelButton.setToolTipText("Cancel on-going imports.");
+		cancelButton.setActionCommand(""+CANCEL);
+		cancelButton.addActionListener(this);
+		cancelButton.setEnabled(false);
 	}
 	
 	/** Builds and lays out the UI. */
@@ -156,6 +170,8 @@ public class ImportManager
 	private JPanel buildStatusBar()
 	{
 		JPanel p = new JPanel();
+		p.add(cancelButton);
+		p.add(Box.createHorizontalStrut(5));
 		p.add(clearButton);
 		p.add(Box.createHorizontalStrut(5));
 		p.add(sendButton);
@@ -251,6 +267,22 @@ public class ImportManager
 		firePropertyChange(SEND_FILES_PROPERTY, null, files);
 	}
 	
+	/** Cancels on-going imports. */
+	private void cancel()
+	{
+		Entry entry;
+		Iterator i = components.entrySet().iterator();
+		FileImportComponent c;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			c = (FileImportComponent) entry.getValue();
+			c.setStatus(false, "Cancelled");
+		}
+		total = 0;
+		firePropertyChange(CANCEL_IMPORT_PROPERTY, Boolean.valueOf(false),
+				Boolean.valueOf(true));
+	}
+	
 	/** Creates a new instance. */
 	public ImportManager()
 	{
@@ -293,6 +325,7 @@ public class ImportManager
 			components.put(f.getAbsolutePath(), c);
 		}
 		total = toImport.size();
+		cancelButton.setEnabled(hasFilesToImport());
 		layoutEntries();
 		return list;
 	}
@@ -358,6 +391,7 @@ public class ImportManager
 				if (c != null) c.setStatus(true, null);
 			}
 		}
+		cancelButton.setEnabled(hasFilesToImport());
 	}
 
 	/**
@@ -389,8 +423,8 @@ public class ImportManager
 			case SEND:
 				send();
 				break;
-			default:
-				break;
+			case CANCEL:
+				cancel();
 		}
 	}
 

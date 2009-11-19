@@ -76,6 +76,9 @@ public class ImagesImporter
     /** Flag indicating to archive the files or not. */
     private boolean 				archived;
     
+    /** The id associated to that loader. */
+    private int						loaderID;
+    
     /**
      * Creates a new instance.
      * 
@@ -85,15 +88,17 @@ public class ImagesImporter
      * @param files	 	The collection of files to import.
      * @param archived 	Pass <code>true</code> to archived the files, 
 	 * 					<code>false</code> otherwise.
+	 * @param loaderID	The id associated to that specific loader.
      */
     public ImagesImporter(TreeViewer viewer, TreeImageDisplay node,
-    		List<ImportObject> files, boolean archived)
+    		List<ImportObject> files, boolean archived, int loaderID)
 	{
 		super(viewer);
 		if (files == null || files.size() == 0)
 			throw new IllegalArgumentException("No images to import.");
 		this.files = files;
 		this.archived = archived;
+		this.loaderID = loaderID;
 		if (node != null) {
 			nodes = new ArrayList<TreeImageDisplay>(1); 
 			Object ho = node.getUserObject();
@@ -113,13 +118,15 @@ public class ImagesImporter
      * @param files		The collection of files to import.
      * @param archived 	Pass <code>true</code> to archived the files, 
 	 * 					<code>false</code> otherwise.
+	 * @param loaderID	The id associated to that specific loader.
      */
 	public ImagesImporter(TreeViewer viewer, List<TreeImageDisplay> nodes,
-			List<ImportObject> files, boolean archived)
+			List<ImportObject> files, boolean archived, int loaderID)
 	{
 		super(viewer);
 		if (files == null || files.size() == 0)
 			throw new IllegalArgumentException("No images to import.");
+		this.loaderID = loaderID;
 		this.files = files;
 		this.nodes = nodes;
 		this.archived = archived;
@@ -156,7 +163,7 @@ public class ImagesImporter
         	while (i.hasNext()) {
 				entry = (Entry) i.next();
 				viewer.setImportedFiles((File) entry.getKey(), entry.getValue(), 
-						nodes, container);
+						nodes, container, loaderID);
 			}
         }
     }

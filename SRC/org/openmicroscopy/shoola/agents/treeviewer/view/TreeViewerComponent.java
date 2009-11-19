@@ -46,10 +46,8 @@ import javax.swing.filechooser.FileFilter;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
-
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
@@ -2378,10 +2376,10 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setImportedFiles(File, Object, List, DataObject)
+	 * @see TreeViewer#setImportedFiles(File, Object, List, DataObject, int)
 	 */
 	public void setImportedFiles(File key, Object value,
-			List<TreeImageDisplay> nodes, DataObject container)
+			List<TreeImageDisplay> nodes, DataObject container, int loaderID)
 	{
 		if (model.getState() == DISCARDED) return;
 		if (importManager == null) return;
@@ -2403,7 +2401,8 @@ class TreeViewerComponent
 			importManager.setStatus(key, thumb);
 		}
 		boolean b = importManager.hasFilesToImport();
-		view.setImportStatus("Done", b);
+		model.removeLoader(loaderID);
+		view.setImportStatus("", b);
 		Browser selectedBrowser = model.getSelectedBrowser();
 		if (container instanceof DatasetData) {
 			if (selectedBrowser != null && 
@@ -2484,6 +2483,7 @@ class TreeViewerComponent
 	 */
 	public void download(File folder)
 	{
+		if (model.getState() == DISCARDED) return;
 		Browser browser = model.getSelectedBrowser();
 		if (browser == null) return;
 		List l = browser.getSelectedDataObjects();
@@ -2500,8 +2500,40 @@ class TreeViewerComponent
 				downloadFile(folder, override, (FileAnnotationData) object);
 			}
 		}
-		if (images.size() > 0 ) {
-			
+		if (images.size() > 0) 
+			model.downloadImages(images, folder);
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#cancelImports()
+	 */
+	public void cancelImports()
+	{
+		if (model.getState() == DISCARDED) return;
+		if (importManager == null) return;
+		boolean b = importManager.hasFilesToImport();
+		view.setImportStatus("", b);
+		model.cancelImport();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see TreeViewer#setDownloadedFiles(File, Collection)
+	 */
+	public void setDownloadedFiles(File folder, Collection files)
+	{
+		if (files == null || files.size() == 0) return;
+		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+		IconManager icons = IconManager.getInstance();
+		Iterator i = files.iterator();
+		OriginalFile file;
+		DownloadActivityParam activity;
+		while (i.hasNext()) {
+			file = (OriginalFile) i.next();
+			activity = new DownloadActivityParam(file,
+					folder, icons.getIcon(IconManager.DOWNLOAD_22));
+			un.notifyActivity(activity);
 		}
 	}
 	

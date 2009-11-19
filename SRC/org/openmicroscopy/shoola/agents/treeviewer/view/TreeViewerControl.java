@@ -893,6 +893,8 @@ class TreeViewerControl
 				un.notifyActivity(activity);
 				
 			}
+		} else if (ImportManager.CANCEL_IMPORT_PROPERTY.equals(name)) {
+			model.cancelImports();
 		}
 	}
 	

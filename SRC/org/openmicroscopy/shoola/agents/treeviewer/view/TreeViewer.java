@@ -796,9 +796,10 @@ public interface TreeViewer
 	 * @param nodes 	The nodes to refresh.
 	 * @param container The container where the files are linked to or 
 	 * 					<code>null</code>.
+	 * @param loaderID	The id associated to that specific loader.
 	 */
 	void setImportedFiles(File key, Object value, List<TreeImageDisplay> nodes,
-			DataObject container);
+			DataObject container, int loaderID);
 
 	/**
 	 * Returns <code>true</code> if there is an on-going import.
@@ -847,5 +848,16 @@ public interface TreeViewer
 	 * @param folder The folder where to download the files.
 	 */
 	void download(File folder);
+
+	/** Cancels on-going imports. */
+	void cancelImports();
+
+	/**
+	 * Sets the collection of archived files.
+	 * 
+	 * @param folder The folder where to save the files.
+	 * @param files The collection of files to handle.
+	 */
+	void setDownloadedFiles(File folder, Collection o);
 	
 }
