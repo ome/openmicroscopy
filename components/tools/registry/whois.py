@@ -3,7 +3,11 @@
 # OMERO Registry Whois Database
 # Copyright 2007 Glencoe Software, Inc.  All Rights Reserved.
 #
-from pysqlite2 import dbapi2 as sqlite
+try:
+    from pysqlite2 import dbapi2 as sqlite
+except:
+    from sqlite3 import dbapi2 as sqlite
+
 from pprint import pprint
 import os, sys, exceptions
 
