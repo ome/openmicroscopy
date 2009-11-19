@@ -67,16 +67,16 @@
 	<classpathentry exported="true" kind="lib" path="lib/repository/freemarker-3.2.0.beta11.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/geronimo-spec-jta-1.0.1B-rc4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/grib-5.1.03.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/hibernate-3.2.6.ga.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/hibernate-3.2.6.ga.jar" sourcepath="/Users/josh/lib/hibernate-3.2.6.ga"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/hibernate-annotations-3.3.1.GA.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/hibernate-commons-annotations-3.0.0.ga.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/hibernate-search-3.0.1.GA.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/hibernate-tools-3.2.0.beta11.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/hibernate-validator-3.0.0.ga.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/hsqldb-1.8.0.9.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/ice-3.3.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/ice-db-3.3.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/ice-gridgui-3.3.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/ice-3.3.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/ice-db-3.3.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/ice-gridgui-3.3.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/ij-1.41.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/ini4j-0.3.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/ivy-2.0.0.jar"/>
@@ -129,7 +129,7 @@
 	<classpathentry kind="lib" path="lib/repository/jarbundler-2.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/repository/jdepend-2.9.jar"/>
 	<classpathentry kind="lib" path="lib/repository/jts-1.10.jar"/>
-	<classpathentry kind="lib" path="lib/repository/omero-clients-util-Beta-4.1.0-DEV.jar"/>
+	<classpathentry kind="lib" path="lib/repository/omero-clients-util-r6779-b12.jar"/>
 	<classpathentry kind="lib" path="lib/repository/swingx-0.9.4.jar"/>
 	<classpathentry kind="lib" path="lib/repository/TableLayout-2006-11-27.jar"/>
 	<classpathentry kind="lib" path="lib/repository/jul-to-slf4j-1.5.8.jar"/>
