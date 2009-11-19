@@ -853,6 +853,7 @@ class MeasurementViewerUI
     			roiResults.refreshResults();
     		}
 		} catch (Exception e) {
+			e.printStackTrace();
 			handleROIException(e, DELETE_MSG);
 		}
     }

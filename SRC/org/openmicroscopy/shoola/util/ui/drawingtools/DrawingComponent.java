@@ -29,6 +29,7 @@ import java.util.List;
 import javax.swing.ActionMap;
 
 //Third-party libraries
+import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.DefaultDrawing;
 import org.jhotdraw.draw.DefaultDrawingEditor;
 import org.jhotdraw.draw.DrawingEditor;
@@ -204,6 +205,20 @@ public class DrawingComponent
 			e.getFigure().addFigureListener(figureListeners.get(i));
 	}
 
+	/**
+	 * Remove all figures from the drawingView
+	 */
+	public void removeAllFigures()
+	{
+		List<Figure> figures = drawing.getFigures();
+		for(int i = 0 ; i < figures.size() ; i++)
+		{
+			Figure fig = figures.get(i);
+			drawing.remove(fig);
+		}
+		
+	}
+	
 	/**
 	 * Required by the {@link DrawingListener} I/F but no-op implementation
 	 * in our case.

@@ -67,8 +67,9 @@ public class SaveROIAction
 	 */
 	protected void onStateChange()
 	{
-		if (model.getState() == MeasurementViewer.READY) 
-			setEnabled(model.hasROIToSave());
+	//	if (model.getState() == MeasurementViewer.READY) 
+	//		setEnabled(model.hasROIToSave());
+		setEnabled(true);
 	}
 	
 	/**

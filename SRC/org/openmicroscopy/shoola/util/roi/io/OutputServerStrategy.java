@@ -65,6 +65,7 @@ import pojos.MaskData;
 import pojos.PointData;
 import pojos.PolygonData;
 import pojos.PolylineData;
+import pojos.ROICoordinate;
 import pojos.ROIData;
 import pojos.ShapeData;
 import pojos.ShapeSettingsData;
@@ -323,6 +324,7 @@ public class OutputServerStrategy
 		AffineTransform t=TRANSFORM.get(fig);
 		if(t!=null)
 			rectangle.setTransform(toTransform(t));
+		
 		if(!fig.isClientObject())
 			rectangle.setId(shape.getROIShapeID());
 		return rectangle;

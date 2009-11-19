@@ -24,14 +24,19 @@
 package org.openmicroscopy.shoola.env.data.util;
 
 //Java imports
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.awt.Color;
 
 
 //Third-party libraries
@@ -236,6 +241,47 @@ public class PojoMapper
         	set.add(data);
         }
         return set;
+    }
+    
+    
+    /**
+     * Converts each element of the list to a pair (key, value) in the map. 
+     * 
+     * The object in the list must be a IObject subclass and the key is the 
+     * ID of the object.
+     * 
+     * @param keyClass The class that will be the key for the map
+     * @param valueClass The class that will be the value for the map
+     * @param method The method name as a string that, using reflection, 
+     * 					will be used to get the key from the object.
+     * @param objects   The map of objects to convert.
+     * @return          A map of converted objects.
+     * @throws NoSuchMethodException 
+     * @throws SecurityException 
+     * @throws InvocationTargetException 
+     * @throws IllegalAccessException 
+     * @throws IllegalArgumentException 
+     * @throws IllegalArgumentException If the map is <code>null</code> 
+     * or if the type {@link IObject} is unknown.
+     */public static <K, V extends DataObject>  Map<K, V> 
+    								asDataObjectMap(Class<K> keyKlass, 
+    										Class<V> valueKlass, 
+    								String method, List objects) throws 
+    								SecurityException, 
+    								NoSuchMethodException, 
+    								IllegalArgumentException, 
+    								IllegalAccessException, 
+    								InvocationTargetException
+    {
+    	Map<K, V> map = new TreeMap<K, V>();
+    	for(Object obj: objects)
+    	{
+    		V value = (V) asDataObject((IObject)obj);
+     		Method meth = (value.getClass()).getMethod(method);
+    		K keyValue = (K)meth.invoke(value, (Object[])null);
+    		map.put(keyValue, value);
+    	}
+   		return map;
     }
     
     /**

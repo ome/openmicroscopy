@@ -706,10 +706,14 @@ class MeasurementViewerModel
 	 */
 	void removeAllROI() throws NoSuchROIException
 	{
-		Long[] idList = new Long[roiComponent.getROIMap().size()];
-		roiComponent.getROIMap().keySet().toArray(idList);
-		for(long id: idList)
-			removeROI(id);
+		drawingComponent.removeAllFigures();
+		int mapSize = roiComponent.getROIMap().size();
+		int size = roiComponent.getROIMap().values().size();
+		ROI[] valueList = new ROI[size];
+		roiComponent.getROIMap().values().toArray(valueList);
+		if(valueList!=null)
+			for(ROI roi: valueList)
+				roiComponent.deleteROI(roi.getID());
 	}
 	
 	/**

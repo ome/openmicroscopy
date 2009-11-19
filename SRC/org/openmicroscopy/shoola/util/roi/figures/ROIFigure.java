@@ -170,6 +170,5 @@ public interface ROIFigure
 	 */
 	public boolean isDirty();
 	
-	
 }
 

@@ -32,6 +32,7 @@ import java.util.TreeMap;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROICoordMap;
 import org.openmicroscopy.shoola.util.roi.model.ROIIDMap;
@@ -220,10 +221,12 @@ public class ROIMap
 					if(selectedShape.equals(newCoord))
 						continue;
 					if(roi.containsKey(newCoord))
-						deleteShape(id, newCoord);
-					addShape(id, newCoord, new ROIShape(roi, newCoord, 
-						shape));					
-					ROIShape newShape = getShape(id, newCoord);
+						continue;
+						//deleteShape(id, newCoord);
+					ROIShape newShape = new ROIShape(roi, newCoord, shape);
+					newShape.getFigure().setClientObject(true);
+					newShape.getFigure().setObjectDirty(true);
+					addShape(id, newCoord, newShape);
 					addedList.add(newShape);
 				}
 			return addedList;
