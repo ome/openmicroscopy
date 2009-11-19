@@ -262,11 +262,12 @@ class ServerContext(object):
         if self.session is None and recreate:
             try:
                 self.newSession()
+                self.logger.info("Established connection: %s" % e)
             except exceptions.Exception, e:
-                self.logger.warn("Failed to re-establish connection: %s" % e)
+                self.logger.warn("Failed to establish connection: %s" % e)
 
         if self.session is None:
-            raise omero.InternalException("No conection to server")
+            raise omero.InternalException("No connection to server")
 
         return self.session
 
