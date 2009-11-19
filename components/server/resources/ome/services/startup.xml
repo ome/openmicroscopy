@@ -30,6 +30,12 @@
      <constructor-arg ref="executor"/>
   </bean>
 
+  <bean id="dbEnumerationCheck"
+     class="ome.services.util.DBEnumCheck"
+     init-method="start" lazy-init="false">
+     <constructor-arg ref="executor"/>
+  </bean>
+
   <!--
 
   Disabling DropBox directory creation for 4.1. The directories
