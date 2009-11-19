@@ -53,7 +53,7 @@ import org.springframework.transaction.annotation.Transactional;
  * the {@link SecuritySystem} via
  * {@link ome.security.SecuritySystem#runAsAdmin(AdminAction)} to forcibly
  * delete instances.
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  * @see IDelete
@@ -115,7 +115,7 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
     }
 
     /**
-     * This uses {@link #IMAGE_QUERY} to load all the subordinate metdata of the
+     * This uses {@link #IMAGE_QUERY} to load all the subordinate metadata of the
      * {@link Image} which will be deleted.
      */
     @RolesAllowed("user")
@@ -161,6 +161,12 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
         sec.runAsAdmin(new AdminAction() {
             public void runAsAdmin() {
                 clearPixelsRelatedTo(i);
+            }
+        });
+
+        sec.runAsAdmin(new AdminAction() {
+            public void runAsAdmin() {
+                clearRois(i);
             }
         });
 
@@ -324,14 +330,23 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
                 sb.append(count);
                 sb.append(" Well(s);");
 
-                // Plate
+                // Plate annotations
                 q = session
-                        .createQuery("delete PlateAnnotationLink where parent.id = :id");
+                .createQuery("delete PlateAnnotationLink where parent.id = :id");
                 q.setParameter("id", plateId);
                 count = q.executeUpdate();
                 sb.append(count);
                 sb.append(" PlateAnnotationLink(s);");
 
+                // Screen links
+                q = session
+                .createQuery("delete ScreenPlateLink where child.id = :id");
+                q.setParameter("id", plateId);
+                count = q.executeUpdate();
+                sb.append(count);
+                sb.append(" ScreenPlateLink(s);");
+
+                // Finally, the plate.
                 q = session.createQuery("delete Plate where id = :id");
                 q.setParameter("id", plateId);
                 q.executeUpdate();
@@ -351,7 +366,7 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
      * Uses the locally defined query to load an {@link Image} and calls
      * {@link #collect(UnloadedCollector, Image)} in order to define a list of
      * what will be deleted.
-     * 
+     *
      * This method fulfills the {@link #previewImageDelete(long, boolean)}
      * contract and as such is used by {@link #deleteImage(long, boolean)} in
      * order to fulfill its contract.
@@ -477,7 +492,7 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
      * Finds all Pixels whose {@link Pixels#getRelatedTo()} field points to a
      * {@link Pixels} which is contained in the given {@link Image} and nulls
      * the relatedTo field.
-     * 
+     *
      * @param i
      */
     private void clearPixelsRelatedTo(Image i) {
@@ -494,6 +509,30 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
                 pixels.setRelatedTo(null);
                 iUpdate.flush();
             }
+        }
+    }
+
+    /**
+     * Uses bulk update
+     * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/1654">ticket:1654</a>
+     */
+    private void clearRois(Image i) {
+        Session session = sf.getSession();
+        Query q = session.createQuery("delete from Shape where roi.id in " +
+            "(select id from Roi roi where roi.image.id = :id)");
+        q.setParameter("id", i.getId());
+        int shapeCount = q.executeUpdate();
+        q = session.createQuery("delete from RoiAnnotationLink where parent.id in " +
+            "(select id from Roi roi where roi.image.id = :id)");
+        q.setParameter("id", i.getId());
+        int roiAnnCount = q.executeUpdate();
+        q = session.createQuery("delete from Roi where image.id = :id");
+        q.setParameter("id", i.getId());
+        int roiCount = q.executeUpdate();
+        if (shapeCount > 0 || roiAnnCount > 0 || roiCount > 0) {
+            log.info(String.format("Roi delete for image %s :" +
+                    " %s rois, %s shapes, %s annotations",
+                    i.getId(), roiCount, shapeCount, roiAnnCount));
         }
     }
 }
