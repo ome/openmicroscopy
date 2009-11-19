@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.agents.imviewer.ContainerLoader;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.ImageDataLoader;
+import org.openmicroscopy.shoola.agents.imviewer.ImageLoader;
 import org.openmicroscopy.shoola.agents.imviewer.MeasurementsLoader;
 import org.openmicroscopy.shoola.agents.imviewer.PlaneInfoLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ProjectionSaver;
@@ -735,8 +736,8 @@ class ImViewerModel
 		if (asynchronousCall == null)
 			asynchronousCall = (getMaxX()*getMaxY() >= MAX_SIZE);
 		if (asynchronousCall) {
-			//ImageLoader loader = new ImageLoader(component, getPixelsID(), pDef);
-			//loader.load();
+			ImageLoader loader = new ImageLoader(component, getPixelsID(), pDef);
+			loader.load();
 		} else {
 			if (ImViewerAgent.hasOpenGLSupport())
 				component.setImageAsTexture(rnd.renderPlaneAsTexture(pDef));
