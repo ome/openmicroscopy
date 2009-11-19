@@ -936,6 +936,29 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
         super(InCellMeasurementCtx, self).__init__(
                 analysis_ctx, service_factory, original_file_provider,
                 original_file, result_files)
+                
+    def check_sparse_data(self, columns):
+        """
+        Checks a set of columns for sparse data (one column shorter than
+        the rest) and adds -1 where appropriate.
+        """
+        length = None
+        for i, column in enumerate(columns):
+            if column.name == 'ROI':
+                # ROI are processed late so we don't care if this column
+                # is sparse or not.
+                continue
+            current_length = len(column.values)
+            if length is not None:
+                if current_length > length:
+                    log.warn("%s length %d > %d modding previous column" % \
+                        (column.name, current_length, length))
+                    columns[i - 1].values.append(-1.0)
+                if current_length < length:
+                    log.warn("%s length %d < %d modding current column" % \
+                        (column.name, current_length, length))
+                    column.values.append(-1.0)
+            length = len(column.values)
 
     ###
     ### Abstract method implementations
@@ -980,8 +1003,11 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
                     except:
                         log.exception("ERROR: Failed to get well images")
                         continue
-                    cells_columns['Cell'].values.append(element.get('cell'))
-                    nuclei_columns['Cell'].values.append(element.get('cell'))
+                    self.check_sparse_data(cells_columns.values())
+                    self.check_sparse_data(nuclei_columns.values())
+                    cell = long(element.get('cell'))
+                    cells_columns['Cell'].values.append(cell)
+                    nuclei_columns['Cell'].values.append(cell)
                     well_data = element
                     cells_columns['Image'].values.append(image.id.val)
                     nuclei_columns['Image'].values.append(image.id.val)
