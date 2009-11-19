@@ -559,9 +559,11 @@ public class MetadataImpl
             	 //load original file.
             	 if (object instanceof FileAnnotation) {
             		 fa = (FileAnnotation) object;
-            		 of = iQuery.findByQuery(LOAD_ORIGINAL_FILE, 
-            				 new Parameters().addId(fa.getFile().getId()));
-            		 fa.setFile((OriginalFile) of);
+            		 if (fa.getFile() != null) {
+            			 of = iQuery.findByQuery(LOAD_ORIGINAL_FILE, 
+                				 new Parameters().addId(fa.getFile().getId()));
+                		 fa.setFile((OriginalFile) of);
+            		 }
             	 }
              }
              //Archived if no updated script.
@@ -642,9 +644,11 @@ public class MetadataImpl
 			object =  i.next();
 			if (object instanceof FileAnnotation) {
 				fa = (FileAnnotation) object;
-				of = iQuery.findByQuery(LOAD_ORIGINAL_FILE, 
-						new Parameters().addId(fa.getFile().getId()));
-				fa.setFile((OriginalFile) of);
+				if (fa.getFile() != null) {
+					of = iQuery.findByQuery(LOAD_ORIGINAL_FILE, 
+							new Parameters().addId(fa.getFile().getId()));
+					fa.setFile((OriginalFile) of);
+				}
 			}
 		}
     	return new HashSet<A>(list);
