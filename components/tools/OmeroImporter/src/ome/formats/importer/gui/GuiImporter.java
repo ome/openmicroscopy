@@ -669,8 +669,7 @@ WindowStateListener, WindowFocusListener
 
             statusBar.setProgress(true, -1, "Loading file " + ev.numDone + " of " + ev.total);
             appendToOutput("> [" + ev.index + "] Loading image \"" + ev.shortName + "\"...\n");
-            statusBar.setStatusIcon("gfx/import_icon_16.png", "Prepping file \"" + 
-                    ev.shortName + "\" (file " + ev.numDone + " of " + ev.total + " imports)");
+            statusBar.setStatusIcon("gfx/import_icon_16.png", "Prepping file \"" + ev.shortName);
         }
 
         else if (event instanceof ImportEvent.LOADED_IMAGE)
@@ -680,8 +679,7 @@ WindowStateListener, WindowFocusListener
             statusBar.setProgress(true, -1, "Analyzing file " + ev.numDone + " of " + ev.total);
             appendToOutput(" Succesfully loaded.\n");
             appendToOutput("> [" + ev.index + "] Importing metadata for " + "image \"" + ev.shortName + "\"... ");
-            statusBar.setStatusIcon("gfx/import_icon_16.png", "Analyzing the metadata for file \"" + 
-                    ev.shortName + "\" (file " + ev.numDone + " of " + ev.total + " imports)");            
+            statusBar.setStatusIcon("gfx/import_icon_16.png", "Analyzing the metadata for file \"" + ev.shortName);            
         }
 
         else if (event instanceof ImportEvent.DATASET_STORED)
@@ -696,8 +694,7 @@ WindowStateListener, WindowFocusListener
             appendToOutputLn("> [" + ev.series + "] Importing pixel data for " + "image \"" + ev.filename + "\"... ");
             statusBar.setProgress(true, 0, "Importing file " + num + " of " + tot);
             statusBar.setProgressValue(pro);
-            statusBar.setStatusIcon("gfx/import_icon_16.png", "Importing the plane data for file \"" +
-                    ev.filename + "\" (file " + num + " of " + tot + " imports)");
+            statusBar.setStatusIcon("gfx/import_icon_16.png", "Importing the plane data for file \"" + ev.filename);
             appendToOutput("> Importing plane: ");
         }
 
