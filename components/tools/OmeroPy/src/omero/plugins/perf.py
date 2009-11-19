@@ -22,7 +22,6 @@ class PerfControl(BaseControl):
         self.ctx.out(perf_test.usage(prog = PROG_NAME))
 
     def __call__(self, *args):
-        import omero.install.perf_test as perf_test
         args = Arguments(*args)
 
         first,other = args.firstOther()
