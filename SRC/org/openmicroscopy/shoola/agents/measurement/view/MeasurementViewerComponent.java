@@ -708,52 +708,7 @@ class MeasurementViewerComponent
 	 */
 	public void saveAndDiscard()
 	{
-		String fileSaved = model.getFileSaved();
-		if (fileSaved != null) {
-			saveBackROI(fileSaved);
-			return;
-		}
-		//TODO: Externalize the UI code in a customized FileChooser Dialog
-		List<FileFilter> filterList = new ArrayList<FileFilter>();
-		filterList.add(new XMLFilter());
-		FileChooser chooser =
-				new FileChooser(
-					view, FileChooser.SAVE, "Save the ROI File",
-					"Save the ROI data in the file associate with this image.",
-					filterList);
-		File f = UIUtilities.getDefaultFolder();
-	    if (f != null) chooser.setCurrentDirectory(f);
-		try
-		{
-			String savedFileString = FileMap.getSavedFile(model.getServerName(), 
-							model.getUserName(), model.getPixelsID());
-			File savedFile;
-			if (savedFileString == null)
-			{
-				savedFileString = model.getImageName();
-				savedFile = new File(savedFileString);
-				chooser.setSelectedFile(savedFile.getName());
-			}
-			else
-			{
-				savedFile = new File(savedFileString);
-				chooser.setCurrentDirectory(savedFile);
-				chooser.setSelectedFile(savedFile);
-			}
-		}	
-		catch (ParsingException e)
-		{
-			// Do nothing as we're really only looking to see if the default 
-			// directory or filename should be set for loading.
-		}
-		int results = chooser.showDialog();
-		if (results != JFileChooser.APPROVE_OPTION) return;
-		File file = chooser.getSelectedFile();
-		if (!XMLFilter.XML.endsWith(file.getAbsolutePath())) {
-			String fileName = file.getAbsolutePath()+"."+XMLFilter.XML;
-			file = new File(fileName);
-		}
-		saveBackROI(file.getAbsolutePath());
+		saveROIToServer();
 		discard();
 	}
 	
