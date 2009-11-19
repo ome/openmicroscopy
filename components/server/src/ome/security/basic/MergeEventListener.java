@@ -16,6 +16,7 @@ import ome.conditions.SecurityViolation;
 import ome.model.IEnum;
 import ome.model.IObject;
 import ome.tools.hibernate.HibernateUtils;
+import ome.util.Utils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -144,7 +145,8 @@ public class MergeEventListener extends IdTransferringMergeEventListener {
             final EventSource source = event.getSession();
             log("Reloading unloaded entity:", event.getEntityName(), ":", orig
                     .getId());
-            Object obj = source.load(orig.getClass(), orig.getId());
+            Class<?> k = Utils.trueClass(orig.getClass());
+            Object obj = source.load(k, orig.getId());
             event.setResult(obj);
             copyCache.put(event.getEntity(), obj);
             fillReplacement(event);
