@@ -663,20 +663,14 @@ class EditorComponent
 	{
 		switch (view.getSelectedTab()) {
 			case EditorUI.GENERAL_INDEX:
-				if (model.getRndIndex() == MetadataViewer.RND_GENERAL) {
-				} else {
-					Renderer rnd = getRenderer();
-					if (rnd != null) rnd.reloadUI(true);
-				}
+				model.refresh();
 				break;
 			case EditorUI.RND_INDEX:
-				if (model.getRndIndex() == MetadataViewer.RND_GENERAL) {
-					Renderer rnd = getRenderer();
-					if (rnd != null) rnd.reloadUI(true);
-				}
+				Renderer rnd = getRenderer();
+				if (rnd != null) rnd.reloadUI(true);
 				break;
 			case EditorUI.ACQUISITION_INDEX:
-				
+				view.refreshAcquisition();
 		};
 	}
 

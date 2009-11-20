@@ -2038,4 +2038,7 @@ class EditorModel
 		renderer = null;
 	}
 	
+	/** Refreshes the view. */
+	void refresh() { parent.setRootObject(getRefObject()); }
+	
 }

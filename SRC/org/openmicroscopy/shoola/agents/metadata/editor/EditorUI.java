@@ -691,4 +691,10 @@ public class EditorUI
 		clearData();
 	}
 	
+	/** Refreshes the acquisition metadata. */
+	void refreshAcquisition()
+	{
+		acquisitionPane.refresh();
+	}
+	
 }

@@ -492,6 +492,21 @@ class AcquisitionDataUI
 		originalMetadataPane.setCollapsed(true);
 	}
 	
+	/** Refreshes the view. */
+	void refresh()
+	{
+		/*
+		instrument.setRootObject();
+		imageAcquisition.setRootObject();
+		originalMetadata.clear();
+		layoutUI();
+		repaint();
+		originalMetadataPane.setCollapsed(true);
+		instrumentPane.setCollapsed(true);
+		imagePane.setCollapsed(true);
+		*/
+	}
+	
 	/**
 	 * Returns <code>true</code> if data to save, <code>false</code>
 	 * otherwise.
