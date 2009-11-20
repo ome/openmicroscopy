@@ -28,7 +28,11 @@ public class SmartTextI extends omero.model.TextI implements SmartShape {
     }
 
     public Shape asAwtShape() {
-        String path = Util.pointsToPath(asPoints(), true);
+        List<Point> points = asPoints();
+        if (points == null) {
+            return null;
+        }
+        String path = Util.pointsToPath(points, true);
         return Util.parseAwtPath(path);
     }
 

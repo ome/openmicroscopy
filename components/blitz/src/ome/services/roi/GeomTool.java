@@ -289,6 +289,13 @@ public class GeomTool implements ApplicationListener {
 
         SmartShape ss = assertSmart(shape);
         List<Point> points = ss.asPoints();
+        // ticket:1652 - to prevent the objects from being repeatedly
+        // checked, they must be set to something. Here we are using
+        // the top-left point as a default (like SmartText)
+        if (points == null) {
+            return "'(0,0)'";
+        }
+
         StringBuilder sb = new StringBuilder();
         sb.append("'(");
         for (int i = 0; i < points.size(); i++) {

@@ -22,12 +22,19 @@ public class SmartPolylineI extends omero.model.PolylineI implements SmartShape 
     }
     
     public Shape asAwtShape() {
-        String path = Util.parsePointsToPath(this.points.getValue(), false);
+        String str = this.points.getValue();
+        if (str == null) {
+            return null;
+        }
+        String path = Util.parsePointsToPath(str, false);
         return Util.parseAwtPath(path);
     }
 
     public List<Point> asPoints() {
         String str = this.points.getValue();
+        if (str == null) {
+            return null;
+        }
         List<Point> points = Util.parsePoints(str);
         assert Util.checkNonNull(points) : "Null points in " + this;
         return points;
