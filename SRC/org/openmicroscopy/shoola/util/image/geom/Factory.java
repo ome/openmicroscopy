@@ -650,6 +650,53 @@ public class Factory
     }
     
     /**
+     * Determines the size.
+     * 
+     * @param sizeX     The thumbnail's size along the X-axis.
+     * @param sizeY     The thumbnail's size along the Y-axis.
+     * @param realSizeX	The real size along the X-axis.
+     * @param realSizeY	The real size along the Y-axis.
+     * @return See above.
+     */
+    public static DimensionRatio computeSize(int sizeX, int sizeY, 
+    		double realSizeX, double realSizeY)
+    {
+    	double ratio = 0;
+    	int value = 0;
+    	if (realSizeY != 0) ratio = realSizeX/realSizeY;
+    	Dimension d;
+    	if (sizeX <= 0 && sizeY <= 0) {
+    		d = new Dimension(THUMB_DEFAULT_WIDTH, THUMB_DEFAULT_HEIGHT);
+    		return new DimensionRatio(d, ratio);
+    	} else if (sizeX <= 0 && sizeY > 0) {
+    		d = new Dimension(THUMB_DEFAULT_WIDTH, sizeY);
+    		return new DimensionRatio(d, ratio);
+    	} else if (sizeX > 0 && sizeY <= 0) {
+    		d = new Dimension(sizeX, THUMB_DEFAULT_HEIGHT);
+    		return new DimensionRatio(d, ratio);
+    	}if (ratio < 1) {
+    		value = (int) (sizeX*ratio);
+    		if (value != 0) {
+    			d = new Dimension(value, sizeY);
+        		return new DimensionRatio(d, ratio);
+    		} else {
+    			d = new Dimension(THUMB_DEFAULT_WIDTH, sizeY); 
+        		return new DimensionRatio(d, ratio);
+    		}
+    	} else if (ratio > 1 && ratio != 0) {
+    		value = (int) (sizeY*1/ratio);
+    		if (value != 0) {
+    			d = new Dimension(sizeX, value);
+    			return new DimensionRatio(d, ratio);
+    		}
+    		d = new Dimension(sizeX, THUMB_DEFAULT_HEIGHT);
+			return new DimensionRatio(d, ratio);
+    	}
+    	d = new Dimension(sizeX, sizeY);
+		return new DimensionRatio(d, ratio);
+    }
+    
+    /**
      * Creates the splash screen logo and login
      * 
      * @param name The name of the image.

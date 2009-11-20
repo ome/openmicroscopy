@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -76,6 +77,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.util.image.geom.DimensionRatio;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -260,6 +262,12 @@ class ImViewerModel
     /** Flag indicating to load the image asynchronously. */
     private Boolean						asynchronousCall;
     
+    /** 
+     * The value indicating the reduction factor used for big images. 
+     * The default value is <code>1</code>.
+     */
+    private double						originalRatio;
+    
     /**
 	 * Transforms 3D coordinates into linear coordinates.
 	 * The returned value <code>L</code> is calculated as follows: 
@@ -332,6 +340,7 @@ class ImViewerModel
 	private void initialize(Rectangle bounds, boolean separateWindow)
 	{
 		this.separateWindow = separateWindow;
+		originalRatio = 1;
 		asynchronousCall = null;
 		overlayTableID = -1;
 		requesterBounds = bounds;
@@ -2180,7 +2189,33 @@ class ImViewerModel
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
 		rnd.setOverlays(overlayTableID, overlays);
-		System.err.println(overlays);
-		//fireImageRetrieval();
 	}
+	
+	/**
+	 * Returns the original ratio.
+	 * 
+	 * @return See above.
+	 */
+	double getOriginalRatio() { return originalRatio; }
+	
+	/**
+	 * Determines the size of the image if it is a big image.
+	 * 
+	 * @return See above.
+	 */
+	Dimension computeSize()
+	{
+		if (!isBigImage())
+			return new Dimension(getMaxX(), getMaxY());
+		DimensionRatio d = Factory.computeSize(
+				RenderingControl.MAX_SIZE, RenderingControl.MAX_SIZE, 
+				getMaxX(), getMaxY());
+		
+		if (d.getRatio() == 1) {
+			originalRatio = (double) RenderingControl.MAX_SIZE/getMaxX();
+		} else 
+			originalRatio = d.getRatio();
+		return d.getDimension();
+	}
+	
 }

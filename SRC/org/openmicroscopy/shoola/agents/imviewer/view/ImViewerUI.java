@@ -778,8 +778,9 @@ class ImViewerUI
 		if (f > 0) {
 			sizeX = (int) (sizeX*f);
 			sizeY = (int) (sizeY*f);
-			setZoomFactor(Math.round(f*100)/100.0, ZoomCmd.getZoomIndex(f));
-			
+			double factor = Math.round(f*100)/100.0;
+			setZoomFactor(factor, ZoomCmd.getZoomIndex(f));
+			setMagnificationStatus(factor);
 		}
 		browser.setComponentsSize(sizeX, sizeY);
 		tabs = new ClosableTabbedPane(JTabbedPane.TOP, 
@@ -1185,7 +1186,8 @@ class ImViewerUI
 	{
 		if (statusBar == null) return;
 		if (factor != ZoomAction.ZOOM_FIT_FACTOR)
-			statusBar.setRigthStatus("x"+Math.round(factor*100)/100.0);
+			statusBar.setRigthStatus("x"+
+					Math.round(factor*model.getOriginalRatio()*100)/100.0);
 		else statusBar.setRigthStatus(ZoomAction.ZOOM_FIT_NAME);
 	}
 	
