@@ -1111,4 +1111,12 @@ public interface ImViewer
 	 */
 	public void onChannelColorChnaged(int index);
 	
+	/**
+	 * Returns <code>true</code> if the image is a large image,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isBigImage();
+	
 }

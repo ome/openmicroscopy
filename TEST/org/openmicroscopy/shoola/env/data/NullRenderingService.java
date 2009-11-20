@@ -90,9 +90,10 @@ public class NullRenderingService
 
     /**
      * No-op implementation
-     * @see OmeroImageService#renderImage(long, PlaneDef, boolean)
+     * @see OmeroImageService#renderImage(long, PlaneDef, boolean, boolean)
      */
-    public Object renderImage(long pixelsID, PlaneDef pd, boolean asTexture)
+    public Object renderImage(long pixelsID, PlaneDef pd, boolean asTexture,
+    		boolean largeImage)
             throws RenderingServiceException
     {
         return null;

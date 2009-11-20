@@ -59,6 +59,9 @@ import pojos.PixelsData;
 public interface RenderingControl
 {
 	
+	/** The maximum size before retrieving the plane asynchronously. */
+	public static final int		MAX_SIZE = 1024;
+	
 	/** The maximum number of channels. */
 	public static final int		MAX_CHANNELS = 6;
 	

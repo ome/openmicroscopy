@@ -69,6 +69,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.util.image.io.WriterImage;
 
 import com.sun.opengl.util.texture.TextureData;
 
@@ -198,14 +199,27 @@ class OmeroImageServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#renderImage(long, PlaneDef, boolean)
+	 * @see OmeroImageService#renderImage(long, PlaneDef, boolean, boolean)
 	 */
-	public Object renderImage(long pixelsID, PlaneDef pDef, boolean asTexture)
+	public Object renderImage(long pixelsID, PlaneDef pDef, boolean asTexture,
+			boolean largeImage)
 		throws RenderingServiceException
 	{
 		try {
-			return PixelsServicesFactory.render(context, new Long(pixelsID), 
-					pDef, asTexture);
+			if (!largeImage)
+				return PixelsServicesFactory.render(context, new Long(pixelsID), 
+						pDef, asTexture);
+			List<Long> ids = new ArrayList<Long>();
+			ids.add(pixelsID);
+			Map m = gateway.getThumbnailSet(ids, RenderingControl.MAX_SIZE);
+			byte[] values = (byte[]) m.get(pixelsID);
+			if (asTexture) {
+				return PixelsServicesFactory.createTexture(
+						WriterImage.bytesToDataBufferJPEG(values), 
+						pDef.x, pDef.y);
+			} else {
+				return createImage(values);
+			}
 		} catch (Exception e) {
 			throw new RenderingServiceException("RenderImage", e);
 		}

@@ -110,8 +110,6 @@ import pojos.WellSampleData;
 class ImViewerModel
 {
 
-	/** The sizeXxsizeY after which images are retrieved asynchronously. */
-	private static final int	MAX_SIZE = 1048576; //1024x1024
 	
 	/** The maximum number of items in the history. */
 	private static final int	MAX_HISTORY = 10;
@@ -121,12 +119,6 @@ class ImViewerModel
 
 	/** The maximum height of the thumbnail. */
 	private static final int    THUMB_MAX_HEIGHT = 24;
-	
-	/** The maximum width of the image. */
-	private static final int    IMAGE_MAX_WIDTH = 512;
-
-	/** The maximum height of the image. */
-	private static final int    IMAGE_MAX_HEIGHT = 512;
 
 	/** Index of the <code>RenderingSettings</code> loader. */
 	private static final int	SETTINGS = 0;
@@ -733,10 +725,13 @@ class ImViewerModel
 		pDef.z = getDefaultZ();
 		pDef.slice = omero.romio.XY.value;
 		state = ImViewer.LOADING_IMAGE;
-		if (asynchronousCall == null)
-			asynchronousCall = (getMaxX()*getMaxY() >= MAX_SIZE);
+		if (asynchronousCall == null) {
+			asynchronousCall = (getMaxX() >= RenderingControl.MAX_SIZE || 
+					getMaxY() >= RenderingControl.MAX_SIZE);
+		}
 		if (asynchronousCall) {
-			ImageLoader loader = new ImageLoader(component, getPixelsID(), pDef);
+			ImageLoader loader = new ImageLoader(component, getPixelsID(), 
+					pDef, isBigImage());
 			loader.load();
 		} else {
 			if (ImViewerAgent.hasOpenGLSupport())
@@ -986,8 +981,8 @@ class ImViewerModel
 	 */
 	boolean isBigImage()
 	{
-		return (getMaxX() >= 2*IMAGE_MAX_WIDTH ||
-				getMaxY() >= 2*IMAGE_MAX_HEIGHT);
+		return (getMaxX() > RenderingControl.MAX_SIZE ||
+				getMaxY() > RenderingControl.MAX_SIZE);
 	}
 	
 	/**

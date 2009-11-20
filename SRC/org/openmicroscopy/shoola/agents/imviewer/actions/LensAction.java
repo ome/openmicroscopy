@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
+import javax.swing.event.ChangeEvent;
 
 //Third-party libraries
 
@@ -59,6 +60,18 @@ public class LensAction
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Show or hide the lens.";
+    
+    /** 
+     * Overridden to make sure that when the action is not active for 
+     * large images.
+     * @see ViewerAction#onStateChange(ChangeEvent)
+     */
+    protected void onStateChange(ChangeEvent e)
+    {
+    	if (isEnabled()) {
+    		setEnabled(!model.isBigImage());
+    	}
+    }
     
     /**
      * Creates a new instance.

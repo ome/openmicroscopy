@@ -28,12 +28,15 @@ package org.openmicroscopy.shoola.env.rnd;
 import java.awt.image.BufferedImage;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
+import java.nio.IntBuffer;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.media.opengl.GL;
 
 //Third-party libraries
 
@@ -80,7 +83,8 @@ public class PixelsServicesFactory
 	private static final double		RATIO = 0.10;
 	
 	/** Values used to determine the size of a cache. */
-	private static final int		FACTOR = 1024*1024;
+	private static final int		FACTOR = 
+		RenderingControl.MAX_SIZE*RenderingControl.MAX_SIZE;
 	
 	/** The sole instance. */
 	private static PixelsServicesFactory 	singleton;
@@ -90,6 +94,22 @@ public class PixelsServicesFactory
 
 	/** The maximum amount of memory in bytes used for caching. */
 	private static int						maxSize;
+	
+	/**
+	 * Creates the texture.
+	 * 
+	 * @param data  The data to display.
+	 * @param w	    The width of the image.
+	 * @param h		The height of the image.
+	 * @return See above.
+	 */
+	public static TextureData createTexture(int[] data, int w, int h)
+	{
+		TextureData texture = new TextureData(GL.GL_RGBA, w, h, 0, GL.GL_BGRA, 
+        		GL.GL_UNSIGNED_INT_8_8_8_8_REV, false, false, false, 
+        		IntBuffer.wrap(data), null);
+		return texture;
+	}
 	
 	/**
 	 * Converts the {@link RenderingDef} into a {@link RndProxyDef}.
