@@ -187,6 +187,7 @@ class EditorComponent
 	{
 		if (refObject == null)
 			throw new IllegalArgumentException("Root object not valid.");
+		if (model.isSameObject(refObject)) return;
 		model.setRootObject(refObject);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		view.setRootObject();

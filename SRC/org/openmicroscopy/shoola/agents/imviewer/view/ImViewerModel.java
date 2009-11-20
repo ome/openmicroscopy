@@ -1833,7 +1833,7 @@ class ImViewerModel
     void setPlaneInfo(Collection objects)
     {
     	if (planeInfos == null) planeInfos = new HashMap<Integer, PlaneInfo>();
-    	else planeInfos.clear();
+    	//else planeInfos.clear();
     	Iterator i = objects.iterator();
     	PlaneInfo object;
     	Integer index;
