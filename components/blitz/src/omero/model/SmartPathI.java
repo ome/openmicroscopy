@@ -27,15 +27,22 @@ public class SmartPathI extends omero.model.PathI implements SmartShape {
     
     public Shape asAwtShape() {
         String str = d.getValue();
+        if (str == null) {
+            return null;
+        }
         return Util.parseAwtPath(str);
     }
     
     public List<Point> asPoints() {
+        String str = d.getValue();
+        if (str == null) {
+            return null;
+        }
         final List<Point> points = new ArrayList<Point>();
         PathParser pp = new PathParser();
         PathHandler ph = new SmartPathHandler(points);
         pp.setPathHandler(ph);
-        pp.parse(d.getValue());
+        pp.parse(str);
         assert Util.checkNonNull(points) : "Null points in " + this;
         return points;
     }

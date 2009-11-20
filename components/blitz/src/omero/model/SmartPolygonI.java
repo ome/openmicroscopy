@@ -20,12 +20,19 @@ public class SmartPolygonI extends omero.model.PolygonI implements SmartShape {
     }
     
     public Shape asAwtShape() {
-        String path = Util.parsePointsToPath(points.getValue(), true);
+        String str = points.getValue();
+        if (str == null) {
+            return null;
+        }
+        String path = Util.parsePointsToPath(str, true);
         return Util.parseAwtPath(path);
     }
 
     public List<Point> asPoints() {
         String str = this.points.getValue();
+        if (str == null) {
+            return null;
+        }
         List<Point> points = Util.parsePoints(str);
         assert Util.checkNonNull(points) : "Null points in " + this;
         return points;

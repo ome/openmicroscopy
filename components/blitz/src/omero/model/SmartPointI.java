@@ -17,15 +17,26 @@ import java.util.Random;
 public class SmartPointI extends omero.model.PointI implements SmartShape {
 
     public void areaPoints(PointCallback cb) {
-        cb.handle((int) cx.getValue(), (int) cy.getValue());
+        try {
+            cb.handle((int) cx.getValue(), (int) cy.getValue());
+        } catch (NullPointerException npe) {
+            return;
+        }
     }
 
     public Shape asAwtShape() {
-        String path = Util.pointsToPath(asPoints(), true);
+        List<Point> points = asPoints();
+        if (points == null) {
+            return null;
+        }
+        String path = Util.pointsToPath(points, true);
         return Util.parseAwtPath(path);
     }
 
     public List<Point> asPoints() {
+        if (cx == null || cy == null) {
+            return null; // Could also pass self and let NPE happen later.
+        }
         List<Point> points = Arrays.<Point> asList(this);
         assert Util.checkNonNull(points) : "Null points in " + this;
         return points;
