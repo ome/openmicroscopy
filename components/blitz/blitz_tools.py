@@ -332,8 +332,11 @@ class OmeroEnvironment(SConsEnvironment):
 
     def which(self, exe):
         import which
-        file = which.which(exe)
-        rv = file
+        try:
+            rv = file = which.which(exe)
+        except which.WhichError:
+            rv = file = ""
+
         if file:
             if self.iswin32():
                 import win32api
