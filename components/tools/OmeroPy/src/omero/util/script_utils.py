@@ -203,7 +203,7 @@ def uploadAndAttachFile(queryService, updateService, rawFileStore, parent, outpu
 	@param output:			Full Name (and path) of the file to upload. String
 	@param format:			The format. E.g. "image/png". String
 	@param description:		Optional description for the file annotation. String
-	@return:			The id of the originalFile. (ID object, not value)
+	@return:			The id of the originalFileLink child. (ID object, not value)
 	"""
 	
 	filename = output
@@ -211,8 +211,8 @@ def uploadAndAttachFile(queryService, updateService, rawFileStore, parent, outpu
 	fileformat = getFormat(queryService, format)
 	originalFile = createFile(updateService, filename, fileformat, originalFilename);
 	uploadFile(rawFileStore, originalFile, originalFilename)
-	attachFileToParent(updateService, parent, originalFile, description)
-	return originalFile.getId()
+	fileLink = attachFileToParent(updateService, parent, originalFile, description)
+	return fileLink.getChild().getId()
 	
 	
 def addAnnotationToImage(updateService, image, annotation):
