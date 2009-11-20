@@ -188,6 +188,7 @@ class EditorComponent
 	{
 		if (refObject == null)
 			throw new IllegalArgumentException("Root object not valid.");
+		if (model.isSameObject(refObject)) return;
 		model.setRootObject(refObject);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		view.setRootObject();
@@ -665,20 +666,14 @@ class EditorComponent
 	{
 		switch (view.getSelectedTab()) {
 			case EditorUI.GENERAL_INDEX:
-				if (model.getRndIndex() == MetadataViewer.RND_GENERAL) {
-				} else {
-					Renderer rnd = getRenderer();
-					if (rnd != null) rnd.reloadUI(true);
-				}
+				model.refresh();
 				break;
 			case EditorUI.RND_INDEX:
-				if (model.getRndIndex() == MetadataViewer.RND_GENERAL) {
-					Renderer rnd = getRenderer();
-					if (rnd != null) rnd.reloadUI(true);
-				}
+				Renderer rnd = getRenderer();
+				if (rnd != null) rnd.reloadUI(true);
 				break;
 			case EditorUI.ACQUISITION_INDEX:
-				
+				view.refreshAcquisition();
 		};
 	}
 

@@ -548,6 +548,20 @@ class AcquisitionDataUI
 		}
 	}
 	
+	/** Refreshes the view. */
+	void refresh()
+	{
+		/*
+		instrument.setRootObject();
+		imageAcquisition.setRootObject();
+		originalMetadata.clear();
+		layoutUI();
+		repaint();
+		originalMetadataPane.setCollapsed(true);
+		instrumentPane.setCollapsed(true);
+		imagePane.setCollapsed(true);
+		*/
+	}
 	/**
 	 * Loads the acquisition metadata.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

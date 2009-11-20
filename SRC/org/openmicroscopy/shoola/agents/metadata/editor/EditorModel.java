@@ -1032,6 +1032,26 @@ class EditorModel
         return textualAnnotationsByUsers;
 	}
 
+	/**
+	 * Returns <code>true</code> if it is the same object,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param object The object to handle.
+	 * @return See above.
+	 */
+	boolean isSameObject(Object object)
+	{
+		if (object == null) return false;
+		if (!object.getClass().equals(refObject.getClass())) return false;
+		if ((object instanceof DataObject) &&
+				(refObject instanceof DataObject)) {
+			DataObject d1 = (DataObject) object;
+			DataObject d2 = (DataObject) refObject;
+			return d1.getId() == d2.getId();
+		}
+		return false;
+	}
+	
 	/** 
 	 * Sets the object of reference.
 	 * 
@@ -2117,5 +2137,8 @@ class EditorModel
 		if (renderer != null) renderer.discard();
 		renderer = null;
 	}
+	
+	/** Refreshes the view. */
+	void refresh() { parent.setRootObject(getRefObject()); }
 	
 }

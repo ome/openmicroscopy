@@ -112,7 +112,6 @@ import pojos.WellSampleData;
 class ImViewerModel
 {
 
-	
 	/** The maximum number of items in the history. */
 	private static final int	MAX_HISTORY = 10;
 	
@@ -1244,7 +1243,7 @@ class ImViewerModel
 	 */
 	long getImageID()
 	{ 
-		if (image == null) return -1;
+		if (image == null) return imageID;
 		return getImage().getId(); 
 	}
 

@@ -245,6 +245,7 @@ class ToolBar
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
+    	removeAll();
     	JPanel p = null;
     	if (!view.isBigImage()) {
     		p = new JPanel();
@@ -297,7 +298,6 @@ class ToolBar
 	        //rndButton.setAction(a);
 		}
     	int compression = ImViewerFactory.getCompressionLevel();
-		bar.add(new JSeparator(JSeparator.VERTICAL));
 		int value = (Integer) 
 			ImViewerAgent.getRegistry().lookup(LookupNames.CONNECTION_SPEED);
 		int setUp = view.convertCompressionLevel(value);

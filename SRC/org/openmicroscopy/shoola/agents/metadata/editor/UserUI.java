@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -90,7 +92,7 @@ class UserUI
 		profile.addPropertyChangeListener(control);
 		
 		JXTaskPane pane = EditorUtil.createTaskPane(TITLE_DETAILS);
-		pane.setCollapsed(false);
+		//pane.setCollapsed(false);
 		pane.add(profile, null, 0);
 		
 		diskSpace = new UserDiskSpace(this);
@@ -98,13 +100,13 @@ class UserUI
 		diskTask.add(diskSpace, null, 0);
 		diskTask.addPropertyChangeListener(
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
-		/*
+		
 		double[][] size = {{TableLayout.FILL}, 
 				{TableLayout.PREFERRED, TableLayout.PREFERRED}};
 		setLayout(new TableLayout(size));
 		add(pane, "0, 0");
 		add(diskTask, "0, 1");
-		*/
+		/*
 		JXTaskPaneContainer container = new JXTaskPaneContainer();
 		container.setBackground(UIUtilities.BACKGROUND_COLOR);
 		container.setLayout(new VerticalLayout(2));
@@ -112,6 +114,7 @@ class UserUI
 		container.add(diskTask);
 		setBorder(BorderFactory.createEmptyBorder());
 		add(container);
+		*/
 	}
 	
 	/**

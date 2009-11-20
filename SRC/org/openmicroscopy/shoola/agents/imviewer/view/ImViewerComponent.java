@@ -794,8 +794,8 @@ class ImViewerComponent
 
 			if (GREY_SCALE_MODEL.equals(model.getColorModel()))
 				setColorModel(ColorModelAction.RGB_MODEL);
-			else 
-				renderXYPlane();
+			//else 
+			//	renderXYPlane();
 		} catch (Exception e) {
 			Registry reg = ImViewerAgent.getRegistry();
 			LogMessage msg = new LogMessage();
