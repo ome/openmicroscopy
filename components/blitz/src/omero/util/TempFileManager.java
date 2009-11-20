@@ -230,22 +230,22 @@ public class TempFileManager {
 
                     FileLock channeltest = raftest.getChannel().tryLock();
                     channeltest.release();
-                } catch (IOException io) {
-                    if ("Operation not permitted".equals(io.getMessage())||
-                            "Operation not supported".equals(io.getMessage())) {
+                } catch (Exception e) {
+                    if ("Operation not permitted".equals(e.getMessage())||
+                            "Operation not supported".equals(e.getMessage())) {
                         // This is the issue described in ticket:1653
                         // To prevent printing the warning, we just continue
                         // here.
                         log.debug(target + " does not support locking.");
-                        continue;
+                    } else {
+                        log.warn("Invalid tmp dir: "+target, e);
                     }
+                    continue;
                 }
 
                 log.debug("Chose global tmpdir:  " + locktest.getParent());
                 break; // Something found!
 
-            } catch (Exception e) {
-                log.warn("Invalid tmp dir: "+target, e);
             } finally {
                 if (locktest != null) {
                     try {
