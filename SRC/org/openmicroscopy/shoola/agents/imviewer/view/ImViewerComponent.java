@@ -687,7 +687,7 @@ class ImViewerComponent
 			}
 			newPlane = true;
 			model.setSelectedXYPlane(z, t);
-			renderXYPlane();
+			//renderXYPlane();
 		}
 	}
 	
