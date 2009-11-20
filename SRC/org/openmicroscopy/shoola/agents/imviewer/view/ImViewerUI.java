@@ -90,8 +90,10 @@ import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
@@ -748,11 +750,13 @@ class ImViewerUI
 		//menu.add(item);
 		item = new JMenuItem(
 			controller.getAction(ImViewerControl.TAB_GRID));
-		item.setEnabled(model.getMaxC() > 1);
+		if (model.isBigImage() || model.isNumerousChannel())
+			item.setEnabled(false);
+		else item.setEnabled(model.getMaxC() > 1);
 		menu.add(item);
 		item = new JMenuItem(
 				controller.getAction(ImViewerControl.TAB_PROJECTION));
-		item.setEnabled(model.getMaxZ() > 1);
+		item.setEnabled(model.getMaxZ() > 1 && !model.isBigImage());
 		menu.add(item);
 		return menu;
 	}
@@ -761,15 +765,23 @@ class ImViewerUI
 	private void buildGUI()
 	{
 		Browser browser = model.getBrowser();
-		int sizeX = model.getMaxX();
-		
-		int sizeY = model.getMaxY();
+		int sizeX;
+		int sizeY;
+		if (model.isBigImage()) {
+			Dimension d = Factory.computeThumbnailSize(
+					RenderingControl.MAX_SIZE, RenderingControl.MAX_SIZE, 
+					model.getMaxX(), model.getMaxY());
+			sizeX = d.width;
+			sizeY = d.height;
+		} else {
+			sizeX = model.getMaxX();
+			sizeY = model.getMaxY();
+		}
 		double f = model.getZoomFactor();
 		if (f > 0) {
 			sizeX = (int) (sizeX*f);
 			sizeY = (int) (sizeY*f);
 			setZoomFactor(Math.round(f*100)/100.0, ZoomCmd.getZoomIndex(f));
-			
 		}
 		browser.setComponentsSize(sizeX, sizeY);
 		tabs = new ClosableTabbedPane(JTabbedPane.TOP, 
@@ -804,13 +816,15 @@ class ImViewerUI
 		gridViewPanel.add(browser.getGridView(), "1, 0");
 		gridViewPanel.add(controlPane.getTimeSliderPane(ImViewer.GRID_INDEX), 
 						"1, 1");
-		if (model.allowSplitView()) {
+		if (model.allowSplitView() && !model.isBigImage()) {
 			tabs.insertTab(browser.getGridViewTitle(), 
 					browser.getGridViewIcon(), gridViewPanel, "", 
 					ImViewer.GRID_INDEX);
+			/*
 			if (model.isBigImage()) {
 				controller.setGridMagnificationFactor(0.1);
 			}
+			*/
 		}
 		
 		double[][] tl2 = {{TableLayout.PREFERRED, TableLayout.FILL}, 
@@ -829,7 +843,7 @@ class ImViewerUI
 		projectionViewPanel.add(
 				controlPane.getTimeSliderPane(ImViewer.PROJECTION_INDEX), 
 						"1, 2");
-		if (model.getMaxZ() > 0) {
+		if (model.getMaxZ() > 0 && !model.isBigImage()) {
 			tabs.insertTab(browser.getProjectionViewTitle(), 
 					browser.getProjectionViewIcon(), 
 					projectionViewPanel, "", ImViewer.PROJECTION_INDEX);
@@ -2358,6 +2372,14 @@ class ImViewerUI
 	
 	/** Invokes when the color model changes. */
 	void onColorModelChanged() { controlPane.onColorModelChanged(); }
+	
+	/**
+	 * Returns <code>true</code> if it is a large image, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isBigImage() { return model.isBigImage(); }
 	
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.

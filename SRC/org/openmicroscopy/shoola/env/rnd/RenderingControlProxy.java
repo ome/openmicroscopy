@@ -31,7 +31,6 @@ import java.awt.image.DataBufferInt;
 import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -39,13 +38,11 @@ import java.util.List;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
-import javax.media.opengl.GL;
 
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
-import omero.ServerError;
 import omero.api.RenderingEnginePrx;
 import omero.model.Family;
 import omero.model.Pixels;
@@ -624,10 +621,7 @@ class RenderingControlProxy
 	 */
 	private TextureData createTexture(int[] data, int w, int h)
 	{
-		TextureData texture = new TextureData(GL.GL_RGBA, w, h, 0, GL.GL_BGRA, 
-        		GL.GL_UNSIGNED_INT_8_8_8_8_REV, false, false, false, 
-        		IntBuffer.wrap(data), null);
-		return texture;
+		return PixelsServicesFactory.createTexture(data, w, h);
 	}
 
 	/**

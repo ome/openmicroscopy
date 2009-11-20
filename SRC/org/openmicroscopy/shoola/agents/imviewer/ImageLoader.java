@@ -64,6 +64,9 @@ public class ImageLoader
     /** The plane to render. */
     private PlaneDef    pd;
     
+    /** Flag indicating if the image is large or not. */
+    private boolean		largeImage;
+    
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
     
@@ -74,12 +77,16 @@ public class ImageLoader
      *                  Mustn't be <code>null</code>.
      * @param pixelsID  The id of the pixels set.
      * @param pd        The plane to render. 
+     * @param largeImae Pass <code>true</code> to render a large image,
+	 * 					<code>false</code> otherwise.
      */
-    public ImageLoader(ImViewer viewer, long pixelsID, PlaneDef pd)
+    public ImageLoader(ImViewer viewer, long pixelsID, PlaneDef pd, boolean
+    		largeImage)
     {
         super(viewer);
         this.pixelsID = pixelsID;
         this.pd = pd;
+        this.largeImage = largeImage;
     }
 
     /**
@@ -89,7 +96,7 @@ public class ImageLoader
     public void load()
     {
     	boolean asTexture = ImViewerAgent.hasOpenGLSupport();
-    	handle = ivView.render(pixelsID, pd, asTexture, this);
+    	handle = ivView.render(pixelsID, pd, asTexture, largeImage, this);
     }
 
     /**

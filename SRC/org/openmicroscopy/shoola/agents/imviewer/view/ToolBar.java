@@ -248,17 +248,20 @@ class ToolBar
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
-    	JPanel p = new JPanel();
-		JLabel l = new JLabel("Compression:");
-		p.add(l);
-		p.add(compressionBox);
+    	JPanel p = null;
+		if (!view.isBigImage()) {
+			p = new JPanel();
+			JLabel l = new JLabel("Compression:");
+			p.add(l);
+			p.add(compressionBox);
+		}
     	setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
     	setBorder(null);
     	JPanel bars = new JPanel();
     	bars.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
     	bars.setBorder(null);
     	bars.add(bar);
-    	bars.add(p);
+    	if (p != null) bars.add(p);
     	add(UIUtilities.buildComponentPanel(bars));
     	add(UIUtilities.buildComponentPanelRight(busyLabel));
     }
@@ -295,11 +298,6 @@ class ToolBar
 		}
     	int compression = ImViewerFactory.getCompressionLevel();
 		bar.add(new JSeparator(JSeparator.VERTICAL));
-		JPanel p = new JPanel();
-		JLabel l = new JLabel("Compression:");
-		p.add(l);
-		p.add(compressionBox);
-		//add(UIUtilities.buildComponentPanel(p));
 		int value = (Integer) 
 			ImViewerAgent.getRegistry().lookup(LookupNames.CONNECTION_SPEED);
 		int setUp = view.convertCompressionLevel(value);

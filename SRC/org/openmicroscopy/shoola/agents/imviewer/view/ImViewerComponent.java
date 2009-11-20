@@ -957,6 +957,17 @@ class ImViewerComponent
 				fireStateChange();
 			}
 		} else {
+			if (model.isBigImage()) {
+				try {
+					model.saveRndSettings(false);
+				} catch (Exception e) {
+					LogMessage logMsg = new LogMessage();
+					logMsg.println("Cannot save rendering settings for " +
+							""+model.getImageID());
+					logMsg.print(e);
+					ImViewerAgent.getRegistry().getLogger().error(this, logMsg);
+				}
+			}
 			model.fireImageRetrieval();
 			newPlane = false;
 			fireStateChange();
@@ -2973,6 +2984,20 @@ class ImViewerComponent
 						"NEW state.");
 		}
 		view.setChannelColor(index, model.getChannelColor(index));
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#isBigImage()
+	 */
+	public boolean isBigImage()
+	{
+		switch (model.getState()) {
+			case NEW:
+			case DISCARDED:
+				return false;
+		}
+		return model.isBigImage();
 	}
 	
 }

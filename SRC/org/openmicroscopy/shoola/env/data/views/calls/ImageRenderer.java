@@ -69,16 +69,18 @@ public class ImageRenderer
      * @param pd        The plane to render.
      * @param asTexture	Pass <code>true</code> to return a texture,
 	 * 					<code>false</code> to return a buffered image.
+	 * @param largeImae Pass <code>true</code> to render a large image,
+	 * 					<code>false</code> otherwise.
      * @return          The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final long pixelsID, final PlaneDef pd, 
-    		final boolean asTexture)
+    		final boolean asTexture, final boolean largeImage)
     {
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
                 OmeroImageService rds = context.getImageService();
-                result = rds.renderImage(pixelsID, pd, asTexture);
+                result = rds.renderImage(pixelsID, pd, asTexture, largeImage);
             }
         };
     } 
@@ -104,12 +106,15 @@ public class ImageRenderer
      * @param pd        The plane to render.
      * @param asTexture	Pass <code>true</code> to return a texture,
 	 * 					<code>false</code> to return a buffered image.
+	 * @param largeImae Pass <code>true</code> to render a large image,
+	 * 					<code>false</code> otherwise.
      */
-    public ImageRenderer(long pixelsID, PlaneDef pd, boolean asTexture)
+    public ImageRenderer(long pixelsID, PlaneDef pd, boolean asTexture, boolean
+    		largeImage)
     {
         if (pixelsID < 0)
             throw new IllegalArgumentException("ID not valid.");
-       loadCall = makeBatchCall(pixelsID, pd, asTexture);
+       loadCall = makeBatchCall(pixelsID, pd, asTexture, largeImage);
     }
     
 }
