@@ -20,6 +20,11 @@ import portalocker
 
 from path import path
 
+# Activating logging at a static level
+if "DEBUG" in os.environ:
+    from omero.util import configure_logging
+    configure_logging(loglevel=logging.DEBUG)
+
 # TODO:
 #  - locking for command-line cleanup
 #  - plugin for cleaning unlocked files
@@ -111,13 +116,65 @@ class TempFileManager(object):
     def tmpdir(self):
         """
         Returns a platform-specific user-writable temporary directory
+
+        First, the value of "OMERO_TEMPDIR" is attempted (if available),
+        then user's home directory, then the global temp director.
+
+        Typical errors for any of the possible temp locations are:
+         * non-existence
+         * inability to lock
+
+        See: https://trac.openmicroscopy.org.uk/omero/ticket/1653
         """
+        locktest = None
+
+        omerotemp = os.environ.get("OMERO_TEMPDIR", None)
         try:
             from win32com.shell import shellcon, shell
-            homedir = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
+            homeprop = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
         except ImportError:
-            homedir = os.path.expanduser("~")
-        return path(homedir) / "omero" / "tmp"
+            homeprop = os.path.expanduser("~")
+        tempprop = tempfile.gettempdir()
+        targets = [omerotemp, homeprop, tempprop]
+
+        for target in targets:
+
+            if target is None:
+                continue
+
+            try:
+                try:
+                    testdir = path(target)
+                    fd, name = tempfile.mkstemp(prefix=".lock_test", suffix=".tmp", dir=str(testdir))
+                    locktest = open(name, "a+")
+                    portalocker.lock(locktest, portalocker.LOCK_EX|portalocker.LOCK_NB)
+                    locktest.close()
+                    self.logger.debug("Chose gloabl tmpdir: %s", testdir)
+                    break
+                finally:
+                    if locktest is not None:
+                        try:
+                            locktest.close()
+                            os.remove(name)
+                        except:
+                            self.logger.warn("Failed to remove lock test: %s", locktest)
+
+            except exceptions.Exception, e:
+                if "Operation not permitted" in str(e) or \
+                   "Operation not supported" in str(e):
+
+                    # This is the issue described in ticket:1653
+                    # To prevent printing the warning, we just continue
+                    # here.
+                    self.logger.debug("%s does not support locking.", target)
+                    continue
+                else:
+                    self.logger.warn("Invalid tmp dir: %s" % target, exc_info = True)
+
+        if locktest is None:
+            raise exceptions.Exception("Could not find lockable tmp dir")
+
+        return testdir / "omero" / "tmp"
 
     def username(self):
         """
@@ -266,7 +323,8 @@ if __name__ == "__main__":
     else:
         args = []
 
-    if "--debug" in args:
+    # Debug may already be activated. See static block above.
+    if "--debug" in args and "DEBUG" not in os.environ:
         configure_logging(loglevel=logging.DEBUG)
     else:
         configure_logging()

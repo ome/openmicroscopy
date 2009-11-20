@@ -13,12 +13,9 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
-import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.ConsoleAppender;
@@ -30,7 +27,7 @@ import org.apache.log4j.SimpleLayout;
  * Creates temporary files and folders and makes a best effort to remove them on
  * exit (or sooner). Typically only a single instance of this class will exist
  * (static {@link #manager} constant)
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.1
  */
@@ -38,10 +35,26 @@ public class TempFileManager {
 
     private final static Log log = LogFactory.getLog(TempFileManager.class);
 
+    static {
+        // Activating logging at a static level
+        if (System.getenv().containsKey("DEBUG")) {
+            ConsoleAppender console = new ConsoleAppender();
+            console.setName("System.err");
+            console.setTarget(ConsoleAppender.SYSTEM_ERR);
+            console.setLayout(new SimpleLayout());
+            console.activateOptions();
+            Logger logger = Logger.getLogger("omero");
+            logger.addAppender(console);
+            logger.setLevel(Level.DEBUG);
+            logger.addAppender(console);
+        }
+    }
+
     /**
      * Global {@link TempFileManager} instance for use by the current process
-     * and registered with the atexit module for cleaning up all created files
-     * on exit. Other instances can be created for specialized purposes.
+     * and registered with the {@link Runtime#addShutdownHook(Thread)} for
+     * cleaning up all created files on exit. Other instances can be created
+     * for specialized purposes.
      */
     private final static TempFileManager manager = new TempFileManager();
 
@@ -102,7 +115,7 @@ public class TempFileManager {
         }
         this.userDir = userDir;
         this.dir = new File(this.userDir, this.pid());
-        
+
         // Now create the directory. If a later step throws an
         // exception, we should try to rollback this change.
         boolean created = false;
@@ -150,7 +163,7 @@ public class TempFileManager {
                 } catch (Exception e2) {
                     log.warn("Error on cleanup after error", e2);
                 }
-                
+
             }
             throw e;
         }
@@ -176,11 +189,79 @@ public class TempFileManager {
     }
 
     /**
-     * Returns a platform-specific user-writable temporary directory
+     * Returns a platform-specific user-writable temporary directory.
+     *
+     * First, the value of "OMERO_TEMPDIR" is attempted (if available),
+     * then user's home ("user.home") directory, then the global temp director
+     * ("java.io.tmpdir").
+     *
+     * Typical errors for any of the possible temp locations are:
+     * <ul>
+     * <li>non-existence</li>
+     * <li>inability to lock</li>
+     * </ul>
+     *
+     * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/1653">ticket:1653</a>
      */
     protected File tmpdir() {
-        File home = new File(System.getProperty("user.home"));
-        File omero = new File(home, "omero");
+
+        File locktest = null;
+
+        String omerotmp = System.getenv().get("OMERO_TEMPDIR");
+        String homeprop = System.getProperty("user.home", null);
+        String tempprop = System.getProperty("java.io.tmpdir", null);
+        List<String> targets = Arrays.asList(omerotmp, homeprop, tempprop);
+
+        for (String target : targets) {
+
+            if (target == null) {
+                continue;
+            }
+
+            try {
+
+
+                try {
+                    File testdir = new File(target);
+                    locktest = File.createTempFile(".lock_test", ".tmp", testdir);
+
+                    RandomAccessFile raftest = new RandomAccessFile(
+                            locktest, "rw");
+
+                    FileLock channeltest = raftest.getChannel().tryLock();
+                    channeltest.release();
+                } catch (IOException io) {
+                    if ("Operation not permitted".equals(io.getMessage())||
+                            "Operation not supported".equals(io.getMessage())) {
+                        // This is the issue described in ticket:1653
+                        // To prevent printing the warning, we just continue
+                        // here.
+                        log.debug(target + " does not support locking.");
+                        continue;
+                    }
+                }
+
+                log.debug("Chose global tmpdir:  " + locktest.getParent());
+                break; // Something found!
+
+            } catch (Exception e) {
+                log.warn("Invalid tmp dir: "+target, e);
+            } finally {
+                if (locktest != null) {
+                    try {
+                        locktest.delete();
+                    } catch (Exception e) {
+                        log.warn("Failed to remove lock test: " + locktest.getAbsolutePath());
+                    }
+                }
+            }
+        }
+
+        if (locktest == null) {
+            throw new RuntimeException("Could not find lockable tmp dir");
+        }
+
+        File omero = new File(locktest.getParentFile(), "omero");
         File tmp = new File(omero, "tmp");
         return tmp;
     }
@@ -375,7 +456,8 @@ public class TempFileManager {
 
         if (args.size() > 0) {
 
-            if (args.contains("--debug")) {
+            // Debug may already be activated. See static block above.
+            if (args.contains("--debug") && ! System.getenv().containsKey("DEBUG")) {
                 ConsoleAppender console = new ConsoleAppender();
                 console.setName("System.err");
                 console.setTarget(ConsoleAppender.SYSTEM_ERR);
