@@ -219,7 +219,7 @@ public class CommandLineImporter {
         ImportConfig config = new ImportConfig();
 
         // Defaults
-        config.email.set("");
+        config.cliEmail.set("");
         config.sendFiles.set(false);
         config.sendReport.set(false);
         config.contOnError.set(false);
@@ -257,7 +257,7 @@ public class CommandLineImporter {
                 break;
             }
             case 4: {
-                config.email.set(g.getOptarg());
+                config.cliEmail.set(g.getOptarg());
                 break;
             }
             case 's': {
