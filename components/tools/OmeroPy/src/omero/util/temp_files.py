@@ -155,9 +155,9 @@ class TempFileManager(object):
                     if locktest is not None:
                         try:
                             locktest.close()
-                            os.remove(name)
+                            os.close(fd)
                         except:
-                            self.logger.warn("Failed to remove lock test: %s", locktest)
+                            self.logger.warn("Failed to remove lock test: %s", name, exc_info = True)
 
             except exceptions.Exception, e:
                 if "Operation not permitted" in str(e) or \
