@@ -159,7 +159,8 @@ public abstract class ShapeData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		RInt value = shape.getTheZ();
-		if (value == null) return -1;
+		if (value == null)
+			throw new IllegalArgumentException("No Z Specified.");
 		return value.getValue();
 	}
 
@@ -187,7 +188,8 @@ public abstract class ShapeData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		RInt value = shape.getTheT();
-		if (value == null) return -1;
+		if (value == null) 
+			throw new IllegalArgumentException("No T Specified.");
 		return value.getValue();
 	}
 
