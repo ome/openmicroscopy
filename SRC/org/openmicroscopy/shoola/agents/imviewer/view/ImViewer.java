@@ -141,7 +141,7 @@ public interface ImViewer
 	public static final int     LOADING_METADATA = 4;
 
 	/** Flag to denote the <i>Loading Plane Info</i> state. */
-	public static final int     LOADING_PLANE_INFO = 5;
+	//public static final int     LOADING_PLANE_INFO = 5;
 
 	/** Flag to denote the <i>Ready</i> state. */
 	public static final int     READY = 6;

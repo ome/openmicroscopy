@@ -641,7 +641,6 @@ class ImViewerComponent
 		}
 		switch (key) {
 			case ColorModelAction.GREY_SCALE_MODEL:
-				
 				model.setColorModel(GREY_SCALE_MODEL, true);
 				break;
 			case ColorModelAction.RGB_MODEL:
@@ -707,9 +706,11 @@ class ImViewerComponent
 	 */
 	public void setImage(BufferedImage image)
 	{
+		/*
 		if (model.getState() != LOADING_IMAGE) 
 			throw new IllegalStateException("This method can only be invoked " +
-			"in the LOADING_IMAGE state.");
+			"in the LOADING_IMAGE state: "+model.getState()+".");
+			*/
 		if (image == null) {
 			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Image retrieval", "An error occured while " +
@@ -793,8 +794,8 @@ class ImViewerComponent
 
 			if (GREY_SCALE_MODEL.equals(model.getColorModel()))
 				setColorModel(ColorModelAction.RGB_MODEL);
-			else 
-				renderXYPlane();
+			//else 
+			//	renderXYPlane();
 		} catch (Exception e) {
 			Registry reg = ImViewerAgent.getRegistry();
 			LogMessage msg = new LogMessage();
@@ -2879,8 +2880,7 @@ class ImViewerComponent
 	{
 		if (model.getState() != LOADING_IMAGE) 
 			throw new IllegalStateException("This method can only be invoked " +
-			"in the LOADING_IMAGE state.");
-
+			"in the LOADING_IMAGE state: "+model.getState());
 		if (image == null) {
 			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Image retrieval", "An error occured while " +
