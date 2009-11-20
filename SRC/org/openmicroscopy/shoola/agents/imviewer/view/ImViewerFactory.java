@@ -425,6 +425,7 @@ public class ImViewerFactory
 		viewers.add(comp);
 		//
 		long id = model.getImageID();
+		if (id < 0) return null;
 		Iterator<ImViewerRecentObject> j = recentViewers.iterator();
 		ImViewerRecentObject obj;
 		ImViewerRecentObject toRemove = null;

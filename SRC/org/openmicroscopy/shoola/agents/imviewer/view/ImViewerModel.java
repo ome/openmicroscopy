@@ -404,6 +404,7 @@ class ImViewerModel
 	ImViewerModel(DataObject image, Rectangle bounds, boolean separateWindow)
 	{
 		this.image = image;
+		imageID = -1;
 		initialize(bounds, separateWindow);
 		initializeMetadataViewer();
 		currentPixelsID = getImage().getDefaultPixels().getId();
@@ -1266,7 +1267,7 @@ class ImViewerModel
 	 */
 	long getImageID()
 	{ 
-		if (image == null) return -1;
+		if (image == null) return imageID;
 		return getImage().getId(); 
 	}
 

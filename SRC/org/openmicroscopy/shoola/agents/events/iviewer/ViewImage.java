@@ -96,9 +96,10 @@ public class ViewImage
      */
     public ViewImage(long imageID, Rectangle bounds)
     {
-        if (imageID < 0l) 
+        if (imageID < 0) 
             throw new IllegalArgumentException("Image ID not valid.");
         this.imageID = imageID;
+        image = null;
         requesterBounds = bounds;
         selectedUserID = -1;
         separateWindow = true;
