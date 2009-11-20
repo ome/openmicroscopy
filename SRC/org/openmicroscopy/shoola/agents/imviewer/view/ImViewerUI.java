@@ -90,10 +90,8 @@ import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
-import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
-import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
@@ -765,23 +763,16 @@ class ImViewerUI
 	private void buildGUI()
 	{
 		Browser browser = model.getBrowser();
-		int sizeX;
-		int sizeY;
-		if (model.isBigImage()) {
-			Dimension d = Factory.computeThumbnailSize(
-					RenderingControl.MAX_SIZE, RenderingControl.MAX_SIZE, 
-					model.getMaxX(), model.getMaxY());
-			sizeX = d.width;
-			sizeY = d.height;
-		} else {
-			sizeX = model.getMaxX();
-			sizeY = model.getMaxY();
-		}
+		Dimension d = model.computeSize();
+		int sizeX = d.width;
+		int sizeY = d.height;
 		double f = model.getZoomFactor();
 		if (f > 0) {
 			sizeX = (int) (sizeX*f);
 			sizeY = (int) (sizeY*f);
-			setZoomFactor(Math.round(f*100)/100.0, ZoomCmd.getZoomIndex(f));
+			double factor = Math.round(f*100)/100.0;
+			setZoomFactor(factor, ZoomCmd.getZoomIndex(f));
+			setMagnificationStatus(factor);
 		}
 		browser.setComponentsSize(sizeX, sizeY);
 		tabs = new ClosableTabbedPane(JTabbedPane.TOP, 
@@ -1187,7 +1178,8 @@ class ImViewerUI
 	{
 		if (statusBar == null) return;
 		if (factor != ZoomAction.ZOOM_FIT_FACTOR)
-			statusBar.setRigthStatus("x"+Math.round(factor*100)/100.0);
+			statusBar.setRigthStatus("x"+
+					Math.round(factor*model.getOriginalRatio()*100)/100.0);
 		else statusBar.setRigthStatus(ZoomAction.ZOOM_FIT_NAME);
 	}
 	
