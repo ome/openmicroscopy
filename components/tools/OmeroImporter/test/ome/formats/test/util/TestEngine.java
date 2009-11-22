@@ -227,10 +227,7 @@ public class TestEngine
 			    }
 				//store.logout();
 			    
-				log.error("Failed on file: " + file.getAbsolutePath());
-				log.error(e);
-				e.printStackTrace();
-				
+				log.error("Failed on file: " + file.getAbsolutePath(), e);
 				errors += 1;
 				sendRequest("", "TestEngine Error", e, file);
 				//throw e;
