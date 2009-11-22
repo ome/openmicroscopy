@@ -152,8 +152,7 @@ class TreeViewerWin
 
     /** Taskpane container for managing task browsers. */
     private JXTaskPaneContainerSingle 	container;
-
-    
+ 
     /**
      * Checks if the specified {@link Browser} is already visible.
      * 
@@ -193,7 +192,6 @@ class TreeViewerWin
    			 	browser = (Browser) browsers.get(Browser.SCREENS_EXPLORER);
    			 	container.add(new TaskPaneBrowser(browser));
     		}
-            
             browser = (Browser) browsers.get(Browser.FILES_EXPLORER);
             container.add(new TaskPaneBrowser(browser));
             
@@ -721,7 +719,7 @@ class TreeViewerWin
 
         }
         //if (browser != null) browser.onComponentStateChange(b);
-        
+        if (container != null) container.setExpandable(b);
         browsersDisplay.setEnabled(b);
     }
     

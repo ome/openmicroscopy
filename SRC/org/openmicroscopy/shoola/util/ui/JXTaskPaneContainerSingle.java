@@ -67,9 +67,13 @@ public class JXTaskPaneContainerSingle
 	/** The map hosting the <code>JXTaskPane</code>s. */
 	private Map<JXTaskPane, Integer> panes;
 	
+	/** Flag indicating that a tab pane can or cannot be expanded. */
+	private boolean	expandable;
+	
 	/** Initializes the component. */
 	private void initialize()
 	{
+		expandable = true;
 		panes = new HashMap<JXTaskPane, Integer>();
 		TableLayout layout = new TableLayout();
 		double[] size = {TableLayout.FILL};
@@ -83,6 +87,17 @@ public class JXTaskPaneContainerSingle
 	public JXTaskPaneContainerSingle()
 	{
 		initialize();
+	}
+	
+	/**
+	 * Passes <code>true</code> to allow a component to be expanded,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param expandable The value to set.
+	 */
+	public void setExpandable(boolean expandable)
+	{
+		this.expandable = expandable;
 	}
 	
 	/**
@@ -126,6 +141,7 @@ public class JXTaskPaneContainerSingle
 	public void add(JXTaskPane c)
 	{
 		int index = panes.size();
+		//c.all
 		TableLayout layout = (TableLayout) getLayout();
 		double h;
 		if (c.isCollapsed()) h = TableLayout.PREFERRED;
@@ -144,6 +160,10 @@ public class JXTaskPaneContainerSingle
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		JXTaskPane src = (JXTaskPane) evt.getSource();
+		if (!expandable) {
+			src.setCollapsed(true);
+			return;
+		}
 		TableLayout layout = (TableLayout) getLayout();
 		if (src.isCollapsed()) {
 			layout.setRow(panes.get(src), TableLayout.PREFERRED);
@@ -161,9 +181,11 @@ public class JXTaskPaneContainerSingle
 				if (p != src) {
 					layout.setRow(panes.get(src), TableLayout.FILL);
 					p.setCollapsed(true);
+					p.setSpecial(false);
 				}
 			}
 		}
+		src.setSpecial(true);
 		firePropertyChange(SELECTED_TASKPANE_PROPERTY, null, src);
 	}
 	
