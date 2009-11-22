@@ -322,7 +322,7 @@ class BrowserModel
     /** Creates the images composing the grid. */
     private void createGridImages()
     {
-    	if (combinedImage == null) return;
+    	//if (combinedImage == null) return;
     	if (originalGridImages == null)
     		originalGridImages = new ArrayList<BufferedImage>();
     	gridImages.clear();
@@ -343,7 +343,7 @@ class BrowserModel
 			case 3:
 				if (isImageMappedRGB(l)) {
 					//if (combinedImage == null) 
-						combinedImage = Factory.magnifyImage(gridRatio, 
+					combinedImage = Factory.magnifyImage(gridRatio, 
 								renderedImage);
 					int w = combinedImage.getWidth();
 		        	int h = combinedImage.getHeight();

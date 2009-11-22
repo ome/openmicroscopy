@@ -323,20 +323,22 @@ class TreeViewerControl
 		JXTaskPaneContainerSingle container = 
 			(JXTaskPaneContainerSingle) pane.getParent();
 		if (pane.isCollapsed() && container.hasTaskPaneExpanded()) return;
-		model.clearFoundResults();
-
-		if (!container.hasTaskPaneExpanded())
-			model.setSelectedBrowser(null);
-		else {
-			if (pane instanceof TaskPaneBrowser) {
-				TaskPaneBrowser p = (TaskPaneBrowser) pane;
-				if (p.getBrowser() != null)
-					model.setSelectedBrowser(p.getBrowser());
-				else model.showSearch();
-			} else {
+		int state = model.getState();
+		if (state == TreeViewer.READY || state == TreeViewer.NEW) {
+			model.clearFoundResults();
+			if (!container.hasTaskPaneExpanded())
 				model.setSelectedBrowser(null);
+			else {
+				if (pane instanceof TaskPaneBrowser) {
+					TaskPaneBrowser p = (TaskPaneBrowser) pane;
+					if (p.getBrowser() != null)
+						model.setSelectedBrowser(p.getBrowser());
+					else model.showSearch();
+				} else {
+					model.setSelectedBrowser(null);
+				}
 			}
-		}
+		} else pane.setCollapsed(true);
 	}
 	
 	/** Helper method to create all the UI actions. */

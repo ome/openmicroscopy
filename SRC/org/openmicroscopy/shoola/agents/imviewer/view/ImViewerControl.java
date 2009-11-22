@@ -685,9 +685,6 @@ class ImViewerControl
     	if (released) model.renderXYPlane();
     }
 
-    /** Forwards the call to the model. */
-	void renderXYPlane() { model.renderXYPlane(); }
-	
 	/**
 	 * Renders the overlays. 
 	 * 

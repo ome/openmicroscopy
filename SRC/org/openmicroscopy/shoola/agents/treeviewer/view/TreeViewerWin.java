@@ -721,7 +721,7 @@ class TreeViewerWin
 
         }
         //if (browser != null) browser.onComponentStateChange(b);
-        
+        if (container != null) container.setExpandable(b);
         browsersDisplay.setEnabled(b);
     }
     
