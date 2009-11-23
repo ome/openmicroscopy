@@ -50,7 +50,7 @@ import Ice
 import Glacier2
 import omero
 import omero_api_IScript_ice
-from omero.rtypes import *
+import omero.rtypes
 
 from omero.gateway import timeit
 from omeroweb.extlib.wrapper import *

@@ -23,7 +23,7 @@
 #
 
 import omero
-from omero.rtypes import *
+import omero.rtypes
 from omero_model_CommentAnnotationI import CommentAnnotationI
 from omero_model_UriAnnotationI import UriAnnotationI
 from omero_model_LongAnnotationI import LongAnnotationI

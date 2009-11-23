@@ -23,7 +23,7 @@
 #
 
 import omero
-from omero.rtypes import *
+import omero.rtypes
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 

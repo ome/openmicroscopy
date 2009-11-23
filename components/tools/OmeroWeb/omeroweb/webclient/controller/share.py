@@ -27,7 +27,7 @@ import datetime
 import time
 
 import omero
-from omero.rtypes import *
+import omero.rtypes
 from omero_model_ImageI import ImageI
 from omero_model_DatasetI import DatasetI
 from omero_model_ProjectI import ProjectI
