@@ -101,6 +101,7 @@ public class ImportConfig {
 
     public final StrValue sessionKey;
     public final StrValue email;
+    public final StrValue cliEmail;
     public final StrValue serverList;
     public final StrValue name;
     public final StrValue description;
@@ -200,6 +201,7 @@ public class ImportConfig {
         
         sessionKey   = new StrValue("session", this);
         email        = new StrValue("email", this);
+        cliEmail     = new StrValue("cliEmail", this);
         serverList   = new StrValue("serverList", this);
         name         = new StrValue("imageName", this);
         description  = new StrValue("imageDescription", this);
