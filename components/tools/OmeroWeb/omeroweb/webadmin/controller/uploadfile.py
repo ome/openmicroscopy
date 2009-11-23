@@ -23,7 +23,10 @@
 #
 
 import omero
+
 import omero.rtypes
+from omero.rtypes import *
+
 from omero_model_ExperimenterAnnotationLinkI import ExperimenterAnnotationLinkI
 from omero_model_FileAnnotationI import FileAnnotationI
 from omero_model_OriginalFileI import OriginalFileI

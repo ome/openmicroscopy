@@ -26,7 +26,9 @@ import datetime
 import time
 
 import omero
+
 import omero.rtypes
+from omero.rtypes import *
 
 from webclient.controller import BaseController
 

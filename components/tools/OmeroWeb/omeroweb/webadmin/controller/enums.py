@@ -23,7 +23,10 @@
 #
 
 import omero
+
 import omero.rtypes
+from omero.rtypes import *
+
 from omero_model_AcquisitionModeI import AcquisitionModeI
 from omero_model_ArcTypeI import ArcTypeI
 from omero_model_BinningI import BinningI

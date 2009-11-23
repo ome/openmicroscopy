@@ -25,7 +25,9 @@
 from django.conf import settings
 
 import omero
+
 import omero.rtypes
+from omero.rtypes import *
 
 from omero_model_CommentAnnotationI import CommentAnnotationI
 from omero_model_UriAnnotationI import UriAnnotationI
