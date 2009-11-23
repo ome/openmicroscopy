@@ -198,6 +198,7 @@ public class TestEngine
 			try
 			{
                 // Do import 
+				start = new Date();
 				interceptor.setSourceFile(file); 
 				importLibrary.importImage(file, 0, 0, 1, fileList[j], null, false, true, null, target);
 				iniFile.flush();
