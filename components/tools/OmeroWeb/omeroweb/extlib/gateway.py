@@ -51,7 +51,7 @@ import Glacier2
 import omero
 from omero.gateway import timeit
 import omero_api_IScript_ice
-from omero.rtypes import *
+import omero.rtypes
 
 from omero_model_FileAnnotationI import FileAnnotationI
 from omero_model_TagAnnotationI import TagAnnotationI

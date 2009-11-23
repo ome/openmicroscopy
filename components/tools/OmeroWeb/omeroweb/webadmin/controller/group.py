@@ -23,7 +23,7 @@
 #
 
 import omero
-from omero.rtypes import *
+import omero.rtypes
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 
 from webadmin.controller import BaseController
