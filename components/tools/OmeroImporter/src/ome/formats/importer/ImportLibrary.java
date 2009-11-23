@@ -311,8 +311,6 @@ public class ImportLibrary implements IObservable
      * @throws IOException If there is an I/O error.
      * @throws ServerError If there is an error communicating with the OMERO
      * server we're importing into.
-     * 
-     * TODO: Add observer messaging for any agnostic viewer class to use
      */
     public List<Pixels> importImage(File file, int index, int numDone,
     		                        int total, String userSpecifiedImageName, 
