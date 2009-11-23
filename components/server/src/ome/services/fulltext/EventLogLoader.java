@@ -164,6 +164,11 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
     }
 
     public void rollback(EventLog el) {
+        if (excludes.contains(el.getEntityType())) {
+            if (log.isDebugEnabled()) {
+                log.debug("Skipping rollback of " + el.getEntityType());
+            }
+        }
         backlog.add(el);
     }
 
@@ -219,6 +224,12 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
      * backlog.
      */
     public boolean addEventLog(Class<? extends IObject> cls, long id) {
+        if (excludes.contains(cls.getName())) {
+            if (log.isDebugEnabled()) {
+                log.debug("Skipping addition of " + cls.getName());
+                return false;
+            }
+        }
         EventLog el = new EventLog();
         el.setEntityId(id);
         el.setEntityType(cls.getName());
