@@ -34,7 +34,6 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.IllegalArgumentException;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
@@ -64,7 +63,10 @@ public class PlateWellsLoader
     private Map<Long, TreeImageSet>		nodes;
     
     /** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  		handle;
+    private CallHandle  				handle;
+    
+    /** Flag indicating to load or not the thumbnails. */
+    private boolean						withThumbnails;
     
     /**
      * Creates a new instance.
@@ -72,12 +74,16 @@ public class PlateWellsLoader
      * @param viewer  The viewer this data loader is for.
      *                Mustn't be <code>null</code>.
      * @param plates  The parent the nodes are for.
+	 * @param withThumbnails Pass <code>true</code> to load the thumbnails,
+     * 						 <code>false</code> otherwise.
      */
-	public PlateWellsLoader(TreeViewer viewer, List<TreeImageSet> plates)
+	public PlateWellsLoader(TreeViewer viewer, List<TreeImageSet> plates,
+			boolean withThumbnails)
 	{
 		super(viewer);
 		if (plates == null || plates.size() == 0)
 			throw new IllegalArgumentException("No plates specified.");
+		this.withThumbnails = withThumbnails;
 		nodes = new HashMap<Long, TreeImageSet>(plates.size());
 		Iterator<TreeImageSet> i = plates.iterator();
 		TreeImageSet p;
@@ -120,7 +126,7 @@ public class PlateWellsLoader
 			entry = (Entry) i.next();
 			plates.put(nodes.get(entry.getKey()), (Set) entry.getValue());
 		}
-        viewer.setPlates(plates);
+        viewer.setPlates(plates, withThumbnails);
     }
     
 }

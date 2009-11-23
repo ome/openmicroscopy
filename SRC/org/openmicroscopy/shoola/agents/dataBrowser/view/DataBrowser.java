@@ -234,7 +234,7 @@ public interface DataBrowser
      * and puts the window on screen.
      * If the state is not {@link #NEW}, then this method simply moves the
      * window to front.
-     * 
+     *
      * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
      */
     public void activate();

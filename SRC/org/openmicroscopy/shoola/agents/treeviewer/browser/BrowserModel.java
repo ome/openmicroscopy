@@ -676,7 +676,7 @@ class BrowserModel
 	    	evt.setContext(pObject, gpObject);
 			TreeViewerAgent.getRegistry().getEventBus().post(evt);
 			*/
-			parent.browse(node);
+			parent.browse(node, true);
 		}
 	}
 	

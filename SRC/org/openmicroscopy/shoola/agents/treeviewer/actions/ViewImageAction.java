@@ -102,7 +102,7 @@ public class ViewImageAction
      */
     public void actionPerformed(ActionEvent e)
     {
-       ViewCmd cmd = new ViewCmd(model);
+       ViewCmd cmd = new ViewCmd(model, true);
        cmd.execute();
     }
     

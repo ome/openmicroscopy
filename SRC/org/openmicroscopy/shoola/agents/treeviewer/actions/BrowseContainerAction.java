@@ -66,6 +66,9 @@ public class BrowseContainerAction
     extends TreeViewerAction
 {
 
+	/** Name of the action when the <code>DataObject</code> isn't an Image. */
+    private static final String NAME_NO_TUMBNAILS = "Browse w/o thumbnails";
+    
     /** Name of the action when the <code>DataObject</code> isn't an Image. */
     private static final String NAME = "Browse";
     
@@ -110,7 +113,10 @@ public class BrowseContainerAction
     		"Folder.";
     
     /** Convenience reference to the icon manager. */
-    private static IconManager	icons = IconManager.getInstance();;
+    private static IconManager	icons = IconManager.getInstance();
+    
+    /** Flag indicating to browse the object and retrieve the thumbnails. */
+    private boolean withThumnails;
     
     /**
      * Sets the action enabled depending on the browser's type and 
@@ -138,10 +144,16 @@ public class BrowseContainerAction
         Object ho = selectedDisplay.getUserObject();
         Browser browser = model.getSelectedBrowser();
         if (selectedDisplay instanceof TreeImageTimeSet) {
-        	name = NAME;
+        	
             putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER));
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_TIME));
+            if (withThumnails) name = NAME;
+        	else {
+        		name = NAME_NO_TUMBNAILS;
+        		setEnabled(false);
+        		return;
+        	}
            TreeImageDisplay[] array = browser.getSelectedDisplays();
             if (array != null && array.length > 1) {
             	setEnabled(false);
@@ -185,7 +197,8 @@ public class BrowseContainerAction
                     setEnabled(true);
                     //for this version
                     //setEnabled(false);
-                    name = NAME;
+                    if (withThumnails) name = NAME;
+                	else name = NAME_NO_TUMBNAILS;
                     putValue(Action.SMALL_ICON, 
                     			icons.getIcon(IconManager.BROWSER)); 
                     putValue(Action.SHORT_DESCRIPTION, 
@@ -193,7 +206,8 @@ public class BrowseContainerAction
                     return;
                 }
             }
-            name = NAME;
+            if (withThumnails) name = NAME;
+        	else name = NAME_NO_TUMBNAILS;
         	putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER));
 
         	String description = DESCRIPTION_DEFAULT;
@@ -208,9 +222,11 @@ public class BrowseContainerAction
                 } else if (ho instanceof ProjectData) {
                 	description = DESCRIPTION_PROJECT;
                 	setEnabled(n > 0);
+                	if (!withThumnails) setEnabled(false);
                 } else if (ho instanceof DatasetData) {
                 	description = DESCRIPTION_DATASET;
                 	setEnabled(n > 0);
+                	if (!withThumnails) setEnabled(false);
                 } else if (ho instanceof TagAnnotationData) {
             		String ns = ((TagAnnotationData) ho).getNameSpace();
             		if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
@@ -219,6 +235,7 @@ public class BrowseContainerAction
             			description = DESCRIPTION_TAG;
             			setEnabled(n > 0);
             		}
+            		if (!withThumnails) setEnabled(false);
             	}
             }
             putValue(Action.SHORT_DESCRIPTION, 
@@ -233,8 +250,22 @@ public class BrowseContainerAction
      */
     public BrowseContainerAction(TreeViewer model)
     {
+        this(model, true);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     * @param withThumbnails Pass <code>true</code> to load the thumbnails,
+     * 						 <code>false</code> otherwise.
+     */
+    public BrowseContainerAction(TreeViewer model, boolean withThumbnails)
+    {
         super(model);
-        name = NAME;
+        this.withThumnails = withThumbnails;
+        if (withThumbnails) name = NAME;
+        else name = NAME_NO_TUMBNAILS;
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION_DEFAULT));
         putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER)); 
@@ -246,7 +277,7 @@ public class BrowseContainerAction
      */
     public void actionPerformed(ActionEvent e)
     {
-       ViewCmd cmd = new ViewCmd(model);
+       ViewCmd cmd = new ViewCmd(model, withThumnails);
        cmd.execute();
     }
     

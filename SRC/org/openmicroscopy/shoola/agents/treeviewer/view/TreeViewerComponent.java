@@ -1909,9 +1909,9 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setPlates(Map)
+	 * @see TreeViewer#setPlates(Map, boolean)
 	 */
-	public void setPlates(Map<TreeImageSet, Set> plates)
+	public void setPlates(Map<TreeImageSet, Set> plates, boolean withThumbnails)
 	{
 		if (plates == null || plates.size() == 0) {
 			return;
@@ -1934,7 +1934,7 @@ class TreeViewerComponent
 					grandParentObject =  display.getUserObject();
 				db = DataBrowserFactory.getWellsDataBrowser(
 						grandParentObject, parentObject, 
-						(Set) entry.getValue());
+						(Set) entry.getValue(), withThumbnails);
 			}
 		}
 		if (db != null) {
@@ -1950,30 +1950,9 @@ class TreeViewerComponent
 	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setWells(TreeImageSet, Set)
+	 * @see TreeViewer#browse(TreeImageDisplay, boolean)
 	 */
-	public void browse(List<TreeImageDisplay> nodes)
-	{
-		if (nodes == null || nodes.size() == 0) return;
-		TreeImageDisplay node;
-		Object uo;
-		Iterator<TreeImageDisplay> i = nodes.iterator();
-		Class type = null;
-		while (i.hasNext()) {
-			node = i.next();
-			uo = node.getUserObject();
-			type = uo.getClass();
-		}
-		if (PlateData.class.equals(type)) {
-			model.browsePlates(nodes);
-		}
-	}
-	
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#browse(TreeImageDisplay)
-	 */
-	public void browse(TreeImageDisplay node)
+	public void browse(TreeImageDisplay node, boolean withThumbnails)
 	{
 		
 		if (node == null) return;
@@ -2013,7 +1992,7 @@ class TreeViewerComponent
 		} else if (uo instanceof PlateData) {
 			List<TreeImageDisplay> plates = new ArrayList<TreeImageDisplay>();
 			plates.add(node);
-			model.browsePlates(plates);
+			model.browsePlates(plates, withThumbnails);
 		} else if (uo instanceof File) {
 			File f = (File) uo;
 			if (f.isDirectory() && !f.isHidden()) {
