@@ -43,7 +43,7 @@ import ImageDraw
 import omero
 import omero_Constants_ice
 from omero.rtypes import *
-import omero.util.pixelstypetopython as pixelstopython;
+import omero.util.pixelstypetopython as pixelstypetopython
 
 try: 
 	import hashlib 
