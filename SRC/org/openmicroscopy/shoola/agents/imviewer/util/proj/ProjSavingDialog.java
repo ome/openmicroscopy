@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.imviewer.util.proj;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -156,6 +157,9 @@ public class ProjSavingDialog
 	
 	/** Used to sort the containers. */
 	private ViewerSorter 				sorter;
+	
+	/** The component hosting the datasets. */
+	private JScrollPane 				pane;
 	
 	/** Sets the properties of the dialog. */
 	private void setProperties()
@@ -359,12 +363,13 @@ public class ProjSavingDialog
         content.add(UIUtilities.setTextFont("datasets "), "0, 4, l, c");
         content.add(UIUtilities.buildComponentPanel(buildControls()), 
         		"0, 5, l, c");
-    	content.add(new JScrollPane(selectionPane), "1, 3, 1, 6");
+        pane = new JScrollPane(selectionPane);
         if (selection != null) {
         	Iterator i = selection.keySet().iterator();
         	while (i.hasNext()) 
         		selectionPane.add((JComponent) i.next());
         }
+        content.add(pane, "1, 3, 1, 6");
         content.add(new JLabel(), "0, 7, 1, 7");
         content.add(UIUtilities.setTextFont("Parameters "), "0, 8, l, c");
         content.add(buildParametersPanel(), "1, 8, 1, 9");
@@ -566,6 +571,7 @@ public class ProjSavingDialog
         		selectionPane.add((JComponent) i.next());
         	selectionPane.validate();
         	selectionPane.repaint();
+        	pane.revalidate();
 		}
 	}
 	
