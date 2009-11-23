@@ -86,18 +86,24 @@ def getTagsFromImages(metadataService, imageIds):
 	return tagsMap
 	
 	
-def getTimes(queryService, pixelsId, tIndexes):
+def getTimes(queryService, pixelsId, tIndexes, theZ=None, theC=None):
 	"""
 	Get the time in seconds (float) for the first plane (C = 0 & Z = 0) at 
-	each time-point for the defined pixels. 
+	each time-point for the defined pixels.
 	
 	@param queryService:	The Omero queryService
 	@param pixelsId:		The ID of the pixels object. long
 	@param tIndexes:		List of time indexes. [int]
-	@return:			List of times in seconds. 
+	@param theZ:		The Z plane index. Default is 0
+	@param theC:		The Channel index. Default is 0
+	@return:			List of times in seconds, ORDERED BY TIME!  
 	"""
+	if theZ == None:
+		theZ = 0
+	if theC == None:
+		theC = 0
 	indexes = ",".join([str(t) for t in tIndexes])
-	query = "from PlaneInfo as Info where Info.theT in (%s) and Info.theZ in (0) and Info.theC in (0) and pixels.id='%d' order by Info.deltaT" % (indexes, pixelsId)
+	query = "from PlaneInfo as Info where Info.theT in (%s) and Info.theZ in (%d) and Info.theC in (%d) and pixels.id='%d' order by Info.deltaT" % (indexes, theZ, theC, pixelsId)
 	infoList = queryService.findAllByQuery(query,None)
 	if len(infoList) >0:
 		return [info.deltaT.getValue() for info in infoList]
