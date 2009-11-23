@@ -719,15 +719,19 @@ public interface TreeViewer
 	 * Sets the wells linked to the specified plates.
 	 * 
 	 * @param plates The parents to handle.
+	 * @param withThumbnails Pass <code>true</code> to load the thumbnails,
+     * 						 <code>false</code> otherwise.
 	 */
-	public void setPlates(Map<TreeImageSet, Set> plates);
+	public void setPlates(Map<TreeImageSet, Set> plates, boolean withThumbnails);
 
 	/**
 	 * Browses the passed node.
 	 * 
 	 * @param node The node to browse.
+	 * @param withThumbnails Pass <code>true</code> to load the thumbnails,
+     * 						 <code>false</code> otherwise.
 	 */
-	public void browse(TreeImageDisplay node);
+	public void browse(TreeImageDisplay node, boolean withThumbnails);
 	
 	/**
 	 * Deletes the {@link DataObject}s hosted by the passed nodes.

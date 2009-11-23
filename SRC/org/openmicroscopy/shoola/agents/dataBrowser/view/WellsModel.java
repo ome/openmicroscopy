@@ -115,6 +115,9 @@ class WellsModel
 	/** Value indicating if the wells are valid or not. */
 	private boolean[][]			validWells;
 	
+	/** Flag indicating to load or not the thumbnails. */
+	private boolean				withThumbnails;
+	
 	/** 
 	 * Sorts the passed nodes by row.
 	 * 
@@ -237,14 +240,16 @@ class WellsModel
 	 * 
 	 * @param parent	The parent of the wells.
 	 * @param wells 	The collection to wells the model is for.
+	 * @param withThumbnails Pass <code>true</code> to load the thumbnails,
+     * 						 <code>false</code> otherwise.
 	 */
-	WellsModel(Object parent, Set<WellData> wells)
+	WellsModel(Object parent, Set<WellData> wells, boolean withThumbnails)
 	{
 		super();
 		if (wells  == null) 
 			throw new IllegalArgumentException("No wells.");
+		this.withThumbnails = withThumbnails;
 		wellDimension = null;
-		
 		this.parent = parent;
 		wellNodes = sortByRow(DataBrowserTranslator.transformHierarchy(wells, 
 				DataBrowserAgent.getUserDetails().getId(), 0));
@@ -615,6 +620,7 @@ class WellsModel
 	protected DataBrowserLoader createDataLoader(boolean refresh, 
 			Collection ids)
 	{
+		if (!withThumbnails) return null;
 		List l = getNodes();
 		Iterator i = l.iterator();
 		ImageSet node;

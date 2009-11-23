@@ -631,7 +631,7 @@ class BrowserUI
 				ctrl = false;
 				switch (e.getKeyCode()) {
 					case KeyEvent.VK_ENTER:
-						ViewCmd cmd = new ViewCmd(model.getParentModel());
+						ViewCmd cmd = new ViewCmd(model.getParentModel(), true);
 					    cmd.execute();
 						break;
 					case KeyEvent.VK_DELETE:

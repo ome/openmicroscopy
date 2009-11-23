@@ -76,16 +76,6 @@ class PlatesModel
 							userID, 0);
         browser = BrowserFactory.createBrowser(visTrees);
         layoutBrowser();
-        Iterator<PlateData> i = plates.iterator();
-		PlateData data;
-		List<Long> ids = new ArrayList<Long>();
-		Set images;
-		Iterator j;
-		ImageData img;
-		while (i.hasNext()) {
-			//data = i.next();
-			
-		}
 	}
 	
 	/**

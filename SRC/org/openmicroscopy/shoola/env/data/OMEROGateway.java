@@ -4694,7 +4694,7 @@ class OMEROGateway
 			int scriptIndex = param.getIndex();
 			switch (scriptIndex) {
 				case FigureParam.SPLIT_VIEW_ROI:
-					scriptName = "splitViewROIFigure.py";
+					scriptName = "roiFigure.py";
 					break;
 				default:
 					scriptName = "splitViewFigure.py";

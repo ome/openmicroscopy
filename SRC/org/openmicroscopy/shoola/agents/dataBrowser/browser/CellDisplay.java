@@ -232,9 +232,7 @@ public class CellDisplay
      */
     public void setBounds(int x, int y, int w, int h)
     {
-    	try {
-			super.setBounds(x, y, w, h);
-		} catch (Exception e) {}
+    	super.setBounds(x, y, w, h);
     }
     
 }

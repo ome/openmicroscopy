@@ -796,15 +796,17 @@ class TreeViewerModel
 	 * Browses the node hosting the plates to browse.
 	 * 
 	 * @param nodes The nodes to browse.
+	 * @param withThumbnails Pass <code>true</code> to load the thumbnails,
+     * 						 <code>false</code> otherwise.
 	 */
-	void browsePlates(List<TreeImageDisplay> nodes)
+	void browsePlates(List<TreeImageDisplay> nodes, boolean withThumbnails)
 	{
 		state = TreeViewer.LOADING_DATA;
 		List<TreeImageSet> plates = new ArrayList<TreeImageSet>();
 		Iterator<TreeImageDisplay> i = nodes.iterator();
 		while (i.hasNext())
 			plates.add((TreeImageSet) i.next());
-		currentLoader = new PlateWellsLoader(component, plates);
+		currentLoader = new PlateWellsLoader(component, plates, withThumbnails);
 		currentLoader.load();
 	}
 	

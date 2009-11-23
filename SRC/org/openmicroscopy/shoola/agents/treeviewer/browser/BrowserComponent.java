@@ -407,23 +407,6 @@ class BrowserComponent
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
     }
-
- 
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setWells(Set, TreeImageSet)
-     */
-    public void setWells(Set wells, TreeImageSet parent)
-    {
-        if (model.getState() != BROWSING_DATA) return;
-        //No node added to the tree.
-        model.setState(READY);
-        Map<TreeImageSet, Set> plates = new HashMap<TreeImageSet, Set>();
-        plates.put(parent, wells);
-        model.getParentModel().setPlates(plates);
-        model.getParentModel().setStatus(false, "", true);
-        fireStateChange();
-    }
     
     /**
      * Implemented as specified by the {@link Browser} interface.
@@ -1264,12 +1247,12 @@ class BrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#browse(TreeImageDisplay)
+	 * @see Browser#browse(TreeImageDisplay, boolean)
 	 */
-	public void browse(TreeImageDisplay node)
+	public void browse(TreeImageDisplay node, boolean withThumbnails)
 	{
 		if (node == null) return;
-		model.getParentModel().browse(node);
+		model.getParentModel().browse(node, withThumbnails);
 	}
 
 	/**

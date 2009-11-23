@@ -77,10 +77,7 @@ class BrowserControl
     
     /** The View controlled by this Controller.*/
     private RootDisplay     view;
-    
-    /** Flag to indicate that a popupTrigger event occurred. */
-    private boolean         popupTrigger;
-    
+        
     /** The selected cell, only used when displaying Plate. */
     private CellDisplay		selectedCell;
     
@@ -153,7 +150,6 @@ class BrowserControl
                                             this);
         this.model = model;
         this.view = view;
-        popupTrigger = false;
     }
     
     /**
@@ -294,7 +290,6 @@ class BrowserControl
     			(me.isControlDown() && SwingUtilities.isLeftMouseButton(me) &&
     					macOS)) {
     		model.setPopupPoint(p, true);
-    		popupTrigger = true;
     		return;
     	}
     	

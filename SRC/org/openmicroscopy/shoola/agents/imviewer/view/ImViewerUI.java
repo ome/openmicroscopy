@@ -742,10 +742,10 @@ class ImViewerUI
 	{
 		JMenu menu = new JMenu("View");
 		menu.setMnemonic(KeyEvent.VK_S);
-		JMenuItem item = new JMenuItem(
-					controller.getAction(ImViewerControl.TAB_VIEW));
+		//JMenuItem item = new JMenuItem(
+		//			controller.getAction(ImViewerControl.TAB_VIEW));
 		//menu.add(item);
-		item = new JMenuItem(
+		JMenuItem item = new JMenuItem(
 			controller.getAction(ImViewerControl.TAB_GRID));
 		if (model.isBigImage() || model.isNumerousChannel())
 			item.setEnabled(false);
@@ -1051,7 +1051,7 @@ class ImViewerUI
 		boolean reset = false;
 		if (w > width) {
 			reset = true;
-			w = width;
+			//w = width;
 		}
 		if (h > height) {
 			reset = true;

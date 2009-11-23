@@ -214,13 +214,19 @@ public class DataBrowserTranslator
         //Visualisation object.
         ImageSet project;  
         Set datasets;
-        String note = "";
+        //String note = "";
+        StringBuffer buffer;
         while (i.hasNext()) {
             ps = (ProjectData) i.next();
+            buffer = new StringBuffer();
             if (isReadable(ps, userID, groupID)) {
                 datasets = ps.getDatasets();
-                if (datasets != null) note += LEFT+datasets.size()+RIGHT;
-                project = new ImageSet(ps.getName(), note, ps);
+                if (datasets != null) {
+                	buffer.append(LEFT);
+                	buffer.append(datasets.size());
+                	buffer.append(RIGHT);
+                }
+                project = new ImageSet(ps.getName(), buffer.toString(), ps);
                 formatToolTipFor(project);
                 if (datasets != null) {
                     j = datasets.iterator();
@@ -577,8 +583,8 @@ public class DataBrowserTranslator
      */
     public static boolean isReadable(DataObject ho, long userID, long groupID)
     {
-        PermissionData permissions = ho.getPermissions();
-        long objectOwnerID = ho.getOwner().getId();
+        //PermissionData permissions = ho.getPermissions();
+        //long objectOwnerID = ho.getOwner().getId();
        // TODO: fix when perimssions are back.
         return true;
        // if (userID == objectOwnerID) return permissions.isUserRead();

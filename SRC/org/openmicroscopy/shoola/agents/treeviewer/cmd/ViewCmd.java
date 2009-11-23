@@ -51,6 +51,9 @@ public class ViewCmd
 	/** Reference to the model. */
 	private TreeViewer model;
 
+    /** Flag indicating to browse the object and retrieve the thumbnails. */
+    private boolean withThumbnails;
+    
 	/**
 	 * Returns the images' id contained in the passed node.
 	 * 
@@ -83,11 +86,14 @@ public class ViewCmd
 	 * Creates a new instance.
 	 * 
 	 * @param model Reference to the model. Mustn't be <code>null</code>.
+	 * @param withThumbnails Pass <code>true</code> to load the thumbnails,
+     * 						 <code>false</code> otherwise.
 	 */
-	public ViewCmd(TreeViewer model)
+	public ViewCmd(TreeViewer model, boolean withThumbnails)
 	{
 		if (model == null) throw new IllegalArgumentException("No model.");
 		this.model = model;
+		this.withThumbnails = withThumbnails;
 	}
 
 	/** Implemented as specified by {@link ActionCmd}. */
@@ -95,7 +101,7 @@ public class ViewCmd
 	{
 		Browser browser = model.getSelectedBrowser();
 		if (browser == null) return;
-		browser.browse(browser.getLastSelectedDisplay());
+		browser.browse(browser.getLastSelectedDisplay(), withThumbnails);
 	}
   
 }

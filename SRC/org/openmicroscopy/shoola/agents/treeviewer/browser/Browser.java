@@ -552,8 +552,10 @@ public interface Browser
      * Browses the specified node.
      * 
      * @param node The node to browse.
+	 * @param withThumbnails Pass <code>true</code> to load the thumbnails,
+     * 						 <code>false</code> otherwise.
      */
-	public void browse(TreeImageDisplay node);
+	public void browse(TreeImageDisplay node, boolean withThumbnails);
 	
 	/**
 	 * Updates the view when a node is selected in the thumbnail view
@@ -593,17 +595,6 @@ public interface Browser
 	 * @param node	The node hosting the time information.
 	 */
 	public void setTimeIntervalImages(Set set, TreeImageTimeSet node);
-	
-	 /**
-     * Callback used by a data loader to set the wells contained in the 
-     * currently selected plate.
-     * 
-     * @param wells		The collection of wells.
-     * @param parent    The parent of the well.
-     * @throws IllegalStateException If the current state is not 
-     *                               {@link #LOADING_LEAVES}.
-     */
-    public void setWells(Set wells, TreeImageSet parent);
 
     /** 
 	 * Notifies the users that the imports is finished. 

@@ -184,7 +184,7 @@ public class JXTaskPaneContainerSingle
 				}
 			}
 		}
-		src.setSpecial(false);
+		src.setSpecial(true);
 		firePropertyChange(SELECTED_TASKPANE_PROPERTY, null, src);
 	}
 	

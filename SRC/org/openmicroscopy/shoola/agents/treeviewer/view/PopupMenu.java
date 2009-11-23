@@ -56,6 +56,9 @@ class PopupMenu
 {
 
 	/** Button to browse a container. */
+	private JMenuItem           browseNoThumbnails;
+	
+	/** Button to browse a container. */
 	private JMenuItem           browse;
 
 	/** Button to add existing element to the specified container. */
@@ -167,6 +170,10 @@ class PopupMenu
 				a = controller.getAction(TreeViewerControl.BROWSE);
 				browse = new JMenuItem(a);
 				initMenuItem(browse, a.getActionName());
+				a = controller.getAction(
+						TreeViewerControl.BROWSE_NO_THUMBNAILS);
+				browseNoThumbnails = new JMenuItem(a);
+				initMenuItem(browseNoThumbnails, a.getActionName());
 				a = controller.getAction(TreeViewerControl.VIEW);
 				view = new JMenuItem(a);
 				initMenuItem(view, a.getActionName());
@@ -293,6 +300,7 @@ class PopupMenu
 		switch (index) {
 			case TreeViewer.FULL_POP_UP_MENU:
 				add(browse);
+				add(browseNoThumbnails);
 				add(view);
 				add(editFile);
 				add(downloadElement);

@@ -295,6 +295,9 @@ class TreeViewerControl
 	/** Identifies the <code>Download</code> in the menu. */
 	static final Integer    DOWNLOAD = Integer.valueOf(54);
 
+	/** Identifies the <code>Browse w/o thumbnails</code> in the menu. */
+	static final Integer    BROWSE_NO_THUMBNAILS = Integer.valueOf(55);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -345,6 +348,8 @@ class TreeViewerControl
 	private void createActions()
 	{
 		actionsMap.put(BROWSE, new BrowseContainerAction(model));
+		actionsMap.put(BROWSE_NO_THUMBNAILS, 
+				new BrowseContainerAction(model, false));
 		actionsMap.put(CREATE_OBJECT, new CreateAction(model));
 		actionsMap.put(COPY_OBJECT, new CopyAction(model));
 		actionsMap.put(DELETE_OBJECT, new DeleteAction(model));

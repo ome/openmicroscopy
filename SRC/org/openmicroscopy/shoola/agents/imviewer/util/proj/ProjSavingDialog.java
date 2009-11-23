@@ -157,6 +157,9 @@ public class ProjSavingDialog
 	/** Used to sort the containers. */
 	private ViewerSorter 				sorter;
 	
+	/** The component hosting the datasets. */
+	private JScrollPane 				pane;
+	
 	/** Sets the properties of the dialog. */
 	private void setProperties()
 	{
@@ -359,7 +362,8 @@ public class ProjSavingDialog
         content.add(UIUtilities.setTextFont("datasets "), "0, 4, LEFT, CENTER");
         content.add(UIUtilities.buildComponentPanel(buildControls()), 
         		"0, 5, l, c");
-    	content.add(new JScrollPane(selectionPane), "1, 3, 1, 6");
+        pane = new JScrollPane(selectionPane);
+    	content.add(pane, "1, 3, 1, 6");
         if (selection != null) {
         	Iterator i = selection.keySet().iterator();
         	while (i.hasNext()) 
@@ -567,6 +571,7 @@ public class ProjSavingDialog
         		selectionPane.add((JComponent) i.next());
         	selectionPane.validate();
         	selectionPane.repaint();
+        	pane.revalidate();
 		}
 	}
 	

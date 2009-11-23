@@ -54,8 +54,6 @@ class ProjectsModel
 	extends DataBrowserModel
 {
 
-	private Set<ProjectData> projects;
-
 	protected DataBrowserLoader createDataLoader(boolean refresh, 
 			Collection ids)
 	{

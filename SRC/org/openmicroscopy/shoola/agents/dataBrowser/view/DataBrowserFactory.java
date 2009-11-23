@@ -115,12 +115,16 @@ public class DataBrowserFactory
 	 * @param grandParent	The grandparent of the node.
 	 * @param parent		The parent's node.
 	 * @param wells			The collection to set.
+	 * @param withThumbnails Pass <code>true</code> to load the thumbnails,
+     * 						 <code>false</code> otherwise.
 	 * @return See above.
 	 */
 	public static final DataBrowser getWellsDataBrowser(Object grandParent, 
-										Object parent, Set<WellData> wells)
+										Object parent, Set<WellData> wells, 
+										boolean withThumbnails)
 	{
-		return singleton.createWellsDataBrowser(grandParent, parent, wells);
+		return singleton.createWellsDataBrowser(grandParent, parent, wells,
+				withThumbnails);
 	}
 	
 	/**
@@ -336,12 +340,14 @@ public class DataBrowserFactory
 	 * @param grandParent	The grandParent of the node.
 	 * @param parent		The parent's node.
 	 * @param wells			The collection to set.
+	 * @param withThumbnails Pass <code>true</code> to load the thumbnails,
+     * 						 <code>false</code> otherwise.
 	 * @return See above.
 	 */
 	private DataBrowser createWellsDataBrowser(Object grandParent, 
-			Object parent, Set<WellData> wells)
+			Object parent, Set<WellData> wells, boolean withThumbnails)
 	{
-		DataBrowserModel model = new WellsModel(parent, wells);
+		DataBrowserModel model = new WellsModel(parent, wells, withThumbnails);
 		model.setGrandParent(grandParent);
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
