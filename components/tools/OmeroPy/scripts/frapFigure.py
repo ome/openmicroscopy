@@ -46,9 +46,15 @@ import omero_api_IRoi_ice
 import omero.util.imageUtil as imgUtil
 import Image, ImageDraw, ImageFont
 from datetime import date
+from reportlab.graphics.shapes import *
+from reportlab.graphics.charts.lineplots import LinePlot
+from reportlab.graphics.charts.textlabels import Label
+from reportlab.graphics import renderPDF
+
 
 JPEG = "image/jpeg"
 PNG = "image/png"
+PDF = "application/pdf"
 
 logLines = []	# make a log / legend of the figure
 def log(text):
@@ -141,7 +147,8 @@ def makeFrapFigure(session, commandArgs):
 	gateway = session.createGateway()
 	roiService = session.getRoiService()
 	queryService = session.getQueryService()
-	
+	updateService = session.getUpdateService()
+	rawFileStore = session.createRawFileStore()
 	rawPixelStore = session.createRawPixelsStore()
 	
 	imageId = commandArgs["imageId"]
@@ -281,6 +288,32 @@ def makeFrapFigure(session, commandArgs):
 	
 	figLegend = "\n".join(logLines)
 	print figLegend
+	
+	drawing = Drawing(400, 200)
+	lp = LinePlot()
+	lp.x = 1.5
+	lp.y = 80
+	lp.height = 50
+	lp.width = 300
+	lp.data = [zip(tIndexes, frapNormCorr)]
+	lp.lines[0].strokeColor = colors.blue
+	
+	drawing.add(lp)
+	
+	#
+	format = PDF
+			
+	output = "FRAP.pdf"
+	
+	renderPDF.drawToFile(drawing, output, 'FRAP')
+	
+	parent = image
+	
+	print format
+	fileId = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, parent, output, format, figLegend)
+	
+	print fileId
+	
 
 def runAsScript():
 	client = scripts.client('frapFigure.py', 'Create a figure of FRAP data for an image.', 
