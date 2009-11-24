@@ -92,11 +92,18 @@ class ToolBar
     /** The compression option. */
     private static final String[] 				compression;
 
+    /** The compression option. */
+    private static final String[] 				compressionPartial;
+    
     static {
     	compression = new String[3];
     	compression[UNCOMPRESSED] = "None";
     	compression[MEDIUM] = "Medium";
     	compression[LOW] = "High";
+    	
+    	compressionPartial = new String[2];
+    	compressionPartial[MEDIUM-1] = "Medium";
+    	compressionPartial[LOW-1] = "High";
     }
     
     /** Reference to the Control. */
@@ -246,15 +253,10 @@ class ToolBar
     private void buildGUI()
     {
     	removeAll();
-    	JPanel p = null;
-    	if (!view.isBigImage()) {
-    		p = new JPanel();
-    		JLabel l = new JLabel("Compression:");
-    		p.add(l);
-    		p.add(compressionBox);
-    		new JPanel();
-    	}
-		
+    	JPanel p = new JPanel();
+    	JLabel l = new JLabel("Compression:");
+    	p.add(l);
+    	p.add(compressionBox);
     	setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
     	setBorder(null);
     	JPanel bars = new JPanel();
@@ -297,15 +299,24 @@ class ToolBar
 	        rndButton.setSelected(pref.isRenderer());
 	        //rndButton.setAction(a);
 		}
-    	int compression = ImViewerFactory.getCompressionLevel();
+		int compression = ImViewerFactory.getCompressionLevel();
 		int value = (Integer) 
 			ImViewerAgent.getRegistry().lookup(LookupNames.CONNECTION_SPEED);
 		int setUp = view.convertCompressionLevel(value);
 		if (compression != setUp) compression = setUp;
-		
 		int index = view.convertCompressionLevel();
-		if (compression >= UNCOMPRESSED && compression <= LOW)
-			index = compression;
+		if (view.isBigImage()) {
+			compressionBox = EditorUtil.createComboBox(compressionPartial, 0, 
+	    			getBackground());
+	    	compressionBox.setBackground(getBackground());
+	    	if (compression >= MEDIUM && compression <= LOW)
+				index = compression;
+		} else {
+			
+			if (compression >= UNCOMPRESSED && compression <= LOW)
+				index = compression;
+			compressionBox.setSelectedIndex(index);
+		}
 		compressionBox.setSelectedIndex(index);
 		
 		compressionBox.addActionListener(
@@ -385,6 +396,11 @@ class ToolBar
      * 
      * @return See above.
      */
-	int getUICompressionLevel() { return compressionBox.getSelectedIndex(); }
+	int getUICompressionLevel()
+	{ 
+		int index = compressionBox.getSelectedIndex();
+		if (!view.isBigImage()) return index;
+		return index++;
+	}
 	
 }
