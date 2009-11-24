@@ -174,18 +174,19 @@ def paintThumbnailGrid(thumbnailStore, length, spacing, pixelIds, colCount, bg=(
 	c = 0
 	thumbnailMap = getThumbnailSet(thumbnailStore, length, pixelsIds)
 	for pixelsId in pixelIds:
-		thumbnail = thumbnailMap[pixelsId]#getThumbnail(thumbnailStore, pixelsId, length)
-		if thumbnail:	# check we have a thumbnail (won't get one if image is invalid)
-			thumbImage = Image.open(StringIO.StringIO(thumbnail))	# make an "Image" from the string-encoded thumbnail
-			# paste the image onto the canvas at the correct coordinates for the current row and column 
-			x = c*(length+spacing) + leftSpace
-			y = r*(length+spacing) + spacing
-			pasteImage(thumbImage, canvas, x, y)
+		if pixelsId in thumbnailMap:
+			thumbnail = thumbnailMap[pixelsId]#getThumbnail(thumbnailStore, pixelsId, length)
+			if thumbnail:	# check we have a thumbnail (won't get one if image is invalid)
+				thumbImage = Image.open(StringIO.StringIO(thumbnail))	# make an "Image" from the string-encoded thumbnail
+				# paste the image onto the canvas at the correct coordinates for the current row and column 
+				x = c*(length+spacing) + leftSpace
+				y = r*(length+spacing) + spacing
+				pasteImage(thumbImage, canvas, x, y)
 		# increment the column, and if we're at the last column, start a new row
 		c = c + 1
 		if c == colCount:
-			c = 0
-			r = r + 1
+		c = 0
+		r = r + 1
 			
 	return canvas
 	
