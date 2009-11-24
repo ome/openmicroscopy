@@ -105,4 +105,9 @@ public class NullTaskBar
 	 */
 	public boolean login() { return false; }
 
+	/**
+	 * @see TaskBar#openURL(String)
+	 */
+	public void openURL(String path) {}
+
 }

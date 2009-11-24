@@ -198,4 +198,10 @@ public interface TaskBar
      */
     public boolean login();
 
+    /** 
+     * Opens the passed URL if possible.
+     * 
+     * @param path The path to handle.
+     */
+    public void openURL(String path);
 }

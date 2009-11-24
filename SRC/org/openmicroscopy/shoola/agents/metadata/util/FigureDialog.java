@@ -1249,9 +1249,10 @@ public class FigureDialog
 		p.setWidth(width);
 		
 		p.setSelectedObjects(selectedObjects.isSelected());
-		if (arrangeByTags.isSelected()) { //retrieve the id of the selected tags
+		//retrieve the id of the selected tags
+		if (arrangeByTags.isSelected() && selection != null 
+				&& selection.size() > 0) { 
 			Iterator<JCheckBox> i = selection.iterator();
-			Entry entry;
 			JCheckBox box;
 			TagAnnotationData tag;
 			List<Long> ids = new ArrayList<Long>();

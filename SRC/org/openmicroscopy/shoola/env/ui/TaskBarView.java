@@ -667,4 +667,10 @@ class TaskBarView
      */
 	public boolean login() { return manager.login(); }
 
+    /**
+     * Implemented as specified by {@link TaskBar}.
+     * @see TaskBar#openURL(String)
+     */
+	public void openURL(String path) { manager.openURL(path); }
+	
 }

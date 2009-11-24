@@ -28,6 +28,9 @@ package org.openmicroscopy.shoola.env.ui;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 
 
@@ -36,7 +39,12 @@ import java.io.FileWriter;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
+import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
+import org.openmicroscopy.shoola.util.filter.file.HTMLFilter;
+import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
 import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
+import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
+import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import omero.model.OriginalFile;
 
@@ -57,6 +65,9 @@ public class DownloadActivity
 	extends ActivityComponent
 {
 
+	/** Open the file in the Browser. */
+	private static final String		FILE = "file://";
+	
 	/** The description of the activity when finished. */
 	private static final String		DESCRIPTION = "File downloaded";
 	
@@ -68,6 +79,20 @@ public class DownloadActivity
     
     /** The name of the file. */
     private String				 fileName;
+    
+    /** Reference to the file to load. */
+    private String				 filePath;
+    
+    /** The supported file filters. */
+    private static final List<CustomizedFileFilter> FILTERS;
+    
+    static {
+    	FILTERS = new ArrayList<CustomizedFileFilter>();
+    	FILTERS.add(new JPEGFilter());
+    	FILTERS.add(new PNGFilter());
+    	FILTERS.add(new HTMLFilter());
+    	FILTERS.add(new TIFFFilter());
+    }
     
     /**
      * Returns the name of the file. 
@@ -110,6 +135,25 @@ public class DownloadActivity
     }
     
     /**
+     * Returns <code>true</code> if the file can be opened, <code>false</code>
+     * otherwise.
+     * 
+     * @param path The path to handle.
+     * @return See above.
+     */
+    private boolean canOpenFile(String path)
+    {
+    	Iterator<CustomizedFileFilter> i = FILTERS.iterator();
+    	CustomizedFileFilter filter;
+    	while (i.hasNext()) {
+    		filter = i.next();
+			if (filter.accept(path))
+				return true;
+		}
+    	return false;
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param viewer		The viewer this data loader is for.
@@ -139,9 +183,9 @@ public class DownloadActivity
 		OriginalFile f = parameters.getFile();
 		File folder = parameters.getFolder();
     	File directory = folder.getParentFile();
-		return new FileLoader(viewer, registry, 
-				directory+File.separator+fileName, 
-				f.getId().getValue(), f.getSize().getValue(), this);
+    	filePath = directory+File.separator+fileName;
+		return new FileLoader(viewer, registry, filePath, f.getId().getValue(),
+				f.getSize().getValue(), this);
 	}
 
 	/**
@@ -170,6 +214,8 @@ public class DownloadActivity
 				} catch (Exception ex) {}
 			}
 		}
+		if (canOpenFile(filePath))
+			registry.getTaskBar().openURL(FILE+filePath);
 	}
 
 }
