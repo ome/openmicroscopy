@@ -90,15 +90,28 @@ def getThumbnail(thumbnailStore, pixelsId, length):
 	@param length:		Length of longest side. int
 	@return:		The thumbnail as a String, or None if not found (invalid image)
 	"""
-	
-	thumbnailStore.setPixelsId(pixelsId)
+	if !thumbnailStore.setPixelsId(pixelsId):
+		thumbnailStore.needDefaults()
+		thumbnailStore.setPixelsId(pixelsId)
 	try:
-		thumbnail = thumbnailStore.getThumbnailByLongestSide(rint(length))	# returns string (api says Ice::ByteSeq)
-		return thumbnail
+		return thumbnailStore.getThumbnailByLongestSide(rint(length))	# returns string (api says Ice::ByteSeq)
 	except:
 		return None
-
-
+		
+def getThumbnailSet(thumbnailStore, length, pixelsIds):
+	""" 
+	Returns map of thumbnails whose keys are the pixels id and the values are the image, the longest side is 'length'  
+	
+	@param thumbnailStore: 	The Omero thumbnail store
+	@param pixelsIds:		The collection of pixels ID.
+	@param length:		Length of longest side. int
+	@return: See above
+	"""	
+	try:
+		return thumbnailStore.getThumbnailByLongestSideSet(rint(length), pixelsIds)	# returns string (api says Ice::ByteSeq)
+	except:
+		return None
+	
 def paintThumbnailGrid(thumbnailStore, length, spacing, pixelIds, colCount, bg=(255,255,255), 
 			leftLabel=None, textColour=(0,0,0), fontsize=None):
 	""" 
@@ -159,8 +172,9 @@ def paintThumbnailGrid(thumbnailStore, length, spacing, pixelIds, colCount, bg=(
 	# loop through the images, getting a thumbnail and placing it on a new row and column
 	r = 0
 	c = 0
+	thumbnailMap = getThumbnailSet(thumbnailStore, length, pixelsIds)
 	for pixelsId in pixelIds:
-		thumbnail = getThumbnail(thumbnailStore, pixelsId, length)
+		thumbnail = thumbnailMap[pixelsId]#getThumbnail(thumbnailStore, pixelsId, length)
 		if thumbnail:	# check we have a thumbnail (won't get one if image is invalid)
 			thumbImage = Image.open(StringIO.StringIO(thumbnail))	# make an "Image" from the string-encoded thumbnail
 			# paste the image onto the canvas at the correct coordinates for the current row and column 
