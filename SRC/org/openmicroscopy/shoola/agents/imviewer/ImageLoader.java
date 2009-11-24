@@ -111,9 +111,9 @@ public class ImageLoader
      */
     public void handleResult(Object result)
     {
-        if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
-        if ((ImViewerAgent.hasOpenGLSupport())) {
-        	viewer.setImageAsTexture((TextureData) result);
+    	if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
+    	if ((ImViewerAgent.hasOpenGLSupport())) {
+    		viewer.setImageAsTexture((TextureData) result);
     	} else {
     		viewer.setImage((BufferedImage) result);
     	}
