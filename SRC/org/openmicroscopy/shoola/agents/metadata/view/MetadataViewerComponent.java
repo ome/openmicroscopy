@@ -963,7 +963,7 @@ class MetadataViewerComponent
 	{
 		if (value == null) return;
 		if (value instanceof FigureParam)
-			firePropertyChange(SPLIT_VIEW_FIGURE_PROPERTY, null, value);
+			firePropertyChange(GENERATE_FIGURE_PROPERTY, null, value);
 	}
 	
 	/**

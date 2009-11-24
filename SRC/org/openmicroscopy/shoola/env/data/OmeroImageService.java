@@ -549,8 +549,10 @@ public interface OmeroImageService
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
-	 * Creates a figure composed of the specified images.
+	 * Creates a figure composed of the specified objects.
 	 * 
+	 * @param ids The objects to use for the figure.
+	 * @param type The type of object to handle.
 	 * @param parameters The parameters to create the figure.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
@@ -558,7 +560,7 @@ public interface OmeroImageService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Object createFigure(List<Long> imageIDs, Object parameters)
+	public Object createFigure(List<Long> ids, Class type, Object parameters)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

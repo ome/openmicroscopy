@@ -297,12 +297,13 @@ public interface ImageDataView
 	/**
 	 * Creates a figure.
 	 * 
-	 * @param imageIds 	The id of the images.
-     * @param param 	The parameters to create the movie.
+	 * @param ids 	The id of the objects.
+	 * @param type	The type of objects to handle.
+     * @param param The parameters to create the movie.
 	 * @param observer	Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle createFigure(List<Long> imageIds, Object param, 
+	public CallHandle createFigure(List<Long> ids, Class type, Object param, 
 			AgentEventListener observer);
 	
 	/**

@@ -362,9 +362,9 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
-     * @see OmeroImageService#createFigure(List, Object)
+     * @see OmeroImageService#createFigure(List, Class, Object)
      */
-	public Object createFigure(List<Long> imageIDs, Object parameters)
+	public Object createFigure(List<Long> ids, Class type, Object parameters)
 			throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

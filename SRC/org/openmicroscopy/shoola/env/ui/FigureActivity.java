@@ -92,7 +92,7 @@ public class FigureActivity
 	protected UserNotifierLoader createLoader()
 	{
 		return new FigureCreator(viewer,  registry, parameters.getParameters(), 
-				parameters.getImages(), this);
+				parameters.getIds(), parameters.getObjectType(), this);
 	}
 
 	/**

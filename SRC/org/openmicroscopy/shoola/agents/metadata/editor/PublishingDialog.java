@@ -42,6 +42,8 @@ import info.clearthought.layout.TableLayout;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.WellSampleData;
@@ -96,32 +98,46 @@ class PublishingDialog
 	private static final String SPLIT_VIEW_ROI_FIGURE_TEXT = 
 		"Split ROI Figure...";
 	
+	/** The text associated to the Thumbnails action. */
+	private static final String THUMBNAILS_FIGURE_TOOLTIP = "" +
+			"Create an image of the displayed images.";
+	
+	/** The text associated to the Thumbnails action. */
+	private static final String THUMBNAILS_FIGURE_TEXT = "" +
+			"Thumbnails Figure...";
+	
 	/** Reference to the control. */
-	private EditorControl controller;
+	private EditorControl 	controller;
 	
 	/** Reference to the Model. */
-	private EditorModel   model;
+	private EditorModel   	model;
 	
 	/** Button to make a movie. */
-	private JButton movieButton;
+	private JButton 		movieButton;
 	
 	/** Button to export an image as OME-TIFF. */
-	private JButton exportAsOmeTiffButton;
+	private JButton 		exportAsOmeTiffButton;
 
 	/** Button to create a split view figure of a collection of images. */
-	private JButton splitViewFigureButton;
+	private JButton 		splitViewFigureButton;
 	
 	/** Component to make a movie. */
-	private JMenuItem movieItem;
+	private JMenuItem 		movieItem;
 	
 	/** Component to export an image as OME-TIFF. */
-	private JMenuItem exportAsOmeTiffItem;
+	private JMenuItem 		exportAsOmeTiffItem;
 	
 	/** Component to create a split view figure of a collection of images. */
-	private JMenuItem splitViewFigureItem;
+	private JMenuItem 		splitViewFigureItem;
 	
 	/** Component to create a split view figure of a collection of images. */
-	private JMenuItem splitViewROIFigureItem;
+	private JMenuItem 		splitViewROIFigureItem;
+	
+	/** Component to create thumbnails figure of a collection of images. */
+	private JMenuItem 		thumbnailsFigureItem;
+	
+	/** Component to create a movie figure of a collection of images. */
+	private JMenuItem 		movieFigureItem;
 	
 	/** The menu hosting the various options. */
 	private JPopupMenu	menu;
@@ -198,6 +214,11 @@ class PublishingDialog
 				SPLIT_VIEW_ROI_FIGURE_TOOLTIP, SPLIT_VIEW_ROI_FIGURE_TEXT,
 				EditorControl.SPLIT_VIEW_ROI_FIGURE);
 		splitViewFigureButton.setEnabled(true);
+		thumbnailsFigureItem = createMenuItem(
+				icons.getIcon(IconManager.SPLIT_VIEW), 
+				THUMBNAILS_FIGURE_TOOLTIP, THUMBNAILS_FIGURE_TEXT,
+				EditorControl.THUMBNAILS_FIGURE);
+		thumbnailsFigureItem.setEnabled(true);
 	}
 	
 	/** Sets the properties of the dialog. */
@@ -272,6 +293,7 @@ class PublishingDialog
 		menu.add(exportAsOmeTiffItem);
 		menu.add(splitViewFigureItem);
 		menu.add(splitViewROIFigureItem);
+		menu.add(thumbnailsFigureItem);
 		return menu;
  	}
 	
@@ -308,6 +330,9 @@ class PublishingDialog
     			splitViewFigureItem.setEnabled(data.getSizeC() > 1);
     			splitViewROIFigureItem.setEnabled(data.getSizeC() > 1);
 			} catch (Exception e) {}
+    	} else {
+    		if (refObject instanceof DatasetData)
+    			thumbnailsFigureItem.setEnabled(true);
     	}
 	}
 

@@ -229,6 +229,7 @@ class EditorComponent
 	public void setExistingTags(Collection tags)
 	{
 		model.setExistingTags(tags);
+		
 		Collection setTags = view.getCurrentTagsSelection();
 		Iterator<TagAnnotationData> k = setTags.iterator();
 		List<Long> ids = new ArrayList<Long>();
@@ -260,6 +261,13 @@ class EditorComponent
 						available.add(data);
 				}
 			}
+		}
+		if (controller.getFigureDialog() != null) {
+			List all = new ArrayList();
+			all.addAll(available);
+			if (setTags != null && setTags.size() > 0) all.addAll(setTags);
+			controller.getFigureDialog().setTags(all);
+			return;
 		}
 		showSelectionWizard(TagAnnotationData.class, available, setTags,
 							true);
@@ -734,12 +742,12 @@ class EditorComponent
 	{
 		if (controller.getFigureDialog() == null) {
 			String name = model.getRefObjectName();
+			FigureDialog dialog;
 			switch (index) {
 				case FigureDialog.SPLIT:
 					int maxZ = model.getMaxZ();
-					FigureDialog dialog = controller.createFigureDialog(name, 
-							maxZ);
-					dialog.setIndex(index);
+					dialog = controller.createFigureDialog(name, 
+							maxZ, FigureDialog.SPLIT);
 					if (!model.isRendererLoaded()) {
 						loadRenderingControl(RenderingControlLoader.LOAD);
 					} else {
@@ -750,6 +758,16 @@ class EditorComponent
 				case FigureDialog.SPLIT_ROI:
 					model.fireROILoading();
 					break;
+				case FigureDialog.THUMBNAILS:
+					Collection tags = model.getExistingTags();
+					dialog = controller.createFigureDialog(name, 1, 
+							FigureDialog.THUMBNAILS);
+					if (tags != null) {
+						dialog.setTags(tags);
+					} else {
+						model.loadExistingTags();
+					}
+					dialog.centerDialog();
 			}
 		}
 	}
@@ -773,9 +791,8 @@ class EditorComponent
 			String name = model.getRefObjectName();
 			int maxZ = model.getMaxZ();
 			FigureDialog dialog = controller.createFigureDialog(name, 
-					maxZ);
+					maxZ, FigureDialog.SPLIT_ROI);
 			dialog.setROIs(rois);
-			dialog.setIndex(FigureDialog.SPLIT_ROI);
 			if (!model.isRendererLoaded()) {
 				loadRenderingControl(RenderingControlLoader.LOAD);
 			} else {

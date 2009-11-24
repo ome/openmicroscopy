@@ -323,12 +323,12 @@ class ImageDataViewImpl
 
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#createFigure(List, Object, AgentEventListener)
+     * @see ImageDataView#createFigure(List, Class, Object, AgentEventListener)
      */
-	public CallHandle createFigure(List<Long> imageIds, Object param, 
+	public CallHandle createFigure(List<Long> ids, Class type, Object param, 
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new FigureCreator(imageIds, param);
+		BatchCallTree cmd = new FigureCreator(ids, type, param);
 		return cmd.exec(observer);
 	}
 	

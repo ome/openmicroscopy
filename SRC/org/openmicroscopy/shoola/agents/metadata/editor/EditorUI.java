@@ -664,6 +664,13 @@ public class EditorUI
 	 */
 	String getRefObjectName() { return model.getRefObjectName(); }
 
+	/**
+	 * Returns the object of reference.
+	 * 
+	 * @return See above.
+	 */
+	Object getRefObject() { return model.getRefObject(); }
+	
 	/** Cleans up the view or adds the components
 	 * 
 	 * @param cleanup 	Pass <code>true</code> to clean up, <code>false</code>

@@ -60,8 +60,11 @@ public class FigureCreator
     /** The parameters to use.*/
     private Object 					param;
     
-    /** The select channels. */
-    private List<Long>				imageIds;
+    /** The select objects. */
+    private List<Long>				ids;
+    
+    /** The type of object to handle. */
+    private Class					type;
     
     /** The result. */
     private FileAnnotationData		data;
@@ -79,22 +82,24 @@ public class FigureCreator
      *               	Mustn't be <code>null</code>.
      * @param registry	Convenience reference for subclasses.
      * @param param  	The parameters used to create the movie.
-     * @param imageIds	The selected images.
+     * @param ids		The selected objects.
+     * @param type		The type of objects.
      * @param activity 	The activity associated to this loader.
      */
 	public FigureCreator(UserNotifier viewer,  Registry registry,
-			Object param, List<Long> imageIds, 
+			Object param, List<Long> ids, Class type, 
 			ActivityComponent activity)
 	{
 		super(viewer, registry);
 		if (activity == null)
 			throw new IllegalArgumentException("Activity valid.");
-		if (imageIds == null || imageIds.size() == 0)
-			throw new IllegalArgumentException("Images not valid.");
+		if (ids == null || ids.size() == 0)
+			throw new IllegalArgumentException("Objects not valid.");
 		if (param == null)
 			throw new IllegalArgumentException("Parameters cannot be null.");
 		this.param = param;
-		this.imageIds = imageIds;
+		this.ids = ids;
+		this.type = type;
 		this.activity = activity;
 	}
 	
@@ -104,7 +109,7 @@ public class FigureCreator
      */
     public void load()
     {
-        handle = ivView.createFigure(imageIds, param, this);
+        handle = ivView.createFigure(ids, type, param, this);
     }
     
     /**

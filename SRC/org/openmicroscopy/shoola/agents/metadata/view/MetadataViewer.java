@@ -135,8 +135,8 @@ public interface MetadataViewer
 	/** Bound property indicating to bring up the activity options. */
 	public static final String	ACTIVITY_OPTIONS_PROPERTY = "activityOptions";
 	
-	/** Bound property indicating to create a split view figure. */
-	public static final String	SPLIT_VIEW_FIGURE_PROPERTY = "splitViewFigure";
+	/** Bound property indicating to create a figure. */
+	public static final String	GENERATE_FIGURE_PROPERTY = "generateFigure";
 	
 	/** Bound property indicating to close the renderer. */
 	public static final String	CLOSE_RENDERER_PROPERTY = "closeRenderer";

@@ -65,6 +65,7 @@ import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
@@ -88,6 +89,7 @@ import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
@@ -105,6 +107,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.DrawingComponent;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import pojos.ChannelData;
+import pojos.ImageData;
+import pojos.TagAnnotationData;
 
 /** 
  * Modal dialog displaying option to create a figure of a collection of 
@@ -135,15 +139,11 @@ public class FigureDialog
 	/** Indicates that the dialog is for a movie figure. */
 	public static final int			MOVIE = 2;
 	
+	/** Indicates that the dialog is for a thumbnails figure. */
+	public static final int			THUMBNAILS = 3;
+	
 	/** Bound property indicating to create a split view figure. */
-	public static final String		SPLIT_FIGURE_PROPERTY = "splitFigure";
-	
-	/** Bound property indicating to create a split view figure with ROI. */
-	public static final String		SPLIT_FIGURE_ROI_PROPERTY = 
-		"splitFigureROI";
-	
-	/** Bound property indicating to create movie figure. */
-	public static final String		MOVIE_FIGURE_PROPERTY = "movieFigure";
+	public static final String		CREATE_FIGURE_PROPERTY = "createFigure";
 	
 	/** Bound property indicating to close the dialog. */
 	public static final String		CLOSE_FIGURE_PROPERTY = "closeFigure";
@@ -160,6 +160,9 @@ public class FigureDialog
 	/** Default text describing the compression check box.  */
     private static final String		PROJECTION_DESCRIPTION = 
     				"Select the type of projection.";
+    
+    /** The default number of thumbnails per row. */
+    private static final int		ITEMS_PER_ROW = 10;
     
     /** The possible options for row names. */
     private static final String[]	ROW_NAMES;
@@ -185,6 +188,9 @@ public class FigureDialog
     /** Index to <code>500%</code> magnification. */
     private static final int		ZOOM_500 = 5;
     
+    /** The size available for thumbnails creation. */
+    private static final String[]	SIZE_OPTIONS;
+
 	static {
 		ROW_NAMES = new String[3];
 		ROW_NAMES[FigureParam.IMAGE_NAME] = "Image's name";
@@ -197,6 +203,13 @@ public class FigureDialog
 		MAGNIFICATION[ZOOM_300] = "300%";
 		MAGNIFICATION[ZOOM_400] = "400%";
 		MAGNIFICATION[ZOOM_500] = "500%";
+		SIZE_OPTIONS = new String[6];
+		SIZE_OPTIONS[ZOOM_AUTO] = "24x24";
+		SIZE_OPTIONS[ZOOM_100] = "32x32";
+		SIZE_OPTIONS[ZOOM_200] = "48x48";
+		SIZE_OPTIONS[ZOOM_300] = "64x64";
+		SIZE_OPTIONS[ZOOM_400] = "96x96";
+		SIZE_OPTIONS[ZOOM_500] = "128x128";
 	}
 	
 	/** The name to give to the figure. */
@@ -275,7 +288,7 @@ public class FigureDialog
 	private JComboBox						colorBox;
 	
 	/** The index of the dialog. One of the constants. */
-	private int								index;
+	private int								dialogType;
 	
 	/** The number of z-sections. */
 	private int								maxZ;
@@ -300,6 +313,69 @@ public class FigureDialog
 	/** The magnification factor. */
 	private JComboBox						zoomBox;
 	
+	/** The size of thumbnails. */
+	private JComboBox						sizeBox;
+	
+	/** The number of items. */
+	private NumericalTextField				numberPerRow;
+	
+	/** Indicates to create a figure with the displayed objects. */
+	private JRadioButton					displayedObjects;
+	
+	/** Indicates to create a figure with the selected objects. */
+	private JRadioButton					selectedObjects;
+	
+	/** The type of objects to handle. */
+	private Class							type;
+	
+	/** Indicates to arrange thumbnails by tags. */
+	private JCheckBox						arrangeByTags;
+	
+	/**
+	 * The component displaying the controls to create the thumbnails figure.
+	 */
+	private JPanel							thumbnailsPane;
+	
+	/** The map containing the selected tags. */
+	private Map<JCheckBox, TagAnnotationData> tagsSelection;
+	
+	/** Use to sort data objects.*/
+	private ViewerSorter 					sorter;
+	
+	/** The component displaying the collection of selected tags. */
+	private JPanel							selectedTags;
+	
+	/** The selection of tags. */
+	private List<JCheckBox>					selection;
+	
+	/** Lays out the selected tags. 
+	 * 
+	 * @param */
+	private void layoutSelectedTags(JCheckBox selectedTag)
+	{
+		selectedTags.removeAll();
+		if (selection == null) selection = new ArrayList<JCheckBox>();
+		if (selection.contains(selectedTag))
+			selection.remove(selectedTag);
+		else selection.add(selectedTag);
+		
+		Iterator<JCheckBox>	i = selection.iterator();
+		JCheckBox box;
+		int index = 1;
+		JLabel label;
+		TagAnnotationData tag;
+		while (i.hasNext()) {
+			box = i.next();
+			label = new JLabel();
+			tag = tagsSelection.get(box);
+			label.setText(index+". "+tag.getTagValue());
+			selectedTags.add(label);
+			index++;
+		}
+		selectedTags.revalidate();
+		selectedTags.repaint();
+	}
+	
 	/**
 	 * Sets the channel selection.
 	 * 
@@ -322,7 +398,7 @@ public class FigureDialog
 			btn.setSelected(actives.contains(v));
 		}
         FigureComponent comp = components.get(channel);
-		switch (index) {
+		switch (dialogType) {
 			case SPLIT:
 		        boolean grey = splitPanelGrey.isSelected();
 		        if (active) {
@@ -427,6 +503,11 @@ public class FigureDialog
 		mergeCanvas.setImage(mergeImage);
 	}
 	
+	/**
+	 * Returns the magnification factor.
+	 * 
+	 * @return See above.
+	 */
 	private double getMagnificationFactor()
 	{
 		int maxY = renderer.getPixelsDimensionsY();
@@ -557,6 +638,7 @@ public class FigureDialog
 	 */
 	private void initComponents(String name)
 	{	
+		sorter = new ViewerSorter();
 		pane = new JLayeredPane();
 		thumbnailHeight = Factory.THUMB_DEFAULT_HEIGHT;
 		thumbnailWidth = Factory.THUMB_DEFAULT_WIDTH;	
@@ -591,17 +673,16 @@ public class FigureDialog
 		zRange.layoutComponents();
 		zRange.setEnabled(maxZ > 1);
 		String[] names = new String[ProjectionParam.PROJECTIONS.size()];
-        int index = 0;
-        
+        int k = 0;
         i = ProjectionParam.PROJECTIONS.entrySet().iterator();
         projectionTypes = new HashMap<Integer, Integer>();
         int j;
         while (i.hasNext()) {
         	entry = (Entry) i.next();
 			j = (Integer) entry.getKey();
-			projectionTypes.put(index, j);
-			names[index] = (String) entry.getValue();
-			index++;
+			projectionTypes.put(k, j);
+			names[k] = (String) entry.getValue();
+			k++;
 		}
         rowName = new JComboBox(ROW_NAMES); 
         projectionTypesBox = new JComboBox(names);
@@ -629,12 +710,12 @@ public class FigureDialog
         colorBox = new JComboBox();
 		Map<Color, String> colors = EditorUtil.COLORS_BAR;
 		Object[][] cols = new Object[colors.size()][2];
-		index = 0;
+		k = 0;
 		i = colors.entrySet().iterator();
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
-			cols[index] = new Object[]{entry.getKey(), entry.getValue()};
-			index++;
+			cols[k] = new Object[]{entry.getKey(), entry.getValue()};
+			k++;
 		}
 		
 		colorBox.setModel(new DefaultComboBoxModel(cols));	
@@ -648,14 +729,37 @@ public class FigureDialog
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) { close(); }
 		});
+		sizeBox = new JComboBox(SIZE_OPTIONS);
+		numberPerRow = new NumericalTextField(1, 100);
+		numberPerRow.setColumns(3);
+		numberPerRow.setText(""+ITEMS_PER_ROW);
+		ButtonGroup optionsGroups = new ButtonGroup();
+		displayedObjects = new JRadioButton("Displayed Images");
+		selectedObjects = new JRadioButton("Selected Images");
+		optionsGroups.add(displayedObjects);
+		optionsGroups.add(selectedObjects);
+		selectedObjects.setSelected(true);
+		
+		arrangeByTags = new JCheckBox();
 	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
 		IconManager icons = IconManager.getInstance();
-		TitlePanel tp = new TitlePanel("Split View Figure",
-				"Create a Split View Figure.", 
+		
+		TitlePanel tp;
+		String text = null;
+		switch (dialogType) {
+			case THUMBNAILS:
+				text = "Create a thumbnail Figure.";
+				break;
+			case SPLIT:
+			case SPLIT_ROI:
+				text = "Create a Split View Figure.";
+			
+		}
+		tp = new TitlePanel("Create Figure", text, 
 				"The figure will be saved to the server.", 
 				icons.getIcon(IconManager.SPLIT_VIEW_48));
 		Container c = getContentPane();
@@ -760,7 +864,7 @@ public class FigureDialog
 				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 
 				5, TableLayout.PREFERRED, 5, TableLayout.PREFERRED,
 				5, TableLayout.PREFERRED, 5, TableLayout.PREFERRED,
-				5, TableLayout.PREFERRED}}; //rows
+				5, TableLayout.PREFERRED, 5, TableLayout.PREFERRED}}; //rows
 		p.setLayout(new TableLayout(tl));
 		int i = 0;
         p.add(UIUtilities.setTextFont("Name"), "0, "+i+"");
@@ -768,17 +872,38 @@ public class FigureDialog
         i = i+2;
         p.add(UIUtilities.setTextFont("Format"), "0, "+i+"");
         p.add(formats, "1, "+i);
-        
-        i = i+2;
-        p.add(UIUtilities.setTextFont("Image Label"), "0, "+i+"");
-        p.add(rowName, "1, "+i);
-        i = i+2;
-        p.add(showScaleBar, "0, "+i);
-        p.add(scaleBar, "1, "+i);
-        p.add(new JLabel("microns"), "2, "+i);
-        i = i+2;
-        p.add(UIUtilities.setTextFont("Overlay"), "0, "+i);
-        p.add(UIUtilities.buildComponentPanel(colorBox), "1, "+i);
+        if (dialogType == THUMBNAILS) {
+        	i = i+2;
+        	p.add(UIUtilities.setTextFont("Thumbnails Size"), "0, "+i+"");
+        	p.add(UIUtilities.buildComponentPanel(sizeBox), "1, "+i);
+        	i = i+2;
+        	p.add(UIUtilities.setTextFont("Thumbnails per row"), "0, "+i+"");
+        	p.add(UIUtilities.buildComponentPanel(numberPerRow), "1, "+i);
+        } else {
+        	 i = i+2;
+             p.add(UIUtilities.setTextFont("Image Label"), "0, "+i+"");
+             p.add(rowName, "1, "+i);
+             i = i+2;
+             p.add(showScaleBar, "0, "+i);
+             p.add(scaleBar, "1, "+i);
+             p.add(new JLabel("microns"), "2, "+i);
+             i = i+2;
+             p.add(UIUtilities.setTextFont("Overlay"), "0, "+i);
+             p.add(UIUtilities.buildComponentPanel(colorBox), "1, "+i);
+        }
+        if (ImageData.class.equals(type)) {
+        	i = i+2;
+        	
+        	
+        	 i = i+2;
+             p.add(UIUtilities.setTextFont("Made with"), "0, "+i+"," +
+             		" LEFT, TOP");
+             JPanel controls = new JPanel();
+             controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
+             controls.add(displayedObjects);
+             controls.add(selectedObjects);
+             p.add(UIUtilities.buildComponentPanel(controls), "1, "+i);
+        }
 		return p;
 	}
 	
@@ -867,7 +992,7 @@ public class FigureDialog
 	private JPanel buildMergeComponent()
 	{
 		JComponent comp = mergeCanvas;
-		if (index == SPLIT_ROI) {
+		if (dialogType == SPLIT_ROI) {
 			JComponent c = drawingComponent.getDrawingView();
 			Dimension d = mergeCanvas.getPreferredSize();
 			c.setSize(d);
@@ -904,6 +1029,8 @@ public class FigureDialog
 	 */
 	private JPanel buildBody()
 	{
+		if (dialogType == THUMBNAILS) return buildThumbnailsPane();
+			
 		double[][] tl = {{TableLayout.FILL}, //columns
 				{TableLayout.PREFERRED, TableLayout.PREFERRED,
 			TableLayout.PREFERRED}}; //rows
@@ -927,6 +1054,22 @@ public class FigureDialog
 		channelsPane.add(buildDefaultPane());
 		p.add(channelsPane, "0, "+i);
 		return p;
+	}
+	
+	/**
+	 * Returns the components for the thumbnails script.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildThumbnailsPane()
+	{
+		thumbnailsPane = new JPanel();
+		thumbnailsPane.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+		double[][] tl = {{TableLayout.FILL}, //columns
+				{TableLayout.PREFERRED, TableLayout.PREFERRED}}; //rows
+		thumbnailsPane.setLayout(new TableLayout(tl));
+		thumbnailsPane.add(buildTypeComponent(), "0, 0");
+		return thumbnailsPane;
 	}
 	
 	/**
@@ -960,6 +1103,7 @@ public class FigureDialog
 	 */
 	private void collectParam(FigureParam p)
 	{
+		p.setSelectedObjects(selectedObjects.isSelected());
 		p.setWidth((Integer) widthField.getValueAsNumber());
 		p.setHeight((Integer) heightField.getValueAsNumber());
 		p.setSplitGrey(splitPanelGrey.isSelected());
@@ -971,7 +1115,7 @@ public class FigureDialog
 			if (n != null) scale = n.intValue();
 		}
 		p.setScaleBar(scale);
-		index = colorBox.getSelectedIndex();
+		int index = colorBox.getSelectedIndex();
 		
 		Map<Color, String> m = EditorUtil.COLORS_BAR;
 		Iterator i = m.entrySet().iterator();
@@ -1022,7 +1166,7 @@ public class FigureDialog
 		
 		collectParam(p);
 		close();
-		firePropertyChange(SPLIT_FIGURE_PROPERTY, null, p);
+		firePropertyChange(CREATE_FIGURE_PROPERTY, null, p);
 	}
 	
 	/** Collects the parameters to create a ROI figure. */
@@ -1065,20 +1209,67 @@ public class FigureDialog
 		p.setMagnificationFactor(zoom);
 		
 		close();
-		firePropertyChange(SPLIT_FIGURE_ROI_PROPERTY, null, p);
+		firePropertyChange(CREATE_FIGURE_PROPERTY, null, p);
 	}
 	
 	/** Saves the movie figure. */
 	private void saveMovieFigure()
 	{
 		close();
-		firePropertyChange(MOVIE_FIGURE_PROPERTY, null, null);
+		firePropertyChange(CREATE_FIGURE_PROPERTY, null, null);
+	}
+	
+	/** Saves the thumbnails figure. */
+	private void saveThumbnailsFigure()
+	{
+		String name = nameField.getText().trim();
+		int format = formats.getSelectedIndex();
+		FigureParam p = new FigureParam(format, name);
+		p.setIndex(FigureParam.THUMBNAILS);
+		int width = 24;
+		switch (sizeBox.getSelectedIndex()) {
+			case ZOOM_100:
+				width = 32;
+				break;
+			case ZOOM_200:
+				width = 48;
+				break;
+			case ZOOM_300:
+				width = 64;
+				break;
+			case ZOOM_400:
+				width = 96;
+				break;
+			case ZOOM_500:
+				width = 128;
+		}
+		Number n = numberPerRow.getValueAsNumber();
+		if (n != null && n instanceof Integer)
+			p.setHeight((Integer) n);
+		p.setWidth(width);
+		
+		p.setSelectedObjects(selectedObjects.isSelected());
+		if (arrangeByTags.isSelected()) { //retrieve the id of the selected tags
+			Iterator<JCheckBox> i = selection.iterator();
+			Entry entry;
+			JCheckBox box;
+			TagAnnotationData tag;
+			List<Long> ids = new ArrayList<Long>();
+			while (i.hasNext()) {
+				box = i.next();
+				tag = tagsSelection.get(box);
+				ids.add(tag.getId());
+			}
+			p.setTags(ids);
+		}
+		close();
+		firePropertyChange(CREATE_FIGURE_PROPERTY, null, p);
 	}
 	
 	/** Collects the parameters to create a figure. */
 	private void save()
 	{
-		switch (index) {
+		switch (dialogType) {
 			case SPLIT:
 				saveSplitFigure();
 				break;
@@ -1087,6 +1278,10 @@ public class FigureDialog
 				break;
 			case MOVIE:
 				saveMovieFigure();
+				break;
+			case THUMBNAILS:
+				saveThumbnailsFigure();
+				break;
 		}
 	}
 	
@@ -1134,22 +1329,20 @@ public class FigureDialog
 	 * @param owner The owner of the dialog.
 	 * @param name  The default name for the file.
 	 * @param maxZ 	The number of z-sections.
+	 * @param index One of the constants defined by this class.
+	 * @param type  The type of objects to handle.
 	 */
-	public FigureDialog(JFrame owner, String name, int maxZ)
+	public FigureDialog(JFrame owner, String name, int maxZ, int index, 
+			Class type)
 	{
 		super(owner, true);
+		this.type = type;
 		this.maxZ = maxZ;
+		this.dialogType = index;
 		initComponents(name);
 		buildGUI();
 		setSize(500, 700);
 	}
-
-	/**
-	 * Sets the dialog index.
-	 * 
-	 * @param index The value to set.
-	 */
-	public void setIndex(int index) { this.index = index; }
 	
 	/**
 	 * Creates and returns a greyScale image with only the selected channel
@@ -1173,7 +1366,7 @@ public class FigureDialog
 	{
 		this.renderer = renderer;
 		channelsPane.removeAll();
-		switch (index) {
+		switch (dialogType) {
 			case SPLIT:
 				initChannelComponents();
 				channelsPane.add(buildChannelsComponent());
@@ -1185,6 +1378,54 @@ public class FigureDialog
 		}
 		saveButton.setEnabled(true);
 		pack();
+	}
+	
+	/**
+	 * Sets the collections of tags.
+	 * 
+	 * @param tags The values to set.
+	 */
+	public void setTags(Collection tags)
+	{
+		if (tags == null || tags.size() == 0) return;
+		if (thumbnailsPane == null) return;
+		arrangeByTags.setSelected(true);
+		JPanel p = new JPanel();
+		double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
+				{40, TableLayout.PREFERRED}}; //rows
+		p.setLayout(new TableLayout(tl));
+		tagsSelection = new LinkedHashMap<JCheckBox, TagAnnotationData>();
+		List l = sorter.sort(tags);
+		Iterator i = l.iterator();
+		TagAnnotationData tag;
+		JCheckBox box;
+		JPanel tagPane = new JPanel();
+		tagPane.setLayout(new BoxLayout(tagPane, BoxLayout.Y_AXIS));
+		ActionListener listener = new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				layoutSelectedTags((JCheckBox) e.getSource());
+			}
+		};
+		while (i.hasNext()) {
+			tag = (TagAnnotationData) i.next();
+			box = new JCheckBox(tag.getTagValue());
+			box.addActionListener(listener);
+			tagsSelection.put(box, tag);
+			tagPane.add(box);
+		}
+		selectedTags = new JPanel();
+		selectedTags.setLayout(new BoxLayout(selectedTags, BoxLayout.Y_AXIS));
+		JPanel controls = new JPanel();
+		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
+		controls.add(UIUtilities.setTextFont("Arrange by Tags"));
+		controls.add(UIUtilities.buildComponentPanel(arrangeByTags));
+		p.add(controls, "0, 0, LEFT, TOP");
+		p.add(selectedTags, "0, 1, LEFT, TOP");
+		p.add(new JScrollPane(tagPane), "1, 0, 1, 1");
+		thumbnailsPane.add(p, "0, 1");
+		thumbnailsPane.revalidate();
+		thumbnailsPane.repaint();
 	}
 	
 	/**
@@ -1301,7 +1542,7 @@ public class FigureDialog
 	 */
 	public void stateChanged(ChangeEvent e)
 	{
-		if (index == SPLIT) {
+		if (dialogType == SPLIT) {
 			boolean grey = splitPanelGrey.isSelected();
 			if (components == null) return;
 			Iterator<Integer> i = components.keySet().iterator();

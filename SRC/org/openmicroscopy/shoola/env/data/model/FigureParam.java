@@ -24,8 +24,10 @@ package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
 import java.awt.Color;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 //Third-party libraries
@@ -54,6 +56,9 @@ public class FigureParam
 	
 	/** Indicates to create a ROI split view figure. */
 	public static final int		SPLIT_VIEW_ROI = 1;
+	
+	/** Indicates to create a Thumbnails figure. */
+	public static final int		THUMBNAILS = 2;
 	
     /** Indicates to use the image's name as the name a row. */
 	public static final int		IMAGE_NAME = 0;
@@ -127,15 +132,29 @@ public class FigureParam
 	/** Channels composing the merge image. */
 	private Map<Integer, Integer> mergeChannels;
 	
+	/** Collection of tags to sort the thumbnails by. */
+	private List<Long> tags;
+	
+	/** The parent's ID if specified. */
+	private long		parentID;
+	
 	/** The type of figure. */
 	private int index;
 	
 	/** The magnification used the ROI figure. */
 	private double	magnificationFactor;
 	
+	/** 
+	 * Set to <code>true</code> to indicate that the selected objects will
+	 * compose the figure, <code>false</code> to indicate that the displayed
+	 * objects will compose the figure.
+	 */
+	private boolean selectedObjects;
+	
 	/** Sets the default value. */
 	private void setDefault()
 	{
+		parentID = -1;
 		label = IMAGE_NAME;
 		format = JPEG;
 		projectionType = ProjectionParam.MAXIMUM_INTENSITY;
@@ -147,6 +166,7 @@ public class FigureParam
 		zEnd = 0;
 		splitGrey = false;
 		index = SPLIT_VIEW;
+		selectedObjects = true;
 	}
 	
 	/**
@@ -173,7 +193,7 @@ public class FigureParam
 	 */
 	private void checkLabel(int label)
 	{
-		switch (format) {
+		switch (label) {
 			case IMAGE_NAME:
 			case DATASET_NAME:
 			case TAG_NAME:
@@ -182,6 +202,19 @@ public class FigureParam
 			default:
 				this.label = IMAGE_NAME;
 		}
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param format The format of the image. One of the constants defined by
+	 * 				 this class.
+	 * @param name   The name of the image. 
+	 */
+	public FigureParam(int format, String name)
+	{
+		this(format, name, new HashMap<Integer, String>(),
+				new HashMap<Integer, Color>(), IMAGE_NAME);
 	}
 	
 	/**
@@ -230,6 +263,7 @@ public class FigureParam
 	public void setIndex(int index)
 	{
 		switch (index) {
+			case THUMBNAILS:
 			case SPLIT_VIEW_ROI:
 				this.index = index;
 				break;
@@ -259,7 +293,6 @@ public class FigureParam
 	 * @return See above.
 	 */
 	public Map<Integer, String> getSplitChannels() { return splitChannels; }
-	
 	
 	/**
 	 * Sets the width of an image composing the display.
@@ -485,5 +518,51 @@ public class FigureParam
 	{
 		return magnificationFactor;
 	}
+	
+	/**
+	 * Returns <code>true</code> to indicate that the selected objects will
+	 * compose the figure, <code>false</code> to indicate that the displayed
+	 * objects will compose the figure.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isSelectedObjects() { return selectedObjects; }
+	
+	/**
+	 * Sets to <code>true</code> to indicate that the selected objects will
+	 * compose the figure, <code>false</code> to indicate that the displayed
+	 * objects will compose the figure.
+	 * 
+	 * @param value The value to set.
+	 */
+	public void setSelectedObjects(boolean value) { selectedObjects = value; }
+	
+	/**
+	 * Returns the tags.
+	 * 
+	 * @return See above.
+	 */
+	public List<Long> getTags() { return tags; }
+	
+	/**
+	 * Sets the tags.
+	 * 
+	 * @param tags The value to set.
+	 */
+	public void setTags(List<Long> tags) { this.tags = tags; }
+
+	/**
+	 * Returns the parent's ID.
+	 * 
+	 * @return See above.
+	 */
+	public long getParentID() { return parentID; }
+	
+	/**
+	 * Sets the parent's ID.
+	 * 
+	 * @param parentID The value to set.
+	 */
+	public void setParentID(long parentID) { this.parentID = parentID; }
 	
 }

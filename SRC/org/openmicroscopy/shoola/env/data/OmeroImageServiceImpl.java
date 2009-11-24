@@ -209,10 +209,8 @@ class OmeroImageServiceImpl
 			if (!largeImage)
 				return PixelsServicesFactory.render(context, new Long(pixelsID), 
 						pDef, asTexture);
-			List<Long> ids = new ArrayList<Long>();
-			ids.add(pixelsID);
-			Map m = gateway.getThumbnailSet(ids, RenderingControl.MAX_SIZE);
-			byte[] values = (byte[]) m.get(pixelsID);
+			byte[] values = gateway.getThumbnailByLongestSide(pixelsID, 
+					RenderingControl.MAX_SIZE);
 			if (asTexture) {
 				return PixelsServicesFactory.createTexture(
 						WriterImage.bytesToDataBufferJPEG(values), 
@@ -746,9 +744,9 @@ class OmeroImageServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#createFigure(List, Object)
+	 * @see OmeroImageService#createFigure(List, Class, Object)
 	 */
-	public Object createFigure(List<Long> imageIDs, Object parameters)
+	public Object createFigure(List<Long> ids, Class type, Object parameters)
 			throws DSOutOfServiceException, DSAccessException
 	{
 		if (parameters == null)
@@ -757,14 +755,13 @@ class OmeroImageServiceImpl
 				LookupNames.CURRENT_USER_DETAILS);
 		if (parameters instanceof FigureParam) {
 			FigureParam p = (FigureParam) parameters;
-			long id = gateway.createSplitViewFigure(imageIDs, p, exp.getId());
+			long id = gateway.createFigure(ids, type, p, exp.getId());
 			if (id < 0) return null;
 			return context.getMetadataService().loadAnnotation(id);
 		}
 		return null;
 	}
-	
-	
+
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#loadROIFromServer(long, long)

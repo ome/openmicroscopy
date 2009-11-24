@@ -146,6 +146,9 @@ class EditorControl
 	/** Action ID to create a figure with split view of images. */
 	static final int	SPLIT_VIEW_ROI_FIGURE = 13;
 	
+	/** Action ID to create a figure with the collection of images. */
+	static final int	THUMBNAILS_FIGURE = 14;
+	
     /** Reference to the Model. */
     private Editor		model;
     
@@ -343,14 +346,16 @@ class EditorControl
 	 * 
 	 * @param name  The name to display.
 	 * @param maxZ  The number of z-sections.
+	 * @param index One of the constants defined by this class.
 	 * @return See above.
 	 */
-	FigureDialog createFigureDialog(String name, int maxZ)
+	FigureDialog createFigureDialog(String name, int maxZ, int index)
 	{
 		if (figureDialog != null) return figureDialog;
 		JFrame f = 
 			MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		figureDialog = new FigureDialog(f, name, maxZ);
+		figureDialog = new FigureDialog(f, name, maxZ, index, 
+				view.getRefObject().getClass());
 		figureDialog.addPropertyChangeListener(this);
 		return figureDialog;
 	}
@@ -457,9 +462,7 @@ class EditorControl
 		} else if (MetadataViewer.ACTIVITY_OPTIONS_PROPERTY.equals(name)) {
 			List l = (List) evt.getNewValue();
 			view.activityOptions((Component) l.get(0), (Point) l.get(1));
-		} else if (FigureDialog.SPLIT_FIGURE_PROPERTY.equals(name) || 
-				FigureDialog.SPLIT_FIGURE_ROI_PROPERTY.equals(name) || 
-						FigureDialog.MOVIE_FIGURE_PROPERTY.equals(name)) {
+		} else if (FigureDialog.CREATE_FIGURE_PROPERTY.equals(name)) {
 			view.createFigure(evt.getNewValue());
 		} else if (FigureDialog.CLOSE_FIGURE_PROPERTY.equals(name)) {
 			figureDialog = null;
@@ -515,6 +518,10 @@ class EditorControl
 			case SPLIT_VIEW_ROI_FIGURE:
 				model.createFigure(FigureDialog.SPLIT_ROI);
 				break;
+			case THUMBNAILS_FIGURE:
+				model.createFigure(FigureDialog.THUMBNAILS);
+				break;
+				
 		}
 	}
 	

@@ -56,8 +56,11 @@ public class FigureActivityParam
     /** The parameters to use.*/
     private Object 		param;
     
-    /** The select images. */
-    private List<Long>	imageIds;
+    /** The selected objects. */
+    private List<Long>	ids;
+    
+    /** The type of objects to handle. */
+    private Class       objectType;
     
     /** The type of figure. */
     private int 		type;
@@ -65,19 +68,22 @@ public class FigureActivityParam
     /**
      * Creates a new instance.
      * 
-     * @param param  	The parameters used to create the movie.
-     * @param imageIds	The selected images.
-     * @param type		The type of figure.
+     * @param param The parameters used to create the movie.
+     * @param ids	The selected objects.
+     * @param objectType The type of objects to handle.
+     * @param type	The type of figure.
      */
-	public FigureActivityParam(Object param, List<Long>	imageIds, int type)
+	public FigureActivityParam(Object param, List<Long>	ids, 
+			Class objectType, int type)
 	{
-		if (imageIds == null || imageIds.size() == 0)
-			throw new IllegalArgumentException("Image not valid.");
+		if (ids == null || ids.size() == 0)
+			throw new IllegalArgumentException("Objects not valid.");
 		if (param == null)
 			throw new IllegalArgumentException("Parameters cannot be null.");
 		this.param = param;
 		this.type = type;
-		this.imageIds = imageIds;
+		this.ids = ids;
+		this.objectType = objectType;
 	}
 	
     /**
@@ -95,11 +101,18 @@ public class FigureActivityParam
 	public Icon getIcon() { return icon; }
 	
 	/**
-	 * Returns the selected channels.
+	 * Returns the selected objects.
 	 * 
 	 * @return See above.
 	 */
-	public List<Long> getImages() { return imageIds; }
+	public List<Long> getIds() { return ids; }
+	
+	/**
+	 * Returns the type of object to handle.
+	 * 
+	 * @return See above.
+	 */
+	public Class getObjectType() { return objectType; }
 	
 	/**
 	 * Returns the parameters.

@@ -53,8 +53,6 @@ import Ice.ConnectionLostException;
 
 //Application-internal dependencies
 import loci.formats.FormatException;
-
-import org.jfree.util.ShapeList;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
@@ -4664,11 +4662,13 @@ class OMEROGateway
 		return -1;
 	}
 	
+	
 	/**
 	 * Creates a split view figure. 
 	 * Returns the id of the annotation hosting the figure.
 	 * 
-	 * @param imageIDs		The id of the image composing the figure.
+	 * @param objectIDs	The id of the objects composing the figure.
+	 * @param type		The type of objects.
 	 * @param param 	The parameters to use.	
 	 * @param userID		The id of the user.
 	 * @return See above.
@@ -4677,7 +4677,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	long createSplitViewFigure(List<Long> imageIDs,
+	long createFigure(List<Long> objectIDs, Class type,
 			FigureParam param, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -4696,6 +4696,9 @@ class OMEROGateway
 				case FigureParam.SPLIT_VIEW_ROI:
 					scriptName = "roiFigure.py";
 					break;
+				case FigureParam.THUMBNAILS:
+					scriptName = "thumbnailFigure.py";
+					break;
 				default:
 					scriptName = "splitViewFigure.py";
 			}
@@ -4707,10 +4710,39 @@ class OMEROGateway
 				}
 			}
 			if (id <= 0) return -1;
-			List<RType> ids = new ArrayList<RType>(imageIDs.size());
-			Iterator<Long> i = imageIDs.iterator();
+			List<RType> ids = new ArrayList<RType>(objectIDs.size());
+			Iterator<Long> i = objectIDs.iterator();
 			while (i.hasNext()) 
 				ids.add(omero.rtypes.rlong(i.next()));
+			ParametersI parameters = new ParametersI();
+			if (scriptIndex == FigureParam.THUMBNAILS) {
+				long parentID = param.getParentID();
+				if (ImageData.class.equals(type)) {
+					parameters.map.put("imageIds", omero.rtypes.rlist(ids));	
+				} else if (DatasetData.class.equals(type)) {
+					parameters.map.put("datasetIds", omero.rtypes.rlist(ids));	
+				}
+				if (parentID > 0)
+					parameters.map.put("parentId", 
+							omero.rtypes.rlong(parentID));
+				parameters.map.put("thumbSize", 
+						omero.rtypes.rlong(param.getWidth()));
+				parameters.map.put("maxColumns", 
+						omero.rtypes.rlong(param.getHeight()));
+				parameters.map.put("format", 
+						omero.rtypes.rstring(param.getFormatAsString()));
+				parameters.map.put("figureName", 
+						omero.rtypes.rstring(param.getName()));
+				Map<String, RType> result = svc.runScript(id, parameters.map);
+				RLong r = (RLong) result.get("fileAnnotation");
+				//RLong type = null;
+				if (r == null) return -1;
+				return r.getValue();
+			}
+			
+			
+			
+			
 			
 			//merge channels
 			Map<String, RType> merge = new LinkedHashMap<String, RType>();
@@ -4731,7 +4763,7 @@ class OMEROGateway
 				split.put(""+(Integer) entry.getKey(), 
 						omero.rtypes.rstring((String) entry.getValue()));
 			}
-			ParametersI parameters = new ParametersI();
+			
 			parameters.map.put("imageIds", omero.rtypes.rlist(ids));
 			parameters.map.put("zStart", omero.rtypes.rlong(param.getStartZ()));
 			parameters.map.put("zEnd", omero.rtypes.rlong(param.getEndZ()));
@@ -4762,13 +4794,14 @@ class OMEROGateway
 								param.getMagnificationFactor()));
 			}
 			Map<String, RType> result = svc.runScript(id, parameters.map);
-			RLong type = (RLong) result.get("fileAnnotation");
+			RLong r = (RLong) result.get("fileAnnotation");
 			//RLong type = null;
-			if (type == null) return -1;
-			return type.getValue();
+			if (r == null) return -1;
+			return r.getValue();
 
 		} catch (Exception e) {
-			handleException(e, "Cannot create a spit view figure " +
+			e.printStackTrace();
+			handleException(e, "Cannot create a figure " +
 					"for specified images.");
 		}
 		return -1;

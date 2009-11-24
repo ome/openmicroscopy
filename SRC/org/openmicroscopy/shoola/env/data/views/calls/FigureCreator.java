@@ -60,18 +60,19 @@ public class FigureCreator
     /**
      * Creates a {@link BatchCall} to create a movie.
      * 
-     * @param imageIds 	The id of the images.	
-     * @param param 	The parameters used to generate the figure.
+     * @param ids 	The id of the objects.	
+     * @param type  The type of objects to handle.
+     * @param param The parameters used to generate the figure.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(final List<Long> imageIds, 
+    private BatchCall makeBatchCall(final List<Long> ids, final Class type,
     		final Object param)
     {
         return new BatchCall("Creating movie: ") {
             public void doCall() throws Exception
             {
                 OmeroImageService os = context.getImageService();
-                results = os.createFigure(imageIds, param);
+                results = os.createFigure(ids, type, param);
             }
         };
     }
@@ -93,12 +94,13 @@ public class FigureCreator
     /**
      * Creates a new instance.
      * 
-     * @param imageIds 	The id of the images.	
-     * @param param 	The parameters used to generate the figure.
+     * @param ids 	The id of the objects.
+     * @param type  The type of objects to handle.	
+     * @param param The parameters used to generate the figure.
      */
-	public FigureCreator(List<Long> imageIds, Object param)
+	public FigureCreator(List<Long> imageIds, final Class type, Object param)
 	{
-		loadCall = makeBatchCall(imageIds, param);
+		loadCall = makeBatchCall(imageIds, type, param);
 	}
 	
 }

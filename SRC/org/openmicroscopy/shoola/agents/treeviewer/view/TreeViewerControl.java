@@ -101,6 +101,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowseContainerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewImageAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CopyCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CutCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
@@ -122,9 +123,11 @@ import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PlateData;
+import pojos.ProjectData;
 import pojos.WellData;
 import pojos.WellSampleData;
 
@@ -839,67 +842,69 @@ class TreeViewerControl
 		} else if (JXTaskPaneContainerSingle.SELECTED_TASKPANE_PROPERTY.equals(
 				name)) {
 			handleTaskPaneSelection((JXTaskPane) pce.getNewValue());
-		} else if (MetadataViewer.SPLIT_VIEW_FIGURE_PROPERTY.equals(name)) {
+		} else if (MetadataViewer.GENERATE_FIGURE_PROPERTY.equals(name)) {
 			Object object = pce.getNewValue();
 			if (!(object instanceof FigureParam)) return;
-			Collection l = model.getSelectedBrowser().getSelectedDataObjects();
-			if (l == null) return;
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			IconManager icons = IconManager.getInstance();
 			Icon icon = icons.getIcon(IconManager.SPLIT_VIEW_FIGURE_22);
 			FigureActivityParam activity;
-			List<Long> imageIds = new ArrayList<Long>();
+			List<Long> ids = new ArrayList<Long>();
 			Iterator i;
 			DataObject obj;
-			if (l.size() > 1) {
-				i = l.iterator();
-				while (i.hasNext()) {
-					obj = (DataObject) i.next();
-					if (obj instanceof ImageData) {
-						imageIds.add(obj.getId());
-					}
-				}
-				if (imageIds.size() == 0) return;
-				activity = new FigureActivityParam(object, imageIds, 
-						FigureActivityParam.SPLIT_VIEW_FIGURE);
-				activity.setIcon(icon);
-				un.notifyActivity(activity);
-				return;
+			FigureParam param = (FigureParam) object;
+			Collection l;
+			if (param.isSelectedObjects()) {
+				l = model.getSelectedBrowser().getSelectedDataObjects();
+			} else {
+				l = model.getDisplayedImages();
 			}
-			//Ask question
-			MessageBox msg = new MessageBox(view, "Create Split View Figure", 
-			"Make a figure of the ");
-			msg.setYesText("OK");
-			msg.setNoText("Cancel");
-			ButtonGroup group = new ButtonGroup();
-			JRadioButton displayed = new JRadioButton("Displayed Images");
-			JRadioButton selected = new JRadioButton("Selected Image");
-			group.add(displayed);
-			group.add(selected);
-			displayed.setSelected(true);
-			JPanel p = new JPanel();
-			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-			p.add(displayed);
-			p.add(selected);
-			msg.addBodyComponent(p);
+			if (l == null) return;
+			Class klass = null;
+			if (param.getIndex() == FigureParam.THUMBNAILS) {
+				TreeImageDisplay[] nodes = 
+					model.getSelectedBrowser().getSelectedDisplays();
+				if (nodes != null && nodes.length > 0) {
+					TreeImageDisplay node = nodes[0];
+					Object ho = node.getUserObject();
+					TreeImageDisplay pNode;
+					Object p;
+					long id = -1;
+					if (ho instanceof DatasetData) {
+						klass = ho.getClass();
+						pNode = node.getParentDisplay();
+						if (pNode != null) {
+							p = pNode.getUserObject();
+							if (p instanceof ProjectData)
+								id = ((ProjectData) p).getId();
+						}
+					} else if (ho instanceof ImageData) {
+						klass = ho.getClass();
+						pNode = node.getParentDisplay();
+						if (pNode != null) {
+							p = pNode.getUserObject();
+							if (p instanceof DatasetData)
+								id = ((DatasetData) p).getId();
+						}
+					}
+					if (id != -1)
+						param.setParentID(id);
+				}
+			}
 			
-			if (msg.centerMsgBox() == MessageBox.YES_OPTION) {
-				if (displayed.isSelected()) {
-					l = model.getDisplayedImages();
-				}
-				i = l.iterator();
-				while (i.hasNext()) {
-					obj = (DataObject) i.next();
-					if (obj instanceof ImageData) {
-						imageIds.add(obj.getId());
-					}
-				}
-				if (imageIds.size() == 0) return;
-				activity = new FigureActivityParam(object, imageIds, 
-						FigureActivityParam.SPLIT_VIEW_FIGURE);
-				un.notifyActivity(activity);
-				
+			i = l.iterator();
+			while (i.hasNext()) {
+				obj = (DataObject) i.next();
+				//if (obj instanceof ImageData) {
+				ids.add(obj.getId());
+				//}
 			}
+			
+			if (ids.size() == 0) return;
+			activity = new FigureActivityParam(object, ids, klass,
+					FigureActivityParam.SPLIT_VIEW_FIGURE);
+			activity.setIcon(icon);
+			un.notifyActivity(activity);
 		} else if (ImportManager.CANCEL_IMPORT_PROPERTY.equals(name)) {
 			model.cancelImports();
 		}

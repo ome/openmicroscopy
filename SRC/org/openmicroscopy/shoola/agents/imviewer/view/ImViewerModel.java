@@ -267,6 +267,9 @@ class ImViewerModel
      */
     private double						originalRatio;
     
+    /** The size of the object if it is a big image. */
+    private Dimension					computedSize;
+    
     /**
 	 * Transforms 3D coordinates into linear coordinates.
 	 * The returned value <code>L</code> is calculated as follows: 
@@ -734,6 +737,8 @@ class ImViewerModel
 		pDef.slice = omero.romio.XY.value;
 		state = ImViewer.LOADING_IMAGE;
 		if (asynchronousCall == null) {
+			pDef.x = computedSize.width;
+			pDef.y = computedSize.height;
 			asynchronousCall = (getMaxX() >= RenderingControl.MAX_SIZE || 
 					getMaxY() >= RenderingControl.MAX_SIZE);
 		}
@@ -2214,7 +2219,8 @@ class ImViewerModel
 			originalRatio = (double) RenderingControl.MAX_SIZE/getMaxX();
 		} else 
 			originalRatio = d.getRatio();
-		return d.getDimension();
+		computedSize = d.getDimension();
+		return computedSize;
 	}
 	
 }
