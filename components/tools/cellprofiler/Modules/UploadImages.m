@@ -116,11 +116,8 @@ Methodology = char(handles.Settings.VariableValues{CurrentModuleNum,11});
 drawnow
 
 SetBeingAnalyzed = handles.Current.SetBeingAnalyzed;
-Hostname = handles.Pipeline.('HostName');
-UserName = handles.Pipeline.('UserName');
-Password = handles.Pipeline.('Password');
-
-
+session = handles.Current.session;
+omeroService = session.createGateway();
 % Processing will continue when a user has selected to save the tiled image
 % on "First cycle" or "Every cycle". Instead of an error occurring,
 % the program will behave as if the user entered "Last cycle"
@@ -134,7 +131,6 @@ fieldname = strcat('FileCnt', num2str(SetBeingAnalyzed));
 currentFileDetails = handles.Pipeline.(fieldname);
 [pixelsId, z, t] = parseFileDetails(currentFileDetails);
     
-omeroService = createOmeroJavaService(Hostname,UserName, Password);
 if SetBeingAnalyzed == 1 
     %%% CREATE COPY OF THE CURRENT PIXELS.
     channelList = java.util.ArrayList;

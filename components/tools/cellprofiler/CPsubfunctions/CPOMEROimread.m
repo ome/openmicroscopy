@@ -44,9 +44,10 @@ elseif nargin == 4,
     H = pixels.getSizeY.getValue;
     plane2D = zeros(W, H, pixelType);
     for j=1:H
-        for i=1:W
-            plane2D(i,j)=rawPlane((j-1)*W+i);
-        end
+       for i=1:W
+           plane2D(i,j)=rawPlane((j-1)*W+i);
+       end
     end
+    %LoadedImage = toMatrix(rawPlane, pixels);
     LoadedImage = im2double(plane2D);
 end

@@ -109,12 +109,11 @@ Pathname=['dataset: ',DatasetID];
 client = omero.client(java.lang.String(Hostname), 4063)
 session = client.createSession(UserName, Password)
 omeroService = session.createGateway()
-    
+client.enableKeepAlive(30);
+handles.Current.session = session;
 %%% Extracting the list of files to be analyzed occurs only the first time
 %%% through this module.
 if SetBeingAnalyzed == 1
-    %iceConfigPath = strcat(Pathname,'/ice.config');
-    %omeroService = createOmeroJavaService(Hostname,UserName, Password);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Check that the Project, Dataset and images exist in Dataset. %
     %%% TODO:                                                        %
@@ -160,9 +159,6 @@ if SetBeingAnalyzed == 1
     clear fileIds
     clear pixels
     clear fieldName
-%    if (~omeroService.isClosed())
-%        omeroService.close();
-%    end
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -170,10 +166,6 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 drawnow
 
-handles.Pipeline.('Hostname') = Hostname;
-handles.Pipeline.('UserName') = UserName;
-handles.Pipeline.('Password') = Password;
-%omeroService = createOmeroJavaService(Hostname,UserName, Password);
 
 for n = 1:handles.Pipeline.imagesPerSet
         %%% This try/catch will catch any problems in the load images module.
@@ -205,10 +197,6 @@ for n = 1:handles.Pipeline.imagesPerSet
         % Create a cell array with the filenames
        FileNames{n} = {char(omeroService.getImage(imageId).getName.getValue), ':', num2str(z), ':', num2str(t)};
 end
-%if (~omeroService.isClosed())
-    omeroService.close();
-%end
-client.closeSession()
 %%%%%%%%%%%%%%%%%%%%%%%
 %%% DISPLAY RESULTS %%%
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -273,23 +261,25 @@ end
 
 %%% Write to the handles.Measurements.Image structure
 handles.Measurements.Image.FileNamesText                   = FileNamesText;
-%handles.Measurements.Image.FileNames(SetBeingAnalyzed)         = {FileNames};
+handles.Measurements.Image.FileNames(SetBeingAnalyzed)         = {FileNames};
 handles.Measurements.Image.PathNamesText                   = PathNamesText;
-%handles.Measurements.Image.PathNames(SetBeingAnalyzed)         = {PathNames};
+handles.Measurements.Image.PathNames(SetBeingAnalyzed)         = {PathNames};
 
-for n = 1:handles.Pipeline.imagesPerSet
-    FileNames{n} = strcat(FileNames{n}{:});
-end
+%for n = 1:handles.Pipeline.imagesPerSet
+%    FileNames{n} = strcat(FileNames{n}{:});
+%end
 
-handles.Measurements.Image.FileNames(SetBeingAnalyzed) = FileNames;
-handles.Measurements.Image.PathNames(SetBeingAnalyzed) = PathNames;
+%handles.Measurements.Image.FileNames(SetBeingAnalyzed) = FileNames;
+%handles.Measurements.Image.PathNames(SetBeingAnalyzed) = PathNames;
 
 %%%CPwritemeasurements.m, which is used by the ExportToExcel module,
 %%%requires that the first field of handles.Measure holds as many elements
 %%%as there are images.
-if handles.Current.SetBeingAnalyzed == handles.Current.NumberOfImageSets
-    fields = fieldnames(handles.Measurements.Image);
-    if strcmp(fields{1}, 'FileNamesText'), %%% ONLY modify when we're sure FileNamesText is the first field
-        handles.Measurements.Image.FileNamesText=handles.Measurements.Image.FileNames;
-    end
-end
+%if handles.Current.SetBeingAnalyzed == handles.Current.NumberOfImageSets
+%    fields = fieldnames(handles.Measurements.Image);
+%    if strcmp(fields{1}, 'FileNamesText'), %%% ONLY modify when we're sure FileNamesText is the first field
+%        size(handles.Measurements.Image.FileNamesText)
+%        size(handles.Measurements.Image.FileNames)
+%        handles.Measurements.Image.FileNamesText=handles.Measurements.Image.FileNames;
+%    end
+%end
