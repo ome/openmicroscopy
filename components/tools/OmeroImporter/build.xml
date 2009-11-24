@@ -59,10 +59,13 @@
 
     <target name="package" depends="lifecycle.package">
         <copy todir="${target.dir}">
-            <fileset dir="${basedir}" includes="config/**/*,importer-*,metadata-validator"/>
+            <fileset dir="${basedir}" includes="config/**/*"/>
+        </copy>
+        <copy todir="${target.dir}" flatten="true">
+            <fileset dir="${basedir}" includes="scripts/*"/>
         </copy>
         <chmod perm="a+x">
-            <fileset dir="${target.dir}" includes="importer-*,metadata-validator"/>
+            <fileset dir="${target.dir}" includes="importer-*,test-engine,metadata-validator"/>
         </chmod>
         <jar destfile="${target.dir}/${ivy.module}.jar" update="true">
             <fileset dir="${resrc.dir}" includes="*.icns"/>
