@@ -40,6 +40,7 @@ publication type of figures.
 def getDatasetsProjectsFromImages(queryService, imageIds):
 	""" 
 	Query returns a map where each key is the imageId and the value is a list of (projectName, datasetName) tuples. 
+	If the image does not have a Dataset AND Project, the map will hold an empty list for that imageId. 
 	
 	@param queryService: 	The Omero query service
 	@param imageIds:		A list of image IDs. [long]
@@ -55,14 +56,22 @@ def getDatasetsProjectsFromImages(queryService, imageIds):
 	for i in images:	# order of images not same as imageIds
 		pdList = []
 		imageId = i.getId().getValue()
+		print imageId
 		for link in i.iterateDatasetLinks():
 			dataset = link.parent
 			dName = dataset.getName().getValue()
+			if dataset.sizeOfProjectLinks() == 0:
+				pdList.append(("", dName))
 			for dpLink in dataset.iterateProjectLinks():
 				project = dpLink.parent
 				pName = project.getName().getValue()
 				pdList.append((pName, dName))
 		results[imageId] = pdList
+	
+	# make sure the map contains all the imageIds
+	for iId in imageIds:
+		if iId not in results:
+			results[iId] = []
 	return results
 	
 
@@ -90,24 +99,29 @@ def getTimes(queryService, pixelsId, tIndexes, theZ=None, theC=None):
 	"""
 	Get the time in seconds (float) for the first plane (C = 0 & Z = 0) at 
 	each time-point for the defined pixels.
+	Returns a map of tIndex: timeInSecs
 	
 	@param queryService:	The Omero queryService
 	@param pixelsId:		The ID of the pixels object. long
 	@param tIndexes:		List of time indexes. [int]
 	@param theZ:		The Z plane index. Default is 0
 	@param theC:		The Channel index. Default is 0
-	@return:			List of times in seconds, ORDERED BY TIME!  
+	@return:			A map of tIndex: timeInSecs
 	"""
 	if theZ == None:
 		theZ = 0
 	if theC == None:
 		theC = 0
 	indexes = ",".join([str(t) for t in tIndexes])
-	query = "from PlaneInfo as Info where Info.theT in (%s) and Info.theZ in (%d) and Info.theC in (%d) and pixels.id='%d' order by Info.deltaT" % (indexes, theZ, theC, pixelsId)
+	query = "from PlaneInfo as Info where Info.theT in (%s) and Info.theZ in (%d) and Info.theC in (%d) and pixels.id='%d'" % (indexes, theZ, theC, pixelsId)
 	infoList = queryService.findAllByQuery(query,None)
-	if len(infoList) >0:
-		return [info.deltaT.getValue() for info in infoList]
-		
+	timeMap = {}
+	for info in infoList:
+		tIndex = info.theT.getValue()
+		time = info.deltaT.getValue() 
+		timeMap[tIndex] = time
+	return timeMap	
+	
 	
 def formatTime(seconds, timeUnits):
 	"""
@@ -146,12 +160,16 @@ def getTimeLabels(queryService, pixelsId, tIndexes, sizeT, timeUnits):
 	@param tIndexes:			List of t-index to get the times for
 	@param sizeT:				The T dimension size of the pixels. Used if no plane info
 	@param timeUnits:		Format choice of "SECS", "MINS", "HOURS", "MINS_SECS", "HOURS_MINS". String
-	@return:				A list of strings, ordered by time. 
+	@return:				A list of strings, ordered same as tIndexes
 	"""
-	seconds = getTimes(queryService, pixelsId, tIndexes)
+	secondsMap = getTimes(queryService, pixelsId, tIndexes)
 	
-	if seconds == None:
-		return ["%d/%d" % (t+1, sizeT) for t in tIndexes]
-	
-	return [formatTime(s,timeUnits) for s in seconds]
+	labels = []
+	for t in tIndexes:
+		if t in secondsMap:
+			seconds = secondsMap[t]
+			labels.append(formatTime(seconds,timeUnits))
+		else:
+			labels.append("%d/%d" % (t+1, sizeT))
+	return labels
 
