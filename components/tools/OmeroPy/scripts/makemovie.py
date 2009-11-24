@@ -234,18 +234,23 @@ def addScalebar(scalebar, image, pixels, commandArgs):
 	draw.text(((scaleBarX+scaleBarX2)/2, scaleBarTextY), str(scalebar), fill=commandArgs["overlayColour"])
 	return image;
 	
-def addTimePoints(time, z, t, image, pixels, commandArgs):
+def addPlaneInfo(z, t, pixels, image, commandArgs):
+	draw = ImageDraw.Draw(image)
+	planeInfoTextY = pixels.getSizeY().getValue()-60;
+	textX = 20;
+	if(planeInfoTextY<=0 or textX > pixels.getSizeX().getValue() or planeInfoTextY>pixels.getSizeY().getValue()):
+		return image;
+	planeCoord = "z:"+str(z+1)+" t:"+str(t+1);
+	draw.text((textX, planeInfoTextY), planeCoord, fill=commandArgs["overlayColour"])		
+	return image;
+
+def addTimePoints(time, pixels, image, commandArgs):
 	draw = ImageDraw.Draw(image)
 	textY = pixels.getSizeY().getValue()-45;
-	planeInfoTextY = pixels.getSizeY().getValue()-60;
 	textX = 20;
 	if(textY<=0 or textX > pixels.getSizeX().getValue() or textY>pixels.getSizeY().getValue()):
 		return image;
-	if(commandArgs["showTime"]==1):
-		draw.text((textX, textY), str(time), fill=commandArgs["overlayColour"])
-	if(commandArgs["showPlaneInfo"]==1):
-		planeCoord = "z:"+str(z+1)+" t:"+str(t+1);
-		draw.text((textX, planeInfoTextY), planeCoord, fill=commandArgs["overlayColour"])		
+	draw.text((textX, textY), str(time), fill=commandArgs["overlayColour"])
 	return image;
 	
 def getRenderingEngine(session, pixelsId, sizeC, cRange):	
@@ -371,8 +376,11 @@ def writeMovie(commandArgs, session):
 
 	timeMap = calculateAquisitionTime(session, pixelsId, cRange, tzList)
 	if(timeMap==None):
-	   commandArgs["showTime"]=0;
-
+		commandArgs["showTime"]=0;
+	if(timeMap != None):
+		if(len(timeMap)==0):
+			commandArgs["showTime"]=0;
+	
 	pixelTypeString = pixels.getPixelsType().getValue().getValue();
 	frameNo = 1;
 	filelist='';
@@ -392,10 +400,12 @@ def writeMovie(commandArgs, session):
 			filename = str(frameNo)+'.jpg';
 		if(commandArgs["scalebar"]!=0):
 			image = addScalebar(commandArgs["scalebar"], image, pixels, commandArgs);
-		if(commandArgs["showTime"]==1 or commandArgs["showPlaneInfo"]==1):
-			planeInfo = "z:"+str(z)+"t:"+str(t);
+		planeInfo = "z:"+str(z)+"t:"+str(t);
+		if(commandArgs["showTime"]==1):
 			time = timeMap[planeInfo]
-			image = addTimePoints(time, z, t, image, pixels, commandArgs);
+			image = addTimePoints(time, pixels, image, commandArgs);
+		if(commandArgs["showPlaneInfo"]==1):
+			image = addPlaneInfo(z, t, pixels, image, commandArgs);
 		if(commandArgs["format"]==QT):
 			image.save(filename,"PNG")
 		else:
