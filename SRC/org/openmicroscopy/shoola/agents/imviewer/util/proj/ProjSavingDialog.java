@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.imviewer.util.proj;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -282,13 +281,13 @@ public class ProjSavingDialog
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.add(buildRangePanel(zrangeSelection, "Z Range: "));
 		p.add(buildRangePanel(timeSelection, "Timepoint: "));
-		p.add(new JSeparator());
 		if (pixelsType != null) {
-			p.add(buildPixelsTypePanel());
 			p.add(new JSeparator());
+			p.add(buildPixelsTypePanel());
+			//p.add(new JSeparator());
 		}
 		
-		p.add(UIUtilities.buildComponentPanel(rndSettingsBox));
+		//p.add(UIUtilities.buildComponentPanel(rndSettingsBox));
 		JPanel r = UIUtilities.buildComponentPanel(p);
 		r.setBorder(new TitledBorder(""));
 		return r;

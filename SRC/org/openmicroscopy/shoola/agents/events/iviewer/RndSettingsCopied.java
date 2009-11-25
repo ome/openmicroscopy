@@ -51,10 +51,10 @@ public class RndSettingsCopied
 {
 
 	/** 
-	 * Collection of pixels ID for which the rendering settings where
+	 * Collection of images ID for which the rendering settings where
 	 * successfully copied.
 	 */
-	private Collection 	pixelsIDs;
+	private Collection 	imagesIDs;
 	
 	/** The id of the pixels set of reference. */
 	private long		refPixelsID;
@@ -62,22 +62,22 @@ public class RndSettingsCopied
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param pixelsIDs 	The collection of pixels set ID for which the 
+	 * @param imagesIDs 	The collection of image ID for which the 
 	 * 						rendering settings where successfully copied.
 	 * @param refPixelsID 	The id of the pixels set of reference.
 	 */
-	public RndSettingsCopied(Collection pixelsIDs, long refPixelsID)
+	public RndSettingsCopied(Collection imagesIDs, long refPixelsID)
 	{
-		this.pixelsIDs = pixelsIDs;
+		this.imagesIDs = imagesIDs;
 		this.refPixelsID = refPixelsID;
 	}
 	
 	/**
-	 * Returns the collection of pixels set ID.
+	 * Returns the collection of images ID.
 	 * 
 	 * @return See above.
 	 */
-	public Collection getPixelsIDs() { return pixelsIDs; }
+	public Collection getImagesIDs() { return imagesIDs; }
 	
 	/**
 	 * Returns the id of the pixels set of reference.

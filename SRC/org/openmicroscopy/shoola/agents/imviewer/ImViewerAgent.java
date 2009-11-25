@@ -231,7 +231,7 @@ public class ImViewerAgent
     private void handleRndSettingsCopiedEvent(RndSettingsCopied evt)
     {
     	if (evt == null) return;
-    	ImViewerFactory.reloadRenderingEngine(evt.getPixelsIDs(), 
+    	ImViewerFactory.reloadRenderingEngine(evt.getImagesIDs(), 
     							evt.getRefPixelsID());
     }
     

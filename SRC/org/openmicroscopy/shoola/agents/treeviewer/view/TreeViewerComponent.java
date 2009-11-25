@@ -1390,8 +1390,6 @@ class TreeViewerComponent
 		bus.post(new RndSettingsCopied(success, -1));
 		
 		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-		model.setState(READY);
-		fireStateChange();
 		String name = model.getRefImageName();
 		int n = success.size();
 		String text = "The rendering settings ";

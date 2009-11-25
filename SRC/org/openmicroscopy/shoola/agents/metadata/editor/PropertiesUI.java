@@ -62,8 +62,11 @@ import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
+import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.ChannelData;
@@ -1046,28 +1049,35 @@ class PropertiesUI
 	 */
 	public void focusLost(FocusEvent e)
 	{
-		Object src = e.getSource();
-		if (src == namePane) {
-			editField(namePanel, namePane, editName, false);
-			String text = namePane.getText();
-			editName.setEnabled(true);
-			if (text == null || text.trim().length() == 0) {
-				namePane.getDocument().removeDocumentListener(this);
-				namePane.setText(modifiedName);
-				namePane.getDocument().addDocumentListener(this);
+		try {
+			Object src = e.getSource();
+			if (src == namePane) {
+				editField(namePanel, namePane, editName, false);
+				String text = namePane.getText();
+				editName.setEnabled(true);
+				if (text == null || text.trim().length() == 0) {
+					namePane.getDocument().removeDocumentListener(this);
+					namePane.setText(modifiedName);
+					namePane.getDocument().addDocumentListener(this);
+				}
+			} else if (src == descriptionPane) {
+				editField(descriptionPanel, descriptionPane, editDescription, 
+						false);
+				editDescription.setEnabled(true);
+				String text = descriptionPane.getText();
+				if (text == null || text.trim().length() == 0) {
+					descriptionPane.getDocument().removeDocumentListener(this);
+					descriptionPane.setText(DEFAULT_DESCRIPTION_TEXT);
+					descriptionPane.getDocument().addDocumentListener(this);
+				}
+				descriptionPane.select(0, 0);
 			}
-			//namePane.setCaretPosition(0);
-		} else if (src == descriptionPane) {
-			editField(descriptionPanel, descriptionPane, editDescription, 
-					false);
-			editDescription.setEnabled(true);
-			String text = descriptionPane.getText();
-			if (text == null || text.trim().length() == 0) {
-				descriptionPane.getDocument().removeDocumentListener(this);
-				descriptionPane.setText(DEFAULT_DESCRIPTION_TEXT);
-				descriptionPane.getDocument().addDocumentListener(this);
-			}
-			descriptionPane.select(0, 0);
+		} catch (Exception ex) {
+			Logger log = MetadataViewerAgent.getRegistry().getLogger();
+			LogMessage msg = new LogMessage();
+			msg.print("Focus Lost");
+			msg.print(ex);
+			log.error(this, msg);
 		}
 	}
 	
@@ -1078,28 +1088,36 @@ class PropertiesUI
 	 */
 	public void focusGained(FocusEvent e)
 	{
-		Object src = e.getSource();
-		if (src == namePane) {
-			String text = namePane.getText();
-			if (text != null) {
-				
-				//namePane.selectAll();
-				//int n = text.length()-1;
-				//if (n >= 0) namePane.setCaretPosition(n);
-			}
-			//namePane.select(0, 0);
-			//namePane.setCaretPosition(0);
-		} else if (src == descriptionPane) {
-			String text = descriptionPane.getText();
-			if (text != null) {
-				if (DEFAULT_DESCRIPTION_TEXT.equals(text.trim())) {
-					descriptionPane.selectAll();
-				} else {
-					int n = text.length()-1;
-					if (n >= 0) descriptionPane.setCaretPosition(n);
+		try {
+			Object src = e.getSource();
+			if (src == namePane) {
+				String text = namePane.getText();
+				if (text != null) {
+					
+					//namePane.selectAll();
+					//int n = text.length()-1;
+					//if (n >= 0) namePane.setCaretPosition(n);
 				}
-				//descriptionPane.selectAll();
+				//namePane.select(0, 0);
+				//namePane.setCaretPosition(0);
+			} else if (src == descriptionPane) {
+				String text = descriptionPane.getText();
+				if (text != null) {
+					if (DEFAULT_DESCRIPTION_TEXT.equals(text.trim())) {
+						descriptionPane.selectAll();
+					} else {
+						int n = text.length()-1;
+						if (n >= 0) descriptionPane.setCaretPosition(n);
+					}
+					//descriptionPane.selectAll();
+				}
 			}
+		} catch (Exception ex) {
+			Logger log = MetadataViewerAgent.getRegistry().getLogger();
+			LogMessage msg = new LogMessage();
+			msg.print("Focus Gained");
+			msg.print(ex);
+			log.error(this, msg);
 		}
 	}
 	

@@ -111,7 +111,7 @@ public class DataBrowserAgent
      */
     private void handleRndSettingsCopied(RndSettingsCopied evt)
     {
-    	Collection ids = evt.getPixelsIDs();
+    	Collection ids = evt.getImagesIDs();
     	DataBrowserFactory.refreshThumbnails(ids);
     }
     
