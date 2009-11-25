@@ -1011,7 +1011,10 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	List<RenderingDef> toSave = new ArrayList<RenderingDef>(pixels.size());
     	Map<Long, RenderingDef> settingsMap = loadRenderingSettings(pixels);
     	RenderingDef settingsFrom = settingsMap.get(from);
-    	if (pixelsFrom != null) pixels.remove(pixelsFrom);
+    	if (pixelsFrom != null) {
+    		pixels.remove(pixelsFrom);
+    		toReturnTrue.add(pixelsFrom.getImage().getId());
+    	}
     	else {
     		//load pixels from
     		Set<Long> ids = new HashSet<Long>();
