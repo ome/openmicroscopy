@@ -2214,8 +2214,10 @@ class ImViewerModel
 	 */
 	Dimension computeSize()
 	{
-		if (!isBigImage())
-			return new Dimension(getMaxX(), getMaxY());
+		if (!isBigImage()) {
+			computedSize = new Dimension(getMaxX(), getMaxY());
+			return computedSize;
+		}
 		DimensionRatio d = Factory.computeSize(
 				RenderingControl.MAX_SIZE, RenderingControl.MAX_SIZE, 
 				getMaxX(), getMaxY());
@@ -2225,6 +2227,9 @@ class ImViewerModel
 		} else 
 			originalRatio = d.getRatio();
 		computedSize = d.getDimension();
+		if (computedSize == null) 
+			computedSize = new Dimension(RenderingControl.MAX_SIZE,
+					RenderingControl.MAX_SIZE);
 		return computedSize;
 	}
 	

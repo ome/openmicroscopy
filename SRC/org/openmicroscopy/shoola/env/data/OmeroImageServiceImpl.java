@@ -209,12 +209,17 @@ class OmeroImageServiceImpl
 						pDef, asTexture);
 			List<Long> ids = new ArrayList<Long>();
 			ids.add(pixelsID);
-			Map m = gateway.getThumbnailSet(ids, RenderingControl.MAX_SIZE);
+			int w = pDef.x;
+			int h = pDef.y;
+			int max = w;
+			if (max < h) max = h;
+			if (max > RenderingControl.MAX_SIZE) 
+				max = RenderingControl.MAX_SIZE;
+			Map m = gateway.getThumbnailSet(ids, max);
 			byte[] values = (byte[]) m.get(pixelsID);
 			if (asTexture) {
 				return PixelsServicesFactory.createTexture(
-						WriterImage.bytesToDataBufferJPEG(values), 
-						pDef.x, pDef.y);
+						WriterImage.bytesToDataBufferJPEG(values), w, h);
 			} else {
 				return createImage(values);
 			}
