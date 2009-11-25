@@ -25,7 +25,8 @@
 import traceback
 import logging
 import httplib, urllib
-from django.conf import settings
+
+from omero_version import omero_version
 
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
@@ -115,4 +116,4 @@ class SendFeedback(object):
             pass
         if len(env) == 0:
             env = None
-        self.send_feedback({"email": email, "comment":comment, "error": error, "app_name": 6, "app_version": "Beta4.1.1", "env":env})
+        self.send_feedback({"email": email, "comment":comment, "error": error, "app_name": 6, "app_version": omero_version, "env":env})
