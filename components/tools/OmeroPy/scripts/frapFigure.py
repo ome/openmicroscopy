@@ -237,6 +237,19 @@ def makeFrapFigure(session, commandArgs):
 			tIndexes.append(t)		
 	tIndexes.sort()
 	
+	log("T Indexes, " + ",".join([str(t) for t in tIndexes]))
+	
+	# get the actual plane times. 
+	timeMap = figUtil.getTimes(queryService, pixelsId, tIndexes, theZ=0, theC=0)
+	timeList = []
+	for t in tIndexes:
+		if t in timeMap:	
+			timeList.append(timeMap[t])
+		else:	# handles images which don't have PlaneInfo
+			timeMap[t] = t
+			timeList.append(t)
+			
+	log("Plane times (secs), " + ",".join([str(t) for t in timeList]))
 	
 	frapValues = []
 	baseValues = []
@@ -307,15 +320,6 @@ def makeFrapFigure(session, commandArgs):
 	y1 = frapNormCorr[th-1]
 	y2 = frapNormCorr[th]
 	
-
-	timeMap = figUtil.getTimes(queryService, pixelsId, tIndexes, theZ=0, theC=0)
-	timeList = []
-	for t in tIndexes:
-		if t in timeMap:	
-			timeList.append(timeMap[t])
-		else:	# handles images which don't have PlaneInfo
-			timeMap[t] = t
-			timeList.append(t)		
 	
 	x1 = timeMap[th-1]
 	x2 = timeMap[th]
@@ -384,15 +388,13 @@ def makeFrapFigure(session, commandArgs):
 		figCanvas.save()
 	
 	fileId = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, image, output, format, figLegend)
-	
+	return fileId
 	
 
 def runAsScript():
 	client = scripts.client('frapFigure.py', 'Create a figure of FRAP data for an image.', 
 	scripts.Long("imageId").inout(),		# IDs of the image we want to analyse
 	scripts.Long("theC", optional=True).inout(),		# Channel we want to analyse. Default is 0
-	scripts.String("format", optional=True).inout(),		# format to save image. Currently JPEG or PNG
-	scripts.String("figureName", optional=True).inout(),	# name of the file to save.
 	scripts.Long("fileAnnotation").out());  	# script returns a file annotation
 	
 	session = client.getSession()
@@ -403,7 +405,7 @@ def runAsScript():
 			commandArgs[key] = client.getInput(key).getValue()
 	
 	fileId = makeFrapFigure(session, commandArgs)
-	#client.setOutput("fileAnnotation",fileId)
+	client.setOutput("fileAnnotation",fileId)
 	
 	
 if __name__ == "__main__":
