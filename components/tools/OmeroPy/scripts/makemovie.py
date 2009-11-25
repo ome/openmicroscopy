@@ -328,18 +328,23 @@ def unrollPlaneMap(planeMap):
 def calculateRanges(sizeZ, sizeT, commandArgs):
 	planeMap = {};
 	if(commandArgs["planeMap"]=={}):
-		if(commandArgs["zStart"]==commandArgs["zEnd"]):
-			commandArgs["zEnd"] = commandArgs["zEnd"]+1;
-		if(commandArgs["tStart"]==commandArgs["tEnd"]):
-			commandArgs["tEnd"] = commandArgs["tEnd"]+1;
-		if(inRange(commandArgs["zStart"], commandArgs["zEnd"], sizeZ+1)):
-			zRange = range(commandArgs["zStart"],commandArgs["zEnd"]);
-		else:
-			zRange = range(0, sizeZ)
-		if(inRange(commandArgs["tStart"], commandArgs["tEnd"], sizeT+1)):
-			tRange = range(commandArgs["tStart"],commandArgs["tEnd"]);
-		else:
-			tRange = range(0, sizeT)
+		if(commandArgs["zStart"]<0):
+			commandArgs["zStart"] = 0;
+		if(commandArgs["zEnd"]>sizeZ):
+			if(sizeZ == 0):
+				commandArgs["zEnd"] = 0;
+			else:
+				commandArgs["zEnd"] = sizeZ-1;
+		if(commandArgs["tStart"]<0):
+			commandArgs["tStart"] = 0;
+		if(commandArgs["tEnd"]>sizeT):
+			if(sizeT == 0):
+				commandArgs["tEnd"] = 0;
+			else:
+				commandArgs["tEnd"] = sizeT-1;
+		
+		zRange = range(commandArgs["zStart"], commandArgs["zEnd"]+1);
+		tRange = range(commandArgs["tStart"], commandArgs["tEnd"]+1);
 		planeMap = buildPlaneMapFromRanges(zRange, tRange);
 	else:
 		map = commandArgs["planeMap"];
