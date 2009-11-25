@@ -133,7 +133,7 @@ public class ViewerAction
      */
     public void propertyChange(PropertyChangeEvent evt)
     {
-        if (evt.getPropertyName().equals(ImViewer.TAB_SELECTION_PROPERTY)) {
+        if (ImViewer.TAB_SELECTION_PROPERTY.equals(evt.getPropertyName())) {
         	onTabSelection();
         }
     }

@@ -1489,22 +1489,6 @@ class ImViewerModel
 		if (rnd == null) return;
 		rnd.resetSettings(settings);
 	}
-
-	/**
-	 * Sets the last rendering settings.
-	 * 
-	 * @param settings The settings to set.
-	 */
-	void setLastRndDef(RndProxyDef settings)
-	{
-		switch (getTabbedIndex()) {
-			case ImViewer.PROJECTION_INDEX:
-				lastProjDef = settings;
-				break;
-			case ImViewer.VIEW_INDEX:
-				lastMainDef = settings;
-		}
-	}
 	
 	/** 
 	 * Starts an asynchronous call to retrieve the rendering settings to paste. 

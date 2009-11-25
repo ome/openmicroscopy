@@ -828,7 +828,8 @@ class ImViewerComponent
 		model.setLastSettingsRef();
 		int uiIndex = -1;
 		if (model.getColorModel().equals(GREY_SCALE_MODEL)) {
-			if (model.getTabbedIndex() == ImViewer.GRID_INDEX) {
+			int tabIndex = model.getTabbedIndex();
+			if (tabIndex == ImViewer.GRID_INDEX) {
 				List<Integer> l = new ArrayList<Integer>();
 				List selectedChannels = view.getActiveChannelsInGrid();
 				for (int i = 0; i < model.getMaxC(); i++) {
@@ -839,8 +840,7 @@ class ImViewerComponent
 					}
 				}
 				view.setChannelsSelection(l);
-			} else if (model.getTabbedIndex() == ImViewer.PROJECTION_INDEX) 
-			{
+			} else if (tabIndex == ImViewer.PROJECTION_INDEX) {
 				if (model.isChannelActive(index)) return;
 				boolean c;
 				for (int i = 0; i < model.getMaxC(); i++) {
@@ -870,8 +870,8 @@ class ImViewerComponent
 			firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 
 					Integer.valueOf(index-1), Integer.valueOf(index));
 		}
+		
 		view.setChannelsSelection(uiIndex);
-		model.setSelectedChannel(index);
 		renderXYPlane();
 		postActiveChannelSelection(ChannelSelection.CHANNEL_SELECTION);
 	}
@@ -945,7 +945,8 @@ class ImViewerComponent
 			def = model.getLastMainDef();
 			if (def != null) stop = model.isSameSettings(def);
 		}
-		if (stop) return;
+		
+		//if (stop) return;
 		if (index == PROJECTION_INDEX) {
 			previewProjection();
 			fireStateChange();
@@ -958,6 +959,7 @@ class ImViewerComponent
 				fireStateChange();
 			}
 		} else {
+			model.setLastSettingsRef();
 			if (model.isBigImage()) {
 				try {
 					model.saveRndSettings(false);
