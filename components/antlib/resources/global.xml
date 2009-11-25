@@ -185,6 +185,13 @@
             </sequential>
         </macrodef>
 
+        <path id="scons.python.path">
+            <pathelement path="${env.PYTHONPATH}"/>
+            <pathelement location="${OmeroPy.comp}/src"/><!-- For which.py on cleanup -->
+        </path>
+
+        <pathconvert property="scons.PYTHONPATH" refid="scons.python.path"/>
+
         <macrodef name="scons_py" description="Scons build tool installed under omero.home/target">
             <attribute name="dir" default="${basedir}"/>
             <attribute name="failonerror" default="true"/>
@@ -194,6 +201,7 @@
                 <property name="env.RELEASE" value="debug"/>
                 <echo>Building with ICE_HOME=${ice.home}</echo>
                 <exec executable="python" dir="@{dir}" failonerror="@{failonerror}">
+                    <env key="PYTHONPATH" value="${scons.PYTHONPATH}"/>
                     <env key="ICE_HOME" value="${ice.home}"/>
                     <arg value="${omero.home}/target/scons/scons.py"/>
                     <arg value="-Q"/>
