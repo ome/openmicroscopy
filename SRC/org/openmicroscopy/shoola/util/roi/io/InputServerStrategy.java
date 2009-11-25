@@ -58,6 +58,7 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureMaskFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureRectangleFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.io.util.SVGTransform;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -74,9 +75,10 @@ import pojos.PolygonData;
 import pojos.MaskData;
 import pojos.PolylineData;
 import pojos.ShapeSettingsData;
+import pojos.TextData;
 
 
-/**
+/** 
  * Transforms the ROI server into the corresponding UI objects.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -242,6 +244,8 @@ class InputServerStrategy
 			return createPolygonFigure((PolygonData) shape);			
 		} else if (shape instanceof MaskData) {
 			return createMaskFigure((MaskData) shape);			
+		} else if (shape instanceof TextData) {
+			return createTextFigure((TextData) shape);			
 		}
 		return null;
 	}
@@ -309,6 +313,32 @@ class InputServerStrategy
 		return fig;
 	}
 	
+	/**
+	 * Transforms the passed textData into its UI corresponding object.
+	 * 
+	 * @param data The ellipse to transform.
+	 * @return See above.
+	 */
+	private MeasureTextFigure createTextFigure(TextData data)
+	{
+		double x = data.getX();
+		double y = data.getY();
+		
+		MeasureTextFigure fig = new MeasureTextFigure(x, y, 
+					data.isReadOnly(), data.isClientObject());
+		fig.setText(data.getText());
+		addShapeSettings(fig, data.getShapeSettings());
+		AffineTransform transform;
+		try {
+			transform = SVGTransform.toTransform(data.getTransform());
+			TRANSFORM.set(fig, transform);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			// e.printStackTrace();
+		}
+		
+		return fig;
+	}
 	
 	/**
 	 * Transforms the passed rectangle into its UI corresponding object.

@@ -1,7 +1,7 @@
 /*
 * org.openmicroscopy.shoola.util.roi.io.OutputServerStrategy
 *
- *------------------------------------------------------------------------------
+*------------------------------------------------------------------------------
 *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
 *
 *
@@ -283,9 +283,9 @@ public class OutputServerStrategy
 	private TextData createTextFigure(ROIShape shape) 
 		throws ParsingException
 	{
-		MeasurePointFigure fig = (MeasurePointFigure)shape.getFigure();
-		double x=fig.getX();
-		double y=fig.getY();
+		MeasureTextFigure fig = (MeasureTextFigure)shape.getFigure();
+		double x=fig.getBounds().getX();
+		double y=fig.getBounds().getY();
 		
 		TextData text = new TextData(fig.getText(),x, y); 
 		text.setDirty(fig.isDirty());
