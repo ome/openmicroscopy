@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -47,6 +48,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.WindowConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -150,7 +153,13 @@ public class MovieExportDialog
 	private int						option;
 	
 	/** The parameters to set. */
-	private MovieExportParam 	param;
+	private MovieExportParam 		param;
+	
+	/** Component used to set the default z-section. */
+	private JSpinner            	zSpinner;
+	
+	/** Component used to set the default z-section. */
+	private JSpinner            	tSpinner;
 	
 	/** 
 	 * Creates the components composing the display. 
@@ -158,8 +167,11 @@ public class MovieExportDialog
 	 * @param name The default name of the file.
 	 * @param maxT The maximum number of timepoints.
 	 * @param maxZ The maximum number of z-sections.
+	 * @param defaultZ The default z-section.
+	 * @param defaultT The default timepoint.
 	 */
-	private void initComponents(String name, int maxT, int maxZ)
+	private void initComponents(String name, int maxT, int maxZ, int defaultZ, 
+			int defaultT)
 	{
 		closeButton = new JButton("Cancel");
 		closeButton.setToolTipText(UIUtilities.formatToolTipText(
@@ -213,6 +225,11 @@ public class MovieExportDialog
 			zInterval.setEnabled(false);
 		}
 			
+		SpinnerModel sp = new SpinnerNumberModel(defaultZ, 1, maxZ, 1);
+		zSpinner = new JSpinner(sp);
+		sp = new SpinnerNumberModel(defaultT, 1, maxT, 1);
+		tSpinner = new JSpinner(sp);
+		
 		zInterval.addActionListener(this);
 		zInterval.setActionCommand(""+Z_INTERVAL);
 		timeInterval.addActionListener(this);
@@ -228,6 +245,10 @@ public class MovieExportDialog
 		
 		fps = new JSpinner();
 		fps.setValue(MovieExportParam.DEFAULT_FPS);
+		
+		
+		
+		
 		
 		labelVisible = new JCheckBox("Show Labels");
 		getRootPane().setDefaultButton(saveButton);
@@ -332,19 +353,26 @@ public class MovieExportDialog
         		"1, "+i+", 2, "+i);
         i = i+1;
         JLabel l = new JLabel();
-        content.add(UIUtilities.setTextFont("If not selected the current " +
-        		"time-point will be selected", Font.ITALIC, 
-        		l.getFont().getSize()-2), 
-        		"1, "+i+", 2, "+i);
+        JPanel p = new JPanel();
+        p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(UIUtilities.setTextFont("If interval not selected, " +
+        		"select the time-point", Font.ITALIC, 
+        		l.getFont().getSize()-2));
+        p.add(tSpinner);
+        content.add(UIUtilities.buildComponentPanel(p), "0, "+i+", 2, "+i);
         i = i+2;
         content.add(zInterval, "0, "+i+", l, t");
         content.add(UIUtilities.buildComponentPanel(zRange), 
         		"1, "+i+", 2, "+i);
         i = i+1;
-        content.add(UIUtilities.setTextFont("If not selected the current " +
-        		"z-section will be selected", Font.ITALIC, 
-        		l.getFont().getSize()-2), 
-        		"1, "+i+", 2, "+i);
+        p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(UIUtilities.setTextFont("If interval not selected, " +
+        		"select the z-section", Font.ITALIC, 
+        		l.getFont().getSize()-2));
+        p.add(zSpinner);
+        content.add(UIUtilities.buildComponentPanel(p), "0, "+i+", 2, "+i);
         i = i+2;
         content.add(showScaleBar, "0, "+i);
         content.add(scaleBar, "1, "+i);
@@ -390,6 +418,15 @@ public class MovieExportDialog
 			param.setZsectionInterval(zRange.getStartValue()-1, 
 					zRange.getEndValue()-1);
 		param.setLabelVisible(labelVisible.isSelected());
+		
+		if (!timeInterval.isSelected()) {
+			int t = (Integer) tSpinner.getValue()-1;
+			param.setTimeInterval(t, t);
+		}
+		if (!zInterval.isSelected()) {
+			int z = (Integer) zSpinner.getValue()-1;
+			param.setZsectionInterval(z, z);
+		}
 		
 		int index = colorBox.getSelectedIndex();
 		Entry entry;
@@ -441,13 +478,16 @@ public class MovieExportDialog
 	 * @param name  The name of the movie.
 	 * @param maxT  The maximum number of time points.
 	 * @param maxZ  The maximum number of z-sections.
+	 * @param defaultZ The default z-section.
+	 * @param defaultT The default timepoint.
 	 */
-	public MovieExportDialog(JFrame owner, String name, int maxT, int maxZ)
+	public MovieExportDialog(JFrame owner, String name, int maxT, int maxZ, 
+			int defaultZ, int defaultT)
 	{
 		super(owner);
 		setModal(true);
 		param = null;
-		initComponents(name, maxT, maxZ);
+		initComponents(name, maxT, maxZ, defaultZ, defaultT);
 		buildGUI();
 		pack();
 	}
