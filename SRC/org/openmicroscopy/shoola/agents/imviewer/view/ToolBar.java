@@ -309,15 +309,16 @@ class ToolBar
 			compressionBox = EditorUtil.createComboBox(compressionPartial, 0, 
 	    			getBackground());
 	    	compressionBox.setBackground(getBackground());
-	    	if (compression >= MEDIUM && compression <= LOW)
-				index = compression;
+	    	if (compression == MEDIUM || compression == LOW)
+				index = compression-1;
+	    	if (compression == UNCOMPRESSED)
+	    		index = MEDIUM-1;
+	    	compressionBox.setSelectedIndex(index);
 		} else {
-			
 			if (compression >= UNCOMPRESSED && compression <= LOW)
 				index = compression;
 			compressionBox.setSelectedIndex(index);
 		}
-		compressionBox.setSelectedIndex(index);
 		
 		compressionBox.addActionListener(
     			controller.getAction(ImViewerControl.COMPRESSION));

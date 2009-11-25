@@ -124,7 +124,7 @@ public class TreeViewerAgent
      */
     private void handleRndSettingsCopied(RndSettingsCopied evt)
     {
-    	Collection ids = evt.getPixelsIDs();
+    	Collection ids = evt.getImagesIDs();
     	TreeViewerFactory.onRndSettingsCopied(ids);
     }
     

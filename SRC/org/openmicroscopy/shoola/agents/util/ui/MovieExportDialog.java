@@ -95,6 +95,12 @@ public class MovieExportDialog
 	/** Action id indicating to allow the modification of the scale bar. */
 	private static final int 		SCALE_BAR = 2;
 	
+	/** Action id indicating to allow the modification of the scale bar. */
+	private static final int 		Z_INTERVAL = 3;
+	
+	/** Action id indicating to allow the modification of the scale bar. */
+	private static final int 		T_INTERVAL = 4;
+	
 	/** The title of the dialog. */
 	private static final String		TITLE = "Movie Creation";
 	
@@ -238,6 +244,19 @@ public class MovieExportDialog
 		colorBox.setRenderer(new ColorListRenderer());
 	}
 	
+	/** Enables or not the controls. */
+	private void enabledControls()
+	{
+		if (!zInterval.isSelected() && !timeInterval.isSelected())
+			saveButton.setEnabled(false);
+		else {
+			boolean z = zRange.getStartValue() == zRange.getEndValue();
+			boolean t = timeRange.getStartValue() == timeRange.getEndValue();
+			if (z && t) saveButton.setEnabled(false);
+			else saveButton.setEnabled(true);
+		}
+	}
+	
 	/** 
 	 * Builds and lays out the control.
 	 * 
@@ -305,7 +324,7 @@ public class MovieExportDialog
         		"1, "+i+", 2, "+i);
         i = i+1;
         JLabel l = new JLabel();
-        content.add(UIUtilities.setTextFont("If not selected the default " +
+        content.add(UIUtilities.setTextFont("If not selected the current " +
         		"time-point will be selected", Font.ITALIC, 
         		l.getFont().getSize()-2), 
         		"1, "+i+", 2, "+i);
@@ -314,7 +333,7 @@ public class MovieExportDialog
         content.add(UIUtilities.buildComponentPanel(zRange), 
         		"1, "+i+", 2, "+i);
         i = i+1;
-        content.add(UIUtilities.setTextFont("If not selected the default " +
+        content.add(UIUtilities.setTextFont("If not selected the current " +
         		"z-section will be selected", Font.ITALIC, 
         		l.getFont().getSize()-2), 
         		"1, "+i+", 2, "+i);
@@ -498,6 +517,10 @@ public class MovieExportDialog
 				break;
 			case SCALE_BAR:
 				scaleBar.setEnabled(showScaleBar.isSelected());
+				break;
+			case T_INTERVAL:
+			case Z_INTERVAL:
+				 enabledControls();
 		}
 	}
 
