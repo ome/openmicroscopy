@@ -83,8 +83,8 @@
                 includes="**/*"/>
             <zipfileset dir="${target.dir}" prefix="${importer.name}-${omero.version}"
                 includes="${ivy.module}.jar"/>
-            <zipfileset dir="${basedir}" prefix="${importer.name}-${omero.version}"
-                includes="importer-*" filemode="755"/>
+            <zipfileset dir="${basedir}/scripts" prefix="${importer.name}-${omero.version}"
+                includes="*" filemode="755"/>
         </zip>
     </target>
 
