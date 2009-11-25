@@ -42,14 +42,28 @@ from omero.rtypes import *
 import omero.gateway
 import omero_api_Gateway_ice	# see http://tinyurl.com/icebuserror
 import omero_api_IRoi_ice
-#import omero_api_Rawpixelstore_ice
 import omero.util.imageUtil as imgUtil
-import Image, ImageDraw, ImageFont
+import Image as pilImage
+import ImageDraw, ImageFont
+import StringIO
+import omero.clients
+from omero.romio import PlaneDef
 from datetime import date
-from reportlab.graphics.shapes import *
-from reportlab.graphics.charts.lineplots import LinePlot
-from reportlab.graphics.charts.textlabels import Label
-from reportlab.graphics import renderPDF
+# imports for making the chart and saving as PDF
+reportLab = False
+try:
+	from reportlab.pdfgen import canvas
+	from reportlab.graphics.shapes import *
+	from reportlab.graphics.charts.lineplots import LinePlot
+	from reportlab.graphics.charts.textlabels import Label
+	from reportlab.graphics import renderPDF
+	from reportlab.graphics.widgets.markers import makeMarker
+	from reportlab.pdfgen import canvas
+	from reportlab.lib.pagesizes import A4
+	reportLab = True
+except:
+	reportLab = False
+#from reportlab.graphics import renderPM
 
 
 JPEG = "image/jpeg"
@@ -114,12 +128,9 @@ def getEllipsePixels(ellipse):
 		for y in range(yStart, yEnd):
 			dx = x - cx
 			dy = y - cy
-			if (dx*dx + dy*dy) < (rx*rx):
-				#line.append("O")
+			r = float(dx*dx)/float(rx*rx) + float(dy*dy)/float(ry*ry)
+			if r <= 1:
 				points.append((x,y))
-			#else:
-			#	line.append(".")
-		#print "".join(line)
 	return points
 		
 		
@@ -140,7 +151,35 @@ def analyseEllipses(ellipses, pixels, rawPixelStore, theC, theT, theZ):
 		results.append(average)
 		
 	return results
-		
+
+def getPlaneImage(re, pixelsId, theZ, theT, ellipse):
+	
+	pDef = PlaneDef()
+	pDef.t = theT
+	pDef.z = theZ
+	#pDef.slice = omero.romio.XY.value;
+	
+	re.lookupPixels(pixelsId)
+	re.lookupRenderingDef(pixelsId)
+	re.load()
+	
+	imageData = re.renderCompressed(pDef)
+	
+	imagePlane = pilImage.open(StringIO.StringIO(imageData))
+	
+	print ellipse
+	cx, cy, rx, ry, z = ellipse
+	
+	#xy = (cx-rx, cy+ry, cx+rx, cy-ry)
+	x = cx-rx
+	y = cy-ry
+	w = x+rx*2
+	h = y+ry*2
+	xy = (x,y,w,h)
+	draw = ImageDraw.Draw(imagePlane)
+	draw.ellipse(xy, outline=(255,0,0))
+	
+	return imagePlane
 	
 def makeFrapFigure(session, commandArgs):
 	
@@ -150,6 +189,7 @@ def makeFrapFigure(session, commandArgs):
 	updateService = session.getUpdateService()
 	rawFileStore = session.createRawFileStore()
 	rawPixelStore = session.createRawPixelsStore()
+	renderingEngine = session.createRenderingEngine()
 	
 	imageId = commandArgs["imageId"]
 	
@@ -158,6 +198,7 @@ def makeFrapFigure(session, commandArgs):
 		theC = commandArgs["theC"]
 	
 	image = gateway.getImage(imageId)
+	imageName = image.getName().getValue()
 	
 	query_string = "select p from Pixels p join fetch p.image i join fetch p.pixelsType pt where i.id='%d'" % imageId
 	pixels = queryService.findByQuery(query_string, None)
@@ -203,7 +244,7 @@ def makeFrapFigure(session, commandArgs):
 	
 	frapBleach = None
 	
-
+	theZ = 0
 	for t in tIndexes:
 		shapes = [frapROI[t], baseROI[t], wholeROI[t]]
 		theZ = frapROI[t][4]	# get theZ from the FRAP ROI
@@ -238,23 +279,13 @@ def makeFrapFigure(session, commandArgs):
 	
 	log("FRAP Corrected, " + str(frapNormCorr))
 	
+	# work out the range of recovery (bleach -> plateau) and the time to reach half of this after bleach. 
 	frapBleachNormCorr = frapNormCorr[tBleach]
-	#roishapeIdx{frapIdx}.frapBleachNormCorr = min(roishapeIdx{frapIdx}.frapNormCorr);
-	
 	plateauNormCorr = average(frapNormCorr[-5:])
-	#roishapeIdx{frapIdx}.plateauNormCorr = mean(roishapeIdx{frapIdx}.frapNormCorr(end-5:end));
-	
 	plateauMinusBleachNormCorr = plateauNormCorr - frapBleachNormCorr
-	#roishapeIdx{frapIdx}.plateauMinusBleachNormCorr = roishapeIdx{frapIdx}.plateauNormCorr - roishapeIdx{frapIdx}.frapBleachNormCorr;
-	
 	mobileFraction = plateauMinusBleachNormCorr / float(1 - frapBleachNormCorr)
-	#roishapeIdx{frapIdx}.mobileFraction = roishapeIdx{frapIdx}.plateauMinusBleachNormCorr / (1 - roishapeIdx{frapIdx}.frapBleachNormCorr);
-	
 	immobileFraction = 1 - mobileFraction
-	#roishapeIdx{frapIdx}.immobileFraction = 1- roishapeIdx{frapIdx}.mobileFraction;
-	
 	halfMaxNormCorr = plateauMinusBleachNormCorr /2 + frapBleachNormCorr
-	#roishapeIdx{frapIdx}.halfMaxNormCorr = (roishapeIdx{frapIdx}.plateauMinusBleachNormCorr/2) + roishapeIdx{frapIdx}.frapBleachNormCorr;
 	
 	log("Corrected Bleach Intensity, %f" % frapBleachNormCorr)
 	log("Corrected Plateau Intensity, %f" % plateauNormCorr)
@@ -276,43 +307,84 @@ def makeFrapFigure(session, commandArgs):
 	y1 = frapNormCorr[th-1]
 	y2 = frapNormCorr[th]
 	
-	theTs = [tBleach, th-1, th]
-	times = figUtil.getTimes(queryService, pixelsId, theTs, theZ=0, theC=0)
-	x1 = times[1]
-	x2 = times[2]
+
+	timeMap = figUtil.getTimes(queryService, pixelsId, tIndexes, theZ=0, theC=0)
+	timeList = []
+	for t in tIndexes:
+		if t in timeMap:	
+			timeList.append(timeMap[t])
+		else:	# handles images which don't have PlaneInfo
+			timeMap[t] = t
+			timeList.append(t)		
+	
+	x1 = timeMap[th-1]
+	x2 = timeMap[th]
 	m1 = (y2-y1)/(x2-x1); #Gradient of the line
 	c1 = y1-m1*x1;  #Y-intercept
-	tHalf = (halfMaxNormCorr-c1)/m1 - times[0]
+	tHalf = (halfMaxNormCorr-c1)/m1 - timeMap[tBleach]
 	
 	log("T-Half, %f seconds" % tHalf)
 	
 	figLegend = "\n".join(logLines)
 	print figLegend
 	
-	drawing = Drawing(400, 200)
-	lp = LinePlot()
-	lp.x = 1.5
-	lp.y = 80
-	lp.height = 50
-	lp.width = 300
-	lp.data = [zip(tIndexes, frapNormCorr)]
-	lp.lines[0].strokeColor = colors.blue
+	# make PIL image of the last frame before FRAP
+	spacer = 5
+	frames = []
+	frames.append(getPlaneImage(renderingEngine, pixelsId, theZ, tBleach-1, frapROI[tBleach-1]))
+	frames.append(getPlaneImage(renderingEngine, pixelsId, theZ, tBleach, frapROI[tBleach]))
+	frames.append(getPlaneImage(renderingEngine, pixelsId, theZ, tIndexes[-1], frapROI[tIndexes[-1]]))
+	figW = len(frames) * frames[0].size[0] + (len(frames)-1) * spacer
+	figH = frames[0].size[1]
+	frapCanvas = pilImage.new("RGB", (figW, figH), (255,255,255))
+	x = 0
+	for img in frames:
+		imgUtil.pasteImage(img, frapCanvas, x, 0)
+		x += spacer + img.size[0]
+	frapCanvas.show()
+	frapCanvas = imgUtil.resizeImage(frapCanvas, 400, figH)
+	frapCanvas.save("frapImage.jpg")
 	
-	drawing.add(lp)
+	format = JPEG
+	output = "frapImage.jpg"
 	
-	#
-	format = PDF
-			
-	output = "FRAP.pdf"
+	# if reportLab has imported...
+	if reportLab:
+		# we are going to export a PDF, not a JPEG
+		format = PDF
+		output = "FRAP.pdf"
+		
+		# create a plot of the FRAP data
+		figHeight = 450
+		figWidth = 400
+		drawing = Drawing(figWidth, figHeight)
+		lp = LinePlot()
+		lp.x = 50
+		lp.y = 50
+		lp.height = 300
+		lp.width = 300
+		lp.data = [zip(timeList, frapNormCorr)]
+		lp.lines[0].strokeColor = colors.red
+		lp.lines[0].symbol = makeMarker('Circle')
 	
-	renderPDF.drawToFile(drawing, output, 'FRAP')
+		drawing.add(lp)
 	
-	parent = image
+		drawing.add(String(200,25, 'Time (seconds)', fontSize=12, textAnchor="middle"))
+		drawing.add(String(200,figHeight-25, imageName, fontSize=12, textAnchor="middle"))
+		drawing.add(String(200,figHeight-50, 'T(1/2) = %f' % tHalf, fontSize=12, textAnchor="middle"))
 	
-	print format
-	fileId = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, parent, output, format, figLegend)
+		# create an A4 canvas to make the pdf figure 
+		figCanvas = canvas.Canvas(output, pagesize=A4)
+		pasteX = 100
+		pasteY = 75
+		# add the FRAP image
+		figCanvas.drawImage("frapImage.jpg", pasteX, pasteY)
+		# add the FRAP data plot
+		renderPDF.draw(drawing, figCanvas, pasteX, 300, showBoundary=True)
+		figCanvas.save()
 	
-	print fileId
+	fileId = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, image, output, format, figLegend)
+	
 	
 
 def runAsScript():
@@ -321,7 +393,7 @@ def runAsScript():
 	scripts.Long("theC", optional=True).inout(),		# Channel we want to analyse. Default is 0
 	scripts.String("format", optional=True).inout(),		# format to save image. Currently JPEG or PNG
 	scripts.String("figureName", optional=True).inout(),	# name of the file to save.
-	scripts.Long("fileAnnotation").out());  # script returns a file annotation
+	scripts.Long("fileAnnotation").out());  	# script returns a file annotation
 	
 	session = client.getSession()
 	commandArgs = {}
