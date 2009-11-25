@@ -261,7 +261,6 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      * @see ome.api.ThumbnailStore#setPixelsId(long)
      */
     @RolesAllowed("user")
-    @Transactional(readOnly = false)
     public boolean setPixelsId(long id)
     {
     	// If we've had a pixels set change, reset our stateful objects.
@@ -948,9 +947,10 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         			metadata.getDetails().getUpdateEvent().getTime();
     		}
 
-    		// Ensure that we do not have "dirty" pixels or rendering settings 
-    		// left around in the Hibernate session cache.
-    		iQuery.clear();
+        	// Ensure that we do not have "dirty" pixels or rendering settings left
+        	// around in the Hibernate session cache.
+        	iQuery.clear();
+            iUpdate.flush();
     	}
     	finally
     	{
@@ -1013,9 +1013,10 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     		iUpdate.saveArray(thumbnails.toArray(
     				new Thumbnail[thumbnails.size()]));
 
-    		// Ensure that we do not have "dirty" pixels or rendering settings
-    		// left around in the Hibernate session cache.
-    		iQuery.clear();
+        	// Ensure that we do not have "dirty" pixels or rendering settings left
+        	// around in the Hibernate session cache.
+        	iQuery.clear();
+            iUpdate.flush();
     	}
     	finally
     	{
@@ -1307,9 +1308,6 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     @Transactional(readOnly = false)
     public byte[] getThumbnail(Integer sizeX, Integer sizeY) {
     	Dimension dimensions = sanityCheckThumbnailSizes(sizeX, sizeY);
-        // Ensure that we do not have "dirty" pixels or rendering settings 
-        // left around in the Hibernate session cache.
-        iQuery.clear();
         // Reloading thumbnail metadata because we don't know what may have
         // happened in the database since our last method call.
         metadata = getThumbnailMetadata(dimensions);
@@ -1337,6 +1335,10 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         		dirtyMetadata = false;
         	}
         }
+    	// Ensure that we do not have "dirty" pixels or rendering settings left
+    	// around in the Hibernate session cache.
+    	iQuery.clear();
+        iUpdate.flush();
         return thumbnail; 
     }
     
@@ -1393,10 +1395,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     public byte[] getThumbnailByLongestSide(Integer size) {
         // Set defaults and sanity check thumbnail sizes
         Dimension dimensions = sanityCheckThumbnailSizes(size, size);
-        
-    	// Ensure that we do not have "dirty" pixels or rendering settings left
-    	// around in the Hibernate session cache.
-    	iQuery.clear();
+
         // Resetting thumbnail metadata because we don't know what may have
         // happened in the database since or if sizeX and sizeY have changed.
     	metadata = getThumbnailMetadata(dimensions);
@@ -1424,6 +1423,10 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     			dirtyMetadata = false;
     		}
     	}
+    	// Ensure that we do not have "dirty" pixels or rendering settings left
+    	// around in the Hibernate session cache.
+    	iQuery.clear();
+        iUpdate.flush();
     	return thumbnail;
     }
     
@@ -1448,9 +1451,10 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     @RolesAllowed("user")
     public byte[] getThumbnailDirect(Integer sizeX, Integer sizeY)
     {
-    	// Ensure that we do not have "dirty" pixels or rendering settings 
-    	// left around in the Hibernate session cache.
+    	// Ensure that we do not have "dirty" pixels or rendering settings left
+    	// around in the Hibernate session cache.
     	iQuery.clear();
+        iUpdate.flush();
     	return _getThumbnailDirect(sizeX, sizeY, null, null);
     }
     
@@ -1487,9 +1491,10 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     public byte[] getThumbnailForSectionDirect(int theZ, int theT,
                                                Integer sizeX, Integer sizeY)
     {
-    	// Ensure that we do not have "dirty" pixels or rendering settings 
-    	// left around in the Hibernate session cache.
+    	// Ensure that we do not have "dirty" pixels or rendering settings left
+    	// around in the Hibernate session cache.
     	iQuery.clear();
+        iUpdate.flush();
     	return _getThumbnailDirect(sizeX, sizeY, theZ, theT);
     }
     
@@ -1513,9 +1518,10 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      */
     @RolesAllowed("user")
     public byte[] getThumbnailByLongestSideDirect(Integer size) {
-    	// Ensure that we do not have "dirty" pixels or rendering settings 
-    	// left around in the Hibernate session cache.
+    	// Ensure that we do not have "dirty" pixels or rendering settings left
+    	// around in the Hibernate session cache.
     	iQuery.clear();
+        iUpdate.flush();
     	return _getThumbnailByLongestSideDirect(size, null, null);
     }
     
@@ -1526,9 +1532,10 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     public byte[] getThumbnailForSectionByLongestSideDirect(int theZ, int theT,
                                                             Integer size)
     {
-    	// Ensure that we do not have "dirty" pixels or rendering settings 
-    	// left around in the Hibernate session cache.
+    	// Ensure that we do not have "dirty" pixels or rendering settings left
+    	// around in the Hibernate session cache.
     	iQuery.clear();
+        iUpdate.flush();
     	return _getThumbnailByLongestSideDirect(size, theZ, theT);
     }
     
@@ -1545,9 +1552,10 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         Dimension dimensions = sanityCheckThumbnailSizes(sizeX, sizeY);
 
         metadata = getThumbnailMetadata(dimensions);
-        // Ensure that we do not have "dirty" pixels or rendering settings 
-        // left around in the Hibernate session cache.
-        iQuery.clear();
+    	// Ensure that we do not have "dirty" pixels or rendering settings left
+    	// around in the Hibernate session cache.
+    	iQuery.clear();
+        iUpdate.flush();
         if (metadata == null) {
             return false;
         }
