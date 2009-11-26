@@ -62,13 +62,13 @@ public class LensComponent
 	public static final String	LENS_LOCATION_PROPERTY = "lensLocation";
 	
 	/** Bound property indicating to close the zoom Window. */
-	final static String		ZOOM_WINDOW_CLOSED_PROPERTY = "zoomWindowClosed";
+	final static String			ZOOM_WINDOW_CLOSED_PROPERTY = "zoomWindowClosed";
   
 	/** Default width of a lens */
-	final static int		LENS_DEFAULT_WIDTH	= 50;
+	public final static int		LENS_DEFAULT_WIDTH	= 50;
 
 	/** Default magnification of lens. */
-	final static float		DEFAULT_ZOOM = 2.0f;
+	final static float			DEFAULT_ZOOM = 2.0f;
 	
 	/** Reference to the lens object which will render onto the image canvas */
 	private LensUI			lens;
@@ -249,10 +249,12 @@ public class LensComponent
 	 */
 	public void setImageZoomFactor(float imageZoomFactor)
 	{
+		/*
 		if (imageZoomFactor < LensModel.MINIMUM_ZOOM)
 			imageZoomFactor = LensModel.MINIMUM_ZOOM;
 		if (imageZoomFactor > LensModel.MAXIMUM_ZOOM)
 			imageZoomFactor = LensModel.MAXIMUM_ZOOM;
+			*/
 		lensModel.setImageZoomFactor(imageZoomFactor);
 		lens.setImageZoomFactor();
 	}

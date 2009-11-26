@@ -1120,5 +1120,4 @@ public interface ImViewer
 	 */
 	public boolean isBigImage();
 	
-	
 }

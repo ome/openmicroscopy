@@ -35,6 +35,7 @@ import javax.swing.event.ChangeEvent;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 
 /** 
  * Adds/Removes the magnifier to/from the display.
@@ -69,7 +70,14 @@ public class LensAction
     protected void onStateChange(ChangeEvent e)
     {
     	if (isEnabled()) {
-    		setEnabled(!model.isBigImage());
+    		//Check first is very small.
+    		int sizeX = model.getMaxX();
+    		int sizeY = model.getMaxY();
+    		if (sizeX < LensComponent.LENS_DEFAULT_WIDTH || 
+    				sizeY < LensComponent.LENS_DEFAULT_WIDTH)
+    			setEnabled(false);
+    		else
+    			setEnabled(!model.isBigImage());
     	}
     }
     
