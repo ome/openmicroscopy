@@ -1884,7 +1884,8 @@ class ImViewerComponent
 				case ImViewer.PROJECTION_INDEX:
 					view.createHistoryItem(view.getLastProjRef());
 			}
-			model.setState(READY);
+			if (model.getState() != LOADING_IMAGE)
+				model.setState(READY);
 			fireStateChange();
 		}
 	}
@@ -2885,7 +2886,7 @@ class ImViewerComponent
 			"in the LOADING_IMAGE state: "+model.getState());
 		if (image == null) {
 			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Image retrieval", "An error occured while " +
+			un.notifyInfo("Image retrieval", "An error occurred while " +
 					"creating the image.");
 			return;
 		}

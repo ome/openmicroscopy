@@ -737,8 +737,9 @@ class ImViewerModel
 		pDef.slice = omero.romio.XY.value;
 		state = ImViewer.LOADING_IMAGE;
 		if (asynchronousCall == null) {
-			asynchronousCall = (getMaxX() >= RenderingControl.MAX_SIZE || 
-					getMaxY() >= RenderingControl.MAX_SIZE);
+			//asynchronousCall = (getMaxX() >= RenderingControl.MAX_SIZE || 
+			//		getMaxY() >= RenderingControl.MAX_SIZE);
+			asynchronousCall = true;
 		}
 		if (asynchronousCall) {
 			pDef.x = computedSize.width;
@@ -1072,7 +1073,8 @@ class ImViewerModel
 					setChannelActive(((Integer) i.next()).intValue(), true);
 			}
 			player = null;
-			state = ImViewer.READY;
+			if (state != ImViewer.LOADING_IMAGE)
+				state = ImViewer.READY;
 			playingChannelMovie = false;
 			return;
 		}
