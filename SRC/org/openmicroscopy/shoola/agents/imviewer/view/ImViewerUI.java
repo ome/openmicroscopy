@@ -762,18 +762,9 @@ class ImViewerUI
 	private void buildGUI()
 	{
 		Browser browser = model.getBrowser();
-		int sizeX;
-		int sizeY;
-		if (model.isBigImage()) {
-			Dimension d = Factory.computeThumbnailSize(
-					RenderingControl.MAX_SIZE, RenderingControl.MAX_SIZE, 
-					model.getMaxX(), model.getMaxY());
-			sizeX = d.width;
-			sizeY = d.height;
-		} else {
-			sizeX = model.getMaxX();
-			sizeY = model.getMaxY();
-		}
+		Dimension d = model.computeSize();
+		int sizeX = d.width;
+		int sizeY = d.height;
 		double f = model.getZoomFactor();
 		if (f > 0) {
 			sizeX = (int) (sizeX*f);

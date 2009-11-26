@@ -1739,9 +1739,6 @@ class OMEROGateway
 			*/
 			thumbnailService = null;
 			fileStore = null;
-			
-			entry = null;
-			blitzClient = null;
 			//metadataStore = null;
 			metadataService = null;
 			pojosService = null;
@@ -1757,6 +1754,8 @@ class OMEROGateway
 			reServices.clear();
 			blitzClient.closeSession();
 			entry.destroy();
+			blitzClient = null;
+			entry = null;
 		} catch (Exception e) {
 			//session already dead.
 		}

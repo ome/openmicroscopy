@@ -709,10 +709,12 @@ class MetadataViewerComponent
 		if (data == null) return;
 		int maxT = data.getSizeT();
     	int maxZ = data.getSizeZ();
+    	int defaultZ = maxZ;
+    	int defaultT = maxT;
     	String name = EditorUtil.getPartialName(img.getName());
     	JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
     	MovieExportDialog dialog = new MovieExportDialog(f, name, 
-    			maxT, maxZ);
+    			maxT, maxZ, defaultZ, defaultT);
     	dialog.setScaleBarDefault(scaleBar, overlayColor);
     	dialog.addPropertyChangeListener(new PropertyChangeListener() {
 		
