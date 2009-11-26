@@ -646,7 +646,7 @@ public class client {
 
         try {
             if (oldSf != null) {
-                oldSf.destroy();
+                oldSf = ServiceFactoryPrxHelper.uncheckedCast(oldSf.ice_oneway());
             }
         } catch (Ice.ConnectionLostException cle) {
             // ok. Exception will always be thrown

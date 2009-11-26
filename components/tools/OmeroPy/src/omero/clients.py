@@ -587,6 +587,7 @@ class BaseClient(object):
 
         self.__lock.acquire()
         try:
+            oldSf = self.__sf
             self.__sf = None
 
             oldOa = self.__oa
@@ -619,7 +620,9 @@ class BaseClient(object):
 
             try:
                 try:
-                    self.getRouter(oldIc).destroySession()
+                    if oldSf:
+                        oldSf = omero.api.ServiceFactoryPrx.uncheckedCast(oldSf.ice_oneway())
+                        oldSf.destroy()
                 except Glacier2.SessionNotExistException:
                     # ok. We don't want it to exist
                     pass
