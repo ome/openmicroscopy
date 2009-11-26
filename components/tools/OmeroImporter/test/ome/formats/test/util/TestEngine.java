@@ -197,10 +197,22 @@ public class TestEngine
             
 			try
 			{
-			    start = new Date();
-	             // record used files to log file
+                store.createRoot();
+                start = new Date();
+                // record used files to log file
+                log.info("Starting setId() for used files.");
                 wrapper.getReader().setId(file.getAbsolutePath());
+                log.info("Ending setId() for used files.");
+                log.info("Starting used file dump.");
                 String[] usedFiles = wrapper.getReader().getUsedFiles();
+                if (usedFiles != null)
+                {
+                    log.info("Used file count: " + usedFiles.length);
+                }
+                else
+                {
+                    log.info("Used files are 'null'");
+                }
                 String usedFileString = "Used Files: ";
                 for (String usedFile : usedFiles)
                 {
@@ -213,7 +225,6 @@ public class TestEngine
 				interceptor.setSourceFile(file); 
 				importLibrary.importImage(file, 0, 0, 1, fileList[j], null, false, true, null, target);
 				iniFile.flush();
-                store.createRoot();
 			}
 			catch (Throwable e)
 			{
@@ -232,7 +243,7 @@ public class TestEngine
 				e.printStackTrace();
 				
 				errors += 1;
-				sendRequest("", "TestEngine Error", e, file);
+				//sendRequest("", "TestEngine Error", e, file);
 				//throw e;
 			}
 		}
