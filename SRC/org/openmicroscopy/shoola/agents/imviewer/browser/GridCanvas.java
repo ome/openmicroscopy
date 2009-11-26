@@ -66,125 +66,6 @@ class GridCanvas
 	/** The zoom factor. */
 	private static final float ZOOM = 0.25f;
 
-	/** 
-     * Paints the image.
-     * 
-     * @param g2D	The graphics context.
-     * @param w		The width of an image composing the grid.
-     * @param h		The height of an image composing the grid.
-     * @param bar	Pass <code>true</code> to paint the scale bar,
-     * 				<code>false</code> otherwise.
-     */
-	/*
-    private void paintImage(Graphics2D g2D, int w, int h, boolean bar)
-	{
-		List images = model.getSplitImages();
-    	if (images == null) return; 
-    	SplitImage combined = null;
-		g2D.setColor(model.getBackgroundColor());
-    	Dimension d = getSize();
-        g2D.fillRect(0, 0, d.width, d.height);
-        int row = model.getGridRow();
-        int colum = model.getGridColumn();
-    	int n = model.getMaxC();
-    	if (n == 1) row = 1;
-    	else if (n == 3 || n == 2) row = 2;
-    	else if (n >= 4) {
-    		combined = (SplitImage) images.get(images.size()-1);
-    		images.remove(images.size()-1);
-    	}
-        Iterator channels = images.iterator();
-        BufferedImage image;
-        int x = 0, y = 0;
-        SplitImage channel;
-        String v = model.getUnitBarValue(); 
-        int s = (int) (model.getGridBarSize()*model.getGridRatio());
-        Color c = model.getUnitBarColor();
-        Font font = getFont();;
-        FontMetrics fm = getFontMetrics(font);
-        int textWidth;
-        boolean text = model.isTextVisible();
-        String name;
-        
-        for (int i = 0; i < row; ++i) {
-            for (int j = 0; j < colum; ++j) {
-                if (channels.hasNext()) {
-                	channel = (SplitImage) channels.next();
-                    image = channel.getImage();
-                    x = j*(w+BrowserModel.GAP);
-                    if (image != null) {
-                    	g2D.drawImage(image, null, x, y);
-       
-                    	//draw string.
-                    	if (text) {
-                    		name = channel.getName();
-                    		textWidth = fm.stringWidth(name)+4;
-                    		if (textWidth < w) {
-                    			g2D.setColor(BACKGROUND);
-                            	g2D.fillRect(x, y, textWidth, 3*height/2);
-                            	g2D.setColor(getBackground());
-                                g2D.drawString(name, x+2, y+height);
-                    		}
-                    	}
-                        if (bar && v != null) {
-                        	textWidth = fm.stringWidth(v)+4;
-                        	if (textWidth < w/2)
-                        		ImagePaintingFactory.paintScaleBar(g2D, x+w-s-5, 
-                        									y+h-5, s, v, c);
-                        }
-                    } else { //just paint rectangle.
-                    	//if (text) {
-                    	name = channel.getName();
-                    	g2D.setColor(BACKGROUND);
-                    	g2D.drawRect(x, y, w-1, h-1);
-                    	textWidth = fm.stringWidth(name)+4;
-                    	if (textWidth < w && text) 
-                    		g2D.drawString(name, x+2, y+height);
-                    	//}
-                    }
-                }
-                
-            }
-            x = 0;
-            y = (i+1)*(h+BrowserModel.GAP);
-        }   
-        if (combined != null) {
-        	image = combined.getImage();
-        	y = 0;
-        	x = colum*(w+BrowserModel.GAP);
-        	if (image != null) {
-        		g2D.drawImage(image, null, x, y);
-            	
-        		//g2D.drawImage(image, null, x, y);
-            	//draw string.
-            	if (text) {
-            		name = combined.getName();
-            		textWidth = fm.stringWidth(name)+4;
-            		if (textWidth < w) {
-            			g2D.setColor(BACKGROUND);
-                    	g2D.fillRect(x, y, textWidth, 3*height/2);
-                    	g2D.setColor(getBackground());
-                        g2D.drawString(name, x+2, y+height);
-            		}
-            	}
-            	if (bar && v != null) {
-                	textWidth = fm.stringWidth(v)+4;
-                	if (textWidth < w/2)
-                		ImagePaintingFactory.paintScaleBar(g2D, x+w-s-5, 
-                									y+h-5, s, v, c);
-                }
-        	} else {
-        		name = combined.getName();
-            	g2D.setColor(BACKGROUND);
-            	g2D.drawRect(x, y, w-1, h-1);
-            	textWidth = fm.stringWidth(name)+4;
-            	if (textWidth < w && text) 
-            		g2D.drawString(name, x+2, y+height);
-        	}
-        }
-	}
-*/
-	
 	/**
 	 * Paints the grid image.
 	 * 
@@ -261,8 +142,8 @@ class GridCanvas
 		Iterator<GridImage> i = list.iterator();
 		GridImage img;
 		
-		float start = 0f;//0.04f;
-		float y = 0.04f;
+		float start = 0.01f;//0.04f;
+		float y = 0.03f;
 		float x = start;
 		float hGap = HGAP;
 		float vGap = 1.0f/model.getGridRow();
@@ -305,6 +186,8 @@ class GridCanvas
 		float yEnd = vGap;
 		int col = 0;
 		int columns = model.getGridColumn();
+		Color c;
+		int v = 0;
 		while (i.hasNext()) {
 			img = (GridImage) i.next();
 			if (img.isActive()) {
@@ -445,7 +328,8 @@ class GridCanvas
     		//texture = TextureIO.newTexture(data);
     		//texture.enable();
     		//texture.bind();
-    		paintGridAsRGB(gl);
+    		//paintGridAsRGB(gl);
+    		paintGrid(gl);
     	} else {
     		//texture = null;
     		paintGrid(gl);

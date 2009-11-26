@@ -448,7 +448,7 @@ class BrowserComponent
 		switch (index) {
 			case ImViewer.GRID_INDEX:
 				if (ImViewerAgent.hasOpenGLSupport()) {
-					if (!model.hasGridImagesAsTexture())
+					//if (!model.hasGridImagesAsTexture())
 						model.setGridImages();
 				} else {
 					if (model.hasNoGridImages())

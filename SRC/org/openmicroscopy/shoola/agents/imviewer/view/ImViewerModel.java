@@ -737,9 +737,8 @@ class ImViewerModel
 		pDef.slice = omero.romio.XY.value;
 		state = ImViewer.LOADING_IMAGE;
 		if (asynchronousCall == null) {
-			//asynchronousCall = (getMaxX() >= RenderingControl.MAX_SIZE || 
-			//		getMaxY() >= RenderingControl.MAX_SIZE);
-			asynchronousCall = true;
+			asynchronousCall = (getMaxX() >= RenderingControl.MAX_SIZE || 
+					getMaxY() >= RenderingControl.MAX_SIZE);
 		}
 		if (asynchronousCall) {
 			pDef.x = computedSize.width;

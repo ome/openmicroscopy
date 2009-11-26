@@ -31,6 +31,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -409,8 +410,6 @@ class BrowserModel
     private void retrieveGridImages()
     {
     	List<BufferedImage> images = parent.getGridImages();
-    	
-    	
     	if (images != null) {
     		Iterator i = images.iterator();
         	while (i.hasNext()) {
@@ -433,7 +432,7 @@ class BrowserModel
     		if (!hasGridImagesAsTexture())
     			gridImagesAsTextures = parent.getGridImagesAsTexture();
     	} else {
-    		if (isRenderedImageRGB()) return;
+    		//if (isRenderedImageRGB()) return;
         	gridImagesAsTextures = parent.getGridImagesAsTexture();
     	}
     }
@@ -546,6 +545,7 @@ class BrowserModel
         backgroundColor = ImagePaintingFactory.DEFAULT_BACKGROUND;
         gridImages = new ArrayList<BufferedImage>();
         zoomFactor = ZoomAction.DEFAULT_ZOOM_FACTOR;
+        gridImagesAsTextures = new HashMap<Integer, TextureData>();
         if (pref != null) {
         	if (pref.getBackgroundColor() != null)
         		backgroundColor = pref.getBackgroundColor();
@@ -595,7 +595,7 @@ class BrowserModel
     {
     	if (gridImages.size() != 0) return;
     	if (originalGridImages != null) originalGridImages.clear();
-    	if (gridImagesAsTextures == null || gridImagesAsTextures.size() == 0)
+    	if (gridImagesAsTextures.size() != 0) return;
     	if (ImViewerAgent.hasOpenGLSupport()) createGridImagesAsTextures();
     	else createGridImages();
     }
@@ -1187,7 +1187,7 @@ class BrowserModel
         }
         //displayedImage = null;
         //combinedImage = null;
-        gridImages.clear();
+        gridImagesAsTextures.clear();
     }
 	
 	/**
@@ -1259,6 +1259,7 @@ class BrowserModel
 			label = data.getChannelLabeling();
 			rgb = new boolean[3];
 			if (parent.isChannelActive(index)) {
+				/*
 				if (b) {
 					rgb[0] = parent.isChannelRed(index);
 					rgb[1] = parent.isChannelGreen(index);
@@ -1268,6 +1269,9 @@ class BrowserModel
 					image = new GridImage(index, true, label);
 					image.setTextureData(gridImagesAsTextures.get(index));
 				}
+				*/
+				image = new GridImage(index, true, label);
+				image.setTextureData(gridImagesAsTextures.get(index));
 			} else {
 				image = new GridImage(index, false, label);
 			}

@@ -242,11 +242,13 @@ class GLImageCanvas
 				drawScaleBar(gl, data.getWidth());
 			
 			//image
+			
 			texture.enable();
 			texture.bind();
 			gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE,
 					GL.GL_REPLACE);
 			TextureCoords coords = new TextureCoords(0, 0, 1, 1);
+			//gl.glColorMask(true, false, false, true);
 			gl.glBegin(GL.GL_QUADS);
 			gl.glTexCoord2f(coords.left(), coords.bottom());
 			gl.glVertex3f(0, 0, 0);
