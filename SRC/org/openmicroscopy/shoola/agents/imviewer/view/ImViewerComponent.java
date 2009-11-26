@@ -1884,7 +1884,8 @@ class ImViewerComponent
 				case ImViewer.PROJECTION_INDEX:
 					view.createHistoryItem(view.getLastProjRef());
 			}
-			model.setState(READY);
+			if (model.getState() != LOADING_IMAGE)
+				model.setState(READY);
 			fireStateChange();
 		}
 	}

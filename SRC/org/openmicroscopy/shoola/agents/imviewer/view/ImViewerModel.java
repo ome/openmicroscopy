@@ -1048,7 +1048,8 @@ class ImViewerModel
 					setChannelActive(((Integer) i.next()).intValue(), true);
 			}
 			player = null;
-			state = ImViewer.READY;
+			if (state != ImViewer.LOADING_IMAGE) 
+				state = ImViewer.READY;
 			playingChannelMovie = false;
 			return;
 		}

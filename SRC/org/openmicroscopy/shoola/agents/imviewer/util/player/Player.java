@@ -158,8 +158,15 @@ public abstract class Player
      */
     public void stateChanged(ChangeEvent e)
     {
-    	if (model.getState() == ImViewer.DISCARDED)
+    	int s = model.getState();
+    	if (s == ImViewer.DISCARDED)
             setPlayerState(STOP);
+    	else if (s == ImViewer.LOADING_IMAGE) {
+    		if (state == START)
+    			timer.stop();
+    	} else if (s == ImViewer.READY) {
+    		if (state == START) timer.start();
+    	}
     }
     
 }
