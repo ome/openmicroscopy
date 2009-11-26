@@ -1754,6 +1754,7 @@ class OMEROGateway
 			blitzClient = null;
 			entry = null;
 		} catch (Exception e) {
+			e.printStackTrace();
 			//session already dead.
 		}
 	}

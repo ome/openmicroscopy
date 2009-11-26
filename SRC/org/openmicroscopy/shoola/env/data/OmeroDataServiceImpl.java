@@ -165,7 +165,7 @@ class OmeroDataServiceImpl
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	private List<DeletableObject> delete(DeletableObject object) 
+	private synchronized List<DeletableObject> delete(DeletableObject object) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (object == null) return null;
@@ -184,6 +184,13 @@ class OmeroDataServiceImpl
 		List<DeletableObject> result = new ArrayList<DeletableObject>();
 		List<DeletableObject> notDeleted;
 		if (data instanceof ImageData) { //Image
+			//First check if the object still exists.
+			
+			if (gateway.findIObject(data.asIObject()) == null) {
+				return result;
+			}
+			
+			
 			list = gateway.checkImage(data.asImage());
 			if (list != null && list.size() > 0) {
 				object.setBlocker(list);
@@ -242,7 +249,10 @@ class OmeroDataServiceImpl
 				result.addAll(notDeleted);
 			return result;
 		} else if (data instanceof PlateData) {
-			gateway.deleteObject(data.asIObject());
+			if (gateway.findIObject(data.asIObject()) != null) {
+				gateway.deleteObject(data.asIObject());
+			}
+			
 		} else if (data instanceof ScreenData) {
 			if (!content)
 				return deleteTopContainer(object);
@@ -312,6 +322,8 @@ class OmeroDataServiceImpl
 				result.addAll(notDeleted);
 			return result;
 		} else if (data instanceof FileAnnotationData) {
+			if (gateway.findIObject(data.asIObject()) == null)
+				return result;
 			List<Long> ids = new ArrayList<Long>();
 			ids.add(data.getId());
 			List l = gateway.findAnnotationLinks(ImageData.class.getName(), -1, 
@@ -335,6 +347,8 @@ class OmeroDataServiceImpl
 					gateway.findIObject(OriginalFile.class.getName(), 
 							originalFileID));
 		} else if (data instanceof TagAnnotationData) {
+			if (gateway.findIObject(data.asIObject()) == null)
+				return result;
 			TagAnnotationData t = (TagAnnotationData) data;
 			String ns = t.getNameSpace();
 			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
@@ -393,7 +407,9 @@ class OmeroDataServiceImpl
 		DataObject data = object.getObjectToDelete();
 		long id = data.getId();
 		boolean content = object.deleteContent();
-		List<DeletableObject> resuls = new ArrayList<DeletableObject>();
+		List<DeletableObject> results = new ArrayList<DeletableObject>();
+		if (gateway.findIObject(data.asIObject()) == null)
+			return results;
 		List l = gateway.findAnnotationLinks(Annotation.class.getName(), id,
 											null);
 		
@@ -431,7 +447,7 @@ class OmeroDataServiceImpl
 		context.getMetadataService().clearAnnotation(TagAnnotationData.class, 
 				data.getId(), null);
 		gateway.deleteObject(gateway.findIObject(data.asIObject()));
-		return resuls;	
+		return results;	
 	}
 	
 	/**
@@ -525,24 +541,27 @@ class OmeroDataServiceImpl
 	{
 		DataObject data = object.getObjectToDelete();
 		Class klass = null;
+		List<DeletableObject> results = new ArrayList<DeletableObject>();
 		if (data instanceof ProjectData) klass = ProjectData.class;
 		else if (data instanceof ScreenData) klass = ScreenData.class;
 		if (klass == null) 
 			throw new omero.IllegalArgumentException("Method can only be" +
 					"invoked to delete Project or Screen");
+		if (gateway.findIObject(data.asIObject()) == null)
+			return results;
 		boolean attachment = object.deleteAttachment();
 		long id = data.getId();
 		List<IObject> list;
 		List<IObject> annotations;
 		List<IObject> annotatedByOthers;
-		List<DeletableObject> resuls = new ArrayList<DeletableObject>();
+		
 		annotations = gateway.findAnnotationLinks(klass.getName(), id, null);
 		annotatedByOthers = isRelatedToOther(annotations);
 		if (annotatedByOthers.size() != 0) {
 			//cannot delete. Notify user.
 			object.setBlocker(annotatedByOthers);
-			resuls.add(object);
-			return resuls;
+			results.add(object);
+			return results;
 		} 
 		/*
 		if (!attachment) //want to keep the annotation.
@@ -569,7 +588,7 @@ class OmeroDataServiceImpl
 		if (toDelete.size() > 0) gateway.deleteObjects(toDelete);
 		//delete the dataset
 		gateway.deleteObject(gateway.findIObject(data.asIObject()));
-		return resuls;	
+		return results;	
 	}
 	
 	/**
@@ -593,6 +612,8 @@ class OmeroDataServiceImpl
 		List<IObject> usedByOthers;
 		List<DeletableObject> results = new ArrayList<DeletableObject>();
 		//check if dataset used by other.
+		if (gateway.findIObject(data.asIObject()) == null)
+			return results;
 		list = gateway.findLinks(ProjectData.class, id, -1);
 		usedByOthers = isRelatedToOther(list);
 		if (usedByOthers.size() > 0) { //somebody is using it.

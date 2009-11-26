@@ -2071,6 +2071,7 @@ class TreeViewerComponent
 			if (l.size() > 0) {
 				model.fireObjectsDeletion(l);
 				fireStateChange();
+				onNodesDeleted(new ArrayList<DeletableObject>());
 			}
 		}
 	}
@@ -2091,9 +2092,11 @@ class TreeViewerComponent
 	 */
 	public void onNodesMoved()
 	{
-		if (model.getState()!= SAVE)
+		/*
+		if (model.getState() != SAVE)
 			throw new IllegalStateException("This method can only be " +
 			"invoked in the SAVE state");
+			*/
 		model.setState(READY);
 		fireStateChange();
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));

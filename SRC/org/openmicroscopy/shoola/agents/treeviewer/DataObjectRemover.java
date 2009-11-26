@@ -95,7 +95,7 @@ public class DataObjectRemover
     public void handleResult(Object result)
     {
         if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
-        viewer.onNodesDeleted((Collection<DeletableObject>) result);
+        //viewer.onNodesDeleted((Collection<DeletableObject>) result);
     }
     
 }
