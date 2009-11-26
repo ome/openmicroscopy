@@ -114,6 +114,7 @@ public class ImportLibrary implements IObservable, StatusListener
         
         this.store = client;
         this.reader = reader;
+        reader.addStatusListener(this);
     }
 
     //

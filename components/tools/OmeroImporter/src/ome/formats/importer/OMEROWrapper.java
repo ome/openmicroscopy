@@ -16,7 +16,6 @@ import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.MinMaxCalculator;
-import loci.formats.StatusEvent;
 import loci.formats.StatusListener;
 import loci.formats.in.LeicaReader;
 import loci.formats.meta.MetadataStore;
@@ -28,7 +27,8 @@ import org.apache.commons.logging.LogFactory;
 
 public class OMEROWrapper extends MinMaxCalculator {
 
-    private final static Log READER_STATUS = LogFactory.getLog("ome.formats.importer.ReaderStatus");
+    @SuppressWarnings("unused")
+    private final static Log log = LogFactory.getLog(OMEROWrapper.class);
 
     private ChannelSeparator separator;
     private ChannelFiller filler;
@@ -75,12 +75,6 @@ public class OMEROWrapper extends MinMaxCalculator {
         iReader.setMetadataFiltered(true);
         filler.setMetadataFiltered(true);
         separator.setMetadataFiltered(true);
-
-        iReader.addStatusListener(new StatusListener(){
-            public void statusUpdated(StatusEvent event) {
-                READER_STATUS.debug(event.getStatusMessage());
-            }
-        });
     };
 
     /**
@@ -142,6 +136,11 @@ public class OMEROWrapper extends MinMaxCalculator {
             }
         }
         return minMaxSet;
+    }
+    
+    @Override
+    public void addStatusListener(StatusListener statusListener) {
+    	iReader.addStatusListener(statusListener);
     }
 
     @Override

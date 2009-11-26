@@ -278,11 +278,15 @@ public class ImportEvent {
         
         @Override
         public String toLog() {
-            return String.format("%s (%s): %s [%d/%d]", super.toLog(),
-            		filename,
-            		statusEvent.getStatusMessage(),
-            		statusEvent.getProgressValue(),
-            		statusEvent.getProgressMaximum());
+        	int a = statusEvent.getProgressValue();
+        	int b = statusEvent.getProgressMaximum();
+        	if (a > 0 && b > 0)
+        	{
+	            return String.format("%s: %s [%d/%d]", super.toLog(), 
+	            		statusEvent.getStatusMessage(), a, b);
+        	}
+        	return String.format("%s: %s", super.toLog(), 
+        			statusEvent.getStatusMessage());        		
         }
     }
     
