@@ -213,8 +213,8 @@ class OmeroImageServiceImpl
 			int h = pDef.y;
 			int max = w;
 			if (max < h) max = h;
-			if (max > RenderingControl.MAX_SIZE) 
-				max = RenderingControl.MAX_SIZE;
+			if (max > RenderingControl.MAX_SIZE_THREE) 
+				max = RenderingControl.MAX_SIZE_THREE;
 			Map m = gateway.getThumbnailSet(ids, max);
 			byte[] values = (byte[]) m.get(pixelsID);
 			if (asTexture) {

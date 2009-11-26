@@ -161,17 +161,20 @@ public class MovieExportDialog
 	/** Component used to set the default z-section. */
 	private JSpinner            	tSpinner;
 	
+	/** The number of z-sections. */
+	private int						maxZ;
+	
+	/** The number of time-points. */
+	private int						maxT;
+	
 	/** 
 	 * Creates the components composing the display. 
 	 * 
 	 * @param name The default name of the file.
-	 * @param maxT The maximum number of timepoints.
-	 * @param maxZ The maximum number of z-sections.
 	 * @param defaultZ The default z-section.
-	 * @param defaultT The default timepoint.
+	 * @param defaultT The default time-point.
 	 */
-	private void initComponents(String name, int maxT, int maxZ, int defaultZ, 
-			int defaultT)
+	private void initComponents(String name, int defaultZ, int defaultT)
 	{
 		closeButton = new JButton("Cancel");
 		closeButton.setToolTipText(UIUtilities.formatToolTipText(
@@ -195,36 +198,43 @@ public class MovieExportDialog
 		String[] f = new String[map.size()];
 		Entry entry;
 		Iterator i = map.entrySet().iterator();
+		int index = 0;
+		int key;
+		String value;
+		boolean isMac = UIUtilities.isMacOS();
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
-			f[(Integer) entry.getKey()] = (String) entry.getValue();
+			key = (Integer) entry.getKey();
+			f[key] = (String) entry.getValue();
+			if (isMac) {
+				if (key == MovieExportParam.QT) index = key;
+			}
 		}
 		formats = new JComboBox(f);
+		formats.setSelectedIndex(index);
+		
+		
+		
 		timeRange = new TextualTwoKnobsSlider(1, maxT, 1, maxT);
 		timeRange.layoutComponents();
 		timeRange.setEnabled(maxT > 1);
 		
 		zRange = new TextualTwoKnobsSlider(1, maxZ, 1, maxZ);
 		zRange.layoutComponents();
-		zRange.setEnabled(maxZ > 1);
+		zRange.setEnabled(false);
 		
 		timeInterval = new JCheckBox("Time Interval");
 		timeInterval.setFont(timeInterval.getFont().deriveFont(Font.BOLD));
 		
 		zInterval = new JCheckBox("Z-section Interval");
 		zInterval.setFont(zInterval.getFont().deriveFont(Font.BOLD));
+	
 		if (maxT > 1) timeInterval.setSelected(true);
 		else timeInterval.setEnabled(false);
-		
 		if (maxZ > 1 && !timeInterval.isSelected()) {
 			zInterval.setEnabled(false);
 			zInterval.setSelected(true);
 		}
-		if (maxZ <= 1) {
-			timeInterval.setEnabled(false);
-			zInterval.setEnabled(false);
-		}
-			
 		SpinnerModel sp = new SpinnerNumberModel(defaultZ, 1, maxZ, 1);
 		zSpinner = new JSpinner(sp);
 		sp = new SpinnerNumberModel(defaultT, 1, maxT, 1);
@@ -245,11 +255,6 @@ public class MovieExportDialog
 		
 		fps = new JSpinner();
 		fps.setValue(MovieExportParam.DEFAULT_FPS);
-		
-		
-		
-		
-		
 		labelVisible = new JCheckBox("Show Labels");
 		getRootPane().setDefaultButton(saveButton);
 		
@@ -262,7 +267,7 @@ public class MovieExportDialog
 		Map<Color, String> colors = EditorUtil.COLORS_BAR;
 		Object[][] cols = new Object[colors.size()][2];
 		
-		int index = 0;
+		index = 0;
 		i = colors.entrySet().iterator();
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
@@ -276,15 +281,26 @@ public class MovieExportDialog
 	/** Enables or not the controls. */
 	private void enabledControls()
 	{
+		saveButton.setEnabled(true);
+		if (zInterval.isSelected()) {
+			zRange.setEnabled(maxZ > 1);
+		} else {
+			zRange.setEnabled(false);
+		}
+		if (timeInterval.isSelected()) {
+			timeRange.setEnabled(maxT > 1);
+		} else {
+			timeRange.setEnabled(false);
+		}
+		/*
 		if (!zInterval.isSelected() && !timeInterval.isSelected())
 			saveButton.setEnabled(false);
 		else {
-			boolean z = zRange.getStartValue() == zRange.getEndValue();
-			boolean t = timeRange.getStartValue() == timeRange.getEndValue();
-			if (z && t) saveButton.setEnabled(false);
-			else saveButton.setEnabled(true);
+			saveButton.setEnabled(true);
 		}
+		*/
 	}
+
 	
 	/** 
 	 * Builds and lays out the control.
@@ -487,7 +503,9 @@ public class MovieExportDialog
 		super(owner);
 		setModal(true);
 		param = null;
-		initComponents(name, maxT, maxZ, defaultZ, defaultT);
+		this.maxT = maxT;
+		this.maxZ = maxZ;
+		initComponents(name, defaultZ, defaultT);
 		buildGUI();
 		pack();
 	}
