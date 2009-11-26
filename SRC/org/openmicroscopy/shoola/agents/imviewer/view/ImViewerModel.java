@@ -994,8 +994,8 @@ class ImViewerModel
 	 */
 	boolean isBigImage()
 	{
-		return (getMaxX() > RenderingControl.MAX_SIZE ||
-				getMaxY() > RenderingControl.MAX_SIZE);
+		return (getMaxX() > RenderingControl.MAX_SIZE_THREE ||
+				getMaxY() > RenderingControl.MAX_SIZE_THREE);
 	}
 	
 	/**

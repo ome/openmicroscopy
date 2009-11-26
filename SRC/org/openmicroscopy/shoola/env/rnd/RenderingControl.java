@@ -62,6 +62,9 @@ public interface RenderingControl
 	/** The maximum size before retrieving the plane asynchronously. */
 	public static final int		MAX_SIZE = 1024;
 	
+	/** The maximum size before retrieving the plane asynchronously. */
+	public static final int		MAX_SIZE_THREE = 3*MAX_SIZE;
+	
 	/** The maximum number of channels. */
 	public static final int		MAX_CHANNELS = 6;
 	
