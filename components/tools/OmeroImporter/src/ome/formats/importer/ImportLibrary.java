@@ -35,6 +35,8 @@ import loci.formats.FormatReader;
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.MissingLibraryException;
+import loci.formats.StatusEvent;
+import loci.formats.StatusListener;
 import loci.formats.UnknownFormatException;
 import loci.formats.in.MIASReader;
 import ome.formats.OMEROMetadataStoreClient;
@@ -82,7 +84,7 @@ import org.apache.commons.logging.LogFactory;
  * @see IObserver
  * @since 3.0-M3
  */
-public class ImportLibrary implements IObservable
+public class ImportLibrary implements IObservable, StatusListener
 {
    
     private static Log log = LogFactory.getLog(ImportLibrary.class);
@@ -145,6 +147,12 @@ public class ImportLibrary implements IObservable
         for (IObserver observer : observers) {
             observer.update(this, event);
         }
+    }
+    
+    public void statusUpdated(StatusEvent e) {
+    	String currentFile = reader.getCurrentFile();
+        notifyObservers(new ImportEvent.BIOFORMATS_STATUS(currentFile, e));
+    	
     }
 
     
