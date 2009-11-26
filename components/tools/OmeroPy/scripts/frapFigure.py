@@ -87,7 +87,10 @@ def average(numbers):
 	
 		
 def getEllipses(roiService, imageId, textValues):
-	""" Returns (x, y, width, height) of the first rectange in the image """
+	"""
+	returns a map of textValue: shapeMap.
+	shapeMap is a map of t: shape. 
+	"""
 	
 	ellipseMap = {}
 	
@@ -167,7 +170,6 @@ def getPlaneImage(re, pixelsId, theZ, theT, ellipse):
 	
 	imagePlane = pilImage.open(StringIO.StringIO(imageData))
 	
-	print ellipse
 	cx, cy, rx, ry, z = ellipse
 	
 	#xy = (cx-rx, cy+ry, cx+rx, cy-ry)
@@ -226,15 +228,22 @@ def makeFrapFigure(session, commandArgs):
 			return
 			
 			
-	frapROI = roiMap["FRAP"]
-	baseROI = roiMap["Base"]
-	wholeROI = roiMap["Whole"]
+	frapMap = roiMap["FRAP"]
+	baseMap = roiMap["Base"]
+	wholeMap = roiMap["Whole"]
 	
 	# make a list of the t indexes that have all 3 of the Shapes we need. 
+	# and a list of the roiShapes for easy access.
 	tIndexes = []
-	for t in frapROI.keys():
-		if t in baseROI.keys() and t in wholeROI.keys():
-			tIndexes.append(t)		
+	frapROI = []
+	baseROI = []
+	wholeROI = []
+	for t in frapMap.keys():
+		if t in baseMap.keys() and t in wholeMap.keys():
+			tIndexes.append(t)	
+			frapROI.append(frapMap[t])	
+			baseROI.append(baseMap[t])	
+			wholeROI.append(wholeMap[t])
 	tIndexes.sort()
 	
 	log("T Indexes, " + ",".join([str(t) for t in tIndexes]))
@@ -251,6 +260,7 @@ def makeFrapFigure(session, commandArgs):
 			
 	log("Plane times (secs), " + ",".join([str(t) for t in timeList]))
 	
+	# lists of averageIntensity for the 3 ROIs 
 	frapValues = []
 	baseValues = []
 	wholeValues = []
@@ -258,9 +268,9 @@ def makeFrapFigure(session, commandArgs):
 	frapBleach = None
 	
 	theZ = 0
-	for t in tIndexes:
-		shapes = [frapROI[t], baseROI[t], wholeROI[t]]
-		theZ = frapROI[t][4]	# get theZ from the FRAP ROI
+	for i, t in enumerate(tIndexes):
+		shapes = [frapROI[i], baseROI[i], wholeROI[i]]
+		theZ = frapROI[i][4]	# get theZ from the FRAP ROI
 		# get a list of the average values of pixels in the three shapes. 
 		averages = analyseEllipses(shapes, pixels, rawPixelStore, theC, t, theZ)
 		if frapBleach == None:	
@@ -270,27 +280,29 @@ def makeFrapFigure(session, commandArgs):
 		frapValues.append(averages[0])
 		baseValues.append(averages[1])
 		wholeValues.append(averages[2])
-		
+
 	log("FRAP Values, " + ",".join([str(v) for v in frapValues]))
 	log("Base Values, " + ",".join([str(v) for v in baseValues]))
-	log("Whole Values: " + ",".join([str(v) for v in wholeValues]))
+	log("Whole Values, " + ",".join([str(v) for v in wholeValues]))
 	
 	# find the time of the bleach event (lowest intensity )
 	tBleach = frapValues.index(frapBleach)
 	log("Pre-bleach frames, %d" % tBleach)
-	
+	if tBleach == 0:
+		print "No pre-bleach images. Can't calculate FRAP"
+		return
+		
+	# using frames before and after tBleach - calculate bleach ranges etc. 
 	frapPre = average(frapValues[:tBleach]) - average(baseValues[:tBleach])
 	wholePre = average(wholeValues[:tBleach]) - average(baseValues[:tBleach])
 	wholePost = average(wholeValues[tBleach:]) - average(baseValues[tBleach:])
-	fullRange = frapPre - frapBleach
-	gapRatio = float(wholePost) / float(wholePre)
-	
 
+	# use these values to get a ratio of FRAP intensity / pre-Bleach intensity * (corrected by intensity of 'Whole' ROI)
 	frapNormCorr = []
 	for i in range(len(tIndexes)):
-		frapNormCorr.append( (wholePre / float(wholeValues[i] - baseValues[i])) * (float(frapValues[i] - baseValues[i]) / frapPre) )
+		frapNormCorr.append( (float(frapValues[i] - baseValues[i]) / frapPre) * (wholePre / float(wholeValues[i] - baseValues[i])) )
 	
-	log("FRAP Corrected, " + str(frapNormCorr))
+	log("FRAP Corrected, " + ",".join([str(v) for v in frapNormCorr]))
 	
 	# work out the range of recovery (bleach -> plateau) and the time to reach half of this after bleach. 
 	frapBleachNormCorr = frapNormCorr[tBleach]
@@ -312,7 +324,7 @@ def makeFrapFigure(session, commandArgs):
 	# and find the T-half using a linear approximation between these two points.
 	# The T-half is this solved for halfMaxNormCorr - timestamp(tBleach)
 	th = None
-	for t in range(tBleach, len(tIndexes)):
+	for t in tIndexes[tBleach:]:
 		if halfMaxNormCorr < frapNormCorr[t]:
 			th = tIndexes[t]
 			break
@@ -321,12 +333,13 @@ def makeFrapFigure(session, commandArgs):
 	y2 = frapNormCorr[th]
 	
 	
-	x1 = timeMap[th-1]
-	x2 = timeMap[th]
+	x1 = timeList[th-1]
+	x2 = timeList[th]
 	m1 = (y2-y1)/(x2-x1); #Gradient of the line
 	c1 = y1-m1*x1;  #Y-intercept
-	tHalf = (halfMaxNormCorr-c1)/m1 - timeMap[tBleach]
+	tHalf = (halfMaxNormCorr-c1)/m1 - timeList[tBleach]
 	
+	log("Bleach time, %f seconds" % timeList[tBleach])
 	log("T-Half, %f seconds" % tHalf)
 	
 	figLegend = "\n".join(logLines)
@@ -335,22 +348,32 @@ def makeFrapFigure(session, commandArgs):
 	# make PIL image of the last frame before FRAP
 	spacer = 5
 	frames = []
-	frames.append(getPlaneImage(renderingEngine, pixelsId, theZ, tBleach-1, frapROI[tBleach-1]))
-	frames.append(getPlaneImage(renderingEngine, pixelsId, theZ, tBleach, frapROI[tBleach]))
-	frames.append(getPlaneImage(renderingEngine, pixelsId, theZ, tIndexes[-1], frapROI[tIndexes[-1]]))
-	figW = len(frames) * frames[0].size[0] + (len(frames)-1) * spacer
-	figH = frames[0].size[1]
+	frames.append(getPlaneImage(renderingEngine, pixelsId, theZ, tIndexes[tBleach-1], frapROI[tBleach-1]))
+	frames.append(getPlaneImage(renderingEngine, pixelsId, theZ, tIndexes[tBleach], frapROI[tBleach]))
+	frames.append(getPlaneImage(renderingEngine, pixelsId, theZ, tIndexes[-1], frapROI[-1]))
+	figW = 450
+	font = imgUtil.getFont(16)
+	fontH = font.getsize("FRAP")[1]
+	labels = ["Pre-Bleach", "Bleach", "Recovery"]
+	imgW = (figW - (2 * spacer) ) / len(frames)
+	# shrink the images by width, or maintain height if shrink not needed. 
+	smallImages = [imgUtil.resizeImage(img, imgW, img.size[1]) for img in frames]
+	figH = smallImages[0].size[1] + spacer + fontH 
 	frapCanvas = pilImage.new("RGB", (figW, figH), (255,255,255))
+	draw = ImageDraw.Draw(frapCanvas)
+	y = spacer + fontH
 	x = 0
-	for img in frames:
-		imgUtil.pasteImage(img, frapCanvas, x, 0)
-		x += spacer + img.size[0]
+	for l, img in enumerate(frames):
+		label = labels[l]
+		indent = (imgW - font.getsize(label)[0]) / 2
+		draw.text((x+indent, 0), label, font=font, fill=(0,0,0))
+		imgUtil.pasteImage(smallImages[l], frapCanvas, x, y)
+		x += spacer + imgW
 	frapCanvas.show()
-	frapCanvas = imgUtil.resizeImage(frapCanvas, 400, figH)
-	frapCanvas.save("frapImage.jpg")
+	frapCanvas.save("frapImage.png", "PNG")
 	
-	format = JPEG
-	output = "frapImage.jpg"
+	format = PNG
+	output = "frapImage.png"
 	
 	# if reportLab has imported...
 	if reportLab:
@@ -382,7 +405,7 @@ def makeFrapFigure(session, commandArgs):
 		pasteX = 100
 		pasteY = 75
 		# add the FRAP image
-		figCanvas.drawImage("frapImage.jpg", pasteX, pasteY)
+		figCanvas.drawImage("frapImage.png", pasteX-25, pasteY)
 		# add the FRAP data plot
 		renderPDF.draw(drawing, figCanvas, pasteX, 300, showBoundary=True)
 		figCanvas.save()
