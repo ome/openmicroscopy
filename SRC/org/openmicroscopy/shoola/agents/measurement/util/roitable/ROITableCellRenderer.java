@@ -33,13 +33,11 @@ import javax.swing.tree.TreeCellRenderer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
-import org.openmicroscopy.shoola.util.roi.figures.ShapeTypes;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
 /** 
- * Basic cell renderer displaying color in a cell.
+ * Basic cell renderer displaying the icon associated to an ROI or an ROIshape.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -65,7 +63,8 @@ public class ROITableCellRenderer
 		setOpaque(false);
 	}
 	
-	/* (non-Javadoc)
+	/**
+	 * Sets the icon corresponding to the type of Object.
 	 * @see javax.swing.tree.TreeCellRenderer#getTreeCellRendererComponent
 	 * (javax.swing.JTree, java.lang.Object, boolean, boolean, boolean, 
 	 * int, boolean)
@@ -77,7 +76,7 @@ public class ROITableCellRenderer
 		
 		Object thisObject = ((ROINode)value).getUserObject();
 		
-		if( thisObject instanceof ROI)
+		if (thisObject instanceof ROI)
     	{
     		setIcon(IconManager.getInstance().getIcon(IconManager.ROISTACK));
     	}
@@ -86,45 +85,6 @@ public class ROITableCellRenderer
     		setIcon(IconManager.getInstance().getIcon(IconManager.ROISHAPE));
     	}
 		return this;
-	}
-
-		
-	/**
-	 * is the str representing a shapes object.
-	 * @param str see above.
-	 * @return see above.
-	 */
-	private boolean isShape(String str)
-	{
-		for(int i = 0 ; i < ShapeTypes.SHAPE_LIST.size() ; i++)
-			if(ShapeTypes.SHAPE_LIST.get(i).equals(str))
-				return true;
-		return false;
-	}
-	
-	/**
-	 * Add the approriate shape icon to the label.
-	 * @param label see above.
-	 * @param shape above.
-	 */
-	private void makeShapeIcon(JLabel label, String shape)
-	{
-		if(shape.equals(FigureUtil.SCRIBBLE_TYPE))
-			label.setIcon(IconManager.getInstance().getIcon(IconManager.SCRIBBLE_16));
-		if(shape.equals(FigureUtil.LINE_TYPE))
-			label.setIcon(IconManager.getInstance().getIcon(IconManager.LINE_16));
-		if(shape.equals(FigureUtil.LINE_CONNECTION_TYPE))
-			label.setIcon(IconManager.getInstance().getIcon(IconManager.CONNECTION_16));
-		if(shape.equals(FigureUtil.POLYGON_TYPE))
-			label.setIcon(IconManager.getInstance().getIcon(IconManager.POLYGON_16));
-		if(shape.equals(FigureUtil.POINT_TYPE))
-			label.setIcon(IconManager.getInstance().getIcon(IconManager.POINT_16));
-		if(shape.equals(FigureUtil.RECTANGLE_TYPE))
-			label.setIcon(IconManager.getInstance().getIcon(IconManager.RECTANGLE_16));
-		if(shape.equals(FigureUtil.ELLIPSE_TYPE))
-			label.setIcon(IconManager.getInstance().getIcon(IconManager.ELLIPSE_16));
-		if(shape.equals(FigureUtil.TEXT_TYPE))
-			label.setIcon(IconManager.getInstance().getIcon(IconManager.TEXT_16));
 	}
 	
 }

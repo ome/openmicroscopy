@@ -77,17 +77,7 @@ public class OMETreeTable
 	
 	/** A map of the default cell editors in the table.  */
 	protected static final Map<Class<?>, DefaultCellEditor> DEFAULT_EDITORS;
-	
-	static
-	{
-		DEFAULT_EDITORS = new HashMap<Class<?>, DefaultCellEditor>();
-		DEFAULT_EDITORS.put(Boolean.class, 
-							new BooleanCellEditor(new JCheckBox()));
-		DEFAULT_EDITORS.put(Integer.class, 
-							new NumberCellEditor(new JTextField()));
-		DEFAULT_EDITORS.put(String.class, 
-							new StringCellEditor(new JTextField()));
-	}
+
 
 	/** A map of the default cell renderers in the table. */
 	protected static final Map<Class<?>, TableCellRenderer> DEFAULT_RENDERERS;
@@ -104,6 +94,13 @@ public class OMETreeTable
 								new NumberCellRenderer(SwingConstants.LEFT));
 		DEFAULT_RENDERERS.put(Icon.class, new IconCellRenderer());
 //		defaultTableRenderers.put(Color.class, new ColourCellRenderer());
+		DEFAULT_EDITORS = new HashMap<Class<?>, DefaultCellEditor>();
+		DEFAULT_EDITORS.put(Boolean.class, 
+				new BooleanCellEditor(new JCheckBox()));
+		DEFAULT_EDITORS.put(Integer.class, 
+							new NumberCellEditor(new JTextField()));
+		DEFAULT_EDITORS.put(String.class, 
+							new StringCellEditor(new JTextField()));
 	}
 
 	/** Tree expansion listener. */

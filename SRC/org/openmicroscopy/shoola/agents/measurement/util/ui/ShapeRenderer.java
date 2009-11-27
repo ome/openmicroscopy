@@ -62,7 +62,7 @@ public class ShapeRenderer
 	private JLabel label;
 	
 	/**
-	 * Add the approriate shape icon to the label.
+	 * Adds the appropriate shape icon to the label.
 	 * 
 	 * @param shape above.
 	 */

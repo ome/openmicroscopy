@@ -55,7 +55,6 @@ import javax.swing.table.TableColumnModel;
 
 
 //Third-party libraries
-import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 

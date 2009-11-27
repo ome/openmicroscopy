@@ -464,16 +464,16 @@ class MeasurementViewerUI
 	 * @param id see above.
 	 * @param shapeList see above.
 	 */
-	void splitROI(long id, ArrayList<ROIShape> shapeList)
+	void splitROI(long id, List<ROIShape> shapeList)
 	{
 		try
 		{
 			model.nofityDataChanged(true);
 			ROI newROI = model.cloneROI(id);
-			for(ROIShape shape : shapeList)
+			ROIShape newShape;
+			for (ROIShape shape : shapeList)
 			{
-				ROIShape newShape = new ROIShape(newROI, shape.getCoord3D(), 
-						shape);
+				newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
 				if (getDrawing().contains(shape.getFigure()))
 				{
 					shape.getFigure().removeFigureListener(controller);
@@ -482,7 +482,7 @@ class MeasurementViewerUI
 					getDrawing().addDrawingListener(controller);
 				}
 				model.deleteShape(shape.getID(), shape.getCoord3D());
-				if(newShape.getCoord3D().equals(model.getCurrentView()))
+				if (newShape.getCoord3D().equals(model.getCurrentView()))
 				{
 					getDrawing().removeDrawingListener(controller);
 					this.getDrawing().add(newShape.getFigure());
@@ -510,16 +510,16 @@ class MeasurementViewerUI
 	 * @param id see above.
 	 * @param shapeList see above.
 	 */
-	void duplicateROI(long id, ArrayList<ROIShape> shapeList)
+	void duplicateROI(long id, List<ROIShape> shapeList)
 	{
 		try
 		{
 			model.nofityDataChanged(true);
 			ROI newROI = model.cloneROI(id);
-			for(ROIShape shape : shapeList)
+			ROIShape newShape;
+			for (ROIShape shape : shapeList)
 			{
-				ROIShape newShape = new ROIShape(newROI, shape.getCoord3D(), 
-						shape);
+				newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
 				if (newShape.getCoord3D().equals(model.getCurrentView()))
 				{
 					getDrawing().removeDrawingListener(controller);
@@ -541,7 +541,7 @@ class MeasurementViewerUI
 	 * 
 	 * @param shapeList see above.
 	 */
-	void deleteROIShapes( ArrayList<ROIShape> shapeList)
+	void deleteROIShapes(List<ROIShape> shapeList)
 	{
 		try
 		{

@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
 
@@ -77,10 +78,12 @@ class ObjectManager
 	extends JPanel
 	implements TabPaneInterface
 {
+	
 	/** 
 	 * List of default column names.
 	 */
-	static List<String>			columnNames;
+	private static List<String>			columnNames;
+	
 	static {
 		columnNames = new Vector<String>(6);
 		columnNames.add("ROI");
@@ -96,7 +99,8 @@ class ObjectManager
 	/**
 	 * List of default column sizes. 
 	 */
-	static HashMap<String, Integer> columnWidths;
+	private static Map<String, Integer> columnWidths;
+	
 	static{
 		columnWidths= new HashMap<String, Integer>();
         columnWidths.put(columnNames.get(0), 80);
@@ -349,7 +353,7 @@ class ObjectManager
 	 * Delete the ROI shapes in the shapelist and belonging 
 	 * @param shapeList see above.
 	 */
-	void deleteROIShapes(ArrayList<ROIShape> shapeList)
+	void deleteROIShapes(List<ROIShape> shapeList)
 	{
 		view.deleteROIShapes(shapeList);
 		this.rebuildTable();
@@ -361,7 +365,7 @@ class ObjectManager
 	 * @param id see above.
 	 * @param shapeList see above.
 	 */
-	void duplicateROI(long id, ArrayList<ROIShape> shapeList)
+	void duplicateROI(long id, List<ROIShape> shapeList)
 	{
 		view.duplicateROI(id, shapeList);
 		this.rebuildTable();
@@ -381,10 +385,11 @@ class ObjectManager
 	 * Merge the ROI shapes in the shapelist and belonging to the ROI with
 	 * id in idList into a single new ROI. The ROI in the shape list should 
 	 * all be on separate planes.
+	 * 
 	 * @param idList see above. see above.
 	 * @param shapeList see above.
 	 */
-	void mergeROI(ArrayList<Long> idList, ArrayList<ROIShape> shapeList)
+	void mergeROI(List<Long> idList, List<ROIShape> shapeList)
 	{
 		view.mergeROI(idList, shapeList);
 		this.rebuildTable();
@@ -397,7 +402,7 @@ class ObjectManager
 	 * @param id see above. see above.
 	 * @param shapeList see above.
 	 */
-	void splitROI(long id, ArrayList<ROIShape> shapeList)
+	void splitROI(long id, List<ROIShape> shapeList)
 	{
 			view.splitROI(id, shapeList);
 			this.rebuildTable();

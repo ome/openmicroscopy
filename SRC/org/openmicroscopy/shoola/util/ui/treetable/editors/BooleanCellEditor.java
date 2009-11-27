@@ -59,7 +59,7 @@ public class BooleanCellEditor
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param box The checkbox to use.
+	 * @param box The component to use.
 	 */
 	public BooleanCellEditor(JCheckBox box)
 	{
@@ -76,7 +76,7 @@ public class BooleanCellEditor
 									boolean isSelected, int row, int column)
 	{
 		if (value == null || !(value instanceof Boolean))
-				return checkBox;
+			return checkBox;
 		
 		checkBox.setSelected((Boolean) value);
 		checkBox.addItemListener(this);
