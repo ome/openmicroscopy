@@ -42,5 +42,8 @@
 	<classpathentry kind="lib" path="LIB/TableLayout-bin-jdk1.5-2009-08-26.jar"/>
 	<classpathentry kind="lib" path="LIB/omero_client.jar"/>
 	<classpathentry kind="lib" path="LIB/OmeroImporter.jar"/>
+	<classpathentry kind="lib" path="LIB/jai_imageio.jar"/>
+	<classpathentry kind="lib" path="LIB/loci_tools.jar"/>
+	<classpathentry kind="lib" path="LIB/ome-xml.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
