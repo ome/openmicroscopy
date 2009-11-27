@@ -26,11 +26,11 @@
 	<classpathentry kind="lib" path="LIB/poi-3.5-beta4-20081128.jar"/>
 	<classpathentry kind="lib" path="LIB/monitors.jar"/>
 	<classpathentry kind="lib" path="LIB/OmeroImporter-Beta-4.1.0-DEV.jar"/>
-	<classpathentry kind="lib" path="LIB/loci-common.jar"/>
-	<classpathentry kind="lib" path="LIB/bio-formats.jar"/>
+	<classpathentry kind="lib" path="LIB/loci-common-r5720.jar"/>
+	<classpathentry kind="lib" path="LIB/bio-formats-r5720.jar"/>
 	<classpathentry kind="lib" path="LIB/ols-client-1.15.jar"/>
 	<classpathentry kind="lib" path="LIB/saaj-1.2.jar"/>
-	<classpathentry kind="lib" path="LIB/mdbtools-java.jar"/>
+	<classpathentry kind="lib" path="LIB/mdbtools-java-r5720.jar"/>
 	<classpathentry kind="lib" path="LIB/gluegen-rt.jar">
 		<attributes>
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/jburel/Desktop/jogl-1.1.1-macosx-universal/lib"/>
