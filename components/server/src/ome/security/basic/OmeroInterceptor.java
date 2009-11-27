@@ -46,6 +46,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.CallbackException;
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.EntityMode;
+import org.hibernate.Hibernate;
 import org.hibernate.Interceptor;
 import org.hibernate.Transaction;
 import org.hibernate.type.Type;
@@ -55,9 +56,9 @@ import org.springframework.util.Assert;
  * implements {@link org.hibernate.Interceptor} for controlling various aspects
  * of the Hibernate runtime. Where no special requirements exist, methods
  * delegate to {@link EmptyInterceptor}
- * 
+ *
  * Current responsibilities include the proper (re-)setting of {@link Details}
- * 
+ *
  * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
  * @see EmptyInterceptor
@@ -282,7 +283,7 @@ public class OmeroInterceptor implements Interceptor {
     /**
      * asks {@link BasicSecuritySystem} to create a new managed {@link Details}
      * based on the previous state of this entity.
-     * 
+     *
      * @param entity
      *            IObject to be updated
      * @param currentState
@@ -331,7 +332,7 @@ public class OmeroInterceptor implements Interceptor {
      * checks, and if necessary, stores argument and entities attached to the
      * argument entity in the current context for later modification (see
      * {@link #lockMarked()}
-     * 
+     *
      * These modifications cannot be done during save and update because not
      * just the entity itself but entities 1-step down the graph are to be
      * edited, and it cannot be guaranteed that the graph walk will not
@@ -339,14 +340,14 @@ public class OmeroInterceptor implements Interceptor {
      * the flush procedure of {@link FlushEntityEventListener}. This also
      * prevents accidental changes by administrative users by making the locking
      * of an element the very last action.
-     * 
+     *
      * This method is called during
      * {@link OmeroInterceptor#onSave(Object, java.io.Serializable, Object[], String[], org.hibernate.type.Type[])
      * save} and
      * {@link OmeroInterceptor#onFlushDirty(Object, java.io.Serializable, Object[], Object[], String[], org.hibernate.type.Type[])
      * update} since this is the only time that new entity references can be
      * created.
-     * 
+     *
      * @param iObject
      *            new or updated entity which may reference other entities which
      *            then require locking. Nulls are tolerated but do nothing.
@@ -360,6 +361,17 @@ public class OmeroInterceptor implements Interceptor {
 
         IObject[] candidates = em.getLockCandidates(iObject);
         for (IObject object : candidates) {
+
+            // ticket:1393 - working around dirty sessions for
+            // images, channels (etc) with group-read.
+            if (!Hibernate.isInitialized(object)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Candidate not loaded; skipping:"
+                            + object.getClass().getName());
+                    continue;
+                }
+            }
+
             // omitting system types since they don't have permissions
             // which can be locked.
 
@@ -367,6 +379,11 @@ public class OmeroInterceptor implements Interceptor {
                 Permissions p = object.getDetails().getPermissions();
                 if (p.isGranted(Role.GROUP, Right.READ)
                         || p.isGranted(WORLD, READ)) {
+
+                    if (log.isDebugEnabled()) {
+                        log.debug(String.format("Locking %s due to %s", object,
+                                iObject));
+                    }
 
                     // Only adding object for lockage if it has group or world
                     // read permissions. This change came in 4.0 where all
@@ -396,6 +413,11 @@ public class OmeroInterceptor implements Interceptor {
         Set<IObject> c = currentUser.getLockCandidates();
 
         for (IObject i : c) {
+
+            if (log.isDebugEnabled()) {
+                log.debug("Locking object: " + i);
+            }
+
             Details d = i.getDetails();
             Permissions p = new Permissions(d.getPermissions());
             p.set(Flag.LOCKED);
@@ -612,7 +634,7 @@ public class OmeroInterceptor implements Interceptor {
     /**
      * responsible for guaranteeing that external info is not modified by any
      * users, including rot.
-     * 
+     *
      * @param locked
      * @param privileged
      * @param obj
@@ -662,7 +684,7 @@ public class OmeroInterceptor implements Interceptor {
      * account the {@link Flag#LOCKED} status. This method does not need to
      * (like {@link #newTransientDetails(IObject)} take into account the session
      * umask available from {@link CurrentDetails#createDetails()}
-     * 
+     *
      * @param locked
      * @param privileged
      * @param obj
