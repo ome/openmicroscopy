@@ -94,7 +94,8 @@ public class ROIPopupMenu
 		
 		for (int indexCnt = 0 ; indexCnt < ROIActionController.CreationActionType.values().length ; indexCnt++)
 		{
-			roiOption = new JMenuItem(new ROIAction(controller, ROIActionController.CreationActionType.values()[indexCnt]));
+			roiOption = new JMenuItem(new ROIAction(controller, 
+					ROIActionController.CreationActionType.values()[indexCnt]));
 			roiOptionsParent.add(roiOption);
 		}
 		return roiOptionsParent;
@@ -112,18 +113,17 @@ public class ROIPopupMenu
 		
 		for (int indexCnt = 0 ; indexCnt < ROIActionController.StatsActionType.values().length ; indexCnt++)
 		{
-			roiOption = new JMenuItem(new ROIStatsAction(controller, ROIActionController.StatsActionType.values()[indexCnt]));
+			roiOption = new JMenuItem(new ROIStatsAction(controller, 
+					ROIActionController.StatsActionType.values()[indexCnt]));
 			roiOptionsParent.add(roiOption);
 		}
 		return roiOptionsParent;
 	}
-	/**
-	 * Create the popup menu;
-	 *
-	 */
+	
+	/** Creates the popup menu. */
 	private void createPopupMenu()
 	{
-		JMenuItem 				topOption;
+		JMenuItem 	topOption;
 
 		popupMenu = new JPopupMenu(POPUP_MENU_DESCRIPTION);
 		

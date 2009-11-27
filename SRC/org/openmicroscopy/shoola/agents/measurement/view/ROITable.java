@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.Vector;
 
+import javax.swing.JPopupMenu;
 import javax.swing.table.TableColumn;
 import javax.swing.tree.TreePath;
 
@@ -209,8 +210,9 @@ public class ROITable
 	 */
 	protected void onMousePressed(MouseEvent e)
 	{
-		if(rightClick(e))
-			popupMenu.getPopupMenu().show(this, e.getX(), e.getY());
+		JPopupMenu menu = popupMenu.getPopupMenu();
+		if (rightClick(e) && !menu.isVisible())
+			menu.show(this, e.getX(), e.getY());
 	}
 	
 	
