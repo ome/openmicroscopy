@@ -218,43 +218,41 @@ public class TempFileManager {
                 continue;
             }
 
-            try {
+           RandomAccessFile raftest = null;
+           try {
+               File testdir = new File(target);
+               locktest = File.createTempFile("._omero_util_TempFileManager_lock_test", ".tmp", testdir);
+               locktest.delete();
 
+               raftest = new RandomAccessFile(locktest, "rw");
 
-                try {
-                    File testdir = new File(target);
-                    locktest = File.createTempFile(".lock_test", ".tmp", testdir);
+               FileLock channeltest = raftest.getChannel().tryLock();
+               channeltest.release();
+           } catch (Exception e) {
+               if ("Operation not permitted".equals(e.getMessage())||
+                       "Operation not supported".equals(e.getMessage())) {
+                   // This is the issue described in ticket:1653
+                   // To prevent printing the warning, we just continue
+                   // here.
+                   log.debug(target + " does not support locking.");
+               } else {
+                   log.warn("Invalid tmp dir: "+target, e);
+               }
+               continue;
+           } finally {
+               if (locktest !=null && raftest != null) {
+                   try {
+                       raftest.close();
+                       locktest.delete();
+                   } catch (Exception e) {
+                       log.warn("Failed to close/delete lock file: " + locktest);
+                   }
+               }
+           }
 
-                    RandomAccessFile raftest = new RandomAccessFile(
-                            locktest, "rw");
+           log.debug("Chose global tmpdir:  " + locktest.getParent());
+           break; // Something found!
 
-                    FileLock channeltest = raftest.getChannel().tryLock();
-                    channeltest.release();
-                } catch (Exception e) {
-                    if ("Operation not permitted".equals(e.getMessage())||
-                            "Operation not supported".equals(e.getMessage())) {
-                        // This is the issue described in ticket:1653
-                        // To prevent printing the warning, we just continue
-                        // here.
-                        log.debug(target + " does not support locking.");
-                    } else {
-                        log.warn("Invalid tmp dir: "+target, e);
-                    }
-                    continue;
-                }
-
-                log.debug("Chose global tmpdir:  " + locktest.getParent());
-                break; // Something found!
-
-            } finally {
-                if (locktest != null) {
-                    try {
-                        locktest.delete();
-                    } catch (Exception e) {
-                        log.warn("Failed to remove lock test: " + locktest.getAbsolutePath());
-                    }
-                }
-            }
         }
 
         if (locktest == null) {
