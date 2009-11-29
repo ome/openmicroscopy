@@ -90,7 +90,7 @@ def getThumbnail(thumbnailStore, pixelsId, length):
 	@param length:		Length of longest side. int
 	@return:		The thumbnail as a String, or None if not found (invalid image)
 	"""
-	if !thumbnailStore.setPixelsId(pixelsId):
+	if not thumbnailStore.setPixelsId(pixelsId):
 		thumbnailStore.needDefaults()
 		thumbnailStore.setPixelsId(pixelsId)
 	try:
@@ -185,8 +185,8 @@ def paintThumbnailGrid(thumbnailStore, length, spacing, pixelIds, colCount, bg=(
 		# increment the column, and if we're at the last column, start a new row
 		c = c + 1
 		if c == colCount:
-		c = 0
-		r = r + 1
+			c = 0
+			r = r + 1
 			
 	return canvas
 	
