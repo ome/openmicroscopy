@@ -4510,6 +4510,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IDeletePrx service = getDeleteService();
+			
 			service.deleteImage(object.getId().getValue(), true);
 		} catch (Exception e) {
 			handleException(e, "Cannot delete the image: "+object.getId());

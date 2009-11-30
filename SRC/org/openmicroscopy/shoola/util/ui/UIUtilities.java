@@ -1659,7 +1659,7 @@ public class UIUtilities
 	}
 	
 	/**
-	 * Returns <code>true</code> if the OS is MAC, <code>false</code>
+	 * Returns <code>true</code> if the OS is Linux, <code>false</code>
 	 * otherwise.
 	 * 
 	 * @return See above.
