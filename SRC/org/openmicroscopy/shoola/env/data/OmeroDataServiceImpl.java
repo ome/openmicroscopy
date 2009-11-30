@@ -162,7 +162,7 @@ class OmeroDataServiceImpl
 	 * @param object The object to delete.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	private synchronized List<DeletableObject> delete(DeletableObject object) 
@@ -252,7 +252,7 @@ class OmeroDataServiceImpl
 			if (gateway.findIObject(data.asIObject()) != null) {
 				gateway.deleteObject(data.asIObject());
 			}
-			
+			return result;
 		} else if (data instanceof ScreenData) {
 			if (!content)
 				return deleteTopContainer(object);
