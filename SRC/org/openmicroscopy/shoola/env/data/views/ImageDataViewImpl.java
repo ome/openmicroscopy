@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.AcquisitionDataSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.Analyser;
 import org.openmicroscopy.shoola.env.data.views.calls.EnumerationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ExportLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.FRAPAnalyser;
 import org.openmicroscopy.shoola.env.data.views.calls.FigureCreator;
 import org.openmicroscopy.shoola.env.data.views.calls.FretAnalyser;
 import org.openmicroscopy.shoola.env.data.views.calls.ImageRenderer;
@@ -398,6 +399,17 @@ class ImageDataViewImpl
 	{
 		BatchCallTree cmd = new OverlaysRenderer(pixelsID, pd, tableID, 
 				overlays, asTexture);
+		return cmd.exec(observer);
+	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#analyseFRAP(List, Class, Object, AgentEventListener)
+     */
+	public CallHandle analyseFRAP(List<Long> ids, Class objectType,
+			Object param, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new FRAPAnalyser(ids, objectType, param);
 		return cmd.exec(observer);
 	}
 	

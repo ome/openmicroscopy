@@ -634,8 +634,12 @@ public class EditorUI
 		tabPane.addChangeListener(controller);
 	}
 
-	/** Analyzes the data. */
-	void analyse() { model.analyse(); }
+	/**
+	 * Analyzes the data. 
+	 * 
+	 * @param index The index identifying the analysis to perform.
+	 */
+	void analyse(int index) { model.analyse(index); }
 
 	/** Sets the instrument and its components. */
 	void setInstrumentData() { acquisitionPane.setInstrumentData(); }
@@ -688,10 +692,11 @@ public class EditorUI
 	 * 
 	 * @param source   The source of the mouse pressed.
 	 * @param location The location of the mouse pressed.
+	 * @param index    Identifies the menu to pop up.
 	 */
-	void activityOptions(Component source, Point p)
+	void activityOptions(Component source, Point p, int index)
 	{
-		toolBar.launchOptions(source, p);
+		toolBar.launchOptions(source, p, index);
 	}
 
 	/**

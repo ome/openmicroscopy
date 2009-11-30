@@ -2125,7 +2125,8 @@ class ImViewerModel
 	void activityOptions(Component source, Point location)
 	{
 		if (metadataViewer == null) return;
-		metadataViewer.activityOptions(source, location);
+		metadataViewer.activityOptions(source, location, 
+				MetadataViewer.PUBLISHING_OPTION);
 	}
 
     /**

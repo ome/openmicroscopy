@@ -5424,6 +5424,51 @@ class OMEROGateway
 		}
 	}
 	
-	
-	
+	/**
+	 * Performs a basic fit. Returns the file hosting the results.
+	 * 
+	 * @param ids   	 The objects to analyze.
+	 * @param objectType The type of objects to analyze.
+	 * @param param		 The parameters.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	long analyseFRAP(List<Long> ids, Class objectType, Object param)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			IScriptPrx svc = getScripService();
+			
+			Map<Long, String> scripts = svc.getScripts();
+			if (scripts == null) return -1;
+			long id = -1;
+			Entry en;
+			Iterator j = scripts.entrySet().iterator();
+			long value;
+			String scriptName = "frapFigure.py";
+			while (j.hasNext()) {
+				en = (Entry) j.next();
+				if (en.getValue().equals(scriptName)) {
+					value = (Long) en.getKey();
+					if (value > id) id = value;
+				}
+			}
+			if (id <= 0) return -1;
+			ParametersI parameters = new ParametersI();
+			parameters.map.put("imageId", omero.rtypes.rlong(ids.get(0)));
+			
+			Map<String, RType> result = svc.runScript(id, parameters.map);
+			RLong type = (RLong) result.get("fileAnnotation");
+			if (type == null) return -1;
+			return type.getValue();
+		} catch (Exception e) {
+			handleException(e, "Cannot analyze the data.");
+		}
+		return -1;
+	}
+
 }

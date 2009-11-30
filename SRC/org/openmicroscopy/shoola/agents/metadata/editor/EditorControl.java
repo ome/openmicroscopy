@@ -60,6 +60,7 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
+import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
@@ -148,6 +149,9 @@ class EditorControl
 	
 	/** Action ID to create a figure with the collection of images. */
 	static final int	THUMBNAILS_FIGURE = 14;
+	
+	/** Action ID to analyze the image. */
+	static final int	ANALYSE_FRAP = 15;
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -461,7 +465,8 @@ class EditorControl
 			view.onSettingsApplied(true);
 		} else if (MetadataViewer.ACTIVITY_OPTIONS_PROPERTY.equals(name)) {
 			List l = (List) evt.getNewValue();
-			view.activityOptions((Component) l.get(0), (Point) l.get(1));
+			view.activityOptions((Component) l.get(0), (Point) l.get(1),
+					(Integer) l.get(2));
 		} else if (FigureDialog.CREATE_FIGURE_PROPERTY.equals(name)) {
 			view.createFigure(evt.getNewValue());
 		} else if (FigureDialog.CLOSE_FIGURE_PROPERTY.equals(name)) {
@@ -504,7 +509,10 @@ class EditorControl
 				model.loadRenderingControl(RenderingControlLoader.LOAD);
 				break;
 			case ANALYSE_FLIM:
-				view.analyse();
+				view.analyse(AnalysisParam.FLIM);
+				break;
+			case ANALYSE_FRAP:
+				view.analyse(AnalysisParam.FRAP);
 				break;
 			case REFRESH:
 				model.refresh();

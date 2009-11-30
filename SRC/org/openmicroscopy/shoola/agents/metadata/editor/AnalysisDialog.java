@@ -22,34 +22,34 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
-import info.clearthought.layout.TableLayout;
 
+
+//Java imports
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
-import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 
+//Third-party libraries
+import info.clearthought.layout.TableLayout;
+
+//Application-internal dependencies
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.WellSampleData;
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * 
@@ -66,21 +66,34 @@ import pojos.WellSampleData;
  */
 public class AnalysisDialog 
 	extends JDialog
-	implements PropertyChangeListener
 {
-
-	/** Horizontal gap between components. */
-	private static final int	HORIZONTAL_STRUT = 5;
-	
 	
 	/** The text associated to the FLIM action. */
-	private static final String FLIM_TEXT = "";
+	private static final String FLIM_TEXT = "FLIM";
+	
+	/** The text associated to the FLIM action. */
+	private static final String FLIM_TOOLTIP = "";
+	
+	/** The text associated to the FRAP action. */
+	private static final String FRAP_TEXT = "FRAP";
+	
+	/** The text associated to the FRAP action. */
+	private static final String FRAP_TOOLTIP = "FRAP Analysis";
 	
 	/** Reference to the control. */
 	private EditorControl controller;
 	
 	/** Reference to the Model. */
 	private EditorModel   model;
+	
+	/** Component to do a FRAP analysis. */
+	private JMenuItem 		FRAPItem;
+	
+	/** Component to do a FLIM analysis. */
+	private JMenuItem 		FLIMItem;
+	
+	/** The menu hosting the various options. */
+	private JPopupMenu	menu;
 	
 	/**
 	 * Creates a button.
@@ -101,9 +114,36 @@ public class AnalysisDialog
 		return b;
 	}
 	
+	/**
+	 * Creates a menu item.
+	 * 
+	 * @param icon 	  The icon associated to the item.
+	 * @param tooltip The text displayed in the tool tip.
+	 * @param text    The text associated to the item.
+	 * @param id   The id of the action.
+	 * @return See above.
+	 */
+	private JMenuItem createMenuItem(Icon icon, String tooltip, String text, 
+			int id)
+	{
+		JMenuItem b = new JMenuItem(icon);
+		b.setText(text);
+		b.setToolTipText(tooltip);
+		b.addActionListener(controller);
+		b.setActionCommand(""+id);
+		b.setEnabled(false);
+		UIUtilities.unifiedButtonLookAndFeel(b);
+		return b;
+	}
+	
 	/** Initializes the components. */
 	private void initComponents()
 	{
+		IconManager icons = IconManager.getInstance();
+		FRAPItem = createMenuItem(icons.getIcon(IconManager.ANALYSE), 
+				FRAP_TOOLTIP, FRAP_TEXT, EditorControl.ANALYSE_FRAP);
+		FLIMItem = createMenuItem(icons.getIcon(IconManager.ANALYSE), 
+				FLIM_TOOLTIP, FLIM_TEXT, EditorControl.ANALYSE_FLIM);
 	}
 	
 	/** Sets the properties of the dialog. */
@@ -127,7 +167,6 @@ public class AnalysisDialog
     	bar.setBorder(null);
     	JXTaskPane pane = EditorUtil.createTaskPane("Analyse");
  		pane.setCollapsed(false);
-    	pane.addPropertyChangeListener(this);
  		pane.add(bar);
         return pane;
 	}
@@ -166,23 +205,40 @@ public class AnalysisDialog
 		pack();
 	}
 
+	/**
+	 * Creates and returns the menu.
+	 * 
+	 * @return See above.
+	 */
+	JPopupMenu displayAsMenu()
+	{
+		if (menu != null) return menu;
+		menu = new JPopupMenu();
+		menu.add(FRAPItem);
+		menu.add(FLIMItem);
+		return menu;
+ 	}
+	
 	/** Sets the root object. */
 	void setRootObject()
 	{
 		Object refObject = model.getRefObject();
     	ImageData img = null;
+    	
+    	FRAPItem.setEnabled(false);
+    	FLIMItem.setEnabled(false);
+    	if (refObject instanceof ImageData) {
+    		img = (ImageData) refObject;
+    	} else if (refObject instanceof WellSampleData) {
+    		img = ((WellSampleData) refObject).getImage();
+    	}
+    	if (img != null) {
+    		try {
+    			img.getDefaultPixels();
+    			FRAPItem.setEnabled(true);
+    			FLIMItem.setEnabled(true);
+			} catch (Exception e) {}
+    	}
 	}
 
-	/**
-	 * Listens to the property fired the taskPane.
-	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent);
-	 */
-	public void propertyChange(PropertyChangeEvent evt)
-	{
-		String name = evt.getPropertyName();
-		
-		if (UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE.equals(name)) {
-			//TODO:
-		}
-	}
 }

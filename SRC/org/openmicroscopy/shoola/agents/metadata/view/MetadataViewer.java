@@ -165,6 +165,12 @@ public interface MetadataViewer
 	/** Flag to denote the <i>Batch Saving</i> state. */
 	public static final int 	SAVING = 6;
 	
+	/** Indicates to launch the publishing option. */
+	public static final int		PUBLISHING_OPTION = 100;
+	
+	/** Indicates to launch the analysis option. */
+	public static final int		ANALYSIS_OPTION = 101;
+	
 	/**
 	 * Starts the data loading process when the current state is {@link #NEW} 
 	 * and puts the window on screen.
@@ -441,8 +447,12 @@ public interface MetadataViewer
 	 */
 	Dimension getIdealRendererSize();
 	
-	/** Analyzes the image. */
-	void analyse();
+	/**
+	 * Analyzes the image.
+	 * 
+	 *  @param index The index identifying the type of analysis routine.
+	 */
+	void analyse(int index);
 
 	/**
 	 * Uploads the results of the fret analysis.
@@ -480,8 +490,9 @@ public interface MetadataViewer
 	 * 
 	 * @param source   The source of the mouse pressed.
 	 * @param location The location of the mouse pressed.
+	 * @param index
 	 */
-	public void activityOptions(Component source, Point location);
+	public void activityOptions(Component source, Point location, int index);
 
 	/**
 	 * Creates a figure.
@@ -505,5 +516,12 @@ public interface MetadataViewer
 	 * @param index The index of the channel.
 	 */
 	void onChannelColorChanged(int index);
+	
+	/**
+	 * Returns the object of reference.
+	 * 
+	 * @return See above.
+	 */
+	Object getRefObject();
 	
 }

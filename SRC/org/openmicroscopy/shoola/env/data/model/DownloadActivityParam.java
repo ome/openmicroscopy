@@ -64,6 +64,9 @@ public class DownloadActivityParam
     /** The name of the file to save. */
     private String			fileName;
     
+    /** The extension for the legend. Default is <code>null</code>.*/
+    private String			legendExtension;
+    
     /**
      * Downloads the passed file.
      * 
@@ -81,6 +84,7 @@ public class DownloadActivityParam
     	this.icon = icon;
     	legend = null;
     	fileName = null;
+    	legendExtension = null;
     }
 
     /**
@@ -110,6 +114,23 @@ public class DownloadActivityParam
      * @return See above.
      */
     public String getLegend() { return legend; }
+    
+    /**
+     * Sets the extension of the legend associated to the file.
+     * 
+     * @param legendExtension The value to set.
+     */
+    public void setLegendExtension(String legendExtension)
+    {
+    	this.legendExtension = legendExtension;
+    }
+    
+    /**
+     * Returns the legend extension. 
+     * 
+     * @return See above.
+     */
+    public String getLegendExtension() { return legendExtension; }
     
 	/**
 	 * Returns the icon if set or <code>null</code>.

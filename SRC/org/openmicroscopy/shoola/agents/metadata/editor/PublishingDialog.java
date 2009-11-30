@@ -136,9 +136,6 @@ class PublishingDialog
 	/** Component to create thumbnails figure of a collection of images. */
 	private JMenuItem 		thumbnailsFigureItem;
 	
-	/** Component to create a movie figure of a collection of images. */
-	private JMenuItem 		movieFigureItem;
-	
 	/** The menu hosting the various options. */
 	private JPopupMenu	menu;
 	
@@ -282,8 +279,9 @@ class PublishingDialog
 	}
 
 	/**
-	 * Displays the menu 
-	 * @return
+	 * Creates and returns the menu.
+	 * 
+	 * @return See above.
 	 */
 	JPopupMenu displayAsMenu()
 	{
@@ -296,7 +294,6 @@ class PublishingDialog
 		menu.add(thumbnailsFigureItem);
 		return menu;
  	}
-	
 	
 	/** Sets the root object. */
 	void setRootObject()

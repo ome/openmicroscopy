@@ -72,7 +72,10 @@ public class DownloadActivity
 	private static final String		DESCRIPTION = "File downloaded";
 	
 	/** The text and extension added to the name of the file. */
-	private static final String		LEGEND_TEXT = "_legend.txt";
+	public static final String		LEGEND_TEXT = "_legend.txt";
+	
+	/** The text and extension added to the name of the file. */
+	public static final String		LEGEND_TEXT_CSV = "_legend.csv";
 	
     /** The parameters hosting information about the file to download. */
     private DownloadActivityParam parameters;
@@ -202,9 +205,13 @@ public class DownloadActivity
 	    	File directory = folder.getParentFile();
 	    	BufferedWriter out = null;
 	    	String n = UIUtilities.removeFileExtension(fileName);
+	    	String ext = LEGEND_TEXT;
+	    	String le = parameters.getLegendExtension();
+	    	if (le != null && le.length() > 0)
+	    		ext = le;
 	    	try {
 	    		String name = directory+File.separator+n;
-	    		name += LEGEND_TEXT;
+	    		name += ext;
 	    		out = new BufferedWriter(new FileWriter(name));
 	            out.write(legend);
 	            out.close();

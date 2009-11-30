@@ -53,9 +53,11 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
-import org.openmicroscopy.shoola.agents.metadata.util.BasicAnalyseDialog;
+import org.openmicroscopy.shoola.agents.metadata.util.ChannelSelectionDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.MovieExportDialog;
+import org.openmicroscopy.shoola.env.data.model.AnalysisActivityParam;
+import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
@@ -66,6 +68,7 @@ import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.AnnotationData;
+import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -861,23 +864,33 @@ class MetadataViewerComponent
 	
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#analyse()
+	 * @see MetadataViewer#analyse(int)
 	 */
-	public void analyse()
+	public void analyse(int index)
 	{
+		if (index != AnalysisParam.FRAP) return;
 		Object refObject = model.getRefObject();
 		if (!(refObject instanceof ImageData)) return;
+		//TODO: Check the number of channels.
+		List<ChannelData> channels = null;
+		Map m = model.getEditor().getChannelData();
+		if (m != null && m.size() == 1) {
+			analyse(0);
+			return;
+		}
+		if (m != null) {
+			Iterator j = m.keySet().iterator();
+			channels = new ArrayList<ChannelData>();
+			while (j.hasNext()) {
+				channels.add((ChannelData) j.next());
+			}
+		}
+		//TODO: if list is null.
 		IconManager icons = IconManager.getInstance();
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		BasicAnalyseDialog d = new BasicAnalyseDialog(f, 
-				icons.getIcon(IconManager.ANALYSE_48));
-		d.addPropertyChangeListener(new PropertyChangeListener() {
-			
-			public void propertyChange(PropertyChangeEvent evt) {
-				Number n = (Number) evt.getNewValue();
-				analyseData(n);
-			}
-		});
+		ChannelSelectionDialog d = new ChannelSelectionDialog(f, 
+				icons.getIcon(IconManager.ANALYSE_48), channels, index);
+		d.addPropertyChangeListener(controller);
 		UIUtilities.centerAndShow(d);
 	}
 
@@ -947,13 +960,14 @@ class MetadataViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#activityOptions(Component, Point)
+	 * @see MetadataViewer#activityOptions(Component, Point, int)
 	 */
-	public void activityOptions(Component source, Point location)
+	public void activityOptions(Component source, Point location, int index)
 	{
 		List<Object> l = new ArrayList<Object>();
 		l.add(source);
 		l.add(location);
+		l.add(index);
 		firePropertyChange(ACTIVITY_OPTIONS_PROPERTY, null, l);
 	}
 	
@@ -993,5 +1007,11 @@ class MetadataViewerComponent
 		view.onChannelColorChanged(index);
 		firePropertyChange(CHANNEL_COLOR_CHANGED_PROPERTY, -1, index);
 	}
+	
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#getRefObject()
+	 */
+	public Object getRefObject() { return model.getRefObject(); }
 	
 }

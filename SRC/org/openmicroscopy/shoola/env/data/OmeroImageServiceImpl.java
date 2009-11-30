@@ -796,5 +796,21 @@ class OmeroImageServiceImpl
 			throw new RenderingServiceException("RenderImage", e);
 		}
 	}
+
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#analyseFrap(List, Class, Object)
+	 */
+	public DataObject analyseFrap(List<Long> ids, Class type, Object param)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		if (ids == null || ids.size() <= 0)
+			throw new IllegalArgumentException("No objects to analyse.");
+		if (type == null)
+			throw new IllegalArgumentException("No node to analyze.");
+		long id = gateway.analyseFRAP(ids, type, param);
+		if (id < 0) return null;
+		return context.getMetadataService().loadAnnotation(id);
+	}
 	
 }

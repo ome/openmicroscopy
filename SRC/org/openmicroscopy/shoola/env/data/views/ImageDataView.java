@@ -389,4 +389,16 @@ public interface ImageDataView
 			Map<Long, Integer> overlays, boolean asTexture,
 			AgentEventListener observer);
 	
+	/**
+	 * Performs a basic FRAP.
+	 * 
+	 * @param ids	The objects to analyze.
+	 * @param type 	The type of object to analyze.
+	 * @param param	The extra parameters.
+	 * @param observer Call-back handler.
+	 * @return See above.
+	 */
+	public CallHandle analyseFRAP(List<Long> ids, Class objectType, 
+			Object param, AgentEventListener observer);
+	
 }

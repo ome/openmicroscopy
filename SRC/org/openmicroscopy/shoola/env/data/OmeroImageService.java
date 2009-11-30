@@ -485,7 +485,7 @@ public interface OmeroImageService
 	public DataObject analyseFretFit(long controlID, long toAnalyzeID, 
 			long irfID)
 		throws DSOutOfServiceException, DSAccessException;
-	
+
 	public Object monitor(String path, DataObject container, 
 			long userID, long groupID);
 
@@ -579,5 +579,20 @@ public interface OmeroImageService
 	public Object renderOverLays(long pixelsID, PlaneDef pd, long tableID,
 			Map<Long, Integer> overlays, boolean asTexture)
 		throws RenderingServiceException; 
+	
+	/**
+	 * Performs a basic FRAP. Returns the file hosting the results.
+	 * 
+	 * @param ids	The objects to analyze.
+	 * @param type 	The type of object to analyze.
+	 * @param param	The extra parameters.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public DataObject analyseFrap(List<Long> ids, Class type, Object param)
+		throws DSOutOfServiceException, DSAccessException;
 	
 }

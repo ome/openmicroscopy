@@ -34,6 +34,7 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.data.model.AnalysisActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
@@ -303,6 +304,9 @@ public class UserNotifierImpl
 		} else if (activity instanceof FigureActivityParam) {
 			FigureActivityParam p = (FigureActivityParam) activity;
 			comp = new FigureActivity(this, manager.getRegistry(), p);
+		} else if (activity instanceof AnalysisActivityParam) {
+			AnalysisActivityParam p = (AnalysisActivityParam) activity;
+			comp = new AnalysisActivity(this, manager.getRegistry(), p);
 		}
 		if (comp != null) {
 			UserNotifierLoader loader = comp.createLoader();

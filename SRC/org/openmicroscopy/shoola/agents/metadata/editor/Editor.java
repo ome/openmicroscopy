@@ -393,4 +393,11 @@ public interface Editor
 	 */
 	public void setROI(Collection roi, long imageID);
 	
+	/** 
+	 * Returns the channel data.
+	 * 
+	 * @return See above.
+	 */
+	public Map getChannelData();
+	
 }

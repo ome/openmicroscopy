@@ -357,6 +357,15 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#getChannelData()
+	 */
+	public Map getChannelData()
+	{
+		return model.getChannelData();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setExistingAttachements(Collection)
 	 */
 	public void setExistingAttachements(Collection attachments)

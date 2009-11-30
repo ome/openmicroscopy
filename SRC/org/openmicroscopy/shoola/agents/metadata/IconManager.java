@@ -391,7 +391,7 @@ public class IconManager
         relPaths[EXPORT_22] = "export22.png";//"download_image22.png";
         relPaths[DOWNLOAD_22] = "nuvola_download_manager22.png";
         relPaths[DOWNLOAD_48] = "nuvola_download_manager48.png";
-        relPaths[PUBLISHING] = "nuvola_kcmsystem16.png";
+        relPaths[PUBLISHING] = "splitViewFigure16.png";
         relPaths[SPLIT_VIEW] = "splitViewFigure16.png";
         relPaths[SPLIT_VIEW_48] = "splitViewFigure48.png";
         relPaths[ANALYSIS] = "nuvola_kcmsystem16.png";

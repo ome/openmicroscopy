@@ -401,4 +401,14 @@ public class NullRenderingService
 		return null;
 	}
 
+	/**
+     * No-op implementation
+     * @see OmeroImageService#analyseFrap(List, Class, Object)
+     */
+	public DataObject analyseFrap(List<Long> ids, Class type, Object param)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
 }

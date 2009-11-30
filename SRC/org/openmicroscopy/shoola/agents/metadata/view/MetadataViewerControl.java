@@ -27,7 +27,9 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 //Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -35,6 +37,7 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.actions.AddAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.BrowseAction;
@@ -43,9 +46,16 @@ import org.openmicroscopy.shoola.agents.metadata.actions.RefreshAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.RemoveAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.RemoveAllAction;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.agents.metadata.util.ChannelSelectionDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.AnalysisActivityParam;
+import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.ChannelData;
+import pojos.ImageData;
 
 /** 
  * The MetadataViewer's Controller.
@@ -145,6 +155,28 @@ class MetadataViewerControl
 	MetadataViewerAction getAction(Integer id) { return actionsMap.get(id); }
 
 	/**
+	 * Analyzes the currently selected image. 
+	 * 
+	 * @param channelIndex The channel to analyze.
+	 */
+	void analyseFRAP(int channelIndex)
+	{
+		List<Long> ids = new ArrayList<Long>();
+		ImageData img = (ImageData) model.getRefObject();
+		ids.add(img.getId());
+		AnalysisParam param = new AnalysisParam(ids, ImageData.class,
+				AnalysisParam.FRAP);
+		List<Integer> channels = new ArrayList<Integer>();
+		channels.add(channelIndex);
+		param.setChannels(channels);
+		IconManager icons = IconManager.getInstance();
+		AnalysisActivityParam activity = new AnalysisActivityParam(param, 
+				icons.getIcon(IconManager.ANALYSE));
+		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
+		un.notifyActivity(activity);
+	}
+	
+	/**
 	 * Reacts to state changes in the {@link MetadataViewer}.
 	 * @see ChangeListener#stateChanged(ChangeEvent)
 	 */
@@ -182,6 +214,18 @@ class MetadataViewerControl
 			model.onChannelColorChanged((Integer) evt.getNewValue());
 		} else if (Renderer.RELOAD_PROPERTY.equals(name)) {
 			model.reloadRenderingControl((Boolean) evt.getNewValue());
+		} else if 
+		(ChannelSelectionDialog.CHANNEL_ANALYSIS_SELECTION_PROPERTY.equals(
+				name))
+		{
+			List l = (List) evt.getNewValue();
+			ChannelData data = (ChannelData) l.get(0);
+			int index = (Integer) l.get(1);
+			switch (index) {
+				case AnalysisParam.FRAP:
+					analyseFRAP(data.getIndex());
+					break;
+			}
 		}
 	}
 	

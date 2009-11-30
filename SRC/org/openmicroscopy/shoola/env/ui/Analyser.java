@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.ui.FigureCreator 
+ * org.openmicroscopy.shoola.env.ui.Analyser 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
@@ -29,11 +29,12 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.FileAnnotationData;
 
 /** 
- * Creates a figure of the passed images.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,7 +46,7 @@ import pojos.FileAnnotationData;
  * </small>
  * @since 3.0-Beta4
  */
-public class FigureCreator 
+public class Analyser 
 	extends UserNotifierLoader
 {
 
@@ -64,6 +65,9 @@ public class FigureCreator
     /** The result. */
     private FileAnnotationData		data;
     
+    /** The type of analysis to perform. */
+    private int						index;
+    
     /** Reference to the activity. */
     private ActivityComponent 		activity;
     
@@ -79,10 +83,11 @@ public class FigureCreator
      * @param param  	The parameters used to create the movie.
      * @param ids		The selected objects.
      * @param type		The type of objects.
+     * @param index		The type of analysis to perform.
      * @param activity 	The activity associated to this loader.
      */
-	public FigureCreator(UserNotifier viewer,  Registry registry,
-			Object param, List<Long> ids, Class type, 
+	public Analyser(UserNotifier viewer,  Registry registry,
+			Object param, List<Long> ids, Class type, int index, 
 			ActivityComponent activity)
 	{
 		super(viewer, registry);
@@ -96,6 +101,7 @@ public class FigureCreator
 		this.ids = ids;
 		this.type = type;
 		this.activity = activity;
+		this.index = index;
 	}
 	
 	/**
@@ -104,7 +110,13 @@ public class FigureCreator
      */
     public void load()
     {
-        handle = ivView.createFigure(ids, type, param, this);
+    	switch (index) {
+			case AnalysisParam.FLIM:
+				break;
+			case AnalysisParam.FRAP:
+				 handle = ivView.analyseFRAP(ids, type, param, this);
+				break;
+		}
     }
     
     /**
@@ -119,7 +131,7 @@ public class FigureCreator
      */
     public void handleNullResult()
     { 
-    	activity.notifyError("Unable to create figure");
+    	activity.notifyError("Unable to analyse data");
     }
  
     /** 

@@ -22,7 +22,6 @@
 	<classpathentry kind="lib" path="LIB/commons-discovery-0.2.jar"/>
 	<classpathentry kind="lib" path="LIB/jaxrpc-1.1.jar"/>
 	<classpathentry kind="lib" path="LIB/axis-1.4.jar"/>
-	<classpathentry kind="lib" path="LIB/poi-3.5-beta4-20081128.jar"/>
 	<classpathentry kind="lib" path="LIB/monitors.jar"/>
 	<classpathentry kind="lib" path="LIB/loci-common.jar"/>
 	<classpathentry kind="lib" path="LIB/bio-formats.jar"/>
@@ -45,5 +44,7 @@
 	<classpathentry kind="lib" path="LIB/jai_imageio.jar"/>
 	<classpathentry kind="lib" path="LIB/loci_tools.jar"/>
 	<classpathentry kind="lib" path="LIB/ome-xml.jar"/>
+	<classpathentry kind="lib" path="LIB/poi-loci.jar"/>
+	<classpathentry kind="lib" path="LIB/poi-3.5-beta4-20081128.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

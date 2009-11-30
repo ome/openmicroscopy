@@ -43,6 +43,7 @@ import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -94,7 +95,10 @@ class ToolBar
 	private EditorModel 	model;
 
 	/** The option dialog. */
-	private PublishingDialog  dialog;
+	private PublishingDialog  publishingDialog;
+	
+	/** The option dialog. */
+	private AnalysisDialog  	analysisDialog;
 	
 	/** Initializes the components. */
 	private void initComponents()
@@ -137,7 +141,8 @@ class ToolBar
 			 */
 			public void mouseReleased(MouseEvent e)
 			{
-				launchOptions((Component) e.getSource(), e.getPoint());
+				launchOptions((Component) e.getSource(), e.getPoint(), 
+						MetadataViewer.PUBLISHING_OPTION);
 			}
 		});
 		analysisButton = new JButton(icons.getIcon(IconManager.ANALYSIS));
@@ -151,7 +156,8 @@ class ToolBar
 			 */
 			public void mouseReleased(MouseEvent e)
 			{
-				launchOptions((Component) e.getSource(), e.getPoint());
+				launchOptions((Component) e.getSource(), e.getPoint(), 
+						MetadataViewer.ANALYSIS_OPTION);
 			}
 		});
 		refreshButton.addActionListener(controller);
@@ -296,10 +302,13 @@ class ToolBar
 	{ 
 		if (model.getRefObject() instanceof ExperimenterData) {
 			publishingButton.setEnabled(false);
+			analysisButton.setEnabled(false);
 			return;
 		}
 		publishingButton.setEnabled(true);
-		if (dialog != null) dialog.setRootObject();
+		analysisButton.setEnabled(true);
+		if (publishingDialog != null) publishingDialog.setRootObject();
+		if (analysisDialog != null) analysisDialog.setRootObject();
 	}
 
 	/**
@@ -307,15 +316,22 @@ class ToolBar
 	 * 
 	 * @param source The location of the mouse pressed.
 	 * @param p 	 The location of the mouse pressed.
+	 * @param index  Identifies the menu to pop up.
 	 */
-	void launchOptions(Component source, Point p)
+	void launchOptions(Component source, Point p, int index)
 	{
-		//SwingUtilities.convertPointToScreen(p, source);
-		if (dialog == null)
-			dialog = new PublishingDialog(controller, model);
-		dialog.displayAsMenu().show(source, p.x, p.y);
-		//dialog.setLocation(p);
-		//dialog.setVisible(true);
+		switch (index) {
+			case MetadataViewer.PUBLISHING_OPTION:
+				if (publishingDialog == null)
+					publishingDialog = new PublishingDialog(controller, model);
+				publishingDialog.displayAsMenu().show(source, p.x, p.y);
+				break;
+
+			case MetadataViewer.ANALYSIS_OPTION:
+				if (analysisDialog == null)
+					analysisDialog = new AnalysisDialog(controller, model);
+				analysisDialog.displayAsMenu().show(source, p.x, p.y);
+		}
 	}
 	
 }

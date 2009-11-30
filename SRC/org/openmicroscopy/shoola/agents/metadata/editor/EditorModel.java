@@ -1897,8 +1897,12 @@ class EditorModel
 		parent.makeMovie(scaleBar, overlayColor);
 	}
 	
-	/** Analyzes the data. */
-	void analyse() { parent.analyse(); }
+	/**
+	 * Analyzes the data. 
+	 * 
+	 * @param index The index identifying the analysis to perform.
+	 */
+	void analyse(int index) { parent.analyse(index); }
 	
 	/**
 	 * Returns <code>true</code> if the renderer has been loaded,
