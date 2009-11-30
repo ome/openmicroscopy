@@ -326,10 +326,8 @@ def runAsScript():
 	commandArgs = {}
 	
 	for key in client.getInputKeys():
-		print key
 		if client.getInput(key):
 			commandArgs[key] = client.getInput(key).getValue()
-			print commandArgs[key]
 	
 	fileId = makeThumbnailFigure(client, session, commandArgs)
 	client.setOutput("fileAnnotation",fileId)
