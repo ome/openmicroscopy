@@ -369,17 +369,18 @@ def makeFrapFigure(session, commandArgs):
 		draw.text((x+indent, 0), label, font=font, fill=(0,0,0))
 		imgUtil.pasteImage(smallImages[l], frapCanvas, x, y)
 		x += spacer + imgW
-	frapCanvas.show()
-	frapCanvas.save("frapImage.png", "PNG")
+	#frapCanvas.show()		# bug-fixing only
+	fileName = imageName + ".png"
+	frapCanvas.save(fileName, "PNG")
 	
 	format = PNG
-	output = "frapImage.png"
+	output = fileName
 	
 	# if reportLab has imported...
 	if reportLab:
 		# we are going to export a PDF, not a JPEG
 		format = PDF
-		output = "FRAP.pdf"
+		output = imageName + ".pdf"
 		
 		# create a plot of the FRAP data
 		figHeight = 450
@@ -405,7 +406,7 @@ def makeFrapFigure(session, commandArgs):
 		pasteX = 100
 		pasteY = 75
 		# add the FRAP image
-		figCanvas.drawImage("frapImage.png", pasteX-25, pasteY)
+		figCanvas.drawImage(fileName, pasteX-25, pasteY)
 		# add the FRAP data plot
 		renderPDF.draw(drawing, figCanvas, pasteX, 300, showBoundary=True)
 		figCanvas.save()
