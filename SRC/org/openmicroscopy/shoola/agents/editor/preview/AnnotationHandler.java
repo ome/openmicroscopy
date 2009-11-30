@@ -22,9 +22,9 @@
  */
 package org.openmicroscopy.shoola.agents.editor.preview;
 
-import pojos.FileAnnotationData;
 
 //Java imports
+import pojos.FileAnnotationData;
 
 //Third-party libraries
 
@@ -42,13 +42,15 @@ import pojos.FileAnnotationData;
  * </small>
  * @since 3.0-Beta4
  */
-public interface AnnotationHandler {
+public interface AnnotationHandler
+{
 
 	/**
 	 * Handles the return of a file annotation from the server. 
 	 * This is called when the file annotation is returned. 
 	 * 
-	 * @param fileAnnotation
+	 * @param fileAnnotation The file to handle. Mustn't be <code>null</code>.
 	 */
 	public void handleAnnotation(FileAnnotationData fileAnnotation);
+	
 }

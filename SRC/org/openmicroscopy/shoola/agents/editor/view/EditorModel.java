@@ -26,9 +26,6 @@ package org.openmicroscopy.shoola.agents.editor.view;
 //Java imports
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 import javax.swing.tree.TreeModel;
 
 //Third-party libraries
@@ -120,8 +117,7 @@ class EditorModel
 	
 	/** Reference to the component that embeds this model. */
 	private Editor				component;
-	
-	
+
 	/**
 	 * Saves the {@link TreeModel} from the {@link Browser} as an XML file.
 	 * Returns <code>true</code> if the file can be parsed, <code>false</code>
@@ -174,8 +170,8 @@ class EditorModel
 	 * {@link #fileSize} and {@link #fileID} are not set.
 	 * File is not opened. To do this, call {@link Editor#setFileToEdit(File)}
 	 * 
-	 * @param file		The file to open. Sets the {@link #fileName} to the 
-	 * 					name of this file but does not open file. 
+	 * @param file The file to open. Sets the {@link #fileName} to the 
+	 * 			   name of this file but does not open file. 
 	 */
 	EditorModel(File file) 
 	{

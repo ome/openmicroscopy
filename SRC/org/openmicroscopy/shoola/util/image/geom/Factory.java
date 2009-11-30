@@ -344,23 +344,6 @@ public class Factory
     	
     	AffineTransform at = new AffineTransform();
     	at.scale(f, f);
-    	/*
-    	int width = img.getWidth(), height = img.getHeight();
-    	BufferedImageOp biop = new AffineTransformOp(at, 
-    			AffineTransformOp.TYPE_BILINEAR); 
-    	int type = img.getType();
-    	if (type == BufferedImage.TYPE_CUSTOM)
-    		type = BufferedImage.TYPE_INT_ARGB;
-    	int scaleWidth = (int) (width*f);
-    	int scaleHeight = (int) (height*f);
-    	if (scaleWidth <= 0 || scaleHeight <= 0) return null;
-    	BufferedImage rescaleBuff = img;//
-    	rescaleBuff = new BufferedImage(scaleWidth, 
-    			scaleHeight, type); //img.getType()
-    	biop.filter(img, rescaleBuff);
-    	rescaleBuff.flush();
-    	System.gc();
-    	*/
     	int type = img.getType();
     	if (type == BufferedImage.TYPE_CUSTOM)
     		type = BufferedImage.TYPE_INT_ARGB;
@@ -714,7 +697,6 @@ public class Factory
     		Image img = Toolkit.getDefaultToolkit().getImage(buf.toString());
     		if (img == null) return null;
     		Icon icon = new ImageIcon(img);
-    		System.err.println(icon.getIconHeight()+" "+icon.getIconWidth());
     		if (icon.getIconHeight() <= 0 || icon.getIconWidth() <= 0)
     			return null;
     		return icon;

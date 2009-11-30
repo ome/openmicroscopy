@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.ImageDataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImageLoader;
 import org.openmicroscopy.shoola.agents.imviewer.MeasurementsLoader;
+import org.openmicroscopy.shoola.agents.imviewer.OverlaysRenderer;
 import org.openmicroscopy.shoola.agents.imviewer.PlaneInfoLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ProjectionSaver;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingSettingsCreator;
@@ -2191,10 +2192,14 @@ class ImViewerModel
 	 */
 	void renderOverlays(Map<Long, Integer> overlays)
 	{
-		System.err.println(overlays);
-		Renderer rnd = metadataViewer.getRenderer();
-		if (rnd == null) return;
-		rnd.setOverlays(overlayTableID, overlays);
+		PlaneDef pDef = new PlaneDef();
+		pDef.t = getDefaultT();
+		pDef.z = getDefaultZ();
+		pDef.slice = omero.romio.XY.value;
+		state = ImViewer.LOADING_IMAGE;
+		OverlaysRenderer loader = new OverlaysRenderer(component, getPixelsID(), 
+				pDef, overlayTableID, overlays);
+		loader.load();
 	}
 	
 	/**

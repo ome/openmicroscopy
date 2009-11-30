@@ -118,11 +118,10 @@ public abstract class EditorLoader
         viewer.cancel();
     }
     
-    /** Fires an asynchrnonous data loading. */
+    /** Fires an asynchronous data loading. */
     public abstract void load();
     
     /** Cancels any ongoing data loading. */
     public abstract void cancel(); 
-    
-    
+
 }

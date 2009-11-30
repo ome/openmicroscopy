@@ -22,27 +22,25 @@
  */
 package org.openmicroscopy.shoola.agents.editor.actions;
 
+
+//Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
 import javax.swing.JFrame;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
- * 
+ * Saves the protocol.
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -56,6 +54,7 @@ public class SaveAsProtocolAction
 	extends EditorAction
 	implements PropertyChangeListener
 {
+	
 	/** 
 	 * Implement this method to disable the Save Action if no file is open
 	 * or the current file is not an Experiment. 

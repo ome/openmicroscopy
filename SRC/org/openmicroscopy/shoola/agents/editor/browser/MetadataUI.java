@@ -62,6 +62,7 @@ class MetadataUI
 	extends ScrollablePanel
 	implements PropertyChangeListener
 {
+	
 	/** Reference to the controller. */
 	private BrowserControl						controller;
 	

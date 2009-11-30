@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.editor.browser;
 
 //Java imports
-
 import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -36,9 +35,6 @@ import javax.swing.SwingConstants;
 //Third-party libraries
 
 //Application-internal dependencies
-
-import org.openmicroscopy.shoola.agents.editor.browser.actions.AbstractTreeEditAction;
-import org.openmicroscopy.shoola.agents.editor.browser.actions.CopyFieldsAction;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.TreeEdit;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 
@@ -57,7 +53,8 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
  * @since OME3.0
  */
 public class ToolBar 
-	extends JPanel {
+	extends JPanel
+{
 	
 	/**
 	 * The controller.
@@ -119,7 +116,7 @@ public class ToolBar
 	{
 		Action action = controller.getAction(actionID);
 		if (action instanceof TreeEdit) {
-			((TreeEdit)action).setTree(treeUI);
+			((TreeEdit) action).setTree(treeUI);
 		}
 		JButton b = new CustomButton(action);
 		b.setText("");
@@ -129,7 +126,7 @@ public class ToolBar
 	/**
 	 * Creates an instance.
 	 * 
-	 * @param controller		The controller as a source of Actions.
+	 * @param controller The controller as a source of Actions.
 	 */
 	ToolBar(BrowserControl controller, JTree tree)
 	{
@@ -141,4 +138,5 @@ public class ToolBar
         this.treeUI = tree;
         buildUI();
 	}
+	
 }

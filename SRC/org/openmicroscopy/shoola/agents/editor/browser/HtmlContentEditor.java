@@ -23,10 +23,8 @@
 package org.openmicroscopy.shoola.agents.editor.browser;
 
 //Java imports
-
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.JEditorPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -62,14 +60,14 @@ import javax.swing.text.html.HTMLDocument.RunElement;
  */
 public class HtmlContentEditor 
 	extends JEditorPane
-	implements DocumentListener {
+	implements DocumentListener
+{
 
 	/**
 	 * Set to true by document listener, set to false when saved to model.
 	 */
 	private boolean 				hasDataToSave;
 
-	
 	/**
 	 * initialises the UI
 	 */

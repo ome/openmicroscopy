@@ -22,25 +22,23 @@
  */
 package org.openmicroscopy.shoola.agents.editor.browser.paramUIs;
 
-import java.util.List;
 
+//Java imports
+import java.util.List;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
 import javax.swing.table.TableModel;
 
+
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.params.EnumParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomComboBox;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.DDTableCellRenderer;
-import org.openmicroscopy.shoola.agents.editor.uiComponents.TableEditUI;
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * This is a table for displaying multiple values for each parameter in a 

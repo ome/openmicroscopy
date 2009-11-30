@@ -59,7 +59,7 @@ public class FileLoader
 	extends EditorLoader
 {
 
-	/** Handle to the async call so that we can cancel it. */
+	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  		handle;
     
     /** The id of the file to load. */
@@ -77,7 +77,8 @@ public class FileLoader
      * @param viewer	The Editor this data loader is for.
      *                  Mustn't be <code>null</code>.
      * @param fileName	The name of the file to edit.
-     * @param fileID	The id of the file to load OR of the fileAnnotation if fileName is null
+     * @param fileID	The id of the file to load OR 
+     * 					of the fileAnnotation if fileName is <code>null</code>.
      * @param fileSize	The size of the file to load.
      */
 	public FileLoader(Editor viewer, String fileName, long fileID, 

@@ -23,22 +23,17 @@
 package org.openmicroscopy.shoola.agents.editor.preview;
 
 //Java imports
-
 import java.io.File;
-
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 //Third-party libraries
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
-import org.openmicroscopy.shoola.agents.editor.FileAnnotationLoader;
 import org.openmicroscopy.shoola.agents.editor.browser.BrowserControl;
 import org.openmicroscopy.shoola.agents.editor.browser.MetadataPanelsComponent;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
-
 import pojos.FileAnnotationData;
 
 /** 
@@ -61,16 +56,14 @@ import pojos.FileAnnotationData;
  * @since 3.0-Beta4
  */
 public class EditorPreview 
-	implements AnnotationHandler {
+	implements AnnotationHandler
+{
 	
 	/** A reference to the Browser Control, for getting file annotations etc */
 	private BrowserControl 				controller;
 	
 	/** The ID of the file on the server. Will be null if file is local */
 	private long 						fileID;
-	
-	/** The annotation of the file on the server. Used to retrieve description */
-	private FileAnnotationData 			fileAnnotation;
 	
 	/** The path of the local file. Will be null if file is on the server */
 	private String						filePath;
@@ -189,7 +182,13 @@ public class EditorPreview
 	 */
 	public JComponent getUI()	{ return view; }
 
-	public void handleAnnotation(FileAnnotationData fileAnnotation) {
+	/**
+	 * Implemented as specified by the {AnnotationHandler} I/F.
+	 * @see AnnotationHandler#handleAnnotation(FileAnnotationData)
+	 */
+	public void handleAnnotation(FileAnnotationData fileAnnotation)
+	{
+		if (fileAnnotation == null) return;
 		annotationDesc = fileAnnotation.getDescription();
 		previewPanel.setDescriptionXml(annotationDesc);
 		view.setTitle(previewPanel.getTitle());

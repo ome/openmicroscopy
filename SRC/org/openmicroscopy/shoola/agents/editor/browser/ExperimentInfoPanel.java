@@ -46,7 +46,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -60,10 +59,9 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 //Third-party libraries
+import org.jdesktop.swingx.JXDatePicker;
 
 //Application-internal dependencies
-
-import org.jdesktop.swingx.JXDatePicker;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.TextFieldEditor;
@@ -95,7 +93,8 @@ public class ExperimentInfoPanel
 	implements TreeModelListener,
 	ActionListener, 
 	TreeSelectionListener,
-	PropertyChangeListener {
+	PropertyChangeListener
+{
 	
 	/**
 	 * A reference to the tree UI used for selection of root.

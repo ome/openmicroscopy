@@ -330,31 +330,7 @@ class BrowserControl
      */
     public void mouseReleased(MouseEvent me) 
     {
-    	/*
-        if (me.isPopupTrigger() || SwingUtilities.isRightMouseButton(me) ||
-    			(me.isControlDown() && SwingUtilities.isLeftMouseButton(me)))
-                model.setPopupPoint(me.getPoint(), true);
-        else {
-            Object src = me.getSource();
-            ImageDisplay d = findParentDisplay(src);
-            if (d instanceof ImageNode && !(d.getTitleBar() == src) 
-                && me.getClickCount() == 2 && isSelectionValid(d)) {
-            	model.viewDisplay(d);
-            }   
-        }
-        popupTrigger = false; 
-        */
     	int count = me.getClickCount();
-    	/*
-    	if (count == 1) {
-    		System.err.println(me.isPopupTrigger() +" "+SwingUtilities.isRightMouseButton(me));
-    		if (UIUtilities.isMacOS()) {
-    			if (me.isPopupTrigger() || //SwingUtilities.isRightMouseButton(me) ||
-    	    			(me.isControlDown() && SwingUtilities.isLeftMouseButton(me)))
-    	                model.setPopupPoint(me.getPoint(), true);
-    		}
-    	}
-    	*/
     	if (count == 2) {
     		if (UIUtilities.isMacOS()) {
         		if (!me.isControlDown()) {

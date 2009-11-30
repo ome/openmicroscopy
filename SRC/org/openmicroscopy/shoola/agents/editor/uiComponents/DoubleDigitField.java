@@ -23,12 +23,10 @@
 package org.openmicroscopy.shoola.agents.editor.uiComponents;
 
 //Java imports
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-
 import javax.swing.BorderFactory;
 import javax.swing.JFormattedTextField;
 import javax.swing.border.Border;
@@ -37,9 +35,13 @@ import javax.swing.border.LineBorder;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.MaskFormatter;
 
+
+
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 
 /** 
  * A formatted text field that displays 2 digits, between a specified
@@ -227,8 +229,11 @@ public class DoubleDigitField
         try {
             formatter = new MaskFormatter(s);
         } catch (java.text.ParseException exc) {
-            System.err.println("formatter is bad: " + exc.getMessage());
-            System.exit(-1);
+        	 LogMessage msg = new LogMessage();
+             msg.print("createFormatter");
+             msg.print(exc);
+             EditorAgent.getRegistry().getLogger().error(DoubleDigitField.class, 
+            		 msg);
         }
         return formatter;
     }

@@ -44,7 +44,7 @@ import org.openmicroscopy.shoola.util.ui.InputDialog;
  * </small>
  * @since 3.0-Beta4
  */
-public class SaveServerCmd 
+class SaveServerCmd 
 	implements ActionCmd
 {
 	

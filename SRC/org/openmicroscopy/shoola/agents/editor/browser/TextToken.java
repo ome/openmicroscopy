@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.editor.browser;
 
-import javax.swing.text.html.parser.Element;
 
 //Java imports
 
@@ -43,7 +42,8 @@ import javax.swing.text.html.parser.Element;
  * </small>
  * @since OME3.0
  */
-public class TextToken {
+public class TextToken
+{
 	
 	/** The textual content of this token / element */
 	private String textContent;

@@ -22,15 +22,13 @@
  */
 package org.openmicroscopy.shoola.agents.editor.browser;
 
+//Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-
-//Java imports
 
 //Third-party libraries
 
@@ -50,7 +48,8 @@ import javax.swing.JRadioButton;
  */
 public class EditingModeUI 
 	extends JPanel 
-	implements ActionListener{
+	implements ActionListener
+{
 	
 	/** The browser to edit */
 	private BrowserControl				browser;
@@ -62,10 +61,10 @@ public class EditingModeUI
 	public static final String			EDIT_EXP = "Edit Experiment";
 	
 	/** Button to select protocol */
-	JRadioButton protocolButton;
+	private JRadioButton protocolButton;
 	
 	/** Button to select experiment */
-	JRadioButton experimentButton;
+	private JRadioButton experimentButton;
 	
 	/**
 	 * Creates an instance. 

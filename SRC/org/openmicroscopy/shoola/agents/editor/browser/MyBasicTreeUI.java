@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.editor.browser;
 
 //Java imports
-
 import java.awt.event.MouseEvent;
 
 import javax.swing.plaf.basic.BasicTreeUI;
@@ -85,22 +84,22 @@ public class MyBasicTreeUI
 	 * 
 	 * @see BasicTreeUI#startEditing(TreePath, MouseEvent) 
 	 */
-   protected boolean startEditing(TreePath path, MouseEvent event) 
-   {  
-	   // If the event isn't null, 
-	   if (event != null) {
-		   
-		   // Use the event to change path selection...
-		   selectPathForEvent(path, event);
-	   
-		   //...and stop here if the SHIFT key was used (for multiple selection)
-		   if (((event.getModifiers()) &  (MouseEvent.SHIFT_MASK))==1) {
-			   return false;
-		   }
-	   }
-	   
-	   // Now you want to start editing, by passing the super class method
-	   // a null mouse event.
-	   return super.startEditing(path, null);
-   }
+	protected boolean startEditing(TreePath path, MouseEvent event) 
+	{  
+		// If the event isn't null, 
+		if (event != null) {
+
+			// Use the event to change path selection...
+			selectPathForEvent(path, event);
+
+			//...and stop here if the SHIFT key was used (for multiple selection)
+			if (((event.getModifiers()) &  (MouseEvent.SHIFT_MASK))==1) {
+				return false;
+			}
+		}
+
+		// Now you want to start editing, by passing the super class method
+		// a null mouse event.
+		return super.startEditing(path, null);
+	}
 }

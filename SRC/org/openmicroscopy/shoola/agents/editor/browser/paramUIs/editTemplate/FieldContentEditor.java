@@ -24,17 +24,13 @@
 package org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate;
 
 //Java imports
-
 import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.util.List;
-
 import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
 
 //Third-party libraries
 
@@ -43,7 +39,6 @@ import javax.swing.tree.TreeNode;
 import org.openmicroscopy.shoola.agents.editor.browser.BrowserControl;
 import org.openmicroscopy.shoola.agents.editor.browser.FieldTextArea;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
-import org.openmicroscopy.shoola.agents.editor.model.IFieldContent;
 
 /** 
  * The Panel for editing the "Template" of each field.

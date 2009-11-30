@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.actions.EditorAction;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * The {@link Editor}'s View.
@@ -108,6 +109,13 @@ class EditorUI
 		return menu;
 	}
 	
+	/**
+	 * Adds a new item.
+	 * 
+	 * @param actionId  The ID associated to the item.
+	 * @param menu		The menu to add the item to.
+	 * @param key		The key accelerator associated to the menu item.
+	 */
 	private void addMenuItem(int actionId, JMenu menu, int key)
 	{
 		EditorAction a = controller.getAction(actionId);
@@ -140,8 +148,7 @@ class EditorUI
 			bar.add(existingMenus[i]);
         return bar;	
 	}
-	
-	
+
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
@@ -165,11 +172,11 @@ class EditorUI
 	/**
 	 * Convenience method for setting the short-cut keys for menu items. 
 	 * 
-	 * @param menuItem
-	 * @param character
+	 * @param menuItem The item to handle.
+	 * @param character The key to handle.
 	 */
 	private static void setMenuItemAccelerator(JMenuItem menuItem, int key) {
-		if (System.getProperty("os.name").contains("Mac OS")) {
+		if (UIUtilities.isMacOS()) {
 			menuItem.setAccelerator(
 					KeyStroke.getKeyStroke(key, ActionEvent.META_MASK));
 		} else {

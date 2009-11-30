@@ -23,9 +23,7 @@
 package org.openmicroscopy.shoola.agents.editor.browser;
 
 // Java Imports
-
 import java.util.Vector;
-
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 
@@ -158,24 +156,20 @@ public class ContiguousChildSelectionModel
 	   // pPaths.length = 0 or 1?
 	   // Therefore, we can simply setSelectionPaths()
 	   super.setSelectionPaths(pPaths);
-	
    }
-   
-   
-	
-	/**
-     * This overrides DefaultTreeSelectionModel.addSelectionPaths(TreePath[])
-     * The intention is to ensure that all new paths have the same parent
-     * (are siblings) with the existing selected paths. 
-     * However, this method never seems to be called by clicking on new
-     * nodes to select additional paths. 
-     * So, hasn't been tested! 
-     *
-     * @param paths the new path to add to the current selection
-     */
+
+   /**
+    * This overrides DefaultTreeSelectionModel.addSelectionPaths(TreePath[])
+    * The intention is to ensure that all new paths have the same parent
+    * (are siblings) with the existing selected paths. 
+    * However, this method never seems to be called by clicking on new
+    * nodes to select additional paths. 
+    * So, hasn't been tested! 
+    *
+    * @param paths the new path to add to the current selection
+    */
    public void addSelectionPaths(TreePath[] paths) 
    {
-	
 	   // Check if any new paths have different parent 
 	   
 	   TreePath[] currentPaths = this.getSelectionPaths();
@@ -197,7 +191,7 @@ public class ContiguousChildSelectionModel
 	   // Check each new path, to make sure that it's parent is the 
 	   // same as current parent.
 	   // If not, then simply setSelectionPaths();
-	   for (int i=0; i<paths.length; i++) {
+	   for (int i = 0; i < paths.length; i++) {
 		   TreePath newParent = paths[i].getParentPath();
 		   if (! currentParent.equals(newParent)) {
 			   setSelectionPaths(paths);
@@ -211,4 +205,5 @@ public class ContiguousChildSelectionModel
 	   // Therefore, simply add them. 
 	   super.addSelectionPaths(paths);
    }
+   
 }

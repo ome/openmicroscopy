@@ -26,7 +26,6 @@
 package org.openmicroscopy.shoola.agents.editor.browser;
 
 // Java Imports
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -35,7 +34,6 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
-
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -45,7 +43,6 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.border.Border;
-import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -225,11 +222,6 @@ public class FieldPanel
 	private Border 					imageBorderHighlight;
 	
 	/**
-	 * Maximum number of characters to display for the field name.
-	 */
-	private static final int 		MAX_CHARS = 25;
-	
-	/**
 	 * Initialises the UI components. 
 	 */
 	private void initialise() 
@@ -274,7 +266,6 @@ public class FieldPanel
 			fieldTableButton.setIcon(removeTableIcon);
 			fieldTableButton.setActionCommand(REMOVE_TABLE_CMD);
 		}
-		
 	}
 	
 	/**
@@ -356,7 +347,6 @@ public class FieldPanel
 	 */
 	private void addFieldComponent(JComponent comp) 
 	{
-		
 		horizontalBox.add(Box.createHorizontalStrut(5));
 		horizontalBox.add(comp);
 		
@@ -468,7 +458,6 @@ public class FieldPanel
 		return text;
 	}
 
-
 	/**
 	 * Gets the {@link Field#BACKGROUND_COLOUR} attribute, converts it to 
 	 * a colour and refreshes the background. 
@@ -500,7 +489,8 @@ public class FieldPanel
 			contentsPanel.setBorder(imageBorderHighlight);
 		}
 		else {
-			contentsPanel.setBackground((paintedColour == null) ? ImageBorderFactory.DEFAULT_BACKGROUND : paintedColour);
+			contentsPanel.setBackground((paintedColour == null) ? 
+					ImageBorderFactory.DEFAULT_BACKGROUND : paintedColour);
 			contentsPanel.setBorder(imageBorder);
 		}
 	}
@@ -693,6 +683,5 @@ public class FieldPanel
 			controller.removeFieldTable(field, tree, treeNode);
 		}
 	}
-	
 
 }

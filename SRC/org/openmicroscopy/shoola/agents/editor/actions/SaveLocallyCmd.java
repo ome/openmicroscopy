@@ -55,7 +55,7 @@ import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
  * </small>
  * @since 3.0-Beta4
  */
-public class SaveLocallyCmd 
+class SaveLocallyCmd 
 	implements ActionCmd,
 	PropertyChangeListener
 {

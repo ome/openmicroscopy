@@ -24,17 +24,12 @@
 package org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate;
 
 //Java imports
-
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
-import javax.swing.JComponent;
 import javax.swing.JTextField;
-import javax.swing.text.JTextComponent;
-
 //Third-party libraries
 
 //Application-internal dependencies

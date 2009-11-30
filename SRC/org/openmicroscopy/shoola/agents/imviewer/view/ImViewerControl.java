@@ -815,24 +815,6 @@ class ImViewerControl
 		} else if (MetadataViewer.RND_LOADED_PROPERTY.equals(pName)) {
 			boolean b = (Boolean) pce.getNewValue();
 			model.onRndLoaded(b);
-		/*
-		} else if (Renderer.RENDER_PLANE_PROPERTY.equals(pName)) {
-			model.renderXYPlane();
-		} else if (Renderer.SELECTED_CHANNEL_PROPERTY.equals(pName)) {
-			Map map = (Map) pce.getNewValue();
-			if (map == null) return;
-			if (map.size() != 1) return;
-			Set set = map.entrySet();
-			Entry entry;
-			Iterator i = set.iterator();
-			Integer index;
-			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				index = (Integer) entry.getKey();
-				model.setChannelSelection(index.intValue(), 
-						(Boolean) entry.getValue());
-			}
-			*/
 		} else if (ChannelColorMenuItem.CHANNEL_COLOR_PROPERTY.equals(pName)) {
 			model.showColorPicker(((Integer) pce.getNewValue()).intValue());
 		} else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(pName) ||
@@ -930,12 +912,6 @@ class ImViewerControl
 	 */
 	public void windowGainedFocus(WindowEvent e)
 	{
-		/*
-		System.err.println(e.getOppositeWindow());
-		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-		bus.post(new FocusGainedEvent(view.getPixelsID(), 
-				FocusGainedEvent.VIEWER_FOCUS));
-				*/
 	}
 	
 	/**

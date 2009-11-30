@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.editor.browser.paramUIs;
 
 
 //Java imports
-
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -35,7 +34,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;

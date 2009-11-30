@@ -23,9 +23,6 @@
 package org.openmicroscopy.shoola.agents.editor.browser;
 
 //Java imports
-
-import java.awt.Toolkit;
-
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
@@ -46,11 +43,10 @@ import javax.swing.text.DocumentFilter;
  * @since 3.0-Beta4
  */
 public class TextAreaNameFilter 
-	extends DocumentFilter {
+	extends DocumentFilter
+{
 
-	/**
-	 * Creates an instance 
-	 */
+	/** Creates an instance  */
 	TextAreaNameFilter() 
 	{
 	}

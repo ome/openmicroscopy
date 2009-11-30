@@ -23,15 +23,12 @@
 package org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate;
 
 //Java imports
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-
 import javax.swing.BorderFactory;
 import javax.swing.border.Border;
-import javax.swing.text.JTextComponent;
 
 //Third-party libraries
 
@@ -40,7 +37,7 @@ import javax.swing.text.JTextComponent;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.TextFieldEditor;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
-import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * This class extends {@link AttributeEditLine} with a different UI look. 
@@ -109,7 +106,7 @@ public class AttributeEditNoLabel
 	{
 		setLayout(new BorderLayout());
 		
-		selectedBorder = BorderFactory.createLineBorder(org.openmicroscopy.shoola.util.ui.UIUtilities.LIGHT_GREY);
+		selectedBorder = BorderFactory.createLineBorder(UIUtilities.LIGHT_GREY);
 		unselectedBorder = BorderFactory.createLineBorder(Color.white);
 		
 		// Add a text field

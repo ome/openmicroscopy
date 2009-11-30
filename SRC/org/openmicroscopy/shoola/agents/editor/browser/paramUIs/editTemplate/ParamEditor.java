@@ -23,13 +23,11 @@
 package org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate;
 
 //Java imports
-
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
@@ -51,7 +49,6 @@ import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomComboBox;
-import org.openmicroscopy.shoola.agents.editor.uiComponents.DropDownMenu;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -107,7 +104,7 @@ public class ParamEditor
 	private IParam					parameter;
 	
 	/**
-	 * Initialise UI components.
+	 * Initialises UI components.
 	 */
 	private void initialise()
 	{
@@ -137,7 +134,7 @@ public class ParamEditor
 		String paramType = parameter.getAttribute(AbstractParam.PARAM_TYPE);
 		if (paramType != null) {
 			String[] paramTypes = FieldParamsFactory.getParamTypes();
-			for (int i=0; i<paramTypes.length; i++)
+			for (int i = 0; i < paramTypes.length; i++)
 				if (paramType.equals(paramTypes[i])) {
 					paramTypeChooser.setSelectedIndex(i);
 				}

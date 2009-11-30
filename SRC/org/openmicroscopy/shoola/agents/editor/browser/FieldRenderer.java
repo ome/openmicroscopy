@@ -23,9 +23,7 @@
 package org.openmicroscopy.shoola.agents.editor.browser;
 
 //Java imports
-
 import java.awt.Component;
-
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JTree;
@@ -60,6 +58,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class FieldRenderer 
 	extends DefaultTreeCellRenderer 
 {
+	
 	/**
 	 * The controller. This is passed to new tree nodes (fields) so that
 	 * they have access to Actions etc. 

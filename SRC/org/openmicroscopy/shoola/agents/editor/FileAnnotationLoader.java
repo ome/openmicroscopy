@@ -51,7 +51,7 @@ public class FileAnnotationLoader
 	extends BrowserLoader
 {
 
-	/** Handle to the async call so that we can cancel it. */
+	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle				handle;
     
     /** The id of the file annotation to load. */

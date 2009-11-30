@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.editor.browser;
 
 //Java imports
-
 import java.awt.Toolkit;
 
 import javax.swing.text.AttributeSet;
@@ -51,7 +50,8 @@ import javax.swing.text.html.HTMLDocument.RunElement;
  * @since OME3.0
  */
 public class TextAreaFilter 
-	extends DocumentFilter {
+	extends DocumentFilter
+{
 	
 	/**
 	 * The document this filter is applied to.

@@ -23,9 +23,7 @@
 package org.openmicroscopy.shoola.agents.editor.browser.paramUIs;
 
 //Java imports
-
 import java.awt.Dimension;
-
 import javax.swing.BorderFactory;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -37,11 +35,9 @@ import javax.swing.text.BadLocationException;
 //Third-party libraries
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomFont;
-import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 
 
 /** 

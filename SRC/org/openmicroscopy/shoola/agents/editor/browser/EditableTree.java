@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.editor.browser;
 
 //Java imports
-
 import javax.swing.JTree;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
@@ -59,6 +58,7 @@ public class EditableTree
 	TreeModelListener
 	
 {
+	
 	/**
 	 * This JTree observes selection changes to the navTree
 	 */
@@ -67,6 +67,12 @@ public class EditableTree
 	/** Controller, for determining the editing mode etc. */
 	private BrowserControl 	controller;
 	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param controller The controller.
+	 * @param navTree	 The navigation tree.
+	 */
 	public EditableTree(BrowserControl controller, JTree navTree) 
 	{
 		super();
@@ -123,7 +129,6 @@ public class EditableTree
 	    TreeCellEditor editor = new DefaultTreeCellEditor(this, 
 	    		fieldRenderer, fieldEditor);
 	    setCellEditor(editor);
-	    
 	}
 	
 	/**
@@ -131,16 +136,13 @@ public class EditableTree
 	 */
 	public boolean isEditable()
 	{
-		if (controller == null)		
-			return false;
+		if (controller == null)	return false;
 		
 		// editable if file is not locked and we are editing Experiment. 
-		boolean editable = ((! controller.isFileLocked()) 
+		return ((! controller.isFileLocked()) 
 				&& (controller.getEditingMode() == Browser.EDIT_EXPERIMENT));
-		return editable;
 	}
 
-	
 	/**
 	 * Every selection change in the nav Tree is mimicked by this tree view,
 	 * and vice versa. 

@@ -23,10 +23,8 @@
 package org.openmicroscopy.shoola.agents.editor.browser;
 
 //Java imports
-
 import java.awt.Component;
 import java.util.EventObject;
-
 import javax.swing.AbstractCellEditor;
 import javax.swing.CellEditor;
 import javax.swing.JTree;
@@ -134,4 +132,5 @@ public class DefaultFieldEditor
 				row, 
 				true);
 	}	
+	
 }

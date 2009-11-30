@@ -403,7 +403,7 @@ public class DataRefEditor
 					
 					// if not, add the file extension...
 				} catch (MalformedURLException ex) {
-					 if (System.getProperty("os.name").startsWith("Mac OS")) {
+					 if (UIUtilities.isMacOS()) {
 						 ref = "file://" + ref;
 				     } else {
 				    	 ref = "file:///" + ref;

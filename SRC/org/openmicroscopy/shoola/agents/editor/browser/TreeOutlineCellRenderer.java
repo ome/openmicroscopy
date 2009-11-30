@@ -23,9 +23,7 @@
 package org.openmicroscopy.shoola.agents.editor.browser;
 
 //Java imports
-
 import java.awt.Component;
-
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -34,7 +32,6 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 //Third-party libraries
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
@@ -65,7 +62,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME3.0
  */
 public class TreeOutlineCellRenderer 
-	extends DefaultTreeCellRenderer {
+	extends DefaultTreeCellRenderer
+{
 
 	/**
 	 * The maximum length of characters to display in the node label

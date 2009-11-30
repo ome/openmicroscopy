@@ -124,8 +124,7 @@ class EditorPreviewUI
 		initComponents();
 		buildGUI();
 	}
-	
-	
+
 	/**
 	 * Refreshes the title of the {@link #imagePane} from the model. 
 	 * Should be called when the model changes. 

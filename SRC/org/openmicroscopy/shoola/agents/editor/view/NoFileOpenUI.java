@@ -72,9 +72,9 @@ class NoFileOpenUI
 	/**
 	 * Handy method for setting font, alignment, icon of buttons
 	 * 
-	 * @param action
-	 * @param container
-	 * @param icon
+	 * @param action 	The action to add to the button.
+	 * @param container	The component to add the button to.
+	 * @param icon		The icon associated to the button.
 	 */
 	private void addButton(Action action, JComponent container, Icon icon) 
 	{

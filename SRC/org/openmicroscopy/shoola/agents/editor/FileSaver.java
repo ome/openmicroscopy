@@ -67,7 +67,7 @@ public class FileSaver
 	/** Identifies that the file is of type other. */
 	public static final int		OTHER = MetadataHandlerView.OTHER;
 	
-	/** Handle to the async call so that we can cancel it. */
+	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  		handle;
     
     /** Utility file where the raw data are loaded. */
@@ -88,7 +88,7 @@ public class FileSaver
      * @param viewer The Editor this data loader is for.
      * 				 Mustn't be <code>null</code>.
      * @param file	 The file to save back to the server.
-     * @param data	 The id of thet file if previously saved, or
+     * @param data	 The id of the file if previously saved, or
      * 				 <code>-1</code> if not previously saved.
      * @param index  One of the constants defined by this class.
      * @param linkTo The <code></code>

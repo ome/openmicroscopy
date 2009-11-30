@@ -25,7 +25,6 @@
 package org.openmicroscopy.shoola.agents.editor.util;
 
 //Java imports
-
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -50,13 +49,14 @@ import java.util.Map;
  * </small>
  * @since OME3.0
  */
-public class Ontologies {
+public class Ontologies
+{
 	
 	/** A unique instance of this class	*/
 	private static Ontologies uniqueInstance;
 	
 	/** A list of Ontologies supported by OBO format */
-	LinkedHashMap<String, String> supportedOntologies;
+	private Map<String, String> supportedOntologies;
 	
 	/**
 	 * A textual spacer used for display of "ontologyId:termId   name"
@@ -214,9 +214,9 @@ public class Ontologies {
 	/**
 	 * Returns a Map of the Ontologies supported by OBO in an ordered Map. 
 	 * 
-	 * @return		see above. 
+	 * @return See above. 
 	 */
-	public LinkedHashMap<String, String> getSupportedOntologies() {
+	public Map<String, String> getSupportedOntologies() {
 		return supportedOntologies;
 	}
 

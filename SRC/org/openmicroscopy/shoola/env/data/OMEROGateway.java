@@ -2337,7 +2337,6 @@ class OMEROGateway
 			return service.getThumbnailByLongestSide(
 					omero.rtypes.rint(maxLength));
 		} catch (Throwable t) {
-			t.printStackTrace();
 			if (thumbnailService != null) {
 				try {
 					thumbnailService.close();
@@ -2882,7 +2881,6 @@ class OMEROGateway
 					stream.close();
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
 				if (stream != null) stream.close();
 				if (file != null) file.delete();
 			}
@@ -2906,7 +2904,6 @@ class OMEROGateway
 		try {
 			svc.close();
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 	
@@ -3375,58 +3372,7 @@ class OMEROGateway
 						nodes);
 				success = (List) m.get(Boolean.TRUE);
 				failure = (List) m.get(Boolean.FALSE);
-				
-				/*
-				Map m;
-				List l;
-				Iterator k;
-				while (i.hasNext()) {
-					id = (Long) i.next();
-					m = service.applySettingsToDataset(pixelsID, id);
-					l = (List) m.get(Boolean.TRUE);
-					if (l != null && l.size() > 0) {
-						k = l.iterator();
-						while (k.hasNext()) {
-							success.add((Long) k.next());
-						}
-					}
-					l = (List) m.get(Boolean.FALSE);
-					if (l != null && l.size() > 0) {
-						k = l.iterator();
-						while (k.hasNext()) {
-							failure.add((Long) k.next());
-						}
-					}
-				}
-				*/
 			} 
-			/*
-			else if (PlateData.class.equals(rootNodeType)) {
-				Map m;
-				List l;
-				Iterator k;
-				while (i.hasNext()) {
-					id = (Long) i.next();
-					m = applySettingsToPlate(pixelsID, id);
-					
-					//m = service.applySettingsToDataset(pixelsID, id);
-					l = (List) m.get(Boolean.TRUE);
-					if (l != null && l.size() > 0) {
-						k = l.iterator();
-						while (k.hasNext()) {
-							success.add((Long) k.next());
-						}
-					}
-					l = (List) m.get(Boolean.FALSE);
-					if (l != null && l.size() > 0) {
-						k = l.iterator();
-						while (k.hasNext()) {
-							failure.add((Long) k.next());
-						}
-					}
-				}
-			} 
-			*/
 		} catch (Exception e) {
 			handleException(e, "Cannot paste the rendering settings.");
 		}
@@ -3749,7 +3695,6 @@ class OMEROGateway
 			} catch (Exception ex) {
 				//digest the exception
 			}
-			e.printStackTrace();
 			handleException(e, "Cannot perform the search.");
 		}
 		return null;
@@ -4655,7 +4600,6 @@ class OMEROGateway
 			return type.getValue();
 
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot create a movie for image: "+imageID);
 		}
 		return -1;
@@ -4799,7 +4743,6 @@ class OMEROGateway
 			return r.getValue();
 
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot create a figure " +
 					"for specified images.");
 		}
@@ -4873,7 +4816,6 @@ class OMEROGateway
 				return getImage(id, new Parameters());
 			}
 		} catch (Throwable e) {
-			e.printStackTrace();
 			String message = getImportFailureMessage(e);
 			throw new ImportException(message, e, getReaderType());
 		}

@@ -60,68 +60,69 @@ public class OpenLocalFileAction
 {
 
 	/** The description of the action. */
-    private static final String 	NAME = "Open File";
-    
-	 /** The description of the action. */
-    private static final String 	DESCRIPTION = 
-    								"Open a Local File on your computer";
-    
-    /** Collection of supported file formats. */
+	private static final String 	NAME = "Open File";
+
+	/** The description of the action. */
+	private static final String 	DESCRIPTION = 
+		"Open a Local File on your computer";
+
+	/** Collection of supported file formats. */
 	private List<FileFilter>		filters;
-	
+
 	/** The file chooser.  */
 	private FileChooser		 		chooser;
-    
-    /** Creates a new instance.
-     * 
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
-     */
-   public OpenLocalFileAction(Editor model)
-   {
-       super(model);
-       setEnabled(true);
-       setName(NAME);
-       setDescription(DESCRIPTION);
-       setIcon(IconManager.OPEN_FOLDER);
-       
-       filters = new ArrayList<FileFilter>();
-       filters.add(new EditorFileFilter());
-       filters.add(new XMLFilter());
-   }
-   
-   /**
-    * Brings up on screen the {@link FileChooser}.
-    * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-    */
-   public void actionPerformed(ActionEvent e) 
-   {
-	   chooser = new FileChooser(null, FileChooser.LOAD, 
+
+	/** Creates a new instance.
+	 * 
+	 * @param model Reference to the Model. Mustn't be <code>null</code>.
+	 */
+	public OpenLocalFileAction(Editor model)
+	{
+		super(model);
+		setEnabled(true);
+		setName(NAME);
+		setDescription(DESCRIPTION);
+		setIcon(IconManager.OPEN_FOLDER);
+
+		filters = new ArrayList<FileFilter>();
+		filters.add(new EditorFileFilter());
+		filters.add(new XMLFilter());
+	}
+
+	/**
+	 * Brings up on screen the {@link FileChooser}.
+	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e) 
+	{
+		chooser = new FileChooser(null, FileChooser.LOAD, 
 				"Open File", "Choose a file to open in the Editor", 
 				filters);
 		chooser.addPropertyChangeListener(
 				FileChooser.APPROVE_SELECTION_PROPERTY, this);
 		UIUtilities.centerAndShow(chooser);
-   }
+	}
 
-   /**
-    * Responds to the user choosing a file to open.
-    * Calls {@link Editor#openLocalFile(File)}
-    * 
-    * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-    */
-   public void propertyChange(PropertyChangeEvent evt) 
-   {
-	   String name = evt.getPropertyName();
+	/**
+	 * Responds to the user choosing a file to open.
+	 * Calls {@link Editor#openLocalFile(File)}
+	 * 
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt) 
+	{
+		String name = evt.getPropertyName();
 		if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
 			File f = (File) evt.getNewValue();
-			
+
 			FileFilter filter = chooser.getSelectedFilter();
-			
+
 			// only allow accepted files to be opened.
 			// User must actually choose XML filter to open non-Editor file. 
 			if (filter.accept(f))
 				model.openLocalFile(f);
 			// TODO show (or don't hide) the file-chooser if file not accepted.
 		}
-   }
+	}
+	
 }

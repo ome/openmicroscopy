@@ -82,6 +82,9 @@ class GLImageCanvas
 	static {
 		CAPS = new GLCapabilities();//GLProfile.get(GLProfile.GL2));
 		CAPS.setAlphaBits(8);
+		CAPS.setRedBits(8);
+		CAPS.setGreenBits(8);
+		CAPS.setBlueBits(8);
 	}
 	
 	/** The Access to the OpenGL utility library. */
@@ -247,6 +250,9 @@ class GLImageCanvas
 			gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE,
 					GL.GL_REPLACE);
 			TextureCoords coords = new TextureCoords(0, 0, 1, 1);
+			//gl.glColorMask(false, true, false, false);
+			Color c = Color.green;
+			gl.glColor3f(c.getRed()/255f, c.getGreen()/255f, c.getBlue()/255f);
 			gl.glBegin(GL.GL_QUADS);
 			gl.glTexCoord2f(coords.left(), coords.bottom());
 			gl.glVertex3f(0, 0, 0);

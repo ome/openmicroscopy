@@ -22,10 +22,15 @@
  */
 package org.openmicroscopy.shoola.agents.editor.preview;
 
+
+//Java imports
 import java.io.File;
 
 import javax.swing.tree.TreeModel;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -33,12 +38,6 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 
 import pojos.FileAnnotationData;
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * 
@@ -51,13 +50,17 @@ import pojos.FileAnnotationData;
  * </small>
  * @since 3.0-Beta4
  */
-public class EditorPreviewModel {
+class EditorPreviewModel
+{
 
-	/** The annotation object hosting information about the file. */
-	private FileAnnotationData 	fileAnnotation;
+	/** The tree model. */
+	private TreeModel	treeModel;
 	
-	TreeModel 					treeModel;
-	
+	/**
+	 * Sets the file to edit.
+	 * 
+	 * @param file The file to edit.
+	 */
 	void setFileToEdit(File file)
 	{
 		if (file == null)	return;
@@ -74,6 +77,11 @@ public class EditorPreviewModel {
 		}
 	}
 	
+	/**
+	 * Returns the tree model.
+	 * 
+	 * @return See above.
+	 */
 	TreeModel getModel() { return treeModel; }
 	
 }

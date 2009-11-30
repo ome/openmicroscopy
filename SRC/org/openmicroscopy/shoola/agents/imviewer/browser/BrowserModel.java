@@ -30,6 +30,7 @@ import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -422,12 +423,11 @@ class BrowserModel
         ratio = ZoomGridAction.DEFAULT_ZOOM_FACTOR;
         gridRatio = ZoomGridAction.DEFAULT_ZOOM_FACTOR;
         init = true;
-        //parent.getMicronsPerPixels();
-        double v = unitInMicrons;
         unitInMicrons = UnitBarSizeAction.getDefaultValue(); // size microns.
         unitBarColor = ImagePaintingFactory.UNIT_BAR_COLOR;
         backgroundColor = ImagePaintingFactory.DEFAULT_BACKGROUND;
         gridImages = new ArrayList<BufferedImage>();
+        gridImagesAsTextures = new HashMap<Integer, TextureData>();
         zoomFactor = ZoomAction.DEFAULT_ZOOM_FACTOR;
         if (pref != null) {
         	if (pref.getBackgroundColor() != null)
@@ -478,7 +478,7 @@ class BrowserModel
     {
     	if (gridImages.size() != 0) return;
     	if (originalGridImages != null) originalGridImages.clear();
-    	if (gridImagesAsTextures == null || gridImagesAsTextures.size() == 0)
+    	if (gridImagesAsTextures.size() != 0) return;
     	if (ImViewerAgent.hasOpenGLSupport()) createGridImagesAsTextures();
     	else createGridImages();
     }
@@ -1070,7 +1070,7 @@ class BrowserModel
         }
         //displayedImage = null;
         //combinedImage = null;
-        gridImages.clear();
+        gridImagesAsTextures.clear();
     }
 	
 	/**

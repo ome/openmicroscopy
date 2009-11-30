@@ -23,14 +23,13 @@
 package org.openmicroscopy.shoola.agents.editor.browser;
 
 //Java imports
-
 import javax.swing.JTree;
 
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * This class extends JTree and provides an outline of the Tree (text only).

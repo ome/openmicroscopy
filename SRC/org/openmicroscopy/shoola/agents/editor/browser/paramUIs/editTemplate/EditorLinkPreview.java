@@ -23,10 +23,7 @@
 package org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate;
 
 //Java imports
-
 import java.awt.BorderLayout;
-
-import javax.swing.JPanel;
 
 //Third-party libraries
 
@@ -37,7 +34,6 @@ import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEdi
 import org.openmicroscopy.shoola.agents.editor.model.params.EditorLinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.preview.EditorPreview;
-import org.openmicroscopy.shoola.agents.editor.view.EditorFactory;
 
 /** 
  * This UI displays a Preview of an Editor file, linked to on the server (by ID)

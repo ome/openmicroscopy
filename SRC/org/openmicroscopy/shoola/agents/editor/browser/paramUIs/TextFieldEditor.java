@@ -23,12 +23,9 @@
 package org.openmicroscopy.shoola.agents.editor.browser.paramUIs;
 
 //Java imports
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.JTextField;
-import javax.swing.text.JTextComponent;
 
 //Third-party libraries
 

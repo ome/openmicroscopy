@@ -24,13 +24,18 @@
 
 package org.openmicroscopy.shoola.agents.editor.util;
 
+//Java imports
 import java.io.File;
 import java.util.StringTokenizer;
 
+//Third-party libraries
+
+//Application-internal dependencies
+
 
 /** 
- * This class contains some useful static methods for manipulating file paths. 
- * Eg. converting from a relative to an absolute file path (or vice versa).
+ * This class contains some useful static methods for manipulating file paths,
+ * e.g. converting from a relative to an absolute file path (or vice versa).
  * 
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -40,7 +45,8 @@ import java.util.StringTokenizer;
  * </small>
  * @since OME3.0
  */
-public class FilePathMethods {
+public class FilePathMethods
+{
 
 	/**
 	 * This method returns a file path that is relative to the location of 
@@ -48,11 +54,13 @@ public class FilePathMethods {
 	 * This relative path will link from the location of editorFile TO the 
 	 * location specified by absolutePath.
 	 * 
-	 * @param absolutePath
-	 * @return
+	 * @param linkFromFile The file from which to link from.
+	 * @param absolutePath The file to link to.
+	 * @return See above.
 	 */
 	public static String getRelativePathFromAbsolutePath(File linkFromFile, 
-			String absolutePath) {
+			String absolutePath)
+	{
 		return getRelativePathFromAbsolutePath(linkFromFile.getParent(), 
 				absolutePath);
 	}
@@ -64,14 +72,15 @@ public class FilePathMethods {
 	 * location specified by absolutePath.
 	 * 
 	 * @param linkFromDir		The directory from which to link FROM
-	 * @param absolutePath		The file to link TO
+	 * @param absolutePath		The file to link To
 	 * @return		The path from the directory to the absolutePath. 
 	 */
 	public static String getRelativePathFromAbsolutePath(String linkFromDir, 
 			String absolutePath) 
 	{	
 		if (linkFromDir == null) {
-			throw new IllegalArgumentException("File must have valid file path");
+			throw new IllegalArgumentException("File must have valid file " +
+					"path.");
 		}
 		
 		String fileSeparator = File.separator;
@@ -102,7 +111,8 @@ public class FilePathMethods {
 		int commonDirsCount = 0;
 		while ((commonDirsCount < editorFileDirectories.length) && 
 				(commonDirsCount < imageFileDirectories.length) && 
-				(editorFileDirectories[commonDirsCount].equals(imageFileDirectories[commonDirsCount]))) {
+				(editorFileDirectories[commonDirsCount].equals(
+						imageFileDirectories[commonDirsCount]))) {
 			commonDirsCount++;
 		}
 		
@@ -185,9 +195,10 @@ public class FilePathMethods {
 		// Need to build up the root file path that is common to both the Editor file
 		// and the Image. 
 		int commonDirs = editorFileDirectories.length - filePathExtraDirs;
-		for(int i=0; i<commonDirs; i++) {
+		for (int i = 0; i < commonDirs; i++) {
 			
-			absoluteImagePath = absoluteImagePath.concat(File.separator + editorFileDirectories[i]);
+			absoluteImagePath = absoluteImagePath.concat(
+					File.separator + editorFileDirectories[i]);
 		}
 		
 		// Now make the absolute image path by adding the relative file path
@@ -196,4 +207,5 @@ public class FilePathMethods {
 		
 		return absoluteImagePath;
 	}
+	
 }

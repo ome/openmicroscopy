@@ -23,21 +23,15 @@
 package org.openmicroscopy.shoola.agents.editor.browser.paramUIs;
 
 //Java imports
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
 import javax.swing.Box;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.Document;
-import javax.swing.text.StyledDocument;
-import javax.swing.text.html.HTML.Tag;
 
 //Third-party libraries
 
 //Application-internal dependencies
-
-import org.openmicroscopy.shoola.agents.editor.browser.TextAreaFilter;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;

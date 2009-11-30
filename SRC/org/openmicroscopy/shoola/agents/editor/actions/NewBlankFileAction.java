@@ -46,7 +46,7 @@ import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
  * @since OME3.0
  */
 public class NewBlankFileAction
-extends EditorAction
+	extends EditorAction
 {
 
 	/** The description of the action. */
@@ -55,7 +55,8 @@ extends EditorAction
 	 /** The description of the action. */
 	private static final String 	DESCRIPTION = "Create a New Blank File";
 	
-	/** Creates a new instance.
+	/** 
+	 * Creates a new instance.
 	 * 
 	 * @param model Reference to the Model. Mustn't be <code>null</code>.
 	 */
@@ -76,4 +77,5 @@ extends EditorAction
 	{
 	   model.newBlankFile();
 	}
+	
 }
