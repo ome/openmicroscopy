@@ -44,13 +44,6 @@ import omero_api_Gateway_ice	# see http://tinyurl.com/icebuserror
 import omero.util.imageUtil as imgUtil
 import Image, ImageDraw, ImageFont
 from datetime import date
-
-try: 
-	import hashlib 
- 	hash_sha1 = hashlib.sha1 
-except: 
-	import sha 
-	hash_sha1 = sha.new
 	
 
 WHITE = (255, 255, 255)
@@ -99,7 +92,7 @@ def paintDatasetCanvas(session, images, title, tagIds=None, colCount = 10, lengt
 	imageNames = {}
 	
 	# sort the images by name
-	images.sort(key=lambda x:(x.getName().getValue()))
+	images.sort(key=lambda x:(x.getName().getValue().lower()))
 	
 	for image in images:
 		imageId = image.getId().getValue()
@@ -333,8 +326,10 @@ def runAsScript():
 	commandArgs = {}
 	
 	for key in client.getInputKeys():
+		print key
 		if client.getInput(key):
 			commandArgs[key] = client.getInput(key).getValue()
+			print commandArgs[key]
 	
 	fileId = makeThumbnailFigure(client, session, commandArgs)
 	client.setOutput("fileAnnotation",fileId)
