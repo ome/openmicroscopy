@@ -25,18 +25,20 @@
 package org.openmicroscopy.shoola.agents.editor.util;
 
 //Java imports
-
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
 
+//Third-party libraries
 import uk.ac.ebi.ook.web.services.Query;
 import uk.ac.ebi.ook.web.services.QueryService;
 import uk.ac.ebi.ook.web.services.QueryServiceLocator;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 
 /** 
  * This class handles common calls to the Ontology Lookup Service.
@@ -50,7 +52,22 @@ import uk.ac.ebi.ook.web.services.QueryServiceLocator;
  * </small>
  * @since OME3.0
  */
-public class OntologyLookUp {
+public class OntologyLookUp
+{
+	
+	/**
+	 * Handles the exception while retrieving data from an ontology.
+	 * 
+	 * @param e The exception to handle.
+	 * @param name The name of the method.
+	 */
+	private static void handleException(Exception e, String name)
+	{
+		LogMessage msg = new LogMessage();
+		msg.print(name);
+		msg.print(e);
+		EditorAgent.getRegistry().getLogger().error(OntologyLookUp.class, msg);
+	}
 	
 	/**
 	 * Searches a specified ontology for terms that match the partial name 
@@ -65,7 +82,9 @@ public class OntologyLookUp {
 	 * 
 	 * @return		Map of terms 
 	 */
-	public static Map<String,String> getTermsByName (String name, String ontologyID) {
+	public static Map<String,String> getTermsByName(String name, 
+			String ontologyID)
+	{
 	
 		boolean removeObsoleteTerms = false;
 		
@@ -81,7 +100,7 @@ public class OntologyLookUp {
 			
 			// This would be nice but is FAR TOO SLOW (have to make a SOAP call for every term!). 
 			if (removeObsoleteTerms) {
-				ArrayList<String> obsoleteTermIds = new ArrayList<String>();
+				List<String> obsoleteTermIds = new ArrayList<String>();
 				for (Iterator i = map.keySet().iterator(); i.hasNext();){
 					String key = (String) i.next();
 					if(qs.isObsolete(key, ontologyID)) {
@@ -93,8 +112,8 @@ public class OntologyLookUp {
 				}
 			}
 			
-		}catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			handleException(e, "getTermsByName");
 		}
 		return map;
 	}
@@ -106,11 +125,13 @@ public class OntologyLookUp {
 	 * exact_synonym:
 	 * related_synonym:
 	 * 
-	 * @param termID
-	 * @param ontologyID
+	 * @param termID	The id of the term to handle.
+	 * @param ontologyID The Ontology identifier. E.g. "GO"
 	 * @return
 	 */
-	public static Map<String,String> getTermMetadata (String termID, String ontologyID) {
+	public static Map<String,String> getTermMetadata(String termID,
+			String ontologyID)
+	{
 			
 		Map<String, String> metaDataMap = null;
 			
@@ -119,8 +140,8 @@ public class OntologyLookUp {
 			Query qs = locator.getOntologyQuery();
 			metaDataMap = qs.getTermMetadata(termID, ontologyID);
 			
-		}catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			handleException(e, "getTermMetadata");
 		}
 		return metaDataMap;
 	}
@@ -128,11 +149,13 @@ public class OntologyLookUp {
 	/**
 	 * Gets the terms that are the parents of the defined term.
 	 * 
-	 * @param termID
-	 * @param ontologyID
+	 *  @param termID	The id of the term to handle.
+	 * @param ontologyID The Ontology identifier. E.g. "GO"
 	 * @return
 	 */
-	public static Map<String,String> getTermParents (String termID, String ontologyID) {
+	public static Map<String,String> getTermParents(String termID,
+			String ontologyID)
+	{
 		
 		Map<String, String> parentsMap = null;
 			
@@ -141,8 +164,8 @@ public class OntologyLookUp {
 			Query qs = locator.getOntologyQuery();
 			parentsMap = qs.getTermParents(termID, ontologyID);
 			
-		}catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			handleException(e, "getTermParents");
 		}
 		return parentsMap;
 	}
@@ -155,16 +178,16 @@ public class OntologyLookUp {
 	 * @param ontologyID 	The ontology to search. E.g. "GO"
 	 * @return
 	 */
-	public static String getTermName(String termId, String ontologyID) {
-		
+	public static String getTermName(String termId, String ontologyID)
+	{
 		String termName = "";
 		try {
 			QueryService locator = new QueryServiceLocator();
 			Query qs = locator.getOntologyQuery();
 			termName = qs.getTermById(termId, ontologyID);
 			
-		}catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			handleException(e, "getTermName");
 		}
 		return termName;
 	}

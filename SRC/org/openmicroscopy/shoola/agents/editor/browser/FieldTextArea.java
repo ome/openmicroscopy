@@ -70,6 +70,7 @@ import javax.swing.tree.TreePath;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ParamEditorDialog;
@@ -92,6 +93,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.NumberParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TextParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.ImagePreview;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 
 /** 
  * This Text Area is represents a Field/Step (or a node) of the data model tree,
@@ -427,7 +429,10 @@ public class FieldTextArea
 			}
     		
     	} catch (BadLocationException e) {
-			e.printStackTrace();
+    		LogMessage msg = new LogMessage();
+    		msg.print("getNewContent");
+    		msg.print(e);
+    		EditorAgent.getRegistry().getLogger().error(this, msg);
 		}
     	
     	return contentList;

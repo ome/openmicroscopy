@@ -714,7 +714,6 @@ public class Factory
     		Image img = Toolkit.getDefaultToolkit().getImage(buf.toString());
     		if (img == null) return null;
     		Icon icon = new ImageIcon(img);
-    		System.err.println(icon.getIconHeight()+" "+icon.getIconWidth());
     		if (icon.getIconHeight() <= 0 || icon.getIconWidth() <= 0)
     			return null;
     		return icon;

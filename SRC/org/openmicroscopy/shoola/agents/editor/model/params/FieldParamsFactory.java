@@ -142,11 +142,6 @@ public class FieldParamsFactory {
 		else if (paramType.equals(OntologyTermParam.ONTOLOGY_TERM_PARAM)) {
 			fieldValue = new OntologyTermParam();
 		}
-		
-		else 
-			System.err.println("FieldParamsFactory: PARAM_TYPE " + 
-					paramType + " " +
-					"NOT RECOGNIZED. Return NULL IParam");
 		return fieldValue;
 	}
 	

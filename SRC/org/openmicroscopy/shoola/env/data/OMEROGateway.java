@@ -2334,7 +2334,6 @@ class OMEROGateway
 			return service.getThumbnailByLongestSide(
 					omero.rtypes.rint(maxLength));
 		} catch (Throwable t) {
-			t.printStackTrace();
 			if (thumbnailService != null) {
 				try {
 					thumbnailService.close();
@@ -3718,7 +3717,6 @@ class OMEROGateway
 			} catch (Exception ex) {
 				//digest the exception
 			}
-			e.printStackTrace();
 			handleException(e, "Cannot perform the search.");
 		}
 		return null;
@@ -4624,7 +4622,6 @@ class OMEROGateway
 			return type.getValue();
 
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot create a movie for image: "+imageID);
 		}
 		return -1;

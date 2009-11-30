@@ -25,7 +25,6 @@
 package org.openmicroscopy.shoola.agents.editor.util;
 
 // Java imports
-
 import java.util.prefs.Preferences;
 
 //Third-party libraries
@@ -48,8 +47,8 @@ import java.util.prefs.Preferences;
  * </small>
  * @since OME3.0
  */
-public class PreferencesManager {
-	
+public class PreferencesManager
+{
 	
 	/**
 	 * The key for a the <code>Current Files Folder</code> preference.
@@ -83,7 +82,8 @@ public class PreferencesManager {
 	 * @param preferenceName 	The name of the preference.
 	 * @param preferenceValue	The value to be saved.
 	 */
-	public static void setPreference(String preferenceName, String preferenceValue)
+	public static void setPreference(String preferenceName, 
+			String preferenceValue)
 	{
 		if (preferenceValue == null) return;
 		
@@ -92,7 +92,6 @@ public class PreferencesManager {
 		prefs.put(preferenceName, preferenceValue);
 	}
 
-	
 	/**
 	 * Gets a preference.
 	 * 
@@ -108,16 +107,16 @@ public class PreferencesManager {
 	
 	/**
 	 * Gets a preference, and returns True if the value of the 
-	 * preference is "true"
+	 * preference is <code>true</code>.
 	 * 
 	 * @param preferenceName 	The name of the preference.
 	 * @return 		The value of the preference
 	 */
 	public static boolean isPreferenceTrue(String preferenceName)
 	{
-		if (getPreference(preferenceName) == null)
-			return false;
+		if (getPreference(preferenceName) == null) return false;
 		
 		return (getPreference(preferenceName).equals("true"));
 	}
+	
 }
