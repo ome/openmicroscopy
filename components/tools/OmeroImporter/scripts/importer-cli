@@ -134,7 +134,9 @@ fi
 cd "${PROGRAM_DIR}"
 
 # build the classpath
-CLASSPATH="./OmeroImporter.jar"
+# Insight JAR is here for composite builds, please do not remove it.
+# Mon 30 Nov 2009 10:15:38 GMT -- Chris Allan <callan@openmicroscopy.org.uk>
+CLASSPATH="./OmeroImporter.jar:./omero.insight.jar"
 for FILE in ./libs/*.jar; do
 	CLASSPATH="${CLASSPATH:+${CLASSPATH}:}$FILE"
 done

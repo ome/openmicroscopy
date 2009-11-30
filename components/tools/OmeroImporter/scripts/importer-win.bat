@@ -1,6 +1,6 @@
 @echo off
 
-rem OMERO.insight startup script for Windows
+rem OMERO.importer startup script for Windows
 rem ----------------------------------------------------------------------------
 rem  Copyright (C) 2006 University of Dundee. All rights reserved.
 rem
