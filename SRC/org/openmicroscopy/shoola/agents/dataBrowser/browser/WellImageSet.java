@@ -128,6 +128,18 @@ public class WellImageSet
 	}
 
 	/**
+	 * Returns the location of the well on the grid as a string.
+	 * 
+	 * @return See above.
+	 */
+	public String getWellLocation() 
+	{
+		StringBuffer buf = new StringBuffer();
+		buf.append(rowDisplay+"-"+columnDisplay);
+		return buf.toString();
+	}
+	
+	/**
 	 * Adds the passed well samples.
 	 * 
 	 * @param node The value to add.
@@ -262,20 +274,6 @@ public class WellImageSet
     	this.description = description;
     	setDefault();
     }
-    
-	/**
-	 * Returns the UI representation of the row index.
-	 * 
-	 * @return See above
-	 */
-	public String getRowDisplay() { return rowDisplay; }
-	
-	/**
-	 * Returns the UI representation of the column index.
-	 * 
-	 * @return See above
-	 */
-	public String getColumnDisplay() { return columnDisplay; }
 	
     /**
      * Overridden to make sure that the default color is set.

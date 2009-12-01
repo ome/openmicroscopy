@@ -30,12 +30,13 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.List;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 
 //Third-party libraries
+import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
@@ -66,6 +67,9 @@ class WellFieldsView
 	/** Indicates to lay out the fields in a spatial position. */
 	static final int			SPATIAL_LAYOUT = 1;
 	
+	/** The text for the selected well. */
+	private static final String	DEFAULT_TEXT = "Well: ";
+	
 	/** The grid representing the plate. */
 	private PlateGrid 			grid;
 	
@@ -84,6 +88,9 @@ class WellFieldsView
 	/** The type of layout of the fields. */
 	private int					 layoutFields;
 	
+	/** The currently selected well. */
+	private JLabel				 selectedNode;
+	
 	/** 
 	 * Handles the mouse clicked on the canvas.
 	 * 
@@ -92,7 +99,10 @@ class WellFieldsView
 	private void handleSelection(Point p)
 	{
 		WellSampleNode node = canvas.getNode(p);
-		if (node != null) model.viewNode(node);
+		if (node != null) {
+			model.viewNode(node);
+			//repaint();
+		}
 	}
 	
 	/** Initializes the components. */
@@ -103,8 +113,12 @@ class WellFieldsView
 				model.getColumnSequenceIndex(), model.getValidWells());
 		grid.addPropertyChangeListener(controller);
 		WellImageSet node = model.getSelectedWell();
-		if (node != null)
+		selectedNode = new JLabel();
+		if (node != null) {
+			selectedNode.setText(DEFAULT_TEXT+node.getWellLocation());
 			grid.selectCell(node.getRow(), node.getColumn());
+		}
+			
 		canvas = new WellFieldsCanvas(this);
 		canvas.addMouseListener(new MouseAdapter() {
 			
@@ -123,7 +137,13 @@ class WellFieldsView
 		setBorder(new LineBorder(new Color(99, 130, 191)));
 		setLayout(new BorderLayout(0, 0));
 		add(canvas, BorderLayout.CENTER);
-		add(UIUtilities.buildComponentPanel(grid), BorderLayout.SOUTH);
+		JPanel p = new JPanel();
+		double[][] size = {{TableLayout.PREFERRED, 5, TableLayout.PREFERRED},
+				{TableLayout.PREFERRED, TableLayout.FILL}};
+		p.setLayout(new TableLayout(size));
+		p.add(grid, "0, 0, 0, 1");
+		p.add(selectedNode, "2, 0, LEFT, TOP");
+		add(UIUtilities.buildComponentPanel(p), BorderLayout.SOUTH);
 	}
 	
 	/**
@@ -162,14 +182,6 @@ class WellFieldsView
 	List<WellSampleNode> getNodes() { return nodes; }
 	
 	/**
-	 * Sets the selected cell.
-	 * 
-	 * @param row 	 The row identifying the cell.
-	 * @param column The column identifying the cell.
-	 */
-	void selectCell(int row, int column) { grid.selectCell(row, column); }
-
-	/**
 	 * Displays the passed fields.
 	 * 
 	 * @param nodes The nodes hosting the fields.
@@ -177,6 +189,14 @@ class WellFieldsView
 	void displayFields(List<WellSampleNode> nodes)
 	{
 		this.nodes = nodes;
+		if (nodes != null && nodes.size() > 0) {
+			WellSampleNode node = nodes.get(0);
+			if (node != null) {
+				selectedNode.setText(DEFAULT_TEXT+
+						node.getParentWell().getWellLocation());
+				selectedNode.repaint();
+			}
+		}
 		canvas.repaint();
 	}
 	
