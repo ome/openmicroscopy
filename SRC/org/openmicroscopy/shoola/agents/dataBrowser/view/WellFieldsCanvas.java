@@ -30,7 +30,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -125,25 +124,73 @@ class WellFieldsCanvas
 		        while (i.hasNext()) {
 					n = i.next();
 					img = n.getThumbnail().getFullScaleThumb();
-					r = new Rectangle(w, 0, img.getWidth(), img.getHeight());
-					locations.put(r, n);
-					g2D.drawImage(img, null, w, 0); 
-					w += img.getWidth()+1;
+					if (img != null) {
+						r = new Rectangle(w, 0, img.getWidth(), img.getHeight());
+						locations.put(r, n);
+						g2D.drawImage(img, null, w, 0); 
+						w += img.getWidth()+1;
+					}
 				}
 				break;
 			case WellFieldsView.SPATIAL_LAYOUT:
 				int x = 0;
 				int y = 0;
-		        while (i.hasNext()) {
+				int xMin = Integer.MAX_VALUE;
+				int yMin = Integer.MAX_VALUE;
+				int xMax = Integer.MIN_VALUE;
+				int yMax = Integer.MIN_VALUE;
+				int width = 0;
+				int height = 0;
+				while (i.hasNext()) {
 					n = i.next();
-					data = (WellSampleData) n.getHierarchyObject();
 					img = n.getThumbnail().getFullScaleThumb();
+					if (img != null) {
+						data = (WellSampleData) n.getHierarchyObject();
+						if (width < img.getWidth())
+							width = img.getWidth();
+						if (height < img.getHeight())
+							height = img.getHeight();
+						x = (int) data.getPositionX();
+						y = (int) data.getPositionY();
+						if (x < xMin) xMin = x;
+						if (y < yMin) yMin = y;
+						if (xMax < x) xMax = x;
+						if (yMax < y) yMax = y;
+					}
+				}
+				int xc = Math.abs(xMin);
+				int yc = Math.abs(yMin);
+				i = l.iterator();
+				int vx = 0;
+				int vy = 0;
+				while (i.hasNext()) {
+					n = i.next();
+					img = n.getThumbnail().getFullScaleThumb();
+					if (img != null) {
+						data = (WellSampleData) n.getHierarchyObject();
+						x = (int) data.getPositionX();
+						y = (int) data.getPositionY();
+						vx = (x+xc)/2;
+						vy = (y+yc)/2;
+						r = new Rectangle(vx, vy, width, height);
+						g2D.drawImage(img, null, vx, vy); 
+						locations.put(r, n);
+					}
+				}
+				
+				/*
+		        while (i.hasNext()) {
+					
 					x = (int) data.getPositionX();
 					y = (int) data.getPositionY();
-					r = new Rectangle(x, y, img.getWidth(), img.getHeight());
-					g2D.drawImage(img, null, x, y); 
-					locations.put(r, n);
+					System.err.println(x+" "+y);
+					if (img != null) {
+						r = new Rectangle(x, y, img.getWidth(), img.getHeight());
+						g2D.drawImage(img, null, x, y); 
+						locations.put(r, n);
+					}
 				}
+				*/
 		}
         
         g2D.dispose();
