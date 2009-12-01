@@ -157,12 +157,18 @@ public class FigureDialog
 	/** Action id indicating to allow the modification of the scale bar. */
 	private static final int 		SCALE_BAR = 2;
 	
+	/** Action id indicating to arrange the thumbnails by tags. */
+	private static final int 		ARRANGE_BY_TAGS = 3;
+	
 	/** Default text describing the compression check box.  */
     private static final String		PROJECTION_DESCRIPTION = 
     				"Select the type of projection.";
     
     /** The default number of thumbnails per row. */
     private static final int		ITEMS_PER_ROW = 10;
+    
+    /** The height of the component displaying the available tags. */
+    private static final int		MAX_HEIGHT = 150;
     
     /** The possible options for row names. */
     private static final String[]	ROW_NAMES;
@@ -188,6 +194,27 @@ public class FigureDialog
     /** Index to <code>500%</code> magnification. */
     private static final int		ZOOM_500 = 5;
     
+    /** Index corresponding to a <code>24x24</code> thumbnail. */
+    private static final int		SIZE_24 = 0;
+    
+    /** Index corresponding to a <code>32x32</code> thumbnail. */
+    private static final int		SIZE_32 = 1;
+    
+    /** Index corresponding to a <code>48x48</code> thumbnail. */
+    private static final int		SIZE_48 = 2;
+    
+    /** Index corresponding to a <code>64x64</code> thumbnail. */
+    private static final int		SIZE_64 = 3;
+    
+    /** Index corresponding to a <code>96x96</code> thumbnail. */
+    private static final int		SIZE_96 = 4;
+    
+    /** Index corresponding to a <code>128x128</code> thumbnail. */
+    private static final int		SIZE_128 = 5;
+    
+    /** Index corresponding to a <code>160x160</code> thumbnail. */
+    private static final int		SIZE_160 = 6;
+    
     /** The size available for thumbnails creation. */
     private static final String[]	SIZE_OPTIONS;
 
@@ -203,13 +230,14 @@ public class FigureDialog
 		MAGNIFICATION[ZOOM_300] = "300%";
 		MAGNIFICATION[ZOOM_400] = "400%";
 		MAGNIFICATION[ZOOM_500] = "500%";
-		SIZE_OPTIONS = new String[6];
-		SIZE_OPTIONS[ZOOM_AUTO] = "24x24";
-		SIZE_OPTIONS[ZOOM_100] = "32x32";
-		SIZE_OPTIONS[ZOOM_200] = "48x48";
-		SIZE_OPTIONS[ZOOM_300] = "64x64";
-		SIZE_OPTIONS[ZOOM_400] = "96x96";
-		SIZE_OPTIONS[ZOOM_500] = "128x128";
+		SIZE_OPTIONS = new String[7];
+		SIZE_OPTIONS[SIZE_24] = "24x24";
+		SIZE_OPTIONS[SIZE_32] = "32x32";
+		SIZE_OPTIONS[SIZE_48] = "48x48";
+		SIZE_OPTIONS[SIZE_64] = "64x64";
+		SIZE_OPTIONS[SIZE_96] = "96x96";
+		SIZE_OPTIONS[SIZE_128] = "128x128";
+		SIZE_OPTIONS[SIZE_160] = "160x160";
 	}
 	
 	/** The name to give to the figure. */
@@ -664,11 +692,17 @@ public class FigureDialog
 		String[] f = new String[map.size()];
 		Entry entry;
 		Iterator i = map.entrySet().iterator();
+		int index = 0;
+		int v;;
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
-			f[(Integer) entry.getKey()] = (String) entry.getValue();
+			v = (Integer) entry.getKey();
+			f[v] = (String) entry.getValue();
+			if (v == FigureParam.PNG);
+				index = v;
 		}
 		formats = new JComboBox(f);
+		formats.setSelectedIndex(index);
 		zRange = new TextualTwoKnobsSlider(1, maxZ, 1, maxZ);
 		zRange.layoutComponents();
 		zRange.setEnabled(maxZ > 1);
@@ -730,6 +764,7 @@ public class FigureDialog
 			public void windowClosing(WindowEvent e) { close(); }
 		});
 		sizeBox = new JComboBox(SIZE_OPTIONS);
+		sizeBox.setSelectedIndex(SIZE_96);
 		numberPerRow = new NumericalTextField(1, 100);
 		numberPerRow.setColumns(3);
 		numberPerRow.setText(""+ITEMS_PER_ROW);
@@ -741,6 +776,8 @@ public class FigureDialog
 		selectedObjects.setSelected(true);
 		
 		arrangeByTags = new JCheckBox();
+		arrangeByTags.addActionListener(this);
+		arrangeByTags.setActionCommand(""+ARRANGE_BY_TAGS);
 	}
 	
 	/** Builds and lays out the UI. */
@@ -896,7 +933,7 @@ public class FigureDialog
         	
         	
         	 i = i+2;
-             p.add(UIUtilities.setTextFont("Made with"), "0, "+i+"," +
+             p.add(UIUtilities.setTextFont("Made of"), "0, "+i+"," +
              		" LEFT, TOP");
              JPanel controls = new JPanel();
              controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
@@ -1226,22 +1263,29 @@ public class FigureDialog
 		int format = formats.getSelectedIndex();
 		FigureParam p = new FigureParam(format, name);
 		p.setIndex(FigureParam.THUMBNAILS);
-		int width = 24;
+		int width = 96;
 		switch (sizeBox.getSelectedIndex()) {
-			case ZOOM_100:
+			case SIZE_24:
+				width = 24;
+				break;
+			case SIZE_32:
 				width = 32;
 				break;
-			case ZOOM_200:
+			case SIZE_48:
 				width = 48;
 				break;
-			case ZOOM_300:
+			case SIZE_64:
 				width = 64;
 				break;
-			case ZOOM_400:
+			case SIZE_96:
 				width = 96;
 				break;
-			case ZOOM_500:
+			case SIZE_128:
 				width = 128;
+				break;
+			case SIZE_160:
+				width = 160;
+				break;
 		}
 		Number n = numberPerRow.getValueAsNumber();
 		if (n != null && n instanceof Integer)
@@ -1390,7 +1434,6 @@ public class FigureDialog
 	{
 		if (tags == null || tags.size() == 0) return;
 		if (thumbnailsPane == null) return;
-		arrangeByTags.setSelected(true);
 		JPanel p = new JPanel();
 		double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
 				{40, TableLayout.PREFERRED}}; //rows
@@ -1411,6 +1454,7 @@ public class FigureDialog
 		while (i.hasNext()) {
 			tag = (TagAnnotationData) i.next();
 			box = new JCheckBox(tag.getTagValue());
+			box.setEnabled(false);
 			box.addActionListener(listener);
 			tagsSelection.put(box, tag);
 			tagPane.add(box);
@@ -1423,7 +1467,10 @@ public class FigureDialog
 		controls.add(UIUtilities.buildComponentPanel(arrangeByTags));
 		p.add(controls, "0, 0, LEFT, TOP");
 		p.add(selectedTags, "0, 1, LEFT, TOP");
-		p.add(new JScrollPane(tagPane), "1, 0, 1, 1");
+		JScrollPane pane = new JScrollPane(tagPane);
+		Dimension d = pane.getPreferredSize();
+		pane.setPreferredSize(new Dimension(d.width, MAX_HEIGHT));
+		p.add(pane, "1, 0, 1, 1");
 		thumbnailsPane.add(p, "0, 1");
 		thumbnailsPane.revalidate();
 		thumbnailsPane.repaint();
@@ -1477,6 +1524,15 @@ public class FigureDialog
 				break;
 			case SCALE_BAR:
 				scaleBar.setEnabled(showScaleBar.isSelected());
+				break;
+			case ARRANGE_BY_TAGS:
+				boolean b = arrangeByTags.isSelected();
+				Iterator<JCheckBox> i = tagsSelection.keySet().iterator();
+				JCheckBox box;
+				while (i.hasNext()) {
+					box = i.next();
+					box.setEnabled(b);
+				}
 		}
 	}
 

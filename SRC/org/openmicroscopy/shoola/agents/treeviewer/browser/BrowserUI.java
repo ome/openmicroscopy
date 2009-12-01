@@ -1642,4 +1642,16 @@ class BrowserUI
 		tm.reload(node);
 	}
 	
+	/** 
+	 * Reloads the specified node.
+	 * 
+	 * @param node The node to reload.
+	 */
+	void reloadNode(TreeImageDisplay node)
+	{
+		if (node == null) return;
+		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+		tm.reload(node);
+	}
+	
 }

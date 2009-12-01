@@ -2082,6 +2082,7 @@ class TreeViewerComponent
 			i = nodes.iterator();
 			Object obj;
 			List<DeletableObject> l = new ArrayList<DeletableObject>();
+			List<TreeImageDisplay> toRemove = new ArrayList<TreeImageDisplay>();
 			DeletableObject d;
 			while (i.hasNext()) {
 				node = (TreeImageDisplay) i.next();
@@ -2090,10 +2091,15 @@ class TreeViewerComponent
 					d = new DeletableObject((DataObject) obj, content, ann);
 					d.setAttachmentTypes(types);
 					l.add(d);
+					toRemove.add(node);
 				}
 			}
 			
 			if (l.size() > 0) {
+				model.getSelectedBrowser().removeTreeNodes(toRemove);
+				view.removeAllFromWorkingPane();
+				DataBrowserFactory.discardAll();
+				model.getMetadataViewer().setRootObject(null);
 				model.fireObjectsDeletion(l);
 				fireStateChange();
 			}

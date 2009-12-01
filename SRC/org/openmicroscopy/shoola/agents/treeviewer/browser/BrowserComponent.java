@@ -1431,4 +1431,25 @@ class BrowserComponent
 		model.getParentModel().refreshTree();
 	}
 	
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#removeTreeNodes(List)
+	 */
+	public void removeTreeNodes(List<TreeImageDisplay> nodes)
+	{
+		if (nodes == null) return;
+		Iterator<TreeImageDisplay> i = nodes.iterator();
+		TreeImageDisplay node;
+		TreeImageDisplay parent;
+		while (i.hasNext()) {
+			node = i.next();
+			parent = node.getParentDisplay();
+			if (parent != null) {
+				parent.removeChildDisplay(node);
+				parent.remove(node);
+				view.reloadNode(parent);
+			}
+		}
+	}
+	
 }

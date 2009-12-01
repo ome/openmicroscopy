@@ -167,6 +167,7 @@ public class FigureParam
 		splitGrey = false;
 		index = SPLIT_VIEW;
 		selectedObjects = true;
+		tags = null;
 	}
 	
 	/**

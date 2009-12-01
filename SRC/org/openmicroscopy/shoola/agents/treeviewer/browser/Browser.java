@@ -659,6 +659,10 @@ public interface Browser
 	/** Brings up the importer. */
 	void showImporter();
 
+	/** Refreshes the specified browser. */
 	void refreshBrowser();
+	
+	/** Removes the passed nodes from the display. */
+	void removeTreeNodes(List<TreeImageDisplay> nodes);
 	
 }

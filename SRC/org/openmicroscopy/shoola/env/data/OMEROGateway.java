@@ -4665,6 +4665,15 @@ class OMEROGateway
 				} else if (DatasetData.class.equals(type)) {
 					parameters.map.put("datasetIds", omero.rtypes.rlist(ids));	
 				}
+				List<Long> tags = param.getTags();
+				if (tags != null && tags.size() > 0) {
+					ids = new ArrayList<RType>(tags.size());
+					i = tags.iterator();
+					while (i.hasNext()) 
+						ids.add(omero.rtypes.rlong(i.next()));
+					parameters.map.put("tagIds", omero.rtypes.rlist(ids));
+				}
+					
 				if (parentID > 0)
 					parameters.map.put("parentId", 
 							omero.rtypes.rlong(parentID));
@@ -4682,11 +4691,6 @@ class OMEROGateway
 				if (r == null) return -1;
 				return r.getValue();
 			}
-			
-			
-			
-			
-			
 			//merge channels
 			Map<String, RType> merge = new LinkedHashMap<String, RType>();
 			Entry entry;
