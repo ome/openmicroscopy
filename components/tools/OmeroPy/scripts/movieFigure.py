@@ -94,7 +94,7 @@ def addScalebar(scalebar, xIndent, yIndent, image, pixels, colour):
 	return True	
 	
 		
-def getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, channels, width, height, spacer, 
+def getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, width, height, spacer, 
 			algorithm, stepping, scalebar, overlayColour, timeUnits):
 	
 	mode = "RGB"
@@ -159,31 +159,16 @@ def getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, channels, width, h
 		# a list of renderedImages (data as Strings) for the split-view row
 		renderedImages = []
 		
-		channelMismatch = False
-		# first, turn off all channels in pixels
-		for i in range(sizeC): 
-			re.setActive(i, False)	
-	
-		# for each channel in the splitview...
-		for index in channels:
-			if index >= sizeC:
-				channelMismatch = True		# can't turn channel on - simply render black square! 
-			else:
-				re.setActive(index, True)				# turn channel on
-		
 		for time in tIndexes:
 			if time >= sizeT:
-				channelMismatch = True		# can't turn channel on - simply render black square! 
+				log(" WARNING: This image does not have Time frame: %d. (max is %d)" % (time+1, sizeT))	 
 			else: 
 				projection = re.renderProjectedCompressed(algorithm, time, stepping, proStart, proEnd)
 				# create images and resize, add to list
 				image = Image.open(StringIO.StringIO(projection))
 				resizedImage = imgUtil.resizeImage(image, width, height)
 				renderedImages.append(resizedImage)
-					
-		if channelMismatch:
-			log(" WARNING channel mismatch: The current image has fewer channels or time points than the primary image.")
-		
+
 		
 		# make a canvas for the row of splitview images...(will add time labels above each row)
 		font = imgUtil.getFont(width/12)
@@ -242,11 +227,11 @@ def getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, channels, width, h
 	return figureCanvas
 	
 	
-def createMovieFigure(session, pixelIds, tIndexes, zStart, zEnd, channels, width, height, spacer, 
+def createMovieFigure(session, pixelIds, tIndexes, zStart, zEnd, width, height, spacer, 
 							algorithm, stepping, scalebar, overlayColour, timeUnits, imageLabels):
 	
 
-	panelCanvas = getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, channels, width, height, spacer, 
+	panelCanvas = getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, width, height, spacer, 
 							algorithm, stepping, scalebar, overlayColour, timeUnits)
 					
 	# add lables to row...
@@ -387,13 +372,6 @@ def movieFigure(session, commandArgs):
 	zEnd = sizeZ - 1
 	if "zEnd" in commandArgs:
 		zEnd = commandArgs["zEnd"]
-		
-	channels = []
-	if "channels" in commandArgs:
-		for c in commandArgs["channels"]:
-			channels.append(c.getValue())
-	else:
-		channels = range(sizeC)
 	
 	width = sizeX
 	if "width" in commandArgs:
@@ -438,7 +416,7 @@ def movieFigure(session, commandArgs):
 	if "timeUnits" in commandArgs:
 		timeUnits = commandArgs["timeUnits"]
 				
-	figure = createMovieFigure(session, pixelIds, tIndexes, zStart, zEnd, channels, width, height, spacer, 
+	figure = createMovieFigure(session, pixelIds, tIndexes, zStart, zEnd, width, height, spacer, 
 							algorithm, stepping, scalebar, overlayColour, timeUnits, imageLabels)
 	
 	#figure.show()
@@ -472,7 +450,6 @@ def runAsScript():
 	client = scripts.client('movieFigure.py', 'Export a figure of a movie.', 
 	scripts.List("imageIds").inout(),		# List of image IDs. Each movie on a single row of figure
 	scripts.List("tIndexes").inout(),		# The frames to display in the figure
-	scripts.Set("channels").inout(),		# The channels to turn on (colours not changed)
 	scripts.Long("zStart", optional=True).inout(),		# projection range
 	scripts.Long("zEnd", optional=True).inout(),		# projection range
 	scripts.Long("width", optional=True).inout(),		# the max width of each image panel 
