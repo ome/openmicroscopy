@@ -79,7 +79,7 @@ def pasteImage(image, canvas, x, y):
 	# make a tuple of topleft-x, topleft-y, bottomRight-x, bottomRight-y
 	pasteBox = (x, y, xRight, yBottom)
 	canvas.paste(image, pasteBox)
-	
+ 	
 
 def getThumbnail(thumbnailStore, pixelsId, length):
 	""" 
@@ -98,17 +98,17 @@ def getThumbnail(thumbnailStore, pixelsId, length):
 	except:
 		return None
 		
-def getThumbnailSet(thumbnailStore, length, pixelsIds):
+def getThumbnailSet(thumbnailStore, length, pixelIds):
 	""" 
 	Returns map of thumbnails whose keys are the pixels id and the values are the image, the longest side is 'length'  
 	
 	@param thumbnailStore: 	The Omero thumbnail store
-	@param pixelsIds:		The collection of pixels ID.
+	@param pixelIds:		The collection of pixels ID.
 	@param length:		Length of longest side. int
 	@return: See above
 	"""	
 	try:
-		return thumbnailStore.getThumbnailByLongestSideSet(rint(length), pixelsIds)	# returns string (api says Ice::ByteSeq)
+		return thumbnailStore.getThumbnailByLongestSideSet(rint(length), pixelIds)	# returns string (api says Ice::ByteSeq)
 	except:
 		return None
 	
@@ -168,11 +168,12 @@ def paintThumbnailGrid(thumbnailStore, length, spacing, pixelIds, colCount, bg=(
 		draw.text((textX, spacing), leftLabel, font=font, fill=textColour)
 		verticalCanvas = textCanvas.rotate(90)
 		pasteImage(verticalCanvas, canvas, 0, 0)
+		del draw
 		
 	# loop through the images, getting a thumbnail and placing it on a new row and column
 	r = 0
 	c = 0
-	thumbnailMap = getThumbnailSet(thumbnailStore, length, pixelsIds)
+	thumbnailMap = getThumbnailSet(thumbnailStore, length, pixelIds)
 	for pixelsId in pixelIds:
 		if pixelsId in thumbnailMap:
 			thumbnail = thumbnailMap[pixelsId]#getThumbnail(thumbnailStore, pixelsId, length)
@@ -182,6 +183,7 @@ def paintThumbnailGrid(thumbnailStore, length, spacing, pixelIds, colCount, bg=(
 				x = c*(length+spacing) + leftSpace
 				y = r*(length+spacing) + spacing
 				pasteImage(thumbImage, canvas, x, y)
+				
 		# increment the column, and if we're at the last column, start a new row
 		c = c + 1
 		if c == colCount:
