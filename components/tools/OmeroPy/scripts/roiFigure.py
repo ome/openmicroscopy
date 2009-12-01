@@ -57,7 +57,6 @@ PNG = "image/png"
 formatExtensionMap = {JPEG:"jpg", PNG:"png"};
 
 WHITE = (255,255,255)
-fontsize = 24
 
 
 logStrings = []
@@ -123,7 +122,7 @@ def getTimeIndexes(timePoints, maxFrames):
 		
 	
 def getROImovieView	(session, pixels, zStart, zEnd, tStart, tEnd, splitIndexes, channelNames, colourChannels, mergedIndexes, 
-			mergedColours, roiX, roiY, roiWidth, roiHeight, roiZoom, tStep=1, spacer = 12, algorithm=None, stepping = 1):
+			mergedColours, roiX, roiY, roiWidth, roiHeight, roiZoom, tStep=1, spacer = 12, algorithm=None, stepping = 1, fontsize=24):
 	""" This takes a ROI rectangle from an image and makes a movie canvas of the region in the ROI, zoomed 
 		by a defined factor. 
 	"""
@@ -238,7 +237,7 @@ def getROImovieView	(session, pixels, zStart, zEnd, tStart, tEnd, splitIndexes, 
 	return (canvas, fullFirstFrame, textHeight + spacer)
 	
 def getROIsplitView	(session, pixels, zStart, zEnd, splitIndexes, channelNames, colourChannels, mergedIndexes, 
-			mergedColours, roiX, roiY, roiWidth, roiHeight, roiZoom, spacer = 12, algorithm = None, stepping = 1):
+			mergedColours, roiX, roiY, roiWidth, roiHeight, roiZoom, spacer = 12, algorithm = None, stepping = 1, fontsize=24):
 	""" This takes a ROI rectangle from an image and makes a split view canvas of the region in the ROI, zoomed 
 		by a defined factor. 
 	"""
@@ -481,6 +480,7 @@ def getSplitView(session, imageIds, pixelIds, zStart, zEnd, splitIndexes, channe
 		log("ROI zoom: %F X" % roiZoom)
 	
 	textGap = spacer/3
+	fontsize = max(12, width/10)
 	font = imgUtil.getFont(fontsize)
 	textHeight = font.getsize("Textq")[1]
 	maxCount = 0
@@ -502,6 +502,7 @@ def getSplitView(session, imageIds, pixelIds, zStart, zEnd, splitIndexes, channe
 		roi = getRectangle(session, imageId)
 		if roi == None:
 			log("No Rectangle ROI found for this image")
+			del imageLabels[row]	# remove the corresponding labels
 			continue
 		roiX, roiY, roiWidth, roiHeight, zMin, zMax, tStart, tEnd = roi
 		
@@ -524,11 +525,11 @@ def getSplitView(session, imageIds, pixelIds, zStart, zEnd, splitIndexes, channe
 		# get the split pane and full merged image
 		if tStart == tEnd:
 			roiSplitPane, fullMergedImage, topSpacer = getROIsplitView	(session, pixels, zStart, zEnd, splitIndexes, channelNames, 
-				colourChannels, mergedIndexes, mergedColours, roiX, roiY, roiWidth, roiHeight, roiZoom, spacer, algorithm, stepping)
+				colourChannels, mergedIndexes, mergedColours, roiX, roiY, roiWidth, roiHeight, roiZoom, spacer, algorithm, stepping, fontsize)
 		else:
 			tStep = 1
 			roiSplitPane, fullMergedImage, topSpacer = getROImovieView	(session, pixels, zStart, zEnd, tStart, tEnd, splitIndexes, channelNames, 
-				colourChannels, mergedIndexes, mergedColours, roiX, roiY, roiWidth, roiHeight, roiZoom, tStep, spacer, algorithm, stepping)
+				colourChannels, mergedIndexes, mergedColours, roiX, roiY, roiWidth, roiHeight, roiZoom, tStep, spacer, algorithm, stepping, fontsize)
 			
 		
 		# and now zoom the full-sized merged image, add scalebar 
@@ -753,9 +754,7 @@ def roiFigure(session, commandArgs):
 		if roiZoom == 0:
 			roiZoom = None
 			
-	fontsize = width/12
 	spacer = (width/50) + 2
-	
 	
 	fig = getSplitView(session, imageIds, pixelIds, zStart, zEnd, splitIndexes, channelNames, colourChannels, 
 			mergedIndexes, mergedColours, width, height, imageLabels, spacer, algorithm, stepping, scalebar, overlayColour, roiZoom)
