@@ -89,6 +89,10 @@ public class FileImportComponent
 	/** Default text when a failure occurred. */
 	private static final String		FAILURE_TEXT = "failed";
 	
+	/** The text displayed in the tool tip when the image has been imported. */
+	private static final String		IMAGE_LABEL_TOOLTIP = 
+		"Click on thumbnail to launch the viewer.";
+	
 	/** The file to import. */
 	private File 			file;
 	
@@ -101,6 +105,9 @@ public class FileImportComponent
 	/** The component allowing to launch the viewer. */
 	private JLabel			thumbLabel;
 
+	/** The component displaying the imported image. */
+	private JLabel			imageLabel;
+	
 	/** The component displaying the status of the import. */
 	private JLabel			status;
 	
@@ -133,15 +140,8 @@ public class FileImportComponent
 		Icon icon;
 		if (file.isFile()) icon = icons.getIcon(IconManager.IMAGE);
 		else icon = icons.getIcon(IconManager.DIRECTORY);
-		nameLabel.add(new JLabel(icon));
-		nameLabel.add(Box.createHorizontalStrut(4));
-		nameLabel.add(new JLabel(file.getName()));
-		nameLabel.add(Box.createHorizontalStrut(10));
-		//Dimension d = nameLabel.getPreferredSize();
-		//nameLabel.setPreferredSize(new Dimension(d.width, 35));
-		thumbLabel = new JLabel();
-		thumbLabel.setToolTipText("Click on thumbnail to launch the viewer.");
-		thumbLabel.addMouseListener(new MouseAdapter() {
+		imageLabel = new JLabel(icon);
+		imageLabel.addMouseListener(new MouseAdapter() {
 			
 			/**
 			 * Views the image.
@@ -154,6 +154,30 @@ public class FileImportComponent
 				}
 			}
 		});
+		nameLabel.add(imageLabel);
+		nameLabel.add(Box.createHorizontalStrut(4));
+		nameLabel.add(new JLabel(file.getName()));
+		nameLabel.add(Box.createHorizontalStrut(10));
+		//Dimension d = nameLabel.getPreferredSize();
+		//nameLabel.setPreferredSize(new Dimension(d.width, 35));
+		thumbLabel = new JLabel();
+		/*
+		thumbLabel.setToolTipText("Click on thumbnail to launch the viewer.");
+		thumbLabel.addMouseListener(new MouseAdapter() {
+			
+			/**
+			 * Views the image.
+			 * @see ActionListener#actionPerformed(ActionEvent)
+			 */
+		/*
+			public void mousePressed(MouseEvent e) {
+				if (image instanceof ThumbnailData) {
+					ThumbnailData thumb = (ThumbnailData) image;
+					parent.viewImage(thumb.getImage());
+				}
+			}
+		});
+		*/
 		control = busyLabel;
 		errorBox = new JCheckBox("Send file");
 		errorBox.setOpaque(false);
@@ -241,10 +265,11 @@ public class FileImportComponent
 		} else if (image instanceof ThumbnailData) {
 			ThumbnailData thumb = (ThumbnailData) image;
 			ImageIcon icon = new ImageIcon(thumb.getThumbnail());
-			thumbLabel.setIcon(icon);
-			thumbLabel.setBorder(LABEL_BORDER);
+			imageLabel.setToolTipText(IMAGE_LABEL_TOOLTIP);
+			imageLabel.setIcon(icon);
+			imageLabel.setBorder(LABEL_BORDER);
 			if (icon != null)
-				thumbLabel.setPreferredSize(new Dimension(icon.getIconWidth(), 
+				imageLabel.setPreferredSize(new Dimension(icon.getIconWidth(), 
 						icon.getIconHeight()));
 			statusLabel.setVisible(false);
 			control = thumbLabel;
