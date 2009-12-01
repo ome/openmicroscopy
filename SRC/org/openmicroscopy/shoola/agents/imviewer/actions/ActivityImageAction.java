@@ -57,10 +57,10 @@ public class ActivityImageAction
 {
 
 	/** Name of the action. */
-	private static final String NAME = "Export Image...";
+	private static final String NAME = "Publish...";
 	
     /** Description of the action. */
-    private static final String DESCRIPTION = "Export the image.";
+    private static final String DESCRIPTION = "Publish the image.";
     
     /**
      * Disposes and closes the movie player when the {@link ImViewer} is
@@ -85,7 +85,7 @@ public class ActivityImageAction
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager icons = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.ACTIVITY));
+        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PUBLISHING));
 	}
 		
     /** 

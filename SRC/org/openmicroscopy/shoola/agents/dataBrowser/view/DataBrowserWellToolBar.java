@@ -160,14 +160,14 @@ class DataBrowserWellToolBar
 		bar.setRollover(true);
 		bar.add(refreshButton);
 		bar.add(rollOverButton);
-		//if (fields != null) { //tmp
-			//bar.add(fields);
+		if (fields != null) { 
 			bar.add(fieldsViewButton);
 			bar.add(layoutBox);
 			bar.add(Box.createHorizontalStrut(5));
+			bar.add(fields);
+			bar.add(Box.createHorizontalStrut(5));
 			bar.add(busyLabel);
-		//}
-		
+		}
 		return bar;
 	}
 	

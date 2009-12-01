@@ -236,8 +236,8 @@ public class IconManager
     /** The <code>Projection 12</code> icon. */
     public static final int           PROJECTION_12 = 60;
     
-    /** The <code>Create Movie</code> icon. */
-    public static final int           ACTIVITY = 61;
+    /** The <code>Publishing</code> icon. */
+    public static final int           PUBLISHING = 61;
     
     /** 
      * The maximum ID used for the icon IDs.
@@ -309,7 +309,7 @@ public class IconManager
         relPaths[PROJECTION] = "projBlack16.png";//"projection16.png";
         relPaths[PROJECTION_48] = "projBlack48.png"; 
         relPaths[PROJECTION_12] = "projection12.png"; 
-        relPaths[ACTIVITY] = "nuvola_kcmsystem16.png";
+        relPaths[PUBLISHING] = "splitViewFigure16.png";//"nuvola_kcmsystem16.png";
     }
     
     /** The sole instance. */

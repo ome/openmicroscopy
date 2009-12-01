@@ -91,10 +91,8 @@ import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
-import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
-import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
@@ -592,14 +590,16 @@ class ImViewerUI
 		menu.add(item);
 		
 		//movie and export
+		/*
 		menu.add(new JSeparator(JSeparator.HORIZONTAL));
 		action = controller.getAction(ImViewerControl.ACTIVITY);
 		item = new JMenuItem(action);
 		item.setText(action.getName());
 		menu.add(item);
-		 
-		//Color model
+		 */
+		
 		menu.add(new JSeparator(JSeparator.HORIZONTAL));
+		//Color model
 		colorModelGroup = new ButtonGroup();
 		action = controller.getAction(ImViewerControl.GREY_SCALE_MODEL);
 		item = new JCheckBoxMenuItem();
