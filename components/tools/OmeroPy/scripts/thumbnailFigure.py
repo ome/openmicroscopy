@@ -179,10 +179,12 @@ def paintDatasetCanvas(session, images, title, tagIds=None, colCount = 10, lengt
 
 	draw = ImageDraw.Draw(fullCanvas)
 	dateWidth = draw.textsize(figureDate, font=font) [0]
+	titleWidth = draw.textsize(title, font=font) [0]
 	dateY = spacing
 	dateX = fullCanvas.size[0] - spacing - dateWidth
-	draw.text((dateX, dateY), figureDate, font=font, fill=(0,0,0))			# date
 	draw.text((leftSpacer, dateY), title, font=font, fill=(0,0,0))		# title
+	if (leftSpacer+titleWidth) < dateX:			# if there's enough space...
+		draw.text((dateX, dateY), figureDate, font=font, fill=(0,0,0))	# add date 
 	
 	return fullCanvas
 	
