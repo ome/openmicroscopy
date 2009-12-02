@@ -254,7 +254,6 @@ def createMovieFigure(session, pixelIds, tIndexes, zStart, zEnd, width, height, 
 	px = spacer
 	imageLabels.reverse()
 	for row in imageLabels:
-		print row
 		py = leftTextWidth - textGap # start at bottom
 		for l, label in enumerate(row):
 			py = py - textHeight	# find the top of this row
