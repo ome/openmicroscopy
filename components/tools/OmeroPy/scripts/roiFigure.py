@@ -437,7 +437,7 @@ def getVerticalLabels(labels, font, textGap):
 	return textCanvas.rotate(90)
 	
 	
-def getSplitView(session, imageIds, pixelIds, zStart, zEnd, splitIndexes, channelNames, colourChannels, mergedIndexes, 
+def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, colourChannels, mergedIndexes, 
 		mergedColours, width, height, imageLabels, spacer = 12, algorithm = None, stepping = 1, scalebar = None, 
 		overlayColour=(255,255,255), roiZoom=None):
 	""" This method makes a figure of a number of images, arranged in rows with each row being the split-view
@@ -488,7 +488,6 @@ def getSplitView(session, imageIds, pixelIds, zStart, zEnd, splitIndexes, channe
 		maxCount = max(maxCount, len(row))
 	leftTextWidth = (textHeight + textGap) * maxCount + spacer
 	
-	projectRoiPlanes = (zEnd < 0)
 	maxSplitPanelWidth = 0
 	totalcanvasHeight = 0
 	mergedImages = []
@@ -510,9 +509,8 @@ def getSplitView(session, imageIds, pixelIds, zStart, zEnd, splitIndexes, channe
 		sizeX = pixels.getSizeX().getValue()
 		sizeY = pixels.getSizeY().getValue()
 		
-		if projectRoiPlanes:
-			zStart = zMin
-			zEnd = zMax
+		zStart = zMin
+		zEnd = zMax
 		
 		# work out if any additional zoom is needed (if the full-sized image is different size from primary image)
 		fullSize =  (sizeX, sizeY)
@@ -521,7 +519,7 @@ def getSplitView(session, imageIds, pixelIds, zStart, zEnd, splitIndexes, channe
 			log("  Scaling down the full-size image by a factor of %F" % imageZoom)
 		
 		log("  ROI location (top-left) x: %d  y: %d  and size width: %d  height: %d" % (roiX, roiY, roiWidth, roiHeight))
-		log("  ROI time %d - %d" % (tStart, tEnd))
+		log("  ROI time: %d - %d   zRange: %d - %d" % (tStart, tEnd, zStart, zEnd))
 		# get the split pane and full merged image
 		if tStart == tEnd:
 			roiSplitPane, fullMergedImage, topSpacer = getROIsplitView	(session, pixels, zStart, zEnd, splitIndexes, channelNames, 
@@ -650,12 +648,7 @@ def roiFigure(session, commandArgs):
 	sizeZ = pixels.getSizeZ().getValue();
 	sizeC = pixels.getSizeC().getValue();
 		
-	
-	# set image dimensions
-	if("zStart" not in commandArgs):
-		commandArgs["zStart"] = 0
-	if("zEnd" not in commandArgs):
-		commandArgs["zEnd"] = sizeZ-1
+
 	if("splitPanelsGrey" not in commandArgs):
 		commandArgs["splitPanelsGrey"] = False
 	
@@ -756,7 +749,7 @@ def roiFigure(session, commandArgs):
 			
 	spacer = (width/50) + 2
 	
-	fig = getSplitView(session, imageIds, pixelIds, zStart, zEnd, splitIndexes, channelNames, colourChannels, 
+	fig = getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, colourChannels, 
 			mergedIndexes, mergedColours, width, height, imageLabels, spacer, algorithm, stepping, scalebar, overlayColour, roiZoom)
 													
 	#fig.show()		# bug-fixing only
@@ -790,8 +783,8 @@ def runAsScript():
 	# splitViewROIFigure.py
 	client = scripts.client('roiFigure.py', 'Create a figure of split-view images.', 
 	scripts.List("imageIds").inout(),		# List of image IDs. Resulting figure will be attached to first image 
-	scripts.Long("zStart").inout(),			# projection range
-	scripts.Long("zEnd").inout(),			# projection range
+	#scripts.Long("zStart").inout(),			# projection range
+	#scripts.Long("zEnd").inout(),			# projection range
 	scripts.Map("splitChannelNames").inout(),	# map of index: channel name for Split channels
 	scripts.Bool("splitPanelsGrey").inout(),# if true, all split panels are greyscale
 	scripts.Map("mergedColours").inout(),	# a map of index:int colours for each merged channel
