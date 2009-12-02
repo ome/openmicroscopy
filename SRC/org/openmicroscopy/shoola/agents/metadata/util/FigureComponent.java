@@ -214,6 +214,7 @@ class FigureComponent
 	{
 		this.image = image;
 		displayedImage = image;
+		greyImage = null;
 		canvas.setImage(image);
 	}
 
@@ -225,7 +226,9 @@ class FigureComponent
 	 */
 	void setCanvasSize(int width, int height)
 	{
-		canvas.setPreferredSize(new Dimension(width, height));
+		Dimension d = new Dimension(width, height);
+		canvas.setPreferredSize(d);
+		canvas.setSize(d);
 	}
 	
 	/**

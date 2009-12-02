@@ -135,7 +135,7 @@ public class AnalysisDialog
 	private void initComponents()
 	{
 		IconManager icons = IconManager.getInstance();
-		FRAPItem = createMenuItem(icons.getIcon(IconManager.ANALYSE), 
+		FRAPItem = createMenuItem(icons.getIcon(IconManager.ANALYSE_FRAP), 
 				FRAP_TOOLTIP, FRAP_TEXT, EditorControl.ANALYSE_FRAP);
 		FLIMItem = createMenuItem(icons.getIcon(IconManager.ANALYSE), 
 				FLIM_TOOLTIP, FLIM_TEXT, EditorControl.ANALYSE_FLIM);

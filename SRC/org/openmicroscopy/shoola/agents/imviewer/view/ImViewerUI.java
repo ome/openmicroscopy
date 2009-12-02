@@ -1417,7 +1417,7 @@ class ImViewerUI
 	
 	/**
 	 * Sets the image in the lens to the plane image shown on the screen
-	 * depending on the selected tabbed pane.
+	 * depending on the selected tab pane.
 	 */
 	void setLensPlaneImage()
 	{

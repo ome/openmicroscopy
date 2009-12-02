@@ -137,9 +137,8 @@ public class LensComponent
 	 * 
 	 * @param zoomFactor The magnification factor.
 	 */
-	void setZoomFactor(float zoomFactor)
+	public void setZoomFactor(float zoomFactor)
 	{
-		
 		lensController.setZoomFactor(zoomFactor);
 		int index = ZoomAction.factorToIndex(zoomFactor);
 		menu.setZoomIndex(index);
@@ -172,21 +171,36 @@ public class LensComponent
      * 						component supports openGL, <code>false</code>
      * 						otherwise.
 	 */
-	public LensComponent(JFrame parent, boolean openGLSupport)
+	public LensComponent(JFrame parent, boolean openGLSupport, int lensWidth,
+			int lensHeight)
 	{ 
 		lensModel = new LensModel(null, openGLSupport);
 		zoomWindow = new ZoomWindow(parent, this, lensModel);
-		lens = new LensUI(this, LENS_DEFAULT_WIDTH, LENS_DEFAULT_WIDTH);
+		lens = new LensUI(this, lensWidth, lensHeight);
 		lensController = new LensController(lensModel, lens, zoomWindow);
 		
-		lensModel.setWidth(LENS_DEFAULT_WIDTH);
-		lensModel.setHeight(LENS_DEFAULT_WIDTH);
+		lensModel.setWidth(lensWidth);
+		lensModel.setHeight(lensHeight);
 		lensModel.setImageZoomFactor(ZoomAction.ZOOMx1+1);
 		lens.addController(lensController);
 		lens.setLensColour(lensModel.getLensPreferredColour());
 		menu = new LensMenu(this);
 		lens.setPopupMenu(menu.getPopupMenu());
 		zoomWindow.setJMenuBar(menu.getMenubar());
+	}
+	
+	/**
+	 * Creates a new instance which is the container for the lens 
+	 * infrastructure.
+	 * 
+     * @param parent 		The parent of the Dialog.
+     * @param openGLSupport Pass <code>true</code> to indicate that the 
+     * 						component supports openGL, <code>false</code>
+     * 						otherwise.
+	 */
+	public LensComponent(JFrame parent, boolean openGLSupport)
+	{ 
+		this(parent, openGLSupport, LENS_DEFAULT_WIDTH, LENS_DEFAULT_WIDTH);
 	}
 	
 	/**
@@ -225,7 +239,6 @@ public class LensComponent
 	{
 		lensModel.setPlaneImage(img);
 		zoomWindow.paintImage();
-		
 	}
 	
 	/**

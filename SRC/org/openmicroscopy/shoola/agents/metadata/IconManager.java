@@ -304,11 +304,18 @@ public class IconManager
     /** The 12x12 <code>Delete</code> icon. */
     public static final int           DELETE_12 = 83;
     
+    /** The <code>FRAP</code> icon. */
+    public static final int           ANALYSE_FRAP = 84;
+    
+    /** The 22x22 <code>FRAP</code> icon. */
+    public static final int           ANALYSE_FRAP_22 = 85;
+    
+    
     /** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 83;
+	private static final int          MAX_ID = 85;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -396,6 +403,8 @@ public class IconManager
         relPaths[SPLIT_VIEW_48] = "splitViewFigure48.png";
         relPaths[ANALYSIS] = "nuvola_kcmsystem16.png";
         relPaths[DELETE_12] = "nuvola_cancel11.png";
+        relPaths[ANALYSE_FRAP_22] = "FRAP22.png";
+        relPaths[ANALYSE_FRAP] = "FRAP16.png";
 	}
    
 	/** The sole instance. */

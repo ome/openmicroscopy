@@ -171,7 +171,7 @@ class MetadataViewerControl
 		param.setChannels(channels);
 		IconManager icons = IconManager.getInstance();
 		AnalysisActivityParam activity = new AnalysisActivityParam(param, 
-				icons.getIcon(IconManager.ANALYSE));
+				icons.getIcon(IconManager.ANALYSE_FRAP_22));
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
 		un.notifyActivity(activity);
 	}

@@ -82,7 +82,6 @@ class ChannelComponent
 	 */
 	private void initComponents(Color color, boolean active)
 	{
-		
 		activeBox = new JCheckBox();
 		activeBox.setBorder(BorderFactory.createEmptyBorder());
 		//activeBox.setBackground(color);
