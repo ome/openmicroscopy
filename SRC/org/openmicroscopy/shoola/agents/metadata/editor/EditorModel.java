@@ -2093,21 +2093,19 @@ class EditorModel
 	 * @param value The value containing the parameters for the figure.
 	 */
 	void createFigure(Object value) { parent.createFigure(value); }
-	
-	/** 
-	 * Returns the number of z-sections.
+
+	/**
+	 * Returns the pixels data objects.
 	 * 
-	 * @return
+	 * @return See above.
 	 */
-	int getMaxZ()
+	PixelsData getPixels()
 	{
 		ImageData img = getImage();
-		if (img == null) return -1;
-		PixelsData pixs = img.getDefaultPixels();
-		if (pixs == null) return -1;
-		return pixs.getSizeZ();
+		if (img == null) return null;
+		return img.getDefaultPixels();
 	}
-	
+
 	/**
 	 * Returns the image or <code>null</code> if the primary select
 	 * node is an image or a well.

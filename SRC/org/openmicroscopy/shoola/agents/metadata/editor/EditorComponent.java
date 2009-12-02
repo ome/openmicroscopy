@@ -754,9 +754,8 @@ class EditorComponent
 			FigureDialog dialog;
 			switch (index) {
 				case FigureDialog.SPLIT:
-					int maxZ = model.getMaxZ();
 					dialog = controller.createFigureDialog(name, 
-							maxZ, FigureDialog.SPLIT);
+							model.getPixels(), FigureDialog.SPLIT);
 					if (!model.isRendererLoaded()) {
 						loadRenderingControl(RenderingControlLoader.LOAD);
 					} else {
@@ -769,13 +768,18 @@ class EditorComponent
 					break;
 				case FigureDialog.THUMBNAILS:
 					Collection tags = model.getExistingTags();
-					dialog = controller.createFigureDialog(name, 1, 
+					dialog = controller.createFigureDialog(name, 
+							model.getPixels(),
 							FigureDialog.THUMBNAILS);
 					if (tags != null) {
 						dialog.setTags(tags);
 					} else {
 						model.loadExistingTags();
 					}
+					dialog.centerDialog();
+				case FigureDialog.MOVIE:
+					dialog = controller.createFigureDialog(name, 
+							model.getPixels(), FigureDialog.MOVIE);
 					dialog.centerDialog();
 			}
 		}
@@ -798,9 +802,8 @@ class EditorComponent
 		}
 		if (controller.getFigureDialog() == null) {
 			String name = model.getRefObjectName();
-			int maxZ = model.getMaxZ();
 			FigureDialog dialog = controller.createFigureDialog(name, 
-					maxZ, FigureDialog.SPLIT_ROI);
+					model.getPixels(), FigureDialog.SPLIT_ROI);
 			dialog.setROIs(rois);
 			if (!model.isRendererLoaded()) {
 				loadRenderingControl(RenderingControlLoader.LOAD);

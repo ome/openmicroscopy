@@ -60,6 +60,9 @@ public class FigureParam
 	/** Indicates to create a Thumbnails figure. */
 	public static final int		THUMBNAILS = 2;
 	
+	/** Indicates to create a Movie figure. */
+	public static final int		MOVIE = 3;
+	
     /** Indicates to use the image's name as the name a row. */
 	public static final int		IMAGE_NAME = 0;
     
@@ -75,13 +78,37 @@ public class FigureParam
 	/** Identify the <code>PNG</code> format. */
 	public static final int		PNG = 1;
 
+	/** Identify the <code>Seconds</code> format. */
+	public static final int		TIME_SECS = 0; 
+	
+	/** Identify the <code>Minutes</code> format. */
+	public static final int		TIME_MINS = 1; 
+	
+	/** Identify the <code>Hours</code> format. */
+	public static final int		TIME_HOURS = 2; 
+	
+	/** Identify the <code>Minutes and Seconds</code> format. */
+	public static final int		TIME_MINS_SECS = 3; 
+	
+	/** Identify the <code>Hours and minutes</code> format. */
+	public static final int		TIME_HOURS_MINS = 4; 
+	
 	/** The supported formats. */
 	public static final Map<Integer, String> 	FORMATS;
 
+	/** The supported time formats. */
+	public static final Map<Integer, String>	TIMES;
+	
 	static {
 		FORMATS = new LinkedHashMap<Integer, String>(2);
 		FORMATS.put(JPEG, "JPEG");
 		FORMATS.put(PNG, "PNG");
+		TIMES = new LinkedHashMap<Integer, String>(5);
+		TIMES.put(TIME_SECS, "Seconds");
+		TIMES.put(TIME_MINS, "Minutes");
+		TIMES.put(TIME_HOURS, "Hours");
+		TIMES.put(TIME_MINS_SECS, "Minutes and Seconds");
+		TIMES.put(TIME_HOURS_MINS, "Hours and Minutes");
 	}
 	
 	/** One of the format constants defined by this class. */
@@ -139,10 +166,13 @@ public class FigureParam
 	private long		parentID;
 	
 	/** The type of figure. */
-	private int index;
+	private int 		index;
 	
 	/** The magnification used the ROI figure. */
 	private double	magnificationFactor;
+	
+	/** The selected time points. */
+	private List<Integer> timepoints;
 	
 	/** 
 	 * Set to <code>true</code> to indicate that the selected objects will
@@ -151,12 +181,16 @@ public class FigureParam
 	 */
 	private boolean selectedObjects;
 	
+	/** Identifies the time selected. */
+	private int		time;
+	
 	/** Sets the default value. */
 	private void setDefault()
 	{
 		parentID = -1;
+		time = TIME_SECS;
 		label = IMAGE_NAME;
-		format = JPEG;
+		format = PNG;
 		projectionType = ProjectionParam.MAXIMUM_INTENSITY;
 		stepping = 1;
 		scaleBar = -1;
@@ -183,7 +217,7 @@ public class FigureParam
 				this.format = format;
 				break;
 			default:
-				this.format = JPEG;
+				this.format = PNG;
 		}
 	}
 	
@@ -203,6 +237,20 @@ public class FigureParam
 			default:
 				this.label = IMAGE_NAME;
 		}
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param format The format of the image. One of the constants defined by
+	 * 				 this class.
+	 * @param name   The name of the image. 
+	 * @param label  One of the constants defined by this class.
+	 */
+	public FigureParam(int format, String name, int label)
+	{
+		this(format, name, new HashMap<Integer, String>(),
+				new HashMap<Integer, Color>(), label);
 	}
 	
 	/**
@@ -257,6 +305,43 @@ public class FigureParam
 	}
 	
 	/**
+	 * Sets the time.
+	 * 
+	 * @param time The value to set.
+	 */
+	public void setTime(int time)
+	{
+		switch (time) {
+			case TIME_SECS:
+			case TIME_MINS:
+			case TIME_HOURS:
+			case TIME_MINS_SECS:
+			case TIME_HOURS_MINS:
+				this.time = time;
+				break;
+			default:
+				this.time = TIME_SECS;
+		}
+	}
+	
+	/**
+	 * Returns the time as a string.
+	 * 
+	 * @return See above.
+	 */
+	public String getTimAsString()
+	{
+		switch (time) {
+			default:
+			case TIME_SECS: return "SECS";
+			case TIME_MINS: return "MINS";
+			case TIME_HOURS: return "HOURS";
+			case TIME_MINS_SECS: return "MINS_SECS";
+			case TIME_HOURS_MINS: return "HOURS_SECS";
+		}
+	}
+	
+	/**
 	 * Sets the index.
 	 * 
 	 * @param index The value to set.
@@ -266,6 +351,7 @@ public class FigureParam
 		switch (index) {
 			case THUMBNAILS:
 			case SPLIT_VIEW_ROI:
+			case MOVIE:
 				this.index = index;
 				break;
 			case SPLIT_VIEW:
@@ -565,5 +651,22 @@ public class FigureParam
 	 * @param parentID The value to set.
 	 */
 	public void setParentID(long parentID) { this.parentID = parentID; }
+	
+	/**
+	 * Sets the selected timepoints.
+	 * 
+	 * @param timepoints The selected values.
+	 */
+	public void setTimepoints(List<Integer> timepoints)
+	{ 
+		this.timepoints = timepoints; 
+	}
+	
+	/**
+	 * Returns the selected timepoints.
+	 * 
+	 * @return See above.
+	 */
+	public List<Integer> getTimepoints() { return timepoints; }
 	
 }

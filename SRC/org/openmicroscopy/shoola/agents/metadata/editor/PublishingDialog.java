@@ -106,6 +106,13 @@ class PublishingDialog
 	private static final String THUMBNAILS_FIGURE_TEXT = "" +
 			"Thumbnails Figure...";
 	
+	/** The text associated to the Movie figure action. */
+	private static final String MOVIE_FIGURE_TOOLTIP = "" +
+			"Create a movie of the displayed or selected images.";
+	
+	/** The text associated to the Thumbnails action. */
+	private static final String MOVIE_FIGURE_TEXT = "Movie Figure...";
+	
 	/** Reference to the control. */
 	private EditorControl 	controller;
 	
@@ -135,6 +142,9 @@ class PublishingDialog
 	
 	/** Component to create thumbnails figure of a collection of images. */
 	private JMenuItem 		thumbnailsFigureItem;
+	
+	/** Component to create movie figure of a collection of images. */
+	private JMenuItem 		movieFigureItem;
 	
 	/** The menu hosting the various options. */
 	private JPopupMenu	menu;
@@ -216,6 +226,12 @@ class PublishingDialog
 				THUMBNAILS_FIGURE_TOOLTIP, THUMBNAILS_FIGURE_TEXT,
 				EditorControl.THUMBNAILS_FIGURE);
 		thumbnailsFigureItem.setEnabled(true);
+		movieFigureItem = createMenuItem(
+				icons.getIcon(IconManager.SPLIT_VIEW), 
+				MOVIE_FIGURE_TOOLTIP, MOVIE_FIGURE_TEXT,
+				EditorControl.MOVIE_FIGURE);
+		movieFigureItem.setEnabled(true);
+		
 	}
 	
 	/** Sets the properties of the dialog. */
@@ -292,6 +308,7 @@ class PublishingDialog
 		menu.add(splitViewFigureItem);
 		menu.add(splitViewROIFigureItem);
 		menu.add(thumbnailsFigureItem);
+		menu.add(movieFigureItem);
 		return menu;
  	}
 	
@@ -308,6 +325,7 @@ class PublishingDialog
     	movieItem.setEnabled(false);
     	splitViewFigureItem.setEnabled(false);
     	splitViewROIFigureItem.setEnabled(false);
+    	movieFigureItem.setEnabled(false);
     	if (refObject instanceof ImageData) {
     		img = (ImageData) refObject;
     	} else if (refObject instanceof WellSampleData) {
@@ -326,6 +344,7 @@ class PublishingDialog
     					data.getSizeZ() > 1);
     			splitViewFigureItem.setEnabled(data.getSizeC() > 1);
     			splitViewROIFigureItem.setEnabled(data.getSizeC() > 1);
+    			movieFigureItem.setEnabled(true);
 			} catch (Exception e) {}
     	} else {
     		if (refObject instanceof DatasetData)

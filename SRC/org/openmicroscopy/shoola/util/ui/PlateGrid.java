@@ -71,14 +71,17 @@ public class PlateGrid
 	/** Bound property indicating that a well is selected. */
 	public static final String  WELL_FIELDS_PROPERTY = "wellFields";
 	
+	/** The background color of a cell. */
+	public final static Color	BACKGROUND_COLOR = Color.WHITE;
+	
 	/** The color of the grid in the table. */
-	private final static Color	GRID_COLOR = new Color(180, 213, 255);
+	public final static Color	GRID_COLOR = new Color(180, 213, 255);
 
 	/** The color of the selected cell. */
-	private final static Color  SELECTED_COLOR = new Color(255, 206, 206);
+	public final static Color  SELECTED_COLOR = new Color(255, 206, 206);
 	
 	/** The color of the focused cell. */
-	private final static Color  FOCUS_COLOR = new Color(255, 135, 135);
+	public final static Color  FOCUS_COLOR = new Color(255, 135, 135);
 	
 	/** The default size of a cell. */
 	private final static Dimension CELL_SIZE = new Dimension(10, 10);
@@ -92,10 +95,15 @@ public class PlateGrid
 	/** Hosts the valid wells. */
 	private boolean[][] validValues;
 	
-	/** Initializes the component. */
-	private void initialize()
+	/** 
+	 * Initializes the component. 
+	 * 
+	 * @param rows The number of rows.
+	 * @param columns The number of columns.
+	 */
+	private void initialize(int rows, int columns)
 	{
-		setModel(new GridModel(MAX_ROWS, MAX_COLUMNS));
+		setModel(new GridModel(rows, columns));
 		TableColumn col;
 		int width = CELL_SIZE.width;
 		for (int i = 0 ; i < getColumnCount(); i++) {
@@ -127,7 +135,8 @@ public class PlateGrid
 		});
 	}
 	
-	/** Creates a default instance. 
+	/** 
+	 * Creates a default instance. 
 	 * 
 	 * @param typeRow     One of the constants defined by this class.
 	 * @param typeColumn  One of the constants defined by this class.
@@ -138,7 +147,20 @@ public class PlateGrid
 		this.typeColumn = typeColumn;
 		this.typeRow = typeRow;
 		this.validValues = validValues;
-		initialize();
+		initialize(MAX_ROWS, MAX_COLUMNS);
+	}
+	
+	/** 
+	 * Creates a default instance, one row and multiple column.
+	 * 
+	 * @param columns The number of columns.
+	 */
+	public PlateGrid(int columns)
+	{
+		validValues = new boolean[1][columns];
+		for (int i = 0; i < columns; i++)
+			validValues[0][i] = true;
+		initialize(1, columns);
 	}
 	
 	/**
@@ -224,34 +246,10 @@ public class PlateGrid
 				setBackground(SELECTED_COLOR);
 				if (hasFocus) setBackground(FOCUS_COLOR);
 			} else {
-				setBackground(Color.WHITE);
+				setBackground(BACKGROUND_COLOR);
 			}
 			return this;
 		}
 	}
-	
-	/** Creates an inner class, so that the cell cannot be edited. */
-	class GridModel
-		extends DefaultTableModel
-	{
-		
-		/**
-		 * Creates a new instance.
-		 * 
-		 * @param numRows		The number of rows the table holds.
-		 * @param numColumns    The number of columns the table holds.
-		 */
-		GridModel(int numRows, int numColumns)
-		{
-			super(numRows, numColumns);
-		}
-		
-		/**
-		 * Overridden to return <code>false</code> regardless of the value.
-		 * @see DefaultTableModel#isCellEditable(int, int)
-		 */
-	    public boolean isCellEditable(int row, int column) { return false; }
 
-	}
-	
 }

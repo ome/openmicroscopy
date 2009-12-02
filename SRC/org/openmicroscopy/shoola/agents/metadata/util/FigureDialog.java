@@ -105,9 +105,11 @@ import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.DrawingComponent;
+import org.openmicroscopy.shoola.util.ui.slider.GridSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import pojos.ChannelData;
 import pojos.ImageData;
+import pojos.PixelsData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -154,11 +156,17 @@ public class FigureDialog
 	/** Action id indicating to create a movie. */
 	public static final int 		SAVE = 1;
 	
+	/** The text displayed next to the merged image. */
+	private static final String		MERGED_TEXT = "Merged";
+	
 	/** Action id indicating to allow the modification of the scale bar. */
 	private static final int 		SCALE_BAR = 2;
 	
 	/** Action id indicating to arrange the thumbnails by tags. */
 	private static final int 		ARRANGE_BY_TAGS = 3;
+	
+	/** Action id indicating to turn on or off the projection's controls. */
+	private static final int 		PROJECTION = 4;
 	
 	/** Default text describing the compression check box.  */
     private static final String		PROJECTION_DESCRIPTION = 
@@ -224,7 +232,7 @@ public class FigureDialog
 		ROW_NAMES[FigureParam.DATASET_NAME] = "Datasets";
 		ROW_NAMES[FigureParam.TAG_NAME] = "Tags";
 		MAGNIFICATION = new String[6];
-		MAGNIFICATION[ZOOM_AUTO] = "Auto";
+		MAGNIFICATION[ZOOM_AUTO] = "Auto - 1st row";
 		MAGNIFICATION[ZOOM_100] = "100%";
 		MAGNIFICATION[ZOOM_200] = "200%";
 		MAGNIFICATION[ZOOM_300] = "300%";
@@ -318,8 +326,8 @@ public class FigureDialog
 	/** The index of the dialog. One of the constants. */
 	private int								dialogType;
 	
-	/** The number of z-sections. */
-	private int								maxZ;
+	/** The pixels set of reference. */
+	private PixelsData 						pixels;
 	
 	/** The components hosting the channel components. */
 	private JXTaskPane						channelsPane;
@@ -376,9 +384,26 @@ public class FigureDialog
 	/** The selection of tags. */
 	private List<JCheckBox>					selection;
 	
-	/** Lays out the selected tags. 
+	/** Determines the time-points frequency for the movie figure. */
+    private JSpinner			   			movieFrequency;
+    
+    /** The slider displaying the number of time-points. */
+    private GridSlider						movieSlider;
+    
+    /** Determines the selected plane. */
+    private JSpinner						planeSelection;
+    
+    /** Indicates to turn on or off the projection. */
+    private JCheckBox						projectionBox;
+    
+    /** The time of options. */
+	private JComboBox						timesBox;
+	
+	/** 
+	 * Lays out the selected tags. 
 	 * 
-	 * @param */
+	 * @param selectedTag Control to select or not the tags.
+	 */
 	private void layoutSelectedTags(JCheckBox selectedTag)
 	{
 		selectedTags.removeAll();
@@ -514,16 +539,7 @@ public class FigureDialog
 		pDef.t = renderer.getDefaultT();
 		pDef.z = renderer.getDefaultZ();
 		pDef.slice = omero.romio.XY.value;
-		widthField = new NumericalTextField(0, renderer.getPixelsDimensionsX());
-		widthField.setColumns(5);
-		widthField.setText(""+renderer.getPixelsDimensionsX());
-		heightField = new NumericalTextField(0, 
-				renderer.getPixelsDimensionsY());
-		heightField.setColumns(5);
-		heightField.setText(""+renderer.getPixelsDimensionsY());
 		
-		widthField.getDocument().addDocumentListener(this);
-		heightField.getDocument().addDocumentListener(this);
 		mergeCanvas = new FigureCanvas();
 		mergeImage = getMergedImage();
 		mergeCanvas.setPreferredSize(new Dimension(thumbnailWidth, 
@@ -555,34 +571,7 @@ public class FigureDialog
 		initialize();
 		//draw the roi.
 		//Determine the scaling factor.
-		zoomBox = new JComboBox(MAGNIFICATION);
-		DrawingView canvasView = drawingComponent.getDrawingView();
-		double factor = getMagnificationFactor();
-		if (factor != -1)
-			canvasView.setScaleFactor(factor);
-		Coord3D c = new Coord3D(renderer.getDefaultZ(), renderer.getDefaultT());
-		try {
-			ShapeList list = roiComponent.getShapeList(c);
-			ROIFigure figure;
-			Drawing drawing = drawingComponent.getDrawing();
-			if (list != null) {
-				TreeMap map = list.getList();
-				Iterator i = map.values().iterator();
-				ROIShape shape;
-				while (i.hasNext()) {
-					shape = (ROIShape) i.next();
-					if (shape != null) {
-						figure = shape.getFigure();
-						//canvasView.addToSelection(figure);
-						drawing.add(figure);
-					}
-				}
-				drawingComponent.getDrawingView().setDrawing(drawing);
-			}
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-
+		
 		components = new LinkedHashMap<Integer, FigureComponent>();
 		//Initializes the channels
 		List<ChannelData> data = renderer.getChannelData();
@@ -624,6 +613,38 @@ public class FigureDialog
 	private void initChannelComponents()
 	{
 		initialize();
+		if (dialogType == SPLIT_ROI) {
+			zoomBox = new JComboBox(MAGNIFICATION);
+			DrawingView canvasView = drawingComponent.getDrawingView();
+			double factor = getMagnificationFactor();
+			if (factor != -1)
+				canvasView.setScaleFactor(factor);
+			Coord3D c = new Coord3D(renderer.getDefaultZ(), 
+					renderer.getDefaultT());
+			try {
+				ShapeList list = roiComponent.getShapeList(c);
+				ROIFigure figure;
+				Drawing drawing = drawingComponent.getDrawing();
+				if (list != null) {
+					TreeMap map = list.getList();
+					Iterator i = map.values().iterator();
+					ROIShape shape;
+					while (i.hasNext()) {
+						shape = (ROIShape) i.next();
+						if (shape != null) {
+							figure = shape.getFigure();
+							//canvasView.addToSelection(figure);
+							drawing.add(figure);
+						}
+					}
+					drawingComponent.getDrawingView().setDrawing(drawing);
+				}
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+		}
+		
+
 		components = new LinkedHashMap<Integer, FigureComponent>();
 		//Initializes the channels
 		List<ChannelData> data = renderer.getChannelData();
@@ -666,6 +687,11 @@ public class FigureDialog
 	 */
 	private void initComponents(String name)
 	{	
+		projectionBox = new JCheckBox();
+		projectionBox.setActionCommand(""+PROJECTION);
+		projectionBox.addActionListener(this);
+		planeSelection = new JSpinner(new SpinnerNumberModel(1, 1, 
+				pixels.getSizeZ()+1, 1));
 		sorter = new ViewerSorter();
 		pane = new JLayeredPane();
 		thumbnailHeight = Factory.THUMB_DEFAULT_HEIGHT;
@@ -693,7 +719,7 @@ public class FigureDialog
 		Entry entry;
 		Iterator i = map.entrySet().iterator();
 		int index = 0;
-		int v;;
+		int v;
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			v = (Integer) entry.getKey();
@@ -703,6 +729,7 @@ public class FigureDialog
 		}
 		formats = new JComboBox(f);
 		formats.setSelectedIndex(index);
+		int maxZ = pixels.getSizeZ();
 		zRange = new TextualTwoKnobsSlider(1, maxZ, 1, maxZ);
 		zRange.layoutComponents();
 		zRange.setEnabled(maxZ > 1);
@@ -778,6 +805,30 @@ public class FigureDialog
 		arrangeByTags = new JCheckBox();
 		arrangeByTags.addActionListener(this);
 		arrangeByTags.setActionCommand(""+ARRANGE_BY_TAGS);
+		int maxT = pixels.getSizeT();
+		movieFrequency = new JSpinner(new SpinnerNumberModel(1, 1, maxT+1, 1));
+		movieFrequency.addChangeListener(this);
+		widthField = new NumericalTextField(0, pixels.getSizeX());
+		widthField.setColumns(5);
+		widthField.setText(""+pixels.getSizeX());
+		heightField = new NumericalTextField(0, pixels.getSizeY());
+		heightField.setColumns(5);
+		heightField.setText(""+pixels.getSizeY());
+		
+		widthField.getDocument().addDocumentListener(this);
+		heightField.getDocument().addDocumentListener(this);
+		movieSlider = new GridSlider(maxT);
+		
+		setProjectionSelected(false);
+		map = FigureParam.TIMES;
+		f = new String[map.size()];
+		i = map.entrySet().iterator();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			v = (Integer) entry.getKey();
+			f[v] = (String) entry.getValue();
+		}
+		timesBox = new JComboBox(f);
 	}
 	
 	/** Builds and lays out the UI. */
@@ -794,7 +845,9 @@ public class FigureDialog
 			case SPLIT:
 			case SPLIT_ROI:
 				text = "Create a Split View Figure.";
-			
+				break;
+			case MOVIE:
+				text = "Create a Movie Figure.";
 		}
 		tp = new TitlePanel("Create Figure", text, 
 				"The figure will be saved to the server.", 
@@ -838,7 +891,7 @@ public class FigureDialog
 		c.gridy = 0;
 		c.gridx = 0;
         c.weightx = 0.0;  
-        p.add(new JLabel("Width: "), c);
+        p.add(UIUtilities.setTextFont("Thumbnail Width: "), c);
         c.gridx++;
         p.add(Box.createHorizontalStrut(5), c); 
         c.gridx++;
@@ -847,7 +900,7 @@ public class FigureDialog
         p.add(new JLabel("pixels"), c); 
         c.gridx = 0;
         c.gridy++;
-        p.add(new JLabel("Height: "), c);
+        p.add(UIUtilities.setTextFont("Thumbnail Height: "), c);
         c.gridx++;
         p.add(Box.createHorizontalStrut(5), c); 
         c.gridx++;
@@ -857,6 +910,20 @@ public class FigureDialog
 		return UIUtilities.buildComponentPanel(p);
 	}
 
+	/**
+	 * Enables or not the projection controls.
+	 * 
+	 * @param selected  Pass <code>true</code> to enable the controls,
+	 * 					<code>false</code> otherwise.
+	 */
+	private void setProjectionSelected(boolean selected)
+	{
+		projectionTypesBox.setEnabled(selected);
+		projectionFrequency.setEnabled(selected);
+		zRange.setEnabled(selected);
+		planeSelection.setEnabled(!selected);
+	}
+	
 	/**
 	 * Builds the projection component.
 	 * 
@@ -872,13 +939,19 @@ public class FigureDialog
 		c.insets = new Insets(0, 2, 2, 0);
 		c.gridy = 0;
 		c.gridx = 0;
+		p.add(UIUtilities.setTextFont("Project stack"), c);
+		c.gridx++;
+		p.add(projectionBox, c);
+		c.gridy++;
+		c.gridx = 0;
 		p.add(UIUtilities.setTextFont("Intensity"), c);
 		c.gridx++;
 		p.add(projectionTypesBox, c);
-		c.gridx++;
+		c.gridx = 0;
+		c.gridy++;
 		p.add(UIUtilities.setTextFont("Every n-th slice"), c);
 		c.gridx++;
-	    p.add(projectionFrequency, c);
+	    p.add(UIUtilities.buildComponentPanel(projectionFrequency), c);
 	    c.gridy++;
 		c.gridx = 0;
 	    p.add(UIUtilities.setTextFont("Z-sections Range"), c);
@@ -917,74 +990,38 @@ public class FigureDialog
         	p.add(UIUtilities.setTextFont("Thumbnails per row"), "0, "+i+"");
         	p.add(UIUtilities.buildComponentPanel(numberPerRow), "1, "+i);
         } else {
-        	 i = i+2;
-             p.add(UIUtilities.setTextFont("Image Label"), "0, "+i+"");
-             p.add(rowName, "1, "+i);
-             i = i+2;
-             p.add(showScaleBar, "0, "+i);
-             p.add(scaleBar, "1, "+i);
-             p.add(new JLabel("microns"), "2, "+i);
-             i = i+2;
-             p.add(UIUtilities.setTextFont("Overlay"), "0, "+i);
-             p.add(UIUtilities.buildComponentPanel(colorBox), "1, "+i);
+        	i = i+2;
+        	p.add(UIUtilities.setTextFont("Image Label"), "0, "+i+"");
+        	p.add(rowName, "1, "+i);
+        	i = i+2;
+        	p.add(showScaleBar, "0, "+i);
+        	p.add(scaleBar, "1, "+i);
+        	p.add(new JLabel("microns"), "2, "+i);
+        	i = i+2;
+        	p.add(UIUtilities.setTextFont("Overlay"), "0, "+i);
+        	p.add(UIUtilities.buildComponentPanel(colorBox), "1, "+i);
         }
         if (ImageData.class.equals(type)) {
         	i = i+2;
-        	
-        	
-        	 i = i+2;
-             p.add(UIUtilities.setTextFont("Made of"), "0, "+i+"," +
-             		" LEFT, TOP");
-             JPanel controls = new JPanel();
-             controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
-             controls.add(displayedObjects);
-             controls.add(selectedObjects);
-             p.add(UIUtilities.buildComponentPanel(controls), "1, "+i);
+        	p.add(UIUtilities.setTextFont("Made of"), "0, "+i+"," +
+        	" LEFT, TOP");
+        	JPanel controls = new JPanel();
+        	controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
+        	controls.add(displayedObjects);
+        	controls.add(selectedObjects);
+        	p.add(UIUtilities.buildComponentPanel(controls), "1, "+i);
         }
+        if (dialogType != SPLIT_ROI) {
+    		i = i+2;
+    		p.add(UIUtilities.setTextFont("Select Z-section"), "0, "+i);
+        	p.add(UIUtilities.buildComponentPanel(planeSelection), "1, "+i);
+    	}
+        if (dialogType == MOVIE && pixels.getSizeT() > 1) {
+        	i = i+2;
+        	p.add(buildMovieComponent(), "0, "+i+", 4, "+i);
+        }
+        
 		return p;
-	}
-	
-	/** 
-	 * Builds and lays out the component displaying the channels
-	 * 
-	 * @return See above
-	 */
-	private JPanel buildChannelsROIComponent()
-	{
-		JPanel splitPanel = new JPanel();
-		splitPanel.add(UIUtilities.setTextFont("Split Panel"));
-		splitPanel.add(splitPanelColor);
-		splitPanel.add(splitPanelGrey);
-		
-		JPanel zoomPanel = new JPanel();
-		zoomPanel.add(UIUtilities.setTextFont("Zoom"));
-		zoomPanel.add(zoomBox);
-
-		JPanel p = new JPanel();
-		p.add(buildMergeComponent());
-		p.add(Box.createHorizontalStrut(5));
-		Iterator<Integer> j = components.keySet().iterator();
-		while (j.hasNext()) {
-			p.add(components.get(j.next()));
-		}
-		
-		JPanel controls = new JPanel();
-		double size[][] = {{TableLayout.PREFERRED, 5, TableLayout.PREFERRED}, 
-				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5,
-			TableLayout.PREFERRED}};
-		controls.setLayout(new TableLayout(size));
-		int i = 0;
-		controls.add(splitPanel, "0, "+i+", LEFT, CENTER");
-		i = i+2;
-		controls.add(zoomPanel, "0, "+i+", LEFT, CENTER");
-		i = i+2;
-		controls.add(buildDimensionComponent(), "2, 0, 2,"+i);
-		
-		JPanel content = new JPanel();
-		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-		content.add(controls);
-		content.add(p);
-		return UIUtilities.buildComponentPanel(content);
 	}
 	
 	/** 
@@ -999,16 +1036,17 @@ public class FigureDialog
 		while (i.hasNext()) {
 			p.add(components.get(i.next()));
 		}
-		p.add(Box.createHorizontalStrut(5));
-		p.add(buildMergeComponent());
-		//Add the final one
-	
+		JPanel merge = new JPanel();
+		double s[][] = {{TableLayout.PREFERRED, 5, TableLayout.PREFERRED}, 
+				{TableLayout.PREFERRED}};
+		merge.setLayout(new TableLayout(s));
+		merge.add(p, "0, 0, LEFT, BOTTOM");
+		merge.add(buildMergeComponent(), "2, 0, LEFT, TOP");
+
 		JPanel splitPanel = new JPanel();
 		splitPanel.add(UIUtilities.setTextFont("Split Panel"));
 		splitPanel.add(splitPanelColor);
 		splitPanel.add(splitPanelGrey);
-		//splitPanel.add(buildDimensionComponent());
-		
 		
 		JPanel controls = new JPanel();
 		double size[][] = {{TableLayout.FILL}, 
@@ -1016,8 +1054,21 @@ public class FigureDialog
 				TableLayout.PREFERRED}};
 		controls.setLayout(new TableLayout(size));
 		controls.add(splitPanel, "0, 0, LEFT, CENTER");
-		controls.add(p, "0, 2");
-		controls.add(buildDimensionComponent(), "0, 4");
+		controls.add(merge, "0, 2");
+		if (dialogType == SPLIT_ROI) {
+			JPanel zoomPanel = new JPanel();
+			zoomPanel.add(UIUtilities.setTextFont("Zoom"));
+			zoomPanel.add(zoomBox);
+			JPanel splitControls = new JPanel();
+			splitControls.setLayout(new BoxLayout(splitControls, 
+					BoxLayout.X_AXIS));
+			splitControls.add(zoomPanel);
+			splitControls.add(buildDimensionComponent());
+			controls.add(UIUtilities.buildComponentPanel(splitControls), "0, 4");
+		} else {
+			controls.add(buildDimensionComponent(), "0, 4");
+		}
+		
 		return controls;
 	}
 	
@@ -1049,14 +1100,61 @@ public class FigureDialog
 			buttonPanel.add(i.next());
 			buttonPanel.add(Box.createHorizontalStrut(5));
 		}
+		JPanel mergePanel = new JPanel();
+		mergePanel.setLayout(new BoxLayout(mergePanel, BoxLayout.Y_AXIS));
+		mergePanel.add(UIUtilities.buildComponentPanel(new JLabel(MERGED_TEXT),
+				0, 0));
+		mergePanel.add(buttonPanel);
 		JPanel p = new JPanel();
 		p.setLayout(new BorderLayout(0, 0));
-		JPanel f = UIUtilities.buildComponentPanelCenter(buttonPanel);
-		f.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
-		p.add(f, BorderLayout.NORTH);
+		p.add(UIUtilities.buildComponentPanelCenter(mergePanel, 0, 2), 
+				BorderLayout.NORTH);
 		p.add(UIUtilities.buildComponentPanelCenter(comp), 
 				BorderLayout.CENTER);
 		return p;
+	}
+	
+	/** 
+	 * Builds and lays out the controls for the movie figure.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildMovieComponent()
+	{
+		JPanel controls = new JPanel();
+		controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
+		JPanel p = new JPanel();
+		p.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.WEST;
+		c.gridy = 0;
+		c.gridx = 0;
+        c.weightx = 0.0;  
+        p.add(UIUtilities.setTextFont("Time-point frequency"), c);
+        c.gridx++;
+        p.add(Box.createHorizontalStrut(5), c); 
+        c.gridx++;
+        p.add(UIUtilities.buildComponentPanel(movieFrequency), c);  
+        c.gridy++;
+        c.gridx = 0;
+        p.add(UIUtilities.setTextFont("Selected Time-point"), c);
+        c.gridx++;
+        p.add(Box.createHorizontalStrut(5), c); 
+        c.gridx++;
+        p.add(movieSlider, c);
+        c.gridy++;
+        c.gridx = 0;
+        p.add(UIUtilities.setTextFont("Time units"), c);
+        c.gridx++;
+        p.add(Box.createHorizontalStrut(5), c);
+        c.gridx++;
+        p.add(timesBox, c);
+        
+		controls.add(UIUtilities.buildComponentPanel(p));
+		controls.add(buildDimensionComponent());
+		//controls.add(p, "0, 2");
+		return controls;
 	}
 	
 	/**
@@ -1079,17 +1177,19 @@ public class FigureDialog
 		pane.add(buildTypeComponent());
 		int i = 0;
 		p.add(pane, "0, "+i);
-		if (maxZ > 1) {
+		if (pixels.getSizeZ() > 1 && dialogType != SPLIT_ROI) {
 			pane = EditorUtil.createTaskPane("Projection");
 			pane.add(buildProjectionComponent());
 			i++;
 			p.add(pane, "0, "+i);
 		}
-		i++;
-		channelsPane = EditorUtil.createTaskPane("Image");
-		channelsPane.setCollapsed(false);
-		channelsPane.add(buildDefaultPane());
-		p.add(channelsPane, "0, "+i);
+		if (dialogType != MOVIE) {
+			i++;
+			channelsPane = EditorUtil.createTaskPane("Image");
+			channelsPane.setCollapsed(false);
+			channelsPane.add(buildDefaultPane());
+			p.add(channelsPane, "0, "+i);
+		}
 		return p;
 	}
 	
@@ -1166,11 +1266,19 @@ public class FigureDialog
 		}
 		p.setColor(c);
 		//projection
-		p.setZStart(zRange.getStartValue()-1);
-		p.setZEnd(zRange.getEndValue()-1);
-		p.setStepping((Integer) projectionFrequency.getValue());
-		p.setProjectionType(
-				projectionTypes.get(projectionTypesBox.getSelectedIndex()));
+		if (projectionBox.isSelected()) {
+			p.setZStart(zRange.getStartValue()-1);
+			p.setZEnd(zRange.getEndValue()-1);
+			p.setStepping((Integer) projectionFrequency.getValue());
+			p.setProjectionType(
+					projectionTypes.get(projectionTypesBox.getSelectedIndex()));
+		} else {
+			Integer n = (Integer) planeSelection.getValue()-1;
+			p.setZStart(n);
+			p.setZEnd(n);
+			p.setStepping(1);
+			p.setProjectionType(ProjectionParam.MAXIMUM_INTENSITY);
+		}
 	}
 	
 	/** Collects the parameters to create a figure. */
@@ -1252,8 +1360,16 @@ public class FigureDialog
 	/** Saves the movie figure. */
 	private void saveMovieFigure()
 	{
+		String name = nameField.getText().trim();
+		int format = formats.getSelectedIndex();
+		int label = rowName.getSelectedIndex();
+		FigureParam p = new FigureParam(format, name, label);
+		p.setIndex(FigureParam.MOVIE);
+		p.setTime(timesBox.getSelectedIndex());
+		p.setTimepoints(sorter.sort(movieSlider.getSelectedCells()));
+		collectParam(p);
 		close();
-		firePropertyChange(CREATE_FIGURE_PROPERTY, null, null);
+		firePropertyChange(CREATE_FIGURE_PROPERTY, null, p);
 	}
 	
 	/** Saves the thumbnails figure. */
@@ -1373,16 +1489,16 @@ public class FigureDialog
 	 * 
 	 * @param owner The owner of the dialog.
 	 * @param name  The default name for the file.
-	 * @param maxZ 	The number of z-sections.
+	 * @param pixels The pixels object of reference.
 	 * @param index One of the constants defined by this class.
 	 * @param type  The type of objects to handle.
 	 */
-	public FigureDialog(JFrame owner, String name, int maxZ, int index, 
-			Class type)
+	public FigureDialog(JFrame owner, String name, PixelsData pixels,
+			int index, Class type)
 	{
 		super(owner, true);
 		this.type = type;
-		this.maxZ = maxZ;
+		this.pixels = pixels;
 		this.dialogType = index;
 		initComponents(name);
 		buildGUI();
@@ -1413,12 +1529,9 @@ public class FigureDialog
 		channelsPane.removeAll();
 		switch (dialogType) {
 			case SPLIT:
+			case SPLIT_ROI:
 				initChannelComponents();
 				channelsPane.add(buildChannelsComponent());
-				break;
-			case SPLIT_ROI:
-				initChannelROIComponents();
-				channelsPane.add(buildChannelsROIComponent());
 				break;
 		}
 		saveButton.setEnabled(true);
@@ -1528,11 +1641,11 @@ public class FigureDialog
 			case ARRANGE_BY_TAGS:
 				boolean b = arrangeByTags.isSelected();
 				Iterator<JCheckBox> i = tagsSelection.keySet().iterator();
-				JCheckBox box;
-				while (i.hasNext()) {
-					box = i.next();
-					box.setEnabled(b);
-				}
+				while (i.hasNext())
+					i.next().setEnabled(b);
+				break;
+			case PROJECTION:
+				setProjectionSelected(projectionBox.isSelected());
 		}
 	}
 
@@ -1599,22 +1712,37 @@ public class FigureDialog
 	 */
 	public void stateChanged(ChangeEvent e)
 	{
-		if (dialogType == SPLIT) {
-			boolean grey = splitPanelGrey.isSelected();
-			if (components == null) return;
-			Iterator<Integer> i = components.keySet().iterator();
-			FigureComponent comp;
-			List active = renderer.getActiveChannels();
-			Integer index;
-			while (i.hasNext()) {
-				index = i.next();
-				comp = components.get(index);
-				if (grey) comp.resetImage(grey);
-				else {
-					if (active.contains(index)) comp.resetImage(grey);
-					else comp.resetImage(!grey);
+		Object src = e.getSource();
+		switch (dialogType) {
+			case SPLIT:
+			case SPLIT_ROI:
+				if (src == splitPanelGrey) {
+					boolean grey = splitPanelGrey.isSelected();
+					if (components == null) return;
+					Iterator<Integer> i = components.keySet().iterator();
+					FigureComponent comp;
+					List active = renderer.getActiveChannels();
+					Integer index;
+					while (i.hasNext()) {
+						index = i.next();
+						comp = components.get(index);
+						if (grey) comp.resetImage(grey);
+						else {
+							if (active.contains(index)) comp.resetImage(grey);
+							else comp.resetImage(!grey);
+						}
+					}
 				}
-			}
+				
+			break;
+			case MOVIE:
+				if (src == movieFrequency) {
+					Integer value = (Integer) movieFrequency.getValue();
+					movieSlider.selectCells(value);
+				}
+				
+				
+				break;
 		}
 	}
 	

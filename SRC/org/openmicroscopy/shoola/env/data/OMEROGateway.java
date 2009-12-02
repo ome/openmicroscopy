@@ -458,7 +458,6 @@ class OMEROGateway
 		throws DSAccessException
 	{
 		if (table == null) return null;
-		long start = System.currentTimeMillis();
 		try {
 			Column[] cols = table.getHeaders();
 			String[] headers = new String[cols.length];
@@ -4642,6 +4641,9 @@ class OMEROGateway
 				case FigureParam.THUMBNAILS:
 					scriptName = "thumbnailFigure.py";
 					break;
+				case FigureParam.MOVIE:
+					scriptName = "movieFigure.py";
+					break;
 				default:
 					scriptName = "splitViewFigure.py";
 			}
@@ -4690,35 +4692,55 @@ class OMEROGateway
 				//RLong type = null;
 				if (r == null) return -1;
 				return r.getValue();
-			}
+			} 
 			//merge channels
 			Map<String, RType> merge = new LinkedHashMap<String, RType>();
 			Entry entry;
 			Map<Integer, Integer> mergeChannels = param.getMergeChannels();
-			j = mergeChannels.entrySet().iterator();
-			while (j.hasNext()) {
-				entry = (Entry) j.next();
-				merge.put(""+(Integer) entry.getKey(), 
-						omero.rtypes.rlong((Integer) entry.getValue()));
+			if (mergeChannels != null) {
+				j = mergeChannels.entrySet().iterator();
+				while (j.hasNext()) {
+					entry = (Entry) j.next();
+					merge.put(""+(Integer) entry.getKey(), 
+							omero.rtypes.rlong((Integer) entry.getValue()));
+				}
 			}
+			
 			//split
 			Map<String, RType> split = new LinkedHashMap<String, RType>();
+			
 			Map<Integer, String> splitChannels = param.getSplitChannels();
-			j = splitChannels.entrySet().iterator();
-			while (j.hasNext()) {
-				entry = (Entry) j.next();
-				split.put(""+(Integer) entry.getKey(), 
-						omero.rtypes.rstring((String) entry.getValue()));
+			if (splitChannels != null) {
+				j = splitChannels.entrySet().iterator();
+				while (j.hasNext()) {
+					entry = (Entry) j.next();
+					split.put(""+(Integer) entry.getKey(), 
+							omero.rtypes.rstring((String) entry.getValue()));
+				}
 			}
+			
 			
 			parameters.map.put("imageIds", omero.rtypes.rlist(ids));
 			parameters.map.put("zStart", omero.rtypes.rlong(param.getStartZ()));
 			parameters.map.put("zEnd", omero.rtypes.rlong(param.getEndZ()));
-			
-			parameters.map.put("splitChannelNames", omero.rtypes.rmap(split));
-			parameters.map.put("mergedColours", omero.rtypes.rmap(merge));
-			parameters.map.put("splitPanelsGrey", 
+			if (split.size() > 0) 
+				parameters.map.put("splitChannelNames", 
+						omero.rtypes.rmap(split));
+			if (merge.size() > 0)
+				parameters.map.put("mergedColours", omero.rtypes.rmap(merge));
+			if (scriptIndex == FigureParam.MOVIE) {
+				List<Integer> times = param.getTimepoints();
+				List<RType> ts = new ArrayList<RType>(objectIDs.size());
+				Iterator<Integer> k = times.iterator();
+				while (k.hasNext()) 
+					ts.add(omero.rtypes.rint(k.next()));
+				parameters.map.put("tIndexes", omero.rtypes.rlist(ts));
+				parameters.map.put("timeUnits", 
+						omero.rtypes.rstring(param.getTimAsString()));
+			} else 
+				parameters.map.put("splitPanelsGrey", 
 					omero.rtypes.rbool(param.isSplitGrey()));
+			
 			parameters.map.put("scalebar", omero.rtypes.rlong(
 					param.getScaleBar()));
 			parameters.map.put("overlayColour", omero.rtypes.rlong(

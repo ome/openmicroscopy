@@ -80,6 +80,7 @@ import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
 import pojos.ChannelData;
 import pojos.FileAnnotationData;
+import pojos.PixelsData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -147,11 +148,14 @@ class EditorControl
 	/** Action ID to create a figure with split view of images. */
 	static final int	SPLIT_VIEW_ROI_FIGURE = 13;
 	
-	/** Action ID to create a figure with the collection of images. */
+	/** Action ID to create a thumbnail figure with the collection of images. */
 	static final int	THUMBNAILS_FIGURE = 14;
 	
 	/** Action ID to analyze the image. */
 	static final int	ANALYSE_FRAP = 15;
+	
+	/** Action ID to create a movie figure with the collection of images. */
+	static final int	MOVIE_FIGURE = 16;
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -348,17 +352,17 @@ class EditorControl
 	/**
 	 * Creates or recycles the existing figure dialog.
 	 * 
-	 * @param name  The name to display.
-	 * @param maxZ  The number of z-sections.
+	 * @param name   The name to display.
+	 * @param pixels The pixels object of reference.
 	 * @param index One of the constants defined by this class.
 	 * @return See above.
 	 */
-	FigureDialog createFigureDialog(String name, int maxZ, int index)
+	FigureDialog createFigureDialog(String name, PixelsData pixels, int index)
 	{
 		if (figureDialog != null) return figureDialog;
 		JFrame f = 
 			MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		figureDialog = new FigureDialog(f, name, maxZ, index, 
+		figureDialog = new FigureDialog(f, name, pixels, index, 
 				view.getRefObject().getClass());
 		figureDialog.addPropertyChangeListener(this);
 		return figureDialog;
@@ -529,6 +533,8 @@ class EditorControl
 			case THUMBNAILS_FIGURE:
 				model.createFigure(FigureDialog.THUMBNAILS);
 				break;
+			case MOVIE_FIGURE:
+				model.createFigure(FigureDialog.MOVIE);
 				
 		}
 	}
