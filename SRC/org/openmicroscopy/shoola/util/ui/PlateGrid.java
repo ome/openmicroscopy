@@ -32,7 +32,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
 //Third-party libraries
@@ -103,6 +102,7 @@ public class PlateGrid
 	 */
 	private void initialize(int rows, int columns)
 	{
+		setTableHeader(null);
 		setModel(new GridModel(rows, columns));
 		TableColumn col;
 		int width = CELL_SIZE.width;

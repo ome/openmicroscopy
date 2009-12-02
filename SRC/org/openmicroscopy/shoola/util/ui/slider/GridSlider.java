@@ -81,6 +81,7 @@ public class GridSlider
 	 */
 	private void initiliaze(int columns)
 	{
+		setTableHeader(null);
 		selectedCells = new HashMap<Integer, Boolean>();
 		setModel(new GridModel(1, columns));
 		TableColumn col;
@@ -193,6 +194,16 @@ public class GridSlider
 		while (i.hasNext())
 			list.add(i.next());
 		return list;
+	}
+	
+	/**
+	 * Returns the number of selected cells.
+	 * 
+	 * @return See above.
+	 */
+	public int getNumberOfSelectedCells()
+	{
+		return selectedCells.size();
 	}
 	
 	/**

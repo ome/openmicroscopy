@@ -159,6 +159,9 @@ public class FigureDialog
 	/** The text displayed next to the merged image. */
 	private static final String		MERGED_TEXT = "Merged";
 	
+	/** The default text. */
+	private static final String		FRAMES_TEXT = "Number of frames: ";
+	
 	/** Action id indicating to allow the modification of the scale bar. */
 	private static final int 		SCALE_BAR = 2;
 	
@@ -398,6 +401,9 @@ public class FigureDialog
     
     /** The time of options. */
 	private JComboBox						timesBox;
+	
+	/** The number of frames selected for the movie. */
+	private JLabel							numberOfFrames;
 	
 	/** 
 	 * Lays out the selected tags. 
@@ -818,7 +824,8 @@ public class FigureDialog
 		widthField.getDocument().addDocumentListener(this);
 		heightField.getDocument().addDocumentListener(this);
 		movieSlider = new GridSlider(maxT);
-		
+		movieSlider.addPropertyChangeListener(
+				GridSlider.COLUMN_SELECTION_PROPERTY, this);
 		setProjectionSelected(false);
 		map = FigureParam.TIMES;
 		f = new String[map.size()];
@@ -829,6 +836,7 @@ public class FigureDialog
 			f[v] = (String) entry.getValue();
 		}
 		timesBox = new JComboBox(f);
+		numberOfFrames = new JLabel(FRAMES_TEXT+maxT);
 	}
 	
 	/** Builds and lays out the UI. */
@@ -1146,21 +1154,28 @@ public class FigureDialog
         c.gridx++;
         p.add(Box.createHorizontalStrut(5), c); 
         c.gridx++;
-        p.add(UIUtilities.buildComponentPanel(movieFrequency), c);  
+        JPanel pane = new JPanel();
+        pane.setLayout(new BoxLayout(pane, BoxLayout.X_AXIS));
+        pane.add(movieFrequency);
+        pane.add(Box.createHorizontalStrut(5));
+        pane.add(numberOfFrames);
+        p.add(UIUtilities.buildComponentPanel(pane), c); 
         c.gridy++;
         c.gridx = 0;
         p.add(UIUtilities.setTextFont("Selected Time-points"), c);
         c.gridx++;
         p.add(Box.createHorizontalStrut(5), c); 
         c.gridx++;
+        //JScrollPane sp = new JScrollPane(movieSlider); 
         p.add(movieSlider, c);
+        c.weightx = 0.0;          
         c.gridy++;
         c.gridx = 0;
         p.add(UIUtilities.setTextFont("Time units"), c);
         c.gridx++;
         p.add(Box.createHorizontalStrut(5), c);
         c.gridx++;
-        p.add(timesBox, c);
+        p.add(UIUtilities.buildComponentPanel(timesBox), c);
         
 		controls.add(UIUtilities.buildComponentPanel(p));
 		controls.add(buildDimensionComponent());
@@ -1412,7 +1427,6 @@ public class FigureDialog
 				break;
 			case SIZE_160:
 				width = 160;
-				break;
 		}
 		Number n = numberPerRow.getValueAsNumber();
 		if (n != null && n instanceof Integer)
@@ -1479,15 +1493,13 @@ public class FigureDialog
 		Document doc;
 		int v;
 		if (field == widthField) {
-			v = (int) ((n*renderer.getPixelsDimensionsY())/
-					renderer.getPixelsDimensionsX());
+			v = (int) ((n*pixels.getSizeX())/pixels.getSizeY());
 			doc = heightField.getDocument();
 			doc.removeDocumentListener(this);
 			heightField.setText(""+v);
 			doc.addDocumentListener(this);
 		} else {
-			v = (int) ((n*renderer.getPixelsDimensionsX())/
-					renderer.getPixelsDimensionsY());
+			v = (int) ((n*pixels.getSizeX())/pixels.getSizeY());
 			doc = widthField.getDocument();
 			doc.removeDocumentListener(this);
 			widthField.setText(""+v);
@@ -1714,6 +1726,10 @@ public class FigureDialog
 		} else if (ChannelComponent.CHANNEL_SELECTION_PROPERTY.equals(name)) {
 			ChannelComponent c = (ChannelComponent) evt.getNewValue();
 			setChannelSelection(c.getChannelIndex(), c.isActive());
+		} else if (GridSlider.COLUMN_SELECTION_PROPERTY.equals(name)) {
+			numberOfFrames.setText(
+					FRAMES_TEXT+movieSlider.getNumberOfSelectedCells());
+			numberOfFrames.repaint();
 		}
 	}
 	
@@ -1750,9 +1766,10 @@ public class FigureDialog
 				if (src == movieFrequency) {
 					Integer value = (Integer) movieFrequency.getValue();
 					movieSlider.selectCells(value);
+					numberOfFrames.setText(
+							FRAMES_TEXT+movieSlider.getNumberOfSelectedCells());
+					numberOfFrames.repaint();
 				}
-				
-				
 				break;
 		}
 	}

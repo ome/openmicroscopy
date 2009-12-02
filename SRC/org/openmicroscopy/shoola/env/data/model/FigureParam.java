@@ -78,20 +78,23 @@ public class FigureParam
 	/** Identify the <code>PNG</code> format. */
 	public static final int		PNG = 1;
 
+	/** Identify the <code>Seconds and milliseconds</code> format. */
+	public static final int		TIME_SECS_MILLIS = 0; 
+	
 	/** Identify the <code>Seconds</code> format. */
-	public static final int		TIME_SECS = 0; 
+	public static final int		TIME_SECS = 1; 
 	
 	/** Identify the <code>Minutes</code> format. */
-	public static final int		TIME_MINS = 1; 
+	public static final int		TIME_MINS = 2; 
 	
 	/** Identify the <code>Hours</code> format. */
-	public static final int		TIME_HOURS = 2; 
+	public static final int		TIME_HOURS = 3; 
 	
 	/** Identify the <code>Minutes and Seconds</code> format. */
-	public static final int		TIME_MINS_SECS = 3; 
+	public static final int		TIME_MINS_SECS = 4; 
 	
 	/** Identify the <code>Hours and minutes</code> format. */
-	public static final int		TIME_HOURS_MINS = 4; 
+	public static final int		TIME_HOURS_MINS = 5; 
 	
 	/** The supported formats. */
 	public static final Map<Integer, String> 	FORMATS;
@@ -103,8 +106,9 @@ public class FigureParam
 		FORMATS = new LinkedHashMap<Integer, String>(2);
 		FORMATS.put(JPEG, "JPEG");
 		FORMATS.put(PNG, "PNG");
-		TIMES = new LinkedHashMap<Integer, String>(5);
-		TIMES.put(TIME_SECS, "Seconds");
+		TIMES = new LinkedHashMap<Integer, String>(6);
+		TIMES.put(TIME_SECS_MILLIS, "Seconds (e.g. 2.75)");
+		TIMES.put(TIME_SECS, "Seconds (e.g. 2)");
 		TIMES.put(TIME_MINS, "Minutes");
 		TIMES.put(TIME_HOURS, "Hours");
 		TIMES.put(TIME_MINS_SECS, "Minutes and Seconds");
@@ -188,7 +192,7 @@ public class FigureParam
 	private void setDefault()
 	{
 		parentID = -1;
-		time = TIME_SECS;
+		time = TIME_SECS_MILLIS;
 		label = IMAGE_NAME;
 		format = PNG;
 		projectionType = ProjectionParam.MAXIMUM_INTENSITY;
@@ -312,6 +316,7 @@ public class FigureParam
 	public void setTime(int time)
 	{
 		switch (time) {
+			case TIME_SECS_MILLIS:
 			case TIME_SECS:
 			case TIME_MINS:
 			case TIME_HOURS:
@@ -333,11 +338,12 @@ public class FigureParam
 	{
 		switch (time) {
 			default:
+			case TIME_SECS_MILLIS: return "SECS_MILLIS";
 			case TIME_SECS: return "SECS";
 			case TIME_MINS: return "MINS";
 			case TIME_HOURS: return "HOURS";
 			case TIME_MINS_SECS: return "MINS_SECS";
-			case TIME_HOURS_MINS: return "HOURS_SECS";
+			case TIME_HOURS_MINS: return "HOURS_MINS";
 		}
 	}
 	
