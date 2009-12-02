@@ -100,7 +100,7 @@ public class TreeViewerFactory
 	{
 		if (isWindowMenuAttachedToTaskBar()) return;
 		TaskBar tb = TreeViewerAgent.getRegistry().getTaskBar();
-		tb.addToMenu(TaskBar.WINDOW_MENU, singleton.windowMenu);
+		tb.addToMenu(TaskBar.WINDOW_MENU, getWindowMenu());
 		singleton.isAttached = true;
 	}
 

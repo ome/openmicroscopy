@@ -249,6 +249,26 @@ class UserNotifierManager
 		source.dispose();
 	}
 	
+	/** Creates the activity dialog. */
+	private void createActivity()
+	{
+		if (activityDialog != null) return;
+		Registry reg = getRegistry();
+		JFrame f = reg.getTaskBar().getFrame();
+		activityDialog = new DownloadsDialog(f, 
+				IconManager.getInstance(reg), DownloadsDialog.ACTIVITY);
+	}
+	
+	/** Displays the activity window. */
+	private void showActivity()
+	{
+		if (activityDialog == null) return;
+		if (!activityDialog.isVisible())
+			UIUtilities.centerAndShow(activityDialog);
+		activityDialog.requestFocusInWindow();
+		activityDialog.toFront();
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -260,6 +280,8 @@ class UserNotifierManager
 		container = c;
 		this.component = component;
 		loaders = new HashMap<String, UserNotifierLoader>();
+		JFrame f = getRegistry().getTaskBar().getFrame();
+		f.addPropertyChangeListener(TaskBarManager.ACTIVITIES_PROPERTY, this);
 	}
 	
 	/**
@@ -283,19 +305,11 @@ class UserNotifierManager
 	void registerActivity(ActivityComponent activity)
 	{
 		if (activity == null) return;
-		if (activityDialog == null) {
-			Registry reg = getRegistry();
-			JFrame f = reg.getTaskBar().getFrame();
-			activityDialog = new DownloadsDialog(f, 
-					IconManager.getInstance(reg), DownloadsDialog.ACTIVITY);
-		}
+		createActivity();
 		activityDialog.addActivityEntry(activity);
-		if (!activityDialog.isVisible())
-			UIUtilities.centerAndShow(activityDialog);
-		activityDialog.requestFocusInWindow();
-		activityDialog.toFront();
+		showActivity();
 	}
-	
+
 	/**
 	 * Returns the version number.
 	 * 
@@ -358,6 +372,11 @@ class UserNotifierManager
 			UserNotifierLoader loader = loaders.get(fileName);
 			if (loader != null) loader.cancel();
 			
+		} else if (TaskBarManager.ACTIVITIES_PROPERTY.equals(name)) {
+			JFrame f = (JFrame) pce.getSource();
+			if (f.getBounds().width > 0) return;
+			createActivity();
+			showActivity();
 		}
 	}
 	

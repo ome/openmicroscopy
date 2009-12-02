@@ -237,11 +237,14 @@ public class IconManager
     /** A 48x48 <code>Download</code> icon. */
     static final int        DOWNLOAD_48 = 18;
     
+    /** ID of the <code>comment</code> icon. */
+    static final int        ACTIVITY = 19;
+    
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int      MAX_ID = 18;
+	private static int      MAX_ID = 19;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -265,6 +268,7 @@ public class IconManager
 		relPaths[DOWNLOAD_22] = "nuvola_download_manager22.png";
         relPaths[DOWNLOAD_48] = "nuvola_download_manager48.png";
         relPaths[FORUM] = "nuvola_chat16.png";
+        relPaths[ACTIVITY] = "nuvola_chat16.png";
 	}
 	
 	/** The sole instance. */

@@ -96,6 +96,9 @@ public class TaskBarManager
 	/** The window's title. */
 	static final String				TITLE_ABOUT = "About";
 	
+	/** Bound property indicating to display the activity dialog. */
+	static final String				ACTIVITIES_PROPERTY = "activities";
+	
 	/** The value of the tag to find. */
 	private static final String		A_TAG = "a";
 	
@@ -402,7 +405,7 @@ public class TaskBarManager
     						LookupNames.FORUM);
     	openURL(path);
     }
-    
+
 	/**
 	 * Attaches the {@link #notAvailable() not-available} action to all buttons
 	 * whose functionality hasn't been implemented yet.
@@ -439,6 +442,10 @@ public class TaskBarManager
 		view.getButton(TaskBarView.FORUM_MI).addActionListener(
 				new ActionListener() {       
             public void actionPerformed(ActionEvent ae) { forum(); }
+        });
+		view.getButton(TaskBarView.ACTIVITY_MI).addActionListener(
+				new ActionListener() {       
+            public void actionPerformed(ActionEvent ae) { view.activities(); }
         });
 	}
 	

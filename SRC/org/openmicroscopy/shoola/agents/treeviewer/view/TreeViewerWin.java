@@ -264,21 +264,22 @@ class TreeViewerWin
         menus.add(createEditMenu());
         if (!getLayoutType().equals(JXTASKPANE_TYPE)) 
         	menus.add(createViewMenu());
-        
+       
         JMenuBar bar = tb.getTaskBarMenuBar();
         JMenu[] existingMenus = new JMenu[bar.getMenuCount()];
         
-		for (int i = 0; i < existingMenus.length; i++) 
+		for (int i = 0; i < existingMenus.length; i++) {
 			existingMenus[i] = bar.getMenu(i);
-
+		}
 		bar.removeAll();
 		
 		Iterator<JMenu> k = menus.iterator();
 		while (k.hasNext()) 
 			bar.add(k.next());
 			
-		for (int i = 0; i < existingMenus.length; i++) 
+		for (int i = 0; i < existingMenus.length; i++) {
 			bar.add(existingMenus[i]);
+		}
         return bar;
     }
     

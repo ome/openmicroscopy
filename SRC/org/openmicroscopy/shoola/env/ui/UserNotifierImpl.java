@@ -307,7 +307,7 @@ public class UserNotifierImpl
 		} else if (activity instanceof AnalysisActivityParam) {
 			AnalysisActivityParam p = (AnalysisActivityParam) activity;
 			comp = new AnalysisActivity(this, manager.getRegistry(), p);
-		}
+		} 
 		if (comp != null) {
 			UserNotifierLoader loader = comp.createLoader();
 			if (loader == null) return;

@@ -110,18 +110,18 @@ class TaskBarView
 	/** Identifies the about menu item within the help menu. */
 	static final int	ABOUT_MI = 7;
 	
-	/** Identifies the exit button within the toolbar. */
+	/** Identifies the exit button within the tool bar. */
 	static final int	EXIT_BTN = 8;
 	
-	/** Identifies the connect to <i>OMEDS</i> button within the toolbar. */
+	/** Identifies the connect to <i>OMEDS</i> button within the tool bar. */
 	static final int	CONNECT_BTN = 9;
 	
 	/** 
-	 * Identifies the disconnect from <i>OMEDS</i> button within the toolbar.
+	 * Identifies the disconnect from <i>OMEDS</i> button within the tool bar.
 	 */
 	static final int	DISCONNECT_BTN = 10;
 	
-	/** Identifies the help button within the toolbar. */
+	/** Identifies the help button within the tool bar. */
 	static final int	HELP_BTN = 11;
 	
 	/** Identifies the comment menu item within the help menu. */
@@ -130,11 +130,14 @@ class TaskBarView
 	/** Identifies the help contents menu item within the help menu. */
 	static final int	FORUM_MI = 13;
 	
+	/** Identifies the activity contents menu item within the windows menu. */
+	static final int	ACTIVITY_MI = 14;
+	
 	/** 
 	 * The maximum id of the buttons and menu items identifiers.
 	 * Allows to size the {@link #buttons} array correctly.
 	 */
-	private static final int	MAX_ID = 13;
+	private static final int	MAX_ID = 14;
 		
     /** The title of the frame. */
     private static final String TITLE = "Open Microscopy Environment";
@@ -142,7 +145,7 @@ class TaskBarView
 	/**
 	 * All the button-like objects used by this view.
 	 * These are all the menu items within the various menus in the menu bar
-	 * and all icon buttons within the toolbar. 
+	 * and all icon buttons within the tool bar. 
 	 * We do direct indexing on this array by using the constants specified by
 	 * this class.
 	 */
@@ -209,6 +212,8 @@ class TaskBarView
 								iconManager.getIcon(IconManager.COMMENT));
 		buttons[FORUM_MI] = new JMenuItem("Forum",
 				iconManager.getIcon(IconManager.FORUM));
+		buttons[ACTIVITY_MI] = new JMenuItem("Activities",
+				iconManager.getIcon(IconManager.ACTIVITY));
 	}
 	
     /**
@@ -309,6 +314,7 @@ class TaskBarView
 	{
 		JMenu window = new JMenu("Window");
 		window.setMnemonic(KeyEvent.VK_W);
+		window.add(buttons[ACTIVITY_MI]);
 		return window;
 	}
 	
@@ -446,7 +452,6 @@ class TaskBarView
 			else if (menu == menus[HELP_MENU])
 				helpMenus.add(copy);
 		}
-		
 		return bar;
 	}
 	
@@ -483,6 +488,13 @@ class TaskBarView
 		return buttons[id];
 	}
 
+    /** Launches the activity dialog. */
+    void activities()
+    {
+    	firePropertyChange(TaskBarManager.ACTIVITIES_PROPERTY, 
+    			Boolean.valueOf(false), Boolean.valueOf(true));
+    }
+    
 	/**
 	 * Implemented as specified by {@link TaskBar}.
 	 * @see TaskBar#addToMenu(int, JMenuItem)
