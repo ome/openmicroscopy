@@ -26,8 +26,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -38,21 +36,18 @@ import javax.swing.JToolBar;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
+import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
-import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import pojos.DatasetData;
 import pojos.ImageData;
-import pojos.PixelsData;
 import pojos.WellSampleData;
 
 /** 
- * 
+ * Displays the available analysis routines.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -215,7 +210,7 @@ public class AnalysisDialog
 		if (menu != null) return menu;
 		menu = new JPopupMenu();
 		menu.add(FRAPItem);
-		menu.add(FLIMItem);
+		//menu.add(FLIMItem);
 		return menu;
  	}
 	

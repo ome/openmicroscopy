@@ -1047,9 +1047,13 @@ public class FigureDialog
 		double s[][] = {{TableLayout.PREFERRED, 5, TableLayout.PREFERRED}, 
 				{TableLayout.PREFERRED}};
 		merge.setLayout(new TableLayout(s));
-		merge.add(p, "0, 0, LEFT, BOTTOM");
-		merge.add(buildMergeComponent(), "2, 0, LEFT, TOP");
-
+		if (dialogType == SPLIT) {
+			merge.add(p, "0, 0, LEFT, BOTTOM");
+			merge.add(buildMergeComponent(), "2, 0, LEFT, TOP");
+		} else {
+			merge.add(buildMergeComponent(), "0, 0, LEFT, BOTTOM");
+			merge.add(p, "2, 0, LEFT, TOP");
+		}
 		JPanel splitPanel = new JPanel();
 		splitPanel.add(UIUtilities.setTextFont("Split Panel"));
 		splitPanel.add(splitPanelColor);

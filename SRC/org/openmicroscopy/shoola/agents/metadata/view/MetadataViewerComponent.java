@@ -874,7 +874,7 @@ class MetadataViewerComponent
 		List<ChannelData> channels = null;
 		Map m = model.getEditor().getChannelData();
 		if (m != null && m.size() == 1) {
-			analyse(0);
+			controller.analyseFRAP(0);
 			return;
 		}
 		if (m != null) {
@@ -884,7 +884,7 @@ class MetadataViewerComponent
 				channels.add((ChannelData) j.next());
 			}
 		}
-		//TODO: if list is null.
+		
 		IconManager icons = IconManager.getInstance();
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		ChannelSelectionDialog d = new ChannelSelectionDialog(f, 
