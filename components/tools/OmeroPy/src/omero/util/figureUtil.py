@@ -56,7 +56,6 @@ def getDatasetsProjectsFromImages(queryService, imageIds):
 	for i in images:	# order of images not same as imageIds
 		pdList = []
 		imageId = i.getId().getValue()
-		print imageId
 		for link in i.iterateDatasetLinks():
 			dataset = link.parent
 			dName = dataset.getName().getValue()
@@ -126,13 +125,15 @@ def getTimes(queryService, pixelsId, tIndexes, theZ=None, theC=None):
 def formatTime(seconds, timeUnits):
 	"""
 	Returns a string formatting of the time (in seconds)
-	according to the chosen timeUnits: "SECS", "MINS", "HOURS", "MINS_SECS", "HOURS_MINS"
+	according to the chosen timeUnits: "SECS_MILLIS", "SECS", "MINS", "HOURS", "MINS_SECS", "HOURS_MINS"
 	
 	@param seconds:		Time in seconds. float or int
 	@param timeUnits:	A string denoting the format. One of the choices above. 
 	@return:		A string, such as "10 secs" or "3:20 hrs:mins"	
 	"""
-	if timeUnits == "SECS":
+	if timeUnits == "SECS_MILLIS":
+		return "%.2f sec" % seconds
+	elif timeUnits == "SECS":
 		return "%d sec" % int(round(seconds))
 	elif timeUnits == "MINS":
 		mins = float(seconds) / float(60)
@@ -148,7 +149,8 @@ def formatTime(seconds, timeUnits):
 		hrs = seconds / 3600
 		mins = round((seconds % 3600)/60)
 		return "%d:%02d hrs:mins" % (hrs, mins)
-	
+	else:
+		return "%.2f sec" % seconds
 	
 def getTimeLabels(queryService, pixelsId, tIndexes, sizeT, timeUnits):
 	"""
