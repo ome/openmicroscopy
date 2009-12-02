@@ -281,7 +281,9 @@ class UserNotifierManager
 		this.component = component;
 		loaders = new HashMap<String, UserNotifierLoader>();
 		JFrame f = getRegistry().getTaskBar().getFrame();
-		f.addPropertyChangeListener(TaskBarManager.ACTIVITIES_PROPERTY, this);
+		if (f != null)
+			f.addPropertyChangeListener(TaskBarManager.ACTIVITIES_PROPERTY,
+					this);
 	}
 	
 	/**
