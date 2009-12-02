@@ -1011,16 +1011,23 @@ public class FigureDialog
         	controls.add(selectedObjects);
         	p.add(UIUtilities.buildComponentPanel(controls), "1, "+i);
         }
-        if (dialogType != SPLIT_ROI) {
-    		i = i+2;
-    		p.add(UIUtilities.setTextFont("Select Z-section"), "0, "+i);
-        	p.add(UIUtilities.buildComponentPanel(planeSelection), "1, "+i);
-    	}
-        if (dialogType == MOVIE && pixels.getSizeT() > 1) {
-        	i = i+2;
-        	p.add(buildMovieComponent(), "0, "+i+", 4, "+i);
-        }
-        
+        switch (dialogType) {
+			case SPLIT:
+				i = i+2;
+	    		p.add(UIUtilities.setTextFont("Select Z-section"), "0, "+i);
+	        	p.add(UIUtilities.buildComponentPanel(planeSelection), "1, "+i);
+				break;
+	
+			case MOVIE:
+				if (pixels.getSizeT() > 1) {
+					i = i+2;
+		        	p.add(buildMovieComponent(), "0, "+i+", 4, "+i);
+				}
+				i = i+2;
+	    		p.add(UIUtilities.setTextFont("Select Z-section"), "0, "+i);
+	        	p.add(UIUtilities.buildComponentPanel(planeSelection), "1, "+i);
+				break;
+		}
 		return p;
 	}
 	
@@ -1138,7 +1145,7 @@ public class FigureDialog
         p.add(UIUtilities.buildComponentPanel(movieFrequency), c);  
         c.gridy++;
         c.gridx = 0;
-        p.add(UIUtilities.setTextFont("Selected Time-point"), c);
+        p.add(UIUtilities.setTextFont("Selected Time-points"), c);
         c.gridx++;
         p.add(Box.createHorizontalStrut(5), c); 
         c.gridx++;
