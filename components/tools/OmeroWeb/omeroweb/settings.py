@@ -29,6 +29,8 @@ import os.path
 import sys
 import datetime
 import logging
+import omero
+import omero.clients
 
 # LOGS
 # NEVER DEPLOY a site into production with DEBUG turned on.
