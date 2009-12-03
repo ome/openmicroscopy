@@ -74,6 +74,7 @@ module omero {
         };
 
         class StringColumn extends Column {
+            long size;
             omero::api::StringArray values;
         };
 

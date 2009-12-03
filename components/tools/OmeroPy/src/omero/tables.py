@@ -278,6 +278,7 @@ class HdfStorage(object):
                 col = ic.findObjectFactory(t).create(t)
                 col.name = n
                 col.setsize(size)
+                col.settable(self.__mea)
                 cols.append(col)
             except:
                 msg = traceback.format_exc()
