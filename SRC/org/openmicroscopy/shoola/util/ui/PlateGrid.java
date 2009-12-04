@@ -94,6 +94,12 @@ public class PlateGrid
 	/** Hosts the valid wells. */
 	private boolean[][] validValues;
 	
+	/** Identifies the row of the selected cell. */
+	private int selectedRow;
+	
+	/** Identifies the column of the selected cell. */
+	private int selectedColumn;
+	
 	/** 
 	 * Initializes the component. 
 	 * 
@@ -102,6 +108,8 @@ public class PlateGrid
 	 */
 	private void initialize(int rows, int columns)
 	{
+		selectedColumn = -1;
+		selectedRow = -1;
 		setTableHeader(null);
 		setModel(new GridModel(rows, columns));
 		TableColumn col;
@@ -129,6 +137,8 @@ public class PlateGrid
 				int column = getSelectedColumn();
 				if (isCellValid(row, column)) {
 					Point p = new Point(row, column);
+					selectedColumn = column;
+					selectedRow = row;
 					firePropertyChange(WELL_FIELDS_PROPERTY, null, p);
 				}
 			}
@@ -175,6 +185,8 @@ public class PlateGrid
 		setColumnSelectionInterval(column, column);
 		setRowSelectionInterval(row, row);
 		//editCellAt(row, column);
+		selectedRow = row;
+		selectedColumn = column;
 		repaint();
 	}
 	
@@ -190,6 +202,19 @@ public class PlateGrid
 	{
 		if (validValues == null) return false;
 		return validValues[row][column];
+	}
+	
+	/**
+	 * Returns <code>true</code> if the passed cell is the displayed one,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param row The row identifying the cell.
+	 * @param column The column identifying the cell.
+	 * @return See above.
+	 */
+	boolean isCellDisplayed(int row, int column)
+	{
+		return (selectedColumn == column && selectedRow == row);
 	}
 	
 	/**
@@ -244,7 +269,8 @@ public class PlateGrid
 			setToolTipText(model.getCellToolTip(row, column));
 			if (model.isCellValid(row, column)) {
 				setBackground(SELECTED_COLOR);
-				if (hasFocus) setBackground(FOCUS_COLOR);
+				if (model.isCellDisplayed(row, column))
+					setBackground(FOCUS_COLOR);
 			} else {
 				setBackground(BACKGROUND_COLOR);
 			}
