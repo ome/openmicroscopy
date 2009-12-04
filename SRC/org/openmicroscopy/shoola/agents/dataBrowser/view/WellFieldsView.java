@@ -87,7 +87,10 @@ class WellFieldsView
 	static final int 			DEFAULT_HEIGHT = 512;
 	
 	/** The text for the selected well. */
-	private static final String	DEFAULT_TEXT = "Well: ";
+	private static final String	DEFAULT_WELL_TEXT = "Well: ";
+	
+	/** The text for the selected field. */
+	private static final String	DEFAULT_FIELD_TEXT = "Field #";
 	
 	/** The grid representing the plate. */
 	private PlateGrid 			grid;
@@ -110,6 +113,9 @@ class WellFieldsView
 	/** The currently selected well. */
 	private JLabel				 selectedNode;
 	
+	/** The currently selected field. */
+	private JLabel				 selectedField;
+	
 	/** The magnification factor. */
 	private double				 magnification;
 	
@@ -121,16 +127,16 @@ class WellFieldsView
 	{
 		magnification = 1.0;
 		layoutFields = DEFAULT_LAYOUT;
+		selectedField = new JLabel();
 		grid = new PlateGrid(model.getRowSequenceIndex(), 
 				model.getColumnSequenceIndex(), model.getValidWells());
 		grid.addPropertyChangeListener(controller);
 		WellImageSet node = model.getSelectedWell();
 		selectedNode = new JLabel();
 		if (node != null) {
-			selectedNode.setText(DEFAULT_TEXT+node.getWellLocation());
+			selectedNode.setText(DEFAULT_WELL_TEXT+node.getWellLocation());
 			grid.selectCell(node.getRow(), node.getColumn());
 		}
-			
 		canvas = new WellFieldsCanvas(this);
 		canvas.addMouseListener(new MouseAdapter() {
 			
@@ -167,12 +173,17 @@ class WellFieldsView
 					WellSampleNode node = canvas.getNode(p);
 					if (node != null) {
 						StringBuffer buffer = new StringBuffer();
-						buffer.append("Field #"+node.getIndex());
+						buffer.append(DEFAULT_FIELD_TEXT+node.getIndex());
 						buffer.append("\n");
 						buffer.append("x="+node.getPositionX()+", " +
 								"y="+node.getPositionY());
-						canvas.setToolTipText(buffer.toString());
-					} else canvas.setToolTipText("");
+						String s = buffer.toString();
+						canvas.setToolTipText(s);
+						selectedField.setText(s);
+					} else {
+						canvas.setToolTipText("");
+						selectedField.setText("");
+					}
 				}
 			}
 			
@@ -191,10 +202,12 @@ class WellFieldsView
 		
 		JPanel p = new JPanel();
 		double[][] size = {{TableLayout.PREFERRED, 5, TableLayout.PREFERRED},
-				{TableLayout.PREFERRED, TableLayout.FILL}};
+				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
+				TableLayout.FILL}};
 		p.setLayout(new TableLayout(size));
-		p.add(grid, "0, 0, 0, 1");
+		p.add(grid, "0, 0, 0, 2");
 		p.add(selectedNode, "2, 0, LEFT, TOP");
+		p.add(selectedField, "2, 1, LEFT, TOP");
 		add(pane, BorderLayout.CENTER);
 		plateTask = EditorUtil.createTaskPane("Plate");
 		plateTask.add(UIUtilities.buildComponentPanel(p));
@@ -248,7 +261,7 @@ class WellFieldsView
 		if (nodes != null && nodes.size() > 0) {
 			WellSampleNode node = nodes.get(0);
 			if (node != null) {
-				selectedNode.setText(DEFAULT_TEXT+
+				selectedNode.setText(DEFAULT_WELL_TEXT+
 						node.getParentWell().getWellLocation());
 				selectedNode.repaint();
 			}
