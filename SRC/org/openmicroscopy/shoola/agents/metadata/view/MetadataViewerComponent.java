@@ -38,6 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
@@ -870,7 +871,6 @@ class MetadataViewerComponent
 		if (index != AnalysisParam.FRAP) return;
 		Object refObject = model.getRefObject();
 		if (!(refObject instanceof ImageData)) return;
-		//TODO: Check the number of channels.
 		List<ChannelData> channels = null;
 		Map m = model.getEditor().getChannelData();
 		if (m != null && m.size() == 1) {
@@ -886,9 +886,15 @@ class MetadataViewerComponent
 		}
 		
 		IconManager icons = IconManager.getInstance();
+		Icon icon = icons.getIcon(IconManager.ANALYSE_48);
+		switch (index) {
+			case AnalysisParam.FRAP:
+				icon = icons.getIcon(IconManager.ANALYSE_FRAP_48);
+				break;
+		}
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		ChannelSelectionDialog d = new ChannelSelectionDialog(f, 
-				icons.getIcon(IconManager.ANALYSE_48), channels, index);
+		ChannelSelectionDialog d = new ChannelSelectionDialog(f, icon, channels,
+				index);
 		d.addPropertyChangeListener(controller);
 		UIUtilities.centerAndShow(d);
 	}

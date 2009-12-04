@@ -22,6 +22,8 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
+import pojos.WellSampleData;
+
 //Java imports
 
 //Third-party libraries
@@ -73,6 +75,28 @@ public class WellSampleNode
 		setTitleBarType(ImageNode.NO_BAR);
 		this.index = index;
 		this.parent = parent;
+	}
+	
+	/**
+	 * Returns the x-coordinate of the top-left corner that field on the grid.
+	 * 
+	 * @return See above.
+	 */
+	public double getPositionX()
+	{
+		WellSampleData data = (WellSampleData) getHierarchyObject();
+		return data.getPositionX();
+	}
+	
+	/**
+	 * Returns the y-coordinate of the top-left corner that field on the grid.
+	 * 
+	 * @return See above.
+	 */
+	public double getPositionY()
+	{
+		WellSampleData data = (WellSampleData) getHierarchyObject();
+		return data.getPositionY();
 	}
 	
 	/**

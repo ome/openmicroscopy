@@ -31,10 +31,9 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
-
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -126,16 +125,16 @@ class FigureComponent
 		JPanel p = new JPanel();
 		p.add(colorLabel);
 		p.add(box);
-		p.add(field);
+		JPanel controls = new JPanel();
+		controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
+		controls.add(field);
+		controls.add(UIUtilities.buildComponentPanel(p));
+		controls.add(UIUtilities.buildComponentPanelCenter(canvas));
 		setLayout(new BorderLayout(0, 0));
-		JPanel content = new JPanel();
-		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-		content.add(Box.createVerticalStrut(15));
-		content.add(p);
-		add(content, BorderLayout.NORTH);
+		add(UIUtilities.buildComponentPanel(controls, 0, 0),
+				BorderLayout.NORTH);
 		add(UIUtilities.buildComponentPanelCenter(canvas), BorderLayout.CENTER);
 	}
-	
 	
 	/**
 	 * Creates a new instance.
@@ -152,7 +151,37 @@ class FigureComponent
 		this.color = color;
 		this.index = index;
 		initComponents(name);
-		buildGUI();
+		//buildGUI();
+	}
+
+	/** 
+	 * Returns the component displaying the name associated to the channel.
+	 * 
+	 * @return See above.
+	 */
+	JComponent getHeader() { return field; }
+	
+	/**
+	 * Returns the components hosting the controls.
+	 * 
+	 * @return See above.
+	 */
+	JComponent getControls()
+	{
+		JPanel p = new JPanel();
+		p.add(colorLabel);
+		p.add(box);
+		return UIUtilities.buildComponentPanel(p);
+	}
+	
+	/**
+	 * Returns the canvas.
+	 * 
+	 * @return See above.
+	 */
+	JComponent getCanvas()
+	{
+		return UIUtilities.buildComponentPanelCenter(canvas);
 	}
 	
 	/**

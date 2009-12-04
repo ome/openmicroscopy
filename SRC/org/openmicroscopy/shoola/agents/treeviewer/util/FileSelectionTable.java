@@ -261,12 +261,29 @@ class FileSelectionTable
 	{
 		Map<File, String> files = new HashMap<File, String>();
 		int n = table.getRowCount();
-		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
 		FileElement element;
+		List<File> list;
+		Iterator<File> j;
+		File file;
 		for (int i = 0; i < n; i++) {
-			element = (FileElement) model.getValueAt(i, FILE_INDEX);
-			if ((Boolean) model.getValueAt(i, SELECTED_INDEX))
-				files.put(element.getFile(), element.getName());
+			element = (FileElement) dtm.getValueAt(i, FILE_INDEX);
+			if ((Boolean) dtm.getValueAt(i, SELECTED_INDEX)) {
+				if (element.isDirectory()) {
+					list = element.getFiles();
+					if (list != null) {
+						j = list.iterator();
+						while (j.hasNext()) {
+							file = j.next();
+							files.put(file, model.getDisplayedFileName(
+								file.getAbsolutePath()));
+						}
+					}
+				} else {
+					files.put(element.getFile(), element.getName());
+				}
+			}
+				
 		}
 		return files;
 	}

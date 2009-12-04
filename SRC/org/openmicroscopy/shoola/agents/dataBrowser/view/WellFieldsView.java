@@ -27,20 +27,30 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseMotionListener;
 import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
+import org.jdesktop.swingx.JXTaskPane;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.RollOverNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.PlateGrid;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -67,6 +77,15 @@ class WellFieldsView
 	/** Indicates to lay out the fields in a spatial position. */
 	static final int			SPATIAL_LAYOUT = 1;
 	
+	/** Indicates the default layout. */
+	static final int			DEFAULT_LAYOUT = SPATIAL_LAYOUT;
+	
+	/** The width of the canvas. */
+	static final int 			DEFAULT_WIDTH = 512;
+	
+	/** The height of the canvas. */
+	static final int 			DEFAULT_HEIGHT = 512;
+	
 	/** The text for the selected well. */
 	private static final String	DEFAULT_TEXT = "Well: ";
 	
@@ -91,24 +110,17 @@ class WellFieldsView
 	/** The currently selected well. */
 	private JLabel				 selectedNode;
 	
-	/** 
-	 * Handles the mouse clicked on the canvas.
-	 * 
-	 * @param p The location of the mouse clicked.
-	 */
-	private void handleSelection(Point p)
-	{
-		WellSampleNode node = canvas.getNode(p);
-		if (node != null) {
-			model.viewNode(node);
-			//repaint();
-		}
-	}
+	/** The magnification factor. */
+	private double				 magnification;
+	
+	/** The component displaying the plate grid. */
+	private JXTaskPane			plateTask;
 	
 	/** Initializes the components. */
 	private void initComponents()
 	{
-		layoutFields = ROW_LAYOUT;
+		magnification = 1.0;
+		layoutFields = DEFAULT_LAYOUT;
 		grid = new PlateGrid(model.getRowSequenceIndex(), 
 				model.getColumnSequenceIndex(), model.getValidWells());
 		grid.addPropertyChangeListener(controller);
@@ -122,12 +134,50 @@ class WellFieldsView
 		canvas = new WellFieldsCanvas(this);
 		canvas.addMouseListener(new MouseAdapter() {
 			
+		    /**
+		     * Launches the viewer.
+		     * @see MouseListener#mouseEntered(MouseEvent)
+		     */
 			public void mouseReleased(MouseEvent e) {
-				if (e.getClickCount() == 2) 
-					handleSelection(e.getPoint());
+				if (e.getClickCount() == 2) {
+					WellSampleNode node = canvas.getNode(e.getPoint());
+					if (node != null) {
+						model.viewNode(node);
+					}
+				}
 			}
 		});
-		
+		canvas.addMouseMotionListener(new MouseMotionAdapter() {
+			
+		    /**
+		     * Sets the node which has to be zoomed when the roll over flag
+		     * is turned on. Note that the {@link ImageNode}s are the only nodes
+		     * considered.
+		     * @see MouseMotionListener#mouseMoved(MouseEvent)
+		     */
+			public void mouseMoved(MouseEvent e) {
+				if (model.getBrowser().isRollOver()) {
+					Point p = e.getPoint();
+					WellSampleNode node = canvas.getNode(p);
+                    SwingUtilities.convertPointToScreen(p, canvas);
+					model.getBrowser().setRollOverNode(
+							new RollOverNode(node, p));
+				} else {
+					Point p = e.getPoint();
+					WellSampleNode node = canvas.getNode(p);
+					if (node != null) {
+						StringBuffer buffer = new StringBuffer();
+						buffer.append("Field #"+node.getIndex());
+						buffer.append("\n");
+						buffer.append("x="+node.getPositionX()+", " +
+								"y="+node.getPositionY());
+						canvas.setToolTipText(buffer.toString());
+					} else canvas.setToolTipText("");
+				}
+			}
+			
+			
+		});
 		nodes = null;
 	}
 	
@@ -136,14 +186,20 @@ class WellFieldsView
 	{
 		setBorder(new LineBorder(new Color(99, 130, 191)));
 		setLayout(new BorderLayout(0, 0));
-		add(canvas, BorderLayout.CENTER);
+		JScrollPane pane = new JScrollPane(canvas);
+		pane.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
+		
 		JPanel p = new JPanel();
 		double[][] size = {{TableLayout.PREFERRED, 5, TableLayout.PREFERRED},
 				{TableLayout.PREFERRED, TableLayout.FILL}};
 		p.setLayout(new TableLayout(size));
 		p.add(grid, "0, 0, 0, 1");
 		p.add(selectedNode, "2, 0, LEFT, TOP");
-		add(UIUtilities.buildComponentPanel(p), BorderLayout.SOUTH);
+		add(pane, BorderLayout.CENTER);
+		plateTask = EditorUtil.createTaskPane("Plate");
+		plateTask.add(UIUtilities.buildComponentPanel(p));
+		plateTask.setCollapsed(false);
+		add(plateTask, BorderLayout.SOUTH);
 	}
 	
 	/**
@@ -199,5 +255,23 @@ class WellFieldsView
 		}
 		canvas.repaint();
 	}
+	
+	/** 
+	 * Sets the magnification factor.
+	 * 
+	 * @param factor The value to set.
+	 */
+	void setMagnificationFactor(double factor)
+	{
+		magnification = factor;
+		canvas.repaint();
+	}
+	
+	/**
+	 * Returns the magnification factor.
+	 * 
+	 * @return
+	 */
+	double getMagnification() { return magnification; }
 	
 }

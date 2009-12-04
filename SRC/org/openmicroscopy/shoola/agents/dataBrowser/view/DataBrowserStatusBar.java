@@ -125,10 +125,22 @@ class DataBrowserStatusBar
 	 * Sets the selected view index.
 	 * 
 	 * @param index The value to set.
+	 * @param magnification The magnification.
 	 */
-	void setSelectedViewIndex(int index)
+	void setSelectedViewIndex(int index, double magnification)
 	{
-		zoomSlider.setEnabled(index == DataBrowserUI.THUMB_VIEW);
+		switch (index) {
+			case DataBrowserUI.THUMB_VIEW:
+			case DataBrowserUI.FIELDS_VIEW:
+				zoomSlider.removeChangeListener(this);
+				zoomSlider.setValue((int) (magnification*FACTOR));
+				zoomSlider.setEnabled(true);
+				zoomSlider.addChangeListener(this);
+				break;
+			default:
+				zoomSlider.setEnabled(false);
+				break;
+		}
 	}
 	
 	/** 

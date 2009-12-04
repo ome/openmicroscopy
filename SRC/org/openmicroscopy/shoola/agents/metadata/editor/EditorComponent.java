@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
+import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -777,6 +778,7 @@ class EditorComponent
 						model.loadExistingTags();
 					}
 					dialog.centerDialog();
+					break;
 				case FigureDialog.MOVIE:
 					dialog = controller.createFigureDialog(name, 
 							model.getPixels(), FigureDialog.MOVIE);
@@ -793,11 +795,28 @@ class EditorComponent
 	{
 		ImageData img = model.getImage();
 		if (img == null || img.getId() != imageID) return;  
+		UserNotifier un = 
+			MetadataViewerAgent.getRegistry().getUserNotifier();
 		if (rois == null || rois.size() == 0) {
-			UserNotifier un = 
-				MetadataViewerAgent.getRegistry().getUserNotifier();
+			
 			un.notifyInfo("ROI Figure", "The primary select does not have " +
 					"Region of Interests.");
+			return;
+		}
+		Iterator r = rois.iterator();
+		ROIResult result;
+		int count = 0;
+		try {
+			Collection list;
+			while (r.hasNext()) {
+				result = (ROIResult) r.next();
+				list = result.getROIs();
+				if (list.size() > 0) count++;
+			}
+		} catch (Exception e) {}
+		if (count == 0) {
+			un.notifyInfo("ROI Figure", "The primary select does not have " +
+			"Region of Interests.");
 			return;
 		}
 		if (controller.getFigureDialog() == null) {
@@ -805,6 +824,7 @@ class EditorComponent
 			FigureDialog dialog = controller.createFigureDialog(name, 
 					model.getPixels(), FigureDialog.SPLIT_ROI);
 			dialog.setROIs(rois);
+			
 			if (!model.isRendererLoaded()) {
 				loadRenderingControl(RenderingControlLoader.LOAD);
 			} else {

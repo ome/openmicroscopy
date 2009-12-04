@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
 import javax.swing.Action;
 
 
@@ -55,6 +54,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.RollOverNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.FilteringDialog;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.QuickFiltering;
@@ -326,16 +326,17 @@ class DataBrowserControl
 			model.loadExistingTags();
 		} else if (Browser.ROLL_OVER_PROPERTY.equals(name)) {
             if (view.isRollOver()) {
-                ImageDisplay n = (ImageDisplay) evt.getNewValue();
-                if (n != null && n instanceof ImageNode) {
-                	ImageNode node = (ImageNode) n;
+            	 
+            	RollOverNode n = (RollOverNode) evt.getNewValue();
+                if (n != null && n.getNode() != null) {
+                	ImageNode node = n.getNode();
                 	Thumbnail prv = node.getThumbnail();
                     BufferedImage full = prv.getFullScaleThumb();
                     if (prv.getScalingFactor() == Thumbnail.MAX_SCALING_FACTOR)
                     	full = prv.getZoomedFullScaleThumb();
-                	 RollOverThumbnailManager.rollOverDisplay(full, 
-                			 node.getBounds(), node.getLocationOnScreen(), 
-                			 node.toString());
+                    RollOverThumbnailManager.rollOverDisplay(full, 
+                    		node.getBounds(), n.getLocationOnScreen(), 
+                    		node.toString());
                  } else RollOverThumbnailManager.stopOverDisplay();
            }
         } else if (SlideShowView.CLOSE_SLIDE_VIEW_PROPERTY.equals(name)) {

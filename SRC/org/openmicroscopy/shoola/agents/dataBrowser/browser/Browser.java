@@ -406,4 +406,11 @@ public interface Browser
 	 */
 	public void markUnmodifiedNodes(Class type, Collection<Long> ids);
 
+	/**
+	 * Sets the node which has to be zoomed.
+	 * 
+	 * @param node The node to zoom.
+	 */
+	public void setRollOverNode(RollOverNode node);
+	
 }

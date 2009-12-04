@@ -106,7 +106,7 @@ public class ChannelSelectionDialog
 		setLayout(new BorderLayout());
 		JPanel p = new JPanel();
 		//p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 		Entry entry;
 		Iterator i = channelSelection.entrySet().iterator();
 		while (i.hasNext()) {

@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.util;
 
 //Java imports
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 //Third-party libraries
 
@@ -72,6 +74,24 @@ class FileElement
 		File[] list = file.listFiles();
 		if (list == null || list.length == 0) return false;
 		return true;
+	}
+	
+	/**
+	 * Returns the files within the directory.
+	 * 
+	 * @return See above.
+	 */
+	List<File> getFiles()
+	{
+		if (!isDirectory()) return null;
+		File[] list = file.listFiles();
+		List<File> files = new ArrayList<File>();
+		if (list == null || list.length == 0) return files;
+		for (int i = 0; i < list.length; i++) {
+			if (!list[i].isHidden() && !list[i].isDirectory()) 
+				files.add(list[i]);
+		}
+		return files;
 	}
 	
 	/**

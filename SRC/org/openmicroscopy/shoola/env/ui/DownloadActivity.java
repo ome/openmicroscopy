@@ -221,8 +221,13 @@ public class DownloadActivity
 				} catch (Exception ex) {}
 			}
 		}
-		if (canOpenFile(filePath))
-			registry.getTaskBar().openURL(FILE+filePath);
+		if (canOpenFile(filePath)) {
+			String url;
+			if (UIUtilities.isMacOS()) url = FILE+filePath;
+			else url = FILE+"/"+filePath;
+			registry.getTaskBar().openURL(url);
+		}
+			
 	}
 
 }

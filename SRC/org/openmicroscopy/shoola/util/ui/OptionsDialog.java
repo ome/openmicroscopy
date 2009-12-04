@@ -289,6 +289,8 @@ public class OptionsDialog
 		body.add(c);
 		body.validate();
 		body.repaint();
+		mainPanel.validate();
+		mainPanel.repaint();
 		pack();
 	}
 	

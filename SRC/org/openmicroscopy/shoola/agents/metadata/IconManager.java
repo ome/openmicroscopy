@@ -310,12 +310,14 @@ public class IconManager
     /** The 22x22 <code>FRAP</code> icon. */
     public static final int           ANALYSE_FRAP_22 = 85;
     
+    /** The 48x48 <code>FRAP</code> icon. */
+    public static final int           ANALYSE_FRAP_48 = 86;
     
     /** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 85;
+	private static final int          MAX_ID = 86;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -405,6 +407,7 @@ public class IconManager
         relPaths[DELETE_12] = "nuvola_cancel11.png";
         relPaths[ANALYSE_FRAP_22] = "FRAP22.png";
         relPaths[ANALYSE_FRAP] = "FRAP16.png";
+        relPaths[ANALYSE_FRAP_48] = "FRAP48.png";
 	}
    
 	/** The sole instance. */

@@ -106,6 +106,8 @@ class DataBrowserWellToolBar
 	private void initComponents()
 	{
 		layoutBox = new JComboBox(LAYOUT);
+		layoutBox.setSelectedIndex(WellFieldsView.SPATIAL_LAYOUT);
+		view.setSelectedFieldLayout(WellFieldsView.DEFAULT_LAYOUT);
 		layoutBox.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {

@@ -36,7 +36,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -208,14 +210,15 @@ public class ImportDialog
 		chooser.setApproveButtonText("Import");
 		chooser.setApproveButtonToolTipText("Import the selected files " +
 				"or directories");
-		/*
+		
 		if (filters != null) {
 			Iterator<FileFilter> i = filters.iterator();
 			while (i.hasNext()) {
 				chooser.setFileFilter(i.next());
 			}
 		}
-		*/
+		chooser.setAcceptAllFileFilterUsed(true);
+		
 		table = new FileSelectionTable(this);
 		table.addPropertyChangeListener(this);
 		cancelButton = new JButton("Close");
@@ -377,7 +380,8 @@ public class ImportDialog
     	UIUtilities.setDefaultFolder(
     			chooser.getCurrentDirectory().toString());
 
-    	ImportableObject object = new ImportableObject(table.getFilesToImport(),
+    	Map<File, String> files = table.getFilesToImport();
+    	ImportableObject object = new ImportableObject(files,
     			archived.isSelected());
     	if (partialName.isSelected()) {
     		Integer number = (Integer) numberOfFolders.getValueAsNumber();

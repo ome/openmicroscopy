@@ -33,6 +33,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -172,14 +173,17 @@ public abstract class ActivityComponent
 		double[][] size = {{TableLayout.FILL}, 
 						{TableLayout.PREFERRED, TableLayout.PREFERRED}};
 		barPane.setLayout(new TableLayout(size));
-		barPane.add(type, "0, 0, CENTER, CENTER");
+		barPane.add(type, "0, 0, LEFT, CENTER");
 		barPane.add(messageLabel, "0, 1, CENTER, CENTER");
 	
 		double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL, 
 			TableLayout.PREFERRED}, {TableLayout.PREFERRED}};
 		setLayout(new TableLayout(tl));
 		add(statusPane, "0, 0, CENTER, CENTER");
-		add(barPane, "1, 0");
+		JPanel p = UIUtilities.buildComponentPanel(barPane);
+		p.setOpaque(false);
+		p.setBackground(barPane.getBackground());
+		add(p, "1, 0");
 		add(createToolBar(), "2, 0");
 	}
 	
@@ -188,7 +192,7 @@ public abstract class ActivityComponent
 	 * 
 	 * @return See above.
 	 */
-	private JToolBar createToolBar()
+	private JComponent createToolBar()
 	{
 		JToolBar bar = new JToolBar();
 		bar.setOpaque(false);
@@ -199,6 +203,20 @@ public abstract class ActivityComponent
 			bar.add(Box.createHorizontalStrut(5));
 		}
 		bar.add(removeButton);
+		JLabel l = new JLabel();
+		Font f = l.getFont();
+		l.setForeground(UIUtilities.LIGHT_GREY.darker());
+		l.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
+		String s = UIUtilities.formatShortDateTime(null);
+		String[] values = s.split(" ");
+		if (values.length > 1) {
+			String v = values[1];
+			if (values.length >= 2) v +=" "+values[2];
+			l.setText(v);
+			bar.add(Box.createHorizontalStrut(5));
+			bar.add(l);
+			bar.add(Box.createHorizontalStrut(5));
+		}
 		return bar;
 	}
 	

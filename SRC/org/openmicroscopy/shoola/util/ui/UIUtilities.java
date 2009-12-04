@@ -261,6 +261,10 @@ public class UIUtilities
     private static final String				WDMY_FORMAT = 
     											"E dd MMM yyyy, HH:mm:ss";
     
+    /** The pattern to format date. */
+    private static final String				MM_SS_FORMAT = 
+    											"E dd MMM yyyy, HH:mm:ss";
+    
     /** The text displayed in the tool tip of the calendar button. */
 	private static final String		DATE_TOOLTIP = "Bring up a calendar.";
 	
@@ -1180,7 +1184,7 @@ public class UIUtilities
      */
     public static String formatShortDateTime(Timestamp time) 
     {
-    	if (time == null) return "";
+    	if (time == null)  time = getDefaultTimestamp();
     	return DateFormat.getDateTimeInstance(
     			DateFormat.SHORT, DateFormat.SHORT).format(time);  
     }
@@ -1194,7 +1198,7 @@ public class UIUtilities
      */
     public static String formatWDMYDate(Timestamp time) 
     {
-    	if (time == null) return "";
+    	if (time == null) time = getDefaultTimestamp();
     	SimpleDateFormat formatter = new SimpleDateFormat(WDMY_FORMAT);
     	return formatter.format(time);  
     }

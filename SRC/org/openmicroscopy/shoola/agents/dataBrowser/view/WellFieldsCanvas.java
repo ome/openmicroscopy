@@ -25,6 +25,9 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -34,7 +37,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.JPanel;
 
 
@@ -43,8 +45,8 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
-
-import pojos.WellSampleData;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Display all the fields for a given well.
@@ -62,12 +64,98 @@ import pojos.WellSampleData;
 class WellFieldsCanvas 
 	extends JPanel
 {
-
+	
+	/** Color of the axis and border. */
+	private static final Color LINE_COLOR = Color.BLACK;
+	
+	/** The unit of reference. */
+	private static final int UNIT = 100;
+	
+	/** The size of a tick. */
+	private static final int TICK = 2;
+	
 	/** Reference to the parent. */
 	private WellFieldsView parent;
 	
 	/** Collection of rectangles indicating where the image is painted. */
 	private Map<Rectangle, WellSampleNode> locations;
+	
+	/** 
+	 * Draws the grid.
+	 * 
+	 * @param g2D The graphics context.
+	 * @param x	  The location on the X-axis of a unit.
+	 * @param y	  The location on the Y-axis of a unit.
+	 */
+	private void drawGrid(Graphics2D g2D, int x, int y)
+	{
+		g2D.setColor(UIUtilities.LIGHT_GREY);
+		for (int i = 0; i < WellFieldsView.DEFAULT_HEIGHT; i = i+8) {
+			g2D.drawLine(0, i, WellFieldsView.DEFAULT_WIDTH, i);
+		}
+		
+		for (int i = 0; i < WellFieldsView.DEFAULT_WIDTH; i = i+8) {
+			g2D.drawLine(i, 0, i, WellFieldsView.DEFAULT_HEIGHT);
+		}
+		
+		g2D.setColor(LINE_COLOR);
+		//X-axis
+		g2D.drawLine(0, WellFieldsView.DEFAULT_HEIGHT/2, 
+				WellFieldsView.DEFAULT_WIDTH, WellFieldsView.DEFAULT_HEIGHT/2);
+		
+		int n = WellFieldsView.DEFAULT_WIDTH/2;
+		n = n/x;
+		for (int i = 1; i <= n; i++) {
+			g2D.drawLine(WellFieldsView.DEFAULT_WIDTH/2+x*i, 
+					WellFieldsView.DEFAULT_HEIGHT/2-TICK, 
+					WellFieldsView.DEFAULT_WIDTH/2+x*i, 
+					WellFieldsView.DEFAULT_HEIGHT/2+TICK);
+			
+			g2D.drawLine(WellFieldsView.DEFAULT_WIDTH/2-x*i, 
+					WellFieldsView.DEFAULT_HEIGHT/2-TICK, 
+					WellFieldsView.DEFAULT_WIDTH/2-x*i, 
+					WellFieldsView.DEFAULT_HEIGHT/2+TICK);
+		}
+		
+		//Y-axis
+		g2D.drawLine(WellFieldsView.DEFAULT_WIDTH/2, 0,
+				WellFieldsView.DEFAULT_WIDTH/2, WellFieldsView.DEFAULT_HEIGHT);
+		
+		n = WellFieldsView.DEFAULT_HEIGHT/2;
+		n = n/y;
+		for (int i = 1; i <= n; i++) {
+			g2D.drawLine(WellFieldsView.DEFAULT_WIDTH/2-TICK, 
+					WellFieldsView.DEFAULT_HEIGHT/2+y*i,
+					WellFieldsView.DEFAULT_WIDTH/2+TICK, 
+					WellFieldsView.DEFAULT_HEIGHT/2+y*i);
+			g2D.drawLine(WellFieldsView.DEFAULT_WIDTH/2-TICK, 
+					WellFieldsView.DEFAULT_HEIGHT/2-y*i,
+					WellFieldsView.DEFAULT_WIDTH/2+TICK, 
+					WellFieldsView.DEFAULT_HEIGHT/2-y*i);
+		}
+		
+		//draw unit
+		String s = ""+UNIT;
+		FontMetrics fm = getFontMetrics(getFont());
+		int w = fm.stringWidth(s);
+		
+		g2D.drawString(s, WellFieldsView.DEFAULT_WIDTH/2+x-w/2, 
+				WellFieldsView.DEFAULT_HEIGHT/2-3*TICK);
+		
+		g2D.drawString(s, WellFieldsView.DEFAULT_WIDTH/2+2*TICK, 
+				WellFieldsView.DEFAULT_HEIGHT/2-y+2*TICK);
+		
+		s = "-"+UNIT;
+		w = fm.stringWidth(s);
+		g2D.drawString(s, WellFieldsView.DEFAULT_WIDTH/2-x-w/2, 
+				WellFieldsView.DEFAULT_HEIGHT/2-3*TICK);
+		g2D.drawString(s, WellFieldsView.DEFAULT_WIDTH/2+2*TICK, 
+				WellFieldsView.DEFAULT_HEIGHT/2+y+2*TICK);
+		
+		//Border
+		g2D.drawRect(0, 0, WellFieldsView.DEFAULT_WIDTH, 
+				WellFieldsView.DEFAULT_HEIGHT);
+	}
 	
 	/**
 	 * Creates a new instance.
@@ -77,9 +165,13 @@ class WellFieldsCanvas
 	WellFieldsCanvas(WellFieldsView parent)
 	{
 		this.parent = parent;
-		setBackground(Color.black);
 		setDoubleBuffered(true);
+		setPreferredSize(new Dimension(WellFieldsView.DEFAULT_WIDTH, 
+				WellFieldsView.DEFAULT_HEIGHT));
+		setSize(getPreferredSize());
 		locations = new HashMap<Rectangle, WellSampleNode>();
+		Font f = getFont();
+		setFont(f.deriveFont(f.getStyle(), f.getSize()-4));
 	}
 	
 	/**
@@ -107,6 +199,7 @@ class WellFieldsCanvas
     public void paintComponent(Graphics g)
     {
     	super.paintComponent(g);
+    	//g.setColor(getBackground());
     	locations.clear();
     	List<WellSampleNode> l = parent.getNodes();
         if (l == null || l.size() == 0) return;
@@ -115,19 +208,25 @@ class WellFieldsCanvas
         Iterator<WellSampleNode> i = l.iterator();
         WellSampleNode n;
         BufferedImage img;
-        WellSampleData data;
         Rectangle r;
+        double f = parent.getMagnification();
         switch (parent.getLayoutFields()) {
 			case WellFieldsView.ROW_LAYOUT:
 			default:
 				int w = 0;
+				int h = 0;
 		        while (i.hasNext()) {
 					n = i.next();
 					img = n.getThumbnail().getFullScaleThumb();
 					if (img != null) {
-						r = new Rectangle(w, 0, img.getWidth(), img.getHeight());
+						if (w+img.getWidth() > WellFieldsView.DEFAULT_WIDTH) {
+							w = 0;
+							h += img.getHeight()+1;
+						}
+						r = new Rectangle(w, h, img.getWidth(), 
+								img.getHeight());
 						locations.put(r, n);
-						g2D.drawImage(img, null, w, 0); 
+						g2D.drawImage(img, null, w, h); 
 						w += img.getWidth()+1;
 					}
 				}
@@ -141,56 +240,59 @@ class WellFieldsCanvas
 				int yMax = Integer.MIN_VALUE;
 				int width = 0;
 				int height = 0;
+				
 				while (i.hasNext()) {
 					n = i.next();
 					img = n.getThumbnail().getFullScaleThumb();
 					if (img != null) {
-						data = (WellSampleData) n.getHierarchyObject();
 						if (width < img.getWidth())
 							width = img.getWidth();
 						if (height < img.getHeight())
 							height = img.getHeight();
-						x = (int) data.getPositionX();
-						y = (int) data.getPositionY();
+						x = (int) n.getPositionX();
+						y = (int) n.getPositionY();
 						if (x < xMin) xMin = x;
 						if (y < yMin) yMin = y;
 						if (xMax < x) xMax = x;
 						if (yMax < y) yMax = y;
 					}
 				}
+				
+				
 				int xc = Math.abs(xMin);
 				int yc = Math.abs(yMin);
 				i = l.iterator();
 				int vx = 0;
 				int vy = 0;
+				
+				int wMax = xc+xMax+width;
+				int hMax = yc+yMax+height;
+				
+				double rx = (double) WellFieldsView.DEFAULT_WIDTH/wMax;
+				double ry = (double) WellFieldsView.DEFAULT_HEIGHT/hMax;
+				
+				drawGrid(g2D, (int) (UNIT*rx),  (int) (UNIT*ry));
+				
+				BufferedImage scaled;
 				while (i.hasNext()) {
 					n = i.next();
 					img = n.getThumbnail().getFullScaleThumb();
 					if (img != null) {
-						data = (WellSampleData) n.getHierarchyObject();
-						x = (int) data.getPositionX();
-						y = (int) data.getPositionY();
-						vx = (x+xc)/2;
-						vy = (y+yc)/2;
-						r = new Rectangle(vx, vy, width, height);
-						g2D.drawImage(img, null, vx, vy); 
+						x = (int) n.getPositionX();
+						y = (int) n.getPositionY();
+						vx = (int) ((x+xc)*rx);
+						vy = WellFieldsView.DEFAULT_HEIGHT-(int) ((y+yc)*ry);
+						
+						w = (int) (width*rx*f);
+						h = (int) (height*ry);
+						vy = vy-h;
+						h = (int) (height*ry*f);
+						scaled = Factory.scaleBufferedImage(img, w, h);
+						r = new Rectangle(vx, vy, w, h);
+						g2D.drawImage(scaled, null, vx, vy); 
 						locations.put(r, n);
 					}
 				}
-				
-				/*
-		        while (i.hasNext()) {
-					
-					x = (int) data.getPositionX();
-					y = (int) data.getPositionY();
-					System.err.println(x+" "+y);
-					if (img != null) {
-						r = new Rectangle(x, y, img.getWidth(), img.getHeight());
-						g2D.drawImage(img, null, x, y); 
-						locations.put(r, n);
-					}
-				}
-				*/
 		}
         
         g2D.dispose();

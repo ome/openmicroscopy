@@ -111,7 +111,7 @@ class BrowserModel
 	private boolean         	titleBarVisible;
 	
 	/** The node on which the mouse was located before exited. */
-	private ImageDisplay    	rollOverNode;
+	private RollOverNode    	rollOverNode;
 	
 	/** The collection of original images. */
 	private Set<ImageDisplay>	originalNodes;
@@ -342,15 +342,14 @@ class BrowserModel
 	}
 	
 	/**
-	 * Sets the node which has to be zoomed.
-	 * 
-	 * @param newNode The node to zoom.
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#setRollOverNode(RollOverNode)
 	 */
-	void setRollOverNode(ImageNode newNode)
+	public void setRollOverNode(RollOverNode node)
 	{
-	    ImageDisplay previousNode = rollOverNode;
-	    rollOverNode = newNode;
-	    firePropertyChange(ROLL_OVER_PROPERTY, previousNode, newNode);
+		RollOverNode previousNode = rollOverNode;
+	    rollOverNode = node;
+	    firePropertyChange(ROLL_OVER_PROPERTY, previousNode, node);
 	}
 	
 	/**

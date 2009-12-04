@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -90,17 +89,20 @@ class ChannelComponent
 		colorLabel = new JPanel();
 		ColourIcon icon = new ColourIcon(color);
 		icon.paintLineBorder(true);
-		colorLabel.setLayout(new BoxLayout(colorLabel, BoxLayout.Y_AXIS));
-		colorLabel.add(new JLabel(icon));
-		colorLabel.add(Box.createVerticalStrut(2));
-		colorLabel.add(activeBox);
+		setLayout(new BoxLayout(colorLabel, BoxLayout.Y_AXIS));
+		//colorLabel.add(new JLabel(icon));
+		//colorLabel.add(Box.createVerticalStrut(2));
+		//colorLabel.add(activeBox);
+		add(new JLabel(icon));
+		add(Box.createVerticalStrut(2));
+		add(activeBox);
 	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		setLayout(new BorderLayout(0, 0));
-		add(colorLabel, BorderLayout.NORTH);
+		//setLayout(new BorderLayout(0, 0));
+		//add(colorLabel, BorderLayout.NORTH);
 	}
 	
 	/**

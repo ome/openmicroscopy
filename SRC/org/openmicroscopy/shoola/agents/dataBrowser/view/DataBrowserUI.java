@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.MagnificationVisitor;
@@ -117,6 +118,9 @@ class DataBrowserUI
 	/** Component displaying the fields. */
 	private WellFieldsView			fieldsView;
 	
+	/** The magnification factor. */
+	private double					factor;
+	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
@@ -157,6 +161,7 @@ class DataBrowserUI
 
 		statusBar = new DataBrowserStatusBar(this);
 		selectedView = THUMB_VIEW;
+		factor = Thumbnail.SCALING_FACTOR;
 		setNumberOfImages(-1);
 		buildGUI();
 	}
@@ -288,6 +293,7 @@ class DataBrowserUI
     void setSelectedView(int index) 
     {
     	removeAll();
+    	double f = Thumbnail.SCALING_FACTOR;
     	switch (index) {
 			case THUMB_VIEW:
 				selectedView = index;
@@ -299,6 +305,7 @@ class DataBrowserUI
 					layoutUI();
 				}
 				add(model.getBrowser().getUI(), BorderLayout.CENTER);
+				f = factor;
 				break;
 			case FIELDS_VIEW:
 				selectedView = index;
@@ -309,7 +316,7 @@ class DataBrowserUI
 				}
 				wellToolBar.displayFieldsOptions(true);
 				add(fieldsView, BorderLayout.CENTER);
-				//Create the grid from the 
+				f = fieldsView.getMagnification();
 				break;
 			case COLUMNS_VIEW:
 				selectedView = index;
@@ -341,7 +348,7 @@ class DataBrowserUI
 		}
     	add(statusBar, BorderLayout.SOUTH);
     	toolBar.setSelectedViewIndex(selectedView);
-    	statusBar.setSelectedViewIndex(selectedView);
+    	statusBar.setSelectedViewIndex(selectedView, f);
     	revalidate();
     	repaint();
     }
@@ -416,11 +423,20 @@ class DataBrowserUI
 	 */
 	void setMagnificationFactor(double factor)
 	{
-		MagnificationVisitor visitor = new MagnificationVisitor(factor);
-		Browser browser = model.getBrowser();
-		browser.accept(visitor, ImageDisplayVisitor.IMAGE_NODE_ONLY);
-		browser.accept(browser.getSelectedLayout(), 
-						ImageDisplayVisitor.IMAGE_SET_ONLY);
+		switch (selectedView) {
+			case THUMB_VIEW:
+				MagnificationVisitor visitor = new MagnificationVisitor(factor);
+				Browser browser = model.getBrowser();
+				browser.accept(visitor, ImageDisplayVisitor.IMAGE_NODE_ONLY);
+				browser.accept(browser.getSelectedLayout(), 
+								ImageDisplayVisitor.IMAGE_SET_ONLY);
+				break;
+			case FIELDS_VIEW:
+				if (fieldsView != null)
+					fieldsView.setMagnificationFactor(factor);
+				break;
+		}
+		
 		//if (model.getType() == DataBrowserModel.WELLS);
 		//	browser.getSelectedLayout().doLayout();
 	}
@@ -550,7 +566,8 @@ class DataBrowserUI
 	{
 		if (fieldsView == null) return;
 		setFieldsStatus(false);
-		fieldsView.displayFields(nodes);
+		if (selectedView == FIELDS_VIEW)
+			fieldsView.displayFields(nodes);
 	}
 
 	/**
@@ -562,7 +579,8 @@ class DataBrowserUI
 	{
 		if (fieldsView == null) return;
 		fieldsView.setLayoutFields(index);
-		fieldsView.displayFields(fieldsView.getNodes());
+		if (selectedView == FIELDS_VIEW)
+			fieldsView.displayFields(fieldsView.getNodes());
 	}
 	
 }
