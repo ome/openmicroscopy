@@ -86,6 +86,9 @@ public class DownloadActivity
     /** Reference to the file to load. */
     private String				 filePath;
     
+    /** The local name of the file. */
+    private String				localFileName;
+    
     /** The supported file filters. */
     private static final List<CustomizedFileFilter> FILTERS;
     
@@ -174,7 +177,8 @@ public class DownloadActivity
 		File folder = parameters.getFolder();
     	File directory = folder.getParentFile();
     	fileName = getFileName();
-		messageLabel.setText(directory+File.separator+fileName);
+    	localFileName = directory+File.separator+fileName;
+		messageLabel.setText(localFileName);
     }
     
 	/**
@@ -198,6 +202,7 @@ public class DownloadActivity
 	protected void notifyActivityEnd()
 	{ 
 		type.setText(DESCRIPTION); 
+		String name = null;
 		String legend = parameters.getLegend();
 		if (legend != null && legend.trim().length() > 0) {
 			//Write the description if any 
@@ -210,7 +215,7 @@ public class DownloadActivity
 	    	if (le != null && le.length() > 0)
 	    		ext = le;
 	    	try {
-	    		String name = directory+File.separator+n;
+	    		name = directory+File.separator+n;
 	    		name += ext;
 	    		out = new BufferedWriter(new FileWriter(name));
 	            out.write(legend);
@@ -221,13 +226,13 @@ public class DownloadActivity
 				} catch (Exception ex) {}
 			}
 		}
-		if (canOpenFile(filePath)) {
+		if (localFileName == null) return;
+		if (canOpenFile(localFileName)) {
 			String url;
-			if (UIUtilities.isMacOS()) url = FILE+filePath;
-			else url = FILE+"/"+filePath;
+			if (UIUtilities.isMacOS()) url = FILE+localFileName;
+			else url = FILE+"/"+localFileName;
 			registry.getTaskBar().openURL(url);
 		}
-			
 	}
 
 }

@@ -298,15 +298,15 @@ public abstract class ActivityComponent
     	
     	if (extension != null && extension.trim().length() > 0) {
     		int n = fileName.lastIndexOf(extension);
-    		String v = fileName.substring(0, n)+" ("+index+")"+extension;
+    		String v = fileName.substring(0, n)+"_("+index+")"+extension;
     		index++;
     		return getFileName(files, fileName, v, dirPath, index, extension);
     	} else {
     		int lastDot = fileName.lastIndexOf(".");
     		if (lastDot != -1) {
         		extension = fileName.substring(lastDot, fileName.length());
-        		String v = fileName.substring(0, lastDot)+
-        		" ("+index+")"+extension;
+        		String v = fileName.substring(0, lastDot)+"_("+index+")"+
+        		extension;
         		index++;
         		return getFileName(files, fileName, v, dirPath, index, null);
         	} 

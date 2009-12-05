@@ -268,7 +268,7 @@ public class IconManager
 		relPaths[DOWNLOAD_22] = "nuvola_download_manager22.png";
         relPaths[DOWNLOAD_48] = "nuvola_download_manager48.png";
         relPaths[FORUM] = "nuvola_chat16.png";
-        relPaths[ACTIVITY] = "nuvola_chat16.png";
+        relPaths[ACTIVITY] = "nuvola_kbounce16.png";
 	}
 	
 	/** The sole instance. */
