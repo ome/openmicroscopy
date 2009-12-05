@@ -1590,17 +1590,26 @@ public class FigureDialog
 	/** Collects the parameters to create a ROI figure. */
 	private void saveROIFigure()
 	{
-		Map<Integer, String> split = new LinkedHashMap<Integer, String>();	
+		Map<Integer, String> split = new LinkedHashMap<Integer, String>();
+		FigureComponent comp;
+		Entry entry;
+		Iterator i = components.entrySet().iterator();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			comp = (FigureComponent) entry.getValue();
+			if (comp.isSelected()) {
+				split.put((Integer) entry.getKey(), comp.getChannelLabel());
+			}
+		}
 		Map<Integer, Color> merge = new LinkedHashMap<Integer, Color>();
 		List<Integer> active = renderer.getActiveChannels();
-		Iterator i = active.iterator();
+		i = active.iterator();
 		int index;
 		while (i.hasNext()) {
 			index = (Integer) i.next();
 			merge.put(index, renderer.getChannelColor(index));
-			split.put(index, ""+index);
 		}
-		
+
 		String name = nameField.getText().trim();
 		int format = formats.getSelectedIndex();
 		int label = rowName.getSelectedIndex();

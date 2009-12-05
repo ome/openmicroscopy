@@ -74,6 +74,8 @@ import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLoginDialog;
 
+import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
+
 /** 
  * Creates and manages the {@link TaskBarView}.
  * It acts as a controller.
@@ -445,7 +447,10 @@ public class TaskBarManager
         });
 		view.getButton(TaskBarView.ACTIVITY_MI).addActionListener(
 				new ActionListener() {       
-            public void actionPerformed(ActionEvent ae) { view.activities(); }
+            public void actionPerformed(ActionEvent ae) { 
+            	((UserNotifierImpl) 
+            		container.getRegistry().getUserNotifier()).showActivity();
+            }
         });
 	}
 	

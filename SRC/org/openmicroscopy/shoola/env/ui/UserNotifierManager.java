@@ -259,16 +259,6 @@ class UserNotifierManager
 				IconManager.getInstance(reg), DownloadsDialog.ACTIVITY);
 	}
 	
-	/** Displays the activity window. */
-	private void showActivity()
-	{
-		if (activityDialog == null) return;
-		if (!activityDialog.isVisible())
-			UIUtilities.centerAndShow(activityDialog);
-		activityDialog.requestFocusInWindow();
-		activityDialog.toFront();
-	}
-	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -351,6 +341,16 @@ class UserNotifierManager
 		return commentDialog;
 	}
 	
+	/** Displays the activity window. */
+	void showActivity()
+	{
+		if (activityDialog == null) createActivity();
+		if (!activityDialog.isVisible())
+			UIUtilities.centerAndShow(activityDialog);
+		activityDialog.requestFocusInWindow();
+		activityDialog.toFront();
+	}
+	
 	/**
 	 * Reacts to property changes fired by dialogs.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -373,13 +373,7 @@ class UserNotifierManager
 			String fileName = (String) pce.getNewValue();
 			UserNotifierLoader loader = loaders.get(fileName);
 			if (loader != null) loader.cancel();
-			
-		} else if (TaskBarManager.ACTIVITIES_PROPERTY.equals(name)) {
-			JFrame f = (JFrame) pce.getSource();
-			if (f.getBounds().width > 0) return;
-			createActivity();
-			showActivity();
-		}
+		} 
 	}
 	
 }

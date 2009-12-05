@@ -317,4 +317,7 @@ public class UserNotifierImpl
 		}
 	}
 	
+	/** Displays the activity. */
+	void showActivity() { manager.showActivity(); }
+	
 }

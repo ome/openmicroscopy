@@ -43,6 +43,7 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
@@ -123,22 +124,31 @@ class WellFieldsCanvas
 			g2D.drawLine(w/2-TICK, h/2+y*i, w/2+TICK, h/2+y*i);
 			g2D.drawLine(w/2-TICK, h/2-y*i, w/2+TICK, h/2-y*i);
 		}
-		
-		//draw unit
-		String s = ""+UNIT;
-		FontMetrics fm = getFontMetrics(getFont());
-		int fs = fm.stringWidth(s);
-		
-		g2D.drawString(s, w/2+x-fs/2, h/2-3*TICK);
-		g2D.drawString(s, w/2+2*TICK, h/2-y+2*TICK);
-		
-		s = "-"+UNIT;
-		fs = fm.stringWidth(s);
-		g2D.drawString(s, w/2-x-fs/2, h/2-3*TICK);
-		g2D.drawString(s, w/2+2*TICK, h/2+y+2*TICK);
+		if (f > Thumbnail.MIN_SCALING_FACTOR) {
+			//draw unit
+			String s = ""+UNIT;
+			FontMetrics fm = getFontMetrics(getFont());
+			int fs = fm.stringWidth(s);
+			
+			g2D.drawString(s, w/2+x-fs/2, h/2-3*TICK);
+			g2D.drawString(s, w/2+2*TICK, h/2-y+2*TICK);
+			
+			s = "-"+UNIT;
+			fs = fm.stringWidth(s);
+			g2D.drawString(s, w/2-x-fs/2, h/2-3*TICK);
+			g2D.drawString(s, w/2+2*TICK, h/2+y+2*TICK);
+		}
 		
 		//Border
 		g2D.drawRect(0, 0, w, h);
+	}
+	
+	/** Sets the font according to the magnification factor. */
+	private void setFont()
+	{
+		Font f = getFont();
+		int size = (int) ((f.getSize()-4)*parent.getMagnification());
+		setFont(f.deriveFont(f.getStyle(), size));
 	}
 	
 	/**
@@ -154,8 +164,7 @@ class WellFieldsCanvas
 				WellFieldsView.DEFAULT_HEIGHT));
 		setSize(getPreferredSize());
 		locations = new HashMap<Rectangle, WellSampleNode>();
-		Font f = getFont();
-		setFont(f.deriveFont(f.getStyle(), f.getSize()-4));
+		setFont();
 	}
 	
 	/**

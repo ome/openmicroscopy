@@ -487,13 +487,6 @@ class TaskBarView
 		//Don't check this is only meant to be used by the TaskBarManager.
 		return buttons[id];
 	}
-
-    /** Launches the activity dialog. */
-    void activities()
-    {
-    	firePropertyChange(TaskBarManager.ACTIVITIES_PROPERTY, 
-    			Boolean.valueOf(false), Boolean.valueOf(true));
-    }
     
 	/**
 	 * Implemented as specified by {@link TaskBar}.
