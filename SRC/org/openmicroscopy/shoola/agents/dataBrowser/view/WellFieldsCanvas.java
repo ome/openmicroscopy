@@ -202,8 +202,9 @@ class WellFieldsCanvas
 		        while (i.hasNext()) {
 					n = i.next();
 					img = n.getThumbnail().getFullScaleThumb();
+					if (f < 1) img = Factory.magnifyImage(f, img);
 					if (img != null) {
-						if (w+img.getWidth() > WellFieldsView.DEFAULT_WIDTH) {
+						if (w+img.getWidth() > WellFieldsView.DEFAULT_WIDTH*f) {
 							w = 0;
 							h += img.getHeight()+1;
 						}
