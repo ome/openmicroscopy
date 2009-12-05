@@ -89,72 +89,56 @@ class WellFieldsCanvas
 	 */
 	private void drawGrid(Graphics2D g2D, int x, int y)
 	{
+		double f = parent.getMagnification();
+		int w = (int) (WellFieldsView.DEFAULT_WIDTH*f);
+		int h = (int) (WellFieldsView.DEFAULT_HEIGHT*f);
+		
 		g2D.setColor(UIUtilities.LIGHT_GREY);
-		for (int i = 0; i < WellFieldsView.DEFAULT_HEIGHT; i = i+8) {
-			g2D.drawLine(0, i, WellFieldsView.DEFAULT_WIDTH, i);
+		for (int i = 0; i < h; i = i+8) {
+			g2D.drawLine(0, i, w, i);
 		}
 		
-		for (int i = 0; i < WellFieldsView.DEFAULT_WIDTH; i = i+8) {
-			g2D.drawLine(i, 0, i, WellFieldsView.DEFAULT_HEIGHT);
+		for (int i = 0; i < w; i = i+8) {
+			g2D.drawLine(i, 0, i, h);
 		}
 		
 		g2D.setColor(LINE_COLOR);
 		//X-axis
-		g2D.drawLine(0, WellFieldsView.DEFAULT_HEIGHT/2, 
-				WellFieldsView.DEFAULT_WIDTH, WellFieldsView.DEFAULT_HEIGHT/2);
+		g2D.drawLine(0, h/2, w, h/2);
 		
-		int n = WellFieldsView.DEFAULT_WIDTH/2;
+		int n = h/2;
 		n = n/x;
 		for (int i = 1; i <= n; i++) {
-			g2D.drawLine(WellFieldsView.DEFAULT_WIDTH/2+x*i, 
-					WellFieldsView.DEFAULT_HEIGHT/2-TICK, 
-					WellFieldsView.DEFAULT_WIDTH/2+x*i, 
-					WellFieldsView.DEFAULT_HEIGHT/2+TICK);
+			g2D.drawLine(w/2+x*i, h/2-TICK, w/2+x*i, h/2+TICK);
 			
-			g2D.drawLine(WellFieldsView.DEFAULT_WIDTH/2-x*i, 
-					WellFieldsView.DEFAULT_HEIGHT/2-TICK, 
-					WellFieldsView.DEFAULT_WIDTH/2-x*i, 
-					WellFieldsView.DEFAULT_HEIGHT/2+TICK);
+			g2D.drawLine(w/2-x*i, h/2-TICK, w/2-x*i, h/2+TICK);
 		}
 		
 		//Y-axis
-		g2D.drawLine(WellFieldsView.DEFAULT_WIDTH/2, 0,
-				WellFieldsView.DEFAULT_WIDTH/2, WellFieldsView.DEFAULT_HEIGHT);
+		g2D.drawLine(w/2, 0, w/2, h);
 		
-		n = WellFieldsView.DEFAULT_HEIGHT/2;
+		n = h/2;
 		n = n/y;
 		for (int i = 1; i <= n; i++) {
-			g2D.drawLine(WellFieldsView.DEFAULT_WIDTH/2-TICK, 
-					WellFieldsView.DEFAULT_HEIGHT/2+y*i,
-					WellFieldsView.DEFAULT_WIDTH/2+TICK, 
-					WellFieldsView.DEFAULT_HEIGHT/2+y*i);
-			g2D.drawLine(WellFieldsView.DEFAULT_WIDTH/2-TICK, 
-					WellFieldsView.DEFAULT_HEIGHT/2-y*i,
-					WellFieldsView.DEFAULT_WIDTH/2+TICK, 
-					WellFieldsView.DEFAULT_HEIGHT/2-y*i);
+			g2D.drawLine(w/2-TICK, h/2+y*i, w/2+TICK, h/2+y*i);
+			g2D.drawLine(w/2-TICK, h/2-y*i, w/2+TICK, h/2-y*i);
 		}
 		
 		//draw unit
 		String s = ""+UNIT;
 		FontMetrics fm = getFontMetrics(getFont());
-		int w = fm.stringWidth(s);
+		int fs = fm.stringWidth(s);
 		
-		g2D.drawString(s, WellFieldsView.DEFAULT_WIDTH/2+x-w/2, 
-				WellFieldsView.DEFAULT_HEIGHT/2-3*TICK);
-		
-		g2D.drawString(s, WellFieldsView.DEFAULT_WIDTH/2+2*TICK, 
-				WellFieldsView.DEFAULT_HEIGHT/2-y+2*TICK);
+		g2D.drawString(s, w/2+x-fs/2, h/2-3*TICK);
+		g2D.drawString(s, w/2+2*TICK, h/2-y+2*TICK);
 		
 		s = "-"+UNIT;
-		w = fm.stringWidth(s);
-		g2D.drawString(s, WellFieldsView.DEFAULT_WIDTH/2-x-w/2, 
-				WellFieldsView.DEFAULT_HEIGHT/2-3*TICK);
-		g2D.drawString(s, WellFieldsView.DEFAULT_WIDTH/2+2*TICK, 
-				WellFieldsView.DEFAULT_HEIGHT/2+y+2*TICK);
+		fs = fm.stringWidth(s);
+		g2D.drawString(s, w/2-x-fs/2, h/2-3*TICK);
+		g2D.drawString(s, w/2+2*TICK, h/2+y+2*TICK);
 		
 		//Border
-		g2D.drawRect(0, 0, WellFieldsView.DEFAULT_WIDTH, 
-				WellFieldsView.DEFAULT_HEIGHT);
+		g2D.drawRect(0, 0, w, h);
 	}
 	
 	/**
@@ -265,31 +249,35 @@ class WellFieldsCanvas
 				int vx = 0;
 				int vy = 0;
 				
-				int wMax = xc+xMax+width;
-				int hMax = yc+yMax+height;
+				int wMax = xc+xMax+(int) (width*f);
+				int hMax = yc+yMax+(int) (height*f);
 				
-				double rx = (double) WellFieldsView.DEFAULT_WIDTH/wMax;
-				double ry = (double) WellFieldsView.DEFAULT_HEIGHT/hMax;
+				double rx = (double) WellFieldsView.DEFAULT_WIDTH*f/wMax;
+				double ry = (double) WellFieldsView.DEFAULT_HEIGHT*f/hMax;
 				
-				drawGrid(g2D, (int) (UNIT*rx),  (int) (UNIT*ry));
+				drawGrid(g2D, (int) (UNIT*rx), (int) (UNIT*ry));
 				
 				BufferedImage scaled;
 				while (i.hasNext()) {
 					n = i.next();
 					img = n.getThumbnail().getFullScaleThumb();
 					if (img != null) {
+						//if (f < 1) img = Factory.magnifyImage(f, img);
 						x = (int) n.getPositionX();
 						y = (int) n.getPositionY();
 						vx = (int) ((x+xc)*rx);
-						vy = WellFieldsView.DEFAULT_HEIGHT-(int) ((y+yc)*ry);
+						vy = (int) (WellFieldsView.DEFAULT_HEIGHT*f)-
+							(int) ((y+yc)*ry);
 						
 						w = (int) (width*rx*f);
-						h = (int) (height*ry);
-						vy = vy-h;
 						h = (int) (height*ry*f);
+						vy = vy-h;
+						
+						//h = (int) (height*ry*f);
+						//w = (int) (width*rx*f);
 						scaled = Factory.scaleBufferedImage(img, w, h);
 						r = new Rectangle(vx, vy, w, h);
-						g2D.drawImage(scaled, null, vx, vy); 
+						g2D.drawImage(scaled, null, r.x, r.y); 
 						locations.put(r, n);
 					}
 				}

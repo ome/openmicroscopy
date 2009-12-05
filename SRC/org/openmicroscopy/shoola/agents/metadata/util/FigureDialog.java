@@ -1153,6 +1153,12 @@ public class FigureDialog
 		c.insets = new Insets(0, 2, 2, 0);
 		c.gridy = 0;
 		c.gridx = 0;
+		
+		p.add(UIUtilities.setTextFont("Select Z-section"), c);
+		c.gridx++;
+    	p.add(UIUtilities.buildComponentPanel(planeSelection), c);
+    	c.gridy++;
+		c.gridx = 0;
 		p.add(UIUtilities.setTextFont("Project stack"), c);
 		c.gridx++;
 		p.add(projectionBox, c);
@@ -1227,9 +1233,11 @@ public class FigureDialog
         }
         switch (dialogType) {
 			case SPLIT:
+				/*
 				i = i+2;
 	    		p.add(UIUtilities.setTextFont("Select Z-section"), "0, "+i);
 	        	p.add(UIUtilities.buildComponentPanel(planeSelection), "1, "+i);
+	        	*/
 				break;
 	
 			case MOVIE:
@@ -1237,9 +1245,11 @@ public class FigureDialog
 					i = i+2;
 		        	p.add(buildMovieComponent(), "0, "+i+", 4, "+i);
 				}
+				/*
 				i = i+2;
 	    		p.add(UIUtilities.setTextFont("Select Z-section"), "0, "+i);
 	        	p.add(UIUtilities.buildComponentPanel(planeSelection), "1, "+i);
+	        	*/
 				break;
 		}
 		return p;
@@ -1441,14 +1451,14 @@ public class FigureDialog
 		int i = 0;
 		p.add(pane, "0, "+i);
 		if (pixels.getSizeZ() > 1 && dialogType != SPLIT_ROI) {
-			pane = EditorUtil.createTaskPane("Projection");
+			pane = EditorUtil.createTaskPane("Z-section Selection");
 			pane.add(buildProjectionComponent());
 			i++;
 			p.add(pane, "0, "+i);
 		}
 		if (dialogType != MOVIE) {
 			i++;
-			channelsPane = EditorUtil.createTaskPane("Image");
+			channelsPane = EditorUtil.createTaskPane("Channels selection");
 			channelsPane.setCollapsed(false);
 			channelsPane.add(buildDefaultPane());
 			p.add(channelsPane, "0, "+i);
