@@ -536,6 +536,15 @@ class WellsModel
 	}
 	
 	/**
+	 * Sets the passed node as the current node.
+	 * 
+	 * @param node See above.
+	 */
+	void setSelectedField(WellSampleNode node)
+	{
+		browser.setSelectedDisplay(node, false, true);
+	}
+	/**
 	 * Returns the number of rows.
 	 * 
 	 * @return See above.

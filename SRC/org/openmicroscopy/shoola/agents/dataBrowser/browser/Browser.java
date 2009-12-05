@@ -413,4 +413,21 @@ public interface Browser
 	 */
 	public void setRollOverNode(RollOverNode node);
 	
+	/**
+	 * Sets the specified <code>node</code> to be the currently selected
+	 * node in the visualization tree.
+	 * Sets it to <code>null</code> to indicate no node is currently selected.
+	 *  
+	 * @param node           	The node to become the currently selected node.
+	 * 						 	Pass <code>null</code> only when refreshing the
+	 * 						 	display.
+	 * @param multiSelection	Pass <code>false</code> to indicate that only 
+	 * 							one node is selected, <code>true</code> 
+	 * 							otherwise.
+	 * @param fireProperty		Pass <code>true</code> to fire a property, 
+	 * 							<code>false</code> otherwise.
+	 */
+	public void setSelectedDisplay(ImageDisplay node, boolean multiSelection, 
+			boolean fireProperty);
+	
 }

@@ -141,7 +141,7 @@ class WellFieldsView
 		canvas.addMouseListener(new MouseAdapter() {
 			
 		    /**
-		     * Launches the viewer.
+		     * Launches the viewer if the number of click is <code>2</code>.
 		     * @see MouseListener#mouseEntered(MouseEvent)
 		     */
 			public void mouseReleased(MouseEvent e) {
@@ -152,6 +152,17 @@ class WellFieldsView
 					}
 				}
 			}
+			
+		    /**
+		     * Displays the field's metadata.
+		     * @see MouseListener#mouseEntered(MouseEvent)
+		     */
+			public void mousePressed(MouseEvent e)
+			{
+				WellSampleNode node = canvas.getNode(e.getPoint());
+				if (node != null) model.setSelectedField(node);
+			}
+			
 		});
 		canvas.addMouseMotionListener(new MouseMotionAdapter() {
 			
