@@ -76,8 +76,11 @@ def log(text):
 	# print text
 	logLines.append(text)
 	
-	
+
 def average(numbers):
+	"""
+	Returns the average of the list of numbers
+	"""
 	if len(numbers) == 0:
 		return 0
 	total = 0
@@ -88,8 +91,13 @@ def average(numbers):
 		
 def getEllipses(roiService, imageId, textValues):
 	"""
-	returns a map of textValue: shapeMap.
+	Returns a map of textValue: shapeMap. 
 	shapeMap is a map of t: shape. 
+	
+	@param roiService:		The Omero ROI service
+	@param imageId:			The ID of the Image
+	@param textValues:		A list of text values for the ROIs we want. E.g. "FRAP", "Whole", "Base"
+							At least one shape of an ROI must have the correct text value for the ROI to be picked. 
 	"""
 	
 	ellipseMap = {}
@@ -116,8 +124,14 @@ def getEllipses(roiService, imageId, textValues):
 			
 	return ellipseMap
 	
-def getEllipsePixels(ellipse):
 	
+def getEllipsePixels(ellipse):
+	"""
+	Returns a list of (x,y) tuples for all the points within the given ellipse. 
+	
+	@param ellipse:		The ellipse defined as a tuple (cx, cy, rx, ry, z)
+	@returns:			A list of (x,y) points for the ellipse
+	"""
 	cx, cy, rx, ry, z = ellipse
 	# find bounding box of ellipse
 	xStart = cx - rx
@@ -138,7 +152,17 @@ def getEllipsePixels(ellipse):
 		
 		
 def analyseEllipses(ellipses, pixels, rawPixelStore, theC, theT, theZ):
+	"""
+	Returns a list of average pixel intensities corresponding to the ellipses, which must all exist on
+	a single plane, defined by pixels, and C, T, Z indexes. 
 	
+	@param ellipses:		A list of the ellipses to analyse, each defined as (cx, cy, rx, ry, z)
+	@param pixels:			The pixels object, with PixelsType object loaded, so that getPixelsType() can be called.
+	@param rawPixelStore:	The Omero rawPixelsStore
+	@param theC:			C index for plane to analyse
+	@param theT:			T index for plane to analyse
+	@param theZ:			Z index for plane to analyse
+	"""
 	plane2D = scriptUtil.downloadPlane(rawPixelStore, pixels, theZ, theC, theT)
 	
 	results = []
@@ -155,36 +179,60 @@ def analyseEllipses(ellipses, pixels, rawPixelStore, theC, theT, theZ):
 		
 	return results
 
-def getPlaneImage(re, pixelsId, theZ, theT, ellipse):
+
+def getPlaneImage(re, pixelsId, theZ, theT):
+	"""
+	Returns a PIL Image for the plane defined by pixelsId, theZ and theT
 	
+	@param re:		The Omero RenderingEngine
+	@param pixelsId:	The Pixels ID
+	@param theZ:		Z index of plane
+	@param theT:		T index of plane
+	@return:			PIL Image
+	"""
 	pDef = PlaneDef()
 	pDef.t = theT
 	pDef.z = theZ
-	#pDef.slice = omero.romio.XY.value;
 	
 	re.lookupPixels(pixelsId)
 	re.lookupRenderingDef(pixelsId)
 	re.load()
 	
 	imageData = re.renderCompressed(pDef)
-	
 	imagePlane = pilImage.open(StringIO.StringIO(imageData))
 	
+	return imagePlane
+	
+	
+def addEllipse(imagePlane, ellipse, zoomFactor):
+	
+	"""
+	Draws an ellipse on the Image, first multiplying the dimensions of the ellipse by the zoomFactor. 
+	
+	@param imagePlane:		The PIL Image to draw on. 
+	@param ellipse:			The ellipse defined by (cx, cy, rx, ry, z) 
+	@param zoomFactor:		Multiply the dimensions of the ellipse by this before drawing.
+	"""
 	cx, cy, rx, ry, z = ellipse
 	
-	#xy = (cx-rx, cy+ry, cx+rx, cy-ry)
-	x = cx-rx
-	y = cy-ry
-	w = x+rx*2
-	h = y+ry*2
+	x = int(zoomFactor*(cx-rx))
+	y = int(zoomFactor*(cy-ry))
+	w = int(zoomFactor*(cx+rx))
+	h = int(zoomFactor*(cy+ry))
+
 	xy = (x,y,w,h)
+	print xy
 	draw = ImageDraw.Draw(imagePlane)
 	draw.ellipse(xy, outline=(255,0,0))
 	
 	return imagePlane
 	
-def makeFrapFigure(session, commandArgs):
 	
+def makeFrapFigure(session, commandArgs):
+	"""
+	Main method called to make the figure. 
+	Returns fileID object of the child of the fileAnnotation
+	"""
 	gateway = session.createGateway()
 	roiService = session.getRoiService()
 	queryService = session.getQueryService()
@@ -348,9 +396,10 @@ def makeFrapFigure(session, commandArgs):
 	# make PIL image of the last frame before FRAP
 	spacer = 5
 	frames = []
-	frames.append(getPlaneImage(renderingEngine, pixelsId, theZ, tIndexes[tBleach-1], frapROI[tBleach-1]))
-	frames.append(getPlaneImage(renderingEngine, pixelsId, theZ, tIndexes[tBleach], frapROI[tBleach]))
-	frames.append(getPlaneImage(renderingEngine, pixelsId, theZ, tIndexes[-1], frapROI[-1]))
+	ellipses = [frapROI[tBleach-1], frapROI[tBleach], frapROI[-1]]
+	frames.append(getPlaneImage(renderingEngine, pixelsId, theZ, tIndexes[tBleach-1]))
+	frames.append(getPlaneImage(renderingEngine, pixelsId, theZ, tIndexes[tBleach]))
+	frames.append(getPlaneImage(renderingEngine, pixelsId, theZ, tIndexes[-1]))
 	figW = 450
 	font = imgUtil.getFont(16)
 	fontH = font.getsize("FRAP")[1]
@@ -358,6 +407,7 @@ def makeFrapFigure(session, commandArgs):
 	imgW = (figW - (2 * spacer) ) / len(frames)
 	# shrink the images by width, or maintain height if shrink not needed. 
 	smallImages = [imgUtil.resizeImage(img, imgW, img.size[1]) for img in frames]
+	zoomOut = 1/imgUtil.getZoomFactor(img.size, imgW, img.size[1])
 	figH = smallImages[0].size[1] + spacer + fontH 
 	frapCanvas = pilImage.new("RGB", (figW, figH), (255,255,255))
 	draw = ImageDraw.Draw(frapCanvas)
@@ -367,7 +417,8 @@ def makeFrapFigure(session, commandArgs):
 		label = labels[l]
 		indent = (imgW - font.getsize(label)[0]) / 2
 		draw.text((x+indent, 0), label, font=font, fill=(0,0,0))
-		imgUtil.pasteImage(smallImages[l], frapCanvas, x, y)
+		roiImage = addEllipse(smallImages[l], ellipses[l], zoomOut)
+		imgUtil.pasteImage(roiImage, frapCanvas, x, y)
 		x += spacer + imgW
 	#frapCanvas.show()		# bug-fixing only
 	fileName = imageName + ".png"
