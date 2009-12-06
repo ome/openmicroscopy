@@ -638,8 +638,7 @@ public class FigureDialog
         		pixels.getSizeX(), pixels.getSizeY());
 		if (pDef == null)
 			initPlane(renderer.getDefaultZ(), renderer.getDefaultT());
-		
-		
+
 		mergeCanvas = new FigureCanvas();
 		mergeImage = getMergedImage();
 		mergeCanvas.setPreferredSize(new Dimension(thumbnailWidth, 
@@ -734,70 +733,49 @@ public class FigureDialog
 		double factor = getMagnificationFactor();
 		if (factor != -1)
 			canvasView.setScaleFactor(factor);
-		//TODO: retrieve the first ROI.
-		
-		Coord3D c = new Coord3D(renderer.getDefaultZ(), 
-				renderer.getDefaultT());
 		try {
-			//ShapeList list = roiComponent.getShapeList(c);
 			ROIFigure figure;
 			Drawing drawing = drawingComponent.getDrawing();
-			//if (list != null) {
-				/*
-				TreeMap map = list.getList();
+			Coord3D c;
+			TreeMap map = roiComponent.getROIMap();
+			if (map != null && map.size() > 0) {
 				Iterator i = map.values().iterator();
+				ROI roi;
+				TreeMap<Coord3D, ROIShape> shapesMap;
 				ROIShape shape;
-				roiBox = null;
+				Iterator j;
+				Entry entry;
 				while (i.hasNext()) {
-					shape = (ROIShape) i.next();
-					if (shape != null) {
-						figure = shape.getFigure();
-						if (roiBox == null) 
-							roiBox = shape.getBoundingBox();
-						//determineMagnification(shape.getBoundingBox());
-						drawing.add(figure);
-					}
-				}
-				*/
-				TreeMap map = roiComponent.getROIMap();
-				if (map != null && map.size() > 0) {
-					Iterator i = map.values().iterator();
-					ROI roi;
-					TreeMap<Coord3D, ROIShape> shapesMap;
-					ROIShape shape;
-					Iterator j;
-					Entry entry;
-					while (i.hasNext()) {
-						roi = (ROI) i.next();
-						shapesMap = roi.getShapes();
-						j = shapesMap.entrySet().iterator();
-						while (j.hasNext()) {
-							entry = (Entry) j.next();
-							c = (Coord3D) entry.getKey();
-							shape = (ROIShape) entry.getValue();
-							if (shape != null) {
-								if (roiBox == null) {
-									roiBox = shape.getBoundingBox();
-									drawing.add(shape.getFigure());
-									initPlane(c.getZSection(),
-											c.getTimePoint());
-								}
+					roi = (ROI) i.next();
+					shapesMap = roi.getShapes();
+					j = shapesMap.entrySet().iterator();
+					while (j.hasNext()) {
+						entry = (Entry) j.next();
+						c = (Coord3D) entry.getKey();
+						shape = (ROIShape) entry.getValue();
+						if (shape != null) {
+							if (roiBox == null) {
+								roiBox = shape.getBoundingBox();
+								drawing.add(shape.getFigure());
+								initPlane(c.getZSection(),
+										c.getTimePoint());
 							}
 						}
 					}
 				}
-				int rw = (int) roiBox.getWidth();
-				int rh = (int) roiBox.getHeight();
-				lens = new LensComponent((JFrame) getOwner(), false, rw, rh);
-				lens.setLensLocation((int) roiBox.getX(), (int) roiBox.getY());
-				if (zoomBox.getSelectedIndex() == ZOOM_AUTO) {
-					int h = (Integer) heightField.getValueAsNumber();
-					float f = (float) h/(float) roiBox.getHeight();
-					float ff = (float) (Math.round(f*100)/100.0);
-					lens.setZoomFactor(ff);
-					generalLabel.setText(MAGNIFICATION_TEXT+ff);
-				}
-				drawingComponent.getDrawingView().setDrawing(drawing);
+			}
+			int rw = (int) roiBox.getWidth();
+			int rh = (int) roiBox.getHeight();
+			lens = new LensComponent((JFrame) getOwner(), false, rw, rh);
+			lens.setLensLocation((int) roiBox.getX(), (int) roiBox.getY());
+			if (zoomBox.getSelectedIndex() == ZOOM_AUTO) {
+				int h = (Integer) heightField.getValueAsNumber();
+				float f = (float) h/(float) roiBox.getHeight();
+				float ff = (float) (Math.round(f*100)/100.0);
+				lens.setZoomFactor(ff);
+				generalLabel.setText(MAGNIFICATION_TEXT+ff);
+			}
+			drawingComponent.getDrawingView().setDrawing(drawing);
 			//}
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -833,18 +811,6 @@ public class FigureDialog
 		}
 
         k = data.iterator();
-        /*
-        channelList = new ArrayList<ChannelComponent>();
-        ChannelComponent comp;
-        while (k.hasNext()) {
-        	d = k.next();
-			j = d.getIndex();
-			comp = new ChannelComponent(j, renderer.getChannelColor(j), 
-					active.contains(j));
-			channelList.add(comp);
-			comp.addPropertyChangeListener(this);
-		}
-		*/
         channelButtons = new ArrayList<ChannelButton>();
         ChannelButton comp;
         while (k.hasNext()) {

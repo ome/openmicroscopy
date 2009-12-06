@@ -334,7 +334,8 @@ class LensModel
 		try {
 			if (planeImage == null) return null;
 			ColorModel cm = planeImage.getColorModel();
-			Raster r = planeImage.getData().createChild(getX(), 
+			Raster raster = planeImage.getData();
+			Raster r = raster.createChild(getX(), 
 					            getY(), getWidth(), getHeight(), 0, 0, null);
 			BufferedImage img = new BufferedImage(cm, (WritableRaster) r, false,
 																		null);

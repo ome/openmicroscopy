@@ -533,7 +533,7 @@ class RenderingControlProxy
 	{
 		//See if the requested image is in cache.
         BufferedImage img = (BufferedImage) getFromCache(pDef);
-        if (img != null) return img;
+        //if (img != null) return img;
         try {
             int[] buf = servant.renderAsPackedInt(pDef);
             Point p = getSize(pDef);
