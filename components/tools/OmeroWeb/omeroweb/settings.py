@@ -234,35 +234,3 @@ except:
     logger.error("custom_settings.py has not been configured. APPLICATION_HOST is not set.\n" ) 
     sys.stderr.write("custom_settings.py has not been configured. APPLICATION_HOST is not set.\n")
     sys.exit(1)
-
-# Ice handling: When manage.py is called by icegridnode
-# an extra argument "--Ice.Config=..." is added. For now,
-# it must be stripped out.
-#
-while True:
-    for i in range(0, len(sys.argv)):
-        if sys.argv[i].startswith("--Ice.Config"):
-            sys.argv.pop(i)
-        continue
-    break
-
-
-# upgrade check:
-# -------------
-# On each startup OMERO.web checks for possible server upgrades
-# and logs the upgrade url at the WARNING level. If you would
-# like to disable the checks, change the following to
-#
-#   if False:
-#
-# For more information, see
-# http://trac.openmicroscopy.org.uk/omero/wiki/UpgradeCheck
-#
-#try:
-#    from omero.util.upgrade_check import UpgradeCheck
-#    check = UpgradeCheck("web")
-#    check.run()
-#    if check.isUpgradeNeeded():
-#        logger.error("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads.\n")
-#except Exception, x:
-#    logger.error("Upgrade check error: %s" % x)

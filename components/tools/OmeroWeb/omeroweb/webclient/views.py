@@ -208,6 +208,27 @@ def sessionHelper(request):
 
 def login(request):
     if request.method == 'POST' and request.REQUEST['server']:
+        
+        # upgrade check:
+        # -------------
+        # On each startup OMERO.web checks for possible server upgrades
+        # and logs the upgrade url at the WARNING level. If you would
+        # like to disable the checks, change the following to
+        #
+        #   if False:
+        #
+        # For more information, see
+        # http://trac.openmicroscopy.org.uk/omero/wiki/UpgradeCheck
+        #
+        try:
+            from omero.util.upgrade_check import UpgradeCheck
+            check = UpgradeCheck("web")
+            check.run()
+            if check.isUpgradeNeeded():
+                logger.error("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads.\n")
+        except Exception, x:
+            logger.error("Upgrade check error: %s" % x)
+         
         blitz = Gateway.objects.get(pk=request.REQUEST['server'])
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host

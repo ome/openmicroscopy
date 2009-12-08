@@ -80,7 +80,7 @@ class OmeroWebObjectWrapper (object):
             try:
                 a = self.countChildren()
             except:
-                print traceback.format_exc()
+                logger.error(traceback.format_exc())
                 a = None
                 
             return a
