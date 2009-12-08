@@ -66,7 +66,7 @@ class ShareForm(forms.Form):
             self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], widget=forms.SelectMultiple(attrs={'size':10}))
         self.fields.keyOrder = ['message', 'expiration', 'enable', 'members']#, 'guests']
     
-    message = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 70}), help_text=help_wiki_c) 
+    message = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 40}), help_text=help_wiki_c) 
     expiration = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':20}), label="Expire date", help_text=help_expire, required=False)
     enable = forms.CharField(widget=forms.CheckboxInput(attrs={'size':1}), required=False, help_text=help_enable)
     #guests = MultiEmailField(required=False, widget=forms.TextInput(attrs={'size':75}))
@@ -90,8 +90,8 @@ class ShareCommentForm(forms.Form):
     
 class ContainerForm(forms.Form):
     
-    name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':61}))
-    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 60}), required=False, help_text=help_wiki)
+    name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':41}))
+    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 40}), required=False, help_text=help_wiki)
     
 class CommentAnnotationForm(forms.Form):
     
@@ -107,39 +107,39 @@ class TagFilterForm(forms.Form):
         super(TagFilterForm, self).__init__(*args, **kwargs)
         try:
             if kwargs['initial']['tag']: pass
-            self.fields['tag'] = forms.CharField(widget=forms.TextInput(attrs={'size':25}), initial=kwargs['initial']['tag'], required=False)
+            self.fields['tag'] = forms.CharField(widget=forms.TextInput(attrs={'size':23}), initial=kwargs['initial']['tag'], required=False)
         except:
-            self.fields['tag'] = forms.CharField(widget=forms.TextInput(attrs={'size':25}), required=False)
+            self.fields['tag'] = forms.CharField(widget=forms.TextInput(attrs={'size':23}), required=False)
         
         try:
             if kwargs['initial']['tag2']: pass
-            self.fields['tag2'] = forms.CharField(widget=forms.TextInput(attrs={'size':25}), initial=kwargs['initial']['tag2'], required=False)
+            self.fields['tag2'] = forms.CharField(widget=forms.TextInput(attrs={'size':23}), initial=kwargs['initial']['tag2'], required=False)
         except:
-            self.fields['tag2'] = forms.CharField(widget=forms.TextInput(attrs={'size':25}), required=False)
+            self.fields['tag2'] = forms.CharField(widget=forms.TextInput(attrs={'size':23}), required=False)
         
         try:
             if kwargs['initial']['tag3']: pass
-            self.fields['tag3'] = forms.CharField(widget=forms.TextInput(attrs={'size':25}), initial=kwargs['initial']['tag3'], required=False)
+            self.fields['tag3'] = forms.CharField(widget=forms.TextInput(attrs={'size':23}), initial=kwargs['initial']['tag3'], required=False)
         except:
-            self.fields['tag3'] = forms.CharField(widget=forms.TextInput(attrs={'size':25}), required=False)
+            self.fields['tag3'] = forms.CharField(widget=forms.TextInput(attrs={'size':23}), required=False)
         
         try:
             if kwargs['initial']['tag4']: pass
-            self.fields['tag4'] = forms.CharField(widget=forms.TextInput(attrs={'size':25}), initial=kwargs['initial']['tag4'], required=False)
+            self.fields['tag4'] = forms.CharField(widget=forms.TextInput(attrs={'size':23}), initial=kwargs['initial']['tag4'], required=False)
         except:
-            self.fields['tag4'] = forms.CharField(widget=forms.TextInput(attrs={'size':25}), required=False)
+            self.fields['tag4'] = forms.CharField(widget=forms.TextInput(attrs={'size':23}), required=False)
         
         try:
             if kwargs['initial']['tag5']: pass
-            self.fields['tag5'] = forms.CharField(widget=forms.TextInput(attrs={'size':25}), initial=kwargs['initial']['tag5'], required=False)
+            self.fields['tag5'] = forms.CharField(widget=forms.TextInput(attrs={'size':23}), initial=kwargs['initial']['tag5'], required=False)
         except:
-            self.fields['tag5'] = forms.CharField(widget=forms.TextInput(attrs={'size':25}), required=False)
+            self.fields['tag5'] = forms.CharField(widget=forms.TextInput(attrs={'size':23}), required=False)
         
         self.fields.keyOrder = ['tag', 'tag2', 'tag3', 'tag4', 'tag5']
 
 class TagAnnotationForm(forms.Form):
-    tag = forms.CharField(widget=forms.TextInput(attrs={'size':23}))
-    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 20}), required=False, label="Desc")
+    tag = forms.CharField(widget=forms.TextInput(attrs={'size':36}))
+    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 31}), required=False, label="Desc")
 
 class TagListForm(forms.Form):
     

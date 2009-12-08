@@ -162,6 +162,10 @@ FEEDBACK_URL = "qa.openmicroscopy.org.uk:80"
 
 IGNORABLE_404_ENDS = ('*.ico')
 
+# Cache
+CACHE_BACKEND = 'file:///var/tmp/django_cache'
+CACHE_TIMEOUT = 86400
+
 # Cookies config
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True # False
 SESSION_COOKIE_AGE = 86400 # 1 day in sec (86400)

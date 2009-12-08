@@ -25,11 +25,7 @@
 import datetime
 import time
 
-import omero
-
-import omero.rtypes
 from omero.rtypes import *
-
 from webclient.controller import BaseController
 
 class BaseSearch(BaseController):
@@ -43,7 +39,7 @@ class BaseSearch(BaseController):
     dsSize = 0
     prSize = 0
     
-    resultsSize = 0
+    c_size = 0
 
     def __init__(self, conn, **kw):
         BaseController.__init__(self, conn)
@@ -65,9 +61,13 @@ class BaseSearch(BaseController):
             created = [rtime(long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000), rtime(long(time.mktime(d2.timetuple())+1e-6*d2.microsecond)*1000)]
 
         self.criteria['query'] = query
+        url = list()
+        pr_list_with_counters = list()
+        ds_list_with_counters = list()
+        im_list_with_counters = list()
         for ot in onlyTypes:
-            if ot == 'image':
-                self.criteria['image'] = 'CHECKED'
+            if ot == 'images':
+                self.criteria['images'] = 'CHECKED'
                 im_list = list(self.conn.searchImages(query, created))
                 
                 im_ids = [im.id for im in im_list]
@@ -77,12 +77,10 @@ class BaseSearch(BaseController):
                 for im in im_list:
                     im.annotation_counter = im_annotation_counter.get(im.id)
                     im_list_with_counters.append(im)
-                
-                self.images = im_list_with_counters
-                self.imgSize = len(self.images)
-                self.url = self.url + "&image=on"
-            elif ot == 'dataset':
-                self.criteria['dataset'] = 'CHECKED'
+
+                url.append("&images=on")
+            elif ot == 'datasets':
+                self.criteria['datasets'] = 'CHECKED'
                 ds_list = list(self.conn.searchDatasets(query, created))
                 
                 ds_ids = [ds.id for ds in ds_list]
@@ -94,12 +92,10 @@ class BaseSearch(BaseController):
                     ds.child_counter = ds_child_counter.get(ds.id)
                     ds.annotation_counter = ds_annotation_counter.get(ds.id)
                     ds_list_with_counters.append(ds)
-                
-                self.datasets = ds_list_with_counters
-                self.dsSize = len(self.datasets)
-                self.url = self.url + "&dataset=on"
-            elif ot == 'project':
-                self.criteria['project'] = 'CHECKED'
+
+                url.append("&datasets=on")
+            elif ot == 'projects':
+                self.criteria['projects'] = 'CHECKED'
                 pr_list = list(self.conn.searchProjects(query, created))
                 
                 pr_ids = [pr.id for pr in pr_list]
@@ -111,9 +107,11 @@ class BaseSearch(BaseController):
                     pr.child_counter = pr_child_counter.get(pr.id)
                     pr.annotation_counter = pr_annotation_counter.get(pr.id)
                     pr_list_with_counters.append(pr)
-                
-                self.projects = pr_list_with_counters
-                self.prSize = len(self.projects)
-                self.url = self.url + "&project=on"
-        self.resultsSize = self.imgSize + self.dsSize + self.prSize
+
+                url.append("&projects=on")
+        
+        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters, 'images': im_list_with_counters}
+        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(im_list_with_counters)
+        if len(url) > 0:
+            self.url = self.url + "".join(url)
 

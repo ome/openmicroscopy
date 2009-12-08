@@ -1,48 +1,21 @@
-{% extends "omeroweb/base.html" %}
+{% extends "omeroweb/base_frame.html" %}
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/tree.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
     <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
-    
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.dimensions.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.bgiframe.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.delegate.js" %}"></script>
-    
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
-
 {% endblock %}
 
-{% block script %}
-    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
-    <script type="text/javascript">
-        $(function() {
-            $("#markup").tooltip({ 
-                track: true, 
-                delay: 0, 
-                showURL: false, 
-                opacity: 1, 
-                fixPNG: true, 
-                showBody: " - ", 
-                top: -15, 
-                left: 5 
-            });
-        });
-    </script>
-{% endblock %}
 
-{% block center %}
+{% block content %}
 
 {% if manager.project %}
     <h1>{% trans "Create new dataset" %}</h1>
@@ -55,7 +28,11 @@
     {% if manager.project %}
         <form action="{% url manage_action_containers "addnew" "project" manager.project.id %}?url={{url}}" method="post">
     {% else %}
-        <form action="{% url manage_action_containers "addnew" %}?url={{url}}" method="post">
+        {% if manager.screen %}
+            <form action="{% url manage_action_containers "addnew" "screen" manager.screen.id %}?url={{url}}" method="post">
+        {% else %}
+            <form action="{% url manage_action_containers "addnew" %}?url={{url}}" method="post">
+        {% endif %}
     {% endif %}
     <table>
         {% if not manager.project %}
@@ -90,4 +67,3 @@
 {% endif %}
 
 {% endblock %}
-

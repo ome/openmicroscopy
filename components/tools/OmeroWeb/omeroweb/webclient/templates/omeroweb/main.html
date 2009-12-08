@@ -19,6 +19,7 @@
 
     {% block jscript %}{% endblock %}
 
+    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
     {% block script %}{% endblock %}
 
 </head>
@@ -42,9 +43,8 @@
     </div>
     
     <div id="header2">{% block header %}{% endblock %}</div>
-    <div id="center">{% block center %}{% endblock %}</div>
+    <div id="centerWrapper">{% block center %}{% endblock %}</div>
     <div class="clear"> </div>
-    <!--<div id="advice">{% block advice %}{% endblock %}</div>-->
 </div>
 </div>
 <div id="footer">

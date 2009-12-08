@@ -1,11 +1,11 @@
-{% extends "omeroweb/base.html" %}
+{% extends "omeroweb/base_container.html" %}
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
+{% load wikitags %}
 
 {% block link %}
-	<link rel="stylesheet" href="{% url webstatic "css/thickbox.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/calendar.css" %}" type="text/css" />
+    <link rel="stylesheet" href="{% url webstatic "css/container.css" %}" type="text/css" media="screen"/>
 	<link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
@@ -14,52 +14,60 @@
     
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
-    
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.draggable.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.droppable.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/effects.core.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/effects.highlight.js" %}"></script>
-
-    <script type="text/javascript" src="{% url webstatic "javascript/thickbox/thickbox.js" %}"></script>
 {% endblock %}
 
+
 {% block script %}
-    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/basket.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
         
     <script type="text/javascript">
         $(document).ready(function() 
             { 
-                $("#historyTable").tablesorter( {sortList: [[3,0]]} ); 
-            } 
-        );
-    </script>
-    
-    <script type="text/javascript">
-        $(document).ready(function () {
-
-            $('div table#historyTable tbody tr').quicksearch({
-                attached: "table.tablesorter",
-                position: "before",
-                stripeRowClass: null,
-                labelText: '{% trans "Filter" %}:',
-                inputText: 'search',
-                loaderImg: '{% url webstatic "images/tree/spinner.gif" %}',
-            });
-
+                $("#dataTable").tablesorter( {sortList: [[1,0]]} ); 
+                
+                {% if manager.c_size %}
+                $('table#dataTable tbody tr').quicksearch({
+                    attached: "div#view",
+                    position: "before",
+                    stripeRowClass: null,
+                    labelText: '{% trans "Filter" %}:',
+                    inputText: '...',
+                    loaderImg: '{% url webstatic "images/tree/spinner.gif" %}',
+                });
+                {% endif %}
+                
+                $("a.loadingData").click(function()
+                {
+                    $("div#hierarchy").html('<p>{% trans "Loading hierarchy... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                    $("div#hierarchy").load(
+                        {% if manager.project or manager.dataset or manager.screen or manager.plate %}
+                            {% if manager.dataset %}
+                                "{% url manage_container_hierarchies_id "dataset" manager.dataset.id %}", 
+                            {% endif %}
+                            {% if manager.project %}
+                                "{% url manage_container_hierarchies_id "project" manager.project.id %}", 
+                            {% endif %}
+                            {% if manager.plate %}
+                                "{% url manage_container_hierarchies_id "plate" manager.plate.id %}", 
+                            {% endif %}
+                            {% if manager.screen %}
+                                "{% url manage_container_hierarchies_id "screen" manager.screen.id %}", 
+                            {% endif %}
+                        {% else %}
+                            "{% url manage_container_hierarchies %}", 
+                        {% endif %}
+                        function() {  
+                            $("a.loadingData").remove();                        
+                        });
+                    return false; 
+                });
         })
     </script>
-    <script>
-    var popup = function (url) {
-          window.open(url,'_blank','toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800');
-          return false;
-    }
-    </script>
-    
+
 {% endblock %}
 
-{% block center %}
+{% block top %}
 
 <h1 id="data"><a href="{% url history_details controller.year controller.month controller.day %}">{{ eContext.breadcrumb.2 }} {{ eContext.breadcrumb.1 }}</a> ({{ controller.day_items_size }}/{{ controller.total_items_size }} {% trans "items" %})</h1>
 
@@ -77,55 +85,43 @@
 <div class="clear"> </div>
 {% endif %}
 
-{% if controller.day_items_size %}
-<table id="historyTable" class="tablesorter"> 
-<thead> 
-<tr> 
-    <th>{% trans "Type" %}</th> 
-    <th>{% trans "Name" %}</th> 
-    <th>{% trans "Action" %}</th>
-    <th>{% trans "Created" %}</th>
-</tr>
-</thead> 
-<tbody> 
-    {% for i in controller.day_items %}
-    {% for c in i.project %}
-    <tr> 
-        <td class="product"><a href="{% url manage_data "mydata" "project" c.id %}"><img id="{{ c.id }}" src="{% url webstatic "images/folder32.png" %}" title="{{ c.name }}" alt="project"/></a></td> 
-        <td><a href="{% url manage_data "mydata" "project" c.id %}">{{ c.shortName }}</a> <img alt="dataset" title="dataset" src="{% url webstatic "images/folder_image16.png" %}"/>[{{ c.countChildren2 }}]{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
-        <td></td>
-        <td>{{ c.creationEventDate|date:"Y m d H:i:s" }}</td>
-    </tr>
-    {% endfor %}
-    {% for c in i.dataset %}
-    <tr> 
-        <td class="product"><a href="{% if manager.project %}{% url manage_data "mydata" "project" manager.project.id "dataset" c.id %}{% else %}{% url manage_data "mydata" "dataset" c.id %}{% endif %}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_image32.png" %}" title="{{ c.name }}" alt="project"/></a></td> 
-        <td><a href="{% if manager.project %}{% url manage_data "mydata" "project" manager.project.id "dataset" c.id %}{% else %}{% url manage_data "mydata" "dataset" c.id %}{% endif %}">{{ c.shortName }}</a> <img src="{% url webstatic "images/image16.png" %}" title="image" alt="image"/>[{{ c.countChildren2 }}]{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</td> 
-        <td><!--<a href="#" onclick="toBasket('dataset', '{{ c.id }}'); return false;"><img src="{% url webstatic "images/basket16.png" %}" alt="b" title="add to basket"/></a> --><a href="#" onclick="copyToClipboard('dataset', '{{ c.id }}'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit12.png" %}" alt="c" title="copy"/></a></td>
-        <td>{{ c.creationEventDate|date:"Y m d H:i:s" }}</td>
-    </tr>
-    {% endfor %}
-    {% for c in i.image %}
-    <tr> 
-        <td class="product"><a href="{% if manager.project %}{% url manage_data "mydata" "project" manager.project.id "dataset" c.id "image" c.id %}{% else %}{% if manager.dataset %}{% url manage_data "mydata" "dataset" c.id "image" c.id %}{% else %}{% url manage_data "mydata" "image" c.id %}{% endif %}{% endif %}"><img id="{{ c.id }}" src="{% url webstatic "images/image32.png" %}" title="{{ c.name }}" alt="image"/></a></td> 
-        <td><a href="{% if manager.project %}{% url manage_data "mydata" "project" manager.project.id "dataset" c.id "image" c.id %}{% else %}{% if manager.dataset %}{% url manage_data "mydata" "dataset" c.id "image" c.id %}{% else %}{% url manage_data "mydata" "image" c.id %}{% endif %}{% endif %}">{{ c.shortName }}</a>{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %} </td> 
-        <td><a href="#" onclick="return popup('{% url image_viewer c.id %}')"><img src="{% url webstatic "images/kview16.png" %}" title="{{ c.name }}" alt="image"/></a> <a href="{% url manage_image_zoom c.id %}?keepThis=true&TB_iframe=true&height=500&width=860" alt="{{ c.shortName }}" class="thickbox" rel="gallery-omero" title="{{ c.shortName }} by {{ c.getOwnerFullName }} ({{ c.details.group.name.val }} {{ c.details.permissions }})"><img src="{% url webstatic "images/kpresenter16.png" %}" alt="p" title="presentation"/></a> <a href="#" onclick="toBasket('image', '{{ c.id }}'); return false;"><img src="{% url webstatic "images/basket16.png" %}" alt="b" title="add to basket"/></a> <a href="#" onclick="copyToClipboard('image', '{{ c.id }}'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit12.png" %}" alt="c" title="copy"/></a></td>
-        <td>{{ c.getDate|date:"Y m d H:i:s" }}</td>
-    </tr>
-    {% endfor %}
-    {% endfor %}
-</tbody> 
-</table>
+{% endblock %}
 
-{% include "omeroweb/history_paging.html" %}
+{% block left %}
+<!--content-->
+<!--content-->
 
-<div>{% trans "Recognize items" %}: <img id="{{ c.getImage.id }}" src="{% url webstatic "images/folder32.png" %}" title="Project" alt="project"/> - {% trans "Project" %}; <img id="{{ c.getImage.id }}" src="{% url webstatic "images/folder_image32.png" %}" title="Dataset" alt="dataset"/> - {% trans "Dataset" %}; <img id="{{ c.getImage.id }}" src="{% url webstatic "images/image32.png" %}" title="Image" alt="image"/> - {% trans "Image" %};
+<div>
+    {% if manager.c_size %}
+        <h1 id="data">{{ manager.c_size }} {% trans "items" %}:</h1>
+    {% else %}
+        <h1>{% trans "No items" %}:</h1>
+    {% endif %}
+    <div class="clear"> </div>
+    
+    <div id="view"> 
+        | <input id="copyToClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy to clipboard"> 
+        | <input id="addToBasket" class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket">
+        | <a href="{% url manage_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a>
+    </div>
+    <div class="clear"> </div>
+    
+    <div class="content">
+        {% include "omeroweb/history_data_table.html" %}
+    </div>
+    
+    {% include "omeroweb/history_paging.html" %}
+    
+    <div>
+        <p>{% trans "Recognize items" %}: <img src="{% url webstatic "images/folder32.png" %}" title="Project" alt="project"/> - {% trans "Project" %}; <img src="{% url webstatic "images/folder_image32.png" %}" title="Dataset" alt="dataset"/> - {% trans "Dataset" %}; <img src="{% url webstatic "images/image32.png" %}" title="Image" alt="image"/> - {% trans "Image" %};</p>
+    </div>
+    
 </div>
 
-{% else %}
-<div class="clear"></div>
-<div>{% trans "No data." %}</div>
-{% endif %}
+{% endblock %}
 
+{% block right %}
+
+<iframe width="100%" height="680" name="metadata_details"></iframe>
 
 {% endblock %}

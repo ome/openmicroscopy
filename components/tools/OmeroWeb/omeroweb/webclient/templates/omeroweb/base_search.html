@@ -1,0 +1,24 @@
+{% extends "omeroweb/base.html" %}
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+
+{% block center %}
+
+    {% block top %}{% endblock %}
+    <div id="contentWrapper">
+        
+        {% if manager.url %}
+        <div id="left_panel">
+            {% block left %}{% endblock %}
+        </div>
+
+        <div id="right_panel">
+           {% block right %}{% endblock %}
+        </div>
+        <div class="clear"></div>
+        {% endif %}
+        
+    </div>
+    
+{% endblock %}

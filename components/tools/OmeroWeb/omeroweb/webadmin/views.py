@@ -50,6 +50,7 @@ from django.utils import simplejson
 from django.utils.translation import ugettext as _
 from django.views.defaults import page_not_found, server_error
 from django.views import debug
+from django.core.cache import cache
 
 from controller import BaseController
 from controller.experimenter import BaseExperimenters, BaseExperimenter
@@ -836,7 +837,10 @@ def drivespace(request, **kwargs):
             controller.topTen.remove(item)
             continue
     
-    context = {'info':info, 'eventContext':eventContext, 'driveSpace': {'free':controller.freeSpace, 'used':controller.usedSpace}, 'topTen':controller.topTen}
+    topTen = controller.topTen
+    cache.set('topTen', topTen, settings.CACHE_TIMEOUT)
+    
+    context = {'info':info, 'eventContext':eventContext, 'driveSpace': {'free':controller.freeSpace, 'used':controller.usedSpace }, 'topTen':topTen}
     
     t = template_loader.get_template(template)
     c = Context(request, context)
@@ -861,19 +865,20 @@ def piechart(request, **kwargs):
         from pylab import * 
     except:
         logger.error(traceback.format_exc())
-        
-    controller = BaseDriveSpace(conn)
-    controller.pieChartData()
+     
+    topTen = cache.get('topTen')
+    if topTen is None:
+        raise AttributeError('topTen could not be loaded from cache.')
     
     values = list()
     keys = list()
-    for item in controller.topTen:
+    for item in topTen:
         keys.append(str(item[0]))
         values.append(long(item[1]))
     
     explode = list()
     explode.append(0.1)
-    for e in controller.topTen:
+    for e in topTen:
         explode.append(0)
     explode.remove(0)
     

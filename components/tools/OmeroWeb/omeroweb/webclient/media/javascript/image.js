@@ -1,3 +1,8 @@
+var popup = function (url) {
+    window.open(url,'_blank','toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800');
+    return false;
+}
+
 function saveMetadata (image_id, metadata_type, metadata_value) {
     if (image_id == null) {
         alert("No image selected.")
@@ -19,3 +24,4 @@ function saveMetadata (image_id, metadata_type, metadata_value) {
         });
     }
 }
+

@@ -1,11 +1,11 @@
-{% extends "omeroweb/base.html" %}
+{% extends "omeroweb/base_container.html" %}
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 {% load wikitags %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/slider.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/container.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
@@ -13,17 +13,11 @@
     <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
     
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.dimensions.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.bgiframe.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.delegate.js" %}"></script>
-    
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
+
 {% endblock %}
 
 {% block script %}
-    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>    
+    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>    
     <script type="text/javascript" src="{% url webstatic "javascript/basket.js" %}"></script>
     
     <script type="text/javascript">
@@ -58,48 +52,40 @@
     
 {% endblock %}
 
-{% block center %}
+{% block top %}
 
-{% ifequal basket.sizeOfBasket 0 %}
+<div>
+    <h1>{% trans "Basket" %}</h1>
+    <p>{% trans "This page shows the current contents of your basket. You can delete any item from your basket by clicking the delete button below the item. If you have finished adding items to your basket, you can go to the <strong>Share</strong> or <strong>Discussion</strong> by choosing the button from the menu below." %}</p>
+</div>
 
-    <h1>{% trans "Your basket is empty." %}</h1>
-    <div class="error"><p>{% trans "Your basket is empty. Please add some of your bio-data from" %} <a href="{% url manage_data "mydata" %}">{% trans "My data" %}</a> {% trans "or initiate a discussion." %}</p></div>
+<div class="separate30"></div>
+
+{% endblock %}
+
+
+{% block left %}
+<!--content-->
+
+<div>
     
-{% else %}
-
-    <h1>{% trans "Your basket:" %} </h1>
-    
-    <div id="cart">
-    <div class="clear"></div>
-        <div><ul id="products">
-        {% if basket.imgSize %}
-        <div class="clear"></div>
-        <li class="dataset"><h1>{% trans "Images:" %}</h1>
-        <div class="clear"></div>
-            {% for e in basket.imageInBasket %}
-                <li id="image-{{ e.id }}" class="product">
-                    <a href="#" onclick="return popup('{% url image_viewer e.id %}')"><img id="{{ e.id }}" class="imgzoom" src="{% url render_thumbnail e.id %}" alt="image" title="{{ e.name }}"/></a>
-                    <div class="center"><a href="#" onclick="fromBasket('image', '{{ e.id }}'); return false;"><img src ="{% url webstatic "images/cancel16.png" %}" alt="r" title="remove"/></a></div>
-                </li>
-            {% endfor %}
-        {% endif %}
-        <div class="clear"></div>
-        </ul></div>
+    <div id="view"> 
+        | {% if basket.sizeOfBasket %}<a href="{% url basket_action "toshare" %}" target="metadata_details"><img src="{% url webstatic "images/folder_html16.png" %}" alt="sh" title="Create share for images stored currently in the basket"/></a>{% endif %}
+        <a href="{% url basket_action "todiscuss" %}" target="metadata_details"><img src="{% url webstatic "images/wp_protocol16.png" %}" alt="d" title="Create discussion."/></a> |
+        {% if basket.sizeOfBasket %}<input type="submit" name="action" value="Empty" onClick="location.href='{% url empty_basket %}'"/>
+        <span id="empty" title="{% trans 'Empty basket' %} - <small>{% trans 'Empty the basket.' %}</small>"><img src="{% url webstatic "images/help16.png" %}" /></span> |{% endif %}
     </div>
-
-    <div class="clear"></div>
-    <br/>
-    <div>
-        <h1>{% trans "Available actions" %}:</h1>
-        <input type="submit" name="action" value="Share" onClick="location.href='{% url basket_action "toshare" %}'"/> 
-        <span id="sharing" title="{% trans 'Create share' %} - <small>{% trans 'Creates share for images stored currently in the basket.' %}</small>"><img src="{% url webstatic "images/help16.png" %}" /></span> 
-        <!--<input type="submit" name="action" value="Blog" onClick="location.href='{% url basket_action "toblog" %}'"/>
-        <input type="submit" name="action" value="Annotate" onClick="location.href='{% url basket_action "toannotate" %}'"/> 
-        <input type="submit" name="action" value="Tag" onClick="location.href='{% url basket_action "totag" %}'"/>-->
-        <input type="submit" name="action" value="Empty" onClick="location.href='{% url empty_basket %}'"/>
-        <span id="empty" title="{% trans 'Empty basket' %} - <small>{% trans 'Empty the basket.' %}</small>"><img src="{% url webstatic "images/help16.png" %}" /></span>
+    <div class="clear"> </div>
+        
+    <div class="content">
+        {% include "omeroweb/basket_data_icon.html" %}
     </div>
-    
-{% endifequal %}
+</div>
+
+{% endblock %}
+
+{% block right %}
+
+<iframe width="100%" height="680" name="metadata_details"></iframe>
 
 {% endblock %}

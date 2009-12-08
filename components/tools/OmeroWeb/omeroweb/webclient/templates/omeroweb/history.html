@@ -17,15 +17,15 @@
 {% endblock %}
 
 {% block center %}
-<h1>{% trans "Calendar" %}</h1>
+<h1 id="data">{% trans "Calendar" %}</h1>
 
 <div class="calendar">
 	<div class="cal_nav">
 		<div style="float: left; width: 20%; text-align:left; font-weight: bold;">
-			<a href="{% url history controller.last_month.year controller.last_month.month %}">{{ controller.last_month_name }} {{ controller.last_month.year }} </a>
+			<a href="{% url history controller.last_month.year controller.last_month.month %}#data">{{ controller.last_month_name }} {{ controller.last_month.year }} </a>
 		</div>
 		<div style="float: right;width: 20%; text-align: right; font-weight: bold;">
-			<a href="{% url history controller.next_month.year controller.next_month.month %}">{{ controller.next_month_name }} {{ controller.next_month.year }}</a>
+			<a href="{% url history controller.next_month.year controller.next_month.month %}#data">{{ controller.next_month_name }} {{ controller.next_month.year }}</a>
 		</div>
 		<div style="text-align: center;">{{ controller.month_name }}</div>
 	</div>
@@ -57,7 +57,9 @@
 		{% endfor %}</tbody>
 	</table>
 </div>
-<div>{% trans "Recognize items" %}: <img id="{{ c.getImage.id }}" src="{% url webstatic "images/folder32.png" %}" title="Project" alt="project"/> - {% trans "Project" %}; <img id="{{ c.getImage.id }}" src="{% url webstatic "images/folder_image32.png" %}" title="Dataset" alt="dataset"/> - {% trans "Dataset" %}; <img id="{{ c.getImage.id }}" src="{% url webstatic "images/image32.png" %}" title="Image" alt="image"/> - {% trans "Image" %};
+
+<div>
+    <p>{% trans "Recognize items" %}: <img id="{{ c.getImage.id }}" src="{% url webstatic "images/folder32.png" %}" title="Project" alt="project"/> - {% trans "Project" %}; <img id="{{ c.getImage.id }}" src="{% url webstatic "images/folder_image32.png" %}" title="Dataset" alt="dataset"/> - {% trans "Dataset" %}; <img id="{{ c.getImage.id }}" src="{% url webstatic "images/image32.png" %}" title="Image" alt="image"/> - {% trans "Image" %};</p>
 </div>
 
 {% endblock %}

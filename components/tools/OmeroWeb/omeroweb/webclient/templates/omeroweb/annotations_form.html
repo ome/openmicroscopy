@@ -1,19 +1,269 @@
+{% extends "omeroweb/base_frame.html" %}
 {% load i18n %}
 {% load custom_tags %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% url webstatic "css/thickbox.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/annotation.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
+{% endblock %}
+
+{% block jscript %}
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
+    
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.draggable.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.droppable.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.tabs.js" %}"></script>
+    
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
+    
+    <script type="text/javascript" src="{% url webstatic "javascript/thickbox/thickbox.js" %}"></script>
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript" src="{% url webstatic "javascript/image.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
+    <script type="text/javascript">
+        $(document).ready(function() 
+            {  
+                $("#annotation_tabs").tabs();
+                
+                $("{% for t in manager.tag_annotations %}#tagdesc{{ t.id }}, {% endfor %}#tag").tooltip({ 
+                    track: true, 
+                    delay: 0, 
+                    showURL: false, 
+                    opacity: 1, 
+                    fixPNG: true, 
+                    showBody: " - ", 
+                    top: -15, 
+                    left: 5 
+                });
+                
+            });
+
+    </script>
+{% endblock %}
+
+{% block content %}
 
 <div id="annotation_form" >
     <div id="annotation_tabs" class="ui-tabs">
         <ul>
-            <li><a href="#comments_tab"><span>{% trans "Add comment" %}</span></a></li>
-            <li><a href="#tags_tab"><span>{% trans "Tag" %}</span></a></li>
-            <li><a href="#urls_tab"><span>URL</span></a></li>
-            <li><a href="#files_tab"><span>{% trans "Attach file" %}</span></a></li>
+            <li><a href="#metadata_tab"><span>{% trans "Metadata" %}</span></a></li>
+            <li><a href="#comments_tab"><span>{% trans "Comments" %}</span></a></li>
+            <li><a href="#tags_tab"><span>{% trans "Tags" %}</span></a></li>
+            <li><a href="#files_tab"><span>{% trans "Attached files" %}</span></a></li>
         </ul>
         <div class="clear"></div>
         
+        <div id="metadata_tab">
+            {% if manager.image %}
+            <h1>Image details: {% if manager.image.isOwned %}<a href="{% url manage_action_containers "edit" "image" manager.image.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %} | <a href="#" onclick="return popup('{% url image_viewer manager.image.id %}')">{% trans "View" %} <img src="{% url webstatic "images/tree/kview.png" %}" alt="v" title="view"/></a></h1>
+            <table>
+                <tr><td><label>{% trans "Image name" %}: </label></td><td>{{ manager.image.name }}</td></tr>
+                <tr><td><label>{% trans "Image date" %}: </label></td><td>{{ manager.image.getDate|date:"Y m d H:i:s" }}</td></tr>
+                <tr><td><label>{% trans "Dimensions" %} (XYZT): </label></td><td>{{ manager.image.getWidth }} x {{ manager.image.getHeight }} x {{ manager.image.z_count }} x {{ manager.image.t_count }}</td></tr>
+                <tr><td><label>{% trans "Pixel size" %} (XYZ) [&micro;m]: </label></td><td>{{ manager.image.getPixelSizeX|default_if_none:"-" }} x {{ manager.image.getPixelSizeY|default_if_none:"-" }} x {{ manager.image.getPixelSizeZ|default_if_none:"-" }}</td></tr>
+            </table>
+            {% else %}
+                {% if manager.dataset %}
+                <h1>Dataset details: {% if manager.dataset.isOwned %}<a href="{% url manage_action_containers "edit" "dataset" manager.dataset.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a> {% endif %} 
+                </h1>
+                <table>
+                    <tr><td><label>{% trans "Dataset name" %}:</label></td><td>{{ manager.dataset.name }}</td></tr>
+                    <tr><td><label>{% trans "Dataset date" %}:</label></td><td>{{ manager.dataset.getDate|date:"Y m d H:i:s" }}</td></tr>
+                    <tr><td><label>{% trans "Description" %}:</label></td><td>{{ manager.dataset.description|default_if_none:"no description"|linebreaks }}</td></tr>
+                </table>
+                {% else %}
+                    {% if manager.project %}
+                    <h1>Project details: {% if manager.project.isOwned %}<a href="{% url manage_action_containers "edit" "project" manager.project.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a> {% endif %}
+                    </h1>
+                    <table>
+                        <tr><td><label>{% trans "Project name" %}:</label></td><td>{{ manager.project.name }}</td></tr>
+                        <tr><td><label>{% trans "Project date" %}:</label></td><td>{{ manager.project.getDate|date:"Y m d H:i:s" }}</td></tr>
+                        <tr><td><label>{% trans "Description" %}:</label></td><td>{{ manager.project.description|default_if_none:"no description"|linebreaks }}</td></tr>
+                    </table>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+            
+            {% if manager.well %}
+            <h1>Image details: <a href="#" onclick="return popup('{% url image_viewer manager.well.selectedWellSample.image.id %}')">{% trans "View" %} <img src="{% url webstatic "images/tree/kview.png" %}" alt="v" title="view"/></a></h1>
+            <table>
+                <tr><td><label>{% trans "Image name" %}:</label></td><td>{{ manager.well.selectedWellSample.image.name }}</td></tr>
+                <tr><td><label>{% trans "Image date" %}:</label></td><td>{{ manager.well.selectedWellSample.image.getDate|date:"Y m d H:i:s" }}</td></tr>
+                <tr><td><label>{% trans "Dimensions" %} (XYZT):</label></td><td>{{ manager.well.selectedWellSample.image.getWidth }} x {{ manager.well.selectedWellSample.image.getHeight }} x {{ manager.well.selectedWellSample.image.z_count }} x {{ manager.well.selectedWellSample.image.t_count }}</td></tr>
+                <tr><td><label>{% trans "Pixel size" %} (XYZ) [&micro;m]: </label></td><td>{{ manager.well.selectedWellSample.image.getPixelSizeX|default_if_none:"-" }} x {{ manager.well.selectedWellSample.image.getPixelSizeY|default_if_none:"-" }} x {{ manager.well.selectedWellSample.image.getPixelSizeZ|default_if_none:"-" }}</td></tr>
+            </table>
+            {% else %}
+                {% if manager.plate %}
+                <h1>Plate details: <a href="{% url manage_action_containers "edit" "plate" manager.plate.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>
+                </h1>
+                <table>
+                    <tr><td><label>{% trans "Plate name" %}:</label></td><td>{{ manager.plate.name }}</td></tr>
+                    <tr><td><label>{% trans "Plate date" %}:</label></td><td>{{ manager.plate.getDate|date:"Y m d H:i:s" }}</td></tr>
+                    <tr><td><label>{% trans "Description" %}:</label></td><td>{{ manager.plate.description|default_if_none:"no description"|linebreaks }}</td></tr>
+                </table>
+                {% else %}
+                    {% if manager.screen %}
+                    <h1>Screen details: <a href="{% url manage_action_containers "edit" "screen" manager.screen.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>
+                    </h1>
+                    <table>
+                        <tr><td><label>{% trans "Screen name" %}:</label></td><td>{{ manager.screen.name }}</td></tr>
+                        <tr><td><label>{% trans "Screen date" %}:</label></td><td>{{ manager.screen.getDate|date:"Y m d H:i:s" }}</td></tr>
+                        <tr><td><label>{% trans "Description" %}:</label></td><td>{{ manager.screen.description|default_if_none:"no description"|linebreaks }}</td></tr>
+                    </table>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+            
+            {% if manager.well or manager.image%}
+            <h1>Acquisition metadata:</h1>
+            <div class="metadata_details">
+            <table>
+            {% if manager.global_metadata %}
+                <tr><th colspan="3" class="header"><h1>{% trans "Global metadata" %}: <input type="button" value="Download {{ manager.original_metadata.getFileName }}" onClick="document.location.href='{% url manage_annotation "download" manager.original_metadata.id %}';"/></h1></th></tr>
+                {% for gm in manager.global_metadata %}
+                    <tr><td><label>{{ gm.0 }}</label></td><td>{{ gm.1 }}</td></tr>
+                {% endfor %}
+                <tr><th colspan="3"><br/></th></tr>
+            {% endif %}
+            {% if manager.series_metadata %}
+                <tr><th colspan="3" class="header"><h1>{% trans "Series metadata" %}: <input type="button" value="Download {{ manager.original_metadata.getFileName }}" onClick="document.location.href='{% url manage_annotation "download" manager.original_metadata.id %}';"/></h1></th></tr>
+                {% for sm in manager.series_metadata %}
+                    <tr><td><label>{{ sm.0 }}</label></td><td>{{ sm.1 }}</td></tr>
+                {% endfor %}
+                <tr><th colspan="3"><br/></th></tr>
+            {% endif %}
+            {% if form_objective or form_environment or form_stageLabel %}
+                <tr><th colspan="3" class="header"><h1>{% trans "Image" %}:</h1></th></tr>
+                {% if form_objective %}
+                <tr><th><br/>{% trans "Objective" %}:</th><th colspan="2"></th></tr>
+                    {% for field in form_objective %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+                {% if form_environment %}
+                <tr><th><br/>{% trans "Environment" %}:</th><th colspan="2"></th></tr>
+                    {% for field in form_environment %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+                {% if form_stageLabel %}
+                <tr><th><br/>{% trans "Stage label" %}:</th><th colspan="2"></th></tr>
+                    {% for field in form_stageLabel %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+                <tr><th colspan="3"><br/></th></tr>
+            {% endif %}
+            {% if form_objective or form_filters or form_detectors %}
+                <tr><th colspan="3" class="header"><h1>{% trans "Microscope" %}:</h1></th></tr>
+                {% if form_objective %}
+                <tr><th><br/>{% trans "Objective" %}:</th><th colspan="2"></th></tr>
+                    {% for field in form_objective %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+                {% for form in form_filters %}
+                    <tr><th><br/>{% trans "Filter" %}:</th><th colspan="2"></th></tr>
+                    {% for field in form %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+                {% for form in form_detectors %}
+                    <tr><th><br/>{% trans "Detector" %}:</th><th colspan="2"></th></tr>
+                    {% for field in form %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+                <tr><th colspan="3"><br/></th></tr>
+            {% endif %}
+            {% for ch in form_channels %}
+                <tr><th colspan="3" class="header"><h1>{% trans "Channel" %} : <span style="padding:0 3px; color:#000; border:1px solid #bbb; ;background-color: #{{ ch.color }};">{{ ch.name }}</span></h1></th></tr>
+                {% for field in ch.form %}
+                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                </tr>
+                {% endfor %}
+                {% if ch.form_emission_filter %}
+                <tr><th><br/>{% trans "Filter" %}:</th><th colspan="2"></th></tr>
+                {% for field in ch.form_emission_filter %}
+                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+                {% if ch.form_detector_settings %}
+                <tr><th><br/>{% trans "Detector" %}:</th><th colspan="2"></th></tr>
+                {% for field in ch.form_detector_settings %}
+                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+                {% if ch.form_light_source %}
+                <tr><th><br/>{% trans "Light source" %}:</th><th colspan="2"></th></tr>
+                {% for field in ch.form_light_source %}
+                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+                {% if ch.form_dichroic %}
+                <tr><th><br/>{% trans "Dichroic" %}:</th><th colspan="2"></th></tr>
+                {% for field in ch.form_dichroic %}
+                <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+                <tr><th colspan="3"><br/></th></tr>
+            {% endfor %}
+            </table>
+            <br/><p>*{% trans "N/A - this value is not available." %}</p>
+            </div>
+            {% endif %}
+        </div>        
+        
         <div id="comments_tab">
-            <p>{% trans "Create a new comment or choose one or more from the listed below." %}<br/>
-            <!--<small>{% trans "If you would like to include an OMERO image or container in the below field, simply get the id of the item from the URL and type" %}: <b>[image:157], </b><b>[dataset:64], </b><b>[project:76].</b></small></p>-->
+            <div class="clear"></div>
+            <h1>{% trans "Comments" %}:</h1>
+            {% if manager.txannSize %}
+            <div class="lncomments">            
+                {% for tann in manager.text_annotations %}
+                <div id="ann_comment_wrapper">
+                    <div class="avatar"><img src="{% url load_photo tann.details.owner.id.val %}" alt="{{ tann.getOwnerFullName }}" title="{{ tann.getOwnerFullName }}" width="40" height="40" /></div>
+                    <div class="ann_comment"><span class="ann_comment_header">{{ tann.getOwnerFullName }} {% trans "posted comment at" %} {{ tann.creationEventDate|date:"Y m d H:i:s" }}</span> {% if tann.canWrite %}<a href="{% url manage_action_containers "edit" "comment" tann.id %}?url={{ url }}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}<br/>
+                        {{ tann.textValue|safe|linebreaks }}
+                    </div>
+                </div>
+                <div class="clear"></div>
+               
+                {% endfor %}
+            </div>
+            {% else %}
+                <p>Have not been commented yet.</p>    
+            {% endif %}
+            
+            <div class="clear"></div>
             
             {% if form_comment %}
             <div class="comment">
@@ -37,28 +287,24 @@
                 </script>
             </div>
             {% endif %}
-            
+
         </div>
         
         <div id="tags_tab">
-            <p>{% trans "Select one or more from the listed tags or create a new one." %}</p>
+            <div class="clear"></div>
             
-            <div class="extags">
-                <h1>{% trans "Use existing tag" %}:</h1>
-                <form action="#tags_tab" method="post"><input type="hidden" name="action" value="usetag" />
-                <table>
-                {% for field in form_tags %}
-                    <tr>
-                        <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
-                    </tr>
-                    <tr>
-                        <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
-                    </tr>
-                {% endfor %}
-                <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
-                </table>
-                </form>
-            </div>
+            <h1>{% trans "Tags" %}:</h1>
+            {% if manager.tgannSize %}
+            <div class="lntags"> <h1>                  
+            {% for tag in manager.tag_annotations %}
+                <span id="tagdesc{{ tag.id }}" title="{{ tag.textValue }} - <small>{{ tag.description|default_if_none:"no description"|safe|linebreaks  }}</small>"><a href="{% url manage_data_by_tag tag.id %}"> {{ tag.textValue }}</a></span> {% if tag.canWrite %}<a href="{% url manage_action_containers "remove" %}?parent={% if manager.image %}img-{{ manager.image.id}}{% else %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% else %}{% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&source=tann-{{ tag.id }}&url={{ url }}#tags_tab" onClick="return confirm('Unlink tag?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}, 
+            {% endfor %}
+            </h1></div>
+            {% else %}
+                <p>Have not been tagged yet.</p>
+            {% endif %}
+            
+            <div class="clear"></div>
             
             {% if form_tag %}
             <div class="tags">
@@ -79,35 +325,11 @@
             </div>
             {% endif %}
             
-        </div>
-        
-        <div id="urls_tab">
-            
-            {% if form_uri %}
-            <div class="urls">
-                <h1>{% trans "Add new url" %}:</h1>
-                <form action="#urls_tab" method="post"><input type="hidden" name="action" value="url" />
+            <div class="extags">
+                <h1>{% trans "Use existing tag" %}:</h1>
+                <form action="#tags_tab" method="post"><input type="hidden" name="action" value="usetag" />
                 <table>
-                    {% for field in form_uri %}
-                        <tr>
-                            <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
-                        </tr>
-                        <tr>
-                            <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
-                        </tr>
-                    {% endfor %}
-                    <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
-                    </table>
-                </form>
-            </div>
-            {% endif %}
-            
-            <div class="exurls">
-                <h1>{% trans "Use existing URL" %}:</h1>
-                <p>{% trans "To add existing url please select one or more from the listed urls." %}</p>
-                <form action="#urls_tab" method="post"><input type="hidden" name="action" value="useurl" />
-                <table>
-                {% for field in form_urls %}
+                {% for field in form_tags %}
                     <tr>
                         <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
                     </tr>
@@ -119,27 +341,24 @@
                 </table>
                 </form>
             </div>
+
         </div>
         
         <div id="files_tab">
-            <p>{% trans "Attache one or more from the listed files or upload a new one." %}</p>
-            
-            <div class="exfile">
-                <h1>{% trans "Attache existing file" %}:</h1>
-                <form action="#files_tab" method="post"><input type="hidden" name="action" value="usefile" />
-                <table>
-                {% for field in form_files %}
-                    <tr>
-                        <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
-                    </tr>
-                    <tr>
-                        <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
-                    </tr>
+            <div class="clear"></div>
+            <h1>{% trans "Files" %}:</h1>
+            {% if manager.fileannSize %}
+            <div class="lnfiles">
+                {% for fileann in manager.file_annotations %}
+                <p><a href="#" onClick="document.location.href='{% url manage_annotation "download" fileann.id %}';">{{ fileann.getFileName }}</a> ({{ fileann.getFileSize|default_if_none:0|filesizeformat }}) {% trans "by" %} {{ fileann.getDetails.getOwner.getInitialName }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y m d H:i:s" }} {% if fileann.canWrite and not fileann.isOriginalMetadat %}<a href="{% url manage_action_containers "remove" %}?parent={% if manager.image %}img-{{ manager.image.id}}{% else %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% else %}{% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&source=fann-{{ fileann.id }}&url={{ url }}#files_tab" onClick="return confirm('Unlink file?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}</p>
                 {% endfor %}
-                <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
-                </table>
-                </form>
+            </ol>
             </div>
+            {% else %}
+                <p>No file has been attached yet.</p>
+            {% endif %}
+            
+            <div class="clear"></div>
             
             {% if form_file %}
             <div class="file">
@@ -159,10 +378,28 @@
                 </form>
             </div>
             {% endif %}
+
+            <div class="exfile">
+                <h1>{% trans "Attache existing file" %}:</h1>
+                <form action="#files_tab" method="post"><input type="hidden" name="action" value="usefile" />
+                <table>
+                {% for field in form_files %}
+                    <tr>
+                        <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
+                    </tr>
+                {% endfor %}
+                <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
+                </table>
+                </form>
+            </div>
+            
         </div>
-        
 
     </div>
     
 </div>
 
+{% endblock %}

@@ -22,32 +22,14 @@
 # Version: 1.0
 #
 
-import omero
-
-import omero.rtypes
 from omero.rtypes import *
-
-from omero_model_CommentAnnotationI import CommentAnnotationI
-from omero_model_UriAnnotationI import UriAnnotationI
-from omero_model_LongAnnotationI import LongAnnotationI
-from omero_model_TagAnnotationI import TagAnnotationI
-from omero_model_FileAnnotationI import FileAnnotationI
-from omero_model_OriginalFileI import OriginalFileI
-from omero_model_ImageAnnotationLinkI import ImageAnnotationLinkI
-from omero_model_DatasetAnnotationLinkI import DatasetAnnotationLinkI
-from omero_model_ProjectAnnotationLinkI import ProjectAnnotationLinkI
-from omero_model_PlateAnnotationLinkI import PlateAnnotationLinkI
-from omero_model_ScreenAnnotationLinkI import ScreenAnnotationLinkI
-from omero_model_DatasetI import DatasetI
-from omero_model_ProjectI import ProjectI
-from omero_model_ScreenI import ScreenI
-from omero_model_PlateI import PlateI
-from omero_model_DatasetImageLinkI import DatasetImageLinkI
-from omero_model_ProjectDatasetLinkI import ProjectDatasetLinkI
-from omero_model_ScreenPlateLinkI import ScreenPlateLinkI
-from omero_model_PermissionsI import PermissionsI
-
 from django.core.urlresolvers import reverse
+
+from omero.model import CommentAnnotationI, UriAnnotationI, LongAnnotationI, TagAnnotationI, \
+                        FileAnnotationI, OriginalFileI, ImageAnnotationLinkI, DatasetAnnotationLinkI, \
+                        ProjectAnnotationLinkI, PlateAnnotationLinkI, ScreenAnnotationLinkI, \
+                        DatasetI, ProjectI, ScreenI, PlateI, DatasetImageLinkI, ProjectDatasetLinkI, \
+                        ScreenPlateLinkI, PermissionsI
 
 from webclient.controller import BaseController
 
@@ -57,6 +39,7 @@ class BaseContainer(BaseController):
     screen = None
     dataset = None
     plate = None
+    well = None
     image = None
     tag = None
     comment = None
@@ -997,7 +980,9 @@ class BaseContainer(BaseController):
             aList = self.project.listAnnotations()
         elif self.screen is not None:
             aList = self.screen.listAnnotations()
-        
+        elif self.plate is not None:
+            aList = self.plate.listAnnotations()
+            
         for ann in aList:
             if isinstance(ann._obj, CommentAnnotationI):
                 self.text_annotations.append(ann)
@@ -1031,6 +1016,8 @@ class BaseContainer(BaseController):
             return list(self.conn.listTags("dataset", self.dataset.id))
         elif self.project is not None:
             return list(self.conn.listTags("project", self.project.id))
+        elif self.well is not None:
+            return list(self.conn.listTags("well", self.well.id))
         elif self.plate is not None:
             return list(self.conn.listTags("plate", self.plate.id))
         elif self.screen is not None:
@@ -1043,6 +1030,8 @@ class BaseContainer(BaseController):
             return list(self.conn.listComments("dataset", self.dataset.id))
         elif self.project is not None:
             return list(self.conn.listComments("project", self.project.id))
+        elif self.well is not None:
+            return list(self.conn.listComments("well", self.well.id))
         elif self.plate is not None:
             return list(self.conn.listComments("plate", self.plate.id))
         elif self.screen is not None:
@@ -1055,6 +1044,8 @@ class BaseContainer(BaseController):
             return list(self.conn.listUrls("dataset", self.dataset.id))
         elif self.project is not None:
             return list(self.conn.listUrls("project", self.project.id))
+        elif self.well is not None:
+            return list(self.conn.listUrls("well", self.well.id))
         elif self.plate is not None:
             return list(self.conn.listUrls("plate", self.plate.id))
         elif self.screen is not None:
@@ -1067,6 +1058,8 @@ class BaseContainer(BaseController):
             return list(self.conn.listFiles("dataset", self.dataset.id))
         elif self.project is not None:
             return list(self.conn.listFiles("project", self.project.id))
+        elif self.well is not None:
+            return list(self.conn.listFiles("well", self.well.id))
         elif self.plate is not None:
             return list(self.conn.listFiles("plate", self.plate.id))
         elif self.screen is not None:
@@ -1664,6 +1657,63 @@ class BaseContainer(BaseController):
         else:
             raise AttributeError("Attribute not specified. Cannot be removed.")
     
+    def removemany(self, parent, source):
+        if parent[0] == 'pr':
+            try:
+                datasets = source['datasets']
+            except:
+                raise AttributeError("Object cannot be removed.")
+            for ds in datasets:
+                pdl = self.conn.getProjectDatasetLink(parent[1], ds)
+                if pdl is not None:
+                    self.conn.deleteObject(pdl._obj)
+        elif parent[0] == 'ds':
+            try:
+                images = source['images']
+            except:
+                raise AttributeError("Object cannot be removed.")
+            for im in images:
+                dil = self.conn.getDatasetImageLink(parent[1], im)
+                if dil is not None:
+                    self.conn.deleteObject(dil._obj)
+        elif parent[0] == 'sc':
+            try:
+                plates = source['plates']
+            except:
+                raise AttributeError("Object cannot be removed.")
+            for pl in plates:
+                spl = self.conn.getScreenPlateLink(parent[1], pl)
+                if spl is not None:
+                    self.conn.deleteObject(spl._obj)
+        elif parent[0] == 'tann' or parent[0] == 'cann' or parent[0] == 'fann' or parent[0] == 'uann':
+            if source['projects'] is not None or len(source['projects']) > 0:
+                for s in source['projects']:
+                    pal = self.conn.getProjectAnnotationLink(s, parent[1])
+                    if pal is not None:
+                        self.conn.deleteObject(pal._obj)
+            if source['datasets'] is not None or len(source['datasets']) > 0:
+                for s in source['projects']:
+                    dal = self.conn.getDatasetAnnotationLink(s, parent[1])
+                    if dal is not None:
+                        self.conn.deleteObject(dal._obj)
+            if source['screens'] is not None or len(source['screens']) > 0:
+                for s in source['screens']:
+                    sal = self.conn.getScreenAnnotationLink(s, parent[1])
+                    if sal is not None:
+                        self.conn.deleteObject(sal._obj)
+            if source['plates'] is not None or len(source['plates']) > 0:
+                for s in source['plates']:
+                    pal = self.conn.getPlateAnnotationLink(s, parent[1])
+                    if pal is not None:
+                        self.conn.deleteObject(pal._obj)
+            if source['images'] is not None or len(source['images']) > 0:
+                for s in source['images']:
+                    ial = self.conn.getImageAnnotationLink(s, parent[1])
+                    if ial is not None:
+                        self.conn.deleteObject(ial._obj)
+        
+        else:
+            raise AttributeError("Attribute not specified. Cannot be removed.")
     
     ##########################################################
     # Copy
@@ -1682,6 +1732,21 @@ class BaseContainer(BaseController):
             self.conn.saveObject(new_dsl)
             return True
     
+    def copyImagesToDataset(self, images, dataset):
+           if dataset is None:
+               pass
+           else:
+               ims = self.conn.getSpecifiedImages(images)
+               ds = self.conn.getDataset(dataset[1])
+               link_array = list()
+               for im in ims:
+                   new_dsl = DatasetImageLinkI()
+                   new_dsl.setChild(im._obj)
+                   new_dsl.setParent(ds._obj)
+                   link_array.append(new_dsl)
+               self.conn.saveArray(link_array)
+               return True
+    
     def copyDatasetToProject(self, source, destination=None):
         if destination is None:
             pass
@@ -1692,6 +1757,21 @@ class BaseContainer(BaseController):
             new_pdl.setChild(ds._obj)
             new_pdl.setParent(pr._obj)
             self.conn.saveObject(new_pdl)
+            return True
+   
+    def copyDatasetsToProject(self, datasets, project):
+        if project is None:
+            pass
+        else:
+            dss = self.conn.getSpecifiedDatasets(datasets)
+            pr = self.conn.getProject(project[1])
+            link_array = list()
+            for ds in dss:
+                new_pdl = ProjectDatasetLinkI()
+                new_pdl.setChild(ds._obj)
+                new_pdl.setParent(pr._obj)
+                link_array.append(new_pdl)
+            self.conn.saveArray(link_array)
             return True
     
     def copyPlateToScreen(self, source, destination=None):
@@ -1704,5 +1784,20 @@ class BaseContainer(BaseController):
             new_spl.setChild(pl._obj)
             new_spl.setParent(sc._obj)
             self.conn.saveObject(new_spl)
+            return True
+    
+    def copyPlatesToScreen(self, plates, screen):
+        if screen is None:
+            pass
+        else:
+            pls = self.conn.getSpecifiedPlates(plates)
+            sc = self.conn.getScreen(screen[1])
+            link_array = list()
+            for pl in pls:
+                new_spl = ScreenPlateLinkI()
+                new_spl.setChild(pl._obj)
+                new_spl.setParent(sc._obj)
+                link_array.append(new_spl)
+            self.conn.saveArray(link_array)
             return True
 

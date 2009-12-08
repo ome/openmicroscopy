@@ -1,10 +1,11 @@
-{% extends "omeroweb/base.html" %}
+{% extends "omeroweb/base_container.html" %}
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 {% load wikitags %}
 
 {% block link %}
+    <link rel="stylesheet" href="{% url webstatic "css/container.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/annotation.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/tree.css" %}" type="text/css" media="screen"/>
@@ -35,114 +36,35 @@
 {% endblock %}
 
 {% block script %}
-    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/image.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/basket.js" %}"></script>
-        
+    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
     <script>
         $(document).ready(function(){
-            $("a.loadData").click(function()
-            {
-                $("div#hierarchy").html('<p>{% trans "Loading hierarchy... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                $("div#hierarchy").load("{% url manage_container_hierarchies_id "image" manager.image.id %}", 
-                    function() {  
-                        $("a.loadData").remove();                        
-                    });
-                return false; 
-            });
-            
-            $("#annotation_tabs").tabs();
             
             var viewport = $.WeblitzViewport($("#viewport"), "/webgateway" );
             viewport.load({{ manager.image.id }});
             
-            /*$.ajax({  
-                type: "GET",  
-                url: "{% url autocomplete_tags %}",  
-                contentType: "application/json; charset=utf-8",  
-                cache:false,
-				async: false,
-				dataType: "json",  
-                success: function(json){  
-                    prepareAutocomplete(json);
-                    $("div#tagloader").remove();
-                    $("div#tag").show();
-                },  
-                error: function(xhr, msg){  
-                    alert("{% trans 'Could not load tag component. Please contact Administrator.' %}");  
-                }
+            $("a.loadingData").click(function()
+            {
+                $("div#hierarchy").html('<p>{% trans "Loading hierarchy... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                $("div#hierarchy").load("{% url manage_container_hierarchies_id "image" manager.image.id %}", 
+                    function() {  
+                        $("a.loadingData").remove();                        
+                    });
+                return false; 
             });
-            
-            function prepareAutocomplete(myjson){
-                $("#id_tag").autocomplete(myjson, {
-                    //width: 320,
-                    max: 10,
-                    scroll: true,
-                    scrollHeight: 200,
-                    highlightItem: true,
-                    //multiple: true,
-                    //multipleSeparator: ";",
-                    formatItem: function(row, i, max, term) {
-                        if(row.desc!=null) {
-                            return row.tag + "<br/><small>" + row.desc + "</small>";
-                        } else {
-                            return row.tag
-                        }
-                    },
-                    formatMatch: function(row, i, max) {
-                        return row.tag + " " + row.id;
-                    },
-                    formatResult: function(row) {
-                        return row.tag;
-                    }
-                });
-            }*/            
-            
+
         });
-      </script>
-      <script type="text/javascript">
-          $(function() {
-              $("{% for t in manager.tag_annotations %}#tagdesc{{ t.id }}, {% endfor %}#tag").tooltip({ 
-                  track: true, 
-                  delay: 0, 
-                  showURL: false, 
-                  opacity: 1, 
-                  fixPNG: true, 
-                  showBody: " - ", 
-                  top: -15, 
-                  left: 5 
-              });
-          });
-      </script>
-      
-      <script>
-      var popup = function (url) {
-            window.open(url,'_blank','toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800');
-            return false;
-      }
-      </script>
-      
+    </script>
 {% endblock %}
 
-{% block center %}
+{% block left %}
 
-<div class="image">
-    <h1>{% trans "Image" %}: {{ manager.image.shortName }} {% if not manager.image.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}</h1>
+<div>
+    <h1>{% trans "Image" %}: {{ manager.image.shortName }} {% if not manager.image.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %} <a href="#" onclick="return popup('{% url image_viewer manager.image.id %}')">{% trans "View" %} <img src="{% url webstatic "images/tree/kview.png" %}" alt="v" title="view"/></a></h1>
 </div>
 
-<div class="toolbar">
-    <p>| <a href="#" onclick="return popup('{% url image_viewer manager.image.id %}')">{% trans "View" %} <img src="{% url webstatic "images/tree/kview.png" %}" alt="v" title="view"/></a> 
-    | <a href="#" onclick="toBasket('image', '{{ manager.image.id }}'); return false;">{% trans "Select" %} <img src="{% url webstatic "images/basket16.png" %}" alt="b" title="add to basket"/></a> 
-    | <a href="#" onclick="copyToClipboard('image', '{{ manager.image.id }}'); return false;">{% trans "Copy" %} <img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> 
-    | <a href="{% url manage_action_containers "edit" "image" manager.image.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a></p>
-</div>
-
-<div class="separate30"></div>
-
-<div class="miniview_header"><a href="#" onclick="return popup('{% url image_viewer manager.image.id %}')">{% trans "Open full viewer" %} <img src="{% url webstatic "images/tree/kview.png" %}" alt="v" title="view"/></a> </div>
-<div class="image_details">
-    {% include "omeroweb/annotations_image_form.html" %}
-</div>
 
 <div class="miniview" id="viewport"></div>
 
@@ -153,11 +75,17 @@
     <div class="description">{{ manager.image.description|default_if_none:"no description"|linebreaks }}</div>
 </div>
 
-<div class="separate30"></div>
+{% endblock %}
 
-<div class="link_box">
-<h1>{% trans "Where this image is linked?" %}</h1>
-<div id="hierarchy"><a href="#" class="loadData">{% trans "Show the hierarchy structure" %}...</a></div>
-</div>
+{% block right %}
 
+<iframe src ="{% url manage_metadata_details "image" manager.image.id %}" width="100%" height="680" name="metadata_details"></iframe>
+
+{% endblock %}
+
+{% block linked %}
+    <div class="link_box">
+    <h1>{% trans "Where this image is linked?" %}</h1>
+    <div id="hierarchy"><a href="#" class="loadingData">{% trans "Show the hierarchy structure" %}...</a></div>
+    </div>
 {% endblock %}

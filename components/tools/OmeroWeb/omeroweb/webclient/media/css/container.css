@@ -1,0 +1,19 @@
+.content {
+    max-height: 500px;
+    width:515px;
+    overflow: scroll;
+    overflow: auto;
+}
+.tagcontent {
+    max-height: 650px;
+    width:515px;
+    overflow: scroll;
+    overflow: auto;
+}
+form.quicksearch {
+    float: right;
+    margin-top: 10px;
+}
+input.qs_input{
+    width: 100px;
+}

@@ -22,37 +22,13 @@
 # Version: 1.0
 #
 
-import omero
-
-import omero.rtypes
 from omero.rtypes import *
-
-from omero_model_AcquisitionModeI import AcquisitionModeI
-from omero_model_ArcTypeI import ArcTypeI
-from omero_model_BinningI import BinningI
-from omero_model_ContrastMethodI import ContrastMethodI
-from omero_model_ContrastMethodI import ContrastMethodI
-from omero_model_CorrectionI import CorrectionI
-from omero_model_DetectorTypeI import DetectorTypeI
-from omero_model_DimensionOrderI import DimensionOrderI
-from omero_model_EventTypeI import EventTypeI
-from omero_model_ExperimentTypeI import ExperimentTypeI
-from omero_model_FamilyI import FamilyI
-from omero_model_FilamentTypeI import FilamentTypeI
-from omero_model_FilterTypeI import FilterTypeI
-from omero_model_FormatI import FormatI
-from omero_model_IlluminationI import IlluminationI
-from omero_model_ImmersionI import ImmersionI
-from omero_model_JobStatusI import JobStatusI
-from omero_model_LaserMediumI import LaserMediumI
-from omero_model_LaserTypeI import LaserTypeI
-from omero_model_MediumI import MediumI
-from omero_model_MicrobeamManipulationTypeI import MicrobeamManipulationTypeI
-from omero_model_MicroscopeTypeI import MicroscopeTypeI
-from omero_model_PhotometricInterpretationI import PhotometricInterpretationI
-from omero_model_PixelsTypeI import PixelsTypeI
-from omero_model_PulseI import PulseI
-from omero_model_RenderingModelI import RenderingModelI
+from omero.model import AcquisitionModeI, ArcTypeI, BinningI, ContrastMethodI, \
+                        ContrastMethodI, CorrectionI, DetectorTypeI, DimensionOrderI, \
+                        EventTypeI, ExperimentTypeI, FamilyI, FilamentTypeI, FilterTypeI, \
+                        FormatI, IlluminationI, ImmersionI, JobStatusI, LaserMediumI, \
+                        LaserTypeI, MediumI, MicrobeamManipulationTypeI, MicroscopeTypeI, \
+                        PhotometricInterpretationI, PixelsTypeI, PulseI, RenderingModelI
 
 from webadmin.controller import BaseController
 

@@ -26,14 +26,8 @@ import string
 import datetime
 import time
 
-import omero
-
-import omero.rtypes
 from omero.rtypes import *
-
-from omero_model_ImageI import ImageI
-from omero_model_DatasetI import DatasetI
-from omero_model_ProjectI import ProjectI
+from omero.model import ImageI, DatasetI, ProjectI
 
 from webclient.controller import BaseController
 
@@ -171,6 +165,7 @@ class BaseShare(BaseController):
             
             self.memberShares = ms_list_with_counters
             self.mshSize = len(self.memberShares)
+        self.sharesSize = self.oshSize + self.mshSize
 
     def getComments(self, share_id):
         self.comments = self.sortByAttr(list(self.conn.getComments(share_id)), 'details.creationEvent.time')

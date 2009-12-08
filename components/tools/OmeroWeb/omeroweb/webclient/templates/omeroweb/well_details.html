@@ -1,8 +1,6 @@
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
-{% load wikitags %}
-
 
 <script>
 
@@ -17,14 +15,6 @@
                     
     });
 </script>
-
-<!--<div class="miniview" id="viewport"><table>
-    <tr>
-        {% for v in manager.well.loadWellSamples %}
-        <td><a href="#" onclick="return popup('{% url image_viewer v.image.id %}')">Open full viewer</a><img id="{{ v.image.id }}" class="imgzoom" src="{% url render_thumbnail v.image.id %}" alt="" title="{{ manager.well.plate.column }} {{ manager.well.plate.row }}"/></td>
-        {% endfor %}
-    </tr>
-</table></div>-->
 
 <div>
 <ul id="metadata" class="ui-accordion-metadata" >

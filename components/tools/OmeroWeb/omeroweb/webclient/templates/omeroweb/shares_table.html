@@ -1,200 +1,91 @@
-{% extends "omeroweb/base.html" %}
+{% extends "omeroweb/base_container.html" %}
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
+{% load wikitags %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/annotation.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/slider.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/datepicker.css" %}" type="text/css" />
-    <link rel="stylesheet" href="{% url webstatic "css/tree.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/container.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/datepicker.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
+    
 {% endblock %}
 
 {% block jscript %}
     <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
     
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.datepicker.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.draggable.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.droppable.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.resizable.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.slider.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/effects.core.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/effects.highlight.js" %}"></script>
     
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
-    
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.dimensions.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.bgiframe.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.delegate.js" %}"></script>
-    
 {% endblock %}
+
 
 {% block script %}
-    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script> 
-    <script type="text/javascript" src="{% url webstatic "javascript/slider.js" %}"></script> 
-    
+    <script type="text/javascript" src="{% url webstatic "javascript/basket.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
+        
     <script type="text/javascript">
-        $(document).ready(function () {
-            {% if share.oshSize or share.mshSize %}
-            $('table#shareTable tbody tr').quicksearch({
-                attached: "div#view",
-                position: "befor",
-                stripeRowClass: null,
-                labelText: '{% trans "Filter" %}:',
-                inputText: '...',
-                loaderImg: '{% url webstatic "images/tree/spinner.gif" %}',
-            });
-            {% endif %}
-            
-            {% if share.mshSize or share.mshSize %}
-            $('table#sharedTable tbody tr').quicksearch({
-                attached: "div#view2",
-                position: "befor",
-                stripeRowClass: null,
-                labelText: '{% trans "Filter" %}:',
-                inputText: '...',
-                loaderImg: '{% url webstatic "images/tree/spinner.gif" %}',
-            });
-            {% endif %}
-            
-            $("#shareTable").tablesorter( {sortList: [[3,1]]} ); 
-            $("#sharedTable").tablesorter( {sortList: [[4,1]]} ); 
+        $(document).ready(function() 
+            { 
+                ("#dataTable").tablesorter( {sortList: [[1,0]]} ); 
+                
+                {% if manager.c_size %}
+                $('table#dataTable tbody tr').quicksearch({
+                    attached: "div#view",
+                    position: "before",
+                    stripeRowClass: null,
+                    labelText: '{% trans "Filter" %}:',
+                    inputText: '...',
+                    loaderImg: '{% url webstatic "images/tree/spinner.gif" %}',
+                });
+                {% endif %}
+        })
+    </script>
 
-        });
-    </script>
-    <script type="text/javascript">
-        $(function() {
-            $("#discussion, #sharing").tooltip({ 
-                track: true, 
-                delay: 0, 
-                showURL: false, 
-                opacity: 1, 
-                fixPNG: true, 
-                showBody: " - ", 
-                top: -15, 
-                left: 5 
-            });
-        });
-    </script>
 {% endblock %}
 
-{% block center %}
+{% block top %}
 
-<div class="project">
+<div>
     <h1>{% trans "Shares and Discussions." %}</h1>
 
-    <p>{% trans "Here you can create a" %} <b>{% trans "Share" %}</b> {% trans "to share and discuss your images with others, or" %} <b>{% trans "Discussion" %}</b> {% trans "to discuss with no images. Existing Shares and Discussions are shown below." %}</p>
+    <p>{% trans "Here you can create a" %} <strong>{% trans "Share" %}</strong> {% trans "to share and discuss your images with others, or" %} <strong>{% trans "Discussion" %}</strong> {% trans "to discuss with no images. Existing Shares and Discussions are shown below." %}</p>
 </div>
-<div class="clear"></div>
-<div class="separate70"></div>
+<div class="separate30"></div>
 
-{% if share.oshSize %}
-    <h1>{% trans "Owned by me" %} ({{ share.oshSize }} {% trans "items" %}):</h1>
-{% else %}
-    <h1>{% trans "Owned by me" %} ({% trans "no items" %}):</h1>
-{% endif %}
-<div id="view">| {% trans "View" %} <a href="{% url manage_shares %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="table" title="table"/></a> <a href="{% url manage_shares %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> | {% trans "New" %} <a href="{% url basket_action "toshare" %}"><span id="sharing" title="Create share - <small>Creates share for images stored currently in the basket.</small>"><img src="{% url webstatic "images/folder_html16.png" %}" alt="share" /></span></a> 
-<a href="{% url basket_action "todiscuss" %}"><span id="discussion" title="Create discussion - <small>Starts the thread of the new discussion with no images currently stored in the basket.</small>"><img src="{% url webstatic "images/wp_protocol16.png" %}" alt="discussion" /></span></a> | 
-</div>
-<div class="clear"> </div>
-{% if share.oshSize %}
-<div><table id="shareTable" class="tablesorter"> 
-<thead> 
-<tr> 
-    <th>{% trans "Type" %}</th> 
-    <th>{% trans "Title" %}</th> 
-    <th>{% trans "Action" %}</th> 
-    <th>{% trans "Start - End" %}</th>
-</tr> 
-</thead> 
-<tbody> 
-    {% for c in share.ownShares %}
-    <tr> 
-        <td><a href="{% url manage_share "view" c.id %}">
-            {% ifequal c.getShareType "Discuss" %}
-                {% if c.active %}
-                    <img src="{% url webstatic "images/wp_protocol32.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
-                {% else %}
-                    <img src="{% url webstatic "images/wp_protocol_locked32.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
-                {% endif %}
-            {% else %}
-                {% if c.active %}
-                    <img src="{% url webstatic "images/folder_html32.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
-                {% else %}
-                    <img src="{% url webstatic "images/folder_locked32.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/>
-                {% endif %}
-            {% endifequal %} {{ c.getShareType }}
-        </a></td> 
-        <td><a href="{% url manage_share "view" c.id %}">{{ c.shortMessage }}</a> {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} {% if c.child_counter %}<img src="{% url webstatic "images/kuser16.png" %}" alt="ms" title="members"/>[{{ c.child_counter }}]{% endif %}</td> 
-        <td><a href="{% url manage_share "view" c.id %}"><img src="{% url webstatic "images/kview16.png" %}" alt="v" title="view"/></a> <a href="{% url manage_share "edit" c.id %}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a></td>
-        <td>{{ c.getStartDate|date:"Y m d H:i:s" }} - {% if c.getExpirationDate %}{{ c.getExpirationDate|date:"Y m d H:i:s" }}{% else %}never{% endif %}</td>
-    </tr> 
-    {% endfor %}
-</tbody> 
-</table>
-</div>
-{% else %}
-    {% trans "No data." %}
-{% endif %}
-
-<div class="clear"> </div>
-<div class="separate70"></div>
-
-{% if share.mshSize %}
-    <h1>{% trans "Shared with me" %} ({{ share.mshSize }} {% trans "items" %}):</h1>
-{% else %}
-    <h1>{% trans "Shared with me" %} ({% trans "no items" %}):</h1>
-{% endif %}
-<div id="view2">| {% trans "View" %} <a href="{% url manage_shares %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="table" title="table"/></a> <a href="{% url manage_shares %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> | {% trans "New" %} <a href="{% url basket_action "toshare" %}"><span id="sharing" title="Create share - <small>Creates share for images stored currently in the basket.</small>"><img src="{% url webstatic "images/folder_html16.png" %}" alt="share" /></span></a> 
-<a href="{% url basket_action "todiscuss" %}"><span id="discussion" title="Create discussion - <small>Starts the thread of the new discussion with no images currently stored in the basket.</small>"><img src="{% url webstatic "images/wp_protocol16.png" %}" alt="discussion" /></span></a> | 
-</div>
-<div class="clear"> </div>
-{% if share.mshSize %}
-<table id="sharedTable" class="tablesorter"> 
-<thead> 
-<tr> 
-    <th>{% trans "Type" %}</th> 
-    <th>{% trans "Title" %}</th>
-    <th>{% trans "Owner" %}</th>
-    <th>{% trans "Action" %}</th> 
-    <th>{% trans "Start - End" %}</th>
-</tr>
-</thead> 
-<tbody> 
-    {% for c in share.memberShares %}
-    <tr> 
-        <td>
-        {% ifequal c.getShareType "Discuss" %}
-            {% if c.active %}
-                <a href="{% url manage_share "view" c.id %}"><img src="{% url webstatic "images/wp_protocol32.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> {{ c.getShareType }}</a>
-            {% else %}
-                <img src="{% url webstatic "images/wp_protocol_locked32.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> {{ c.getShareType }}
-            {% endif %}
-        {% else %}
-            {% if c.active %}
-                <a href="{% url manage_share "view" c.id %}"><img src="{% url webstatic "images/folder_html32.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> {{ c.getShareType }}</a>
-            {% else %}
-                <img src="{% url webstatic "images/folder_locked32.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> {{ c.getShareType }}
-            {% endif %}
-        {% endifequal %} 
-        </td> 
-        <td>{% if c.active %}<a href="{% url manage_share "view" c.id %}">{{ c.shortMessage }}</a>{% else %}{{ c.shortMessage }}{% endif %} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>[{{ c.annotation_counter }}]{% endif %} {% if c.child_counter %}<img src="{% url webstatic "images/kuser16.png" %}" alt="ms" title="members"/>[{{ c.child_counter }}]{% endif %}</td> 
-        <td>{{ c.getShareOwnerFullName }}</td> 
-        <td>{% if c.active %}<a href="{% url manage_share "view" c.id %}"><img src="{% url webstatic "images/kview16.png" %}" alt="v" title="view"/></a>{% endif %}</td>
-        <td>{{ c.getStartDate|date:"Y m d H:i:s" }} - {% if c.getExpirationDate %}{{ c.getExpirationDate|date:"Y m d H:i:s" }}{% else %}never{% endif %}</td>
-    </tr>
-    {% endfor %}
-</tbody> 
-</table>
-{% else %}
-    {% trans "No data" %}
-{% endif %}
-
-<div class="clear"> </div>
-<div class="separate70"></div>
 {% endblock %}
+
+{% block left %}
+<!--content-->
+
+<div>
+    {% if share.sharesSize %}
+        <h1 id="data">{{ share.sharesSize }} {% trans "items" %}:</h1>
+    {% else %}
+        <h1>{% trans "No items" %}:</h1>
+    {% endif %}
+    
+    <div id="view"> 
+        | <a href="{% url basket_action "toshare" %}" target="metadata_details"><img src="{% url webstatic "images/folder_html16.png" %}" alt="sh" title="Create share for images stored currently in the basket"/></a>
+        <a href="{% url basket_action "todiscuss" %}" target="metadata_details"><img src="{% url webstatic "images/wp_protocol16.png" %}" alt="d" title="Create discussion."/></a> |
+    </div>
+    <div class="clear"> </div>
+    
+    <div class="content">
+        {% include "omeroweb/share_data_table.html" %}
+    </div>
+    {% include "omeroweb/container_paging.html" %}
+    
+</div>
+
+{% endblock %}
+
+{% block right %}
+
+<iframe width="100%" height="680" name="metadata_details"></iframe>
+
+{% endblock %}
+

@@ -14,30 +14,6 @@
     border-bottom:1px solid #BBBBBB;
 }
 
-
-.project {
-    float:left;
-    max-width: 1000px;
-    padding: 10px;
-}
-.datasetInProject {
-    float:left;
-    width: 450px;
-    padding: 10px;
-}
-.dataset {
-    float:left;
-    width: 450px;
-    padding: 10px;
-}
-.imageInDataset {
-}
-.imageshare {
-    padding: 10px;
-    float:left;
-    width: 800px;
-}
-
 /* comment display page */
 #comment_wrapper {
     width:630px;

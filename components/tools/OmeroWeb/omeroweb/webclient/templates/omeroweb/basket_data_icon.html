@@ -1,0 +1,24 @@
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+
+{% if basket.sizeOfBasket %}
+    <ul id="products">
+        <!--{% for c in manager.containers.datasets %}
+        <li class="product"><em>{{ c.name }}</em>
+            {% if c.isOwned %}<a href="{% if manager.project %}{% url manage_data "mydata" "project" manager.project.id "dataset" c.id %}{% else %}{% url manage_data "mydata" "dataset" c.id %}{% endif %}"><img id="{{ c.id }}" class="catzoom" src="{% url webstatic "images/folder_image64.png" %}" title="{{ c.name }}" alt="dataset"/></a>{% else %}<a href="{% if manager.project %}{% url manage_data "userdata" "project" manager.project.id "dataset" c.id %}{% else %}{% url manage_data "userdata" "dataset" c.id %}{% endif %}?filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" class="catzoom" src="{% url webstatic "images/folder_image64.png" %}" title="{{ c.name }}" alt="dataset"/></a>{% endif %}
+            <div class="center"><a href="{% url manage_metadata_details "dataset" c.id %}" target="metadata_details"><img src="{% url webstatic "images/info12.png" %}" alt="info" title="info"/></a> <img src="{% url webstatic "images/image12.png" %}" title="image" alt="image"/>[{{ c.countChildren2 }}]{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</div>
+            <div class="center">{{ c.tinyName }}</div>
+        </li>
+        {% endfor %}-->
+        {% for c in basket.imageInBasket %}
+        <li class="product" id="image-{{ c.id }}"><em>{{ c.name }}</em>
+            <a href="#" onclick="return popup('{% url image_viewer c.id %}')"><img id="{{ c.id }}" class="imgzoom" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}"/></a>
+            <div class="center"><a href="{% url manage_metadata_details "image" c.id %}" target="metadata_details"><img src="{% url webstatic "images/info12.png" %}" alt="info" title="info"/></a> {% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %} <a href="#" onclick="fromBasket('image', '{{ c.id }}'); return false;"><img src ="{% url webstatic "images/cancel12.png" %}" alt="r" title="remove"/></a></div>
+        </li>
+        {% endfor %}
+    </ul>
+    
+{% else %}
+    <div><p>{% trans "Your basket is empty. Please add some of your bio-data from" %} <a href="{% url manage_data "mydata" %}">{% trans "My data" %}</a> {% trans "or initiate a discussion." %}</p></div>
+{% endif %}

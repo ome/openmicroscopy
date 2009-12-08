@@ -36,7 +36,6 @@ except:
     logger.error(traceback.format_exc())
 from StringIO import StringIO
 
-#import threading
 import time
 from datetime import datetime
 from types import IntType, ListType, TupleType, UnicodeType, StringType
@@ -48,26 +47,13 @@ from django.core.mail import EmailMultiAlternatives
 
 import Ice
 import Glacier2
-import omero
+
 import omero_api_IScript_ice
-
-import omero.rtypes
 from omero.rtypes import *
-
-from omero.gateway import timeit
+from omero.model import FileAnnotationI, TagAnnotationI, DatasetI, ProjectI, ImageI, \
+                        DetectorI, FilterI, ObjectiveI, InstrumentI
+from omero.sys import ParametersI
 from omeroweb.extlib.wrapper import *
-
-from omero_model_FileAnnotationI import FileAnnotationI
-from omero_model_TagAnnotationI import TagAnnotationI
-from omero_model_DatasetI import DatasetI
-from omero_model_ProjectI import ProjectI
-from omero_model_ImageI import ImageI
-from omero_model_DetectorI import DetectorI
-from omero_model_FilterI import FilterI
-from omero_model_ObjectiveI import ObjectiveI
-from omero_model_InstrumentI import InstrumentI
-from omero_sys_ParametersI import ParametersI
-
 
 TIMEOUT = 580 #sec
 SLEEPTIME = 60
@@ -442,6 +428,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 "not exists ( "\
                     "select dsl from DatasetImageLink as dsl "\
                     "where dsl.child=im.id and dsl.details.owner.id=:eid "\
+                ") and not exists ( "\
+                    "select ws from WellSample as ws "\
+                    "where ws.image=im.id and ws.details.owner.id=:eid "\
                 ") order by im.id asc"
         for e in q.findAllByQuery(sql,p):
             yield ImageWrapper(self, e)
@@ -729,6 +718,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             sql = "select a from TagAnnotation as a " \
                 "where not exists ( select pal from PlateAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid )" \
                 "and a.details.owner.id=:eid "
+        elif o_type == "well":
+            sql = "select a from TagAnnotation as a " \
+                "where not exists ( select wal from WellAnnotationLink as wal where wal.child=a.id and wal.parent.id=:oid )" \
+                "and a.details.owner.id=:eid "
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
     
@@ -759,6 +752,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         elif o_type == "plate":
             sql = "select a from CommentAnnotation as a " \
                 "where not exists ( select pal from PlateAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
+                "and a.details.owner.id=:eid and a.ns is null"
+        elif o_type == "well":
+            sql = "select a from CommentAnnotation as a " \
+                "where not exists ( select wal from WellAnnotationLink as wal where wal.child=a.id and wal.parent.id=:oid ) " \
                 "and a.details.owner.id=:eid and a.ns is null"
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
@@ -791,6 +788,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             sql = "select a from UriAnnotation as a " \
                 "where not exists ( select pal from PlateAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
                 "and a.details.owner.id=:eid and a.ns is null "
+        elif o_type == "well":
+            sql = "select a from UriAnnotation as a " \
+                "where not exists ( select wal from WellAnnotationLink as wal where wal.child=a.id and wal.parent.id=:oid ) " \
+                "and a.details.owner.id=:eid and a.ns is null "
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
     
@@ -805,23 +806,27 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if o_type == "image":
             sql = "select a from FileAnnotation as a join fetch a.file " \
                 "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns is null "
+                "and a.details.owner.id=:eid and a.ns != 'openmicroscopy.org/omero/import/companionFile' "
         elif o_type == "dataset":
             sql = "select a from FileAnnotation as a join fetch a.file " \
                 "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns is null"
+                "and a.details.owner.id=:eid and a.ns != 'openmicroscopy.org/omero/import/companionFile' "
         elif o_type == "project":
             sql = "select a from FileAnnotation as a join fetch a.file " \
                 "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns is null"
+                "and a.details.owner.id=:eid and a.ns != 'openmicroscopy.org/omero/import/companionFile' "
         elif o_type == "screen":
             sql = "select a from FileAnnotation as a join fetch a.file " \
                 "where not exists ( select sal from ScreenAnnotationLink as sal where sal.child=a.id and sal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns is null"
+                "and a.details.owner.id=:eid and a.ns != 'openmicroscopy.org/omero/import/companionFile' "
         elif o_type == "plate":
             sql = "select a from FileAnnotation as a join fetch a.file " \
                 "where not exists ( select pal from PlateAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns is null"
+                "and a.details.owner.id=:eid and a.ns != 'openmicroscopy.org/omero/import/companionFile' "
+        elif o_type == "well":
+            sql = "select a from FileAnnotation as a join fetch a.file " \
+                "where not exists ( select wal from WellAnnotationLink as wal where wal.child=a.id and wal.parent.id=:oid ) " \
+                "and a.details.owner.id=:eid and a.ns != 'openmicroscopy.org/omero/import/companionFile' "
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
     
@@ -1368,6 +1373,15 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             "where pr.id in (:ids) order by pr.name"
         for e in query_serv.findAllByQuery(sql, p):
             yield ProjectWrapper(self, e)
+    
+    def getSpecifiedPlates(self, oids):
+        query_serv = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {} 
+        p.map["ids"] = rlist([rlong(a) for a in oids])
+        sql = "select pl from Plate pl join fetch pl.details.owner join fetch pl.details.group where pl.id in (:ids) order by pl.name"
+        for e in query_serv.findAllByQuery(sql, p):
+            yield DatasetWrapper(self, e)
     
     def getCommentAnnotation (self, oid):
         query_serv = self.getQueryService()

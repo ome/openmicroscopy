@@ -5,7 +5,7 @@
 
 <div class="clear"> </div>
 <div class="paging"> 
-    {% if manager.paging.prev %}<a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view={{nav.view}}&page={{manager.paging.prev}}#data">{% trans "preview" %}</a>{% endif %} {% trans "Page" %} 
+    {% if manager.paging.prev %}<a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view={{nav.view}}&page={{manager.paging.prev}}">{% trans "preview" %}</a>{% endif %} {% trans "Page" %} 
     
     {% for p in manager.paging.total %}
         {% ifequal manager.paging.page p %}
@@ -14,11 +14,11 @@
             {% ifequal p -1 %}
                 ...
             {% else %}
-                <a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view={{nav.view}}&page={{ p }}#data">{{ p }}</a>
+                <a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view={{nav.view}}&page={{ p }}">{{ p }}</a>
             {% endifequal %}
         {% endifequal %}
     {% endfor %}
-    {% if manager.paging.next %}<a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view={{nav.view}}&page={{manager.paging.next}}#data">{% trans "next" %}</a>{% endif %}
+    {% if manager.paging.next %}<a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view={{nav.view}}&page={{manager.paging.next}}">{% trans "next" %}</a>{% endif %}
 
 </div>
 {% endif %}

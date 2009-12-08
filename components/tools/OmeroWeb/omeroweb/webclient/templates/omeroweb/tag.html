@@ -33,7 +33,7 @@
 
 
 {% block script %}
-    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/basket.js" %}"></script>    
     
     <script type="text/javascript">
@@ -94,28 +94,19 @@
                         }
                     });
                 }
+                
+                $("{% for t in manager.tags %}#tagdesc{{ t.id }}, {% endfor %}#tag").tooltip({ 
+                    track: true, 
+                    delay: 0, 
+                    showURL: false, 
+                    opacity: 1, 
+                    fixPNG: true, 
+                    showBody: " - ", 
+                    top: -15, 
+                    left: 5 
+                });
 
         });
-    </script>
-    <script type="text/javascript">
-        $(function() {
-            $("{% for t in manager.tags %}#tagdesc{{ t.id }}, {% endfor %}#tag").tooltip({ 
-                track: true, 
-                delay: 0, 
-                showURL: false, 
-                opacity: 1, 
-                fixPNG: true, 
-                showBody: " - ", 
-                top: -15, 
-                left: 5 
-            });
-        });
-    </script>
-    <script>
-    var popup = function (url) {
-          window.open(url,'_blank','toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800');
-          return false;
-    }
     </script>
     
 {% endblock %}
@@ -232,8 +223,4 @@
 
 <div class="separate70"></div>
 
-{% endblock %}
-
-{% block advice %}
-    {% include "omeroweb/advice.html" %}
 {% endblock %}

@@ -1,140 +1,71 @@
-{% extends "omeroweb/base.html" %}
+{% extends "omeroweb/base_container.html" %}
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 {% load wikitags %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/annotation.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/thickbox.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/slider.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/tree.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/container.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
     <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
     
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
-    
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.draggable.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.droppable.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.resizable.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.slider.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.tabs.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/effects.core.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/effects.highlight.js" %}"></script>
-    
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
-    
-    <script type="text/javascript" src="{% url webstatic "javascript/thickbox/thickbox.js" %}"></script>
 {% endblock %}
 
 {% block script %}
-    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script> 
     <script type="text/javascript" src="{% url webstatic "javascript/basket.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/slider.js" %}"></script> 
-    
-    <script>
-
-        $(document).ready(function(){
-            {% if manager.c_size %}
-            $('ul#products li.product').quicksearch({
-                attached: "div#view",
-                position: "before",
-                stripeRowClass: null,
-                labelText: '{% trans "Filter" %}:',
-                inputText: '...',
-                loaderImg: '{% url webstatic "images/tree/spinner.gif" %}'
-            });
-            {% endif %}
-            
-            $("a.loadData").click(function()
+    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
+        
+    <script type="text/javascript">
+        $(document).ready(function() 
             {
-                $("div#hierarchy").html('<p>{% trans "Loading hierarchy... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                $("div#hierarchy").load(
-                    {% if manager.project or manager.dataset %}
-                        {% if manager.dataset %}
-                            "{% url manage_container_hierarchies_id "dataset" manager.dataset.id %}", 
-                        {% endif %}
-                        {% if manager.project %}
-                            "{% url manage_container_hierarchies_id "project" manager.project.id %}", 
-                        {% endif %}
-                        {% if manager.plate %}
-                            "{% url manage_container_hierarchies_id "plate" manager.plate.id %}", 
-                        {% endif %}
-                        {% if manager.screen %}
-                            "{% url manage_container_hierarchies_id "screen" manager.screen.id %}", 
-                        {% endif %}
-                    {% else %}
-                        "{% url manage_container_hierarchies %}", 
-                    {% endif %}
-                    function() {  
-                        $("a.loadData").remove();                        
-                    });
-                return false; 
-            });
-            {% if nav.loadAnn %}
-            $("div#annotation").html('<p>{% trans "Loading annotations... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-            $("div#annotation").load(
-                {% if manager.dataset %}
-                    "{% url manage_annotations "dataset" manager.dataset.id %}", 
-                {% endif %}
-                {% if manager.project %}
-                    "{% url manage_annotations "project" manager.project.id %}", 
-                {% endif %}
-                {% if manager.plate %}
-                    "{% url manage_annotations "plate" manager.plate.id %}", 
-                {% endif %}
-                {% if manager.screen %}
-                    "{% url manage_annotations "screen" manager.screen.id %}", 
-                {% endif %}
-                function() {  
-                    $("a.loadAnnotation").remove();                        
+                {% if manager.c_size %}
+                $('ul#products li.product').quicksearch({
+                    attached: "div#view",
+                    position: "before",
+                    stripeRowClass: null,
+                    labelText: '{% trans "Filter" %}:',
+                    inputText: '...',
+                    loaderImg: '{% url webstatic "images/tree/spinner.gif" %}'
                 });
-            {% else %}
-            $("a.loadAnnotation").click(function()
-            {
-                $("div#annotation").html('<p>{% trans "Loading annotations... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                $("div#annotation").load(
-                    {% if manager.dataset %}
-                        "{% url manage_annotations "dataset" manager.dataset.id %}", 
-                    {% endif %}
-                    {% if manager.project %}
-                        "{% url manage_annotations "project" manager.project.id %}", 
-                    {% endif %}
-                    {% if manager.plate %}
-                        "{% url manage_annotations "plate" manager.plate.id %}", 
-                    {% endif %}
-                    {% if manager.screen %}
-                        "{% url manage_annotations "screen" manager.screen.id %}", 
-                    {% endif %}
-                    function() {  
-                        $("a.loadAnnotation").remove();                        
-                    });
-                return false; 
-            });
-            {% endif %}
-            $("#annotation_tabs").tabs();
-            
-        });
-    </script>
-    <script>
-    var popup = function (url) {
-          window.open(url,'_blank','toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800');
-          return false;
-    }
+                {% endif %}
+                
+                $("a.loadingData").click(function()
+                {
+                    $("div#hierarchy").html('<p>{% trans "Loading hierarchy... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                    $("div#hierarchy").load(
+                        {% if manager.project or manager.dataset %}
+                            {% if manager.dataset %}
+                                "{% url manage_container_hierarchies_id "dataset" manager.dataset.id %}", 
+                            {% endif %}
+                            {% if manager.project %}
+                                "{% url manage_container_hierarchies_id "project" manager.project.id %}", 
+                            {% endif %}
+                            {% if manager.plate %}
+                                "{% url manage_container_hierarchies_id "plate" manager.plate.id %}", 
+                            {% endif %}
+                            {% if manager.screen %}
+                                "{% url manage_container_hierarchies_id "screen" manager.screen.id %}", 
+                            {% endif %}
+                        {% else %}
+                            "{% url manage_container_hierarchies %}", 
+                        {% endif %}
+                        function() {  
+                            $("a.loadingData").remove();                        
+                        });
+                    return false; 
+                });
+        })
     </script>
     
 {% endblock %}
 
-{% block center %}
+{% block top %}
 
 {% if form_users %}
-<div class="box">
+<div class="box" id="form_users">
     {% for field in form_users %}{{ field.label_tag }} {{ field }} <br/>{% if field.errors %} {{ field.errors }} {% endif %} {{ field.help_text }}{% endfor %}
 </div>
 {% endif %}
@@ -147,230 +78,150 @@
 
 <div class="clear"></div>
 
+{% endblock %}
+
+{% block left %}
+<div>
 {% if manager.dataset %}
-    <div class="dataset"><h1>{% trans "Dataset" %}: {{ manager.dataset.shortName }} {% if not manager.dataset.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}</h1>
-    </div>
+    <h1>{% trans "Dataset" %}: {{ manager.dataset.name }} {% if not manager.dataset.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %} <a href="{% url manage_metadata_details "dataset" manager.dataset.id %}" target="metadata_details"><img src="{% url webstatic "images/info16.png" %}" alt="i" title="click to get metadata"/></a></h1>
 {% else %}
     {% if manager.project %}
-        <div class="project"><h1>{% trans "Project" %}: {{ manager.project.shortName }} {% if not manager.project.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}</h1>
-        </div>
+        <h1>{% trans "Project" %}: {{ manager.project.name }} {% if not manager.project.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %} <a href="{% url manage_metadata_details "dataset" manager.project.id %}" target="metadata_details"><img src="{% url webstatic "images/info16.png" %}" alt="i" title="click to get metadata"/></a></h1>
     {% else %}
         {% if manager.plate %}
-            <div class="screen"><h1>{% trans "Plate" %}: {{ manager.plate.shortName }} {% if not manager.plate.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}</h1>
-            </div>
+            <h1>{% trans "Plate" %}: {{ manager.plate.name }} {% if not manager.plate.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %} <a href="{% url manage_metadata_details "dataset" manager.plate.id %}" target="metadata_details"><img src="{% url webstatic "images/info16.png" %}" alt="i" title="click to get metadata"/></a></h1>
         {% else %}
             {% if manager.screen %}
-                <div class="screen"><h1>{% trans "Screen" %}: {{ manager.screen.shortName }} {% if not manager.screen.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}</h1>
-                </div>
+                <h1>{% trans "Screen" %}: {{ manager.screen.name }} {% if not manager.screen.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %} <a href="{% url manage_metadata_details "dataset" manager.screen.id %}" target="metadata_details"><img src="{% url webstatic "images/info16.png" %}" alt="i" title="click to get metadata"/></a></h1>
             {% else %}
                 {% if manager.orphaned %}
-                <div class="project"><h1>{% trans "Orphaned images" %}</h1><p>{% trans "This is virtual container with orphaned images. These images are not linked anywhere. Just copy and paste them to one of the existing container." %}</p></div>
-                <div class="separate70"></div>
+                    <h1>{% trans "Orphaned images" %}</h1><p>{% trans "This is virtual container with orphaned images. These images are not linked anywhere. Just copy and paste them to one of the existing container." %}</p>
                 {% endif %}
             {% endif %}
         {% endif %}
     {% endif %}
 {% endif %}
+</div>
 
-{% if manager.dataset %}
-    <div class="toolbar">
-        {% if manager.dataset.isOwned %}<!--| <a href="#" onclick="toBasket('dataset', '{{ manager.dataset.id }}'); return false;">{% trans "Select" %} <img src="{% url webstatic "images/basket16.png" %}" alt="b" title="add to basket"/></a>--> 
-        | <a href="#" onclick="copyToClipboard('dataset', '{{ manager.dataset.id }}'); return false;">{% trans "Copy" %} <img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> 
-        | <a href="#" onclick="pasteFromClipboard('dataset', '{{ manager.dataset.id }}', '{{ url }}'); return false;">{% trans "Paste" %} <img src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="p" title="paste"/></a> 
-        | <a href="{% url manage_action_containers "edit" "dataset" manager.dataset.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a> {% endif %}
-        | <a href="#annotation_form">{% trans "Annotate" %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotate"/></a> |
-    </div>
-    
-    <div class="clear"></div>
-    <div><p>{{ manager.dataset.description|default_if_none:"no description"|linebreaks }}</p></div>
-    
-    <div class="separate70"></div>
-{% else %}
-    {% if manager.project %}
-        <div class="toolbar">
-            {% if manager.project.isOwned %}| <a href="#" onclick="pasteFromClipboard('project', '{{ manager.project.id }}', '{{ url }}'); return false;">{% trans "Paste" %} <img src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="p" title="paste"/></a> 
-            | <a href="{% url manage_action_containers "edit" "project" manager.project.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a> {% endif %}
-            | <a href="#annotation_form">{% trans "Annotate" %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotate"/></a> |
-        </div>
-        
-        <div class="clear"></div>
-        <div><p>{{ manager.project.description|default_if_none:"no description"|linebreaks }}</p></div>
-        
-        <div class="separate70"></div>
-    {% endif %}
-{% endif %}
-{% if manager.plate %}
-    <div class="toolbar">
-        {% if manager.plate.isOwned %}<!--| <a href="#" onclick="toBasket('plate', '{{ manager.plate.id }}'); return false;">{% trans "Select" %} <img src="{% url webstatic "images/basket16.png" %}" alt="b" title="add to basket"/></a>--> 
-        | <a href="#" onclick="copyToClipboard('plate', '{{ manager.plate.id }}'); return false;">{% trans "Copy" %} <img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> 
-        | <a href="#" onclick="pasteFromClipboard('plate', '{{ manager.plate.id }}', '{{ url }}'); return false;">{% trans "Paste" %} <img src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="p" title="paste"/></a> 
-        | <a href="{% url manage_action_containers "edit" "plate" manager.plate.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a> {% endif %}
-        | <a href="#annotation_form">{% trans "Annotate" %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotate"/></a> |
-    </div>
-    
-    <div class="clear"></div>
-    <div><p>{{ manager.plate.description|default_if_none:"no description"|linebreaks }}</p></div>
-    
-    <div class="separate70"></div>
-{% else %}
-    {% if manager.screen %}
-        <div class="toolbar">
-            {% if manager.screen.isOwned %}| <a href="#" onclick="pasteFromClipboard('screen', '{{ manager.screen.id }}', '{{ url }}'); return false;">{% trans "Paste" %} <img src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="p" title="paste"/></a> 
-            | <a href="{% url manage_action_containers "edit" "screen" manager.screen.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a> {% endif %}
-            | <a href="#annotation_form">{% trans "Annotate" %} <img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotate"/></a> |
-        </div>
-
-        <div class="clear"></div>
-        <div><p>{{ manager.screen.description|default_if_none:"no description"|linebreaks }}</p></div>
-
-        <div class="separate70"></div>
-    {% endif %}
-{% endif %}
-
-
-<div class="clear"></div>
-
-{% if manager.c_size %}
-    {% if manager.experimenter %}
-        <h1 id="data">{{ manager.experimenter.getFullName }}'s ({{ manager.c_size }} items):</h1>
-    {% else %}
-        <h1 id="data">{% trans "My data" %} ({{ manager.c_size }} {% trans "items" %}):</h1>
-    {% endif %}
-{% else %}
-    {% ifequal nav.menu 'mydata' %}
-        <h1>{% trans "My data (no items)" %}:</h1>
+<!--content-->
+<div>
+    {% if manager.c_size %}
+        {% if manager.experimenter %}
+            <h1 id="data">{{ manager.c_size }} items:</h1>
+        {% else %}
+            <h1 id="data">{{ manager.c_size }} {% trans "items" %}:</h1>
+        {% endif %}
     {% else %}
         <h1>{% trans "No items" %}:</h1>
-    {% endifequal %}
-{% endif %}
-
-<div id="view"> 
-    {% ifequal nav.whos "share" %}
-        | {% trans "View" %} <a href="{% url manage_shares %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="table" title="table"/></a> <a href="{% url manage_shares %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> |
-    {% else %}
-        | {% trans "View" %} <a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"/></a> <a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> <a href="{% url manage_data nav.whos %}?view=tree"><img src="{% url webstatic "images/view_tree16.png" %}" alt="tree" title="tree"/></a> |
-    {% endifequal %}
-
-{% if not manager.image %}
-    {% if not manager.dataset %}
-        {% if manager.project and manager.project.isOwned %}
-            {% trans "New" %} <a href="{% url manage_action_containers "new" "project" manager.project.id %}?url={{url}}"><img src="{% url webstatic "images/window_new16.jpg" %}" alt="new" title="new" /></a> | 
+    {% endif %}
+    <div class="clear"> </div>
+    
+    <div id="view"> 
+        {% ifequal nav.whos "share" %}
+            | <a href="{% url manage_shares %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="table" title="table"/></a> <a href="{% url manage_shares %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> |
         {% else %}
-            {% if manager.screen and manager.screen.isOwned %}
-                {% trans "New" %} <a href="{% url manage_action_containers "new" "screen" manager.screen.id %}?url={{url}}"><img src="{% url webstatic "images/window_new16.jpg" %}" alt="new" title="new" /></a> | 
-            {% else %}
-                {% trans "New" %} <a href="{% url manage_action_containers "new" %}?url={{url}}"><img src="{% url webstatic "images/window_new16.jpg" %}" alt="new" title="new" /></a> | 
+            | <a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"/></a> <a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> <a href="{% url manage_data nav.whos %}?view=tree"><img src="{% url webstatic "images/view_tree16.png" %}" alt="tree" title="tree"/></a> |
+        {% endifequal %}
+
+        {% if not manager.project and not manager.image and not manager.dataset and not manager.screen and not manager.plate %}
+            <a href="{% url manage_action_containers "new" %}?url={{url}}" target="metadata_details"><img src="{% url webstatic "images/window_new16.png" %}" alt="New" title="New"/></a> | 
+        {% else %}
+            {% if manager.project and not manager.dataset and not manager.image %}
+                <a href="{% url manage_action_containers "new" "project" manager.project.id %}?url={{url}}" target="metadata_details"><img src="{% url webstatic "images/window_new16.png" %}" alt="New" title="New"/></a> | 
+            {% endif %}
+            {% if manager.screen and not manager.plate %}
+                <a href="{% url manage_action_containers "new" "screen" manager.screen.id %}?url={{url}}" target="metadata_details"><img src="{% url webstatic "images/window_new16.png" %}" alt="New" title="New"/></a> | 
             {% endif %}
         {% endif %}
-    {% endif %}
-{% endif %}
-</div>
-
-<div class="slider">
-    <div class="slider_products"> 
-        <div class="slider_text">{% trans "Zoom" %}:</div>
-        <div class='small_label'></div> 
-        <div class='slider_bar'> 
-            <div id="slider_callout"></div> 
-            <div id='slider1_handle' class='slider_handle'></div> 
-        </div> 
-        <div class='large_label'></div> 
-    </div>
-</div>
-
-<div class="clear"> </div>
-
-{% if not manager.c_size %}
-    {% trans "No data." %}
-{% else %}
-    {% if manager.c_size %}
-    <ul id="products">
-        {% for c in manager.containers.projects %}
-        <li class="product"><em>{{ c.name }}</em>
-            {% if c.isOwned %}<a href="{% url manage_data "mydata" "project" c.id %}?view=icon"><img id="{{ c.id }}" class="catzoom" src="{% url webstatic "images/folder64.png" %}" title="{{ c.name }}" alt="project"/></a>{% else %}<a href="{% url manage_data "userdata" "project" c.id %}?filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" class="catzoom" src="{% url webstatic "images/folder64.png" %}" title="{{ c.name }}" alt="project"/></a>{% endif %}
-            <div class="center"><img src="{% url webstatic "images/folder_image12.png" %}" title="image" alt="image"/>[{{ c.countChildren2 }}]{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</div>
-            <div class="center">{{ c.tinyName }}</div>
-        </li>
-        {% endfor %}
-        {% for c in manager.containers.datasets %}
-        <li class="product"><em>{{ c.name }}</em>
-            {% if c.isOwned %}<a href="{% if manager.project %}{% url manage_data "mydata" "project" manager.project.id "dataset" c.id %}{% else %}{% url manage_data "mydata" "dataset" c.id %}{% endif %}"><img id="{{ c.id }}" class="catzoom" src="{% url webstatic "images/folder_image64.png" %}" title="{{ c.name }}" alt="dataset"/></a>{% else %}<a href="{% if manager.project %}{% url manage_data "userdata" "project" manager.project.id "dataset" c.id %}{% else %}{% url manage_data "userdata" "dataset" c.id %}{% endif %}?filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" class="catzoom" src="{% url webstatic "images/folder_image64.png" %}" title="{{ c.name }}" alt="dataset"/></a>{% endif %}
-            <div class="center"><img src="{% url webstatic "images/image12.png" %}" title="image" alt="image"/>[{{ c.countChildren2 }}]{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</div>
-            <div class="center">{{ c.tinyName }}</div>
-            <div class="center">{% if c.isOwned %}<a href="#" onclick="copyToClipboard('dataset', '{{ c.id }}'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit12.png" %}" alt="c" title="copy"/></a>{% if manager.project %} <a href="{% url manage_action_containers "remove" %}?parent=pr-{{ manager.project.id }}&source=ds-{{ c.id }}&url={{ url }}" onClick="return confirm('Unlink dataset?');"><img src="{% url webstatic "images/cut12.png" %}" alt="u" title="unlink"/></a>{% endif %}{% endif %}</div>
-        </li>
-        {% endfor %}
-        {% for c in manager.containers.images %}
-        <li class="product"><em>{{ c.name }}</em>
-            {% if c.isOwned %}<a href="{% if manager.project %}{% url manage_data "mydata" "project" manager.project.id "dataset" manager.dataset.id "image" c.id %}{% else %}{% if manager.dataset %}{% url manage_data "mydata" "dataset" manager.dataset.id "image" c.id %}{% else %}{% url manage_data "mydata" "image" c.id %}{% endif %}{% endif %}"><img id="{{ c.id }}" class="imgzoom" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}"/></a>{% else %}<a href="{% if manager.project %}{% url manage_data "userdata" "project" manager.project.id "dataset" manager.dataset.id "image" c.id %}{% else %}{% if manager.dataset %}{% url manage_data "userdata" "dataset" manager.dataset.id "image" c.id %}{% else %}{% url manage_data "userdata" "image" c.id %}{% endif %}{% endif %}"><img id="{{ c.id }}" class="imgzoom" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}"/></a>{% endif %}
-            <div class="center">{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</div>
-            <div class="center">{{ c.tinyName }}</div>
-            <div class="center"><a href="#" onclick="return popup('{% url image_viewer c.id %}')"><img src="{% url webstatic "images/kview12.png" %}" alt="v" title="view"/></a><a href="{% url manage_image_zoom c.id %}?keepThis=true&TB_iframe=true&height=500&width=860" alt="{{ c.shortName }}" class="thickbox" rel="gallery-omero" title="{{ c.shortName }} by {{ c.getOwnerFullName }} ({{ c.details.group.name.val }} {{ c.details.permissions }})"><img src="{% url webstatic "images/kpresenter12.png" %}" alt="p" title="presentation"/></a>{% if c.isOwned %} <a href="#" onclick="toBasket('image', '{{ c.id }}'); return false;"> <img src="{% url webstatic "images/basket12.png" %}" alt="b" title="add to basket"/></a> <a href="#" onclick="copyToClipboard('image', '{{ c.id }}'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit12.png" %}" alt="c" title="copy"/></a>{% if manager.dataset %} <a href="{% url manage_action_containers "remove" %}?parent=ds-{{ manager.dataset.id }}&source=img-{{ c.id }}&url={{ url }}" onClick="return confirm('Unlink image?');"><img src="{% url webstatic "images/cut12.png" %}" alt="u" title="unlink"/></a>{% endif %}{% endif %}</div>
-        </li>
-        {% endfor %}
         
-        {% if not manager.project and not manager.dataset and not manager.dataset and not manager.screen%}
-        {% if not manager.orphaned %}
-        <li class="product"><em>{% trans "Orphaned images" %}</em>
-            <a href="{% url manage_data_orphaned nav.whos "orphaned" %}"><img class="catzoom" src="{% url webstatic "images/folder_yellow64.png" %}" title="Orphaned images" alt="project"/></a><div class="center">{% trans "Orphaned images" %}</div>
-        </li>
+        {% if not manager.image or not manager.well or not manager.plate %}
+            {% if manager.dataset %}
+                <input id="copyToClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy to clipboard"> 
+                <input id="pasteFromClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste from clipboard" onclick="pasteFromClipboard('dataset', '{{ manager.dataset.id }}', '{{ url }}'); return false;">
+                <input id="unlink" class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" value="ds-{{ manager.dataset.id }}">
+                | <input id="addToBasket" class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket">
+                | <a href="{% url manage_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a>
+            {% else %}
+                {% if manager.project %}
+                    <input id="copyToClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy to clipboard"> 
+                    <input id="pasteFromClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste from clipboard" onclick="pasteFromClipboard('project', '{{ manager.project.id }}', '{{ url }}'); return false;">
+                    <input id="unlink" class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" value="pr-{{ manager.project.id }}">
+                    | <a href="{% url manage_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a>
+                {% endif %}
+            {% endif %}
+            {% if manager.screen %}
+                <input id="copyToClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy to clipboard"> 
+                <input id="pasteFromClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste from clipboard" onclick="pasteFromClipboard('screen', '{{ manager.screen.id }}', '{{ url }}'); return false;">
+                <input id="unlink" class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" value="sc-{{ manager.screen.id }}">
+                | <a href="{% url manage_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a>
+            {% endif %}
+            {% if not manager.project and not manager.dataset and not manager.screen and not manager.orphaned %}
+                <input id="copyToClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy to clipboard"> 
+                | <a href="{% url manage_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a>
+            {% endif %}
         {% endif %}
+        
+        {% if manager.orphaned %}
+            <input id="copyToClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy to clipboard"> 
+            <input id="pasteFromClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste from clipboard">
+            | <input id="addToBasket" class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket">
+            | <a href="{% url manage_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a>
         {% endif %}
-        {% for c in manager.containers.screens %}
-        <li class="product"><em>{{ c.name }}</em>
-            {% if c.isOwned %}<a href="{% url manage_data "mydata" "screen" c.id %}?view=icon"><img id="{{ c.id }}" class="catzoom" src="{% url webstatic "images/folder_screen64.png" %}" title="{{ c.name }}" alt="screen"/></a>{% else %}<a href="{% url manage_data "userdata" "screen" c.id %}?filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" class="catzoom" src="{% url webstatic "images/folder_screen64.png" %}" title="{{ c.name }}" alt="screen"/></a>{% endif %}
-            <div class="center"><img src="{% url webstatic "images/folder_image12.png" %}" title="plate" alt="plate"/>[{{ c.countChildren2 }}]{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</div>
-            <div class="center">{{ c.tinyName }}</div>
-        </li>
-        {% endfor %}
-        {% for c in manager.containers.plates %}
-        <li class="product"><em>{{ c.name }}</em>
-            {% if c.isOwned %}<a href="{% if manager.screen %}{% url manage_data "mydata" "screen" manager.screen.id "plate" c.id %}{% else %}{% url manage_data "mydata" "plate" c.id %}{% endif %}"><img id="{{ c.id }}" class="catzoom" src="{% url webstatic "images/folder_plate64.png" %}" title="{{ c.name }}" alt="dataset"/></a>{% else %}<a href="{% if manager.screen %}{% url manage_data "userdata" "screen" manager.screen.id "plate" c.id %}{% else %}{% url manage_data "userdata" "plate" c.id %}{% endif %}?filter=experimenter&experimenter={{ c.details.owner.id.val }}"><img id="{{ c.id }}" class="catzoom" src="{% url webstatic "images/folder_plate64.png" %}" title="{{ c.name }}" alt="plate"/></a>{% endif %}
-            <div class="center">{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</div>
-            <div class="center">{{ c.tinyName }}</div>
-            <div class="center">{% if c.isOwned %}<a href="#" onclick="copyToClipboard('plate', '{{ c.id }}'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit12.png" %}" alt="c" title="copy"/></a>{% endif %}</div>
-        </li>
-        {% endfor %}
-    </ul>
+        
+    </div>  
     
+    <!--<div class="slider">
+        <div class="slider_products"> 
+            <div class='small_label'></div> 
+            <div class='slider_bar'> 
+                <div id="slider_callout"></div> 
+                <div id='slider1_handle' class='slider_handle'></div> 
+            </div> 
+            <div class='large_label'></div> 
+        </div>
+    </div>-->
+    
+    <div class="clear"> </div>
+    
+    <div class="content">
+        {% include "omeroweb/container_data_icon.html" %}
+    </div>
+
     {% include "omeroweb/container_paging.html" %}
     
-    {% endif %}
+</div>
 
-{% endif %}
+{% endblock %}
 
-<div class="clear"> </div>
+{% block right %}
 
-<div class="separate70"></div>
-
-{% if manager.project or manager.dataset or manager.screen or manager.plate %}
-
-<div id="annotation">
-<h1>{% trans "Annotations" %}:</h1>
 {% if manager.dataset %}
-    {% if manager.dataset.countAnnotations %}<a href="#" class="loadAnnotation">{% trans "Show annotations associated with" %}... [{{ manager.dataset.countAnnotations }}]</a>
-    {% endif %}
+    <iframe src ="{% url manage_metadata_details "dataset" manager.dataset.id %}" width="100%" height="680" name="metadata_details"></iframe>
 {% else %}
     {% if manager.project %}
-        {% if manager.project.countAnnotations %}<a href="#" class="loadAnnotation">{% trans "Show annotations associated with" %}... [{{ manager.project.countAnnotations }}]</a>{% endif %}
+        <iframe src ="{% url manage_metadata_details "project" manager.project.id %}" width="100%" height="680" name="metadata_details"></iframe>
     {% else %}
         {% if manager.plate %}
-            {% if manager.plate.countAnnotations %}<a href="#" class="loadAnnotation">{% trans "Show annotations associated with" %}... [{{ manager.plate.countAnnotations }}]</a>{% endif %}
+            <iframe src ="{% url manage_metadata_details "plate" manager.plate.id %}" width="100%" height="680" name="metadata_details"></iframe>
         {% else %}
             {% if manager.screen %}
-                {% if manager.screen.countAnnotations %}<a href="#" class="loadAnnotation">{% trans "Show annotations associated with" %}... [{{ manager.screen.countAnnotations }}]</a>{% endif %}
+                <iframe src ="{% url manage_metadata_details "screen" manager.screen.id %}" width="100%" height="680" name="metadata_details"></iframe>
+            {% else %}
+                <iframe width="100%" height="680" name="metadata_details"></iframe>
             {% endif %}
         {% endif %}
     {% endif %}
 {% endif %}
-</div>
 
-{% include "omeroweb/annotations_form.html" %}
-<div class="clear"> </div>
+{% endblock %}
 
-<div>
+{% block linked %}
+
+<!--where is it-->
+{% if manager.dataset or manager.project or manager.plate or manager.screen %}
+<div id="linked">
     {% if manager.dataset %}
-        <h1>{% trans "Where this dataset is is linked?" %}</h1>
+        <h1>{% trans "Where this dataset is linked?" %}</h1>
     {% else %}
         {% if manager.project %}
             <h1>{% trans "Where this project is linked?" %}</h1>
@@ -382,12 +233,9 @@
             {% endif %}
         {% endif %}
     {% endif %}
-    <a href="#" class="loadData">{% trans "Show the hierarchy structure" %}...</a></div>
-<div id="hierarchy"> </div>
-
+    <a href="#" class="loadingData">{% trans "Show the hierarchy structure" %}...</a>
+</div>
+<div id="hierarchy"></div>
 {% endif %}
-{% endblock %}
 
-{% block advice %}
-    {% include "omeroweb/advice.html" %}
 {% endblock %}

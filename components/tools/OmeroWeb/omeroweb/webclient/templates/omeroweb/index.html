@@ -21,7 +21,6 @@
 {% endblock %}
 
 {% block script %}
-    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
     
     <script>
         $(document).ready(function(){
@@ -35,15 +34,15 @@
             $("div#comments").html('<h1>Most recents:</h1><p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
             $("div#comments").load("{% url index_most_recent %}");
                         
-            $("a.loadData").click(function()
+            /*$("a.loadingData").click(function()
             {
                 $("div#context").html('<p>Loading your context... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
                 $("div#context").load("{% url index_context %}", function()
                     {  
-                        $("a.loadData").remove();
+                        $("a.loadingData").remove();
                     });
                 return false; 
-            });
+            });*/
             
         });
     </script>
@@ -67,13 +66,9 @@
         
         <div id="comments"></div>
         
-        <h1>{% trans "My context" %}:</h1></h1>
-        <div id="context"><a href="#" class="loadData">{% trans "Show my current context." %}</a></div>
+        <!--<h1>{% trans "My context" %}:</h1></h1>
+        <div id="context"><a href="#" class="loadingData">{% trans "Show my current context." %}</a></div>-->
         
     </div>
     
-{% endblock %}
-
-{% block advice %}
-    {% include "omeroweb/advice.html" %}
 {% endblock %}

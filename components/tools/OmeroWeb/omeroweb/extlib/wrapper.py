@@ -36,7 +36,6 @@ except:
     logger.error(traceback.format_exc())
 from StringIO import StringIO
 
-#import threading
 import time
 from datetime import datetime
 from types import IntType, ListType, TupleType, UnicodeType, StringType
@@ -48,25 +47,14 @@ from django.core.mail import EmailMultiAlternatives
 
 import Ice
 import Glacier2
-import omero
+import omero.gateway
+
 import omero_api_IScript_ice
-
-import omero.rtypes
 from omero.rtypes import *
+from omero.model import FileAnnotationI, TagAnnotationI, DatasetI, ProjectI, ImageI, \
+                        DetectorI, FilterI, ObjectiveI, InstrumentI
+from omero.sys import ParametersI
 
-from omero.gateway import timeit
-
-from omero_model_FileAnnotationI import FileAnnotationI
-from omero_model_TagAnnotationI import TagAnnotationI
-from omero_model_DatasetI import DatasetI
-from omero_model_ProjectI import ProjectI
-from omero_model_ImageI import ImageI
-from omero_model_DetectorI import DetectorI
-from omero_model_FilterI import FilterI
-from omero_model_ObjectiveI import ObjectiveI
-from omero_model_InstrumentI import InstrumentI
-
-from omero_sys_ParametersI import ParametersI
 
 class OmeroWebObjectWrapper (object):
 
@@ -148,9 +136,9 @@ class OmeroWebObjectWrapper (object):
         try:
             name = self._obj.name.val
             l = len(name)
-            if l < 55:
+            if l < 45:
                 return name
-            return "..." + name[l - 55:]
+            return "..." + name[l - 42:]
         except:
             logger.info(traceback.format_exc())
             return self._obj.name.val
@@ -159,19 +147,9 @@ class OmeroWebObjectWrapper (object):
         try:
             name = self._obj.name.val
             l = len(name)
-            if l <= 20:
-                return name
-            elif l > 20 and l <= 40:
-                splited = []
-                for v in range(0,len(name),20):
-                    splited.append(name[v:v+20]+"\n")
-                return "".join(splited)
-            elif l > 40:
-                nname = "..." + name[l - 36:]
-                splited = list()
-                for v in range(0,len(nname),20):
-                    splited.append(nname[v:v+20]+"\n")
-                return "".join(splited)
+            if l > 20:
+                name = "..." + name[l - 16:]
+            return name
         except:
             logger.info(traceback.format_exc())
             return self._obj.name.val
@@ -336,9 +314,9 @@ class AnnotationWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper
             try:
                 name = self._obj.textValue.val
                 l = len(name)
-                if l < 17:
+                if l < 25:
                     return name
-                return name[:7] + "..." + name[l - 7:] 
+                return name[:10] + "..." + name[l - 10:] 
             except:
                 logger.info(traceback.format_exc())
                 return self._obj.textValue.val
@@ -405,6 +383,8 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
         return rv
     
     def defaultThumbnail(self, size=(120,120)):
+        if isinstance(size, int):
+            size = (size,size)
         img = Image.open(settings.DEFAULT_IMG)
         img.thumbnail(size, Image.ANTIALIAS)
         draw = ImageDraw.Draw(img)

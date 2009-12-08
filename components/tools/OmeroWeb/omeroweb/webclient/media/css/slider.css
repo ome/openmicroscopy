@@ -33,7 +33,7 @@
 .slider_bar { 
     background: url(../images/bar.png) no-repeat; 
     height: 19px; 
-    width: 150px;  
+    width: 100px;  
     float: left; 
     margin: 0px 5px; 
     position: relative;

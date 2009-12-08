@@ -1,10 +1,11 @@
-{% extends "omeroweb/base.html" %}
+{% extends "omeroweb/base_container.html" %}
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 {% load wikitags %}
 
 {% block link %}
+    <link rel="stylesheet" href="{% url webstatic "css/container.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/annotation.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/tree.css" %}" type="text/css" media="screen"/>
@@ -42,28 +43,15 @@
     <script type="text/javascript" src="{% url webstatic "javascript/basket.js" %}"></script>
    
     <script>
-
         $(document).ready(function(){
-            $("a.loadData").click(function()
+            $("a.loadingData").click(function()
             {
                 $("div#hierarchy").html('<p>{% trans "Loading hierarchy... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                $("div#hierarchy").load("{% url manage_container_hierarchies_id "plate" manager.plate.id %}", 
-                    function() {  
-                        $("a.loadData").remove();                        
-                    });
+                $("div#hierarchy").load("{% url manage_container_hierarchies_id "plate" manager.plate.id %}", function() {  
+                    $("a.loadingData").remove();                        
+                });
                 return false; 
             });
-            
-            $("a.swapWell").click(function()
-            {
-                $("div#well_details").html('<p>{% trans "Loading image details... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                $("div#well_details").load('/webclient/well_details/well/'+this.rel+'/', function() {
-                    $("#annotation_tabs").tabs();
-                });
-                
-                return false;
-            });
-                        
         });
     </script>
     <script>
@@ -75,67 +63,55 @@
     
 {% endblock %}
 
-{% block center %}
+{% block left %}
 
-    <div class="screen"><h1>{% trans "Plate" %} ({% if manager.c_size %}{{ manager.c_size }} {% trans "wells" %}{% else %}{% trans "No wells." %}{% endif %})
-    : {{ manager.plate.shortName }} {% if not manager.plate.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}</h1>
-    </div>
+<div>
+    <h1>{% trans "Plate" %} ({% if manager.c_size %}{{ manager.c_size }} {% trans "wells" %}{% else %}{% trans "No wells." %}{% endif %})
+    : {{ manager.plate.shortName }} {% if not manager.plate.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}
+    <a href="{% url manage_metadata_details "plate" manager.plate.id %}" target="metadata_details"><img src="{% url webstatic "images/info16.png" %}" alt="i" title="click to get metadata"/></a></h1>
+</div>
 
-    <div class="toolbar">
-        | <a href="#" onclick="toBasket('plate', '{{ manager.plate.id }}'); return false;">{% trans "Select" %} <img src="{% url webstatic "images/basket16.png" %}" alt="b" title="add to basket"/></a> 
-        | <a href="#" onclick="copyToClipboard('plate', '{{ manager.plate.id }}'); return false;">{% trans "Copy" %} <img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> 
-        | <a href="{% url manage_action_containers "edit" "image" manager.plate.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a></p>
-    </div>
-    
-    <div class="separate30"></div>
-
-    <div class="miniview_header">
-        <form action="" method="POST">
-        <table>
-          <tbody>
-            {% for field in form_well_index %}
-            <tr><th>{{ field.label_tag }}</th><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        </form>
-    </div>
-    
-    <div id="well_details" class="image_details"></div>
-    
-    <div class="miniplateview">
-    <table class="spw">
-        <tr><th></th>
-            {% for cn in manager.names.column_names %}
-            <th>{{ cn }}</th>
-            {% endfor %}
-        </tr>
-        {% for row in manager.containers.wells %}
-        <tr>
-            <th>{{ row.0 }}</th>
-            {% for col in row.1 %}
-            {% if col.1.isWellSample %}
-            <td class="full"><a href="#" rel="{{ col.1.id }}/{{ manager.index }}" class="swapWell"><img class="imgzoom" src="{% url render_thumbnail_resize 25 col.1.selectedWellSample.image.id %}" alt="" title="{{ row.0 }}-{{ col.0 }}"/></a></td>
-            {% else %}
-            <td></td>
-            {% endif %}
-            {% endfor %}
-        </tr>
+<div>
+    <form action="" method="POST">
+    <table>
+      <tbody>
+        {% for field in form_well_index %}
+        <tr><th>{{ field.label_tag }}</th><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td></tr>
         {% endfor %}
-    </table></div>
-
-    <div class="miniview_desc">
-        <p class="center">{% trans "Created by" %} {{ manager.plate.getOwnerFullName }}</p>
-        <br/>
-        <p>Description:</p>
-        <div class="description">{{ manager.plate.description|default_if_none:"no description"|linebreaks }}</div>
-    </div>
+      </tbody>
+    </table>
+    </form>
+</div>
     
-    <div class="separate30"></div>
+<div class="miniplateview">
+<table class="spw">
+    <tr><th></th>
+        {% for cn in manager.names.column_names %}
+        <th>{{ cn }}</th>
+        {% endfor %}
+    </tr>
+    {% for row in manager.containers.wells %}
+    <tr>
+        <th>{{ row.0 }}</th>
+        {% for col in row.1 %}
+        {% if col.1.isWellSample %}
+        <td class="full"><a href="{% url manage_metadata_details "well" col.1.id manager.index %}" target="metadata_details"><img class="imgzoom" src="{% url render_thumbnail_resize 25 col.1.selectedWellSample.image.id %}" alt="" title="{{ row.0 }}-{{ col.0 }}"/></a></td>
+        {% else %}
+        <td></td>
+        {% endif %}
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table></div>
 
-    <div class="link_box">
-    <h1>{% trans "Where this plate is linked?" %}</h1>
-    <div id="hierarchy"><a href="#" class="loadData">{% trans "Show the hierarchy structure" %}...</a></div>
-    </div>
+<div class="miniplateview_desc">
+    <p class="center">{% trans "Created by" %} {{ manager.plate.getOwnerFullName }}</p>
+</div>
+
+{% endblock %}
+
+{% block right %}
+
+<iframe src="{% url manage_metadata_details "plate" manager.plate.id %}" width="100%" height="680" name="metadata_details"></iframe>
 
 {% endblock %}

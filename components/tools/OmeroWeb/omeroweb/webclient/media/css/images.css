@@ -18,25 +18,24 @@
     border: 0px;
     float: left;
     text-align: center;
-    margin: 5px 3px 10px;
-    width: 160px;
+    margin: 2px;
+    width: 120px;
+    height: 120px;
 }
 #products li.owner_name{
     font-size: 15px;
     text-align: left;
-    margin: 0px;
-    padding: 5px;
+    margin: 0;
+    padding: 5px 0;
     font-weight: bold;
     width: 99%;
     border-bottom: 1px solid #bbb;
 }
-#products li.header_name{
-    font-size: 15px;
+#products li.tagname{
     text-align: left;
-    margin: 0px;
-    padding: 5px 0;
-    font-weight: bold;
-    width: 99%;
+    margin: 0;
+    width: 100%;
+    height: 40px;
 }
 #products li.dataset{
     text-align: left;
@@ -80,10 +79,6 @@ div#view, div#view2  {
     padding:2px;
 }
 
-.quicksearch {
-    float: right;
-}
-
 #hierarchy {
     max-height: 150px;
     overflow-y: auto;
@@ -94,25 +89,10 @@ div#view, div#view2  {
     font-style: italic;
 }
 
-.project {
-    width: 610px;
-    float:left;
-}
-.screen {
-    width: 610px;
-    float:left;
-}
-.dataset {
-    width: 610px;
-    float:left;
-}
 .tag {
     width: 100%;
 }
-.image {
-    width: 610px;
-    float:left;
-}
+
 .toolbar {
     float:right;
     text-align: right;
@@ -129,55 +109,39 @@ div#view, div#view2  {
 }
 .miniview {
     /* This is for the miniviewer in image_details */
-    float: left;
-    width: 370px;
-    height: 370px;
+    width: 480px;
+    height: 480px;
     position: relative;
 }
 .miniview_desc {
-    float: left;
-    width: 370px;
-    position: relative;
-    margin-top: 20px;
-}
-.miniview_header {
-    margin-bottom: 10px;
-    float: left;
-    width: 370px;
-    position: relative;
-    text-align: center;
+    margin: 20px 0 20px 20px;
 }
 .miniplateview {
     /* This is for the miniviewer in image_details */
-    float: left;
-    width: 370px;
-    height: 370px;
+    width: 500px;
+    height: 480px;
     position: relative;
     overflow: auto;
     border: 1px solid #bbb;
-    margin-top:-10px;
+    margin-top:10px;
 }
 .miniplateview_desc {
-    width: 370px;
-    position: relative;
-    margin-top: 20px;
+    margin: 0;
+    padding: 0 20px;
 }
 .image_details {
-    float: right;
-    margin: -15px 0 0 0;
-    position: relative;
-    width: 590px;
-    min-height: 520px;
+    width: 450px;
+    height: 600px;
 }
 .metadata_details {
-    max-height: 400px;
+    max-height: 430px;
     overflow: auto;
     border: 1px solid #bbb;
     padding: 10px;
 }
 .description {
-    width: 370px;
-    height: 120px;
+    width: 455px;
+    height: 100px;
     border: 1px solid #bbb;
     overflow: auto;
 }
@@ -210,5 +174,5 @@ div.paging {
     font-size: 15px;
     text-align: center;
     margin: 0;
-    padding: 10px;
+    padding: 10px 0px 30px 0px;
 }

@@ -1,11 +1,11 @@
-{% extends "omeroweb/base.html" %}
+{% extends "omeroweb/base_container.html" %}
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
+{% load wikitags %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/annotation.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/container.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/tree.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
@@ -14,50 +14,48 @@
     
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.simple.tree.js" %}"></script>
     
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.draggable.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.droppable.js" %}"></script>
 {% endblock %}
 
+
 {% block script %}
-    <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/basket.js" %}"></script>
-    
+    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
     <script type="text/javascript">
-    var popup = function (url) {
-          window.open(url,'_blank','toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800');
-          return false;
-    }
-    
     var simpleTreeCollection;
     $(document).ready(function(){
         simpleTreeCollection = $('.simpleTree').simpleTree({
             autoclose: false,
             afterClick:function(node){
                 if($(node).attr('id') == "orphan") {
-                    $("div#view").html('| {% trans "View" %} <a href="{% url manage_data nav.whos %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"></a> <a href="{% url manage_data nav.whos %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"></a> <a href="{% url manage_data nav.whos %}?view=tree"><img src="{% url webstatic "images/view_tree16.png" %}" alt="tree" title="tree"></a> {% if not manager.experimenter %} | {% trans "New" %} <a href="{% url manage_action_containers "new" %}?url={{ url }}"><img src="{% url webstatic "images/window_new16.jpg" %}" alt="new" title="new"></a>{% endif %} |');
+                    $("div#view").html('| <a href="{% url manage_data nav.whos %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"></a> <a href="{% url manage_data nav.whos %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"></a> <a href="{% url manage_data nav.whos %}?view=tree"><img src="{% url webstatic "images/view_tree16.png" %}" alt="tree" title="tree"></a> {% if not manager.experimenter %} | <a href="{% url manage_action_containers "new" %}?url={{ url }}" target="metadata_details"><img src="{% url webstatic "images/window_new16.png" %}" alt="new" title="new"></a>{% endif %} |');
                     
                     $("div#context").html('<div id="context"><h1>{% trans "Orphaned images" %}</h1><p>{% trans "This is virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container." %}</p></div>');
                 } else {
                     var obj = $(node).attr('id').split("-");
                     var par = $(node).parents('li:first').attr('id')
                     if (obj[0] == 'pr') {
-                        $("div#view").html('| {% trans "View" %} <a href="{% url manage_data nav.whos %}project/'+obj[1]+'/?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"></a> <a href="{% url manage_data nav.whos %}project/'+obj[1]+'/?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"></a> <a href="{% url manage_data nav.whos %}?view=tree"><img src="{% url webstatic "images/view_tree16.png" %}" alt="tree" title="tree"></a> {% if not manager.experimenter %} | {% trans "New" %} <a href="{% url manage_action_containers "new" %}project/'+obj[1]+'/?url={{ url }}"><img src="{% url webstatic "images/window_new16.jpg" %}" alt="new" title="new"></a> | <a href="#" onclick="pasteFromClipboard(\'project\', \''+obj[1]+'\', \'{{ url }}\'); return false;"><img src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="p" title="paste"/></a>{% endif %} |');
+                        $("div#view").html('| <a href="{% url manage_data nav.whos %}project/'+obj[1]+'/?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"></a> <a href="{% url manage_data nav.whos %}project/'+obj[1]+'/?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"></a> <a href="{% url manage_data nav.whos %}?view=tree"><img src="{% url webstatic "images/view_tree16.png" %}" alt="tree" title="tree"></a> {% if not manager.experimenter %} | <a href="{% url manage_action_containers "new" %}project/'+obj[1]+'/?url={{ url }}"  target="metadata_details"><img src="{% url webstatic "images/window_new16.png" %}" alt="New" title="New"/></a> | <a href="#" onclick="pasteFromClipboard(\'project\', \''+obj[1]+'\', \'{{ url }}\'); return false;"><img src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="p" title="paste"/></a>{% endif %} |');
 
-                        $("div#context").html('<p>{% trans "Loading project details... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                        $("div#context").load('/webclient/tree_details/project/'+obj[1]+'/');
+                        $("div#content_details").html('<p>{% trans "Loading image details... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                        $("div#content_details").load('/webclient/metadata_details/project/'+obj[1]+'/', function() {
+                            $("#annotation_tabs").tabs();
+                        });
                     } else if (obj[0] == 'ds') {  
-                        $("div#view").html('| {% trans "View" %} <a href="{% url manage_data nav.whos %}dataset/'+obj[1]+'/?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"></a> <a href="{% url manage_data nav.whos %}dataset/'+obj[1]+'/?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"></a> <a href="{% url manage_data nav.whos %}?view=tree"><img src="{% url webstatic "images/view_tree16.png" %}" alt="tree" title="tree"></a> {% if not manager.experimenter %} | <a href="#" onclick="copyToClipboard(\'dataset\', \''+obj[1]+'\'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> | <a href="#" onclick="pasteFromClipboard(\'dataset\', \''+obj[1]+'\', \'{{ url }}\'); return false;"><img src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="p" title="paste"/></a> | <a href="{% url manage_action_containers "remove" %}?parent='+par+'&source='+obj[0]+'-'+obj[1]+'&url={{ url }}" onClick="return confirm(\'Unlink dataset?\');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %} |'); 
+                        $("div#view").html('| <a href="{% url manage_data nav.whos %}dataset/'+obj[1]+'/?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"></a> <a href="{% url manage_data nav.whos %}dataset/'+obj[1]+'/?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"></a> <a href="{% url manage_data nav.whos %}?view=tree"><img src="{% url webstatic "images/view_tree16.png" %}" alt="tree" title="tree"></a> {% if not manager.experimenter %} | <a href="#" onclick="treeCopyToClipboard(\'dataset\', \''+obj[1]+'\'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> | <a href="#" onclick="pasteFromClipboard(\'dataset\', \''+obj[1]+'\', \'{{ url }}\'); return false;"><img src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="p" title="paste"/></a> | <a href="{% url manage_action_containers "remove" %}?parent='+par+'&source='+obj[0]+'-'+obj[1]+'&url={{ url }}" onClick="return confirm(\'Unlink dataset?\');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %} |'); 
                         
                         //| <a href="#" onclick="toBasket(\'dataset\', \''+obj[1]+'\'); return false;"><img src="{% url webstatic "images/basket16.png" %}" alt="b" title="add to basket"/></a>
 
-                        $("div#context").html('<p>{% trans "Loading dataset details... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                        $("div#context").load('/webclient/tree_details/dataset/'+obj[1]+'/');
+                        $("div#content_details").html('<p>{% trans "Loading image details... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                        $("div#content_details").load('/webclient/metadata_details/dataset/'+obj[1]+'/', function() {
+                            $("#annotation_tabs").tabs();
+                        });
                     } else if (obj[0] == 'img') {
-                        $("div#view").html('| {% trans "View" %} <a href="{% url manage_data nav.whos %}image/'+obj[1]+'/?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"></a> <a href="{% url manage_data nav.whos %}image/'+obj[1]+'/?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"></a> <a href="{% url manage_data nav.whos %}?view=tree"><img src="{% url webstatic "images/view_tree16.png" %}" alt="tree" title="tree"></a> {% if not manager.experimenter %} | <a href="#" onclick="window.open(\'/webclient/img_detail/'+obj[1]+'/\', \'_blank\',\'toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800\'); return false;"><img src="{% url webstatic "images/tree/kview.png" %}" alt="v" title="view"/></a> | <a href="#" onclick="toBasket(\'image\', \''+obj[1]+'\'); return false;"><img src="{% url webstatic "images/basket16.png" %}" alt="b" title="add to basket"/></a> | <a href="#" onclick="copyToClipboard(\'image\', \''+obj[1]+'\'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> | <a href="{% url manage_action_containers "remove" %}?parent='+par+'&source='+obj[0]+'-'+obj[1]+'&url={{ url }}" onClick="return confirm(\'Unlink image?\');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a> {% endif %}|');
+                        $("div#view").html('| <a href="{% url manage_data nav.whos %}image/'+obj[1]+'/?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"></a> <a href="{% url manage_data nav.whos %}image/'+obj[1]+'/?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"></a> <a href="{% url manage_data nav.whos %}?view=tree"><img src="{% url webstatic "images/view_tree16.png" %}" alt="tree" title="tree"></a> {% if not manager.experimenter %} | <a href="#" onclick="window.open(\'/webclient/img_detail/'+obj[1]+'/\', \'_blank\',\'toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800\'); return false;"><img src="{% url webstatic "images/tree/kview.png" %}" alt="v" title="view"/></a> | <a href="#" onclick="toBasket(\'image\', \''+obj[1]+'\'); return false;"><img src="{% url webstatic "images/basket16.png" %}" alt="b" title="add to basket"/></a> | <a href="#" onclick="treeCopyToClipboard(\'image\', \''+obj[1]+'\'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> | <a href="{% url manage_action_containers "remove" %}?parent='+par+'&source='+obj[0]+'-'+obj[1]+'&url={{ url }}" onClick="return confirm(\'Unlink image?\');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a> {% endif %}|');
 
-                        $("div#context").html('<p>{% trans "Loading image details... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                        $("div#context").load('/webclient/tree_details/image/'+obj[1]+'/');
+                        $("div#content_details").html('<p>{% trans "Loading image details... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                        $("div#content_details").load('/webclient/metadata_details/image/'+obj[1]+'/', function() {
+                            $("#annotation_tabs").tabs();
+                        });
                     }
                 }
                 
@@ -78,17 +76,16 @@
             animate:true
             //,docToFolderConvert:true
             });
-
-    });
+    });    
     </script>
-
+    
 {% endblock %}
 
-{% block center %}
+{% block top %}
 
 {% if form_users %}
-<div class="box">
-    {% for field in form_users %}{{ field.label_tag }} {{ field }}{% if field.errors %} {{ field.errors }} {% endif %} {{ field.help_text }}{% endfor %}
+<div class="box" id="form_users">
+    {% for field in form_users %}{{ field.label_tag }} {{ field }} <br/>{% if field.errors %} {{ field.errors }} {% endif %} {{ field.help_text }}{% endfor %}
 </div>
 {% endif %}
 
@@ -100,97 +97,47 @@
 
 <div class="clear"></div>
 
-{% if manager.c_size %}
-    {% if manager.experimenter %}
-        <h1>{{ manager.experimenter.getFullName }}'s ({{ manager.c_size }} items):</h1>
-    {% else %}
-        <h1>{% trans "My data" %} ({{ manager.c_size }} {% trans "items" %}):</h1>
-    {% endif %}
-{% else %}
-    {% ifequal nav.menu 'mydata' %}
-        <h1>{% trans "My data (no items)" %}:</h1>
+{% endblock %}
+
+{% block left %}
+
+<!--content-->
+<div>
+    {% if manager.c_size %}
+        {% if manager.experimenter %}
+            <h1 id="data">{{ manager.c_size }} items:</h1>
+        {% else %}
+            <h1 id="data">{{ manager.c_size }} {% trans "items" %}:</h1>
+        {% endif %}
     {% else %}
         <h1>{% trans "No items" %}:</h1>
-    {% endifequal %}
-{% endif %}
+    {% endif %}
+    <div class="clear"> </div>
     
-<div id="view"> 
-    {% ifequal nav.whos "share" %}
-        | {% trans "View" %} <a href="{% url manage_shares %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="table" title="table"/></a> <a href="{% url manage_shares %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> |
-    {% else %}
-        | {% trans "View" %} <a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"/></a> <a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> <a href="{% url manage_data nav.whos %}?view=tree"><img src="{% url webstatic "images/view_tree16.png" %}" alt="tree" title="tree"/></a> |
-    {% endifequal %}
-
-{% if not manager.image %}
-    {% if not manager.dataset %}
-        {% if manager.project %}
-            {% trans "New" %} <a href="{% url manage_action_containers "new" "project" manager.project.id %}?url={{url}}"><img src="{% url webstatic "images/window_new16.jpg" %}" alt="new" title="new" /></a> | 
+    <div id="view"> 
+        {% ifequal nav.whos "share" %}
+            | <a href="{% url manage_shares %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="table" title="table"/></a> <a href="{% url manage_shares %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> |
         {% else %}
-            {% trans "New" %} <a href="{% url manage_action_containers "new" %}?url={{url}}"><img src="{% url webstatic "images/window_new16.jpg" %}" alt="new" title="new" /></a> | 
+            | <a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"/></a> <a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> <a href="{% url manage_data nav.whos %}?view=tree"><img src="{% url webstatic "images/view_tree16.png" %}" alt="tree" title="tree"/></a> |
+        {% endifequal %}
+
+        {% if not manager.project and not manager.image and not manager.dataset and not manager.screen and not manager.plate %}
+            <a href="{% url manage_action_containers "new" %}?url={{url}}" target="metadata_details"><img src="{% url webstatic "images/window_new16.png" %}" alt="New" title="New"/></a> | 
         {% endif %}
-    {% endif %}
-{% endif %}
-</div>
-
-<div class="clear"> </div>
-
-{% if not manager.c_size %}
-    {% trans "No data." %}
-{% else %}
-    {% if manager.c_size %}
-    <div id="tree">
-    <ul class="simpleTree">
-    <li class="root" id='0'><span>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.omeName }}{% endif %}@{{ nav.blitz }}</span>
-        <ul>
-            {% for c in manager.containers.projects %}
-            <li id='pr-{{ c.id }}'><span>{{ c.shortName }} <img alt="dataset" title="dataset" src="{% url webstatic "images/folder_image12.png" %}"/>[{{ c.countChildren2 }}]{% if not c.isOwned %} <img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</span> 
-                <ul>
-                    {% if c.copyDatasetLinks %}
-                    {% for d in c.listChildren %}
-                        <li id='ds-{{ d.id }}' ><span>{{ d.shortName }} <img alt="image" title="image" src="{% url webstatic "images/image12.png" %}"/>[{{ d.countChildren2 }}]{% if not d.isOwned %} <img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}{% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>[{{ d.countAnnotations }}]{% endif %}</span> 
-                            <ul class="ajax">
-                                <li id='{{ d.id.val }}'>{url:{% url manage_data nav.whos "ajaxdataset" d.id %}?view=tree}</li>
-                            </ul>
-                        </li>
-                    {% endfor %}
-                    {% else %}
-                        <li class="line-last"/>
-                    {% endif %}
-                </ul>
-            </li>
-            {% endfor %}
-            {% for c in manager.containers.datasets %}
-                <li id='ds-{{ c.id }}'><span>{{ c.shortName }} <img alt="image" title="image" src="{% url webstatic "images/image12.png" %}"/>[{{ c.countChildren2 }}]{% if not c.isOwned %} <img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}{% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>[{{ c.countAnnotations }}]{% endif %}</span>
-                    <ul class="ajax">
-                        <li id='{{ d.id.val }}'>{url:{% url manage_data nav.whos "ajaxdataset" c.id %}?view=tree}</li>
-                    </ul>
-                </li>
-            {% endfor %}
-            {% for d in manager.containers.images %}
-                <li id='img-{{ d.id }}'><span>{{ d.shortName }} [{{ d.countChildren2 }}]{% if not d.isOwned %} <img src="{% url webstatic "images/tree/kgpg12.gif" %}" alt="locked" title="locked"/>{% endif %}{% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>[{{ d.countAnnotations }}]{% endif %}</span></li>
-            {% endfor %}
-            
-            {% if not manager.project and not manager.dataset %}
-            {% if not manager.orphaned %}
-                <li id='orphan' ><span>{% trans "Orphaned images" %}</span>
-                    <ul class="ajax">
-                        <li id='{{ d.id.val }}'>{url:{% url manage_data_orphaned nav.whos "ajaxorphaned" %}?view=tree}</li>
-                    </ul>
-                </li>
-            {% endif %}
-            {% endif %}
-        </ul>
-    </li></ul>
+        
     </div>
-    {% endif %}
-{% endif %}
-
-<div id="context"> </div>
-
-<div class="clear"> </div>
+    <div class="clear"> </div>
+    
+    <div class="content">
+        {% include "omeroweb/container_data_tree.html" %}
+    </div>
+    
+</div>
 
 {% endblock %}
 
-{% block advice %}
-    {% include "omeroweb/advice.html" %}
+{% block right %}
+
+<iframe width="100%" height="680" name="metadata_details"></iframe>
+
 {% endblock %}

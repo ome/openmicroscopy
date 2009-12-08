@@ -8,7 +8,6 @@
 
 <head>
     <link rel="stylesheet" href="{% url webstatic "css/layout.css" %}" type="text/css" />
-    <link rel="stylesheet" href="{% url webstatic "css/menu.css" %}" type="text/css" />
     <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
     
     {% block link %}{% endblock %}
@@ -22,18 +21,9 @@
     {% block script %}{% endblock %}
 
 </head>
-<body>
-<div id="shareBodyWrapper">
-<div id="share">
-    <div id="share_menu">
-        <h1>{% trans "Go back to" %} <a href="{% url manage_shares %}">{% trans "Shares" %}</a>{% if share.share.isOwned %} {% trans "or Edit" %} <a href="{% url manage_share "edit" share.share.id %}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</h1>
-    </div>
-    <div id="content">{% block center %}{% endblock %}</div>
-</div>
-</div>
-<div id="footer">
-    <p>&copy;2009 University of Dundee & Open Microscopy Environment</p>
-    <div class="separate70"></div>
-</div>
+<body class="metadata">
+
+{% block content %}{% endblock %}
+
 </body>
 </html>

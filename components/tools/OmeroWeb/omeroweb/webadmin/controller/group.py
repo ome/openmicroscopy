@@ -22,12 +22,8 @@
 # Version: 1.0
 #
 
-import omero
-
-import omero.rtypes
 from omero.rtypes import *
-
-from omero_model_ExperimenterGroupI import ExperimenterGroupI
+from omero.model import ExperimenterGroupI
 
 from webadmin.controller import BaseController
 

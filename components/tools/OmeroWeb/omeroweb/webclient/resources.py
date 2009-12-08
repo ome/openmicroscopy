@@ -2,11 +2,12 @@ import sys, os
 
 sys.path.append('icepy')
 sys.path.append('lib')
+
 import Ice
 import blitz_connector
 import time
-import omero
-from omero_model_PixelsI import PixelsI
+
+from omero.model import PixelsI
 from datetime import datetime
 from django_restapi.resource import Resource
 

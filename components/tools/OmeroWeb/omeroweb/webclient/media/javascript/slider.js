@@ -3,10 +3,10 @@ $(document).ready(function () {
     $(function() { 
         $('#slider_callout').hide(); 
         var calloutVisible = false; 
-        $("#products li.product").css('width', 160);
-        $("#products li.product").css('height', 150);
-        $('#products img.imgzoom').attr('width', 80);
-        $('#products img.catzoom').attr('width', 80);
+        $("#products li.product").css('width', 120);
+        $("#products li.product").css('height', 120);
+        $('#products img.imgzoom').attr('width', 100);
+        $('#products img.catzoom').attr('width', 100);
         $('.slider_bar').slider({ 
             handle: '.slider_handle', 
             startValue: 100,
