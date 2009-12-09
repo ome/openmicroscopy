@@ -233,6 +233,7 @@ class ChannelAcquisitionComponent
 		generalPane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		generalPane.setLayout(new GridBagLayout());
 		exposureTask = EditorUtil.createTaskPane("Exposure Time");
+		
 		exposureTask.addPropertyChangeListener(this);
 	}
 	

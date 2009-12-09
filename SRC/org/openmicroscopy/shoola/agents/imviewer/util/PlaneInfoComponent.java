@@ -26,15 +26,23 @@ package org.openmicroscopy.shoola.agents.imviewer.util;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.ColourIcon;
+import org.openmicroscopy.shoola.util.ui.ColouredButton;
 
 /** 
  * Basic component hosting the plane information.
@@ -50,7 +58,7 @@ import org.openmicroscopy.shoola.util.ui.ColourIcon;
  * @since 3.0-Beta4
  */
 public class PlaneInfoComponent 
-	extends JLabel
+	extends JPanel//JLabel
 {
 
 	/** Bound property indicating the plane information. */
@@ -60,7 +68,13 @@ public class PlaneInfoComponent
 	private static final Dimension ICON_DIMENSION = new Dimension(12, 12);
 	
 	/** The icon displaying the channel color. */
-	private ColourIcon 	icon;
+	//private ColourIcon 	icon;
+	
+	/** Component displaying the color associated to the channel. */
+	private ColouredButton icon;
+	
+	/** Component displaying the textual information. */
+	private JLabel 			label;
 	
 	/** 
 	 * Component displaying in a dialog when the user presses on the 
@@ -82,12 +96,15 @@ public class PlaneInfoComponent
 	public PlaneInfoComponent(Color color)
 	{
 		content = new JLabel();
-		icon = new ColourIcon(ICON_DIMENSION, color);
-		icon.paintLineBorder(true);
-		setIcon(icon);
-		setVerticalTextPosition(JLabel.CENTER);
-		setHorizontalTextPosition(JLabel.RIGHT);
-		addMouseListener(new MouseAdapter() {
+		//icon = new ColourIcon(ICON_DIMENSION, color);
+		//icon.paintLineBorder(true);
+		//setIcon(icon);
+		icon = new ColouredButton("", color);
+		icon.setPreferredSize(ICON_DIMENSION);
+		label = new JLabel();
+		label.setVerticalTextPosition(JLabel.CENTER);
+		label.setHorizontalTextPosition(JLabel.RIGHT);
+		label.addMouseListener(new MouseAdapter() {
 		
 			/**
 			 * Shows information
@@ -97,7 +114,25 @@ public class PlaneInfoComponent
 				showInfo();
 			}
 		});
+		//setBorder(BorderFactory.createEmptyBorder());
+		icon.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				showInfo();
+			}
+		});
+		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		add(icon);
+		add(Box.createHorizontalStrut(2));
+		add(label);
 	}
+	
+	/**
+	 * Sets the text associated to the component.
+	 * 
+	 * @param text The value to set.
+	 */
+	public void setText(String text) { label.setText(text); }
 	
 	/** 
 	 * Returns the content component.
@@ -111,7 +146,7 @@ public class PlaneInfoComponent
 	 *  
 	 * @param color The value to set.
 	 */
-	public void setColor(Color color) { icon.setColour(color); }
+	public void setColor(Color color) { icon.setColor(color); }//icon.setColour(color); }
 	
 	/**
 	 * Overridden to set the text of the <code>content</code> component.

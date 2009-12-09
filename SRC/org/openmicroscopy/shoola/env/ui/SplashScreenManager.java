@@ -359,7 +359,7 @@ class SplashScreenManager
 		}
 		else if (src instanceof ScreenLogin) setWindowState(viewTop, state);
 		if (view != null) view.setAlwaysOnTop(state == JFrame.NORMAL);
-		viewTop.setAlwaysOnTop(state == JFrame.NORMAL);
+		if (viewTop != null) viewTop.setAlwaysOnTop(state == JFrame.NORMAL);
 	}
 
 	/**

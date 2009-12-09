@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.editor.util;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
@@ -245,13 +246,17 @@ public class Ontologies
 	public static String[] getTermsByName(String text, String ontologyId) 
 	{
 		Map matchingTerms = OntologyLookUp.getTermsByName(text, ontologyId);
+		if (matchingTerms == null) return new String[0];
 		String[] terms = new String[matchingTerms.size()];
 		
 		int t = 0;
-		for (Iterator i = matchingTerms.keySet().iterator(); i.hasNext();){
-			String key = (String) i.next();
-			String name = key + ONTOLOGY_ID_NAME_SEPARATOR + 
-													matchingTerms.get(key);
+		Iterator i = matchingTerms.entrySet().iterator();
+		Entry entry;
+		String name;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			name = (String) entry.getKey() + ONTOLOGY_ID_NAME_SEPARATOR + 
+			(String) entry.getValue();
 			terms[t++] = name;
 		}
 		return terms;
@@ -267,16 +272,12 @@ public class Ontologies
 	 * 
 	 * @return		see above. 
 	 */
-	public static String getOntologyIdFromOntology(String ontologyName) {
-		
-		if (ontologyName == null) {
-			return null;
-		}
+	public static String getOntologyIdFromOntology(String ontologyName)
+	{
+		if (ontologyName == null) return null;
 		
 		int spacerIndex = ontologyName.indexOf(ONTOLOGY_ID_NAME_SEPARATOR);
-		if (spacerIndex < 1) {
-			return null;
-		} 
+		if (spacerIndex < 1) return null;
 		return ontologyName.substring(0, spacerIndex);
 	}
 	
@@ -290,16 +291,11 @@ public class Ontologies
 	 * 
 	 * @return		see above. 
 	 */
-	public static String getOntologyIdFromB3(String b3TermId) {
-		
-		if (b3TermId == null) {
-			return null;
-		}
-		
+	public static String getOntologyIdFromB3(String b3TermId)
+	{
+		if (b3TermId == null) return null;
 		int colonIndex = b3TermId.indexOf(":");
-		if (colonIndex < 1) {
-			return null;
-		} 
+		if (colonIndex < 1) return null;
 		return b3TermId.substring(0, colonIndex);
 	}
 	
@@ -312,24 +308,17 @@ public class Ontologies
 	 * 
 	 * @return		see above. 
 	 */
-	public static String getTermIdFromB3(String b3TermId) {
-		
-		if (b3TermId == null) {
-			return null;
-		}
+	public static String getTermIdFromB3(String b3TermId)
+	{
+		if (b3TermId == null) return null;
 		
 		int colonIndex = b3TermId.indexOf(":");
 		int separatorIndex = b3TermId.indexOf(ONTOLOGY_ID_NAME_SEPARATOR);
-		if (colonIndex < 1) {
-			return null;
-		} 
-		if (separatorIndex < 0) {
+		if (colonIndex < 1) return null;
+		if (separatorIndex < 0) 
 			separatorIndex = b3TermId.length();
-		}
-		
-		String termId = b3TermId.substring(colonIndex+1, separatorIndex);
-		
-		return termId;
+
+		return b3TermId.substring(colonIndex+1, separatorIndex);
 	}
 	
 	/**
@@ -341,20 +330,14 @@ public class Ontologies
 	 * 
 	 * @return		see above. 
 	 */
-	public static String getTermNameFromB3(String b3TermId) {
-		
-		if (b3TermId == null) {
-			return null;
-		}
+	public static String getTermNameFromB3(String b3TermId)
+	{
+		if (b3TermId == null) return null;
 		
 		int separatorIndex = b3TermId.indexOf(ONTOLOGY_ID_NAME_SEPARATOR);
-		if (separatorIndex < 0) {
-			return null;
-		} 
+		if (separatorIndex < 0) return null;
 		
-		String termId = b3TermId.substring(separatorIndex).trim();
-		
-		return termId;
+		return b3TermId.substring(separatorIndex).trim();
 	}
 	
 	/**
@@ -371,7 +354,8 @@ public class Ontologies
 		
 		// copy map to array
 		int index=0;
-		for (Iterator i = supportedOntologies.keySet().iterator(); i.hasNext();){
+		for (Iterator i = supportedOntologies.keySet().iterator(); i.hasNext();)
+		{
 			String key = (String) i.next();
 			String name = supportedOntologies.get(key);
 			ontologyIds[index] = key;
@@ -380,4 +364,5 @@ public class Ontologies
 		}
 		return ontologyNames;
 	}
+	
 }

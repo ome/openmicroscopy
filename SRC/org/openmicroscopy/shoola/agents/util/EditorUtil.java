@@ -1759,16 +1759,20 @@ public class EditorUtil
     					UIUtilities.roundTwoDecimals(o.getValue()));	
     		o = plane.getExposureTime();
     		if (o != null) 
-    			details.put(EXPOSURE_TIME, o.getValue());
+    			details.put(EXPOSURE_TIME, 
+    					UIUtilities.roundTwoDecimals(o.getValue()));
     		o = plane.getPositionX();
     		if (o != null) 
-    			details.put(POSITION_X, o.getValue());
+    			details.put(POSITION_X, 
+    					UIUtilities.roundTwoDecimals(o.getValue()));
     		o = plane.getPositionY();
     		if (o != null) 
-    			details.put(POSITION_Y, o.getValue());
+    			details.put(POSITION_Y, 
+    					UIUtilities.roundTwoDecimals(o.getValue()));
     		o = plane.getPositionZ();
     		if (o != null) 
-    			details.put(POSITION_Z, o.getValue());
+    			details.put(POSITION_Z, 
+    					UIUtilities.roundTwoDecimals(o.getValue()));
     	}
     	return details;
     }
