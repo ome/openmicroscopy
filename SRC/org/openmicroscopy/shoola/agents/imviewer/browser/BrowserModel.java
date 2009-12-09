@@ -895,10 +895,13 @@ class BrowserModel
     	Iterator<ChannelData> i = list.iterator();
     	ChannelData channel;
     	int j = 0;
+    	int size = gridImages.size();
     	while (i.hasNext()) {
     		channel = i.next();
     		n = PREFIX+channel.getChannelLabeling();
-    		splitImages.add(new SplitImage(gridImages.get(j), n));
+    		if (j >= size)
+    			splitImages.add(new SplitImage(null, n));
+    		else splitImages.add(new SplitImage(gridImages.get(j), n));
     		j++;
 		}
     	splitImages.add(new SplitImage(combined, COMBINED));
