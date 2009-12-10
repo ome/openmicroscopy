@@ -241,7 +241,7 @@ public interface Browser
     public JComponent getUI();
     
     /**
-     * Callback used by a data loader to set the leaves contained in the 
+     * Call-back used by a data loader to set the leaves contained in the 
      * currently selected node.
      * 
      * @param leaves    The collection of leaves.

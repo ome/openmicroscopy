@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Java imports
 import java.util.Collection;
-import java.util.Set;
 
 //Third-party libraries
 
@@ -33,7 +32,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
 import pojos.DataObject;
 import pojos.ExperimenterData;
 
@@ -87,8 +85,7 @@ public class PlateMeasurementLoader
     {
     	ExperimenterData exp = (ExperimenterData) expNode.getUserObject();
     	DataObject object = (DataObject) node.getUserObject();
-    	handle = handle = mhView.loadROIMeasurement(object, exp.getId(),
-    				this);
+    	handle = mhView.loadROIMeasurement(object, exp.getId(), this);
     }
 
     /**
