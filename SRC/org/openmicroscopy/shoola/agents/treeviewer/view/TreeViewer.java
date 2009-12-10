@@ -837,4 +837,12 @@ public interface TreeViewer
 	/** Brings up the import dialog. */
 	public void showImporter();
 	
+	/**
+	 * Sets the leaves linked to the specified parent.
+	 * 
+	 * @param parent 	The node the leaves are related to.
+	 * @param leaves	The leaves to convert and add to the node.
+	 */
+	public void setLeaves(TreeImageSet parent, Collection leaves);
+	
 }

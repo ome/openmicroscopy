@@ -63,7 +63,7 @@ public class TagsModel
 {
 
 	/** The collection of objects this model is for. */
-	private Set<DataObject> dataObjects;
+	private Collection<DataObject> dataObjects;
 
 	/**
 	 * Creates a new instance.
@@ -73,7 +73,8 @@ public class TagsModel
 	 * @param withImages Pass <code>true</code> to indicate that the images
 	 * 					 are loaded, <code>false</code> otherwise.
 	 */
-	TagsModel(Object parent, Set<DataObject> dataObjects, boolean withImages)
+	TagsModel(Object parent, Collection<DataObject> dataObjects, 
+			boolean withImages)
 	{
 		super();
 		if (dataObjects  == null) 

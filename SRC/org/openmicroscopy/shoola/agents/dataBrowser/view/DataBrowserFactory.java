@@ -116,11 +116,11 @@ public class DataBrowserFactory
 	 * @param parent		The parent's node.
 	 * @param wells			The collection to set.
 	 * @param withThumbnails Pass <code>true</code> to load the thumbnails,
-     * 						 <code>false</code> otherwise. 
+     * 						 <code>false</code> otherwise.
 	 * @return See above.
 	 */
 	public static final DataBrowser getWellsDataBrowser(Object grandParent, 
-										Object parent, Set<WellData> wells,
+										Object parent, Set<WellData> wells, 
 										boolean withThumbnails)
 	{
 		return singleton.createWellsDataBrowser(grandParent, parent, wells,
@@ -136,7 +136,8 @@ public class DataBrowserFactory
 	 * @return See above.
 	 */
 	public static final DataBrowser getDataBrowser(Object grandParent, 
-										Object parent, Set<ImageData> images)
+										Object parent, 
+										Collection<ImageData> images)
 	{
 		return singleton.createImagesDataBrowser(grandParent, parent, images);
 	}
@@ -151,8 +152,7 @@ public class DataBrowserFactory
 	 * @return See above.
 	 */
 	public static final DataBrowser getTagsBrowser(TagAnnotationData parent, 
-												Set<DataObject> nodes, 
-												boolean withImages)
+			Collection<DataObject> nodes, boolean withImages)
 	{
 		return singleton.createTagsDataBrowser(parent, nodes, withImages);
 	}
@@ -341,7 +341,7 @@ public class DataBrowserFactory
 	 * @param parent		The parent's node.
 	 * @param wells			The collection to set.
 	 * @param withThumbnails Pass <code>true</code> to load the thumbnails,
-     * 						 <code>false</code> otherwise. 
+     * 						 <code>false</code> otherwise.
 	 * @return See above.
 	 */
 	private DataBrowser createWellsDataBrowser(Object grandParent, 
@@ -368,7 +368,7 @@ public class DataBrowserFactory
 	 * @return See above.
 	 */
 	private DataBrowser createImagesDataBrowser(Object grandParent, 
-									Object parent, Set<ImageData> images)
+									Object parent, Collection<ImageData> images)
 	{
 		DataBrowserModel model = new ImagesModel(parent, images);
 		model.setGrandParent(grandParent);
@@ -435,7 +435,7 @@ public class DataBrowserFactory
 	 * @return See above.
 	 */
 	private DataBrowser createTagsDataBrowser(DataObject parent, 
-			Set<DataObject> dataObjects, boolean withImages)
+			Collection<DataObject> dataObjects, boolean withImages)
 	{
 		DataBrowserModel model = new TagsModel(parent, dataObjects, withImages);
 		DataBrowserComponent comp = new DataBrowserComponent(model);

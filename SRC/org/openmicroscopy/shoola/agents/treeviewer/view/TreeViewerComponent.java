@@ -2426,4 +2426,31 @@ class TreeViewerComponent
 		importDialog.centerDialog();
 	}
 	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setLeaves(TreeImageSet, Collection)
+	 */
+	public void setLeaves(TreeImageSet parent, Collection leaves)
+	{
+		if (parent instanceof TreeFileSet) {
+			view.removeAllFromWorkingPane();
+			return;
+		}
+		Object parentObject = parent.getUserObject();
+		TreeImageDisplay display = parent.getParentDisplay();
+		Object grandParentObject = null;
+		if (display != null) grandParentObject = display.getUserObject();
+		DataBrowser db = null;
+		if (parentObject instanceof TagAnnotationData) {
+			db = DataBrowserFactory.getTagsBrowser(
+					(TagAnnotationData) parentObject, leaves, false);
+		} else 
+			db = DataBrowserFactory.getDataBrowser(grandParentObject, 
+					parentObject, leaves);
+		db.addPropertyChangeListener(controller);
+		db.activate();
+		view.addComponent(db.getUI());
+		model.setDataViewer(db);
+	}
+	
 }

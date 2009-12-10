@@ -676,9 +676,11 @@ class BrowserUI
         TreeImageDisplay display;
         List children;
         parent.removeAllChildren();
+        int browserType = model.getBrowserType();
+        Object uo;
         while (i.hasNext()) {
             display = (TreeImageDisplay) i.next();
-            tm.insertNodeInto(display, parent, parent.getChildCount());
+        	tm.insertNodeInto(display, parent, parent.getChildCount());
             if (display instanceof TreeImageSet) {
                 children = display.getChildrenDisplay();
                 if (children.size() != 0) {
@@ -697,7 +699,7 @@ class BrowserUI
                     	buildTreeNode(display, sorter.sort(children), tm);
                     }
                 } else {
-                	Object uo = display.getUserObject();
+                	uo = display.getUserObject();
                 	if (uo instanceof DatasetData) {
                 		tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
                 				display, display.getChildCount());
@@ -709,6 +711,17 @@ class BrowserUI
                 					new DefaultMutableTreeNode(EMPTY_MSG), 
                     				display, display.getChildCount());
                 		}
+                	} else if (uo instanceof PlateData) {
+                		tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
+                				display, display.getChildCount());
+                	} else if (uo instanceof FileAnnotationData) {
+                		if (browserType == Browser.SCREENS_EXPLORER) {
+                			TreeImageSet n = new TreeImageSet(uo);
+                			tm.insertNodeInto(
+                					new DefaultMutableTreeNode(EMPTY_MSG), 
+                    				n, n.getChildCount());
+                		}
+                			
                 	}
                 }  
             }

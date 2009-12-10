@@ -1440,4 +1440,44 @@ class BrowserComponent
 		}
 	}
 	
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setLeaves(Set, TreeImageSet, TreeImageSet)
+     */
+    public void setLeaves(Collection leaves, TreeImageSet parent, 
+    						TreeImageSet expNode)
+    {
+        if (model.getState() != LOADING_LEAVES) return;
+        /*
+            throw new IllegalStateException(
+                    "This method can only be invoked in the LOADING_LEAVES "+
+                    "state.");
+        */
+        if (leaves == null) throw new NullPointerException("No leaves.");
+        Object ho = expNode.getUserObject();
+        if (!(ho instanceof ExperimenterData))
+        	throw new IllegalArgumentException("Experimenter not valid");
+        ExperimenterData exp = (ExperimenterData) ho;
+        long userID = exp.getId();
+        long groupID = -1;//exp.getDefaultGroup().getId();
+        
+        Set visLeaves = TreeViewerTranslator.transformHierarchy(leaves, userID, 
+                                                                groupID);
+        view.setLeavesViews(visLeaves, parent);
+        
+        model.setState(READY);
+        if (parent != null && 
+        		parent.getUserObject() instanceof TagAnnotationData)
+        	countItems(DatasetData.class);
+        Object p = null;
+        if (parent != null && 
+        		parent.getUserObject() instanceof PlateData) {
+        	p = parent.getUserObject();
+        }
+        if (!(p instanceof PlateData))
+        	model.getParentModel().setLeaves(parent, leaves);
+        model.getParentModel().setStatus(false, "", true);
+        fireStateChange();
+    }
+    
 }

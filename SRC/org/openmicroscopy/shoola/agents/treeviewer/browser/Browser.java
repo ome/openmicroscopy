@@ -665,4 +665,16 @@ public interface Browser
 	/** Removes the passed nodes from the display. */
 	void removeTreeNodes(List<TreeImageDisplay> nodes);
 
+    /**
+     * Call-back used by a data loader to set the leaves contained in the 
+     * currently selected node.
+     * 
+     * @param leaves    The collection of leaves.
+     * @param parent    The parent of the leaves.
+     * @param expNode	The experimenter the data belonged to.
+     * @throws IllegalStateException If the current state is not 
+     *                               {@link #LOADING_LEAVES}.
+     */
+    public void setLeaves(Collection leaves, TreeImageSet parent, 
+    					TreeImageSet expNode);
 }

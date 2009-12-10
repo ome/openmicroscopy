@@ -448,7 +448,7 @@ public class DataBrowserTranslator
      *                      retrieving the data.                      
      * @return See above.
      */
-    public static Set transformHierarchy(Set dataObjects, long userID, 
+    public static Set transformHierarchy(Collection dataObjects, long userID, 
                                         long groupID)
     {
         if (dataObjects == null)
