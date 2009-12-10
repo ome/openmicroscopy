@@ -71,6 +71,12 @@ class WellFieldsView
 	extends JPanel
 {
 
+	/** The minimum value for the magnification w/o respect of distance. */
+	static final int 			MAGNIFICATION_UNSCALED_MIN = 1;
+	
+	/** The maximum value for the magnification w/o respect of distance. */
+	static final int 			MAGNIFICATION_UNSCALED_MAX = 4;
+	
 	/** Indicates to lay out the fields in a row. */
 	static final int			ROW_LAYOUT = 0;
 	
@@ -119,13 +125,16 @@ class WellFieldsView
 	/** The magnification factor. */
 	private double				 magnification;
 	
+	/** The magnification not preserving the scale. */
+	private double				 magnificationUnscaled;
+	
 	/** The component displaying the plate grid. */
 	private JXTaskPane			plateTask;
 	
 	/** Initializes the components. */
 	private void initComponents()
 	{
-		magnification = 1.0;
+		magnificationUnscaled = MAGNIFICATION_UNSCALED_MIN;
 		layoutFields = DEFAULT_LAYOUT;
 		selectedField = new JLabel();
 		grid = new PlateGrid(model.getRowSequenceIndex(), 
@@ -139,44 +148,52 @@ class WellFieldsView
 		}
 		canvas = new WellFieldsCanvas(this);
 		canvas.addMouseListener(new MouseAdapter() {
-			
-		    /**
-		     * Launches the viewer if the number of click is <code>2</code>.
-		     * @see MouseListener#mouseEntered(MouseEvent)
-		     */
+
+			/**
+			 * Launches the viewer if the number of click is <code>2</code>.
+			 * @see MouseListener#mouseEntered(MouseEvent)
+			 */
 			public void mouseReleased(MouseEvent e) {
+				WellSampleNode node = canvas.getNode(e.getPoint());
+				if (node != null) {
+					model.setSelectedField(node);
+					if (e.getClickCount() == 2)
+						model.viewNode(node);
+				}
+				/*
 				if (e.getClickCount() == 2) {
-					WellSampleNode node = canvas.getNode(e.getPoint());
+					
 					if (node != null) {
 						model.viewNode(node);
 					}
 				}
+				*/
 			}
-			
-		    /**
-		     * Displays the field's metadata.
-		     * @see MouseListener#mouseEntered(MouseEvent)
-		     */
+
+			/**
+			 * Displays the field's metadata.
+			 * @see MouseListener#mouseEntered(MouseEvent)
+			 */
 			public void mousePressed(MouseEvent e)
 			{
-				WellSampleNode node = canvas.getNode(e.getPoint());
-				if (node != null) model.setSelectedField(node);
+				//WellSampleNode node = canvas.getNode(e.getPoint());
+				//if (node != null) model.setSelectedField(node);
 			}
-			
+
 		});
 		canvas.addMouseMotionListener(new MouseMotionAdapter() {
-			
-		    /**
-		     * Sets the node which has to be zoomed when the roll over flag
-		     * is turned on. Note that the {@link ImageNode}s are the only nodes
-		     * considered.
-		     * @see MouseMotionListener#mouseMoved(MouseEvent)
-		     */
+
+			/**
+			 * Sets the node which has to be zoomed when the roll over flag
+			 * is turned on. Note that the {@link ImageNode}s are the only nodes
+			 * considered.
+			 * @see MouseMotionListener#mouseMoved(MouseEvent)
+			 */
 			public void mouseMoved(MouseEvent e) {
 				if (model.getBrowser().isRollOver()) {
 					Point p = e.getPoint();
 					WellSampleNode node = canvas.getNode(p);
-                    SwingUtilities.convertPointToScreen(p, canvas);
+					SwingUtilities.convertPointToScreen(p, canvas);
 					model.getBrowser().setRollOverNode(
 							new RollOverNode(node, p));
 				} else {
@@ -197,8 +214,8 @@ class WellFieldsView
 					}
 				}
 			}
-			
-			
+
+
 		});
 		nodes = null;
 	}
@@ -229,13 +246,16 @@ class WellFieldsView
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param model 	 Reference to the model.
-	 * @param controller Reference to the control.
+	 * @param model 	 	Reference to the model.
+	 * @param controller 	Reference to the control.
+	 * @param magnification The default magnification.
 	 */
-	WellFieldsView(WellsModel model, DataBrowserControl controller)
+	WellFieldsView(WellsModel model, DataBrowserControl controller, double
+			magnification)
 	{
 		this.model = model;
 		this.controller = controller;
+		this.magnification = magnification;
 		initComponents();
 		buildGUI();
 	}
@@ -294,8 +314,26 @@ class WellFieldsView
 	/**
 	 * Returns the magnification factor.
 	 * 
-	 * @return
+	 * @return See above.
 	 */
 	double getMagnification() { return magnification; }
+	
+	/** 
+	 * Sets the magnification factor.
+	 * 
+	 * @param factor The value to set.
+	 */
+	void setMagnificationUnscaled(double factor)
+	{
+		magnificationUnscaled = factor;
+		canvas.repaint();
+	}
+	
+	/**
+	 * Returns the magnification factor.
+	 * 
+	 * @return See above.
+	 */
+	double getMagnificationUnscaled() { return magnificationUnscaled; }
 	
 }

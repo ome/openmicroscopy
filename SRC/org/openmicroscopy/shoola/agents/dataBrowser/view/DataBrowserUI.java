@@ -311,8 +311,9 @@ class DataBrowserUI
 				selectedView = index;
 				add(wellToolBar, BorderLayout.NORTH);
 				if (fieldsView == null) {
+					f = Thumbnail.MAX_SCALING_FACTOR;
 					fieldsView  = new WellFieldsView((WellsModel) model, 
-							controller);
+							controller, f);//statusBar.getMagnificationFactor());
 				}
 				wellToolBar.displayFieldsOptions(true);
 				add(fieldsView, BorderLayout.CENTER);
@@ -441,8 +442,19 @@ class DataBrowserUI
 		//	browser.getSelectedLayout().doLayout();
 	}
 	
+	/**
+	 * Sets the magnification the <code>Fields View </code> is selected.
+	 * 
+	 * @param factor The value to set.
+	 */
+	void setMagnificationUnscaled(double factor)
+	{
+		if (selectedView == FIELDS_VIEW && fieldsView != null) 
+			fieldsView.setMagnificationUnscaled(factor);
+	}
+	
     /**
-     * Brings up the popup menu on top of the specified component at the
+     * Brings up the pop-up menu on top of the specified component at the
      * specified point.
      * 
      * @param p The point at which to display the menu, relative to the 

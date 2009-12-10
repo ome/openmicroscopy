@@ -131,7 +131,7 @@ public class PlateGrid
 			 * Loads the fields for the selected well.
 			 * @see MouseAdapter#mouseReleased(MouseEvent)
 			 */
-			public void mouseReleased(MouseEvent e)
+			public void mousePressed(MouseEvent e)
 			{
 				int row = getSelectedRow();
 				int column = getSelectedColumn();
@@ -268,9 +268,9 @@ public class PlateGrid
 		{
 			setToolTipText(model.getCellToolTip(row, column));
 			if (model.isCellValid(row, column)) {
-				setBackground(SELECTED_COLOR);
 				if (model.isCellDisplayed(row, column))
 					setBackground(FOCUS_COLOR);
+				else setBackground(SELECTED_COLOR);
 			} else {
 				setBackground(BACKGROUND_COLOR);
 			}

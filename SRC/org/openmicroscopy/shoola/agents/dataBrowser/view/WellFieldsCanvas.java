@@ -203,17 +203,19 @@ class WellFieldsCanvas
         BufferedImage img;
         Rectangle r;
         double f = parent.getMagnification();
+		double factor = parent.getMagnificationUnscaled();
         switch (parent.getLayoutFields()) {
 			case WellFieldsView.ROW_LAYOUT:
 			default:
 				int w = 0;
 				int h = 0;
+				double ff = f*factor;
 		        while (i.hasNext()) {
 					n = i.next();
 					img = n.getThumbnail().getFullScaleThumb();
-					if (f < 1) img = Factory.magnifyImage(f, img);
+					if (ff != 1) img = Factory.magnifyImage(ff, img);
 					if (img != null) {
-						if (w+img.getWidth() > WellFieldsView.DEFAULT_WIDTH*f) {
+						if (w+img.getWidth() > WellFieldsView.DEFAULT_WIDTH*ff) {
 							w = 0;
 							h += img.getHeight()+1;
 						}
@@ -272,19 +274,16 @@ class WellFieldsCanvas
 					n = i.next();
 					img = n.getThumbnail().getFullScaleThumb();
 					if (img != null) {
-						//if (f < 1) img = Factory.magnifyImage(f, img);
 						x = (int) n.getPositionX();
 						y = (int) n.getPositionY();
 						vx = (int) ((x+xc)*rx);
 						vy = (int) (WellFieldsView.DEFAULT_HEIGHT*f)-
 							(int) ((y+yc)*ry);
-						
-						w = (int) (width*rx*f);
+						w = (int) (width*rx*f*factor);
 						h = (int) (height*ry*f);
 						vy = vy-h;
 						
-						//h = (int) (height*ry*f);
-						//w = (int) (width*rx*f);
+						h = (int) (h*factor);
 						scaled = Factory.scaleBufferedImage(img, w, h);
 						r = new Rectangle(vx, vy, w, h);
 						g2D.drawImage(scaled, null, r.x, r.y); 
