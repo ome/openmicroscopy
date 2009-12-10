@@ -22,13 +22,13 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
-import pojos.WellSampleData;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.WellSampleData;
 
 /** 
  * Display the primary image associated to the wellSample.

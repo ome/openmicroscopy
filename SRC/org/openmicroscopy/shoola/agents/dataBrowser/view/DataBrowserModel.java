@@ -269,6 +269,7 @@ abstract class DataBrowserModel
     	return true;
     }
     
+    /** Cancels any-going fields loading. */
     void cancelFieldsLoading()
     {
     	if (fieldsLoader != null) fieldsLoader.cancel();

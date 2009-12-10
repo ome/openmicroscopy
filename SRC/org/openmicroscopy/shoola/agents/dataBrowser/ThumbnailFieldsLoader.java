@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.dataBrowser;
 
 //Java imports
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
@@ -33,12 +32,11 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
-import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ImageData;
 
 /** 
- * 
+ * Loads the thumbnails for the fields of a given well.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

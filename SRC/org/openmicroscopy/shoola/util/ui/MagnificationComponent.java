@@ -212,6 +212,13 @@ public class MagnificationComponent
 		currentValue = originalValue;
 	}
 	
+	/** 
+	 * Returns the current magnification factor.
+	 * 
+	 * @return See above.
+	 */
+	public double getMagnification() { return currentValue; }
+	
 	/**
 	 * Sets the icon for the specified button.
 	 * 

@@ -187,7 +187,7 @@ public class IconManager
     /** The 48x48 <code>Dataset</code> icon. */
     public static final int			DATASET_48 = 43;
     
-    /** The 48x48 <code>Dataset</code> icon. */
+    /** The <code>Field View</code> icon. */
     public static final int			FIELDS_VIEW = 44;
     
     /** 

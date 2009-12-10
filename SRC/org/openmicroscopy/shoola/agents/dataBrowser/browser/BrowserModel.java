@@ -766,4 +766,5 @@ class BrowserModel
 	    	} else onNodeSelected(node, oldValue);
 	    }
 	}
+	
 }

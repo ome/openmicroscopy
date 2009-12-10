@@ -326,7 +326,6 @@ class DataBrowserControl
 			model.loadExistingTags();
 		} else if (Browser.ROLL_OVER_PROPERTY.equals(name)) {
             if (view.isRollOver()) {
-            	 
             	RollOverNode n = (RollOverNode) evt.getNewValue();
                 if (n != null && n.getNode() != null) {
                 	ImageNode node = n.getNode();

@@ -39,7 +39,6 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.util.ui.MagnificationComponent;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
@@ -92,9 +91,9 @@ class DataBrowserStatusBar
 				WellFieldsView.MAGNIFICATION_UNSCALED_MAX*FACTOR, 
 				WellFieldsView.MAGNIFICATION_UNSCALED_MIN*FACTOR);
 		zoomSlider.setEnabled(false);
-		//zoomSlider.setShowArrows(true);
 		zoomSlider.setToolTipText("Magnifies the thumbnails.");
 		/*
+		zoomSlider.setShowArrows(true);
 		zoomSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 
 				(int) (Thumbnail.MIN_SCALING_FACTOR*FACTOR), 
 				(int) (Thumbnail.MAX_SCALING_FACTOR*FACTOR), 
@@ -206,11 +205,7 @@ class DataBrowserStatusBar
      * 
      * @return See above.
      */
-    double getMagnificationFactor()
-    {
-    	int v = zoomSlider.getValue();
-    	return (double) v/FACTOR;
-    }
+    double getMagnificationFactor() { return mag.getMagnification(); }
     
 	/** 
 	 * Zooms in or out the thumbnails.
@@ -220,7 +215,9 @@ class DataBrowserStatusBar
 	{
 		Object src = e.getSource();
 		if (src == zoomSlider) {
-			view.setMagnificationUnscaled(getMagnificationFactor());
+			int v = zoomSlider.getValue();
+	    	double f = (double) v/FACTOR;
+			view.setMagnificationUnscaled(f);
 		}
 	}
 

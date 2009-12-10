@@ -544,6 +544,7 @@ class WellsModel
 	{
 		browser.setSelectedDisplay(node, false, true);
 	}
+	
 	/**
 	 * Returns the number of rows.
 	 * 
