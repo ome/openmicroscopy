@@ -42,6 +42,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.MagnificationVisitor;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
@@ -80,6 +82,9 @@ class DataBrowserUI
 	/** ID to select the columns view. */
 	static final int			COLUMNS_VIEW = 1;
 	
+	/** ID to select the fields view. */
+	static final int			FIELDS_VIEW = 2;
+	
 	/** ID to sort the node alphabetically. */
 	static final int			SORT_BY_NAME = 2;
 	
@@ -109,6 +114,12 @@ class DataBrowserUI
 	
 	 /** The pop-up menu. */
 	private PopupMenu				popupMenu;
+	
+	/** Component displaying the fields. */
+	private WellFieldsView			fieldsView;
+	
+	/** The magnification factor. */
+	private double					factor;
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
@@ -144,12 +155,13 @@ class DataBrowserUI
 		this.model = model;
 		this.controller = controller;
 		//if (model.getType() == DataBrowserModel.WELLS)
-			wellToolBar = new DataBrowserWellToolBar(this, controller);
+		wellToolBar = new DataBrowserWellToolBar(this, controller);
 		//else
-			toolBar = new DataBrowserToolBar(this, controller);
+		toolBar = new DataBrowserToolBar(this, controller);
 
 		statusBar = new DataBrowserStatusBar(this);
 		selectedView = THUMB_VIEW;
+		factor = Thumbnail.SCALING_FACTOR;
 		setNumberOfImages(-1);
 		buildGUI();
 	}
@@ -236,7 +248,7 @@ class DataBrowserUI
      * 
      * @param hideProgressBar Whether or not to hide the progress bar.
      * @param progressPerc  The percentage value the progress bar should
-     *                      display.  If negative, it is iterpreted as
+     *                      display. If negative, it is interpreted as
      *                      not available and the progress bar will be
      *                      set to indeterminate mode.  This argument is
      *                      only taken into consideration if the progress
@@ -281,12 +293,31 @@ class DataBrowserUI
     void setSelectedView(int index) 
     {
     	removeAll();
+    	double f = Thumbnail.SCALING_FACTOR;
     	switch (index) {
 			case THUMB_VIEW:
 				selectedView = index;
-				layoutUI();
-				add(toolBar, BorderLayout.NORTH);
+				if (model.getType() == DataBrowserModel.WELLS) {
+					add(wellToolBar, BorderLayout.NORTH);
+					wellToolBar.displayFieldsOptions(false);
+				} else {
+					add(toolBar, BorderLayout.NORTH);
+					layoutUI();
+				}
 				add(model.getBrowser().getUI(), BorderLayout.CENTER);
+				f = factor;
+				break;
+			case FIELDS_VIEW:
+				selectedView = index;
+				add(wellToolBar, BorderLayout.NORTH);
+				if (fieldsView == null) {
+					f = Thumbnail.MAX_SCALING_FACTOR;
+					fieldsView  = new WellFieldsView((WellsModel) model, 
+							controller, f);//statusBar.getMagnificationFactor());
+				}
+				wellToolBar.displayFieldsOptions(true);
+				add(fieldsView, BorderLayout.CENTER);
+				f = fieldsView.getMagnification();
 				break;
 			case COLUMNS_VIEW:
 				selectedView = index;
@@ -318,7 +349,7 @@ class DataBrowserUI
 		}
     	add(statusBar, BorderLayout.SOUTH);
     	toolBar.setSelectedViewIndex(selectedView);
-    	statusBar.setSelectedViewIndex(selectedView);
+    	statusBar.setSelectedViewIndex(selectedView, f);
     	revalidate();
     	repaint();
     }
@@ -371,7 +402,7 @@ class DataBrowserUI
 	/** 
 	 * Sorts the thumbnails either alphabetically or by date.
 	 * 
-	 * @param index Th e sorting index.
+	 * @param index The sorting index.
 	 */
 	void sortBy(int index)
 	{
@@ -393,17 +424,37 @@ class DataBrowserUI
 	 */
 	void setMagnificationFactor(double factor)
 	{
-		MagnificationVisitor visitor = new MagnificationVisitor(factor);
-		Browser browser = model.getBrowser();
-		browser.accept(visitor, ImageDisplayVisitor.IMAGE_NODE_ONLY);
-		browser.accept(browser.getSelectedLayout(), 
-						ImageDisplayVisitor.IMAGE_SET_ONLY);
+		switch (selectedView) {
+			case THUMB_VIEW:
+				MagnificationVisitor visitor = new MagnificationVisitor(factor);
+				Browser browser = model.getBrowser();
+				browser.accept(visitor, ImageDisplayVisitor.IMAGE_NODE_ONLY);
+				browser.accept(browser.getSelectedLayout(), 
+								ImageDisplayVisitor.IMAGE_SET_ONLY);
+				break;
+			case FIELDS_VIEW:
+				if (fieldsView != null)
+					fieldsView.setMagnificationFactor(factor);
+				break;
+		}
+		
 		//if (model.getType() == DataBrowserModel.WELLS);
 		//	browser.getSelectedLayout().doLayout();
 	}
 	
+	/**
+	 * Sets the magnification the <code>Fields View </code> is selected.
+	 * 
+	 * @param factor The value to set.
+	 */
+	void setMagnificationUnscaled(double factor)
+	{
+		if (selectedView == FIELDS_VIEW && fieldsView != null) 
+			fieldsView.setMagnificationUnscaled(factor);
+	}
+	
     /**
-     * Brings up the popup menu on top of the specified component at the
+     * Brings up the pop-up menu on top of the specified component at the
      * specified point.
      * 
      * @param p The point at which to display the menu, relative to the 
@@ -510,4 +561,38 @@ class DataBrowserUI
 		setMagnificationFactor(statusBar.getMagnificationFactor());
 	}
 
+	/**
+	 * Indicates the status of the fields loading.
+	 * 
+	 * @param status Pass <code>true</code> while loading the fields,
+	 * 				 <code>false</code> otherwise.
+	 */
+	void setFieldsStatus(boolean status) { wellToolBar.setStatus(status); }
+
+	/**
+	 * Displays the passed fields.
+	 * 
+	 * @param nodes The nodes hosting the fields.
+	 */
+	void displayFields(List<WellSampleNode> nodes)
+	{
+		if (fieldsView == null) return;
+		setFieldsStatus(false);
+		if (selectedView == FIELDS_VIEW)
+			fieldsView.displayFields(nodes);
+	}
+
+	/**
+	 * Sets the layout used to display the fields.
+	 * 
+	 * @param index The index of the layout.
+	 */
+	void setSelectedFieldLayout(int index)
+	{
+		if (fieldsView == null) return;
+		fieldsView.setLayoutFields(index);
+		if (selectedView == FIELDS_VIEW)
+			fieldsView.displayFields(fieldsView.getNodes());
+	}
+	
 }

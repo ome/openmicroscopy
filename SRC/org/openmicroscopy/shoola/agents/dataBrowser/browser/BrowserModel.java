@@ -111,7 +111,7 @@ class BrowserModel
 	private boolean         	titleBarVisible;
 	
 	/** The node on which the mouse was located before exited. */
-	private ImageDisplay    	rollOverNode;
+	private RollOverNode    	rollOverNode;
 	
 	/** The collection of original images. */
 	private Set<ImageDisplay>	originalNodes;
@@ -247,49 +247,7 @@ class BrowserModel
     {
     	firePropertyChange(CELL_SELECTION_PROPERTY, null, cell);
     }
-    
-	/**
-	 * Sets the specified <code>node</code> to be the currently selected
-	 * node in the visualization tree.
-	 * Sets it to <code>null</code> to indicate no node is currently selected.
-	 *  
-	 * @param node           	The node to become the currently selected node.
-	 * 						 	Pass <code>null</code> only when refreshing the
-	 * 						 	display.
-	 * @param multiSelection	Pass <code>false</code> to indicate that only 
-	 * 							one node is selected, <code>true</code> 
-	 * 							otherwise.
-	 * @param fireProperty		Pass <code>true</code> to fire a property, 
-	 * 							<code>false</code> otherwise.
-	 */
-	void setSelectedDisplay(ImageDisplay node, boolean multiSelection, boolean
-							fireProperty)
-	{
-		if (node instanceof CellDisplay) return;
-	    thumbSelected = false;
-	    popupPoint = null;
-	    this.multiSelection = multiSelection;
-	    Set<ImageDisplay> oldValue = 
-	    					new HashSet<ImageDisplay>(selectedDisplays.size());
-	    Iterator i = selectedDisplays.iterator();
-	    while (i.hasNext())
-	        oldValue.add((ImageDisplay) i.next());
-	    
-	    if (!multiSelection) selectedDisplays.clear();
-	    int n = selectedDisplays.size();
-	    if (node != null) selectedDisplays.add(node);
-	    if (fireProperty) {
-	    	onNodeSelected(node, oldValue);
-	    	firePropertyChange(SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY, 
-	    			oldValue, node);
-	    } else {
-	    	if (multiSelection) {
-	    		Colors colors = Colors.getInstance();
-	    		node.setHighlight(colors.getSelectedHighLight(node, n == 0));
-	    	} else onNodeSelected(node, oldValue);
-	    }
-	}
-	
+   
 	/**
 	 * String-ifies the path from the specified node to the
 	 * {@link #rootDisplay}.
@@ -339,18 +297,6 @@ class BrowserModel
 	void setNodeForProperty(String propName, Object node)
 	{
 	    firePropertyChange(propName, null, node);
-	}
-	
-	/**
-	 * Sets the node which has to be zoomed.
-	 * 
-	 * @param newNode The node to zoom.
-	 */
-	void setRollOverNode(ImageNode newNode)
-	{
-	    ImageDisplay previousNode = rollOverNode;
-	    rollOverNode = newNode;
-	    firePropertyChange(ROLL_OVER_PROPERTY, previousNode, newNode);
 	}
 	
 	/**
@@ -777,5 +723,49 @@ class BrowserModel
 			}
 		}
 	}
+	
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#setSelectedDisplay(ImageDisplay, boolean, boolean)
+	 */
+	public void setSelectedDisplay(ImageDisplay node, boolean multiSelection, 
+			boolean fireProperty)
+	{
+		if (node instanceof CellDisplay) return;
+	    thumbSelected = false;
+	    popupPoint = null;
+	    this.multiSelection = multiSelection;
+	    Set<ImageDisplay> oldValue = 
+	    					new HashSet<ImageDisplay>(selectedDisplays.size());
+	    Iterator i = selectedDisplays.iterator();
+	    while (i.hasNext())
+	        oldValue.add((ImageDisplay) i.next());
+	    
+	    if (!multiSelection) selectedDisplays.clear();
+	    int n = selectedDisplays.size();
+	    if (node != null) selectedDisplays.add(node);
+	    if (fireProperty) {
+	    	onNodeSelected(node, oldValue);
+	    	firePropertyChange(SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY, 
+	    			oldValue, node);
+	    } else {
+	    	if (multiSelection) {
+	    		Colors colors = Colors.getInstance();
+	    		node.setHighlight(colors.getSelectedHighLight(node, n == 0));
+	    	} else onNodeSelected(node, oldValue);
+	    }
+	}
+	
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#setRollOverNode(RollOverNode)
+	 */
+	public void setRollOverNode(RollOverNode node)
+	{
+		RollOverNode previousNode = rollOverNode;
+	    rollOverNode = node;
+	    firePropertyChange(ROLL_OVER_PROPERTY, previousNode, node);
+	}
+	
 	
 }

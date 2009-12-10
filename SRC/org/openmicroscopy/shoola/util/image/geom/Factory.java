@@ -819,4 +819,25 @@ public class Factory
     	return (Icon) (new ImageIcon(bi));
     }
     
+    /**
+     * Scales the passed buffered image.
+     * 
+     * @param image  The image to scale.
+     * @param width  The width of the new image.
+     * @param height The height of the new image.
+     * @return See above.
+     */
+    public static BufferedImage scaleBufferedImage(BufferedImage image, int
+    		width, int height) {
+        
+        ColorModel cm = image.getColorModel();
+        WritableRaster r = cm.createCompatibleWritableRaster(width, height);
+        BufferedImage thumbImage = new BufferedImage(cm, r, false, null);
+
+        // Do the actual scaling and return the result
+        Graphics2D graphics2D = thumbImage.createGraphics();
+        graphics2D.drawImage(image, 0, 0, width, height, null);
+        return thumbImage;
+    }
+    
 }

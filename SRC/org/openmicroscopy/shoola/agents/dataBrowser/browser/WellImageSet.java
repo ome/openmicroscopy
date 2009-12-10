@@ -128,6 +128,18 @@ public class WellImageSet
 	}
 
 	/**
+	 * Returns the location of the well on the grid as a string.
+	 * 
+	 * @return See above.
+	 */
+	public String getWellLocation() 
+	{
+		StringBuffer buf = new StringBuffer();
+		buf.append(rowDisplay+"-"+columnDisplay);
+		return buf.toString();
+	}
+	
+	/**
 	 * Adds the passed well samples.
 	 * 
 	 * @param node The value to add.

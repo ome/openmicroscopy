@@ -25,6 +25,10 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.FlowLayout;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -37,6 +41,7 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
+import org.openmicroscopy.shoola.util.ui.MagnificationComponent;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 
 /** 
@@ -54,7 +59,7 @@ import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
  */
 class DataBrowserStatusBar 
 	extends JPanel
-	implements ChangeListener
+	implements ChangeListener, PropertyChangeListener
 {
 
 	/** The factor to use to set the magnification factor. */
@@ -72,21 +77,37 @@ class DataBrowserStatusBar
     /** Displays the status message. */
     private JLabel              status;
     
+    /** The component displaying the magnification factor. */
+    private MagnificationComponent mag;
+    
 	/** Initializes the components. */
 	private void initComponents()
 	{
-		IconManager icons = IconManager.getInstance();
-		
+		mag = new MagnificationComponent(Thumbnail.MIN_SCALING_FACTOR, 
+				Thumbnail.MAX_SCALING_FACTOR, Thumbnail.SCALING_FACTOR);
+		mag.addPropertyChangeListener(
+				MagnificationComponent.MAGNIFICATION_PROPERTY, this);
+		zoomSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 
+				WellFieldsView.MAGNIFICATION_UNSCALED_MIN*FACTOR, 
+				WellFieldsView.MAGNIFICATION_UNSCALED_MAX*FACTOR, 
+				WellFieldsView.MAGNIFICATION_UNSCALED_MIN*FACTOR);
+		zoomSlider.setEnabled(false);
+		zoomSlider.setToolTipText("Magnifies the thumbnails.");
+		/*
+		zoomSlider.setShowArrows(true);
 		zoomSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 
 				(int) (Thumbnail.MIN_SCALING_FACTOR*FACTOR), 
 				(int) (Thumbnail.MAX_SCALING_FACTOR*FACTOR), 
-				(int) (Thumbnail.SCALING_FACTOR*FACTOR));
-		zoomSlider.setEnabled(true);
+				(int) (Thumbnail.MIN_SCALING_FACTOR*FACTOR));
+		zoomSlider.setEnabled(false);
 		zoomSlider.setShowArrows(true);
-		zoomSlider.setToolTipText("Magnifies all thumbnails.");
+		zoomSlider.setToolTipText("Magnifies the thumbnails.");
+		IconManager icons = IconManager.getInstance();
 		zoomSlider.setArrowsImageIcon(
 				icons.getImageIcon(IconManager.ZOOM_IN), 
 				icons.getImageIcon(IconManager.ZOOM_OUT));
+				*/
+		zoomSlider.setVisible(false);
 		zoomSlider.addChangeListener(this);
 		progressBar = new JProgressBar();
         status = new JLabel();
@@ -102,6 +123,9 @@ class DataBrowserStatusBar
         right.add(progressBar);
         JPanel left = new JPanel();
         left.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        //left.add(zoomSlider);
+        left.add(mag);
+        left.add(Box.createHorizontalStrut(5));
         left.add(zoomSlider);
         add(left);
 		add(right);
@@ -125,10 +149,17 @@ class DataBrowserStatusBar
 	 * Sets the selected view index.
 	 * 
 	 * @param index The value to set.
+	 * @param magnification The magnification.
 	 */
-	void setSelectedViewIndex(int index)
+	void setSelectedViewIndex(int index, double magnification)
 	{
-		zoomSlider.setEnabled(index == DataBrowserUI.THUMB_VIEW);
+		zoomSlider.setEnabled(false);
+		zoomSlider.setVisible(false);
+		mag.setOriginal(magnification);
+		if (index == DataBrowserUI.FIELDS_VIEW) {
+			zoomSlider.setEnabled(true);
+			zoomSlider.setVisible(true);
+		}
 	}
 	
 	/** 
@@ -155,17 +186,13 @@ class DataBrowserStatusBar
             progressBar.setValue(perc);
         }
     }
-    
+
     /**
      * Returns the magnification factor.
      * 
      * @return See above.
      */
-    double getMagnificationFactor()
-    {
-    	int v = zoomSlider.getValue();
-    	return (double) v/FACTOR;
-    }
+    double getMagnificationFactor() { return mag.getMagnification(); }
     
 	/** 
 	 * Zooms in or out the thumbnails.
@@ -175,8 +202,24 @@ class DataBrowserStatusBar
 	{
 		Object src = e.getSource();
 		if (src == zoomSlider) {
-			view.setMagnificationFactor(getMagnificationFactor());
+			int v = zoomSlider.getValue();
+	    	double f = (double) v/FACTOR;
+			view.setMagnificationUnscaled(f);
 		}
 	}
+	
+	/** 
+	 * Sets the magnification factor.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (MagnificationComponent.MAGNIFICATION_PROPERTY.equals(name)) {
+			double v = (Double) evt.getNewValue();
+			view.setMagnificationFactor(v);
+		}
+	}
+	
 	
 }

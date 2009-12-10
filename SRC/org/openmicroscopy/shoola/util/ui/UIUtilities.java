@@ -49,8 +49,10 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
 import javax.swing.AbstractButton;
@@ -102,6 +104,9 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 public class UIUtilities
 {
 
+	/** Letter corresponding to number. */
+	public static final Map<Integer, String> LETTERS;
+	
 	/** The maximum number of characters in a line for the tool tip. */
 	public static final int					MAX_CHARACTER = 40;
 	
@@ -262,6 +267,35 @@ public class UIUtilities
 	/** The maximum width of the text when wrapping up text. */
 	private static final int		WRAP_UP_MAX_WIDTH = 50;
 
+	static {
+		LETTERS = new HashMap<Integer, String>();
+		LETTERS.put(1, "A");
+		LETTERS.put(2, "B");
+		LETTERS.put(3, "C");
+		LETTERS.put(4, "D");
+		LETTERS.put(5, "E");
+		LETTERS.put(6, "F");
+		LETTERS.put(7, "G");
+		LETTERS.put(8, "H");
+		LETTERS.put(9, "I");
+		LETTERS.put(10, "J");
+		LETTERS.put(11, "K");
+		LETTERS.put(12, "L");
+		LETTERS.put(13, "M");
+		LETTERS.put(14, "N");
+		LETTERS.put(15, "O");
+		LETTERS.put(16, "P");
+		LETTERS.put(17, "Q");
+		LETTERS.put(18, "R");
+		LETTERS.put(19, "S");
+		LETTERS.put(20, "T");
+		LETTERS.put(21, "U");
+		LETTERS.put(22, "V");
+		LETTERS.put(23, "W");
+		LETTERS.put(24, "X");
+		LETTERS.put(25, "Y");
+		LETTERS.put(26, "Z");
+	}
 	
 	/**
 	 * Centers the specified component on the screen.

@@ -240,8 +240,10 @@ class BrowserControl
             model.setNodeForProperty(Browser.ANNOTATED_NODE_PROPERTY, 
                                     evt.getNewValue());
         } else if (Browser.ROLL_OVER_PROPERTY.equals(name)) {
-            ImageDisplay newNode = (ImageDisplay) evt.getNewValue();
-            view.setTitle(model.currentPathString(newNode));
+        	RollOverNode n = (RollOverNode) evt.getNewValue();
+        	ImageNode img = null;
+        	if (n != null) img = n.getNode();
+            view.setTitle(model.currentPathString(img));
         } else if (ImageNode.PIN_THUMBNAIL_PROPERTY.equals(name)) {
         	ImageNode node = (ImageNode) evt.getNewValue();
         	model.setThumbSelected(true, node);
@@ -412,7 +414,9 @@ class BrowserControl
         }
         if (!ro) return;
         if (d instanceof ImageNode && !(d.getTitleBar() == src)) {
-            model.setRollOverNode((ImageNode) d);
+        	ImageNode img = (ImageNode) d;
+        	RollOverNode n = new RollOverNode(img, img.getLocationOnScreen());
+            model.setRollOverNode(n);
         } else model.setRollOverNode(null);
     }
 

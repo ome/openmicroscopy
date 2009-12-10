@@ -50,12 +50,15 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
+import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -1250,6 +1253,82 @@ class DataBrowserComponent
 		firePropertyChange(ADDED_TO_DATA_OBJECT_PROPERTY, 
 				Boolean.valueOf(false), Boolean.valueOf(true));
 		
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#displayFieldsView()
+	 */
+	public void displayFieldsView()
+	{
+		if (!(model instanceof WellsModel)) return;
+		int index = view.getSelectedView();
+		
+		if (index == DataBrowserUI.FIELDS_VIEW) {
+			view.setSelectedView(DataBrowserUI.THUMB_VIEW);
+			view.setFieldsStatus(false); 
+			model.cancelFieldsLoading();
+		} else if (index == DataBrowserUI.THUMB_VIEW) {
+			view.setSelectedView(DataBrowserUI.FIELDS_VIEW);
+			WellsModel wm = (WellsModel) model;
+			WellImageSet node = wm.getSelectedWell();
+			if (node != null) 
+				viewFieldsFor(node.getRow(), node.getColumn());
+		}
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#viewFieldsFor(int, int)
+	 */
+	public void viewFieldsFor(int row, int column)
+	{
+		if (!(model instanceof WellsModel)) return;
+		WellsModel wm = (WellsModel) model;
+		if (!model.loadFields(row, column)) {
+			view.displayFields(wm.getSelectedWell().getWellSamples());
+		} else {
+			view.setFieldsStatus(true);
+			fireStateChange();
+		}
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#setThumbnailsFieldsFor(List, int, int)
+	 */
+	public void setThumbnailsFieldsFor(List list, int row, int column)
+	{
+		if (!(model instanceof WellsModel)) return;
+		WellsModel wm = (WellsModel) model;
+		if (!wm.isSameWell(row, column)) return;
+		WellImageSet well = wm.getSelectedWell();
+		List<WellSampleNode> nodes = well.getWellSamples();
+		Iterator<WellSampleNode> j = nodes.iterator();
+		WellSampleNode n; 
+		Map<Long, WellSampleNode> map = new HashMap<Long, WellSampleNode>();
+		WellSampleData data;
+		while (j.hasNext()) {
+			n = j.next();
+			data = (WellSampleData) n.getHierarchyObject();
+			if (data.getId() > 0) {
+				map.put(data.getImage().getId(), n);
+			}
+		}
+		//Check the data.
+		Iterator i = list.iterator();
+		ThumbnailData td;
+		Thumbnail thumb;
+		while (i.hasNext()) {
+			td = (ThumbnailData) i.next();
+			n = map.get(td.getImageID());
+			if (n != null) {
+				thumb = n.getThumbnail();
+				thumb.setFullScaleThumb(td.getThumbnail());
+				thumb.setValid(true);
+			}
+		}
+		view.displayFields(nodes);
 	}
 	
 }

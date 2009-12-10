@@ -589,4 +589,24 @@ public interface DataBrowser
 	/** Indicates to refresh when images are added to datasets. */
 	public void refresh();
 	
+	/** Shows or hides the fields view. */
+	public void displayFieldsView();
+	
+	/** 
+	 * Loads all the fields for the specified well.
+	 * 
+	 * @param row		The row identifying the well.
+	 * @param column	The column identifying the well.
+	 */
+	public void viewFieldsFor(int row, int column);
+	
+	/**
+	 * Sets the thumbnails for all the fields of the specified well.
+	 * 
+	 * @param list 	 The collection of thumbnails.
+	 * @param row    The row identifying the well.
+	 * @param column The column identifying the well.
+	 */
+	public void setThumbnailsFieldsFor(List list, int row, int column);
+	
 }

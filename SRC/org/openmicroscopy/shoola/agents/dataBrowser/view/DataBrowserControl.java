@@ -44,6 +44,7 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.CreateExperimentAction;
+import org.openmicroscopy.shoola.agents.dataBrowser.actions.FieldsViewAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageObjectAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.RefreshAction;
@@ -54,6 +55,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.RollOverNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.FilteringDialog;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.QuickFiltering;
@@ -61,6 +63,7 @@ import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailManager;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.util.ui.PlateGrid;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
@@ -125,6 +128,9 @@ class DataBrowserControl
 	/** Identifies the <code>New Experiment</code> action. */
 	static final Integer    NEW_EXPERIMENT = Integer.valueOf(12);
 	
+	/** Identifies the <code>Fields View</code> action. */
+	static final Integer    FIELDS_VIEW = Integer.valueOf(13);
+	
 	/** 
 	 * Reference to the {@link DataBrowser} component, which, in this context,
 	 * is regarded as the Model.
@@ -162,6 +168,7 @@ class DataBrowserControl
     	actionsMap.put(SAVE_AS, new SaveAction(model));
     	actionsMap.put(TAG, new TaggingAction(model));
     	actionsMap.put(NEW_EXPERIMENT, new CreateExperimentAction(model));
+    	actionsMap.put(FIELDS_VIEW, new FieldsViewAction(model));
     }
     
 	/** 
@@ -319,17 +326,17 @@ class DataBrowserControl
 				QuickFiltering.TAG_LOADING_PROPERTY.equals(name)) {
 			model.loadExistingTags();
 		} else if (Browser.ROLL_OVER_PROPERTY.equals(name)) {
-            if (view.isRollOver()) {
-                ImageDisplay n = (ImageDisplay) evt.getNewValue();
-                if (n != null && n instanceof ImageNode) {
-                	ImageNode node = (ImageNode) n;
+			if (view.isRollOver()) {
+            	RollOverNode n = (RollOverNode) evt.getNewValue();
+                if (n != null && n.getNode() != null) {
+                	ImageNode node = n.getNode();
                 	Thumbnail prv = node.getThumbnail();
                     BufferedImage full = prv.getFullScaleThumb();
                     if (prv.getScalingFactor() == Thumbnail.MAX_SCALING_FACTOR)
                     	full = prv.getZoomedFullScaleThumb();
-                	 RollOverThumbnailManager.rollOverDisplay(full, 
-                			 node.getBounds(), node.getLocationOnScreen(), 
-                			 node.toString());
+                    RollOverThumbnailManager.rollOverDisplay(full, 
+                    		node.getBounds(), n.getLocationOnScreen(), 
+                    		node.toString());
                  } else RollOverThumbnailManager.stopOverDisplay();
            }
         } else if (SlideShowView.CLOSE_SLIDE_VIEW_PROPERTY.equals(name)) {
@@ -367,7 +374,11 @@ class DataBrowserControl
 					model.addToDatasets((Collection) entry.getValue());
 				}
 			}
-		} 
+		} else if (PlateGrid.WELL_FIELDS_PROPERTY.equals(name)) {
+			Point p = (Point) evt.getNewValue();
+			if (p == null) return;
+			model.viewFieldsFor(p.x, p.y);
+		}
 	}
 	
 }

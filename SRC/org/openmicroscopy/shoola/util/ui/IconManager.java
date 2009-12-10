@@ -464,11 +464,20 @@ public class IconManager
     /** ID of the <code>Submit icon 64</code> icon. */
     public static final int SUBMIT_ICON_64 = 132;
     
+    /** ID of the <code>Actual Size</code> icon. */
+    public static final int ACTUAL_SIZE = 133;
+    
+    /** ID of the <code>Zoom In</code> icon. */
+    public static final int ZOOM_IN = 134;
+    
+    /** ID of the <code>Zoom Out</code> icon. */
+    public static final int ZOOM_OUT = 135;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 132;
+    private static int      MAX_ID = 135;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -609,6 +618,9 @@ public class IconManager
         relPaths[COLOR_PICKER] = "nuvola_colorpicker16.png";
         relPaths[IMPORT_48] = "omeroImporterLink48.png";
         relPaths[SUBMIT_ICON_64] = "nuvola_error64.png";
+        relPaths[ACTUAL_SIZE] = "nuvola_viewmagfit16.png";
+        relPaths[ZOOM_IN] = "nuvola_viewmag+16.png";
+        relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
     }
 	
 	/**
