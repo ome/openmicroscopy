@@ -317,4 +317,14 @@ public class PlateData extends DataObject {
     	return value.getValue();
     }
     
+    /** 
+     * Returns the type of plate e.g. A 384-Well Plate, 96-Well Plate.
+     * 
+     * @return See above.
+     */
+    public String getPlateType()
+    {
+    	return "";
+    }
+
 }

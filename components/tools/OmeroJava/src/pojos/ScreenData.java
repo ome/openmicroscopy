@@ -32,6 +32,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import static omero.rtypes.*;
+import omero.model.ScreenAcquisition;
 import omero.model.Screen;
 import omero.model.ScreenI;
 import omero.model.ScreenPlateLink;
@@ -65,6 +66,14 @@ public class ScreenData extends DataObject {
      * Dataset, then this set will be empty &#151; but never <code>null</code>.
      */
     private Set plates;
+
+	/**
+ 	* All the Screen Acquisition related to this Screen. The elements of this
+ 	* set are {@link ScreenAcquisition} objects.
+ 	* If this Screen does contained in any ScreenAcquisition, 
+ 	* then this set will be empty &#151; but never <code>null</code>.
+ 	*/
+	private Set screenAcquisitions;
 
     /** Creates a new instance. */
     public ScreenData() {
@@ -235,6 +244,23 @@ public class ScreenData extends DataObject {
         return d == null ? "" : d.getValue();
     }
     
-    
+    /**
+     * Returns the screen acquisition related to this screen.
+     * 
+     * @return See above.
+     */
+    public Set<ScreenAcquisitionData> getScreenAcquisitions()
+	{
+        if (screenAcquisitions == null && 
+        		asScreen().sizeOfScreenAcquisition() >= 0) {
+        	screenAcquisitions = new HashSet<ScreenAcquisitionData>();
+            List<ScreenAcquisition> links = asScreen().copyScreenAcquisition();
+            for (ScreenAcquisition link : links) {
+            	screenAcquisitions.add(new ScreenAcquisitionData(link));
+            }
+        }
+        return screenAcquisitions == null ? null : 
+        	new HashSet<ScreenAcquisitionData>(screenAcquisitions);
+    }
     
 }
