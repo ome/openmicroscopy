@@ -435,15 +435,18 @@ public interface OmeroDataService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
+	 * Loads the wells for the specified plate and acquisition.
 	 * 
-	 * @param plateID
-	 * @param userID
+	 * @param plateID The ID of the plate.
+	 * @param acquisitionID The ID of the acquisition.
+	 * @param userID The id of the user.
 	 * @return See above
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	public Collection loadPlateWells(long plateID, long userID)
+	public Collection loadPlateWells(long plateID, long acquisitionID, 
+			long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**

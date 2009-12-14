@@ -104,8 +104,7 @@ public class ContainerFinder
     {
         Object userObject = node.getUserObject();
         if (userObject != null && userObject.getClass().equals(rootType)) {
-        	if ((userObject instanceof DatasetData) || 
-        			(userObject instanceof PlateData)) {
+        	if (userObject instanceof DatasetData) {
                 containerNodes.add(node); 
                 containers.add((DataObject) userObject);
             } else if (userObject instanceof TagAnnotationData) {

@@ -309,9 +309,10 @@ public class NullOmeroPojoService
 
 	/**
      * No-op implementation
-     * @see OmeroDataService#loadPlateWells(long, long)
+     * @see OmeroDataService#loadPlateWells(long, long, long)
      */
-	public Collection loadPlateWells(long plateID, long userID)
+	public Collection loadPlateWells(long plateID, long acquisitionID,
+			long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

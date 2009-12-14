@@ -274,19 +274,20 @@ public interface DataManagerView
 	/**
 	 * Loads to the wells contained within the specified plate.
 	 * 
-	 * @param plateIDs 	The id of the plates.
+	 * @param ids 		Map whose keys are the plate ID and values are the 
+	 * 					screen acquisition ID or <code>-1</code>.
 	 * @param userID 	The Id of the user.
-	 * @param observer  Callback handler.
+	 * @param observer  Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadPlateWells(Set<Long> plateIDs, long userID, 
+	public CallHandle loadPlateWells(Map<Long, Long> ids, long userID, 
 								AgentEventListener observer);
 	
 	/**
 	 * Deletes the passed collection.
 	 * 
 	 * @param values	The collection of object to delete.
-	 * @param observer	Callback handler.
+	 * @param observer	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle delete(Collection<DeletableObject> values, 
@@ -296,7 +297,7 @@ public interface DataManagerView
 	 * Deletes the passed object.
 	 * 
 	 * @param value		The object to delete.
-	 * @param observer	Callback handler.
+	 * @param observer	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle delete(DeletableObject value, 
@@ -306,7 +307,7 @@ public interface DataManagerView
 	 * Controls if the passed files can be imported.
 	 * 
 	 * @param list 		The collection of files to handle.
-	 * @param observer	Callback handler.
+	 * @param observer	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle checkFileFormat(List<File> list, 

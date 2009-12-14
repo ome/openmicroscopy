@@ -1224,12 +1224,13 @@ class OmeroDataServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#loadPlateWells(long, long)
+	 * @see OmeroDataService#loadPlateWells(long, long, long)
 	 */
-	public Collection loadPlateWells(long plateID, long userID) 
+	public Collection loadPlateWells(long plateID, long acquisitionID,
+			long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		return gateway.loadPlateWells(plateID, userID);
+		return gateway.loadPlateWells(plateID, acquisitionID, userID);
 	}
 
 	/**

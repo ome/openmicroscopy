@@ -48,6 +48,7 @@ import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenAcquisitionData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
@@ -439,12 +440,15 @@ public abstract class TreeImageDisplay
         	return ((TagAnnotationData) obj).getTagValue();
         else if (obj instanceof ScreenData)
         	return ((ScreenData) obj).getName();
-        else if (obj instanceof PlateData)
-        	return ((PlateData) obj).getName();
-        else if (obj instanceof FileAnnotationData)
+        else if (obj instanceof PlateData) {
+        	PlateData plate = (PlateData) obj;
+        	return plate.getName()+" "+plate.getPlateType();
+        } else if (obj instanceof FileAnnotationData)
         	return ((FileAnnotationData) obj).getFileName();
         else if (obj instanceof File)
         	return ((File) obj).getName();
+        else if (obj instanceof ScreenAcquisitionData)
+        	return ((ScreenAcquisitionData) obj).getLabel();
         else if (obj instanceof String) return (String) obj;
         return "";
     }
@@ -462,15 +466,13 @@ public abstract class TreeImageDisplay
         if (uo instanceof ImageData) {
         	if (partialName) return EditorUtil.getPartialName(name);
         	return name;
-        } else if (uo instanceof ExperimenterData)
-        	return getNodeName();
-        //else if (uo instanceof PlateData)
-        //	return getNodeName();
-        else if (uo instanceof FileAnnotationData)
-        	return getNodeName();
-        else if (uo instanceof File)
-        	return getNodeName(); 
+        } else if (uo instanceof ExperimenterData) return name;
+        else if (uo instanceof FileAnnotationData) return name;
+        else if (uo instanceof File) return name; 
+        else if (uo instanceof ScreenAcquisitionData) return name;
         else if (uo instanceof String && numberItems < 0) 
+        	return name;
+        else if ((uo instanceof PlateData) && !hasChildrenDisplay())
         	return name;
         if (numberItems < 0) return (name+SPACE+"[...]");
         return (name+SPACE+"["+numberItems+"]");
@@ -521,7 +523,7 @@ public abstract class TreeImageDisplay
     	Object uo = getUserObject();
     	if ((uo instanceof ProjectData) || (uo instanceof ScreenData) ||
     		(uo instanceof PlateData) || (uo instanceof DatasetData) ||
-    		(uo instanceof TagAnnotationData) || (uo instanceof PlateData)) {
+    		(uo instanceof TagAnnotationData)) {
     		if (numberItems > 0) return true;
         	return hasChildrenDisplay();
     	}

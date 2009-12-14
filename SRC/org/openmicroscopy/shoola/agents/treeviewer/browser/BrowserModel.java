@@ -310,11 +310,11 @@ class BrowserModel
     	} else {
     		Object ho = node.getUserObject();
             if (ho instanceof PlateData) {
+            	/*
             	currentLoader = new PlateMeasurementLoader(component, 
         				(TreeImageSet) expNode, (TreeImageSet) node);
         		currentLoader.load();
-            	//currentLoader = new PlateWellsLoader(getParentModel(), 
-    			//		(TreeImageSet) node, ((PlateData) ho).getId());
+        		*/
             } else {
             	if (ho instanceof DatasetData)  {
             		currentLoader = new ExperimenterDataLoader(component, 

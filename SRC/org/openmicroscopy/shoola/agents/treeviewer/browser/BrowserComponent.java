@@ -188,13 +188,12 @@ class BrowserComponent
 				rootType = DatasetData.class;
 			else if (type == TAGS_EXPLORER)
 				rootType = TagAnnotationData.class;
-			else if (type == SCREENS_EXPLORER)
-				rootType = PlateData.class;
 		}
 		ContainerFinder finder = new ContainerFinder(rootType);
 		accept(finder, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
 		Set<DataObject> items = finder.getContainers();
 		Set<TreeImageSet> nodes = finder.getContainerNodes();
+		if (items.size() == 0 && nodes.size() == 0) return;
 		model.fireContainerCountLoading(items, nodes);
 	}
 	

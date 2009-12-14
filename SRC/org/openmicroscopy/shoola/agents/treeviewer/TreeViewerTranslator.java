@@ -37,11 +37,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import javax.swing.filechooser.FileSystemView;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.ScreenAcquisitionI;
+
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageNode;
@@ -58,6 +59,7 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenAcquisitionData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.WellData;
@@ -80,22 +82,6 @@ import pojos.WellData;
  */
 public class TreeViewerTranslator
 {
-	
-	/**
-     * Returns the creation time associate to the image.
-     * 
-     * @param image The image to handle.
-     * @return See above.
-     */
-    public static Timestamp getAcquisitionTime(ImageData image)
-    {
-    	if (image == null) return null;
-    	Timestamp date = null;
-        try {
-        	date = image.getAcquisitionDate();
-		} catch (Exception e) {}
-		return date;
-    }
     
     /**
      * Formats the toolTip of the specified {@link TreeImageDisplay} node.
@@ -208,41 +194,37 @@ public class TreeViewerTranslator
     }
     
     /**
-     * Transforms a {@link PlateData} into a visualisation object i.e.
+     * Transforms a {@link PlateData} into a visualization object i.e.
      * a {@link TreeImageSet}.
      * 
      * @param data      The {@link PlateData} to transform.
      *                  Mustn't be <code>null</code>.
+     * @param screen	The screen this plate is related to.                
      * @param userID    The id of the current user.
      * @param groupID   The id of the group the current user selects when 
      *                      retrieving the data.                 
      * @return See above.
      */
-    private static TreeImageDisplay transformPlate(PlateData data, long userID, 
-    		long groupID)
+    private static TreeImageDisplay transformPlate(PlateData data, ScreenData
+    		screen, long userID, long groupID)
     {
         if (data == null)
             throw new IllegalArgumentException("Cannot be null");
         TreeImageSet plate =  new TreeImageSet(data);
-        /*
-        Set images = data.getImages();
-        if (images == null) dataset.setNumberItems(-1);
-        else {
-            dataset.setChildrenLoaded(Boolean.TRUE);
-            dataset.setNumberItems(images.size());
-            Iterator i = images.iterator();
-            DataObject tmp;
-            ImageData child;
-            while (i.hasNext()) {
-            	tmp = (DataObject) i.next();
-                if (tmp instanceof ImageData) {
-                	 child = (ImageData) tmp;
-                	 if (EditorUtil.isReadable(child, userID, groupID))
-                         dataset.addChildDisplay(transformImage(child));
-                }
-            }
+        if (screen != null) {
+        	Set<ScreenAcquisitionData> set = screen.getScreenAcquisitions();
+        	if (set != null) {
+        		Iterator<ScreenAcquisitionData> i = set.iterator();
+        		ScreenAcquisitionData sa;
+        		long id = data.getId();
+        		while (i.hasNext()) {
+        			sa = (ScreenAcquisitionData) i.next();
+        			if (sa.getRefPlateId() == id)
+        				plate.addChildDisplay(new TreeImageSet(sa));	
+				}
+        	}
+        	plate.setChildrenLoaded(Boolean.valueOf(true));
         }
-        */
         formatToolTipFor(plate);
         return plate;
     }
@@ -357,7 +339,7 @@ public class TreeViewerTranslator
     }
     
     /**
-     * Transforms a {@link FileAnnotationData} into a visualisation object i.e.
+     * Transforms a {@link FileAnnotationData} into a visualization object i.e.
      * a {@link TreeImageNode}.
      * 
      * @param data      The {@link FileAnnotationData} to transform.
@@ -378,7 +360,7 @@ public class TreeViewerTranslator
     }
     
     /**
-     * Transforms a {@link ProjectData} into a visualisation object i.e.
+     * Transforms a {@link ProjectData} into a visualization object i.e.
      * a {@link TreeImageSet}. The {@link DatasetData datasets} are also
      * transformed and linked to the newly created {@link TreeImageSet}.
      * 
@@ -416,7 +398,7 @@ public class TreeViewerTranslator
     }
     
     /**
-     * Transforms a {@link ScreenData} into a visualisation object i.e.
+     * Transforms a {@link ScreenData} into a visualization object i.e.
      * a {@link TreeImageSet}. The {@link PlateData plates} are also
      * transformed and linked to the newly created {@link TreeImageSet}.
      * 
@@ -441,7 +423,7 @@ public class TreeViewerTranslator
             while (i.hasNext()) {
                 child = (PlateData) i.next();
                 if (EditorUtil.isReadable(child, userID, groupID))
-                	screen.addChildDisplay(transformPlate(child, userID, 
+                	screen.addChildDisplay(transformPlate(child, data, userID, 
                                                             groupID));
             }
             screen.setNumberItems(plates.size());
@@ -454,7 +436,7 @@ public class TreeViewerTranslator
     }
     
     /**
-     * Transforms a {@link ImageData} into a visualisation object i.e.
+     * Transforms a {@link ImageData} into a visualization object i.e.
      * a {@link TreeImageNode}.
      * 
      * @param data  The {@link ImageData} to transform.
@@ -521,7 +503,7 @@ public class TreeViewerTranslator
                             ((ScreenData) ho).getPlates(), userID, 
                                                 groupID));
                 } else if (ho instanceof PlateData) {
-                	results.add(transformPlate((PlateData) ho, userID, 
+                	results.add(transformPlate((PlateData) ho, null, userID, 
                 			groupID));
                 } else if (ho instanceof WellData) {
                 	results.add(transformWell((WellData) ho, userID, groupID));
@@ -618,7 +600,8 @@ public class TreeViewerTranslator
 
                     results.add(display);
                 } else if (ho instanceof PlateData) {
-                	display = transformPlate((PlateData) ho, userID, groupID);
+                	display = transformPlate((PlateData) ho, null,
+                			userID, groupID);
                 	if (expanded != null)
                 		display.setExpanded(expanded.contains(ho.getId()));
                 	results.add(display);
@@ -629,7 +612,7 @@ public class TreeViewerTranslator
     }
     
     /**
-     * Transforms the specified {@link DataObject} into a visualisation
+     * Transforms the specified {@link DataObject} into a visualization
      * representation.
      * 
      * @param object    The {@link DataObject} to transform.
@@ -657,7 +640,7 @@ public class TreeViewerTranslator
             return transformScreen((ScreenData) object, 
             		((ScreenData) object).getPlates(), userID, groupID);
         else if (object instanceof PlateData)
-            return transformPlate((PlateData) object, userID, groupID);
+            return transformPlate((PlateData) object, null, userID, groupID);
         else if (object instanceof TagAnnotationData)
             return transformTag((TagAnnotationData) object, userID, groupID);
         throw new IllegalArgumentException("Data Type not supported.");
@@ -817,38 +800,20 @@ public class TreeViewerTranslator
         return r;
 	}
     
-    /**
-     * Transforms the directory.
+	/**
+     * Returns the creation time associate to the image.
      * 
-     * @param dir The directory to transform.
+     * @param image The image to handle.
      * @return See above.
      */
-    private static TreeImageSet transformDirectory(FileSystemView fs, File dir)
+    public static Timestamp getAcquisitionTime(ImageData image)
     {
-    	TreeImageSet dirSet = new TreeImageSet(dir);
-    	File[] files = fs.getFiles(dir, false);
-    	if (files != null && files.length > 0) {
-    		File file;
-    		TreeImageDisplay display;
-    		for (int i = 0; i < files.length; i++) {
-    			file = files[i];
-    			if (file.isDirectory()) {
-        			if (!file.isHidden()) {
-        				//dirSet.addChildDisplay(transformDirectory(fs, file));
-        				
-        				dirSet.addChildDisplay(new TreeImageSet(file));
-        			}
-        				
-        		} else {
-        			/*
-        			display = transformFile(file);
-        			if (display != null) 
-        				dirSet.addChildDisplay(display);
-        				*/
-        		}
-			}
-    	}
-    	return dirSet;
+    	if (image == null) return null;
+    	Timestamp date = null;
+        try {
+        	date = image.getAcquisitionDate();
+		} catch (Exception e) {}
+		return date;
     }
     
 }

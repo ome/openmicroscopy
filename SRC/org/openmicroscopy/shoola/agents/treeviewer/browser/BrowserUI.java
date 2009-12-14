@@ -81,6 +81,7 @@ import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenAcquisitionData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
@@ -332,12 +333,14 @@ class BrowserUI
             	TreeImageDisplay d  = model.getLastSelectedDisplay();
                 if (d == null) return;
                 Object o = d.getUserObject();
-                if ((o instanceof ImageData) || (o instanceof PlateData)) {
+                if (o instanceof ImageData) {
                 	model.browser(d);
                 } else if (o instanceof FileAnnotationData) {
                 	model.openFile(d);
                 } else if (o instanceof PlateData) {
-                	
+                	if (!d.hasChildrenDisplay()) model.browser(d);
+                } else if (o instanceof ScreenAcquisitionData) {
+                	model.browser(d);
                 }
             }
         }
@@ -711,9 +714,9 @@ class BrowserUI
                 					new DefaultMutableTreeNode(EMPTY_MSG), 
                     				display, display.getChildCount());
                 		}
-                	} else if (uo instanceof PlateData) {
-                		tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
-                				display, display.getChildCount());
+                	//} else if (uo instanceof PlateData) {
+                		//tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
+                		//		display, display.getChildCount());
                 	} else if (uo instanceof FileAnnotationData) {
                 		if (browserType == Browser.SCREENS_EXPLORER) {
                 			TreeImageSet n = new TreeImageSet(uo);

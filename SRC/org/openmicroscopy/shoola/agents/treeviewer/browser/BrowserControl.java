@@ -58,6 +58,8 @@ import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenAcquisitionData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -216,7 +218,8 @@ class BrowserControl
         	//}
         	return;
         }
-        if (ho instanceof ProjectData) {
+        if ((ho instanceof ProjectData) || (ho instanceof ScreenData) ||
+        		(ho instanceof PlateData)) {
         	if (display.numberItems == 0) return;
         }
         
@@ -228,7 +231,7 @@ class BrowserControl
         	return;
         }
         if ((ho instanceof DatasetData) || (ho instanceof TagAnnotationData) 
-        		|| (ho instanceof PlateData)) {
+        		) {//|| (ho instanceof PlateData)) {
         	model.loadExperimenterData(BrowserFactory.getDataOwner(display), 
         			display);
         } else if (ho instanceof ExperimenterData) {
@@ -312,6 +315,10 @@ class BrowserControl
         	if (ImageData.class.equals(ref)) text = "Images.";
         	else if (ProjectData.class.equals(ref)) text = "Projects.";
         	else if (DatasetData.class.equals(ref)) text = "Datasets.";
+        	else if (ScreenData.class.equals(ref)) text = "Screens.";
+        	else if (PlateData.class.equals(ref)) text = "Plates.";
+        	else if (ScreenAcquisitionData.class.equals(ref)) 
+        		text = "Acquisitions.";
         	else if (TagAnnotationData.class.equals(ref)) {
         		tag = (TagAnnotationData) ho;
         		if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(

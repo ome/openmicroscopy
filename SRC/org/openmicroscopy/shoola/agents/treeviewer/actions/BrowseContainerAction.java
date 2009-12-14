@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.util.List;
 
 import javax.swing.Action;
 
@@ -48,6 +49,7 @@ import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenAcquisitionData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
@@ -145,23 +147,23 @@ public class BrowseContainerAction
         Browser browser = model.getSelectedBrowser();
         if (selectedDisplay instanceof TreeImageTimeSet) {
         	
-            putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER));
-            putValue(Action.SHORT_DESCRIPTION, 
-                    UIUtilities.formatToolTipText(DESCRIPTION_TIME));
-            if (withThumnails) name = NAME;
+        	putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER));
+        	putValue(Action.SHORT_DESCRIPTION, 
+        			UIUtilities.formatToolTipText(DESCRIPTION_TIME));
+        	if (withThumnails) name = NAME;
         	else {
         		name = NAME_NO_TUMBNAILS;
         		setEnabled(false);
         		return;
         	}
-           TreeImageDisplay[] array = browser.getSelectedDisplays();
-            if (array != null && array.length > 1) {
-            	setEnabled(false);
-            } else {
-            	TreeImageTimeSet timeNode = (TreeImageTimeSet) selectedDisplay;
-            	long number = timeNode.getNumberItems();
-            	setEnabled(number > 0);
-            	/*
+        	TreeImageDisplay[] array = browser.getSelectedDisplays();
+        	if (array != null && array.length > 1) {
+        		setEnabled(false);
+        	} else {
+        		TreeImageTimeSet timeNode = (TreeImageTimeSet) selectedDisplay;
+        		long number = timeNode.getNumberItems();
+        		setEnabled(number > 0);
+        		/*
             	if (number == 0) setEnabled(false);
             	else {
             		List l = timeNode.getChildrenDisplay();
@@ -169,8 +171,8 @@ public class BrowseContainerAction
             			setEnabled((l.get(0) instanceof TreeImageTimeSet));
             		else setEnabled(false);
             	}
-            	*/
-            }
+        		 */
+        	}
             
             return;
         }
@@ -214,11 +216,14 @@ public class BrowseContainerAction
         	
             if (selectedDisplay instanceof TreeImageSet) {
             	long n = ((TreeImageSet) selectedDisplay).getNumberItems();
-            	
             	if (ho instanceof ScreenData) setEnabled(false);
                 else if (ho instanceof PlateData) {
-                	setEnabled(true);
+                	List l = selectedDisplay.getChildrenDisplay();
                 	description = DESCRIPTION_PLATE;
+                	setEnabled((l == null || l.size() == 0));
+                } else if (ho instanceof ScreenAcquisitionData) {
+                	description = DESCRIPTION_PLATE;
+                	setEnabled(true);
                 } else if (ho instanceof ProjectData) {
                 	description = DESCRIPTION_PROJECT;
                 	setEnabled(n > 0);

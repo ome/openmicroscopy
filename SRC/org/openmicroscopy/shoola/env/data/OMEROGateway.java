@@ -147,6 +147,9 @@ import omero.model.ProjectI;
 import omero.model.RenderingDef;
 import omero.model.Roi;
 import omero.model.Screen;
+import omero.model.ScreenAcquisition;
+import omero.model.ScreenAcquisitionI;
+import omero.model.ScreenAcquisitionWellSampleLink;
 import omero.model.ScreenI;
 import omero.model.Shape;
 import omero.model.TagAnnotation;
@@ -176,6 +179,7 @@ import pojos.ProjectData;
 import pojos.ROICoordinate;
 import pojos.ROIData;
 import pojos.RatingAnnotationData;
+import pojos.ScreenAcquisitionData;
 import pojos.ScreenData;
 import pojos.ShapeData;
 import pojos.TagAnnotationData;
@@ -685,6 +689,10 @@ class OMEROGateway
 		else if (ProjectI.class.equals(klass)) table = "ProjectDatasetLink";
 		else if (Screen.class.equals(klass)) table = "ScreenPlateLink";
 		else if (ScreenI.class.equals(klass)) table = "ScreenPlateLink";
+		else if (ScreenAcquisitionData.class.equals(klass))
+			table = "ScreenAcquisitionWellSampleLink";
+		else if (ScreenAcquisitionI.class.equals(klass))
+			table = "ScreenAcquisitionWellSampleLink";
 		else if (TagAnnotation.class.equals(klass)) 
 			table = "AnnotationAnnotationLink";
 		else if (TagAnnotationI.class.equals(klass)) 
@@ -1513,6 +1521,8 @@ class OMEROGateway
 			return Well.class;
 		else if (WellSampleData.class.equals(nodeType)) 
 			return WellSample.class;
+		else if (ScreenAcquisitionData.class.equals(nodeType))
+			return ScreenAcquisition.class;
 		throw new IllegalArgumentException("NodeType not supported");
 	}
 	
@@ -1761,6 +1771,48 @@ class OMEROGateway
 	}
 
 	/**
+	 * Links the plate to the screen acquisition if any.
+	 * 
+	 * @param set The collection of screen acquisition linked to the screen.
+	 * @param plate The plate to link the screen acquisition to.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in.
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	private void linkScreenAcquisitionPlate(Set<ScreenAcquisitionData> set, 
+			PlateData plate)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (set == null || set.size() == 0) return;
+		ScreenAcquisitionData sa;
+		Iterator<ScreenAcquisitionData> i = set.iterator();
+		List<ScreenAcquisitionData> l = new ArrayList<ScreenAcquisitionData>();
+		StringBuffer sb;
+		ParametersI param = new ParametersI();
+		param.addLong("pid", plate.getId());
+		IQueryPrx svc = getQueryService();
+		IObject r;
+		try {
+			while (i.hasNext()) {
+				sa = i.next();
+				sb = new StringBuffer();
+				sb.append("select l from ScreenAcquisitionWellSampleLink as l");
+				sb.append(" where l.child.well.plate.id = :pid");
+				r = svc.findByQuery(sb.toString(), param);
+				if (r != null) {
+					sa.setRefPlateId(plate.getId());
+					l.add(sa);
+					break;
+				}
+			}
+			set.removeAll(l);
+		} catch (Exception e) {
+			e.printStackTrace();
+			handleException(e, "Cannot find Screen Acquisiton.");
+		}
+	}
+	
+	/**
 	 * Retrieves hierarchy trees rooted by a given node.
 	 * i.e. the requested node as root and all of its descendants.
 	 * The annotation for the current user is also linked to the object.
@@ -1788,8 +1840,39 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IContainerPrx service = getPojosService();
-			return PojoMapper.asDataObjects(service.loadContainerHierarchy(
-				convertPojos(rootType).getName(), rootIDs, options));
+			Set values = PojoMapper.asDataObjects(
+					service.loadContainerHierarchy(
+					convertPojos(rootType).getName(), rootIDs, options));
+			if (ScreenData.class.equals(rootType)) {
+				Iterator i = values.iterator();
+				ScreenAcquisitionData sa;
+				ScreenData screen;
+				Object object;
+				Set<ScreenAcquisitionData> list;
+				Set<PlateData> plates;
+				Iterator<PlateData> j;
+				while (i.hasNext()) {
+					object = i.next();
+					if (object instanceof ScreenData) {
+						screen = (ScreenData) object;
+						list = new HashSet<ScreenAcquisitionData>();
+						ScreenAcquisitionI sai = new ScreenAcquisitionI(1, true);
+			        	list.add(new ScreenAcquisitionData(sai));
+						list.addAll(screen.getScreenAcquisitions());
+						plates = screen.getPlates();
+						if (list != null && list.size() > 0) {
+							if (plates != null && plates.size() > 0) {
+								j = plates.iterator();
+								while (j.hasNext()) {
+									linkScreenAcquisitionPlate(list, 
+											(PlateData) j.next());
+								}
+							}
+						}
+					}
+				}
+			}
+			return values;
 		} catch (Throwable t) {
 			handleException(t, "Cannot load hierarchy for " + rootType+".");
 		}
@@ -4096,54 +4179,59 @@ class OMEROGateway
 	}
 	
 	//TMP: 
-	Set loadPlateWells(long plateID, long userID)
+	Set loadPlateWells(long plateID, long acquisitionID, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
 			List results = null;
+			Set<DataObject> wells = new HashSet<DataObject>();
+			Iterator i;
 			IQueryPrx service = getQueryService();
 			StringBuilder sb = new StringBuilder();
 			ParametersI param = new ParametersI();
 			param.addLong("plateID", plateID);
-			
 			sb.append("select well from Well as well ");
 			sb.append("left outer join fetch well.plate as pt ");
 			sb.append("left outer join fetch well.wellSamples as ws ");
 			sb.append("left outer join fetch ws.image as img ");
-			
 			sb.append("left outer join fetch img.pixels as pix ");
             sb.append("left outer join fetch pix.pixelsType as pt ");
-			
             sb.append("where well.plate.id = :plateID");
+            
+			if (acquisitionID > 0) {
+				results = findLinks(ScreenAcquisitionData.class, 
+						acquisitionID, userID);
+				//Get the id of the well samples.
+				List<Long> ids = new ArrayList<Long>();
+				i = results.iterator();
+				ScreenAcquisitionWellSampleLink link;
+				IObject child;
+				while (i.hasNext()) {
+					link = (ScreenAcquisitionWellSampleLink) i.next();
+					child = link.getChild();
+					if (child != null) {
+						ids.add(child.getId().getValue());
+					}
+				}
+				if (ids.size() == 0) return wells;
+				param.addLongs("ids", ids);
+				sb.append(" and ws.id in (:ids)");
+			}
             results = service.findAllByQuery(sb.toString(), param);
-			Iterator i;
-			Well well;
-			Set<DataObject> wells = new HashSet<DataObject>();
+
 			i = results.iterator();
-			WellData wellData;
-			List<WellSampleData> list;
+			
 			Map<Long, List<WellSampleData>> 
 				map = new HashMap<Long, List<WellSampleData>>();
 			Iterator<WellSample> j;
 			WellSample ws;
-			
+			List<WellSampleData> list;
+			Well well;
 			while (i.hasNext()) {
 				well = (Well) i.next();
-				wellData = (WellData) PojoMapper.asDataObject(well);
-				/*
-				list = new ArrayList<WellSampleData>();
-				j = well.iterateWellSamples();
-				while (j.hasNext()) {
-					ws = j.next();
-					list.add((WellSampleData) PojoMapper.asDataObject(ws));
-				}
-				wellData.setWellSamples(list);
-				*/
-				wells.add(wellData);
+				wells.add((WellData) PojoMapper.asDataObject(well));
 			}
-
-			
 			return wells;
 		} catch (Exception e) {
 			handleException(e, "Cannot load plate");
