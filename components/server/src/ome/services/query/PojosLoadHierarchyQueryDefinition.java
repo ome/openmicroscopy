@@ -61,6 +61,7 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
                     + "this.imageLinksCountPerOwner this_i_c ");
         } else if (Screen.class.isAssignableFrom(klass)) {
         	sb.append("select this from Screen this ");
+        	sb.append("left outer join fetch this.screenAcquisition sa ");
             sb.append("left outer join fetch this.plateLinks pdl ");
             sb.append("left outer join fetch pdl.child ds ");
             sb.append("left outer join fetch "
