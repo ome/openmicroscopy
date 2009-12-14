@@ -193,6 +193,7 @@ class BrowserComponent
 		accept(finder, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
 		Set<DataObject> items = finder.getContainers();
 		Set<TreeImageSet> nodes = finder.getContainerNodes();
+		if (items.size() == 0 && nodes.size() == 0) return;
 		model.fireContainerCountLoading(items, nodes);
 	}
 	

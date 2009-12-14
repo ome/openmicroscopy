@@ -46,6 +46,7 @@ import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenAcquisitionData;
 import pojos.TagAnnotationData;
 import pojos.WellData;
 
@@ -112,18 +113,17 @@ public class DataBrowserFactory
 	/**
 	 * Creates a new {@link DataBrowser} for the passed collection of images.
 	 * 
-	 * @param grandParent	The grandparent of the node.
+	 * @param ancestors		Map containing the ancestors of the node.
 	 * @param parent		The parent's node.
 	 * @param wells			The collection to set.
 	 * @param withThumbnails Pass <code>true</code> to load the thumbnails,
      * 						 <code>false</code> otherwise.
 	 * @return See above.
 	 */
-	public static final DataBrowser getWellsDataBrowser(Object grandParent, 
-										Object parent, Set<WellData> wells, 
-										boolean withThumbnails)
+	public static final DataBrowser getWellsDataBrowser(Map<Class, Object> 
+		ancestors, Object parent, Set<WellData> wells, boolean withThumbnails)
 	{
-		return singleton.createWellsDataBrowser(grandParent, parent, wells,
+		return singleton.createWellsDataBrowser(ancestors, parent, wells,
 				withThumbnails);
 	}
 	
@@ -337,18 +337,34 @@ public class DataBrowserFactory
 	/**
 	 * Creates a new {@link DataBrowser} for the passed collection of wells.
 	 * 
-	 * @param grandParent	The grandParent of the node.
+	 * @param ancestors		Map containing the ancestors of the node.
 	 * @param parent		The parent's node.
 	 * @param wells			The collection to set.
 	 * @param withThumbnails Pass <code>true</code> to load the thumbnails,
      * 						 <code>false</code> otherwise.
 	 * @return See above.
 	 */
-	private DataBrowser createWellsDataBrowser(Object grandParent, 
+	private DataBrowser createWellsDataBrowser(Map<Class, Object> ancestors, 
 			Object parent, Set<WellData> wells, boolean withThumbnails)
 	{
-		DataBrowserModel model = new WellsModel(parent, wells, withThumbnails);
-		model.setGrandParent(grandParent);
+		Object p = parent;
+		Object go = null;
+		if (parent instanceof ScreenAcquisitionData) {
+			p = ancestors.get(PlateData.class);
+			if (p == null) return null;
+			ancestors.remove(PlateData.class);
+		}
+		if (ancestors.size() > 0) {
+			Iterator i = ancestors.entrySet().iterator();
+			Entry entry;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				go = entry.getKey();
+				break;
+			}
+		}
+		DataBrowserModel model = new WellsModel(p, wells, withThumbnails);
+		model.setGrandParent(go);
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
 		comp.initialize();

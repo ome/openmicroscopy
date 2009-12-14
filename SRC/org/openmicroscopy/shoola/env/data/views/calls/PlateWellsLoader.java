@@ -29,7 +29,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
@@ -64,18 +64,30 @@ public class PlateWellsLoader
     /**
      * Creates a {@link BatchCall} to retrieve the wells-wellsample-image.
      * 
-     * @param plateIDs  The collection of plate's ids.
+     * @param ids  Map whose keys are the plate ID and values are the 
+     * 				screen acquisition ID or <code>-1</code>.
      * @param userID   The id of the user who tagged the object or 
      * 				   <code>-1</code> if the user is not specified.
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadPlateWells(final Set<Long> plateIDs, 
+    private BatchCall loadPlateWells(final Map<Long, Long> ids, 
     		final long userID)
     {
-        return new BatchCall("Loading Screen-Plate") {
+    	return new BatchCall("Loading Plate Wells") {
             public void doCall() throws Exception
             {
             	OmeroDataService os = context.getDataService();
+            	Map<Long, Collection> r = new HashMap<Long, Collection>();
+            	Entry entry;
+            	Iterator i = ids.entrySet().iterator();
+            	long key, value;
+            	while (i.hasNext()) {
+					entry = (Entry) i.next();
+					key = (Long) entry.getKey();
+					value = (Long) entry.getValue();
+					r.put(key, os.loadPlateWells(key, value, userID));
+				}
+            	/*
             	Iterator<Long> i = plateIDs.iterator();
             	long id;
             	Map<Long, Collection> r = new HashMap<Long, Collection>();
@@ -83,6 +95,7 @@ public class PlateWellsLoader
 					id = i.next();
 					r.put(id, os.loadPlateWells(id, userID));
 				}
+				*/
             	result = r;
             }
         };
@@ -103,12 +116,13 @@ public class PlateWellsLoader
     /**
      * Creates a new instance.
      * 
-     * @param plateIDs  The collection of plate's ids.
+     * @param ids 	Map whose keys are the plate ID and values are the 
+     * 				screen acquisition ID or <code>-1</code>.  
      * @param userID  	The id of the user.
      */
-    public PlateWellsLoader(Set<Long> plateIDs, long userID)
+    public PlateWellsLoader(Map<Long, Long> ids, long userID)
     {
-    	loadCall = loadPlateWells(plateIDs, userID);
+    	loadCall = loadPlateWells(ids, userID);
     }
     
 }

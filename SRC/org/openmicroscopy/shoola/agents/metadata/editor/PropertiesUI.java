@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -76,6 +75,7 @@ import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenAcquisitionData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.WellData;
@@ -770,6 +770,8 @@ class PropertiesUI
         else if (refObject instanceof ProjectData) text = "Project";
         else if (refObject instanceof ScreenData) text = "Screen";
         else if (refObject instanceof PlateData) text = "Plate";
+        else if (refObject instanceof ScreenAcquisitionData)
+        	text = "Plate Run";
         else if (refObject instanceof FileAnnotationData) {
         	FileAnnotationData fa = (FileAnnotationData) refObject;
         	String ns = fa.getNameSpace();
@@ -800,7 +802,8 @@ class PropertiesUI
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;
 		descriptionPane.setText(originalDescription);
         boolean b = model.isCurrentUserOwner(model.getRefObject());
-        if (refObject instanceof WellSampleData) b = false;
+        if ((refObject instanceof WellSampleData) ||
+        		(refObject instanceof ScreenAcquisitionData)) b = false;
         namePane.setEnabled(b);
         descriptionPane.setEnabled(b);
         //if (refObject instanceof FolderData)

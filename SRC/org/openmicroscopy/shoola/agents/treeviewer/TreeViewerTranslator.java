@@ -42,6 +42,8 @@ import javax.swing.filechooser.FileSystemView;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.ScreenAcquisitionI;
+
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageNode;
@@ -58,6 +60,7 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenAcquisitionData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.WellData;
@@ -219,36 +222,35 @@ public class TreeViewerTranslator
      * 
      * @param data      The {@link PlateData} to transform.
      *                  Mustn't be <code>null</code>.
+     * @param screen 	The screen this plate is related to.
      * @param userID    The id of the current user.
      * @param groupID   The id of the group the current user selects when 
      *                      retrieving the data.                 
      * @return See above.
      */
-    private static TreeImageDisplay transformPlate(PlateData data, long userID, 
-    		long groupID)
+    private static TreeImageDisplay transformPlate(PlateData data, ScreenData
+    		screen, long userID, long groupID)
     {
         if (data == null)
             throw new IllegalArgumentException("Cannot be null");
         TreeImageSet plate =  new TreeImageSet(data);
-        /*
-        Set images = data.getImages();
-        if (images == null) dataset.setNumberItems(-1);
-        else {
-            dataset.setChildrenLoaded(Boolean.TRUE);
-            dataset.setNumberItems(images.size());
-            Iterator i = images.iterator();
-            DataObject tmp;
-            ImageData child;
-            while (i.hasNext()) {
-            	tmp = (DataObject) i.next();
-                if (tmp instanceof ImageData) {
-                	 child = (ImageData) tmp;
-                	 if (EditorUtil.isReadable(child, userID, groupID))
-                         dataset.addChildDisplay(transformImage(child));
-                }
-            }
+        if (screen != null) {
+        	Set<ScreenAcquisitionData> set = screen.getScreenAcquisitions();
+        	if (set != null) {
+        		Iterator<ScreenAcquisitionData> i = set.iterator();
+        		ScreenAcquisitionData sa;
+        		long id = data.getId();
+        		while (i.hasNext()) {
+        			sa = (ScreenAcquisitionData) i.next();
+        			if (sa.getRefPlateId() == id)
+        				plate.addChildDisplay(new TreeImageSet(sa));	
+				}
+        		plate.setChildrenLoaded(Boolean.valueOf(true));
+        	}
+        	//ScreenAcquisitionI sa = new ScreenAcquisitionI(1, true);
+        	//plate.addChildDisplay(new TreeImageSet(new ScreenAcquisitionData(sa)));
+        	//plate.setChildrenLoaded(Boolean.valueOf(true));
         }
-        */
         formatToolTipFor(plate);
         return plate;
     }
@@ -447,7 +449,7 @@ public class TreeViewerTranslator
             while (i.hasNext()) {
                 child = (PlateData) i.next();
                 if (EditorUtil.isReadable(child, userID, groupID))
-                	screen.addChildDisplay(transformPlate(child, userID, 
+                	screen.addChildDisplay(transformPlate(child, data, userID, 
                                                             groupID));
             }
             screen.setNumberItems(plates.size());
@@ -527,7 +529,7 @@ public class TreeViewerTranslator
                             ((ScreenData) ho).getPlates(), userID, 
                                                 groupID));
                 } else if (ho instanceof PlateData) {
-                	results.add(transformPlate((PlateData) ho, userID, 
+                	results.add(transformPlate((PlateData) ho, null, userID, 
                 			groupID));
                 } else if (ho instanceof WellData) {
                 	results.add(transformWell((WellData) ho, userID, groupID));
@@ -624,7 +626,8 @@ public class TreeViewerTranslator
 
                     results.add(display);
                 } else if (ho instanceof PlateData) {
-                	display = transformPlate((PlateData) ho, userID, groupID);
+                	display = transformPlate((PlateData) ho, null, userID, 
+                			groupID);
                 	if (expanded != null)
                 		display.setExpanded(expanded.contains(ho.getId()));
                 	results.add(display);
@@ -663,7 +666,7 @@ public class TreeViewerTranslator
             return transformScreen((ScreenData) object, 
             		((ScreenData) object).getPlates(), userID, groupID);
         else if (object instanceof PlateData)
-            return transformPlate((PlateData) object, userID, groupID);
+            return transformPlate((PlateData) object, null, userID, groupID);
         else if (object instanceof TagAnnotationData)
             return transformTag((TagAnnotationData) object, userID, groupID);
         throw new IllegalArgumentException("Data Type not supported.");

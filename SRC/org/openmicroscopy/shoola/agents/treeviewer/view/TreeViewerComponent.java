@@ -93,6 +93,7 @@ import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenAcquisitionData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.WellSampleData;
@@ -1920,18 +1921,30 @@ class TreeViewerComponent
 		Object parentObject;
 		TreeImageSet parent;
 		TreeImageDisplay display;
-		Object grandParentObject = null;
+		Object gpo = null;
 		DataBrowser db = null;
 		if (n == 1) {
+			Map<Class, Object> m = new HashMap<Class, Object>();
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				parent = (TreeImageSet) entry.getKey();
 				parentObject = parent.getUserObject();
 				display = parent.getParentDisplay();
-				if (display != null) 
-					grandParentObject =  display.getUserObject();
-				db = DataBrowserFactory.getWellsDataBrowser(
-						grandParentObject, parentObject, 
+				if (display != null) {
+					gpo = display.getUserObject();
+					if (gpo != null)
+						m.put(gpo.getClass(), gpo);
+					if (gpo instanceof PlateData) {
+						display = display.getParentDisplay();
+						if (display != null) {
+							gpo = display.getUserObject();
+							if (gpo != null)
+								m.put(gpo.getClass(), gpo);
+						}
+					}
+				}
+				
+				db = DataBrowserFactory.getWellsDataBrowser(m, parentObject, 
 						(Set) entry.getValue(), withThumbnails);
 			}
 		}
@@ -1988,6 +2001,12 @@ class TreeViewerComponent
 		} else if (node instanceof TreeImageTimeSet) {
 			model.browseTimeInterval((TreeImageTimeSet) node);
 		} else if (uo instanceof PlateData) {
+			List l = node.getChildrenDisplay();
+			if (l != null && l.size() > 0) return;
+			List<TreeImageDisplay> plates = new ArrayList<TreeImageDisplay>();
+			plates.add(node);
+			model.browsePlates(plates, withThumbnails);
+		} else if (uo instanceof ScreenAcquisitionData) {
 			List<TreeImageDisplay> plates = new ArrayList<TreeImageDisplay>();
 			plates.add(node);
 			model.browsePlates(plates, withThumbnails);

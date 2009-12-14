@@ -34,10 +34,14 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import pojos.DataObject;
 import pojos.PlateData;
+import pojos.ScreenAcquisitionData;
 
 
 /** 
@@ -68,6 +72,12 @@ public class PlateWellsLoader
     /** Flag indicating to load or not the thumbnails. */
     private boolean						withThumbnails;
     
+    /** 
+     * Map whose keys are the plate ID and values are the screen acquisition
+     * ID or <code>-1</code>.
+     */
+    private Map<Long, Long>				ids;
+    
     /**
      * Creates a new instance.
      * 
@@ -85,13 +95,28 @@ public class PlateWellsLoader
 			throw new IllegalArgumentException("No plates specified.");
 		this.withThumbnails = withThumbnails;
 		nodes = new HashMap<Long, TreeImageSet>(plates.size());
+		ids = new HashMap<Long, Long>(plates.size());
 		Iterator<TreeImageSet> i = plates.iterator();
 		TreeImageSet p;
-		PlateData plate;
+		TreeImageDisplay parent;
+		DataObject data, parentData;
+		ScreenAcquisitionData sa;
 		while (i.hasNext()) {
 			p = i.next();
-			plate = (PlateData) p.getUserObject();
-			nodes.put(plate.getId(), p);
+			data = (DataObject) p.getUserObject();
+			
+			if (data instanceof ScreenAcquisitionData) {
+				sa = (ScreenAcquisitionData) data;
+				parent = p.getParentDisplay();
+				parentData = (DataObject) parent.getUserObject();
+				if (parentData instanceof PlateData) {
+					nodes.put(parentData.getId(), p);
+					ids.put(parentData.getId(), data.getId());
+				}
+			} else if (data instanceof PlateData) {
+				nodes.put(data.getId(), p);
+				ids.put(data.getId(), -1L);
+			}
 		}
 	}
 	
@@ -101,7 +126,7 @@ public class PlateWellsLoader
 	 */
     public void load()
     {
-    	handle = dmView.loadPlateWells(nodes.keySet(), -1, this);
+    	handle = dmView.loadPlateWells(ids, -1, this);
     }
 
     /**

@@ -97,6 +97,7 @@ import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.RatingAnnotationData;
+import pojos.ScreenAcquisitionData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
@@ -444,6 +445,8 @@ class EditorModel
 			name = ((ScreenData) ref).getName();
 		else if (ref instanceof PlateData)
 			name = ((PlateData) ref).getName();
+		else if (ref instanceof ScreenAcquisitionData)
+			name = ((ScreenAcquisitionData) ref).getLabel();
 		else if (ref instanceof FileAnnotationData)
 			name = ((FileAnnotationData) ref).getFileName();
 		else if (ref instanceof WellSampleData) {

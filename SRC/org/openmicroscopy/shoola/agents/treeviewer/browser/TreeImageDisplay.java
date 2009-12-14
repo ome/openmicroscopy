@@ -48,6 +48,7 @@ import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenAcquisitionData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
@@ -443,6 +444,8 @@ public abstract class TreeImageDisplay
         	return ((PlateData) obj).getName();
         else if (obj instanceof FileAnnotationData)
         	return ((FileAnnotationData) obj).getFileName();
+        else if (obj instanceof ScreenAcquisitionData)
+        	return ((ScreenAcquisitionData) obj).getLabel();
         else if (obj instanceof File)
         	return ((File) obj).getName();
         else if (obj instanceof String) return (String) obj;
@@ -457,20 +460,18 @@ public abstract class TreeImageDisplay
      */
     public String getNodeText()
     {
-        String name = getNodeName();
+    	String name = getNodeName();
         Object uo = getUserObject();
         if (uo instanceof ImageData) {
         	if (partialName) return EditorUtil.getPartialName(name);
         	return name;
-        } else if (uo instanceof ExperimenterData)
-        	return getNodeName();
-        else if (uo instanceof PlateData)
-        	return getNodeName();
-        else if (uo instanceof FileAnnotationData)
-        	return getNodeName();
-        else if (uo instanceof File)
-        	return getNodeName(); 
+        } else if (uo instanceof ExperimenterData) return name;
+        else if (uo instanceof FileAnnotationData) return name;
+        else if (uo instanceof File) return name; 
+        else if (uo instanceof ScreenAcquisitionData) return name;
         else if (uo instanceof String && numberItems < 0) 
+        	return name;
+        else if ((uo instanceof PlateData) && !hasChildrenDisplay())
         	return name;
         if (numberItems < 0) return (name+SPACE+"[...]");
         return (name+SPACE+"["+numberItems+"]");

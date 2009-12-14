@@ -1183,7 +1183,7 @@ class OmeroMetadataServiceImpl
 				}
 			} else if (object instanceof PlateData) {
 				//Load all the wells
-				images = gateway.loadPlateWells(object.getId(), userID);
+				images = gateway.loadPlateWells(object.getId(), -1, userID);
 				if (images != null) {
 					k = images.iterator();
 					while (k.hasNext()) {
