@@ -117,7 +117,13 @@ class GraphicsPane
     private JCheckBox				preview;
 
     /** Flag indicating to paint a line when moving the sliders' knobs. */
-    private boolean 				paintLine;
+    //private boolean 				paintLine;
+    
+    /** Flag indicating to paint a vertical line. */
+    private boolean 				paintVertical;
+    
+    /** Flag indicating to paint a vertical line. */
+    private boolean 				paintHorizontal;
     
     /** The equation the horizontal line. */
     private int						horizontalLine = -1;
@@ -125,18 +131,32 @@ class GraphicsPane
     /** The equation of the vertical line. */
     private int						verticalLine = -1;
 
+    
     /** Button to apply the settings to all selected or displayed image. */
     private JButton					applyButton;
+    
+    /**
+	 * Formats the specified value.
+	 * 
+	 * @param value The value to format.
+	 * @return See above.
+	 */
+    private String formatValue(double value)
+	{
+		if (model.getRoundFactor() == 1) return ""+(int) value;
+		return UIUtilities.formatToDecimal(value);
+	}
     
     /** Initializes the domain slider. */
     private void initDomainSlider()
     {
-    	int s = (int) model.getWindowStart();
-        int e = (int) model.getWindowEnd();
-        int absMin = (int) model.getLowestValue();
-        int absMax = (int) model.getHighestValue();
-        int min = (int) model.getGlobalMin();
-        int max = (int) model.getGlobalMax();
+    	int f = model.getRoundFactor();
+    	int s = (int) (model.getWindowStart()*f);
+        int e = (int) (model.getWindowEnd()*f);
+        int absMin = (int) (model.getLowestValue()*f);
+        int absMax = (int) (model.getHighestValue()*f);
+        int min = (int) (model.getGlobalMin()*f);
+        int max = (int) (model.getGlobalMax()*f);
         double range = (max-min)*RATIO;
         int lowestBound = (int) (min-range);
         if (lowestBound < absMin) lowestBound = absMin;
@@ -144,10 +164,9 @@ class GraphicsPane
         if (highestBound > absMax) highestBound = absMax;
         //domainSlider.setValues(highestBound, lowestBound, max, min, s, e);
         domainSlider.setValues(max, min, highestBound, lowestBound,
-        		max, min, s, e);
+        		max, min, s, e, f);
         if (model.getMaxC() > Renderer.MAX_CHANNELS)
         	domainSlider.setInterval(min, max);
-
     }
     
     /** Initializes the components. */
@@ -165,27 +184,15 @@ class GraphicsPane
         codomainSlider.setOrientation(TwoKnobsSlider.VERTICAL);
         codomainSlider.addPropertyChangeListener(this);
         
-        int s = (int) model.getWindowStart();
-        int e = (int) model.getWindowEnd();
-        domainSlider = new TextualTwoKnobsSlider((int) model.getLowestValue(), 
-    			(int) model.getHighestValue(), (int) model.getGlobalMin(), 
-    			(int) model.getGlobalMax(), s, e);
-        domainSlider.setValues((int) model.getGlobalMax(), 
-        		(int) model.getGlobalMin(), (int) model.getHighestValue(), 
-        		(int) model.getLowestValue(), (int) model.getGlobalMin(), 
-    			(int) model.getGlobalMax(), s, e);
-        
+        domainSlider = new TextualTwoKnobsSlider();
         domainSlider.setBackground(UIUtilities.BACKGROUND_COLOR);
         initDomainSlider();
         domainSlider.getSlider().setPaintLabels(false);
         domainSlider.getSlider().setPaintEndLabels(false);
         domainSlider.getSlider().setPaintTicks(false);
         domainSlider.addPropertyChangeListener(this);
-        double min = model.getGlobalMin();
-        double max = model.getGlobalMax();
-       
-        maxLabel = new JLabel(""+(int) max);
-        minLabel = new JLabel(""+(int) min);
+        maxLabel = new JLabel(formatValue(model.getGlobalMax()));
+        minLabel = new JLabel(formatValue(model.getGlobalMin()));
         maxLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         minLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         preview = new JCheckBox(PREVIEW);
@@ -336,13 +343,12 @@ class GraphicsPane
     void setSelectedChannel()
     {
     	if (!model.hasSelectedChannel()) return;
-        int min = (int) model.getGlobalMin();
-        int max = (int) model.getGlobalMax();
-        minLabel.setText(""+min);
-        maxLabel.setText(""+max);
+        minLabel.setText(formatValue(model.getGlobalMin()));
+        maxLabel.setText(formatValue(model.getGlobalMax()));
         initDomainSlider();
-        int s = (int) model.getWindowStart();
-        int e = (int) model.getWindowEnd();
+        int f = model.getRoundFactor();
+        int s = (int) (model.getWindowStart()*f);
+        int e = (int) (model.getWindowEnd()*f);
         domainSlider.setInterval(s, e);
         onCurveChange();
     }
@@ -350,8 +356,9 @@ class GraphicsPane
     /** Sets the pixels intensity interval. */
     void setInputInterval()
     {
-        int s = (int) model.getWindowStart();
-        int e = (int) model.getWindowEnd();
+    	int f = model.getRoundFactor();
+        int s = (int) (model.getWindowStart()*f);
+        int e = (int) (model.getWindowEnd()*f);
         domainSlider.setInterval(s, e);
         onCurveChange();
     }
@@ -375,12 +382,28 @@ class GraphicsPane
     }
     
     /**
-     * Returns <code>true</code> if a vertical or horizontal has 
+     * Returns <code>true</code> if a vertical or horizontal line has 
      * to be painted, <code>false</code> otherwise.
      * 
      * @return See above.
      */
-    boolean isPaintLine() { return paintLine; }
+    boolean isPaintLine() { return paintVertical() || paintHorizontal(); }
+    
+    /**
+     * Returns <code>true</code> if a vertical line has 
+     * to be painted, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean paintVertical() { return paintVertical; }
+    
+    /**
+     * Returns <code>true</code> if a horizontal line has 
+     * to be painted, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean paintHorizontal() { return paintHorizontal; }
     
     /**
      * Returns the equation of the horizontal line or <code>-1</code>
@@ -447,9 +470,11 @@ class GraphicsPane
 		Object source = evt.getSource();
 		if (!preview.isSelected()) {
 			if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
-				paintLine = false;
-				horizontalLine = -1;
-				verticalLine = -1;
+				//paintLine = false;
+				//horizontalLine = -1;
+				//verticalLine = -1;
+				paintHorizontal = false;
+				paintVertical = false;
 				if (source.equals(domainSlider)) {
 					controller.setInputInterval(domainSlider.getStartValue(),
 							domainSlider.getEndValue());
@@ -462,32 +487,45 @@ class GraphicsPane
 				}
 			}
 			if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)){
-				paintLine = true;
+				//paintLine = true;
 				if (source.equals(domainSlider)) {
-					verticalLine = domainSlider.getStartValue();
-					horizontalLine = -1;
+					verticalLine = (int) 
+						(domainSlider.getStartValue()
+						*domainSlider.getRoundingFactor());
+					//horizontalLine = -1;
+					paintHorizontal = false;
+					paintVertical = true;
 					onCurveChange();
 				} else if (source.equals(codomainSlider)) {
 					horizontalLine = codomainSlider.getEndValue();
-					verticalLine = -1;
+					//verticalLine = -1;
+					paintHorizontal = true;
+					paintVertical = false;
 					onCurveChange();
 				}
 			} else if (TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name)) {
-				paintLine = true;
+				//paintLine = true;
 				if (source.equals(domainSlider)) {
-					verticalLine = domainSlider.getEndValue();
+					verticalLine = (int) (domainSlider.getEndValue()
+						*domainSlider.getRoundingFactor());
 					horizontalLine = -1;
+					paintHorizontal = false;
+					paintVertical = true;
 					onCurveChange();
 				} else if (source.equals(codomainSlider)) {
 					horizontalLine = codomainSlider.getStartValue();
 					verticalLine = -1;
+					paintHorizontal = true;
+					paintVertical = false;
 					onCurveChange();
 				}
 			} 
 		} else {
-			paintLine = false;
-			horizontalLine = -1;
-			verticalLine = -1;
+			//paintLine = false;
+			paintHorizontal = false;
+			paintVertical = false;
+			//horizontalLine = -1;
+			//verticalLine = -1;
 			if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)
 					|| TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name)) {
 				if (source.equals(domainSlider)) {

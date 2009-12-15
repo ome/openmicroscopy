@@ -123,6 +123,18 @@ public class NumericalTextField
 	 */
 	public NumericalTextField(double min, double max)
 	{
+		this(min, max, Integer.class);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param min 	The minimum value of the text field.
+	 * @param max 	The maximum value of the text field.
+	 * @param type  The number type.
+	 */
+	public NumericalTextField(double min, double max, Class type)
+	{
 		document = new NumericalPlainDocument(min, max);
 		setHorizontalAlignment(JTextField.LEFT);
 		setDocument(document);
@@ -130,7 +142,7 @@ public class NumericalTextField
 		editedColor = null;
 		document.addDocumentListener(this);
 		addFocusListener(this);
-		numberType = Integer.class;
+		numberType = type;
 		accepted = NUMERIC;
 		setNegativeAccepted(min < 0);
 	}

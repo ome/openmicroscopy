@@ -1517,31 +1517,6 @@ public class UIUtilities
 		} catch (Exception e) {}
 		return null;
 	}
-
-	/**
-	 * Get the largest available memory available for graphics.
-	 * @return see above.
-	 */
-	public static int getGraphicsMemory()
-	{
-		int bytesMax = 0;
-		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		try 
-		{
-			GraphicsDevice[] gs = ge.getScreenDevices();
-	    
-			for (int i=0; i<gs.length; i++) 
-			{
-			    VolatileImage im = gs[i].getDefaultConfiguration().createCompatibleVolatileImage(1, 1);
-			    bytesMax = Math.max(bytesMax,gs[i].getAvailableAcceleratedMemory());
-			}
-			return bytesMax;
-		}
-		catch(HeadlessException e)
-		{
-			return 0;
-		}
-	}
 	
 	/**
 	 * Get the free memory available in the system.

@@ -464,8 +464,8 @@ public class ProjSavingDialog
 		}
 		int startT = 0, endT = 0;
 		if (maxT > 0) {
-			startT = timeSelection.getStartValue()-1;
-			endT = timeSelection.getEndValue()-1;
+			startT = (int) timeSelection.getStartValue()-1;
+			endT = (int) timeSelection.getEndValue()-1;
 		}
 		/*
 		String type = null;
@@ -479,8 +479,8 @@ public class ProjSavingDialog
 		ref.setDatasets(datasets);
 		ref.setImageName(nameField.getText());
 		ref.setTInterval(startT, endT);
-		ref.setZInterval(zrangeSelection.getStartValue()-1, 
-				zrangeSelection.getEndValue()-1);
+		ref.setZInterval((int) zrangeSelection.getStartValue()-1, 
+				(int) zrangeSelection.getEndValue()-1);
 		ref.setApplySettings(rndSettingsBox.isSelected());
 		firePropertyChange(PROJECTION_PROPERTY, null, ref);
 		close();

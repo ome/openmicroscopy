@@ -112,10 +112,29 @@ public class TextualTwoKnobsSlider
 	private JLabel				sliderLabel;
 	
 	/** The start value. */
-	private int					start;
+	private double				start;
 	
 	/** The end value. */
-	private int					end;
+	private double				end;
+	
+	/** 
+	 * The factor by which the values have to be multiplied or
+	 * divided by. 
+	 */
+	private int					roundingFactor;
+	
+	/** 
+	 * Formats the passed value.
+	 * 
+	 * @param value The value to handle.
+	 * @return See above.
+	 */
+	private String formatValue(int value)
+	{
+		if (roundingFactor == 1) return ""+value;
+		double v = ((double) value)/roundingFactor;
+		return ""+v;
+	}
 	
 	/** Attaches the listeners to the components. */
 	private void attachListeners()
@@ -183,23 +202,37 @@ public class TextualTwoKnobsSlider
 	 * @param max    The maximum value.
 	 * @param start  The start value.
 	 * @param end    The end value.
+	 * @param roundingFactor The factor by which the values are multiplied by
+	 * 						 or divided by.
 	 */
 	private void initComponents(int absMin, int absMax, int min, int max, 
-			int start, int end)
+			int start, int end, int roundingFactor)
 	{
-		
+		if (roundingFactor < 1) roundingFactor = 1;
+		this.roundingFactor = roundingFactor;
 		sliderLabel = new JLabel();
 		startLabel = new JLabel("Start");
 		endLabel = new JLabel("End");
 		slider = new TwoKnobsSlider(absMin, absMax, min, max, start, end);
 		setSliderPaintingDefault(false);
-		int length = (""+max).length(); 
-		startField = new NumericalTextField(absMin, absMax);
+		String minus = "";
+		int maxValue = Math.max(Math.abs(min), Math.abs(max));
+		if (min < 0 || max < 0) minus = "-";
+		int length = (minus+((double) maxValue/roundingFactor)).length(); 
+		double minR = ((double) absMin)/roundingFactor;
+		double maxR = ((double) absMin)/roundingFactor;
+		
+		Class type = Integer.class;
+		
+		if (roundingFactor > 1) type = Double.class;
+		
+		startField = new NumericalTextField(minR, maxR, type);
 		startField.setColumns(length);
-		endField = new NumericalTextField(absMin, absMax);
+		endField = new NumericalTextField(minR, maxR, type);
 		endField.setColumns(length);
-		startField.setText(""+start);
-		endField.setText(""+end);
+		
+		endField.setText(formatValue(end));
+		startField.setText(formatValue(start));
 		//No need to check values b/c already done by the slider.
 		this.start = start;
 		this.end = end;
@@ -209,11 +242,13 @@ public class TextualTwoKnobsSlider
 	private void setStartValue()
 	{
 		boolean valid = false;
-		int val = 0;
+		double val = 0;
 		try {
-            val = Integer.parseInt(startField.getText());
+            val = Double.parseDouble(startField.getText());
+            val = val*roundingFactor;
             //if (slider.getPartialMinimum() <= val && val < end) valid = true;
-            if (startField.getMinimum() <= val && val < end) valid = true;
+            if (startField.getMinimum()*roundingFactor <= val && val < end) 
+            	valid = true;
         } catch(NumberFormatException nfe) {}
         if (!valid) {
             startField.selectAll();
@@ -221,12 +256,12 @@ public class TextualTwoKnobsSlider
         }
         start = val;
         //endField.setMinimum(start);
-        if (start > slider.getPartialMinimum()) {
-        	val = slider.getPartialMinimum();
+        if (start > slider.getPartialMinimum()*roundingFactor) {
+        	val = slider.getPartialMinimum()*roundingFactor;
         }
         removeSliderListeners();
         int old = slider.getStartValue();
-        slider.setStartValue(val);
+        slider.setStartValue((int) val);
        
         firePropertyChange(TwoKnobsSlider.KNOB_RELEASED_PROPERTY, old, val);
         attachSliderListeners();
@@ -236,24 +271,26 @@ public class TextualTwoKnobsSlider
 	private void setEndValue()
 	{
 		boolean valid = false;
-		int val = 0;
+		double val = 0;
 		try {
-            val = Integer.parseInt(endField.getText());
+            val = Double.parseDouble(endField.getText());
+            val = val*roundingFactor;
             //if (start < val && val <= slider.getPartialMaximum()) valid = true;
-            if (start < val && val <= endField.getMaximum()) valid = true;
+            if (start < val && val <= endField.getMaximum()*roundingFactor) 
+            	valid = true;
         } catch(NumberFormatException nfe) {}
         if (!valid) {
             endField.selectAll();
             return;
         }
         end = val;
-        if (end > slider.getPartialMaximum()) {
-        	val = slider.getPartialMaximum();
+        if (end > slider.getPartialMaximum()*roundingFactor) {
+        	val = slider.getPartialMaximum()*roundingFactor;
         }
         removeSliderListeners();
         //startField.setMaximum(end);
         int old = slider.getEndValue();
-        slider.setEndValue(val);
+        slider.setEndValue((int) val);
         firePropertyChange(TwoKnobsSlider.KNOB_RELEASED_PROPERTY, old, val);
         attachSliderListeners();
 	}
@@ -268,7 +305,7 @@ public class TextualTwoKnobsSlider
 	{
 		start = value;
 		uninstallFieldListeners(startField);
-		startField.setText(""+start);
+		startField.setText(formatValue(value));
 		//endField.setMinimum(start);
 		installFieldListeners(startField, START);
 	}
@@ -283,7 +320,7 @@ public class TextualTwoKnobsSlider
 	{
 		end = value;
 		uninstallFieldListeners(endField);
-		endField.setText(""+end);
+		endField.setText(formatValue(value));
 		//startField.setMaximum(end);
 		installFieldListeners(endField, END);
 	}
@@ -298,19 +335,19 @@ public class TextualTwoKnobsSlider
 		if (slider == null || endField == null || startField == null) return;
 		String value = (String) doc.getProperty(NAME_DOC);
 		int index = Integer.parseInt(value);
-		Integer v;
-		Integer ref;
+		Number v;
+		Number ref;
 		switch (index) {
 			case START:
 				//setStartValue();
-				v = (Integer) startField.getValueAsNumber();
-				ref = (Integer) endField.getValueAsNumber();
+				v = (Number) startField.getValueAsNumber();
+				ref = (Number) endField.getValueAsNumber();
 				if (ref == null || v == null) return;
 				//if (ref > v) startField.setMaximum(slider.getPartialMaximum());
 				break;
 			case END:
-				v = (Integer) endField.getValueAsNumber();
-				ref = (Integer) startField.getValueAsNumber();
+				v = (Number) endField.getValueAsNumber();
+				ref = (Number) startField.getValueAsNumber();
 				if (ref == null || v == null) return;
 				//if (ref > v) endField.setMinimum(slider.getPartialMinimum());
 				//setEndValue();
@@ -321,8 +358,8 @@ public class TextualTwoKnobsSlider
 	/** Handles the lost of focus on text fields. */
 	private void handleFocusLost()
 	{
-		String s = ""+start;
-		String e = ""+end;
+		String s = formatValue((int) start);
+		String e = formatValue((int) end);
 		String startVal = startField.getText();
 		String endVal = endField.getText();
 		if (startVal == null || !startVal.equals(s))
@@ -394,7 +431,7 @@ public class TextualTwoKnobsSlider
 	 */
 	public TextualTwoKnobsSlider(int min, int max, int start, int end)
 	{
-		this(min, max, min, max, start, end);
+		this(min, max, min, max, start, end, 1);
 	}
 	
 	/**
@@ -406,11 +443,13 @@ public class TextualTwoKnobsSlider
 	 * @param max    The maximum value.
 	 * @param start  The start value.
 	 * @param end    The end value.
+	 * @param roundingFactor The factor by which the values are multiplied by
+	 * 						 or divided by.
 	 */
 	public TextualTwoKnobsSlider(int absMin, int absMax, int min, int max, 
-			int start, int end)
+			int start, int end, int roundingFactor)
 	{
-		initComponents(absMin, absMax, min, max, start, end);
+		initComponents(absMin, absMax, min, max, start, end, roundingFactor);
 		attachListeners();
 	}
 	
@@ -445,18 +484,25 @@ public class TextualTwoKnobsSlider
 	}
 	
 	/**
+	 * Returns the rounding factor.
+	 * 
+	 * @return See above.
+	 */
+	public int getRoundingFactor() { return roundingFactor; }
+	
+	/**
 	 * Returns the start value. 
 	 * 
 	 * @return See above.
 	 */
-	public int getStartValue() { return start; }
+	public double getStartValue() { return ((double) start)/roundingFactor; }
 	
 	/**
 	 * Returns the end value. 
 	 * 
 	 * @return See above.
 	 */
-	public int getEndValue() { return end; }
+	public double getEndValue() { return ((double) end)/roundingFactor; }
 	
 	/** Lays out the components. */
 	public void layoutComponents() { layoutComponents(LAYOUT_ALL); }
@@ -533,7 +579,7 @@ public class TextualTwoKnobsSlider
 			int max, int min, int start, int end)
 	{
 		setValues(absoluteMax, absoluteMin, absoluteMax, absoluteMin, max, min,
-				start, end);
+				start, end, roundingFactor);
 	}
 	
 	/**
@@ -550,28 +596,36 @@ public class TextualTwoKnobsSlider
 	 */
 	public void setValues(int absoluteMaxSlider, int absoluteMinSlider, 
 			int absoluteMaxText, int absoluteMinText, 
-			int max, int min, int start, int end)
+			int max, int min, int start, int end, int roundingFactor)
 	{
+		if (roundingFactor < 1) roundingFactor = 1;
+		this.roundingFactor = roundingFactor;
 		slider.setValues(absoluteMaxSlider, absoluteMinSlider, max, min, start, 
 				end);
 		removeListeners();
-		int length = (""+max).length(); 
+		String minus = "";
+		int maxValue = Math.max(Math.abs(min), Math.abs(max));
+		if (min < 0 || max < 0) minus = "-";
+		int length = (minus+((double) maxValue/roundingFactor)).length(); 
+		if (roundingFactor > 1) {
+			startField.setNumberType(Double.class);
+			endField.setNumberType(Double.class);
+		}
 		startField.setColumns(length);
 		endField.setColumns(length);
 		endField.setMaximum(absoluteMaxText);
 		endField.setMinimum(absoluteMinText);
 		startField.setMaximum(absoluteMaxText);
 		startField.setMinimum(absoluteMinText);
-		endField.setText(""+end);
-		startField.setText(""+start);
+		endField.setText(formatValue(end));
+		startField.setText(formatValue(start));
 		//endField.setMinimum(absoluteMinText);
 		//startField.setMaximum(absoluteMaxText);
 		this.start = start;
 		this.end = end;
 		attachListeners();
 	}
-	
-	
+
 	/**
 	 * Returns the text field corresponding to the passed index.
 	 * 
@@ -596,8 +650,8 @@ public class TextualTwoKnobsSlider
 	public void setInterval(int s, int e)
 	{
 		removeListeners();
-		endField.setText(""+e);
-		startField.setText(""+s);
+		endField.setText(formatValue(e));
+		startField.setText(formatValue(s));
 		slider.setStartValue(s);
 		slider.setEndValue(e);
 		//endField.setMinimum(s);

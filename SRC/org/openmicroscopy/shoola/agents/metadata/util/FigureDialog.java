@@ -1506,8 +1506,8 @@ public class FigureDialog
 		p.setColor(c);
 		//projection
 		if (projectionBox.isSelected()) {
-			p.setZStart(zRange.getStartValue()-1);
-			p.setZEnd(zRange.getEndValue()-1);
+			p.setZStart((int) zRange.getStartValue()-1);
+			p.setZEnd((int) zRange.getEndValue()-1);
 			p.setStepping((Integer) projectionFrequency.getValue());
 			p.setProjectionType(
 					projectionTypes.get(projectionTypesBox.getSelectedIndex()));

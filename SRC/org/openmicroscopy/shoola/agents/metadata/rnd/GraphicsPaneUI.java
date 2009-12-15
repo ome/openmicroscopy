@@ -130,10 +130,11 @@ class GraphicsPaneUI
 		double codomainMax = model.getCodomainEnd();
 		//double domainGlobalMin = model.getGlobalMin();
 		//double domainGlobalMax = model.getGlobalMax();
+		int f = model.getRoundFactor();
 		double domainGlobalMin = view.getPartialMinimum();
 		double domainGlobalMax = view.getPartialMaximum();
-		double domainMin = model.getWindowStart();
-		double domainMax = model.getWindowEnd();
+		double domainMin = model.getWindowStart()*f;
+		double domainMax = model.getWindowEnd()*f;
 		//Added jmarie 03/10/07
 		if (domainMin < domainGlobalMin) domainMin = domainGlobalMin;
 		if (domainMax > domainGlobalMax) domainMax = domainGlobalMax;
@@ -199,13 +200,13 @@ class GraphicsPaneUI
 			int vertical = view.getVerticalLine();
 			g.setColor(LINECOLOUR);
 			double v;
-			if (vertical >= 0) {
+			if (view.paintVertical()) {
 				v = ((vertical-domainGlobalMin)/
 						(domainGlobalMax-domainGlobalMin))*width;
 				g.drawLine((int) v, 0, (int) v, (int) height);
 			}
 			int horizontal = view.getHorizontalLine();
-			if (horizontal >= 0) {
+			if (view.paintHorizontal()) {
 				v = ((255-horizontal)/255.0f)*height;
 				g.drawLine(0, (int) v, (int) width, (int) v);
 			} 

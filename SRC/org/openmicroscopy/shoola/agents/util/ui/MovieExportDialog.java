@@ -427,12 +427,12 @@ public class MovieExportDialog
 		param = new MovieExportParam(name, f, format, scale, type);
 		if (type == MovieExportParam.T_MOVIE || 
 			type == MovieExportParam.ZT_MOVIE)
-			param.setTimeInterval(timeRange.getStartValue()-1, 
-					timeRange.getEndValue()-1);
+			param.setTimeInterval((int) timeRange.getStartValue()-1, 
+					(int) timeRange.getEndValue()-1);
 		if (type == MovieExportParam.Z_MOVIE || 
 				type == MovieExportParam.ZT_MOVIE)
-			param.setZsectionInterval(zRange.getStartValue()-1, 
-					zRange.getEndValue()-1);
+			param.setZsectionInterval((int) zRange.getStartValue()-1, 
+					(int) zRange.getEndValue()-1);
 		param.setLabelVisible(labelVisible.isSelected());
 		
 		if (!timeInterval.isSelected()) {

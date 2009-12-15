@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import com.sun.opengl.util.texture.TextureData;
 
@@ -577,6 +578,21 @@ class RendererModel
 		return getGlobalMin(selectedChannelIndex); 
 	}
 
+	/**
+	 * Returns the rounding factor used for the input value.
+	 * 
+	 * @return See above.
+	 */
+	int getRoundFactor()
+	{
+		double min = getGlobalMin();
+		double max = getGlobalMax();
+		double rmin = UIUtilities.roundTwoDecimals(min);
+		double rmax = UIUtilities.roundTwoDecimals(max);
+		if (rmin == min && rmax == max) return 1;
+		return 100;
+	}
+	
 	/**
 	 * Returns the global maximum of the currently selected channel
 	 * or of all channels if the number of channels is greater
