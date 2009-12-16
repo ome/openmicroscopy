@@ -39,17 +39,29 @@ class Server(Ice.Application):
         props = self.communicator().getProperties()
         configure_server_logging(props)
 
+        import fsUtil
         try:
-            import fsMonitorServer 
+            module, errorMessage = fsUtil.monitorPackage()
         except:
-            log.exception("System requirements not met: \n")
-            return -1
-            
+            log.error("Failed to load required module: \n")
+            log.error("Quitting")
+            return retVal
+
+        
+        if module == 'fsDummyMonitor':
+            log.error("System requirements for monitoring are not met: \n")
+            log.error(errorMessage)
+            monitorable = False
+        else:
+            monitorable = True
+
+        import fsMonitorServer 
+           
         # Create a MonitorServer, its adapter and activate it.
         try:
             serverIdString = self.getFSServerIdString(props)
             serverAdapterName = self.getFSServerAdapterName(props)
-            mServer = fsMonitorServer.MonitorServerI()
+            mServer = fsMonitorServer.MonitorServerI(monitorable)
             adapter = self.communicator().createObjectAdapter(serverAdapterName)
             mServerPrx = adapter.add(mServer, self.communicator().stringToIdentity(serverIdString))
             adapter.activate() 

@@ -36,7 +36,7 @@ class MonitorServerI(monitors.MonitorServer):
         :group Other methods: _getNextMonitorId, _getPathString, callback
         
     """
-    def __init__(self):
+    def __init__(self, monitorable):
         """
             Intialise the instance variables.
         
@@ -44,6 +44,8 @@ class MonitorServerI(monitors.MonitorServer):
         self.log = logging.getLogger("fsserver."+__name__)
         #self.fsPrefix = 'omero-fs://' + socket.gethostbyname(socket.gethostname())
         #self.prefixLne = len(self.fsPrefix) ## Save calculating it each time?
+        #: Flag indicating whether libraries are available for monitoring
+        self.monitorable = monitorable
         #: Numerical component of a Monitor Id
         self.monitorId = 0
         #: Dictionary of Monitors by Id
@@ -105,7 +107,11 @@ class MonitorServerI(monitors.MonitorServer):
             :rtype: string
             
         """
-     
+
+        if not self.monitorable:
+            self.log.warn("Monitor not created: requirements for monitoring unavailable.")
+            raise omero.OmeroFSError(reason="Monitor not created: requirements for monitoring unavailable.")
+            
         monitorId = self._getNextMonitorId()
 
         try:
@@ -141,6 +147,9 @@ class MonitorServerI(monitors.MonitorServer):
             :rtype: boolean
             
         """
+        if not self.monitorable:
+            raise omero.OmeroFSError(reason="No monitors: requirements for monitoring unavailable.")
+
         try:
             self.monitors[id].start()
             self.log.info('Monitor id = ' + id + ' started')
@@ -165,6 +174,9 @@ class MonitorServerI(monitors.MonitorServer):
             :rtype: boolean
             
         """
+        if not self.monitorable:
+            raise omero.OmeroFSError(reason="No monitors: requirements for monitoring unavailable.")
+
         try:
             self.monitors[id].stop()
             self.log.info('Monitor id = ' + id + ' stopped')
@@ -189,6 +201,9 @@ class MonitorServerI(monitors.MonitorServer):
             :rtype: boolean
             
         """
+        if not self.monitorable:
+            raise omero.OmeroFSError(reason="No monitors: requirements for monitoring unavailable.")
+
         try:
             del self.monitors[id]
             del self.proxies[id]
@@ -205,6 +220,9 @@ class MonitorServerI(monitors.MonitorServer):
             Raise an exception if the monitor does no exist.
         
         """
+        if not self.monitorable:
+            raise omero.OmeroFSError(reason="No monitors: requirements for monitoring unavailable.")
+
         self.log.info('Monitor id = ' + id + ' state requested')
         # *****  TO BE IMPLEMENTED  *****
         # If monitor exists return state
@@ -236,6 +254,9 @@ class MonitorServerI(monitors.MonitorServer):
             :rtype: list<string>
      
         """
+        if not self.monitorable:
+            raise omero.OmeroFSError(reason="No monitors: requirements for monitoring unavailable.")
+
     
         if filter == "": filter = "*"
         fullPath = pathModule.path(self.monitors[id].getPathString()) / relPath

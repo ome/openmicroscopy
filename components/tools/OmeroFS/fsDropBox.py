@@ -63,9 +63,15 @@ class DropBox(Ice.Application):
         # if not there's no point starting the FSDropBox client
         import fsUtil
         try:
-            fsUtil.monitorPackage()
+            module, errorMessage = fsUtil.monitorPackage()
         except:
-            log.exception("System requirements not met: \n")
+            log.error("Failed to load required module: \n")
+            log.error("Quitting")
+            return retVal
+        
+        if module == 'fsDummyMonitor':
+            log.error("System requirements not met: \n")
+            log.error(errorMessage)
             log.error("Quitting")
             return retVal
 
