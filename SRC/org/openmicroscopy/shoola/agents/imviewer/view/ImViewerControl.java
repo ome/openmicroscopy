@@ -912,15 +912,14 @@ class ImViewerControl
 	 */
 	public void windowGainedFocus(WindowEvent e)
 	{
+		model.refresh();
 	}
 	
 	/**
-	 * Required by the I/F but no-op implementation in our case.
+	 * Required by the I/F but no-operation implementation in our case.
 	 * @see WindowFocusListener#windowLostFocus(WindowEvent)
 	 */
-	public void windowLostFocus(WindowEvent e)
-	{
-	}
+	public void windowLostFocus(WindowEvent e) {}
 
 	/**
 	 * Required by the {@link ComponentListener} I/F but no-op implementation 

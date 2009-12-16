@@ -889,7 +889,7 @@ class TreeViewerWin
 	 */
 	void reloadThumbnails(List<Long> ids)
 	{
-		model.getDataViewer().reloadThumbnails(ids);
+		model.reloadThumbnails(ids);
 	}
 	
 	/**
@@ -897,7 +897,8 @@ class TreeViewerWin
 	 * 
 	 * @param activity The activity to handle.
 	 */
-	void onActivityTerminated(ActivityComponent activity) {
+	void onActivityTerminated(ActivityComponent activity)
+	{
 		TinyDialog d = new TinyDialog(this, activity.getActivityType(), 
 				TinyDialog.CLOSE_ONLY);
 		d.getContentPane().setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
@@ -909,6 +910,9 @@ class TreeViewerWin
 		showJDialogAsSheet(d, p, UP_RIGHT);
 	}
 	
+	/** Refreshes the renderer. */
+	void refreshRenderer() { model.refreshRenderer(); }
+	
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()
     {
@@ -917,7 +921,5 @@ class TreeViewerWin
         UIUtilities.incrementRelativeToAndShow(invokerBounds, this);
         invokerBounds = null;
     }
-
-
 
 }

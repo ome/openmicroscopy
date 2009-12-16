@@ -931,5 +931,15 @@ class RendererComponent
 			handleException(e);
 		}
 	}
+
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#refresh()
+     */
+	public void refresh()
+	{
+		firePropertyChange(COLOR_MODEL_PROPERTY, null, model.getColorModel());
+		view.resetDefaultRndSettings();
+	}
 	
 }

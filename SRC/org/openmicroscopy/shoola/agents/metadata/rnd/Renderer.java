@@ -588,4 +588,7 @@ public interface Renderer
      */
     public void setOverlays(long tableID, Map<Long, Integer> overlays); 
     
+    /** Refreshes the renderer view. */
+    public void refresh();
+    
 }

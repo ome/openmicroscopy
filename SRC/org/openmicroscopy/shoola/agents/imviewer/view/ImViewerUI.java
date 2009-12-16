@@ -1415,6 +1415,11 @@ class ImViewerUI
 	/** Resets the UI when switching to a new rendering control. */
 	void switchRndControl() { controlPane.switchRndControl(); }
 	
+	void refresh()
+	{
+		resetDefaults();
+		model.refresh();
+	}
 	/**
 	 * Sets the image in the lens to the plane image shown on the screen
 	 * depending on the selected tab pane.

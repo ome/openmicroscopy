@@ -2235,4 +2235,11 @@ class ImViewerModel
 		return computedSize;
 	}
 	
+	/** Refreshes the renderer. */
+	void refresh()
+	{
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd != null) rnd.refresh();
+	}
+	
 }

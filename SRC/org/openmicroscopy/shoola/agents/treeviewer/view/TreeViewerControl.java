@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 import java.awt.Component;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -38,15 +39,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
@@ -120,7 +116,6 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
-import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -144,7 +139,7 @@ import pojos.WellSampleData;
  * @since OME2.2
  */
 class TreeViewerControl
- 	implements ChangeListener, PropertyChangeListener
+ 	implements ChangeListener, PropertyChangeListener, WindowFocusListener
 {
 
 	/** Identifies the <code>Browse action</code> in the Edit menu. */
@@ -449,6 +444,7 @@ class TreeViewerControl
 			browser.addPropertyChangeListener(this);
 			browser.addChangeListener(this);
 		}
+		view.addWindowFocusListener(this);
 		model.addPropertyChangeListener(this);
 		view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		view.addWindowListener(new WindowAdapter() {
@@ -956,5 +952,20 @@ class TreeViewerControl
 				UIUtilities.centerAndShow(loadingWindow);
 		}
 	}
+
+	/**
+	 * Refreshes the renderer.
+	 * @see WindowFocusListener#windowGainedFocus(WindowEvent)
+	 */
+	public void windowGainedFocus(WindowEvent e)
+	{
+		view.refreshRenderer();
+	}
+
+	/**
+	 * Required by the I/F but no-operation implementation in our case.
+	 * @see WindowFocusListener#windowLostFocus(WindowEvent)
+	 */
+	public void windowLostFocus(WindowEvent e) {}
 
 }

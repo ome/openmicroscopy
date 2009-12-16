@@ -340,32 +340,45 @@ public class TextualTwoKnobsSlider
 		switch (index) {
 			case START:
 				//setStartValue();
-				v = (Number) startField.getValueAsNumber();
-				ref = (Number) endField.getValueAsNumber();
-				if (ref == null || v == null) return;
+				//v = (Number) startField.getValueAsNumber();
+				//ref = (Number) endField.getValueAsNumber();
+				//if (ref == null || v == null) return;
 				//if (ref > v) startField.setMaximum(slider.getPartialMaximum());
 				break;
 			case END:
-				v = (Number) endField.getValueAsNumber();
-				ref = (Number) startField.getValueAsNumber();
-				if (ref == null || v == null) return;
+				//v = (Number) endField.getValueAsNumber();
+				//ref = (Number) startField.getValueAsNumber();
+				//if (ref == null || v == null) return;
 				//if (ref > v) endField.setMinimum(slider.getPartialMinimum());
 				//setEndValue();
 				break;
 		}
 	}
 	
-	/** Handles the lost of focus on text fields. */
-	private void handleFocusLost()
+	/** 
+	 * Handles the lost of focus on text fields. 
+	 * 
+	 * @param field The text field that lost the focus.
+	 */
+	private void handleFocusLost(Object field)
 	{
 		String s = formatValue((int) start);
 		String e = formatValue((int) end);
-		String startVal = startField.getText();
-		String endVal = endField.getText();
-		if (startVal == null || !startVal.equals(s))
-			startField.setText(s);        
-		if (endVal == null || !endVal.equals(e)) 
-			endField.setText(e);
+		double v, value;
+		int m;
+		if (startField == field) {
+			v = (Double) startField.getValueAsNumber();
+			value = v*roundingFactor;
+			m = slider.getPartialMinimum();
+			if (value < m) startField.setText(s);
+			if (v > end) endField.setText(formatValue((int) v));
+		} else if (endField == field) {
+			v = (Double) endField.getValueAsNumber();
+			value = v*roundingFactor;
+			m = slider.getPartialMaximum();
+			if (value > m) endField.setText(e);
+			if (v < start) startField.setText(formatValue((int) v));
+		}
 	}
 	
 	/**
@@ -725,7 +738,7 @@ public class TextualTwoKnobsSlider
      * value.
      * @see FocusListener#focusLost(FocusEvent)
      */
-    public void focusLost(FocusEvent e) { handleFocusLost(); }
+    public void focusLost(FocusEvent e) { handleFocusLost(e.getSource()); }
     
 	/**
 	 * Updates the field whose text is modified.

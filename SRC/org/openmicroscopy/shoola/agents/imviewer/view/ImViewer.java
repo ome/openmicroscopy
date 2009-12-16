@@ -1118,5 +1118,8 @@ public interface ImViewer
 	 * @return See above.
 	 */
 	public boolean isBigImage();
+
+	/** Refreshes the view. */
+	public void refresh();
 	
 }

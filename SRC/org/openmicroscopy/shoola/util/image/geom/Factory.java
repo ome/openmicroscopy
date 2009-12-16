@@ -811,8 +811,10 @@ public class Factory
      * @return See above.
      */
     public static BufferedImage scaleBufferedImage(BufferedImage image, int
-    		width, int height) {
+    		width, int height)
+    {
         
+    	if (image == null) return null;
         ColorModel cm = image.getColorModel();
         WritableRaster r = cm.createCompatibleWritableRaster(width, height);
         BufferedImage thumbImage = new BufferedImage(cm, r, false, null);
@@ -837,6 +839,7 @@ public class Factory
     public static BufferedImage createBandImage(DataBuffer buf, int sizeX,
     		int sizeY, int redMask, int greenMask, int blueMask)
     {
+    	if (buf == null) return null;
     	int[] masks = {redMask, greenMask, blueMask};
     	
     	switch (buf.getDataType()) {

@@ -3003,4 +3003,14 @@ class ImViewerComponent
 		return model.isBigImage();
 	}
 	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#refresh()
+	 */
+	public void refresh()
+	{
+		view.refresh();
+		renderXYPlane();
+	}
+	
 }

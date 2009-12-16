@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 //Java imports
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -41,6 +40,7 @@ import javax.swing.filechooser.FileFilter;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectCreator;
@@ -84,6 +84,7 @@ import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.WellSampleData;
 
 
 /** 
@@ -1067,4 +1068,25 @@ class TreeViewerModel
 		loader.load();
 	}
 	
+	/** Refreshes the renderer. */
+	void refreshRenderer()
+	{
+		if (metadataViewer == null) return;
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd != null) {
+			rnd.refresh();
+			metadataViewer.renderPlane();
+		}
+	}
+	
+	/**
+	 * Reloads the specified thumbnails.
+	 * 
+	 * @param ids The collection of images' ids to reload.
+	 */
+	void reloadThumbnails(List<Long> ids)
+	{
+		getDataViewer().reloadThumbnails(ids);
+	}
+
 }

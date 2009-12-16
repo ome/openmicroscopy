@@ -69,6 +69,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 
 import com.sun.opengl.util.texture.TextureData;
@@ -270,12 +271,36 @@ class OmeroImageServiceImpl
 	{
 		try {
 			Map<Long, BufferedImage> r = new HashMap<Long, BufferedImage>();
-			if (pixelsID == null || pixelsID.size() == 0)
+			if (pixelsID == null || pixelsID.size() == 0) return r;
+			
+			//First check if we have a renderer for the pixel
+			Iterator j = pixelsID.iterator();
+			long id;
+			List<Long> ids = new ArrayList<Long>();
+			RenderingControl rnd;
+			PlaneDef pDef = new PlaneDef();
+			pDef.slice = omero.romio.XY.value;
+			BufferedImage img;
+			while (j.hasNext()) {
+				id = (Long) j.next();
+				rnd = PixelsServicesFactory.getRenderingControl(context, id, 
+						false);
+				if (rnd == null) ids.add(id);
+				else {
+					pDef.t = rnd.getDefaultT();
+					pDef.z = rnd.getDefaultZ();
+					img = Factory.scaleBufferedImage(rnd.renderPlane(pDef),
+							max, max);
+					r.put(id, img);
+				}
+			}
+			
+			if (ids.size() == 0)
 				return r;
-			Map m = gateway.getThumbnailSet(pixelsID, max);
+			Map m = gateway.getThumbnailSet(ids, max);
 			if (m == null || m.size() == 0) return r;
 			Iterator i = m.keySet().iterator();
-			long id;
+			
 			byte[] values;
 			while (i.hasNext()) {
 				id = (Long) i.next();
