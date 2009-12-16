@@ -1315,12 +1315,16 @@ class BrowserComponent
 		if (nodes == null) return;
 		//reload the node.
 		
-		Iterator<TreeImageDisplay> i = nodes.iterator();
+		Iterator<TreeImageDisplay> i;
 		TreeImageDisplay n;
 		Object ho;
 		
 		switch (model.getBrowserType()) {
 			case PROJECT_EXPLORER:
+				SimilarNodesVisitor v = new SimilarNodesVisitor(nodes);
+				accept(v, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+				nodes = v.getFoundNodes();
+				i = nodes.iterator();
 				while (i.hasNext()) {
 					n = i.next();
 					ho = n.getUserObject();

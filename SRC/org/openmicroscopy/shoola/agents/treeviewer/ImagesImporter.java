@@ -181,7 +181,7 @@ public class ImagesImporter
     
     /**
      * Does nothing as the asynchronous call returns <code>null</code>.
-     * The actual payload (imported files) is delivered progressively
+     * The actual pay-load (imported files) is delivered progressively
      * during the updates.
      * @see DataTreeViewerLoader#handleNullResult()
      */

@@ -35,7 +35,6 @@ import java.util.Set;
 //Application-internal dependencies
 import pojos.DataObject;
 import pojos.DatasetData;
-import pojos.PlateData;
 import pojos.TagAnnotationData;
 
 /** 

@@ -908,7 +908,6 @@ class TreeViewerModel
 	void importFiles(List<TreeImageDisplay> nodes, List<ImportObject> files,
 			boolean archived)
 	{
-		
 		ImagesImporter loader = new ImagesImporter(component, nodes, files,
 			archived, importID);
 		importLoaders.put(importID, loader);
