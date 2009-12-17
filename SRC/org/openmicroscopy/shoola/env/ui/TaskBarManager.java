@@ -74,8 +74,6 @@ import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLoginDialog;
 
-import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
-
 /** 
  * Creates and manages the {@link TaskBarView}.
  * It acts as a controller.
