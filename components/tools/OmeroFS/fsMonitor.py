@@ -17,9 +17,8 @@ import path as pathModule
 
 # Now try to import the correct MonitorServer package
 import fsUtil
-module, errorMessage = fsUtil.monitorPackage()
 try:
-    PlatformMonitor = __import__(module)            
+    PlatformMonitor = __import__(fsUtil.monitorPackage())            
 except:
     raise
 

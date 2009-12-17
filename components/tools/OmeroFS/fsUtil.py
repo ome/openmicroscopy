@@ -30,7 +30,6 @@ def monitorPackage():
                   'LINUX_2_6_13+pyinotify_0_8' : 'fsPyinotifyMonitor', 
                   'WIN_XP'                     : 'fsWin-XP-Monitor', 
                   'WIN_2003Server'             : 'fsWin-XP-Monitor', 
-                  'UNKNOWN'                    : 'fsDummyMonitor', 
                 }
     
     # Initial state
@@ -112,4 +111,8 @@ def monitorPackage():
     else:
         errorString = "Unsupported platform: %s" % system
     
-    return supported[current], errorString
+    try:
+        return supported[current]
+    except:
+        raise Exception("Libraries required by OMERO.fs monitor unavailable: " + errorString)
+    

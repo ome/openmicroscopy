@@ -63,15 +63,9 @@ class DropBox(Ice.Application):
         # if not there's no point starting the FSDropBox client
         import fsUtil
         try:
-            module, errorMessage = fsUtil.monitorPackage()
+            fsUtil.monitorPackage()
         except:
-            log.error("Failed to load required module: \n")
-            log.error("Quitting")
-            return retVal
-        
-        if module == 'fsDummyMonitor':
-            log.error("System requirements not met: \n")
-            log.error(errorMessage)
+            log.exception("System requirements not met: \n")
             log.error("Quitting")
             return retVal
 
@@ -128,12 +122,12 @@ class DropBox(Ice.Application):
             return retVal
 
         try:
-            serverIdString = self.getFSServerIdString(props)
+            serverIdString = self.getServerIdString(props)
             fsServer = self.communicator().stringToProxy(serverIdString)
             fsServer = monitors.MonitorServerPrx.checkedCast(fsServer.ice_twoway())
 
-            clientAdapterName = self.getFSClientAdapterName(props)
-            clientIdString = self.getFSClientIdString(props)
+            clientAdapterName = self.getClientAdapterName(props)
+            clientIdString = self.getClientIdString(props)
             adapter = self.communicator().createObjectAdapter(clientAdapterName)
             mClient = {}
             monitorId = {}
@@ -274,9 +268,6 @@ class DropBox(Ice.Application):
             return -1
 
         p = omero.sys.Parameters()
-#        query = "select i from Image i where i.name = " + "'" + dstFile + "'"
-#        out = sf.getQueryService().findAllByQuery(query, p)
-#        log.info("Query 1 says: %s item(s) found.", str(len(out)))
 
         retVal = 0
         for i in self.imageId:
@@ -317,21 +308,21 @@ class DropBox(Ice.Application):
 
         return host, port
 
-    def getFSServerIdString(self, props):
+    def getServerIdString(self, props):
         """
             Get serverIdString from the communicator properties.
 
         """
         return props.getPropertyWithDefault("omero.fs.serverIdString","")
 
-    def getFSClientIdString(self, props):
+    def getClientIdString(self, props):
         """
             Get serverIdString from the communicator properties.
 
         """
         return props.getPropertyWithDefault("omero.fs.clientIdString","")
 
-    def getFSClientAdapterName(self, props):
+    def getClientAdapterName(self, props):
         """
             Get serverIdString from the communicator properties.
 

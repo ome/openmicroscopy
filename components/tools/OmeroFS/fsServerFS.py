@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """
-    OMERO.fs FSServer module.
+    OMERO.fs ServerFS module.
 
-    The Server class is a wrapper to the MonitorServer. It handles the ICE
+    The Server class is a wrapper to the FileServer. It handles the ICE
     formalities. It controls the shutdown.
 
     Copyright 2009 University of Dundee. All rights reserved.
@@ -10,13 +10,15 @@
 
 """
 import logging
-log = logging.getLogger("fsserver.FSServer")
+log = logging.getLogger("fsserver.ServerFS")
 
 import sys
 import Ice
 import IceGrid
 
 from omero.util import configure_server_logging
+
+import fsFileServer
 
 class Server(Ice.Application):
     """
@@ -39,62 +41,44 @@ class Server(Ice.Application):
         props = self.communicator().getProperties()
         configure_server_logging(props)
 
-        import fsUtil
+        # Create a FileServer, its adapter and activate it.
         try:
-            module, errorMessage = fsUtil.monitorPackage()
-        except:
-            log.error("Failed to load required module: \n")
-            log.error("Quitting")
-            return retVal
-
-        
-        if module == 'fsDummyMonitor':
-            log.error("System requirements for monitoring are not met: \n")
-            log.error(errorMessage)
-            monitorable = False
-        else:
-            monitorable = True
-
-        import fsMonitorServer 
-           
-        # Create a MonitorServer, its adapter and activate it.
-        try:
-            serverIdString = self.getFSServerIdString(props)
-            serverAdapterName = self.getFSServerAdapterName(props)
-            mServer = fsMonitorServer.MonitorServerI(monitorable)
+            serverIdString = self.getServerIdString(props)
+            serverAdapterName = self.getServerAdapterName(props)
+            mServer = fsFileServer.FileServerI()
             adapter = self.communicator().createObjectAdapter(serverAdapterName)
             mServerPrx = adapter.add(mServer, self.communicator().stringToIdentity(serverIdString))
             adapter.activate() 
         except:
-            log.exception("Failed create OMERO.fs Server: \n")
+            log.exception("Failed create OMERO.fs FileServer: \n")
             return -1
             
-        log.info('Started OMERO.fs Server')
+        log.info('Started OMERO.fs FileServer')
         
         # Wait for an interrupt.
         self.communicator().waitForShutdown()
         
-        log.info('Stopping OMERO.fs Server')
+        log.info('Stopping OMERO.fs FileServer')
         return 0
 
-    def getFSServerIdString(self, props):
+    def getServerIdString(self, props):
         """
-            Get serverIdString from the communicator properties.
+            Get fileServerIdString from the communicator properties.
             
         """
-        return props.getPropertyWithDefault("omero.fs.serverIdString","")
+        return props.getPropertyWithDefault("omero.fs.fileServerIdString","")
         
-    def getFSServerAdapterName(self, props):
+    def getServerAdapterName(self, props):
         """
-            Get serverIdString from the communicator properties.
+            Get fileServerIdString from the communicator properties.
             
         """
-        return props.getPropertyWithDefault("omero.fs.serverAdapterName","")
+        return props.getPropertyWithDefault("omero.fs.fileServerAdapterName","")
 
 
 if __name__ == '__main__':
     try:
-        log.info('Trying to start OMERO.fs Server')   
+        log.info('Trying to start OMERO.fs FileServer')   
         app = Server()
     except:
         log.exception("Failed to start the server:\n")

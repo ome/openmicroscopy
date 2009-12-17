@@ -158,7 +158,27 @@ module omero {
      *   ======================
      */
 
-    interface FileSystem {
+    interface FileServer {
+        
+        /*
+         * Directory level methods
+         * -----------------------
+         */
+
+        /**
+         * Get an absolute directory from an OMERO.fs server.
+         *
+         * An exception will be raised if the path does not exist or is inaccessible to the
+         * OMERO.fs server. An exception will be raised if directory list cannot be
+         * returned for any other reason.
+         *
+         * @param relPath, an absolute path on the monitor's watch path (string).
+         * @param filter, a filter to apply to the listing, cf. ls (string).
+         * @return, a directory listing (Ice::StringSeq).
+         * @throws omero::OmeroFSError
+         **/
+        idempotent Ice::StringSeq getDirectory(string absPath, string filter)
+            throws omero::OmeroFSError;
         /*
          * File level methods
          * ------------------
@@ -319,7 +339,7 @@ module omero {
     }; /* end interface FileSystem */
 
 
-    interface MonitorServer extends FileSystem {
+    interface MonitorServer {
 
         /*
          * Monitor creation and control methods
@@ -420,42 +440,6 @@ module omero {
             throws omero::OmeroFSError;
 
 
-        /*
-         * Directory level methods
-         * -----------------------
-         */
-
-        /**
-         * Get the directory relative to an existing monitor on an OMERO.fs server.
-         *
-         * An exception will be raised if the id does not correspond to an existing monitor.
-         * An exception will be raised if the path does not exist or is inaccessible to the
-         * OMERO.fs server. An exception will be raised if directory list cannot be
-         * returned for any other reason.
-         *
-         * @param id, monitor id (string).
-         * @param relPath, the relative path from the monitor's watch path (string).
-         * @param filter, a filter to apply to the listing, cf. ls (string).
-         * @return, a directory listing (Ice::StringSeq).
-         * @throws omero::OmeroFSError
-         **/
-        idempotent Ice::StringSeq getMonitorDirectory(string id, string relPath, string filter)
-            throws omero::OmeroFSError;
-
-        /**
-         * Get an absolute directory from an OMERO.fs server.
-         *
-         * An exception will be raised if the path does not exist or is inaccessible to the
-         * OMERO.fs server. An exception will be raised if directory list cannot be
-         * returned for any other reason.
-         *
-         * @param relPath, an absolute path on the monitor's watch path (string).
-         * @param filter, a filter to apply to the listing, cf. ls (string).
-         * @return, a directory listing (Ice::StringSeq).
-         * @throws omero::OmeroFSError
-         **/
-        idempotent Ice::StringSeq getDirectory(string absPath, string filter)
-            throws omero::OmeroFSError;
 
     }; /* end interface MonitorServer */    
   }; /* end module monitors */
