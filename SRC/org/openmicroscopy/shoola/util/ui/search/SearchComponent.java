@@ -96,8 +96,11 @@ public class SearchComponent
 	/** Identifies the text for searching for attachments. */
 	public static final String		NAME_ATTACHMENT = "Attachments"; 
 	
-	/** Identifies the text for searching for attachments. */
+	/** Identifies the text for searching for rate. */
 	public static final String		NAME_RATE = "Rate"; 
+	
+	/** Identifies the text for searching for time. */
+	public static final String		NAME_TIME = "Time"; 
 	
 	/** Bound property indicating to search. */
 	public static final String 		SEARCH_PROPERTY = "search";

@@ -1082,9 +1082,18 @@ class OmeroDataServiceImpl
 			throw new IllegalArgumentException("No search context defined.");
 		if (!context.isValid())
 			throw new IllegalArgumentException("Search context not valid.");
+		Map<Integer, Object> results = new HashMap<Integer, Object>();
 		
-		
+		if (!context.hasTextToSearch()) {
+			List<ExperimenterData> l = context.getOwners();
+			results.put(SearchDataContext.TIME, gateway.searchByTime(context));
+			return results;
+		}
 		Object result = gateway.performSearch(context); 
+		
+		
+		
+		
 		//Should returns a search context for the moment.
 		//collection of images only.
 		Map m = (Map) result;
@@ -1101,7 +1110,7 @@ class OmeroDataServiceImpl
 		while (k.hasNext()) {
 			ownerIDs.add(((DataObject) k.next()).getId());
 		}
-		Map<Integer, Object> results = new HashMap<Integer, Object>();
+		
 		Set<DataObject> nodes;
 		Object v;
 		

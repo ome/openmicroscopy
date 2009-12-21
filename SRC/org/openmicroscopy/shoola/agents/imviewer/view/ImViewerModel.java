@@ -1901,10 +1901,12 @@ class ImViewerModel
 	 */
 	boolean isSameSettings(RndProxyDef def)
 	{
+		if (metadataViewer == null) return false;
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return false;
 		return rnd.isSameSettings(def, false);
 	}
+	
     /**
      * Sets the projected image for preview.
      * 

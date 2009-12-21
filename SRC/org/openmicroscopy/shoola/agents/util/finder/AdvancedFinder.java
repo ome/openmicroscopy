@@ -159,6 +159,8 @@ public class AdvancedFinder
 				return NAME_URL;
 			case SearchDataContext.FILE_ANNOTATION:
 				return NAME_ATTACHMENT;
+			case SearchDataContext.TIME:
+				return NAME_TIME;
 			default:
 				return null;
 		}
@@ -224,7 +226,7 @@ public class AdvancedFinder
 	}
 	
 	/**
-	 * Converts the UI context into a searchable context.
+	 * Converts the UI context into a context to search for.
 	 * 
 	 * @param ctx The value to convert.
 	 */
@@ -234,22 +236,28 @@ public class AdvancedFinder
 		String[] must = ctx.getMust();
 		String[] none = ctx.getNone();
 		UserNotifier un = FinderFactory.getRegistry().getUserNotifier();
-		if (some == null && must == null && none == null) {
-			un.notifyInfo(TITLE, "Please enter a term to search for.");
+		Timestamp start = ctx.getStartTime();
+		Timestamp end = ctx.getEndTime();
+		if (start != null && end != null && start.after(end)) {
+			un.notifyInfo(TITLE, "The selected time interval is not valid.");
 			return;
+		}
+		
+		if (some == null && must == null && none == null) {
+			if (start == null && end == null) {
+				un.notifyInfo(TITLE, "Please enter a term to search for " +
+						"or a valid time interval.");
+				return;
+			}
 		}
 		List<Integer> context = ctx.getContext();
 		if (context == null || context.size() == 0) {
 			un.notifyInfo(TITLE, "Please enter a context.");
 			return;
 		}
-		Timestamp start = ctx.getStartTime();
-		Timestamp end = ctx.getEndTime();
 		
-		if (start != null && end != null && start.after(end)) {
-			un.notifyInfo(TITLE, "The selected time interval is not valid.");
-			return;
-		}
+		
+		
 		List<Integer> scope = new ArrayList<Integer>(context.size());
 		Iterator i = context.iterator();
 		Integer v;

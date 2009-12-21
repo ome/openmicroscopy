@@ -94,6 +94,7 @@ import omero.api.IRepositoryInfoPrx;
 import omero.api.IRoiPrx;
 import omero.api.IScriptPrx;
 import omero.api.ISessionPrx;
+import omero.api.ITimelinePrx;
 import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
@@ -315,6 +316,9 @@ class OMEROGateway
 	
 	/** The exporter service. */
 	private ExporterPrx								exporterService;
+	
+	/** The time service. */
+	private ITimelinePrx							timeService;
 	
 	/** Tells whether we're currently connected and logged into <i>OMERO</i>. */
 	private boolean                 				connected;
@@ -800,7 +804,7 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	public ISessionPrx getSessionService()
+	private ISessionPrx getSessionService()
 		throws DSAccessException, DSOutOfServiceException
 	{
 		try {
@@ -834,6 +838,14 @@ class OMEROGateway
 		return null;
 	}
 
+	/**
+	 * Creates or recycles the import store.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
 	private OMEROMetadataStoreClient getImportStore()
 		throws DSAccessException, DSOutOfServiceException
 	{
@@ -848,6 +860,7 @@ class OMEROGateway
 		}
 		return null;
 	}
+	
 	/**
 	 * Returns the {@link IRepositoryInfoPrx} service.
 	 * 
@@ -1056,6 +1069,29 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Returns the {@link ITimelinePrx} service.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	private ITimelinePrx getTimeService()
+		throws DSAccessException, DSOutOfServiceException
+	{
+		try {
+			if (timeService == null) {
+				timeService = entry.getTimelineService(); 
+				services.add(timeService);
+			}
+			return timeService;
+		} catch (Throwable e) {
+			handleException(e, "Cannot access Time service.");
+		}
+		return null;
+	}
+	
+	/**
 	 * Returns the {@link ThumbnailStorePrx} service.
 	 *   
 	 * @return See above.
@@ -1144,7 +1180,7 @@ class OMEROGateway
 	 * 
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	private RenderingEnginePrx getRenderingService()
@@ -1165,7 +1201,7 @@ class OMEROGateway
 	 * 
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	private RawPixelsStorePrx getPixelsStore()
@@ -1192,7 +1228,7 @@ class OMEROGateway
 	 * 
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	private IPixelsPrx getPixelsService()
@@ -3243,51 +3279,6 @@ class OMEROGateway
 	}
 
 	/**
-	 * Returns a collection of images imported after the specified time
-	 * by the specified user.
-	 * 
-	 * @param startTime	The reference time.
-	 * @param endTime	The reference time.
-	 * @param userID	The user's id.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	List getImagesDuring(Timestamp startTime, Timestamp endTime, long userID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		isSessionAlive();
-		
-		try {
-			String  sql = "select i from Image as i left outer join fetch " +
-			"i.details.creationEvent as c where " +
-			"i.details.owner.id = :userID and ";
-			IQueryPrx service = getQueryService();
-			ParametersI param = new ParametersI();
-			param.map.put("userID", omero.rtypes.rlong(userID));
-			if (startTime != null && endTime != null) {
-				sql += "c.time < :endTime and c.time > :startTime";
-				param.add("startTime", omero.rtypes.rtime(startTime.getTime()));
-				param.add("endTime", omero.rtypes.rtime(endTime.getTime()));
-			} else if (startTime == null && endTime != null) {
-				sql += "c.time < :endTime";
-				param.add("endTime", omero.rtypes.rtime(endTime.getTime()));
-			} else if (startTime != null && endTime == null) {
-				sql += "c.time  > :startTime";
-				param.add("startTime", omero.rtypes.rtime(startTime.getTime()));
-			} 
-			
-			return service.findAllByQuery(sql, param);
-		} catch (Throwable e) {
-			handleException(e, "Cannot retrieve the images imported during " +
-			"the selected period.");
-		}
-		return new ArrayList();
-	}
-
-	/**
 	 * Retrieves the images specified by a set of parameters
 	 * e.g. imported during a given period of time by a given user.
 	 * 
@@ -3311,7 +3302,7 @@ class OMEROGateway
 			if (asDataObject) return PojoMapper.asDataObjects(result);
 			return result;
 		} catch (Exception e) {
-			handleException(e, "Cannot retrieve the images imported " +
+			handleException(e, "Cannot retrieve the images imported during " +
 							"the specified period.");
 		}
 		return new HashSet();
@@ -3627,6 +3618,93 @@ class OMEROGateway
 		return -1;
 	}
 	
+	/** 
+	 * Searches the images acquired or created during a given period of time.
+	 * 
+	 * @param context The context of the search.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Object searchByTime(SearchDataContext context)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		ParametersI param = new ParametersI();
+		param.map = new HashMap<String, RType>();
+		StringBuffer buf = new StringBuffer();
+		buf.append("select img from Image as img ");
+		buf.append("left outer join fetch img.pixels as pix ");
+		buf.append("left outer join fetch pix.pixelsType as pt ");
+		buf.append("left outer join fetch img.details.owner as owner ");
+		boolean condition = false;
+		Timestamp start = context.getStart();
+		Timestamp end = context.getEnd();
+		//Sets the time
+		switch (context.getTimeIndex()) {
+			case SearchDataContext.CREATION_TIME:
+				if (start != null) {
+					condition = true;
+					buf.append("where img.acquisitionDate > :start ");
+					param.map.put("start", omero.rtypes.rtime(start.getTime()));
+					if (end != null) {
+						param.map.put("end", omero.rtypes.rtime(end.getTime()));
+						buf.append("and img.acquisitionDate < :end ");
+					}
+				} else {
+					if (end != null) {
+						condition = true;
+						param.map.put("end", omero.rtypes.rtime(end.getTime()));
+						buf.append("where img.acquisitionDate < :end ");
+					}
+				}
+				break;
+			case SearchDataContext.MODIFICATION_TIME:
+				if (start != null) {
+					condition = true;
+					param.map.put("start", omero.rtypes.rtime(start.getTime()));
+					buf.append("where img.details.creationEvent.time > :start ");
+					if (end != null) {
+						param.map.put("end", omero.rtypes.rtime(end.getTime()));
+						buf.append("and img.details.creationEvent.time < :end ");
+					}
+				} else {
+					if (end != null) {
+						condition = true;
+						param.map.put("end", omero.rtypes.rtime(end.getTime()));
+						buf.append("where img.details.creationEvent.time < :end ");
+					}
+				}
+				break;
+			case SearchDataContext.ANNOTATION_TIME:
+		}
+		try {
+			List<ExperimenterData> l = context.getOwners();
+			List<Long> ids = new ArrayList<Long>();
+			if (l != null) {
+				Iterator<ExperimenterData> i = l.iterator();
+				while (i.hasNext()) {
+					ids.add(i.next().getId());
+				}
+			}
+			param.addLongs("ids", ids);
+			if (condition) {
+				buf.append(" and owner.id in (:ids)");
+			} else 
+				buf.append("where owner.id in (:ids)");
+			
+			IQueryPrx service = getQueryService();
+			return PojoMapper.asDataObjects(
+					service.findAllByQuery(buf.toString(), param));
+		} catch (Throwable e) {
+			handleException(e, "Cannot retrieve the images.");
+		}
+		
+		return new HashSet();
+	}
+	
 	/**
 	 * Searches for data.
 	 * 
@@ -3640,6 +3718,7 @@ class OMEROGateway
 	Object performSearch(SearchDataContext context)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		Map<Integer, Object> results = new HashMap<Integer, Object>();
 		List<Class> types = context.getTypes();
 		List<Integer> scopes = context.getScope();
 		if (types == null || types.size() == 0) return new HashMap();
@@ -3701,7 +3780,7 @@ class OMEROGateway
 				supportedTypes.add(convertPojos((Class) i.next()).getName());
 
 			List rType;
-			Map<Integer, Object> results = new HashMap<Integer, Object>();
+			
 			Object size;
 			Integer key;
 			i = scopes.iterator();

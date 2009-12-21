@@ -68,6 +68,9 @@ public class SearchDataContext
 	/** Identifying the <code>Description</code> context. */
 	public static final int			DESCRIPTION = 5;
 	
+	/** Identifying the <code>URL annotation</code> context. */
+	public static final int			TIME = 6;
+	
 	/** Indicates to set the creation time interval. */
 	public static final int			CREATION_TIME = 0;
 	
@@ -76,7 +79,7 @@ public class SearchDataContext
 	
 	/** Indicates to set the time of annotation. */
 	public static final int			ANNOTATION_TIME = 2;
-	
+
 	/** 
 	 * Indicates to exclude the collection of users who owned entities.
 	 */
@@ -162,8 +165,8 @@ public class SearchDataContext
 	public SearchDataContext(List<Integer> scope, List<Class> types, 
 							String[] some, String[] must, String[] none)
 	{
-		if (some == null && must == null && none == null)
-			throw new IllegalArgumentException("No terms to search for.");
+		//if (some == null && must == null && none == null)
+		//	throw new IllegalArgumentException("No terms to search for.");
 		this.some = some;
 		this.must = must;
 		this.none = none;
@@ -224,7 +227,7 @@ public class SearchDataContext
 	}
 	
 	/**
-	 * Returns the lower bpund of the time interval.
+	 * Returns the lower bound of the time interval.
 	 * 
 	 * @return See above.
 	 */
@@ -254,10 +257,7 @@ public class SearchDataContext
 	/**
 	 * Returns the terms that might be present in the document. 
 	 * May be <code>null</code>.
-	 * @param must	All of these terms must be present in the document.
-	 * 				May be <code>null</code>.
-	 * @param none	None of these terms may be present in the document. 
-	 * 				May be <code>null</code>.
+	 * 
 	 * @return See above.
 	 */
 	public String[] getSome() { return some; }
@@ -286,8 +286,8 @@ public class SearchDataContext
 	 */
 	public boolean isValid()
 	{
-		//TODO: implement
-		return true;
+		return !(none == null && must == null && some == null && start == null
+			&& end == null);
 	}
 	
 	/**
@@ -403,5 +403,15 @@ public class SearchDataContext
 	 */
 	public int getNumberOfResults() { return numberOfResults; }
 	
+	/**
+	 * Returns <code>true</code> if text to search for,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasTextToSearch()
+	{
+		return (some != null || none != null || must != null);
+	}
 	
 }

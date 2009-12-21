@@ -72,7 +72,6 @@ import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -84,7 +83,6 @@ import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
-import pojos.WellSampleData;
 
 
 /** 

@@ -52,7 +52,7 @@ public class AdvancedFinderLoader
 	/** Collection of terms to search for. */
 	private SearchDataContext		searchContext;
 	
-	/** Handle to the async call so that we can cancel it. */
+	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  			handle;
 
 	/**
