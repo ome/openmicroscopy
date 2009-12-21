@@ -161,7 +161,6 @@ class WellFieldsView
 						model.viewNode(node);
 				}
 			}
-
 		});
 		canvas.addMouseMotionListener(new MouseMotionAdapter() {
 
@@ -190,14 +189,14 @@ class WellFieldsView
 						String s = buffer.toString();
 						canvas.setToolTipText(s);
 						selectedField.setText(s);
+						selectedField.repaint();
 					} else {
 						canvas.setToolTipText("");
 						selectedField.setText("");
+						selectedField.repaint();
 					}
 				}
 			}
-
-
 		});
 		nodes = null;
 	}
@@ -217,7 +216,7 @@ class WellFieldsView
 		p.setLayout(new TableLayout(size));
 		p.add(grid, "0, 0, 0, 2");
 		p.add(selectedNode, "2, 0, LEFT, TOP");
-		p.add(selectedField, "2, 1, LEFT, TOP");
+		//p.add(selectedField, "2, 1, LEFT, TOP");
 		add(pane, BorderLayout.CENTER);
 		plateTask = EditorUtil.createTaskPane("Plate");
 		plateTask.add(UIUtilities.buildComponentPanel(p));
