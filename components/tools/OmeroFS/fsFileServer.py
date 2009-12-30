@@ -44,6 +44,35 @@ class FileServerI(monitors.FileServer):
     
     """
 
+    def fileExists(self, fileId, current=None):
+        """
+            Return true if fileId represents a file or directory that exists.
+        
+            :Parameters:
+                fileId : string
+                    A string uniquely identifying a file on this Monitor.
+                  
+                current 
+                    An ICE context, this parameter is required to be present
+                    in an ICE interface method.
+                       
+            :return: isfile
+            :rtype: bolean
+     
+        """
+        try:
+            pathString = self._getPathString(fileId)
+        except Exception, e:
+            self.log.error('File ID  ' + str(fileId) + ' not on this FSServer')
+            raise omero.OmeroFSError(reason='File ID  ' + str(fileId) + ' not on this FSServer')       
+   
+        try:
+            isfile = pathModule.path(pathString).isfile
+            return True
+        except Exception, e:
+            return False
+            
+            
     def getDirectory(self, absPath, filter, current=None):
         """
             Get a list of subdirectories and files in a directory.
