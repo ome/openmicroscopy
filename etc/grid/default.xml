@@ -51,6 +51,10 @@
       <server-instance template="TestDropBoxTemplate"/>
     </node>
 
+    <node name="repo">
+      <server-instance template="RepositoryTemplate" index="1" dir="/tmp/"/>
+    </node>
+
   </application>
 
 </icegrid>

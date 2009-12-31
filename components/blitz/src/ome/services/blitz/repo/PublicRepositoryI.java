@@ -9,6 +9,9 @@ package ome.services.blitz.repo;
 import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import ome.services.util.Executor;
@@ -27,6 +30,11 @@ import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.util.IceMapper;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.commons.io.filefilter.FalseFileFilter;
+import org.apache.commons.io.filefilter.FileFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
@@ -44,15 +52,24 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
     private final long id;
 
+    private final File root;
+
     private final Executor executor;
 
     private final Principal principal;
 
-    public PublicRepositoryI(long repoObjectId, Executor executor,
+    public PublicRepositoryI(File root, long repoObjectId, Executor executor,
             Principal principal) throws Exception {
         this.id = repoObjectId;
         this.executor = executor;
         this.principal = principal;
+
+        if (root == null || !root.isDirectory()) {
+            throw new ValidationException(null, null,
+                    "Root directory must be a existing, readable directory.");
+        }
+        this.root = root.getAbsoluteFile();
+
     }
 
     public OriginalFile root(Current __current) throws ServerError {
@@ -100,25 +117,29 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
     public void delete(String path, Current __current) throws ServerError {
-        // TODO Auto-generated method stub
-
+        File file = checkPath(path);
+        FileUtils.deleteQuietly(file);
     }
 
+    @SuppressWarnings("unchecked")
     public List<String> list(String path, Current __current) throws ServerError {
-        // TODO Auto-generated method stub
-        return null;
+        File file = checkPath(path);
+        Collection<File> files = FileUtils.listFiles(file, TrueFileFilter.TRUE, FalseFileFilter.FALSE);
+        return filesToPaths(files);
     }
 
     public List<String> listDirs(String path, Current __current)
             throws ServerError {
-        // TODO Auto-generated method stub
-        return null;
+        File file = checkPath(path);
+        Collection<File> files = FileUtils.listFiles(file, DirectoryFileFilter.DIRECTORY, FalseFileFilter.FALSE);
+        return filesToPaths(files);
     }
 
     public List<String> listFiles(String path, Current __current)
             throws ServerError {
-        // TODO Auto-generated method stub
-        return null;
+        File file = checkPath(path);
+        Collection<File> files = FileUtils.listFiles(file, FileFileFilter.FILE, FalseFileFilter.FALSE);
+        return filesToPaths(files);
     }
 
     public OriginalFile load(String path, Current __current) throws ServerError {
@@ -185,4 +206,46 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return null;
     }
 
+    public Format format(String path, Current __current) throws ServerError {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    //
+    // Utilities
+    //
+
+    private File checkPath(String path) throws ValidationException {
+
+        if (path == null || path.length() == 0) {
+            throw new ValidationException(null, null, "Path is empty");
+        }
+
+        boolean found = false;
+        File file = new File(path).getAbsoluteFile();
+        File parent = file.getParentFile();
+        while (parent != null) {
+            if (parent.equals(root)) {
+                found = true;
+                break;
+            }
+            parent = parent.getParentFile();
+        }
+
+        if (!found) {
+            throw new ValidationException(null, null, path + " is not within "
+                    + root.getAbsolutePath());
+        }
+
+        return file;
+    }
+    
+
+    private List<String> filesToPaths(Collection<File> files) {
+        List rv = new ArrayList<String>();
+        for (File f : files) {
+            rv.add(f.getAbsolutePath());
+        }
+        return rv;
+    }
 }

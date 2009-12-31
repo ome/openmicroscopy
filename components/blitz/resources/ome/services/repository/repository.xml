@@ -22,13 +22,23 @@
   Defines the configuration needed to start the Repository Java server.
   </description>
 
-  <bean id="internalRepository" class="ome.services.blitz.repo.InternalRepositoryI">
+  <bean id="internalRepositoryConfig" class="ome.services.blitz.repo.InternalRepositoryConfig">
     <constructor-arg value="${omero.repo.dir}"/>
   </bean>
+
+  <bean id="internalRepository" class="ome.services.blitz.repo.InternalRepositoryI">
+    <constructor-arg index="0" ref="Ice.ObjectAdapter"/>
+    <constructor-arg index="1" ref="Ice.Registry"/>
+    <constructor-arg index="2" ref="executor"/>
+    <constructor-arg index="3" ref="uuid"/>
+    <constructor-arg index="4" value="${omero.repo.dir}"/>
+  </bean>
+
   
   <!-- This is used by ome.services.blitz.Entry to call waitForShutdown -->
-  <bean id="Ice.Communicator" factory-bean="internalRepository" factory-method="getCommunicator"/>
-  <bean id="Ice.ObjectAdapter" factory-bean="internalRepository" factory-method="getObjectAdapter"/>
+  <bean id="Ice.Communicator" factory-bean="internalRepositoryConfig" factory-method="getCommunicator"/>
+  <bean id="Ice.ObjectAdapter" factory-bean="internalRepositoryConfig" factory-method="getObjectAdapter"/>
+  <bean id="Ice.Registry" factory-bean="internalRepositoryConfig" factory-method="getRegistry"/>
   <bean id="publiRepository" factory-bean="internalRepository" factory-method="getProxy"/>
 
 </beans>

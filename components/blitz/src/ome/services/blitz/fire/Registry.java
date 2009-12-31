@@ -25,6 +25,9 @@ import omero.grid.TablesPrxHelper;
 import omero.grid._ClusterNodeDisp;
 import omero.grid._ProcessorDisp;
 import omero.grid._TablesDisp;
+import omero.grid.monitors.MonitorServerPrx;
+import omero.grid.monitors.MonitorServerPrxHelper;
+import omero.grid.monitors._MonitorServerDisp;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -95,6 +98,8 @@ public interface Registry {
     public abstract InternalRepositoryPrx[] lookupRepositories();
 
     public abstract TablesPrx[] lookupTables();
+    
+    public abstract MonitorServerPrx[] lookupMonitorServers();
 
     public class Impl implements Registry {
 
@@ -326,6 +331,28 @@ public interface Registry {
                 log.info("Found " + repos.length + " repo(s) : "
                         + Arrays.toString(repos));
                 return repos;
+            } catch (Exception e) {
+                log.warn("Could not query repositories " + e);
+                return null;
+            }
+        }
+        
+        public MonitorServerPrx[] lookupMonitorServers() {
+            IceGrid.QueryPrx query = getGridQuery();
+            if (query == null) {
+                return null; // EARLY EXIT
+            }
+            try {
+                Ice.ObjectPrx[] candidates = null;
+                candidates = query.findAllObjectsByType(_MonitorServerDisp.ice_staticId());
+                MonitorServerPrx[] mss = new MonitorServerPrx[candidates.length];
+                for (int i = 0; i < mss.length; i++) {
+                    mss[i] = MonitorServerPrxHelper
+                            .uncheckedCast(candidates[i]);
+                }
+                log.info("Found " + mss.length + " monitor server(s) : "
+                        + Arrays.toString(mss));
+                return mss;
             } catch (Exception e) {
                 log.warn("Could not query repositories " + e);
                 return null;

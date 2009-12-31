@@ -11,9 +11,7 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-import java.sql.Timestamp;
 import java.util.Date;
 
 import ome.conditions.InternalException;
@@ -21,6 +19,13 @@ import ome.conditions.InternalException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * Utility class for creating and cleaning up a repository lock file. After
+ * {@link #init(String) initialization}, a call to {@link #getLine()} will
+ * either return the UUID of the repository or null. If null, then
+ * {@link #writeLine(String)} can be used to assert that this repository is to
+ * be named according to the string.
+ */
 public class FileMaker {
 
     private final static Log log = LogFactory.getLog(FileMaker.class);
@@ -32,7 +37,7 @@ public class FileMaker {
     private/* final */String dbUuid;
 
     private File repoUuidFile, dotLockFile;
-    
+
     private RandomAccessFile repoUuidRaf, dotLockRaf;
 
     private FileLock lock;
@@ -134,7 +139,7 @@ public class FileMaker {
             } catch (IOException e) {
                 log.warn("Failed to close repo_uuid");
             }
-            
+
             try {
                 dotLockRaf.close();
             } catch (IOException e) {

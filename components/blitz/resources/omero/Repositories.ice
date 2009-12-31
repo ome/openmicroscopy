@@ -52,6 +52,13 @@ module omero {
 
 
             /**
+             * Returns the best-guess of the [omero::model::Format] for the given path.
+             * If the file is "known" (see [listKnown]), then the format returned will
+             * be the stored value, rather than a newly calculated one.
+             **/
+            omero::model::Format format(string path) throws ServerError;
+
+            /**
              * Create an OriginalFile in the database for the given path.
              * If the given path is already registered as an OriginalFile,
              * a ValidationException is thrown. Otherwise, one is added and
