@@ -242,6 +242,10 @@ public class SharedResourcesI extends AbstractAmdServant implements
             }
             try {
                 OriginalFile desc = i.getDescription();
+                if (desc == null || desc.getId() == null) {
+                    log.warn("Description is null for " + i);
+                    continue;
+                }
                 RepositoryPrx proxy = i.getProxy();
                 map.descriptions.add(desc);
                 map.proxies.add(proxy);

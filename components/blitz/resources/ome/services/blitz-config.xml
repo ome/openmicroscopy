@@ -62,6 +62,25 @@
     <property name="repeatInterval" value="60000" /><!-- millis -->
   </bean>
 
+  <bean id="temporaryRepository" class="ome.services.blitz.repo.TemporaryRepositoryI" destroy-method="close">
+      <description>
+        Test repository which will make the ${java.io.tmpdir} available for testing.
+      </description>
+      <constructor-arg index="0" ref="BlitzAdapter"/>
+      <constructor-arg index="1" ref="Registry"/>
+      <constructor-arg index="2" ref="executor"/>
+      <constructor-arg index="3" ref="uuid"/>
+  </bean>
+  <bean id="temporaryTakeoverRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <property name="targetObject" ref="temporaryRepository" />
+    <property name="targetMethod" value="takeover" />
+    <property name="concurrent"   value="false"/>
+  </bean>
+  <bean id="temporaryTakeoverTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+    <property name="jobDetail" ref="temporaryTakeoverRun" />
+    <property name="repeatInterval" value="60000" /><!-- millis -->
+  </bean>
+
   <!-- Redirector configuration -->
   <alias name="${omero.cluster.redirector}" alias="redirector"/>
   

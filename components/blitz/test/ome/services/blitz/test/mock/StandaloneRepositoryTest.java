@@ -34,12 +34,13 @@ public class StandaloneRepositoryTest extends MockObjectTestCase {
 
     @BeforeClass
     public void setup() throws Exception {
+        dir = TempFileManager.create_path("repo", "test", true);
+        System.setProperty("omero.repo.dir", dir.getAbsolutePath());
         ctx = OmeroContext.getInstance("OMERO.repository");
         ex = (Executor) ctx.getBean("executor");
         fixture = new MockFixture(this, ctx);
         oa = fixture.blitz.getBlitzAdapter();
         reg = fixture.blitz.getRegistry();
-        dir = TempFileManager.create_path("repo", "test", true);
     }
 
     @Test

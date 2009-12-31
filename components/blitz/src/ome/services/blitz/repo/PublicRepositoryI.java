@@ -10,7 +10,9 @@ import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -31,9 +33,8 @@ import omero.model.OriginalFileI;
 import omero.util.IceMapper;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
-import org.apache.commons.io.filefilter.FalseFileFilter;
 import org.apache.commons.io.filefilter.FileFileFilter;
+import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -124,21 +125,21 @@ public class PublicRepositoryI extends _RepositoryDisp {
     @SuppressWarnings("unchecked")
     public List<String> list(String path, Current __current) throws ServerError {
         File file = checkPath(path);
-        Collection<File> files = FileUtils.listFiles(file, TrueFileFilter.TRUE, FalseFileFilter.FALSE);
+        List<File> files = Arrays.asList(file.listFiles());
         return filesToPaths(files);
     }
 
     public List<String> listDirs(String path, Current __current)
             throws ServerError {
         File file = checkPath(path);
-        Collection<File> files = FileUtils.listFiles(file, DirectoryFileFilter.DIRECTORY, FalseFileFilter.FALSE);
+        List<File> files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.directoryFileFilter()));
         return filesToPaths(files);
     }
 
     public List<String> listFiles(String path, Current __current)
             throws ServerError {
         File file = checkPath(path);
-        Collection<File> files = FileUtils.listFiles(file, FileFileFilter.FILE, FalseFileFilter.FALSE);
+        List<File> files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.fileFileFilter()));
         return filesToPaths(files);
     }
 
@@ -223,13 +224,15 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
         boolean found = false;
         File file = new File(path).getAbsoluteFile();
-        File parent = file.getParentFile();
-        while (parent != null) {
-            if (parent.equals(root)) {
+        while (true) {
+            if (file.equals(root)) {
                 found = true;
                 break;
             }
-            parent = parent.getParentFile();
+            file = file.getParentFile();
+            if (file == null) {
+                break;
+            }
         }
 
         if (!found) {
@@ -237,7 +240,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
                     + root.getAbsolutePath());
         }
 
-        return file;
+        return new File(path).getAbsoluteFile();
     }
     
 

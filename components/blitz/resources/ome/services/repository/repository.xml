@@ -34,6 +34,15 @@
     <constructor-arg index="4" value="${omero.repo.dir}"/>
   </bean>
 
+  <bean id="executor" class="ome.services.util.Executor$Impl">
+    <description>
+      A partial executor which has direct DB access only.
+    </description>
+    <constructor-arg ref="currentDetails"/>
+    <constructor-arg index="1"><null/></constructor-arg>
+    <constructor-arg ref="simpleJdbcTemplate"/>
+    <constructor-arg index="3"><list/></constructor-arg>
+  </bean>
   
   <!-- This is used by ome.services.blitz.Entry to call waitForShutdown -->
   <bean id="Ice.Communicator" factory-bean="internalRepositoryConfig" factory-method="getCommunicator"/>

@@ -12,7 +12,6 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import ome.conditions.InternalException;
-import ome.io.nio.OriginalFilesService;
 import ome.model.enums.Format;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
@@ -31,6 +30,7 @@ import omero.grid.RepositoryPrxHelper;
 import omero.grid._InternalRepositoryDisp;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
+import omero.util.IceMapper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,7 +57,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
 
     private final Registry reg;
 
-    private final Executor exj;
+    private final Executor ex;
 
     private final Principal p;
 
@@ -110,19 +110,27 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
         Object rv = null;
         try {
             rv = ex.execute(p, new GetOrCreateRepo(this));
-            if (rv == null) {
+            if (rv instanceof ome.model.core.OriginalFile) {
+
+                ome.model.core.OriginalFile r = (ome.model.core.OriginalFile) rv;
+                description = getDescription(r.getId());
+
                 // Success
                 if (!state.compareAndSet(State.WAITING, State.ACTIVE)) {
                     // But this may have been set to CLOSED
                     log.debug("Could not set state to ACTIVE");
                 }
                 return true;
+
+            } else if (rv instanceof Exception) {
+                log.error("Failed during repository takeover", (Exception) rv);
+            } else {
+                log.error("Unknown issue with repository takeover:" + rv);
             }
         } catch (Exception e) {
-            log.error("Unexpected error in called executor", e);
+            log.error("Unexpected error in called executor on takeover", e);
         }
 
-        log.error("Failed during repository takeover", (Exception) rv);
         state.compareAndSet(State.WAITING, State.EAGER);
         return false;
 
@@ -194,14 +202,19 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
      * Instead it simple returns an {@link Exception} ("failure") or null
      * ("success").
      */
-    static class GetOrCreateRepo extends Executor.SimpleWork {
+    class GetOrCreateRepo extends Executor.SimpleWork {
+
+        private final AbstractRepositoryI repo;
 
         public GetOrCreateRepo(AbstractRepositoryI repo) {
             super(repo, "takeover");
+            this.repo = repo;
         }
 
         @Transactional(readOnly = false)
         public Object doWork(Session session, ServiceFactory sf) {
+
+            ome.model.core.OriginalFile r = null;
 
             try {
 
@@ -213,7 +226,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
 
                 if (line == null) {
                     repoUuid = UUID.randomUUID().toString();
-                    ome.model.core.OriginalFile r = new ome.model.core.OriginalFile();
+                    r = new ome.model.core.OriginalFile();
                     r.setSha1(repoUuid);
                     r.setName(fileMaker.getDir());
                     r.setPath("/");
@@ -225,12 +238,13 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                     r.setSize(0L);
                     r.getDetails().setPermissions(Permissions.WORLD_IMMUTABLE);
                     r = sf.getUpdateService().saveAndReturnObject(r);
-                    description = new OriginalFileI(r.getId(), false);
                     fileMaker.writeLine(repoUuid);
-                    log.info("Registered new repository: " + repoUuid);
+                    log.info(String.format(
+                            "Registered new repository %s (uuid=%s)", r
+                                    .getName(), repoUuid));
                 } else {
                     repoUuid = line;
-                    ome.model.core.OriginalFile r = sf.getQueryService()
+                    r = sf.getQueryService()
                             .findByString(ome.model.core.OriginalFile.class,
                                     "sha1", repoUuid);
                     if (r == null) {
@@ -248,8 +262,8 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                             sf.getUpdateService().saveObject(r);
                         }
                     }
-                    description = new OriginalFileI(r.getId(), false);
-                    log.info("Opened repository: " + repoUuid);
+                    log.info(String.format("Opened repository %s (uuid=%s)", r
+                            .getName(), repoUuid));
                 }
 
                 //
@@ -257,7 +271,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                 //
 
                 PublicRepositoryI pr = new PublicRepositoryI(new File(fileMaker
-                        .getDir()), description.getId().getValue(), ex, p);
+                        .getDir()), r.getId(), ex, p);
 
                 Ice.Identity internal = Ice.Util
                         .stringToIdentity("InternalRepository-" + repoUuid);
@@ -277,7 +291,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                 //
                 oa.activate();
                 log.info("Repository now active");
-                return null;
+                return r;
             } catch (Exception e) {
                 fileMaker.close(); // If anything goes awry, we release for
                 // others!
@@ -285,6 +299,25 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
             }
 
         }
+
+    }
+
+    protected OriginalFileI getDescription(final long id) throws ServerError {
+        ome.model.core.OriginalFile file = (ome.model.core.OriginalFile) ex
+                .execute(p,
+                        new Executor.SimpleWork(this, "getDescription", id) {
+                            @Transactional(readOnly = true)
+                            public Object doWork(Session session,
+                                    ServiceFactory sf) {
+                                return sf.getQueryService().findByQuery(
+                                        "select o from OriginalFile o "
+                                                + "join fetch o.format "
+                                                + "where o.id = " + id, null);
+                            }
+                        });
+        OriginalFileI rv = (OriginalFileI) new IceMapper().map(file);
+        return rv;
+
     }
 
     protected String getFileUrl(final OriginalFile file) throws ServerError {

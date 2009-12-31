@@ -18,6 +18,9 @@ import org.apache.commons.logging.LogFactory;
 import Ice.Current;
 
 /**
+ * Repository which makes the ${omero.data.dir} directory available
+ * via the standard Repository API. Moving forward, this repository should
+ * be phased out.
  * 
  * @since Beta4.1
  */
