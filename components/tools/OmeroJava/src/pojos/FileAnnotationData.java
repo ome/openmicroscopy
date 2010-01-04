@@ -296,6 +296,19 @@ public class FileAnnotationData extends AnnotationData {
     }
     
     /**
+     * Returns the id of the file format.
+     * 
+     * @return See above.
+     */
+    public long getFormatID()
+    {
+    	OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
+    	if (f == null) return -1;
+    	if (f.getFormat() == null) return -1;
+    	return f.getFormat().getId().getValue();
+    }
+    
+    /**
      * Sets the description of the annotation.
      * 
      * @param description The value to set.
