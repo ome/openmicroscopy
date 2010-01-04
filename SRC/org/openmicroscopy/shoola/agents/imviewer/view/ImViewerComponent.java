@@ -712,7 +712,7 @@ class ImViewerComponent
 			"in the LOADING_IMAGE state.");
 		if (image == null) {
 			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Image retrieval", "An error occured while " +
+			un.notifyInfo("Image retrieval", "An error occurred while " +
 					"creating the image.");
 			return;
 		}
@@ -929,6 +929,7 @@ class ImViewerComponent
 			case NEW:
 				throw new IllegalStateException(
 						"This method can't be invoked in the NEW state.");
+			case LOADING_IMAGE:
 			case DISCARDED:
 				return;
 		} 
@@ -2882,10 +2883,9 @@ class ImViewerComponent
 		if (model.getState() != LOADING_IMAGE) 
 			throw new IllegalStateException("This method can only be invoked " +
 			"in the LOADING_IMAGE state.");
-
 		if (image == null) {
 			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Image retrieval", "An error occured while " +
+			un.notifyInfo("Image retrieval", "An error occurred while " +
 					"creating the image.");
 			return;
 		}
