@@ -53,10 +53,10 @@ import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
 
 //Third-party libraries
-
-//Application-internal dependencies
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -96,6 +96,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.TaggingAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowseContainerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewImageAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewOtherAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CopyCmd;
@@ -107,9 +108,11 @@ import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog
 import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ImportDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject;
+import org.openmicroscopy.shoola.agents.treeviewer.util.OpenWithDialog;
 import org.openmicroscopy.shoola.agents.util.finder.Finder;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -296,6 +299,9 @@ class TreeViewerControl
 	/** Identifies the <code>Browse w/o thumbnails</code> in the menu. */
 	static final Integer    BROWSE_NO_THUMBNAILS = Integer.valueOf(55);
 	
+	/** Identifies the <code>View with Other</code> in the menu. */
+	static final Integer    VIEWER_WITH_OTHER = Integer.valueOf(56);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -413,6 +419,7 @@ class TreeViewerControl
 		actionsMap.put(IMPORTER, new ImporterVisibilityAction(model));
 		actionsMap.put(IMPORT, new ImportAction(model));
 		actionsMap.put(DOWNLOAD, new DownloadAction(model));
+		actionsMap.put(VIEWER_WITH_OTHER, new ViewOtherAction(model, null));
 	}
 
 	/** 
@@ -542,6 +549,36 @@ class TreeViewerControl
 		loadingWindow.setStatus("Saving changes");
 	}
 
+	/**
+	 * Returns the collections of actions identifying the viewers used
+	 * for the type of images.
+	 * 
+	 * @return See above.
+	 */
+	List<ViewOtherAction> getApplicationActions()
+	{
+		List<ViewOtherAction> l = new ArrayList<ViewOtherAction>();
+		Browser browser = model.getSelectedBrowser();
+		if (browser == null) return l;
+		TreeImageDisplay d = browser.getLastSelectedDisplay();
+		if (d == null) return l;
+		Object object = d.getUserObject();
+		if (!(object instanceof DataObject)) return l;
+		long format = view.getObjectFormatID();
+		if (format < 0) return l;
+		List<ApplicationData> 
+			applications = TreeViewerFactory.getApplications(format);
+		if (applications == null) return l;
+		Iterator<ApplicationData> i = applications.iterator();
+		ApplicationData data;
+		
+		while (i.hasNext()) {
+			data = i.next();
+			l.add(new ViewOtherAction(model, data));
+		}
+		return l;
+	}
+	
 	/**
 	 * Returns the {@link ChangeListener} attached to the tab pane,
 	 * or creates one if none initialized.
@@ -903,6 +940,14 @@ class TreeViewerControl
 			un.notifyActivity(activity);
 		} else if (ImportManager.CANCEL_IMPORT_PROPERTY.equals(name)) {
 			model.cancelImports();
+		} else if (OpenWithDialog.OPEN_DOCUMENT_PROPERTY.equals(name)) {
+			ApplicationData data = (ApplicationData) pce.getNewValue();
+			//Register 
+			if (data == null) return;
+			long format = view.getObjectFormatID();
+			if (format < 0) return;
+			TreeViewerFactory.register(data, format);
+			model.openWith(data);
 		}
 	}
 	

@@ -31,6 +31,8 @@ import java.util.Map;
 
 import javax.swing.Icon;
 
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -136,5 +138,10 @@ public class NullUserNotifier
 	 * @see UserNotifier#notifyActivity(Object)
 	 */
 	public void notifyActivity(Object activity) {}
+
+	public void openApplication(ApplicationData data, String path) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

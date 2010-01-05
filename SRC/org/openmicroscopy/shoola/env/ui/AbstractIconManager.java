@@ -101,7 +101,8 @@ public abstract class AbstractIconManager
 	{
 		URL location = IconManager.class.getResource(path);
 		ImageIcon icon = null;
-		if (location != null)	icon = new ImageIcon(location);
+		if (location != null)	
+			icon = new ImageIcon(location);
 		return icon;
 	}
 	

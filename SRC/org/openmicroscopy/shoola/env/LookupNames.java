@@ -107,11 +107,20 @@ public class LookupNames
 	/** Field to access the <code>OMERO home</code> information. */
 	public static final String OMERO_HOME = "/services/OMERO/home";
 	
+	/** Field to access the <code>OMERO home</code> information. */
+	public static final String OMERO_FILES_HOME = "/services/OMERO/files/home";
+	
 	/** 
 	 * Field to access the location of the <code>OMERO folder</code>
 	 * on the user's machine. 
 	 */
-	public static final String USER_HOME_OMERO= "/user/home/omero";
+	public static final String USER_HOME_OMERO = "/user/home/omero";
+	
+	/** 
+	 * Field to access the location of the <code>OMERO folder</code>
+	 * on the user's machine. 
+	 */
+	public static final String USER_HOME_OMERO_FILES = "/user/home/omero/files";
 	
     /** Field to access the <code>Log on</code> information. */
 	public static final String LOG_ON = "/services/LOG/on";
@@ -230,4 +239,5 @@ public class LookupNames
     
     /** The value indicating that the roi will come from the server. */
     public static final String	SERVER_ROI = "/roi/location/server";
+    
 }

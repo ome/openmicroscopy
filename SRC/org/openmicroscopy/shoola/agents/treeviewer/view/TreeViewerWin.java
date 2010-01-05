@@ -913,6 +913,13 @@ class TreeViewerWin
 	/** Refreshes the renderer. */
 	void refreshRenderer() { model.refreshRenderer(); }
 	
+	/** 
+	 * Returns the format's id corresponding to the selected object.
+	 * 
+	 * @return See above.
+	 */
+	long getObjectFormatID() { return model.getObjectFormatID(); }
+	
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()
     {

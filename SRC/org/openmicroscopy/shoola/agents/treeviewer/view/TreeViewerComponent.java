@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
@@ -74,10 +75,14 @@ import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ImportDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject;
 import org.openmicroscopy.shoola.agents.treeviewer.util.NotDeletedObjectDialog;
+import org.openmicroscopy.shoola.agents.treeviewer.util.OpenWithDialog;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
+import org.openmicroscopy.shoola.env.Environment;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
@@ -151,10 +156,12 @@ class TreeViewerComponent
 	 * @param folder 	The folder to save the file into.
 	 * @param override 	Pass <code>true</code> to keep the name of the 
 	 * 					file, <code>false</code> otherwise.
-	 * @param fa The file to download.
+	 * @param fa 		The file to download.
+	 * @param data	 	The application to open the document with or 
+	 * 				 	<code>null</code>.
 	 */
 	private void downloadFile(File folder, boolean override, 
-			FileAnnotationData fa)
+			FileAnnotationData fa, ApplicationData data)
 	{
 		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 		OriginalFile f = (OriginalFile) fa.getContent();
@@ -163,6 +170,7 @@ class TreeViewerComponent
 				folder, icons.getIcon(IconManager.DOWNLOAD_22));
 		if (override)
 			activity.setFileName(fa.getFileName());
+		activity.setApplicationData(data);
 		un.notifyActivity(activity);
 	}
 	
@@ -2482,11 +2490,23 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#download(File)
+	 * @see TreeViewer#download(File, boolean)
 	 */
 	public void download(File folder)
 	{
 		if (model.getState() == DISCARDED) return;
+		download(folder, null);
+	}
+
+	/**
+	 * Downloads the documents.
+	 * 
+	 * @param folder The folder where to download the file.
+	 * @param data	 The application to open the document with or 
+	 * 				 <code>null</code>.
+	 */
+	private void download(File folder, ApplicationData data)
+	{
 		Browser browser = model.getSelectedBrowser();
 		if (browser == null) return;
 		List l = browser.getSelectedDataObjects();
@@ -2500,13 +2520,15 @@ class TreeViewerComponent
 			if (object instanceof ImageData) {
 				images.add((ImageData) object);
 			} else if (object instanceof FileAnnotationData) {
-				downloadFile(folder, override, (FileAnnotationData) object);
+				downloadFile(folder, override, (FileAnnotationData) object, 
+						data);
 			}
 		}
 		if (images.size() > 0) 
-			model.downloadImages(images, folder);
+			model.downloadImages(images, folder, data);
 	}
-
+	
+	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#cancelImports()
@@ -2521,10 +2543,11 @@ class TreeViewerComponent
 	}
 	
 	/** 
-	 * Implemented as specified by the {@link Editor} interface.
-	 * @see TreeViewer#setDownloadedFiles(File, Collection)
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setDownloadedFiles(File, ApplicationData, Collection)
 	 */
-	public void setDownloadedFiles(File folder, Collection files)
+	public void setDownloadedFiles(File folder, ApplicationData data, 
+			Collection files)
 	{
 		if (files == null || files.size() == 0) return;
 		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
@@ -2536,8 +2559,41 @@ class TreeViewerComponent
 			file = (OriginalFile) i.next();
 			activity = new DownloadActivityParam(file,
 					folder, icons.getIcon(IconManager.DOWNLOAD_22));
+			activity.setApplicationData(data);
 			un.notifyActivity(activity);
 		}
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#openWith(ApplicationData)
+	 */
+	public void openWith(ApplicationData data)
+	{
+		if (data != null) {
+			Environment env = (Environment) 
+				TreeViewerAgent.getRegistry().lookup(LookupNames.ENV);
+			download(new File(env.getOmeroFilesHome()), data);
+			return;
+		}
+		Browser browser = model.getSelectedBrowser();
+		if (browser == null) return;
+		TreeImageDisplay d = browser.getLastSelectedDisplay();
+		if (d == null) return;
+		Object uo = d.getUserObject();
+		String name = null;
+		if (uo instanceof ImageData) {
+			ImageData img = (ImageData) uo;
+			name = EditorUtil.getObjectName(img.getName());
+		} else if (uo instanceof FileAnnotationData) {
+			FileAnnotationData fa = (FileAnnotationData) uo;
+			name = EditorUtil.getObjectName(fa.getFileName());
+		}
+		if (name == null) return;
+		OpenWithDialog dialog = new OpenWithDialog(view, 
+				ApplicationData.getDefaultLocation(), name);
+		dialog.addPropertyChangeListener(controller);
+		UIUtilities.centerAndShow(dialog);
 	}
 	
 }

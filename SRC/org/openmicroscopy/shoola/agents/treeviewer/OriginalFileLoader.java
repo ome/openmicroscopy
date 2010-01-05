@@ -30,9 +30,9 @@ import java.util.Collection;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -53,28 +53,33 @@ public class OriginalFileLoader
 {
 
 	/** The folder where to save the file. */
-	private File folder;
+	private File 				folder;
 	
 	/** The collection of pixels sets. */
-	private Collection<Long> pixelsID;
+	private Collection<Long> 	pixelsID;
 	
 	/** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle	handle;
+    private CallHandle			handle;
     
-	 /**	
+    /** The third party application or <code>null</code>. */
+    private ApplicationData		data;
+    
+	/**	
      * Creates a new instance.
      * 
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
      * @param pixelsID	The collection of the pixels set to handle.
      * @param folder	The folder where to save the files.
+     * @param data	 	The third party application or <code>null</code>.
      */
     public OriginalFileLoader(TreeViewer viewer, Collection<Long> pixelsID, 
-    		File folder)
+    		File folder, ApplicationData data)
     {
     	 super(viewer);
     	 this.pixelsID = pixelsID;
     	 this.folder = folder;
+    	 this.data = data;
     }
     
 	/** 
@@ -99,7 +104,7 @@ public class OriginalFileLoader
     public void update(DSCallFeedbackEvent fe) 
     {
     	Object o = fe.getPartialResult();
-    	if (o != null) viewer.setDownloadedFiles(folder, (Collection) o);
+    	if (o != null) viewer.setDownloadedFiles(folder, data, (Collection) o);
     }
     
     /**

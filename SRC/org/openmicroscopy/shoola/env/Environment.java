@@ -117,5 +117,20 @@ public class Environment
 			container.getRegistry().lookup(LookupNames.USER_HOME_OMERO);
 	}
 	
+	/**
+	 * Returns the location of the <code>omero</code> directory 
+	 * on the user's machine.
+	 * 
+	 * @return See above.
+	 */
+	public String getOmeroFilesHome()
+	{
+		String home = (String) 
+			container.getRegistry().lookup(LookupNames.USER_HOME_OMERO);
+		String name = (String) 
+			container.getRegistry().lookup(LookupNames.OMERO_FILES_HOME);
+		return home+File.separator+name;
+	}
+	
 }
 

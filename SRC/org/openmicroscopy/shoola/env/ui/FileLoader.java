@@ -78,12 +78,12 @@ class FileLoader
      * @param size   The size of the file.
      * @param activity 	The activity associated to this loader.
      */
-	FileLoader(UserNotifier viewer, Registry reg, String path, long fileID, 
+	FileLoader(UserNotifier viewer, Registry reg, File file, long fileID, 
 			long size, ActivityComponent activity)
 	{
 		super(viewer, reg);
 		this.activity = activity;
-		file = new File(path);
+		this.file = file;
 		this.fileID = fileID;
 		this.size = size;
 	}

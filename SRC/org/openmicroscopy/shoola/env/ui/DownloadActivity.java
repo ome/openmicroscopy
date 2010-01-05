@@ -38,6 +38,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.HTMLFilter;
@@ -84,7 +85,7 @@ public class DownloadActivity
     private String				 fileName;
     
     /** Reference to the file to load. */
-    private String				 filePath;
+    private File				 file;
     
     /** The local name of the file. */
     private String				localFileName;
@@ -109,11 +110,14 @@ public class DownloadActivity
     {
     	OriginalFile file = parameters.getFile();
     	File folder = parameters.getFolder();
-    	File directory = folder.getParentFile();
-    	
+    	File directory = folder;
+    	if (parameters.getApplicationData() == null)
+    		directory = folder.getParentFile();
     	File[] files = directory.listFiles();
     	String dirPath = directory.getAbsolutePath()+File.separator;
     	String value = folder.getName();
+    	if (parameters.getApplicationData() != null)
+    		value = file.getName().getValue();
     	if (parameters.getFileName() != null)
     		value = parameters.getFileName();
     	String extension = null;
@@ -175,7 +179,9 @@ public class DownloadActivity
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
 		File folder = parameters.getFolder();
-    	File directory = folder.getParentFile();
+    	File directory = folder;
+    	if (parameters.getApplicationData() == null)
+    		directory = folder.getParentFile();
     	fileName = getFileName();
     	localFileName = directory+File.separator+fileName;
 		messageLabel.setText(localFileName);
@@ -189,9 +195,13 @@ public class DownloadActivity
 	{
 		OriginalFile f = parameters.getFile();
 		File folder = parameters.getFolder();
-    	File directory = folder.getParentFile();
-    	filePath = directory+File.separator+fileName;
-		return new FileLoader(viewer, registry, filePath, f.getId().getValue(),
+    	File directory = folder;
+    	boolean b = (parameters.getApplicationData() == null);
+    	if (b)
+    		directory = folder.getParentFile();
+    	file = new File(directory+File.separator+fileName);
+    	if (!b) file.deleteOnExit();
+		return new FileLoader(viewer, registry, file, f.getId().getValue(),
 				f.getSize().getValue(), this);
 	}
 
@@ -202,6 +212,12 @@ public class DownloadActivity
 	protected void notifyActivityEnd()
 	{ 
 		type.setText(DESCRIPTION); 
+		if (parameters.getApplicationData() != null) {
+			viewer.openApplication(
+					(ApplicationData) parameters.getApplicationData(), 
+					file.getAbsolutePath());
+			return;
+		}
 		String name = null;
 		String legend = parameters.getLegend();
 		if (legend != null && legend.trim().length() > 0) {

@@ -329,11 +329,14 @@ public abstract class ActivityComponent
 	public void endActivity(Object result)
 	{
 		this.result = result;
+		boolean busy = status.isBusy();
 		reset();
 		notifyActivityEnd();
 		//Post an event to 
-		EventBus bus = registry.getEventBus();
-		bus.post(new ActivityFinishedEvent(this));
+		if (busy) {
+			EventBus bus = registry.getEventBus();
+			bus.post(new ActivityFinishedEvent(this));
+		}
 	}
 	
 	/**

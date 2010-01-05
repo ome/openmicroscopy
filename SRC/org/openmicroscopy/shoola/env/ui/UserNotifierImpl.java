@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.JFrame;
@@ -35,6 +37,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.data.model.AnalysisActivityParam;
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
@@ -292,6 +295,7 @@ public class UserNotifierImpl
 	{
 		if (activity == null) return;
 		ActivityComponent comp = null;
+		boolean register = true;
 		if (activity instanceof MovieActivityParam) {
 			MovieActivityParam p = (MovieActivityParam) activity;
 			comp = new MovieActivity(this, manager.getRegistry(), p);
@@ -300,6 +304,7 @@ public class UserNotifierImpl
 			comp = new ExportActivity(this, manager.getRegistry(), p);
 		} else if (activity instanceof DownloadActivityParam) {
 			DownloadActivityParam p = (DownloadActivityParam) activity;
+			register = (p.getApplicationData() == null);
 			comp = new DownloadActivity(this, manager.getRegistry(), p);
 		} else if (activity instanceof FigureActivityParam) {
 			FigureActivityParam p = (FigureActivityParam) activity;
@@ -311,13 +316,55 @@ public class UserNotifierImpl
 		if (comp != null) {
 			UserNotifierLoader loader = comp.createLoader();
 			if (loader == null) return;
-			manager.registerActivity(comp);
-			comp.startActivity();
+			if (register) {
+				manager.registerActivity(comp);
+				comp.startActivity();
+			}
 			loader.load();
+		}
+	}
+	
+	/** 
+	 * Implemented as specified by {@link UserNotifier}. 
+	 * @see UserNotifier#notifyActivity(Object)
+	 */ 
+	public void openApplication(ApplicationData data, String path)
+	{
+		if (data == null && path == null) return;
+		Runtime run = Runtime.getRuntime();
+		try {
+			String[] values;
+			if (data == null) {
+				values = new String[2];
+				values[0] = "open";
+				values[1] = path;
+			} else {
+				List<String> l = data.getArguments();
+				Iterator<String> i = l.iterator();
+				int index = 0;
+				if (path == null || path.length() == 0) {
+					values = new String[l.size()];
+					while (i.hasNext()) {
+						values[index] = i.next();
+						index++;
+					}
+				} else {
+					values = new String[l.size()+1];
+					while (i.hasNext()) {
+						values[index] = i.next();
+						index++;
+					}
+					values[index] = path;
+				}
+			}
+			
+			run.exec(values);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
 	/** Displays the activity. */
 	void showActivity() { manager.showActivity(); }
-	
+
 }

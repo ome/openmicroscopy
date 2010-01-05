@@ -27,12 +27,21 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 //Java imports
 import java.awt.Rectangle;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.swing.JMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -44,10 +53,16 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.Agent;
+import org.openmicroscopy.shoola.env.Environment;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
 import org.openmicroscopy.shoola.env.data.events.SaveEventResponse;
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
+import org.openmicroscopy.shoola.util.file.IOUtil;
+
 import pojos.ExperimenterData;
 import pojos.ImageData;
 
@@ -68,15 +83,62 @@ public class TreeViewerFactory
   	implements ChangeListener
 {
 
+	/** The name of the file. */
+	private static final String FILE_NAME = "externalApplication.txt";
+	
 	/** The name associated to the component. */
 	private static final String NAME = "Data Manager";
 	
 	/** The name of the windows menu. */
 	private static final String MENU_NAME = "Data Manager";
 	
+	/** The terms used to separate the file ID from the external application. */
+	private static final String SEPARATOR = "=";
+	
 	/** The sole instance. */
 	private static final TreeViewerFactory  singleton = new TreeViewerFactory();
 
+	/**
+	 * Registers the application.
+	 * 
+	 * @param data The application to register.
+	 */
+	static void register(ApplicationData data, long type)
+	{
+		List<ApplicationData> list = singleton.applications.get(type);
+		if (list == null) {
+			list = new ArrayList<ApplicationData>();
+			list.add(data);
+			singleton.applications.put(type, list);
+		} else { //Add the applications if needed.
+			String path = data.getApplicationPath();
+			Iterator<ApplicationData> i = list.iterator();
+			ApplicationData app;
+			boolean registered = false;
+			while (i.hasNext()) {
+				app = i.next();
+				if (app.getApplicationPath().equals(path)) {
+					registered = true;
+					break;
+				}
+			}
+			if (!registered) list.add(data);
+		}
+	}
+
+	/**
+	 * Returns the collection of external applications used to 
+	 * open the document.
+	 * 
+	 * @param type Identified the format of the document.
+	 * @return See above.
+	 */
+	static List<ApplicationData> getApplications(long type)
+	{
+		return singleton.applications.get(type);
+	}
+	
+	//static 
 	/** 
 	 * Returns the <code>window</code> menu. 
 	 * 
@@ -226,6 +288,48 @@ public class TreeViewerFactory
 		return null;
 	}
 	
+	/** Writes the external applications used to open document. */
+	public static void writeExternalApplications()
+	{
+		if (singleton.applications == null || 
+				singleton.applications.size() == 0) return;
+		try {
+			Environment env = (Environment) 
+				TreeViewerAgent.getRegistry().lookup(LookupNames.ENV);
+			String name = env.getOmeroHome()+File.separator+FILE_NAME;
+			File f = new File(name);
+			if (f.exists()) f.delete();
+			BufferedWriter output = new BufferedWriter(new FileWriter(name));
+			Entry entry;
+			Iterator i = singleton.applications.entrySet().iterator();
+			long format;
+			List list;
+			Iterator j;
+			ApplicationData data;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				format = (Long) entry.getKey();
+				list = (List) entry.getValue();
+				if (list != null) {
+					j = list.iterator();
+					while (j.hasNext()) {
+						data = (ApplicationData) j.next();
+						output.write(format+SEPARATOR+data.getApplicationPath());
+						output.newLine();
+					}
+				}
+			}
+			if (output != null) output.close();
+		} catch (Exception e) {
+			LogMessage msg = new LogMessage();
+	        msg.print("An error occurred while writing the external " +
+	        		"applications back to the file.");
+	        msg.print(e);
+			TreeViewerAgent.getRegistry().getLogger().error(
+					TreeViewerFactory.class, msg);
+		}
+	}
+	
 	/** The tracked component. */
 	//private TreeViewer  	viewer;
 
@@ -241,10 +345,14 @@ public class TreeViewerFactory
 	 */
 	private boolean 		isAttached;
 
+	/** The external applications used to open file or images. */
+	private Map<Long, List<ApplicationData>> applications;
+	
 	/** Creates a new instance. */
 	private TreeViewerFactory()
 	{
 		//viewer = null;
+		applications = null;
 		viewers = new HashSet<TreeViewer>();
 		isAttached = false;
 		windowMenu = new JMenu(MENU_NAME);
@@ -271,6 +379,7 @@ public class TreeViewerFactory
 			}
 		}
 		//if (viewer != null) return viewer;
+		readExternalApplications();
 		comp = new TreeViewerComponent(model);
 		model.initialize(comp);
 		comp.initialize(bounds);
@@ -280,6 +389,60 @@ public class TreeViewerFactory
 		return comp;
 	}
 
+	/** Reads the file hosting the external applications. */
+	private void readExternalApplications()
+	{
+		if (applications != null) return;
+		applications = new HashMap<Long, List<ApplicationData>>();
+		Environment env = (Environment) 
+		TreeViewerAgent.getRegistry().lookup(LookupNames.ENV);
+		String name = env.getOmeroHome()+File.separator+FILE_NAME;
+		File f = new File(name);
+		if (!f.exists()) return;
+		try {
+			BufferedReader input = new BufferedReader(new FileReader(f));
+			try {
+				String line = null;
+				long format;
+				String[] values;
+				String v;
+				int index;
+				List<ApplicationData> list;
+				while ((line = input.readLine()) != null) {
+					if (line.contains(SEPARATOR)) {
+						values = line.split(SEPARATOR);
+						if (values.length >= 2) {
+							format = Long.parseLong(values[0]);
+							v = "";
+							index = 1;
+							for (int i = 1; i < values.length; i++) {
+								v += values[i];
+								if (index != values.length-1)
+									v += SEPARATOR;
+								index++;
+							}
+							list = applications.get(format);
+							if (list == null) {
+								list = new ArrayList<ApplicationData>();
+								applications.put(format, list);
+							}
+							list.add(new ApplicationData(v));
+						}
+					}
+				}
+			} finally {
+				input.close();
+			}
+		} catch (Exception e) {
+			LogMessage msg = new LogMessage();
+	        msg.print("An error occurred while reading the external " +
+	        		"applications file.");
+	        msg.print(e);
+			TreeViewerAgent.getRegistry().getLogger().error(
+					TreeViewerFactory.class, msg);
+		}
+	}
+	
 	/**
 	 * Sets the {@link #viewer} to <code>null</code> when it is
 	 * {@link TreeViewer#DISCARDED discarded}. 

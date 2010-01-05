@@ -60,9 +60,14 @@
          Non-positive values will be ignored and the internal default will
          be used instead. -->
     <entry name="/services/LOGIN/omeds/timeout"
-           type="integer">120000</entry>     
-    <!-- Location of the omero folder. -->
+           type="integer">120000</entry>    
+            
+    <!-- Name of the omero folder. -->
     <entry name="/services/OMERO/home">omero</entry>
+    
+    <!-- Name of the omero folder. -->
+    <entry name="/services/OMERO/files/home">filesOmero</entry>
+    
     <!-- Log Service configuration.
     -->
     <!-- Enables/disables the Log Service. -->

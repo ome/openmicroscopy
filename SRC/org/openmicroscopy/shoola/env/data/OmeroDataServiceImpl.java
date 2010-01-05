@@ -1090,10 +1090,6 @@ class OmeroDataServiceImpl
 			return results;
 		}
 		Object result = gateway.performSearch(context); 
-		
-		
-		
-		
 		//Should returns a search context for the moment.
 		//collection of images only.
 		Map m = (Map) result;

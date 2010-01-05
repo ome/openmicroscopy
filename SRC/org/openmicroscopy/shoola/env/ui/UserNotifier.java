@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.env.ui;
 import java.util.Map;
 import javax.swing.Icon;
 
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -154,5 +156,13 @@ public interface UserNotifier
      * @param activity The activity to register.
      */
     public void notifyActivity(Object activity);
+    
+    /**
+     * Opens the specified application.
+     * 
+     * @param data The application to handle.
+     * @param path The file argument or <code>null</code>.
+     */
+    public void openApplication(ApplicationData data, String path);
     
 }

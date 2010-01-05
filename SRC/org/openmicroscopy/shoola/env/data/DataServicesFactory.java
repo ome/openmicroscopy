@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data;
 //Java imports
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,7 @@ import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -388,7 +390,8 @@ public class DataServicesFactory
 			fsConfig.setProperty(key, value);
 		}
         omeroGateway.startFS(fsConfig);
-        */
+        */ 
+        
         registry.bind(LookupNames.USER_AUTHENTICATION, ldap);
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
         registry.bind(LookupNames.CONNECTION_SPEED, 

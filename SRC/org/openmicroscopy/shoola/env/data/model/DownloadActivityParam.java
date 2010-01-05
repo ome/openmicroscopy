@@ -67,6 +67,9 @@ public class DownloadActivityParam
     /** The extension for the legend. Default is <code>null</code>.*/
     private String			legendExtension;
     
+    /** The third party application. */
+    private ApplicationData data;
+    
     /**
      * Downloads the passed file.
      * 
@@ -87,6 +90,20 @@ public class DownloadActivityParam
     	legendExtension = null;
     }
 
+    /**
+     * Sets the application data.
+     * 
+     * @param data The third party application or <code>null</code>.
+     */
+    public void setApplicationData(ApplicationData data) { this.data = data; }
+    
+    /**
+     * Returns the application data.
+     * 
+     * @return See above.
+     */
+    public ApplicationData getApplicationData() { return data; }
+    
     /**
      * Returns the name to give to the file. 
      * 

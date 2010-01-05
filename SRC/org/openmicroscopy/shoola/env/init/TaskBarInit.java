@@ -85,7 +85,7 @@ public final class TaskBarInit
 	 *  <li>If the look and feel configuration entry in the container's
 	 *  configuration file specifies a valid class name, then that L&F is
 	 *  loaded.</li>
-	 *  <li>Failing the above, the dafault L&F is loaded.</li>
+	 *  <li>Failing the above, the default L&F is loaded.</li>
 	 * </ul>
 	 * @see InitializationTask#execute()
 	 */

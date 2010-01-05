@@ -68,6 +68,7 @@ import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
 import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
@@ -75,6 +76,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PermissionData;
@@ -1040,8 +1042,10 @@ class TreeViewerModel
 	 * 
 	 * @param images The image to download.
 	 * @param folder The folder where to download the image.
+	 * @param application The third party application or <code>null</code>.
 	 */ 
-	void downloadImages(List<ImageData> images, File folder)
+	void downloadImages(List<ImageData> images, File folder, 
+			ApplicationData application)
 	{
 		if (images == null || images.isEmpty()) return;
 		Set<Long> ids = new HashSet<Long>();
@@ -1061,7 +1065,7 @@ class TreeViewerModel
 			}
 		}
 		OriginalFileLoader loader = new OriginalFileLoader(component, ids, 
-				folder);
+				folder, application);
 		loader.load();
 	}
 	
@@ -1086,4 +1090,27 @@ class TreeViewerModel
 		getDataViewer().reloadThumbnails(ids);
 	}
 
+	
+	/** 
+	 * Returns the format's id corresponding to the selected object.
+	 * 
+	 * @return See above.
+	 */
+	long getObjectFormatID()
+	{
+		Browser browser = getSelectedBrowser();
+		if (browser == null) return -1;
+		TreeImageDisplay d = browser.getLastSelectedDisplay();
+		if (d == null) return -1;
+		Object uo = d.getUserObject();
+		if (uo instanceof ImageData) {
+			ImageData img = (ImageData) uo;
+			return 21;
+		} else if (uo instanceof FileAnnotationData) {
+			FileAnnotationData fa = (FileAnnotationData) uo;
+			return fa.getFormatID(); 
+		}
+		return -1;
+	}
+	
 }

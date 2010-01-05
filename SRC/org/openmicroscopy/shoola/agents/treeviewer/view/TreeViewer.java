@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject;
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
@@ -849,7 +850,7 @@ public interface TreeViewer
 	/**
 	 * Downloads the currently selected files to the specified folder.
 	 * 
-	 * @param folder The folder where to download the files.
+	 * @param folder 	The folder where to download the files.
 	 */
 	void download(File folder);
 
@@ -860,8 +861,17 @@ public interface TreeViewer
 	 * Sets the collection of archived files.
 	 * 
 	 * @param folder The folder where to save the files.
-	 * @param files The collection of files to handle.
+	 * @param files  The collection of files to handle.
+	 * @param data	 The third party application or <code>null</code>.
 	 */
-	void setDownloadedFiles(File folder, Collection o);
+	void setDownloadedFiles(File folder, ApplicationData data, Collection o);
+
+	/**
+	 * Indicates to view the image with another application. 
+	 * This will only possible if the image has been archived.
+	 * 
+	 * @param data The application to use to open the file.
+	 */
+	void openWith(ApplicationData data);
 	
 }

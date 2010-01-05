@@ -208,7 +208,11 @@ public class TreeViewerAgent
      * Implemented as specified by {@link Agent}. 
      * @see Agent#canTerminate()
      */
-    public boolean canTerminate() { return true; }
+    public boolean canTerminate()
+    { 
+    	TreeViewerFactory.writeExternalApplications();
+    	return true;
+    }
 
     /**
      * Implemented as specified by {@link Agent}. 

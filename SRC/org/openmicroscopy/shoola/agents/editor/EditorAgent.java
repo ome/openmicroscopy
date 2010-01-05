@@ -31,6 +31,8 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.OriginalFile;
+
 import org.openmicroscopy.shoola.agents.editor.view.AutosaveRecovery;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.agents.editor.view.EditorFactory;
@@ -42,9 +44,13 @@ import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
+import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.env.ui.UserNotifierImpl;
 
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -198,6 +204,18 @@ public class EditorAgent
 				FileAnnotationData.COMPANION_FILE_NS.equals(ns) ||
 				EditorUtil.isEditorFile(name))
 				editor = EditorFactory.getEditor(data);
+			else {
+				ApplicationData app = new ApplicationData("");
+				UserNotifier un = getRegistry().getUserNotifier();
+				OriginalFile f = (OriginalFile) data.getContent();
+				Environment env = (Environment) 
+				getRegistry().lookup(LookupNames.ENV);
+				DownloadActivityParam activity = new DownloadActivityParam(f,
+						new File(env.getOmeroFilesHome()), null);
+				activity.setApplicationData(app);
+				un.notifyActivity(activity);
+				return;
+			}
 		}
 		if (editor != null)
 			editor.activate();		// starts file downloading

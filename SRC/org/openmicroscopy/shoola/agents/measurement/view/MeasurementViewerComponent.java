@@ -51,7 +51,6 @@ import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
@@ -695,7 +694,6 @@ class MeasurementViewerComponent
 			reg.getLogger().error(this, "Cannot save the ROI "+e.getMessage());
 			un.notifyInfo("Save ROI", "Cannot save ROI " +
 										"for "+model.getImageID());
-			e.printStackTrace();
 		}
 		un.notifyInfo("Save ROI", "The Regions of Interests have been " +
 									"successfully saved. ");

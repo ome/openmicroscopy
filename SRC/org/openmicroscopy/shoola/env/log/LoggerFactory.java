@@ -83,25 +83,34 @@ public class LoggerFactory
 				logFileName = (String) reg.lookup(LookupNames.LOG_FILE);
 		String name = (String) reg.lookup(LookupNames.OMERO_HOME);
 		String omeroDir = System.getProperty("user.home")+File.separator+name;
+		String tmp = (String) reg.lookup(LookupNames.OMERO_FILES_HOME);
 		File home = new File(omeroDir);
 		if (!home.exists()) home.mkdir();
-		File logFile, logDir;
+		File logFile, logDir, filesTmp;
 		if (home.isDirectory()) {
 			logDir = new File(home, logDirName);
 			logDir.mkdir();
 			if (logDir.isDirectory()) logFile = new File(logDir, logFileName);
 			else logFile = new File(home, logFileName);
+			//always make tmp-directory will be delete
+			filesTmp = new File(home, tmp);
+			filesTmp.mkdir();
+			filesTmp.deleteOnExit();
 		} else {
 			logDir = new File(c.getHomeDir(), logDirName);
 			logDir.mkdir();
 			if (logDir.isDirectory()) logFile = new File(logDir, logFileName);
 			else logFile = new File(c.getHomeDir(), logFileName);
+			//always make tmp-directory will be delete
+			filesTmp = new File(c.getHomeDir(), tmp);
+			filesTmp.mkdir();
+			filesTmp.deleteOnExit();
 		}
 		return new LoggerImpl(config, logFile.getAbsolutePath());
 	}
 	
 	/**
-	 * Creates a no-op implementation of {@link Logger}.
+	 * Creates a no-operation implementation of {@link Logger}.
 	 * 
 	 * @return See above.
 	 */

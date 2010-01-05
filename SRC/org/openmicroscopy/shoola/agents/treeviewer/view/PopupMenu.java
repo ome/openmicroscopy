@@ -26,7 +26,10 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 //Java imports
 import java.awt.Font;
+import java.util.Iterator;
+import java.util.List;
 import javax.swing.BorderFactory;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
@@ -36,8 +39,10 @@ import javax.swing.border.BevelBorder;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewOtherAction;
 
 
 /** 
@@ -148,6 +153,9 @@ class PopupMenu
 	/** The index of the menu .*/
 	private int					index;
 
+	/** The menu to open the file with third party. */
+	private JMenu				openWithMenu;
+	
 	/**
 	 * Sets the defaults of the specified menu item.
 	 * 
@@ -164,6 +172,11 @@ class PopupMenu
 	/** Helper method to create the menu items with the given actions. */
 	private void createMenuItems()
 	{
+		openWithMenu = new JMenu();
+		initMenuItem(openWithMenu, "Open with");
+		IconManager icons = IconManager.getInstance();
+		openWithMenu.setIcon(icons.getIcon(IconManager.VIEWER));
+		populateMenu();
 		TreeViewerAction a;
 		switch (index) {
 			case TreeViewer.FULL_POP_UP_MENU:
@@ -302,6 +315,7 @@ class PopupMenu
 				add(browse);
 				add(browseNoThumbnails);
 				add(view);
+				add(openWithMenu);
 				add(editFile);
 				add(downloadElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
@@ -339,6 +353,28 @@ class PopupMenu
 		}
 	}
 
+	/** Populates the menu to view with other applications. */
+	private void populateMenu()
+	{
+		List<ViewOtherAction> l = controller.getApplicationActions();
+		JMenuItem item;
+		TreeViewerAction a;
+		if (l.size() > 0) {
+			Iterator<ViewOtherAction> i = l.iterator();
+			while (i.hasNext()) {
+				a = i.next();
+				item = new JMenuItem(a);
+				initMenuItem(item, a.getActionName());
+				openWithMenu.add(item);
+			}
+			openWithMenu.add(new JSeparator());
+		}
+		a = controller.getAction(TreeViewerControl.VIEWER_WITH_OTHER);
+		item = new JMenuItem(a);
+		initMenuItem(item, a.getActionName());
+		openWithMenu.add(item);
+	}
+	
 	/** 
 	 * Creates a new instance.
 	 *
@@ -358,5 +394,5 @@ class PopupMenu
 		createMenuItems();
 		buildGUI() ;
 	}
-
+	
 }

@@ -39,7 +39,6 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
-import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.ActivationAction;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
