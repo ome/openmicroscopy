@@ -86,6 +86,14 @@ public final class ContainerConfigInit
     		String omeroDir = System.getProperty("user.home")
     							+File.separator+name;
             reg.bind(LookupNames.USER_HOME_OMERO, omeroDir);
+            String tmp = (String) reg.lookup(LookupNames.OMERO_FILES_HOME);
+            File home = new File(omeroDir);
+    		if (!home.exists()) home.mkdir();
+    		File files;
+            if (home.isDirectory()) files = new File(home, tmp);
+            else files = new File(container.getHomeDir(), tmp);
+            files.mkdir();
+            files.deleteOnExit();
 		} catch (ConfigException ce) {
 			throw new StartupException("Unable to load Container configuration",
 										ce);
