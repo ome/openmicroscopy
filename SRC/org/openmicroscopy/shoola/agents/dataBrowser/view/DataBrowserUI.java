@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.MagnificationVisitor;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
@@ -471,8 +472,18 @@ class DataBrowserUI
 			case COLUMNS_VIEW:
 				comp = model.getTableView();
 		}
-    	if (comp != null) popupMenu.show(comp, p.x, p.y); 
+    	if (comp != null) {
+    		popupMenu.populateOpenWith();
+    		popupMenu.show(comp, p.x, p.y); 
+    	}
     }
+    
+	/**
+	 * Returns the collections of applications.
+	 * 
+	 * @return See above.
+	 */
+    List<ApplicationData> getApplications() { return model.getApplications(); }
     
     /** Views the selected node only if it is an image. */
     void viewSelectedNode()

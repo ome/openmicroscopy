@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.ViewOtherAction 
+ * org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewOtherAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,21 +20,20 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.treeviewer.actions;
-
+package org.openmicroscopy.shoola.agents.dataBrowser.actions;
 
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.util.Collection;
 import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.FileAnnotationData;
@@ -54,7 +53,7 @@ import pojos.ImageData;
  * @since 3.0-Beta4
  */
 public class ViewOtherAction
-	extends TreeViewerAction
+	extends DataBrowserAction
 {
 
 	/** Name of the action. */
@@ -68,57 +67,58 @@ public class ViewOtherAction
     private static final String DESCRIPTION_GENERAL = "Select the application" +
     		" to open the document.";
     
-    /** The external application or <code>null</code>. */
+    /** The application or <code>null</code>. */
     private ApplicationData data;
     
     /**
-     * Sets the action enabled depending on the browser's type and 
-     * the currently selected node. Sets the name of the action depending on 
-     * the <code>DataObject</code> hosted by the currently selected node.
-     * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
+     * Sets the action enabled depending on the currently selected display
+     * @see DataBrowserAction#onDisplayChange(ImageDisplay)
      */
-    protected void onDisplayChange(TreeImageDisplay selectedDisplay)
+    protected void onDisplayChange(ImageDisplay node)
     {
-        if (selectedDisplay == null || 
-        		selectedDisplay.getParentDisplay() == null ||
-        		selectedDisplay instanceof TreeImageTimeSet) {
+    	Browser browser = model.getBrowser();
+    	if (node == null || browser == null) {
             setEnabled(false);
             return;
         }
-        Object ho = selectedDisplay.getUserObject();
-        if (ho instanceof ImageData) {
+    	Collection l = browser.getSelectedDisplays();
+    	if (l.size() > 1) {
+    		 setEnabled(false);
+             return;
+    	}
+    	Object ho = node.getHierarchyObject();
+    	if (ho instanceof ImageData) {
         	ImageData img = (ImageData) ho;
         	setEnabled(img.isArchived());
+        	//setEnabled(true);
         } else setEnabled(ho instanceof FileAnnotationData);
     }
     
 	/**
-     * Creates a new instance.
-     * 
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
+	 * Creates a new instance.
+	 * 
+	 * @param model Reference to the Model. Mustn't be <code>null</code>.
      * @param data  The component identifying the external application.
-     */
-    public ViewOtherAction(TreeViewer model, ApplicationData data)
-    {
-        super(model);
-        name = NAME;
+	 */
+	public ViewOtherAction(DataBrowser model, ApplicationData data)
+	{
+		super(model);
         this.data = data;
         if (data == null) {
+        	putValue(Action.NAME, NAME);
         	putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_GENERAL));
         } else {
-        	name = data.getApplicationName();
+        	putValue(Action.NAME, data.getApplicationName());
             putValue(Action.SHORT_DESCRIPTION, 
 	                UIUtilities.formatToolTipText(DESCRIPTION));
         	putValue(Action.SMALL_ICON, data.getApplicationIcon());
-        	Browser browser = model.getSelectedBrowser();
-        	if (browser != null)
-        		onDisplayChange(browser.getLastSelectedDisplay());
         }
-    }
-    
-    /**
-     * Opens the document with the specified external application. 
+        onDisplayChange(model.getBrowser().getLastSelectedDisplay());
+	}
+	
+	/**
+     * Views the selected images.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e) { model.openWith(data); }

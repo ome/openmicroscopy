@@ -39,7 +39,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
@@ -232,6 +231,8 @@ class TreeViewerComponent
 		TreeImageDisplay parent = null;
 		Browser browser = model.getSelectedBrowser();
 		if (display != null) parent = display.getParentDisplay();
+		List list;
+		List<ApplicationData> app = null;
 		if (object instanceof ImageData) {
 			if (parent != null) {
 				Object ho = parent.getUserObject();
@@ -240,7 +241,12 @@ class TreeViewerComponent
 					db.setComponentTitle("");
 					view.removeAllFromWorkingPane();
 					view.addComponent(db.getUI());
-					db.setSelectedNodes(browser.getSelectedDataObjects());
+					list = browser.getSelectedDataObjects();
+					if (list != null && list.size() == 1) {
+						app = TreeViewerFactory.getApplications(
+								model.getObjectMimeType(list.get(0)));
+					}
+					db.setSelectedNodes(list, app);
 				} else {
 					if (DataBrowserFactory.hasBeenDiscarded(ho)) {
 						//refresh 
@@ -258,8 +264,12 @@ class TreeViewerComponent
 	            					}
 	        						setLeaves((TreeImageSet) parent, s);
 	        						db = DataBrowserFactory.getDataBrowser(ho);
-	        						db.setSelectedNodes(
-	        								browser.getSelectedDataObjects());
+	        						list = browser.getSelectedDataObjects();
+	        						if (list != null && list.size() == 1) {
+	        							app = TreeViewerFactory.getApplications(
+	        							model.getObjectMimeType(list.get(0)));
+	        						}
+	        						db.setSelectedNodes(list, app);
 	        					} 
 	        					else if (ho instanceof TagAnnotationData) {
 	        						TagAnnotationData tag = 
@@ -273,8 +283,14 @@ class TreeViewerComponent
 	                					setLeaves((TreeImageSet) parent, s);
 	                					db = DataBrowserFactory.getDataBrowser(
 	                							ho);
-		        						db.setSelectedNodes(
-		        							browser.getSelectedDataObjects());
+	                					list = browser.getSelectedDataObjects();
+	                					if (list != null && list.size() == 1) {
+	                						app = 
+	                						TreeViewerFactory.getApplications(
+	                						model.getObjectMimeType(
+	                								list.get(0)));
+	                					}
+	                					db.setSelectedNodes(list, app);
 	        						}
 	        					} 
 	        					//else view.removeAllFromWorkingPane();
@@ -295,7 +311,9 @@ class TreeViewerComponent
         		if (object instanceof DataObject) {
         			List<DataObject> nodes = new ArrayList<DataObject>();
             		nodes.add((DataObject) object);
-            		db.setSelectedNodes(nodes);
+            		db.setSelectedNodes(nodes, 
+            				TreeViewerFactory.getApplications(
+							model.getObjectMimeType(object)));
         		}
         	} else {
         		//depending on object
@@ -316,8 +334,12 @@ class TreeViewerComponent
         						setLeaves((TreeImageSet) display, s);
         						db = DataBrowserFactory.getDataBrowser(
         								display.getUserObject());
-        						db.setSelectedNodes(
-        								browser.getSelectedDataObjects());
+        						list = browser.getSelectedDataObjects();
+        						if (list != null && list.size() == 1) {
+        							app = TreeViewerFactory.getApplications(
+        									model.getObjectMimeType(list.get(0)));
+        						}
+        						db.setSelectedNodes(list, app);
         					}
         					else if (object instanceof TagAnnotationData) {
         						TagAnnotationData tag = 
@@ -331,8 +353,8 @@ class TreeViewerComponent
             						setLeaves((TreeImageSet) display, s);
             						db = DataBrowserFactory.getDataBrowser(
             								display.getUserObject());
-            						db.setSelectedNodes(
-            								browser.getSelectedDataObjects());
+            						list = browser.getSelectedDataObjects();
+            						db.setSelectedNodes(list, null);
         						}
         					} 
         				}
@@ -722,6 +744,9 @@ class TreeViewerComponent
 				return;
 			}
 		}
+		model.getDataViewer().setApplications(
+				TreeViewerFactory.getApplications(
+						model.getObjectMimeType(selected)));
 		MetadataViewer mv = model.getMetadataViewer();
 		if (hasDataToSave()) {
 			MessageBox dialog = new MessageBox(view, "Save data", 

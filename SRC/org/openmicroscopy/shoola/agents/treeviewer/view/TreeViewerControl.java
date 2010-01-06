@@ -948,7 +948,8 @@ class TreeViewerControl
 			if (format == null) return;
 			TreeViewerFactory.register(data, format);
 			model.openWith(data);
-		}
+		} else if (DataBrowser.OPEN_EXTERNAL_APPLICATION_PROPERTY.equals(name))
+			model.openWith((ApplicationData) pce.getNewValue());
 	}
 	
 	/**

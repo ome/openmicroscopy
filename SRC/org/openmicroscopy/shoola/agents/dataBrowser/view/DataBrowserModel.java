@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutUtils;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetThumbnailVisitor;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -134,6 +135,9 @@ abstract class DataBrowserModel
     
     /** The collection of existing datasets. */
     private Collection			existingDatasets;
+    
+    /** The collection of external applications if any. */
+    private List<ApplicationData> applications;
     
 	/** Flag indicating that the thumbnails are loaded or not. */
 	protected boolean			thumbnailLoaded;
@@ -626,6 +630,23 @@ abstract class DataBrowserModel
 	{
 		return sorter.sort(collection);
 	}
+	
+	/**
+	 * Sets the collection of external applications.
+	 * 
+	 * @param applications The value to set.
+	 */
+	void setApplicationData(List<ApplicationData> applications)
+	{
+		this.applications = applications;
+	}
+	
+	/**
+	 * Returns the collections of applications.
+	 * 
+	 * @return See above.
+	 */
+	List<ApplicationData> getApplications() { return applications; }
 	
     /**
      * Creates a data loader that can retrieve the hierarchy objects needed

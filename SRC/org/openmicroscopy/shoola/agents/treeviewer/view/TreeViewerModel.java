@@ -1094,7 +1094,34 @@ class TreeViewerModel
 
 	
 	/** 
-	 * Returns the MIME type to the selected object.
+	 * Returns the MIME type to the passed object.
+	 * 
+	 * @param object The object to handle.
+	 * @return See above.
+	 */
+	String getObjectMimeType(Object object)
+	{
+		String type = null;
+		if (object instanceof ImageData) {
+			ImageData img = (ImageData) object;
+			File f = new File(img.getName());
+			MimetypesFileTypeMap map = new MimetypesFileTypeMap();
+			type = map.getContentType(f);
+			f.delete();
+			return type;
+		} else if (object instanceof FileAnnotationData) {
+			FileAnnotationData fa = (FileAnnotationData) object;
+			File f = new File(fa.getFileName());
+			MimetypesFileTypeMap map = new MimetypesFileTypeMap();
+			type = map.getContentType(f);
+			f.delete();
+			return type;
+		}
+		return type;
+	}
+	
+	/**
+	 * Returns the MIME type of the currently selected object.
 	 * 
 	 * @return See above.
 	 */
@@ -1104,24 +1131,8 @@ class TreeViewerModel
 		if (browser == null) return null;
 		TreeImageDisplay d = browser.getLastSelectedDisplay();
 		if (d == null) return null;
-		Object uo = d.getUserObject();
-		String type = null;
-		if (uo instanceof ImageData) {
-			ImageData img = (ImageData) uo;
-			File f = new File(img.getName());
-			MimetypesFileTypeMap map = new MimetypesFileTypeMap();
-			type = map.getContentType(f);
-			f.delete();
-			return type;
-		} else if (uo instanceof FileAnnotationData) {
-			FileAnnotationData fa = (FileAnnotationData) uo;
-			File f = new File(fa.getFileName());
-			MimetypesFileTypeMap map = new MimetypesFileTypeMap();
-			type = map.getContentType(f);
-			f.delete();
-			return type;
-		}
-		return type;
+		return getObjectMimeType(d.getUserObject());
 	}
+	
 	
 }

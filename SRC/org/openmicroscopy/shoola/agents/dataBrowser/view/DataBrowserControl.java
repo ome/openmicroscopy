@@ -29,6 +29,7 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -50,6 +51,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.actions.RefreshAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.SaveAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.TaggingAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewAction;
+import org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewOtherAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
@@ -61,6 +63,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.util.QuickFiltering;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailManager;
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.util.ui.PlateGrid;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
@@ -130,6 +133,9 @@ class DataBrowserControl
 	/** Identifies the <code>Fields View</code> action. */
 	static final Integer    FIELDS_VIEW = Integer.valueOf(13);
 	
+	/** Identifies the <code>Fields View</code> action. */
+	static final Integer    OPEN_WITH = Integer.valueOf(14);
+	
 	/** 
 	 * Reference to the {@link DataBrowser} component, which, in this context,
 	 * is regarded as the Model.
@@ -168,6 +174,7 @@ class DataBrowserControl
     	actionsMap.put(TAG, new TaggingAction(model));
     	actionsMap.put(NEW_EXPERIMENT, new CreateExperimentAction(model));
     	actionsMap.put(FIELDS_VIEW, new FieldsViewAction(model));
+    	actionsMap.put(OPEN_WITH, new ViewOtherAction(model, null));
     }
     
 	/** 
@@ -300,6 +307,24 @@ class DataBrowserControl
 	/** Loads the existing datasets. */
 	void loadExistingDatasets() { model.loadExistingDatasets(); }
 
+	/**
+	 * Returns the external application previously used to open 
+	 * the selected document.
+	 * 
+	 * @return See above.
+	 */
+	List<ViewOtherAction> getApplicationActions()
+	{
+		List<ApplicationData> applications = view.getApplications();
+		if (applications == null || applications.size() == 0) return null;
+		Iterator<ApplicationData> i = applications.iterator();
+		List<ViewOtherAction> actions = new ArrayList<ViewOtherAction>();
+		while (i.hasNext()) {
+			actions.add(new ViewOtherAction(model, i.next()));
+		}
+		return actions;
+	}
+	
 	/**
 	 * Loads data, filters nodes or sets the selected node.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

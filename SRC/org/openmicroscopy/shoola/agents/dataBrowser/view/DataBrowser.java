@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -170,6 +171,14 @@ public interface DataBrowser
 	/** Bound property indicating to remove the items. */
 	public static final String		REMOVE_ITEMS_PROPERTY = "removeItems";
 
+	/** 
+	 * Bound property indicating to open the document with an external 
+	 * application. 
+	 */
+	public static final String		OPEN_EXTERNAL_APPLICATION_PROPERTY = 
+		"openExternalApplication";
+
+	
 	/** Indicates to lay out the nodes as thumbnails. */
 	public static final int			THUMBNAIL_VIEW = 0;
 	
@@ -288,9 +297,19 @@ public interface DataBrowser
 	/**
 	 * Sets the collection of selected nodes.
 	 * 
-	 * @param nodes The selected nodes.
+	 * @param nodes 		The selected nodes.
+	 * @param applciations 	The external applications previously used
+	 * 						to open the selected document
 	 */
-	public void setSelectedNodes(List<DataObject> nodes);
+	public void setSelectedNodes(List<DataObject> nodes, List<ApplicationData>
+								applications);
+	
+	/**
+	 * Sets the external applications used to open the selected document.
+	 * 
+	 * @param applications The value to set.
+	 */
+	public void setApplications(List<ApplicationData> applications);
 	
 	/**
 	 * Filters by tags.
@@ -608,5 +627,12 @@ public interface DataBrowser
 	 * @param column The column identifying the well.
 	 */
 	public void setThumbnailsFieldsFor(List list, int row, int column);
+
+	/**
+	 * Opens the currently selected object with an external application.
+	 * 
+	 * @param data The external application.
+	 */
+	public void openWith(ApplicationData data);
 	
 }

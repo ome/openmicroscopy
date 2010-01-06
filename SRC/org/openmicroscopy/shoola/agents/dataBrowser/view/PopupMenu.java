@@ -24,11 +24,17 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
 //Java imports
+import java.util.Iterator;
+import java.util.List;
+
 import javax.swing.BorderFactory;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.border.BevelBorder;
+
+import org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewOtherAction;
 
 //Third-party libraries
 
@@ -84,14 +90,18 @@ class PopupMenu
 	/** Button to launch the editor with a new experiment. */
 	private JMenuItem			newExperimentElement;
 
+	/** Button to open a document with an external application. */
+	private JMenu				openWithMenu;
+	
+	/** Reference to the control. */
+	private DataBrowserControl controller;
+	
 	/**
 	 * Initializes the menu items with the given actions.
 	 * 
-	 * @param controller 	The Controller.
-	 * @param model			The model.
+	 * @param model The model.
 	 */
-	private void initComponents(DataBrowserControl controller, 
-								DataBrowserModel model)
+	private void initComponents(DataBrowserModel model)
 	{
 		tagElement = new JMenuItem(controller.getAction(
 				DataBrowserControl.TAG));
@@ -115,6 +125,7 @@ class PopupMenu
 		setOriginalRndSettings = new JMenuItem(
 				controller.getAction(
 						DataBrowserControl.SET_ORIGINAL_RND_SETTINGS));
+		openWithMenu = new JMenu("Open with");
 		if (model.getType() == DataBrowserModel.SEARCH) {
 			copyElement.setEnabled(false);
 			pasteElement.setEnabled(false);
@@ -128,6 +139,7 @@ class PopupMenu
 	{
 		setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 		add(view);
+		add(openWithMenu);
 		add(new JSeparator(JSeparator.HORIZONTAL));
 		add(cutElement);
 		add(copyElement);
@@ -155,8 +167,29 @@ class PopupMenu
 			throw new IllegalArgumentException("No control.");
 		if (model == null) 
 			throw new IllegalArgumentException("No model.");
-		initComponents(controller, model);
+		this.controller = controller;
+		initComponents(model);
 		buildGUI() ;
+	}
+	
+	/**
+	 * Populates the menu with the passed actions.
+	 * 
+	 * @param actions The list of actions.
+	 */
+	void populateOpenWith()
+	{
+		openWithMenu.removeAll();
+		List<ViewOtherAction> actions = controller.getApplicationActions();
+		if (actions != null && actions.size() > 0) {
+			Iterator<ViewOtherAction> i = actions.iterator();
+			while (i.hasNext()) {
+				openWithMenu.add(new JMenuItem(i.next()));
+			}
+			openWithMenu.add(new JSeparator());
+		}
+		openWithMenu.add(new JMenuItem(
+				controller.getAction(DataBrowserControl.OPEN_WITH)));
 	}
 	
 }

@@ -58,6 +58,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
@@ -276,13 +277,24 @@ class DataBrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
-	 * @see DataBrowser#setSelectedNodes(List)
+	 * @see DataBrowser#setApplications(List)
 	 */
-	public void setSelectedNodes(List<DataObject> objects)
+	public void setApplications(List<ApplicationData> applications)
+	{
+		model.setApplicationData(applications);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#setSelectedNodes(List, List)
+	 */
+	public void setSelectedNodes(List<DataObject> objects, 
+			List<ApplicationData> applications)
 	{
 		ImageTableView tbView = model.getTableView();
 		if (tbView != null) tbView.setSelectedNodes(objects);
 		model.getBrowser().setSelectedNodes(objects);
+		model.setApplicationData(applications);
 	}
 
 	/**
@@ -1329,6 +1341,16 @@ class DataBrowserComponent
 			}
 		}
 		view.displayFields(nodes);
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#openWith(ApplicationData)
+	 */
+	public void openWith(ApplicationData data)
+	{
+		firePropertyChange(OPEN_EXTERNAL_APPLICATION_PROPERTY, new Object(), 
+				data);
 	}
 	
 }
