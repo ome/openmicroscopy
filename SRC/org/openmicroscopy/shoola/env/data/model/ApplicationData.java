@@ -34,24 +34,16 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 //Third-party libraries
-import net.n3.nanoxml.IXMLElement;
-import net.n3.nanoxml.IXMLParser;
-import net.n3.nanoxml.IXMLReader;
-import net.n3.nanoxml.StdXMLReader;
-import net.n3.nanoxml.XMLParserFactory;
-
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.file.IOUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
 /** 
- * Hosts information about an external a
+ * Hosts information about an external application.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -165,10 +157,15 @@ public class ApplicationData
 				}//end of if clause
 			}
 		} catch (Exception e) {
-			applicationName = UIUtilities.removeFileExtension(file.getName());
+			applicationName = UIUtilities.removeFileExtension(
+					file.getAbsolutePath());
 			applicationIcon = null;
 			executable = getApplicationPath();
 		}
+		if (applicationName == null || applicationName.length() == 0)
+			applicationName = UIUtilities.removeFileExtension(file.getName());
+		if (executable == null || executable.length() == 0)
+			executable = getApplicationPath();
 	}
 	
 	/**
