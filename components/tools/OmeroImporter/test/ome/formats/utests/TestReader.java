@@ -433,6 +433,11 @@ public class TestReader implements IFormatReader {
 		return null;
 	}
 
+	public int getBitsPerPixel() {
+		// TODO Auto-generated method stub
+        return 0;
+	}
+
 	public void removeStatusListener(StatusListener arg0) {
 		// TODO Auto-generated method stub
 
