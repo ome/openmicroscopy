@@ -59,6 +59,9 @@ class FileLoader
 	/** The size of the file. */
 	private long		size;
 	
+	/** Pass <code>true</code> to load, <code>false</code> otherwise. */
+	private boolean		toLoad;
+	
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle	handle;
     
@@ -71,21 +74,23 @@ class FileLoader
     /**
      * Creates a new instance.
      * 
-     * @param viewer Reference to the parent.
-     * @param reg    Reference to the registry.
-     * @param path	 The absolute path to the file.
-     * @param fileID The file ID.
-     * @param size   The size of the file.
+     * @param viewer 	Reference to the parent.
+     * @param reg    	Reference to the registry.
+     * @param path	 	The absolute path to the file.
+     * @param fileID 	The file ID.
+     * @param size   	The size of the file.
+     * @param toLoad 	Indicates to download the file.
      * @param activity 	The activity associated to this loader.
      */
 	FileLoader(UserNotifier viewer, Registry reg, File file, long fileID, 
-			long size, ActivityComponent activity)
+			long size, boolean toLoad, ActivityComponent activity)
 	{
 		super(viewer, reg);
 		this.activity = activity;
 		this.file = file;
 		this.fileID = fileID;
 		this.size = size;
+		this.toLoad = toLoad;
 	}
 	
 	/** 
@@ -94,7 +99,8 @@ class FileLoader
 	 */
 	public void load()
 	{
-		handle = mhView.loadFile(file, fileID, size, this);
+		if (toLoad) handle = mhView.loadFile(file, fileID, size, this);
+		else handleResult(file);
 	}
     
 	/** 
@@ -103,7 +109,7 @@ class FileLoader
 	 */
 	public void cancel()
 	{ 
-		handle.cancel();
+		if (handle != null) handle.cancel();
 		file.delete();
 	}
 	

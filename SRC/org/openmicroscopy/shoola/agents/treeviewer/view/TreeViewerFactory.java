@@ -61,8 +61,6 @@ import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
-import org.openmicroscopy.shoola.util.file.IOUtil;
-
 import pojos.ExperimenterData;
 import pojos.ImageData;
 
@@ -102,14 +100,16 @@ public class TreeViewerFactory
 	 * Registers the application.
 	 * 
 	 * @param data The application to register.
+	 * @param mimeType The mimeType of the file.
 	 */
-	static void register(ApplicationData data, long type)
+	static void register(ApplicationData data, String mimeType)
 	{
-		List<ApplicationData> list = singleton.applications.get(type);
+		if (mimeType == null) return;
+		List<ApplicationData> list = singleton.applications.get(mimeType);
 		if (list == null) {
 			list = new ArrayList<ApplicationData>();
 			list.add(data);
-			singleton.applications.put(type, list);
+			singleton.applications.put(mimeType, list);
 		} else { //Add the applications if needed.
 			String path = data.getApplicationPath();
 			Iterator<ApplicationData> i = list.iterator();
@@ -130,10 +130,10 @@ public class TreeViewerFactory
 	 * Returns the collection of external applications used to 
 	 * open the document.
 	 * 
-	 * @param type Identified the format of the document.
+	 * @param type The MIME type of the document.
 	 * @return See above.
 	 */
-	static List<ApplicationData> getApplications(long type)
+	static List<ApplicationData> getApplications(String type)
 	{
 		return singleton.applications.get(type);
 	}
@@ -302,13 +302,13 @@ public class TreeViewerFactory
 			BufferedWriter output = new BufferedWriter(new FileWriter(name));
 			Entry entry;
 			Iterator i = singleton.applications.entrySet().iterator();
-			long format;
+			String format;
 			List list;
 			Iterator j;
 			ApplicationData data;
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
-				format = (Long) entry.getKey();
+				format = (String) entry.getKey();
 				list = (List) entry.getValue();
 				if (list != null) {
 					j = list.iterator();
@@ -346,7 +346,7 @@ public class TreeViewerFactory
 	private boolean 		isAttached;
 
 	/** The external applications used to open file or images. */
-	private Map<Long, List<ApplicationData>> applications;
+	private Map<String, List<ApplicationData>> applications;
 	
 	/** Creates a new instance. */
 	private TreeViewerFactory()
@@ -393,7 +393,7 @@ public class TreeViewerFactory
 	private void readExternalApplications()
 	{
 		if (applications != null) return;
-		applications = new HashMap<Long, List<ApplicationData>>();
+		applications = new HashMap<String, List<ApplicationData>>();
 		Environment env = (Environment) 
 		TreeViewerAgent.getRegistry().lookup(LookupNames.ENV);
 		String name = env.getOmeroHome()+File.separator+FILE_NAME;
@@ -403,7 +403,7 @@ public class TreeViewerFactory
 			BufferedReader input = new BufferedReader(new FileReader(f));
 			try {
 				String line = null;
-				long format;
+				String mimeType;
 				String[] values;
 				String v;
 				int index;
@@ -412,7 +412,7 @@ public class TreeViewerFactory
 					if (line.contains(SEPARATOR)) {
 						values = line.split(SEPARATOR);
 						if (values.length >= 2) {
-							format = Long.parseLong(values[0]);
+							mimeType = values[0];
 							v = "";
 							index = 1;
 							for (int i = 1; i < values.length; i++) {
@@ -421,10 +421,10 @@ public class TreeViewerFactory
 									v += SEPARATOR;
 								index++;
 							}
-							list = applications.get(format);
+							list = applications.get(mimeType);
 							if (list == null) {
 								list = new ArrayList<ApplicationData>();
-								applications.put(format, list);
+								applications.put(mimeType, list);
 							}
 							list.add(new ApplicationData(v));
 						}

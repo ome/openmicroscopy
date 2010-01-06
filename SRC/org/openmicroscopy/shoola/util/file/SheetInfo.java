@@ -99,8 +99,7 @@ class SheetInfo
 			return row.createCell(columnIndex);
 		}
 		HSSFCell cell = row.getCell(columnIndex);
-		if(cell==null)
-			return row.createCell(columnIndex);
+		if (cell == null) return row.createCell(columnIndex);
 		return cell;
 	}
 	

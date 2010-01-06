@@ -46,5 +46,6 @@
 	<classpathentry kind="lib" path="LIB/ome-xml.jar"/>
 	<classpathentry kind="lib" path="LIB/poi-loci.jar"/>
 	<classpathentry kind="lib" path="LIB/poi-3.5-beta4-20081128.jar"/>
+	<classpathentry kind="lib" path="LIB/activation.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

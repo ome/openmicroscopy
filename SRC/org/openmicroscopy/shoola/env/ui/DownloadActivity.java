@@ -116,8 +116,11 @@ public class DownloadActivity
     	File[] files = directory.listFiles();
     	String dirPath = directory.getAbsolutePath()+File.separator;
     	String value = folder.getName();
-    	if (parameters.getApplicationData() != null)
+    	if (parameters.getApplicationData() != null) {
     		value = file.getName().getValue();
+    		return value;
+    	}
+    		
     	if (parameters.getFileName() != null)
     		value = parameters.getFileName();
     	String extension = null;
@@ -201,8 +204,10 @@ public class DownloadActivity
     		directory = folder.getParentFile();
     	file = new File(directory+File.separator+fileName);
     	if (!b) file.deleteOnExit();
+    	boolean load = true;
+    	if (!b && file.exists()) load = false;
 		return new FileLoader(viewer, registry, file, f.getId().getValue(),
-				f.getSize().getValue(), this);
+				f.getSize().getValue(), load, this);
 	}
 
 	/**

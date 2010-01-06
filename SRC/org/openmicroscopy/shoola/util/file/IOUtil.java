@@ -57,7 +57,7 @@ public class IOUtil
 
 	/**
 	 * Reads the file corresponding to the passed file name. Returns
-	 * the inputstream or <code>null</code> if the file doesn't exist.
+	 * the input stream or <code>null</code> if the file doesn't exist.
 	 * 
 	 * @param fileName The name of the file to read.
 	 * @return See above.

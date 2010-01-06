@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
+import javax.activation.MimetypesFileTypeMap;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
@@ -1092,25 +1094,34 @@ class TreeViewerModel
 
 	
 	/** 
-	 * Returns the format's id corresponding to the selected object.
+	 * Returns the MIME type to the selected object.
 	 * 
 	 * @return See above.
 	 */
-	long getObjectFormatID()
+	String getObjectMimeType()
 	{
 		Browser browser = getSelectedBrowser();
-		if (browser == null) return -1;
+		if (browser == null) return null;
 		TreeImageDisplay d = browser.getLastSelectedDisplay();
-		if (d == null) return -1;
+		if (d == null) return null;
 		Object uo = d.getUserObject();
+		String type = null;
 		if (uo instanceof ImageData) {
 			ImageData img = (ImageData) uo;
-			return 21;
+			File f = new File(img.getName());
+			MimetypesFileTypeMap map = new MimetypesFileTypeMap();
+			type = map.getContentType(f);
+			f.delete();
+			return type;
 		} else if (uo instanceof FileAnnotationData) {
 			FileAnnotationData fa = (FileAnnotationData) uo;
-			return fa.getFormatID(); 
+			File f = new File(fa.getFileName());
+			MimetypesFileTypeMap map = new MimetypesFileTypeMap();
+			type = map.getContentType(f);
+			f.delete();
+			return type;
 		}
-		return -1;
+		return type;
 	}
 	
 }

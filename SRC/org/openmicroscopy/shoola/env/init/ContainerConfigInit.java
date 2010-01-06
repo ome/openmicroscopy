@@ -92,8 +92,10 @@ public final class ContainerConfigInit
     		File files;
             if (home.isDirectory()) files = new File(home, tmp);
             else files = new File(container.getHomeDir(), tmp);
-            files.mkdir();
-            files.deleteOnExit();
+            if (!files.exists()) {
+            	 files.mkdir();
+                 files.deleteOnExit();
+            }
 		} catch (ConfigException ce) {
 			throw new StartupException("Unable to load Container configuration",
 										ce);

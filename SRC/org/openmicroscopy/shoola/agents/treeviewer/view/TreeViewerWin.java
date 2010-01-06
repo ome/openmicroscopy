@@ -914,11 +914,11 @@ class TreeViewerWin
 	void refreshRenderer() { model.refreshRenderer(); }
 	
 	/** 
-	 * Returns the format's id corresponding to the selected object.
+	 * Returns the MIME type 
 	 * 
 	 * @return See above.
 	 */
-	long getObjectFormatID() { return model.getObjectFormatID(); }
+	String getObjectMimeType() { return model.getObjectMimeType(); }
 	
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()

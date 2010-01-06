@@ -564,10 +564,10 @@ class TreeViewerControl
 		if (d == null) return l;
 		Object object = d.getUserObject();
 		if (!(object instanceof DataObject)) return l;
-		long format = view.getObjectFormatID();
-		if (format < 0) return l;
+		String type = view.getObjectMimeType();
+		if (type == null) return l;
 		List<ApplicationData> 
-			applications = TreeViewerFactory.getApplications(format);
+			applications = TreeViewerFactory.getApplications(type);
 		if (applications == null) return l;
 		Iterator<ApplicationData> i = applications.iterator();
 		ApplicationData data;
@@ -944,8 +944,8 @@ class TreeViewerControl
 			ApplicationData data = (ApplicationData) pce.getNewValue();
 			//Register 
 			if (data == null) return;
-			long format = view.getObjectFormatID();
-			if (format < 0) return;
+			String format = view.getObjectMimeType();
+			if (format == null) return;
 			TreeViewerFactory.register(data, format);
 			model.openWith(data);
 		}

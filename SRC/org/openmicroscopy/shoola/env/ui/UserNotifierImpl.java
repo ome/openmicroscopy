@@ -24,8 +24,13 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -357,10 +362,9 @@ public class UserNotifierImpl
 					values[index] = path;
 				}
 			}
-			
 			run.exec(values);
 		} catch (Exception e) {
-			e.printStackTrace();
+			
 		}
 	}
 	

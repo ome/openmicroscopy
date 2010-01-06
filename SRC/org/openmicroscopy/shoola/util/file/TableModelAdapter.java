@@ -71,8 +71,8 @@ class TableModelAdapter
 		Integer[][] array = new Integer[typeArray.length][typeArray[0].length];
 		columnCount = array[0].length;
 		rowCount = array.length;
-		for (int i=0; i<typeArray.length; i++)
-			for (int j=0; j<typeArray[i].length; j++)
+		for (int i = 0; i < typeArray.length; i++)
+			for (int j = 0; j < typeArray[i].length; j++)
 				array[i][j] = new Integer(typeArray[i][j]);
 		return array;
 	}
@@ -89,8 +89,8 @@ class TableModelAdapter
 		Long[][] array = new Long[typeArray.length][typeArray[0].length];
 		columnCount = array[0].length;
 		rowCount = array.length;
-		for (int i=0; i<typeArray.length; i++)
-			for (int j=0; j<typeArray[i].length; j++)
+		for (int i = 0; i < typeArray.length; i++)
+			for (int j = 0; j < typeArray[i].length; j++)
 				array[i][j] = new Long(typeArray[i][j]);
 		return array;
 	}
@@ -106,8 +106,8 @@ class TableModelAdapter
 		Double[][] array = new Double[typeArray.length][typeArray[0].length];
 		columnCount = array[0].length;
 		rowCount = array.length;
-		for (int i=0; i<typeArray.length; i++)
-			for (int j=0; j<typeArray[i].length; j++)
+		for (int i = 0; i < typeArray.length; i++)
+			for (int j = 0; j < typeArray[i].length; j++)
 				array[i][j] = new Double(typeArray[i][j]);
 		return array;
 	}
@@ -123,8 +123,8 @@ class TableModelAdapter
 		Double[][] array = new Double[typeArray.length][typeArray[0].length];
 		columnCount = array[0].length;
 		rowCount = array.length;
-		for (int i=0; i<typeArray.length; i++)
-			for (int j=0; j<typeArray[i].length; j++)
+		for (int i = 0; i < typeArray.length; i++)
+			for (int j = 0; j < typeArray[i].length; j++)
 				array[i][j] = new Double(typeArray[i][j]);
 		return array;
 	}
