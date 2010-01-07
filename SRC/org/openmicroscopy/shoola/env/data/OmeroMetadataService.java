@@ -41,6 +41,7 @@ import omero.model.Correction;
 import omero.model.DetectorType;
 import omero.model.FilamentType;
 import omero.model.FilterType;
+import omero.model.Format;
 import omero.model.Illumination;
 import omero.model.Immersion;
 import omero.model.LaserMedium;
@@ -143,6 +144,9 @@ public interface OmeroMetadataService
 	/** Identified the <code>filament type</code> enumeration. */
 	public static final String FILAMENT_TYPE = FilamentType.class.getName();
 
+	/** Identified the <code>Format</code> enumeration. */
+	public static final String FORMAT = Format.class.getName();
+	
 	/**
 	 * Loads the ratings linked to an object identifying by the specified
 	 * type and id.

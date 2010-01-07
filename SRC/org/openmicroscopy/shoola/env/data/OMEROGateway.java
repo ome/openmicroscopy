@@ -4430,6 +4430,7 @@ class OMEROGateway
 			while (i.hasNext()) {
 				r.add(new EnumerationObject(i.next()));
 			}
+			System.err.println(klassName+" "+r.size());
 			enumerations.put(klassName, r);
 			return r;
 		} catch (Exception e) {
@@ -4589,6 +4590,7 @@ class OMEROGateway
 		getEnumerations(OmeroMetadataService.IMMERSION);
 		getEnumerations(OmeroMetadataService.CORRECTION);
 		getEnumerations(OmeroMetadataService.MEDIUM);
+		getEnumerations(OmeroMetadataService.FORMAT);
 		getEnumerations(OmeroMetadataService.DETECTOR_TYPE);
 		getEnumerations(OmeroMetadataService.BINNING);
 		getEnumerations(OmeroMetadataService.CONTRAST_METHOD);
@@ -5087,7 +5089,7 @@ class OMEROGateway
 	}
 	
 	/**
-	 * Returns the latest reader type used
+	 * Returns the latest reader used.
 	 * 
 	 * @return See above.
 	 */

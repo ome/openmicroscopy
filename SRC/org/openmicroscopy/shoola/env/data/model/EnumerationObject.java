@@ -37,6 +37,7 @@ import omero.model.Correction;
 import omero.model.DetectorType;
 import omero.model.FilamentType;
 import omero.model.FilterType;
+import omero.model.Format;
 import omero.model.Illumination;
 import omero.model.Immersion;
 import omero.model.LaserMedium;
@@ -62,7 +63,7 @@ import omero.model.Pulse;
 public class EnumerationObject
 {
 
-	/** The objet hosted by this component. */
+	/** The object hosted by this component. */
 	private Object object;
 	
 	/**
@@ -124,6 +125,8 @@ public class EnumerationObject
 			value = ((FilterType) object).getValue();
 		else if (object instanceof MicroscopeType)
 			value = ((MicroscopeType) object).getValue();
+		else if (object instanceof Format)
+			value = ((Format) object).getValue();
 		else if (object instanceof String) return (String) object;
 		if (value != null) return value.getValue();
 		return "";

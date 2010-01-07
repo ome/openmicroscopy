@@ -744,9 +744,7 @@ class TreeViewerComponent
 				return;
 			}
 		}
-		model.getDataViewer().setApplications(
-				TreeViewerFactory.getApplications(
-						model.getObjectMimeType(selected)));
+		
 		MetadataViewer mv = model.getMetadataViewer();
 		if (hasDataToSave()) {
 			MessageBox dialog = new MessageBox(view, "Save data", 
@@ -767,6 +765,9 @@ class TreeViewerComponent
 		mv.setRootObject(selected);
 		mv.setParentRootObject(parent);
 		if (size > 0) mv.setRelatedNodes(siblings);
+		model.getDataViewer().setApplications(
+				TreeViewerFactory.getApplications(
+						model.getObjectMimeType(selected)));
 	}
 
 	/**

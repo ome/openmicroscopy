@@ -84,6 +84,8 @@ public class EnumerationLoader
                 		service.getEnumeration(OmeroMetadataService.CORRECTION));
                 results.put(OmeroMetadataService.MEDIUM, 
                 		service.getEnumeration(OmeroMetadataService.MEDIUM));
+                results.put(OmeroMetadataService.FORMAT, 
+                		service.getEnumeration(OmeroMetadataService.FORMAT));
             }
         };
     }

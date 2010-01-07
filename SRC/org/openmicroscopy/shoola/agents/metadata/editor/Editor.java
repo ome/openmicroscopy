@@ -37,6 +37,7 @@ import javax.swing.JComponent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
@@ -71,6 +72,9 @@ public interface Editor
 	
 	/** Indicates to select the acquisition tab. */
 	public static final int		ACQUISITION_TAB = EditorUI.ACQUISITION_INDEX;
+	
+	/** Identified the <code>Format</code> enumeration. */
+	public static final String FORMAT = OmeroMetadataService.FORMAT;
 	
 	/** Identified the <code>Immersion</code> enumeration. */
 	public static final String IMMERSION = OmeroMetadataService.IMMERSION;
