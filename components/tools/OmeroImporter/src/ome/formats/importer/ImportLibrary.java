@@ -96,7 +96,9 @@ public class ImportLibrary implements IObservable, StatusListener
 
     private final OMEROMetadataStoreClient store;
 
-    private final OMEROWrapper  reader;
+    private final OMEROWrapper reader;
+    
+    private byte[] arrayBuf;
 
     /**
      * The library will not close the client instance. The reader will be closed
@@ -537,7 +539,11 @@ public class ImportLibrary implements IObservable, StatusListener
         int i = 1;
         reader.setSeries(series);
         int bytesPerPixel = getBytesPerPixel(reader.getPixelType());
-        byte[] arrayBuf = new byte[size.sizeX * size.sizeY * bytesPerPixel];
+        int arraySize = size.sizeX * size.sizeY * bytesPerPixel;
+        if (arrayBuf == null || arrayBuf.length != arraySize)
+        {
+            arrayBuf = new byte[arraySize];
+        }
 
         MessageDigest md;
         
