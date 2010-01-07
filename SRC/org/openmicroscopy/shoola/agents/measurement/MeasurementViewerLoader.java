@@ -121,7 +121,7 @@ public abstract class MeasurementViewerLoader
         viewer.cancel();
     }
     
-    /** Fires an asynchrnonous data loading. */
+    /** Fires an asynchronous data loading. */
     public abstract void load();
     
     /** Cancels any ongoing data loading. */

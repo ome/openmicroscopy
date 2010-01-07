@@ -296,6 +296,11 @@ public interface MeasurementViewer
 	 */
 	public boolean isServerROI();
 
+	/** 
+	 * Returns the title of the window.
+	 * 
+	 * @return See above
+	 */
 	public String getViewTitle();
 
 	/** Saves the ROI to the server. */
@@ -305,15 +310,16 @@ public interface MeasurementViewer
 	 * Called when the results  have been loaded from the server.
 	 * If the results are null, then try and load ROI from an XML file if 
 	 * possible.
-	 * @param result
+	 * 
+	 * @param result The ROI .
 	 */
 	public void setLoadingFromServerClient(Collection result);
 
 	/**
 	 * The return result after the ROI has been saved to the server. 
+	 * 
 	 * @param result The List of ROIData that have been saved.
 	 */
 	public void setUpdateROIComponent(Collection result);
 
-	
 }

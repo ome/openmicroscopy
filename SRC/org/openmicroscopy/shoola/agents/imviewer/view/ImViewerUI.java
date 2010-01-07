@@ -1042,7 +1042,6 @@ class ImViewerUI
 		boolean reset = false;
 		if (w > width) {
 			reset = true;
-			//w = width;
 		}
 		if (h > height) {
 			reset = true;

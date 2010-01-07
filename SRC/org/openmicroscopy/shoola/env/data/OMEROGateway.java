@@ -4430,7 +4430,6 @@ class OMEROGateway
 			while (i.hasNext()) {
 				r.add(new EnumerationObject(i.next()));
 			}
-			System.err.println(klassName+" "+r.size());
 			enumerations.put(klassName, r);
 			return r;
 		} catch (Exception e) {

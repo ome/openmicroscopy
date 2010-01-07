@@ -34,6 +34,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.border.BevelBorder;
 
+import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewOtherAction;
 
 //Third-party libraries
@@ -126,6 +127,8 @@ class PopupMenu
 				controller.getAction(
 						DataBrowserControl.SET_ORIGINAL_RND_SETTINGS));
 		openWithMenu = new JMenu("Open with");
+		IconManager icons = IconManager.getInstance();
+		openWithMenu.setIcon(icons.getIcon(IconManager.VIEWER));
 		if (model.getType() == DataBrowserModel.SEARCH) {
 			copyElement.setEnabled(false);
 			pasteElement.setEnabled(false);

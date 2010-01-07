@@ -399,7 +399,8 @@ class ImViewerComponent
 		MeasurementTool request = new MeasurementTool(model.getImageID(), 
 				model.getPixelsData(), model.getImageName(), 
 				model.getDefaultZ(), model.getDefaultT(),
-				model.getActiveChannelsColorMap(), model.getZoomFactor(), 
+				model.getActiveChannelsColorMap(), 
+				model.getZoomFactor()*model.getOriginalRatio(), 
 				view.getBounds(), model.getChannelData());
 		request.setThumbnail(model.getImageIcon());
 		request.setRenderedImage(model.getBrowser().getRenderedImage());

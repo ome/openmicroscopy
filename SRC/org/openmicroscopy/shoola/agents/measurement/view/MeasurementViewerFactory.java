@@ -133,7 +133,7 @@ public class MeasurementViewerFactory
      * @param bounds    		The bounds of the component invoking the 
      *                  		{@link MeasurementViewer}.
      * @param z					The selected z-section.
-     * @param t					The selected timepoint.
+     * @param t					The selected time-point.
      * @param magnification		The image's magnification factor.
      * @param activeChannels	Collection of active channels.
      * @param channelsData		The channels metadata.

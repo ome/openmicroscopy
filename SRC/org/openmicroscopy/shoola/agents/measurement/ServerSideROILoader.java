@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.agents.measurement;
 
 //Java imports
 import java.util.Collection;
-import java.util.List;
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -34,7 +32,7 @@ import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /**
- * Loads the serverside ROIs into the measurment tool. Also if there are no
+ * Loads the server side ROIs into the measurement tool. Also if there are no
  * ROI it will check to see if there is an ROI.xml file and try and load from
  * it.
  * 

@@ -764,7 +764,8 @@ class MeasurementViewerComponent
 				model.setServerROI(result, true, true);
 			} 	
 		} catch (Exception e) {
-			e.printStackTrace();
+			String s = "Cannot convert server ROI into UI objects:";
+			MeasurementAgent.getRegistry().getLogger().error(this, s+e);
 		}
 		//bring up the UI.
 		view.layoutUI();
@@ -784,10 +785,11 @@ class MeasurementViewerComponent
      */
 	public boolean isServerROI() { return model.isServerROI(); }
 
-	public String getViewTitle() {
-		// TODO Auto-generated method stub
-		return model.getImageTitle();
-	}
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#getViewTitle()
+     */
+	public String getViewTitle() { return model.getImageTitle(); }
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
@@ -803,25 +805,23 @@ class MeasurementViewerComponent
 			Iterator<ROIResult> i = result.iterator();
 			ROIResult roiResult;
 			boolean hasResult = false;
-			if(i.hasNext())
+			if (i.hasNext())
 			{
 				roiResult = i.next();
-				if(roiResult.getROIs().size()!=0)
+				if (roiResult.getROIs().size() != 0)
 					hasResult = true;
 			}
-			if(hasResult)
-			{ //some ROI previously saved.
-				model.setServerROI(result, false, false);
-			} 	
-			else
-			{
+			if (hasResult) //some ROI previously saved.
+				model.setServerROI(result, false, false);	
+			else {
 				model.fireROILoading(null);
 				return;
 			}
-		} 
-		catch (Exception e) 
-		{
-			e.printStackTrace();
+		} catch (Exception e) {
+			String s = "Cannot convert server ROI into UI objects:";
+			MeasurementAgent.getRegistry().getLogger().error(this, s+e);
+			UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Load ROI", "Cannot display the ROI.");
 		}
 		view.rebuildManagerTable();
 		view.updateDrawingArea();
@@ -833,10 +833,10 @@ class MeasurementViewerComponent
 		return;
 	}
 
-	/**
-	 * Update the collection by removing all roi and reloading the 
-	 * ROI from the server.
-	 */
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#setUpdateROIComponent(Collection)
+     */
 	public void setUpdateROIComponent(Collection result) 
 	{
 		Registry reg = MeasurementAgent.getRegistry();
