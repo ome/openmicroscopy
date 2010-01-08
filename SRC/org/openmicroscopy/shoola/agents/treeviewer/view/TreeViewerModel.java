@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+//import javax.activation.MimetypesFileTypeMap;
 import javax.activation.MimetypesFileTypeMap;
 import javax.swing.filechooser.FileFilter;
 
@@ -1104,22 +1105,30 @@ class TreeViewerModel
 	 */
 	String getObjectMimeType(Object object)
 	{
-		String type = null;
+		File f = null;
 		if (object instanceof ImageData) {
 			ImageData img = (ImageData) object;
-			File f = new File(img.getName());
+			f = new File(img.getName());
+			/*
 			MimetypesFileTypeMap map = new MimetypesFileTypeMap();
 			type = map.getContentType(f);
 			f.delete();
 			return type;
+			*/
 		} else if (object instanceof FileAnnotationData) {
 			FileAnnotationData fa = (FileAnnotationData) object;
-			File f = new File(fa.getFileName());
+			f = new File(fa.getFileName());
+			/*
 			MimetypesFileTypeMap map = new MimetypesFileTypeMap();
 			type = map.getContentType(f);
 			f.delete();
 			return type;
+			*/
 		}
+		if (f == null) return null;
+		MimetypesFileTypeMap map = new MimetypesFileTypeMap();
+		String type = map.getContentType(f);
+		f.delete();
 		return type;
 	}
 	

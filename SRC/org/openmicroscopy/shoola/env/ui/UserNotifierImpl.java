@@ -24,13 +24,8 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -339,7 +334,9 @@ public class UserNotifierImpl
 		Runtime run = Runtime.getRuntime();
 		try {
 			String[] values;
+			/*
 			if (data == null) {
+				Ap
 				values = new String[2];
 				values[0] = "open";
 				values[1] = path;
@@ -361,6 +358,25 @@ public class UserNotifierImpl
 					}
 					values[index] = path;
 				}
+			}
+			*/
+			data = new ApplicationData("");
+			List<String> l = data.getArguments();
+			Iterator<String> i = l.iterator();
+			int index = 0;
+			if (path == null || path.length() == 0) {
+				values = new String[l.size()];
+				while (i.hasNext()) {
+					values[index] = i.next();
+					index++;
+				}
+			} else {
+				values = new String[l.size()+1];
+				while (i.hasNext()) {
+					values[index] = i.next();
+					index++;
+				}
+				values[index] = path;
 			}
 			run.exec(values);
 		} catch (Exception e) {

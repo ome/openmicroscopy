@@ -27,18 +27,14 @@ package org.openmicroscopy.shoola.env.data.model;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 //Third-party libraries
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.Parser;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
@@ -66,24 +62,6 @@ public class ApplicationData
 	
 	/** The default location <code>Linux</code> platform. */
 	public static final String LOCATION_LINUX = "/Applications";
-	
-	/** Path to the resources of the application on MAC. */
-	private static final String RESOURCES_MAC = "/Contents/Resources/";
-	
-	/** Path to the resources of the application on MAC. */
-	private static final String EXECUTABLE_MAC = "/Contents/MacOS/";
-
-	/** The file to look to retrieve the information. */
-	private static final String INFO_FILE_MAC = "/Contents/Info.plist";
-	
-	/** Tag identifying the executable. */
-	private static final String EXECUTABLE_TAG_MAC = "CFBundleExecutable";
-	
-	/** Tag identifying the icon associated to the application. */
-	private static final String ICON_TAG_MAC = "CFBundleIconFile";
-	
-	/** Tag identifying the name of the application. */
-	private static final String NAME_TAG_MAC = "CFBundleName";
 
 	/** The path to the application. */
 	private File file;
@@ -94,6 +72,7 @@ public class ApplicationData
 	/** The icon associated. */
 	private Icon applicationIcon;
 	
+	/** The path to the executable. */
 	private String executable;
 	
 	/** 
@@ -102,60 +81,20 @@ public class ApplicationData
 	 * @param path The path to the file to convert.
 	 * @return See above.
 	 */
-	private Icon convert(String path)
+	private static Icon convert(String path)
 	{
 		if (path == null) return null;
 		return new ImageIcon(path);
 	}
-	
-	
+
 	/** Parses the file. */
 	private void parseMac()
 	{
 		try {
-			DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
-			DocumentBuilder builder = f.newDocumentBuilder();
-			Document doc = builder.parse(
-					new File(file.getAbsolutePath()+INFO_FILE_MAC));
-			//Extract the info
-			NodeList list = doc.getElementsByTagName("dict");
-			Node node, child, s;
-			NodeList nodes;
-			String value, name;
-			for (int i = 0; i < list.getLength() ; i++){
-				node = list.item(i);
-				if (node.getNodeType() == Node.ELEMENT_NODE) {
-					nodes = node.getChildNodes();
-					for (int j = 0; j < nodes.getLength(); j++) {
-						child = nodes.item(j);
-						if (child.getNodeType() == Node.ELEMENT_NODE &&
-								child.getNodeName().equals("key")) {
-							value = child.getTextContent().trim();
-							if (EXECUTABLE_TAG_MAC.equals(value)) {
-								if (child.getNextSibling() != null) {
-									s = child.getNextSibling().getNextSibling();
-									executable = getApplicationPath()
-										+EXECUTABLE_MAC
-										+s.getTextContent().trim();
-								}
-							} else if (ICON_TAG_MAC.equals(value)) {
-								if (child.getNextSibling() != null) {
-									s = child.getNextSibling().getNextSibling();
-									name = 
-										getApplicationPath()+RESOURCES_MAC+
-										s.getTextContent().trim();
-									applicationIcon = convert(name);
-								}
-							} else if (NAME_TAG_MAC.equals(value)) {
-								if (child.getNextSibling() != null) {
-									s = child.getNextSibling().getNextSibling();
-									applicationName = s.getTextContent().trim();
-								}
-							}
-						}
-					}
-				}//end of if clause
-			}
+			Map<String, Object> m = Parser.parseInfoPList(getApplicationPath());
+			executable = (String) m.get(Parser.EXECUTABLE_TAG_MAC);
+			applicationIcon = convert((String) m.get(Parser.ICON_TAG_MAC));
+			applicationName = (String) m.get(Parser.NAME_TAG_MAC);
 		} catch (Exception e) {
 			applicationName = UIUtilities.removeFileExtension(
 					file.getAbsolutePath());
@@ -166,6 +105,8 @@ public class ApplicationData
 			applicationName = UIUtilities.removeFileExtension(file.getName());
 		if (executable == null || executable.length() == 0)
 			executable = getApplicationPath();
+		if (executable.contains("Microsoft"))
+			executable = null;
 	}
 	
 	/**
@@ -188,7 +129,14 @@ public class ApplicationData
 	public ApplicationData(File file)
 	{
 		this.file = file;
-		if (UIUtilities.isMacOS()) parseMac();
+		String name = file.getName();
+		if (name == null || name.length() == 0) {
+			applicationName = "";
+			applicationIcon = null;
+			executable = null;
+		} else {
+			if (UIUtilities.isMacOS()) parseMac();
+		}
 	}
 	
 	/**
@@ -236,8 +184,12 @@ public class ApplicationData
 	public List<String> getArguments()
 	{
 		List<String> list = new ArrayList<String>(); 
-		if (executable != null && executable.length() > 0)
-			list.add(executable);
+		if (UIUtilities.isMacOS()) {
+			if (executable != null && executable.length() > 0)
+				list.add(executable);
+			else list.add("open");
+		}
+		
 		return list;
 	}
 	
