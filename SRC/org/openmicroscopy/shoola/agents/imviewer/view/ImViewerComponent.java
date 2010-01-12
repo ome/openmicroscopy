@@ -2881,9 +2881,11 @@ class ImViewerComponent
 	 */
 	public void setImageAsTexture(TextureData image)
 	{
+		/*
 		if (model.getState() != LOADING_IMAGE) 
 			throw new IllegalStateException("This method can only be invoked " +
 			"in the LOADING_IMAGE state: "+model.getState());
+			*/
 		if (image == null) {
 			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Image retrieval", "An error occurred while " +

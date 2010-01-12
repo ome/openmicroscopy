@@ -104,8 +104,8 @@ class ImageCanvasListener
         this.canvas = canvas;
         this.view = view;
     	area = new Rectangle(0, 0, 0, 0);
-    	//canvas.addMouseListener(this);
-		//canvas.addMouseMotionListener(this);
+    	canvas.addMouseListener(this);
+		canvas.addMouseMotionListener(this);
 		canvas.addMouseWheelListener(this);
 		handleKeyDown = false;
     }
