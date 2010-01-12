@@ -140,6 +140,11 @@ public interface Browser
      */
     public static final int     	FILE_SYSTEM_EXPLORER = 105;
     
+    /** 
+     * Indicates that the browser corresponds to a <code>Shares</code>
+     * explorer.
+     */
+    public static final int     	SHARES_EXPLORER = 106;
     
     /** Indicates to sort the nodes by date. */
     public static final int         SORT_NODES_BY_DATE = 300;
@@ -664,5 +669,12 @@ public interface Browser
 	
 	/** Removes the passed nodes from the display. */
 	void removeTreeNodes(List<TreeImageDisplay> nodes);
+	
+	/** 
+	 * Removes all the data from the display
+	 * and reloads the data for the currently logged experimenter
+	 * only for the active browser.
+	 */
+	void reActivate();
 	
 }

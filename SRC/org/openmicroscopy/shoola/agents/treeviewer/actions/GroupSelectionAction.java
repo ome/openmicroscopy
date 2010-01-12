@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction 
+ * org.openmicroscopy.shoola.agents.treeviewer.actions.GroupSelectionAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,12 +23,9 @@
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 
+
 //Java imports
 import java.awt.event.ActionEvent;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.Action;
 
@@ -36,16 +33,13 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import pojos.ExperimenterData;
 import pojos.GroupData;
 
 /** 
- * Action to bring up the Switch user dialog.
+ * Selects the group the user is member of.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -55,18 +49,14 @@ import pojos.GroupData;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
-public class SwitchUserAction 
+public class GroupSelectionAction 
 	extends TreeViewerAction
 {
 
-	/** The name of the action. */
-	private static final String NAME = "Switch User...";
-	
-	/** The description of the action. */
-	private static final String DESCRIPTION = "Select another " +
-			"user and view his/her data.";
+	/** The group the logged in user is member of. */
+	private GroupData group;
 	
     /** 
      * Enables the action if the browser is not ready.
@@ -75,48 +65,43 @@ public class SwitchUserAction
     protected void onBrowserStateChange(Browser browser)
     {
     	if (browser == null) return;
-    	if (browser == null) return;
-    	if (browser.getState() == Browser.READY) {
-    		Map m = TreeViewerAgent.getAvailableUserGroups();
-    		ExperimenterData exp =  TreeViewerAgent.getUserDetails();
-    		Iterator i = m.entrySet().iterator();
-    		GroupData group;
-    		boolean enabled = false;
-    		Entry entry;
-    		List list;
-    		while (i.hasNext()) {
-    			entry = (Entry) i.next();
-    			group = (GroupData) entry.getKey();
-				if (group.getId() == exp.getDefaultGroup().getId()) {
-					list  = (List) entry.getValue();
-					enabled = list.size() > 1;
-					break;
-				}
-			}
-    		setEnabled(enabled);
-    	} else setEnabled(false);
-    	// setEnabled(browser.getState() == Browser.READY);
+    	setEnabled(browser.getState() == Browser.READY);
     }
     
-    /**
-     * Creates a new instance.
-     * 
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
-     */
-	public SwitchUserAction(TreeViewer model)
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param model Reference to the Model. Mustn't be <code>null</code>.
+	 * @param group The group the logged in user is a member of.
+	 */
+	public GroupSelectionAction(TreeViewer model, GroupData group)
 	{
 		super(model);
-		name = NAME;
-		putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
+		if (group == null)
+			throw new IllegalArgumentException("No group specified.");
+		this.group = group;
+		name = group.getName();
+		putValue(Action.NAME, name);
         IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.OWNER));
+        putValue(Action.SMALL_ICON, im.getIcon(IconManager.PERSONAL));
 	}
 	
-    /**
-     * Brings up the switch user dialog.
-     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-     */
-    public void actionPerformed(ActionEvent e) { model.retrieveUserGroups(); }
-    
+	/**
+	 * Returns <code>true</code> if the passed id corresponds to the group
+	 * hosted by this component, <code>false</code> otherwise.
+	 * 
+	 * @param groupID The id to check.
+	 * @return See above.
+	 */
+	public boolean isSameGroup(long groupID)
+	{
+		return group.getId() == groupID;
+	}
+	
+	/**
+	 * Sets the default group for the currently logged in user.
+	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+	 */
+    public void actionPerformed(ActionEvent e) { model.setUserGroup(group); }
+	
 }

@@ -90,10 +90,10 @@ public class UserManagerDialog
 	public static final String		NO_USER_SWITCH_PROPERTY = "noUserSwitch";
 	
 	/** The default size of the window. */
-	private static final Dimension	DEFAULT_SIZE = new Dimension(350, 400);
+	private static final Dimension	DEFAULT_SIZE = new Dimension(400, 400);
 	
 	/** The window's title. */
-	private static final String		TITLE = "Experimenter selection";
+	private static final String		TITLE = "Experimenter Selection";
 	
 	/** The window's description. */
 	private static final String		TEXT = "Select an experimenter.";
@@ -300,9 +300,9 @@ public class UserManagerDialog
 		JPanel content = new JPanel();
 		content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 		content.setLayout(new TableLayout(tl));
-		content.add( UIUtilities.setTextFont("Groups"), "0, 0, LEFT, TOP");
-		content.add(groups, "1, 0");
-		content.add(UIUtilities.setTextFont("Users"), "0, 2, LEFT, TOP");
+		//content.add( UIUtilities.setTextFont("Groups"), "0, 0, LEFT, TOP");
+		//content.add(groups, "1, 0");
+		content.add(UIUtilities.setTextFont("Experimenters "), "0, 2, LEFT, TOP");
 		content.add(new JScrollPane(users), "1, 2");
 		return content;
 	}

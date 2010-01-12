@@ -25,19 +25,14 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-
 //Third-party libraries
+import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
-import org.jdesktop.swingx.JXTaskPaneContainer;
-import org.jdesktop.swingx.VerticalLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -67,7 +62,7 @@ class UserUI
 	static final String TITLE = "Disk Space";
 
 	/** The title of the chart. */
-	private static final String TITLE_DETAILS = "User's details";
+	private static final String TITLE_DETAILS = "Personal details";
 	
 	/** The component displaying the user profile. */
 	private UserProfile 	profile;

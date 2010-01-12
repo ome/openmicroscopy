@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * List of methods to retrieve data using OMERO.
@@ -314,12 +315,14 @@ public interface OmeroDataService
 	 * Updates the specified experimenter.
 	 * 
 	 * @param exp	The experimenter to update.
+	 * @param group The group the user is member of.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	public ExperimenterData updateExperimenter(ExperimenterData exp)
+	public ExperimenterData updateExperimenter(ExperimenterData exp, GroupData
+			group)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

@@ -95,6 +95,16 @@ public class TreeViewerAgent
 								LookupNames.CURRENT_USER_DETAILS);
 	}
 	
+	/**
+	 * Returns the available user groups.
+	 * 
+	 * @return See above.
+	 */
+	public static Map getAvailableUserGroups()
+	{
+		return (Map) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+	}
+	
     /**
      * Handles the {@link CopyRndSettings} event.
      * 

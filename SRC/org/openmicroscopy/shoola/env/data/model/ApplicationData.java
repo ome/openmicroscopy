@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.env.data.model;
 
 
 //Java imports
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,7 @@ import javax.swing.ImageIcon;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.Parser;
+import org.openmicroscopy.shoola.util.image.io.IconReader;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
@@ -58,7 +60,7 @@ public class ApplicationData
 	public static final String LOCATION_MAC = "/Applications";
 	
 	/** The default location on <code>Windows</code> platform. */
-	public static final String LOCATION_WINDOWS = "/Applications";
+	public static final String LOCATION_WINDOWS = "C:\\Program Files";
 	
 	/** The default location <code>Linux</code> platform. */
 	public static final String LOCATION_LINUX = "/Applications";
@@ -84,7 +86,16 @@ public class ApplicationData
 	private static Icon convert(String path)
 	{
 		if (path == null) return null;
-		return new ImageIcon(path);
+		if (!path.endsWith("icns")) path += ".icns";
+		IconReader reader = new IconReader(path);
+		BufferedImage img = null;
+		try {
+			img = reader.decode(IconReader.ICON_16);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (img == null) return null;
+		return new ImageIcon(img);
 	}
 
 	/** Parses the file. */
@@ -96,6 +107,7 @@ public class ApplicationData
 			applicationIcon = convert((String) m.get(Parser.ICON_TAG_MAC));
 			applicationName = (String) m.get(Parser.NAME_TAG_MAC);
 		} catch (Exception e) {
+			e.printStackTrace();
 			applicationName = UIUtilities.removeFileExtension(
 					file.getAbsolutePath());
 			applicationIcon = null;
@@ -189,8 +201,17 @@ public class ApplicationData
 				list.add(executable);
 			else list.add("open");
 		}
-		
 		return list;
+	}
+	
+	/**
+	 * Overridden to return the name of the application.
+	 * @see ApplicationData#toString()
+	 */
+	public String toString()
+	{
+		if (applicationName == null) return "";
+		return applicationName;
 	}
 	
 }

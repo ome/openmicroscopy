@@ -60,7 +60,7 @@ import org.openmicroscopy.shoola.util.ui.login.ScreenLogo;
  * own thread &#151; this component's event handling happens within the
  * <i>Swing</i> dispatching thread instead.  In order to separate threading
  * issues from the actual component's functionality, we use Active Object: this
- * class palys the role of the Servant and a proxy ({@link SplashScreenProxy})
+ * class plays the role of the Servant and a proxy ({@link SplashScreenProxy})
  * is actually returned to clients &#151; by the {@link UIFactory}.</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -117,6 +117,7 @@ class SplashScreenManager
 			UserCredentials uc = new UserCredentials(lc.getUserName(), 
 					lc.getPassword(), lc.getHostName(), lc.getSpeedLevel());
 			uc.setPort(lc.getPort());
+			uc.setGroup(lc.getGroup());
 			userCredentials.set(uc);
 		} catch (Exception e) {
 			UserNotifier un = UIFactory.makeUserNotifier(container);
@@ -319,6 +320,7 @@ class SplashScreenManager
         if (view != null) view.setControlsEnabled(true);
     }
 
+    /** Fails to log in. */
     void onLoginFailure()
     {
     	 view.setControlsEnabled(true);
@@ -373,9 +375,10 @@ class SplashScreenManager
 			if (view != null) viewTop.setAlwaysOnTop(false);
 		}
 	}
+	
 	/**
-	 * Required by the {@link WindowFocusListener} I/F but no-op implementation
-	 * in our case.
+	 * Required by the {@link WindowFocusListener} I/F but no-operation
+	 * implementation in our case.
 	 * @see WindowFocusListener#windowGainedFocus(WindowEvent)
 	 */
 	public void windowGainedFocus(WindowEvent e) {}

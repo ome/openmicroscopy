@@ -99,6 +99,9 @@ public class ServerEditor
 	/** Separator used when storing various servers. */
     static final String			SERVER_PORT_SEPARATOR = ":";
     
+    /** Separator used when storing various servers. */
+    static final String			SERVER_NAME_SEPARATOR = ",";
+    
     /** The minimum port value. */
     static final int			MIN_PORT = 0;
     
@@ -117,9 +120,6 @@ public class ServerEditor
     
     /** The header of the table. */
     private static final String HEADER = "Server Address and Port";
-    
-    /** Separator used when storing various servers. */
-    private static final String	SERVER_NAME_SEPARATOR = ",";
 
     /** The property name for the host to connect to <i>OMERO</i>. */
     private static final String	OMERO_SERVER = "omeroServer";

@@ -34,6 +34,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -61,6 +62,8 @@ import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
+import org.openmicroscopy.shoola.util.StringComparator;
+
 import pojos.ExperimenterData;
 import pojos.ImageData;
 
@@ -122,7 +125,10 @@ public class TreeViewerFactory
 					break;
 				}
 			}
-			if (!registered) list.add(data);
+			if (!registered) {
+				list.add(data);
+				Collections.sort(list, singleton.comparator);
+			}
 		}
 	}
 
@@ -348,6 +354,9 @@ public class TreeViewerFactory
 	/** The external applications used to open file or images. */
 	private Map<String, List<ApplicationData>> applications;
 	
+	/** The comparator used to sort the applications. */
+	private StringComparator comparator;
+	
 	/** Creates a new instance. */
 	private TreeViewerFactory()
 	{
@@ -356,6 +365,7 @@ public class TreeViewerFactory
 		viewers = new HashSet<TreeViewer>();
 		isAttached = false;
 		windowMenu = new JMenu(MENU_NAME);
+		comparator = new StringComparator();
 	}
 
 	/**
@@ -430,6 +440,13 @@ public class TreeViewerFactory
 						}
 					}
 				}
+				
+				//sort out the list.
+				Iterator<String> k = applications.keySet().iterator();
+				while (k.hasNext()) {
+					list = applications.get(k.next());
+					Collections.sort(list, singleton.comparator);
+				}
 			} finally {
 				input.close();
 			}
@@ -441,6 +458,8 @@ public class TreeViewerFactory
 			TreeViewerAgent.getRegistry().getLogger().error(
 					TreeViewerFactory.class, msg);
 		}
+		
+		
 	}
 	
 	/**

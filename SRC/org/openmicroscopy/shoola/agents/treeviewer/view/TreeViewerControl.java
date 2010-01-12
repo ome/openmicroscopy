@@ -77,6 +77,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.DownloadAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.EditorAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ExitApplicationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FinderAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ImportAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ImporterVisibilityAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.InspectorVisibilityAction;
@@ -84,6 +85,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteRndSettingsAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.PersonalManagementAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshExperimenterData;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshTreeAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RemoveExperimenterNode;
@@ -109,6 +111,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ImportDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject;
 import org.openmicroscopy.shoola.agents.treeviewer.util.OpenWithDialog;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.finder.Finder;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
@@ -123,6 +126,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -302,6 +306,9 @@ class TreeViewerControl
 	/** Identifies the <code>View with Other</code> in the menu. */
 	static final Integer    VIEWER_WITH_OTHER = Integer.valueOf(56);
 	
+	/** Identifies the <code>View with Other</code> in the menu. */
+	static final Integer   PERSONAL = Integer.valueOf(57);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -420,6 +427,7 @@ class TreeViewerControl
 		actionsMap.put(IMPORT, new ImportAction(model));
 		actionsMap.put(DOWNLOAD, new DownloadAction(model));
 		actionsMap.put(VIEWER_WITH_OTHER, new ViewOtherAction(model, null));
+		actionsMap.put(PERSONAL, new PersonalManagementAction(model));
 	}
 
 	/** 
@@ -471,14 +479,14 @@ class TreeViewerControl
 
 			/** 
 			 * Required by I/F but not actually needed in our case, 
-			 * no-op implementation.
+			 * no-operation implementation.
 			 * @see MenuListener#menuCanceled(MenuEvent)
 			 */ 
 			public void menuCanceled(MenuEvent e) {}
 
 			/** 
 			 * Required by I/F but not actually needed in our case, 
-			 * no-op implementation.
+			 * no-operation implementation.
 			 * @see MenuListener#menuDeselected(MenuEvent)
 			 */ 
 			public void menuDeselected(MenuEvent e) {}
@@ -511,9 +519,7 @@ class TreeViewerControl
 
 		});
 	}
-	
-	
-	
+
 	/**
 	 * Creates a new instance.
 	 * The {@link #initialize(TreeViewerWin) initialize} method 
@@ -530,7 +536,7 @@ class TreeViewerControl
 		this.model = model;
 		actionsMap = new HashMap<Integer, TreeViewerAction>();
 	}
-
+	
 	/**
 	 * Links this Controller to its View.
 	 * 
@@ -578,7 +584,7 @@ class TreeViewerControl
 		}
 		return l;
 	}
-	
+
 	/**
 	 * Returns the {@link ChangeListener} attached to the tab pane,
 	 * or creates one if none initialized.
@@ -641,6 +647,27 @@ class TreeViewerControl
 	 */
 	TreeViewerAction getAction(Integer id) { return actionsMap.get(id); }
 
+	/**
+	 * Returns the list of group the user is a member of.
+	 * 
+	 * @return See above.
+	 */
+	List<GroupSelectionAction> getUserGroupAction()
+	{
+		List<GroupSelectionAction> l = new ArrayList<GroupSelectionAction>();
+		Map m = TreeViewerAgent.getAvailableUserGroups();
+		if (m == null || m.size() == 0) return l;
+		ViewerSorter sorter = new ViewerSorter();
+		Iterator i = sorter.sort(m.keySet()).iterator();
+		GroupData group;
+		GroupSelectionAction action;
+		while (i.hasNext()) {
+			group = (GroupData) i.next();
+			l.add(new GroupSelectionAction(model, group));
+		}
+		return l;
+	}
+	
 	/** Forwards call to the {@link TreeViewer}. */
 	void cancel() { model.cancel(); }
 	

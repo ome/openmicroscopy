@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
+import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
@@ -236,7 +237,7 @@ public class ImViewerAgent
     }
     
     /**
-     * Displays the passed rectangle if possible
+     * Displays the passed rectangle if possible.
      * 
      * @param evt The event to handle.
      */
@@ -247,6 +248,17 @@ public class ImViewerAgent
 				evt.getPixelsID());
     	if (viewer == null) return;
     	viewer.scrollToViewport(evt.getBounds());
+    }
+    
+    /**
+     * Removes all the references to the existing viewers.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleChangeUserGroupEvent(ChangeUserGroupEvent evt)
+    {
+    	if (evt == null) return;
+    	ImViewerFactory.changeUserGroup(evt.getGroupID());
     }
     
     /** Creates a new instance. */
@@ -280,6 +292,7 @@ public class ImViewerAgent
         bus.register(this, FocusGainedEvent.class);
         bus.register(this, RndSettingsCopied.class);
         bus.register(this, ImageViewport.class);
+        bus.register(this, ChangeUserGroupEvent.class);
     }
 
     /**
@@ -324,6 +337,8 @@ public class ImViewerAgent
 			handleRndSettingsCopiedEvent((RndSettingsCopied) e);
         else if (e instanceof ImageViewport)
 			handleImageViewportEvent((ImageViewport) e);
+        else if (e instanceof ChangeUserGroupEvent)
+			handleChangeUserGroupEvent((ChangeUserGroupEvent) e);
     }
 
 }

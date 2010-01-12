@@ -37,6 +37,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
+import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -135,6 +136,17 @@ public class DataBrowserAgent
     	DataBrowserFactory.setDataToCopy(evt.getType());
     }
     
+    /**
+     * Removes all the references to the existing viewers.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleChangeUserGroupEvent(ChangeUserGroupEvent evt)
+    {
+    	if (evt == null) return;
+    	DataBrowserFactory.changeUserGroup(evt.getGroupID());
+    }
+    
 	/** Creates a new instance. */
 	public DataBrowserAgent() {}
 	
@@ -161,6 +173,7 @@ public class DataBrowserAgent
         bus.register(this, RndSettingsCopied.class);
         bus.register(this, CopyRndSettings.class);
         bus.register(this, CopyItems.class);
+        bus.register(this, ChangeUserGroupEvent.class);
     }
     
     /**
@@ -190,6 +203,8 @@ public class DataBrowserAgent
 			handleCopyRndSettings((CopyRndSettings) e);
     	else if (e instanceof CopyItems)
 			handleCopyItems((CopyItems) e);
+    	else if (e instanceof ChangeUserGroupEvent)
+			handleChangeUserGroupEvent((ChangeUserGroupEvent) e);
     }
     
 }

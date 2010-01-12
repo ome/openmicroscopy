@@ -153,6 +153,22 @@ public class ImViewerFactory
 	}
 
 	/**
+	 * Discards all active viewers and cleans up the menu.
+	 * 
+	 * @param groupID The id of the group.
+	 */
+	public static void changeUserGroup(long groupID)
+	{
+		Iterator v = singleton.viewers.iterator();
+		ImViewerComponent comp;
+		while (v.hasNext()) {
+			comp = (ImViewerComponent) v.next();
+			comp.discard();
+		}
+		singleton.recentViewers.clear();
+	}
+	
+	/**
 	 * Returns a viewer to display the image corresponding to the specified id.
 	 * 
 	 * @param image  	The image or wellSample to view.

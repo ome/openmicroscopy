@@ -76,6 +76,9 @@ public class LoginCredentials
     /** The port used. */
     private int		port;
     
+    /** The selected group. */
+    private long	group;
+    
     /** 
      * Controls if the passed speed index is supported.
      * 
@@ -88,7 +91,6 @@ public class LoginCredentials
 			case MEDIUM:
 			case LOW:
 				return;
-	
 			default:
 				throw new IllegalArgumentException("Speed level not valid.");
 		}
@@ -98,7 +100,7 @@ public class LoginCredentials
      * Creates a new instance.
      * 
      * @param userName   The <i>OMERO</i> login name of the user.
-     *                   This is the <code>OME Name</code> that was assinged to 
+     *                   This is the <code>OME Name</code> that was assigned to 
      *                   the user when it was created in the DB.
      * @param password   The <i>OMERO</i> login password of the user.
      *                   This is the password that was chosen for the user when
@@ -112,13 +114,43 @@ public class LoginCredentials
     public LoginCredentials(String userName, String password, String hostName,
     						int speedLevel, int port)
     {
+    	this(userName, password, hostName, speedLevel, port, -1L);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param userName   The <i>OMERO</i> login name of the user.
+     *                   This is the <code>OME Name</code> that was assigned to 
+     *                   the user when it was created in the DB.
+     * @param password   The <i>OMERO</i> login password of the user.
+     *                   This is the password that was chosen for the user when
+     *                   it was created in the DB.
+     * @param hostName 	 The name of the selected server.
+     * @param speedLevel The connection speed.
+     * @param port		 The port used.
+     * @param group      The group the user is member of.
+     * @throws IllegalArgumentException If the user name and/or the password is
+     *                 <code>null</code> or has <code>0</code>-length.
+     */
+    public LoginCredentials(String userName, String password, String hostName,
+    						int speedLevel, int port, long group)
+    {
     	checkSpeedLevel(speedLevel);
     	this.speedLevel = speedLevel;
         this.userName = userName;
         this.password = password;
         this.hostName = hostName;
         this.port = port;
+        this.group = group;
     }
+    
+    /** 
+     * Returns the group.
+     * 
+     * @return See above.
+     */
+    public long getGroup() { return group; }
     
     /**
      * Returns the name of the <i>OMERO</i> server.
@@ -129,7 +161,7 @@ public class LoginCredentials
     
     /**
      * Returns the <i>OMERO</i> login name of the user.
-     * This is the <code>OME Name</code> that was assinged to the user when
+     * This is the <code>OME Name</code> that was assigned to the user when
      * it was created in the DB.
      * This field is always a non-<code>null</code> string with a positive
      * length.
@@ -162,8 +194,7 @@ public class LoginCredentials
      * @return See above.
      */
     public int getPort() { return port; }
-    
-    
+
     /**
      * Formats user name and password.
      * Each character of the password is replaced by a star.

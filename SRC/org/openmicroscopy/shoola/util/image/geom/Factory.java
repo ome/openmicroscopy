@@ -859,4 +859,21 @@ public class Factory
     	return null;
     }
     
+    /**
+     * Creates a buffered image.
+     * 
+     * @param width The width of the image.
+     * @param height The height of the image.
+     * @param pixels The data to use.
+     * @return See above.
+     */
+    public static BufferedImage create(int width, int height, int[] pixels)
+    {
+    	if (pixels == null) return null;
+    	BufferedImage image = new BufferedImage(width, height, 
+    			BufferedImage.TYPE_INT_ARGB);
+    	image.setRGB(0, 0, width, height, pixels, 0, width);
+    	return image;
+    }
+    
 }

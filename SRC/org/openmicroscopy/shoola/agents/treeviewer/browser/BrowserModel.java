@@ -46,7 +46,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterImageLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterImagesCounter;
 import org.openmicroscopy.shoola.agents.treeviewer.FilesChecker;
 import org.openmicroscopy.shoola.agents.treeviewer.ImageDataLoader;
-import org.openmicroscopy.shoola.agents.treeviewer.PlateMeasurementLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.agents.treeviewer.ScreenPlateLoader;
@@ -91,7 +90,7 @@ class BrowserModel
     /** Holds one of the state flags defined by {@link Browser}. */
     private int                 	state;
      
-    /** The point where the mouse clicked event occured. */
+    /** The point where the mouse clicked event occurred. */
     private Point               	clickPoint;
     
     /** 

@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 
 /** 
@@ -371,9 +372,10 @@ public class NullOmeroPojoService
 
 	/**
      * No-op implementation
-     * @see OmeroDataService#updateExperimenter(ExperimenterData)
+     * @see OmeroDataService#updateExperimenter(ExperimenterData, GroupData)
      */
-	public ExperimenterData updateExperimenter(ExperimenterData exp) 
+	public ExperimenterData updateExperimenter(ExperimenterData exp, GroupData
+			group) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

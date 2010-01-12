@@ -1651,13 +1651,14 @@ class OMEROGateway
 	 * @param hostName  		The name of the server.
 	 * @param compressionLevel  The compression level used for images and 
 	 * 							thumbnails depending on the connection speed.
+	 * @param groupID			The id of the group or <code>-1</code>.
 	 * @return The user's details.
 	 * @throws DSOutOfServiceException If the connection can't be established
 	 *                                  or the credentials are invalid.
 	 * @see #getUserDetails(String)
 	 */
 	ExperimenterData login(String userName, String password, String hostName,
-							float compressionLevel)
+							float compressionLevel, long groupID)
 		throws DSOutOfServiceException
 	{
 		try {
@@ -1669,7 +1670,21 @@ class OMEROGateway
 			blitzClient.getProperties().setProperty("Ice.Override.Timeout", 
 					""+5000);
 			connected = true;
-			return getUserDetails(userName);
+			ExperimenterData exp = getUserDetails(userName);
+			if (groupID >= 0) {
+				long defaultID = exp.getDefaultGroup().getId();
+				if (defaultID == groupID) return exp;
+				try {
+					changeDefaultGroup(exp, groupID);
+					exp = getUserDetails(userName);
+				} catch (Exception e) {
+					connected = false;
+					String s = "Can't connect to OMERO. Group not valid.\n\n";
+					throw new DSOutOfServiceException(s, e);
+				}
+				
+			}
+			return exp;
 		} catch (Throwable e) {
 			connected = false;
 			String s = "Can't connect to OMERO. OMERO info not valid.\n\n";
@@ -1679,9 +1694,45 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Changes the default group of the currently logged in user.
+	 * 
+	 * @param exp The experimenter to handle
+	 * @param groupID The id of the group.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in.
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	void changeDefaultGroup(ExperimenterData exp, long groupID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		List<GroupData> groups = exp.getGroups();
+		Iterator<GroupData> i = groups.iterator();
+		GroupData group = null;
+		boolean in = false;
+		while (i.hasNext()) {
+			group = i.next();
+			if (group.getId() == groupID) {
+				in = true;
+				break;
+			}
+		}
+		String s = "Can't modify the current group.\n\n";
+		if (!in) {
+			throw new DSOutOfServiceException(s);  
+		}
+		try {
+			getAdminService().setDefaultGroup(exp.asExperimenter(), 
+					group.asGroup());
+		} catch (Exception e) {
+			handleException(e, s);
+		}
+		
+	}
+	
+	/**
 	 * Returns the version of the server.
 	 * 
-	 * @return
+	 * @return See above.
 	 */
 	String getServerVersion()
 		throws DSOutOfServiceException
@@ -1887,14 +1938,15 @@ class OMEROGateway
 				Set<ScreenAcquisitionData> list;
 				Set<PlateData> plates;
 				Iterator<PlateData> j;
+				Set<ScreenAcquisitionData> acquisitions;
 				while (i.hasNext()) {
 					object = i.next();
 					if (object instanceof ScreenData) {
 						screen = (ScreenData) object;
 						list = new HashSet<ScreenAcquisitionData>();
-						ScreenAcquisitionI sai = new ScreenAcquisitionI(1, true);
-			        	list.add(new ScreenAcquisitionData(sai));
-						list.addAll(screen.getScreenAcquisitions());
+						acquisitions = screen.getScreenAcquisitions();
+						if (acquisitions != null) 
+							list.addAll(acquisitions);
 						plates = screen.getPlates();
 						if (list != null && list.size() > 0) {
 							if (plates != null && plates.size() > 0) {

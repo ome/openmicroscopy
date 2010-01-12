@@ -79,6 +79,9 @@ public class UserCredentials
     /** The value of the port. */
     private int 	port;
     
+    /** The selected group or <code>-1</code>. */
+    private long 	group;
+    
     /** 
      * Controls if the passed speed index is supported.
      * 
@@ -126,7 +129,22 @@ public class UserCredentials
         this.password = password;
         this.hostName = hostName;
         port = -1;
+        group = -1L;
     }
+    
+    /**
+     * Sets the group.
+     * 
+     * @param group The value to set.
+     */
+    public void setGroup(long group) { this.group = group; }
+    
+    /**
+     * Returns the group or <code>-1</code>.
+     * 
+     * @return See above.
+     */
+    public long getGroup() { return group; }
     
     /**
      * Sets the port.

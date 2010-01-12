@@ -29,24 +29,37 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 //Java imports
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Point;
+import java.util.Iterator;
+import java.util.List;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.border.BevelBorder;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.jdesktop.swingx.JXBusyLabel;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.PersonalManagementAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.ExperimenterData;
 
 /** 
  * The tool bar of {@link TreeViewer}.
@@ -83,6 +96,9 @@ class ToolBar
     /** The import bar. */
     private JToolBar			importBar;
     
+    /** The menu displaying the groups the user is a member of. */
+    private JPopupMenu			personalMenu;
+
     /** Initializes the components. */
     private void initComponents()
     {
@@ -92,6 +108,18 @@ class ToolBar
     	importLabel.setHorizontalTextPosition(JXBusyLabel.LEFT);
     }
     
+    /**
+     * Sets the defaults of the specified menu item.
+     * 
+     * @param item The menu item.
+     */
+    private void initMenuItem(JMenuItem item)
+    {
+        item.setBorder(null);
+        item.setFont((Font) 
+                TreeViewerAgent.getRegistry().lookup(
+                        "/resources/fonts/Labels"));
+    }
     /**
      * Helper method to create the tool bar hosting the management items.
      * 
@@ -118,25 +146,24 @@ class ToolBar
         b = new JButton(controller.getAction(TreeViewerControl.REFRESH_TREE));
         UIUtilities.unifiedButtonLookAndFeel(b);
         //bar.add(b);
+        
         bar.add(new JSeparator(JSeparator.VERTICAL));
-        TreeViewerAction a = controller.getAction(TreeViewerControl.MANAGER);
+        b = new JButton(controller.getAction(TreeViewerControl.SWITCH_USER));
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        if (model.isMultiUser()) bar.add(b);
+        TreeViewerAction a = controller.getAction(TreeViewerControl.PERSONAL);
+        b = new JButton(a);
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        b.addMouseListener((PersonalManagementAction) a);
+        bar.add(b);
+        bar.add(new JSeparator(JSeparator.VERTICAL));
+        a = controller.getAction(TreeViewerControl.MANAGER);
         b = new JButton(a);
         UIUtilities.unifiedButtonLookAndFeel(b);
         b.addMouseListener((ManagerAction) a);
         bar.add(b);
-        a = controller.getAction(TreeViewerControl.NEW_OBJECT);
-        b = new JButton(a);
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        b.addMouseListener((NewObjectAction) a);
-        //bar.add(b);
-        a = controller.getAction(TreeViewerControl.NEW_TAG_OBJECT);
-        b = new JButton(a);
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        b.addMouseListener((NewObjectAction) a);
-        //bar.add(b);
-        b = new JButton(controller.getAction(TreeViewerControl.SWITCH_USER));
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        if (model.isMultiUser())  bar.add(b);
+        
+        
         b = new JButton(controller.getAction(
         		TreeViewerControl.EDITOR_NO_SELECTION));
         UIUtilities.unifiedButtonLookAndFeel(b);
@@ -254,7 +281,7 @@ class ToolBar
      * Brings up the <code>ManagePopupMenu</code>on top of the specified
      * component at the specified location.
      * 
-     * @param c The component that requested the popup menu.
+     * @param c The component that requested the pop-up menu.
      * @param p The point at which to display the menu, relative to the
      *            <code>component</code>'s coordinates.
      */
@@ -262,7 +289,6 @@ class ToolBar
     {
     	if (p == null) return;
         if (c == null) throw new IllegalArgumentException("No component.");
-        //if (p == null) throw new IllegalArgumentException("No point.");
         ManagePopupMenu managePopupMenu = new ManagePopupMenu(controller);
         managePopupMenu.show(c, p.x, p.y);
     }
@@ -271,7 +297,44 @@ class ToolBar
      * Brings up the <code>ManagePopupMenu</code>on top of the specified
      * component at the specified location.
      * 
-     * @param c 	The component that requested the popup menu.
+     * @param c The component that requested the po-pup menu.
+     * @param p The point at which to display the menu, relative to the
+     *            <code>component</code>'s coordinates.
+     */
+    void showPersonalMenu(Component c, Point p)
+    {
+    	if (p == null) return;
+        if (c == null) throw new IllegalArgumentException("No component.");
+        //if (p == null) throw new IllegalArgumentException("No point.");
+        if (personalMenu == null) {
+        	personalMenu = new JPopupMenu();
+        	personalMenu.setBorder(
+        			BorderFactory.createBevelBorder(BevelBorder.RAISED));
+        	List<GroupSelectionAction> l = controller.getUserGroupAction();
+        	Iterator<GroupSelectionAction> i = l.iterator();
+        	GroupSelectionAction a;
+        	JCheckBoxMenuItem item;
+        	ButtonGroup buttonGroup = new ButtonGroup();
+        	ExperimenterData exp = TreeViewerAgent.getUserDetails();
+        	long id = exp.getDefaultGroup().getId();
+        	while (i.hasNext()) {
+				a = i.next();
+				item = new JCheckBoxMenuItem(a);
+				item.setEnabled(true);
+				item.setSelected(a.isSameGroup(id));
+				initMenuItem(item);
+				buttonGroup.add(item);
+				personalMenu.add(item);
+			}
+        }
+        personalMenu.show(c, p.x, p.y);
+    }
+    
+    /**
+     * Brings up the <code>ManagePopupMenu</code>on top of the specified
+     * component at the specified location.
+     * 
+     * @param c 	The component that requested the pop-up menu.
      * @param p 	The point at which to display the menu, relative to the
      *            	<code>component</code>'s coordinates.
      * @param index The index of the menu.

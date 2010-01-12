@@ -41,7 +41,6 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
-
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
@@ -52,7 +51,6 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
-import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -189,8 +187,8 @@ class EditorComponent
 	public void setRootObject(Object refObject)
 	{
 		if (refObject == null)
-			throw new IllegalArgumentException("Root object not valid.");
-		if (model.isSameObject(refObject)) return;
+			throw new IllegalArgumentException("Root object not valid.");	
+		//if (model.isSameObject(refObject)) return;
 		model.setRootObject(refObject);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		view.setRootObject();

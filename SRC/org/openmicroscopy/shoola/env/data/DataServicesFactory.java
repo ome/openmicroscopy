@@ -353,7 +353,8 @@ public class DataServicesFactory
                 									uc.getPassword(),
                                                     uc.getHostName(),
                                                     determineCompression(
-                                                    	uc.getSpeedLevel()));
+                                                    	uc.getSpeedLevel()),
+                                                    uc.getGroup());
         
         Object v = container.getRegistry().lookup(LookupNames.VERSION);
     	String clientVersion = "";

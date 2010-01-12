@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 
 
@@ -159,12 +160,15 @@ public interface TreeViewer
 
 	/** Identifies the <code>Partial popUp menu</code> menu. */
 	public static final int         PARTIAL_POP_UP_MENU = 2;
-	
+
 	/** Identifies the <code>Create popUp menu</code> menu. */
 	public static final int         CREATE_MENU_CONTAINERS = 3;
 
 	/** Identifies the <code>Create popUp menu</code> menu. */
 	public static final int         CREATE_MENU_TAGS = 4;
+	
+	/** Identifies the <code>Personal</code> menu. */
+	public static final int         PERSONAL_MENU = 5;
 	
 	/** Identifies the <code>Copy and Paste</code> action. */
 	public static final int         COPY_AND_PASTE = 400;
@@ -873,5 +877,13 @@ public interface TreeViewer
 	 * @param data The application to use to open the file.
 	 */
 	void openWith(ApplicationData data);
+
+	/**
+	 * Sets the default group for the currently selected user and updates the 
+	 * view.
+	 * 
+	 * @param group The group to set.
+	 */
+	void setUserGroup(GroupData group);
 	
 }

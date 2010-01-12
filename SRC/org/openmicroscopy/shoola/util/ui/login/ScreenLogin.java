@@ -38,7 +38,10 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
 import javax.swing.BorderFactory;
@@ -46,6 +49,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -59,24 +63,24 @@ import javax.swing.event.DocumentListener;
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
-
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.StringComparator;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
-* The login frame.
-*
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-* <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
-* <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
-* @version 3.0
-* <small>
-* (<b>Internal version:</b> $Revision: $Date: $)
-* </small>
-* @since OME3.0
-*/
+ * The login frame.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
+ * </small>
+ * @since OME3.0
+ */
 public class ScreenLogin 
 	extends JFrame
 	implements ActionListener, DocumentListener, PropertyChangeListener
@@ -116,6 +120,9 @@ public class ScreenLogin
 	private static final String  	OMERO_CONNECTION_SPEED = 
 													"omeroConnectionSpeed";
 	
+	/** The property name for the user who connects to <i>OMERO</i>. */
+	private static final String  	OMERO_USER_GROUP = "omeroUserGroup";
+	
 	/** The size of the font for the version. */
 	private static final float		VERSION_FONT_SIZE = 14;
 
@@ -128,6 +135,9 @@ public class ScreenLogin
 	/** The login text. */
 	private static final String		TEXT_LOGIN = "Log In";
 
+	/** The group name text. */
+	private static final String		GROUP_TEXT = "Group: ";
+	
 	/** The user name text. */
 	private static final String		USER_TEXT = "Username: ";
 
@@ -182,6 +192,12 @@ public class ScreenLogin
 	/** The default foreground color. */
 	private Color				defaultForeground;
 	
+	/** The groups the user is a member of. */
+	private JComboBox			groupsBox;
+	
+	/** The groups the user is member of. */
+	private Map<String, Long>	groups;
+	
 	/** Quits the application. */
 	private void quit()
 	{
@@ -207,8 +223,16 @@ public class ScreenLogin
 		if (usr != null) usr = usr.trim();
 		if (s != null) s = s.trim();
 		setControlsEnabled(false);
-		LoginCredentials lc = new LoginCredentials(usr, psw, s, speedIndex, 
-				selectedPort);
+		LoginCredentials lc;
+		if (groupsBox == null) {
+			lc = new LoginCredentials(usr, psw, s, speedIndex, 
+					selectedPort);
+		} else {
+			String value = (String) groupsBox.getSelectedItem();
+			long id = groups.get(value);
+			lc = new LoginCredentials(usr, psw, s, speedIndex, 
+					selectedPort, id);
+		}
 		setUserName(usr);
 		setControlsEnabled(false);
 		firePropertyChange(LOGIN_PROPERTY, null, lc);
@@ -373,6 +397,21 @@ public class ScreenLogin
 		serverTextPane = UIUtilities.buildComponentPanelRight(serverText, 
 				false);
 		serverTextPane.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
+		
+		groups = getGroups();
+		if (groups == null || groups.size() <= 1) return;
+		
+		String[] values = new String[groups.size()];
+		Iterator<String> i = groups.keySet().iterator();
+		int index = 0;
+		while (i.hasNext()) {
+			values[index] = i.next();
+			index++;
+		}
+		String selected = values[values.length-1];
+		Arrays.sort(values, new StringComparator());
+		groupsBox = new JComboBox(values);
+		groupsBox.setSelectedItem(selected);
 	}
 	
 	/**
@@ -394,12 +433,21 @@ public class ScreenLogin
 				{TableLayout.PREFERRED, 
 				TableLayout.PREFERRED, TableLayout.PREFERRED}};
 		TableLayout layout = new TableLayout(size);
-		
 		mainPanel.setLayout(layout);
-		JTextPane pleaseLogIn = UIUtilities.buildTextPane(TEXT_LOGIN, 
-				TEXT_COLOR);
-		Font f = pleaseLogIn.getFont();
-		pleaseLogIn.setFont(f.deriveFont(Font.BOLD, TEXT_FONT_SIZE));
+		Font f;
+		JTextPane l;
+		if (groupsBox == null) {
+			JTextPane pleaseLogIn = UIUtilities.buildTextPane(TEXT_LOGIN, 
+					TEXT_COLOR);
+			f = pleaseLogIn.getFont();
+			pleaseLogIn.setFont(f.deriveFont(Font.BOLD, TEXT_FONT_SIZE));
+			mainPanel.add(pleaseLogIn, "0, 0, LEFT, CENTER");
+		} else {
+			l = UIUtilities.buildTextPane(GROUP_TEXT, TEXT_COLOR);
+			
+			mainPanel.add(l, "0, 0, LEFT, CENTER");
+			mainPanel.add(groupsBox, "1, 0, 2, 0");
+		}
 		
 		versionInfo = UIUtilities.buildTextPane(version, TEXT_COLOR);
 		f = versionInfo.getFont();
@@ -411,13 +459,15 @@ public class ScreenLogin
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 		p.add(serverTextPane);
 		p.add(connectionSpeedText);
-		mainPanel.add(pleaseLogIn, "0, 0, LEFT, CENTER");
+		
+		
+		//mainPanel.add(comp, "0, 0, LEFT, CENTER");
 		mainPanel.add(UIUtilities.buildComponentPanelRight(p, 0, 0, false), 
 				"0, 0, 4, 0");
 		mainPanel.add(configButton, "5, 0, CENTER, TOP");
 		
 		//second row
-		JTextPane l = UIUtilities.buildTextPane(USER_TEXT, TEXT_COLOR);
+		l = UIUtilities.buildTextPane(USER_TEXT, TEXT_COLOR);
 		
 		mainPanel.add(l, "0, 1, LEFT, CENTER");
 		mainPanel.add(user, "1, 1, 2, 1");
@@ -623,6 +673,46 @@ public class ScreenLogin
 		return prefs.get(OMERO_USER, null);
 	}
 
+	/**
+	 * Returns the possible groups.
+	 * 
+	 * @return See above.
+	 */
+	private Map<String, Long> getGroups()
+	{
+		Map<String, Long> groups = new LinkedHashMap<String, Long>();
+		groups.put("AM Test2", 2L);
+		//groups.put("JM Test", 1L);
+		
+		Preferences prefs = Preferences.userNodeForPackage(ScreenLogin.class);
+		String list = prefs.get(OMERO_USER_GROUP, null);
+		if (list == null || list.length() == 0)  return groups;
+		String[] l = list.split(ServerEditor.SERVER_NAME_SEPARATOR, 0);
+        
+        if (l == null) return groups;
+        int index;
+        String group;
+        String name;
+        long id;
+        String[] values;
+        for (index = 0; index < l.length; index++) {
+        	group = l[index].trim();
+        	if (group.length() > 0) {
+        		values = group.split(ServerEditor.SERVER_PORT_SEPARATOR, 0);
+        		if (values.length > 1) {
+        			name = values[0];
+        			try {
+						id = Long.parseLong(values[1]);
+						groups.put(name, id);
+					} catch (Exception e) {
+						//ignore: not possible to read the group
+					}
+        		}
+        	}
+        }	
+		return groups;
+	}
+	
 	/** 
 	 * Sets the default for the window. 
 	 * 
@@ -796,7 +886,7 @@ public class ScreenLogin
 	}
 
 	/** 
-	 * Sets the focus on the username field if no user name entered
+	 * Sets the focus on the user name field if no user name entered
 	 * otherwise, sets the focus on the password field.
 	 */
 	public void requestFocusOnField()

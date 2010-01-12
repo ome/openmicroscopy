@@ -114,7 +114,7 @@ public class AdminLoader
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                result = os.updateExperimenter(exp);
+                result = os.updateExperimenter(exp, null);
             }
         };
     }

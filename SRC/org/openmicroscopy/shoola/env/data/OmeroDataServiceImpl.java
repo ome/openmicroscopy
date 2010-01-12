@@ -78,6 +78,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -803,7 +804,7 @@ class OmeroDataServiceImpl
 		if (object == null) 
 			throw new DSAccessException("No object to update.");
 		if (object instanceof ExperimenterData) 
-			return updateExperimenter((ExperimenterData) object);
+			return updateExperimenter((ExperimenterData) object, null);
 		IObject ho = null;
 		IObject oldObject = null;
 		oldObject = object.asIObject();
@@ -961,9 +962,10 @@ class OmeroDataServiceImpl
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#updateExperimenter(ExperimenterData)
+	 * @see OmeroDataService#updateExperimenter(ExperimenterData, GroupData)
 	 */
-	public ExperimenterData updateExperimenter(ExperimenterData exp) 
+	public ExperimenterData updateExperimenter(ExperimenterData exp, GroupData 
+			group) 
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		//ADD control
@@ -972,10 +974,10 @@ class OmeroDataServiceImpl
 		UserCredentials uc = (UserCredentials) 
 		context.lookup(LookupNames.USER_CREDENTIALS);
 		gateway.updateExperimenter(exp.asExperimenter());
+		if (group != null) {
+			gateway.changeDefaultGroup(exp, group.getId());
+		}
 		//oldObject.setOmeName(uc.getUserName());
-		//DEfault group issue.
-		//TODO invoke server when method is updated server side.
-		//PojoMapper.asDataObject(updated);
 		ExperimenterData data = gateway.getUserDetails(uc.getUserName());
 		context.bind(LookupNames.CURRENT_USER_DETAILS, exp);
 //		Bind user details to all agents' registry.

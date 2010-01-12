@@ -360,7 +360,7 @@ public class UserNotifierImpl
 				}
 			}
 			*/
-			data = new ApplicationData("");
+			if (data == null) data = new ApplicationData("");
 			List<String> l = data.getArguments();
 			Iterator<String> i = l.iterator();
 			int index = 0;

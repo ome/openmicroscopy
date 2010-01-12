@@ -1454,5 +1454,17 @@ class BrowserComponent
 			}
 		}
 	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#removeTreeNodes(List)
+	 */
+	public void reActivate()
+	{
+		view.reActivate();
+		if (!model.isSelected()) return;
+		//Reload data.
+		view.loadExperimenterData();
+	}
 	
 }

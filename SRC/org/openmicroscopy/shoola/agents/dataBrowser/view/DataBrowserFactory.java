@@ -291,6 +291,27 @@ public class DataBrowserFactory
 	}
 	
 	/**
+	 * Discards all active viewers and cleans up the menu.
+	 * 
+	 * @param groupID The id of the group.
+	 */
+	public static final void changeUserGroup(long groupID)
+	{
+		singleton.dataToCopy = null;
+		Iterator v = singleton.browsers.entrySet().iterator();
+		DataBrowserComponent comp;
+		Entry entry;
+		while (v.hasNext()) {
+			entry = (Entry) v.next();
+			comp = (DataBrowserComponent) entry.getValue();
+			comp.discard();
+		}
+		singleton.browsers.clear();
+		singleton.discardedBrowsers.clear();
+		singleton.searchBrowser = null;
+	}
+	
+	/**
 	 * Returns <code>true</code> if there are rendering settings to copy,
 	 * <code>false</code> otherwise.
 	 * 
@@ -423,9 +444,9 @@ public class DataBrowserFactory
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
 		comp.initialize();
-		String key;
+		StringBuffer buffer = new StringBuffer();
 		if (parent == null) {
-			key = DatasetData.class.toString();
+			buffer.append(DatasetData.class.toString());
 			Iterator<DatasetData> i = datasets.iterator();
 			List<Long> ids = new ArrayList<Long>();
 			while (i.hasNext()) {
@@ -433,11 +454,12 @@ public class DataBrowserFactory
 			}
 			sortNodes(ids);
 			Iterator<Long> j = ids.iterator();
+			
 			while (j.hasNext()) {
-				key += ""+(Long) j.next();
+				buffer.append(""+(Long) j.next());
 			}
-		} else key = parent.toString()+parent.getId();
-		browsers.put(key, comp);
+		} else buffer.append(parent.toString()+parent.getId());
+		browsers.put(buffer.toString(), comp);
 		return comp;
 	}
 	

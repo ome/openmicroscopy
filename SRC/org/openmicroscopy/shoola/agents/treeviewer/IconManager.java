@@ -389,11 +389,17 @@ public class IconManager
     /** The 48x48 <code>Application</code> icon. */
     public static final int           APPLICATION_48 = 111;
     
+    /** The 12x12 <code>Personal</code> icon. */
+    public static final int          PERSONAL = 112;
+    
+    /** The 48x48 <code>Personal</code> icon. */
+    public static final int          PERSONAL_48 = 112;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 111;
+    private static final int          MAX_ID = 112;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -514,6 +520,8 @@ public class IconManager
         relPaths[DOWNLOAD_48] = "nuvola_download_manager48.png";
         relPaths[DOWNLOAD_22] = "nuvola_download_manager22.png";
         relPaths[APPLICATION_48] = "nuvola_download_manager48.png";
+        relPaths[PERSONAL] = "nuvola_personal16.png";
+        relPaths[PERSONAL_48] = "nuvola_personal16.png";
     }
     
     /** The sole instance. */

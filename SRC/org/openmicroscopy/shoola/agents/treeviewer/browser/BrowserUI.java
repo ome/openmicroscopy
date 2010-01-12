@@ -68,6 +68,7 @@ import javax.swing.tree.TreeSelectionModel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserManageAction;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
@@ -1540,6 +1541,16 @@ class BrowserUI
 		tm.reload();
 	}
 
+	void reActivate()
+	{
+		TreeImageDisplay root = getTreeRoot();
+		root.removeAllChildren();
+		root.removeAllChildrenDisplay();
+		createExperimenterNode(TreeViewerAgent.getUserDetails());
+		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+		tm.reload();
+	}
+	
 	/**
 	 * Returns the node hosting the logged in user.
 	 * 

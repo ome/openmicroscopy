@@ -48,6 +48,7 @@ import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
@@ -76,7 +77,7 @@ import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
  * The {@link TreeViewer}'s View. Embeds the different <code>Browser</code>'s UI
  * to display the various visualization trees. Also provides a menu bar
  * and a working pane. After creation this window will display an empty panel as
- * a placeholder for the working pane UI.
+ * a place holder for the working pane UI.
  * 
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk </a>
@@ -87,7 +88,7 @@ import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 class TreeViewerWin
 	extends TopWindow
 {
-    
+
 	/** Identifies the <code>JXTaskPane</code> layout. */
 	static final String			JXTASKPANE_TYPE = "JXTaskPane";
 	
@@ -151,11 +152,14 @@ class TreeViewerWin
 	/** The first selected pane. */
     private JXTaskPane 			firstPane;
     
+    /** The component hosting the task panes. */
     private JXTaskPaneContainerSingle 	container;
    
     /**
-     * Returns <code>true</code>
-     * @return
+     * Returns <code>true</code> if the Screening data are displayed first,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
      */
     private boolean isSPWFirst()
     {
@@ -689,7 +693,7 @@ class TreeViewerWin
      * the specified location.
      * 
      * @param menuID    The id of the menu.
-     * @param c         The component that requested the popup menu.
+     * @param c         The component that requested the pop-up menu.
      * @param p         The point at which to display the menu, relative to the
      *                  <code>component</code>'s coordinates.
      */
@@ -703,6 +707,8 @@ class TreeViewerWin
             case TreeViewer.CREATE_MENU_TAGS:
                 toolBar.showCreateMenu(c, p, menuID);
                 break;
+            case TreeViewer.PERSONAL_MENU:
+            	toolBar.showPersonalMenu(c, p);
         }  
     }
     

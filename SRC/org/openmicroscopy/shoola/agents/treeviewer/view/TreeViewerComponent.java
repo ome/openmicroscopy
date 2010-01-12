@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
@@ -80,6 +81,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
@@ -88,6 +90,7 @@ import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -97,6 +100,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -1118,6 +1122,7 @@ class TreeViewerComponent
 			case MANAGER_MENU:
 			case CREATE_MENU_CONTAINERS:  
 			case CREATE_MENU_TAGS:  
+			case PERSONAL_MENU:
 				break;
 			default:
 				throw new IllegalArgumentException("Menu not supported.");
@@ -1274,7 +1279,7 @@ class TreeViewerComponent
 		if (model.getState() == DISCARDED)
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
-		displayUserGroups(model.getAvailableUserGroups());
+		displayUserGroups(TreeViewerAgent.getAvailableUserGroups());
 	}
 
 	/**
@@ -2620,6 +2625,49 @@ class TreeViewerComponent
 				ApplicationData.getDefaultLocation(), name);
 		dialog.addPropertyChangeListener(controller);
 		UIUtilities.centerAndShow(dialog);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setUserGroup(GroupData)
+	 */
+	public void setUserGroup(GroupData group)
+	{
+		if (model.getState() != READY) return;
+		if (group == null) return;
+		ExperimenterData exp = TreeViewerAgent.getUserDetails();
+		//if (group.getId() == exp.getDefaultGroup().getId()) return;
+		IconManager icons = IconManager.getInstance();
+		MessageBox box = new MessageBox(view, "Group change", "Changing group" +
+				" will remove data currently displayed.\nDo you" +
+				" want to continue?");
+		if (box.centerMsgBox() == MessageBox.NO_OPTION) return;
+		Registry reg = TreeViewerAgent.getRegistry();
+		try {
+			//reg.getDataService().updateExperimenter(exp, group);
+		} catch (Exception e) {
+			LogMessage msg = new LogMessage();
+	        msg.print("Cannot modify current group.");
+	        msg.print(e);
+			reg.getLogger().error(this, msg);
+			UserNotifier un = reg.getUserNotifier();
+			un.notifyInfo("Group change", "Cannot modify current group.");
+			return;
+		}
+		reg.getEventBus().post(new ChangeUserGroupEvent(group.getId()));
+		Map browsers = model.getBrowsers();
+		Entry entry;
+		Browser browser;
+		Iterator i = browsers.entrySet().iterator();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			browser = (Browser) entry.getValue();
+			browser.reActivate();
+		}
+		model.setDataViewer(null);
+		//Change default group
+		//load Data
+		System.err.println(group.getId()+" "+exp.getDefaultGroup().getId());
 	}
 	
 }
