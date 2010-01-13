@@ -50,6 +50,7 @@ import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenAcquisitionData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
@@ -124,6 +125,8 @@ public class TreeCellRenderer
         	if (EditorUtil.isAnnotated(usrObject))
         		icon = icons.getIcon(IconManager.PLATE_ANNOTATED);
         	else icon = icons.getIcon(IconManager.PLATE);
+        } else if (usrObject instanceof ScreenAcquisitionData) {
+        	icon = icons.getIcon(IconManager.PLATE_ACQUISITION);
         } else if (usrObject instanceof FileAnnotationData) {
         	FileAnnotationData data = (FileAnnotationData) usrObject;
         	String format = data.getFileFormat();

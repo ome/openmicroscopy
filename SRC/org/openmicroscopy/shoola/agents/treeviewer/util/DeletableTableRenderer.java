@@ -83,6 +83,8 @@ class DeletableTableRenderer
 			setIcon(icons.getIcon(IconManager.PROJECT));
 		else if (DeletableTableNode.PLATE_TYPE.equals(type)) 
 			setIcon(icons.getIcon(IconManager.PLATE));
+		else if (DeletableTableNode.PLATE_TYPE.equals(type)) 
+			setIcon(icons.getIcon(IconManager.PLATE_ACQUISITION));
 		else if (DeletableTableNode.SCREEN_TYPE.equals(type)) 
 			setIcon(icons.getIcon(IconManager.SCREEN));
 		else if (DeletableTableNode.FILE_TYPE.equals(type)) 

@@ -27,12 +27,14 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.io.File;
-
+import java.util.List;
 import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.ScreenAcquisition;
+
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
@@ -48,6 +50,7 @@ import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenAcquisitionData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
@@ -144,7 +147,6 @@ public class BrowseContainerAction
         Object ho = selectedDisplay.getUserObject();
         Browser browser = model.getSelectedBrowser();
         if (selectedDisplay instanceof TreeImageTimeSet) {
-        	
             putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER));
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_TIME));
@@ -187,6 +189,10 @@ public class BrowseContainerAction
                         UIUtilities.formatToolTipText(DESCRIPTION_FOLDER));
             	setEnabled(true);
         	}
+        } else if (ho instanceof ScreenAcquisitionData) {
+        	setEnabled(true);
+        	putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_PLATE));
         } else if (!(ho instanceof DataObject)) {
         	putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_DEFAULT));
@@ -214,10 +220,10 @@ public class BrowseContainerAction
         	
             if (selectedDisplay instanceof TreeImageSet) {
             	long n = ((TreeImageSet) selectedDisplay).getNumberItems();
-            	
             	if (ho instanceof ScreenData) setEnabled(false);
                 else if (ho instanceof PlateData) {
-                	setEnabled(true);
+                	List l = selectedDisplay.getChildrenDisplay();
+                	setEnabled((l == null || l.size() == 0));
                 	description = DESCRIPTION_PLATE;
                 } else if (ho instanceof ProjectData) {
                 	description = DESCRIPTION_PROJECT;
