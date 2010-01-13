@@ -946,7 +946,7 @@ class ImViewerComponent
 			def = model.getLastMainDef();
 			if (def != null) stop = model.isSameSettings(def);
 		}
-		if (stop) return;
+		//if (stop) return;
 		if (index == PROJECTION_INDEX) {
 			previewProjection();
 			fireStateChange();
