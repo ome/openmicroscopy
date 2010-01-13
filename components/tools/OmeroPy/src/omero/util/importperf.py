@@ -38,6 +38,7 @@ Generate performance metrics from an OMERO.importer log file.
 
 Options:
   --series_report     Print a CSV report for each import's series I/O
+  --help              Display this help and exit
 
 Examples:
   %s importer.log
@@ -56,6 +57,7 @@ class Import(object):
 
     def __init__(self, start, name):
         self.start = start
+        self.end = None
         self.name = name
         self.setid_start = start
         self.setid_end = None
@@ -72,6 +74,7 @@ class Series(object):
 
     def __init__(self, start):
         self.start = start
+        self.end = None
         self.planes = []
 
 class Plane(object):
@@ -128,6 +131,8 @@ class ImporterLog(object):
             name = message[message.find(':') + 2:]
             self.last_import = Import(date_time, name)
             self.imports.append(self.last_import)
+        elif not hasattr(self, 'last_import') or self.last_import is None:
+            return
         elif message.startswith('LOADED_IMAGE'):
             self.last_import.setid_end = date_time
         elif message.startswith('BEGIN_POST_PROCESS'):
@@ -144,6 +149,7 @@ class ImporterLog(object):
             self.last_import.thumbnailing_start = date_time
         elif message.startswith('IMPORT_DONE'):
             self.last_import.end = date_time
+            self.last_import = None
         elif message.startswith('DATASET_STORED'):
             self.last_series = Series(date_time)
             self.last_import.series.append(self.last_series)
@@ -152,33 +158,39 @@ class ImporterLog(object):
         elif message.startswith('IMPORT_STEP'):
             self.last_series.planes.append(Plane(date_time))
 
+    def elapsed(self, start, end):
+        if start is not None and end is not None:
+            return str((end - start).seconds) + "sec"
+        return 'Unknown'
+
     def report(self):
         """
         Prints a simple report to STDOUT stating timings for the overall
         import and Bio-Formats setId().
         """
         for import_n, i in enumerate(self.imports):
-            elapsed = (i.end - i.start).seconds
-            print "Import(%s) %d start: %s end: %s elapsed: %ssec" % \
+            elapsed = self.elapsed(i.start, i.end)
+            print "Import(%s) %d start: %s end: %s elapsed: %s" % \
                     (i.name, import_n, i.start, i.end, elapsed)
-            elapsed = (i.setid_end - i.setid_start).seconds
-            print "setId() start: %s end: %s elapsed: %ssec" % \
+            elapsed = self.elapsed(i.setid_start, i.setid_end)
+            print "setId() start: %s end: %s elapsed: %s" % \
                     (i.setid_start, i.setid_end, elapsed)
-            elapsed = (i.post_process_end - i.post_process_start).seconds
-            print "Post process start: %s end: %s elapsed: %ssec" % \
+            elapsed = self.elapsed(i.post_process_start, i.post_process_end)
+            print "Post process start: %s end: %s elapsed: %s" % \
                     (i.post_process_start, i.post_process_end, elapsed)
-            elapsed = (i.save_to_db_end - i.save_to_db_start).seconds
-            print "Save to DB start: %s end: %s elapsed: %ssec" % \
+            elapsed = self.elapsed(i.save_to_db_start, i.save_to_db_end)
+            print "Save to DB start: %s end: %s elapsed: %s" % \
                     (i.save_to_db_start, i.save_to_db_end, elapsed)
-            elapsed = (i.series[-1].end - i.series[0].start).seconds
-            print "Image I/O start: %s end: %s elapsed: %ssec" % \
-                    (i.series[0].start, i.series[-1].end, elapsed)
-            elapsed = (i.thumbnailing_start - i.overlays_start).seconds
-            print "Overlays start: %s end: %s elapsed: %ssec" % \
-                    (i.overlays_start, i.thumbnailing_start, elapsed)
-            elapsed = (i.end - i.thumbnailing_start).seconds
-            print "Thumbnailing start: %s end: %s elapsed: %ssec" % \
-                    (i.thumbnailing_start, i.end, elapsed)
+            if len(i.series) > 0:
+                elapsed = self.elapsed(i.series[0].start, i.series[-1].end)
+                print "Image I/O start: %s end: %s elapsed: %s" % \
+                        (i.series[0].start, i.series[-1].end, elapsed)
+                elapsed = self.elapsed(i.overlays_start, i.thumbnailing_start)
+                print "Overlays start: %s end: %s elapsed: %s" % \
+                        (i.overlays_start, i.thumbnailing_start, elapsed)
+                elapsed = self.elapsed(i.thumbnailing_start, i.end)
+                print "Thumbnailing start: %s end: %s elapsed: %s" % \
+                        (i.thumbnailing_start, i.end, elapsed)
 
     def series_report_csv(self):
         """
@@ -189,6 +201,8 @@ class ImporterLog(object):
                         'series_elapsed'])
         for import_n, i in enumerate(self.imports):
             for series_n, series in enumerate(i.series):
+                if series.start is None or series.end is None:
+                    continue
                 elapsed = (series.end - series.start).seconds
                 values = [import_n, series_n, series.start, series.end,
                           elapsed * 1000]
@@ -196,7 +210,7 @@ class ImporterLog(object):
 
 if __name__ == "__main__":
     try:
-        options, args = getopt(sys.argv[1:], "", ['series_report'])
+        options, args = getopt(sys.argv[1:], "", ['series_report', 'help'])
     except GetoptError, (msg, opt):
         usage(msg)
 
@@ -208,9 +222,11 @@ if __name__ == "__main__":
 
     do_default_report = True
     for option, argument in options:
+        if option == '--help':
+            usage('')
         if option == '--series_report':
-                do_default_report = False
-                log.series_report_csv()
+            do_default_report = False
+            log.series_report_csv()
 
     if do_default_report:
         log.report()
