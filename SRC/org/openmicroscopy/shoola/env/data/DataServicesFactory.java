@@ -28,10 +28,12 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -50,6 +52,8 @@ import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
+
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -127,7 +131,7 @@ public class DataServicesFactory
 	 * 
 	 * @param file	Absolute pathname to the file.
 	 * @return	The content of the file as a property object or
-	 * 			<code>null</code> if an error occured.
+	 * 			<code>null</code> if an error occurred.
 	 */
 	private static Properties loadConfig(String file)
 	{
@@ -456,6 +460,28 @@ public class DataServicesFactory
     /** Shuts down the connection. */
 	public void shutdown()
     { 
+		//Need to write the current group.
+		Map groups = (Map) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+		if (groups != null) {
+			ExperimenterData exp = (ExperimenterData) 
+			registry.lookup(LookupNames.CURRENT_USER_DETAILS);
+			GroupData group = exp.getDefaultGroup();	
+			Entry entry;
+			Iterator i = groups.entrySet().iterator();
+			GroupData g;
+			Map<Long, String> names = new LinkedHashMap<Long, String>();
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				g = (GroupData) entry.getKey();
+				if (g.getId() != group.getId()) {
+					names.put(g.getId(), g.getName());
+				}
+			}
+			names.put(group.getId(), group.getName());
+			ScreenLogin.registerGroup(names);
+		}
+		
+		
 		CacheServiceFactory.shutdown(container);
         ((OmeroImageServiceImpl) is).shutDown();
         omeroGateway.logout(); 

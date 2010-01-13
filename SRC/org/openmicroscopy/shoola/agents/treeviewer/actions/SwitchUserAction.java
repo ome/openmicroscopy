@@ -28,6 +28,7 @@ import java.awt.event.ActionEvent;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.swing.Action;
@@ -83,12 +84,12 @@ public class SwitchUserAction
     		GroupData group;
     		boolean enabled = false;
     		Entry entry;
-    		List list;
+    		Set list;
     		while (i.hasNext()) {
     			entry = (Entry) i.next();
     			group = (GroupData) entry.getKey();
 				if (group.getId() == exp.getDefaultGroup().getId()) {
-					list  = (List) entry.getValue();
+					list  = (Set) entry.getValue();
 					enabled = list.size() > 1;
 					break;
 				}

@@ -39,10 +39,11 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -196,7 +197,7 @@ public class ScreenLogin
 	private JComboBox			groupsBox;
 	
 	/** The groups the user is member of. */
-	private Map<String, Long>	groups;
+	private Map<Long, String>	groups;
 	
 	/** Quits the application. */
 	private void quit()
@@ -229,7 +230,15 @@ public class ScreenLogin
 					selectedPort);
 		} else {
 			String value = (String) groupsBox.getSelectedItem();
-			long id = groups.get(value);
+			long id = -1L;
+			Entry entry;
+			Iterator i = groups.entrySet().iterator();
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				if (entry.getValue().equals(value)) {
+					id = (Long) entry.getKey();
+				}
+			}
 			lc = new LoginCredentials(usr, psw, s, speedIndex, 
 					selectedPort, id);
 		}
@@ -402,18 +411,21 @@ public class ScreenLogin
 		if (groups == null || groups.size() <= 1) return;
 		
 		String[] values = new String[groups.size()];
-		Iterator<String> i = groups.keySet().iterator();
+		Entry entry;
+		Iterator i = groups.entrySet().iterator();
 		int index = 0;
 		while (i.hasNext()) {
-			values[index] = i.next();
+			entry = (Entry) i.next();
+			values[index] = (String) entry.getValue();
 			index++;
 		}
+
 		String selected = values[values.length-1];
 		Arrays.sort(values, new StringComparator());
 		groupsBox = new JComboBox(values);
 		groupsBox.setSelectedItem(selected);
 	}
-	
+
 	/**
 	 * Builds the UI component hosting the buttons.
 	 * 
@@ -678,11 +690,11 @@ public class ScreenLogin
 	 * 
 	 * @return See above.
 	 */
-	private Map<String, Long> getGroups()
+	private Map<Long, String> getGroups()
 	{
-		Map<String, Long> groups = new LinkedHashMap<String, Long>();
-		groups.put("AM Test2", 2L);
-		//groups.put("JM Test", 1L);
+		Map<Long, String> groups = new LinkedHashMap<Long, String>();
+		//groups.put(1L, "AM Test2");
+		//groups.put(2L, "JM Test");
 		
 		Preferences prefs = Preferences.userNodeForPackage(ScreenLogin.class);
 		String list = prefs.get(OMERO_USER_GROUP, null);
@@ -700,10 +712,10 @@ public class ScreenLogin
         	if (group.length() > 0) {
         		values = group.split(ServerEditor.SERVER_PORT_SEPARATOR, 0);
         		if (values.length > 1) {
-        			name = values[0];
+        			name = values[1];
         			try {
-						id = Long.parseLong(values[1]);
-						groups.put(name, id);
+						id = Long.parseLong(values[0]);
+						groups.put(id, name);
 					} catch (Exception e) {
 						//ignore: not possible to read the group
 					}
@@ -713,6 +725,7 @@ public class ScreenLogin
 		return groups;
 	}
 	
+	//public void registerGroup(Map<Str>)
 	/** 
 	 * Sets the default for the window. 
 	 * 
@@ -931,6 +944,41 @@ public class ScreenLogin
 	public void setQuitButtonMnemonic(int mnemonic)
 	{
 		cancel.setMnemonic(mnemonic);
+	}
+	
+	/**
+	 * Registers the passed groups.
+	 * 
+	 * @param groups The groups to register.
+	 */
+	public static void registerGroup(Map<Long, String> groups)
+	{
+		if (groups == null) return;
+		Entry entry;
+		String name;
+
+		Iterator i = groups.entrySet().iterator();
+		int n = groups.size()-1;
+		int index = 0;
+		String list = "";
+		String value;
+		Long id;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			id = (Long) entry.getKey();
+			list += ""+id;
+			list += ServerEditor.SERVER_PORT_SEPARATOR;
+			if (entry.getValue() != null)
+				list += (String) entry.getValue();
+			if (index != n)  list += ServerEditor.SERVER_NAME_SEPARATOR;
+			index++;
+		}
+		if (list.length() != 0) {
+			Preferences prefs = 
+				Preferences.userNodeForPackage(ScreenLogin.class);
+			prefs.put(OMERO_USER_GROUP, list);
+		}
+		
 	}
 	
 	/**
