@@ -122,7 +122,7 @@ public class ThumbnailSetLoader
     }
     
     /** 
-     * Computes the maximum number of thumbnails fetched 
+     * Computes the maximum number of thumbnails to fetch 
      * depending on the initial value and the speed of the connection.
      */
     private void computeFetchSize()

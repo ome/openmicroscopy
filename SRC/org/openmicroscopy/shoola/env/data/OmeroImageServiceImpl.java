@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java import
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -281,6 +282,7 @@ class OmeroImageServiceImpl
 			PlaneDef pDef = new PlaneDef();
 			pDef.slice = omero.romio.XY.value;
 			BufferedImage img;
+			Dimension d;
 			while (j.hasNext()) {
 				id = (Long) j.next();
 				rnd = PixelsServicesFactory.getRenderingControl(context, id, 
@@ -289,8 +291,12 @@ class OmeroImageServiceImpl
 				else {
 					pDef.t = rnd.getDefaultT();
 					pDef.z = rnd.getDefaultZ();
+					//Bug here
+					d = Factory.computeThumbnailSize(max, max, 
+	        				rnd.getPixelsDimensionsX(), 
+	        				rnd.getPixelsDimensionsY());
 					img = Factory.scaleBufferedImage(rnd.renderPlane(pDef),
-							max, max);
+							d.width, d.height);
 					r.put(id, img);
 				}
 			}
@@ -309,6 +315,7 @@ class OmeroImageServiceImpl
 					r.put(id, null);
 				else {
 					try {
+						img = createImage(values);
 						r.put(id, createImage(values));
 					} catch (Exception e) {
 						r.put(id, null);

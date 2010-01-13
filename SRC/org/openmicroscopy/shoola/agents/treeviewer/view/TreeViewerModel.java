@@ -1081,7 +1081,6 @@ class TreeViewerModel
 	{
 		getDataViewer().reloadThumbnails(ids);
 	}
-
 	
 	/** 
 	 * Returns the MIME type to the passed object.
