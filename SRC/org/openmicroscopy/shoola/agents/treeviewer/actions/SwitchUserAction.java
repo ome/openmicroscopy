@@ -26,11 +26,9 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
 import javax.swing.Action;
 
 //Third-party libraries
@@ -41,9 +39,9 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.ExperimenterData;
 import pojos.GroupData;
+import pojos.PermissionData;
 
 /** 
  * Action to bring up the Switch user dialog.
@@ -85,12 +83,16 @@ public class SwitchUserAction
     		boolean enabled = false;
     		Entry entry;
     		Set list;
+    		PermissionData permissions;
     		while (i.hasNext()) {
     			entry = (Entry) i.next();
     			group = (GroupData) entry.getKey();
 				if (group.getId() == exp.getDefaultGroup().getId()) {
-					list  = (Set) entry.getValue();
-					enabled = list.size() > 1;
+					permissions = group.getPermissions();
+					if (permissions.isGroupRead()) {
+						list  = (Set) entry.getValue();
+						enabled = list.size() > 1;
+					}
 					break;
 				}
 			}

@@ -41,8 +41,6 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.model.ScreenAcquisitionI;
-
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageNode;
