@@ -1878,20 +1878,27 @@ class OMEROGateway
 		ParametersI param = new ParametersI();
 		param.addLong("pid", plate.getId());
 		IQueryPrx svc = getQueryService();
-		IObject r;
 		try {
+			List<IObject> r;
+			sb = new StringBuffer();
+			sb.append("select distinct l.parent " +
+					"from ScreenAcquisitionWellSampleLink as l");
+			sb.append(" where l.child.well.plate.id = :pid");
+			r = svc.findAllByQuery(sb.toString(), param);
+			List<Long> ids = new ArrayList<Long>();
+			Iterator<IObject> j = r.iterator();
+			while (j.hasNext()) {
+				ids.add(j.next().getId().getValue());
+			}
+			long plateID = plate.getId();
 			while (i.hasNext()) {
 				sa = i.next();
-				sb = new StringBuffer();
-				sb.append("select l from ScreenAcquisitionWellSampleLink as l");
-				sb.append(" where l.child.well.plate.id = :pid");
-				r = svc.findByQuery(sb.toString(), param);
-				if (r != null) {
-					sa.setRefPlateId(plate.getId());
+				if (ids.contains(sa.getId())) {
+					sa.setRefPlateId(plateID);
 					l.add(sa);
-					break;
 				}
 			}
+
 			set.removeAll(l);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -4331,23 +4338,27 @@ class OMEROGateway
             sb.append("where well.plate.id = :plateID");
             
 			if (acquisitionID > 0) {
-				results = findLinks(ScreenAcquisitionData.class, 
-						acquisitionID, userID);
 				//Get the id of the well samples.
 				List<Long> ids = new ArrayList<Long>();
-				i = results.iterator();
+				//i = results.iterator();
 				ScreenAcquisitionWellSampleLink link;
 				IObject child;
+				StringBuilder sb2 = new StringBuilder();
+				sb2.append("select distinct l " +
+				"from ScreenAcquisitionWellSampleLink as l");
+				sb2.append(" where l.parent.id = :said");
+				ParametersI p = new ParametersI();
+				p.addLong("said", acquisitionID);
+				results = service.findAllByQuery(sb2.toString(), p);
+				i = results.iterator();
 				while (i.hasNext()) {
 					link = (ScreenAcquisitionWellSampleLink) i.next();
 					child = link.getChild();
-					if (child != null) {
-						ids.add(child.getId().getValue());
-					}
+					if (child != null) ids.add(child.getId().getValue());
 				}
 				if (ids.size() == 0) return wells;
-				param.addLongs("ids", ids);
-				sb.append(" and ws.id in (:ids)");
+				param.addLongs("wsids", ids);
+				sb.append(" and ws.id in (:wsids)");
 			}
             results = service.findAllByQuery(sb.toString(), param);
 

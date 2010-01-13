@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 import pojos.PlateData;
 import pojos.ScreenAcquisitionData;
 
@@ -124,7 +125,8 @@ public class PlateWellsLoader
 	 */
     public void load()
     {
-    	handle = dmView.loadPlateWells(ids, -1, this);
+    	ExperimenterData exp = TreeViewerAgent.getUserDetails();
+    	handle = dmView.loadPlateWells(ids, exp.getId(), this);
     }
 
     /**

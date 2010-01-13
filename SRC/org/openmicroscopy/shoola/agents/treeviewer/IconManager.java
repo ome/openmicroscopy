@@ -395,6 +395,9 @@ public class IconManager
     /** The 48x48 <code>Personal</code> icon. */
     public static final int          PERSONAL_48 = 112;
     
+    /** The <code>Plate Acquisition</code> icon. */
+    public static final int           PLATE_ACQUISITION = 113;
+
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
@@ -522,6 +525,7 @@ public class IconManager
         relPaths[APPLICATION_48] = "nuvola_download_manager48.png";
         relPaths[PERSONAL] = "nuvola_personal16.png";
         relPaths[PERSONAL_48] = "nuvola_personal16.png";
+        relPaths[PLATE_ACQUISITION] = "plateAcquisition16.png";
     }
     
     /** The sole instance. */

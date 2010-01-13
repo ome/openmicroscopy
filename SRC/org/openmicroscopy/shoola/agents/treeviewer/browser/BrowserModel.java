@@ -60,6 +60,7 @@ import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenAcquisitionData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
@@ -653,7 +654,7 @@ class BrowserModel
 	{ 
 		if (node == null) return;
 		Object object = node.getUserObject();
-		if ((object instanceof ImageData) || (object instanceof PlateData)) {
+		//if ((object instanceof ImageData) || (object instanceof PlateData)) {
 			/*
 			ImageData image = (ImageData) node.getUserObject();
 			TreeImageDisplay pNode = node.getParentDisplay();
@@ -679,8 +680,13 @@ class BrowserModel
 	    	evt.setContext(pObject, gpObject);
 			TreeViewerAgent.getRegistry().getEventBus().post(evt);
 			*/
+			//parent.browse(node, true);
+		//}
+		if (object instanceof ImageData) parent.browse(node, true);
+		else if (object instanceof PlateData) {
+			if (!node.hasChildrenDisplay()) parent.browse(node, true);
+		} else if (object instanceof ScreenAcquisitionData)
 			parent.browse(node, true);
-		}
 	}
 	
 	/**

@@ -189,6 +189,10 @@ public class BrowseContainerAction
                         UIUtilities.formatToolTipText(DESCRIPTION_FOLDER));
             	setEnabled(true);
         	}
+        } else if (ho instanceof ScreenAcquisitionData) {
+        	setEnabled(true);
+        	putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_PLATE));
         } else if (!(ho instanceof DataObject)) {
         	putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_DEFAULT));
