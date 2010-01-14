@@ -220,6 +220,8 @@ module omero {
                  * by getImageMeasurements.
                  **/
                 omero::grid::Table* getTable(long annotationId) throws omero::ServerError;
+                
+                void uploadMask(long roiId, int z, int t, Ice::ByteSeq bytes) throws omero::ServerError;
 
             };
 

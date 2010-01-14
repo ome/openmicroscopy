@@ -7,13 +7,32 @@
 
 package ome.services.blitz.impl;
 
+import java.awt.Color;
+import java.awt.Point;
+import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import javax.imageio.ImageIO;
+
+import ome.api.IQuery;
+import ome.api.IUpdate;
+import ome.model.IObject;
 import ome.model.core.OriginalFile;
 import ome.parameters.Filter;
 import ome.services.blitz.util.BlitzExecutor;
@@ -24,8 +43,10 @@ import ome.services.throttling.Adapter;
 import ome.services.util.Executor.SimpleWork;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.QueryBuilder;
+import ome.util.Filterable;
 import omero.InternalException;
 import omero.ServerError;
+import omero.rtypes;
 import omero.api.AMD_IRoi_findByAnyIntersection;
 import omero.api.AMD_IRoi_findByImage;
 import omero.api.AMD_IRoi_findByIntersection;
@@ -39,10 +60,14 @@ import omero.api.AMD_IRoi_getRoiStats;
 import omero.api.AMD_IRoi_getShapeStats;
 import omero.api.AMD_IRoi_getShapeStatsList;
 import omero.api.AMD_IRoi_getTable;
+import omero.api.AMD_IRoi_uploadMask;
+import omero.api.IQueryPrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
 import omero.api._IRoiOperations;
 import omero.constants.namespaces.NSMEASUREMENT;
+import omero.model.Mask;
+import omero.model.MaskI;
 import omero.model.OriginalFileI;
 import omero.model.Roi;
 import omero.model.Shape;
@@ -67,6 +92,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
     protected ServiceFactoryI factory;
 
     protected final GeomTool geomTool;
+    
 
     public RoiI(BlitzExecutor be, GeomTool geomTool) {
         super(null, be);
@@ -400,6 +426,158 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
         }));
     }
 
+    class MaskClass
+    {
+    	Set<Point> points;
+    	int colour;
+    	Point min, max;
+    	int width;
+		int height;
+	 
+    	MaskClass(int value)
+    	{
+    		points = new HashSet<Point>();
+    		colour = value;
+    	}
+    	
+    	public Color getColour()
+    	{
+    		return new Color(colour);
+    	}
+    	
+    	
+    	public byte[] asBytes() throws IOException
+    	{
+    	   		
+    		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+    		DataOutputStream outputStream = new DataOutputStream(byteStream);
+   			for(int x = min.x ; x < max.x + 1 ; x++)
+			{
+   				for(int y = min.y ; y < max.y + 1 ; y++)
+   				{
+     				if(points.contains(new Point(x,y)))
+    					outputStream.writeInt(colour);
+    				else
+						outputStream.writeInt(0);
+    			}
+    		}
+    		outputStream.close();
+    		return byteStream.toByteArray();
+    	}
+    	
+    	public void add(Point p)
+    	{
+    		if(points.size()==0)
+    		{
+    			min = new Point(p);
+    			max = new Point(p);
+    		}
+    		else
+    		{
+    			min.x = Math.min(p.x, min.x);
+    			min.y = Math.min(p.y, min.y);
+    			max.x = Math.max(p.x, max.x);
+    			max.y = Math.max(p.y, max.y);
+    		}
+   			width = max.x-min.x+1;
+			height = max.y-min.y+1;
+    		points.add(p);
+    	}
+    	
+    	public ome.model.roi.Mask asMaskI(int z, int t) throws IOException
+    	{
+    		ome.model.roi.Mask mask = new ome.model.roi.Mask();
+    		mask.setX((double)min.x);
+    		mask.setY((double)min.y);
+    		mask.setWidth((double)width);
+    		mask.setHeight((double)height);
+    		mask.setLocked(true);
+    		mask.setTheT(t);
+    		mask.setTheZ(z);
+    		byte[] theseBytes;
+    		theseBytes = this.asBytes();
+    		mask.setBytes(theseBytes);
+    		return mask;
+    	}
+    	
+    }
+    
+    @SuppressWarnings("unchecked")
+    private <T extends IObject> T safeReverse(Object o, IceMapper mapper) {
+        try {
+            return (T) mapper.reverse(o);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to safely reverse: " + o);
+        }
+    }
+    
+	public void uploadMask_async(final AMD_IRoi_uploadMask __cb,
+			final long imageId, final int z, final int t, final byte[] bytes,
+			final Current __current) throws ServerError
+	{
+
+		final IceMapper mapper = new IceMapper(IceMapper.VOID);
+
+		runnableCall(__current, new Adapter(__cb, __current, mapper, factory
+				.getExecutor(), factory.principal, new SimpleWork(this,
+				"uploadMask", bytes)
+		{
+
+			@Transactional(readOnly = false)
+			public Object doWork(Session session, ServiceFactory sf)
+			{
+				IUpdate update = sf.getUpdateService();
+				
+				ome.model.core.Image image;
+				ome.model.roi.Roi roi;
+				ByteArrayInputStream s = new ByteArrayInputStream(bytes);
+				IQuery query = sf.getQueryService();
+				IObject o =  query.findByQuery("from Image as i left outer join " +
+						"fetch i.pixels as p where i.id = "+imageId, null);
+				
+				try
+				{
+					image = (ome.model.core.Image) o;
+					BufferedImage inputImage = ImageIO.read(s);
+					Map<Integer, MaskClass> map = new HashMap<Integer, MaskClass>();
+					MaskClass mask;
+					int value;
+					for (int x = 0; x < inputImage.getWidth(); x++)
+						for (int y = 0; y < inputImage.getHeight(); y++)
+						{
+							value = inputImage.getRGB(x, y);
+							if(value==Color.black.getRGB())
+								continue;
+							if (!map.containsKey(value))
+							{
+								mask = new MaskClass(value);
+								map.put(value, mask);
+							}
+							else
+								mask = map.get(value);
+							mask.add(new Point(x, y));
+						}
+					Iterator<Integer> maskIterator = map.keySet().iterator();
+					while (maskIterator.hasNext())
+					{
+						int colour = maskIterator.next();
+						mask = map.get(colour);
+						roi = new ome.model.roi.Roi();
+						roi.setImage(image);
+						ome.model.roi.Mask  toSaveMask = mask.asMaskI(z, t);
+						roi.addShape(toSaveMask);
+						ome.model.roi.Roi newROI  = update.saveAndReturnObject(roi);
+					}
+					return null;
+				} catch (Exception e)
+				{
+					__cb.ice_exception(e);
+				}
+				return null;
+			}
+		}));
+	}
+    
     // Helpers
     // =========================================================================
 
