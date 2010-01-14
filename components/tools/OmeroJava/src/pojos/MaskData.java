@@ -25,6 +25,9 @@ package pojos;
 //Java imports
 import java.awt.image.BufferedImage;
 import java.awt.Color;
+import java.io.DataInputStream;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 
 //Third-party libraries
@@ -250,27 +253,26 @@ public class MaskData
 	 */
 	public BufferedImage getMask()
 	{
-/*		Mask shape = (Mask) asIObject();
-		Byte[] data = shape.getBytes();
+		Mask shape = (Mask) asIObject();
+		byte[] data = shape.getBytes();
 		if(data == null) return null;
 		double width = getWidth();
 		if(width==0) return null;
 		double height = getHeight();
 		if(height==0) return null;
-		BufferedImage bufferedImage = new BufferedImage((int)width, (int)height, BufferedImage.TYPE_INT_ARGB);
-		int bx, by;
-		byte val;
-     	for(int x = 0 ; x < (int)width ; x++)
+		BufferedImage bufferedImage = new BufferedImage((int)width, (int)height, 
+										BufferedImage.TYPE_INT_ARGB);
+		ByteBuffer stream = ByteBuffer.wrap(data);
+		int colourValue;
+		for(int x = 0 ; x < (int)width ; x++)
+		{
 			for(int y = 0 ; y < (int)height ; y++)
 			{
-				bx = x % 8 + 1;
-				by = y * (int)height;
-				byte byteval = (byte)(data[by] & bx);
-				if(byteval==1)
-					bufferedImage.setRGB(x, y, Color.white.getRGB());
+				colourValue = stream.getInt();
+				bufferedImage.setRGB(x, y, colourValue);
 			}
-		return bufferedImage;*/
-		return null;
+		}
+		return bufferedImage;
 	}
 
 	
