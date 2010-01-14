@@ -384,9 +384,9 @@ class InputServerStrategy
 		double width = data.getWidth();
 		double height = data.getHeight();
 		BufferedImage mask = data.getMask();
-		
 		MeasureMaskFigure fig = new MeasureMaskFigure(x, y, width, 
 				height, mask, data.isReadOnly(), data.isClientObject());
+		fig.setVisible(true);
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
 		AffineTransform transform;
@@ -395,9 +395,8 @@ class InputServerStrategy
 			TRANSFORM.set(fig, transform);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			// e.printStackTrace();
+			//e.printStackTrace();
 		}
-		
 		return fig;
 	}
 	

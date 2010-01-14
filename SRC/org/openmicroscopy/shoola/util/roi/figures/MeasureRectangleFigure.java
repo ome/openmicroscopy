@@ -72,13 +72,13 @@ public class MeasureRectangleFigure
 	implements ROIFigure
 {
 	/** Is this figure read only. */
-	private boolean readOnly;
+	protected boolean readOnly;
 	
 	/** Is this figure a client object. */
-	private boolean clientObject;
+	protected boolean clientObject;
 
 	/** has the figure been modified. */
-	private boolean dirty;
+	protected boolean dirty;
 	
 	/**
     * This is used to perform faster drawing and hit testing.
@@ -92,13 +92,13 @@ public class MeasureRectangleFigure
 	protected 	ROIShape 			shape;
 	
 	/** The Measurement units, and values of the image. */
-	private MeasurementUnits 		units;
+	protected MeasurementUnits 		units;
 	   
 	/** 
 	 * The status of the figure i.e. {@link ROIFigure#IDLE} or 
 	 * {@link ROIFigure#MOVING}. 
 	 */
-	private int 					status;
+	protected int 					status;
 	
     /** Creates a new instance. */
     public MeasureRectangleFigure() 

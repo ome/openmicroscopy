@@ -71,42 +71,14 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.figures.RectangleTextFigur
  * @since 3.0-Beta4
  */
 public class MeasureMaskFigure 
-	extends RectangleTextFigure
+	extends MeasureRectangleFigure
 	implements ROIFigure
 {
 	
-	/** Is this figure read only. */
-	private boolean readOnly;
-	
-	/** Is this figure a client object. */
-	private boolean clientObject;
-	
-	/** has the figure been modified. */
-	private boolean dirty;
-	
-	/**
-	 * This is used to perform faster drawing and hit testing.
-	 */
-	protected	Rectangle2D 		bounds;
-	
-	/** The ROI containing the ROIFigure which in turn contains this Figure. */
-	protected 	ROI					roi;
-
-	/** The ROIFigure contains this Figure. */
-	protected 	ROIShape 			shape;
-	
-	/** The Measurement units, and values of the image. */
-	private MeasurementUnits 		units;
 	
 	/** The BufferedImage of the Mask. */
-	private BufferedImage 			mask;
+	protected BufferedImage 			mask;
 	
-	/** 
-	 * The status of the figure i.e. {@link ROIFigure#IDLE} or 
-	 * {@link ROIFigure#MOVING}. 
-	 */
-	private int 					status;
-
     /** Creates a new instance. */
     public MeasureMaskFigure() 
     {
@@ -164,17 +136,8 @@ public class MeasureMaskFigure
     public MeasureMaskFigure(String text, double x, double y, double width, 
     	double height, BufferedImage mask, boolean readOnly, boolean clientObject) 
     {
-		super(text, x, y, width, height);
+		super(text, x, y, width, height, readOnly, clientObject);
 		this.mask = mask;
-		setAttributeEnabled(MeasurementAttributes.HEIGHT, true);
-		setAttributeEnabled(MeasurementAttributes.WIDTH, true);
-		setAttribute(MeasurementAttributes.WIDTH, width);
-		setAttribute(MeasurementAttributes.HEIGHT, height);
-        shape = null;
-		roi = null;
-		status = IDLE;
-		setReadOnly(readOnly);
-		setClientObject(clientObject);
     }
     
     /**
@@ -195,302 +158,14 @@ public class MeasureMaskFigure
     	return this.mask;
     }
     
-    /** 
-     * Get the X Coord of the figure, convert to microns if isInMicrons set. 
-     * 
-     * @return see above.
-     */
-    public double getMeasurementX() 
-    {
-    	if (units.isInMicrons()) return getX()*units.getMicronsPixelX();
-    	return getX();
-    }
-    
-    /** 
-     * Get the Y Coord of the figure, convert to microns if isInMicrons set. 
-     * 
-     * @return see above.
-     */
-    public double getMeasurementY() 
-    {
-    	if (units.isInMicrons()) return getY()*units.getMicronsPixelY();
-    	return getY();
-    }
     
     
-    /** 
-     * Get the width of the figure, convert to microns if isInMicrons set. 
-     * 
-     * @return see above.
-     */
-    public double getMeasurementWidth() 
-    {
-    	if (units.isInMicrons()) return getWidth()*units.getMicronsPixelX();
-    	return getWidth();
-    }
-    
-    /** 
-     * Get the height of the figure, convert to microns if isInMicrons set. 
-     * 
-     * @return see above.
-     */
-    public double getMeasurementHeight() 
-    {
-    	if (units.isInMicrons()) return getHeight()*units.getMicronsPixelY();
-    	return getHeight();
-    }
-    
-    /** 
-     * Get the x coord of the figure. 
-     * @return see above.
-     */
-    public double getX() { return rectangle.getX(); }
-    
-    /** 
-     * Get the y coord of the figure. 
-     * @return see above.
-     */
-    public double getY() { return rectangle.getY(); }
-    
-    /** 
-     * Get the width coord of the figure. 
-     * @return see above.
-     */
-    public double getWidth() { return rectangle.getWidth(); }
-    
-    /** 
-     * Get the height coord of the figure. 
-     * @return see above.
-     */
-    public double getHeight() { return rectangle.getHeight(); }
-    
-    /**
-     * Draw the figure on the graphics context.
-     * @param g the graphics context.
-     */
 	public void draw(Graphics2D g)
 	{
-		if(mask==null)
-			return;
-		g.drawImage(mask, (int)rectangle.getX(), (int)rectangle.getY(), 
-				(int)rectangle.getWidth(), (int)rectangle.getHeight(), null);	
-		
-		if (MeasurementAttributes.SHOWMEASUREMENT.get(this) || MeasurementAttributes.SHOWID.get(this))
-		{
-			NumberFormat formatter = new DecimalFormat("###.#");
-			String rectangleArea = formatter.format(getArea());
-			rectangleArea = addUnits(rectangleArea);
-			double sz = ((Double)this.getAttribute(MeasurementAttributes.FONT_SIZE));
-			g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
-			bounds = g.getFontMetrics().getStringBounds(rectangleArea, g);
-			bounds = new Rectangle2D.Double(
-						getBounds().getCenterX()-bounds.getWidth()/2,
-						getBounds().getCenterY()+bounds.getHeight()/2,
-					bounds.getWidth(), bounds.getHeight());
-		
-			if(MeasurementAttributes.SHOWMEASUREMENT.get(this))
-			{
-				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
-				g.drawString(rectangleArea, (int) bounds.getX(), (int) 
-							bounds.getY()); 
-			}
-			if(MeasurementAttributes.SHOWID.get(this))
-			{
-				g.setColor(this.getTextColor());
-				bounds = g.getFontMetrics().getStringBounds(getROI().getID()+"", g);
-				bounds = new Rectangle2D.Double(
-							getBounds().getCenterX()-bounds.getWidth()/2,
-							getBounds().getCenterY()+bounds.getHeight()/2,
-						bounds.getWidth(), bounds.getHeight());
-				g.drawString(getROI().getID()+"", (int) bounds.getX(), (int) 
-							bounds.getY()); 
-			}
-			
-		}
+		g.drawImage(mask, (int)getX(), (int)getY(), (int)getWidth(), 
+				(int)getHeight(), null);
 	}
-	
-	/**
-	 * Overridden to stop updating shape if read only
-	 * @see AbstractAttributedFigure#transform(AffineTransform)
-	 */
-	public void transform(AffineTransform tx)
-	{
-		if(!readOnly)
-		{
-			super.transform(tx);
-			this.setObjectDirty(true);
-		}
-	}
-		
-	/**
-	 * Overridden to stop updating shape if readonly.
-	 * @see AbstractAttributedFigure#setBounds(Double, Double)
-	 */
-	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
-	{
-		if(!readOnly)
-		{
-			super.setBounds(anchor, lead);
-			this.setObjectDirty(true);
-		}
-	}
-	
-	/**
-	 * Overridden to return the correct handles.
-	 * @see AbstractAttributedFigure#createHandles(int)
-	 */
-	public Collection<Handle> createHandles(int detailLevel) 
-	{
-		if(!readOnly)
-			return super.createHandles(detailLevel);
-		else
-		{
-			LinkedList<Handle> handles = new LinkedList<Handle>();
-			handles.add(new FigureSelectionHandle(this));
-			return handles;
-		}
-	}
-	
-	/**
-	 * Calculates the bounds of the rendered figure, including the text rendered. 
-	 * @return see above.
-	 */
-	public Rectangle2D.Double getDrawingArea()
-	{
-		Rectangle2D.Double newBounds = super.getDrawingArea();
-		if (bounds != null)
-		{
-			if (newBounds.getX() > bounds.getX())
-			{
-				double diff = newBounds.x-bounds.getX();
-				newBounds.x = bounds.getX();
-				newBounds.width = newBounds.width+diff;
-			}
-			if (newBounds.getY() > bounds.getY())
-			{
-				double diff = newBounds.y-bounds.getY();
-				newBounds.y = bounds.getY();
-				newBounds.height = newBounds.height+diff;
-			}
-			if (bounds.getX()+bounds.getWidth() > 
-				newBounds.getX()+newBounds.getWidth())
-			{
-				double diff = bounds.getX()+bounds.getWidth()-
-							newBounds.getX()+newBounds.getWidth();
-				newBounds.width = newBounds.width+diff;
-			}
-			if (bounds.getY()+bounds.getHeight() >
-				newBounds.getY()+newBounds.getHeight())
-			{
-				double diff = bounds.getY()+bounds.getHeight()
-								-newBounds.getY()+newBounds.getHeight();
-				newBounds.height = newBounds.height+diff;
-			}
-		}
-		return newBounds;
-	}
-	 
-
-	/**
-	 * Add units to the string 
-	 * @param str see above.
-	 * @return returns the string with the units added. 
-	 */
-	public String addUnits(String str)
-	{
-		if (shape == null) return str;
-		if (units.isInMicrons()) 
-			return str+UIUtilities.MICRONS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
-		return str+UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
-	}
-
-
-	/**
-	 * Calculate the area of the figure. 
-	 * @return see above.
-	 */
-	public double getArea()
-	{
-		return getMeasurementWidth()*getMeasurementHeight();
-	}
-	
-	/**
-	 * Calculate the perimeter of the figure. 
-	 * @return see above.
-	 */
-	public double getPerimeter()
-	{
-		return getMeasurementWidth()*2+getMeasurementHeight()*2;
-	}
-
-	/** 
-	 * Calculate the centre of the figure. 
-	 * @return see above.
-	 */
-	public Point2D getCentre()
-	{
-     	if (units.isInMicrons())
-    		return new Point2D.Double(
-    				rectangle.getCenterX()*units.getMicronsPixelX(), 
-    				rectangle.getCenterY()*units.getMicronsPixelY());
-    	return new Point2D.Double(rectangle.getCenterX(), 
-    							rectangle.getCenterY());
-	}
-
-	/**
-	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * @see ROIFigure#getROI()
-	 */
-	public ROI getROI() { return roi; }
-
-	/**
-	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * @see ROIFigure#getROIShape()
-	 */
-	public ROIShape getROIShape() { return shape; }
-
-	/**
-	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * @see ROIFigure#setROI(ROI)
-	 */
-	public void setROI(ROI roi) { this.roi = roi; }
-
-	/**
-	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * @see ROIFigure#setROIShape(ROIShape)
-	 */
-	public void setROIShape(ROIShape shape) { this.shape = shape; }
-
-	/**
-	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * @see ROIFigure#calculateMeasurements()
-	 */
-	public void calculateMeasurements()
-	{
-		if (shape == null) return;
-		AnnotationKeys.AREA.set(shape, getArea());
-		AnnotationKeys.WIDTH.set(shape, getMeasurementWidth());		
-		AnnotationKeys.HEIGHT.set(shape, getMeasurementHeight());		
-		AnnotationKeys.PERIMETER.set(shape, getPerimeter());		
-		AnnotationKeys.CENTREX.set(shape, getCentre().getX());
-		AnnotationKeys.CENTREY.set(shape, getCentre().getY());
-	}
-
-	/**
-	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * @see ROIFigure#getType()
-	 */
-	public String getType() { return FigureUtil.RECTANGLE_TYPE; }
-
-	/**
-	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * @see ROIFigure#setMeasurementUnits(MeasurementUnits)
-	 */
-	public void setMeasurementUnits(MeasurementUnits units)
-	{
-		this.units = units;
-	}
-	
+    
 	/**
 	 * Has the mask got a pixel.
 	 * @param rgb
@@ -520,70 +195,6 @@ public class MeasureMaskFigure
 		return vector;
 	}
 
-	/**
-	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * @see {@link ROIFigure#setStatus(boolean)}
-	 */
-	public void setStatus(int status) { this.status = status; }
-	
-	/**
-	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * @see {@link ROIFigure#getStatus()}
-	 */
-	public int getStatus() { return status; }
-	
-	/**
-	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * @see ROIFigure#isReadOnly()
-	 */
-	public boolean isReadOnly() { return readOnly;}
-	
-	/**
-	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * @see ROIFigure#setReadOnly(boolean)
-	 */
-	public void setReadOnly(boolean readOnly) 
-	{ 
-		this.readOnly = readOnly; 
-		setEditable(!readOnly);
-	}
-	/**
-	 * Implemented as specified by the {@link ROIFigure} interface
-	 * @see ROIFigure#isClientObject()
-	 */
-	public boolean isClientObject() 
-	{
-		return clientObject;
-	}
-
-	/**
-	 * Implemented as specified by the {@link ROIFigure} interface
-	 * @see ROIFigure#setClientObject(boolean)
-	 */
-	public void setClientObject(boolean clientSide) 
-	{
-		clientObject = clientSide;
-	}
-
-	/**
-	 * Implemented as specified by the {@link ROIFigure} interface
-	 * @see ROIFigure#isDirty()
-	 */
-	public boolean isDirty() 
-	{
-		return dirty;
-	}
-
-	/**
-	 * Implemented as specified by the {@link ROIFigure} interface
-	 * @see ROIFigure#setObjectDirty(boolean)
-	 */
-	public void setObjectDirty(boolean dirty) 
-	{
-		this.dirty = dirty;
-	}
-	
-	
 	/*
 	 * (non-Javadoc)
 	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
@@ -595,19 +206,9 @@ public class MeasureMaskFigure
 		that.setReadOnly(this.isReadOnly());
 		that.setClientObject(this.isClientObject());
 		that.setObjectDirty(true);
+		that.setMask(this.getMask());
 		return that;
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
-	 * MeasureMaskFigure#setText(String)
-	 */
-	public void setText(String text)
-	{
-		super.setText(text);
-		this.setObjectDirty(true);
-	}
-
 }
 
