@@ -68,6 +68,7 @@ import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
+import pojos.FileData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.PlateData;
@@ -808,13 +809,12 @@ class PropertiesUI
         	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
         		text = "Tag Set";
         	else text = "Tag";
-        } 
-        /*
-        if (refObject instanceof FolderData) {
+        } else if (refObject instanceof FileData) {
         	editName.setEnabled(false);
-        	text = "Folder";
+        	FileData f = (FileData) refObject;
+        	if (f.isDirectory()) text = "Folder";
+        	else text = "File";
         }
-        */
         String t = text;
         if (model.getRefObjectID() > 0)
         	t += " "+ID_TEXT+model.getRefObjectID();

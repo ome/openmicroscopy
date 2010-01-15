@@ -74,11 +74,13 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.env.data.FSFileSystemView;
 import org.openmicroscopy.shoola.util.ui.filechooser.OMEFileChooser;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.FileData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -144,7 +146,7 @@ class BrowserUI
     private JToggleButton			partialButton;
     
     /** The file chooser used to handle the file system. */
-    private OMEFileChooser			chooser;
+    //private OMEFileChooser			chooser;
     
     /** Indicates if the <code>control</code> key is down. */
     private boolean 				ctrl;
@@ -491,11 +493,12 @@ class BrowserUI
     private List<TreeImageNode> transformDirectory(TreeImageSet dirSet)
     {
     	List<TreeImageNode> leaves = new ArrayList<TreeImageNode>();
-    	FileSystemView fs = chooser.getFileSystemView();
-    	File dir = (File) dirSet.getUserObject();
-    	File[] files = fs.getFiles(dir, false);
+    	//FileSystemView fs = chooser.getFileSystemView();
+    	FSFileSystemView fs = model.getRepositories();
+    	FileData dir = (FileData) dirSet.getUserObject();
+    	FileData[] files = fs.getFiles(dir, false);
     	if (files != null && files.length > 0) {
-    		File file;
+    		FileData file;
     		TreeImageDisplay display;
     		for (int i = 0; i < files.length; i++) {
     			file = files[i];
@@ -506,7 +509,7 @@ class BrowserUI
         				dirSet.addChildDisplay(display);
         			}
         		} else {
-        			if (file.isFile() && !file.isHidden()) {
+        			if (!file.isHidden()) {
         				ImageData img = model.getImportedImage(file.getName());
         				if (img != null) 
         					dirSet.addChildDisplay(new TreeImageNode(img));
@@ -531,39 +534,23 @@ class BrowserUI
      */
     private Set<TreeImageDisplay> createFileSystemExplorer()
     {
-    	FileSystemView fs = chooser.getFileSystemView();
-    	File[] files = fs.getRoots();
     	Set<TreeImageDisplay> results = new HashSet<TreeImageDisplay>();
-    	File file;
+    	FSFileSystemView fs = model.getRepositories();
+    	if (fs == null) return results;
+    	FileData file;
     	TreeImageSet display;
-    	for (int i = 0; i < files.length; i++) {
-    		file = files[i];
-    		if (file.isDirectory()) {
+    	FileData[] files = fs.getRoots();
+		for (int j = 0; j < files.length; j++) {
+			file = files[j];
+			if (file.isDirectory()) {
     			if (!file.isHidden()) {
     				display = new TreeImageSet(file);
     				display.setChildrenLoaded(true);
     				transformDirectory(display);
     				results.add(display);
     			}
-    		} else {
-    			if (file.isFile() && !file.isHidden()) {
-    				ImageData img = model.getImportedImage(file.getName());
-    				if (img != null)
-    					results.add(new TreeImageNode(img));
-    				else results.add(new TreeImageNode(file));
-    			}
     		}
-    	}
-    	
-    	display = new TreeImageSet(chooser.getCurrentDirectory());
-    	display.setSystem(true);
-    	buildEmptyNode(display);
-    	results.add(display);
-    	display = new TreeImageSet(chooser.getVolumeFolder());
-    	display.setSystem(true);
-    	buildEmptyNode(display);
-    	results.add(display);
-    	
+		}
     	return results;
     }
     
@@ -868,6 +855,16 @@ class BrowserUI
 						top.add(object);
 					else bottom.add(object);
 				} else top.add(object);
+			} else if (uo instanceof FileData) {
+				//FileData f = (FileData) uo;
+				/*
+				if (f.isDirectory()) {
+					if (((TreeImageSet) object).isSystem())
+						top.add(object);
+					else bottom.add(object);
+				} else 
+				*/
+				top.add(object);
 			} else if (uo instanceof ImageData) {
 				top.add(object);
 			}
@@ -1624,18 +1621,11 @@ class BrowserUI
 	 * @param refresh Pass <code>true</code> to rebuild the file system view.
 	 * 				  <code>false</code> otherwise.
 	 */
-	void loadFileSystem(boolean refresh)
+	void loadFileSystem(TreeImageDisplay expNode)
 	{
 		if (model.getBrowserType() != Browser.FILE_SYSTEM_EXPLORER) 
 			return;
-		if (refresh) chooser = null;
-		if (chooser == null) {
-			chooser = new OMEFileChooser();
-			//createTrees(TreeViewerAgent.getUserDetails());
-		}
-		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
-        TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
-		setExperimenterData(createFileSystemExplorer(), root);
+		setExperimenterData(createFileSystemExplorer(), expNode);
 	}
 
 	/**

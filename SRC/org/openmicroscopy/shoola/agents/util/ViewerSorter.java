@@ -44,6 +44,7 @@ import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
@@ -252,6 +253,7 @@ public class ViewerSorter
         if ((ob1 instanceof DataObject) && (ob2 instanceof DataObject)) {
         	return compareDataObjects((DataObject) ob1, (DataObject) ob2);
         }
+        /*
         if ((ob1 instanceof DataObject) && (ob2 instanceof File)) {
         	return compareObjects(o1, o2);
         } else if ((ob2 instanceof DataObject) && (ob1 instanceof File)) {
@@ -259,6 +261,7 @@ public class ViewerSorter
         } else if ((ob1 instanceof File) && (ob2 instanceof File)) {
         	return compareObjects(o1, o2);
         }
+        */
         return -1;
     }
     
@@ -331,6 +334,8 @@ public class ViewerSorter
         	return ((PlateData) obj).getName();
         else if (obj instanceof TagAnnotationData)
         	return ((TagAnnotationData) obj).getTagValue();
+        else if (obj instanceof FileData)
+        	return ((FileData) obj).getName();
         else if (obj instanceof String) return (String) obj;
         return "";
     }

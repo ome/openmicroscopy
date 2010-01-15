@@ -1045,8 +1045,9 @@ class OmeroMetadataServiceImpl
 			                                    long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		if (id < 0)
-			throw new IllegalArgumentException("Object id not valid.");
+		//if (id < 0)
+		//	throw new IllegalArgumentException("Object id not valid.");
+		if (id < 0) new ArrayList<Long>();
 		if (type == null) 
 			throw new IllegalArgumentException("No type specified.");
 		List<Long> ids = null;

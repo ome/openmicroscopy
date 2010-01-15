@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.ExperimenterImagesCounter;
 import org.openmicroscopy.shoola.env.data.views.calls.FilesChecker;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.PlateWellsLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.RepositoriesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.TagsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
@@ -299,6 +300,16 @@ class DataManagerViewImpl
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new FilesChecker(list);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataManagerView#loadRepositories(long, AgentEventListener)
+	 */
+	public CallHandle loadRepositories(long userID, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new RepositoriesLoader(userID);
 		return cmd.exec(observer);
 	}
   

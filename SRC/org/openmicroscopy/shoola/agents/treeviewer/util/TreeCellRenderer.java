@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.FileData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -159,8 +160,8 @@ public class TreeCellRenderer
         	} else if (data.isMovieFile()) {
         		icon = icons.getIcon(IconManager.MOVIE);
         	} else icon = icons.getIcon(IconManager.FILE_TEXT); 
-        } else if (usrObject instanceof File) {
-        	File f = (File) usrObject;
+        } else if (usrObject instanceof FileData) {
+        	FileData f = (FileData) usrObject;
         	if (f.isDirectory()) icon = icons.getIcon(IconManager.DIRECTORY);
         	else icon = icons.getIcon(IconManager.FILE_TEXT);
         } else if (node instanceof TreeImageTimeSet)
@@ -236,7 +237,7 @@ public class TreeCellRenderer
         int w = 0;
         FontMetrics fm = getFontMetrics(getFont());
         Object ho = node.getUserObject();
-        if (node.getLevel() == 0 && !(ho instanceof File)) {
+        if (node.getLevel() == 0) {// && !(ho instanceof FileData)) {
         	if (ho instanceof ExperimenterData)
         		setIcon(icons.getIcon(IconManager.OWNER));
         	else setIcon(icons.getIcon(IconManager.ROOT));

@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.EditVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.RefreshVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.data.FSFileSystemView;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -929,16 +930,10 @@ class BrowserComponent
         if (!(uo instanceof ExperimenterData))
         	throw new IllegalArgumentException("Experimenter node not valid.");
         ExperimenterData exp = (ExperimenterData) uo;
-        if (model.getBrowserType() == FILE_SYSTEM_EXPLORER) {
-        	model.setImportedImages(nodes);
-        	view.loadFileSystem(false);
-        } else {
-        	//depending on the type of browser, present data 
-            Set convertedNodes = TreeViewerTranslator.transformHierarchy(nodes, 
-    					exp.getId(), -1);//exp.getDefaultGroup().getId());
-            view.setExperimenterData(convertedNodes, expNode);
-            model.setState(READY);
-        }
+        Set convertedNodes = TreeViewerTranslator.transformHierarchy(nodes, 
+					exp.getId(), -1);//exp.getDefaultGroup().getId());
+        view.setExperimenterData(convertedNodes, expNode);
+        model.setState(READY);
         
         countItems(null);
         model.getParentModel().setStatus(false, "", true);
@@ -985,7 +980,7 @@ class BrowserComponent
         	return;
 		}
 		if (model.getBrowserType() == FILE_SYSTEM_EXPLORER) {
-			view.loadFileSystem(true);
+			//view.loadFileSystem(true);
 			return;
 		}
 		TreeImageDisplay display = model.getLastSelectedDisplay();
@@ -1054,7 +1049,7 @@ class BrowserComponent
     	}
 
     	if (model.getBrowserType() == FILE_SYSTEM_EXPLORER) {
-    		view.loadFileSystem(true);
+    		//view.loadFileSystem(true);
     		return;
     	}
 	    TreeImageDisplay root = view.getTreeRoot();
@@ -1465,6 +1460,35 @@ class BrowserComponent
 		if (!model.isSelected()) return;
 		//Reload data.
 		view.loadExperimenterData();
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#setRepositories(TreeImageDisplay, FSFileSystemView)
+	 */
+	public void setRepositories(TreeImageDisplay expNode,
+			FSFileSystemView systemView)
+	{
+		int state = model.getState();
+        if (state != LOADING_DATA)
+            throw new IllegalStateException(
+                    "This method can only be invoked in the LOADING_DATA "+
+                    "state.");
+        if (model.getBrowserType() != FILE_SYSTEM_EXPLORER) return;
+        if (systemView == null) throw new NullPointerException("No File System.");
+      
+        if (expNode == null)
+        	throw new IllegalArgumentException("Experimenter node not valid.");
+        Object uo = expNode.getUserObject();
+        if (!(uo instanceof ExperimenterData))
+        	throw new IllegalArgumentException("Experimenter node not valid.");
+        ExperimenterData exp = (ExperimenterData) uo;
+        model.setRepositories(systemView);
+    	view.loadFileSystem(expNode);
+        countItems(null);
+        model.getParentModel().setStatus(false, "", true);
+        fireStateChange();
+		
 	}
 	
 }

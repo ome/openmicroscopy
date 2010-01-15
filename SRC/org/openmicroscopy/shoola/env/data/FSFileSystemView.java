@@ -25,20 +25,24 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.io.File;
-import java.io.IOException;
-import java.net.URI;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
+import java.util.Map.Entry;
+
 import javax.swing.filechooser.FileSystemView;
-
-
 
 //Third-party libraries
 
 //Application-internal dependencies
-import monitors.MonitorServerPrx;
+import omero.grid.RepositoryPrx;
+import omero.model.OriginalFileI;
+import pojos.FileData;
 
 
 /** 
- * 
+ * Implementation following Swing FileSystemView.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -51,159 +55,130 @@ import monitors.MonitorServerPrx;
  * @since 3.0-Beta4
  */
 public class FSFileSystemView 
-	extends FileSystemView
+	//extends FileSystemView
 {
 
-	/** Default name. */
-	static final String FS_NAME = "omero-fs://";
+	/** Reference to the repositories. */
+	private Map<FileData, RepositoryPrx> repositories;
 	
-	/** The default file directory. */
-	private FSFile 				defaultDirectory;
-	
-	/** Reference to the proxy. */
-	private MonitorServerPrx 	server;
-	
+	/**
+	 * Returns the repository corresponding to the passed file.
+	 * 
+	 * @param file The file to handle.
+	 * @return See above.
+	 */
+    private RepositoryPrx getRepository(FileData file)
+    {
+    	if (isRoot(file))
+    		return repositories.get(file);
+    	String refPath = file.getAbsolutePath();
+    	Entry entry;
+    	Iterator i = repositories.entrySet().iterator();
+    	String path;
+    	FileData data;
+    	while (i.hasNext()) {
+			entry = (Entry) i.next();
+			data = (FileData) entry.getKey();
+			path = data.getAbsolutePath();
+			if (refPath.startsWith(path)) 
+					return (RepositoryPrx) entry.getValue();
+		}
+    	return null;
+    }
+    
 	/** 
 	 * Creates a new instance.
 	 * 
-	 * @param defaultPath	The default path.
-	 * @param server		Reference to the monitor service.
+	 * @param repositories The repositories. Mustn't be <code>null</code>.
 	 */
-	FSFileSystemView(String defaultPath, MonitorServerPrx server)
+	FSFileSystemView(Map<FileData, RepositoryPrx> repositories)
 	{
-		if (server == null)
-			throw new IllegalArgumentException("No server specified.");
-		this.server = server;
-		if (defaultPath != null && defaultPath.trim().length() > 0) {
-			try {
-				String s = FS_NAME+defaultPath;
-				defaultDirectory = new FSFile(new URI(s));
-				setDefaultDirectory(defaultDirectory);
-			} catch (Exception e) {}
-		}
+		if (repositories == null)
+			throw new IllegalArgumentException("No repositories specified.");
+		this.repositories = repositories;
 	}
-	
-	/**
-     * Sets the default directory.
-     * 
-     * @param file The default directory.
-     */
-    public void setDefaultDirectory(File file)
+
+    /**
+	 * Overridden to handle <code>FileData</code>.
+	 * @see FileSystemView#isRoot(FileData)
+	 */
+    public boolean isRoot(FileData f)
     {
-    	if (file == null) return;
-    	if (file instanceof FSFile)
-    		defaultDirectory = (FSFile) file;
+    	if (f == null) return false;
+    	Entry entry;
+    	Iterator i = repositories.entrySet().iterator();
+    	String path;
+    	FileData data;
+    	while (i.hasNext()) {
+			entry = (Entry) i.next();
+			data = (FileData) entry.getKey();
+			path = data.getAbsolutePath();
+			if (path.equals(f.getAbsolutePath()) && data.getId() == f.getId())
+				return true;
+		}
+    	return false;
     }
     
     /**
-     * Returns the default directory.
+	 * Returns the roots.
+	 * @see FileSystemView#getRoots()
+	 */
+    public FileData[] getRoots()
+    {
+    	FileData[] files = new FileData[repositories.size()];
+    	Entry entry;
+    	Iterator i = repositories.entrySet().iterator();
+    	int index = 0;
+    	while (i.hasNext()) {
+			entry = (Entry) i.next();
+			files[index] = (FileData) entry.getKey();
+			index++;
+		}
+    	
+        return files;
+    }
+    
+    /**
+     * Returns the files contained in the passed directory.
+     * 
+     * @param dir 			The directory to handle.
+     * @param useFileHiding Pass <code>true</code> to return the files not
+     * 						hidden, <code>false</code> otherwise.
+     *  @see FileSystemView#getFiles(FileData, boolean)
+     */
+    public FileData[] getFiles(FileData dir, boolean useFileHiding)
+    {
+    	if (dir == null) return null;
+    	if (!dir.isDirectory()) return null;
+    	RepositoryPrx proxy = getRepository(dir);
+    	if (proxy == null) return null;
+    	Vector<FileData> files = new Vector<FileData>();
+    	try {
+    		List<String> list = proxy.list(dir.getAbsolutePath());
+    		if (list == null) return null;
+    		Iterator<String> i = list.iterator();
+    		FileData f;
+    		OriginalFileI of;
+    		while (i.hasNext()) {
+    			of = new OriginalFileI();
+    			of.setName(omero.rtypes.rstring(i.next()));
+				f = new FileData(of);
+				if (!useFileHiding) {
+					if (!isHiddenFile(f)) files.addElement(f);
+				} else files.addElement(f);
+			}
+		} catch (Exception e) { 
+			e.printStackTrace();
+		}
+    	return (FileData[]) files.toArray(new FileData[files.size()]);
+    }
+    
+    /**
+     * Returns <code>true</code> if the file is hidden, <code>false</code>
+     * otherwise.
      * 
      * @return See above.
      */
-    public File getDefaultDirectory() { return defaultDirectory; }
+    public boolean isHiddenFile(FileData f) { return f.isHidden(); }
     
-	/**
-	 * Overridden to return a file of the correct type.
-	 * @see FileSystemView#createNewFolder(File)
-	 */
-	public File createNewFolder(File containingDir) 
-		throws IOException
-	{
-		return null;
-	}
-
-	/**
-	 * Overridden to return a file of the correct type.
-	 * @see FileSystemView#getParentDirectory(File)
-	 */
-	public File getParentDirectory(File dir)
-	{
-		if (dir == null) return null;
-		FSFile file = (FSFile) dir;
-	    File realFile = new File(file.getPath());
-	    try {
-	    	String parent = realFile.getParent();
-	    	if (parent != null) {
-	    		URI uri = new URI(FS_NAME+realFile.getParent());
-	    		return new FSFile(uri);
-	    	}
-	    	return null;
-	    } catch (Exception e) {
-	    	e.printStackTrace();
-	    }//ignore
-	    return null;
-	}
-	
-	/**
-	 * Overridden to return <code>false</code>.
-	 * @see FileSystemView#isComputerNode(File)
-	 */
-    public boolean isComputerNode(File dir) { return false; }
-
-    /**
-	 * Overridden to return <code>false</code>.
-	 * @see FileSystemView#isDrive(File)
-	 */
-    public boolean isDrive(File dir) { return false; }
-    
-    /**
-	 * Overridden to return <code>false</code>.
-	 * @see FileSystemView#isFloppyDrive(File)
-	 */
-    public boolean isFloppyDrive(File dir) { return false; }
-    
-    /**
-	 * Overridden to handle <code>FSFile</code>.
-	 * @see FileSystemView#isRoot(File)
-	 */
-    public boolean isRoot(File f)
-    {
-    	if (f == null) return false;
-    	/*
-        if (f instanceof FSFile) {
-        	FSFile fsFile = (FSFile) f;
-            f = new File(fsFile.getPath());
-        }*/
-        return super.isRoot(f);
-    }
-    
-    /**
-	 * Overridden to handle <code>FSFile</code>.
-	 * @see FileSystemView#getRoots()
-	 */
-    public File[] getRoots()
-    {
-        try {
-            return new FSFile[] { new FSFile(new URI(FS_NAME)) };
-        } catch (Exception e) {}
-        return new FSFile[0];
-    }
- 
-    /**
-     *  Overridden to handle <code>FSFile</code>.
-     *  @see FileSystemView#getFiles(File, boolean)
-     */
-    public File[] getFiles(File dir, boolean useFileHiding)
-    {
-    	if (dir == null) return null;
-    	String root = dir.getPath();
-    	if (dir instanceof FSFile) {
-    		root = ((FSFile) dir).getPath();
-    	}
-    	FSFile[] files = null;
-    	try {
-    		String[] paths = server.getDirectory(root, "*");
-    		if (paths == null) return files;
-    		files = new FSFile[paths.length];
-    		for (int i = 0; i < paths.length; i++)
-				files[i] = new FSFile(new URI(FS_NAME+paths[i]));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-    	
-    	return files;
-    }
-    
-    public Boolean isTraversable(File f) { return false;
-        }
 }

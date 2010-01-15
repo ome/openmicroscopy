@@ -134,6 +134,6 @@ public class FilesChecker
     	if (files == null)
     		throw new IllegalArgumentException("No files to check.");
     	loadCall = makeCheckCall(files);
-    	
     }
+    
 }

@@ -45,6 +45,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.FileData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -447,6 +448,8 @@ public abstract class TreeImageDisplay
         	return ((FileAnnotationData) obj).getFileName();
         else if (obj instanceof File)
         	return ((File) obj).getName();
+        else if (obj instanceof FileData)
+        	return ((FileData) obj).getName();
         else if (obj instanceof ScreenAcquisitionData)
         	return ((ScreenAcquisitionData) obj).getLabel();
         else if (obj instanceof String) return (String) obj;
@@ -469,6 +472,7 @@ public abstract class TreeImageDisplay
         } else if (uo instanceof ExperimenterData) return name;
         else if (uo instanceof FileAnnotationData) return name;
         else if (uo instanceof File) return name; 
+        else if (uo instanceof FileData) return name;
         else if (uo instanceof ScreenAcquisitionData) return name;
         else if (uo instanceof String && numberItems < 0) 
         	return name;

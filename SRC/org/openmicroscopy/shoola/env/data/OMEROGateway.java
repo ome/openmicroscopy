@@ -113,7 +113,10 @@ import omero.grid.Data;
 import omero.grid.DoubleColumn;
 import omero.grid.ImageColumn;
 import omero.grid.LongColumn;
+import omero.grid.RepositoryMap;
+import omero.grid.RepositoryPrx;
 import omero.grid.RoiColumn;
+import omero.grid.SharedResourcesPrx;
 import omero.grid.StringColumn;
 import omero.grid.TablePrx;
 import omero.model.Annotation;
@@ -169,6 +172,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.FileData;
 import pojos.GroupData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
@@ -319,6 +323,9 @@ class OMEROGateway
 	
 	/** The time service. */
 	private ITimelinePrx							timeService;
+	
+	/** The shared resources. */
+	private SharedResourcesPrx						sharedResources;
 	
 	/** Tells whether we're currently connected and logged into <i>OMERO</i>. */
 	private boolean                 				connected;
@@ -808,9 +815,34 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{
 		try {
+			
 			return entry.getSessionService();
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Session service.");
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the {@link SharedResourcesPrx} service.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+
+	private SharedResourcesPrx getSharedResources()
+		throws DSAccessException, DSOutOfServiceException
+	{
+	
+		try {
+			if (sharedResources == null) {
+				sharedResources = entry.sharedResources();
+			}
+			return sharedResources;
+		} catch (Exception e) {
+			handleException(e, "Cannot access the Shared Resources.");
 		}
 		return null;
 	}
@@ -874,7 +906,7 @@ class OMEROGateway
 	{
 		try {
 			if (repInfoService == null) {
-				repInfoService = entry.getRepositoryInfoService(); 
+				repInfoService = entry.getRepositoryInfoService();
 				services.add(repInfoService);
 			}
 			return repInfoService;
@@ -1559,6 +1591,8 @@ class OMEROGateway
 			return WellSample.class;
 		else if (ScreenAcquisitionData.class.equals(nodeType))
 			return ScreenAcquisition.class;
+		else if (FileData.class.equals(nodeType))
+			return OriginalFile.class;
 		throw new IllegalArgumentException("NodeType not supported");
 	}
 	
@@ -1670,6 +1704,7 @@ class OMEROGateway
 			blitzClient.getProperties().setProperty("Ice.Override.Timeout", 
 					""+5000);
 			connected = true;
+			
 			ExperimenterData exp = getUserDetails(userName);
 			if (groupID >= 0) {
 				long defaultID = exp.getDefaultGroup().getId();
@@ -1691,6 +1726,44 @@ class OMEROGateway
 			s += printErrorText(e);
 			throw new DSOutOfServiceException(s, e);  
 		} 
+	}
+	
+	/**
+	 * Retrieves the system view hosting the repositories.
+	 * 
+	 * @param userID The id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in.
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	FSFileSystemView getFSRepositories(long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		//Review that code
+		FSFileSystemView view = null;
+		try {
+			RepositoryMap m = getSharedResources().repositories();
+			List proxys = m.proxies;
+			List names = m.descriptions;
+			Iterator i = names.iterator();
+			int index = 0;
+			FileData f;
+			RepositoryPrx proxy;
+			Map<FileData, RepositoryPrx> 
+				repositories = new HashMap<FileData, RepositoryPrx>();
+			while (i.hasNext()) {
+				f = new FileData((OriginalFile) i.next());
+				proxy = (RepositoryPrx) proxys.get(index);
+				repositories.put(f, proxy);
+				index++;
+			}
+			view = new FSFileSystemView(repositories);
+		} catch (Throwable e) {
+			handleException(e, "Cannot load the repositories");
+		}
+		
+		return view;
 	}
 	
 	/**
@@ -5344,7 +5417,7 @@ class OMEROGateway
 		isSessionAlive();
 		try 
 		{
-			IUpdatePrx updateService = this.getUpdateService();
+			IUpdatePrx updateService = getUpdateService();
 			IRoiPrx svc = getROIService();
 			
 			RoiOptions options = new RoiOptions();
@@ -5356,18 +5429,18 @@ class OMEROGateway
 			List<Roi> serverRoiList = serverReturn.rois;
 
 			/* Create a map of all the client roi with id as key */
-			Map<Long, ROIData> clientROIMap = new HashMap<Long,ROIData>();
-			for(ROIData roi : roiList)
+			Map<Long, ROIData> clientROIMap = new HashMap<Long, ROIData>();
+			for (ROIData roi : roiList)
 				clientROIMap.put(roi.getId(), roi);
 			
 			/* Create a map of the <id, serverROI>, but remove any roi from 
 			 * the server that should be deleted, before creating map.
 			 * To delete an roi we first must delete all the roiShapes in 
 			 * the roi. */
-			for(Roi roi : serverRoiList)
-				if(!clientROIMap.containsKey(roi.getId().getValue()))
+			for (Roi roi : serverRoiList)
+				if (!clientROIMap.containsKey(roi.getId().getValue()))
 				{
-					for(int i = 0 ; i < roi.sizeOfShapes() ; i++)
+					for (int i = 0 ; i < roi.sizeOfShapes() ; i++)
 						updateService.deleteObject(roi.getShape(i));
 					updateService.deleteObject(roi);
 				}
@@ -5385,7 +5458,19 @@ class OMEROGateway
 			 * to retrieve the roi again from the server before updating it.
 			 * 6. Check to see if the roi in the cleint has been updated
 			 */
-			for(ROIData roi : roiList)
+			List<ShapeData> shapeList;
+			ShapeData shape;
+			Map<ROICoordinate, ShapeData> clientCoordMap;
+			Roi serverRoi;
+			Iterator<List<ShapeData>> shapeIterator;
+			Iterator<ROICoordinate> serverIterator;
+			Map<ROICoordinate, Shape>serverCoordMap;
+			Shape s;
+			ROICoordinate coord;
+			long id;
+			RoiResult tempResults;
+			int shapeIndex;
+			for (ROIData roi : roiList)
 			{
 				/*
 				 * Step 1. Add new ROI to the server.
@@ -5399,51 +5484,52 @@ class OMEROGateway
 				/*
 				 * Step 2. create the client roiShape map. 
 				 */
-				Roi serverRoi = roiMap.get(roi.getId());
-				Iterator<List<ShapeData>> shapeIterator  = roi.getIterator();
+				serverRoi = roiMap.get(roi.getId());
+				shapeIterator  = roi.getIterator();
 
-				Map<ROICoordinate, ShapeData>clientCoordMap  = new HashMap<ROICoordinate, ShapeData>();
-				while(shapeIterator.hasNext())
+				clientCoordMap = new HashMap<ROICoordinate, ShapeData>();
+				while (shapeIterator.hasNext())
 				{
-					List<ShapeData> shapeList = shapeIterator.next();
-					ShapeData shape = shapeList.get(0);
+					shapeList = shapeIterator.next();
+					shape = shapeList.get(0);
 					clientCoordMap.put(shape.getROICoordinate(), shape);
 				}
 				
 				/*
 				 * Step 3. create the server roiShape map.
 				 */
-				Map<ROICoordinate, Shape>serverCoordMap  = new HashMap<ROICoordinate, Shape>();
+				serverCoordMap  = new HashMap<ROICoordinate, Shape>();
 				
 				for( int i = 0 ; i < serverRoi.sizeOfShapes(); i++)
 				{
-					Shape shape = serverRoi.getShape(i);
-					serverCoordMap.put(new ROICoordinate(shape.getTheZ().getValue(), shape.getTheT().getValue()), shape);
+					s = serverRoi.getShape(i);
+					serverCoordMap.put(new ROICoordinate(
+							s.getTheZ().getValue(), s.getTheT().getValue()), s);
 				}
 				
 				/*
 				 * Step 4. delete any shapes in the server that have been deleted
 				 * in the client.
 				 */
-				Iterator<ROICoordinate> serverIterator = serverCoordMap.keySet().iterator();
+				serverIterator = serverCoordMap.keySet().iterator();
 				while(serverIterator.hasNext())
 				{
-					ROICoordinate coord = serverIterator.next();
-					if(!clientCoordMap.containsKey(coord))
+					coord = serverIterator.next();
+					if (!clientCoordMap.containsKey(coord))
 					{
-						Shape shape = serverCoordMap.get(coord);
-						updateService.deleteObject(shape);
+						s = serverCoordMap.get(coord);
+						updateService.deleteObject(s);
 					}
 				}
 				
 				/*
 				 * Step 5. retrieve new roi as some are stale.
 				 */
-				long id = serverRoi.getId().getValue();
-				RoiResult tempResults = svc.findByImage(imageID, new RoiOptions());
-				for(Roi r : tempResults.rois)
+				id = serverRoi.getId().getValue();
+				tempResults = svc.findByImage(imageID, new RoiOptions());
+				for (Roi r : tempResults.rois)
 				{
-					if(r.getId().getValue()==id)
+					if (r.getId().getValue() == id)
 						serverRoi = r;
 				}
 				
@@ -5451,27 +5537,29 @@ class OMEROGateway
 				 * Step 6. Check to see if the roi in the cleint has been updated
 				 * if so replace the server roiShape with the client one.
 				 */
-				Iterator<ROICoordinate> clientIterator = clientCoordMap.keySet().iterator();
-				while(clientIterator.hasNext())
+				serverIterator = clientCoordMap.keySet().iterator();
+				while(serverIterator.hasNext())
 				{
-					ROICoordinate coord = clientIterator.next();
-					ShapeData shapeData = clientCoordMap.get(coord);
-					if(!serverCoordMap.containsKey(coord))
-						serverRoi.addShape((Shape)shapeData.asIObject());
-					else if(shapeData.isDirty())
+					coord = serverIterator.next();
+					shape = clientCoordMap.get(coord);
+					if (!serverCoordMap.containsKey(coord))
+						serverRoi.addShape((Shape) shape.asIObject());
+					else if (shape.isDirty())
 					{
-						int shapeIndex = -1;
-						for(int j = 0 ; j < serverRoi.sizeOfShapes() ; j++)
+						shapeIndex = -1;
+						for (int j = 0 ; j < serverRoi.sizeOfShapes() ; j++)
 						{
-							if(serverRoi.getShape(j).getId().getValue() == shapeData.getId())
+							if (serverRoi.getShape(j).getId().getValue() == 
+								shape.getId())
 							{
 								shapeIndex = j;
 								break;
 							}
 						}
-						if(shapeIndex==-1)
-							throw new Exception("serverRoi.shapeList is corrupt");
-						serverRoi.setShape(shapeIndex,(Shape) shapeData.asIObject());
+						if (shapeIndex==-1)
+							throw new Exception("serverRoi.shapeList is " +
+									"corrupted");
+						serverRoi.setShape(shapeIndex,(Shape) shape.asIObject());
 					}
 					
 				}
@@ -5479,7 +5567,6 @@ class OMEROGateway
 			}
 			return roiList;
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot Save the ROI for image: "+imageID);
 		}
 		return new ArrayList<ROIData>();

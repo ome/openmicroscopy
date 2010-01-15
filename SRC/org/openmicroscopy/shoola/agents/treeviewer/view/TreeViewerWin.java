@@ -48,7 +48,6 @@ import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
@@ -210,6 +209,9 @@ class TreeViewerWin
    			 	container.add(new TaskPaneBrowser(browser));
     		}
             
+    		browser = (Browser) browsers.get(Browser.FILE_SYSTEM_EXPLORER);
+    		container.add(new TaskPaneBrowser(browser));
+             
             browser = (Browser) browsers.get(Browser.FILES_EXPLORER);
             container.add(new TaskPaneBrowser(browser));
             

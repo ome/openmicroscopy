@@ -25,10 +25,9 @@ package org.openmicroscopy.shoola.svc.transport;
 
 
 //Java imports
-
-//Third-party libraries
 import java.io.IOException;
 
+//Third-party libraries
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.openmicroscopy.shoola.svc.proxy.Reply;
@@ -37,7 +36,8 @@ import org.openmicroscopy.shoola.svc.proxy.Request;
 //Application-internal dependencies
 
 /** 
- * Top-channel that all channels using Http communication should extend. 
+ * Top-channel that all channels using <code>HTTP</code> communication should 
+ * extend. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

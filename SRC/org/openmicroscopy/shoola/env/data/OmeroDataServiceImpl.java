@@ -1275,5 +1275,15 @@ class OmeroDataServiceImpl
 		}
 		return "";
 	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#getFSRepositories()
+	 */
+	public FSFileSystemView getFSRepositories(long userID)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return gateway.getFSRepositories(userID);
+	}
 	
 }

@@ -312,5 +312,15 @@ public interface DataManagerView
 	 */
 	public CallHandle checkFileFormat(List<File> list, 
 			AgentEventListener observer);
+
+	/**
+	 * Loads the repositories.
+	 * 
+	 * @param userID The id of the user.
+	 * @param observer Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadRepositories(long userID, 
+			AgentEventListener observer);
 	
 }

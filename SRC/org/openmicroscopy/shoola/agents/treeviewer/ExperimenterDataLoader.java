@@ -35,6 +35,7 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
+import org.openmicroscopy.shoola.env.data.FSFileSystemView;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -79,14 +80,17 @@ public class ExperimenterDataLoader
     /** Indicates that the root node is of type <code>Tag</code>. */
     public static final int TAG = 3;
     
-    /** Indicates that the root node is of type <code>Tag</code>. */
+    /** Indicates that the root node is of type <code>Tag Set</code>. */
     public static final int TAG_SET = 4;
     
     /** Indicates that the root node is of type <code>File</code>. */
     public static final int FILE = 5;
     
-    /** Indicates that the root node is of type <code>File</code>. */
+    /** Indicates that the root node is of type <code>All</code>. */
     public static final int ALL = 6;
+    
+    /** Indicates that the root node is of type <code>File Data</code>. */
+    public static final int FILE_DATA = 7;
     
     /** 
      * Flag to indicate if the images are also retrieved.
@@ -190,15 +194,19 @@ public class ExperimenterDataLoader
     		handle = mhView.loadExistingAnnotations(rootNodeType, exp.getId(), 
     				this);
     	} else {
-    		if (parent == null) {
-        		handle = dmView.loadContainerHierarchy(rootNodeType, null, 
-        				withImages, exp.getId(), this);	
-        	} else {
-        		List<Long> ids = new ArrayList<Long>(1);
-        		ids.add(Long.valueOf(parent.getUserObjectId()));
-        		handle = dmView.loadContainerHierarchy(rootNodeType, ids,
-        				withImages, exp.getId(), this);
-        	}
+    		if (viewer.getBrowserType() == Browser.FILE_SYSTEM_EXPLORER) {
+    			handle = dmView.loadRepositories(exp.getId(), this);
+    		} else {
+    			if (parent == null) {
+            		handle = dmView.loadContainerHierarchy(rootNodeType, null, 
+            				withImages, exp.getId(), this);	
+            	} else {
+            		List<Long> ids = new ArrayList<Long>(1);
+            		ids.add(Long.valueOf(parent.getUserObjectId()));
+            		handle = dmView.loadContainerHierarchy(rootNodeType, ids,
+            				withImages, exp.getId(), this);
+            	}
+    		}
     	}
     }
 
@@ -215,7 +223,11 @@ public class ExperimenterDataLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-        if (FileAnnotationData.class.equals(rootNodeType)) {
+        if (viewer.getBrowserType() == Browser.FILE_SYSTEM_EXPLORER) {
+        	viewer.setRepositories(expNode, (FSFileSystemView) result);
+        	return;
+        }
+        if (FileAnnotationData.class.equals(rootNodeType)){
         	viewer.setExperimenterData(expNode, (Collection) result);
         	return;
         }

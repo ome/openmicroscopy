@@ -74,6 +74,7 @@ public class SvcRegistry
             throw new SvcActivationException(
                     "No activator defined for the requested service.");
         SvcActivator activator = null;
+        
         try {
             Class activatorClass = (Class) type;
             activator = (SvcActivator) activatorClass.newInstance();
@@ -97,7 +98,7 @@ public class SvcRegistry
      * Retrieves or creates a {@link Communicator}
      * @param desc
      * @return A {@link Communicator} or null if none was created.
-     * @throws SvcActivationException 	If an error occured while creating the 
+     * @throws SvcActivationException 	If an error occurred while creating the 
      * 									service.
      */
 	public static Communicator getCommunicator(SvcDescriptor desc)

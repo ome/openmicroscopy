@@ -87,6 +87,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.FileData;
 import pojos.GroupData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
@@ -475,8 +476,8 @@ class EditorModel
 			WellSampleData ws = (WellSampleData) ref;
 			ImageData img = ws.getImage();
 			if (img != null && img.getId() >= 0) name = img.getName();
-		} //else if (ref instanceof FolderData)
-			//name = ((FolderData) ref).getName();
+		} else if (ref instanceof FileData)
+			name = ((FileData) ref).getName();
 		if (name == null) return "";
 		return name.trim();
 	}
@@ -507,8 +508,8 @@ class EditorModel
 				WellData ws = (WellData) parentRefObject;
 				description = ws.getWellType();
 			}
-		} //else if (ref instanceof FolderData) 
-			//description = null;//((FolderData) ref).getDescription();
+		} else if (ref instanceof FileData) 
+			description = null;//((FileData) ref).getDescription();
 		if (description == null) return "";
 		return description.trim();
 	}

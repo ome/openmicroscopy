@@ -311,7 +311,9 @@ class MetadataViewerModel
 		//if (!(uo instanceof DataObject)) return;
 		
 		if (uo instanceof ExperimenterData) return;
-		if ((uo instanceof DataObject) || (uo instanceof File)) {
+		if ((uo instanceof DataObject)) {
+			//DataObject data = (DataObject) uo;
+			//if (data.getId() < 0) return;
 			cancel(refNode);
 			if (uo instanceof WellSampleData) {
 				WellSampleData wsd = (WellSampleData) uo;

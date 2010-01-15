@@ -410,4 +410,14 @@ public class NullOmeroPojoService
 		return null;
 	}
 
+	/**
+     * No-op implementation
+     * @see OmeroDataService#getServerVersion()
+     */
+	public FSFileSystemView getFSRepositories(long userID)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
 }

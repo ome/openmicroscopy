@@ -54,6 +54,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.FSFileSystemView;
+
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -126,6 +128,9 @@ class BrowserModel
     
     /** The collection of previously imported images. */
     private Map<String, Object>		importedImages;
+    
+    /** The repositories to set. */
+    private FSFileSystemView		systemView;
     
     /** Reference to the parent. */
     private TreeViewer          	parent;
@@ -520,12 +525,14 @@ class BrowserModel
 	        state = Browser.LOADING_DATA;
 			return;
 		}
+		/*
 		if (browserType == Browser.FILE_SYSTEM_EXPLORER) {
 			currentLoader = new ImageDataLoader(component, expNode);
 			currentLoader.load();
 			state = Browser.LOADING_DATA;
 			return;
 		}
+		*/
 		switch (browserType) {
 			case Browser.PROJECT_EXPLORER:
 				index = ExperimenterDataLoader.PROJECT;
@@ -535,6 +542,9 @@ class BrowserModel
 				break;
 			case Browser.TAGS_EXPLORER:
 				index = ExperimenterDataLoader.TAG_SET;
+				break;
+			case Browser.FILE_SYSTEM_EXPLORER:
+				index = ExperimenterDataLoader.FILE_DATA;
 				break;
 			case Browser.FILES_EXPLORER:
 				//index = ExperimenterDataLoader.FILE;
@@ -719,6 +729,23 @@ class BrowserModel
 			importedImages.put(EditorUtil.getObjectName(img.getName()), img);
 		}
 	}
+	
+	/**
+	 * Sets the file system hosting the repositories.
+	 * 
+	 * @param systemView The value to set.
+	 */
+	void setRepositories(FSFileSystemView systemView)
+	{
+		this.systemView = systemView;
+	}
+	
+	/**
+	 * Returns the repositories.
+	 * 
+	 * @return See above.
+	 */
+	FSFileSystemView getRepositories() { return systemView; }
 	
 	/**
 	 * Adds the passed images to the collection of imported images.

@@ -88,7 +88,7 @@ class ImporterChooser
 	}
 	
 	/** 
-	 * Initiliazes the chooser. 
+	 * Initializes the chooser. 
 	 * 
 	 * @param filters 	The collection of supported filters.
 	 */
@@ -102,6 +102,7 @@ class ImporterChooser
 	}
 
 	private FileSystemView fsv;
+	
 	/**
 	 * Creates a new instance.
 	 * 

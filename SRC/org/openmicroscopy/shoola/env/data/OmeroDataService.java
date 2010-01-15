@@ -473,4 +473,16 @@ public interface OmeroDataService
 	 */
 	public String getServerVersion();
 	
+	/**
+	 * Returns the view of the server repositories.
+	 * 
+	 * @param userID The ID of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	public FSFileSystemView getFSRepositories(long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
 }

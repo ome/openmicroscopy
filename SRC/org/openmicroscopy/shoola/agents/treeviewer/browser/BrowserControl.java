@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.FileData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -181,8 +182,8 @@ class BrowserControl
     {
     	Object ho = display.getUserObject();
     	if (model.getBrowserType() == Browser.FILE_SYSTEM_EXPLORER) {
-    		if (ho instanceof File) {
-    			File f = (File) ho;
+    		if (ho instanceof FileData) {
+    			FileData f = (FileData) ho;
         		if (f.isDirectory() && !display.isChildrenLoaded()) {
         			view.loadFile(display);
         		}
@@ -325,7 +326,7 @@ class BrowserControl
         				tag.getNameSpace())) text = "Tag Sets.";
         		else text = "Tags.";
         	} else if (FileAnnotationData.class.equals(ref)) text = "Files.";
-        	else if (File.class.equals(ref)) text = "Files.";
+        	else if (FileData.class.equals(ref)) text = "Files.";
         	UserNotifier un = 
         		TreeViewerAgent.getRegistry().getUserNotifier();
         	un.notifyInfo("Tree selection", "You can only select "+text);

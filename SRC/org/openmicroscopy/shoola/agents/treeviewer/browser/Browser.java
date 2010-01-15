@@ -41,6 +41,7 @@ import javax.swing.JComponent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
+import org.openmicroscopy.shoola.env.data.FSFileSystemView;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -676,5 +677,14 @@ public interface Browser
 	 * only for the active browser.
 	 */
 	void reActivate();
+	
+	/**
+	 * Sets the repositories.
+	 * 
+	 * @param expNode		The experimenter node. Mustn't be <code>null</code>.
+	 * @param systemView 	The file system hosting the repositories. 
+	 * 						Mustn't be <code>null</code>.
+	 */
+	void setRepositories(TreeImageDisplay expNode, FSFileSystemView systemView);
 	
 }
