@@ -493,7 +493,6 @@ class BrowserUI
     private List<TreeImageNode> transformDirectory(TreeImageSet dirSet)
     {
     	List<TreeImageNode> leaves = new ArrayList<TreeImageNode>();
-    	//FileSystemView fs = chooser.getFileSystemView();
     	FSFileSystemView fs = model.getRepositories();
     	FileData dir = (FileData) dirSet.getUserObject();
     	FileData[] files = fs.getFiles(dir, false);

@@ -1482,13 +1482,11 @@ class BrowserComponent
         Object uo = expNode.getUserObject();
         if (!(uo instanceof ExperimenterData))
         	throw new IllegalArgumentException("Experimenter node not valid.");
-        ExperimenterData exp = (ExperimenterData) uo;
         model.setRepositories(systemView);
     	view.loadFileSystem(expNode);
         countItems(null);
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
-		
 	}
 	
 }

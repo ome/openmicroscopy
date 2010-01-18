@@ -738,6 +738,7 @@ class BrowserModel
 	void setRepositories(FSFileSystemView systemView)
 	{
 		this.systemView = systemView;
+		state = Browser.READY;
 	}
 	
 	/**
