@@ -152,6 +152,7 @@ module omero {
     /* SEQUENCES */
 
     sequence<WatchEventType> WatchEventList;
+    sequence<FileStats> FileStatsList;
 
     /*
      *   Interface declarations
@@ -167,17 +168,36 @@ module omero {
 
         /**
          * Get an absolute directory from an OMERO.fs server.
+         * 
+         * The returned list will contain just the file names for each directory entry.
          *
          * An exception will be raised if the path does not exist or is inaccessible to the
          * OMERO.fs server. An exception will be raised if directory list cannot be
          * returned for any other reason.
          *
-         * @param relPath, an absolute path on the monitor's watch path (string).
+         * @param absPath, an absolute path on the monitor's watch path (string).
          * @param filter, a filter to apply to the listing, cf. ls (string).
          * @return, a directory listing (Ice::StringSeq).
          * @throws omero::OmeroFSError
          **/
         idempotent Ice::StringSeq getDirectory(string absPath, string filter)
+            throws omero::OmeroFSError;
+            
+        /**
+         * Get an absolute directory from an OMERO.fs server. 
+         * 
+         * The returned list will contain the file stats for each directory entry.
+         *
+         * An exception will be raised if the path does not exist or is inaccessible to the
+         * OMERO.fs server. An exception will be raised if directory list cannot be
+         * returned for any other reason.
+         *
+         * @param absPath, an absolute path on the monitor's watch path (string).
+         * @param filter, a filter to apply to the listing, cf. ls (string).
+         * @return, a directory listing (FileStatsList).
+         * @throws omero::OmeroFSError
+         **/
+        idempotent FileStatsList getBulkDirectory(string absPath, string filter)
             throws omero::OmeroFSError;
         /*
          * File level methods

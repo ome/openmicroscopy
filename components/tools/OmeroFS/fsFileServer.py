@@ -111,6 +111,48 @@ class FileServerI(monitors.FileServer):
     
         return fullList
 
+     def getBulkDirectory(self, absPath, filter, current=None):
+        """
+            Get a list of subdirectories and files in a directory.
+        
+            :Parameters:
+                 
+                absPath : string
+                    An absolute path.
+
+                filter : string
+                    A pattern to filter the listing (cf. ls).
+                  
+                current 
+                    An ICE context, this parameter is required to be present
+                    in an ICE interface method.
+                       
+            :return: a list of files stats.
+            :rtype: list<monitors.FileStats>
+     
+        """
+    
+        if filter == "": filter = "*"
+        fullPath = pathModule.path(absPath)
+        try:
+            dirList = fullPath.dirs(filter)
+            fileList = fullPath.files(filter)
+        except Exception, e:
+            self.log.error('Unable to get directory of  ' + str(fullPath) + ' : ' + str(e))
+            raise omero.OmeroFSError(reason='Unable to get directory of  ' + str(fullPath) + ' : ' + str(e))       
+    
+        fullList = []
+        try:
+            for d in dirList:
+                fullList.append(self._getFileStats(d.name))
+            for f in fileList:
+                fullList.append(self._getFileStats(f.name))
+        except Exception, e:
+            self.log.error('Failed to get file stats : ' + str(e))
+            raise omero.OmeroFSError(reason='Failed to getfile stats : '  + str(e))       
+    
+        return fullList
+
     def getBaseName(self, fileId, current=None):
         """
             Return the base names of the file, ie no path.
@@ -164,32 +206,12 @@ class FileServerI(monitors.FileServer):
             self.log.error('File ID  ' + str(fileId) + ' not on this FSServer')
             raise omero.OmeroFSError(reason='File ID  ' + str(fileId) + ' not on this FSServer')       
 
-        stats = monitors.FileStats()
-        
         try:
-            stats.baseName = pathModule.path(pathString).name
-            stats.owner = pathModule.path(pathString).owner
-            stats.size = pathModule.path(pathString).size
-            stats.mTime = pathModule.path(pathString).mtime
-            stats.cTime = pathModule.path(pathString).ctime
-            stats.aTime = pathModule.path(pathString).atime
-            if pathModule.path(pathString).isfile():
-                stats.type = monitors.FileType.File
-            elif pathModule.path(pathString).isdir():
-                stats.type = monitors.FileType.Dir
-            elif pathModule.path(pathString).islink():
-                stats.type = monitors.FileType.Link
-            elif pathModule.path(pathString).ismount():
-                stats.type = monitors.FileType.Mount
-            else:
-                stats.type = monitors.FileType.Unknown
-                    
+            return _getFileStats(pathString)
         except Exception, e:
             self.log.error('Failed to get  ' + str(fileId) + ' stats : ' + str(e))
             raise omero.OmeroFSError(reason='Failed to get  ' + str(fileId) + ' stats : '  + str(e))       
     
-        return stats
-
 
     def getSize(self, fileId, current=None):
         """
@@ -477,6 +499,40 @@ class FileServerI(monitors.FileServer):
     
         return bytes      
        
+    def _getFileStats(self, pathString):
+        """
+            Private method to get stats for a file
+            
+            :Parameters:
+                fileId : string
+                    A string uniquely identifying a file on this Monitor.
+                  
+            :return: stats
+            :rtype: monitors.FileStats
+     
+        """
+        stats = monitors.FileStats()
+        
+        stats.baseName = pathModule.path(pathString).name
+        stats.owner = pathModule.path(pathString).owner
+        stats.size = pathModule.path(pathString).size
+        stats.mTime = pathModule.path(pathString).mtime
+        stats.cTime = pathModule.path(pathString).ctime
+        stats.aTime = pathModule.path(pathString).atime
+        if pathModule.path(pathString).isfile():
+            stats.type = monitors.FileType.File
+        elif pathModule.path(pathString).isdir():
+            stats.type = monitors.FileType.Dir
+        elif pathModule.path(pathString).islink():
+            stats.type = monitors.FileType.Link
+        elif pathModule.path(pathString).ismount():
+            stats.type = monitors.FileType.Mount
+        else:
+            stats.type = monitors.FileType.Unknown
+                    
+        return stats
+        
+
     def _getSHA1(self, pathString):
         """docstring for _getSHA1"""
         try:
