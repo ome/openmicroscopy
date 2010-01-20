@@ -35,7 +35,6 @@ import javax.swing.Action;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.GroupData;
 
 /** 

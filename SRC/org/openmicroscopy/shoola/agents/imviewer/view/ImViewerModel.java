@@ -2069,6 +2069,17 @@ class ImViewerModel
      */
     boolean isSeparateWindow() { return separateWindow; }
    
+    /**
+     * Sets the {@link #separateWindow} flag. 
+     * 
+     * @param separateWindow Pass <code>true</code> to view the viewer
+     *						 in a separate window, <code>false</code> otherwise.
+     */
+    void setSeparateWindow(boolean separateWindow)
+    { 
+    	this.separateWindow = separateWindow;
+    }
+    
     /** Loads the measurements associated to the plate if any specified. */
     void fireMeasurementsLoading()
     {

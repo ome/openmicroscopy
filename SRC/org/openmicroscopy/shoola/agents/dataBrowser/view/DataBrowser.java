@@ -281,11 +281,13 @@ public interface DataBrowser
     /** 
      * Returns the UI component. 
      * 
+     * @param full  Pass <code>true</code> to view the full view,
+     * 				<code>false</code> otherwise.
      * @return See above.
      * @throws IllegalStateException If the current state is
      *                               {@link #DISCARDED}.
      */
-    public JComponent getUI();
+    public JComponent getUI(boolean full);
     
     /**
      * Sets the selected node.
@@ -634,5 +636,6 @@ public interface DataBrowser
 	 * @param data The external application.
 	 */
 	public void openWith(ApplicationData data);
+	
 	
 }

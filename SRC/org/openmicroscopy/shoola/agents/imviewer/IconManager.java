@@ -239,11 +239,17 @@ public class IconManager
     /** The <code>Publishing</code> icon. */
     public static final int           PUBLISHING = 61;
     
+    /** The <code>Close</code> icon. */
+    public static final int           CLOSE = 62;
+    
+    /** The <code>Detach</code> icon. */
+    public static final int           DETACH = 63;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 61;
+    private static final int          MAX_ID = 63;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -310,6 +316,8 @@ public class IconManager
         relPaths[PROJECTION_48] = "projBlack48.png"; 
         relPaths[PROJECTION_12] = "projection12.png"; 
         relPaths[PUBLISHING] = "splitViewFigure16.png";//"nuvola_kcmsystem16.png";
+        relPaths[CLOSE] = "nuvola_cancel16.png";
+        relPaths[DETACH] = "nuvola_cancel16.png";
     }
     
     /** The sole instance. */

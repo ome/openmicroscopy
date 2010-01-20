@@ -490,30 +490,7 @@ public abstract class TreeImageDisplay
      */
     public boolean isAnnotated()
     {
-    	Object uo = getUserObject();
-    	Map counts;
-    	if (uo instanceof ProjectData) {
-    		ProjectData data = (ProjectData) uo;
-    		counts = data.getAnnotationsCounts();
-    		if (counts != null) return counts.size() > 0;
-    	} else if (uo instanceof DatasetData) {
-    		DatasetData data = (DatasetData) uo;
-    		counts = data.getAnnotationsCounts();
-    		if (counts != null) return counts.size() > 0;
-    	} else if (uo instanceof ImageData) {
-    		ImageData data = (ImageData) uo;
-    		counts = data.getAnnotationsCounts();
-    		if (counts != null) return counts.size() > 0;
-    	} else if (uo instanceof PlateData) {
-    		PlateData data = (PlateData) uo;
-    		counts = data.getAnnotationsCounts();
-    		if (counts != null) return counts.size() > 0;
-    	} else if (uo instanceof ScreenData) {
-    		ScreenData data = (ScreenData) uo;
-    		counts = data.getAnnotationsCounts();
-    		if (counts != null) return counts.size() > 0;
-    	}
-    	return false;
+    	return EditorUtil.isAnnotated(getUserObject());
     }
     
     /**

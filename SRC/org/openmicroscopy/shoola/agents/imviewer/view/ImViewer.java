@@ -1121,5 +1121,11 @@ public interface ImViewer
 
 	/** Refreshes the view. */
 	public void refresh();
+
+	/** Closes the viewer. */
+	public void close();
+
+	/** Detaches teh viewer. */
+	public void detach();
 	
 }

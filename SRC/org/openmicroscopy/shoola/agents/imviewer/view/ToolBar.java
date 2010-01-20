@@ -27,12 +27,18 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 //Java imports
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -133,18 +139,32 @@ class ToolBar
 	/** Button to launch the measurement tool. */
 	private JButton					measurementButton;
 	
+	/** Button to close the viewer when it is embedded. */
+	private JButton					closeButton;
+	
+	/** Button to detach the viewer when it is embedded. */
+	private JButton					detachButton;
+	
 	/** Indicates the launching of the measurement tool. */
 	private JXBusyLabel				measurementLabel;
 	
 	/** Indicates the loading progress. */
 	private JXBusyLabel				busyLabel;
 
-	/** The index of the movie icon. */
+	/** The index of the measurement component. */
 	private static final int		MEASUREMENT_INDEX = 13;
+	
+	/** The index of the rnd component. */
+	private static final int		RND_INDEX = 0;
+	
+	/** The index of the Metadata component. */
+	private static final int		METADATA_INDEX = 1;
+	
 	
     /** Helper method to create the tool bar hosting the buttons. */
     private void createControlsBar()
     {
+    	int i = 0;
         bar = new JToolBar();
         bar.setFloatable(false);
         bar.setRollover(true);
@@ -157,48 +177,58 @@ class ToolBar
         rndButton = new JToggleButton();
         rndButton.setSelected(view.isRendererShown());
         rndButton.setAction(controller.getAction(ImViewerControl.RENDERER));
-        bar.add(rndButton);
+        if (view.isSeparateWindow())
+        	bar.add(rndButton, RND_INDEX);
         
         metadataButton = new JToggleButton();
         metadataButton.setSelected(view.isRendererShown());
         metadataButton.setAction(controller.getAction(
         		ImViewerControl.METADATA));
-        bar.add(metadataButton);
+        if (view.isSeparateWindow()) bar.add(metadataButton, METADATA_INDEX);
         
         historyButton = new JToggleButton();
         historyButton.setSelected(view.isHistoryShown());
         historyButton.setAction(controller.getAction(ImViewerControl.HISTORY));
-        //bar.add(historyButton);
+        //if (view.isSeparateWindow()) bar.add(historyButton);
+        JButton b;
+        closeButton = new JButton(controller.getAction(ImViewerControl.CLOSE));
+        UIUtilities.unifiedButtonLookAndFeel(closeButton);
+        detachButton = new JButton(controller.getAction(ImViewerControl.DETACH));
+        UIUtilities.unifiedButtonLookAndFeel(detachButton);
+        if (!view.isSeparateWindow()) {
+        	bar.add(closeButton, RND_INDEX);
+        	bar.add(detachButton, METADATA_INDEX);
+        }
         bar.add(Box.createRigidArea(H_SPACE));
         bar.add(new JSeparator(JSeparator.VERTICAL));
 
         bar.add(Box.createRigidArea(H_SPACE));
-        JButton button = new JButton(
+        b = new JButton(
         			controller.getAction(ImViewerControl.COPY_RND_SETTINGS));
-        UIUtilities.unifiedButtonLookAndFeel(button);
+        UIUtilities.unifiedButtonLookAndFeel(b);
 
-        bar.add(button);  
+        bar.add(b);  
         bar.add(pasteButton);    
-        button = new JButton(
+        b = new JButton(
     			controller.getAction(ImViewerControl.RESET_RND_SETTINGS));
-        UIUtilities.unifiedButtonLookAndFeel(button);
+        UIUtilities.unifiedButtonLookAndFeel(b);
         //bar.add(button);
-        button = new JButton(controller.getAction(
+        b = new JButton(controller.getAction(
         					ImViewerControl.SET_ORIGINAL_RND_SETTINGS));
-        UIUtilities.unifiedButtonLookAndFeel(button);
-        bar.add(button);
-        button = new JButton(
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        bar.add(b);
+        b = new JButton(
     			controller.getAction(ImViewerControl.SAVE_RND_SETTINGS));
-        UIUtilities.unifiedButtonLookAndFeel(button);
-        bar.add(button);
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        bar.add(b);
         bar.add(new JSeparator(JSeparator.VERTICAL));
-        button = new JButton(
+        b = new JButton(
         			controller.getAction(ImViewerControl.MOVIE));
-        UIUtilities.unifiedButtonLookAndFeel(button);
-        bar.add(button);    
-        button =  new JButton(controller.getAction(ImViewerControl.LENS));
-        UIUtilities.unifiedButtonLookAndFeel(button);
-        bar.add(button); 
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        bar.add(b);    
+        b =  new JButton(controller.getAction(ImViewerControl.LENS));
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        bar.add(b); 
         bar.add(new JSeparator(JSeparator.VERTICAL));
         Action a = controller.getAction(ImViewerControl.MEASUREMENT_TOOL);
         measurementButton = new JButton(a);
@@ -214,19 +244,19 @@ class ToolBar
 		}
         
         bar.add(new JSeparator(JSeparator.VERTICAL));
-        button = new JButton(controller.getAction(ImViewerControl.SAVE));
-        UIUtilities.unifiedButtonLookAndFeel(button);
-        bar.add(button);
+        b = new JButton(controller.getAction(ImViewerControl.SAVE));
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        bar.add(b);
         a = controller.getAction(ImViewerControl.ACTIVITY);
-        button = new JButton(a);
-        button.addMouseListener((ActivityImageAction) a);
-        UIUtilities.unifiedButtonLookAndFeel(button);
-        bar.add(button);        
+        b = new JButton(a);
+        b.addMouseListener((ActivityImageAction) a);
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        bar.add(b);        
         
         a = controller.getAction(ImViewerControl.USER);
-        button = new JButton(a);
-        button.addMouseListener((UserAction) a);
-        UIUtilities.unifiedButtonLookAndFeel(button);
+        b = new JButton(a);
+        b.addMouseListener((UserAction) a);
+        UIUtilities.unifiedButtonLookAndFeel(b);
         //bar.add(button);
         
         Dimension d = new Dimension(w, h);
@@ -377,9 +407,18 @@ class ToolBar
     		bar.revalidate();
     		bar.repaint();
     	} 
-
 	}
-	
+
+	/** Sets the viewer in a separate window. */
+	void setSeparateWindow()
+	{
+		bar.remove(closeButton);
+		bar.remove(detachButton);
+		bar.add(rndButton, RND_INDEX);
+		bar.add(metadataButton, METADATA_INDEX);
+		bar.revalidate();
+		bar.repaint();
+	}
 	
     /**
      * Sets the enabled flag of the components.

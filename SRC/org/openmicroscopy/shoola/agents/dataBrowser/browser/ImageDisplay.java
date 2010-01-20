@@ -304,8 +304,7 @@ public abstract class ImageDisplay
 			}
     		
     	}
-    	if (EditorUtil.isAnnotated(hierarchyObject) && !(hierarchyObject 
-    			instanceof ImageData)) 
+    	if (EditorUtil.isAnnotated(hierarchyObject)) 
     		nodes.add(new JLabel(icons.getIcon(IconManager.ANNOTATION_8)));
     	
     	if (nodes.size() > 0) setDecoration(nodes);

@@ -1760,6 +1760,7 @@ class OMEROGateway
 			}
 			view = new FSFileSystemView(repositories);
 		} catch (Throwable e) {
+			e.printStackTrace();
 			handleException(e, "Cannot load the repositories");
 		}
 		

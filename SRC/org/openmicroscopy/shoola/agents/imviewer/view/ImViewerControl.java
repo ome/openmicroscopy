@@ -60,10 +60,12 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ActivityImageAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ChannelMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ChannelsSelectionAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ClearHistoryAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.CloseAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.CompressionAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.CopyRndSettingsAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.DetachAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.HistoryAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.LensAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.MetadataAction;
@@ -324,7 +326,10 @@ class ImViewerControl
 	
 	/** Identifies the <code>Activity</code> action. */
 	static final Integer     ACTIVITY = Integer.valueOf(71);
-	
+
+	/** Identifies the <code>Detach</code> action. */
+	static final Integer     DETACH = Integer.valueOf(72);
+
 	/** 
 	 * Reference to the {@link ImViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -428,6 +433,8 @@ class ImViewerControl
 		actionsMap.put(CHANNELS_ON, new ChannelsSelectionAction(model, true));
 		actionsMap.put(CHANNELS_OFF, new ChannelsSelectionAction(model, false));
 		actionsMap.put(ACTIVITY, new ActivityImageAction(model));
+		actionsMap.put(CLOSE, new CloseAction(model));
+		actionsMap.put(DETACH, new DetachAction(model));
 		//TO be modified.
 		actionsMap.put(PLAY_LIFETIME_MOVIE, new PlayMovieAction(model, 
 				PlayMovieAction.ACROSS_T));

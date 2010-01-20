@@ -77,11 +77,13 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.DownloadAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.EditorAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ExitApplicationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FinderAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.FullScreenViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ImportAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ImporterVisibilityAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.InspectorVisibilityAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.MetadataVisibilityAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteRndSettingsAction;
@@ -306,8 +308,14 @@ class TreeViewerControl
 	/** Identifies the <code>View with Other</code> in the menu. */
 	static final Integer    VIEWER_WITH_OTHER = Integer.valueOf(56);
 	
-	/** Identifies the <code>View with Other</code> in the menu. */
+	/** Identifies the <code>Personal</code> in the menu. */
 	static final Integer   PERSONAL = Integer.valueOf(57);
+	
+	/** Identifies the <code>Full Screen</code> in the menu. */
+	static final Integer   FULLSCREEN = Integer.valueOf(58);
+	
+	/** Identifies the <code>Personal</code> in the menu. */
+	static final Integer   METADATA = Integer.valueOf(59);
 	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
@@ -428,6 +436,8 @@ class TreeViewerControl
 		actionsMap.put(DOWNLOAD, new DownloadAction(model));
 		actionsMap.put(VIEWER_WITH_OTHER, new ViewOtherAction(model, null));
 		actionsMap.put(PERSONAL, new PersonalManagementAction(model));
+		actionsMap.put(FULLSCREEN, new FullScreenViewerAction(model));
+		actionsMap.put(METADATA, new MetadataVisibilityAction(model));
 	}
 
 	/** 

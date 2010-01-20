@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.InspectorVisibilityAction 
+ * org.openmicroscopy.shoola.agents.treeviewer.actions.FullScreenViewerAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -24,19 +24,20 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 
 //Java imports
-import java.awt.event.ActionEvent;
-import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import java.awt.event.ActionEvent;
+
+import javax.swing.Action;
+
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-
 /** 
- * Show or hide the tree view.
+ * Displays in the image in the main tab or in a separate viewer.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,54 +49,37 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta4
  */
-public class InspectorVisibilityAction 
+public class FullScreenViewerAction 
 	extends TreeViewerAction
 {
 
     /** The name of the action. */
-    private static final String NAME_HIDE = "Hide Tree Viewer";
-    
-    /** The name of the action. */
-    private static final String NAME_SHOW = "Show Tree Viewer";
-    
+    private static final String NAME= "Open image in Separate Window";
+
     /** The description of the action. */
-    private static final String DESCRIPTION_HIDE = "Hide the Tree Viewer."; 
-    
-    /** The description of the action. */
-    private static final String DESCRIPTION_SHOW = "Show the Tree Viewer."; 
-    
-    /**
-     * Creates a new instance.
-     * 
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
-     */
-	public InspectorVisibilityAction(TreeViewer model)
+    private static final String DESCRIPTION = "Open image in Separate Window " +
+    		"if selected";
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param model 	Reference to the Model. Mustn't be <code>null</code>.
+	 */
+	public FullScreenViewerAction(TreeViewer model)
 	{
 		super(model);
 		setEnabled(true);
-		name = NAME_HIDE;
+		name = NAME;
 		putValue(Action.SHORT_DESCRIPTION, 
-				UIUtilities.formatToolTipText(DESCRIPTION_HIDE));
+				UIUtilities.formatToolTipText(DESCRIPTION));
 		IconManager im = IconManager.getInstance();
 		putValue(Action.SMALL_ICON, im.getIcon(IconManager.INSPECTOR)); 
 	}
 	
     /**
-     * Shows or hides the Tree Viewer.
+     * Opens the selected image in a separate viewer or embedded
+     * in the main window.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
-    { 
-    	if (NAME_HIDE.equals(name)) {
-    		name = NAME_SHOW;
-    		putValue(Action.SHORT_DESCRIPTION, 
-    				UIUtilities.formatToolTipText(DESCRIPTION_SHOW));
-    	} else {
-    		name = NAME_HIDE;
-    		putValue(Action.SHORT_DESCRIPTION, 
-    				UIUtilities.formatToolTipText(DESCRIPTION_HIDE));
-    	}
-    	model.setInspectorVisibility();
-    }
-    
+    public void actionPerformed(ActionEvent e) { model.setFullScreen(); }
+	
 }

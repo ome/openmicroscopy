@@ -122,17 +122,6 @@ class DataBrowserUI
 	/** The magnification factor. */
 	private double					factor;
 	
-	/** Builds and lays out the UI. */
-	private void buildGUI()
-	{
-		setLayout(new BorderLayout(0, 0));
-		if (model.getType() == DataBrowserModel.WELLS) 
-			add(wellToolBar, BorderLayout.NORTH);
-		else add(toolBar, BorderLayout.NORTH);
-		add(model.getBrowser().getUI(), BorderLayout.CENTER);
-		add(statusBar, BorderLayout.SOUTH);
-	}
-	
 	/** Creates a new instance. */
 	DataBrowserUI()
 	{
@@ -164,7 +153,31 @@ class DataBrowserUI
 		selectedView = THUMB_VIEW;
 		factor = Thumbnail.SCALING_FACTOR;
 		setNumberOfImages(-1);
-		buildGUI();
+		setLayout(new BorderLayout(0, 0));
+		buildGUI(true);
+	}
+	
+	/** Builds and lays out the UI. 
+	 * 
+	 * @param full  Pass <code>true</code> to add all the components,
+	 * 				<code>false</code> otherwise.
+	 */
+	void buildGUI(boolean full)
+	{
+		removeAll();
+		int number = model.getNumberOfImages();
+		if (full) {
+			if (model.getType() == DataBrowserModel.WELLS) {
+				number = -1;
+				add(wellToolBar, BorderLayout.NORTH);
+			} else {
+				number = toolBar.getItemsPerRow();
+				add(toolBar, BorderLayout.NORTH);
+			}
+			add(statusBar, BorderLayout.SOUTH);
+		}
+		if (number > 0) setItemsPerRow(number);
+		add(model.getBrowser().getUI(), BorderLayout.CENTER);
 	}
 	
 	/**

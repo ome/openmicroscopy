@@ -60,6 +60,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewerCreated;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
@@ -414,6 +415,28 @@ class ImViewerComponent
 	}
 
 	/**
+	 * Posts an event to indicate to embed the image viewer.
+	 * 
+	 * @param toAdd  Pass <code>true</code> to embed it, <code>false</code>
+	 * 				 to remove it.
+	 * @param detach Pass <code>true</code> to detach it, <code>false</code>
+	 * 				 otherwise.
+	 */
+	private void postViewerCreated(boolean toAdd, boolean detach)
+	{
+		JComponent c = null;
+		if (toAdd) {
+			showView(RENDERER_INDEX);
+			c = view.asComponent();
+		} 
+		ViewerCreated evt = new ViewerCreated(c, 
+				model.getMetadataViewer().getEditorUI(), toAdd);
+		evt.setDetach(detach);
+		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+		bus.post(evt);
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * The {@link #initialize() initialize} method should be called straight 
 	 * after to complete the MVC set up.
@@ -538,9 +561,13 @@ class ImViewerComponent
 						"This method can't be invoked in the DISCARDED state.");
 			default:
 				if (view != null) {
-					UIUtilities.centerOnScreen(view);
-					view.toFront();
-					view.requestFocusInWindow();
+					if (model.isSeparateWindow()) {
+						UIUtilities.centerOnScreen(view);
+						view.toFront();
+						view.requestFocusInWindow();
+					} else {
+						postViewerCreated(true, false);
+					}
 				}
 		}
 	}
@@ -2386,7 +2413,6 @@ class ImViewerComponent
 					"NEW state.");
 		}
 		if (index == RENDERER_INDEX || index == METADATA_INDEX) {
-			
 			view.showRenderer(false, index);
 			controller.setPreferences();
 		} else {
@@ -2770,6 +2796,8 @@ class ImViewerComponent
 				view.setOnScreen();
 				view.toFront();
 				view.requestFocusInWindow();
+			} else {
+				postViewerCreated(true, false);;
 			}
 			if (ImViewerAgent.isFastConnection())
 				model.firePlaneInfoRetrieval();
@@ -3012,6 +3040,26 @@ class ImViewerComponent
 	{
 		view.refresh();
 		renderXYPlane();
+	}
+
+	/** Closes the viewer. */
+	public void close()
+	{
+		if (model.getState() == DISCARDED) return;
+		if (model.isSeparateWindow()) return; //Option not available.
+		postViewerCreated(false, false);
+		discard();
+	}
+
+	/** Detaches the viewer. */
+	public void detach()
+	{
+		if (model.getState() == DISCARDED) return;
+		if (model.isSeparateWindow()) return; //Option not available.
+		postViewerCreated(false, true);
+		model.setSeparateWindow(true);
+		view.rebuild();
+		view.setOnScreen();
 	}
 	
 }

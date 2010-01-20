@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.InspectorVisibilityAction 
+ * org.openmicroscopy.shoola.agents.treeviewer.actions.MetadataVisibilityAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 
+
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
@@ -34,9 +35,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-
 /** 
- * Show or hide the tree view.
+ * Show or hide the metadata view.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,28 +48,28 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta4
  */
-public class InspectorVisibilityAction 
+public class MetadataVisibilityAction 
 	extends TreeViewerAction
 {
 
     /** The name of the action. */
-    private static final String NAME_HIDE = "Hide Tree Viewer";
+    private static final String NAME_HIDE = "Hide Metadata view";
     
     /** The name of the action. */
-    private static final String NAME_SHOW = "Show Tree Viewer";
+    private static final String NAME_SHOW = "Show Metadata view";
     
     /** The description of the action. */
-    private static final String DESCRIPTION_HIDE = "Hide the Tree Viewer."; 
+    private static final String DESCRIPTION_HIDE = "Hide the Metadata view."; 
     
     /** The description of the action. */
-    private static final String DESCRIPTION_SHOW = "Show the Tree Viewer."; 
+    private static final String DESCRIPTION_SHOW = "Show the Metadata view."; 
     
     /**
      * Creates a new instance.
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-	public InspectorVisibilityAction(TreeViewer model)
+	public MetadataVisibilityAction(TreeViewer model)
 	{
 		super(model);
 		setEnabled(true);
@@ -77,7 +77,7 @@ public class InspectorVisibilityAction
 		putValue(Action.SHORT_DESCRIPTION, 
 				UIUtilities.formatToolTipText(DESCRIPTION_HIDE));
 		IconManager im = IconManager.getInstance();
-		putValue(Action.SMALL_ICON, im.getIcon(IconManager.INSPECTOR)); 
+		putValue(Action.SMALL_ICON, im.getIcon(IconManager.ANNOTATION)); 
 	}
 	
     /**
@@ -95,7 +95,7 @@ public class InspectorVisibilityAction
     		putValue(Action.SHORT_DESCRIPTION, 
     				UIUtilities.formatToolTipText(DESCRIPTION_HIDE));
     	}
-    	model.setInspectorVisibility();
+    	model.setMetadataVisibility();
     }
     
 }

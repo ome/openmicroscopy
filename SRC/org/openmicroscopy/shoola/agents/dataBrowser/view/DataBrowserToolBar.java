@@ -540,18 +540,6 @@ class DataBrowserToolBar
 		add(content);
 	}
 	
-	/** Sets the number of items per row. */
-	private void parseItemsPerRow()
-	{
-		int row = -1;
-		try {
-			row = Integer.parseInt(itemsPerRow.getText());
-		} catch(NumberFormatException nfe) {}
-		
-		if (row < 0) row = LayoutUtils.DEFAULT_PER_ROW;
-		view.setItemsPerRow(row);
-	}
-	
 	/** Creates a report. */
 	private void report()
 	{
@@ -589,6 +577,22 @@ class DataBrowserToolBar
 		this.view = view;
 		initComponents();
 		buildGUI();
+	}
+	
+	/**
+	 * Returns the number of items per row.
+	 * 
+	 * @return See above.
+	 */
+	int getItemsPerRow()
+	{
+		int row = -1;
+		try {
+			row = Integer.parseInt(itemsPerRow.getText());
+		} catch(NumberFormatException nfe) {}
+		
+		if (row < 0) row = LayoutUtils.DEFAULT_PER_ROW;
+		return row;
 	}
 	
 	/**
@@ -782,7 +786,7 @@ class DataBrowserToolBar
 				UIUtilities.centerAndShow(dialog);
 				break;
 			case ITEMS_PER_ROW:
-				parseItemsPerRow();
+				view.setItemsPerRow(getItemsPerRow());
 				break;
 			case SLIDE_SHOW_IMAGES:
 			case SLIDE_SHOW_SELECTION:

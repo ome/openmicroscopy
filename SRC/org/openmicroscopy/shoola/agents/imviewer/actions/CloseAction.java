@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.actions.RendererAction
+ * org.openmicroscopy.shoola.agents.imviewer.actions.CloseAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,13 +20,12 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.imviewer.actions;
-
 
 
 //Java imports
 import java.awt.event.ActionEvent;
+
 import javax.swing.Action;
 
 //Third-party libraries
@@ -37,51 +36,50 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Brings up on screen the rendering controls tool.
+ * Closes the viewer. Only available if the viewer is not in a separate 
+ * window.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since 3.0-Beta4
  */
-public class RendererAction
-    extends ViewerAction
+public class CloseAction 
+	extends ViewerAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Renderer";
+    private static final String NAME = "Close";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Display rendering controls.";
-    
+    private static final String DESCRIPTION = "Close the viewer.";
+
     /**
      * Creates a new instance.
      * 
      * @param model Reference to the model. Mustn't be <code>null</code>.
      */
-    public RendererAction(ImViewer model)
-    {
-        super(model, NAME);
-        putValue(Action.SHORT_DESCRIPTION, 
+	public CloseAction(ImViewer model)
+	{
+		super(model);
+		putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager icons = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.RENDERER));
-    }
-    
+        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.CLOSE));
+	}
+	
     /** 
-     * Brings up on screen the rendering controls tool.
+     * Closes the viewer.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     { 
-    	model.showView(ImViewer.RENDERER_INDEX); 
+    	model.close();
     }
     
 }

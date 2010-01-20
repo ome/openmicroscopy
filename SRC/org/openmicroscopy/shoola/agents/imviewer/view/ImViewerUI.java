@@ -284,6 +284,9 @@ class ImViewerUI
 	/** The default index of the scale bar. */
 	private int									defaultIndex;
 	
+	/** The viewer as a component. */
+	private JComponent							component;
+	
 	/**
 	 * Finds the first {@link HistoryItem} in <code>x</code>'s containment
 	 * hierarchy.
@@ -866,7 +869,7 @@ class ImViewerUI
 		//restoreSize = new Dimension(0, 0);
 		//layoutComponents(false);
 	}
-
+	
 	/**
 	 * Returns the size this widget should have to display the image
 	 * before adding the split panes.
@@ -932,13 +935,11 @@ class ImViewerUI
 		switch (displayMode) {
 			case RENDERER:
 				rightComponent = model.getMetadataViewer().getEditorUI();
-				//container.remove(mainComponent);
-				//addComponents(rendererSplit, tabs, rightComponent);
 				rendererSplit.setRightComponent(rightComponent);
-				//mainComponent = rendererSplit;
-				//container.add(mainComponent, BorderLayout.CENTER);
-				//container.validate();
-				//container.repaint();
+				if (restoreSize == null) {
+					rendererSplit.setResizeWeight(1.0);
+					return;
+				}
 				d = model.getMetadataViewer().getIdealRendererSize();
 				rightComponent.setMinimumSize(d);
 				tabs.setMinimumSize(restoreSize);
@@ -998,13 +999,9 @@ class ImViewerUI
 				height += addition;
 				break;
 			case NEUTRAL:
-				//container.remove(mainComponent);
-				//mainComponent = tabs;
 				rightComponent = model.getMetadataViewer().getEditorUI();
 				rendererSplit.remove(rightComponent);
-				//container.add(mainComponent, BorderLayout.CENTER);
-				//container.validate();
-				//container.repaint();
+				if (restoreSize == null) return;
 				width = restoreSize.width;
 				height = restoreSize.height;
 				break;
@@ -2328,6 +2325,15 @@ class ImViewerUI
 		return controlPane.isSourceDisplayed(source);
 	}
 		
+    /**
+     * Returns <code>true</code> if the viewer should be opened in a 
+     * separate window, <code>false</code> otherwise.
+     * The default value is <code>true</code>.
+     * 
+     * @return See above.
+     */
+	boolean isSeparateWindow() { return model.isSeparateWindow(); }
+	
 	/** Builds the UI to handle overlays. */
 	void buildOverlays()
 	{
@@ -2376,6 +2382,37 @@ class ImViewerUI
 	 */
 	boolean isBigImage() { return model.isBigImage(); }
 
+	/**
+	 * Returns the view as a component.
+	 * 
+	 * @return See above.
+	 */
+	JComponent asComponent()
+	{
+		if (component != null) return component;
+		component = new JPanel();
+		component.setLayout(new BorderLayout(0, 0));
+		component.add(toolBar, BorderLayout.NORTH);
+		component.add(mainComponent, BorderLayout.CENTER);
+		return component;
+	}
+	
+	/** 
+	 * Re-attaches the viewer. 
+	 * This method should only be invoked when the image has been embedded
+	 * and detached.
+	 */
+	void rebuild()
+	{
+		if (component == null) return;
+		//component.add(mainComponent, BorderLayout.CENTER);
+		component.add(statusBar, BorderLayout.SOUTH);
+		Container c = getContentPane();
+		toolBar.setSeparateWindow();
+		c.setLayout(new BorderLayout(0, 0));
+		c.add(component, BorderLayout.CENTER);
+		
+	}
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 

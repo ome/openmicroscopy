@@ -1475,7 +1475,8 @@ class BrowserComponent
                     "This method can only be invoked in the LOADING_DATA "+
                     "state.");
         if (model.getBrowserType() != FILE_SYSTEM_EXPLORER) return;
-        if (systemView == null) throw new NullPointerException("No File System.");
+        if (systemView == null) 
+        	throw new NullPointerException("No File System.");
       
         if (expNode == null)
         	throw new IllegalArgumentException("Experimenter node not valid.");

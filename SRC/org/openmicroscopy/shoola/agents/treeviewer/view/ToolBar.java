@@ -49,13 +49,12 @@ import javax.swing.JToolBar;
 import javax.swing.border.BevelBorder;
 
 //Third-party libraries
+import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
-import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PersonalManagementAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -99,6 +98,9 @@ class ToolBar
     /** The menu displaying the groups the user is a member of. */
     private JPopupMenu			personalMenu;
 
+    /** Button to open the full in a separate window. */
+    private JToggleButton		fullScreen;
+    
     /** Initializes the components. */
     private void initComponents()
     {
@@ -120,6 +122,7 @@ class ToolBar
                 TreeViewerAgent.getRegistry().lookup(
                         "/resources/fonts/Labels"));
     }
+    
     /**
      * Helper method to create the tool bar hosting the management items.
      * 
@@ -133,6 +136,12 @@ class ToolBar
         bar.setBorder(null);
         JToggleButton button = new JToggleButton(
         		controller.getAction(TreeViewerControl.INSPECTOR));
+        //UIUtilities.unifiedButtonLookAndFeel(button);
+        button.setSelected(true);
+        bar.add(button);
+        
+        button = new JToggleButton(
+        		controller.getAction(TreeViewerControl.METADATA));
         //UIUtilities.unifiedButtonLookAndFeel(button);
         button.setSelected(true);
         bar.add(button);
@@ -171,6 +180,12 @@ class ToolBar
         b = new JButton(controller.getAction(TreeViewerControl.IMPORT));
         UIUtilities.unifiedButtonLookAndFeel(b);
         //bar.add(b);
+        bar.add(new JSeparator(JSeparator.VERTICAL));
+        fullScreen = new JToggleButton(
+        		controller.getAction(TreeViewerControl.FULLSCREEN));
+        //UIUtilities.unifiedButtonLookAndFeel(button);
+        fullScreen.setSelected(model.isFullScreen());
+        bar.add(fullScreen);
         return bar;
     }
     
@@ -347,4 +362,13 @@ class ToolBar
         menu.show(c, p.x, p.y);
     }
     
+    /**
+     * Sets the selected flag of the {@link #fullScreen} component.
+     * 
+     * @param selected The value to set.
+     */
+    void setFullScreenSelected(boolean selected)
+    { 
+    	fullScreen.setSelected(selected);
+    }
 }

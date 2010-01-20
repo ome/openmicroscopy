@@ -174,7 +174,10 @@ class TreeViewerModel
 	private Map<Integer, ImagesImporter>	importLoaders;
 	
 	/** The id associated to an import. */
-	private int					importID;
+	private int							importID;
+	
+	/** Flag indicating to open the images in a separate window or not. */
+	private boolean						fullScreen;
 	
 	/**
 	 * Builds the map linking the nodes to copy and the parents.
@@ -297,6 +300,7 @@ class TreeViewerModel
 		importID = 0;
 		recycled = false;
 		refImage = null;
+		fullScreen = true;
 	}
 	
 	/**
@@ -1131,5 +1135,22 @@ class TreeViewerModel
 		return getObjectMimeType(d.getUserObject());
 	}
 	
+	/**
+	 * Returns <code>true</code> if the images are opened in a separate 
+	 * window, <code>false</code> to open them in the main window.
+	 * 
+	 * @return See above.
+	 */
+	boolean isFullScreen() { return fullScreen; }
+	
+	/**
+	 * Sets to <code>true</code> to open the images in a separate 
+	 * window, to <code>false</code> to open them in the main window.
+	 * 
+	 * @param fullScreen Pass <code>true</code> to open the images in a separate 
+	 * 					 window, to <code>false</code> to open them in the main 
+	 * 					 window.
+	 */
+	void setFullScreen(boolean fullScreen) { this.fullScreen = fullScreen; }
 	
 }

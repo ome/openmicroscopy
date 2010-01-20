@@ -38,6 +38,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
@@ -228,8 +230,11 @@ class TreeViewerComponent
 	 * 
 	 * @param object 	The object of reference.
 	 * @param display	The node to handle.
+	 * @param visible	Pass <code>true</code> to display the browser,
+	 * 					<code>false</code> otherwise.
 	 */
-	private void showDataBrowser(Object object, TreeImageDisplay display)
+	private void showDataBrowser(Object object, TreeImageDisplay display, 
+			boolean visible)
 	{
 		DataBrowser db = null;
 		TreeImageDisplay parent = null;
@@ -243,8 +248,10 @@ class TreeViewerComponent
 				db = DataBrowserFactory.getDataBrowser(ho);
 				if (db != null) {
 					db.setComponentTitle("");
-					view.removeAllFromWorkingPane();
-					view.addComponent(db.getUI());
+					if (visible) {
+						view.removeAllFromWorkingPane();
+						view.displayBrowser(db);
+					}
 					list = browser.getSelectedDataObjects();
 					if (list != null && list.size() == 1) {
 						app = TreeViewerFactory.getApplications(
@@ -301,7 +308,8 @@ class TreeViewerComponent
 	        				}
 	        			}
 					} else
-						showDataBrowser(object, parent.getParentDisplay());
+						showDataBrowser(object, parent.getParentDisplay(), 
+								visible);
 				}
 			} else {
 				view.removeAllFromWorkingPane();
@@ -310,8 +318,10 @@ class TreeViewerComponent
         	db = DataBrowserFactory.getDataBrowser(object);
         	if (db != null) {
         		db.setComponentTitle("");
-        		view.removeAllFromWorkingPane();
-        		view.addComponent(db.getUI());
+        		if (visible) {
+        			view.removeAllFromWorkingPane();
+            		view.addComponent(db.getUI(model.isFullScreen()));
+        		}
         		if (object instanceof DataObject) {
         			List<DataObject> nodes = new ArrayList<DataObject>();
             		nodes.add((DataObject) object);
@@ -709,8 +719,12 @@ class TreeViewerComponent
         		  if (l.size() > 0)
         		  	metadata.setRelatedNodes(l);
         	  }
-              showDataBrowser(object, display);
+        	  if (!model.isFullScreen()) {
+        		  showDataBrowser(object, display, false);
+        		  browse(display, true);
+        	  } else showDataBrowser(object, display, true);
         } else metadata.setRootObject(null);
+        
 	}
 
 	/**
@@ -772,6 +786,10 @@ class TreeViewerComponent
 		model.getDataViewer().setApplications(
 				TreeViewerFactory.getApplications(
 						model.getObjectMimeType(selected)));
+		if (!model.isFullScreen()) {
+			Browser browser = model.getSelectedBrowser();
+			browse(browser.getLastSelectedDisplay(), false);
+		}
 	}
 
 	/**
@@ -1576,7 +1594,7 @@ class TreeViewerComponent
 					parentObject, leaves);
 		db.addPropertyChangeListener(controller);
 		db.activate();
-		view.addComponent(db.getUI());
+		view.displayBrowser(db);
 		model.setDataViewer(db);
 	}
 	
@@ -1711,7 +1729,7 @@ class TreeViewerComponent
 			db.addPropertyChangeListener(controller);
 			db.activate();
 			view.removeAllFromWorkingPane();
-			view.addComponent(db.getUI());
+			view.displayBrowser(db);
 		}
 		model.setDataViewer(db);
 	}
@@ -1835,7 +1853,7 @@ class TreeViewerComponent
 			case SEARCH_MODE:
 				model.getMetadataViewer().setRootObject(null);
 				if (db != null) {
-					view.addComponent(db.getUI());
+					view.displayBrowser(db);
 					model.setDataViewer(db);
 				}
 		}
@@ -1863,7 +1881,7 @@ class TreeViewerComponent
 			db.addPropertyChangeListener(controller);
 			db.activate();
 			view.removeAllFromWorkingPane();
-			view.addComponent(db.getUI());
+			view.displayBrowser(db);
 			model.setDataViewer(db);
 		}
 		
@@ -1964,7 +1982,7 @@ class TreeViewerComponent
 		db.addPropertyChangeListener(controller);
 		db.activate();
 		view.removeAllFromWorkingPane();
-		view.addComponent(db.getUI());
+		view.displayBrowser(db);
 		model.setDataViewer(db);
 		model.setState(READY);
 		fireStateChange();
@@ -2016,7 +2034,7 @@ class TreeViewerComponent
 			db.addPropertyChangeListener(controller);
 			db.activate();
 			view.removeAllFromWorkingPane();
-			view.addComponent(db.getUI());
+			view.displayBrowser(db);
 			model.setDataViewer(db);
 		}
 		model.setState(READY);
@@ -2044,6 +2062,7 @@ class TreeViewerComponent
 		} else if (uo instanceof ImageData) {
 			EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
 			ViewImage evt = new ViewImage((ImageData) uo, view.getBounds());
+			evt.setSeparateWindow(model.isFullScreen());
 			TreeImageDisplay p = node.getParentDisplay();
 			TreeImageDisplay gp = null;
 			DataObject po = null;
@@ -2311,8 +2330,7 @@ class TreeViewerComponent
 		if (model.getState() == DISCARDED) return;
 		view.setInspectorVisibility();
 	}
-	
-	
+
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#importFiles(ImportableObject)
@@ -2665,9 +2683,41 @@ class TreeViewerComponent
 			browser.reActivate();
 		}
 		model.setDataViewer(null);
-		//Change default group
-		//load Data
-		System.err.println(group.getId()+" "+exp.getDefaultGroup().getId());
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#displayViewer(JComponent, JComponent, boolean, boolean)
+	 */
+	public void displayViewer(JComponent viewer, JComponent controls,
+			boolean toAdd, boolean toDetach)
+	{
+		if (toAdd) {
+			if (viewer == null || controls == null) return;
+		}
+		view.displayViewer(viewer, controls, toAdd, toDetach);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setFullScreen()
+	 */
+	public void setFullScreen()
+	{
+		if (model.getState() == DISCARDED) return;
+		boolean value = model.isFullScreen();
+		model.setFullScreen(!value);
+		if (value) view.displayBrowser(model.getDataViewer());
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setMetadataVisibility()
+	 */
+	public void setMetadataVisibility()
+	{
+		if (model.getState() == DISCARDED) return;
+		view.setMetadataVisibility();
 	}
 	
 }

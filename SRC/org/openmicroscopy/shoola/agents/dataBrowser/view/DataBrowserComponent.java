@@ -311,9 +311,13 @@ class DataBrowserComponent
 	
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
-	 * @see DataBrowser#getUI()
+	 * @see DataBrowser#getUI(boolean)
 	 */
-	public JComponent getUI() { return view; }
+	public JComponent getUI(boolean full)
+	{ 
+		view.buildGUI(full);
+		return view;
+	}
 
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.

@@ -59,6 +59,7 @@ import javax.swing.filechooser.FileFilter;
 
 //Application-internal dependencies
 import org.jdesktop.swingx.JXTaskPane;
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
@@ -90,6 +91,9 @@ class TreeViewerWin
 
 	/** Identifies the <code>JXTaskPane</code> layout. */
 	static final String			JXTASKPANE_TYPE = "JXTaskPane";
+
+	/** Indicates how much to give to the Metadata View. */
+	private static final double WEIGHT = 0.7;
 	
     /** The default title of the window. */
     private static final String TITLE = "Data Manager";
@@ -139,6 +143,9 @@ class TreeViewerWin
 	/** The component that has been removed. */
 	private Component			leftComponent;
 	
+	/** The component that has been removed. */
+	private Component			rightComponent;
+	
 	/** The location of the divider. */
 	private int					dividerLocation;
 	
@@ -148,12 +155,24 @@ class TreeViewerWin
 	/** Flag indicating that the tree is visible or hidden. */
 	private boolean				treeVisible;
 	
+	/** Flag indicating that the metadata view is visible or hidden. */
+	private boolean				metadataVisible;
+	
+	/** The location of the right splia pane. */
+	private int					dividerRightLocation;
+
 	/** The first selected pane. */
     private JXTaskPane 			firstPane;
     
     /** The component hosting the task panes. */
     private JXTaskPaneContainerSingle 	container;
-   
+
+    /** The pane displaying the viewer. */
+    private JSplitPane			viewerPane;
+    
+    /** Indicate how the browser is displayed. */
+    private int					browsingType;
+    
     /**
      * Returns <code>true</code> if the Screening data are displayed first,
      * <code>false</code> otherwise.
@@ -189,7 +208,6 @@ class TreeViewerWin
     	Map browsers = model.getBrowsers();
     	Browser browser;
     	if (getLayoutType().equals(JXTASKPANE_TYPE)) {
-    		 
     		container = new JXTaskPaneContainerSingle();
     		container.addPropertyChangeListener(controller);
     		JXTaskPane pane;
@@ -426,12 +444,19 @@ class TreeViewerWin
         workingPane = new JScrollPane();
         workingPane.setBackground(UIUtilities.BACKGROUND_COLOR);
         workingPane.getViewport().setBackground(UIUtilities.BACKGROUND_COLOR);
+        viewerPane = new JSplitPane();
+        viewerPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+        viewerPane.setOneTouchExpandable(true);
+        viewerPane.setContinuousLayout(true);
+        viewerPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+        //viewerPane.setResizeWeight(1.0);
     }
 
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
     	treeVisible = true;
+    	metadataVisible = true;
     	rightPane = new JSplitPane();
     	rightPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     	rightPane.setOneTouchExpandable(true);
@@ -439,7 +464,7 @@ class TreeViewerWin
     	rightPane.setBackground(UIUtilities.BACKGROUND_COLOR);
     	rightPane.setLeftComponent(workingPane);
     	rightPane.setRightComponent(model.getMetadataViewer().getEditorUI());
-    	rightPane.setResizeWeight(0.7);
+    	rightPane.setResizeWeight(WEIGHT);
     	splitPane = new JSplitPane();
         //splitPane.setResizeWeight(1);
         splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
@@ -616,6 +641,71 @@ class TreeViewerWin
         viewPort.validate();
     }
 
+	/**
+	 * Displays the passed viewer in the working area.
+	 * 
+	 * @param viewer The viewer to display.
+	 * @param controls Reference to the controls.
+	 * @param toAdd  Pass <code>true</code> to add the component, 
+	 * 				 <code>false</code> otherwise. 
+	 * @param toDetach 	Pass <code>true</code> to detach the viewer, 
+	 * 					<code>false</code> otherwise.
+	 */
+    void displayViewer(JComponent viewer, JComponent controls, boolean toAdd,
+    		boolean toDetach)
+	{
+    	JViewport viewPort = workingPane.getViewport();
+    	viewPort.removeAll();
+    	viewerPane.removeAll();
+    	if (toAdd) {
+    		if (model.isFullScreen()) return;
+    		addComponent(viewer);
+        	DataBrowser db = model.getDataViewer();
+        	int location  = splitPane.getDividerLocation();
+        	splitPane.removeAll();
+        	splitPane.setLeftComponent(browsersDisplay);
+        	if (db != null) {
+        		viewerPane.setTopComponent(viewer);
+            	viewerPane.setBottomComponent(db.getUI(false));
+            	viewerPane.setResizeWeight(WEIGHT);
+            	splitPane.setRightComponent(viewerPane);
+        	} else splitPane.setRightComponent(rightPane);
+        	splitPane.setDividerLocation(location);
+    	} else {
+    		if (toDetach) {
+    			//open the viewer in a separate view.
+    			DataBrowser db = model.getDataViewer();
+    			if (db != null)
+    				viewerPane.setBottomComponent(db.getUI(false));
+            	viewerPane.setResizeWeight(WEIGHT);
+    		} else {
+    			model.setFullScreen(false);
+    			toolBar.setFullScreenSelected(true);
+    			int location  = splitPane.getDividerLocation();
+            	splitPane.removeAll();
+            	splitPane.setLeftComponent(browsersDisplay);
+            	splitPane.setRightComponent(rightPane);
+            	splitPane.setDividerLocation(location);
+    		}
+    	}
+	}
+    
+	/** 
+	 * Displays the renderer.
+	 * 
+	 * @param db The data browser.
+	 */
+	void displayBrowser(DataBrowser db)
+	{
+		if (db == null) return;
+		if (model.isFullScreen()) {
+			addComponent(db.getUI(model.isFullScreen()));
+		} else {
+			viewerPane.removeAll();
+			viewerPane.setBottomComponent(db.getUI(false));
+		}
+	}
+	
     /** Removes all the components from the {@link #workingPane}. */
     void removeAllFromWorkingPane()
     {
@@ -785,12 +875,27 @@ class TreeViewerWin
 				leftComponent = splitPane.getLeftComponent();
 			dividerLocation = splitPane.getDividerLocation();
 			splitPane.remove(leftComponent);
-			treeVisible = false;
 		} else {
 			splitPane.add(leftComponent);
 			splitPane.setDividerLocation(dividerLocation);
-			treeVisible = true;
 		}
+		treeVisible = !treeVisible;
+	}
+	
+    /** Shows or hides the Tree Viewer. */
+	void setMetadataVisibility()
+	{
+		if (metadataVisible) {
+			if (rightComponent == null)
+				rightComponent = rightPane.getRightComponent();
+			dividerRightLocation = rightPane.getDividerLocation();
+			rightPane.remove(rightComponent);
+		} else {
+			rightPane.add(rightComponent);
+			rightPane.setResizeWeight(WEIGHT);
+			//rightPane.setDividerLocation(dividerRightLocation);
+		}
+		metadataVisible = !metadataVisible;
 	}
 	
 	/** 
