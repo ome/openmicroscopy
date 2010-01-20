@@ -18,6 +18,7 @@
     <dependency org="OME" name="bio-formats" rev="${versions.bio-formats}"/><!-- for DBEnumCheck -->
     <dependency org="java-image-scaling" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
     <!-- Ice -->
+    <dependency org="omero" name="omero-shares" rev="${versions.ice}"/>
     <dependency org="omero" name="ice" rev="${versions.ice}"/>
     <dependency org="omero" name="ice-db" rev="${versions.ice}"/>
     <!-- j2ee replacements : jta, jndi, etc. -->
