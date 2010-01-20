@@ -698,15 +698,27 @@ public class EditorUtil
 			counts = ((DatasetData) object).getAnnotationsCounts();
 		else if (object instanceof ProjectData)
 			counts = ((ProjectData) object).getAnnotationsCounts();
-		else if (object instanceof ImageData)
+		else if (object instanceof ImageData) {
 			counts = ((ImageData) object).getAnnotationsCounts();	
-		else if (object instanceof ScreenData)
+			//tmp solution
+			if (counts == null || counts.size() <= 0) return false;
+			if (counts.size() > 1) return true;
+			Iterator i = counts.entrySet().iterator();
+			long value = 0;
+			Entry entry;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				value = (Long) entry.getValue();
+			}
+			value = value-2;
+			return value >= 0;
+		} else if (object instanceof ScreenData)
 			counts = ((ScreenData) object).getAnnotationsCounts();	
 		else if (object instanceof PlateData)
 			counts = ((PlateData) object).getAnnotationsCounts();	
 		else if (object instanceof WellData)
 			counts = ((WellData) object).getAnnotationsCounts();	
-		if (counts == null || counts.size() == 0) return false;
+		if (counts == null || counts.size() <= 0) return false;
 		return true;
 	}
 	
