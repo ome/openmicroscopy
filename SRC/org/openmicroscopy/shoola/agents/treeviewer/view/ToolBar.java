@@ -159,7 +159,8 @@ class ToolBar
         bar.add(new JSeparator(JSeparator.VERTICAL));
         b = new JButton(controller.getAction(TreeViewerControl.SWITCH_USER));
         UIUtilities.unifiedButtonLookAndFeel(b);
-        if (model.isMultiUser()) bar.add(b);
+        //if (model.isMultiUser()) 
+        bar.add(b);
         TreeViewerAction a = controller.getAction(TreeViewerControl.PERSONAL);
         b = new JButton(a);
         UIUtilities.unifiedButtonLookAndFeel(b);

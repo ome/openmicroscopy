@@ -46,6 +46,7 @@ import javax.swing.tree.TreePath;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.EditVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.RefreshVisitor;
@@ -949,6 +950,13 @@ class BrowserComponent
 		//TODO check state
 		if (experimenter == null)
 			throw new IllegalArgumentException("Experimenter cannot be null.");
+		//Make sure the user is not already display
+		List<TreeImageDisplay> nodes = new ArrayList<TreeImageDisplay>(1);
+		nodes.add(new TreeImageSet(experimenter));
+		SimilarNodesVisitor visitor = new SimilarNodesVisitor(nodes);
+		accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+		
+		if (visitor.getFoundNodes().size() > 0) return;
 		setSelectedDisplay(null);
 		view.addExperimenter(experimenter, load);
 	}
