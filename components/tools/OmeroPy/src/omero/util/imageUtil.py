@@ -142,6 +142,8 @@ def paintThumbnailGrid(thumbnailStore, length, spacing, pixelIds, colCount, bg=(
 	
 	textHeight = 0
 	if leftLabel:
+		# if no images (no rows), need to make at least one row to show label
+		if rowCount == 0: rowCount = 1
 		if fontsize == None: 
 			fontsize = length/10 + 5
 		font = getFont(fontsize)
