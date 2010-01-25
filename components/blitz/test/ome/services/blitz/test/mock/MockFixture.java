@@ -376,6 +376,10 @@ public class MockFixture {
             throw new UnsupportedOperationException();
         }
 
+        public void refreshSession(Ice.Current current) throws Glacier2.SessionNotExistException {
+            throw new UnsupportedOperationException();
+        }
+
     }
 
 }

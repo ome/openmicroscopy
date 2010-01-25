@@ -33,7 +33,7 @@ public class Ref extends IceInternal.Reference {
 
     public Ref() {
         super(inst(), communicator(), Ice.Util.stringToIdentity("test:test"),
-                new HashMap(), "facet", 0, false);
+                "facet", 0, false);
     }
 
     static IceInternal.Instance inst() {
@@ -200,6 +200,16 @@ public class Ref extends IceInternal.Reference {
     public boolean isWellKnown() {
         // TODO Auto-generated method stub
         return false;
+    }
+
+    @Override
+    public java.util.Map toProperty(String s) {
+        return null;
+    }
+
+    @Override
+    public java.lang.String getConnectionId() {
+        return null;
     }
 
 }

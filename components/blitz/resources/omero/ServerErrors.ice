@@ -199,8 +199,8 @@ module omero
   exception WrappedCreateSessionException extends Glacier2::CannotCreateSessionException
     {
       bool    concurrency;
-      long    backOff;    // Only used if ConcurrencyException
-      string  type;       // Ice static type information
+      long    backOff;    /* Only used if ConcurrencyException */
+      string  type;       /* Ice static type information */
     };
 
 
@@ -230,7 +230,7 @@ module omero
    */
   exception ConcurrencyException extends ServerError
     {
-       long backOff; // Backoff in milliseconds
+       long backOff; /* Backoff in milliseconds */
     };
 
   /**
@@ -262,7 +262,7 @@ module omero
    */
   exception LockTimeout extends ConcurrencyException
     {
-        int seconds; // Informational field on how long timeout was
+        int seconds; /* Informational field on how long timeout was */
     };
 
   /**

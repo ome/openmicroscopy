@@ -348,7 +348,7 @@ public class RenderingEngineI extends AbstractPyramidServant implements
             AMD_RenderingEngine_renderProjectedAsPackedInt __cb, 
             ProjectionType algorithm, int timepoint, int stepping, int start, 
             int end, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, algorithm.value(), timepoint, 
+        callInvokerOnRawArgs(__cb, __current, algorithm.ordinal(), timepoint, 
                 stepping, start, end);
     }
 
@@ -356,7 +356,7 @@ public class RenderingEngineI extends AbstractPyramidServant implements
             AMD_RenderingEngine_renderProjectedCompressed __cb, 
             ProjectionType algorithm, int timepoint, int stepping, int start, 
             int end, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, algorithm.value(), timepoint,
+        callInvokerOnRawArgs(__cb, __current, algorithm.ordinal(), timepoint,
                 stepping, start, end);
     }
 
