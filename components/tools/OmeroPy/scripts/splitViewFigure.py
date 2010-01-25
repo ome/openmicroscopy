@@ -137,12 +137,15 @@ def getSplitView(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, co
 	
 	log("Split View Rendering Log...")
 	
-	alString = str(algorithm).replace("INTENSITY", " Intensity").capitalize()
-	log("All images projected using '%s' projection with step size: %d  start: %d  end: %d" 
+	if zStart >-1 and zEnd >-1:
+		alString = str(algorithm).replace("INTENSITY", " Intensity").capitalize()
+		log("All images projected using '%s' projection with step size: %d  start: %d  end: %d" 
 			% (alString, stepping, zStart+1, zEnd+1))
+	else:
+		log("Images show last-viewed Z-section")
 	
 	for row, pixelsId in enumerate(pixelIds):
-		log("Rendering row %d" % (row))
+		log("Rendering row %d" % (row+1))
 		
 		pixels = gateway.getPixels(pixelsId)
 		sizeX = pixels.getSizeX().getValue()
@@ -169,6 +172,11 @@ def getSplitView(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, co
 		log("  Image dimensions (pixels): x: %d  y: %d" % (sizeX, sizeY))
 		maxImageWidth = max(maxImageWidth, sizeX)
 		
+		# set up rendering engine with the pixels
+		re.lookupPixels(pixelsId)
+		re.lookupRenderingDef(pixelsId)
+		re.load()
+		
 		proStart = zStart
 		proEnd = zEnd
 		# make sure we're within Z range for projection. 
@@ -177,13 +185,14 @@ def getSplitView(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, co
 			if proStart > sizeZ:
 				proStart = 0
 			log(" WARNING: Current image has fewer Z-sections than the primary image projection.")
-		if proStart < 0:
-			proStart = 0
-		log("  Projecting z range: %d - %d   (max Z is %d)" % (proStart+1, proEnd+1, sizeZ))
-		# set up rendering engine with the pixels
-		re.lookupPixels(pixelsId)
-		re.lookupRenderingDef(pixelsId)
-		re.load()
+			
+		# if we have an invalid z-range (start or end less than 0), show default Z only
+		if proStart < 0 or proEnd < 0:
+			proStart = re.getDefaultZ()
+			proEnd = proStart
+			log("  Display Z-section: %d" % (proEnd+1))
+		else:
+			log("  Projecting z range: %d - %d   (max Z is %d)" % (proStart+1, proEnd+1, sizeZ))
 		
 		# now get each channel in greyscale (or colour)
 		# a list of renderedImages (data as Strings) for the split-view row
@@ -334,17 +343,7 @@ def makeSplitViewFigure(session, pixelIds, zStart, zEnd, splitIndexes, channelNa
 	sv = getSplitView(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, colourChannels, 
 			mergedIndexes, mergedColours, width, height, spacer, algorithm, stepping, scalebar, overlayColour)
 	
-	# Get the path in the dist server where we store fonts. 
-	# !! PROBLEM GETTING FONTS TO BE PLACED HERE DURING SERVER BUILD... !!
-	#fontPath = os.path.join(GATEWAYPATH, "ttffonts", "freefont", "FreeSans.ttf")	
-	# FOR NOW, LINK TO THE SOURCE LOCATION. Tried editing tools/OmeroPy/setup.py to get fonts included in build. No luck! 
-	#fontPath = "/Users/will/Documents/workspace/Omero/components/tools/OmeroPy/src/omero/gateway/ttffonts/freefont/FreeSans.ttf"	
-	
-	fontPath = os.path.join(GATEWAYPATH, "pilfonts", "FreeSans.ttf")
-	try:
-		font  =  ImageFont.truetype ( fontPath, fontsize )	
-	except:
-		font = ImageFont.load('%s/pilfonts/B%0.2d.pil' % (GATEWAYPATH, 24) )
+	font = imgUtil.getFont(fontsize)
 	mode = "RGB"
 	white = (255, 255, 255)
 	textHeight = font.getsize("Textq")[1]
@@ -374,7 +373,7 @@ def makeSplitViewFigure(session, pixelIds, zStart, zEnd, splitIndexes, channelNa
 				inset = int((height - w) / 2)
 				textdraw.text((px+inset, py), label, font=font, fill=(0,0,0))
 				py = py - textGap	# add space between rows
-			px = px + spacer + height + spacer 		# 2 spacers between each row
+			px = px + spacer + height 		# 2 spacers between each row
 		
 	
 	# make a canvas big-enough to add text to the images. 
@@ -423,6 +422,13 @@ def makeSplitViewFigure(session, pixelIds, zStart, zEnd, splitIndexes, channelNa
 	
 
 def splitViewFigure(session, commandArgs):	
+	"""
+	Processes the arguments, populating defaults if necessary. Prints the details to log (fig-legend).
+	Even handles missing arguments that are not optional (from when this ran from commandline with everything optional)
+	then calls makeSplitViewFigure() to make the figure, attaches it to the Image with fig-legend etc. 
+	
+	@return: the id of the originalFileLink child. (ID object, not value) 
+	"""
 
 	# create the services we're going to need
 	metadataService = session.getMetadataService()
@@ -499,9 +505,9 @@ def splitViewFigure(session, commandArgs):
 	
 	# set image dimensions
 	if("zStart" not in commandArgs):
-		commandArgs["zStart"] = 0
+		commandArgs["zStart"] = -1
 	if("zEnd" not in commandArgs):
-		commandArgs["zEnd"] = sizeZ-1
+		commandArgs["zEnd"] = -1
 	if("splitPanelsGrey" not in commandArgs):
 		commandArgs["splitPanelsGrey"] = False
 	
@@ -622,16 +628,21 @@ def splitViewFigure(session, commandArgs):
 		output = output + ".jpg"
 		fig.save(output)
 
-	
+	# Use util method to upload the figure 'output' to the server, attaching it to the omeroImage, adding the 
+	# figLegend as the fileAnnotation description. 
+	# Returns the id of the originalFileLink child. (ID object, not value)
 	fileId = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, omeroImage, output, format, figLegend)	
 	return fileId
 	
 	
 def runAsScript():
+	"""
+	The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
+	"""
 	client = scripts.client('splitViewFigure.py', 'Create a figure of split-view images.', 
 	scripts.List("imageIds").inout(),		# List of image IDs. Resulting figure will be attached to first image 
-	scripts.Long("zStart").inout(),			# projection range
-	scripts.Long("zEnd").inout(),			# projection range
+	scripts.Long("zStart", optional=True).inout(),	# projection range (if not specified or negative, use defaultZ only - no projection)
+	scripts.Long("zEnd", optional=True).inout(),	# projection range (if not specified or negative, use defaultZ only - no projection)
 	scripts.Map("splitChannelNames").inout(),	# map of index: channel name for Split channels
 	scripts.Bool("splitPanelsGrey").inout(),# if true, all split panels are greyscale
 	scripts.Map("mergedColours").inout(),	# a map of index:int colours for each merged channel
@@ -650,11 +661,14 @@ def runAsScript():
 	gateway = session.createGateway();
 	commandArgs = {"imageIds":client.getInput("imageIds").getValue()}
 	
+	# process the list of args above. 
 	for key in client.getInputKeys():
 		if client.getInput(key):
 			commandArgs[key] = client.getInput(key).getValue()
 	
+	# call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
 	fileId = splitViewFigure(session, commandArgs)
+	# return this fileAnnotation to the client. 
 	client.setOutput("fileAnnotation",fileId)
 	
 if __name__ == "__main__":
