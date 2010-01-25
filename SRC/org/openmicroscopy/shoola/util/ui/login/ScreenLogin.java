@@ -42,7 +42,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 import javax.swing.BorderFactory;
@@ -51,6 +50,7 @@ import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -196,9 +196,24 @@ public class ScreenLogin
 	/** The groups the user is a member of. */
 	private JComboBox			groupsBox;
 	
+	/** The component displaying the login text. */
+	private JTextPane 			pleaseLogIn;
+	
 	/** The groups the user is member of. */
 	private Map<Long, String>	groups;
 	
+	/** The name read from the system property if previously set. */
+	private String				originalName;
+	
+	/** The name read from the system property if previously set. */
+	private String				originalServerName;
+	
+	/** The component displaying the login option. */
+	private JComponent 			ref;
+	
+	/** The component displaying the controls. */
+	private JPanel 				mainPanel;
+
 	/** Quits the application. */
 	private void quit()
 	{
@@ -229,14 +244,16 @@ public class ScreenLogin
 			lc = new LoginCredentials(usr, psw, s, speedIndex, 
 					selectedPort);
 		} else {
-			String value = (String) groupsBox.getSelectedItem();
 			long id = -1L;
-			Entry entry;
-			Iterator i = groups.entrySet().iterator();
-			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				if (entry.getValue().equals(value)) {
-					id = (Long) entry.getKey();
+			if (hasGroupOption()) {
+				String value = (String) groupsBox.getSelectedItem();
+				Entry entry;
+				Iterator i = groups.entrySet().iterator();
+				while (i.hasNext()) {
+					entry = (Entry) i.next();
+					if (entry.getValue().equals(value)) {
+						id = (Long) entry.getKey();
+					}
 				}
 			}
 			lc = new LoginCredentials(usr, psw, s, speedIndex, 
@@ -247,6 +264,21 @@ public class ScreenLogin
 		firePropertyChange(LOGIN_PROPERTY, null, lc);
 	}
 
+	/** 
+	 * Returns <code>true</code> if the group option can be displayed if
+	 * available, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	private boolean hasGroupOption()
+	{
+		String usr = user.getText().trim();
+		String s = serverText.getText().trim();
+		if (usr.equals(originalName) && s.equals(originalServerName)) 
+			return true;
+		return false;
+	}
+	
 	/** 
 	 * Brings up the server dialog to select an existing server or enter
 	 * a new server address.
@@ -370,6 +402,7 @@ public class ScreenLogin
 	 */
 	private void initFields(String userName)
 	{
+		originalName = userName;
 		user = new JTextField();
 		user.setText(userName);
 		user.setToolTipText("Enter your username.");
@@ -398,6 +431,8 @@ public class ScreenLogin
 				k++;
 			}
 		}
+		if (!DEFAULT_SERVER.equals(serverName))
+			originalServerName = serverName;
 		connectionSpeedText = new JLabel(getConnectionSpeed());
 		connectionSpeedText.setForeground(TEXT_COLOR);
 		connectionSpeedText.setBorder(
@@ -426,6 +461,40 @@ public class ScreenLogin
 		groupsBox.setSelectedItem(selected);
 	}
 
+	/** 
+	 * Layouts the groups or login options.
+	 * 
+	 * @param group Pass <code>true</code> to display the groups options if 
+	 * 				available, <code>false</code> otherwise.
+	 */
+	private void layout(boolean group)
+	{
+		if (mainPanel == null) return;
+		if (ref != null) mainPanel.remove(ref);
+		if (group) {
+			if (groups != null && groupsBox != null) {
+				JPanel p = new JPanel();
+				p.setOpaque(false);
+				p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+				JTextPane l = UIUtilities.buildTextPane(GROUP_TEXT, TEXT_COLOR);
+				p.add(l);
+				p.add(groupsBox);
+				p = UIUtilities.buildComponentPanel(p);
+				p.setOpaque(false);
+				ref = p;
+				mainPanel.add(ref, "0, 0, 2, 0");
+			} else {
+				ref = pleaseLogIn;
+				mainPanel.add(ref, "0, 0, LEFT, CENTER");
+			}
+		} else {
+			ref = pleaseLogIn;
+			mainPanel.add(ref, "0, 0, LEFT, CENTER");
+		}
+		mainPanel.validate();
+		mainPanel.repaint();
+	}
+	
 	/**
 	 * Builds the UI component hosting the buttons.
 	 * 
@@ -434,7 +503,7 @@ public class ScreenLogin
 	 */
 	private JPanel buildMainPanel(String version)
 	{
-		JPanel mainPanel = new JPanel();
+		mainPanel = new JPanel();
 		int g = 10;
 		int t = 10;
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(t, g, t, g));
@@ -448,19 +517,20 @@ public class ScreenLogin
 		mainPanel.setLayout(layout);
 		Font f;
 		JTextPane l;
+		pleaseLogIn = UIUtilities.buildTextPane(TEXT_LOGIN, 
+				TEXT_COLOR);
+		f = pleaseLogIn.getFont();
+		pleaseLogIn.setFont(f.deriveFont(Font.BOLD, TEXT_FONT_SIZE));
+		/*
 		if (groupsBox == null) {
-			JTextPane pleaseLogIn = UIUtilities.buildTextPane(TEXT_LOGIN, 
-					TEXT_COLOR);
-			f = pleaseLogIn.getFont();
-			pleaseLogIn.setFont(f.deriveFont(Font.BOLD, TEXT_FONT_SIZE));
 			mainPanel.add(pleaseLogIn, "0, 0, LEFT, CENTER");
 		} else {
 			l = UIUtilities.buildTextPane(GROUP_TEXT, TEXT_COLOR);
-			
 			mainPanel.add(l, "0, 0, LEFT, CENTER");
 			mainPanel.add(groupsBox, "1, 0, 2, 0");
 		}
-		
+		*/
+		layout(groups != null);
 		versionInfo = UIUtilities.buildTextPane(version, TEXT_COLOR);
 		f = versionInfo.getFont();
 		versionInfo.setFont(f.deriveFont(VERSION_FONT_STYLE, 
@@ -596,12 +666,12 @@ public class ScreenLogin
 		String s = serverText.getText();
 		char[] name = pass.getPassword();
 		String usr = user.getText().trim();
+		usr = usr.trim();
 		if (s == null || usr == null || name == null) {
 			//login.setEnabled(false);
 			//return;
 			enabled = false;
 		} else {
-			usr = usr.trim();
 			s = s.trim();
 			if (login != null) {
 				if (DEFAULT_SERVER.equals(s)) {
@@ -634,6 +704,7 @@ public class ScreenLogin
 			//login.removeActionListener(this);
 			login.setForeground(FOREGROUND_COLOR);
 		}
+		layout(hasGroupOption());
 	}
 	
 	/**
