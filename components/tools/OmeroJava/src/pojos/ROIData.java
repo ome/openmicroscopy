@@ -28,7 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.Map;
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -182,6 +181,31 @@ public class ROIData
 			shapeList = roiShapes.get(coord);
 		shapeList.add(shape);
 		roi.addShape((Shape) shape.asIObject());
+	}
+	
+	/**
+	 * Get the number of planes occupied by the ROI.
+	 * @return See above.
+	 */
+	public int getPlaneCount()
+	{
+		return roiShapes.size();
+	}
+	
+	/**
+	 * Get the number of shapes in the ROI. 
+	 * @return See above.
+	 */
+	public int getShapeCount()
+	{
+		Iterator<ROICoordinate> i = roiShapes.keySet().iterator();
+		int cnt = 0;
+		while(i.hasNext())
+		{
+			List shapeList = roiShapes.get(i.next());
+			cnt += shapeList.size();
+		}
+		return cnt;
 	}
 	
 	/**

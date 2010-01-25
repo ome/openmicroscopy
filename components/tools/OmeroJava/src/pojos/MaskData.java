@@ -87,7 +87,7 @@ public class MaskData
 	 * @param mask The mask image.
 	 */
 	public MaskData(double x, double y, double width, double height,
-			BufferedImage mask)
+			byte[] mask)
 	{
 		super(new MaskI(), true);
 		this.setX(x);
@@ -241,9 +241,10 @@ public class MaskData
 	 * Set the mask image.
 	 * @param mask See above.
 	 */
-	public void setMask(BufferedImage mask)
+	public void setMask(byte[] mask)
 	{
-		
+		Mask shape = (Mask) asIObject();
+		shape.setBytes(mask);	
 	}
 	
 	/**
