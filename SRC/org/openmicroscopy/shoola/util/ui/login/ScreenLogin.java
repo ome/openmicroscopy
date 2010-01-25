@@ -764,9 +764,6 @@ public class ScreenLogin
 	private Map<Long, String> getGroups()
 	{
 		Map<Long, String> groups = new LinkedHashMap<Long, String>();
-		//groups.put(1L, "AM Test2");
-		//groups.put(2L, "JM Test");
-		
 		Preferences prefs = Preferences.userNodeForPackage(ScreenLogin.class);
 		String list = prefs.get(OMERO_USER_GROUP, null);
 		if (list == null || list.length() == 0)  return groups;
@@ -1047,6 +1044,7 @@ public class ScreenLogin
 		if (list.length() != 0) {
 			Preferences prefs = 
 				Preferences.userNodeForPackage(ScreenLogin.class);
+			prefs.put(OMERO_USER_GROUP, "");
 			prefs.put(OMERO_USER_GROUP, list);
 		}
 		
