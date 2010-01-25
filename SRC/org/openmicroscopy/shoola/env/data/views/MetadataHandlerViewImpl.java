@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.FileUploader;
 import org.openmicroscopy.shoola.env.data.views.calls.FilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RelatedContainersLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ScriptsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
@@ -339,6 +340,17 @@ class MetadataHandlerViewImpl
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new FilesLoader(files); 
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#loadScripts(long, boolean, AgentEventListener)
+	 */
+	public CallHandle loadScripts(long userID, boolean all,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ScriptsLoader(userID, all);
 		return cmd.exec(observer);
 	}
 	

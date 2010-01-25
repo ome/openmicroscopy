@@ -56,11 +56,13 @@ import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.metadata.util.FigureDialog;
+import org.openmicroscopy.shoola.agents.metadata.util.ScriptMenuItem;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
@@ -478,6 +480,8 @@ class EditorControl
 			
 		} else if (MetadataViewer.CLOSE_RENDERER_PROPERTY.equals(name)) {
 			view.discardRenderer(evt.getNewValue());
+		} else if (ScriptingDialog.RUN_SCRIPT_PROPERTY.equals(name)) {
+			view.runScript((ScriptObject) evt.getNewValue());
 		}
 	}
 
@@ -487,6 +491,15 @@ class EditorControl
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
+		if (e.getSource() instanceof ScriptMenuItem) {
+			ScriptMenuItem item = (ScriptMenuItem) e.getSource();
+			JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+			ScriptingDialog dialog = new ScriptingDialog(f, 
+					item.getScript());
+			UIUtilities.centerAndShow(dialog);
+			return;
+		}
+		
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
 			case ADD_LOCAL_DOCS:

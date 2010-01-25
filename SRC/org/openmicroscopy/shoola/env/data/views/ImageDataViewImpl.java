@@ -37,6 +37,7 @@ import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.views.calls.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AcquisitionDataSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.Analyser;
@@ -54,6 +55,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.PlaneInfoLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ProjectionSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ROILoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ScriptRunner;
 import org.openmicroscopy.shoola.env.data.views.calls.ServerSideROILoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ROISaver;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingControlLoader;
@@ -410,6 +412,18 @@ class ImageDataViewImpl
 			Object param, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new FRAPAnalyser(ids, objectType, param);
+		return cmd.exec(observer);
+	}
+	
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#runScript(ScriptObject, AgentEventListener)
+     */
+	public CallHandle runScript(ScriptObject script, 
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ScriptRunner(script);
 		return cmd.exec(observer);
 	}
 	

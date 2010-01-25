@@ -44,7 +44,7 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
  * which this class makes available through a <code>protected</code> field.
  * Also, this class extends {@link DSCallAdapter} so that subclasses
  * automatically become observers to an asynchronous call.  This class provides
- * default implementations of some of the callbacks to notify the 
+ * default implementations of some of the call-backs to notify the 
  * {@link Browser} of the progress and the user in the case of errors. 
  * Subclasses should at least implement the <code>handleResult</code> method 
  * to feed the {@link Browser} back with the results.

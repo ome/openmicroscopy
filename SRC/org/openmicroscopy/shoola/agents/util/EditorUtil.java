@@ -45,7 +45,12 @@ import omero.model.PlaneInfo;
 
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.util.filter.file.CppFilter;
+import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
+import org.openmicroscopy.shoola.util.filter.file.JavaFilter;
+import org.openmicroscopy.shoola.util.filter.file.MatlabFilter;
+import org.openmicroscopy.shoola.util.filter.file.PythonFilter;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMEComboBoxUI;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -432,8 +437,15 @@ public class EditorUtil
 	/** Colors available for the color bar. */
 	public static final Map<Color, String>	COLORS_BAR;
 	
+	/** Collection of filters to select the supported type of scripts. */
+	public static final List<CustomizedFileFilter> SCRIPTS_FILTERS;
+	
 	static {
-		
+		SCRIPTS_FILTERS = new ArrayList<CustomizedFileFilter>();
+		SCRIPTS_FILTERS.add(new CppFilter());
+		SCRIPTS_FILTERS.add(new JavaFilter());
+		SCRIPTS_FILTERS.add(new MatlabFilter());
+		SCRIPTS_FILTERS.add(new PythonFilter());
 		
 		PIXELS_TYPE_DESCRIPTION = new LinkedHashMap<String, String>();
 		PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.INT_8, 

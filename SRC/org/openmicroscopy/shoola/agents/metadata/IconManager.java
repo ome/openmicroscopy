@@ -313,11 +313,38 @@ public class IconManager
     /** The 48x48 <code>FRAP</code> icon. */
     public static final int           ANALYSE_FRAP_48 = 86;
     
+    /** The <code>Python</code> icon. */
+    public static final int           PYTHON = 87;
+    
+    /** The <code>Java</code> icon. */
+    public static final int           JAVA = 88;
+    
+    /** The <code>Matlab</code> icon. */
+    public static final int           MATLAB = 89;
+
+    /** The <code>C++</code> icon. */
+    public static final int           CPP = 89;
+    
+    /** The 48x48 <code>Python</code> icon. */
+    public static final int           PYTHON_48 = 90;
+    
+    /** The 48x48 <code>Java</code> icon. */
+    public static final int           JAVA_48 = 91;
+    
+    /** The 48x48 <code>Matlab</code> icon. */
+    public static final int           MATLAB_48 = 92;
+
+    /** The 48x48 <code>C++</code> icon. */
+    public static final int           CPP_48 = 93;
+    
+    /** The 48x48 <code>Analysis</code> icon. */
+    public static final int           ANALYSIS_48 = 94;
+    
     /** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 86;
+	private static final int          MAX_ID = 94;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -408,6 +435,15 @@ public class IconManager
         relPaths[ANALYSE_FRAP_22] = "FRAP22.png";
         relPaths[ANALYSE_FRAP] = "FRAP16.png";
         relPaths[ANALYSE_FRAP_48] = "FRAP48.png";
+        relPaths[PYTHON] = "crystal_source_cpp16.png";
+        relPaths[MATLAB] = "crystal_source_cpp16.png";
+        relPaths[JAVA] = "crystal_source_java16.png";
+        relPaths[CPP] = "crystal_source_cpp16.png";
+        relPaths[PYTHON_48] = "crystal_source_java48.png";
+        relPaths[MATLAB_48] = "crystal_source_java48.png";
+        relPaths[JAVA_48] = "crystal_source_java48.png";
+        relPaths[CPP_48] = "crystal_source_cpp48.png";
+        relPaths[ANALYSIS_48] = "nuvola_kcmsystem48.png";
 	}
    
 	/** The sole instance. */

@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.metadata.PasswordEditor;
 import org.openmicroscopy.shoola.agents.metadata.PlaneInfoLoader;
 import org.openmicroscopy.shoola.agents.metadata.ROILoader;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
+import org.openmicroscopy.shoola.agents.metadata.ScriptsLoader;
 import org.openmicroscopy.shoola.agents.metadata.TagsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
@@ -72,6 +73,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -195,6 +197,9 @@ class EditorModel
 	
 	/** Collection of annotations to unlink and delete. */
 	private List<AnnotationData>		toDelete;
+	
+	/** Collection of uploaded scripts. */
+	private List						scripts;
 	
 	/**
 	 * Downloads the files.
@@ -1499,7 +1504,6 @@ class EditorModel
 		}
 		loaders.clear();
 		loaders.addAll(toKeep);
-		
 	}
 	
 	/**
@@ -2099,6 +2103,13 @@ class EditorModel
 	void createFigure(Object value) { parent.createFigure(value); }
 
 	/**
+	 * Runs the passed script.
+	 * 
+	 * @param script The script to run.
+	 */
+	void runScript(ScriptObject script) { parent.runScript(script); }
+	
+	/**
 	 * Returns the pixels data objects.
 	 * 
 	 * @return See above.
@@ -2147,4 +2158,28 @@ class EditorModel
 	/** Refreshes the view. */
 	void refresh() { parent.setRootObject(getRefObject()); }
 	
+	/**
+	 * Sets the collection of scripts.
+	 * 
+	 * @param scripts The value to set.
+	 */
+	void setScripts(List scripts) { this.scripts = scripts; }
+	
+	/**
+	 * Returns the collection of scripts.
+	 * 
+	 * @return See above.
+	 */
+	List getScripts() { return scripts; }
+	
+	/** Loads the scripts. */
+	void loadScripts()
+	{
+		ScriptsLoader loader = new ScriptsLoader(component, false);
+		loader.load();
+		loaders.add(loader);
+	}
+	
+	
 }
+	

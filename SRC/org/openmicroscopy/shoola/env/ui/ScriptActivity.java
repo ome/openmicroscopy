@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.env.ui.AnalysisActivity 
+ * org.openmicroscopy.shoola.env.ui.ScriptActivity 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -22,25 +22,31 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
-//Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+
 import javax.swing.JFrame;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.model.OriginalFile;
+
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnalysisActivityParam;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
+
 import pojos.FileAnnotationData;
 
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
+
 /** 
- * Activity to analyse data.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -52,35 +58,36 @@ import pojos.FileAnnotationData;
  * </small>
  * @since 3.0-Beta4
  */
-public class AnalysisActivity 
+public class ScriptActivity	
 	extends ActivityComponent
 {
 
 	/** The description of the activity. */
-	private static final String		DESCRIPTION_CREATION = "Analysing";
+	private static final String		DESCRIPTION_CREATION = "Running Script";
 	
 	/** The description of the activity when finished. */
-	private static final String		DESCRIPTION_CREATED = "Analysis finished";
+	private static final String		DESCRIPTION_CREATED = "Run finished";
 	
-	/** The parameters hosting information about the figure to make. */
-    private AnalysisActivityParam	parameters;
+	/** The script to run. */
+    private ScriptObject	script;
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer		The viewer this data loader is for.
-     *               		Mustn't be <code>null</code>.
-     * @param registry		Convenience reference for subclasses.
-     * @param parameters  	The parameters used to analyse.
+     * @param viewer	The viewer this data loader is for.
+     *               	Mustn't be <code>null</code>.
+     * @param registry	Convenience reference for subclasses.
+     * @param script	The script to run.
+     * @param activity 	The activity associated to this loader.
      */
-	public AnalysisActivity(UserNotifier viewer, Registry registry,
-			AnalysisActivityParam parameters)
+	public ScriptActivity(UserNotifier viewer, Registry registry,
+			ScriptObject script)
 	{
-		super(viewer, registry, DESCRIPTION_CREATION, parameters.getIcon(), 
+		super(viewer, registry, DESCRIPTION_CREATION, script.getIcon(), 
 				ActivityComponent.ADVANCED);
-		if (parameters == null)
+		if (script == null)
 			throw new IllegalArgumentException("Parameters not valid.");
-		this.parameters = parameters;
+		this.script = script;
 	}
 
 	/**
@@ -89,10 +96,7 @@ public class AnalysisActivity
 	 */
 	protected UserNotifierLoader createLoader()
 	{
-		AnalysisParam param = (AnalysisParam) parameters.getParameters();
-		return new Analyser(viewer,  registry, parameters.getParameters(), 
-				param.getIds(), param.getNodeType(), param.getIndex(),
-				this);
+		return new ScriptRunner(viewer,  registry, script, this);
 	}
 
 	/**
@@ -142,5 +146,4 @@ public class AnalysisActivity
 		});
 		chooser.centerDialog();
 	}
-	
 }

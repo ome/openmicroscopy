@@ -361,4 +361,15 @@ public interface MetadataHandlerView
 	public CallHandle loadFiles(Map<FileAnnotationData, File> files,
 			AgentEventListener observer);
 	
+	/**
+	 * Loads the scripts.
+	 * 
+	 * @param userID The id of the experimenter or <code>-1</code>.
+	 * @param all 	Pass <code>true</code> to retrieve all the scripts uploaded
+	 * 				ones and the default ones, <code>false</code>.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadScripts(long userID, boolean all,
+			AgentEventListener observer);
+	
 }

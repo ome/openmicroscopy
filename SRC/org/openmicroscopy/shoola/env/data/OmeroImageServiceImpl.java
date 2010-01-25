@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
@@ -843,6 +844,18 @@ class OmeroImageServiceImpl
 		long id = gateway.analyseFRAP(ids, type, param);
 		if (id < 0) return null;
 		return context.getMetadataService().loadAnnotation(id);
+	}
+	
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#runScript(ScriptObject)
+	 */
+	public Object runScript(ScriptObject script)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		if (script == null) 
+			throw new IllegalArgumentException("No script to run.");
+		return gateway.runScript(script);
 	}
 	
 }

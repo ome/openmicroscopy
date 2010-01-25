@@ -45,6 +45,7 @@ import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -406,6 +407,16 @@ public class NullRenderingService
      * @see OmeroImageService#analyseFrap(List, Class, Object)
      */
 	public DataObject analyseFrap(List<Long> ids, Class type, Object param)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#runScript(ScriptObject)
+     */
+	public Object runScript(ScriptObject script)
 			throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

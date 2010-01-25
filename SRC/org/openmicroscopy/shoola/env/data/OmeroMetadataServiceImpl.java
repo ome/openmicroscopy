@@ -68,6 +68,7 @@ import omero.sys.ParametersI;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
@@ -2027,6 +2028,16 @@ class OmeroMetadataServiceImpl
 			}
 		}
 		return list;
+	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroMetadataService#loadScripts(long, boolean)
+	 */
+	public List<ScriptObject> loadScripts(long userID, boolean all)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return gateway.loadScripts(userID, all);
 	}
 	
 }

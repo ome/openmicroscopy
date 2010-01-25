@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
@@ -75,7 +76,12 @@ import ome.formats.importer.OMEROWrapper;
 import ome.system.UpgradeCheck;
 import omero.AuthenticationException;
 import omero.InternalException;
+import omero.RBool;
+import omero.RInt;
+import omero.RList;
 import omero.RLong;
+import omero.RMap;
+import omero.RString;
 import omero.RType;
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -1706,6 +1712,7 @@ class OMEROGateway
 			connected = true;
 			
 			ExperimenterData exp = getUserDetails(userName);
+			groupID = -1;
 			if (groupID >= 0) {
 				long defaultID = exp.getDefaultGroup().getId();
 				if (defaultID == groupID) return exp;
@@ -4849,6 +4856,7 @@ class OMEROGateway
 			while (i.hasNext()) 
 				set.add(omero.rtypes.rlong(i.next()));
 			Map<Long, String> scripts = svc.getScripts();
+			
 			if (scripts == null) return -1;
 			long id = -1;
 			Entry en;
@@ -4907,6 +4915,127 @@ class OMEROGateway
 			handleException(e, "Cannot create a movie for image: "+imageID);
 		}
 		return -1;
+	}
+	
+	/**
+	 * Returns all the scripts the default one and the 
+	 * uploaded ones depending on the specified flag. 
+	 * If a user is specified, returns the scripts owned by the specified 
+	 * user.
+	 * 
+	 * @param userID The id of the experimenter or <code>-1</code>.
+	 * @param all 	Pass <code>true</code> to retrieve all the scripts uploaded
+	 * 				ones and the default ones, <code>false</code>
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List<ScriptObject> loadScripts(long userID, boolean all)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		List<ScriptObject> scripts = new ArrayList<ScriptObject>();
+		try {
+
+			IScriptPrx svc = getScripService();
+			Map<Long, String> map = svc.getScripts();
+			if (map == null || map.size() == 0) return scripts;
+			Entry en;
+			Iterator j = map.entrySet().iterator();
+			long value;
+			ScriptObject script;
+			long id;
+			Map<String, RType> p;
+			while (j.hasNext()) {
+				en = (Entry) j.next();
+				id = (Long) en.getKey();
+				script = new ScriptObject(id, (String) en.getValue());
+				script.setParameterTypes(convertParameters(svc.getParams(id)));
+				scripts.add(script);
+			}
+		} catch (Exception e) {
+			handleException(e, "Cannot load the scripts. ");
+		}
+		return scripts;
+	}
+	
+	/**
+	 * Converts the passed map of parameters.
+	 * 
+	 * @param p The map to convert.
+	 * @return See above.
+	 */
+	private Map<String, Class> convertParameters(Map<String, RType> p)
+	{
+		Map<String, Class> parameters = new LinkedHashMap<String, Class>();
+		if (p == null) return parameters;
+		Entry entry;
+		Iterator i = p.entrySet().iterator();
+		RType type;
+		Class klass ;
+		while (i.hasNext()) {	
+			klass = null;
+			entry = (Entry) i.next();
+			type = (RType) entry.getValue();
+			if (type instanceof RString)
+				klass = String.class;
+			else if (type instanceof RLong)
+				klass = Long.class;
+			else if (type instanceof RInt)
+				klass = Integer.class;
+			else if (type instanceof RBool)
+				klass = Boolean.class;
+			else if (type instanceof RList)
+				klass = List.class;
+			else if (type instanceof RMap)
+				klass = Map.class;
+			if (klass != null)
+				parameters.put((String) entry.getKey(), klass);
+		}
+		return parameters;
+	}
+	
+	/**
+	 * Returns the <code>RType</code> corresponding to the passed value.
+	 * 
+	 * @param value The value to convert.
+	 * @return See above.
+	 */
+	private RType convertValue(Object value)
+	{
+		Iterator i;
+		if (value instanceof String) 
+			return omero.rtypes.rstring((String) value);
+		else if (value instanceof Boolean) 
+			return omero.rtypes.rbool((Boolean) value);
+		else if (value instanceof Long) 
+			return omero.rtypes.rlong((Long) value);
+		else if (value instanceof Integer) 
+			return omero.rtypes.rint((Integer) value);
+		else if (value instanceof Float) 
+			return omero.rtypes.rfloat((Float) value);
+		else if (value instanceof List) {
+			List l = (List) value;
+			i = l.iterator();
+			List<RType> list = new ArrayList<RType>(l.size());
+			while (i.hasNext()) {
+				list.add(convertValue(i.next()));
+			}
+			return omero.rtypes.rlist(list);
+		} else if (value instanceof Map) {
+			Map map = (Map) value;
+			Map<String, RType> m = new HashMap<String, RType>();
+			Entry entry;
+			i = map.entrySet().iterator();
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				m.put((String) entry.getKey(), convertValue(entry.getValue())); 
+			}
+			return omero.rtypes.rmap(m);
+		}
+		return null;
 	}
 	
 	
@@ -5758,4 +5887,50 @@ class OMEROGateway
 		return -1;
 	}
 
+	/**
+	 * Runs the script.
+	 * 
+	 * @param script The script to run.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Object runScript(ScriptObject script)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			long id = script.getScriptID();
+			if (id < 0) return Boolean.valueOf(false);
+			IScriptPrx svc = getScripService();
+			ParametersI parameters = new ParametersI();
+			Map<String, Object> values = script.getParameterValues();
+			
+			if (values != null) {
+				Entry entry;
+				Iterator i = values.entrySet().iterator();
+				String p;
+				Object v;
+				RType type;
+				while (i.hasNext()) {
+					entry = (Entry) i.next();
+					v = entry.getValue();
+					type = convertValue((String) v);
+					if (type != null)
+					parameters.map.put((String) entry.getKey(), type);
+				}
+			}
+			Map<String, RType> result = svc.runScript(id, parameters.map);
+			//RLong type = (RLong) result.get("fileAnnotation");
+			//if (type == null) return -1;
+			//return type.getValue();
+			return Boolean.valueOf(true);
+		} catch (Exception e) {
+			handleException(e, "Cannot run the script.");
+		}
+		return Boolean.valueOf(true);
+	}
+	
 }

@@ -833,4 +833,14 @@ class EditorComponent
 		}
 	}
 
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#setScripts(List)
+	 */
+	public void setScripts(List scripts)
+	{
+		model.setScripts(scripts);
+		view.setScripts();
+	}
+
 }

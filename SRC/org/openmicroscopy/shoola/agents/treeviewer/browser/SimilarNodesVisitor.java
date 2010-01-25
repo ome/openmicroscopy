@@ -78,7 +78,6 @@ public class SimilarNodesVisitor
 			uo = n.getUserObject();
 			if (uo instanceof DataObject) {
 				data = (DataObject) uo;
-				System.err.println(data+" "+data.getId()+"  "+ref.getId()+" "+ref);
 				if (data.getClass().equals(ref.getClass()) &&
 					data.getId() == ref.getId()) {
 					foundNodes.add(node);

@@ -50,6 +50,8 @@ import omero.model.Medium;
 import omero.model.MicroscopeType;
 import omero.model.PhotometricInterpretation;
 import omero.model.Pulse;
+
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
@@ -650,6 +652,24 @@ public interface OmeroMetadataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Collection loadROIMeasurements(Class type, long id, long userID) 
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Returns all the scripts the default one and the 
+	 * uploaded ones depending on the specified flag. 
+	 * If a user is specified, returns the scripts owned by the specified 
+	 * user.
+	 * 
+	 * @param userID The id of the experimenter or <code>-1</code>.
+	 * @param all 	Pass <code>true</code> to retrieve all the scripts uploaded
+	 * 				ones and the default ones, <code>false</code>
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public List<ScriptObject> loadScripts(long userID, boolean all)
 		throws DSOutOfServiceException, DSAccessException;
 	
 }

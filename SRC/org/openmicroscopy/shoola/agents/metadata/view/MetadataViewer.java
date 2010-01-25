@@ -41,6 +41,7 @@ import javax.swing.JComponent;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
@@ -147,6 +148,9 @@ public interface MetadataViewer
 	public static final String	CHANNEL_COLOR_CHANGED_PROPERTY = 
 		"channelColorChanged";
 
+	/** Bound property indicating to run a . */
+	public static final String	RUN_SCRIPT_PROPERTY = "runScript";
+	
 	/** Flag to denote the <i>New</i> state. */
 	public static final int     NEW = 1;
 
@@ -170,6 +174,9 @@ public interface MetadataViewer
 	
 	/** Indicates to launch the analysis option. */
 	public static final int		ANALYSIS_OPTION = 101;
+	
+	/** Indicates to launch the analysis option. */
+	public static final int		SCRIPTS_OPTION = 102;
 	
 	/**
 	 * Starts the data loading process when the current state is {@link #NEW} 
@@ -500,6 +507,13 @@ public interface MetadataViewer
 	 * @param value The parameters for the figure.
 	 */
 	public void createFigure(Object value);
+	
+	/**
+	 * Runs the passed script.
+	 * 
+	 * @param script The script to run.
+	 */
+	public void runScript(ScriptObject script);
 	
 	/**
 	 * Reloads the renderer if the passed value is <code>true</code>,

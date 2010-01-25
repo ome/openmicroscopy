@@ -403,5 +403,12 @@ public interface Editor
 	 * @return See above.
 	 */
 	public Map getChannelData();
+
+	/** 
+	 * Sets the scripts uploaded by the user.
+	 * 
+	 * @param scripts The scripts to display.
+	 */
+	public void setScripts(List scripts);
 	
 }

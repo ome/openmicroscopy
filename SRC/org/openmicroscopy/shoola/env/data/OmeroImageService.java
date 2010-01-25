@@ -42,6 +42,7 @@ import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -593,6 +594,19 @@ public interface OmeroImageService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public DataObject analyseFrap(List<Long> ids, Class type, Object param)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Runs the passed script.
+	 * 
+	 * @param script The script to run.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Object runScript(ScriptObject script)
 		throws DSOutOfServiceException, DSAccessException;
 	
 }

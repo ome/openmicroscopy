@@ -975,6 +975,9 @@ class TreeViewerControl
 					FigureActivityParam.SPLIT_VIEW_FIGURE);
 			activity.setIcon(icon);
 			un.notifyActivity(activity);
+		} else if (MetadataViewer.RUN_SCRIPT_PROPERTY.equals(name)) {
+			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+			un.notifyActivity(pce.getNewValue());
 		} else if (ImportManager.CANCEL_IMPORT_PROPERTY.equals(name)) {
 			model.cancelImports();
 		} else if (OpenWithDialog.OPEN_DOCUMENT_PROPERTY.equals(name)) {

@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -988,6 +989,16 @@ class MetadataViewerComponent
 			firePropertyChange(GENERATE_FIGURE_PROPERTY, null, value);
 	}
 	
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#runScript(ScriptObject)
+	 */
+	public void runScript(ScriptObject value)
+	{
+		if (value == null) return;
+		firePropertyChange(RUN_SCRIPT_PROPERTY, null, value);
+	}
+
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#reloadRenderingControl(Boolean)

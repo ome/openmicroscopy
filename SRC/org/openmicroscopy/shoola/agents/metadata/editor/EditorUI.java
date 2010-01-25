@@ -45,6 +45,7 @@ import org.jdesktop.swingx.JXTaskPane;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -182,6 +183,7 @@ public class EditorUI
 	private void buildGUI()
 	{
 		setLayout(new BorderLayout(0, 0));
+		setBackground(UIUtilities.BACKGROUND_COLOR);
 		add(toolBar, BorderLayout.NORTH);
 		add(component, BorderLayout.CENTER);
 	}
@@ -279,17 +281,6 @@ public class EditorUI
 						tabPane.setComponentAt(RND_INDEX, dummyPanel);
 						tabPane.setSelectedIndex(GENERAL_INDEX);
 					}
-					/*
-					if (model.getRndIndex() == MetadataViewer.RND_GENERAL) {
-						tabPane.setEnabledAt(ACQUISITION_INDEX, true);
-						if (tabPane.getComponentCount() > 2) {
-							boolean b = 
-								tabPane.getSelectedIndex() == RND_INDEX;
-							tabPane.remove(RND_INDEX);
-							if (b) tabPane.setSelectedIndex(GENERAL_INDEX);
-						}
-					}
-					*/
 				} else if (uo instanceof WellSampleData) {
 					ImageData img = ((WellSampleData) uo).getImage();
 					if (tabPane.getSelectedIndex() == RND_INDEX) {
@@ -305,14 +296,6 @@ public class EditorUI
 						tabPane.setEnabledAt(ACQUISITION_INDEX, false);
 						tabPane.setEnabledAt(RND_INDEX, false);
 					}
-					/*
-					if (tabPane.getComponentCount() > 2) {
-						boolean b = 
-							tabPane.getSelectedIndex() == RND_INDEX;
-						tabPane.remove(RND_INDEX);
-						if (b) tabPane.setSelectedIndex(GENERAL_INDEX);
-					}
-					*/
 				} else {
 					tabPane.setSelectedIndex(GENERAL_INDEX);
 					tabPane.setEnabledAt(ACQUISITION_INDEX, false);
@@ -706,6 +689,13 @@ public class EditorUI
 	 */
 	void createFigure(Object value) { model.createFigure(value); }
 	
+	/**
+	 * Runs the passed script.
+	 * 
+	 * @param script The script to run.
+	 */
+	void runScript(ScriptObject script) { model.runScript(script); }
+	
 	/** 
 	 * Discards the renderer. 
 	 * 
@@ -723,5 +713,8 @@ public class EditorUI
 	{
 		
 	}
+	
+	/** Displays the scripts. */
+	void setScripts() { toolBar.setScripts(); }
 	
 }

@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -312,7 +313,9 @@ public class UserNotifierImpl
 		} else if (activity instanceof AnalysisActivityParam) {
 			AnalysisActivityParam p = (AnalysisActivityParam) activity;
 			comp = new AnalysisActivity(this, manager.getRegistry(), p);
-		} 
+		} else if (activity instanceof ScriptObject) {
+			ScriptObject script = (ScriptObject) activity;
+		}
 		if (comp != null) {
 			UserNotifierLoader loader = comp.createLoader();
 			if (loader == null) return;

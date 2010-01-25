@@ -29,12 +29,17 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Iterator;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 
 
@@ -43,7 +48,15 @@ import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.util.ScriptMenuItem;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.util.filter.file.CppFilter;
+import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
+import org.openmicroscopy.shoola.util.filter.file.JavaFilter;
+import org.openmicroscopy.shoola.util.filter.file.MatlabFilter;
+import org.openmicroscopy.shoola.util.filter.file.PythonFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -85,6 +98,9 @@ class ToolBar
 	/** Button to bring up the publishing list. */
 	private JButton			publishingButton;
 	
+	/** Button to bring up the list of scripts. */
+	private JButton			scriptsButton;
+	
 	/** Indicates the loading progress. */
 	private JXBusyLabel		busyLabel;
 
@@ -94,12 +110,15 @@ class ToolBar
 	/** Reference to the Model. */
 	private EditorModel 	model;
 
+	/** The location of the mouse clicked. */
+	private Point			location;
+	
 	/** The option dialog. */
 	private PublishingDialog  publishingDialog;
 	
 	/** The option dialog. */
 	private AnalysisDialog  	analysisDialog;
-	
+
 	/** Initializes the components. */
 	private void initComponents()
 	{
@@ -160,6 +179,28 @@ class ToolBar
 						MetadataViewer.ANALYSIS_OPTION);
 			}
 		});
+		scriptsButton = new JButton(icons.getIcon(IconManager.ANALYSIS));
+		scriptsButton.setToolTipText("Display the available scripts.");
+		scriptsButton.setEnabled(false);
+		scriptsButton.addMouseListener(new MouseAdapter() {
+			
+			/**
+			 * Loads the scripts of displays them if already loaded.
+			 * MouseAdapter#mousePressed(MouseEvent)
+			 */
+			public void mouseReleased(MouseEvent e)
+			{
+				if (model.getScripts() == null) {
+					location = e.getPoint();
+					scriptsButton.setEnabled(false);
+					model.loadScripts();
+					setStatus(true);
+				} else {
+					launchOptions((Component) e.getSource(), e.getPoint(), 
+						MetadataViewer.SCRIPTS_OPTION);
+				}
+			}
+		});
 		refreshButton.addActionListener(controller);
 		refreshButton.setActionCommand(""+EditorControl.REFRESH);
 		UIUtilities.unifiedButtonLookAndFeel(saveButton);
@@ -169,6 +210,7 @@ class ToolBar
 
 		UIUtilities.unifiedButtonLookAndFeel(publishingButton);
 		UIUtilities.unifiedButtonLookAndFeel(analysisButton);
+		UIUtilities.unifiedButtonLookAndFeel(scriptsButton);
 		Dimension d = new Dimension(UIUtilities.DEFAULT_ICON_WIDTH, 
 				UIUtilities.DEFAULT_ICON_HEIGHT);
     	busyLabel = new JXBusyLabel(d);
@@ -196,18 +238,8 @@ class ToolBar
     	bar.add(publishingButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(analysisButton);
-    	/*
-    	JButton b = new JButton("P");
-    	b.addActionListener(new ActionListener() {
-			
-			public void actionPerformed(ActionEvent e) {
-				AnalysePalette p = new AnalysePalette(controller);
-				UIUtilities.centerAndShow(p);
-			}
-		});
-		bar.add(b);
-		*/
-    	
+    	bar.add(Box.createHorizontalStrut(5));
+    	bar.add(scriptsButton);
     	return bar;
     }
     
@@ -223,6 +255,68 @@ class ToolBar
     	p.add(UIUtilities.buildComponentPanelRight(busyLabel));
     	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     	add(p);
+    }
+    
+    /**
+     * Sets the icon associated to the script.
+     * 
+     * @param so The script to handle.
+     */
+    private void setScriptIcon(ScriptObject so)
+    {
+    	if (so.getIcon() != null) return;
+    	Icon icon = null, largeIcon = null;
+    	Iterator<CustomizedFileFilter> i = EditorUtil.SCRIPTS_FILTERS.iterator();
+    	CustomizedFileFilter filter;
+    	IconManager icons = IconManager.getInstance();
+    	while (i.hasNext()) {
+    		filter = i.next();
+			if (filter.accept(so.getName())) {
+				if (filter instanceof CppFilter) {
+					largeIcon = icons.getIcon(IconManager.CPP_48);
+					icon = icons.getIcon(IconManager.CPP);
+				} else if (filter instanceof MatlabFilter) {
+					icon = icons.getIcon(IconManager.MATLAB);
+					largeIcon = icons.getIcon(IconManager.MATLAB_48);
+				} else if (filter instanceof JavaFilter) {
+					icon = icons.getIcon(IconManager.JAVA);
+					largeIcon = icons.getIcon(IconManager.JAVA_48);
+				} else if (filter instanceof PythonFilter) {
+					icon = icons.getIcon(IconManager.PYTHON);
+					largeIcon = icons.getIcon(IconManager.PYTHON_48);
+				}
+				break;
+			}
+		}
+    	if (icon == null)
+    		icon = icons.getIcon(IconManager.ANALYSIS);
+    	if (largeIcon == null)
+    		largeIcon = icons.getIcon(IconManager.ANALYSIS_48);
+    	so.setIcon(icon);
+    	so.setIconLarge(largeIcon);
+    }
+    
+    /** 
+     * Builds the menu displaying the available scripts.
+     * 
+     * @return See above.
+     */
+    private JPopupMenu getScriptsMenu()
+    {
+    	JPopupMenu menu = new JPopupMenu();
+    	List scripts = model.getScripts();
+    	if (scripts == null) return menu;
+    	Iterator i = scripts.iterator();
+    	ScriptObject so;
+    	JMenuItem item;
+    	while (i.hasNext()) {
+    		so = (ScriptObject) i.next();
+    		setScriptIcon(so);
+    		item = new ScriptMenuItem(so);
+    		item.addActionListener(controller);
+			menu.add(item);
+		}
+    	return menu;
     }
     
     /**
@@ -307,6 +401,7 @@ class ToolBar
 		}
 		publishingButton.setEnabled(true);
 		analysisButton.setEnabled(true);
+		scriptsButton.setEnabled(true);
 		if (publishingDialog != null) publishingDialog.setRootObject();
 		if (analysisDialog != null) analysisDialog.setRootObject();
 	}
@@ -320,6 +415,7 @@ class ToolBar
 	 */
 	void launchOptions(Component source, Point p, int index)
 	{
+		if (p == null) p = new Point(0, 0);
 		switch (index) {
 			case MetadataViewer.PUBLISHING_OPTION:
 				if (publishingDialog == null)
@@ -331,7 +427,20 @@ class ToolBar
 				if (analysisDialog == null)
 					analysisDialog = new AnalysisDialog(controller, model);
 				analysisDialog.displayAsMenu().show(source, p.x, p.y);
+				break;
+			case MetadataViewer.SCRIPTS_OPTION:
+				getScriptsMenu().show(source, p.x, p.y);
 		}
 	}
 	
+	/** Sets the scripts. */
+	void setScripts()
+	{
+		scriptsButton.setEnabled(true);
+		setStatus(false);
+		launchOptions(scriptsButton, location, MetadataViewer.SCRIPTS_OPTION);
+		location = null;
+	}
+	
 }
+	

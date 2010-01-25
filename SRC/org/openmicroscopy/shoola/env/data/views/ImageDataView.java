@@ -37,6 +37,7 @@ import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.DataObject;
@@ -400,5 +401,15 @@ public interface ImageDataView
 	 */
 	public CallHandle analyseFRAP(List<Long> ids, Class objectType, 
 			Object param, AgentEventListener observer);
+	
+	/**
+	 * Runs the passed scripts.
+	 * 
+	 * @param script The script to run.
+	 * @param observer Call-back handler.
+	 * @return See above.
+	 */
+	public CallHandle runScript(ScriptObject script, 
+			AgentEventListener observer);
 	
 }

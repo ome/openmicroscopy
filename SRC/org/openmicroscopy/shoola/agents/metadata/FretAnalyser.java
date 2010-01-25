@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
+
 /**
  * Performs a basic analysis.
  *

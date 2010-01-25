@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.env.ui.Analyser 
+ * org.openmicroscopy.shoola.env.ui.ScriptRunner 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -22,19 +22,17 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
-//Java imports
-import java.util.List;
 
+//Java imports
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.FileAnnotationData;
 
 /** 
- * Analyzes the passed objects.
+ * Runs the specified script.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -46,27 +44,15 @@ import pojos.FileAnnotationData;
  * </small>
  * @since 3.0-Beta4
  */
-public class Analyser 
+public class ScriptRunner 
 	extends UserNotifierLoader
 {
 
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  			handle;
     
-    /** The parameters to use.*/
-    private Object 					param;
-    
-    /** The select objects. */
-    private List<Long>				ids;
-    
-    /** The type of object to handle. */
-    private Class					type;
-    
-    /** The result. */
-    private FileAnnotationData		data;
-    
-    /** The type of analysis to perform. */
-    private int						index;
+    /** Reference to the script to run. */
+    private ScriptObject 			script;
     
     /** Reference to the activity. */
     private ActivityComponent 		activity;
@@ -80,47 +66,30 @@ public class Analyser
      * @param viewer	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
      * @param registry	Convenience reference for subclasses.
-     * @param param  	The parameters used to create the movie.
-     * @param ids		The selected objects.
-     * @param type		The type of objects.
-     * @param index		The type of analysis to perform.
-     * @param activity 	The activity associated to this loader.
+     * @param script  	The script to run
      */
-	public Analyser(UserNotifier viewer,  Registry registry,
-			Object param, List<Long> ids, Class type, int index, 
-			ActivityComponent activity)
+	public ScriptRunner(UserNotifier viewer,  Registry registry,
+			ScriptObject script, ActivityComponent activity)
 	{
 		super(viewer, registry);
+		if (script == null)
+			throw new IllegalArgumentException("No script to run.");
 		if (activity == null)
 			throw new IllegalArgumentException("Activity valid.");
-		if (ids == null || ids.size() == 0)
-			throw new IllegalArgumentException("Objects not valid.");
-		if (param == null)
-			throw new IllegalArgumentException("Parameters cannot be null.");
-		this.param = param;
-		this.ids = ids;
-		this.type = type;
+		this.script = script;
 		this.activity = activity;
-		this.index = index;
 	}
 	
 	/**
-     * Creates a figure of the selected images.
+     * Runs the script.
      * @see UserNotifierLoader#load()
      */
     public void load()
     {
-    	switch (index) {
-			case AnalysisParam.FLIM:
-				break;
-			case AnalysisParam.FRAP:
-				 handle = ivView.analyseFRAP(ids, type, param, this);
-				break;
-		}
     }
     
     /**
-     * Cancels the ongoing data retrieval.
+     * Cancels the on-going data retrieval.
      * @see UserNotifierLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
@@ -131,7 +100,7 @@ public class Analyser
      */
     public void handleNullResult()
     { 
-    	activity.notifyError("Unable to analyse data");
+    	activity.notifyError("Unable to run the script");
     }
  
     /** 
