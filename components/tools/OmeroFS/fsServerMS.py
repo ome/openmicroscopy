@@ -10,7 +10,7 @@
 
 """
 import logging
-log = logging.getLogger("fsserver.ServerMS")
+log = logging.getLogger("fsserver.MonitorServer")
 
 import sys
 import Ice

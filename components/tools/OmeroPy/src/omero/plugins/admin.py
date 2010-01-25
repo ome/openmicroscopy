@@ -564,7 +564,7 @@ OMERO Diagnostics %s
                 self.ctx.out("%-.2f MB" % (float(sz)/1000000.0))
 
         log_dir(self.ctx.dir / "var" / "log", "Log dir", "Log files",\
-            ["Blitz-0.log", "Tables-0.log", "Processor-0.log", "Indexer-0.log", "FSServer.log", "DropBox.log", "TestDropBox.log", "OMEROweb.log"])
+            ["Blitz-0.log", "Tables-0.log", "Processor-0.log", "Indexer-0.log", "FileServer.log", "MonitorServer.log", "DropBox.log", "TestDropBox.log", "OMEROweb.log"])
 
 try:
     register("admin", AdminControl)

@@ -239,18 +239,18 @@
 
     <server-template id="FileServerTemplate">
       <parameter name="exe" default="python"/>
-      <server id="ServerFS" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
+      <server id="FileServer" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
         <option>${OMEROPY_HOME}fsServerFS.py</option>
         <env>${PYTHONPATH}</env>
         <adapter name="omerofs.FileServer" endpoints="tcp">
-          <object identity="ServerFS" type="::monitors::FileServer"/>
+          <object identity="FileServer" type="::monitors::FileServer"/>
         </adapter>
         <properties>
           <properties refid="Basics"/>
           <properties refid="PythonServer"/>
           <properties refid="MultiThreaded"/>
           <properties refid="Profile"/>
-          <property name="omero.fs.fileServerIdString" value="ServerFS"/>
+          <property name="omero.fs.fileServerIdString" value="FileServer"/>
           <property name="omero.fs.fileServerAdapterName" value="omerofs.FileServer"/>
         </properties>
       </server>
@@ -258,18 +258,18 @@
 
     <server-template id="MonitorServerTemplate">
       <parameter name="exe" default="python"/>
-      <server id="ServerMS" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
+      <server id="MonitorServer" exe="${exe}" activation="always" pwd="${OMERO_HOME}">
         <option>${OMEROPY_HOME}fsServerMS.py</option>
         <env>${PYTHONPATH}</env>
         <adapter name="omerofs.MonitorServer" endpoints="tcp">
-          <object identity="ServerMS" type="::monitors::MonitorServer"/>
+          <object identity="MonitorServer" type="::monitors::MonitorServer"/>
         </adapter>
         <properties>
           <properties refid="Basics"/>
           <properties refid="PythonServer"/>
           <properties refid="MultiThreaded"/>
           <properties refid="Profile"/>
-          <property name="omero.fs.monitorServerIdString" value="ServerMS"/>
+          <property name="omero.fs.monitorServerIdString" value="MonitorServer"/>
           <property name="omero.fs.monitorServerAdapterName" value="omerofs.MonitorServer"/>
         </properties>
       </server>
@@ -287,7 +287,7 @@
           <properties refid="MultiThreaded"/>
           <properties refid="DropBox"/>
           <properties refid="Profile"/>
-          <property name="omero.fs.serverIdString" value="ServerMS"/>
+          <property name="omero.fs.serverIdString" value="MonitorServer"/>
           <property name="omero.fs.clientIdString" value="DropBox"/>
           <property name="omero.fs.clientAdapterName" value="omerofs.DropBox"/>
         </properties>
@@ -306,7 +306,7 @@
           <properties refid="MultiThreaded"/>
           <properties refid="DropBox"/>
           <properties refid="Profile"/>
-          <property name="omero.fs.serverIdString" value="ServerMS"/>
+          <property name="omero.fs.serverIdString" value="MonitorServer"/>
           <property name="omero.fs.clientIdString" value="TestDropBox"/>
           <property name="omero.fs.clientAdapterName" value="omerofs.TestDropBox"/>
           <!-- By adding an omero.fstest.config property, the behavior of the

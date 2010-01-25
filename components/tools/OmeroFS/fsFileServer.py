@@ -111,7 +111,7 @@ class FileServerI(monitors.FileServer):
     
         return fullList
 
-     def getBulkDirectory(self, absPath, filter, current=None):
+    def getBulkDirectory(self, absPath, filter, current=None):
         """
             Get a list of subdirectories and files in a directory.
         
@@ -129,9 +129,9 @@ class FileServerI(monitors.FileServer):
                        
             :return: a list of files stats.
             :rtype: list<monitors.FileStats>
-     
+
         """
-    
+
         if filter == "": filter = "*"
         fullPath = pathModule.path(absPath)
         try:
