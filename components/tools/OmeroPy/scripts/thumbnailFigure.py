@@ -251,7 +251,8 @@ def makeThumbnailFigure(client, session, commandArgs):
 	showUntagged = False
 	if (tagIds):
 		if "showUntaggedImages" in commandArgs:
-			if commandArgs["showUntaggedImages"]:
+			show = commandArgs["showUntaggedImages"].getValue()
+			if show:
 				showUntagged = True
 		
 	thumbSize = 100
