@@ -292,7 +292,7 @@ def getSplitView(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, co
 
 
 def makeSplitViewFigure(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, colourChannels, 
-				mergedIndexes, mergedColours, width, height, imageLabels = None, algorithm = None, stepping = 1, 
+				mergedIndexes, mergedColours, mergedNames, width, height, imageLabels = None, algorithm = None, stepping = 1, 
 				scalebar=None, overlayColour=(255,255,255)):
 
 	""" This method makes a figure of a number of images, arranged in rows with each row being the split-view
@@ -376,15 +376,18 @@ def makeSplitViewFigure(session, pixelIds, zStart, zEnd, splitIndexes, channelNa
 			px = px + spacer + height 		# 2 spacers between each row
 		
 	
+	topTextHeight = textHeight + textGap
+	if (mergedNames):
+		topTextHeight = ((textHeight + textGap) * len(mergedIndexes))
 	# make a canvas big-enough to add text to the images. 
 	canvasWidth = leftTextWidth + sv.size[0]
-	canvasHeight = textHeight + textGap + sv.size[1]
+	canvasHeight = topTextHeight + sv.size[1]
 	size = (canvasWidth, canvasHeight)
 	canvas = Image.new(mode, size, white)		# create a canvas of appropriate width, height
 	
 	# add the split-view panel
 	pasteX = leftTextWidth
-	pasteY = textHeight + textGap
+	pasteY = topTextHeight
 	imgUtil.pasteImage(sv, canvas, pasteX, pasteY)
 	
 	draw = ImageDraw.Draw(canvas)
@@ -393,11 +396,11 @@ def makeSplitViewFigure(session, pixelIds, zStart, zEnd, splitIndexes, channelNa
 	# want it to be vertical. Rotate and paste the text canvas from above
 	if imageLabels:	
 		textV = textCanvas.rotate(90)
-		imgUtil.pasteImage(textV, canvas, spacer, textHeight + textGap)
+		imgUtil.pasteImage(textV, canvas, spacer, topTextHeight)
 	
 	# add text to columns 
 	px = spacer + leftTextWidth
-	py = spacer
+	py = topTextHeight + spacer - (textHeight + textGap)	# edges of panels - rowHeight
 	for index in splitIndexes:
 		# calculate the position of the text, centered above the image
 		w = font.getsize(channelNames[index]) [0]
@@ -407,16 +410,25 @@ def makeSplitViewFigure(session, pixelIds, zStart, zEnd, splitIndexes, channelNa
 		if index in mergedIndexes:
 			if not colourChannels:
 				rgb = tuple(mergedColours[index])
-				if rgb == (255,255,255,255):	# if white (unreadable), needs to be black! 
+				if rgb == (255,255,255):	# if white (unreadable), needs to be black! 
 					rgb = (0,0,0)
 		draw.text((px+inset, py), channelNames[index], font=font, fill=rgb)
 		px = px + width + spacer
 	
 	# add text for combined image
-	combTextWidth = font.getsize("Merged")[0]
-	inset = int((width - combTextWidth) / 2)
-	px = px + inset
-	draw.text((px, py), "Merged", font=font, fill=(0,0,0))
+	if (mergedNames):
+		for index in mergedIndexes:
+			rgb = tuple(mergedColours[index])
+			name = channelNames[index]
+			combTextWidth = font.getsize(name)[0]
+			inset = int((width - combTextWidth) / 2)
+			draw.text((px + inset, py), name, font=font, fill=rgb)
+			py = py - textHeight - textGap 
+	else:
+		combTextWidth = font.getsize("Merged")[0]
+		inset = int((width - combTextWidth) / 2)
+		px = px + inset
+		draw.text((px, py), "Merged", font=font, fill=(0,0,0))
 	
 	return canvas
 	
@@ -532,23 +544,25 @@ def splitViewFigure(session, commandArgs):
 			
 	log("Image dimensions for all panels (pixels): width: %d  height: %d" % (width, height))
 	
-	# Make channel list. If argument wasn't specified, include them all. 
+	# Make split-indexes list. If argument wasn't specified, include them all. 
 	splitIndexes = []
+	if "splitIndexes" in commandArgs:
+		for index in commandArgs["splitIndexes"]:
+			splitIndexes.append(index.getValue())
+	else:
+		for c in range(sizeC):
+			splitIndexes = range(sizeC)
+	
+	# Make channel-names map. If argument wasn't specified, name by index
 	channelNames = {}
-	if "splitChannelNames" in commandArgs:
-		cNameMap = commandArgs["splitChannelNames"]
-		#for c in range(sizeC):
-			#if str(c) in cNameMap:
-				#for c in cNameMap:
+	if "channelNames" in commandArgs:
+		cNameMap = commandArgs["channelNames"]
 		for c in cNameMap:
 			index = int(c)
 			channelNames[index] = cNameMap[c].getValue()
-			splitIndexes.append(index)
-		splitIndexes.sort()
 	else:
 		for c in range(sizeC):
-			channelNames[c] = str(c)
-		splitIndexes = range(sizeC)			
+			channelNames[c] = str(c)			
 						
 	mergedIndexes = []	# the channels in the combined image, 
 	mergedColours = {}	
@@ -602,9 +616,12 @@ def splitViewFigure(session, commandArgs):
 	if "overlayColour" in commandArgs:
 		overlayColour = imgUtil.RGBIntToRGB(commandArgs["overlayColour"])
 		
-	
+	mergedNames = False
+	if "mergedNames" in commandArgs:
+		mergedNames = commandArgs["mergedNames"]
+		
 	fig = makeSplitViewFigure(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, colourChannels, 
-						mergedIndexes, mergedColours, width, height, imageLabels, algorithm, stepping, scalebar, overlayColour)
+						mergedIndexes, mergedColours, mergedNames, width, height, imageLabels, algorithm, stepping, scalebar, overlayColour)
 													
 	#fig.show()		# bug-fixing only
 	
@@ -643,7 +660,8 @@ def runAsScript():
 	scripts.List("imageIds").inout(),		# List of image IDs. Resulting figure will be attached to first image 
 	scripts.Long("zStart", optional=True).inout(),	# projection range (if not specified or negative, use defaultZ only - no projection)
 	scripts.Long("zEnd", optional=True).inout(),	# projection range (if not specified or negative, use defaultZ only - no projection)
-	scripts.Map("splitChannelNames").inout(),	# map of index: channel name for Split channels
+	scripts.Map("channelNames").inout(),	# map of index: channel name for all channels
+	scripts.List("splitIndexes").inout(),	# a list of the channels in the split view
 	scripts.Bool("splitPanelsGrey").inout(),# if true, all split panels are greyscale
 	scripts.Map("mergedColours").inout(),	# a map of index:int colours for each merged channel
 	scripts.Long("width", optional=True).inout(),		# the max width of each image panel 
