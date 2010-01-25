@@ -59,7 +59,7 @@ def log(text):
 	logLines.append(text)
 	
 	
-def paintDatasetCanvas(session, images, title, tagIds=None, colCount = 10, length = 100):
+def paintDatasetCanvas(session, images, title, tagIds=None, showUntagged = False, colCount = 10, length = 100):
 	"""
 		Paints and returns a canvas of thumbnails from images, laid out in a set number of columns. 
 		Dataset name (title) and date-range of the images is printed above the thumbnails,
@@ -122,6 +122,7 @@ def paintDatasetCanvas(session, images, title, tagIds=None, colCount = 10, lengt
 		taggedImages = {}	# a map of tagId: list-of-image-Ids
 		for tagId in tagIds:
 			taggedImages[tagId] = []
+		
 		# look for images that have a tag
 		types = ["ome.model.annotations.TagAnnotation"]
 		annotations = metadataService.loadAnnotations("Image", dsImageIds, types, None, None)
@@ -131,8 +132,16 @@ def paintDatasetCanvas(session, images, title, tagIds=None, colCount = 10, lengt
 				tagId = tag.getId().getValue()
 				if tagId in tagIds:		# if image has multiple tags, it will be display more than once
 					taggedImages[tagId].append(imageId)		# add the image id to the appropriate list
+					if imageId in dsImageIds:
+						dsImageIds.remove(imageId)				# remember which we've picked already
 					if tagId not in tagNames.keys():
-						tagNames[tagId] = tag.getTextValue().getValue()
+						tagNames[tagId] = tag.getTextValue().getValue()		# make a dict of tag-names
+		
+		# if we want to show remaining images in dataset (not picked by tag)...
+		if showUntagged:
+			tagIds.append("noTag")
+			taggedImages["noTag"] = [untaggedId for untaggedId in dsImageIds]
+			tagNames["noTag"] = "Untagged"
 		
 		# print results and convert image-id to pixel-id
 		# make a canvas for each tag
@@ -239,6 +248,12 @@ def makeThumbnailFigure(client, session, commandArgs):
 	if len(tagIds) == 0:
 		tagIds = None
 		
+	showUntagged = False
+	if (tagIds):
+		if "showUntaggedImages" in commandArgs:
+			if commandArgs["showUntaggedImages"]:
+				showUntagged = True
+		
 	thumbSize = 100
 	if "thumbSize" in commandArgs:
 		thumbSize = commandArgs["thumbSize"]
@@ -257,7 +272,7 @@ def makeThumbnailFigure(client, session, commandArgs):
 		datasetName = gateway.getDataset(datasetId, False).getName().getValue()
 		images = gateway.getImages(omero.api.ContainerClass.Dataset, [datasetId])
 		log("Dataset: %s     ID: %d     Images: %d" % (datasetName, datasetId, len(images)))
-		dsCanvas = paintDatasetCanvas(session, images, datasetName, tagIds, length=thumbSize, colCount=maxColumns)
+		dsCanvas = paintDatasetCanvas(session, images, datasetName, tagIds, showUntagged, length=thumbSize, colCount=maxColumns)
 		if dsCanvas == None:
 			continue
 		dsCanvases.append(dsCanvas)
@@ -268,7 +283,7 @@ def makeThumbnailFigure(client, session, commandArgs):
 		images = []
 		for imageId in imageIds:
 			images.append(gateway.getImage(imageId))
-		imageCanvas = paintDatasetCanvas(session, images, "Selected Images", tagIds, length=thumbSize, colCount=maxColumns)
+		imageCanvas = paintDatasetCanvas(session, images, "Selected Images", tagIds, showUntagged, length=thumbSize, colCount=maxColumns)
 		dsCanvases.append(imageCanvas)
 		figHeight += imageCanvas.size[1]
 		figWidth = max(figWidth, imageCanvas.size[0])
@@ -316,8 +331,9 @@ def runAsScript():
 	client = scripts.client('thumbnailFigure.py', 'Export a figure of thumbnails, optionally sorted by tag.', 
 	scripts.List("datasetIds", optional=True).inout(),		# List of dataset IDs. Mutually exclusive to "imageIds"
 	scripts.List("imageIds", optional=True).inout(),		# List of image IDs. Mutually exclusive to "datasetIds"
-	scripts.List("tagIds", optional=True).inout(),	# Arrange thumbnails by these tags 		
-	scripts.Long("parentId", optional=True).inout(),	#  Attach fig to this Project (if datasetIds above) or Dataset if imageIds
+	scripts.List("tagIds", optional=True).inout(),			# Arrange thumbnails by these tags 		
+	scripts.Bool("showUntaggedImages", optional=True).inout(),		# if true (and you're sorting by tag) show untagged too 
+	scripts.Long("parentId", optional=True).inout(),		#  Attach fig to this Project (if datasetIds above) or Dataset if imageIds
 	scripts.Long("thumbSize", optional=True).inout(),		# the max dimension of each thumbnail
 	scripts.Long("maxColumns", optional=True).inout(),		# max number of columns in the figure. 
 	scripts.String("format", optional=True).inout(),		# format to save image. Currently JPEG or PNG
