@@ -35,9 +35,9 @@ import java.util.Map;
 //Application-internal dependencies
 import pojos.ImageData;
 import pojos.MaskData;
+import pojos.ROICoordinate;
 import pojos.ROIData;
 
-import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 
 /**
@@ -60,14 +60,14 @@ class ROIClass
 	 * Map of the coordinates and mask objects, may have more than one 
 	 * mask on one plane. 
 	 */
-	private  Map<Coord3D, List<MaskClass>> maskMap;
+	private  Map<ROICoordinate, List<MaskClass>> maskMap;
 	
 	/**
 	 * Instantiate the ROIClass and create the maskMap.
 	 */
 	ROIClass()
 	{
-		maskMap = new HashMap<Coord3D, List<MaskClass>>();
+		maskMap = new HashMap<ROICoordinate, List<MaskClass>>();
 	}
 	
 	/**
@@ -79,7 +79,7 @@ class ROIClass
 	public void addMask(MaskClass mask, int z, int t)
 	{
 		List<MaskClass> maskList;
-		Coord3D coord = new Coord3D(z, t);
+		ROICoordinate coord = new ROICoordinate(z, t);
 		if(maskMap.containsKey(coord))
 			maskList = maskMap.get(coord);
 		else
@@ -101,10 +101,10 @@ class ROIClass
 		ROIData roi = new ROIData();
 		roi.setId(image.getId());
 		
-		Iterator<Coord3D> coordIterator = maskMap.keySet().iterator();
+		Iterator<ROICoordinate> coordIterator = maskMap.keySet().iterator();
 		while(coordIterator.hasNext())
 		{
-			Coord3D coord = coordIterator.next();
+			ROICoordinate coord = coordIterator.next();
 			List<MaskClass> maskList = maskMap.get(coord);
 			for(MaskClass mask : maskList)
 			{
