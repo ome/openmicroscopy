@@ -235,7 +235,7 @@ def getSplitView(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, co
 				re.setRGBA(i, *rgba)
 				
 		# get the combined image, using the existing rendering settings 
-		channelsString = ", ".join([str(i) for i in mergedIndexes])
+		channelsString = ", ".join([channelNames[i] for i in mergedIndexes])
 		log("  Rendering merged channels: %s" % channelsString)
 		overlay = re.renderProjectedCompressed(algorithm, timepoint, stepping, proStart, proEnd)
 		
@@ -373,7 +373,7 @@ def makeSplitViewFigure(session, pixelIds, zStart, zEnd, splitIndexes, channelNa
 				inset = int((height - w) / 2)
 				textdraw.text((px+inset, py), label, font=font, fill=(0,0,0))
 				py = py - textGap	# add space between rows
-			px = px + spacer + height 		# 2 spacers between each row
+			px = px + spacer + height 		# spacer between each row
 		
 	
 	topTextHeight = textHeight + textGap
@@ -485,7 +485,7 @@ def splitViewFigure(session, commandArgs):
 				omeroImage = image		# remember the first image to attach figure to
 			pixelIds.append(image.getPrimaryPixels().getId().getValue())
 			imageNames[iId] = image.getName().getValue()
-		
+	
 	pdMap = figUtil.getDatasetsProjectsFromImages(queryService, imageIds)	# a map of imageId : list of (project, dataset) names. 
 	tagMap = figUtil.getTagsFromImages(metadataService, imageIds)
 	# Build a legend entry for each image
@@ -660,8 +660,8 @@ def runAsScript():
 	scripts.List("imageIds").inout(),		# List of image IDs. Resulting figure will be attached to first image 
 	scripts.Long("zStart", optional=True).inout(),	# projection range (if not specified or negative, use defaultZ only - no projection)
 	scripts.Long("zEnd", optional=True).inout(),	# projection range (if not specified or negative, use defaultZ only - no projection)
-	scripts.Map("channelNames").inout(),	# map of index: channel name for all channels
-	scripts.List("splitIndexes").inout(),	# a list of the channels in the split view
+	scripts.Map("channelNames", optional=True).inout(),	# map of index: channel name for all channels
+	scripts.List("splitIndexes", optional=True).inout(),	# a list of the channels in the split view
 	scripts.Bool("splitPanelsGrey").inout(),# if true, all split panels are greyscale
 	scripts.Map("mergedColours").inout(),	# a map of index:int colours for each merged channel
 	scripts.Long("width", optional=True).inout(),		# the max width of each image panel 
