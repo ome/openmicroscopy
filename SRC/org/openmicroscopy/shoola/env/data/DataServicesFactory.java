@@ -474,10 +474,12 @@ public class DataServicesFactory
 				entry = (Entry) i.next();
 				g = (GroupData) entry.getKey();
 				if (g.getId() != group.getId()) {
-					names.put(g.getId(), g.getName());
+					if (!omeroGateway.isSystemGroup(g.asGroup()))
+						names.put(g.getId(), g.getName());
 				}
 			}
-			names.put(group.getId(), group.getName());
+			if (!omeroGateway.isSystemGroup(group.asGroup()))
+				names.put(group.getId(), group.getName());
 			ScreenLogin.registerGroup(names);
 		}
 		

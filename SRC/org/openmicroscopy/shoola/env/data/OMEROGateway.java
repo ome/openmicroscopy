@@ -1364,20 +1364,6 @@ class OMEROGateway
 	}
 
 	/**
-	 * Returns <code>true</code> if the passed group is an experimenter group
-	 * internal to OMERO, <code>false</code> otherwise.
-	 * 
-	 * @param group The experimenter group to handle.
-	 * @return See above.
-	 */
-	private boolean isSystemGroup(ExperimenterGroup group)
-	{
-		String n = group.getName() == null ? null : group.getName().getValue();
-		return ("system".equals(n) || "user".equals(n) || "default".equals(n) ||
-				"guest".equals(n));
-	}
-
-	/**
 	 * Returns a collection of users contained in the specified group.
 	 * 
 	 * @param groupID	The id of the group.
@@ -1558,6 +1544,20 @@ class OMEROGateway
 	void setPort(int port)
 	{
 		if (this.port != port) this.port = port;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the passed group is an experimenter group
+	 * internal to OMERO, <code>false</code> otherwise.
+	 * 
+	 * @param group The experimenter group to handle.
+	 * @return See above.
+	 */
+	boolean isSystemGroup(ExperimenterGroup group)
+	{
+		String n = group.getName() == null ? null : group.getName().getValue();
+		return ("system".equals(n) || "user".equals(n) || "default".equals(n) ||
+				"guest".equals(n));
 	}
 	
 	/**

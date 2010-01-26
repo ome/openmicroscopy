@@ -531,10 +531,11 @@ public class ScreenLogin
 		//second row
 		l = UIUtilities.buildTextPane(GROUP_TEXT, TEXT_COLOR);
 		mainPanel.add(l, "0, 1, LEFT, CENTER");
-		mainPanel.add(groupsBox, "1, 1, 2, 1");
-		
 		ref.add(l);
-		ref.add(groupsBox);
+		if (groupsBox != null) {
+			mainPanel.add(groupsBox, "1, 1, 2, 1");
+			ref.add(groupsBox);
+		}
 		//third row
 		l = UIUtilities.buildTextPane(USER_TEXT, TEXT_COLOR);
 		
