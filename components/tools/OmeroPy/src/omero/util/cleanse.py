@@ -59,11 +59,14 @@ a scheduled manner it produces NO output unless a dry run is performed.
 
 Options:
   -u          Administrator username to log in to OMERO with
+  -w          Administrator password to log in to OMERO with
   -k          Session key to log in to OMERO with
   --dry-run   Just prints out what would have been done
 
 Examples:
-  %s --dry-run -u root /OMERO
+  %s --dry-run -u root /OMERO                      # Asks for password
+  %s --dry-run -u root -w pass /OMERO              # Doesn't ask for password
+  %s --dry-run -k 629485-9392-582358-49402 /OMERO  # Uses a one-time session
 
 Report bugs to OME Users <ome-users@lists.openmicroscopy.org.uk>""" % \
 	(error, cmd, cmd)
@@ -159,7 +162,7 @@ def main():
 	Default main() that performs OMERO data directory cleansing.
 	"""
 	try:
-		options, args = getopt(sys.argv[1:], "u:k:", ["dry-run"])
+		options, args = getopt(sys.argv[1:], "u:w:k:", ["dry-run"])
 	except GetoptError, (msg, opt):
 		usage(msg)
 
@@ -169,17 +172,20 @@ def main():
 		usage('Expecting single OMERO data directory!')
 	
 	username = getpass.getuser()
+	password = None
 	session_key = None
 	dry_run = False
 	for option, argument in options:
 		if option == "-u":
 			username = argument
+		if option == "-w":
+			password = argument
 		if option == "-k":
 			session_key = argument
 		if option == "--dry-run":
 			dry_run = True
 
-	if session_key is None:
+	if session_key is None and password is None:
 		print "Username: %s" % username
 		try:
 			password = getpass.getpass()
@@ -192,7 +198,7 @@ def main():
 		if session_key is None:
 			session = client.createSession(username, password)
 		else:
-			session = client.createSession(session_key)
+			session = client.joinSession(session_key)
 	except PermissionDeniedException:
 		print "%s: Permission denied" % sys.argv[0]
 		print "Sorry."
