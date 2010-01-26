@@ -161,7 +161,7 @@ def getSplitView(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, co
 			physicalY = pixels.getPhysicalSizeY().getValue()
 		else:
 			physicalY = 0
-		log("  Pixel size (um): x: %s  y: %s" % (str(physicalX), str(physicalY)))
+		log("  Pixel size (um): x: %.3f  y: %.3f" % (physicalX, physicalY))
 		if row == 0:	# set values for primary image
 			physicalSizeX = physicalX
 			physicalSizeY = physicalY
