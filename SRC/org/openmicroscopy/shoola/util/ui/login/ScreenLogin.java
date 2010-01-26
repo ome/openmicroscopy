@@ -38,9 +38,11 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
@@ -209,7 +211,7 @@ public class ScreenLogin
 	private String				originalServerName;
 	
 	/** The component displaying the login option. */
-	private JComponent 			ref;
+	private List<JComponent> 	ref;
 	
 	/** The component displaying the controls. */
 	private JPanel 				mainPanel;
@@ -368,6 +370,7 @@ public class ScreenLogin
 	/** Creates and initializes the login button and the cancel button. */
 	private void initButtons()
 	{
+		ref = new ArrayList<JComponent>();
 		login = new JButton("Login");
 		defaultForeground = login.getForeground();
 		login.setMnemonic('L');
@@ -470,26 +473,14 @@ public class ScreenLogin
 	private void layout(boolean group)
 	{
 		if (mainPanel == null) return;
-		if (ref != null) mainPanel.remove(ref);
+		if (ref == null) return;
+		Iterator<JComponent> i = ref.iterator();
+		boolean visible = false;
 		if (group) {
-			if (groups != null && groupsBox != null) {
-				JPanel p = new JPanel();
-				p.setOpaque(false);
-				p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-				JTextPane l = UIUtilities.buildTextPane(GROUP_TEXT, TEXT_COLOR);
-				p.add(l);
-				p.add(groupsBox);
-				p = UIUtilities.buildComponentPanel(p);
-				p.setOpaque(false);
-				ref = p;
-				mainPanel.add(ref, "0, 0, 2, 0");
-			} else {
-				ref = pleaseLogIn;
-				mainPanel.add(ref, "0, 0, LEFT, CENTER");
-			}
-		} else {
-			ref = pleaseLogIn;
-			mainPanel.add(ref, "0, 0, LEFT, CENTER");
+			if (groups != null && groupsBox != null) visible = true;
+		}
+		while (i.hasNext()) {
+			i.next().setVisible(visible);
 		}
 		mainPanel.validate();
 		mainPanel.repaint();
@@ -511,7 +502,7 @@ public class ScreenLogin
 		double[][] size = {{TableLayout.PREFERRED, TableLayout.FILL, 
 			TableLayout.PREFERRED, 
 			TableLayout.FILL, TableLayout.FILL, TableLayout.PREFERRED}, 
-				{TableLayout.PREFERRED, 
+				{TableLayout.PREFERRED, TableLayout.PREFERRED,
 				TableLayout.PREFERRED, TableLayout.PREFERRED}};
 		TableLayout layout = new TableLayout(size);
 		mainPanel.setLayout(layout);
@@ -521,16 +512,8 @@ public class ScreenLogin
 				TEXT_COLOR);
 		f = pleaseLogIn.getFont();
 		pleaseLogIn.setFont(f.deriveFont(Font.BOLD, TEXT_FONT_SIZE));
-		/*
-		if (groupsBox == null) {
-			mainPanel.add(pleaseLogIn, "0, 0, LEFT, CENTER");
-		} else {
-			l = UIUtilities.buildTextPane(GROUP_TEXT, TEXT_COLOR);
-			mainPanel.add(l, "0, 0, LEFT, CENTER");
-			mainPanel.add(groupsBox, "1, 0, 2, 0");
-		}
-		*/
-		layout(groups != null);
+		mainPanel.add(pleaseLogIn, "0, 0, LEFT, CENTER");
+		
 		versionInfo = UIUtilities.buildTextPane(version, TEXT_COLOR);
 		f = versionInfo.getFont();
 		versionInfo.setFont(f.deriveFont(VERSION_FONT_STYLE, 
@@ -541,22 +524,26 @@ public class ScreenLogin
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 		p.add(serverTextPane);
 		p.add(connectionSpeedText);
-		
-		
-		//mainPanel.add(comp, "0, 0, LEFT, CENTER");
 		mainPanel.add(UIUtilities.buildComponentPanelRight(p, 0, 0, false), 
 				"0, 0, 4, 0");
 		mainPanel.add(configButton, "5, 0, CENTER, TOP");
 		
 		//second row
+		l = UIUtilities.buildTextPane(GROUP_TEXT, TEXT_COLOR);
+		mainPanel.add(l, "0, 1, LEFT, CENTER");
+		mainPanel.add(groupsBox, "1, 1, 2, 1");
+		
+		ref.add(l);
+		ref.add(groupsBox);
+		//third row
 		l = UIUtilities.buildTextPane(USER_TEXT, TEXT_COLOR);
 		
-		mainPanel.add(l, "0, 1, LEFT, CENTER");
-		mainPanel.add(user, "1, 1, 2, 1");
+		mainPanel.add(l, "0, 2, LEFT, CENTER");
+		mainPanel.add(user, "1, 2, 2, 2");
 		l = UIUtilities.buildTextPane(" "+PASSWORD_TEXT, TEXT_COLOR);
-		mainPanel.add(l, "3, 1, RIGHT, CENTER");
-		mainPanel.add(pass, "4, 1, 5, 1");
-		//third row
+		mainPanel.add(l, "3, 2, RIGHT, CENTER");
+		mainPanel.add(pass, "4, 2, 5, 2");
+		//4th row
 		
 		JPanel cPanel = new JPanel();
 		cPanel.setOpaque(false);
@@ -572,7 +559,9 @@ public class ScreenLogin
 		p.add(versionInfo, "0, 0, LEFT, CENTER");
 		p.add(UIUtilities.buildComponentPanelRight(cPanel, 0, 0, false), 
 				"1, 0, RIGHT, CENTER");
-		mainPanel.add(p, "0, 2, 5, 2");
+		mainPanel.add(p, "0, 3, 5, 3");
+		
+		layout(groups != null);
 		return mainPanel;
 	}
 
