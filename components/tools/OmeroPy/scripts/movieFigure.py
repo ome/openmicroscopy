@@ -295,6 +295,19 @@ def movieFigure(session, commandArgs):
 	log("Movie figure created by OMERO on %s" % date.today())
 	log("")
 	
+	timeLabels = {"SECS_MILLIS": "seconds",
+				"SECS": "seconds",
+				"MINS": "minutes",
+				"HOURS": "hours",
+				"MINS_SECS": "mins:secs",
+				"HOURS_MINS": "hours:mins"}
+	timeUnits = "SECS"
+	if "timeUnits" in commandArgs:
+		timeUnits = commandArgs["timeUnits"]
+	if timeUnits not in timeLabels.keys():
+		timeUnits = "SECS"
+	log("Time units are in %s" % timeLabels[timeUnits])
+	
 	pixelIds = []
 	imageIds = []
 	imageLabels = []
@@ -330,7 +343,6 @@ def movieFigure(session, commandArgs):
 			pixelIds.append(image.getPrimaryPixels().getId().getValue())
 			imageNames[iId] = image.getName().getValue()
 		
-			
 	pdMap = figUtil.getDatasetsProjectsFromImages(queryService, imageIds)	# a map of imageId : list of (project, dataset) names. 
 	tagMap = figUtil.getTagsFromImages(metadataService, imageIds)
 	# Build a legend entry for each image
@@ -410,10 +422,6 @@ def movieFigure(session, commandArgs):
 	overlayColour = (255,255,255)
 	if "overlayColour" in commandArgs:
 		overlayColour = imgUtil.RGBIntToRGB(commandArgs["overlayColour"])
-	
-	timeUnits = "SECS"
-	if "timeUnits" in commandArgs:
-		timeUnits = commandArgs["timeUnits"]
 				
 	figure = createMovieFigure(session, pixelIds, tIndexes, zStart, zEnd, width, height, spacer, 
 							algorithm, stepping, scalebar, overlayColour, timeUnits, imageLabels)
