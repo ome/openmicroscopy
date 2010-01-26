@@ -83,10 +83,7 @@ public class ServerEditor
 	
 	/** Bound property indicating that the edition is finished. */
 	static final String			EDIT_PROPERTY = "edit";
-	
-	/** Bound property indicating that a new server is selected. */
-	static final String 		SERVER_PROPERTY = "server";
-	
+
 	/** Bound property indicating that a server is removed from the list. */
 	static final String 		REMOVE_PROPERTY = "remove";
     
@@ -400,6 +397,24 @@ public class ServerEditor
          * */
 
     }
+
+	/** Requests focus if no server address at initialization time. */
+	private void initFocus()
+	{
+		int n = 0;
+		Map<String, String> servers = getServers();
+		if (servers != null) n = servers.size();
+		originalRow = -1;
+		if (n == 0) {
+			requestFocusOnEditedCell(table.getRowCount()-1, 1);
+			addButton.setEnabled(false);
+			editButton.setEnabled(false);
+			removeButton.setEnabled(false);
+		} else {
+			originalRow = n-1;
+			table.setRowSelectionInterval(originalRow, originalRow);
+		}
+	}
 	
 	/** 
 	 * Creates a new instance. 
@@ -481,7 +496,6 @@ public class ServerEditor
 			table.editCellAt(row, col);
 			table.changeSelection(row, col, false, false);
 			table.requestFocus();
-			
 		}
 	}
 	
@@ -717,24 +731,26 @@ public class ServerEditor
 		if (list.length() != 0) prefs.put(OMERO_SERVER, list);
 	}
 
-	/** Requests focus if no server address at initialization time. */
-	void initFocus()
+	void setFocus(String server)
 	{
-		int n = 0;
-		Map<String, String> servers = getServers();
-		if (servers != null) n = servers.size();
-		originalRow = -1;
-		if (n == 0) {
-			requestFocusOnEditedCell(table.getRowCount()-1, 1);
-			addButton.setEnabled(false);
-			editButton.setEnabled(false);
-			removeButton.setEnabled(false);
-		} else {
-			originalRow = n-1;
-			table.setRowSelectionInterval(originalRow, originalRow);
+		if (server == null || server.equals(ScreenLogin.DEFAULT_SERVER)) {
+			initFocus();
+			return;
 		}
+			
+		DefaultTableModel model= ((DefaultTableModel) table.getModel());
+		int m = model.getRowCount();
+		String value;
+		int row = -1;
+		for (int i = 0; i < m; i++) {
+			value = (String) model.getValueAt(i, 1);
+			if (server.equals(value)) {
+				row = i;
+			}
+		}
+		if (row > -1) table.setRowSelectionInterval(row, row);
 	}
-
+	
 	/** Makes sure to remove rows without server address.*/
 	void onApply()
 	{
@@ -755,7 +771,7 @@ public class ServerEditor
 	}
 	
 	/**
-	 * Returns the row corresponding to the file original selected.
+	 * Returns the row corresponding to the file originally selected.
 	 * 
 	 * @return See above.
 	 */
@@ -765,8 +781,15 @@ public class ServerEditor
 	 * Returns <code>true</code> if the selected row is the original one,
 	 * <code>false</code> otherwise.
 	 * 
+	 * @param value The server selected.
 	 * @return See above.
 	 */
-	boolean isOriginalRow() { return table.getSelectedRow() == originalRow; }
+	boolean isOriginal(String value)
+	{ 
+		DefaultTableModel model = ((DefaultTableModel) table.getModel());
+		String v = (String) model.getValueAt(table.getSelectedRow(), 1);
+		if (value == null) return false;
+		return (value.equals(v));
+	}
 	
 }

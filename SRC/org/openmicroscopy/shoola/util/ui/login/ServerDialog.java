@@ -143,6 +143,9 @@ class ServerDialog
     
     /** The original Speed connection if set. */
     private int				originalIndexSpeed;
+
+    /** The selected server when the dialog is open. */
+    private String			server;
     
 	/** Closes and disposes. */
 	private void close()
@@ -150,46 +153,6 @@ class ServerDialog
 		editor.stopEdition();
 		setVisible(false);
 		dispose();
-	}
-	
-	/** Fires a property indicating that a new server is selected. */
-	void apply()
-	{
-		//Check list of servers and remove empty from list
-		editor.stopEdition();
-		String server = editor.getSelectedServer();
-		editor.onApply();
-		if (server != null && server.length() > 0) {
-			String port = editor.getSelectedPort();
-			editor.handleServers(server, editor.getSelectedPort());
-			String value = server+ServerEditor.SERVER_PORT_SEPARATOR+port;
-			firePropertyChange(SERVER_PROPERTY, null, value);
-		}
-		if (buttonsGroup != null) {
-			Enumeration en = buttonsGroup.getElements();
-			JRadioButton button;
-			int index;
-			while (en.hasMoreElements()) {
-				button = (JRadioButton) en.nextElement();
-				if (button.isSelected()) {
-					index = Integer.parseInt(button.getActionCommand());
-					switch (index) {
-						case HIGH_SPEED:
-							firePropertyChange(CONNECTION_SPEED_PROPERTY, null, 
-										new Integer(LoginCredentials.HIGH));
-							break;
-						case MEDIUM_SPEED:
-							firePropertyChange(CONNECTION_SPEED_PROPERTY, null, 
-										new Integer(LoginCredentials.MEDIUM));
-							break;
-						case LOW_SPEED:
-							firePropertyChange(CONNECTION_SPEED_PROPERTY, null, 
-											new Integer(LoginCredentials.LOW));
-					}
-				}
-			}
-		}
-		close();
 	}
 	
 	/** Sets the window's properties. */
@@ -211,7 +174,10 @@ class ServerDialog
 		addWindowListener(new WindowAdapter()
         {
         	public void windowClosing(WindowEvent e) { close(); }
-        	public void windowOpened(WindowEvent e) { editor.initFocus(); } 
+        	public void windowOpened(WindowEvent e)
+        	{ 
+        		editor.setFocus(server); 
+        	} 
         });
 	}
 	
@@ -353,23 +319,64 @@ class ServerDialog
 		if (original == -1)
 			finishButton.setEnabled(true);
 		else {
-			
-			if (editor.isOriginalRow())
+			if (editor.isOriginal(server))
 				finishButton.setEnabled(originalIndexSpeed != factor);
 			else finishButton.setEnabled(true);
 		}
 	}
 	
+	/** Fires a property indicating that a new server is selected. */
+	private void apply()
+	{
+		//Check list of servers and remove empty from list
+		editor.stopEdition();
+		String server = editor.getSelectedServer();
+		editor.onApply();
+		if (server != null && server.length() > 0) {
+			String port = editor.getSelectedPort();
+			editor.handleServers(server, editor.getSelectedPort());
+			String value = server+ServerEditor.SERVER_PORT_SEPARATOR+port;
+			firePropertyChange(SERVER_PROPERTY, null, value);
+		}
+		if (buttonsGroup != null) {
+			Enumeration en = buttonsGroup.getElements();
+			JRadioButton button;
+			int index;
+			while (en.hasMoreElements()) {
+				button = (JRadioButton) en.nextElement();
+				if (button.isSelected()) {
+					index = Integer.parseInt(button.getActionCommand());
+					switch (index) {
+						case HIGH_SPEED:
+							firePropertyChange(CONNECTION_SPEED_PROPERTY, null, 
+										new Integer(LoginCredentials.HIGH));
+							break;
+						case MEDIUM_SPEED:
+							firePropertyChange(CONNECTION_SPEED_PROPERTY, null, 
+										new Integer(LoginCredentials.MEDIUM));
+							break;
+						case LOW_SPEED:
+							firePropertyChange(CONNECTION_SPEED_PROPERTY, null, 
+											new Integer(LoginCredentials.LOW));
+					}
+				}
+			}
+		}
+		close();
+	}
+
 	/** 
 	 * Creates a new instance. 
 	 * 
-	 * @param frame		The parent frame. 
-	 * @param editor 	The server editor. Mustn't be <code>null</code>.
-	 * @param index		The speed of the connection.
+	 * @param frame		 The parent frame. 
+	 * @param editor 	 The server editor. Mustn't be <code>null</code>.
+	 * @param server	The currently selected server or <code>null</code>.
+	 * @param index		 The speed of the connection.
 	 */
-	ServerDialog(JFrame frame, ServerEditor editor, int index)
+	ServerDialog(JFrame frame, ServerEditor editor, String server, int index)
 	{ 
 		super(frame);
+		this.server = server;
 		originalIndexSpeed = index;
 		this.editor = editor;
 		setProperties();
@@ -384,12 +391,13 @@ class ServerDialog
 	 * 
 	 * @param frame		The parent frame. 
 	 * @param editor 	The server editor. Mustn't be <code>null</code>.
+	 * @param server	The currently selected server or <code>null</code>.
 	 */
-	ServerDialog(JFrame frame, ServerEditor editor)
+	ServerDialog(JFrame frame, ServerEditor editor, String server)
 	{ 
-		this(frame, editor, -1);
+		this(frame, editor, server, -1);
 	}
-
+	
 	/**
 	 * Reacts to property changes fired by the{@link ServerEditor}.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

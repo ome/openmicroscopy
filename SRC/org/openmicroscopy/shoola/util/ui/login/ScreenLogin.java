@@ -288,8 +288,10 @@ public class ScreenLogin
 	private void config()
 	{
 		ServerDialog d;
-		if (connectionSpeed) d = new ServerDialog(this, editor, speedIndex);
-		else d = new ServerDialog(this, editor);
+		String s = serverText.getText().trim();
+		if (connectionSpeed) 
+			d = new ServerDialog(this, editor, s, speedIndex);
+		else d = new ServerDialog(this, editor, s);
 		d.addPropertyChangeListener(this);
 		UIUtilities.centerAndShow(d);
 	}
