@@ -129,26 +129,26 @@ def formatTime(seconds, timeUnits):
 	
 	@param seconds:		Time in seconds. float or int
 	@param timeUnits:	A string denoting the format. One of the choices above. 
-	@return:		A string, such as "10 secs" or "3:20 hrs:mins"	
+	@return:		A string, such as "10" or "3:20"	
 	"""
 	if timeUnits == "SECS_MILLIS":
-		return "%.2f sec" % seconds
+		return "%.2f" % seconds
 	elif timeUnits == "SECS":
-		return "%d sec" % int(round(seconds))
+		return "%d" % int(round(seconds))
 	elif timeUnits == "MINS":
 		mins = float(seconds) / float(60)
-		return "%d min" % int(round(mins))
+		return "%d" % int(round(mins))
 	elif timeUnits == "HOURS":
 		hrs = float(seconds) / float(3600)
-		return "%d hour" % int(round(hrs))
+		return "%d" % int(round(hrs))
 	elif timeUnits == "MINS_SECS":
 		mins = seconds / 60
 		secs = round(seconds % 60)
-		return "%d:%02d mins:secs" % (mins, secs)
+		return "%d:%02d" % (mins, secs)
 	elif timeUnits == "HOURS_MINS":
 		hrs = seconds / 3600
 		mins = round((seconds % 3600)/60)
-		return "%d:%02d hrs:mins" % (hrs, mins)
+		return "%d:%02d" % (hrs, mins)
 	else:
 		return "%.2f sec" % seconds
 	
