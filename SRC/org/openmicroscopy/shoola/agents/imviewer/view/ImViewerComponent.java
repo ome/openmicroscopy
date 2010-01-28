@@ -185,7 +185,7 @@ class ImViewerComponent
 		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
 		MeasurePlane event = new MeasurePlane(model.getPixelsID(), 
 				model.getDefaultZ(), model.getDefaultT(), 
-				model.getZoomFactor());
+				model.getZoomFactor()*model.getOriginalRatio());
 		bus.post(event);
 	}
 
