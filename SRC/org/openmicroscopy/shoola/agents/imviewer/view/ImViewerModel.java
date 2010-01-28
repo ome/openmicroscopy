@@ -78,10 +78,8 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-import org.openmicroscopy.shoola.util.image.geom.DimensionRatio;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -2233,15 +2231,11 @@ class ImViewerModel
 			computedSize = new Dimension(getMaxX(), getMaxY());
 			return computedSize;
 		}
-		DimensionRatio d = Factory.computeSize(
+		originalRatio = Math.min((double) RenderingControl.MAX_SIZE/getMaxX(), 
+				(double) RenderingControl.MAX_SIZE/getMaxY());
+		computedSize = Factory.computeThumbnailSize(
 				RenderingControl.MAX_SIZE, RenderingControl.MAX_SIZE, 
 				getMaxX(), getMaxY());
-		
-		if (d.getRatio() == 1) {
-			originalRatio = (double) RenderingControl.MAX_SIZE/getMaxX();
-		} else 
-			originalRatio = d.getRatio();
-		computedSize = d.getDimension();
 		if (computedSize == null) 
 			computedSize = new Dimension(RenderingControl.MAX_SIZE,
 					RenderingControl.MAX_SIZE);
