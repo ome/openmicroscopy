@@ -422,4 +422,44 @@ public class NullRenderingService
 		return null;
 	}
 
+	/**
+     * No-op implementation
+     * @see OmeroImageService#getScriptsAsString()
+     */
+	public Map<Long, String> getScriptsAsString()
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#loadROIMeasurements(Class, long, long)
+     */
+	public Collection loadROIMeasurements(Class type, long id, long userID)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#loadScripts(long, boolean)
+     */
+	public List<ScriptObject> loadScripts(long userID, boolean all)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#uploadScript(ScriptObject)
+     */
+	public Object uploadScript(ScriptObject script)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
 }

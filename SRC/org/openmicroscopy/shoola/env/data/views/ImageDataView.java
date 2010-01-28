@@ -403,13 +403,23 @@ public interface ImageDataView
 			Object param, AgentEventListener observer);
 	
 	/**
-	 * Runs the passed scripts.
+	 * Runs the passed script.
 	 * 
 	 * @param script The script to run.
 	 * @param observer Call-back handler.
 	 * @return See above.
 	 */
 	public CallHandle runScript(ScriptObject script, 
+			AgentEventListener observer);
+
+	/**
+	 * Uploads the passed script.
+	 * 
+	 * @param script The script to upload.
+	 * @param observer Call-back handler.
+	 * @return See above.
+	 */
+	public CallHandle uploadScript(ScriptObject script,
 			AgentEventListener observer);
 	
 }

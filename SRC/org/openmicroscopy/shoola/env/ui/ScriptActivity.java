@@ -22,31 +22,27 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
+
+
+//Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-
 import javax.swing.JFrame;
 
-import omero.model.OriginalFile;
-
-import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.AnalysisActivityParam;
-import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
-import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
-import org.openmicroscopy.shoola.env.data.model.ScriptObject;
-import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
-
-import pojos.FileAnnotationData;
-
-//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.OriginalFile;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
+import pojos.FileAnnotationData;
 
 /** 
- * 
+ * Activity to run the specified scripts.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,14 +58,33 @@ public class ScriptActivity
 	extends ActivityComponent
 {
 
+	/** Indicates to run the script. */
+	public static final int	RUN = 0;
+	
+	/** Indicates to upload the script. */
+	public static final int	UPLOAD = 1;
+	
 	/** The description of the activity. */
-	private static final String		DESCRIPTION_CREATION = "Running Script";
+	private static final String		DESCRIPTION_RUN_CREATION = 
+								"Running Script";
+	
+	/** The description of the activity when it is finished. */
+	private static final String		DESCRIPTION_RUN_CREATED = 
+		"Script Run terminated";
+	
+	/** The description of the activity. */
+	private static final String		DESCRIPTION_UPLOAD_CREATION = 
+									"Uploading Script";
 	
 	/** The description of the activity when finished. */
-	private static final String		DESCRIPTION_CREATED = "Run finished";
+	private static final String		DESCRIPTION_UPLOAD_CREATED = 
+		"Script uploaded";
 	
 	/** The script to run. */
     private ScriptObject	script;
+    
+    /** One of the constants defined by this class. */
+    private int 			index;
     
     /**
      * Creates a new instance.
@@ -81,10 +96,17 @@ public class ScriptActivity
      * @param activity 	The activity associated to this loader.
      */
 	public ScriptActivity(UserNotifier viewer, Registry registry,
-			ScriptObject script)
+			ScriptObject script, int index)
 	{
-		super(viewer, registry, DESCRIPTION_CREATION, script.getIcon(), 
+		super(viewer, registry, DESCRIPTION_RUN_CREATION, script.getIcon(), 
 				ActivityComponent.ADVANCED);
+		switch (index) {
+			case UPLOAD:
+				type.setText(DESCRIPTION_UPLOAD_CREATION);
+				setIndex(ActivityComponent.GENERAL);
+				break;
+		}
+		
 		if (script == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.script = script;
@@ -96,7 +118,7 @@ public class ScriptActivity
 	 */
 	protected UserNotifierLoader createLoader()
 	{
-		return new ScriptRunner(viewer,  registry, script, this);
+		return new ScriptHandler(viewer,  registry, script, index, this);
 	}
 
 	/**
@@ -105,7 +127,13 @@ public class ScriptActivity
 	 */
 	protected void notifyActivityEnd()
 	{
-		type.setText(DESCRIPTION_CREATED);
+		switch (index) {
+			case UPLOAD:
+				type.setText(DESCRIPTION_UPLOAD_CREATED);
+				break;
+			case RUN:
+				type.setText(DESCRIPTION_RUN_CREATED);
+		}
 	}
 	
 	/** Notifies to dowload the file. */
@@ -146,4 +174,5 @@ public class ScriptActivity
 		});
 		chooser.centerDialog();
 	}
+	
 }

@@ -28,7 +28,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -69,7 +69,7 @@ public class ScriptsLoader
 		return new BatchCall("Load scripts ") {
 			public void doCall() throws Exception
 			{
-				OmeroMetadataService svc = context.getMetadataService();
+				OmeroImageService svc = context.getImageService();
 				result = svc.loadScripts(userID, all);
 			}
 		};

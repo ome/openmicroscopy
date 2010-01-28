@@ -47,16 +47,20 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.metadata.util.ScriptComponent;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.ExperimenterData;
 
 /** 
  * Builds up a dialog to collect the parameters associated to the script.
@@ -94,7 +98,7 @@ class ScriptingDialog
     
     /** The text displayed in the header. */
     private static final String		TEXT_END = ".\n"+ScriptComponent.REQUIRED +
-    		"indicates the required parameter."+
+    		" indicates the required parameter."+
     		"\nIf (List) is indicated next to a parameter, use spaces " +
     		"to separate values.\n"+
     		"If (Map) is indicated next to a parameter, use "+
@@ -113,6 +117,22 @@ class ScriptingDialog
 	/** Run the script. */
 	private JButton applyButton;
 	
+    /** Component used to enter the author of the script. */
+    private JTextField	author;
+    
+    /** Component used to enter the author's e-mail address. */
+    private JTextField	eMail;
+    
+    /** Component used to enter the author's institution. */
+    private JTextField	institution;
+    
+    /** Component used to enter the description of the script. */
+    private JTextField	description;
+    
+    /** Component used to enter where the script was published if 
+     * published. */
+    private JTextField	journalRef;
+    
 	/** The object to handle. */
 	private ScriptObject script;
 	
@@ -147,6 +167,26 @@ class ScriptingDialog
 	/** Initializes the components. */
 	private void initComponents()
 	{
+		ExperimenterData exp = script.getAuthor();
+		author = new JTextField();
+		author.setEnabled(false);
+		if (exp != null) {
+			author.setText(exp.getFirstName()+" "+exp.getLastName());
+		}
+        eMail = new JTextField();
+        eMail.setEnabled(false);
+		if (exp != null) {
+			eMail.setText(exp.getEmail());
+		}
+        institution = new JTextField();
+        institution.setEnabled(false);
+		if (exp != null) {
+			institution.setText(exp.getInstitution());
+		}
+        journalRef = new JTextField(script.getJournalRef()); 
+        journalRef.setEnabled(false);
+        description = new JTextField(script.getDescription());
+        description.setEnabled(false);
 		cancelButton = new JButton("Cancel");
 		cancelButton.setToolTipText("Close the dialog.");
 		cancelButton.setActionCommand(""+CANCEL);
@@ -192,6 +232,42 @@ class ScriptingDialog
 				components.put((String) entry.getKey(), c);
 			}
 		}
+	}
+	
+	/**
+	 * Builds and lays out the details of the script.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildScriptDetails()
+	{
+		double[][] size = {{TableLayout.PREFERRED, 5, TableLayout.FILL},
+				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
+			TableLayout.PREFERRED, TableLayout.PREFERRED, 50}};
+		JPanel details = new JPanel();
+		details.setLayout(new TableLayout(size));
+		int row = 0;
+		JLabel l = UIUtilities.setTextFont("Author (First, Last):");
+		details.add(l, "0, "+row+", LEFT, CENTER");
+		details.add(author, "2, "+row);
+		row++;
+		l = UIUtilities.setTextFont("E-mail:");
+		details.add(l, "0, "+row+", LEFT, CENTER");
+		details.add(eMail, "2, "+row);
+		row++;
+		l = UIUtilities.setTextFont("Institution:");
+		details.add(l, "0, "+row+", LEFT, CENTER");
+		details.add(institution, "2, "+row);
+		row++;
+		l = UIUtilities.setTextFont("Journal Ref:");
+		details.add(l, "0, "+row+", LEFT, CENTER");
+		details.add(journalRef, "2, "+row);
+		row++;
+		l = UIUtilities.setTextFont("Script's Description:");
+		details.add(l, "0, "+row+", LEFT, TOP");
+		details.add(description, "2, "+row);
+		
+    	return details;
 	}
 	
 	/**
@@ -241,7 +317,17 @@ class ScriptingDialog
 			p.add(comp.getComponent(), "2, "+row);
 			row++;
 		}
-		return p;
+		
+		JXTaskPane pane = new JXTaskPane();
+		pane.setCollapsed(true);
+		pane.setTitle("Script details");
+		pane.add(buildScriptDetails());
+		JPanel controls = new JPanel();
+    	controls.setLayout(new BorderLayout(0, 0));
+    	controls.add(pane, BorderLayout.NORTH);
+    	controls.add(new JScrollPane(p), BorderLayout.CENTER);
+    	controls.add(buildControlPanel(), BorderLayout.SOUTH);
+    	return controls;
 	}
 	
 	/** Builds and lays out the UI. */
@@ -253,7 +339,7 @@ class ScriptingDialog
 		c.setLayout(new BorderLayout(0, 0));
 		c.add(tp, BorderLayout.NORTH);
 		c.add(buildBody(), BorderLayout.CENTER);
-		c.add(buildControlPanel(), BorderLayout.SOUTH);
+		//c.add(buildControlPanel(), BorderLayout.SOUTH);
 	}
 	
 	/**

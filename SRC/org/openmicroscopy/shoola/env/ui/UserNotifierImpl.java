@@ -36,6 +36,7 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnalysisActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
@@ -315,6 +316,10 @@ public class UserNotifierImpl
 			comp = new AnalysisActivity(this, manager.getRegistry(), p);
 		} else if (activity instanceof ScriptObject) {
 			ScriptObject script = (ScriptObject) activity;
+			int index = ScriptActivity.UPLOAD;
+			if (script.getScriptID() > 0) index = ScriptActivity.RUN; 
+			comp = new ScriptActivity(this, manager.getRegistry(),
+					script, index);
 		}
 		if (comp != null) {
 			UserNotifierLoader loader = comp.createLoader();

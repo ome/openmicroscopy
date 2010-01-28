@@ -1636,7 +1636,7 @@ class OMEROGateway
 	/**
 	 * Tells whether the communication channel to <i>OMERO</i> is currently
 	 * connected.
-	 * This means that we have established a connection and have sucessfully
+	 * This means that we have established a connection and have successfully
 	 * logged in.
 	 * 
 	 * @return  <code>true</code> if connected, <code>false</code> otherwise.
@@ -1712,7 +1712,6 @@ class OMEROGateway
 			connected = true;
 			
 			ExperimenterData exp = getUserDetails(userName);
-			groupID = -1;
 			if (groupID >= 0) {
 				long defaultID = exp.getDefaultGroup().getId();
 				if (defaultID == groupID) return exp;
@@ -1724,7 +1723,6 @@ class OMEROGateway
 					String s = "Can't connect to OMERO. Group not valid.\n\n";
 					throw new DSOutOfServiceException(s, e);
 				}
-				
 			}
 			return exp;
 		} catch (Throwable e) {
@@ -4925,7 +4923,7 @@ class OMEROGateway
 	 * 
 	 * @param userID The id of the experimenter or <code>-1</code>.
 	 * @param all 	Pass <code>true</code> to retrieve all the scripts uploaded
-	 * 				ones and the default ones, <code>false</code>
+	 * 				ones and the default ones, <code>false</code>.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
@@ -4959,6 +4957,29 @@ class OMEROGateway
 			handleException(e, "Cannot load the scripts. ");
 		}
 		return scripts;
+	}
+	
+	/**
+	 * Returns all the scripts currently stored into the system.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Map<Long, String> getScriptsAsString()
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+
+			IScriptPrx svc = getScripService();
+			return svc.getScripts();
+		} catch (Exception e) {
+			handleException(e, "Cannot load the scripts. ");
+		}
+		return new HashMap<Long, String>();
 	}
 	
 	/**

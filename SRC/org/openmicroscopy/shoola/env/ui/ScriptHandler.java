@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.ui.ScriptRunner 
+ * org.openmicroscopy.shoola.env.ui.ScriptHandler
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -44,10 +44,17 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * </small>
  * @since 3.0-Beta4
  */
-public class ScriptRunner 
+public class ScriptHandler 
 	extends UserNotifierLoader
 {
 
+	/** Indicates to run the script. */
+	public static final int	RUN = ScriptActivity.RUN;
+	
+	/** Indicates to upload the script. */
+	public static final int	UPLOAD = ScriptActivity.UPLOAD;
+	
+	
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  			handle;
     
@@ -56,6 +63,9 @@ public class ScriptRunner
     
     /** Reference to the activity. */
     private ActivityComponent 		activity;
+    
+    /** One of constants defined by this class. */
+    private int 					index;
     
     /** Notifies the user that an error occurred. */
     protected void onException() { handleNullResult(); }
@@ -68,8 +78,8 @@ public class ScriptRunner
      * @param registry	Convenience reference for subclasses.
      * @param script  	The script to run
      */
-	public ScriptRunner(UserNotifier viewer,  Registry registry,
-			ScriptObject script, ActivityComponent activity)
+	public ScriptHandler(UserNotifier viewer,  Registry registry,
+			ScriptObject script, int index, ActivityComponent activity)
 	{
 		super(viewer, registry);
 		if (script == null)
@@ -78,6 +88,7 @@ public class ScriptRunner
 			throw new IllegalArgumentException("Activity valid.");
 		this.script = script;
 		this.activity = activity;
+		this.index = index;
 	}
 	
 	/**
@@ -86,6 +97,13 @@ public class ScriptRunner
      */
     public void load()
     {
+    	switch (index) {
+			case UPLOAD:
+				handle = ivView.uploadScript(script, this);
+				break;
+			case RUN:
+				handle = ivView.runScript(script, this);
+		}
     }
     
     /**

@@ -89,6 +89,7 @@ import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -2662,7 +2663,7 @@ class TreeViewerComponent
 		if (box.centerMsgBox() == MessageBox.NO_OPTION) return;
 		Registry reg = TreeViewerAgent.getRegistry();
 		try {
-			//reg.getDataService().updateExperimenter(exp, group);
+			reg.getDataService().updateExperimenter(exp, group);
 		} catch (Exception e) {
 			LogMessage msg = new LogMessage();
 	        msg.print("Cannot modify current group.");
@@ -2718,6 +2719,40 @@ class TreeViewerComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		view.setMetadataVisibility();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#getScriptsAsString()
+	 */
+	public Map<Long, String> getScriptsAsString()
+	{
+		Registry reg = TreeViewerAgent.getRegistry();
+		try {
+			//TODO: asynchronous call instead
+			return reg.getImageService().getScriptsAsString();
+		} catch (Exception e) {
+			String s = "Data Retrieval Failure: ";
+	        LogMessage msg = new LogMessage();
+	        msg.print(s);
+	        msg.print(e);
+	        reg.getLogger().error(this, msg);
+		}
+		return new HashMap<Long, String>();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#uploadScript(ScriptObject)
+	 */
+	public void uploadScript(ScriptObject script)
+	{
+		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+		if (script == null) {
+			un.notifyInfo("Upload Script", "No script to upload");
+			return;
+		}
+		un.notifyActivity(script);
 	}
 	
 }

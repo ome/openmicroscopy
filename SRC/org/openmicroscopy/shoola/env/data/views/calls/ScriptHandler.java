@@ -33,7 +33,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
 /** 
- * Creates a batch call to run the script.
+ * Creates a batch call to run or upload a script.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,10 +45,16 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
  * </small>
  * @since 3.0-Beta4
  */
-public class ScriptRunner 
+public class ScriptHandler 
 	extends BatchCallTree
 {
 
+	/** Indicates to run the script. */
+	public static final int	RUN = 0;
+	
+	/** Indicates to upload the script. */
+	public static final int	UPLOAD = 1;
+	
 	/** The result of the call. */
     private Object				result;
     
@@ -56,19 +62,26 @@ public class ScriptRunner
     private BatchCall   		loadCall;
     
     /**
-     * Creates a {@link BatchCall} to run the script.
+     * Creates a {@link BatchCall} to upload or run the script.
      * 
-     * @param script The script to run. 
+     * @param script The script to run or upload. 
+     * @param index  One of the constants defined by the script.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeCall(final ScriptObject script)
+    private BatchCall makeCall(final ScriptObject script, final int index)
     {
     	return new BatchCall("Run the script") {
-    		 public void doCall() throws Exception
-            {
-    			 OmeroImageService os = context.getImageService();
-                 result = os.runScript(script);
-            }
+    		public void doCall() throws Exception
+    		{
+    			OmeroImageService os = context.getImageService();
+    			switch (index) {
+	    			case RUN:
+	    				result = os.runScript(script);
+	    				break;
+	    			case UPLOAD:
+	    				result = os.uploadScript(script);
+    			}
+    		}
         };
     }
     
@@ -88,17 +101,14 @@ public class ScriptRunner
     /**
      * Creates a new instance.
      * 
-     * @param pixels	The pixels set to analyze.
-     * @param channels	Collection of active channels. 
-     * 					Mustn't be <code>null</code>.
-     * @param shapes	Collection of shapes to analyze. 
-     * 					Mustn't be <code>null</code>.
+     * @param script The script to run or upload.
+     * @param index	 One of the constants defined by this class.
      */
-    public ScriptRunner(ScriptObject script)
+    public ScriptHandler(ScriptObject script, int index)
     {
     	if (script == null) 
     		throw new IllegalArgumentException("No script specified."); 
-		loadCall = makeCall(script);
+		loadCall = makeCall(script, index);
     }
     
 }

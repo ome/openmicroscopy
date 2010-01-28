@@ -55,7 +55,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.PlaneInfoLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ProjectionSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ROILoader;
-import org.openmicroscopy.shoola.env.data.views.calls.ScriptRunner;
+import org.openmicroscopy.shoola.env.data.views.calls.ScriptHandler;
 import org.openmicroscopy.shoola.env.data.views.calls.ServerSideROILoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ROISaver;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingControlLoader;
@@ -423,7 +423,18 @@ class ImageDataViewImpl
 	public CallHandle runScript(ScriptObject script, 
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ScriptRunner(script);
+		BatchCallTree cmd = new ScriptHandler(script, ScriptHandler.RUN);
+		return cmd.exec(observer);
+	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#uploadScript(ScriptObject, AgentEventListener)
+     */
+	public CallHandle uploadScript(ScriptObject script,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ScriptHandler(script, ScriptHandler.UPLOAD);
 		return cmd.exec(observer);
 	}
 	

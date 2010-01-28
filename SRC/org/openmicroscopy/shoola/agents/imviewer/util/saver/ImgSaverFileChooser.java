@@ -153,7 +153,7 @@ class ImgSaverFileChooser
     {
     	// Build the file .
     	File f = getSelectedFile();
-    	if (f == null) return null;
+    	if (f == null) return Boolean.valueOf(false);
     	 String format = getFormat(getFileFilter());
          String fileName = f.getAbsolutePath();
          String message = MSG_DIR+""+getCurrentDirectory();

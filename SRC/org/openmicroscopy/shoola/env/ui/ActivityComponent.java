@@ -253,6 +253,13 @@ public abstract class ActivityComponent
 		buildGUI();
 	}
 	
+	/**
+	 * Sets the index associated to this activity.
+	 * 
+	 * @param index The value to set.
+	 */
+	void setIndex(int index) { this.index = index; }
+	
     /**
      * Creates a new instance.
      * 

@@ -223,11 +223,9 @@ public class ScreenLogin
 		String server = serverText.getText();
 		if (usr == null) usr = "";
 		if (server == null) server = "";
-		if (!server.equals(originalServerName) || !usr.equals(originalName)) {
-			Preferences prefs = 
-				Preferences.userNodeForPackage(ScreenLogin.class);
-			prefs.put(OMERO_USER_GROUP, "");
-		}
+		if (!server.equals(originalServerName) || !usr.equals(originalName))
+			registerGroup(null);
+	
 		firePropertyChange(QUIT_PROPERTY, Boolean.valueOf(false), 
 				Boolean.valueOf(true));
 	}
@@ -1024,7 +1022,12 @@ public class ScreenLogin
 	 */
 	public static void registerGroup(Map<Long, String> groups)
 	{
-		if (groups == null) return;
+		Preferences prefs = 
+			Preferences.userNodeForPackage(ScreenLogin.class);
+		if (groups == null) {
+			prefs.put(OMERO_USER_GROUP, "");
+			return;
+		}
 		Entry entry;
 		String name;
 
@@ -1045,8 +1048,6 @@ public class ScreenLogin
 			index++;
 		}
 		if (list.length() != 0) {
-			Preferences prefs = 
-				Preferences.userNodeForPackage(ScreenLogin.class);
 			prefs.put(OMERO_USER_GROUP, "");
 			prefs.put(OMERO_USER_GROUP, list);
 		}

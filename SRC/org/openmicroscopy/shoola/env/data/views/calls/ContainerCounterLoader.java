@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -37,7 +36,7 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
-import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DataObject;
@@ -49,7 +48,7 @@ import pojos.TagAnnotationData;
 /** 
  * Command to retrieve the number of items contained in a specified collection
  * of containers. 
- * Note that we don't retrieve the items cf. lazy loading rule.
+ * Note that we don't retrieve the items i.e. lazy loading rule.
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -86,8 +85,7 @@ public class ContainerCounterLoader
 		        OmeroDataService os = context.getDataService();
 		        if (PlateData.class.equals(type)) {
 		        	Iterator<Long> i = ids.iterator();
-		        	OmeroMetadataService ms = context.getMetadataService();
-		        	Collection c; 
+		        	OmeroImageService ms = context.getImageService();
 		        	Long id;
 		        	ExperimenterData exp = (ExperimenterData) context.lookup(
 							LookupNames.CURRENT_USER_DETAILS);
@@ -97,7 +95,8 @@ public class ContainerCounterLoader
 		        	while (i.hasNext()) {
 						id = i.next();
 						m.put(id, new Long(
-								ms.loadROIMeasurements(type, id, userID).size()));
+								ms.loadROIMeasurements(
+										type, id, userID).size()));
 					}
 		        	
 		        	result = m;

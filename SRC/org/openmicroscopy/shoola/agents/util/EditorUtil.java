@@ -1891,5 +1891,5 @@ public class EditorUtil
 	{
 		return editorFilter.accept(fileName);
 	}
-
+	
 }

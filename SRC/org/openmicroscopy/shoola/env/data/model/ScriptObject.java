@@ -54,8 +54,14 @@ public class ScriptObject
 	/** The name of the script. */
 	private String name;
 	
+	/** The description of the script. */
+	private String description;
+	
+	/** The description of the script. */
+	private String journalRef;
+	
 	/** The owner of the script. */
-	private ExperimenterData owner;
+	private ExperimenterData author;
 	
 	/** The parameters of the script. */
 	private Map<String, Class> parameterTypes;
@@ -79,7 +85,59 @@ public class ScriptObject
 	{
 		this.scriptID = scriptID;
 		this.name = name;
+		description = "";
+		journalRef = "";
 	}
+	
+	/**
+	 * Sets the author of the script.
+	 * 
+	 * @param author The author of the script.
+	 */
+	public void setAuthor(ExperimenterData author) { this.author = author; }
+	
+	/**
+	 * Sets the description of the script.
+	 * 
+	 * @param description The value to set.
+	 */
+	public void setDescription(String description)
+	{
+		this.description = description; 
+	}
+	
+	/**
+	 * Sets the reference to the journal where the script was published
+	 * if it has been published.
+	 * 
+	 * @param journalRef The value to set.
+	 */
+	public void setJournalRef(String journalRef)
+	{ 
+		this.journalRef = journalRef; 
+	}
+	
+	/** 
+	 * Returns the author of the script.
+	 * 
+	 * @return
+	 */
+	public ExperimenterData getAuthor() { return author; }
+	
+	/**
+	 * Returns the description of the script.
+	 * 
+	 * @return See above.
+	 */
+	public String getDescription() { return description; }
+	
+	/**
+	 * Returns the journal where the script was published if
+	 * it has been published.
+	 * 
+	 * @return See above.
+	 */
+	public String getJournalRef() { return journalRef; }
 	
 	/**
 	 * Sets the parameters associated to the script.

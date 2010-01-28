@@ -172,12 +172,14 @@ class ToolBar
         UIUtilities.unifiedButtonLookAndFeel(b);
         b.addMouseListener((ManagerAction) a);
         bar.add(b);
-        
-        
         b = new JButton(controller.getAction(
         		TreeViewerControl.EDITOR_NO_SELECTION));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
+        b = new JButton(controller.getAction(TreeViewerControl.UPLOAD_SCRIPT));
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        bar.add(b);
+        
         b = new JButton(controller.getAction(TreeViewerControl.IMPORT));
         UIUtilities.unifiedButtonLookAndFeel(b);
         //bar.add(b);
@@ -186,7 +188,7 @@ class ToolBar
         		controller.getAction(TreeViewerControl.FULLSCREEN));
         //UIUtilities.unifiedButtonLookAndFeel(button);
         fullScreen.setSelected(model.isFullScreen());
-        bar.add(fullScreen);
+        //bar.add(fullScreen);
         return bar;
     }
     

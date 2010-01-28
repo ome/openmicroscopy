@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -907,4 +908,18 @@ public interface TreeViewer
 	/** Shows or hides the Metadata View. */
 	void setMetadataVisibility();
 	
+	/**
+	 * Returns all the scripts currently stored into the system.
+	 * 
+	 * @return See above.
+	 */
+	public Map<Long, String> getScriptsAsString();
+
+	/**
+	 * Uploads the specified script to the server.
+	 * 
+	 * @param script The script to upload.
+	 */
+	public void uploadScript(ScriptObject script);
+
 }

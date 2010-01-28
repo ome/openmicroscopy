@@ -29,6 +29,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
@@ -129,7 +130,7 @@ public class StructuredAnnotationLoader
         return new BatchCall("Loading Measurements") {
             public void doCall() throws Exception
             {
-            	OmeroMetadataService os = context.getMetadataService();
+            	OmeroImageService os = context.getImageService();
                 result = os.loadROIMeasurements(type, id, userID);
             }
         };

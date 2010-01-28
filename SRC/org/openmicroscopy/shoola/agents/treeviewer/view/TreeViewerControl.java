@@ -99,6 +99,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TaggingAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowseContainerAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.UploadScriptAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewImageAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewOtherAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
@@ -314,8 +315,11 @@ class TreeViewerControl
 	/** Identifies the <code>Full Screen</code> in the menu. */
 	static final Integer   FULLSCREEN = Integer.valueOf(58);
 	
-	/** Identifies the <code>Personal</code> in the menu. */
+	/** Identifies the <code>Metadata display</code> in the menu. */
 	static final Integer   METADATA = Integer.valueOf(59);
+	
+	/** Identifies the <code>Personal</code> in the menu. */
+	static final Integer   UPLOAD_SCRIPT = Integer.valueOf(60);
 	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
@@ -438,6 +442,7 @@ class TreeViewerControl
 		actionsMap.put(PERSONAL, new PersonalManagementAction(model));
 		actionsMap.put(FULLSCREEN, new FullScreenViewerAction(model));
 		actionsMap.put(METADATA, new MetadataVisibilityAction(model));
+		actionsMap.put(UPLOAD_SCRIPT, new UploadScriptAction(model));
 	}
 
 	/** 
