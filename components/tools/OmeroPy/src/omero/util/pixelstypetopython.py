@@ -41,9 +41,9 @@ def toPython(pixelType):
 	FLOAT = "float"
 	DOUBLE = "double"
 	if(pixelType==INT_8):
-		return 'b'
-	if(pixelType==UINT_8):
 		return 'c'
+	if(pixelType==UINT_8):
+		return 'b'
 	if(pixelType==INT_16):
 		return 'h'
 	if(pixelType==UINT_16):
