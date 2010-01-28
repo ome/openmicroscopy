@@ -1555,9 +1555,12 @@ class OMEROGateway
 	 */
 	boolean isSystemGroup(ExperimenterGroup group)
 	{
+		/*
 		String n = group.getName() == null ? null : group.getName().getValue();
 		return ("system".equals(n) || "user".equals(n) || "default".equals(n) ||
 				"guest".equals(n));
+				*/
+		return false;
 	}
 	
 	/**
