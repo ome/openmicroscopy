@@ -219,13 +219,24 @@ public class ScreenLogin
 	/** Quits the application. */
 	private void quit()
 	{
-		firePropertyChange(QUIT_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+		String usr = user.getText().trim();
+		String server = serverText.getText();
+		if (usr == null) usr = "";
+		if (server == null) server = "";
+		if (!server.equals(originalServerName) || !usr.equals(originalName)) {
+			Preferences prefs = 
+				Preferences.userNodeForPackage(ScreenLogin.class);
+			prefs.put(OMERO_USER_GROUP, "");
+		}
+		firePropertyChange(QUIT_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
 	}
 
 	/** Attempts to log in. */
 	private void login()
 	{
-		firePropertyChange(TO_FRONT_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+		firePropertyChange(TO_FRONT_PROPERTY, Boolean.valueOf(false),
+				Boolean.valueOf(true));
 		requestFocusOnField();
 		StringBuffer buf = new StringBuffer();
 		buf.append(pass.getPassword());
