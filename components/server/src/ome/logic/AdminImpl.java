@@ -7,12 +7,18 @@
 
 package ome.logic;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Modifier;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
 
 import ome.annotations.NotNull;
 import ome.annotations.PermitAll;
@@ -28,9 +34,12 @@ import ome.conditions.AuthenticationException;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
+import ome.model.IGlobal;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
+import ome.model.internal.Permissions.Right;
+import ome.model.internal.Permissions.Role;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -57,6 +66,7 @@ import ome.system.SimpleEventContext;
 import ome.tools.hibernate.QueryBuilder;
 import ome.util.Utils;
 
+import org.apache.commons.logging.Log;
 import org.hibernate.Criteria;
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.HibernateException;
@@ -650,12 +660,26 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
      * This logic is duplicated in
      * {@link BasicSecuritySystem#checkManagedDetails(IObject, ome.model.internal.Details)}.
      * 
+     * As of OMERO 4.2 (ticket:1434), this method has special handling for an
+     * instance of {@link ExperimenterGroup} and <em>limited</em> capabilities
+     * for changing any other object type. For groups, the permission changes will
+     * be propagated to all the contained objects. For other objects, changes may
+     * not override group settings.
+     *
      * @see IAdmin#changePermissions(IObject, Permissions)
      * @see <a
      *      href="http://trac.openmicroscopy.org.uk/omero/ticket/293">ticket:293</a>
+     * @see <a
+     *      href="http://trac.openmicroscopy.org.uk/omero/ticket/1434">ticket:1434</a>
      */
     @RolesAllowed("user")
     public void changePermissions(final IObject iObject, final Permissions perms) {
+
+        // ticket:1434
+        if (iObject instanceof ExperimenterGroup) {
+            handleGroupChange(iObject.getId(), perms);
+            return; // EARLY EXIT!
+        }
 
         // inject
         final IObject[] copy = new IObject[1];
@@ -1035,5 +1059,94 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             setQuery(qb.query(session));
 
         }
+    }
+
+    // ~ group permissions
+    // =========================================================================
+
+    @SuppressWarnings("unchecked")
+    private Set<String> classes() {
+        Set<String> classes = sf.getAllClassMetadata().keySet();
+        return classes;
+    }
+
+    final static int GROUP_READ = Permissions.bit(Role.GROUP, Right.READ);
+
+    final static int WORLD_READ = Permissions.bit(Role.WORLD, Right.READ);
+
+    final static String GROUP_PERMS_SQL = "update %s " +
+        " set permissions = permissions | %s where %s";
+
+    private int executeUpdate(Session s, String className, int orValue, String where) {
+
+        final Log log = getBeanHelper().getLogger();
+        final String str = String.format(GROUP_PERMS_SQL,
+                className, orValue, where);
+        final org.hibernate.Query q = s.createSQLQuery(str);
+
+        int changed = 0;
+        try {
+            changed = q.executeUpdate();
+        } catch (RuntimeException e) {
+            log.error("SQL failed: "+str, e);
+            throw e;
+        }
+        if (changed > 0) {
+            log.info(
+                String.format("# of perms changed for %s: %s",
+                        className, changed));
+        }
+        return changed;
+    }
+
+    private String table(String className) {
+        try {
+            Class<?> c = Class.forName(className);
+            Table t = null;
+            if (IGlobal.class.isAssignableFrom(c)) {
+                return null;
+            } else if (c.getAnnotation(Table.class) == null) {
+                return null;
+            } else if (c.getAnnotation(PrimaryKeyJoinColumn.class) != null) {
+                return null;
+            } else {
+                t = c.getAnnotation(Table.class);
+            }
+
+            return t.name();
+        } catch (Exception e) {
+            throw new InternalException("Miss configuration. Should never happen.");
+        }
+    }
+
+    private void handleGroupChange(Long id, Permissions perms) {
+
+        if (id == null) {
+            throw new ApiUsageException("ID cannot be null");
+        } else if (perms == null) {
+            throw new ApiUsageException("PERMS cannot be null");
+        }
+
+        int orValue = 0;
+        if (perms.isGranted(Role.WORLD, Right.READ)) {
+            orValue += WORLD_READ;
+            orValue += GROUP_READ;
+        } else if (perms.isGranted(Role.GROUP, Right.READ)) {
+            orValue += GROUP_READ;
+        }
+
+        if (orValue == 0) {
+            return; // EARLY EXIT!
+        }
+
+        Session s = new ome.tools.hibernate.SessionFactory(sf).getSession();
+        for (String className : classes()) {
+            String table = table(className);
+            if (table == null) {
+                continue;
+            }
+            executeUpdate(s, table, orValue, "group_id = " + id);
+        }
+        executeUpdate(s, "experimentergroup", orValue, "id = " + id);
     }
 }

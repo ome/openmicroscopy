@@ -110,24 +110,6 @@ public class UpdateFilter extends ContextFilter {
             return (Filterable) returnSeen(f);
         }
 
-        // WORKAROUND for ticket:307
-        // see https://trac.openmicroscopy.org.uk/omero/ticket/307
-        // see
-        // http://opensource.atlassian.com/projects/hibernate/browse/HHH-2027
-        if (f instanceof ome.model.IObject) {
-            IObject i = (IObject) f;
-
-            if (i.isLoaded()) {
-
-                if (i.getDetails().getPermissions() == null) {
-                    Permissions p = new Permissions(Permissions.EMPTY);
-                    p.set(Flag.SOFT);
-                    i.getDetails().setPermissions(p);
-                }
-            }
-
-        }
-
         return super.filter(fieldId, f);
 
     }

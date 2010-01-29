@@ -265,6 +265,15 @@ public class CurrentDetails implements PrincipalHolder {
         current().setLogs(null);
     }
 
+    /**
+     * Creates a {@link Details} object for the current security context.
+     *
+     * The {@link Permissions} on the instance are calculated from the current
+     * group as well as the user's umask.
+     *
+     * @return
+     * @see <a href="https://trac.openmicroscopy.org.uk/trac/omero/ticket:1434">ticket:1434</a>
+     */
     public Details createDetails() {
         BasicEventContext c = current();
         Details d = Details.create();
@@ -272,7 +281,12 @@ public class CurrentDetails implements PrincipalHolder {
         d.setUpdateEvent(c.getEvent());
         d.setOwner(c.getOwner());
         d.setGroup(c.getGroup());
-        d.setPermissions(c.getCurrentUmask());
+        // ticket:1434
+        Permissions groupPerms = c.getGroup().getDetails().getPermissions();
+        Permissions userUmask = c.getCurrentUmask();
+        Permissions p = new Permissions(groupPerms);
+        p.revokeAll(userUmask);
+        d.setPermissions(p);
         return d;
     }
 

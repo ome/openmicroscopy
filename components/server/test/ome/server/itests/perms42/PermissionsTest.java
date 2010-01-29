@@ -6,14 +6,17 @@
  */
 package ome.server.itests.perms42;
 
+import ome.model.IObject;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
+import ome.model.internal.Permissions.Right;
+import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.server.itests.AbstractManagedContextTest;
+import ome.util.Utils;
 
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -26,21 +29,37 @@ import org.testng.annotations.Test;
 public class PermissionsTest extends AbstractManagedContextTest {
 
     protected class Fixture {
+        private ExperimenterGroup _group = new ExperimenterGroup();
         Experimenter user;
         String groupName;
-        ExperimenterGroup group;
-        Image image;
-        {
+
+        void init() {
             user = loginNewUser();
             groupName = uuid();
-            group = new ExperimenterGroup(groupName);
-            iAdmin.createGroup(group);
-            group = iAdmin.lookupGroup(groupName);
-            iAdmin.addGroups(user, group);
-            image = new_Image("ticket:1434");
+            _group.setName(groupName);
+            iAdmin.createGroup(_group);
+            _group = iAdmin.lookupGroup(groupName);
+            iAdmin.addGroups(user, _group);
+        }
+
+        Fixture() {
+            init();
+        }
+
+        Fixture(Permissions groupPermissions) {
+            _group.getDetails().setPermissions(groupPermissions);
+            init();
+        }
+
+        /**
+         * Always returns a fresh copy.
+         */
+        ExperimenterGroup group() {
+            return iQuery.get(ExperimenterGroup.class, _group.getId());
         }
 
         Image saveImage() {
+            Image image = new_Image("ticket:1434");
             return iUpdate.saveAndReturnObject(image);
         }
 
@@ -51,9 +70,10 @@ public class PermissionsTest extends AbstractManagedContextTest {
 
     protected Fixture fixture;
 
-    @BeforeMethod
-    protected void setupFixture() {
-        fixture = new Fixture();
+    // Not done automatically for speed
+    protected void setup(Permissions perms) {
+        fixture = new Fixture(perms);
+        fixture.log_in();
     }
 
     @AfterMethod
@@ -62,72 +82,37 @@ public class PermissionsTest extends AbstractManagedContextTest {
     }
 
     //
+    // Helpers
     //
-    //
 
-    @Test
-    public void testUserInDiffGroupCantSeeObjects() throws Exception {
-        fail();
+    @SuppressWarnings("unchecked")
+    private IObject lookup(IObject obj) {
+        Class k = Utils.trueClass(obj.getClass());
+        return iQuery.get(k, obj.getId());
     }
 
-    @Test
-    public void testUserCantReadOwnFromAnotherContext() throws Exception {
-        fail();
+    protected void checkPrivate(IObject obj) {
+        obj = lookup(obj);
+        Permissions p = obj.getDetails().getPermissions();
+        assertTrue(obj + " is " + p + " !!", p.isGranted(Role.USER, Right.READ));
+        assertFalse(obj + " is " + p + " !!", p.isGranted(Role.GROUP, Right.READ));
+        assertFalse(obj + " is " + p + " !!", p.isGranted(Role.WORLD, Right.READ));
     }
 
-    @Test
-    public void testPICanStillDoAnythingInGroup() throws Exception {
-        fail();
+    protected void checkShared(IObject obj) {
+        obj = lookup(obj);
+        Permissions p = obj.getDetails().getPermissions();
+        assertTrue(obj + " is " + p + " !!", p.isGranted(Role.USER, Right.READ));
+        assertTrue(obj + " is " + p + " !!", p.isGranted(Role.GROUP, Right.READ));
+        assertFalse(obj + " is " + p + " !!", p.isGranted(Role.WORLD, Right.READ));
     }
 
-    @Test
-    public void testAdminCantChangePermsOfGroupByAccident() throws Exception {
-        fail();
-    }
-
-    @Test
-    public void testOwnerCanCallChgrpOnCoherentGraph() throws Exception {
-        fail();
-    }
-
-    @Test
-    public void testOwnerCantCallChgrpForAnotherOwner() throws Exception {
-        fail();
-    }
-
-    @Test
-    public void testChgrpLeavesADeletionRecordWhereNecessary() throws Exception {
-        fail();
-    }
-
-    @Test
-    public void testChgrpCanAlternativelyStoreByValue() throws Exception {
-        fail();
-    }
-
-    @Test
-    public void testTriggersPreventMixingGraphs() throws Exception {
-        fail();
-    }
-
-    @Test
-    public void testWorldPermissionsAreKeptCoherent() throws Exception {
-        fail();
-    }
-
-    @Test
-    public void testUserCanSafelyStoreInfoInAPrivateGroup() throws Exception {
-        fail();
-    }
-
-    @Test
-    public void testPICanMoveAGroupToShared() throws Exception {
-        fail();
-    }
-
-    @Test
-    public void testUserWillBeInformedIfGroupIsShared() throws Exception {
-        fail();
+    protected void checkPublic(IObject obj) {
+        obj = lookup(obj);
+        Permissions p = obj.getDetails().getPermissions();
+        assertTrue(obj + " is " + p + " !!", p.isGranted(Role.USER, Right.READ));
+        assertTrue(obj + " is " + p + " !!", p.isGranted(Role.GROUP, Right.READ));
+        assertTrue(obj + " is " + p + " !!", p.isGranted(Role.WORLD, Right.READ));
     }
 
 }

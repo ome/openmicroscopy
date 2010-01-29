@@ -94,8 +94,7 @@ public class BasicACLVoter implements ACLVoter {
 
     public void throwLoadViolation(IObject iObject) throws SecurityViolation {
         Assert.notNull(iObject);
-        throw new SecurityViolation("Cannot read "
-                + iObject.getClass().getName());
+        throw new SecurityViolation("Cannot read " + iObject);
     }
 
     public boolean allowCreation(IObject iObject) {
@@ -117,7 +116,7 @@ public class BasicACLVoter implements ACLVoter {
     public void throwCreationViolation(IObject iObject)
             throws SecurityViolation {
         Assert.notNull(iObject);
-        throw new SecurityViolation(iObject.getClass().getName()
+        throw new SecurityViolation(iObject
                 + " is a System-type, and may only be "
                 + "created through privileged APIs.");
     }

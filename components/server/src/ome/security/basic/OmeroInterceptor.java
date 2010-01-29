@@ -33,6 +33,7 @@ import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
+import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.ExternalInfo;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
@@ -604,10 +605,11 @@ public class OmeroInterceptor implements Interceptor {
                     previousDetails, currentDetails, newDetails);
 
             // implies that Permissions dosn't matter
-            if (!IGlobal.class.isAssignableFrom(iobj.getClass())) {
+            //if (!IGlobal.class.isAssignableFrom(iobj.getClass())) {
+            // ticket:1434 re-activating permission mgmt for globals.
                 altered |= managedPermissions(locked, privileged, iobj,
                         previousDetails, currentDetails, newDetails);
-            }
+            //}
 
             // implies that owner doesn't matter
             if (!IGlobal.class.isAssignableFrom(iobj.getClass())) {
@@ -753,12 +755,20 @@ public class OmeroInterceptor implements Interceptor {
 
             newDetails.setPermissions(currentP);
             Permissions tmpDetails = new Permissions(previousP);
+
             // see https://trac.openmicroscopy.org.uk/omero/ticket/553
             if (currentP.isSet(Flag.LOCKED)) {
                 tmpDetails.set(Flag.LOCKED);
             } else {
                 tmpDetails.unSet(Flag.LOCKED);
             }
+
+            // see https://trac.openmicroscopy.org.uk/omero/ticket/1434
+            if (obj instanceof ExperimenterGroup) {
+                throw new SecurityViolation(
+                        "Group permissions must be changed via IAdmin");
+            }
+
             if (!currentP.identical(tmpDetails)) {
                 if (!currentUser.isOwnerOrSupervisor(obj)) {
                     // remove from below??
