@@ -106,738 +106,738 @@ alter table event alter column type set not null;
 alter table event alter column experimentergroup set not null;
 
 
-insert into immersion (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_immersion'),-35,0,0,0,'Oil';
-insert into immersion (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_immersion'),-35,0,0,0,'Water';
-insert into immersion (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_immersion'),-35,0,0,0,'WaterDipping';
-insert into immersion (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_immersion'),-35,0,0,0,'Air';
-insert into immersion (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_immersion'),-35,0,0,0,'Multi';
-insert into immersion (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_immersion'),-35,0,0,0,'Glycerol';
-insert into immersion (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_immersion'),-35,0,0,0,'Other';
-insert into immersion (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_immersion'),-35,0,0,0,'Unknown';
-insert into arctype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_arctype'),-35,0,0,0,'Hg';
-insert into arctype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_arctype'),-35,0,0,0,'Xe';
-insert into arctype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_arctype'),-35,0,0,0,'HgXe';
-insert into arctype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_arctype'),-35,0,0,0,'Other';
-insert into arctype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_arctype'),-35,0,0,0,'Unknown';
-insert into renderingmodel (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_renderingmodel'),-35,0,0,0,'rgb';
-insert into renderingmodel (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_renderingmodel'),-35,0,0,0,'greyscale';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_acquisitionmode'),-35,0,0,0,'WideField';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_acquisitionmode'),-35,0,0,0,'LaserScanningMicroscopy';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_acquisitionmode'),-35,0,0,0,'LaserScanningConfocal';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_acquisitionmode'),-35,0,0,0,'SpinningDiskConfocal';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_acquisitionmode'),-35,0,0,0,'SlitScanConfocal';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_acquisitionmode'),-35,0,0,0,'MultiPhotonMicroscopy';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_acquisitionmode'),-35,0,0,0,'StructuredIllumination';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_acquisitionmode'),-35,0,0,0,'SingleMoleculeImaging';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_acquisitionmode'),-35,0,0,0,'TotalInternalReflection';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_acquisitionmode'),-35,0,0,0,'FluorescenceLifetime';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_acquisitionmode'),-35,0,0,0,'SpectralImaging';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_acquisitionmode'),-35,0,0,0,'FluorescenceCorrelationSpectroscopy';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_acquisitionmode'),-35,0,0,0,'NearFieldScanningOpticalMicroscopy';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_acquisitionmode'),-35,0,0,0,'SecondHarmonicGenerationImaging';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_acquisitionmode'),-35,0,0,0,'Other';
-insert into acquisitionmode (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_acquisitionmode'),-35,0,0,0,'Unknown';
-insert into binning (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_binning'),-35,0,0,0,'1x1';
-insert into binning (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_binning'),-35,0,0,0,'2x2';
-insert into binning (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_binning'),-35,0,0,0,'4x4';
-insert into binning (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_binning'),-35,0,0,0,'8x8';
-insert into family (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_family'),-35,0,0,0,'linear';
-insert into family (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_family'),-35,0,0,0,'polynomial';
-insert into family (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_family'),-35,0,0,0,'exponential';
-insert into family (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_family'),-35,0,0,0,'logarithmic';
-insert into medium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_medium'),-35,0,0,0,'Air';
-insert into medium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_medium'),-35,0,0,0,'Oil';
-insert into medium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_medium'),-35,0,0,0,'Water';
-insert into medium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_medium'),-35,0,0,0,'Glycerol';
-insert into medium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_medium'),-35,0,0,0,'Other';
-insert into medium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_medium'),-35,0,0,0,'Unknown';
-insert into pixelstype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_pixelstype'),-35,0,0,0,'bit';
-insert into pixelstype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_pixelstype'),-35,0,0,0,'int8';
-insert into pixelstype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_pixelstype'),-35,0,0,0,'int16';
-insert into pixelstype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_pixelstype'),-35,0,0,0,'int32';
-insert into pixelstype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_pixelstype'),-35,0,0,0,'uint8';
-insert into pixelstype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_pixelstype'),-35,0,0,0,'uint16';
-insert into pixelstype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_pixelstype'),-35,0,0,0,'uint32';
-insert into pixelstype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_pixelstype'),-35,0,0,0,'float';
-insert into pixelstype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_pixelstype'),-35,0,0,0,'double';
-insert into pixelstype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_pixelstype'),-35,0,0,0,'complex';
-insert into pixelstype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_pixelstype'),-35,0,0,0,'double-complex';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'PNG';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/PNG';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'JPEG';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/JPEG';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'PGM';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/PGM';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Fits';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/Fits';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'GIF';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/GIF';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'BMP';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/BMP';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Dicom';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/Dicom';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'BioRad';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/BioRad';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'IPLab';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/IPLab';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Deltavision';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/Deltavision';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'MRC';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/MRC';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Gatan';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/Gatan';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Imaris';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/Imaris';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'OpenlabRaw';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/OpenlabRaw';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'OMEXML';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/OMEXML';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'LIF';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/LIF';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'AVI';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/AVI';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'QT';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/QT';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Pict';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/Pict';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'SDT';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/SDT';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'EPS';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/EPS';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Slidebook';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/Slidebook';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Alicona';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/Alicona';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'MNG';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/MNG';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'NRRD';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/NRRD';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Khoros';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/Khoros';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Visitech';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/Visitech';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'LIM';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/LIM';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'PSD';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/PSD';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'InCell';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/InCell';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'ICS';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/ICS';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'PerkinElmer';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/PerkinElmer';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'TCS';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/TCS';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'FV1000';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/FV1000';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'ZeissZVI';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/ZeissZVI';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'IPW';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/IPW';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'LegacyND2';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/LegacyND2';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'ND2';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/ND2';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'PCI';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/PCI';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'ImarisHDF';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/ImarisHDF';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Metamorph';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/Metamorph';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'ZeissLSM';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/ZeissLSM';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'SEQ';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/SEQ';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Gel';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/Gel';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'ImarisTiff';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/ImarisTiff';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Flex';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/Flex';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'SVS';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/SVS';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Leica';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/Leica';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Nikon';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/Nikon';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Fluoview';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/Fluoview';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Prairie';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/Prairie';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Micromanager';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/Micromanager';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'ImprovisionTiff';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/ImprovisionTiff';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'OMETiff';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/OMETiff';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'MetamorphTiff';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/MetamorphTiff';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Tiff';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/Tiff';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Openlab';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/Openlab';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'MIAS';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Companion/MIAS';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'text/csv';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'text/plain';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'text/xml';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'text/html';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'text/ini';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'text/rtf';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'text/richtext';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'text/x-python';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'application/pdf';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'application/vnd.ms-excel';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'application/vnd.ms-powerpoint';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'application/msword';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'application/octet-stream';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'video/jpeg2000';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'video/mpeg';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'video/mp4';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'video/quicktime';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'image/bmp';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'image/gif';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'image/jpeg';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'image/tiff';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'image/png';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'audio/basic';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'audio/mpeg';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'audio/wav';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Repository';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'Directory';
-insert into format (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_format'),-35,0,0,0,'OMERO.tables';
-insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_pulse'),-35,0,0,0,'CW';
-insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_pulse'),-35,0,0,0,'Single';
-insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_pulse'),-35,0,0,0,'QSwitched';
-insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_pulse'),-35,0,0,0,'Repetitive';
-insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_pulse'),-35,0,0,0,'ModeLocked';
-insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_pulse'),-35,0,0,0,'Other';
-insert into pulse (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_pulse'),-35,0,0,0,'Unknown';
-insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasertype'),-35,0,0,0,'Excimer';
-insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasertype'),-35,0,0,0,'Gas';
-insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasertype'),-35,0,0,0,'MetalVapor';
-insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasertype'),-35,0,0,0,'SolidState';
-insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasertype'),-35,0,0,0,'Dye';
-insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasertype'),-35,0,0,0,'Semiconductor';
-insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasertype'),-35,0,0,0,'FreeElectron';
-insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasertype'),-35,0,0,0,'Other';
-insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasertype'),-35,0,0,0,'Unknown';
-insert into jobstatus (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_jobstatus'),-35,0,0,0,'Submitted';
-insert into jobstatus (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_jobstatus'),-35,0,0,0,'Resubmitted';
-insert into jobstatus (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_jobstatus'),-35,0,0,0,'Queued';
-insert into jobstatus (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_jobstatus'),-35,0,0,0,'Requeued';
-insert into jobstatus (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_jobstatus'),-35,0,0,0,'Running';
-insert into jobstatus (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_jobstatus'),-35,0,0,0,'Error';
-insert into jobstatus (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_jobstatus'),-35,0,0,0,'Waiting';
-insert into jobstatus (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_jobstatus'),-35,0,0,0,'Finished';
-insert into jobstatus (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_jobstatus'),-35,0,0,0,'Cancelled';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_detectortype'),-35,0,0,0,'CCD';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_detectortype'),-35,0,0,0,'IntensifiedCCD';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_detectortype'),-35,0,0,0,'AnalogVideo';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_detectortype'),-35,0,0,0,'PMT';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_detectortype'),-35,0,0,0,'Photodiode';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_detectortype'),-35,0,0,0,'Spectroscopy';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_detectortype'),-35,0,0,0,'LifetimeImaging';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_detectortype'),-35,0,0,0,'CorrelationSpectroscopy';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_detectortype'),-35,0,0,0,'FTIR';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_detectortype'),-35,0,0,0,'EM-CCD';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_detectortype'),-35,0,0,0,'APD';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_detectortype'),-35,0,0,0,'CMOS';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_detectortype'),-35,0,0,0,'Other';
-insert into detectortype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_detectortype'),-35,0,0,0,'Unknown';
-insert into microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_microbeammanipulationtype'),-35,0,0,0,'FRAP';
-insert into microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_microbeammanipulationtype'),-35,0,0,0,'Photoablation';
-insert into microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_microbeammanipulationtype'),-35,0,0,0,'Photoactivation';
-insert into microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_microbeammanipulationtype'),-35,0,0,0,'Uncaging';
-insert into microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_microbeammanipulationtype'),-35,0,0,0,'OpticalTrapping';
-insert into microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_microbeammanipulationtype'),-35,0,0,0,'Other';
-insert into microbeammanipulationtype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_microbeammanipulationtype'),-35,0,0,0,'Unknown';
-insert into illumination (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_illumination'),-35,0,0,0,'Transmitted';
-insert into illumination (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_illumination'),-35,0,0,0,'Epifluorescence';
-insert into illumination (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_illumination'),-35,0,0,0,'Oblique';
-insert into illumination (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_illumination'),-35,0,0,0,'NonLinear';
-insert into illumination (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_illumination'),-35,0,0,0,'Other';
-insert into illumination (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_illumination'),-35,0,0,0,'Unknown';
-insert into photometricinterpretation (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_photometricinterpretation'),-35,0,0,0,'RGB';
-insert into photometricinterpretation (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_photometricinterpretation'),-35,0,0,0,'ARGB';
-insert into photometricinterpretation (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_photometricinterpretation'),-35,0,0,0,'CMYK';
-insert into photometricinterpretation (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_photometricinterpretation'),-35,0,0,0,'HSV';
-insert into photometricinterpretation (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_photometricinterpretation'),-35,0,0,0,'Monochrome';
-insert into photometricinterpretation (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_photometricinterpretation'),-35,0,0,0,'ColorMap';
-insert into correction (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_correction'),-35,0,0,0,'UV';
-insert into correction (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_correction'),-35,0,0,0,'PlanApo';
-insert into correction (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_correction'),-35,0,0,0,'PlanFluor';
-insert into correction (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_correction'),-35,0,0,0,'SuperFluor';
-insert into correction (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_correction'),-35,0,0,0,'VioletCorrected';
-insert into correction (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_correction'),-35,0,0,0,'Achro';
-insert into correction (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_correction'),-35,0,0,0,'Achromat';
-insert into correction (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_correction'),-35,0,0,0,'Fluor';
-insert into correction (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_correction'),-35,0,0,0,'Fl';
-insert into correction (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_correction'),-35,0,0,0,'Fluar';
-insert into correction (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_correction'),-35,0,0,0,'Neofluar';
-insert into correction (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_correction'),-35,0,0,0,'Fluotar';
-insert into correction (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_correction'),-35,0,0,0,'Apo';
-insert into correction (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_correction'),-35,0,0,0,'Other';
-insert into correction (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_correction'),-35,0,0,0,'Unknown';
-insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_eventtype'),-35,0,0,0,'Import';
-insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_eventtype'),-35,0,0,0,'Internal';
-insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_eventtype'),-35,0,0,0,'Shoola';
-insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_eventtype'),-35,0,0,0,'User';
-insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_eventtype'),-35,0,0,0,'Task';
-insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_eventtype'),-35,0,0,0,'Test';
-insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_eventtype'),-35,0,0,0,'Processing';
-insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_eventtype'),-35,0,0,0,'FullText';
-insert into eventtype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_eventtype'),-35,0,0,0,'Sessions';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'Rhodamine6G';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'CoumarinC30';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'ArFl';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'ArCl';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'KrFl';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'KrCl';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'XeFl';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'XeCl';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'XeBr';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'GaAs';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'GaAlAs';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'EMinus';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'Cu';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'Ag';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'N';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'Ar';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'Kr';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'Xe';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'HeNe';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'HeCd';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'CO';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'CO2';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'H2O';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'HFl';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'NdGlass';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'NdYAG';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'ErGlass';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'ErYAG';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'HoYLF';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'HoYAG';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'Ruby';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'TiSapphire';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'Alexandrite';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'Other';
-insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_lasermedium'),-35,0,0,0,'Unknown';
-insert into microscopetype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_microscopetype'),-35,0,0,0,'Upright';
-insert into microscopetype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_microscopetype'),-35,0,0,0,'Inverted';
-insert into microscopetype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_microscopetype'),-35,0,0,0,'Dissection';
-insert into microscopetype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_microscopetype'),-35,0,0,0,'Electrophysiology';
-insert into microscopetype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_microscopetype'),-35,0,0,0,'Other';
-insert into microscopetype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_microscopetype'),-35,0,0,0,'Unknown';
-insert into dimensionorder (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_dimensionorder'),-35,0,0,0,'XYZCT';
-insert into dimensionorder (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_dimensionorder'),-35,0,0,0,'XYZTC';
-insert into dimensionorder (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_dimensionorder'),-35,0,0,0,'XYCTZ';
-insert into dimensionorder (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_dimensionorder'),-35,0,0,0,'XYCZT';
-insert into dimensionorder (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_dimensionorder'),-35,0,0,0,'XYTCZ';
-insert into dimensionorder (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_dimensionorder'),-35,0,0,0,'XYTZC';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_experimenttype'),-35,0,0,0,'FP';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_experimenttype'),-35,0,0,0,'FRET';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_experimenttype'),-35,0,0,0,'TimeLapse';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_experimenttype'),-35,0,0,0,'FourDPlus';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_experimenttype'),-35,0,0,0,'Screen';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_experimenttype'),-35,0,0,0,'Immunocytochemistry';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_experimenttype'),-35,0,0,0,'Immunofluorescence';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_experimenttype'),-35,0,0,0,'FISH';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_experimenttype'),-35,0,0,0,'Electrophysiology';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_experimenttype'),-35,0,0,0,'IonImaging';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_experimenttype'),-35,0,0,0,'Colocalization';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_experimenttype'),-35,0,0,0,'PGIDocumentation';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_experimenttype'),-35,0,0,0,'FluorescenceLifetime';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_experimenttype'),-35,0,0,0,'SpectralImaging';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_experimenttype'),-35,0,0,0,'Photobleaching';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_experimenttype'),-35,0,0,0,'Other';
-insert into experimenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_experimenttype'),-35,0,0,0,'Unknown';
-insert into contrastmethod (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_contrastmethod'),-35,0,0,0,'Brightfield';
-insert into contrastmethod (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_contrastmethod'),-35,0,0,0,'Phase';
-insert into contrastmethod (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_contrastmethod'),-35,0,0,0,'DIC';
-insert into contrastmethod (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_contrastmethod'),-35,0,0,0,'HoffmanModulation';
-insert into contrastmethod (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_contrastmethod'),-35,0,0,0,'ObliqueIllumination';
-insert into contrastmethod (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_contrastmethod'),-35,0,0,0,'PolarizedLight';
-insert into contrastmethod (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_contrastmethod'),-35,0,0,0,'Darkfield';
-insert into contrastmethod (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_contrastmethod'),-35,0,0,0,'Fluorescence';
-insert into contrastmethod (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_contrastmethod'),-35,0,0,0,'Other';
-insert into contrastmethod (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_contrastmethod'),-35,0,0,0,'Unknown';
-insert into filamenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_filamenttype'),-35,0,0,0,'Incandescent';
-insert into filamenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_filamenttype'),-35,0,0,0,'Halogen';
-insert into filamenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_filamenttype'),-35,0,0,0,'Other';
-insert into filamenttype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_filamenttype'),-35,0,0,0,'Unknown';
-insert into filtertype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_filtertype'),-35,0,0,0,'LongPass';
-insert into filtertype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_filtertype'),-35,0,0,0,'ShortPass';
-insert into filtertype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_filtertype'),-35,0,0,0,'BandPass';
-insert into filtertype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_filtertype'),-35,0,0,0,'MultiPass';
-insert into filtertype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_filtertype'),-35,0,0,0,'Other';
-insert into filtertype (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_filtertype'),-35,0,0,0,'Unknown';
+insert into immersion (id,permissions,value)
+    select ome_nextval('seq_immersion'),-35,'Oil';
+insert into immersion (id,permissions,value)
+    select ome_nextval('seq_immersion'),-35,'Water';
+insert into immersion (id,permissions,value)
+    select ome_nextval('seq_immersion'),-35,'WaterDipping';
+insert into immersion (id,permissions,value)
+    select ome_nextval('seq_immersion'),-35,'Air';
+insert into immersion (id,permissions,value)
+    select ome_nextval('seq_immersion'),-35,'Multi';
+insert into immersion (id,permissions,value)
+    select ome_nextval('seq_immersion'),-35,'Glycerol';
+insert into immersion (id,permissions,value)
+    select ome_nextval('seq_immersion'),-35,'Other';
+insert into immersion (id,permissions,value)
+    select ome_nextval('seq_immersion'),-35,'Unknown';
+insert into arctype (id,permissions,value)
+    select ome_nextval('seq_arctype'),-35,'Hg';
+insert into arctype (id,permissions,value)
+    select ome_nextval('seq_arctype'),-35,'Xe';
+insert into arctype (id,permissions,value)
+    select ome_nextval('seq_arctype'),-35,'HgXe';
+insert into arctype (id,permissions,value)
+    select ome_nextval('seq_arctype'),-35,'Other';
+insert into arctype (id,permissions,value)
+    select ome_nextval('seq_arctype'),-35,'Unknown';
+insert into renderingmodel (id,permissions,value)
+    select ome_nextval('seq_renderingmodel'),-35,'rgb';
+insert into renderingmodel (id,permissions,value)
+    select ome_nextval('seq_renderingmodel'),-35,'greyscale';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-35,'WideField';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-35,'LaserScanningMicroscopy';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-35,'LaserScanningConfocal';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-35,'SpinningDiskConfocal';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-35,'SlitScanConfocal';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-35,'MultiPhotonMicroscopy';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-35,'StructuredIllumination';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-35,'SingleMoleculeImaging';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-35,'TotalInternalReflection';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-35,'FluorescenceLifetime';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-35,'SpectralImaging';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-35,'FluorescenceCorrelationSpectroscopy';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-35,'NearFieldScanningOpticalMicroscopy';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-35,'SecondHarmonicGenerationImaging';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-35,'Other';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-35,'Unknown';
+insert into binning (id,permissions,value)
+    select ome_nextval('seq_binning'),-35,'1x1';
+insert into binning (id,permissions,value)
+    select ome_nextval('seq_binning'),-35,'2x2';
+insert into binning (id,permissions,value)
+    select ome_nextval('seq_binning'),-35,'4x4';
+insert into binning (id,permissions,value)
+    select ome_nextval('seq_binning'),-35,'8x8';
+insert into family (id,permissions,value)
+    select ome_nextval('seq_family'),-35,'linear';
+insert into family (id,permissions,value)
+    select ome_nextval('seq_family'),-35,'polynomial';
+insert into family (id,permissions,value)
+    select ome_nextval('seq_family'),-35,'exponential';
+insert into family (id,permissions,value)
+    select ome_nextval('seq_family'),-35,'logarithmic';
+insert into medium (id,permissions,value)
+    select ome_nextval('seq_medium'),-35,'Air';
+insert into medium (id,permissions,value)
+    select ome_nextval('seq_medium'),-35,'Oil';
+insert into medium (id,permissions,value)
+    select ome_nextval('seq_medium'),-35,'Water';
+insert into medium (id,permissions,value)
+    select ome_nextval('seq_medium'),-35,'Glycerol';
+insert into medium (id,permissions,value)
+    select ome_nextval('seq_medium'),-35,'Other';
+insert into medium (id,permissions,value)
+    select ome_nextval('seq_medium'),-35,'Unknown';
+insert into pixelstype (id,permissions,value)
+    select ome_nextval('seq_pixelstype'),-35,'bit';
+insert into pixelstype (id,permissions,value)
+    select ome_nextval('seq_pixelstype'),-35,'int8';
+insert into pixelstype (id,permissions,value)
+    select ome_nextval('seq_pixelstype'),-35,'int16';
+insert into pixelstype (id,permissions,value)
+    select ome_nextval('seq_pixelstype'),-35,'int32';
+insert into pixelstype (id,permissions,value)
+    select ome_nextval('seq_pixelstype'),-35,'uint8';
+insert into pixelstype (id,permissions,value)
+    select ome_nextval('seq_pixelstype'),-35,'uint16';
+insert into pixelstype (id,permissions,value)
+    select ome_nextval('seq_pixelstype'),-35,'uint32';
+insert into pixelstype (id,permissions,value)
+    select ome_nextval('seq_pixelstype'),-35,'float';
+insert into pixelstype (id,permissions,value)
+    select ome_nextval('seq_pixelstype'),-35,'double';
+insert into pixelstype (id,permissions,value)
+    select ome_nextval('seq_pixelstype'),-35,'complex';
+insert into pixelstype (id,permissions,value)
+    select ome_nextval('seq_pixelstype'),-35,'double-complex';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'PNG';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/PNG';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'JPEG';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/JPEG';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'PGM';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/PGM';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Fits';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/Fits';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'GIF';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/GIF';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'BMP';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/BMP';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Dicom';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/Dicom';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'BioRad';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/BioRad';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'IPLab';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/IPLab';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Deltavision';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/Deltavision';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'MRC';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/MRC';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Gatan';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/Gatan';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Imaris';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/Imaris';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'OpenlabRaw';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/OpenlabRaw';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'OMEXML';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/OMEXML';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'LIF';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/LIF';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'AVI';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/AVI';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'QT';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/QT';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Pict';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/Pict';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'SDT';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/SDT';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'EPS';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/EPS';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Slidebook';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/Slidebook';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Alicona';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/Alicona';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'MNG';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/MNG';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'NRRD';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/NRRD';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Khoros';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/Khoros';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Visitech';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/Visitech';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'LIM';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/LIM';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'PSD';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/PSD';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'InCell';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/InCell';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'ICS';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/ICS';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'PerkinElmer';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/PerkinElmer';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'TCS';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/TCS';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'FV1000';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/FV1000';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'ZeissZVI';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/ZeissZVI';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'IPW';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/IPW';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'LegacyND2';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/LegacyND2';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'ND2';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/ND2';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'PCI';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/PCI';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'ImarisHDF';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/ImarisHDF';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Metamorph';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/Metamorph';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'ZeissLSM';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/ZeissLSM';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'SEQ';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/SEQ';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Gel';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/Gel';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'ImarisTiff';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/ImarisTiff';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Flex';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/Flex';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'SVS';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/SVS';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Leica';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/Leica';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Nikon';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/Nikon';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Fluoview';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/Fluoview';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Prairie';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/Prairie';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Micromanager';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/Micromanager';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'ImprovisionTiff';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/ImprovisionTiff';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'OMETiff';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/OMETiff';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'MetamorphTiff';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/MetamorphTiff';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Tiff';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/Tiff';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Openlab';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/Openlab';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'MIAS';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Companion/MIAS';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'text/csv';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'text/plain';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'text/xml';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'text/html';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'text/ini';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'text/rtf';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'text/richtext';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'text/x-python';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'application/pdf';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'application/vnd.ms-excel';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'application/vnd.ms-powerpoint';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'application/msword';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'application/octet-stream';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'video/jpeg2000';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'video/mpeg';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'video/mp4';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'video/quicktime';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'image/bmp';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'image/gif';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'image/jpeg';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'image/tiff';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'image/png';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'audio/basic';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'audio/mpeg';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'audio/wav';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Repository';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'Directory';
+insert into format (id,permissions,value)
+    select ome_nextval('seq_format'),-35,'OMERO.tables';
+insert into pulse (id,permissions,value)
+    select ome_nextval('seq_pulse'),-35,'CW';
+insert into pulse (id,permissions,value)
+    select ome_nextval('seq_pulse'),-35,'Single';
+insert into pulse (id,permissions,value)
+    select ome_nextval('seq_pulse'),-35,'QSwitched';
+insert into pulse (id,permissions,value)
+    select ome_nextval('seq_pulse'),-35,'Repetitive';
+insert into pulse (id,permissions,value)
+    select ome_nextval('seq_pulse'),-35,'ModeLocked';
+insert into pulse (id,permissions,value)
+    select ome_nextval('seq_pulse'),-35,'Other';
+insert into pulse (id,permissions,value)
+    select ome_nextval('seq_pulse'),-35,'Unknown';
+insert into lasertype (id,permissions,value)
+    select ome_nextval('seq_lasertype'),-35,'Excimer';
+insert into lasertype (id,permissions,value)
+    select ome_nextval('seq_lasertype'),-35,'Gas';
+insert into lasertype (id,permissions,value)
+    select ome_nextval('seq_lasertype'),-35,'MetalVapor';
+insert into lasertype (id,permissions,value)
+    select ome_nextval('seq_lasertype'),-35,'SolidState';
+insert into lasertype (id,permissions,value)
+    select ome_nextval('seq_lasertype'),-35,'Dye';
+insert into lasertype (id,permissions,value)
+    select ome_nextval('seq_lasertype'),-35,'Semiconductor';
+insert into lasertype (id,permissions,value)
+    select ome_nextval('seq_lasertype'),-35,'FreeElectron';
+insert into lasertype (id,permissions,value)
+    select ome_nextval('seq_lasertype'),-35,'Other';
+insert into lasertype (id,permissions,value)
+    select ome_nextval('seq_lasertype'),-35,'Unknown';
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Submitted';
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Resubmitted';
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Queued';
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Requeued';
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Running';
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Error';
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Waiting';
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Finished';
+insert into jobstatus (id,permissions,value)
+    select ome_nextval('seq_jobstatus'),-35,'Cancelled';
+insert into detectortype (id,permissions,value)
+    select ome_nextval('seq_detectortype'),-35,'CCD';
+insert into detectortype (id,permissions,value)
+    select ome_nextval('seq_detectortype'),-35,'IntensifiedCCD';
+insert into detectortype (id,permissions,value)
+    select ome_nextval('seq_detectortype'),-35,'AnalogVideo';
+insert into detectortype (id,permissions,value)
+    select ome_nextval('seq_detectortype'),-35,'PMT';
+insert into detectortype (id,permissions,value)
+    select ome_nextval('seq_detectortype'),-35,'Photodiode';
+insert into detectortype (id,permissions,value)
+    select ome_nextval('seq_detectortype'),-35,'Spectroscopy';
+insert into detectortype (id,permissions,value)
+    select ome_nextval('seq_detectortype'),-35,'LifetimeImaging';
+insert into detectortype (id,permissions,value)
+    select ome_nextval('seq_detectortype'),-35,'CorrelationSpectroscopy';
+insert into detectortype (id,permissions,value)
+    select ome_nextval('seq_detectortype'),-35,'FTIR';
+insert into detectortype (id,permissions,value)
+    select ome_nextval('seq_detectortype'),-35,'EM-CCD';
+insert into detectortype (id,permissions,value)
+    select ome_nextval('seq_detectortype'),-35,'APD';
+insert into detectortype (id,permissions,value)
+    select ome_nextval('seq_detectortype'),-35,'CMOS';
+insert into detectortype (id,permissions,value)
+    select ome_nextval('seq_detectortype'),-35,'Other';
+insert into detectortype (id,permissions,value)
+    select ome_nextval('seq_detectortype'),-35,'Unknown';
+insert into microbeammanipulationtype (id,permissions,value)
+    select ome_nextval('seq_microbeammanipulationtype'),-35,'FRAP';
+insert into microbeammanipulationtype (id,permissions,value)
+    select ome_nextval('seq_microbeammanipulationtype'),-35,'Photoablation';
+insert into microbeammanipulationtype (id,permissions,value)
+    select ome_nextval('seq_microbeammanipulationtype'),-35,'Photoactivation';
+insert into microbeammanipulationtype (id,permissions,value)
+    select ome_nextval('seq_microbeammanipulationtype'),-35,'Uncaging';
+insert into microbeammanipulationtype (id,permissions,value)
+    select ome_nextval('seq_microbeammanipulationtype'),-35,'OpticalTrapping';
+insert into microbeammanipulationtype (id,permissions,value)
+    select ome_nextval('seq_microbeammanipulationtype'),-35,'Other';
+insert into microbeammanipulationtype (id,permissions,value)
+    select ome_nextval('seq_microbeammanipulationtype'),-35,'Unknown';
+insert into illumination (id,permissions,value)
+    select ome_nextval('seq_illumination'),-35,'Transmitted';
+insert into illumination (id,permissions,value)
+    select ome_nextval('seq_illumination'),-35,'Epifluorescence';
+insert into illumination (id,permissions,value)
+    select ome_nextval('seq_illumination'),-35,'Oblique';
+insert into illumination (id,permissions,value)
+    select ome_nextval('seq_illumination'),-35,'NonLinear';
+insert into illumination (id,permissions,value)
+    select ome_nextval('seq_illumination'),-35,'Other';
+insert into illumination (id,permissions,value)
+    select ome_nextval('seq_illumination'),-35,'Unknown';
+insert into photometricinterpretation (id,permissions,value)
+    select ome_nextval('seq_photometricinterpretation'),-35,'RGB';
+insert into photometricinterpretation (id,permissions,value)
+    select ome_nextval('seq_photometricinterpretation'),-35,'ARGB';
+insert into photometricinterpretation (id,permissions,value)
+    select ome_nextval('seq_photometricinterpretation'),-35,'CMYK';
+insert into photometricinterpretation (id,permissions,value)
+    select ome_nextval('seq_photometricinterpretation'),-35,'HSV';
+insert into photometricinterpretation (id,permissions,value)
+    select ome_nextval('seq_photometricinterpretation'),-35,'Monochrome';
+insert into photometricinterpretation (id,permissions,value)
+    select ome_nextval('seq_photometricinterpretation'),-35,'ColorMap';
+insert into correction (id,permissions,value)
+    select ome_nextval('seq_correction'),-35,'UV';
+insert into correction (id,permissions,value)
+    select ome_nextval('seq_correction'),-35,'PlanApo';
+insert into correction (id,permissions,value)
+    select ome_nextval('seq_correction'),-35,'PlanFluor';
+insert into correction (id,permissions,value)
+    select ome_nextval('seq_correction'),-35,'SuperFluor';
+insert into correction (id,permissions,value)
+    select ome_nextval('seq_correction'),-35,'VioletCorrected';
+insert into correction (id,permissions,value)
+    select ome_nextval('seq_correction'),-35,'Achro';
+insert into correction (id,permissions,value)
+    select ome_nextval('seq_correction'),-35,'Achromat';
+insert into correction (id,permissions,value)
+    select ome_nextval('seq_correction'),-35,'Fluor';
+insert into correction (id,permissions,value)
+    select ome_nextval('seq_correction'),-35,'Fl';
+insert into correction (id,permissions,value)
+    select ome_nextval('seq_correction'),-35,'Fluar';
+insert into correction (id,permissions,value)
+    select ome_nextval('seq_correction'),-35,'Neofluar';
+insert into correction (id,permissions,value)
+    select ome_nextval('seq_correction'),-35,'Fluotar';
+insert into correction (id,permissions,value)
+    select ome_nextval('seq_correction'),-35,'Apo';
+insert into correction (id,permissions,value)
+    select ome_nextval('seq_correction'),-35,'Other';
+insert into correction (id,permissions,value)
+    select ome_nextval('seq_correction'),-35,'Unknown';
+insert into eventtype (id,permissions,value)
+    select ome_nextval('seq_eventtype'),-35,'Import';
+insert into eventtype (id,permissions,value)
+    select ome_nextval('seq_eventtype'),-35,'Internal';
+insert into eventtype (id,permissions,value)
+    select ome_nextval('seq_eventtype'),-35,'Shoola';
+insert into eventtype (id,permissions,value)
+    select ome_nextval('seq_eventtype'),-35,'User';
+insert into eventtype (id,permissions,value)
+    select ome_nextval('seq_eventtype'),-35,'Task';
+insert into eventtype (id,permissions,value)
+    select ome_nextval('seq_eventtype'),-35,'Test';
+insert into eventtype (id,permissions,value)
+    select ome_nextval('seq_eventtype'),-35,'Processing';
+insert into eventtype (id,permissions,value)
+    select ome_nextval('seq_eventtype'),-35,'FullText';
+insert into eventtype (id,permissions,value)
+    select ome_nextval('seq_eventtype'),-35,'Sessions';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'Rhodamine6G';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'CoumarinC30';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'ArFl';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'ArCl';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'KrFl';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'KrCl';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'XeFl';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'XeCl';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'XeBr';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'GaAs';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'GaAlAs';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'EMinus';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'Cu';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'Ag';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'N';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'Ar';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'Kr';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'Xe';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'HeNe';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'HeCd';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'CO';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'CO2';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'H2O';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'HFl';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'NdGlass';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'NdYAG';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'ErGlass';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'ErYAG';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'HoYLF';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'HoYAG';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'Ruby';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'TiSapphire';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'Alexandrite';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'Other';
+insert into lasermedium (id,permissions,value)
+    select ome_nextval('seq_lasermedium'),-35,'Unknown';
+insert into microscopetype (id,permissions,value)
+    select ome_nextval('seq_microscopetype'),-35,'Upright';
+insert into microscopetype (id,permissions,value)
+    select ome_nextval('seq_microscopetype'),-35,'Inverted';
+insert into microscopetype (id,permissions,value)
+    select ome_nextval('seq_microscopetype'),-35,'Dissection';
+insert into microscopetype (id,permissions,value)
+    select ome_nextval('seq_microscopetype'),-35,'Electrophysiology';
+insert into microscopetype (id,permissions,value)
+    select ome_nextval('seq_microscopetype'),-35,'Other';
+insert into microscopetype (id,permissions,value)
+    select ome_nextval('seq_microscopetype'),-35,'Unknown';
+insert into dimensionorder (id,permissions,value)
+    select ome_nextval('seq_dimensionorder'),-35,'XYZCT';
+insert into dimensionorder (id,permissions,value)
+    select ome_nextval('seq_dimensionorder'),-35,'XYZTC';
+insert into dimensionorder (id,permissions,value)
+    select ome_nextval('seq_dimensionorder'),-35,'XYCTZ';
+insert into dimensionorder (id,permissions,value)
+    select ome_nextval('seq_dimensionorder'),-35,'XYCZT';
+insert into dimensionorder (id,permissions,value)
+    select ome_nextval('seq_dimensionorder'),-35,'XYTCZ';
+insert into dimensionorder (id,permissions,value)
+    select ome_nextval('seq_dimensionorder'),-35,'XYTZC';
+insert into experimenttype (id,permissions,value)
+    select ome_nextval('seq_experimenttype'),-35,'FP';
+insert into experimenttype (id,permissions,value)
+    select ome_nextval('seq_experimenttype'),-35,'FRET';
+insert into experimenttype (id,permissions,value)
+    select ome_nextval('seq_experimenttype'),-35,'TimeLapse';
+insert into experimenttype (id,permissions,value)
+    select ome_nextval('seq_experimenttype'),-35,'FourDPlus';
+insert into experimenttype (id,permissions,value)
+    select ome_nextval('seq_experimenttype'),-35,'Screen';
+insert into experimenttype (id,permissions,value)
+    select ome_nextval('seq_experimenttype'),-35,'Immunocytochemistry';
+insert into experimenttype (id,permissions,value)
+    select ome_nextval('seq_experimenttype'),-35,'Immunofluorescence';
+insert into experimenttype (id,permissions,value)
+    select ome_nextval('seq_experimenttype'),-35,'FISH';
+insert into experimenttype (id,permissions,value)
+    select ome_nextval('seq_experimenttype'),-35,'Electrophysiology';
+insert into experimenttype (id,permissions,value)
+    select ome_nextval('seq_experimenttype'),-35,'IonImaging';
+insert into experimenttype (id,permissions,value)
+    select ome_nextval('seq_experimenttype'),-35,'Colocalization';
+insert into experimenttype (id,permissions,value)
+    select ome_nextval('seq_experimenttype'),-35,'PGIDocumentation';
+insert into experimenttype (id,permissions,value)
+    select ome_nextval('seq_experimenttype'),-35,'FluorescenceLifetime';
+insert into experimenttype (id,permissions,value)
+    select ome_nextval('seq_experimenttype'),-35,'SpectralImaging';
+insert into experimenttype (id,permissions,value)
+    select ome_nextval('seq_experimenttype'),-35,'Photobleaching';
+insert into experimenttype (id,permissions,value)
+    select ome_nextval('seq_experimenttype'),-35,'Other';
+insert into experimenttype (id,permissions,value)
+    select ome_nextval('seq_experimenttype'),-35,'Unknown';
+insert into contrastmethod (id,permissions,value)
+    select ome_nextval('seq_contrastmethod'),-35,'Brightfield';
+insert into contrastmethod (id,permissions,value)
+    select ome_nextval('seq_contrastmethod'),-35,'Phase';
+insert into contrastmethod (id,permissions,value)
+    select ome_nextval('seq_contrastmethod'),-35,'DIC';
+insert into contrastmethod (id,permissions,value)
+    select ome_nextval('seq_contrastmethod'),-35,'HoffmanModulation';
+insert into contrastmethod (id,permissions,value)
+    select ome_nextval('seq_contrastmethod'),-35,'ObliqueIllumination';
+insert into contrastmethod (id,permissions,value)
+    select ome_nextval('seq_contrastmethod'),-35,'PolarizedLight';
+insert into contrastmethod (id,permissions,value)
+    select ome_nextval('seq_contrastmethod'),-35,'Darkfield';
+insert into contrastmethod (id,permissions,value)
+    select ome_nextval('seq_contrastmethod'),-35,'Fluorescence';
+insert into contrastmethod (id,permissions,value)
+    select ome_nextval('seq_contrastmethod'),-35,'Other';
+insert into contrastmethod (id,permissions,value)
+    select ome_nextval('seq_contrastmethod'),-35,'Unknown';
+insert into filamenttype (id,permissions,value)
+    select ome_nextval('seq_filamenttype'),-35,'Incandescent';
+insert into filamenttype (id,permissions,value)
+    select ome_nextval('seq_filamenttype'),-35,'Halogen';
+insert into filamenttype (id,permissions,value)
+    select ome_nextval('seq_filamenttype'),-35,'Other';
+insert into filamenttype (id,permissions,value)
+    select ome_nextval('seq_filamenttype'),-35,'Unknown';
+insert into filtertype (id,permissions,value)
+    select ome_nextval('seq_filtertype'),-35,'LongPass';
+insert into filtertype (id,permissions,value)
+    select ome_nextval('seq_filtertype'),-35,'ShortPass';
+insert into filtertype (id,permissions,value)
+    select ome_nextval('seq_filtertype'),-35,'BandPass';
+insert into filtertype (id,permissions,value)
+    select ome_nextval('seq_filtertype'),-35,'MultiPass';
+insert into filtertype (id,permissions,value)
+    select ome_nextval('seq_filtertype'),-35,'Other';
+insert into filtertype (id,permissions,value)
+    select ome_nextval('seq_filtertype'),-35,'Unknown';
 
 --
 -- Cryptographic functions for specifying UUID

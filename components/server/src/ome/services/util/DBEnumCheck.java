@@ -41,8 +41,8 @@ public class DBEnumCheck {
 
     // Copied from data.vm
     public final static String insertStatement = "insert into format "
-            + "(id,permissions,owner_id,group_id,creation_id,value)"
-            + " select ome_nextval('seq_format'),-35,0,0,0,?";
+            + "(id,permissions,value)"
+            + " select ome_nextval('seq_format'),-35,?";
 
     /**
      * Hard-coded list of formats missing from 4.1 which should have a

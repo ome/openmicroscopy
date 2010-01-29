@@ -86,8 +86,8 @@ insert into experimentergroup (id,permissions,version,name)
         values (ome_nextval('seq_experimentergroup'),-35,0,'default');
 insert into experimentergroup (id,permissions,version,name)
         values (ome_nextval('seq_experimentergroup'),-35,0,'guest');
-insert into eventtype (id,permissions,owner_id,group_id,creation_id,value) values
-        (0,-35,0,0,0,'Bootstrap');
+insert into eventtype (id,permissions,value) values
+        (0,-35,'Bootstrap');
 insert into groupexperimentermap
         (id,permissions,version, parent, child, child_index,owner)
         values
@@ -113,8 +113,8 @@ alter table event alter column experimentergroup set not null;
 #foreach($prop in $enum.properties)
 #set($table = ${enum.typeToColumn($enum.id)} )
 #if($prop.class.name == "ome.dsl.EntryField")
-insert into $table (id,permissions,owner_id,group_id,creation_id,value)
-    select ome_nextval('seq_$table'),-35,0,0,0,'$prop.name';
+insert into $table (id,permissions,value)
+    select ome_nextval('seq_$table'),-35,'$prop.name';
 #end
 #end
 #end

@@ -3,10 +3,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -57,10 +54,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -68,10 +62,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -155,10 +146,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -175,10 +163,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -521,10 +506,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -548,10 +530,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -584,10 +563,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -663,10 +639,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -688,10 +661,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -705,10 +675,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -754,10 +721,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -765,10 +729,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -790,10 +751,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -853,10 +811,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -920,10 +875,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -945,10 +897,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -956,10 +905,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -1048,10 +994,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -1074,10 +1017,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -1101,10 +1041,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -1234,10 +1171,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -1306,10 +1240,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -1443,10 +1374,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -1519,10 +1447,7 @@
         id int8 not null,
         permissions int8 not null,
         value varchar(255) not null unique,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
         primary key (id)
     );;
 
@@ -1719,6 +1644,7 @@
         strokeMiterLimit int4,
         strokeOpacity double precision,
         strokeWidth int4,
+        theC int4,
         theT int4,
         theZ int4,
         transform varchar(255),
@@ -1933,21 +1859,6 @@
     );;
 
     alter table acquisitionmode
-        add constraint FKacquisitionmode_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table acquisitionmode
-        add constraint FKacquisitionmode_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table acquisitionmode
-        add constraint FKacquisitionmode_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
-
-    alter table acquisitionmode
         add constraint FKacquisitionmode_external_id_externalinfo
         foreign key (external_id)
         references externalinfo;;
@@ -2033,39 +1944,9 @@
         references lightsource;;
 
     alter table arctype
-        add constraint FKarctype_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table arctype
-        add constraint FKarctype_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table arctype
-        add constraint FKarctype_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
-
-    alter table arctype
         add constraint FKarctype_external_id_externalinfo
         foreign key (external_id)
         references externalinfo;;
-
-    alter table binning
-        add constraint FKbinning_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table binning
-        add constraint FKbinning_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table binning
-        add constraint FKbinning_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
 
     alter table binning
         add constraint FKbinning_external_id_externalinfo
@@ -2213,21 +2094,6 @@
         references externalinfo;;
 
     alter table contrastmethod
-        add constraint FKcontrastmethod_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table contrastmethod
-        add constraint FKcontrastmethod_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table contrastmethod
-        add constraint FKcontrastmethod_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
-
-    alter table contrastmethod
         add constraint FKcontrastmethod_external_id_externalinfo
         foreign key (external_id)
         references externalinfo;;
@@ -2236,21 +2102,6 @@
         add constraint FKcontraststretchingcontext_codomainmapcontext_id_codomainmapcontext
         foreign key (codomainmapcontext_id)
         references codomainmapcontext;;
-
-    alter table correction
-        add constraint FKcorrection_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table correction
-        add constraint FKcorrection_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table correction
-        add constraint FKcorrection_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
 
     alter table correction
         add constraint FKcorrection_external_id_externalinfo
@@ -2598,21 +2449,6 @@
         references externalinfo;;
 
     alter table detectortype
-        add constraint FKdetectortype_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table detectortype
-        add constraint FKdetectortype_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table detectortype
-        add constraint FKdetectortype_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
-
-    alter table detectortype
         add constraint FKdetectortype_external_id_externalinfo
         foreign key (external_id)
         references externalinfo;;
@@ -2646,21 +2482,6 @@
         add constraint FKdichroic_external_id_externalinfo
         foreign key (external_id)
         references externalinfo;;
-
-    alter table dimensionorder
-        add constraint FKdimensionorder_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table dimensionorder
-        add constraint FKdimensionorder_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table dimensionorder
-        add constraint FKdimensionorder_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
 
     alter table dimensionorder
         add constraint FKdimensionorder_external_id_externalinfo
@@ -2706,21 +2527,6 @@
         add constraint FKeventlog_external_id_externalinfo
         foreign key (external_id)
         references externalinfo;;
-
-    alter table eventtype
-        add constraint FKeventtype_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table eventtype
-        add constraint FKeventtype_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table eventtype
-        add constraint FKeventtype_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
 
     alter table eventtype
         add constraint FKeventtype_external_id_externalinfo
@@ -2838,21 +2644,6 @@
         references externalinfo;;
 
     alter table experimenttype
-        add constraint FKexperimenttype_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table experimenttype
-        add constraint FKexperimenttype_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table experimenttype
-        add constraint FKexperimenttype_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
-
-    alter table experimenttype
         add constraint FKexperimenttype_external_id_externalinfo
         foreign key (external_id)
         references externalinfo;;
@@ -2878,21 +2669,6 @@
         references externalinfo;;
 
     alter table family
-        add constraint FKfamily_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table family
-        add constraint FKfamily_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table family
-        add constraint FKfamily_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
-
-    alter table family
         add constraint FKfamily_external_id_externalinfo
         foreign key (external_id)
         references externalinfo;;
@@ -2906,21 +2682,6 @@
         add constraint FKfilament_lightsource_id_lightsource
         foreign key (lightsource_id)
         references lightsource;;
-
-    alter table filamenttype
-        add constraint FKfilamenttype_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table filamenttype
-        add constraint FKfilamenttype_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table filamenttype
-        add constraint FKfilamenttype_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
 
     alter table filamenttype
         add constraint FKfilamenttype_external_id_externalinfo
@@ -3013,39 +2774,9 @@
         references dichroic;;
 
     alter table filtertype
-        add constraint FKfiltertype_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table filtertype
-        add constraint FKfiltertype_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table filtertype
-        add constraint FKfiltertype_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
-
-    alter table filtertype
         add constraint FKfiltertype_external_id_externalinfo
         foreign key (external_id)
         references externalinfo;;
-
-    alter table format
-        add constraint FKformat_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table format
-        add constraint FKformat_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table format
-        add constraint FKformat_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
 
     alter table format
         add constraint FKformat_external_id_externalinfo
@@ -3066,21 +2797,6 @@
         add constraint FKgroupexperimentermap_external_id_externalinfo
         foreign key (external_id)
         references externalinfo;;
-
-    alter table illumination
-        add constraint FKillumination_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table illumination
-        add constraint FKillumination_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table illumination
-        add constraint FKillumination_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
 
     alter table illumination
         add constraint FKillumination_external_id_externalinfo
@@ -3198,21 +2914,6 @@
         references externalinfo;;
 
     alter table immersion
-        add constraint FKimmersion_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table immersion
-        add constraint FKimmersion_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table immersion
-        add constraint FKimmersion_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
-
-    alter table immersion
         add constraint FKimmersion_external_id_externalinfo
         foreign key (external_id)
         references externalinfo;;
@@ -3318,21 +3019,6 @@
         references externalinfo;;
 
     alter table jobstatus
-        add constraint FKjobstatus_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table jobstatus
-        add constraint FKjobstatus_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table jobstatus
-        add constraint FKjobstatus_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
-
-    alter table jobstatus
         add constraint FKjobstatus_external_id_externalinfo
         foreign key (external_id)
         references externalinfo;;
@@ -3363,39 +3049,9 @@
         references lightsource;;
 
     alter table lasermedium
-        add constraint FKlasermedium_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table lasermedium
-        add constraint FKlasermedium_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table lasermedium
-        add constraint FKlasermedium_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
-
-    alter table lasermedium
         add constraint FKlasermedium_external_id_externalinfo
         foreign key (external_id)
         references externalinfo;;
-
-    alter table lasertype
-        add constraint FKlasertype_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table lasertype
-        add constraint FKlasertype_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table lasertype
-        add constraint FKlasertype_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
 
     alter table lasertype
         add constraint FKlasertype_external_id_externalinfo
@@ -3578,21 +3234,6 @@
         references photometricinterpretation;;
 
     alter table medium
-        add constraint FKmedium_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table medium
-        add constraint FKmedium_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table medium
-        add constraint FKmedium_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
-
-    alter table medium
         add constraint FKmedium_external_id_externalinfo
         foreign key (external_id)
         references externalinfo;;
@@ -3633,21 +3274,6 @@
         references externalinfo;;
 
     alter table microbeammanipulationtype
-        add constraint FKmicrobeammanipulationtype_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table microbeammanipulationtype
-        add constraint FKmicrobeammanipulationtype_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table microbeammanipulationtype
-        add constraint FKmicrobeammanipulationtype_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
-
-    alter table microbeammanipulationtype
         add constraint FKmicrobeammanipulationtype_external_id_externalinfo
         foreign key (external_id)
         references externalinfo;;
@@ -3681,21 +3307,6 @@
         add constraint FKmicroscope_external_id_externalinfo
         foreign key (external_id)
         references externalinfo;;
-
-    alter table microscopetype
-        add constraint FKmicroscopetype_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table microscopetype
-        add constraint FKmicroscopetype_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table microscopetype
-        add constraint FKmicroscopetype_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
 
     alter table microscopetype
         add constraint FKmicroscopetype_external_id_externalinfo
@@ -3928,21 +3539,6 @@
         references externalinfo;;
 
     alter table photometricinterpretation
-        add constraint FKphotometricinterpretation_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table photometricinterpretation
-        add constraint FKphotometricinterpretation_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table photometricinterpretation
-        add constraint FKphotometricinterpretation_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
-
-    alter table photometricinterpretation
         add constraint FKphotometricinterpretation_external_id_externalinfo
         foreign key (external_id)
         references externalinfo;;
@@ -4061,21 +3657,6 @@
         add constraint FKpixelsoriginalfilemap_external_id_externalinfo
         foreign key (external_id)
         references externalinfo;;
-
-    alter table pixelstype
-        add constraint FKpixelstype_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table pixelstype
-        add constraint FKpixelstype_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table pixelstype
-        add constraint FKpixelstype_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
 
     alter table pixelstype
         add constraint FKpixelstype_external_id_externalinfo
@@ -4308,21 +3889,6 @@
         references externalinfo;;
 
     alter table pulse
-        add constraint FKpulse_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table pulse
-        add constraint FKpulse_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table pulse
-        add constraint FKpulse_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
-
-    alter table pulse
         add constraint FKpulse_external_id_externalinfo
         foreign key (external_id)
         references externalinfo;;
@@ -4456,21 +4022,6 @@
         add constraint FKrenderingdef_external_id_externalinfo
         foreign key (external_id)
         references externalinfo;;
-
-    alter table renderingmodel
-        add constraint FKrenderingmodel_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table renderingmodel
-        add constraint FKrenderingmodel_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table renderingmodel
-        add constraint FKrenderingmodel_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup;;
 
     alter table renderingmodel
         add constraint FKrenderingmodel_external_id_externalinfo

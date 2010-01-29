@@ -66,7 +66,7 @@ public class EnumTest extends AbstractManagedContextTest {
         loginUser(e.getOmeName());
 
         Pixels test = ObjectFactory.createPixelGraph(null);
-        factory.getUpdateService().saveObject(test);
+        factory.getUpdateService().saveObject(test.getImage());
 
     }
 
