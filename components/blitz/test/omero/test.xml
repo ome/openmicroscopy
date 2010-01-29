@@ -17,7 +17,7 @@
 
 <!-- Stub configuration for OMERO.blitz.test -->
 
-<beans>
+<beans default-lazy-init="false">
 
  <bean id="mockDeclarer" class="ome.services.blitz.test.mock.MockDeclarer">
    <constructor-arg>
@@ -100,6 +100,16 @@
     <constructor-arg ref="uuid"/>
     <constructor-arg ref="executor"/>
     <constructor-arg ref="sessionCache"/>
+  </bean>
+
+  <!--  TODO: it might be better to refactor all IO into one module -->
+  <bean name="filesystem"  abstract="true">
+    <constructor-arg value="${omero.data.dir}"/>
+  </bean>
+
+  <!-- TODO: passing null for the moment. Will need to use a mock eventually -->
+  <bean id="omeroSessionFactory" class="ome.tools.hibernate.SessionFactory">
+    <constructor-arg><null/></constructor-arg>
   </bean>
 
 </beans>

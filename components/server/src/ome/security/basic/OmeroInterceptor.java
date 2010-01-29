@@ -172,6 +172,7 @@ public class OmeroInterceptor implements Interceptor {
             markLockedIfNecessary(iobj);
 
             altered |= resetDetails(iobj, currentState, previousState, idx);
+
         }
         return altered;
     }
@@ -376,6 +377,15 @@ public class OmeroInterceptor implements Interceptor {
             // which can be locked.
 
             if (!sysTypes.isSystemType(object.getClass())) {
+
+                Details d = object.getDetails();
+                if (d != null) {
+                    if (!HibernateUtils.idEqual(d.getGroup(),
+                            currentUser.getGroup())) {
+                        throw new SecurityViolation("MIXED GROUP");
+                    }
+                }
+
                 Permissions p = object.getDetails().getPermissions();
                 if (p.isGranted(Role.GROUP, Right.READ)
                         || p.isGranted(WORLD, READ)) {
@@ -473,16 +483,11 @@ public class OmeroInterceptor implements Interceptor {
             }
 
             // GROUP
-            // users are only allowed to set to another of their groups
+            // users are only allowed to set to the current group
             if (source.getGroup() != null && source.getGroup().getId() != null) {
-                // users can change to their own group
-                if (bec.getMemberOfGroupsList().contains(
-                        source.getGroup().getId())) {
-                    newDetails.setGroup(source.getGroup());
-                }
 
-                // and admin can change it too
-                else if (bec.isCurrentUserAdmin()) {
+                // ticket:1434
+                if (bec.getCurrentGroupId().equals(source.getGroup().getId())) {
                     newDetails.setGroup(source.getGroup());
                 }
 
@@ -858,6 +863,17 @@ public class OmeroInterceptor implements Interceptor {
     protected boolean managedGroup(boolean locked, boolean privileged,
             IObject obj, Details previousDetails, Details currentDetails,
             Details newDetails, final BasicEventContext bec) {
+
+        if (null != previousDetails.getGroup()) {
+            long objGroupId = previousDetails.getGroup().getId();
+            long sessGroupId = currentUser.getGroup().getId();
+            if (sessGroupId != objGroupId) {
+                throw new SecurityViolation(String.format(
+                        "Currently logged into group %s. Cannot alter object in group %s",
+                        sessGroupId, objGroupId));
+            }
+        }
+
         // previous and current have different ids. either change it and return
         // true if permitted, or throw an exception.
         if (!HibernateUtils.idEqual(previousDetails.getGroup(), currentDetails

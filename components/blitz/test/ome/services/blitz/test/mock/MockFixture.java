@@ -39,6 +39,7 @@ import org.quartz.JobDetail;
 import org.quartz.Trigger;
 import org.springframework.aop.target.HotSwappableTargetSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.mock.web.MockExpressionEvaluator;
 import org.springframework.scheduling.quartz.CronTriggerBean;
 import org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean;
 
@@ -68,12 +69,16 @@ public class MockFixture {
     public final String router;
 
     public static OmeroContext basicContext() {
-        return new OmeroContext(new String[] { "classpath:omero/test.xml",
+        return new OmeroContext(new String[] {
+                "classpath:omero/test.xml",
+                "classpath:ome/config.xml",
+                "classpath:ome/services/datalayer.xml",
                 "classpath:ome/services/blitz-servantDefinitions.xml",
                 "classpath:ome/services/throttling/throttling.xml",
                 "classpath:ome/services/messaging.xml",
-                "classpath:ome/services/datalayer.xml",
-                "classpath:ome/config.xml" });
+                // Following 2 required by GeomTool deps.
+                "classpath:ome/services/service-ome.io.nio.PixelsService.xml",
+                "classpath:ome/services/service-ome.io.nio.OriginalFilesService.xml"});
     }
 
     public MockFixture(MockObjectTestCase test) throws Exception {
@@ -135,12 +140,15 @@ public class MockFixture {
         blitz = new BlitzConfiguration(id, ring, mgr, ss, ex);
         this.sm = (SessionManagerI) blitz.getBlitzManager();
         this.sm.setApplicationContext(ctx);
+
+        /* UNUSED
         // The following is a bit of spring magic so that we can configure
         // the adapter in code. If this can be pushed to BlitzConfiguration
         // for example then we might not need it here anymore.
         HotSwappableTargetSource ts = (HotSwappableTargetSource) ctx
                 .getBean("swappableAdapterSource");
         ts.swap(blitz.getBlitzAdapter());
+        */
 
         // Add our topic manager
         TopicManager tm = new TopicManager.Impl(blitz.getCommunicator());
@@ -188,6 +196,8 @@ public class MockFixture {
     }
 
     public void tearDown() {
+        mock("executorMock").expects(test.once()).method("execute")
+            .will(test.returnValue(0));
         this.blitz.destroy();
         scheduler.stop();
         // this.ctx.closeAll();
@@ -231,6 +241,8 @@ public class MockFixture {
     }
 
     public void prepareServiceFactory(Session s, Cache cache) {
+        mock("sessionsMock").expects(test.once()).method("find")
+                .will(test.returnValue(s));
         mock("securityMock").expects(test.once()).method("getSecurityRoles")
                 .will(test.returnValue(new Roles()));
         mock("sessionsMock").expects(test.once()).method("create").will(

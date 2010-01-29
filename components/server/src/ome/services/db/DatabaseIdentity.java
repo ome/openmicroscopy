@@ -7,8 +7,13 @@
 
 package ome.services.db;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 /**
  * Represents the unique identity of this database, consisting of the
@@ -37,6 +42,19 @@ import org.apache.commons.logging.LogFactory;
  */
 public class DatabaseIdentity {
 
+    private static String uuid(SimpleJdbcTemplate jdbc) {
+        return jdbc.query(
+                "select value from configuration where name = 'omero.db.uuid' ",
+                new ParameterizedRowMapper<String>() {
+                    public String mapRow(ResultSet arg0, int arg1)
+                            throws SQLException {
+                        String s = arg0.getString("value");
+                        return s;
+                    }
+
+                }).get(0);
+    }
+
     private final static Log log = LogFactory.getLog(DatabaseIdentity.class);
 
     private final String authority;
@@ -45,11 +63,23 @@ public class DatabaseIdentity {
 
     private final String format;
 
+    public DatabaseIdentity(String authority, SimpleJdbcTemplate jdbc) {
+        this(authority, uuid(jdbc));
+    }
+
     public DatabaseIdentity(String authority, String uuid) {
         this.authority = authority;
         this.uuid = uuid;
         this.format = String.format("urn:lsid:%s:%%s:%s_%%s%%s", authority, uuid);
         log.info("Using LSID format: " + format);
+    }
+
+    public String getAuthority() {
+        return authority;
+    }
+
+    public String getUuid() {
+        return uuid;
     }
 
     public boolean valid(String lsid) {

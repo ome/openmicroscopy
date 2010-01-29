@@ -7,11 +7,16 @@
 
 package ome.services.blitz.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import ome.api.IAdmin;
+import ome.api.IShare;
 import ome.conditions.SessionException;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.AopContextInitializer;
@@ -22,6 +27,7 @@ import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.blitz.util.UnregisterServantMessage;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
+import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -120,6 +126,9 @@ import omero.constants.UPDATESERVICE;
 import omero.grid.InteractiveProcessorI;
 import omero.grid.SharedResourcesPrx;
 import omero.grid.SharedResourcesPrxHelper;
+import omero.model.ExperimenterGroup;
+import omero.model.IObject;
+import omero.model.Share;
 import omero.util.IceMapper;
 
 import org.aopalliance.aop.Advice;
@@ -130,6 +139,7 @@ import org.hibernate.Session;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.transaction.annotation.Transactional;
 
 import Ice.ConnectTimeoutException;
 import Ice.ConnectionLostException;
@@ -165,6 +175,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     public final Glacier2.SessionControlPrx control;
 
     private ClientCallbackPrx callback;
+
+    private IObject securityContext;
 
     // SHARED STATE
     // ===================
@@ -240,6 +252,97 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     public Executor getExecutor() {
         return this.executor;
+    }
+
+    // ~ Security Context
+    // =========================================================================
+
+    @SuppressWarnings("unchecked")
+    public List<IObject> getSecurityContexts(Current __current)
+            throws ServerError {
+
+        final EventContext ec = sessionManager.getEventContext(principal);
+        List<?> objs = (List) executor.execute(principal, new Executor.SimpleWork(this, "getSecurityContext") {
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+
+                final IAdmin admin = sf.getAdminService();
+                final IShare share = sf.getShareService();
+                final List<ome.model.IObject> objs = new ArrayList<ome.model.IObject>();
+
+                // Groups
+                final Set<Long> added = new HashSet<Long>();
+                for (Long id : ec.getMemberOfGroupsList()) {
+                    objs.add(admin.getGroup(id));
+                    added.add(id);
+                }
+                for (Long id : ec.getLeaderOfGroupsList()) {
+                    if (!added.contains(id)) {
+                        objs.add(admin.getGroup(id));
+                    }
+                }
+
+                // Shares
+                objs.addAll(share.getMemberShares(true));
+                objs.addAll(share.getOwnShares(true));
+
+                return objs;
+            }});
+        IceMapper mapper = new IceMapper();
+        return (List<IObject>) mapper.map(objs);
+    }
+
+    public IObject setSecurityContext(IObject obj, Current __current)
+            throws ServerError {
+
+        final String type = obj == null ? null : obj.ice_id();
+        final Long id = (obj == null || obj.getId() == null) ? null : obj.getId().getValue();
+        if (id == null) {
+            throw new ApiUsageException(null, null, "Security context must be managed!");
+        }
+
+        if (obj instanceof ExperimenterGroup) {
+            setGroupSecurityContext(id);
+        } else if (obj instanceof Share) {
+            setShareSecurityContext(id);
+        } else {
+            String msg = String.format("%s:%s", type, id);
+            throw new ApiUsageException(null, null, "Unknown security context:" + msg);
+        }
+
+        IObject old = securityContext;
+        securityContext = obj;
+        return old;
+    }
+
+    private void setGroupSecurityContext(final Long id) {
+        final ome.system.EventContext ec = sessionManager.getEventContext(principal);
+        executor.execute(principal,
+                new Executor.SimpleWork(this, "setGroupSecurityContext", id) {
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+
+                        if (ec.getCurrentShareId() != null) {
+                            sf.getShareService().deactivate();
+                        }
+
+                        ome.model.meta.Session s = sessionManager.find(principal.getName());
+                        s.getDetails().setGroup(
+                                new ome.model.meta.ExperimenterGroup(id, false));
+                        return null;
+                    }
+        });
+    }
+
+    private void setShareSecurityContext(final Long id) {
+        executor.execute(principal,
+                new Executor.SimpleWork(this, "setShareSecurityContext", id) {
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        sf.getShareService().activate(id);
+                        return null;
+                    }
+        });
     }
 
     // ~ Stateless

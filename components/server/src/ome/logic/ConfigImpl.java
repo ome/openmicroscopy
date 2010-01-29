@@ -34,6 +34,7 @@ import ome.conditions.InternalException;
 import ome.conditions.OptimisticLockException;
 import ome.conditions.SecurityViolation;
 import ome.security.basic.CurrentDetails;
+import ome.services.db.DatabaseIdentity;
 import ome.system.PreferenceContext;
 
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -100,6 +101,8 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
 
     private transient CurrentDetails currentDetails;
 
+    private transient DatabaseIdentity db;
+
     /**
      * Protects all access to the configuration properties.
      */
@@ -149,6 +152,10 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
     public final void setCurrentDetails(CurrentDetails currentDetails) {
         getBeanHelper().throwIfAlreadySet(this.currentDetails, currentDetails);
         this.currentDetails = currentDetails;
+    }
+
+    public final void setDatabaseIdentity(DatabaseIdentity db) {
+        this.db = db;
     }
 
     /*
@@ -344,16 +351,7 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
     @PermitAll
     // see above
     public String getDatabaseUuid() {
-        return jdbc.query(
-                "select value from configuration where name = 'omero.db.uuid' ",
-                new ParameterizedRowMapper<String>() {
-                    public String mapRow(ResultSet arg0, int arg1)
-                            throws SQLException {
-                        String s = arg0.getString("value");
-                        return s;
-                    }
-
-                }).get(0);
+        return db.getUuid();
     }
 
     // Helpers

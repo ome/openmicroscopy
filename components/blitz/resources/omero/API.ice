@@ -990,11 +990,52 @@ module omero {
 
 
 	/**
-	 * Starting point for all OMERO.blitz interaction. This ServiceFactory once properly created
-	 * creates functioning proxies to the server.
+	 * Starting point for all OMERO.blitz interaction.
+         *
+         * <p> A ServiceFactory once acquired can be used to create any number
+         * of service proxies to the server. Most services implement [ServiceInterface]
+         * or its subinterface [StatefulServiceInterface]. </p>
 	 **/
 	interface ServiceFactory extends Glacier2::Session
 	{
+
+            // Security context
+
+            /**
+             * Provides a list of all valid security contexts for this session.
+             * Each of the returned [omero::model::IObject] instances can be
+             * passed to setSecurityContext.
+             **/
+            IObjectList getSecurityContexts() throws ServerError;
+
+            /**
+             * Changes the security context for the current session.
+             *
+             * <p> A security context limits the set of objects which will
+             * be returned by all queries and restricts what updates
+             * can be made. </p>
+             *
+             * <p> Current valid values for security context:
+             * <ul>
+             *  <li>[omero::model::ExperimenterGroup] - logs into a specific group</li>
+             *  <li>[omero::model::Share] - uses IShare to activate a share</li>
+             * </ul> </p>
+             *
+             * <p> Passing an unloaded version of either object type will change
+             * the way the current session operates. Note: only objects which
+             * are returned by the [getSecurityContexts] method are considered
+             * valid. Any other instance will cause an exception to be thrown. </p>
+             *
+             * <h4>Example usage in Python:<h4>
+             * <pre>
+             * sf = client.createSession()
+             * objs = sf.getSecurityContexts()
+             * old = sf.setSecurityContext(objs[-1])
+             * </pre>
+             *
+             **/
+            omero::model::IObject setSecurityContext(omero::model::IObject obj) throws ServerError;
+
 	    // Central OMERO.blitz stateless services.
 
 	    IAdmin*          getAdminService() throws ServerError;
@@ -1029,30 +1070,40 @@ module omero {
 
             // Shared resources -----------------------------------------------
 
-        /**
-         * Returns a reference to a back-end manager. The [omero::grid::SharedResources]
-         * service provides look ups for various facilities offered by OMERO:
-         * <ul>
-         *   <li><a href="http://trac.openmicroscopy.org.uk/omero/wiki/OmeroScripts">OMERO.scripts</a>
-         *   <li><a href="http://trac.openmicroscopy.org.uk/omero/wiki/OmeroTables">OMERO.tables</a>
-         * </ul>
-         * These facilities may or may not be available on first request.
-         *
-         * @see omero::grid::SharedResources
-         */
+            /**
+             * Returns a reference to a back-end manager. The [omero::grid::SharedResources]
+             * service provides look ups for various facilities offered by OMERO:
+             * <ul>
+             *   <li><a href="http://trac.openmicroscopy.org.uk/omero/wiki/OmeroScripts">OMERO.scripts</a>
+             *   <li><a href="http://trac.openmicroscopy.org.uk/omero/wiki/OmeroTables">OMERO.tables</a>
+             * </ul>
+             * These facilities may or may not be available on first request.
+             *
+             * @see omero::grid::SharedResources
+             **/
+	    ["deprecated:The SharedResources API is experimental"]
             omero::grid::SharedResources* sharedResources() throws ServerError;
 
             // General methods ------------------------------------------------
 
 	    /**
-	     * Allows looking up any service by name. See Constants.ice
-	     * for examples of services. If a service has been added
-	     * by third-parties, getByName can be used even though
-	     * no concrete method is available.
+	     * Allows looking up any stateless service by name.
+             *
+             * See Constants.ice for examples of services.
+             * If a service has been added by third-parties,
+             * getByName can be used even though no concrete
+             * method is available.
 	     **/
-
 	    ServiceInterface* getByName(string name) throws ServerError;
 
+	    /**
+	     * Allows looking up any stateful service by name.
+             *
+             * See Constants.ice for examples of services.
+             * If a service has been added by third-parties,
+             * createByName can be used even though no concrete
+             * method is available.
+	     **/
 	    StatefulServiceInterface* createByName(string name) throws ServerError;
 
 	    /**
