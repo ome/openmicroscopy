@@ -457,12 +457,12 @@ public class LdapImpl extends AbstractLevel2Service implements LocalLdap {
 
         if (access) {
             // If validation is successful create new user in DB
-            long gid = roleProvider.createGroup(newUserGroup, false);
+            long gid = roleProvider.createGroup(newUserGroup, null, false);
             long uid = roleProvider.createExperimenter(exp,
                     new ExperimenterGroup(gid, false),
                     new ExperimenterGroup(
                             this.sec.getSecurityRoles().getUserGroupId(), false));
-            // Set user's DN in PASSWORD table (add sufix on the beginning)
+            // Set user's DN in PASSWORD table (add suffix on the beginning)
             setDN(uid, dn.toString());
         }
         return access;

@@ -9,10 +9,13 @@ package ome.server.itests.perms42;
 import ome.conditions.SecurityViolation;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
+import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.server.itests.AbstractManagedContextTest;
 
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -27,23 +30,95 @@ public class PermissionsTest extends AbstractManagedContextTest {
     class Fixture {
         Experimenter user;
         String groupName;
-        ExperimenterGroup group1;
+        ExperimenterGroup group;
+        Image image;
         {
             user = loginNewUser();
             groupName = uuid();
-            group1 = new ExperimenterGroup(groupName);
-            group1 = new ExperimenterGroup(iAdmin.createGroup(group1), false);
-            iAdmin.addGroups(user, group1);
+            group = new ExperimenterGroup(groupName);
+            iAdmin.createGroup(group);
+            group = iAdmin.lookupGroup(groupName);
+            iAdmin.addGroups(user, group);
+            image = new_Image("ticket:1434");
+        }
+
+        Image saveImage() {
+            return iUpdate.saveAndReturnObject(image);
+        }
+
+        void log_in() {
+            login(user.getOmeName(), groupName, "Test");
         }
     }
 
+    Fixture fixture;
+
+    @BeforeMethod
+    void setupFixture() {
+        fixture = new Fixture();
+    }
+
+    @AfterMethod
+    void teardownFixture() {
+        fixture = null;
+    }
+
+    //
+    // Controlling group permission settings
+    //
+
+    @Test
+    public void testOnGroupCreationPermissionsAreSet() throws Exception {
+        fail();
+    }
+
+    @Test
+    public void testGroupsCanBeMadeShared() throws Exception {
+        fail();
+    }
+
+    @Test
+    public void testGroupsCanBeMadePublic() throws Exception {
+        fail();
+    }
+
+    //
+    // Configurable default permissions removed in favor of using group
+    //
+
+    @Test
+    public void testObjectCreatedWithGroupPermissions() throws Exception {
+        fixture.log_in();
+        Image image = fixture.saveImage();
+        Permissions groupPermissions = fixture.group.getDetails()
+                .getPermissions();
+        Permissions imagePermissions = image.getDetails().getPermissions();
+        assertTrue(groupPermissions.identical(imagePermissions));
+
+    }
+
+    @Test
+    public void testObjectCreatedWithGroupPermissionsMinusUmask()
+            throws Exception {
+        fail();
+    }
+
+    //
+    // Guarantee consistent graphs on read
+    //
+
+    //
+    // Guarantee consistent graphs on write
+    //
+
     @Test
     public void testUserInTwoGroupsCantMixWithLink() throws Exception {
-        Fixture fixture = new Fixture();
-        Image i = new_Image("ticket:1434");
-        i = iUpdate.saveAndReturnObject(i);
 
-        login(fixture.user.getOmeName(), fixture.groupName, "Test");
+        // Create an image as root
+        Image i = fixture.saveImage();
+
+        // Create an image as fixture user
+        fixture.log_in();
         Dataset d = new Dataset("ticket:1434");
         d.linkImage(i);
         try {
@@ -54,6 +129,10 @@ public class PermissionsTest extends AbstractManagedContextTest {
         }
 
     }
+
+    //
+    //
+    //
 
     @Test
     public void testUserInDiffGroupCantSeeObjects() throws Exception {
@@ -119,7 +198,5 @@ public class PermissionsTest extends AbstractManagedContextTest {
     public void testUserWillBeInformedIfGroupIsShared() throws Exception {
         fail();
     }
-
-
 
 }

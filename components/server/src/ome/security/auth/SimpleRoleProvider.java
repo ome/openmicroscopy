@@ -53,13 +53,14 @@ public class SimpleRoleProvider implements RoleProvider {
         this.sf = sf;
     }
 
-    public long createGroup(String name, boolean strict) {
+    public long createGroup(String name, Permissions perms, boolean strict) {
         Session s = sf.getSession();
         ExperimenterGroup g = groupByName(name, s);
 
         if (g == null) {
             g = new ExperimenterGroup();
             g.setName(name);
+            g.getDetails().setPermissions(perms);
             g = (ExperimenterGroup) s.merge(g);
         } else {
             if (strict) {

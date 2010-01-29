@@ -7,6 +7,7 @@
 
 package ome.security.auth;
 
+import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.SecuritySystem;
@@ -26,7 +27,7 @@ public interface RoleProvider {
 
     long createGroup(ExperimenterGroup group);
 
-    long createGroup(String name, boolean strict);
+    long createGroup(String name, Permissions perms, boolean strict);
 
     long createExperimenter(Experimenter experimenter,
             ExperimenterGroup defaultGroup, ExperimenterGroup... otherGroups);

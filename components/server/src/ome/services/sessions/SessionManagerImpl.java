@@ -200,7 +200,8 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         s.setDefaultEventType(eventType);
         // TODO: be careful of these two values.
         // FIXME: REVIEW! ticket:1731
-        s.setDefaultPermissions(umask.toString());
+        s.setDefaultPermissions(umask == null ?
+                Permissions.WORLD_WRITEABLE.toString() : umask.toString());
         s.getDetails().setPermissions(umask);
     }
 
