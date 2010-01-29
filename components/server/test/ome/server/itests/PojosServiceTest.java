@@ -201,7 +201,7 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         Plate plate;
         while (i.hasNext()) {
         	screen = (Screen) i.next();
-        	assertTrue(screen.getId() == s.getId());
+		assertEquals(screen.getId(), s.getId());
         	plates = screen.linkedPlateList();
         	assertTrue(plates.size() == 1);
         	j = plates.iterator();

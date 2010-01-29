@@ -49,7 +49,6 @@ import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
-import omero.model.IObject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

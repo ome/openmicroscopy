@@ -87,7 +87,7 @@ public class ContextTest extends TestCase {
 
         OmeroContext ctx = OmeroContext.getManagedServerContext();
         ctx.refreshAllIfNecessary();
-        ctx.applyBeanPropertyValues(rb, RenderingEngine.class);
+        ctx.applyBeanPropertyValues(rb, "internal-ome.api.ThumbnailStore");
         assertTrue(rb.csCalled);
     }
 

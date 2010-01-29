@@ -9,6 +9,7 @@ import ome.model.core.Image;
 import ome.model.core.Pixels;
 
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class RenderingSettingsTest extends AbstractManagedContextTest {
@@ -19,14 +20,17 @@ public class RenderingSettingsTest extends AbstractManagedContextTest {
 
     private Pixels p2;
 
+    private boolean initialized = false;
     // =========================================================================
 
-    @BeforeClass
+    @BeforeMethod
     protected void init() throws Exception {
-        rsx = factory.getRenderingSettingsService();
-
-        p1 = makePixels();
-        p2 = makePixels();
+        if (!initialized) {
+            rsx = factory.getRenderingSettingsService();
+            p1 = makePixels();
+            p2 = makePixels();
+            initialized = true;
+        }
 
     }
 

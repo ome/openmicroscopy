@@ -59,14 +59,6 @@ public class ApiConstraintCheckerTest extends TestCase {
     }
 
     @Test
-    public void testRenderingImplCreate() throws Exception {
-        c = RenderingBean.class;
-        m = RenderingBean.class.getMethod("create");
-        args = null;
-        ApiConstraintChecker.errorOnViolation(c, m, args);
-    }
-
-    @Test
     public void testRenderingImplGetModel() throws Exception {
         c = RenderingBean.class;
         m = RenderingBean.class.getMethod("getModel");

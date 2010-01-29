@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Random;
 
+import org.testng.annotations.BeforeClass;
+
 import ome.api.IPixels;
 import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
@@ -49,6 +51,7 @@ public class BaseRenderingTest extends TestCase
 	// Configurables
 	
 	@Override
+	@BeforeClass
 	protected void setUp()
 	{
 		PixelsType pixelsType = getPixelsType();

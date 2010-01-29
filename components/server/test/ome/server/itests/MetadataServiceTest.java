@@ -99,22 +99,24 @@ public class MetadataServiceTest
         p.linkAnnotation(tag);
         
         p = iUpdate.saveAndReturnObject(p);
+        assertEquals(2, p.sizeOfAnnotationLinks());
         
         long self = this.iAdmin.getEventContext().getCurrentUserId();
         Parameters options = new Parameters();
         Set<Long> ids = new HashSet<Long>(1);
         ids.add(p.getId());
         Set<Long> annotators = new HashSet<Long>(1);
-        ids.add(self);
+        annotators.add(self);
         //user id
        
         Map result = iMetadata.loadAnnotations(Project.class, ids,
-                new HashSet(Arrays.asList(CommentAnnotation.class.getName())),
+                null, // Method is "NoTypesSet"!
+                //new HashSet(Arrays.asList(CommentAnnotation.class.getName())),
         		annotators, options);
         assertEquals(1, result.size());
         
         Set s = (Set) result.get(p.getId());
-        assertEquals(2, s.size());
+        assertEquals(2, s.size()); // Just comments
         Iterator i = s.iterator();
         Annotation annotation;
         int index = 0;

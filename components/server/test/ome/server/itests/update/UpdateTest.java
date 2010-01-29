@@ -354,7 +354,7 @@ public class UpdateTest extends AbstractUpdateTest {
         Image i = new Image(testTimestamp, "rootCanDeleteObjectFromOtherGroup");
         i = this.iUpdate.saveAndReturnObject(i);
 
-        loginRoot();
+        loginRootKeepGroup();
         this.iUpdate.deleteObject(i);
     }
 
