@@ -511,7 +511,8 @@ def manage_group(request, action, gid=None, **kwargs):
     elif action == 'edit':
         form = GroupForm(initial={'name': controller.group.name, 'description':controller.group.description,
                                      #'access_controll': controller.getActualPermissions(), 
-                                     'owner': controller.group.details.owner.id.val, 'experimenters':controller.experimenters})
+                                     #This "owner" field will need to be multi-valued
+                                     'owner': None, 'experimenters':controller.experimenters})
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid}
     elif action == 'save':
         if request.method != 'POST':

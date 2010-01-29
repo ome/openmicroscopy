@@ -112,12 +112,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             who would like to look at these data, is a member of.
             Public data can be only visible by the member of group."""
         
-        s = self.getSessionService()
-        a = self.getAdminService()
-        gr = a.getGroup(long(gid))
-        session = s.getSession(self._sessionUuid)
-        session.details.group = gr
-        s.updateSession(session)
+        self.c.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid, False))
         self._ctx = self._proxies['admin'].getEventContext()
     
     ##############################################
@@ -1027,12 +1022,17 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     def getCurrentSupervisor(self):
         """ Gets the owner of a group for current user."""
         #default = self.getAdminService().getGroup(self.getEventContext().groupId)
-        p = omero.sys.Parameters()
+        p = omero.sys.ParametersI()
         p.map = {}
         p.map["id"] = rlong(self.getEventContext().groupId)
-        default = self.getQueryService().findByQuery("select e from ExperimenterGroup as e join fetch e.details.owner where e.id = :id", p)
-        return ExperimenterWrapper(self, default.details.owner)
-    
+
+        # TODO: there can now be multiple supervisors
+        p.page(0,1)
+        supervisor = self.getQueryService().findByQuery(\
+            """select e from ExperimenterGroup as g join g.groupExperimenterMap as m join m.child as e
+               where m.owner = true and g.id = :id""", p)
+        return ExperimenterWrapper(self, supervisor)
+
     def getColleagues(self):
         """ Look up users who are a member of the current user active group."""
         
@@ -1745,6 +1745,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     
     def updateGroup(self, group, group_owner):
         admin_serv = self.getAdminService()
+        # Should we update updateGroup so this would be atomic?
         admin_serv.updateGroup(group)
         admin_serv.setGroupOwner(group, group_owner)
     

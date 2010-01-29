@@ -123,6 +123,7 @@ class BaseGroup(BaseController):
         up_gr.description = description is not None and rstring(str(description)) or None
         #self.setObjectPermissions(up_gr, self.setActualPermissions(permissions))
         gr_owner = self.conn.getExperimenter(long(eid))._obj
+        # This does nothing!
         up_gr.details.owner = gr_owner
         self.conn.updateGroup(up_gr, gr_owner)
 
