@@ -120,7 +120,7 @@ public class UpdateFilter extends ContextFilter {
             if (i.isLoaded()) {
 
                 if (i.getDetails().getPermissions() == null) {
-                    Permissions p = new Permissions(Permissions.DEFAULT);
+                    Permissions p = new Permissions(Permissions.EMPTY);
                     p.set(Flag.SOFT);
                     i.getDetails().setPermissions(p);
                 }

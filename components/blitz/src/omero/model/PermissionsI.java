@@ -38,7 +38,7 @@ public class PermissionsI extends Permissions implements ome.model.ModelBased {
     
     public PermissionsI() {
         Long l = (Long) Utils
-                .internalForm(ome.model.internal.Permissions.DEFAULT);
+                .internalForm(ome.model.internal.Permissions.EMPTY);
         if (l == null) {
             throw new IllegalStateException("Permissions.DEFAULT is null");
         }

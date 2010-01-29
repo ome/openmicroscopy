@@ -541,10 +541,14 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
                 comment.setTextValue(commentText);
                 comment.setNs(NS_COMMENT);
                 //comment.getDetails().setOwner(commentOwner);
-                comment.getDetails().setPermissions(Permissions.DEFAULT);
                 SessionAnnotationLink link = share.linkAnnotation(comment);
                 //link.getDetails().setOwner(commentOwner);
-                link.getDetails().setPermissions(Permissions.DEFAULT);
+                //
+                // ticket:1434 - no longer setting permissions, since they
+                // will be set to the value of the group automatically.
+                //
+                // comment.getDetails().setPermissions(Permissions.DEFAULT);
+                // link.getDetails().setPermissions(Permissions.DEFAULT);
                 
                 iUpdate.flush();
                 rv[0] = iQuery.get(CommentAnnotation.class, comment.getId());

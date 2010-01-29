@@ -192,18 +192,16 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     protected void define(Session s, String uuid, String message, long started,
             long idle, long live, String eventType, Permissions umask) {
 
-        if (umask == null) {
-            umask = Permissions.DEFAULT;
-        }
-
         s.setUuid(uuid);
         s.setMessage(message);
         s.setStarted(new Timestamp(started));
         s.setTimeToIdle(idle);
         s.setTimeToLive(live);
         s.setDefaultEventType(eventType);
+        // TODO: be careful of these two values.
+        // FIXME: REVIEW! ticket:1731
         s.setDefaultPermissions(umask.toString());
-        s.getDetails().setPermissions(Permissions.DEFAULT);
+        s.getDetails().setPermissions(umask);
     }
 
     // ~ Session management
@@ -706,23 +704,18 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
         Principal copy = new Principal(p.getName(), group, type);
         Permissions umask = p.getUmask();
-        if (umask == null) {
-            umask = Permissions.DEFAULT;
-        }
         copy.setUmask(umask);
         return copy;
     }
 
     private void parseAndSetDefaultPermissions(Permissions perms,
             Session session) {
-        Permissions _perm = (perms == null) ? Permissions.DEFAULT : perms;
-        parseAndSetDefaultPermissions(_perm.toString(), session);
+        String _perm = (perms == null) ? null : perms.toString();
+        parseAndSetDefaultPermissions(_perm, session);
     }
 
     private void parseAndSetDefaultPermissions(String perms, Session session) {
-        String _perm = (perms == null) ? Permissions.DEFAULT.toString() : perms
-                .toString();
-        session.setDefaultPermissions(_perm);
+        session.setDefaultPermissions(perms);
     }
 
     private void parseAndSetDefaultType(String type, Session session) {

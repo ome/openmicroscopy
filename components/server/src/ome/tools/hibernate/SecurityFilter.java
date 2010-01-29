@@ -27,7 +27,7 @@ import static ome.model.internal.Permissions.Right.*;
  * knowledge within {@link Permissions}
  * 
  * With the addition of shares in 4.0, it is necessary to remove the security
- * filter is a share is active and allow loading to throw the necessary
+ * filter if a share is active and allow loading to throw the necessary
  * exceptions.
  * 
  * @author Josh Moore, josh at glencoesoftware.com

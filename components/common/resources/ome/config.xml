@@ -28,15 +28,6 @@
     on how this works.
     </description>
 
-    <bean id="permissionsContext" class="ome.system.PermissionsContext">
-        <description>
-            Sets the value of the default permissions key based on the
-            PreferenceContext in the system properties to be loaded by
-            the ome.model.internal.Permissions class.
-        </description>
-        <constructor-arg ref="preferenceContext"/>
-    </bean>
-
     <bean id="preferenceContext" class="ome.system.PreferenceContext">
 
         <description>

@@ -36,11 +36,6 @@ class PermissionsI(_omero_model.Permissions):
       def __init__(self, l = -1):
             super(PermissionsI, self).__init__()
             self._perm1 = l
-            self.setGroupRead(False)
-            self.setGroupWrite(False)
-            self.setWorldRead(False)
-            self.setWorldWrite(False)
-            self.setLocked(False)
             pass
 
       def granted(self, mask, shift):

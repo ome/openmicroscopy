@@ -15,11 +15,6 @@ namespace omero {
 	PermissionsI::~PermissionsI() {}
 	PermissionsI::PermissionsI() : Permissions() {
 	    perm1 = -1L;
-	    setGroupRead(false);
-	    setGroupWrite(false);
-	    setWorldRead(false);
-	    setWorldWrite(false);
-	    setLocked(false);
 	}
 
 	// shift 8; mask 4

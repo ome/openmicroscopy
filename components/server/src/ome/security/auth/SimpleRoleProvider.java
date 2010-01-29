@@ -265,11 +265,12 @@ public class SimpleRoleProvider implements RoleProvider {
     private void worldReadable(IObject obj) {
         Permissions p = obj.getDetails().getPermissions();
         if (p == null) {
-            p = new Permissions(Permissions.DEFAULT);
+            p = new Permissions(Permissions.WORLD_IMMUTABLE);
             obj.getDetails().setPermissions(p);
+        } else {
+            p.grant(Role.GROUP, Right.READ);
+            p.grant(Role.WORLD, Right.READ);
         }
-        p.grant(Role.GROUP, Right.READ);
-        p.grant(Role.WORLD, Right.READ);
     }
 
     private final class SecureMerge implements SecureAction {

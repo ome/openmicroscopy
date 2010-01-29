@@ -684,17 +684,4 @@ public class Permissions implements Serializable {
      */
     public final static Permissions PUBLIC = WORLD_WRITEABLE;
 
-    /**
-     * an immutable {@link Permissions} instance which is used as the default
-     * value in all persistent classes. It is initiall set to
-     * {@link #USER_PRIVATE}, but is reset from the
-     * {@link ome.system.PermissionsContext#KEY} configuration value which is set by
-     * default in etc/omero.properties.
-     */
-    public/* final */static Permissions DEFAULT = USER_PRIVATE;
-
-    public static void setDefaultPermissions(String permissions) {
-        DEFAULT = new ImmutablePermissions(parseString(permissions));
-    }
-
 }
