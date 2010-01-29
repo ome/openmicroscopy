@@ -9,6 +9,7 @@ package ome.server.itests.sec;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -27,10 +28,10 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
 import ome.server.itests.AbstractManagedContextTest;
-import ome.system.Roles;
-import ome.util.IdBlock;
 import ome.system.Login;
+import ome.system.Roles;
 import ome.system.ServiceFactory;
+import ome.util.IdBlock;
 
 import org.testng.annotations.ExpectedExceptions;
 import org.testng.annotations.Test;
@@ -294,7 +295,7 @@ public class AdminTest extends AbstractManagedContextTest {
 
     }
 
-    @Test(groups = "ticket:343")
+    @Test(groups = {"ticket:343", "ticket:1434"})
     public void testSetGroupOwner() throws Exception {
         ExperimenterGroup g = testGroup();
         iAdmin.createGroup(g);
@@ -312,7 +313,18 @@ public class AdminTest extends AbstractManagedContextTest {
 
         ExperimenterGroup test = iQuery
                 .get(ExperimenterGroup.class, g1.getId());
-        assertEquals(test.getDetails().getOwner().getId(), e1.getId());
+        boolean found = false;
+        Iterator<GroupExperimenterMap> maps = test.iterateGroupExperimenterMap();
+        while (maps.hasNext()) {
+            GroupExperimenterMap map = maps.next();
+            if (map.child().getId().equals(e1.getId())) {
+                if (map.getOwner()) {
+                    found = true;
+                }
+            }
+
+        }
+        assertTrue(found);
 
     }
 

@@ -336,7 +336,9 @@ public interface IAdmin extends ServiceInterface {
     ExperimenterGroup group);
 
     /**
-     * sets the owner of a group to be a given user.
+     * adds the user to the owner list for this group.
+     *
+     * Since Beta4.2 (ticket:1434) multiple users can be the "owner" of a group.
      * 
      * @param group
      *            A currently managed {@link ExperimenterGroup}. Not null.
@@ -344,6 +346,20 @@ public interface IAdmin extends ServiceInterface {
      *            A currently managed {@link Experimenter}. Not null.
      */
     void setGroupOwner(@NotNull
+    ExperimenterGroup group, @NotNull
+    Experimenter owner);
+
+    /**
+     * removes the user from the owner list for this group.
+     *
+     * Since Beta4.2 (ticket:1434) multiple users can be the "owner" of a group.
+     *
+     * @param group
+     *            A currently managed {@link ExperimenterGroup}. Not null.
+     * @param owner
+     *            A currently managed {@link Experimenter}. Not null.
+     */
+    void unsetGroupOwner(@NotNull
     ExperimenterGroup group, @NotNull
     Experimenter owner);
 

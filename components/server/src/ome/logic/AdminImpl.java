@@ -43,6 +43,7 @@ import ome.model.internal.Permissions.Role;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.GroupExperimenterMap;
 import ome.parameters.Parameters;
 import ome.security.ACLVoter;
 import ome.security.AdminAction;
@@ -546,6 +547,17 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     @RolesAllowed("system")
     public void setGroupOwner(ExperimenterGroup group, Experimenter owner) {
+        toggleGroupOwner(group, owner, Boolean.TRUE);
+    }
+
+    @RolesAllowed("system")
+    public void unsetGroupOwner(ExperimenterGroup group, Experimenter owner) {
+        toggleGroupOwner(group, owner, Boolean.TRUE);
+    }
+
+    private void toggleGroupOwner(ExperimenterGroup group, Experimenter owner,
+            Boolean value) {
+
         if (owner == null) {
             return;
         }
@@ -564,14 +576,30 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                     + "must be managed (i.e. have an id)");
         }
 
-        Experimenter foundUser = userProxy(owner.getId());
-        ExperimenterGroup foundGroup = groupProxy(group.getId());
-        foundGroup.getDetails().setOwner(foundUser);
+        GroupExperimenterMap m = findLink(group, owner);
+        if (m == null) {
+            addGroups(owner, group);
+            m = findLink(group, owner);
+        }
+        m.setOwner(value);
         iUpdate.flush();
 
         getBeanHelper().getLogger().info(
-                String.format("Changing owner for group %s to %s", foundGroup
-                        .getName(), foundUser.getOmeName()));
+                String.format("%s user %s as owner of group %s",
+                        value ? "Setting" : "Unsetting",
+                                owner.getId(), group.getId()));
+    }
+
+    private GroupExperimenterMap findLink(ExperimenterGroup group,
+            Experimenter owner) {
+        GroupExperimenterMap m = iQuery.findByQuery(
+                "select m from GroupExperimenterMap m " +
+			"where m.parent.id = :pid " +
+			"and m.child.id = :cid",
+			new Parameters()
+                    .addLong("pid", group.getId())
+                    .addLong("cid", owner.getId()));
+        return m;
     }
 
     @RolesAllowed("user")

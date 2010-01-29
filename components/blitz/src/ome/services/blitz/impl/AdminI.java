@@ -51,6 +51,7 @@ import omero.api.AMD_IAdmin_setDefaultGroup;
 import omero.api.AMD_IAdmin_setGroupOwner;
 import omero.api.AMD_IAdmin_synchronizeLoginCache;
 import omero.api.AMD_IAdmin_unlock;
+import omero.api.AMD_IAdmin_unsetGroupOwner;
 import omero.api.AMD_IAdmin_updateExperimenter;
 import omero.api.AMD_IAdmin_updateExperimenterWithPassword;
 import omero.api.AMD_IAdmin_updateGroup;
@@ -296,6 +297,12 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
     }
 
     public void setGroupOwner_async(AMD_IAdmin_setGroupOwner __cb,
+            ExperimenterGroup group, Experimenter owner, Current __current)
+            throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, group, owner);
+    }
+
+    public void unsetGroupOwner_async(AMD_IAdmin_unsetGroupOwner __cb,
             ExperimenterGroup group, Experimenter owner, Current __current)
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current, group, owner);

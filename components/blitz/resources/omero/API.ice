@@ -154,6 +154,7 @@ module omero {
 	    idempotent void removeGroups(omero::model::Experimenter user, ExperimenterGroupList groups) throws ServerError;
 	    idempotent void setDefaultGroup(omero::model::Experimenter user, omero::model::ExperimenterGroup group) throws ServerError;
 	    idempotent void setGroupOwner(omero::model::ExperimenterGroup group, omero::model::Experimenter owner) throws ServerError;
+	    idempotent void unsetGroupOwner(omero::model::ExperimenterGroup group, omero::model::Experimenter owner) throws ServerError;
 	    idempotent void deleteExperimenter(omero::model::Experimenter user) throws ServerError;
 	    idempotent void deleteGroup(omero::model::ExperimenterGroup group) throws ServerError;
 	    idempotent void changeOwner(omero::model::IObject obj, string omeName) throws ServerError;
