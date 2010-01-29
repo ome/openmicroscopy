@@ -40,6 +40,7 @@
  *   |   \_ ValidationException (bad data)
  *   |
  *   |_ SecurityViolation (some no-no)
+ *   |   \_ GroupSecurityViolation
  *   |
  *   \_SessionException
  *      |_ RemovedSessionException (accessing a non-extant session)
@@ -262,6 +263,10 @@ module omero
   // SECURITY
 
   exception SecurityViolation extends ServerError
+    {
+    };
+
+  exception GroupSecurityViolation extends ServerError
     {
     };
 

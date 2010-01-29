@@ -22,6 +22,7 @@ import java.util.Set;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.conditions.ApiUsageException;
+import ome.conditions.GroupSecurityViolation;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
@@ -383,7 +384,7 @@ public class OmeroInterceptor implements Interceptor {
                 if (d != null) {
                     if (!HibernateUtils.idEqual(d.getGroup(),
                             currentUser.getGroup())) {
-                        throw new SecurityViolation("MIXED GROUP");
+                        throw new GroupSecurityViolation("MIXED GROUP");
                     }
                 }
 
@@ -765,7 +766,7 @@ public class OmeroInterceptor implements Interceptor {
 
             // see https://trac.openmicroscopy.org.uk/omero/ticket/1434
             if (obj instanceof ExperimenterGroup) {
-                throw new SecurityViolation(
+                throw new GroupSecurityViolation(
                         "Group permissions must be changed via IAdmin");
             }
 
