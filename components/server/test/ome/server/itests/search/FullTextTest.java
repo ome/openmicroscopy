@@ -189,11 +189,11 @@ public class FullTextTest extends AbstractTest {
         i = newImageUuid();
         iUpdate.indexObject(i);
 
-        this.loginRoot();
+        this.loginRootKeepGroup();
         List<Image> list = iQuery.findAllByFullText(Image.class, i.getName(),
                 null);
-        assertTrue(list.size() == 1);
-        assertTrue(list.get(0).getId().equals(i.getId()));
+        assertEquals(1, list.size());
+        assertEquals(i.getId(), list.get(0).getId());
     }
 
     public void testUniquePrivateImage() throws Exception {
@@ -203,7 +203,7 @@ public class FullTextTest extends AbstractTest {
         this.loginNewUser();
         List<Image> list = iQuery.findAllByFullText(Image.class, i.getName(),
                 null);
-        assertTrue(list.size() == 0);
+        assertEquals(0, list.size());
     }
 
     public void testUniqueImageBelongingToOnlyUser() throws Exception {
@@ -219,10 +219,10 @@ public class FullTextTest extends AbstractTest {
 
         List<Image> list = iQuery.findAllByFullText(Image.class, i.getName(),
                 new Parameters(new Filter().owner(id)));
-        assertTrue(list.size() == 1);
+        assertEquals(1, list.size());
 
         list = iQuery.findAllByFullText(Image.class, i.getName(), null);
-        assertTrue(list.size() == 2);
+        assertEquals(2, list.size());
 
     }
 
@@ -232,10 +232,10 @@ public class FullTextTest extends AbstractTest {
 
         List<Image> list = iQuery.findAllByFullText(Image.class, i.getName(),
                 new Parameters(new Filter().group(id)));
-        assertTrue(list.size() == 1);
+        assertEquals(1, list.size());
 
         list = iQuery.findAllByFullText(Image.class, i.getName(), null);
-        assertTrue(list.size() == 2);
+        assertEquals(2, list.size());
 
     }
 

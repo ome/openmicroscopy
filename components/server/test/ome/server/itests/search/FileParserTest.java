@@ -78,7 +78,7 @@ public class FileParserTest extends AbstractTest {
         i = iUpdate.saveAndReturnObject(i);
         iUpdate.indexObject(i);
 
-        loginRoot();
+        loginRootKeepGroup();
         List<Image> imgs = iQuery.findAllByFullText(Image.class, str, null);
         assertEquals(1, imgs.size());
         assertTrue(imgs.get(0).getId().equals(i.getId()));

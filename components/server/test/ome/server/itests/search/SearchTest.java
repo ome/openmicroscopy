@@ -907,7 +907,7 @@ public class SearchTest extends AbstractTest {
         tag.setTextValue(name);
         iUpdate.indexObject(i);
 
-        loginRoot();
+        loginRootKeepGroup();
         long id = iAdmin.getEventContext().getCurrentUserId();
         Experimenter self = new Experimenter(id, false);
         Details root = Details.create();
@@ -1018,7 +1018,7 @@ public class SearchTest extends AbstractTest {
         tag.setTextValue(name);
         iUpdate.indexObject(i);
 
-        loginRoot();
+        loginRootKeepGroup();
         long id = iAdmin.getEventContext().getCurrentGroupId();
         ExperimenterGroup self = new ExperimenterGroup(id, false);
         Details root = Details.create();
@@ -1249,7 +1249,7 @@ public class SearchTest extends AbstractTest {
         tag = new TagAnnotation();
         tag.setTextValue(name);
         iUpdate.indexObject(i);
-        loginRoot();
+        loginRootKeepGroup();
 
         Search search = this.factory.createSearchService();
         search.onlyType(Image.class);

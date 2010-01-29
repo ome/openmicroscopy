@@ -167,9 +167,16 @@ public class AbstractManagedContextTest extends
     }
 
     protected void loginRoot() {
+        loginRoot(roles.getSystemGroupName());
+    }
 
-        login(roles.getRootName(), roles.getSystemGroupName(), "Test");
+    protected void loginRootKeepGroup() {
+        String name = iAdmin.getEventContext().getCurrentGroupName();
+        loginRoot(name);
+    }
 
+    protected void loginRoot(String groupName) {
+        login(roles.getRootName(), groupName, "Test");
     }
 
     public Experimenter loginNewUser() {
@@ -205,7 +212,7 @@ public class AbstractManagedContextTest extends
         loginRoot();
         ExperimenterGroup g1 = iAdmin.getDefaultGroup(e1.getId());
         iAdmin.addGroups(e2, g1);
-        loginUser(e2.getOmeName());
+        loginUser(e2.getOmeName(), g1.getName()); // ticket:1434, in same group
         return e2;
     }
 
@@ -221,7 +228,11 @@ public class AbstractManagedContextTest extends
     }
 
     protected void loginUser(String omeName) {
-        login(omeName, roles.getUserGroupName(), "Test");
+        loginUser(omeName, roles.getUserGroupName());
+    }
+
+    protected void loginUser(String omeName, String groupName) {
+        login(omeName, groupName, "Test");
     }
 
     @Override

@@ -119,6 +119,8 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
 
     Experimenter user;
 
+    ExperimenterGroup group;
+
     MAP rootProjectMap = new MAP();
 
     MAP userImageRootProjectMap = new MAP();
@@ -175,9 +177,9 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
         // new Parameters( new Filter().unique().page(0,1)));
 
         if (user == null) {
-            ExperimenterGroup group = new ExperimenterGroup();
+            group = new ExperimenterGroup();
             group.setName(uuid());
-            iAdmin.createGroup(group);
+            long gid = iAdmin.createGroup(group);
             user = new Experimenter();
             user.setOmeName(uuid());
             user.setFirstName("Get");
@@ -193,7 +195,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
         // ~ MIXED ROOT/USER ITEMS
         // =====================================================================
 
-        loginRoot();
+        loginRoot(group.getName());
         Project p1_root = createProject();
         Dataset d1_root = createDataset();
         Dataset d2_root = createDataset();
@@ -247,7 +249,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
 
         // omitting CGC for now since this is only testing "enableFilters"
 
-        loginRoot();
+        loginRoot(group.getName());
 
         // Saving the newly created links.
         iUpdate.saveArray(new IObject[] { p1_root, d1_root, d2_root, i_d1_root,

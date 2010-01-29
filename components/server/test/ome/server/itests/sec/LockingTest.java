@@ -108,7 +108,7 @@ public class LockingTest extends AbstractManagedContextTest {
 
     @Test(dependsOnMethods = "test_ProjectIsLockedOnAddedDataset")
     public void test_RootCantOverride() throws Exception {
-        loginRoot();
+        loginRoot(gname);
         reacquire();
 
         // try to change
