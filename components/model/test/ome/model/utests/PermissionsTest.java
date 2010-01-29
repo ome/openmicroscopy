@@ -270,8 +270,6 @@ public class PermissionsTest extends TestCase {
                 .parseString("------")));
         assertTrue(Permissions.EMPTY.sameRights(Permissions
                 .parseString("______")));
-        assertTrue(Permissions.DEFAULT.sameRights(Permissions
-                .parseString("rw____")));
         assertTrue(Permissions.GROUP_IMMUTABLE.sameRights(Permissions
                 .parseString("r_r___")));
         assertTrue(Permissions.GROUP_PRIVATE.sameRights(Permissions
@@ -299,38 +297,38 @@ public class PermissionsTest extends TestCase {
 
     @Test
     public void testDelegationFunctionsProperly() throws Exception {
-        Permissions.DEFAULT.toString();
-        Permissions.DEFAULT.identical(Permissions.EMPTY);
-        Permissions.DEFAULT.isGranted(GROUP, READ);
-        Permissions.DEFAULT.isSet(LOCKED);
-        Permissions.DEFAULT.sameRights(p);
+        Permissions.PUBLIC.toString();
+        Permissions.PUBLIC.identical(Permissions.PUBLIC);
+        Permissions.PUBLIC.isGranted(GROUP, READ);
+        Permissions.PUBLIC.isSet(LOCKED);
+        Permissions.PUBLIC.sameRights(p);
         try {
-            Permissions.DEFAULT.grant(GROUP, READ);
+            Permissions.PUBLIC.grant(GROUP, READ);
         } catch (UnsupportedOperationException uoe) {
         }
         ;
         try {
-            Permissions.DEFAULT.grantAll(Permissions.EMPTY);
+            Permissions.PUBLIC.grantAll(Permissions.EMPTY);
         } catch (UnsupportedOperationException uoe) {
         }
         ;
         try {
-            Permissions.DEFAULT.revoke(GROUP, READ);
+            Permissions.PUBLIC.revoke(GROUP, READ);
         } catch (UnsupportedOperationException uoe) {
         }
         ;
         try {
-            Permissions.DEFAULT.revokeAll(Permissions.EMPTY);
+            Permissions.PUBLIC.revokeAll(Permissions.EMPTY);
         } catch (UnsupportedOperationException uoe) {
         }
         ;
         try {
-            Permissions.DEFAULT.set(LOCKED);
+            Permissions.PUBLIC.set(LOCKED);
         } catch (UnsupportedOperationException uoe) {
         }
         ;
         try {
-            Permissions.DEFAULT.unSet(LOCKED);
+            Permissions.PUBLIC.unSet(LOCKED);
         } catch (UnsupportedOperationException uoe) {
         }
         ;
@@ -339,7 +337,6 @@ public class PermissionsTest extends TestCase {
     @Test
     public void testConstantsAreNotLocked() throws Exception {
         assertFalse(Permissions.EMPTY.isSet(LOCKED));
-        assertFalse(Permissions.DEFAULT.isSet(LOCKED));
         assertFalse(Permissions.GROUP_IMMUTABLE.isSet(LOCKED));
         assertFalse(Permissions.GROUP_PRIVATE.isSet(LOCKED));
         assertFalse(Permissions.GROUP_READABLE.isSet(LOCKED));
@@ -358,7 +355,7 @@ public class PermissionsTest extends TestCase {
 
     @Test(groups = { "broken", "ticket:375" })
     public void testImmutableSerialization() throws Exception {
-        byte[] ser = serialize(Permissions.DEFAULT);
+        byte[] ser = serialize(Permissions.PUBLIC);
         p = deserialize(ser);
         p.grant(GROUP, READ); // is this what we want?
     }

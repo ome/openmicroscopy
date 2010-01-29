@@ -49,6 +49,7 @@ import omero.api.ServiceFactoryPrx;
 import omero.api.RenderingEnginePrx;
 import omero.constants.METADATASTORE;
 import omero.grid.InteractiveProcessorPrx;
+import omero.model.IObject;
 import omero.model.Job;
 
 
@@ -1034,5 +1035,29 @@ public class TestServiceFactory implements ServiceFactoryPrx
 
     public omero.grid.SharedResourcesPrx sharedResources(java.util.Map<java.lang.String,java.lang.String> arg0) {
     	return null;
+    }
+
+    public List<IObject> getSecurityContexts() throws ServerError {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public List<IObject> getSecurityContexts(Map<String, String> __ctx)
+            throws ServerError {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public IObject setSecurityContext(IObject obj) throws ServerError {
+        // TODO Auto-generated method stub
+        //return null;
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public IObject setSecurityContext(IObject obj, Map<String, String> __ctx)
+            throws ServerError {
+        // TODO Auto-generated method stub
+        //return null;
+        throw new RuntimeException("Not implemented yet.");
     }
 }

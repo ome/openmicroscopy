@@ -54,7 +54,6 @@ public class HibernateTest extends TestCase {
         sys = (ExperimenterGroup) s.load(ExperimenterGroup.class, 0L);
         EventType t = (EventType) s.load(EventType.class, 1L);
         ev = new Event();
-        ev.getDetails().setPermissions(Permissions.DEFAULT);
         ev.setExperimenter(root);
         ev.setExperimenterGroup(sys);
         ev.setTime(new Timestamp(System.currentTimeMillis()));
@@ -72,7 +71,6 @@ public class HibernateTest extends TestCase {
         e.setOmeName(UUID.randomUUID().toString());
         e.setFirstName("Model");
         e.setLastName("Test");
-        e.getDetails().setPermissions(Permissions.DEFAULT);
         e = (Experimenter) s.merge(e);
         ExperimenterGroup g = (ExperimenterGroup) s.get(
                 ExperimenterGroup.class, 0L);
@@ -146,7 +144,6 @@ public class HibernateTest extends TestCase {
 
     private void setDetails(IObject o) throws Exception {
         Details details = o.getDetails();
-        details.setPermissions(Permissions.DEFAULT);
         details.setCreationEvent(ev);
         details.setOwner(root);
         details.setGroup(sys);

@@ -250,10 +250,11 @@ public class AdminTest extends AbstractManagedContextTest {
         // see: TicketsUpTo500Test
         loginUser(e1.getOmeName());
         iAdmin.changePermissions(i, Permissions.EMPTY);
-        iAdmin.changePermissions(i, Permissions.DEFAULT);
+        // iAdmin.changePermissions(i, Permissions.DEFAULT);
         loginRoot();
         iAdmin.changePermissions(i, Permissions.EMPTY);
-        iAdmin.changePermissions(i, Permissions.DEFAULT);
+        // iAdmin.changePermissions(i, Permissions.DEFAULT);
+        fail("review post-ticket:1434");
 
     }
 
