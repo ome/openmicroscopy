@@ -1040,7 +1040,6 @@ module omero {
          *
          * @see omero::grid::SharedResources
          */
-	    ["deprecated:The SharedResources API is experimental"]
             omero::grid::SharedResources* sharedResources() throws ServerError;
 
             // General methods ------------------------------------------------
