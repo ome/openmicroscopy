@@ -307,18 +307,21 @@ public class BasicSecuritySystem implements SecuritySystem,
             grp = admin.groupProxy(ec.getCurrentGroupId());
         }
 
-        if (!ec.getMemberOfGroupsList().contains(grp.getId())) {
+        // isAdmin
+        boolean isAdmin = false;
+        for (long gid : ec.getMemberOfGroupsList()) {
+            if (roles.getSystemGroupId() == gid) {
+                isAdmin = true;
+                break;
+            }
+        }
+
+        if (!isAdmin && !ec.getMemberOfGroupsList().contains(grp.getId())) {
             throw new SecurityViolation(String.format(
                     "User %s is not a member of group %s and cannot login",
                             ec.getCurrentUserId(), grp.getId()));
         }
         tokenHolder.setToken(grp.getGraphHolder());
-
-        // isAdmin
-        boolean isAdmin = false;
-        if (roles.isSystemGroup(grp)) {
-            isAdmin = true;
-        }
 
         // In order to less frequently access the ThreadLocal in CurrentDetails
         // All properities are now set in one shot, except for Event.
