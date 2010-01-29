@@ -55,4 +55,71 @@ public class PermissionsTest extends AbstractManagedContextTest {
 
     }
 
+    @Test
+    public void testUserInDiffGroupCantSeeObjects() throws Exception {
+        fail();
+    }
+
+    @Test
+    public void testUserCantReadOwnFromAnotherContext() throws Exception {
+        fail();
+    }
+
+    @Test
+    public void testPICanStillDoAnythingInGroup() throws Exception {
+        fail();
+    }
+
+    @Test
+    public void testAdminCantChangePermsOfGroupByAccident() throws Exception {
+        fail();
+    }
+
+    @Test
+    public void testOwnerCanCallChgrpOnCoherentGraph() throws Exception {
+        fail();
+    }
+
+    @Test
+    public void testOwnerCantCallChgrpForAnotherOwner() throws Exception {
+        fail();
+    }
+
+    @Test
+    public void testChgrpLeavesADeletionRecordWhereNecessary() throws Exception {
+        fail();
+    }
+
+    @Test
+    public void testChgrpCanAlternativelyStoreByValue() throws Exception {
+        fail();
+    }
+
+    @Test
+    public void testTriggersPreventMixingGraphs() throws Exception {
+        fail();
+    }
+
+    @Test
+    public void testWorldPermissionsAreKeptCoherent() throws Exception {
+        fail();
+    }
+
+    @Test
+    public void testUserCanSafelyStoreInfoInAPrivateGroup() throws Exception {
+        fail();
+    }
+
+    @Test
+    public void testPICanMoveAGroupToShared() throws Exception {
+        fail();
+    }
+
+    @Test
+    public void testUserWillBeInformedIfGroupIsShared() throws Exception {
+        fail();
+    }
+
+
+
 }
