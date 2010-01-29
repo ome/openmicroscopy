@@ -78,26 +78,26 @@ insert into session
         (id,permissions,timetoidle,timetolive,started,closed,defaultpermissions,defaulteventtype,uuid,owner,node)
         select ome_nextval('seq_session'),-35, 0,0,now(),now(),'rw----','PREVIOUSITEMS','1111',0,0;
 insert into event (id,permissions,time,status,experimenter,session) values (0,0,now(),'BOOTSTRAP',0,0);
-insert into experimentergroup (id,permissions,version,owner_id,group_id,creation_id,update_id,name)
-        values (0,-35,0,0,0,0,0,'system');
-insert into experimentergroup (id,permissions,version,owner_id,group_id,creation_id,update_id,name)
-        values (ome_nextval('seq_experimentergroup'),-35,0,0,0,0,0,'user');
-insert into experimentergroup (id,permissions,version,owner_id,group_id,creation_id,update_id,name)
-        values (ome_nextval('seq_experimentergroup'),-35,0,0,0,0,0,'default');
-insert into experimentergroup (id,permissions,version,owner_id,group_id,creation_id,update_id,name)
-        values (ome_nextval('seq_experimentergroup'),-35,0,0,0,0,0,'guest');
+insert into experimentergroup (id,permissions,version,name)
+        values (0,-35,0,'system');
+insert into experimentergroup (id,permissions,version,name)
+        values (ome_nextval('seq_experimentergroup'),-35,0,'user');
+insert into experimentergroup (id,permissions,version,name)
+        values (ome_nextval('seq_experimentergroup'),-35,0,'default');
+insert into experimentergroup (id,permissions,version,name)
+        values (ome_nextval('seq_experimentergroup'),-35,0,'guest');
 insert into eventtype (id,permissions,owner_id,group_id,creation_id,value) values
         (0,-35,0,0,0,'Bootstrap');
 insert into groupexperimentermap
-        (id,permissions,version,owner_id,group_id,creation_id,update_id, parent, child, child_index)
+        (id,permissions,version,owner_id,group_id,creation_id,update_id, parent, child, child_index,owner)
         values
-        (0,-35,0,0,0,0,0,0,0,0);
+        (0,-35,0,0,0,0,0,0,0,0,true);
 insert into groupexperimentermap
-        (id,permissions,version,owner_id,group_id,creation_id,update_id, parent, child, child_index)
-        select ome_nextval('seq_groupexperimentermap'),-35,0,0,0,0,0,1,0,1;
+        (id,permissions,version,owner_id,group_id,creation_id,update_id, parent, child, child_index,owner)
+        select ome_nextval('seq_groupexperimentermap'),-35,0,0,0,0,0,1,0,1,false;
 insert into groupexperimentermap
-        (id,permissions,version,owner_id,group_id,creation_id,update_id, parent, child, child_index)
-        select ome_nextval('seq_groupexperimentermap'),-35,0,0,0,0,0,3,1,0;
+        (id,permissions,version,owner_id,group_id,creation_id,update_id, parent, child, child_index,owner)
+        select ome_nextval('seq_groupexperimentermap'),-35,0,0,0,0,0,3,1,0,false;
 
 update event set type = 0;
 update event set experimentergroup = 0;

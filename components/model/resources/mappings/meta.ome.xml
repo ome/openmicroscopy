@@ -11,7 +11,7 @@
 -->
 <types>
 <!-- MANAGEMENT -->
-	<type id="ome.model.meta.ExperimenterGroup" described="true" annotated="true">
+	<type id="ome.model.meta.ExperimenterGroup" global="true" described="true" annotated="true">
 		<!-- Note: relates to Group in model-->
 		<properties>
 			<required name="name" type="string" unique="true"/><!-- unique required so not 'named' -->
@@ -22,8 +22,8 @@
 		<properties>
 			<parent name="groupExperimenterMap" ordered="true" type="ome.model.meta.GroupExperimenterMap" target="ome.model.meta.ExperimenterGroup"/>
 			<!-- Note: in the model "at least one of firstName, lastName, email and omeName"
-			     must be completed. The restriction here is more rigid so empty strings may 
-			     need to be used if importing data directly from the model. In most cases 
+			     must be completed. The restriction here is more rigid so empty strings may
+			     need to be used if importing data directly from the model. In most cases
 			     the user should either be on the system or it will be sufficient to provide
 			     as close a representation as practical to the imported data -->
 			<required name="omeName" type="string" unique="true"/>
@@ -43,6 +43,7 @@
 		<properties>
 			<from_parent type="ome.model.meta.ExperimenterGroup"/>
 			<to_child type="ome.model.meta.Experimenter" ordered="true"/>
+			<required name="owner" type="boolean"/>
 		</properties>
 	</link>
 	<!-- EVENTS -->

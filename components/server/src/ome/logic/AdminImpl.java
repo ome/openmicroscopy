@@ -193,12 +193,19 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         Assert.notNull(e);
         Assert.notNull(e.getId());
 
+        final QueryBuilder qb = new QueryBuilder();
+        qb.select("g.id").from("ExperimenterGroup", "g");
+        qb.join("g.groupExperimenterMap", "m", false, false);
+        qb.where();
+        qb.and("m.owner = true");
+        qb.and("m.parent.id = g.id");
+        qb.and("m.child.id = :id");
+        qb.param("id", e.getId());
+
         List<Long> groupIds = iQuery.execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
                     throws HibernateException, SQLException {
-                org.hibernate.Query q = session
-                        .createQuery("select g.id from ExperimenterGroup g where g.details.owner.id = :id");
-                q.setParameter("id", e.getId());
+                org.hibernate.Query q = qb.query(session);
                 return q.list();
             }
         });
