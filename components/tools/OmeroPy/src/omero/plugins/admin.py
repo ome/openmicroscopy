@@ -566,6 +566,17 @@ OMERO Diagnostics %s
         log_dir(self.ctx.dir / "var" / "log", "Log dir", "Log files",\
             ["Blitz-0.log", "Tables-0.log", "Processor-0.log", "Indexer-0.log", "FileServer.log", "MonitorServer.log", "DropBox.log", "TestDropBox.log", "OMEROweb.log"])
 
+        self.ctx.out("")
+        def env_val(val):
+            item("Environment","%s=%s" % (val, os.environ.get(val, "(unset)")))
+            self.ctx.out("")
+        env_val("OMERO_HOME")
+        env_val("OMERO_NODE")
+        env_val("OMERO_MASTER")
+        env_val("PATH")
+        env_val("ICE_HOME")
+        env_val("LD_LIBRARY_PATH")
+        env_val("DYLD_LIBRARY_PATH")
 try:
     register("admin", AdminControl)
 except NameError:
