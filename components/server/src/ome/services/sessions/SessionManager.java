@@ -13,6 +13,7 @@ import net.sf.ehcache.Ehcache;
 import ome.api.ISession;
 import ome.conditions.RemovedSessionException;
 import ome.conditions.SessionTimeoutException;
+import ome.model.IObject;
 import ome.model.meta.Session;
 import ome.model.meta.Share;
 import ome.services.sessions.stats.SessionStats;
@@ -62,6 +63,20 @@ public interface SessionManager extends ApplicationListener {
      */
     Share createShare(Principal principal, boolean enabled, long timeToLive,
             String eventType, String description);
+
+    /**
+     * Sets the context for the current session to the given value. If it is an
+     * {@link ome.model.meta.ExperimenterGroup} then the active group is
+     * changed, and any active shares are deactivated. If it is an
+     * {@link ome.model.meta.Share} then the share is activate (the group is
+     * left alone). Unless otherwise specified, the user's default group is used
+     * as the initial context. Passing any other object will result in an
+     * {@link ome.conditions.ApiUsageException}.
+     *
+     * @param principal {@link Principal} for which the context should be set.
+     * @param obj  {@link IObject} which represents the new context.
+     */
+    IObject setSecurityContext(Principal principal, IObject obj);
 
     /**
      * See {@link ISession#updateSession(Session)} for the logic that's

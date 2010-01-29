@@ -43,6 +43,8 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
 
     static public final String is_admin = "is_admin";
 
+    static public final String current_group = "current_group";
+
     static public final String current_user = "current_user";
 
     static public final String current_groups = "current_groups";
@@ -57,17 +59,22 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
     static {
         parameterTypes.setProperty(is_share, "java.lang.Boolean");
         parameterTypes.setProperty(is_admin, "java.lang.Boolean");
+        parameterTypes.setProperty(current_group, "long");
         parameterTypes.setProperty(current_user, "long");
         parameterTypes.setProperty(current_groups, "long");
         parameterTypes.setProperty(leader_of_groups, "long");
         // This can't be done statically because we need the securitySystem.
-        defaultFilterCondition = String.format("\n( "
-                + "\n :is_share OR \n :is_admin OR "
-                + "\n (group_id in (:leader_of_groups)) OR "
-                + "\n (owner_id = :current_user AND %s) OR " + // 1st arg U
-                "\n (group_id in (:current_groups) AND %s) OR " + // 2nd arg G
-                "\n (%s) " + // 3rd arg W
-                "\n)\n", isGranted(USER, READ), isGranted(GROUP, READ),
+        defaultFilterCondition = String.format("(\n"
+                + "\n  ( group_id = :current_group AND "
+                + "\n     ( :is_admin OR "
+                + "\n       (group_id in (:leader_of_groups)) OR "
+                + "\n       (owner_id = :current_user AND %s) OR "
+                + "\n       (group_id in (:current_groups) AND %s)"
+                //        omitting world permissions
+                + "\n     )"
+                + "\n  )"
+                + "\n OR :is_share"
+                + "\n)\n", isGranted(USER, READ), isGranted(GROUP, READ),
                 isGranted(WORLD, READ));
     }
 
@@ -100,7 +107,8 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
      *            null all {@link Right rights} will be assumed.
      * @return true if the object to which this
      */
-    public static boolean passesFilter(Details d, Long currentUserId,
+    public static boolean passesFilter(Details d,
+            Long currentGroupId, Long currentUserId,
             Collection<Long> memberOfGroups, Collection<Long> leaderOfGroups,
             boolean admin, boolean share) {
         if (d == null || d.getPermissions() == null) {
@@ -114,9 +122,11 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
         Long o = d.getOwner().getId();
         Long g = d.getGroup().getId();
 
-        // most likely and fastest first
-        if (p.isGranted(WORLD, READ)) {
-            return true;
+        // ticket:1434 - Only loading current objects is permitted.
+        // This method will not be called with system types.
+        // See BasicACLVoter
+        if (!currentGroupId.equals(g)) {
+            return false;
         }
 
         if (currentUserId.equals(o) && p.isGranted(USER, READ)) {

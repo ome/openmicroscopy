@@ -14,6 +14,7 @@ import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.server.itests.AbstractManagedContextTest;
+import ome.system.Principal;
 import ome.util.Utils;
 
 import org.testng.annotations.AfterMethod;
@@ -65,6 +66,12 @@ public class PermissionsTest extends AbstractManagedContextTest {
 
         void log_in() {
             login(user.getOmeName(), groupName, "Test");
+        }
+
+        void use_fixture_group() {
+            String uuid = iAdmin.getEventContext().getCurrentSessionUuid();
+            Principal principal = new Principal(uuid);
+            sessionManager.setSecurityContext(principal, fixture.group());
         }
     }
 

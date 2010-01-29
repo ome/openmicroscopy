@@ -87,9 +87,10 @@ public class BasicACLVoter implements ACLVoter {
             return true;
         }
         BasicEventContext c = currentUser.current();
-        return SecurityFilter.passesFilter(d, c.getOwner().getId(), c
-                .getMemberOfGroupsList(), c.getLeaderOfGroupsList(), c
-                .isCurrentUserAdmin(), c.getCurrentShareId() != null);
+        return SecurityFilter.passesFilter(d,
+                c.getGroup().getId(), c.getOwner().getId(),
+                c.getMemberOfGroupsList(), c.getLeaderOfGroupsList(),
+                c.isCurrentUserAdmin(), c.getCurrentShareId() != null);
     }
 
     public void throwLoadViolation(IObject iObject) throws SecurityViolation {

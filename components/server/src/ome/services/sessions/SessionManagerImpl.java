@@ -49,6 +49,7 @@ import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
+import omero.model.IObject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -1021,6 +1022,61 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                                 .queryForLong("select ome_nextval('seq_session')");
                     }
                 });
+    }
+
+
+    public ome.model.IObject setSecurityContext(Principal principal, ome.model.IObject obj) {
+        final Long id = obj == null ? null : obj.getId();
+        if (id == null) {
+            throw new ApiUsageException("Security context must be managed!");
+        }
+
+        if (obj instanceof ExperimenterGroup) {
+            setGroupSecurityContext(principal, id);
+        } else if (obj instanceof Share) {
+            setShareSecurityContext(principal, id);
+        } else {
+            throw new ApiUsageException("Unknown security context:" + obj);
+        }
+
+        return null; // FIXME this should return the previous value
+    }
+
+    /**
+     *
+     * @see ticket:1434
+     */
+    private void setGroupSecurityContext(final Principal principal, final Long id) {
+        final ome.system.EventContext ec = getEventContext(principal);
+        executor.execute(principal,
+                new Executor.SimpleWork(this, "setGroupSecurityContext", id) {
+                    @Transactional(readOnly = true)
+                    public Object doWork(org.hibernate.Session session, ServiceFactory sf) {
+
+                        if (ec.getCurrentShareId() != null) {
+                            sf.getShareService().deactivate();
+                        }
+
+                        ome.model.meta.Session s = find(principal.getName());
+                        s.getDetails().setGroup(sf.getAdminService().getGroup(id));
+                        return s;
+                    }
+        });
+    }
+
+    /**
+     *
+     * @see ticket:1434
+     */
+    private void setShareSecurityContext(final Principal principal, final Long id) {
+        executor.execute(principal,
+                new Executor.SimpleWork(this, "setShareSecurityContext", id) {
+                    @Transactional(readOnly = true)
+                    public Object doWork(org.hibernate.Session session, ServiceFactory sf) {
+                        sf.getShareService().activate(id);
+                        return null;
+                    }
+        });
     }
 
     // ~ Non-executor helpers

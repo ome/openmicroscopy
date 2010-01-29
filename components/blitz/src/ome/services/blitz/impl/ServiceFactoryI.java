@@ -176,8 +176,6 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     private ClientCallbackPrx callback;
 
-    private IObject securityContext;
-
     // SHARED STATE
     // ===================
     // The following elements will all be the same or at least equivalent
@@ -295,55 +293,26 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     public IObject setSecurityContext(IObject obj, Current __current)
             throws ServerError {
 
-        final String type = obj == null ? null : obj.ice_id();
-        final Long id = (obj == null || obj.getId() == null) ? null : obj.getId().getValue();
-        if (id == null) {
-            throw new ApiUsageException(null, null, "Security context must be managed!");
+        IceMapper mapper = new IceMapper();
+        try {
+            ome.model.IObject iobj = (ome.model.IObject) mapper.reverse(obj);
+            ome.model.IObject old = sessionManager.setSecurityContext(principal, iobj);
+            return (IObject) mapper.map(old);
+        } catch (Exception e) {
+            Ice.UserException iue = mapper.handleException(e, context);
+            if (iue instanceof ServerError) {
+                throw (ServerError) iue;
+            } else {
+                InternalException iu = new InternalException();
+                iu.initCause(iue);
+                IceMapper.fillServerError(iu, e);
+                throw iu;
+            }
         }
 
-        if (obj instanceof ExperimenterGroup) {
-            setGroupSecurityContext(id);
-        } else if (obj instanceof Share) {
-            setShareSecurityContext(id);
-        } else {
-            String msg = String.format("%s:%s", type, id);
-            throw new ApiUsageException(null, null, "Unknown security context:" + msg);
-        }
-
-        IObject old = securityContext;
-        securityContext = obj;
-        return old;
     }
 
-    private void setGroupSecurityContext(final Long id) {
-        final ome.system.EventContext ec = sessionManager.getEventContext(principal);
-        executor.execute(principal,
-                new Executor.SimpleWork(this, "setGroupSecurityContext", id) {
-                    @Transactional(readOnly = true)
-                    public Object doWork(Session session, ServiceFactory sf) {
 
-                        if (ec.getCurrentShareId() != null) {
-                            sf.getShareService().deactivate();
-                        }
-
-                        ome.model.meta.Session s = sessionManager.find(principal.getName());
-                        s.getDetails().setGroup(
-                                new ome.model.meta.ExperimenterGroup(id, false));
-                        return null;
-                    }
-        });
-    }
-
-    private void setShareSecurityContext(final Long id) {
-        executor.execute(principal,
-                new Executor.SimpleWork(this, "setShareSecurityContext", id) {
-                    @Transactional(readOnly = true)
-                    public Object doWork(Session session, ServiceFactory sf) {
-                        sf.getShareService().activate(id);
-                        return null;
-                    }
-        });
-    }
 
     // ~ Stateless
     // =========================================================================

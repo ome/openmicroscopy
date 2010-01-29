@@ -49,6 +49,7 @@ import ome.tools.hibernate.SecurityFilter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Filter;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.springframework.beans.BeansException;
@@ -207,15 +208,13 @@ public class BasicSecuritySystem implements SecuritySystem,
         // http://opensource.atlassian.com/projects/hibernate/browse/HHH-1932
         EventContext ec = getEventContext();
         Session sess = (Session) session;
-        sess.enableFilter(SecurityFilter.filterName).setParameter(
-                SecurityFilter.is_share, ec.getCurrentShareId() != null)
-                .setParameter(SecurityFilter.is_admin, ec.isCurrentUserAdmin())
-                .setParameter(SecurityFilter.current_user,
-                        ec.getCurrentUserId()).setParameterList(
-                        SecurityFilter.current_groups,
-                        ec.getMemberOfGroupsList()).setParameterList(
-                        SecurityFilter.leader_of_groups,
-                        ec.getLeaderOfGroupsList());
+        Filter filter = sess.enableFilter(SecurityFilter.filterName);
+        filter.setParameter(SecurityFilter.is_share, ec.getCurrentShareId() != null);
+        filter.setParameter(SecurityFilter.is_admin, ec.isCurrentUserAdmin());
+        filter.setParameter(SecurityFilter.current_group, ec.getCurrentGroupId());
+        filter.setParameter(SecurityFilter.current_user, ec.getCurrentUserId());
+        filter.setParameterList(SecurityFilter.current_groups, ec.getMemberOfGroupsList());
+        filter.setParameterList(SecurityFilter.leader_of_groups, ec.getLeaderOfGroupsList());
     }
 
     /**
@@ -310,8 +309,8 @@ public class BasicSecuritySystem implements SecuritySystem,
 
         if (!ec.getMemberOfGroupsList().contains(grp.getId())) {
             throw new SecurityViolation(String.format(
-                    "User is not a member of group %s and cannot login",
-                            p.getGroup()));
+                    "User %s is not a member of group %s and cannot login",
+                            ec.getCurrentUserId(), grp.getId()));
         }
         tokenHolder.setToken(grp.getGraphHolder());
 

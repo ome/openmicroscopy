@@ -209,6 +209,17 @@ public class AbstractManagedContextTest extends
         return e2;
     }
 
+    public ExperimenterGroup loginUserInNewGroup(Experimenter e1) {
+        loginRoot();
+        String name = uuid();
+        ExperimenterGroup newGroup = new ExperimenterGroup();
+        newGroup.setName(name);
+        long gid = iAdmin.createGroup(newGroup);
+        iAdmin.addGroups(e1, new ExperimenterGroup(gid, false));
+        login(e1.getOmeName(), name, "Test");
+        return iAdmin.lookupGroup(name);
+    }
+
     protected void loginUser(String omeName) {
         login(omeName, roles.getUserGroupName(), "Test");
     }
