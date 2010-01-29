@@ -1,5 +1,5 @@
 /*
- * ome.api.IAdmin
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -7,11 +7,6 @@
 
 package ome.api;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +14,7 @@ import ome.annotations.Hidden;
 import ome.annotations.NotNull;
 import ome.conditions.AuthenticationException;
 import ome.model.IObject;
+import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
 import ome.model.meta.Experimenter;
@@ -288,11 +284,17 @@ public interface IAdmin extends ServiceInterface {
     ExperimenterGroup defaultGroup, ExperimenterGroup... otherGroups);    
     
     /**
-     * create and return a new group.
+     * create and return a new group. The {@link Details#setPermissions(Permissions)}
+     * method should be called on the instance which is passed. The given
+     * {@link Permissions} will become the default for all objects created while
+     * logged into this group, possibly modified by the user's umask settings.
+     * If no permissions is set, the default will be {@link Permissions#USER_PRIVATE},
+     * i.e. a group in which no user can see the other group member's data.
      * 
      * @param newGroup
      *            a new {@link ExperimenterGroup} instance. Not null.
      * @return id of the newly created {@link ExperimenterGroup}
+     * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/1434">ticket:1434"</a>
      */
     long createGroup(ExperimenterGroup group);
 

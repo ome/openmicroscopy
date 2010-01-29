@@ -85,16 +85,6 @@
         BEFORE UPDATE ON channelbinding
         FOR EACH ROW EXECUTE PROCEDURE channelbinding_renderingDef_index_move ();
 
-  DROP TABLE count_ExperimenterGroup_groupExperimenterMap_by_owner;
-
-  CREATE OR REPLACE VIEW count_ExperimenterGroup_groupExperimenterMap_by_owner (ExperimenterGroup_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM GroupExperimenterMap GROUP BY parent, owner_id ORDER BY parent;
-
-  DROP TABLE count_ExperimenterGroup_annotationLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_ExperimenterGroup_annotationLinks_by_owner (ExperimenterGroup_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM ExperimenterGroupAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
-
   CREATE OR REPLACE FUNCTION groupexperimentermap_child_index_move() RETURNS "trigger" AS '
     DECLARE
       duplicate INT8;
@@ -257,21 +247,6 @@
   CREATE OR REPLACE VIEW count_Well_annotationLinks_by_owner (Well_id, owner_id, count) AS select parent, owner_id, count(*)
     FROM WellAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
 
-  DROP TABLE count_Node_annotationLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_Node_annotationLinks_by_owner (Node_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM NodeAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
-
-  DROP TABLE count_Experimenter_groupExperimenterMap_by_owner;
-
-  CREATE OR REPLACE VIEW count_Experimenter_groupExperimenterMap_by_owner (Experimenter_id, owner_id, count) AS select child, owner_id, count(*)
-    FROM GroupExperimenterMap GROUP BY child, owner_id ORDER BY child;
-
-  DROP TABLE count_Experimenter_annotationLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_Experimenter_annotationLinks_by_owner (Experimenter_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM ExperimenterAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
-
   DROP TABLE count_Image_datasetLinks_by_owner;
 
   CREATE OR REPLACE VIEW count_Image_datasetLinks_by_owner (Image_id, owner_id, count) AS select child, owner_id, count(*)
@@ -374,11 +349,6 @@
 
   CREATE OR REPLACE VIEW count_Dataset_annotationLinks_by_owner (Dataset_id, owner_id, count) AS select parent, owner_id, count(*)
     FROM DatasetAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
-
-  DROP TABLE count_Session_annotationLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_Session_annotationLinks_by_owner (Session_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM SessionAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
 
 
 --

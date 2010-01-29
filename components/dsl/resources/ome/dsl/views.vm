@@ -9,7 +9,7 @@
 
 #foreach($type in $types)
 #foreach($prop in $type.classProperties)
-#if($prop.one2Many && $prop.isLink)
+#if($prop.one2Many && $prop.isLink && !$type.global)
   DROP TABLE count_${type.shortname}_${prop.name}_by_owner;
 
   CREATE OR REPLACE VIEW count_${type.shortname}_${prop.name}_by_owner (${type.shortname}_id, owner_id, count) AS select ${prop.inverse}, owner_id, count(*)

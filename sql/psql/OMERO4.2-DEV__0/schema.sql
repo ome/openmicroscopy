@@ -778,11 +778,7 @@
         owner bool not null,
         version int4,
         child int8 not null,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
-        update_id int8 not null,
         parent int8 not null,
         child_index int4 not null,
         primary key (id),
@@ -3062,28 +3058,8 @@
         references experimenter;;
 
     alter table groupexperimentermap
-        add constraint FKgroupexperimentermap_update_id_event
-        foreign key (update_id)
-        references event;;
-
-    alter table groupexperimentermap
-        add constraint FKgroupexperimentermap_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter;;
-
-    alter table groupexperimentermap
-        add constraint FKgroupexperimentermap_creation_id_event
-        foreign key (creation_id)
-        references event;;
-
-    alter table groupexperimentermap
         add constraint FKgroupexperimentermap_parent_experimentergroup
         foreign key (parent)
-        references experimentergroup;;
-
-    alter table groupexperimentermap
-        add constraint FKgroupexperimentermap_group_id_experimentergroup
-        foreign key (group_id)
         references experimentergroup;;
 
     alter table groupexperimentermap

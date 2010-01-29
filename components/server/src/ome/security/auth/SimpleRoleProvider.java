@@ -60,6 +60,9 @@ public class SimpleRoleProvider implements RoleProvider {
         if (g == null) {
             g = new ExperimenterGroup();
             g.setName(name);
+            if (perms == null) {
+                perms = Permissions.USER_PRIVATE; // ticket:1434
+            }
             g.getDetails().setPermissions(perms);
             g = (ExperimenterGroup) s.merge(g);
         } else {
@@ -73,6 +76,9 @@ public class SimpleRoleProvider implements RoleProvider {
     public long createGroup(ExperimenterGroup group) {
 
         group = copyGroup(group);
+        if (group.getDetails().getPermissions() == null) {
+            group.getDetails().setPermissions(Permissions.USER_PRIVATE);
+        }
 
         final Session session = sf.getSession();
         ExperimenterGroup g = sec.doAction(new SecureMerge(session), group);
@@ -91,10 +97,10 @@ public class SimpleRoleProvider implements RoleProvider {
         e = sec.doAction(action, e);
         session.flush();
 
-        GroupExperimenterMap link = linkGroupAndUser(defaultGroup, e);
+        GroupExperimenterMap link = linkGroupAndUser(defaultGroup, e, false);
         if (null != otherGroups) {
             for (ExperimenterGroup group : otherGroups) {
-                linkGroupAndUser(group, e);
+                linkGroupAndUser(group, e, false);
             }
         }
 
@@ -140,7 +146,7 @@ public class SimpleRoleProvider implements RoleProvider {
                 found |= HibernateUtils.idEqual(foundGroup, currentGroup);
             }
             if (!found) {
-                linkGroupAndUser(foundGroup, foundUser);
+                linkGroupAndUser(foundGroup, foundUser, false);
                 added.add(foundGroup.getName());
             }
         }
@@ -179,7 +185,7 @@ public class SimpleRoleProvider implements RoleProvider {
     // =========================================================================
 
     protected GroupExperimenterMap linkGroupAndUser(ExperimenterGroup group,
-            Experimenter e) {
+            Experimenter e, boolean owned) {
 
         if (group == null || group.getId() == null) {
             throw new ApiUsageException("Group must be persistent.");
@@ -196,8 +202,10 @@ public class SimpleRoleProvider implements RoleProvider {
         }
 
         GroupExperimenterMap link = e.linkExperimenterGroup(group);
+        // ticket:1434
+        link.setOwner(owned);
+
         link.getDetails().copy(sec.newTransientDetails(link));
-        worldReadable(link);
 
         Session session = sf.getSession();
         sec.doAction(new SecureMerge(session), userById(e.getId(), session),
@@ -219,11 +227,6 @@ public class SimpleRoleProvider implements RoleProvider {
         copy.setInstitution(e.getInstitution());
         if (e.getDetails() != null && e.getDetails().getPermissions() != null) {
             copy.getDetails().setPermissions(e.getDetails().getPermissions());
-        } else {
-            // ticket:1204 - If no permissions are set, we will need to make
-            // sure that this instance is visible, otherwise non-admin users
-            // will have significant problems.
-            worldReadable(copy);
         }
         // TODO make ShallowCopy-like which ignores collections and details.
         // if possible, values should be validated. i.e. iTypes should say what
@@ -239,7 +242,6 @@ public class SimpleRoleProvider implements RoleProvider {
         copy.setDescription(g.getDescription());
         copy.setName(g.getName());
         copy.getDetails().copy(sec.newTransientDetails(g));
-        worldReadable(copy);
         // TODO see shallow copy comment on copy user
         return copy;
     }
@@ -258,20 +260,6 @@ public class SimpleRoleProvider implements RoleProvider {
 
     private ExperimenterGroup groupById(long id, Session s) {
         return (ExperimenterGroup) s.load(ExperimenterGroup.class, id);
-    }
-
-    /**
-     * @see ticket:1204
-     */
-    private void worldReadable(IObject obj) {
-        Permissions p = obj.getDetails().getPermissions();
-        if (p == null) {
-            p = new Permissions(Permissions.WORLD_IMMUTABLE);
-            obj.getDetails().setPermissions(p);
-        } else {
-            p.grant(Role.GROUP, Right.READ);
-            p.grant(Role.WORLD, Right.READ);
-        }
     }
 
     private final class SecureMerge implements SecureAction {

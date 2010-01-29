@@ -6,8 +6,6 @@
  */
 package ome.server.itests.perms42;
 
-import ome.conditions.SecurityViolation;
-import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
@@ -27,7 +25,7 @@ import org.testng.annotations.Test;
 @Test(groups = "ticket:1434")
 public class PermissionsTest extends AbstractManagedContextTest {
 
-    class Fixture {
+    protected class Fixture {
         Experimenter user;
         String groupName;
         ExperimenterGroup group;
@@ -51,83 +49,16 @@ public class PermissionsTest extends AbstractManagedContextTest {
         }
     }
 
-    Fixture fixture;
+    protected Fixture fixture;
 
     @BeforeMethod
-    void setupFixture() {
+    protected void setupFixture() {
         fixture = new Fixture();
     }
 
     @AfterMethod
-    void teardownFixture() {
+    protected void teardownFixture() {
         fixture = null;
-    }
-
-    //
-    // Controlling group permission settings
-    //
-
-    @Test
-    public void testOnGroupCreationPermissionsAreSet() throws Exception {
-        fail();
-    }
-
-    @Test
-    public void testGroupsCanBeMadeShared() throws Exception {
-        fail();
-    }
-
-    @Test
-    public void testGroupsCanBeMadePublic() throws Exception {
-        fail();
-    }
-
-    //
-    // Configurable default permissions removed in favor of using group
-    //
-
-    @Test
-    public void testObjectCreatedWithGroupPermissions() throws Exception {
-        fixture.log_in();
-        Image image = fixture.saveImage();
-        Permissions groupPermissions = fixture.group.getDetails()
-                .getPermissions();
-        Permissions imagePermissions = image.getDetails().getPermissions();
-        assertTrue(groupPermissions.identical(imagePermissions));
-
-    }
-
-    @Test
-    public void testObjectCreatedWithGroupPermissionsMinusUmask()
-            throws Exception {
-        fail();
-    }
-
-    //
-    // Guarantee consistent graphs on read
-    //
-
-    //
-    // Guarantee consistent graphs on write
-    //
-
-    @Test
-    public void testUserInTwoGroupsCantMixWithLink() throws Exception {
-
-        // Create an image as root
-        Image i = fixture.saveImage();
-
-        // Create an image as fixture user
-        fixture.log_in();
-        Dataset d = new Dataset("ticket:1434");
-        d.linkImage(i);
-        try {
-            d = iUpdate.saveAndReturnObject(d);
-            fail("Mixed group should not allowed!");
-        } catch (SecurityViolation sv) {
-            // good
-        }
-
     }
 
     //

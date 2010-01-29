@@ -38,7 +38,7 @@
 			<!-- TODO: ## add to dsl [email/] -->
 		</properties>
 	</type>
-	<link id="ome.model.meta.GroupExperimenterMap">
+	<link id="ome.model.meta.GroupExperimenterMap" global="true">
 		<!-- Note: GroupExperimenterMap is not in model-->
 		<properties>
 			<from_parent type="ome.model.meta.ExperimenterGroup"/>
