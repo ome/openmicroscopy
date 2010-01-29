@@ -52,6 +52,10 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
 
     private final CurrentDetails cd;
 
+    private final long methodTimeError;
+
+    private final long methodTimeWarn;
+
     public void onApplicationEvent(ApplicationEvent arg0) {
         if (arg0 instanceof RegisterServiceCleanupMessage) {
             RegisterServiceCleanupMessage cleanup = (RegisterServiceCleanupMessage) arg0;
@@ -60,7 +64,13 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
     }
 
     public ServiceHandler(CurrentDetails cd) {
+        this(cd, 5000, 15000);
+    }
+
+    public ServiceHandler(CurrentDetails cd, long methodTimeWarn, long methodTimeError) {
         this.cd = cd;
+        this.methodTimeWarn = methodTimeWarn;
+        this.methodTimeError = methodTimeError;
     }
 
     /**
@@ -118,9 +128,9 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
             String msg = String.format("Method %s.%s invocation took %s",
                                        arg0.getMethod().getDeclaringClass(),
                                        arg0.getMethod().getName(), time);
-            if (time > 10 * 1000L) {
+            if (time > methodTimeError) {
                 log.error(msg);
-            } else if (time > 2 * 1000L) {
+            } else if (time > methodTimeWarn) {
                 log.warn(msg);
             }
             cleanup();

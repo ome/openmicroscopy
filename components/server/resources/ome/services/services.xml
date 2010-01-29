@@ -89,7 +89,9 @@
 		       id="serviceHandler"
 		    class="ome.services.util.ServiceHandler"
 		lazy-init="true">
-		<constructor-arg ref="currentDetails"/>
+		<constructor-arg index="0" ref="currentDetails"/>
+		<constructor-arg index="1" value="${omero.throttling.method_time.warn}"/>
+		<constructor-arg index="2" value="${omero.throttling.method_time.error}"/>
 	</bean>
 
 	<bean id="profile"
