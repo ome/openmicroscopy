@@ -65,6 +65,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.ImportManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.AdminAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClearAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CopyAction;
@@ -321,6 +322,9 @@ class TreeViewerControl
 	/** Identifies the <code>Personal</code> in the menu. */
 	static final Integer   UPLOAD_SCRIPT = Integer.valueOf(60);
 	
+	/** Identifies the <code>Admin</code> in the menu. */
+	static final Integer   ADMIN = Integer.valueOf(61);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -443,6 +447,7 @@ class TreeViewerControl
 		actionsMap.put(FULLSCREEN, new FullScreenViewerAction(model));
 		actionsMap.put(METADATA, new MetadataVisibilityAction(model));
 		actionsMap.put(UPLOAD_SCRIPT, new UploadScriptAction(model));
+		actionsMap.put(ADMIN, new AdminAction(model));
 	}
 
 	/** 

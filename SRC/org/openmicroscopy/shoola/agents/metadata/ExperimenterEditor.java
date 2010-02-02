@@ -53,7 +53,7 @@ public class ExperimenterEditor
 	/** The experimenter to update. */
 	private ExperimenterData	exp;
 	
-	/** Handle to the async call so that we can cancel it. */
+	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle			handle;
     
     /**
@@ -77,7 +77,7 @@ public class ExperimenterEditor
 	 */
 	public void load()
 	{
-		handle = dmView.updateExperimenter(exp, this);
+		handle = adminView.updateExperimenter(exp, this);
 	}
 	
 	/** 

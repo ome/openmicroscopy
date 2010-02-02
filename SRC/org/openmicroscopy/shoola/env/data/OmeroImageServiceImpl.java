@@ -49,6 +49,7 @@ import omero.api.RenderingEnginePrx;
 import omero.model.Channel;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.RenderingDef;
 import omero.romio.PlaneDef;
@@ -886,6 +887,11 @@ class OmeroImageServiceImpl
 	public Object uploadScript(ScriptObject script)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		if (script == null)
+			throw new IllegalArgumentException("No script to upload.");
+		File f = new File(script.getName());
+		OriginalFile of = 
+			gateway.uploadFile(f, script.getFormatAsString(), -1);
 		return null;
 	}
 	

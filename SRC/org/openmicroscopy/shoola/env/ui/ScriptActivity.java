@@ -110,6 +110,7 @@ public class ScriptActivity
 		if (script == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.script = script;
+		this.index = index;
 	}
 
 	/**

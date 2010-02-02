@@ -543,8 +543,7 @@ class ImViewerComponent
 	 */
 	public void activate(RndProxyDef settings, long userID)
 	{
-		int state = model.getState();
-		switch (state) {
+		switch (model.getState()) {
 			case NEW:
 				model.setAlternativeSettings(settings, userID);
 				/*

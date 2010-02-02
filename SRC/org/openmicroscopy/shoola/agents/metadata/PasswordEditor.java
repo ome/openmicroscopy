@@ -87,7 +87,7 @@ public class PasswordEditor
      */
 	public void load()
 	{
-		handle = dmView.changePassword(oldPassword, newPassword, this);
+		handle = adminView.changePassword(oldPassword, newPassword, this);
 	}
 	
 	/**

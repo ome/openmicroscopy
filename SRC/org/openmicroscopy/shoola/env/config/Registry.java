@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.env.config;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.cache.CacheService;
+import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
@@ -142,6 +143,13 @@ public interface Registry
      */
     public OmeroMetadataService getMetadataService();
     
+    /**
+     * Returns a reference to the {@link AdminService}.
+     * 
+     * @return See above.
+     */
+    public AdminService getAdminService();
+ 
     /**
      * Returns a reference to the {@link CacheService}.
      * 

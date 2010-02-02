@@ -70,7 +70,7 @@ public interface DataManagerView
 	 * @param withLeaves    Passes <code>true</code> to retrieve the images.
 	 *                      <code>false</code> otherwise.   
 	 * @param userID		The Id of the user.
-	 * @param observer      Callback handler.
+	 * @param observer      Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadContainerHierarchy(Class rootNodeType,
@@ -81,7 +81,7 @@ public interface DataManagerView
 	 * Retrieves the images for the specified user.
 	 * 
 	 * @param userID		The ID of the user.
-	 * @param observer      Callback handler.
+	 * @param observer      Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadImages(long userID, AgentEventListener observer);
@@ -93,7 +93,7 @@ public interface DataManagerView
 	 *                      <code>DatasetData</code>.       
 	 * @param nodeIDs 		The id of the node.
 	 * @param userID		The Id of the user.
-	 * @param observer      Callback handler.
+	 * @param observer      Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle getImages(Class nodeType, List nodeIDs, long userID, 
@@ -105,7 +105,7 @@ public interface DataManagerView
 	 * 
 	 * @param userObject    The type of <code>DataObject</code> to create.
 	 * @param parent 		The parent of the <code>DataObject</code>.  
-	 * @param observer      Callback handler.
+	 * @param observer      Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle createDataObject(DataObject userObject, DataObject parent,
@@ -115,7 +115,7 @@ public interface DataManagerView
 	 * Counts the number of items contained in the specified containers.
 	 * 
 	 * @param rootNodeIDs   Collection of top-most containers.
-	 * @param observer      Callback handler.
+	 * @param observer      Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle countContainerItems(Set rootNodeIDs, 
@@ -137,7 +137,7 @@ public interface DataManagerView
 	 * @param maxWidth  The maximum acceptable width of the thumbnails.
 	 * @param maxHeight The maximum acceptable height of the thumbnails.
 	 * @param userID	The id of the user the thumbnails are for.
-	 * @param observer  Callback handler.
+	 * @param observer  Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadThumbnail(ImageData image, int maxWidth, 
@@ -150,7 +150,7 @@ public interface DataManagerView
 	 * @param parents    The <code>DataObject</code>s to update. Either a 
 	 *                  <code>ProjectData</code> or <code>DatasetData</code>.
 	 * @param children  The items to add.
-	 * @param observer  Callback handler.
+	 * @param observer  Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle addExistingObjects(Collection parent, Collection children, 
@@ -177,7 +177,7 @@ public interface DataManagerView
 	 *                  where the key is the <code>DataObject</code> to cut  
 	 *                  from and the value is a set of <code>DataObject</code>
 	 *                  to remove.
-	 * @param observer  Callback handler.
+	 * @param observer  Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle cutAndPaste(Map toPaste, Map toCut, 
@@ -197,44 +197,13 @@ public interface DataManagerView
 			AgentEventListener observer);
 
 	/**
-	 * Modifies the password of the user currently logged in
-	 * 
-	 * @param oldPassword 	The password used to log in.  
-	 * @param newPassword	The new password value.
-	 * @param observer	Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle changePassword(String oldPassword, String newPassword, 
-			AgentEventListener observer);
-
-	/**
-	 * Updates the specified experimenter.
-	 * 
-	 * @param exp The experimenter to update. Mustn't be <code>null</code>.
-	 * @param observer	Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle updateExperimenter(ExperimenterData exp, 
-			AgentEventListener observer);
-
-	/**
-	 * Loads the used and free disk space for the specified user if any,
-	 * pass <code>-1</code> to retrieve the whole disk space.
-	 * 
-	 * @param userID	The id of the user or <code>-1</code>.
-	 * @param observer	Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle getDiskSpace(long userID, AgentEventListener observer);
-
-	/**
 	 * Reloads the hierarchy currently displayed.
 	 * 
 	 * @param rootNodeType	The type of the root node. Can either be 
 	 *                      <code>ProjectData</code> or 
 	 *                      <code>CategoryGroupData</code>
 	 * @param m           			
-	 * @param observer      Callback handler.
+	 * @param observer      Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle refreshHierarchy(Class rootNodeType,
@@ -247,7 +216,7 @@ public interface DataManagerView
 	 * 
 	 * @param userID	The user id.
 	 * @param m			The data to handle. Mustn't be <code>null</code>.
-	 * @param observer 	Callback handler.
+	 * @param observer 	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle countExperimenterImages(long userID, 
@@ -265,7 +234,7 @@ public interface DataManagerView
      * 						otherwise. This parameters will be taken into
      * 						account if the passed id is not negative.
 	 * @param userID		The user id.
-	 * @param observer 		Callback handler.
+	 * @param observer 		Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadTags(Long id, boolean dataObject, boolean topLevel, 

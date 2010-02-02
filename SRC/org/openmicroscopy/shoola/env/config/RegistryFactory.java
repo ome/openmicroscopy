@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.env.config;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.cache.CacheService;
+import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
@@ -134,6 +135,18 @@ public class RegistryFactory
     public static void linkMS(OmeroMetadataService ms, Registry reg)
     {
     	((RegistryImpl) reg).setMetadataService(ms);
+    }
+    
+    /**
+     * Adds the {@link AdminService} instance to the specified
+     * {@link Registry}.
+     * 
+     * @param ms	The {@link AdminService} instance.
+     * @param reg   The {@link Registry}.
+     */
+    public static void linkAdmin(AdminService admin, Registry reg)
+    {
+    	((RegistryImpl) reg).setAdminService(admin);
     }
     
 	/**

@@ -89,7 +89,7 @@ public class LoginServiceImpl
     /** Flag indicating if the attempt to connect has started. */
     private boolean 		connAttempt;
     
-    /** The index set if an error occured while trying to connect. */
+    /** The index set if an error occurred while trying to connect. */
     private int				failureIndex;
   
     /** Allows to easily access the service's configuration. */

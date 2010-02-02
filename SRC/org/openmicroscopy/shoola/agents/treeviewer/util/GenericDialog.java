@@ -170,7 +170,7 @@ public class GenericDialog
 	}
 
 	/** 
-	 * Sets the parent embebbed in this dialog.
+	 * Sets the parent embedded in this dialog.
 	 * 
 	 * @param parent The value to set.
 	 */

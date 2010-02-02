@@ -32,6 +32,7 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.views.AdminView;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
@@ -81,6 +82,9 @@ public abstract class MetadataLoader
     /** Convenience reference for subclasses. */
     protected final ImageDataView        ivView;
     
+    /** Convenience reference for subclasses. */
+    protected final AdminView        	adminView;
+    
     /**
      * Creates a new instance.
      * 
@@ -111,6 +115,7 @@ public abstract class MetadataLoader
 			registry.getDataServicesView(DataManagerView.class);
          ivView = (ImageDataView) 
          	registry.getDataServicesView(ImageDataView.class);
+         adminView = (AdminView) registry.getDataServicesView(AdminView.class);
     }
     
     /**
@@ -148,7 +153,7 @@ public abstract class MetadataLoader
         viewer.cancel(refNode);
     }
     
-    /** Fires an asynchrnonous data loading. */
+    /** Fires an asynchronous data loading. */
     public abstract void load();
     
     /** Cancels any ongoing data loading. */

@@ -745,9 +745,6 @@ class ImViewerUI
 	{
 		JMenu menu = new JMenu("View");
 		menu.setMnemonic(KeyEvent.VK_S);
-		//JMenuItem item = new JMenuItem(
-		//			controller.getAction(ImViewerControl.TAB_VIEW));
-		//menu.add(item);
 		JMenuItem item = new JMenuItem(
 			controller.getAction(ImViewerControl.TAB_GRID));
 		if (model.isBigImage() || model.isNumerousChannel())

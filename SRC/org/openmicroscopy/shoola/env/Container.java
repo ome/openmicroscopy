@@ -296,18 +296,22 @@ public final class Container
 		Environment env = new Environment(this);
 		while (i.hasNext()) {
 			agentInfo = (AgentInfo) i.next();
-			a = agentInfo.getAgent();
-			r = agentInfo.getRegistry();
-			r.bind(LookupNames.ENV, env);
-			a.setContext(r);
+			if (agentInfo.isActive()) {
+				a = agentInfo.getAgent();
+				r = agentInfo.getRegistry();
+				r.bind(LookupNames.ENV, env);
+				a.setContext(r);
+			}
 		}
 		
 		//Agents activation phase.
 		i = agents.iterator();
 		while (i.hasNext()) {
 			agentInfo = (AgentInfo) i.next();
-			a = agentInfo.getAgent();
-			a.activate();
+			if (agentInfo.isActive()) {
+				a = agentInfo.getAgent();
+				a.activate();
+			}
 		}
 		
 		//TODO: activate services (EventBus, what else?).
@@ -334,9 +338,11 @@ public final class Container
 		i = agents.iterator();
 		while (i.hasNext()) {
 			agentInfo = (AgentInfo) i.next();
-			a = agentInfo.getAgent();
-			if (a.canTerminate())
-				a.terminate();
+			if (agentInfo.isActive()) {
+				a = agentInfo.getAgent();
+				if (a.canTerminate())
+					a.terminate();
+			}
 		}
 		System.exit(0);
 	}

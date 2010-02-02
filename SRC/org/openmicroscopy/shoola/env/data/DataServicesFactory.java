@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.env.data;
 //Java imports
 import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -48,7 +47,6 @@ import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
-import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -111,7 +109,7 @@ public class DataServicesFactory
 	/** Unified access point to the various OMERO services. */
 	private static OMEROGateway			omeroGateway;
 
-	/** The omero service adapter. */
+	/** The OMERO service adapter. */
 	private OmeroDataService			ds;
 
 	/** The image service adapter. */
@@ -120,6 +118,9 @@ public class DataServicesFactory
 	/** The metadata service adapter. */
 	private OmeroMetadataService 		ms;
  
+	/** The Administration service adapter. */
+	private AdminService				admin;
+	
     /** Keeps the client's session alive. */
 	private ScheduledThreadPoolExecutor	executor;
 	
@@ -176,7 +177,7 @@ public class DataServicesFactory
         ds = new OmeroDataServiceImpl(omeroGateway, registry);
         is = new OmeroImageServiceImpl(omeroGateway, registry);
         ms = new OmeroMetadataServiceImpl(omeroGateway, registry);
-        
+        admin = new AdminServiceImpl(omeroGateway, registry);
         
         
         //fs stuff
@@ -331,6 +332,13 @@ public class DataServicesFactory
     public OmeroMetadataService getMS() { return ms; }
     
     /**
+     * Returns the {@link AdminService}.
+     * 
+     * @return See above.
+     */
+    public AdminService getAdmin() { return admin; }
+    
+    /**
      * Returns the {@link LoginService}. 
      * 
      * @return See above.
@@ -396,7 +404,6 @@ public class DataServicesFactory
 		}
         omeroGateway.startFS(fsConfig);
         */ 
-        
         registry.bind(LookupNames.USER_AUTHENTICATION, ldap);
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
         registry.bind(LookupNames.CONNECTION_SPEED, 
@@ -436,14 +443,16 @@ public class DataServicesFactory
 		Boolean b = (Boolean) registry.lookup(LookupNames.SERVER_ROI);
 		while (i.hasNext()) {
 			agentInfo = (AgentInfo) i.next();
-			reg = agentInfo.getRegistry();
-			reg.bind(LookupNames.USER_AUTHENTICATION, ldap);
-			reg.bind(LookupNames.CURRENT_USER_DETAILS, exp);
-			reg.bind(LookupNames.USER_GROUP_DETAILS, groups);
-			reg.bind(LookupNames.USERS_DETAILS, exps);
-			reg.bind(LookupNames.CONNECTION_SPEED, 
-					isFastConnection(uc.getSpeedLevel()));
-			reg.bind(LookupNames.SERVER_ROI, b);
+			if (agentInfo.isActive()) {
+				reg = agentInfo.getRegistry();
+				reg.bind(LookupNames.USER_AUTHENTICATION, ldap);
+				reg.bind(LookupNames.CURRENT_USER_DETAILS, exp);
+				reg.bind(LookupNames.USER_GROUP_DETAILS, groups);
+				reg.bind(LookupNames.USERS_DETAILS, exps);
+				reg.bind(LookupNames.CONNECTION_SPEED, 
+						isFastConnection(uc.getSpeedLevel()));
+				reg.bind(LookupNames.SERVER_ROI, b);
+			}
 		}
 	}
 	

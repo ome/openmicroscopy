@@ -35,7 +35,6 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
-import org.openmicroscopy.shoola.env.data.views.calls.AdminLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ContainerCounterLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DMLoader;
@@ -52,7 +51,6 @@ import org.openmicroscopy.shoola.env.data.views.calls.TagsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.DataObject;
-import pojos.ExperimenterData;
 import pojos.ImageData;
 
 /** 
@@ -188,39 +186,6 @@ class DataManagerViewImpl
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ChannelMetadataLoader(pixelsID, userID);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#changePassword(String, String, AgentEventListener)
-	 */
-	public CallHandle changePassword(String oldPassword, String newPassword, 
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new AdminLoader(oldPassword, newPassword);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#updateExperimenter(ExperimenterData, 
-	 * 										AgentEventListener)
-	 */
-	public CallHandle updateExperimenter(ExperimenterData exp, 
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new AdminLoader(exp);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#getDiskSpace(long, AgentEventListener)
-	 */
-	public CallHandle getDiskSpace(long userID, AgentEventListener observer)
-	{
-		BatchCallTree cmd = new AdminLoader(userID, AdminLoader.SPACE);
 		return cmd.exec(observer);
 	}
 

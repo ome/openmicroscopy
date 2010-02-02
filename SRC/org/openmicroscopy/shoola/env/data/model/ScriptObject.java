@@ -24,8 +24,13 @@ package org.openmicroscopy.shoola.env.data.model;
 
 
 //Java imports
+import java.io.File;
 import java.util.Map;
+
+//import javax.activation.MimetypesFileTypeMap;
 import javax.swing.Icon;
+
+import org.apache.axis.attachments.MimeUtils;
 
 //Third-party libraries
 
@@ -47,7 +52,7 @@ import pojos.ExperimenterData;
  */
 public class ScriptObject 
 {
-
+	
 	/** The id of the script. */
 	private long scriptID;
 	
@@ -87,6 +92,32 @@ public class ScriptObject
 		this.name = name;
 		description = "";
 		journalRef = "";
+	}
+	
+	/**
+	 * Returns the format of the script.
+	 * 
+	 * @return See above.
+	 */
+	public String getFormatAsString()
+	{
+		return null;
+		
+		/*
+		MimetypesFileTypeMap map = new MimetypesFileTypeMap();
+		File f = new File(name);
+		String type = map.getContentType(f);
+		f.delete();
+		return type;
+		/*
+		switch (index) {
+			case PYTHON:
+				return "text/x-python";
+			default:
+				break;
+		}
+		return "test";
+		*/
 	}
 	
 	/**

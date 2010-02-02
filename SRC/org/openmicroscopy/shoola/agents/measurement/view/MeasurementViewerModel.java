@@ -254,7 +254,7 @@ class MeasurementViewerModel
      */
     String getUserName()
     {
-    	return MeasurementAgent.getRegistry().getDataService().getLoggingName();
+    	return MeasurementAgent.getRegistry().getAdminService().getLoggingName();
     }
     
     /**
@@ -264,7 +264,7 @@ class MeasurementViewerModel
      */
     String getServerName()
     {
-    	return MeasurementAgent.getRegistry().getDataService().getServerName();
+    	return MeasurementAgent.getRegistry().getAdminService().getServerName();
     }
     
 	/**

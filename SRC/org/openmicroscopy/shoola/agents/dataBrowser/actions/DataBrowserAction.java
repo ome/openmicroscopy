@@ -61,7 +61,7 @@ public class DataBrowserAction
     protected DataBrowser      model;
     
     /**
-     * Callback to notify of a change in the currently selected display
+     * Call-back to notify of a change in the currently selected display
      * in the {@link Browser}. Subclasses override the method.
      * 
      * @param selectedDisplay The newly selected display node.
@@ -69,7 +69,7 @@ public class DataBrowserAction
     protected void onDisplayChange(ImageDisplay selectedDisplay) {}
     
     /**
-     * Callback to notify of a state change in the  {@link Browser}.
+     * Call-back to notify of a state change in the  {@link Browser}.
      * Subclasses override the method.
      */
     protected void onStateChange() {}

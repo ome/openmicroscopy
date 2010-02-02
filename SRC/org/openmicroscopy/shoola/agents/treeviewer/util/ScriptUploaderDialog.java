@@ -56,6 +56,7 @@ import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.CppFilter;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
@@ -89,6 +90,9 @@ public class ScriptUploaderDialog
 
 	/** Bound property indicating to upload the script. */
 	public static final String	UPLOAD_SCRIPT_PROPERTY = "uploadScript";
+	
+	/** The separator between first and last names. */
+	private static final String	SEPARATOR = ", ";
 	
     /** 
      * The size of the invisible components used to separate buttons
@@ -336,6 +340,29 @@ public class ScriptUploaderDialog
 					return;
 			}
 		}
+		ScriptObject script = new ScriptObject(-1, f.getAbsolutePath());
+		
+		//Set info about the script.
+		String value = journalRef.getText();
+		if (value != null) script.setJournalRef(value.trim());
+		value = description.getText();
+		if (value != null) script.setDescription(value.trim());
+		
+		ExperimenterData exp = new ExperimenterData();
+		value = author.getText();
+		if (value == null) exp = TreeViewerAgent.getUserDetails();
+		else {
+			String[] v = value.split(SEPARATOR);
+			if (v != null && v.length == 2) {
+				exp.setFirstName(v[0].trim());
+				exp.setLastName(v[1].trim());
+			} else exp = TreeViewerAgent.getUserDetails(); 
+		}
+		value = eMail.getText();
+		if (value != null) exp.setEmail(value.trim());
+		value = institution.getText();
+		if (value != null) exp.setInstitution(value.trim());
+		firePropertyChange(UPLOAD_SCRIPT_PROPERTY, null, script);
 		close();
 	}
 	

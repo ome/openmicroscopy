@@ -249,7 +249,7 @@ public interface DataBrowser
     public void activate();
     
     /**
-     * Callback used by a data loader to set thumbnails as they are retrieved.
+     * Call-back used by a data loader to set thumbnails as they are retrieved.
      * 
      * @param imageID    The id of the image to which the thumbnail belongs.
      * @param thumb      The thumbnail pixels.
@@ -262,7 +262,7 @@ public interface DataBrowser
     		int maxEntries);
     
     /**
-     * Callback used by data loaders to provide the viewer with feedback about
+     * Call-back used by data loaders to provide the viewer with feedback about
      * the data retrieval.
      * 
      * @param description Textual description of the ongoing operation.
@@ -371,7 +371,7 @@ public interface DataBrowser
 	public void setExistingTags(Collection collection);
 	
 	 /**
-     * Callback used by data loaders to provide the viewer with feedback about
+     * Call-back used by data loaders to provide the viewer with feedback about
      * the data retrieval.
      * 
      * @param description 	Textual description of the ongoing operation.
@@ -382,7 +382,7 @@ public interface DataBrowser
     public void setSlideViewStatus(String description, int perc);
     
     /**
-     * Callback used by a data loader to set thumbnails as they are retrieved.
+     * Call-back used by a data loader to set thumbnails as they are retrieved.
      * 
      * @param imageID The id of the image to which the thumbnail belongs.
      * @param thumb The thumbnail pixels.

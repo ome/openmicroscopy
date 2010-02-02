@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.env.config;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.cache.CacheService;
+import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
@@ -67,6 +68,7 @@ public class NullRegistry
     public OmeroDataService getDataService() { return null; }
     public OmeroImageService getImageService() { return null; }
     public OmeroMetadataService getMetadataService() { return null; }
+    public AdminService getAdminService() { return null; }
 	public CacheService getCacheService() { return null; }
 
 }

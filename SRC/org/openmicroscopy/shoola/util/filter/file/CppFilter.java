@@ -50,6 +50,9 @@ public class CppFilter
 	
 	/** Possible file extensions. */
 	public static final String 	CPP = "cpp";
+	
+	/** Possible file extensions. */
+	public static final String 	CC = "cc";
     
 	/** The possible extensions. */
 	public static final String[] 	extensions;
@@ -58,8 +61,9 @@ public class CppFilter
 	private static final String		description;
 	
 	static {
-		extensions = new String[1];
+		extensions = new String[2];
 		extensions[0] = CPP;
+		extensions[01] = CC;
 		String s = "C++ (";
 		for (int i = 0; i < extensions.length; i++) {
 			s += "*."+extensions[i];

@@ -311,7 +311,7 @@ class UserNotifierManager
 	{
 		if (container == null) return "";
 		String version = 
-			container.getRegistry().getDataService().getServerVersion();
+			container.getRegistry().getAdminService().getServerVersion();
 		return "Server version: "+version;
 	}
 	

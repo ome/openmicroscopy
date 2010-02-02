@@ -117,7 +117,7 @@ public class AddExistingObjectsDialog
     /** Button to select all items. */
     private JButton             selectAllButton;
     
-    /** Button to deselect all items. */
+    /** Button to de-select all items. */
     private JButton             deselectAllButton;
     
     /** The tree hosting the hierarchical structure. */
@@ -126,7 +126,7 @@ public class AddExistingObjectsDialog
     /** Component used to sort the nodes. */
     private ViewerSorter        sorter;
     
-    /** Setst the properties of the dialog. */
+    /** Sets the properties of the dialog. */
     private void setWinProperties()
     {
         setModal(true);

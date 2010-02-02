@@ -30,6 +30,7 @@ import java.util.HashMap;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.cache.CacheService;
+import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
@@ -88,6 +89,9 @@ class RegistryImpl
     
     /** Reference to the OMERO service. */
     private OmeroDataService		os;
+    
+    /** Reference to the Administration service. */
+    private AdminService			admin;
 
     /** Reference to the Cache service. */
     private CacheService			cache;
@@ -167,6 +171,12 @@ class RegistryImpl
     
     /** 
      * Implemented as specified by {@link Registry}.
+     * @see Registry#getAdminService()
+     */
+    public AdminService getAdminService() { return admin; }
+    
+    /** 
+     * Implemented as specified by {@link Registry}.
      * @see Registry#getCacheService()
      */
     public CacheService getCacheService() { return cache; }
@@ -208,6 +218,13 @@ class RegistryImpl
      * @param ms The {@link OmeroMetadataService}.
      */
     void setMetadataService(OmeroMetadataService ms) { this.ms = ms; }
+    
+    /**
+     * Stores a reference to the {@link AdminService}.
+     * 
+     * @param ms The {@link AdminService}.
+     */
+    void setAdminService(AdminService admin) { this.admin = admin; }
     
 	/**
 	 * Stores a reference to the {@link TaskBar}.

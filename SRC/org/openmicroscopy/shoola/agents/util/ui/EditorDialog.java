@@ -126,7 +126,7 @@ public class EditorDialog
     /** Button to create a new item. */
     private JButton				saveButton;
     
-    /** The objec to create. */
+    /** The object to create. */
     private DataObject			data;
     
     /** Box used to indicate that the new object will have public visibility. */

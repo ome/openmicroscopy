@@ -54,12 +54,6 @@ import pojos.GroupData;
  */
 public interface OmeroDataService
 {
-  
-	/** Identifies the used space on the file system. */
-	public static final int USED = 100;
-
-	/** Identifies the free space on the file system. */
-	public static final int FREE = 101;
 	
 	/** 
 	 * Identifies the count property.
@@ -298,67 +292,6 @@ public interface OmeroDataService
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
-	 * Changes the password of the user currently logged in.
-	 * 
-	 * @param oldPassword	The password used to log in.
-	 * @param newPassword	The new password.
-	 * @return 	<code>Boolean.TRUE</code> if successfully modified,
-	 * 			<code>Boolean.FALSE</code> otherwise.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	public Boolean changePassword(String oldPassword, String newPassword)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
-	 * Updates the specified experimenter.
-	 * 
-	 * @param exp	The experimenter to update.
-	 * @param group The group the user is member of.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	public ExperimenterData updateExperimenter(ExperimenterData exp, GroupData
-			group)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
-	 * Returns the address of the server the user is currently connected to.
-	 * 
-	 * @return See above.
-	 */
-	public String getServerName();
-	
-	/**
-	 * Returns the name used to log in.
-	 * 
-	 * @return See above.
-	 */
-	public String getLoggingName();
-
-	/**
-	 * Returns the free or available space (in Kilobytes) if the passed
-	 * parameter is <code>FREE</code>, returns the used space (in Kilobytes) 
-	 * if the passed parameter is <code>USED</code> on the file system
-	 * including nested sub-directories. Returns <code>-1</code> 
-	 * otherwise.
-	 * 
-	 * @param index One of the following constants: {@link #USED} or 
-	 * 				{@link #FREE}.
-	 * @param userID The id of the user.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public long getSpace(int index, long userID)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
 	 * Retrieves the images after a given date.
 	 * 
 	 * @param lowerTime		The timestamp identifying the start of the period.
@@ -465,13 +398,6 @@ public interface OmeroDataService
 	public Collection<DeletableObject> delete(
 			Collection<DeletableObject> objects)
 		throws DSOutOfServiceException, DSAccessException;
-	
-	/**
-	 * Returns the version of the server if available.
-	 * 
-	 * @return See above.
-	 */
-	public String getServerVersion();
 	
 	/**
 	 * Returns the view of the server repositories.

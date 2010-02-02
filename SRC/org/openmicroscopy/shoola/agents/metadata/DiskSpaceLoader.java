@@ -71,7 +71,7 @@ public class DiskSpaceLoader
      * Loads the used and free space.
      * @see EditorLoader#load()
      */
-    public void load() { handle = dmView.getDiskSpace(userID, this); }
+    public void load() { handle = adminView.getDiskSpace(userID, this); }
     
     /** 
      * Cancels the data loading. 

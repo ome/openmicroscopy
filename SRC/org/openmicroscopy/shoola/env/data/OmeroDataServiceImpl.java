@@ -974,12 +974,17 @@ class OmeroDataServiceImpl
 		UserCredentials uc = (UserCredentials) 
 		context.lookup(LookupNames.USER_CREDENTIALS);
 		gateway.updateExperimenter(exp.asExperimenter());
-		if (group != null) {
-			gateway.changeDefaultGroup(exp, group.getId());
+		ExperimenterData data;
+		if (group != null && exp.getDefaultGroup().getId() != group.getId()) {
+			gateway.changeCurrentGroup(exp, group.getId());
+			/*
+			data = gateway.login(uc.getUserName(), uc.getPassword(), 
+					uc.getHostName(), 1, group.getId());
+					*/
 		}
-		//oldObject.setOmeName(uc.getUserName());
-		ExperimenterData data = gateway.getUserDetails(uc.getUserName());
-		context.bind(LookupNames.CURRENT_USER_DETAILS, exp);
+		data = gateway.getUserDetails(uc.getUserName());
+		
+		context.bind(LookupNames.CURRENT_USER_DETAILS, data);
 //		Bind user details to all agents' registry.
 		List agents = (List) context.lookup(LookupNames.AGENTS);
 		Iterator i = agents.iterator();
@@ -987,47 +992,12 @@ class OmeroDataServiceImpl
 		while (i.hasNext()) {
 			agentInfo = (AgentInfo) i.next();
 			agentInfo.getRegistry().bind(
-					LookupNames.CURRENT_USER_DETAILS, exp);
+					LookupNames.CURRENT_USER_DETAILS, data);
 		}
 		return data;
 	}
 
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#getServerName()
-	 */
-	public String getServerName() 
-	{
-		UserCredentials uc = (UserCredentials) 
-		context.lookup(LookupNames.USER_CREDENTIALS);
-		return uc.getHostName();
-	}
-
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#getLoggingName()
-	 */
-	public String getLoggingName() 
-	{
-		UserCredentials uc = (UserCredentials) 
-		context.lookup(LookupNames.USER_CREDENTIALS);
-		return uc.getUserName();
-	}
 	
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#getSpace(int, long)
-	 */
-	public long getSpace(int index, long userID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		switch (index) {
-			case OmeroDataService.USED: return gateway.getUsedSpace();
-			case OmeroDataService.FREE: return gateway.getFreeSpace();
-		}
-		return -1;
-	}
-
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#getImagesPeriod(Timestamp, Timestamp, long, boolean)
@@ -1260,20 +1230,6 @@ class OmeroDataServiceImpl
 		
 		//Clean repository.
 		return l;
-	}
-
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#getServerVersion()
-	 */
-	public String getServerVersion()
-	{
-		try {
-			return gateway.getServerVersion();
-		} catch (Exception e) {
-			//ignore it.
-		}
-		return "";
 	}
 
 	/**

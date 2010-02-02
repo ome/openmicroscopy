@@ -2663,7 +2663,8 @@ class TreeViewerComponent
 		if (box.centerMsgBox() == MessageBox.NO_OPTION) return;
 		Registry reg = TreeViewerAgent.getRegistry();
 		try {
-			reg.getDataService().updateExperimenter(exp, group);
+			//Review that code.
+			reg.getAdminService().updateExperimenter(exp, group);
 		} catch (Exception e) {
 			LogMessage msg = new LogMessage();
 	        msg.print("Cannot modify current group.");

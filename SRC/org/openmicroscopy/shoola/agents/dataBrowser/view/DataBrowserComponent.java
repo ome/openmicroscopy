@@ -170,6 +170,7 @@ class DataBrowserComponent
 		firePropertyChange(ITEMS_TO_COPY_PROPERTY, Boolean.FALSE, 
 						Boolean.TRUE);
 	}
+	
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#activate()

@@ -30,6 +30,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
@@ -73,10 +74,10 @@ public class AdminLoader
         return new BatchCall("Loading disk space information") {
             public void doCall() throws Exception
             {
-                OmeroDataService os = context.getDataService();
+                AdminService os = context.getAdminService();
                 List<Long> l = new ArrayList<Long>();
-                l.add(os.getSpace(OmeroDataService.FREE, userID));
-                l.add(os.getSpace(OmeroDataService.USED, userID));
+                l.add(os.getSpace(AdminService.FREE, userID));
+                l.add(os.getSpace(AdminService.USED, userID));
                 result = l;
             }
         };
@@ -96,7 +97,7 @@ public class AdminLoader
         return new BatchCall("Change password") {
             public void doCall() throws Exception
             {
-                OmeroDataService os = context.getDataService();
+            	AdminService os = context.getAdminService();
                 result = os.changePassword(oldPassword, newPassword);
             }
         };
@@ -113,7 +114,7 @@ public class AdminLoader
         return new BatchCall("Update experimenter") {
             public void doCall() throws Exception
             {
-                OmeroDataService os = context.getDataService();
+            	AdminService os = context.getAdminService();
                 result = os.updateExperimenter(exp, null);
             }
         };

@@ -136,4 +136,5 @@ abstract class ControlPane
      *          <code>false</code> otherwise.
      */
     protected abstract void onStateChange(boolean b);
+    
 }

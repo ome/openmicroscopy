@@ -111,6 +111,8 @@ public class DataViewsFactory
         	dsv = new DataHandlerViewImpl();
         else if (view.equals(MetadataHandlerView.class))
         	dsv = new MetadataHandlerViewImpl();
+        else if (view.equals(AdminView.class))
+        	dsv = new AdminViewImpl();
         if (dsv == null) 
             throw new IllegalArgumentException("Unknown view type: "+view+".");
         return dsv;

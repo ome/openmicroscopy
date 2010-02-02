@@ -137,6 +137,7 @@ import omero.model.Details;
 import omero.model.DetailsI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
+import omero.model.ExperimenterGroupI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Format;
@@ -1515,6 +1516,58 @@ class OMEROGateway
 		return null;
 	}
 	
+	/** Clears the data. */
+	private void clear()
+	{
+		thumbnailService = null;
+		fileStore = null;
+		//metadataStore = null;
+		metadataService = null;
+		pojosService = null;
+		projService = null;
+		searchService = null;
+		adminService = null;
+		queryService = null;
+		rndSettingsService = null;
+		repInfoService = null;
+		deleteService = null;
+		pixelsService = null;
+		services.clear();
+		reServices.clear();
+	}
+	
+	
+	/**
+	 * Converts the specified type to its corresponding type for search.
+	 * 
+	 * @param nodeType The type to convert.
+	 * @return See above.
+	 */
+	private String convertTypeForSearch(Class nodeType)
+	{
+		if (nodeType.equals(Image.class))
+			return ImageI.class.getName();
+		else if (nodeType.equals(TagAnnotation.class) ||
+				nodeType.equals(TagAnnotationData.class))
+			return TagAnnotationI.class.getName();
+		else if (nodeType.equals(BooleanAnnotation.class) ||
+				nodeType.equals(BooleanAnnotationData.class))
+			return BooleanAnnotationI.class.getName();
+		else if (nodeType.equals(UriAnnotation.class) ||
+				nodeType.equals(URLAnnotationData.class))
+			return UriAnnotationI.class.getName();
+		else if (nodeType.equals(FileAnnotation.class) ||
+				nodeType.equals(FileAnnotationData.class))
+			return FileAnnotationI.class.getName();
+		else if (nodeType.equals(CommentAnnotation.class) ||
+				nodeType.equals(TextualAnnotationData.class))
+			return CommentAnnotationI.class.getName();
+		else if (nodeType.equals(TimestampAnnotation.class) ||
+				nodeType.equals(TimeAnnotationData.class))
+			return TimestampAnnotationI.class.getName();
+		throw new IllegalArgumentException("type not supported");
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -1604,37 +1657,7 @@ class OMEROGateway
 			return OriginalFile.class;
 		throw new IllegalArgumentException("NodeType not supported");
 	}
-	
-	/**
-	 * Converts the specified type to its corresponding type for search.
-	 * 
-	 * @param nodeType The type to convert.
-	 * @return See above.
-	 */
-	private String convertTypeForSearch(Class nodeType)
-	{
-		if (nodeType.equals(Image.class))
-			return ImageI.class.getName();
-		else if (nodeType.equals(TagAnnotation.class) ||
-				nodeType.equals(TagAnnotationData.class))
-			return TagAnnotationI.class.getName();
-		else if (nodeType.equals(BooleanAnnotation.class) ||
-				nodeType.equals(BooleanAnnotationData.class))
-			return BooleanAnnotationI.class.getName();
-		else if (nodeType.equals(UriAnnotation.class) ||
-				nodeType.equals(URLAnnotationData.class))
-			return UriAnnotationI.class.getName();
-		else if (nodeType.equals(FileAnnotation.class) ||
-				nodeType.equals(FileAnnotationData.class))
-			return FileAnnotationI.class.getName();
-		else if (nodeType.equals(CommentAnnotation.class) ||
-				nodeType.equals(TextualAnnotationData.class))
-			return CommentAnnotationI.class.getName();
-		else if (nodeType.equals(TimestampAnnotation.class) ||
-				nodeType.equals(TimeAnnotationData.class))
-			return TimestampAnnotationI.class.getName();
-		throw new IllegalArgumentException("type not supported");
-	}
+
 	
 	/**
 	 * Tells whether the communication channel to <i>OMERO</i> is currently
@@ -1713,13 +1736,21 @@ class OMEROGateway
 			blitzClient.getProperties().setProperty("Ice.Override.Timeout", 
 					""+5000);
 			connected = true;
-			
 			ExperimenterData exp = getUserDetails(userName);
 			if (groupID >= 0) {
 				long defaultID = exp.getDefaultGroup().getId();
 				if (defaultID == groupID) return exp;
 				try {
-					changeDefaultGroup(exp, groupID);
+					changeCurrentGroup(exp, groupID);
+					//logout
+					/*
+					if (port > 0) blitzClient = new client(hostName, port);
+					else blitzClient = new client(hostName);
+					entry = blitzClient.createSession(userName, password);
+					blitzClient.getProperties().setProperty("Ice.Override.Timeout", 
+							""+5000);
+					connected = true;
+					*/
 					exp = getUserDetails(userName);
 				} catch (Exception e) {
 					connected = false;
@@ -1784,7 +1815,7 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	void changeDefaultGroup(ExperimenterData exp, long groupID)
+	void changeCurrentGroup(ExperimenterData exp, long groupID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<GroupData> groups = exp.getGroups();
@@ -1805,16 +1836,16 @@ class OMEROGateway
 		try {
 			getAdminService().setDefaultGroup(exp.asExperimenter(), 
 					group.asGroup());
+			clear();
+			entry.setSecurityContext(new ExperimenterGroupI(groupID, false));
 		} catch (Exception e) {
 			handleException(e, s);
 		}
-		
 	}
 	
 	/**
 	 * Returns the version of the server.
-	 * 
-	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in.
 	 */
 	String getServerVersion()
 		throws DSOutOfServiceException
@@ -1895,41 +1926,13 @@ class OMEROGateway
 			throw new DSOutOfServiceException(s, e);  
 		} 
 	}
-
+	
 	/** Logs out. */
 	void logout()
 	{
 		connected = false;
 		try {
-			/*
-			Iterator<String> i = monitorIDs.iterator();
-			String id;
-			while (i.hasNext()) {
-				id = i.next();
-				monitorPrx.stopMonitor(id);
-				monitorPrx.destroyMonitor(id);
-			}
-			monitorIDs.clear();
-			*/
-			/*
-			if (thumbnailService != null) thumbnailService.close();
-			if (fileStore != null) fileStore.close();
-			*/
-			thumbnailService = null;
-			fileStore = null;
-			//metadataStore = null;
-			metadataService = null;
-			pojosService = null;
-			projService = null;
-			searchService = null;
-			adminService = null;
-			queryService = null;
-			rndSettingsService = null;
-			repInfoService = null;
-			deleteService = null;
-			pixelsService = null;
-			services.clear();
-			reServices.clear();
+			clear();
 			blitzClient.closeSession();
 			entry.destroy();
 			blitzClient = null;
@@ -3255,6 +3258,7 @@ class OMEROGateway
 				oFile.setName(omero.rtypes.rstring(file.getName()));
 				oFile.setPath(omero.rtypes.rstring(file.getAbsolutePath()));
 				oFile.setSize(omero.rtypes.rlong(file.length()));
+				//Need to be modified
 				oFile.setSha1(omero.rtypes.rstring("pending"));
 				oFile.setFormat(f);
 				
@@ -5957,4 +5961,5 @@ class OMEROGateway
 		return Boolean.valueOf(true);
 	}
 	
+
 }
