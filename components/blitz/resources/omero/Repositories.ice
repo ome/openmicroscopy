@@ -38,10 +38,10 @@ module omero {
              * need to know what is an original file and what is not yet.
              */
 
-            // TODO should we return OriginalFiles here for acmTime, etc.
-            omero::api::StringSet list(string path) throws ServerError;
-            omero::api::StringSet listDirs(string path) throws ServerError;
-            omero::api::StringSet listFiles(string path) throws ServerError;
+            // These list methods provide all files, registered or not.
+            omero::api::OriginalFileList list(string path) throws ServerError;
+            omero::api::OriginalFileList listDirs(string path) throws ServerError;
+            omero::api::OriginalFileList listFiles(string path) throws ServerError;
 
             // These list methods provide only registered files
             omero::api::OriginalFileList listKnown(string path) throws ServerError;

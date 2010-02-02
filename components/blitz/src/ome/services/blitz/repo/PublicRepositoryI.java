@@ -28,6 +28,7 @@ import omero.api.ThumbnailStorePrx;
 import omero.grid.RepositoryPrx;
 import omero.grid._RepositoryDisp;
 import omero.model.Format;
+import omero.model.FormatI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.util.IceMapper;
@@ -123,24 +124,25 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
     @SuppressWarnings("unchecked")
-    public List<String> list(String path, Current __current) throws ServerError {
+    
+    public List<OriginalFile> list(String path, Current __current) throws ServerError {
         File file = checkPath(path);
         List<File> files = Arrays.asList(file.listFiles());
-        return filesToPaths(files);
+        return filesToOriginalFiles(files);
     }
 
-    public List<String> listDirs(String path, Current __current)
+    public List<OriginalFile> listDirs(String path, Current __current)
             throws ServerError {
         File file = checkPath(path);
         List<File> files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.directoryFileFilter()));
-        return filesToPaths(files);
+        return filesToOriginalFiles(files);
     }
 
-    public List<String> listFiles(String path, Current __current)
+    public List<OriginalFile> listFiles(String path, Current __current)
             throws ServerError {
         File file = checkPath(path);
         List<File> files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.fileFileFilter()));
-        return filesToPaths(files);
+        return filesToOriginalFiles(files);
     }
 
     public OriginalFile load(String path, Current __current) throws ServerError {
@@ -191,25 +193,27 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
     public List<OriginalFile> listKnown(String path, Current __current)
             throws ServerError {
-        // TODO Auto-generated method stub
-        return null;
+        File file = checkPath(path);
+        List<File> files = Arrays.asList(file.listFiles());
+        return knownOriginalFiles(files);
     }
 
     public List<OriginalFile> listKnownDirs(String path, Current __current)
             throws ServerError {
-        // TODO Auto-generated method stub
-        return null;
+        File file = checkPath(path);
+        List<File> files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.directoryFileFilter()));
+        return knownOriginalFiles(files);
     }
 
     public List<OriginalFile> listKnownFiles(String path, Current __current)
             throws ServerError {
-        // TODO Auto-generated method stub
-        return null;
+        File file = checkPath(path);
+        List<File> files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.fileFileFilter()));
+        return knownOriginalFiles(files);
     }
 
     public Format format(String path, Current __current) throws ServerError {
-        // TODO Auto-generated method stub
-        return null;
+        return getFileFormat(path);
     }
 
     //
@@ -243,6 +247,12 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return new File(path).getAbsoluteFile();
     }
     
+    // Just return a dummy format for testing purposes.
+    private Format getFileFormat(String path) {
+        Format dummy = new FormatI();
+        dummy.setValue(rstring("DUMMY-FORMAT"));
+        return dummy;
+    }
 
     private List<String> filesToPaths(Collection<File> files) {
         List rv = new ArrayList<String>();
@@ -251,4 +261,69 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         return rv;
     }
+    
+    private List<OriginalFile> filesToOriginalFiles(Collection<File> files) {
+        List rv = new ArrayList<OriginalFile>();
+        for (File f : files) {
+            rv.add(createOriginalFile(f));
+        }
+        return rv;
+    }
+    
+    private List<OriginalFile> knownOriginalFiles(Collection<File> files) {
+        List rv = new ArrayList<OriginalFile>();
+/*        for (File f : files) {
+            OriginalFile file = getOriginalFileOrNull(f.getAbsolutePath());
+            if (file != null) {
+                rv.add(file);
+            }
+        } */
+        return rv;
+    }
+    
+
+    private OriginalFile createOriginalFile(File f) {
+        // How do I confirm if an OriginalFle is already registered?
+        // Is that necessary here?
+        OriginalFile file = new OriginalFileI();
+        file.setPath(rstring(f.getAbsolutePath()));
+        file.setSize(rlong(f.length()));
+        file.setSha1(rstring("UNKNOWN"));
+        // What more do I need to set here, times, details?
+        
+        // This needs to be unique - see #
+        file.setName(rstring(f.getAbsolutePath()));
+        
+        // How should I get the format of a file?
+        file.setFormat(getFileFormat(f.getAbsolutePath()));
+        
+        return file;
+    }
+    
+    // THIS FAILS AT PRESENT. NEED TO SORT OUT THE RETURN TYPE FROM THE QUERY 
+    //     ome.model.core.OriginalFile vs omero.model.OriginalFile
+    // Very weak at present, returns one file.
+    // No checking further for uniqueness
+    private OriginalFile getOriginalFileOrNull(String path) {
+        try {
+            final String queryString = "from OriginalFile as o where o.path = '"
+                    + path + "'";
+            OriginalFile file = (OriginalFile) executor.execute(
+                    principal, new Executor.SimpleWork(this,
+                            "getOriginalFileOrNull") {
+
+                        @Transactional(readOnly = true)
+                        public Object doWork(Session session, ServiceFactory sf) {
+                            return sf.getQueryService().findByQuery(
+                                    queryString, null);
+                        }
+                    });
+            return file;
+        } catch (RuntimeException re) {
+            return null;
+        }
+    }
+
+
+
 }
