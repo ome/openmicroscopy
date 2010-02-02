@@ -97,6 +97,26 @@ def addScalebar(scalebar, xIndent, yIndent, image, pixels, colour):
 def getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, width, height, spacer, 
 			algorithm, stepping, scalebar, overlayColour, timeUnits):
 	
+	"""
+	Makes a canvas showing an image per row with multiple columns showing 
+	frames from each image/movie. Labels obove each frame to show the time-stamp of that frame in the 
+	specified units. 
+	
+	@param session		The OMERO session
+	@param pixelIds		A list of the Pixel IDs for the images in the figure
+	@param tIndexes		A list of tIndexes to display frames from
+	@param zStart		Projection Z-start
+	@param zEnd			Projection Z-end
+	@param width		Maximum width of panels
+	@param height		Max height of panels
+	@param spacer		Space between panels
+	@param algorithm	Projection algorithm e.g. "MAXIMUMINTENSITY"
+	@param stepping		Projecttion z-step
+	@param scalebar		A number of microns for scale-bar
+	@param overlayColour 	Colour of the scale-bar as tuple (255,255,255)
+	@param timeUnits	A string such as "SECS"
+	"""
+	
 	mode = "RGB"
 	white = (255, 255, 255)
 	
@@ -229,7 +249,26 @@ def getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, width, height, spa
 	
 def createMovieFigure(session, pixelIds, tIndexes, zStart, zEnd, width, height, spacer, 
 							algorithm, stepping, scalebar, overlayColour, timeUnits, imageLabels):
+	"""
+	Makes the complete Movie figure: A canvas showing an image per row with multiple columns showing 
+	frames from each image/movie. Labels obove each frame to show the time-stamp of that frame in the 
+	specified units and labels on the left name each image. 
 	
+	@param session		The OMERO session
+	@param pixelIds		A list of the Pixel IDs for the images in the figure
+	@param tIndexes		A list of tIndexes to display frames from
+	@param zStart		Projection Z-start
+	@param zEnd			Projection Z-end
+	@param width		Maximum width of panels
+	@param height		Max height of panels
+	@param spacer		Space between panels
+	@param algorithm	Projection algorithm e.g. "MAXIMUMINTENSITY"
+	@param stepping		Projecttion z-step
+	@param scalebar		A number of microns for scale-bar
+	@param overlayColour 	Colour of the scale-bar as tuple (255,255,255)
+	@param timeUnits	A string such as "SECS"
+	@param imageLabels	A list of lists, corresponding to pixelIds, for labelling each image with one or more strings.
+	"""
 
 	panelCanvas = getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, width, height, spacer, 
 							algorithm, stepping, scalebar, overlayColour, timeUnits)
@@ -285,6 +324,14 @@ def createMovieFigure(session, pixelIds, tIndexes, zStart, zEnd, width, height, 
 	
 	
 def movieFigure(session, commandArgs):	
+	"""
+	Makes the figure using the parameters in @commandArgs, attaches the figure to the 
+	parent Project/Dataset, and returns the file-annotation ID
+	
+	@param session		The OMERO session
+	@param commandArgs	Map of parameters for the script
+	@ returns			Returns the id of the originalFileLink child. (ID object, not value)
+	"""
 	
 	# create the services we're going to need. 
 	metadataService = session.getMetadataService()
@@ -454,6 +501,10 @@ def movieFigure(session, commandArgs):
 	return fileId	
 
 def runAsScript():
+	"""
+	The main entry point of the script. Gets the parameters from the scripting service, makes the figure and 
+	returns the output to the client. 
+	"""
 	client = scripts.client('movieFigure.py', 'Export a figure of a movie.', 
 	scripts.List("imageIds").inout(),		# List of image IDs. Each movie on a single row of figure
 	scripts.List("tIndexes").inout(),		# The frames to display in the figure
@@ -478,7 +529,7 @@ def runAsScript():
 	for key in client.getInputKeys():
 		if client.getInput(key):
 			commandArgs[key] = client.getInput(key).getValue()
-	
+	# Makes the figure and attaches it to Image. Returns the id of the originalFileLink child. (ID object, not value)
 	fileId = movieFigure(session, commandArgs)
 	client.setOutput("fileAnnotation",fileId)
 	

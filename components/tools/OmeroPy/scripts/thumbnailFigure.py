@@ -62,7 +62,7 @@ def log(text):
 def paintDatasetCanvas(session, images, title, tagIds=None, showUntagged = False, colCount = 10, length = 100):
 	"""
 		Paints and returns a canvas of thumbnails from images, laid out in a set number of columns. 
-		Dataset name (title) and date-range of the images is printed above the thumbnails,
+		Title and date-range of the images is printed above the thumbnails,
 		to the left and right, respectively. 
 		
 		@param session:	 	OMERO service factory. omero.api.ServiceFactoryPrx
@@ -197,7 +197,14 @@ def paintDatasetCanvas(session, images, title, tagIds=None, showUntagged = False
 	
 	return fullCanvas
 	
+	
 def makeThumbnailFigure(client, session, commandArgs):	
+	"""
+	Makes the figure using the parameters in @commandArgs, attaches the figure to the 
+	parent Project/Dataset, and returns the file-annotation ID
+	
+	@ returns		Returns the id of the originalFileLink child. (ID object, not value)
+	"""
 		
 	log("Thumbnail figure created by OMERO")
 	log("")
@@ -322,12 +329,19 @@ def makeThumbnailFigure(client, session, commandArgs):
 	updateService = session.getUpdateService()
 	rawFileStore = session.createRawFileStore()
 	
+	# uploads the file to the server, attaching it to the 'parent' Project/Dataset as an OriginalFile annotation,
+	# with the figLegend as the description. Returns the id of the originalFileLink child. (ID object, not value)
 	fileId = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, parent, output, format, figLegend)
 	
 	return fileId
 		
 
 def runAsScript():
+	"""
+	The main entry point of the script. Gets the parameters from the scripting service, makes the figure and 
+	returns the output to the client. 
+	"""
+	
 	client = scripts.client('thumbnailFigure.py', 'Export a figure of thumbnails, optionally sorted by tag.', 
 	scripts.List("datasetIds", optional=True).inout(),		# List of dataset IDs. Mutually exclusive to "imageIds"
 	scripts.List("imageIds", optional=True).inout(),		# List of image IDs. Mutually exclusive to "datasetIds"
@@ -346,7 +360,7 @@ def runAsScript():
 	for key in client.getInputKeys():
 		if client.getInput(key):
 			commandArgs[key] = client.getInput(key).getValue()
-	
+	# Makes the figure and attaches it to Project/Dataset. Returns the id of the originalFileLink child. (ID object, not value)
 	fileId = makeThumbnailFigure(client, session, commandArgs)
 	client.setOutput("fileAnnotation",fileId)
 	

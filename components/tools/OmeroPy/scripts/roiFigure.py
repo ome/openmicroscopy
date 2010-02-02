@@ -264,7 +264,7 @@ def getROIsplitView	(session, pixels, zStart, zEnd, splitIndexes, channelNames, 
 		physicalY = pixels.getPhysicalSizeY().getValue()
 	else:
 		physicalY = 0
-	log("  Pixel size (um): x: %s  y: %s" % (str(physicalX), str(physicalY)))
+	log("  Pixel size (um): x: %.3f  y: %.3f" % (physicalX, physicalY))
 	log("  Image dimensions (pixels): x: %d  y: %d" % (sizeX, sizeY))
 	
 	log(" Projecting ROIs...")
@@ -364,6 +364,14 @@ def getROIsplitView	(session, pixels, zStart, zEnd, splitIndexes, channelNames, 
 	for i, index in enumerate(splitIndexes):
 		label = channelNames[index]
 		indent = (panelWidth - (font.getsize(label)[0])) / 2
+		# text is coloured if channel is grey AND in the merged image
+		rgb = (0,0,0)
+		if index in mergedIndexes:
+			if not colourChannels:
+				rgb = tuple(mergedColours[index])
+				print label, rgb
+				if rgb == (255,255,255,255):	# if white (unreadable), needs to be black! 
+					rgb = (0,0,0)
 		draw.text((px+indent, textY), label, font=font, fill=(0,0,0))
 		imgUtil.pasteImage(renderedImages[i], canvas, px, panelY)
 		px = px + panelWidth + spacer
@@ -805,8 +813,10 @@ def runAsScript():
 	commandArgs = {"imageIds":client.getInput("imageIds").getValue()}
 	
 	for key in client.getInputKeys():
+		print key
 		if client.getInput(key):
 			commandArgs[key] = client.getInput(key).getValue()
+			print commandArgs[key]
 	
 	fileId = roiFigure(session, commandArgs)
 	client.setOutput("fileAnnotation",fileId)

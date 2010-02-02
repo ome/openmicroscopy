@@ -55,9 +55,9 @@ JPEG = "image/jpeg"
 PNG = "image/png"
 formatExtensionMap = {JPEG:"jpg", PNG:"png"}
 
-GATEWAYPATH = omero.gateway.THISPATH
-
+# keep track of log strings. 
 logStrings = []
+
 def log(text):
 	"""
 	Adds the text to a list of logs. Compiled into figure legend at the end.
@@ -101,6 +101,7 @@ def getSplitView(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, co
 	of a single image. The channels are arranged left to right, with the combined image added on the right.
 	The combined image is rendered according to current settings on the server, but it's channels will be
 	turned on/off according to @mergedIndexes. 
+	No text labels are added to the image at this stage. 
 	
 	The figure is returned as a PIL 'Image' 
 	
@@ -302,8 +303,8 @@ def makeSplitViewFigure(session, pixelIds, zStart, zEnd, splitIndexes, channelNa
 	The colour of each channel turned white if colourChannels is false or the channel is not in the merged image.
 	Otherwise channel is changed to mergedColours[i]
 	Text is added at the top of the figure, to display channel names above each column, and the 
-	combined image has it's various channels named in coloured text. The optional imageLabels is a list 
-	of string lists for naming the images. (Each image may have 0 or multiple labels).
+	combined image may have it's various channels named in coloured text. The optional imageLabels is a list 
+	of string lists for naming the images at the left of the figure (Each image may have 0 or multiple labels).
 	
 	The figure is returned as a PIL 'Image' 
 	
@@ -316,6 +317,7 @@ def makeSplitViewFigure(session, pixelIds, zStart, zEnd, splitIndexes, channelNa
 	@ colourChannels 	true if split channels are 
 	@ mergedIndexes		list (or set) of channels in the merged image 
 	@ mergedColours 	index: colour map of channels in the merged image
+	@ mergedNames		if true, label with merged panel with channel names (otherwise, label "Merged")
 	@ width 			the width of primary image (all images zoomed to this height)
 	@ height			the height of primary image
 	@ imageLabels 		optional list of string lists.
@@ -437,7 +439,8 @@ def splitViewFigure(session, commandArgs):
 	"""
 	Processes the arguments, populating defaults if necessary. Prints the details to log (fig-legend).
 	Even handles missing arguments that are not optional (from when this ran from commandline with everything optional)
-	then calls makeSplitViewFigure() to make the figure, attaches it to the Image with fig-legend etc. 
+	then calls makeSplitViewFigure() to make the figure, attaches it to the Image as an 'originalFile' annotation,
+	with fig-legend as the description. 
 	
 	@return: the id of the originalFileLink child. (ID object, not value) 
 	"""
