@@ -41,10 +41,10 @@ import javax.swing.filechooser.FileFilter;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;

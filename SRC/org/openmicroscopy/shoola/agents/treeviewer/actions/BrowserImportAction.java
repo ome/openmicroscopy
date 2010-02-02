@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-
 import javax.swing.Action;
 
 //Third-party libraries
@@ -33,16 +32,10 @@ import javax.swing.Action;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.DatasetData;
-import pojos.FileAnnotationData;
-import pojos.ImageData;
-import pojos.PlateData;
-import pojos.ProjectData;
 import pojos.ScreenData;
-import pojos.TagAnnotationData;
 
 /**
  * Action to import images.

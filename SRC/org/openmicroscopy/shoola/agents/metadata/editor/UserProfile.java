@@ -332,11 +332,14 @@ class UserProfile
             entry = (Entry) i.next();
             key = (String) entry.getKey();
             value = (String) entry.getValue();
+            /*
             if (key.equals(EditorUtil.LAST_NAME) || 
             		key.equals(EditorUtil.EMAIL)) 
             	label = UIUtilities.setTextFont(
             			key+EditorUtil.MANDATORY_SYMBOL);
-            else label = UIUtilities.setTextFont(key);
+            else 
+            */
+            label = UIUtilities.setTextFont(key);
             area = new JTextField(value);
             area.setBackground(UIUtilities.BACKGROUND_COLOR);
             if (editable) {

@@ -50,6 +50,10 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.CollapseAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ShowNameAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SortAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SortByDateAction;
+import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -220,7 +224,7 @@ class BrowserControl
         }
         if ((ho instanceof ProjectData) || (ho instanceof ScreenData) ||
         		(ho instanceof PlateData)) {
-        	if (display.numberItems == 0) return;
+        	if (display.getNumberOfItems() == 0) return;
         }
         
         view.loadAction(display);

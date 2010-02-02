@@ -35,8 +35,8 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplayVisitor;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.ImageData;

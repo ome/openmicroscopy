@@ -31,9 +31,9 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplayVisitor;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageNode;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 
 /** 
  * SuperClass, that all visitors that need to know about the status of the

@@ -106,6 +106,10 @@ public class EditorUtil
 	public static final String	MANDATORY_DESCRIPTION = "* indicates the " +
 													"required fields.";
 	
+	
+	/** Identifies the <code>Display name</code> field. */
+	public static final String	DISPLAY_NAME = "Login Name";
+	
 	/** Identifies the <code>Last name</code> field. */
 	public static final String	LAST_NAME = "Last Name";
     

@@ -30,6 +30,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+
 import pojos.ExperimenterData;
 
 /** 

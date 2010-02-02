@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.browser.ContainerFinder
+ * org.openmicroscopy.shoola.agents.util.browser.ContainerFinder
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.treeviewer.browser;
+package org.openmicroscopy.shoola.agents.util.browser;
 
 
 
@@ -45,7 +45,7 @@ import pojos.TagAnnotationData;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
  * <small>
- * (<b>Internal version:</b> $Revision$Date: )
+ * (<b>Internal version:</b> $Revision: 6989 $Date: )
  * </small>
  * @since OME2.2
  */

@@ -31,7 +31,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageNode;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 
 /** 
  * Retrieves all displayed {@link TreeImageNode}s.

@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.treemng.browser.TreeImageDisplayVisitor
+ * org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.treeviewer.browser;
+package org.openmicroscopy.shoola.agents.util.browser;
 
 
 
@@ -65,7 +65,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
  * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
+ * (<b>Internal version:</b> $Revision: 4695 $ $Date: 2006-12-15 17:08:05 +0000 (Fri, 15 Dec 2006) $)
  * </small>
  * @since OME2.2
  */

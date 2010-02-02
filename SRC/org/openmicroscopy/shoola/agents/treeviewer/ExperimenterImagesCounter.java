@@ -36,9 +36,9 @@ import java.util.Map.Entry;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeFileSet;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;

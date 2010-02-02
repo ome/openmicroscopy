@@ -30,7 +30,7 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import pojos.ExperimenterData;
 
 /** 

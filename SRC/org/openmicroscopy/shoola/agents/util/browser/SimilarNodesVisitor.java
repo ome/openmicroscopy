@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.browser.SimilarNodesVisitor 
+ * org.openmicroscopy.shoola.agents.util.browser.SimilarNodesVisitor 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.treeviewer.browser;
+package org.openmicroscopy.shoola.agents.util.browser;
 
 
 //Java imports
@@ -28,11 +28,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import pojos.DataObject;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.DataObject;
 
 /** 
  * Determines the nodes similar to a specified collection of original nodes.
@@ -92,7 +92,7 @@ public class SimilarNodesVisitor
 	 * 
 	 * @param nodes The collection of original nodes.
 	 */
-	SimilarNodesVisitor(List<TreeImageDisplay> nodes)
+	public SimilarNodesVisitor(List<TreeImageDisplay> nodes)
 	{
 		if (nodes == null || nodes.size() == 0) 
 			throw new IllegalArgumentException("No nodes of reference.");
@@ -105,7 +105,7 @@ public class SimilarNodesVisitor
 	 * 
 	 * @return See above.
 	 */
-	List<TreeImageDisplay> getFoundNodes() { return foundNodes; }
+	public List<TreeImageDisplay> getFoundNodes() { return foundNodes; }
 	
 	/**
 	 * Checks the node is similar to a node from the list of original nodes.

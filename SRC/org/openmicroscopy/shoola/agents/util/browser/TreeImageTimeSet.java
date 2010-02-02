@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet 
+ * org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.treeviewer.browser;
+package org.openmicroscopy.shoola.agents.util.browser;
 
 
 
@@ -35,7 +35,6 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -276,7 +275,7 @@ public class TreeImageTimeSet
 	 * 
 	 * @return See above.
 	 */
-	static int getCurrentMonth() 
+	public static int getCurrentMonth() 
 	{ 
 		GregorianCalendar gc = new GregorianCalendar();
 		return gc.get(Calendar.MONTH);
@@ -405,7 +404,7 @@ public class TreeImageTimeSet
 	 * @param times The collection to handle.
 	 * @return See above.
 	 */
-	int countTime(List times)
+	public int countTime(List times)
 	{
 		if (times == null) return -1;
 		Iterator i = times.iterator();
@@ -450,10 +449,9 @@ public class TreeImageTimeSet
 	 * 
 	 * @return See above.
 	 */
-	public TimeRefObject getTimeObject()
+	public TimeRefObject getTimeObject(long id)
 	{
 		if (ref == null) {
-			long id = TreeViewerAgent.getUserDetails().getId();
 			ref = new TimeRefObject(id, TimeRefObject.TIME);
 			ref.setTimeInterval(startTime, endTime);
 		}

@@ -35,10 +35,11 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
+
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import pojos.DatasetData;
 import pojos.PlateData;
 import pojos.TagAnnotationData;

@@ -38,7 +38,7 @@ import javax.swing.filechooser.FileFilter;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DataObject;

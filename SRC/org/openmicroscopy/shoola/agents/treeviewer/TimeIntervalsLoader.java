@@ -28,8 +28,8 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
@@ -80,7 +80,8 @@ public class TimeIntervalsLoader
      */
     public void load()
     {
-    	TimeRefObject ref = node.getTimeObject();
+    	long id = TreeViewerAgent.getUserDetails().getId();
+    	TimeRefObject ref = node.getTimeObject(id);
     	handle = dhView.loadImages(ref.getStartTime(), ref.getEndTime(), 
     			ref.getUserID(), this);
     }

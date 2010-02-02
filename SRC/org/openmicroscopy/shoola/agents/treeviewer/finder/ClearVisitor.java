@@ -30,10 +30,10 @@ package org.openmicroscopy.shoola.agents.treeviewer.finder;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplayVisitor;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageNode;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 
 /** 
  * Sets the color of each node to <code>null</code>;

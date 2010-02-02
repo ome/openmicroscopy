@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.browser.PartialNameVisitor 
+ * org.openmicroscopy.shoola.agents.util.browser.PartialNameVisitor 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.treeviewer.browser;
+package org.openmicroscopy.shoola.agents.util.browser;
 
 //Java imports
 
@@ -42,7 +42,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
  * </small>
  * @since OME3.0
  */
-class PartialNameVisitor 
+public class PartialNameVisitor 
 	implements TreeImageDisplayVisitor
 {
 
@@ -55,7 +55,7 @@ class PartialNameVisitor
 	 * @param v Pass <code>true</code> to display a partial name,
 	 * 			<code>false</code> otherwise.
 	 */
-	PartialNameVisitor(boolean v)
+	public PartialNameVisitor(boolean v)
 	{
 		partialName = v;
 	}

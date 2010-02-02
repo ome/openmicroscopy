@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.browser.NodeSelectionVisitor 
+ * org.openmicroscopy.shoola.agents.util.browser.NodeSelectionVisitor 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.treeviewer.browser;
+package org.openmicroscopy.shoola.agents.util.browser;
 
 
 //Java imports
@@ -44,7 +44,7 @@ import pojos.DataObject;
  * </small>
  * @since OME3.0
  */
-class NodeSelectionVisitor 
+public class NodeSelectionVisitor 
 	implements TreeImageDisplayVisitor
 {
 
@@ -95,7 +95,7 @@ class NodeSelectionVisitor
 	 * @param parent	The parent of the selected node.
 	 * @param selected	The selected node.
 	 */
-	NodeSelectionVisitor(Object parent, DataObject selected)
+	public NodeSelectionVisitor(Object parent, DataObject selected)
 	{
 		if (selected == null)
 			throw new IllegalArgumentException("No node selected.");
@@ -108,7 +108,7 @@ class NodeSelectionVisitor
 	 * 
 	 * @return See above.
 	 */
-	TreeImageDisplay getSelectedNode() { return selectedNode; }
+	public TreeImageDisplay getSelectedNode() { return selectedNode; }
 	
 	/**
 	 * Retrieves the {@link TreeImageDisplay} corresponding to the 

@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.treemng.browser.TreeImageSet
+ * org.openmicroscopy.shoola.agents.util.browser.TreeImageSet
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.treeviewer.browser;
+package org.openmicroscopy.shoola.agents.util.browser;
 
 
 
@@ -44,7 +44,7 @@ import java.util.Iterator;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
  * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
+ * (<b>Internal version:</b> $Revision: 6430 $ $Date: 2009-06-09 12:09:23 +0100 (Tue, 09 Jun 2009) $)
  * </small>
  * @since OME2.2
  */
@@ -90,7 +90,7 @@ public class TreeImageSet
      * 
      * @return See above.
      */
-    boolean isSystem() { return system; }
+    public boolean isSystem() { return system; }
     
     /**
      * Creates a new container node.
