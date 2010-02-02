@@ -172,8 +172,10 @@ class AdminServiceImpl
 		AgentInfo agentInfo;
 		while (i.hasNext()) {
 			agentInfo = (AgentInfo) i.next();
-			agentInfo.getRegistry().bind(
-					LookupNames.CURRENT_USER_DETAILS, data);
+			if (agentInfo.isActive()) {
+				agentInfo.getRegistry().bind(
+						LookupNames.CURRENT_USER_DETAILS, data);
+			}
 		}
 		return data;
 	}
