@@ -125,6 +125,7 @@ public final class AgentsInit
 											agentReg);
         RegistryFactory.linkOS(containerReg.getDataService(), agentReg);
         RegistryFactory.linkMS(containerReg.getMetadataService(), agentReg);
+        RegistryFactory.linkAdmin(containerReg.getAdminService(), agentReg);
 		return agentReg;
 	}
 	

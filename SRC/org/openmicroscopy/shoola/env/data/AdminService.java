@@ -83,6 +83,19 @@ public interface AdminService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
+	 * Changes the current group of the specified user.
+	 * 
+	 * @param exp The experimenter to handle.
+	 * @param group The group the user is member of.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	public void changeExperimenterGroup(ExperimenterData exp, GroupData 
+			group)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
 	 * Returns the address of the server the user is currently connected to.
 	 * 
 	 * @return See above.

@@ -147,6 +147,39 @@ class AdminServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#changeExperimenterGroup(ExperimenterData, GroupData)
+	 */
+	public void changeExperimenterGroup(ExperimenterData exp, GroupData 
+			group)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (exp == null) 
+			throw new DSAccessException("No object to update.");
+		if (group == null)
+			throw new DSAccessException("No group specified.");
+		if (group != null && exp.getDefaultGroup().getId() != group.getId()) {
+			gateway.changeCurrentGroup(exp, group.getId());
+		}
+		UserCredentials uc = (UserCredentials) 
+			context.lookup(LookupNames.USER_CREDENTIALS);
+		ExperimenterData data = gateway.getUserDetails(uc.getUserName());
+		
+		context.bind(LookupNames.CURRENT_USER_DETAILS, data);
+//		Bind user details to all agents' registry.
+		List agents = (List) context.lookup(LookupNames.AGENTS);
+		Iterator i = agents.iterator();
+		AgentInfo agentInfo;
+		while (i.hasNext()) {
+			agentInfo = (AgentInfo) i.next();
+			if (agentInfo.isActive()) {
+				agentInfo.getRegistry().bind(
+						LookupNames.CURRENT_USER_DETAILS, data);
+			}
+		}
+	}
+	
+	/**
+	 * Implemented as specified by {@link AdminService}.
 	 * @see AdminService#updateExperimenter(ExperimenterData, GroupData)
 	 */
 	public ExperimenterData updateExperimenter(ExperimenterData exp, GroupData 
@@ -157,7 +190,7 @@ class AdminServiceImpl
 		if (exp == null) 
 			throw new DSAccessException("No object to update.");
 		UserCredentials uc = (UserCredentials) 
-		context.lookup(LookupNames.USER_CREDENTIALS);
+			context.lookup(LookupNames.USER_CREDENTIALS);
 		gateway.updateExperimenter(exp.asExperimenter());
 		ExperimenterData data;
 		if (group != null && exp.getDefaultGroup().getId() != group.getId()) {
