@@ -7,6 +7,7 @@
 package ome.services.blitz.repo;
 
 import static omero.rtypes.rlong;
+import static omero.rtypes.rtime;
 import static omero.rtypes.rstring;
 
 import java.io.File;
@@ -19,6 +20,7 @@ import java.util.List;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
+import omero.ApiUsageException;
 import omero.ServerError;
 import omero.ValidationException;
 import omero.api.RawFileStorePrx;
@@ -78,6 +80,16 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return new OriginalFileI(this.id, false); // SHOULD BE LOADED.
     }
 
+    /**
+     * Register an OriginalFile using its path
+     * 
+     * @param path
+     *            Absolute path of the file to be registered.
+     * @param __current
+     *            ice context.
+     * @return The OriginalFile with id set (unloaded)
+     *
+     */
     public OriginalFile register(String path, Format fmt, Current __current)
             throws ServerError {
 
@@ -87,35 +99,60 @@ public class PublicRepositoryI extends _RepositoryDisp {
                     "path and fmt are required arguments");
         }
 
-        OriginalFile file = new OriginalFileI();
-        file.setPath(rstring(path));
-        file.setFormat(fmt);
-
-        // Overwrites
-        omero.RTime creation = omero.rtypes.rtime(System.currentTimeMillis());
-        file.setCtime(creation);
-        file.setAtime(creation);
-        file.setMtime(creation);
-        file.setSha1(rstring("UNKNOWN"));
-        file.setName(rstring(path));
-        file.setPath(rstring(path)); // NEED SOME CHECKING HERE.
-        file.setSize(rlong(0));
+        File file = new File(path).getAbsoluteFile();
+        OriginalFile omeroFile = new OriginalFileI();
+        omeroFile = createOriginalFile(file);
+        omeroFile.setFormat(fmt);
 
         IceMapper mapper = new IceMapper();
-        final ome.model.core.OriginalFile f = (ome.model.core.OriginalFile) mapper
-                .reverse(file);
+        final ome.model.core.OriginalFile omeFile = (ome.model.core.OriginalFile) mapper
+                .reverse(omeroFile);
         Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
-                this, "saveNewOriginalFile") {
+                this, "register") {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
-                return sf.getUpdateService().saveAndReturnObject(f).getId();
+                return sf.getUpdateService().saveAndReturnObject(omeFile).getId();
             }
         });
 
+        omeroFile.setId(rlong(id));
+        omeroFile.unload();
+        return omeroFile;
+
+    }
+    
+    /**
+     * Register an OriginalFile object
+     * 
+     * @param file
+     *            OriginalFile object.
+     * @param __current
+     *            ice context.
+     * @return The OriginalFile with id set (unloaded)
+     *
+     */
+    public OriginalFile registerOriginalFile(OriginalFile file, Current __current)
+            throws ServerError {
+
+        if (file == null) {
+            throw new ValidationException(null, null,
+                    "file is required argument");
+        }
+
+        IceMapper mapper = new IceMapper();
+        final ome.model.core.OriginalFile omeFile = (ome.model.core.OriginalFile) mapper
+                .reverse(file);
+        Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
+                this, "registerOriginalFile") {
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return sf.getUpdateService().saveAndReturnObject(omeFile).getId();
+            }
+        });
+        
         file.setId(rlong(id));
         file.unload();
         return file;
-
     }
 
     public void delete(String path, Current __current) throws ServerError {
@@ -191,6 +228,16 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return null;
     }
 
+    /**
+     * Get a list of those files and directories at path that are already registered.
+     * 
+     * @param path
+     *            A path on a repository.
+     * @param __current
+     *            ice context.
+     * @return List of OriginalFile objects at path
+     *
+     */
     public List<OriginalFile> listKnown(String path, Current __current)
             throws ServerError {
         File file = checkPath(path);
@@ -198,6 +245,16 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return knownOriginalFiles(files);
     }
 
+    /**
+     * Get a list of directories at path that are already registered.
+     * 
+     * @param path
+     *            A path on a repository.
+     * @param __current
+     *            ice context.
+     * @return List of OriginalFile objects at path
+     *
+     */
     public List<OriginalFile> listKnownDirs(String path, Current __current)
             throws ServerError {
         File file = checkPath(path);
@@ -205,6 +262,16 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return knownOriginalFiles(files);
     }
 
+    /**
+     * Get a list of files at path that are already registered.
+     * 
+     * @param path
+     *            A path on a repository.
+     * @param __current
+     *            ice context.
+     * @return List of OriginalFile objects at path
+     *
+     */
     public List<OriginalFile> listKnownFiles(String path, Current __current)
             throws ServerError {
         File file = checkPath(path);
@@ -247,21 +314,29 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return new File(path).getAbsoluteFile();
     }
     
-    // Just return a dummy format for testing purposes.
+    /**
+     * Get the Format for a file given its path
+     * 
+     * @param path
+     *            A path on a repository.
+     * @return A Format object
+     *
+     * TODO Return the correct Format object in place of a dummy one
+     */
     private Format getFileFormat(String path) {
-        Format dummy = new FormatI();
-        dummy.setValue(rstring("DUMMY-FORMAT"));
-        return dummy;
+        Format format = new FormatI();
+        format.setValue(rstring("DUMMY-FORMAT"));
+        return format;
     }
 
-    private List<String> filesToPaths(Collection<File> files) {
-        List rv = new ArrayList<String>();
-        for (File f : files) {
-            rv.add(f.getAbsolutePath());
-        }
-        return rv;
-    }
-    
+    /**
+     * Get OriginalFile objects corresponding to a collection of File objects.
+     * 
+     * @param files
+     *            A collection of File objects.
+     * @return A list of new OriginalFile objects
+     *
+     */
     private List<OriginalFile> filesToOriginalFiles(Collection<File> files) {
         List rv = new ArrayList<OriginalFile>();
         for (File f : files) {
@@ -270,58 +345,84 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return rv;
     }
     
-    private List<OriginalFile> knownOriginalFiles(Collection<File> files) {
+    /**
+     * Get registered OriginalFile objects corresponding to a collection of File objects.
+     * 
+     * @param files
+     *            A collection of File objects.
+     * @return A list of registered OriginalFile objects. 
+     *
+     */
+    private List<OriginalFile> knownOriginalFiles(Collection<File> files)  {
         List rv = new ArrayList<OriginalFile>();
-/*        for (File f : files) {
-            OriginalFile file = getOriginalFileOrNull(f.getAbsolutePath());
-            if (file != null) {
-                rv.add(file);
-            }
-        } */
+        for (File f : files) {
+            List<OriginalFile> fileList = getOriginalFiles(f.getAbsolutePath());
+            rv.addAll(fileList);
+        }
         return rv;
     }
     
 
+    /**
+     * Create an OriginalFile object corresponding to a File object.
+     * 
+     * @param f
+     *            A File object.
+     * @return An OriginalFile object
+     *
+     * TODO populate more attribute fields than the few set here.
+     */
     private OriginalFile createOriginalFile(File f) {
-        // How do I confirm if an OriginalFle is already registered?
-        // Is that necessary here?
         OriginalFile file = new OriginalFileI();
         file.setPath(rstring(f.getAbsolutePath()));
+        file.setMtime(rtime(f.lastModified()));
         file.setSize(rlong(f.length()));
         file.setSha1(rstring("UNKNOWN"));
-        // What more do I need to set here, times, details?
+        // What more do I need to set here, more times, details?
         
-        // This needs to be unique - see #
+        // This needs to be unique - see ticket #1753
         file.setName(rstring(f.getAbsolutePath()));
         
-        // How should I get the format of a file?
         file.setFormat(getFileFormat(f.getAbsolutePath()));
         
         return file;
     }
     
-    // THIS FAILS AT PRESENT. NEED TO SORT OUT THE RETURN TYPE FROM THE QUERY 
-    //     ome.model.core.OriginalFile vs omero.model.OriginalFile
-    // Very weak at present, returns one file.
-    // No checking further for uniqueness
-    private OriginalFile getOriginalFileOrNull(String path) {
-        try {
-            final String queryString = "from OriginalFile as o where o.path = '"
+    /**
+     * Get a list of OriginalFiles with path corresponding to the paramater path.
+     * 
+     * @param path
+     *            A path to a file.
+     * @return List of OriginalFile objects, empty if the query returned no values.
+     *
+     * TODO Weak at present, returns all matched files based on path.
+     *      There should be further checking for uniqueness
+     */
+    private List<OriginalFile> getOriginalFiles(String path)  {
+        
+        List rv = new ArrayList<OriginalFile>();
+        final String queryString = "from OriginalFile as o where o.path = '"
                     + path + "'";
-            OriginalFile file = (OriginalFile) executor.execute(
-                    principal, new Executor.SimpleWork(this,
-                            "getOriginalFileOrNull") {
+        List<ome.model.core.OriginalFile> fileList = (List<ome.model.core.OriginalFile>) executor
+                .execute(principal, new Executor.SimpleWork(this, "getOriginalFiles") {
 
-                        @Transactional(readOnly = true)
-                        public Object doWork(Session session, ServiceFactory sf) {
-                            return sf.getQueryService().findByQuery(
-                                    queryString, null);
-                        }
-                    });
-            return file;
-        } catch (RuntimeException re) {
-            return null;
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        return sf.getQueryService().findAllByQuery(queryString,
+                                null);
+                    }
+                });
+            
+        if (fileList == null) {
+            return rv;
         }
+        if (fileList.size() == 0) {
+            return rv;
+        }
+        IceMapper mapper = new IceMapper();
+        rv = (List<OriginalFile>) mapper.map(fileList);
+
+        return rv;
     }
 
 

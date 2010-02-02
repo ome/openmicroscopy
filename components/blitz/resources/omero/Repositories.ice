@@ -67,8 +67,21 @@ module omero {
              * TODO should this just return and not throw?
              *
              **/
-            omero::model::OriginalFile register(string path, omero::model::Format fmt) throws ServerError;
+            omero::model::OriginalFile register(string path, omero::model::Format fmt) 
+                    throws ServerError;
 
+            /**
+             * Create an OriginalFile in the database for the given OriginalFile.
+             * If the given OriginalFile is already registered as an OriginalFile,
+             * a ValidationException is thrown. Otherwise, one is added and
+             * returned.
+             *
+             * TODO should this just return and not throw?
+             *
+             **/
+            omero::model::OriginalFile registerOriginalFile(omero::model::OriginalFile file) 
+                    throws ServerError;
+            
             /**
              * Load the OriginalFile at the given path with annotations and
              * associated Pixels (if present). If the path does not point to
