@@ -17,6 +17,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import javax.activation.MimetypesFileTypeMap;
+
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -280,7 +282,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
     public Format format(String path, Current __current) throws ServerError {
-        return getFileFormat(path);
+        File f = new File(path).getAbsoluteFile();
+        return getFileFormat(f);
     }
 
     //
@@ -315,18 +318,32 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
     
     /**
-     * Get the Format for a file given its path
+     * Get the Format for a file using its MIME content type
      * 
-     * @param path
-     *            A path on a repository.
+     * @param file
+     *            A file in a repository.
      * @return A Format object
      *
      * TODO Return the correct Format object in place of a dummy one
      */
-    private Format getFileFormat(String path) {
-        Format format = new FormatI();
-        format.setValue(rstring("DUMMY-FORMAT"));
-        return format;
+    private Format getFileFormat(File file) {
+
+        final String contentType = new MimetypesFileTypeMap().getContentType(file);
+
+        ome.model.enums.Format format = (ome.model.enums.Format) executor
+                .execute(principal, new Executor.SimpleWork(this, "getFileFormat") {
+
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        return sf.getQueryService().findByQuery(
+                                "from Format as f where f.value='"
+                                        + contentType + "'", null);
+                    }
+                });
+                
+        IceMapper mapper = new IceMapper();
+        return (Format) mapper.map(format);
+
     }
 
     /**
@@ -383,7 +400,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         // This needs to be unique - see ticket #1753
         file.setName(rstring(f.getAbsolutePath()));
         
-        file.setFormat(getFileFormat(f.getAbsolutePath()));
+        file.setFormat(getFileFormat(f));
         
         return file;
     }
