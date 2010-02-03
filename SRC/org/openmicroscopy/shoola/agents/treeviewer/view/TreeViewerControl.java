@@ -323,7 +323,13 @@ class TreeViewerControl
 	static final Integer   UPLOAD_SCRIPT = Integer.valueOf(60);
 	
 	/** Identifies the <code>Admin</code> in the menu. */
-	static final Integer   ADMIN = Integer.valueOf(61);
+	//static final Integer   ADMIN = Integer.valueOf(61);
+	
+	/** Identifies the <code>Create group</code> in the File menu. */
+	static final Integer    CREATE_TOP_GROUP = Integer.valueOf(62);
+	
+	/** Identifies the <code>Create experimenter</code> in the File menu. */
+	static final Integer    CREATE_TOP_EXPERIMENTER = Integer.valueOf(63);
 	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
@@ -447,7 +453,13 @@ class TreeViewerControl
 		actionsMap.put(FULLSCREEN, new FullScreenViewerAction(model));
 		actionsMap.put(METADATA, new MetadataVisibilityAction(model));
 		actionsMap.put(UPLOAD_SCRIPT, new UploadScriptAction(model));
-		actionsMap.put(ADMIN, new AdminAction(model));
+		//actionsMap.put(ADMIN, new AdminAction(model));
+		actionsMap.put(CREATE_TOP_GROUP,  
+				new CreateTopContainerAction(model, 
+						CreateTopContainerAction.GROUP));
+		actionsMap.put(CREATE_TOP_EXPERIMENTER,  
+				new CreateTopContainerAction(model, 
+						CreateTopContainerAction.EXPERIMENTER));
 	}
 
 	/** 
@@ -675,10 +687,10 @@ class TreeViewerControl
 	List<GroupSelectionAction> getUserGroupAction()
 	{
 		List<GroupSelectionAction> l = new ArrayList<GroupSelectionAction>();
-		Map m = TreeViewerAgent.getAvailableUserGroups();
+		Set m = TreeViewerAgent.getAvailableUserGroups();
 		if (m == null || m.size() == 0) return l;
 		ViewerSorter sorter = new ViewerSorter();
-		Iterator i = sorter.sort(m.keySet()).iterator();
+		Iterator i = sorter.sort(m).iterator();
 		GroupData group;
 		GroupSelectionAction action;
 		while (i.hasNext()) {

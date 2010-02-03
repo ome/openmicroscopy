@@ -45,7 +45,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterImageLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterImagesCounter;
 import org.openmicroscopy.shoola.agents.treeviewer.FilesChecker;
-import org.openmicroscopy.shoola.agents.treeviewer.ImageDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.agents.treeviewer.ScreenPlateLoader;
@@ -157,6 +156,7 @@ class BrowserModel
             case Browser.SCREENS_EXPLORER: 
             case Browser.FILES_EXPLORER:
             case Browser.FILE_SYSTEM_EXPLORER:
+            case Browser.ADMIN_EXPLORER:
                 break;
             default:
                 throw new IllegalArgumentException("Browser type not valid.");
@@ -523,21 +523,18 @@ class BrowserModel
 	void fireExperimenterDataLoading(TreeImageSet expNode)
 	{
 		int index = -1;
+		if (browserType == Browser.ADMIN_EXPLORER) {
+			state = Browser.LOADING_DATA;
+			component.setGroups(TreeViewerAgent.getGroupsLeaderof());
+			return;
+		}
 		if (browserType == Browser.SCREENS_EXPLORER) {
 			currentLoader = new ScreenPlateLoader(component, expNode, 
 												ScreenPlateLoader.SCREEN);
 	        currentLoader.load();
-	        state = Browser.LOADING_DATA;
-			return;
-		}
-		/*
-		if (browserType == Browser.FILE_SYSTEM_EXPLORER) {
-			currentLoader = new ImageDataLoader(component, expNode);
-			currentLoader.load();
 			state = Browser.LOADING_DATA;
 			return;
 		}
-		*/
 		switch (browserType) {
 			case Browser.PROJECT_EXPLORER:
 				index = ExperimenterDataLoader.PROJECT;

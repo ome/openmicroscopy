@@ -26,9 +26,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 import javax.swing.Action;
 
 //Third-party libraries
@@ -74,24 +72,30 @@ public class SwitchUserAction
     protected void onBrowserStateChange(Browser browser)
     {
     	if (browser == null) return;
-    	if (browser == null) return;
+    	if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
+    		setEnabled(false);
+    		return;
+    	}
     	if (browser.getState() == Browser.READY) {
-    		Map m = TreeViewerAgent.getAvailableUserGroups();
-    		ExperimenterData exp =  TreeViewerAgent.getUserDetails();
-    		Iterator i = m.entrySet().iterator();
+    		Set m = TreeViewerAgent.getAvailableUserGroups();
+    		Iterator i = m.iterator();
     		GroupData group;
     		boolean enabled = false;
-    		Entry entry;
     		Set set;
     		PermissionData permissions;
+    		long id = model.getUserGroupID();
     		while (i.hasNext()) {
-    			entry = (Entry) i.next();
-    			group = (GroupData) entry.getKey();
-				if (group.getId() == exp.getDefaultGroup().getId()) {
-					permissions = group.getPermissions();
-					if (permissions.isGroupRead()) {
-						set  = (Set) entry.getValue();
+    			group = (GroupData) i.next();
+				if (group.getId() == group.getId()) {
+					if (model.isLeaderOfSelectedGroup()) {
+						set = group.getExperimenters();
 						enabled = set.size() > 1;
+					} else {
+						permissions = group.getPermissions();
+						if (permissions.isGroupRead()) {
+							set = group.getExperimenters();
+							enabled = set.size() > 1;
+						}
 					}
 					break;
 				}

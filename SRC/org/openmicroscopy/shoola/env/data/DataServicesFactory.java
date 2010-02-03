@@ -408,27 +408,28 @@ public class DataServicesFactory
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
         registry.bind(LookupNames.CONNECTION_SPEED, 
         		isFastConnection(uc.getSpeedLevel()));
-        Map<GroupData, Set> groups;
+        Set<GroupData> groups;
         List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
         try {
         	 groups = omeroGateway.getAvailableGroups(exp);
         	 registry.bind(LookupNames.USER_GROUP_DETAILS, groups);
-        	 
         	 List<Long> ids = new ArrayList<Long>();
-        	 Iterator i = groups.keySet().iterator();
+        	 Iterator i = groups.iterator();
         	 Set set;
         	 Iterator j;
+        	 GroupData g;
         	 ExperimenterData e;
         	 while (i.hasNext()) {
-				set = groups.get(i.next());
-				j = set.iterator();
-				while (j.hasNext()) {
-					e = (ExperimenterData) j.next();
-					if (!ids.contains(e.getId())) {
-						ids.add(e.getId());
-						exps.add(e);
-					}
-				}
+        		 g = (GroupData) i.next();
+        		 set = g.getExperimenters();
+        		 j = set.iterator();
+        		 while (j.hasNext()) {
+        			 e = (ExperimenterData) j.next();
+        			 if (!ids.contains(e.getId())) {
+        				 ids.add(e.getId());
+        				 exps.add(e);
+        			 }
+        		 }
 			}
         	registry.bind(LookupNames.USERS_DETAILS, exps);	 
 		} catch (DSAccessException e) {
@@ -470,18 +471,16 @@ public class DataServicesFactory
 	public void shutdown()
     { 
 		//Need to write the current group.
-		Map groups = (Map) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+		Set groups = (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
 		if (groups != null) {
 			ExperimenterData exp = (ExperimenterData) 
 			registry.lookup(LookupNames.CURRENT_USER_DETAILS);
 			GroupData group = exp.getDefaultGroup();	
-			Entry entry;
-			Iterator i = groups.entrySet().iterator();
+			Iterator i = groups.iterator();
 			GroupData g;
 			Map<Long, String> names = new LinkedHashMap<Long, String>();
 			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				g = (GroupData) entry.getKey();
+				g = (GroupData) i.next();
 				if (g.getId() != group.getId()) {
 					if (!omeroGateway.isSystemGroup(g.asGroup()))
 						names.put(g.getId(), g.getName());

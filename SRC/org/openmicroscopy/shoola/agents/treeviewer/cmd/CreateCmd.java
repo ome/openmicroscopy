@@ -34,6 +34,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.util.ImportDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -76,6 +78,12 @@ public class CreateCmd
     /** Indicates to create a <code>Tag Set</code>. */
     public static final int TAG_SET = 6;
     
+    /** Indicates to create a <code>Group</code>. */
+	public static final int GROUP = 7;
+	
+	/** Indicates to create a <code>Experimenter</code>. */
+	public static final int EXPERIMENTER = 8;
+	
     /** Reference to the model. */
     private TreeViewer  model;
     
@@ -111,6 +119,8 @@ public class CreateCmd
             case TAG_SET: return new TagAnnotationData("foo", true);
             case PLATE: return new PlateData();
             case IMAGE: return new ImageData();
+            case GROUP: return new GroupData();
+            case EXPERIMENTER: return new ExperimenterData();
             default:
                 throw new IllegalArgumentException("Type not supported");
         }

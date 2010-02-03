@@ -315,9 +315,9 @@ public class AdvancedFinder
 	 * 
 	 * @return See above.
 	 */
-	private Map getAvailableGroups()
+	private Set getAvailableGroups()
 	{
-		return (Map) FinderFactory.getRegistry().lookup(
+		return (Set) FinderFactory.getRegistry().lookup(
 				LookupNames.USER_GROUP_DETAILS);
 	}
 	

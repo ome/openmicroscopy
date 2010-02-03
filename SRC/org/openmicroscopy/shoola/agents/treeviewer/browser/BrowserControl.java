@@ -113,6 +113,9 @@ class BrowserControl
 	
 	/** Identifies the <code>Refresh</code> action. */
 	static final Integer    REFRESH = Integer.valueOf(10);
+	
+	/** Identifies the <code>New Admin</code> action. */
+	static final Integer    NEW_ADMIN = Integer.valueOf(11);
 
     /** 
      * Reference to the {@link Browser} component, which, in this context,
@@ -138,6 +141,8 @@ class BrowserControl
         actionsMap.put(DELETE, new BrowserDeleteAction(model));
         actionsMap.put(NEW_CONTAINER, new BrowserManageAction(model, 
         		BrowserManageAction.NEW_CONTAINERS));
+        actionsMap.put(NEW_ADMIN, new BrowserManageAction(model, 
+        		BrowserManageAction.NEW_ADMIN));
         actionsMap.put(NEW_TAG, new BrowserManageAction(model, 
         		BrowserManageAction.NEW_TAGS));
         actionsMap.put(IMPORT, new BrowserImportAction(model));

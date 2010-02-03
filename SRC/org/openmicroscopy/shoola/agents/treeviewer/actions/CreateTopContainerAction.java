@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.ExperimenterData;
 import pojos.ProjectData;
 import pojos.TagAnnotationData;
 
@@ -75,6 +76,12 @@ public class CreateTopContainerAction
 	/** Indicates to create a <code>Tag SEt</code>. */
 	public static final int TAG_SET = CreateCmd.TAG_SET;
 	
+	/** Indicates to create a <code>Group</code>. */
+	public static final int GROUP = CreateCmd.GROUP;
+	
+	/** Indicates to create a <code>Experimenter</code>. */
+	public static final int EXPERIMENTER = CreateCmd.EXPERIMENTER;
+	
     /** The name of the action for the creation of a <code>Project</code>. */
     private static final String NAME = "New...";
     
@@ -93,6 +100,12 @@ public class CreateTopContainerAction
     /** The name of the action for the creation of a <code>Screen</code>. */
     private static final String NAME_SCREEN = "New Screen...";
     
+    /** The name of the action for the creation of a <code>Group</code>. */
+    private static final String NAME_GROUP = "New Group...";
+    
+    /** The name of the action for the creation of a <code>Screen</code>. */
+    private static final String NAME_EXPERIMENTER = "New Experimenter...";
+    
     /** Description of the action for a <code>Tag</code> . */
     private static final String DESCRIPTION_TAG_SET = "Create a new Tag Set.";
     
@@ -107,6 +120,15 @@ public class CreateTopContainerAction
     
     /** The name of the action for the creation of a <code>Screen</code>. */
     private static final String DESCRIPTION_SCREEN = "Create a new Screen.";
+    
+    /** The name of the action for the creation of a <code>Group</code>. */
+    private static final String DESCRIPTION_GROUP = "Create a new Group.";
+    
+    /** 
+     * The name of the action for the creation of a <code>Experimenter</code>. 
+     */
+    private static final String DESCRIPTION_EXPERIMENTER = 
+    							"Create a new experimenter.";
     
     /** The type of node to create. */
     private int nodeType;
@@ -150,6 +172,20 @@ public class CreateTopContainerAction
 				putValue(Action.SHORT_DESCRIPTION, 
 		                UIUtilities.formatToolTipText(DESCRIPTION_SCREEN));
 				break;
+			case GROUP:
+				name = NAME_GROUP;
+				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.ADMIN));
+				putValue(Action.SHORT_DESCRIPTION, 
+		                UIUtilities.formatToolTipText(DESCRIPTION_GROUP));
+				break;
+			case EXPERIMENTER:
+				name = NAME_EXPERIMENTER;
+				putValue(Action.SMALL_ICON, 
+						icons.getIcon(IconManager.PERSONAL));
+				putValue(Action.SHORT_DESCRIPTION, 
+		                UIUtilities.formatToolTipText(
+		                		DESCRIPTION_EXPERIMENTER));
+				break;
 			default:
 				throw new IllegalArgumentException("Type not supported.");
 		}
@@ -184,30 +220,7 @@ public class CreateTopContainerAction
         if (browser == null) {
             setEnabled(false);
             name = NAME;
-        } else {
-        	/*
-            switch (browser.getBrowserType()) {
-                case Browser.PROJECT_EXPLORER:
-                    setEnabled(true);
-                    name = NAME_PROJECT; 
-                    nodeType = CreateCmd.PROJECT;
-                    putValue(Action.SHORT_DESCRIPTION, 
-                            UIUtilities.formatToolTipText(DESCRIPTION_PROJECT));
-                    break;
-                case Browser.CATEGORY_EXPLORER:
-                	setEnabled(true);
-                    name = NAME_CATEGORY_GROUP; 
-                    nodeType = CreateCmd.CATEGORY_GROUP;
-                    putValue(Action.SHORT_DESCRIPTION, 
-                            UIUtilities.formatToolTipText(
-                                    DESCRIPTION_CATEGORY_GROUP));
-                    break;
-                case Browser.IMAGES_EXPLORER:
-                    //setEnabled(true);
-                    setEnabled(false);
-                    name = NAME;
-            }*/
-        }
+        } 
         description = (String) getValue(Action.SHORT_DESCRIPTION);
     }
     
@@ -245,6 +258,8 @@ public class CreateTopContainerAction
 					case DATASET:
 						if (uo instanceof ProjectData) withParent = true;
 						break;
+					case EXPERIMENTER:
+						if (uo instanceof ExperimenterData) withParent = true;
 					case TAG:
 						if (uo instanceof TagAnnotationData) {
 							TagAnnotationData tag = (TagAnnotationData) uo;

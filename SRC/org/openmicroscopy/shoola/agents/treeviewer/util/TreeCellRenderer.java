@@ -47,6 +47,7 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -124,6 +125,8 @@ public class TreeCellRenderer
         	else icon = icons.getIcon(IconManager.PLATE);
         } else if (usrObject instanceof ScreenAcquisitionData) {
             icon = icons.getIcon(IconManager.PLATE_ACQUISITION);
+        } else if (usrObject instanceof GroupData) {
+        	icon = icons.getIcon(IconManager.PERSONAL);
         } else if (usrObject instanceof FileAnnotationData) {
         	FileAnnotationData data = (FileAnnotationData) usrObject;
         	String format = data.getFileFormat();
@@ -241,7 +244,11 @@ public class TreeCellRenderer
             w += getIconTextGap();
             w += fm.stringWidth(getText());
             setPreferredSize(new Dimension(w, fm.getHeight()));
-            if (sel) setTextColor(getBackgroundSelectionColor());
+            Color c = node.getHighLight();
+            if (c == null) c = tree.getForeground();
+            setForeground(c);
+            if (!sel) setBorderSelectionColor(getBackground());
+            else setTextColor(getBackgroundSelectionColor());
             return this;
         }
         setIcon(node);

@@ -154,18 +154,6 @@ class PropertiesUI
     /** The label displaying the parent of the node. */
     private JLabel				parentLabel;
     
-    /** Indicates if the <code>DataObject</code> has group visibility. */
-    private JRadioButton 		publicBox;
-    
-    /** Indicates if the <code>DataObject</code> is only visible by owner. */
-    private JRadioButton 		privateBox;
-    
-    /** 
-     * Indicates if the <code>DataObject</code> is only visible by members
-     * of the group the user belongs to. 
-     */
-    private JRadioButton 		groupBox;
-    
     /** The area displaying the channels information. */
 	private JLabel				channelsArea;
 
@@ -190,24 +178,6 @@ class PropertiesUI
     	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(UIUtilities.BACKGROUND_COLOR);
         Font f;
-        groupBox = new JRadioButton(EditorUtil.GROUP_VISIBLE);
-        groupBox.setBackground(UIUtilities.BACKGROUND_COLOR);
-        groupBox.setToolTipText(EditorUtil.GROUP_DESCRIPTION);
-        groupBox.setEnabled(false);
-    	publicBox = new JRadioButton(EditorUtil.PUBLIC);
-    	publicBox.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	publicBox.setEnabled(false);
-    	f = publicBox.getFont();
-        privateBox =  new JRadioButton(EditorUtil.PRIVATE);
-        privateBox.setBackground(UIUtilities.BACKGROUND_COLOR);
-        publicBox.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
-        privateBox.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
-        privateBox.setSelected(true);
-        privateBox.setEnabled(false);
-    	ButtonGroup group = new ButtonGroup();
-       	group.add(privateBox);
-       	group.add(groupBox);
-       	group.add(publicBox);
        	
        	parentLabel = new JLabel();
        	parentLabel.setOpaque(false);

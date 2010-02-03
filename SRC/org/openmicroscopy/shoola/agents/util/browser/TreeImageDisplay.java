@@ -45,6 +45,7 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -436,6 +437,8 @@ public abstract class TreeImageDisplay
         else if (obj instanceof ExperimenterData) {
         	ExperimenterData exp = (ExperimenterData) obj;
         	return exp.getFirstName()+" "+exp.getLastName();
+        } else if (obj instanceof GroupData) {
+        	 return ((GroupData) obj).getName();
         } else if (obj instanceof TagAnnotationData)
         	return ((TagAnnotationData) obj).getTagValue();
         else if (obj instanceof ScreenData)
@@ -503,7 +506,7 @@ public abstract class TreeImageDisplay
     	Object uo = getUserObject();
     	if ((uo instanceof ProjectData) || (uo instanceof ScreenData) ||
     		(uo instanceof PlateData) || (uo instanceof DatasetData) ||
-    		(uo instanceof TagAnnotationData)) {
+    		(uo instanceof TagAnnotationData) || (uo instanceof GroupData)) {
     		if (numberItems > 0) return true;
         	return hasChildrenDisplay();
     	}

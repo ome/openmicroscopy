@@ -60,6 +60,7 @@ import org.openmicroscopy.shoola.util.filter.file.PythonFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.WellSampleData;
 
@@ -377,7 +378,6 @@ class ToolBar
     	if ((refObject instanceof ImageData) || 
     			(refObject instanceof WellSampleData)) {
     		rndButton.setEnabled(!model.isRendererLoaded());
-    		
     		if (model.isNumerousChannel())
     			rndButton.setEnabled(false);
     		if (refObject instanceof ImageData) {
@@ -394,9 +394,12 @@ class ToolBar
     /** Sets the root object. */
 	void setRootObject()
 	{ 
-		if (model.getRefObject() instanceof ExperimenterData) {
+		Object ref = model.getRefObject();
+		if ((ref instanceof ExperimenterData) || 
+			(ref instanceof GroupData)) {
 			publishingButton.setEnabled(false);
 			analysisButton.setEnabled(false);
+			scriptsButton.setEnabled(false);
 			return;
 		}
 		publishingButton.setEnabled(true);

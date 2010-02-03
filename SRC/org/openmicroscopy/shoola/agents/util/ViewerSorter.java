@@ -336,6 +336,8 @@ public class ViewerSorter
         	return ((TagAnnotationData) obj).getTagValue();
         else if (obj instanceof FileData)
         	return ((FileData) obj).getName();
+        else if (obj instanceof GroupData)
+        	return ((GroupData) obj).getName();
         else if (obj instanceof String) return (String) obj;
         return "";
     }

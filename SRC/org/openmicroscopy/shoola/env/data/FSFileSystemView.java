@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
-import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +36,7 @@ import javax.swing.filechooser.FileSystemView;
 
 //Application-internal dependencies
 import omero.grid.RepositoryPrx;
-import omero.model.OriginalFileI;
+import omero.model.OriginalFile;
 import pojos.FileData;
 
 
@@ -154,15 +153,15 @@ public class FSFileSystemView
     	if (proxy == null) return null;
     	Vector<FileData> files = new Vector<FileData>();
     	try {
-    		List<String> list = proxy.list(dir.getAbsolutePath());
+    		List<OriginalFile> list = proxy.list(dir.getAbsolutePath());
     		if (list == null) return null;
-    		Iterator<String> i = list.iterator();
+    		Iterator<OriginalFile> i = list.iterator();
     		FileData f;
-    		OriginalFileI of;
+    		//OriginalFileI of;
     		while (i.hasNext()) {
-    			of = new OriginalFileI();
-    			of.setName(omero.rtypes.rstring(i.next()));
-				f = new FileData(of);
+    			//of = new OriginalFileI();
+    			//of.setName(omero.rtypes.rstring(i.next()));
+				f = new FileData(i.next());
 				if (!useFileHiding) {
 					if (!isHiddenFile(f)) files.addElement(f);
 				} else files.addElement(f);

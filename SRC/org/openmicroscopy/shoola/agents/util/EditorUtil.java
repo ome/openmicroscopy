@@ -62,6 +62,7 @@ import pojos.DetectorData;
 import pojos.DichroicData;
 import pojos.ExperimenterData;
 import pojos.FilterData;
+import pojos.GroupData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.InstrumentData;
@@ -97,7 +98,7 @@ public class EditorUtil
 	public static final String DATE_NOT_AVAILABLE = "Not available";
 	
     /** Identifies the <code>Default group</code>. */
-	public static final String	DEFAULT_GROUP = "Main Group";
+	public static final String	DEFAULT_GROUP = "Current Group";
 	
 	/** Symbols indicating the mandatory values. */
 	public static final String	MANDATORY_SYMBOL = " *";
@@ -656,7 +657,7 @@ public class EditorUtil
 		if (exp == null) return "";
 		return exp.getFirstName()+" "+exp.getLastName();
 	}
-	
+    
 	/**
      * Transforms the specified {@link ExperimenterData} object into 
      * a visualization form.

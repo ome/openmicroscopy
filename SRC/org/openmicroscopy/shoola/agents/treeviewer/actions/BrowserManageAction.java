@@ -60,8 +60,11 @@ public class BrowserManageAction
 	/** Indicates to show the menu for tags. */
 	public static final int		NEW_TAGS = 0;
 	
-	/** Indicates to show the menu for tags. */
+	/** Indicates to show the menu for container. */
 	public static final int		NEW_CONTAINERS = 1;
+	
+	/** Indicates to show the menu for admin tasks. */
+	public static final int		NEW_ADMIN = 2;
 	
     /** The description of the action. */
     private static final String DESCRIPTION_CONTAINERS = 
@@ -70,6 +73,9 @@ public class BrowserManageAction
     /** The description of the action. */
     private static final String DESCRIPTION_TAGS = "Create new Tag Set or Tag";
 
+    /** The description of the action. */
+    private static final String DESCRIPTION_ADMIN = "Create new Group or User.";
+    
     /** The location of the mouse pressed. */
     private Point 	point;
     
@@ -94,6 +100,11 @@ public class BrowserManageAction
 				putValue(Action.SMALL_ICON, im.getIcon(IconManager.TAG));
 				putValue(Action.SHORT_DESCRIPTION, 
 		                UIUtilities.formatToolTipText(DESCRIPTION_TAGS));
+				break;
+			case NEW_ADMIN:
+				putValue(Action.SMALL_ICON, im.getIcon(IconManager.CREATE));
+				putValue(Action.SHORT_DESCRIPTION, 
+		                UIUtilities.formatToolTipText(DESCRIPTION_ADMIN));
 				break;
 			default:
 				throw new IllegalArgumentException("Index not supported.");
@@ -153,6 +164,10 @@ public class BrowserManageAction
 				break;
 			case NEW_CONTAINERS:
 				model.showMenu(TreeViewer.CREATE_MENU_CONTAINERS, 
+	            		(Component) source, point);
+				break;
+			case NEW_ADMIN:
+				model.showMenu(TreeViewer.CREATE_MENU_ADMIN, 
 	            		(Component) source, point);
         	}
         }

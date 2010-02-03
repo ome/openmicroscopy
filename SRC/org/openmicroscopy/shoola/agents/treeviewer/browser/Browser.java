@@ -151,6 +151,12 @@ public interface Browser
      */
     public static final int     	SHARES_EXPLORER = 106;
     
+    /** 
+     * Indicates that the browser corresponds to an Administration
+     * explorer.
+     */
+    public static final int     	ADMIN_EXPLORER = 107;
+    
     /** Indicates to sort the nodes by date. */
     public static final int         SORT_NODES_BY_DATE = 300;
     
@@ -210,6 +216,11 @@ public interface Browser
      * The browser's title corresponding to {@link #FILE_SYSTEM_EXPLORER} type.
      */
     public static final String     FILE_SYSTEM_TITLE = "File System";
+    
+    /** 
+     * The browser's title corresponding to {@link #ADMIN_EXPLORER} type.
+     */
+    public static final String     ADMIN_TITLE = "Administration";
     
     /**
      * Sets the selected {@link TreeImageDisplay node}.
@@ -690,5 +701,7 @@ public interface Browser
 	 * 						Mustn't be <code>null</code>.
 	 */
 	void setRepositories(TreeImageDisplay expNode, FSFileSystemView systemView);
+	
+	void setGroups(Set groups);
 	
 }

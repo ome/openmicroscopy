@@ -289,6 +289,9 @@ class TreeViewerModel
 		browser = BrowserFactory.createBrowser(Browser.FILE_SYSTEM_EXPLORER,
 				component, experimenter, true);
 		browsers.put(Browser.FILE_SYSTEM_EXPLORER, browser);
+		browser = BrowserFactory.createBrowser(Browser.ADMIN_EXPLORER,
+				component, experimenter, true);
+		browsers.put(Browser.ADMIN_EXPLORER, browser);
 	}
 
 	/** Initializes. */
@@ -1152,5 +1155,46 @@ class TreeViewerModel
 	 * 					 window.
 	 */
 	void setFullScreen(boolean fullScreen) { this.fullScreen = fullScreen; }
+	
+	/**
+	 * Returns <code>true</code> if the currently logged in user is 
+	 * a leader of a group, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isLeader()
+	{
+		return TreeViewerAgent.getGroupsLeaderof().size() > 0;
+	}
+
+	/**
+	 * Sets the id of the currently selected group.
+	 * 
+	 * @param groupID The value to set.
+	 */
+	void setGroupId(long groupID)
+	{
+		this.userGroupID = groupID;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the currently logged in user is 
+	 * a leader of the selected group, <code>false</code>.
+	 * 
+	 * @return See above.
+	 */
+	boolean isLeaderOfSelectedGroup()
+	{
+		Set groups = TreeViewerAgent.getGroupsLeaderof();
+		if (groups.size() == 0) return false;
+		Iterator i = groups.iterator();
+		GroupData group;
+		while (i.hasNext()) {
+			group = (GroupData) i.next();
+			if (group.getId() == userGroupID)
+				return true;
+		}
+		return false;
+	}
 	
 }

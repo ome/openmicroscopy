@@ -1431,13 +1431,14 @@ class EditorModel
 	}
 	
 	/**
-	 * Starts an asynchronous call to update the experimenter.
+	 * Starts an asynchronous call to update the experimenter or the group.
 	 * 
-	 * @param exp The experimenter to save.
+	 * @param data The experimenter or the group to save.
 	 */
-	void fireDataObjectSaving(ExperimenterData exp)
+	void fireDataObjectSaving(DataObject data)
 	{
-		parent.saveData(null, null, null,null, exp);
+		if ((data instanceof ExperimenterData) || (data instanceof GroupData))	
+			parent.saveData(null, null, null,null, data);
 	}
 	
 	/**

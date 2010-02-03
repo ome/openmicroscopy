@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Java imports
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -49,7 +51,6 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.ActivityFinishedEvent;
-
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -101,10 +102,42 @@ public class TreeViewerAgent
 	 * 
 	 * @return See above.
 	 */
-	public static Map getAvailableUserGroups()
+	public static Set getAvailableUserGroups()
 	{
-		return (Map) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+		return (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
 	}
+	
+	/**
+	 * Returns the collection of groups the current user is the leader of.
+	 * 
+	 * @return See above.
+	 */
+	public static Set getGroupsLeaderof()
+	{
+		Set values = new HashSet();
+		Set groups = getAvailableUserGroups();
+		Iterator i = groups.iterator();
+		GroupData g;
+		Set leaders;
+		ExperimenterData exp = getUserDetails();
+		long id = exp.getId();
+		Iterator j;
+		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			leaders = g.getLeaders();
+			if (leaders != null && leaders.size() > 0) {
+				j = leaders.iterator();
+				while (j.hasNext()) {
+					exp = (ExperimenterData) j.next();
+					if (exp.getId() == id)
+						values.add(g);
+				}
+			}
+		}
+		
+		return values;
+	}
+	
 	
     /**
      * Handles the {@link CopyRndSettings} event.

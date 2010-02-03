@@ -54,6 +54,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -117,6 +118,9 @@ public class EditorUI
 	
 	/** The UI component displaying the user's information. */
 	private UserUI						userUI;
+	
+	/** The UI component displaying the group's information. */
+	private GroupProfile				groupUI;
 
 	/** The tool bar with various controls. */
 	private ToolBar						toolBar;
@@ -131,6 +135,9 @@ public class EditorUI
     
     /** The tab pane hosting the user's information. */
     private JComponent					userTabbedPane;
+    
+    /** The tab pane hosting the group's information. */
+    private JComponent					groupTabbedPane;
     
     /** The component currently displayed.. */
     private JComponent					component;
@@ -160,6 +167,7 @@ public class EditorUI
 	private void initComponents()
 	{
 		dummyPanel = new JPanel();
+		groupUI = new GroupProfile(model);
 		userUI = new UserUI(model, controller);
 		toolBar = new ToolBar(model, controller);
 		generalPane = new GeneralPaneUI(this, model, controller);
@@ -173,6 +181,7 @@ public class EditorUI
 		defaultPane.setBackground(UIUtilities.BACKGROUND_COLOR);
 		component = defaultPane;
 		userTabbedPane = new JScrollPane(userUI);
+		groupTabbedPane = new JScrollPane(groupUI);
 		//userTabbedPane.add(userUI);
 		//userTabbedPane = new JTabbedPane();
 		//userTabbedPane.addTab("Profile", null, new JScrollPane(userUI),
@@ -227,7 +236,11 @@ public class EditorUI
 	    		userUI.repaint();
 	    		component = userTabbedPane; 
 			} else add = false;
-    		
+    	} else if (uo instanceof GroupData) {
+    		toolBar.buildUI();
+    		groupUI.buildUI();
+    		groupUI.repaint();
+    		component = groupTabbedPane; 
     	} else if (!(uo instanceof DataObject)) {	
     		toolBar.buildUI();
     		component = defaultPane;
@@ -265,6 +278,7 @@ public class EditorUI
 			revalidate();
 	    	repaint();
 		} else if (uo instanceof ExperimenterData) {
+			toolBar.setStatus(false);
 			layoutUI();
 		} else {
 			boolean load = false;
@@ -317,6 +331,10 @@ public class EditorUI
 		if (model.getRefObject() instanceof ExperimenterData) {
 			ExperimenterData exp = userUI.getExperimenterToSave();
 			model.fireDataObjectSaving(exp);
+			return;
+		} else if  (model.getRefObject() instanceof GroupData) {
+			GroupData group = groupUI.getDataToSave();
+			model.fireDataObjectSaving(group);
 			return;
 		}
 		Map<Integer, List<AnnotationData>> m = generalPane.prepareDataToSave();
@@ -381,6 +399,8 @@ public class EditorUI
 		if (!(ref instanceof DataObject)) return false;
 		if (ref instanceof ExperimenterData)
 			return userUI.hasDataToSave();
+		else if (ref instanceof GroupData)
+			return groupUI.hasDataToSave();
 		boolean b = generalPane.hasDataToSave();
 		if (b) return b;
 		//Check metadata.

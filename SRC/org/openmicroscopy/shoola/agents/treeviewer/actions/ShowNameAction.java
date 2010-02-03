@@ -52,8 +52,7 @@ public class ShowNameAction
 {
 
     /** Description of the action. */
-    private static final String DESCRIPTION = "Show the full name of " +
-    									"the image.";
+    private static final String DESCRIPTION = "Show the full name.";
     
     /** 
      * Reacts to {@link Browser}'s state change.

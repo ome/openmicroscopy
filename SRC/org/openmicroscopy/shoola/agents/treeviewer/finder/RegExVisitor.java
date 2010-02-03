@@ -41,7 +41,9 @@ import org.openmicroscopy.shoola.util.ui.RegExFactory;
 import pojos.AnnotationData;
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
  * Retrieves the nodes that match a given pattern
@@ -84,6 +86,12 @@ public class RegExVisitor
             return ((DatasetData) userObject).getName();
         else if (userObject instanceof ImageData) 
             return ((ImageData) userObject).getName();
+        else if (userObject instanceof ImageData) 
+            return ((ImageData) userObject).getName();
+        else if (userObject instanceof PlateData) 
+            return ((PlateData) userObject).getName();
+        else if (userObject instanceof ScreenData) 
+            return ((ScreenData) userObject).getName();
         return null;
     }
     

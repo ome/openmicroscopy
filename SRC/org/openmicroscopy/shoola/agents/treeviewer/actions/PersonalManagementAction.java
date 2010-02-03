@@ -28,8 +28,7 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.Map;
-
+import java.util.Set;
 import javax.swing.Action;
 
 
@@ -73,10 +72,13 @@ public class PersonalManagementAction
     protected void onBrowserStateChange(Browser browser)
     {
     	if (browser == null) return;
-    	if (browser.getState() == Browser.READY) {
-    		Map m = TreeViewerAgent.getAvailableUserGroups();
-    		setEnabled(m.size() > 1);
-    	} else setEnabled(false);
+    	if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
+    		setEnabled(false);
+    	} else {
+    		if (browser.getState() == Browser.READY) {
+        		setEnabled(TreeViewerAgent.getAvailableUserGroups().size() > 1);
+        	} else setEnabled(false);
+    	}
     }
     
     /**

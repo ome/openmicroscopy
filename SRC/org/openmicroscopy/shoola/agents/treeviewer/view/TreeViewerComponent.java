@@ -207,22 +207,20 @@ class TreeViewerComponent
 	/** 
 	 * Displays the user groups.
 	 * 
-	 * @param map 	The map whose key is a <code>GroupData</code>s
-	 * 				and the value a collection of 
-	 * 				<code>ExperimenterData</code>s.
+	 * @param groups The groups the current user is a member of.
 	 */
-	private void displayUserGroups(Map map)
+	private void displayUserGroups(Set groups)
 	{
-		if (switchUserDialog == null) {
+		//if (switchUserDialog == null) {
 			JFrame f = (JFrame) TreeViewerAgent.getRegistry().getTaskBar();
 			IconManager icons = IconManager.getInstance();
 			switchUserDialog = new UserManagerDialog(f, model.getUserDetails(), 
-					map, icons.getIcon(IconManager.OWNER), 
+					groups, icons.getIcon(IconManager.OWNER), 
 					icons.getIcon(IconManager.OWNER_48));
 			switchUserDialog.addPropertyChangeListener(controller);
 			//switchUserDialog.pack();
 			switchUserDialog.setDefaultSize();
-		}
+		//}
 		UIUtilities.centerAndShow(switchUserDialog);
 	}
 	
@@ -1141,6 +1139,7 @@ class TreeViewerComponent
 			case MANAGER_MENU:
 			case CREATE_MENU_CONTAINERS:  
 			case CREATE_MENU_TAGS:  
+			case CREATE_MENU_ADMIN:
 			case PERSONAL_MENU:
 				break;
 			default:
@@ -2655,7 +2654,6 @@ class TreeViewerComponent
 		if (model.getState() != READY) return;
 		if (group == null) return;
 		ExperimenterData exp = TreeViewerAgent.getUserDetails();
-		//if (group.getId() == exp.getDefaultGroup().getId()) return;
 		IconManager icons = IconManager.getInstance();
 		MessageBox box = new MessageBox(view, "Group change", "Changing group" +
 				" will remove data currently displayed.\nDo you" +
@@ -2664,7 +2662,7 @@ class TreeViewerComponent
 		Registry reg = TreeViewerAgent.getRegistry();
 		try {
 			//Review that code.
-			reg.getAdminService().updateExperimenter(exp, group);
+			reg.getAdminService().changeExperimenterGroup(exp, group);
 		} catch (Exception e) {
 			LogMessage msg = new LogMessage();
 	        msg.print("Cannot modify current group.");
@@ -2674,6 +2672,7 @@ class TreeViewerComponent
 			un.notifyInfo("Group change", "Cannot modify current group.");
 			return;
 		}
+		model.setGroupId(group.getId());
 		reg.getEventBus().post(new ChangeUserGroupEvent(group.getId()));
 		Map browsers = model.getBrowsers();
 		Entry entry;
@@ -2754,6 +2753,16 @@ class TreeViewerComponent
 			return;
 		}
 		un.notifyActivity(script);
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#uploadScript(ScriptObject)
+	 */
+	public boolean isLeaderOfSelectedGroup()
+	{
+		if (model.getState() == DISCARDED) return false;
+		return model.isLeaderOfSelectedGroup();
 	}
 	
 }

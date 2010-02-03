@@ -98,7 +98,7 @@ class UserProfile
 	/** The title of the dialog displayed if a problem occurs. */
 	private static final String		PASSWORD_CHANGE_TITLE = "Change Password";
 	
-    /** The editable items. */
+    /** The items that can be edited. */
     private Map<String, JTextField>	items;
     
     /** UI component displaying the groups, the user is a member of. */
@@ -131,43 +131,6 @@ class UserProfile
     /** The groups the user is a member of. */
     private GroupData[] 			groupData;
 
-    /** Indicates if the <code>DataObject</code> is only visible by owner. */
-    private JRadioButton 		privateBox;
-    
-    /** 
-     * Indicates if the <code>DataObject</code> is only visible by members
-     * of the group the user belongs to. 
-     */
-    private JRadioButton 		groupBox;
-    
-    /**
-     * Builds and lays out the panel displaying the permissions of the edited
-     * file.
-     * 
-     * @param permissions   The permissions of the edited object.
-     * @return See above.
-     */
-    private JPanel buildPermissions(PermissionData permissions)
-    {
-        JPanel content = new JPanel();
-        content.setBackground(UIUtilities.BACKGROUND_COLOR);
-        boolean b = true;;
-       	if (permissions != null && permissions.isGroupRead()) {
-       		//groupBox.setSelected(true);
-       		//b = false;
-       	}
-   		groupBox.setEnabled(b);
-   		privateBox.setEnabled(b);
-       	content.add(privateBox);
-       	content.add(groupBox);
-       	JPanel p = UIUtilities.buildComponentPanel(content, 0, 0);
-       	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-       	p.setBorder(
-				BorderFactory.createTitledBorder("Permission for all data"));
-       	
-        return p;
-    }
-    
     /** Modifies the existing password. */
     private void changePassword()
     {
@@ -212,24 +175,7 @@ class UserProfile
         }
         model.changePassword(old, confirm);
     }
-    
-    /** Upgrades the permissions of all data within the selected group. */
-    private void upgradePermissions()
-    {
-    	GroupData data = (GroupData) groups.getSelectedItem();
-    	//ask Question to user.
-    	MessageBox msg = new MessageBox(
-    			MetadataViewerAgent.getRegistry().getTaskBar().getFrame(), 
-    			"Permissions update", 
-		"Upgrading the permissions cannot be undone. \nAre you sure you " +
-		"want to continue?");
-		msg.setYesText("Upgrade");
-		int option = msg.centerMsgBox();
-		if (option == MessageBox.YES_OPTION)
-			model.upgradePermissions();
-		else privateBox.setSelected(true);
-    }
-    
+
     /** Initializes the components composing this display. */
     private void initComponents()
     {
@@ -283,23 +229,6 @@ class UserProfile
 			groups.addActionListener(this);
 			groups.setEnabled(true);
 		} else groups.setEnabled(false);
-		
-        groupBox = new JRadioButton(EditorUtil.GROUP_VISIBLE);
-        groupBox.setBackground(UIUtilities.BACKGROUND_COLOR);
-        groupBox.setToolTipText(EditorUtil.GROUP_DESCRIPTION);
-        //groupBox.setEnabled(false);
-        privateBox =  new JRadioButton(EditorUtil.PRIVATE);
-        privateBox.setBackground(UIUtilities.BACKGROUND_COLOR);
-        privateBox.setSelected(true);
-        //privateBox.setEnabled(false);
-    	ButtonGroup group = new ButtonGroup();
-       	group.add(privateBox);
-       	group.add(groupBox);
-       	groupBox.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				upgradePermissions();
-			}
-		});
     }
     
     /**
@@ -481,10 +410,7 @@ class UserProfile
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
  
-	/**
-     * Builds the panel hosting the {@link #nameArea} and the
-     * {@link #descriptionArea}.
-     */
+	/** Builds and lays out the UI. */
     void buildGUI()
     {
     	removeAll();
@@ -500,9 +426,6 @@ class UserProfile
 		c.weightx = 1.0;  
     	add(buildContentPanel(), c);
     	if (model.isCurrentUserOwner(model.getRefObject())) {
-    		//GroupData group = (GroupData) groups.getSelectedItem();
-    		//c.gridy++;
-    		//add(buildPermissions(group.getPermissions()), c); 
     		c.gridy++;
     		add(Box.createVerticalStrut(5), c); 
     		c.gridy++;

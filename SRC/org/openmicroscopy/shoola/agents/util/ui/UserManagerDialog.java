@@ -127,7 +127,7 @@ public class UserManagerDialog
 	private JButton						apply;
 
 	/** The box hosting the groups. */
-	private JComboBox					groups;
+	private JComboBox					groupsBox;
 	
 	/** The component hosting the users for a given group. */
 	private JList						users;
@@ -153,7 +153,7 @@ public class UserManagerDialog
 	{
 		Map<Long, ExperimenterData> 
 		r = new HashMap<Long, ExperimenterData>(1);
-		GroupData g = (GroupData) groups.getSelectedItem();
+		GroupData g = (GroupData) groupsBox.getSelectedItem();
 		Object user = users.getSelectedValue();
 		if (user == null) {
 			firePropertyChange(NO_USER_SWITCH_PROPERTY, Boolean.valueOf(false), 
@@ -211,8 +211,8 @@ public class UserManagerDialog
 		cancel.addActionListener(this);
 		apply.setActionCommand(""+APPLY);
 		apply.addActionListener(this);
-		groups.setActionCommand(""+GROUPS);
-		groups.addActionListener(this);
+		groupsBox.setActionCommand(""+GROUPS);
+		groupsBox.addActionListener(this);
 		users.getSelectionModel().addListSelectionListener(
 				new ListSelectionListener() {
 		
@@ -227,12 +227,10 @@ public class UserManagerDialog
 	/** 
 	 * Initializes the UI components. 
 	 * 
-	 * @param map		Map whose keys are the experimenter group and
-	 * 					the values the collection of users in the
-	 * 					corresponding experimenter groups.
+	 * @param groups		The groups the user is a member of.
 	 * @param userIcon	The icon used to represent an user.
 	 */
-	private void initComponents(Map map, Icon userIcon)
+	private void initComponents(Set groups, Icon userIcon)
 	{
 		sorter = new ViewerSorter();
 		orderedMap = new LinkedHashMap<GroupData, Object[]>();
@@ -250,14 +248,14 @@ public class UserManagerDialog
 		//Iterator i = map.keySet().iterator();
 		//Remove not visible group
 		GroupData g;
-		GroupData[] objects = new GroupData[map.size()];
+		GroupData[] objects = new GroupData[groups.size()];
 		int selectedIndex = 0;
 		int index = 0;
 		Object[] children;
 		GroupData selectedGroup = defaultGroup;
 		//sort
 		
-		Iterator i = sorter.sort(map.keySet()).iterator();
+		Iterator i = sorter.sort(groups).iterator();
 	
 		while (i.hasNext()) {
 			g = (GroupData) i.next();
@@ -266,14 +264,14 @@ public class UserManagerDialog
 				selectedIndex = index;
 				selectedGroup = g;
 			}
-			children = sorter.sortAsArray((Set) map.get(g));
+			children = sorter.sortAsArray(g.getExperimenters());
 			orderedMap.put(g, children);
 			index++;
 		}
 		
 		//sort by name
-		groups = new JComboBox(objects);
-		groups.setRenderer(new GroupsRenderer());
+		groupsBox = new JComboBox(objects);
+		groupsBox.setRenderer(new GroupsRenderer());
 		
 		
 		DefaultListModel model = new DefaultListModel();
@@ -284,7 +282,7 @@ public class UserManagerDialog
 		users.setCellRenderer(new UserListRenderer(userIcon));	
 		attachListeners();
 		if (objects.length != 0)
-			groups.setSelectedIndex(selectedIndex);
+			groupsBox.setSelectedIndex(selectedIndex);
 		
 	}
 	
@@ -346,14 +344,12 @@ public class UserManagerDialog
 	 * 
 	 * @param parent		The parent of this dialog.
 	 * @param loggedUser	The user currently logged in.
-	 * @param groups		Map whose keys are the experimenter group and
-	 * 						the values the collection of users in the
-	 * 						corresponding experimenter groups.
+	 * @param groups		The groups the user is a member of.
 	 * @param userIcon 		The icon representing an user.
 	 * @param icon			The icon displayed in the title panel.
 	 */
 	public UserManagerDialog(JFrame parent, ExperimenterData loggedUser, 
-							Map groups, Icon userIcon, Icon icon)
+							Set groups, Icon userIcon, Icon icon)
 	{
 		super(parent);
 		setProperties();
@@ -386,7 +382,7 @@ public class UserManagerDialog
 			case GROUPS:
 				DefaultListModel model = (DefaultListModel) users.getModel();
 				model.clear();
-				fillList(orderedMap.get(groups.getSelectedItem()));
+				fillList(orderedMap.get(groupsBox.getSelectedItem()));
 		}
 	}
 	

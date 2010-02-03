@@ -46,7 +46,6 @@ import javax.swing.tree.TreePath;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.EditVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.RefreshVisitor;
@@ -543,6 +542,8 @@ class BrowserComponent
                 return im.getIcon(IconManager.FILES_EXPLORER);
             case FILE_SYSTEM_EXPLORER:
                 return im.getIcon(IconManager.FILE_SYSTEM_EXPLORER);
+            case ADMIN_EXPLORER:
+                return im.getIcon(IconManager.ADMIN);
         }
         return null;
     }
@@ -913,7 +914,6 @@ class BrowserComponent
 			case LOADING_LEAVES:
 				return;
 		}   
-		
         if (n == null) model.fireExperimenterDataLoading((TreeImageSet) exp);
         else model.fireLeavesLoading(exp, n);
         model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, false);
@@ -1066,6 +1066,11 @@ class BrowserComponent
 
     	if (model.getBrowserType() == FILE_SYSTEM_EXPLORER) {
     		//view.loadFileSystem(true);
+    		return;
+    	}
+    	
+    	if (model.getBrowserType() == ADMIN_EXPLORER) {
+    		//TODO: implement;
     		return;
     	}
 	    TreeImageDisplay root = view.getTreeRoot();
@@ -1502,6 +1507,26 @@ class BrowserComponent
         model.setRepositories(systemView);
     	view.loadFileSystem(expNode);
         countItems(null);
+        model.getParentModel().setStatus(false, "", true);
+        fireStateChange();
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#setGroups(Set)
+	 */
+	public void setGroups(Set groups)
+	{
+		int state = model.getState();
+        if (state != LOADING_DATA)
+            throw new IllegalStateException(
+                    "This method can only be invoked in the LOADING_DATA "+
+                    "state.");
+        if (model.getBrowserType() != ADMIN_EXPLORER) return;
+		Set nodes = TreeViewerTranslator.transformGroups(groups);
+		view.setGroups(nodes);
+		model.setState(READY);
+		countItems(null);
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
 	}

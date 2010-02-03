@@ -86,6 +86,7 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -245,10 +246,19 @@ class BrowserUI
         leftMenuBar.setRollover(true);
         leftMenuBar.setFloatable(false);
         BrowserManageAction a;
-        switch (model.getBrowserType()) {
+        int type = model.getBrowserType();
+        switch (type) {
 			case Browser.PROJECT_EXPLORER:
 				a = (BrowserManageAction) 
 					controller.getAction(BrowserControl.NEW_CONTAINER);
+				button = new JButton(a);
+				button.setBorderPainted(false);
+				button.addMouseListener(a);
+				rightMenuBar.add(button);
+				break;
+			case Browser.ADMIN_EXPLORER:
+				a = (BrowserManageAction) 
+					controller.getAction(BrowserControl.NEW_ADMIN);
 				button = new JButton(a);
 				button.setBorderPainted(false);
 				button.addMouseListener(a);
@@ -268,12 +278,14 @@ class BrowserUI
 		button = new JButton(controller.getAction(BrowserControl.REFRESH));
 		button.setBorderPainted(false);
 		rightMenuBar.add(button);
-		button = new JButton(controller.getAction(BrowserControl.IMPORT));
-		button.setBorderPainted(false);
-		rightMenuBar.add(button);
 		
+		if (type != Browser.ADMIN_EXPLORER) {
+			button = new JButton(controller.getAction(BrowserControl.IMPORT));
+			button.setBorderPainted(false);
+			rightMenuBar.add(button);
+		}
 		rightMenuBar.add(Box.createHorizontalStrut(6));
-		if (model.getBrowserType() == Browser.FILE_SYSTEM_EXPLORER) {
+		if (type == Browser.FILE_SYSTEM_EXPLORER) {
         	button = new JButton(controller.getAction(BrowserControl.INFO));
             button.setBorderPainted(false);
             rightMenuBar.add(button);
@@ -371,8 +383,6 @@ class BrowserUI
         TreeImageDisplay node = (TreeImageDisplay) path.getLastPathComponent();
     	Object uo = node.getUserObject();
     	if (!(uo instanceof DataObject)) return;
-    	//model.getParentModel().showProperties((DataObject) uo, 
-    	//							TreeViewer.PROPERTIES_EDITOR);
     }
     
     /**
@@ -844,6 +854,7 @@ class BrowserUI
 			object = (TreeImageDisplay) j.next();
 			uo = object.getUserObject();
 			if (uo instanceof ProjectData) top.add(object);
+			if (uo instanceof GroupData) top.add(object);
 			else if (uo instanceof ScreenData) top2.add(object);
 			else if (uo instanceof DatasetData) bottom.add(object);
 			else if (uo instanceof PlateData) bottom2.add(object);
@@ -1071,6 +1082,8 @@ class BrowserUI
                 return Browser.FILES_TITLE;
             case Browser.FILE_SYSTEM_EXPLORER:
                 return Browser.FILE_SYSTEM_TITLE;
+            case Browser.ADMIN_EXPLORER:
+                return Browser.ADMIN_TITLE;
         }
         return "";
     }
@@ -1256,6 +1269,26 @@ class BrowserUI
 					}
 				}	       
 				break;
+			case Browser.ADMIN_EXPLORER:
+				for (int i = 0; i < n; i++) {
+					node = (TreeImageDisplay) root.getChildAt(i);
+					children = node.getChildrenDisplay();
+					node.removeAllChildren();
+					dtm.reload(node);
+					if (children.size() != 0) {
+						if (node.getUserObject() instanceof GroupData) {
+							all = prepareSortedList(sorter.sort(children));
+							buildTreeNode(node, all, dtm);
+						} else {
+							buildTreeNode(node, sorter.sort(children), dtm);
+						}
+					} else buildEmptyNode(node);
+					j = nodesToReset.iterator();
+					while (j.hasNext()) {
+						setExpandedParent((TreeImageDisplay) j.next(), true);
+					}
+				}	        
+				break;
 			default:
 				for (int i = 0; i < n; i++) {
 					node = (TreeImageDisplay) root.getChildAt(i);
@@ -1389,6 +1422,26 @@ class BrowserUI
 			setExpandedParent((TreeImageDisplay) j.next(), true);
 	}
 
+	void setGroups(Set nodes)
+	{
+		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+		TreeImageDisplay root = getTreeRoot();
+		root.removeAllChildren();
+		root.removeAllChildrenDisplay();
+		root.setChildrenLoaded(Boolean.TRUE);
+		root.setExpanded(true);
+       
+        if (nodes.size() != 0) {
+            Iterator i = nodes.iterator();
+            while (i.hasNext()) {
+            	root.addChildDisplay((TreeImageDisplay) i.next());
+            } 
+            buildTreeNode(root, prepareSortedList(sorter.sort(nodes)), 
+                    (DefaultTreeModel) treeDisplay.getModel());
+        } else buildEmptyNode(root);
+        dtm.reload();
+	}
+	
 	/**
 	 * Sets the number of items imported during a period of time.
 	 * 

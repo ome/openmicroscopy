@@ -32,13 +32,16 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -114,8 +117,7 @@ public class DeleteAction
         if ((ho instanceof DatasetData) || (ho instanceof ProjectData) ||
         	(ho instanceof FileAnnotationData) ||
         	(ho instanceof TagAnnotationData) || 
-        	(ho instanceof ScreenData) || 
-        	(ho instanceof PlateData)) {
+        	(ho instanceof ScreenData) || (ho instanceof PlateData))  {
         	TreeImageDisplay[] selected = browser.getSelectedDisplays();
         	if (selected.length > 1) setEnabled(false);
         	else {
@@ -127,6 +129,30 @@ public class DeleteAction
         	else {
         		setEnabled(model.isObjectWritable(ho));
         	}
+        } else if ((ho instanceof GroupData)) {
+        	if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
+        		setEnabled(true); //TODO
+         	} else setEnabled(false);
+        } else if (ho instanceof ExperimenterData) {
+        	if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
+        		setEnabled(true); //TODO
+        		TreeImageDisplay[] selected = browser.getSelectedDisplays();
+        		if (selected != null) {
+        			TreeImageDisplay d;
+        			ExperimenterData exp;
+        			boolean b = true;
+        			for (int i = 0; i < selected.length; i++) {
+						d = selected[i];
+						exp = (ExperimenterData) d.getUserObject();
+						if (exp.getId() == 
+							TreeViewerAgent.getUserDetails().getId()) {
+							b = false;
+							break;
+						}
+					}
+        			setEnabled(b);
+        		}
+        	} else setEnabled(false);
         } else setEnabled(false);
         description = (String) getValue(Action.SHORT_DESCRIPTION);
     }

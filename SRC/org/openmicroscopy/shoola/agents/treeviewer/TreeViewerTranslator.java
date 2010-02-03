@@ -813,6 +813,40 @@ public class TreeViewerTranslator
 		} catch (Exception e) {}
 		return date;
     }
+
+    /**
+     * Converts the passed collection of groups into the corresponding 
+     * data object.
+     * 
+     * @param groups The groups to convert.
+     * @return See above.
+     */
+	public static Set transformGroups(Set groups)
+	{
+		Set<TreeImageSet> nodes = new HashSet<TreeImageSet>();
+		if (groups == null) return nodes;
+		Collection l;
+		Iterator i = groups.iterator();
+		Iterator j;
+		GroupData g;
+		TreeImageSet n;
+		TreeImageNode child;
+		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			n = new TreeImageSet(g);
+			l = g.getExperimenters();
+			n.setChildrenLoaded(Boolean.valueOf(true));
+			if (l != null) {
+				j = l.iterator();
+				while (j.hasNext()) {
+					child = new TreeImageNode(j.next());
+					n.addChildDisplay(child);
+				}
+			}
+			nodes.add(n);
+		}
+		return nodes;
+	}
     
 }
     

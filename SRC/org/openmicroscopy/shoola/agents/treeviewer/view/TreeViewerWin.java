@@ -238,6 +238,11 @@ class TreeViewerWin
             
             browser = (Browser) browsers.get(Browser.IMAGES_EXPLORER);
             container.add(new TaskPaneBrowser(browser));
+            if (model.isLeader()) {
+            	browser = (Browser) browsers.get(Browser.ADMIN_EXPLORER);
+                container.add(new TaskPaneBrowser(browser));
+            }
+            
             AdvancedFinder finder = model.getAdvancedFinder();
     		finder.addPropertyChangeListener(controller);
     		container.add(new TaskPaneBrowser(finder));
@@ -797,6 +802,7 @@ class TreeViewerWin
                 break;
             case TreeViewer.CREATE_MENU_CONTAINERS:
             case TreeViewer.CREATE_MENU_TAGS:
+            case TreeViewer.CREATE_MENU_ADMIN:
                 toolBar.showCreateMenu(c, p, menuID);
                 break;
             case TreeViewer.PERSONAL_MENU:

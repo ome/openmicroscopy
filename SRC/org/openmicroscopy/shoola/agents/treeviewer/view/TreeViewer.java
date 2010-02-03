@@ -170,6 +170,9 @@ public interface TreeViewer
 	/** Identifies the <code>Create popUp menu</code> menu. */
 	public static final int         CREATE_MENU_TAGS = 4;
 	
+	/** Identifies the <code>Create popUp menu</code> menu. */
+	public static final int         CREATE_MENU_ADMIN = 6;
+	
 	/** Identifies the <code>Personal</code> menu. */
 	public static final int         PERSONAL_MENU = 5;
 	
@@ -922,4 +925,12 @@ public interface TreeViewer
 	 */
 	public void uploadScript(ScriptObject script);
 
+	/**
+	 * Returns <code>true</code> if the currently logged in user is 
+	 * a leader of the selected group, <code>false</code>.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isLeaderOfSelectedGroup();
+	
 }

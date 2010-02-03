@@ -1361,39 +1361,6 @@ class OMEROGateway
 		} catch (Throwable e) {
 			handleException(e, "Cannot set RE defaults.");
 		}
-		
-	}
-
-	/**
-	 * Returns a collection of users contained in the specified group.
-	 * 
-	 * @param groupID	The id of the group.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service.
-	 */
-	private List<Experimenter> containedExperimenters(long groupID)
-		throws DSAccessException, DSOutOfServiceException
-	{
-		IQueryPrx service = getQueryService();
-		List<Experimenter> exps = new ArrayList<Experimenter>();
-		Parameters p = new ParametersI();
-		p.map = new HashMap<String, RType>();
-		p.map.put("id", omero.rtypes.rlong(groupID));
-		try {
-			List<IObject> rv = service.findAllByQuery(
-					"select e from Experimenter e "
-			        + "left outer join fetch e.groupExperimenterMap m "
-			         + "left outer join fetch m.parent g where g.id = :id",
-			                p);
-			
-			for (IObject obj : rv) 
-				exps.add((Experimenter) obj);
-		} catch (Throwable e) {
-			handleException(e, "Cannot retrieve experimenters.");
-		}
-		return exps;
 	}
 	
 	/**
@@ -1655,6 +1622,8 @@ class OMEROGateway
 			return ScreenAcquisition.class;
 		else if (FileData.class.equals(nodeType))
 			return OriginalFile.class;
+		else if (GroupData.class.equals(nodeType))
+			return ExperimenterGroup.class;
 		throw new IllegalArgumentException("NodeType not supported");
 	}
 
@@ -2983,43 +2952,32 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	Map<GroupData, Set> getAvailableGroups(ExperimenterData loggedInUser)
+	Set<GroupData> getAvailableGroups(ExperimenterData user)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
+		Set<GroupData> pojos = new HashSet<GroupData>();
 		try {
 			IAdminPrx service = getAdminService();
 			//Need method server side.
-			List<ExperimenterGroup> groups = service.lookupGroups();
-			Iterator i = groups.iterator();
+			List<ExperimenterGroup> groups = service.containedGroups(
+					user.getId());//service.lookupGroups();
+			
 			ExperimenterGroup group;
-			//Experimenter[] experimenters;
-			List<Experimenter> experimenters;
-			Map<GroupData, Set> pojos = new HashMap<GroupData, Set>();
-			DataObject pojoGroup;
-			//
-			List<GroupData> l = loggedInUser.getGroups();
-			Iterator<GroupData> k = l.iterator();
-			List<Long> groupIds = new ArrayList<Long>();
-			while (k.hasNext()) {
-				groupIds.add(k.next().getId());
-			}
-			long gpId;
+			GroupData pojoGroup;
+			Iterator<ExperimenterGroup> i = groups.iterator();
 			while (i.hasNext()) {
-				group = (ExperimenterGroup) i.next();
-				gpId = group.getId().getValue();
-				if (!isSystemGroup(group) && groupIds.contains(gpId)) {
-					pojoGroup = PojoMapper.asDataObject(group);
-					experimenters = containedExperimenters(gpId);
-					pojos.put((GroupData) pojoGroup, 
-							PojoMapper.asDataObjects(experimenters));
+				group = i.next();
+				if (!isSystemGroup(group)) {
+					pojoGroup = (GroupData) PojoMapper.asDataObject(group);
+					pojos.add(pojoGroup);
 				}
 			}
 			return pojos;
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the available groups ");
 		}
-		return new HashMap<GroupData, Set>();
+		return pojos;
 	}
 	
 	/**

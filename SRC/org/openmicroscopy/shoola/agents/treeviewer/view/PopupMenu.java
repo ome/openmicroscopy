@@ -132,6 +132,13 @@ class PopupMenu
 	/** Button to create a new Tag Set. */
 	private JMenuItem			createTagSet;
 	
+	/** Button to create a new group. */
+	private JMenuItem			createGroup;
+	
+	/** Button to create a experimenter. */
+	private JMenuItem			createExperimenter;
+	
+	
 	/** Button to view an Image. */
 	private JMenuItem			view;
 	
@@ -282,6 +289,14 @@ class PopupMenu
 				createTagSet = new JMenuItem(a);
 				initMenuItem(createTagSet, a.getActionName());
 				break;
+			case TreeViewer.CREATE_MENU_ADMIN:
+				a = controller.getAction(TreeViewerControl.CREATE_TOP_GROUP);
+				createGroup = new JMenuItem(a);
+				initMenuItem(createGroup, a.getActionName());
+				a = controller.getAction(
+						TreeViewerControl.CREATE_TOP_EXPERIMENTER);
+				createExperimenter = new JMenuItem(a);
+				initMenuItem(createExperimenter, a.getActionName());
 		}
 	}
 
@@ -350,6 +365,10 @@ class PopupMenu
 			case TreeViewer.CREATE_MENU_TAGS:
 				add(createTagSet);
 				add(createTag);
+				break;
+			case TreeViewer.CREATE_MENU_ADMIN:
+				add(createGroup);
+				add(createExperimenter);
 		}
 	}
 

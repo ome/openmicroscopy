@@ -60,8 +60,11 @@ public class NewObjectAction
 	/** Indicates to show the menu for tags. */
 	public static final int		NEW_TAGS = 0;
 	
-	/** Indicates to show the menu for tags. */
+	/** Indicates to show the menu for containers. */
 	public static final int		NEW_CONTAINERS = 1;
+	
+	/** Indicates to show the menu for admin tasks. */
+	public static final int		NEW_ADMIN = 2;
 	
     /** The description of the action. */
     public static final String NAME = "New";
@@ -72,6 +75,10 @@ public class NewObjectAction
 
     /** The description of the action. */
     private static final String DESCRIPTION_TAGS = "Create new Tag Set or Tag";
+    
+    /** The description of the action. */
+    private static final String DESCRIPTION_ADMIN = "Create new Group or " +
+    		"Experimenter.";
 
     /** The location of the mouse pressed. */
     private Point 	point;
@@ -89,6 +96,7 @@ public class NewObjectAction
     	switch (index) {
 			case NEW_CONTAINERS:
 			case NEW_TAGS:
+			case NEW_ADMIN:
 				break;
 			default:
 				throw new IllegalArgumentException("Index not supported.");
@@ -133,8 +141,13 @@ public class NewObjectAction
 				break;
 			case NEW_CONTAINERS:
 				putValue(Action.SMALL_ICON, im.getIcon(IconManager.CREATE));
-			putValue(Action.SHORT_DESCRIPTION, 
+				putValue(Action.SHORT_DESCRIPTION, 
 	                UIUtilities.formatToolTipText(DESCRIPTION));
+				break;
+			case NEW_ADMIN:
+				putValue(Action.SMALL_ICON, im.getIcon(IconManager.CREATE));
+				putValue(Action.SHORT_DESCRIPTION, 
+	                UIUtilities.formatToolTipText(DESCRIPTION_ADMIN));
 		}
     }
     
@@ -161,6 +174,10 @@ public class NewObjectAction
 					break;
 				case NEW_CONTAINERS:
 					model.showMenu(TreeViewer.CREATE_MENU_CONTAINERS, 
+		            		(Component) source, point);
+					break;
+				case NEW_ADMIN:
+					model.showMenu(TreeViewer.CREATE_MENU_ADMIN, 
 		            		(Component) source, point);
         	}
         }  

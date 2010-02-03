@@ -64,6 +64,9 @@ class UserUI
 	/** The title of the chart. */
 	private static final String TITLE_DETAILS = "Personal details";
 	
+	/** The title of the chart. */
+	private static final String TITLE_ADMIN_DETAILS = "User details";
+	
 	/** The component displaying the user profile. */
 	private UserProfile 	profile;
 	
@@ -101,15 +104,6 @@ class UserUI
 		setLayout(new TableLayout(size));
 		add(pane, "0, 0");
 		add(diskTask, "0, 1");
-		/*
-		JXTaskPaneContainer container = new JXTaskPaneContainer();
-		container.setBackground(UIUtilities.BACKGROUND_COLOR);
-		container.setLayout(new VerticalLayout(2));
-		container.add(pane);
-		container.add(diskTask);
-		setBorder(BorderFactory.createEmptyBorder());
-		add(container);
-		*/
 	}
 	
 	/**
