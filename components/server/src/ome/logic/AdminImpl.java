@@ -371,6 +371,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                         "select distinct g from ExperimenterGroup as g "
                         + "join fetch g.groupExperimenterMap as map "
                         + "join fetch map.parent e "
+                        + "left outer join fetch map.child u "
+                        + "left outer join fetch u.groupExperimenterMap m2 "
                         + "where g.id in "
                         + "  (select m.parent from GroupExperimenterMap m "
                         + "  where m.child.id = :id )",
