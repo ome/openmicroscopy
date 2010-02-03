@@ -47,6 +47,9 @@ public class GroupData extends DataObject {
     /** All experimenters in this group */
     private Set experimenters;
 
+    /** The leaders of the group. */
+    private Set leaders;
+    
     /** Creates a new instance. */
     public GroupData() {
         setDirty(true);
@@ -101,7 +104,27 @@ public class GroupData extends DataObject {
     }
 
     // Lazy loaded links
+    
+    /**
+     * Returns the experimenters contained in this group.
+     * 
+     * @return See above.
+     */
+    public Set getLeaders() {
+        if (leaders == null
+                && asGroup().sizeOfGroupExperimenterMap() >= 0) {
+        	leaders = new HashSet<ExperimenterData>();
+            List<GroupExperimenterMap> links = asGroup()
+                    .copyGroupExperimenterMap();
+            for (GroupExperimenterMap link : links) {
+            	if (link.getOwner().getValue())
+            		leaders.add(new ExperimenterData(link.getChild()));
+            }
+        }
 
+        return leaders == null ? null : new HashSet(leaders);
+    }
+    
     /**
      * Returns the experimenters contained in this group.
      * 
