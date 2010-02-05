@@ -30,20 +30,22 @@
 #	DOUBLE = "double";
 # we can convert these to the appropriate types in python.	
 import omero
+import numpy
+
+INT_8 = "int8"
+UINT_8 = "uint8"
+INT_16 = "int16"
+UINT_16 = "uint16"
+INT_32 = "int32"
+UINT_32 = "uint32"
+FLOAT = "float"
+DOUBLE = "double"
 
 def toPython(pixelType):
-	INT_8 = "int8"
-	UINT_8 = "uint8"
-	INT_16 = "int16"
-	UINT_16 = "uint16"
-	INT_32 = "int32"
-	UINT_32 = "uint32"
-	FLOAT = "float"
-	DOUBLE = "double"
 	if(pixelType==INT_8):
-		return 'c'
-	if(pixelType==UINT_8):
 		return 'b'
+	if(pixelType==UINT_8):
+		return 'B'
 	if(pixelType==INT_16):
 		return 'h'
 	if(pixelType==UINT_16):
@@ -57,15 +59,25 @@ def toPython(pixelType):
 	if(pixelType==DOUBLE):
 		return 'd'
 
+def toNumpy(pixelType):
+	if(pixelType==INT_8):
+		return numpy.int8
+	if(pixelType==UINT_8):
+		return numpy.uint8
+	if(pixelType==INT_16):
+		return numpy.int16
+	if(pixelType==UINT_16):
+		return numpy.uint16
+	if(pixelType==INT_32):
+		return numpy.int32
+	if(pixelType==UINT_32):
+		return numpy.uint32
+	if(pixelType==FLOAT):
+		return numpy.float
+	if(pixelType==DOUBLE):
+		return numpy.double
+
 def toArray(pixelType):
-	INT_8 = "int8"
-	UINT_8 = "uint8"
-	INT_16 = "int16"
-	UINT_16 = "uint16"
-	INT_32 = "int32"
-	UINT_32 = "uint32"
-	FLOAT = "float"
-	DOUBLE = "double"
 	if(pixelType==INT_8):
 		return 'b'
 	if(pixelType==UINT_8):
@@ -84,14 +96,6 @@ def toArray(pixelType):
 		return 'd'
 
 def toPIL(pixelType):
-	INT_8 = "int8"
-	UINT_8 = "uint8"
-	INT_16 = "int16"
-	UINT_16 = "uint16"
-	INT_32 = "int32"
-	UINT_32 = "uint32"
-	FLOAT = "float"
-	DOUBLE = "double"
 	if(pixelType==INT_8):
 		return 'L'
 	if(pixelType==UINT_8):

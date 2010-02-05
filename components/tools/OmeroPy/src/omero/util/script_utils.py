@@ -315,7 +315,8 @@ def downloadPlane(rawPixelStore, pixels, z, c, t):
 	pixelType = pixels.getPixelsType().getValue().getValue();
 	convertType ='>'+str(sizeX*sizeY)+pixelstypetopython.toPython(pixelType);
 	convertedPlane = unpack(convertType, rawPlane);
-	remappedPlane = numpy.array(convertedPlane, dtype=(pixelType));
+	numpyType = pixelstypetopython.toNumpy(pixelType)
+	remappedPlane = numpy.array(convertedPlane, numpyType);
 	remappedPlane.resize(sizeX, sizeY);
 	return remappedPlane;
 
