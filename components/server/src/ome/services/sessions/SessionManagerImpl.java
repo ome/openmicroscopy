@@ -198,11 +198,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         s.setTimeToIdle(idle);
         s.setTimeToLive(live);
         s.setDefaultEventType(eventType);
-        // TODO: be careful of these two values.
-        // FIXME: REVIEW! ticket:1731
-        s.setDefaultPermissions(umask == null ?
-                Permissions.WORLD_WRITEABLE.toString() : umask.toString());
-        s.getDetails().setPermissions(umask);
+        parseAndSetDefaultPermissions(umask, s);
     }
 
     // ~ Session management
@@ -711,8 +707,14 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
     private void parseAndSetDefaultPermissions(Permissions perms,
             Session session) {
-        String _perm = (perms == null) ? null : perms.toString();
-        parseAndSetDefaultPermissions(_perm, session);
+
+        // TODO: be careful of these two values.
+        // FIXME: REVIEW! ticket:1731
+        if (perms == null) {
+            perms = Permissions.USER_PRIVATE;
+        }
+        session.getDetails().setPermissions(perms);
+        parseAndSetDefaultPermissions(perms.toString(), session);
     }
 
     private void parseAndSetDefaultPermissions(String perms, Session session) {
