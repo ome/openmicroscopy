@@ -1711,15 +1711,7 @@ class OMEROGateway
 				if (defaultID == groupID) return exp;
 				try {
 					changeCurrentGroup(exp, groupID);
-					//logout
-					/*
-					if (port > 0) blitzClient = new client(hostName, port);
-					else blitzClient = new client(hostName);
-					entry = blitzClient.createSession(userName, password);
-					blitzClient.getProperties().setProperty("Ice.Override.Timeout", 
-							""+5000);
-					connected = true;
-					*/
+					
 					exp = getUserDetails(userName);
 				} catch (Exception e) {
 					connected = false;

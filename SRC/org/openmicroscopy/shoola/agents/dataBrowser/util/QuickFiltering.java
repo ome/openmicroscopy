@@ -129,11 +129,14 @@ public class QuickFiltering
 		}
     }
     
-	/** Creates a new instance. */
-	public QuickFiltering()
+	/** Creates a new instance. 
+	 * 
+	 * @param text The default context.
+	 * */
+	public QuickFiltering(String text)
 	{
 		setSingleSelection(true);
-		setDefaultSearchContext();
+		setDefaultSearchContext(text);
 		setSearchEnabled(false);
 		addPropertyChangeListener(this);
 	}

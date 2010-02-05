@@ -147,7 +147,7 @@ class DataBrowserUI
 		//if (model.getType() == DataBrowserModel.WELLS)
 		wellToolBar = new DataBrowserWellToolBar(this, controller);
 		//else
-		toolBar = new DataBrowserToolBar(this, controller);
+		toolBar = new DataBrowserToolBar(model, this, controller);
 
 		statusBar = new DataBrowserStatusBar(this);
 		selectedView = THUMB_VIEW;

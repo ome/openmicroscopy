@@ -80,6 +80,13 @@ public class SearchObject
 		this.description = description;
 	}
 	
+	/** 
+	 * Sets the description associated to this object.
+	 * 
+	 * @param description The value to set.
+	 */
+	void setDescription(String description) { this.description = description; }
+	
 	/**
 	 * Sets the result.
 	 * 

@@ -406,6 +406,10 @@ public abstract class ImageDisplay
             s = ((DatasetData) hierarchyObject).getName();
         else if (hierarchyObject instanceof ImageData) 
             s = getPartialName(((ImageData) hierarchyObject).getName());
+        else if (hierarchyObject instanceof ExperimenterData) {
+        	ExperimenterData exp = (ExperimenterData) hierarchyObject;
+        	s = exp.getFirstName()+" "+exp.getLastName();
+        }
         return s;
     }
     

@@ -23,8 +23,6 @@
 package org.openmicroscopy.shoola.agents.treeviewer;
 
 
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 
 //Java imports
@@ -32,9 +30,11 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- * 
+ * Loads the groups in the system.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

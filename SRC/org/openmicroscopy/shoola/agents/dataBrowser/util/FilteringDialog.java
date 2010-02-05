@@ -97,7 +97,7 @@ public class FilteringDialog
 	public static final String	FILTER_PROPERTY = "filter";
 	
 	/** The title of the dialog. */
-	private static final String TITLE = "Filtering images in Workspace";
+	private static final String TITLE = "Filtering elements in Workspace";
 	
 	/** Text indicating how to use the tag entries. */
 	private static final String DESCRIPTION = "Separate tags with " +

@@ -43,6 +43,8 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -158,6 +160,20 @@ public class DataBrowserFactory
 	}
 	
 	/**
+	 * Creates a new {@link DataBrowser} for the passed collection of 
+	 * experimenters.
+	 * 
+	 * @param parent		The parent's node.
+	 * @param experimenters	The collection to set.
+	 * @return See above.
+	 */
+	public static final DataBrowser getGroupsBrowser(GroupData parent,
+								Collection<ExperimenterData> experimenters)
+	{
+		return singleton.createGroupsBrowser(parent, experimenters);
+	}
+	
+	/**
 	 * Creates a new {@link DataBrowser} for the passed collection of datasets.
 	 * 
 	 * @param parent	The parent's node.
@@ -168,25 +184,6 @@ public class DataBrowserFactory
 													Set<DatasetData> nodes)
 	{
 		return singleton.createDatasetsDataBrowser(parent, nodes);
-	}
-	
-	/**
-	 * Creates a new {@link DataBrowser} for the passed collection of data 
-	 * objects. We assume that all nodes are of the same type.
-	 * 
-	 * @param nodes The collection to set.
-	 * @return See above.
-	 */
-	public static final DataBrowser getDataBrowser(Set<DataObject> nodes)
-	{
-		Iterator<DataObject> i = nodes.iterator();
-		Class type = null;
-		while (i.hasNext()) {
-			type = i.next().getClass();
-		}
-		if (PlateData.class.equals(type)) 
-			return singleton.createPlatesDataBrowser(nodes);
-		return null;
 	}
 	
 	/**
@@ -418,17 +415,6 @@ public class DataBrowserFactory
 		browsers.put(key, comp);
 		return comp;
 	}
-
-	/**
-	 * Creates a new {@link DataBrowser} for the passed collection of plates.
-	 * s
-	 * @param datasets	The collection to set.
-	 * @return See above.
-	 */
-	private DataBrowser createPlatesDataBrowser(Set<DataObject> plates)
-	{
-		return null;
-	}
 	
 	/**
 	 * Creates a new {@link DataBrowser} for the passed collection of datasets.
@@ -476,6 +462,25 @@ public class DataBrowserFactory
 			Collection<DataObject> dataObjects, boolean withImages)
 	{
 		DataBrowserModel model = new TagsModel(parent, dataObjects, withImages);
+		DataBrowserComponent comp = new DataBrowserComponent(model);
+		model.initialize(comp);
+		comp.initialize();
+		String key = parent.toString()+parent.getId();
+		browsers.put(key, comp);
+		return comp;
+	}
+	
+	/**
+	 * Creates a new {@link DataBrowser} for the passed collection of tags.
+	 * 
+	 * @param parent 		The parent's node.
+	 * @param experimenters	The collection to set.
+	 * @return See above.
+	 */
+	private DataBrowser createGroupsBrowser(GroupData parent, 
+			Collection<ExperimenterData> experimenters)
+	{
+		DataBrowserModel model = new GroupModel(parent, experimenters);
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
 		comp.initialize();

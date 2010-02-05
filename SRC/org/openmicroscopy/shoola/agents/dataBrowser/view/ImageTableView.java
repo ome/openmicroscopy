@@ -86,7 +86,7 @@ class ImageTableView
 	 */
 	private void initComponents(ImageDisplay root)
 	{
-		table = new ImageTable(root, this);
+		table = new ImageTable(root, this, model);
 	}
 	
 	/** Builds and lays out the UI. */

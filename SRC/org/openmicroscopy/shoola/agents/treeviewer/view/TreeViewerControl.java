@@ -65,7 +65,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.ImportManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.AdminAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClearAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CopyAction;

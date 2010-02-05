@@ -256,7 +256,7 @@ public class ScreenLogin
 					selectedPort);
 		} else {
 			long id = -1L;
-			if (hasGroupOption()) {
+			if (hasGroupOption() && groupsBox.isVisible()) {
 				String value = (String) groupsBox.getSelectedItem();
 				Entry entry;
 				Iterator i = groups.entrySet().iterator();
@@ -264,6 +264,7 @@ public class ScreenLogin
 					entry = (Entry) i.next();
 					if (entry.getValue().equals(value)) {
 						id = (Long) entry.getKey();
+						break;
 					}
 				}
 			}

@@ -107,7 +107,7 @@ public class QuickFinder
 	public QuickFinder()
 	{
 		finderHandlers = new ArrayList<FinderLoader>();
-		setDefaultSearchContext();
+		setDefaultSearchContext(null);
 		addPropertyChangeListener(QUICK_SEARCH_PROPERTY, this);
 	}
 	

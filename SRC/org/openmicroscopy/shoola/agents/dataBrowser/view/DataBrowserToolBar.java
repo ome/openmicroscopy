@@ -95,7 +95,7 @@ class DataBrowserToolBar
 
 	/** The text of the menu. */
 	private static final String	ITEMS_PER_ROW_TEXT = "Set the number of " +
-			"images per row.";
+			"elements per row.";
 	
 	/** The text of the menu. */
 	private static final String	FILTER_BY = "Filter by: ";
@@ -126,6 +126,9 @@ class DataBrowserToolBar
 	
 	/** Reference to the view. */
 	private DataBrowserUI		view;
+	
+	/** Reference to the Model. */
+	private DataBrowserModel	model;
 	
 	/** Reference to the quick search. */
 	private QuickFiltering 		search;
@@ -343,10 +346,14 @@ class DataBrowserToolBar
 		status = new JLabel();
 		status.setFont(status.getFont().deriveFont(Font.BOLD));
 		IconManager icons = IconManager.getInstance();
-		search = new QuickFiltering();
+		String text = null;
+		if (model.getType() == DataBrowserModel.GROUP) text = "users";
+		
+		search = new QuickFiltering(text);
+		search.setDefaultText(text);
 		search.addPropertyChangeListener(controller);
 		filterButton = new JButton(icons.getIcon(IconManager.FILTERING));
-		filterButton.setToolTipText("Filter images displayed in " +
+		filterButton.setToolTipText("Filter elements displayed in " +
 				"the Workspace.");
 		filterButton.addMouseListener(new MouseAdapter() {
 		
@@ -396,7 +403,7 @@ class DataBrowserToolBar
 		//group.add(slideShowView);
 		managementButton = new JButton(icons.getIcon(IconManager.MANAGER));
 		UIUtilities.unifiedButtonLookAndFeel(managementButton);
-		managementButton.setToolTipText("Manage images.");
+		managementButton.setToolTipText("Manage elements.");
 		managementButton.addMouseListener(new MouseAdapter() {
 			
 			/**
@@ -412,14 +419,18 @@ class DataBrowserToolBar
 		group = new ButtonGroup();
 		orderByName = new JToggleButton(
 				icons.getIcon(IconManager.SORT_BY_NAME));
-		orderByName.setToolTipText("Order images by name.");
+		orderByName.setToolTipText("Order elements by name.");
 		orderByName.addActionListener(this);
 		orderByName.setActionCommand(""+DataBrowserUI.SORT_BY_NAME);
 		orderByName.setSelected(true);
 		group.add(orderByName);
 		orderByDate = new JToggleButton(
 				icons.getIcon(IconManager.SORT_BY_DATE));
-		orderByDate.setToolTipText("Order images by acquisition date.");
+		if (model.getType() != DataBrowserModel.GROUP) {
+			orderByDate.setToolTipText("Order images by acquisition date.");
+		} else 
+			orderByDate.setToolTipText("Order users by creation date.");
+		
 		orderByDate.addActionListener(this);
 		orderByDate.setActionCommand(""+DataBrowserUI.SORT_BY_DATE);
 		group.add(orderByDate);
@@ -493,10 +504,12 @@ class DataBrowserToolBar
 		bar.add(new JSeparator(JSeparator.VERTICAL));
 		bar.add(Box.createHorizontalStrut(2));
 		bar.add(rollOverButton);
-		bar.add(createDatasetButton);
-		bar.add(reportButton);
-		bar.add(saveButton);
-		bar.add(new JSeparator(JSeparator.VERTICAL));
+		if (model.getType() != DataBrowserModel.GROUP) {
+			bar.add(createDatasetButton);
+			bar.add(reportButton);
+			bar.add(saveButton);
+			bar.add(new JSeparator(JSeparator.VERTICAL));
+		}
 		JPanel panel = new JPanel();
 		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		panel.add(new JLabel("# per row:"));
@@ -506,7 +519,9 @@ class DataBrowserToolBar
 		bar.add(Box.createHorizontalStrut(2));
 		bar.add(new JSeparator(JSeparator.VERTICAL));
 		bar.add(Box.createHorizontalStrut(2));
-		bar.add(slideShowView);
+		if (model.getType() != DataBrowserModel.GROUP) {
+			bar.add(slideShowView);
+		}
 		bar.add(refreshButton);
 		return bar;
 	}
@@ -563,16 +578,21 @@ class DataBrowserToolBar
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param model			Reference to the Model. Mustn't be <code>null</code>.
 	 * @param view 			Reference to the view. Mustn't be <code>null</code>.
 	 * @param controller 	Reference to the control. 
 	 * 						Mustn't be <code>null</code>.
 	 */
-	DataBrowserToolBar(DataBrowserUI view, DataBrowserControl controller)
+	DataBrowserToolBar(DataBrowserModel model,
+			DataBrowserUI view, DataBrowserControl controller)
 	{
 		if (controller == null)
 			throw new IllegalArgumentException("No control.");
 		if (view == null)
 			throw new IllegalArgumentException("No view.");
+		if (model == null)
+			throw new IllegalArgumentException("No model.");
+		this.model = model;
 		this.controller = controller;
 		this.view = view;
 		initComponents();
@@ -645,7 +665,9 @@ class DataBrowserToolBar
 	 */
 	void setNumberOfImages(int value, int total)
 	{
-		String s = "Workspace: "+value+" of "+total+" image";
+		String s = "Workspace: "+value+" of "+total;
+		if (model.getType() == DataBrowserModel.GROUP) s += " user";
+		else s += " image";
 		if (total > 1) s += "s";
 		status.setText(s);
 		status.repaint();

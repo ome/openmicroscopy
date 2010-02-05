@@ -127,10 +127,10 @@ public class QuickSearch
 	public static final String	VK_DOWN_SEARCH_PROPERTY = "vkDownSearch";
 	
 	/** Text displayed when the show all buttons is selected. */
-	private static final String	SHOW_ALL_TEXT = "Show All images";
+	private static final String	SHOW_ALL_TEXT = "Show All ";
 	
 	/** Text displayed when the show all buttons is selected. */
-	private static final String	SHOW_ALL_DESCRIPTION = "filter images"; 
+	private static final String	SHOW_ALL_DESCRIPTION = "filter "; 
 	
 	/** Removes the text from the text field. */
 	private static final int 	CLEAR = 0;
@@ -174,7 +174,7 @@ public class QuickSearch
 	/** The node to show all the objects. */
 	private SearchObject		showAll;
 	
-	/** Toolbar hosting the clear functionalities. */
+	/** Tool bar hosting the clear functionalities. */
 	private JToolBar 			cleanBar;
 	
 	/** 
@@ -183,6 +183,9 @@ public class QuickSearch
 	 * to <code>false</code>.
 	 */
 	private boolean				singleSelection;
+	
+	/** The default text displayed when all elements are shown. */
+	private String				defaultText;
 	
 	/** Shows the menu. */
 	private void initMenu()
@@ -203,7 +206,8 @@ public class QuickSearch
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
-		showAll = new SearchObject(SHOW_ALL, null, SHOW_ALL_TEXT);
+		defaultText = " images";
+		showAll = new SearchObject(SHOW_ALL, null, SHOW_ALL_TEXT+defaultText);
 		IconManager icons = IconManager.getInstance();
 		Icon icon = icons.getIcon(IconManager.CLEAR_DISABLED);
 		Dimension d = new Dimension(icon.getIconWidth(), icon.getIconHeight());
@@ -219,7 +223,7 @@ public class QuickSearch
 		clearButton.setActionCommand(""+CLEAR);
 		
 		searchArea = new JTextField(15);
-		searchArea.setText(SHOW_ALL_DESCRIPTION);
+		searchArea.setText(SHOW_ALL_DESCRIPTION+defaultText);
         UIUtilities.setTextAreaDefault(searchArea);
         searchArea.setBorder(null);
         
@@ -414,7 +418,7 @@ public class QuickSearch
 				break;
 			case SHOW_ALL:
 				setSearchEnabled(false);
-				text = SHOW_ALL_DESCRIPTION;
+				text = SHOW_ALL_DESCRIPTION+defaultText;
 				cleanBar.setVisible(false);
 				break;
 				/*
@@ -525,11 +529,17 @@ public class QuickSearch
 		this.singleSelection = singleSelection;
 	}
 	
-	/** Adds the default searching context. */
-	public void setDefaultSearchContext()
+	/** 
+	 * Adds the default searching context. 
+	 * 
+	 * @param text The default text.
+	 */
+	public void setDefaultSearchContext(String text)
 	{
+		if (text != null) defaultText = text;
 		List<SearchObject> nodes = new ArrayList<SearchObject>();
-		SearchObject node = new SearchObject(SHOW_ALL, null, SHOW_ALL_TEXT);
+		SearchObject node = new SearchObject(SHOW_ALL, null, 
+				SHOW_ALL_TEXT+defaultText);
     	nodes.add(node);
     	node = new SearchObject(FULL_TEXT, null, 
     								SearchComponent.NAME_TEXT);
@@ -567,6 +577,19 @@ public class QuickSearch
     	initSearchComponents(nodes, ratedNodes);
     	removeAll();
     	buildGUI(label);
+	}
+	
+	/** 
+	 * Sets the default text.
+	 * 
+	 * @param defaultText The value to set.
+	 */
+	public void setDefaultText(String defaultText)
+	{ 
+		if (defaultText == null) return;
+		this.defaultText = defaultText;
+		searchArea.setText(SHOW_ALL_DESCRIPTION+defaultText);
+		showAll.setDescription(SHOW_ALL_TEXT+defaultText);
 	}
 	
 	/**

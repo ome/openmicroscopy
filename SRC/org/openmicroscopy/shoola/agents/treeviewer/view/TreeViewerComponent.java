@@ -69,6 +69,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
+import org.openmicroscopy.shoola.agents.treeviewer.util.AdminDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ImportDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject;
@@ -212,14 +213,14 @@ class TreeViewerComponent
 	private void displayUserGroups(Set groups)
 	{
 		//if (switchUserDialog == null) {
-			JFrame f = (JFrame) TreeViewerAgent.getRegistry().getTaskBar();
-			IconManager icons = IconManager.getInstance();
-			switchUserDialog = new UserManagerDialog(f, model.getUserDetails(), 
-					groups, icons.getIcon(IconManager.OWNER), 
-					icons.getIcon(IconManager.OWNER_48));
-			switchUserDialog.addPropertyChangeListener(controller);
-			//switchUserDialog.pack();
-			switchUserDialog.setDefaultSize();
+		JFrame f = (JFrame) TreeViewerAgent.getRegistry().getTaskBar();
+		IconManager icons = IconManager.getInstance();
+		switchUserDialog = new UserManagerDialog(f, model.getUserDetails(), 
+				groups, icons.getIcon(IconManager.OWNER), 
+				icons.getIcon(IconManager.OWNER_48));
+		switchUserDialog.addPropertyChangeListener(controller);
+		//switchUserDialog.pack();
+		switchUserDialog.setDefaultSize();
 		//}
 		UIUtilities.centerAndShow(switchUserDialog);
 	}
@@ -280,8 +281,18 @@ class TreeViewerComponent
 	        							model.getObjectMimeType(list.get(0)));
 	        						}
 	        						db.setSelectedNodes(list, app);
-	        					} 
-	        					else if (ho instanceof TagAnnotationData) {
+	        					} else if (ho instanceof GroupData) {
+	        						TreeImageDisplay child;
+	        						//copy the node.
+	            					while (i.hasNext()) {
+	            						child = (TreeImageDisplay) i.next();
+	            						s.add(child.getUserObject());
+	            					}
+	        						setLeaves((TreeImageSet) parent, s);
+	        						db = DataBrowserFactory.getDataBrowser(ho);
+	        						list = browser.getSelectedDataObjects();
+	        						db.setSelectedNodes(list, app);
+	        					} else if (ho instanceof TagAnnotationData) {
 	        						TagAnnotationData tag = 
 	        							(TagAnnotationData) ho;
 	        						if (tag.getTags() == null) {
@@ -350,11 +361,24 @@ class TreeViewerComponent
         						list = browser.getSelectedDataObjects();
         						if (list != null && list.size() == 1) {
         							app = TreeViewerFactory.getApplications(
-        									model.getObjectMimeType(list.get(0)));
+        								model.getObjectMimeType(list.get(0)));
         						}
         						db.setSelectedNodes(list, app);
-        					}
-        					else if (object instanceof TagAnnotationData) {
+        					} else if (object instanceof GroupData) {
+        						TreeImageDisplay child;
+        						//copy the node.
+            					while (i.hasNext()) {
+            						child = (TreeImageDisplay) i.next();
+            						s.add(child.getUserObject());
+            					}
+        						setLeaves((TreeImageSet) display, s);
+        						db = DataBrowserFactory.getDataBrowser(
+        								display.getUserObject());
+        						list = browser.getSelectedDataObjects();
+        						db.setSelectedNodes(list, app);
+        						
+        						
+        					} else if (object instanceof TagAnnotationData) {
         						TagAnnotationData tag = 
         							(TagAnnotationData) object;
         						if (tag.getTags() == null) {
@@ -594,6 +618,16 @@ class TreeViewerComponent
 				|| (object instanceof ScreenData) || 
 				(object instanceof TagAnnotationData)) {
 			d = new EditorDialog(view, object, withParent);
+		}  else if ((object instanceof GroupData) || 
+				(object instanceof ExperimenterData)) {
+			Object uo = null;
+    		if (object instanceof ExperimenterData) {
+    			TreeImageDisplay node = 
+    				getSelectedBrowser().getLastSelectedDisplay();
+        		uo = node.getUserObject();
+    		}
+    		
+			d = new AdminDialog(view, object.getClass(), uo);
 		}
 		
 		if (d != null) {
@@ -684,10 +718,11 @@ class TreeViewerComponent
 				throw new IllegalStateException("This method cannot be " +
 				"invoked in the DISCARDED, SAVE state.");
 		}
-	
+		
 		Browser browser = model.getSelectedBrowser();
         if (browser == null) return;
         TreeImageDisplay display = browser.getLastSelectedDisplay();
+
         MetadataViewer metadata = model.getMetadataViewer();
         TreeImageDisplay[] selection = browser.getSelectedDisplays();
         boolean single = selection.length == 1;
@@ -701,6 +736,7 @@ class TreeViewerComponent
         		 return;
         	 }
         } 
+       
         metadata.setSelectionMode(single);
         //TODO: handle TreeImageSet
         if (display != null) { // && !(display instanceof TreeImageTimeSet)) {
@@ -1589,6 +1625,9 @@ class TreeViewerComponent
 		if (parentObject instanceof TagAnnotationData) {
 			db = DataBrowserFactory.getTagsBrowser(
 					(TagAnnotationData) parentObject, leaves, false);
+		} else if (parentObject instanceof GroupData) {
+			db = DataBrowserFactory.getGroupsBrowser(
+					(GroupData) parentObject, leaves);
 		} else 
 			db = DataBrowserFactory.getDataBrowser(grandParentObject, 
 					parentObject, leaves);

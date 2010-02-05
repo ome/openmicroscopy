@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PermissionData;
 import pojos.ProjectData;
@@ -128,6 +129,30 @@ public class DataBrowserTranslator
     	long id = is.getId();
     	String name = "";
     	if (id >= 0) name = is.getName();
+        ThumbnailProvider provider = new ThumbnailProvider(is);
+        ImageNode node = new ImageNode(name, is, provider);
+        //formatToolTipFor(node);  
+        provider.setImageNode(node);
+        if (parent != null) parent.addChildDisplay(node);
+        return node;
+    }
+    
+    /** 
+     * Transforms each {@link ExperimenterData} object into a visualization 
+     * object i.e. {@link ImageNode}.
+     * Then adds the newly created {@link ImageNode} to the specified 
+     * {@link ImageSet parent}. 
+     * 
+     * @param is        The {@link ImageData} to transform.
+     * @param parent    The {@link ImageSet parent} of the image node.
+     * @return  The new created {@link ImageNode}.
+     */
+    private static ImageNode linkExperimenterTo(ExperimenterData is, 
+    		ImageSet parent)
+    {
+    	long id = is.getId();
+    	String name = "";
+    	if (id >= 0) name = is.getFirstName()+" "+is.getLastName();
         ThumbnailProvider provider = new ThumbnailProvider(is);
         ImageNode node = new ImageNode(name, is, provider);
         //formatToolTipFor(node);  
@@ -546,6 +571,31 @@ public class DataBrowserTranslator
             ho = (DataObject) i.next();
             if (isReadable(ho, userID, groupID) && ho instanceof ImageData)
                 results.add(linkImageTo((ImageData) ho, null));
+        }
+        return results;
+    }
+    
+    /** 
+     * Transforms a set of {@link DataObject}s into their corresponding 
+     * visualization objects. The elements of the set only be 
+     * {@link ExperimenterData}.
+     * The {@link ExperimenterData}s are added to a {@link ImageSet}.
+     * 
+     * @param dataObjects   The {@link DataObject}s to transform.
+     *                      Mustn't be <code>null</code>.        
+     * @return See above.
+     */
+    public static Set transformExperimenters(Collection dataObjects)
+    {
+        if (dataObjects == null)
+            throw new IllegalArgumentException("No objects.");
+        Set results = new HashSet();
+        DataObject ho;
+        Iterator i = dataObjects.iterator();
+        while (i.hasNext()) {
+            ho = (DataObject) i.next();
+            if (ho instanceof ExperimenterData)
+                results.add(linkExperimenterTo((ExperimenterData) ho, null));
         }
         return results;
     }

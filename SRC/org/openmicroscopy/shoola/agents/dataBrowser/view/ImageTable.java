@@ -34,7 +34,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-import javax.swing.Icon;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
@@ -76,9 +75,12 @@ class ImageTable
 	
 	/** Identified the column displaying if the file has been annotated. */
 	static final int  					ANNOTATED_COL = 2;
-	
+
 	/** The text of the {@link #NAME_COL}. */
 	static final String					NAME =  "Name";
+	
+	/** The text of the {@link #LOGIN_NAME_COL}. */
+	static final String					LOGIN_NAME =  "User Name";
 	
 	/** The text of the {@link #DATE_COL}. */
 	static final String					DATE =  "Acquisition Date";
@@ -86,21 +88,38 @@ class ImageTable
 	/** The text of the {@link #ANNOTATED_COL}. */
 	static final String					ANNOTATED =  "Annotated";
 	
+	/** The text of the {@link #INSTITUTION_COL}. */
+	static final String					INSTITUTION =  "Institution";
+	
 	/** The columns of the table. */
 	private static Vector<String>		COLUMNS;
 	
 	/** Map indicating how to render each column. */
 	private static Map<Integer, Class> RENDERERS;
 	
+	/** The columns of the table. */
+	private static Vector<String>		COLUMNS_GROUPS;
+	
+	/** Map indicating how to render each column. */
+	private static Map<Integer, Class> RENDERERS_GROUPS;
+	
 	static {
 		COLUMNS = new Vector<String>(3);
 		COLUMNS.add(NAME);
 		COLUMNS.add(DATE);
-		//COLUMNS.add(ANNOTATED);
+		
 		RENDERERS = new HashMap<Integer, Class>();
 		RENDERERS.put(NAME_COL, ImageTableNode.class);
 		RENDERERS.put(DATE_COL, String.class);
-		//RENDERERS.put(ANNOTATED_COL, Icon.class);
+		
+		COLUMNS_GROUPS = new Vector<String>(3);
+		COLUMNS_GROUPS.add(LOGIN_NAME);
+		COLUMNS_GROUPS.add(NAME);
+		COLUMNS_GROUPS.add(INSTITUTION);
+		RENDERERS_GROUPS = new HashMap<Integer, Class>();
+		//RENDERERS_GROUPS.put(DATE_COL, String.class);
+		//RENDERERS_GROUPS.put(NAME_COL, String.class);
+		//RENDERERS_GROUPS.put(ANNOTATED_COL, String.class);
 	}
 	
 	/** The root node of the table. */
@@ -114,6 +133,9 @@ class ImageTable
 	
 	/** Collection used when visiting the tree structure. */
 	private List<ImageTableNode> 	nodes;
+	
+	/** Reference to the model. */
+	private DataBrowserModel 		model;
 	
 	/**
 	 * Builds the node.
@@ -165,7 +187,14 @@ class ImageTable
 	{
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		nodes  = new ArrayList<ImageTableNode>();
-		setTableModel(new OMETreeTableModel(tableRoot, COLUMNS, RENDERERS));
+		OMETreeTableModel om;
+		if (model.getType() == DataBrowserModel.GROUP)
+			om = new OMETreeTableModel(tableRoot, COLUMNS_GROUPS, 
+					RENDERERS_GROUPS);
+		else 
+			om = new OMETreeTableModel(tableRoot, COLUMNS, RENDERERS);
+		
+		setTableModel(om);
 		setTreeCellRenderer(new ImageTableRenderer());
 		setAutoResizeMode(JXTreeTable.AUTO_RESIZE_ALL_COLUMNS);
 		setDefaultRenderer(String.class, new NumberCellRenderer());
@@ -257,13 +286,17 @@ class ImageTable
 	 * 
 	 * @param root The root of the tree.
 	 * @param view The component hosting that table.
+	 * @param model Reference to the model.
 	 */
-	ImageTable(ImageDisplay root, ImageTableView view)
+	ImageTable(ImageDisplay root, ImageTableView view, DataBrowserModel model)
 	{
 		super();
 		if (view == null)
 			throw new IllegalArgumentException("No view");
+		if (model == null)
+			throw new IllegalArgumentException("No Model");
 		this.view = view;
+		this.model = model;
 		tableRoot = new ImageTableNode(root);
 		Component[] comp = root.getInternalDesktop().getComponents();
 		buildTreeNode(tableRoot, view.getSorter().sort(comp));
@@ -277,7 +310,13 @@ class ImageTable
 		tableRoot = new ImageTableNode(root);
 		Component[] comp = root.getInternalDesktop().getComponents();
 		buildTreeNode(tableRoot, view.getSorter().sort(comp));
-		setTableModel(new OMETreeTableModel(tableRoot, COLUMNS, RENDERERS));
+		OMETreeTableModel om;
+		if (model.getType() == DataBrowserModel.GROUP)
+			om = new OMETreeTableModel(tableRoot, COLUMNS_GROUPS, 
+					RENDERERS_GROUPS);
+		else 
+			om = new OMETreeTableModel(tableRoot, COLUMNS, RENDERERS);
+		setTableModel(om);
 		setDefaultRenderer(String.class, new NumberCellRenderer());
 		invalidate();
 		repaint();
@@ -358,7 +397,8 @@ class ImageTable
 	{
 		int count = e.getClickCount();
 		if (count == 2) { 
-			view.viewSelectedNode();
+			if (model.getType() != DataBrowserModel.GROUP)
+				view.viewSelectedNode();
 		} else {
 			if (e.isPopupTrigger()) view.showMenu(e.getPoint());
 		}

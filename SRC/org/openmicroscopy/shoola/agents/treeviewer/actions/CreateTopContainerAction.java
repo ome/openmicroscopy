@@ -39,8 +39,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.CreateCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ProjectData;
 import pojos.TagAnnotationData;
 
@@ -205,9 +205,35 @@ public class CreateTopContainerAction
                 setEnabled(false);
                 break;
             default:
-            	setEnabled(true);
+            	if (browser.getBrowserType() != Browser.ADMIN_EXPLORER)
+            		setEnabled(true);
+            	else {
+            		onDisplayChange(browser.getLastSelectedDisplay());
+            	}
                 break;
         }
+    }
+    
+    /**
+     * Sets the action enabled depending on the selected type.
+     * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
+     */
+    protected void onDisplayChange(TreeImageDisplay selectedDisplay)
+    {
+        if (nodeType != EXPERIMENTER) {
+        	setEnabled(true);
+        	return;
+        }
+        Browser browser = model.getSelectedBrowser();
+        if (browser == null || selectedDisplay == null) {
+            setEnabled(false);
+            return;
+        } 
+        Object ho = selectedDisplay.getUserObject(); 
+        if (ho instanceof GroupData)  {
+        	TreeImageDisplay[] selected = browser.getSelectedDisplays();
+        	setEnabled(selected.length == 1);
+        } else setEnabled(false);
     }
     
     /**
@@ -216,12 +242,10 @@ public class CreateTopContainerAction
      */
     protected void onBrowserSelection(Browser browser)
     {
-       // nodeType = -1;
         if (browser == null) {
             setEnabled(false);
-            name = NAME;
+            //name = NAME;
         } 
-        description = (String) getValue(Action.SHORT_DESCRIPTION);
     }
     
     /**

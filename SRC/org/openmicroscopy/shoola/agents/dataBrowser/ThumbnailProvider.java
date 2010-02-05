@@ -39,6 +39,9 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+
+import pojos.DataObject;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PixelsData;
 
@@ -80,8 +83,8 @@ public class ThumbnailProvider
     /** The color of the border. */
     private static final Color  BORDER_COLOR = Color.WHITE;
     
-    /** The {@link ImageData} the thumbnail is for. */
-    private ImageData       imgInfo;
+    /** The {@link DataObject} the thumbnail is for. */
+    private DataObject       imgInfo;
     
     /**
      * The {@link ImageNode} corresponding to the {@link ImageData} and 
@@ -139,7 +142,9 @@ public class ThumbnailProvider
         originalWidth = THUMB_MAX_WIDTH;
         originalHeight = THUMB_MAX_HEIGHT;
         try {
-        	pxd = imgInfo.getDefaultPixels();
+        	if (imgInfo instanceof ImageData)
+        		pxd = ((ImageData) imgInfo).getDefaultPixels();
+        	else return;
 		} catch (Exception e) { //no pixels linked to it.
 			width = (int) (THUMB_MAX_WIDTH*SCALING_FACTOR);
 	        height = (int) (THUMB_MAX_HEIGHT*SCALING_FACTOR);
@@ -152,18 +157,6 @@ public class ThumbnailProvider
         //int h = THUMB_MAX_HEIGHT;
         double pixSizeX = pxd.getSizeX();
         double pixSizeY = pxd.getSizeY();
-        /*
-        int sizeX = (int) (THUMB_MAX_HEIGHT*SCALING_FACTOR);
-        int sizeY = (int) (THUMB_MAX_HEIGHT*SCALING_FACTOR);
-        double ratio = pixSizeX/pixSizeY;
-        if (ratio < 1) {
-            sizeX *= ratio;
-            originalWidth *= ratio;
-        } else if (ratio > 1 && ratio != 0) {
-            sizeY *= 1/ratio;
-            originalHeight *= 1/ratio;
-        }
-        */
         Dimension size = Factory.computeThumbnailSize(width, height, pixSizeX, 
         		pixSizeY);
         width = size.width;//sizeX;
@@ -179,14 +172,17 @@ public class ThumbnailProvider
      * 
      * @param is The image data object.
      */
-    public ThumbnailProvider(ImageData is)
+    public ThumbnailProvider(DataObject is)
     {
         if (is == null) throw new IllegalArgumentException("No image.");
+        if (!(is instanceof ImageData || is instanceof ExperimenterData))
+        	throw new IllegalArgumentException("Objet to supported.");
         imgInfo = is;
         scalingFactor = SCALING_FACTOR;
         computeDims();
         valid = true;
     }
+    
     
     /**
      * Implemented as specified by the {@link Thumbnail} I/F.

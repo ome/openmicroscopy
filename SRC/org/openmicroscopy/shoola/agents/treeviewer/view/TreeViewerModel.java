@@ -1014,12 +1014,16 @@ class TreeViewerModel
 		Boolean b = (Boolean) TreeViewerAgent.getRegistry().lookup(
 				TreeViewerAgent.MULTI_USER);
 		if (!b) return false;
+		
+		ExperimenterData exp = getExperimenter();
+		/*
 		ExperimenterData exp = getExperimenter();
 		Map<Long, Boolean> map = exp.isLeader();
 		if (map.containsKey(userGroupID)) {
 			b = map.get(userGroupID);
 			if (b) return true;
 		}
+		*/
 		//Now we check the status of the group.
 		List<GroupData> l = exp.getGroups();
 		GroupData group;

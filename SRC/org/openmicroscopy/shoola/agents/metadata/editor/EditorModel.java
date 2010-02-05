@@ -2048,22 +2048,6 @@ class EditorModel
         };
         Collections.sort(values, c);
     }
-    
-    /**
-     * Returns <code>true</code> if the current user is a leader of the passed
-     * group, <code>false</code> otherwise.
-     * 
-     * @param groupID The id of the group.
-     * @return See above.
-     */
-    boolean isGroupLeader(long groupID)
-    {
-    	ExperimenterData exp = MetadataViewerAgent.getUserDetails();
-    	Map<Long, Boolean> m = exp.isLeader();
-    	Boolean b = m.get(groupID);
-    	if (b == null) return false;
-    	return b;
-    }
 
     /** Updates the permissions. */
 	void upgradePermissions() {}

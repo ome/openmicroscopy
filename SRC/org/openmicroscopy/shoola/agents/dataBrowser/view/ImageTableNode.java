@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeNode;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 
 /** 
@@ -64,7 +65,7 @@ public class ImageTableNode
 	 * 
 	 * @param refNode The node of reference. Mustn't be <code>null</code>;
 	 */
-	public ImageTableNode(ImageDisplay refNode)
+	ImageTableNode(ImageDisplay refNode)
 	{
 		super(refNode);
 		if (refNode == null)
@@ -103,6 +104,10 @@ public class ImageTableNode
 		Object ho = node.getHierarchyObject();
 		switch (column) {
 			case ImageTable.NAME_COL:
+				if (ho instanceof ExperimenterData) {
+					ExperimenterData exp = (ExperimenterData) ho;
+					return exp.getUserName();
+				}
 				return node.toString();
 			case ImageTable.DATE_COL:
 				if (ho instanceof ImageData) {
@@ -110,13 +115,20 @@ public class ImageTableNode
 						EditorUtil.getAcquisitionTime((ImageData) ho);
 					if (time == null) return "--";
 					return UIUtilities.formatWDMYDate(time);
+				} else if (ho instanceof ExperimenterData) {
+					return node.toString();
 				}
+					
 				return "--";
 			case ImageTable.ANNOTATED_COL:
+				if (ho instanceof ExperimenterData) {
+					ExperimenterData exp = (ExperimenterData) ho;
+					return exp.getInstitution();
+				}
 				if (ho instanceof DataObject) {
 					if (EditorUtil.isAnnotated(ho))
 						return icons.getIcon(IconManager.ANNOTATION);
-				}
+				} 
 				return icons.getIcon(IconManager.TRANSPARENT);
 				
 		}

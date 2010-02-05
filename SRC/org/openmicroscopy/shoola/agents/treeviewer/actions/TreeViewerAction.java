@@ -69,7 +69,7 @@ public abstract class TreeViewerAction
     protected String        description;
       
     /**
-     * Callback to notify of a change in the currently selected display
+     * Call-back to notify of a change in the currently selected display
      * in the {@link Browser}. Subclasses override the method.
      * 
      * @param selectedDisplay The newly selected display node.
@@ -77,7 +77,7 @@ public abstract class TreeViewerAction
     protected void onDisplayChange(TreeImageDisplay selectedDisplay) {}
     
     /** 
-     * Callback to notify a state change in the {@link Browser}. 
+     * Call-back to notify a state change in the {@link Browser}. 
      * Subclasses override the method.
      * 
      * @param browser The browser which fired the state change.
@@ -85,14 +85,14 @@ public abstract class TreeViewerAction
     protected void onBrowserStateChange(Browser browser) {} ;
     
     /**
-     * Callback to notify that a new browser is selected.
+     * Call-back to notify that a new browser is selected.
      * Subclasses override the method.
      * 
      * @param browser The selected browser.
      */
     protected void onBrowserSelection(Browser browser) {};
     
-    /** Callback to notify that the display mode has changed. */
+    /** Call-back to notify that the display mode has changed. */
     protected void onDisplayMode() {};
     
     /**
@@ -181,6 +181,7 @@ public abstract class TreeViewerAction
 					if (browser != null) v = browser.getLastSelectedDisplay();
 					onBrowserStateChange(browser);
 					onDisplayChange(v);
+					break;
 			}
         	onDisplayMode();
         	return;

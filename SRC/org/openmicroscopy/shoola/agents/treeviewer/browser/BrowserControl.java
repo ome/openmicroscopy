@@ -59,6 +59,7 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -335,6 +336,8 @@ class BrowserControl
         		else text = "Tags.";
         	} else if (FileAnnotationData.class.equals(ref)) text = "Files.";
         	else if (FileData.class.equals(ref)) text = "Files.";
+        	else if (ExperimenterData.class.equals(ref)) text = "Experimenters";
+        	else if (GroupData.class.equals(ref)) text = "GroupData";
         	UserNotifier un = 
         		TreeViewerAgent.getRegistry().getUserNotifier();
         	un.notifyInfo("Tree selection", "You can only select "+text);

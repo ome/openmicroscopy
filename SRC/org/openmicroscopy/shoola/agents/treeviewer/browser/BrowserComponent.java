@@ -232,8 +232,10 @@ class BrowserComponent
     	if (display != null) {
     		ho = display.getUserObject();
     		if (ho instanceof ExperimenterData) {
-    			exp = display;
-    			display = null;
+    			if (getBrowserType() != ADMIN_EXPLORER) {
+    				exp = display;
+        			display = null;
+    			}
     		}
     	}
     	if (exp != null) model.setSelectedDisplay(exp, single);
@@ -1527,6 +1529,9 @@ class BrowserComponent
 		view.setGroups(nodes);
 		model.setState(READY);
 		countItems(null);
+		model.getParentModel().setLeaves((TreeImageSet) 
+				model.getLastSelectedDisplay(), groups);
+
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
 	}

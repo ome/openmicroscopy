@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -200,7 +201,10 @@ public class ManageObjectAction
 		        } else setEnabled(false);
 				break;
 			case REMOVE:
-				if ((ho instanceof ProjectData) || (ho instanceof DatasetData)
+				if (ho instanceof ExperimenterData) {
+					setEnabled(true);
+				} else if ((ho instanceof ProjectData) 
+					|| (ho instanceof DatasetData)
 					|| (ho instanceof ImageData) || (ho instanceof ScreenData)
 					|| (ho instanceof PlateData)) {
 					setEnabled(model.isObjectWritable(ho));

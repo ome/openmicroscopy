@@ -34,6 +34,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.ImageTableNode;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -96,6 +97,10 @@ public class ImageTableRenderer
 		} else if (v instanceof ProjectData) {
 			setIcon(icons.getIcon(IconManager.PROJECT));
 			setText(node.getUserObject().toString());
+		} else if (v instanceof ExperimenterData) {
+			setIcon(null);
+			ExperimenterData exp = (ExperimenterData) v;
+			setText(exp.getUserName());
 		}
 		return this;
 	}
