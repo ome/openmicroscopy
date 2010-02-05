@@ -83,7 +83,7 @@ insert into experimentergroup (id,permissions,version,name)
 insert into experimentergroup (id,permissions,version,name)
         values (ome_nextval('seq_experimentergroup'),-35,0,'user');
 insert into experimentergroup (id,permissions,version,name)
-        values (ome_nextval('seq_experimentergroup'),-35,0,'default');
+        values (ome_nextval('seq_experimentergroup'),-35,0,'CHANGE_ME');
 insert into experimentergroup (id,permissions,version,name)
         values (ome_nextval('seq_experimentergroup'),-35,0,'guest');
 insert into eventtype (id,permissions,value) values
