@@ -315,26 +315,28 @@ public class CPEimport {
 		IParam param;
 		if (EnumParam.ENUM_PARAM.equals(paramType)) {
 			IXMLElement enumList = cpeParam.getFirstChildNamed(ENUM_LIST);
-			List<IXMLElement> enums = enumList.getChildrenNamed(ENUM);
-			// if enumeration options are "true" and "false", need a boolean...
-			if (enumsAreBoolean(enums)) {
-				param = FieldParamsFactory.getFieldParam(BooleanParam.BOOLEAN_PARAM);
-				setNameValueDefault(cpeParam, param);
-			} else {
-				param = FieldParamsFactory.getFieldParam(EnumParam.ENUM_PARAM);
-				setNameValueDefault(cpeParam, param);
-				// enumerations
-				String enumOptions = "";
-				for (IXMLElement e : enums) {
-					if (enumOptions.length() > 0)  enumOptions = enumOptions + ", ";
-					enumOptions = enumOptions + e.getContent();
+			param = FieldParamsFactory.getFieldParam(EnumParam.ENUM_PARAM);
+			if (enumList != null) {
+				List<IXMLElement> enums = enumList.getChildrenNamed(ENUM);
+				// if enumeration options are "true" and "false", need a boolean...
+				if (enumsAreBoolean(enums)) {
+					param = FieldParamsFactory.getFieldParam(BooleanParam.BOOLEAN_PARAM);
+					setNameValueDefault(cpeParam, param);
+				} else {
+					setNameValueDefault(cpeParam, param);
+					// enumerations
+					String enumOptions = "";
+					for (IXMLElement e : enums) {
+						if (enumOptions.length() > 0)  enumOptions = enumOptions + ", ";
+						enumOptions = enumOptions + e.getContent();
+					}
+					if (enums.size() > 0) {
+						param.setAttribute(EnumParam.ENUM_OPTIONS, enumOptions);
+					}
+					// units
+					String units = getChildContent(cpeParam, UNITS);
+					param.setAttribute(NumberParam.PARAM_UNITS, units);
 				}
-				if (enums.size() > 0) {
-					param.setAttribute(EnumParam.ENUM_OPTIONS, enumOptions);
-				}
-				// units
-				String units = getChildContent(cpeParam, UNITS);
-				param.setAttribute(NumberParam.PARAM_UNITS, units);
 			}
 		} else  
 		if (NumberParam.NUMBER_PARAM.equals(paramType)) {
