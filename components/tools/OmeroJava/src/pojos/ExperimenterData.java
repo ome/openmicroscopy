@@ -135,6 +135,20 @@ public class ExperimenterData extends DataObject {
     }
 
     /**
+     * Returns the last name of the experimenter.
+     * 
+     * @return see above.
+     */
+    public String getUserName() {
+        omero.RString n = asExperimenter().getOmeName();
+        if (n == null || n.getValue() == null) {
+            throw new IllegalStateException(
+                    "The name should never have been null");
+        }
+        return n.getValue();
+    }
+    
+    /**
      * Sets the e-mail of the experimenter.
      * 
      * @param email
