@@ -6,6 +6,7 @@
  */
 package ome.server.itests.perms42;
 
+import ome.conditions.GroupSecurityViolation;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.annotations.TagAnnotation;
 import ome.model.core.Image;
@@ -94,12 +95,15 @@ public class RootAnnotatingPermissionsTest extends PermissionsTest {
         TagAnnotation tag = new TagAnnotation();
         ImageAnnotationLink link = new ImageAnnotationLink();
         link.link(new Image(image.getId(), false), tag);
-        link = iUpdate.saveAndReturnObject(link);
-        assertNumberOfImages(1);
-        fixture.log_in();
+        try {
+            link = iUpdate.saveAndReturnObject(link);
+            fail("group-security-violation");
+        } catch (GroupSecurityViolation gsv) {
+            // ok
+        }
         assertNumberOfImages(1);
         assertEquals(1, iQuery.findAllByQuery(
-                "select i from Image i join fetch i.annotationLinks", null)
+                "select i from Image i left outer join fetch i.annotationLinks", null)
                 .size());
     }
 

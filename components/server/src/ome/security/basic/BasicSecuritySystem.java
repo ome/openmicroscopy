@@ -280,14 +280,14 @@ public class BasicSecuritySystem implements SecuritySystem,
         return interceptor.checkManagedDetails(object, trustedDetails);
     }
 
+    // ~ CurrentDetails delegation (ensures proper settings of Tokens)
+    // =========================================================================
+
 
     public boolean isGraphCritical() {
         checkReady("isGraphCritical");
-        return interceptor.isGraphCritical();
+        return cd.isGraphCritical();
     }
-
-    // ~ CurrentDetails delegation (ensures proper settings of Tokens)
-    // =========================================================================
 
     public void loadEventContext(boolean isReadOnly) {
 

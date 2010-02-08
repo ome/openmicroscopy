@@ -105,18 +105,19 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
      */
     public static boolean passesFilter(Details d,
             Long currentGroupId, Long currentUserId,
-            Collection<Long> memberOfGroups, Collection<Long> leaderOfGroups,
-            boolean admin, boolean share) {
+            boolean nonPrivate, boolean adminOrPi, boolean share) {
         if (d == null || d.getPermissions() == null) {
             throw new InternalException("Details/Permissions null! "
                     + "Security system failure -- refusing to continue. "
                     + "The Permissions should be set to a default value.");
         }
 
-        Permissions p = d.getPermissions();
-
         Long o = d.getOwner().getId();
         Long g = d.getGroup().getId();
+
+        if (share) {
+            return true;
+        }
 
         // ticket:1434 - Only loading current objects is permitted.
         // This method will not be called with system types.
@@ -125,24 +126,15 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
             return false;
         }
 
-        if (currentUserId.equals(o) && p.isGranted(USER, READ)) {
+        if (nonPrivate) {
             return true;
         }
 
-        if (memberOfGroups.contains(g)
-                && d.getPermissions().isGranted(GROUP, READ)) {
+        if (adminOrPi) {
             return true;
         }
 
-        if (admin) {
-            return true;
-        }
-
-        if (share) {
-            return true;
-        }
-
-        if (leaderOfGroups.contains(g)) {
+        if (currentUserId.equals(o)) {
             return true;
         }
 

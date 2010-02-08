@@ -22,11 +22,14 @@ import ome.model.IObject;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
+import ome.model.internal.Permissions.Right;
+import ome.model.internal.Permissions.Role;
 import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
+import ome.security.SecuritySystem;
 import ome.services.messages.RegisterServiceCleanupMessage;
 import ome.services.sessions.stats.CounterFactory;
 import ome.services.sessions.stats.SessionStats;
@@ -134,6 +137,32 @@ public class CurrentDetails implements PrincipalHolder {
             return true;
         }
         return false;
+    }
+
+    /**
+     * @see SecuritySystem#isGraphCritical()
+     * @return
+     */
+    public boolean isGraphCritical() {
+        EventContext ec = getCurrentEventContext();
+        long gid = ec.getCurrentGroupId();
+        Permissions perms = ec.getCurrentGroupPermissions();
+
+        boolean admin = ec.isCurrentUserAdmin();
+        boolean pi = ec.getLeaderOfGroupsList().contains(gid);
+
+        if (perms.isGranted(Role.WORLD, Right.READ)) {
+            // Public groups (rwrwrw) are always non-critical
+            return false;
+        } else if (perms.isGranted(Role.GROUP, Right.READ)) {
+            // Since the object will be contained in the group,
+            // then it will be readable regardless.
+            return false;
+        } else {
+            // This is a private group. Any form of admin modification is
+            // critical.
+            return admin || pi;
+        }
     }
 
     public boolean isOwnerOrSupervisor(IObject object) {

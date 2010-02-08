@@ -438,32 +438,6 @@ public class OmeroInterceptor implements Interceptor {
         }
     }
 
-    /**
-     * @see SecuritySystem#isGraphCritical()
-     * @return
-     */
-    public boolean isGraphCritical() {
-        EventContext ec = currentUser.getCurrentEventContext();
-        long gid = ec.getCurrentGroupId();
-        Permissions perms = ec.getCurrentGroupPermissions();
-
-        boolean admin = ec.isCurrentUserAdmin();
-        boolean pi = ec.getLeaderOfGroupsList().contains(gid);
-
-        if (perms.isGranted(Role.WORLD, Right.READ)) {
-            // Public groups (rwrwrw) are always non-critical
-            return false;
-        } else if (perms.isGranted(Role.GROUP, Right.READ)) {
-            // Since the object will be contained in the group,
-            // then it will be readable regardless.
-            return false;
-        } else {
-            // This is a private group. Any form of admin modification is
-            // critical.
-            return admin || pi;
-        }
-    }
-
     // TODO is this natural? perhaps permissions don't belong in details
     // details are the only thing that users can change the rest is
     // read only...

@@ -16,12 +16,15 @@ import static ome.model.internal.Permissions.Role.USER;
 import static ome.model.internal.Permissions.Role.WORLD;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.conditions.GroupSecurityViolation;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Token;
+import ome.model.internal.Permissions.Right;
+import ome.model.internal.Permissions.Role;
 import ome.security.ACLVoter;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
@@ -86,11 +89,16 @@ public class BasicACLVoter implements ACLVoter {
         if (d == null || sysTypes.isSystemType(klass)) {
             return true;
         }
-        BasicEventContext c = currentUser.current();
+
+        final BasicEventContext c = currentUser.current();
+        final boolean nonPrivate = c.getCurrentGroupPermissions().isGranted(Role.GROUP, Right.READ) ||
+            c.getCurrentGroupPermissions().isGranted(Role.WORLD, Right.READ);
+        final boolean isShare = c.getCurrentShareId() != null;
+        final boolean adminOrPi = c.isCurrentUserAdmin() ||
+            c.getLeaderOfGroupsList().contains(c.getCurrentGroupId());
         return SecurityFilter.passesFilter(d,
                 c.getGroup().getId(), c.getOwner().getId(),
-                c.getMemberOfGroupsList(), c.getLeaderOfGroupsList(),
-                c.isCurrentUserAdmin(), c.getCurrentShareId() != null);
+                nonPrivate, adminOrPi, isShare);
     }
 
     public void throwLoadViolation(IObject iObject) throws SecurityViolation {
@@ -102,7 +110,13 @@ public class BasicACLVoter implements ACLVoter {
         Assert.notNull(iObject);
         Class cls = iObject.getClass();
 
-        if (tokenHolder.hasPrivilegedToken(iObject)
+        boolean sysType = sysTypes.isSystemType(cls);
+
+        if (!sysType && currentUser.isGraphCritical()) { // ticket:1769
+            return false;
+        }
+
+        else if (tokenHolder.hasPrivilegedToken(iObject)
                 || currentUser.getCurrentEventContext().isCurrentUserAdmin()) {
             return true;
         }
@@ -117,22 +131,36 @@ public class BasicACLVoter implements ACLVoter {
     public void throwCreationViolation(IObject iObject)
             throws SecurityViolation {
         Assert.notNull(iObject);
+
+        boolean sysType = sysTypes.isSystemType(iObject.getClass());
+        if (!sysType && currentUser.isGraphCritical()) { // ticket:1769
+            throw new GroupSecurityViolation(iObject + "-insertion violates " +
+                    "group-security.");
+        }
+
         throw new SecurityViolation(iObject
                 + " is a System-type, and may only be "
                 + "created through privileged APIs.");
     }
 
     public boolean allowUpdate(IObject iObject, Details trustedDetails) {
-        return allowUpdateOrDelete(iObject, trustedDetails);
+        return allowUpdateOrDelete(iObject, trustedDetails, true);
     }
 
     public void throwUpdateViolation(IObject iObject) throws SecurityViolation {
         Assert.notNull(iObject);
+
+        boolean sysType = sysTypes.isSystemType(iObject.getClass());
+        if (!sysType && currentUser.isGraphCritical()) { // ticket:1769
+            throw new GroupSecurityViolation(iObject +"-modification violates " +
+                    "group-security.");
+        }
+
         throw new SecurityViolation("Updating " + iObject + " not allowed.");
     }
 
     public boolean allowDelete(IObject iObject, Details trustedDetails) {
-        return allowUpdateOrDelete(iObject, trustedDetails);
+        return allowUpdateOrDelete(iObject, trustedDetails, false);
     }
 
     public void throwDeleteViolation(IObject iObject) throws SecurityViolation {
@@ -140,15 +168,19 @@ public class BasicACLVoter implements ACLVoter {
         throw new SecurityViolation("Deleting " + iObject + " not allowed.");
     }
 
-    private boolean allowUpdateOrDelete(IObject iObject, Details trustedDetails) {
+    private boolean allowUpdateOrDelete(IObject iObject, Details trustedDetails, boolean update) {
         Assert.notNull(iObject);
 
         BasicEventContext c = currentUser.current();
 
+        boolean sysType = sysTypes.isSystemType(iObject.getClass());
+
         // needs no details info
-        if (tokenHolder.hasPrivilegedToken(iObject) || c.isCurrentUserAdmin()) {
+        if (update && !sysType && currentUser.isGraphCritical()) { //ticket:1769
+            return false;
+        } else if (tokenHolder.hasPrivilegedToken(iObject) || c.isCurrentUserAdmin()) {
             return true;
-        } else if (sysTypes.isSystemType(iObject.getClass())) {
+        } else if (sysType) {
             return false;
         }
 
