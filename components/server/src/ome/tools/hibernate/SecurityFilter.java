@@ -67,12 +67,11 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
                 + "\n  ( group_id = :current_group AND "
                 + "\n     ( :is_nonprivate OR "
                 + "\n       :is_adminorpi OR "
-                + "\n       owner_id = :current_user OR "
-                + "\n       (%s) "
+                + "\n       owner_id = :current_user"
                 + "\n     )"
                 + "\n  ) OR"
                 + "\n :is_share"
-                + "\n)\n", isSet(Flag.ADMIN));
+                + "\n)\n");
     }
 
     /**

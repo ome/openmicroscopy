@@ -494,10 +494,6 @@ public class OmeroInterceptor implements Interceptor {
             // the READ permissions which are set will not be removable.
             copyNonNullPermissions(newDetails, source.getPermissions());
             applyUmaskIfNecessary(newDetails);
-            // ticket:1769
-            if (isGraphCritical()) {
-                newDetails.getPermissions().set(Flag.ADMIN);
-            }
 
             // OWNER
             // users *aren't* allowed to set the owner of an item.

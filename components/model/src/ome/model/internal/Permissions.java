@@ -110,7 +110,7 @@ public class Permissions implements Serializable {
      * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/1769>#1769</a>
      */
     public enum Flag {
-        LOCKED(1 << 18), SOFT(1 << 17), ADMIN(1 << 16);
+        LOCKED(1 << 18), SOFT(1 << 17);
 
         /*
          * Implementation note: -------------------- Flags work with reverse
