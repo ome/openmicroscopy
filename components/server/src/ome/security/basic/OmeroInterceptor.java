@@ -39,6 +39,7 @@ import ome.model.meta.ExternalInfo;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
 import ome.services.sessions.stats.SessionStats;
+import ome.system.EventContext;
 import ome.system.Principal;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.HibernateUtils;
@@ -434,6 +435,37 @@ public class OmeroInterceptor implements Interceptor {
             Permissions p = new Permissions(d.getPermissions());
             p.set(Flag.LOCKED);
             d.setPermissions(p);
+        }
+    }
+
+    /**
+     * @see SecuritySystem#isGraphCritical()
+     * @return
+     */
+    public boolean isGraphCritical() {
+        EventContext ec = currentUser.getCurrentEventContext();
+        long gid = ec.getCurrentGroupId();
+        Permissions perms = ec.getCurrentGroupPermissions();
+
+        boolean admin = ec.isCurrentUserAdmin();
+        boolean pi = ec.getLeaderOfGroupsList().contains(gid);
+        boolean member = ec.getMemberOfGroupsList().contains(gid);
+
+        if (perms.isGranted(Role.WORLD, Right.READ)) {
+            // Public groups (rwrwrw) are always non-critical
+            return false;
+        } else if (perms.isGranted(Role.GROUP, Right.READ)) {
+            // If this is shared-group and the current user is a member,
+            // then there are no issues.
+            if (member) {
+                return false;
+            } else {
+                return admin; // PI is always a member.
+            }
+        } else {
+            // This is a private group. Any form of admin modification is
+            // critical.
+            return admin || pi;
         }
     }
 

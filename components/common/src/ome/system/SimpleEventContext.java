@@ -28,7 +28,7 @@ import ome.model.internal.Permissions;
 @RevisionNumber("$Revision: 1167 $")
 public class SimpleEventContext implements EventContext, Serializable {
 
-    private static final long serialVersionUID = -3918201598642845539L;
+    private static final long serialVersionUID = -391820349350359539L;
 
     protected Long shareId;
 
@@ -57,6 +57,8 @@ public class SimpleEventContext implements EventContext, Serializable {
     protected List<Long> leaderOfGroups;
 
     protected Permissions umask;
+
+    protected Permissions groupPermissions;
 
     /** Constructor for subclasses */
     protected SimpleEventContext() {
@@ -88,6 +90,7 @@ public class SimpleEventContext implements EventContext, Serializable {
         this.ceType = ec.getCurrentEventType();
         this.memberOfGroups = new ArrayList<Long>(ec.getMemberOfGroupsList());
         this.leaderOfGroups = new ArrayList<Long>(ec.getLeaderOfGroupsList());
+        this.groupPermissions = ec.getCurrentGroupPermissions();
         try {
             this.isAdmin = ec.isCurrentUserAdmin();
             this.isReadOnly = ec.isReadOnly();
@@ -152,5 +155,9 @@ public class SimpleEventContext implements EventContext, Serializable {
 
     public Permissions getCurrentUmask() {
         return umask;
+    }
+
+    public Permissions getCurrentGroupPermissions() {
+        return groupPermissions;
     }
 }

@@ -154,6 +154,7 @@ class BasicEventContext extends SimpleEventContext {
         this.cgId = group.getId();
         if (group.isLoaded()) {
             this.cgName = group.getName();
+            this.groupPermissions = group.getDetails().getPermissions();
         }
     }
 
@@ -208,6 +209,7 @@ class BasicEventContext extends SimpleEventContext {
     /**
      * HACK: Because the read filter cannot handle empty collections, we reset
      * and null or empty collection to one containing {@link Long#MIN_VALUE}
+     * REVIEW
      */
     @Override
     public List<Long> getLeaderOfGroupsList() {

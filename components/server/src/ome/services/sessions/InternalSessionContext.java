@@ -8,6 +8,7 @@ package ome.services.sessions;
 
 import java.util.Arrays;
 
+import ome.model.internal.Permissions;
 import ome.model.meta.Session;
 import ome.services.sessions.stats.NullSessionStats;
 import ome.system.Roles;
@@ -66,4 +67,12 @@ class InternalSessionContext extends SessionContextImpl {
         return false;
     }
 
+    /**
+     * Overrides the base definition so that the call to force an early NPE
+     * passes in the case of the internal session.
+     */
+    @Override
+    public Permissions getCurrentGroupPermissions() {
+        return Permissions.USER_PRIVATE;
+    }
 }

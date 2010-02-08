@@ -57,4 +57,6 @@ public interface EventContext {
 
     Permissions getCurrentUmask();
 
+    Permissions getCurrentGroupPermissions();
+
 }

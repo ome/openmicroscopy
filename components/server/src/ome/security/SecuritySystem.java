@@ -158,6 +158,21 @@ public interface SecuritySystem {
     // =========================================================================
 
     /**
+     * Determines if the current security context has the possibility of
+     * corrupting consistent graphs. Consistent graphs are enforced by the
+     * security context to make sure that all READ actions work smoothly. If an
+     * administrator or PI is logged into a private group, or otherwise may
+     * create an object linked to an object with lower READ rights, then
+     * corruption could occur.
+     *
+     * @see <a
+     *      href="http://trac.openmicroscopy.org.uk/omero/ticket/1434>1434</a>
+     * @see <a
+     *      href="http://trac.openmicroscopy.org.uk/omero/ticket/1769>1769</a>
+     */
+    boolean isGraphCritical();
+
+    /**
      * creates a new secure {@link IObject#getDetails() details} for transient
      * entities. Non-privileged users can only edit the
      * {@link Details#getPermissions() Permissions} field. Privileged users can

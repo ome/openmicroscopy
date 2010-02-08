@@ -25,6 +25,8 @@ import ome.model.internal.Details;
 import ome.model.internal.GraphHolder;
 import ome.model.internal.Permissions;
 import ome.model.internal.Token;
+import ome.model.internal.Permissions.Right;
+import ome.model.internal.Permissions.Role;
 import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
@@ -273,6 +275,12 @@ public class BasicSecuritySystem implements SecuritySystem,
             throws ApiUsageException, SecurityViolation {
         checkReady("managedDetails");
         return interceptor.checkManagedDetails(object, trustedDetails);
+    }
+
+
+    public boolean isGraphCritical() {
+        checkReady("isGraphCritical");
+        return interceptor.isGraphCritical();
     }
 
     // ~ CurrentDetails delegation (ensures proper settings of Tokens)

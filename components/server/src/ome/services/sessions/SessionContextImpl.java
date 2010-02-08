@@ -41,6 +41,9 @@ public class SessionContextImpl implements SessionContext {
         this.memberOfGroups = Collections.unmodifiableList(new ArrayList(
                 mGroups));
         this.roles = Collections.unmodifiableList(new ArrayList(roles));
+
+        // Force NPE
+        getCurrentGroupPermissions();
     }
 
     public int refCount() {
@@ -119,6 +122,10 @@ public class SessionContextImpl implements SessionContext {
 
     public String getCurrentGroupName() {
         return session.getDetails().getGroup().getName();
+    }
+
+    public Permissions getCurrentGroupPermissions() {
+        return session.getDetails().getGroup().getDetails().getPermissions();
     }
 
     public Long getCurrentUserId() {
