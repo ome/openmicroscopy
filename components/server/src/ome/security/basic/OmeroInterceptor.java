@@ -774,13 +774,10 @@ public class OmeroInterceptor implements Interceptor {
             // see https://trac.openmicroscopy.org.uk/omero/ticket/1776
             Permissions groupPerms = currentUser.getCurrentEventContext()
                 .getCurrentGroupPermissions();
-            if (groupPerms.isGranted(Role.GROUP, Right.READ) !=
-                currentP.isGranted(Role.GROUP, Right.READ) ||
-                    groupPerms.isGranted(Role.WORLD, Right.READ) !=
-                    currentP.isGranted(Role.WORLD, Right.READ)) {
+            if (!groupPerms.sameRights(currentP)) {
                 throw new GroupSecurityViolation(String.format(
-                        "Cannot change permissions for %s from %s to %s ",
-                        obj, tmpPreviousP, currentP));
+                        "Cannot change permissions for %s(%s) from %s to %s ",
+                        obj, groupPerms, tmpPreviousP, currentP));
             }
 
             // finally, check isOwnerOrSupervisor.

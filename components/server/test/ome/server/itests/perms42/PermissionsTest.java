@@ -119,6 +119,18 @@ public class PermissionsTest extends AbstractManagedContextTest {
         assertFalse(obj + " is " + p + " !!", p.isGranted(Role.WORLD, Right.READ));
     }
 
+    protected void assertSharedAndWritable(IObject obj) {
+        obj = lookup(obj);
+        Permissions p = obj.getDetails().getPermissions();
+        assertTrue(obj + " is " + p + " !!", p.isGranted(Role.USER, Right.READ));
+        assertTrue(obj + " is " + p + " !!", p.isGranted(Role.GROUP, Right.READ));
+        assertFalse(obj + " is " + p + " !!", p.isGranted(Role.WORLD, Right.READ));
+        assertTrue(obj + " is " + p + " !!", p.isGranted(Role.USER, Right.WRITE));
+        assertTrue(obj + " is " + p + " !!", p.isGranted(Role.GROUP, Right.WRITE));
+        assertFalse(obj + " is " + p + " !!", p.isGranted(Role.WORLD, Right.WRITE));
+
+    }
+
     protected void assertPublic(IObject obj) {
         obj = lookup(obj);
         Permissions p = obj.getDetails().getPermissions();

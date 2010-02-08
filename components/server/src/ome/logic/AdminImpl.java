@@ -7,8 +7,6 @@
 
 package ome.logic;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Modifier;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -31,6 +29,7 @@ import ome.api.local.LocalAdmin;
 import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.AuthenticationException;
+import ome.conditions.GroupSecurityViolation;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
@@ -1107,13 +1106,13 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     final static int WORLD_READ = Permissions.bit(Role.WORLD, Right.READ);
 
     final static String GROUP_PERMS_SQL = "update %s " +
-        " set permissions = permissions | %s where %s";
+        " set permissions = %s where %s";
 
-    private int executeUpdate(Session s, String className, int orValue, String where) {
+    private int executeUpdate(Session s, String className, long internal, String where) {
 
         final Log log = getBeanHelper().getLogger();
         final String str = String.format(GROUP_PERMS_SQL,
-                className, orValue, where);
+                className, internal, where);
         final org.hibernate.Query q = s.createSQLQuery(str);
 
         int changed = 0;
@@ -1151,34 +1150,41 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         }
     }
 
-    private void handleGroupChange(Long id, Permissions perms) {
+    private void handleGroupChange(Long id, Permissions newPerms) {
 
         if (id == null) {
             throw new ApiUsageException("ID cannot be null");
-        } else if (perms == null) {
+        } else if (newPerms == null) {
             throw new ApiUsageException("PERMS cannot be null");
         }
 
-        int orValue = 0;
-        if (perms.isGranted(Role.WORLD, Right.READ)) {
-            orValue += WORLD_READ;
-            orValue += GROUP_READ;
-        } else if (perms.isGranted(Role.GROUP, Right.READ)) {
-            orValue += GROUP_READ;
+        final Session s = new ome.tools.hibernate.SessionFactory(sf).getSession();
+        final ExperimenterGroup group = (ExperimenterGroup) s.get(ExperimenterGroup.class, id);
+        final Permissions oldPerms = group.getDetails().getPermissions();
+
+        Role u = Role.USER;
+        Role g = Role.GROUP;
+        Role a = Role.WORLD;
+        Right r = Right.READ;
+        Right w = Right.WRITE;
+
+        if (!newPerms.isGranted(u,r)) {
+            throw new GroupSecurityViolation("NYI");
+        } else if (oldPerms.isGranted(g,r) && ! newPerms.isGranted(g, r)) {
+            throw new GroupSecurityViolation("Cannot remove group read: "+group);
+        } else if (oldPerms.isGranted(a, r) && ! newPerms.isGranted(a, r)) {
+            throw new GroupSecurityViolation("Cannot remove world read: "+group);
         }
 
-        if (orValue == 0) {
-            return; // EARLY EXIT!
-        }
+        Long internal = (Long) Utils.internalForm(newPerms);
 
-        Session s = new ome.tools.hibernate.SessionFactory(sf).getSession();
         for (String className : classes()) {
             String table = table(className);
             if (table == null) {
                 continue;
             }
-            executeUpdate(s, table, orValue, "group_id = " + id);
+            executeUpdate(s, table, internal, "group_id = " + id);
         }
-        executeUpdate(s, "experimentergroup", orValue, "id = " + id);
+        executeUpdate(s, "experimentergroup", internal, "id = " + id);
     }
 }

@@ -44,6 +44,15 @@ public class SetGroupPermissionsTest extends PermissionsTest {
     }
 
     @Test
+    public void testGroupsCanBeMadeSharedWriteable() throws Exception {
+        setup(Permissions.PRIVATE);
+        Image image = fixture.saveImage();
+        iAdmin.changePermissions(fixture.group(), Permissions.OPEN);
+        assertSharedAndWritable(fixture.group());
+        assertSharedAndWritable(image);
+    }
+
+    @Test
     public void testGroupsCanBeMadePublic() throws Exception {
         setup(Permissions.USER_PRIVATE);
         Image image = fixture.saveImage();
@@ -52,7 +61,6 @@ public class SetGroupPermissionsTest extends PermissionsTest {
         iAdmin.changePermissions(fixture.group(), Permissions.PUBLIC);
         assertPublic(fixture.group());
         assertPublic(image);
-        fail("This should be made disallowed, because what context would one use?");
     }
 
     @Test
