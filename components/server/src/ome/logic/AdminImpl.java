@@ -692,9 +692,11 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
      * 
      * As of OMERO 4.2 (ticket:1434), this method has special handling for an
      * instance of {@link ExperimenterGroup} and <em>limited</em> capabilities
-     * for changing any other object type. For groups, the permission changes will
-     * be propagated to all the contained objects. For other objects, changes may
-     * not override group settings.
+     * for changing any other object type (ticket:1776).
+     *
+     * For groups, the permission changes will be propagated to all the
+     * contained objects. For other objects, changes may not override group
+     * settings.
      *
      * @see IAdmin#changePermissions(IObject, Permissions)
      * @see <a

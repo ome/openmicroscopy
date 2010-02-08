@@ -756,13 +756,13 @@ public class OmeroInterceptor implements Interceptor {
             // if we need to filter any permissions, do it here!
 
             newDetails.setPermissions(currentP);
-            Permissions tmpDetails = new Permissions(previousP);
+            Permissions tmpPreviousP = new Permissions(previousP);
 
             // see https://trac.openmicroscopy.org.uk/omero/ticket/553
             if (currentP.isSet(Flag.LOCKED)) {
-                tmpDetails.set(Flag.LOCKED);
+                tmpPreviousP.set(Flag.LOCKED);
             } else {
-                tmpDetails.unSet(Flag.LOCKED);
+                tmpPreviousP.unSet(Flag.LOCKED);
             }
 
             // see https://trac.openmicroscopy.org.uk/omero/ticket/1434
@@ -771,7 +771,20 @@ public class OmeroInterceptor implements Interceptor {
                         "Group permissions must be changed via IAdmin");
             }
 
-            if (!currentP.identical(tmpDetails)) {
+            // see https://trac.openmicroscopy.org.uk/omero/ticket/1776
+            Permissions groupPerms = currentUser.getCurrentEventContext()
+                .getCurrentGroupPermissions();
+            if (groupPerms.isGranted(Role.GROUP, Right.READ) !=
+                currentP.isGranted(Role.GROUP, Right.READ) ||
+                    groupPerms.isGranted(Role.WORLD, Right.READ) !=
+                    currentP.isGranted(Role.WORLD, Right.READ)) {
+                throw new GroupSecurityViolation(String.format(
+                        "Cannot change permissions for %s from %s to %s ",
+                        obj, tmpPreviousP, currentP));
+            }
+
+            // finally, check isOwnerOrSupervisor.
+            if (!currentP.identical(tmpPreviousP)) {
                 if (!currentUser.isOwnerOrSupervisor(obj)) {
                     // remove from below??
                     throw new SecurityViolation(String.format(

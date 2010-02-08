@@ -694,6 +694,31 @@ public class Permissions implements Serializable {
     public final static Permissions READ_ONLY = WORLD_IMMUTABLE;
 
     /**
+     * an immutable {@link Permissions} instance with permissions only for the
+     * object owner.. Identical to {@link #USER_PRIVATE}.
+     *
+     * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/1434">ticket:1434</a>
+     */
+    public final static Permissions PRIVATE = USER_PRIVATE;
+
+    /**
+     * an immutable {@link Permissions} instance with permissions for group
+     * members to read other members' data. Identical to
+     * {@link #GROUP_READABLE}.
+     *
+     * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/1434">ticket:1434</a>
+     */
+    public final static Permissions SHARED = GROUP_READABLE;
+
+    /**
+     * an immutable {@link Permissions} instance with read and write permissions
+     * for group members. Identical to {@link #GROUP_PRIVATE}.
+     *
+     * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/1434">ticket:1434</a>
+     */
+    public final static Permissions OPEN = GROUP_PRIVATE;
+
+    /**
      * an immutable {@link Permissions} instance with all {@link Right Rights}
      * granted. Identical to {@link #WORLD_WRITEABLE}
      */

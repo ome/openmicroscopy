@@ -80,6 +80,9 @@ public class PermissionsTest extends AbstractManagedContextTest {
     protected Fixture fixture;
 
     // Not done automatically for speed
+    /**
+     * Create fixture with a group of the given permissions and login to it.
+     */
     protected void setup(Permissions perms) {
         fixture = new Fixture(perms);
         fixture.log_in();
@@ -100,7 +103,7 @@ public class PermissionsTest extends AbstractManagedContextTest {
         return iQuery.get(k, obj.getId());
     }
 
-    protected void checkPrivate(IObject obj) {
+    protected void assertPrivate(IObject obj) {
         obj = lookup(obj);
         Permissions p = obj.getDetails().getPermissions();
         assertTrue(obj + " is " + p + " !!", p.isGranted(Role.USER, Right.READ));
@@ -108,7 +111,7 @@ public class PermissionsTest extends AbstractManagedContextTest {
         assertFalse(obj + " is " + p + " !!", p.isGranted(Role.WORLD, Right.READ));
     }
 
-    protected void checkShared(IObject obj) {
+    protected void assertShared(IObject obj) {
         obj = lookup(obj);
         Permissions p = obj.getDetails().getPermissions();
         assertTrue(obj + " is " + p + " !!", p.isGranted(Role.USER, Right.READ));
@@ -116,7 +119,7 @@ public class PermissionsTest extends AbstractManagedContextTest {
         assertFalse(obj + " is " + p + " !!", p.isGranted(Role.WORLD, Right.READ));
     }
 
-    protected void checkPublic(IObject obj) {
+    protected void assertPublic(IObject obj) {
         obj = lookup(obj);
         Permissions p = obj.getDetails().getPermissions();
         assertTrue(obj + " is " + p + " !!", p.isGranted(Role.USER, Right.READ));

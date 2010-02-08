@@ -39,19 +39,19 @@ public class SetGroupPermissionsTest extends PermissionsTest {
         setup(Permissions.USER_PRIVATE);
         Image image = fixture.saveImage();
         iAdmin.changePermissions(fixture.group(), Permissions.GROUP_PRIVATE);
-        checkShared(fixture.group());
-        checkShared(image);
+        assertShared(fixture.group());
+        assertShared(image);
     }
 
     @Test
     public void testGroupsCanBeMadePublic() throws Exception {
         setup(Permissions.USER_PRIVATE);
         Image image = fixture.saveImage();
-        checkPrivate(image);
-        checkPrivate(fixture.group());
+        assertPrivate(image);
+        assertPrivate(fixture.group());
         iAdmin.changePermissions(fixture.group(), Permissions.PUBLIC);
-        checkPublic(fixture.group());
-        checkPublic(image);
+        assertPublic(fixture.group());
+        assertPublic(image);
         fail("This should be made disallowed, because what context would one use?");
     }
 
@@ -60,12 +60,12 @@ public class SetGroupPermissionsTest extends PermissionsTest {
         setup(Permissions.USER_PRIVATE);
         Image image = fixture.saveImage();
         iAdmin.changePermissions(fixture.group(), Permissions.PUBLIC);
-        checkPublic(image);
-        checkPublic(fixture.group());
+        assertPublic(image);
+        assertPublic(fixture.group());
         iAdmin.changePermissions(fixture.group(), Permissions.USER_PRIVATE);
         fail("NYI");
-        checkPrivate(image);
-        checkPrivate(fixture.group());
+        assertPrivate(image);
+        assertPrivate(fixture.group());
 
     }
 
@@ -84,7 +84,7 @@ public class SetGroupPermissionsTest extends PermissionsTest {
     public void testBackdoorChangingOfGroupPermissionsDisallowed() throws Exception {
 
         setup(Permissions.USER_PRIVATE);
-        checkPrivate(fixture.group());
+        assertPrivate(fixture.group());
 
         try {
             loginRoot();
@@ -98,7 +98,7 @@ public class SetGroupPermissionsTest extends PermissionsTest {
 
         // This is the supported way of changing your group's permissions
         iAdmin.changePermissions(fixture.group(), Permissions.PUBLIC);
-        checkPublic(fixture.group());
+        assertPublic(fixture.group());
     }
 
     @Test
