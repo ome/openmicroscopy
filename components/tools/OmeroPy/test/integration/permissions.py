@@ -193,9 +193,51 @@ class TestAdmin(lib.ITest):
         eid1 = admin.createExperimenterWithPassword(new_exp1, rstring("ome"), defaultGroup, listOfGroups)
         exp1 = getExperimenter(eid)
         
-        #set owner who is not a member
-        admin.changeOwner(gr1, exp1.omeName.val)
+        #set owner of the group (user is not a member of)
+        admin_serv.addGroupOwners(gr1, [exp1])
+        # chech if is the leader
+        isLeader() ???    
         
+        # remove group owner
+        admin_serv.removeGroupOwners(gr1, [exp1])
+        # chech if no longer is the leader
+        isLeader() ???
+
+        '''
+        Controller method shows how it is used in practice
+        
+        available = request.POST.getlist('available')
+        owners = request.POST.getlist('owners')
+        
+        def setOwnersOfGroup(self, available, owners):
+            # available - current list rest of the users
+            # owners - current list of chosen users
+            experimenters = admin.lookupExperimenters()
+            old_owners = admin.containedOwners(gr1_id)
+            old_available = list()
+            for e in experimenters:
+                flag = False
+                for m in old_owners:
+                    if e.id == m.id:
+                        flag = True
+                if not flag:
+                    old_available.append(e)
+
+            add_exps = list()
+            rm_exps = list()
+            for om in old_owners:
+                for a in available:
+                    if om.id == long(str(a)):
+                        rm_exps.append(om._obj)
+            for oa in old_available:
+                for o in owners:
+                    if oa.id == long(str(o)):
+                        add_exps.append(oa._obj)
+
+            #final save
+            admin_serv.addGroupOwners(gr1, add_exps)
+            admin_serv.removeGroupOwners(gr1, rm_exps)
+        '''
         
         
 if __name__ == '__main__':
