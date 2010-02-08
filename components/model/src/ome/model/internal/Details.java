@@ -124,7 +124,11 @@ public abstract class Details implements Filterable, Serializable {
             throw new IllegalArgumentException("argument may not be null");
         }
         setContext(copy.getContext());
-        setPermissions(new Permissions().revokeAll(copy.getPermissions()));
+        Permissions p = null;
+        if (copy.getPermissions() != null) {
+            p = new Permissions().revokeAll(copy.getPermissions());
+        }
+        setPermissions(p);
         setCreationEvent(copy.getCreationEvent());
         setOwner(copy.getOwner());
         setGroup(copy.getGroup());

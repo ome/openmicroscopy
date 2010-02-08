@@ -63,6 +63,7 @@ import omero.RType;
 import omero.UnloadedCollectionException;
 import omero.api.RoiResult;
 import omero.model.Experimenter;
+import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
 import omero.model.Image;
 import omero.model.ImageI;
@@ -573,6 +574,16 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         l = (boolean[]) rv;
         assertTrue("is 2", l.length == 2);
 
+    }
+
+    @Test(groups = "ticket:1775")
+    public void testPermissionsMapToNull() throws Exception {
+        ExperimenterGroupI in = new ExperimenterGroupI();
+        assertNull(in.getDetails().getPermissions());
+        IceMapper mapper = new IceMapper();
+        ExperimenterGroup out = (ExperimenterGroup)
+            mapper.handleInput(ExperimenterGroup.class, in);
+        assertNull(out.getDetails().getPermissions());
     }
 
     // Types
