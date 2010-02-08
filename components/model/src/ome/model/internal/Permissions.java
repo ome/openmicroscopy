@@ -103,10 +103,14 @@ public class Permissions implements Serializable {
      * {@link Details#getPermissions() permissions} for an {@link IObject}
      * instance may not be changed. {@link Flag#SOFT} implies that the given
      * {@link Permissions} value is intended as a suggestion, and that other
-     * sources may override.
+     * sources may override. {@link Flag#ADMIN} implies that the given
+     * {@link Permission} value was added by an administrator and so may should
+     * be visible under special circumstances.
+     *
+     * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/1769>#1769</a>
      */
     public enum Flag {
-        LOCKED(1 << 18), SOFT(1 << 17);
+        LOCKED(1 << 18), SOFT(1 << 17), ADMIN(1 << 16);
 
         /*
          * Implementation note: -------------------- Flags work with reverse
@@ -166,6 +170,17 @@ public class Permissions implements Serializable {
     /** tests that a given {@link Flag} is set. */
     public boolean isSet(Flag flag) {
         return (perm1 & flag.bit()) != flag.bit();
+    }
+
+    /**
+     * returns the order of the bit representing the given {@link Flag}. This
+     * is dependent on the internal representation of {@link Permission} and
+     * should only be used when necessary.
+     *
+     * @see ome.tools.hibernate.SecurityFilter
+     */
+    public static int bit(Flag flag) {
+        return flag.bit();
     }
 
     /**

@@ -449,19 +449,14 @@ public class OmeroInterceptor implements Interceptor {
 
         boolean admin = ec.isCurrentUserAdmin();
         boolean pi = ec.getLeaderOfGroupsList().contains(gid);
-        boolean member = ec.getMemberOfGroupsList().contains(gid);
 
         if (perms.isGranted(Role.WORLD, Right.READ)) {
             // Public groups (rwrwrw) are always non-critical
             return false;
         } else if (perms.isGranted(Role.GROUP, Right.READ)) {
-            // If this is shared-group and the current user is a member,
-            // then there are no issues.
-            if (member) {
-                return false;
-            } else {
-                return admin; // PI is always a member.
-            }
+            // Since the object will be contained in the group,
+            // then it will be readable regardless.
+            return false;
         } else {
             // This is a private group. Any form of admin modification is
             // critical.
@@ -499,6 +494,10 @@ public class OmeroInterceptor implements Interceptor {
             // the READ permissions which are set will not be removable.
             copyNonNullPermissions(newDetails, source.getPermissions());
             applyUmaskIfNecessary(newDetails);
+            // ticket:1769
+            if (isGraphCritical()) {
+                newDetails.getPermissions().set(Flag.ADMIN);
+            }
 
             // OWNER
             // users *aren't* allowed to set the owner of an item.

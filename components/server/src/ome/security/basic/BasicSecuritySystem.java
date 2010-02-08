@@ -211,12 +211,15 @@ public class BasicSecuritySystem implements SecuritySystem,
         EventContext ec = getEventContext();
         Session sess = (Session) session;
         Filter filter = sess.enableFilter(SecurityFilter.filterName);
+
         filter.setParameter(SecurityFilter.is_share, ec.getCurrentShareId() != null);
-        filter.setParameter(SecurityFilter.is_admin, ec.isCurrentUserAdmin());
+        filter.setParameter(SecurityFilter.is_adminorpi, ec.isCurrentUserAdmin()
+                || ec.getLeaderOfGroupsList().contains(ec.getCurrentGroupId()));
+        filter.setParameter(SecurityFilter.is_nonprivate,
+                ec.getCurrentGroupPermissions().isGranted(Role.GROUP, Right.READ)
+                || ec.getCurrentGroupPermissions().isGranted(Role.WORLD, Right.READ));
         filter.setParameter(SecurityFilter.current_group, ec.getCurrentGroupId());
         filter.setParameter(SecurityFilter.current_user, ec.getCurrentUserId());
-        filter.setParameterList(SecurityFilter.current_groups, ec.getMemberOfGroupsList());
-        filter.setParameterList(SecurityFilter.leader_of_groups, ec.getLeaderOfGroupsList());
     }
 
     /**

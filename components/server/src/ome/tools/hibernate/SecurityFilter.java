@@ -16,6 +16,7 @@ import org.springframework.orm.hibernate3.FilterDefinitionFactoryBean;
 import ome.conditions.InternalException;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
+import ome.model.internal.Permissions.Flag;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
 import static ome.model.internal.Permissions.Role.*;
@@ -41,15 +42,13 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
 
     static public final String is_share = "is_share";
 
-    static public final String is_admin = "is_admin";
+    static public final String is_adminorpi = "is_adminorpi";
+
+    static public final String is_nonprivate = "is_nonprivate";
 
     static public final String current_group = "current_group";
 
     static public final String current_user = "current_user";
-
-    static public final String current_groups = "current_groups";
-
-    static public final String leader_of_groups = "leader_of_groups";
 
     static public final String filterName = "securityFilter";
 
@@ -58,24 +57,22 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
     static private String defaultFilterCondition;
     static {
         parameterTypes.setProperty(is_share, "java.lang.Boolean");
-        parameterTypes.setProperty(is_admin, "java.lang.Boolean");
+        parameterTypes.setProperty(is_adminorpi, "java.lang.Boolean");
+        parameterTypes.setProperty(is_nonprivate, "java.lang.Boolean");
         parameterTypes.setProperty(current_group, "long");
         parameterTypes.setProperty(current_user, "long");
-        parameterTypes.setProperty(current_groups, "long");
-        parameterTypes.setProperty(leader_of_groups, "long");
         // This can't be done statically because we need the securitySystem.
         defaultFilterCondition = String.format("(\n"
+                // Should handle hidden groups at the top-level
                 + "\n  ( group_id = :current_group AND "
-                + "\n     ( :is_admin OR "
-                + "\n       (group_id in (:leader_of_groups)) OR "
-                + "\n       (owner_id = :current_user AND %s) OR "
-                + "\n       (group_id in (:current_groups) AND %s)"
-                //        omitting world permissions
+                + "\n     ( :is_nonprivate OR "
+                + "\n       :is_adminorpi OR "
+                + "\n       owner_id = :current_user OR "
+                + "\n       (%s) "
                 + "\n     )"
-                + "\n  )"
-                + "\n OR :is_share"
-                + "\n)\n", isGranted(USER, READ), isGranted(GROUP, READ),
-                isGranted(WORLD, READ));
+                + "\n  ) OR"
+                + "\n :is_share"
+                + "\n)\n", isSet(Flag.ADMIN));
     }
 
     /**
@@ -158,6 +155,15 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
 
     protected static String isGranted(Role role, Right right) {
         String bit = "" + Permissions.bit(role, right);
+        String isGranted = String
+                .format(
+                        "(cast(permissions as bit(64)) & cast(%s as bit(64))) = cast(%s as bit(64))",
+                        bit, bit);
+        return isGranted;
+    }
+
+    protected static String isSet(Flag flag) {
+        String bit = "" + Permissions.bit(flag);
         String isGranted = String
                 .format(
                         "(cast(permissions as bit(64)) & cast(%s as bit(64))) = cast(%s as bit(64))",

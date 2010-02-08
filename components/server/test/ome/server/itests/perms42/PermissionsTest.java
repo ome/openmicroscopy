@@ -41,6 +41,8 @@ public class PermissionsTest extends AbstractManagedContextTest {
             iAdmin.createGroup(_group);
             _group = iAdmin.lookupGroup(groupName);
             iAdmin.addGroups(user, _group);
+            // Prevents weirdness via loginNewUserInOtherUsersGroup
+            iAdmin.setDefaultGroup(user, _group);
         }
 
         Fixture() {

@@ -174,17 +174,10 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         Mock mockFilter = mock(Filter.class);
         Filter f = (Filter) mockFilter.proxy();
         mockFilter.expects(once()).method("setParameter").with(
-                eq(SecurityFilter.is_admin), eq(Boolean.FALSE)).will(
+                eq(SecurityFilter.is_adminorpi), eq(Boolean.FALSE)).will(
                 returnValue(f));
         mockFilter.expects(once()).method("setParameter").with(
                 eq(SecurityFilter.current_user), eq(user.getId())).will(
-                returnValue(f));
-        mockFilter.expects(atLeastOnce()).method("setParameterList").with(
-                eq(SecurityFilter.current_groups),
-                eq(user.eachLinkedExperimenterGroup(new IdBlock()))).will(
-                returnValue(f));
-        mockFilter.expects(atLeastOnce()).method("setParameterList").with(
-                eq(SecurityFilter.leader_of_groups), eq(leaderOfGroups)).will(
                 returnValue(f));
         Mock mockSession = mock(Session.class);
         mockSession.expects(once()).method("enableFilter").with(
