@@ -52,6 +52,7 @@ import omero.ApiUsageException;
 import omero.RTime;
 import omero.RType;
 import omero.ServerError;
+import omero.model.PermissionsI;
 import omero.romio.BlueBand;
 import omero.romio.GreenBand;
 import omero.romio.RedBand;
@@ -457,6 +458,8 @@ public class IceMapper extends ome.util.ModelMapper implements
         ec.memberOfGroups = ctx.getMemberOfGroupsList();
         ec.isAdmin = ctx.isCurrentUserAdmin();
         ec.isReadOnly = ctx.isReadOnly();
+        ec.umask = convert(ctx.getCurrentUmask());
+        ec.groupPermissions = convert(ctx.getCurrentGroupPermissions());
         return ec;
     }
 
@@ -674,7 +677,14 @@ public class IceMapper extends ome.util.ModelMapper implements
 
     protected Map target2model = new IdentityHashMap();
 
-    public ome.model.internal.Permissions convert(omero.model.Permissions p) {
+    public static omero.model.Permissions convert(ome.model.internal.Permissions p) {
+        if (p == null) {
+            return null;
+        }
+        return new PermissionsI(p.toString());
+    }
+
+    public static ome.model.internal.Permissions convert(omero.model.Permissions p) {
         if (p == null) {
             return null;
         }
