@@ -44,6 +44,17 @@ public class SetGroupPermissionsTest extends PermissionsTest {
     }
 
     @Test
+    public void testGroupsCanBeMadeSharedViaUpdateGroup() throws Exception {
+        setup(Permissions.USER_PRIVATE);
+        Image image = fixture.saveImage();
+        ExperimenterGroup group = fixture.group();
+        group.getDetails().setPermissions(Permissions.SHARED);
+        iAdmin.updateGroup(group);
+        assertShared(fixture.group());
+        assertShared(image);
+    }
+
+    @Test
     public void testGroupsCanBeMadeSharedWriteable() throws Exception {
         setup(Permissions.PRIVATE);
         Image image = fixture.saveImage();
@@ -74,7 +85,6 @@ public class SetGroupPermissionsTest extends PermissionsTest {
         fail("NYI");
         assertPrivate(image);
         assertPrivate(fixture.group());
-
     }
 
     @Test

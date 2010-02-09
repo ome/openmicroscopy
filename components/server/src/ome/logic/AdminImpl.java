@@ -427,6 +427,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @RolesAllowed("system")
     public void updateGroup(@NotNull
     ExperimenterGroup group) {
+        Permissions p = group.getDetails().getPermissions();
+        if (p != null) {
+            changePermissions(group, p); // ticket:1776 WORKAROUND
+            p = getGroup(group.getId()).getDetails().getPermissions();
+            group.getDetails().setPermissions(p);
+        }
         iUpdate.saveObject(group);
         getBeanHelper().getLogger().info("Updated group info for " + group);
     }
