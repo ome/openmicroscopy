@@ -34,6 +34,7 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CreateCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -220,6 +221,10 @@ public class CreateTopContainerAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+    	if (nodeType == GROUP) {
+    		setEnabled(TreeViewerAgent.isAdministrator());
+    		return;
+    	}
         if (nodeType != EXPERIMENTER) {
         	setEnabled(true);
         	return;

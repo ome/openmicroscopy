@@ -86,6 +86,7 @@ import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
@@ -2802,6 +2803,19 @@ class TreeViewerComponent
 	{
 		if (model.getState() == DISCARDED) return false;
 		return model.isLeaderOfSelectedGroup();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#administrate(AdminObject)
+	 */
+	public void administrate(AdminObject object)
+	{
+		if (model.getState() == DISCARDED) return;
+		if (object == null)
+			throw new IllegalArgumentException("Object not valid.");
+		model.fireAdmin(object);
+		fireStateChange();
 	}
 	
 }

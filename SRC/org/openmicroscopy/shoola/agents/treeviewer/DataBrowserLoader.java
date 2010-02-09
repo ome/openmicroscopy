@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.views.AdminView;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
@@ -79,6 +80,9 @@ public abstract class DataBrowserLoader
     /** Convenience reference for subclasses. */
     protected final MetadataHandlerView		mhView;
     
+    /** Convenience reference for subclasses. */
+    protected final	AdminView				adminView;
+    
     /**
      * Creates a new instance.
      * 
@@ -98,6 +102,7 @@ public abstract class DataBrowserLoader
         		getDataServicesView(HierarchyBrowsingView.class);
         mhView = (MetadataHandlerView) registry.
 			getDataServicesView(MetadataHandlerView.class);
+        adminView = (AdminView) registry.getDataServicesView(AdminView.class);
     }
     
     /**

@@ -139,17 +139,17 @@ public class EditorUtil
     public static final String	WRITE = "Write";
     
     /** Text describing the <code>Public</code> permission. */
-    public static final String	PUBLIC = "public";
+    public static final String	PUBLIC = "Public";
     
     /** Text describing the <code>Group</code> permission. */
-    public static final String	GROUP_VISIBLE = "group visible";
+    public static final String	GROUP_VISIBLE = "Collaborative";
     
     /** Text describing the <code>Group</code> permission. */
     public static final String	GROUP_DESCRIPTION = 
-    								"Visible to Group members only.";
+    								"Visible to members of the Group only.";
     
     /** Text describing the <code>Private</code> permission. */
-    public static final String	PRIVATE = "private";
+    public static final String	PRIVATE = "Private";
 
 	/** Text displayed before the list of existing groups. */
 	public static final String	GROUPS = "Belongs to the following groups: ";

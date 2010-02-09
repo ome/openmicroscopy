@@ -238,11 +238,10 @@ class TreeViewerWin
             
             browser = (Browser) browsers.get(Browser.IMAGES_EXPLORER);
             container.add(new TaskPaneBrowser(browser));
-            if (model.isLeader()) {
+            if (model.isLeader() || model.isAdministrator()) {
             	browser = (Browser) browsers.get(Browser.ADMIN_EXPLORER);
                 container.add(new TaskPaneBrowser(browser));
             }
-            
             AdvancedFinder finder = model.getAdvancedFinder();
     		finder.addPropertyChangeListener(controller);
     		container.add(new TaskPaneBrowser(finder));

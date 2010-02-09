@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
+import org.openmicroscopy.shoola.agents.treeviewer.AdminCreator;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectCreator;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectRemover;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectUpdater;
@@ -71,6 +72,7 @@ import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
 import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
@@ -1172,6 +1174,17 @@ class TreeViewerModel
 	}
 
 	/**
+	 * Returns <code>true</code> if the currently logged in user
+	 * is an administrator, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isAdministrator()
+	{
+		return TreeViewerAgent.isAdministrator();
+	}
+	
+	/**
 	 * Sets the id of the currently selected group.
 	 * 
 	 * @param groupID The value to set.
@@ -1199,6 +1212,17 @@ class TreeViewerModel
 				return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * Fires an asynchronous call to create groups or experimenters.
+	 * 
+	 * @param object The object hosting information about object to create.
+	 */
+	void fireAdmin(AdminObject object)
+	{
+		currentLoader = new AdminCreator(component, object);
+		currentLoader.load();
 	}
 	
 }

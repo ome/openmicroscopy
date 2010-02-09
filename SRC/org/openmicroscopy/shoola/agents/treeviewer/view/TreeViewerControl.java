@@ -109,6 +109,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteRndSettingsCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
+import org.openmicroscopy.shoola.agents.treeviewer.util.AdminDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ImportDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject;
@@ -118,6 +119,7 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.finder.Finder;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
@@ -1009,8 +1011,13 @@ class TreeViewerControl
 			if (format == null) return;
 			TreeViewerFactory.register(data, format);
 			model.openWith(data);
-		} else if (DataBrowser.OPEN_EXTERNAL_APPLICATION_PROPERTY.equals(name))
+		} else if (DataBrowser.OPEN_EXTERNAL_APPLICATION_PROPERTY.equals(name)) {
 			model.openWith((ApplicationData) pce.getNewValue());
+		} else if (AdminDialog.CREATE_ADMIN_PROPERTY.equals(name)) {
+			AdminObject object = (AdminObject) pce.getNewValue();
+			model.administrate(object);
+		}
+			
 	}
 	
 	/**

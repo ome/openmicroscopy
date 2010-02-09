@@ -28,10 +28,9 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.Box;
@@ -46,11 +45,9 @@ import javax.swing.JTextField;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import pojos.DataObject;
 import pojos.ExperimenterData;
-import pojos.GroupData;
 
 /** 
  * Displays the fields necessary to collect details about the user to create.
@@ -68,7 +65,7 @@ import pojos.GroupData;
 class ExperimenterPane 
 	extends DataPane
 {
-
+	
 	/** Indicates that the user is an administrator. */
 	private static final String STATUS_ADMIN = "Administrator";
 	
@@ -89,6 +86,9 @@ class ExperimenterPane
     
     /** Select to indicate that the user is active. */
     private JCheckBox				activeBox;
+    
+    /** Select to indicate that the user is an owner of the group. */
+    private JCheckBox				ownerBox;
     
     /** 
      * Initializes the components composing this display. 
@@ -112,9 +112,13 @@ class ExperimenterPane
 		items = new LinkedHashMap<String, JTextField>();
 		activeBox = new JCheckBox();
 		activeBox.setSelected(true);
+		activeBox.setEnabled(!administrator);
 		adminBox = new JCheckBox();
-		adminBox.setSelected(administrator);
-		adminBox.setEnabled(!administrator);
+		adminBox.setVisible(administrator);
+		//adminBox.setSelected(administrator);
+		//adminBox.setEnabled(!administrator);
+		ownerBox = new JCheckBox();
+		ownerBox.setSelected(administrator);
     }
     
     /**
@@ -178,7 +182,21 @@ class ExperimenterPane
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
         content.add(passwordField, c);  
-
+        c.gridx = 0;
+        c.gridy++;
+        label = UIUtilities.setTextFont("Group's owner");
+        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+        c.fill = GridBagConstraints.NONE;      //reset to default
+        c.weightx = 0.0;  
+        content.add(label, c);
+        c.gridx++;
+        content.add(Box.createHorizontalStrut(5), c); 
+        c.gridx++;
+        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        content.add(ownerBox, c); 
+        /*
         c.gridx = 0;
         c.gridy++;
         label = UIUtilities.setTextFont("Active");
@@ -193,20 +211,23 @@ class ExperimenterPane
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
         content.add(activeBox, c);  
-        c.gridx = 0;
-        c.gridy++;
-        label = UIUtilities.setTextFont("Administrator");
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;      //reset to default
-        c.weightx = 0.0;  
-        content.add(label, c);
-        c.gridx++;
-        content.add(Box.createHorizontalStrut(5), c); 
-        c.gridx++;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
-        content.add(adminBox, c);  
+        */
+        if (adminBox.isVisible()) {
+        	c.gridx = 0;
+            c.gridy++;
+            label = UIUtilities.setTextFont("Administrator");
+            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+            c.fill = GridBagConstraints.NONE;      //reset to default
+            c.weightx = 0.0;  
+            content.add(label, c);
+            c.gridx++;
+            content.add(Box.createHorizontalStrut(5), c); 
+            c.gridx++;
+            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+            c.fill = GridBagConstraints.HORIZONTAL;
+            c.weightx = 1.0;
+            content.add(adminBox, c);  
+        }
         c.gridx = 0;
         c.gridy++;
         content.add(Box.createHorizontalStrut(10), c); 
@@ -254,9 +275,10 @@ class ExperimenterPane
 
 	/**
 	 * Returns the experimenter to save.
-	 * @see DataPane#getObjectToSave()
+	 * 
+	 * @return See above.
 	 */
-	DataObject getObjectToSave()
+	Map<ExperimenterData, UserCredentials> getObjectToSave()
 	{
 		ExperimenterData data = new ExperimenterData();
 		JTextField field = items.get(EditorUtil.FIRST_NAME);
@@ -264,12 +286,24 @@ class ExperimenterPane
 		field = items.get(EditorUtil.LAST_NAME);
 		data.setLastName(field.getText().trim());
 		field = items.get(EditorUtil.MIDDLE_NAME);
-		//data.set(field.getText().trim());
+		//data.setMiddleName(field.getText().trim());
 		field = items.get(EditorUtil.EMAIL);
 		data.setEmail(field.getText().trim());
 		field = items.get(EditorUtil.INSTITUTION);
 		data.setInstitution(field.getText().trim());
-		return data;
+		
+		field = items.get(EditorUtil.DISPLAY_NAME);
+		String s = field.getText().trim();
+		StringBuffer buf = new StringBuffer();
+		buf.append(passwordField.getPassword());
+		
+		UserCredentials uc = new UserCredentials(s, buf.toString());
+		uc.setAdministrator(adminBox.isSelected());
+		uc.setOwner(ownerBox.isSelected());
+		Map<ExperimenterData, UserCredentials> m = 
+			new HashMap<ExperimenterData, UserCredentials>();
+		m.put(data, uc);
+		return m;
 	}
     
 }

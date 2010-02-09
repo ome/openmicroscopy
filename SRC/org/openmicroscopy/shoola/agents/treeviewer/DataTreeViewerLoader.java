@@ -34,6 +34,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.views.AdminView;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
@@ -86,6 +87,9 @@ public abstract class DataTreeViewerLoader
     /** Convenience reference for subclasses. */
     protected final MetadataHandlerView		mhView;
     
+    /** Convenience reference for subclasses. */
+    protected final AdminView				adminView;
+    
 	/**
 	 * Converts the UI rootLevel into its corresponding class.
 	 * @return See above.
@@ -124,6 +128,7 @@ public abstract class DataTreeViewerLoader
 		registry.getDataServicesView(ImageDataView.class);
 		mhView = (MetadataHandlerView) 
 			registry.getDataServicesView(MetadataHandlerView.class);
+		adminView = (AdminView) registry.getDataServicesView(AdminView.class);
 	}
 
 	/** Notifies the {@link #viewer} that the data retrieval is finished. */

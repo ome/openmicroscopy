@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.AdminLoader 
+ * org.openmicroscopy.shoola.agents.treeviewer.AdminCreator 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -23,20 +23,18 @@
 package org.openmicroscopy.shoola.agents.treeviewer;
 
 
-
-
 //Java imports
-import java.util.Collection;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- * Loads the groups in the system.
+ * Creates groups and/or experimenters.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,36 +46,44 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * </small>
  * @since 3.0-Beta4
  */
-public class AdminLoader 
-	extends DataBrowserLoader
+public class AdminCreator 
+	extends DataTreeViewerLoader
 {
 
+	/** The object to handle. */
+	private AdminObject object;
+	
     /** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle 	handle;
-    
-    /** The group to attach the elements to or <code>null</code>. */
-    private TreeImageSet group;
+    private CallHandle  		handle;
     
     /**
      * Creates a new instance.
      * 
      * @param viewer Reference to the Model. Mustn't be <code>null</code>.
-     * @param group  The node to attach the result to or <code>null</code>.
+     * @param object The object hosting details about object to create.
      */
-	public AdminLoader(Browser viewer, TreeImageSet group)
+	public AdminCreator(TreeViewer viewer, AdminObject object)
 	{
 		super(viewer);
-		this.group = group;
+		if (object == null)
+			throw new IllegalArgumentException("No object");
+		this.object = object;
 	}
 	
 	/**
-     * Retrieves the data.
+     * Creates the object.
      * @see DataBrowserLoader#load()
      */
     public void load()
     {
-    	if (group == null)
-    		handle = adminView.loadExperimenterGroups(this);
+    	switch (object.getIndex()) {
+			case AdminObject.CREATE_GROUP:
+				handle = adminView.createGroup(object, this);
+				break;
+			case AdminObject.CREATE_EXPERIMENTER:
+				handle = adminView.createExperimenters(object, this);
+				break;
+		}
     }
 
     /**
@@ -93,9 +99,6 @@ public class AdminLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-        if (group == null)
-        	viewer.setGroups((Collection) result);
-        
     }
     
 }

@@ -108,6 +108,17 @@ public class TreeViewerAgent
 	}
 	
 	/**
+	 * Returns <code>true</code> if the currently logged in user
+	 * is an administrator, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public static boolean isAdministrator()
+	{
+		return (Boolean) registry.lookup(LookupNames.USER_ADMINISTRATOR);
+	}
+	
+	/**
 	 * Returns the collection of groups the current user is the leader of.
 	 * 
 	 * @return See above.

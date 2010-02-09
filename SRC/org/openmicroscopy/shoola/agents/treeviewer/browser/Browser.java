@@ -702,6 +702,6 @@ public interface Browser
 	 */
 	void setRepositories(TreeImageDisplay expNode, FSFileSystemView systemView);
 	
-	void setGroups(Set groups);
+	void setGroups(Collection groups);
 	
 }

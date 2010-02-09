@@ -1517,7 +1517,7 @@ class BrowserComponent
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#setGroups(Set)
 	 */
-	public void setGroups(Set groups)
+	public void setGroups(Collection groups)
 	{
 		int state = model.getState();
         if (state != LOADING_DATA)

@@ -39,6 +39,7 @@ import javax.swing.JTree;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
+import org.openmicroscopy.shoola.agents.treeviewer.AdminLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ContainerCounterLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterDataLoader;
@@ -525,8 +526,16 @@ class BrowserModel
 		int index = -1;
 		if (browserType == Browser.ADMIN_EXPLORER) {
 			state = Browser.LOADING_DATA;
-			component.setGroups(TreeViewerAgent.getGroupsLeaderof());
-			return;
+			//Depending on user roles.
+			if (TreeViewerAgent.isAdministrator()) {
+				currentLoader = new AdminLoader(component, null);
+				currentLoader.load();
+				return;
+			} else {
+				component.setGroups(TreeViewerAgent.getGroupsLeaderof());
+				return;
+			}
+			
 		}
 		if (browserType == Browser.SCREENS_EXPLORER) {
 			currentLoader = new ScreenPlateLoader(component, expNode, 

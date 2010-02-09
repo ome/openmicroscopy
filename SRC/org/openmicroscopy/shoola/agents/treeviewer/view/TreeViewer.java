@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -932,5 +933,12 @@ public interface TreeViewer
 	 * @return See above.
 	 */
 	public boolean isLeaderOfSelectedGroup();
+
+	/** 
+	 * Administrates the passed object.
+	 * 
+	 * @param object The object to handle.
+	 */
+	void administrate(AdminObject object);
 	
 }

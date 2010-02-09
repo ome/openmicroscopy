@@ -33,7 +33,6 @@ import javax.swing.event.DocumentListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import pojos.DataObject;
 
 /** 
  * Top-class that sub-classes should extend.
@@ -73,13 +72,6 @@ abstract class DataPane
     	nameArea = new JTextField();
     	nameArea.getDocument().addDocumentListener(this);
     }
-    
-	/**
-	 * Returns the object to save.
-	 * 
-	 * @return See above.
-	 */
-	abstract DataObject getObjectToSave();
 	
 	/**
 	 * Fires property indicating that some text has been entered.

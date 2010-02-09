@@ -31,6 +31,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Map;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -42,6 +44,8 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
@@ -66,7 +70,7 @@ public class AdminDialog
 {
 
 	/** Bound property indicating to create the object. */
-	public static final String CREATE_PROPERTY = "create";
+	public static final String CREATE_ADMIN_PROPERTY = "createAdmin";
 	
 	/** Bound property indicating to enable of not the save property. */
 	static final String ENABLE_SAVE_PROPERTY = "enableSave";
@@ -136,6 +140,18 @@ public class AdminDialog
 	/** Saves the data. */
 	private void save()
 	{
+		AdminObject object = null;
+		if (body instanceof GroupPane) {
+			object = ((GroupPane) body).getObjectToSave();
+		} else if (body instanceof ExperimenterPane) {
+			Map<ExperimenterData, UserCredentials> m =
+				((ExperimenterPane) body).getObjectToSave();
+			object = new AdminObject((GroupData) parent, m, 
+					AdminObject.CREATE_EXPERIMENTER);
+		}
+		if (object == null) return;
+		firePropertyChange(CREATE_ADMIN_PROPERTY, null, object);
+		cancel();
 	}
 	
     
@@ -254,7 +270,6 @@ public class AdminDialog
 		if (ENABLE_SAVE_PROPERTY.equals(name)) {
 			save.setEnabled((Boolean) evt.getNewValue());
 		}
-		
 	}
 	
 	

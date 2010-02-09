@@ -821,7 +821,7 @@ public class TreeViewerTranslator
      * @param groups The groups to convert.
      * @return See above.
      */
-	public static Set transformGroups(Set groups)
+	public static Set transformGroups(Collection groups)
 	{
 		Set<TreeImageSet> nodes = new HashSet<TreeImageSet>();
 		if (groups == null) return nodes;
@@ -842,7 +842,8 @@ public class TreeViewerTranslator
 					child = new TreeImageNode(j.next());
 					n.addChildDisplay(child);
 				}
-			}
+				n.setNumberItems(l.size());
+			} else n.setNumberItems(0);
 			nodes.add(n);
 		}
 		return nodes;

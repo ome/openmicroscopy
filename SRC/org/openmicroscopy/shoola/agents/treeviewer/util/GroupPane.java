@@ -27,18 +27,29 @@ package org.openmicroscopy.shoola.agents.treeviewer.util;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTextField;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DataObject;
+import pojos.ExperimenterData;
 import pojos.GroupData;
 
 /** 
@@ -67,9 +78,21 @@ class GroupPane
     /** Indicate that the group will be private. */
     private JRadioButton		privateBox;
 	
+    /** The mandatory name. */
+    private JTextField			descriptionArea;
+    
+    /** 
+     * Indicates if the group is <code>Read Only</code> or 
+     * <code>Read Write</code>.
+     */
+    private JCheckBox			readOnlyBox;
+    
     /** Initializes the components. */
     private void initComponents()
     {
+    	descriptionArea = new JTextField();
+    	readOnlyBox = new JCheckBox("Read Only");
+    	readOnlyBox.setSelected(true);
     	expPane = new ExperimenterPane(true);
     	expPane.setBorder(
 				BorderFactory.createTitledBorder("Owner"));
@@ -116,6 +139,7 @@ class GroupPane
     private JPanel buildPermissions()
     {
         JPanel content = new JPanel();
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
         content.setBorder(
 				BorderFactory.createTitledBorder("Permissions"));
     	content.add(privateBox);
@@ -151,14 +175,22 @@ class GroupPane
 	}
 	
 	/**
-	 * Returns the experimenter to save.
-	 * @see DataPane#getObjectToSave()
+	 * Returns the object to save.
 	 */
-	DataObject getObjectToSave()
+	AdminObject getObjectToSave()
 	{
 		GroupData data = new GroupData();
-		
-		return data;
+		data.setName(nameArea.getText().trim());
+		Map<ExperimenterData, UserCredentials> m = expPane.getObjectToSave();
+		AdminObject object = new AdminObject(data, m, AdminObject.CREATE_GROUP);
+		if (groupBox.isSelected()) {
+			if (readOnlyBox.isSelected()) 
+				object.setPermissions(AdminObject.PERMISSIONS_GROUP_READ);
+			else object.setPermissions(
+					AdminObject.PERMISSIONS_GROUP_READ_WRITE);
+		}
+			
+		return object;
 	}
 	
 }
