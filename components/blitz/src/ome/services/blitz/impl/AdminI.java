@@ -346,13 +346,13 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
     public void addGroupOwners_async(AMD_IAdmin_addGroupOwners __cb,
             ExperimenterGroup group, List<Experimenter> owners,
             Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, owners);
+        callInvokerOnRawArgs(__cb, __current, group, owners);
     }
 
     public void removeGroupOwners_async(AMD_IAdmin_removeGroupOwners __cb,
             ExperimenterGroup group, List<Experimenter> owners,
             Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, owners);
+        callInvokerOnRawArgs(__cb, __current, group, owners);
     }
 
 }
