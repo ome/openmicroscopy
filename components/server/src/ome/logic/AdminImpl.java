@@ -429,6 +429,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     ExperimenterGroup group) {
         Permissions p = group.getDetails().getPermissions();
         if (p != null) {
+            // Setting permissions is not allowed via IUpdate
+            // so use the logic in changePermissions and then
+            // reset permissions to the current value.
             changePermissions(group, p); // ticket:1776 WORKAROUND
             p = getGroup(group.getId()).getDetails().getPermissions();
             group.getDetails().setPermissions(p);
@@ -560,6 +563,20 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @RolesAllowed("system")
     public void unsetGroupOwner(ExperimenterGroup group, Experimenter owner) {
         toggleGroupOwner(group, owner, Boolean.TRUE);
+    }
+    
+    @RolesAllowed("system")
+    public void addGroupOwners(ExperimenterGroup group, Experimenter... owner) {
+        for (Experimenter o : owner) {
+            toggleGroupOwner(group, o, true);
+        }
+    }
+
+    @RolesAllowed("system")
+    public void removeGroupOwners(ExperimenterGroup group, Experimenter... owner) {
+        for (Experimenter o : owner) {
+            toggleGroupOwner(group, o, false);
+        }
     }
 
     private void toggleGroupOwner(ExperimenterGroup group, Experimenter owner,

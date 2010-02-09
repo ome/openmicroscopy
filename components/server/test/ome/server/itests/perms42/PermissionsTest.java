@@ -58,7 +58,9 @@ public class PermissionsTest extends AbstractManagedContextTest {
          * Always returns a fresh copy.
          */
         ExperimenterGroup group() {
-            return iQuery.get(ExperimenterGroup.class, _group.getId());
+            return iQuery.findByQuery("select eg from ExperimenterGroup eg " +
+            		"join fetch eg.groupExperimenterMap where eg.id = "+ _group.getId(),
+            		null);
         }
 
         Image saveImage() {

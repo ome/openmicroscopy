@@ -17,6 +17,7 @@ import ome.services.blitz.util.BlitzExecutor;
 import omero.RString;
 import omero.RType;
 import omero.ServerError;
+import omero.api.AMD_IAdmin_addGroupOwners;
 import omero.api.AMD_IAdmin_addGroups;
 import omero.api.AMD_IAdmin_canUpdate;
 import omero.api.AMD_IAdmin_changeExpiredCredentials;
@@ -45,6 +46,7 @@ import omero.api.AMD_IAdmin_lookupGroup;
 import omero.api.AMD_IAdmin_lookupGroups;
 import omero.api.AMD_IAdmin_lookupLdapAuthExperimenter;
 import omero.api.AMD_IAdmin_lookupLdapAuthExperimenters;
+import omero.api.AMD_IAdmin_removeGroupOwners;
 import omero.api.AMD_IAdmin_removeGroups;
 import omero.api.AMD_IAdmin_reportForgottenPassword;
 import omero.api.AMD_IAdmin_setDefaultGroup;
@@ -339,6 +341,18 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
     public void updateSelf_async(AMD_IAdmin_updateSelf __cb,
             Experimenter experimenter, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, experimenter);
+    }
+
+    public void addGroupOwners_async(AMD_IAdmin_addGroupOwners __cb,
+            ExperimenterGroup group, List<Experimenter> owners,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, owners);
+    }
+
+    public void removeGroupOwners_async(AMD_IAdmin_removeGroupOwners __cb,
+            ExperimenterGroup group, List<Experimenter> owners,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, owners);
     }
 
 }

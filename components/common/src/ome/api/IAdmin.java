@@ -9,9 +9,11 @@ package ome.api;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ome.annotations.Hidden;
 import ome.annotations.NotNull;
+import ome.annotations.Validate;
 import ome.conditions.AuthenticationException;
 import ome.model.IObject;
 import ome.model.internal.Details;
@@ -19,6 +21,7 @@ import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.GroupExperimenterMap;
 import ome.system.EventContext;
 import ome.system.Roles;
 
@@ -362,6 +365,30 @@ public interface IAdmin extends ServiceInterface {
     void unsetGroupOwner(@NotNull
     ExperimenterGroup group, @NotNull
     Experimenter owner);
+
+    /**
+     * adds the given users to the owner list for this group.
+     * 
+     * @param group
+     *            A currently managed {@link ExperimenterGroup}. Not null.
+     * @param owner
+     *            A set of currently managed {@link Experimenter}s. Not null.
+     */
+    void addGroupOwners(@NotNull
+    ExperimenterGroup group, @NotNull
+    Experimenter... owner);
+
+    /**
+     * removes the given users from the owner list for this group.
+     *
+     * @param group
+     *            A currently managed {@link ExperimenterGroup}. Not null.
+     * @param owners
+     *            A set of currently managed {@link Experimenter}s. Not null.
+     */
+    void removeGroupOwners(@NotNull
+    ExperimenterGroup group, @NotNull
+    Experimenter... owner);
 
     /**
      * removes a user by removing the password information for that user as well

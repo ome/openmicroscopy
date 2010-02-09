@@ -600,6 +600,8 @@ public class OmeroInterceptor implements Interceptor {
             // Acquiring the context here to prevent multiple
             // accesses to the threadlocal
             final BasicEventContext bec = currentUser.current();
+            
+            final boolean sysType = sysTypes.isSystemType(iobj.getClass());
 
             // isGlobal implies nothing (currently) about external info
             // see mapping.vm for more.
@@ -610,17 +612,17 @@ public class OmeroInterceptor implements Interceptor {
             //if (!IGlobal.class.isAssignableFrom(iobj.getClass())) {
             // ticket:1434 re-activating permission mgmt for globals.
                 altered |= managedPermissions(locked, privileged, iobj,
-                        previousDetails, currentDetails, newDetails);
+                        previousDetails, currentDetails, newDetails, sysType);
             //}
 
             // implies that owner doesn't matter
-            if (!IGlobal.class.isAssignableFrom(iobj.getClass())) {
+            if (!sysType) {
                 altered |= managedOwner(locked, privileged, iobj,
                         previousDetails, currentDetails, newDetails, bec);
             }
 
             // implies that group doesn't matter
-            if (!IGlobal.class.isAssignableFrom(iobj.getClass())) {
+            if (!sysType) {
                 altered |= managedGroup(locked, privileged, iobj,
                         previousDetails, currentDetails, newDetails, bec);
             }
@@ -629,7 +631,7 @@ public class OmeroInterceptor implements Interceptor {
             // whether or not it is necessary to change the updateEvent
             // (i.e. last modification)
             // implies that event doesn't matter
-            if (!IGlobal.class.isAssignableFrom(iobj.getClass())) {
+            if (!sysType) {
                 altered |= managedEvent(locked, privileged, iobj,
                         previousDetails, currentDetails, newDetails);
             }
@@ -708,7 +710,7 @@ public class OmeroInterceptor implements Interceptor {
      */
     protected boolean managedPermissions(boolean locked, boolean privileged,
             IObject obj, Details previousDetails, Details currentDetails,
-            Details newDetails) {
+            Details newDetails, boolean sysType) {
 
         // setup
 
@@ -774,7 +776,7 @@ public class OmeroInterceptor implements Interceptor {
             // see https://trac.openmicroscopy.org.uk/omero/ticket/1776
             Permissions groupPerms = currentUser.getCurrentEventContext()
                 .getCurrentGroupPermissions();
-            if (!groupPerms.sameRights(currentP)) {
+            if (!sysType && !groupPerms.sameRights(currentP)) { // ticket:1779
                 throw new GroupSecurityViolation(String.format(
                         "Cannot change permissions for %s(%s) from %s to %s ",
                         obj, groupPerms, tmpPreviousP, currentP));
