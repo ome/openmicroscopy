@@ -28,12 +28,14 @@ package org.openmicroscopy.shoola.env.data.views;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.views.calls.AdminLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.AdminSaver;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.ExperimenterData;
 
 /** 
- * 
+ * Implementation of the {@link AdminView} implementation.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -80,6 +82,49 @@ class AdminViewImpl
 	public CallHandle getDiskSpace(long userID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new AdminLoader(userID, AdminLoader.SPACE);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the {@link AdminView} interface.
+	 * @see AdminView#createExperimenters(AdminObject, AgentEventListener)
+	 */
+	public CallHandle createExperimenters(AdminObject object,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new AdminSaver(object);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the {@link AdminView} interface.
+	 * @see AdminView#createGroup(AdminObject, AgentEventListener)
+	 */
+	public CallHandle createGroup(AdminObject object,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new AdminSaver(object);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the {@link AdminView} interface.
+	 * @see AdminView#loadExperimenterGroups(AgentEventListener)
+	 */
+	public CallHandle loadExperimenterGroups(AgentEventListener observer)
+	{
+		BatchCallTree cmd = new AdminLoader(-1, AdminLoader.GROUPS);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the {@link AdminView} interface.
+	 * @see AdminView#loadExperimenters(long, AgentEventListener)
+	 */
+	public CallHandle loadExperimenters(long groupID,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new AdminLoader(groupID, AdminLoader.EXPERIMENTERS);
 		return cmd.exec(observer);
 	}
 	

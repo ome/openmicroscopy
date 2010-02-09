@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.data.views;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.ExperimenterData;
 
@@ -69,14 +70,53 @@ public interface AdminView
 			AgentEventListener observer);
 	
 	/**
-	 * Modifies the password of the user currently logged in.
+	 * Creates and returns the experimenters.
 	 * 
-	 * @param oldPassword 	The password used to log in.  
-	 * @param newPassword	The new password value.
+	 * @param object The object hosting information about the experimenters
+	 * 				to create. 
+	 * @param observer	Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle createExperimenters(AdminObject object, 
+			AgentEventListener observer);
+
+	/**
+	 * Creates and returns the new group.
+	 * 
+	 * @param object The object hosting information about the group to create. 
+	 * @param observer	Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle createGroup(AdminObject object, 
+			AgentEventListener observer);
+
+	/**
+	 * Modifies the password of the currently logged in user.
+	 * 
+	 * @param oldPassword The old password.
+	 * @param newPassword The new password.
 	 * @param observer	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle changePassword(String oldPassword, String newPassword, 
+			AgentEventListener observer);
+	
+	/**
+	 * Loads all the available groups.
+	 * 
+	 * @param observer	Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadExperimenterGroups(AgentEventListener observer);
+	
+	/**
+	 * Loads all the experimenters who are members of the specified group.
+	 * 
+	 * @param groupID   The id of the group.
+	 * @param observer	Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadExperimenters(long groupID, 
 			AgentEventListener observer);
 	
 }

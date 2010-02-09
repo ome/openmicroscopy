@@ -82,6 +82,12 @@ public class UserCredentials
     /** The selected group or <code>-1</code>. */
     private long 	group;
     
+	/** Indicates that the experimenters to handle are administrator. */
+	private boolean administrator;
+	
+	/** Indicates if the experimenter is the owner of the group. */
+	private boolean owner;
+	
     /** 
      * Controls if the passed speed index is supported.
      * 
@@ -104,7 +110,7 @@ public class UserCredentials
      * Creates a new instance.
      * 
      * @param userName The <i>OMERO</i> login name of the user.
-     *                 This is the <code>OME Name</code> that was assinged to 
+     *                 This is the <code>OME Name</code> that was assigned to 
      *                 the user when it was created in the DB.
      * @param password The <i>OMERO</i> login password of the user.
      *                 This is the password that was chosen for the user when
@@ -130,6 +136,23 @@ public class UserCredentials
         this.hostName = hostName;
         port = -1;
         group = -1L;
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param userName The <i>OMERO</i> login name of the user.
+     *                 This is the <code>OME Name</code> that was assigned to 
+     *                 the user when it was created in the DB.
+     * @param password The <i>OMERO</i> login password of the user.
+     *                 This is the password that was chosen for the user when
+     *                 it was created in the DB.
+     * @throws IllegalArgumentException If the user name and/or the password is
+     *                 <code>null</code> or has <code>0</code>-length.
+     */
+    public UserCredentials(String userName, String password)
+    {
+    	this(userName, password, "", HIGH);
     }
     
     /**
@@ -208,7 +231,45 @@ public class UserCredentials
      * @return See above.
      */
     public int getSpeedLevel() { return speedLevel; }
-    
+
+	/**
+	 * Sets to <code>true</code> if the experimenters are administrators,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param administrator The value to set.
+	 */
+	public void setAdministrator(boolean administrator)
+	{
+		this.administrator = administrator;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the experimenter is an administrator,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isAdministrator() { return administrator; }
+
+	/**
+	 * Sets to <code>true</code> if the experimenter is the owner of a group,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param administrator The value to set.
+	 */
+	public void setOwner(boolean owner)
+	{
+		this.owner = owner;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the experimenter is the owner of a group,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isOwner() { return owner; }
+
     /**
      * Formats user name and password.
      * Each character of the password is replaced by a star.

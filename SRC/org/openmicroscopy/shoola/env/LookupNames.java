@@ -88,6 +88,9 @@ public class LookupNames
     /** Field to access the LDAP user information. */
     public static final String USER_AUTHENTICATION = "/user/authentication";
     
+    /** Field indicating if the user is an administrator. */
+    public static final String USER_ADMINISTRATOR = "/users/administrator";
+    
     /** Field to indicate if the connection is fast or not. */
     public static final String CONNECTION_SPEED = "/connection/speed";
     

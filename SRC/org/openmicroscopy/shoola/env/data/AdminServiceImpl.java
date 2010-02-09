@@ -24,8 +24,10 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -34,6 +36,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -211,6 +214,56 @@ class AdminServiceImpl
 			}
 		}
 		return data;
+	}
+
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#createExperimenters(AdminObject)
+	 */
+	public List<ExperimenterData> createExperimenters(AdminObject object)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		if (object == null)
+			throw new IllegalArgumentException("No object.");
+		Map<ExperimenterData, UserCredentials> m = object.getExperimenters();
+		if (m == null || m.size() == 0)
+			throw new IllegalArgumentException("No experimenters to create.");
+		return gateway.createExperimenters(object);
+	}
+
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#createGroup(AdminObject)
+	 */
+	public GroupData createGroup(AdminObject object)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		if (object == null)
+			throw new IllegalArgumentException("No object.");
+		if (object.getGroup() == null)
+			throw new IllegalArgumentException("No group.");
+		return gateway.createGroup(object);
+	}
+
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#loadExperimenters(long)
+	 */
+	public List<ExperimenterData> loadExperimenters(long id)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		List<ExperimenterData> l = new ArrayList<ExperimenterData>();
+		return l;
+	}
+
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#loadGroups(long)
+	 */
+	public List<GroupData> loadGroups(long id) 
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return gateway.loadGroups(id);
 	}
 	
 }

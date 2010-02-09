@@ -31,7 +31,6 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.AdminService;
-import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.ExperimenterData;
@@ -54,7 +53,13 @@ public class AdminLoader
 {
 
 	/** Identifies to load the available and used space. */
-	public static final int SPACE = 1;
+	public static final int SPACE = 0;
+	
+	/** Identifies to load the available groups. */
+	public static final int GROUPS = 1;
+	
+	/** Identifies to load the experimenters within a group. */
+	public static final int EXPERIMENTERS = 2;
 	
     /** The result of the call. */
     private Object		result;
@@ -120,6 +125,42 @@ public class AdminLoader
         };
     }
     
+    /**
+     * Creates a {@link BatchCall} to load all the available group if the 
+     * passed parameter is <code>-1</code>, load the group otherwise.
+     * 
+	 * @param id The id of the group.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadGroup(final long id)
+    {
+        return new BatchCall("Load groups") {
+            public void doCall() throws Exception
+            {
+            	AdminService os = context.getAdminService();
+                result = os.loadGroups(id);
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to load the experimenters contained 
+     * within the specified group.
+     * 
+	 * @param id The id of the group.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadExperimenters(final long id)
+    {
+        return new BatchCall("Load experimenters") {
+            public void doCall() throws Exception
+            {
+            	AdminService os = context.getAdminService();
+                result = os.loadExperimenters(id);
+            }
+        };
+    }
+    
 	 /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
@@ -135,14 +176,20 @@ public class AdminLoader
     /** 
      * Creates a new instance. 
      * 
-     * @param userID	The id of the user or <code>-1</code>.
+     * @param id		The id of the user, or group or <code>-1</code>.
      * @param index 	One of the constants defined by this class.
      */
-    public AdminLoader(long userID, int index)
+    public AdminLoader(long id, int index)
     {
     	switch (index) {
 			case SPACE:
-				loadCall = availableSpaceCall(userID);
+				loadCall = availableSpaceCall(id);
+				break;
+			case GROUPS:
+				loadCall = loadGroup(id);
+				break;
+			case EXPERIMENTERS:
+				loadCall = loadExperimenters(id);
 		}
     }
 

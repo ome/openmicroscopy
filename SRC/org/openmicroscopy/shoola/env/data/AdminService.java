@@ -24,10 +24,12 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -96,6 +98,31 @@ public interface AdminService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
+	 * Creates and returns the experimenters.
+	 * 
+	 * @param object The object hosting information about the experimenters
+	 * to create. 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	public List<ExperimenterData> createExperimenters(AdminObject object)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Creates and returns the new group
+	 * 
+	 * @param object The object hosting information about the group to create. 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	public GroupData createGroup(AdminObject object)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
 	 * Returns the address of the server the user is currently connected to.
 	 * 
 	 * @return See above.
@@ -133,6 +160,33 @@ public interface AdminService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public long getSpace(int index, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Loads the group specified by the passed identifier or all available
+	 * groups if <code>-1</code>.
+	 * 
+	 * @param id The group identifier.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public List<GroupData> loadGroups(long id)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Loads the experimenters contained in the specified group.
+	 * 
+	 * @param id The group identifier.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public List<ExperimenterData> loadExperimenters(long id)
 		throws DSOutOfServiceException, DSAccessException;
 	
 }

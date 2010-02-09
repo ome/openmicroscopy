@@ -39,18 +39,18 @@ import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 
 /** 
-* Implementation of the {@link DataHandlerView} implementation.
-*
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-* <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
-* <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
-* @version 3.0
-* <small>
-* (<b>Internal version:</b> $Revision: $Date: $)
-* </small>
-* @since OME3.0
-*/
+ * Implementation of the {@link DataHandlerView} implementation.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
+ * </small>
+ * @since OME3.0
+ */
 public class DataHandlerViewImpl 
 	implements DataHandlerView
 {

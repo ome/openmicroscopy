@@ -53,12 +53,16 @@ import Ice.ConnectionLostException;
 
 //Application-internal dependencies
 import loci.formats.FormatException;
+
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
+import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
@@ -245,6 +249,18 @@ class OMEROGateway
 	/** The collection of escaping characters we allow in the search. */
 	private static final List<String>		WILD_CARDS;
 	
+	/** The collection of system groups. */
+	private static final List<String>		SYSTEM_GROUPS;
+	
+	/** Identifies the <code>System</code> group. */
+	static final String				SYSTEM = "system";
+	
+	/** Identifies the <code>User</code> group. */
+	private static final String				USER = "user";
+	
+	/** Identifies the <code>Guest</code> group. */
+	private static final String				GUEST = "guest";
+	
 	static {
 		SUPPORTED_SPECIAL_CHAR = new ArrayList<Character>();
 		SUPPORTED_SPECIAL_CHAR.add(new Character('-'));
@@ -263,6 +279,10 @@ class OMEROGateway
 		WILD_CARDS.add("*");
 		WILD_CARDS.add("?");
 		WILD_CARDS.add("~");
+		SYSTEM_GROUPS = new ArrayList<String>();
+		SYSTEM_GROUPS.add(SYSTEM);
+		SYSTEM_GROUPS.add(USER);
+		SYSTEM_GROUPS.add(GUEST);
 	}
 	
 	/**
@@ -376,6 +396,62 @@ class OMEROGateway
 	
 	/** The service to import files. */
 	private OMEROMetadataStoreClient				importStore;
+	
+	/** The collection of system groups. */
+	private List<ExperimenterGroup>					systemGroups;
+	
+	/**
+	 * Retrieves the system groups.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	private List<ExperimenterGroup> getSystemGroups()
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (systemGroups != null) return systemGroups;
+		isSessionAlive();
+		try {
+			IAdminPrx svc = getAdminService();
+			Map<String, String> m = new HashMap<String, String>();
+			Iterator<String> i = SYSTEM_GROUPS.iterator();
+			
+			while (i.hasNext()) {
+				m.put("name", i.next());
+			}
+			systemGroups = svc.lookupGroups(m);
+		} catch (Exception e) {
+			handleException(e, "Cannot retrieve the system groups.");
+		}
+		return systemGroups;
+	}
+	
+	/**
+	 * Returns the system group corresponding to the passed name.
+	 * 
+	 * @param name The name to handle.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	private ExperimenterGroup getSystemGroup(String name)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		getSystemGroups();
+		Iterator<ExperimenterGroup> i = systemGroups.iterator();
+		ExperimenterGroup g = null;
+		while (i.hasNext()) {
+			g = (ExperimenterGroup) i.next();
+			if (g.getName() != null && name.equals(g.getName().getValue()))
+				return g;
+		}
+		return g;
+	}
 	
 	/**
 	 * Creates a table with the overlays.
@@ -1575,12 +1651,15 @@ class OMEROGateway
 	 */
 	boolean isSystemGroup(ExperimenterGroup group)
 	{
+	
+		String n = group.getName() == null ? null : group.getName().getValue();
+		return (SYSTEM_GROUPS.contains(n));
 		/*
 		String n = group.getName() == null ? null : group.getName().getValue();
 		return ("system".equals(n) || "user".equals(n) || "default".equals(n) ||
 				"guest".equals(n));
 				*/
-		return false;
+		//return false;
 	}
 	
 	/**
@@ -1711,12 +1790,13 @@ class OMEROGateway
 				if (defaultID == groupID) return exp;
 				try {
 					changeCurrentGroup(exp, groupID);
-					
 					exp = getUserDetails(userName);
 				} catch (Exception e) {
+					/*
 					connected = false;
 					String s = "Can't connect to OMERO. Group not valid.\n\n";
 					throw new DSOutOfServiceException(s, e);
+					*/
 				}
 			}
 			return exp;
@@ -2953,17 +3033,17 @@ class OMEROGateway
 			IAdminPrx service = getAdminService();
 			//Need method server side.
 			List<ExperimenterGroup> groups = service.containedGroups(
-					user.getId());//service.lookupGroups();
+					user.getId());
 			
 			ExperimenterGroup group;
-			GroupData pojoGroup;
+			//GroupData pojoGroup;
 			Iterator<ExperimenterGroup> i = groups.iterator();
 			while (i.hasNext()) {
 				group = i.next();
-				if (!isSystemGroup(group)) {
-					pojoGroup = (GroupData) PojoMapper.asDataObject(group);
-					pojos.add(pojoGroup);
-				}
+				//if (!isSystemGroup(group)) {
+					//pojoGroup = (GroupData) PojoMapper.asDataObject(group);
+					pojos.add((GroupData) PojoMapper.asDataObject(group));
+				//}
 			}
 			return pojos;
 		} catch (Throwable t) {
@@ -5911,5 +5991,153 @@ class OMEROGateway
 		return Boolean.valueOf(true);
 	}
 	
+	
+	//Admin 
+	
+	/**
+	 * Creates the experimenters.
+	 * 
+	 * @param object The object hosting information about the experimenters 
+	 * to create. 
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List<ExperimenterData> createExperimenters(AdminObject object)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		List<ExperimenterData> results = new ArrayList<ExperimenterData>();
+		try {
+			IAdminPrx svc = getAdminService();
+			Map<ExperimenterData, UserCredentials> 
+				m = object.getExperimenters();
+			Entry entry;
+			Iterator i = m.entrySet().iterator();
+			Experimenter exp;
+			UserCredentials uc;
+			String password;
+			ExperimenterGroup g = object.getGroup().asGroup();
+			List<ExperimenterGroup> l = new ArrayList<ExperimenterGroup>();
+			long id;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				exp = (Experimenter) ModelMapper.createIObject(
+						(DataObject) entry.getKey());
+				uc = (UserCredentials) entry.getValue();
+				if (uc.isAdministrator()) l.add(getSystemGroup(SYSTEM));
+				else l.add(getSystemGroup(USER));
+				exp.setOmeName(omero.rtypes.rstring(uc.getUserName()));
+				password = uc.getPassword();
+				if (password != null && password.length() > 0) {
+					id = svc.createExperimenterWithPassword(exp, 
+							omero.rtypes.rstring(password), g, l);			
+				} else
+					id = svc.createExperimenter(exp, g, l);
+				exp = svc.getExperimenter(id);
+				if (uc.isOwner())
+					svc.setGroupOwner(g, exp);
+				results.add((ExperimenterData) PojoMapper.asDataObject(exp));
+			}
+		} catch (Exception e) {
+			handleException(e, "Cannot create the experimenters.");
+		}
+		return results;
+	}
 
+	/**
+	 * Creates the experimenters.
+	 * 
+	 * @param object The object hosting information about the experimenters 
+	 * to create. 
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	GroupData createGroup(AdminObject object)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		IAdminPrx svc = getAdminService();
+		try {
+			Map<ExperimenterData, UserCredentials> 
+			m = object.getExperimenters();
+			Entry entry;
+			Iterator i = m.entrySet().iterator();
+			Experimenter exp;
+			UserCredentials uc;
+			String password;
+
+			ExperimenterGroup g = (ExperimenterGroup) ModelMapper.createIObject(
+					(DataObject) object.getGroup());
+
+			long groupID = svc.createGroup(g);
+			g = svc.getGroup(groupID);
+			List<ExperimenterGroup> list = new ArrayList<ExperimenterGroup>();
+			list.add(g);
+
+			List<ExperimenterGroup> l = new ArrayList<ExperimenterGroup>();
+			long id;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				exp = (Experimenter) ModelMapper.createIObject(
+						(DataObject) entry.getKey());
+				uc = (UserCredentials) entry.getValue();
+				if (uc.isAdministrator()) l.add(getSystemGroup(SYSTEM));
+				else l.add(getSystemGroup(USER));
+				exp.setOmeName(omero.rtypes.rstring(uc.getUserName()));
+				password = uc.getPassword();
+				if (password != null && password.length() > 0) {
+					id = svc.createExperimenterWithPassword(exp, 
+							omero.rtypes.rstring(password), g, l);			
+				} else
+					id = svc.createExperimenter(exp, g, l);
+				exp = svc.getExperimenter(id);
+				svc.setGroupOwner(g, exp);
+			}
+			return (GroupData) PojoMapper.asDataObject(g);
+		} catch (Exception e) {
+			handleException(e, "Cannot create group and owner.");
+		}
+		return null;
+	}
+	
+	/**
+	 * Loads the groups the experimenters.
+	 * 
+	 * @param id The group identifier or <code>-1</code>.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List<GroupData> loadGroups(long id)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		List<GroupData> pojos = new ArrayList<GroupData>();
+		try {
+			IAdminPrx svc = getAdminService();
+			//Need method server side.
+			List<ExperimenterGroup> groups = svc.lookupGroups();
+			
+			ExperimenterGroup group;
+			//GroupData pojoGroup;
+			Iterator<ExperimenterGroup> i = groups.iterator();
+			while (i.hasNext()) {
+				group = i.next();
+				if (!isSystemGroup(group))
+					pojos.add((GroupData) PojoMapper.asDataObject(group));
+			}
+			return pojos;
+		} catch (Throwable t) {
+			handleException(t, "Cannot retrieve the available groups ");
+		}
+		return pojos;
+	}
+	
 }

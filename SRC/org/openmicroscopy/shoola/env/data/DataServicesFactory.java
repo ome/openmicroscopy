@@ -26,13 +26,13 @@ package org.openmicroscopy.shoola.env.data;
 //Java imports
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Map.Entry;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -409,28 +409,41 @@ public class DataServicesFactory
         registry.bind(LookupNames.CONNECTION_SPEED, 
         		isFastConnection(uc.getSpeedLevel()));
         Set<GroupData> groups;
+        Set<GroupData> available;
         List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
         try {
-        	 groups = omeroGateway.getAvailableGroups(exp);
-        	 registry.bind(LookupNames.USER_GROUP_DETAILS, groups);
-        	 List<Long> ids = new ArrayList<Long>();
-        	 Iterator i = groups.iterator();
-        	 Set set;
-        	 Iterator j;
-        	 GroupData g;
-        	 ExperimenterData e;
-        	 while (i.hasNext()) {
-        		 g = (GroupData) i.next();
-        		 set = g.getExperimenters();
-        		 j = set.iterator();
-        		 while (j.hasNext()) {
-        			 e = (ExperimenterData) j.next();
-        			 if (!ids.contains(e.getId())) {
-        				 ids.add(e.getId());
-        				 exps.add(e);
-        			 }
-        		 }
-			}
+        	groups = omeroGateway.getAvailableGroups(exp);
+        	//Check if the current experimenter is an administrator 
+        	Iterator<GroupData> i = groups.iterator();
+        	GroupData g;
+        	available = new HashSet<GroupData>();
+        	while (i.hasNext()) {
+        		g = i.next();
+        		if (!omeroGateway.isSystemGroup(g.asGroup())) {
+        			available.add(g);
+        		} else {
+        			if (g.getName().equals(OMEROGateway.SYSTEM))
+        				uc.setAdministrator(true);
+        		}
+        	}
+        	registry.bind(LookupNames.USER_GROUP_DETAILS, available);
+        	List<Long> ids = new ArrayList<Long>();
+        	i = available.iterator();
+        	Set set;
+        	Iterator j;
+        	ExperimenterData e;
+        	while (i.hasNext()) {
+        		g = (GroupData) i.next();
+        		set = g.getExperimenters();
+        		j = set.iterator();
+        		while (j.hasNext()) {
+        			e = (ExperimenterData) j.next();
+        			if (!ids.contains(e.getId())) {
+        				ids.add(e.getId());
+        				exps.add(e);
+        			}
+        		}
+        	}
         	registry.bind(LookupNames.USERS_DETAILS, exps);	 
 		} catch (DSAccessException e) {
 			throw new DSOutOfServiceException("Cannot retrieve groups", e);
@@ -448,8 +461,9 @@ public class DataServicesFactory
 				reg = agentInfo.getRegistry();
 				reg.bind(LookupNames.USER_AUTHENTICATION, ldap);
 				reg.bind(LookupNames.CURRENT_USER_DETAILS, exp);
-				reg.bind(LookupNames.USER_GROUP_DETAILS, groups);
+				reg.bind(LookupNames.USER_GROUP_DETAILS, available);
 				reg.bind(LookupNames.USERS_DETAILS, exps);
+				reg.bind(LookupNames.USER_ADMINISTRATOR, uc.isAdministrator());
 				reg.bind(LookupNames.CONNECTION_SPEED, 
 						isFastConnection(uc.getSpeedLevel()));
 				reg.bind(LookupNames.SERVER_ROI, b);
@@ -472,7 +486,7 @@ public class DataServicesFactory
     { 
 		//Need to write the current group.
 		Set groups = (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
-		if (groups != null) {
+		if (groups != null && groups.size() > 0) {
 			ExperimenterData exp = (ExperimenterData) 
 			registry.lookup(LookupNames.CURRENT_USER_DETAILS);
 			GroupData group = exp.getDefaultGroup();	
@@ -489,9 +503,7 @@ public class DataServicesFactory
 			if (!omeroGateway.isSystemGroup(group.asGroup()))
 				names.put(group.getId(), group.getName());
 			ScreenLogin.registerGroup(names);
-		}
-		
-		
+		} else ScreenLogin.registerGroup(null);
 		CacheServiceFactory.shutdown(container);
         ((OmeroImageServiceImpl) is).shutDown();
         omeroGateway.logout(); 

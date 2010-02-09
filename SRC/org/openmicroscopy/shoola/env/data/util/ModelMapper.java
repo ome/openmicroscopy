@@ -45,6 +45,9 @@ import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.Experimenter;
+import omero.model.ExperimenterGroup;
+import omero.model.ExperimenterGroupI;
+import omero.model.ExperimenterI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
@@ -79,6 +82,8 @@ import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.RatingAnnotationData;
@@ -285,6 +290,18 @@ public class ModelMapper
      * <code>IObject</code>.
      * 
      * @param child     The child to create.
+     * @return The {@link IObject} to create.
+     */
+    public static IObject createIObject(DataObject child)
+    {
+    	return createIObject(child, null);
+    }
+    
+    /**
+     * Converts the specified <code>DataObject</code> into its corresponding 
+     * <code>IObject</code>.
+     * 
+     * @param child     The child to create.
      * @param parent    The child's parent.
      * @return The {@link IObject} to create.
      */
@@ -324,6 +341,21 @@ public class ModelMapper
             return model;
         } else if (child instanceof TagAnnotationData) {
         	return createAnnotation((TagAnnotationData) child);
+        } else if (child instanceof ExperimenterData) {
+        	ExperimenterData data = (ExperimenterData) child;
+        	Experimenter exp = new ExperimenterI();
+        	exp.setFirstName(omero.rtypes.rstring(data.getFirstName()));
+        	exp.setLastName(omero.rtypes.rstring(data.getLastName()));
+        	//exp.setMiddleName(omero.rtypes.rstring(data.getMiddle()));
+        	exp.setEmail(omero.rtypes.rstring(data.getEmail()));
+        	exp.setInstitution(omero.rtypes.rstring(data.getInstitution()));
+        	return exp;
+        } else if (child instanceof GroupData) {
+        	GroupData data = (GroupData) child;
+        	ExperimenterGroup g = new ExperimenterGroupI();
+        	g.setName(omero.rtypes.rstring(data.getName()));
+        	//g.setDescription(omero.rtypes.rstring(data.getDescription()));
+        	return g;
         }
         throw new IllegalArgumentException("Child and parent are not " +
         		"compatible.");
