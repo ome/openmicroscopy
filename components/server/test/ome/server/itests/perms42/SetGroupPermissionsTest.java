@@ -124,4 +124,25 @@ public class SetGroupPermissionsTest extends PermissionsTest {
         fail();
     }
 
+    @Test
+    public void testCopiedFromPython() throws Exception {
+        
+        loginRoot();
+        
+        String uuid = iAdmin.getEventContext().getCurrentSessionUuid();
+        ExperimenterGroup new_gr1 = new ExperimenterGroup();
+        new_gr1.setName("group1_"+uuid);
+        Permissions p = Permissions.OPEN;
+        new_gr1.getDetails().setPermissions(p);
+        long g1_id = iAdmin.createGroup(new_gr1);
+            
+        //  update name of group1
+        ExperimenterGroup gr1 = iAdmin.getGroup(g1_id);
+        assertEquals("rwrw--", gr1.getDetails().getPermissions().toString());
+        String new_name = "changed_name_group1_" + uuid;
+        gr1.setName(new_name);
+        iAdmin.updateGroup(gr1);
+        ExperimenterGroup gr1_u = iAdmin.getGroup(g1_id);
+        assertEquals(new_name, gr1_u.getName());
+    }
 }

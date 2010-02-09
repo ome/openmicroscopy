@@ -768,7 +768,8 @@ public class OmeroInterceptor implements Interceptor {
             }
 
             // see https://trac.openmicroscopy.org.uk/omero/ticket/1434
-            if (obj instanceof ExperimenterGroup) {
+            if (!currentP.identical(tmpPreviousP) &&
+                    obj instanceof ExperimenterGroup) {
                 throw new GroupSecurityViolation(
                         "Group permissions must be changed via IAdmin");
             }

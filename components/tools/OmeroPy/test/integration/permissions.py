@@ -45,10 +45,10 @@ class TestAdmin(lib.ITest):
         
         # update name of group1
         gr1 = admin.getGroup(g1_id)
-        self.assertEquals('rw----', str(gr1.details.permissions)) 
+        self.assertEquals('rw----', str(gr1.details.permissions))
         new_name = "changed_name_group1_%s" % uuid
         gr1.name = rstring(new_name)
-        admin.updateGroup(gr1)        
+        admin.updateGroup(gr1)
         gr1_u = admin.getGroup(g1_id)
         self.assertEquals(new_name, gr1_u.name.val)
     
@@ -75,10 +75,10 @@ class TestAdmin(lib.ITest):
         
         # update name of group1
         gr1 = admin.getGroup(g1_id)
-        self.assertEquals('rwr---', str(gr1.details.permissions)) 
+        self.assertEquals('rwr---', str(gr1.details.permissions))
         new_name = "changed_name_group1_%s" % uuid
         gr1.name = rstring(new_name)
-        admin.updateGroup(gr1)        
+        admin.updateGroup(gr1)
         gr1_u = admin.getGroup(g1_id)
         self.assertEquals(new_name, gr1_u.name.val)
         
@@ -105,13 +105,13 @@ class TestAdmin(lib.ITest):
         
         # update name of group1
         gr1 = admin.getGroup(g1_id)
-        self.assertEquals('rwrw--', str(gr1.details.permissions)) 
+        self.assertEquals('rwrw--', str(gr1.details.permissions))
         new_name = "changed_name_group1_%s" % uuid
         gr1.name = rstring(new_name)
-        admin.updateGroup(gr1)        
+        admin.updateGroup(gr1)
         gr1_u = admin.getGroup(g1_id)
         self.assertEquals(new_name, gr1_u.name.val)
-    
+
     def testCreatGroupAndchangePermissions(self):
         # this is the test of updating group permissions
         # including changes in #1434
@@ -189,19 +189,20 @@ class TestAdmin(lib.ITest):
         
         defaultGroup = admin.lookupGroup("default")
         listOfGroups = list()
-        listOfGroups.append(admin.lookupGroup("user"))        
+        listOfGroups.append(admin.lookupGroup("user"))
         eid1 = admin.createExperimenterWithPassword(new_exp1, rstring("ome"), defaultGroup, listOfGroups)
-        exp1 = getExperimenter(eid)
+        exp1 = admin.getExperimenter(eid1)
         
         #set owner of the group (user is not a member of)
-        admin_serv.addGroupOwners(gr1, [exp1])
+        admin.addGroupOwners(gr1, [exp1])
         # chech if is the leader
-        isLeader() ???    
-        
+        ec = admin.getEventContext()
+        self.assertTrue(gr1.id.val in ec.leaderOfGroups())
+
         # remove group owner
-        admin_serv.removeGroupOwners(gr1, [exp1])
+        admin.removeGroupOwners(gr1, [exp1])
         # chech if no longer is the leader
-        isLeader() ???
+        self.assertFalse(gr1.id.val in ec.leaderOfGroups())
 
         '''
         Controller method shows how it is used in practice
