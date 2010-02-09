@@ -110,10 +110,7 @@ public class GroupData extends DataObject {
      */
     public String getDescription() {
         omero.RString n = asGroup().getDescription();
-        if (n == null || n.getValue() == null) {
-            throw new IllegalStateException(
-                    "The name should never have been be null");
-        }
+        if (n == null || n.getValue() == null)  return "";
         return n.getValue();
     }
 
@@ -126,9 +123,7 @@ public class GroupData extends DataObject {
      *             If the name is <code>null</code>.
      */
     public void setDescription(String description) {
-        if (description == null) {
-            throw new IllegalArgumentException("The name cannot be null.");
-        }
+        if (description == null) return;
         setDirty(true);
         asGroup().setDescription(rstring(description));
     }
