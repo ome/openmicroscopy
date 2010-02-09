@@ -250,4 +250,28 @@ public class ExperimenterData extends DataObject {
         return getGroups().get(0);
     }
 
+    /**
+     * Returns the middle name of the experimenter.
+     * 
+     * @return see above.
+     */
+    public String getMiddleName() {
+        omero.RString n = asExperimenter().getMiddleName();
+        if (n == null || n.getValue() == null) {
+            throw new IllegalStateException(
+                    "The name should never have been null");
+        }
+        return n.getValue();
+    }
+    
+    /**
+     * Sets the middle name of the experimenter.
+     * 
+     * @param middleName
+     *            The value to set.
+     */
+    public void setMiddleName(String middleName) {
+        setDirty(true);
+        asExperimenter().setMiddleName(rstring(middleName));
+    }
 }

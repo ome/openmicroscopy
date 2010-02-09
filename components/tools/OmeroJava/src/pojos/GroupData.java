@@ -103,6 +103,36 @@ public class GroupData extends DataObject {
         asGroup().setName(rstring(name));
     }
 
+    /**
+     * Returns the description of the group.
+     * 
+     * @return See above.
+     */
+    public String getDescription() {
+        omero.RString n = asGroup().getDescription();
+        if (n == null || n.getValue() == null) {
+            throw new IllegalStateException(
+                    "The name should never have been be null");
+        }
+        return n.getValue();
+    }
+
+    /**
+     * Sets the name of the group.
+     * 
+     * @param description
+     *            The description of the group. Mustn't be <code>null</code>.
+     * @throws IllegalArgumentException
+     *             If the name is <code>null</code>.
+     */
+    public void setDescription(String description) {
+        if (description == null) {
+            throw new IllegalArgumentException("The name cannot be null.");
+        }
+        setDirty(true);
+        asGroup().setDescription(rstring(description));
+    }
+    
     // Lazy loaded links
     
     /**
