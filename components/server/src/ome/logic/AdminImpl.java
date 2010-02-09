@@ -406,45 +406,65 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 "Updated own user info: " + self.getOmeName());
     }
 
-    @RolesAllowed("system")
-    public void updateExperimenter(@NotNull
+    @RolesAllowed("user")
+    public void updateExperimenter(@NotNull final
     Experimenter experimenter) {
+        adminOrPiOfUser(experimenter);
         String name = experimenter.getOmeName();
-        iUpdate.saveObject(experimenter);
+        getSecuritySystem().runAsAdmin(new AdminAction() {
+            public void runAsAdmin() {
+                iUpdate.saveObject(experimenter);
+            }
+        });
         getBeanHelper().getLogger().info("Updated user info for " + name);
     }
 
-    @RolesAllowed("system")
-    public void updateExperimenterWithPassword(@NotNull
-    Experimenter experimenter, String password) {
-        String name = experimenter.getOmeName();
-        iUpdate.saveObject(experimenter);
-        changeUserPassword(name, password);
+    @RolesAllowed("user")
+    public void updateExperimenterWithPassword(@NotNull final
+    Experimenter experimenter, final String password) {
+        adminOrPiOfUser(experimenter);
+        final String name = experimenter.getOmeName();
+        getSecuritySystem().runAsAdmin(new AdminAction() {
+            public void runAsAdmin() {
+                iUpdate.saveObject(experimenter);
+                changeUserPassword(name, password);
+            }
+        });
         getBeanHelper().getLogger().info(
                 "Updated user info and password for " + name);
     }
 
-    @RolesAllowed("system")
-    public void updateGroup(@NotNull
+    @RolesAllowed("user")
+    public void updateGroup(@NotNull final
     ExperimenterGroup group) {
-        Permissions p = group.getDetails().getPermissions();
-        if (p != null) {
-            // Setting permissions is not allowed via IUpdate
-            // so use the logic in changePermissions and then
-            // reset permissions to the current value.
-            changePermissions(group, p); // ticket:1776 WORKAROUND
-            p = getGroup(group.getId()).getDetails().getPermissions();
-            group.getDetails().setPermissions(p);
-        }
-        iUpdate.saveObject(group);
+        adminOrPiOfGroup(group);
+        getSecuritySystem().runAsAdmin(new AdminAction() {
+            public void runAsAdmin() {
+                Permissions p = group.getDetails().getPermissions();
+                if (p != null) {
+                    // Setting permissions is not allowed via IUpdate
+                    // so use the logic in changePermissions and then
+                    // reset permissions to the current value.
+                    changePermissions(group, p); // ticket:1776 WORKAROUND
+                    p = getGroup(group.getId()).getDetails().getPermissions();
+                    group.getDetails().setPermissions(p);
+                }
+                iUpdate.saveObject(group);
+            }
+        });
         getBeanHelper().getLogger().info("Updated group info for " + group);
     }
 
-    @RolesAllowed("system")
-    public long createUser(Experimenter newUser, String defaultGroup) {
+    @RolesAllowed("user")
+    public long createUser(final Experimenter newUser, String defaultGroup) {
         // logged via createExperimenter
-        return createExperimenter(newUser, groupProxy(defaultGroup),
-                groupProxy(sec.getSecurityRoles().getUserGroupName()));
+
+        final ExperimenterGroup proxy = groupProxy(defaultGroup);
+        adminOrPiOfGroup(proxy);
+
+        return createExperimenter(newUser, proxy, groupProxy(sec
+                    .getSecurityRoles().getUserGroupName()));
+
     }
 
     @RolesAllowed("system")
@@ -455,29 +475,34 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 groupProxy(sec.getSecurityRoles().getUserGroupName()));
     }
 
-    @RolesAllowed("system")
+    @RolesAllowed("user")
     @SuppressWarnings("unchecked")
-    public long createExperimenter(Experimenter experimenter,
+    public long createExperimenter(final Experimenter experimenter,
             ExperimenterGroup defaultGroup, ExperimenterGroup... otherGroups) {
+
+        adminOrPiOfGroups(defaultGroup, otherGroups);
         
         long uid = roleProvider.createExperimenter(experimenter, defaultGroup, otherGroups);
         // If this method passes, then the Experimenter is valid.
         changeUserPassword(experimenter.getOmeName(), " ");
         getBeanHelper().getLogger().info(
-                "Created user with blank password: " + experimenter.getOmeName());
+                "Created user with blank password: "
+                + experimenter.getOmeName());
         return uid;
     }
 
-    @RolesAllowed("system")
+    @RolesAllowed("user")
     @SuppressWarnings("unchecked")
-    public long createExperimenterWithPassword(Experimenter experimenter,
-            String password, ExperimenterGroup defaultGroup,
-            ExperimenterGroup... otherGroups) {
+    public long createExperimenterWithPassword(final Experimenter experimenter,
+            final String password, final ExperimenterGroup defaultGroup,
+            final ExperimenterGroup... otherGroups) {
 
-        long uid = roleProvider.createExperimenter(experimenter, defaultGroup, otherGroups);
+        adminOrPiOfGroups(defaultGroup, otherGroups);
+
+        long uid = roleProvider.createExperimenter(experimenter,
+                        defaultGroup, otherGroups);
         // If this method passes, then the Experimenter is valid.
         changeUserPassword(experimenter.getOmeName(), password);
-
         getBeanHelper().getLogger().info(
                 "Created user with password: " + experimenter.getOmeName());
         return uid;
@@ -509,15 +534,19 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                         user.getId()).getOmeName(), Arrays.asList(groups)));
     }
 
-    @RolesAllowed("system")
-    public void removeGroups(Experimenter user, ExperimenterGroup... groups) {
+    @RolesAllowed("user")
+    public void removeGroups(final Experimenter user, final ExperimenterGroup... groups) {
         if (user == null) {
             return;
         }
         if (groups == null) {
             return;
         }
+
+        adminOrPiOfGroups(null, groups);
+
         roleProvider.removeGroups(user, groups);
+
         getBeanHelper().getLogger().info(
                 String.format("Removed user %s from groups %s", user, groups));
     }
@@ -555,25 +584,29 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     }
 
-    @RolesAllowed("system")
-    public void setGroupOwner(ExperimenterGroup group, Experimenter owner) {
+    @RolesAllowed("user")
+    public void setGroupOwner(final ExperimenterGroup group, final Experimenter owner) {
+        adminOrPiOfGroup(group);
         toggleGroupOwner(group, owner, Boolean.TRUE);
     }
 
-    @RolesAllowed("system")
-    public void unsetGroupOwner(ExperimenterGroup group, Experimenter owner) {
+    @RolesAllowed("user")
+    public void unsetGroupOwner(final ExperimenterGroup group, final Experimenter owner) {
+        adminOrPiOfGroup(group);
         toggleGroupOwner(group, owner, Boolean.TRUE);
     }
     
-    @RolesAllowed("system")
-    public void addGroupOwners(ExperimenterGroup group, Experimenter... owner) {
+    @RolesAllowed("user")
+    public void addGroupOwners(final ExperimenterGroup group, final Experimenter... owner) {
+        adminOrPiOfGroup(group);
         for (Experimenter o : owner) {
             toggleGroupOwner(group, o, true);
         }
     }
 
-    @RolesAllowed("system")
-    public void removeGroupOwners(ExperimenterGroup group, Experimenter... owner) {
+    @RolesAllowed("user")
+    public void removeGroupOwners(final ExperimenterGroup group, final Experimenter... owner) {
+        adminOrPiOfGroup(group);
         for (Experimenter o : owner) {
             toggleGroupOwner(group, o, false);
         }
@@ -606,8 +639,11 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             m = findLink(group, owner);
         }
         m.setOwner(value);
-        iUpdate.flush();
-
+        getSecuritySystem().runAsAdmin(new AdminAction() {
+            public void runAsAdmin() {
+                iUpdate.flush();
+            }
+        });
         getBeanHelper().getLogger().info(
                 String.format("%s user %s as owner of group %s",
                         value ? "Setting" : "Unsetting",
@@ -643,9 +679,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         return g;
     }
 
-    @RolesAllowed("system")
+    @RolesAllowed("user")
     public void deleteExperimenter(Experimenter user) {
-        Experimenter e = userProxy(user.getId());
+
+        adminOrPiOfUser(user);
+
+        final Experimenter e = userProxy(user.getId());
         int count = jdbc.update(
                 "delete from password where experimenter_id = ?", e.getId());
 
@@ -655,15 +694,26 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                             + ". Cannot delete.");
         }
 
-        iUpdate.deleteObject(e);
+        getSecuritySystem().runAsAdmin(new AdminAction() {
+            public void runAsAdmin() {
+                iUpdate.deleteObject(e);
+            }
+        });
         getBeanHelper().getLogger().info("Deleted user: " + e.getOmeName());
     }
 
-    @RolesAllowed("system")
+    @RolesAllowed("user")
     public void deleteGroup(ExperimenterGroup group) {
-        ExperimenterGroup g = groupProxy(group.getId());
 
-        iUpdate.deleteObject(g);
+        adminOrPiOfGroup(group);
+
+        final ExperimenterGroup g = groupProxy(group.getId());
+
+        getSecuritySystem().runAsAdmin(new AdminAction() {
+            public void runAsAdmin() {
+                iUpdate.deleteObject(g);
+            }
+        });
         getBeanHelper().getLogger().info("Deleted group: " + g.getName());
     }
 
@@ -973,8 +1023,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         _changePassword(user, newPassword);
     }
 
-    @RolesAllowed("system")
-    public void changeUserPassword(String user, String newPassword) {
+    @RolesAllowed("user")
+    public void changeUserPassword(final String user, final String newPassword) {
+        adminOrPiOfUser(userProxy(user));
         _changePassword(user, newPassword);
     }
 
@@ -1210,4 +1261,68 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         }
         executeUpdate(s, "experimentergroup", internal, "id = " + id);
     }
+
+    // ticket:1781 - group-owner admin privileges
+    // =========================================================================
+
+    private boolean isAdmin() {
+        return getEventContext().isCurrentUserAdmin();
+    }
+
+    private boolean isPiOf(Experimenter user) {
+        if (user == null) {
+            return true;
+        }
+        List<Long> userIn = getMemberOfGroupIds(user);
+        List<Long> piOf = getEventContext().getLeaderOfGroupsList();
+        for (Long id : piOf) {
+            if (userIn.contains(id)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isPiOf(ExperimenterGroup group) {
+        if (group == null) {
+            return true;
+        }
+        EventContext ec = getEventContext();
+        List<Long> piOf = ec.getLeaderOfGroupsList();
+        return piOf.contains(group.getId());
+    }
+
+    private void throwNonAdminOrPi() {
+        String msg = "Current user is neither admin nor group-leader for " +
+            "the given user(s)/group(s)";
+        throw new SecurityViolation(msg);
+    }
+
+    private void adminOrPiOfUser(Experimenter user) {
+        if (!isAdmin() && ! isPiOf(user)) {
+            throwNonAdminOrPi();
+        }
+    }
+
+    private void adminOrPiOfGroup(ExperimenterGroup group) {
+        if (!isAdmin() && ! isPiOf(group)) {
+            throwNonAdminOrPi();
+        }
+    }
+
+    private void adminOrPiOfGroups(ExperimenterGroup group, ExperimenterGroup ... groups) {
+        if (!isAdmin()) {
+            if (!isPiOf(group)) {
+                throwNonAdminOrPi();
+            } else {
+                for (ExperimenterGroup g : groups) {
+                    if (!isPiOf(g)) {
+                        throwNonAdminOrPi();
+                    }
+                }
+            }
+
+        }
+    }
+
 }

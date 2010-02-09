@@ -77,6 +77,12 @@ public class PermissionsTest extends AbstractManagedContextTest {
             Principal principal = new Principal(uuid);
             sessionManager.setSecurityContext(principal, fixture.group());
         }
+
+        void make_leader() {
+            loginRoot();
+            iAdmin.addGroupOwners(fixture.group(), fixture.user);
+            fixture.log_in();
+        }
     }
 
     protected Fixture fixture;

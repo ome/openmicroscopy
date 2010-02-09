@@ -49,6 +49,7 @@ public class SetGroupPermissionsTest extends PermissionsTest {
         Image image = fixture.saveImage();
         ExperimenterGroup group = fixture.group();
         group.getDetails().setPermissions(Permissions.SHARED);
+        loginRootKeepGroup();
         iAdmin.updateGroup(group);
         assertShared(fixture.group());
         assertShared(image);
