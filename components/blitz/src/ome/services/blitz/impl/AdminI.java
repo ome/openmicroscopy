@@ -7,15 +7,15 @@
 
 package ome.services.blitz.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import static omero.rtypes.rlist;
+import static omero.rtypes.rmap;
+
 import java.util.List;
 import java.util.Map;
 
 import ome.api.IAdmin;
 import ome.services.blitz.util.BlitzExecutor;
 import omero.RString;
-import omero.RType;
 import omero.ServerError;
 import omero.api.AMD_IAdmin_addGroupOwners;
 import omero.api.AMD_IAdmin_addGroups;
@@ -39,6 +39,8 @@ import omero.api.AMD_IAdmin_getDefaultGroup;
 import omero.api.AMD_IAdmin_getEventContext;
 import omero.api.AMD_IAdmin_getExperimenter;
 import omero.api.AMD_IAdmin_getGroup;
+import omero.api.AMD_IAdmin_getLeaderOfGroupIds;
+import omero.api.AMD_IAdmin_getMemberOfGroupIds;
 import omero.api.AMD_IAdmin_getSecurityRoles;
 import omero.api.AMD_IAdmin_lookupExperimenter;
 import omero.api.AMD_IAdmin_lookupExperimenters;
@@ -66,8 +68,6 @@ import omero.model.Permissions;
 import omero.util.IceMapper;
 import Ice.Current;
 import Ice.UserException;
-
-import static omero.rtypes.*;
 
 /**
  * Implementation of the {@link omero.api.IAdmin} service.
@@ -250,6 +250,7 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
         callInvokerOnRawArgs(__cb, __current, id);
     }
 
+    @SuppressWarnings("unchecked")
     public void lookupLdapAuthExperimenters_async(
             AMD_IAdmin_lookupLdapAuthExperimenters __cb, Current __current)
             throws ServerError {
@@ -355,4 +356,16 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
         callInvokerOnRawArgs(__cb, __current, group, owners);
     }
 
+    public void getLeaderOfGroupIds_async(AMD_IAdmin_getLeaderOfGroupIds __cb,
+            Experimenter exp, Current __current) throws ServerError {
+        // TODO Auto-generated method stub
+        callInvokerOnRawArgs(__cb, __current, exp);        
+    }
+
+    public void getMemberOfGroupIds_async(AMD_IAdmin_getMemberOfGroupIds __cb,
+            Experimenter exp, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, exp);                
+    }
+
+    
 }

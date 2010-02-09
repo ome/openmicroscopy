@@ -60,28 +60,6 @@ public interface LocalAdmin extends ome.api.IAdmin {
     ExperimenterGroup groupProxy(String groupName);
 
     /**
-     * Finds the ids for all groups for which the given {@link Experimenter} is
-     * owner/leader.
-     * 
-     * @param e
-     *            Non-null, managed (i.e. with id) {@link Experimenter}
-     * @see ExperimenterGroup#getDetails()
-     * @see Details#getOwner()
-     */
-    List<Long> getLeaderOfGroupIds(Experimenter e);
-
-    /**
-     * Finds the ids for all groups for which the given {@link Experimenter} is
-     * a member.
-     * 
-     * @param e
-     *            Non-null, managed (i.e. with id) {@link Experimenter}
-     * @see ExperimenterGroup#getDetails()
-     * @see Details#getOwner()
-     */
-    List<Long> getMemberOfGroupIds(Experimenter e);
-
-    /**
      * Finds the group names for all groups for which the given {@link Experimenter} is
      * a member.
      * 

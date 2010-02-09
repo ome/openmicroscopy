@@ -135,6 +135,8 @@ module omero {
 	    idempotent omero::model::ExperimenterGroup getDefaultGroup(long experimenterId) throws ServerError;
 	    idempotent string lookupLdapAuthExperimenter(long id) throws ServerError;
 	    idempotent RList lookupLdapAuthExperimenters() throws ServerError;
+	    idempotent LongList getMemberOfGroupIds(omero::model::Experimenter exp) throws ServerError;
+	    idempotent LongList getLeaderOfGroupIds(omero::model::Experimenter exp) throws ServerError;
 
 	    // Mutators
 

@@ -196,13 +196,14 @@ class TestAdmin(lib.ITest):
         #set owner of the group (user is not a member of)
         admin.addGroupOwners(gr1, [exp1])
         # chech if is the leader
-        ec = admin.getEventContext()
-        self.assertTrue(gr1.id.val in ec.leaderOfGroups())
+        leaderOfGroups = admin.getLeaderOfGroupIds(exp1)
+        self.assertTrue(gr1.id.val in leaderOfGroups)
 
         # remove group owner
         admin.removeGroupOwners(gr1, [exp1])
         # chech if no longer is the leader
-        self.assertFalse(gr1.id.val in ec.leaderOfGroups())
+        leaderOfGroups = admin.getLeaderOfGroupIds(exp1)
+        self.assertFalse(gr1.id.val in leaderOfGroups)
 
         '''
         Controller method shows how it is used in practice
