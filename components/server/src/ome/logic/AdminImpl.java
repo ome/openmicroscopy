@@ -10,6 +10,7 @@ package ome.logic;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -460,8 +461,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         // logged via createExperimenter
 
         final ExperimenterGroup proxy = groupProxy(defaultGroup);
-        adminOrPiOfGroup(proxy);
-
+        // logged & secured via createExperimenter
         return createExperimenter(newUser, proxy, groupProxy(sec
                     .getSecurityRoles().getUserGroupName()));
 
@@ -469,7 +469,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     @RolesAllowed("system")
     public long createSystemUser(Experimenter newSystemUser) {
-        // logged via createExperimenter
+        // logged & secured via createExperimenter
         return createExperimenter(newSystemUser,
                 groupProxy(sec.getSecurityRoles().getSystemGroupName()),
                 groupProxy(sec.getSecurityRoles().getUserGroupName()));
@@ -480,7 +480,14 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     public long createExperimenter(final Experimenter experimenter,
             ExperimenterGroup defaultGroup, ExperimenterGroup... otherGroups) {
 
-        adminOrPiOfGroups(defaultGroup, otherGroups);
+        Set<ExperimenterGroup> nonUserGroupGroups = new HashSet<ExperimenterGroup>();
+        for (ExperimenterGroup eg : otherGroups) {
+            if (!eg.getId().equals(getSecurityRoles().getUserGroupId())) {
+                nonUserGroupGroups.add(eg);
+            }
+        }
+        adminOrPiOfGroups(defaultGroup,
+                nonUserGroupGroups.toArray(new ExperimenterGroup[0]));
         
         long uid = roleProvider.createExperimenter(experimenter, defaultGroup, otherGroups);
         // If this method passes, then the Experimenter is valid.
@@ -593,14 +600,14 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @RolesAllowed("user")
     public void unsetGroupOwner(final ExperimenterGroup group, final Experimenter owner) {
         adminOrPiOfGroup(group);
-        toggleGroupOwner(group, owner, Boolean.TRUE);
+        toggleGroupOwner(group, owner, Boolean.FALSE);
     }
     
     @RolesAllowed("user")
     public void addGroupOwners(final ExperimenterGroup group, final Experimenter... owner) {
         adminOrPiOfGroup(group);
         for (Experimenter o : owner) {
-            toggleGroupOwner(group, o, true);
+            toggleGroupOwner(group, o, Boolean.TRUE);
         }
     }
 
@@ -608,7 +615,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     public void removeGroupOwners(final ExperimenterGroup group, final Experimenter... owner) {
         adminOrPiOfGroup(group);
         for (Experimenter o : owner) {
-            toggleGroupOwner(group, o, false);
+            toggleGroupOwner(group, o, Boolean.FALSE);
         }
     }
 
@@ -1287,6 +1294,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         if (group == null) {
             return true;
         }
+
         EventContext ec = getEventContext();
         List<Long> piOf = ec.getLeaderOfGroupsList();
         return piOf.contains(group.getId());

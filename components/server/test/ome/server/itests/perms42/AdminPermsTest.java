@@ -34,14 +34,116 @@ public class AdminPermsTest extends PermissionsTest {
     // updateExperimenter
     // updateExperimenterWithPassword
     // updateGroup
-    // createUser
-    // createExperimenter
-    // createExperimenterWithPassword
-    // removeGroups
-    // setGroupOwner
-    // unsetGroupOwner
-    // addGroupOwners
-    // removeGroupOwners
+
+    @Test
+    public void testUser() {
+
+        // Non-member group to be used as dummy
+        loginRoot();
+        ExperimenterGroup g2 = newGroup();
+
+        setup(Permissions.PRIVATE);
+
+        Experimenter e = uuidUser();
+        try {
+            iAdmin.createUser(e, g2.getName());
+            fail("not in my group");
+        } catch (SecurityViolation sv) {
+            // good;
+        }
+        try {
+            iAdmin.createUser(e, fixture.groupName);
+            fail("my group, i'm not leader");
+        } catch (SecurityViolation sv) {
+            // good;
+        }
+
+        fixture.make_leader();
+
+        try {
+            iAdmin.createUser(e, g2.getName());
+            fail("still not in my group even thought i'm leader");
+        } catch (SecurityViolation sv) {
+            // good;
+        }
+
+        iAdmin.createUser(e, fixture.groupName);
+
+    }
+
+
+
+    @Test
+    public void testCreateExperimenterWithPassword() {
+
+        // Non-member group to be used as dummy
+        loginRoot();
+        ExperimenterGroup g2 = newGroup();
+
+        setup(Permissions.PRIVATE);
+
+        Experimenter e = uuidUser();
+        try {
+            iAdmin.createExperimenterWithPassword(e, "pass", g2);
+            fail("not in my group");
+        } catch (SecurityViolation sv) {
+            // good;
+        }
+        try {
+            iAdmin.createExperimenterWithPassword(e, "pass", fixture.group());
+            fail("my group, i'm not leader");
+        } catch (SecurityViolation sv) {
+            // good;
+        }
+
+        fixture.make_leader();
+
+        try {
+            iAdmin.createExperimenterWithPassword(e, "pass", g2);
+            fail("still not in my group even thought i'm leader");
+        } catch (SecurityViolation sv) {
+            // good;
+        }
+
+        iAdmin.createExperimenterWithPassword(e, "pass", fixture.group()); // Yes.
+
+    }
+
+    @Test
+    public void testCreateExperimenter() {
+
+        // Non-member group to be used as dummy
+        loginRoot();
+        ExperimenterGroup g2 = newGroup();
+
+        setup(Permissions.PRIVATE);
+
+        Experimenter e = uuidUser();
+        try {
+            iAdmin.createExperimenter(e, g2);
+            fail("not in my group");
+        } catch (SecurityViolation sv) {
+            // good;
+        }
+        try {
+            iAdmin.createExperimenter(e, fixture.group());
+            fail("my group, i'm not leader");
+        } catch (SecurityViolation sv) {
+            // good;
+        }
+
+        fixture.make_leader();
+
+        try {
+            iAdmin.createExperimenter(e, g2);
+            fail("still not in my group even thought i'm leader");
+        } catch (SecurityViolation sv) {
+            // good;
+        }
+
+        iAdmin.createExperimenter(e, fixture.group()); // Yes.
+
+    }
 
 
     @Test
@@ -113,21 +215,23 @@ public class AdminPermsTest extends PermissionsTest {
     }
 
     @Test
-    public void testCreateUserMakeOwnerAndRemoveAsOwner() throws Exception {
+    public void testCreateUserMakeOwnerAndRemoveAsOwnerWithAddRemove() throws Exception {
         setup(Permissions.PRIVATE);
 
         assertMembers(fixture.group(), fixture.user.getId());
         assertLeaders(fixture.group());
+        try { // Try to add self
+            iAdmin.addGroupOwners(fixture.group(), fixture.user);
+            fail("sec-vio");
+        } catch (SecurityViolation sv) {
+            // good
+        }
         loginRoot();
         iAdmin.addGroupOwners(fixture.group(), fixture.user);
         assertMembers(fixture.group(), fixture.user.getId());
         assertLeaders(fixture.group(), fixture.user.getId());
 
-        // Now add another user
-        Experimenter e2 = new Experimenter();
-        e2.setOmeName(uuid());
-        e2.setFirstName(uuid());
-        e2.setLastName(uuid());
+        Experimenter e2 = uuidUser();
         fixture.log_in();
         long uid = iAdmin.createExperimenter(e2, fixture.group());
         e2.setId(uid);
@@ -136,12 +240,49 @@ public class AdminPermsTest extends PermissionsTest {
         iAdmin.addGroupOwners(fixture.group(), e2);
         assertLeaders(fixture.group(), fixture.user.getId(), e2.getId());
 
-        // Now remove that new user
+        // 2. Now remove that new user
         iAdmin.removeGroupOwners(fixture.group(), e2);
         assertMembers(fixture.group(), fixture.user.getId(), e2.getId());
         assertLeaders(fixture.group(), fixture.user.getId());
+
+        // Finally, the one owner removes his/herself (valid)
+        iAdmin.removeGroupOwners(fixture.group(), fixture.user);
     }
 
+    @Test
+    public void testCreateUserMakeOwnerAndRemoveAsOwnerWithSetUnset() throws Exception {
+        setup(Permissions.PRIVATE);
+
+        assertMembers(fixture.group(), fixture.user.getId());
+        assertLeaders(fixture.group());
+        try { // Try to add self
+            iAdmin.setGroupOwner(fixture.group(), fixture.user);
+            fail("sec-vio");
+        } catch (SecurityViolation sv) {
+            // good
+        }
+        loginRoot();
+        iAdmin.setGroupOwner(fixture.group(), fixture.user);
+        assertMembers(fixture.group(), fixture.user.getId());
+        assertLeaders(fixture.group(), fixture.user.getId());
+
+        Experimenter e2 = uuidUser();
+        fixture.log_in();
+        long uid = iAdmin.createExperimenter(e2, fixture.group());
+        e2.setId(uid);
+
+        assertMembers(fixture.group(), fixture.user.getId(), e2.getId());
+        iAdmin.setGroupOwner(fixture.group(), e2);
+        assertLeaders(fixture.group(), fixture.user.getId(), e2.getId());
+
+        // 2. Now remove that new user
+        iAdmin.unsetGroupOwner(fixture.group(), e2);
+        assertMembers(fixture.group(), fixture.user.getId(), e2.getId());
+        assertLeaders(fixture.group(), fixture.user.getId());
+
+        // Finally, the one owner removes his/herself (valid)
+        iAdmin.unsetGroupOwner(fixture.group(), fixture.user);
+    }
     // Helpers
     // =========================================================================
 
@@ -178,4 +319,19 @@ public class AdminPermsTest extends PermissionsTest {
                 missing.size() ==  0 && extra.size() == 0);
     }
 
+
+    private Experimenter uuidUser() {
+        Experimenter e = new Experimenter();
+        e.setOmeName(uuid());
+        e.setFirstName(uuid());
+        e.setLastName(uuid());
+        return e;
+    }
+
+    private ExperimenterGroup newGroup() {
+        ExperimenterGroup g2 = new ExperimenterGroup();
+        g2.setName(uuid());
+        g2 = iAdmin.getGroup(iAdmin.createGroup(g2));
+        return g2;
+    }
 }
