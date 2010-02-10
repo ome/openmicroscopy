@@ -425,6 +425,7 @@ class MetadataViewerComponent
 			if (fa.getId() > 0) {
 				toSave.add(data);
 				model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave);
+				fireStateChange();
 			} else {
 				FileDataRegistration r = new FileDataRegistration(toAdd, 
 						toRemove, toDelete, metadata, data);

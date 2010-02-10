@@ -55,6 +55,9 @@ import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
+import omero.model.OriginalFile;
+import omero.model.OriginalFileAnnotationLink;
+import omero.model.OriginalFileAnnotationLinkI;
 import omero.model.Plate;
 import omero.model.PlateAnnotationLink;
 import omero.model.PlateAnnotationLinkI;
@@ -506,6 +509,12 @@ public class ModelMapper
     		Well m = (Well) annotatedObject;
     		WellAnnotationLink l = new WellAnnotationLinkI();
     		l.setParent(m);
+    		l.setChild(annotation);
+    		return l;
+    	} else if (annotatedObject instanceof OriginalFile) {
+    		OriginalFile of = (OriginalFile) annotatedObject;
+    		OriginalFileAnnotationLink l = new OriginalFileAnnotationLinkI();
+    		l.setParent(of);
     		l.setChild(annotation);
     		return l;
     	}

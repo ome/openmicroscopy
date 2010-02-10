@@ -409,22 +409,6 @@ class OmeroMetadataServiceImpl
 					fa.setFile(of);
 					iobject = fa;
 				} else {
-					/*
-					if (ann instanceof TagAnnotationData) {
-						IObject r = gateway.createObject(
-								ModelMapper.createAnnotation(ann), map);
-						tag = (TagAnnotationData) ann;
-						desc = tag.getTagDescription();
-						if (desc != null) {
-							link = ModelMapper.createAnnotationAndLink(r, desc);
-							if (link != null) 
-								gateway.createObject(link, map);
-						}
-						data = PojoMapper.asDataObject(r);
-						if (data != null)
-							annotations.add((AnnotationData) data);
-					} else 
-					*/
 					iobject = ModelMapper.createAnnotation(ann);
 				} 
 				if (iobject != null)

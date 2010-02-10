@@ -1559,6 +1559,7 @@ class BrowserComponent
 			TreeViewerAgent.getRegistry().getLogger().error(this, msg);
 			return false;
 		}
+		view.repaint();
 		return true;
 	}
 	
