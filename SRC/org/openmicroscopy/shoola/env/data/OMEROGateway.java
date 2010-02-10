@@ -6140,4 +6140,82 @@ class OMEROGateway
 		return pojos;
 	}
 	
+	/**
+	 * Deletes the specified experimenters. Returns the experimenters 
+	 * that could not be deleted.
+	 * 
+	 * @param experimenters The experimenters to delete.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List<ExperimenterData> deleteExperimenters(
+			List<ExperimenterData> experimenters)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		List<ExperimenterData> r = new ArrayList<ExperimenterData>();
+		IAdminPrx svc = getAdminService();
+		Iterator<ExperimenterData> i = experimenters.iterator();
+		ExperimenterData exp;
+		while (i.hasNext()) {
+			exp = i.next();
+			try {
+				svc.deleteExperimenter(exp.asExperimenter());
+			} catch (Exception e) {
+				r.add(exp);
+			}
+		}
+		return r;
+	}
+	
+	/**
+	 * Deletes the specified groups. Returns the groups that could not be 
+	 * deleted.
+	 * 
+	 * @param groups The groups to delete.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List<GroupData> deleteGroups(List<GroupData> groups)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		List<GroupData> r = new ArrayList<GroupData>();
+		IAdminPrx svc = getAdminService();
+		Iterator<GroupData> i = groups.iterator();
+		GroupData g;
+		while (i.hasNext()) {
+			g = i.next();
+			try {
+				svc.deleteGroup(g.asGroup());
+			} catch (Exception e) {
+				r.add(g);
+			}
+		}
+		return r;
+	}
+	
+	/**
+	 * Invokes when the user has forgotten his/her password.
+	 * 
+	 * @param userName The login name.
+	 * @param email The e-mail if set.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	void reportForgottenPassword(String userName, String email)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		//root need to login and send an e-mail.
+		
+	}
+	
 }

@@ -22,21 +22,22 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.openmicroscopy.shoola.env.data.AdminService;
-import org.openmicroscopy.shoola.env.data.model.AdminObject;
-import org.openmicroscopy.shoola.env.data.views.BatchCall;
-import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-
-import pojos.ExperimenterData;
 
 //Java imports
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.AdminService;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.views.BatchCall;
+import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import pojos.DataObject;
+import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * 
@@ -54,11 +55,45 @@ import pojos.ExperimenterData;
 public class AdminSaver extends BatchCallTree
 {
 
+	/** Indicates to delete the objects. */
+	public static final int DELETE = 0;
+	
     /** The result of the call. */
     private Object		result;
     
     /** Loads the specified experimenter groups. */
     private BatchCall   loadCall;
+    
+    /**
+     * Creates a {@link BatchCall} to delete the objects.
+     * 
+	 * @param objects	The objects to handle.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall deleteObjects(final List<DataObject> objects)
+    {
+        return new BatchCall("Delete objects") {
+            public void doCall() throws Exception
+            {
+            	AdminService os = context.getAdminService();
+            	if (objects.get(0) instanceof GroupData) {
+            		List<GroupData> groups = new ArrayList<GroupData>();
+            		Iterator<DataObject> i = objects.iterator();
+            		while (i.hasNext()) {
+						groups.add((GroupData) i.next());
+					}
+            		os.deleteGroups(groups);
+            	} else if (objects.get(0) instanceof ExperimenterData) {
+            		List<ExperimenterData> l = new ArrayList<ExperimenterData>();
+            		Iterator<DataObject> i = objects.iterator();
+            		while (i.hasNext()) {
+						l.add((ExperimenterData) i.next());
+					}
+            		os.deleteExperimenters(l);
+            	}
+            }
+        };
+    }
     
     /**
      * Creates a {@link BatchCall} to create experimenters.
@@ -121,6 +156,22 @@ public class AdminSaver extends BatchCallTree
 				break;
 			case AdminObject.CREATE_GROUP:
 				loadCall = createGroup(object);
+				break;
+		}
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param objects The objects to handle. Mustn't be <code>null</code>.
+     */
+    public AdminSaver(List<DataObject> objects, int index)
+    {
+    	if (objects == null || objects.size() == 0)
+    		throw new IllegalArgumentException("No objects to handle");
+    	switch (index) {
+			case DELETE:
+				loadCall = deleteObjects(objects);
 				break;
 		}
     }

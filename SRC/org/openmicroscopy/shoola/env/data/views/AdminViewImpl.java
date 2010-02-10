@@ -28,11 +28,16 @@ package org.openmicroscopy.shoola.env.data.views;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.List;
+
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.views.calls.AdminLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AdminSaver;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+
+import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * Implementation of the {@link AdminView} implementation.
@@ -127,5 +132,16 @@ class AdminViewImpl
 		BatchCallTree cmd = new AdminLoader(groupID, AdminLoader.EXPERIMENTERS);
 		return cmd.exec(observer);
 	}
-	
+
+	/**
+	 * Implemented as specified by the {@link AdminView} interface.
+	 * @see AdminView#deleteObjects(List, AgentEventListener)
+	 */
+	public CallHandle deleteObjects(List<DataObject> objects,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new AdminSaver(objects, AdminSaver.DELETE);
+		return cmd.exec(observer);
+	}
+
 }

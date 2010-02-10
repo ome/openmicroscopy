@@ -189,4 +189,33 @@ public interface AdminService
 	public List<ExperimenterData> loadExperimenters(long id)
 		throws DSOutOfServiceException, DSAccessException;
 	
+	/**
+	 * Deletes the specified experimenters. Returns the experimenters 
+	 * that could not be deleted.
+	 * 
+	 * @param experimenters The experimenters to delete.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public List<ExperimenterData> deleteExperimenters(
+			List<ExperimenterData> experimenters)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Deletes the specified groups. Returns the groups 
+	 * that could not be deleted.
+	 * 
+	 * @param groups The groups to delete.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public List<GroupData> deleteGroups(List<GroupData> groups)
+		throws DSOutOfServiceException, DSAccessException;
+	
 }

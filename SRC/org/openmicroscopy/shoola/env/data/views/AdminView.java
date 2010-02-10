@@ -28,9 +28,16 @@ package org.openmicroscopy.shoola.env.data.views;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.List;
+
+import org.openmicroscopy.shoola.env.data.DSAccessException;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+
+import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * Provides method to handle groups and users.
@@ -117,6 +124,17 @@ public interface AdminView
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadExperimenters(long groupID, 
+			AgentEventListener observer);
+
+	/**
+	 * Deletes the specified experimenters or groups. Returns the experimenters
+	 * or groups that could not be deleted.
+	 * 
+	 * @param experimenters The experimenters to delete.
+	 * @param observer	Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle deleteObjects(List<DataObject> objects,
 			AgentEventListener observer);
 	
 }

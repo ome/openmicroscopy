@@ -221,7 +221,7 @@ class AdminServiceImpl
 	 * @see AdminService#createExperimenters(AdminObject)
 	 */
 	public List<ExperimenterData> createExperimenters(AdminObject object)
-			throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		if (object == null)
 			throw new IllegalArgumentException("No object.");
@@ -236,7 +236,7 @@ class AdminServiceImpl
 	 * @see AdminService#createGroup(AdminObject)
 	 */
 	public GroupData createGroup(AdminObject object)
-			throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		if (object == null)
 			throw new IllegalArgumentException("No object.");
@@ -250,7 +250,7 @@ class AdminServiceImpl
 	 * @see AdminService#loadExperimenters(long)
 	 */
 	public List<ExperimenterData> loadExperimenters(long id)
-			throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		List<ExperimenterData> l = new ArrayList<ExperimenterData>();
 		return l;
@@ -261,9 +261,34 @@ class AdminServiceImpl
 	 * @see AdminService#loadGroups(long)
 	 */
 	public List<GroupData> loadGroups(long id) 
-			throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		return gateway.loadGroups(id);
+	}
+	
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#deleteExperimenters(List)
+	 */
+	public List<ExperimenterData> deleteExperimenters(
+			List<ExperimenterData> experimenters)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (experimenters == null || experimenters.size() == 0)
+			throw new IllegalArgumentException("No experimenters to delete.");
+		return gateway.deleteExperimenters(experimenters);
+	}
+	
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#deleteGroups(List)
+	 */
+	public List<GroupData> deleteGroups(List<GroupData> groups)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (groups == null || groups.size() == 0)
+			throw new IllegalArgumentException("No groups to delete.");
+		return gateway.deleteGroups(groups);
 	}
 	
 }
