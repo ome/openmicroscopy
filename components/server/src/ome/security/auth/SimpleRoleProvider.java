@@ -13,7 +13,6 @@ import java.util.Set;
 
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
-import ome.model.IObject;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
@@ -23,6 +22,7 @@ import ome.model.meta.GroupExperimenterMap;
 import ome.security.SecureAction;
 import ome.security.SecuritySystem;
 import ome.tools.hibernate.HibernateUtils;
+import ome.tools.hibernate.SecureMerge;
 import ome.tools.hibernate.SessionFactory;
 
 import org.apache.commons.logging.Log;
@@ -261,17 +261,5 @@ public class SimpleRoleProvider implements RoleProvider {
 
     private ExperimenterGroup groupById(long id, Session s) {
         return (ExperimenterGroup) s.load(ExperimenterGroup.class, id);
-    }
-
-    private final class SecureMerge implements SecureAction {
-        private final Session session;
-
-        private SecureMerge(Session session) {
-            this.session = session;
-        }
-
-        public <T extends IObject> T updateObject(T... objs) {
-            return (T) session.merge(objs[0]);
-        }
     }
 }

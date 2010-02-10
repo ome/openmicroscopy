@@ -65,6 +65,7 @@ import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.system.SimpleEventContext;
 import ome.tools.hibernate.QueryBuilder;
+import ome.tools.hibernate.SecureMerge;
 import ome.util.Utils;
 
 import org.apache.commons.logging.Log;
@@ -110,6 +111,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     protected final SessionFactory sf;
 
+    protected final ome.tools.hibernate.SessionFactory osf;
+
     protected final MailSender mailSender;
 
     protected final SimpleMailMessage templateMessage;
@@ -138,6 +141,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         this.aclVoter = aclVoter;
         this.passwordProvider = passwordProvider;
         this.roleProvider = roleProvider;
+        this.osf = new ome.tools.hibernate.SessionFactory(sf);
     }
 
     public Class<? extends ServiceInterface> getServiceInterface() {
@@ -412,11 +416,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     Experimenter experimenter) {
         adminOrPiOfUser(experimenter);
         String name = experimenter.getOmeName();
-        getSecuritySystem().runAsAdmin(new AdminAction() {
-            public void runAsAdmin() {
-                iUpdate.saveObject(experimenter);
-            }
-        });
+        copyAndSaveExperimenter(experimenter);
         getBeanHelper().getLogger().info("Updated user info for " + name);
     }
 
@@ -424,35 +424,43 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     public void updateExperimenterWithPassword(@NotNull final
     Experimenter experimenter, final String password) {
         adminOrPiOfUser(experimenter);
-        final String name = experimenter.getOmeName();
-        getSecuritySystem().runAsAdmin(new AdminAction() {
-            public void runAsAdmin() {
-                iUpdate.saveObject(experimenter);
-                changeUserPassword(name, password);
-            }
-        });
+        copyAndSaveExperimenter(experimenter);
+        final Experimenter orig = userProxy(experimenter.getId());
+        String name = orig.getOmeName();
+        changeUserPassword(name, password);
         getBeanHelper().getLogger().info(
                 "Updated user info and password for " + name);
+    }
+
+    /**
+     * @param experimenter
+     */
+    private void copyAndSaveExperimenter(final Experimenter experimenter) {
+        final Experimenter orig = userProxy(experimenter.getId());
+        orig.setOmeName(experimenter.getOmeName());
+        orig.setEmail(experimenter.getEmail());
+        orig.setFirstName(experimenter.getFirstName());
+        orig.setLastName(experimenter.getLastName());
+        orig.setInstitution(experimenter.getInstitution());
+        reallySafeSave(orig);
     }
 
     @RolesAllowed("user")
     public void updateGroup(@NotNull final
     ExperimenterGroup group) {
         adminOrPiOfGroup(group);
-        getSecuritySystem().runAsAdmin(new AdminAction() {
-            public void runAsAdmin() {
-                Permissions p = group.getDetails().getPermissions();
-                if (p != null) {
-                    // Setting permissions is not allowed via IUpdate
-                    // so use the logic in changePermissions and then
-                    // reset permissions to the current value.
-                    changePermissions(group, p); // ticket:1776 WORKAROUND
-                    p = getGroup(group.getId()).getDetails().getPermissions();
-                    group.getDetails().setPermissions(p);
-                }
-                iUpdate.saveObject(group);
-            }
-        });
+        Permissions p = group.getDetails().getPermissions();
+        if (p != null) {
+            // Setting permissions is not allowed via IUpdate
+            // so use the logic in changePermissions and then
+            // reset permissions to the current value.
+            changePermissions(group, p); // ticket:1776 WORKAROUND
+        }
+        final ExperimenterGroup orig = getGroup(group.getId());
+        orig.setName(group.getName());
+        orig.setDescription(group.getDescription());
+
+        reallySafeSave(orig);
         getBeanHelper().getLogger().info("Updated group info for " + group);
     }
 
@@ -788,6 +796,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
         // ticket:1434
         if (iObject instanceof ExperimenterGroup) {
+            adminOrPiOfGroup((ExperimenterGroup) iObject);
             handleGroupChange(iObject.getId(), perms);
             return; // EARLY EXIT!
         }
@@ -1239,7 +1248,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             throw new ApiUsageException("PERMS cannot be null");
         }
 
-        final Session s = new ome.tools.hibernate.SessionFactory(sf).getSession();
+        final Session s = osf.getSession();
         final ExperimenterGroup group = (ExperimenterGroup) s.get(ExperimenterGroup.class, id);
         final Permissions oldPerms = group.getDetails().getPermissions();
 
@@ -1271,6 +1280,22 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     // ticket:1781 - group-owner admin privileges
     // =========================================================================
+
+    /**
+     * Saves an object as admin.
+     *
+     * Due to the disabling of the MergeEventListener, it is necessary to
+     * jump through several hoops to get non-admin saving of system types
+     * to work properly.
+     */
+    private void reallySafeSave(final IObject obj) {
+        final Session session = osf.getSession();
+        sec.doAction(new SecureMerge(session), obj);
+        sec.runAsAdmin(new AdminAction(){
+            public void runAsAdmin() {
+                session.flush();
+            }});
+    }
 
     private boolean isAdmin() {
         return getEventContext().isCurrentUserAdmin();

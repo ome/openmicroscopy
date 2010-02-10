@@ -28,15 +28,57 @@ import org.testng.annotations.Test;
 @Test(groups = "ticket:1434")
 public class AdminPermsTest extends PermissionsTest {
 
-
-    // METHODS:
-    // --------------------
-    // updateExperimenter
-    // updateExperimenterWithPassword
-    // updateGroup
+    @Test
+    public void testUpdateSelf() {
+        setup(Permissions.PRIVATE);
+        fixture.user.setEmail(uuid());
+        iAdmin.updateSelf(fixture.user);
+    }
 
     @Test
-    public void testUser() {
+    public void testUpdateExperimenter() {
+        setup(Permissions.PRIVATE);
+        Experimenter other = loginNewUserInOtherUsersGroup(fixture.user);
+        fixture.log_in();
+
+        try {
+            other.setEmail(uuid());
+            iAdmin.updateExperimenter(other);
+            fail("sec-vio");
+        } catch (SecurityViolation sv) {
+            // goood
+        }
+
+        try {
+            other.setEmail(uuid());
+            iAdmin.updateExperimenterWithPassword(other, uuid());
+            fail("sec-vio");
+        } catch (SecurityViolation sv) {
+            // goood
+        }
+
+        fixture.make_leader();
+
+        other.setEmail(uuid());
+        iAdmin.updateExperimenter(other);
+
+        other.setEmail(uuid());
+        iAdmin.updateExperimenterWithPassword(other, uuid());
+
+    }
+
+    @Test
+    public void testUpdateGroup() {
+        setup(Permissions.PRIVATE);
+        fixture.make_leader();
+        ExperimenterGroup g = fixture.group();
+        g.setName(uuid());
+        // g.getDetails().setPermissions(Permissions.SHARED);
+        iAdmin.updateGroup(g);
+    }
+
+    @Test
+    public void testCreateUser() {
 
         // Non-member group to be used as dummy
         loginRoot();

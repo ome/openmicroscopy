@@ -214,8 +214,8 @@ public interface IAdmin extends ServiceInterface {
     Experimenter experimenter);
 
     /**
-     * Updates an experimenter as admin. All aspects of the passed object are
-     * taken into account including omeName, groups, and default group.
+     * Updates an experimenter if admin or owner of group.
+     * Only string fields on the object are taken into account.
      * 
      * @param experimenter
      *            the Experimenter to update.
@@ -224,8 +224,8 @@ public interface IAdmin extends ServiceInterface {
     Experimenter experimenter);
 
     /**
-     * Updates an experimenter as admin. All aspects of the passed object are
-     * taken into account including omeName, groups, and default group.
+     * Updates an experimenter if admin or owner of group.
+     * Only string fields on the object are taken into account.
      * 
      * @param experimenter
      *            the Experimenter to update.
@@ -237,8 +237,8 @@ public interface IAdmin extends ServiceInterface {
     String password);
     
     /**
-     * Updates a group. All aspects of the passed object are taken into account
-     * including group name and the included users.
+     * Updates an experimenter group if admin or owner of group.
+     * Only string fields on the object are taken into account.
      * 
      * @param group
      *            the ExperimenterGroup to update.
