@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.env.data.FSFileSystemView;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.FileData;
 import pojos.ImageData;
 
 /** 
@@ -702,6 +703,19 @@ public interface Browser
 	 */
 	void setRepositories(TreeImageDisplay expNode, FSFileSystemView systemView);
 	
+	/** 
+	 * Sets the groups.
+	 * 
+	 * @param groups The groups to set.
+	 */
 	void setGroups(Collection groups);
+
+	/** 
+	 * Registers the specified the file. Returns <code>true</code>
+	 * if the file has been registered, <code>false</code> otherwise.
+	 * 
+	 * @param file The file to register.
+	 */
+	boolean register(FileData file);
 	
 }

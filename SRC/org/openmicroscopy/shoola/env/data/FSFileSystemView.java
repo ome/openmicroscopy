@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.util.FSFileSystemView 
+ * org.openmicroscopy.shoola.env.data.FSFileSystemView 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,10 @@ import javax.swing.filechooser.FileSystemView;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.RString;
 import omero.grid.RepositoryPrx;
+import omero.model.Format;
+import omero.model.FormatI;
 import omero.model.OriginalFile;
 import pojos.FileData;
 
@@ -54,7 +58,6 @@ import pojos.FileData;
  * @since 3.0-Beta4
  */
 public class FSFileSystemView 
-	//extends FileSystemView
 {
 
 	/** Reference to the repositories. */
@@ -80,7 +83,7 @@ public class FSFileSystemView
 			data = (FileData) entry.getKey();
 			path = data.getAbsolutePath();
 			if (refPath.startsWith(path)) 
-					return (RepositoryPrx) entry.getValue();
+				return (RepositoryPrx) entry.getValue();
 		}
     	return null;
     }
@@ -138,6 +141,33 @@ public class FSFileSystemView
     }
     
     /**
+     * Registers the passed file. Returns the updated file object.
+     * 
+     * @param file The file to register.
+     * @return
+     */
+    public FileData register(FileData file)
+    	throws FSAccessException
+    {
+    	if (file == null) return null;
+    	RepositoryPrx proxy = getRepository(file);
+    	if (proxy == null) return null;
+    	try {
+    		OriginalFile of = proxy.registerOriginalFile(
+        			(OriginalFile) file.asIObject());
+    		//Format f = new FormatI();
+    		//f.setValue(omero.rtypes.rstring("/text/plain"));
+    		//OriginalFile of = proxy.register(file.getAbsolutePath(), f);
+    		file.setRegisteredFile(of);
+		} catch (Exception e) {
+			new FSAccessException("Cannot register the file: " +
+					""+file.getAbsolutePath(), e);
+		}
+    	
+    	return file;
+    }
+    
+    /**
      * Returns the files contained in the passed directory.
      * 
      * @param dir 			The directory to handle.
@@ -146,6 +176,7 @@ public class FSFileSystemView
      *  @see FileSystemView#getFiles(FileData, boolean)
      */
     public FileData[] getFiles(FileData dir, boolean useFileHiding)
+    	throws FSAccessException
     {
     	if (dir == null) return null;
     	if (!dir.isDirectory()) return null;
@@ -154,20 +185,39 @@ public class FSFileSystemView
     	Vector<FileData> files = new Vector<FileData>();
     	try {
     		List<OriginalFile> list = proxy.list(dir.getAbsolutePath());
+    		
     		if (list == null) return null;
-    		Iterator<OriginalFile> i = list.iterator();
+    		List<OriginalFile> l = proxy.listKnown(dir.getAbsolutePath());
+    		Iterator<OriginalFile> i;
+    		Map<String, OriginalFile> m = new HashMap<String, OriginalFile>();
+    		OriginalFile of;
+    		RString path;
+    		if (l != null) {
+    			i = l.iterator();
+    			while (i.hasNext()) {
+					of = i.next();
+					path = of.getPath();
+	    			if (path == null) path = of.getName();
+	    			m.put(path.getValue(), of);
+				}
+    		}
+    		i = list.iterator();
     		FileData f;
-    		//OriginalFileI of;
+    		String value;
     		while (i.hasNext()) {
-    			//of = new OriginalFileI();
-    			//of.setName(omero.rtypes.rstring(i.next()));
-				f = new FileData(i.next());
+    			of = i.next();
+    			path = of.getPath();
+    			if (path == null) path = of.getName();
+    			value = path.getValue();
+    			if (m.containsKey(value)) of = m.get(value);
+				f = new FileData(of);
 				if (!useFileHiding) {
 					if (!isHiddenFile(f)) files.addElement(f);
 				} else files.addElement(f);
 			}
 		} catch (Exception e) { 
-			e.printStackTrace();
+			new FSAccessException("Cannot retrives the files contained in: " +
+					dir.getAbsolutePath(), e);
 		}
     	return (FileData[]) files.toArray(new FileData[files.size()]);
     }
@@ -179,5 +229,6 @@ public class FSFileSystemView
      * @return See above.
      */
     public boolean isHiddenFile(FileData f) { return f.isHidden(); }
+    
     
 }

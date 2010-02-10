@@ -161,8 +161,15 @@ public class TreeCellRenderer
         	} else icon = icons.getIcon(IconManager.FILE_TEXT); 
         } else if (usrObject instanceof FileData) {
         	FileData f = (FileData) usrObject;
-        	if (f.isDirectory()) icon = icons.getIcon(IconManager.DIRECTORY);
-        	else icon = icons.getIcon(IconManager.FILE_TEXT);
+        	if (f.isDirectory()) {
+        		if (f.getId() > 0)
+        			icon = icons.getIcon(IconManager.DIRECTORY_REGISTERED);
+        		else icon = icons.getIcon(IconManager.DIRECTORY);
+        	} else {
+        		if (f.getId() > 0)
+        			icon = icons.getIcon(IconManager.FILE_REGISTERED);
+        		else icon = icons.getIcon(IconManager.FILE_TEXT);
+        	}
         } else if (node instanceof TreeImageTimeSet)
         	icon = icons.getIcon(IconManager.DATE);
         else if (node instanceof TreeFileSet) {

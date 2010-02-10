@@ -46,6 +46,7 @@ import javax.swing.tree.TreePath;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.EditVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.RefreshVisitor;
@@ -58,11 +59,14 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.env.data.FSAccessException;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -1535,6 +1539,27 @@ class BrowserComponent
 
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#register(FileData)
+	 */
+	public boolean register(FileData file)
+	{
+		if (file == null)
+			throw new IllegalArgumentException("No file to register.");
+		if (model.getBrowserType() != FILE_SYSTEM_EXPLORER) return false;
+		try {
+			model.getRepositories().register(file);
+		} catch (FSAccessException e) {
+			LogMessage msg = new LogMessage();
+			msg.print("Cannot register the object.");
+			msg.print(e);
+			TreeViewerAgent.getRegistry().getLogger().error(this, msg);
+			return false;
+		}
+		return true;
 	}
 	
 }

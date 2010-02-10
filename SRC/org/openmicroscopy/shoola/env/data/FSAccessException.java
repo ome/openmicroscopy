@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.env.data.DSAccessException
+ * org.openmicroscopy.shoola.env.data.FSAccessException 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,6 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.data;
 
 //Java imports
@@ -30,20 +29,20 @@ package org.openmicroscopy.shoola.env.data;
 //Application-internal dependencies
 
 /** 
- * Reports an error occurred while trying to pull out data from the server.
+ * Reports an error occurred while trying to interact w/ the File System.
+ *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2 
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since 3.0-Beta4
  */
-public class DSAccessException
+public class FSAccessException 
 	extends Exception
 {
 
@@ -52,7 +51,7 @@ public class DSAccessException
 	 * 
 	 * @param message	Short explanation of the problem.
 	 */
-	public DSAccessException(String message)
+	public FSAccessException(String message)
 	{
 		super(message);
 	}
@@ -63,9 +62,9 @@ public class DSAccessException
 	 * @param message	Short explanation of the problem.
 	 * @param cause		The exception that caused this one to be risen.
 	 */
-	public DSAccessException(String message, Throwable cause) 
+	public FSAccessException(String message, Throwable cause) 
 	{
 		super(message, cause);
 	}
-
+	
 }

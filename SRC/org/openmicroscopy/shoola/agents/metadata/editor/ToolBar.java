@@ -40,6 +40,7 @@ import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 
 
@@ -123,6 +124,7 @@ class ToolBar
 	/** Initializes the components. */
 	private void initComponents()
 	{
+		setBackground(UIUtilities.BACKGROUND_COLOR);
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		IconManager icons = IconManager.getInstance();
@@ -227,6 +229,7 @@ class ToolBar
     private JComponent buildGeneralBar()
     {
     	JToolBar bar = new JToolBar();
+    	bar.setBackground(UIUtilities.BACKGROUND_COLOR);
     	bar.setFloatable(false);
     	bar.setRollover(true);
     	bar.setBorder(null);
@@ -248,14 +251,21 @@ class ToolBar
     private void buildGUI()
     {
     	JPanel bars = new JPanel();
+    	bars.setBackground(UIUtilities.BACKGROUND_COLOR);
     	bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
     	bars.add(buildGeneralBar());
     	JPanel p = new JPanel();
+    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
     	p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-    	p.add(UIUtilities.buildComponentPanel(bars));
-    	p.add(UIUtilities.buildComponentPanelRight(busyLabel));
+    	JPanel pp = UIUtilities.buildComponentPanel(bars);
+    	pp.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	p.add(pp);
+    	pp = UIUtilities.buildComponentPanelRight(busyLabel);
+    	pp.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	p.add(pp);
     	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     	add(p);
+    	add(new JSeparator());
     }
     
     /**

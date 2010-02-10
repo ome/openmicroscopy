@@ -30,7 +30,7 @@ package org.openmicroscopy.shoola.env.data;
 //Application-internal dependencies
 
 /** 
- * Reports an error occured while trying to access the OMEDS service.
+ * Reports an error occurred while trying to access the OMEDS service.
  * Such an error can posted in the following case:
  * <i>broken connection</i>, <i>expired session</i> or <i>not logged in</i>.
  *

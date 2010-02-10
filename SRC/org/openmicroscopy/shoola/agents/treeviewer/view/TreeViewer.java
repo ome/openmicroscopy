@@ -42,6 +42,7 @@ import javax.swing.filechooser.FileFilter;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject;
+import org.openmicroscopy.shoola.agents.util.FileDataRegistration;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
@@ -940,5 +941,12 @@ public interface TreeViewer
 	 * @param object The object to handle.
 	 */
 	void administrate(AdminObject object);
+
+	/** 
+	 * Registers the passed file and updates the annotation.
+	 * 
+	 * @param file The file to register..
+	 */
+	void register(FileDataRegistration file);
 	
 }

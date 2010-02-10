@@ -148,8 +148,11 @@ public interface MetadataViewer
 	public static final String	CHANNEL_COLOR_CHANGED_PROPERTY = 
 		"channelColorChanged";
 
-	/** Bound property indicating to run a . */
+	/** Bound property indicating to run a script. */
 	public static final String	RUN_SCRIPT_PROPERTY = "runScript";
+	
+	/** Bound property indicating to register a file. */
+	public static final String	REGISTER_PROPERTY = "register";
 	
 	/** Flag to denote the <i>New</i> state. */
 	public static final int     NEW = 1;

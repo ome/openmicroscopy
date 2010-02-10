@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 
 //Java imports
-import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -88,10 +87,10 @@ class MetadataViewerModel
 	/** Reference to the component that embeds this model. */
 	private MetadataViewer							component;
 
-	/** The ref object for the viewer i.e. the root. */
+	/** The object of reference for the viewer i.e. the root. */
 	private Object									refObject;
 	
-	/** The ref object for the viewer i.e. the root. */
+	/** The object of reference for the viewer i.e. the root. */
 	private Object									parentRefObject;
 	
 	/** The object hosting the various annotations linked to an object. */

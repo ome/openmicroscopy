@@ -81,6 +81,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.FileDataRegistration;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -105,6 +106,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.FileData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
@@ -2816,6 +2818,25 @@ class TreeViewerComponent
 			throw new IllegalArgumentException("Object not valid.");
 		model.fireAdmin(object);
 		fireStateChange();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#register(FileDataRegistration)
+	 */
+	public void register(FileDataRegistration file)
+	{
+		if (model.getState() == DISCARDED) return;
+		if (file == null)
+			throw new IllegalArgumentException("No file to register.");
+		Browser browser = model.getSelectedBrowser();
+		if (browser == null || browser.getBrowserType() != 
+			Browser.FILE_SYSTEM_EXPLORER) return;
+		FileData data = (FileData) file.getData();
+		if (browser.register(data)) 
+			model.getMetadataViewer().saveData(file.getToAdd(), 
+					file.getToRemove(), file.getToDelete(), 
+					file.getMetadata(), data);
 	}
 	
 }

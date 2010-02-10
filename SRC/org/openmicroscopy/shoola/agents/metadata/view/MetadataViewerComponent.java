@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.util.ChannelSelectionDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.FileDataRegistration;
 import org.openmicroscopy.shoola.agents.util.ui.MovieExportDialog;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
@@ -74,6 +75,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.FileData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.PlateData;
@@ -418,6 +420,19 @@ class MetadataViewerComponent
 			model.fireExperimenterSaving((ExperimenterData) data);
 			return;
 		}
+		if (refObject instanceof FileData) {
+			FileData fa = (FileData) data;
+			if (fa.getId() > 0) {
+				toSave.add(data);
+				model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave);
+			} else {
+				FileDataRegistration r = new FileDataRegistration(toAdd, 
+						toRemove, toDelete, metadata, data);
+				firePropertyChange(REGISTER_PROPERTY, null, r);
+				return;
+			}
+			return;
+		}
 		Collection nodes = model.getRelatedNodes();
 		Iterator n;
 		toSave.add(data);
@@ -429,73 +444,14 @@ class MetadataViewerComponent
 			}
 		}
 		
-		MessageBox dialog;
 		if (refObject instanceof ProjectData) {
 			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave);
 		} else if (refObject instanceof ScreenData) {
 			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave);
 		} else if (refObject instanceof PlateData) {
 			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave);
-			/*
-			if ((toAdd.size() == 0 && toRemove.size() == 0)) {
-				model.fireSaving(toAdd, toRemove, metadata, toSave);
-				return;
-			}
-			dialog = initMessageDialog();
-			JPanel p = new JPanel();
-			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-			ButtonGroup group = new ButtonGroup();
-			JRadioButton single = new JRadioButton();
-			single.setText("The selected plate");
-			single.setSelected(true);
-			group.add(single);
-			p.add(single);
-			JRadioButton batchAnnotation = new JRadioButton();
-			group.add(batchAnnotation);
-			p.add(batchAnnotation);
-			batchAnnotation.setText("All the wells");
-			dialog.addBodyComponent(p);
-			int option = dialog.centerMsgBox();
-			if (option == MessageBox.YES_OPTION) {
-				//toSave.add(data);
-				if (single.isSelected()) 
-					model.fireSaving(toAdd, toRemove, metadata, toSave);
-				else
-					model.fireBatchSaving(toAdd, toRemove, toSave);
-			}
-			*/
 		} else if (refObject instanceof DatasetData) {
 			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave);
-			//Only update properties.
-			/*
-			if ((toAdd.size() == 0 && toRemove.size() == 0)) {
-				model.fireSaving(toAdd, toRemove, metadata, toSave);
-				return;
-			}
-			dialog = initMessageDialog();
-			JPanel p = new JPanel();
-			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-			ButtonGroup group = new ButtonGroup();
-			JRadioButton single = new JRadioButton();
-			single.setText("The selected dataset");
-			single.setSelected(true);
-			group.add(single);
-			p.add(single);
-			JRadioButton batchAnnotation = new JRadioButton();
-			group.add(batchAnnotation);
-			p.add(batchAnnotation);
-			batchAnnotation.setText("The images contained in the " +
-					                "selected dataset");
-			dialog.addBodyComponent(p);
-			int option = dialog.centerMsgBox();
-			if (option == MessageBox.YES_OPTION) {
-				//toSave.add(data);
-				if (single.isSelected()) 
-					model.fireSaving(toAdd, toRemove, metadata, toSave);
-				else
-					model.fireBatchSaving(toAdd, toRemove, toSave);
-			}
-			*/
 		} else if (refObject instanceof ImageData) {
 			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave);
 		} else if (refObject instanceof WellSampleData) {
@@ -506,44 +462,6 @@ class MetadataViewerComponent
 				model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave);
 				return;
 			}	
-			/*
-			TagAnnotationData tag = (TagAnnotationData) refObject;
-			Set set = tag.getTags();
-			if (set != null) {
-				model.fireSaving(toAdd, toRemove, metadata, toSave);
-				return;
-			}
-			set = tag.getDataObjects();
-			boolean toAsk = false;
-			if (set != null && set.size() > 0) toAsk = true;
-			if (!toAsk) {
-				model.fireSaving(toAdd, toRemove, metadata, toSave);
-				return;
-			}
-			dialog = initMessageDialog();
-			JPanel p = new JPanel();
-			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-			ButtonGroup group = new ButtonGroup();
-			JRadioButton single = new JRadioButton();
-			single.setText("The selected tag");
-			single.setSelected(true);
-			group.add(single);
-			p.add(single);
-			JRadioButton batchAnnotation = new JRadioButton();
-			group.add(batchAnnotation);
-			p.add(batchAnnotation);
-			batchAnnotation.setText("The images linked to the " +
-			                       "selected tag");
-			dialog.addBodyComponent(p);
-			int option = dialog.centerMsgBox();
-			if (option == MessageBox.YES_OPTION) {
-				//toSave.add(data);
-				if (single.isSelected()) 
-					model.fireSaving(toAdd, toRemove, metadata, toSave);
-				else
-					model.fireBatchSaving(toAdd, toRemove, toSave);
-			}
-			*/
 		}
 		fireStateChange();
 	}

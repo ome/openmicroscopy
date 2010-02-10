@@ -80,7 +80,10 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.env.data.FSAccessException;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
+import org.openmicroscopy.shoola.env.log.LogMessage;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -516,7 +519,16 @@ class BrowserUI
     	List<TreeImageNode> leaves = new ArrayList<TreeImageNode>();
     	FSFileSystemView fs = model.getRepositories();
     	FileData dir = (FileData) dirSet.getUserObject();
-    	FileData[] files = fs.getFiles(dir, false);
+    	FileData[] files = null;
+    	try {
+    		files = fs.getFiles(dir, false);
+		} catch (FSAccessException e) {
+
+			LogMessage msg = new LogMessage();
+			msg.print("Cannot retrieve the files.");
+			msg.print(e);
+			TreeViewerAgent.getRegistry().getLogger().error(this, msg);
+		}
     	if (files != null && files.length > 0) {
     		FileData file;
     		TreeImageDisplay display;
