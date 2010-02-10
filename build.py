@@ -9,7 +9,27 @@
 
 import os
 import sys
+import time
 import subprocess
+
+def notification(msg, prio):
+    """
+    Provides UI notification.
+    """
+
+    # May want to revert this to be OMERO_BUILD_NOTIFICATION, or whatever.
+    if "OMERO_QUIET" in os.environ:
+        return
+
+    try:
+        p = subprocess.Popen(["growlnotify","-t","OMERO Build Status","-p",str(prio)],\
+            stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        p.communicate(msg)
+        rc = p.wait()
+        if rc != 0:
+            pass # growl didn't work
+    except OSError:
+        pass # No growlnotify found, may want to use another tool
 
 def build_hudson():
     """
@@ -108,6 +128,9 @@ if __name__ == "__main__":
             build_hudson()
         else:
             java_omero(args)
+            notification(""" Finished: %s """ % " ".join(args), 0)
     except KeyboardInterrupt:
         sys.stderr.write("\nCancelled by user\n")
         sys.exit(2)
+    except SystemExit:
+            notification(""" Failed: %s """ % " ".join(args), 100)
