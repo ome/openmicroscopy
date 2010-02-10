@@ -25,10 +25,18 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
@@ -177,7 +185,7 @@ class UserUI
 	{ 
 		diskSpace.removeAll();
 		profile.removeAll();
-		diskTask.setCollapsed(true);
+		if (!diskTask.isCollapsed()) diskTask.setCollapsed(true);
 		removeAll();
 		diskSpace.revalidate();
 		profile.revalidate();

@@ -333,8 +333,8 @@ public class EditorUI
 			model.fireDataObjectSaving(exp);
 			return;
 		} else if  (model.getRefObject() instanceof GroupData) {
-			GroupData group = groupUI.getDataToSave();
-			model.fireDataObjectSaving(group);
+			//GroupData group = groupUI.getDataToSave();
+			//model.fireDataObjectSaving(group);
 			return;
 		}
 		Map<Integer, List<AnnotationData>> m = generalPane.prepareDataToSave();

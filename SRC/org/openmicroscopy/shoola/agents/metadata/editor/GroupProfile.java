@@ -24,18 +24,23 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.ButtonGroup;
+import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -43,12 +48,12 @@ import javax.swing.event.DocumentListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.util.ui.MessageBox;
+import org.openmicroscopy.shoola.agents.util.ui.PermissionsPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.AnnotationData;
 import pojos.GroupData;
-import pojos.PermissionData;
 
 
 /** 
@@ -65,91 +70,33 @@ import pojos.PermissionData;
  * @since 3.0-Beta4
  */
 class GroupProfile 
-	extends JPanel
-	implements DocumentListener
+	extends AnnotationUI ///extends JPanel
+	implements DocumentListener, PropertyChangeListener
 {
 
-    /** Indicates if the <code>DataObject</code> is only visible by owner. */
-    private JRadioButton 			privateBox;
-    
-    /** 
-     * Indicates if the <code>DataObject</code> is only visible by members
-     * of the group the user belongs to. 
-     */
-    private JRadioButton 			groupBox;
-    
-	/** Reference to the Model. */
-    private EditorModel				model;
-    
-    /** The component hosting the name of the <code>DataObject</code>. */
+    /** The name of the <code>Group</code>. */
     private JTextField				namePane;
+    
+    /** The description of the <code>Group</code>. */
+    private JTextField				descriptionPane;
+    
+    /** Component displaying the permissions status. */
+    private PermissionsPane			permissionsPane;
     
     /** Initializes the components composing this display. */
     private void initComponents()
     {
-    	groupBox = new JRadioButton(EditorUtil.GROUP_VISIBLE);
-    	groupBox.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	groupBox.setToolTipText(EditorUtil.GROUP_DESCRIPTION);
-    	//groupBox.setEnabled(false);
-    	privateBox =  new JRadioButton(EditorUtil.PRIVATE);
-    	privateBox.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	privateBox.setSelected(true);
-    	//privateBox.setEnabled(false);
-    	ButtonGroup group = new ButtonGroup();
-    	group.add(privateBox);
-    	group.add(groupBox);
-    	groupBox.addActionListener(new ActionListener() {
-    		public void actionPerformed(ActionEvent e) {
-    			upgradePermissions();
-    		}
-    	});
+    	permissionsPane = new PermissionsPane(UIUtilities.BACKGROUND_COLOR);
+    	permissionsPane.setBorder(
+    			BorderFactory.createTitledBorder("Permissions"));
+    	permissionsPane.displayWarningText();
+    	permissionsPane.addPropertyChangeListener(this);
     	namePane = new JTextField();
     	namePane.setEditable(false);
     	GroupData data = (GroupData) model.getRefObject();
     	namePane.setText(data.getName());
-    }
-    
-    /** Upgrades the permissions of all data within the selected group. */
-    private void upgradePermissions()
-    {
-    	//Ask Question to user if already users.
-    	MessageBox msg = new MessageBox(
-    			MetadataViewerAgent.getRegistry().getTaskBar().getFrame(), 
-    			"Permissions update", 
-		"Upgrading the permissions cannot be undone. \nAre you sure you " +
-		"want to continue?");
-		msg.setYesText("Upgrade");
-		int option = msg.centerMsgBox();
-		if (option == MessageBox.YES_OPTION)
-			model.upgradePermissions();
-		else privateBox.setSelected(true);
-    }
-
-    /**
-     * Builds and lays out the panel displaying the permissions of the edited
-     * file.
-     * 
-     * @param permissions   The permissions of the edited object.
-     * @return See above.
-     */
-    private JPanel buildPermissions(PermissionData permissions)
-    {
-        JPanel content = new JPanel();
-        content.setBackground(UIUtilities.BACKGROUND_COLOR);
-        boolean b = true;;
-       	if (permissions != null && permissions.isGroupRead()) {
-       		//groupBox.setSelected(true);
-       		//b = false;
-       	}
-   		groupBox.setEnabled(b);
-   		privateBox.setEnabled(b);
-       	content.add(privateBox);
-       	content.add(groupBox);
-       	JPanel p = UIUtilities.buildComponentPanel(content, 0, 0);
-       	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-       	p.setBorder(BorderFactory.createTitledBorder("Permission"));
-       	
-        return p;
+    	descriptionPane = new JTextField();
+    	descriptionPane.setText(data.getDescription());
     }
     
     /**
@@ -159,7 +106,6 @@ class GroupProfile
      */
     private JPanel buildContentPanel()
     {
-    	
         JPanel content = new JPanel();
     	content.setBackground(UIUtilities.BACKGROUND_COLOR);
         JLabel label;
@@ -184,7 +130,22 @@ class GroupProfile
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
         content.add(namePane, c);  
-
+        c.gridx = 0;
+        c.gridy++;
+        label = UIUtilities.setTextFont("Description");
+        label.setBackground(UIUtilities.BACKGROUND_COLOR);
+        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+        c.fill = GridBagConstraints.NONE;      //reset to default
+        c.weightx = 0.0;  
+        content.add(label, c);
+        label.setLabelFor(descriptionPane);
+        c.gridx++;
+        content.add(Box.createHorizontalStrut(5), c); 
+        c.gridx++;
+        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        content.add(descriptionPane, c);  
         c.gridx = 0;
         c.gridy++;
         label = UIUtilities.setTextFont(EditorUtil.MANDATORY_DESCRIPTION,
@@ -202,62 +163,89 @@ class GroupProfile
      */
 	GroupProfile(EditorModel model)
 	{
-		if (model == null)
-			throw new IllegalArgumentException("No model.");
-		this.model = model;
+		super(model);
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
-	
-	/** Builds and lays out the UI. */
-    void buildUI()
-    {
-    	GroupData group = (GroupData) model.getRefObject();
-    	removeAll();
-    	initComponents();
-    	setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-    	c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.WEST;
-		c.insets = new Insets(0, 2, 2, 0);
-		c.gridx = 0;
-		c.gridy = 0;
-		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-		c.weightx = 1.0;  
-    	add(buildContentPanel(), c);
-    	add(Box.createVerticalStrut(5), c); 
-		c.gridy++;
-		add(buildPermissions(group.getPermissions()), c);
-    }
     
 	/**
-	 * Returns <code>true</code> if data to save, <code>false</code>
-	 * otherwise.
-	 * 
-	 * @return See above.
+	 * Overridden to lay out the UI.
+	 * @see AnnotationUI#buildUI()
 	 */
-	boolean hasDataToSave()
+	protected void buildUI()
 	{
-		return false;
+		removeAll();
+    	initComponents();
+		double[][] size = {{TableLayout.FILL}, 
+				{TableLayout.PREFERRED, TableLayout.PREFERRED}};
+		setLayout(new TableLayout(size));
+		add(buildContentPanel(), "0, 0");
+		add(permissionsPane, "0, 1");
+	}
+
+	/**
+	 * Removes all components.
+	 * @see AnnotationUI#clearData()
+	 */
+	protected void clearData()
+	{
+		clearDisplay();
+	}
+
+	/**
+	 * Removes all components.
+	 * @see AnnotationUI#clearDisplay()
+	 */
+	protected void clearDisplay()
+	{ 
+		revalidate();
+		repaint();
 	}
 	
 	/**
-	 * Returns the group to save.
-	 * 
-	 * @return See above.
+	 * No-operation implementation in our case.
+	 * @see AnnotationUI#getAnnotationToRemove()
 	 */
-	GroupData getDataToSave()
-	{
-		return null;
+	protected List<AnnotationData> getAnnotationToRemove()
+	{ 
+		return new ArrayList<AnnotationData>();  
 	}
-	
+
+	/**
+	 * No-operation implementation in our case.
+	 * @see AnnotationUI#getAnnotationToSave()
+	 */
+	protected List<AnnotationData> getAnnotationToSave()
+	{ 
+		return new ArrayList<AnnotationData>(); 
+	}
+
+	/**
+	 * Returns the title associated to this component.
+	 * @see AnnotationUI#getComponentTitle()
+	 */
+	protected String getComponentTitle() { return ""; }
+
+	/**
+	 * Returns <code>true</code> if user's info has been modified, 
+	 * <code>false</code> otherwise.
+	 * @see AnnotationUI#hasDataToSave()
+	 */
+	protected boolean hasDataToSave() { return false; }
+
+	/**
+	 * Sets the title of the component.
+	 * @see AnnotationUI#setComponentTitle()
+	 */
+	protected void setComponentTitle() {}
+
 	/**
 	 * Fires property indicating that some text has been entered.
 	 * @see DocumentListener#insertUpdate(DocumentEvent)
 	 */
 	public void insertUpdate(DocumentEvent e)
 	{
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
-						Boolean.TRUE);
+		firePropertyChange(EditorControl.SAVE_PROPERTY, 
+				Boolean.valueOf(false), Boolean.valueOf(true));
 	}
 
 	/**
@@ -266,8 +254,20 @@ class GroupProfile
 	 */
 	public void removeUpdate(DocumentEvent e)
 	{
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
-							Boolean.TRUE);
+		firePropertyChange(EditorControl.SAVE_PROPERTY, 
+				Boolean.valueOf(false), Boolean.valueOf(true));
+	}
+	
+	/** 
+	 * Listens to property fired by the {@link #permissionsPane}.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (PermissionsPane.PERMISSIONS_CHANGE_PROPERTY.equals(name))
+			firePropertyChange(EditorControl.SAVE_PROPERTY, 
+					Boolean.valueOf(false), Boolean.valueOf(true));
 	}
 	
 	/**
@@ -276,5 +276,5 @@ class GroupProfile
 	 * @see DocumentListener#changedUpdate(DocumentEvent)
 	 */
 	public void changedUpdate(DocumentEvent e) {}
-	
+
 }

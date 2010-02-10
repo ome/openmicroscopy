@@ -172,7 +172,9 @@ class BrowserUI
     {
     	if (treeDisplay.getRowForLocation(loc.x, loc.y) == -1 && popupTrigger) {
     		model.setClickPoint(loc);
-    		controller.showPopupMenu(TreeViewer.PARTIAL_POP_UP_MENU);
+    		if (model.getBrowserType() == Browser.ADMIN_EXPLORER)
+    			controller.showPopupMenu(TreeViewer.PARTIAL_POP_UP_MENU);
+    		else controller.showPopupMenu(TreeViewer.CREATE_MENU_ADMIN);
 		}
     }
     
@@ -345,8 +347,12 @@ class BrowserUI
         if (row != -1) {
             if (me.getClickCount() == 1) {
                 model.setClickPoint(p);
-                if (me.isPopupTrigger()) 
-                	controller.showPopupMenu(TreeViewer.FULL_POP_UP_MENU);
+                if (me.isPopupTrigger()) {
+                	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) 
+                		controller.showPopupMenu(TreeViewer.CREATE_MENU_ADMIN);
+                	else controller.showPopupMenu(TreeViewer.FULL_POP_UP_MENU);
+                }
+                	
             } else if (me.getClickCount() == 2 && released) {
             	//controller.cancel();
                 //model.viewDataObject();

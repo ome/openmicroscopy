@@ -447,6 +447,7 @@ class BrowserComponent
         switch (index) {
         	case TreeViewer.FULL_POP_UP_MENU:
         	case TreeViewer.PARTIAL_POP_UP_MENU:
+        	case TreeViewer.CREATE_MENU_ADMIN:
         		break;
         	default:
         		throw new IllegalArgumentException("Menu not supported:" +
