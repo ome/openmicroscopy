@@ -406,11 +406,11 @@ public class FigureDialog
     /** The slider displaying the number of time-points. */
     private GridSlider						movieSlider;
     
-    /** Determines the selected plane. */
-    private JSpinner						planeSelection;
+    /** Indicates to select the last view Z-section. */
+    private JRadioButton					planeSelection;
     
-    /** Indicates to turn on or off the projection. */
-    private JCheckBox						projectionBox;
+    /** Indicates to select project the stack. */
+    private JRadioButton					projectionBox;
     
     /** The time of options. */
 	private JComboBox						timesBox;
@@ -930,11 +930,14 @@ public class FigureDialog
 			numberPerRow.setText(""+ITEMS_PER_ROW);
 			return;
 		}
-		projectionBox = new JCheckBox();
-		projectionBox.setActionCommand(""+PROJECTION);
-		projectionBox.addActionListener(this);
-		planeSelection = new JSpinner(new SpinnerNumberModel(1, 1, 
-				pixels.getSizeZ()+1, 1));
+		projectionBox = new JRadioButton("Z-projection");
+		projectionBox.addChangeListener(this);
+		planeSelection = new JRadioButton("Last-viewed Z-section");
+		planeSelection.addChangeListener(this);
+		planeSelection.setSelected(true);
+		ButtonGroup group = new ButtonGroup();
+		group.add(projectionBox);
+		group.add(planeSelection);
 		
 		pane = new JLayeredPane();
 		thumbnailHeight = Factory.THUMB_DEFAULT_HEIGHT;
@@ -963,17 +966,16 @@ public class FigureDialog
 		projectionFrequency = new JSpinner(new SpinnerNumberModel(1, 1, maxZ+1, 
 				1));
 		
-		ButtonGroup group = new ButtonGroup();
+		ButtonGroup g = new ButtonGroup();
 		splitPanelGrey = new JRadioButton("Grey");
 		splitPanelColor = new JRadioButton("Color");
 		splitPanelColor.addChangeListener(this);
 		splitPanelGrey.addChangeListener(this);
-		group.add(splitPanelGrey);
-		group.add(splitPanelColor);
+		g.add(splitPanelGrey);
+		g.add(splitPanelColor);
+		
+		
 		splitPanelColor.setSelected(true);
-	
-		
-		
 		int maxT = pixels.getSizeT();
 		movieFrequency = new JSpinner(new SpinnerNumberModel(1, 1, maxT+1, 1));
 		movieFrequency.addChangeListener(this);
@@ -1071,7 +1073,7 @@ public class FigureDialog
 		c.gridy = 0;
 		c.gridx = 0;
         c.weightx = 0.0;  
-        p.add(UIUtilities.setTextFont("Thumbnail Width: "), c);
+        p.add(UIUtilities.setTextFont("Panel Width: "), c);
         c.gridx++;
         p.add(Box.createHorizontalStrut(5), c); 
         c.gridx++;
@@ -1080,7 +1082,7 @@ public class FigureDialog
         p.add(new JLabel("pixels"), c); 
         c.gridx = 0;
         c.gridy++;
-        p.add(UIUtilities.setTextFont("Thumbnail Height: "), c);
+        p.add(UIUtilities.setTextFont("Panel Height: "), c);
         c.gridx++;
         p.add(Box.createHorizontalStrut(5), c); 
         c.gridx++;
@@ -1119,17 +1121,21 @@ public class FigureDialog
 		c.insets = new Insets(0, 2, 2, 0);
 		c.gridy = 0;
 		c.gridx = 0;
-		
-		p.add(UIUtilities.setTextFont("Select Z-section"), c);
-		c.gridx++;
-    	p.add(UIUtilities.buildComponentPanel(planeSelection), c);
-    	c.gridy++;
-		c.gridx = 0;
-		p.add(UIUtilities.setTextFont("Project stack"), c);
-		c.gridx++;
-		p.add(projectionBox, c);
+		c.gridwidth = 2;
+		JPanel content = new JPanel();
+		content.add(planeSelection);
+		content.add(projectionBox);
+		//p.add(UIUtilities.setTextFont("Select Z-section"), c);
+		//c.gridx++;
+    	p.add(UIUtilities.buildComponentPanel(content, 0, 0), c);
+    	//c.gridy++;
+		//c.gridx = 0;
+		//p.add(UIUtilities.setTextFont("Project stack"), c);
+		//c.gridx++;
+		//p.add(projectionBox, c);
 		c.gridy++;
 		c.gridx = 0;
+		c.gridwidth = 1;
 		p.add(UIUtilities.setTextFont("Intensity"), c);
 		c.gridx++;
 		p.add(projectionTypesBox, c);
@@ -1144,6 +1150,16 @@ public class FigureDialog
 	    c.gridx++;
         p.add(UIUtilities.buildComponentPanel(zRange), c);
 		return UIUtilities.buildComponentPanel(p);
+	}
+	
+	/** Invokes when the projection is selected or not. */
+	private void onProjectionSelectionChanged()
+	{
+		boolean b = projectionBox.isSelected();
+		if (projectionTypesBox != null)
+			projectionTypesBox.setEnabled(b);
+		if (projectionFrequency != null) projectionFrequency.setEnabled(b);
+		if (zRange != null) zRange.setEnabled(b);
 	}
 	
 	/**
@@ -1297,19 +1313,6 @@ public class FigureDialog
 		while (i.hasNext()) {
 			p.add(components.get(i.next()));
 		}
-		/*
-		JPanel merge = new JPanel();
-		double s[][] = {{TableLayout.PREFERRED, 5, TableLayout.PREFERRED}, 
-				{TableLayout.PREFERRED}};
-		merge.setLayout(new TableLayout(s));
-		if (dialogType == SPLIT) {
-			merge.add(p, "0, 0, LEFT, TOP");
-			merge.add(buildMergeComponent(), "2, 0, LEFT, TOP");
-		} else {
-			merge.add(buildMergeComponent(), "0, 0, LEFT, BOTTOM");
-			merge.add(p, "2, 0, LEFT, TOP");
-		}
-		*/
 		JPanel splitPanel = new JPanel();
 		splitPanel.add(UIUtilities.setTextFont("Split Panel"));
 		splitPanel.add(splitPanelColor);
@@ -1512,10 +1515,10 @@ public class FigureDialog
 			p.setProjectionType(
 					projectionTypes.get(projectionTypesBox.getSelectedIndex()));
 		} else {
-			Integer n = (Integer) planeSelection.getValue()-1;
-			p.setZStart(n);
-			p.setZEnd(n);
-			p.setStepping(1);
+			//Integer n = (Integer) planeSelection.getValue()-1;
+			//p.setZStart(n);
+			//p.setZEnd(n);
+			//p.setStepping(1);
 			p.setProjectionType(ProjectionParam.MAXIMUM_INTENSITY);
 		}
 	}
@@ -1992,6 +1995,10 @@ public class FigureDialog
 	public void stateChanged(ChangeEvent e)
 	{
 		Object src = e.getSource();
+		if (src == projectionBox || src == planeSelection) {
+			onProjectionSelectionChanged();
+			return;
+		}
 		switch (dialogType) {
 			case SPLIT:
 			case SPLIT_ROI:
@@ -2022,7 +2029,6 @@ public class FigureDialog
 							FRAMES_TEXT+movieSlider.getNumberOfSelectedCells());
 					generalLabel.repaint();
 				}
-				break;
 		}
 	}
 	

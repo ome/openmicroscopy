@@ -107,7 +107,7 @@ public class FigureParam
 		FORMATS.put(JPEG, "JPEG");
 		FORMATS.put(PNG, "PNG");
 		TIMES = new LinkedHashMap<Integer, String>(6);
-		TIMES.put(TIME_SECS_MILLIS, "Seconds (e.g. 2.55)");
+		TIMES.put(TIME_SECS_MILLIS, "Seconds (e.g. 2.15)");
 		TIMES.put(TIME_SECS, "Seconds (e.g. 2)");
 		TIMES.put(TIME_MINS, "Minutes");
 		TIMES.put(TIME_HOURS, "Hours");
