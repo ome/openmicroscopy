@@ -64,6 +64,21 @@ public class FileData
 	}
 	
 	/**
+	 * Sets the registered file.
+	 * 
+	 * @param oFile The file to set.
+	 */
+	public void setRegisteredFile(OriginalFile oFile)
+	{
+		if (oFile == null) return;
+		String v = getAbsolutePath();
+		//String path = oFile.getName().getValue();
+			
+		//if (!v.equals(path)) return;
+		setValue(oFile);
+	}
+	
+	/**
 	 * Returns the name of the file.
 	 * 
 	 * @return See above.
