@@ -93,7 +93,11 @@ public class ManagedContextFixture {
         e.setFirstName("managed");
         e.setMiddleName("context");
         e.setLastName("test");
+        String oldusr = admin.getEventContext().getCurrentUserName();
+        String oldgrp = admin.getEventContext().getCurrentGroupName();
+        setCurrentUser("root");
         admin.createUser(e, group);
+        setCurrentUserAndGroup(oldusr, oldgrp);
         return uuid;
     }
 

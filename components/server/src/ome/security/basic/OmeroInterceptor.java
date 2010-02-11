@@ -147,7 +147,8 @@ public class OmeroInterceptor implements Interceptor {
             IObject iobj = (IObject) entity;
             int idx = HibernateUtils.detailsIndex(propertyNames);
 
-            markLockedIfNecessary(iobj);
+            Long currentOwnerId = getOwnerId(state, idx);
+            markLockedIfNecessary(iobj, currentOwnerId);
 
             // Get a new details based on the current context
             Details d = newTransientDetails(iobj);
@@ -172,12 +173,29 @@ public class OmeroInterceptor implements Interceptor {
             IObject iobj = (IObject) entity;
             int idx = HibernateUtils.detailsIndex(propertyNames);
 
-            markLockedIfNecessary(iobj);
+            // Here we are currently ignoring the previousOwnerId
+            // Other code sections will worry about whether or not
+            // the current user is allowed to change the previousOwnerId
+            // to the currentOwnerId, but if the change happens, then
+            // we want this linkage to be valid.
+            Long currentOwnerId = getOwnerId(currentState, idx);
+            markLockedIfNecessary(iobj, currentOwnerId);
 
             altered |= resetDetails(iobj, currentState, previousState, idx);
 
         }
         return altered;
+    }
+
+    /**
+     * @param previousState
+     * @param idx
+     */
+    private Long getOwnerId(Object[] state, int idx) {
+        Details details = (Details) state[idx];
+        Long ownerId = details.getOwner() == null ?
+                null : details.getOwner().getId();
+        return ownerId;
     }
 
     /** default logic */
@@ -355,8 +373,12 @@ public class OmeroInterceptor implements Interceptor {
      * @param iObject
      *            new or updated entity which may reference other entities which
      *            then require locking. Nulls are tolerated but do nothing.
+     * @param ownerId
+     *            the id of the current owner. May be null in which case, the
+     *            current owner id will most likely be replaced. (If not, then
+     *            a security exception will be raised later)
      */
-    public void markLockedIfNecessary(IObject iObject) {
+    public void markLockedIfNecessary(IObject iObject, Long ownerId) {
         if (iObject == null || sysTypes.isSystemType(iObject.getClass())) {
             return;
         }
@@ -365,16 +387,6 @@ public class OmeroInterceptor implements Interceptor {
 
         IObject[] candidates = em.getLockCandidates(iObject);
         for (IObject object : candidates) {
-
-            // ticket:1393 - working around dirty sessions for
-            // images, channels (etc) with group-read.
-            if (!Hibernate.isInitialized(object)) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Candidate not loaded; skipping:"
-                            + object.getClass().getName());
-                    continue;
-                }
-            }
 
             // omitting system types since they don't have permissions
             // which can be locked.
@@ -389,28 +401,24 @@ public class OmeroInterceptor implements Interceptor {
                     }
                 }
 
-                Permissions p = object.getDetails().getPermissions();
-                if (p.isGranted(Role.GROUP, Right.READ)
-                        || p.isGranted(WORLD, READ)) {
+                // Rather than as in <=4.1 in which objects were scheduled
+                // for locking which prevented later actions, now we check
+                // whether or not we're graph critical and if so, and if
+                // the objects do not belong the current user, then we abort.
 
-                    if (log.isDebugEnabled()) {
-                        log.debug(String.format("Locking %s due to %s", object,
-                                iObject));
-                    }
-
-                    // Only adding object for lockage if it has group or world
-                    // read permissions. This change came in 4.0 where all
-                    // permissions were reduced to rw---- and current linkages
-                    // removed. It's possible that a root user will be able
-                    // to link an object that's not readable, which would
-                    // typically cause the object to be locked. However, lockage
-                    // is intended to prevent users from loosing visibility on
-                    // an item. Admins can view regardless.
-
-                    s.add(object);
+                Long uid = currentUser.getOwner().getId();
+                if (ownerId != null && !uid.equals(ownerId)) {
+                    String gname = currentUser.getGroup().getName();
+                    String oname = currentUser.getOwner().getOmeName();
+                    Permissions p = currentUser.getCurrentEventContext()
+                        .getCurrentGroupPermissions();
+                    throw new GroupSecurityViolation(String.format(
+                            "Cannot link to %s\n" +
+                            "Current user (%s) is an admin or the owner of\n" +
+                            "the private group (%s=%s). It is not allowed to\n" +
+                            "link to users' data.", object, oname, gname, p));
                 }
             }
-            // TODO NEED TO CHECK FOR OWNERSHIP etc. etc.
         }
 
         currentUser.appendLockCandidates(s);
