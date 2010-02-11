@@ -366,6 +366,9 @@ public class FigureDialog
 	/** Indicates to arrange thumbnails by tags. */
 	private JCheckBox						arrangeByTags;
 	
+	/** Indicates to include images w/o tags. */
+	private JCheckBox						includeUntagged;
+	
 	/**
 	 * The component displaying the controls to create the thumbnails figure.
 	 */
@@ -407,7 +410,7 @@ public class FigureDialog
 	/** The merged image not scaled. */
 	private BufferedImage					mergeUnscaled;
 	
-	/** The roi box. */
+	/** The ROI box. */
 	private Rectangle2D						roiBox;
 
 	/** The default figure. */
@@ -525,7 +528,6 @@ public class FigureDialog
 				else 
 					buf = mergedComponent.getDisplayedImage().getRaster().
 						getDataBuffer();
-					//buf = mergeImage.getRaster().getDataBuffer();
 				if (renderer.isColorComponent(Renderer.RED_BAND, index)) {
 					if (!scale) 
 						return Factory.createBandImage(buf,
@@ -584,12 +586,6 @@ public class FigureDialog
         		pixels.getSizeX(), pixels.getSizeY());
 		if (pDef == null)
 			initPlane(renderer.getDefaultZ(), renderer.getDefaultT());
-
-		//mergeCanvas = new FigureCanvas();
-		//mergeImage = getMergedImage();
-		//mergeCanvas.setPreferredSize(new Dimension(thumbnailWidth, 
-		//		thumbnailHeight));
-		//mergeCanvas.setImage(mergeImage);
 	}
 	
 	/**
@@ -858,7 +854,14 @@ public class FigureDialog
 		selectedObjects.setSelected(true);
 		
 		if (dialogType == THUMBNAILS) {
-			arrangeByTags = new JCheckBox();
+			includeUntagged = new JCheckBox("Include untagged");
+			includeUntagged.setHorizontalTextPosition(JCheckBox.LEFT);
+			includeUntagged.setFont(
+					includeUntagged.getFont().deriveFont(Font.BOLD));
+			arrangeByTags = new JCheckBox("Select by Tag");
+			arrangeByTags.setHorizontalTextPosition(JCheckBox.LEFT);
+			arrangeByTags.setFont(
+					arrangeByTags.getFont().deriveFont(Font.BOLD));
 			arrangeByTags.addActionListener(this);
 			arrangeByTags.setActionCommand(""+ARRANGE_BY_TAGS);
 			sizeBox = new JComboBox(SIZE_OPTIONS);
@@ -1557,6 +1560,8 @@ public class FigureDialog
 		p.setWidth(width);
 		
 		p.setSelectedObjects(selectedObjects.isSelected());
+		if (includeUntagged != null)
+			p.setIncludeUntagged(includeUntagged.isSelected());
 		//retrieve the id of the selected tags
 		if (arrangeByTags.isSelected() && selection != null 
 				&& selection.size() > 0) { 
@@ -1751,7 +1756,7 @@ public class FigureDialog
 		if (thumbnailsPane == null) return;
 		JPanel p = new JPanel();
 		double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
-				{40, TableLayout.PREFERRED}}; //rows
+				{TableLayout.PREFERRED, TableLayout.PREFERRED}}; //rows
 		p.setLayout(new TableLayout(tl));
 		tagsSelection = new LinkedHashMap<JCheckBox, TagAnnotationData>();
 		List l = sorter.sort(tags);
@@ -1777,9 +1782,9 @@ public class FigureDialog
 		selectedTags = new JPanel();
 		selectedTags.setLayout(new BoxLayout(selectedTags, BoxLayout.Y_AXIS));
 		JPanel controls = new JPanel();
-		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
-		controls.add(UIUtilities.setTextFont("Select by Tag"));
+		controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
 		controls.add(UIUtilities.buildComponentPanel(arrangeByTags));
+		controls.add(UIUtilities.buildComponentPanel(includeUntagged));
 		p.add(controls, "0, 0, LEFT, TOP");
 		p.add(selectedTags, "0, 1, LEFT, TOP");
 		JScrollPane pane = new JScrollPane(tagPane);
@@ -1856,6 +1861,7 @@ public class FigureDialog
 				break;
 			case ZOOM_FACTOR:
 				setLensFactor();
+				break;
 		}
 	}
 	

@@ -5171,6 +5171,9 @@ class OMEROGateway
 				if (parentID > 0)
 					parameters.map.put("parentId", 
 							omero.rtypes.rlong(parentID));
+				parameters.map.put("showUntaggedImages", 
+						omero.rtypes.rbool(param.isIncludeUntagged()));
+				
 				parameters.map.put("thumbSize", 
 						omero.rtypes.rlong(param.getWidth()));
 				parameters.map.put("maxColumns", 

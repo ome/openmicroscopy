@@ -194,6 +194,12 @@ public class FigureParam
 	/** The default text associated to the merged image.*/ 
 	private String 	mergedLabel;
 	
+	/** 
+	 * Flag indicates to include the untagged images if 
+	 * set to <code>true</code>, <code>false</code> otherwise.
+	 */
+	private boolean includeUntagged;
+	
 	/** Sets the default value. */
 	private void setDefault()
 	{
@@ -697,5 +703,25 @@ public class FigureParam
 	 * @return See above.
 	 */
 	public List<Integer> getTimepoints() { return timepoints; }
+	
+	/**
+	 * Sets to <code>true</code> if the images w/o tags are included into the
+	 * figure, to <code>false</code> otherwise.
+	 * 
+	 * @param includeUntagged 	Pass <code>true</code> to include, 
+	 * 							<code>false</code> to exclude.
+	 */
+	public void setIncludeUntagged(boolean includeUntagged)
+	{ 
+		this.includeUntagged = includeUntagged; 
+	} 
+	
+	/**
+	 * Returns to <code>true</code> if the images w/o tags are included into the
+	 * figure, to <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isIncludeUntagged() { return includeUntagged; }
 	
 }
