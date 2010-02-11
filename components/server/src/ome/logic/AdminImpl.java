@@ -512,7 +512,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             final String password, final ExperimenterGroup defaultGroup,
             final ExperimenterGroup... otherGroups) {
 
-        adminOrPiOfGroups(defaultGroup, otherGroups);
+        adminOrPiOfGroups(defaultGroup,
+                nonUserGroupGroups.toArray(new ExperimenterGroup[0]));
 
         long uid = roleProvider.createExperimenter(experimenter,
                         defaultGroup, otherGroups);
