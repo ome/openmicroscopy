@@ -571,8 +571,6 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         tempFile.setFormat(getFormat(PYTHONSCRIPT));
         tempFile.setSize((long) script.getBytes().length);
         tempFile.setSha1(Utils.bufferToSha1(script.getBytes()));
-        // Make sure that the file is readable #1315
-        tempFile.getDetails().setPermissions(Permissions.PUBLIC);
         return updateFile(tempFile);
     }
 
