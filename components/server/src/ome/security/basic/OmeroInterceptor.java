@@ -147,8 +147,7 @@ public class OmeroInterceptor implements Interceptor {
             IObject iobj = (IObject) entity;
             int idx = HibernateUtils.detailsIndex(propertyNames);
 
-            Long currentOwnerId = getOwnerId(state, idx);
-            markLockedIfNecessary(iobj, currentOwnerId);
+            markLockedIfNecessary(iobj);
 
             // Get a new details based on the current context
             Details d = newTransientDetails(iobj);
@@ -173,29 +172,12 @@ public class OmeroInterceptor implements Interceptor {
             IObject iobj = (IObject) entity;
             int idx = HibernateUtils.detailsIndex(propertyNames);
 
-            // Here we are currently ignoring the previousOwnerId
-            // Other code sections will worry about whether or not
-            // the current user is allowed to change the previousOwnerId
-            // to the currentOwnerId, but if the change happens, then
-            // we want this linkage to be valid.
-            Long currentOwnerId = getOwnerId(currentState, idx);
-            markLockedIfNecessary(iobj, currentOwnerId);
+            markLockedIfNecessary(iobj);
 
             altered |= resetDetails(iobj, currentState, previousState, idx);
 
         }
         return altered;
-    }
-
-    /**
-     * @param previousState
-     * @param idx
-     */
-    private Long getOwnerId(Object[] state, int idx) {
-        Details details = (Details) state[idx];
-        Long ownerId = details.getOwner() == null ?
-                null : details.getOwner().getId();
-        return ownerId;
     }
 
     /** default logic */
@@ -378,7 +360,7 @@ public class OmeroInterceptor implements Interceptor {
      *            current owner id will most likely be replaced. (If not, then
      *            a security exception will be raised later)
      */
-    public void markLockedIfNecessary(IObject iObject, Long ownerId) {
+    public void markLockedIfNecessary(IObject iObject) {
         if (iObject == null || sysTypes.isSystemType(iObject.getClass())) {
             return;
         }
@@ -406,8 +388,9 @@ public class OmeroInterceptor implements Interceptor {
                 // whether or not we're graph critical and if so, and if
                 // the objects do not belong the current user, then we abort.
 
+                Long oid = object.getDetails().getOwner().getId();
                 Long uid = currentUser.getOwner().getId();
-                if (ownerId != null && !uid.equals(ownerId)) {
+                if (oid != null && !uid.equals(oid)) {
                     String gname = currentUser.getGroup().getName();
                     String oname = currentUser.getOwner().getOmeName();
                     Permissions p = currentUser.getCurrentEventContext()

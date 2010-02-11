@@ -66,6 +66,7 @@ public class GraphConsistencyTest extends PermissionsTest {
         // NO LINK
         loginUser(e2.getOmeName(), fixture.groupName);
         i = fixture.saveImage();
+        fixture.log_in();
         try {
             ImageAnnotationLink link = new ImageAnnotationLink();
             link.link(i.proxy(), new TagAnnotation());
