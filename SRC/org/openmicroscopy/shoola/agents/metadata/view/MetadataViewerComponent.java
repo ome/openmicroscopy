@@ -542,6 +542,7 @@ class MetadataViewerComponent
 	 */
 	public void setRelatedNodes(List nodes)
 	{
+		setRootObject(model.getRefObject());
 		model.setRelatedNodes(nodes);
 	}
 

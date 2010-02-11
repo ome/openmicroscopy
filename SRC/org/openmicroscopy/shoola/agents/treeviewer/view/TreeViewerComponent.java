@@ -744,7 +744,7 @@ class TreeViewerComponent
         //TODO: handle TreeImageSet
         if (display != null) { // && !(display instanceof TreeImageTimeSet)) {
         	  Object object = display.getUserObject();
-        	  metadata.setRootObject(object);
+        	  //metadata.setRootObject(object);
         	  if (!single) {
         		  List l = new ArrayList();
         		  Object child;
@@ -756,13 +756,12 @@ class TreeViewerComponent
         		  }
         		  if (l.size() > 0)
         		  	metadata.setRelatedNodes(l);
-        	  }
+        	  } else metadata.setRootObject(object);
         	  if (!model.isFullScreen()) {
         		  showDataBrowser(object, display, false);
         		  browse(display, true);
         	  } else showDataBrowser(object, display, true);
         } else metadata.setRootObject(null);
-        
 	}
 
 	/**
@@ -818,9 +817,11 @@ class TreeViewerComponent
 		}
 
 		mv.setSelectionMode(size == 0);
-		mv.setRootObject(selected);
+		
 		mv.setParentRootObject(parent);
-		if (size > 0) mv.setRelatedNodes(siblings);
+		if (size > 0) {
+			mv.setRelatedNodes(siblings);
+		} else mv.setRootObject(selected);
 		model.getDataViewer().setApplications(
 				TreeViewerFactory.getApplications(
 						model.getObjectMimeType(selected)));
