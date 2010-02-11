@@ -31,21 +31,24 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
+import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
-import org.openmicroscopy.shoola.util.ui.ColourIcon;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -63,11 +66,14 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class FigureComponent
 	extends JPanel
-	implements ChangeListener
+	implements PropertyChangeListener
 {
 
+	/** The default size of the button. */
+	static final Dimension	DEFAULT_SIZE = new Dimension(16, 16);
+
 	/** Reference to the canvas displaying the image. */
-	private FigureCanvas canvas;
+	private FigureCanvas 			canvas;
 	
 	/** 
 	 * The component displaying the label of the channel so that
@@ -75,11 +81,8 @@ class FigureComponent
 	 */
 	private JTextField				field;
 	
-	/** The box to remove the channel from the split. */
-	private JCheckBox	  			box;
-	
-	/** The color associated to the channel. */
-	private JLabel					colorLabel;
+	/** The channel buttons. */
+	private List<ChannelButton>		buttons;
 	
 	/** The image associated to that channel. */
 	private BufferedImage 			image;
@@ -89,15 +92,15 @@ class FigureComponent
 	
 	/** The image associated to that channel. */
 	private BufferedImage 			displayedImage;
-	
-	/** The color associated to the channel. */
-	private Color					color;
-	
-	/** The index of the channel. */
-	private int						index;
-	
+
 	/** Reference to the model. */
-	private FigureDialog 	model;
+	private FigureDialog 			model;
+	
+	/** 
+	 * Flag indicating that the component is for a single channel
+	 * if set to <code>true</code>, <code>false</code> otherwise.
+	 */
+	private boolean					single;
 	
 	/** 
 	 * Initializes the components composing the display.
@@ -111,24 +114,22 @@ class FigureComponent
 		field.setFont(f.deriveFont(f.getStyle(), ChannelButton.MIN_FONT_SIZE));
 		field.setColumns(8);
 		canvas = new FigureCanvas();
-		ColourIcon icon = new ColourIcon(color);
-		icon.paintLineBorder(true);
-		box = new JCheckBox();
-		colorLabel = new JLabel(icon);
-		box.setSelected(true);
-		box.addChangeListener(this);
 	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
 		JPanel p = new JPanel();
-		p.add(colorLabel);
-		p.add(box);
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+		Iterator<ChannelButton> i = buttons.iterator();
+		while (i.hasNext()) {
+			p.add(i.next());
+			p.add(Box.createHorizontalStrut(2));
+		}
 		JPanel controls = new JPanel();
 		controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
 		controls.add(field);
-		controls.add(UIUtilities.buildComponentPanel(p));
+		 controls.add(UIUtilities.buildComponentPanel(p));
 		controls.add(UIUtilities.buildComponentPanelCenter(canvas));
 		setLayout(new BorderLayout(0, 0));
 		add(UIUtilities.buildComponentPanel(controls, 0, 0),
@@ -140,7 +141,7 @@ class FigureComponent
 	 * Creates a new instance.
 	 * 
 	 * @param model  Reference to the model.
-	 * @param color  The color associated to the channel the channel.
+	 * @param color  The color associated to the channel.
 	 * @param name	 The name to give to the channel.
 	 * @param index  The index of the channel.
 	 */
@@ -148,52 +149,47 @@ class FigureComponent
 			int index)
 	{
 		this.model = model;
-		this.color = color;
-		this.index = index;
+		single = true;
+		ChannelButton b = new ChannelButton("", color, index);
+		b.setPreferredSize(DEFAULT_SIZE);
+		b.addPropertyChangeListener(this);
+		buttons = new ArrayList<ChannelButton>();
+		buttons.add(b);
 		initComponents(name);
-		//buildGUI();
+		buildGUI();
 	}
 
-	/** 
-	 * Returns the component displaying the name associated to the channel.
-	 * 
-	 * @return See above.
-	 */
-	JComponent getHeader() { return field; }
-	
 	/**
-	 * Returns the components hosting the controls.
+	 * Creates a new instance.
 	 * 
-	 * @return See above.
+	 * @param model  	Reference to the model.
+	 * @param channels  The channels to handle.
 	 */
-	JComponent getControls()
+	FigureComponent(FigureDialog model, List<ChannelButton> channels)
 	{
-		JPanel p = new JPanel();
-		p.add(colorLabel);
-		p.add(box);
-		return UIUtilities.buildComponentPanel(p);
+		this.model = model;
+		single = false;
+		buttons = channels;
+		initComponents(FigureParam.MERGED_TEXT);
+		buildGUI();
 	}
 	
 	/**
-	 * Returns the canvas.
+	 * Returns the label associated to the component.
 	 * 
 	 * @return See above.
 	 */
-	JComponent getCanvas()
-	{
-		return UIUtilities.buildComponentPanelCenter(canvas);
-	}
-	
-	/**
-	 * Returns the label associated to the channel.
-	 * 
-	 * @return See above.
-	 */
-	String getChannelLabel()
+	String getLabel()
 	{ 
 		String value = field.getText(); 
-		if (value == null || value.trim().length() == 0)
-			return ""+index;
+		if (value == null || value.trim().length() == 0) {
+			if (single) {
+				ChannelButton b = buttons.get(0);
+				return ""+b.getChannelIndex();
+			}
+			return FigureParam.MERGED_TEXT;
+		}
+			
 		return value.trim(); 
 	}
 	
@@ -205,7 +201,9 @@ class FigureComponent
 	 */
 	void resetImage(boolean grey)
 	{
-		if (image == null) return;
+		if (image == null || !single) return;
+		ChannelButton button = buttons.get(0);
+		Color color = button.getColor();
 		if (grey) {
 			if (greyImage == null) {
 				int r = color.getRed();
@@ -225,7 +223,8 @@ class FigureComponent
 							image.getWidth(), 
 							image.getHeight(), mask, mask, mask);
 				} else {
-					greyImage = model.createSingleGreyScaleImage(index);
+					greyImage = model.createSingleGreyScaleImage(
+							button.getChannelIndex());
 				}
 			}
 			displayedImage = greyImage;
@@ -266,14 +265,38 @@ class FigureComponent
 	 * 
 	 * @return See above.
 	 */
-	boolean isSelected() { return box.isSelected(); }
+	boolean isSelected()
+	{ 
+		if (buttons.size() != 1) return false;
+		ChannelButton b = buttons.get(0);
+		return b.isSelected();
+	}
 	
 	/**
 	 * Selects or not the selection box.
 	 * 
 	 * @param selected The value to set.
 	 */
-	void setSelected(boolean selected) { box.setSelected(selected); }
+	void setSelected(boolean selected)
+	{ 
+		if (buttons.size() != 1) return;
+		ChannelButton b = buttons.get(0);
+		b.setSelected(selected);
+	}
+	
+	/**
+	 * Returns the collection of channels associated to this component.
+	 * 
+	 * @return See above.
+	 */
+	List<ChannelButton> getChannels() { return buttons; }
+	
+	/**
+	 * Returns the displayed image.
+	 * 
+	 * @return See above.
+	 */
+	BufferedImage getDisplayedImage() { return displayedImage; }
 	
 	/**
 	 * Overridden to set the enabled flag of the selection box.
@@ -281,20 +304,29 @@ class FigureComponent
 	 */
 	public void setEnabled(boolean enabled)
 	{
-		box.setEnabled(enabled);
 		field.setEnabled(enabled);
 	}
 	
 	/**
-	 * Listens to the check box selection.
-	 * @see ChangeListener#stateChanged(ChangeEvent)
+	 * Selects the channel and updates the canvas.
+	 * @see PropertyChangeListener#propertyChange(ChangeEvent)
 	 */
-	public void stateChanged(ChangeEvent e)
-	{
-		if (!(e.getSource() instanceof JCheckBox)) return;
-		canvas.setImageVisible(box.isSelected());
-		if (box.isSelected()) canvas.setImage(displayedImage);
-		canvas.repaint();
+	public void propertyChange(PropertyChangeEvent evt) {
+		String name = evt.getPropertyName();
+		
+		if (ChannelButton.CHANNEL_SELECTED_PROPERTY.equals(name)) {
+			if (single) {
+				Map m = (Map) evt.getNewValue();
+				ChannelButton button = buttons.get(0);
+				Boolean b = (Boolean) m.get(button.getChannelIndex());
+				if (b != null) {
+					button.setSelected(b);
+					canvas.setImageVisible(b);
+					if (b) canvas.setImage(displayedImage);
+					canvas.repaint();
+				}
+			}
+		}
 	}
 
 }

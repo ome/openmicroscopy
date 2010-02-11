@@ -146,9 +146,6 @@ public class FigureDialog
 	/** Indicates that the dialog is for a thumbnails figure. */
 	public static final int			THUMBNAILS = 3;
 	
-	/** The default size of the button. */
-	private static final Dimension	DEFAULT_SIZE = new Dimension(16, 16);
-	
 	/** Bound property indicating to create a split view figure. */
 	public static final String		CREATE_FIGURE_PROPERTY = "createFigure";
 	
@@ -172,9 +169,6 @@ public class FigureDialog
 	
 	/** Action id indicating a change in the magnification factor.. */
 	private static final int 		ZOOM_FACTOR = 5;
-	
-	/** The text displayed next to the merged image. */
-	private static final String		MERGED_TEXT = "Merged";
 	
 	/** The default text for the movie. */
 	private static final String		FRAMES_TEXT = "Number of frames: ";
@@ -298,11 +292,6 @@ public class FigureDialog
     /** Components displaying the image. */
     private Map<Integer, FigureComponent> components;
     
-    /** List of channel buttons. */
-    //private List<ChannelComponent>			channelList;
-    
-    private List<ChannelButton>			channelButtons;
-    
 	/** Option chosen by the user. */
 	private int								option;
 	
@@ -312,12 +301,6 @@ public class FigureDialog
 	/** The default plate object. */
 	private PlaneDef 						pDef;
 
-	/** The component displaying the merger image. */
-	private FigureCanvas					mergeCanvas;
-	
-	/** The image with all the active channels. */
-	private BufferedImage					mergeImage;
- 
 	/** The width of a thumbnail. */
 	private int 							thumbnailWidth;
 
@@ -421,12 +404,15 @@ public class FigureDialog
 	/** This component is only be used for the Split ROI figure. */
 	private LensComponent					lens;
 	
-	/** The merger image unscaled. */
+	/** The merged image not scaled. */
 	private BufferedImage					mergeUnscaled;
 	
 	/** The roi box. */
 	private Rectangle2D						roiBox;
 
+	/** The default figure. */
+	private FigureComponent					mergedComponent;
+	
 	/** Modifies the lens factor. */
 	private void setLensFactor()
 	{
@@ -507,21 +493,15 @@ public class FigureDialog
 	private void setChannelSelection(int channel, boolean active)
 	{
 		renderer.setActive(channel, active);
-		mergeImage = getMergedImage();
-		mergeCanvas.setImage(mergeImage);
+		//mergeImage = getMergedImage();
+		mergedComponent.setOriginalImage(getMergedImage());
+		//mergeCanvas.setImage(mergeImage);
 		//Iterator<ChannelComponent> i = channelList.iterator();
 		ChannelComponent btn;
 		List<Integer> actives = renderer.getActiveChannels();
         int v;
-        Iterator<ChannelButton> i = channelButtons.iterator();
+        Iterator<ChannelButton> i = mergedComponent.getChannels().iterator();
         ChannelButton cb;
-        /*
-        while (i.hasNext()) {
-			btn = i.next();
-			v = btn.getChannelIndex();
-			btn.setSelected(actives.contains(v));
-		}
-		*/
         while (i.hasNext()) {
 			cb = i.next();
 			v = cb.getChannelIndex();
@@ -579,7 +559,10 @@ public class FigureDialog
 				//if red
 				DataBuffer buf;
 				if (!scale) buf = mergeUnscaled.getRaster().getDataBuffer();
-				else buf = mergeImage.getRaster().getDataBuffer();
+				else 
+					buf = mergedComponent.getDisplayedImage().getRaster().
+						getDataBuffer();
+					//buf = mergeImage.getRaster().getDataBuffer();
 				if (renderer.isColorComponent(Renderer.RED_BAND, index)) {
 					if (!scale) 
 						return Factory.createBandImage(buf,
@@ -639,11 +622,11 @@ public class FigureDialog
 		if (pDef == null)
 			initPlane(renderer.getDefaultZ(), renderer.getDefaultT());
 
-		mergeCanvas = new FigureCanvas();
-		mergeImage = getMergedImage();
-		mergeCanvas.setPreferredSize(new Dimension(thumbnailWidth, 
-				thumbnailHeight));
-		mergeCanvas.setImage(mergeImage);
+		//mergeCanvas = new FigureCanvas();
+		//mergeImage = getMergedImage();
+		//mergeCanvas.setPreferredSize(new Dimension(thumbnailWidth, 
+		//		thumbnailHeight));
+		//mergeCanvas.setImage(mergeImage);
 	}
 	
 	/**
@@ -673,54 +656,42 @@ public class FigureDialog
 			initChannelComponentsForROI();
 			return;
 		} 
+		List<ChannelData> data = renderer.getChannelData();
+		List<Integer> active = renderer.getActiveChannels();
+		Iterator<ChannelData> k = data.iterator();
+        List<ChannelButton> buttons = new ArrayList<ChannelButton>();
+        ChannelButton comp;
+        int j;
+        ChannelData d;
+        while (k.hasNext()) {
+        	d = k.next();
+			j = d.getIndex();
+			comp = new ChannelButton("", renderer.getChannelColor(j), j,
+					active.contains(j));
+			comp.setPreferredSize(FigureComponent.DEFAULT_SIZE);
+			buttons.add(comp);
+			comp.addPropertyChangeListener(this);
+		}
+        mergedComponent = new FigureComponent(this, buttons);
+        mergedComponent.setCanvasSize(thumbnailWidth, thumbnailHeight);
+        mergedComponent.setOriginalImage(getMergedImage());
+        
 		components = new LinkedHashMap<Integer, FigureComponent>();
 		//Initializes the channels
-		List<ChannelData> data = renderer.getChannelData();
-        ChannelData d;
-        //ChannelToggleButton item;
-        ChannelButton item;
-        Iterator<ChannelData> k = data.iterator();
-        List<Integer> active = renderer.getActiveChannels();
+		k = data.iterator();
         FigureComponent split;
-        int j;
         while (k.hasNext()) {
 			d = k.next();
 			j = d.getIndex();
 			split = new FigureComponent(this, renderer.getChannelColor(j), 
 					d.getChannelLabeling(), j);
+			split.setSelected(active.contains(j));
 			split.setOriginalImage(getChannelImage(j, true));
 			split.setCanvasSize(thumbnailWidth, thumbnailHeight);
 			if (!active.contains(j))
 				split.resetImage(true);
 			components.put(j, split);
 		}
-
-        k = data.iterator();
-        //channelList = new ArrayList<ChannelComponent>();
-        
-        /*
-        ChannelComponent comp;
-        while (k.hasNext()) {
-        	d = k.next();
-			j = d.getIndex();
-			comp = new ChannelComponent(j, renderer.getChannelColor(j), 
-					active.contains(j));
-			channelList.add(comp);
-			comp.addPropertyChangeListener(this);
-		}
-		*/
-        channelButtons = new ArrayList<ChannelButton>();
-        ChannelButton comp;
-        while (k.hasNext()) {
-        	d = k.next();
-			j = d.getIndex();
-			comp = new ChannelButton("", renderer.getChannelColor(j), j,
-					active.contains(j));
-			comp.setPreferredSize(DEFAULT_SIZE);
-			channelButtons.add(comp);
-			comp.addPropertyChangeListener(this);
-		}
-        
 	}
 	
 	/** Initializes the components for the ROI. */
@@ -799,6 +770,7 @@ public class FigureDialog
 			j = d.getIndex();
 			split = new FigureComponent(this, renderer.getChannelColor(j), 
 					d.getChannelLabeling(), j);
+			split.setSelected(active.contains(j));
 			lens.setPlaneImage(getChannelImage(j, false));
 			img = lens.getZoomedImage();
 			w = img.getWidth()*size.width/pixels.getSizeX();
@@ -811,17 +783,20 @@ public class FigureDialog
 		}
 
         k = data.iterator();
-        channelButtons = new ArrayList<ChannelButton>();
+        List<ChannelButton> buttons = new ArrayList<ChannelButton>();
         ChannelButton comp;
         while (k.hasNext()) {
         	d = k.next();
 			j = d.getIndex();
 			comp = new ChannelButton("", renderer.getChannelColor(j), j,
 					active.contains(j));
-			comp.setPreferredSize(DEFAULT_SIZE);
-			channelButtons.add(comp);
+			comp.setPreferredSize(FigureComponent.DEFAULT_SIZE);
+			buttons.add(comp);
 			comp.addPropertyChangeListener(this);
 		}
+        mergedComponent = new FigureComponent(this, buttons);
+        mergedComponent.setCanvasSize(thumbnailWidth, thumbnailHeight);
+        mergedComponent.setOriginalImage(getMergedImage());
 	}
 	
 	/**
@@ -1245,6 +1220,16 @@ public class FigureDialog
 	private JPanel buildComponents()
 	{
 		JPanel p = new JPanel();
+		Entry entry;
+		Iterator i = components.entrySet().iterator();
+		FigureComponent comp;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			comp = (FigureComponent) entry.getValue();
+			p.add(comp);
+		}
+		p.add(mergedComponent);
+		/*
 		int n = components.size();
 		double[] columns = new double[n+1];
 		for (int i = 0; i < columns.length; i++) {
@@ -1297,6 +1282,7 @@ public class FigureDialog
 					col+", 2");
 			col++;
 		}
+		*/
 		p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		return p;
 	}
@@ -1482,6 +1468,8 @@ public class FigureDialog
 	 */
 	private void collectParam(FigureParam p)
 	{
+		if (mergedComponent != null)
+			p.setMergedLabel(mergedComponent.getLabel());
 		p.setSelectedObjects(selectedObjects.isSelected());
 		p.setWidth((Integer) widthField.getValueAsNumber());
 		p.setHeight((Integer) heightField.getValueAsNumber());
@@ -1519,6 +1507,7 @@ public class FigureDialog
 			//p.setZStart(n);
 			//p.setZEnd(n);
 			//p.setStepping(1);
+			//TODO:Check what to add to script.
 			p.setProjectionType(ProjectionParam.MAXIMUM_INTENSITY);
 		}
 	}
@@ -1534,7 +1523,7 @@ public class FigureDialog
 			entry = (Entry) i.next();
 			comp = (FigureComponent) entry.getValue();
 			if (comp.isSelected()) {
-				split.put((Integer) entry.getKey(), comp.getChannelLabel());
+				split.put((Integer) entry.getKey(), comp.getLabel());
 			}
 		}
 		Map<Integer, Color> merge = new LinkedHashMap<Integer, Color>();
@@ -1567,7 +1556,7 @@ public class FigureDialog
 			entry = (Entry) i.next();
 			comp = (FigureComponent) entry.getValue();
 			if (comp.isSelected()) {
-				split.put((Integer) entry.getKey(), comp.getChannelLabel());
+				split.put((Integer) entry.getKey(), comp.getLabel());
 			}
 		}
 		Map<Integer, Color> merge = new LinkedHashMap<Integer, Color>();
@@ -1740,11 +1729,10 @@ public class FigureDialog
 			int x = w*thumbnailWidth/pixels.getSizeX();
 			int y = w*thumbnailHeight/pixels.getSizeY();
 			if (x == 0 || y == 0) return;
-			mergeImage = Factory.scaleBufferedImage(mergeUnscaled, x, y);
-			mergeCanvas.setImage(mergeImage);
+			mergedComponent.setOriginalImage(
+					Factory.scaleBufferedImage(mergeUnscaled, x, y));
 			Dimension d = new Dimension(x, y);
-			mergeCanvas.setPreferredSize(d);
-			mergeCanvas.setSize(d);
+			mergedComponent.setCanvasSize(x, y);
 			double f = getMagnificationFactor();
 			DrawingView canvasView = drawingComponent.getDrawingView();
 			if (f != -1) canvasView.setScaleFactor(f);
@@ -1846,7 +1834,7 @@ public class FigureDialog
 		selectedTags.setLayout(new BoxLayout(selectedTags, BoxLayout.Y_AXIS));
 		JPanel controls = new JPanel();
 		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
-		controls.add(UIUtilities.setTextFont("Arrange by Tags"));
+		controls.add(UIUtilities.setTextFont("Select by Tag"));
 		controls.add(UIUtilities.buildComponentPanel(arrangeByTags));
 		p.add(controls, "0, 0, LEFT, TOP");
 		p.add(selectedTags, "0, 1, LEFT, TOP");
@@ -1971,7 +1959,6 @@ public class FigureDialog
 			Entry entry;
 			Iterator i = set.iterator();
 			Integer index;
-			ChannelButton obj = (ChannelButton) evt.getSource();
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				index = (Integer) entry.getKey();

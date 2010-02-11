@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 
 
 //Java imports
-import java.awt.BorderLayout;
 import java.awt.Color;
 import javax.swing.BorderFactory;
 import javax.swing.Box;

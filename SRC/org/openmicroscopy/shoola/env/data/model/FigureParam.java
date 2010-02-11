@@ -51,6 +51,9 @@ import java.util.Map;
 public class FigureParam
 {
 
+	/** The default text for the merged image. */
+	public static final String		MERGED_TEXT = "Merged";
+	
 	/** Indicates to create a split view figure. */
 	public static final int		SPLIT_VIEW = 0;
 	
@@ -188,6 +191,9 @@ public class FigureParam
 	/** Identifies the time selected. */
 	private int		time;
 	
+	/** The default text associated to the merged image.*/ 
+	private String 	mergedLabel;
+	
 	/** Sets the default value. */
 	private void setDefault()
 	{
@@ -307,6 +313,23 @@ public class FigureParam
 			mergeChannels.put(index, value);
 		}
 	}
+	
+	/**
+	 * Sets the text associated to the merged image.
+	 * 
+	 * @param text The value to set.
+	 */
+	public void setMergedLabel(String text)
+	{
+		mergedLabel = text;
+	}
+	
+	/**
+	 * Returns the text associated to the merged image.
+	 * 
+	 * @return See above.
+	 */
+	public String getMergedLabel() { return mergedLabel; }
 	
 	/**
 	 * Sets the time.
