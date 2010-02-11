@@ -9,9 +9,13 @@ package ome.server.itests.perms42;
 import java.util.List;
 
 import ome.conditions.GroupSecurityViolation;
+import ome.conditions.SecurityViolation;
+import ome.model.annotations.ImageAnnotationLink;
+import ome.model.annotations.TagAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
+import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 
 import org.testng.annotations.Test;
@@ -24,6 +28,54 @@ import org.testng.annotations.Test;
  */
 @Test(groups = "ticket:1434")
 public class GraphConsistencyTest extends PermissionsTest {
+
+
+    //
+    // Bugs
+    //
+
+    @Test
+    public void testAdminOrPiInPrivateGroup() throws Exception {
+        setup(Permissions.PRIVATE);
+        fixture.make_leader();
+
+        // INSERT
+        Image i = fixture.saveImage();
+
+        // UPDATE
+        i.setName(uuid());
+        i = iUpdate.saveAndReturnObject(i);
+
+        // DELETE
+        iUpdate.deleteObject(i);
+
+        // Another user creates an image
+        Experimenter e2 = loginNewUserInOtherUsersGroup(fixture.user);
+        i = fixture.saveImage();
+
+        // NO UPDATE
+        fixture.log_in();
+        i.setName(uuid());
+        try {
+            iUpdate.saveObject(i);
+            fail("sec-vio");
+        } catch (SecurityViolation sv) {
+            // ok
+        }
+
+        // NO LINK
+        loginUser(e2.getOmeName(), fixture.groupName);
+        i = fixture.saveImage();
+        try {
+            ImageAnnotationLink link = new ImageAnnotationLink();
+            link.link(i.proxy(), new TagAnnotation());
+            iUpdate.saveObject(link);
+            fail("sec-vio");
+        } catch (SecurityViolation sv) {
+            // ok
+        }
+
+    }
 
     //
     // Guarantee consistent graphs on read

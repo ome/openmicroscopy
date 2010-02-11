@@ -113,7 +113,8 @@ public class BasicACLVoter implements ACLVoter {
         boolean sysType = sysTypes.isSystemType(cls);
 
         if (!sysType && currentUser.isGraphCritical()) { // ticket:1769
-            return false;
+            Long uid = currentUser.getOwner().getId();
+            return objectBelongsToUser(iObject, uid);
         }
 
         else if (tokenHolder.hasPrivilegedToken(iObject)
@@ -172,12 +173,13 @@ public class BasicACLVoter implements ACLVoter {
         Assert.notNull(iObject);
 
         BasicEventContext c = currentUser.current();
+        Long uid = c.getCurrentUserId();
 
         boolean sysType = sysTypes.isSystemType(iObject.getClass());
 
         // needs no details info
         if (update && !sysType && currentUser.isGraphCritical()) { //ticket:1769
-            return false;
+            return objectBelongsToUser(iObject, uid);
         } else if (tokenHolder.hasPrivilegedToken(iObject) || c.isCurrentUserAdmin()) {
             return true;
         } else if (sysType) {
@@ -231,6 +233,17 @@ public class BasicACLVoter implements ACLVoter {
         }
 
         return false;
+    }
+
+    /**
+     * @param iObject
+     * @param uid
+     * @return
+     * @DEV.TODO this is less problematic than linking.
+     */
+    private boolean objectBelongsToUser(IObject iObject, Long uid) {
+        Long oid = iObject.getDetails().getOwner().getId();
+        return uid.equals(oid); // Only allow own objects!
     }
 
 }
