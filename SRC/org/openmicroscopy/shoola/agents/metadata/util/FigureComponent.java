@@ -282,6 +282,7 @@ class FigureComponent
 		if (buttons.size() != 1) return;
 		ChannelButton b = buttons.get(0);
 		b.setSelected(selected);
+		b.repaint();
 	}
 	
 	/**
@@ -313,7 +314,6 @@ class FigureComponent
 	 */
 	public void propertyChange(PropertyChangeEvent evt) {
 		String name = evt.getPropertyName();
-		
 		if (ChannelButton.CHANNEL_SELECTED_PROPERTY.equals(name)) {
 			if (single) {
 				Map m = (Map) evt.getNewValue();
@@ -321,9 +321,13 @@ class FigureComponent
 				Boolean b = (Boolean) m.get(button.getChannelIndex());
 				if (b != null) {
 					button.setSelected(b);
+					model.setChannelSelection(button.getChannelIndex(), b);
+					canvas.setImageVisible(b);
+					/*
 					canvas.setImageVisible(b);
 					if (b) canvas.setImage(displayedImage);
 					canvas.repaint();
+					*/
 				}
 			}
 		}

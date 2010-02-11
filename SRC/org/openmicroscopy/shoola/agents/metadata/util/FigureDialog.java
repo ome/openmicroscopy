@@ -482,43 +482,6 @@ public class FigureDialog
 		selectedTags.revalidate();
 		selectedTags.repaint();
 	}
-	
-	/**
-	 * Sets the channel selection.
-	 * 
-	 * @param channel   The selected channel.
-	 * @param active	Pass <code>true</code> to set the channel active,
-	 * 					<code>false</code> otherwise.
-	 */
-	private void setChannelSelection(int channel, boolean active)
-	{
-		renderer.setActive(channel, active);
-		//mergeImage = getMergedImage();
-		mergedComponent.setOriginalImage(getMergedImage());
-		//mergeCanvas.setImage(mergeImage);
-		//Iterator<ChannelComponent> i = channelList.iterator();
-		ChannelComponent btn;
-		List<Integer> actives = renderer.getActiveChannels();
-        int v;
-        Iterator<ChannelButton> i = mergedComponent.getChannels().iterator();
-        ChannelButton cb;
-        while (i.hasNext()) {
-			cb = i.next();
-			v = cb.getChannelIndex();
-			cb.setSelected(actives.contains(v));
-		}
-        FigureComponent comp = components.get(channel);
-		switch (dialogType) {
-			case SPLIT:
-			case SPLIT_ROI:
-		        boolean grey = splitPanelGrey.isSelected();
-		        if (active) {
-		        	if (grey) comp.resetImage(grey);
-		        	else comp.resetImage(!active);
-		        } else comp.resetImage(!active);
-		        break;	
-		}
-	}
 
 	/**
 	 * Returns the merged image.
@@ -1229,60 +1192,6 @@ public class FigureDialog
 			p.add(comp);
 		}
 		p.add(mergedComponent);
-		/*
-		int n = components.size();
-		double[] columns = new double[n+1];
-		for (int i = 0; i < columns.length; i++) {
-			columns[i] = TableLayout.PREFERRED;
-		}
-		double[] rows = {TableLayout.PREFERRED, TableLayout.PREFERRED, 
-				TableLayout.PREFERRED};
-		p.setLayout(new TableLayout(columns, rows));
-		JPanel buttonPanel = new JPanel();
-		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
-		Iterator<ChannelButton> k = channelButtons.iterator();
-		while (k.hasNext()) {
-			buttonPanel.add(k.next());
-			buttonPanel.add(Box.createHorizontalStrut(5));
-		}
-		
-		int col = 0;
-		if (dialogType == SPLIT_ROI) {
-			JComponent c = drawingComponent.getDrawingView();
-			Dimension d = mergeCanvas.getPreferredSize();
-			c.setSize(d);
-			c.setPreferredSize(d);
-			mergeCanvas.setSize(d);
-			pane.setPreferredSize(d);
-			pane.setSize(d);
-			pane.add(mergeCanvas, new Integer(0));
-			pane.add(c, new Integer(1));
-			p.add(new JLabel(MERGED_TEXT), col+", 0");
-			p.add(buttonPanel, col+", 1");
-			p.add(UIUtilities.buildComponentPanelCenter(pane), col+", 2");
-			col++;
-		}
-		
-		Entry entry;
-		Iterator i = components.entrySet().iterator();
-		FigureComponent comp;
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			comp = (FigureComponent) entry.getValue();
-			p.add(comp.getHeader(), col+", 0");
-			p.add(comp.getControls(), col+", 1");
-			p.add(comp.getCanvas(), col+", 2");
-			col++;
-		}
-		col = n;
-		if (dialogType == SPLIT) {
-			p.add(new JLabel(MERGED_TEXT), col+", 0");
-			p.add(buttonPanel, col+", 1");
-			p.add(UIUtilities.buildComponentPanelCenter(mergeCanvas), 
-					col+", 2");
-			col++;
-		}
-		*/
 		p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		return p;
 	}
@@ -1776,6 +1685,41 @@ public class FigureDialog
 				pDef));
 	}
 	
+	/**
+	 * Sets the channel selection.
+	 * 
+	 * @param channel   The selected channel.
+	 * @param active	Pass <code>true</code> to set the channel active,
+	 * 					<code>false</code> otherwise.
+	 */
+	void setChannelSelection(int channel, boolean active)
+	{
+		renderer.setActive(channel, active);
+		mergedComponent.setOriginalImage(getMergedImage());
+
+		List<Integer> actives = renderer.getActiveChannels();
+        int v;
+        Iterator<ChannelButton> i = mergedComponent.getChannels().iterator();
+        ChannelButton cb;
+        while (i.hasNext()) {
+			cb = i.next();
+			v = cb.getChannelIndex();
+			cb.setSelected(actives.contains(v));
+		}
+        FigureComponent comp = components.get(channel);
+		switch (dialogType) {
+			case SPLIT:
+			case SPLIT_ROI:
+		        boolean grey = splitPanelGrey.isSelected();
+		        if (active) {
+		        	if (grey) comp.resetImage(grey);
+		        	else comp.resetImage(!active);
+		        } else comp.resetImage(!active);
+		        comp.setSelected(active);
+		        break;	
+		}
+	}
+
 	/**
 	 * Sets the renderer.
 	 * 
