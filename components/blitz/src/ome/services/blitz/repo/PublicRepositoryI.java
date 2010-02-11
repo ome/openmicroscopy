@@ -12,6 +12,9 @@ import static omero.rtypes.rstring;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,6 +39,9 @@ import omero.model.FormatI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.util.IceMapper;
+
+import loci.formats.*; // need to close this down once the r/w are sorted.
+import loci.formats.meta.IMetadata;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFileFilter;
@@ -63,6 +69,9 @@ public class PublicRepositoryI extends _RepositoryDisp {
     private final Executor executor;
 
     private final Principal principal;
+    
+    private final static String OMERO_PATH = ".omero";
+    private final static String THUMB_PATH = "thumbnails";
 
     public PublicRepositoryI(File root, long repoObjectId, Executor executor,
             Principal principal) throws Exception {
@@ -281,10 +290,42 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return knownOriginalFiles(files);
     }
 
+    /**
+     * Get the format object for a file.
+     * 
+     * @param path
+     *            A path on a repository.
+     * @param __current
+     *            ice context.
+     * @return Format object
+     *
+     */
     public Format format(String path, Current __current) throws ServerError {
-        File f = new File(path).getAbsoluteFile();
-        return getFileFormat(f);
+        File file = checkPath(path);
+        return getFileFormat(file);
     }
+
+    /**
+     * Get (the path of) the thumbnail image for an image file on the repository.
+     * 
+     * @param path
+     *            A path on a repository.
+     * @param __current
+     *            ice context.
+     * @return The path of the thumbnail
+     *
+     */
+    public String getThumbnail(String path, Current __current)  throws ServerError {
+        File file = checkPath(path);
+        String tnPath;
+        try {
+            tnPath = createThumbnail(file);   
+        } catch (ServerError exc) {
+            throw exc;
+        }
+        return tnPath;
+    }
+
 
     //
     // Utilities
@@ -442,6 +483,82 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return rv;
     }
 
+    /**
+     * Create a jpeg thumbnail from an image file 
+     * 
+     * @param path
+     *            A path to a file.
+     * @return The path of the thumbnail
+     *
+     * TODO Weak at present, no caching
+     */
+     private String createThumbnail(File file)  throws ServerError {
+        
+        IFormatReader reader;
+        byte[] thumb;
+        
+        File parent = file.getParentFile();
+        File tnParent = new File(new File(parent, OMERO_PATH), THUMB_PATH);
+        tnParent.mkdirs(); // Need to check if this exists after?
+        File tnFile = new File(tnParent, file.getName() + "_tn.jpg");
+        
+        // Very basic caching...if a file exists return it.
+        if (tnFile.exists()) {
+            return tnFile.getAbsolutePath();
+        }
+        
+        // As it doesn't exist, create it.
+        reader = new ImageReader();
+        reader.setNormalized(true);
+        try {
+            reader.setId(file.getAbsolutePath());
+            // open middle image thumbnail
+            int z = reader.getSizeZ() / 2;
+            int t = reader.getSizeT() / 2;
+            int ndx = reader.getIndex(z, 0, t);
+            thumb = reader.openThumbBytes(ndx); 
+        } catch (FormatException exc) { 
+            throw new ServerError(null, null, "Thumbnail error, read failed."); 
+        } catch (IOException exc) { 
+            throw new ServerError(null, null, "Thumbnail error, read failed."); 
+        }
+        
+        // How much of this is needed for a jpeg? 
+        // At present provides monochrome images, need to provide colour?
+        IMetadata meta = MetadataTools.createOMEXMLMetadata();
+        int thumbSizeX = reader.getThumbSizeX();
+        int thumbSizeY = reader.getThumbSizeY();  
+        int pixelType = FormatTools.UINT8;            
+        meta.createRoot();
+        meta.setPixelsBigEndian(Boolean.TRUE, 0, 0);
+        meta.setPixelsDimensionOrder("XYZCT", 0, 0);
+        meta.setPixelsPixelType(FormatTools.getPixelTypeString(pixelType), 0, 0);
+        meta.setPixelsSizeX(thumbSizeX, 0, 0);
+        meta.setPixelsSizeY(thumbSizeY, 0, 0);
+        meta.setPixelsSizeZ(1, 0, 0);
+        meta.setPixelsSizeC(1, 0, 0);
+        meta.setPixelsSizeT(1, 0, 0);
+        meta.setLogicalChannelSamplesPerPixel(1, 0, 0);
+            
+        try {
+            IFormatWriter writer = new ImageWriter();
+            writer.setMetadataRetrieve(meta);
+            writer.setId(tnFile.getAbsolutePath());
+            writer.saveBytes(thumb, true);
+            writer.close();
+            return tnFile.getAbsolutePath();  
+        } catch (FormatException exc) { 
+            throw new ServerError(null, stackTraceAsString(exc), "Thumbnail error, write failed."); 
+        } catch (IOException exc) { 
+            throw new ServerError(null, stackTraceAsString(exc), "Thumbnail error, write failed."); 
+        }
+        
+	}
 
-
+    // Utility function for passing stack traces back in exceptions.
+    private String stackTraceAsString(Exception exception) {
+        StringWriter sw = new StringWriter();
+        exception.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
+    }
 }

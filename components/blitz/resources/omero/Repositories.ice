@@ -116,6 +116,7 @@ module omero {
             void delete(string path) throws ServerError;
             void transfer(string srcPath, Repository* target, string targetPath) throws ServerError;
 
+            string getThumbnail(string path) throws ServerError;
         };
 
         /**
