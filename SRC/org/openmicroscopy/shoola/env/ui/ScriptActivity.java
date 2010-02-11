@@ -137,7 +137,7 @@ public class ScriptActivity
 		}
 	}
 	
-	/** Notifies to dowload the file. */
+	/** Notifies to download the file. */
 	protected void notifyDownload()
 	{
 		//Check name space.

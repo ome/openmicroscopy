@@ -38,8 +38,14 @@ import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
+import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
+
+import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.FileAnnotationData;
+import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * Activity to create a figure.
@@ -62,7 +68,7 @@ public class FigureActivity
 	private static final String		DESCRIPTION_CREATION = "Creating a figure";
 	
 	/** The description of the activity when finished. */
-	private static final String		DESCRIPTION_CREATED = "figure created";
+	private static final String		DESCRIPTION_CREATED = "Figure created";
 	
 	/** The parameters hosting information about the figure to make. */
     private FigureActivityParam	parameters;
@@ -102,9 +108,24 @@ public class FigureActivity
 	protected void notifyActivityEnd()
 	{
 		type.setText(DESCRIPTION_CREATED);
+		Object p = parameters.getParameters();
+		if (p instanceof FigureParam) {
+			DataObject data = ((FigureParam) p).getAnchor();
+			if (data == null) return;
+			String name = null;
+			if (data instanceof ImageData) {
+				name = "image: "+((ImageData) data).getName();
+			} else if (data instanceof DatasetData) {
+				name = "dataset: "+((DatasetData) data).getName();
+			} else if (data instanceof ProjectData) {
+				name = "project: "+((ProjectData) data).getName();
+			}
+			if (name != null)
+				messageLabel.setText("Attached to "+name);
+		}
 	}
 	
-	/** Notifies to dowload the file. */
+	/** Notifies to downnload the file. */
 	protected void notifyDownload()
 	{
 		//Check name space.

@@ -955,6 +955,7 @@ class TreeViewerControl
 			}
 			if (l == null) return;
 			Class klass = null;
+			Object p = null;
 			if (param.getIndex() == FigureParam.THUMBNAILS) {
 				TreeImageDisplay[] nodes = 
 					model.getSelectedBrowser().getSelectedDisplays();
@@ -962,39 +963,41 @@ class TreeViewerControl
 					TreeImageDisplay node = nodes[0];
 					Object ho = node.getUserObject();
 					TreeImageDisplay pNode;
-					Object p;
-					long id = -1;
+
 					if (ho instanceof DatasetData) {
 						klass = ho.getClass();
 						pNode = node.getParentDisplay();
 						if (pNode != null) {
 							p = pNode.getUserObject();
-							if (p instanceof ProjectData)
-								id = ((ProjectData) p).getId();
+							if (!(p instanceof ProjectData)) p = null;
 						}
 					} else if (ho instanceof ImageData) {
 						klass = ho.getClass();
 						pNode = node.getParentDisplay();
 						if (pNode != null) {
 							p = pNode.getUserObject();
-							if (p instanceof DatasetData)
-								id = ((DatasetData) p).getId();
+							if (!(p instanceof DatasetData)) p = null;
 						}
+						if (p == null) p = ho;
 					}
-					if (id != -1)
-						param.setParentID(id);
+					if (p != null) param.setAnchor((DataObject) p);
 				}
 			}
 			
 			i = l.iterator();
+			int n = 0;
 			while (i.hasNext()) {
 				obj = (DataObject) i.next();
-				//if (obj instanceof ImageData) {
 				ids.add(obj.getId());
-				//}
+				if (n == 0) p = obj;
+				n++;
 			}
 			
 			if (ids.size() == 0) return;
+			// not set
+			if (param.getIndex() != FigureParam.THUMBNAILS) 
+				param.setAnchor((DataObject) p);
+
 			activity = new FigureActivityParam(object, ids, klass,
 					FigureActivityParam.SPLIT_VIEW_FIGURE);
 			activity.setIcon(icon);

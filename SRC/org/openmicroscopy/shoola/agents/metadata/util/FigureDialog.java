@@ -1424,8 +1424,12 @@ public class FigureDialog
 		}
 	}
 	
-	/** Collects the parameters to create a figure. */
-	private void saveSplitFigure()
+	/** 
+	 * Collects the parameters to create a Split figure. 
+	 * 
+	 * @return See above.
+	 */
+	private FigureParam saveSplitFigure()
 	{
 		Map<Integer, String> split = new LinkedHashMap<Integer, String>();
 		FigureComponent comp;
@@ -1453,12 +1457,15 @@ public class FigureDialog
 		FigureParam p = new FigureParam(format, name, split, merge, label);
 		
 		collectParam(p);
-		close();
-		firePropertyChange(CREATE_FIGURE_PROPERTY, null, p);
+		return p;
 	}
 	
-	/** Collects the parameters to create a ROI figure. */
-	private void saveROIFigure()
+	/** 
+	 * Collects the parameters to create a ROI figure. 
+	 * 
+	 * @return See above.
+	 */
+	private FigureParam saveROIFigure()
 	{
 		Map<Integer, String> split = new LinkedHashMap<Integer, String>();
 		FigureComponent comp;
@@ -1504,13 +1511,15 @@ public class FigureDialog
 				zoom = 5;
 		}
 		p.setMagnificationFactor(zoom);
-		
-		close();
-		firePropertyChange(CREATE_FIGURE_PROPERTY, null, p);
+		return p;
 	}
 	
-	/** Saves the movie figure. */
-	private void saveMovieFigure()
+	/** 
+	 * Collects the parameters to create the movie figure. 
+	 * 
+	 * @return See above.
+	 */
+	private FigureParam saveMovieFigure()
 	{
 		String name = nameField.getText().trim();
 		int format = formats.getSelectedIndex();
@@ -1520,12 +1529,15 @@ public class FigureDialog
 		p.setTime(timesBox.getSelectedIndex());
 		p.setTimepoints(sorter.sort(movieSlider.getSelectedCells()));
 		collectParam(p);
-		close();
-		firePropertyChange(CREATE_FIGURE_PROPERTY, null, p);
+		return p;
 	}
 	
-	/** Saves the thumbnails figure. */
-	private void saveThumbnailsFigure()
+	/** 
+	 * Collects the parameters to create the thumbnail figure.
+	 * 
+	 * @return  See above.
+	 */
+	private FigureParam saveThumbnailsFigure()
 	{
 		String name = nameField.getText().trim();
 		int format = formats.getSelectedIndex();
@@ -1576,27 +1588,29 @@ public class FigureDialog
 			}
 			p.setTags(ids);
 		}
-		close();
-		firePropertyChange(CREATE_FIGURE_PROPERTY, null, p);
+		return p;
 	}
 	
 	/** Collects the parameters to create a figure. */
 	private void save()
 	{
+		FigureParam p = null;
 		switch (dialogType) {
 			case SPLIT:
-				saveSplitFigure();
+				p = saveSplitFigure();
 				break;
 			case SPLIT_ROI:
-				saveROIFigure();
+				p = saveROIFigure();
 				break;
 			case MOVIE:
-				saveMovieFigure();
+				p = saveMovieFigure();
 				break;
 			case THUMBNAILS:
-				saveThumbnailsFigure();
-				break;
+				p = saveThumbnailsFigure();
 		}
+		close();
+		if (p != null)
+			firePropertyChange(CREATE_FIGURE_PROPERTY, null, p);
 	}
 	
 	/** 

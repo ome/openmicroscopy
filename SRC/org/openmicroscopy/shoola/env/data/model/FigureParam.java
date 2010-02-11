@@ -169,9 +169,6 @@ public class FigureParam
 	/** Collection of tags to sort the thumbnails by. */
 	private List<Long> tags;
 	
-	/** The parent's ID if specified. */
-	private long		parentID;
-	
 	/** The type of figure. */
 	private int 		index;
 	
@@ -195,15 +192,17 @@ public class FigureParam
 	private String 	mergedLabel;
 	
 	/** 
-	 * Flag indicates to include the untagged images if 
+	 * Flag indicates to include the images w/o tags if 
 	 * set to <code>true</code>, <code>false</code> otherwise.
 	 */
 	private boolean includeUntagged;
 	
+	/** The data object the figure is attached to. */
+	private pojos.DataObject anchor;
+	
 	/** Sets the default value. */
 	private void setDefault()
 	{
-		parentID = -1;
 		time = TIME_SECS_MILLIS;
 		label = IMAGE_NAME;
 		format = PNG;
@@ -672,20 +671,6 @@ public class FigureParam
 	 * @param tags The value to set.
 	 */
 	public void setTags(List<Long> tags) { this.tags = tags; }
-
-	/**
-	 * Returns the parent's ID.
-	 * 
-	 * @return See above.
-	 */
-	public long getParentID() { return parentID; }
-	
-	/**
-	 * Sets the parent's ID.
-	 * 
-	 * @param parentID The value to set.
-	 */
-	public void setParentID(long parentID) { this.parentID = parentID; }
 	
 	/**
 	 * Sets the selected timepoints.
@@ -723,5 +708,19 @@ public class FigureParam
 	 * @return See above.
 	 */
 	public boolean isIncludeUntagged() { return includeUntagged; }
+	
+	/**
+	 * Sets the <code>DataObject</code> the figure will be attached to.
+	 * 
+	 * @param anchor The value to set.
+	 */
+	public void setAnchor(pojos.DataObject anchor) { this.anchor = anchor; }
+	
+	/**
+	 * Returns the <code>DataObject</code> the figure will be attached to.
+	 * 
+	 * @return See above.
+	 */
+	public pojos.DataObject getAnchor() { return anchor; }
 	
 }

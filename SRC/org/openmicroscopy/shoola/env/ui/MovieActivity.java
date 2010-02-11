@@ -107,7 +107,7 @@ public class MovieActivity
 		type.setText(DESCRIPTION_CREATED);
 	}
 	
-	/** Notifies to dowload the file. */
+	/** Notifies to download the file. */
 	protected void notifyDownload()
 	{
 		if (!(result instanceof FileAnnotationData)) {

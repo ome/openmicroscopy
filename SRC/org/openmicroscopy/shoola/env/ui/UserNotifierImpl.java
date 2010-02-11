@@ -341,32 +341,6 @@ public class UserNotifierImpl
 		Runtime run = Runtime.getRuntime();
 		try {
 			String[] values;
-			/*
-			if (data == null) {
-				Ap
-				values = new String[2];
-				values[0] = "open";
-				values[1] = path;
-			} else {
-				List<String> l = data.getArguments();
-				Iterator<String> i = l.iterator();
-				int index = 0;
-				if (path == null || path.length() == 0) {
-					values = new String[l.size()];
-					while (i.hasNext()) {
-						values[index] = i.next();
-						index++;
-					}
-				} else {
-					values = new String[l.size()+1];
-					while (i.hasNext()) {
-						values[index] = i.next();
-						index++;
-					}
-					values[index] = path;
-				}
-			}
-			*/
 			if (data == null) data = new ApplicationData("");
 			List<String> l = data.getArguments();
 			Iterator<String> i = l.iterator();

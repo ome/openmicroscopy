@@ -4973,7 +4973,6 @@ class OMEROGateway
 		isSessionAlive();
 		List<ScriptObject> scripts = new ArrayList<ScriptObject>();
 		try {
-
 			IScriptPrx svc = getScripService();
 			Map<Long, String> map = svc.getScripts();
 			if (map == null || map.size() == 0) return scripts;
@@ -5153,7 +5152,10 @@ class OMEROGateway
 				ids.add(omero.rtypes.rlong(i.next()));
 			ParametersI parameters = new ParametersI();
 			if (scriptIndex == FigureParam.THUMBNAILS) {
-				long parentID = param.getParentID();
+				DataObject d = (DataObject) param.getAnchor();
+				long parentID = -1;
+				if (d instanceof DatasetData ||
+						d instanceof ProjectData) parentID = d.getId();
 				if (ImageData.class.equals(type)) {
 					parameters.map.put("imageIds", omero.rtypes.rlist(ids));	
 				} else if (DatasetData.class.equals(type)) {
