@@ -508,6 +508,10 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
             public Permissions getCurrentUmask() {
                 return null;
             }
+
+            public Permissions getCurrentGroupPermissions() {
+                return null;
+            }
         }));
 
         rv = invoke();

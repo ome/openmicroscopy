@@ -85,8 +85,10 @@ public class BasicACLVoter implements ACLVoter {
      */
     public boolean allowLoad(Class<? extends IObject> klass, Details d, long id) {
         Assert.notNull(klass);
-        // Assert.notNull(d);
-        if (d == null || sysTypes.isSystemType(klass)) {
+
+        if (d == null ||
+                sysTypes.isSystemType(klass) ||
+                sysTypes.isInSystemGroup(d)) {
             return true;
         }
 
@@ -108,9 +110,10 @@ public class BasicACLVoter implements ACLVoter {
 
     public boolean allowCreation(IObject iObject) {
         Assert.notNull(iObject);
-        Class cls = iObject.getClass();
+        Class<?> cls = iObject.getClass();
 
-        boolean sysType = sysTypes.isSystemType(cls);
+        boolean sysType = sysTypes.isSystemType(cls)
+            || sysTypes.isInSystemGroup(iObject.getDetails());
 
         if (!sysType && currentUser.isGraphCritical()) { // ticket:1769
             Long uid = currentUser.getOwner().getId();
@@ -122,7 +125,7 @@ public class BasicACLVoter implements ACLVoter {
             return true;
         }
 
-        else if (sysTypes.isSystemType(cls)) {
+        else if (sysType) {
             return false;
         }
 
@@ -133,7 +136,9 @@ public class BasicACLVoter implements ACLVoter {
             throws SecurityViolation {
         Assert.notNull(iObject);
 
-        boolean sysType = sysTypes.isSystemType(iObject.getClass());
+        boolean sysType = sysTypes.isSystemType(iObject.getClass()) ||
+            sysTypes.isInSystemGroup(iObject.getDetails());
+
         if (!sysType && currentUser.isGraphCritical()) { // ticket:1769
             throw new GroupSecurityViolation(iObject + "-insertion violates " +
                     "group-security.");
@@ -151,7 +156,9 @@ public class BasicACLVoter implements ACLVoter {
     public void throwUpdateViolation(IObject iObject) throws SecurityViolation {
         Assert.notNull(iObject);
 
-        boolean sysType = sysTypes.isSystemType(iObject.getClass());
+        boolean sysType = sysTypes.isSystemType(iObject.getClass()) ||
+            sysTypes.isInSystemGroup(iObject.getDetails());
+
         if (!sysType && currentUser.isGraphCritical()) { // ticket:1769
             throw new GroupSecurityViolation(iObject +"-modification violates " +
                     "group-security.");
@@ -175,7 +182,8 @@ public class BasicACLVoter implements ACLVoter {
         BasicEventContext c = currentUser.current();
         Long uid = c.getCurrentUserId();
 
-        boolean sysType = sysTypes.isSystemType(iObject.getClass());
+        boolean sysType = sysTypes.isSystemType(iObject.getClass()) ||
+            sysTypes.isInSystemGroup(iObject.getDetails());
 
         // needs no details info
         if (update && !sysType && currentUser.isGraphCritical()) { //ticket:1769
@@ -244,6 +252,13 @@ public class BasicACLVoter implements ACLVoter {
     private boolean objectBelongsToUser(IObject iObject, Long uid) {
         Long oid = iObject.getDetails().getOwner().getId();
         return uid.equals(oid); // Only allow own objects!
+    }
+
+    private Long group(Details d) {
+        if (d == null || d.getGroup() == null) {
+            return null;
+        }
+        return d.getGroup().getId();
     }
 
 }

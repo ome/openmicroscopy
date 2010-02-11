@@ -64,7 +64,8 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
         // This can't be done statically because we need the securitySystem.
         defaultFilterCondition = String.format("(\n"
                 // Should handle hidden groups at the top-level
-                + "\n  ( group_id = :current_group AND "
+                // ticket:1784 - Allowing system objects to be read.
+                + "\n  ( (group_id = :current_group OR group_id = 0) AND "
                 + "\n     ( :is_nonprivate OR "
                 + "\n       :is_adminorpi OR "
                 + "\n       owner_id = :current_user"
@@ -122,7 +123,8 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
         // ticket:1434 - Only loading current objects is permitted.
         // This method will not be called with system types.
         // See BasicACLVoter
-        if (!currentGroupId.equals(g)) {
+        // Also ticket:1784 allowing system objects to be read.
+        if (!currentGroupId.equals(g) && ! Long.valueOf(0).equals(g)) {
             return false;
         }
 

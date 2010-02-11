@@ -361,7 +361,11 @@ public class OmeroInterceptor implements Interceptor {
      *            a security exception will be raised later)
      */
     public void markLockedIfNecessary(IObject iObject) {
-        if (iObject == null || sysTypes.isSystemType(iObject.getClass())) {
+
+        if (iObject == null ||
+                sysTypes.isSystemType(iObject.getClass()) ||
+                sysTypes.isInSystemGroup(iObject.getDetails())
+                ) {
             return;
         }
 
@@ -373,7 +377,8 @@ public class OmeroInterceptor implements Interceptor {
             // omitting system types since they don't have permissions
             // which can be locked.
 
-            if (!sysTypes.isSystemType(object.getClass())) {
+            if (!sysTypes.isSystemType(object.getClass()) &
+                    !sysTypes.isInSystemGroup(object.getDetails())) {
 
                 Details d = object.getDetails();
                 if (d != null) {
@@ -592,6 +597,9 @@ public class OmeroInterceptor implements Interceptor {
             // accesses to the threadlocal
             final BasicEventContext bec = currentUser.current();
             
+            // ticket:1784 - NOTE: here we are NOT including a check
+            // for sysTypes.isInSystemGroup(), since that implies that
+            // the object doesn't have owner/group
             final boolean sysType = sysTypes.isSystemType(iobj.getClass());
 
             // isGlobal implies nothing (currently) about external info

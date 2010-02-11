@@ -59,7 +59,9 @@ public class SharingACLVoter implements ACLVoter {
     public boolean allowLoad(Class<? extends IObject> klass, Details d, long id) {
         Assert.notNull(klass);
         // Assert.notNull(d);
-        if (d == null || sysTypes.isSystemType(klass)) {
+        if (d == null ||
+                sysTypes.isSystemType(klass) ||
+                sysTypes.isInSystemGroup(d)) {
             return true;
         }
         long session = cd.getCurrentEventContext().getCurrentShareId();
@@ -100,6 +102,13 @@ public class SharingACLVoter implements ACLVoter {
     // =========================================================================
     protected void throwDisabled(String action) {
         throw new SecurityViolation(action + " is not allowed while in share.");
+    }
+
+    private Long group(Details d) {
+        if (d == null || d.getGroup() == null) {
+            return null;
+        }
+        return d.getGroup().getId();
     }
 
 }

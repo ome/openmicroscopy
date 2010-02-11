@@ -25,8 +25,8 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
+import ome.security.SystemTypes;
 import ome.tools.hibernate.SecurityFilter;
-import ome.util.IdBlock;
 
 import org.hibernate.Filter;
 import org.hibernate.Session;
@@ -153,6 +153,8 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
     /*
      * Test method for 'ome.security.SecuritySystem.isSystemType(Class<?
      * extends IObject>)'
+     *
+     * ticket:1784 - "system" group contents are system types
      */
     public void testIsSystemType() {
         assertTrue(sec.isSystemType(Experimenter.class));
