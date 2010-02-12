@@ -395,7 +395,8 @@ public class OmeroInterceptor implements Interceptor {
 
                 Long oid = object.getDetails().getOwner().getId();
                 Long uid = currentUser.getOwner().getId();
-                if (oid != null && !uid.equals(oid)) {
+                if (currentUser.isGraphCritical() &&
+                        oid != null && !uid.equals(oid)) {
                     String gname = currentUser.getGroup().getName();
                     String oname = currentUser.getOwner().getOmeName();
                     Permissions p = currentUser.getCurrentEventContext()
