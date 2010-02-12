@@ -30,6 +30,7 @@ import loci.formats.FormatTools;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.IniFileLoader;
 import ome.system.UpgradeCheck;
+import omero.model.Annotation;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -122,6 +123,8 @@ public class ImportConfig {
 
     public final FileValue savedDirectory;
     public final StrValue readersPath;
+    
+    public final AnnotationListValue annotations;
 
     /**
      * Static method for creating {@link Preferences} during construction if
@@ -224,6 +227,9 @@ public class ImportConfig {
         overrideImageName = new BoolValue("overrideImageName", this, true);
         numOfDirectories = new IntValue("numOfDirectories", this, 0);
         savedDirectory = new FileValue("savedDirectory", this);
+        
+        annotations = new AnnotationListValue(
+        		"annotations", this, new ArrayList<Annotation>());
 
         readersPath = new StrValue("readersPath", this) {
             @Override
@@ -769,6 +775,19 @@ public class ImportConfig {
             String s = get();
             return s == null || s.length() == 0;
         }
+    }
+    
+    public static class AnnotationListValue extends Value<List<Annotation>> {
+    	
+    	public AnnotationListValue(String key, ImportConfig config, 
+    			                   List<Annotation> defValue) {
+    		super(key, config, defValue);
+    	}
+
+		@Override
+		protected List<Annotation> fromString(String string) {
+			throw new RuntimeException("Not implemented.");
+		}
     }
 
     public static class PassValue extends StrValue {

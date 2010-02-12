@@ -31,6 +31,7 @@ import loci.formats.IFormatReader;
 
 import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
+import omero.model.Annotation;
 import omero.model.IObject;
 
 /**
@@ -56,6 +57,18 @@ public interface IObjectContainerStore
 	 * @param reader Bio-Formats reader.
 	 */
 	void setReader(IFormatReader reader);
+	
+	/**
+	 * Returns the user specified annotations.
+	 * @return See above.
+	 */
+	List<Annotation> getUserSpecifiedAnnotations();
+	
+    /**
+     * Sets the user specified image annotations.
+     * @param annotations user specified annotations
+     */
+    void setUserSpecifiedAnnotations(List<Annotation> annotations);
 	
     /**
      * Returns the user specified image name.
