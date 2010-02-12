@@ -488,14 +488,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     public long createExperimenter(final Experimenter experimenter,
             ExperimenterGroup defaultGroup, ExperimenterGroup... otherGroups) {
 
-        Set<ExperimenterGroup> nonUserGroupGroups = new HashSet<ExperimenterGroup>();
-        for (ExperimenterGroup eg : otherGroups) {
-            if (!eg.getId().equals(getSecurityRoles().getUserGroupId())) {
-                nonUserGroupGroups.add(eg);
-            }
-        }
-        adminOrPiOfGroups(defaultGroup,
-                nonUserGroupGroups.toArray(new ExperimenterGroup[0]));
+        adminOrPiOfNonUserGroups(defaultGroup, otherGroups);
         
         long uid = roleProvider.createExperimenter(experimenter, defaultGroup, otherGroups);
         // If this method passes, then the Experimenter is valid.
@@ -512,8 +505,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             final String password, final ExperimenterGroup defaultGroup,
             final ExperimenterGroup... otherGroups) {
 
-        adminOrPiOfGroups(defaultGroup,
-                nonUserGroupGroups.toArray(new ExperimenterGroup[0]));
+        adminOrPiOfNonUserGroups(defaultGroup, otherGroups);
 
         long uid = roleProvider.createExperimenter(experimenter,
                         defaultGroup, otherGroups);
@@ -1359,4 +1351,22 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         }
     }
 
+    /**
+     * Filters out the "user" group since it is unlikely that anyone will be an
+     * owner of it.
+     *
+     * @param defaultGroup
+     * @param otherGroups
+     */
+    private void adminOrPiOfNonUserGroups(ExperimenterGroup defaultGroup,
+            ExperimenterGroup... otherGroups) {
+        Set<ExperimenterGroup> nonUserGroupGroups = new HashSet<ExperimenterGroup>();
+        for (ExperimenterGroup eg : otherGroups) {
+            if (!eg.getId().equals(getSecurityRoles().getUserGroupId())) {
+                nonUserGroupGroups.add(eg);
+            }
+        }
+        adminOrPiOfGroups(defaultGroup,
+                nonUserGroupGroups.toArray(new ExperimenterGroup[0]));
+    }
 }
