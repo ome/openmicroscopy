@@ -296,7 +296,7 @@ public class IconManager
 	
 	
 	/**
-	 * Returns the image of the server icon withing the server dialog.
+	 * Returns the image of the server icon within the server dialog.
 	 * 
 	 * @return See above.
 	 */

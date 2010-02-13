@@ -31,7 +31,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileSystemView;
 
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
@@ -48,6 +47,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.DataObject;
+import pojos.FileData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ROIData;
@@ -448,13 +448,6 @@ public interface OmeroImageService
 	public List<FileFilter> getSupportedFileFilters();
 	
 	/**
-	 * Returns the file system allowing to connect to fs
-	 * 
-	 * @return See above.
-	 */
-	public FileSystemView getFSFileSystemView();
-	
-	/**
 	 * Creates a movie. Returns the annotation hosting the movie.
 	 * 
 	 * @param imageID 	The id of the image.
@@ -668,5 +661,19 @@ public interface OmeroImageService
 	 */
 	public Object uploadScript(ScriptObject script)
 		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Retrieves the thumbnails corresponding to the passed collection of
+	 * files.
+	 * 
+	 * @param files		The files to handle.
+	 * @param maxLength The maximum length of a thumbnail.
+	 * @param userID	The id of the user.
+	 * @return See above.
+	 * @throws RenderingServiceException  If the server is out of service.
+	 */
+	public Map<FileData, BufferedImage> getFSThumbnailSet(List<FileData> files, 
+			                                        int maxLength, long userID)
+		throws DSAccessException, DSOutOfServiceException, FSAccessException;
 	
 }

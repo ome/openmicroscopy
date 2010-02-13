@@ -46,8 +46,6 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import javax.swing.filechooser.FileSystemView;
-
 //Third-party libraries
 import Ice.ConnectionLostException;
 
@@ -387,10 +385,6 @@ class OMEROGateway
 	/** Collection of services to keep alive. */
 	private Map<Long, ServiceInterfacePrx>			reServices;
 	
-	//fs Testing stuff
-	/** The sole system view instance. */
-	private FileSystemView							systemView;
-	
 	/** Collection of monitors to end if any.*/
 	private List<String>							monitorIDs;
 	
@@ -399,6 +393,9 @@ class OMEROGateway
 	
 	/** The collection of system groups. */
 	private List<ExperimenterGroup>					systemGroups;
+	
+	/** Keep track of the file system view. */
+	private Map<Long, FSFileSystemView>				fsViews;
 	
 	/**
 	 * Retrieves the system groups.
@@ -1820,6 +1817,8 @@ class OMEROGateway
 	FSFileSystemView getFSRepositories(long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		if (fsViews == null) fsViews = new HashMap<Long, FSFileSystemView>();
+		if (fsViews.containsKey(userID)) return fsViews.get(userID);
 		//Review that code
 		FSFileSystemView view = null;
 		try {
@@ -1840,10 +1839,9 @@ class OMEROGateway
 			}
 			view = new FSFileSystemView(repositories);
 		} catch (Throwable e) {
-			e.printStackTrace();
 			handleException(e, "Cannot load the repositories");
 		}
-		
+		if (view != null) fsViews.put(userID, view);
 		return view;
 	}
 	
@@ -5431,22 +5429,6 @@ class OMEROGateway
 		} catch (Exception e) {
 		}
 		return "";
-	}
-	
-	/**
-	 * Returns the fs file system view.
-	 * 
-	 * @param defaultPath The default directory.
-	 * @return See above.
-	 */
-	FileSystemView getFSFileSystemView(String defaultPath)
-	{
-		/*
-		if (systemView != null) return systemView;
-		systemView = new FSFileSystemView(defaultPath, monitorPrx);
-		return systemView;
-		*/
-		return null;
 	}
 	
 	/**

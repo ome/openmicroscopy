@@ -108,14 +108,14 @@ class OmeroDataServiceImpl
 
 	/** Reference to the entry point to access the <i>OMERO</i> services. */
 	private OMEROGateway            gateway;
-
+	
 	/**
 	 * Unlinks the collection of children from the specified parent.
 	 * 
 	 * @param parent    The parent of the children.
 	 * @param children  The children to unlink
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMEDS service. 
 	 */
 	private void cut(DataObject parent, Set children)
@@ -163,7 +163,7 @@ class OmeroDataServiceImpl
 	 * @param object The object to delete.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	private List<DeletableObject> delete(DeletableObject object) 

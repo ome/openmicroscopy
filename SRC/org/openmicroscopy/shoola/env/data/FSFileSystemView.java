@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -38,8 +39,6 @@ import javax.swing.filechooser.FileSystemView;
 //Application-internal dependencies
 import omero.RString;
 import omero.grid.RepositoryPrx;
-import omero.model.Format;
-import omero.model.FormatI;
 import omero.model.OriginalFile;
 import pojos.FileData;
 
@@ -144,7 +143,7 @@ public class FSFileSystemView
      * Registers the passed file. Returns the updated file object.
      * 
      * @param file The file to register.
-     * @return
+     * @return See above.
      */
     public FileData register(FileData file)
     	throws FSAccessException
@@ -155,9 +154,6 @@ public class FSFileSystemView
     	try {
     		OriginalFile of = proxy.registerOriginalFile(
         			(OriginalFile) file.asIObject());
-    		//Format f = new FormatI();
-    		//f.setValue(omero.rtypes.rstring("/text/plain"));
-    		//OriginalFile of = proxy.register(file.getAbsolutePath(), f);
     		file.setRegisteredFile(of);
 		} catch (Exception e) {
 			new FSAccessException("Cannot register the file: " +
@@ -165,6 +161,32 @@ public class FSFileSystemView
 		}
     	
     	return file;
+    }
+    
+    /**
+     * Returns the path to the thumbnail.
+     * 
+     * @param file The file to handle.
+     * @return See above.
+     * @throws FSAccessException
+     */
+    public String getThumbnail(FileData file)
+    	throws FSAccessException
+    {
+    	if (file == null || file.isDirectory() || file.isHidden())
+    		return null;
+    	if (!file.getAbsolutePath().contains(".")) return null;
+    	RepositoryPrx proxy = getRepository(file);
+    	if (proxy == null) return null;
+    	try {
+    		return proxy.getThumbnail(file.getAbsolutePath());
+		} catch (Exception e) {
+			System.err.println(file.getName());
+			new FSAccessException("Cannot retrieve the thumbnail for: " +
+					""+file.getAbsolutePath(), e);
+		}
+    	
+    	return null;
     }
     
     /**

@@ -35,6 +35,8 @@ import org.openmicroscopy.shoola.env.data.views.calls.HierarchyLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailSetLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+
+import pojos.DataObject;
 import pojos.ImageData;
 
 /** 
@@ -75,7 +77,7 @@ class HierarchyBrowsingViewImpl
      * @see HierarchyBrowsingView#loadThumbnails(Collection, int, int, long,
      *                                           AgentEventListener)
      */
-    public CallHandle loadThumbnails(Collection<ImageData> images, 
+    public CallHandle loadThumbnails(Collection<DataObject> images, 
     								int maxWidth, int maxHeight, long userID,
                                      AgentEventListener observer)
     {
@@ -88,7 +90,7 @@ class HierarchyBrowsingViewImpl
      * @see HierarchyBrowsingView#loadImagesAsThumbnails(Collection, long,
      *                                           AgentEventListener)
      */
-    public CallHandle loadImagesAsThumbnails(Collection<ImageData> images, 
+    public CallHandle loadImagesAsThumbnails(Collection<DataObject> images, 
     								long userID, AgentEventListener observer)
     {
         BatchCallTree cmd = new ThumbnailLoader(images, userID);

@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
@@ -44,6 +45,10 @@ import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+
+import pojos.DataObject;
+import pojos.ExperimenterData;
+import pojos.FileData;
 import pojos.ImageData;
 import pojos.PixelsData;
 
@@ -91,7 +96,7 @@ public class ThumbnailSetLoader
     private List<List> 				toHandle;
     
     /** Key, value pairs, Key is the pixels set id. */
-    private Map<Long, ImageData> 	input;
+    private Map<Long, DataObject> 	input;
     
     /** Collection of {@link ThumbnailData}s for not valid pixels set. */
     private List 					notValid;
@@ -101,6 +106,9 @@ public class ThumbnailSetLoader
     
     /** The maximum number of the tumbnails fetched. */
     private int						fetchSize;
+    
+    /** The type of nodes to handle. */
+    private Class					type;
     
     /**
      * Creates a default thumbnail for the passed image.
@@ -167,6 +175,42 @@ public class ThumbnailSetLoader
     }
     
     /**
+     * Loads the thumbnail for passed collection of files.
+     * 
+     * @param ids The collection of files to handle.
+     */
+    private void loadFSThumbnails(List files)
+    {
+    	try {
+    		ExperimenterData exp = (ExperimenterData) context.lookup(
+					LookupNames.CURRENT_USER_DETAILS);
+			long id = exp.getId();
+    		Map<FileData, BufferedImage> m = service.getFSThumbnailSet(files, 
+        			maxLength, id);
+    		Entry entry;
+    		List result = new ArrayList();
+        	Iterator i = m.entrySet().iterator();
+        	BufferedImage thumb;
+        	FileData obj;
+        	boolean valid = true;
+        	
+        	while (i.hasNext()) {
+				entry = (Entry) i.next();
+				obj = (FileData) entry.getKey();
+				thumb = (BufferedImage) entry.getValue();
+				if (thumb == null) 
+					thumb = Factory.createDefaultImageThumbnail();
+				//input.remove(obj.getId());
+				result.add(new ThumbnailData(obj, thumb, valid));
+			}
+        	currentThumbs = result;
+		} catch (Exception e) {
+			context.getLogger().error(this, 
+        			"Cannot retrieve thumbnail: "+e.getMessage());
+		}
+    }
+    
+    /**
      * Loads the thumbnail for passed collection of pixels set.
      * 
      * @param ids The collection of pixels set id.
@@ -180,17 +224,22 @@ public class ThumbnailSetLoader
         	long pixelsID;
         	BufferedImage thumbPix;
         	ImageData image;
+        	DataObject obj;
         	boolean valid = true;
         	while (i.hasNext()) {
         		pixelsID = (Long) i.next();
-        		image = input.get(pixelsID);
-        		thumbPix = (BufferedImage) m.get(pixelsID);
-				if (thumbPix == null) {
-					//valid = false;
-					thumbPix = createDefaultImage(image);
-				}
-					
-				result.add(new ThumbnailData(image.getId(), thumbPix, valid));
+        		obj = input.get(pixelsID);
+        		if (obj instanceof ImageData) {
+        			image = (ImageData) obj;
+        			thumbPix = (BufferedImage) m.get(pixelsID);
+        			if (thumbPix == null) {
+        				//valid = false;
+        				thumbPix = createDefaultImage(image);
+        			}
+
+        			result.add(new ThumbnailData(image.getId(), thumbPix, 
+        					valid));
+        		}
 			}
         	currentThumbs = result;
         	
@@ -214,7 +263,13 @@ public class ThumbnailSetLoader
 			l = i.next();
 			final List ids = l;
 			add(new BatchCall(description) {
-        		public void doCall() { loadThumbails(ids); }
+        		public void doCall() { 
+        			if (ImageData.class.equals(type)) {
+        				loadThumbails(ids);
+        			} else if (FileData.class.equals(type)) {
+        				loadFSThumbnails(ids);
+        			}
+        		}
         	});  
 		}
     	currentThumbs = notValid;
@@ -243,7 +298,7 @@ public class ThumbnailSetLoader
      * @param images    The collection of images to load thumbnails for.
      * @param maxLength The maximum length of a thumbnail.
      */
-    public ThumbnailSetLoader(Collection<ImageData> images, int maxLength)
+    public ThumbnailSetLoader(Collection<DataObject> images, int maxLength)
     {
     	if (images == null) throw new NullPointerException("No images.");
     	if (maxLength <= 0)
@@ -253,22 +308,42 @@ public class ThumbnailSetLoader
     	this.maxLength = maxLength;
     	service = context.getImageService();
     	toHandle = new ArrayList<List>();
-    	input = new HashMap<Long, ImageData>();
+    	input = new HashMap<Long, DataObject>();
     	notValid = new ArrayList();
-    	Iterator<ImageData> i = images.iterator();
+    	Iterator<DataObject> i = images.iterator();
     	ImageData img;
+    	DataObject object;
     	int index = 0;
-    	List<Long> l = null;
+    	List<Object> l = null;
     	PixelsData pxd = null;
-    	
     	while (i.hasNext()) {
-    		img = i.next();
-    		try {
-            	pxd = img.getDefaultPixels();
-            	input.put(pxd.getId(), img);
-    			if (index == 0) l = new ArrayList<Long>();
+    		object = i.next();
+    		if (object instanceof ImageData) {
+    			img = (ImageData) object;
+    			type = ImageData.class;
+    			try {
+                	pxd = img.getDefaultPixels();
+                	input.put(pxd.getId(), img);
+        			if (index == 0) l = new ArrayList<Object>();
+        			if (index < fetchSize) {
+        				l.add(pxd.getId());
+        				index++;
+        				if (index == fetchSize) {
+        					toHandle.add(l);
+        					index = 0;
+        					l = null;
+        				}
+        			}
+        		} catch (Exception e) {
+        			notValid.add(new ThumbnailData(img.getId(), 
+    						createDefaultImage(img), false));
+        		} //something went wrong during import
+    		} else if (object instanceof FileData) {
+    			input.put(object.getId(), object);
+    			type = FileData.class;
+    			if (index == 0) l = new ArrayList<Object>();
     			if (index < fetchSize) {
-    				l.add(pxd.getId());
+    				l.add(object);
     				index++;
     				if (index == fetchSize) {
     					toHandle.add(l);
@@ -276,10 +351,8 @@ public class ThumbnailSetLoader
     					l = null;
     				}
     			}
-    		} catch (Exception e) {
-    			notValid.add(new ThumbnailData(img.getId(), 
-						createDefaultImage(img), false));
-    		} //something went wrong during import
+    		}
+    		
 		}
     	if (l != null && l.size() > 0) toHandle.add(l);
     }

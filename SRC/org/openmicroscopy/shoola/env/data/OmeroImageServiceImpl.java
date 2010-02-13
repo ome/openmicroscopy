@@ -37,12 +37,11 @@ import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileSystemView;
-
 
 //Third-party libraries
 import loci.formats.ImageReader;
 import loci.formats.gui.FormatFileFilter;
+import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.api.RenderingEnginePrx;
@@ -74,14 +73,12 @@ import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
-
-import com.sun.opengl.util.texture.TextureData;
-
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.FileData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ROIData;
@@ -134,6 +131,24 @@ class OmeroImageServiceImpl
 					e);
 		}
 	}
+	
+	/**
+	 * Creates a <code>BufferedImage</code> from the passed array of bytes.
+	 * 
+	 * @param values    The array of bytes.
+	 * @return See above.
+	 * @throws RenderingServiceException If we cannot create an image.
+	 */
+	private BufferedImage createImage(String path) 
+		throws FSAccessException
+	{
+		try {
+			return ImageIO.read(new File(path));
+		} catch (Exception e) {
+			throw new FSAccessException("Cannot create buffered image",
+					e);
+		}
+	} 
 
 	/**
 	 * Creates a new instance.
@@ -661,16 +676,6 @@ class OmeroImageServiceImpl
 		return filters;
 	}
 	
-	/** 
-	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#getFSFileSystemView()
-	 */
-	public FileSystemView getFSFileSystemView()
-	{
-		String path = (String) context.lookup(LookupNames.FS_DEFAUL_DIR);
-		return gateway.getFSFileSystemView(path);
-	}
-	
 	public Object monitor(String directory, DataObject container, 
 			long userID, long groupID)
 	{
@@ -935,5 +940,31 @@ class OmeroImageServiceImpl
 		return list;
 	}
 
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroImageService#getFSThumbnailSet(List, int, long)
+	 */
+	public Map<FileData, BufferedImage> getFSThumbnailSet(List<FileData> files, 
+			int maxLength, long userID)
+			throws DSAccessException, DSOutOfServiceException, FSAccessException
+	{
+		Map<FileData, BufferedImage> m = new HashMap<FileData, BufferedImage>();
+		if (files == null || files.size() == 0) return m;
+		FSFileSystemView view = gateway.getFSRepositories(userID);
+		Iterator<FileData> i = files.iterator();
+		FileData file;
+		String path;
+		while (i.hasNext()) {
+			file = i.next();
+			path = view.getThumbnail(file);
+			try {
+				if (path != null) m.put(file, createImage(path));
+				else m.put(file, null);
+			} catch (Exception e) {
+				m.put(file, null);
+			}
+		}
+		return m;
+	}
 	
 }

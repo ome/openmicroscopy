@@ -32,6 +32,8 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+
+import pojos.DataObject;
 import pojos.ImageData;
 
 /** 
@@ -80,7 +82,9 @@ public interface HierarchyBrowsingView
     								long userID, AgentEventListener observer);
     
     /**
-     * Loads a thumbnail for each specified <code>ImageData</code> object.
+     * Loads a thumbnail for each specified <code>DataObject</code> object, 
+     * it can either be <code>ImageData</code>, <code>FileData</code> or
+     * <code>ExperimenterData</code>.
      * As thumbnails are retrieved from server, they're posted back to
      * the <code>observer</code> through <code>DSCallFeedbackEvent</code>s.
      * Each thumbnail will be posted in a single event; the <code>observer
@@ -91,20 +95,21 @@ public interface HierarchyBrowsingView
      * original image and so that their area doesn't exceed <code>maxWidth*
      * maxHeight</code>.
      * 
-     * @param imgs 		Contains <code>ImageData</code> objects, one
-     *                  for each thumbnail to retrieve.
+     * @param imgs 		Contains the objects, one for each thumbnail to retrieve.
      * @param maxWidth  The maximum acceptable width of the thumbnails.
      * @param maxHeight The maximum acceptable height of the thumbnails.
      * @param userID	The id of the user the thumbnails are for.
      * @param observer  Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadThumbnails(Collection<ImageData> imgs, int maxWidth, 
+    public CallHandle loadThumbnails(Collection<DataObject> imgs, int maxWidth, 
     								int maxHeight, long userID, 
     								AgentEventListener observer);
     
     /**
-     * Loads a full size image for each specified <code>ImageData</code> object.
+     * Loads a full size image for each specified <code>DataObject</code> 
+     * object, it can either be <code>ImageData</code>, <code>FileData</code> or
+     * <code>ExperimenterData</code>.
      * As thumbnails are retrieved from server, they're posted back to
      * the <code>observer</code> through <code>DSCallFeedbackEvent</code>s.
      * Each thumbnail will be posted in a single event; the <code>observer
@@ -112,13 +117,12 @@ public interface HierarchyBrowsingView
      * retrieve a <code>ThumbnailData</code> object for that thumbnail. The 
      * final <code>DSCallOutcomeEvent</code> will have no result.
      * 
-     * @param imgs 		Contains <code>ImageData</code> objects, one
-     *                  for each thumbnail to retrieve.
+     * @param imgs 		Contains the objects, one for each thumbnail to retrieve.
      * @param userID	The id of the user the thumbnails are for.
      * @param observer  Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadImagesAsThumbnails(Collection<ImageData> imgs, 
+    public CallHandle loadImagesAsThumbnails(Collection<DataObject> imgs, 
     								long userID, 
     								AgentEventListener observer);
     

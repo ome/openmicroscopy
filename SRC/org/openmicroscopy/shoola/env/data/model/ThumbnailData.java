@@ -28,11 +28,12 @@ package org.openmicroscopy.shoola.env.data.model;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
-import pojos.ImageData;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.FileData;
+import pojos.ImageData;
 
 /** 
  * Holds a {@link BufferedImage} serving as a thumbnail for a given <i>OME</i>
@@ -68,6 +69,9 @@ public class ThumbnailData
     /** Used to store the image. */
     private ImageData		image;
     
+    /** The object of reference. */
+    private pojos.DataObject refObject;
+    
     /**
      * Creates a new instance.
      * 
@@ -98,7 +102,7 @@ public class ThumbnailData
      * 
      * @param imageID    The id of the image to which the thumbnail belong.
      *                   Must be positive.
-     * @param thumbnail  The thumbnail pixels.  Mustn't be <code>null</code>.
+     * @param thumbnail  The thumbnail pixels. Mustn't be <code>null</code>.
      * @param validImage Pass <code>true</code> if the image is a real image, 
      * 					 <code>false</code> otherwise.
      */
@@ -106,6 +110,37 @@ public class ThumbnailData
     		boolean validImage)
     {
         this(imageID, thumbnail, -1, validImage);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param refOjbect The object of reference. Mustn't be <code>null</code>.
+     * @param thumbnail The thumbnail pixels. Mustn't be <code>null</code>.
+     */
+    public ThumbnailData(pojos.DataObject refOjbect, BufferedImage thumbnail,
+    		boolean validImage)
+    {
+    	  if (thumbnail == null)
+              throw new NullPointerException("No thumbnail.");
+    	  if (refOjbect == null)
+    		  throw new IllegalArgumentException("No object.");
+    	  if (!(refOjbect instanceof FileData))
+    		  throw new IllegalArgumentException("Type not valid.");
+    	  this.refObject = refOjbect;
+    	  this.validImage = validImage;
+    	  this.thumbnail = thumbnail;
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param refOjbect The object of reference. Mustn't be <code>null</code>.
+     * @param thumbnail The thumbnail pixels. Mustn't be <code>null</code>.
+     */
+    public ThumbnailData(pojos.DataObject refOjbect, BufferedImage thumbnail)
+    {
+    	  this(refOjbect, thumbnail, true);
     }
     
     /** 
@@ -129,8 +164,10 @@ public class ThumbnailData
                                         thumbnail.getType());
         Graphics2D g2D = pixClone.createGraphics();
         g2D.drawImage(thumbnail, null, 0, 0); 
-        ThumbnailData data = new ThumbnailData(imageID, pixClone, 
-        		this.validImage);
+        ThumbnailData data;
+        if (refObject != null)
+        	data = new ThumbnailData(this.refObject, pixClone, this.validImage);
+        else data = new ThumbnailData(imageID, pixClone, this.validImage);
         data.setImage(this.image);
         return data;
     }
@@ -170,5 +207,12 @@ public class ThumbnailData
      * @return See above.
      */
     public ImageData getImage() { return image; }
+    
+    /**
+     * Returns the object of reference.
+     * 
+     * @return See above.
+     */
+    public pojos.DataObject getRefObject() { return refObject; }
     
 }

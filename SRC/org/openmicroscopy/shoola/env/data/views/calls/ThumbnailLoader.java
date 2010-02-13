@@ -41,6 +41,8 @@ import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+
+import pojos.DataObject;
 import pojos.ImageData;
 import pojos.PixelsData;
 
@@ -72,7 +74,7 @@ public class ThumbnailLoader
 {
 
     /** The images for which we need thumbnails. */
-    private Collection<ImageData>	images;
+    private Collection<DataObject>	images;
     
     /** The maximum acceptable width of the thumbnails. */
     private int             		maxWidth;
@@ -224,13 +226,13 @@ public class ThumbnailLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param imgs 		Contains {@link ImageData}s, one
+     * @param imgs 		Contains {@link DataObject}s, one
      * 					for each thumbnail to retrieve.
      * @param maxWidth  The maximum acceptable width of the thumbnails.
      * @param maxHeight The maximum acceptable height of the thumbnails.
      * @param userIDs	The users the thumbnail are for.
      */
-    public ThumbnailLoader(Set<ImageData> imgs, int maxWidth, int maxHeight, 
+    public ThumbnailLoader(Set<DataObject> imgs, int maxWidth, int maxHeight, 
     					Set<Long> userIDs)
     {
         if (imgs == null) throw new NullPointerException("No images.");
@@ -253,11 +255,11 @@ public class ThumbnailLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param imgs 		Contains {@link ImageData}s, one
+     * @param imgs 		Contains {@link DataObject}s, one
      * 					for each thumbnail to retrieve.
      * @param userID	The user the thumbnail are for.
      */
-    public ThumbnailLoader(Collection<ImageData> imgs, long userID)
+    public ThumbnailLoader(Collection<DataObject> imgs, long userID)
     {
         if (imgs == null) throw new NullPointerException("No images.");
         asImage = true;
@@ -272,13 +274,13 @@ public class ThumbnailLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param imgs 		Contains {@link ImageData}s, one
+     * @param imgs 		Contains {@link DataObject}s, one
      * 					for each thumbnail to retrieve.
      * @param maxWidth  The maximum acceptable width of the thumbnails.
      * @param maxHeight The maximum acceptable height of the thumbnails.
      * @param userID	The user the thumbnail are for.
      */
-    public ThumbnailLoader(Collection<ImageData> imgs, int maxWidth, 
+    public ThumbnailLoader(Collection<DataObject> imgs, int maxWidth, 
     						int maxHeight, long userID)
     {
         if (imgs == null) throw new NullPointerException("No images.");
@@ -319,7 +321,7 @@ public class ThumbnailLoader
                     "Non-positive height: "+maxHeight+".");
         userIDs = new HashSet<Long>(1);
         userIDs.add(userID);
-        images = new HashSet<ImageData>(1);
+        images = new HashSet<DataObject>(1);
         images.add(image);
         this.maxWidth = maxWidth;
         this.maxHeight = maxHeight;
@@ -378,7 +380,7 @@ public class ThumbnailLoader
         if (maxHeight <= 0)
             throw new IllegalArgumentException(
                     "Non-positive height: "+maxHeight+".");
-        images = new HashSet<ImageData>(1);
+        images = new HashSet<DataObject>(1);
         images.add(image);
         this.maxWidth = maxWidth;
         this.maxHeight = maxHeight;
