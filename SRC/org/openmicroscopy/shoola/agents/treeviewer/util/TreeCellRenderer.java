@@ -39,6 +39,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
@@ -166,9 +167,23 @@ public class TreeCellRenderer
         			icon = icons.getIcon(IconManager.DIRECTORY_REGISTERED);
         		else icon = icons.getIcon(IconManager.DIRECTORY);
         	} else {
-        		if (f.getId() > 0)
-        			icon = icons.getIcon(IconManager.FILE_REGISTERED);
-        		else icon = icons.getIcon(IconManager.FILE_TEXT);
+        		if (node instanceof TreeImageNode) {
+        			TreeImageNode n = (TreeImageNode) node;
+        			if (n.isSupportedImageFormat()) {
+        				if (f.getId() > 0)
+                			icon = icons.getIcon(IconManager.FILE_REGISTERED);
+                		else icon = icons.getIcon(IconManager.IMAGE);
+        			} else {
+        				if (f.getId() > 0)
+                			icon = icons.getIcon(IconManager.FILE_REGISTERED);
+                		else icon = icons.getIcon(IconManager.FILE_TEXT);
+        			}
+        		} else {
+        			if (f.getId() > 0)
+            			icon = icons.getIcon(IconManager.FILE_REGISTERED);
+            		else icon = icons.getIcon(IconManager.FILE_TEXT);
+        		}
+        		
         	}
         } else if (node instanceof TreeImageTimeSet)
         	icon = icons.getIcon(IconManager.DATE);

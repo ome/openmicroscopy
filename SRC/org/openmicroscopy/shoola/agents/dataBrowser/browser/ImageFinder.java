@@ -36,6 +36,9 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.DataObject;
+import pojos.ExperimenterData;
+import pojos.FileData;
 import pojos.ImageData;
 import pojos.WellSampleData;
 
@@ -62,20 +65,20 @@ public class ImageFinder
     private Set<ImageDisplay>	imageNodes;
     
     /** Set of corresponding <code>DataObject</code>s */
-    private Set<ImageData>		images;
+    private Set<DataObject>		images;
     
     /** Set of <code>ImageNode</code>s */
     private List<ImageNode>		visibleImageNodes;
     
     /** Set of corresponding visible <code>DataObject</code>s */
-    private Set<ImageData>		visibleImages;
+    private Set<DataObject>		visibleImages;
     
     /** Creates a new instance. */
     public ImageFinder()
     {
-    	 images = new HashSet<ImageData>();
+    	 images = new HashSet<DataObject>();
          imageNodes = new HashSet<ImageDisplay>();
-         visibleImages = new HashSet<ImageData>();
+         visibleImages = new HashSet<DataObject>();
          visibleImageNodes = new ArrayList<ImageNode>();
     }
    
@@ -91,7 +94,7 @@ public class ImageFinder
      * 
      * @return See above.
      */
-    public Set<ImageData> getImages() { return images; }
+    public Set<DataObject> getImages() { return images; }
     
     /** 
      * Returns the set of {@link ImageNode}s displayed. 
@@ -108,7 +111,7 @@ public class ImageFinder
      * 
      * @return See above.
      */
-    public Set<ImageData> getVisibleImages() { return visibleImages; }
+    public Set<DataObject> getVisibleImages() { return visibleImages; }
     
     /** 
      * Implemented as specified by {@link ImageDisplayVisitor}. 
@@ -148,9 +151,14 @@ public class ImageFinder
 						if (ho instanceof WellSampleData) {
 				        	wsd = (WellSampleData) ho;
 				        	ho = wsd.getImage();
-				        }
-						if (ho instanceof ImageData) {
+				        } else if (ho instanceof ImageData) {
 							visibleImages.add((ImageData) ho);
+							visibleImageNodes.add(n);
+						} else if (ho instanceof FileData) {
+							visibleImages.add((FileData) ho);
+							visibleImageNodes.add(n);
+						} else if (ho instanceof ExperimenterData) {
+							visibleImages.add((ExperimenterData) ho);
 							visibleImageNodes.add(n);
 						}
 					}

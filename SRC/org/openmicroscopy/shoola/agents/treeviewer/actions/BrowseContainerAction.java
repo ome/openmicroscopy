@@ -46,6 +46,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.FileData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -245,6 +246,12 @@ public class BrowseContainerAction
             			setEnabled(n > 0);
             		}
             		if (!withThumnails) setEnabled(false);
+            	} else if (ho instanceof FileData) {
+            		FileData f = (FileData) ho;
+            		if (f.isDirectory() && !f.isHidden()) {
+            			setEnabled(true);
+            			description = DESCRIPTION_FOLDER;
+            		} else setEnabled(false);
             	}
             }
             putValue(Action.SHORT_DESCRIPTION, 

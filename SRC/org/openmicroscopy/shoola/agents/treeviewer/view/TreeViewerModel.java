@@ -1224,5 +1224,17 @@ class TreeViewerModel
 		currentLoader = new AdminCreator(component, object);
 		currentLoader.load();
 	}
+
+	/**
+	 * Browses the specified folder.
+	 * 
+	 * @param node The folder to browse.
+	 */
+	void browseFolder(TreeImageDisplay node)
+	{
+		state = TreeViewer.LOADING_DATA;
+		currentLoader = new ProjectsLoader(component, node);
+		currentLoader.load();
+	}
 	
 }

@@ -59,11 +59,14 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.FSAccessException;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.FileData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -326,18 +329,21 @@ class BrowserModel
         				(TreeImageSet) expNode, (TreeImageSet) node);
         		currentLoader.load();
         		*/
-            } else {
-            	if (ho instanceof DatasetData)  {
-            		currentLoader = new ExperimenterDataLoader(component, 
-            				ExperimenterDataLoader.DATASET, 
-            				(TreeImageSet) expNode, (TreeImageSet) node);
-            		 currentLoader.load();
-            	} else if (ho instanceof TagAnnotationData) {
-            		currentLoader = new ExperimenterDataLoader(component, 
-            				ExperimenterDataLoader.TAG, 
-            				(TreeImageSet) expNode, (TreeImageSet) node);
-            		currentLoader.load();
-                }
+            } else if (ho instanceof DatasetData)  {
+        		currentLoader = new ExperimenterDataLoader(component, 
+        				ExperimenterDataLoader.DATASET, 
+        				(TreeImageSet) expNode, (TreeImageSet) node);
+        		 currentLoader.load();
+        	} else if (ho instanceof TagAnnotationData) {
+        		currentLoader = new ExperimenterDataLoader(component, 
+        				ExperimenterDataLoader.TAG, 
+        				(TreeImageSet) expNode, (TreeImageSet) node);
+        		currentLoader.load();
+            } else if (ho instanceof FileData) {
+            	FileData fa = (FileData) ho;
+            	if (fa.isDirectory() && !fa.isHidden()) {
+            		
+            	}
             }
     	}
     }
@@ -836,4 +842,46 @@ class BrowserModel
 		c.execute();
 	}
 	
+	/**
+	 * Returns <code>true</code> if the image file format is supported,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param path The path to the file.
+	 * @return See above.
+	 */
+	boolean isSupportedImageFormat(String path)
+	{
+		/*
+		if (path == null) return false;
+		if (path.endsWith(OmeroImageService.ZIP_EXTENSION)) return true;
+    	
+		List<FileFilter> filters = parent.getSupportedFormats();
+		Iterator<FileFilter> i = filters.iterator();
+		FileFilter filter;
+		while (i.hasNext()) {
+			filter = i.next();
+			if (filter.accept(new File(path))) return true;
+		}
+		return false;
+		*/
+		return false;
+	}
+	
+	FileData[] getFilesData(FileData dir)
+	{
+		FSFileSystemView fs = getRepositories();
+		FileData[] files = null;
+		try {
+			files = fs.getFiles(dir, false);
+		} catch (FSAccessException e) {
+
+			LogMessage msg = new LogMessage();
+			msg.print("Cannot retrieve the files.");
+			msg.print(e);
+			TreeViewerAgent.getRegistry().getLogger().error(this, msg);
+		}
+		return files;
+	}
+	
+
 }

@@ -22,20 +22,18 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser;
 
-import java.util.Collection;
-
-import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
-import pojos.DatasetData;
-import pojos.TagAnnotationData;
 
 //Java imports
+import java.util.Collection;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import pojos.DatasetData;
+
 
 /** 
  * Loads the datasets owned by the user.

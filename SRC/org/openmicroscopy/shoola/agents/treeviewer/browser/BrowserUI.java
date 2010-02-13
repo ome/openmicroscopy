@@ -517,18 +517,8 @@ class BrowserUI
     private List<TreeImageNode> transformDirectory(TreeImageSet dirSet)
     {
     	List<TreeImageNode> leaves = new ArrayList<TreeImageNode>();
-    	FSFileSystemView fs = model.getRepositories();
     	FileData dir = (FileData) dirSet.getUserObject();
-    	FileData[] files = null;
-    	try {
-    		files = fs.getFiles(dir, false);
-		} catch (FSAccessException e) {
-
-			LogMessage msg = new LogMessage();
-			msg.print("Cannot retrieve the files.");
-			msg.print(e);
-			TreeViewerAgent.getRegistry().getLogger().error(this, msg);
-		}
+    	FileData[] files = model.getFilesData(dir);
     	if (files != null && files.length > 0) {
     		FileData file;
     		TreeImageDisplay display;
@@ -542,6 +532,13 @@ class BrowserUI
         			}
         		} else {
         			if (!file.isHidden()) {
+        				display = new TreeImageNode(file);
+        				((TreeImageNode) display).setSupportedImageFormat(
+        						model.isSupportedImageFormat(
+        								file.getAbsolutePath()));
+    					//leaves.add((TreeImageNode) display);
+    					dirSet.addChildDisplay(display);
+        				/*
         				ImageData img = model.getImportedImage(file.getName());
         				if (img != null) 
         					dirSet.addChildDisplay(new TreeImageNode(img));
@@ -552,6 +549,7 @@ class BrowserUI
         						//display.setSelectable(false);
         					dirSet.addChildDisplay(display);
         				}
+        				*/
         			}
         		}
 			}

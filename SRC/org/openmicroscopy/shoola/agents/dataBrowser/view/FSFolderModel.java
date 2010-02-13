@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.view.GroupModel 
+ * org.openmicroscopy.shoola.agents.dataBrowser.view.FSFolderModel 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
-
 //Java imports
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,12 +38,12 @@ import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
-import pojos.ExperimenterData;
+
+import pojos.FileData;
 import pojos.ImageData;
 
 /** 
- * A concrete Model for a collection of Groups consisting of a single 
- * tree rooted by given Group.
+ * A concrete Model for a folder accessed via FS.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,7 +55,7 @@ import pojos.ImageData;
  * </small>
  * @since 3.0-Beta4
  */
-class GroupModel 
+class FSFolderModel 
 	extends DataBrowserModel
 {
 
@@ -66,15 +65,14 @@ class GroupModel
 	 * @param parent	The parent of the experimenters.
 	 * @param datasets 	The collection to experimenters the model is for.
 	 */
-	GroupModel(Object parent, Collection<ExperimenterData> experimenters)
+	FSFolderModel(Object parent, Collection<FileData> files)
 	{
 		super();
-		if (experimenters  == null) 
-			throw new IllegalArgumentException("No experimenters.");
+		if (files  == null) 
+			throw new IllegalArgumentException("No files.");
 		this.parent = parent;
-		Set visTrees = DataBrowserTranslator.transformExperimenters(
-				experimenters);
-		numberOfImages = experimenters.size();
+		Set visTrees = DataBrowserTranslator.transformFSFolder(files);
+		numberOfImages = visTrees.size();
         browser = BrowserFactory.createBrowser(visTrees);
         layoutBrowser();
 	}
@@ -86,14 +84,54 @@ class GroupModel
 	protected DataBrowserLoader createDataLoader(boolean refresh, 
 			Collection ids)
 	{
-		return null;
+		if (refresh) imagesLoaded = 0;
+		if (imagesLoaded != 0 && ids != null)
+			imagesLoaded = imagesLoaded-ids.size();
+		if (imagesLoaded == numberOfImages) return null;
+		//only load thumbnails not loaded.
+		List<ImageNode> nodes = browser.getVisibleImageNodes();
+		if (nodes == null || nodes.size() == 0) return null;
+		Iterator<ImageNode> i = nodes.iterator();
+		ImageNode node;
+		List<FileData> imgs = new ArrayList<FileData>();
+		FileData data;
+		List<Long> loaded = new ArrayList<Long>();
+		if (ids != null) {
+			while (i.hasNext()) {
+				node = i.next();
+				if (node.getThumbnail().getFullScaleThumb() == null) {
+					data = (FileData) node.getHierarchyObject();
+					if (ids.contains(data.getId())) {
+						if (!loaded.contains(data.getId())) {
+							imgs.add(data);
+							loaded.add(data.getId());
+							imagesLoaded++;
+						}
+					}
+				}
+			}
+		} else {
+			while (i.hasNext()) {
+				node = i.next();
+				if (node.getThumbnail().getFullScaleThumb() == null) {
+					data = (FileData) node.getHierarchyObject();
+					//if (!loaded.contains(data.getId())) {
+						imgs.add(data);
+						loaded.add(data.getId());
+						imagesLoaded++;
+					//}
+				}
+			}
+		}
+		if (imgs.size() == 0) return null;
+		return new ThumbnailLoader(component, sorter.sort(imgs));
 	}
 	
 	/**
 	 * Returns the type of this model.
 	 * @see DataBrowserModel#getType()
 	 */
-	protected int getType() { return DataBrowserModel.GROUP; }
+	protected int getType() { return DataBrowserModel.FS_FOLDER; }
 
 	/**
 	 * No-operation implementation in our case.

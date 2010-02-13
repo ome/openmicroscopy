@@ -183,7 +183,7 @@ public interface Browser
 	 * 
 	 * @return A set of <code>Object</code>s.
 	 */
-	public Set<ImageData> getImages();
+	public Set<DataObject> getImages();
 	
 	/**
 	 * Returns all the {@link ImageNode}s in the visualization trees hosted
@@ -344,7 +344,7 @@ public interface Browser
 	 * 
 	 * @return See above.
 	 */
-	public Set<ImageData> getVisibleImages();
+	public Set<DataObject> getVisibleImages();
 	
 	/** 
 	 * Returns the images currently visible.

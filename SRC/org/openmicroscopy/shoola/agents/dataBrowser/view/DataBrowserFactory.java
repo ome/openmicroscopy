@@ -44,6 +44,7 @@ import javax.swing.event.ChangeListener;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
@@ -171,6 +172,20 @@ public class DataBrowserFactory
 								Collection<ExperimenterData> experimenters)
 	{
 		return singleton.createGroupsBrowser(parent, experimenters);
+	}
+	
+	/**
+	 * Creates a new {@link DataBrowser} for the passed collection of 
+	 * files.
+	 * 
+	 * @param parent		The parent's node.
+	 * @param experimenters	The collection to set.
+	 * @return See above.
+	 */
+	public static final DataBrowser getFSFolderBrowser(FileData parent,
+								Collection<FileData> files)
+	{
+		return singleton.createFSFolderBrowser(parent, files);
 	}
 	
 	/**
@@ -471,7 +486,8 @@ public class DataBrowserFactory
 	}
 	
 	/**
-	 * Creates a new {@link DataBrowser} for the passed collection of tags.
+	 * Creates a new {@link DataBrowser} for the passed collection of 
+	 * experimenters.
 	 * 
 	 * @param parent 		The parent's node.
 	 * @param experimenters	The collection to set.
@@ -481,6 +497,25 @@ public class DataBrowserFactory
 			Collection<ExperimenterData> experimenters)
 	{
 		DataBrowserModel model = new GroupModel(parent, experimenters);
+		DataBrowserComponent comp = new DataBrowserComponent(model);
+		model.initialize(comp);
+		comp.initialize();
+		String key = parent.toString()+parent.getId();
+		browsers.put(key, comp);
+		return comp;
+	}
+	
+	/**
+	 * Creates a new {@link DataBrowser} for the passed collection of files.
+	 * 
+	 * @param parent	The parent's node.
+	 * @param files		The collection to set.
+	 * @return See above.
+	 */
+	private DataBrowser createFSFolderBrowser(FileData parent, 
+			Collection<FileData> files)
+	{
+		DataBrowserModel model = new FSFolderModel(parent, files);
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
 		comp.initialize();

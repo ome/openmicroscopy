@@ -33,6 +33,8 @@ import java.util.List;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import pojos.DataObject;
 import pojos.ImageData;
 
 /** 
@@ -53,10 +55,10 @@ public class ThumbnailFieldsLoader
 {
 
 	/** 
-	 * The <code>ImageData</code> objects for the images whose thumbnails 
+	 * The <code>DataObject</code> objects for the images whose thumbnails 
 	 * have to be fetched.
 	 */
-    private Collection<ImageData>	images;
+    private Collection<DataObject>	images;
     
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle 	 			handle;
@@ -78,8 +80,8 @@ public class ThumbnailFieldsLoader
      * @param row	 The row identifying the well.
      * @param column The column identifying the well.
      */
-    public ThumbnailFieldsLoader(DataBrowser viewer, Collection<ImageData> images, 
-    		              int row, int column)
+    public ThumbnailFieldsLoader(DataBrowser viewer, 
+    				Collection<DataObject> images, int row, int column)
     {
         super(viewer);
         if (images == null)
@@ -122,7 +124,7 @@ public class ThumbnailFieldsLoader
     
     /**
      * Does nothing as the asynchronous call returns <code>null</code>.
-     * The actual payload (thumbnails) is delivered progressively
+     * The actual pay-load (thumbnails) is delivered progressively
      * during the updates.
      * @see DataBrowserLoader#handleNullResult()
      */

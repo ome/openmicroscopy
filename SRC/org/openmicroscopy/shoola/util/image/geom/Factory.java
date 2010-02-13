@@ -486,7 +486,7 @@ public class Factory
      * @param img The Image to convert to a buffered image
      * @return The buffered image
      */
-    public static  BufferedImage createImage(Image img)
+    public static BufferedImage createImage(Image img)
     {
     	if (img == null) return null;
         BufferedImage buff = new BufferedImage(img.getWidth(null), 

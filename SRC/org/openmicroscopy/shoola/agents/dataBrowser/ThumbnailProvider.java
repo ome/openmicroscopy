@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.FileData;
 import pojos.ImageData;
 import pojos.PixelsData;
 
@@ -152,9 +153,6 @@ public class ThumbnailProvider
 	        originalHeight = THUMB_MAX_HEIGHT;
 	        return;
 		}
-        
-        //int w = THUMB_MAX_WIDTH;
-        //int h = THUMB_MAX_HEIGHT;
         double pixSizeX = pxd.getSizeX();
         double pixSizeY = pxd.getSizeY();
         Dimension size = Factory.computeThumbnailSize(width, height, pixSizeX, 
@@ -175,7 +173,8 @@ public class ThumbnailProvider
     public ThumbnailProvider(DataObject is)
     {
         if (is == null) throw new IllegalArgumentException("No image.");
-        if (!(is instanceof ImageData || is instanceof ExperimenterData))
+        if (!(is instanceof ImageData || is instanceof ExperimenterData ||
+        	is instanceof FileData))
         	throw new IllegalArgumentException("Objet to supported.");
         imgInfo = is;
         scalingFactor = SCALING_FACTOR;

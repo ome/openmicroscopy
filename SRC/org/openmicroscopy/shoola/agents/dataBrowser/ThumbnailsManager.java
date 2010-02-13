@@ -39,6 +39,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
+
+import pojos.FileData;
 import pojos.ImageData;
 
 /** 
@@ -71,7 +73,7 @@ public class ThumbnailsManager
     private int     			totalIDs;
     
     /** Ids of the images whose thumbnails have already been set. */
-    private Set<Long>     		processedIDs;
+    private Set<Object>     	processedIDs;
     
     /** 
      * Maps an Image id onto all the {@link ThumbnailProvider}s in the
@@ -79,7 +81,7 @@ public class ThumbnailsManager
      * Note that {@link ThumbnailProvider}s are not shared, so there's one
      * for each {@link ImageNode} that represents the given Image. 
      */
-    private Map<Long, Set>     	thumbProviders;
+    private Map<Object, Set>     thumbProviders;
     
     /**
      * Creates a new instance.
@@ -94,14 +96,15 @@ public class ThumbnailsManager
             throw new NullPointerException("No image nodes.");
         //totalIDs = 0;
         this.totalIDs = totalIDs;
-        processedIDs = new HashSet<Long>();
-        thumbProviders = new HashMap<Long, Set>();
+        processedIDs = new HashSet<Object>();
+        thumbProviders = new HashMap<Object, Set>();
         Iterator<ImageDisplay> i = nodes.iterator();
         ImageDisplay node;
         ImageData is = null;
         Long id;
         Set<Thumbnail> providers;
         Thumbnail thumb = null;
+        Object ho = null;
         while (i.hasNext()) {
             node = i.next();
             if (node instanceof WellImageSet) {
@@ -109,8 +112,10 @@ public class ThumbnailsManager
         		thumb = 
         			((WellImageSet) node).getSelectedWellSample().getThumbnail();
             } else if (node instanceof ImageNode) {
-            	 is = (ImageData) node.getHierarchyObject();
-            	 thumb = ((ImageNode) node).getThumbnail();
+            	ho = node.getHierarchyObject();
+            	if (ho instanceof ImageData) 
+            		is = (ImageData) ho;
+            	thumb = ((ImageNode) node).getThumbnail();
             }
             if (is != null) {
             	 id = is.getId();
@@ -120,6 +125,15 @@ public class ThumbnailsManager
                      thumbProviders.put(id, providers);
                  }
                  providers.add(thumb);
+            } else {
+            	if (ho instanceof FileData) {
+            		providers = thumbProviders.get(ho);
+                    if (providers == null) {
+                        providers = new HashSet<Thumbnail>();
+                        thumbProviders.put(ho, providers);
+                    }
+                    providers.add(thumb);
+            	}
             }
         }
     }
@@ -127,26 +141,28 @@ public class ThumbnailsManager
     /**
      * Sets the specified pixels to be the thumbnail for the specified Image.
      * 
-     * @param imageID The id of the Image.
+     * @param ref The id of the image or to the object of reference
+     * 				  which the thumbnail belongs.
      * @param thumb   The thumbnail pixels. Mustn't be <code>null</code>.
      * @param valid   Pass <code>true</code> if it is a valid thumbnail,
      * 					 <code>false</code> otherwise.
      */
-    public void setThumbnail(long imageID, BufferedImage thumb, boolean valid)
+    public void setThumbnail(Object ref, BufferedImage thumb, boolean valid)
     {
         if (thumb == null) throw new NullPointerException("No thumbnail.");
-        Long id = Long.valueOf(imageID);
-        Set providers = thumbProviders.get(id);
-        if (providers != null) {
-            Iterator p = providers.iterator();
-            ThumbnailProvider tp;
-            while (p.hasNext()) {
-            	tp = (ThumbnailProvider) p.next();
-            	tp.setValid(valid);
-            	tp.setFullScaleThumb(thumb);
-            }
-                
-            processedIDs.add(id);
+        if (ref instanceof Long || ref instanceof FileData) {
+             Set providers = thumbProviders.get(ref);
+             if (providers != null) {
+                 Iterator p = providers.iterator();
+                 ThumbnailProvider tp;
+                 while (p.hasNext()) {
+                 	tp = (ThumbnailProvider) p.next();
+                 	tp.setValid(valid);
+                 	tp.setFullScaleThumb(thumb);
+                 }
+                     
+                 processedIDs.add(ref);
+             }
         }
     }
     

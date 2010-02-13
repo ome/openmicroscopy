@@ -85,7 +85,7 @@ public class ExperimenterDataLoader
     
     /** Indicates that the root node is of type <code>File</code>. */
     public static final int FILE = 5;
-    
+
     /** Indicates that the root node is of type <code>All</code>. */
     public static final int ALL = 6;
     

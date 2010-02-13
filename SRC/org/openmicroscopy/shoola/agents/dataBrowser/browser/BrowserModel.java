@@ -400,7 +400,7 @@ class BrowserModel
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getImages()
 	 */
-	public Set<ImageData> getImages()
+	public Set<DataObject> getImages()
 	{ 
 	    //Note: avoid caching b/c we don't know yet what we are going
 	    //to do with updates
@@ -610,7 +610,7 @@ class BrowserModel
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getVisibleImages()
 	 */
-	public Set<ImageData> getVisibleImages()
+	public Set<DataObject> getVisibleImages()
 	{
 		//Note: avoid caching b/c we don't know yet what we are going
 		//to do with updates

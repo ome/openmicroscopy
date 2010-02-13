@@ -586,7 +586,7 @@ class WellsModel
 		List l = getNodes();
 		Iterator i = l.iterator();
 		ImageSet node;
-		List<ImageData> images = new ArrayList<ImageData>();
+		List<DataObject> images = new ArrayList<DataObject>();
 		ImageNode selected;
 		WellSampleData data;
 		Thumbnail thumb;
@@ -634,7 +634,7 @@ class WellsModel
 		List l = getNodes();
 		Iterator i = l.iterator();
 		ImageSet node;
-		List<ImageData> images = new ArrayList<ImageData>();
+		List<DataObject> images = new ArrayList<DataObject>();
 		ImageNode selected;
 		WellSampleData data;
 		Thumbnail thumb;

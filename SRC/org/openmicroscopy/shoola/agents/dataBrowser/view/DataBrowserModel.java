@@ -115,6 +115,8 @@ abstract class DataBrowserModel
 	/** Identifies the <code>GroupModel</code>. */
 	static final int	GROUP = 8;
 	
+	/** Identifies the <code>FSFolderModel</code>. */
+	static final int	FS_FOLDER = 9;
 	
 	/** Holds one of the state flags defined by {@link DataBrowser}. */
     private int					state;
@@ -321,14 +323,14 @@ abstract class DataBrowserModel
      * When every image object has a thumbnail, this method sets the state
      * to {@link HiViewer#READY}.
      * 
-     * @param imageID    The id of the hierarchy object to which the thumbnail 
-     *                   belongs.
+     * @param imageID    The id of the image or to the object of reference
+     * 				 	 which the thumbnail belongs.
      * @param thumb      The thumbnail pixels.
      * @param valid		 Pass <code>true</code> if it is a valid thumbnail,
      * 					 <code>false</code> otherwise.
      * @param maxEntries The number of thumbnails to load.
      */
-    void setThumbnail(long imageID, BufferedImage thumb, boolean valid, 
+    void setThumbnail(Object ref, BufferedImage thumb, boolean valid, 
     		int maxEntries)
     {
         if (thumbsManager == null) {
@@ -340,7 +342,7 @@ abstract class DataBrowserModel
         	}
         }
 
-        thumbsManager.setThumbnail(imageID, thumb, valid);
+        thumbsManager.setThumbnail(ref, thumb, valid);
         if (thumbsManager.isDone()) {
             state = DataBrowser.READY;
             thumbsManager = null;

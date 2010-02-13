@@ -48,6 +48,9 @@ public class TreeImageNode
     extends TreeImageDisplay
 {
 	
+	/** Flag indicating if the image is a supported file format. */
+	private boolean supportedImageFormat;
+	
     /**
      * Implemented as specified by superclass.
      * @see TreeImageDisplay#doAccept(TreeImageDisplayVisitor)
@@ -70,6 +73,29 @@ public class TreeImageNode
         super(hierarchyObject);
     }
   
+    /**
+     * Sets the flag indicating that the image is format supported or not.
+     * 
+     * @param supportedImageFormat  Pass <code>true</code> to indicate that
+     * 								the image is supported, <code>false</code>
+     * 								otherwise.
+     */
+    public void setSupportedImageFormat(boolean supportedImageFormat)
+    {
+    	this.supportedImageFormat = supportedImageFormat;
+    }
+    
+    /**
+     * Returns <code>true</code> to indicate that the image is supported, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isSupportedImageFormat()
+    {
+    	return supportedImageFormat;
+    }
+    
     /**
      * Spits out a runtime exception because it's not possible to add a
      * child to a leaf node.

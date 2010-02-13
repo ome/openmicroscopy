@@ -1528,14 +1528,18 @@ class TreeViewerComponent
 			String message = "";
 			String s = "";
 			if (db != null) {
-				Set<ImageData> images = db.getBrowser().getImages();
+				Set<DataObject> images = db.getBrowser().getImages();
 				Map<Long, ImageData> m = new HashMap<Long, ImageData>();
 				if (images != null) {
-					Iterator<ImageData> k = images.iterator();
+					Iterator<DataObject> k = images.iterator();
 					ImageData img;
+					DataObject obj;
 					while (k.hasNext()) {
-						img = k.next();
-						m.put(img.getId(), img);
+						obj = k.next();
+						if (obj instanceof ImageData) {
+							img = (ImageData) obj;
+							m.put(img.getId(), img);
+						}
 					}
 					
 					Iterator i = failure.iterator();
@@ -1632,9 +1636,15 @@ class TreeViewerComponent
 		} else if (parentObject instanceof GroupData) {
 			db = DataBrowserFactory.getGroupsBrowser(
 					(GroupData) parentObject, leaves);
+		} else if (parentObject instanceof FileData) {
+			FileData f = (FileData) parentObject;
+			if (f.isDirectory() && !f.isHidden()) 
+				db = DataBrowserFactory.getFSFolderBrowser(
+						(FileData) parentObject, leaves);
 		} else 
 			db = DataBrowserFactory.getDataBrowser(grandParentObject, 
 					parentObject, leaves);
+		if (db == null) return;
 		db.addPropertyChangeListener(controller);
 		db.activate();
 		view.displayBrowser(db);
@@ -2152,6 +2162,17 @@ class TreeViewerComponent
 					}
 					if (leaves.size() > 0)
 						setLeaves((TreeImageSet) node, leaves);
+				}
+			}
+		} else if (uo instanceof FileData) {
+			FileData fa = (FileData) uo;
+			if (!fa.isHidden()) {
+				if (fa.isDirectory()) {
+					model.getSelectedBrowser().loadExperimenterData(
+							BrowserFactory.getDataOwner(node), 
+		        			node);
+				} else {
+					//Import, register and view.
 				}
 			}
 		}

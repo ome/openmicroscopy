@@ -413,14 +413,17 @@ public class IconManager
     /** The <code>Registered Directory</code> icon. */
     public static final int           DIRECTORY_REGISTERED = 118;
     
-    /** The <code>Registered Directory</code> icon. */
+    /** The <code>Registered File</code> icon. */
     public static final int           FILE_REGISTERED = 119;
+    
+    /** The <code>Registered Image</code> icon. */
+    public static final int           IMAGE_REGISTERED = 120;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 119;
+    private static final int          MAX_ID = 120;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -550,6 +553,7 @@ public class IconManager
         relPaths[ADMIN] = "nuvola_personal16.png";
         relPaths[DIRECTORY_REGISTERED] = "nuvola_personal16.png";//"nuvola_folder_grey16.png";
         relPaths[FILE_REGISTERED] = "nuvola_download_manager_rotated16.png";//"nuvola_folder_grey16.png";
+        relPaths[IMAGE_REGISTERED] = "nuvola_personal16.png";
     }
     
     /** The sole instance. */

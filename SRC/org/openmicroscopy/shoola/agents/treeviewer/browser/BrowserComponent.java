@@ -399,9 +399,15 @@ class BrowserComponent
         Object ho = expNode.getUserObject();
         if (!(ho instanceof ExperimenterData))
         	throw new IllegalArgumentException("Experimenter not valid");
+        if (model.getBrowserType() == FILE_SYSTEM_EXPLORER) {
+        	model.getParentModel().setLeaves(parent, leaves);
+            return;
+        }
+        
+        
         ExperimenterData exp = (ExperimenterData) ho;
         long userID = exp.getId();
-        long groupID = -1;//exp.getDefaultGroup().getId();
+        long groupID = exp.getDefaultGroup().getId();
         
         Set visLeaves = TreeViewerTranslator.transformHierarchy(leaves, userID, 
                                                                 groupID);
@@ -922,7 +928,27 @@ class BrowserComponent
 				return;
 		}   
         if (n == null) model.fireExperimenterDataLoading((TreeImageSet) exp);
-        else model.fireLeavesLoading(exp, n);
+        else {
+        	if (model.getBrowserType() == FILE_SYSTEM_EXPLORER) {
+        		Object uo = n.getUserObject();
+        		if (uo instanceof FileData) {
+        			FileData dir = (FileData) uo;
+        			if (dir.isDirectory() && !dir.isHidden()) {
+        				FileData[] files = model.getFilesData(dir);
+        				if (files != null) {
+        					List<FileData> list = new ArrayList<FileData>();
+        					for (int i = 0; i < files.length; i++) {
+								list.add(files[i]);
+							}
+        					model.setState(LOADING_LEAVES);
+        					setLeaves(list, (TreeImageSet) n, 
+        							(TreeImageSet) exp);
+        				}
+        			}
+        			return;
+        		}
+        	} else model.fireLeavesLoading(exp, n);
+        }
         model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, false);
         fireStateChange();
 	}

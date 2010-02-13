@@ -36,7 +36,9 @@ import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.ImageData;
+import pojos.DataObject;
+import pojos.ExperimenterData;
+import pojos.FileData;
 
 /** 
  * Loads all thumbnails for the specified images.
@@ -57,6 +59,24 @@ public class ThumbnailLoader
 	extends DataBrowserLoader
 {
 
+	/** 
+	 * Indicates that the thumbnails are associated to an 
+	 * <code>ImageData</code>.
+	 */
+	private static final int 		IMAGE = 0;
+	
+	/** 
+	 * Indicates that the thumbnails are associated to an 
+	 * <code>ExperimenterData</code>.
+	 */
+	private static final int 		EXPERIMENTER = 1;
+	
+	/** 
+	 * Indicates that the thumbnails are associated to an <code>FileData</code>.
+	 */
+	private static final int 		FS_FILE = 2;
+
+	
 	/** The number of thumbnails to load. */
 	private int                     max;
 	
@@ -64,7 +84,13 @@ public class ThumbnailLoader
 	 * The <code>ImageData</code> objects for the images whose thumbnails 
 	 * have to be fetched.
 	 */
-    private Collection<ImageData>	images;
+    private Collection<DataObject>	objects;
+    
+    /**  
+     * Indicates the types of thumbnails to retrieve. One of the constants
+     * defined by this class.
+     */
+    private int						type;
     
     /** Flag indicating to retrieve thumbnail. */
     private boolean					thumbnail;
@@ -77,13 +103,12 @@ public class ThumbnailLoader
      * 
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
-     * @param images 	The <code>ImageData</code> objects for the images whose 
-     *               	thumbnails have to be fetched. 
-     * 					Mustn't be <code>null</code>.
+     * @param objects 	The <code>DataObject</code>s associated to the images
+     *					to fetch. Mustn't be <code>null</code>.
      */
-    public ThumbnailLoader(DataBrowser viewer, Collection<ImageData> images)
+    public ThumbnailLoader(DataBrowser viewer, Collection<DataObject> objects)
     {
-        this(viewer, images, true);
+        this(viewer, objects, true);
     }
     
     /**
@@ -91,23 +116,31 @@ public class ThumbnailLoader
      * 
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
-     * @param images 	The <code>ImageData</code> objects for the images whose 
-     *               	thumbnails have to be fetched. 
-     * 					Mustn't be <code>null</code>.
+     * @param objects 	The <code>DataObject</code>s associated to the images
+     *					to fetch. Mustn't be <code>null</code>.
      * @param thumbnail	Pass <code>true</code> to retrieve image at a thumbnail
      * 					size, <code>false</code> otherwise.
      */
-    public ThumbnailLoader(DataBrowser viewer, Collection<ImageData> images, 
+    public ThumbnailLoader(DataBrowser viewer, Collection<DataObject> objects, 
     		              boolean thumbnail)
     {
         super(viewer);
-        if (images == null)
+        if (objects == null)
             throw new IllegalArgumentException("Collection shouldn't be null.");
-        this.images = images;
+        DataObject o = null;
+        Iterator<DataObject> i = objects.iterator();
+        while (i.hasNext()) {
+        	if (o != null) break;
+			o = i.next();
+		}
+        this.objects = objects;
         this.thumbnail = thumbnail;
-        max = images.size();
+        max = objects.size();
+        type = IMAGE;
+        if (o instanceof ExperimenterData) type = EXPERIMENTER;
+        else if (o instanceof FileData) type = FS_FILE;
     }
-
+    
     /**
      * Retrieves the thumbnails.
      * @see DataBrowserLoader#load()
@@ -116,16 +149,16 @@ public class ThumbnailLoader
     {
     	long userID = DataBrowserAgent.getUserDetails().getId();
     	if (thumbnail) 
-    		handle = hiBrwView.loadThumbnails(images, 
+    		handle = hiBrwView.loadThumbnails(objects, 
                     ThumbnailProvider.THUMB_MAX_WIDTH,
                     ThumbnailProvider.THUMB_MAX_HEIGHT,
                     userID, this);
     	else 
-    		handle = hiBrwView.loadThumbnails(images, 
+    		handle = hiBrwView.loadThumbnails(objects, 
                     3*ThumbnailProvider.THUMB_MAX_WIDTH,
                     3*ThumbnailProvider.THUMB_MAX_HEIGHT,
                     userID, this);
-    		//handle = hiBrwView.loadImagesAsThumbnails(images, userID, this);
+    	
     }
     
     /** 
@@ -152,9 +185,12 @@ public class ThumbnailLoader
             if (l != null) {
             	Iterator i = l.iterator();
             	ThumbnailData td;
+            	Object ref;
             	while (i.hasNext()) {
             		td = (ThumbnailData) i.next();
-            		viewer.setThumbnail(td.getImageID(), td.getThumbnail(), 
+            		ref = td.getRefObject();
+            		if (ref == null) ref = td.getImageID();
+            		viewer.setThumbnail(ref, td.getThumbnail(), 
             				td.isValidImage(), max);
 				}
             }

@@ -55,6 +55,7 @@ import com.sun.opengl.util.texture.TextureData;
 
 import pojos.DataObject;
 import pojos.FileAnnotationData;
+import pojos.FileData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ROIData;
@@ -458,6 +459,17 @@ public class NullRenderingService
      */
 	public Object uploadScript(ScriptObject script)
 			throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#getFSThumbnailSet(List, int, long)
+     */
+	public Map<FileData, BufferedImage> getFSThumbnailSet(List<FileData> files,
+			int maxLength, long userID) throws DSAccessException,
+			DSOutOfServiceException, FSAccessException
 	{
 		return null;
 	}

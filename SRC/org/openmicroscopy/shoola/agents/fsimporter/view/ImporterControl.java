@@ -88,6 +88,7 @@ class ImporterControl
 	/** Creates or recycles a <code>FSChooserDialog</code>. */
 	void setDialogOnScreen()
 	{
+		/*
 		if (chooser == null) {
 			Registry reg = ImporterAgent.getRegistry();
 			chooser = new ImporterChooserDialog(view, 
@@ -96,6 +97,7 @@ class ImporterControl
 			chooser.pack();
 		}
 		UIUtilities.centerAndShow(chooser);
+		*/
 	}
 	
 	/**
