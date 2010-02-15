@@ -113,6 +113,39 @@ public class AdminPermsTest extends PermissionsTest {
 
     }
 
+    @Test
+    public void testCreateUserAsOwner() {
+
+        setup(Permissions.PRIVATE);
+        fixture.make_leader();
+
+        Experimenter e = uuidUser();
+        iAdmin.createUser(newUser, group)
+        try {
+            iAdmin.createUser(e, g2.getName());
+            fail("not in my group");
+        } catch (SecurityViolation sv) {
+            // good;
+        }
+        try {
+            iAdmin.createUser(e, fixture.groupName);
+            fail("my group, i'm not leader");
+        } catch (SecurityViolation sv) {
+            // good;
+        }
+
+        fixture.make_leader();
+
+        try {
+            iAdmin.createUser(e, g2.getName());
+            fail("still not in my group even thought i'm leader");
+        } catch (SecurityViolation sv) {
+            // good;
+        }
+
+        iAdmin.createUser(e, fixture.groupName);
+
+    }
 
 
     @Test
