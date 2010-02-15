@@ -116,11 +116,13 @@ public class AdminPermsTest extends PermissionsTest {
     @Test
     public void testCreateUserAsOwner() {
 
+        loginRoot();
+        ExperimenterGroup g2 = newGroup();
+
         setup(Permissions.PRIVATE);
-        fixture.make_leader();
 
         Experimenter e = uuidUser();
-        iAdmin.createUser(newUser, group)
+        iAdmin.createUser(e, fixture.groupName);
         try {
             iAdmin.createUser(e, g2.getName());
             fail("not in my group");
