@@ -26,7 +26,7 @@ def main():
 			  help="user's INSTITUTE's name", metavar="INSTITUTE") 
 	parser.add_option("-g","--group", dest="group",
 			  help="user's default GROUP [default: %default]", metavar="GROUP",
-			  default="default")
+			  default="CHANGE_ME")
 	parser.add_option("-p","--password", dest="password",
 			  help="user's PASSWORD [default: %default]", metavar="PASSWORD",
 			  default=None)
