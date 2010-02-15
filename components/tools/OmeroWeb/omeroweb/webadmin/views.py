@@ -62,9 +62,9 @@ from controller.enums import BaseEnums
 
 from models import Gateway
 from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
-                   ExperimenterLdapForm, GroupForm, ScriptForm, MyAccountForm, \
+                   ExperimenterLdapForm, GroupForm, GroupOwnerForm, MyAccountForm, \
                    MyAccountLdapForm, ContainedExperimentersForm, UploadPhotoForm, \
-                   EnumerationEntry, EnumerationEntries
+                   EnumerationEntry, EnumerationEntries, ScriptForm
 
 from extlib import gateway
 
@@ -122,8 +122,30 @@ def isAdminConnected (f):
             return HttpResponseRedirect(reverse("walogin")+(("?error=%s") % x.__class__.__name__))
         if conn is None:
             return HttpResponseRedirect(reverse("walogin"))
-        if not conn.getEventContext().isAdmin:
+        if not conn.isAdmin():
             return page_not_found(request, "404.html")
+        kwargs["conn"] = conn
+        return f(request, *args, **kwargs)
+
+    return wrapped
+
+def isOwnerConnected (f):
+    def wrapped (request, *args, **kwargs):
+        #this check the connection exist, if not it will redirect to login page
+        conn = None
+        try:
+            conn = getBlitzConnection(request)
+        except Exception, x:
+            logger.error(traceback.format_exc())
+            return HttpResponseRedirect(reverse("walogin")+(("?error=%s") % x.__class__.__name__))
+        if conn is None:
+            return HttpResponseRedirect(reverse("walogin"))
+        if kwargs.get('gid') is not None:
+            if not conn.isOwner(kwargs.get('gid')):
+                return page_not_found(request, "404.html")
+        else:
+            if not conn.isOwner():
+                return page_not_found(request, "404.html")
         kwargs["conn"] = conn
         return f(request, *args, **kwargs)
 
@@ -132,17 +154,17 @@ def isAdminConnected (f):
 def isUserConnected (f):
     def wrapped (request, *args, **kwargs):
         try:
-            request.session['server'] = request.REQUEST['server']
+            request.session['server'] = request.REQUEST.get('server')
         except:
             pass
         #this check connection exist, if not it will redirect to login page
-        try:
-            url = request.REQUEST['url']
-        except:
-            if request.META['QUERY_STRING']:
-                url = '%s?%s' % (request.META['PATH_INFO'], request.META['QUERY_STRING'])
+        
+        url = request.REQUEST.get('url')
+        if url is None:
+            if request.META.get('QUERY_STRING'):
+                url = '%s?%s' % (request.META.get('PATH_INFO'), request.META.get('QUERY_STRING'))
             else:
-                url = '%s' % (request.META['PATH_INFO'])
+                url = '%s' % (request.META.get('PATH_INFO'))
         
         conn = None
         try:
@@ -170,8 +192,8 @@ def forgotten_password(request, **kwargs):
     conn = None
     error = None
     
-    if request.method == 'POST' and request.REQUEST['server'] and request.REQUEST['username'] and request.REQUEST['email']:
-        blitz = Gateway.objects.get(pk=request.REQUEST['server'])
+    if request.method == 'POST' and request.REQUEST.get('server') and request.REQUEST.get('username') and request.REQUEST.get('email'):
+        blitz = Gateway.objects.get(pk=request.REQUEST.get('server'))
         try:
             conn = getGuestConnection(blitz.host, blitz.port)
             if not conn.isForgottenPasswordSet():
@@ -184,7 +206,7 @@ def forgotten_password(request, **kwargs):
     if conn is not None:
         controller = None
         try:
-            controller = conn.reportForgottenPassword(request.REQUEST['username'].encode('utf-8'), request.REQUEST['email'].encode('utf-8'))
+            controller = conn.reportForgottenPassword(request.REQUEST.get('username').encode('utf-8'), request.REQUEST.get('email').encode('utf-8'))
         except Exception, x:
             logger.error(traceback.format_exc())
             error = x.__class__.__name__
@@ -195,8 +217,8 @@ def forgotten_password(request, **kwargs):
             form = ForgottonPasswordForm(data=request.REQUEST.copy())
         else:
             try:
-                blitz = Gateway.objects.filter(id=request.REQUEST['server'])
-                data = {'server': unicode(blitz[0].id), 'username':unicode(request.REQUEST['username']), 'password':unicode(request.REQUEST['password']) }
+                blitz = Gateway.objects.filter(id=request.REQUEST.get('server'))
+                data = {'server': unicode(blitz[0].id), 'username':unicode(request.REQUEST.get('username')), 'password':unicode(request.REQUEST.get('password')) }
                 form = ForgottonPasswordForm(data=data)
             except:
                 form = ForgottonPasswordForm()
@@ -208,20 +230,36 @@ def forgotten_password(request, **kwargs):
     return HttpResponse(rsp)
 
 def login(request):
-    if request.method == 'POST' and request.REQUEST['server']:
+    if request.method == 'POST' and request.REQUEST.get('server'):
+        # upgrade check:
+        # -------------
+        # On each startup OMERO.web checks for possible server upgrades
+        # and logs the upgrade url at the WARNING level. If you would
+        # like to disable the checks, change the following to
+        #
+        #   if False:
+        #
+        # For more information, see
+        # http://trac.openmicroscopy.org.uk/omero/wiki/UpgradeCheck
+        #
+        try:
+            from omero.util.upgrade_check import UpgradeCheck
+            check = UpgradeCheck("web")
+            check.run()
+            if check.isUpgradeNeeded():
+                logger.error("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads.\n")
+        except Exception, x:
+            logger.error("Upgrade check error: %s" % x)
+            
         blitz = Gateway.objects.get(pk=request.REQUEST['server'])
-        _session_logout(request, blitz.id)
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
-        request.session['username'] = request.REQUEST['username'].encode('utf-8')
-        request.session['password'] = request.REQUEST['password'].encode('utf-8')
+        request.session['username'] = request.REQUEST.get('username').encode('utf-8')
+        request.session['password'] = request.REQUEST.get('password').encode('utf-8')
     
-    try:
-        error = request.REQUEST['error']
-    except:
-        error = None
-        
+    error = request.REQUEST.get('error')
+    
     conn = None
     try:
         conn = getBlitzConnection(request)
@@ -232,20 +270,18 @@ def login(request):
     if conn is not None:
         return HttpResponseRedirect(reverse("waindex"))
     else:
-        if request.method == 'POST' and request.REQUEST['server']:
+        if request.method == 'POST' and request.REQUEST.get('server'):
             error = "Connection not available, please check your user name and password."
-        try:
-            request.session['server'] = request.REQUEST['server']
-        except:
-            pass
+        
+        request.session['server'] = request.REQUEST.get('server')
         
         template = "omeroadmin/login.html"
         if request.method == 'POST':
             form = LoginForm(data=request.REQUEST.copy())
         else:
             try:
-                blitz = Gateway.objects.filter(id=request.session['server'])
-                data = {'server': unicode(blitz[0].id), 'username':unicode(request.session['username']), 'password':unicode(request.session['password']) }
+                blitz = Gateway.objects.filter(id=request.session.get('server'))
+                data = {'server': unicode(blitz[0].id), 'username':unicode(request.session.get('username')), 'password':unicode(request.session.get('password')) }
                 form = LoginForm(data=data)
             except:
                 form = LoginForm()
@@ -256,34 +292,21 @@ def login(request):
         return HttpResponse(rsp)
 
 @isUserConnected
-def index(request, **kwargs):
-    
+def index(request, **kwargs):    
     conn = None
     try:
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
     
-    if conn.getEventContext().isAdmin:
+    if conn.isAdmin():
         return HttpResponseRedirect(reverse("waexperimenters"))
     else:
         return HttpResponseRedirect(reverse("wamyaccount"))
 
 def logout(request):
-    _session_logout(request, request.session['server'])
-#    try:
-#        conn = getBlitzConnection(request)
-#    except:
-#        logger.error(traceback.format_exc())
-#    else:
-#        try:
-#            session_key = "S:%s#%s" % (request.session.session_key,request.session['server'])
-#            if connectors.has_key(session_key):
-#                conn.seppuku()
-#                del connectors[session_key]
-#        except:
-#            logger.error(traceback.format_exc())
-    
+    _session_logout(request, request.session.get('server'))
+
     try:
         del request.session['server']
     except KeyError:
@@ -304,10 +327,6 @@ def logout(request):
         del request.session['password']
     except KeyError:
         logger.error(traceback.format_exc())
-#    try:
-#        del request.session['sessionUuid']
-#    except KeyError:
-#        logger.error(traceback.format_exc())
     
     request.session.set_expiry(1)
     return HttpResponseRedirect(reverse("waindex"))
@@ -491,7 +510,7 @@ def manage_group(request, action, gid=None, **kwargs):
     controller = BaseGroup(conn, gid)
     
     if action == 'new':
-        form = GroupForm(initial={'experimenters':controller.experimenters})
+        form = GroupForm(initial={'experimenters':controller.experimenters, 'access_controll': 0})
         context = {'info':info, 'eventContext':eventContext, 'form':form}
     elif action == 'create':
         if request.method != 'POST':
@@ -500,20 +519,20 @@ def manage_group(request, action, gid=None, **kwargs):
             name_check = conn.checkGroupName(request.REQUEST['name'].encode('utf-8'))
             form = GroupForm(initial={'experimenters':controller.experimenters}, data=request.POST.copy(), name_check=name_check)
             if form.is_valid():
-                name = request.REQUEST['name'].encode('utf-8')
-                description = request.REQUEST['description'].encode('utf-8')
-                owner = request.REQUEST['owner']
-                #permissions = request.REQUEST.get('access_controll')
-                #controller.createGroup(name, owner, permissions, description)
-                controller.createGroup(name, owner, description)
+                name = request.REQUEST.get('name').encode('utf-8')
+                description = request.REQUEST.get('description').encode('utf-8')
+                owners = request.POST.getlist('owners')
+                permissions = request.REQUEST.get('access_controll')                
+                readonly = request.REQUEST.get('readonly') is None and True or False  
+                controller.createGroup(name, owners, permissions, readonly, description)
                 return HttpResponseRedirect(reverse("wagroups"))
             context = {'info':info, 'eventContext':eventContext, 'form':form}
     elif action == 'edit':
+        access_controll = controller.getActualPermissions()
         form = GroupForm(initial={'name': controller.group.name, 'description':controller.group.description,
-                                     #'access_controll': controller.getActualPermissions(), 
-                                     #This "owner" field will need to be multi-valued
-                                     'owner': None, 'experimenters':controller.experimenters})
-        context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid}
+                                     'access_controll': access_controll, 'readonly': controller.isReadOnly(), 
+                                     'owners': controller.owners, 'experimenters':controller.experimenters})
+        context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid, 'access_controll': access_controll}
     elif action == 'save':
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanagegroupid", args=["edit", controller.group.id]))
@@ -521,12 +540,12 @@ def manage_group(request, action, gid=None, **kwargs):
             name_check = conn.checkGroupName(request.REQUEST['name'].encode('utf-8'), controller.group.name)
             form = GroupForm(initial={'experimenters':controller.experimenters}, data=request.POST.copy(), name_check=name_check)
             if form.is_valid():
-                name = request.REQUEST['name'].encode('utf-8')
-                description = request.REQUEST['description'].encode('utf-8')
-                owner = request.REQUEST['owner']
-                #permissions = request.REQUEST.get('access_controll')
-                #controller.updateGroup(name, owner, permissions, description)
-                controller.updateGroup(name, owner, description)
+                name = request.REQUEST.get('name').encode('utf-8')
+                description = request.REQUEST.get('description').encode('utf-8')
+                owners = request.POST.getlist('owners')
+                permissions = request.REQUEST.get('access_controll').encode('utf-8')
+                readonly = request.REQUEST.get('readonly') is None and True or False
+                controller.updateGroup(name, owners, permissions, readonly, description)
                 return HttpResponseRedirect(reverse("wagroups"))
             context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid}
     elif action == "update":
@@ -546,6 +565,45 @@ def manage_group(request, action, gid=None, **kwargs):
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'controller': controller}
     else:
         return HttpResponseRedirect(reverse("wagroups"))
+    
+    t = template_loader.get_template(template)
+    c = Context(request, context)
+    rsp = t.render(c)
+    return HttpResponse(rsp)
+
+@isOwnerConnected
+def manage_group_owner(request, action, gid, **kwargs):
+    myaccount = True
+    template = "omeroadmin/group_form_owner.html"
+    
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+    
+    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'myaccount':myaccount}
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
+    
+    controller = BaseGroup(conn, gid)
+    
+    if action == 'edit':
+        access_controll = controller.getActualPermissions()
+        form = GroupOwnerForm(initial={'access_controll': access_controll, 'readonly': controller.isReadOnly()})
+        context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid, 'access_controll': access_controll, 'group':controller.group, 'owners':controller.getOwnersNames()}
+    elif action == "save":
+        if request.method != 'POST':
+            return HttpResponseRedirect(reverse(viewname="wamyaccount", args=["edit", controller.group.id]))
+        else:
+            form = GroupOwnerForm(data=request.POST.copy())
+            if form.is_valid():
+                permissions = request.REQUEST.get('access_controll')                
+                readonly = request.REQUEST.get('readonly') is None and True or False
+                controller.updatePermissions(permissions, readonly)
+                return HttpResponseRedirect(reverse("wamyaccount"))
+            context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid}
+    else:
+        return HttpResponseRedirect(reverse("wamyaccount"))
     
     t = template_loader.get_template(template)
     c = Context(request, context)
@@ -724,12 +782,12 @@ def my_account(request, action=None, **kwargs):
     
     myaccount = BaseExperimenter(conn)
     myaccount.getMyDetails()
+    myaccount.getOwnedGroups()
     
     edit_mode = False
     photo_size = None
     form = None
-    form_file = UploadPhotoForm()
-    
+    form_file = UploadPhotoForm()    
     
     if action == "save":
         if request.method != 'POST':
@@ -799,7 +857,7 @@ def my_account(request, action=None, **kwargs):
                                     'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
                                     'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
     
-    context = {'info':info, 'eventContext':eventContext, 'form':form, 'form_file':form_file, 'ldapAuth': myaccount.ldapAuth, 'edit_mode':edit_mode, 'photo_size':photo_size}
+    context = {'info':info, 'eventContext':eventContext, 'form':form, 'form_file':form_file, 'ldapAuth': myaccount.ldapAuth, 'edit_mode':edit_mode, 'photo_size':photo_size, 'myaccount':myaccount}
     t = template_loader.get_template(template)
     c = Context(request,context)
     return HttpResponse(t.render(c))

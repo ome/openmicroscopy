@@ -1,4 +1,4 @@
-{% extends "omeroweb/base_container.html" %}
+{% extends "omeroweb/base.html" %}
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
@@ -18,7 +18,7 @@
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
     
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.autocomplete.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
@@ -79,7 +79,7 @@
 
 {% block right %}
 
-<iframe src ="{% url manage_metadata_details "image" manager.image.id %}" width="100%" height="680" name="metadata_details"></iframe>
+<iframe src ="{% url load_metadata_details "image" manager.image.id %}" width="100%" height="680" name="metadata_details"></iframe>
 
 {% endblock %}
 

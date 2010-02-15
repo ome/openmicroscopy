@@ -24,4 +24,3 @@ function saveMetadata (image_id, metadata_type, metadata_value) {
         });
     }
 }
-

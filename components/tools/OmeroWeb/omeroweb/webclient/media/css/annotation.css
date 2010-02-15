@@ -1,16 +1,10 @@
 #annotation_form {
-    width: 450px;
+    width: 370px;
+    margin: -5px 0 0;
 }
 
-#annotation_tabs {
-    margin: 0;
-    width: 100%;
-}
-#annotation_tabs.ui-tabs-nav {
-
-}
 select.existing {
-    width: 440px;
+    width: 300px;
 }
 
 div.comment {
@@ -20,7 +14,7 @@ div.excomment {
     float: right;
 }
 div.lncomments{
-    max-height: 350px;
+    max-height: 230px;
     overflow: auto;
     border: 1px solid #bbb;
     padding: 10px;
@@ -38,7 +32,7 @@ div.extags {
     float: left;
 }
 div.lntags{
-    max-height: 250px;
+    max-height: 110px;
     overflow: auto;
     border: 1px solid #bbb;
     padding: 0 10px;
@@ -50,38 +44,45 @@ div.exfile {
     float: left;
 }
 div.lnfiles{
-    max-height: 300px;
+    max-height: 175px;
     overflow: auto;
     border: 1px solid #bbb;
     padding: 0 10px;
 }
 /* tabs */
+#annotation_tabs {
+    margin: 5px 0 0 ;
+    width: 100%;
+}
+#annotation_tabs.ui-tabs-nav {
 
+}
+#annotation_tabs ul {
+    position:relative;
+    float:left;
+    width:300px;
+    padding:0 ;
+    margin:0;
+    list-style:none;
+}
 .ui-tabs-nav { padding: 0;  position: relative; }
 .ui-tabs-nav li { 
-    float: left; 
-    border-bottom:0; 
-    margin: 0 5px 0; 
-    padding: 0; 
-    list-style: none;
-    border-color:#BBBBBB #BBBBBB;
-    border-style:solid solid none;
-    border-width:1px 1px 0;
-    background: #fff;
+    float: right; 
+    padding: 5px; 
 }
 .ui-tabs-nav li a { 
-    display:block; 
+    /*display:block;*/
+    margin: 5px; 
     text-decoration: none; 
-    padding: 5px 15px; 
 }
 .ui-tabs-nav li.ui-tabs-selected {  
-    background: #eee;
+    font-weight: bold;
+    padding: 5px;
 }
 .ui-tabs-panel {
     display: block;
     border: 0;
-    background: none;
-    border-top:1px solid #BBBBBB;
+    padding: 0;
 }
 .ui-tabs-hide {
     display: none !important;
@@ -186,4 +187,11 @@ div.lnfiles{
 }
 #ann_comment_wrapper .ann_comment_header{
     font-weight: bold;
+}
+
+table.metadata_details {
+    width: 100%;
+}
+table.metadata_details td{
+    border-bottom: 1px dotted #bbb;
 }

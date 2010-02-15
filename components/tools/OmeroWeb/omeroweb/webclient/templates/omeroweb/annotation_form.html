@@ -1,20 +1,12 @@
-{% extends "omeroweb/base_frame.html" %}
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 
-{% block link %}
     <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
-{% endblock %}
 
-{% block jscript %}
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
-{% endblock %}
-
-{% block content %}
 
 {% if form %}
 
@@ -66,4 +58,3 @@
 
 {% endif %}
 
-{% endblock %}

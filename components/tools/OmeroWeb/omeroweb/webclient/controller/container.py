@@ -276,50 +276,7 @@ class BaseContainer(BaseController):
             elif self.image is not None:
                 self.eContext['breadcrumb'] = ['Edit image: %s' % (self.image.breadcrumbName())]
             elif self.tag is not None:
-                self.eContext['breadcrumb'] = ['Edit tag: %s' % (self.tag.breadcrumbName())]
-        elif self.orphaned:
-            self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data_orphaned", args=[menu, "orphaned"]), menu.title()), "Orphaned images"]
-        else:
-            if self.tags is not None:
-                try:
-                    self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()), 'Tags: %s | %s | %s | %s | %s' % (self.tags[0].breadcrumbName(), self.tags[1].breadcrumbName(), self.tags[2].breadcrumbName(), self.tags[3].breadcrumbName(), self.tags[4].breadcrumbName())]
-                except:
-                    try:
-                        self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()), 'Tags: %s | %s | %s | %s' % (self.tags[0].breadcrumbName(), self.tags[1].breadcrumbName(), self.tags[2].breadcrumbName(), self.tags[3].breadcrumbName())]
-                    except:
-                        try:
-                            self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()), 'Tags: %s | %s | %s' % (self.tags[0].breadcrumbName(), self.tags[1].breadcrumbName(), self.tags[2].breadcrumbName())]
-                        except:
-                            try:
-                                self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()), 'Tags: %s | %s' % (self.tags[0].breadcrumbName(), self.tags[1].breadcrumbName())]
-                            except:
-                                try:
-                                    self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()), 'Tag: %s' % (self.tags[0].breadcrumbName())]
-                                except:
-                                    self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()), 'Tags']
-            elif self.project is not None:
-                self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()),  
-                            '<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu, "project", self.project.id]), self.project.breadcrumbName())]
-                if self.dataset is not None:
-                    self.eContext['breadcrumb'].append('<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu, "project", self.project.id, "dataset", self.dataset.id]), self.dataset.breadcrumbName()))
-                    if self.image is not None:
-                        self.eContext['breadcrumb'].append('%s' % self.image.breadcrumbName())
-            elif self.screen is not None:
-                self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()),  
-                            '<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu, "screen", self.screen.id]), self.screen.breadcrumbName())]
-                if self.plate is not None:
-                    self.eContext['breadcrumb'].append('<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu, "screen", self.screen.id, "plate", self.plate.id]), self.plate.breadcrumbName()))
-            elif self.plate is not None:
-                self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()),  
-                            '<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu, "plate", self.plate.id]), self.plate.breadcrumbName())]
-            elif self.dataset is not None:
-                self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()), '<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu, "dataset", self.dataset.id]), self.dataset.breadcrumbName())]
-                if self.image is not None:
-                    self.eContext['breadcrumb'].append('%s' % self.image.breadcrumbName())
-            elif self.image is not None:
-                self.eContext['breadcrumb'] = ['<a href="%s">%s</a>' % (reverse(viewname="manage_data", args=[menu]), menu.title()), "%s" % (self.image.breadcrumbName())]
-            else:
-                self.eContext['breadcrumb'] = [menu.title()] 
+                self.eContext['breadcrumb'] = ['Edit tag: %s' % (self.tag.breadcrumbName())] 
     
     def loadDataByTag(self):
         tagids = list()
@@ -570,18 +527,28 @@ class BaseContainer(BaseController):
         self.paging = self.doPaging(page, len(im_list_with_counters), self.c_size)
 
     def loadMyContainerHierarchy(self):
-        obj_list = list(self.conn.loadContainerHierarchy())
+        obj_list = list(self.conn.loadContainerHierarchy('Project'))
+        obj_list.extend(list(self.conn.loadContainerHierarchy('Screen')))
         
         pr_list = list()
         ds_list = list()
+        sc_list = list()
+        pl_list = list()
+        
         for o in obj_list:
             if isinstance(o._obj, ProjectI):
                 pr_list.append(o)
-            if isinstance(o._obj, DatasetI):
+            elif isinstance(o._obj, DatasetI):
                 ds_list.append(o)
-        
+            elif isinstance(o._obj, ScreenI):
+                sc_list.append(o)
+            elif isinstance(o._obj, PlateI):
+                pl_list.append(o)
+
         pr_list_with_counters = list()
         ds_list_with_counters = list()
+        sc_list_with_counters = list()
+        pl_list_with_counters = list()
         
         pr_ids = [pr.id for pr in pr_list]
         if len(pr_ids) > 0:
@@ -602,11 +569,33 @@ class BaseContainer(BaseController):
                 ds.annotation_counter = ds_annotation_counter.get(ds.id)
                 ds_list_with_counters.append(ds)
         
+        sc_ids = [sc.id for sc in sc_list]
+        if len(sc_ids) > 0:
+            sc_child_counter = self.conn.getCollectionCount("Screen", "plateLinks", sc_ids)
+            sc_annotation_counter = self.conn.getCollectionCount("Screen", "annotationLinks", sc_ids)
+
+            for sc in sc_list:
+                sc.child_counter = sc_child_counter.get(sc.id)
+                sc.annotation_counter = sc_annotation_counter.get(sc.id)
+                sc_list_with_counters.append(sc)
+
+        pl_ids = [pl.id for pl in pl_list]
+        if len(pl_ids) > 0:
+            pl_child_counter = {}#self.conn.getCollectionCount("Plate", "wellLinks", ds_ids)
+            pl_annotation_counter = self.conn.getCollectionCount("Plate", "annotationLinks", ds_ids)
+
+            for pl in pl_list:
+                pl.child_counter = pl_child_counter.get(pl.id)
+                pl.annotation_counter = pl_annotation_counter.get(pl.id)
+                pl_list_with_counters.append(pl)
+                
         pr_list_with_counters = self.sortByAttr(pr_list_with_counters, 'name')
         ds_list_with_counters = self.sortByAttr(ds_list_with_counters, 'name')
+        sc_list_with_counters = self.sortByAttr(sc_list_with_counters, "name")
+        pl_list_with_counters = self.sortByAttr(pl_list_with_counters, "name")
         
-        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}
-        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)
+        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters, 'screens': sc_list_with_counters, 'plates': pl_list_with_counters}
+        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(sc_list_with_counters)+len(pl_list_with_counters)
 
     def loadMyImages(self, dataset_id):
         im_list = self.sortByAttr(list(self.conn.lookupImagesInDataset(oid=dataset_id)), 'name')
@@ -712,7 +701,7 @@ class BaseContainer(BaseController):
 
     def loadUserContainerHierarchy(self, exp_id):
         self.experimenter = self.conn.getExperimenter(exp_id)
-        obj_list = list(self.conn.loadContainerHierarchy(exp_id))
+        obj_list = list(self.conn.loadContainerHierarchy('Project', exp_id))
         
         pr_list = list()
         ds_list = list()

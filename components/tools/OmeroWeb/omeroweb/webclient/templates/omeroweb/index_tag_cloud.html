@@ -8,7 +8,7 @@
         <tbody>
             <tr><td>
             {% for key,value in controller.mostRecentTags.items %}
-                {% ifequal value.count controller.font.min %}<a href="{% url manage_data_by_tag value.obj.id %}" class="smalltag">{{ value.obj.textValue }}</a>{% else %}{% ifequal value.count controller.font.max %}<a href="{% url manage_data_by_tag value.obj.id %}" class="bigtag">{{ value.obj.textValue }}</a>{% else %}<a href="{% url manage_data_by_tag value.obj.id %}" class="middletag">{{ value.obj.textValue }}</a>{% endifequal %}{% endifequal %}, 
+                {% ifequal value.count controller.font.min %}<a href="{% url manage_data_by_tag value.obj.id %}" class="smalltag" target="_top">{{ value.obj.textValue }}</a>{% else %}{% ifequal value.count controller.font.max %}<a href="{% url manage_data_by_tag value.obj.id %}" class="bigtag"  target="_top">{{ value.obj.textValue }}</a>{% else %}<a href="{% url manage_data_by_tag value.obj.id %}" class="middletag"  target="_top">{{ value.obj.textValue }}</a>{% endifequal %}{% endifequal %}, 
             {% endfor %}
             </td></tr>
         </tbody>

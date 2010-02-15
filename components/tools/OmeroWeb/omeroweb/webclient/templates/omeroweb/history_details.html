@@ -1,4 +1,4 @@
-{% extends "omeroweb/base_container.html" %}
+{% extends "omeroweb/base.html" %}
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
     
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
@@ -102,7 +102,7 @@
     <div id="view"> 
         | <input id="copyToClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy to clipboard"> 
         | <input id="addToBasket" class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket">
-        | <a href="{% url manage_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a>
+        | <a href="{% url load_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a>
     </div>
     <div class="clear"> </div>
     

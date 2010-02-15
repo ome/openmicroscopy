@@ -28,7 +28,7 @@
     <div id="share_menu">
         <h1>{% trans "Go back to" %} <a href="{% url manage_shares %}">{% trans "Shares" %}</a>{% if share.share.isOwned %} {% trans "or Edit" %} <a href="{% url manage_share "edit" share.share.id %}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</h1>
     </div>
-    <div id="content">{% block center %}{% endblock %}</div>
+    <div id="content">{% block content %}{% endblock %}</div>
 </div>
 </div>
 <div id="footer">

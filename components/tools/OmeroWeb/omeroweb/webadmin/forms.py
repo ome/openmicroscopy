@@ -154,8 +154,8 @@ class ExperimenterLdapForm(forms.Form):
     last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
     email = forms.EmailField(widget=forms.TextInput(attrs={'size':30}))
     institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
-    administrator = forms.CharField(widget=forms.CheckboxInput(), required=False)
-    active = forms.CharField(widget=forms.CheckboxInput(), required=False)
+    administrator = forms.BooleanField(widget=forms.CheckboxInput(), required=False)
+    active = forms.BooleanField(widget=forms.CheckboxInput(), required=False)
     
     def clean_omename(self):
         if self.name_check:
@@ -168,30 +168,41 @@ class ExperimenterLdapForm(forms.Form):
 
 class GroupForm(forms.Form):
     
-    #PERMISSION_CHOICES = (
-    #    ('0', 'Private (rw----)'),
-    #    ('1', 'Group visible (rwr---)')
-    #)
+    PERMISSION_CHOICES = (
+        ('0', 'Private'),
+        ('1', 'Collaborative '),
+        ('2', 'Public ')
+    )
     
     def __init__(self, name_check=False, *args, **kwargs):
         super(GroupForm, self).__init__(*args, **kwargs)
         self.name_check=name_check
         try:
-            if kwargs['initial']['owner']: pass
-            self.fields['owner'] = ExperimenterModelChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['owner'])
+            if kwargs['initial']['owners']: pass
+            self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['owner'], required=False)
         except:
-            self.fields['owner'] = ExperimenterModelChoiceField(queryset=kwargs['initial']['experimenters'])
-        #self.fields.keyOrder = ['name', 'description', 'owner', 'access_controll']
-        self.fields.keyOrder = ['name', 'description', 'owner']
+            self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
+        self.fields.keyOrder = ['name', 'description', 'owners', 'access_controll', 'readonly']
 
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25}))
     description = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':25}), required=False)
-    #access_controll = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True)
+    access_controll = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True)
+    readonly = forms.BooleanField(required=False, label="(read-only)")  
     
     def clean_name(self):
         if self.name_check:
             raise forms.ValidationError('This name already exist.')
 
+class GroupOwnerForm(forms.Form):
+    
+    PERMISSION_CHOICES = (
+        ('0', 'Private'),
+        ('1', 'Collaborative '),
+        ('2', 'Public ')
+    )
+
+    access_controll = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True)
+    readonly = forms.BooleanField(required=False, label="(read-only)")  
 
 class ScriptForm(forms.Form):
     

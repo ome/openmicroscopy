@@ -1,23 +1,11 @@
-#context {
-    float: right;
-    width: 400px;
-}
-
-#tree {
-    float: left;
-    min-height: 450px;
-    width: 500px;
-}
-
 .simpleTree
 {
-	overflow:auto;
 	margin:0;
 	padding:0;
-	max-width:500px;
 }
 .simpleTree li
 {
+    white-space: nowrap;
 	list-style: none;
 	margin:0;
 	padding:0 0 0 34px;
@@ -37,7 +25,7 @@
 .simpleTree .root
 {
 	margin-left:-16px;
-	background: url(../images/tree/root.gif) no-repeat 16px 0 #ffffff;
+	background: url(../images/tree/root.gif) no-repeat 16px 0;
 }
 .simpleTree .line
 {
@@ -78,93 +66,93 @@
 .simpleTree .folder-open
 {
 	margin-left:-16px;
-	background: url(../images/tree/collapsable.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/collapsable.png) 0 -2px no-repeat;
 }
 .simpleTree .folder-open-last
 {
 	margin-left:-16px;
-	background: url(../images/tree/collapsable-last.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/collapsable-last.png) 0 -2px no-repeat;
 }
 .simpleTree .folder-open-last-static
 {
 	margin-left:-16px;
-	background: url(../images/tree/collapsable-last-static.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/collapsable-last-static.png) 0 -2px no-repeat;
 }
 .simpleTree .folder-close
 {
 	margin-left:-16px;
-	background: url(../images/tree/expandable.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/expandable.png) 0 -2px no-repeat;
 }
 .simpleTree .folder-close-last
 {
 	margin-left:-16px;
-	background: url(../images/tree/expandable-last.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/expandable-last.png) 0 -2px no-repeat;
 }
 .simpleTree .folder-close-last-static
 {
 	margin-left:-16px;
-	background: url(../images/tree/expandable-last-static.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/expandable-last-static.png) 0 -2px no-repeat;
 }
 .simpleTree .subfolder-open
 {
 	margin-left:-16px;
-	background: url(../images/tree/collapsable-sub.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/collapsable-sub.png) 0 -2px no-repeat;
 }
 .simpleTree .subfolder-open-last
 {
 	margin-left:-16px;
-	background: url(../images/tree/collapsable-sub-last.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/collapsable-sub-last.png) 0 -2px no-repeat;
 }
 .simpleTree .subfolder-open-last-static
 {
 	margin-left:-16px;
-	background: url(../images/tree/collapsable-sub-last-static.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/collapsable-sub-last-static.png) 0 -2px no-repeat;
 }
 .simpleTree .subfolder-close
 {
 	margin-left:-16px;
-	background: url(../images/tree/expandable-sub.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/expandable-sub.png) 0 -2px no-repeat;
 }
 .simpleTree .subfolder-close-last
 {
 	margin-left:-16px;
-	background: url(../images/tree/expandable-sub-last.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/expandable-sub-last.png) 0 -2px no-repeat;
 }
 .simpleTree .subfolder-close-last-static
 {
 	margin-left:-16px;
-	background: url(../images/tree/expandable-sub-last-static.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/expandable-sub-last-static.png) 0 -2px no-repeat;
 }
 
 .simpleTree .orfolder-open
 {
 	margin-left:-16px;
-	background: url(../images/tree/collapsable-or.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/collapsable-or.png) 0 -2px no-repeat;
 }
 .simpleTree .orfolder-open-last
 {
 	margin-left:-16px;
-	background: url(../images/tree/collapsable-or-last.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/collapsable-or-last.png) 0 -2px no-repeat;
 }
 .simpleTree .orfolder-open-last-static
 {
 	margin-left:-16px;
-	background: url(../images/tree/collapsable-or-last-static.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/collapsable-or-last-static.png) 0 -2px no-repeat;
 }
 .simpleTree .orfolder-close
 {
 	margin-left:-16px;
-	background: url(../images/tree/expandable-or.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/expandable-or.png) 0 -2px no-repeat;
 }
 .simpleTree .orfolder-close-last
 {
 	margin-left:-16px;
-	background: url(../images/tree/expandable-or-last.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/expandable-or-last.png) 0 -2px no-repeat;
 }
 .simpleTree .orfolder-close-last-static
 {
 	margin-left:-16px;
-	background: url(../images/tree/expandable-or-last-static.png) 0 -2px no-repeat #fff;
+	background: url(../images/tree/expandable-or-last-static.png) 0 -2px no-repeat;
 }
 
 
@@ -172,16 +160,27 @@
 {
 	cursor: default;
 	margin-left:-16px;
-	background: url(../images/tree/leaf.png) 0 -1px no-repeat #fff;
+	background: url(../images/tree/leaf.png) 0 -1px no-repeat;
 }
 .simpleTree .doc-last
 {
 	margin-left:-16px;
-	background: url(../images/tree/leaf-last.png) 0 -1px no-repeat #fff;
+	background: url(../images/tree/leaf-last.png) 0 -1px no-repeat;
+}
+.simpleTree .doc2
+{
+	cursor: default;
+	margin-left:-16px;
+	background: url(../images/tree/leaf2.png) 0 -1px no-repeat;
+}
+.simpleTree .doc2-last
+{
+	margin-left:-16px;
+	background: url(../images/tree/leaf2-last.png) 0 -1px no-repeat;
 }
 .simpleTree .ajax
 {
-	background: url(../images/tree/spinner.gif) no-repeat 0 0 #ffffff;
+	background: url(../images/tree/spinner.gif) no-repeat 0 0;
 	height: 16px;
 	display:none;
 }
@@ -217,7 +216,7 @@
 }
 #drag_container
 {
-	background:#ffffff;
+	background:#fff;
 	color:#000;
 	font: normal 11px arial, tahoma, helvetica, sans-serif;
 	border: 1px dashed #767676;
@@ -232,7 +231,6 @@
 #drag_container li
 {
 	list-style: none;
-	background-color:#ffffff;
 	line-height:18px;
 	white-space: nowrap;
 	padding:1px 1px 0px 16px;
@@ -245,14 +243,14 @@
 
 #drag_container li.doc, #drag_container li.doc-last
 {
-	background: url(../images/tree/leaf.png) no-repeat -17px 0 #ffffff;
+	background: url(../images/tree/leaf.png) no-repeat -17px 0;
 }
 #drag_container .folder-close, #drag_container .folder-close-last
 {
-	background: url(../images/tree/expandable.png) no-repeat -17px 0 #ffffff;
+	background: url(../images/tree/expandable.png) no-repeat -17px 0;
 }
 
 #drag_container .folder-open, #drag_container .folder-open-last
 {
-	background: url(../images/tree/collapsable.png) no-repeat -17px 0 #ffffff;
+	background: url(../images/tree/collapsable.png) no-repeat -17px 0;
 }

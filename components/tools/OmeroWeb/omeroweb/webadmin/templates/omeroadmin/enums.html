@@ -17,21 +17,11 @@
     $(document).ready(function() 
         { 
             $("#enumsTable").tablesorter( {sortList: [[1,0]]} ); 
-        } 
-    );
-</script>
 
-<script type="text/javascript">
-    $(document).ready(function () {
-
-        $('table#enumsTable tbody tr').quicksearch({
-            attached: "table.tablesorter",
-            position: "before",
-            stripeRowClass: null,
-            labelText: '{% trans "Filter" %}:',
-            inputText: '{% trans "search" %}',
-            loaderImg: '{% url wastatic "images/spinner.gif" %}',
-        });
+            $('input#id_search').quicksearch('table#enumsTable tbody tr', {
+            	'delay': 300,
+                'loader': 'span.loading' 
+            });
 
     })
 </script>
@@ -42,6 +32,10 @@
 
 <h2>{% trans "Enumerations" %}</h2>
 {% if controller.enumsCount %}
+
+<form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url wastatic "images/spinner.gif" %}"></span></form>
+
+
 <table id="enumsTable" class="tablesorter"> 
     <thead> 
         <tr> 

@@ -16,10 +16,11 @@ body {
 }
 
 #wrapper {
-    margin: 5px 15% 5px 15%;
+    margin: 5px auto;
     border: 1px solid black;
     padding: 5px 5px 5px 5px;
     background-color: #ffffff;
+    width: 850px;
 }
 
 #header {
@@ -262,4 +263,7 @@ div.myform {
 }
 div.photo {
     float: right;
+}
+div.hidden {
+    display: none;
 }

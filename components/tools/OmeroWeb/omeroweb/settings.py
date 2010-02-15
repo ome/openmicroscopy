@@ -37,7 +37,7 @@ import omero.clients
 
 # Debuging mode. 
 # A boolean that turns on/off debug mode.
-DEBUG = True # handler404 and handler500 works only when False
+DEBUG = False # handler404 and handler500 works only when False
 TEMPLATE_DEBUG = DEBUG
 
 # Configure logging and set place to store logs.
@@ -46,14 +46,13 @@ LOGGING_LOG_SQL = False
 
 # LOG path
 # Logging levels: logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR logging.CRITICAL
+LOGDIR = os.path.join(os.path.dirname(__file__), 'log').replace('\\','/')
 
-if DEBUG:
-    LOGDIR = os.path.join(os.path.dirname(__file__), 'log').replace('\\','/')
+if DEBUG:    
     LOGFILE = ('OMEROweb-dev.log')
     LOGLEVEL = logging.DEBUG
 else:
-    # LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), '../'), 'var'), 'log').replace('\\','/')
-    LOGDIR = os.path.join(os.path.dirname(__file__), 'log').replace('\\','/')
+    LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), '../'), 'var'), 'log').replace('\\','/')
     LOGFILE = ('OMEROweb.log')
     LOGLEVEL = logging.INFO
     

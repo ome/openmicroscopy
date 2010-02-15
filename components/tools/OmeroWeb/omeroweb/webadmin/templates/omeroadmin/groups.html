@@ -11,32 +11,19 @@
 
 {% block jscript %}
 
-    <script type="text/javascript" src="{% url wastatic "javascript/jquery_1.2.6.js" %}"></script>
     <script type="text/javascript" src="{% url wastatic "javascript/jquery.tablesorter.js" %}"></script>
     <script type="text/javascript" src="{% url wastatic "javascript/jquery.quicksearch.js" %}"></script>
 
-<script type="text/javascript">
-    $(document).ready(function() 
-        { 
-            $("#groupTable").tablesorter( {sortList: [[1,0]]} ); 
-        } 
-    );
-</script>
-
-<script type="text/javascript">
-    $(document).ready(function () {
-
-        $('table#groupTable tbody tr').quicksearch({
-            attached: "table.tablesorter",
-            position: "before",
-            stripeRowClass: null,
-            labelText: '{% trans "Filter" %}:',
-            inputText: '{% trans "search" %}',
-            loaderImg: '{% url wastatic "images/spinner.gif" %}',
-        });
-
-    })
-</script>
+    <script type="text/javascript">
+        $(document).ready(function() 
+            { 
+                $("#groupTable").tablesorter( {sortList: [[1,0]]} ); 
+                $('input#id_search').quicksearch('table#groupTable tbody tr', {
+                	'delay': 300,
+                    'loader': 'span.loading'
+                });
+        })
+    </script>
 
 {% endblock %}
 
@@ -46,12 +33,15 @@
 
 <h2>{% trans "Groups" %}</h2>
 {% if controller.groupsCount %}
+
+<form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url wastatic "images/spinner.gif" %}"></span></form>
+
 <table id="groupTable" class="tablesorter"> 
     <thead> 
         <tr> 
             <th>{% trans "Actions" %}</th> 
             <th>{% trans "Name" %}</th> 
-            <th>{% trans "Owner" %}</th> 
+            <th>{% trans "Permissions" %}</th> 
             <th>{% trans "Description" %}</th>
         </tr> 
     </thead> 
@@ -65,7 +55,7 @@
                 <a href="{% url wamanagegroupid "members" dict.group.id %}"><img src="{% url wastatic "images/editing.png" %}" alt="manage" title="manage members"></a>
             </td>
             <td class="link">{{ dict.group.name }}</td>
-            <td class="link">{{ dict.group.getOwnerFullName }}</td>
+            <td class="link">{{ dict.permissions }} ({{ dict.group.details.permissions }})</td>
             <td class="desc">{{ dict.group.tinyDescription|default_if_none:"-" }}</td>
         </tr>
     {% endfor %}

@@ -526,7 +526,25 @@ class _BlitzGateway (object):
         """
         
         return self.getEventContext().isAdmin
-
+    
+    def isOwner (self, gid=None):
+        """
+        Checks if a user has owner privileges.
+        
+        @return:    Boolean
+        """
+        if not isinstance(gid, LongType) or not isinstance(gid, IntType):
+            gid = long(gid)
+        if gid is not None:
+            for gem in self._user.copyGroupExperimenterMap():
+                if gem.parent.id.val == gid and gem.owner.val == True:
+                    return True
+        else:
+            for gem in self._user.copyGroupExperimenterMap():
+                if gem.owner.val == True:
+                    return True
+        return False
+    
     def canWrite (self, obj):
         """
         Checks if a user has write privileges to the given object.

@@ -65,6 +65,8 @@ class BaseSearch(BaseController):
         pr_list_with_counters = list()
         ds_list_with_counters = list()
         im_list_with_counters = list()
+        sc_list_with_counters = list()
+        pl_list_with_counters = list()
         for ot in onlyTypes:
             if ot == 'images':
                 self.criteria['images'] = 'CHECKED'
@@ -109,9 +111,31 @@ class BaseSearch(BaseController):
                     pr_list_with_counters.append(pr)
 
                 url.append("&projects=on")
-        
-        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters, 'images': im_list_with_counters}
-        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(im_list_with_counters)
+            elif ot == 'plates':
+                self.criteria['plates'] = 'CHECKED'
+                pl_list = list(self.conn.searchPlates(query, created))
+                
+                pl_list_with_counters = pl_list
+
+                url.append("&plates=on")
+            elif ot == 'screens':
+                self.criteria['screens'] = 'CHECKED'
+                sc_list = list(self.conn.searchPlates(query, created))
+                
+                sc_ids = [sc.id for sc in sc_list]
+                sc_child_counter = self.conn.getCollectionCount("Screen", "plateLinks", sc_ids)
+                sc_annotation_counter = self.conn.getCollectionCount("Screen", "annotationLinks", sc_ids)
+
+                sc_list_with_counters = list()
+                for sc in sc_list:
+                    sc.child_counter = sc_child_counter.get(sc.id)
+                    sc.annotation_counter = sc_annotation_counter.get(sc.id)
+                    sc_list_with_counters.append(sc)
+
+                url.append("&screens=on")
+                
+        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters, 'images': im_list_with_counters, 'screens': sc_list_with_counters, 'plates': pl_list_with_counters}
+        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(im_list_with_counters)+len(sc_list_with_counters)+len(pl_list_with_counters)
         if len(url) > 0:
             self.url = self.url + "".join(url)
 

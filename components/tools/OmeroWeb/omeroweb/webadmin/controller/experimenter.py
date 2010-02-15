@@ -143,7 +143,7 @@ class BaseExperimenter(BaseController):
         return formGroups
     
     def getMyDetails(self):
-        self.experimenter = self.conn._user
+        self.experimenter = self.conn.getUser()
         self.ldapAuth = self.conn.lookupLdapAuthExperimenter(self.conn._userid)
         self.defaultGroup = self.experimenter.copyGroupExperimenterMap()[0].parent.id.val
         self.otherGroups = list()
@@ -152,6 +152,16 @@ class BaseExperimenter(BaseController):
                 pass
             else:
                 self.otherGroups.append(gem.parent)
+    
+    def getOwnedGroups(self):
+        groupsList = list(self.conn.lookupOwnedGroups())
+        self.groups = list()
+        for gr in groupsList:
+            if gr.name == "user" or gr.name == "system" or gr.name == "guest":
+                pass
+            else:
+                self.groups.append({'group': gr, 'permissions': self.getPermissions(gr)})
+        self.groupsCount = len(self.groups)
     
     def updateMyAccount(self, firstName, lastName, email, dGroup, middleName=None, institution=None, password=None):
         up_exp = self.experimenter._obj

@@ -50,7 +50,8 @@ import Glacier2
 
 import omero_api_IScript_ice
 from omero.rtypes import *
-from omero.model import FileAnnotationI, TagAnnotationI, DatasetI, ProjectI, ImageI, \
+from omero.model import FileAnnotationI, TagAnnotationI, \
+                        DatasetI, ProjectI, ImageI, ScreenI, PlateI, \
                         DetectorI, FilterI, ObjectiveI, InstrumentI
 from omero.sys import ParametersI
 from omeroweb.extlib.wrapper import *
@@ -110,8 +111,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             and is loaded with the security for the current user and thread.
             Public data has to be created in the context of the group where user,
             who would like to look at these data, is a member of.
-            Public data can be only visible by the member of group."""
+            Public data can be only visible by the member of group and owners."""
         
+        admin_serv = self.getAdminService()
+        admin_serv.setDefaultGroup(self.getUser()._obj, omero.model.ExperimenterGroupI(gid, False))
         self.c.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid, False))
         self._ctx = self._proxies['admin'].getEventContext()
     
@@ -167,6 +170,14 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         admin_serv = self.getAdminService()
         for gr in admin_serv.lookupGroups():
             yield ExperimenterGroupWrapper(self, gr)
+    
+    def lookupOwnedGroups(self):
+        """ Get group for for the logged user. """
+            
+        exp = self.getUser()
+        for gem in exp.copyGroupExperimenterMap():
+            if gem.owner.val:
+                yield ExperimenterGroupWrapper(self, gem.parent)
     
     def getExperimenterGroups(self, ids):
         """ Get group for for the given group ids. """
@@ -271,8 +282,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map["oid"] = rlong(long(oid))
         if page is not None:
             f = omero.sys.Filter()
-            f.limit = rint(24)
-            f.offset = rint((int(page)-1)*24)
+            f.limit = rint(32)
+            f.offset = rint((int(page)-1)*32)
             p.theFilter = f
         sql = "select pl from Plate pl "\
                 "join fetch pl.details.creationEvent "\
@@ -444,8 +455,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map["oid"] = rlong(long(oid))
         if page is not None:
             f = omero.sys.Filter()
-            f.limit = rint(24)
-            f.offset = rint((int(page)-1)*24)
+            f.limit = rint(32)
+            f.offset = rint((int(page)-1)*32)
             p.theFilter = f
         sql = "select ds from Dataset ds "\
                 "join fetch ds.details.creationEvent "\
@@ -471,8 +482,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map["oid"] = rlong(long(oid))
         if page is not None:
             f = omero.sys.Filter()
-            f.limit = rint(24)
-            f.offset = rint((int(page)-1)*24)
+            f.limit = rint(32)
+            f.offset = rint((int(page)-1)*32)
             p.theFilter = f
         sql = "select im from Image im "\
                 "join fetch im.details.creationEvent "\
@@ -534,8 +545,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
 #        p.map["oid"] = rlong(long(oid))
 #        if page is not None:
 #            f = omero.sys.Filter()
-#            f.limit = rint(24)
-#            f.offset = rint((int(page)-1)*24)
+#            f.limit = rint(32)
+#            f.offset = rint((int(page)-1)*32)
 #            p.theFilter = f
 #        sql = "select ds from Dataset ds join fetch ds.details.creationEvent join fetch ds.details.owner join fetch ds.details.group " \
 #              "left outer join fetch ds.projectLinks pdl left outer join fetch pdl.parent p " \
@@ -553,8 +564,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
 #        p.map["oid"] = rlong(long(oid))
 #        if page is not None:
 #            f = omero.sys.Filter()
-#            f.limit = rint(24)
-#            f.offset = rint((int(page)-1)*24)
+#            f.limit = rint(32)
+#            f.offset = rint((int(page)-1)*32)
 #            p.theFilter = f
 #        sql = "select im from Image im join fetch im.details.owner join fetch im.details.group " \
 #              "left outer join fetch im.datasetLinks dil left outer join fetch dil.parent d " \
@@ -597,7 +608,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             yield ProjectWrapper(self, e)
     
     # HIERARCHY RETRIVAL
-    def loadContainerHierarchy(self, eid=None):
+    def loadContainerHierarchy(self, root, eid=None):
         """ Retrieves hierarchy trees rooted by a given node - Project, 
             for the given user id linked to the objects in the tree,
             filter them by parameters."""
@@ -607,11 +618,15 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             p = ParametersI().orphan().exp(self.getEventContext().userId)
         else: 
             p = ParametersI().orphan().exp(long(eid))
-        for e in q.loadContainerHierarchy('Project', None,  p):
+        for e in q.loadContainerHierarchy(root, None,  p):
             if isinstance(e, ProjectI):
                 yield ProjectWrapper(self, e)
-            if isinstance(e, DatasetI):
+            elif isinstance(e, DatasetI):
                 yield DatasetWrapper(self, e)
+            elif isinstance(e, ScreenI):
+                yield ScreenWrapper(self, e)
+            elif isinstance(e, PlateI):
+                yield PlateWrapper(self, e)
 
 #    def loadGroupContainerHierarchy(self, gid=None):
 #        """ Retrieves hierarchy trees rooted by a given node - Project, 
@@ -1507,11 +1522,12 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 ann = meta.loadAnnotations("Experimenter", [long(oid)], None, None, None).get(long(oid), [])[0]
             store = self.createRawFileStore()
             store.setFileId(ann.file.id.val)
+            print ann.file.details.permissions
             photo = store.read(0,long(ann.file.size.val))
         except:
             photo = self.getExperimenterDefaultPhoto()
         if photo == None:
-            photo = self.getExperimenterDefaultPhoto()
+            photo = self.getExperimenterDefaultPhoto()        
         return photo
     
     def getExperimenterPhotoSize(self, oid=None):
@@ -1737,17 +1753,21 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         admin_serv = self.getAdminService()
         admin_serv.deleteExperimenter(experimenter)
     
-    def createGroup(self, group, group_owner):
+    def createGroup(self, group, group_owners):
         admin_serv = self.getAdminService()
         gr_id = admin_serv.createGroup(group)
         new_gr = admin_serv.getGroup(gr_id)
-        admin_serv.setGroupOwner(new_gr, group_owner)
+        admin_serv.addGroupOwners(new_gr, group_owners)
     
-    def updateGroup(self, group, group_owner):
+    def updateGroup(self, group, add_exps, rm_exps, perm=None):
         admin_serv = self.getAdminService()
         # Should we update updateGroup so this would be atomic?
         admin_serv.updateGroup(group)
-        admin_serv.setGroupOwner(group, group_owner)
+        if perm is not None:
+            admin_serv.changePermissions(group, perm)
+        self._user = self.getExperimenter(self._userid)
+        admin_serv.addGroupOwners(group, add_exps)
+        admin_serv.removeGroupOwners(group, rm_exps)
     
     def updateMyAccount(self, experimenter, defultGroup, password=None):
         admin_serv = self.getAdminService()
@@ -1755,6 +1775,13 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         admin_serv.setDefaultGroup(experimenter, defultGroup)
         if password is not None and password!="":
             admin_serv.changePassword(rstring(str(password)))
+        self._user = self.getExperimenter(self._userid)
+    
+    def updatePermissions(self, obj, perm):
+        admin_serv = self.getAdminService()
+        if perm is not None:
+            admin_serv.changePermissions(obj, perm)
+            self._user = self.getExperimenter(self._userid)
     
     def saveObject (self, obj):
         u = self.getUpdateService()
@@ -1974,7 +2001,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f = omero.sys.Filter()
         f.ownerId = rlong(self.getEventContext().userId)
         f.groupId = rlong(self.getEventContext().groupId)
-        f.limit = rint(6)
+        f.limit = rint(10)
         p.theFilter = f
         for e in tm.getMostRecentObjects(['Image'], p, False)["Image"]:
             yield ImageWrapper(self, e)
@@ -2033,8 +2060,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.ownerId = rlong(self.getEventContext().userId)
         f.groupId = rlong(self.getEventContext().groupId)
         if page is not None:
-            f.limit = rint(24)
-            f.offset = rint((int(page)-1)*24)
+            f.limit = rint(32)
+            f.offset = rint((int(page)-1)*32)
         else:
             f.limit = rint(100)
         p.theFilter = f
@@ -2145,6 +2172,28 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if search.hasNext():
             for e in search.results():
                 yield ProjectWrapper(self, e)
+    
+    def searchScreens (self, query=None, created=None):
+        search = self.createSearchService()
+        search.onlyType('Screen')
+        search.addOrderByAsc("name")
+        if query:
+           search.setAllowLeadingWildcard(True)
+           search.byFullText(str(query))
+        if search.hasNext():
+            for e in search.results():
+                yield ScreenWrapper(self, e)
+    
+    def searchPlates (self, query=None, created=None):
+        search = self.createSearchService()
+        search.onlyType('Plate')
+        search.addOrderByAsc("name")
+        if query:
+           search.setAllowLeadingWildcard(True)
+           search.byFullText(str(query))
+        if search.hasNext():
+            for e in search.results():
+                yield PlateWrapper(self, e)
     
     def downloadPlane(self, oid, z, c, t):
         p = ParametersI().leaves()        

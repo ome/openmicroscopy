@@ -1,36 +1,48 @@
-{% extends "omeroweb/base_frame.html" %}
 {% load i18n %}
 {% load custom_tags %}
 
-{% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/thickbox.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/annotation.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
-{% endblock %}
 
-{% block jscript %}
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
-    
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.draggable.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.droppable.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.tabs.js" %}"></script>
     
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
     
-    <script type="text/javascript" src="{% url webstatic "javascript/thickbox/thickbox.js" %}"></script>
-{% endblock %}
-
-{% block script %}
     <script type="text/javascript" src="{% url webstatic "javascript/image.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
     <script type="text/javascript">
         $(document).ready(function() 
             {  
+                /*div = $("<div>")
+                if ($("#right_panel", top.document).width() > 400) {
+                    div = div.html(">>");
+                    var flag = true;    
+                } else {
+                    div = div.html("<<");
+                    var flag = false;
+                }
+                div.attr("id", "swapMeta");
+                div.css({position: 'absolute', left:0, top:0});
+                $("body").prepend(div);
+
+                $('#swapMeta').click(function() { 
+                    var w = $("#left_panel", top.document).width();
+                    if (flag) {                        
+                        $("#center_panel", top.document).css({width: 890-w});
+                        $("#right_panel", top.document).css({width: 100});
+                        $('#swapMeta').html("<<");
+                        flag = false;                        
+                    } else {
+                        $("#center_panel", top.document).css({width: 630-w});
+                        $("#right_panel", top.document).css({width: 360});
+                        $('#swapMeta').html(">>");
+                        flag = true;
+                    }
+                });*/
+                
                 $("#annotation_tabs").tabs();
                 
                 $("{% for t in manager.tag_annotations %}#tagdesc{{ t.id }}, {% endfor %}#tag").tooltip({ 

@@ -1,241 +1,66 @@
-{% extends "omeroweb/base_container.html" %}
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 {% load wikitags %}
 
-{% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/container.css" %}" type="text/css" media="screen"/>
-{% endblock %}
-
-{% block jscript %}
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
+	<link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
     
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
-{% endblock %}
+<script type="text/javascript">
+    $(document).ready(function(){
 
-{% block script %}
-    <script type="text/javascript" src="{% url webstatic "javascript/basket.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
-        
-    <script type="text/javascript">
-        $(document).ready(function() 
-            {
-                {% if manager.c_size %}
-                $('ul#products li.product').quicksearch({
-                    attached: "div#view",
-                    position: "before",
-                    stripeRowClass: null,
-                    labelText: '{% trans "Filter" %}:',
-                    inputText: '...',
-                    loaderImg: '{% url webstatic "images/tree/spinner.gif" %}'
-                });
-                {% endif %}
-                
-                $("a.loadingData").click(function()
-                {
-                    $("div#hierarchy").html('<p>{% trans "Loading hierarchy... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                    $("div#hierarchy").load(
-                        {% if manager.project or manager.dataset %}
-                            {% if manager.dataset %}
-                                "{% url manage_container_hierarchies_id "dataset" manager.dataset.id %}", 
-                            {% endif %}
-                            {% if manager.project %}
-                                "{% url manage_container_hierarchies_id "project" manager.project.id %}", 
-                            {% endif %}
-                            {% if manager.plate %}
-                                "{% url manage_container_hierarchies_id "plate" manager.plate.id %}", 
-                            {% endif %}
-                            {% if manager.screen %}
-                                "{% url manage_container_hierarchies_id "screen" manager.screen.id %}", 
-                            {% endif %}
-                        {% else %}
-                            "{% url manage_container_hierarchies %}", 
-                        {% endif %}
-                        function() {  
-                            $("a.loadingData").remove();                        
-                        });
-                    return false; 
-                });
-        })
-    </script>
+        $("ul#products").selectable({
+        	stop: function(){
+        		var result = $("#select-result").empty();
+        		var l = $('li.ui-selected img', this).length;
+        		$("li.ui-selected input", this).each(function(){
+        		    this.checked = true;
+        		});
+        		if (l == 1) {
+        		    $("#right_panel").show();
+        		    $('li.ui-selected img', this).each(function(){
+            		    $("div#metadata_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                    	$("div#metadata_details").load('/webclient/metadata_details/image/'+this.id+'/');
+                    });
+        		} else {
+        		    $("#right_panel").show();
+        		    $("div#metadata_details").html('<p>'+ l +' elements selected.</p>');
+        		}
+        	},
+        	start: function(){
+        		$("li input", this).each(function(){
+        			this.checked = false;
+        		});
+        	}
+        });
+
+    });
+</script>
+
+<!--content
+<div id="actionButtons">
+    <a href="{% url load_data "dataset" manager.dataset.id %}?view=table" target="content_details"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"/></a> 
+    <a href="{% url load_data "dataset" manager.dataset.id %}?view=icon" target="content_details"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> | 
+    <input id="copyToClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy to clipboard"> 
+    <input id="pasteFromClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste from clipboard" onclick="pasteFromClipboard('dataset', '{{ manager.dataset.id }}', '{{ url }}'); return false;"> 
+    <input id="unlink" class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" value="ds-{{ manager.dataset.id }}"> | 
+    <input id="addToBasket" class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket"> | 
+    <a href="{% url load_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a>
+</div>
+<div class="clear"> </div>-->
+
+{% if manager.c_size %}
+    <ul id="products">
+        {% for c in manager.containers.images %}
+        <li id="{{ c.id }}" class="product"><em>{{ c.name }}</em>
+            <img id="{{ c.id }}" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}"/>
+            <input type="checkbox" name="image" id="{{ c.id }}">
+        </li>
+        {% endfor %}
+    </ul>
     
-{% endblock %}
-
-{% block top %}
-
-{% if form_users %}
-<div class="box" id="form_users">
-    {% for field in form_users %}{{ field.label_tag }} {{ field }} <br/>{% if field.errors %} {{ field.errors }} {% endif %} {{ field.help_text }}{% endfor %}
-</div>
-{% endif %}
-
-<!--{% if form_mygroups %}
-<div class="box">&nbsp;
-    {% for field in form_mygroups %}{{ field.label_tag }} {{ field }}{% if field.errors %} {{ field.errors }} {% endif %} {{ field.help_text }}{% endfor %}
-</div>
-{% endif %}-->
-
-<div class="clear"></div>
-
-{% endblock %}
-
-{% block left %}
-<div>
-{% if manager.dataset %}
-    <h1>{% trans "Dataset" %}: {{ manager.dataset.name }} {% if not manager.dataset.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %} <a href="{% url manage_metadata_details "dataset" manager.dataset.id %}" target="metadata_details"><img src="{% url webstatic "images/info16.png" %}" alt="i" title="click to get metadata"/></a></h1>
 {% else %}
-    {% if manager.project %}
-        <h1>{% trans "Project" %}: {{ manager.project.name }} {% if not manager.project.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %} <a href="{% url manage_metadata_details "dataset" manager.project.id %}" target="metadata_details"><img src="{% url webstatic "images/info16.png" %}" alt="i" title="click to get metadata"/></a></h1>
-    {% else %}
-        {% if manager.plate %}
-            <h1>{% trans "Plate" %}: {{ manager.plate.name }} {% if not manager.plate.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %} <a href="{% url manage_metadata_details "dataset" manager.plate.id %}" target="metadata_details"><img src="{% url webstatic "images/info16.png" %}" alt="i" title="click to get metadata"/></a></h1>
-        {% else %}
-            {% if manager.screen %}
-                <h1>{% trans "Screen" %}: {{ manager.screen.name }} {% if not manager.screen.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %} <a href="{% url manage_metadata_details "dataset" manager.screen.id %}" target="metadata_details"><img src="{% url webstatic "images/info16.png" %}" alt="i" title="click to get metadata"/></a></h1>
-            {% else %}
-                {% if manager.orphaned %}
-                    <h1>{% trans "Orphaned images" %}</h1><p>{% trans "This is virtual container with orphaned images. These images are not linked anywhere. Just copy and paste them to one of the existing container." %}</p>
-                {% endif %}
-            {% endif %}
-        {% endif %}
-    {% endif %}
-{% endif %}
-</div>
-
-<!--content-->
-<div>
-    {% if manager.c_size %}
-        {% if manager.experimenter %}
-            <h1 id="data">{{ manager.c_size }} items:</h1>
-        {% else %}
-            <h1 id="data">{{ manager.c_size }} {% trans "items" %}:</h1>
-        {% endif %}
-    {% else %}
-        <h1>{% trans "No items" %}:</h1>
-    {% endif %}
-    <div class="clear"> </div>
-    
-    <div id="view"> 
-        {% ifequal nav.whos "share" %}
-            | <a href="{% url manage_shares %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="table" title="table"/></a> <a href="{% url manage_shares %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> |
-        {% else %}
-            | <a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view=table"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"/></a> <a href="{% if manager.project %}{% if manager.dataset.id %}{% url manage_data nav.whos "project" manager.project.id "dataset" manager.dataset.id %}{% else %}{% url manage_data nav.whos "project" manager.project.id %}{% endif %}{% else %}{% if manager.dataset.id %}{% url manage_data nav.whos "dataset" manager.dataset.id %}{% endif %}{% endif %}?view=icon"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> <a href="{% url manage_data nav.whos %}?view=tree"><img src="{% url webstatic "images/view_tree16.png" %}" alt="tree" title="tree"/></a> |
-        {% endifequal %}
-
-        {% if not manager.project and not manager.image and not manager.dataset and not manager.screen and not manager.plate %}
-            <a href="{% url manage_action_containers "new" %}?url={{url}}" target="metadata_details"><img src="{% url webstatic "images/window_new16.png" %}" alt="New" title="New"/></a> | 
-        {% else %}
-            {% if manager.project and not manager.dataset and not manager.image %}
-                <a href="{% url manage_action_containers "new" "project" manager.project.id %}?url={{url}}" target="metadata_details"><img src="{% url webstatic "images/window_new16.png" %}" alt="New" title="New"/></a> | 
-            {% endif %}
-            {% if manager.screen and not manager.plate %}
-                <a href="{% url manage_action_containers "new" "screen" manager.screen.id %}?url={{url}}" target="metadata_details"><img src="{% url webstatic "images/window_new16.png" %}" alt="New" title="New"/></a> | 
-            {% endif %}
-        {% endif %}
-        
-        {% if not manager.image or not manager.well or not manager.plate %}
-            {% if manager.dataset %}
-                <input id="copyToClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy to clipboard"> 
-                <input id="pasteFromClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste from clipboard" onclick="pasteFromClipboard('dataset', '{{ manager.dataset.id }}', '{{ url }}'); return false;">
-                <input id="unlink" class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" value="ds-{{ manager.dataset.id }}">
-                | <input id="addToBasket" class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket">
-                | <a href="{% url manage_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a>
-            {% else %}
-                {% if manager.project %}
-                    <input id="copyToClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy to clipboard"> 
-                    <input id="pasteFromClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste from clipboard" onclick="pasteFromClipboard('project', '{{ manager.project.id }}', '{{ url }}'); return false;">
-                    <input id="unlink" class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" value="pr-{{ manager.project.id }}">
-                    | <a href="{% url manage_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a>
-                {% endif %}
-            {% endif %}
-            {% if manager.screen %}
-                <input id="copyToClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy to clipboard"> 
-                <input id="pasteFromClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste from clipboard" onclick="pasteFromClipboard('screen', '{{ manager.screen.id }}', '{{ url }}'); return false;">
-                <input id="unlink" class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" value="sc-{{ manager.screen.id }}">
-                | <a href="{% url manage_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a>
-            {% endif %}
-            {% if not manager.project and not manager.dataset and not manager.screen and not manager.orphaned %}
-                <input id="copyToClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy to clipboard"> 
-                | <a href="{% url manage_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a>
-            {% endif %}
-        {% endif %}
-        
-        {% if manager.orphaned %}
-            <input id="copyToClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy to clipboard"> 
-            <input id="pasteFromClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste from clipboard">
-            | <input id="addToBasket" class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket">
-            | <a href="{% url manage_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a>
-        {% endif %}
-        
-    </div>  
-    
-    <!--<div class="slider">
-        <div class="slider_products"> 
-            <div class='small_label'></div> 
-            <div class='slider_bar'> 
-                <div id="slider_callout"></div> 
-                <div id='slider1_handle' class='slider_handle'></div> 
-            </div> 
-            <div class='large_label'></div> 
-        </div>
-    </div>-->
-    
-    <div class="clear"> </div>
-    
-    <div class="content">
-        {% include "omeroweb/container_data_icon.html" %}
-    </div>
-
-    {% include "omeroweb/container_paging.html" %}
-    
-</div>
-
-{% endblock %}
-
-{% block right %}
-
-{% if manager.dataset %}
-    <iframe src ="{% url manage_metadata_details "dataset" manager.dataset.id %}" width="100%" height="680" name="metadata_details"></iframe>
-{% else %}
-    {% if manager.project %}
-        <iframe src ="{% url manage_metadata_details "project" manager.project.id %}" width="100%" height="680" name="metadata_details"></iframe>
-    {% else %}
-        {% if manager.plate %}
-            <iframe src ="{% url manage_metadata_details "plate" manager.plate.id %}" width="100%" height="680" name="metadata_details"></iframe>
-        {% else %}
-            {% if manager.screen %}
-                <iframe src ="{% url manage_metadata_details "screen" manager.screen.id %}" width="100%" height="680" name="metadata_details"></iframe>
-            {% else %}
-                <iframe width="100%" height="680" name="metadata_details"></iframe>
-            {% endif %}
-        {% endif %}
-    {% endif %}
+    {% trans "No data." %}
 {% endif %}
 
-{% endblock %}
+{% include "omeroweb/container_paging.html" %}
 
-{% block linked %}
-
-<!--where is it-->
-{% if manager.dataset or manager.project or manager.plate or manager.screen %}
-<div id="linked">
-    {% if manager.dataset %}
-        <h1>{% trans "Where this dataset is linked?" %}</h1>
-    {% else %}
-        {% if manager.project %}
-            <h1>{% trans "Where this project is linked?" %}</h1>
-        {% else %}
-            {% if manager.plate %}
-                <h1>{% trans "Where this plate is linked?" %}</h1>
-            {% else %}
-                {% if manager.screen %}<h1>{% trans "Where this screen is linked?" %}</h1>{% endif %}
-            {% endif %}
-        {% endif %}
-    {% endif %}
-    <a href="#" class="loadingData">{% trans "Show the hierarchy structure" %}...</a>
-</div>
-<div id="hierarchy"></div>
-{% endif %}
-
-{% endblock %}

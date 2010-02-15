@@ -1,4 +1,4 @@
-{% extends "omeroweb/base_container.html" %}
+{% extends "omeroweb/base_frame_white.html" %}
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
@@ -19,7 +19,7 @@
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
     
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.autocomplete.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
@@ -41,7 +41,7 @@
     <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/image.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/basket.js" %}"></script>
-   
+       
     <script>
         $(document).ready(function(){
             $("a.loadingData").click(function()
@@ -63,15 +63,10 @@
     
 {% endblock %}
 
-{% block left %}
-
+{% block content %}
+<!--content-->
 <div>
-    <h1>{% trans "Plate" %} ({% if manager.c_size %}{{ manager.c_size }} {% trans "wells" %}{% else %}{% trans "No wells." %}{% endif %})
-    : {{ manager.plate.shortName }} {% if not manager.plate.isOwned %}<img src="{% url webstatic "images/kgpg16.png" %}" alt="l" title="locked"/>{% endif %}
-    <a href="{% url manage_metadata_details "plate" manager.plate.id %}" target="metadata_details"><img src="{% url webstatic "images/info16.png" %}" alt="i" title="click to get metadata"/></a></h1>
-</div>
 
-<div>
     <form action="" method="POST">
     <table>
       <tbody>
@@ -95,7 +90,7 @@
         <th>{{ row.0 }}</th>
         {% for col in row.1 %}
         {% if col.1.isWellSample %}
-        <td class="full"><a href="{% url manage_metadata_details "well" col.1.id manager.index %}" target="metadata_details"><img class="imgzoom" src="{% url render_thumbnail_resize 25 col.1.selectedWellSample.image.id %}" alt="" title="{{ row.0 }}-{{ col.0 }}"/></a></td>
+        <td class="full"><a href="{% url load_metadata_details "well" col.1.id manager.index %}" target="metadata_details"><img class="imgzoom" src="{% url render_thumbnail_resize 25 col.1.selectedWellSample.image.id %}" alt="" title="{{ row.0 }}-{{ col.0 }}"/></a></td>
         {% else %}
         <td></td>
         {% endif %}
@@ -104,14 +99,5 @@
     {% endfor %}
 </table></div>
 
-<div class="miniplateview_desc">
-    <p class="center">{% trans "Created by" %} {{ manager.plate.getOwnerFullName }}</p>
-</div>
-
 {% endblock %}
 
-{% block right %}
-
-<iframe src="{% url manage_metadata_details "plate" manager.plate.id %}" width="100%" height="680" name="metadata_details"></iframe>
-
-{% endblock %}

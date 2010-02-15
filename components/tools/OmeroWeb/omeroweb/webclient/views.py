@@ -195,13 +195,13 @@ def sessionHelper(request):
     #        pass
     #except:
     #    request.session['datasetInBasket'] = list()
-    try:
-        if request.session['nav']:
-            pass
-    except:
-        blitz = Gateway.objects.get(pk=request.session['server'])
+    if request.session.get('nav') is None:
+        if request.session.get('server') is not None:
+            blitz = Gateway.objects.get(pk=request.session.get('server'))
+        elif request.session.get('host') is not None:
+            blitz = Gateway.objects.get(host=request.session.get('host'))
         blitz = "%s:%s" % (blitz.host, blitz.port)
-        request.session['nav']={"blitz": blitz, "menu": "mydata", "whos": "mydata", "view": "table", "basket": 0}
+        request.session['nav']={"blitz": blitz, "menu": "mydata", "view": "tree", "basket": 0}
 
 ################################################################################
 # views controll
@@ -236,7 +236,7 @@ def login(request):
         request.session['username'] = request.REQUEST['username'].encode('utf-8').strip()
         request.session['password'] = request.REQUEST['password'].encode('utf-8').strip()
         request.session['experimenter'] = None
-        request.session['groupId'] = None
+        request.session['group'] = None
         request.session['clipboard'] = {'images': None, 'datasets': None, 'plates': None}
         request.session['shares'] = dict()
         request.session['imageInBasket'] = set()
@@ -429,27 +429,18 @@ def change_active_group(request, **kwargs):
     
     active_group = request.REQUEST['active_group']
     conn.changeActiveGroup(active_group)
-    request.session['groupId'] = active_group
+    request.session['group'] = active_group
     return HttpResponseRedirect(reverse("webindex"))
 
 @isUserConnected
 def logout(request, **kwargs):
     _session_logout(request, request.session['server'])
-#    conn = None
-#    try:
-#        conn = kwargs["conn"]
-#    except:
-#        logger.error(traceback.format_exc())
-#        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
+
     try:
         for key in request.session['shares'].iterkeys():
             try:
                 session_key = "S:%s#%s#%s" % (request.session.session_key,request.session['server'], key)
                 _session_logout(request, request.session['server'], force_key=session_key)
-                #if share_connectors.has_key(session_key):
-                #    share_connectors.get(session_key).seppuku()
-                #    del share_connectors[session_key]
             except:
                 logger.error(traceback.format_exc())
     except KeyError:
@@ -459,14 +450,6 @@ def logout(request, **kwargs):
         del request.session['shares']
     except KeyError:
         logger.error(traceback.format_exc())
-    
-#    try:
-#        session_key = "S:%s#%s" % (request.session.session_key,request.session['server'])
-#        if connectors.has_key(session_key):
-#            conn.seppuku()
-#            del connectors[session_key]
-#    except:
-#        logger.error(traceback.format_exc())
     
     try:
         del request.session['server']
@@ -488,12 +471,8 @@ def logout(request, **kwargs):
         del request.session['password']
     except KeyError:
         logger.error(traceback.format_exc())
-#    try:
-#        del request.session['sessionUuid']
-#    except KeyError:
-#        logger.error(traceback.format_exc())
     try:
-        del request.session['groupId']
+        del request.session['group']
     except KeyError:
         logger.error(traceback.format_exc())
     try:
@@ -515,52 +494,25 @@ def logout(request, **kwargs):
 
 
 ###########################################################################
-# DATA MANAGEMENT request.session['nav']={"menu": "mydata", "whos": "mydata", "view": "table"}
+
 @isUserConnected
-def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, **kwargs):
-    request.session['nav']['menu'] = whos
-    request.session['nav']['whos'] = whos
-    request.session['nav']['loadAnn'] = False
+def load_template(request, menu=None, **kwargs):
+    request.session.modified = True
+    
+    template = "omeroweb/containers.html"
+    request.session['nav']['menu'] = menu
+    
     conn = None
     try:
         conn = kwargs["conn"]
-        
     except:
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
-    url = None
     try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-    
-    request.session.modified = True
-    
-    try:
-        request.session['nav']['view'] = request.REQUEST['view'] # table, icon, tree 
-    except:
-        pass
-    
-    try:
-        page = int(request.REQUEST['page'])
-    except:
-        page = 1
-    
-    try:
-        index = int(request.REQUEST['index'])
-    except:
-        index = 0
-    
-    view = request.session['nav']['view']
-    menu = request.session['nav']['menu']
-    whos = request.session['nav']['whos']
-    
-    try:
-        manager = BaseContainer(conn, o1_type, o1_id, o2_type, o2_id, o3_type, o3_id, metadata=True)
+        manager = BaseContainer(conn)
     except AttributeError, x:
         return handlerInternalError(x)
-    manager.buildBreadcrumb(whos)
     
     form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups']})
     
@@ -569,7 +521,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
     filter_user_id = None    
     filter_group_id = None
     
-    if whos == 'userdata':
+    if menu == 'userdata':
         '''grs = list()
         grs.extend(list(conn.getEventContext().memberOfGroups))
         #grs.extend(list(conn.getEventContext().leaderOfGroups))
@@ -600,7 +552,7 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                 form_users = MyUserForm(initial={'user':filter_user_id, 'users': users})
             except:
                 form_users = MyUserForm(initial={'users': users})
-    elif whos == "groupdata":
+    elif menu == "groupdata":
         users = sortByAttr(list(conn.getColleagues()), "lastName")
         request.session['experimenter'] = None
         form_users = MyUserForm(initial={'users': users})
@@ -613,35 +565,107 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
             if request.REQUEST['group'] != "": 
                 form_mygroups = MyGroupsForm(initial={'mygroups': my_groups}, data=request.REQUEST.copy())
                 if form_mygroups.is_valid():
-                    filter_group_id = request.REQUEST.get('groupId', None)
-                    request.session['groupId'] = filter_group_id
+                    filter_group_id = request.REQUEST.get('group', None)
+                    request.session['group'] = filter_group_id
                     form_mygroups = MyGroupsForm(initial={'mygroup':filter_group_id, 'mygroups': my_groups})
                 else:
                     try:
-                        filter_group_id = request.session.get('groupId', None)
+                        filter_group_id = request.session.get('group', None)
                     except:
                         pass
             else:
-                request.session['groupId'] = None
+                request.session['group'] = None
                 form_mygroups = MyGroupsForm(initial={'mygroups': my_groups})
         except:
             try:
-                filter_group_id = request.session.get('groupId', None)
+                filter_group_id = request.session.get('group', None)
                 form_mygroups = MyGroupsForm(initial={'mygroup':filter_group_id, 'mygroups': my_groups})
             except:
                 form_mygroups = MyGroupsForm(initial={'mygroups': my_groups})
-            
-    template = None
-    if o3_type and o3_id:
-        if o3_type == 'image':
-            template = "omeroweb/image_details.html"
-    elif o2_type and o2_id:
+    else:
+        request.session['experimenter'] = None
+        request.session['group'] = None
+        
+    context = {'nav':request.session['nav'], 'eContext':manager.eContext, 'form_active_group':form_active_group, 'form_users':form_users, 'form_mygroups':form_mygroups}
+    
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
+    return HttpResponse(t.render(c))
+
+def load_blank(request):
+    bg = request.REQUEST.get("bg")
+    template = "omeroweb/blank_frame_%s.html" % bg
+    nav = request.REQUEST.get("nav") is not None and True or False
+    context = {"nav":nav }
+    
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
+    return HttpResponse(t.render(c))
+
+@isUserConnected
+def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, **kwargs):
+    request.session.modified = True
+    # check menu
+    menu = request.REQUEST.get("menu")
+    if menu is not None:
+        request.session['nav']['menu'] = menu
+    else:
+        menu = request.session['nav']['menu']
+    # check view
+    view = request.REQUEST.get("view")
+    if view is not None:
+        request.session['nav']['view'] = view
+    else:
+        view = request.session['nav']['view']
+    
+    # get connection
+    conn = None
+    try:
+        conn = kwargs["conn"]        
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    # get url to redirect
+    url = None
+    try:
+        url = kwargs["url"]
+    except:
+        logger.error(traceback.format_exc())
+      
+    # get page    
+    try:
+        page = int(request.REQUEST['page'])
+    except:
+        page = 1
+    
+    # get index of the plate
+    try:
+        index = int(request.REQUEST['index'])
+    except:
+        index = 0
+    
+    # prepare data
+    try:
+        manager = BaseContainer(conn, o1_type, o1_id, o2_type, o2_id, o3_type, o3_id)
+    except AttributeError, x:
+        return handlerInternalError(x)
+
+    # prepare forms
+    filter_user_id = request.session.get('experimenter', None)
+    filter_group_id = request.session.get('group', None)
+    
+    # load data  
+    template = None    
+    if o2_type and o2_id:
         if o2_type == 'dataset':
             if filter_user_id is not None:
                 manager.listImagesInDatasetAsUser(o2_id, filter_user_id, page)
             elif filter_group_id is not None:
                 manager.listImagesInDatasetInGroup(o2_id, filter_group_id, page)
-            elif whos == "mydata":
+            elif menu == "mydata":
                 manager.listMyImagesInDataset(o2_id, page)
         elif o2_type == 'image':
             template = "omeroweb/image_details.html"
@@ -650,26 +674,26 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
             manager.listMyPlate(o2_id, index, page)
     elif o1_type and o1_id:
         if o1_type == 'ajaxdataset':
-            template = "omeroweb/container_subtree.html"
+            template = "omeroweb/container_data_subtree.html"
             if filter_user_id is not None:
                 manager.loadUserImages(o1_id, filter_user_id)
             elif filter_group_id is not None:
                 manager.loadGroupImages(o1_id, filter_group_id)
-            elif whos == "mydata":
+            elif menu == "mydata":
                 manager.loadMyImages(o1_id)
         elif o1_type == 'project':
             if filter_user_id is not None:
                 manager.listDatasetsInProjectAsUser(o1_id, filter_user_id, page)
             elif filter_group_id is not None:
                 manager.listDatasetsInProjectInGroup(o1_id, filter_group_id, page)
-            elif whos == "mydata":
+            elif menu == "mydata":
                 manager.listMyDatasetsInProject(o1_id, page)
         elif o1_type == 'screen':
             if filter_user_id is not None:
                 manager.listPlatesInScreenAsUser(o1_id, filter_user_id, page)
             elif filter_group_id is not None:
                 manager.listPlatesInScreenInGroup(o1_id, filter_group_id, page)
-            elif whos == "mydata":
+            elif menu == "mydata":
                 manager.listMyPlatesInScreen(o1_id, page)
         elif o1_type == 'plate':
             template = "omeroweb/plate_details.html"
@@ -677,14 +701,14 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                 manager.listPlateAsUser(o1_id, filter_user_id, page)
             elif filter_group_id is not None:
                 manager.listPlateInGroup(o1_id, filter_group_id, page)
-            elif whos == "mydata":
+            elif menu == "mydata":
                 manager.listMyPlate(o1_id, index, page)
         elif o1_type == 'dataset':
             if filter_user_id is not None:
                 manager.listImagesInDatasetAsUser(o1_id, filter_user_id, page)
             elif filter_group_id is not None:
                 manager.listImagesInDatasetInGroup(o1_id, filter_group_id, page)
-            elif whos == "mydata":
+            elif menu == "mydata":
                 manager.listMyImagesInDataset(o1_id, page)
         elif o1_type == 'image':
             template = "omeroweb/image_details.html"
@@ -693,15 +717,15 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
             manager.loadUserOrphanedImages(filter_user_id)
         elif filter_group_id is not None:
             manager.loadGroupOrphanedImages(filter_group_id)
-        elif whos == "mydata":
+        elif menu == "mydata":
             manager.loadMyOrphanedImages()
     elif o1_type == 'ajaxorphaned':
-        template = "omeroweb/container_subtree.html"
+        template = "omeroweb/container_data_subtree.html"
         if filter_user_id is not None:
             manager.loadUserOrphanedImages(filter_user_id)
         elif filter_group_id is not None:
             manager.loadGroupOrphanedImages(filter_group_id)
-        elif whos == "mydata":
+        elif menu == "mydata":
             manager.loadMyOrphanedImages()
     else:
         if view == 'tree':
@@ -709,38 +733,41 @@ def manage_data(request, whos, o1_type=None, o1_id=None, o2_type=None, o2_id=Non
                 manager.loadUserContainerHierarchy(filter_user_id)
             elif filter_group_id is not None:
                 manager.loadGroupContainerHierarchy(filter_group_id)
-            elif whos == "mydata":
+            elif menu == "mydata":
                 manager.loadMyContainerHierarchy()
         else:
             if filter_user_id is not None:
                 manager.listRootsAsUser(filter_user_id)
             elif filter_group_id is not None:
                 manager.listRootsInGroup(filter_group_id)
-            elif whos == "mydata":
+            elif menu == "mydata":
                 manager.listMyRoots()
     
     form_well_index = None
-    if o1_type =='plate' or o2_type == 'plate':
-        form_well_index = WellIndexForm(initial={'index':index, 'range':manager.fields})
-    
-    if template is None and view =='icon':
+    if template is None and view =='tree':
+        template = "omeroweb/containers_tree.html"
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager}
+    elif template is None and view =='icon':
         template = "omeroweb/containers_icon.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager}
     elif template is None and view =='table':
         template = "omeroweb/containers_table.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager}
+    elif o1_type =='plate' or o2_type == 'plate':
+        form_well_index = WellIndexForm(initial={'index':index, 'range':manager.fields})    
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_well_index':form_well_index}
     elif template is None and view =='tree' and o1_type is not None and o1_id > 0:
         template = "omeroweb/containers_table.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_active_group':form_active_group}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager}
     elif template is None and view =='tree' and o1_type is None and o1_id is None:
-        template = "omeroweb/containers_tree.html"
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_users':form_users, 'form_mygroups':form_mygroups, 'form_active_group':form_active_group}
+        template = "omeroweb/containers.html"
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager}    
     elif template is not None and view == 'tree' and o1_type=='ajaxdataset' and o1_id > 0:
         context = {'manager':manager, 'eContext':manager.eContext}
     elif template is not None and view == 'tree' and o1_type=='ajaxorphaned':
         context = {'manager':manager, 'eContext':manager.eContext}
     else:
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_active_group':form_active_group, 'form_well_index':form_well_index}
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_well_index':form_well_index}
     
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -936,7 +963,7 @@ def manage_tree_details(request, c_type, c_id, **kwargs):
     return HttpResponse(t.render(c))
 
 @isUserConnected
-def manage_metadata_details(request, c_type, c_id, index=None, **kwargs):   
+def load_metadata_details(request, c_type, c_id, index=None, **kwargs):   
     template = "omeroweb/annotations_form.html"
      
     conn = None
@@ -952,8 +979,6 @@ def manage_metadata_details(request, c_type, c_id, index=None, **kwargs):
         url = kwargs["url"]
     except:
         logger.error(traceback.format_exc())
-    
-    whos = request.session['nav']['whos']
     
     try:
         manager = BaseContainer(conn, c_type, c_id, index=index)
@@ -1282,7 +1307,6 @@ def manage_metadata_details(request, c_type, c_id, index=None, **kwargs):
             form_file = UploadFileForm()
 
     manager.annotationList()
-     
     context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 'form_filters':form_filters, 'form_detectors':form_detectors, 'form_stageLabel':form_stageLabel, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_tags':form_tags, 'form_urls':form_urls, 'form_files':form_files}
             
     t = template_loader.get_template(template)
@@ -1290,7 +1314,7 @@ def manage_metadata_details(request, c_type, c_id, index=None, **kwargs):
     return HttpResponse(t.render(c))
 
 @isUserConnected
-def manage_metadata_details_multi(request, **kwargs):   
+def load_metadata_details_multi(request, **kwargs):   
     template = "omeroweb/annotations_form_multi.html"
      
     conn = None
@@ -2085,7 +2109,7 @@ def manage_share(request, action, sid=None, **kwargs):
             except:
                 host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
             share.updateShareOrDiscussion(host, request.session['server'], message, members, enable, expiration)
-            return HttpResponseRedirect(reverse("manage_shares"))
+            return HttpResponseRedirect(reverse(viewname="manage_share", args=["view", sid]))
         else:
             template = "omeroweb/share_form.html"
             share.getComments(sid)
@@ -2461,17 +2485,25 @@ def search(request, **kwargs):
             if request.REQUEST['projects'] == unicode('on'):
                 onlyTypes.append('projects')
         except:
-            pass
-        
+            pass        
         try:
             if request.REQUEST['datasets'] == unicode('on'):
                 onlyTypes.append('datasets')
         except:
-            pass
-        
+            pass        
         try:
             if request.REQUEST['images'] == unicode('on'):
                 onlyTypes.append('images')
+        except:
+            pass
+        try:
+            if request.REQUEST['plates'] == unicode('on'):
+                onlyTypes.append('plates')
+        except:
+            pass
+        try:
+            if request.REQUEST['screens'] == unicode('on'):
+                onlyTypes.append('screens')
         except:
             pass
         
@@ -2773,7 +2805,7 @@ def render_thumbnail (request, iid, share_id=None, **kwargs):
         logger.error("Image %s not found..." % (str(iid)))
         return handlerInternalError("Image %s not found..." % (str(iid)))
     
-    jpeg_data = img.getThumbnail(size=100)
+    jpeg_data = img.getThumbnail(size=80)
     return HttpResponse(jpeg_data, mimetype='image/jpeg')
 
 @isUserConnected

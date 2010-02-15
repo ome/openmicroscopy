@@ -3,22 +3,24 @@
 {% load markup %}
 {% load custom_tags %}
 
-{% block center %}
+{% block content %}
 
     {% block top %}{% endblock %}
     <div id="contentWrapper">
         
-        {% if manager.url %}
         <div id="left_panel">
             {% block left %}{% endblock %}
         </div>
-
+        
         <div id="right_panel">
            {% block right %}{% endblock %}
         </div>
+
+        <div id="center_panel">
+           {% block center %}{% endblock %}
+        </div>
+
         <div class="clear"></div>
-        {% endif %}
-        
     </div>
     
 {% endblock %}

@@ -13,7 +13,7 @@
     <div>
         <p><a href="#" onclick="return popup('{% url image_viewer manager.image.id %}')"><img class="imgzoom" src="{% url render_thumbnail_resize 200 manager.image.id %}" alt="image" title="{{ manager.image.name }}"/></a></p>
         <p>by {{ manager.image.getOwnerFullName }} ({{ manager.image.details.group.name.val }} {{ manager.image.details.permissions }})</p>
-        <p><a href="{% url manage_data nav.whos "image" manager.image.id %}" target="_blank">{% trans "More details in new tab" %}...</a></p>
+        <p><a href="{% url load_data "image" manager.image.id %}" target="_blank">{% trans "More details in new tab" %}...</a></p>
     </div>
     
     {% endif %}
@@ -24,7 +24,7 @@
         {{ manager.dataset.shortdescription|default_if_none:"no description"|linebreaks }}
     </div>
     <div>
-        <p><a href="{% url manage_data nav.whos "dataset" manager.dataset.id %}?view=table" target="_blank">{% trans "More details in new tab" %}...</a></p>
+        <p><a href="{% url load_data "dataset" manager.dataset.id %}?view=table" target="_blank">{% trans "More details in new tab" %}...</a></p>
     </div>
     {% endif %}
     {% if manager.project %}
@@ -34,7 +34,7 @@
         {{ manager.project.shortdescription|default_if_none:"no description"|linebreaks }}
     </div>
     <div>
-        <p><a href="{% url manage_data nav.whos "project" manager.project.id %}?view=table" target="_blank">{% trans "More details in new tab" %}...</a></p>
+        <p><a href="{% url load_data "project" manager.project.id %}?view=table" target="_blank">{% trans "More details in new tab" %}...</a></p>
     </div>
     {% endif %}
 {% endif %}

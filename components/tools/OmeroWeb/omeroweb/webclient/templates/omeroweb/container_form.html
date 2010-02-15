@@ -1,4 +1,4 @@
-{% extends "omeroweb/base_frame.html" %}
+{% extends "omeroweb/base_frame_grey.html" %}
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>

@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
     
     <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.datepicker.js" %}"></script>
     
@@ -76,7 +76,7 @@
         <!--<tr><th>by date:</th><td><input type="text" id="dateinput" name="date" value="" size="15"/></td></tr>-->
         <tr><th>{% trans "Date range" %}:</th><td><input type="text" id="dateperiodinput" name="dateperiodinput" value="{{ manager.criteria.period }}" size="25"/> <span id="daterange" title="Date range - <small>Date range feature enables you to specify the start and end time of the created data. To select the range, clink on the field and pick start date and end date on the same calendar. If you want to change the date click on the field again the pick the range.</small>"><img src="{% url webstatic "images/help16.png" %}" /></span></td></tr>
         <tr><th>{% trans "In" %} *:</th><td>
-            <input  type="checkbox" name="images" {{ manager.criteria.images }} />{% trans "Images" %} <input type="checkbox" name="datasets" {{ manager.criteria.datasets }} />{% trans "Datasets" %}  <input type="checkbox" name="projects" {{ manager.criteria.projects }} />{% trans "Projects" %}
+            <input  type="checkbox" name="images" {{ manager.criteria.images }} />{% trans "Images" %} <input type="checkbox" name="datasets" {{ manager.criteria.datasets }} />{% trans "Datasets" %}  <input type="checkbox" name="projects" {{ manager.criteria.projects }} />{% trans "Projects" %} <input  type="checkbox" name="plates" {{ manager.criteria.plates }} />{% trans "Plates" %} <input  type="checkbox" name="screens" {{ manager.criteria.screens }} />{% trans "Screens" %}
         </td></tr>
     </table>
     <input type="hidden" name="view" value="{{ nav.view }}" />
@@ -98,11 +98,11 @@
     {% endif %}
     <div class="clear"> </div>
     
-    <div id="view"> 
+    <div> 
         | <a href="{% url search %}?view=table{{ manager.url }}"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"/></a> <a href="{% url search %}?view=icon{{ manager.url }}"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> |
         <input id="copyToClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy to clipboard"> 
         | <input id="addToBasket" class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket">
-        | <a href="{% url manage_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a>
+        | <a href="{% url load_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a>
     </div>
     <div class="clear"> </div>
     

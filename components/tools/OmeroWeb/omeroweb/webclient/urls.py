@@ -47,20 +47,25 @@ urlpatterns = patterns('',
     url( r'^logout/$', views.logout, name="weblogout" ),
     url( r'^active_group/$', views.change_active_group, name="change_active_group" ),
     
-    # manage mydata, userdata, groupdata
-    url( r'^(?P<whos>((?i)mydata|userdata|groupdata))/(?P<o1_type>((?i)orphaned|ajaxorphaned))/$', views.manage_data, name="manage_data_orphaned" ),
-    url( r'^(?P<whos>((?i)mydata|userdata|groupdata))/(?:(?P<o1_type>[a-zA-Z]+)/)?(?:(?P<o1_id>[0-9]+)/)?(?:(?P<o2_type>[a-zA-Z]+)/)?(?:(?P<o2_id>[0-9]+)/)?(?:(?P<o3_type>[a-zA-Z]+)/)?(?:(?P<o3_id>[0-9]+)/)?$', views.manage_data, name="manage_data" ),
-        
-    # direct access
-    url( r'^(?P<o1_type>((?i)project|dataset|image))/(?P<o1_id>[0-9]+)/$', views.manage_data, name="manage_group_data_t_id" ),
-    url( r'^(?P<o1_type>((?i)project|dataset))/(?P<o1_id>[0-9]+)/(?P<o2_type>((?i)dataset|image))/(?P<o2_id>[0-9]+)/$', views.manage_data, name="manage_group_data_t_id_t_id" ),
-    url( r'^(?P<o1_type>((?i)project))/(?P<o1_id>[0-9]+)/(?P<o2_type>((?i)dataset))/(?P<o2_id>[0-9]+)/(?P<o3_type>((?i)image))/(?P<o3_id>[0-9]+)/$', views.manage_data, name="manage_group_data_t_id_t_id_t_id" ),
+    # render main template
+    url( r'^(?:(?P<menu>((?i)mydata|groupdata|userdata|shares|history|search|importer|myaccount|help))/)?$', views.load_template, name="load_template" ),
+    url( r'^load_blank/$', views.load_blank, name="load_blank"),
     
+    # loading data
+    url( r'^load_data/(?P<o1_type>((?i)orphaned|ajaxorphaned))/$', views.load_data, name="load_data_ajax" ),
+    
+    url( r'^load_data/(?:(?P<o1_type>((?i)project|dataset|ajaxdataset|image|screen|plate|well))/)?(?:(?P<o1_id>[0-9]+)/)?(?:(?P<o2_type>((?i)dataset|image|plate|well))/)?(?:(?P<o2_id>[0-9]+)/)?(?:(?P<o3_type>((?i)image|well))/)?(?:(?P<o3_id>[0-9]+)/)?$', views.load_data, name="load_data" ),    
+    
+    url( r'^(?P<o1_type>((?i)project|dataset|image|screen|plate|well))/(?P<o1_id>[0-9]+)/$', views.load_data, name="load_data_t_id" ),
+    url( r'^(?P<o1_type>((?i)project|dataset|screen|plate))/(?P<o1_id>[0-9]+)/(?P<o2_type>((?i)dataset|image|plate|well))/(?P<o2_id>[0-9]+)/$', views.load_data, name="load_data_t_id_t_id" ),
+    url( r'^(?P<o1_type>((?i)project|screen))/(?P<o1_id>[0-9]+)/(?P<o2_type>((?i)dataset|plate))/(?P<o2_id>[0-9]+)/(?P<o3_type>((?i)image|well))/(?P<o3_id>[0-9]+)/$', views.load_data, name="load_data_t_id_t_id_t_id" ),
+    
+    # others
     url( r'^hierarchy/$', views.manage_container_hierarchies, name="manage_container_hierarchies" ),
     url( r'^hierarchy/(?P<o_type>[a-zA-Z]+)/(?P<o_id>[0-9]+)/$', views.manage_container_hierarchies, name="manage_container_hierarchies_id" ),
     url( r'^tree_details/(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/$', views.manage_tree_details, name="manage_tree_details" ),
-    url( r'^metadata_details/(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/(?:(?P<index>[0-9]+)/)?$', views.manage_metadata_details, name="manage_metadata_details" ),
-    url( r'^metadata_details/multiaction/$', views.manage_metadata_details_multi, name="manage_metadata_details_multi" ),
+    url( r'^metadata_details/(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/(?:(?P<index>[0-9]+)/)?$', views.load_metadata_details, name="load_metadata_details" ),
+    url( r'^metadata_details/multiaction/$', views.load_metadata_details_multi, name="load_metadata_details_multi" ),
         
     url( r'^image_zoom/(?P<iid>[0-9]+)/$', views.manage_image_zoom, name="manage_image_zoom" ),
     
@@ -74,6 +79,7 @@ urlpatterns = patterns('',
     url( r'^tag/(?:(?P<tid>[0-9]+)/)?(?:(?P<tid2>[0-9]+)/)?(?:(?P<tid3>[0-9]+)/)?(?:(?P<tid4>[0-9]+)/)?(?:(?P<tid5>[0-9]+)/)?$', views.manage_data_by_tag, name="manage_data_by_tag" ),
     url( r'^autocompletetags/$', views.autocomplete_tags, name="autocomplete_tags" ),
     
+    # render thumbnails
     url( r'^render_thumbnail/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_thumbnail, name="render_thumbnail" ),
     url( r'^render_thumbnail/size/(?P<size>[0-9]+)/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_thumbnail_resize, name="render_thumbnail_resize" ),
     url( r'^render_thumbnail/big/(?P<iid>[0-9]+)/$', views.render_big_thumbnail, name="render_big_thumbnail" ),

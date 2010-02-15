@@ -95,11 +95,11 @@ class ContainerForm(forms.Form):
     
 class CommentAnnotationForm(forms.Form):
     
-    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 5, 'cols': 50}))
+    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 5, 'cols': 30}))
 
 class UriAnnotationForm(forms.Form):
     
-    link = UrlField(widget=forms.TextInput(attrs={'size':55}))
+    link = UrlField(widget=forms.TextInput(attrs={'size':40}))
 
 class TagFilterForm(forms.Form):
     
@@ -182,9 +182,9 @@ class MyGroupsForm(forms.Form):
         super(MyGroupsForm, self).__init__(*args, **kwargs)
         try:
             if kwargs['initial']['mygroup']: pass
-            self.fields['group'] = GroupModelChoiceField(queryset=kwargs['initial']['mygroups'], initial=kwargs['initial']['mygroup'], widget=forms.Select(attrs={'onchange':'window.location.href=\'/'+reverse(viewname="manage_data", args=["groupdata"])+'?group=\'+this.options[this.selectedIndex].value'}), required=False)
+            self.fields['group'] = GroupModelChoiceField(queryset=kwargs['initial']['mygroups'], initial=kwargs['initial']['mygroup'], widget=forms.Select(attrs={'onchange':'window.location.href=\'/'+reverse(viewname="load_template", args=["groupdata"])+'?group=\'+this.options[this.selectedIndex].value'}), required=False)
         except:
-            self.fields['group'] = GroupModelChoiceField(queryset=kwargs['initial']['mygroups'], widget=forms.Select(attrs={'onchange':'window.location.href=\'/'+reverse(viewname="manage_data", args=["groupdata"])+'/?group=\'+this.options[this.selectedIndex].value'}), required=False)
+            self.fields['group'] = GroupModelChoiceField(queryset=kwargs['initial']['mygroups'], widget=forms.Select(attrs={'onchange':'window.location.href=\'/'+reverse(viewname="load_template", args=["groupdata"])+'?group=\'+this.options[this.selectedIndex].value'}), required=False)
         self.fields.keyOrder = ['group']
 
 class MyUserForm(forms.Form):
@@ -193,9 +193,9 @@ class MyUserForm(forms.Form):
         super(MyUserForm, self).__init__(*args, **kwargs)
         try:
             if kwargs['initial']['user']: pass
-            self.fields['experimenter'] = ExperimenterModelChoiceField(queryset=kwargs['initial']['users'], initial=kwargs['initial']['user'], widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="manage_data", args=["userdata"])+'?experimenter=\'+this.options[this.selectedIndex].value'}), required=False)
+            self.fields['experimenter'] = ExperimenterModelChoiceField(queryset=kwargs['initial']['users'], initial=kwargs['initial']['user'], widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="load_template", args=["userdata"])+'?experimenter=\'+this.options[this.selectedIndex].value'}), required=False)
         except:
-            self.fields['experimenter'] = ExperimenterModelChoiceField(queryset=kwargs['initial']['users'], widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="manage_data", args=["userdata"])+'/userdata/?experimenter=\'+this.options[this.selectedIndex].value'}), required=False)
+            self.fields['experimenter'] = ExperimenterModelChoiceField(queryset=kwargs['initial']['users'], widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="load_template", args=["userdata"])+'?experimenter=\'+this.options[this.selectedIndex].value'}), required=False)
         self.fields.keyOrder = ['experimenter']
 
 class ActiveGroupForm(forms.Form):

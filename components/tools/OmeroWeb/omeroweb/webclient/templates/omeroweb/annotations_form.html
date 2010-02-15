@@ -1,38 +1,31 @@
-{% extends "omeroweb/base_frame.html" %}
 {% load i18n %}
 {% load custom_tags %}
 
-{% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/thickbox.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/annotation.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
-{% endblock %}
 
-{% block jscript %}
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
-    
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.draggable.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.droppable.js" %}"></script>
+    <link rel="stylesheet" href="/webgateway/appmedia/css/jquery-plugin-slider.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="/webgateway/appmedia/css/weblitz-viewport.css" type="text/css" media="screen"/>
+
     <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.tabs.js" %}"></script>
     
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
-    
-    <script type="text/javascript" src="{% url webstatic "javascript/thickbox/thickbox.js" %}"></script>
-{% endblock %}
 
-{% block script %}
-    <script type="text/javascript" src="{% url webstatic "javascript/image.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
     <script type="text/javascript">
         $(document).ready(function() 
-            {  
+            {                   
+                {% if manager.image %}
+                    var viewport = $.WeblitzViewport($("#viewport"), "/webgateway" );
+                    viewport.load({{ manager.image.id }});
+                {% endif %}
+                {% if manager.well %}
+                    var viewport = $.WeblitzViewport($("#viewport"), "/webgateway" );
+                    viewport.load({{ manager.well.selectedWellSample.image.id }});
+                {% endif %}
+
                 $("#annotation_tabs").tabs();
-                
+
                 $("{% for t in manager.tag_annotations %}#tagdesc{{ t.id }}, {% endfor %}#tag").tooltip({ 
                     track: true, 
                     delay: 0, 
@@ -43,36 +36,61 @@
                     top: -15, 
                     left: 5 
                 });
-                
+
             });
 
     </script>
-{% endblock %}
-
-{% block content %}
+    
 
 <div id="annotation_form" >
     <div id="annotation_tabs" class="ui-tabs">
         <ul>
-            <li><a href="#metadata_tab"><span>{% trans "Metadata" %}</span></a></li>
-            <li><a href="#comments_tab"><span>{% trans "Comments" %}</span></a></li>
-            <li><a href="#tags_tab"><span>{% trans "Tags" %}</span></a></li>
-            <li><a href="#files_tab"><span>{% trans "Attached files" %}</span></a></li>
+            {% if manager.image or manager.well %}<li><a href="#preview_tab">{% trans "Preview" %}</a></li>{% endif %}
+            <li><a href="#metadata_tab">{% trans "Metadata" %}</a> |</li>
+            <li><a href="#annotation_tab">{% trans "Annotations" %}</a> |</li>
         </ul>
         <div class="clear"></div>
         
+        
+        {% if manager.image %}
+        <!-- VIEWER -->
+        <div id="preview_tab">
+            <h1>{{ manager.image.name }}</h1>
+            <div class="miniview" id="viewport"></div>
+            {% if manager.image.description %}
+            <br/>
+            <p>Description:</p>
+            <div class="description">{{ manager.image.description|default_if_none:"no description"|linebreaks }}</div>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% if manager.well %}
+        <!-- VIEWER -->
+        <div id="preview_tab">
+            <h1>{{ manager.well.selectedWellSample.image.name }}</h1>
+            <div class="miniview" id="viewport"></div>
+            {% if manager.well.description %}
+            <br/>
+            <p>Description:</p>
+            <div class="description">{{ manager.well.description|default_if_none:"no description"|linebreaks }}</div>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        <!-- METADATA -->
         <div id="metadata_tab">
             {% if manager.image %}
-            <h1>Image details: {% if manager.image.isOwned %}<a href="{% url manage_action_containers "edit" "image" manager.image.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %} | <a href="#" onclick="return popup('{% url image_viewer manager.image.id %}')">{% trans "View" %} <img src="{% url webstatic "images/tree/kview.png" %}" alt="v" title="view"/></a></h1>
+            <h1>{{ manager.image.name }}{% if manager.image.isOwned %} <a href="{% url manage_action_containers "edit" "image" manager.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a> | {% endif %}<a href="#" onclick="return popup('{% url image_viewer manager.image.id %}')"><img src="{% url webstatic "images/tree/kview.png" %}" alt="v" title="view"/></a></h1>            
             <table>
-                <tr><td><label>{% trans "Image name" %}: </label></td><td>{{ manager.image.name }}</td></tr>
+                <!--<tr><td><label>{% trans "Image name" %}: </label></td><td></td></tr>-->
+                <!--{% if manager.image.description %}<tr><td colspan="2">{{ manager.image.description|default_if_none:"no description"|linebreaks }}</td></tr>{% endif %}-->
                 <tr><td><label>{% trans "Image date" %}: </label></td><td>{{ manager.image.getDate|date:"Y m d H:i:s" }}</td></tr>
                 <tr><td><label>{% trans "Dimensions" %} (XYZT): </label></td><td>{{ manager.image.getWidth }} x {{ manager.image.getHeight }} x {{ manager.image.z_count }} x {{ manager.image.t_count }}</td></tr>
                 <tr><td><label>{% trans "Pixel size" %} (XYZ) [&micro;m]: </label></td><td>{{ manager.image.getPixelSizeX|default_if_none:"-" }} x {{ manager.image.getPixelSizeY|default_if_none:"-" }} x {{ manager.image.getPixelSizeZ|default_if_none:"-" }}</td></tr>
             </table>
             {% else %}
                 {% if manager.dataset %}
-                <h1>Dataset details: {% if manager.dataset.isOwned %}<a href="{% url manage_action_containers "edit" "dataset" manager.dataset.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a> {% endif %} 
+                <h1>Dataset details:{% if manager.dataset.isOwned %} <a href="{% url manage_action_containers "edit" "dataset" manager.dataset.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}
                 </h1>
                 <table>
                     <tr><td><label>{% trans "Dataset name" %}:</label></td><td>{{ manager.dataset.name }}</td></tr>
@@ -81,7 +99,7 @@
                 </table>
                 {% else %}
                     {% if manager.project %}
-                    <h1>Project details: {% if manager.project.isOwned %}<a href="{% url manage_action_containers "edit" "project" manager.project.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a> {% endif %}
+                    <h1>Project details:{% if manager.project.isOwned %} <a href="{% url manage_action_containers "edit" "project" manager.project.id %}?url={{url}}">{% trans "Edit" %} <img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %} 
                     </h1>
                     <table>
                         <tr><td><label>{% trans "Project name" %}:</label></td><td>{{ manager.project.name }}</td></tr>
@@ -93,9 +111,10 @@
             {% endif %}
             
             {% if manager.well %}
-            <h1>Image details: <a href="#" onclick="return popup('{% url image_viewer manager.well.selectedWellSample.image.id %}')">{% trans "View" %} <img src="{% url webstatic "images/tree/kview.png" %}" alt="v" title="view"/></a></h1>
+            <h1>{{ manager.well.selectedWellSample.image.name }} {% if manager.well.selectedWellSample.image.isOwned %} <a href="{% url manage_action_containers "edit" "image" manager.well.selectedWellSample.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a> | {% endif %}<a href="#" onclick="return popup('{% url image_viewer manager.well.selectedWellSample.image.id %}')"><img src="{% url webstatic "images/tree/kview.png" %}" alt="v" title="view"/></a></h1>
             <table>
-                <tr><td><label>{% trans "Image name" %}:</label></td><td>{{ manager.well.selectedWellSample.image.name }}</td></tr>
+                <!--<tr><td><label>{% trans "Image name" %}:</label></td><td>{{ manager.well.selectedWellSample.image.name }}</td></tr>-->
+                <!--{% if manager.well.selectedWellSample.image.description %}<tr><td colspan="2">{{ manager.well.selectedWellSample.image.description|default_if_none:"no description"|linebreaks }}</td></tr>{% endif %}-->
                 <tr><td><label>{% trans "Image date" %}:</label></td><td>{{ manager.well.selectedWellSample.image.getDate|date:"Y m d H:i:s" }}</td></tr>
                 <tr><td><label>{% trans "Dimensions" %} (XYZT):</label></td><td>{{ manager.well.selectedWellSample.image.getWidth }} x {{ manager.well.selectedWellSample.image.getHeight }} x {{ manager.well.selectedWellSample.image.z_count }} x {{ manager.well.selectedWellSample.image.t_count }}</td></tr>
                 <tr><td><label>{% trans "Pixel size" %} (XYZ) [&micro;m]: </label></td><td>{{ manager.well.selectedWellSample.image.getPixelSizeX|default_if_none:"-" }} x {{ manager.well.selectedWellSample.image.getPixelSizeY|default_if_none:"-" }} x {{ manager.well.selectedWellSample.image.getPixelSizeZ|default_if_none:"-" }}</td></tr>
@@ -124,8 +143,8 @@
             
             {% if manager.well or manager.image%}
             <h1>Acquisition metadata:</h1>
-            <div class="metadata_details">
-            <table>
+
+            <table class="metadata_details">
             {% if manager.global_metadata %}
                 <tr><th colspan="3" class="header"><h1>{% trans "Global metadata" %}: <input type="button" value="Download {{ manager.original_metadata.getFileName }}" onClick="document.location.href='{% url manage_annotation "download" manager.original_metadata.id %}';"/></h1></th></tr>
                 {% for gm in manager.global_metadata %}
@@ -239,11 +258,11 @@
             {% endfor %}
             </table>
             <br/><p>*{% trans "N/A - this value is not available." %}</p>
-            </div>
             {% endif %}
         </div>        
         
-        <div id="comments_tab">
+        <!-- ANNOTATIONS -->
+        <div id="annotation_tab">
             <div class="clear"></div>
             <h1>{% trans "Comments" %}:</h1>
             {% if manager.txannSize %}
@@ -288,11 +307,8 @@
             </div>
             {% endif %}
 
-        </div>
-        
-        <div id="tags_tab">
             <div class="clear"></div>
-            
+            <!-- TAGS -->
             <h1>{% trans "Tags" %}:</h1>
             {% if manager.tgannSize %}
             <div class="lntags"> <h1>                  
@@ -342,10 +358,9 @@
                 </form>
             </div>
 
-        </div>
-        
-        <div id="files_tab">
             <div class="clear"></div>
+            
+            <!-- FILES -->
             <h1>{% trans "Files" %}:</h1>
             {% if manager.fileannSize %}
             <div class="lnfiles">
@@ -401,5 +416,3 @@
     </div>
     
 </div>
-
-{% endblock %}

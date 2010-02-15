@@ -1,4 +1,4 @@
-{% extends "omeroweb/base_frame.html" %}
+{% extends "omeroweb/base_frame_white.html" %}
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
     
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
     
@@ -64,7 +64,7 @@
         </script>
     </div>
 {% else %}
-    <div><p>{% trans "Your basket is empty. Please add some of your bio-data from" %} <a href="{% url manage_data "mydata" %}">{% trans "My data" %}</a>.</p></div>
+    <div><p>{% trans "Your basket is empty. Please add some of your bio-data from" %} <a href="{% url load_data %}">{% trans "My data" %}</a>.</p></div>
 {% endif %}
 
 {% endblock %}

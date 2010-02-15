@@ -136,9 +136,9 @@ class OmeroWebObjectWrapper (object):
         try:
             name = self._obj.name.val
             l = len(name)
-            if l < 45:
+            if l < 38:
                 return name
-            return "..." + name[l - 42:]
+            return "..." + name[l - 35:]
         except:
             logger.info(traceback.format_exc())
             return self._obj.name.val
@@ -205,10 +205,13 @@ class OmeroWebObjectWrapper (object):
             return self._obj.description.val
 
 class ExperimenterWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterWrapper):
-#    LINK_NAME = "copyGroupExperimenterMap"
-#    OMERO_CLASS = 'Experimetner'
-#    PARENT_WRAPPER_CLASS = 'ExperimenterGroup'
-#    
+
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'Experimenter'
+        self.LINK_CLASS = "copyGroupExperimenterMap"
+        self.CHILD_WRAPPER_CLASS = None
+        self.PARENT_WRAPPER_CLASS = 'ExperimenterGroupWrapper'
+    
     def shortInstitution(self):
         try:
             inst = self._obj.institution
@@ -251,18 +254,14 @@ class ExperimenterWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterWrap
 omero.gateway.ExperimenterWrapper = ExperimenterWrapper
 
 class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterGroupWrapper):
-    pass
+
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'ExperimenterGroup'
+        self.LINK_CLASS = "copyGroupExperimenterMap"
+        self.CHILD_WRAPPER_CLASS = 'ExperimenterWrapper'
+        self.PARENT_WRAPPER_CLASS = None
 
 omero.gateway.ExperimenterGroupWrapper = ExperimenterGroupWrapper
-
-#    LINK_NAME = "copyGroupExperimenterMap"
-#    OMERO_CLASS = 'ExperimenterGroup'
-#    LINK_CLASS = 'GroupExperimenterMap'
-#    CHILD_WRAPPER_CLASS = 'Experimenter'
-#    
-#class GroupWrapper (BlitzObjectWrapper):
-#    LINK_CLASS = None
-#    CHILD_WRAPPER_CLASS = None
 
 class ScriptWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
     pass
@@ -287,7 +286,7 @@ class AnnotationWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper
     def isOriginalMetadat(self):
         if isinstance(self._obj, FileAnnotationI):
             try:
-                if self._obj.ns.val == omero.constants.namespaces.NSCOMPANIONFILE and self._obj.file.name.val.startswith("original_metadata"):
+                if self._obj.ns is not None and self._obj.ns.val == omero.constants.namespaces.NSCOMPANIONFILE and self._obj.file.name.val.startswith("original_metadata"):
                     return True
             except:
                 logger.info(traceback.format_exc())
@@ -561,37 +560,26 @@ class DatasetImageLinkWrapper (omero.gateway.BlitzObjectWrapper):
 
 class ProjectDatasetLinkWrapper (omero.gateway.BlitzObjectWrapper):
     pass
-    
-class ScreenWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
-            
-    def listChildren (self):
-        """ return a generator yielding child objects """
-        try:
-            childnodes = [ x.child for x in getattr(self._obj, self.LINK_NAME)()]
-
-            #child_ids = [child.id.val for child in childnodes]
-            #child_counter = None
-            #if len(child_ids) > 0:
-            #    child_counter = self._conn.getCollectionCount(self.CHILD, \
-            #        (PlateWrapper.LINK_NAME[4].lower() + \
-            #        PlateWrapper.LINK_NAME[5:]), child_ids)
-            #    child_annotation_counter = self._conn.getCollectionCount(self.CHILD, "annotationLinks", child_ids)
-            for child in childnodes:
-            #    kwargs = dict()
-            #    if child_counter:
-            #        kwargs['child_counter'] = child_counter.get(child.id.val)
-            #    if child_annotation_counter:
-            #        kwargs['annotation_counter'] = child_annotation_counter.get(child.id.val)
-                yield PlateWrapper(self._conn, child)
-        except:
-            raise NotImplementedError
-
-ScreenWrapper = ScreenWrapper
 
 class PlateWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
-    pass
+    
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'Plate'
+        self.LINK_CLASS = None
+        self.CHILD_WRAPPER_CLASS = None
+        self.PARENT_WRAPPER_CLASS = 'ScreenWrapper'
 
-PlateWrapper = PlateWrapper
+omero.gateway.PlateWrapper = PlateWrapper
+    
+class ScreenWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
+    
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'Screen'
+        self.LINK_CLASS = "ScreenPlateLink"
+        self.CHILD_WRAPPER_CLASS = 'PlateWrapper'
+        self.PARENT_WRAPPER_CLASS = None
+        
+omero.gateway.ScreenWrapper = ScreenWrapper
 
 class WellWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
     

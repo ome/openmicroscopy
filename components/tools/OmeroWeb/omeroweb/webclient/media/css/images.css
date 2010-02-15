@@ -1,26 +1,25 @@
+#products .ui-selecting img{ border: 2px solid #fa808f; }
+#products .ui-selected img{ border: 2px solid #019bdb; color: white; }
+
 #products {
-    list-style: none; 
+    list-style-type: none;
     margin: 0; 
-    padding: 0; 
+    padding: 2px; 
     top: 0; 
     left: 0;
     position: relative;
-    border: 0px hidden #000;
 }
-#products img.imgzoom {
-    border: 1px solid #999;
+#products img {
+    border: 2px solid #eee;
 }
 
-#products img.catzoom {
-    border: 0px;
-}
 #products li {
     border: 0px;
     float: left;
     text-align: center;
-    margin: 2px;
-    width: 120px;
-    height: 120px;
+    height: 100px;
+    width: 100px;
+    padding: 5px; 
 }
 #products li.owner_name{
     font-size: 15px;
@@ -72,13 +71,6 @@ div.cloud {
     top: -100;
 }
 
-div#view, div#view2  {
-    float:left;
-    height:20px;
-    margin:5px 0;
-    padding:2px;
-}
-
 #hierarchy {
     max-height: 150px;
     overflow-y: auto;
@@ -109,20 +101,15 @@ div#view, div#view2  {
 }
 .miniview {
     /* This is for the miniviewer in image_details */
-    width: 480px;
-    height: 480px;
+    width: 300px;
+    height: 300px;
     position: relative;
 }
 .miniview_desc {
-    margin: 20px 0 20px 20px;
+    margin: 0 0 20px 20px;
 }
 .miniplateview {
     /* This is for the miniviewer in image_details */
-    width: 500px;
-    height: 480px;
-    position: relative;
-    overflow: auto;
-    border: 1px solid #bbb;
     margin-top:10px;
 }
 .miniplateview_desc {
@@ -133,24 +120,14 @@ div#view, div#view2  {
     width: 450px;
     height: 600px;
 }
-.metadata_details {
-    max-height: 430px;
-    overflow: auto;
-    border: 1px solid #bbb;
-    padding: 10px;
-}
+
 .description {
-    width: 455px;
-    height: 100px;
+    width: 320px;
+    height: 70px;
     border: 1px solid #bbb;
     overflow: auto;
 }
-.metadata_details table {
-    width: 100%;
-}
-.metadata_details table td{
-    border-bottom: 1px dotted #bbb;
-}
+
 #metadata_tab table td{
     width: 50%;
 }

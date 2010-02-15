@@ -9,7 +9,7 @@
 
 {% block jscript %}
 
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/swfupload/swfupload.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/swfupload/swfupload.cookies.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/swfupload/swfupload.swfobject.js" %}"></script>
@@ -71,7 +71,7 @@
     </script>-->
 {% endblock %}
 
-{% block center %}
+{% block content %}
     <h1>{% trans "Upload images." %}</h1>
 
     <!--<h2 id="top">{% trans "Upload images." %}</h2>

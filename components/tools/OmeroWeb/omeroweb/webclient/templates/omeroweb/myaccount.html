@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.2.6.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.imgareaselect.js" %}"></script>
 {% endblock %}
 
@@ -70,7 +70,7 @@
     {{ path }}
 {% endblock %}
 
-{% block center %}
+{% block content %}
 <div  class="myform">
 <h1>{% trans "My account" %}</h1>
 

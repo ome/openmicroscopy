@@ -26,6 +26,44 @@ import operator
 
 from omero_model_PermissionsI import PermissionsI
 
+def sortByAttr(seq, attr, reverse=False):
+    # Use the "Schwartzian transform".
+    # Wrapped object only.
+    #intermed = map(None, map(getattr, seq, (attr,)*len(seq)), xrange(len(seq)), seq)
+    #intermed.sort()
+    #if reverse:
+    #    intermed.reverse()
+    #return map(operator.getitem, intermed, (-1,) * len(intermed))
+    
+    intermed = list()
+    for i in xrange(len(seq)):
+        val = getAttribute(seq[i],attr)
+        intermed.append((val, i, seq[i]))
+    
+    intermed.sort()
+    if reverse:
+        intermed.reverse()
+    return [ tup[-1] for tup in intermed ]
+
+def getAttribute(o,a):
+    attr = a.split(".")
+    if len(attr) > 1:
+        for i in xrange(len(attr)):
+            if hasattr(o,attr[i]):
+                rv = getattr(o,attr[i])
+                if hasattr(rv,'val'):
+                    return getattr(rv,'val')
+                else:
+                    attr.remove(attr[i])
+                    return getAttribute(rv, ".".join(attr))
+    else:
+        if hasattr(o,attr[0]):
+            rv = getattr(o,attr[0])
+            if hasattr(rv,'val'):
+                return getattr(rv,'val')
+            else:
+                return rv
+                
 class BaseController(object):
     
     conn = None
@@ -34,127 +72,67 @@ class BaseController(object):
         self.conn = conn
     
     def sortByAttr(self, seq, attr, reverse=False):
-        # Use the "Schwartzian transform".
-        # Wrapped object only.
-        #intermed = map(None, map(getattr, seq, (attr,)*len(seq)), xrange(len(seq)), seq)
-        #intermed.sort()
-        #if reverse:
-        #    intermed.reverse()
-        #return map(operator.getitem, intermed, (-1,) * len(intermed))
-        
-        intermed = list()
-        for i in xrange(len(seq)):
-            val = self.getAttribute(seq[i],attr)
-            intermed.append((val, i, seq[i]))
-        
-        intermed.sort()
-        if reverse:
-            intermed.reverse()
-        return [ tup[-1] for tup in intermed ]
+        return sortByAttr(seq, attr, reverse)
     
-    
-    def getAttribute(self, o,a):
-        attr = a.split(".")
-        if len(attr) > 1:
-            for i in xrange(len(attr)):
-                if hasattr(o,attr[i]):
-                    rv = getattr(o,attr[i])
-                    if hasattr(rv,'val'):
-                        return getattr(rv,'val')
-                    else:
-                        attr.remove(attr[i])
-                        return self.getAttribute(rv, ".".join(attr))
+    def getPermissions(self, ob):
+        p = None
+        if ob.details.getPermissions() is None:
+            return 'unknown'
         else:
-            if hasattr(o,attr[0]):
-                rv = getattr(o,attr[0])
-                if hasattr(rv,'val'):
-                    return getattr(rv,'val')
-                else:
-                    return rv
+            p = ob.details.getPermissions()
+
+        if p.isUserRead() and p.isUserWrite():
+            flag = 'Private'
+        elif p.isUserRead() and not p.isUserWrite():
+            flag = 'Private (read-only)'
+        if p.isGroupRead() and p.isGroupWrite():
+            flag = 'Colaborative'
+        elif p.isGroupRead() and not p.isGroupWrite():
+            flag = 'Colaborative (read-only)'
+        if p.isWorldRead() and p.isWorldWrite():
+            flag = 'Public'
+        elif p.isWorldRead() and not p.isWorldWrite():
+            flag = 'Public (read-only)'
+        return flag
     
-    #####################################################################
-    # Permissions
-    
-    def setObjectPermissions(self, obj, permissions):
-        if obj.details.getPermissions() is None:
-            perm = PermissionsI()
-        else:
-            perm = obj.details.getPermissions()
-            
+    def setObjectPermissions(self, permissions):
+        p = PermissionsI()
         if permissions['owner'] == 'rw':
-            perm.setUserRead(True)
-            perm.setUserWrite(True)
+            p.setUserRead(True)
+            p.setUserWrite(True)
         elif permissions['owner'] == 'w':
-            perm.setUserRead(False)
-            perm.setUserWrite(True)
+            p.setUserRead(False)
+            p.setUserWrite(True)
         elif permissions['owner'] == 'r':
-            perm.setUserRead(True)
-            perm.setUserWrite(False)
+            p.setUserRead(True)
+            p.setUserWrite(False)
         else:
-            perm.setUserRead(False)
-            perm.setUserWrite(False)
+            p.setUserRead(False)
+            p.setUserWrite(False)
         
         if permissions['group'] == 'rw':
-            perm.setGroupRead(True)
-            perm.setGroupWrite(True)
+            p.setGroupRead(True)
+            p.setGroupWrite(True)
         elif permissions['group'] == 'w':
-            perm.setGroupRead(False)
-            perm.setGroupWrite(True)
+            p.setGroupRead(False)
+            p.setGroupWrite(True)
         elif permissions['group'] == 'r':
-            perm.setGroupRead(True)
-            perm.setGroupWrite(False)
+            p.setGroupRead(True)
+            p.setGroupWrite(False)
         else:
-            perm.setGroupRead(False)
-            perm.setGroupWrite(False)
+            p.setGroupRead(False)
+            p.setGroupWrite(False)
         
         if permissions['world'] == 'rw':
-            perm.setWorldRead(True)
-            perm.setWorldWrite(True)
+            p.setWorldRead(True)
+            p.setWorldWrite(True)
         elif permissions['world'] == 'w':
-            perm.setWorldRead(False)
-            perm.setWorldWrite(True)
+            p.setWorldRead(False)
+            p.setWorldWrite(True)
         elif permissions['world'] == 'r':
-            perm.setWorldRead(True)
-            perm.setWorldWrite(False)
+            p.setWorldRead(True)
+            p.setWorldWrite(False)
         else:
-            perm.setWorldRead(False)
-            perm.setWorldWrite(False)
-    
-        obj.details.setPermissions(perm)
-        
-    def getObjectPermissions(self, obj):
-        perm = None
-        if obj.details.getPermissions() is None:
-            raise AttributeError('Object has no permissions')
-        else:
-            perm = obj.details.getPermissions()
-        
-        permissions = {'owner':None, 'group':None, 'world':None}
-        if perm.isUserRead() and perm.isUserWrite():
-            permissions['owner'] = 'rw'
-        elif not perm.isUserRead() and perm.isUserWrite():
-            permissions['owner'] = 'w'
-        elif perm.isUserRead() and not perm.isUserWrite():
-            permissions['owner'] = 'r'
-        else:
-            permissions['owner'] = None
-        
-        if perm.isGroupRead() and perm.isGroupWrite():
-            permissions['group'] = 'rw'
-        elif not perm.isGroupRead() and perm.isGroupWrite():
-            permissions['group'] = 'w'
-        elif perm.isGroupRead() and not perm.isGroupWrite():
-            permissions['group'] = 'r'
-        else:
-            permissions['group'] = None
-        
-        if perm.isWorldRead() and perm.isWorldWrite():
-            permissions['world'] = 'rw'
-        elif not perm.isWorldRead() and perm.isWorldWrite():
-            permissions['world'] = 'w'
-        elif perm.isWorldRead() and not perm.isWorldWrite():
-            permissions['world'] = 'r'
-        else:
-            permissions['world'] = None
-        
-        return permissions
+            p.setWorldRead(False)
+            p.setWorldWrite(False)
+        return p

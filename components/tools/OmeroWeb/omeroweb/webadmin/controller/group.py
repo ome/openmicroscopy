@@ -23,7 +23,7 @@
 #
 
 from omero.rtypes import *
-from omero.model import ExperimenterGroupI
+from omero.model import ExperimenterGroupI, PermissionsI
 
 from webadmin.controller import BaseController
 
@@ -37,7 +37,7 @@ class BaseGroups(BaseController):
         groupsList = list(self.conn.lookupGroups())
         self.groups = list()
         for gr in groupsList:
-            self.groups.append({'group': gr, 'locked': self.isLocked(gr.name)})
+            self.groups.append({'group': gr, 'locked': self.isLocked(gr.name), 'permissions': self.getPermissions(gr)})
         self.groupsCount = len(groupsList)
     
     def isLocked(self, gname):
@@ -49,7 +49,7 @@ class BaseGroups(BaseController):
             return True
         else:
             False
-    
+
 class BaseGroup(BaseController):
 
     group = None
@@ -59,14 +59,23 @@ class BaseGroup(BaseController):
         BaseController.__init__(self, conn)
         if gid is not None:
             self.group = self.conn.getGroup(gid)
+        
+            self.owners = list()
+            for gem in self.group.copyGroupExperimenterMap():
+                if gem.owner.val == True:
+                    self.owners.append(gem.child.id.val)
         self.experimenters = list(self.conn.lookupExperimenters())
-
+    
+    def getOwnersNames(self):
+        owners = list()
+        for e in self.conn.getExperimenters(self.owners):
+            owners.append(e.getFullName())
+        return ", ".join(owners)
+    
     def containedExperimenters(self):
         self.members = list(self.conn.containedExperimenters(self.group.id))
-        self.defaultMembers = list()
         for i, m in enumerate(self.members):
-            if m.copyGroupExperimenterMap()[0].parent.id.val == self.group.id: #1109
-            #if self.conn.getDefaultGroup(m.id).id == self.group.id: # TODO: when ticket done remove it
+            if m.copyGroupExperimenterMap()[0].parent.id.val == self.group.id:
                 self.members[i].setFirstName("*%s" % (m.firstName))
         
         self.available = list()
@@ -96,12 +105,9 @@ class BaseGroup(BaseController):
                 if om.id == long(str(a)):
                     rm_exps.append(om._obj)
         for oa in old_available:
-            flag = False
-            for a in available:
-                if oa.id == long(str(a)):
-                    flag = True
-            if not flag:
-                add_exps.append(oa._obj)
+            for m in members:
+                if oa.id == long(str(m)):
+                    add_exps.append(oa._obj)
                 
         for r in rm_exps:
             if self.conn.getDefaultGroup(r.id.val).id == self.group.id:
@@ -109,34 +115,136 @@ class BaseGroup(BaseController):
         
         self.conn.setMembersOfGroup(self.group._obj, add_exps, rm_exps)
     
-    def createGroup(self, name, eid, permissions, description=None):
+    def createGroup(self, name, owners, perm, r=None, description=None):
         new_gr = ExperimenterGroupI()
         new_gr.name = rstring(str(name))
         new_gr.description = description is not None and rstring(str(description)) or None
-        #self.setObjectPermissions(new_gr, self.setActualPermissions(permissions))
-        gr_owner = self.conn.getExperimenter(long(eid))._obj
-        self.conn.createGroup(new_gr, gr_owner)
+        new_gr.details.permissions = self.setActualPermissions(perm, r)
+        
+        listOfOwners = set()
+        for e in self.experimenters:
+            for o in owners:
+                if long(o) == e.id:
+                    listOfOwners.add(e._obj)
+        
+        self.conn.createGroup(new_gr, list(listOfOwners))
     
-    def updateGroup(self, name, eid, permissions, description=None):
+    def updateGroup(self, name, owners, perm, r=None, description=None):
         up_gr = self.group._obj
         up_gr.name = rstring(str(name))
         up_gr.description = description is not None and rstring(str(description)) or None
-        #self.setObjectPermissions(up_gr, self.setActualPermissions(permissions))
-        gr_owner = self.conn.getExperimenter(long(eid))._obj
-        # This does nothing!
-        up_gr.details.owner = gr_owner
-        self.conn.updateGroup(up_gr, gr_owner)
-
-    def getActualPermissions(self):
-        perm = self.getObjectPermissions(self.group)
-        if perm['owner'] == 'rw' and perm['group'] == 'r' and perm['world'] == None:
-            return 1
-        elif perm['owner'] == 'rw' and perm['group'] == None and perm['world'] == None:
-            return 0    
-        
-    def setActualPermissions(self, perm):
+        permissions = None
         perm = int(perm)
-        if perm == 1:
-            return {'owner':'rw', 'group':'r', 'world':None}
+        if self.getActualPermissions() != perm:
+            permissions = self.setActualPermissions(perm, r)
+        
+        # old list of groups
+        old_owners = list()
+        for oex in up_gr.copyGroupExperimenterMap():
+            if oex.owner.val:
+                old_owners.append(oex.child)        
+
+        # create list of new groups
+        new_owners = list()        
+        for e in self.experimenters:
+            for o in owners:
+                if long(o) == e.id:
+                    new_owners.append(e._obj)
+        
+        add_exps = list()
+        rm_exps = list()
+        
+        # remove
+        for oex in old_owners:
+            flag = False
+            for nex in new_owners:
+                if nex.id.val == oex.id.val:
+                    flag = True
+            if not flag:
+                rm_exps.append(oex)
+        
+        # add
+        for nex in new_owners:
+            flag = False
+            for oex in old_owners:
+                if oex.id.val == nex.id.val:
+                    flag = True
+            if not flag:
+                add_exps.append(nex)
+        
+        self.conn.updateGroup(up_gr, add_exps, rm_exps, permissions)
+
+    def updatePermissions(self, perm, r=None):
+        permissions = None
+        perm = int(perm)
+        if self.getActualPermissions() != perm:
+            permissions = self.setActualPermissions(perm, r)
+        self.conn.updatePermissions(self.group._obj, permissions)
+    
+    def getActualPermissions(self):
+        p = None
+        if self.group.details.getPermissions() is None:
+            raise AttributeError('Object has no permissions')
         else:
-            return {'owner':'rw', 'group':None, 'world':None}
+            p = self.group.details.getPermissions()
+        
+        flag = None
+        if p.isUserRead():
+            flag = 0
+        if p.isGroupRead():
+            flag = 1
+        if p.isWorldRead():
+            flag = 2
+        
+        return flag
+    
+    def isReadOnly(self):
+        p = None
+        if self.group.details.getPermissions() is None:
+            raise AttributeError('Object has no permissions')
+        else:
+            p = self.group.details.getPermissions()
+        
+        flag = True
+        if p.isUserRead() and p.isUserWrite():
+            flag = False
+        elif p.isUserRead() and not p.isUserWrite():
+            flag = True
+        if p.isGroupRead() and p.isGroupWrite():
+            flag = False
+        elif p.isGroupRead() and not p.isGroupWrite():
+            flag = True
+        if p.isWorldRead() and p.isWorldWrite():
+            flag = False
+        elif p.isWorldRead() and not p.isWorldWrite():
+            flag = True
+        return flag
+        
+    def setActualPermissions(self, p, r=None):
+        permissions = PermissionsI()
+        p = int(p)        
+        if p == 0:
+            #private
+            permissions.setUserRead(True)
+            permissions.setUserWrite(True)
+            permissions.setGroupRead(False)
+            permissions.setGroupWrite(False)
+            permissions.setWorldRead(False)
+            permissions.setWorldWrite(False)
+        elif p == 1:
+            #colaborative
+            permissions.setUserRead(True)
+            permissions.setUserWrite(True)
+            permissions.setGroupRead(True)
+            permissions.setGroupWrite(r)
+            permissions.setWorldRead(False)
+            permissions.setWorldWrite(False)
+        elif p == 2:
+            #public
+            permissions.setUserRead(True)
+            permissions.setUserWrite(True)
+            permissions.setGroupRead(True)
+            permissions.setGroupWrite(r)
+            permissions.setWorldRead(True)
+            permissions.setWorldWrite(r)     
+        return permissions
