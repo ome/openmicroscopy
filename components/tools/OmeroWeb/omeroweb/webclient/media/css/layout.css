@@ -130,7 +130,7 @@ body.zoom {
     background:#F3F3F3 url(../images/tray_right_shadow.png) repeat-y scroll left top;
 }
 .collapsibletrayhandle-left {
-    background:#F3F3F3 url(../images/tray_left_shadow.png) repeat-y scroll left top;
+    background:#fff url(../images/tray_left_shadow.png) repeat-y scroll left top;
 }
 .trayhandle {
     background-color:#F3F3F3;

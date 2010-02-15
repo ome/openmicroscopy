@@ -5,37 +5,38 @@
 
 	<link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
     
-<script type="text/javascript">
-    $(document).ready(function(){
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.selectable.js" %}"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
 
-        $("ul#products").selectable({
-        	stop: function(){
-        		var result = $("#select-result").empty();
-        		var l = $('li.ui-selected img', this).length;
-        		$("li.ui-selected input", this).each(function(){
-        		    this.checked = true;
-        		});
-        		if (l == 1) {
-        		    $("#right_panel").show();
-        		    $('li.ui-selected img', this).each(function(){
-            		    $("div#metadata_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                    	$("div#metadata_details").load('/webclient/metadata_details/image/'+this.id+'/');
-                    });
-        		} else {
-        		    $("#right_panel").show();
-        		    $("div#metadata_details").html('<p>'+ l +' elements selected.</p>');
-        		}
-        	},
-        	start: function(){
-        		$("li input", this).each(function(){
-        			this.checked = false;
-        		});
-        	}
+            $("ul#products").selectable({
+            	stop: function(){
+            		var result = $("#select-result").empty();
+            		var l = $('li.ui-selected img', this).length;
+            		$("li.ui-selected input", this).each(function(){
+            		    this.checked = true;
+            		});
+            		if (l == 1) {
+            		    $("#right_panel").show();
+            		    $('li.ui-selected img', this).each(function(){
+                		    $("div#metadata_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                        	$("div#metadata_details").load('/webclient/metadata_details/image/'+this.id+'/');
+                        });
+            		} else {
+            		    $("#right_panel").show();
+            		    $("div#metadata_details").html('<p>'+ l +' elements selected.</p>');
+            		}
+            	},
+            	start: function(){
+            		$("li input", this).each(function(){
+            			this.checked = false;
+            		});
+            	}
+            });
+
         });
-
-    });
-</script>
-
+    </script>
+    
 <!--content
 <div id="actionButtons">
     <a href="{% url load_data "dataset" manager.dataset.id %}?view=table" target="content_details"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"/></a> 
