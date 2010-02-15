@@ -56,10 +56,13 @@ public class BasicACLVoter implements ACLVoter {
 
     protected final TokenHolder tokenHolder;
 
+    protected final SecurityFilter securityFilter;
+
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
-            TokenHolder tokenHolder) {
+            TokenHolder tokenHolder, SecurityFilter securityFilter) {
         this.currentUser = cd;
         this.sysTypes = sysTypes;
+        this.securityFilter = securityFilter;
         this.tokenHolder = tokenHolder;
     }
 
@@ -88,7 +91,8 @@ public class BasicACLVoter implements ACLVoter {
 
         if (d == null ||
                 sysTypes.isSystemType(klass) ||
-                sysTypes.isInSystemGroup(d)) {
+                sysTypes.isInSystemGroup(d) ||
+                sysTypes.isInUserGroup(d)) {
             return true;
         }
 
@@ -98,7 +102,7 @@ public class BasicACLVoter implements ACLVoter {
         final boolean isShare = c.getCurrentShareId() != null;
         final boolean adminOrPi = c.isCurrentUserAdmin() ||
             c.getLeaderOfGroupsList().contains(c.getCurrentGroupId());
-        return SecurityFilter.passesFilter(d,
+        return securityFilter.passesFilter(d,
                 c.getGroup().getId(), c.getOwner().getId(),
                 nonPrivate, adminOrPi, isShare);
     }

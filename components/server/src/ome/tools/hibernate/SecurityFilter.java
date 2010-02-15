@@ -19,6 +19,7 @@ import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
+import ome.system.Roles;
 import static ome.model.internal.Permissions.Role.*;
 import static ome.model.internal.Permissions.Right.*;
 
@@ -62,18 +63,22 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
         parameterTypes.setProperty(current_group, "long");
         parameterTypes.setProperty(current_user, "long");
         // This can't be done statically because we need the securitySystem.
-        defaultFilterCondition = String.format("(\n"
+        defaultFilterCondition = "(\n"
                 // Should handle hidden groups at the top-level
                 // ticket:1784 - Allowing system objects to be read.
-                + "\n  ( (group_id = :current_group OR group_id = 0) AND "
+                + "\n  ( group_id = :current_group AND "
                 + "\n     ( :is_nonprivate OR "
                 + "\n       :is_adminorpi OR "
                 + "\n       owner_id = :current_user"
                 + "\n     )"
                 + "\n  ) OR"
+                + "\n  group_id = %s OR "
+                + "\n  group_id = %s OR "
                 + "\n :is_share"
-                + "\n)\n");
+                + "\n)\n";
     }
+
+    private final Roles roles;
 
     /**
      * default constructor which calls all the necessary setters for this
@@ -87,9 +92,15 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
      * @see FilterDefinitionFactoryBean#setDefaultFilterCondition(String)
      */
     public SecurityFilter() {
+        this(new Roles());
+    }
+
+    public SecurityFilter(Roles roles) {
+        this.roles = roles;
         this.setFilterName(filterName);
         this.setParameterTypes(parameterTypes);
-        this.setDefaultFilterCondition(defaultFilterCondition);
+        this.setDefaultFilterCondition(String.format(defaultFilterCondition,
+                roles.getSystemGroupId(), roles.getUserGroupId()));
     }
 
     /**
@@ -104,7 +115,7 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
      *            null all {@link Right rights} will be assumed.
      * @return true if the object to which this
      */
-    public static boolean passesFilter(Details d,
+    public boolean passesFilter(Details d,
             Long currentGroupId, Long currentUserId,
             boolean nonPrivate, boolean adminOrPi, boolean share) {
         if (d == null || d.getPermissions() == null) {
@@ -124,7 +135,13 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
         // This method will not be called with system types.
         // See BasicACLVoter
         // Also ticket:1784 allowing system objects to be read.
-        if (!currentGroupId.equals(g) && ! Long.valueOf(0).equals(g)) {
+        // Also ticket:1791 allowing user objects to be read (also 1794)
+        if (Long.valueOf(roles.getSystemGroupId()).equals(g) ||
+                Long.valueOf(roles.getUserGroupId()).equals(g)) {
+            return true;
+        }
+
+        if (!currentGroupId.equals(g)) {
             return false;
         }
 

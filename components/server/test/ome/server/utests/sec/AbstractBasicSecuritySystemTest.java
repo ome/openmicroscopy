@@ -31,6 +31,7 @@ import ome.system.Principal;
 import ome.system.Roles;
 import ome.testing.MockServiceFactory;
 import ome.tools.hibernate.ExtendedMetadata;
+import ome.tools.hibernate.SecurityFilter;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
@@ -85,11 +86,12 @@ public abstract class AbstractBasicSecuritySystemTest extends
         cd = new CurrentDetails();
         SystemTypes st = new SystemTypes();
         TokenHolder th = new TokenHolder();
-        OmeroInterceptor oi = new OmeroInterceptor(st, new ExtendedMetadata(),
+        OmeroInterceptor oi = new OmeroInterceptor(new Roles(),
+                st, new ExtendedMetadata(),
                 cd, th, new NullSessionStats());
         sec = new BasicSecuritySystem(oi, st, cd, mgr, new Roles(), sf,
                 new TokenHolder());
-        aclVoter = new BasicACLVoter(cd, st, th);
+        aclVoter = new BasicACLVoter(cd, st, th, new SecurityFilter());
     }
 
     protected void prepareMocksWithUserDetails(boolean readOnly) {

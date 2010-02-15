@@ -34,7 +34,9 @@
 
   <bean id="roles" class="ome.system.Roles"/>
 
-  <bean id="securityFilter" class="ome.tools.hibernate.SecurityFilter"/>
+  <bean id="securityFilter" class="ome.tools.hibernate.SecurityFilter">
+    <constructor-arg ref="roles"/>
+  </bean>
 
   <bean id="systemTypes" class="ome.security.SystemTypes"/>
 
@@ -56,6 +58,7 @@
     <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="systemTypes"/>
     <constructor-arg ref="tokenHolder"/>
+    <constructor-arg ref="&amp;securityFilter"/><!-- filter is a factory -->
   </bean>
 
   <bean id="eventListeners" class="ome.security.basic.EventListenersFactoryBean">
@@ -96,6 +99,7 @@
     <description>
     Scope: private
     </description>
+    <constructor-arg ref="roles"/>
     <constructor-arg ref="systemTypes"/>
     <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="tokenHolder"/>

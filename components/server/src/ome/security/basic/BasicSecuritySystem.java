@@ -106,7 +106,8 @@ public class BasicSecuritySystem implements SecuritySystem,
         CurrentDetails cd = new CurrentDetails();
         SystemTypes st = new SystemTypes();
         TokenHolder th = new TokenHolder();
-        OmeroInterceptor oi = new OmeroInterceptor(st, new ExtendedMetadata(),
+        OmeroInterceptor oi = new OmeroInterceptor(new Roles(),
+                st, new ExtendedMetadata(),
                 cd, th, new PerSessionStats(cd, sm));
         BasicSecuritySystem sec = new BasicSecuritySystem(oi, st, cd, sm,
                 new Roles(), sf, new TokenHolder());

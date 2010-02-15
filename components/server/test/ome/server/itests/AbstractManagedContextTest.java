@@ -8,7 +8,6 @@ package ome.server.itests;
 
 import java.io.File;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,6 +15,7 @@ import javax.sql.DataSource;
 
 import ome.api.IConfig;
 import ome.api.IContainer;
+import ome.api.IMetadata;
 import ome.api.IPixels;
 import ome.api.ISession;
 import ome.api.local.LocalAdmin;
@@ -46,7 +46,6 @@ import ome.testing.InterceptingServiceFactory;
 import ome.testing.OMEData;
 
 import org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.ldap.core.LdapTemplate;
@@ -93,6 +92,8 @@ public class AbstractManagedContextTest extends
     protected IConfig iConfig;
 
     protected IContainer iContainer;
+
+    protected IMetadata iMetadata;
 
     protected IPixels iPixels;
 
@@ -154,6 +155,7 @@ public class AbstractManagedContextTest extends
         iLdap = (LocalLdap) factory.getLdapService();
         iConfig = factory.getConfigService();
         iContainer = factory.getContainerService();
+        iMetadata = factory.getMetadataService();
         iPixels = factory.getPixelsService();
         iSession = factory.getSessionService();
 

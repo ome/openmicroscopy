@@ -98,4 +98,20 @@ public class SystemTypes {
         return isInSystemGroup(groupId);
     }
 
+    // ticket:1791
+    public boolean isInUserGroup(Long groupId) {
+        Long userGroupId = Long.valueOf(roles.getUserGroupId());
+        if (userGroupId.equals(groupId)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isInUserGroup(Details d) {
+        if (d == null || d.getGroup() == null) {
+            return false;
+        }
+        Long groupId = d.getGroup().getId();
+        return isInUserGroup(groupId);
+    }
 }

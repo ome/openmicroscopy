@@ -41,6 +41,7 @@ import ome.security.SystemTypes;
 import ome.services.sessions.stats.SessionStats;
 import ome.system.EventContext;
 import ome.system.Principal;
+import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.HibernateUtils;
 
@@ -90,17 +91,21 @@ public class OmeroInterceptor implements Interceptor {
 
     private final SessionStats stats;
 
-    public OmeroInterceptor(SystemTypes sysTypes, ExtendedMetadata em,
+    private final Roles roles;
+
+    public OmeroInterceptor(Roles roles, SystemTypes sysTypes, ExtendedMetadata em,
             CurrentDetails cd, TokenHolder tokenHolder, SessionStats stats) {
         Assert.notNull(tokenHolder);
         Assert.notNull(sysTypes);
         Assert.notNull(em);
         Assert.notNull(cd);
         Assert.notNull(stats);
+        Assert.notNull(roles);
         this.tokenHolder = tokenHolder;
         this.currentUser = cd;
         this.sysTypes = sysTypes;
         this.stats = stats;
+        this.roles = roles;
         this.em = em;
     }
 
@@ -377,8 +382,9 @@ public class OmeroInterceptor implements Interceptor {
             // omitting system types since they don't have permissions
             // which can be locked.
 
-            if (!sysTypes.isSystemType(object.getClass()) &
-                    !sysTypes.isInSystemGroup(object.getDetails())) {
+            if (!sysTypes.isSystemType(object.getClass()) &&
+                    !sysTypes.isInSystemGroup(object.getDetails()) &&
+                    !sysTypes.isInUserGroup(object.getDetails())) {
 
                 Details d = object.getDetails();
                 if (d != null) {
@@ -488,6 +494,12 @@ public class OmeroInterceptor implements Interceptor {
 
                 // ticket:1434
                 if (bec.getCurrentGroupId().equals(source.getGroup().getId())) {
+                    newDetails.setGroup(source.getGroup());
+                }
+
+                // ticket:1794
+                else if (Long.valueOf(roles.getUserGroupId())
+                        .equals(source.getGroup().getId())) {
                     newDetails.setGroup(source.getGroup());
                 }
 
