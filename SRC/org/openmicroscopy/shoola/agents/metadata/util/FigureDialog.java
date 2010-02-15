@@ -1381,7 +1381,7 @@ public class FigureDialog
 	private void collectParam(FigureParam p)
 	{
 		if (mergedComponent != null)
-			p.setMergedLabel(mergedComponent.getLabel());
+			p.setMergedLabel(mergedComponent.isChannelsName());
 		p.setSelectedObjects(selectedObjects.isSelected());
 		p.setWidth((Integer) widthField.getValueAsNumber());
 		p.setHeight((Integer) heightField.getValueAsNumber());
@@ -1438,9 +1438,9 @@ public class FigureDialog
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			comp = (FigureComponent) entry.getValue();
-			if (comp.isSelected()) {
+			//if (comp.isSelected()) {
 				split.put((Integer) entry.getKey(), comp.getLabel());
-			}
+			//}
 		}
 		Map<Integer, Color> merge = new LinkedHashMap<Integer, Color>();
 		List<Integer> active = renderer.getActiveChannels();
@@ -1474,9 +1474,9 @@ public class FigureDialog
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			comp = (FigureComponent) entry.getValue();
-			if (comp.isSelected()) {
+			//if (comp.isSelected()) {
 				split.put((Integer) entry.getKey(), comp.getLabel());
-			}
+			//}
 		}
 		Map<Integer, Color> merge = new LinkedHashMap<Integer, Color>();
 		List<Integer> active = renderer.getActiveChannels();

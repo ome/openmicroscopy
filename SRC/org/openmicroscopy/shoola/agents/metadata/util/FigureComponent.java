@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
@@ -81,6 +82,9 @@ class FigureComponent
 	 */
 	private JTextField				field;
 	
+	/** The component used instead of the text field. */
+	private JCheckBox				box;
+	
 	/** The channel buttons. */
 	private List<ChannelButton>		buttons;
 	
@@ -114,6 +118,8 @@ class FigureComponent
 		field.setFont(f.deriveFont(f.getStyle(), ChannelButton.MIN_FONT_SIZE));
 		field.setColumns(8);
 		canvas = new FigureCanvas();
+		box = new JCheckBox("Channel names");
+		box.setBorder(null);
 	}
 	
 	/** Builds and lays out the UI. */
@@ -128,8 +134,9 @@ class FigureComponent
 		}
 		JPanel controls = new JPanel();
 		controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
-		controls.add(field);
-		 controls.add(UIUtilities.buildComponentPanel(p));
+		if (!single) controls.add(UIUtilities.buildComponentPanel(box));
+		else controls.add(field);
+		controls.add(UIUtilities.buildComponentPanel(p));
 		controls.add(UIUtilities.buildComponentPanelCenter(canvas));
 		setLayout(new BorderLayout(0, 0));
 		add(UIUtilities.buildComponentPanel(controls, 0, 0),
@@ -192,6 +199,19 @@ class FigureComponent
 			
 		return value.trim(); 
 	}
+	
+	/**
+	 * Returns <code>true</code> if the names of the channels are merged
+	 * and displayed next to the merged image, <code>false</code> to
+	 * display the default text i.e. {@link FigureParam#MERGED_TEXT}.
+	 * 
+	 * @return See above.
+	 */
+	boolean isChannelsName() 
+	{
+		if (!single) return false;
+		return box.isSelected();
+ 	}
 	
 	/**
 	 * Resets the image.

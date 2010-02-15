@@ -5214,14 +5214,13 @@ class OMEROGateway
 				}
 			}
 			
-			parameters.map.put("mergedNames", omero.rtypes.rstring(
+			parameters.map.put("mergedNames", omero.rtypes.rbool(
 					param.getMergedLabel()));
 			parameters.map.put("imageIds", omero.rtypes.rlist(ids));
 			parameters.map.put("zStart", omero.rtypes.rlong(param.getStartZ()));
 			parameters.map.put("zEnd", omero.rtypes.rlong(param.getEndZ()));
 			if (split.size() > 0) 
-				parameters.map.put("splitChannelNames", 
-						omero.rtypes.rmap(split));
+				parameters.map.put("channelNames", omero.rtypes.rmap(split));
 			if (merge.size() > 0)
 				parameters.map.put("mergedColours", omero.rtypes.rmap(merge));
 			if (scriptIndex == FigureParam.MOVIE) {

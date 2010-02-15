@@ -167,35 +167,38 @@ public class FigureParam
 	private Map<Integer, Integer> mergeChannels;
 	
 	/** Collection of tags to sort the thumbnails by. */
-	private List<Long> tags;
+	private List<Long> 		tags;
 	
 	/** The type of figure. */
-	private int 		index;
+	private int 			index;
 	
 	/** The magnification used the ROI figure. */
-	private double	magnificationFactor;
+	private double			magnificationFactor;
 	
 	/** The selected time points. */
-	private List<Integer> timepoints;
+	private List<Integer>	timepoints;
 	
 	/** 
 	 * Set to <code>true</code> to indicate that the selected objects will
 	 * compose the figure, <code>false</code> to indicate that the displayed
 	 * objects will compose the figure.
 	 */
-	private boolean selectedObjects;
+	private boolean 		selectedObjects;
 	
 	/** Identifies the time selected. */
-	private int		time;
+	private int				time;
 	
-	/** The default text associated to the merged image.*/ 
-	private String 	mergedLabel;
+	/** 
+	 * Flag indicating to display the name of the channels or the default
+	 * text. 
+	 */ 
+	private boolean 		mergedLabel;
 	
 	/** 
 	 * Flag indicates to include the images w/o tags if 
 	 * set to <code>true</code>, <code>false</code> otherwise.
 	 */
-	private boolean includeUntagged;
+	private boolean 		includeUntagged;
 	
 	/** The data object the figure is attached to. */
 	private pojos.DataObject anchor;
@@ -320,21 +323,25 @@ public class FigureParam
 	}
 	
 	/**
-	 * Sets the text associated to the merged image.
+	 * Sets to <code>true</code> if the names of the channels are merged 
+	 * and displayed next to the image, to <code>false</code> to display
+	 * the default name.
 	 * 
-	 * @param text The value to set.
+	 * @param mergedLabel The value to set.
 	 */
-	public void setMergedLabel(String text)
+	public void setMergedLabel(boolean mergedLabel)
 	{
-		mergedLabel = text;
+		this.mergedLabel = mergedLabel;
 	}
 	
 	/**
-	 * Returns the text associated to the merged image.
+	 * Returns <code>true</code> if the names of the channels are merged 
+	 * and displayed next to the image, <code>false</code> to display
+	 * the default name.
 	 * 
 	 * @return See above.
 	 */
-	public String getMergedLabel() { return mergedLabel; }
+	public boolean getMergedLabel() { return mergedLabel; }
 	
 	/**
 	 * Sets the time.
