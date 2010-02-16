@@ -3379,6 +3379,25 @@ class OMEROGateway
 	}
 
 	/**
+	 * Updates the specified group.
+	 * 
+	 * @param group	The group to update.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	void updateGroup(ExperimenterGroup group) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			getAdminService().updateGroup(group);
+		} catch (Throwable t) {
+			handleException(t, "Cannot update the group. ");
+		}
+	}
+	
+	/**
 	 * Returns the XY-plane identified by the passed z-section, time-point 
 	 * and wavelength.
 	 * 

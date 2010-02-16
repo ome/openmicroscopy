@@ -34,6 +34,7 @@ import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * Retrieves the available user groups other than system.
@@ -121,6 +122,23 @@ public class AdminLoader
             {
             	AdminService os = context.getAdminService();
                 result = os.updateExperimenter(exp, null);
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to update the specified group.
+     * 
+	 * @param group The group to update.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall updateGroup(final GroupData group)
+    {
+        return new BatchCall("Update group") {
+            public void doCall() throws Exception
+            {
+            	AdminService os = context.getAdminService();
+                result = os.updateGroup(group);
             }
         };
     }
@@ -218,6 +236,18 @@ public class AdminLoader
     	if (exp == null)
     		throw new IllegalArgumentException("Experimenter not valid.");
     	loadCall = updateExperimenter(exp);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param group The group to update. Mustn't be <code>null</code>.
+     */
+    public AdminLoader(GroupData group)
+    {
+    	if (group == null)
+    		throw new IllegalArgumentException("Group not valid.");
+    	loadCall = updateGroup(group);
     }
     
 }

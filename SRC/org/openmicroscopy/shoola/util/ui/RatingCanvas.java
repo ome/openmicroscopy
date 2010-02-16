@@ -135,11 +135,22 @@ class RatingCanvas
 		addMouseMotionListener(this);
 	}
 	
-	/** Uninstalls the listeners. */
+	/** Removes the listeners. */
 	void uninstallListeners()
 	{
 		removeMouseListener(handler);
 		removeMouseMotionListener(this);
+	}
+	
+	/** 
+	 * Overridden to add or remove the listeners
+	 * @see javax.swing.JComponent#setEnabled(boolean)
+	 */
+	public void setEnabled(boolean enabled)
+	{
+		super.setEnabled(enabled);
+		if (enabled) installListeners();
+		else uninstallListeners();
 	}
 	
 	/** 

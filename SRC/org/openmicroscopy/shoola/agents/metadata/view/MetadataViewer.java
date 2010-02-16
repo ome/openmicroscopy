@@ -32,7 +32,6 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -46,7 +45,6 @@ import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 import pojos.DataObject;
-import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 
 /** 
@@ -99,9 +97,11 @@ public interface MetadataViewer
 	/** Bound property indicating to clear the data to save. */
 	public static final String	CLEAR_SAVE_DATA_PROPERTY = "clearSaveData";
 	
-	/** Bound property indicating that the experimenter has been updated. */
-	public static final String	EXPERIMENTER_UPDATED_PROPERTY = 
-		                                                "experimenterUpdated";
+	/** 
+	 * Bound property indicating that the experimenter or group
+	 * has been updated. 
+	 */
+	public static final String	ADMIN_UPDATED_PROPERTY = "adminUpdated";
 	
 	/**
 	 * Bound property indicating that parents of the currently edited objects
@@ -339,12 +339,13 @@ public interface MetadataViewer
 	public void setRelatedNodes(List nodes);
 
 	/**
-	 * Updates the view when the experimented details have been modified.
+	 * Updates the view when the experimenter or group 
+	 * details have been modified.
 	 * 
 	 * @param data The data to update.
 	 */
-	public void onExperimenterUpdated(ExperimenterData data);
-
+	public void onAdminUpdated(DataObject data);
+	
 	/**
 	 * Loads the containers hosting the currently edited object.
 	 */

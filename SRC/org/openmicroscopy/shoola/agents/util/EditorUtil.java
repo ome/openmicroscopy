@@ -62,7 +62,6 @@ import pojos.DetectorData;
 import pojos.DichroicData;
 import pojos.ExperimenterData;
 import pojos.FilterData;
-import pojos.GroupData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.InstrumentData;
@@ -832,7 +831,7 @@ public class EditorUtil
      * @param ho        The data object to check.
      * @param userID    The id of the current user.
      * @param groupID   The id of the group the current user selects when 
-     *                      retrieving the data.
+     *                  retrieving the data.
      * @return See above.
      */
     public static boolean isReadable(Object ho, long userID, long groupID)
@@ -845,21 +844,6 @@ public class EditorUtil
         PermissionData permissions = data.getPermissions();
         if (userID == data.getOwner().getId())
             return permissions.isUserRead();
-        /*
-        Set groups = ho.getOwner().getGroups();
-        Iterator i = groups.iterator();
-        long id = -1;
-        boolean groupRead = false;
-        while (i.hasNext()) {
-            id = ((GroupData) i.next()).getId();
-            if (groupID == id) {
-                groupRead = true;
-                break;
-            }
-        }
-        if (groupRead) return permissions.isGroupRead();
-        return permissions.isWorldRead();
-        */ 
         return permissions.isGroupRead();
     }
     
@@ -869,11 +853,9 @@ public class EditorUtil
      * 
      * @param ho        The data object to check.
      * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                      retrieving the data.
      * @return See above.
      */
-    public static boolean isWritable(Object ho, long userID, long groupID)
+    public static boolean isUserOwner(Object ho, long userID)
     {
     	if (ho == null || ho instanceof ExperimenterData || 
     		ho instanceof String)
@@ -881,45 +863,14 @@ public class EditorUtil
     	if (!(ho instanceof DataObject)) return false;
     	DataObject data = (DataObject) ho;
         PermissionData permissions = data.getPermissions();
-        if (userID == data.getOwner().getId())
-            return permissions.isUserWrite();
-        /*
-        Set groups = ho.getOwner().getGroups();
-        Iterator i = groups.iterator();
-        long id = -1;
-        boolean groupRead = false;
-        while (i.hasNext()) {
-            id = ((GroupData) i.next()).getId();
-            if (groupID == id) {
-                groupRead = true;
-                break;
-            }
-        }
-        if (groupRead) return permissions.isGroupWrite();
-        return permissions.isWorldWrite();
-        */
-        return permissions.isGroupWrite();
-    }
-    
-    /**
-     * Returns <code>true</code> if the specified data object is writable by 
-     * group members,
-     * <code>false</code> otherwise, depending on the permission.
-     * 
-     * @param ho        The data object to check.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                      retrieving the data.
-     * @return See above.
-     */
-    public static boolean isGroupWritable(Object ho)
-    {
-    	if (ho == null || ho instanceof ExperimenterData || 
-        		ho instanceof String) return false;
-    	if (!(ho instanceof DataObject)) return false;
-    	DataObject data = (DataObject) ho;
-    	PermissionData permissions = data.getPermissions();
-    	return permissions.isGroupWrite();
+        try {
+        	if (userID == data.getOwner().getId())
+                return permissions.isUserWrite();
+		} catch (Exception e) { //owner not loaded
+			return false;
+		}
+        
+        return false;
     }
     
     /**

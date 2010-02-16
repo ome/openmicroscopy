@@ -24,9 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -35,10 +32,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -46,14 +41,16 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 //Third-party libraries
+import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionsPane;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.AnnotationData;
 import pojos.GroupData;
+import pojos.PermissionData;
 
 
 /** 
@@ -70,7 +67,7 @@ import pojos.GroupData;
  * @since 3.0-Beta4
  */
 class GroupProfile 
-	extends AnnotationUI ///extends JPanel
+	extends AnnotationUI 
 	implements DocumentListener, PropertyChangeListener
 {
 
@@ -83,17 +80,34 @@ class GroupProfile
     /** Component displaying the permissions status. */
     private PermissionsPane			permissionsPane;
     
+    /** The original permissions level. */
+    private int 					level;
+    
     /** Initializes the components composing this display. */
     private void initComponents()
     {
-    	permissionsPane = new PermissionsPane(UIUtilities.BACKGROUND_COLOR);
+    	GroupData data = (GroupData) model.getRefObject();
+    	
+    	//permission level
+    	PermissionData perm = data.getPermissions();
+    	level = AdminObject.PERMISSIONS_PRIVATE;
+    	if (perm.isGroupRead()) {
+    		if (perm.isGroupWrite()) 
+    			level = AdminObject.PERMISSIONS_GROUP_READ_WRITE;
+    		else level = AdminObject.PERMISSIONS_GROUP_READ;
+    	} else if (perm.isWorldRead()) {
+    		if (perm.isGroupWrite()) 
+    			level = AdminObject.PERMISSIONS_PUBLIC_READ_WRITE;
+    		else level = AdminObject.PERMISSIONS_PUBLIC_READ;
+    	}
+    	permissionsPane = new PermissionsPane(level, 
+    			UIUtilities.BACKGROUND_COLOR);
     	permissionsPane.setBorder(
     			BorderFactory.createTitledBorder("Permissions"));
     	permissionsPane.displayWarningText();
     	permissionsPane.addPropertyChangeListener(this);
     	namePane = new JTextField();
     	namePane.setEditable(false);
-    	GroupData data = (GroupData) model.getRefObject();
     	namePane.setText(data.getName());
     	descriptionPane = new JTextField();
     	descriptionPane.setText(data.getDescription());
@@ -223,14 +237,28 @@ class GroupProfile
 	 * Returns the title associated to this component.
 	 * @see AnnotationUI#getComponentTitle()
 	 */
-	protected String getComponentTitle() { return ""; }
+	protected String getComponentTitle() { return "Group"; }
 
 	/**
 	 * Returns <code>true</code> if user's info has been modified, 
 	 * <code>false</code> otherwise.
 	 * @see AnnotationUI#hasDataToSave()
 	 */
-	protected boolean hasDataToSave() { return false; }
+	protected boolean hasDataToSave()
+	{ 
+		GroupData data = (GroupData) model.getRefObject();
+		String v = namePane.getText();
+		v = v.trim();
+		if (!data.getName().equals(v)) return true; 
+		//check description
+		v = descriptionPane.getText();
+		v = v.trim();
+		String description = data.getDescription();
+		if (description == null) description = "";
+		if (!description.equals(v)) return true; 
+		System.err.println(level+" "+permissionsPane.getPermissions());
+		return level != permissionsPane.getPermissions();
+	}
 
 	/**
 	 * Sets the title of the component.

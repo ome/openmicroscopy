@@ -1104,6 +1104,8 @@ class BrowserComponent
     	
     	if (model.getBrowserType() == ADMIN_EXPLORER) {
     		//TODO: implement;
+    		
+    		
     		return;
     	}
 	    TreeImageDisplay root = view.getTreeRoot();
@@ -1285,12 +1287,16 @@ class BrowserComponent
 
     /**
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#refreshExperimenter()
+	 * @see Browser#refreshAdmin(DataObjet)
 	 */
-	public void refreshExperimenter()
+	public void refreshAdmin(DataObject data)
 	{
 		if (model.getState() == DISCARDED) return;
-		view.refreshExperimenter();
+		if (model.getBrowserType() == ADMIN_EXPLORER) {
+			
+		} else {
+			if (data instanceof ExperimenterData) view.refreshExperimenter();
+		}
 	}
 
 	/**

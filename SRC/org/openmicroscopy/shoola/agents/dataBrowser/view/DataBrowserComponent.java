@@ -56,8 +56,10 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
@@ -783,23 +785,16 @@ class DataBrowserComponent
 					"This method cannot be invoked in the DISCARDED state.");
 		//Check if current user can write in object
 		long id = DataBrowserAgent.getUserDetails().getId();
-		long groupId = -1;
-		return EditorUtil.isWritable(ho, id, groupId);
-	}
-	
-	/**
-	 * Implemented as specified by the {@link DataBrowser} interface.
-	 * @see DataBrowser#isReadable(DataObject)
-	 */
-	public boolean isReadable(DataObject ho)
-	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException(
-					"This method cannot be invoked in the DISCARDED state.");
-		//Check if current user can write in object
-		long id = DataBrowserAgent.getUserDetails().getId();
-		long groupId = -1;
-		return EditorUtil.isReadable(ho, id, groupId);
+		boolean b = EditorUtil.isUserOwner(ho, id);
+		if (b) return b; //user it the owner.
+		int level = 
+			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel();
+		switch (level) {
+			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+				return true;
+		}
+		return false;
 	}
 
 	/**

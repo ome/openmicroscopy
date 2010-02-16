@@ -567,8 +567,12 @@ public interface Browser
 	 */
     public void setSelectedNode();
     
-    /** Refreshes the experimenter data. */
-    public void refreshExperimenter();
+    /** 
+     * Refreshes the experimenter or the group.
+     * 
+     * @param data Pass either an experimenter or a group.
+     */
+    public void refreshAdmin(DataObject data);
 
     /**
      * Browses the specified node.

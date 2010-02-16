@@ -24,17 +24,15 @@ package org.openmicroscopy.shoola.env.data.views;
 
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.List;
-
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.views.calls.AdminLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AdminSaver;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
@@ -68,6 +66,16 @@ class AdminViewImpl
 		return cmd.exec(observer);
 	}
 
+	/**
+	 * Implemented as specified by the {@link AdminView} interface.
+	 * @see AdminView#updateGroup(GroupData, AgentEventListener)
+	 */
+	public CallHandle updateGroup(GroupData group, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new AdminLoader(group);
+		return cmd.exec(observer);
+	}
+	
 	/**
 	 * Implemented as specified by the {@link AdminView} interface.
 	 * @see AdminView#changePassword(String, String, AgentEventListener)

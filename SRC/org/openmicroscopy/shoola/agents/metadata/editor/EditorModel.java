@@ -71,6 +71,7 @@ import org.openmicroscopy.shoola.agents.metadata.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -561,23 +562,24 @@ class EditorModel
 	}
 	
 	/**
-	 * Returns <code>true</code> if the object is readable,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean isReadable()
-	{
-		return false;
-	}
-	
-	/**
 	 * Returns <code>true</code> if the object is writable,
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
-	boolean isWritable() { return false; }
+	boolean isWritable()
+	{ 
+		boolean b = isUserOwner(refObject);
+		if (b) return b;
+		int level = 
+		MetadataViewerAgent.getRegistry().getAdminService().getPermissionLevel();
+		switch (level) {
+			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+				return true;
+		}
+		return false;
+	}
 	
 	/**
 	 * Returns <code>true</code> if the group's name is valid, 
@@ -601,22 +603,14 @@ class EditorModel
 	 * @param object The object to handle.
 	 * @return See above.
 	 */
-	boolean isCurrentUserOwner(Object object)
+	boolean isUserOwner(Object object)
 	{
 		long userID = MetadataViewerAgent.getUserDetails().getId();
 		if (object == null) return false;
 		if (object instanceof ExperimenterData) 
 			return (((ExperimenterData) object).getId() == userID);
-		if (object instanceof DataObject)  {
-			try {
-				ExperimenterData exp = ((DataObject) object).getOwner();
-				if (exp == null) return false;
-				return userID == exp.getId();
-			} catch (Exception e) {
-				return false;
-			}
-		}
-		return false;
+		if (!(object instanceof DataObject)) return false;
+		return EditorUtil.isUserOwner(object, userID);
 	}
 	
 	/**

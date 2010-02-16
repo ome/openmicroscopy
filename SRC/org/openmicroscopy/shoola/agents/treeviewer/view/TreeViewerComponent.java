@@ -1110,10 +1110,19 @@ class TreeViewerComponent
 					"This method cannot be invoked in the DISCARDED state.");
 		//Check if current user can write in object
 		long id = model.getUserDetails().getId();
-		long groupId = model.getUserGroupID();
-		return EditorUtil.isWritable(ho, id, groupId);
+		boolean b = EditorUtil.isUserOwner(ho, id);
+		if (b) return b; //user it the owner.
+		int level = 
+			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel();
+		switch (level) {
+			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+				return true;
+		}
+		return false;
 	}
 
+	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#addExistingObjects(DataObject)
@@ -1404,21 +1413,6 @@ class TreeViewerComponent
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
 		model.setRollOver(rollOver);
-	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#isReadable(DataObject)
-	 */
-	public boolean isReadable(DataObject ho)
-	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException(
-					"This method cannot be invoked in the DISCARDED state.");
-		//Check if current user can write in object
-		long id = model.getUserDetails().getId();
-		long groupId = model.getUserGroupID();
-		return EditorUtil.isReadable(ho, id, groupId);
 	}
 
 	/**
@@ -2736,6 +2730,7 @@ class TreeViewerComponent
 			un.notifyInfo("Group change", "Cannot modify current group.");
 			return;
 		}
+		long oldId = model.getUserGroupID();
 		model.setGroupId(group.getId());
 		reg.getEventBus().post(new ChangeUserGroupEvent(group.getId()));
 		Map browsers = model.getBrowsers();
@@ -2748,6 +2743,8 @@ class TreeViewerComponent
 			browser.reActivate();
 		}
 		model.setDataViewer(null);
+		firePropertyChange(GROUP_CHANGED_PROPERTY, oldId, 
+				model.getUserGroupID());
 	}
 
 	/** 

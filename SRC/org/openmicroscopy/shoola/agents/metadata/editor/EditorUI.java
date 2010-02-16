@@ -168,6 +168,7 @@ public class EditorUI
 	{
 		dummyPanel = new JPanel();
 		groupUI = new GroupProfile(model);
+		groupUI.addPropertyChangeListener(controller);
 		userUI = new UserUI(model, controller);
 		toolBar = new ToolBar(model, controller);
 		generalPane = new GeneralPaneUI(this, model, controller);

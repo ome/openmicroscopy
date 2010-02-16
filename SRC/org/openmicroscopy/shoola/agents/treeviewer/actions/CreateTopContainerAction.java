@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CreateCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
@@ -208,10 +209,8 @@ public class CreateTopContainerAction
             default:
             	if (browser.getBrowserType() != Browser.ADMIN_EXPLORER)
             		setEnabled(true);
-            	else {
+            	else
             		onDisplayChange(browser.getLastSelectedDisplay());
-            	}
-                break;
         }
     }
     
@@ -226,7 +225,23 @@ public class CreateTopContainerAction
     		return;
     	}
         if (nodeType != EXPERIMENTER) {
-        	setEnabled(true);
+        	
+        	//Check tag tag set 
+        	if (selectedDisplay != null) {
+        		Object ho = selectedDisplay.getUserObject();
+        		switch (nodeType) {
+					case TAG:
+					case TAG_SET:
+						setEnabled(model.isObjectWritable(ho));
+						break;
+					case DATASET:
+						long id = model.getUserDetails().getId();
+						boolean b = EditorUtil.isUserOwner(ho, id);
+						setEnabled(b);
+					default:
+						setEnabled(true);
+				}
+        	}
         	return;
         }
         Browser browser = model.getSelectedBrowser();
@@ -249,8 +264,7 @@ public class CreateTopContainerAction
     {
         if (browser == null) {
             setEnabled(false);
-            //name = NAME;
-        } 
+        } //else onDisplayChange(browser.getLastSelectedDisplay());
     }
     
     /**

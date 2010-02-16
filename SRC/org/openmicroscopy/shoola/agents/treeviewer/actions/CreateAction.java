@@ -61,23 +61,23 @@ public class CreateAction
     extends TreeViewerAction
 {
     
-    /** The default name of the action. */
-    private static final String NAME = "New...";
-    
-    /** The name of the action for the creation of a <code>Dataset</code>. */
-    private static final String NAME_DATASET = "New Dataset...";
-    
-    /** The name of the action for the creation of a <code>Tag</code>. */
-    private static final String NAME_TAG = "New Tag...";
-    
-   /** The name of the action for the creation of a <code>Image</code>. */
-    private static final String NAME_IMAGE = "Import...";
-    
-    /** 
-     * Description of the action if the selected node is a <code>Tag Set</code>.
-     */
-    private static final String DESCRIPTION_TAG = "Create a new Tag " +
-    		"and add it to the selected Tag Set.";
+	/** The default name of the action. */
+	private static final String NAME = "New...";
+
+	/** The name of the action for the creation of a <code>Dataset</code>. */
+	private static final String NAME_DATASET = "New Dataset...";
+
+	/** The name of the action for the creation of a <code>Tag</code>. */
+	private static final String NAME_TAG = "New Tag...";
+
+	/** The name of the action for the creation of a <code>Image</code>. */
+	private static final String NAME_IMAGE = "Import...";
+
+	/** 
+	 * Description of the action if the selected node is a <code>Tag Set</code>.
+	 */
+	private static final String DESCRIPTION_TAG = "Create a new Tag " +
+	"and add it to the selected Tag Set.";
     
     /** 
      * Description of the action if the selected node is a <code>Project</code>.
@@ -153,14 +153,6 @@ public class CreateAction
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
         } else if (ho instanceof ScreenData) {
-        	/*
-        	 setEnabled(model.isObjectWritable(ho));
-             name = NAME_PLATE; 
-             nodeType = CreateCmd.PLATE;
-            
-             putValue(Action.SHORT_DESCRIPTION, 
-                     UIUtilities.formatToolTipText(DESCRIPTION_PLATE));
-                     */
         	Browser browser = model.getSelectedBrowser();
         	if (browser == null) {
         		setEnabled(false);
@@ -182,17 +174,19 @@ public class CreateAction
         		setEnabled(false);
         	} else {
         		TreeImageDisplay[] nodes = browser.getSelectedDisplays();
-        		if (nodes != null && nodes.length == 1)
-            		setEnabled(model.isObjectWritable(ho)
-            				&& !model.isImporting());
-            	else setEnabled(false);
+        		if (model.isImporting()) {
+        			setEnabled(false);
+        		} else {
+        			if (nodes != null && nodes.length == 1)
+        				setEnabled(model.isObjectWritable(ho));
+        			else setEnabled(false);
+        		}
         	}
             nodeType = CreateCmd.IMAGE;
             putValue(Action.SMALL_ICON, im.getIcon(IconManager.IMPORTER));
             name = NAME_IMAGE;
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_IMAGE));
-            setEnabled(true);
         } else if (ho instanceof TagAnnotationData) {
         	String ns = ((TagAnnotationData) ho).getNameSpace();
         	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {

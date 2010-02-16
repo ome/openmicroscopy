@@ -77,7 +77,6 @@ public class TaggingAction
                 break;
             default:
                 onDisplayChange(browser.getLastSelectedDisplay());
-                break;
         }
     }
     
@@ -100,7 +99,7 @@ public class TaggingAction
 
         if ((ho instanceof DatasetData) || (ho instanceof ProjectData) ||
         	(ho instanceof ImageData)) {
-        	setEnabled(true);
+        	setEnabled(model.isObjectWritable(ho));
         } else setEnabled(false);
     }
     

@@ -85,6 +85,18 @@ public interface AdminService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
+	 * Updates the specified group.
+	 * 
+	 * @param group The group to update.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	public GroupData updateGroup(GroupData group)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
 	 * Changes the current group of the specified user.
 	 * 
 	 * @param exp The experimenter to handle.
@@ -217,5 +229,12 @@ public interface AdminService
 	 */
 	public List<GroupData> deleteGroups(List<GroupData> groups)
 		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Returns the permissions associated to the current group.
+	 * 
+	 * @return See above.
+	 */
+	public int getPermissionLevel();
 	
 }

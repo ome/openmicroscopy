@@ -24,17 +24,13 @@ package org.openmicroscopy.shoola.env.data.views;
 
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.List;
-
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
@@ -74,6 +70,16 @@ public interface AdminView
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle updateExperimenter(ExperimenterData exp, 
+			AgentEventListener observer);
+	
+	/**
+	 * Updates the specified group.
+	 * 
+	 * @param group The group to update. Mustn't be <code>null</code>.
+	 * @param observer	Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle updateGroup(GroupData group, 
 			AgentEventListener observer);
 	
 	/**

@@ -44,7 +44,6 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.jdesktop.swingx.UIAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -72,8 +71,8 @@ public class PermissionsPane
 		"permissionsChange";
 	
 	/** Warning message. */
-	private static final String WARNING = "Upgrading the permissions cannot be " +
-											"undone";
+	private static final String WARNING = "Upgrading the permissions cannot" +
+			" be undone.";
 	
 	/** Indicate that the group will have group visibility. */
     private JRadioButton		groupBox;
@@ -119,8 +118,8 @@ public class PermissionsPane
         privateBox =  new JRadioButton(EditorUtil.PRIVATE); 
         publicBox =  new JRadioButton(EditorUtil.PUBLIC); 
         ButtonGroup group = new ButtonGroup();
-        group.add(groupBox);
         group.add(privateBox);
+        group.add(groupBox);
         group.add(publicBox);
         switch (permissions) {
 			case AdminObject.PERMISSIONS_PRIVATE:
@@ -286,15 +285,10 @@ public class PermissionsPane
 		Object src = e.getSource();
 		readOnlyGroupBox.setEnabled(false);
 		readOnlyPublicBox.setEnabled(false);
-		if (groupBox == src) {
-			readOnlyGroupBox.setEnabled(true);
-			firePropertyChange(PERMISSIONS_CHANGE_PROPERTY, 
-					-1, getPermissions());
-		} else if (publicBox == src) {
-			readOnlyPublicBox.setEnabled(true);
-			firePropertyChange(PERMISSIONS_CHANGE_PROPERTY, 
-					-1, getPermissions());
-		}
+		if (groupBox == src) readOnlyGroupBox.setEnabled(true);
+		else if (publicBox == src) readOnlyPublicBox.setEnabled(true);
+		firePropertyChange(PERMISSIONS_CHANGE_PROPERTY, 
+				-1, getPermissions());
 	}
 	
 }

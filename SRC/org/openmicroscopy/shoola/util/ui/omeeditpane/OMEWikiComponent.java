@@ -74,56 +74,56 @@ public class OMEWikiComponent
 	/** Bounds property indicating that a data object has been selected. */
 	public static final String WIKI_DATA_OBJECT_PROPERTY = "wikiDataObject";
 	
-	/** Regex expression for text. */
+	/** Regular expression for text. */
 	public static final String TEXTREGEX = OMEWikiConstants.TEXTREGEX;
 	
-	/** Regex for a sentence. */
+	/** Regular for a sentence. */
 	public static final String SENTENCEREGEX = OMEWikiConstants.SENTENCEREGEX;
 	
-	/** Regex for a sequence of characters. */
+	/** Regular for a sequence of characters. */
 	public static final String CHARACTERREGEX = OMEWikiConstants.CHARACTERREGEX;
 	
-	/** Regex for a wiki link. */
+	/** Regular expression for a <code>Wiki</code> link. */
 	public static final String WIKILINKREGEX = OMEWikiConstants.WIKILINKREGEX;
 	
-	/** Regex expression defining Thumbnail [Thumbnail: 30]. */
+	/** Regular expression defining Thumbnail [Thumbnail: 30]. */
 	public static final String THUMBNAILREGEX = OMEWikiConstants.THUMBNAILREGEX;
 	
-	/** Regex expression defining Dataset [Dataset: 30]. */
+	/** Regular expression defining Dataset [Dataset: 30]. */
 	public static final String DATASETREGEX = OMEWikiConstants.DATASETREGEX;
 	
-	/** Regex expression defining Project [Project: 30]. */
+	/** Regular expression defining Project [Project: 30]. */
 	public static final String PROJECTREGEX = OMEWikiConstants.PROJECTREGEX;
 	
-	/** Regex expression defining Protocol [Protocol: 30]. */
+	/** Regular expression defining Protocol [Protocol: 30]. */
 	public static final String PROTOCOLREGEX = OMEWikiConstants.PROTOCOLREGEX;
 	
-	/** Regex expression defining Image [Image: 30]. */
+	/** Regular expression defining Image [Image: 30]. */
 	public static final String IMAGEREGEX = OMEWikiConstants.IMAGEREGEX;
 	
-	/** Regex expression defining Wiki Heading. */
+	/** Regular expression defining Wiki Heading. */
 	public static final String HEADINGREGEX = OMEWikiConstants.HEADINGREGEX;
 	
-	/** Regex for a bullet list. */
+	/** Regular expression for a bullet list. */
 	public static final String BULLETREGEX = OMEWikiConstants.BULLETREGEX;
 
-	/** Regex for bold. */
+	/** Regular expression for bold. */
 	public static final String BOLDREGEX = OMEWikiConstants.BOLDREGEX;
 
-	/** Italic regex. */
+	/** Italic regular expression. */
 	public static final String ITALICREGEX = OMEWikiConstants.ITALICREGEX;
 
-	/** Italic and bold regex. */
+	/** Italic and bold regular expression. */
 	public static final String ITALICBOLDREGEX = 
 										OMEWikiConstants.ITALICBOLDREGEX;
 
-	/** Indent regex. */
+	/** Indent regular expression. */
 	public static final String INDENTREGEX = OMEWikiConstants.INDENTREGEX;
 		
-	/** Regex expression defining url. */
+	/** regular expression defining a URL. */
 	public static final String URLREGEX = OMEWikiConstants.URLREGEX;
 	
-	/** Regex for names linked regex. */
+	/** regular expression for names linked. */
 	public static final String NAMEDLINKREGEX = OMEWikiConstants.NAMEDLINKREGEX;
 
 	/** Action id to create an hyperlink. */
@@ -380,7 +380,20 @@ public class OMEWikiComponent
 	}
 	
 	/**
-	 * Overridden to set the backgound color of all the components.
+	 * Overridden to set the flag for all components.
+	 * @see JPanel#setEnabled(boolean)
+	 */
+	public void setEnabled(boolean enabled)
+	{
+		super.setEnabled(enabled);
+		if (pane != null) pane.setEnabled(enabled);
+		Iterator<JButton> i = toolBarActions.iterator();
+		while (i.hasNext()) 
+			i.next().setEnabled(enabled);
+	}
+	
+	/**
+	 * Overridden to set the background color of all the components.
 	 * @see JPanel#setBackground(Color)
 	 */
 	public void setBackground(Color color)

@@ -163,13 +163,13 @@ public class EditorAction
 	    			List l = browser.getSelectedDataObjects();
 	    			if (l == null || l.size() != 1) setEnabled(false);
 	    			else {
-	    				Object object = l.get(0);
-	    				if ((object instanceof ProjectData) ||
-	    						(object instanceof DatasetData) || 
-	    						(object instanceof ImageData) ||
-	    						(object instanceof ScreenData) ||
-	    						(object instanceof PlateData))
-	    					setEnabled(true);
+	    				Object ho = l.get(0);
+	    				if ((ho instanceof ProjectData) ||
+	    						(ho instanceof DatasetData) || 
+	    						(ho instanceof ImageData) ||
+	    						(ho instanceof ScreenData) ||
+	    						(ho instanceof PlateData))
+	    					setEnabled(model.isObjectWritable(ho));
 	    				else setEnabled(false);
 	    			}
 	    		} else setEnabled(false);

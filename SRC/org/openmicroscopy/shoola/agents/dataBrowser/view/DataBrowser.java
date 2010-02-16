@@ -467,15 +467,6 @@ public interface DataBrowser
 	public boolean isObjectWritable(Object ho);
 
 	/**
-	 * Returns <code>true</code> if the specified object is readable,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param hierarchyObject    The data object to check.
-	 * @return See above.
-	 */
-	public boolean isReadable(DataObject hierarchyObject);
-
-	/**
 	 * Reloads the thumbnails. 
 	 * 
 	 * @param ids Collection of images to reload the thumbnails or 

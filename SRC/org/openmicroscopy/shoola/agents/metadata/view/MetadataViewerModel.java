@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.agents.metadata.DataBatchSaver;
 import org.openmicroscopy.shoola.agents.metadata.DataSaver;
 import org.openmicroscopy.shoola.agents.metadata.ExperimenterEditor;
 import org.openmicroscopy.shoola.agents.metadata.FretAnalyser;
+import org.openmicroscopy.shoola.agents.metadata.GroupEditor;
 import org.openmicroscopy.shoola.agents.metadata.MetadataLoader;
 import org.openmicroscopy.shoola.agents.metadata.ContainersLoader;
 import org.openmicroscopy.shoola.agents.metadata.StructuredDataLoader;
@@ -54,6 +55,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -417,6 +419,18 @@ class MetadataViewerModel
 	void fireExperimenterSaving(ExperimenterData data)
 	{
 		ExperimenterEditor loader = new ExperimenterEditor(component, data);
+		loader.load();
+		state = MetadataViewer.SAVING;
+	}
+	
+	/**
+	 * Fires an asynchronous call to update the passed group.
+	 * 
+	 * @param data The object to update.
+	 */
+	void fireGroupSaving(GroupData data)
+	{
+		GroupEditor loader = new GroupEditor(component, data);
 		loader.load();
 		state = MetadataViewer.SAVING;
 	}

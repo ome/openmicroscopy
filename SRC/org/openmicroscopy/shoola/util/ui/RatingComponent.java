@@ -87,7 +87,7 @@ public class RatingComponent
 	/** The image used when the rate decreases. */
 	private Image 				unselected;
 	
-	/** The canvas hosting the rating starts. */
+	/** The canvas hosting the rating stars. */
 	private RatingCanvas		canvas;
 	
 	/** The selected size. */
@@ -272,6 +272,16 @@ public class RatingComponent
 	{
 		super.setBackground(bg);
 		if (canvas != null) canvas.setBackground(bg);
+	}
+	
+	/** 
+	 * Overridden to add or remove the listeners
+	 * @see javax.swing.JComponent#setEnabled(boolean)
+	 */
+	public void setEnabled(boolean enabled)
+	{
+		super.setEnabled(enabled);
+		canvas.setEnabled(enabled);
 	}
 	
 }

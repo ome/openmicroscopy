@@ -648,7 +648,6 @@ public class TreeViewerTranslator
     /**
      * Transforms a set of {@link DataObject}s into their corresponding 
      * {@link TreeCheckNode} visualization objects. The elements of the set can 
-     * either be {@link CategoryGroupData}, {@link CategoryData} or
      * {@link DatasetData}.
      * 
      * @param dataObjects   The collection of {@link DataObject}s to transform.
@@ -668,10 +667,10 @@ public class TreeViewerTranslator
         DataObject ho;
         while (i.hasNext()) {
             ho = (DataObject) i.next();
-            if (EditorUtil.isWritable(ho, userID, groupID)) {
-                if (ho instanceof DatasetData) 
-                    results.add(transformDatasetCheckNode((DatasetData) ho));
-            }  
+            //if (EditorUtil.isUserOwner(ho, userID, groupID)) {
+            if (ho instanceof DatasetData) 
+            	results.add(transformDatasetCheckNode((DatasetData) ho));
+            //}  
         }
         return results;
     }
@@ -679,7 +678,7 @@ public class TreeViewerTranslator
     /**
      * Transforms a set of {@link DataObject}s into their corresponding 
      * visualization objects. The elements of the set can either be
-     * {@link DatasetData}, {@link CategoryData} or {@link ImageData}.
+     * {@link DatasetData}, or {@link ImageData}.
      * 
      * @param paths     Collection of {@link DataObject}s to transform.
      * @param userID    The id of the current user.
@@ -697,12 +696,12 @@ public class TreeViewerTranslator
         DataObject ho;
         while (i.hasNext()) {
             ho = (DataObject) i.next();
-            if (EditorUtil.isWritable(ho, userID, groupID)) {
-                if (ho instanceof DatasetData)
-                    results.add(transformDatasetCheckNode((DatasetData) ho));
-                else if (ho instanceof ImageData)
-                    results.add(transformImageCheckNode((ImageData) ho));
-            }
+            //if (EditorUtil.isUserOwner(ho, userID, groupID)) {
+            if (ho instanceof DatasetData)
+            	results.add(transformDatasetCheckNode((DatasetData) ho));
+            else if (ho instanceof ImageData)
+            	results.add(transformImageCheckNode((ImageData) ho));
+            //}
         }
         return results;
     }

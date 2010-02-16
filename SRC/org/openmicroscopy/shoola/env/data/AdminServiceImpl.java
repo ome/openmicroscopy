@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -39,6 +40,7 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
+import pojos.PermissionData;
 
 /** 
  * Implementation of the {@link AdminService} I/F.
@@ -289,6 +291,55 @@ class AdminServiceImpl
 		if (groups == null || groups.size() == 0)
 			throw new IllegalArgumentException("No groups to delete.");
 		return gateway.deleteGroups(groups);
+	}
+
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#getPermissionLevel()
+	 */
+	public int getPermissionLevel()
+	{
+		ExperimenterData exp = (ExperimenterData) context.lookup(
+				LookupNames.CURRENT_USER_DETAILS);
+		GroupData g = exp.getDefaultGroup();
+		PermissionData perm = g.getPermissions();
+		if (perm.isGroupRead()) {
+			if (perm.isGroupWrite())  
+				return AdminObject.PERMISSIONS_GROUP_READ_WRITE;
+			return AdminObject.PERMISSIONS_GROUP_READ;
+		}
+		if (perm.isWorldRead()) {
+			if (perm.isWorldWrite())  
+				return AdminObject.PERMISSIONS_PUBLIC_READ_WRITE;
+			return AdminObject.PERMISSIONS_PUBLIC_READ;
+		}
+		//Check if the user is owner of the group.
+		Set leaders = g.getLeaders();
+		if (leaders == null || leaders.size() == 0) 
+			return AdminObject.PERMISSIONS_PRIVATE;
+		Iterator j = leaders.iterator();
+		long id = exp.getId();
+		while (j.hasNext()) {
+			exp = (ExperimenterData) j.next();
+			if (exp.getId() == id) 
+				return AdminObject.PERMISSIONS_GROUP_READ;
+		}
+		return AdminObject.PERMISSIONS_PRIVATE;
+	}
+
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#updateGroup(GroupData)
+	 */
+	public GroupData updateGroup(GroupData group)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		if (group == null)
+			throw new IllegalArgumentException("No group to update.");
+		gateway.updateGroup(group.asGroup());
+		//reload the group.
+		//and upgrade available group.
+		return group;
 	}
 	
 }

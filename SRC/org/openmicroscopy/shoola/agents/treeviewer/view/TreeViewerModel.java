@@ -1237,4 +1237,18 @@ class TreeViewerModel
 		currentLoader.load();
 	}
 	
+	/**
+	 * Returns the permissions associated to the current group.
+	 * 
+	 * @return See above.
+	 */
+	int getPermissionsLevel()
+	{
+		ExperimenterData exp = TreeViewerAgent.getUserDetails();
+		GroupData g = exp.getDefaultGroup();
+		PermissionData perm = g.getPermissions();
+		return 0;
+	}
+	
+	
 }

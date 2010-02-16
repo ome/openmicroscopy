@@ -132,7 +132,7 @@ class AnnotationDataUI
 	/** Button to add documents. */
 	private JButton							addDocsButton;
 	
-	/** Button to unrate the object. */
+	/** Button to remove the rate of the object. */
 	private JButton							unrateButton;
 	
 	/** Reference to the control. */
@@ -578,6 +578,15 @@ class AnnotationDataUI
 			layoutTags(model.getTags());
 			//hTag = TableLayout.PREFERRED;
 		}
+		//Allow to handle annotation.
+		boolean enabled = model.isWritable();
+		rating.setEnabled(enabled);
+		addTagsButton.setEnabled(enabled);
+		addDocsButton.setEnabled(enabled);
+		unrateButton.setEnabled(enabled);
+		
+		
+		
 		//if (refObject instanceof ImageData) hPublished = TableLayout.PREFERRED;
 		layout.setRow(publishedRow, hPublished);
 		layout.setRow(viewedByRow, h);

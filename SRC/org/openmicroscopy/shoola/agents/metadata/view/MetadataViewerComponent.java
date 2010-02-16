@@ -76,6 +76,7 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.PlateData;
@@ -419,6 +420,9 @@ class MetadataViewerComponent
 		if (refObject instanceof ExperimenterData) {
 			model.fireExperimenterSaving((ExperimenterData) data);
 			return;
+		} else if (refObject instanceof GroupData) {
+			model.fireGroupSaving((GroupData) data);
+			return;
 		}
 		if (refObject instanceof FileData) {
 			FileData fa = (FileData) data;
@@ -548,12 +552,14 @@ class MetadataViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#onExperimenterUpdated(ExperimenterData)
+	 * @see MetadataViewer#onAdminUpdated(DataObject)
 	 */
-	public void onExperimenterUpdated(ExperimenterData data)
+	public void onAdminUpdated(DataObject data)
 	{
-		firePropertyChange(EXPERIMENTER_UPDATED_PROPERTY, null, data);
-		setRootObject(data);
+		if (data instanceof ExperimenterData || data instanceof GroupData) {
+			firePropertyChange(ADMIN_UPDATED_PROPERTY, null, data);
+			setRootObject(data);
+		}
 	}
 
 	/** 

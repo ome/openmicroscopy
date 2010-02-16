@@ -377,7 +377,7 @@ class DocComponent
 	private void initComponents()
 	{
 		imageToLoad = -1;
-		if (model.isCurrentUserOwner(data)) initButton();
+		if (model.isUserOwner(data)) initButton();
 		label = new JLabel();
 		label.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 		if (data == null) {

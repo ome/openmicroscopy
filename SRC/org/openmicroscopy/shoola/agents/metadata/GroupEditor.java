@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.ExperimenterEditor 
+ * org.openmicroscopy.shoola.agents.metadata.GroupEditor 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -22,6 +22,7 @@
  */
 package org.openmicroscopy.shoola.agents.metadata;
 
+
 //Java imports
 
 //Third-party libraries
@@ -29,11 +30,11 @@ package org.openmicroscopy.shoola.agents.metadata;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
- * Updates the experimenter.
- * This class calls the <code>updateExperimenter</code> method in the
+ * Updates the group.
+ * This class calls the <code>updateGroup</code> method in the
  * <code>AdminView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -44,31 +45,31 @@ import pojos.ExperimenterData;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
-public class ExperimenterEditor 
+public class GroupEditor 
 	extends MetadataLoader
 {
 
-	/** The experimenter to update. */
-	private ExperimenterData	exp;
+	/** The group to update. */
+	private GroupData	group;
 	
 	/** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle			handle;
+    private CallHandle	handle;
     
     /**
      * Creates a new instance.
      * 
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
-     * @param exp	 The experimenter to update. Mustn't be <code>null</code>.
+     * @param group	 The group to update. Mustn't be <code>null</code>.
      */
-    public ExperimenterEditor(MetadataViewer viewer, ExperimenterData exp)
+    public GroupEditor(MetadataViewer viewer, GroupData group)
     {
     	super(viewer, null);
-    	if (exp == null)
-    		throw new IllegalArgumentException("No experimenter to edit.");
-    	this.exp = exp;
+    	if (group == null)
+    		throw new IllegalArgumentException("No group to edit.");
+    	this.group = group;
     }
     
     /** 
@@ -77,7 +78,7 @@ public class ExperimenterEditor
 	 */
 	public void load()
 	{
-		handle = adminView.updateExperimenter(exp, this);
+		handle = adminView.updateGroup(group, this);
 	}
 	
 	/** 
@@ -93,7 +94,8 @@ public class ExperimenterEditor
     public void handleResult(Object result) 
     {
     	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
-    	viewer.onAdminUpdated((ExperimenterData) result);
+    	//viewer.onDataSave((List) data);
+    	viewer.onAdminUpdated((GroupData) result);
     }
     
 }

@@ -175,7 +175,7 @@ class UserProfile
     /** Initializes the components composing this display. */
     private void initComponents()
     {
-    	boolean isOwner = model.isCurrentUserOwner(model.getRefObject());
+    	boolean isOwner = model.isUserOwner(model.getRefObject());
     	passwordButton =  new JButton("Change password");
     	passwordButton.setBackground(UIUtilities.BACKGROUND_COLOR);
     	passwordButton.addActionListener(new ActionListener() {
@@ -235,7 +235,7 @@ class UserProfile
     private JPanel buildContentPanel()
     {
     	ExperimenterData user = (ExperimenterData) model.getRefObject();
-    	boolean editable = model.isCurrentUserOwner(user);
+    	boolean editable = model.isUserOwner(user);
     	details = EditorUtil.convertExperimenter(user);
         JPanel content = new JPanel();
         content.setBorder(
@@ -421,7 +421,7 @@ class UserProfile
 		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
 		c.weightx = 1.0;  
     	add(buildContentPanel(), c);
-    	if (model.isCurrentUserOwner(model.getRefObject())) {
+    	if (model.isUserOwner(model.getRefObject())) {
     		c.gridy++;
     		add(Box.createVerticalStrut(5), c); 
     		c.gridy++;

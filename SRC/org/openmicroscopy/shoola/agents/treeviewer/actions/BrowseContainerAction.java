@@ -164,15 +164,6 @@ public class BrowseContainerAction
         		TreeImageTimeSet timeNode = (TreeImageTimeSet) selectedDisplay;
         		long number = timeNode.getNumberItems();
         		setEnabled(number > 0);
-        		/*
-            	if (number == 0) setEnabled(false);
-            	else {
-            		List l = timeNode.getChildrenDisplay();
-            		if (l != null && l.size() > 0) 
-            			setEnabled((l.get(0) instanceof TreeImageTimeSet));
-            		else setEnabled(false);
-            	}
-        		 */
         	}
             
             return;

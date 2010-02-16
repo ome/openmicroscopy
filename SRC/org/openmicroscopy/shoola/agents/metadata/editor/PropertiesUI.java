@@ -791,7 +791,7 @@ class PropertiesUI
 		if (originalDescription == null || originalDescription.length() == 0)
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;
 		descriptionPane.setText(originalDescription);
-        boolean b = model.isCurrentUserOwner(model.getRefObject());
+        boolean b = model.isUserOwner(model.getRefObject());
         if ((refObject instanceof WellSampleData) ||
         		(refObject instanceof ScreenAcquisitionData)) b = false;
         namePane.setEnabled(b);
@@ -820,7 +820,7 @@ class PropertiesUI
 		if (originalDescription == null || originalDescription.length() == 0)
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;
 		descriptionPane.setText(originalDescription);
-        boolean b = model.isCurrentUserOwner(model.getRefObject());
+        boolean b = model.isUserOwner(model.getRefObject());
         descriptionPane.setEnabled(b);
         if (b) {
         	descriptionPane.getDocument().addDocumentListener(this);

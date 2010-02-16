@@ -310,14 +310,13 @@ class TextualAnnotationsUI
 			text = text.trim();
 			originalText = text;
 			setAreaText(text, b);
-			
 		} else {
 			if (urlText != null) {
 				originalText = urlText;
 				setAreaText(urlText, false);
 			}
 		}
-		
+		commentArea.setEnabled(model.isWritable());
 		TableLayout layout = (TableLayout) getLayout();
 		layout.setRow(2, 0);
 		layout.setRow(3, 0);

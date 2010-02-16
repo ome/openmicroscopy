@@ -869,7 +869,8 @@ class TreeViewerControl
 			}
 		} else if (Browser.DATA_REFRESHED_PROPERTY.equals(name)) {
 			model.onSelectedDisplay();
-		} else if (MetadataViewer.EXPERIMENTER_UPDATED_PROPERTY.equals(name)) {
+		} else if (MetadataViewer.ADMIN_UPDATED_PROPERTY.equals(name)) {
+			DataObject data = (DataObject) pce.getNewValue();
 			Map browsers = model.getBrowsers();
 			Set set = browsers.entrySet();
 			Entry entry;
@@ -878,7 +879,7 @@ class TreeViewerControl
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				browser = (Browser) entry.getValue();
-				browser.refreshExperimenter();
+				browser.refreshAdmin(data);
 			}
 		} else if (DataBrowser.TAG_WIZARD_PROPERTY.equals(name)) {
 			model.showTagWizard();

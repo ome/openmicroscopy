@@ -35,7 +35,12 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CreateCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.DatasetData;
+import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * Action to import the images.
@@ -74,9 +79,37 @@ public class ImportAction
 	            setEnabled(false);
 	            break;
 	        default:
-	        	setEnabled(!model.isImporting());
+	        	onDisplayChange(browser.getLastSelectedDisplay());
+	        	
         }
         //setEnabled(false);
+    }
+    
+    /**
+     * Sets the action enabled depending on the selected node.
+     * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
+     */
+    protected void onDisplayChange(TreeImageDisplay selectedDisplay)
+    {
+    	
+    	if (model.isImporting()) {
+    		setEnabled(false);
+    		return;
+    	}
+        if (selectedDisplay == null) {
+        	setEnabled(true);
+            return;
+        }
+        Browser browser = model.getSelectedBrowser();
+        if (browser == null) {
+        	setEnabled(true);
+            return;
+        } 
+        Object ho = selectedDisplay.getUserObject(); 
+        
+        if (ho instanceof DatasetData) {
+        	setEnabled(model.isObjectWritable(ho));
+        } else setEnabled(true);
     }
     
     /**

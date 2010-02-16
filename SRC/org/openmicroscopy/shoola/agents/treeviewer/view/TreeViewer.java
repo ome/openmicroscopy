@@ -220,6 +220,9 @@ public interface TreeViewer
 	public static final String      ON_COMPONENT_STATE_CHANGED_PROPERTY = 
 									"onComponentStateChanged";
 	
+	/** Bound property indicating to the group has been modified. */
+	public static final String      GROUP_CHANGED_PROPERTY = "groupChanged";
+	
 	/** Bound property indicating that the mode. */
 	public static final String		DISPLAY_MODE_PROPERTY = "searchMode";
 	
@@ -430,15 +433,6 @@ public interface TreeViewer
 	 * @return See above.
 	 */
 	public boolean isObjectWritable(Object ho);
-
-	/**
-	 * Returns <code>true</code> if the specified object is readable,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param hierarchyObject    The data object to check.
-	 * @return See above.
-	 */
-	public boolean isReadable(DataObject hierarchyObject);
 
 	/** 
 	 * Adds existing objects to the currently selected node. 
