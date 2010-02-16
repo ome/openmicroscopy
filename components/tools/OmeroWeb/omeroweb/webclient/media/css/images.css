@@ -129,19 +129,7 @@ div.cloud {
     overflow: auto;
 }
 
-#metadata_tab table td{
-    width: 50%;
-}
-#metadata_tab table th{
-    background: #fff;
-}
-#metadata_tab table th.header{
-    background: #eee;
-    border: 1px solid #bbb;
-}
-#metadata_tab table th.header h1{
-    margin-left: 10px;
-}
+
 .disabled {
     background-color: #fff;
     color: #555;

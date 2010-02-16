@@ -195,3 +195,13 @@ table.metadata_details {
 table.metadata_details td{
     border-bottom: 1px dotted #bbb;
 }
+
+
+#metadata_tab table th.header{
+    border: 1px solid #bbb;
+    background-color: #fff;
+}
+
+#metadata_tab table th.header h1{
+    margin-left: 10px;
+}

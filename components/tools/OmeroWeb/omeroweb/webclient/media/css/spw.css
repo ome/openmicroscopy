@@ -1,9 +1,18 @@
-table.spw td {
+#spw table {
+    background:#fff none repeat scroll 0 0;
+    width: 0;
+}
+#spw table td {
     border: 1px solid #bbb;
     width: 25px;
 }
-table.spw td.full {
+#spw table td.full {
     border: 1px solid #bbb;
     width: 25px;
     background: #eee;
+}
+
+#index table {
+    background:#fff none repeat scroll 0 0;
+    width: 0;
 }
