@@ -1,22 +1,52 @@
 """
+ components/tools/OmeroPy/scripts/EMAN2/boxer.py 
 
-This script is a "proof of principle" to demonstrate how Spider and EMAN2 can work with OMERO. 
+-----------------------------------------------------------------------------
+  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  
+  You should have received a copy of the GNU General Public License along
+  with this program; if not, write to the Free Software Foundation, Inc.,
+  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+------------------------------------------------------------------------------
+
+This script is a "proof of principle" to demonstrate how EMAN2 can work with OMERO. 
 This uses the auto-box functionality of EMAN2, which takes one or more user-defined particle ROIs, 
 and uses this as the basis for picking additional particles from the image. 
 In this script, OMERO is used as the source of the image, with the user-defined particles as ROIs on
-the server. Spider is used to turn the plane array into a Spider image. The EMAN2 subclasses 
-use this, with the server ROI(s) to generate additional ROIs which are then saved back to 
-the server. 
-The script below is currently implemented as a client-side script, but could easily be 
-converted into a server-side script, with EMAN2 and Spider installed on the server. 
-
+the server. The image is saved 'locally' as a Tiff. The EMAN2 subclasses 
+use this image, with the server ROI(s) to generate additional ROIs which are then saved back to 
+the server.
+	
+@author  Will Moore &nbsp;&nbsp;&nbsp;&nbsp;
+<a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
+@version 3.0
+<small>
+(<b>Internal version:</b> $Revision: $Date: $)
+</small>
+@since 3.0-Beta4.2
+ 
 """
+
+
 from EMAN2 import *
 
 from e2boxer import *
 
 import numpy
+
 import omero
+import omero.scripts as scripts
 from omero.rtypes import *
 import omero.util.script_utils as scriptUtil
 from Spider.Spiderarray import array2spider
@@ -24,6 +54,21 @@ from Spider.Spiderarray import array2spider
 from Tkinter import Tk, Label
 import Image, ImageTk
 
+# Override this method in EMAN2db becuase the $HOME variable is not available to the scripting service. 
+def e2gethome() :
+	"""platform independent path with '/'"""
+	if(sys.platform != 'win32'):
+		url=os.getenv("HOME")
+	else:
+		url=os.getenv("HOMEPATH")
+		url=url.replace("\\","/")
+	if url is None:		# added these 5 lines...
+		import pwd
+		import os
+		uid=os.geteuid()
+		url=pwd.getpwuid(uid)[5]  # Home directory
+	return url
+#EMAN2db.e2gethome = e2gethome
 
 class DummyWindow():
 	"""
@@ -134,7 +179,7 @@ class Target():
 			x -= self.box_size/2	# convert from centre of particle, to top-left of ROI
 			y = self.imageY - y		# convert from bottom to top Y coordinates. 
 			y -= self.box_size/2
-			self.addRectangleRoi(x, y, typeString)
+			self.addRectangleRoi(x, y, typeString, "#00ff00")
 		# removed a lot of UI code from emboxerbase.EMBoxerModule
 		self.box_list.add_boxes(boxes)
 		
@@ -142,7 +187,7 @@ class Target():
 	# code from emboxerbase.EMBoxerModule
 	def get_subsample_rate(self): 
 		'''
-		
+		Image seems to be shrunk by this factor in order to make each particle approx 30 pixels square. 
 		'''
 		return int(math.ceil(float(self.box_size)/float(TEMPLATE_MIN)))
 				
@@ -184,7 +229,7 @@ class Target():
 		return self.box_list.detect_collision(data[0], data[1], self.box_size)
 
 		
-	def addRectangleRoi(self, x, y, roiText=None):
+	def addRectangleRoi(self, x, y, roiText=None, colourString=None):
 		"""
 		Adds a Rectangle (particle) to the current OMERO image, at point x, y. 
 		Uses the self.image (OMERO image) and self.updateService
@@ -195,7 +240,10 @@ class Target():
 		# create an ROI, add the rectangle and save
 		roi = omero.model.RoiI()
 		roi.setImage(self.image)
+		if roiText:
+			roi.description = rstring(roiText)		# use as a flag to identify ROI (e.g. to delete)
 		r = self.updateService.saveAndReturnObject(roi)
+		
 
 		# create and save a rectangle shape
 		rect = omero.model.RectI()
@@ -205,8 +253,13 @@ class Target():
 		rect.height = rdouble(height)
 		rect.theZ = rint(0)
 		rect.theT = rint(0)
-		if roiText:
-			rect.textValue = rstring(roiText)
+		rect.locked = rbool(True)		# don't allow editing 
+		rect.strokeWidth = rint(6)
+		#if roiText:
+		#	rect.textValue = rstring(roiText)	# for display only
+		if colourString:
+			print colourString
+			rect.strokeColor = rstring(colourString)
 
 		# link the rectangle to the ROI and save it 
 		rect.setRoi(r)
@@ -214,8 +267,11 @@ class Target():
 		self.updateService.saveAndReturnObject(rect)
 
 
-def getRectangles(session, imageId):
-	""" Returns (x, y, width, height) of each rectange ROI in the image """
+def getRectangles(session, imageId, deleteType=None):
+	""" Returns (x, y, width, height) of each rectange ROI in the image 
+	
+	@param deleteType 	Delete ROIs that have this string as a text/description. 
+	"""
 	
 	rectangles = []
 	shapes = []		# string set. 
@@ -223,16 +279,26 @@ def getRectangles(session, imageId):
 	roiService = session.getRoiService()
 	result = roiService.findByImage(imageId, None)
 	
+	updateService = session.getUpdateService()
+	
 	rectCount = 0
 	for roi in result.rois:
+		if roi.description and (roi.description.val == deleteType):
+			for shape in roi.copyShapes():
+				updateService.deleteObject(shape)
+			updateService.deleteObject(roi)
+			continue	# don't add this ROI to our list 
 		for shape in roi.copyShapes():
 			if type(shape) == omero.model.RectI:
+				print shape.strokeColor.val
+				print shape.strokeWidth.val
 				x = shape.getX().getValue()
 				y = shape.getY().getValue()
 				width = shape.getWidth().getValue()
 				height = shape.getHeight().getValue()
 				rectangles.append((int(x), int(y), int(width), int(height)))
 				continue
+				
 	return rectangles
 
 
@@ -267,13 +333,17 @@ def downloadImage(session, imageId, imageName):
 	
 	return (theX, theY)
 
-if __name__ == "__main__":
+
+def doAutoBoxing(session, parameterMap):
 	
-	# start by logging in to server
-	client = omero.client("localhost")
-	session = client.createSession("root", "omero")
+	imageIds = []
 	
-	imageId = 1
+	if "imageIds" in parameterMap:
+		for idCount, imageId in enumerate(parameterMap["imageIds"]):
+			iId = long(imageId.getValue())
+			imageIds.append(iId)
+	
+	imageId = imageIds[0]
 	
 	# download the image as a local temp image
 	#image_name = "tempImage.dat"
@@ -285,7 +355,8 @@ if __name__ == "__main__":
 	
 	
 	# get list of ROI boxes as (x, y, width, height) on the image
-	boxes = getRectangles(session, imageId)
+	# and delete any existing AUTO added ROIs. 
+	boxes = getRectangles(session, imageId, SwarmBoxer.AUTO_NAME)
 	if len(boxes) == 0:
 		print "No ROIs found - exiting!"
 		import sys
@@ -309,5 +380,27 @@ if __name__ == "__main__":
 	
 	# perform auto-boxing - results are written back to server, as ROIs on the image. 
 	omeroBoxer.auto_box(image_name)
+	
+	
+def runAsScript():
+	"""
+	The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
+	"""
+	client = scripts.client('boxer.py', 'Use EMAN2 to auto-box particles based on 1 or more user-picked particles (ROIs).', 
+	scripts.List("imageIds").inout());		# List of image IDs. Resulting figure will be attached to first image
+	
+	session = client.getSession();
+	
+	# process the list of args above. 
+	parameterMap = {}
+	for key in client.getInputKeys():
+		if client.getInput(key):
+			parameterMap[key] = client.getInput(key).getValue()
+	
+	doAutoBoxing(session, parameterMap)
+	
+	
+if __name__ == "__main__":
+	runAsScript()
 	
 	
