@@ -37,6 +37,7 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.AnnotatedFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.CommentsFilter;
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataObjectCreator;
@@ -56,7 +57,10 @@ import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutUtils;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetThumbnailVisitor;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import pojos.DataObject;
@@ -625,6 +629,29 @@ abstract class DataBrowserModel
 	 * @return See above.
 	 */
 	boolean isRollOver() { return browser.isRollOver(); }
+	
+	/**
+	 * Returns <code>true</code> if the parent is writable,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isParentWritable()
+	{
+		if (parent == null) return false;
+		long userID = DataBrowserAgent.getUserDetails().getId();
+		if (!(parent instanceof DataObject)) return false;
+		boolean b = EditorUtil.isUserOwner(parent, userID);
+		if (b) return b;
+		int level = 
+		MetadataViewerAgent.getRegistry().getAdminService().getPermissionLevel();
+		switch (level) {
+			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+				return true;
+		}
+		return false;
+	}
 	
 	/**
 	 * Returns the sorted collection.

@@ -210,6 +210,7 @@ class DataBrowserToolBar
 		menuItem.setIcon(icons.getIcon(IconManager.CREATE));
 		menuItem.addActionListener(this);
 		menuItem.setActionCommand(""+NEW_OBJECT);
+		menuItem.setEnabled(model.isParentWritable());
 		createMenu.add(menuItem);
 		menuItem = new JMenuItem("Existing Dataset");
 		menuItem.setToolTipText("Select a dataset to the images to.");
@@ -217,6 +218,7 @@ class DataBrowserToolBar
 		menuItem.addActionListener(this);
 		menuItem.setActionCommand(""+EXISTING_OBJECT);
 		createMenu.add(menuItem);
+		menuItem.setEnabled(model.isParentWritable());
 		return createMenu;
 	}
 	
@@ -231,12 +233,12 @@ class DataBrowserToolBar
 		IconManager icons = IconManager.getInstance();
 		manageMenu = new JPopupMenu();
 		
-		//TODO: Should be a menu, create or select existing one.
 		JMenuItem menuItem = new JMenuItem("New Dataset");
 		menuItem.setToolTipText("Create a Dataset.");
 		menuItem.setIcon(icons.getIcon(IconManager.CREATE));
 		menuItem.addActionListener(this);
 		menuItem.setActionCommand(""+NEW_OBJECT);
+		menuItem.setEnabled(model.isParentWritable());
 		manageMenu.add(menuItem);
 		
 		JPanel panel = new JPanel();
@@ -452,6 +454,7 @@ class DataBrowserToolBar
 				"the displayed images.");
 		UIUtilities.unifiedButtonLookAndFeel(createDatasetButton);
 		createDatasetButton.setIcon(icons.getIcon(IconManager.DATASET));
+		createDatasetButton.setEnabled(model.isParentWritable());
 		createDatasetButton.addMouseListener(new MouseAdapter() {
 			
 			/**
@@ -479,6 +482,7 @@ class DataBrowserToolBar
 		reportButton.setIcon(icons.getIcon(IconManager.REPORT));
 		reportButton.addActionListener(this);
 		reportButton.setActionCommand(""+REPORT);
+		reportButton.setEnabled(model.isParentWritable());
 		UIUtilities.unifiedButtonLookAndFeel(reportButton);
 	}
 	

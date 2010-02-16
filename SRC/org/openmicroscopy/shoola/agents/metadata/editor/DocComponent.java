@@ -463,6 +463,7 @@ class DocComponent
 		if (downloadButton != null) bar.add(downloadButton);
 		if (openButton != null) bar.add(openButton);
 		if (deleteButton != null) bar.add(deleteButton);
+		setEnabled(model.isWritable());
 		if (bar.getComponentCount() > 0) add(bar);
 	}
 	
@@ -645,6 +646,20 @@ class DocComponent
 			un.notifyActivity(activity);
 			//un.notifyDownload((FileAnnotationData) data, folder);
 		}
+	}
+	
+	/**
+	 * Overridden to turn the flag of all the controls.
+	 * @see JPanel#setEnabled(boolean)
+	 */
+	public void setEnabled(boolean enabled)
+	{
+		if (unlinkButton != null) unlinkButton.setEnabled(enabled);
+		if (editButton != null) editButton.setEnabled(enabled);
+		if (downloadButton != null) downloadButton.setEnabled(enabled);
+		
+		if (openButton != null) openButton.setEnabled(enabled);
+		if (deleteButton != null) deleteButton.setEnabled(enabled);
 	}
 	
 }
