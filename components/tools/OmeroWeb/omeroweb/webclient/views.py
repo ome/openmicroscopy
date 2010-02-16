@@ -136,18 +136,13 @@ def load_session_from_request(handler):
 
 def isUserConnected (f):
     def wrapped (request, *args, **kwargs):
-        try:
-            request.session['server'] = request.REQUEST['server']
-        except:
-            pass
-        #this check connection exist, if not it will redirect to login page
-        try:
-            url = request.REQUEST['url']
-        except:
-            if request.META['QUERY_STRING']:
-                url = '%s?%s' % (request.META['PATH_INFO'], request.META['QUERY_STRING'])
+        #this check the connection exist, if not it will redirect to login page
+        url = request.REQUEST.get('url')
+        if url is None:
+            if request.META.get('QUERY_STRING'):
+                url = '%s?%s' % (request.META.get('PATH_INFO'), request.META.get('QUERY_STRING'))
             else:
-                url = '%s' % (request.META['PATH_INFO'])
+                url = '%s' % (request.META.get('PATH_INFO'))
         
         conn_share = None
         if kwargs.get('share_id', None) is not None:
@@ -155,7 +150,7 @@ def isUserConnected (f):
                 conn_share = getShareConnection(request, kwargs.get('share_id', None))
             except Exception, x:
                 logger.error(traceback.format_exc())
-                
+        
         conn = None
         try:
             conn = getBlitzConnection(request)
@@ -175,25 +170,13 @@ def isUserConnected (f):
     return wrapped
 
 def sessionHelper(request):
-    try:
-        if request.session['clipboard']:
-            pass
-    except:
+    if request.session.get('clipboard') is None:
         request.session['clipboard'] = []
-    try:
-        if request.session['shares']:
-            pass
-    except:
+    if request.session.get('shares') is None:
         request.session['shares'] = dict()
-    try:
-        if request.session['imageInBasket']:
-            pass
-    except:
+    if request.session.get('imageInBasket') is None:
         request.session['imageInBasket'] = list()
-    #try:
-    #    if request.session['datasetInBasket']:
-    #        pass
-    #except:
+    #if request.session.get('datasetInBasket') is None:
     #    request.session['datasetInBasket'] = list()
     if request.session.get('nav') is None:
         if request.session.get('server') is not None:
@@ -207,7 +190,7 @@ def sessionHelper(request):
 # views controll
 
 def login(request):
-    if request.method == 'POST' and request.REQUEST['server']:
+    if request.method == 'POST' and request.REQUEST.get('server'):
         
         # upgrade check:
         # -------------
@@ -229,12 +212,12 @@ def login(request):
         except Exception, x:
             logger.error("Upgrade check error: %s" % x)
          
-        blitz = Gateway.objects.get(pk=request.REQUEST['server'])
+        blitz = Gateway.objects.get(pk=request.REQUEST.get('server'))
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
-        request.session['username'] = request.REQUEST['username'].encode('utf-8').strip()
-        request.session['password'] = request.REQUEST['password'].encode('utf-8').strip()
+        request.session['username'] = request.REQUEST.get('username').encode('utf-8').strip()
+        request.session['password'] = request.REQUEST.get('password').encode('utf-8').strip()
         request.session['experimenter'] = None
         request.session['group'] = None
         request.session['clipboard'] = {'images': None, 'datasets': None, 'plates': None}
@@ -243,10 +226,7 @@ def login(request):
         blitz_host = "%s:%s" % (blitz.host, blitz.port)
         request.session['nav']={"blitz": blitz_host, "menu": "start", "whos": "mydata", "view": "table", "basket": 0}
         
-    try:
-        error = request.REQUEST['error']
-    except:
-        error = None
+    error = request.REQUEST.get('error')
     
     conn = None
     try:
@@ -255,38 +235,26 @@ def login(request):
         error = x.__class__.__name__
     
     if conn is not None:
-        url = None
-        try:
-            url = request.REQUEST["url"]
-        except:
-            pass
+        url = request.REQUEST.get("url")
         if url is not None:
             return HttpResponseRedirect(url)
         else:
             return HttpResponseRedirect(reverse("webindex"))
     else:
-        if request.method == 'POST' and request.REQUEST['server']:
+        if request.method == 'POST' and request.REQUEST.get('server'):
             error = "Connection not available, please check your user name and password."
-        url = None
-        try:
-            url = request.REQUEST["url"]
-        except:
-            pass
-        
-        try:
-            request.session['server'] = request.REQUEST['server']
-        except:
-            pass
+        url = request.REQUEST.get("url")
+        request.session['server'] = request.REQUEST.get('server')
         
         template = "omeroweb/login.html"
         if request.method == 'POST':
             form = LoginForm(data=request.REQUEST.copy())
         else:
             try:
-                blitz = Gateway.objects.filter(id=request.session['server'])
+                blitz = Gateway.objects.filter(id=request.session.get('server'))
                 try:
-                    if request.session['username']:
-                        data = {'server': unicode(blitz[0].id), 'username':unicode(request.session['username']) }
+                    if request.session.get('username'):
+                        data = {'server': unicode(blitz[0].id), 'username':unicode(request.session.get('username')) }
                         form = LoginForm(data=data)
                     else:
                         initial = {'server': unicode(blitz[0].id)}
@@ -593,16 +561,6 @@ def load_template(request, menu=None, **kwargs):
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
-def load_blank(request):
-    bg = request.REQUEST.get("bg")
-    template = "omeroweb/blank_frame_%s.html" % bg
-    nav = request.REQUEST.get("nav") is not None and True or False
-    context = {"nav":nav }
-    
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
 
 @isUserConnected
 def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, **kwargs):
@@ -1747,7 +1705,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             if form.is_valid():
                 name = request.REQUEST['name'].encode('utf-8')
                 description = request.REQUEST['description'].encode('utf-8')
-                #permissions = request.REQUEST.getlist('access_controll')
                 manager.updateDataset(name, description)
                 return HttpResponseRedirect(url)
             else:
@@ -1758,7 +1715,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             if form.is_valid():
                 name = request.REQUEST['name'].encode('utf-8')
                 description = request.REQUEST['description'].encode('utf-8')
-                #permissions = request.REQUEST.getlist('access_controll')
                 manager.updateProject(name, description)
                 return HttpResponseRedirect(url)
             else:
@@ -1769,7 +1725,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             if form.is_valid():
                 name = request.REQUEST['name'].encode('utf-8')
                 description = request.REQUEST['description'].encode('utf-8')
-                #permissions = request.REQUEST.getlist('access_controll')
                 manager.updateScreen(name, description)
                 return HttpResponseRedirect(url)
             else:
@@ -1780,7 +1735,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             if form.is_valid():
                 name = request.REQUEST['name'].encode('utf-8')
                 description = request.REQUEST['description'].encode('utf-8')
-                #permissions = request.REQUEST.getlist('access_controll')
                 manager.updatePlate(name, description)
                 return HttpResponseRedirect(url)
             else:
@@ -1791,7 +1745,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             if form.is_valid():
                 name = request.REQUEST['name'].encode('utf-8')
                 description = request.REQUEST['description'].encode('utf-8')
-                #permissions = request.REQUEST.getlist('access_controll')
                 manager.updateImage(name, description)
                 return HttpResponseRedirect(url)
             else:
@@ -1827,47 +1780,43 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form, 'form_active_group':form_active_group}
     elif action == 'addnew':
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers"))
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["action", "new"]))
         if o_type == "project" and o_id > 0:
             form = ContainerForm(data=request.REQUEST.copy())
             if form.is_valid():
-                name = request.REQUEST['name'].encode('utf-8')
-                description = request.REQUEST['description'].encode('utf-8')
-                #permissions = request.REQUEST.getlist('access_controll')
+                name = request.REQUEST.get('name').encode('utf-8')
+                description = request.REQUEST.get('description').encode('utf-8')
                 manager.createDataset(name, description)
                 return HttpResponseRedirect(url)
             else:
                 template = "omeroweb/container_new.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
         else:
-            if request.REQUEST['folder_type'] == "dataset":
+            if request.REQUEST.get('folder_type') == "dataset":
                 form = ContainerForm(data=request.REQUEST.copy())
                 if form.is_valid():
                     name = request.REQUEST['name'].encode('utf-8')
                     description = request.REQUEST['description'].encode('utf-8')
-                    #permissions = request.REQUEST.getlist('access_controll')
                     manager.createDataset(name, description)
                     return HttpResponseRedirect(url)
                 else:
                     template = "omeroweb/container_new.html"
                     context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
-            elif request.REQUEST['folder_type'] == "project":
+            elif request.REQUEST.get('folder_type') == "project":
                 form = ContainerForm(data=request.REQUEST.copy())
                 if form.is_valid():
                     name = request.REQUEST['name'].encode('utf-8')
                     description = request.REQUEST['description'].encode('utf-8')
-                    #permissions = request.REQUEST.getlist('access_controll')
                     manager.createProject(name, description)
                     return HttpResponseRedirect(url)
                 else:
                     template = "omeroweb/container_new.html"
                     context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form, 'form_active_group':form_active_group}
-            elif request.REQUEST['folder_type'] == "screen":
+            elif request.REQUEST.get('folder_type') == "screen":
                 form = ContainerForm(data=request.REQUEST.copy())
                 if form.is_valid():
                     name = request.REQUEST['name'].encode('utf-8')
                     description = request.REQUEST['description'].encode('utf-8')
-                    #permissions = request.REQUEST.getlist('access_controll')
                     manager.createScreen(name, description)
                     return HttpResponseRedirect(url)
                 else:

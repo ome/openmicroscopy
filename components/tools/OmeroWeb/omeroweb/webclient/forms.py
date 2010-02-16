@@ -90,8 +90,8 @@ class ShareCommentForm(forms.Form):
     
 class ContainerForm(forms.Form):
     
-    name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':41}))
-    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 40}), required=False, help_text=help_wiki)
+    name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':45}))
+    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 39}), required=False, help_text=help_wiki)
     
 class CommentAnnotationForm(forms.Form):
     

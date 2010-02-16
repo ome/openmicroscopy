@@ -15,10 +15,6 @@ body {
     padding: 0;
     background-color: #f3f3f3;  
 }
-body.white {
-    background-color: #fff;
-    margin: 5px; 
-}
 
 #bodyWrapper {
     margin: 0;
@@ -155,7 +151,6 @@ body.zoom {
     left:-1px;
     position:relative;
 }
-
 
 .expanded-left {
     background:transparent url(../images/tray_left_button.png) no-repeat scroll;
@@ -296,7 +291,7 @@ form td {
 }
 
 form th {
-    text-align: right;
+    text-align: left;
     border: 0px;
 }
 

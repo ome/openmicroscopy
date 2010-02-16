@@ -1,8 +1,10 @@
 $(document).ready(function() 
     {
-        var flag_l = true
-
         $('#swapTree').click(function() { 
+            var flag_l = true;
+            if($('img#lhid_trayhandle_icon_left').attr('class')=='collapsed-left') {
+                flag_l = false
+            }
             if (flag_l) {
                 $("#left_panel").hide();
                 $("#swapTree").html('<img tabindex="0" src="/webclient/static/images/tree/spacer.gif" class="collapsed-left" id="lhid_trayhandle_icon_left">');
@@ -13,10 +15,12 @@ $(document).ready(function()
                 flag_l = true;
             }
         });
-        
-        var flag_r = false;
 
         $('#swapMeta').click(function() { 
+            var flag_r = true;
+            if($('img#lhid_trayhandle_icon_right').attr('class')=='expanded-right') {
+                flag_r = false
+            }
             if (flag_r) {                        
                 $("#right_panel").hide();
                 $("#swapMeta").html('<img tabindex="0" src="/webclient/static/images/tree/spacer.gif" class="expanded-right" id="lhid_trayhandle_icon_right">'); 

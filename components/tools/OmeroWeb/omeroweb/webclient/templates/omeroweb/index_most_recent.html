@@ -17,28 +17,3 @@
 {% else %}
     <div><p>{% trans "No data commented." %}</p></div>
 {% endif %}
-
-<h1>{% trans "Most recent shares and discussions" %}:</h1>
-{% if controller.mostRecentShares %}
-    <table>
-        <tbody>
-        {% for c in controller.mostRecentShares %}
-            <tr><td>
-                
-                {% ifequal c.getShareType "Discuss" %}
-                    <img src="{% url webstatic "images/wp_protocol16.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> <a href="{% url manage_share "view" c.id %}">{% trans "discussion" %}</a>
-                {% else %}
-                    {% if c.active %}
-                        <img src="{% url webstatic "images/folder_html16.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> <a href="{% url manage_share "view" c.id %}">{% trans "share" %}</a>
-                    {% else %}
-                        <img src="{% url webstatic "images/folder_locked16.png" %}" alt="{{ c.id }}" title="{{ c.id }}" class="catzoom"/> <a href="{% url manage_share "view" c.id %}">{% trans "share" %}</a>
-                    {% endif %}
-                {% endifequal %}
-                {% trans "about" %}: "{{ c.shortMessage }}"
-            </td></tr>
-        {% endfor %}
-        </tbody>
-    </table>
-{% else %}
-    <div><p>{% trans "No shared and discussed data." %}</p></div>
-{% endif %}

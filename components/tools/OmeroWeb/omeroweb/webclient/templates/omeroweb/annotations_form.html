@@ -1,6 +1,10 @@
+{% extends "omeroweb/base_frame.html" %}
 {% load i18n %}
+{% load markup %}
 {% load custom_tags %}
 
+{% block link %}
+    <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/annotation.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/autocomplete.css" %}" type="text/css" media="screen"/>
@@ -8,14 +12,24 @@
 
     <link rel="stylesheet" href="/webgateway/appmedia/css/jquery-plugin-slider.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="/webgateway/appmedia/css/weblitz-viewport.css" type="text/css" media="screen"/>
+{% endblock %}
 
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.tabs.js" %}"></script>
+{% block jscript %}
+
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.autocomplete.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
+  
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.tabs.js" %}"></script>
     
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
-
+    <script type="text/javascript" src="/webgateway/appmedia/js/weblitz-viewport.js"></script>
+    <script type="text/javascript" src="/webgateway/appmedia/js/jquery-plugin-viewportImage.js"></script>
+    <script type="text/javascript" src="/webgateway/appmedia/js/jquery-plugin-slider.js"></script>
+    <script type="text/javascript" src="/webgateway/appmedia/js/gs_utils.js"></script>
+    
     <script type="text/javascript">
         $(document).ready(function() 
             {                   
@@ -45,7 +59,9 @@
 
     </script>
     
+{% endblock %}
 
+{% block content %}
 <div id="annotation_form" >
     <div id="annotation_tabs" class="ui-tabs">
         <ul>
@@ -258,7 +274,7 @@
                 </tr>
                 {% endfor %}
                 {% endif %}
-                <tr><th colspan="3"><br/></th></tr>
+                <tr><td colspan="3"><br/></td></tr>
             {% endfor %}
             </table>
             <br/><p>*{% trans "N/A - this value is not available." %}</p>
@@ -420,3 +436,4 @@
     </div>
     
 </div>
+{% endblock %}

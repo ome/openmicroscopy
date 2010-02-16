@@ -1522,7 +1522,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 ann = meta.loadAnnotations("Experimenter", [long(oid)], None, None, None).get(long(oid), [])[0]
             store = self.createRawFileStore()
             store.setFileId(ann.file.id.val)
-            print ann.file.details.permissions
             photo = store.read(0,long(ann.file.size.val))
         except:
             photo = self.getExperimenterDefaultPhoto()

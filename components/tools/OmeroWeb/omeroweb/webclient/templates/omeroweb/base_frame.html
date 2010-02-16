@@ -1,0 +1,27 @@
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <link rel="stylesheet" href="{% url webstatic "css/layout.css" %}" type="text/css" />
+    
+    {% block link %}{% endblock %}
+
+    <link rel="shortcut icon" href="{% url webstatic "images/ome.ico" %}" type="image/x-icon" />
+
+    <title>{% trans "Webclient" %} {% block title %}{% endblock %}</title>
+
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
+    {% block jscript %}{% endblock %}
+
+    {% block script %}{% endblock %}
+
+</head>
+<body>
+{% block content %}{% endblock %}
+</body>
+</html>

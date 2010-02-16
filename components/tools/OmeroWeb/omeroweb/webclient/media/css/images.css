@@ -1,5 +1,5 @@
-#products .ui-selecting img{ border: 2px solid #fa808f; }
-#products .ui-selected img{ border: 2px solid #019bdb; color: white; }
+#products .ui-selecting img{ border: 2px dashed #444; padding: 2px; }
+#products .ui-selected img{ border: 2px dashed #444; padding: 2px; color: white; }
 
 #products {
     list-style-type: none;
@@ -10,7 +10,8 @@
     position: relative;
 }
 #products img {
-    border: 2px solid #eee;
+    border: 2px solid #fff;
+    padding: 2px; 
 }
 
 #products li {

@@ -1,20 +1,7 @@
 $(document).ready(function() 
 {
-    /*$("#metadata_details", top.document).contents().find('body').append('<p>{% trans "Loading hierarchy... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-    var myPrefetchedPage;
-    $.ajax({
-        url: '/webclient/metadata_details/project/'+obj[1]+'/',
-        cache: false,
-        dataType: "html",
-        success: function(html){
-            
-        }
-    });*/
-    //$("#metadata_details", top.document).attr('src', '/webclient/metadata_details/project/'+obj[1]+'/');
-    //$("#content_details", top.document).attr('src', '/webclient/project/'+obj[1]+'/?view=icon');
-    
     function isCheckedById(name) { 
-        var checked = $("input[@name='"+name+"']:checked").length; 
+        var checked = $("input[name='"+name+"']:checked").length; 
         if (checked == 0) { return false; } else { return true; } 
     }
 
@@ -22,7 +9,7 @@ $(document).ready(function()
         if (!isCheckedById("image")) {//&& !isCheckedById("dataset") && !isCheckedById("plate")) {
             alert ("Please select at least one image. Currently you cannot add other objects to basket."); 
         } else { 
-            manyToBasket($("input[@type='checkbox']:checked"));
+            manyToBasket($("input[type='checkbox']:checked"));
         }
 
     }); 
@@ -32,7 +19,7 @@ $(document).ready(function()
         if (!isCheckedById("dataset") && !isCheckedById("image") && !isCheckedById("plate")) {
             alert ("Please select at least one object"); 
         } else { 
-            manyUnlink($("input[@type='checkbox']:checked"), parent);
+            manyUnlink($("input[type='checkbox']:checked"), parent);
         }
     });
 
@@ -44,10 +31,10 @@ $(document).ready(function()
         } else if (isCheckedById("dataset") && isCheckedById("plate")) {
             alert ("Please select only datasets, images or plates."); 
         } else { 
-            copyToClipboard($("input[@type='checkbox']:checked"));
+            copyToClipboard($("input[type='checkbox']:checked"));
         }
     });
-    return false;
+
 });
 
 function selectAll() {

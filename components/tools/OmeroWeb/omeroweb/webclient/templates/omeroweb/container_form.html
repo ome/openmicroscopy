@@ -1,4 +1,4 @@
-{% extends "omeroweb/base_frame_grey.html" %}
+{% extends "omeroweb/base_frame.html" %}
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
@@ -8,7 +8,6 @@
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
@@ -52,9 +51,8 @@
     {% endif %}
     <table>
         {% for field in form %}
-            <tr><th>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</th>
-                <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
-            </tr>
+            <tr><th colspan="2">{{ field.label_tag }}{% if field.field.required %}*{% endif %}{% if field.errors %}{{ field.errors }}{% endif %}</th></tr>
+            <tr><td>{{ field }}</td><td>{{ field.help_text|safe }}</td></tr>
         {% endfor %}
         </table>
         <input type="submit" value="{% trans 'Save' %}" /> <input type="button" onclick='document.location.href="{{ url }}";' value="{% trans 'Cancel' %}" />

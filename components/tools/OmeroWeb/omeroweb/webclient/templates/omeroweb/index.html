@@ -9,8 +9,7 @@
 {% endblock %}
 
 {% block jscript %}
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
-    
+        
     <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.draggable.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.droppable.js" %}"></script>
@@ -26,9 +25,10 @@
         $(document).ready(function() 
             {
                 var h = $(window).height()-200;
-                $("#tag_details").css({'height': h, 'width': '30%', 'float':'left'});
+                $("#tag_details").css({'max-height': '200px', 'overflow':'auto'});
+                $('#right_panel').show();
                 $("#most_recent_details").css('height', h);
-                $("#import_details").css({'height': h, 'width': '70%', 'float':'left'});
+                $("#import_details").css({'height': h});
                 
                 $("div#import_details").html('<p>Loading imported images... please wait <img src="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
                 $("div#import_details").load("{% url index_last_imports %}");
@@ -55,13 +55,13 @@
 
 {% block center %}
 
-    <div id="tag_details"></div>
     <div id="import_details"></div>
     
 {% endblock %}
 
 {% block right %}
 
+    <div id="tag_details"></div>
     <div id="most_recent_details"></div>
     
 {% endblock %}

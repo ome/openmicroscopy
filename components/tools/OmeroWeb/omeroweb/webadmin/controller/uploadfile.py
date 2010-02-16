@@ -51,7 +51,6 @@ class BaseUploadFile(BaseController):
             self.conn.saveFile(newFile, oFile.id.val)
             has._obj.setFile(oFile)
             self.conn.saveObject(has._obj)
-            print oFile
         else:
             if newFile.content_type.startswith("image"):
                 f = newFile.content_type.split("/") 
@@ -78,6 +77,3 @@ class BaseUploadFile(BaseController):
             l_ea.setChild(fa)
             l_ea.details.permissions = self.setObjectPermissions({'owner':'rw', 'group':'r', 'world':'r'})
             self.conn.saveObject(l_ea)
-            print oFile, l_ea
-
-        

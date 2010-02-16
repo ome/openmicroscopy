@@ -78,21 +78,6 @@ connectors = {}
 logger.info("INIT '%s'" % os.getpid())
 
 ################################################################################
-# Blitz Gateway Connection
-#_getBlitzConnection = webgateway_views.getBlitzConnection
-#def getBlitzConnection (request, server_id=None, force_key=None, **kwargs):
-#    if server_id is not None:
-#        return _getBlitzConnection(request, server_id, force_key=force_key, **kwargs)
-#    try:
-#        server_id = request.session['server']
-#    except KeyError:
-#        return None
-#    return _getBlitzConnection(request, server_id, with_session=True, skip_stored=True, force_key=force_key)
-#webgateway_views.getBlitzConnection = getBlitzConnection
-
-#@timeit
-#def getConnection (request, force_key=None):
-#    return getBlitzConnection(request, force_key=force_key)
 
 def getGuestConnection(host, port):
     conn = None
@@ -114,14 +99,24 @@ def getGuestConnection(host, port):
 def isAdminConnected (f):
     def wrapped (request, *args, **kwargs):
         #this check the connection exist, if not it will redirect to login page
+        url = request.REQUEST.get('url')
+        if url is None:
+            if request.META.get('QUERY_STRING'):
+                url = '%s?%s' % (request.META.get('PATH_INFO'), request.META.get('QUERY_STRING'))
+            else:
+                url = '%s' % (request.META.get('PATH_INFO'))
+        
         conn = None
         try:
             conn = getBlitzConnection(request)
+        except KeyError:
+            return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
         except Exception, x:
             logger.error(traceback.format_exc())
-            return HttpResponseRedirect(reverse("walogin")+(("?error=%s") % x.__class__.__name__))
+            return HttpResponseRedirect(reverse("walogin")+(("?error=%s&url=%s") % (x.__class__.__name__,url)))
         if conn is None:
-            return HttpResponseRedirect(reverse("walogin"))
+            return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
+        
         if not conn.isAdmin():
             return page_not_found(request, "404.html")
         kwargs["conn"] = conn
@@ -132,14 +127,24 @@ def isAdminConnected (f):
 def isOwnerConnected (f):
     def wrapped (request, *args, **kwargs):
         #this check the connection exist, if not it will redirect to login page
+        url = request.REQUEST.get('url')
+        if url is None:
+            if request.META.get('QUERY_STRING'):
+                url = '%s?%s' % (request.META.get('PATH_INFO'), request.META.get('QUERY_STRING'))
+            else:
+                url = '%s' % (request.META.get('PATH_INFO'))
+        
         conn = None
         try:
             conn = getBlitzConnection(request)
+        except KeyError:
+            return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
         except Exception, x:
             logger.error(traceback.format_exc())
-            return HttpResponseRedirect(reverse("walogin")+(("?error=%s") % x.__class__.__name__))
+            return HttpResponseRedirect(reverse("walogin")+(("?error=%s&url=%s") % (x.__class__.__name__,url)))
         if conn is None:
-            return HttpResponseRedirect(reverse("walogin"))
+            return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
+        
         if kwargs.get('gid') is not None:
             if not conn.isOwner(kwargs.get('gid')):
                 return page_not_found(request, "404.html")
@@ -153,12 +158,7 @@ def isOwnerConnected (f):
 
 def isUserConnected (f):
     def wrapped (request, *args, **kwargs):
-        try:
-            request.session['server'] = request.REQUEST.get('server')
-        except:
-            pass
         #this check connection exist, if not it will redirect to login page
-        
         url = request.REQUEST.get('url')
         if url is None:
             if request.META.get('QUERY_STRING'):
@@ -192,7 +192,7 @@ def forgotten_password(request, **kwargs):
     conn = None
     error = None
     
-    if request.method == 'POST' and request.REQUEST.get('server') and request.REQUEST.get('username') and request.REQUEST.get('email'):
+    if request.method == 'POST' and request.REQUEST.get('server') is not None and request.REQUEST.get('username') is not None and request.REQUEST.get('email') is not None:
         blitz = Gateway.objects.get(pk=request.REQUEST.get('server'))
         try:
             conn = getGuestConnection(blitz.host, blitz.port)
@@ -250,8 +250,9 @@ def login(request):
                 logger.error("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads.\n")
         except Exception, x:
             logger.error("Upgrade check error: %s" % x)
-            
-        blitz = Gateway.objects.get(pk=request.REQUEST['server'])
+
+        blitz = Gateway.objects.get(pk=request.REQUEST.get('server'))
+        _session_logout(request, blitz.id) 
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
@@ -273,8 +274,6 @@ def login(request):
         if request.method == 'POST' and request.REQUEST.get('server'):
             error = "Connection not available, please check your user name and password."
         
-        request.session['server'] = request.REQUEST.get('server')
-        
         template = "omeroadmin/login.html"
         if request.method == 'POST':
             form = LoginForm(data=request.REQUEST.copy())
@@ -284,6 +283,7 @@ def login(request):
                 data = {'server': unicode(blitz[0].id), 'username':unicode(request.session.get('username')), 'password':unicode(request.session.get('password')) }
                 form = LoginForm(data=data)
             except:
+                logger.debug(traceback.format_exc())
                 form = LoginForm()
         context = {'error':error, 'form':form}
         t = template_loader.get_template(template)
@@ -305,7 +305,7 @@ def index(request, **kwargs):
         return HttpResponseRedirect(reverse("wamyaccount"))
 
 def logout(request):
-    _session_logout(request, request.session.get('server'))
+    _session_logout(request, request.session['server'])
 
     try:
         del request.session['server']

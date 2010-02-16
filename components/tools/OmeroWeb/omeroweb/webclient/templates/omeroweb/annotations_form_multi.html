@@ -16,33 +16,7 @@
     <script type="text/javascript">
         $(document).ready(function() 
             {  
-                /*div = $("<div>")
-                if ($("#right_panel", top.document).width() > 400) {
-                    div = div.html(">>");
-                    var flag = true;    
-                } else {
-                    div = div.html("<<");
-                    var flag = false;
-                }
-                div.attr("id", "swapMeta");
-                div.css({position: 'absolute', left:0, top:0});
-                $("body").prepend(div);
-
-                $('#swapMeta').click(function() { 
-                    var w = $("#left_panel", top.document).width();
-                    if (flag) {                        
-                        $("#center_panel", top.document).css({width: 890-w});
-                        $("#right_panel", top.document).css({width: 100});
-                        $('#swapMeta').html("<<");
-                        flag = false;                        
-                    } else {
-                        $("#center_panel", top.document).css({width: 630-w});
-                        $("#right_panel", top.document).css({width: 360});
-                        $('#swapMeta').html(">>");
-                        flag = true;
-                    }
-                });*/
-                
+            
                 $("#annotation_tabs").tabs();
                 
                 $("{% for t in manager.tag_annotations %}#tagdesc{{ t.id }}, {% endfor %}#tag").tooltip({ 
