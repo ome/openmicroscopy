@@ -1252,7 +1252,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         Right w = Right.WRITE;
 
         if (!newPerms.isGranted(u,r)) {
-            throw new GroupSecurityViolation("NYI");
+            throw new GroupSecurityViolation("Cannot remove user read: "+group);
         } else if (oldPerms.isGranted(g,r) && ! newPerms.isGranted(g, r)) {
             throw new GroupSecurityViolation("Cannot remove group read: "+group);
         } else if (oldPerms.isGranted(a, r) && ! newPerms.isGranted(a, r)) {
