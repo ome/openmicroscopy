@@ -36,8 +36,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.PermissionData;
 
@@ -77,32 +77,31 @@ public class SwitchUserAction
     		return;
     	}
     	if (browser.getState() == Browser.READY) {
-    		Set m = TreeViewerAgent.getAvailableUserGroups();
-    		Iterator i = m.iterator();
-    		GroupData group;
     		boolean enabled = false;
-    		Set set;
-    		PermissionData permissions;
-    		long id = model.getUserGroupID();
-    		while (i.hasNext()) {
-    			group = (GroupData) i.next();
-				if (group.getId() == group.getId()) {
-					if (model.isLeaderOfSelectedGroup()) {
-						set = group.getExperimenters();
-						enabled = set.size() > 1;
-					} else {
-						permissions = group.getPermissions();
-						if (permissions.isGroupRead()) {
-							set = group.getExperimenters();
-							enabled = set.size() > 1;
-						}
-					}
-					break;
+    		GroupData group = model.getSelectedGroup();
+    		if (group == null) {
+    			setEnabled(false);
+    			return;
+    		}
+    		int level = model.getSelectedGroupPermissions();
+    		if (level == AdminObject.PERMISSIONS_PRIVATE) {
+    			if (model.isLeaderOfSelectedGroup()) {
+					enabled = group.getExperimenters().size() > 1;
 				}
-			}
+    		} else {
+    			enabled = group.getExperimenters().size() > 1;
+    		}
     		setEnabled(enabled);
     	} else setEnabled(false);
-    	// setEnabled(browser.getState() == Browser.READY);
+    }
+    
+    /** 
+     * Enables the action if the browser is not ready.
+     * @see TreeViewerAction#onBrowserSelection(Browser)
+     */
+    protected void onBrowserSelection(Browser browser)
+    {
+    	onBrowserStateChange(browser);
     }
     
     /**

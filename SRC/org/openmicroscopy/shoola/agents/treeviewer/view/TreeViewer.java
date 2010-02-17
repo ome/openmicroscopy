@@ -943,4 +943,19 @@ public interface TreeViewer
 	 */
 	void register(FileDataRegistration file);
 	
+	/**
+	 * Returns the permission level of the selected group. One of the constants
+	 * defined by the <code>AdminObject</code> class.
+	 * 
+	 * @return See above.
+	 */
+	int getSelectedGroupPermissions();
+	
+	/**
+	 * Returns the currently selected group.
+	 * 
+	 * @return See above.
+	 */
+	GroupData getSelectedGroup();
+	
 }

@@ -109,6 +109,7 @@ import pojos.FileAnnotationData;
 import pojos.FileData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PermissionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenAcquisitionData;
@@ -2856,6 +2857,48 @@ class TreeViewerComponent
 			model.getMetadataViewer().saveData(file.getToAdd(), 
 					file.getToRemove(), file.getToDelete(), 
 					file.getMetadata(), data);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#getSelectedGroupPermissions()
+	 */
+	public int getSelectedGroupPermissions()
+	{
+		GroupData group = getSelectedGroup();
+		int level = AdminObject.PERMISSIONS_PRIVATE;
+		if (group != null) {
+			PermissionData data = group.getPermissions();
+			if (data.isGroupRead()) {
+				if (data.isGroupWrite()) 
+					level = AdminObject.PERMISSIONS_GROUP_READ_WRITE;
+				else level = AdminObject.PERMISSIONS_GROUP_READ;
+			} else if (data.isWorldRead()) {
+				if (data.isWorldWrite()) 
+					level = AdminObject.PERMISSIONS_PUBLIC_READ_WRITE;
+				else level = AdminObject.PERMISSIONS_PUBLIC_READ;
+			}
+		}
+		return level;
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#getSelectedGroup()
+	 */
+	public GroupData getSelectedGroup()
+	{
+		Set m = TreeViewerAgent.getAvailableUserGroups();
+		Iterator i = m.iterator();
+		long id = model.getUserGroupID();
+		GroupData group = null;
+		while (i.hasNext()) {
+			group = (GroupData) i.next();
+			if (group.getId() == id) {
+				return group;
+			}
+		}
+		return null;
 	}
 	
 }

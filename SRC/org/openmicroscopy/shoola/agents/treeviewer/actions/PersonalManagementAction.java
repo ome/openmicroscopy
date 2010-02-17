@@ -28,7 +28,6 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.Set;
 import javax.swing.Action;
 
 
@@ -79,6 +78,15 @@ public class PersonalManagementAction
         		setEnabled(TreeViewerAgent.getAvailableUserGroups().size() > 1);
         	} else setEnabled(false);
     	}
+    }
+    
+    /** 
+     * Enables the action if the browser is not ready.
+     * @see TreeViewerAction#onBrowserSelection(Browser)
+     */
+    protected void onBrowserSelection(Browser browser)
+    {
+    	onBrowserStateChange(browser);
     }
     
     /**
