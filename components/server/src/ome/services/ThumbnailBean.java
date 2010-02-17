@@ -282,23 +282,33 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	if (settings == null)
     	{
             Long userId = getCurrentUserId();
-            Parameters params = new Parameters();
-            params.addLong("p_id", id);
-            params.addLong("o_id", userId);
-            settings = iQuery.findByQuery(
-                    "select r from RenderingDef as r " +
-                    "join fetch r.details.updateEvent where " +
-                    "r.pixels.id = :p_id and r.details.owner.id = :o_id",
-                    params);
-    		if (settings == null)
-    		{
-    			return false;
-    		}
+            settings = getSettingsForUser(id, userId);
+            if (settings == null) {
+                // ticket:1434 and shoola:ticket:1157
+                if (getSecuritySystem().isGraphCritical()) {
+                    long ownerId = pixels.getDetails().getOwner().getId();
+                    settings = getSettingsForUser(id, ownerId);
+                }
+                if (settings == null) {
+                    return false;
+                }
+            }
     		settingsLastUpdated = 
     			settings.getDetails().getUpdateEvent().getTime();
     		settingsUserId = settings.getDetails().getOwner().getId();
     	}
     	return true;
+    }
+
+    private RenderingDef getSettingsForUser(long id, Long userId) {
+        Parameters params = new Parameters();
+        params.addLong("p_id", id);
+        params.addLong("o_id", userId);
+        return iQuery.findByQuery(
+                "select r from RenderingDef as r " +
+                "join fetch r.details.updateEvent where " +
+                "r.pixels.id = :p_id and r.details.owner.id = :o_id",
+                params);
     }
     
     /**
@@ -360,7 +370,8 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     @RolesAllowed("user")
     public void setRenderingDefId(long id)
     {
-        RenderingDef newSettings = iPixels.loadRndSettings(id);
+        Long userId = getCurrentUserId();
+        RenderingDef newSettings = getSettingsForUser(id, userId);
         if (newSettings == null)
         {
             throw new ValidationException(

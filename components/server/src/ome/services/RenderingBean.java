@@ -256,6 +256,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             renderer = null;
 
             if (rendDefObj == null) {
+
                 // We've been initialized on a pixels set that has no rendering
                 // definition for the given user. In order to maintain the
                 // proper state and ensure that we avoid transactional problems
@@ -729,7 +730,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             // Actually save and reload the rendering settings
             rendDefObj = (RenderingDef) ex.execute(/*ex*/null/*principal*/,
                     new Executor.SimpleWork(this,"saveCurrentSettings"){
-                        @Transactional(readOnly = false)
+                        @Transactional(readOnly = false) // ticket:1434
                         public Object doWork(Session session, ServiceFactory sf) {
                             IPixels pixMetaSrv = sf.getPixelsService();
                             pixMetaSrv.saveRndSettings(rendDefObj);
@@ -1412,6 +1413,16 @@ public class RenderingBean implements RenderingEngine, Serializable {
             }});
     }
 
+    private boolean isGraphCritical() {
+        return (Boolean) ex.execute(/*ex*/null/*principal*/, new Executor.SimpleWork(
+                this, "isGraphCritical") {
+            @Transactional(readOnly = true)
+            public Boolean doWork(Session session, ServiceFactory sf) {
+                return secSys.isGraphCritical();
+            }
+        });
+    }
+
     private Pixels retrievePixels(final long pixelsId) {
         return (Pixels) ex.execute(/*ex*/null/*principal*/, new Executor.SimpleWork(
                 this, "retrievePixels") {
@@ -1424,12 +1435,33 @@ public class RenderingBean implements RenderingEngine, Serializable {
     }
 
     private RenderingDef retrieveRndSettings(final long pixelsId) {
-        return (RenderingDef) ex.execute(/*ex*/null/*principal*/,
+        RenderingDef rd = (RenderingDef) ex.execute(/*ex*/null/*principal*/,
                 new Executor.SimpleWork(this, "retrieveRndDef") {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
                         return sf.getPixelsService().retrieveRndSettings(
                                 pixelsId);
+                    }
+                });
+        if (rd == null) {
+            // ticket:1434 and shoola:ticket:1157. If this is graph critical
+            // and we couldn't find a rendering def for the current user,
+            // then we try to find one for the pixels owner
+            if (isGraphCritical()) { // FIXME check for null here?
+                long pixOwner = pixelsObj.getDetails().getOwner().getId();
+                rd = retrieveRndSettingsFor(pixelsId, pixOwner);
+            }
+        }
+        return rd;
+    }
+
+    private RenderingDef retrieveRndSettingsFor(final long pixelsId, final long userId) {
+        return (RenderingDef) ex.execute(/*ex*/null/*principal*/,
+                new Executor.SimpleWork(this, "retrieveRndDefFor") {
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        return sf.getPixelsService().retrieveRndSettingsFor(
+                                pixelsId, userId);
                     }
                 });
     }
@@ -1490,7 +1522,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     
     private void _resetDefaults(final RenderingDef def, final Pixels pixels) {
         ex.execute(null, new Executor.SimpleWork(this,"_resetDefualts"){
-            @Transactional(readOnly = false)
+            @Transactional(readOnly = false) // ticket:1434
             public Object doWork(Session session, ServiceFactory sf) {
                 sf.getRenderingSettingsService().resetDefaults(def, pixels);
                 return null;
