@@ -135,21 +135,21 @@ public class DeleteAction
          	} else setEnabled(false);
         } else if (ho instanceof ExperimenterData) {
         	if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
-        		setEnabled(true); //TODO
+        		setEnabled(true);
         		TreeImageDisplay[] selected = browser.getSelectedDisplays();
         		if (selected != null) {
         			TreeImageDisplay d;
         			ExperimenterData exp;
         			boolean b = true;
         			for (int i = 0; i < selected.length; i++) {
-						d = selected[i];
-						exp = (ExperimenterData) d.getUserObject();
-						if (exp.getId() == 
-							TreeViewerAgent.getUserDetails().getId()) {
-							b = false;
-							break;
-						}
-					}
+        				d = selected[i];
+        				exp = (ExperimenterData) d.getUserObject();
+        				if (exp.getId() == 
+        					TreeViewerAgent.getUserDetails().getId()) {
+        					b = false;
+        					break;
+        				}
+        			}
         			setEnabled(b);
         		}
         	} else setEnabled(false);

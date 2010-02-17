@@ -48,7 +48,9 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -245,6 +247,10 @@ public class DeleteBox
 			return "Screen"+end;
 		else if (PlateData.class.equals(type))
 			return "Plate"+end;
+		else if (ExperimenterData.class.equals(type))
+			return "Experimenter"+end;
+		else if (GroupData.class.equals(type))
+			return "Group"+end;
 		else if (TagAnnotationData.class.equals(type)) {
 			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
 				return "Tag Set"+end;

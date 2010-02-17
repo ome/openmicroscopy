@@ -31,11 +31,13 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PlateData;
@@ -107,6 +109,26 @@ public class BrowserDeleteAction
         	else {
         		setEnabled(model.isObjectWritable(ho));
         	}
+        } else if (ho instanceof ExperimenterData) {
+        	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) {
+        		setEnabled(true);
+        		TreeImageDisplay[] selected = model.getSelectedDisplays();
+        		if (selected != null) {
+        			TreeImageDisplay d;
+        			ExperimenterData exp;
+        			boolean b = true;
+        			for (int i = 0; i < selected.length; i++) {
+        				d = selected[i];
+        				exp = (ExperimenterData) d.getUserObject();
+        				if (exp.getId() == 
+        					TreeViewerAgent.getUserDetails().getId()) {
+        					b = false;
+        					break;
+        				}
+        			}
+        			setEnabled(b);
+        		}
+        	} else setEnabled(false);
         } else if (ho instanceof ImageData) {
         	TreeImageDisplay[] selected = model.getSelectedDisplays();
         	if (selected.length > 1) setEnabled(true);

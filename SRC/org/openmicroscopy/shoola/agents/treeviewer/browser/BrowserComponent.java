@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.agents.util.browser.PartialNameVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.SimilarNodesVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.FSAccessException;
@@ -1565,8 +1566,9 @@ class BrowserComponent
 		view.setGroups(nodes, expanded);
 		model.setState(READY);
 		countItems(null);
-		model.getParentModel().setLeaves((TreeImageSet) 
-				model.getLastSelectedDisplay(), groups);
+		TreeImageDisplay d = model.getLastSelectedDisplay();
+		if (d instanceof TreeImageNode) d = d.getParentDisplay();
+		//model.getParentModel().setLeaves((TreeImageSet) d, groups);
 
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
