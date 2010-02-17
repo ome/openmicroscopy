@@ -57,7 +57,6 @@ public class SpecialObjectPermTest extends PermissionsTest {
 
         // And if we change groups we'll be able to load it?
         loginNewUser();
-        LogFactory.getLog("XXX").error("YYY");
         loadUserAnnotations(1);
 
     }
