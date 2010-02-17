@@ -94,7 +94,7 @@ public class AdminLoader
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
         if (group == null)
-        	viewer.setGroups((Collection) result);
+        	viewer.setGroups((Collection) result, null);
         
     }
     

@@ -79,9 +79,11 @@ public class RefreshExperimenterDef
     	if (expNode == null)
         	throw new IllegalArgumentException("Node not valid.");
     	Object uo = expNode.getUserObject();
+    	/*
     	if (!((uo instanceof ExperimenterData) || 
     			(uo instanceof GroupData)))
     		throw new IllegalArgumentException("Node not valid.");	
+    		*/
     	this.expandedNodes = expandedNodes;
         this.expandedTopNodes = expandedTopNodes;
         this.expNode = expNode;

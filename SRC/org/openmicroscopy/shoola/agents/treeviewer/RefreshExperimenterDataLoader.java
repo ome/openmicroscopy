@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -76,7 +77,7 @@ public class RefreshExperimenterDataLoader
     /** Collection of {@link RefreshExperimenterDef} objects. */
     private Map<Long, RefreshExperimenterDef>	expNodes;
     
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  						handle;
     
     /**
@@ -90,7 +91,7 @@ public class RefreshExperimenterDataLoader
         	TagAnnotationData.class.equals(klass) || 
         	DatasetData.class.equals(klass) || 
         	FileAnnotationData.class.equals(klass) ||
-        	ScreenData.class.equals(klass))
+        	ScreenData.class.equals(klass) || GroupData.class.equals(klass))
             return;
         throw new IllegalArgumentException("Root node not supported.");
     }
@@ -161,7 +162,7 @@ public class RefreshExperimenterDataLoader
      * @param viewer        	The viewer this data loader is for.
      *                      	Mustn't be <code>null</code>.
      * @param rootNodeType  	The root node either <code>Project</code> or 
-     *                      	<code>CategoryGroup</code>
+     *                      	<code>Screen</code>.
      * @param expNodes			Collection of nodes hosting information about
      * 							the nodes to refresh.
      * 							Mustn't be <code>null</code>.
@@ -183,6 +184,10 @@ public class RefreshExperimenterDataLoader
      */
     public void load()
     {
+    	if (GroupData.class.equals(rootNodeType)) {
+    		handle = adminView.loadExperimenterGroups(this);
+    		return;
+    	}
     	Entry entry;
     	Iterator i = expNodes.entrySet().iterator();
     	RefreshExperimenterDef def;
@@ -245,6 +250,23 @@ public class RefreshExperimenterDataLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
+        if (GroupData.class.equals(rootNodeType)) {
+        	Entry entry;
+        	RefreshExperimenterDef def;
+        	Iterator i = expNodes.entrySet().iterator();
+        	Map nodes;
+        	List expanded = new ArrayList();
+        	List l;
+        	while (i.hasNext()) {
+				entry = (Entry) i.next();
+				def = (RefreshExperimenterDef) entry.getValue();
+        		nodes = def.getExpandedTopNodes();
+				l = (List) nodes.get(GroupData.class);
+				if (l != null) expanded.addAll(l);
+			}
+        	viewer.setGroups((Collection) result, expanded);
+        	return;
+        }
         Map m = (Map) result;
         Iterator i = m.keySet().iterator();
         long expId;
@@ -254,18 +276,7 @@ public class RefreshExperimenterDataLoader
             	expId = (Long) i.next();
             	formatSmartFolderResult(expId, (List) m.get(expId));
     		}
-        } 
-        /*
-        else if (FileAnnotationData.class.equals(rootNodeType)) {
-        	RefreshExperimenterDef node;
-        	while (i.hasNext()) {
-            	expId = (Long) i.next();
-            	node = expNodes.get(expId);
-            	node.setResults(m.get(expId));
-    		}
-        } 
-        */
-        else {
+        } else {
         	while (i.hasNext()) {
             	expId = (Long) i.next();
             	setExperimenterResult(expId, m.get(expId));

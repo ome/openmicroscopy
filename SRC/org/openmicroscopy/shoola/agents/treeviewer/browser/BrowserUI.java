@@ -80,10 +80,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
-import org.openmicroscopy.shoola.env.data.FSAccessException;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
-import org.openmicroscopy.shoola.env.log.LogMessage;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -1438,7 +1435,13 @@ class BrowserUI
 			setExpandedParent((TreeImageDisplay) j.next(), true);
 	}
 
-	void setGroups(Set nodes)
+	/**
+	 * Sets the nodes hosting the groups to manage.
+	 * 
+	 * @param nodes The nodes to display
+	 * @param expanded The list of nodes previously expanded.
+	 */
+	void setGroups(Set nodes, List expanded)
 	{
 		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
 		TreeImageDisplay root = getTreeRoot();
@@ -1454,6 +1457,25 @@ class BrowserUI
             } 
             buildTreeNode(root, prepareSortedList(sorter.sort(nodes)), 
                     (DefaultTreeModel) treeDisplay.getModel());
+            i = nodes.iterator();
+            while (i.hasNext()) {
+            	((TreeImageDisplay) i.next()).setExpanded(false);
+            } 
+            if (expanded != null && expanded.size() > 0) {
+            	i = nodes.iterator();
+                TreeImageDisplay display;
+                GroupData group;
+                Object ho;
+                while (i.hasNext()) {
+                	display = (TreeImageDisplay) i.next();
+    				ho = display.getUserObject();
+    				if (ho instanceof GroupData) {
+    					if (expanded.contains(((GroupData) ho).getId()))
+    						expandNode(display);
+    				}
+    			}
+            }
+            
         } else buildEmptyNode(root);
         dtm.reload();
 	}

@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.GroupData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -167,12 +168,24 @@ public class RefreshVisitor
                 }
                 l.add(id);
     		}
+        } else if (userObject instanceof GroupData) {
+        	if (node.isExpanded()) {
+        		long id = ((DataObject) userObject).getId();
+            	List l = expandedTopNodes.get(GroupData.class);
+            	if (l == null) {
+            		l = new ArrayList<Long>();
+            		expandedTopNodes.put(GroupData.class, l);
+            	}
+            	l.add(Long.valueOf(id));
+        	}
         } else if (node instanceof TreeImageTimeSet && node.isChildrenLoaded() 
         		&& node.isExpanded() && node.containsImages()) {
         	foundNodes.add(node);
     	} else if (node instanceof TreeFileSet && node.isChildrenLoaded() 
-        		&& node.isExpanded())
-        	foundNodes.add(node);
+        		&& node.isExpanded()) {
+    		foundNodes.add(node);
+    	}
+        
     }
     
 }

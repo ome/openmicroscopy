@@ -118,6 +118,7 @@ class ExperimenterPane
 		//adminBox.setSelected(administrator);
 		//adminBox.setEnabled(!administrator);
 		ownerBox = new JCheckBox();
+		ownerBox.setEnabled(!administrator);
 		ownerBox.setSelected(administrator);
     }
     
@@ -129,7 +130,7 @@ class ExperimenterPane
     private JPanel buildContentPanel()
     {
         JPanel content = new JPanel();
-    	content.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	//content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	Entry entry;
     	Iterator i = details.entrySet().iterator();
         JLabel label;
@@ -292,16 +293,21 @@ class ExperimenterPane
 		field = items.get(EditorUtil.INSTITUTION);
 		data.setInstitution(field.getText().trim());
 		
+		Map<ExperimenterData, UserCredentials> m = 
+			new HashMap<ExperimenterData, UserCredentials>();
+		
 		field = items.get(EditorUtil.DISPLAY_NAME);
 		String s = field.getText().trim();
 		StringBuffer buf = new StringBuffer();
 		buf.append(passwordField.getPassword());
 		
-		UserCredentials uc = new UserCredentials(s, buf.toString());
+		if (s == null || s.length() == 0) return m;
+		String pass = buf.toString();
+		if (pass == null || pass.length() == 0) return m;
+		UserCredentials uc = new UserCredentials(s, pass);
 		uc.setAdministrator(adminBox.isSelected());
 		uc.setOwner(ownerBox.isSelected());
-		Map<ExperimenterData, UserCredentials> m = 
-			new HashMap<ExperimenterData, UserCredentials>();
+		
 		m.put(data, uc);
 		return m;
 	}

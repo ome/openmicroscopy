@@ -35,15 +35,11 @@ import java.util.Set;
 //Application-internal dependencies
 import omero.model.ExperimenterGroup;
 import omero.model.Permissions;
-import omero.model.PermissionsI;
-
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
-import org.openmicroscopy.shoola.env.data.util.PojoMapper;
-
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.PermissionData;
@@ -346,21 +342,7 @@ class AdminServiceImpl
 		Permissions p = null;
 		if (permissions != -1) {
 			p = g.getDetails().getPermissions();
-			switch (permissions) {
-				case AdminObject.PERMISSIONS_GROUP_READ:
-					p.setGroupRead(true);
-					break;
-				case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
-					p.setGroupRead(true);
-					p.setGroupWrite(true);
-					break;
-				case AdminObject.PERMISSIONS_PUBLIC_READ:
-					p.setWorldRead(true);
-					break;
-				case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
-					p.setWorldRead(true);
-					p.setWorldWrite(true);
-			}
+			gateway.setPermissionsLevel(p, permissions);
 		}
 		return gateway.updateGroup(g, p);
 	}

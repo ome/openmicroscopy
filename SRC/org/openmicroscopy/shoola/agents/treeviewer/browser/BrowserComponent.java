@@ -1028,16 +1028,17 @@ class BrowserComponent
 	        	//ignore
         	return;
 		}
-		if (model.getBrowserType() == FILE_SYSTEM_EXPLORER) {
-			//view.loadFileSystem(true);
-			return;
-		}
-		TreeImageDisplay display = model.getLastSelectedDisplay();
-		if (display == null) return;
-		Object ho = display.getUserObject();
-		if (!(ho instanceof ExperimenterData)) return;
-		//
+		TreeImageDisplay display;
 		RefreshVisitor v = new RefreshVisitor(this);
+		if (model.getBrowserType() == ADMIN_EXPLORER) {
+			display = view.getTreeRoot();
+		} else {
+			display = model.getLastSelectedDisplay();
+			if (display == null) return;
+			Object ho = display.getUserObject();
+			if (!(ho instanceof ExperimenterData)) return;
+			
+		}
 		display.accept(v, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
 		RefreshExperimenterDef def = new RefreshExperimenterDef(
 								(TreeImageSet) display, 
@@ -1101,13 +1102,11 @@ class BrowserComponent
     		//view.loadFileSystem(true);
     		return;
     	}
-    	
     	if (model.getBrowserType() == ADMIN_EXPLORER) {
-    		//TODO: implement;
-    		
-    		
+    		refreshExperimenterData();
     		return;
     	}
+
 	    TreeImageDisplay root = view.getTreeRoot();
 	    TreeImageSet expNode;
 	    RefreshExperimenterDef def;
@@ -1293,7 +1292,7 @@ class BrowserComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		if (model.getBrowserType() == ADMIN_EXPLORER) {
-			
+			//visit the browser
 		} else {
 			if (data instanceof ExperimenterData) view.refreshExperimenter();
 		}
@@ -1552,9 +1551,9 @@ class BrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#setGroups(Set)
+	 * @see Browser#setGroups(Set, List)
 	 */
-	public void setGroups(Collection groups)
+	public void setGroups(Collection groups, List expanded)
 	{
 		int state = model.getState();
         if (state != LOADING_DATA)
@@ -1563,7 +1562,7 @@ class BrowserComponent
                     "state.");
         if (model.getBrowserType() != ADMIN_EXPLORER) return;
 		Set nodes = TreeViewerTranslator.transformGroups(groups);
-		view.setGroups(nodes);
+		view.setGroups(nodes, expanded);
 		model.setState(READY);
 		countItems(null);
 		model.getParentModel().setLeaves((TreeImageSet) 

@@ -342,6 +342,7 @@ class OmeroImageServiceImpl
 			}
 			return r;
 		} catch (Exception e) {
+			//e.printStackTrace();
 			if (e instanceof SecurityException) return null;
 			
 			if (e instanceof DSOutOfServiceException) {

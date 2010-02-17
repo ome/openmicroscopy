@@ -67,6 +67,7 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -538,7 +539,7 @@ class BrowserModel
 				currentLoader.load();
 				return;
 			} else {
-				component.setGroups(TreeViewerAgent.getGroupsLeaderof());
+				component.setGroups(TreeViewerAgent.getGroupsLeaderof(), null);
 				return;
 			}
 			
@@ -595,6 +596,9 @@ class BrowserModel
 				break;
 			case Browser.FILES_EXPLORER:
 				klass = FileAnnotationData.class;
+				break;
+			case Browser.ADMIN_EXPLORER:
+				klass = GroupData.class;
 		}
         state = Browser.LOADING_DATA;
         if (klass == null) return;

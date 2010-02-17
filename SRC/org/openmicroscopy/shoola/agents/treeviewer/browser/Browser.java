@@ -708,11 +708,12 @@ public interface Browser
 	void setRepositories(TreeImageDisplay expNode, FSFileSystemView systemView);
 	
 	/** 
-	 * Sets the groups.
+	 * Sets the groups to manage.
 	 * 
-	 * @param groups The groups to set.
+	 * @param groups   The groups to set.
+	 * @param expanded Collection of expanded group's identifiers.
 	 */
-	void setGroups(Collection groups);
+	void setGroups(Collection groups, List expanded);
 
 	/** 
 	 * Registers the specified the file. Returns <code>true</code>

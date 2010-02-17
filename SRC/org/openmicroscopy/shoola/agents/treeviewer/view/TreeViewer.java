@@ -930,7 +930,7 @@ public interface TreeViewer
 	public boolean isLeaderOfSelectedGroup();
 
 	/** 
-	 * Administrates the passed object.
+	 * Manages the passed object.
 	 * 
 	 * @param object The object to handle.
 	 */

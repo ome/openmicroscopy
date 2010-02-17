@@ -2676,6 +2676,7 @@ class OMEROGateway
 					omero.rtypes.rint(maxLength), pixelsID);
 					
 		} catch (Throwable t) {
+			t.printStackTrace();
 			if (thumbnailService != null) {
 				try {
 					thumbnailService.close();
@@ -3395,7 +3396,6 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			getAdminService().updateGroup(group);
-			
 			if (permissions != null) {
 				getAdminService().changePermissions(findIObject(group), 
 						permissions);
@@ -6094,7 +6094,18 @@ class OMEROGateway
 					(DataObject) object.getGroup());
 
 			long groupID = svc.createGroup(g);
+			
+			
+			
 			g = svc.getGroup(groupID);
+			int level = object.getPermissions();
+			if (level != AdminObject.PERMISSIONS_PRIVATE) {
+				Permissions p = g.getDetails().getPermissions();
+				setPermissionsLevel(p, level);
+				getAdminService().changePermissions(g, p);
+			}
+			
+			
 			List<ExperimenterGroup> list = new ArrayList<ExperimenterGroup>();
 			list.add(g);
 
@@ -6235,6 +6246,31 @@ class OMEROGateway
 	{
 		//root need to login and send an e-mail.
 		
+	}
+	
+	/**
+	 * Sets the permissions level.
+	 * 
+	 * @param p		The permissions of the object.
+	 * @param level The permissions to set.
+	 */
+	void setPermissionsLevel(Permissions p, int level)
+	{
+		switch (level) {
+			case AdminObject.PERMISSIONS_GROUP_READ:
+				p.setGroupRead(true);
+				break;
+			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+				p.setGroupRead(true);
+				p.setGroupWrite(true);
+				break;
+			case AdminObject.PERMISSIONS_PUBLIC_READ:
+				p.setWorldRead(true);
+				break;
+			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+				p.setWorldRead(true);
+				p.setWorldWrite(true);
+		}
 	}
 	
 }

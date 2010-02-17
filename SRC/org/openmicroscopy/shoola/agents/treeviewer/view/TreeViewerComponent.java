@@ -569,7 +569,11 @@ class TreeViewerComponent
 		Browser oldBrowser = model.getSelectedBrowser();
 		if (oldBrowser == null || !oldBrowser.equals(browser)) {
 			model.setSelectedBrowser(browser);
-			if (browser != null) browser.activate();
+			if (browser != null) {
+				browser.activate();
+				if (browser.getBrowserType() == Browser.ADMIN_EXPLORER)
+					model.getMetadataViewer().setRootObject(null);
+			}
 			removeEditor();
 			model.getMetadataViewer().setSelectionMode(false);
 			firePropertyChange(SELECTED_BROWSER_PROPERTY, oldBrowser, browser);

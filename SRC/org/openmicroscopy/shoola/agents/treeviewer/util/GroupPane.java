@@ -92,15 +92,18 @@ class GroupPane
     {
         JPanel content = new JPanel();
         content.setLayout(new GridBagLayout());
-    	content.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	//content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	GridBagConstraints c = new GridBagConstraints();
     	JLabel label = UIUtilities.setTextFont("Name"+
         		EditorUtil.MANDATORY_SYMBOL);
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
         c.fill = GridBagConstraints.NONE;      //reset to default
+        c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.WEST;
+		c.insets = new Insets(0, 2, 2, 0);
         c.weightx = 0.0;  
         c.gridx = 0;
-        c.gridx = 0;
+        c.gridy = 0;
         content.add(label, c);
         c.gridx++;
         add(Box.createHorizontalStrut(5), c); 
@@ -123,11 +126,9 @@ class GroupPane
         c.gridwidth = GridBagConstraints.REMAINDER;     //end row
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
-        content.add(nameArea, c);  
+        content.add(descriptionArea, c);  
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
 		c.weightx = 1.0;  
-		
-		
 		return content;
 	}
     
@@ -160,6 +161,8 @@ class GroupPane
 	
 	/**
 	 * Returns the object to save.
+	 * 
+	 * @return See above.
 	 */
 	AdminObject getObjectToSave()
 	{
