@@ -1,3 +1,5 @@
+.hg
+.hgignore
 .DS_Store
 .gdb_history
 .sconsign.dblite
