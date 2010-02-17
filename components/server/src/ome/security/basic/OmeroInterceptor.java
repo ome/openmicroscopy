@@ -24,6 +24,7 @@ import ome.annotations.RevisionNumber;
 import ome.conditions.ApiUsageException;
 import ome.conditions.GroupSecurityViolation;
 import ome.conditions.InternalException;
+import ome.conditions.ReadOnlyAdminGroupSecurityViolation;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.model.IGlobal;
@@ -407,7 +408,7 @@ public class OmeroInterceptor implements Interceptor {
                     String oname = currentUser.getOwner().getOmeName();
                     Permissions p = currentUser.getCurrentEventContext()
                         .getCurrentGroupPermissions();
-                    throw new GroupSecurityViolation(String.format(
+                    throw new ReadOnlyAdminGroupSecurityViolation(String.format(
                             "Cannot link to %s\n" +
                             "Current user (%s) is an admin or the owner of\n" +
                             "the private group (%s=%s). It is not allowed to\n" +
