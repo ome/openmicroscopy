@@ -57,6 +57,9 @@ public class AdminObject
 	/** Indicates to create a group. */
 	public static final int CREATE_EXPERIMENTER = 1;
 	
+	/** Indicates to updates a group. */
+	public static final int UPDATE_GROUP = 2;
+	
 	/** Indicates that the group is <code>Private</code> i.e. RW----. */
 	public static final int PERMISSIONS_PRIVATE = 100;
 	
@@ -82,6 +85,7 @@ public class AdminObject
 		switch (index) {
 			case CREATE_EXPERIMENTER:
 			case CREATE_GROUP:
+			case UPDATE_GROUP:
 				return;
 			default:
 				throw new IllegalArgumentException("Index not supported");
@@ -120,6 +124,7 @@ public class AdminObject
 		this.group = group;
 		this.experimenters = experimenters;
 		this.index = index;
+		this.permissions = -1;
 	}
 
 	/**

@@ -88,12 +88,13 @@ public interface AdminService
 	 * Updates the specified group.
 	 * 
 	 * @param group The group to update.
+	 * @param permissions The desired permissions level or <code>-1</code>.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	public GroupData updateGroup(GroupData group)
+	public GroupData updateGroup(GroupData group, int permissions)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**

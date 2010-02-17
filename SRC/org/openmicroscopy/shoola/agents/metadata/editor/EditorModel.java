@@ -1429,10 +1429,10 @@ class EditorModel
 	 * 
 	 * @param data The experimenter or the group to save.
 	 */
-	void fireDataObjectSaving(DataObject data)
+	void fireAdminSaving(Object data)
 	{
-		if ((data instanceof ExperimenterData) || (data instanceof GroupData))	
-			parent.saveData(null, null, null,null, data);
+		if ((data instanceof ExperimenterData) || (data instanceof AdminObject))	
+			parent.updateAdminObject(data);
 	}
 	
 	/**

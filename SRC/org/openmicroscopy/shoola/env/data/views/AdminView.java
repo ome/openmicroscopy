@@ -76,10 +76,11 @@ public interface AdminView
 	 * Updates the specified group.
 	 * 
 	 * @param group The group to update. Mustn't be <code>null</code>.
+	 * @param permissions The desired permissions level or <code>-1</code>.
 	 * @param observer	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle updateGroup(GroupData group, 
+	public CallHandle updateGroup(GroupData group, int permissions,
 			AgentEventListener observer);
 	
 	/**

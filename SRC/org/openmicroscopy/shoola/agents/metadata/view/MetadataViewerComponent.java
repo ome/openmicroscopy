@@ -58,6 +58,7 @@ import org.openmicroscopy.shoola.agents.metadata.util.ChannelSelectionDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.FileDataRegistration;
 import org.openmicroscopy.shoola.agents.util.ui.MovieExportDialog;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
@@ -417,13 +418,6 @@ class MetadataViewerComponent
 		Object refObject = model.getRefObject();
 		List<DataObject> toSave = new ArrayList<DataObject>();
 		
-		if (refObject instanceof ExperimenterData) {
-			model.fireExperimenterSaving((ExperimenterData) data);
-			return;
-		} else if (refObject instanceof GroupData) {
-			model.fireGroupSaving((GroupData) data);
-			return;
-		}
 		if (refObject instanceof FileData) {
 			FileData fa = (FileData) data;
 			if (fa.getId() > 0) {
@@ -955,5 +949,17 @@ class MetadataViewerComponent
 	 * @see MetadataViewer#getRefObject()
 	 */
 	public Object getRefObject() { return model.getRefObject(); }
+
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#updateAdminObject(Object)
+	 */
+	public void updateAdminObject(Object data)
+	{
+		if (data instanceof ExperimenterData) {
+			model.fireExperimenterSaving((ExperimenterData) data);
+		} else if (data instanceof AdminObject)
+			model.fireGroupSaving((AdminObject) data);
+	}
 
 }

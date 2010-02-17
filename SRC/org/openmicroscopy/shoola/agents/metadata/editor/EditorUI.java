@@ -45,6 +45,7 @@ import org.jdesktop.swingx.JXTaskPane;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -183,10 +184,6 @@ public class EditorUI
 		component = defaultPane;
 		userTabbedPane = new JScrollPane(userUI);
 		groupTabbedPane = new JScrollPane(groupUI);
-		//userTabbedPane.add(userUI);
-		//userTabbedPane = new JTabbedPane();
-		//userTabbedPane.addTab("Profile", null, new JScrollPane(userUI),
-		//		"User's details.");
 	}
 	
 	/** Builds and lays out the components. */
@@ -291,7 +288,7 @@ public class EditorUI
 				if (uo instanceof ImageData) {
 					load = true;
 					tabPane.setEnabledAt(ACQUISITION_INDEX, true);
-					tabPane.setEnabledAt(RND_INDEX, true);
+					tabPane.setEnabledAt(RND_INDEX, model.isWritable());
 					if (tabPane.getSelectedIndex() == RND_INDEX) {
 						tabPane.setComponentAt(RND_INDEX, dummyPanel);
 						tabPane.setSelectedIndex(GENERAL_INDEX);
@@ -305,7 +302,7 @@ public class EditorUI
 					if (img != null && img.getId() >= 0) {
 						load = true;
 						tabPane.setEnabledAt(ACQUISITION_INDEX, true);
-						tabPane.setEnabledAt(RND_INDEX, true);
+						tabPane.setEnabledAt(RND_INDEX, model.isWritable());
 					} else {
 						tabPane.setSelectedIndex(GENERAL_INDEX);
 						tabPane.setEnabledAt(ACQUISITION_INDEX, false);
@@ -331,11 +328,11 @@ public class EditorUI
 		toolBar.setDataToSave(false);
 		if (model.getRefObject() instanceof ExperimenterData) {
 			ExperimenterData exp = userUI.getExperimenterToSave();
-			model.fireDataObjectSaving(exp);
+			model.fireAdminSaving(exp);
 			return;
 		} else if  (model.getRefObject() instanceof GroupData) {
-			//GroupData group = groupUI.getDataToSave();
-			//model.fireDataObjectSaving(group);
+			AdminObject o = groupUI.getAdminObject();
+			model.fireAdminSaving(o);
 			return;
 		}
 		Map<Integer, List<AnnotationData>> m = generalPane.prepareDataToSave();

@@ -35,9 +35,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.HierarchyLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailSetLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-
 import pojos.DataObject;
-import pojos.ImageData;
 
 /** 
  * Implementation of the {@link HierarchyBrowsingView} interface.

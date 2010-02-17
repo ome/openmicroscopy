@@ -68,11 +68,12 @@ class AdminViewImpl
 
 	/**
 	 * Implemented as specified by the {@link AdminView} interface.
-	 * @see AdminView#updateGroup(GroupData, AgentEventListener)
+	 * @see AdminView#updateGroup(GroupData, int AgentEventListener)
 	 */
-	public CallHandle updateGroup(GroupData group, AgentEventListener observer)
+	public CallHandle updateGroup(GroupData group, int permissions,
+			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AdminLoader(group);
+		BatchCallTree cmd = new AdminLoader(group, permissions);
 		return cmd.exec(observer);
 	}
 	

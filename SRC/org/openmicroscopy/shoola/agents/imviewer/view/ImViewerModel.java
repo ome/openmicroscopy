@@ -72,6 +72,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -140,9 +141,6 @@ class ImViewerModel
 	
 	/** The sub-component that hosts the display. */
 	private Browser             		browser;
-	
-	/** Reference to the {@link Renderer}. */
-	//private Renderer            		renderer;
 
 	/** Reference to the current player. */
 	private ChannelPlayer       		player;
@@ -2247,6 +2245,27 @@ class ImViewerModel
 	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd != null) rnd.refresh();
+	}
+	
+	/**
+	 * Returns <code>true</code> if the object is writable,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isWritable()
+	{ 
+		long userID = ImViewerAgent.getUserDetails().getId();
+		boolean b = EditorUtil.isUserOwner(getImage(), userID);
+		if (b) return b;
+		int level = 
+			ImViewerAgent.getRegistry().getAdminService().getPermissionLevel();
+		switch (level) {
+			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+				return true;
+		}
+		return false;
 	}
 	
 }

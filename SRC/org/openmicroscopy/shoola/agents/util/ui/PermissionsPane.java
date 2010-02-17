@@ -161,6 +161,8 @@ public class PermissionsPane
         groupBox.addChangeListener(this);
         publicBox.addChangeListener(this);
         privateBox.addChangeListener(this);
+        readOnlyGroupBox.addChangeListener(this);
+        readOnlyPublicBox.addChangeListener(this);
     }
     
     /** Builds and lays out the UI. */
@@ -283,12 +285,17 @@ public class PermissionsPane
 	public void stateChanged(ChangeEvent e)
 	{
 		Object src = e.getSource();
-		readOnlyGroupBox.setEnabled(false);
-		readOnlyPublicBox.setEnabled(false);
-		if (groupBox == src) readOnlyGroupBox.setEnabled(true);
-		else if (publicBox == src) readOnlyPublicBox.setEnabled(true);
-		firePropertyChange(PERMISSIONS_CHANGE_PROPERTY, 
-				-1, getPermissions());
+		if (readOnlyGroupBox == src || readOnlyPublicBox == src) {
+			firePropertyChange(PERMISSIONS_CHANGE_PROPERTY, 
+					-1, getPermissions());
+		} else {
+			readOnlyGroupBox.setEnabled(false);
+			readOnlyPublicBox.setEnabled(false);
+			if (groupBox == src) readOnlyGroupBox.setEnabled(true);
+			else if (publicBox == src) readOnlyPublicBox.setEnabled(true);
+			firePropertyChange(PERMISSIONS_CHANGE_PROPERTY, 
+					-1, getPermissions());
+		}
 	}
 	
 }

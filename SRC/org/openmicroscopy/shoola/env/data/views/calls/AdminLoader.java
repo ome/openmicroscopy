@@ -130,15 +130,16 @@ public class AdminLoader
      * Creates a {@link BatchCall} to update the specified group.
      * 
 	 * @param group The group to update.
+	 * @param permissions The desired permissions level or <code>-1</code>.
      * @return The {@link BatchCall}.
      */
-    private BatchCall updateGroup(final GroupData group)
+    private BatchCall updateGroup(final GroupData group, final int permissions)
     {
         return new BatchCall("Update group") {
             public void doCall() throws Exception
             {
             	AdminService os = context.getAdminService();
-                result = os.updateGroup(group);
+                result = os.updateGroup(group, permissions);
             }
         };
     }
@@ -242,12 +243,13 @@ public class AdminLoader
      * Creates a new instance.
      * 
      * @param group The group to update. Mustn't be <code>null</code>.
+     * @param permissions The desired permissions level or <code>-1</code>.
      */
-    public AdminLoader(GroupData group)
+    public AdminLoader(GroupData group, int permissions)
     {
     	if (group == null)
     		throw new IllegalArgumentException("Group not valid.");
-    	loadCall = updateGroup(group);
+    	loadCall = updateGroup(group, permissions);
     }
     
 }

@@ -1583,30 +1583,30 @@ class RenderingControlProxy
 	{
 		DataServicesFactory.isSessionAlive(context);
     	try {
-    		 servant.resetDefaultsNoSave();
-    		 if (getPixelsDimensionsC() > 1) setModel(RGB);
-    		 List list = servant.getAvailableFamilies();
-    		 ChannelData m;
-    		 Iterator j;
-    		 Family family;
-    		 String value;
-    		 for (int i = 0; i < pixs.getSizeC().getValue(); i++) {
-    			 j = list.iterator();
-    			 while (j.hasNext()) {
-    				 family= (Family) j.next();
-    				 value = family.getValue().getValue();
-    				 if (value.equals(getChannelFamily(i))) {
-    					 servant.setQuantizationMap(i, family, 
-    							 getChannelCurveCoefficient(i), false);
-    				 }
-    			 }
-    			 m = getChannelData(i);
-				 servant.setChannelWindow(i, m.getGlobalMin(),
-						 				m.getGlobalMax());
-			 }
-    		
-    		 invalidateCache();
-    		 initialize();
+    		servant.resetDefaultsNoSave();
+    		if (getPixelsDimensionsC() > 1) setModel(RGB);
+    		List list = servant.getAvailableFamilies();
+    		ChannelData m;
+    		Iterator j;
+    		Family family;
+    		String value;
+    		for (int i = 0; i < pixs.getSizeC().getValue(); i++) {
+    			j = list.iterator();
+    			while (j.hasNext()) {
+    				family= (Family) j.next();
+    				value = family.getValue().getValue();
+    				if (value.equals(getChannelFamily(i))) {
+    					servant.setQuantizationMap(i, family, 
+    							getChannelCurveCoefficient(i), false);
+    				}
+    			}
+    			m = getChannelData(i);
+    			servant.setChannelWindow(i, m.getGlobalMin(),
+    					m.getGlobalMax());
+    		}
+
+    		invalidateCache();
+    		initialize();
 		} catch (Throwable e) {
 			handleException(e, ERROR+"default settings.");
 		}

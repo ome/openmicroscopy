@@ -342,6 +342,8 @@ class OmeroImageServiceImpl
 			}
 			return r;
 		} catch (Exception e) {
+			if (e instanceof SecurityException) return null;
+			
 			if (e instanceof DSOutOfServiceException) {
 				context.getLogger().error(this, e.getMessage());
 				return getThumbnailSet(pixelsID, max);

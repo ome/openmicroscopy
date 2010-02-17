@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.editor.EditorFactory;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import pojos.AnnotationData;
@@ -428,9 +429,11 @@ class MetadataViewerModel
 	 * 
 	 * @param data The object to update.
 	 */
-	void fireGroupSaving(GroupData data)
+	void fireGroupSaving(AdminObject data)
 	{
-		GroupEditor loader = new GroupEditor(component, data);
+		if (data.getIndex() != AdminObject.UPDATE_GROUP) return;
+		GroupEditor loader = new GroupEditor(component, data.getGroup(), 
+				data.getPermissions());
 		loader.load();
 		state = MetadataViewer.SAVING;
 	}

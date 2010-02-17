@@ -181,6 +181,29 @@ class GroupProfile
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
     
+	/** 
+	 * Returns the object to update.
+	 * 
+	 * @return See above.
+	 */
+	AdminObject getAdminObject()
+	{
+		GroupData data = (GroupData) model.getRefObject();
+		String v = namePane.getText();
+		v = v.trim();
+		if (!data.getName().equals(v)) data.setName(v);
+		//check description
+		v = descriptionPane.getText();
+		v = v.trim();
+		String description = data.getDescription();
+		if (description == null) description = "";
+		if (!description.equals(v)) data.setDescription(v); 
+		AdminObject o = new AdminObject(data, null, AdminObject.UPDATE_GROUP);
+		if (level != permissionsPane.getPermissions())
+			o.setPermissions(permissionsPane.getPermissions());
+		return o;
+	}
+	
 	/**
 	 * Overridden to lay out the UI.
 	 * @see AnnotationUI#buildUI()
@@ -256,7 +279,6 @@ class GroupProfile
 		String description = data.getDescription();
 		if (description == null) description = "";
 		if (!description.equals(v)) return true; 
-		System.err.println(level+" "+permissionsPane.getPermissions());
 		return level != permissionsPane.getPermissions();
 	}
 

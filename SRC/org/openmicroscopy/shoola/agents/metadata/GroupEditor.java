@@ -54,6 +54,9 @@ public class GroupEditor
 	/** The group to update. */
 	private GroupData	group;
 	
+	/** The permissions level or <code>-1</code>. */
+	private int 		permissions;
+	
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle	handle;
     
@@ -63,13 +66,15 @@ public class GroupEditor
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
      * @param group	 The group to update. Mustn't be <code>null</code>.
+     * @param permissions The desired permissions level or <code>-1</code>.
      */
-    public GroupEditor(MetadataViewer viewer, GroupData group)
+    public GroupEditor(MetadataViewer viewer, GroupData group, int permissions)
     {
     	super(viewer, null);
     	if (group == null)
     		throw new IllegalArgumentException("No group to edit.");
     	this.group = group;
+    	this.permissions = permissions;
     }
     
     /** 
@@ -78,7 +83,7 @@ public class GroupEditor
 	 */
 	public void load()
 	{
-		handle = adminView.updateGroup(group, this);
+		handle = adminView.updateGroup(group, permissions, this);
 	}
 	
 	/** 

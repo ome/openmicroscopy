@@ -150,6 +150,7 @@ import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
+import omero.model.Permissions;
 import omero.model.Pixels;
 import omero.model.PixelsI;
 import omero.model.PixelsType;
@@ -3382,20 +3383,32 @@ class OMEROGateway
 	 * Updates the specified group.
 	 * 
 	 * @param group	The group to update.
+	 * @param permissions The new permissions.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	void updateGroup(ExperimenterGroup group) 
+	GroupData updateGroup(ExperimenterGroup group, 
+			Permissions permissions) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
 			getAdminService().updateGroup(group);
+			
+			if (permissions != null) {
+				getAdminService().changePermissions(findIObject(group), 
+						permissions);
+			}
+			return (GroupData) PojoMapper.asDataObject(
+					(ExperimenterGroup) findIObject(group));
 		} catch (Throwable t) {
+			t.printStackTrace();
 			handleException(t, "Cannot update the group. ");
 		}
+		return null;
 	}
+	
 	
 	/**
 	 * Returns the XY-plane identified by the passed z-section, time-point 

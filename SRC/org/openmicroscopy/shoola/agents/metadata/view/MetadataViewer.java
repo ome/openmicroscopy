@@ -542,4 +542,11 @@ public interface MetadataViewer
 	 */
 	Object getRefObject();
 
+	/**
+	 * Updates the experimenter or the group.
+	 * 
+	 * @param data The object to handle.
+	 */
+	public void updateAdminObject(Object data);
+
 }
