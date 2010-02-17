@@ -243,7 +243,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
 
     }
 
-    @Test(groups = {"ticket:1434","shoola:ticket:1157"})
+    @Test(groups = {"ticket:1434","ticket:1769","shoola:ticket:1157"})
     public void testAdminViewsThumbnails() {
         loginNewUser();
         final ServiceFactory sf = this.factory;// new InternalServiceFactory();
@@ -257,6 +257,28 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         ThumbnailStore tbRoot = sf.createThumbnailService();
         assertTrue(tbRoot.setPixelsId(pix.getId()));
         tbRoot.getThumbnail(64, 64);
+
+        try {
+            // tbRoot.resetDefaults();
+            // fail("group-sec-vio");
+        } catch (ReadOnlyAdminGroupSecurityViolation roagsv) {
+            // ok.
+        }
+    }
+
+    @Test(groups = {"ticket:1434","ticket:1769","shoola:ticket:1157","ticket:1801"})
+    public void testAdminViewsThumbnailsViaInsight() {
+        loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        ThumbnailStore tbUser = sf.createThumbnailService();
+        tbUser.setPixelsId(pix.getId());
+        tbUser.getThumbnailByLongestSideSet(64, Collections.singleton(pix.getId()));
+        //tbUser.resetDefaults();
+
+        loginRootKeepGroup();
+        ThumbnailStore tbRoot = sf.createThumbnailService();
+        tbUser.getThumbnailByLongestSideSet(64, Collections.singleton(pix.getId()));
 
         try {
             // tbRoot.resetDefaults();

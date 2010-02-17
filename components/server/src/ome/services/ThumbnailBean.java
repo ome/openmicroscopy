@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -691,27 +692,34 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	for (Dimension dimensions : dimensionPools.keySet())
     	{
     		Set<Long> pool = dimensionPools.get(dimensions);
-    	    Parameters params = new Parameters();
-            params.addInteger("x", (int) dimensions.getWidth());
-            params.addInteger("y", (int) dimensions.getHeight());
-            params.addLong("o_id", userId);
-            params.addIds(pool);
-        	List<Thumbnail> thumbnailList = iQuery.findAllByQuery(
-        			"select t from Thumbnail as t " +
-        			"join t.pixels " +
-        			"join fetch t.details.updateEvent " +
-        			"where t.sizeX = :x and t.sizeY = :y " + 
-        			"and t.details.owner.id = :o_id " +
-        			"and t.pixels.id in (:ids)", params);
-        	for (Thumbnail metadata : thumbnailList)
-        	{
-        	    Long pixelsId = metadata.getPixels().getId();
-        	    Timestamp t = metadata.getDetails().getUpdateEvent().getTime();
-        		metadataMap.put(pixelsId, metadata);
-        		metadataTimeMap.put(pixelsId, t);
-        	}
+            loadAndParseThumbs(metadataMap, metadataTimeMap, userId,
+                    dimensions, pool);
     	}
     	s1.stop();
+    }
+
+    private int loadAndParseThumbs(Map<Long, Thumbnail> metadataMap,
+            Map<Long, Timestamp> metadataTimeMap, Long userId,
+            Dimension dimensions, Set<Long> ids) {
+        Parameters params = new Parameters();
+        params.addInteger("x", (int) dimensions.getWidth());
+        params.addInteger("y", (int) dimensions.getHeight());
+        params.addLong("o_id", userId);
+        params.addIds(ids);
+        List<Thumbnail> thumbnailList = iQuery.findAllByQuery(
+                "select t from Thumbnail as t " + "join t.pixels "
+                        + "join fetch t.details.updateEvent "
+                        + "where t.sizeX = :x and t.sizeY = :y "
+                        + "and t.details.owner.id = :o_id "
+                        + "and t.pixels.id in (:ids)", params);
+        for (Thumbnail metadata : thumbnailList) {
+            Long pixelsId = metadata.getPixels().getId();
+            Timestamp t = metadata.getDetails().getUpdateEvent().getTime();
+            metadataMap.put(pixelsId, metadata);
+            metadataTimeMap.put(pixelsId, t);
+        }
+
+        return thumbnailList.size();
     }
     
     private void createMissingThumbnailMetadata(
@@ -734,12 +742,31 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     			for (Dimension dimension : dimensionPools.keySet())
     			{
     				Set<Long> pool = dimensionPools.get(dimension);
-    				if (pool.contains(pixelsId))
-    				{
-    					toSave.add(createThumbnailMetadata(
-    							pixelsMap.get(pixelsId), dimension));
-    					addToDimensionPool(temporaryDimensionPools, pixels, size);
-    				}
+                    if (pool.contains(pixelsId)) {
+                        // ticket:1434 & ticket:1801
+                        // Rather than strictly creating, we also try to load
+                        // if the current user is an admin or PI of a priv grp
+                        int numReturned = 0;
+                        if (sec.isGraphCritical()) {
+                            Long ownerId = pixels.getDetails().getOwner()
+                                    .getId();
+                            numReturned = loadAndParseThumbs(metadataMap,
+                                    metadataTimeMap, ownerId, dimension,
+                                    Collections.singleton(pixelsId));
+                        }
+
+                        // We want to attemp the load both if we're not graph
+                        // critical, as well as if the load didn't work. If this
+                        // is a private group, then a ReadOnlyAdminGSV will be
+                        // thrown on saveAndReturnIds.
+                        if (numReturned == 0) {
+                            toSave.add(createThumbnailMetadata(pixelsMap
+                                    .get(pixelsId), dimension));
+                            addToDimensionPool(temporaryDimensionPools, pixels,
+                                    size);
+                        }
+
+                    }
     			}
     		}
     	}
