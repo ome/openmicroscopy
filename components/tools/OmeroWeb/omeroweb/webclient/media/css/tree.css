@@ -158,7 +158,7 @@
 
 .simpleTree .doc
 {
-	cursor: default;
+	cursor: pointer;
 	margin-left:-16px;
 	background: url(../images/tree/leaf.png) 0 -1px no-repeat;
 }
@@ -169,7 +169,7 @@
 }
 .simpleTree .doc2
 {
-	cursor: default;
+	cursor: pointer;
 	margin-left:-16px;
 	background: url(../images/tree/leaf2.png) 0 -1px no-repeat;
 }
@@ -200,16 +200,16 @@
 }
 .simpleTree .text
 {
-	cursor: default;
+	cursor: pointer;
 }
 .simpleTree .text-select
 {
-	cursor: default;
+	cursor: pointer;
 	background-color: #eee
 }
 .simpleTree .active
 {
-	cursor: default;
+	cursor: pointer;
 	background-color:#fff;
 	padding:0px 2px;
 	border: 1px dashed #444;

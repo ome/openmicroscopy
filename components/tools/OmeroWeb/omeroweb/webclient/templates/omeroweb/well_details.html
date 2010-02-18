@@ -32,7 +32,7 @@
     </li>
     {% if manager.global_metadata %}
     <li><a href='#'>{% trans "Global metadata" %}:</a>
-        <div><div class="metadata_details"><input type="button" value="Download {{ manager.original_metadata.getFileName }}" onClick="document.location.href='{% url manage_annotation "download" manager.original_metadata.id %}';"/>
+        <div><div class="metadata_details"><input type="button" value="Download" onClick="document.location.href='{% url manage_annotation "download" manager.original_metadata.id %}';"/>
             <table class="formsm">
             {% for gm in manager.global_metadata %}
                 <tr><td><label>{{ gm.0 }}</label></td><td>{{ gm.1 }}</td></tr>
@@ -43,7 +43,7 @@
     {% endif %}
     {% if manager.series_metadata %}
     <li><a href='#'>{% trans "Series metadata" %}:</a>
-        <div><div class="metadata_details"><input type="button" value="Download {{ manager.original_metadata.getFileName }}" onClick="document.location.href='{% url manage_annotation "download" manager.original_metadata.id %}';"/>
+        <div><div class="metadata_details"><input type="button" value="Download" onClick="document.location.href='{% url manage_annotation "download" manager.original_metadata.id %}';"/>
             <table class="formsm">
             {% for sm in manager.series_metadata %}
                 <tr><td><label>{{ sm.0 }}</label></td><td>{{ sm.1 }}</td></tr>
