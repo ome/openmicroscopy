@@ -11,22 +11,25 @@
 import unittest, os
 import omero, omero.tables
 
-class TestTables(unittest.TestCase):
+from test.integration import library as lib
+
+
+class TestTables(lib.ITest):
 
     def testBlankTable(self):
         grid = self.client.sf.sharedResources()
-        repoMap = grid.acquireRepositories()
+        repoMap = grid.repositories()
         repoObj = repoMap.descriptions[0]
         repoPrx = repoMap.proxies[0]
-        table = self.client.sf.newTable(repoObj.id.val, "/test")
+        table = grid.newTable(repoObj.id.val, "/test")
         self.assert_( table )
         cols = []
-        lc = omero.tables.LongColumn('lc',None,None)
+        lc = omero.grid.LongColumn('lc',None,None)
         cols.append(lc)
-        table.initialize(lc)
+        table.initialize(cols)
         lc.values = [1,2,3,4]
-        table.addData(lc)
-        self.assertEquals([1],table.getWhereList('(lc==1)'))
+        table.addData(cols)
+        self.assertEquals([0],table.getWhereList('(lc==1)',None,0,0,0))
         return table.getOriginalFile()
 
 def test_suite():

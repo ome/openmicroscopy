@@ -212,6 +212,13 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
         AbstractColumn.settable(self, tbl)
         self.size = getattr(tbl.cols, self.name).dtype.itemsize
 
+    def arrays(self):
+        """
+        Overriding to correct for size.
+        """
+        sz = self.size
+        return [numpy.array(self.values, dtype="S%s"%sz)]
+
     def descriptor(self, pos):
         # During initialization, size might be zero
         # to prevent exceptions we set it to 1
