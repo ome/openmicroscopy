@@ -214,7 +214,6 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
         CreationLogLoader logs = new CreationLogLoader(localQuery, row);
         FullTextIndexer fti = new FullTextIndexer(logs);
 
-        final RuntimeException[] e = new RuntimeException[1];
         final FullTextThread ftt = new FullTextThread(sessionManager, executor,
                 fti, this.fullTextBridge, true);
         Future<Object> future = executor.submit(Executors.callable(ftt));

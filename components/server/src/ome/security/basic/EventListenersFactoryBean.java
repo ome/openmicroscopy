@@ -131,7 +131,9 @@ public class EventListenersFactoryBean extends AbstractFactoryBean {
     protected void overrides() {
         override("merge", new MergeEventListener(cd, th));
         override("save", new SaveEventListener(cd, th));
-        override("flush-entity", new FlushEntityEventListener(interceptor));
+        if (interceptor != null) {
+            override("flush-entity", new FlushEntityEventListener(interceptor));
+        }
         override(new String[] { "replicate", "update" }, getDisablingProxy());
     }
 
@@ -152,11 +154,13 @@ public class EventListenersFactoryBean extends AbstractFactoryBean {
             append(key, getProxy(emi));
         }
 
-        ACLEventListener acl = new ACLEventListener(voter);
-        append("post-load", acl);
-        append("pre-insert", acl);
-        append("pre-update", acl);
-        append("pre-delete", acl);
+        if (voter != null) {
+            ACLEventListener acl = new ACLEventListener(voter);
+            append("post-load", acl);
+            append("pre-insert", acl);
+            append("pre-update", acl);
+            append("pre-delete", acl);
+        }
 
         EventLogListener ell = new ome.security.basic.EventLogListener(cd);
         append("post-insert", ell);

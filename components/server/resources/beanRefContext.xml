@@ -60,7 +60,6 @@
         <value>classpath:ome/services/sec-primitives.xml</value>
         <value>classpath:ome/services/hibernate.xml</value>
         <value>classpath:ome/services/services.xml</value>
-        <value>classpath:ome/services/sec-system.xml</value>
         <!-- If we could disable shares here, then it would be possible
         to remove admin, ldap, share and possibly more! -->
         <value>classpath:ome/services/service-ome.api.IAdmin.xml</value>

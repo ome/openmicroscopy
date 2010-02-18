@@ -21,8 +21,46 @@
   <description>
   Registers the cron job for background indexing.
   </description>
+
   <bean id="fullTextIndexerTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
     <property name="jobDetail" ref="fullTextThreadRun" />
     <property name="cronExpression" value="${omero.search.cron}" />
   </bean>
+
+  <!-- used by session factory -->
+  <bean id="org.hibernate.EmptyInterceptor.INSTANCE"
+    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+  <alias name="org.hibernate.EmptyInterceptor.INSTANCE" alias="omeroInterceptor"/>
+
+  <bean id="securityFilter" class="ome.tools.hibernate.SecurityFilter">
+    <property name="defaultFilterCondition" value="true"/>
+  </bean>
+
+  <bean id="eventListeners" class="ome.security.basic.EventListenersFactoryBean">
+    <constructor-arg ref="currentDetails"/>
+    <constructor-arg ref="tokenHolder"/>
+    <constructor-arg index="2"><null/></constructor-arg>
+    <constructor-arg index="3"><null/></constructor-arg>
+    <property name="debugAll" value="false"/>
+  </bean>
+
+  <alias name="basicSecuritySystem" alias="securitySystem"/>
+  <bean id="basicSecuritySystem" class="ome.security.basic.BasicSecuritySystem">
+    <constructor-arg><null/></constructor-arg>
+    <constructor-arg ref="systemTypes"/>
+    <constructor-arg ref="currentDetails"/>
+    <constructor-arg ref="sessionManager"/>
+    <constructor-arg ref="roles"/>
+    <constructor-arg ref="internalServiceFactory"/>
+    <constructor-arg ref="tokenHolder"/>
+  </bean>
+
+  <bean id="eventHandler" class="ome.security.basic.NullEventHandler">
+    <description>
+    Scope: private
+    </description>
+    <constructor-arg ref="basicSecuritySystem"/>
+    <constructor-arg ref="omeroSessionFactory"/>
+  </bean>
+
 </beans>
