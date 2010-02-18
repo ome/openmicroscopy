@@ -141,7 +141,7 @@ class Target():
 		add a box to the list
 		If type = SwarmBoxer.REF_NAME then this is a reference box. 
 		"""
-		print "add_box() x: %d, y: %d" % (x, y)
+		#print "add_box() x: %d, y: %d" % (x, y)
 		box_num = self.box_list.add_box(x,y,type=type)
 		
 		
@@ -258,7 +258,6 @@ class Target():
 		#if roiText:
 		#	rect.textValue = rstring(roiText)	# for display only
 		if colourString:
-			print colourString
 			rect.strokeColor = rstring(colourString)
 
 		# link the rectangle to the ROI and save it 
@@ -290,8 +289,6 @@ def getRectangles(session, imageId, deleteType=None):
 			continue	# don't add this ROI to our list 
 		for shape in roi.copyShapes():
 			if type(shape) == omero.model.RectI:
-				print shape.strokeColor.val
-				print shape.strokeWidth.val
 				x = shape.getX().getValue()
 				y = shape.getY().getValue()
 				width = shape.getWidth().getValue()
@@ -353,7 +350,6 @@ def doAutoBoxing(session, parameterMap):
 	#showImage(image_name)
 	print "image downloaded"
 	
-	
 	# get list of ROI boxes as (x, y, width, height) on the image
 	# and delete any existing AUTO added ROIs. 
 	boxes = getRectangles(session, imageId, SwarmBoxer.AUTO_NAME)
@@ -387,9 +383,12 @@ def runAsScript():
 	The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
 	"""
 	client = scripts.client('boxer.py', 'Use EMAN2 to auto-box particles based on 1 or more user-picked particles (ROIs).', 
-	scripts.List("imageIds").inout());		# List of image IDs. Resulting figure will be attached to first image
+	scripts.List("imageIds").inout())		# List of image IDs. Resulting figure will be attached to first image
 	
-	session = client.getSession();
+	#client.enableKeepAlive(10)		# keeps thread alive when downloading / working with big images. 
+	session = client.getSession()
+	
+	#return		# bug-fixing keepAlive
 	
 	# process the list of args above. 
 	parameterMap = {}
