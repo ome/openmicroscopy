@@ -220,7 +220,7 @@ public class TextualTwoKnobsSlider
 		if (min < 0 || max < 0) minus = "-";
 		int length = (minus+((double) maxValue/roundingFactor)).length(); 
 		double minR = ((double) absMin)/roundingFactor;
-		double maxR = ((double) absMin)/roundingFactor;
+		double maxR = ((double) absMax)/roundingFactor;
 		
 		Class type = Integer.class;
 		
@@ -362,21 +362,27 @@ public class TextualTwoKnobsSlider
 	 */
 	private void handleFocusLost(Object field)
 	{
+		if (field == null) return;
 		String s = formatValue((int) start);
 		String e = formatValue((int) end);
 		double v, value;
 		int m;
+		Number n;
 		if (startField == field) {
-			v = (Double) startField.getValueAsNumber();
+			n = startField.getValueAsNumber();
+			if (n != null) v = n.doubleValue();
+			else v = slider.getStartValue();
 			value = v*roundingFactor;
 			m = slider.getPartialMinimum();
-			if (value < m) startField.setText(s);
+			if (value < m || n == null) startField.setText(s);
 			if (v > end) endField.setText(formatValue((int) v));
 		} else if (endField == field) {
-			v = (Double) endField.getValueAsNumber();
+			n = endField.getValueAsNumber();
+			if (n != null) v = n.doubleValue();
+			else v = slider.getEndValue();
 			value = v*roundingFactor;
 			m = slider.getPartialMaximum();
-			if (value > m) endField.setText(e);
+			if (value > m || n == null) endField.setText(e);
 			if (v < start) startField.setText(formatValue((int) v));
 		}
 	}
