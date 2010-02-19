@@ -37,6 +37,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -111,6 +113,15 @@ public class PasteAction
         	if (ImageData.class.equals(klass))
         		setEnabled(model.isObjectWritable(ho));
         	else setEnabled(false);
+        } else if (ho instanceof GroupData) {
+        	Browser browser = model.getSelectedBrowser();
+			if (browser == null) setEnabled(false);
+			else {
+				if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
+					if (ExperimenterData.class.equals(klass))
+		        		setEnabled(true);
+				} else setEnabled(false);
+			}
         } else if (ho instanceof TagAnnotationData) {
         	if (TagAnnotationData.class.equals(klass)) {
         		TagAnnotationData tag = (TagAnnotationData) ho;

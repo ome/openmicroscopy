@@ -324,13 +324,7 @@ class BrowserModel
     		 currentLoader.load();
     	} else {
     		Object ho = node.getUserObject();
-            if (ho instanceof PlateData) {
-            	/*
-            	currentLoader = new PlateMeasurementLoader(component, 
-        				(TreeImageSet) expNode, (TreeImageSet) node);
-        		currentLoader.load();
-        		*/
-            } else if (ho instanceof DatasetData)  {
+            if (ho instanceof DatasetData)  {
         		currentLoader = new ExperimenterDataLoader(component, 
         				ExperimenterDataLoader.DATASET, 
         				(TreeImageSet) expNode, (TreeImageSet) node);
@@ -339,6 +333,10 @@ class BrowserModel
         		currentLoader = new ExperimenterDataLoader(component, 
         				ExperimenterDataLoader.TAG, 
         				(TreeImageSet) expNode, (TreeImageSet) node);
+        		currentLoader.load();
+        	} else if (ho instanceof GroupData) {
+        		currentLoader = new AdminLoader(component, 
+        				(TreeImageSet) expNode);
         		currentLoader.load();
             } else if (ho instanceof FileData) {
             	FileData fa = (FileData) ho;

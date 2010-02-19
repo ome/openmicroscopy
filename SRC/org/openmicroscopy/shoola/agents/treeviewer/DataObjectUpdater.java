@@ -30,6 +30,7 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
@@ -145,8 +146,12 @@ public class DataObjectUpdater
     {
         if (index == COPY_AND_PASTE)
             handle = dmView.addExistingObjects(objectsToUpdate, this);
-        else if ((index == CUT_AND_PASTE) || (index == CUT)) 
-            handle = dmView.cutAndPaste(objectsToUpdate, objectsToRemove, this);
+        else if ((index == CUT_AND_PASTE) || (index == CUT)) {
+        	boolean admin = (viewer.getSelectedBrowser().getBrowserType() == 
+        		Browser.ADMIN_EXPLORER);
+        	handle = dmView.cutAndPaste(objectsToUpdate, objectsToRemove,
+    				admin, this);
+        }
     }
     
     /**

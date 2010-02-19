@@ -32,12 +32,14 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CopyCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.TagAnnotationData;
@@ -96,37 +98,20 @@ public class CopyAction
 		if ((ho instanceof DatasetData) ||(ho instanceof ImageData) || 
 	         (ho instanceof PlateData))
 			setEnabled(model.isObjectWritable(ho));
-		else if (ho instanceof TagAnnotationData) {
+		else if (ho instanceof ExperimenterData) {
+			Browser browser = model.getSelectedBrowser();
+			if (browser == null) setEnabled(false);
+			else {
+				if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
+					setEnabled(true);
+				} else setEnabled(false);
+			}
+		} else if (ho instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) ho;
 			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
 				setEnabled(false);
 			else setEnabled(model.isObjectWritable(ho));
 		} else setEnabled(false);
-		/*
-		if (ho instanceof DatasetData) {
-			TreeImageDisplay parentDisplay = selectedDisplay.getParentDisplay();
-			if (parentDisplay == null) setEnabled(false);
-			else {
-				Object parent = parentDisplay.getUserObject();
-				if (parent instanceof ProjectData)
-					setEnabled(model.isObjectWritable(ho));
-				else setEnabled(false);
-			}
-			setEnabled(model.isObjectWritable(ho));
-		} else if (ho instanceof PlateData) {
-			TreeImageDisplay parentDisplay = selectedDisplay.getParentDisplay();
-			if (parentDisplay == null) setEnabled(false);
-			else {
-				Object parent = parentDisplay.getUserObject();
-				if (parent instanceof ScreenData)
-					setEnabled(model.isObjectWritable(ho));
-				else setEnabled(false);
-			}
-			setEnabled(model.isObjectWritable(ho));
-		} else if (ho instanceof ImageData) 
-			setEnabled(model.isObjectWritable(ho));
-		else setEnabled(false);
-		*/
 	}
 
 	/**

@@ -66,12 +66,6 @@ class ExperimenterPane
 	extends DataPane
 {
 	
-	/** Indicates that the user is an administrator. */
-	private static final String STATUS_ADMIN = "Administrator";
-	
-	/** Indicates that the user is visible or not. */
-	private static final String STATUS_VISIBLE = "Active";
-	
 	/** Password field to enter password. */
     private JPasswordField passwordField;
     
@@ -115,8 +109,6 @@ class ExperimenterPane
 		activeBox.setEnabled(!administrator);
 		adminBox = new JCheckBox();
 		adminBox.setVisible(administrator);
-		//adminBox.setSelected(administrator);
-		//adminBox.setEnabled(!administrator);
 		ownerBox = new JCheckBox();
 		ownerBox.setEnabled(!administrator);
 		ownerBox.setSelected(administrator);
@@ -185,7 +177,7 @@ class ExperimenterPane
         content.add(passwordField, c);  
         c.gridx = 0;
         c.gridy++;
-        label = UIUtilities.setTextFont("Group's owner");
+        label = UIUtilities.setTextFont(EditorUtil.GROUP_OWNER);
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
         c.fill = GridBagConstraints.NONE;      //reset to default
         c.weightx = 0.0;  
@@ -216,7 +208,7 @@ class ExperimenterPane
         if (adminBox.isVisible()) {
         	c.gridx = 0;
             c.gridy++;
-            label = UIUtilities.setTextFont("Administrator");
+            label = UIUtilities.setTextFont(EditorUtil.ADMINISTRATOR);
             c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
             c.fill = GridBagConstraints.NONE;      //reset to default
             c.weightx = 0.0;  

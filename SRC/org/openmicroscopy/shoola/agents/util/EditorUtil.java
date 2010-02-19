@@ -107,6 +107,15 @@ public class EditorUtil
 													"required fields.";
 	
 	
+	/** Identifies the <code>Group owner</code> field. */
+	public static final String	GROUP_OWNER = "Group's owner";
+	
+	/** Identifies the <code>Administrator</code> field. */
+	public static final String	ADMINISTRATOR = "Administrator";
+	
+	/** Identifies the <code>Active</code> field. */
+	public static final String	ACTIVE = "Active";
+	
 	/** Identifies the <code>Display name</code> field. */
 	public static final String	DISPLAY_NAME = "Login Name";
 	
@@ -671,6 +680,7 @@ public class EditorUtil
         							new LinkedHashMap<String, String>(3);
         if (data == null) {
             details.put(FIRST_NAME, "");
+            details.put(MIDDLE_NAME, "");
             details.put(LAST_NAME, "");
             details.put(EMAIL, "");
             details.put(INSTITUTION, "");
@@ -679,6 +689,11 @@ public class EditorUtil
                 details.put(FIRST_NAME, data.getFirstName());
             } catch (Exception e) {
             	details.put(FIRST_NAME, "");
+            }
+            try {
+                details.put(MIDDLE_NAME, data.getMiddleName());
+            } catch (Exception e) {
+            	details.put(MIDDLE_NAME, "");
             }
             try {
                 details.put(LAST_NAME, data.getLastName());

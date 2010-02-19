@@ -37,16 +37,20 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -79,7 +83,7 @@ import pojos.GroupData;
  */
 class UserProfile 	
 	extends JPanel
-	implements ActionListener, DocumentListener
+	implements ActionListener, ChangeListener, DocumentListener
 {
     
 	/** Text of the label in front of the new password area. */
@@ -112,6 +116,15 @@ class UserProfile
     /** Modify password. */
     private JButton					passwordButton;
     
+    /** Box to make the selected user an administrator. */
+    private JCheckBox				adminBox;
+    
+    /** Box to make the user active or not. */
+    private JCheckBox				activeBox;
+    
+    /** Box to make the selected user the owner of the group is a member of. */
+    private JCheckBox				ownerBox;
+    
 	/** Reference to the Model. */
     private EditorModel				model;
     
@@ -127,6 +140,15 @@ class UserProfile
     /** The groups the user is a member of. */
     private GroupData[] 			groupData;
 
+    /** Flag indicating that the selected user is an owner of the group. */
+    private boolean					groupOwner;
+    
+    /** Indicates that the user is an administrator. */
+    private boolean					admin;
+    
+    /** Indicates that the user is active or not. */
+    private boolean					active;
+ 
     /** Modifies the existing password. */
     private void changePassword()
     {
@@ -175,7 +197,11 @@ class UserProfile
     /** Initializes the components composing this display. */
     private void initComponents()
     {
-    	boolean isOwner = model.isUserOwner(model.getRefObject());
+    	adminBox = new JCheckBox();
+    	adminBox.setVisible(false);
+    	ownerBox = new JCheckBox();
+    	activeBox = new JCheckBox();
+    	activeBox.setVisible(false);
     	passwordButton =  new JButton("Change password");
     	passwordButton.setBackground(UIUtilities.BACKGROUND_COLOR);
     	passwordButton.addActionListener(new ActionListener() {
@@ -206,25 +232,77 @@ class UserProfile
 				validGroups.add(g);
 		}
 		groupData = new GroupData[validGroups.size()];
+		groupOwner = false;
+		admin = false;
+		active = false;
 		int selectedIndex = 0;
 		int index = 0;
 		i = validGroups.iterator();
+		boolean owner = false;
 		while (i.hasNext()) {
 			g = (GroupData) i.next();
 			groupData[index] = g;
-			if (g.getId() == groupID) originalIndex = index;
+			if (g.getId() == groupID) {
+				owner = setGroupOwner(g);
+				originalIndex = index;
+			}
 			index++;
 		}
 		selectedIndex = originalIndex;
 		//sort by name
 		groups = EditorUtil.createComboBox(groupData, 0);
+		groups.setEnabled(false);
 		groups.setRenderer(new GroupsRenderer());
 		if (groupData.length != 0)
 			groups.setSelectedIndex(selectedIndex);
+		
+		if (MetadataViewerAgent.isAdministrator()) {
+			owner = true;
+			adminBox.setVisible(true);
+			activeBox.setVisible(true);
+			activeBox.setSelected(true);
+			adminBox.addChangeListener(this);
+			activeBox.addChangeListener(this);
+			active = true;
+			admin = false;
+		}
+		ownerBox.setEnabled(owner);
+		ownerBox.addChangeListener(this);
+		/*
 		if (isOwner) {
 			groups.addActionListener(this);
 			groups.setEnabled(true);
 		} else groups.setEnabled(false);
+		*/
+    }
+    
+    /**
+     * Selects or not the {@link #ownerBox} if the selected user 
+     * is an owner. Returns <code>true</code> if the currently logged in 
+     * user is an owner of the group.
+     * 
+     * @param group The group to handle.
+     */
+    private boolean setGroupOwner(GroupData group)
+    {
+    	ExperimenterData ref = (ExperimenterData) model.getRefObject();
+    	long userID = MetadataViewerAgent.getUserDetails().getId();
+    	Set leaders = group.getLeaders();
+    	ExperimenterData exp;
+    	boolean isOwner = false;
+    	if (leaders != null) {
+    		Iterator i = leaders.iterator();
+        	while (i.hasNext()) {
+    			exp = (ExperimenterData) i.next();
+    			if (exp.getId() == ref.getId()) {
+    				groupOwner = true;
+    				ownerBox.setSelected(true);
+    			}
+    			if (exp.getId() == userID)
+    				isOwner = true;
+    		}
+    	}
+    	return isOwner;
     }
     
     /**
@@ -251,19 +329,32 @@ class UserProfile
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.WEST;
 		c.insets = new Insets(0, 2, 2, 0);
+		//Add log in name but cannot edit.
+		c.gridx = 0;
+        c.gridy++;
+        label = UIUtilities.setTextFont(EditorUtil.DISPLAY_NAME);
+        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+        c.fill = GridBagConstraints.NONE;      //reset to default
+        c.weightx = 0.0;  
+        content.add(label, c);
+        c.gridx++;
+        content.add(Box.createHorizontalStrut(5), c); 
+        c.gridx++;
+        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        area = new JTextField(user.getUserName());
+        area.setEnabled(false);
+        area.setEditable(false);
+        content.add(area, c);  
+		
+		
         while (i.hasNext()) {
             ++c.gridy;
             c.gridx = 0;
             entry = (Entry) i.next();
             key = (String) entry.getKey();
             value = (String) entry.getValue();
-            /*
-            if (key.equals(EditorUtil.LAST_NAME) || 
-            		key.equals(EditorUtil.EMAIL)) 
-            	label = UIUtilities.setTextFont(
-            			key+EditorUtil.MANDATORY_SYMBOL);
-            else 
-            */
             label = UIUtilities.setTextFont(key);
             area = new JTextField(value);
             area.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -299,7 +390,54 @@ class UserProfile
         c.gridwidth = GridBagConstraints.REMAINDER;     //end row
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
-        content.add(groups, c);  
+        content.add(groups, c); 
+        
+        c.gridx = 0;
+        c.gridy++;
+        label = UIUtilities.setTextFont(EditorUtil.GROUP_OWNER);
+        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+        c.fill = GridBagConstraints.NONE;      //reset to default
+        c.weightx = 0.0;  
+        content.add(label, c);
+        c.gridx++;
+        content.add(Box.createHorizontalStrut(5), c); 
+        c.gridx++;
+        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        content.add(ownerBox, c); 
+        if (activeBox.isVisible()) {
+        	c.gridx = 0;
+            c.gridy++;
+            label = UIUtilities.setTextFont(EditorUtil.ACTIVE);
+            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+            c.fill = GridBagConstraints.NONE;      //reset to default
+            c.weightx = 0.0;  
+            content.add(label, c);
+            c.gridx++;
+            content.add(Box.createHorizontalStrut(5), c); 
+            c.gridx++;
+            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+            c.fill = GridBagConstraints.HORIZONTAL;
+            c.weightx = 1.0;
+            content.add(activeBox, c);  
+        }
+        if (adminBox.isVisible()) {
+        	c.gridx = 0;
+            c.gridy++;
+            label = UIUtilities.setTextFont(EditorUtil.ADMINISTRATOR);
+            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+            c.fill = GridBagConstraints.NONE;      //reset to default
+            c.weightx = 0.0;  
+            content.add(label, c);
+            c.gridx++;
+            content.add(Box.createHorizontalStrut(5), c); 
+            c.gridx++;
+            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+            c.fill = GridBagConstraints.HORIZONTAL;
+            c.weightx = 1.0;
+            content.add(adminBox, c);  
+        }
         c.gridx = 0;
         c.gridy++;
         content.add(Box.createHorizontalStrut(10), c); 
@@ -465,6 +603,16 @@ class UserProfile
 					return true;
 			}
 		}
+		Boolean b = ownerBox.isSelected();
+		if (b.compareTo(groupOwner) != 0) return true;
+		if (adminBox.isVisible()) {
+			b = adminBox.isSelected();
+			if (b.compareTo(admin) != 0) return true;
+		}
+		if (activeBox.isVisible()) {
+			b = activeBox.isSelected();
+			if (b.compareTo(active) != 0) return true;
+		}
 		return false;
 	}
 
@@ -526,8 +674,8 @@ class UserProfile
 	{
 		selectedIndex = groups.getSelectedIndex();
 		buildGUI();
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
-							Boolean.TRUE);
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
 	}
 	
 	/**
@@ -536,8 +684,8 @@ class UserProfile
 	 */
 	public void insertUpdate(DocumentEvent e)
 	{
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
-						Boolean.TRUE);
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
 	}
 
 	/**
@@ -546,8 +694,18 @@ class UserProfile
 	 */
 	public void removeUpdate(DocumentEvent e)
 	{
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
-							Boolean.TRUE);
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
+	}
+	
+	/**
+	 * Fires property indicating that some values have changed.
+	 * @see ChangeListener#stateChanged(ChangeEvent)
+	 */
+	public void stateChanged(ChangeEvent e)
+	{
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
 	}
 	
 	/**

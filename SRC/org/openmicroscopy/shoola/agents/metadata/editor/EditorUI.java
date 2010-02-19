@@ -226,14 +226,13 @@ public class EditorUI
     	setDataToSave(false);
     	boolean add = true;
     	if (uo instanceof ExperimenterData)  {
-    		ExperimenterData exp = (ExperimenterData) uo;
-			ExperimenterData current = MetadataViewerAgent.getUserDetails();
-			if (current.getId() == exp.getId()) {
+    		
+			//if (current.getId() == exp.getId()) {
 				toolBar.buildUI();
 	    		userUI.buildUI();
 	    		userUI.repaint();
 	    		component = userTabbedPane; 
-			} else add = false;
+			//} else add = false;
     	} else if (uo instanceof GroupData) {
     		toolBar.buildUI();
     		groupUI.buildUI();

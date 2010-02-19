@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -128,6 +129,10 @@ public class BrowserDeleteAction
         			}
         			setEnabled(b);
         		}
+        	} else setEnabled(false);
+        } else if (ho instanceof GroupData) {
+        	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) {
+        		setEnabled(TreeViewerAgent.isAdministrator());
         	} else setEnabled(false);
         } else if (ho instanceof ImageData) {
         	TreeImageDisplay[] selected = model.getSelectedDisplays();

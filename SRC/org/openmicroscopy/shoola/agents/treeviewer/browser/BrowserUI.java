@@ -151,9 +151,6 @@ class BrowserUI
     /** Button indicating if the partial name is displayed or not. */
     private JToggleButton			partialButton;
     
-    /** The file chooser used to handle the file system. */
-    //private OMEFileChooser			chooser;
-    
     /** Indicates if the <code>control</code> key is down. */
     private boolean 				ctrl;
     
@@ -172,7 +169,7 @@ class BrowserUI
     {
     	if (treeDisplay.getRowForLocation(loc.x, loc.y) == -1 && popupTrigger) {
     		model.setClickPoint(loc);
-    		if (model.getBrowserType() == Browser.ADMIN_EXPLORER)
+    		if (model.getBrowserType() != Browser.ADMIN_EXPLORER)
     			controller.showPopupMenu(TreeViewer.PARTIAL_POP_UP_MENU);
     		else controller.showPopupMenu(TreeViewer.CREATE_MENU_ADMIN);
 		}
@@ -349,10 +346,9 @@ class BrowserUI
                 model.setClickPoint(p);
                 if (me.isPopupTrigger()) {
                 	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) 
-                		controller.showPopupMenu(TreeViewer.CREATE_MENU_ADMIN);
+                		controller.showPopupMenu(TreeViewer.ADMIN_MENU);
                 	else controller.showPopupMenu(TreeViewer.FULL_POP_UP_MENU);
                 }
-                	
             } else if (me.getClickCount() == 2 && released) {
             	//controller.cancel();
                 //model.viewDataObject();
@@ -729,9 +725,9 @@ class BrowserUI
                 					new DefaultMutableTreeNode(EMPTY_MSG), 
                     				display, display.getChildCount());
                 		}
-                	//} else if (uo instanceof PlateData) {
-                		//tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
-                		//		display, display.getChildCount());
+                	} else if (uo instanceof GroupData) {
+                		tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
+                				display, display.getChildCount());
                 	} else if (uo instanceof FileAnnotationData) {
                 		if (browserType == Browser.SCREENS_EXPLORER) {
                 			TreeImageSet n = new TreeImageSet(uo);
@@ -1449,7 +1445,7 @@ class BrowserUI
 		root.removeAllChildrenDisplay();
 		root.setChildrenLoaded(Boolean.TRUE);
 		root.setExpanded(true);
-       
+		dtm.reload();
         if (nodes.size() != 0) {
             Iterator i = nodes.iterator();
             while (i.hasNext()) {
@@ -1470,14 +1466,13 @@ class BrowserUI
                 	display = (TreeImageDisplay) i.next();
     				ho = display.getUserObject();
     				if (ho instanceof GroupData) {
-    					if (expanded.contains(((GroupData) ho).getId()))
+    					if (expanded.contains(((GroupData) ho).getId())) {
     						expandNode(display);
+    					}
     				}
     			}
             }
-            
         } else buildEmptyNode(root);
-        dtm.reload();
 	}
 	
 	/**

@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.TagAnnotationData;
@@ -100,7 +101,15 @@ public class CutAction
         if ((ho instanceof DatasetData) ||(ho instanceof ImageData) || 
              (ho instanceof PlateData))
             setEnabled(model.isObjectWritable(ho));
-        else if (ho instanceof TagAnnotationData) {
+        else if (ho instanceof ExperimenterData) {
+        	Browser browser = model.getSelectedBrowser();
+			if (browser == null) setEnabled(false);
+			else {
+				if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
+					setEnabled(true);
+				} else setEnabled(false);
+			}
+        } else if (ho instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) ho;
 			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
 				setEnabled(false);

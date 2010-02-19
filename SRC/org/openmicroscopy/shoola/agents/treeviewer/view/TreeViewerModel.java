@@ -196,12 +196,14 @@ class TreeViewerModel
 		DataObject obj = (DataObject) uo;
 		DataObject objParent = (DataObject) uoParent;
 
-		if (((objParent instanceof ProjectData) &&
-			(obj instanceof DatasetData)) || 
-			((objParent instanceof DatasetData)
-			&& (obj instanceof ImageData)) ||
-			((objParent instanceof ScreenData) &&
-					(obj instanceof PlateData)))
+		if ((objParent instanceof ProjectData &&
+			obj instanceof DatasetData) || 
+			(objParent instanceof DatasetData
+			&& obj instanceof ImageData) ||
+			(objParent instanceof ScreenData &&
+					obj instanceof PlateData) || 
+					(objParent instanceof GroupData &&
+							obj instanceof ExperimenterData))
 		{
 			Map map;
 			Set children;
@@ -567,6 +569,12 @@ class TreeViewerModel
 		return true;
 	}
 
+	/** 
+	 * Returns <code>true</code> if the nodes have to be cut, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
 	boolean cut()
 	{
 		if (copyIndex != TreeViewer.CUT_AND_PASTE) return false;

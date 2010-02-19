@@ -179,7 +179,7 @@ public interface Browser
      */
     public static final String  	CLOSE_PROPERTY = "close";
     
-    /** Bound property name indicating to bring up the popup menu.  */
+    /** Bound property name indicating to bring up the pop-up menu.  */
     public static final String  	POPUP_MENU_PROPERTY = "popupMenu";
     
     /** 
@@ -722,5 +722,13 @@ public interface Browser
 	 * @param file The file to register.
 	 */
 	boolean register(FileData file);
+
+	/**
+	 * Sets the experimenters counted in the specified group.
+	 * 
+	 * @param node
+	 * @param result
+	 */
+	void setExperimenters(TreeImageSet node, List result);
 	
 }

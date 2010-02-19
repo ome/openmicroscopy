@@ -80,6 +80,17 @@ public class MetadataViewerAgent
 	}
 	
 	/**
+	 * Returns <code>true</code> if the currently logged in user
+	 * is an administrator, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public static boolean isAdministrator()
+	{
+		return (Boolean) registry.lookup(LookupNames.USER_ADMINISTRATOR);
+	}
+	
+	/**
 	 * Helper method returning <code>true</code> if the connection is fast,
 	 * <code>false</code> otherwise.
 	 * 

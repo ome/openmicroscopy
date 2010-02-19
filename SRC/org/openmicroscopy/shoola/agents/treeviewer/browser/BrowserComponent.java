@@ -68,6 +68,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -202,6 +203,8 @@ class BrowserComponent
 				rootType = DatasetData.class;
 			else if (type == TAGS_EXPLORER)
 				rootType = TagAnnotationData.class;
+			else if (type == ADMIN_EXPLORER)
+				rootType = GroupData.class;
 		}
 		ContainerFinder finder = new ContainerFinder(rootType);
 		accept(finder, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
@@ -458,7 +461,7 @@ class BrowserComponent
         switch (index) {
         	case TreeViewer.FULL_POP_UP_MENU:
         	case TreeViewer.PARTIAL_POP_UP_MENU:
-        	case TreeViewer.CREATE_MENU_ADMIN:
+        	case TreeViewer.ADMIN_MENU:
         		break;
         	default:
         		throw new IllegalArgumentException("Menu not supported:" +
@@ -921,7 +924,10 @@ class BrowserComponent
      */
 	public void loadExperimenterData(TreeImageDisplay exp, TreeImageDisplay n)
 	{
-		if (exp == null || !(exp.getUserObject() instanceof ExperimenterData))
+		if (exp == null)
+			throw new IllegalArgumentException("Node not valid.");
+		Object uo = exp.getUserObject();
+		if (!(uo instanceof ExperimenterData || uo instanceof GroupData))
 			throw new IllegalArgumentException("Node not valid.");
 		switch (model.getState()) {
 			case DISCARDED:
@@ -931,7 +937,6 @@ class BrowserComponent
         if (n == null) model.fireExperimenterDataLoading((TreeImageSet) exp);
         else {
         	if (model.getBrowserType() == FILE_SYSTEM_EXPLORER) {
-        		Object uo = n.getUserObject();
         		if (uo instanceof FileData) {
         			FileData dir = (FileData) uo;
         			if (dir.isDirectory() && !dir.isHidden()) {
@@ -1030,15 +1035,17 @@ class BrowserComponent
         	return;
 		}
 		TreeImageDisplay display;
+		long id;
 		RefreshVisitor v = new RefreshVisitor(this);
 		if (model.getBrowserType() == ADMIN_EXPLORER) {
 			display = view.getTreeRoot();
+			id = TreeViewerAgent.getUserDetails().getId();
 		} else {
 			display = model.getLastSelectedDisplay();
 			if (display == null) return;
 			Object ho = display.getUserObject();
 			if (!(ho instanceof ExperimenterData)) return;
-			
+			id = display.getUserObjectId();
 		}
 		display.accept(v, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
 		RefreshExperimenterDef def = new RefreshExperimenterDef(
@@ -1046,7 +1053,7 @@ class BrowserComponent
 								v.getFoundNodes(), v.getExpandedTopNodes());
 		Map<Long, RefreshExperimenterDef> 
 			m = new HashMap<Long, RefreshExperimenterDef>(1);
-		m.put(display.getUserObjectId(), def);
+		m.put(id, def);
 		model.loadRefreshExperimenterData(m);
 		fireStateChange();
 	}
@@ -1594,6 +1601,24 @@ class BrowserComponent
 		}
 		view.repaint();
 		return true;
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#setExperimenters(TreeImageSet, Collection)
+	 */
+	public void setExperimenters(TreeImageSet node, List result)
+	{
+		if (result.size() != 1) return;
+		Object ho = result.get(0);
+		node.setUserObject(ho);
+		GroupData g = (GroupData) ho;
+		Set nodes = TreeViewerTranslator.transformExperimenters(
+				g.getExperimenters());
+		view.setLeavesViews(nodes, node);
+		model.setState(READY);
+		model.getParentModel().setStatus(false, "", true);
+		fireStateChange();
 	}
 	
 }

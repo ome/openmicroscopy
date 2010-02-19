@@ -834,8 +834,8 @@ public class TreeViewerTranslator
 			g = (GroupData) i.next();
 			n = new TreeImageSet(g);
 			l = g.getExperimenters();
-			n.setChildrenLoaded(Boolean.valueOf(true));
-			if (l != null) {
+			if (l != null && l.size() > 0) {
+				n.setChildrenLoaded(Boolean.valueOf(true));
 				j = l.iterator();
 				while (j.hasNext()) {
 					child = new TreeImageNode(j.next());
@@ -848,5 +848,16 @@ public class TreeViewerTranslator
 		return nodes;
 	}
     
+	public static Set transformExperimenters(Collection list)
+	{
+		Set<TreeImageNode> nodes = new HashSet<TreeImageNode>();
+		if (list == null) return nodes;
+		Collection l;
+		Iterator j = list.iterator();
+		while (j.hasNext()) {
+			nodes.add(new TreeImageNode(j.next()));
+		}
+		return nodes;
+	}
 }
     

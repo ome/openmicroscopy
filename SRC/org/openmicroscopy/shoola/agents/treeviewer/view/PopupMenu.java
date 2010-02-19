@@ -297,6 +297,24 @@ class PopupMenu
 						TreeViewerControl.CREATE_TOP_EXPERIMENTER);
 				createExperimenter = new JMenuItem(a);
 				initMenuItem(createExperimenter, a.getActionName());
+				break;
+			case TreeViewer.ADMIN_MENU:
+				a = controller.getAction(
+						TreeViewerControl.CREATE_TOP_EXPERIMENTER);
+				createExperimenter = new JMenuItem(a);
+				initMenuItem(createExperimenter, a.getActionName());
+				a = controller.getAction(TreeViewerControl.CUT_OBJECT);
+				cutElement = new JMenuItem(a); 
+				initMenuItem(cutElement, a.getActionName());
+				a = controller.getAction(TreeViewerControl.COPY_OBJECT);
+				copyElement = new JMenuItem(a); 
+				initMenuItem(copyElement, a.getActionName());
+				a = controller.getAction(TreeViewerControl.PASTE_OBJECT);
+				pasteElement = new JMenuItem(a); 
+				initMenuItem(pasteElement, a.getActionName());
+				a = controller.getAction(TreeViewerControl.DELETE_OBJECT);
+				deleteElement = new JMenuItem(a); 
+				initMenuItem(deleteElement, a.getActionName());
 		}
 	}
 
@@ -369,6 +387,14 @@ class PopupMenu
 			case TreeViewer.CREATE_MENU_ADMIN:
 				add(createGroup);
 				add(createExperimenter);
+				break;
+			case TreeViewer.ADMIN_MENU:
+				add(createExperimenter);
+				add(new JSeparator(JSeparator.HORIZONTAL));
+				add(cutElement);
+				add(copyElement);
+				add(pasteElement);
+				add(deleteElement);
 		}
 	}
 

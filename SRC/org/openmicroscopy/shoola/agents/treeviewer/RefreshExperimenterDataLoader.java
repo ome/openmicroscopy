@@ -126,6 +126,8 @@ public class RefreshExperimenterDataLoader
                 	children.add(parent);
                 } else if (parent instanceof ScreenData) {
                 	children = ((ScreenData) parent).getPlates();
+                } else if (parent instanceof GroupData) {
+                	children = ((GroupData) parent).getExperimenters();
                 }
                 map.put(parent, children);
             }
@@ -184,10 +186,10 @@ public class RefreshExperimenterDataLoader
      */
     public void load()
     {
-    	if (GroupData.class.equals(rootNodeType)) {
-    		handle = adminView.loadExperimenterGroups(this);
-    		return;
-    	}
+    	//if (GroupData.class.equals(rootNodeType)) {
+    		//handle = adminView.loadExperimenterGroups(this);
+    		//return;
+    	//}
     	Entry entry;
     	Iterator i = expNodes.entrySet().iterator();
     	RefreshExperimenterDef def;
@@ -227,11 +229,16 @@ public class RefreshExperimenterDataLoader
     			m.put(userID, times);
     		}
     	} else {
+    		List l;
         	while (i.hasNext()) {
         		entry = (Entry) i.next();
         		userID = (Long) entry.getKey();
         		def = (RefreshExperimenterDef) entry.getValue();
-    			m.put(userID, def.getExpandedNodes());
+        		if (GroupData.class.equals(rootNodeType)) {
+        			l = (List) def.getExpandedTopNodes().get(GroupData.class);
+        			if (l == null) l = new ArrayList();
+        			m.put(userID, l);
+        		} else m.put(userID, def.getExpandedNodes());
     		}
     	}
     	handle = dmView.refreshHierarchy(rootNodeType, m, this);
@@ -255,31 +262,34 @@ public class RefreshExperimenterDataLoader
         	RefreshExperimenterDef def;
         	Iterator i = expNodes.entrySet().iterator();
         	Map nodes;
-        	List expanded = new ArrayList();
         	List l;
+        	Iterator j;
         	while (i.hasNext()) {
 				entry = (Entry) i.next();
 				def = (RefreshExperimenterDef) entry.getValue();
         		nodes = def.getExpandedTopNodes();
-				l = (List) nodes.get(GroupData.class);
-				if (l != null) expanded.addAll(l);
+        		viewer.setGroups((Collection) result, 
+        				(List) nodes.get(GroupData.class));
 			}
-        	viewer.setGroups((Collection) result, expanded);
+        	
         	return;
         }
         Map m = (Map) result;
-        Iterator i = m.keySet().iterator();
+        Entry entry;
+        Iterator i = m.entrySet().iterator();
         long expId;
         if (ImageData.class.equals(rootNodeType) || 
         		FileAnnotationData.class.equals(rootNodeType)) {
         	while (i.hasNext()) {
-            	expId = (Long) i.next();
-            	formatSmartFolderResult(expId, (List) m.get(expId));
+        		entry = (Entry) i.next();
+            	expId = (Long) entry.getKey();
+            	formatSmartFolderResult(expId, (List) entry.getValue());
     		}
         } else {
         	while (i.hasNext()) {
-            	expId = (Long) i.next();
-            	setExperimenterResult(expId, m.get(expId));
+        		entry = (Entry) i.next();
+            	expId = (Long) entry.getKey();
+            	setExperimenterResult(expId, entry.getValue());
     		}
         }
         

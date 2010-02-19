@@ -621,12 +621,10 @@ class TreeViewerWin
     	if (c == null) return;
     	switch (index) {
 			case TreeViewer.FULL_POP_UP_MENU:
-				PopupMenu popupMenu = new PopupMenu(controller, index);
-		        popupMenu.show(c, p.x, p.y);
-				break;
 			case TreeViewer.PARTIAL_POP_UP_MENU:
-				PopupMenu m = new PopupMenu(controller, index);
-		        m.show(c, p.x, p.y);
+			case TreeViewer.ADMIN_MENU:
+				PopupMenu popupMenu = new PopupMenu(controller, index);
+		        popupMenu.show(c, p.x, p.y);	
 		}
     }
 

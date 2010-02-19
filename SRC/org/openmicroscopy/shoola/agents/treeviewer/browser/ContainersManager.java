@@ -40,14 +40,17 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.GroupData;
 import pojos.PlateData;
 import pojos.TagAnnotationData;
 
 /** 
  * Manages the process of assigning the number of items to 
- * {@link TreeImageSet}s whose userObject is <code>Dataset</code> or 
- * <code>CategoryGroup</code>, in a visualization tree. 
+ * {@link TreeImageSet}s whose userObject is a <code>Dataset</code>, 
+ * <code>Group</code>, <code>Tag</code> or <code>Plate</code>
+ * in a visualization tree. 
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -117,12 +120,11 @@ public class ContainersManager
         while (i.hasNext()) {
             node = (TreeImageSet) i.next();
             userObject = node.getUserObject();
-            if (userObject instanceof DatasetData) 
-            	id = Long.valueOf(((DatasetData) userObject).getId());
-            else if (userObject instanceof PlateData) 
-            	id = Long.valueOf(((PlateData) userObject).getId());
-            else if (userObject instanceof TagAnnotationData) 
-            	id = Long.valueOf(((TagAnnotationData) userObject).getId());
+            if (userObject instanceof DatasetData || 
+            	userObject instanceof PlateData || 
+            	userObject instanceof TagAnnotationData ||
+            	userObject instanceof GroupData) 
+            	id = Long.valueOf(((DataObject) userObject).getId());
             if (id != null) {
             	p = (Set) providers.get(id);
             	if (p == null) {

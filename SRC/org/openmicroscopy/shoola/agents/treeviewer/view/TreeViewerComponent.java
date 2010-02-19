@@ -328,7 +328,26 @@ class TreeViewerComponent
 			} else {
 				view.removeAllFromWorkingPane();
 			}
-		} else {
+		} else if (object instanceof ExperimenterData && 
+				model.getSelectedBrowser().getBrowserType() 
+				== Browser.ADMIN_EXPLORER) {
+			Object ho = display.getParentDisplay().getUserObject();
+			db = DataBrowserFactory.getDataBrowser(ho);
+        	if (db != null) {
+        		db.setComponentTitle("");
+        		if (visible) {
+        			view.removeAllFromWorkingPane();
+            		view.addComponent(db.getUI(model.isFullScreen()));
+        		}
+        		if (object instanceof DataObject) {
+        			List<DataObject> nodes = new ArrayList<DataObject>();
+            		nodes.add((DataObject) object);
+            		db.setSelectedNodes(nodes, 
+            				TreeViewerFactory.getApplications(
+							model.getObjectMimeType(object)));
+        		}
+        	}
+        } else {
         	db = DataBrowserFactory.getDataBrowser(object);
         	if (db != null) {
         		db.setComponentTitle("");
@@ -749,7 +768,6 @@ class TreeViewerComponent
         //TODO: handle TreeImageSet
         if (display != null) { // && !(display instanceof TreeImageTimeSet)) {
         	  Object object = display.getUserObject();
-        	  //metadata.setRootObject(object);
         	  if (!single) {
         		  List l = new ArrayList();
         		  Object child;

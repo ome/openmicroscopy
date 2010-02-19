@@ -228,8 +228,8 @@ class BrowserControl
         	//}
         	return;
         }
-        if ((ho instanceof ProjectData) || (ho instanceof ScreenData) ||
-        		(ho instanceof PlateData)) {
+        if (ho instanceof ProjectData || ho instanceof ScreenData ||
+        	ho instanceof PlateData || ho instanceof GroupData) {
         	if (display.getNumberOfItems() == 0) return;
         }
         
@@ -246,6 +246,8 @@ class BrowserControl
         			display);
         } else if (ho instanceof ExperimenterData) {
         	model.loadExperimenterData(display, null);
+        } else if (ho instanceof GroupData) {
+        	model.loadExperimenterData(display, display); 
         }
     }
     
@@ -337,7 +339,7 @@ class BrowserControl
         	} else if (FileAnnotationData.class.equals(ref)) text = "Files.";
         	else if (FileData.class.equals(ref)) text = "Files.";
         	else if (ExperimenterData.class.equals(ref)) text = "Experimenters";
-        	else if (GroupData.class.equals(ref)) text = "GroupData";
+        	else if (GroupData.class.equals(ref)) text = "User Groups";
         	UserNotifier un = 
         		TreeViewerAgent.getRegistry().getUserNotifier();
         	un.notifyInfo("Tree selection", "You can only select "+text);

@@ -35,6 +35,7 @@ import java.util.Set;
 //Application-internal dependencies
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.GroupData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -103,7 +104,8 @@ public class ContainerFinder
     {
         Object userObject = node.getUserObject();
         if (userObject != null && userObject.getClass().equals(rootType)) {
-        	if (userObject instanceof DatasetData) {
+        	if (userObject instanceof DatasetData || 
+        			userObject instanceof GroupData) {
                 containerNodes.add(node); 
                 containers.add((DataObject) userObject);
             } else if (userObject instanceof TagAnnotationData) {

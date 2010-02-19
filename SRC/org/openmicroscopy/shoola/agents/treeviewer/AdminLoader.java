@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Java imports
 import java.util.Collection;
+import java.util.List;
 
 //Third-party libraries
 
@@ -34,6 +35,8 @@ import java.util.Collection;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import pojos.GroupData;
 
 /** 
  * Loads the groups in the system.
@@ -76,8 +79,13 @@ public class AdminLoader
      */
     public void load()
     {
-    	if (group == null)
-    		handle = adminView.loadExperimenterGroups(this);
+    	long id = -1;
+    	if (group != null) {
+    		GroupData g = (GroupData) group.getUserObject();
+    		id = g.getId();
+    		
+    	}
+    	handle = adminView.loadExperimenterGroups(id, this);
     }
 
     /**
@@ -95,7 +103,7 @@ public class AdminLoader
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
         if (group == null)
         	viewer.setGroups((Collection) result, null);
-        
+        else viewer.setExperimenters(group, (List) result);
     }
     
 }
