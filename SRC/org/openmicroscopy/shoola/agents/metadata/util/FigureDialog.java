@@ -710,40 +710,15 @@ public class FigureDialog
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
-
-		components = new LinkedHashMap<Integer, FigureComponent>();
-		//Initializes the channels
+		List<Integer> active = renderer.getActiveChannels();
 		List<ChannelData> data = renderer.getChannelData();
         ChannelData d;
         //ChannelToggleButton item;
         ChannelButton item;
         Iterator<ChannelData> k = data.iterator();
-        List<Integer> active = renderer.getActiveChannels();
-        FigureComponent split;
-        int j;
-        BufferedImage img;
-        int w = (int) roiBox.getWidth()*size.width/pixels.getSizeX();
-        int h = (int) roiBox.getHeight()*size.height/pixels.getSizeY();
-        while (k.hasNext()) {
-			d = k.next();
-			j = d.getIndex();
-			split = new FigureComponent(this, renderer.getChannelColor(j), 
-					d.getChannelLabeling(), j);
-			split.setSelected(active.contains(j));
-			lens.setPlaneImage(getChannelImage(j, false));
-			img = lens.getZoomedImage();
-			w = img.getWidth()*size.width/pixels.getSizeX();
-			h = img.getHeight()*size.height/pixels.getSizeY();
-			split.setOriginalImage(Factory.scaleBufferedImage(img, w, h));
-			split.setCanvasSize(w, h);
-			if (!active.contains(j))
-				split.resetImage(true);
-			components.put(j, split);
-		}
-
-        k = data.iterator();
         List<ChannelButton> buttons = new ArrayList<ChannelButton>();
         ChannelButton comp;
+        int j;
         while (k.hasNext()) {
         	d = k.next();
 			j = d.getIndex();
@@ -756,6 +731,36 @@ public class FigureDialog
         mergedComponent = new FigureComponent(this, buttons);
         mergedComponent.setCanvasSize(thumbnailWidth, thumbnailHeight);
         mergedComponent.setOriginalImage(getMergedImage());
+
+        components = new LinkedHashMap<Integer, FigureComponent>();
+		//Initializes the channels
+		k = data.iterator();
+        
+        FigureComponent split;
+
+        BufferedImage img;
+        int w = (int) roiBox.getWidth()*size.width/pixels.getSizeX();
+        int h = (int) roiBox.getHeight()*size.height/pixels.getSizeY();
+        while (k.hasNext()) {
+			d = k.next();
+			j = d.getIndex();
+			split = new FigureComponent(this, renderer.getChannelColor(j), 
+					d.getChannelLabeling(), j);
+			split.setSelected(active.contains(j));
+			
+			lens.setPlaneImage(getChannelImage(j, false));
+			img = lens.getZoomedImage();
+			if (img != null) {
+				w = img.getWidth()*size.width/pixels.getSizeX();
+				h = img.getHeight()*size.height/pixels.getSizeY();
+				split.setOriginalImage(Factory.scaleBufferedImage(img, w, h));
+				split.setCanvasSize(w, h);
+				if (!active.contains(j))
+					split.resetImage(true);
+			}
+			
+			components.put(j, split);
+		}
 	}
 	
 	/**
