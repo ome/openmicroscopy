@@ -455,12 +455,12 @@ def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, colour
 	
 	The figure is returned as a PIL 'Image' 
 	
-	@ session	session for server access
-	@ pixelIds		a list of the Ids for the pixels we want to display
-	@ zStart		the start of Z-range for projection
-	@ zEnd 			the end of Z-range for projection
-	@ splitIndexes 	a list of the channel indexes to display. Same channels for each image/row
-	@ channelNames 		the Map of index:names to go above the columns for each split channel
+	@ session			session for server access
+	@ pixelIds			a list of the Ids for the pixels we want to display
+	@ splitIndexes 		a list of the channel indexes to display. Same channels for each image/row
+	@ channelNames 		the Map of index:names for all channels
+	@ zStart			the start of Z-range for projection
+	@ zEnd 				the end of Z-range for projection
 	@ colourChannels 	the colour to make each column/ channel
 	@ mergedIndexes  	list or set of channels in the merged image 
 	@ mergedColours 	index: colour dictionary of channels in the merged image
@@ -488,7 +488,15 @@ def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, colour
 		log("ROI zoom: %F X" % roiZoom)
 	
 	textGap = spacer/3
-	fontsize = max(12, width/10)
+	fontsize = 12
+	if width > 500:
+		fontsize = 48
+	elif width > 400:
+		fontsize = 36
+	elif width > 300:
+		fontsize = 24
+	elif width > 200:
+		fontsize = 16
 	font = imgUtil.getFont(fontsize)
 	textHeight = font.getsize("Textq")[1]
 	maxCount = 0
@@ -583,6 +591,17 @@ def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, colour
 			
 
 def roiFigure(session, commandArgs):	
+	"""
+		This processes the script parameters, adding defaults if needed. 
+		Then calls a method to make the figure, and finally uploads and attaches this to the primary image.
+		
+		@param: session		The OMERO session
+		@param: commandArgs		Map of String:Object parameters for the script. 
+								Objects are not rtypes, since getValue() was called when the map was processed below. 
+								But, list and map objects may contain rtypes (need to call getValue())
+		
+		@return: 	the id of the originalFileLink child. (ID object, not value) 
+	"""
 	
 	# create the services we're going to need. 
 	metadataService = session.getMetadataService()
@@ -701,21 +720,26 @@ def roiFigure(session, commandArgs):
 			if c%3 == 2:
 				mergedColours[c] = (255,0,0,255)	# red
 	
-	# Make channel list. 
-	splitIndexes = []
+	# Make channel-names map. If argument wasn't specified, name by index
 	channelNames = {}
-	if "splitChannelNames" in commandArgs:
-		cNameMap = commandArgs["splitChannelNames"]
+	if "channelNames" in commandArgs:
+		cNameMap = commandArgs["channelNames"]
 		for c in cNameMap:
 			index = int(c)
 			channelNames[index] = cNameMap[c].getValue()
-			splitIndexes.append(index)
-		splitIndexes.sort()
-	else:	# If argument wasn't specified, include them all. 
+	else:
 		for c in range(sizeC):
 			channelNames[c] = str(c)
-		splitIndexes = range(sizeC)
-		
+	
+	# Make split-indexes list. If argument wasn't specified, include them all. 
+	splitIndexes = []
+	if "splitIndexes" in commandArgs:
+		for index in commandArgs["splitIndexes"]:
+			splitIndexes.append(index.getValue())
+	else:
+		for c in range(sizeC):
+			splitIndexes = range(sizeC)
+			
 	colourChannels = True
 	if commandArgs["splitPanelsGrey"]:
 		colourChannels = False
@@ -783,17 +807,22 @@ def roiFigure(session, commandArgs):
 		output = output + ".jpg"
 		fig.save(output)
 	
-
+	# Use util method to upload the figure 'output' to the server, attaching it to the omeroImage, adding the 
+	# figLegend as the fileAnnotation description. 
+	# Returns the id of the originalFileLink child. (ID object, not value)
 	fileId = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, omeroImage, output, format, figLegend)
 	return fileId
 
 def runAsScript():
-	# splitViewROIFigure.py
+	"""
+	The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
+	"""
 	client = scripts.client('roiFigure.py', 'Create a figure of split-view images.', 
 	scripts.List("imageIds").inout(),		# List of image IDs. Resulting figure will be attached to first image 
 	#scripts.Long("zStart").inout(),			# projection range
 	#scripts.Long("zEnd").inout(),			# projection range
-	scripts.Map("splitChannelNames").inout(),	# map of index: channel name for Split channels
+	scripts.Map("channelNames").inout(),	# map of index: channel name for All channels
+	scripts.List("splitIndexes", optional=True).inout(),	# a list of the channels in the split view
 	scripts.Bool("splitPanelsGrey").inout(),# if true, all split panels are greyscale
 	scripts.Map("mergedColours").inout(),	# a map of index:int colours for each merged channel
 	scripts.Long("width", optional=True).inout(),		# the max width of each image panel 
@@ -812,13 +841,14 @@ def runAsScript():
 	gateway = session.createGateway();
 	commandArgs = {"imageIds":client.getInput("imageIds").getValue()}
 	
+	# process the list of args above. 
 	for key in client.getInputKeys():
-		print key
 		if client.getInput(key):
 			commandArgs[key] = client.getInput(key).getValue()
-			print commandArgs[key]
 	
+	# call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
 	fileId = roiFigure(session, commandArgs)
+	# return this fileAnnotation to the client. 
 	client.setOutput("fileAnnotation",fileId)
 	
 if __name__ == "__main__":
