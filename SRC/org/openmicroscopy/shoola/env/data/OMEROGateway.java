@@ -143,6 +143,7 @@ import omero.model.ExperimenterGroupI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Format;
+import omero.model.GroupExperimenterMap;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
@@ -3403,7 +3404,6 @@ class OMEROGateway
 			return (GroupData) PojoMapper.asDataObject(
 					(ExperimenterGroup) findIObject(group));
 		} catch (Throwable t) {
-			t.printStackTrace();
 			handleException(t, "Cannot update the group. ");
 		}
 		return null;
@@ -6136,6 +6136,61 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Counts the number of experimenters within the specified groups.
+	 * Returns a map whose keys are the group identifiers and the values the 
+	 * number of experimenters in the group.
+	 * 
+	 * @param ids The group identifiers.
+	 * @return See above
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	Map<Long, Long> countExperimenters(List<Long> groupIds)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		Map<Long, Long> r = new HashMap<Long, Long>();
+		try {
+			IQueryPrx svc = getQueryService();
+			ParametersI p = new ParametersI();
+			p.addLongs("gids", groupIds);
+			List list = (List) svc.findAllByQuery("select m " +
+					"from GroupExperimenterMap as m"
+	                + " left outer join fetch m.parent"
+	                		+" where m.parent.id in (:gids)", p);
+			Iterator i = list.iterator();
+			GroupExperimenterMap g;
+			long id;
+			Long count;
+			ExperimenterGroup group;
+			
+			while (i.hasNext()) {
+				g = (GroupExperimenterMap) i.next();
+				group = g.getParent();
+				if (!isSystemGroup(group)) {
+					id = group.getId().getValue();
+					groupIds.remove(id);
+					count = r.get(id);
+					if (count == null) count = 0L;
+					count++;
+					r.put(id, count);
+				}
+			}
+			if (groupIds.size() > 0) {
+				i = groupIds.iterator();
+				while (i.hasNext()) {
+					r.put((Long) i.next(), 0L);
+				}
+			}
+		} catch (Throwable t) {
+			handleException(t, "Cannot count the experimenters.");
+		}
+		
+		return r;
+	}
+	
+	/**
 	 * Loads the groups the experimenters.
 	 * 
 	 * @param id The group identifier or <code>-1</code>.
@@ -6151,9 +6206,27 @@ class OMEROGateway
 		isSessionAlive();
 		List<GroupData> pojos = new ArrayList<GroupData>();
 		try {
-			IAdminPrx svc = getAdminService();
-			//Need method server side.
-			List<ExperimenterGroup> groups = svc.lookupGroups();
+			IQueryPrx svc = getQueryService();
+			//IAdminPrx svc = getAdminService();
+			List<ExperimenterGroup> groups = null;
+			if (id <= 0) {
+				groups = (List)
+				svc.findAllByQuery("select distinct g from ExperimenterGroup g "
+		               // + "left outer join fetch g.groupExperimenterMap m "
+		                , null);
+			} else {
+				ParametersI p = new ParametersI();
+				p.addId(id);
+				groups = (List) svc.findAllByQuery("select distinct g " +
+						"from ExperimenterGroup g "
+		                + "left outer join fetch g.groupExperimenterMap m "
+		                + "left outer join fetch m.child u "
+		                + "left outer join fetch u.groupExperimenterMap m2 "
+		                + "left outer join fetch m2.parent" +
+		                		" where g.id = :id", p);
+				//groups = svc.lookupGroups();
+			}
+			
 			
 			ExperimenterGroup group;
 			//GroupData pojoGroup;
@@ -6194,6 +6267,75 @@ class OMEROGateway
 			exp = i.next();
 			try {
 				svc.deleteExperimenter(exp.asExperimenter());
+			} catch (Exception e) {
+				r.add(exp);
+			}
+		}
+		return r;
+	}
+	
+	/**
+	 * Copies the experimenter to the specified group.
+	 * Returns the experimenters that could not be copied.
+	 * 
+	 * @param group The group to add the experimenters to.
+	 * @param experimenters The experimenters to add.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List<ExperimenterData> copyExperimenters(GroupData group, 
+			Collection experimenters)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		List<ExperimenterData> r = new ArrayList<ExperimenterData>();
+		IAdminPrx svc = getAdminService();
+		Iterator<ExperimenterData> i = experimenters.iterator();
+		ExperimenterData exp;
+		List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
+		groups.add(group.asGroup());
+		while (i.hasNext()) {
+			exp = i.next();
+			try {
+				svc.addGroups(exp.asExperimenter(), groups);
+			} catch (Exception e) {
+				r.add(exp);
+			}
+		}
+		return r;
+	}
+	
+	/**
+	 * Copies the experimenter to the specified group.
+	 * Returns the experimenters that could not be copied.
+	 * 
+	 * @param group The group to add the experimenters to.
+	 * @param experimenters The experimenters to add.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List<ExperimenterData> removeExperimenters(GroupData group, 
+			Collection experimenters)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		List<ExperimenterData> r = new ArrayList<ExperimenterData>();
+		IAdminPrx svc = getAdminService();
+		Iterator<ExperimenterData> i = experimenters.iterator();
+		ExperimenterData exp;
+		String name = group.getName();
+		List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
+		groups.add(group.asGroup());
+		while (i.hasNext()) {
+			exp = i.next();
+			try {
+				svc.removeGroups(exp.asExperimenter(), groups);
 			} catch (Exception e) {
 				r.add(exp);
 			}

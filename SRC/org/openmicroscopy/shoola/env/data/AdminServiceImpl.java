@@ -25,10 +25,12 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
@@ -253,7 +255,7 @@ class AdminServiceImpl
 	 * Implemented as specified by {@link AdminService}.
 	 * @see AdminService#loadExperimenters(long)
 	 */
-	public List<ExperimenterData> loadExperimenters(long id)
+	public List<ExperimenterData> loadExperimenters(long groupID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<ExperimenterData> l = new ArrayList<ExperimenterData>();
@@ -345,6 +347,68 @@ class AdminServiceImpl
 			gateway.setPermissionsLevel(p, permissions);
 		}
 		return gateway.updateGroup(g, p);
+	}
+
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#copyExperimenters(GroupData, Set)
+	 */
+	public List<ExperimenterData> copyExperimenters(GroupData group, 
+				Set experimenters) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (group == null)
+			throw new IllegalArgumentException("No group specified.");
+		if (experimenters == null || experimenters.size() == 0) 
+			return new ArrayList<ExperimenterData>();
+		return gateway.copyExperimenters(group, experimenters);
+	}
+
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#cutAndPasteExperimenters(Map, Map)
+	 */
+	public List<ExperimenterData> cutAndPasteExperimenters(Map toPaste, 
+			Map toCut)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		if (toPaste == null) toPaste = new HashMap();
+		if (toCut == null) toCut = new HashMap();
+		Iterator i;
+		Object parent;
+		Entry entry;
+		List<ExperimenterData> r = new ArrayList<ExperimenterData>();
+		i = toCut.entrySet().iterator();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			parent = entry.getKey();
+			if (parent instanceof GroupData)
+				r.addAll(gateway.removeExperimenters((GroupData) parent, 
+						(Set) entry.getValue()));
+		}
+
+		i = toPaste.entrySet().iterator();
+
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			parent = entry.getKey();
+			if (parent instanceof GroupData) //b/c of orphaned container
+				r.addAll(copyExperimenters((GroupData) parent, 
+						(Set) entry.getValue()));
+		}
+		return r;
+	}
+
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#countExperimenters(List)
+	 */
+	public Map<Long, Long> countExperimenters(List<Long> ids)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		if (ids == null || ids.size() == 0)
+			return new HashMap<Long, Long>();
+		return gateway.countExperimenters(ids);
 	}
 	
 }

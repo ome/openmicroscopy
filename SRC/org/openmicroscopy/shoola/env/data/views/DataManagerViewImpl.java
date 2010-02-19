@@ -151,7 +151,7 @@ class DataManagerViewImpl
 	public CallHandle addExistingObjects(Collection parents, Collection children, 
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ExistingObjectsSaver(parents, children);
+		BatchCallTree cmd = new ExistingObjectsSaver(parents, children, false);
 		return cmd.exec(observer);
 	}
 
@@ -163,18 +163,18 @@ class DataManagerViewImpl
 	public CallHandle addExistingObjects(Map toPaste, 
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ExistingObjectsSaver(toPaste, null);
+		BatchCallTree cmd = new ExistingObjectsSaver(toPaste, null, false);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#cutAndPaste(Map, Map, AgentEventListener)
+	 * @see DataManagerView#cutAndPaste(Map, Map, boolean, AgentEventListener)
 	 */
-	public CallHandle cutAndPaste(Map toPaste, Map toCut, 
+	public CallHandle cutAndPaste(Map toPaste, Map toCut, boolean admin,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ExistingObjectsSaver(toPaste, toCut);
+		BatchCallTree cmd = new ExistingObjectsSaver(toPaste, toCut, admin);
 		return cmd.exec(observer);
 	}
 

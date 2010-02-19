@@ -30,17 +30,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ImageData;
-import pojos.ProjectData;
+import pojos.GroupData;
 
 /** 
  * Command to save existing <code>DataObject</code>s.
@@ -73,10 +73,12 @@ public class ExistingObjectsSaver
      * @param parent    The <code>DataObject</code>s to update. Either a 
      *                  <code>ProjectData</code> or <code>DatasetData</code>.
      * @param children  The items to add.
+     * @param admin 	Pass <code>true</code> to indicate to handle 
+	 * 					experimenters, <code>false</code> otherwise.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final Collection parent, 
-    		final Collection children)
+    		final Collection children, final boolean admin)
     {
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
@@ -105,18 +107,27 @@ public class ExistingObjectsSaver
      */
     private BatchCall makeBatchCall(final Map toPaste)
     {
-        return new BatchCall("Loading container tree: ") {
+        return new BatchCall("Copy and paste: ") {
             public void doCall() throws Exception
             {
+            	AdminService as = context.getAdminService();
                 OmeroDataService os = context.getDataService();
-                Iterator i = toPaste.keySet().iterator();
+                Iterator i = toPaste.entrySet().iterator();
                 Object p;
+                Entry entry;
                 while (i.hasNext()) {
-                    p = i.next();
-                    if (p instanceof DataObject) {
-                        os.addExistingObjects((DataObject) p, (Set)
-                                toPaste.get(p));
-                    }
+                	entry = (Entry) i.next();
+                	p = entry.getKey();
+                	if (p instanceof GroupData) {
+                		as.copyExperimenters((GroupData) p, (Set)
+                                entry.getValue());
+                	} else {
+                		if (p instanceof DataObject) {
+                            os.addExistingObjects((DataObject) p, (Set)
+                                    entry.getValue());
+                        }
+                	}
+                    
                 }
                 result = toPaste;
             }
@@ -129,16 +140,26 @@ public class ExistingObjectsSaver
      * 
      * @param toPaste   The <code>DataObjects</code> to update.
      * @param toRemove  The <code>DataObjects</code> to remove.
+     * @param admin 	Pass <code>true</code> to indicate to handle 
+	 * 					experimenters, <code>false</code> otherwise.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(final Map toPaste, final Map toRemove)
+    private BatchCall makeBatchCall(final Map toPaste, final Map toRemove,
+    		final boolean admin)
     {
-        return new BatchCall("Loading container tree: ") {
+        return new BatchCall("Cut and paste: ") {
             public void doCall() throws Exception
             {
-                OmeroDataService os = context.getDataService();
-                os.cutAndPaste(toPaste, toRemove);
-                result = toPaste;
+            	if (admin) {
+            		AdminService as = context.getAdminService();
+            		as.cutAndPasteExperimenters(toPaste, toRemove);
+                    result = toPaste;
+            	} else {
+            		OmeroDataService os = context.getDataService();
+                    os.cutAndPaste(toPaste, toRemove);
+                    result = toPaste;
+            	}
+                
             }
         };
     }
@@ -166,7 +187,8 @@ public class ExistingObjectsSaver
      *                  <code>ProjectData</code> or <code>DatasetData</code>.
      * @param children  The items to add.
      */
-    public ExistingObjectsSaver(Collection parent, Collection children)
+    public ExistingObjectsSaver(Collection parent, Collection children, 
+    		boolean admin)
     {
         if (children == null || children.size() == 0)
             throw new IllegalArgumentException("No item to add.");
@@ -190,7 +212,7 @@ public class ExistingObjectsSaver
         } else
             throw new IllegalArgumentException("parent object not supported");
             */
-        call = makeBatchCall(parent, children);
+        call = makeBatchCall(parent, children, admin);
     }
 
     /**
@@ -200,12 +222,14 @@ public class ExistingObjectsSaver
      * 
      * @param toPaste   The <code>DataObject</code>s to update. 
      * @param toRemove  The <code>DataObject</code>s to cut. 
+     * @param admin 	Pass <code>true</code> to indicate to handle 
+	 * 					experimenters, <code>false</code> otherwise.
      */
-    public ExistingObjectsSaver(Map toPaste, Map toRemove)
+    public ExistingObjectsSaver(Map toPaste, Map toRemove, boolean admin)
     {
     	if (toPaste == null) toPaste = new HashMap();
         if (toRemove == null) call = makeBatchCall(toPaste);
-        else call = makeBatchCall(toPaste, toRemove);
+        else call = makeBatchCall(toPaste, toRemove, admin);
     }
     
 }

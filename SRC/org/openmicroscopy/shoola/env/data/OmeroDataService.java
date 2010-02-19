@@ -38,8 +38,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.GroupData;
 
 /** 
  * List of methods to retrieve data using OMERO.

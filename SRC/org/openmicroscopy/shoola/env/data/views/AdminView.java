@@ -118,21 +118,23 @@ public interface AdminView
 	/**
 	 * Loads all the available groups.
 	 * 
+	 * @param groupID   The group identifier or <code>-1</code>.
 	 * @param observer	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadExperimenterGroups(AgentEventListener observer);
-	
-	/**
-	 * Loads all the experimenters who are members of the specified group.
-	 * 
-	 * @param groupID   The id of the group.
-	 * @param observer	Call-back handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadExperimenters(long groupID, 
+	public CallHandle loadExperimenterGroups(long groupID,
 			AgentEventListener observer);
 
+	/**
+	 * Loads the experimenters contained within the specified groups.
+	 * 
+	 * @param groupID   The group identifier or <code>-1</code>.
+	 * @param observer	Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadExperimenters(long groupID,
+			AgentEventListener observer);
+	
 	/**
 	 * Deletes the specified experimenters or groups. Returns the experimenters
 	 * or groups that could not be deleted.

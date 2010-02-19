@@ -35,6 +35,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
@@ -42,6 +43,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.PlateData;
 import pojos.TagAnnotationData;
 
@@ -100,6 +102,9 @@ public class ContainerCounterLoader
 					}
 		        	
 		        	result = m;
+		        } else if (GroupData.class.equals(type)) {
+		        	AdminService svc = context.getAdminService();
+		        	result = svc.countExperimenters(ids);
 		        } else {
 		        	 result = os.getCollectionCount(type, 
 		                		OmeroDataService.IMAGES_PROPERTY, ids);
@@ -147,6 +152,9 @@ public class ContainerCounterLoader
             } else if (root instanceof PlateData) {
             	rootType = PlateData.class;
                 id = Long.valueOf(((PlateData) root).getId());
+            }  else if (root instanceof GroupData) {
+            	rootType = GroupData.class;
+                id = Long.valueOf(((GroupData) root).getId());
             }
             if (id != null) ids.add(id);
         }

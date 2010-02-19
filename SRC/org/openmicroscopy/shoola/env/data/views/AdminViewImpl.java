@@ -123,11 +123,12 @@ class AdminViewImpl
 
 	/**
 	 * Implemented as specified by the {@link AdminView} interface.
-	 * @see AdminView#loadExperimenterGroups(AgentEventListener)
+	 * @see AdminView#loadExperimenterGroups(long, AgentEventListener)
 	 */
-	public CallHandle loadExperimenterGroups(AgentEventListener observer)
+	public CallHandle loadExperimenterGroups(long groupID,
+			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AdminLoader(-1, AdminLoader.GROUPS);
+		BatchCallTree cmd = new AdminLoader(groupID, AdminLoader.GROUPS);
 		return cmd.exec(observer);
 	}
 

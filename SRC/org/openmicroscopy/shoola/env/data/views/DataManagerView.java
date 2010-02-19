@@ -177,10 +177,12 @@ public interface DataManagerView
 	 *                  where the key is the <code>DataObject</code> to cut  
 	 *                  from and the value is a set of <code>DataObject</code>
 	 *                  to remove.
+	 * @param admin 	Pass <code>true</code> to indicate to handle 
+	 * 					experimenters, <code>false</code> otherwise.
 	 * @param observer  Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle cutAndPaste(Map toPaste, Map toCut, 
+	public CallHandle cutAndPaste(Map toPaste, Map toCut, boolean admin,
 			AgentEventListener observer);
 
 	/**

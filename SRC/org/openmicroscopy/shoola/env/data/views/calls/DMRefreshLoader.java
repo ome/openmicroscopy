@@ -32,11 +32,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
@@ -45,6 +47,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -68,7 +71,7 @@ public class DMRefreshLoader
 {
 
     /** The results of the call. */
-    private Map      	results;
+    private Object      results;
     
     /** Loads the specified tree. */
     private BatchCall   loadCall;
@@ -78,13 +81,15 @@ public class DMRefreshLoader
      * 
      * @param rootNodeType The root node.
      * @param nodes   	   The nodes to handle.
+     * @param mapResult	   Map hosting the results.
      * @throws Exception Thrown if an error occurred.
      */
-    private void retrieveData(Class rootNodeType, Map<Long, List> nodes)
+    private void retrieveData(Class rootNodeType, Map<Long, List> nodes, 
+    		Map<Long, Object> mapResult)
     	throws Exception
     {
     	OmeroDataService os = context.getDataService();
-        Iterator users = nodes.keySet().iterator();
+        Iterator users = nodes.entrySet().iterator();
         long userID;
         List containers;
         
@@ -97,17 +102,19 @@ public class DMRefreshLoader
         Map topNodes;
         DataObject child, parent;
         Set s;
+        Entry entry;
         while (users.hasNext()) {
-        	userID = (Long) users.next();
-        	containers = nodes.get(userID);
+        	entry = (Entry) users.next();
+        	userID = (Long) entry.getKey();
+        	containers = (List) entry.getValue();
         	if (containers == null || containers.size() == 0) {
         		result = os.loadContainerHierarchy(rootNodeType, null, 
                 		false, userID);
-        		if (results.containsKey(userID)) {
-        			s = (Set) results.get(userID);
+        		if (mapResult.containsKey(userID)) {
+        			s = (Set) mapResult.get(userID);
         			s.addAll((Set) result);
         		} else {
-        			results.put(userID, result);
+        			mapResult.put(userID, result);
         		}
         	} else {
         		set = os.loadContainerHierarchy(rootNodeType, null, 
@@ -157,10 +164,10 @@ public class DMRefreshLoader
                     }
                 }
                 result = topNodes;
-                if (results.containsKey(userID)) {
-        			Map map  = (Map) results.get(userID);
+                if (mapResult.containsKey(userID)) {
+        			Map map  = (Map) mapResult.get(userID);
         			map.putAll((Map) result);
-        		} else results.put(userID, result);
+        		} else mapResult.put(userID, result);
         	}
         	//results.put(userID, result);
 		}
@@ -168,7 +175,7 @@ public class DMRefreshLoader
     
     /**
      * Creates a {@link BatchCall} to retrieve a Container tree, either
-     * Project or CategoryGroup.
+     * <code>Project</code> or <code>Screen</code>.
      * 
      * @param rootNodeType 	The type of the root node. Can either:
      *                      {@link ProjectData}.
@@ -181,9 +188,10 @@ public class DMRefreshLoader
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
-            	results = new HashMap<Long, Object>(nodes.size());
+            	Map<Long, Object> r = new HashMap<Long, Object>(nodes.size());
+            	results = r;
                 //retrieveData(ProjectData.class, nodes);
-                retrieveData(rootNodeType, nodes);
+                retrieveData(rootNodeType, nodes, r);
             }
         };
     }
@@ -201,14 +209,16 @@ public class DMRefreshLoader
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                Iterator users = nodes.keySet().iterator();
+                Iterator i = nodes.entrySet().iterator();
                 long userID;
                 List containers;
                 Iterator j ;
                 TimeRefObject ref;
-                while (users.hasNext()) {
-                	userID = (Long) users.next();
-                	containers = nodes.get(userID);
+                Entry entry;
+                while (i.hasNext()) {
+                	entry = (Entry) i.next();
+                	userID = (Long) entry.getKey();
+                	containers = (List) entry.getValue();
                 	j = containers.iterator();
                 	while (j.hasNext()) {
                 		ref = (TimeRefObject) j.next();
@@ -217,6 +227,52 @@ public class DMRefreshLoader
 					}
                 }
                 results = nodes;
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to retrieve the groups.
+     * 
+     * @param nodes The map whose keys are the id of user and the values 
+     * 				are the corresponding collections of data objects to reload.  		
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall makeGroupsBatchCall(final Map<Long, List> nodes)
+    {
+        return new BatchCall("Loading groups: ") {
+            public void doCall() throws Exception
+            {
+                AdminService svc = context.getAdminService();
+                Entry entry;
+                Iterator i = nodes.entrySet().iterator();
+                Iterator j;
+                long groupID;
+                List<GroupData> groups = svc.loadGroups(-1);
+                List<GroupData> r = new ArrayList<GroupData>();
+                
+                List<Long> toRemove = new ArrayList<Long>();
+                List<GroupData> l;
+                List list;
+                while (i.hasNext()) {
+					entry = (Entry) i.next();
+					list = (List) entry.getValue();
+					j = list.iterator();
+					while (j.hasNext()) {
+						groupID = (Long) j.next();
+						l = svc.loadGroups(groupID);
+						toRemove.add(groupID);
+						if (l.size() == 1) r.add(l.get(0));
+					}
+				}
+                i = groups.iterator();
+                GroupData g;
+                while (i.hasNext()) {
+					g = (GroupData) i.next();
+					if (!toRemove.contains(g.getId())) 
+						r.add(g);
+				}
+                results = r;
             }
         };
     }
@@ -267,14 +323,15 @@ public class DMRefreshLoader
             {
                 OmeroMetadataService os = context.getMetadataService();
                 Iterator users = nodes.keySet().iterator();
-                results = new HashMap<Long, Object>(nodes.size());
+                Map<Long, Object> r = new HashMap<Long, Object>(nodes.size());
                 long userID;
                 Object result;
                 while (users.hasNext()) {
                 	userID = (Long) users.next();
                 	result = os.loadTags(-1L, false, true, userID);
-                	results.put(userID, result);
+                	r.put(userID, result);
                 }
+                results = r;
             }
         };
     }
@@ -317,6 +374,8 @@ public class DMRefreshLoader
         	loadCall = makeFilesBatchCall(nodes);
         } else if (TagAnnotationData.class.equals(rootNodeType)) {
         	loadCall = makeTagsBatchCall(nodes);
+        } else if (GroupData.class.equals(rootNodeType)) {
+        	loadCall = makeGroupsBatchCall(nodes);
         }
     }
     

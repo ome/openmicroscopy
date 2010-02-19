@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -179,27 +181,27 @@ public interface AdminService
 	 * Loads the group specified by the passed identifier or all available
 	 * groups if <code>-1</code>.
 	 * 
-	 * @param id The group identifier.
+	 * @param groupID The group identifier.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public List<GroupData> loadGroups(long id)
+	public List<GroupData> loadGroups(long groupID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Loads the experimenters contained in the specified group.
 	 * 
-	 * @param id The group identifier.
+	 * @param groupID The group identifier.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public List<ExperimenterData> loadExperimenters(long id)
+	public List<ExperimenterData> loadExperimenters(long groupID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
@@ -237,5 +239,42 @@ public interface AdminService
 	 * @return See above.
 	 */
 	public int getPermissionLevel();
+	
+	/**
+	 * Copies the passed experimenters to the specified group.
+	 * 
+	 * @param group The group to add the experimenters to.
+	 * @param experimenters The experimenters to add.
+	 */
+	public List<ExperimenterData> copyExperimenters(GroupData group, 
+			Set experimenters)
+		throws DSOutOfServiceException, DSAccessException;
+
+	/**
+	 * Cuts and paste the specified experimenters.
+	 * 
+	 * @param toPaste   The nodes to paste.
+	 * @param toCut     The nodes to cut.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	public List<ExperimenterData> cutAndPasteExperimenters(Map toPaste, 
+			Map toRemove)
+		throws DSOutOfServiceException, DSAccessException;
+
+	/**
+	 * Counts the number of experimenters within the specified groups.
+	 * Returns a map whose keys are the group identifiers and the values the 
+	 * number of experimenters in the group.
+	 * 
+	 * @param ids The group identifiers.
+	 * @return See above
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	public Map<Long, Long> countExperimenters(List<Long> ids)
+		throws DSOutOfServiceException, DSAccessException;
 	
 }
