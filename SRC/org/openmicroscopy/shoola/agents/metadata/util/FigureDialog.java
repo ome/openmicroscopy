@@ -444,14 +444,16 @@ public class FigureDialog
 			fc = (FigureComponent) entry.getValue();
 			lens.setPlaneImage(getChannelImage(j, false));
 			img = lens.getZoomedImage();
-			w = img.getWidth()*size.width/pixels.getSizeX();
-			h = img.getHeight()*size.height/pixels.getSizeY();
-			if (w != 0 && h != 0) {
-				fc.setOriginalImage(Factory.scaleBufferedImage(img, w, h));
-				fc.setCanvasSize(w, h);
-				fc.revalidate();
-				if (!active.contains(j))
-					fc.resetImage(true);
+			if (img != null) {
+				w = img.getWidth()*size.width/pixels.getSizeX();
+				h = img.getHeight()*size.height/pixels.getSizeY();
+				if (w != 0 && h != 0) {
+					fc.setOriginalImage(Factory.scaleBufferedImage(img, w, h));
+					fc.setCanvasSize(w, h);
+					fc.revalidate();
+					if (!active.contains(j))
+						fc.resetImage(true);
+				}
 			}
 		}
 	}
@@ -1191,15 +1193,23 @@ public class FigureDialog
 	private JPanel buildComponents()
 	{
 		JPanel p = new JPanel();
+		double[] columns = new double[components.size()+1];
+		for (int i = 0; i < columns.length; i++) {
+			columns[i] = TableLayout.PREFERRED;
+		}
+		double[] rows = {TableLayout.FILL};
+ 		p.setLayout(new TableLayout(columns, rows));
 		Entry entry;
 		Iterator i = components.entrySet().iterator();
 		FigureComponent comp;
+		int index = 0;
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			comp = (FigureComponent) entry.getValue();
-			p.add(comp);
+			p.add(comp, index+", 0, LEFT, TOP");
+			index++;
 		}
-		p.add(mergedComponent);
+		p.add(mergedComponent, index+", 0, LEFT, TOP");
 		p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		return p;
 	}
