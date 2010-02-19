@@ -1415,11 +1415,9 @@ public class FigureDialog
 			p.setProjectionType(
 					projectionTypes.get(projectionTypesBox.getSelectedIndex()));
 		} else {
-			//Integer n = (Integer) planeSelection.getValue()-1;
-			//p.setZStart(n);
-			//p.setZEnd(n);
-			//p.setStepping(1);
-			//TODO:Check what to add to script.
+			p.setZStart(-1);
+			p.setZEnd(-1);
+			p.setStepping(1);
 			p.setProjectionType(ProjectionParam.MAXIMUM_INTENSITY);
 		}
 	}

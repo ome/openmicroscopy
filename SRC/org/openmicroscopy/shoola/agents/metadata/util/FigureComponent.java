@@ -119,6 +119,8 @@ class FigureComponent
 		field.setColumns(8);
 		canvas = new FigureCanvas();
 		box = new JCheckBox("Channel names");
+		box.setToolTipText("Label the merged panel with channel names " +
+				"if selected. Otherwise label with 'Merged'.");
 		box.setBorder(null);
 	}
 	
@@ -209,7 +211,7 @@ class FigureComponent
 	 */
 	boolean isChannelsName() 
 	{
-		if (!single) return false;
+		if (single) return false;
 		return box.isSelected();
  	}
 	
