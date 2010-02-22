@@ -1247,7 +1247,17 @@ class BlitzObjectWrapper (object):
 
     def getDetails (self):
         return DetailsWrapper (self._conn, self._obj.getDetails())
-
+    
+    def getDate(self):
+        try:
+            if self._obj.acquisitionDate.val is not None and self._obj.acquisitionDate.val > 0:
+                t = self._obj.acquisitionDate.val
+            else:
+                t = self._obj.details.creationEvent.time.val
+        except:
+            t = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val).time.val
+        return datetime.fromtimestamp(t/1000)
+    
     def save (self):
         self._obj = self._conn.getUpdateService().saveAndReturnObject(self._obj)
 
@@ -2070,17 +2080,6 @@ class _ImageWrapper (BlitzObjectWrapper):
         except: #pragma: no cover
             logger.debug(traceback.format_exc())
             return None
-        
-    def getDate(self):
-        try:
-            if self._obj.acquisitionDate.val is not None and self._obj.acquisitionDate.val > 0:
-                t = self._obj.acquisitionDate.val
-            else:
-                t = self._obj.details.creationEvent.time.val
-        except:
-            t = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val).time.val
-        return datetime.fromtimestamp(t/1000)
-    
 
 #    def getDate(self):
 #        try:
