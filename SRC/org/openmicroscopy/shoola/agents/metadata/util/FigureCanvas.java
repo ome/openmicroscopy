@@ -24,9 +24,13 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
 
@@ -96,9 +100,18 @@ class FigureCanvas
     public void paintComponent(Graphics g)
     {
     	super.paintComponent(g);
-    	if (image == null || !imageVisible) return;
     	Graphics2D g2D = (Graphics2D) g;
     	ImagePaintingFactory.setGraphicRenderingSettings(g2D);
+    	
+    	if (image == null) {
+    		Rectangle r = getBounds();
+        	g2D.drawRect(0, 0, r.width, r.height-1);
+        	return;
+    	}
+    	if (!imageVisible) {
+    		g2D.drawRect(0, 0, image.getWidth(), image.getHeight()-1);
+    		return;
+    	}
     	g2D.drawImage(image, null, 0, 0); 
     }
     

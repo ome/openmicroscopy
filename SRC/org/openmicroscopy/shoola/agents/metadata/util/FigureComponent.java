@@ -343,13 +343,9 @@ class FigureComponent
 				Boolean b = (Boolean) m.get(button.getChannelIndex());
 				if (b != null) {
 					button.setSelected(b);
-					model.setChannelSelection(button.getChannelIndex(), b);
+					model.setChannelSelection(button.getChannelIndex(), b, 
+							false);
 					canvas.setImageVisible(b);
-					/*
-					canvas.setImageVisible(b);
-					if (b) canvas.setImage(displayedImage);
-					canvas.repaint();
-					*/
 				}
 			}
 		}

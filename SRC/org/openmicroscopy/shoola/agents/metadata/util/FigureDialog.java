@@ -646,7 +646,8 @@ public class FigureDialog
 			j = d.getIndex();
 			split = new FigureComponent(this, renderer.getChannelColor(j), 
 					d.getChannelLabeling(), j);
-			split.setSelected(active.contains(j));
+			//split.setSelected(active.contains(j));
+			split.setSelected(true);
 			split.setOriginalImage(getChannelImage(j, true));
 			split.setCanvasSize(thumbnailWidth, thumbnailHeight);
 			if (!active.contains(j))
@@ -748,8 +749,8 @@ public class FigureDialog
 			j = d.getIndex();
 			split = new FigureComponent(this, renderer.getChannelColor(j), 
 					d.getChannelLabeling(), j);
-			split.setSelected(active.contains(j));
-			
+			//split.setSelected(active.contains(j));
+			split.setSelected(true);
 			lens.setPlaneImage(getChannelImage(j, false));
 			img = lens.getZoomedImage();
 			if (img != null) {
@@ -1209,7 +1210,7 @@ public class FigureDialog
 			p.add(comp, index+", 0, LEFT, TOP");
 			index++;
 		}
-		p.add(mergedComponent, "0, "+index+", LEFT, TOP");
+		p.add(mergedComponent, index+", 0, LEFT, TOP");
 		p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		return p;
 	}
@@ -1253,7 +1254,8 @@ public class FigureDialog
 					BoxLayout.X_AXIS));
 			splitControls.add(pc);
 			splitControls.add(buildDimensionComponent());
-			controls.add(UIUtilities.buildComponentPanel(splitControls), "0, 4");
+			controls.add(UIUtilities.buildComponentPanel(splitControls), 
+					"0, 4");
 		} else {
 			controls.add(buildDimensionComponent(), "0, 4");
 		}
@@ -1720,11 +1722,14 @@ public class FigureDialog
 	/**
 	 * Sets the channel selection.
 	 * 
-	 * @param channel   The selected channel.
+	 * @param channel	The selected channel.
 	 * @param active	Pass <code>true</code> to set the channel active,
 	 * 					<code>false</code> otherwise.
+	 * @param merged	Pass <code>true</code> to indicate that the merged 
+	 * 					channels have been modified, <code>false</code>
+	 * 					otherwise.
 	 */
-	void setChannelSelection(int channel, boolean active)
+	void setChannelSelection(int channel, boolean active, boolean merged)
 	{
 		renderer.setActive(channel, active);
 		mergedComponent.setOriginalImage(getMergedImage());
@@ -1747,7 +1752,7 @@ public class FigureDialog
 		        	if (grey) comp.resetImage(grey);
 		        	else comp.resetImage(!active);
 		        } else comp.resetImage(!active);
-		        comp.setSelected(active);
+		        if (!merged) comp.setSelected(active);
 		        break;	
 		}
 	}
@@ -1940,11 +1945,11 @@ public class FigureDialog
 				entry = (Entry) i.next();
 				index = (Integer) entry.getKey();
 				setChannelSelection(index.intValue(), 
-						((Boolean) entry.getValue()));
+						((Boolean) entry.getValue()), true);
 			}
 		} else if (ChannelComponent.CHANNEL_SELECTION_PROPERTY.equals(name)) {
 			ChannelComponent c = (ChannelComponent) evt.getNewValue();
-			setChannelSelection(c.getChannelIndex(), c.isActive());
+			setChannelSelection(c.getChannelIndex(), c.isActive(), true);
 		} else if (GridSlider.COLUMN_SELECTION_PROPERTY.equals(name)) {
 			generalLabel.setText(
 					FRAMES_TEXT+movieSlider.getNumberOfSelectedCells());
