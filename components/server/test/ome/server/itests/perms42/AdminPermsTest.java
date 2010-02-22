@@ -360,6 +360,23 @@ public class AdminPermsTest extends PermissionsTest {
         // Finally, the one owner removes his/herself (valid)
         iAdmin.unsetGroupOwner(fixture.group(), fixture.user);
     }
+
+    @Test
+    public void testTicket1811() throws Exception {
+        setup(Permissions.PRIVATE);
+        assertPi(false);
+        fixture.make_leader();
+        assertPi(true);
+        loginRoot();
+        iAdmin.addGroups(fixture.user, fixture.group());
+        assertPi(true);
+    }
+
+    private void assertPi(boolean isPi) {
+        assertEquals(isPi, iAdmin.getLeaderOfGroupIds(fixture.user)
+                .contains(fixture.group().getId()));
+    }
+
     // Helpers
     // =========================================================================
 
