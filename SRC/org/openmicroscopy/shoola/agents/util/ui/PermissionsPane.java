@@ -48,6 +48,8 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.PermissionData;
+
 /** 
  * Displays the permissions options.
  *
@@ -158,11 +160,12 @@ public class PermissionsPane
         groupBox.setBackground(getBackground());
         publicBox.setBackground(getBackground());
         label.setBackground(getBackground());
+       
+        readOnlyGroupBox.addChangeListener(this);
+        readOnlyPublicBox.addChangeListener(this);
         groupBox.addChangeListener(this);
         publicBox.addChangeListener(this);
         privateBox.addChangeListener(this);
-        readOnlyGroupBox.addChangeListener(this);
-        readOnlyPublicBox.addChangeListener(this);
     }
     
     /** Builds and lays out the UI. */
@@ -251,6 +254,42 @@ public class PermissionsPane
 		buildGUI();
 	}
 
+	/** 
+	 * Creates a new instance. 
+	 * 
+	 * @param permissions 	The permissions level.
+	 * @param background	The background color or <code>null</code>.
+	 */
+	public PermissionsPane(PermissionData permissions)
+	{
+		this(permissions, null);
+	}
+	
+	/** 
+	 * Creates a new instance. 
+	 * 
+	 * @param permissions 	The permissions level.
+	 * @param background	The background color or <code>null</code>.
+	 */
+	public PermissionsPane(PermissionData permissions, Color background)
+	{
+		int level = AdminObject.PERMISSIONS_PRIVATE;
+		if (permissions != null) {
+			if (permissions.isGroupRead()) {
+	    		if (permissions.isGroupWrite()) 
+	    			level = AdminObject.PERMISSIONS_GROUP_READ_WRITE;
+	    		else level = AdminObject.PERMISSIONS_GROUP_READ;
+	    	} else if (permissions.isWorldRead()) {
+	    		if (permissions.isGroupWrite()) 
+	    			level = AdminObject.PERMISSIONS_PUBLIC_READ_WRITE;
+	    		else level = AdminObject.PERMISSIONS_PUBLIC_READ;
+	    	}
+		}
+    	if (background != null) setBackground(background);
+		initComponents(level);
+		buildGUI();
+	}
+	
 	/**
 	 * Returns the selected permissions level i.e. one of the constants defined
 	 * by <code>AdminObject</code>.
@@ -277,6 +316,43 @@ public class PermissionsPane
 		repaint();
 	}
 	
+	/** Disables all the controls. */
+	public void disablePermissions()
+	{
+		publicBox.removeChangeListener(this);
+		groupBox.removeChangeListener(this);
+		readOnlyGroupBox.setEnabled(false);
+		readOnlyPublicBox.setEnabled(false);
+    	groupBox.setEnabled(false);
+        privateBox.setEnabled(false);
+        publicBox.setEnabled(false);
+        
+        groupBox.addChangeListener(this);
+        publicBox.addChangeListener(this);
+        removeAll();
+        JPanel p;
+        switch (getPermissions()) {
+			case AdminObject.PERMISSIONS_PRIVATE:
+				add(privateBox);
+				break;
+			case AdminObject.PERMISSIONS_GROUP_READ:
+			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+				p = new JPanel();
+				p.setBackground(getBackground());
+				p.add(groupBox);
+				p.add(readOnlyGroupBox);
+				add(p);
+				break;
+			case AdminObject.PERMISSIONS_PUBLIC_READ:
+			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+				p = new JPanel();
+				p.setBackground(getBackground());
+				p.add(publicBox);
+				p.add(readOnlyPublicBox);
+				add(p);
+		}
+	}
+	
 	/**
 	 * Sets the enabled flag of the {@link #readOnlyGroupBox} and
 	 * {@link #readOnlyPublicBox}.
@@ -289,6 +365,7 @@ public class PermissionsPane
 			firePropertyChange(PERMISSIONS_CHANGE_PROPERTY, 
 					-1, getPermissions());
 		} else {
+			
 			readOnlyGroupBox.setEnabled(false);
 			readOnlyPublicBox.setEnabled(false);
 			if (groupBox == src) readOnlyGroupBox.setEnabled(true);

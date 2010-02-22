@@ -89,19 +89,9 @@ class GroupProfile
     	GroupData data = (GroupData) model.getRefObject();
     	
     	//permission level
-    	PermissionData perm = data.getPermissions();
-    	level = AdminObject.PERMISSIONS_PRIVATE;
-    	if (perm.isGroupRead()) {
-    		if (perm.isGroupWrite()) 
-    			level = AdminObject.PERMISSIONS_GROUP_READ_WRITE;
-    		else level = AdminObject.PERMISSIONS_GROUP_READ;
-    	} else if (perm.isWorldRead()) {
-    		if (perm.isGroupWrite()) 
-    			level = AdminObject.PERMISSIONS_PUBLIC_READ_WRITE;
-    		else level = AdminObject.PERMISSIONS_PUBLIC_READ;
-    	}
-    	permissionsPane = new PermissionsPane(level, 
+    	permissionsPane = new PermissionsPane(data.getPermissions(), 
     			UIUtilities.BACKGROUND_COLOR);
+    	level = permissionsPane.getPermissions();
     	permissionsPane.setBorder(
     			BorderFactory.createTitledBorder("Permissions"));
     	permissionsPane.displayWarningText();

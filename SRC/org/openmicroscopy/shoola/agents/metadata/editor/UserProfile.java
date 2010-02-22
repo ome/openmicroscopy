@@ -61,6 +61,7 @@ import javax.swing.event.DocumentListener;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.GroupsRenderer;
+import org.openmicroscopy.shoola.agents.util.ui.PermissionsPane;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -106,6 +107,8 @@ class UserProfile
     /** UI component displaying the groups, the user is a member of. */
     private JComboBox				groups;
 
+    private JLabel					groupLabel;
+    
     /** Password field to enter the new password. */
     private JPasswordField			passwordNew;
     
@@ -151,6 +154,9 @@ class UserProfile
     /** Indicates that the user is active or not. */
     private boolean					active;
  
+    /** Component displaying the permissions status. */
+    private PermissionsPane			permissionsPane;
+    
     /** Modifies the existing password. */
     private void changePassword()
     {
@@ -221,6 +227,12 @@ class UserProfile
     	ExperimenterData user = (ExperimenterData) model.getRefObject();
     	List userGroups = user.getGroups();
     	GroupData defaultGroup = user.getDefaultGroup();
+    	permissionsPane = new PermissionsPane(defaultGroup.getPermissions(), 
+    			UIUtilities.BACKGROUND_COLOR);
+    	permissionsPane.disablePermissions();
+    	groupLabel = new JLabel(defaultGroup.getName());
+    	groupLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	
 		long groupID = defaultGroup.getId();
 		//Build the array for box.
 		Iterator i = userGroups.iterator();
@@ -252,6 +264,7 @@ class UserProfile
 		}
 		selectedIndex = originalIndex;
 		//sort by name
+		
 		groups = EditorUtil.createComboBox(groupData, 0);
 		groups.setEnabled(false);
 		groups.setRenderer(new GroupsRenderer());
@@ -392,7 +405,11 @@ class UserProfile
         c.gridwidth = GridBagConstraints.REMAINDER;     //end row
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
-        content.add(groups, c); 
+        content.add(groupLabel, c);
+        c.gridy++;
+        content.add(permissionsPane, c);
+        
+        //content.add(groups, c); 
         
         c.gridx = 0;
         c.gridy++;
