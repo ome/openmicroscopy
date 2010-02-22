@@ -959,7 +959,7 @@ class MetadataViewerComponent
 		if (data instanceof ExperimenterData) {
 			model.fireExperimenterSaving((ExperimenterData) data);
 		} else if (data instanceof AdminObject)
-			model.fireGroupSaving((AdminObject) data);
+			model.fireAdminSaving((AdminObject) data);
 	}
 
 }

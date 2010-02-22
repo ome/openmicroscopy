@@ -83,10 +83,10 @@ public class UserCredentials
     private long 	group;
     
 	/** Indicates that the experimenters to handle are administrator. */
-	private boolean administrator;
+	private Boolean administrator;
 	
 	/** Indicates if the experimenter is the owner of the group. */
-	private boolean owner;
+	private Boolean owner;
 	
     /** 
      * Controls if the passed speed index is supported.
@@ -136,6 +136,8 @@ public class UserCredentials
         this.hostName = hostName;
         port = -1;
         group = -1L;
+        owner = null;
+        administrator = null;
     }
     
     /**
@@ -238,7 +240,7 @@ public class UserCredentials
 	 * 
 	 * @param administrator The value to set.
 	 */
-	public void setAdministrator(boolean administrator)
+	public void setAdministrator(Boolean administrator)
 	{
 		this.administrator = administrator;
 	}
@@ -249,7 +251,7 @@ public class UserCredentials
 	 * 
 	 * @return See above.
 	 */
-	public boolean isAdministrator() { return administrator; }
+	public Boolean isAdministrator() { return administrator; }
 
 	/**
 	 * Sets to <code>true</code> if the experimenter is the owner of a group,
@@ -257,7 +259,7 @@ public class UserCredentials
 	 * 
 	 * @param administrator The value to set.
 	 */
-	public void setOwner(boolean owner)
+	public void setOwner(Boolean owner)
 	{
 		this.owner = owner;
 	}
@@ -268,7 +270,7 @@ public class UserCredentials
 	 * 
 	 * @return See above.
 	 */
-	public boolean isOwner() { return owner; }
+	public Boolean isOwner() { return owner; }
 
     /**
      * Formats user name and password.

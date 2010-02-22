@@ -31,6 +31,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
@@ -276,5 +277,20 @@ public interface AdminService
 	 */
 	public Map<Long, Long> countExperimenters(List<Long> ids)
 		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Updates the specified experimenters. Returns the experimenters
+	 * that could not be updated.
+	 * 
+	 * @param group The default group.
+	 * @param experimenters The experimenters to update.
+	 * @return See above
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	public List<ExperimenterData> updateExperimenters(GroupData group,
+			Map<ExperimenterData, UserCredentials> experimenters)
+			throws DSOutOfServiceException, DSAccessException;
 	
 }

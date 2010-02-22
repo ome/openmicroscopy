@@ -128,7 +128,7 @@ class UserUI
 	 * 
 	 * @return See above.
 	 */
-	ExperimenterData getExperimenterToSave()
+	Object getExperimenterToSave()
 	{
 		return profile.getExperimenterToSave();
 	}

@@ -57,8 +57,11 @@ public class AdminObject
 	/** Indicates to create a group. */
 	public static final int CREATE_EXPERIMENTER = 1;
 	
-	/** Indicates to updates a group. */
+	/** Indicates to update a group. */
 	public static final int UPDATE_GROUP = 2;
+	
+	/** Indicates to update experimenter. */
+	public static final int UPDATE_EXPERIMENTER = 3;
 	
 	/** Indicates that the group is <code>Private</code> i.e. RW----. */
 	public static final int PERMISSIONS_PRIVATE = 100;
@@ -86,6 +89,7 @@ public class AdminObject
 			case CREATE_EXPERIMENTER:
 			case CREATE_GROUP:
 			case UPDATE_GROUP:
+			case UPDATE_EXPERIMENTER:
 				return;
 			default:
 				throw new IllegalArgumentException("Index not supported");

@@ -3409,6 +3409,31 @@ class OMEROGateway
 		return null;
 	}
 	
+	/**
+	 * Adds the passed experimenters as owner of the group if the flag is
+	 * <code>true</code>, removes them otherwise.
+	 * 
+	 * @param toAdd Pass <code>true</code> to add the experimenters as owners,
+	 * 				<code>false</code> otherwise.
+	 * @param group	The group to handle.
+	 * @param experimenters The experimenters to add.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	void handleGroupOwners(boolean toAdd, ExperimenterGroup group, 
+			List<Experimenter> experimenters)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			IAdminPrx svc = getAdminService();
+			if (toAdd) svc.addGroupOwners(group, experimenters);
+			else svc.removeGroupOwners(group, experimenters);
+		} catch (Throwable t) {
+			handleException(t, "Cannot handle the group ownership. ");
+		}
+	}
 	
 	/**
 	 * Returns the XY-plane identified by the passed z-section, time-point 

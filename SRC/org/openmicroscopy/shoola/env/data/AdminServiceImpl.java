@@ -35,6 +35,7 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.Permissions;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -205,7 +206,13 @@ class AdminServiceImpl
 		if (group != null && exp.getDefaultGroup().getId() != group.getId()) {
 			gateway.changeCurrentGroup(exp, group.getId());
 		}
+		ExperimenterData currentUser = (ExperimenterData)
+			context.lookup(LookupNames.CURRENT_USER_DETAILS);
+		
 		data = gateway.getUserDetails(uc.getUserName());
+		if (currentUser.getId() != exp.getId()) 
+			return data;
+		
 		
 		context.bind(LookupNames.CURRENT_USER_DETAILS, data);
 //		Bind user details to all agents' registry.
@@ -409,6 +416,61 @@ class AdminServiceImpl
 		if (ids == null || ids.size() == 0)
 			return new HashMap<Long, Long>();
 		return gateway.countExperimenters(ids);
+	}
+
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#updateExperimenters(GroupData, Map)
+	 */
+	public List<ExperimenterData> updateExperimenters(GroupData group,
+			Map<ExperimenterData, UserCredentials> experimenters)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		if (experimenters == null)
+			throw new IllegalArgumentException("No experimenters to update");
+		Entry entry;
+		Iterator i = experimenters.entrySet().iterator();
+		List<ExperimenterData> l = new ArrayList<ExperimenterData>();
+		List<Experimenter> ownersToAdd = new ArrayList<Experimenter>();
+		List<Experimenter> ownersToRemove = new ArrayList<Experimenter>();
+		List<Experimenter> administratorsToAdd = new ArrayList<Experimenter>();
+		List<Experimenter> 
+		administratorsToRemove = new ArrayList<Experimenter>();
+		
+		ExperimenterData exp;
+		UserCredentials uc;
+		Boolean b;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			exp = (ExperimenterData) entry.getKey();
+			uc = (UserCredentials) entry.getValue();
+			try {
+				updateExperimenter(exp, group);
+				b = uc.isOwner();
+				if (b != null) {
+					if (b.booleanValue()) ownersToAdd.add(exp.asExperimenter());
+					else ownersToRemove.add(exp.asExperimenter());
+				}
+				b = uc.isAdministrator();
+				if (b != null) {
+					if (b.booleanValue()) 
+						administratorsToAdd.add(exp.asExperimenter());
+					else administratorsToRemove.add(exp.asExperimenter());
+				}
+				//Check owner
+			} catch (Exception e) {
+				l.add(exp);
+			}
+		}
+		if (group != null) {
+			if (ownersToAdd.size() > 0)
+				gateway.handleGroupOwners(true, group.asGroup(), ownersToAdd);
+			if (ownersToRemove.size() > 0)
+				gateway.handleGroupOwners(false, group.asGroup(), 
+						ownersToRemove);
+		}
+		
+		return l;
 	}
 	
 }

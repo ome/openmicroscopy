@@ -326,7 +326,7 @@ public class EditorUI
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		toolBar.setDataToSave(false);
 		if (model.getRefObject() instanceof ExperimenterData) {
-			ExperimenterData exp = userUI.getExperimenterToSave();
+			Object exp = userUI.getExperimenterToSave();
 			model.fireAdminSaving(exp);
 			return;
 		} else if  (model.getRefObject() instanceof GroupData) {

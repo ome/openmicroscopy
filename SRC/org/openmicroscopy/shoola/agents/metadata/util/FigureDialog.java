@@ -1209,7 +1209,7 @@ public class FigureDialog
 			p.add(comp, index+", 0, LEFT, TOP");
 			index++;
 		}
-		p.add(mergedComponent, index+", 0, LEFT, TOP");
+		p.add(mergedComponent, "0, "+index+", LEFT, TOP");
 		p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		return p;
 	}

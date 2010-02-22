@@ -26,11 +26,13 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Java imports
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.AdminService;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.ExperimenterData;
@@ -180,6 +182,24 @@ public class AdminLoader
         };
     }
     
+    /**
+     * Creates a {@link BatchCall} to update the specified experimenters.
+     * 
+	 * @param experimenters The experimenters to update. 
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall updateExperimenters(final GroupData group, 
+    		final Map<ExperimenterData, UserCredentials> experimenters)
+    {
+        return new BatchCall("Update experimenters") {
+            public void doCall() throws Exception
+            {
+            	AdminService os = context.getAdminService();
+                result = os.updateExperimenters(group, experimenters);
+            }
+        };
+    }
+    
 	 /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
@@ -250,6 +270,21 @@ public class AdminLoader
     	if (group == null)
     		throw new IllegalArgumentException("Group not valid.");
     	loadCall = updateGroup(group, permissions);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param group The default group to set.
+     * @param experimenters The experimenters to update. 
+     * 						Mustn't be <code>null</code>.
+     */
+    public AdminLoader(GroupData group,
+    		Map<ExperimenterData, UserCredentials> experimenters)
+    {
+    	if (experimenters == null)
+    		throw new IllegalArgumentException("No experimenters to update.");
+    	loadCall = updateExperimenters(group, experimenters);
     }
     
 }

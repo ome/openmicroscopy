@@ -115,7 +115,9 @@ public class TreeViewerAgent
 	 */
 	public static boolean isAdministrator()
 	{
-		return (Boolean) registry.lookup(LookupNames.USER_ADMINISTRATOR);
+		Boolean b = (Boolean) registry.lookup(LookupNames.USER_ADMINISTRATOR);
+		if (b == null) return false;
+		return b.booleanValue();
 	}
 	
 	/**

@@ -33,6 +33,7 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.AdminEditor;
 import org.openmicroscopy.shoola.agents.metadata.DataBatchSaver;
 import org.openmicroscopy.shoola.agents.metadata.DataSaver;
 import org.openmicroscopy.shoola.agents.metadata.ExperimenterEditor;
@@ -56,7 +57,6 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
-import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -429,13 +429,22 @@ class MetadataViewerModel
 	 * 
 	 * @param data The object to update.
 	 */
-	void fireGroupSaving(AdminObject data)
+	void fireAdminSaving(AdminObject data)
 	{
-		if (data.getIndex() != AdminObject.UPDATE_GROUP) return;
-		GroupEditor loader = new GroupEditor(component, data.getGroup(), 
-				data.getPermissions());
-		loader.load();
-		state = MetadataViewer.SAVING;
+		MetadataLoader loader = null;
+		switch (data.getIndex()) {
+			case AdminObject.UPDATE_GROUP:
+				loader = new GroupEditor(component, data.getGroup(), 
+						data.getPermissions());
+				break;
+			case AdminObject.UPDATE_EXPERIMENTER:
+				loader = new AdminEditor(component, data.getGroup(),
+						data.getExperimenters());
+		}	
+		if (loader != null) {
+			loader.load();
+			state = MetadataViewer.SAVING;
+		}
 	}
 	
 	/**

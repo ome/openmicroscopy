@@ -25,10 +25,12 @@ package org.openmicroscopy.shoola.env.data.views;
 
 //Java imports
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.views.calls.AdminLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AdminSaver;
@@ -151,6 +153,18 @@ class AdminViewImpl
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new AdminSaver(objects, AdminSaver.DELETE);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the {@link AdminView} interface.
+	 * @see AdminView#updateExperimenters(Map, AgentEventListener)
+	 */
+	public CallHandle updateExperimenters(GroupData group,
+			Map<ExperimenterData, UserCredentials> experimenters,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new AdminLoader(group, experimenters);
 		return cmd.exec(observer);
 	}
 

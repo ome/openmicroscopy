@@ -25,10 +25,13 @@ package org.openmicroscopy.shoola.env.data.views;
 
 //Java imports
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.AdminEditor;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.DataObject;
@@ -144,6 +147,18 @@ public interface AdminView
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle deleteObjects(List<DataObject> objects,
+			AgentEventListener observer);
+
+	/**
+	 * Updates the specified experimenters. Returns the experimenters
+	 * that could not be updated.
+	 * 
+	 * @param experimenters The experimenters to update.
+	 * @param observer	Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle updateExperimenters(GroupData group,
+			Map<ExperimenterData, UserCredentials> experimenters,
 			AgentEventListener observer);
 	
 }

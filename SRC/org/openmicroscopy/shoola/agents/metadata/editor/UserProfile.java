@@ -63,6 +63,8 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.GroupsRenderer;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
@@ -621,7 +623,7 @@ class UserProfile
 	 * 
 	 * @return See above.
 	 */
-	ExperimenterData getExperimenterToSave()
+	Object getExperimenterToSave()
 	{
 		ExperimenterData original = (ExperimenterData) model.getRefObject();
     	//Required fields first
@@ -631,7 +633,7 @@ class UserProfile
     	original.setLastName(v);
     	f = items.get(EditorUtil.EMAIL);
     	v = f.getText();
-    	if (v == null || v.trim().length() == 0) showRequiredField();
+    	if (v == null || v.trim().length() == 0) v = "";//showRequiredField();
     	original.setEmail(v);
     	f = items.get(EditorUtil.INSTITUTION);
     	v = f.getText();
@@ -643,8 +645,8 @@ class UserProfile
     	original.setFirstName(v.trim());
     	
     	//set the groups
+    	GroupData g = null;
     	if (selectedIndex != originalIndex) {
-    		GroupData g = null;
     		if (selectedIndex < groupData.length)
     			g = groupData[selectedIndex];
     		ExperimenterData user = (ExperimenterData) model.getRefObject();
@@ -663,6 +665,31 @@ class UserProfile
     		//Need to see what to do b/c no ExperimenterGroupMap
     		original.setGroups(newGroups);
     	}
+    	UserCredentials uc = new UserCredentials(original.getUserName(), "");
+    	Boolean b = ownerBox.isSelected();
+    	if (g == null) g = original.getDefaultGroup();
+    	boolean a = false;
+    	if (b.compareTo(groupOwner) != 0) {
+    		a = true;
+    		uc.setOwner(b);
+    	}
+    	if (adminBox.isVisible()) {
+    		b = adminBox.isSelected();
+    		if (b.compareTo(admin) != 0) {
+        		a = true;
+        		uc.setAdministrator(b);
+        	}
+    	}
+    	if (a) {
+    		Map<ExperimenterData, UserCredentials> m = 
+    			new HashMap<ExperimenterData, UserCredentials>();
+    		m.put(original, uc);
+    		AdminObject object = new AdminObject(g, m, 
+    				AdminObject.UPDATE_EXPERIMENTER);
+    		return object;
+    	}
+    	
+    	
 		return original;//newOne;
 	}
 	
