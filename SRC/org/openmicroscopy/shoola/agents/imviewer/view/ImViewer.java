@@ -1125,7 +1125,16 @@ public interface ImViewer
 	/** Closes the viewer. */
 	public void close();
 
-	/** Detaches teh viewer. */
+	/** Detaches the viewer. */
 	public void detach();
+	
+	/**
+	 * Returns <code>true</code> if the permissions of the group only
+	 * allow to view the image but not save the rendering settings, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isReadOnly();
 	
 }

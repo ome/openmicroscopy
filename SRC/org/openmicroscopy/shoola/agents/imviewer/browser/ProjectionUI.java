@@ -132,18 +132,6 @@ class ProjectionUI
     		 if (img == null) return;
     		 setComponentsSize(img.getWidth(), img.getHeight());
     	}
-    	/*
-        if (model.getProjectedImage() == null) return;
-        model.createDisplayedProjectedImage();
-        BufferedImage img = model.getDisplayedProjectedImage();
-        if (img == null) return;
-        setComponentsSize(img.getWidth(), img.getHeight());
-        //canvasListener.setAreaSize(img.getWidth(), img.getHeight());
-        getViewport().setViewPosition(new Point(-1, -1));
-        canvas.repaint();
-        setBounds(getBounds());
-        */
-        
     	getViewport().setViewPosition(new Point(-1, -1));
     	canvas.repaint();
     	setBounds(getBounds());

@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
+import javax.swing.event.ChangeEvent;
 
 //Third-party libraries
 
@@ -57,7 +58,22 @@ public class ProjectionProjectAction
     private static final String DESCRIPTION = 
     	"Project the selected interval for the whole image.";
     
-	 /**
+    /**
+     * Disposes and closes the movie player when the {@link ImViewer} is
+     * discarded.
+     * @see ViewerAction#onStateChange(ChangeEvent)
+     */
+    protected void onStateChange(ChangeEvent e)
+    {
+    	if (model.getState() == ImViewer.READY) {
+    		if (model.getSelectedIndex() != ImViewer.PROJECTION_INDEX)
+    			setEnabled(false);
+    		else 
+    			setEnabled(!model.isReadOnly());
+    	}
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param model Reference to the model. Mustn't be <code>null</code>.

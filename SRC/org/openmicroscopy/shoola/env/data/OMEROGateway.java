@@ -3033,18 +3033,34 @@ class OMEROGateway
 		try {
 			IAdminPrx service = getAdminService();
 			//Need method server side.
-			List<ExperimenterGroup> groups = service.containedGroups(
-					user.getId());
+			ParametersI p = new ParametersI();
+			p.addId(user.getId());
+			List<IObject> groups = getQueryService().findAllByQuery(
+                    "select distinct g from ExperimenterGroup as g "
+                    + "join fetch g.groupExperimenterMap as map "
+                    + "join fetch map.parent e "
+                    + "left outer join fetch map.child u "
+                    + "left outer join fetch u.groupExperimenterMap m2 "
+                    + "left outer join fetch m2.parent p "
+                    + "where g.id in "
+                    + "  (select m.parent from GroupExperimenterMap m "
+                    + "  where m.child.id = :id )", p);
+			
+			
+			
+			
+			//List<ExperimenterGroup> groups = service.containedGroups(
+			//		user.getId());
 			
 			ExperimenterGroup group;
 			//GroupData pojoGroup;
-			Iterator<ExperimenterGroup> i = groups.iterator();
+			Iterator<IObject> i = groups.iterator();
 			while (i.hasNext()) {
-				group = i.next();
-				//if (!isSystemGroup(group)) {
+				group = (ExperimenterGroup) i.next();
+				if (!isSystemGroup(group)) {
 					//pojoGroup = (GroupData) PojoMapper.asDataObject(group);
 					pojos.add((GroupData) PojoMapper.asDataObject(group));
-				//}
+				}
 			}
 			return pojos;
 		} catch (Throwable t) {

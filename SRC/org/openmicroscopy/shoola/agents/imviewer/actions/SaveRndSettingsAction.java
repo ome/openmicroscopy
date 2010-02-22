@@ -31,7 +31,6 @@ import javax.swing.event.ChangeEvent;
 //Third-party libraries
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -60,13 +59,25 @@ public class SaveRndSettingsAction
     private static final String DESCRIPTION = "Save the current image's " +
     		"settings.";
     
+    /** Sets the flag depending on the permissions of the group. */
+    private void handleChange()
+    {
+    	if (model.isOriginalSettings()) {
+    		setEnabled(false);
+    	} else {
+    		setEnabled(!model.isReadOnly());
+    	}
+    }
+    
     /** 
      * Sets the enabled flag depending on the tab selected.
      * @see ViewerAction#onTabSelection()
      */
     protected void onTabSelection()
     {
-    	setEnabled(model.getSelectedIndex() != ImViewer.PROJECTION_INDEX);
+    	if (model.getSelectedIndex() == ImViewer.PROJECTION_INDEX)
+			setEnabled(false);
+    	else handleChange();
     }
     
     /**
@@ -80,7 +91,7 @@ public class SaveRndSettingsAction
     		if (model.getSelectedIndex() == ImViewer.PROJECTION_INDEX)
     			setEnabled(false);
     		else 
-    			setEnabled(!model.isOriginalSettings());
+    			handleChange();
     	}
     }
     

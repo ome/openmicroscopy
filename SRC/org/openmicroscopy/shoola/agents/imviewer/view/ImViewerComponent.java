@@ -94,7 +94,9 @@ import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PermissionData;
 
 /** 
  * Implements the {@link ImViewer} interface to provide the functionality
@@ -241,6 +243,7 @@ class ImViewerComponent
 	 */
 	private boolean saveOnClose()
 	{
+		if (isReadOnly()) return true;
 		if (saveBeforeCopy) {
 			try {
 				model.saveRndSettings(false);
@@ -3041,7 +3044,10 @@ class ImViewerComponent
 		renderXYPlane();
 	}
 
-	/** Closes the viewer. */
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#close()
+	 */
 	public void close()
 	{
 		if (model.getState() == DISCARDED) return;
@@ -3050,7 +3056,10 @@ class ImViewerComponent
 		discard();
 	}
 
-	/** Detaches the viewer. */
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#detach()
+	 */
 	public void detach()
 	{
 		if (model.getState() == DISCARDED) return;
@@ -3059,6 +3068,22 @@ class ImViewerComponent
 		model.setSeparateWindow(true);
 		view.rebuild();
 		view.setOnScreen();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#isReadOnly()
+	 */
+	public boolean isReadOnly()
+	{
+		ExperimenterData exp = ImViewerAgent.getUserDetails();
+		GroupData g = exp.getDefaultGroup();
+		PermissionData perm = g.getPermissions();
+		if (perm.isGroupRead()) {
+			if (perm.isGroupWrite()) return false;
+			return true;
+		} else if (perm.isWorldRead() || perm.isWorldWrite()) return false;
+		return true;
 	}
 	
 }

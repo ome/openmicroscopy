@@ -523,7 +523,7 @@ public class ProjSavingDialog
 	 * Initializes the dialog.
 	 * 
 	 * @param algorithm		The selected projection algorithm.
-	 * @param maxT			The maximum number of timepoints.
+	 * @param maxT			The maximum number of time-points.
 	 * @param pixelsType	The type of pixels of the original image.
 	 * @param imageName		The name of the original image.
 	 * @param datasets		The datasets containing the image.

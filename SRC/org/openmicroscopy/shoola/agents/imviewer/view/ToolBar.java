@@ -27,18 +27,12 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 //Java imports
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -154,17 +148,15 @@ class ToolBar
 	/** The index of the measurement component. */
 	private static final int		MEASUREMENT_INDEX = 13;
 	
-	/** The index of the rnd component. */
+	/** The index of the Rendering component. */
 	private static final int		RND_INDEX = 0;
 	
 	/** The index of the Metadata component. */
 	private static final int		METADATA_INDEX = 1;
 	
-	
     /** Helper method to create the tool bar hosting the buttons. */
     private void createControlsBar()
     {
-    	int i = 0;
         bar = new JToolBar();
         bar.setFloatable(false);
         bar.setRollover(true);
@@ -193,7 +185,8 @@ class ToolBar
         JButton b;
         closeButton = new JButton(controller.getAction(ImViewerControl.CLOSE));
         UIUtilities.unifiedButtonLookAndFeel(closeButton);
-        detachButton = new JButton(controller.getAction(ImViewerControl.DETACH));
+        detachButton = new JButton(
+        		controller.getAction(ImViewerControl.DETACH));
         UIUtilities.unifiedButtonLookAndFeel(detachButton);
         if (!view.isSeparateWindow()) {
         	bar.add(closeButton, RND_INDEX);
