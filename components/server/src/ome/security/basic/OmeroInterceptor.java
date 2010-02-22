@@ -24,6 +24,7 @@ import ome.annotations.RevisionNumber;
 import ome.conditions.ApiUsageException;
 import ome.conditions.GroupSecurityViolation;
 import ome.conditions.InternalException;
+import ome.conditions.PermissionMismatchGroupSecurityViolation;
 import ome.conditions.ReadOnlyAdminGroupSecurityViolation;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
@@ -466,12 +467,17 @@ public class OmeroInterceptor implements Interceptor {
 
         if (source != null) {
 
-            // PERMISSIONS
-            // users _are_ allowed to alter the permissions of new objects.
-            // this entity may be locked in the same operation, in which case
-            // the READ permissions which are set will not be removable.
-            copyNonNullPermissions(newDetails, source.getPermissions());
-            applyUmaskIfNecessary(newDetails);
+            // PERMISSIONS: ticket:1434 and #1731 and #1779 (systypes)
+            // before 4.2, users were allowed to manually set the permissions
+            // on an object, and even set a umask to be applied. for the initial
+            // 4.2 version, however, we are disallowing manually setting
+            // permissions so that all objects will match group permissions.
+            if (source.getPermissions() != null) {
+                if (!sysTypes.isSystemType(obj.getClass())) {
+                    throw new PermissionMismatchGroupSecurityViolation(
+                        "Manually setting permissions currently disallowed");
+                }
+            }
 
             // OWNER
             // users *aren't* allowed to set the owner of an item.
@@ -781,9 +787,10 @@ public class OmeroInterceptor implements Interceptor {
             }
 
             // see https://trac.openmicroscopy.org.uk/omero/ticket/1434
+            // and https://trac.openmicroscopy.org.uk/omero/ticket/1731
             if (!currentP.identical(tmpPreviousP) &&
                     obj instanceof ExperimenterGroup) {
-                throw new GroupSecurityViolation(
+                throw new PermissionMismatchGroupSecurityViolation(
                         "Group permissions must be changed via IAdmin");
             }
 

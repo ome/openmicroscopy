@@ -7,6 +7,7 @@
 package ome.server.itests.perms42;
 
 import ome.conditions.GroupSecurityViolation;
+import ome.conditions.PermissionMismatchGroupSecurityViolation;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
 
@@ -20,6 +21,13 @@ import org.testng.annotations.Test;
  */
 @Test(groups = "ticket:1776")
 public class SetOtherPermissionsTest extends PermissionsTest {
+
+    @Test(expectedExceptions = PermissionMismatchGroupSecurityViolation.class)
+    public void testUserTriesToCreateObjectWithWorldRead() throws Exception {
+        setup(Permissions.SHARED);
+        Image i = fixture.saveImage(Permissions.PUBLIC);
+        fail("This shouldn't be allowed");
+    }
 
     @Test
     public void testUserTriesToRemoveReadForSharedGroup() throws Exception {

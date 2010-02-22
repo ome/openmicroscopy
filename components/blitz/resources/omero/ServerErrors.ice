@@ -41,6 +41,7 @@
  *   |
  *   |_ SecurityViolation (some no-no)
  *   |   \_ GroupSecurityViolation
+ *   |      |_ PermissionMismatchGroupSecurityViolation
  *   |      \_ ReadOnlyAdminGroupSecurityViolation
  *   |
  *   \_SessionException
@@ -271,6 +272,9 @@ module omero
     {
     };
 
+  exception PermissionMismatchGroupSecurityViolation extends ServerError
+    {
+    };
   exception ReadOnlyAdminGroupSecurityViolation extends ServerError
     {
     };

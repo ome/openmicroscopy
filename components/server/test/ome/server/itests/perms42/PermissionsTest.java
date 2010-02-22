@@ -64,9 +64,15 @@ public class PermissionsTest extends AbstractManagedContextTest {
         }
 
         Image saveImage() {
+            return saveImage(null);
+        }
+
+        Image saveImage(Permissions p) {
             Image image = new_Image("ticket:1434");
+            image.getDetails().setPermissions(p);
             return iUpdate.saveAndReturnObject(image);
         }
+
 
         void log_in() {
             login(user.getOmeName(), groupName, "Test");
