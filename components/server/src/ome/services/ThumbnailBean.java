@@ -371,8 +371,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     @RolesAllowed("user")
     public void setRenderingDefId(long id)
     {
-        Long userId = getCurrentUserId();
-        RenderingDef newSettings = getSettingsForUser(id, userId);
+        RenderingDef newSettings = iPixels.loadRndSettings(id);
         if (newSettings == null)
         {
             throw new ValidationException(

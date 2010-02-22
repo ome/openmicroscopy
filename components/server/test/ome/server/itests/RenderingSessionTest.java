@@ -169,7 +169,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         ThumbnailStore tb = sf.createThumbnailService();
         try {
             boolean value = tb.setPixelsId(pix.getId());
-            tb.resetDefaults();
+            // tb.resetDefaults();
             tb.setPixelsId(pix.getId());
             tb.getThumbnail(10, 10);
         } finally {
@@ -256,6 +256,35 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         loginRootKeepGroup();
         ThumbnailStore tbRoot = sf.createThumbnailService();
         assertTrue(tbRoot.setPixelsId(pix.getId()));
+        tbRoot.getThumbnail(64, 64);
+
+        try {
+            // tbRoot.resetDefaults();
+            // fail("group-sec-vio");
+        } catch (ReadOnlyAdminGroupSecurityViolation roagsv) {
+            // ok.
+        }
+    }
+
+    @Test(groups = {"ticket:1434","ticket:1769","shoola:ticket:1157"})
+    public void testAdminViewsThumbnailsWithManualRdef() {
+        loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        ThumbnailStore tbUser = sf.createThumbnailService();
+        tbUser.setPixelsId(pix.getId());
+        tbUser.getThumbnail(64, 64);
+        //tbUser.resetDefaults();
+
+        // Should only be one
+        RenderingDef def = iQuery.findByQuery(
+                "select rdef from RenderingDef rdef " +
+                "where rdef.pixels.id = " + pix.getId(), null);
+
+        loginRootKeepGroup();
+        ThumbnailStore tbRoot = sf.createThumbnailService();
+        assertTrue(tbRoot.setPixelsId(pix.getId()));
+        tbRoot.setRenderingDefId(def.getId()); // Users rdef
         tbRoot.getThumbnail(64, 64);
 
         try {
