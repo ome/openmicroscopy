@@ -7,9 +7,9 @@
 <div class="clear"> </div>
 
 {% if controller.lastAcquiredImages %}
-    <ul id="products">
+    <ul id="dataIcons">
         {% for c in controller.lastAcquiredImages %}
-            <li class="product"><em>{{ c.name }}</em>
+            <li><em>{{ c.name }}</em>
                 <img id="{{ c.id }}" class="imgzoom" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}"/>
             </li>
         {% endfor %}

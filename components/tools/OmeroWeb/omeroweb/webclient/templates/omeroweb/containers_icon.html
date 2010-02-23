@@ -10,7 +10,7 @@
     <script type="text/javascript">
         $(document).ready(function(){
 
-            $("ul#products").selectable({
+            $("ul#dataIcons").selectable({
             	stop: function(){
             		var result = $("#select-result").empty();
             		var l = $('li.ui-selected img', this).length;
@@ -37,14 +37,20 @@
             		});
             	}
             });
-
         });
+        
     </script>
 
 {% if manager.c_size %}
-    <ul id="products">
+
+    <div id="buttons_right">    
+        <a href="#" onclick="changeView('table'); return false;"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"/></a>
+    </div>
+    <div class="clear"> </div>
+
+    <ul id="dataIcons">
         {% for c in manager.containers.images %}
-        <li id="{{ c.id }}" class="product"><em>{{ c.name }}</em>
+        <li id="{{ c.id }}"><em>{{ c.name }}</em>
             <img id="{{ c.id }}" src="{% url render_thumbnail c.id %}" alt="image" title="{{ c.name }}"/>
             <input type="checkbox" name="image" id="{{ c.id }}">
         </li>

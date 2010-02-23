@@ -32,7 +32,7 @@
                 var h = $(window).height()-200;
                 $("div#tree_details").css('height', h);
                 $("div#metadata_details").css('height', h+31);
-                $("div#content_details").css('height', h+31);
+                $("div#content_details").css('height', h+21);
                 
                 $("div#tree_details").html('<p>Loading imported images... please wait <img src="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
                 $("div#tree_details").load("{% url load_data %}?view=tree", function() {
@@ -46,52 +46,53 @@
                                 var obj = $(node).attr('id').split("-");
                                 var par = $(node).parents('li:first').attr('id')
                                 if (obj[0] == 'pr') {
-                                    $("div#tree_action").html('{% if not manager.experimenter %} | <input id="createNewContainer" class="button" type="image" src="{% url webstatic "images/window_new16.png" %}" alt="Create new container"> | <a href="#" onclick="pasteFromClipboard(\'project\', \''+obj[1]+'\', \'{{ url }}\'); return false;"><img src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="p" title="paste"/></a> |{% endif %}');
-                                    $("div#content_details").children().remove();
+                                    $("div#tree_buttons").html('{% if not manager.experimenter %} | <a href="/webclient/action/new/project/'+obj[1]+'/" alt="Create new container" target="metadata_details"><img src="{% url webstatic "images/window_new16.png" %}" alt="n" title="new"/></a> | <a href="#" onclick="pasteFromClipboard(\'project\', \''+obj[1]+'\', \'{{ url }}\'); return false;"><img src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="p" title="paste"/></a> |{% endif %}');
                                     $("#right_panel").show();
                                     $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-                                    $("div#metadata_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                                    $("div#metadata_details").load('/webclient/metadata_details/project/'+obj[1]+'/', function(){
-                                        $("#createNewContainer").click(function() { 
-                                            $("#right_panel").show();
-                                            $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
-                                            $("div#metadata_details").html('<iframe width="100%" height="'+(h+31)+'" src="{% url manage_action_containers "new" %}project/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
-                                            $('iframe#metadata_details').load();            
-                                        });
-                                    });
+                                    $("div#metadata_details").html('<iframe width="100%" height="'+(h+31)+'" src="/webclient/metadata_details/project/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
+                                    $('iframe#metadata_details').load();
+                                    
+                                    $("div#content_details").children().remove();
                                 } else if (obj[0] == 'ds') {  
-                                    $("div#tree_action").html('{% if not manager.experimenter %} | <a href="#" onclick="treeCopyToClipboard(\'dataset\', \''+obj[1]+'\'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> | <input id="pasteFromClipboard"  class="button" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste from clipboard" onclick="pasteFromClipboard(\'dataset\', \''+obj[1]+'\', \'{{ url }}\'); return false;"> | <a href="{% url manage_action_containers "remove" %}?parent='+par+'&source='+obj[0]+'-'+obj[1]+'&url={{ url }}" onClick="return confirm(\'Unlink dataset?\');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a> |{% endif %}'); 
+                                    $("div#tree_buttons").html('{% if not manager.experimenter %} | <a href="#" onclick="treeCopyToClipboard(\'dataset\', \''+obj[1]+'\'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> | <input id="pasteFromClipboard"  class="button" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste from clipboard" onclick="pasteFromClipboard(\'dataset\', \''+obj[1]+'\', \'{{ url }}\'); return false;"> | <a href="{% url manage_action_containers "remove" %}?parent='+par+'&source='+obj[0]+'-'+obj[1]+'&url={{ url }}" onClick="return confirm(\'Unlink dataset?\');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a> |{% endif %}'); 
                                     $("#right_panel").show();
                                     $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
                                     $("div#metadata_details").html('<iframe width="100%" height="'+(h+31)+'" src="/webclient/metadata_details/dataset/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
                                     $('iframe#metadata_details').load();
 
-                                    if (par != 0) {
-                                        var parobj = par.split("-");
-                                        $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                                        $("div#content_details").load('/webclient/project/'+parobj[1]+'/dataset/'+obj[1]+'/?view=icon');
-                                        $("div#content_details").attr('src', '/webclient/project/'+parobj[1]+'/dataset/'+obj[1]+'/?view=icon');
-                                    } else {
-                                        $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                                        $("div#content_details").load('/webclient/dataset/'+obj[1]+'/?view=icon');
-                                        $("#content_details").attr('src', '/webclient/dataset/'+obj[1]+'/?view=icon');
-                                    }                            
+                                    if ($("div#content_details").attr('rel') != obj[1]) {
+                                        if (par != 0) {
+                                            var parobj = par.split("-");
+                                            $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                                            $("div#content_details").load('/webclient/project/'+parobj[1]+'/dataset/'+obj[1]+'/?view=icon');
+                                        } else {
+                                            $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                                            $("div#content_details").load('/webclient/dataset/'+obj[1]+'/?view=icon');
+                                        }
+                                        $("div#content_details").attr('rel', obj[1]);
+                                    }
                                 } else if (obj[0] == 'img') {
-                                    $("div#tree_action").html('{% if not manager.experimenter %} | <a href="#" onclick="window.open(\'/webclient/img_detail/'+obj[1]+'/\', \'_blank\',\'toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800\'); return false;"><img src="{% url webstatic "images/tree/kview.png" %}" alt="v" title="view"/></a> | <a href="#" onclick="toBasket(\'image\', \''+obj[1]+'\'); return false;"><img src="{% url webstatic "images/basket16.png" %}" alt="b" title="add to basket"/></a> | <a href="#" onclick="treeCopyToClipboard(\'image\', \''+obj[1]+'\'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> | <a href="{% url manage_action_containers "remove" %}?parent='+par+'&source='+obj[0]+'-'+obj[1]+'&url={{ url }}" onClick="return confirm(\'Unlink image?\');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a> |{% endif %}');
+                                    $("div#tree_buttons").html('{% if not manager.experimenter %} | <a href="#" onclick="window.open(\'/webclient/img_detail/'+obj[1]+'/\', \'_blank\',\'toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800\'); return false;"><img src="{% url webstatic "images/tree/kview.png" %}" alt="v" title="view"/></a> | <a href="#" onclick="toBasket(\'image\', \''+obj[1]+'\'); return false;"><img src="{% url webstatic "images/basket16.png" %}" alt="b" title="add to basket"/></a> | <a href="#" onclick="treeCopyToClipboard(\'image\', \''+obj[1]+'\'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> | <a href="{% url manage_action_containers "remove" %}?parent='+par+'&source='+obj[0]+'-'+obj[1]+'&url={{ url }}" onClick="return confirm(\'Unlink image?\');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a> |{% endif %}');
                                     $("#right_panel").show();
                                     $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
                                     $("div#metadata_details").html('<iframe width="100%" height="'+(h+31)+'" src="/webclient/metadata_details/image/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
                                     $('iframe#metadata_details').load();
                                     
+                                    var parobj = par.split("-");
+                                    if ($("div#content_details").attr('rel') != parobj[1]) {
+                                        $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                                        $("div#content_details").load('/webclient/dataset/'+parobj[1]+'/?view=icon');
+                                        $("div#content_details").attr('rel', parobj[1]);
+                                    }                                                              
                                 } else if (obj[0] == 'sc') {
-                                    $("div#tree_action").html('{% if not manager.experimenter %} | <a href="{% url manage_action_containers "new" %}screen/'+obj[1]+'/?url={{ url }}"  target="metadata_details"><img src="{% url webstatic "images/window_new16.png" %}" alt="New" title="New"/></a> | <a href="#" onclick="pasteFromClipboard(\'screen\', \''+obj[1]+'\', \'{{ url }}\'); return false;"><img src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="p" title="paste"/></a> |{% endif %}');
+                                    $("div#tree_buttons").html('{% if not manager.experimenter %} | <a href="{% url manage_action_containers "new" %}screen/'+obj[1]+'/?url={{ url }}"  target="metadata_details"><img src="{% url webstatic "images/window_new16.png" %}" alt="New" title="New"/></a> | <a href="#" onclick="pasteFromClipboard(\'screen\', \''+obj[1]+'\', \'{{ url }}\'); return false;"><img src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="p" title="paste"/></a> |{% endif %}');
                                     $("div#content_details").html();
                                     $("#right_panel").show();
                                     $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
                                     $("div#metadata_details").html('<iframe width="100%" height="'+(h+31)+'" src="/webclient/metadata_details/screen/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
                                     $('iframe#metadata_details').load();
                                 } else if (obj[0] == 'pl') {
-                                    $("div#tree_action").html('{% if not manager.experimenter %} | <a href="#" onclick="window.open(\'/webclient/img_detail/'+obj[1]+'/\', \'_blank\',\'toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800\'); return false;"><img src="{% url webstatic "images/tree/kview.png" %}" alt="v" title="view"/></a> | <a href="#" onclick="toBasket(\'image\', \''+obj[1]+'\'); return false;"><img src="{% url webstatic "images/basket16.png" %}" alt="b" title="add to basket"/></a> | <a href="#" onclick="treeCopyToClipboard(\'image\', \''+obj[1]+'\'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> | <a href="{% url manage_action_containers "remove" %}?parent='+par+'&source='+obj[0]+'-'+obj[1]+'&url={{ url }}" onClick="return confirm(\'Unlink image?\');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a> |{% endif %}');
+                                    $("div#tree_buttons").html('{% if not manager.experimenter %} | <a href="#" onclick="window.open(\'/webclient/img_detail/'+obj[1]+'/\', \'_blank\',\'toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800\'); return false;"><img src="{% url webstatic "images/tree/kview.png" %}" alt="v" title="view"/></a> | <a href="#" onclick="toBasket(\'image\', \''+obj[1]+'\'); return false;"><img src="{% url webstatic "images/basket16.png" %}" alt="b" title="add to basket"/></a> | <a href="#" onclick="treeCopyToClipboard(\'image\', \''+obj[1]+'\'); return false;"><img src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="c" title="copy"/></a> | <a href="{% url manage_action_containers "remove" %}?parent='+par+'&source='+obj[0]+'-'+obj[1]+'&url={{ url }}" onClick="return confirm(\'Unlink image?\');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a> |{% endif %}');
                                     $("#right_panel").show();
                                     $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
                                     $("div#metadata_details").html('<iframe width="100%" height="'+(h+31)+'" src="/webclient/metadata_details/plate/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
@@ -101,12 +102,11 @@
                                         var parobj = par.split("-");
                                         $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
                                         $("div#content_details").load('/webclient/screen/'+parobj[1]+'/plate/'+obj[1]+'/?view=icon');
-                                        $("#content_details").attr('src', '/webclient/screen/'+parobj[1]+'/plate/'+obj[1]+'/?view=icon');
                                     } else {
                                         $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
                                         $("div#content_details").load('/webclient/plate/'+obj[1]+'/?view=icon');
-                                        $("#content_details").attr('src', '/webclient/plate/'+obj[1]+'/?view=icon');
                                     }
+                                    $("div#content_details").removeAttr('rel');
                                 }
                             }                
                         },
@@ -160,8 +160,9 @@
 
 {% block left %}
 
-<div id="tree_action">
-    | <input id="createNewContainer" class="button" type="image" src="{% url webstatic "images/window_new16.png" %}" alt="Create new container"> |
+<div class="toolbar">
+    <div id="buttons">
+    <input id="createNewContainer" class="button" type="image" src="{% url webstatic "images/window_new16.png" %}" alt="Create new container">
     
     {% if form_users %}
     <div id="form_users">
@@ -174,7 +175,7 @@
         {% for field in form_mygroups %}{{ field.label_tag }} {{ field }}{% if field.errors %} {{ field.errors }} {% endif %} {{ field.help_text }}{% endfor %}
     </div>
     {% endif %}-->
-        
+    </div>
 </div>
 <div class="clear"> </div>
 

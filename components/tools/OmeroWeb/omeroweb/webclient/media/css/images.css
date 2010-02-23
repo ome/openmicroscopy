@@ -1,7 +1,33 @@
-#products .ui-selecting img{ border: 2px dashed #444; padding: 2px; }
-#products .ui-selected img{ border: 2px dashed #444; padding: 2px; color: white; }
+/* table */
+#dataTable .ui-selecting { background-color: #f3f3f3; }
+#dataTable .ui-selected { background-color: #f3f3f3; }
 
-#products {
+#dataTable {
+    list-style-type: none;
+    margin: 0; 
+    padding: 2px; 
+}
+#dataTable li {
+    border: 1px solid #ccc;
+    height: 32px;
+    padding: 5px;
+    margin-top: -1px; 
+}
+
+#dataTable li.clear{
+    clear:both;
+    width: 0;
+}
+
+#dataTable li div.product {
+    border: 0px;
+    text-align: center;
+}
+/* icons */
+#dataIcons .ui-selecting img{ border: 1px dashed #444; padding: 2px; }
+#dataIcons .ui-selected img{ border: 1px dashed #444; padding: 2px; color: white; }
+
+#dataIcons {
     list-style-type: none;
     margin: 0; 
     padding: 2px; 
@@ -9,12 +35,12 @@
     left: 0;
     position: relative;
 }
-#products img {
-    border: 2px solid #fff;
+#dataIcons img {
+    border: 1px solid #fff;
     padding: 2px; 
 }
 
-#products li {
+#dataIcons li {
     border: 0px;
     float: left;
     text-align: center;
@@ -22,38 +48,7 @@
     width: 100px;
     padding: 5px; 
 }
-#products li.owner_name{
-    font-size: 15px;
-    text-align: left;
-    margin: 0;
-    padding: 5px 0;
-    font-weight: bold;
-    width: 99%;
-    border-bottom: 1px solid #bbb;
-}
-#products li.tagname{
-    text-align: left;
-    margin: 0;
-    width: 100%;
-    height: 40px;
-}
-#products li.dataset{
-    text-align: left;
-    margin: 0px;
-    padding: 5px 0;
-    width: 99%;
-}
-#products li.clear{
-    clear:both;
-    width: 0;
-}
 
-#products li div.product {
-    border: 0px;
-    float: left;
-    text-align: center;
-    margin: 8px;
-}
 em {
     background-color: #fff;
     border: 1px solid #bbb;
@@ -86,20 +81,6 @@ div.cloud {
     width: 100%;
 }
 
-.toolbar {
-    float:right;
-    text-align: right;
-    background-color: #fff;
-    padding: 10px 0;
-}
-.toolbar-tree-details {
-    top: 0;
-    right: 0;
-    text-align: right;
-    border: 1px solid #bbb;
-    background-color: #fff;
-    padding: 5px;
-}
 .miniview {
     /* This is for the miniviewer in image_details */
     width: 300px;
@@ -117,23 +98,11 @@ div.cloud {
     margin: 0;
     padding: 0 20px;
 }
-.image_details {
-    width: 450px;
-    height: 600px;
-}
-
-.description {
-    width: 320px;
-    height: 70px;
-    border: 1px solid #bbb;
-    overflow: auto;
-}
-
 
 .disabled {
-    background-color: #fff;
+    background-color: #f3f3f3;
     color: #555;
-    border: 0;
+    border: 0 none;
 }
 
 div.paging {

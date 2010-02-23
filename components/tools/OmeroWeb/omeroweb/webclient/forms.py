@@ -95,7 +95,7 @@ class ContainerForm(forms.Form):
     
 class CommentAnnotationForm(forms.Form):
     
-    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 5, 'cols': 30}))
+    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 39}))
 
 class UriAnnotationForm(forms.Form):
     

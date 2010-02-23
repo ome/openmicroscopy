@@ -107,30 +107,34 @@ class OmeroWebObjectWrapper (object):
     def isOwned(self):
         return (self._obj.details.owner.id.val == self._conn.getEventContext().userId)
     
-    def accessControll(self):
-        if self._obj.details.permissions.isUserRead() and self._obj.details.permissions.isUserWrite():
-            return '0'
-        elif self._obj.details.permissions.isGroupRead() and self._obj.details.permissions.isGroupWrite():
-            return '1'
-        elif self._obj.details.permissions.isWorldRead() and self._obj.details.permissions.isWorldWrite():
-            return '2'
-        else:
-            return '-1'
-
-    def splitedName(self):
-        try:
-            name = self._obj.name.val
-            l = len(name)
-            if l < 45:
-                return name
-            elif l >= 45:
-                splited = []
-                for v in range(0,len(name),45):
-                    splited.append(name[v:v+45]+"\n")
-                return "".join(splited)
-        except:
-            logger.info(traceback.format_exc())
-            return self._obj.name.val
+    def isEditable(self):
+        if self._obj.details.permissions.isWorldWrite() or self._obj.details.permissions.isGroupWrite() or self._obj.details.permissions.isUserWrite():
+            return True
+        return False
+    
+    def isReadOnly(self):
+        if self._obj.details.permissions.isWorldRead() and not self._obj.details.permissions.isWorldWrite():
+            return True
+        elif self._obj.details.permissions.isGroupRead() and not self._obj.details.permissions.isGroupWrite():
+            return True
+        elif self._obj.details.permissions.isUserRead() and not self._obj.details.permissions.isUserWrite():
+            return True
+        return False
+    
+    def isPublic(self):
+        if self._obj.details.permissions.isWorldRead():
+            return True
+        return False
+    
+    def isShared(self):
+        if self._obj.details.permissions.isGroupRead():
+            return True
+        return False
+    
+    def isPrivate(self):
+        if self._obj.details.permissions.isUserRead():
+            return True
+        return False
     
     def shortName(self):
         try:
@@ -143,13 +147,13 @@ class OmeroWebObjectWrapper (object):
             logger.info(traceback.format_exc())
             return self._obj.name.val
     
-    def tinyName(self):
+    def shortName2(self):
         try:
             name = self._obj.name.val
             l = len(name)
-            if l > 20:
-                name = "..." + name[l - 16:]
-            return name
+            if l < 68:
+                return name
+            return "..." + name[l - 65:]
         except:
             logger.info(traceback.format_exc())
             return self._obj.name.val
@@ -179,19 +183,6 @@ class OmeroWebObjectWrapper (object):
         return None
     
     def shortDescription(self):
-        try:
-            desc = self._obj.description
-            if desc == None or desc.val == "":
-                return None
-            l = len(desc.val)
-            if l < 550:
-                return desc.val
-            return desc.val[:550] + "..."
-        except:
-            logger.info(traceback.format_exc())
-            return self._obj.description.val
-    
-    def tinyDescription(self):
         try:
             desc = self._obj.description
             if desc == None or desc.val == "":

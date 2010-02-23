@@ -49,7 +49,7 @@ urlpatterns = patterns('',
     
     # render main template
     url( r'^(?:(?P<menu>((?i)mydata|groupdata|userdata|shares|history|search|importer|myaccount|help))/)?$', views.load_template, name="load_template" ),
-        
+       
     # loading data
     url( r'^load_data/(?P<o1_type>((?i)orphaned|ajaxorphaned))/$', views.load_data, name="load_data_ajax" ),
     

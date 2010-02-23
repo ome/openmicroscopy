@@ -16,7 +16,7 @@
     {% if tann.isOwned %}
         <div id="comment_wrapper">
         <div id="comment">
-            <div class="head">{{ tann.getOwnerFullName }} {% trans "posted comment at" %} {{ tann.creationEventDate|date:"Y m d H:i:s" }}</div>
+            <div class="head">{{ tann.getOwnerFullName }} {% trans "posted comment at" %} {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}</div>
             <div class="body">{{ tann.textValue|wikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>
@@ -28,7 +28,7 @@
         <div id="comment_wrapper_rev">
         <div class="photo"><img src="{% url load_photo tann.details.owner.id.val %}" alt="{{ tann.getOwnerFullName }}" title="{{ tann.getOwnerFullName }}" width="40" height="40" /></div>
         <div id="comment_rev">
-            <div class="head">{{ tann.getOwnerFullName }} {% trans "posted comment at" %} {{ tann.creationEventDate|date:"Y m d H:i:s" }}</div>
+            <div class="head">{{ tann.getOwnerFullName }} {% trans "posted comment at" %} {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}</div>
             <div class="body">{{ tann.textValue|wikify|safe|linebreaks }}</div>
             <div class="footer"></div>
         </div>
@@ -53,7 +53,7 @@
 <h1>{% trans "Files" %}:</h1>
 <ol>
     {% for fileann in manager.file_annotations %}
-    <li><a href="{% url manage_annotation "download" fileann.id %}" target="_blank">{{ fileann.getFileName }}</a> - {{ fileann.getFileSize|default_if_none:0|filesizeformat }} {% trans "by" %} {{ fileann.getOwnerFullName }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y m d H:i:s" }}</li>
+    <li><a href="{% url manage_annotation "download" fileann.id %}" target="_blank">{{ fileann.getFileName }}</a> - {{ fileann.getFileSize|default_if_none:0|filesizeformat }} {% trans "by" %} {{ fileann.getOwnerFullName }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }}</li>
     {% endfor %}
 </ol>
 {% endif %}

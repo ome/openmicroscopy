@@ -1,25 +1,33 @@
+{% extends "omeroweb/base_frame.html" %}
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 
+{% block link %}
     <link rel="stylesheet" href="{% url webstatic "css/googiespell.css" %}" type="text/css" media="screen"/>
+{% endblock %}
 
+{% block jscript %}
+    
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/AJS.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/googiespell.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/googiespell/cookiesupport.js" %}"></script>
+    
+{% endblock %}
 
+{% block content %}
 {% if form %}
 
     {% if manager.comment %}
     <h1>{% trans "Edit comment" %}</h1>
-    <form action="{% url manage_action_containers "save" "comment" manager.comment.id %}?url={{url}}" method="post">
+    <form action="{% url manage_action_containers "save" "comment" manager.comment.id %}?url={{url}}#comment_tab" method="post">
     <table>
         {% for field in form %}
             <tr>
                 <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
             </tr>
         {% endfor %}
-            <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
+            <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onclick='document.location.href="{{ url }}";' value="{% trans 'Cancel' %}" /></td></tr>
         </table>
     </form>
     <script type="text/javascript">
@@ -28,33 +36,20 @@
     </script>
     {% endif %}
     
-    {% if manager.url %}
-    <h1>{% trans "Edit url" %}</h1>
-    <form action="{% url manage_action_containers "save" "url" manager.url.id %}?url={{url}}" method="post">
-    <table>
-        {% for field in form %}
-            <tr>
-                <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
-            </tr>
-        {% endfor %}
-            <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
-        </table>
-    </form>
-    {% endif %}
-    
     {% if manager.tag %}
     <h1>{% trans "Edit tag" %}</h1>
-    <form action="{% url manage_action_containers "save" "tag" manager.tag.id %}?url={{url}}?url={{url}}" method="post">
+    <form action="{% url manage_action_containers "save" "tag" manager.tag.id %}?url={{url}}?url={{url}}#tags_tab" method="post">
     <table>
         {% for field in form %}
             <tr>
                 <td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
             </tr>
         {% endfor %}
-            <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
+            <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /> <input type="button" onclick='document.location.href="{{ url }}";' value="{% trans 'Cancel' %}" /></td></tr>
         </table>
     </form>
     {% endif %}
 
 {% endif %}
 
+{% endblock %}

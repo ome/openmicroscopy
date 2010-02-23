@@ -1,6 +1,9 @@
+img.thumbnail {
+    padding-right: 5px;
+}
 #annotation_form {
-    width: 370px;
-    margin: -5px 0 0;
+    width: 350px;
+    margin: 0;
 }
 
 select.existing {
@@ -18,6 +21,7 @@ div.lncomments{
     overflow: auto;
     border: 1px solid #bbb;
     padding: 10px;
+    background-color: #fff;
 }
 div.urls {
     float: left;
@@ -36,6 +40,7 @@ div.lntags{
     overflow: auto;
     border: 1px solid #bbb;
     padding: 0 10px;
+    background-color: #fff;
 }
 div.file {
     float: left;
@@ -48,6 +53,7 @@ div.lnfiles{
     overflow: auto;
     border: 1px solid #bbb;
     padding: 0 10px;
+    background-color: #fff;
 }
 /* tabs */
 #annotation_tabs {
@@ -60,29 +66,30 @@ div.lnfiles{
 #annotation_tabs ul {
     position:relative;
     float:left;
-    width:300px;
-    padding:0 ;
-    margin:0;
+    width:350px;
+    padding:0;
+    margin: 4px 0 ;
     list-style:none;
 }
 .ui-tabs-nav { padding: 0;  position: relative; }
 .ui-tabs-nav li { 
-    float: right; 
-    padding: 5px; 
+    float: left; 
+    
 }
 .ui-tabs-nav li a { 
     /*display:block;*/
-    margin: 5px; 
-    text-decoration: none; 
+    text-decoration: none;
+    padding: 0 1px;
 }
-.ui-tabs-nav li.ui-tabs-selected {  
+.ui-tabs-nav li.ui-tabs-selected a{  
     font-weight: bold;
-    padding: 5px;
+    padding: 0;
 }
 .ui-tabs-panel {
     display: block;
     border: 0;
     padding: 0;
+    margin-top: 10px;
 }
 .ui-tabs-hide {
     display: none !important;
@@ -180,7 +187,7 @@ div.lnfiles{
 #ann_comment_wrapper div.avatar {
     float: left;
     width:50px;
-    padding: 5px 5px 0 10px;
+    padding: 5px;
 }
 #ann_comment_wrapper div.ann_comment{
     width: 100%;

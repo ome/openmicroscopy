@@ -83,13 +83,26 @@ body.zoom {
     height:22px;
     padding:0;
 }
+#content_details {
+    padding: 10px 20px 0 10px;
+}
 
-#tree_action, #content_action  {
+.toolbar  {
     height:20px;
     padding:5px;
     background-color:#fff;
     width: 100%; 
     border-bottom: 1px solid #bbb;
+}
+
+#buttons_right  {
+    float: right;
+    text-align: right;
+}
+
+#buttons {
+    float: left;
+    text-align: left;
 }
 
 #view_grey  {
@@ -237,7 +250,7 @@ h2 {
 
 p {
     margin: 0px;
-    padding: 5px 10px;
+    padding: 5px;
 }
 
 iframe {
@@ -252,10 +265,12 @@ table {
 td {
     text-align: left;
     padding: 0px;
+    vertical-align:top;
 }
 
 th {
     font-weight: bold;
+    vertical-align:top;
 }
 
 input {

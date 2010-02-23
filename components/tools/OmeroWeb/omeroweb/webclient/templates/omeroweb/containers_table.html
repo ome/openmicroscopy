@@ -1,86 +1,61 @@
-{% extends "omeroweb/base_frame_white.html" %}
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 {% load wikitags %}
 
-{% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/container.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
-{% endblock %}
-
-{% block jscript %}
+    <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
     
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
-
-    <script type="text/javascript" src="{% url webstatic "javascript/basket.js" %}"></script>
-        
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.selectable.js" %}"></script>
+    
     <script type="text/javascript">
-        $(document).ready(function() 
-            { 
-                $("#dataTable").tablesorter( {sortList: [[1,0]]} ); 
-                
-                {% if manager.c_size %}
-                $('table#dataTable tbody tr').quicksearch({
-                    attached: "div#view",
-                    position: "before",
-                    stripeRowClass: null,
-                    labelText: '{% trans "Filter" %}:',
-                    inputText: '...',
-                    loaderImg: '{% url webstatic "images/tree/spinner.gif" %}',
-                });
-                {% endif %}
-                
-                $("a.loadingData").click(function()
-                {
-                    $("div#hierarchy").html('<p>{% trans "Loading hierarchy... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                    $("div#hierarchy").load(
-                        {% if manager.project or manager.dataset or manager.screen or manager.plate %}
-                            {% if manager.dataset %}
-                                "{% url manage_container_hierarchies_id "dataset" manager.dataset.id %}", 
-                            {% endif %}
-                            {% if manager.project %}
-                                "{% url manage_container_hierarchies_id "project" manager.project.id %}", 
-                            {% endif %}
-                            {% if manager.plate %}
-                                "{% url manage_container_hierarchies_id "plate" manager.plate.id %}", 
-                            {% endif %}
-                            {% if manager.screen %}
-                                "{% url manage_container_hierarchies_id "screen" manager.screen.id %}", 
-                            {% endif %}
-                        {% else %}
-                            "{% url manage_container_hierarchies %}", 
-                        {% endif %}
-                        function() {  
-                            $("a.loadingData").remove();                        
+        $(document).ready(function(){
+
+            $("ul#dataTable").selectable({
+            	stop: function(){
+            		var result = $("#select-result").empty();
+            		var l = $('li.ui-selected img', this).length;
+            		$("li.ui-selected input", this).each(function(){
+            		    this.checked = true;
+            		});
+            		if (l == 1) {
+            		    $("#right_panel").show();
+                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
+            		    $('li.ui-selected img', this).each(function(){  
+            		        var h = $(window).height()-169;          		        
+                		    $("div#metadata_details").html('<iframe width="100%" height="'+h+'" src="/webclient/metadata_details/image/'+this.id+'/" id="metadata_details" name="metadata_details"></iframe>');
+                            $('iframe#metadata_details').load();
                         });
-                    return false; 
-                });
-        })
+            		} else {
+            		    $("#right_panel").show();
+            		    $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
+            		    $("div#metadata_details").html('<p>'+ l +' elements selected.</p><p><a href="{% url load_data "dataset" manager.dataset.id %}?view=table" target="content_details"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"/></a> <a href="{% url load_data "dataset" manager.dataset.id %}?view=icon" target="content_details"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> | <input id="copyToClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy to clipboard"> <input id="pasteFromClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste from clipboard" onclick="pasteFromClipboard(\'dataset\', \'{{ manager.dataset.id }}\', \'{{ url }}\'); return false;"> <input id="unlink" class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" value="ds-{{ manager.dataset.id }}"> | <input id="addToBasket" class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket"> | <a href="{% url load_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a></p>');
+            		}
+            	},
+            	start: function(){
+            		$("li input", this).each(function(){
+            			this.checked = false;
+            		});
+            	}
+            });
+        });
     </script>
 
-{% endblock %}
+{% if manager.c_size %}
 
-{% block content %}
-
-<!--content-->
-<div id="actionButtons">
-    <a href="{% url load_data "dataset" manager.dataset.id %}?view=table" target="content_details"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"/></a> 
-    <a href="{% url load_data "dataset" manager.dataset.id %}?view=icon" target="content_details"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> | 
-    <input id="copyToClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy to clipboard"> 
-    <input id="pasteFromClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste from clipboard" onclick="pasteFromClipboard('dataset', '{{ manager.dataset.id }}', '{{ url }}'); return false;"> 
-    <input id="unlink" class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" value="ds-{{ manager.dataset.id }}"> | 
-    <input id="addToBasket" class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket"> | 
-    <a href="{% url load_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a>
-</div>
-<div class="clear"> </div>
-
-<div class="content">
-    {% include "omeroweb/container_data_table.html" %}
-</div>
+    <div id="buttons_right">    
+        <a href="#" onclick="changeView('icon'); return false;"><img src="{% url webstatic "images/view_icon16.png" %}" alt="details" title="details"/></a>
+    </div>
+    <div class="clear"> </div>
+    
+    <ul id="dataTable">
+        {% for c in manager.containers.images %}
+        <li id="{{ c.id }}"><img id="{{ c.id }}" src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/> {{ c.shortName2 }} ({{ c.getDate }})   <input type="checkbox" name="image" id="{{ c.id }}">
+        </li>
+        {% endfor %}
+    </ul>
+    
+{% else %}
+    <p>{% trans "No data." %}</p>
+{% endif %}
 
 {% include "omeroweb/container_paging.html" %}
-
-
-{% endblock %}

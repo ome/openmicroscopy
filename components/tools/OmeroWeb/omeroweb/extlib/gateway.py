@@ -813,30 +813,31 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         p.map["oid"] = rlong(long(oid))
         p.map["eid"] = rlong(self.getEventContext().userId)
+        p.map["nss"] = rlist(rstring(omero.constants.namespaces.NSCOMPANIONFILE), rstring(omero.constants.namespaces.NSEXPERIMENTERPHOTO))
         if o_type == "image":
             sql = "select a from FileAnnotation as a join fetch a.file " \
                 "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns != 'openmicroscopy.org/omero/import/companionFile' "
+                "and a.details.owner.id=:eid and (a.ns not in (:nss) or a.ns is null) "
         elif o_type == "dataset":
             sql = "select a from FileAnnotation as a join fetch a.file " \
                 "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns != 'openmicroscopy.org/omero/import/companionFile' "
+                "and a.details.owner.id=:eid and (a.ns not in (:nss) or a.ns is null) "
         elif o_type == "project":
             sql = "select a from FileAnnotation as a join fetch a.file " \
                 "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns != 'openmicroscopy.org/omero/import/companionFile' "
+                "and a.details.owner.id=:eid and (a.ns not in (:nss) or a.ns is null) "
         elif o_type == "screen":
             sql = "select a from FileAnnotation as a join fetch a.file " \
                 "where not exists ( select sal from ScreenAnnotationLink as sal where sal.child=a.id and sal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns != 'openmicroscopy.org/omero/import/companionFile' "
+                "and a.details.owner.id=:eid and (a.ns not in (:nss) or a.ns is null) "
         elif o_type == "plate":
             sql = "select a from FileAnnotation as a join fetch a.file " \
                 "where not exists ( select pal from PlateAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns != 'openmicroscopy.org/omero/import/companionFile' "
+                "and a.details.owner.id=:eid and (a.ns not in (:nss) or a.ns is null) "
         elif o_type == "well":
             sql = "select a from FileAnnotation as a join fetch a.file " \
                 "where not exists ( select wal from WellAnnotationLink as wal where wal.child=a.id and wal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns != 'openmicroscopy.org/omero/import/companionFile' "
+                "and a.details.owner.id=:eid and (a.ns not in (:nss) or a.ns is null) "
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper(self, e)
     
@@ -896,7 +897,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         tags = list()
         for e in q.findAllByQuery(sql,p):
             t = AnnotationWrapper(self, e)
-            tags.append({'tag': t.textValue,'id':t.id, 'desc':(t.tinyDescription())} )
+            tags.append({'tag': t.textValue,'id':t.id, 'desc':(t.shortDescription())} )
         return tags
     
     ##############################################
