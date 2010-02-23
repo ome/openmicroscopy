@@ -535,7 +535,7 @@ def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, colour
 			log("  Scaling down the full-size image by a factor of %F" % imageZoom)
 		
 		log("  ROI location (top-left) x: %d  y: %d  and size width: %d  height: %d" % (roiX, roiY, roiWidth, roiHeight))
-		log("  ROI time: %d - %d   zRange: %d - %d" % (tStart, tEnd, zStart, zEnd))
+		log("  ROI time: %d - %d   zRange: %d - %d" % (tStart+1, tEnd+1, zStart+1, zEnd+1))
 		# get the split pane and full merged image
 		if tStart == tEnd:
 			roiSplitPane, fullMergedImage, topSpacer = getROIsplitView	(session, pixels, zStart, zEnd, splitIndexes, channelNames, 
