@@ -3031,7 +3031,6 @@ class OMEROGateway
 		isSessionAlive();
 		Set<GroupData> pojos = new HashSet<GroupData>();
 		try {
-			IAdminPrx service = getAdminService();
 			//Need method server side.
 			ParametersI p = new ParametersI();
 			p.addId(user.getId());

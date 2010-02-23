@@ -95,6 +95,7 @@ import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -415,6 +416,9 @@ public class FigureDialog
 
 	/** The default figure. */
 	private FigureComponent					mergedComponent;
+	
+	/** Copy of the rendering definition. */
+	private RndProxyDef						rndDef;
 	
 	/** Modifies the lens factor. */
 	private void setLensFactor()
@@ -1628,6 +1632,7 @@ public class FigureDialog
 			case THUMBNAILS:
 				p = saveThumbnailsFigure();
 		}
+		renderer.resetSettings(rndDef);
 		close();
 		if (p != null)
 			firePropertyChange(CREATE_FIGURE_PROPERTY, null, p);
@@ -1765,11 +1770,14 @@ public class FigureDialog
 	/**
 	 * Sets the renderer.
 	 * 
-	 * @param renderer 	Reference to the renderer.
+	 * @param renderer 	Reference to the renderer. Mustn't be <code>null</code>.
 	 */
 	public void setRenderer(Renderer renderer)
 	{
+		if (renderer == null)
+			throw new IllegalArgumentException("No renderer.");
 		this.renderer = renderer;
+		rndDef = renderer.getRndSettingsCopy();
 		channelsPane.removeAll();
 		switch (dialogType) {
 			case SPLIT:
@@ -2012,6 +2020,5 @@ public class FigureDialog
 	 * @see DocumentListener#changedUpdate(DocumentEvent)
 	 */
 	public void changedUpdate(DocumentEvent e) {}
-
 
 }
