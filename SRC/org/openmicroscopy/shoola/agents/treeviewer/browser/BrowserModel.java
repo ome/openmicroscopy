@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 //Java imports
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -97,7 +98,7 @@ class BrowserModel
     private int                 	browserType;
     
     /** The collection of selected nodes in the visualization tree. */
-    private Set<TreeImageDisplay>	selectedNodes;
+    private List<TreeImageDisplay>	selectedNodes;
     
     /** Holds one of the state flags defined by {@link Browser}. */
     private int                 	state;
@@ -184,7 +185,7 @@ class BrowserModel
         this.browserType = browserType;
         clickPoint = null;
         foundNodeIndex = -1;
-        selectedNodes = new HashSet<TreeImageDisplay>();
+        selectedNodes = new ArrayList<TreeImageDisplay>();
         displayed = true;
     }
 
@@ -244,8 +245,14 @@ class BrowserModel
     TreeImageDisplay[] getSelectedDisplays()
     {
         if (selectedNodes.size() == 0) return new TreeImageDisplay[0];
-        return (TreeImageDisplay[]) selectedNodes.toArray(
-                new TreeImageDisplay[selectedNodes.size()]);
+        TreeImageDisplay[] nodes = new TreeImageDisplay[selectedNodes.size()];
+        Iterator<TreeImageDisplay> i = selectedNodes.iterator();
+        int index = 0;
+        while (i.hasNext()) {
+        	nodes[index] = i.next();
+        	index++;
+		}
+        return nodes;
     }
     
     /**

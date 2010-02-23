@@ -824,8 +824,9 @@ class BrowserComponent
     	Object uo;
     	for (int i = 0; i < nodes.length; i++) {
 			uo = nodes[i].getUserObject();
-			if (uo instanceof DataObject)
+			if (uo instanceof DataObject) {
 				objects.add((DataObject) uo);
+			}
 		}
     	return objects;
     }

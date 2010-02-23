@@ -5213,8 +5213,9 @@ class OMEROGateway
 			if (id <= 0) return -1;
 			List<RType> ids = new ArrayList<RType>(objectIDs.size());
 			Iterator<Long> i = objectIDs.iterator();
-			while (i.hasNext()) 
+			while (i.hasNext())
 				ids.add(omero.rtypes.rlong(i.next()));
+				
 			ParametersI parameters = new ParametersI();
 			if (scriptIndex == FigureParam.THUMBNAILS) {
 				DataObject d = (DataObject) param.getAnchor();
