@@ -5280,7 +5280,15 @@ class OMEROGateway
 							omero.rtypes.rstring((String) entry.getValue()));
 				}
 			}
-			
+			List<Integer> splitActive = param.getSplitActive();
+			if (splitActive != null && splitActive.size() > 0) {
+				List<RType> sa = new ArrayList<RType>(splitActive.size());
+				Iterator<Integer> k = splitActive.iterator();
+				while (k.hasNext()) {
+					sa.add(omero.rtypes.rint(k.next()));
+				}
+				parameters.map.put("splitIndexes", omero.rtypes.rlist(sa));
+			}
 			parameters.map.put("mergedNames", omero.rtypes.rbool(
 					param.getMergedLabel()));
 			parameters.map.put("imageIds", omero.rtypes.rlist(ids));

@@ -152,56 +152,59 @@ public class FigureParam
 	 * Flag indicating to either have the images in the split view
 	 * as greyScale or color.
 	 */
-	private boolean	splitGrey;
+	private boolean					splitGrey;
 	
 	/** 
 	 * The label associated to a row. 
 	 * One of the constants defined by this class.
 	 */
-	private int		label;
+	private int						label;
 	
 	/** Channels composing the split view. */
-	private Map<Integer, String> splitChannels;
+	private Map<Integer, String> 	splitChannels;
 	
 	/** Channels composing the merge image. */
-	private Map<Integer, Integer> mergeChannels;
+	private Map<Integer, Integer> 	mergeChannels;
+	
+	/** Collection of active channels for the split view. */
+	private List<Integer>			splitActive;
 	
 	/** Collection of tags to sort the thumbnails by. */
-	private List<Long> 		tags;
+	private List<Long> 				tags;
 	
 	/** The type of figure. */
-	private int 			index;
+	private int 					index;
 	
 	/** The magnification used the ROI figure. */
-	private double			magnificationFactor;
+	private double					magnificationFactor;
 	
 	/** The selected time points. */
-	private List<Integer>	timepoints;
+	private List<Integer>			timepoints;
 	
 	/** 
 	 * Set to <code>true</code> to indicate that the selected objects will
 	 * compose the figure, <code>false</code> to indicate that the displayed
 	 * objects will compose the figure.
 	 */
-	private boolean 		selectedObjects;
+	private boolean 				selectedObjects;
 	
 	/** Identifies the time selected. */
-	private int				time;
+	private int						time;
 	
 	/** 
 	 * Flag indicating to display the name of the channels or the default
 	 * text. 
 	 */ 
-	private boolean 		mergedLabel;
+	private boolean 				mergedLabel;
 	
 	/** 
 	 * Flag indicates to include the images w/o tags if 
 	 * set to <code>true</code>, <code>false</code> otherwise.
 	 */
-	private boolean 		includeUntagged;
+	private boolean 				includeUntagged;
 	
 	/** The data object the figure is attached to. */
-	private pojos.DataObject anchor;
+	private pojos.DataObject 		anchor;
 	
 	/** Sets the default value. */
 	private void setDefault()
@@ -321,6 +324,23 @@ public class FigureParam
 			mergeChannels.put(index, value);
 		}
 	}
+	
+	/**
+	 * Sets the collection of channels active in the split view.
+	 * 
+	 * @param splitActive The collection to set.
+	 */
+	public void setSplitActive(List<Integer> splitActive)
+	{
+		this.splitActive = splitActive;
+	}
+	
+	/**
+	 * Returns the collection of active channels.
+	 * 
+	 * @return See above.
+	 */
+	public List<Integer> getSplitActive() { return splitActive; }
 	
 	/**
 	 * Sets to <code>true</code> if the names of the channels are merged 

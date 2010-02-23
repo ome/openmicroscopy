@@ -1449,13 +1449,15 @@ public class FigureDialog
 		Map<Integer, String> split = new LinkedHashMap<Integer, String>();
 		FigureComponent comp;
 		Entry entry;
+		List<Integer> splitActive = new ArrayList<Integer>();
 		Iterator i = components.entrySet().iterator();
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			comp = (FigureComponent) entry.getValue();
-			//if (comp.isSelected()) {
-				split.put((Integer) entry.getKey(), comp.getLabel());
-			//}
+			split.put((Integer) entry.getKey(), comp.getLabel());
+			if (comp.isSelected()) {
+				splitActive.add((Integer) entry.getKey());
+			}
 		}
 		Map<Integer, Color> merge = new LinkedHashMap<Integer, Color>();
 		List<Integer> active = renderer.getActiveChannels();
@@ -1470,7 +1472,7 @@ public class FigureDialog
 		int format = formats.getSelectedIndex();
 		int label = rowName.getSelectedIndex();
 		FigureParam p = new FigureParam(format, name, split, merge, label);
-		
+		p.setSplitActive(splitActive);
 		collectParam(p);
 		return p;
 	}
@@ -1483,15 +1485,17 @@ public class FigureDialog
 	private FigureParam saveROIFigure()
 	{
 		Map<Integer, String> split = new LinkedHashMap<Integer, String>();
+		List<Integer> splitActive = new ArrayList<Integer>();
 		FigureComponent comp;
 		Entry entry;
 		Iterator i = components.entrySet().iterator();
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			comp = (FigureComponent) entry.getValue();
-			//if (comp.isSelected()) {
-				split.put((Integer) entry.getKey(), comp.getLabel());
-			//}
+			split.put((Integer) entry.getKey(), comp.getLabel());
+			if (comp.isSelected()) {
+				splitActive.add((Integer) entry.getKey());
+			}
 		}
 		Map<Integer, Color> merge = new LinkedHashMap<Integer, Color>();
 		List<Integer> active = renderer.getActiveChannels();
@@ -1506,6 +1510,7 @@ public class FigureDialog
 		int format = formats.getSelectedIndex();
 		int label = rowName.getSelectedIndex();
 		FigureParam p = new FigureParam(format, name, split, merge, label);
+		p.setSplitActive(splitActive);
 		p.setIndex(FigureParam.SPLIT_VIEW_ROI);
 		collectParam(p);
 		double zoom = 0;
