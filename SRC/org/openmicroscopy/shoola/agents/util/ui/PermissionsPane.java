@@ -365,7 +365,6 @@ public class PermissionsPane
 			firePropertyChange(PERMISSIONS_CHANGE_PROPERTY, 
 					-1, getPermissions());
 		} else {
-			
 			readOnlyGroupBox.setEnabled(false);
 			readOnlyPublicBox.setEnabled(false);
 			if (groupBox == src) readOnlyGroupBox.setEnabled(true);

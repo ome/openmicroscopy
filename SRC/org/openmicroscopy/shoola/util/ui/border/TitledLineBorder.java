@@ -81,7 +81,7 @@ public class TitledLineBorder
 	private List<Rectangle>	imageBounds;
 	
 	/**
-	 * Returns <code>true</code> if the passed rectangle intersects withe 
+	 * Returns <code>true</code> if the passed rectangle intersects with 
 	 * the passed parameters defining the rectangle of reference, 
 	 * <code>false</code> otherwise.
 	 * 

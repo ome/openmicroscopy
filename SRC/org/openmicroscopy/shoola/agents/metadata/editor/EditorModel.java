@@ -643,7 +643,7 @@ class EditorModel
 			time = ((AnnotationData) object).getLastModified();
 		else if (object instanceof ImageData) 
 			time = EditorUtil.getAcquisitionTime((ImageData) object);
-			
+		else time = object.getCreated();
 		if (time != null) date = UIUtilities.formatShortDateTime(time);
 		return date;
 	}

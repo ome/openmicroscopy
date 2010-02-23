@@ -213,20 +213,18 @@ class TreeViewerComponent
 	 * Displays the user groups.
 	 * 
 	 * @param groups The groups the current user is a member of.
+	 * @param location The location of the mouse pressed.
 	 */
-	private void displayUserGroups(Set groups)
+	private void displayUserGroups(Set groups, Point location)
 	{
-		//if (switchUserDialog == null) {
 		JFrame f = (JFrame) TreeViewerAgent.getRegistry().getTaskBar();
 		IconManager icons = IconManager.getInstance();
 		switchUserDialog = new UserManagerDialog(f, model.getUserDetails(), 
 				groups, icons.getIcon(IconManager.OWNER), 
 				icons.getIcon(IconManager.OWNER_48));
 		switchUserDialog.addPropertyChangeListener(controller);
-		//switchUserDialog.pack();
 		switchUserDialog.setDefaultSize();
-		//}
-		UIUtilities.centerAndShow(switchUserDialog);
+		UIUtilities.showOnScreen(switchUserDialog, location);
 	}
 	
 	/**
@@ -1362,14 +1360,14 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#retrieveUserGroups()
+	 * @see TreeViewer#retrieveUserGroups(Point)
 	 */
-	public void retrieveUserGroups()
+	public void retrieveUserGroups(Point location)
 	{
 		if (model.getState() == DISCARDED)
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
-		displayUserGroups(TreeViewerAgent.getAvailableUserGroups());
+		displayUserGroups(TreeViewerAgent.getAvailableUserGroups(), location);
 	}
 
 	/**

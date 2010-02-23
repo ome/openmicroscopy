@@ -27,7 +27,10 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
+
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
 
 //Third-party libraries
 
@@ -73,7 +76,7 @@ class TextualAnnotationComponent
 		String date = model.formatDate(data);
 		TitledLineBorder border = new TitledLineBorder(owner+" "+date);
 		border.setTitleFont(area.getFont().deriveFont(Font.BOLD));
-		area.setBorder(border);
+		setBorder(border);
 	}
 	
 	/** Builds and lays out the UI. */
@@ -86,7 +89,7 @@ class TextualAnnotationComponent
 	/**
 	 * Creates a new component.
 	 * 
-	 * @param uiDelegate	Reference to the ui component hosting this 
+	 * @param uiDelegate	Reference to the UI component hosting this 
 	 * 						component.
 	 * @param model			Reference to the model. 
 	 * 						Mustn't be <code>null</code>.
@@ -110,7 +113,7 @@ class TextualAnnotationComponent
 	{
 		area.setOriginalBackground(color);
 		setBackground(color);
-		((TitledLineBorder) area.getBorder()).setLineColor(color);
+		((TitledLineBorder) getBorder()).setLineColor(color);
 	}
 	
 }

@@ -50,8 +50,6 @@ import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.GroupData;
-import pojos.PermissionData;
-
 
 /** 
  * Displays information about the currently selected group.

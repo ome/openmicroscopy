@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PersonalManagementAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
@@ -157,11 +158,14 @@ class ToolBar
         //bar.add(b);
         
         bar.add(new JSeparator(JSeparator.VERTICAL));
-        b = new JButton(controller.getAction(TreeViewerControl.SWITCH_USER));
+        TreeViewerAction a = 
+        	controller.getAction(TreeViewerControl.SWITCH_USER);
+        b = new JButton(a);
+        b.addMouseListener((SwitchUserAction) a);
         UIUtilities.unifiedButtonLookAndFeel(b);
         //if (model.isMultiUser()) 
         bar.add(b);
-        TreeViewerAction a = controller.getAction(TreeViewerControl.PERSONAL);
+        a = controller.getAction(TreeViewerControl.PERSONAL);
         b = new JButton(a);
         UIUtilities.unifiedButtonLookAndFeel(b);
         b.addMouseListener((PersonalManagementAction) a);

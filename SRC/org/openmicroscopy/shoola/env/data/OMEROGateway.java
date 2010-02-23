@@ -3045,10 +3045,7 @@ class OMEROGateway
                     + "where g.id in "
                     + "  (select m.parent from GroupExperimenterMap m "
                     + "  where m.child.id = :id )", p);
-			
-			
-			
-			
+
 			//List<ExperimenterGroup> groups = service.containedGroups(
 			//		user.getId());
 			
@@ -3057,10 +3054,7 @@ class OMEROGateway
 			Iterator<IObject> i = groups.iterator();
 			while (i.hasNext()) {
 				group = (ExperimenterGroup) i.next();
-				if (!isSystemGroup(group)) {
-					//pojoGroup = (GroupData) PojoMapper.asDataObject(group);
-					pojos.add((GroupData) PojoMapper.asDataObject(group));
-				}
+				pojos.add((GroupData) PojoMapper.asDataObject(group));
 			}
 			return pojos;
 		} catch (Throwable t) {

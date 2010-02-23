@@ -24,22 +24,24 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 
 //Java imports
+import java.awt.Component;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
-import java.util.Iterator;
-import java.util.Set;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
 import javax.swing.Action;
+import javax.swing.SwingUtilities;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.GroupData;
-import pojos.PermissionData;
 
 /** 
  * Action to bring up the Switch user dialog.
@@ -56,6 +58,7 @@ import pojos.PermissionData;
  */
 public class SwitchUserAction 
 	extends TreeViewerAction
+	implements MouseListener
 {
 
 	/** The name of the action. */
@@ -65,6 +68,9 @@ public class SwitchUserAction
 	private static final String DESCRIPTION = "Select another " +
 			"user and view his/her data.";
 	
+    /** The location of the mouse pressed. */
+    private Point point;
+    
     /** 
      * Enables the action if the browser is not ready.
      * @see TreeViewerAction#onBrowserStateChange(Browser)
@@ -123,6 +129,46 @@ public class SwitchUserAction
      * Brings up the switch user dialog.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e) { model.retrieveUserGroups(); }
+    public void actionPerformed(ActionEvent e)
+    { 
+    	SwingUtilities.convertPointToScreen(point, 
+			(Component) e.getSource());
+    	model.retrieveUserGroups(point);
+    }
+    
+    /** 
+     * Sets the location of the point where the <code>mousePressed</code>
+     * event occurred. 
+     * @see MouseListener#mousePressed(MouseEvent)
+     */
+    public void mousePressed(MouseEvent me) { point = me.getPoint(); }
+    
+    /** 
+     * Required by {@link MouseListener} I/F but not actually needed in our
+     * case, no-operation implementation.
+     * @see MouseListener#mouseReleased(MouseEvent)
+     */
+    public void mouseReleased(MouseEvent me) {}
+    
+    /** 
+     * Required by {@link MouseListener} I/F but not actually needed in our
+     * case, no-operation implementation.
+     * @see MouseListener#mouseEntered(MouseEvent)
+     */   
+    public void mouseEntered(MouseEvent e) {}
+
+    /** 
+     * Required by {@link MouseListener} I/F but not actually needed in our
+     * case, no-operation implementation.
+     * @see MouseListener#mouseExited(MouseEvent)
+     */   
+    public void mouseExited(MouseEvent e) {}
+    
+    /** 
+     * Required by {@link MouseListener} I/F but not actually needed in our
+     * case, no-operation implementation.
+     * @see MouseListener#mouseClicked(MouseEvent)
+     */   
+    public void mouseClicked(MouseEvent e) {}
     
 }

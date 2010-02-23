@@ -58,7 +58,7 @@ abstract class AnnotationUI
 	/** Color indicating that a value needs to be highlighted to the user. */
 	static final Color	WARNING = Color.red;
 	
-	/** The border when an editable field are is editable. */
+	/** The border of a field that can be edited. */
 	static final Border EDIT_BORDER = BorderFactory.createLineBorder(
 			Color.LIGHT_GRAY);
 	
@@ -89,7 +89,9 @@ abstract class AnnotationUI
 	/** Default text if no data entered. */
 	static final String DEFAULT_TEXT = "None";
 
-	/** The default text for enumeration if not set an arity is 0 or 1. */
+	/** 
+	 * The default text for enumeration if not set the cardinality is 0 or 1.
+	 */
 	static final String	NO_SET_TEXT = "Not Set";
 	
 	/** The default text to display manufactured details. */

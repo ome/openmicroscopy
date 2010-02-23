@@ -111,14 +111,16 @@ class TextualAnnotationsUI
 	/** Flag indicating to build the UI once. */
 	private boolean 			init;
 	
+	/** Indicate that the comments added by other users are visible. */
+	private boolean				expanded;
+	
 	/**
 	 * Builds and lays out the component hosting the previous annotations.
 	 * 
 	 * @return See above.
 	 */
-	private JComponent buildPreviousCommentsPane()
+	private JPanel buildPreviousCommentsPane()
 	{
-		if (previousComments != null) return previousComments;
 		JPanel p = new JPanel();
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -141,9 +143,7 @@ class TextualAnnotationsUI
 				}
 			}
 		}
-		previousComments = new JScrollPane(p);
-		previousComments.setBorder(null);
-		return previousComments;
+		return p;
 	}
 	
 	/**
@@ -160,7 +160,7 @@ class TextualAnnotationsUI
 		int n = m.size();
 		if (n == 0) return false;
 		if (n == 1 && m.containsKey(userID)) return false;
-		if (n >=1) return true;
+		if (n >= 1) return true;
 		//if (l != null && l.size() > 1) return true;
 		return false;
 	}
@@ -168,7 +168,7 @@ class TextualAnnotationsUI
 	/** Initializes the components. */
 	private void initComponents()
 	{
-		JButton moreButton = new JButton("...more");
+		JButton moreButton = new JButton("more");
 		moreButton.setBorder(null);
 		UIUtilities.unifiedButtonLookAndFeel(moreButton);
 		moreButton.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -200,19 +200,6 @@ class TextualAnnotationsUI
 		commentArea.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 		commentArea.setComponentBorder(EDIT_BORDER);
 	}
-
-	/** Lays out the node. */
-	private void layoutPreviousComments()
-	{
-		TableLayout layout = (TableLayout) getLayout();
-		layout.setRow(2, TableLayout.PREFERRED);
-		layout.setRow(3, TableLayout.PREFERRED);
-		remove(moreComponent);
-		add(hideComponent, "0, 2");
-		add(buildPreviousCommentsPane(), "0, 3");
-		revalidate();
-		repaint();
-	}
 	
 	/**
 	 * Sets the text of the {@link #commentArea}.
@@ -232,6 +219,7 @@ class TextualAnnotationsUI
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
+		removeAll();
     	setBorder(new SeparatorOneLineBorder());
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		double[][] size = {{TableLayout.FILL}, {TableLayout.PREFERRED, 
@@ -256,6 +244,25 @@ class TextualAnnotationsUI
 		layout.setRow(3, 0);
 		remove(hideComponent);
 		add(moreComponent, "0, 2");
+		revalidate();
+		repaint();
+	}
+	
+	/** Lays out the node. */
+	private void layoutPreviousComments()
+	{
+		if (previousComments == null) {
+			previousComments = new JScrollPane();
+			previousComments.setBorder(null);
+		}
+		TableLayout layout = (TableLayout) getLayout();
+		layout.setRow(2, TableLayout.PREFERRED);
+		layout.setRow(3, TableLayout.PREFERRED);
+		remove(moreComponent);
+		add(hideComponent, "0, 2");
+		JPanel p = buildPreviousCommentsPane();
+		previousComments.getViewport().add(p);
+		add(previousComments, "0, 3");
 		revalidate();
 		repaint();
 	}
@@ -323,6 +330,10 @@ class TextualAnnotationsUI
 		if (hasPreviousTextualAnnotations()) {
 			layout.setRow(2, TableLayout.PREFERRED);
 			add(moreComponent, "0, 2");
+			if (expanded) {
+				layout.setRow(3, TableLayout.PREFERRED);
+				previousComments.getViewport().add(buildPreviousCommentsPane());
+			}
 		}
 		revalidate();
 		repaint();
@@ -393,6 +404,8 @@ class TextualAnnotationsUI
 	 */
 	protected void clearDisplay() 
 	{ 
+		if (previousComments != null)
+			previousComments.getViewport().removeAll();
 		originalText = DEFAULT_TEXT_COMMENT;
 		setAreaText(DEFAULT_TEXT_COMMENT, true);
 	}
@@ -424,9 +437,11 @@ class TextualAnnotationsUI
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
 			case MORE:
+				expanded = true;
 				layoutPreviousComments();
 				break;
 			case HIDE:
+				expanded = false;
 				hidePreviousComments();
 		}
 	}

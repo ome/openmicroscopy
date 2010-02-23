@@ -535,8 +535,12 @@ public interface TreeViewer
 	 */
 	public long getUserGroupID();
 
-	/** Retrieves the user groups. */
-	public void retrieveUserGroups();
+	/** 
+	 * Retrieves the user groups. 
+	 * 
+	 * @param location The location of the mouse pressed.
+	 */
+	public void retrieveUserGroups(Point location);
 
 	/**
 	 * Returns the first name and the last name of the currently 
