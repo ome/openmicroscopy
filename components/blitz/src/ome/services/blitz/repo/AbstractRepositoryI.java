@@ -236,7 +236,8 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                     r.setCtime(t);
                     r.setFormat(new Format("Repository"));
                     r.setSize(0L);
-                    r.getDetails().setPermissions(Permissions.WORLD_IMMUTABLE);
+                    // ticket:1794 - currently only perms == group.perms allowed
+                    // r.getDetails().setPermissions(Permissions.WORLD_IMMUTABLE);
                     r = sf.getUpdateService().saveAndReturnObject(r);
                     fileMaker.writeLine(repoUuid);
                     log.info(String.format(

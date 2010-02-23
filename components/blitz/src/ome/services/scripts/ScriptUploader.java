@@ -178,7 +178,8 @@ public abstract class ScriptUploader {
         file.setPath("lib/python/" + getName());
         file.setSize(Long.valueOf(buf.length));
         file.setFormat(new Format("text/x-python"));
-        file.getDetails().setPermissions(Permissions.WORLD_IMMUTABLE);
+        // ticket:1794 - currently perms == group.perms only!
+        // file.getDetails().setPermissions(Permissions.WORLD_IMMUTABLE);
         file = sf.getUpdateService().saveAndReturnObject(file);
 
         RawFileStore rfs = sf.createRawFileStore();
