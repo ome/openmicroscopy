@@ -168,7 +168,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return file;
     }
 
- 
     /**
      * Register an Image object
      * 
@@ -314,7 +313,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
 
     /**
-     * Get a list of all importable image files at path.
+     * Get a list of all importable image files/directories at path.
      * 
      * @param path
      *            A path on a repository.
@@ -326,13 +325,13 @@ public class PublicRepositoryI extends _RepositoryDisp {
     public List<Image> listImportableImages(String path, Current __current)
             throws ServerError {
         File file = checkPath(path);
-        List<File> files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.fileFileFilter()));
+        List<File> files = Arrays.asList(file.listFiles());
         List<File> importableImageFiles = getImportableImageFiles(files);
         return filesToImages(importableImageFiles);
     }
 
     /**
-     * Get a list of importable image files at path that are already registered.
+     * Get a list of importable image files/directories at path that are already registered.
      * 
      * @param path
      *            A path on a repository.
@@ -344,14 +343,14 @@ public class PublicRepositoryI extends _RepositoryDisp {
     public List<Image> listKnownImportableImages(String path, Current __current)
             throws ServerError {
         File file = checkPath(path);
-        List<File> files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.fileFileFilter()));
+        List<File> files = Arrays.asList(file.listFiles());
         List<File> importableImageFiles = getImportableImageFiles(files);
         return knownImages(importableImageFiles);
     }
     
 
     /**
-     * Get a list of all non-image files at path.
+     * Get a list of all non-image files/directories at path.
      * 
      * @param path
      *            A path on a repository.
@@ -363,13 +362,13 @@ public class PublicRepositoryI extends _RepositoryDisp {
     public List<OriginalFile> listNonImages(String path, Current __current)
             throws ServerError {
         File file = checkPath(path);
-        List<File> files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.fileFileFilter()));
+        List<File> files = Arrays.asList(file.listFiles());
         List<File> nonImageFiles = getNonImageFiles(files);
         return filesToOriginalFiles(nonImageFiles);
     }
 
     /**
-     * Get a list of non-image files at path that are already registered.
+     * Get a list of non-image files/directories at path that are already registered.
      * 
      * @param path
      *            A path on a repository.
@@ -381,7 +380,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
     public List<OriginalFile> listKnownNonImages(String path, Current __current)
             throws ServerError {
         File file = checkPath(path);
-        List<File> files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.fileFileFilter()));
+        List<File> files = Arrays.asList(file.listFiles());
         List<File> nonImageFiles = getNonImageFiles(files);
         return knownOriginalFiles(nonImageFiles);
     }
@@ -760,9 +759,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
 
     private List<File> getImportableImageFiles(Collection<File> files) {
-        //List<String> paths = filesToPaths(files);
-        // Use paths to get import candidates?
-        //List<File> importableImageFiles = pathsToFiles(paths);
+        List<String> paths = filesToPaths(files);
         
         // Dummy stuff for now --- just return jpegs
         List<File> importableImageFiles = new ArrayList<File>();
