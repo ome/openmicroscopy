@@ -113,6 +113,23 @@ public class AdminSaver extends BatchCallTree
     }
     
     /**
+     * Creates a {@link BatchCall} to reset the password of the experimenters.
+     * 
+	 * @param object 	The experimenters to handle.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall resetExperimentersPassword(final AdminObject object)
+    {
+        return new BatchCall("Reset password") {
+            public void doCall() throws Exception
+            {
+            	AdminService os = context.getAdminService();
+                result = os.resetExperimentersPassword(object);
+            }
+        };
+    }
+    
+    /**
      * Creates a {@link BatchCall} to create group.
      * 
 	 * @param object 	The experimenters to create.
@@ -157,6 +174,8 @@ public class AdminSaver extends BatchCallTree
 			case AdminObject.CREATE_GROUP:
 				loadCall = createGroup(object);
 				break;
+			case AdminObject.RESET_PASSWORD:
+				loadCall = resetExperimentersPassword(object);
 		}
     }
     

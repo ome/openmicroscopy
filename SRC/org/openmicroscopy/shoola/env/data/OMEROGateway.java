@@ -6417,6 +6417,29 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Resets the password of the specified user.
+	 * 
+	 * @param userName 	The login name.
+	 * @param userID 	The id of the user.
+	 * @param password 	The password to set.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	void resetPassword(String userName, long userID, String password)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		IAdminPrx svc = getAdminService();
+		try {
+			svc.changeUserPassword(userName, omero.rtypes.rstring(password));
+		} catch (Throwable t) {
+			handleException(t, "Cannot modify the password for:"+userName);
+		}
+	}
+	
+	/**
 	 * Invokes when the user has forgotten his/her password.
 	 * 
 	 * @param userName The login name.
@@ -6457,5 +6480,7 @@ class OMEROGateway
 				p.setWorldWrite(true);
 		}
 	}
+	
+	
 	
 }

@@ -24,8 +24,6 @@
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 
-
-
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
@@ -120,14 +118,15 @@ public class CreateTopContainerAction
     /** Description of the action for a <code>Project</code> . */
     private static final String DESCRIPTION_PROJECT = "Create a new Project.";
     
-    /** The name of the action for the creation of a <code>Screen</code>. */
+    /** Description of the action for the creation of a <code>Screen</code>. */
     private static final String DESCRIPTION_SCREEN = "Create a new Screen.";
     
-    /** The name of the action for the creation of a <code>Group</code>. */
+    /** Description of the action for the creation of a <code>Group</code>. */
     private static final String DESCRIPTION_GROUP = "Create a new Group.";
     
     /** 
-     * The name of the action for the creation of a <code>Experimenter</code>. 
+     * Description of the action for the creation of a 
+     * <code>Experimenter</code>. 
      */
     private static final String DESCRIPTION_EXPERIMENTER = 
     							"Create a new experimenter.";

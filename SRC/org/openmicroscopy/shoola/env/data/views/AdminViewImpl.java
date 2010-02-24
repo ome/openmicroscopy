@@ -168,4 +168,16 @@ class AdminViewImpl
 		return cmd.exec(observer);
 	}
 
+	/**
+	 * Implemented as specified by the {@link AdminView} interface.
+	 * @see AdminView#resetExperimentersPassword(AdminObject, 
+	 * AgentEventListener)
+	 */
+	public CallHandle resetExperimentersPassword(AdminObject object,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new AdminSaver(object);
+		return cmd.exec(observer);
+	}
+
 }

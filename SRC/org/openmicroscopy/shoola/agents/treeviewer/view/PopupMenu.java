@@ -138,6 +138,8 @@ class PopupMenu
 	/** Button to create a experimenter. */
 	private JMenuItem			createExperimenter;
 	
+	/** Button to reset the password. */
+	private JMenuItem			resetPassword;
 	
 	/** Button to view an Image. */
 	private JMenuItem			view;
@@ -315,6 +317,9 @@ class PopupMenu
 				a = controller.getAction(TreeViewerControl.DELETE_OBJECT);
 				deleteElement = new JMenuItem(a); 
 				initMenuItem(deleteElement, a.getActionName());
+				a = controller.getAction(TreeViewerControl.RESET_PASSWORD);
+				resetPassword = new JMenuItem(a);
+				initMenuItem(resetPassword, a.getActionName());
 		}
 	}
 
@@ -391,6 +396,7 @@ class PopupMenu
 			case TreeViewer.ADMIN_MENU:
 				add(createExperimenter);
 				add(new JSeparator(JSeparator.HORIZONTAL));
+				add(resetPassword);
 				add(cutElement);
 				add(copyElement);
 				add(pasteElement);

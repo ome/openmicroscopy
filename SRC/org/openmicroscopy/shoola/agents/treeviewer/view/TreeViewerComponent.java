@@ -87,6 +87,7 @@ import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
@@ -2919,6 +2920,39 @@ class TreeViewerComponent
 			}
 		}
 		return null;
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#resetPassword(String)
+	 */
+	public void resetPassword(String password)
+	{
+		if (password == null)
+			throw new omero.IllegalArgumentException("No password specified.");
+		Browser browser = model.getSelectedBrowser();
+		if (browser == null) return;
+		List l = browser.getSelectedDataObjects();
+		if (l == null) return;
+		Map<ExperimenterData, UserCredentials>
+			map = new HashMap<ExperimenterData, UserCredentials>();
+		Iterator i = l.iterator();
+		Object o;
+		ExperimenterData exp;
+		UserCredentials uc;
+		while (i.hasNext()) {
+			o = i.next();
+			if (o instanceof ExperimenterData) {
+				exp = (ExperimenterData) o;
+				uc = new UserCredentials(exp.getUserName(), password);
+				map.put(exp, uc);
+			}
+		}
+		if (map.size() == 0) return;
+		AdminObject admin = new AdminObject(null, map, 
+				AdminObject.RESET_PASSWORD);
+		model.fireAdmin(admin);
+		fireStateChange();
 	}
 	
 }

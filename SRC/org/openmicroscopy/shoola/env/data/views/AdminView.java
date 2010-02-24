@@ -161,4 +161,16 @@ public interface AdminView
 			Map<ExperimenterData, UserCredentials> experimenters,
 			AgentEventListener observer);
 	
+	/**
+	 * Resets the password of the experimenters.
+	 * 
+	 * @param object The object hosting information about the experimenters
+	 * 				to handle. 
+	 * @param observer	Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle resetExperimentersPassword(AdminObject object, 
+			AgentEventListener observer);
+
+	
 }

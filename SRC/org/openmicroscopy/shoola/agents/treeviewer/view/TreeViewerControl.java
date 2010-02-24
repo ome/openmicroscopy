@@ -85,6 +85,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.InspectorVisibilityAc
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.MetadataVisibilityAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.PasswordResetAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteRndSettingsAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PersonalManagementAction;
@@ -324,14 +325,14 @@ class TreeViewerControl
 	/** Identifies the <code>Personal</code> in the menu. */
 	static final Integer   UPLOAD_SCRIPT = Integer.valueOf(60);
 	
-	/** Identifies the <code>Admin</code> in the menu. */
-	//static final Integer   ADMIN = Integer.valueOf(61);
-	
 	/** Identifies the <code>Create group</code> in the File menu. */
-	static final Integer    CREATE_TOP_GROUP = Integer.valueOf(62);
+	static final Integer    CREATE_TOP_GROUP = Integer.valueOf(61);
 	
 	/** Identifies the <code>Create experimenter</code> in the File menu. */
-	static final Integer    CREATE_TOP_EXPERIMENTER = Integer.valueOf(63);
+	static final Integer    CREATE_TOP_EXPERIMENTER = Integer.valueOf(62);
+	
+	/** Identifies the <code>Reset Password</code> action. */
+	static final Integer    RESET_PASSWORD = Integer.valueOf(63);
 	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
@@ -462,6 +463,7 @@ class TreeViewerControl
 		actionsMap.put(CREATE_TOP_EXPERIMENTER,  
 				new CreateTopContainerAction(model, 
 						CreateTopContainerAction.EXPERIMENTER));
+		actionsMap.put(RESET_PASSWORD,  new PasswordResetAction(model));
 	}
 
 	/** 

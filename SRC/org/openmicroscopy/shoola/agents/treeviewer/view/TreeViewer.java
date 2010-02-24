@@ -964,5 +964,12 @@ public interface TreeViewer
 	 * @return See above.
 	 */
 	GroupData getSelectedGroup();
+
+	/**
+	 * Resets the password of the selected experimenters.
+	 * 
+	 * @param value The new password.
+	 */
+	void resetPassword(String value);
 	
 }

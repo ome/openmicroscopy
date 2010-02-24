@@ -63,6 +63,9 @@ public class AdminObject
 	/** Indicates to update experimenter. */
 	public static final int UPDATE_EXPERIMENTER = 3;
 	
+	/** Indicates to reset the password. */
+	public static final int RESET_PASSWORD = 4;
+	
 	/** Indicates that the group is <code>Private</code> i.e. RW----. */
 	public static final int PERMISSIONS_PRIVATE = 100;
 	
@@ -90,6 +93,7 @@ public class AdminObject
 			case CREATE_GROUP:
 			case UPDATE_GROUP:
 			case UPDATE_EXPERIMENTER:
+			case RESET_PASSWORD:
 				return;
 			default:
 				throw new IllegalArgumentException("Index not supported");

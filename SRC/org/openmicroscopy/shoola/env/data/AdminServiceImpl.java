@@ -472,5 +472,40 @@ class AdminServiceImpl
 		
 		return l;
 	}
+
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#resetExperimentersPassword(AdminObject)
+	 */
+	public List<ExperimenterData> resetExperimentersPassword(AdminObject object)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		if (object == null)
+			throw new IllegalArgumentException("No experimenters" +
+					" specified");
+		if (AdminObject.RESET_PASSWORD != object.getIndex())
+			throw new IllegalArgumentException("No experimenters specified");
+		Map<ExperimenterData, UserCredentials> map = object.getExperimenters();
+		if (map == null) 
+			throw new IllegalArgumentException("No experimenters specified");
+			
+		List<ExperimenterData> l = new ArrayList<ExperimenterData>();
+		UserCredentials uc;
+		Entry entry;
+		ExperimenterData exp;
+		Iterator i = map.entrySet().iterator();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			exp = (ExperimenterData) entry.getKey();
+			uc = (UserCredentials) entry.getValue();
+			try {
+				gateway.resetPassword(exp.getUserName(), exp.getId(), 
+						uc.getPassword());
+			} catch (Exception e) {
+				l.add(exp);
+			}
+		}
+		return l;
+	}
 	
 }

@@ -83,6 +83,8 @@ public class AdminCreator
 			case AdminObject.CREATE_EXPERIMENTER:
 				handle = adminView.createExperimenters(object, this);
 				break;
+			case AdminObject.RESET_PASSWORD:
+				handle = adminView.resetExperimentersPassword(object, this);
 		}
     }
 
@@ -99,6 +101,7 @@ public class AdminCreator
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
+        viewer.refreshTree();
     }
     
 }

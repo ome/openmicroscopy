@@ -100,6 +100,12 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 public class UIUtilities
 {
 
+	/** 
+     * The size of the invisible components used to separate buttons
+     * horizontally.
+     */
+	public static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
+    
 	/** Letter corresponding to number. */
 	public static final Map<Integer, String> LETTERS;
 	

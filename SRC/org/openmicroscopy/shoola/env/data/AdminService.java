@@ -292,5 +292,17 @@ public interface AdminService
 	public List<ExperimenterData> updateExperimenters(GroupData group,
 			Map<ExperimenterData, UserCredentials> experimenters)
 			throws DSOutOfServiceException, DSAccessException;
+
+	/**
+	 * Resets the password of the specified experimenters.
+	 * 
+	 * @param object The object to handle.
+	 * @return See above
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	public List<ExperimenterData> resetExperimentersPassword(AdminObject object)
+		throws DSOutOfServiceException, DSAccessException;
 	
 }

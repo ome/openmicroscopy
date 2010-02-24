@@ -88,12 +88,6 @@ public class AdminDialog
 	private static final String TEXT_EXPERIMENTER = 
 		"Create a new Experimenter. Add him/her to ";
 	
-	/** 
-     * The size of the invisible components used to separate buttons
-     * horizontally.
-     */
-    private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
-    
 	/** Action ID to close the dialog. */
 	private static final int CANCEL = 0;
 	
@@ -201,13 +195,12 @@ public class AdminDialog
 	{
 		JPanel bar = new JPanel();
 		bar.add(save);
-		bar.add(Box.createRigidArea(H_SPACER_SIZE));
+		bar.add(Box.createRigidArea(UIUtilities.H_SPACER_SIZE));
 		bar.add(cancel);
-		bar.add(Box.createRigidArea(H_SPACER_SIZE));
+		bar.add(Box.createRigidArea(UIUtilities.H_SPACER_SIZE));
 		return UIUtilities.buildComponentPanelRight(bar);
 	}
-	
-	
+
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
