@@ -1,5 +1,6 @@
 img.thumbnail {
-    padding-right: 5px;
+    margin-right: 5px;
+    border: 1px solid #bbb;
 }
 #annotation_form {
     width: 350px;

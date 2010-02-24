@@ -1,126 +1,84 @@
-{% extends "omeroweb/base_main.html" %}
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 {% load wikitags %}
 
-{% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/container.css" %}" type="text/css" media="screen"/>
-	<link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
-{% endblock %}
-
-{% block jscript %}
-        
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
-{% endblock %}
-
-
-{% block script %}
-    <script type="text/javascript" src="{% url webstatic "javascript/basket.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
-        
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.selectable.js" %}"></script>
+    
     <script type="text/javascript">
-        $(document).ready(function() 
-            { 
-                $("#dataTable").tablesorter( {sortList: [[1,0]]} ); 
-                
-                {% if manager.c_size %}
-                $('table#dataTable tbody tr').quicksearch({
-                    attached: "div#view",
-                    position: "before",
-                    stripeRowClass: null,
-                    labelText: '{% trans "Filter" %}:',
-                    inputText: '...',
-                    loaderImg: '{% url webstatic "images/tree/spinner.gif" %}',
-                });
-                {% endif %}
-                
-                $("a.loadingData").click(function()
-                {
-                    $("div#hierarchy").html('<p>{% trans "Loading hierarchy... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                    $("div#hierarchy").load(
-                        {% if manager.project or manager.dataset or manager.screen or manager.plate %}
-                            {% if manager.dataset %}
-                                "{% url manage_container_hierarchies_id "dataset" manager.dataset.id %}", 
-                            {% endif %}
-                            {% if manager.project %}
-                                "{% url manage_container_hierarchies_id "project" manager.project.id %}", 
-                            {% endif %}
-                            {% if manager.plate %}
-                                "{% url manage_container_hierarchies_id "plate" manager.plate.id %}", 
-                            {% endif %}
-                            {% if manager.screen %}
-                                "{% url manage_container_hierarchies_id "screen" manager.screen.id %}", 
-                            {% endif %}
-                        {% else %}
-                            "{% url manage_container_hierarchies %}", 
-                        {% endif %}
-                        function() {  
-                            $("a.loadingData").remove();                        
+        $(document).ready(function(){
+
+            $("ul#dataTable").selectable({
+            	stop: function(){
+            		var result = $("#select-result").empty();
+            		var l = $('li.ui-selected img', this).length;
+            		$("li.ui-selected input", this).each(function(){
+            		    this.checked = true;
+            		});
+            		if (l == 1) {
+            		    $("#right_panel").show();
+                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
+            		    $('li.ui-selected img', this).each(function(){  
+            		        var h = $(window).height()-169;
+            		        $("div#metadata_details").html('<iframe width="100%" height="'+h+'" src="/webclient/metadata_details/'+this.alt+'/'+this.id+'/" id="metadata_details" name="metadata_details"></iframe>');
+                            $('iframe#metadata_details').load();
                         });
-                    return false; 
-                });
-        })
+            		} else {
+            		    $("#right_panel").show();
+            		    $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
+            		    $("div#metadata_details").html('<p>'+ l +' elements selected.</p><p><input id="copyToClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy to clipboard"> <input id="pasteFromClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste from clipboard" onclick="pasteFromClipboard(\'dataset\', \'{{ manager.dataset.id }}\', \'{{ url }}\'); return false;"> <input id="unlink" class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" value="ds-{{ manager.dataset.id }}"> | <input id="addToBasket" class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket"> | <a href="{% url load_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a></p>');
+            		}
+            	},
+            	start: function(){
+            		$("li input", this).each(function(){
+            			this.checked = false;
+            		});
+            	}
+            });
+            
+            $("#changeView").click(function() { 
+                var rel = $("div#content_details").attr('rel');
+                $("div#content_details").html('<p>Loading data... please wait <img src="/webclient/static/images/tree/spinner.gif"/></p>');
+                $("div#content_details").load('/webclient/dataset/'+rel+'/?view=icon');
+            });
+            
+        });
     </script>
-
-{% endblock %}
-
-{% block top %}
-
-<h1 id="data"><a href="{% url history_details controller.year controller.month controller.day %}">{{ eContext.breadcrumb.2 }} {{ eContext.breadcrumb.1 }}</a> ({{ controller.day_items_size }}/{{ controller.total_items_size }} {% trans "items" %})</h1>
-
-{% if form_history_type %}
-<div id="view"><form action="" method="POST">
-    <input type="hidden" name="filter" value="group">
-<table>
-  <tbody>
-    {% for field in form_history_type %}
-    <tr><th>{{ field.label_tag }}</th><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
-</form></div>
-<div class="clear"> </div>
-{% endif %}
-
-{% endblock %}
-
-{% block left %}
-<!--content-->
-<!--content-->
+    
+<h1 id="data">{{ eContext.breadcrumb.2 }} {{ eContext.breadcrumb.1 }}</a> {{ controller.total_items_size }} item(s)</h1>
 
 <div>
-    {% if manager.c_size %}
-        <h1 id="data">{{ manager.c_size }} {% trans "items" %}:</h1>
+    {% if controller.day_items_size %}
+
+    <ul id="dataTable">
+        {% for i in controller.day_items %}
+        {% for c in i.project %}
+            <li id="{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder16.png" %}" alt="project" title="{{ c.name }}"/>{{ c.shortName2 }} ({{ c.getDate }}) <input type="checkbox" name="project" id="{{ c.id }}"></li>
+        {% endfor %}
+        {% for c in i.dataset %}
+            <li id="{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_image16.png" %}" alt="dataset" title="{{ c.name }}"/> {{ c.shortName2 }} ({{ c.getDate }}) <input type="checkbox" name="dataset" id="{{ c.id }}"></li>
+        {% endfor %}
+        {% for c in i.image %}
+            <li id="{{ c.id }}"><img id="{{ c.id }}" src="{% url render_thumbnail_resize 16 c.id  %}" alt="image" title="{{ c.name }}"/> {{ c.shortName2 }} ({{ c.getDate }}) <input type="checkbox" name="image" id="{{ c.id }}"></li>
+        {% endfor %}
+        {% for c in i.screen %}
+            <li id="{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_screen16.png" %}" alt="screen" title="{{ c.name }}"/> {{ c.shortName2 }} ({{ c.getDate }}) <input type="checkbox" name="screen" id="{{ c.id }}"></li>
+        {% endfor %}
+        {% for c in i.plate %}
+            <li id="{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_plate16.png" %}" alt="plate" title="{{ c.name }}"/> {{ c.shortName2 }} ({{ c.getDate }}) <input type="checkbox" name="plate" id="{{ c.id }}"></li>
+        {% endfor %}
+        {% endfor %}
+    </ul>
+
     {% else %}
-        <h1>{% trans "No items" %}:</h1>
+        {% trans "No data." %}
     {% endif %}
-    <div class="clear"> </div>
-    
-    <div id="view"> 
-        | <input id="copyToClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy to clipboard"> 
-        | <input id="addToBasket" class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket">
-        | <a href="{% url load_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a>
-    </div>
-    <div class="clear"> </div>
-    
-    <div class="content">
-        {% include "omeroweb/history_data_table.html" %}
-    </div>
     
     {% include "omeroweb/history_paging.html" %}
     
     <div>
-        <p>{% trans "Recognize items" %}: <img src="{% url webstatic "images/folder32.png" %}" title="Project" alt="project"/> - {% trans "Project" %}; <img src="{% url webstatic "images/folder_image32.png" %}" title="Dataset" alt="dataset"/> - {% trans "Dataset" %}; <img src="{% url webstatic "images/image32.png" %}" title="Image" alt="image"/> - {% trans "Image" %};</p>
+        <p>{% trans "Legend" %}: <img src="{% url webstatic "images/folder16.png" %}" title="Project" alt="project"/> - {% trans "Project" %}; <img src="{% url webstatic "images/folder_image16.png" %}" title="Dataset" alt="dataset"/> - {% trans "Dataset" %}; <img src="{% url webstatic "images/folder_screen16.png" %}" title="Screen" alt="screen"/> - {% trans "Screen" %}; <img src="{% url webstatic "images/folder_plate16.png" %}" title="Plate" alt="plate"/> - {% trans "Plate" %};</p>
     </div>
     
 </div>
 
-{% endblock %}
-
-{% block right %}
-
-<iframe width="100%" height="680" name="metadata_details"></iframe>
-
-{% endblock %}

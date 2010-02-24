@@ -1,16 +1,16 @@
+.calendar {
+    padding: 10px;
+}
 .calendar table {
 	text-align: center;
 	width: 100%;
 }
 
 .calendar td.calendar_day {
-	height: 130px;
+	height: 70px;
 	vertical-align: top;
 	width: 14.29%;
 	background-color: #f5f5f5;
-}
-td  {
-	text-align: center;
 }
 .calendar td.not_calendar_day {
 	background-color: #fff;

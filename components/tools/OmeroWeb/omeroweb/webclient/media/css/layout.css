@@ -58,7 +58,7 @@ body.zoom {
 #contentWrapper {
     position: relative;
 }
-#contentWrapper  table {
+table.contentWrapper {
     width: 100%; 
     background: #f3f3f3;
 }
@@ -277,8 +277,11 @@ input {
     margin: 0;
     border: 1px solid #bbb;
     background-color: #fff;
+    font-size: 13px;
+    font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
+    color: #555;
 }
-.button {
+input.button {
     border: 0;
     background-color: transparent;
     vertical-align:bottom;

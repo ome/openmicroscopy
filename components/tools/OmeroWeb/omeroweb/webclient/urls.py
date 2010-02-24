@@ -38,6 +38,9 @@ from omeroweb.webclient import views
 urlpatterns = patterns('',
     
     url( r'^$', views.index, name="webindex" ),
+    # render main template
+    url( r'^(?:(?P<menu>((?i)mydata|groupdata|userdata|shares|history|search|importer|myaccount|help))/)?$', views.load_template, name="load_template" ),
+    
     url( r'^context/$', views.index_context, name="index_context" ),
     url( r'^last_imports/$', views.index_last_imports, name="index_last_imports" ),
     url( r'^most_recent/$', views.index_most_recent, name="index_most_recent" ),
@@ -46,10 +49,7 @@ urlpatterns = patterns('',
     url( r'^login/$', views.login, name="weblogin" ),
     url( r'^logout/$', views.logout, name="weblogout" ),
     url( r'^active_group/$', views.change_active_group, name="change_active_group" ),
-    
-    # render main template
-    url( r'^(?:(?P<menu>((?i)mydata|groupdata|userdata|shares|history|search|importer|myaccount|help))/)?$', views.load_template, name="load_template" ),
-       
+           
     # loading data
     url( r'^load_data/(?P<o1_type>((?i)orphaned|ajaxorphaned))/$', views.load_data, name="load_data_ajax" ),
     
@@ -58,6 +58,11 @@ urlpatterns = patterns('',
     url( r'^(?P<o1_type>((?i)project|dataset|image|screen|plate|well))/(?P<o1_id>[0-9]+)/$', views.load_data, name="load_data_t_id" ),
     url( r'^(?P<o1_type>((?i)project|dataset|screen|plate))/(?P<o1_id>[0-9]+)/(?P<o2_type>((?i)dataset|image|plate|well))/(?P<o2_id>[0-9]+)/$', views.load_data, name="load_data_t_id_t_id" ),
     url( r'^(?P<o1_type>((?i)project|screen))/(?P<o1_id>[0-9]+)/(?P<o2_type>((?i)dataset|plate))/(?P<o2_id>[0-9]+)/(?P<o3_type>((?i)image|well))/(?P<o3_id>[0-9]+)/$', views.load_data, name="load_data_t_id_t_id_t_id" ),
+    
+    # load history
+    url( r'^load_calendar/(?:(\d{4})/(\d{1,2})/)?$', views.load_calendar, name="load_calendar"),
+    url( r'^load_history/(\d{4})/(\d{1,2})/(\d{1,2})/$', views.load_history, name="load_history"),
+    
     
     # others
     url( r'^hierarchy/$', views.manage_container_hierarchies, name="manage_container_hierarchies" ),
@@ -95,8 +100,6 @@ urlpatterns = patterns('',
     
     url( r'^search/$', views.search, name="search"),
     
-    url( r'^history/(?:(\d{4})/(\d{1,2})/)?$', views.history, name="history"),
-    url( r'^history/(\d{4})/(\d{1,2})/(\d{1,2})/$', views.history_details, name="history_details"),
     
     url( r'^import/$', views.importer, name="importer"),
     url( r'^upload/$', views.flash_uploader, name="flash_uploader"), 

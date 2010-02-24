@@ -54,7 +54,7 @@ class BaseCalendar(BaseController):
             # only for python 2.5
             # date = datetime.datetime.strptime(("%i-%i-%i" % (self.year, self.month, self.day)), "%Y-%m-%d")
             date = datetime.datetime(*(time.strptime(("%i-%i-%i" % (self.year, self.month, self.day)), "%Y-%m-%d")[0:6]))
-            self.eContext['breadcrumb'] = ['<a href="%s">History</a>' % reverse(viewname="history", args=[self.year, self.month]), '%s %s' % (date.strftime("%A, %d"), date.strftime("%B %Y"))]
+            self.eContext['breadcrumb'] = ['<a href="%s">History</a>' % reverse(viewname="load_history", args=[self.year, self.month, self.day]), '%s %s' % (date.strftime("%A, %d"), date.strftime("%B %Y"))]
             self.nameday = date.strftime("%A")
         else:
             # only for python 2.5

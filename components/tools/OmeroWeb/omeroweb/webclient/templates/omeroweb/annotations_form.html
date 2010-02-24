@@ -98,8 +98,8 @@
         <div id="metadata_tab">
             {% if manager.image %}
             <table>
-                <tr><th rowspan="2"><a href="#" onclick="return popup('{% url image_viewer manager.image.id %}')"><img id="{{ manager.image.id }}" src="{% url render_thumbnail_resize 64 manager.image.id %}" alt="image" title="image" class="thumbnail"/></a><br/>
-                    </th><td><label>{{ manager.image.name }}</label>{% if manager.image.isEditable %} <a href="{% url manage_action_containers "edit" "image" manager.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</td></tr>
+                <tr><td rowspan="2"><a href="#" onclick="return popup('{% url image_viewer manager.image.id %}')"><img id="{{ manager.image.id }}" src="{% url render_thumbnail_resize 64 manager.image.id %}" alt="image" title="image" class="thumbnail"/></a></td>
+                    <td><label>{{ manager.image.name }}</label>{% if manager.image.isEditable %} <a href="{% url manage_action_containers "edit" "image" manager.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</td></tr>
                 <tr><td>Created on: {{ manager.image.getDate|date:"Y-m-d H:i:s" }}</td></tr>
                 <tr><td colspan="2">
                     {% if manager.image.isPublic %}<img src="{% url webstatic "images/network16.png" %}" alt="p" title="{{ manager.image.details.permissions }}"/>Public{% else %}{% if manager.image.isShared %}<img src="{% url webstatic "images/kuser16.png" %}" alt="s" title="{{ manager.image.details.permissions }}"/>Shared{% else %}{% if manager.image.isPrivate %}Private{% endif %}{% endif %}{% endif %}
@@ -109,8 +109,8 @@
             {% else %}
                 {% if manager.dataset %}
                 <table>
-                    <tr><th rowspan="3"><img src="{% url webstatic "images/folder_image64.png" %}" alt="dataset" title="dataset"/><br/>
-                        </th><td><label>{{ manager.dataset.name }}</label>{% if manager.dataset.isEditable %} <a href="{% url manage_action_containers "edit" "dataset" manager.dataset.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</td></tr>
+                    <tr><td rowspan="3"><img src="{% url webstatic "images/folder_image64.png" %}" alt="dataset" title="dataset"/></td>
+                        <td><label>{{ manager.dataset.name }}</label>{% if manager.dataset.isEditable %} <a href="{% url manage_action_containers "edit" "dataset" manager.dataset.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</td></tr>
                     <tr><td>Includes {{ manager.dataset.countChildren }} image(s)</td></tr>
                     <tr><td>Created on: {{ manager.dataset.getDate|date:"Y-m-d H:i:s" }}</td></tr>
                     <tr><td colspan="2">
@@ -121,8 +121,8 @@
                 {% else %}
                     {% if manager.project %}
                     <table>
-                        <tr><th rowspan="3"><img src="{% url webstatic "images/folder64.png" %}" alt="project" title="project"/><br/>
-                            </th><td><label>{{ manager.project.name }}</label>{% if manager.project.isEditable %} <a href="{% url manage_action_containers "edit" "project" manager.project.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</td></tr>
+                        <tr><td rowspan="3"><img src="{% url webstatic "images/folder64.png" %}" alt="project" title="project"/></td>
+                            <td><label>{{ manager.project.name }}</label>{% if manager.project.isEditable %} <a href="{% url manage_action_containers "edit" "project" manager.project.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</td></tr>
                         <tr><td>Includes {{ manager.project.countChildren }} image(s)</td></tr>
                         <tr><td>Created on: {{ manager.project.getDate|date:"Y-m-d H:i:s" }}</td></tr>
                         <tr><td colspan="2">
@@ -136,8 +136,8 @@
             
             {% if manager.well %}
             <table>
-                <tr><th rowspan="2"><a href="#" onclick="return popup('{% url image_viewer manager.well.selectedWellSample.image.id %}')"><img id="{{ manager.well.selectedWellSample.image.id }}" src="{% url render_thumbnail_resize 64 manager.well.selectedWellSample.image.id %}" alt="image" title="image" class="thumbnail"/></a><br/>
-                    </th><td><label>{{ manager.well.selectedWellSample.image.name }}</label>{% if manager.well.selectedWellSample.image.isEditable %} <a href="{% url manage_action_containers "edit" "image" manager.well.selectedWellSample.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</td></tr>
+                <tr><td rowspan="2"><a href="#" onclick="return popup('{% url image_viewer manager.well.selectedWellSample.image.id %}')"><img id="{{ manager.well.selectedWellSample.image.id }}" src="{% url render_thumbnail_resize 64 manager.well.selectedWellSample.image.id %}" alt="image" title="image" class="thumbnail"/></a></td>
+                    <td><label>{{ manager.well.selectedWellSample.image.name }}</label>{% if manager.well.selectedWellSample.image.isEditable %} <a href="{% url manage_action_containers "edit" "image" manager.well.selectedWellSample.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</td></tr>
                 <tr><td>Created on:{{ manager.well.selectedWellSample.image.getDate|date:"Y-m-d H:i:s" }}</td></tr>
                 <tr><td colspan="2">
                     {% if manager.well.selectedWellSample.image.isPublic %}<img src="{% url webstatic "images/network16.png" %}" alt="p" title="{{ manager.image.details.permissions }}"/>Public{% else %}{% if manager.well.selectedWellSample.image.isShared %}<img src="{% url webstatic "images/kuser16.png" %}" alt="s" title="{{ manager.image.details.permissions }}"/>Shared{% else %}{% if manager.well.selectedWellSample.image.isPrivate %}Private{% endif %}{% endif %}{% endif %}
@@ -147,8 +147,8 @@
             {% else %}
                 {% if manager.plate %}
                 <table>
-                    <tr><th rowspan="3"><img src="{% url webstatic "images/folder_plate64.png" %}" alt="plate" title="plate"/><br/>
-                        </th><td><label>{{ manager.plate.name }}</label>{% if manager.plate.isEditable %} <a href="{% url manage_action_containers "edit" "plate" manager.plate.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</td></tr>
+                    <tr><td rowspan="3"><img src="{% url webstatic "images/folder_plate64.png" %}" alt="plate" title="plate"/></td>
+                        <td><label>{{ manager.plate.name }}</label>{% if manager.plate.isEditable %} <a href="{% url manage_action_containers "edit" "plate" manager.plate.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</td></tr>
                     <tr><td>Created on: {{ manager.plate.getDate|date:"Y-m-d H:i:s" }}</td></tr>
                     <tr><td colspan="2">
                         {% if manager.plate.isPublic %}<img src="{% url webstatic "images/network16.png" %}" alt="p" title="{{ manager.plate.details.permissions }}"/>Public{% else %}{% if manager.plate.isShared %}<img src="{% url webstatic "images/kuser16.png" %}" alt="s" title="{{ manager.plate.details.permissions }}"/>Shared{% else %}{% if manager.plate.isPrivate %}Private{% endif %}{% endif %}{% endif %}
@@ -158,8 +158,8 @@
                 {% else %}
                     {% if manager.screen %}
                     <table>
-                        <tr><th rowspan="3"><img src="{% url webstatic "images/folder_screen64.png" %}" alt="plate" title="plate"/><br/>
-                            </th><td><label>{{ manager.screen.name }}</label>{% if manager.screen.isEditable %} <a href="{% url manage_action_containers "edit" "screen" manager.screen.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</td></tr>
+                        <tr><td rowspan="3"><img src="{% url webstatic "images/folder_screen64.png" %}" alt="plate" title="plate"/></td>
+                            <td><label>{{ manager.screen.name }}</label>{% if manager.screen.isEditable %} <a href="{% url manage_action_containers "edit" "screen" manager.screen.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</td></tr>
                         <tr><td>Includes {{ manager.screen.countChildren }} plate(s)</td></tr>
                         <tr><td>Created on: {{ manager.screen.getDate|date:"Y-m-d H:i:s" }}</td></tr>
                         <tr><td colspan="2">

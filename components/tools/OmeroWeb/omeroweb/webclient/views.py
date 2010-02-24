@@ -464,10 +464,13 @@ def logout(request, **kwargs):
 ###########################################################################
 
 @isUserConnected
-def load_template(request, menu=None, **kwargs):
+def load_template(request, menu, **kwargs):
     request.session.modified = True
     
-    template = "omeroweb/containers.html"
+    if menu in ('mydata', 'userdata', 'groupdata'):
+        template = "omeroweb/containers.html"
+    else:
+        template = "omeroweb/%s.html" % menu
     request.session['nav']['menu'] = menu
     
     conn = None
@@ -2521,7 +2524,6 @@ def flash_uploader(request, **kwargs):
 
 @isUserConnected
 def myaccount(request, action=None, **kwargs):
-    request.session['nav']['menu'] = 'person'
     template = "omeroweb/myaccount.html"
     request.session.modified = True
     conn = None
@@ -2605,7 +2607,6 @@ def myaccount(request, action=None, **kwargs):
 
 @isUserConnected
 def help(request, **kwargs):
-    request.session['nav']['menu'] = 'help'
     template = "omeroweb/help.html"
     request.session.modified = True
     conn = None
@@ -2625,17 +2626,16 @@ def help(request, **kwargs):
     return HttpResponse(t.render(c))
 
 @isUserConnected
-def history(request, year=None, month=None, **kwargs):
-    request.session['nav']['menu'] = 'history'
-    template = "omeroweb/history.html"
-    request.session.modified = True
+def load_calendar(request, year=None, month=None, **kwargs):
+    template = "omeroweb/calendar.html"
+    
     conn = None
     try:
         conn = kwargs["conn"]
     except:
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
+   
     if year is not None and month is not None:
         controller = BaseCalendar(conn=conn, year=year, month=month)
     else:
@@ -2643,19 +2643,17 @@ def history(request, year=None, month=None, **kwargs):
         controller = BaseCalendar(conn=conn, year=today.year, month=today.month)
     controller.create_calendar()
     
-    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups']})
-    
-    context = {'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller, 'form_active_group':form_active_group}
+    context = {'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller}
     t = template_loader.get_template(template)
     c = Context(request,context)
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
 @isUserConnected
-def history_details(request, year, month, day, **kwargs):
-    request.session['nav']['menu'] = 'history'
-    request.session['nav']['whos'] = 'mydata'
-    request.session.modified = True
+def load_history(request, year, month, day, **kwargs):
+    
+    template = "omeroweb/history_details.html"
+    
     conn = None
     try:
         conn = kwargs["conn"]
@@ -2680,21 +2678,17 @@ def history_details(request, year, month, day, **kwargs):
         if cal_type == "all":
             cal_type = None
     except:
-        cal_type = None
-    
-    template = "omeroweb/history_details.html"
+        cal_type = None    
     
     controller = BaseCalendar(conn=conn, year=year, month=month, day=day)
     controller.get_items(cal_type, page)
     
-    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups']})
+    #if cal_type is None:
+    #    form_history_type = HistoryTypeForm()
+    #else:
+    #    form_history_type = HistoryTypeForm(initial={'data_type':cal_type})
     
-    if cal_type is None:
-        form_history_type = HistoryTypeForm()
-    else:
-        form_history_type = HistoryTypeForm(initial={'data_type':cal_type})
-    
-    context = {'nav':request.session['nav'], 'url':url, 'eContext': controller.eContext, 'controller':controller, 'form_active_group':form_active_group, 'form_history_type':form_history_type}
+    context = {'nav':request.session['nav'], 'url':url, 'eContext': controller.eContext, 'controller':controller}#, 'form_history_type':form_history_type}
     t = template_loader.get_template(template)
     c = Context(request,context)
     logger.debug('TEMPLATE: '+template)
