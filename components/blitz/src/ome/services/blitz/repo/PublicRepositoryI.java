@@ -36,6 +36,8 @@ import omero.grid.RepositoryPrx;
 import omero.grid._RepositoryDisp;
 import omero.model.Format;
 import omero.model.FormatI;
+import omero.model.Image;
+import omero.model.ImageI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.util.IceMapper;
@@ -166,6 +168,41 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return file;
     }
 
+ 
+    /**
+     * Register an Image object
+     * 
+     * @param file
+     *            Image object.
+     * @param __current
+     *            ice context.
+     * @return The Image with id set (unloaded)
+     *
+     */
+    public Image registerImage(Image image, Current __current)
+            throws ServerError {
+
+        if (image == null) {
+            throw new ValidationException(null, null,
+                    "image is required argument");
+        }
+
+        IceMapper mapper = new IceMapper();
+        final ome.model.core.Image omeImage = (ome.model.core.Image) mapper
+                .reverse(image);
+        Long id = (Long) executor.execute(principal, new Executor.SimpleWork(
+                this, "registerImage") {
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return sf.getUpdateService().saveAndReturnObject(omeImage).getId();
+            }
+        });
+        
+        image.setId(rlong(id));
+        image.unload();
+        return image;
+    }
+
     public void delete(String path, Current __current) throws ServerError {
         File file = checkPath(path);
         FileUtils.deleteQuietly(file);
@@ -173,12 +210,32 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
     @SuppressWarnings("unchecked")
     
+    /**
+     * Get a list of all files and directories at path.
+     * 
+     * @param path
+     *            A path on a repository.
+     * @param __current
+     *            ice context.
+     * @return List of OriginalFile objects at path
+     *
+     */
     public List<OriginalFile> list(String path, Current __current) throws ServerError {
         File file = checkPath(path);
         List<File> files = Arrays.asList(file.listFiles());
         return filesToOriginalFiles(files);
     }
 
+    /**
+     * Get a list of all directories at path.
+     * 
+     * @param path
+     *            A path on a repository.
+     * @param __current
+     *            ice context.
+     * @return List of OriginalFile objects at path
+     *
+     */
     public List<OriginalFile> listDirs(String path, Current __current)
             throws ServerError {
         File file = checkPath(path);
@@ -186,59 +243,23 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return filesToOriginalFiles(files);
     }
 
+    /**
+     * Get a list of all files at path.
+     * 
+     * @param path
+     *            A path on a repository.
+     * @param __current
+     *            ice context.
+     * @return List of OriginalFile objects at path
+     *
+     */
     public List<OriginalFile> listFiles(String path, Current __current)
             throws ServerError {
         File file = checkPath(path);
         List<File> files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.fileFileFilter()));
         return filesToOriginalFiles(files);
     }
-
-    public OriginalFile load(String path, Current __current) throws ServerError {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public RawPixelsStorePrx pixels(String path, Current __current)
-            throws ServerError {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public RawFileStorePrx read(String path, Current __current)
-            throws ServerError {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public void rename(String path, Current __current) throws ServerError {
-        // TODO Auto-generated method stub
-
-    }
-
-    public RenderingEnginePrx render(String path, Current __current)
-            throws ServerError {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public ThumbnailStorePrx thumbs(String path, Current __current)
-            throws ServerError {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public void transfer(String srcPath, RepositoryPrx target,
-            String targetPath, Current __current) throws ServerError {
-        // TODO Auto-generated method stub
-
-    }
-
-    public RawFileStorePrx write(String path, Current __current)
-            throws ServerError {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
+    
     /**
      * Get a list of those files and directories at path that are already registered.
      * 
@@ -289,7 +310,82 @@ public class PublicRepositoryI extends _RepositoryDisp {
         List<File> files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.fileFileFilter()));
         return knownOriginalFiles(files);
     }
+    
 
+
+    /**
+     * Get a list of all importable image files at path.
+     * 
+     * @param path
+     *            A path on a repository.
+     * @param __current
+     *            ice context.
+     * @return List of Image objects at path
+     *
+     */
+    public List<Image> listImportableImages(String path, Current __current)
+            throws ServerError {
+        File file = checkPath(path);
+        List<File> files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.fileFileFilter()));
+        List<File> importableImageFiles = getImportableImageFiles(files);
+        return filesToImages(importableImageFiles);
+    }
+
+    /**
+     * Get a list of importable image files at path that are already registered.
+     * 
+     * @param path
+     *            A path on a repository.
+     * @param __current
+     *            ice context.
+     * @return List of Image objects at path
+     *
+     */
+    public List<Image> listKnownImportableImages(String path, Current __current)
+            throws ServerError {
+        File file = checkPath(path);
+        List<File> files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.fileFileFilter()));
+        List<File> importableImageFiles = getImportableImageFiles(files);
+        return knownImages(importableImageFiles);
+    }
+    
+
+    /**
+     * Get a list of all non-image files at path.
+     * 
+     * @param path
+     *            A path on a repository.
+     * @param __current
+     *            ice context.
+     * @return List of OriginalFile objects at path
+     *
+     */
+    public List<OriginalFile> listNonImages(String path, Current __current)
+            throws ServerError {
+        File file = checkPath(path);
+        List<File> files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.fileFileFilter()));
+        List<File> nonImageFiles = getNonImageFiles(files);
+        return filesToOriginalFiles(nonImageFiles);
+    }
+
+    /**
+     * Get a list of non-image files at path that are already registered.
+     * 
+     * @param path
+     *            A path on a repository.
+     * @param __current
+     *            ice context.
+     * @return List of OriginalFile objects at path
+     *
+     */
+    public List<OriginalFile> listKnownNonImages(String path, Current __current)
+            throws ServerError {
+        File file = checkPath(path);
+        List<File> files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.fileFileFilter()));
+        List<File> nonImageFiles = getNonImageFiles(files);
+        return knownOriginalFiles(nonImageFiles);
+    }
+    
     /**
      * Get the format object for a file.
      * 
@@ -327,10 +423,73 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
 
-    //
-    // Utilities
-    //
+    /**
+     *
+     * Interface methods yet TODO
+     *
+     */
+    public OriginalFile load(String path, Current __current) throws ServerError {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
+    public RawPixelsStorePrx pixels(String path, Current __current)
+            throws ServerError {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public RawFileStorePrx read(String path, Current __current)
+            throws ServerError {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public void rename(String path, Current __current) throws ServerError {
+        // TODO Auto-generated method stub
+
+    }
+
+    public RenderingEnginePrx render(String path, Current __current)
+            throws ServerError {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public ThumbnailStorePrx thumbs(String path, Current __current)
+            throws ServerError {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public void transfer(String srcPath, RepositoryPrx target,
+            String targetPath, Current __current) throws ServerError {
+        // TODO Auto-generated method stub
+
+    }
+
+    public RawFileStorePrx write(String path, Current __current)
+            throws ServerError {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
+
+    /**
+     *
+     * Utility methods
+     *
+     */
+
+    /**
+     * Get the file object at a path.
+     * 
+     * @param path
+     *            A path on a repository.
+     * @return File object
+     *
+     */
     private File checkPath(String path) throws ValidationException {
 
         if (path == null || path.length() == 0) {
@@ -402,6 +561,56 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         return rv;
     }
+
+
+    /**
+     * Get file paths corresponding to a collection of File objects.
+     * 
+     * @param files
+     *            A collection of File objects.
+     * @return A list of path Strings
+     *
+     */
+    private List<String> filesToPaths(Collection<File> files) {
+        List rv = new ArrayList<String>();
+        for (File f : files) {
+            rv.add(f.getAbsolutePath());
+        }
+        return rv;
+    }
+
+    /**
+     * Get files corresponding to a collection paths.
+     * 
+     * @param paths
+     *            A collection of Strings.
+     * @return A list of path Strings
+     *
+     */
+    private List<File> pathsToFiles(Collection<String> paths) {
+        List rv = new ArrayList<File>();
+        for (String p : paths) {
+            rv.add(new File(p));
+        }
+        return rv;
+    }
+
+    
+    /**
+     * Get Image objects corresponding to a collection of File objects.
+     * 
+     * @param files
+     *            A collection of File objects.
+     * @return A list of new Image objects
+     *
+     */
+    private List<Image> filesToImages(Collection<File> files) {
+        List rv = new ArrayList<Image>();
+        for (File f : files) {
+            rv.add(createImage(f));
+        }
+        return rv;
+    }
     
     /**
      * Get registered OriginalFile objects corresponding to a collection of File objects.
@@ -415,6 +624,23 @@ public class PublicRepositoryI extends _RepositoryDisp {
         List rv = new ArrayList<OriginalFile>();
         for (File f : files) {
             List<OriginalFile> fileList = getOriginalFiles(f.getAbsolutePath());
+            rv.addAll(fileList);
+        }
+        return rv;
+    }
+    
+    /**
+     * Get registered Image objects corresponding to a collection of File objects.
+     * 
+     * @param files
+     *            A collection of File objects.
+     * @return A list of registered Image objects. 
+     *
+     */
+    private List<Image> knownImages(Collection<File> files)  {
+        List rv = new ArrayList<Image>();
+        for (File f : files) {
+            List<Image> fileList = getImages(f.getAbsolutePath());
             rv.addAll(fileList);
         }
         return rv;
@@ -447,6 +673,23 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
     
     /**
+     * Create an Image object corresponding to a File object.
+     * 
+     * @param f
+     *            A File object.
+     * @return An Image object
+     *
+     * TODO populate more attribute fields than the few set here.
+     */
+    private Image createImage(File f) {
+        Image image = new ImageI();
+        // This needs to be unique ala ticket #1753
+        image.setName(rstring(f.getAbsolutePath()));        
+        image.setAcquisitionDate(rtime(java.lang.System.currentTimeMillis()));
+        return image;
+    }
+    
+    /**
      * Get a list of OriginalFiles with path corresponding to the paramater path.
      * 
      * @param path
@@ -471,10 +714,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
                     }
                 });
             
-        if (fileList == null) {
-            return rv;
-        }
-        if (fileList.size() == 0) {
+        if (fileList == null || fileList.size() == 0) {
             return rv;
         }
         IceMapper mapper = new IceMapper();
@@ -482,6 +722,83 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
         return rv;
     }
+
+    /**
+     * Get a list of Images with path corresponding to the paramater path.
+     * 
+     * @param path
+     *            A path to a file.
+     * @return List of Image objects, empty if the query returned no values.
+     *
+     * TODO Weak at present, returns all matched files based on path.
+     *      There should be further checking for uniqueness
+     */
+    private List<Image> getImages(String path)  {
+        
+        List rv = new ArrayList<Image>();
+        final String queryString = "from Image as i where i.name = '"
+                    + path + "'";
+        List<ome.model.core.Image> fileList = (List<ome.model.core.Image>) executor
+                .execute(principal, new Executor.SimpleWork(this, "getImages") {
+
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        return sf.getQueryService().findAllByQuery(queryString,
+                                null);
+                    }
+                });
+            
+        if (fileList == null || fileList.size() == 0) {
+            return rv;
+        }
+        IceMapper mapper = new IceMapper();
+        rv = (List<Image>) mapper.map(fileList);
+
+        return rv;
+    }
+
+
+
+    private List<File> getImportableImageFiles(Collection<File> files) {
+        //List<String> paths = filesToPaths(files);
+        // Use paths to get import candidates?
+        //List<File> importableImageFiles = pathsToFiles(paths);
+        
+        // Dummy stuff for now --- just return jpegs
+        List<File> importableImageFiles = new ArrayList<File>();
+        String name;
+        String ext;
+        for (File f : files) {
+            name = f.getName();
+            ext = name.substring(name.lastIndexOf('.')+1, name.length());
+            if (ext.equals("jpg")) {
+                importableImageFiles.add(f);
+            }
+        }
+        
+        return importableImageFiles;
+    }
+
+    private List<File> getNonImageFiles(Collection<File> files) {
+        //List<String> paths = filesToPaths(files);
+        // Use paths to get import candidates and filter?
+        //List<File> nonImageFiles = pathsToFiles(paths);
+        
+        // Dummy stuff for now --- just return jpegs
+        List<File> nonImageFiles = new ArrayList<File>();
+        String name;
+        String ext;
+        for (File f : files) {
+            name = f.getName();
+            ext = name.substring(name.lastIndexOf('.')+1, name.length());
+            if (!ext.equals("jpg")) {
+                nonImageFiles.add(f);
+            }
+        }
+        
+        return nonImageFiles;
+    }
+
 
     /**
      * Create a jpeg thumbnail from an image file 
@@ -494,21 +811,21 @@ public class PublicRepositoryI extends _RepositoryDisp {
      */
      private String createThumbnail(File file)  throws ServerError {
         
-        IFormatReader reader;
-        byte[] thumb;
-        
+        // Build a path to the thumbnail
         File parent = file.getParentFile();
         File tnParent = new File(new File(parent, OMERO_PATH), THUMB_PATH);
-        tnParent.mkdirs(); // Need to check if this exists after?
+        tnParent.mkdirs(); // Need to check if this is created?
         File tnFile = new File(tnParent, file.getName() + "_tn.jpg");
         
-        // Very basic caching...if a file exists return it.
+        // Very basic caching... if a file exists return it.
         if (tnFile.exists()) {
             return tnFile.getAbsolutePath();
         }
+        // As it doesn't exist, create it.  
         
-        // As it doesn't exist, create it.
-        reader = new ImageReader();
+        // First get the thumb bytes from the image file  
+        IFormatReader reader = new ImageReader();
+        byte[] thumb;
         reader.setNormalized(true);
         try {
             reader.setId(file.getAbsolutePath());
@@ -518,13 +835,16 @@ public class PublicRepositoryI extends _RepositoryDisp {
             int ndx = reader.getIndex(z, 0, t);
             thumb = reader.openThumbBytes(ndx); 
         } catch (FormatException exc) { 
-            throw new ServerError(null, null, "Thumbnail error, read failed."); 
+            throw new ServerError(null, stackTraceAsString(exc), 
+                    "Thumbnail error, read failed."); 
         } catch (IOException exc) { 
-            throw new ServerError(null, null, "Thumbnail error, read failed."); 
+            throw new ServerError(null, stackTraceAsString(exc), 
+                    "Thumbnail error, read failed."); 
         }
         
+        // Next create the metadata for the thumbnail image file.
         // How much of this is needed for a jpeg? 
-        // At present provides monochrome images, need to provide colour?
+        // At present provides monochrome images for some formats, need to provide colour?
         IMetadata meta = MetadataTools.createOMEXMLMetadata();
         int thumbSizeX = reader.getThumbSizeX();
         int thumbSizeY = reader.getThumbSizeY();  
@@ -539,18 +859,21 @@ public class PublicRepositoryI extends _RepositoryDisp {
         meta.setPixelsSizeC(1, 0, 0);
         meta.setPixelsSizeT(1, 0, 0);
         meta.setLogicalChannelSamplesPerPixel(1, 0, 0);
-            
+        
+        // Finally try to create the jpeg file abd return the path.  
+        IFormatWriter writer = new ImageWriter();
+        writer.setMetadataRetrieve(meta);
         try {
-            IFormatWriter writer = new ImageWriter();
-            writer.setMetadataRetrieve(meta);
             writer.setId(tnFile.getAbsolutePath());
             writer.saveBytes(thumb, true);
             writer.close();
             return tnFile.getAbsolutePath();  
         } catch (FormatException exc) { 
-            throw new ServerError(null, stackTraceAsString(exc), "Thumbnail error, write failed."); 
+            throw new ServerError(null, stackTraceAsString(exc), 
+                    "Thumbnail error, write failed."); 
         } catch (IOException exc) { 
-            throw new ServerError(null, stackTraceAsString(exc), "Thumbnail error, write failed."); 
+            throw new ServerError(null, stackTraceAsString(exc), 
+                    "Thumbnail error, write failed."); 
         }
         
 	}

@@ -38,15 +38,33 @@ module omero {
              * need to know what is an original file and what is not yet.
              */
 
-            // These list methods provide all files, registered or not.
+            // These list methods provide all files and/or directories, registered or not.
             omero::api::OriginalFileList list(string path) throws ServerError;
             omero::api::OriginalFileList listDirs(string path) throws ServerError;
             omero::api::OriginalFileList listFiles(string path) throws ServerError;
 
-            // These list methods provide only registered files
+            // These list methods provide only registered files and/or directories.
             omero::api::OriginalFileList listKnown(string path) throws ServerError;
             omero::api::OriginalFileList listKnownDirs(string path) throws ServerError;
             omero::api::OriginalFileList listKnownFiles(string path) throws ServerError;
+
+            // This list method provide importable image files registered or not.
+            omero::api::ImageList listImportableImages(string path) 
+                    throws ServerError;
+                    
+            // This list methods provide only registered importable image files.
+            omero::api::ImageList listKnownImportableImages(string path) 
+                    throws ServerError;
+
+            // This list method provide non-image files registered or not.
+            omero::api::OriginalFileList listNonImages(string path) 
+                    throws ServerError;
+                    
+            // This list methods provide only registered non-image files.
+            omero::api::OriginalFileList listKnownNonImages(string path) 
+                    throws ServerError;
+
+
 
             // Or do we use an options object here?
 
@@ -83,6 +101,18 @@ module omero {
                     throws ServerError;
             
             /**
+             * Create an Image in the database for the given Image.
+             * If the given Image is already registered as an Image,
+             * a ValidationException is thrown. Otherwise, one is added and
+             * returned.
+             *
+             * TODO should this just return and not throw?
+             *
+             **/
+            omero::model::Image registerImage(omero::model::Image image) 
+                    throws ServerError;
+            
+            /**
              * Load the OriginalFile at the given path with annotations and
              * associated Pixels (if present). If the path does not point to
              * an OriginalFile, a ValidationException exception is thrown.
@@ -114,7 +144,8 @@ module omero {
 
             void rename(string path) throws ServerError;
             void delete(string path) throws ServerError;
-            void transfer(string srcPath, Repository* target, string targetPath) throws ServerError;
+            void transfer(string srcPath, Repository* target, string targetPath) 
+                    throws ServerError;
 
             string getThumbnail(string path) throws ServerError;
         };
@@ -127,16 +158,22 @@ module omero {
             //
             // Provides all the stateful services dealing with binary data
             //
-            omero::api::RawFileStore*    createRawFileStore(omero::model::OriginalFile file) throws ServerError;
-            omero::api::RawPixelsStore*  createRawPixelsStore(omero::model::OriginalFile file) throws ServerError;
-            omero::api::RenderingEngine* createRenderingEngine(omero::model::OriginalFile file) throws ServerError;
-            omero::api::ThumbnailStore*  createThumbnailStore(omero::model::OriginalFile file) throws ServerError;
+            omero::api::RawFileStore*    createRawFileStore(omero::model::OriginalFile file) 
+                    throws ServerError;
+            omero::api::RawPixelsStore*  createRawPixelsStore(omero::model::OriginalFile file) 
+                    throws ServerError;
+            omero::api::RenderingEngine* createRenderingEngine(omero::model::OriginalFile file) 
+                    throws ServerError;
+            omero::api::ThumbnailStore*  createThumbnailStore(omero::model::OriginalFile file) 
+                    throws ServerError;
 
             // Other repository methods
-            omero::model::OriginalFile   getDescription() throws ServerError;
-            Repository*                  getProxy() throws ServerError;  // If this returns null, user will have to wait
+            omero::model::OriginalFile getDescription() throws ServerError;
+            // If this returns null, user will have to wait
+            Repository* getProxy() throws ServerError;  
 
-            string                       getFilePath(omero::model::OriginalFile file) throws ServerError;
+            string getFilePath(omero::model::OriginalFile file) 
+                    throws ServerError;
 
         };
 
