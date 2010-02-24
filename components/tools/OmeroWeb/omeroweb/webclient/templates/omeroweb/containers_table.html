@@ -3,7 +3,6 @@
 {% load custom_tags %}
 {% load wikitags %}
 
-    <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
     
     <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.selectable.js" %}"></script>
     
@@ -37,13 +36,20 @@
             		});
             	}
             });
+            
+            $("#changeView").click(function() { 
+                var rel = $("div#content_details").attr('rel');
+                $("div#content_details").html('<p>Loading data... please wait <img src="/webclient/static/images/tree/spinner.gif"/></p>');
+                $("div#content_details").load('/webclient/dataset/'+rel+'/?view=icon');
+            });
+            
         });
     </script>
 
 {% if manager.c_size %}
 
-    <div id="buttons_right">    
-        <a href="#" onclick="changeView('icon'); return false;"><img src="{% url webstatic "images/view_icon16.png" %}" alt="details" title="details"/></a>
+    <div id="buttons_right">
+        <input id="changeView" class="button" type="image" src="{% url webstatic "images/view_icon16.png" %}" alt="Change view to table">
     </div>
     <div class="clear"> </div>
     

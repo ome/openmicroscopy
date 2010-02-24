@@ -203,21 +203,29 @@ $.fn.simpleTree = function(opt){
 				var LI = this;
 				var childNode = $('>ul',this);
 				if(childNode.size()>0){
-					if(this.id=='orphan') {
-				        var setClassName = 'orfolder-';
+				    var unknown = 0;
+				    if(this.id.match(/(orphan)/)) {
+				        var setClassName = 'orfolder-'; //new
+					} else if(this.id.match(/(pr)+-[0-9]+/)) {
+    					var setClassName = 'folder-'; //new
+					} else if(this.id.match(/(sc)+-[0-9]+/)) {
+    					var setClassName = 'folder2-'; //new
+					} else if(this.id.match(/(ds)+-[0-9]+/)) {
+					    var setClassName = 'subfolder-';
 					} else {
-					    if(this.id.indexOf('pr') && this.id.indexOf('sc')) {
-    					    var setClassName = 'subfolder-'; //new
-					    } else {
-					        var setClassName = 'folder-';
-					    }
+					    var setClassName = 'doc'; //new
+					    unknown = 1;
 					}
-					if(className && className.indexOf('open')>=0){
-						setClassName=setClassName+'open';
-						open=true;
-					}else{
-						setClassName=setClassName+'close';
+					
+					if(unknown < 1) {
+					    if(className && className.indexOf('open')>=0){
+    						setClassName=setClassName+'open';
+    						open=true;
+    					}else{
+    						setClassName=setClassName+'close';
+    					}
 					}
+					    
 					this.className = setClassName + ($(this).is(':last-child')? '-last':'');
 
 					if(!open || className.indexOf('ajax')>=0)childNode.hide();
@@ -226,12 +234,10 @@ $.fn.simpleTree = function(opt){
 				} else {
 				    if (this.id.indexOf('pl') !== -1) {
 					    var setClassName = 'doc2';
-    					this.className = setClassName + ($(this).is(':last-child')? '-last':'');
 				    } else {
 				        var setClassName = 'doc';
-    					this.className = setClassName + ($(this).is(':last-child')? '-last':'');
 				    }
-				    
+				    this.className = setClassName + ($(this).is(':last-child')? '-last':'');
 				}
 			}).before('<li class="line">&nbsp;</li>')
 			.filter(':last-child').after('<li class="line-last"></li>');

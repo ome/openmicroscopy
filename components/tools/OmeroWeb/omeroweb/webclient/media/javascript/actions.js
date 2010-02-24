@@ -147,10 +147,3 @@ function cleanClipboard (productType, productId) {
     }
 };
 
-function changeView(view) {
-    var rel = $("div#content_details").attr('rel');
-    $("div#content_details").html('<p>Loading data... please wait <img src="/webclient/static/images/tree/spinner.gif"/></p>');
-    $("div#content_details").load('/webclient/dataset/'+rel+'/?view='+view);
-    $("div#content_details").attr('rel', rel);
-    $("div#metadata_details").attr('src=', '/webclient/metadata_details/dataset/'+rel+'/');
-}

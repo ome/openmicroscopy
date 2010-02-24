@@ -9,7 +9,7 @@
 	list-style: none;
 	margin:0;
 	padding:0 0 0 34px;
-	line-height: 14px;
+	line-height: 16px;
 }
 .simpleTree li span
 {
@@ -31,8 +31,8 @@
 {
 	margin:0 0 0 -16px;
 	padding:0;
-	line-height: 5px;
-	height: 5px;
+	line-height: 4px;
+	height: 4px;
 	font-size:3px;
 	background: url(../images/tree/line_bg.gif) 0 0 no-repeat transparent;
 }
@@ -40,8 +40,8 @@
 {
 	margin:0 0 0 -16px;
 	padding:0;
-	line-height: 5px;
-	height: 5px;
+	line-height: 4px;
+	height: 4px;
 	font-size:3px;
 	background: url(../images/tree/spacer.gif) 0 0 no-repeat transparent;
 }
@@ -49,8 +49,8 @@
 {
 	margin:0 0 0 -16px;
 	padding:0;
-	line-height: 5px;
-	height: 5px;
+	line-height: 4px;
+	height: 4px;
 	font-size:3px;
 	background: url(../images/tree/line_bg_over.gif) 0 0 no-repeat transparent;
 }
@@ -58,11 +58,12 @@
 {
 	margin:0 0 0 -16px;
 	padding:0;
-	line-height: 5px;
-	height: 5px;
+	line-height: 4px;
+	height: 4px;
 	font-size:3px;
 	background: url(../images/tree/line_bg_over_last.gif) 0 0 no-repeat transparent;
 }
+/*folder*/
 .simpleTree .folder-open
 {
 	margin-left:-16px;
@@ -93,6 +94,38 @@
 	margin-left:-16px;
 	background: url(../images/tree/expandable-last-static.png) 0 -2px no-repeat;
 }
+/*folder2*/
+.simpleTree .folder2-open
+{
+	margin-left:-16px;
+	background: url(../images/tree/collapsable2.png) 0 -2px no-repeat;
+}
+.simpleTree .folder2-open-last
+{
+	margin-left:-16px;
+	background: url(../images/tree/collapsable2-last.png) 0 -2px no-repeat;
+}
+.simpleTree .folder2-open-last-static
+{
+	margin-left:-16px;
+	background: url(../images/tree/collapsable2-last-static.png) 0 -2px no-repeat;
+}
+.simpleTree .folder2-close
+{
+	margin-left:-16px;
+	background: url(../images/tree/expandable2.png) 0 -2px no-repeat;
+}
+.simpleTree .folder2-close-last
+{
+	margin-left:-16px;
+	background: url(../images/tree/expandable2-last.png) 0 -2px no-repeat;
+}
+.simpleTree .folder2-close-last-static
+{
+	margin-left:-16px;
+	background: url(../images/tree/expandable2-last-static.png) 0 -2px no-repeat;
+}
+/*subfolder*/
 .simpleTree .subfolder-open
 {
 	margin-left:-16px;
