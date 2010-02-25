@@ -417,7 +417,7 @@ public class IconManager
     public static final int           FILE_REGISTERED = 119;
     
     /** The <code>Registered Image</code> icon. */
-    public static final int           IMAGE_REGISTERED = 120;
+    public static final int           IMAGE_UNREGISTERED = 120;
     
     /** The <code>Password</code> icon. */
     public static final int           PASSWORD = 121;
@@ -557,9 +557,9 @@ public class IconManager
         relPaths[UPLOAD] = "nuvola_download_manager_rotated16.png";
         relPaths[UPLOAD_48] = "nuvola_download_manager_rotated48.png";
         relPaths[ADMIN] = "nuvola_personal16.png";
-        relPaths[DIRECTORY_REGISTERED] = "nuvola_personal16.png";//"nuvola_folder_grey16.png";
-        relPaths[FILE_REGISTERED] = "nuvola_download_manager_rotated16.png";//"nuvola_folder_grey16.png";
-        relPaths[IMAGE_REGISTERED] = "nuvola_personal16.png";
+        relPaths[DIRECTORY_REGISTERED] = "nuvola_folder_grey_annotated16.png";;//"nuvola_folder_grey16.png";
+        relPaths[FILE_REGISTERED] = "nuvola_txt_annotated16.png";//"nuvola_folder_grey16.png";
+        relPaths[IMAGE_UNREGISTERED] = "nuvola_image_grey16.png";
         relPaths[PASSWORD] = "nuvola_download_manager_rotated16.png";
         relPaths[PASSWORD_48] = "nuvola_download_manager_rotated48.png";
     }

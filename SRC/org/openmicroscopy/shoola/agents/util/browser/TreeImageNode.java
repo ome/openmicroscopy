@@ -24,11 +24,14 @@
 package org.openmicroscopy.shoola.agents.util.browser;
 
 
+
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.Image;
+import pojos.FileData;
 
 /** 
  * Represents a leaf in the composite structure used to visualize an
@@ -47,9 +50,6 @@ package org.openmicroscopy.shoola.agents.util.browser;
 public class TreeImageNode
     extends TreeImageDisplay
 {
-	
-	/** Flag indicating if the image is a supported file format. */
-	private boolean supportedImageFormat;
 	
     /**
      * Implemented as specified by superclass.
@@ -72,18 +72,6 @@ public class TreeImageNode
     {
         super(hierarchyObject);
     }
-  
-    /**
-     * Sets the flag indicating that the image is format supported or not.
-     * 
-     * @param supportedImageFormat  Pass <code>true</code> to indicate that
-     * 								the image is supported, <code>false</code>
-     * 								otherwise.
-     */
-    public void setSupportedImageFormat(boolean supportedImageFormat)
-    {
-    	this.supportedImageFormat = supportedImageFormat;
-    }
     
     /**
      * Returns <code>true</code> to indicate that the image is supported, 
@@ -92,8 +80,10 @@ public class TreeImageNode
      * @return See above.
      */
     public boolean isSupportedImageFormat()
-    {
-    	return supportedImageFormat;
+    { 
+    	if (getUserObject() instanceof FileData)
+    		return ((FileData) getUserObject()).isImage();
+    	return false;
     }
     
     /**

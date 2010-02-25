@@ -610,6 +610,10 @@ class EditorModel
 		if (object instanceof ExperimenterData) 
 			return (((ExperimenterData) object).getId() == userID);
 		if (!(object instanceof DataObject)) return false;
+		if (object instanceof FileData) {
+			FileData f = (FileData) object;
+			if (f.getId() < 0) return true;
+		}
 		return EditorUtil.isUserOwner(object, userID);
 	}
 	
@@ -2071,7 +2075,14 @@ class EditorModel
 		if (renderer != null) 
 			return renderer.getPixelsDimensionsC() >= Renderer.MAX_CHANNELS;
 		ImageData img = (ImageData) refObject;
-		return img.getDefaultPixels().getSizeC() >= Renderer.MAX_CHANNELS;
+		PixelsData pixels = null;
+		try {
+			pixels = img.getDefaultPixels();
+		} catch (Exception e) {
+			//ignore
+		}
+		if (pixels == null) return false;
+		return pixels.getSizeC() >= Renderer.MAX_CHANNELS;
 	}
 
 	/**

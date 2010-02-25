@@ -28,10 +28,16 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.Iterator;
+import java.util.List;
+
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
+
+import pojos.ExperimenterData;
 
 /** 
  * Creates groups and/or experimenters.
@@ -101,7 +107,32 @@ public class AdminCreator
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-        viewer.refreshTree();
+        switch (object.getIndex()) {
+        	case AdminObject.CREATE_GROUP:
+        	case AdminObject.CREATE_EXPERIMENTER:
+        		viewer.refreshTree();
+				break;
+        	case AdminObject.RESET_PASSWORD:
+        		List l = (List) result;
+        		if (l.size() != 0) {
+        			UserNotifier un = 
+        				TreeViewerAgent.getRegistry().getUserNotifier();
+        			Iterator i = l.iterator();
+        			ExperimenterData exp;
+        			String s = "";
+        			while (i.hasNext()) {
+        				exp = (ExperimenterData) i.next();
+						s += exp.getUserName()+"\n";
+					}
+        			StringBuffer buffer = new StringBuffer();
+        			buffer.append("The password could not be reset for ");
+        			buffer.append("the following experimenters:\n");
+        			buffer.append(s);
+        			un.notifyInfo("Reset password", buffer.toString());
+        			
+        		}
+		}
+        
     }
     
 }

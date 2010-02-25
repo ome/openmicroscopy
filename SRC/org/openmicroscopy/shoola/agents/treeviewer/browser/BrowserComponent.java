@@ -941,15 +941,15 @@ class BrowserComponent
         		if (uo instanceof FileData) {
         			FileData dir = (FileData) uo;
         			if (dir.isDirectory() && !dir.isHidden()) {
-        				FileData[] files = model.getFilesData(dir);
+        				DataObject[] files = model.getFilesData(dir);
         				if (files != null) {
-        					List<FileData> list = new ArrayList<FileData>();
+        					List<DataObject> list = new ArrayList<DataObject>();
         					for (int i = 0; i < files.length; i++) {
 								list.add(files[i]);
 							}
         					model.setState(LOADING_LEAVES);
-        					setLeaves(list, (TreeImageSet) n, 
-        							(TreeImageSet) exp);
+        					//setLeaves(list, (TreeImageSet) n, 
+        					//		(TreeImageSet) exp);
         				}
         			}
         			return;

@@ -170,9 +170,10 @@ public class TreeCellRenderer
         		if (node instanceof TreeImageNode) {
         			TreeImageNode n = (TreeImageNode) node;
         			if (n.isSupportedImageFormat()) {
-        				if (f.getId() > 0)
-                			icon = icons.getIcon(IconManager.FILE_REGISTERED);
-                		else icon = icons.getIcon(IconManager.IMAGE);
+        				if (f.getId() > 0) 
+                			icon = icons.getIcon(IconManager.IMAGE);
+                		else 
+                			icon = icons.getIcon(IconManager.IMAGE_UNREGISTERED);
         			} else {
         				if (f.getId() > 0)
                 			icon = icons.getIcon(IconManager.FILE_REGISTERED);

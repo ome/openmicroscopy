@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
-import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -39,8 +38,12 @@ import javax.swing.filechooser.FileSystemView;
 //Application-internal dependencies
 import omero.RString;
 import omero.grid.RepositoryPrx;
+import omero.model.Image;
+import omero.model.IObject;
 import omero.model.OriginalFile;
+import pojos.DataObject;
 import pojos.FileData;
+import pojos.ImageData;
 
 
 /** 
@@ -152,9 +155,17 @@ public class FSFileSystemView
     	RepositoryPrx proxy = getRepository(file);
     	if (proxy == null) return null;
     	try {
-    		OriginalFile of = proxy.registerOriginalFile(
-        			(OriginalFile) file.asIObject());
-    		file.setRegisteredFile(of);
+    		//TODO: merge method in I/F
+    		IObject object = file.asIObject();
+    		IObject r = null;
+    		if (object instanceof Image) {
+    			r = proxy.registerImage((Image) object);
+    		} else if (object instanceof OriginalFile) {
+    			r = proxy.registerOriginalFile(
+            			(OriginalFile) object);
+    		}
+    		if (r != null) file.setRegisteredFile(r);
+    		
 		} catch (Exception e) {
 			new FSAccessException("Cannot register the file: " +
 					""+file.getAbsolutePath(), e);
@@ -181,12 +192,71 @@ public class FSFileSystemView
     	try {
     		return proxy.getThumbnail(file.getAbsolutePath());
 		} catch (Exception e) {
-			System.err.println(file.getName());
 			new FSAccessException("Cannot retrieve the thumbnail for: " +
 					""+file.getAbsolutePath(), e);
 		}
     	
     	return null;
+    }
+    
+    private void populate(Vector<DataObject> files, List listknown, List listAll,
+    		boolean useFileHiding)
+    {
+    	if (listAll == null) return;
+		Iterator<IObject> i;
+		Map<String, IObject> m = new HashMap<String, IObject>();
+		IObject object;
+		RString path;
+		if (listknown != null) {
+			i = listknown.iterator();
+			while (i.hasNext()) {
+				object = i.next();
+				path = null;
+				if (object instanceof OriginalFile) {
+					path = ((OriginalFile) object).getPath();
+	    			if (path == null) path = ((OriginalFile) object).getName();
+	    			
+				} else if (object instanceof Image) {
+					path = ((Image) object).getName();
+				}
+				if (path != null) m.put(path.getValue(), object);
+			}
+		}
+		i = listAll.iterator();
+		FileData f;
+		String value;
+		boolean image;
+		while (i.hasNext()) {
+			object = i.next();
+			path = null;
+			image = false;
+			f = null;
+			if (object instanceof OriginalFile) {
+				path = ((OriginalFile) object).getPath();
+    			if (path == null) path = ((OriginalFile) object).getName();
+			} else if (object instanceof Image) {
+				path = ((Image) object).getName();
+				image = true;
+			}
+			if (path != null) {
+				value = path.getValue();
+				if (m.containsKey(value)) {
+					object = m.get(value);
+					if (image) {
+						files.addElement(new ImageData((Image) object));
+					} else 
+						f = new FileData(object);
+				} else {
+					f = new FileData(object);
+				}
+				if (f != null) {
+					if (!useFileHiding) {
+						if (!isHiddenFile(f)) files.addElement(f);
+					} else files.addElement(f);
+				}
+				
+			}
+		}
     }
     
     /**
@@ -197,51 +267,25 @@ public class FSFileSystemView
      * 						hidden, <code>false</code> otherwise.
      *  @see FileSystemView#getFiles(FileData, boolean)
      */
-    public FileData[] getFiles(FileData dir, boolean useFileHiding)
+    public DataObject[] getFiles(FileData dir, boolean useFileHiding)
     	throws FSAccessException
     {
     	if (dir == null) return null;
     	if (!dir.isDirectory()) return null;
     	RepositoryPrx proxy = getRepository(dir);
     	if (proxy == null) return null;
-    	Vector<FileData> files = new Vector<FileData>();
+    	Vector<DataObject> files = new Vector<DataObject>();
     	try {
-    		List<OriginalFile> list = proxy.list(dir.getAbsolutePath());
-    		
-    		if (list == null) return null;
-    		List<OriginalFile> l = proxy.listKnown(dir.getAbsolutePath());
-    		Iterator<OriginalFile> i;
-    		Map<String, OriginalFile> m = new HashMap<String, OriginalFile>();
-    		OriginalFile of;
-    		RString path;
-    		if (l != null) {
-    			i = l.iterator();
-    			while (i.hasNext()) {
-					of = i.next();
-					path = of.getPath();
-	    			if (path == null) path = of.getName();
-	    			m.put(path.getValue(), of);
-				}
-    		}
-    		i = list.iterator();
-    		FileData f;
-    		String value;
-    		while (i.hasNext()) {
-    			of = i.next();
-    			path = of.getPath();
-    			if (path == null) path = of.getName();
-    			value = path.getValue();
-    			if (m.containsKey(value)) of = m.get(value);
-				f = new FileData(of);
-				if (!useFileHiding) {
-					if (!isHiddenFile(f)) files.addElement(f);
-				} else files.addElement(f);
-			}
+    		String s = dir.getAbsolutePath();
+    		populate(files, proxy.listKnownNonImages(s), proxy.listNonImages(s), 
+    				useFileHiding);
+    		populate(files, proxy.listKnownImportableImages(s),
+    				proxy.listImportableImages(s), useFileHiding);
 		} catch (Exception e) { 
 			new FSAccessException("Cannot retrives the files contained in: " +
 					dir.getAbsolutePath(), e);
 		}
-    	return (FileData[]) files.toArray(new FileData[files.size()]);
+    	return (DataObject[]) files.toArray(new DataObject[files.size()]);
     }
     
     /**

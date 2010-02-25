@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.env.data.FSAccessException;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -876,10 +877,16 @@ class BrowserModel
 		return false;
 	}
 	
-	FileData[] getFilesData(FileData dir)
+	/**
+	 * Returns the object within the specified directory.
+	 * 
+	 * @param dir The directory to handle.
+	 * @return See above.
+	 */
+	DataObject[] getFilesData(FileData dir)
 	{
 		FSFileSystemView fs = getRepositories();
-		FileData[] files = null;
+		DataObject[] files = null;
 		try {
 			files = fs.getFiles(dir, false);
 		} catch (FSAccessException e) {

@@ -511,40 +511,30 @@ class BrowserUI
     {
     	List<TreeImageNode> leaves = new ArrayList<TreeImageNode>();
     	FileData dir = (FileData) dirSet.getUserObject();
-    	FileData[] files = model.getFilesData(dir);
+    	DataObject[] files = model.getFilesData(dir);
     	if (files != null && files.length > 0) {
+    		DataObject object;
     		FileData file;
     		TreeImageDisplay display;
     		for (int i = 0; i < files.length; i++) {
-    			file = files[i];
-    			if (file.isDirectory()) {
-        			if (!file.isHidden()) {
-        				display = new TreeImageSet(file);
-        				buildEmptyNode(display);
-        				dirSet.addChildDisplay(display);
-        			}
-        		} else {
-        			if (!file.isHidden()) {
-        				display = new TreeImageNode(file);
-        				((TreeImageNode) display).setSupportedImageFormat(
-        						model.isSupportedImageFormat(
-        								file.getAbsolutePath()));
-    					//leaves.add((TreeImageNode) display);
-    					dirSet.addChildDisplay(display);
-        				/*
-        				ImageData img = model.getImportedImage(file.getName());
-        				if (img != null) 
-        					dirSet.addChildDisplay(new TreeImageNode(img));
-        				else {
-        					display = new TreeImageNode(file);
-        					leaves.add((TreeImageNode) display);
-        					//if (!model.isFormatSupported(file))
-        						//display.setSelectable(false);
-        					dirSet.addChildDisplay(display);
-        				}
-        				*/
-        			}
-        		}
+    			object = files[i];
+    			display = null;
+    			if (object instanceof FileData) {
+    				file = (FileData) object;
+    				if (file.isDirectory()) {
+            			if (!file.isHidden()) {
+            				display = new TreeImageSet(file);
+            				buildEmptyNode(display);
+            			}
+            		} else {
+            			if (!file.isHidden()) {
+            				display = new TreeImageNode(file);
+            			}
+            		}
+    			} else if (object instanceof ImageData) {
+    				display = new TreeImageNode(object);
+    			}
+    			if (display != null) dirSet.addChildDisplay(display);
 			}
     	}
     	return leaves;
@@ -565,13 +555,16 @@ class BrowserUI
     	FileData[] files = fs.getRoots();
 		for (int j = 0; j < files.length; j++) {
 			file = files[j];
-			if (file.isDirectory()) {
-    			if (!file.isHidden()) {
-    				display = new TreeImageSet(file);
-    				display.setChildrenLoaded(true);
-    				transformDirectory(display);
-    				results.add(display);
-    			}
+			if (file.isDirectory() && !file.isHidden()) {
+				display = new TreeImageSet(file);
+				display.setChildrenLoaded(true);
+				transformDirectory(display);
+				/*
+				buildTreeNode(display, prepareSortedList(
+						sorter.sort(display.getChildrenDisplay())), 
+                        (DefaultTreeModel) treeDisplay.getModel());
+                        */
+				results.add(display);
     		}
 		}
     	return results;
@@ -702,7 +695,8 @@ class BrowserUI
                     	display.setExpanded(true);
                     	setExpandedParent(display, false);
                     	nodesToReset.add(display);
-                    	buildTreeNode(display, sorter.sort(children), tm);
+                    	buildTreeNode(display, 
+                    			prepareSortedList(sorter.sort(children)), tm);
                         expandNode(display);
                         tm.reload(display);
                     } else {
@@ -710,7 +704,8 @@ class BrowserUI
                     		setExpandedParent(display, true);
                         	nodesToReset.add(display);
                     	}
-                    	buildTreeNode(display, sorter.sort(children), tm);
+                    	buildTreeNode(display, 
+                    			prepareSortedList(sorter.sort(children)), tm);
                     }
                 } else {
                 	uo = display.getUserObject();
@@ -880,21 +875,14 @@ class BrowserUI
 					else bottom.add(object);
 				} else top.add(object);
 			} else if (uo instanceof FileData) {
-				//FileData f = (FileData) uo;
-				/*
-				if (f.isDirectory()) {
-					if (((TreeImageSet) object).isSystem())
-						top.add(object);
-					else bottom.add(object);
-				} else 
-				*/
-				top.add(object);
+				FileData f = (FileData) uo;
+				if (f.isDirectory()) top.add(object);
+				else bottom.add(object);
 			} else if (uo instanceof ImageData) {
-				top.add(object);
+				bottom.add(object);
 			}
 		}
 		List<TreeImageDisplay> all = new ArrayList<TreeImageDisplay>();
-		
 		if (top.size() > 0) all.addAll(top);
 		if (bottom.size() > 0) all.addAll(bottom);
 		if (top2.size() > 0) all.addAll(top2);
@@ -1695,14 +1683,14 @@ class BrowserUI
 		display.removeAllChildrenDisplay();
 		display.setChildrenLoaded(Boolean.TRUE);
 		display.setExpanded(true);
-		List<TreeImageNode> leaves = transformDirectory((TreeImageSet) display);
+		transformDirectory((TreeImageSet) display);
 		buildTreeNode(display, prepareSortedList(sorter.sort(
 				display.getChildrenDisplay())), 
 				(DefaultTreeModel) treeDisplay.getModel());
 
 		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
 		tm.reload(display);
-		model.fireFilesCheck(leaves);
+		//model.fireFilesCheck(leaves);
 	}
 	
 	/** 

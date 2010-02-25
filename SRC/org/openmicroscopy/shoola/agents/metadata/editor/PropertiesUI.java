@@ -781,7 +781,10 @@ class PropertiesUI
         	editName.setEnabled(false);
         	FileData f = (FileData) refObject;
         	if (f.isDirectory()) text = "Folder";
-        	else text = "File";
+        	else {
+        		if (f.isImage()) text = "Image";
+        		else text = "File";
+        	}
         }
         String t = text;
         if (model.getRefObjectID() > 0)
@@ -872,12 +875,6 @@ class PropertiesUI
 			if (name.length() > 0) img.setName(name);
 			img.setDescription(desc);
 		} 
-		/*
-		else if (object instanceof FolderData) {
-			FolderData folder = (FolderData) object;
-			folder.setDescription(desc);
-		}
-		*/
 	}
 	
 	/**
