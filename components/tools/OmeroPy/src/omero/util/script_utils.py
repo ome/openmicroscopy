@@ -52,6 +52,10 @@ except:
     import sha 
     hash_sha1 = sha.new 
 
+
+CSV_NS = 'text/csv';
+CSV_FORMAT = 'text/csv';
+
 def drawTextOverlay(draw, x, y, text, colour='0xffffff'):
     """
     Draw test on image.
@@ -294,7 +298,7 @@ def readFromOriginalFile(rawFileService, iQuery, fileId, maxBlockSize = 10000):
         cnt = cnt+blockSize;
     return data;
 
-def readFileAsArray(rawFileService, iQuery, fileId, row, col, sep = ' '):
+def readFileAsArray(rawFileService, iQuery, fileId, row, col, separator = ' '):
     """
     Read an OriginalFile with id and column separator and return it as an array.
     @param rawFileService The RawFileService service to read the originalfile.
@@ -306,40 +310,40 @@ def readFileAsArray(rawFileService, iQuery, fileId, row, col, sep = ' '):
     @return The file as an NumPy array.
     """
     textBlock = readFromOriginalFile(rawFileService, iQuery, fileId);
-    arrayFromFile = numpy.fromstring(textBlock,sep=' ');
+    arrayFromFile = numpy.fromstring(textBlock,sep = separator);
     return numpy.reshape(arrayFromFile, (row, col));
 
-def readFlimImageFile(rawPixelStore, pixels):
+def readFlimImageFile(rawPixelsStore, pixels):
     """
     Read the RawImageFlimFile with fileId and return it as an array [c, x, y]
-    @param rawPixelStore The rawPixelStore service to get the image.
+    @param rawPixelsStore The rawPixelStore service to get the image.
     @param pixels The pixels of the image.
     @return The Contents of the image for z = 0, t = 0, all channels;
     """
-    channel = pixels.getSizeC.getValue();
-    sizeX = pixels.getSizeX.getValue();
-    sizeY = pixels.getSizeY.getValue();
+    sizeC = pixels.getSizeC().getValue();
+    sizeX = pixels.getSizeX().getValue();
+    sizeY = pixels.getSizeY().getValue();
     id = pixels.getId().getValue();
     pixelsType = pixels.getPixelsType().getValue().getValue();
     rawPixelsStore.setPixelsId(id , False);
     cRange = range(0, sizeC);
-    stack = numpy.zeros((sizeC, sizeX, sizeY),dtype=pixelsType);
+    stack = numpy.zeros((sizeC, sizeX, sizeY),dtype=pixelstypetopython.toNumpy(pixelsType));
     for c in cRange:
-        plane = downloadPlane(rawPixelStore, pixels, 0, c, 0);
+        plane = downloadPlane(rawPixelsStore, pixels, 0, c, 0);
         stack[c,:,:]=plane;
     return stack;
     
-def downloadPlane(rawPixelStore, pixels, z, c, t):
+def downloadPlane(rawPixelsStore, pixels, z, c, t):
     """
     Download the plane [z,c,t] for image pixels.
-    @param rawPixelStore The rawPixelStore service to get the image.
+    @param rawPixelsStore The rawPixelStore service to get the image.
     @param pixels The pixels of the image.
     @param z The Z-Section to retrieve.
     @param c The C-Section to retrieve.
     @param t The T-Section to retrieve.
     @return The Plane of the image for z, c, t
     """
-    rawPlane = rawPixelStore.getPlane(z, c, t);
+    rawPlane = rawPixelsStore.getPlane(z, c, t);
     sizeX = pixels.getSizeX().getValue();
     sizeY = pixels.getSizeY().getValue();
     pixelsId = pixels.getId().getValue();
@@ -351,7 +355,7 @@ def downloadPlane(rawPixelStore, pixels, z, c, t):
     remappedPlane.resize(sizeX, sizeY);
     return remappedPlane;
 
-def createFileFromData(updateService, filename, data, format):
+def createFileFromData(updateService, queryService, filename, data):
     """
     Create a file from the data of type format, setting sha1, ..
     @param updateService The updateService to create the annotation link.
@@ -363,7 +367,7 @@ def createFileFromData(updateService, filename, data, format):
     tempFile = omero.model.OriginalFileI();
     tempFile.setName(omero.rtypes.rstring(filename));
     tempFile.setPath(omero.rtypes.rstring(filename));
-    tempFile.setFormat(getFormat(session, format));
+    tempFile.setFormat(getFormat(queryService, CSV_FORMAT));
     tempFile.setSize(omero.rtypes.rlong(len(data)));
     tempFile.setSha1(omero.rtypes.rstring(calcSha1FromData(data)));
     return updateService.saveAndReturnObject(tempFile);
@@ -376,7 +380,6 @@ def attachArrayToImage(updateService, image, file, nameSpace):
     @param filename The name of the file.
     @param namespace The namespace of the file.
     """
-    updateService = session.getUpdateService();
     fa = omero.model.FileAnnotationI();
     fa.setFile(file);
     fa.setNs(omero.rtypes.rstring(nameSpace))
@@ -385,7 +388,7 @@ def attachArrayToImage(updateService, image, file, nameSpace):
     l.setChild(fa);
     l = updateService.saveAndReturnObject(l);
 
-def uploadArray(rawFileStore, updateService, image, filename, data, format):
+def uploadArray(rawFileStore, updateService, queryService, image, filename, array):
     """
     Upload the data to the server, creating the OriginalFile Object and attaching it to the image.
     @param rawFileStore The rawFileStore used to create the file.
@@ -393,9 +396,9 @@ def uploadArray(rawFileStore, updateService, image, filename, data, format):
     @param image The image to attach the data to.
     @param filename The name of the file.
     @param data The data to save.
-    @param format The Format of the file.
     """
-    file = createFileFromData(updateService, filename, data, format);
+    data = arrayToCSV(array);
+    file = createFileFromData(updateService, queryService, filename, data);
     rawFileStore.setFileId(file.getId().getValue());
     fileSize = len(data);
     increment = 10000;
@@ -431,10 +434,10 @@ def arrayToCSV(data):
     return strdata;    
 
 
-def uploadPlane(rawPixelStore, plane, z, c, t):
+def uploadPlane(rawPixelsStore, plane, z, c, t):
     """
     Upload the plane to the server attching it to the current z,c,t of the already instantiated rawPixelStore.
-    @param rawPixelStore The rawPixelStore which is already pointing to the data.
+    @param rawPixelsStore The rawPixelStore which is already pointing to the data.
     @param plane The data to upload
     @param z The Z-Section of the plane.
     @param c The C-Section of the plane.
@@ -442,7 +445,7 @@ def uploadPlane(rawPixelStore, plane, z, c, t):
     """
     byteSwappedPlane = plane.byteswap();
     convertedPlane = byteSwappedPlane.tostring();
-    rawPixelStore.setPlane(convertedPlane, z, c, t)
+    rawPixelsStore.setPlane(convertedPlane, z, c, t)
 
 def getRenderingEngine(session, pixelsId):  
     """
