@@ -83,6 +83,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.FileData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.PlateData;
@@ -457,7 +458,7 @@ class OmeroMetadataServiceImpl
 	private void linkAnnotation(DataObject data, AnnotationData annotation)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		String ioType = gateway.convertPojos(data.getClass()).getName();
+		String ioType = gateway.convertPojos(data).getName();
 		IObject ho = gateway.findIObject(ioType, data.getId());
 		ModelMapper.unloadCollections(ho);
 		IObject link = null;
@@ -1092,7 +1093,8 @@ class OmeroMetadataServiceImpl
 			if (object instanceof AnnotationData) {
 				updateAnnotationData(object);
 			} else {
-				service.updateDataObject(object);
+				if (object.isLoaded())
+					service.updateDataObject(object);
 			}
 			if (annotations.size() > 0) {
 				i = annotations.iterator();

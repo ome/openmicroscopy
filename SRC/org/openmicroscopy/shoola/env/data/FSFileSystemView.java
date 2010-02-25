@@ -159,7 +159,12 @@ public class FSFileSystemView
     		IObject object = file.asIObject();
     		IObject r = null;
     		if (object instanceof Image) {
-    			r = proxy.registerImage((Image) object);
+    			Image image = (Image) object;
+    			//image.setName(omero.rtypes.rstring(file.getName()));
+    			String desc = file.getDescription();
+    			if (desc != null && desc.length() > 0)
+    				image.setDescription(omero.rtypes.rstring(desc));
+    			r = proxy.registerImage(image);
     		} else if (object instanceof OriginalFile) {
     			r = proxy.registerOriginalFile(
             			(OriginalFile) object);

@@ -119,7 +119,8 @@ public class ModelMapper
     {
         if (object == null)
             throw new IllegalArgumentException("The object mustn't be null.");
-        object.unloadCollections();
+        if (object.isLoaded())
+        	object.unloadCollections();
         /*
         if (object instanceof Project) {
         	ProjectI p = (ProjectI) object;

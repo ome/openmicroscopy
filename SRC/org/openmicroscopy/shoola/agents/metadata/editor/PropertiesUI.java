@@ -589,17 +589,17 @@ class PropertiesUI
         	 p.add(Box.createVerticalStrut(5));
         	 descriptionPanel = layoutEditablefield(editDescription, 
         			 			descriptionPane);
-        	 /*
-        	 if (refObject instanceof PlateData) {
-        		 PlateData plate = (PlateData) refObject;
-        		 
-        		 typePane.setText()
-        	 }
-        	 */
         	 p.add(descriptionPanel);
+         } else if (refObject instanceof FileData) {
+        	 FileData f = (FileData) refObject;
+        	 if (f.isImage()) {
+        		 p.add(Box.createVerticalStrut(5));
+            	 descriptionPanel = layoutEditablefield(editDescription, 
+            			 			descriptionPane);
+            	 p.add(descriptionPanel);
+        	 }
          }
          p.add(Box.createVerticalStrut(5));
-         //p.add(buildPermissions(null));
          return p;
     }
     
@@ -651,20 +651,17 @@ class PropertiesUI
 
 	/**
 	 * Modifies the passed components depending on the value of the
-	 * <code>editable</code> flag.
+	 * passed flag.
 	 * 
 	 * @param panel     The panel to handle.
 	 * @param field		The field to handle.
-	 * @param button	The editable button.
-	 * @param editable	Pass <code>true</code> if <code>editable</code>,
+	 * @param button	The button to handle.
+	 * @param editable	Pass <code>true</code> if  to <code>edit</code>,
 	 * 					<code>false</code> otherwise.
 	 */
 	private void editField(JPanel panel, JTextArea field, JButton button, 
 			boolean editable)
 	{
-		//if ((model.getRefObject() instanceof FolderData) && 
-		//		(button == editName)) editable = false;
-		
 		field.setEditable(editable);
 		button.setEnabled(editable);
 		if (editable) {
@@ -756,6 +753,8 @@ class PropertiesUI
 		Object refObject = model.getRefObject();
 		text = "";
 		editName.setEnabled(true);
+		boolean b = model.isUserOwner(refObject);
+		
         if (refObject instanceof ImageData) text = "Image ";
         else if (refObject instanceof DatasetData) text = "Dataset";
         else if (refObject instanceof ProjectData) text = "Project";
@@ -782,8 +781,10 @@ class PropertiesUI
         	FileData f = (FileData) refObject;
         	if (f.isDirectory()) text = "Folder";
         	else {
-        		if (f.isImage()) text = "Image";
-        		else text = "File";
+        		if (f.isImage()) {
+        			b = true;
+        			text = "Image";
+        		} else text = "File";
         	}
         }
         String t = text;
@@ -794,7 +795,7 @@ class PropertiesUI
 		if (originalDescription == null || originalDescription.length() == 0)
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;
 		descriptionPane.setText(originalDescription);
-        boolean b = model.isUserOwner(model.getRefObject());
+        
         if ((refObject instanceof WellSampleData) ||
         		(refObject instanceof ScreenAcquisitionData)) b = false;
         namePane.setEnabled(b);
@@ -874,7 +875,11 @@ class PropertiesUI
 			ImageData img = well.getImage();
 			if (name.length() > 0) img.setName(name);
 			img.setDescription(desc);
-		} 
+		} else if (object instanceof FileData) {
+			FileData f = (FileData) object;
+			if (f.getId() > 0) return;
+			if (f.isImage()) f.setDescription(desc);
+		}
 	}
 	
 	/**

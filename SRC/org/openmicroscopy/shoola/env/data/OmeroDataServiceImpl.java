@@ -805,6 +805,7 @@ class OmeroDataServiceImpl
 			throw new DSAccessException("No object to update.");
 		if (object instanceof ExperimenterData) 
 			return updateExperimenter((ExperimenterData) object, null);
+		if (!object.isLoaded()) return object;
 		IObject ho = null;
 		IObject oldObject = null;
 		oldObject = object.asIObject();

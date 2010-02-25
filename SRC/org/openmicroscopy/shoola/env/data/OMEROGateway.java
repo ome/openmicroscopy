@@ -1667,6 +1667,22 @@ class OMEROGateway
 	 * @param nodeType The POJO class.
 	 * @return The corresponding class.
 	 */
+	Class convertPojos(DataObject node)
+	{
+		if (node instanceof FileData) {
+			FileData f = (FileData) node;
+			if (f.isImage()) return Image.class;
+			return OriginalFile.class;
+		}
+		return convertPojos(node.getClass());
+	}
+	
+	/**
+	 * Converts the specified POJO into the corresponding model.
+	 *  
+	 * @param nodeType The POJO class.
+	 * @return The corresponding class.
+	 */
 	Class convertPojos(Class nodeType)
 	{
 		if (ProjectData.class.equals(nodeType)) 

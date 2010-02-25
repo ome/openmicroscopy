@@ -733,7 +733,7 @@ public class EditorUtil
 			counts = ((ImageData) object).getAnnotationsCounts();	
 			//tmp solution
 			if (counts == null || counts.size() <= 0) return false;
-			if (counts.size() > 1) return true;
+			if (counts.size() >= 1) return true;
 			Iterator i = counts.entrySet().iterator();
 			long value = 0;
 			Entry entry;
@@ -741,7 +741,7 @@ public class EditorUtil
 				entry = (Entry) i.next();
 				value = (Long) entry.getValue();
 			}
-			value = value-2;
+			//value = value-2;
 			return value >= 0;
 		} else if (object instanceof ScreenData)
 			counts = ((ScreenData) object).getAnnotationsCounts();	

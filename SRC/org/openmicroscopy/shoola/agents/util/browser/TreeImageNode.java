@@ -30,7 +30,6 @@ package org.openmicroscopy.shoola.agents.util.browser;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.model.Image;
 import pojos.FileData;
 
 /** 
