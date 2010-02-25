@@ -45,7 +45,7 @@
         });
     </script>
     
-<h1 id="data">{{ eContext.breadcrumb.2 }} {{ eContext.breadcrumb.1 }}</a> {{ controller.total_items_size }} item(s)</h1>
+<h1 id="data">{{ eContext.breadcrumb.2 }} {{ eContext.breadcrumb.1 }}</a> {% if controller.day_items_size %}{{ controller.total_items_size }} item(s){% endif %}</h1>
 
 <div>
     {% if controller.day_items_size %}
@@ -53,19 +53,19 @@
     <ul id="dataTable">
         {% for i in controller.day_items %}
         {% for c in i.project %}
-            <li id="{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder16.png" %}" alt="project" title="{{ c.name }}"/>{{ c.shortName2 }} ({{ c.getDate }}) <input type="checkbox" name="project" id="{{ c.id }}"></li>
+            <li id="{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder32.png" %}" alt="project" title="{{ c.name }}"/>{{ c.shortName2 }} ({{ c.getDate }}) <input type="checkbox" name="project" id="{{ c.id }}"></li>
         {% endfor %}
         {% for c in i.dataset %}
-            <li id="{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_image16.png" %}" alt="dataset" title="{{ c.name }}"/> {{ c.shortName2 }} ({{ c.getDate }}) <input type="checkbox" name="dataset" id="{{ c.id }}"></li>
+            <li id="{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_image32.png" %}" alt="dataset" title="{{ c.name }}"/> {{ c.shortName2 }} ({{ c.getDate }}) <input type="checkbox" name="dataset" id="{{ c.id }}"></li>
         {% endfor %}
         {% for c in i.image %}
-            <li id="{{ c.id }}"><img id="{{ c.id }}" src="{% url render_thumbnail_resize 16 c.id  %}" alt="image" title="{{ c.name }}"/> {{ c.shortName2 }} ({{ c.getDate }}) <input type="checkbox" name="image" id="{{ c.id }}"></li>
+            <li id="{{ c.id }}"><img id="{{ c.id }}" src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/> {{ c.shortName2 }} ({{ c.getDate }}) <input type="checkbox" name="image" id="{{ c.id }}"></li>
         {% endfor %}
         {% for c in i.screen %}
-            <li id="{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_screen16.png" %}" alt="screen" title="{{ c.name }}"/> {{ c.shortName2 }} ({{ c.getDate }}) <input type="checkbox" name="screen" id="{{ c.id }}"></li>
+            <li id="{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_screen32.png" %}" alt="screen" title="{{ c.name }}"/> {{ c.shortName2 }} ({{ c.getDate }}) <input type="checkbox" name="screen" id="{{ c.id }}"></li>
         {% endfor %}
         {% for c in i.plate %}
-            <li id="{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_plate16.png" %}" alt="plate" title="{{ c.name }}"/> {{ c.shortName2 }} ({{ c.getDate }}) <input type="checkbox" name="plate" id="{{ c.id }}"></li>
+            <li id="{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_plate32.png" %}" alt="plate" title="{{ c.name }}"/> {{ c.shortName2 }} ({{ c.getDate }}) <input type="checkbox" name="plate" id="{{ c.id }}"></li>
         {% endfor %}
         {% endfor %}
     </ul>
@@ -76,9 +76,9 @@
     
     {% include "omeroweb/history_paging.html" %}
     
-    <div>
+    {% if controller.day_items_size %}<div>
         <p>{% trans "Legend" %}: <img src="{% url webstatic "images/folder16.png" %}" title="Project" alt="project"/> - {% trans "Project" %}; <img src="{% url webstatic "images/folder_image16.png" %}" title="Dataset" alt="dataset"/> - {% trans "Dataset" %}; <img src="{% url webstatic "images/folder_screen16.png" %}" title="Screen" alt="screen"/> - {% trans "Screen" %}; <img src="{% url webstatic "images/folder_plate16.png" %}" title="Plate" alt="plate"/> - {% trans "Plate" %};</p>
-    </div>
+    </div>{% endif %}
     
 </div>
 

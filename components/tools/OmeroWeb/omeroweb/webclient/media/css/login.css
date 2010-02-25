@@ -23,9 +23,11 @@
 #login td {
     text-align: left;
     padding: 5px ;
+    vertical-align:middle;
 }
 #login th {
     font-weight: bold;
+    vertical-align:middle;
 }
 #login form table td select {
     min-width: 200px;

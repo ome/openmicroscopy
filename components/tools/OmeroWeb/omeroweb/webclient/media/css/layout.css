@@ -87,24 +87,28 @@ table.contentWrapper {
     padding: 10px 20px 0 10px;
 }
 
-.toolbar  {
+.toolbar {
     height:20px;
     padding:5px;
     background-color:#fff;
     width: 100%; 
     border-bottom: 1px solid #bbb;
 }
-
-#buttons_right  {
-    float: right;
+.toolbar_noborder {
+    height:20px;
+    padding:5px;
+    width: 100%; 
+}
+.align_left {
+    float:left;
+}
+.align_right {
+    float:right;
     text-align: right;
 }
-
-#buttons {
-    float: left;
-    text-align: left;
+#searching {
+    padding: 10px;
 }
-
 #view_grey  {
     height:20px;
     padding:5px;
@@ -277,9 +281,9 @@ input {
     margin: 0;
     border: 1px solid #bbb;
     background-color: #fff;
-    font-size: 13px;
+    font-size: 12px;
     font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
-    color: #555;
+    color: #444;
 }
 input.button {
     border: 0;
@@ -291,6 +295,9 @@ select {
     margin: 0;
     background-color: #fff;
     border: 1px solid #bbb;
+    font-size: 12px;
+    font-family: Arial, Verdana, Lucida, Helvetica, sans-serif;
+    color: #444;
 }
 textarea {
     margin: 0;

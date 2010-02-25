@@ -462,7 +462,6 @@ def logout(request, **kwargs):
 
 
 ###########################################################################
-
 @isUserConnected
 def load_template(request, menu, **kwargs):
     request.session.modified = True

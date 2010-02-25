@@ -2,7 +2,6 @@
 {% load markup %}
 {% load custom_tags %}
 {% load wikitags %}
-
 	
     <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.selectable.js" %}"></script>
     
@@ -41,7 +40,7 @@
                 var rel = $("div#content_details").attr('rel');
                 $("div#content_details").html('<p>Loading data... please wait <img src="/webclient/static/images/tree/spinner.gif"/></p>');
                 $("div#content_details").load('/webclient/dataset/'+rel+'/?view=table');
-            });            
+            });
             
         });
         
@@ -49,11 +48,11 @@
 
 {% if manager.c_size %}
 
-    <div id="buttons_right">
-        <input id="changeView" class="button" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table">
+    <div class="toolbar_noborder">
+        <input id="changeView" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table">
     </div>
     <div class="clear"> </div>
-
+    
     <ul id="dataIcons">
         {% for c in manager.containers.images %}
         <li id="{{ c.id }}"><em>{{ c.name }}</em>

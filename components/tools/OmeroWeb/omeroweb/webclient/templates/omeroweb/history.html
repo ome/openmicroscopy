@@ -11,13 +11,7 @@
 {% endblock %}
 
 {% block jscript %}
-
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.simple.tree.js" %}"></script>    
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
-    
     <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.datepicker.js" %}"></script>
-
 {% endblock %}
 
 {% block script %}
@@ -30,39 +24,25 @@
         $(document).ready(function() 
             {
                 var h = $(window).height()-200;
-                //$("#datepicker").css('height', h+31);
                 $("div#history_calendar").css('height', h+31);
-                $("div#history_details").css('height', h+31);
+                $("div#content_details").css('height', h+31);
                 $("div#metadata_details").css('height', h+31);
                 
-                $("div#history_calendar").html('<p>{% trans "Loading calendar1... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
                 $("div#history_calendar").load('{% url load_calendar %}');
-                
-                /*$("#datepicker").datepicker({
-                    dateFormat:'yy/mm/dd',
-                    firstDay: 1,
-                    onSelect: function(dateText, inst) {
-                        $("div#history_details").html('<p>{% trans "Loading hierarchy... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                        $("div#history_details").load('/webclient/load_history/'+dateText+'/');
-                    }
-                });*/
         })
     </script>
 {% endblock %}
 
 {% block left %}
 
-<!--<div id="datepicker"></div>-->
 <div id="history_calendar" style="overflow: auto;"> </div>
 
 {% endblock %}
 
 {% block center %}
 
-<!--<div id="content_action"></div>
-<div class="clear"> </div>-->
-
-<div id="history_details" style="overflow: auto;"> </div>
+<div id="content_details" style="overflow: auto;"> </div>
 
 {% endblock %}
 

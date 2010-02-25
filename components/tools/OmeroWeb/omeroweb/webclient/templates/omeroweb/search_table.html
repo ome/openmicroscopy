@@ -1,94 +1,7 @@
-{% extends "omeroweb/base_search.html" %}
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
 {% load wikitags %}
-
-{% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/container.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/datepicker.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
-    
-{% endblock %}
-
-{% block jscript %}
-    
-    
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.datepicker.js" %}"></script>
-    
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
-{% endblock %}
-
-
-{% block script %}
-    <script type="text/javascript" src="{% url webstatic "javascript/basket.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
-        
-    <script type="text/javascript">
-        $(document).ready(function() 
-            { 
-                $('#dateperiodinput').datepicker({rangeSelect: true, firstDay: 1, dateFormat: 'yy-mm-dd', rangeSeparator: '_'});
-                $("#dataTable").tablesorter( {sortList: [[1,0]]} ); 
-                
-                {% if manager.c_size %}
-                $('table#dataTable tbody tr').quicksearch({
-                    attached: "div#view",
-                    position: "before",
-                    stripeRowClass: null,
-                    labelText: '{% trans "Filter" %}:',
-                    inputText: '...',
-                    loaderImg: '{% url webstatic "images/tree/spinner.gif" %}',
-                });
-                {% endif %}
-                
-                $("#searching, #daterange").tooltip({ 
-                    track: true, 
-                    delay: 0, 
-                    showURL: false, 
-                    opacity: 1, 
-                    fixPNG: true, 
-                    showBody: " - ", 
-                    top: -15, 
-                    left: 5 
-                });
-        })
-    </script>
-
-{% endblock %}
-
-{% block top %}
-
-<div>
-    <h1>{% trans "Searching" %}</h1>
-    <p>{% trans "Searching feature enables you to search within the images, datasets and projects stored on the server. It supports single and multiple character wildcard searches." %}</p>
-</div>
-<div class="clear"></div>
-
-<p>
-<form action="{% url search %}" method="GET">
-    <table>
-        <tr><th>{% trans "Search for" %} *:</th><td><input class="search" type="text" name="query" value="{{ manager.criteria.query }}" size="52"/>  <span id="searching" title="Searching - <small>To perform a single character wildcard search use the <b>'?'</b> symbol. The single character wildcard search looks for terms that match that with the single character replaced. To perform a multiple character wildcard search use the <b>'*'</b> symbol. <br/><br/>
-        For example, to search for <i>'text'</i> or <i>'test'</i> you can use the search: <b>'te?t'
-</b>. Multiple character wildcard searches looks for 0 or more characters. For example, to search for <i>'test'</i>, <i>'tests'</i> or <i>'tester'</i>, you can use the search: <b>'test*'</b>. You can also use the wildcard searches in the middle or the beginning of a term.</small>"><img src="{% url webstatic "images/help16.png" %}" /></span></td></tr>
-        <!--<tr><th>by date:</th><td><input type="text" id="dateinput" name="date" value="" size="15"/></td></tr>-->
-        <tr><th>{% trans "Date range" %}:</th><td><input type="text" id="dateperiodinput" name="dateperiodinput" value="{{ manager.criteria.period }}" size="25"/> <span id="daterange" title="Date range - <small>Date range feature enables you to specify the start and end time of the created data. To select the range, clink on the field and pick start date and end date on the same calendar. If you want to change the date click on the field again the pick the range.</small>"><img src="{% url webstatic "images/help16.png" %}" /></span></td></tr>
-        <tr><th>{% trans "In" %} *:</th><td>
-            <input  type="checkbox" name="images" {{ manager.criteria.images }} />{% trans "Images" %} <input type="checkbox" name="datasets" {{ manager.criteria.datasets }} />{% trans "Datasets" %}  <input type="checkbox" name="projects" {{ manager.criteria.projects }} />{% trans "Projects" %} <input  type="checkbox" name="plates" {{ manager.criteria.plates }} />{% trans "Plates" %} <input  type="checkbox" name="screens" {{ manager.criteria.screens }} />{% trans "Screens" %}
-        </td></tr>
-    </table>
-    <input type="hidden" name="view" value="{{ nav.view }}" />
-    <input type="submit" value="Search" /> <input type="button" value="Back" onClick="history.back()" />
-</form>
-</p>
-<div class="separate30"></div>
-
-{% endblock %}
-
-{% block left %}
-<!--content-->
 
 <div>
     {% if manager.c_size %}
@@ -96,15 +9,7 @@
     {% else %}
         <h1>{% trans "No items" %}:</h1>
     {% endif %}
-    <div class="clear"> </div>
     
-    <div> 
-        | <a href="{% url search %}?view=table{{ manager.url }}"><img src="{% url webstatic "images/view_detailed16.png" %}" alt="details" title="details"/></a> <a href="{% url search %}?view=icon{{ manager.url }}"><img src="{% url webstatic "images/view_icon16.png" %}" alt="icon" title="icon"/></a> |
-        <input id="copyToClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy to clipboard"> 
-        | <input id="addToBasket" class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket">
-        | <a href="{% url load_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a>
-    </div>
-    <div class="clear"> </div>
     
     {% if manager.url %}
     <div class="content">
@@ -114,12 +19,3 @@
     {% endif %}
     
 </div>
-
-{% endblock %}
-
-{% block right %}
-
-<iframe width="100%" height="680" name="metadata_details"></iframe>
-
-{% endblock %}
-

@@ -136,6 +136,20 @@ class OmeroWebObjectWrapper (object):
             return True
         return False
     
+    def warpName(self):
+        try: 
+            l = len(self.name) 
+            if l < 27: 
+                return self.name 
+            elif l >= 27: 
+                splited = [] 
+                for v in range(0,len(self.name),27): 
+                    splited.append(self.name[v:v+27]+"\n") 
+                return "".join(splited) 
+        except: 
+            logger.info(traceback.format_exc()) 
+            return self.name
+        
     def shortName(self):
         try:
             name = self._obj.name.val
@@ -694,9 +708,6 @@ class ShareWrapper (OmeroWebObjectWrapper, omero.gateway.BlitzObjectWrapper):
             return True
         else:
             return False
-    
-    def getOwnerAsExperimetner(self):
-        return omero.gateway.ExperimenterWrapper(self, self.owner)
     
     def getShareOwnerFullName(self):
         try:

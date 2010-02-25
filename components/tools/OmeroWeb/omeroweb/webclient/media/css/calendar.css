@@ -1,3 +1,10 @@
+.calendar input {
+    border: 0;
+    background-color: transparent;
+    color: #1b7bc7;
+    font-weight: bold;
+}
+
 .calendar {
     padding: 10px;
 }
@@ -10,7 +17,7 @@
 	height: 70px;
 	vertical-align: top;
 	width: 14.29%;
-	background-color: #f5f5f5;
+	background-color: #f3f3f3;
 }
 .calendar td.not_calendar_day {
 	background-color: #fff;
@@ -19,6 +26,7 @@
 	padding: 2px;
 	text-align: right;
 	background-color: #fff;
+	border: 1px solid #f3f3f3;
 }
 .calendar_items{
 	margin: 5px;
@@ -27,13 +35,13 @@
 	font-weight: normal;
 	border: 0px;
 	color: #555;
-	background-color: #f5f5f5;
+	background-color: #f3f3f3;
 	-moz-border-radius-topleft: 5px;
 	-moz-border-radius-topright: 5px;
 }
 .calendar th.calendar_day {
 	font-weight: bold;
-	background-color: #999;
+	background-color: #bbb;
 }
 .calendar_numerical_day a {
     font-weight: bold;
