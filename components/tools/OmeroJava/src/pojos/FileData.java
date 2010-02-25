@@ -28,6 +28,9 @@ import java.io.File;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.RTime;
+import omero.model.Image;
+import omero.model.IObject;
 import omero.model.OriginalFile;
 
 /** 
@@ -53,29 +56,40 @@ public class FileData
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param oFile The file to store.
+	 * @param object The object to store.
 	 */
-	public FileData(OriginalFile oFile)
+	public FileData(IObject object)
 	{
-		setValue(oFile);
+		if (!(object instanceof OriginalFile || object instanceof Image))
+			throw new IllegalArgumentException("File not supported.");
+		setValue(object);
 		String path = null;
-		if (oFile != null) path = oFile.getName().getValue();
+		if (object != null) {
+			if (object instanceof OriginalFile) {
+				path = ((OriginalFile) object).getName().getValue();
+			} else if (object instanceof Image) {
+				path = ((Image) object).getName().getValue();
+			}
+			
+		}
 		file = new File(path);
 	}
 	
 	/**
 	 * Sets the registered file.
 	 * 
-	 * @param oFile The file to set.
+	 * @param object The object to store.
 	 */
-	public void setRegisteredFile(OriginalFile oFile)
+	public void setRegisteredFile(IObject object)
 	{
-		if (oFile == null) return;
-		String v = getAbsolutePath();
+		if (object == null) return;
+		if (!(object instanceof OriginalFile || object instanceof Image))
+			throw new IllegalArgumentException("File not supported.");
+		//String v = getAbsolutePath();
 		//String path = oFile.getName().getValue();
 			
 		//if (!v.equals(path)) return;
-		setValue(oFile);
+		setValue(object);
 	}
 	
 	/**
@@ -94,15 +108,34 @@ public class FileData
 	public boolean isHidden() { return file.isHidden(); }
 	
 	/**
+	 * Returns <code>true</code> if the file is an image, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isImage()
+	{
+		IObject o = asIObject();
+		return (o instanceof Image);
+	}
+	
+	/**
 	 * Returns when the file was last modified.
 	 * 
 	 * @return See above.
 	 */
 	public long lastModified()
 	{
-		OriginalFile of = (OriginalFile) asIObject();
-		if (of == null) return -1;
-		return of.getCtime().getValue();
+		IObject o = asIObject();
+		if (o == null) return -1;
+		if (o instanceof OriginalFile) {
+			return ((OriginalFile) o).getCtime().getValue();
+		} else if (o instanceof Image) {
+			RTime time = ((Image) o).getAcquisitionDate();
+	    	if (time == null) return -1;
+	    	return time.getValue();
+		}
+		return -1;
 	}
 	
 	/**
