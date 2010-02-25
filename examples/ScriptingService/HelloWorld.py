@@ -60,10 +60,10 @@ if __name__ == "__main__":
 		print "Hello World"					
 		print parameterMap["message"]
 	else:
-		# print statments (std.err) will go into one file on the server (E.g. /OMERO/Files/001) 
+		# print statments (std.out), if any, will go into one file on the server (E.g. /OMERO/Files/001) 
 		print "No message parameter"	
 		
-		# Exceptions (std.err) will go in another file on the server (E.g. /OMERO/Files/002) 
+		# Exceptions (std.err), if any, will go in another file on the server (E.g. /OMERO/Files/002) 
 		raise Exception("message parameter was not in the argument list")	
 		
 	
