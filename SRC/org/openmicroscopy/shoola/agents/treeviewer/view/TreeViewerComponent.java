@@ -589,8 +589,11 @@ class TreeViewerComponent
 			model.setSelectedBrowser(browser);
 			if (browser != null) {
 				browser.activate();
-				if (browser.getBrowserType() == Browser.ADMIN_EXPLORER)
-					model.getMetadataViewer().setRootObject(null);
+				if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
+					ExperimenterData exp = model.getUserDetails();
+					model.getMetadataViewer().setRootObject(null, exp.getId());
+				}
+					
 			}
 			removeEditor();
 			model.getMetadataViewer().setSelectionMode(false);
@@ -687,7 +690,8 @@ class TreeViewerComponent
 			"invoked in the DISCARDED, SAVE state.");
 		}
 		view.removeAllFromWorkingPane();
-		model.getMetadataViewer().setRootObject(null);
+		ExperimenterData exp = model.getUserDetails();
+		model.getMetadataViewer().setRootObject(null, exp.getId());
 		firePropertyChange(REMOVE_EDITOR_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 	}
 
@@ -758,7 +762,8 @@ class TreeViewerComponent
         	 single = false;
         	 TreeImageTimeSet time = (TreeImageTimeSet) display;
         	 if (!time.containsImages()) {
-        		 metadata.setRootObject(null);
+        		 ExperimenterData exp = model.getUserDetails();
+        		 metadata.setRootObject(null, exp.getId());
         		 return;
         	 }
         } 
@@ -778,12 +783,19 @@ class TreeViewerComponent
         		  }
         		  if (l.size() > 0)
         		  	metadata.setRelatedNodes(l);
-        	  } else metadata.setRootObject(object);
+        	  } else {
+        		  ExperimenterData exp = browser.getNodeOwner(display);
+        		  if (exp == null) exp = model.getUserDetails();
+        		  metadata.setRootObject(object, exp.getId());
+        	  }
         	  if (!model.isFullScreen()) {
         		  showDataBrowser(object, display, false);
         		  browse(display, true);
         	  } else showDataBrowser(object, display, true);
-        } else metadata.setRootObject(null);
+        } else {
+        	ExperimenterData exp = model.getUserDetails();
+        	metadata.setRootObject(null, exp.getId());
+        }
 	}
 
 	/**
@@ -843,7 +855,14 @@ class TreeViewerComponent
 		mv.setParentRootObject(parent);
 		if (size > 0) {
 			mv.setRelatedNodes(siblings);
-		} else mv.setRootObject(selected);
+		} else {
+			Browser browser = model.getSelectedBrowser();
+			ExperimenterData exp = null;
+			TreeImageDisplay last = browser.getLastSelectedDisplay();
+			if (last != null) exp = browser.getNodeOwner(last);
+			if (exp == null) exp = model.getUserDetails();
+			mv.setRootObject(selected, exp.getId());
+		}
 		model.getDataViewer().setApplications(
 				TreeViewerFactory.getApplications(
 						model.getObjectMimeType(selected)));
@@ -884,8 +903,13 @@ class TreeViewerComponent
 			if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
 			else mv.clearDataToSave();
 		}
+		Browser browser = model.getSelectedBrowser();
+		ExperimenterData exp = null;
+		TreeImageDisplay last = browser.getLastSelectedDisplay();
+		if (last != null) exp = browser.getNodeOwner(last);
+		if (exp == null) exp = model.getUserDetails();
 		mv.setSelectionMode(true);
-		mv.setRootObject(selected);
+		mv.setRootObject(selected, exp.getId());
 		mv.setParentRootObject(parent);
 	}
 	
@@ -1839,16 +1863,23 @@ class TreeViewerComponent
 		boolean multi = (Boolean) multiSelection;
 
 		browser.onDeselectedNode(parent, selected, (Boolean) multiSelection);
+		ExperimenterData exp = null;
+		TreeImageDisplay last = browser.getLastSelectedDisplay();
+		if (last != null) exp = browser.getNodeOwner(last);
+		if (exp == null) exp = model.getUserDetails();
 		if (!multi) {
-			mv.setRootObject(selected);
+			mv.setRootObject(selected, exp.getId());
 			mv.setSelectionMode(true);
 		} else {
 			TreeImageDisplay[] nodes = browser.getSelectedDisplays();
 			
 			if (nodes != null && nodes.length == 1) {
-				mv.setRootObject(nodes[0].getUserObject());
+				mv.setRootObject(nodes[0].getUserObject(), exp.getId());
 				mv.setSelectionMode(true);
-			} else mv.setRootObject(null);
+			} else {
+				exp = model.getUserDetails();
+				mv.setRootObject(null, exp.getId());
+			}
 		}
 	}
 
@@ -1920,7 +1951,8 @@ class TreeViewerComponent
 				onSelectedDisplay();
 				break;
 			case SEARCH_MODE:
-				model.getMetadataViewer().setRootObject(null);
+				ExperimenterData exp = model.getUserDetails();
+				model.getMetadataViewer().setRootObject(null, exp.getId());
 				if (db != null) {
 					view.displayBrowser(db);
 					model.setDataViewer(db);
@@ -1937,7 +1969,10 @@ class TreeViewerComponent
 	{
 		Collection<DataObject> results = (Collection<DataObject>) result;
 		MetadataViewer metadata = model.getMetadataViewer();
-		if (metadata != null) metadata.setRootObject(null);
+		if (metadata != null) {
+			ExperimenterData exp = model.getUserDetails();
+			metadata.setRootObject(null, exp.getId());
+		}
 		if (results == null || results.size() == 0) {
 			//UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
         	//un.notifyInfo("Search", "No results found.");
@@ -2030,7 +2065,8 @@ class TreeViewerComponent
 		DataBrowserFactory.discardAll();
 	    view.removeAllFromWorkingPane();
         if (b != null) b.refreshTree();
-        model.getMetadataViewer().setRootObject(null);
+        ExperimenterData exp = model.getUserDetails();
+        model.getMetadataViewer().setRootObject(null, exp.getId());
 	}
 
 	/**
@@ -2255,7 +2291,8 @@ class TreeViewerComponent
 				model.getSelectedBrowser().removeTreeNodes(toRemove);
 				view.removeAllFromWorkingPane();
 				DataBrowserFactory.discardAll();
-				model.getMetadataViewer().setRootObject(null);
+				ExperimenterData exp = model.getUserDetails();
+				model.getMetadataViewer().setRootObject(null, exp.getId());
 				model.fireObjectsDeletion(l);
 				fireStateChange();
 			}
@@ -2299,7 +2336,8 @@ class TreeViewerComponent
 		}
 		*/
 		//onSelectedDisplay();
-		model.getMetadataViewer().setRootObject(null);
+		ExperimenterData exp = model.getUserDetails();
+		model.getMetadataViewer().setRootObject(null, exp.getId());
 		setStatus(false, "", true);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}

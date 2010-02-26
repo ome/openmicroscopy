@@ -252,9 +252,10 @@ public interface MetadataViewer
 	/**
 	 * Sets the root of the metadata browser.
 	 * 
-	 * @param root The objec to set.
+	 * @param root The object to set.
+	 * @param userID The id of the user.
 	 */
-	public void setRootObject(Object root);
+	public void setRootObject(Object root, long userID);
 
 	/**
 	 * Loads the parent containers of the object hosted by the passed node.
@@ -549,4 +550,12 @@ public interface MetadataViewer
 	 */
 	public void updateAdminObject(Object data);
 
+	/**
+	 * Returns the id of the possible owner. This should only be used to 
+	 * handle <code>FileData</code> objects.
+	 * 
+	 * @return See above.
+	 */
+	long getUserID();
+	
 }

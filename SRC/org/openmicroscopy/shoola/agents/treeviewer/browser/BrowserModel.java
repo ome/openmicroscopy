@@ -141,7 +141,7 @@ class BrowserModel
     private Map<String, Object>		importedImages;
     
     /** The repositories to set. */
-    private FSFileSystemView		systemView;
+    private Map<Long, FSFileSystemView>		views;
     
     /** Reference to the parent. */
     private TreeViewer          	parent;
@@ -764,16 +764,18 @@ class BrowserModel
 	 */
 	void setRepositories(FSFileSystemView systemView)
 	{
-		this.systemView = systemView;
+		if (views == null) views = new HashMap<Long, FSFileSystemView>();
+		views.put(systemView.getUserID(), systemView);
 		state = Browser.READY;
 	}
 	
 	/**
 	 * Returns the repositories.
 	 * 
+	 * @param userID The id of the user.
 	 * @return See above.
 	 */
-	FSFileSystemView getRepositories() { return systemView; }
+	FSFileSystemView getRepositories(long userID) { return views.get(userID); }
 	
 	/**
 	 * Adds the passed images to the collection of imported images.
@@ -880,12 +882,13 @@ class BrowserModel
 	/**
 	 * Returns the object within the specified directory.
 	 * 
+	 * @param userID The id of the user the directory structure is for.
 	 * @param dir The directory to handle.
 	 * @return See above.
 	 */
-	DataObject[] getFilesData(FileData dir)
+	DataObject[] getFilesData(long userID, FileData dir)
 	{
-		FSFileSystemView fs = getRepositories();
+		FSFileSystemView fs = getRepositories(userID);
 		DataObject[] files = null;
 		try {
 			files = fs.getFiles(dir, false);

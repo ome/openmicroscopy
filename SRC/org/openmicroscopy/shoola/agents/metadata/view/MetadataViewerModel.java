@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.agents.metadata.FretAnalyser;
 import org.openmicroscopy.shoola.agents.metadata.GroupEditor;
 import org.openmicroscopy.shoola.agents.metadata.MetadataLoader;
 import org.openmicroscopy.shoola.agents.metadata.ContainersLoader;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.StructuredDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.browser.BrowserFactory;
@@ -126,6 +127,12 @@ class MetadataViewerModel
 	 */
 	private int										index;
 	
+	/** 
+	 * The id of the possible owner, this should only be used
+	 * to handle <code>FileData</code> objects.
+	 */
+	private long									userID;
+	
 	/**
 	 * Creates a new object and sets its state to {@link MetadataViewer#NEW}.
 	 * 
@@ -149,6 +156,7 @@ class MetadataViewerModel
 		data = null;
 		dataType = null;
 		singleMode = true;
+		userID = MetadataViewerAgent.getUserDetails().getId();
 	}
 	
 	/**
@@ -163,6 +171,14 @@ class MetadataViewerModel
 		browser = BrowserFactory.createBrowser(component, refObject);
 		editor = EditorFactory.createEditor(component, refObject, browser);
 	}
+	
+	/**
+	 * Returns the id of the user. Only use to handle <code>FileData</code>
+	 * objects.
+	 * 
+	 * @return See above.
+	 */
+	long getUserID() { return userID; }
 	
 	/**
 	 * Sets the data type, this value is only used for batch annotation.

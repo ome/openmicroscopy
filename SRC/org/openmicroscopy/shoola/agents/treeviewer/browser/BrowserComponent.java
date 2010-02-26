@@ -941,15 +941,21 @@ class BrowserComponent
         		if (uo instanceof FileData) {
         			FileData dir = (FileData) uo;
         			if (dir.isDirectory() && !dir.isHidden()) {
-        				DataObject[] files = model.getFilesData(dir);
+        				TreeImageDisplay expNode = 
+        					BrowserFactory.getDataOwner(n);
+        				if (expNode == null) return;  
+        				Object ho = expNode.getUserObject();
+        				if (!(ho instanceof ExperimenterData)) return;
+        				long expID = ((ExperimenterData) ho).getId();
+        				DataObject[] files = model.getFilesData(expID, dir);
         				if (files != null) {
         					List<DataObject> list = new ArrayList<DataObject>();
         					for (int i = 0; i < files.length; i++) {
 								list.add(files[i]);
 							}
         					model.setState(LOADING_LEAVES);
-        					//setLeaves(list, (TreeImageSet) n, 
-        					//		(TreeImageSet) exp);
+        					setLeaves(list, (TreeImageSet) n, 
+        							(TreeImageSet) exp);
         				}
         			}
         			return;
@@ -1226,28 +1232,6 @@ class BrowserComponent
 		int browserType = model.getBrowserType();
 		if (browserType != IMAGES_EXPLORER && browserType != FILES_EXPLORER) 
 			return;
-		/*
-		int state = model.getState();
-		switch (state) {
-			case COUNTING_ITEMS:
-				model.setExperimenterCount(expNode, index);
-				if (index != -1 && v != null) {
-					view.setCountValues(expNode, index, v);
-				}
-				if (model.getState() == READY) fireStateChange();
-	        case READY:
-	        	model.setExperimenterCount(expNode, index);
-	        	if (index != -1 && v != null) {
-					view.setCountValues(expNode, index, v);
-				}
-	            view.getTreeDisplay().repaint();
-	            break;
-	        default:
-	            throw new IllegalStateException(
-	                    "This method can only be invoked in the " +
-	                    "COUNTING_ITEMS or READY state.");
-		}
-		*/
 		boolean b = model.setExperimenterCount(expNode, index);
 		if (index != -1 && v != null) {
 			view.setCountValues(expNode, index, v);
@@ -1396,19 +1380,7 @@ class BrowserComponent
 					}
 				}
 				break;
-	
-			default:
-				break;
 		}
-		
-			
-		
-		/*
-		if (model.getBrowserType() != FILE_SYSTEM_EXPLORER) return;
-		Iterator<TreeImageDisplay> i = nodes.iterator();
-		while (i.hasNext()) 
-			view.loadFile(i.next());
-			*/
 	}
 	
 	/**
@@ -1592,7 +1564,13 @@ class BrowserComponent
 			throw new IllegalArgumentException("No file to register.");
 		if (model.getBrowserType() != FILE_SYSTEM_EXPLORER) return false;
 		try {
-			model.getRepositories().register(file);
+			TreeImageDisplay exp = BrowserFactory.getDataOwner(
+					model.getLastSelectedDisplay());
+			if (exp == null) return false;
+			Object ho  = exp.getUserObject();
+			if (!(ho instanceof ExperimenterData)) return false;
+			long id = ((ExperimenterData) ho).getId();
+			model.getRepositories(id).register(file);
 		} catch (FSAccessException e) {
 			LogMessage msg = new LogMessage();
 			msg.print("Cannot register the object.");
@@ -1621,5 +1599,5 @@ class BrowserComponent
 		model.getParentModel().setStatus(false, "", true);
 		fireStateChange();
 	}
-	
+
 }

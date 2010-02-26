@@ -22,19 +22,19 @@
  */
 package org.openmicroscopy.shoola.agents.util;
 
-import java.util.List;
-
-import pojos.AnnotationData;
-import pojos.DataObject;
 
 //Java imports
+import java.util.List;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.AnnotationData;
+import pojos.DataObject;
 
 /** 
- * 
+ * Utility classes storing elements required to register and updates a file.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,12 +48,37 @@ import pojos.DataObject;
  */
 public class FileDataRegistration 
 {
+	
+	/** The collection of annotations to add to the element when registered. */
 	private List<AnnotationData> toAdd;
+	
+	/** 
+	 * The collection of annotations to remove from the element 
+	 * when unregistered. 
+	 */
 	private List<AnnotationData> toRemove;
+	
+	/**  The collection of annotations to delete when unregistered. */
 	private List<AnnotationData> toDelete;
+	
+	/** The collection of metadata to save. */
 	private List<Object> metadata;
+	
+	/** The object to register. */
 	private DataObject data;
 	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param toAdd     The collection of annotations to add to the element when 
+	 * 					registered.
+	 * @param toRemove	The collection of annotations to remove from the element 
+	 * 					when unregistered. 
+	 * @param toDelete	The collection of annotations to delete when 
+	 * 					unregistered.
+	 * @param metadata  The metadata to save.
+	 * @param data		The object to register or un-register.
+	 */
 	public FileDataRegistration(List<AnnotationData> toAdd, 
 				List<AnnotationData> toRemove, List<AnnotationData> toDelete,
 				List<Object> metadata,
@@ -66,24 +91,41 @@ public class FileDataRegistration
 		this.data = data;
 	}
 
-	public List<AnnotationData> getToAdd() {
-		return toAdd;
-	}
+	/**
+	 * Returns the collection of annotations to add to the element when 
+	 * 					registered.
+	 * 
+	 * @return See above
+	 */
+	public List<AnnotationData> getToAdd() { return toAdd; }
 
-	public List<AnnotationData> getToRemove() {
-		return toRemove;
-	}
+	/**
+	 * Returns the collection of annotations to remove from the element 
+	 * when unregistered. 
+	 * 
+	 * @return See above
+	 */
+	public List<AnnotationData> getToRemove() { return toRemove; }
 
-	public List<AnnotationData> getToDelete() {
-		return toDelete;
-	}
+	/**
+	 * Returns the collection of annotations to delete when unregistered.
+	 * 
+	 * @return See above
+	 */
+	public List<AnnotationData> getToDelete() { return toDelete; }
 
-	public List<Object> getMetadata() {
-		return metadata;
-	}
+	/**
+	 * Returns the metadata to save.
+	 * 
+	 * @return See above
+	 */
+	public List<Object> getMetadata() { return metadata; }
 
-	public DataObject getData() {
-		return data;
-	}
+	/**
+	 * Returns the object to register or un-register.
+	 * 
+	 * @return See above
+	 */
+	public DataObject getData() { return data; }
 	
 }

@@ -65,6 +65,9 @@ public class FSFileSystemView
 	/** Reference to the repositories. */
 	private Map<FileData, RepositoryPrx> repositories;
 	
+	/** The id of the user the directory structure if for. */ 
+	private long userID;
+	
 	/**
 	 * Returns the repository corresponding to the passed file.
 	 * 
@@ -93,15 +96,24 @@ public class FSFileSystemView
 	/** 
 	 * Creates a new instance.
 	 * 
+	 * @param userID	   The id of the user the directory structure if for.
 	 * @param repositories The repositories. Mustn't be <code>null</code>.
 	 */
-	FSFileSystemView(Map<FileData, RepositoryPrx> repositories)
+	FSFileSystemView(long userID, Map<FileData, RepositoryPrx> repositories)
 	{
 		if (repositories == null)
 			throw new IllegalArgumentException("No repositories specified.");
+		this.userID = userID;
 		this.repositories = repositories;
 	}
 
+	/**
+	 * Returns the id of the user the directory structure is for.
+	 * 
+	 * @return See above.
+	 */
+	public long getUserID() { return userID; }
+	
     /**
 	 * Overridden to handle <code>FileData</code>.
 	 * @see FileSystemView#isRoot(FileData)

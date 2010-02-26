@@ -612,7 +612,9 @@ class EditorModel
 		if (!(object instanceof DataObject)) return false;
 		if (object instanceof FileData) {
 			FileData f = (FileData) object;
-			if (f.getId() < 0) return true;
+			if (f.getId() < 0) {
+				return userID == getUserID();
+			}
 		}
 		return EditorUtil.isUserOwner(object, userID);
 	}
@@ -2146,7 +2148,7 @@ class EditorModel
 	}
 	
 	/** Refreshes the view. */
-	void refresh() { parent.setRootObject(getRefObject()); }
+	void refresh() { parent.setRootObject(getRefObject(), getUserID()); }
 	
 	/**
 	 * Sets the collection of scripts.
@@ -2170,6 +2172,13 @@ class EditorModel
 		loaders.add(loader);
 	}
 	
+	/**
+	 * Returns the id of the possible owner. This should only be used to 
+	 * handle <code>FileData</code> objects.
+	 * 
+	 * @return See above.
+	 */
+	long getUserID() { return parent.getUserID(); }
 	
 }
 	

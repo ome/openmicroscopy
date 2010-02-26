@@ -1855,7 +1855,7 @@ class OMEROGateway
 				repositories.put(f, proxy);
 				index++;
 			}
-			view = new FSFileSystemView(repositories);
+			view = new FSFileSystemView(userID, repositories);
 		} catch (Throwable e) {
 			handleException(e, "Cannot load the repositories");
 		}

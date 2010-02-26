@@ -511,7 +511,12 @@ class BrowserUI
     {
     	List<TreeImageNode> leaves = new ArrayList<TreeImageNode>();
     	FileData dir = (FileData) dirSet.getUserObject();
-    	DataObject[] files = model.getFilesData(dir);
+    	TreeImageDisplay expNode = BrowserFactory.getDataOwner(dirSet);
+    	if (expNode == null) return leaves;
+    	Object ho = expNode.getUserObject();
+    	if (!(ho instanceof ExperimenterData)) return leaves;
+    	long expID = ((ExperimenterData) ho).getId();
+    	DataObject[] files = model.getFilesData(expID, dir);
     	if (files != null && files.length > 0) {
     		DataObject object;
     		FileData file;
@@ -543,12 +548,15 @@ class BrowserUI
     /**
      * Creates the file system view.
      * 
+     * @param id The id of the user the directory is for.
      * @return See above.
      */
-    private Set<TreeImageDisplay> createFileSystemExplorer()
+    private Set<TreeImageDisplay> createFileSystemExplorer(
+    		TreeImageDisplay expNode)
     {
     	Set<TreeImageDisplay> results = new HashSet<TreeImageDisplay>();
-    	FSFileSystemView fs = model.getRepositories();
+    	ExperimenterData exp = (ExperimenterData) expNode.getUserObject();
+    	FSFileSystemView fs = model.getRepositories(exp.getId());
     	if (fs == null) return results;
     	FileData file;
     	TreeImageSet display;
@@ -558,12 +566,8 @@ class BrowserUI
 			if (file.isDirectory() && !file.isHidden()) {
 				display = new TreeImageSet(file);
 				display.setChildrenLoaded(true);
+				expNode.addChildDisplay(display);
 				transformDirectory(display);
-				/*
-				buildTreeNode(display, prepareSortedList(
-						sorter.sort(display.getChildrenDisplay())), 
-                        (DefaultTreeModel) treeDisplay.getModel());
-                        */
 				results.add(display);
     		}
 		}
@@ -1703,7 +1707,7 @@ class BrowserUI
 	{
 		if (model.getBrowserType() != Browser.FILE_SYSTEM_EXPLORER) 
 			return;
-		setExperimenterData(createFileSystemExplorer(), expNode);
+		setExperimenterData(createFileSystemExplorer(expNode), expNode);
 	}
 
 	/**

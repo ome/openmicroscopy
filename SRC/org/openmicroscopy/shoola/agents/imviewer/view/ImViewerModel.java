@@ -363,7 +363,7 @@ class ImViewerModel
 	{
 		metadataViewer = MetadataViewerFactory.getViewer("", 
 				MetadataViewer.RND_SPECIFIC);
-		metadataViewer.setRootObject(image);
+		metadataViewer.setRootObject(image, metadataViewer.getUserID());
 	}
 	
 	/**

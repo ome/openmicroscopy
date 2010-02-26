@@ -221,7 +221,7 @@ class MetadataViewerComponent
 		switch (model.getState()) {
 			case NEW:
 				model.getEditor().setChannelsData(channelData, false);
-				setRootObject(model.getRefObject());
+				setRootObject(model.getRefObject(), model.getUserID());
 				break;
 			case DISCARDED:
 				throw new IllegalStateException(
@@ -345,9 +345,9 @@ class MetadataViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#setRootObject(Object)
+	 * @see MetadataViewer#setRootObject(Object, long)
 	 */
-	public void setRootObject(Object root)
+	public void setRootObject(Object root, long userID)
 	{
 		if (root == null) root = "";
 		if (root instanceof WellSampleData) {
@@ -506,7 +506,7 @@ class MetadataViewerComponent
 		DataObject dataObject = null;
 		if (data.size() == 1) dataObject = data.get(0);
 		if (dataObject != null && model.isSameObject(dataObject)) {
-			setRootObject(model.getRefObject());
+			setRootObject(model.getRefObject(), model.getUserID());
 			firePropertyChange(ON_DATA_SAVE_PROPERTY, null, dataObject);
 		} else
 			firePropertyChange(ON_DATA_SAVE_PROPERTY, null, data);
@@ -540,7 +540,7 @@ class MetadataViewerComponent
 	 */
 	public void setRelatedNodes(List nodes)
 	{
-		setRootObject(model.getRefObject());
+		setRootObject(model.getRefObject(), model.getUserID());
 		model.setRelatedNodes(nodes);
 	}
 
@@ -552,7 +552,7 @@ class MetadataViewerComponent
 	{
 		if (data instanceof ExperimenterData || data instanceof GroupData) {
 			firePropertyChange(ADMIN_UPDATED_PROPERTY, null, data);
-			setRootObject(data);
+			setRootObject(data, model.getUserID());
 		}
 	}
 
@@ -962,4 +962,11 @@ class MetadataViewerComponent
 			model.fireAdminSaving((AdminObject) data);
 	}
 
+	/**
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#getUserID()
+	 */
+	public long getUserID() { return model.getUserID(); }
+	
+	
 }
