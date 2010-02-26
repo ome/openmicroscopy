@@ -1,5 +1,5 @@
 """
- examples/ScriptingService/runHelloWorld.py
+ examples/ScriptingService/uploadScript.py
 
 -----------------------------------------------------------------------------
   Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -20,7 +20,7 @@
 
 ------------------------------------------------------------------------------
 
-This script demonstrates how to use the scripting service to call a script on
+This script demonstrates how to use the scripting service to upload a script to
 an OMERO server. 
 	
 @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
@@ -38,42 +38,41 @@ an OMERO server.
 import omero
 import getopt, sys, os, subprocess
 import omero_api_IScript_ice
-from omero.rtypes import *
 
-def run(commandArgs):
-
-	# log on to the server with values from the command arguments, creating a client and session
+def uploadScript(commandArgs):
+	
+	# log on to the server, create client and session
 	client = omero.client(commandArgs["host"])
 	session = client.createSession(commandArgs["username"], commandArgs["password"]);
+	
+	# get the scripting service and upload the script
 	scriptService = session.getScriptService();
-
-	# make a map of all the parameters we want to pass to the script
-	# keys are strings. Values must be omero.rtypes such as rlong, rbool, rlist. 
-	map = {
-		"message": omero.rtypes.rstring("Sending this message to the server!"),
-	}  
-	
-	# make the parameter map into an rmap
-	scriptId = commandArgs["scriptId"]
-	argMap = omero.rtypes.rmap(map)
-	
-	# runs the script
-	scriptService.runScript(scriptId, map)
-	
+	file = open(commandArgs["script"])
+	script = file.read();
+	file.close();
+	print script
+	# prints the script ID to the command line. This can be used to run the script. E.g. see runHelloWorld.py
+	print scriptService.uploadScript(script)
 	
 def readCommandArgs():
 	"""
 	Read the arguments from the command line and put them in a map
+	Arguments are:
+	"host"			The server location: E.g. omero.openmicroscopy.org.uk
+	"username"		Username
+	"password"		Password
+	"script"		The path/name of the script. E.g. /Examples/HelloWorld.py
 	
-	@return 	A map of the command args, with keys: "host", "username", "password", "scriptId"
+	@return 	A map of the command args, with keys: "host", "username", "password", "script"
 	"""
+	
 	host = ""
 	username = ""
 	password = ""
 	script = ""
 	
 	def usage():
-		print "Usage: runscript --host host --username username --password password --script script"
+		print "Usage: uploadscript --host host --username username --password password --script script"
 	try:
 		opts, args = getopt.getopt(sys.argv[1:] ,"h:u:p:s:", ["host=", "username=", "password=","script="])
 	except getopt.GetoptError, err:          
@@ -88,9 +87,9 @@ def readCommandArgs():
 			password = arg;	
 		elif opt in ("-s","--script"): 
 			script = arg;	
-	returnMap = {"host":host, "username":username, "password":password, "scriptId":long(script)}				
+	returnMap = {"host":host, "username":username, "password":password, "script":script}				
 	return returnMap
 
 if __name__ == "__main__":	    
 	commandArgs = readCommandArgs();
-	run(commandArgs);
+	uploadScript(commandArgs);
