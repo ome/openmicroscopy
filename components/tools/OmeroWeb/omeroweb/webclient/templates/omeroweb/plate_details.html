@@ -11,11 +11,22 @@
         $(document).ready(function(){
             
         });
+        
+        function changeIndex(index) {
+            if(index>0) {
+                var rel = $("div#content_details").attr('rel');
+                $("div#content_details").html('<p>Loading data... please wait <img src="/webclient/static/images/tree/spinner.gif"/></p>');
+                $("div#content_details").load('{{ url }}?view={{ nav.view }}&index='+index);
+                return false;
+            } else {
+                alert('Attribute error: index out of range');
+            }
+        }
     </script>
         
 
 <!--content-->
-<div id="index">
+<div id="index">{{url}}
     <form action="" method="POST">
     <table>
       <tbody>

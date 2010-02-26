@@ -37,6 +37,8 @@ import logging
 
 from time import time
 
+from omero_version import omero_version
+
 from django.conf import settings
 from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.sessions.models import Session
@@ -285,7 +287,7 @@ def login(request):
             except:
                 logger.debug(traceback.format_exc())
                 form = LoginForm()
-        context = {'error':error, 'form':form}
+        context = {'version': omero_version, 'error':error, 'form':form}
         t = template_loader.get_template(template)
         c = Context(request, context)
         rsp = t.render(c)

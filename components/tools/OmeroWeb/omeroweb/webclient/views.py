@@ -41,6 +41,8 @@ import traceback
 from time import time
 from thread import start_new_thread
 
+from omero_version import omero_version
+
 from django.conf import settings
 from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.sessions.models import Session
@@ -175,9 +177,9 @@ def sessionHelper(request):
     if request.session.get('shares') is None:
         request.session['shares'] = dict()
     if request.session.get('imageInBasket') is None:
-        request.session['imageInBasket'] = list()
+        request.session['imageInBasket'] = set()
     #if request.session.get('datasetInBasket') is None:
-    #    request.session['datasetInBasket'] = list()
+    #    request.session['datasetInBasket'] = set()
     if request.session.get('nav') is None:
         if request.session.get('server') is not None:
             blitz = Gateway.objects.get(pk=request.session.get('server'))
@@ -270,9 +272,9 @@ def login(request):
             except:
                 form = LoginForm()
         if url is not None:
-            context = {'url':url, 'error':error, 'form':form}
+            context = {"version": omero_version, 'url':url, 'error':error, 'form':form}
         else:
-            context = {'error':error, 'form':form}
+            context = {"version": omero_version, 'error':error, 'form':form}
         
         t = template_loader.get_template(template)
         c = Context(request, context)
@@ -479,6 +481,15 @@ def load_template(request, menu, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
+    url = None
+    try:
+        url = kwargs["url"]
+    except:
+        logger.error(traceback.format_exc())
+    if url is None:
+        url = reverse(viewname="load_template", args=[menu])
+        
+    
     try:
         manager = BaseContainer(conn)
     except AttributeError, x:
@@ -556,7 +567,7 @@ def load_template(request, menu, **kwargs):
         request.session['experimenter'] = None
         request.session['group'] = None
         
-    context = {'nav':request.session['nav'], 'eContext':manager.eContext, 'form_active_group':form_active_group, 'form_users':form_users, 'form_mygroups':form_mygroups}
+    context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'form_active_group':form_active_group, 'form_users':form_users, 'form_mygroups':form_mygroups}
     
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -590,11 +601,18 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     
     # get url to redirect
     url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-      
+    if o1_type is None and o1_id is None:
+        args = [line for line in [o1_type, o1_id, o2_type, o2_id, o3_type, o3_id] if line is not None]
+        url = reverse(viewname="load_data", args=args)
+    else:
+        try:
+            url = kwargs["url"]
+        except:
+            logger.error(traceback.format_exc())
+        if url is None:
+            url = reverse(viewname="load_template", args=[menu])
+        
+    
     # get page    
     try:
         page = int(request.REQUEST['page'])

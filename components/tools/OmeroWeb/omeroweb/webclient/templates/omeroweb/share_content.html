@@ -29,9 +29,9 @@ var popup = function (url) {
     {% for e in share.imageInShare %}
         <li id="image-{{ e.id }}"class="product"><em>{{ e.name }}</em>
             {% if share.share.isOwned %}
-                <a href="#" onclick="return popup('{% url image_viewer e.id %}')"><img id="{{ e.id }}" class="imgzoom" src="{% url render_thumbnail e.id %}" alt="image" title="{{ e.name }}"/></a>
+                <a href="#" onclick="return openPopup('{% url image_viewer e.id %}')"><img id="{{ e.id }}" class="imgzoom" src="{% url render_thumbnail e.id %}" alt="image" title="{{ e.name }}"/></a>
             {% else %}
-                <a href="#" onclick="return popup('{% url image_viewer share.share.id e.id %}')"><img id="{{ e.id }}" class="imgzoom" src="{% url render_thumbnail e.id share.share.id %}" alt="image" title="{{ e.name }}"/></a>
+                <a href="#" onclick="return openPopup('{% url image_viewer share.share.id e.id %}')"><img id="{{ e.id }}" class="imgzoom" src="{% url render_thumbnail e.id share.share.id %}" alt="image" title="{{ e.name }}"/></a>
             {% endif %}
         </li>
     {% endfor %}

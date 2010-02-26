@@ -222,7 +222,7 @@ class WellIndexForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(WellIndexForm, self).__init__(*args, **kwargs)
         choices = [(str(i), "Field#%i" % (i+1)) for i in range(0, kwargs['initial']['range'])]
-        self.fields['index'] = forms.ChoiceField(choices=tuple(choices),  widget=forms.Select(attrs={'onchange':'window.location.href=\'?index=\'+this.options[this.selectedIndex].value'}))
+        self.fields['index'] = forms.ChoiceField(choices=tuple(choices),  widget=forms.Select(attrs={'onchange':'changeIndex(this.options[this.selectedIndex].value);'}))
         
         self.fields.keyOrder = ['index']
 

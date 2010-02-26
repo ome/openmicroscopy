@@ -40,7 +40,7 @@
                 <li class="share"><a href="{% url load_template "shares" %}" title="Share">{% trans "Share" %}</a></li>
                 <li class="userdata"><a href="{% url load_template "userdata" %}" title="Team">{% trans "Team" %}</a></li>
                 <li class="mydata"><a href="{% url load_template "mydata" %}" title="My Data">{% trans "My Data" %}</a></li>
-                <li class="home"><a href="{% url load_template %}" title="Home">{% trans "Home" %}</a></li>
+                <li class="home"><a href="{% url webindex %}" title="Home">{% trans "Home" %}</a></li>
             </ul></div>
         </div>    
         <div id="header2">{% block header %}{% endblock %}</div>
@@ -50,7 +50,7 @@
 <div class="clear"> </div>
 <div id="footer">
     <div>
-        <a href="{% url load_template %}" title="Home">{% trans "Home" %}</a> | 
+        <a href="{% url webindex %}" title="Home">{% trans "Home" %}</a> | 
         <a href="{% url basket_action %}" title="Basket">{% trans "Basket" %}</a> |  
         <a href="{% url load_template "mydata" %}" title="My Data">{% trans "My Data" %}</a> | 
         <a href="{% url load_template "userdata" %}" title="Team">{% trans "Team" %}</a> | 

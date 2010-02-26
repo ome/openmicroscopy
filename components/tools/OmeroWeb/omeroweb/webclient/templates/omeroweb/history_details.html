@@ -15,18 +15,20 @@
             		$("li.ui-selected input", this).each(function(){
             		    this.checked = true;
             		});
-            		if (l == 1) {
-            		    $("#right_panel").show();
+            		if (l == 1) {            		    
+            		    $("#toolbar").html('');
+                        $("#right_panel").show();
                         $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
             		    $('li.ui-selected img', this).each(function(){  
             		        var h = $(window).height()-169;
             		        $("div#metadata_details").html('<iframe width="100%" height="'+h+'" src="/webclient/metadata_details/'+this.alt+'/'+this.id+'/" id="metadata_details" name="metadata_details"></iframe>');
                             $('iframe#metadata_details').load();
                         });
-            		} else {
+            		} else {            		    
+            		    $("#toolbar").html('<a href="{% url load_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a>');           		    
             		    $("#right_panel").show();
             		    $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
-            		    $("div#metadata_details").html('<p>'+ l +' elements selected.</p><p><input id="copyToClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy to clipboard"> <input id="pasteFromClipboard" class="button" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste from clipboard" onclick="pasteFromClipboard(\'dataset\', \'{{ manager.dataset.id }}\', \'{{ url }}\'); return false;"> <input id="unlink" class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" value="ds-{{ manager.dataset.id }}"> | <input id="addToBasket" class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket"> | <a href="{% url load_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a></p>');
+            		    $("div#metadata_details").html('<p>'+ l +' elements selected.</p>');
             		}
             	},
             	start: function(){
@@ -34,18 +36,14 @@
             			this.checked = false;
             		});
             	}
-            });
-            
-            $("#changeView").click(function() { 
-                var rel = $("div#content_details").attr('rel');
-                $("div#content_details").html('<p>Loading data... please wait <img src="/webclient/static/images/tree/spinner.gif"/></p>');
-                $("div#content_details").load('/webclient/dataset/'+rel+'/?view=icon');
-            });
-            
+            });        
         });
     </script>
     
 <h1 id="data">{{ eContext.breadcrumb.2 }} {{ eContext.breadcrumb.1 }}</a> {% if controller.day_items_size %}{{ controller.total_items_size }} item(s){% endif %}</h1>
+
+<div id="toolbar" class="toolbar_noborder"></div>
+<div class="clear"> </div>
 
 <div>
     {% if controller.day_items_size %}
