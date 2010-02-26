@@ -398,6 +398,7 @@
             </div>
             {% endif %}
             
+            {% if form_tags %}
             <div class="extags">
                 <h1>{% trans "Use existing tag" %}:</h1>
                 <form action="#tags_tab" method="post"><input type="hidden" name="action" value="usetag" />
@@ -414,6 +415,7 @@
                 </table>
                 </form>
             </div>
+            {% endif %}
 
             <div class="clear"></div>
         </div>
@@ -453,6 +455,7 @@
             </div>
             {% endif %}
 
+            {% if form_files %}
             <div class="exfile">
                 <h1>{% trans "Attache existing file" %}:</h1>
                 <form action="#file_tab" method="post"><input type="hidden" name="action" value="usefile" />
@@ -469,6 +472,7 @@
                 </table>
                 </form>
             </div>
+            {% endif %}
             
         </div>
 

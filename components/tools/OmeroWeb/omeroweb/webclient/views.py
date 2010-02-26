@@ -959,7 +959,6 @@ def load_metadata_details(request, c_type, c_id, index=None, **kwargs):
 
     form_tags = None
     form_urls = None
-    #form_comments = None
     form_files = None
 
     tag_list = manager.listTags()
@@ -1034,39 +1033,13 @@ def load_metadata_details(request, c_type, c_id, index=None, **kwargs):
                 form_detector = MetadataDetectorForm(initial={'detector': d, 'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
                 form_detectors.append(form_detector)
     
-    # common forms
-    try:
-        action = request.REQUEST["action"]
-    except:
-        if c_type and c_id:
-            form_comment = CommentAnnotationForm()
-            form_tag = TagAnnotationForm()
-            form_uri = UriAnnotationForm(initial={'link':'http://'})
-            form_file = UploadFileForm()
-
-            form_tags = TagListForm(initial={'tags':tag_list})
-            form_urls = UrlListForm(initial={'urls':url_list})
-            #form_comments = CommentListForm(initial={'comments':comment_list})
-            form_files = FileListForm(initial={'files':file_list})
-    else:
-        if action == "comment":
-            if request.method == 'POST':
-                form_comment = CommentAnnotationForm(data=request.REQUEST.copy())
-                if form_comment.is_valid():
-                    content = request.REQUEST['content'].encode('utf-8')
-                    if c_type == 'project':
-                        manager.createProjectCommentAnnotation(content)
-                    elif c_type == 'dataset':
-                        manager.createDatasetCommentAnnotation(content)
-                    elif c_type == 'image':
-                        manager.createImageCommentAnnotation(content)
-                    elif c_type == 'screen':
-                        manager.createScreenCommentAnnotation(content)
-                    elif c_type == 'plate':
-                        manager.createPlateCommentAnnotation(content)
-                    
-                    request.session['nav']['loadAnn'] = True
-                    form_comment = CommentAnnotationForm()
+    if manager.isObjectEditable():
+        # common forms
+        try:
+            action = request.REQUEST["action"]
+        except:
+            if c_type and c_id:
+                form_comment = CommentAnnotationForm()
                 form_tag = TagAnnotationForm()
                 form_uri = UriAnnotationForm(initial={'link':'http://'})
                 form_file = UploadFileForm()
@@ -1075,196 +1048,223 @@ def load_metadata_details(request, c_type, c_id, index=None, **kwargs):
                 form_urls = UrlListForm(initial={'urls':url_list})
                 #form_comments = CommentListForm(initial={'comments':comment_list})
                 form_files = FileListForm(initial={'files':file_list})
-        elif action == "url":
-            if request.method == 'POST':
-                form_uri = UriAnnotationForm(data=request.REQUEST.copy())
-                if form_uri.is_valid():
-                    content = request.REQUEST['link'].encode('utf-8')
-                    if c_type == 'project':
-                        manager.createProjectUriAnnotation(content)
-                    elif c_type == 'dataset':
-                        manager.createDatasetUriAnnotation(content)
-                    elif c_type == 'image':
-                        manager.createImageUriAnnotation(content)
-                    elif c_type == 'screen':
-                        manager.createScreenUriAnnotation(content)
-                    elif c_type == 'plate':
-                        manager.createPlateUriAnnotation(content)
-                    
-                    request.session['nav']['loadAnn'] = True
-                    form_uri = UriAnnotationForm(initial={'link':'http://'})
-                form_tag = TagAnnotationForm()
-                form_comment = CommentAnnotationForm()
-                form_file = UploadFileForm()
+        else:
+            if action == "comment":
+                if request.method == 'POST':
+                    form_comment = CommentAnnotationForm(data=request.REQUEST.copy())
+                    if form_comment.is_valid():
+                        content = request.REQUEST['content'].encode('utf-8')
+                        if c_type == 'project':
+                            manager.createProjectCommentAnnotation(content)
+                        elif c_type == 'dataset':
+                            manager.createDatasetCommentAnnotation(content)
+                        elif c_type == 'image':
+                            manager.createImageCommentAnnotation(content)
+                        elif c_type == 'screen':
+                            manager.createScreenCommentAnnotation(content)
+                        elif c_type == 'plate':
+                            manager.createPlateCommentAnnotation(content)
 
-                form_tags = TagListForm(initial={'tags':tag_list})
-                form_urls = UrlListForm(initial={'urls':url_list})
-                #form_comments = CommentListForm(initial={'comments':comment_list})
-                form_files = FileListForm(initial={'files':file_list})
-        elif action == "tag":
-            if request.method == 'POST':
-                form_tag = TagAnnotationForm(data=request.REQUEST.copy())
-                if form_tag.is_valid():
-                    tag = request.REQUEST['tag'].encode('utf-8')
-                    desc = request.REQUEST['description'].encode('utf-8')
-                    if c_type == 'project':
-                        manager.createProjectTagAnnotation(tag, desc)
-                    elif c_type == 'dataset':
-                        manager.createDatasetTagAnnotation(tag, desc)
-                    elif c_type == 'image':
-                        manager.createImageTagAnnotation(tag, desc)
-                    elif c_type == 'screen':
-                        manager.createScreenTagAnnotation(tag, desc)
-                    elif c_type == 'plate':
-                        manager.createPlateTagAnnotation(tag, desc)
-                    
-                    request.session['nav']['loadAnn'] = True
+                        request.session['nav']['loadAnn'] = True
+                        form_comment = CommentAnnotationForm()
                     form_tag = TagAnnotationForm()
-                form_uri = UriAnnotationForm(initial={'link':'http://'})
+                    form_uri = UriAnnotationForm(initial={'link':'http://'})
+                    form_file = UploadFileForm()
+
+                    form_tags = TagListForm(initial={'tags':tag_list})
+                    form_urls = UrlListForm(initial={'urls':url_list})
+                    #form_comments = CommentListForm(initial={'comments':comment_list})
+                    form_files = FileListForm(initial={'files':file_list})
+            elif action == "url":
+                if request.method == 'POST':
+                    form_uri = UriAnnotationForm(data=request.REQUEST.copy())
+                    if form_uri.is_valid():
+                        content = request.REQUEST['link'].encode('utf-8')
+                        if c_type == 'project':
+                            manager.createProjectUriAnnotation(content)
+                        elif c_type == 'dataset':
+                            manager.createDatasetUriAnnotation(content)
+                        elif c_type == 'image':
+                            manager.createImageUriAnnotation(content)
+                        elif c_type == 'screen':
+                            manager.createScreenUriAnnotation(content)
+                        elif c_type == 'plate':
+                            manager.createPlateUriAnnotation(content)
+
+                        request.session['nav']['loadAnn'] = True
+                        form_uri = UriAnnotationForm(initial={'link':'http://'})
+                    form_tag = TagAnnotationForm()
+                    form_comment = CommentAnnotationForm()
+                    form_file = UploadFileForm()
+
+                    form_tags = TagListForm(initial={'tags':tag_list})
+                    form_urls = UrlListForm(initial={'urls':url_list})
+                    #form_comments = CommentListForm(initial={'comments':comment_list})
+                    form_files = FileListForm(initial={'files':file_list})
+            elif action == "tag":
+                if request.method == 'POST':
+                    form_tag = TagAnnotationForm(data=request.REQUEST.copy())
+                    if form_tag.is_valid():
+                        tag = request.REQUEST['tag'].encode('utf-8')
+                        desc = request.REQUEST['description'].encode('utf-8')
+                        if c_type == 'project':
+                            manager.createProjectTagAnnotation(tag, desc)
+                        elif c_type == 'dataset':
+                            manager.createDatasetTagAnnotation(tag, desc)
+                        elif c_type == 'image':
+                            manager.createImageTagAnnotation(tag, desc)
+                        elif c_type == 'screen':
+                            manager.createScreenTagAnnotation(tag, desc)
+                        elif c_type == 'plate':
+                            manager.createPlateTagAnnotation(tag, desc)
+
+                        request.session['nav']['loadAnn'] = True
+                        form_tag = TagAnnotationForm()
+                    form_uri = UriAnnotationForm(initial={'link':'http://'})
+                    form_comment = CommentAnnotationForm()
+                    form_file = UploadFileForm()
+
+                    form_tags = TagListForm(initial={'tags':tag_list})
+                    form_urls = UrlListForm(initial={'urls':url_list})
+                    #form_comments = CommentListForm(initial={'comments':comment_list})
+                    form_files = FileListForm(initial={'files':file_list})
+            elif action == "file":
+                if request.method == 'POST':
+                    form_file = UploadFileForm(request.POST, request.FILES)
+                    if form_file.is_valid():
+                        f = request.FILES['annotation_file']
+                        if c_type == 'project':
+                            manager.createProjectFileAnnotation(f)
+                        elif c_type == 'dataset':
+                            manager.createDatasetFileAnnotation(f)
+                        elif c_type == 'image':
+                            manager.createImageFileAnnotation(f)
+                        elif c_type == 'screen':
+                            manager.createScreenFileAnnotation(f)
+                        elif c_type == 'plate':
+                            manager.createPlateFileAnnotation(f)
+
+                        request.session['nav']['loadAnn'] = True
+                        form_file = UploadFileForm()
+                form_tag = TagAnnotationForm()
                 form_comment = CommentAnnotationForm()
-                form_file = UploadFileForm()
+                form_uri = UriAnnotationForm(initial={'link':'http://'})
 
                 form_tags = TagListForm(initial={'tags':tag_list})
                 form_urls = UrlListForm(initial={'urls':url_list})
                 #form_comments = CommentListForm(initial={'comments':comment_list})
                 form_files = FileListForm(initial={'files':file_list})
-        elif action == "file":
-            if request.method == 'POST':
-                form_file = UploadFileForm(request.POST, request.FILES)
-                if form_file.is_valid():
-                    f = request.FILES['annotation_file']
-                    if c_type == 'project':
-                        manager.createProjectFileAnnotation(f)
-                    elif c_type == 'dataset':
-                        manager.createDatasetFileAnnotation(f)
-                    elif c_type == 'image':
-                        manager.createImageFileAnnotation(f)
-                    elif c_type == 'screen':
-                        manager.createScreenFileAnnotation(f)
-                    elif c_type == 'plate':
-                        manager.createPlateFileAnnotation(f)
-                    
-                    request.session['nav']['loadAnn'] = True
-                    form_file = UploadFileForm()
-            form_tag = TagAnnotationForm()
-            form_comment = CommentAnnotationForm()
-            form_uri = UriAnnotationForm(initial={'link':'http://'})
+            elif action == "usetag":
+                if request.method == 'POST':
+                    form_tags = TagListForm(data=request.REQUEST.copy(), initial={'tags':tag_list})
+                    if form_tags.is_valid():
+                        tags = request.POST.getlist('tags')
+                        if c_type == 'project':
+                            manager.createProjectAnnotationLinks('tag',tags)
+                        elif c_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('tag',tags)
+                        elif c_type == 'image':
+                            manager.createImageAnnotationLinks('tag',tags)
+                        elif c_type == 'screen':
+                            manager.createScreenAnnotationLinks('tag',tags)
+                        elif c_type == 'plate':
+                            manager.createPlateAnnotationLinks('tag',tags)
 
-            form_tags = TagListForm(initial={'tags':tag_list})
-            form_urls = UrlListForm(initial={'urls':url_list})
-            #form_comments = CommentListForm(initial={'comments':comment_list})
-            form_files = FileListForm(initial={'files':file_list})
-        elif action == "usetag":
-            if request.method == 'POST':
-                form_tags = TagListForm(data=request.REQUEST.copy(), initial={'tags':tag_list})
-                if form_tags.is_valid():
-                    tags = request.POST.getlist('tags')
-                    if c_type == 'project':
-                        manager.createProjectAnnotationLinks('tag',tags)
-                    elif c_type == 'dataset':
-                        manager.createDatasetAnnotationLinks('tag',tags)
-                    elif c_type == 'image':
-                        manager.createImageAnnotationLinks('tag',tags)
-                    elif c_type == 'screen':
-                        manager.createScreenAnnotationLinks('tag',tags)
-                    elif c_type == 'plate':
-                        manager.createPlateAnnotationLinks('tag',tags)
-                    
-                    form_tags = TagListForm(initial={'tags':manager.listTags()})
-                    request.session['nav']['loadAnn'] = True
+                        form_tags = TagListForm(initial={'tags':manager.listTags()})
+                        request.session['nav']['loadAnn'] = True
 
-            form_urls = UrlListForm(initial={'urls':url_list})
-            #form_comments = CommentListForm(initial={'comments':comment_list})
-            form_files = FileListForm(initial={'files':file_list})
+                form_urls = UrlListForm(initial={'urls':url_list})
+                #form_comments = CommentListForm(initial={'comments':comment_list})
+                form_files = FileListForm(initial={'files':file_list})
 
-            form_tag = TagAnnotationForm()
-            form_comment = CommentAnnotationForm()
-            form_uri = UriAnnotationForm(initial={'link':'http://'})
-            form_file = UploadFileForm()
+                form_tag = TagAnnotationForm()
+                form_comment = CommentAnnotationForm()
+                form_uri = UriAnnotationForm(initial={'link':'http://'})
+                form_file = UploadFileForm()
 
-        elif action == "usecomment":
-            if request.method == 'POST':
-                #form_comments = CommentListForm(data=request.REQUEST.copy(), initial={'comments':comment_list})
-                if form_comments.is_valid():
-                    comments = request.POST.getlist('comments')
-                    if c_type == 'project':
-                        manager.createProjectAnnotationLinks('comment',comments)
-                    elif c_type == 'dataset':
-                        manager.createDatasetAnnotationLinks('comment',comments)
-                    elif c_type == 'image':
-                        manager.createImageAnnotationLinks('comment',comments)
-                    elif c_type == 'screen':
-                        manager.createScreenAnnotationLinks('comment',comments)
-                    elif c_type == 'plate':
-                        manager.createPlateAnnotationLinks('comment',comments)
-                    
-                    #form_comments = CommentListForm(initial={'comments':manager.listComments()})
-                    request.session['nav']['loadAnn'] = True
+            elif action == "usecomment":
+                if request.method == 'POST':
+                    #form_comments = CommentListForm(data=request.REQUEST.copy(), initial={'comments':comment_list})
+                    if form_comments.is_valid():
+                        comments = request.POST.getlist('comments')
+                        if c_type == 'project':
+                            manager.createProjectAnnotationLinks('comment',comments)
+                        elif c_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('comment',comments)
+                        elif c_type == 'image':
+                            manager.createImageAnnotationLinks('comment',comments)
+                        elif c_type == 'screen':
+                            manager.createScreenAnnotationLinks('comment',comments)
+                        elif c_type == 'plate':
+                            manager.createPlateAnnotationLinks('comment',comments)
 
-            form_tags = TagListForm(initial={'tags':tag_list})
-            form_urls = UrlListForm(initial={'urls':url_list})
-            form_files = FileListForm(initial={'files':file_list})
+                        #form_comments = CommentListForm(initial={'comments':manager.listComments()})
+                        request.session['nav']['loadAnn'] = True
 
-            form_tag = TagAnnotationForm()
-            form_comment = CommentAnnotationForm()
-            form_uri = UriAnnotationForm(initial={'link':'http://'})
-            form_file = UploadFileForm()
+                form_tags = TagListForm(initial={'tags':tag_list})
+                form_urls = UrlListForm(initial={'urls':url_list})
+                form_files = FileListForm(initial={'files':file_list})
 
-        elif action == "useurl":
-            if request.method == 'POST':
-                form_urls = UrlListForm(data=request.REQUEST.copy(), initial={'urls':url_list})
-                if form_urls.is_valid():
-                    urls = request.POST.getlist('urls')
-                    if c_type == 'project':
-                        manager.createProjectAnnotationLinks('url',urls)
-                    elif c_type == 'dataset':
-                        manager.createDatasetAnnotationLinks('url',urls)
-                    elif c_type == 'image':
-                        manager.createImageAnnotationLinks('url',urls)
-                    elif c_type == 'screen':
-                        manager.createScreenAnnotationLinks('url',urls)
-                    elif c_type == 'plate':
-                        manager.createPlateAnnotationLinks('url',urls)
+                form_tag = TagAnnotationForm()
+                form_comment = CommentAnnotationForm()
+                form_uri = UriAnnotationForm(initial={'link':'http://'})
+                form_file = UploadFileForm()
 
-                    form_urls = UrlListForm(initial={'urls':manager.listUrls()})
-                    request.session['nav']['loadAnn'] = True
+            elif action == "useurl":
+                if request.method == 'POST':
+                    form_urls = UrlListForm(data=request.REQUEST.copy(), initial={'urls':url_list})
+                    if form_urls.is_valid():
+                        urls = request.POST.getlist('urls')
+                        if c_type == 'project':
+                            manager.createProjectAnnotationLinks('url',urls)
+                        elif c_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('url',urls)
+                        elif c_type == 'image':
+                            manager.createImageAnnotationLinks('url',urls)
+                        elif c_type == 'screen':
+                            manager.createScreenAnnotationLinks('url',urls)
+                        elif c_type == 'plate':
+                            manager.createPlateAnnotationLinks('url',urls)
 
-            #form_comments = CommentListForm(initial={'comments':comment_list})
-            form_tags = TagListForm(initial={'tags':tag_list})
-            form_files = FileListForm(initial={'files':file_list})
+                        form_urls = UrlListForm(initial={'urls':manager.listUrls()})
+                        request.session['nav']['loadAnn'] = True
 
-            form_tag = TagAnnotationForm()
-            form_comment = CommentAnnotationForm()
-            form_uri = UriAnnotationForm(initial={'link':'http://'})
-            form_file = UploadFileForm()
+                #form_comments = CommentListForm(initial={'comments':comment_list})
+                form_tags = TagListForm(initial={'tags':tag_list})
+                form_files = FileListForm(initial={'files':file_list})
 
-        elif action == "usefile":
-            if request.method == 'POST':
-                form_files = FileListForm(data=request.REQUEST.copy(), initial={'files':file_list})
-                if form_files.is_valid():
-                    files = request.POST.getlist('files')
-                    if c_type == 'project':
-                        manager.createProjectAnnotationLinks('file',files)
-                    elif c_type == 'dataset':
-                        manager.createDatasetAnnotationLinks('file',files)
-                    elif c_type == 'image':
-                        manager.createImageAnnotationLinks('file',files)
-                    elif c_type == 'screen':
-                        manager.createScreenAnnotationLinks('file',files)
-                    elif c_type == 'plate':
-                        manager.createPlateAnnotationLinks('file',files)
-                    
-                    form_files = FileListForm(initial={'files':manager.listFiles()})
-                    request.session['nav']['loadAnn'] = True
+                form_tag = TagAnnotationForm()
+                form_comment = CommentAnnotationForm()
+                form_uri = UriAnnotationForm(initial={'link':'http://'})
+                form_file = UploadFileForm()
 
-            #form_comments = CommentListForm(initial={'comments':comment_list})
-            form_tags = TagListForm(initial={'tags':tag_list})
-            form_urls = UrlListForm(initial={'urls':url_list})
+            elif action == "usefile":
+                if request.method == 'POST':
+                    form_files = FileListForm(data=request.REQUEST.copy(), initial={'files':file_list})
+                    if form_files.is_valid():
+                        files = request.POST.getlist('files')
+                        if c_type == 'project':
+                            manager.createProjectAnnotationLinks('file',files)
+                        elif c_type == 'dataset':
+                            manager.createDatasetAnnotationLinks('file',files)
+                        elif c_type == 'image':
+                            manager.createImageAnnotationLinks('file',files)
+                        elif c_type == 'screen':
+                            manager.createScreenAnnotationLinks('file',files)
+                        elif c_type == 'plate':
+                            manager.createPlateAnnotationLinks('file',files)
 
-            form_tag = TagAnnotationForm()
-            form_comment = CommentAnnotationForm()
-            form_uri = UriAnnotationForm(initial={'link':'http://'})
-            form_file = UploadFileForm()
+                        form_files = FileListForm(initial={'files':manager.listFiles()})
+                        request.session['nav']['loadAnn'] = True
+
+                #form_comments = CommentListForm(initial={'comments':comment_list})
+                form_tags = TagListForm(initial={'tags':tag_list})
+                form_urls = UrlListForm(initial={'urls':url_list})
+
+                form_tag = TagAnnotationForm()
+                form_comment = CommentAnnotationForm()
+                form_uri = UriAnnotationForm(initial={'link':'http://'})
+                form_file = UploadFileForm()
 
     manager.annotationList()
     context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 'form_filters':form_filters, 'form_detectors':form_detectors, 'form_stageLabel':form_stageLabel, 'form_comment':form_comment, 'form_uri':form_uri, 'form_tag':form_tag, 'form_file':form_file, 'form_tags':form_tags, 'form_urls':form_urls, 'form_files':form_files}

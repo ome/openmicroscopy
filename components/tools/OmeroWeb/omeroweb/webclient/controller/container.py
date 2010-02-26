@@ -145,6 +145,20 @@ class BaseContainer(BaseController):
         elif o1_type == "orphaned":
             self.orphaned = True
     
+    def isObjectEditable(self):
+        if self.project is not None and self.project.isEditable():
+            return True
+        if self.dataset is not None and self.dataset.isEditable():
+            return True
+        if self.image is not None and self.image.isEditable():
+            return True
+        if self.screen is not None and self.screen.isEditable():
+            return True        
+        if self.plate is not None and self.plate.isEditable():
+            return True
+        if self.well is not None and self.well.isEditable():
+            return True
+    
     def formatMetadataLine(self, l):
         if len(l) < 1:
             return None

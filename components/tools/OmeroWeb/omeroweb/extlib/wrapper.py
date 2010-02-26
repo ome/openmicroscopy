@@ -107,17 +107,13 @@ class OmeroWebObjectWrapper (object):
     def isOwned(self):
         return (self._obj.details.owner.id.val == self._conn.getEventContext().userId)
     
-    def isEditable(self):
-        if self._obj.details.permissions.isWorldWrite() or self._obj.details.permissions.isGroupWrite() or self._obj.details.permissions.isUserWrite():
+    def isLeaded(self):
+        if self._obj.details.group.id.val in self._conn.getEventContext().leaderOfGroups:
             return True
         return False
     
-    def isReadOnly(self):
-        if self._obj.details.permissions.isWorldRead() and not self._obj.details.permissions.isWorldWrite():
-            return True
-        elif self._obj.details.permissions.isGroupRead() and not self._obj.details.permissions.isGroupWrite():
-            return True
-        elif self._obj.details.permissions.isUserRead() and not self._obj.details.permissions.isUserWrite():
+    def isEditable(self):
+        if self.isOwned() or self.isLeaded() or not self.isReadOnly():
             return True
         return False
     
@@ -133,6 +129,15 @@ class OmeroWebObjectWrapper (object):
     
     def isPrivate(self):
         if self._obj.details.permissions.isUserRead():
+            return True
+        return False
+    
+    def isReadOnly(self):
+        if self.isPublic() and not self._obj.details.permissions.isWorldWrite():
+            return True
+        elif self.isShared() and not self._obj.details.permissions.isGroupWrite():
+            return True
+        elif self.isPrivate() and not self._obj.details.permissions.isUserWrite():
             return True
         return False
     
