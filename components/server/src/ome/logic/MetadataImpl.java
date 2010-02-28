@@ -148,27 +148,24 @@ public class MetadataImpl
     	sb.append("left outer join fetch ann.details.owner ");
     	sb.append("where ann member of "+type.getName());
     	
-    	String restriction = "";
     	Parameters param = new Parameters();
     	Parameters po = new Parameters(options);
-    	long id = -1;
-    	boolean group = false;
-    	if (po.getExperimenter() != null) id = po.getExperimenter();
+    	if (po.getExperimenter() != null) {
+    		sb.append(" and ann.details.owner.id = :userId");
+    		param.addLong("userId", po.getExperimenter());
+    	}
     	if (po.getGroup() != null) {
-    		group = true;
-    		id = po.getGroup();
+    		sb.append(" and ann.details.group.id = :groupId");
+    		param.addLong("groupId", po.getGroup());
     	}
-    	if (id < 0) {
-    		group = false;
-    		id = sec.getEventContext().getCurrentUserId();
+    	if (po.getGroup() == null && po.getExperimenter() == null) {
+    		
+    		sb.append(" and ann.details.owner.id = :userId");
+    		sb.append(" and ann.details.group.id = :groupId");
+    		param.addLong("userId", sec.getEventContext().getCurrentUserId());
+    		param.addLong("groupId", sec.getEventContext().getCurrentGroupId());
     	}
-    	if (id >= 0) {
-    		if (group) restriction += " and ann.details.group.id = :id";
-    		else restriction += " and ann.details.owner.id = :id";
-    		param.addId(id);
-    	}
-    	sb.append(restriction);
-    	
+	
     	if (include != null && include.size() > 0) {
     		sb.append(" and ann.ns is not null and ann.ns in (:include)");
     		param.addSet("include", include);

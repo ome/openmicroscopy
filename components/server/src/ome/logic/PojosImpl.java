@@ -286,7 +286,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     }
 
     /**
-     * Implemented as speficied by the {@link IContainer} I/F
+     * Implemented as specified by the {@link IContainer} I/F
      * @see IContainer#getImages(Class, Set, Map)
      */
     @RolesAllowed("user")
@@ -347,7 +347,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     }
 
     /**
-     * Implemented as speficied by the {@link IContainer} I/F
+     * Implemented as specified by the {@link IContainer} I/F
      * @see IContainer#getImagesByOptions(Parameters)
      */
     @RolesAllowed("user")
@@ -372,7 +372,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     }
 
     /**
-     * Implemented as speficied by the {@link IContainer} I/F
+     * Implemented as specified by the {@link IContainer} I/F
      * @see IContainer#getUserImages(Parameters)
      */
     @RolesAllowed("user")
@@ -396,7 +396,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     }
 
     /**
-     * Implemented as speficied by the {@link IContainer} I/F
+     * Implemented as specified by the {@link IContainer} I/F
      * @see IContainer#getCollectionCount(String, String, Set, Parameters)
      */
     @RolesAllowed("user")
@@ -427,7 +427,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     }
 
     /**
-     * Implemented as speficied by the {@link IContainer} I/F
+     * Implemented as specified by the {@link IContainer} I/F
      * @see IContainer#retrieveCollection(IObject, String, Parameters)
      */
     @RolesAllowed("user")
@@ -444,7 +444,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     // =========================================================================
 
     /**
-     * Implemented as speficied by the {@link IContainer} I/F
+     * Implemented as specified by the {@link IContainer} I/F
      * @see IContainer#createDataObject(IObject, Parameters)
      */
     @RolesAllowed("user")
@@ -454,7 +454,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     }
 
     /**
-     * Implemented as speficied by the {@link IContainer} I/F
+     * Implemented as specified by the {@link IContainer} I/F
      * @see IContainer#createDataObject(IObject[], Parameters)
      */
     @RolesAllowed("user")
@@ -464,7 +464,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     }
 
     /**
-     * Implemented as speficied by the {@link IContainer} I/F
+     * Implemented as specified by the {@link IContainer} I/F
      * @see IContainer#unlink(ILink[], Parameters)
      */
     @RolesAllowed("user")
@@ -474,7 +474,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     }
 
     /**
-     * Implemented as speficied by the {@link IContainer} I/F
+     * Implemented as specified by the {@link IContainer} I/F
      * @see IContainer#link(ILink[], Parameters)
      */
     @RolesAllowed("user")
@@ -485,11 +485,10 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         ILink[] links = new ILink[retVal.length];
         System.arraycopy(retVal, 0, links, 0, retVal.length);
         return links;
-
     }
 
     /**
-     * Implemented as speficied by the {@link IContainer} I/F
+     * Implemented as specified by the {@link IContainer} I/F
      * @see IContainer#updateDataObject(IObject, Parameters)
      */
     @RolesAllowed("user")
@@ -499,7 +498,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     }
 
     /**
-     * Implemented as speficied by the {@link IContainer} I/F
+     * Implemented as specified by the {@link IContainer} I/F
      * @see IContainer#updateDataObject(IObject[], Parameters)
      */
     @RolesAllowed("user")
@@ -509,7 +508,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     }
 
     /**
-     * Implemented as speficied by the {@link IContainer} I/F
+     * Implemented as specified by the {@link IContainer} I/F
      * @see IContainer#deleteDataObject(IObject, Parameters)
      */
     @RolesAllowed("user")
@@ -519,7 +518,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     }
 
     /**
-     * Implemented as speficied by the {@link IContainer} I/F
+     * Implemented as specified by the {@link IContainer} I/F
      * @see IContainer#deleteDataObjects(IObject[], Parameters)
      */
     @RolesAllowed("user")
