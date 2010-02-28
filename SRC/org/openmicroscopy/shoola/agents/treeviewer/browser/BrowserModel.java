@@ -220,6 +220,13 @@ class BrowserModel
      */
     long getRootID() { return parent.getUserDetails().getId(); }
     
+	/** 
+	 * Returns the id to the group selected for the current user.
+	 * 
+	 * @return See above.
+	 */
+    long getGroupID() { return parent.getUserGroupID(); }
+    
     /**
      * Returns the currently selected node.
      * 

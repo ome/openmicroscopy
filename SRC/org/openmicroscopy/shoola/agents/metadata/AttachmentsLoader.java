@@ -74,9 +74,9 @@ public class AttachmentsLoader
 	 */
 	public void load()
 	{
-		long userID = MetadataViewerAgent.getUserDetails().getId();
+		setIds();
 		handle = mhView.loadExistingAnnotations(FileAnnotationData.class, 
-												userID, this);
+												userID, groupID, this);
 	}
 	
 	/** 

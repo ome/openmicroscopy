@@ -1600,4 +1600,16 @@ class BrowserComponent
 		fireStateChange();
 	}
 
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see Browser#getUserGroupID()
+	 */
+	public long getUserGroupID()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException(
+					"This method cannot be invoked in the DISCARDED state.");
+		return model.getUserGroupID();
+	}
+	
 }

@@ -103,9 +103,34 @@ public class DataObjectListCellRenderer
 			TagAnnotationData tag = (TagAnnotationData) value;
 			setText(tag.getTagValue());
 			String ns = tag.getNameSpace();
-			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
-				setIcon(icons.getIcon(IconManager.TAG_SET));
-			else setIcon(icons.getIcon(IconManager.TAG));
+			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
+				if (currentUserID >= 0) {
+					try {
+						long id = tag.getOwner().getId();
+						if (id == currentUserID) 
+							setIcon(icons.getIcon(IconManager.TAG_SET));
+						else 
+							setIcon(icons.getIcon(
+									IconManager.TAG_SET_OTHER_OWNER));
+					} catch (Exception e) {
+						setIcon(icons.getIcon(IconManager.TAG_SET));
+					}
+				} else 
+					setIcon(icons.getIcon(IconManager.TAG_SET));
+			} else {
+				if (currentUserID >= 0) {
+					try {
+						long id = tag.getOwner().getId();
+						if (id == currentUserID) 
+							setIcon(icons.getIcon(IconManager.TAG));
+						else 
+							setIcon(icons.getIcon(IconManager.TAG_OTHER_OWNER));
+					} catch (Exception e) {
+						setIcon(icons.getIcon(IconManager.TAG));
+					}
+				} else 
+					setIcon(icons.getIcon(IconManager.TAG));
+			}
 			if (tag.getId() <= 0)
 				setForeground(NEW_FOREGROUND_COLOR);
 		} else if (value instanceof FileAnnotationData) {

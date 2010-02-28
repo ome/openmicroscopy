@@ -731,4 +731,10 @@ public interface Browser
 	 */
 	void setExperimenters(TreeImageSet node, List result);
 	
+	/** 
+	 * Returns the id to the group selected for the current user.
+	 * 
+	 * @return See above.
+	 */
+	long getUserGroupID();
 }

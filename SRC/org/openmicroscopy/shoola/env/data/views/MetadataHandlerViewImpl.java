@@ -123,14 +123,14 @@ class MetadataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#loadExistingAnnotations(Class, Class, 
+	 * @see MetadataHandlerView#loadExistingAnnotations(Class, long, long, 
 	 * 											AgentEventListener)
 	 */
 	public CallHandle loadExistingAnnotations(Class annotation, long userID, 
-			AgentEventListener observer)
+			long groupID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new StructuredAnnotationLoader(annotation,
-														userID);
+														userID, groupID);
 		return cmd.exec(observer);
 	}
 

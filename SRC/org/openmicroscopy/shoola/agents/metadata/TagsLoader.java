@@ -31,7 +31,6 @@ import java.util.Collection;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
 import pojos.TagAnnotationData;
 
 /** 
@@ -73,9 +72,9 @@ public class TagsLoader
 	 */
 	public void load()
 	{
-		long userID = MetadataViewerAgent.getUserDetails().getId();
+		setIds();
 		handle = mhView.loadExistingAnnotations(TagAnnotationData.class, 
-				userID, this);
+				userID, groupID, this);
 	}
 	
 	/** 

@@ -31,7 +31,10 @@ import java.util.Collection;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import pojos.ExperimenterData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -82,9 +85,22 @@ public class TagsLoader
 	 */
 	public void load()
 	{
-		long userID = MetadataViewerAgent.getUserDetails().getId();
+		ExperimenterData exp = DataBrowserAgent.getUserDetails();
+		long userID = exp.getId();//viewer.getUserID();
+		long groupID = -1;
+		int level = 
+		MetadataViewerAgent.getRegistry().getAdminService().getPermissionLevel();
+		switch (level) {
+				case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+					groupID = exp.getDefaultGroup().getId();
+					userID = -1;
+					break;
+				case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+					userID = -1;
+		}
+		
 		handle = mhView.loadExistingAnnotations(TagAnnotationData.class,
-												userID, this);
+												userID, groupID, this);
 	}
 	
 	/**

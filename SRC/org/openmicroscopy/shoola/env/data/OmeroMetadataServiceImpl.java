@@ -83,7 +83,6 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
-import pojos.FileData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.PlateData;
@@ -1049,14 +1048,15 @@ class OmeroMetadataServiceImpl
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroMetadataService#loadAnnotations(Class, String, long)
+	 * @see OmeroMetadataService#loadAnnotations(Class, String, long, long)
 	 */
 	public Collection loadAnnotations(Class annotationType, String nameSpace, 
-			                         long userID) 
+			                         long userID, long groupID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		ParametersI po = new ParametersI();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
+		if (groupID >= 0) po.grp(omero.rtypes.rlong(groupID));
 		//else po.grp(i)
 		List<String> toInclude = new ArrayList<String>();
 		List<String> toExclude = new ArrayList<String>();

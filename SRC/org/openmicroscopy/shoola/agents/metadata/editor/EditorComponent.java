@@ -129,9 +129,10 @@ class EditorComponent
 			text = "Select the Attachments to add or remove.";
 			icon = icons.getIcon(IconManager.ATTACHMENT_48);
 		}
+		long userID = MetadataViewerAgent.getUserDetails().getId();
 		SelectionWizard wizard = new SelectionWizard(
 				reg.getTaskBar().getFrame(), available, selected, type,
-				addCreation);
+				addCreation, userID);
 		if (model.isMultiSelection())
 			wizard.setAcceptButtonText("Save");
 		wizard.setTitle(title, text, icon);
@@ -842,5 +843,11 @@ class EditorComponent
 		model.setScripts(scripts);
 		view.setScripts();
 	}
+
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#getUserID()
+	 */
+	public long getUserID() { return model.getUserID(); }
 
 }

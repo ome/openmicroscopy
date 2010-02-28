@@ -410,5 +410,12 @@ public interface Editor
 	 * @param scripts The scripts to display.
 	 */
 	public void setScripts(List scripts);
+
+	/**
+	 * Returns the id of the user.
+	 * 
+	 * @return See above.
+	 */
+	public long getUserID();
 	
 }

@@ -31,11 +31,14 @@ package org.openmicroscopy.shoola.agents.metadata;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.views.AdminView;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
+
+import pojos.ExperimenterData;
 
 /** 
  * Parent of all classes that load data asynchronously for a {@link Editor}.
@@ -81,6 +84,27 @@ public abstract class EditorLoader
     /** Convenience reference for subclasses. */
     protected final AdminView        	adminView;
     
+    /** The id of the user or <code>-1</code>. */
+    protected long 						userID;
+    
+    /** The id of the group or <code>-1</code>. */
+    protected long 						groupID;
+    
+    /** Sets the identifiers of the group and user. */
+    void setIds()
+    {
+    	ExperimenterData exp = MetadataViewerAgent.getUserDetails();
+		userID = viewer.getUserID();
+		groupID = exp.getDefaultGroup().getId();
+		int level = 
+		MetadataViewerAgent.getRegistry().getAdminService().getPermissionLevel();
+		switch (level) {
+				case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+				case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+					userID = -1;
+		}
+    }
+    
     /**
      * Creates a new instance.
      * 
@@ -99,6 +123,8 @@ public abstract class EditorLoader
          imView = (ImageDataView) 
 					registry.getDataServicesView(ImageDataView.class);
          adminView = (AdminView) registry.getDataServicesView(AdminView.class);
+         userID = -1;
+         groupID = -1;
     }
     
     /**

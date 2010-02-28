@@ -78,16 +78,19 @@ public class StructuredAnnotationLoader
      * @param objectType		The type of object or <code>null</code>.
      * @param userID			The id of the user or <code>-1</code> if the id 
      * 							is not specified.
+     * @param groupID			The id of the group or <code>-1</code> if the id 
+     * 							is not specified.
      * @return The {@link BatchCall}.
      */
     private BatchCall loadAnnotations(final Class annotationType,
-    		final long userID)
+    		final long userID, final long groupID)
     {
         return new BatchCall("Loading Existing annotations") {
             public void doCall() throws Exception
             {
                 OmeroMetadataService os = context.getMetadataService();
-                result = os.loadAnnotations(annotationType, null, userID);
+                result = os.loadAnnotations(annotationType, null, userID, 
+                		groupID);
             }
         };
     }
@@ -323,10 +326,12 @@ public class StructuredAnnotationLoader
      * 							to, or <code>null</code>.	
      * @param userID			The id of the user or <code>-1</code> if the id 
      * 							is not specified.
+     * @param groupID			The id of the group or <code>-1</code>.
      */
-    public StructuredAnnotationLoader(Class annotationType, long userID)
+    public StructuredAnnotationLoader(Class annotationType, long userID, 
+    		long groupID)
     {
-    	loadCall = loadAnnotations(annotationType, userID);
+    	loadCall = loadAnnotations(annotationType, userID, groupID);
     }
     
     /**

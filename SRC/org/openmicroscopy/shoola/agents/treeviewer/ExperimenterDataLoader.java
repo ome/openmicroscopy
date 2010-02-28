@@ -192,7 +192,7 @@ public class ExperimenterDataLoader
     		handle = dmView.loadTags(id, withImages, top, exp.getId(), this);
     	} else if (FileAnnotationData.class.equals(rootNodeType)) {
     		handle = mhView.loadExistingAnnotations(rootNodeType, exp.getId(), 
-    				this);
+    				viewer.getUserGroupID(), this);
     	} else {
     		if (viewer.getBrowserType() == Browser.FILE_SYSTEM_EXPLORER) {
     			handle = dmView.loadRepositories(exp.getId(), this);

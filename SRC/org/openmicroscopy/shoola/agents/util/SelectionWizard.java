@@ -164,12 +164,16 @@ public class SelectionWizard
 	/** The component used to add new objects. */
 	private JTextField			addField;
 	
-	/** Initializes the components composing the display. */
-	private void initComponents()
+	/** 
+	 * Initializes the components composing the display. 
+	 * 
+	 * @param userID The id of the user currently logged in.
+	 */
+	private void initComponents(long userID)
 	{
 		sorter = new ViewerSorter();
 		availableItemsListbox = new JList();
-		DataObjectListCellRenderer rnd = new DataObjectListCellRenderer();
+		DataObjectListCellRenderer rnd = new DataObjectListCellRenderer(userID);
 		availableItemsListbox.setCellRenderer(rnd);
 		selectedItemsListbox = new JList();
 		selectedItemsListbox.setCellRenderer(rnd);
@@ -598,11 +602,12 @@ public class SelectionWizard
 	 * @param owner		The owner of this dialog.
 	 * @param available	The collection of available tags.
 	 * @param type		The type of object to handle.
+	 * @param userID    The if of the current user.
 	 */
 	public SelectionWizard(JFrame owner, Collection<Object> available, 
-						Class type)
+						Class type, long userID)
 	{
-		this(owner, available, null, type);
+		this(owner, available, null, type, userID);
 	}
 	
 	/**
@@ -614,11 +619,12 @@ public class SelectionWizard
 	 * @param addCreation	Pass <code>true</code> to add a component
 	 * 						allowing creation of object of the passed type,
 	 * 						<code>false</code> otherwise.
+	 * @param userID        The if of the current user.
 	 */
 	public SelectionWizard(JFrame owner, Collection<Object> available, 
-						Class type, boolean addCreation)
+						Class type, boolean addCreation, long userID)
 	{
-		this(owner, available, null, type, addCreation);
+		this(owner, available, null, type, addCreation, userID);
 	}
 	
 	/**
@@ -627,12 +633,13 @@ public class SelectionWizard
 	 * @param owner		The owner of this dialog.
 	 * @param available	The collection of available items.
 	 * @param selected	The collection of selected items.
-	 * @param type		The type of object to handle.
+	 * @param type		The type of object to handle. 
+	 * @param userID    The if of the current user.
 	 */
 	public SelectionWizard(JFrame owner, Collection<Object> available, 
-							Collection<Object> selected, Class type)
+						Collection<Object> selected, Class type, long userID)
 	{
-		this(owner, available, selected, type, false);
+		this(owner, available, selected, type, false, userID);
 	}
 	
 	/**
@@ -645,10 +652,11 @@ public class SelectionWizard
 	 * @param addCreation	Pass <code>true</code> to add a component
 	 * 						allowing creation of object of the passed type,
 	 * 						<code>false</code> otherwise.
+	 * @param userID        The if of the current user.
 	 */
 	public SelectionWizard(JFrame owner, Collection<Object> available, 
 							Collection<Object> selected, Class type, 
-							boolean addCreation)
+							boolean addCreation, long userID)
 	{
 		super(owner);
 		setModal(true);
@@ -658,7 +666,7 @@ public class SelectionWizard
 		this.selectedItems = selected;
 		this.type = type;
 		createOriginalSelections();
-		initComponents();
+		initComponents(userID);
 		sortLists();
 		buildUI(addCreation);
 		setSize(DEFAULT_SIZE);

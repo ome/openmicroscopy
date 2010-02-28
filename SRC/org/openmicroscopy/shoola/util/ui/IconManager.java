@@ -330,7 +330,7 @@ public class IconManager
     public static final int LEFT_ARROW = 87;
     
     /** The <code>Tag</code> icon. */
-    public static final int	TAG_OWNER = 88;
+    public static final int	TAG_OTHER_OWNER = 88;
     
     /** The <code>Wizard</code> icon. */
     public static final int	WIZARD_48 = 89;
@@ -473,11 +473,14 @@ public class IconManager
     /** ID of the <code>Zoom Out</code> icon. */
     public static final int ZOOM_OUT = 135;
     
+    /** The <code>Tag</code> icon. */
+    public static final int	TAG_SET_OTHER_OWNER = 136;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 135;
+    private static int      MAX_ID = 136;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -575,7 +578,7 @@ public class IconManager
         relPaths[DOUBLE_RIGHT_ARROW] = "nuvola_2rightarrow16.png";
         relPaths[LEFT_ARROW] = "nuvola_1leftarrow16.png";
         relPaths[RIGHT_ARROW] = "nuvola_1rightarrow16.png";
-        relPaths[TAG_OWNER] = "nuvola_1rightarrow16.png";
+        relPaths[TAG_OTHER_OWNER] = "nuvola_knotes16.png";
         relPaths[WIZARD_48] ="nuvola_wizard48.png";
         relPaths[START_SELECTED_12] = "nuvola_mozilla12.png";
         relPaths[START_UNSELECTED_12] = "mozilla_grey12.png";
@@ -621,6 +624,7 @@ public class IconManager
         relPaths[ACTUAL_SIZE] = "nuvola_viewmagfit16.png";
         relPaths[ZOOM_IN] = "nuvola_viewmag+16.png";
         relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
+        relPaths[TAG_SET_OTHER_OWNER] = "nuvola_knotesRedRed16.png";
     }
 	
 	/**
