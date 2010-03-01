@@ -405,6 +405,8 @@ class BrowserComponent
         	throw new IllegalArgumentException("Experimenter not valid");
         if (model.getBrowserType() == FILE_SYSTEM_EXPLORER) {
         	model.getParentModel().setLeaves(parent, leaves);
+        	model.setState(READY);
+        	fireStateChange();
             return;
         }
         
