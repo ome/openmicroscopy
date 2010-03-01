@@ -31,8 +31,13 @@
     <script type="text/javascript" src="/webgateway/appmedia/js/jquery-plugin-viewportImage.js"></script>
     <script type="text/javascript" src="/webgateway/appmedia/js/jquery-plugin-slider.js"></script>
     <script type="text/javascript" src="/webgateway/appmedia/js/gs_utils.js"></script>
-    
     {% endif %}
+    
+{% endblock %}
+
+{% block script %}
+
+    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
     
     <script type="text/javascript">
         $(document).ready(function() 
