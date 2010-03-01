@@ -258,6 +258,8 @@ def uploadAndAttachFile(queryService, updateService, rawFileStore, parent, outpu
     filename = output
     originalFilename = output
     fileformat = getFormat(queryService, format)
+    if fileformat == None:		# if we didn't find a matching format in the DB, use a generic format. 
+        fileformat = getFormat(queryService, "text/plain")
     originalFile = createFile(updateService, filename, fileformat, originalFilename);
     uploadFile(rawFileStore, originalFile, originalFilename)
     fileLink = attachFileToParent(updateService, parent, originalFile, description)
