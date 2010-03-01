@@ -163,7 +163,7 @@ class HdfStorage(object):
 
     def __openfile(self, mode):
         try:
-            if self.__hdf_path.size == 0:
+            if self.__hdf_path.exists() and self.__hdf_path.size == 0:
                 mode = "w"
             return tables.openFile(self.__hdf_path, mode=mode, title="OMERO HDF Measurement Storage", rootUEP="/")
         except IOError, io:
@@ -649,6 +649,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         # Will throw an exception if not allowed.
         self.logger.info("getTable: %s", (file_obj and file_obj.id and file_obj.id.val))
         file_path = self.repo_mgr.getFilePath(file_obj)
+        print "file_path:", file_path
         p = path(file_path).dirname()
         if not p.exists():
             p.makedirs()

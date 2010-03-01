@@ -8,6 +8,8 @@ package ome.services.blitz.repo;
 
 import java.io.File;
 import java.sql.Timestamp;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -321,25 +323,32 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
 
     }
 
+    @SuppressWarnings("unchecked")
     protected String getFileUrl(final OriginalFile file) throws ServerError {
 
         if (file == null || file.getId() == null) {
             throw new omero.ValidationException(null, null, "Unmanaged file");
         }
 
-        String url = (String) ex
+        Map<String, Object> map = (Map<String, Object>) ex
                 .executeStateless(new Executor.SimpleStatelessWork(this,
                         "getFileUrl") {
                     @Transactional(readOnly = true)
                     public Object doWork(SimpleJdbcOperations jdbc) {
-                        return jdbc.queryForObject(
-                                "select url from originalfile "
-                                        + "where id = ?", String.class, file
-                                        .getId().getValue());
+                        return jdbc.queryForMap(
+                                "select path, url from originalfile "
+                                        + "where id = ?",
+                                        file.getId().getValue());
                     }
                 });
 
-        return url;
+        if (map.size() == 0) {
+            throw new omero.ValidationException(null, null, "Unknown file: "
+                    + file.getId().getValue());
+        }
+        
+        return (String) map.get("url");
+        
     }
 
 }
