@@ -207,12 +207,15 @@ public class Factory
     /**
      * Creates a default thumbnail image.
      * 
+     * @param icon 	Pass <code>true</code> to use an image icon, 
+     * 				<code>false</code> otherwise.
      * @return See above.
      */
-    public static BufferedImage createDefaultImageThumbnail()
+    public static BufferedImage createDefaultImageThumbnail(boolean icon)
     {
     	IconManager icons = IconManager.getInstance();
-    	ImageIcon img = null;//icons.getImageIcon(IconManager.BROKEN_FILE_96);
+    	ImageIcon img = null;
+    	if (icon) img = icons.getImageIcon(IconManager.BROKEN_FILE_96);
     	if (img == null) return createDefaultThumbnail(96, 96, null); 
     	int h = img.getIconHeight();
     	int w = img.getIconWidth();

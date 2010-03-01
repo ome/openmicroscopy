@@ -947,15 +947,17 @@ class OmeroImageServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroImageService#getFSThumbnailSet(List, int, long)
 	 */
-	public Map<FileData, BufferedImage> getFSThumbnailSet(List<FileData> files, 
+	public Map<DataObject, BufferedImage> getFSThumbnailSet(
+			List<DataObject> files, 
 			int maxLength, long userID)
 			throws DSAccessException, DSOutOfServiceException, FSAccessException
 	{
-		Map<FileData, BufferedImage> m = new HashMap<FileData, BufferedImage>();
+		Map<DataObject, BufferedImage> 
+			m = new HashMap<DataObject, BufferedImage>();
 		if (files == null || files.size() == 0) return m;
 		FSFileSystemView view = gateway.getFSRepositories(userID);
-		Iterator<FileData> i = files.iterator();
-		FileData file;
+		Iterator<DataObject> i = files.iterator();
+		DataObject file;
 		String path;
 		while (i.hasNext()) {
 			file = i.next();

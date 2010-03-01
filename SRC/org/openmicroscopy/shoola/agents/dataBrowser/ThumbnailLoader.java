@@ -36,9 +36,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.FileData;
 
 /** 
  * Loads all thumbnails for the specified images.
@@ -61,22 +60,22 @@ public class ThumbnailLoader
 
 	/** 
 	 * Indicates that the thumbnails are associated to an 
-	 * <code>ImageData</code>.
-	 */
-	private static final int 		IMAGE = 0;
-	
-	/** 
-	 * Indicates that the thumbnails are associated to an 
 	 * <code>ExperimenterData</code>.
 	 */
-	private static final int 		EXPERIMENTER = 1;
+	public static final int 		EXPERIMENTER = 
+			HierarchyBrowsingView.EXPERIMENTER;
 	
 	/** 
 	 * Indicates that the thumbnails are associated to an <code>FileData</code>.
 	 */
-	private static final int 		FS_FILE = 2;
-
+	public static final int 		FS_FILE = HierarchyBrowsingView.FS_FILE;
 	
+	/** 
+	 * Indicates that the thumbnails are associated to an 
+	 * <code>ImageData</code>.
+	 */
+	public static final int 		IMAGE = HierarchyBrowsingView.IMAGE;
+
 	/** The number of thumbnails to load. */
 	private int                     max;
 	
@@ -106,9 +105,23 @@ public class ThumbnailLoader
      * @param objects 	The <code>DataObject</code>s associated to the images
      *					to fetch. Mustn't be <code>null</code>.
      */
+    public ThumbnailLoader(DataBrowser viewer, Collection<DataObject> objects, 
+    		int type)
+    {
+        this(viewer, objects, true, type);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer 	The viewer this data loader is for.
+     *               	Mustn't be <code>null</code>.
+     * @param objects 	The <code>DataObject</code>s associated to the images
+     *					to fetch. Mustn't be <code>null</code>.
+     */
     public ThumbnailLoader(DataBrowser viewer, Collection<DataObject> objects)
     {
-        this(viewer, objects, true);
+        this(viewer, objects, true, IMAGE);
     }
     
     /**
@@ -120,25 +133,21 @@ public class ThumbnailLoader
      *					to fetch. Mustn't be <code>null</code>.
      * @param thumbnail	Pass <code>true</code> to retrieve image at a thumbnail
      * 					size, <code>false</code> otherwise.
+     * @param type		The type of thumbnails to load.
      */
     public ThumbnailLoader(DataBrowser viewer, Collection<DataObject> objects, 
-    		              boolean thumbnail)
+    		              boolean thumbnail, int type)
     {
         super(viewer);
         if (objects == null)
             throw new IllegalArgumentException("Collection shouldn't be null.");
-        DataObject o = null;
+        DataObject o;
         Iterator<DataObject> i = objects.iterator();
-        while (i.hasNext()) {
-        	if (o != null) break;
-			o = i.next();
-		}
+        if (type < 0) this.type = IMAGE;
+        else this.type = type;
         this.objects = objects;
         this.thumbnail = thumbnail;
         max = objects.size();
-        type = IMAGE;
-        if (o instanceof ExperimenterData) type = EXPERIMENTER;
-        else if (o instanceof FileData) type = FS_FILE;
     }
     
     /**
@@ -152,12 +161,12 @@ public class ThumbnailLoader
     		handle = hiBrwView.loadThumbnails(objects, 
                     ThumbnailProvider.THUMB_MAX_WIDTH,
                     ThumbnailProvider.THUMB_MAX_HEIGHT,
-                    userID, this);
+                    userID, type, this);
     	else 
     		handle = hiBrwView.loadThumbnails(objects, 
                     3*ThumbnailProvider.THUMB_MAX_WIDTH,
                     3*ThumbnailProvider.THUMB_MAX_HEIGHT,
-                    userID, this);
+                    userID, type, this);
     	
     }
     
@@ -214,7 +223,7 @@ public class ThumbnailLoader
     
     /**
      * Does nothing as the asynchronous call returns <code>null</code>.
-     * The actual payload (thumbnails) is delivered progressively
+     * The actual pay-load (thumbnails) is delivered progressively
      * during the updates.
      * @see DataBrowserLoader#handleNullResult()
      */

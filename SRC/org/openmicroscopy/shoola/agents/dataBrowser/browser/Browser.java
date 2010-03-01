@@ -38,7 +38,6 @@ import javax.swing.JComponent;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
-import pojos.ImageData;
 
 /** 
  * Defines the interface provided by the browser component.

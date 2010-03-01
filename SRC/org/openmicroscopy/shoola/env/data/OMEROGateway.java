@@ -6497,6 +6497,4 @@ class OMEROGateway
 		}
 	}
 	
-	
-	
 }

@@ -38,7 +38,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
-
+import pojos.DataObject;
 import pojos.FileData;
 import pojos.ImageData;
 
@@ -65,13 +65,25 @@ class FSFolderModel
 	 * @param parent	The parent of the experimenters.
 	 * @param datasets 	The collection to experimenters the model is for.
 	 */
-	FSFolderModel(Object parent, Collection<FileData> files)
+	FSFolderModel(Object parent, Collection<DataObject> files)
 	{
 		super();
 		if (files  == null) 
 			throw new IllegalArgumentException("No files.");
 		this.parent = parent;
-		Set visTrees = DataBrowserTranslator.transformFSFolder(files);
+		List<DataObject> toTransform = new ArrayList<DataObject>();
+		Iterator<DataObject> i = files.iterator();
+		DataObject o;
+		FileData f;
+		while (i.hasNext()) {
+			o = i.next();
+			if (o instanceof ImageData) toTransform.add(o);
+			else if (o instanceof FileData) {
+				f = (FileData) o;
+				if (f.isImage()) toTransform.add(o);
+			}
+		}
+		Set visTrees = DataBrowserTranslator.transformFSFolder(toTransform);
 		numberOfImages = visTrees.size();
         browser = BrowserFactory.createBrowser(visTrees);
         layoutBrowser();
@@ -93,14 +105,14 @@ class FSFolderModel
 		if (nodes == null || nodes.size() == 0) return null;
 		Iterator<ImageNode> i = nodes.iterator();
 		ImageNode node;
-		List<FileData> imgs = new ArrayList<FileData>();
-		FileData data;
+		List<DataObject> imgs = new ArrayList<DataObject>();
+		DataObject data;
 		List<Long> loaded = new ArrayList<Long>();
 		if (ids != null) {
 			while (i.hasNext()) {
 				node = i.next();
 				if (node.getThumbnail().getFullScaleThumb() == null) {
-					data = (FileData) node.getHierarchyObject();
+					data = (DataObject) node.getHierarchyObject();
 					if (ids.contains(data.getId())) {
 						if (!loaded.contains(data.getId())) {
 							imgs.add(data);
@@ -111,20 +123,34 @@ class FSFolderModel
 				}
 			}
 		} else {
+			long id;
+			FileData f;
 			while (i.hasNext()) {
 				node = i.next();
 				if (node.getThumbnail().getFullScaleThumb() == null) {
-					data = (FileData) node.getHierarchyObject();
-					//if (!loaded.contains(data.getId())) {
-						imgs.add(data);
-						loaded.add(data.getId());
-						imagesLoaded++;
-					//}
+					data = (DataObject) node.getHierarchyObject();
+					id = data.getId();
+					if (id > 0) {
+						if (!loaded.contains(id)) {
+							imgs.add(data);
+							loaded.add(id);
+							imagesLoaded++;
+						}
+					} else {
+						if (data instanceof FileData) {
+							f = (FileData) data;
+							if (f.isImage()) {
+								imgs.add(data);
+								imagesLoaded++;
+							}
+						}
+					}
 				}
 			}
 		}
 		if (imgs.size() == 0) return null;
-		return new ThumbnailLoader(component, sorter.sort(imgs));
+		return new ThumbnailLoader(component, sorter.sort(imgs), 
+				ThumbnailLoader.FS_FILE);
 	}
 	
 	/**

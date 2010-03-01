@@ -208,7 +208,7 @@
     </agent>
     <agent>
         <name>Importer</name>
-        <active>true</active>
+        <active>false</active>
         <class>org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent</class>
         <config>importer.xml</config>
     </agent>

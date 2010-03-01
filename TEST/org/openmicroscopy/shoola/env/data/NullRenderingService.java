@@ -467,7 +467,8 @@ public class NullRenderingService
      * No-op implementation
      * @see OmeroImageService#getFSThumbnailSet(List, int, long)
      */
-	public Map<FileData, BufferedImage> getFSThumbnailSet(List<FileData> files,
+	public Map<DataObject, BufferedImage> getFSThumbnailSet(
+			List<DataObject> files,
 			int maxLength, long userID) throws DSAccessException,
 			DSOutOfServiceException, FSAccessException
 	{

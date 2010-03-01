@@ -507,7 +507,8 @@ abstract class DataBrowserModel
 			fullSizeThumbsManager = new ThumbnailsManager(toKeep, 
 					                                    toKeep.size());
 			ThumbnailLoader loader = new ThumbnailLoader(component, nodes, 
-														false);
+														false, 
+														ThumbnailLoader.IMAGE);
 			loader.load();
 			state = DataBrowser.LOADING_SLIDE_VIEW;
 		}

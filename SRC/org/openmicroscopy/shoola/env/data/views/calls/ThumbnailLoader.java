@@ -116,7 +116,7 @@ public class ThumbnailLoader
         BufferedImage thumbPix = null;
         if (pxd == null) {
         	valid = false;
-        	thumbPix = Factory.createDefaultImageThumbnail();
+        	thumbPix = Factory.createDefaultImageThumbnail(false);
         } else {
         	int sizeX = maxWidth, sizeY = maxHeight;
         	if (asImage) {
@@ -165,7 +165,7 @@ public class ThumbnailLoader
                     	e.getExtendedMessage());
                 }
                 if (thumbPix == null) 
-                	thumbPix = Factory.createDefaultImageThumbnail();
+                	thumbPix = Factory.createDefaultImageThumbnail(false);
                     //thumbPix = Factory.createDefaultThumbnail(maxWidth, 
                     //        maxHeight);
                 currentThumbnail = thumbPix;

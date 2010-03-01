@@ -938,6 +938,7 @@ class BrowserComponent
         if (n == null) model.fireExperimenterDataLoading((TreeImageSet) exp);
         else {
         	if (model.getBrowserType() == FILE_SYSTEM_EXPLORER) {
+        		uo = n.getUserObject();
         		if (uo instanceof FileData) {
         			FileData dir = (FileData) uo;
         			if (dir.isDirectory() && !dir.isHidden()) {

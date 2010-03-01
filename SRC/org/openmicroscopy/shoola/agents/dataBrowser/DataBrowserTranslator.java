@@ -647,6 +647,8 @@ public class DataBrowserTranslator
             	f = (FileData) ho;
             	if (f.isFile() && !f.isHidden())
             		 results.add(linkFileTo(f, null));
+            } else if (ho instanceof ImageData) {
+            	 results.add(linkImageTo((ImageData) ho, null));
             }
         }
         return results;

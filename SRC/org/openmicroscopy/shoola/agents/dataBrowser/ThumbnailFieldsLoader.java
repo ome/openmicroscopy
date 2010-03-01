@@ -101,7 +101,7 @@ public class ThumbnailFieldsLoader
     	handle = hiBrwView.loadThumbnails(images, 
                 ThumbnailProvider.THUMB_MAX_WIDTH,
                 ThumbnailProvider.THUMB_MAX_HEIGHT,
-                userID, this);
+                userID, ThumbnailLoader.IMAGE, this);
     }
     
     /** 

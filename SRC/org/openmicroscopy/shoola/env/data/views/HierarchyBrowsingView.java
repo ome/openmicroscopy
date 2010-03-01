@@ -31,10 +31,9 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailSetLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-
 import pojos.DataObject;
-import pojos.ImageData;
 
 /** 
  * Provides methods to support browsing of image hierarchies.
@@ -54,22 +53,36 @@ public interface HierarchyBrowsingView
     extends DataServicesView
 {
 
+	/** 
+	 * Indicates that the thumbnails are associated to an 
+	 * <code>ExperimenterData</code>.
+	 */
+	public static final int 		EXPERIMENTER = 
+		ThumbnailSetLoader.EXPERIMENTER;
+	
+	/** 
+	 * Indicates that the thumbnails are associated to an <code>FileData</code>.
+	 */
+	public static final int 		FS_FILE = ThumbnailSetLoader.FS_FILE;
+	
+	/** 
+	 * Indicates that the thumbnails are associated to an 
+	 * <code>ImageData</code>.
+	 */
+	public static final int 		IMAGE = ThumbnailSetLoader.IMAGE;
+	
     /**
      * Loads a data hierarchy rooted by a given node.
-     * <p>The root node can be one out of: Project, Dataset, Category Group, or
-     * Category.  Image and Dataset items are retrieved with annotations.
+     * <p>The root node can be one out of: Project, Dataset.
+     *  Image and Dataset items are retrieved with annotations.
      * The final <code>DSCallOutcomeEvent</code> will contain the requested node
      * as root and all of its descendants.</p>
      * <p>A Project tree will be represented by <code>ProjectData, 
      * DatasetData, and ImageData</code> objects. A Dataset tree
      * will only have objects of the latter two types.</p>
-     * <p>A Category Group tree will be represented by <code>CategoryGroupData, 
-     * CategoryData</code>, and <code>ImageData</code> objects. A Category 
-     * tree will only have objects of the latter two types.</p>
      * <p>So the object returned in the <code>DSCallOutcomeEvent</code> will be
-     * a <code>ProjectData, DatasetData, CategoryGroupData</code> or
-     * <code>CategoryData</code> depending on whether you asked for a Project, 
-     * Dataset, Category Group, or Category tree.</p>
+     * a <code>ProjectData, DatasetData depending on whether you asked for a 
+     * Project, Dataset tree.</p>
      * 
      * @param rootNodeType  The type of the root node. Can only be one out of:
      *                      <code>ProjectData, DatasetData</code>.
@@ -103,7 +116,7 @@ public interface HierarchyBrowsingView
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle loadThumbnails(Collection<DataObject> imgs, int maxWidth, 
-    								int maxHeight, long userID, 
+    								int maxHeight, long userID, int type, 
     								AgentEventListener observer);
     
     /**

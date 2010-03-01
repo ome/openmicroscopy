@@ -77,9 +77,9 @@ class HierarchyBrowsingViewImpl
      */
     public CallHandle loadThumbnails(Collection<DataObject> images, 
     								int maxWidth, int maxHeight, long userID,
-                                     AgentEventListener observer)
+                                    int type, AgentEventListener observer)
     {
-    	BatchCallTree cmd = new ThumbnailSetLoader(images, maxHeight);
+    	BatchCallTree cmd = new ThumbnailSetLoader(images, maxHeight, type);
         return cmd.exec(observer);
     }
 

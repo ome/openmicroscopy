@@ -74,22 +74,40 @@ public class FSFileSystemView
 	 * @param file The file to handle.
 	 * @return See above.
 	 */
-    private RepositoryPrx getRepository(FileData file)
+    private RepositoryPrx getRepository(DataObject file)
     {
-    	if (isRoot(file))
-    		return repositories.get(file);
-    	String refPath = file.getAbsolutePath();
-    	Entry entry;
-    	Iterator i = repositories.entrySet().iterator();
-    	String path;
-    	FileData data;
-    	while (i.hasNext()) {
-			entry = (Entry) i.next();
-			data = (FileData) entry.getKey();
-			path = data.getAbsolutePath();
-			if (refPath.startsWith(path)) 
-				return (RepositoryPrx) entry.getValue();
-		}
+    	if (file instanceof ImageData) {
+    		ImageData img = (ImageData) file;
+    		String refPath = img.getName();
+        	Entry entry;
+        	Iterator i = repositories.entrySet().iterator();
+        	String path;
+        	FileData data;
+        	while (i.hasNext()) {
+    			entry = (Entry) i.next();
+    			data = (FileData) entry.getKey();
+    			path = data.getAbsolutePath();
+    			if (refPath.startsWith(path)) 
+    				return (RepositoryPrx) entry.getValue();
+    		}
+    	} else if (file instanceof FileData) {
+    		FileData f = (FileData) file;
+    		if (isRoot(f))
+        		return repositories.get(f);
+        	String refPath = f.getAbsolutePath();
+        	Entry entry;
+        	Iterator i = repositories.entrySet().iterator();
+        	String path;
+        	FileData data;
+        	while (i.hasNext()) {
+    			entry = (Entry) i.next();
+    			data = (FileData) entry.getKey();
+    			path = data.getAbsolutePath();
+    			if (refPath.startsWith(path)) 
+    				return (RepositoryPrx) entry.getValue();
+    		}
+    	}
+    	
     	return null;
     }
     
@@ -194,24 +212,41 @@ public class FSFileSystemView
     /**
      * Returns the path to the thumbnail.
      * 
-     * @param file The file to handle.
+     * @param object The object to handle.
      * @return See above.
      * @throws FSAccessException
      */
-    public String getThumbnail(FileData file)
+    public String getThumbnail(DataObject object)
     	throws FSAccessException
     {
-    	if (file == null || file.isDirectory() || file.isHidden())
-    		return null;
-    	if (!file.getAbsolutePath().contains(".")) return null;
-    	RepositoryPrx proxy = getRepository(file);
-    	if (proxy == null) return null;
-    	try {
-    		return proxy.getThumbnail(file.getAbsolutePath());
-		} catch (Exception e) {
-			new FSAccessException("Cannot retrieve the thumbnail for: " +
-					""+file.getAbsolutePath(), e);
-		}
+    	if (object == null) return null;
+    	if (object instanceof FileData) {
+    		FileData f = (FileData) object;
+    		if (f.isDirectory() || f.isHidden())
+        		return null;
+        	if (!f.getAbsolutePath().contains(".")) return null;
+        	RepositoryPrx proxy = getRepository(f);
+        	if (proxy == null) return null;
+        	try {
+        		return proxy.getThumbnail(f.getAbsolutePath());
+    		} catch (Exception e) {
+    			new FSAccessException("Cannot retrieve the thumbnail for: " +
+    					""+f.getAbsolutePath(), e);
+    		}
+    	} else if (object instanceof ImageData) {
+    		ImageData img = (ImageData) object;
+    		String name = img.getName();
+    		if (!name.contains(".")) return null;
+        	RepositoryPrx proxy = getRepository(object);
+        	if (proxy == null) return null;
+        	try {
+        		return proxy.getThumbnail(name);
+    		} catch (Exception e) {
+    			new FSAccessException("Cannot retrieve the thumbnail for: " +
+    					""+name, e);
+    		}
+    	}
+    	
     	
     	return null;
     }

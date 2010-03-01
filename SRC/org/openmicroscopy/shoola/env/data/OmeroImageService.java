@@ -672,8 +672,8 @@ public interface OmeroImageService
 	 * @return See above.
 	 * @throws RenderingServiceException  If the server is out of service.
 	 */
-	public Map<FileData, BufferedImage> getFSThumbnailSet(List<FileData> files, 
-			                                        int maxLength, long userID)
+	public Map<DataObject, BufferedImage> getFSThumbnailSet(
+			List<DataObject> files, int maxLength, long userID)
 		throws DSAccessException, DSOutOfServiceException, FSAccessException;
 	
 }

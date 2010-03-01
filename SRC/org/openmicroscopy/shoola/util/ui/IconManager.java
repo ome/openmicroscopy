@@ -573,7 +573,7 @@ public class IconManager
         relPaths[URL_ANNOTATION] = "nuvola_browser16.png";
         relPaths[START_SELECTED] = "nuvola_mozilla16.png";
         relPaths[START_UNSELECTED] = "mozilla_grey16.png";
-        relPaths[BROKEN_FILE_96] = "nuvola_file_broken96.png";
+        relPaths[BROKEN_FILE_96] = "nuvola_image_grey96.png";
         relPaths[DOUBLE_LEFT_ARROW] = "nuvola_2leftarrow16.png";
         relPaths[DOUBLE_RIGHT_ARROW] = "nuvola_2rightarrow16.png";
         relPaths[LEFT_ARROW] = "nuvola_1leftarrow16.png";

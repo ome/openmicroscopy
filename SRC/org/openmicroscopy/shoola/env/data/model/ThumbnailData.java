@@ -63,7 +63,7 @@ public class ThumbnailData
     /** The thumbnail pixels. */
     private BufferedImage   thumbnail;
 
-    /** Falg indicating if the image is a default image or not. */
+    /** Flag indicating if the image is a default image or not. */
     private boolean			validImage;
     
     /** Used to store the image. */
@@ -125,7 +125,7 @@ public class ThumbnailData
               throw new NullPointerException("No thumbnail.");
     	  if (refOjbect == null)
     		  throw new IllegalArgumentException("No object.");
-    	  if (!(refOjbect instanceof FileData))
+    	  if (!(refOjbect instanceof FileData || refOjbect instanceof ImageData))
     		  throw new IllegalArgumentException("Type not valid.");
     	  this.refObject = refOjbect;
     	  this.validImage = validImage;

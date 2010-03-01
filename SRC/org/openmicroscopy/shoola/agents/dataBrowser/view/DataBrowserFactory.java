@@ -183,7 +183,7 @@ public class DataBrowserFactory
 	 * @return See above.
 	 */
 	public static final DataBrowser getFSFolderBrowser(FileData parent,
-								Collection<FileData> files)
+								Collection<DataObject> files)
 	{
 		return singleton.createFSFolderBrowser(parent, files);
 	}
@@ -513,7 +513,7 @@ public class DataBrowserFactory
 	 * @return See above.
 	 */
 	private DataBrowser createFSFolderBrowser(FileData parent, 
-			Collection<FileData> files)
+			Collection<DataObject> files)
 	{
 		DataBrowserModel model = new FSFolderModel(parent, files);
 		DataBrowserComponent comp = new DataBrowserComponent(model);
