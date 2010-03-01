@@ -545,7 +545,10 @@ public class ScreenLogin
 		mainPanel.add(l, "0, 1, LEFT, CENTER");
 		ref.add(l);
 		if (groupsBox != null) {
-			mainPanel.add(groupsBox, "1, 1, 2, 1");
+			JPanel gp = UIUtilities.buildComponentPanel(groupsBox, 0, 0);
+			gp.setBorder(null);
+			gp.setOpaque(false);
+			mainPanel.add(gp, "1, 1, 3, 1");
 			ref.add(groupsBox);
 		}
 		//third row
