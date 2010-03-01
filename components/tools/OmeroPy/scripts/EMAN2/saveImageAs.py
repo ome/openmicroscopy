@@ -128,9 +128,17 @@ def saveImageAs(session, parameterMap):
 		return
 		
 	extension = None
+	format = None
 	if "extension" in parameterMap:
 		extension = parameterMap["extension"]
-		
+		if extension in filetypes:
+			format = filetypes[extension]
+			print "Saving all images as .%s files. Format: %s" % (extension, filetypes[extension])
+		else:
+			print "Invalid extension: %s (not supported by EMAN2). Will attempt to get extensions from image names." % extension
+			extension = None
+	else:
+		print "No extension specified. Will attempt get extensions from image names."
 	
 	gateway = session.createGateway()
 	for imageId in imageIds:
@@ -142,14 +150,17 @@ def saveImageAs(session, parameterMap):
 			lastDotIndex = imageName.rfind(".")		# .rpartition(sep)
 			if lastDotIndex >= 0:
 				extension = imageName[lastDotIndex+1:]
-			
+				if extension in filetypes:
+					format = filetypes[extension]
+		
 		if (extension == None) or (extension not in filetypes):
-			print "File extension not given or invalid. Could not export image ID: %d  Name: %s  Extension: %s" % (imageId, imageName, extension)
+			print "File extension from image invalid. Could not export image ID: %d  Name: %s  Extension: %s" % (imageId, imageName, extension)
 			continue
+			
 			
 		if not imageName.endswith(".%s" % extension):
 			imageName = "%s.%s" % (imageName, extension)
-		print "Preparing to save image: %s" % imageName
+		#print "Preparing to save image: %s" % imageName
 		figLegend = ""
 	
 		# get pixels, with pixelsType
@@ -179,8 +190,12 @@ def saveImageAs(session, parameterMap):
 			
 		em.write_image(imageName)
 		
+		if format == None:
+			format = ""		# upload method will pick generic format. 
+		print "Uploading image: %s to server with file type: %s" % (imageName, format)
+		
 		# attach to image
-		fileId = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, image, imageName, extension, figLegend)	 
+		fileId = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, image, imageName, format, figLegend)	 
 
 
 def runAsScript():
