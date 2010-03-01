@@ -578,7 +578,7 @@ public class IconManager
         relPaths[DOUBLE_RIGHT_ARROW] = "nuvola_2rightarrow16.png";
         relPaths[LEFT_ARROW] = "nuvola_1leftarrow16.png";
         relPaths[RIGHT_ARROW] = "nuvola_1rightarrow16.png";
-        relPaths[TAG_OTHER_OWNER] = "nuvola_knotes16.png";
+        relPaths[TAG_OTHER_OWNER] = "nuvola_knotes_group16.png";
         relPaths[WIZARD_48] ="nuvola_wizard48.png";
         relPaths[START_SELECTED_12] = "nuvola_mozilla12.png";
         relPaths[START_UNSELECTED_12] = "mozilla_grey12.png";
@@ -624,7 +624,7 @@ public class IconManager
         relPaths[ACTUAL_SIZE] = "nuvola_viewmagfit16.png";
         relPaths[ZOOM_IN] = "nuvola_viewmag+16.png";
         relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
-        relPaths[TAG_SET_OTHER_OWNER] = "nuvola_knotesRedRed16.png";
+        relPaths[TAG_SET_OTHER_OWNER] = "nuvola_knotesRed_group16.png";
     }
 	
 	/**

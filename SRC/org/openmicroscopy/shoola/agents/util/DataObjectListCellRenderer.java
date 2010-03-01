@@ -37,6 +37,7 @@ import javax.swing.JList;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.URLAnnotationData;
@@ -71,6 +72,18 @@ public class DataObjectListCellRenderer
     /** Filter to identify protocol file. */
     private EditorFileFilter 	filter;
     
+    /**
+     * Sets the text displayed in the tool tip.
+     * 
+     * @param exp The experimenter to handle.
+     */
+    private void createTooltip(ExperimenterData exp)
+    {
+    	if (exp == null) return;
+    	String s = "Created by: "+exp.getFirstName()+" "+exp.getLastName();
+    	setToolTipText(s);
+    }
+    
 	/** Creates a new instance. */
 	public DataObjectListCellRenderer()
 	{
@@ -103,15 +116,19 @@ public class DataObjectListCellRenderer
 			TagAnnotationData tag = (TagAnnotationData) value;
 			setText(tag.getTagValue());
 			String ns = tag.getNameSpace();
+			ExperimenterData exp;
 			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
 				if (currentUserID >= 0) {
 					try {
-						long id = tag.getOwner().getId();
+						exp = tag.getOwner();
+						long id = exp.getId();
 						if (id == currentUserID) 
 							setIcon(icons.getIcon(IconManager.TAG_SET));
-						else 
+						else  {
+							createTooltip(exp);
 							setIcon(icons.getIcon(
 									IconManager.TAG_SET_OTHER_OWNER));
+						}
 					} catch (Exception e) {
 						setIcon(icons.getIcon(IconManager.TAG_SET));
 					}
@@ -120,11 +137,14 @@ public class DataObjectListCellRenderer
 			} else {
 				if (currentUserID >= 0) {
 					try {
-						long id = tag.getOwner().getId();
+						exp = tag.getOwner();
+						long id = exp.getId();
 						if (id == currentUserID) 
 							setIcon(icons.getIcon(IconManager.TAG));
-						else 
+						else {
+							createTooltip(exp);
 							setIcon(icons.getIcon(IconManager.TAG_OTHER_OWNER));
+						}
 					} catch (Exception e) {
 						setIcon(icons.getIcon(IconManager.TAG));
 					}
