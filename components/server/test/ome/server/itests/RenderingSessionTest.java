@@ -192,8 +192,9 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
             iUpdate.saveObject(link);
         }
 
-        long pix_id = iQuery.findByQuery("select p from Pixels p",
-                new Parameters().page(0, 1)).getId();
+        Pixels p = iQuery.findByQuery("select p from Pixels p",
+                new Parameters().page(0, 1));
+        long pix_id = p.getId();
 
         RenderingEngine re = factory.createRenderingEngine();
         re.setCompressionLevel(.25f);
