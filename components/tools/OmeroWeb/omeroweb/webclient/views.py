@@ -753,6 +753,77 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     return HttpResponse(t.render(c))
 
 @isUserConnected
+def load_searching(request, form=None, **kwargs):
+    request.session.modified = True
+    # check menu
+    menu = request.REQUEST.get("menu")
+    if menu is not None:
+        request.session['nav']['menu'] = menu
+    else:
+        menu = request.session['nav']['menu']
+    # check view
+    view = request.REQUEST.get("view")
+    if view is not None:
+        request.session['nav']['view'] = view
+    else:
+        view = request.session['nav']['view']
+    
+    # get connection
+    conn = None
+    try:
+        conn = kwargs["conn"]        
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    # get url to redirect
+    url = None
+    try:
+        url = kwargs["url"]
+    except:
+        logger.error(traceback.format_exc())
+    if url is None:
+        url = reverse(viewname="load_template", args=[menu])
+
+    # get page    
+    try:
+        page = int(request.REQUEST['page'])
+    except:
+        page = 1
+    
+    manager = BaseSearch(conn)
+    if form is not None: 
+        query_search = request.REQUEST.get('query')
+        template = "omeroweb/search_details.html"
+
+        onlyTypes = list()
+        if request.REQUEST.get('projects') is not None and request.REQUEST.get('projects').encode('utf-8') == 'on':
+            onlyTypes.append('projects')
+        if request.REQUEST.get('datasets') is not None and request.REQUEST.get('datasets').encode('utf-8') == 'on':
+            onlyTypes.append('datasets')
+        if request.REQUEST.get('images') is not None and request.REQUEST.get('images').encode('utf-8') == 'on':
+            onlyTypes.append('images')
+        if request.REQUEST.get('plates') is not None and request.REQUEST.get('plates').encode('utf-8') == 'on':
+            onlyTypes.append('plates')
+        if request.REQUEST.get('screens') is not None and request.REQUEST.get('screens').encode('utf-8') == 'on':
+            onlyTypes.append('screens')
+        
+        period = request.REQUEST.get('dateperiodinput')
+        if period is not None:
+            period = period.encode('utf-8')
+        
+        manager.search(query_search, onlyTypes, period)
+    else:
+        template = "omeroweb/search.html"
+    
+    form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups']})
+    context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_active_group':form_active_group}
+        
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    return HttpResponse(t.render(c))
+
+@isUserConnected
 def manage_data_by_tag(request, tid=None, tid2=None, tid3=None, tid4=None, tid5=None, **kwargs):
     request.session['nav']['menu'] = 'mydata'
     request.session['nav']['whos'] = 'mydata'
@@ -864,81 +935,6 @@ def autocomplete_tags(request, **kwargs):
     
     json_data = simplejson.dumps(list(conn.lookupTags()))
     return HttpResponse(json_data, mimetype='application/javascript')
-
-@isUserConnected
-def manage_annotations(request, o_type, o_id, **kwargs):
-    conn = None
-    try:
-        conn = kwargs["conn"]
-        
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-    
-    t = None
-    try:
-        t = request.REQUEST['t']
-    except:
-        pass
-    
-    manager = BaseContainer(conn, o_type, o_id)
-    if t == "zoom":
-        template = "omeroweb/annotations_zoom.html"
-    elif o_type == 'project':
-        template = "omeroweb/annotations.html"
-    elif o_type == "dataset":
-        template = "omeroweb/annotations.html"
-    elif o_type == "image":
-        template = "omeroweb/annotations.html"
-    elif o_type == "screen":
-        template = "omeroweb/annotations.html"
-    else:
-        return handlerInternalError("Annotations cannot be displayed for - %s (id:%s)." % (o_type, o_id))
-    
-    manager.annotationList()
-    
-    context = {'url':url, 'manager':manager}
-
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    return HttpResponse(t.render(c))
-    
-@isUserConnected
-def manage_tree_details(request, c_type, c_id, **kwargs):
-    template = "omeroweb/container_tree_details.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-        
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-    
-    whos = request.session['nav']['whos']
-    
-    try:
-        manager = BaseContainer(conn, c_type, c_id)
-    except AttributeError, x:
-        return handlerInternalError(x)
-    
-    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager}
-
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    return HttpResponse(t.render(c))
 
 @isUserConnected
 def load_metadata_details(request, c_type, c_id, index=None, **kwargs):   
@@ -1563,7 +1559,7 @@ def load_metadata_details_multi(request, **kwargs):
     return HttpResponse(t.render(c))
 
 @isUserConnected
-def manage_container_hierarchies(request, o_type=None, o_id=None, **kwargs):
+def load_hierarchies(request, o_type=None, o_id=None, **kwargs):
     template = "omeroweb/hierarchy.html"
     conn = None
     try:
@@ -1850,49 +1846,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     return HttpResponse(t.render(c))
 
 @isUserConnected
-def manage_image_zoom (request, iid, **kwargs):
-    template = "omeroweb/image_zoom.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-    
-    try:
-        image = BaseContainer(conn, 'image', iid)
-    except AttributeError, x:
-        return handlerInternalError(x)
-    
-    if request.session['nav']['whos'] != 'mydata' and request.session['nav']['whos'] != 'userdata' and request.session['nav']['whos'] != 'groupdata':
-        if image.image.details.owner.id.val == image.eContext['context'].userId:
-            request.session['nav']['whos'] = 'mydata'
-        elif image.image.details.group.id.val == image.eContext['context'].groupId:
-            request.session['nav']['whos'] = 'groupdata'
-        else:
-            request.session['nav']['whos'] = 'userdata'
-    if request.session['nav']['menu'] != 'userdata' and request.session['nav']['menu'] != 'mydata':
-        if image.image.details.owner.id.val == image.eContext['context'].userId:
-            request.session['nav']['menu'] = 'mydata'
-        elif image.image.details.group.id.val == image.eContext['context'].groupId:
-            request.session['nav']['menu'] = 'userdata'
-        else:
-            request.session['nav']['menu'] = 'userdata'
-    
-    context = {'url':url, 'nav':request.session['nav'], 'image':image}
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    return HttpResponse(t.render(c))
-
-@isUserConnected
-def manage_annotation(request, action, iid, **kwargs):
+def download_annotation(request, action, iid, **kwargs):
     conn = None
     try:
         conn = kwargs["conn"]
@@ -2401,97 +2355,7 @@ def update_clipboard(request, **kwargs):
         rv = "Error: Action not available."
     return HttpResponse(rv)
 
-@isUserConnected
-def search(request, **kwargs):
-    request.session['nav']['menu'] = 'search'
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-        
-    try:
-        request.session['nav']['view'] = request.REQUEST['view'] # table, icon, tree 
-    except:
-        pass
 
-    request.session.modified = True
-        
-    if request.session['nav']['view'] == 'table':
-        template = "omeroweb/search_table.html"
-    elif request.session['nav']['view'] == 'icon':
-        template = "omeroweb/search_icon.html"
-    else:
-        request.session['nav']['view'] = "table"
-        template = "omeroweb/search_icon.html"
-    
-    manager = BaseSearch(conn)
-    
-    try:
-        if request.method == 'GET' and request.REQUEST['query']: 
-            pass
-    except:
-        manager.criteria['images'] = 'CHECKED'
-    else:
-        onlyTypes = list()
-        try:
-            if request.REQUEST['query']:
-                query_search = request.REQUEST['query']
-            else:
-                query_search = None
-        except:
-            query_search = None
-        
-        try:
-            if request.REQUEST['projects'] == unicode('on'):
-                onlyTypes.append('projects')
-        except:
-            pass        
-        try:
-            if request.REQUEST['datasets'] == unicode('on'):
-                onlyTypes.append('datasets')
-        except:
-            pass        
-        try:
-            if request.REQUEST['images'] == unicode('on'):
-                onlyTypes.append('images')
-        except:
-            pass
-        try:
-            if request.REQUEST['plates'] == unicode('on'):
-                onlyTypes.append('plates')
-        except:
-            pass
-        try:
-            if request.REQUEST['screens'] == unicode('on'):
-                onlyTypes.append('screens')
-        except:
-            pass
-        
-        try:
-            if request.REQUEST['dateperiodinput'] != unicode(''):
-                period = request.REQUEST['dateperiodinput']
-            else:
-                period = ""
-        except:
-            period = ""
-        
-        manager.search(query_search, onlyTypes, period)
-    
-    form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups']})
-    
-    context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_active_group':form_active_group}
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    return HttpResponse(t.render(c))
 
 @isUserConnected
 def importer(request, **kwargs):

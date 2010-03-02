@@ -1,0 +1,87 @@
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+{% load wikitags %}
+
+    
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.selectable.js" %}"></script>
+    
+    <script type="text/javascript">
+        $(document).ready(function(){
+
+            $("ul#dataTable").selectable({
+            	stop: function(){
+            		var result = $("#select-result").empty();
+            		var l = $('li.ui-selected', this).length;
+            		$("li.ui-selected input", this).each(function(){
+            		    this.checked = true;
+            		});
+            		if (l == 1) {
+            		    $("#toolbar").html("");
+            		    $("#right_panel").show();
+                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
+            		    $('li.ui-selected', this).each(function(){  
+            		        var h = $(window).height()-169;
+            		        var obj = this.id.split("-");
+            		        $("div#metadata_details").html('<iframe width="100%" height="'+h+'" src="/webclient/metadata_details/'+obj[0]+'/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
+                            $('iframe#metadata_details').load();
+                        });
+            		} else {
+            		    $("#toolbar").html('<a href="{% url load_metadata_details_multi %}" target="metadata_details"><img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/></a>');
+            		    $("#right_panel").show();
+            		    $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
+            		    $("div#metadata_details").html('<p>'+ l +' elements selected.</p>');
+            		}
+            	},
+            	start: function(){
+            		$("li input", this).each(function(){
+            			this.checked = false;
+            		});
+            	}
+            });
+        });    
+    </script>
+
+
+    <div id="toolbar" class="toolbar_noborder"></div>
+    <div class="clear"> </div>
+
+    <div>
+        {% if manager.c_size %}
+        <ul id="dataTable">
+            {% for c in manager.containers.projects %}
+            <li id="project-{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder32.png" %}" alt="project" title="project"/> {{ c.shortName2 }} ({{ c.getDate }}) {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %} <input type="checkbox" name="project" id="{{ c.id }}">
+            </li>
+            {% endfor %}
+            {% for c in manager.containers.screens %}
+            <li id="screen-{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_screen32.png" %}" alt="screen" title="screen"/> {{ c.shortName2 }} ({{ c.getDate }}) {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %} <input type="checkbox" name="screen" id="{{ c.id }}">
+            </li>
+            {% endfor %}
+            {% for c in manager.containers.datasets %}
+            <li id="dataset-{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_image32.png" %}" alt="dataset" title="dataset"/> {{ c.shortName2 }} ({{ c.getDate }}) {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %} <input type="checkbox" name="dataset" id="{{ c.id }}">
+            </li>
+            {% endfor %}
+            {% for c in manager.containers.plates %}
+            <li id="plate-{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_plate32.png" %}" alt="plate" title="plate"/> {{ c.shortName2 }} ({{ c.getDate }}) {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %} <input type="checkbox" name="plate" id="{{ c.id }}">
+            </li>
+            {% endfor %}
+            {% for c in manager.containers.images %}
+            <li id="image-{{ c.id }}"><img id="{{ c.id }}" src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/> {{ c.shortName2 }} ({{ c.getDate }}) {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %} <input type="checkbox" name="image" id="{{ c.id }}">
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+            <p>{% trans "No data." %}</p>
+        {% endif %}
+
+        {% if manager.c_size %}<div>
+            <p>{% trans "Legend" %}: <img src="{% url webstatic "images/folder16.png" %}" title="Project" alt="project"/> - {% trans "Project" %}; <img src="{% url webstatic "images/folder_image16.png" %}" title="Dataset" alt="dataset"/> - {% trans "Dataset" %}; <img src="{% url webstatic "images/folder_screen16.png" %}" title="Screen" alt="screen"/> - {% trans "Screen" %}; <img src="{% url webstatic "images/folder_plate16.png" %}" title="Plate" alt="plate"/> - {% trans "Plate" %};</p>
+        </div>{% endif %}
+
+    </div>
+
+
+
+
+
+{% include "omeroweb/container_paging.html" %}

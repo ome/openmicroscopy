@@ -30,8 +30,6 @@ from webclient.controller import BaseController
 
 class BaseSearch(BaseController):
 
-    criteria = None
-
     images = None
     projects = None
     datasets = None
@@ -44,13 +42,10 @@ class BaseSearch(BaseController):
     def __init__(self, conn, **kw):
         BaseController.__init__(self, conn)
         self.eContext['breadcrumb'] = ['Search']
-        self.criteria = dict()
 
-    def search(self, query, onlyTypes, period):
-        self.url = "&query=%s&dateperiodinput=%s" % (query, period, )
+    def search(self, query, onlyTypes, period=None):
         created = None
-        if period != "":
-            self.criteria['period'] = period
+        if period is not None:
             p = str(period).split('_')
             # only for python 2.5
             # d1 = datetime.strptime(p[0]+" 00:00:00", "%Y-%m-%d %H:%M:%S") 
@@ -60,8 +55,6 @@ class BaseSearch(BaseController):
             
             created = [rtime(long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000), rtime(long(time.mktime(d2.timetuple())+1e-6*d2.microsecond)*1000)]
 
-        self.criteria['query'] = query
-        url = list()
         pr_list_with_counters = list()
         ds_list_with_counters = list()
         im_list_with_counters = list()
@@ -69,7 +62,6 @@ class BaseSearch(BaseController):
         pl_list_with_counters = list()
         for ot in onlyTypes:
             if ot == 'images':
-                self.criteria['images'] = 'CHECKED'
                 im_list = list(self.conn.searchImages(query, created))
                 
                 im_ids = [im.id for im in im_list]
@@ -79,10 +71,7 @@ class BaseSearch(BaseController):
                 for im in im_list:
                     im.annotation_counter = im_annotation_counter.get(im.id)
                     im_list_with_counters.append(im)
-
-                url.append("&images=on")
             elif ot == 'datasets':
-                self.criteria['datasets'] = 'CHECKED'
                 ds_list = list(self.conn.searchDatasets(query, created))
                 
                 ds_ids = [ds.id for ds in ds_list]
@@ -94,10 +83,7 @@ class BaseSearch(BaseController):
                     ds.child_counter = ds_child_counter.get(ds.id)
                     ds.annotation_counter = ds_annotation_counter.get(ds.id)
                     ds_list_with_counters.append(ds)
-
-                url.append("&datasets=on")
             elif ot == 'projects':
-                self.criteria['projects'] = 'CHECKED'
                 pr_list = list(self.conn.searchProjects(query, created))
                 
                 pr_ids = [pr.id for pr in pr_list]
@@ -109,18 +95,17 @@ class BaseSearch(BaseController):
                     pr.child_counter = pr_child_counter.get(pr.id)
                     pr.annotation_counter = pr_annotation_counter.get(pr.id)
                     pr_list_with_counters.append(pr)
-
-                url.append("&projects=on")
             elif ot == 'plates':
-                self.criteria['plates'] = 'CHECKED'
                 pl_list = list(self.conn.searchPlates(query, created))
-                
-                pl_list_with_counters = pl_list
+                pl_ids = [pl.id for pl in pl_list]
+                pl_annotation_counter = self.conn.getCollectionCount("Plate", "annotationLinks", pl_ids)
 
-                url.append("&plates=on")
+                pl_list_with_counters = list()
+                for pl in pl_list:
+                    pl.annotation_counter = pl_annotation_counter.get(pl.id)
+                    pl_list_with_counters.append(pl)
             elif ot == 'screens':
-                self.criteria['screens'] = 'CHECKED'
-                sc_list = list(self.conn.searchPlates(query, created))
+                sc_list = list(self.conn.searchScreens(query, created))
                 
                 sc_ids = [sc.id for sc in sc_list]
                 sc_child_counter = self.conn.getCollectionCount("Screen", "plateLinks", sc_ids)
@@ -131,11 +116,7 @@ class BaseSearch(BaseController):
                     sc.child_counter = sc_child_counter.get(sc.id)
                     sc.annotation_counter = sc_annotation_counter.get(sc.id)
                     sc_list_with_counters.append(sc)
-
-                url.append("&screens=on")
-                
+            
         self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters, 'images': im_list_with_counters, 'screens': sc_list_with_counters, 'plates': pl_list_with_counters}
+        
         self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(im_list_with_counters)+len(sc_list_with_counters)+len(pl_list_with_counters)
-        if len(url) > 0:
-            self.url = self.url + "".join(url)
-

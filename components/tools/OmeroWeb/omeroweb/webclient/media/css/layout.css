@@ -332,6 +332,13 @@ ul.errorlist li {
     border-width:0;
 }
 
+ul.criteria li{
+    list-style: none;
+    float: left;
+    margin: 0;
+    margin-right: 5px;
+}
+
 .clear {
     clear: both;
     width: 0px;

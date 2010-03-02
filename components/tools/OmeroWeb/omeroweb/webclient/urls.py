@@ -62,23 +62,17 @@ urlpatterns = patterns('',
     # load history
     url( r'^load_calendar/(?:(\d{4})/(\d{1,2})/)?$', views.load_calendar, name="load_calendar"),
     url( r'^load_history/(\d{4})/(\d{1,2})/(\d{1,2})/$', views.load_history, name="load_history"),
-    
+    url( r'^load_searching/(?:(?P<form>((?i)form)))$', views.load_searching, name="load_searching"),
     
     # others
-    url( r'^hierarchy/$', views.manage_container_hierarchies, name="manage_container_hierarchies" ),
-    url( r'^hierarchy/(?P<o_type>[a-zA-Z]+)/(?P<o_id>[0-9]+)/$', views.manage_container_hierarchies, name="manage_container_hierarchies_id" ),
-    url( r'^tree_details/(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/$', views.manage_tree_details, name="manage_tree_details" ),
+    url( r'^hierarchy/(?:(?P<o_type>[a-zA-Z]+)/(?P<o_id>[0-9]+)/)$', views.load_hierarchies, name="load_hierarchies" ),
     url( r'^metadata_details/(?P<c_type>[a-zA-Z]+)/(?P<c_id>[0-9]+)/(?:(?P<index>[0-9]+)/)?$', views.load_metadata_details, name="load_metadata_details" ),
     url( r'^metadata_details/multiaction/$', views.load_metadata_details_multi, name="load_metadata_details_multi" ),
-        
-    url( r'^image_zoom/(?P<iid>[0-9]+)/$', views.manage_image_zoom, name="manage_image_zoom" ),
     
     url( r'^action/(?P<action>[a-zA-Z]+)/(?:(?P<o_type>[a-zA-Z]+)/)?(?:(?P<o_id>[0-9]+)/)?$', views.manage_action_containers, name="manage_action_containers" ),
+    url( r'^annotation/(?P<action>[a-zA-Z]+)/(?P<iid>[0-9]+)/$', views.download_annotation, name="download_annotation" ),
     
     url( r'^metadata/(?P<o_type>[a-zA-Z]+)/(?P<o_id>[0-9]+)/$', views.manage_metadata, name="manage_metadata" ),
-    
-    url( r'^annotations/(?P<o_type>[a-zA-Z]+)/(?P<o_id>[0-9]+)/$', views.manage_annotations, name="manage_annotations" ),
-    url( r'^annotation/(?P<action>[a-zA-Z]+)/(?P<iid>[0-9]+)/$', views.manage_annotation, name="manage_annotation" ),
     
     url( r'^tag/(?:(?P<tid>[0-9]+)/)?(?:(?P<tid2>[0-9]+)/)?(?:(?P<tid3>[0-9]+)/)?(?:(?P<tid4>[0-9]+)/)?(?:(?P<tid5>[0-9]+)/)?$', views.manage_data_by_tag, name="manage_data_by_tag" ),
     url( r'^autocompletetags/$', views.autocomplete_tags, name="autocomplete_tags" ),
@@ -98,7 +92,7 @@ urlpatterns = patterns('',
     
     url( r'^clipboard/$', views.update_clipboard, name="update_clipboard"),
     
-    url( r'^search/$', views.search, name="search"),
+    
     
     
     url( r'^import/$', views.importer, name="importer"),

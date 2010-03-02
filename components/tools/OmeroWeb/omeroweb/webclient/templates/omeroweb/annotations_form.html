@@ -158,7 +158,7 @@
             {% else %}
                 {% if manager.plate %}
                 <table>
-                    <tr><td rowspan="3"><img src="{% url webstatic "images/folder_plate64.png" %}" alt="plate" title="plate"/></td>
+                    <tr><td rowspan="2"><img src="{% url webstatic "images/folder_plate64.png" %}" alt="plate" title="plate"/></td>
                         <td><label>{{ manager.plate.warpName }}</label>{% if manager.plate.isEditable %} <a href="{% url manage_action_containers "edit" "plate" manager.plate.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}</td></tr>
                     <tr><td>Created on: {{ manager.plate.getDate|date:"Y-m-d H:i:s" }}</td></tr>
                     <tr><td colspan="2">
@@ -206,14 +206,14 @@
 
             <table class="metadata_details">
             {% if manager.global_metadata %}
-                <tr><th colspan="3" class="header"><h1>{% trans "Global metadata" %}: <input type="button" value="Download" onClick="document.location.href='{% url manage_annotation "download" manager.original_metadata.id %}';"/></h1></th></tr>
+                <tr><th colspan="3" class="header"><h1>{% trans "Global metadata" %}: <input type="button" value="Download" onClick="document.location.href='{% url download_annotation "download" manager.original_metadata.id %}';"/></h1></th></tr>
                 {% for gm in manager.global_metadata %}
                     <tr><td><label>{{ gm.0 }}</label></td><td>{{ gm.1 }}</td></tr>
                 {% endfor %}
                 <tr><th colspan="3"><br/></th></tr>
             {% endif %}
             {% if manager.series_metadata %}
-                <tr><th colspan="3" class="header"><h1>{% trans "Series metadata" %}: <input type="button" value="Download" onClick="document.location.href='{% url manage_annotation "download" manager.original_metadata.id %}';"/></h1></th></tr>
+                <tr><th colspan="3" class="header"><h1>{% trans "Series metadata" %}: <input type="button" value="Download" onClick="document.location.href='{% url download_annotation "download" manager.original_metadata.id %}';"/></h1></th></tr>
                 {% for sm in manager.series_metadata %}
                     <tr><td><label>{{ sm.0 }}</label></td><td>{{ sm.1 }}</td></tr>
                 {% endfor %}
@@ -430,7 +430,7 @@
             {% if manager.fileannSize %}
             <div class="lnfiles">
                 {% for fileann in manager.file_annotations %}
-                <p><a href="#" onClick="document.location.href='{% url manage_annotation "download" fileann.id %}';">{{ fileann.getFileName }}</a> ({{ fileann.getFileSize|default_if_none:0|filesizeformat }}) {% trans "by" %} {{ fileann.getDetails.getOwner.getInitialName }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }} {% if fileann.canWrite and not fileann.isOriginalMetadat %}<a href="{% url manage_action_containers "remove" %}?parent={% if manager.image %}img-{{ manager.image.id}}{% else %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% else %}{% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&source=fann-{{ fileann.id }}&url={{ url }}#file_tab" onClick="return confirm('Unlink file?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}</p>
+                <p><a href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';">{{ fileann.getFileName }}</a> ({{ fileann.getFileSize|default_if_none:0|filesizeformat }}) {% trans "by" %} {{ fileann.getDetails.getOwner.getInitialName }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }} {% if fileann.canWrite and not fileann.isOriginalMetadat %}<a href="{% url manage_action_containers "remove" %}?parent={% if manager.image %}img-{{ manager.image.id}}{% else %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% else %}{% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&source=fann-{{ fileann.id }}&url={{ url }}#file_tab" onClick="return confirm('Unlink file?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}</p>
                 {% endfor %}
             </ol>
             </div>

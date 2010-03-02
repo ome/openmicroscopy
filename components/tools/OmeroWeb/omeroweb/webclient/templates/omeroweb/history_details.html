@@ -11,7 +11,7 @@
             $("ul#dataTable").selectable({
             	stop: function(){
             		var result = $("#select-result").empty();
-            		var l = $('li.ui-selected img', this).length;
+            		var l = $('li.ui-selected', this).length;
             		$("li.ui-selected input", this).each(function(){
             		    this.checked = true;
             		});
@@ -19,9 +19,10 @@
             		    $("#toolbar").html('');
                         $("#right_panel").show();
                         $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
-            		    $('li.ui-selected img', this).each(function(){  
+            		    $('li.ui-selected', this).each(function(){  
             		        var h = $(window).height()-169;
-            		        $("div#metadata_details").html('<iframe width="100%" height="'+h+'" src="/webclient/metadata_details/'+this.alt+'/'+this.id+'/" id="metadata_details" name="metadata_details"></iframe>');
+            		        var obj = this.id.split("-");
+            		        $("div#metadata_details").html('<iframe width="100%" height="'+h+'" src="/webclient/metadata_details/'+obj[0]+'/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
                             $('iframe#metadata_details').load();
                         });
             		} else {            		    
@@ -51,19 +52,19 @@
     <ul id="dataTable">
         {% for i in controller.day_items %}
         {% for c in i.project %}
-            <li id="{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder32.png" %}" alt="project" title="{{ c.name }}"/>{{ c.shortName2 }} ({{ c.getDate }}) <input type="checkbox" name="project" id="{{ c.id }}"></li>
+            <li id="project-{{ c.id }}"><img src="{% url webstatic "images/folder32.png" %}" alt="project" title="{{ c.name }}"/>{{ c.shortName2 }} ({{ c.getDate }}) {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %} <input type="checkbox" name="project" id="{{ c.id }}"></li>
         {% endfor %}
         {% for c in i.dataset %}
-            <li id="{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_image32.png" %}" alt="dataset" title="{{ c.name }}"/> {{ c.shortName2 }} ({{ c.getDate }}) <input type="checkbox" name="dataset" id="{{ c.id }}"></li>
+            <li id="dataset-{{ c.id }}"><img src="{% url webstatic "images/folder_image32.png" %}" alt="dataset" title="{{ c.name }}"/> {{ c.shortName2 }} ({{ c.getDate }}) {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %} <input type="checkbox" name="dataset" id="{{ c.id }}"></li>
         {% endfor %}
         {% for c in i.image %}
-            <li id="{{ c.id }}"><img id="{{ c.id }}" src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/> {{ c.shortName2 }} ({{ c.getDate }}) <input type="checkbox" name="image" id="{{ c.id }}"></li>
+            <li id="image-{{ c.id }}"><img src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/> {{ c.shortName2 }} ({{ c.getDate }}) {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %} <input type="checkbox" name="image" id="{{ c.id }}"></li>
         {% endfor %}
         {% for c in i.screen %}
-            <li id="{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_screen32.png" %}" alt="screen" title="{{ c.name }}"/> {{ c.shortName2 }} ({{ c.getDate }}) <input type="checkbox" name="screen" id="{{ c.id }}"></li>
+            <li id="screen-{{ c.id }}"><img src="{% url webstatic "images/folder_screen32.png" %}" alt="screen" title="{{ c.name }}"/> {{ c.shortName2 }} ({{ c.getDate }}) {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %} <input type="checkbox" name="screen" id="{{ c.id }}"></li>
         {% endfor %}
         {% for c in i.plate %}
-            <li id="{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_plate32.png" %}" alt="plate" title="{{ c.name }}"/> {{ c.shortName2 }} ({{ c.getDate }}) <input type="checkbox" name="plate" id="{{ c.id }}"></li>
+            <li id="plate-{{ c.id }}"><img src="{% url webstatic "images/folder_plate32.png" %}" alt="plate" title="{{ c.name }}"/> {{ c.shortName2 }} ({{ c.getDate }}) {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %} <input type="checkbox" name="plate" id="{{ c.id }}"></li>
         {% endfor %}
         {% endfor %}
     </ul>
