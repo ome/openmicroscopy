@@ -47,7 +47,6 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.DataObject;
-import pojos.FileData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ROIData;
@@ -622,6 +621,19 @@ public interface OmeroImageService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public List<ScriptObject> loadScripts(long userID, boolean all)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Loads the specified script and its parameters.
+	 * 
+	 * @param scriptID The id of the script.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public ScriptObject loadScript(long scriptID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**

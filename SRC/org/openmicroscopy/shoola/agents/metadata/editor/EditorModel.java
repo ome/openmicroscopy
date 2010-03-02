@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.metadata.PasswordEditor;
 import org.openmicroscopy.shoola.agents.metadata.PlaneInfoLoader;
 import org.openmicroscopy.shoola.agents.metadata.ROILoader;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
+import org.openmicroscopy.shoola.agents.metadata.ScriptLoader;
 import org.openmicroscopy.shoola.agents.metadata.ScriptsLoader;
 import org.openmicroscopy.shoola.agents.metadata.TagsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ThumbnailLoader;
@@ -2163,6 +2164,36 @@ class EditorModel
 	 * @return See above.
 	 */
 	List getScripts() { return scripts; }
+	
+	/** 
+	 * Loads the specified script.
+	 * 
+	 * @param scriptID The identifier of the script to load.
+	 */
+	void loadScript(long scriptID)
+	{
+		ScriptLoader loader = new ScriptLoader(component, scriptID);
+		loader.load();
+		loaders.add(loader);
+	}
+	
+	/**
+	 * Sets the specified script.
+	 * 
+	 * @param script The loaded script.
+	 */
+	void setScript(ScriptObject script)
+	{
+		if (scripts == null || scripts.size() == 0) return;
+		Iterator i = scripts.iterator();
+		ScriptObject s;
+		while (i.hasNext()) {
+			s = (ScriptObject) i.next();
+			if (s.getScriptID() == script.getScriptID()) {
+				s.setParameterTypes(script.getParameterTypes());
+			}
+		}
+	}
 	
 	/** Loads the scripts. */
 	void loadScripts()

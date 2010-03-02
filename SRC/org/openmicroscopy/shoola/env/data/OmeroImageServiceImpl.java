@@ -880,6 +880,16 @@ class OmeroImageServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroImageService#loadScript(long)
+	 */
+	public ScriptObject loadScript(long scriptID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return gateway.loadScript(scriptID);
+	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroImageService#getScriptsAsString()
 	 */
 	public Map<Long, String> getScriptsAsString()

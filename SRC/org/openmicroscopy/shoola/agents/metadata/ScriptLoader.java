@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.ScriptsLoader 
+ * org.openmicroscopy.shoola.agents.metadata.ScriptLoader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.metadata;
 
 
+
 //Java imports
 import java.util.List;
 
@@ -30,10 +31,11 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- * Loads the scripts. This class calls the <code>loadScripts</code> 
+ * Loads the specified script. This class calls the <code>loadScript</code> 
  * method in the <code>MetadataHandlerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -46,39 +48,37 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * </small>
  * @since 3.0-Beta4
  */
-public class ScriptsLoader 
+public class ScriptLoader 
 	extends EditorLoader
 {
 
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
     
-    /** 
-     * Flag indicating to load all the scripts (uploaded and default)
-     * or only the uploaded scripts.
-     */
-    private boolean all;
+    /** The script's identifier. */
+    private long scriptID;
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer Reference to the viewer. Mustn't be <code>null</code>.
-     * @param all  	 Pass <code>true</code> to retrieve all the scripts uploaded
-	 * 				 ones and the default ones, <code>false</code>.
+     * @param viewer 	Reference to the viewer. Mustn't be <code>null</code>.
+     * @param scriptID	The script's identifier.
      */
-    public ScriptsLoader(Editor viewer, boolean all)
+    public ScriptLoader(Editor viewer, long scriptID)
     {
     	super(viewer);
-    	this.all = all;
+    	if (scriptID < 0)
+    		throw new IllegalArgumentException("No script specified.");
+    	this.scriptID = scriptID;
     }
     
     /** 
-     * Loads the scripts.
+     * Loads the script.
      * @see EditorLoader#load()
      */
     public void load()
     {
-    	handle = mhView.loadScripts(-1, all, this);
+    	handle = mhView.loadScript(scriptID, this);
     }
     
     /** 
@@ -93,7 +93,8 @@ public class ScriptsLoader
      */
     public void handleResult(Object result) 
     {
-    	viewer.setScripts((List) result);
+    	//viewer.setScripts((List) result);
+    	viewer.setScript((ScriptObject) result);
     }
     
 }

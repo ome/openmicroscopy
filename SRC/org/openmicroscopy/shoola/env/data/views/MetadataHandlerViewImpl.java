@@ -350,7 +350,20 @@ class MetadataHandlerViewImpl
 	public CallHandle loadScripts(long userID, boolean all,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ScriptsLoader(userID, all);
+		int index = ScriptsLoader.DEFAULT_SCRIPTS;
+		if (all) index = ScriptsLoader.ALL_SCRIPTS;
+		BatchCallTree cmd = new ScriptsLoader(userID, index);
+		return cmd.exec(observer);
+	}
+	
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#loadScript(long, AgentEventListener)
+	 */
+	public CallHandle loadScript(long scriptID, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ScriptsLoader(scriptID, 
+				ScriptsLoader.SINGLE_SCRIPT);
 		return cmd.exec(observer);
 	}
 	

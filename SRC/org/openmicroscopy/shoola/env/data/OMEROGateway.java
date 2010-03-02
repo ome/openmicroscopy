@@ -5066,13 +5066,43 @@ class OMEROGateway
 				en = (Entry) j.next();
 				id = (Long) en.getKey();
 				script = new ScriptObject(id, (String) en.getValue());
-				script.setParameterTypes(convertParameters(svc.getParams(id)));
+				//script.setParameterTypes(convertParameters(svc.getParams(id)));
 				scripts.add(script);
 			}
 		} catch (Exception e) {
 			handleException(e, "Cannot load the scripts. ");
 		}
 		return scripts;
+	}
+	
+	/**
+	 * Loads and returns the 
+	 * 
+	 * @param scriptID The id of the script.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	ScriptObject loadScript(long scriptID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		ScriptObject script = null;
+		try {
+			IScriptPrx svc = getScripService();
+			String name = svc.getScript(scriptID);
+			Map<Long, String> map = svc.getScripts();
+			if (name == null || name.length() == 0) return null;
+			script = new ScriptObject(scriptID, "");
+			//script.setParameterTypes(
+			//		convertParameters(svc.getParams(scriptID)));
+			
+		} catch (Exception e) {
+			handleException(e, "Cannot load the scripts. ");
+		}
+		return script;
 	}
 	
 	/**

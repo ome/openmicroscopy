@@ -152,6 +152,7 @@ public abstract class EditorLoader
      */
     public void handleException(Throwable exc) 
     {
+    	viewer.setStatus(false);
     	String s = "Data Retrieval Failure: ";
         LogMessage msg = new LogMessage();
         msg.print(s);

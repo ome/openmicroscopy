@@ -373,4 +373,12 @@ public interface MetadataHandlerView
 	public CallHandle loadScripts(long userID, boolean all,
 			AgentEventListener observer);
 	
+	/**
+	 * Loads the specified script.
+	 * 
+	 * @param scriptID The id of the script.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadScript(long scriptID, AgentEventListener observer);
+	
 }

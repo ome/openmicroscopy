@@ -475,4 +475,14 @@ public class NullRenderingService
 		return null;
 	}
 
+	/**
+     * No-op implementation
+     * @see OmeroImageService#loadScript(long)
+     */
+	public ScriptObject loadScript(long scriptID)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
 }

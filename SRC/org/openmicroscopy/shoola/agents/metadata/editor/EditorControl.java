@@ -493,10 +493,10 @@ class EditorControl
 	{
 		if (e.getSource() instanceof ScriptMenuItem) {
 			ScriptMenuItem item = (ScriptMenuItem) e.getSource();
-			JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-			ScriptingDialog dialog = new ScriptingDialog(f, 
-					item.getScript());
-			UIUtilities.centerAndShow(dialog);
+			ScriptObject object = item.getScript();
+			if (object.getParameterTypes() == null)
+				model.loadScript(object.getScriptID());
+			else model.setScript(object);
 			return;
 		}
 		
@@ -549,7 +549,6 @@ class EditorControl
 				break;
 			case MOVIE_FIGURE:
 				model.createFigure(FigureDialog.MOVIE);
-				
 		}
 	}
 	

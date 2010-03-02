@@ -47,12 +47,14 @@ import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.util.FigureDialog;
+import org.openmicroscopy.shoola.agents.metadata.util.ScriptMenuItem;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -849,5 +851,30 @@ class EditorComponent
 	 * @see Editor#getUserID()
 	 */
 	public long getUserID() { return model.getUserID(); }
+
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#loadScript(long)
+	 */
+	public void loadScript(long scriptID)
+	{
+		if (scriptID < 0) return;
+		model.loadScript(scriptID);
+		setStatus(true);
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#setScript(ScriptObject)
+	 */
+	public void setScript(ScriptObject script)
+	{
+		if (script == null) throw new IllegalArgumentException("No script.");
+		model.setScript(script);
+		setStatus(false);
+		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+		ScriptingDialog dialog = new ScriptingDialog(f, script);
+		UIUtilities.centerAndShow(dialog);
+	}
 
 }

@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
+import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
@@ -417,5 +418,19 @@ public interface Editor
 	 * @return See above.
 	 */
 	public long getUserID();
+
+	/**
+	 * Sets the loaded script.
+	 * 
+	 * @param script The script to set.
+	 */
+	public void setScript(ScriptObject script);
+	
+	/**
+	 * Loads the specified script.
+	 * 
+	 * @param scriptID The id of the script to load.
+	 */
+	void loadScript(long scriptID);
 	
 }

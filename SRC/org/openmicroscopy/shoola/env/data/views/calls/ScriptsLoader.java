@@ -50,6 +50,15 @@ public class ScriptsLoader
 	extends BatchCallTree
 {
 
+	/** Indicates to load the specified script. */
+	public static final int	SINGLE_SCRIPT = 0;
+	
+	/** Indicates to load all the scripts. */
+	public static final int	ALL_SCRIPTS = 1;
+	
+	/** Indicates to load all the scripts. */
+	public static final int	DEFAULT_SCRIPTS = 2;
+	
 	/** Result of the call. */
 	private Object    	result;
 
@@ -76,6 +85,23 @@ public class ScriptsLoader
 	}
 	
 	/**
+	 * Creates a {@link BatchCall} to load the scripts.
+	 * 
+	 * @param scriptID The id of the script to load.
+	 * @return The {@link BatchCall}.
+	 */
+	private BatchCall makeLoadScriptBatchCall(final long scriptID)
+	{
+		return new BatchCall("Load scripts ") {
+			public void doCall() throws Exception
+			{
+				OmeroImageService svc = context.getImageService();
+				result = svc.loadScript(scriptID);
+			}
+		};
+	}
+	
+	/**
 	 * Adds the {@link #loadCall} to the computation tree.
 	 * 
 	 * @see BatchCallTree#buildTree()
@@ -94,13 +120,23 @@ public class ScriptsLoader
 	 * If bad arguments are passed, we throw a runtime exception so to fail
 	 * early and in the caller's thread.
 	 * 
-	 * @param userID The id of the experimenter or <code>-1</code>.
-	 * @param all 	Pass <code>true</code> to retrieve all the scripts uploaded
-	 * 				ones and the default ones, <code>false</code>.
+	 * @param id 	The id of the experimenter, the id of the script
+	 * 			 	or <code>-1</code>.
+	 * @param index	One of the constants defined by this class.
 	 */
-	public ScriptsLoader(long userID, boolean all)
+	public ScriptsLoader(long id, int index)
 	{
-		loadCall = makeBatchCall(userID, all);
+		switch (index) {
+			case ALL_SCRIPTS:
+				loadCall = makeBatchCall(id, true);
+				break;
+			case DEFAULT_SCRIPTS:
+				loadCall = makeBatchCall(id, false);
+				break;
+			case SINGLE_SCRIPT:
+				loadCall = makeLoadScriptBatchCall(id);
+		}
+		
 	}
 	
 }
