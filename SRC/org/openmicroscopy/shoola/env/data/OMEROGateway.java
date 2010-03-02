@@ -1931,7 +1931,7 @@ class OMEROGateway
 		try {
 			return getAdminService().lookupLdapAuthExperimenter(userID);
 		} catch (Throwable e) {
-			String s = "Can't connect find the LDAP information.\n\n";
+			String s = "Can't find the LDAP information.\n\n";
 			s += printErrorText(e);
 			throw new DSOutOfServiceException(s, e); 
 		}

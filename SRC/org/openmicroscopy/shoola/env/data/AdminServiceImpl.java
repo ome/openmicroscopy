@@ -499,7 +499,11 @@ class AdminServiceImpl
 			exp = (ExperimenterData) entry.getKey();
 			uc = (UserCredentials) entry.getValue();
 			try {
-				gateway.resetPassword(exp.getUserName(), exp.getId(), 
+				//check that the user is not ldap
+				String ldap = gateway.lookupLdapAuthExperimenter(exp.getId());
+				if (ldap != null && ldap.length() > 0) l.add(exp);
+				else 
+					gateway.resetPassword(exp.getUserName(), exp.getId(), 
 						uc.getPassword());
 			} catch (Exception e) {
 				l.add(exp);
