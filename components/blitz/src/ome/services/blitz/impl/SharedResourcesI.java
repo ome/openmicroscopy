@@ -24,8 +24,10 @@ import ome.services.blitz.fire.TopicManager;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
+import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.EventContext;
+import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.util.Filterable;
 import omero.ApiUsageException;
@@ -33,7 +35,6 @@ import omero.InternalException;
 import omero.RTime;
 import omero.ServerError;
 import omero.ValidationException;
-import omero.api.ClientCallbackPrxHelper;
 import omero.constants.topics.PROCESSORACCEPTS;
 import omero.grid.AMI_InternalRepository_getDescription;
 import omero.grid.AMI_InternalRepository_getProxy;
@@ -43,6 +44,7 @@ import omero.grid.InteractiveProcessorPrx;
 import omero.grid.InteractiveProcessorPrxHelper;
 import omero.grid.InternalRepositoryPrx;
 import omero.grid.InternalRepositoryPrxHelper;
+import omero.grid.ProcessorAcceptsCallbackPrx;
 import omero.grid.ProcessorAcceptsCallbackPrxHelper;
 import omero.grid.ProcessorPrx;
 import omero.grid.ProcessorPrxHelper;
@@ -450,31 +452,30 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
     }
 
+    // Check job
+    // Lookup processor
+    // Create wrapper (InteractiveProcessor)
+    // Create session (with session)
+    // Setup environment
+    // Send off to processor
     public InteractiveProcessorPrx acquireProcessor(final Job submittedJob,
             int seconds, final Current current) throws ServerError {
 
         checkAcquisitionWait(seconds);
 
+        // Check job
         final IceMapper mapper = new IceMapper();
-
         final ome.model.jobs.Job savedJob = saveJob(submittedJob, mapper);
-
         if (savedJob == null) {
             throw new ApiUsageException(null, null, "Could not submit job. ");
         }
 
-        // Unloading job to prevent lazy-initialization exceptions.
-        final Job unloadedJob = (Job) mapper.map(savedJob);
-        unloadedJob.unload();
-
-        // Lookup processor
-        // Create wrapper (InteractiveProcessor)
-        // Create session (with session)
-        // Setup environment
-        // Send off to processor
-
         // Okay. All's valid.
-        ProcessorPrx server = findProcessor(savedJob);
+        final Job job = (Job) mapper.map(savedJob);
+        Ice.Identity id = sessionedID("ProcessorAcceptCb");
+        ResultHolder<String> holder = new ResultHolder<String>(seconds);
+        AcceptCallback callback = new AcceptCallback(id, sf, holder, job);
+        ProcessorPrx server = callback.activateAndWait();
 
         // Nothing left to try
         if (server == null) {
@@ -483,11 +484,9 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         long timeout = System.currentTimeMillis() + 60 * 60 * 1000L;
         InteractiveProcessorI ip = new InteractiveProcessorI(sf.principal,
-                sf.sessionManager, sf.executor, server, unloadedJob, timeout,
+                sf.sessionManager, sf.executor, server, job, timeout,
                 sf.control);
-        Ice.Identity id = new Ice.Identity();
-        id.category = current.id.name;
-        id.name = Ice.Util.generateUUID();
+        id = sessionedID("InteractiveProcessor");
         Ice.ObjectPrx rv = sf.registerServant(current, id, ip);
         allow(rv);
         return InteractiveProcessorPrxHelper.uncheckedCast(rv);
@@ -496,7 +495,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
     public void addProcessor(ProcessorPrx proc, Current __current)
             throws ServerError {
-        topicManager.register(PROCESSORACCEPTS.value, proc);
+        topicManager.register(PROCESSORACCEPTS.value, proc, false);
     }
 
     public void removeProcessor(ProcessorPrx proc, Current __current)
@@ -508,6 +507,12 @@ public class SharedResourcesI extends AbstractAmdServant implements
     // HELPERS
     //
     // =========================================================================
+
+
+    private Ice.Identity sessionedID(String type) {
+        String key = type + "-" + java.util.UUID.randomUUID();
+        return sf.getIdentity(key);
+    }
 
     private ome.model.jobs.Job saveJob(final Job submittedJob,
             final IceMapper mapper) {
@@ -545,42 +550,69 @@ public class SharedResourcesI extends AbstractAmdServant implements
         return savedJob;
     }
 
-
-    private ProcessorPrx findProcessor(final ome.model.jobs.Job savedJob) {
-        ProcessorPrx server;
-        EventContext ec = sf.sessionManager.getEventContext(sf.principal);
-
-        ResultHolder<ProcessorPrx> holder = new ResultHolder<ProcessorPrx>(60);
-        AcceptCallback callback = new AcceptCallback(holder);
-
-        TopicManager.TopicMessage msg = new TopicManager.TopicMessage(this,
-                PROCESSORACCEPTS.value,
-                new ProcessorPrxHelper(),
-                "accepts",
-                new omero.model.ExperimenterI(ec.getCurrentUserId(), false),
-                new omero.model.ExperimenterGroupI(ec.getCurrentGroupId(), false),
-                new omero.model.ScriptJobI(savedJob.getId(), false),
-                callback);
-        this.topicManager.onApplicationEvent(msg);
-        server = holder.get();
-        return server;
-    }
-
     private static class AcceptCallback extends _ProcessorAcceptsCallbackDisp {
 
         private final static Log log = LogFactory.getLog(AcceptCallback.class);
 
-        private final ResultHolder holder;
+        private final Job job;
 
-        public AcceptCallback(ResultHolder holder) {
+        private final Ice.Identity id;
+
+        private final ServiceFactoryI sf;
+
+        private final ResultHolder<String> holder;
+
+        private final EventContext ec;
+
+        public AcceptCallback(Ice.Identity id, ServiceFactoryI sf, ResultHolder<String> holder, Job job) {
+            this.id = id;
+            this.sf = sf;
+            this.job = job;
             this.holder = holder;
+            this.ec = sf.sessionManager.getEventContext(sf.principal);
+        }
+
+        public ProcessorPrx activateAndWait() {
+            Ice.ObjectPrx prx = sf.adapter.add(this, id);
+            try {
+                prx = sf.adapter.createDirectProxy(prx.ice_getIdentity());
+                ProcessorAcceptsCallbackPrx cbPrx =
+                    ProcessorAcceptsCallbackPrxHelper.uncheckedCast(prx);
+
+                TopicManager.TopicMessage msg = new TopicManager.TopicMessage(this,
+                        PROCESSORACCEPTS.value,
+                        new ProcessorPrxHelper(),
+                        "accepts",
+                        new omero.model.ExperimenterI(ec.getCurrentUserId(), false),
+                        new omero.model.ExperimenterGroupI(ec.getCurrentGroupId(), false),
+                        this.job,
+                        cbPrx);
+                sf.topicManager.onApplicationEvent(msg);
+                String server = holder.get();
+                Ice.ObjectPrx p = sf.adapter.getCommunicator().stringToProxy(server);
+                return ProcessorPrxHelper.uncheckedCast(p);
+            } finally {
+                sf.adapter.remove(prx.ice_getIdentity());
+            }
         }
 
         public void accepted(String sessionUuid, String procConn, Current __current) {
             log.debug(String.format(
                     "Processor with session %s return %s",
                     sessionUuid, procConn));
-            this.holder.set(procConn);
+            try {
+                EventContext procEc = sf.sessionManager.getEventContext(new Principal(sessionUuid));
+                if (!procEc.isCurrentUserAdmin()) {
+                    if (!procEc.getCurrentUserId().equals(ec.getCurrentUserId())) {
+                        this.holder.set(null);
+                    }
+                }
+                this.holder.set(procConn);
+            } catch (Exception e) {
+                log.debug(String.format(
+                        "Processor with session %s rejected", sessionUuid));
+            }
+
         }
 
     }

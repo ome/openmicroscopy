@@ -33,7 +33,7 @@ public interface TopicManager extends ApplicationListener {
      * Enforces <em>no</em> security constraints. For the moment, that is the
      * responsibility of application code. WILL CHANGE>
      */
-    public void register(String topicName, Ice.ObjectPrx prx)
+    public void register(String topicName, Ice.ObjectPrx prx, boolean strict)
     throws omero.ServerError;
 
     public void unregister(String topicName, Ice.ObjectPrx prx)
@@ -107,7 +107,7 @@ public interface TopicManager extends ApplicationListener {
             }
         }
 
-        public void register(String topicName, Ice.ObjectPrx prx)
+        public void register(String topicName, Ice.ObjectPrx prx, boolean strict)
                 throws omero.ServerError {
             String id = prx.ice_id();
             id = id.replaceFirst("::", "");
@@ -130,8 +130,10 @@ public interface TopicManager extends ApplicationListener {
                     log.warn("Unknown exception on subscribeAndGetPublisher");
                     continue;
                 } catch (AlreadySubscribed e) {
-                    throw new ApiUsageException(null, null,
-                            "Proxy already subscribed: " + prx);
+                    if (strict) {
+                        throw new ApiUsageException(null, null,
+                                "Proxy already subscribed: " + prx);
+                    }
                 } catch (BadQoS e) {
                     throw new InternalException(null, null,
                             "BadQos in TopicManager.subscribe");

@@ -515,7 +515,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             throw new omero.ApiUsageException(null, null,
                     "Currently only \"/public/\" topics allowed.");
         }
-        topicManager.register(topicName, prx);
+        topicManager.register(topicName, prx, false);
         log.info("Registered " + prx + " for " + topicName);
     }
 
@@ -811,7 +811,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * stateless services are defined by the instance fields {@link #adminKey},
      * {@link #configKey}, etc. and for stateful services are UUIDs.
      */
-    protected Ice.Identity getIdentity(String key) {
+    public Ice.Identity getIdentity(String key) {
         Ice.Identity id = new Ice.Identity();
         id.category = this.principal.getName();
         id.name = key;
