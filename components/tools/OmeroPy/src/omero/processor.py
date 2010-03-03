@@ -25,6 +25,7 @@ import omero.util.concurrency
 from omero.util.temp_files import create_path, remove_path
 from omero.util.decorators import remoted, perf, locked
 from omero.rtypes import *
+from omero.util.decorators import remoted, perf
 
 
 class ProcessI(omero.grid.Process, omero.util.SimpleServant):

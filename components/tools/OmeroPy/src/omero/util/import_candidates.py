@@ -36,7 +36,7 @@ def as_stdout(path, readers=""):
         else:
             cli.invoke(["import", "-f"]+path)
         if cli.rv != 0:
-            raise omero.InternalException(None, None, "'import -f' failed")
+            raise omero.InternalException(None, None, "'import -f' exited with a rc=%s. See console for more information" % cli.rv)
 
 def as_dictionary(path, readers=""):
     """
