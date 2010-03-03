@@ -209,7 +209,7 @@ public class TimelineITest extends AbstractServantTest {
         assertEquals(0, assertShareComments(justOne).size());
 
         // After a member adds, something should be returned
-        String member = user.loginNewUserNewGroup();
+        String member = root.loginNewUserNewGroup();
         user.managedSf.getShareService().addComment(shareId, "me too");
         user.setCurrentUser(owner);
         assertEquals(1, assertShareComments(justOne).size());
