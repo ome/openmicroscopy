@@ -12,6 +12,7 @@
 
 """
 
+import sys, os, tempfile
 from exceptions import Exception
 from omero.cli import BaseControl
 from omero_ext.strings import shlex
@@ -33,9 +34,29 @@ Syntax: %(program_name)s prefs
 
     def __call__(self, *args):
         args = Arguments(*args)
-        dir = self.ctx.dir / "lib"
-        self.ctx.out(getprefs(args.args, str(dir)))
+        first, other = args.firstOther()
+        if first == 'edit':
+            self.__edit()
+        else:
+            dir = self.ctx.dir / "lib"
+            self.ctx.out(getprefs(args.args, str(dir)))
 
+    def __edit(self):
+        editor = os.getenv("VISUAL") or os.getenv("EDITOR")
+        if not editor:
+            if sys.platform == "windows":
+                editor = "Notepad.exe"
+            else:
+                editor = "vi"
+        temp_fd, temp_file = tempfile.mkstemp(text=True)
+        os.write(temp_fd, getprefs(["config get"], str(self.ctx.dir / "lib")))
+        os.close(temp_fd)
+        pid = os.spawnlp(os.P_WAIT, editor, editor, temp_file)
+        if pid:
+            raise RuntimeError("Couldn't spawn editor: %s" % editor)
+        new_text = open(temp_file).read()
+        os.unlink(temp_file)
+        print new_text
 try:
     register("config", PrefsControl)
 except NameError:
