@@ -134,8 +134,9 @@ public class CommandLineImporter {
     void report() {
         boolean report = config.sendReport.get();
         boolean files = config.sendFiles.get();
+        boolean logs = config.sendLogFile.get();
         if (report) {
-           handler.update(null, new ImportEvent.DEBUG_SEND(files));
+           handler.update(null, new ImportEvent.DEBUG_SEND(files, logs));
         }
     }
 
@@ -186,6 +187,7 @@ public class CommandLineImporter {
                                         + "  --debug[=0|1|2]\tTurn debug logging on (optional level)\n"
                                         + "  --report\tReport errors to the OME team\n"
                                         + "  --upload\tUpload broken files with report\n"
+                                        + "  --logs\tUpload log file with report\n"
                                         + "  --email=...\tEmail for reported errors\n "
                                         + "\n"
                                         + "ex. %s -s localhost -u bart -w simpson -d 50 foo.tiff\n"
@@ -219,6 +221,7 @@ public class CommandLineImporter {
         // Defaults
         config.email.set("");
         config.sendFiles.set(false);
+        config.sendLogFile.set(false);
         config.sendReport.set(false);
         config.contOnError.set(false);
         config.debug.set(false);
@@ -226,7 +229,8 @@ public class CommandLineImporter {
         LongOpt debug = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 1);
         LongOpt report = new LongOpt("report", LongOpt.NO_ARGUMENT, null, 2);
         LongOpt upload = new LongOpt("upload", LongOpt.NO_ARGUMENT, null, 3);
-        LongOpt email = new LongOpt("email", LongOpt.REQUIRED_ARGUMENT, null, 4);
+        LongOpt logs = new LongOpt("logs", LongOpt.NO_ARGUMENT, null, 4);
+        LongOpt email = new LongOpt("email", LongOpt.REQUIRED_ARGUMENT, null, 5);
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
                 new LongOpt[] { debug, report, upload, email });
         int a;
@@ -255,6 +259,10 @@ public class CommandLineImporter {
                 break;
             }
             case 4: {
+                config.sendLogFile.set(true);
+                break;
+            }
+            case 5: {
                 config.email.set(g.getOptarg());
                 break;
             }

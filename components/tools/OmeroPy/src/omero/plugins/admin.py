@@ -310,7 +310,7 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
             output = self.ctx.popen(["sc","start",svc_name]).communicate()[0] # popen
             self.ctx.out(output)
         else:
-            command = ["icegridnode","--daemon","--pidfile",str(self._pid()),"--nochdir",self._icecfg(),"--deploy",str(descript)] + other
+            command = ["icegridnode","--daemon","--pidfile",str(self._pid()),"--nochdir",self._icecfg(),"--deploy",str(descript)] + other.args
             self.ctx.call(command)
 
     def start(self, args):
@@ -323,7 +323,7 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         descript = self._descript(first, other)
 
         # TODO : Doesn't properly handle whitespace
-        command = ["icegridadmin",self._intcfg(),"-e"," ".join(["application","update", str(descript)] + other)]
+        command = ["icegridadmin",self._intcfg(),"-e"," ".join(["application","update", str(descript)] + other.args)]
         self.ctx.call(command)
 
     def status(self, args):

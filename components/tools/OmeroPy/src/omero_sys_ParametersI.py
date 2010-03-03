@@ -328,4 +328,8 @@ class ParametersI(omero.sys.Parameters):
         self.add(name, rlongs)
         return self
 
+    def addString(self, name, stringValue):
+        self.add(name, rstring(stringValue))
+        return self
+
 _omero_sys.ParametersI = ParametersI

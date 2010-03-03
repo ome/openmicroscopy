@@ -743,6 +743,8 @@ class BaseClient(object):
             return self.getCommunicator()
         elif name == "sf":
             return self.getSession()
+        elif name == "adapter":
+            return self.getAdapter()
         else:
             raise AttributeError("Unknown property: " + name)
 
