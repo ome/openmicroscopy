@@ -320,7 +320,22 @@ public class ThumbnailCtx
      */
     public RenderingDef getSettings(long pixelsId)
     {
-        return pixelsIdSettingsMap.get(pixelsId);
+        RenderingDef settings = pixelsIdSettingsMap.get(pixelsId);
+        if (settings == null && securitySystem.isGraphCritical())
+        {
+            Pixels pixels = pixelsIdPixelsMap.get(pixelsId);
+            long ownerId = pixels.getDetails().getOwner().getId();
+            throw new ResourceError(String.format(
+                    "The owner id:%d has not viewed the Pixels set id:%d, " +
+                    "rendering settings are missing.", ownerId, pixelsId));
+        }
+        else if (settings == null)
+        {
+            throw new ome.conditions.InternalException(
+                    "Fatal error retrieving thumbnail metadata for Pixels " +
+                    "set id:" + pixelsId);
+        }
+        return settings;
     }
 
     /**
@@ -330,7 +345,22 @@ public class ThumbnailCtx
      */
     public Thumbnail getMetadata(long pixelsId)
     {
-        return pixelsIdMetadataMap.get(pixelsId);
+        Thumbnail thumbnail = pixelsIdMetadataMap.get(pixelsId);
+        if (thumbnail == null && securitySystem.isGraphCritical())
+        {
+            Pixels pixels = pixelsIdPixelsMap.get(pixelsId);
+            long ownerId = pixels.getDetails().getOwner().getId();
+            throw new ResourceError(String.format(
+                    "The owner id:%d has not viewed the Pixels set id:%d, " +
+                    "thumbnail metadata is missing.", ownerId, pixelsId));
+        }
+        else if (thumbnail == null)
+        {
+            throw new ome.conditions.InternalException(
+                    "Fatal error retrieving thumbnail metadata for Pixels " +
+                    "set id:" + pixelsId);
+        }
+        return thumbnail;
     }
 
     /**

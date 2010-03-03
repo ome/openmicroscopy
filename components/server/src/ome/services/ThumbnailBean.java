@@ -1024,6 +1024,11 @@ public class ThumbnailBean extends AbstractLevel2Service
     @Transactional(readOnly = false)
     public void resetDefaults()
     {
+        if (settings == null && sec.isGraphCritical())
+        {
+            throw new ApiUsageException(
+                    "Unable to reset rendering settings in a read-only group.");
+        }
         _resetDefaults();
         iUpdate.flush();
     }

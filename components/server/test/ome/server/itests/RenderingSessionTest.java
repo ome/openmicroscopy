@@ -14,9 +14,11 @@ import ome.api.IPixels;
 import ome.api.ThumbnailStore;
 import ome.conditions.InternalException;
 import ome.conditions.ReadOnlyAdminGroupSecurityViolation;
+import ome.conditions.ResourceError;
 import ome.model.annotations.ExperimenterAnnotationLink;
 import ome.model.annotations.FileAnnotation;
 import ome.model.core.Pixels;
+import ome.model.display.ChannelBinding;
 import ome.model.display.RenderingDef;
 import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
@@ -265,6 +267,42 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         } catch (ReadOnlyAdminGroupSecurityViolation roagsv) {
             // ok.
         }
+    }
+
+    @Test(groups = {"ticket:1801"}, expectedExceptions = {ResourceError.class})
+    public void testAdminViewsThumbnailsWithNoMetadata() {
+        loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+
+        loginRootKeepGroup();
+        ThumbnailStore tbRoot = sf.createThumbnailService();
+        tbRoot.setPixelsId(pix.getId());
+        tbRoot.getThumbnail(64, 64);
+    }
+
+    @Test(groups = {"ticket:1801"}, expectedExceptions = {ResourceError.class})
+    public void testAdminViewsThumbnailsWithNoSettings() {
+        loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        Parameters params = new Parameters();
+        params.addId(pix.getId());
+        RenderingDef settings = iQuery.findByQuery(
+                "select rdef from RenderingDef as rdef " +
+                "left outer join fetch rdef.waveRendering " +
+                "where rdef.pixels.id = (:id)", params);
+        params.addId(settings.getId());
+        for (int i = 0; i < settings.sizeOfWaveRendering(); i++)
+        {
+            ChannelBinding channelBinding = settings.getChannelBinding(i);
+            iUpdate.deleteObject(channelBinding);
+        }
+        iUpdate.deleteObject(settings);
+
+        loginRootKeepGroup();
+        ThumbnailStore tbRoot = sf.createThumbnailService();
+        tbRoot.setPixelsId(pix.getId());
     }
 
     @Test(groups = {"ticket:1434","ticket:1769","shoola:ticket:1157"})
