@@ -17,11 +17,13 @@ import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
+import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportFixture;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.ImportCandidates.SCANNING;
+import ome.model.IObject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -79,6 +81,19 @@ public class ImportCandidatesTest extends TestCase {
                 obs);
     }
 
+    private ImportContainer container(String...usedFiles) {
+        File file = new File("a");
+        Long projectID = 0L;
+        String imageName = "";
+        String reader = "";
+        Boolean archive = false;
+        Boolean isSPW = false;
+        omero.model.IObject target = null;
+        return new ImportContainer(file, projectID, target, imageName, archive,
+                null, reader, usedFiles, isSPW);
+
+    }
+
     @Test
     public void testTwoPasses() throws Exception {
         basic(o);
@@ -93,6 +108,16 @@ public class ImportCandidatesTest extends TestCase {
         assertEquals(0, c.size());
         assertEquals(1, cancel.count);
         assertTrue(c.wasCancelled());
+    }
+
+    @Test
+    public void testOrderedReturns() {
+        c = new ImportCandidates(w, new String[]{"a","b"}, o) {
+            @Override
+            protected ImportContainer singleFile(File file) {
+                return container(file.getName());
+            }
+        };
     }
 
 }

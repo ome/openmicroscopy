@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.prefs.Preferences;
 
 import junit.framework.TestCase;
+import loci.common.Location;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
@@ -103,5 +104,13 @@ public class IniFileLoaderTest extends TestCase {
         assertEquals("1",a1);
     }
 
-    
+
+    public void testLocation() throws Exception {
+        loci.common.LogTools.setDebug(true);
+        Location loc = new Location("/");
+        assertTrue(loc.exists());
+        loc = new Location("\\squig.openmicroscopy.org.uk");
+        assertTrue(loc.exists());
+    }
+
 }

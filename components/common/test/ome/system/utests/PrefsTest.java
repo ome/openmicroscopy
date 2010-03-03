@@ -178,4 +178,14 @@ public class PrefsTest extends TestCase {
         ctx.getProperty("test");
     }
 
+    @Test
+    public void testOmeroVersion() {
+        ctx = new PreferenceContext();
+        ctx.setLocation(new ClassPathResource("omero.properties"));
+        ctx.afterPropertiesSet();
+        String v = ctx.getProperty("omero.version");
+        assertNotNull(v);
+        assertTrue(v.length() > 0);
+    }
+
 }
