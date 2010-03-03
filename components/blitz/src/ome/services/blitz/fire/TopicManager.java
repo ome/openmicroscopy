@@ -34,7 +34,10 @@ public interface TopicManager extends ApplicationListener {
      * responsibility of application code. WILL CHANGE>
      */
     public void register(String topicName, Ice.ObjectPrx prx)
-            throws omero.ServerError;
+    throws omero.ServerError;
+
+    public void unregister(String topicName, Ice.ObjectPrx prx)
+    throws omero.ServerError;
 
     public final static class TopicMessage extends ApplicationEvent {
 
@@ -135,6 +138,21 @@ public interface TopicManager extends ApplicationListener {
                 }
                 break;
             }
+        }
+
+        public void unregister(String topicName, Ice.ObjectPrx prx)
+            throws omero.ServerError {
+
+            try {
+                IceStorm.TopicPrx topic = topicOrNull(topicName);
+                if (topic != null) {
+                    topic.unsubscribe(prx);
+                }
+            } catch (Exception e) {
+                log.warn(String.format("Error unregistering: %s from %s",
+                        prx, topicName));
+            }
+
         }
 
         // Helpers

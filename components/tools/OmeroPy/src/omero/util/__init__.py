@@ -355,9 +355,10 @@ class Server(Ice.Application):
 
             try:
                 self.adapter = self.communicator().createObjectAdapter(self.adapter_name)
-                prx = self.adapter.add(self.impl, self.identity)
+
+                self.impl.setProxy( self.adapter.add(self.impl, self.identity) )
                 self.adapter.activate()
-                add_grid_object(self.communicator(), prx) # This must happen _after_ activation
+                add_grid_object(self.communicator(), self.impl.prx) # This must happen _after_ activation
             except:
                 self.logger.error("Failed activation", exc_info=1)
                 sys.exit(200)
@@ -392,11 +393,20 @@ class SimpleServant(object):
     """
     def __init__(self, ctx):
         self._lock = threading.RLock()
+        self.prx = None # Proxy which points to self
         self.ctx = ctx
         self.stop_event = ctx.stop_event
         self.communicator = ctx.communicator
         self.logger = logging.getLogger(make_logname(self))
         self.logger.debug("Created")
+
+    def setProxy(self, prx):
+        """
+        Should be overwritten for post-initialization activities.
+        The reason this method exists is that the implementation
+        must be complete before registering it with the adapter.
+        """
+        self.prx = prx
 
 class Servant(SimpleServant):
     """

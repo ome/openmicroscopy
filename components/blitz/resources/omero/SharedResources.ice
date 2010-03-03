@@ -36,18 +36,22 @@ module omero {
                 throws ServerError;
 
             /**
-             *
+             * Registers a [omero::grid::Processor] for Storm notifications
+             * so that other sessions can query whether or not a given
+             * processor would accept a given task.
              **/
             void
-                addProcessor(omero::grid::Processor* proc, omero::model::IObject context)
-                throws SeverError;
+                addProcessor(omero::grid::Processor* proc)
+                throws ServerError;
 
             /**
-             *
+             * Unregisters a [omero::grid::Processor] from Storm notifications.
+             * If the processor was not already registered via [addProcessor]
+             * this is a no-op.
              **/
             void
-                removeProcessor(omero::grid::Processor* proc, omero::model::IObject context)
-                throws SeverError;
+                removeProcessor(omero::grid::Processor* proc)
+                throws ServerError;
 
             /**
              * Returns a map between Repository descriptions (omero::model::OriginalFile

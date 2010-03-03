@@ -10,6 +10,7 @@
 #define OMERO_SCRIPTS_ICE
 
 #include <omero/RTypes.ice>
+#include <omero/System.ice>
 #include <omero/ServerErrors.ice>
 #include <Ice/BuiltinSequences.ice>
 
@@ -160,6 +161,16 @@ module omero {
             void unregisterCallback(ProcessCallback* cb) throws omero::ServerError;
         };
 
+
+        /**
+         * Callback interface which is passed to the [Processor::accepts] method
+         * to query whether or not a processor will accept a certain operation.
+         **/
+        interface ProcessorAcceptsCallback {
+            void accepted(string sessionUuid, string processorConn);
+        };
+
+
         /**
          * Simple controller for Processes. Uses the session
          * id given to create an Ice.Config file which is used
@@ -171,7 +182,20 @@ module omero {
         ["ami"] interface Processor {
 
             /**
-             * Starts a process based on the given job. If
+             * Called by [omero::grid::SharedResources] to find a suitable
+             * target for [omero::grid::SharedResources::acquireProcessor].
+             * New processor instances are added to the checklist by using
+             * [omero::grid::SharedResources::addProcessor]. All processors
+             * must respond with their session uuid in order to authorize
+             * the action.
+             **/
+            void accepts(omero::model::Experimenter userContext,
+                         omero::model::ExperimenterGroup groupContext,
+                         omero::model::ScriptJob scriptContext,
+                         ProcessorAcceptsCallback* cb);
+
+            /**
+             * Starts a process based on the given jobf
              * this processor cannot handle the given job, a
              * null process will be returned.
              **/

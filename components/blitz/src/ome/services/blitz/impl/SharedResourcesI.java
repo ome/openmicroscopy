@@ -25,6 +25,7 @@ import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.util.Executor;
+import ome.system.EventContext;
 import ome.system.ServiceFactory;
 import ome.util.Filterable;
 import omero.ApiUsageException;
@@ -32,6 +33,8 @@ import omero.InternalException;
 import omero.RTime;
 import omero.ServerError;
 import omero.ValidationException;
+import omero.api.ClientCallbackPrxHelper;
+import omero.constants.topics.PROCESSORACCEPTS;
 import omero.grid.AMI_InternalRepository_getDescription;
 import omero.grid.AMI_InternalRepository_getProxy;
 import omero.grid.AMI_Tables_getTable;
@@ -40,6 +43,7 @@ import omero.grid.InteractiveProcessorPrx;
 import omero.grid.InteractiveProcessorPrxHelper;
 import omero.grid.InternalRepositoryPrx;
 import omero.grid.InternalRepositoryPrxHelper;
+import omero.grid.ProcessorAcceptsCallbackPrxHelper;
 import omero.grid.ProcessorPrx;
 import omero.grid.ProcessorPrxHelper;
 import omero.grid.RepositoryMap;
@@ -49,6 +53,7 @@ import omero.grid.TablePrx;
 import omero.grid.TablePrxHelper;
 import omero.grid.TablesPrx;
 import omero.grid.TablesPrxHelper;
+import omero.grid._ProcessorAcceptsCallbackDisp;
 import omero.grid._SharedResourcesOperations;
 import omero.model.Format;
 import omero.model.FormatI;
@@ -82,6 +87,8 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
     private final Set<String> tableIds = new HashSet<String>();
     
+    private final Set<String> processorIds = new HashSet<String>();
+
     private final TopicManager topicManager;
 
     private final Registry registry;
@@ -153,20 +160,10 @@ public class SharedResourcesI extends AbstractAmdServant implements
         void requestService(Ice.ObjectPrx server, ResultHolder holder)
                 throws ServerError;
     }
-
-    /**
-     * One implementation of {@link RepeatTask} which is reused locally.
-     */
-    private static final class ProcessorCheck implements
-            RepeatTask<ProcessorPrx> {
-        public void requestService(Ice.ObjectPrx prx, ResultHolder holder)
-                throws ServerError {
-            ProcessorPrx server = ProcessorPrxHelper.checkedCast(prx);
-            holder.set(server);
-        }
-    }
     
-    private class ResultHolder<U> {
+    private static class ResultHolder<U> {
+
+        private final static Log log = LogFactory.getLog(ResultHolder.class);
 
         private final CountDownLatch c = new CountDownLatch(1);
 
@@ -189,7 +186,10 @@ public class SharedResourcesI extends AbstractAmdServant implements
             try {
                 c.await(timeout, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
-                // oh well.
+                // ignore
+            }
+            if (rv == null) {
+                log.debug("Nothing found.");
             }
             return rv;
         }
@@ -207,6 +207,9 @@ public class SharedResourcesI extends AbstractAmdServant implements
         }
         return holder.get();
     }
+
+    // Public interface
+    // =========================================================================
 
     static String QUERY = "select o from OriginalFile o where o.format.value = 'Repository'";
 
@@ -471,10 +474,12 @@ public class SharedResourcesI extends AbstractAmdServant implements
         // Send off to processor
 
         // Okay. All's valid.
-        ProcessorPrx[] procs = registry.lookupProcessors();
-        ProcessorPrx server = (ProcessorPrx) lookup(Arrays
-                .<Ice.ObjectPrx> asList(procs), seconds,
-                new ProcessorCheck());
+        ProcessorPrx server = findProcessor(savedJob);
+
+        // Nothing left to try
+        if (server == null) {
+            throw new omero.ResourceError(null, null, "No processor available.");
+        }
 
         long timeout = System.currentTimeMillis() + 60 * 60 * 1000L;
         InteractiveProcessorI ip = new InteractiveProcessorI(sf.principal,
@@ -488,6 +493,21 @@ public class SharedResourcesI extends AbstractAmdServant implements
         return InteractiveProcessorPrxHelper.uncheckedCast(rv);
 
     }
+
+    public void addProcessor(ProcessorPrx proc, Current __current)
+            throws ServerError {
+        topicManager.register(PROCESSORACCEPTS.value, proc);
+    }
+
+    public void removeProcessor(ProcessorPrx proc, Current __current)
+            throws ServerError {
+        topicManager.unregister(PROCESSORACCEPTS.value, proc);
+    }
+
+    //
+    // HELPERS
+    //
+    // =========================================================================
 
     private ome.model.jobs.Job saveJob(final Job submittedJob,
             final IceMapper mapper) {
@@ -524,23 +544,44 @@ public class SharedResourcesI extends AbstractAmdServant implements
                 });
         return savedJob;
     }
-    
-    //
-    // NON-INTERFACE METHODS: in order to re-use the logic of this
-    // class, several methods are defined here which are not in
-    // the remote interface.
-    //
-    
-    /**
-     * Chooses on {@link ProcessorPrx} at random.
-     */
-    public ProcessorPrx chooseProcessor() throws ServerError {
 
-        ProcessorPrx[] procs = registry.lookupProcessors();
-        ProcessorPrx server = (ProcessorPrx) lookup(Arrays
-                .<Ice.ObjectPrx> asList(procs), 15,
-                new ProcessorCheck());
+
+    private ProcessorPrx findProcessor(final ome.model.jobs.Job savedJob) {
+        ProcessorPrx server;
+        EventContext ec = sf.sessionManager.getEventContext(sf.principal);
+
+        ResultHolder<ProcessorPrx> holder = new ResultHolder<ProcessorPrx>(60);
+        AcceptCallback callback = new AcceptCallback(holder);
+
+        TopicManager.TopicMessage msg = new TopicManager.TopicMessage(this,
+                PROCESSORACCEPTS.value,
+                new ProcessorPrxHelper(),
+                "accepts",
+                new omero.model.ExperimenterI(ec.getCurrentUserId(), false),
+                new omero.model.ExperimenterGroupI(ec.getCurrentGroupId(), false),
+                new omero.model.ScriptJobI(savedJob.getId(), false),
+                callback);
+        this.topicManager.onApplicationEvent(msg);
+        server = holder.get();
         return server;
+    }
+
+    private static class AcceptCallback extends _ProcessorAcceptsCallbackDisp {
+
+        private final static Log log = LogFactory.getLog(AcceptCallback.class);
+
+        private final ResultHolder holder;
+
+        public AcceptCallback(ResultHolder holder) {
+            this.holder = holder;
+        }
+
+        public void accepted(String sessionUuid, String procConn, Current __current) {
+            log.debug(String.format(
+                    "Processor with session %s return %s",
+                    sessionUuid, procConn));
+            this.holder.set(procConn);
+        }
 
     }
 }

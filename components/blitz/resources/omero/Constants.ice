@@ -155,6 +155,10 @@ module omero {
         SUMINTENSITY
       };
     };
+
+    module topics {
+        const string PROCESSORACCEPTS = "/internal/ProcessorAccept";
+    };
   };
 };
 

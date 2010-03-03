@@ -541,12 +541,118 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
     def __str__(self):
         return "<proc:%s,rc=%s,uuid=%s>" % (self.pid, self.rcode, self.uuid)
 
+class UseSessionHolder(object):
+
+    def __init__(self, sf):
+        self.sf = sf
+
+    def check(self):
+        try:
+            self.sf.keepAlive(None)
+            return True
+        except:
+            return False
+
+    def cleanup(self):
+        pass
+
 class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
-    def __init__(self, ctx):
-        omero.util.Servant.__init__(self, ctx, needs_session = True)
+    def __init__(self, ctx, needs_session = True,
+                 use_session = None, accepts_list = []):
+
+        if use_session:
+            needs_session = False # See discussion below
+
+        omero.util.Servant.__init__(self, ctx, needs_session = needs_session)
         self.cfg = os.path.join(os.curdir, "etc", "ice.config")
         self.cfg = os.path.abspath(self.cfg)
+
+        # Extensions for user-mode processors (ticket:1672)
+
+        self.use_session = use_session
+        """
+        If set, this session will be returned from internal_session and
+        the "needs_session" setting ignored.
+        """
+
+        self.accepts_list = accepts_list
+        """
+        A list of contexts which will be accepted by this user-mode
+        processor.
+        """
+
+        # Keep this session alive until the processor is finished
+        self.resources.add( UseSessionHolder(use_session) )
+
+    def setProxy(self, prx):
+        """
+        Overrides the default action in order to register this proxy
+        with the session's sharedResources to register for callbacks.
+        """
+        prx = omero.grid.ProcessorPrx.uncheckedCast(prx)
+        omero.util.Servant.setProxy(self, prx)
+        import omero_SharedResources_ice
+        self.logger.info("Registering processor %s", self.prx)
+        self.internal_session().sharedResources().addProcessor(self.prx)
+
+    def internal_session(self):
+        """
+        Returns the session which should be used for lookups by this instance.
+        Some methods will create a session based on the session parameter.
+        In these cases, the session will belong to the user who is running a
+        script.
+        """
+        if self.use_session:
+            return self.use_session
+        else:
+            return self.ctx.getSession()
+
+    def lookup(self, job):
+
+        if not session or not job or not job.id:
+            raise omero.ApiUsageException("No null arguments")
+
+        sf = self.internal_session()
+        handle = sf.createJobHandle()
+        handle.attach(job.id.val)
+        if handle.jobFinished():
+            raise omero.ApiUsageException("Job already finished.")
+
+        file = sf.getQueryService().findByQuery(\
+            """select o from Job j
+             join j.originalFileLinks links
+             join links.child o
+             join o.format
+             where
+                 j.id = %d
+             and o.details.owner.id = 0
+             and o.format.value = 'text/x-python'
+             """ % job.id.val, None)
+
+
+        if not file:
+            raise omero.ApiUsageException(\
+                None, None, "Job should have one executable file attached.")
+
+        return file
+
+    @remoted
+    def accepts(self, userContext, groupContext, scriptContext, cb, current = None):
+        try:
+            self.logger.debug("Accepts called on: user:%s group:%s scriptjob:%s",\
+                (userContext.id.val, groupContext.id.val, scriptContext.id.val))
+            file = self.lookup(scriptcontext)
+        except:
+            self.logger.debug("File lookup failed: %s", scriptContext, exc_info=1)
+            file = None
+        try:
+            cb = cb.ice_oneway()
+            cb = omero.grid.ProcessorAcceptsCallback.uncheckedCast(cb)
+            cb.accepted(self.internal_session().ice_getIdentity().name,
+                        self.conn_info)
+        except:
+            self.logger.warn("Accept callback failed", exc_info=1)
 
     @remoted
     def parseJob(self, session, job, current = None):
@@ -575,9 +681,6 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
     @perf
     def parse(self, client, session, job, current, iskill):
 
-        if not session or not job or not job.id:
-            raise omero.ApiUsageException("No null arguments")
-
         self.logger.info("parseJob: Session = %s, JobId = %s" % (session, job.id.val))
         properties = {}
         properties["omero.scripts.parse"] = "true"
@@ -597,27 +700,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         client: an omero.client object which should be attached to a session
         """
 
-        sf = client.getSession()
-        handle = sf.createJobHandle()
-        handle.attach(job.id.val)
-        if handle.jobFinished():
-            raise omero.ApiUsageException("Job already finished.")
-
-        file = sf.getQueryService().findByQuery(\
-            """select o from Job j
-             join j.originalFileLinks links
-             join links.child o
-             join o.format
-             where
-                 j.id = %d
-             and o.details.owner.id = 0
-             and o.format.value = 'text/x-python'
-             """ % job.id.val, None)
-
-
-        if not file:
-            raise omero.ApiUsageException(\
-                None, None, "Job should have one executable file attached.")
+        file = self.lookup(job)
 
         properties["omero.job"] = str(job.id.val)
         properties["omero.user"] = session
@@ -638,5 +721,5 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         else:
             process.activate()
 
-        prx = current.adapter.addWithUUID(process)
-        return omero.grid.ProcessPrx.uncheckedCast(prx)
+        process.setProxy( current.adapter.addWithUUID(process) )
+        return omero.grid.ProcessPrx.uncheckedCast(process.prx)

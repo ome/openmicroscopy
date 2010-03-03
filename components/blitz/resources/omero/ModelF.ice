@@ -49,6 +49,7 @@ module omero {
         class RenderingModel;
         class Roi;
         class Screen;
+        class ScriptJob;
         class Shape;
         class Session;
         class Share;
