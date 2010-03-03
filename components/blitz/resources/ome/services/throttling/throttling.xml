@@ -25,7 +25,9 @@
 
   <alias name="inThreadThrottlingStrategy" alias="throttlingStrategy"/>
 
-  <bean id="inThreadThrottlingStrategy" class="ome.services.throttling.InThreadThrottlingStrategy"/>
+  <bean id="inThreadThrottlingStrategy" class="ome.services.throttling.InThreadThrottlingStrategy">
+      <constructor-arg ref="currentDetails"/>
+  </bean>
 
   <!-- Commenting this out otherwise it listens for throttling commands -->
   <!-- bean id="serialThrottlingStrategy" class="ome.services.throttling.SerialThrottlingStrategy" -->

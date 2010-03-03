@@ -313,10 +313,17 @@ public class BasicSecuritySystem implements SecuritySystem,
 
         // Active group
         ExperimenterGroup grp;
-        if (isReadOnly) {
-            grp = new ExperimenterGroup(ec.getCurrentGroupId(), false);
+        Long groupId = cd.getCallGroup();
+        if (groupId == null) {
+            groupId = ec.getCurrentGroupId();
         } else {
-            grp = admin.groupProxy(ec.getCurrentGroupId());
+            log.debug("Using call-requested group: " + groupId);
+        }
+
+        if (isReadOnly) {
+            grp = new ExperimenterGroup(groupId, false);
+        } else {
+            grp = admin.groupProxy(groupId);
         }
 
         // isAdmin

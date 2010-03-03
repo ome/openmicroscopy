@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ome.conditions.ApiUsageException;
@@ -65,6 +66,8 @@ public class CurrentDetails implements PrincipalHolder {
 
     private final ThreadLocal<LinkedList<BasicEventContext>> contexts = new ThreadLocal<LinkedList<BasicEventContext>>();
 
+    private final ThreadLocal<Map<String, String>> callContext = new ThreadLocal<Map<String, String>>();
+
     public CurrentDetails() {
         // Has very high limits set, and will not be able
         // to publish an event with out the publisher.
@@ -83,6 +86,27 @@ public class CurrentDetails implements PrincipalHolder {
             contexts.set(list);
         }
         return list;
+    }
+
+    // Method call context methods
+    // =================================================================
+
+    public Map<String, String> setContext(Map<String, String> ctx) {
+        Map<String, String> rv = callContext.get();
+        callContext.set(ctx);
+        return rv;
+    }
+
+    public Long getCallGroup() {
+        Map<String, String> ctx = callContext.get();
+        if (ctx != null) {
+            try {
+                return Long.valueOf(ctx.get("omero.group"));
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return null;
     }
 
     // PrincipalHolder methods

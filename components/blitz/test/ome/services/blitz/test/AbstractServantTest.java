@@ -12,6 +12,7 @@ import junit.framework.TestCase;
 import ome.formats.MockedOMEROImportFixture;
 import ome.logic.HardWiredInterceptor;
 import ome.security.SecuritySystem;
+import ome.security.basic.CurrentDetails;
 import ome.services.blitz.fire.AopContextInitializer;
 import ome.services.blitz.impl.AbstractAmdServant;
 import ome.services.blitz.impl.AdminI;
@@ -78,7 +79,7 @@ public abstract class AbstractServantTest extends TestCase {
         ctx.afterPropertiesSet();
 
         sf = new ServiceFactory(ctx);
-        be = new InThreadThrottlingStrategy();
+        be = new InThreadThrottlingStrategy((CurrentDetails)ctx.getBean("currentDetails"));
         sm = (SessionManager) ctx.getBean("sessionManager");
         ss = (SecuritySystem) ctx.getBean("securitySystem");
 

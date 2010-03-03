@@ -8,6 +8,7 @@
 package ome.services.throttling;
 
 import ome.api.ServiceInterface;
+import ome.security.basic.CurrentDetails;
 import ome.services.blitz.util.IceMethodInvoker;
 import omero.util.IceMapper;
 
@@ -25,32 +26,59 @@ public class InThreadThrottlingStrategy extends AbstractThrottlingStrategy {
     private final static Log log = LogFactory
             .getLog(InThreadThrottlingStrategy.class);
 
-    public InThreadThrottlingStrategy() {
+    private final CurrentDetails cd;
+
+    public InThreadThrottlingStrategy(CurrentDetails cd) {
+        this.cd = cd;
+    }
+
+    void setup(Ice.Current current) {
+        if (current != null) {
+            cd.setContext(current.ctx);
+        }
+    }
+
+    void teardown() {
+        cd.setContext(null);
     }
 
     public void callInvokerOnRawArgs(ServiceInterface service,
             IceMethodInvoker invoker, Object __cb, Ice.Current __current,
             Object... args) {
-        IceMapper mapper = new IceMapper();
-        Callback cb = new Callback(service, invoker, mapper, __cb, __current,
-                args);
-        cb.run();
 
+        setup(__current);
+        try {
+            IceMapper mapper = new IceMapper();
+            Callback cb = new Callback(service, invoker, mapper, __cb,
+                    __current, args);
+            cb.run();
+        } finally {
+            teardown();
+        }
     }
 
     public void callInvokerWithMappedArgs(ServiceInterface service,
             IceMethodInvoker invoker, IceMapper mapper, Object __cb,
             Current __current, Object... args) {
-        Callback cb = new Callback(service, invoker, mapper, __cb, __current,
-                args);
-        cb.run();
+
+        setup(__current);
+        try {
+            Callback cb = new Callback(service, invoker, mapper, __cb,
+                    __current, args);
+            cb.run();
+        } finally {
+            teardown();
+        }
     }
 
     public void runnableCall(Current __current, Runnable runnable) {
+        setup(__current);
         try {
             runnable.run();
         } catch (Exception e) {
             log.error("Exception during runnableCall", e);
+        } finally {
+            teardown();
         }
     }
 
