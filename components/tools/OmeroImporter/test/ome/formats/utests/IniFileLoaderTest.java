@@ -6,6 +6,8 @@
  */
 package ome.formats.utests;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.prefs.Preferences;
@@ -18,9 +20,13 @@ import ome.formats.importer.ImportFixture;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.IniFileLoader;
+import omero.util.TempFileManager;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ini4j.IniFile;
+import org.ini4j.IniFile.Mode;
 import org.testng.annotations.Test;
 
 /**
@@ -72,5 +78,30 @@ public class IniFileLoaderTest extends TestCase {
         }
     }
     
+    @Test
+    public void testDuplicatedSections() throws Exception {
+        File f = TempFileManager.create_path("initest");
+        FileUtils.writeLines(f, Arrays.asList(
+                "[Section]",
+                "A=1",
+                "[Section]",
+                "A=2"));
+        Preferences test = new IniFile(f, Mode.RW);
+        String a1 = test.node("Section").get("A", "missing");
+        assertEquals("2",a1);
+    }
+
+    @Test
+    public void testDuplicatedSections2() throws Exception {
+        File f = TempFileManager.create_path("initest");
+        FileUtils.writeLines(f, Arrays.asList(
+                "[Section]",
+                "[Section]",
+                "A=1"));
+        Preferences test = new IniFile(f, Mode.RW);
+        String a1 = test.node("Section").get("A", "missing");
+        assertEquals("1",a1);
+    }
+
     
 }

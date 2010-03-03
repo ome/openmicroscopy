@@ -211,7 +211,7 @@ public class ImportCandidates extends DirectoryWalker {
             g.parse(containers);
             long totalElapsed = System.currentTimeMillis() - start;
             log.info(String.format("%s file(s) parsed into "
-                    + "%s groups with %s call(s) to setId in "
+                    + "%s group(s) with %s call(s) to setId in "
                     + "%sms. (%sms total) [%s unknowns]", this.total, size(), this.setids,
                     readerTime, totalElapsed, unknown));
         } catch (CANCEL c) {

@@ -33,8 +33,6 @@ finally:
     __name__ = __save__
     del __save__
 
-ClientError = omero.ClientError
-
 class BaseClient(object):
     """
     Central client-side blitz entry point, and should be in sync with OmeroJava's omero.client
@@ -159,7 +157,7 @@ class BaseClient(object):
                     if not found:
                         found = original[j]
                     else:
-                        raise ClientError("Found two arguments of same type: " + str(types[i]))
+                        raise omero.ClientError("Found two arguments of same type: " + str(types[i]))
             if found:
                 repaired[i] = found
         return repaired
@@ -443,8 +441,8 @@ class BaseClient(object):
                             try:
                                 sf.keepAlive(None)
                             except exceptions.Exception, e:
-                                self.c._BaseClient__logger.warning("Proxy keep alive failed.")
-                                return False
+                                if ic != None:
+                                    ic.getLogger().warning("Proxy keep alive failed.")
                         return True
                 self.__resources.add(Entry(self))
         finally:
@@ -553,7 +551,7 @@ class BaseClient(object):
 
         return ofile
 
-    def download(self, ofile, filename, block_size = 1024*1024):
+    def download(self, ofile, filename, block_size = 1024):
         file = open(filename, 'wb')
         try:
             prx = self.__sf.createRawFileStore()
@@ -573,7 +571,6 @@ class BaseClient(object):
                         break
                     file.write(block)
                     offset += len(block)
-                file.flush()
             finally:
                 prx.close()
         finally:
@@ -587,7 +584,6 @@ class BaseClient(object):
 
         self.__lock.acquire()
         try:
-            oldSf = self.__sf
             self.__sf = None
 
             oldOa = self.__oa
@@ -615,14 +611,12 @@ class BaseClient(object):
                 try:
                     oldR.cleanup()
                 except exceptions.Exception, e:
-                    self.__logger.warning(
+                    oldIc.getLogger().warning(
                         "While cleaning up resources: " + str(e))
 
             try:
                 try:
-                    if oldSf:
-                        oldSf = omero.api.ServiceFactoryPrx.uncheckedCast(oldSf.ice_oneway())
-                        oldSf.destroy()
+                    self.getRouter(oldIc).destroySession()
                 except Glacier2.SessionNotExistException:
                     # ok. We don't want it to exist
                     pass
@@ -650,7 +644,7 @@ class BaseClient(object):
 
         sf = self.sf
         if not sf:
-            raise ClientError("No session avaliable")
+            raise omero.ClientError("No session avaliable")
 
         s = omero.model.SessionI()
         s.uuid = rstring(sf.ice_getIdentity().name)
@@ -790,20 +784,18 @@ class BaseClient(object):
                 sys.err.write("On session closed: " + str(e))
 
         def __init__(self, ic, oa):
-            self.__logger = logging.getLogger("omero.client.callback")
             self.ic = ic
             self.oa = oa
             self.onHeartbeat = self._noop
             self.onShutdownIn = self._noop
             self.onSessionClosed = self._noop
-
         def execute(self, myCallable, action):
             try:
                 myCallable()
-                self.__logger.debug("ClientCallback %s run", action)
+                self.ic.getLogger().trace("ClientCallback", action + " run")
             except:
                 try:
-                    self.__logger.error("Error performing %s" % action)
+                    self.ic.getLogger().error("Error performing %s" % action)
                 except:
                     print "Error performing %s" % action
 
@@ -842,3 +834,16 @@ class ObjectFactory(Ice.ObjectFactory):
         # Nothing to do
         pass
 
+
+
+class ClientError(exceptions.Exception):
+    """
+    Top of client exception hierarchy.
+    """
+    pass
+
+class UnloadedEntityException(ClientError):
+    pass
+
+class UnloadedCollectionException(ClientError):
+    pass
