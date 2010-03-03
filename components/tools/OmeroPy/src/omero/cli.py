@@ -67,7 +67,7 @@ LINEWSP = re.compile("^\s*\w+\s+")
 #   -- or do they all share a central memory? self.ctx["MY_VARIABLE"]
 #  - add an argument class which is always used at the top of a control
 #    def somemethod(self, args): # args always assumed to be a shlex'd arg, but checked
-#        arg = Argument(args)
+#        arg = Arguments(args)
 #  - In almost all cases, mark a flag in the CLI "lastError" and continue,
 #    allowing users to do something of the form: on_success or on_fail
 
@@ -80,6 +80,8 @@ class NonZeroReturnCode(Exc):
     def __init__(self, rv, *args):
         self.rv = rv
         Exc.__init__(self, *args)
+
+class BadArgument(Exc): pass
 
 
 #####################################################
@@ -132,13 +134,13 @@ class Arguments:
                         skip = True
                         continue
                     else:
-                        raise Exc("arg not string: %s in %s" % (l, args))
+                        raise BadArgument("arg not string: %s in %s" % (l, args))
             if not skip:
                 self.args = list(args)
                 self._apply_opts()
                 self._make_argmap()
         else:
-            raise Exc("Unknown argument: %s" % args)
+            raise BadArgument("Unknown argument: %s" % args)
 
     def _copy_args(self, args):
         self.longopts = args.longopts
@@ -164,22 +166,27 @@ class Arguments:
 
         for l in lloginopts:
             if l in self.longopts:
-                raise Exc("Duplicate longopt: %s", l)
+                raise BadArgument("Duplicate longopt: %s", l)
 
         for s in sloginopts:
             if s in self.shortopts and s != ":":
-                raise exception.Exceptions("Duplicate shortopt: %s", s)
+                raise BadArgument("Duplicate shortopt: %s", s)
 
         self.longopts = lloginopts + self.longopts
         self.shortopts = "%s%s" % (sloginopts, self.shortopts)
 
-        opts, self.args = gnu_getopt(self.args, self.shortopts, self.longopts)
+        try:
+            opts, self.args = gnu_getopt(self.args, self.shortopts, self.longopts)
+        except GetoptError, ge:
+            raise BadArgument(str(ge))
         for k, v in opts:
             self.opts[k] = v
 
     def _make_argmap(self):
         for arg in self.args:
             parts = arg.split("=", 1)
+            if parts[0] in self.argmap:
+                raise BadArgument("Argument overwrite: %s" % parts[0])
             if len(parts) == 1:
                 self.argmap[parts[0]] = True
             else:
@@ -198,12 +205,20 @@ class Arguments:
             return (None, other)
 
         first = self.args[0]
-        other.args.pop(0)
-        other.argmap.pop(first)
+        other.popFirst()
         return (first, other)
 
     def popFirst(self):
-        return self.args.pop(0)
+        rv = self.args.pop(0)
+        self.argmap.pop(rv)
+        return rv
+
+    def insert(self, idx, key, value = True):
+        """
+        Allows to undo the effects of popFirst or firstOther
+        """
+        self.args.insert(idx, key)
+        self.argmap[key] = value
 
     def shlex(self, input):
         """
@@ -318,7 +333,7 @@ class Arguments:
         If passed a context object, will use the current settings to connect.
         If required attributes are missing, will delegate to the login command.
         """
-        ctx.pub(["session", "login"] + self.as_args())
+        ctx.pub(["sessions", "login"] + self.as_args())
 
 
 #####################################################
@@ -395,7 +410,7 @@ class Context:
         dir.chmod(0700)
         return dir
 
-    def pub(self, args):
+    def pub(self, args, strict = False):
         self.safePrint(str(args), sys.stdout)
 
     def input(self, prompt, hidden = False, required = False):
@@ -870,7 +885,13 @@ class CLI(cmd.Cmd, Context):
         return input
 
     def onecmd(self, line):
-        args = Arguments(line)
+        try:
+            args = Arguments(line)
+        except BadArgument, exc:
+            self.rv = -1
+            self.err("Bad arguments: %s" % exc)
+            return False
+
         try:
             # Starting a new command. Reset the return value to 0
             # If err or die are called, set rv non-0 value
@@ -965,7 +986,7 @@ class CLI(cmd.Cmd, Context):
         self.interrupt_loop = True
         raise NonZeroReturnCode(rc, "die called")
 
-    def pub(self, args):
+    def pub(self, args, strict = False):
         """
         Publishes the command, using the first argument as routing
         information, i.e. the name of the plugin to be instantiated,
@@ -985,6 +1006,8 @@ class CLI(cmd.Cmd, Context):
                 m(other)
             else:
                 self.die(11, "Missing required plugin: "+ str(ke))
+        if strict:
+            self.assertRC()
 
     def _env(self):
         """
@@ -1086,7 +1109,7 @@ class CLI(cmd.Cmd, Context):
                 self.dbg("Removing client")
                 self._client.closeSession()
                 self._client = None
-        if args:
+        if args is not None:
             args.acquire(self)
             return self._client # Added by "login"
 
