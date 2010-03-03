@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 
 import junit.framework.TestCase;
+import ome.formats.MockedOMEROImportFixture;
 import ome.logic.HardWiredInterceptor;
 import ome.security.SecuritySystem;
 import ome.services.blitz.fire.AopContextInitializer;
@@ -204,23 +205,21 @@ public abstract class AbstractServantTest extends TestCase {
     }
 
     protected long makePixels() throws Exception, FileNotFoundException {
-        if (true) {
+        if (false) {
             throw new RuntimeException(
                     "Unforunately MockedOMEROImportFixture is not supported here \n"
                             + "Instead, the service factory must be registered with a communicator \n"
                             + "and that proxy given to the OMEROImportFixture");
-        }
-	
-	/*
-        ServiceFactory _sf = new InterceptingServiceFactory(this.sf, user.login);
+        } else {
+            long pixels = -1;
+            ServiceFactory _sf = new InterceptingServiceFactory(this.sf, user.login);
 
-        MockedOMEROImportFixture fixture = new MockedOMEROImportFixture(_sf, "");
-        List<Pixels> list = fixture.fullImport(ResourceUtils
-                .getFile("classpath:tinyTest.d3d.dv"), "tinyTest");
-        long pixels = list.get(0).getId().getValue();
-        return pixels;
- 	*/	
-	return -1;
+            MockedOMEROImportFixture fixture = new MockedOMEROImportFixture(_sf, "");
+            List<Pixels> list = fixture.fullImport(ResourceUtils
+                    .getFile("classpath:tinyTest.d3d.dv"), "tinyTest");
+            pixels = list.get(0).getId().getValue();
+            return pixels;
+        }
 	
     }
 }
