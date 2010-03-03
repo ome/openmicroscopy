@@ -790,11 +790,13 @@ class BaseClient(object):
                 sys.err.write("On session closed: " + str(e))
 
         def __init__(self, ic, oa):
+            self.__logger = logging.getLogger("omero.client.callback")
             self.ic = ic
             self.oa = oa
             self.onHeartbeat = self._noop
             self.onShutdownIn = self._noop
             self.onSessionClosed = self._noop
+
         def execute(self, myCallable, action):
             try:
                 myCallable()
