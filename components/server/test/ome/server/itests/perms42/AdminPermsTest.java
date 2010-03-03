@@ -8,6 +8,7 @@ package ome.server.itests.perms42;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import ome.conditions.SecurityViolation;
@@ -370,6 +371,36 @@ public class AdminPermsTest extends PermissionsTest {
         loginRoot();
         iAdmin.addGroups(fixture.user, fixture.group());
         assertPi(true);
+    }
+
+    @Test
+    public void testTicket1822() throws Exception {
+
+        loginRoot();
+        setup(Permissions.PRIVATE);
+        fixture.make_leader();
+
+        ExperimenterGroup group1 = fixture.group();
+        Experimenter user1 = fixture.user;
+        Experimenter user2 = loginNewUserInOtherUsersGroup(user1);
+
+        assertNotOwner(group1, user2);
+
+        fixture.log_in();
+        iAdmin.setGroupOwner(group1, user2);
+
+        assertOwner(group1, user2);
+
+    }
+
+    private void assertNotOwner(ExperimenterGroup group, Experimenter user) {
+        List<Long> leaderOf = iAdmin.getLeaderOfGroupIds(user);
+        assertFalse(leaderOf.contains(group.getId()));
+    }
+
+    private void assertOwner(ExperimenterGroup group, Experimenter user) {
+        List<Long> leaderOf = iAdmin.getLeaderOfGroupIds(user);
+        assertTrue(leaderOf.contains(group.getId()));
     }
 
     private void assertPi(boolean isPi) {
