@@ -355,9 +355,8 @@ class Server(Ice.Application):
 
             try:
                 self.adapter = self.communicator().createObjectAdapter(self.adapter_name)
-
-                self.impl.setProxy( self.adapter.add(self.impl, self.identity) )
                 self.adapter.activate()
+                self.impl.setProxy( self.adapter.add(self.impl, self.identity) )
                 add_grid_object(self.communicator(), self.impl.prx) # This must happen _after_ activation
             except:
                 self.logger.error("Failed activation", exc_info=1)

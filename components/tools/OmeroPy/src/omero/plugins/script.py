@@ -57,6 +57,16 @@ Syntax: %(program_name)s script file [configuration parameters]
 
         cat
         cat file=[id|name]
+        mv
+        rm
+        cp
+        --replace / --overwrite
+
+        register
+        publish
+        processors
+        chain
+        edit
 
         jobs
         jobs user
@@ -134,18 +144,17 @@ Syntax: %(program_name)s script file [configuration parameters]
                 self.ctx.err("Didn't find a single script, but %s" % len(scripts))
             script_id = scripts[0].id.val
 
+        import omero
+        import omero.clients
         import omero_SharedResources_ice
         job = omero.model.ScriptJobI()
         job.linkOriginalFile(omero.model.OriginalFileI(script_id, False))
         interactive = sf.sharedResources().acquireProcessor(job, 10)
-        print "INTER",interactive
         if not interactive:
             self.ctx.err("No processor found")
         else:
             proc = interactive.execute(omero.rtypes.rmap())
-            print "PROC",proc
-            job = proc.getJob()
-            print "JOB", job
+            job = interactive.getJob()
             self.ctx.out("Job %s ready" % job.id.val)
             self.ctx.out("Waiting....")
             count = 0
@@ -186,22 +195,30 @@ Syntax: %(program_name)s script file [configuration parameters]
     def serve(self, args):
         background = args.getBool("background", False)
         timeout = args.getInt("timeout", 0)
+        user = args.get("user", None)
+
+        import omero
+        client = self.ctx.conn()
+        accepts_list = []
+        if user is not None:
+            if user is True:
+                user = client.sf.getAdminService().getEventContext().userId
+            else:
+                user = long(user)
+            accepts_list.append(omero.model.ExperimenterI(user, False))
 
         # Similar to omero.util.Server starting here
-        import omero
-        from omero.util import ServerContext
+        from omero.util import ServerContext, configure_logging
         from omero.processor import ProcessorI
+        configure_logging(loglevel=10)
 
         try:
-            client = self.ctx.conn()
             stop_event = omero.util.concurrency.get_event()
             serverid = "omero.scripts.serve"
             ctx = ServerContext(serverid, client.ic, stop_event)
-            impl = ProcessorI(ctx, use_session=client.sf, accepts_list=[])
+            impl = ProcessorI(ctx, use_session=client.sf, accepts_list=accepts_list)
             impl.setProxy( client.adapter.addWithUUID(impl) )
         except exceptions.Exception, e:
-            import traceback as tb
-            print tb.format_exc()
             self.ctx.die(100, "Failed initialization")
 
         if background:
@@ -209,13 +226,11 @@ Syntax: %(program_name)s script file [configuration parameters]
         else:
             try:
                 def handler(signum, frame):
-                    self.ctx.dbg("SIGNAL")
-                    stop_event.set()
-                old = signal.signal(signal.SIGTERM, handler)
-                if timeout:
-                    stop_event.wait(timeout)
-                else:
-                    stop_event.wait()
+                    raise SystemExit()
+                old = signal.signal(signal.SIGALRM, handler)
+                signal.alarm(timeout)
+                self.ctx.input("Press any key to exit...")
+                signal.alarm(0)
             finally:
                 self.ctx.dbg("DONE")
                 signal.signal(signal.SIGTERM, old)
@@ -223,8 +238,8 @@ Syntax: %(program_name)s script file [configuration parameters]
 
     @wrapper
     def upload(self, args):
-        file, other = args.firstOther()
-        self.ctx.pub(["upload"]+other.args, strict=True)
+        args.insert(0, "upload")
+        self.ctx.pub(args, strict=True)
 
     #
     # Other

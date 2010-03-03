@@ -610,14 +610,20 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
     def lookup(self, job):
 
-        if not session or not job or not job.id:
-            raise omero.ApiUsageException("No null arguments")
-
+        ctx = {"omero.group": str(job.details.group.id.val)}
         sf = self.internal_session()
         handle = sf.createJobHandle()
-        handle.attach(job.id.val)
-        if handle.jobFinished():
+        handle.attach(job.id.val, ctx)
+        if handle.jobFinished(ctx):
             raise omero.ApiUsageException("Job already finished.")
+
+        if not self.accepts_list:
+             accepts = "                and o.details.owner.id = 0"
+        else:
+            accepts = ""
+            for a in self.accepts_list:
+                if isinstance(a, omero.model.Experimenter):
+                    accepts += ("            and o.details.owner.id = %s" % a.id.val)
 
         file = sf.getQueryService().findByQuery(\
             """select o from Job j
@@ -626,10 +632,9 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
              join o.format
              where
                  j.id = %d
-             and o.details.owner.id = 0
+             %s
              and o.format.value = 'text/x-python'
-             """ % job.id.val, None)
-
+             """ % (job.id.val, accepts), None, ctx)
 
         if not file:
             raise omero.ApiUsageException(\
@@ -639,20 +644,24 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
     @remoted
     def accepts(self, userContext, groupContext, scriptContext, cb, current = None):
+        file = None
         try:
-            self.logger.debug("Accepts called on: user:%s group:%s scriptjob:%s",\
-                (userContext.id.val, groupContext.id.val, scriptContext.id.val))
-            file = self.lookup(scriptcontext)
+            self.logger.debug("Accepts called on: user:%s group:%s scriptjob:%s",
+                userContext.id.val, groupContext.id.val, scriptContext.id.val)
+            file = self.lookup(scriptContext)
         except:
             self.logger.debug("File lookup failed: %s", scriptContext, exc_info=1)
             file = None
-        try:
-            cb = cb.ice_oneway()
-            cb = omero.grid.ProcessorAcceptsCallback.uncheckedCast(cb)
-            cb.accepted(self.internal_session().ice_getIdentity().name,
-                        self.conn_info)
-        except:
-            self.logger.warn("Accept callback failed", exc_info=1)
+
+        if file:
+            try:
+                #cb = cb.ice_oneway()
+                cb = omero.grid.ProcessorAcceptsCallbackPrx.uncheckedCast(cb)
+                print "CALLBACK:",cb
+                cb.accepted(self.internal_session().ice_getIdentity().name,
+                            str(self.prx))
+            except:
+                self.logger.warn("Accept callback failed", exc_info=1)
 
     @remoted
     def parseJob(self, session, job, current = None):
@@ -700,6 +709,9 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         client: an omero.client object which should be attached to a session
         """
 
+        if not session or not job or not job.id:
+            raise omero.ApiUsageException("No null arguments")
+
         file = self.lookup(job)
 
         properties["omero.job"] = str(job.id.val)
@@ -721,5 +733,6 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         else:
             process.activate()
 
-        process.setProxy( current.adapter.addWithUUID(process) )
-        return omero.grid.ProcessPrx.uncheckedCast(process.prx)
+        prx = current.adapter.addWithUUID(process)
+        process.setProxy( prx )
+        return omero.grid.ProcessPrx.uncheckedCast(prx)
