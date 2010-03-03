@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """
-   Plugin for viewing and controlling active sessions via the
-   jgroups-based ome.services.blitz.fire.Ring class
+   Plugin for viewing and controlling active sessions for a local user.
 
    Plugin read by omero.cli.Cli during initialization. The method(s)
    defined here will be added to the Cli class for later use.
@@ -11,35 +10,136 @@
 
 """
 
+
 import subprocess, optparse, os, sys
 import getpass, pickle
 import omero.java
+
+from omero.util.sessions import SessionsStore
 from omero.cli import Arguments, BaseControl, VERSION
 from path import path
 
 class SessionsControl(BaseControl):
 
     def help(self, args = None):
-        self.ctx.out("table -- print table of session data")
+        self.ctx.out("login  --   login to a given server, and store session key")
+        self.ctx.out("logout --   logout and remove current session key")
+        self.ctx.out("info   --   list info on the current session")
+        self.ctx.out("list   --   list all stored sessions")
+        self.ctx.out("clear  --   close and remove all stored sessions")
+        self.ctx.out("""
 
-    def table(self, args):
-        args = Arguments(args)
-        first, other = args.firstOther()
-        files = os.listdir("blitz")
-        classpath = os.path.pathsep.join(files)
-        omero.java.run(["-cp",classpath,SessionsControl.RING, first], debug=False, xargs=[], use_exec = True)
+        TODO logout v. kill ???
+        TODO append default loginArguments help here
 
-    def isactive(self, *args):
-        args = Arguments(*args)
+        Options:
+        -d Use a different sessions directory (Default: $HOME/omero/sessions)
+        -p Use a different port (Default: 4063)
+        -t Timeout
+
+        $ login -s localhost
+        Username:
+        Password:
+        $ login -s localhost -u john
+        Password
+        $ login -s localhost -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650
+        $ login
+        Server:
+        Username:
+        Password:
+        $ login user@omero.example.com
+        Password:
+        $ logout
+        $ info
+        $ login
+        Reuse current session? [Y/n]
+        $ list
+        $ logout
+        $ login omero.example.com
+        Username:
+        Password:
+        $ logout
+        $ login -p 24063
+        Server:
+        Username:
+        Password:
+        $ login my.email@example.com@omero.example.com
+        Password:
+        $ login -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650
+        $ clear
+
+        """)
 
     def login(self, *args):
-        args = Arguments(*args)
-        name, other = args.firstOther()
+
+        if self.ctx.conn():
+            return # EARLY EXIT
+
+        args = Arguments(args, shortopts="t:d:", longopts=["timeout","dir"])
+
+        server, other = args.firstOther()
+        if len(other) > 0:
+            self.ctx.die(2, "Unknown argument: %s" % other)
+
+        if server and args.get_server():
+            self.ctx.die(3, "Server specified twice: %s and %s" % (server, args.get_server()))
+
+        if not server:
+            server = args.get_server()
+
+        store = SessionsStore()
+        server, name = self._server(store, server, args.is_quiet())
+
+        if name and args.get_user():
+            self.ctx.die(4, "Username specified twice: %s and %s" % (name, args.get_user()))
+
+        if args.get_user():
+            name = args.get_user()
+
+        pasw = args.get_password()
+        if args.get_key():
+
+            if name:
+                self.ctx.err("Overriding name since session set")
+            name = args.get_key()
+
+            if args.get_password():
+                self.ctx.err("Ignoring password since password set")
+            pasw = args.get_key()
+
         if not name:
-            name = self._username()
-        pasw = self._password()
-        sess = self._session(name, pasw, other)
-        self._savesession(sess)
+            name = self._username(args.is_quiet())
+
+        props = {}
+        props["omero.host"] = server
+        if args.get_port():
+            props["omero.port"] = args.get_port()
+
+        rv = None
+        if not args.is_create():
+            available = store.available(server, name)
+            if available:
+                id = available[0]
+                rv = store.attach(server, name, id)
+                action = "Reconnected to"
+
+        if not rv:
+            if not pasw:
+                if args.is_quiet():
+                    self.ctx.die(394,"A password or key must be provided when 'quiet' is set")
+                pasw = self.ctx.input("Password:", hidden = True, required = True)
+            rv = store.create(name, pasw, props)
+            action = "Created"
+
+        self.ctx._client, id, idle, live = rv
+
+        msg = "%s session %s." % (action, id)
+        if idle:
+            msg = msg + " Idle timeout: %s min." % (float(idle)/60/1000)
+        if live:
+            msg = msg + " Expires in %s min." % (float(live)/60/1000)
+
+        self.ctx.out(msg)
 
     def logout(self, *args):
         old_sess = self._savesession(None)
@@ -48,47 +148,76 @@ class SessionsControl(BaseControl):
         print "Do until 0"
         client.closeSession()
 
-    def closeall(self, *args):
-        print "closeall"
+    def list(self, *args):
+        store = SessionsStore()
+        s = store.contents()
+        fmt = "%-25.25s\t%-16.16s\t%-40.40s\t%-8.8s"
+        self.ctx.out(fmt % ("Server","User","Session","Active"))
+        self.ctx.out("-"*120)
+        for server, names in s.items():
+            for name, sessions in names.items():
+                for id, props in sessions.items():
+                    self.ctx.out(fmt % (server, name, id, props["active"]))
+
+    def clear(self, *args):
+        store = SessionsStore()
+        count = store.count()
+        store.clear()
+        self.ctx.out("%s session(s) cleared" % count)
+
+    def conn(self, properties={}, profile=None, args=None):
+        """
+        Either creates or returns the exiting omero.client instance.
+        Uses the comm() method with the same signature.
+        """
+
+        if self._client:
+            return self._client
+
+        import omero
+        try:
+            data = self.initData(properties)
+            self._client = omero.client(sys.argv, id = data)
+            self._client.createSession()
+            return self._client
+        except Exc, exc:
+            self._client = None
+            raise
 
     #
     # Private methods
     #
-    def _username(self):
-       defuser = getpass.getuser()
-       return raw_input("Username: [%s]" % defuser)
-
-    def _password(self):
-        return getpass.getpass()
-
-    def _session(self, username, password, other):
-        client = self.ctx.conn({"omero.user":username,"omero.pass":password})
-        session_id = client.sf.ice_getIdentity().name
-        return session_id
-
-    def _savesession(self, sess):
-        sess_file = self.ctx.userdir() / "sessionid"
-        if sess:
-            f = open(str(sess_file), "w")
-            try:
-                f.write(str(sess))
-                print "Created session: %s" % sess
-            finally:
-                f.close()
-            return True
-        else:
-            if sess_file.exists():
-                f = open(str(sess_file), "r")
-                try:
-                    old_sess = f.readline()
-                finally:
-                    f.close()
-                sess_file.remove()
-                self.ctx.out("Cleared session: %s" % old_sess)
-                return old_sess
+    def _server(self, store, server, quiet):
+        if not server:
+            defserver = store.last_host()
+            if quiet:
+                self.ctx.out("Using server: %s" % defserver)
+                return defserver
             else:
-                self.ctx.out("No active session")
-                return None
+                rv = self.ctx.input("Server: [%s]" % defserver)
+                if not rv:
+                    return defserver, None # Prevents loop
+                else:
+                    return self._server(store, rv)
+        else:
+            try:
+                idx = server.rindex("@")
+                return  server[idx+1:], server[0:idx] # server, user which may also contain an @
+            except ValueError:
+                return server, None
+
+    def _username(self, quiet):
+        defuser = getpass.getuser()
+        if quiet:
+            slf.ctx.out("Using username: %s" % defuser)
+            return defuser
+        else:
+            rv = self.ctx.input("Username: [%s]" % defuser)
+            if not rv:
+                return defuser
+            else:
+                return rv
+
 
 try:
     register("sessions", SessionsControl)

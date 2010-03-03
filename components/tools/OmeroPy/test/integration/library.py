@@ -40,6 +40,12 @@ class ITest(unittest.TestCase):
         self.update = self.sf.getUpdateService()
         self.query = self.sf.getQueryService()
 
+    def login_args(self):
+        p = self.client.ic.getProperties()
+        host = p.getProperty("omero.host")
+        key = self.sf.ice_getIdentity().name
+        return ["-s", host, "-k", key] # TODO PORT
+
     def tmpfile(self):
         tmpfile = tempfile.NamedTemporaryFile(mode='w+t')
         self.tmpfiles.append(tmpfile)

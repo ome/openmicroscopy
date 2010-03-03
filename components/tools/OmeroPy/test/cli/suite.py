@@ -20,8 +20,13 @@ def additional_tests():
     suite.addTest(load("test.cli.admin"))
     suite.addTest(load("test.cli.args"))
     suite.addTest(load("test.cli.cli"))
+    suite.addTest(load("test.cli.db"))
+    suite.addTest(load("test.cli.java"))
     suite.addTest(load("test.cli.node"))
     suite.addTest(load("test.cli.base"))
     suite.addTest(load("test.cli.rcode"))
     suite.addTest(load("test.cli.sess"))
     return suite
+
+if __name__ == "__main__":
+    unittest.TextTestRunner().run(additional_tests())
