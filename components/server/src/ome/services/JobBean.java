@@ -175,7 +175,7 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
         newJob = secureSave(newJob);
 
         jobId = newJob.getId();
-        notification.notice(jobId);
+        // notification.notice(jobId); DISABLED
 
         return jobId;
     }
