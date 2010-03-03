@@ -163,6 +163,32 @@ Syntax: %(program_name)s script file [configuration parameters]
                 if (count%10) == 0:
                     self.ctx.out(".", newline=False)
                 time.sleep(1)
+            rmap = interactive.getResults(proc)
+            rv = rmap and rmap.val or {}
+
+            def p(m):
+                class handle(object):
+                    def write(this, val):
+                        self.ctx.out(str(val), newline=False)
+                    def close(this):
+                        pass
+
+                f = rv.get(m, None)
+                if f and f.val:
+                    self.ctx.out("*** %s ***" % m)
+                    try:
+                        client.download(ofile=f.val, filehandle=handle())
+                    except:
+                        self.ctx.err("Failed to display %s" % m)
+
+            p("stdout")
+            p("stderr")
+            self.ctx.out("*** out parameters ***")
+            for k, v in rv.items():
+                if k not in ("stdout", "stderr", "omero.scripts.parse"):
+                    if v is not None:
+                        v = v.val # Unwrap rtypes
+                    self.ctx.out("%s=%s" % (k, v))
 
     @wrapper
     def list(self, args):
@@ -193,6 +219,7 @@ Syntax: %(program_name)s script file [configuration parameters]
 
     @wrapper
     def serve(self, args):
+        debug = args.getBool("debug", False)
         background = args.getBool("background", False)
         timeout = args.getInt("timeout", 0)
         user = args.get("user", None)
@@ -208,38 +235,63 @@ Syntax: %(program_name)s script file [configuration parameters]
             accepts_list.append(omero.model.ExperimenterI(user, False))
 
         # Similar to omero.util.Server starting here
+        import logging
+        original = list(logging._handlerList)
+        levels = [o.level for o in original]
+        for o in original:
+            o.level = 500
+
         from omero.util import ServerContext, configure_logging
         from omero.processor import ProcessorI
-        configure_logging(loglevel=10)
+        lvl = debug and 10 or 20
+        configure_logging(loglevel=lvl)
 
         try:
-            stop_event = omero.util.concurrency.get_event()
-            serverid = "omero.scripts.serve"
-            ctx = ServerContext(serverid, client.ic, stop_event)
-            impl = ProcessorI(ctx, use_session=client.sf, accepts_list=accepts_list)
-            impl.setProxy( client.adapter.addWithUUID(impl) )
-        except exceptions.Exception, e:
-            self.ctx.die(100, "Failed initialization")
-
-        if background:
-            REGISTER_CLEANUP(timeout)
-        else:
             try:
-                def handler(signum, frame):
-                    raise SystemExit()
-                old = signal.signal(signal.SIGALRM, handler)
-                signal.alarm(timeout)
-                self.ctx.input("Press any key to exit...")
-                signal.alarm(0)
-            finally:
-                self.ctx.dbg("DONE")
-                signal.signal(signal.SIGTERM, old)
-                impl.cleanup()
+                stop_event = omero.util.concurrency.get_event()
+                serverid = "omero.scripts.serve"
+                ctx = ServerContext(serverid, client.ic, stop_event)
+                impl = ProcessorI(ctx, use_session=client.sf, accepts_list=accepts_list)
+                impl.setProxy( client.adapter.addWithUUID(impl) )
+            except exceptions.Exception, e:
+                self.ctx.die(100, "Failed initialization")
+
+            if background:
+                REGISTER_CLEANUP(timeout)
+            else:
+                try:
+                    def handler(signum, frame):
+                        raise SystemExit()
+                    old = signal.signal(signal.SIGALRM, handler)
+                    signal.alarm(timeout)
+                    self.ctx.input("Press any key to exit...\n")
+                    signal.alarm(0)
+                finally:
+                    self.ctx.dbg("DONE")
+                    signal.signal(signal.SIGTERM, old)
+                    impl.cleanup()
+        finally:
+            for o,l in zip(original,levels):
+                o.level = l
+
 
     @wrapper
     def upload(self, args):
         args.insert(0, "upload")
         self.ctx.pub(args, strict=True)
+
+    @wrapper
+    def replace(self, args):
+
+        if len(args) != 2:
+            self.ctx.die(111, "Usage: <original file id> <path to file")
+
+        ofile = long(args.args[0])
+        fpath = str(args.args[1])
+
+        client = self.ctx.conn()
+        ofile = client.sf.getQueryService().get("OriginalFile", ofile)
+        client.upload(fpath, ofile=ofile)
 
     #
     # Other

@@ -303,10 +303,7 @@ class Arguments:
     def getBool(self, key, defvalue):
         value = self.get(key, defvalue)
         value = str(value).lower()
-        if value in ("true", "yes", "1"):
-            value = True
-        else:
-            value = False
+        return value in ("true", "yes", "1")
 
     def getInt(self, key, defvalue):
         value = self.get(key, defvalue)

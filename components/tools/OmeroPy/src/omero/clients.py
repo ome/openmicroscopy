@@ -552,7 +552,7 @@ class BaseClient(object):
 
         return ofile
 
-    def download(self, ofile, filename, block_size = 1024*1024):
+    def download(self, ofile, filename = None, block_size = 1024*1024, filehandle = None):
         prx = self.__sf.createRawFileStore()
         try:
             if not ofile or not ofile.id:
@@ -567,14 +567,21 @@ class BaseClient(object):
             size = ofile.size.val
             offset = 0
 
-            file = open(filename, 'wb')
+            if filehandle is None:
+                if filename is None:
+                    raise ClientError("no filename or filehandle specified")
+                filehandle = open(filename, 'wb')
+            else:
+                if filename:
+                    raise ClientError("filename and filehandle specified.")
+
             try:
                 while (offset+block_size) < size:
-                    file.write(prx.read(offset, block_size))
+                    filehandle.write(prx.read(offset, block_size))
                     offset += block_size
-                file.write(prx.read(offset, (size-offset)))
+                filehandle.write(prx.read(offset, (size-offset)))
             finally:
-                file.close()
+                filehandle.close()
         finally:
             prx.close()
 
