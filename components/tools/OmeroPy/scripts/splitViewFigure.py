@@ -687,7 +687,7 @@ def runAsScript():
 	for key in client.getInputKeys():
 		if client.getInput(key):
 			commandArgs[key] = client.getInput(key).getValue()
-	
+	print commandArgs
 	# call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
 	fileId = splitViewFigure(session, commandArgs)
 	# return this fileAnnotation to the client. 

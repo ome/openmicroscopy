@@ -34,6 +34,7 @@ the regions within the ROIs, and saves them back to the server.
 """
 
 import omero
+import omero.scripts as scripts
 from omero.rtypes import *
 import omero.util.script_utils as scriptUtil
 
@@ -84,16 +85,16 @@ def getImagePlane(session, imageId):
 	return plane2D
 	
 
-def resetRenderingSettings(session, pixelsId, minValue, maxValue):
+def resetRenderingSettings(re, pixelsId, minValue, maxValue):
 	
-	re = session.createRenderingEngine()
 	re.lookupPixels(pixelsId)
 	if not re.lookupRenderingDef(pixelsId):
-		print "No Rendering Def"
+	#	print "No Rendering Def"
 		re.resetDefaults()	
 	
 	if not re.lookupRenderingDef(pixelsId):
-		print "Still No Rendering Def"
+	#	print "Still No Rendering Def"
+		pass
 	
 	re.load()
 	
@@ -101,16 +102,17 @@ def resetRenderingSettings(session, pixelsId, minValue, maxValue):
 	re.saveCurrentSettings()
 
 
-def createNewImage(pixelsService, pixelsType, gateway, plane2D, imageName, description, dataset=None):
+def createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, plane2Dlist, imageName, description, dataset=None):
 	
-	shape = plane2D.shape
+	# all planes in plane2Dlist should be same shape. Render according to first plane. 
+	shape = plane2Dlist[0].shape
 	sizeY, sizeX = shape
-	minValue = plane2D.min()
-	maxValue = plane2D.max()
+	minValue = plane2Dlist[0].min()
+	maxValue = plane2Dlist[0].max()
 	
 	channelList = [0]  # omero::sys::IntList
 	
-	sizeZ, sizeT = (1,1)
+	sizeZ, sizeT = (len(plane2Dlist),1)
 	iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description)
 	imageId = iId.getValue()
 	
@@ -120,12 +122,12 @@ def createNewImage(pixelsService, pixelsType, gateway, plane2D, imageName, descr
 	
 	# upload plane data
 	pixelsId = image.getPrimaryPixels().getId().getValue()
-	rawPixelStore = session.createRawPixelsStore()
 	rawPixelStore.setPixelsId(pixelsId, True)
-	theZ, theC, theT = (0,0,0)
-	scriptUtil.uploadPlane(rawPixelStore, plane2D, theZ, theC, theT)
+	theC, theT = (0,0)
+	for theZ, plane2D in enumerate(plane2Dlist):
+		scriptUtil.uploadPlane(rawPixelStore, plane2D, theZ, theC, theT)
 
-	resetRenderingSettings(session, pixelsId, minValue, maxValue)
+	resetRenderingSettings(re, pixelsId, minValue, maxValue)
 	
 	if dataset:
 		link = omero.model.DatasetImageLinkI()
@@ -137,6 +139,7 @@ def createNewImage(pixelsService, pixelsType, gateway, plane2D, imageName, descr
 
 def makeImagesFromRois(session, parameterMap):
 	
+	imageIds = []
 	if "imageIds" in parameterMap:
 		for idCount, imageId in enumerate(parameterMap["imageIds"]):
 			iId = long(imageId.getValue())
@@ -146,13 +149,12 @@ def makeImagesFromRois(session, parameterMap):
 	
 	queryService = session.getQueryService()
 	pixelsService = session.getPixelsService()
+	rawPixelStore = session.createRawPixelsStore()
 	gateway = session.createGateway()
+	imageName = gateway.getImage(imageId).getName().getValue()
+	re = session.createRenderingEngine()
 	
-	imageId = 28
-	
-	datasetName = None		# if set, create a new dataset for images 
-	if "datasetName" in parameterMap:
-		datasetName = parameterMap["datasetName"]
+	imageName = gateway.getImage(imageId).getName().getValue()
 	
 	# get plane of image
 	plane2D = getImagePlane(session, imageId)
@@ -166,10 +168,10 @@ def makeImagesFromRois(session, parameterMap):
 	project = None
 	dataset = None
 	
-	imageIds = [imageId]
+	#imageIds = [imageId]
 	
-	ids = ",".join([str(i) for i in imageIds])
-	query_string = "select i from Image i join fetch i.datasetLinks idl join fetch idl.parent d join fetch d.projectLinks pl join fetch pl.parent where i.id in (%s)" % ids
+	#ids = ",".join([str(i) for i in imageIds])
+	query_string = "select i from Image i join fetch i.datasetLinks idl join fetch idl.parent d join fetch d.projectLinks pl join fetch pl.parent where i.id in (%s)" % imageId
 	image = queryService.findByQuery(query_string, None)
 	
 	if image:
@@ -183,28 +185,52 @@ def makeImagesFromRois(session, parameterMap):
 				break # only use 1st Project
 			break	# only use 1st
 	
-	# create a new dataset for new images
-	if datasetName:
-		dataset = omero.model.DatasetI()
-		dataset.name = rstring(datasetName)
-		dataset = gateway.saveAndReturnObject(dataset)
-		if project:		# and put it in the current project
-			link = omero.model.ProjectDatasetLinkI()
-			link.parent = omero.model.ProjectI(project.id.val, False)
-			link.child = omero.model.DatasetI(dataset.id.val, False)
-			gateway.saveAndReturnObject(link)
+	# if making a single particle-stack image...
+	if ("makeParticleStack" in parameterMap) and (parameterMap["makeParticleStack"]):
+		
+		plane2Dlist = []
+		# use width and height from first rectangle to make sure that all are the same. 
+		x,y,width,height = rects[0]	
+		for r in rects:
+			x,y,w,h = r
+			x2 = x+width
+			y2 = y+height
+			plane2Dlist.append(plane2D[y:y2, x:x2])
+			
+		if "containerName" in parameterMap:
+			newImageName = "%s_%s" % (imageName, parameterMap["containerName"])
+		else:
+			newImageName = "%s_particles" % imageName
+		
+		description = "Particles from image:\n Image Name: %s\n Image ID: %d" % (imageName, imageId)
+		createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, plane2Dlist, newImageName, description, dataset)
 	
-	for r in rects:
-		x,y,w,h = r
-		x2 = x+w
-		y2 = y+h
-		array = plane2D[y:y2, x:x2]		# slice the ROI rectangle data out of the whole image-plane 2D array
-		#import Image
-		#p = Image.fromarray(array)
-		#p.show() 
-		description = "Created from image ID: %d \n x: %d y: %d" % (imageId, x, y)
-		createNewImage(pixelsService, pixelsType, gateway, array, "particle", description, dataset)
-		print array.shape
+	
+	# ..else, make an image for each ROI (maybe all in one dataset?)
+	else:
+		# create a new dataset for new images
+		if "containerName" in parameterMap:		# if set, create a new dataset for images 
+			datasetName = parameterMap["containerName"]
+			datasetName = "%s_%s" % (imageName, datasetName)	# e.g. myImage.mrc_particles
+			dataset = omero.model.DatasetI()
+			dataset.name = rstring(datasetName)
+			dataset = gateway.saveAndReturnObject(dataset)
+			if project:		# and put it in the current project
+				link = omero.model.ProjectDatasetLinkI()
+				link.parent = omero.model.ProjectI(project.id.val, False)
+				link.child = omero.model.DatasetI(dataset.id.val, False)
+				gateway.saveAndReturnObject(link)
+	
+		for r in rects:
+			x,y,w,h = r
+			x2 = x+w
+			y2 = y+h
+			array = plane2D[y:y2, x:x2]		# slice the ROI rectangle data out of the whole image-plane 2D array
+			#import Image
+			#p = Image.fromarray(array)
+			#p.show() 
+			description = "Created from image:\n Image Name: %s\n Image ID: %d \n x: %d y: %d" % (imageName, imageId, x, y)
+			createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, [array], "particle", description, dataset)
 
 
 def runAsScript():
@@ -212,8 +238,9 @@ def runAsScript():
 	The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
 	"""
 	client = scripts.client('imagesFromRois.py', 'Create new images from the regions defined by Rectangle ROIs of another image', 
-	scripts.List("imageIds").inout(),			# List of image IDs.
-	scripts.String("datasetName").inout(), optional=True);		# 	If set, add new images to a new Dataset (in the same project as image)
+	scripts.List("imageIds").inout(),			# List of image IDs, with Rectangle ROIs.
+	scripts.String("containerName", optional=True).inout(),	# 	New Dataset name (in the same project as image) or Image-stack name
+	scripts.Bool("makeParticleStack", optional=True).inout())
 	
 	session = client.getSession();
 	

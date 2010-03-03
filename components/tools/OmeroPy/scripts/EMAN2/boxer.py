@@ -38,7 +38,6 @@ the server.
  
 """
 
-
 from EMAN2 import *
 
 from e2boxer import *
@@ -49,12 +48,20 @@ import omero
 import omero.scripts as scripts
 from omero.rtypes import *
 import omero.util.script_utils as scriptUtil
-from Spider.Spiderarray import array2spider
 
-from Tkinter import Tk, Label
-import Image, ImageTk
+import Image # for saving as tiff. 
 
-# Override this method in EMAN2db becuase the $HOME variable is not available to the scripting service. 
+# keep track of log strings. 
+logStrings = []
+
+def log(text):
+	"""
+	Adds the text to a list of logs. Compiled into figure legend at the end.
+	"""
+	#print text
+	logStrings.append(text)
+
+# Override this method in EMAN2db becuase the $HOME variable was not available to the scripting service (is now). 
 def e2gethome() :
 	"""platform independent path with '/'"""
 	if(sys.platform != 'win32'):
@@ -87,10 +94,10 @@ class OmeroSwarmPanel():
 		self.box_size = box_size
 		
 	def set_picking_data(self, peak_score, profile, profile_trough_point):
-		print "Dummy PanelObject: set_picking_data()"
-		print "    peak_score: " + str(peak_score)
-		print "    profile: " + str(profile)
-		print "    profile_trough_point: " + str(profile_trough_point)
+		log("Dummy PanelObject: set_picking_data()")
+		log("    peak_score: %s" % peak_score)
+		log("    profile: %s" % profile)
+		log("    profile_trough_point: %s" % profile_trough_point)
 
 
 class OmeroSwarmTool(SwarmBoxer):
@@ -119,9 +126,11 @@ class Target():
 	Takes a reference to an OMERO session in the constructor, which is then used to write the picked particles as 
 	ROIs to the image, identified by imageId
 	"""
-	def __init__(self, box_size, session, imageId):
+	def __init__(self, box_size, session, imageId, image_name):
 		def getFileName():
-			return "/Users/will/Documents/dev/EMAN2/06jul12a.mrc"
+			print "Target: getFileName()"
+			return image_name
+			#return "/Users/will/Documents/dev/EMAN2/06jul12a.mrc"
 		self.current_file = getFileName
 		#self.current_file = "/Users/will/Documents/dev/EMAN2/06jul12a.mrc"
 		self.box_size = box_size
@@ -217,7 +226,7 @@ class Target():
 				mask = BinaryCircleImageCache.get_image_directly(int(self.box_size/(2*sr)))
 				for box in self.box_list.get_boxes():
 					x,y = int(box.x/sr),int(box.y/sr)
-					print "excluding box: x:%d  y:%d" % (x, y)
+					log("excluding box: x:%d  y:%d" % (x, y))
 					# from EMAN2 import BoxingTools
 					BoxingTools.set_region(image,mask,x,y,0.1) # 0.1 is also the value set by the eraser - all that matters is that it's zon_zero
 			
@@ -225,7 +234,7 @@ class Target():
 			
 	# code from emboxerbase.EMBoxerModule 
 	def detect_box_collision(self,data):
-		print "target detect_box_collision() " + str(data)
+		log("target detect_box_collision() %s" % data)
 		return self.box_list.detect_collision(data[0], data[1], self.box_size)
 
 		
@@ -340,43 +349,46 @@ def doAutoBoxing(session, parameterMap):
 			iId = long(imageId.getValue())
 			imageIds.append(iId)
 	
-	imageId = imageIds[0]
+	gateway = session.createGateway()
+	for imageId in imageIds:
+		
+		# download the image as a local temp tiff image
+		image_name = gateway.getImage(imageId).getName().getValue()
+		if not image_name.endswith(".tiff"):
+			image_name = "%s.tiff" % image_name
+		imgW, imgH = downloadImage(session, imageId, image_name)
 	
-	# download the image as a local temp image
-	#image_name = "tempImage.dat"
-	image_name = "newTestImage.tiff"
-	imgW, imgH = downloadImage(session, imageId, image_name)
+		#showImage(image_name)
+		log("image downloaded: %s" % image_name)
 	
-	#showImage(image_name)
-	print "image downloaded"
+		# get list of ROI boxes as (x, y, width, height) on the image
+		# and delete any existing AUTO added ROIs. 
+		boxes = getRectangles(session, imageId, SwarmBoxer.AUTO_NAME)
+		if len(boxes) == 0:
+			log("No ROIs found in image: %s" % image_name)
+			continue
 	
-	# get list of ROI boxes as (x, y, width, height) on the image
-	# and delete any existing AUTO added ROIs. 
-	boxes = getRectangles(session, imageId, SwarmBoxer.AUTO_NAME)
-	if len(boxes) == 0:
-		print "No ROIs found - exiting!"
-		import sys
-		sys.exit()
+		# use the width of the first box as the box_size (all should be same w,h)
+		x,y,w,h = boxes[0]
+		box_size = w
 	
-	# use the width of the first box as the box_size (all should be same w,h)
-	x,y,w,h = boxes[0]
-	box_size = w
+		# create a 'target' which will save the generated boxes as ROI rectangles to OMERO
+		target = Target(box_size, session, imageId, image_name)
+		omeroBoxer = OmeroSwarmTool(target, particle_diameter=box_size)		# pass target to Boxer
 	
-	# create a 'target' which will save the generated boxes as ROI rectangles to OMERO
-	target = Target(box_size, session, imageId)
-	omeroBoxer = OmeroSwarmTool(target, particle_diameter=box_size)		# pass target to Boxer
+		# add the reference boxes to the boxer
+		for box in boxes:
+			x, y, w, h = box
+			x += box_size/2		# convert from top-left of ROI (OMERO) to centre of particle (EMAN2) 
+			y += box_size/2
+			y = imgH - y		# convert distance from Top of image (OMERO) to distance from bottom (EMAN2) 
+			omeroBoxer.add_ref(x,y,image_name)
 	
-	# add the reference boxes to the boxer
-	for box in boxes:
-		x, y, w, h = box
-		x += box_size/2		# convert from top-left of ROI (OMERO) to centre of particle (EMAN2) 
-		y += box_size/2
-		y = imgH - y		# convert distance from Top of image (OMERO) to distance from bottom (EMAN2) 
-		omeroBoxer.add_ref(x,y,image_name)
-	
-	# perform auto-boxing - results are written back to server, as ROIs on the image. 
-	omeroBoxer.auto_box(image_name)
-	
+		# perform auto-boxing - results are written back to server, as ROIs on the image. 
+		omeroBoxer.auto_box(image_name)
+		
+		figLegend = "\n".join(logStrings)
+		print figLegend
 	
 def runAsScript():
 	"""
@@ -385,10 +397,7 @@ def runAsScript():
 	client = scripts.client('boxer.py', 'Use EMAN2 to auto-box particles based on 1 or more user-picked particles (ROIs).', 
 	scripts.List("imageIds").inout())		# List of image IDs. Resulting figure will be attached to first image
 	
-	#client.enableKeepAlive(10)		# keeps thread alive when downloading / working with big images. 
 	session = client.getSession()
-	
-	#return		# bug-fixing keepAlive
 	
 	# process the list of args above. 
 	parameterMap = {}

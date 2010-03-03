@@ -433,6 +433,19 @@ def makeFrapFigure(session, commandArgs):
 		format = PDF
 		output = imageName + ".pdf"
 		
+		# create a plot of curve fitted to:  y = 1 - e(It)
+		# where thalf = ln 0.5 / -I
+		# http://www.embl.de/eamnet/frap/html/halftime.html
+		import math
+		i = 1/float(tHalf) * math.log(0.5)
+		fittedPoints = []
+		for t in timeList[3:]:
+			print math.exp(t * i)
+			f = frapBleachNormCorr + ((plateauNormCorr-frapBleachNormCorr) * (1 - math.exp(t * i)))
+			fittedPoints.append(f)
+		print fittedPoints
+		log("Fitted: , " + str(fittedPoints))
+		
 		# create a plot of the FRAP data
 		figHeight = 450
 		figWidth = 400
@@ -442,10 +455,12 @@ def makeFrapFigure(session, commandArgs):
 		lp.y = 50
 		lp.height = 300
 		lp.width = 300
-		lp.data = [zip(timeList, frapNormCorr)]
+		lp.data = [zip(timeList, frapNormCorr), zip(timeList[3:], fittedPoints)]
 		lp.lines[0].strokeColor = colors.red
 		lp.lines[0].symbol = makeMarker('Circle')
-	
+		lp.lines[1].strokeColor = colors.green
+		lp.lines[1].symbol = makeMarker('Circle')
+		
 		drawing.add(lp)
 	
 		drawing.add(String(200,25, 'Time (seconds)', fontSize=12, textAnchor="middle"))

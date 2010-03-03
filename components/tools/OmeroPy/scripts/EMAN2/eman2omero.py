@@ -108,7 +108,7 @@ def createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, plane2
 	return image
 
 def emanToOmero(commandArgs):
-	print commandArgs
+	#print commandArgs
 	client = omero.client(commandArgs["host"])
 	session = client.createSession(commandArgs["username"], commandArgs["password"])
 	
@@ -122,7 +122,7 @@ def emanToOmero(commandArgs):
 	
 	infile = commandArgs["bdb"]
 	nimg = EMUtil.get_image_count(infile)	# eg images in bdb 'folder'
-	print nimg
+	print "Found %d images to import from %s" % (nimg, infile)
 	
 	d = EMData()
 	
@@ -138,7 +138,7 @@ def emanToOmero(commandArgs):
 	else:
 		datasetName = infile.replace("bdb:")
 		
-	print projectName, datasetName
+	# print projectName, datasetName
 	
 	project = None
 	dataset = omero.model.DatasetI()
@@ -174,27 +174,29 @@ def emanToOmero(commandArgs):
 	
 	# loop through all the images. 
 	description = "Imported from EMAN2 bdb: %s" % infile
-	for i in range(5):
+	for i in range(2):
+		print "Importing image: %d" % i
 		newImageName = "%d" % i
 		d.read_image(infile, i)
 		plane2D = EMNumPy.em2numpy(d)
-		print "plane: ", plane2D.shape
-		plane2Dlist = [plane2D]
+		print plane2D
+		plane2Dlist = [plane2D]		# single plane image
 		
 		# maybe should move this method to script_utils, since it is also used by imagesFromRois.py
 		image = createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, plane2Dlist, newImageName, description, dataset)
 		
-		f = open(fileName, 'w')
+		f = open(fileName, 'w')		# will overwrite each time. 
 		f.write("[GlobalMetadata]\n")
 		
 		# now add image attributes as "Original Metadata"
 		for attr, value in d.get_attr_dict().items():
-			print attr, value
+			# print attr, value
 			f.write("%s=%s\n" % (attr, value))
 		f.close()
 		
-		r = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, image, fileName, "text/plain", None, namespace)
-		print r
+		scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, image, fileName, "text/plain", None, namespace)
+	# delete temp file
+	os.remove(fileName)
 
 def readCommandArgs():
 	host = ""

@@ -46,6 +46,8 @@ import omero.util.script_utils as scriptUtil
 # but the closest I can find is EMAN2.cvs/lib/pyemtbx/imagetypes.py
 # which has statements like:  IMAGE_MRC = EMUtil.ImageType.IMAGE_MRC
 
+# maybe use   EMUtil.get_image_ext_type(outtype)
+
 filetypes = {"hdf": None, 
 	"mrc": "MRC", 
 	"spi": None, # To read the overall image header in a stacked spider file, use image_index = -1.
