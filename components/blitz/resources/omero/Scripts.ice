@@ -167,7 +167,7 @@ module omero {
          * to query whether or not a processor will accept a certain operation.
          **/
         interface ProcessorAcceptsCallback {
-            void accepted(string sessionUuid, string processorConn);
+            void isAccepted(bool accepted, string sessionUuid, string processorConn);
         };
 
 
@@ -189,7 +189,7 @@ module omero {
              * must respond with their session uuid in order to authorize
              * the action.
              **/
-            void accepts(omero::model::Experimenter userContext,
+            void willAccept(omero::model::Experimenter userContext,
                          omero::model::ExperimenterGroup groupContext,
                          omero::model::ScriptJob scriptContext,
                          ProcessorAcceptsCallback* cb);

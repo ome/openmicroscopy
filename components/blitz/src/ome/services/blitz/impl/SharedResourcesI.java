@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -24,7 +25,6 @@ import ome.services.blitz.fire.TopicManager;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
-import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
@@ -84,6 +84,8 @@ import Ice.UserException;
  */
 public class SharedResourcesI extends AbstractAmdServant implements
         _SharedResourcesOperations, BlitzOnly, ServiceFactoryAware {
+
+    private final static String PROC_ACC_CB_CAT = "ProcessorCallbackAccept";
 
     private final static Log log = LogFactory.getLog(SharedResourcesI.class);
 
@@ -472,10 +474,12 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         // Okay. All's valid.
         final Job job = (Job) mapper.map(savedJob);
-        Ice.Identity id = sessionedID("ProcessorAcceptCb");
+        Ice.Identity acceptId = new Ice.Identity();
+        acceptId.name = UUID.randomUUID().toString();
+        acceptId.category = PROC_ACC_CB_CAT;
         ResultHolder<String> holder = new ResultHolder<String>(seconds);
-        AcceptCallback callback = new AcceptCallback(id, sf, holder, job);
-        ProcessorPrx server = callback.activateAndWait();
+        AcceptCallback callback = new AcceptCallback(sf, holder, job);
+        ProcessorPrx server = callback.activateAndWait(sf.adapter, acceptId);
 
         // Nothing left to try
         if (server == null) {
@@ -486,21 +490,25 @@ public class SharedResourcesI extends AbstractAmdServant implements
         InteractiveProcessorI ip = new InteractiveProcessorI(sf.principal,
                 sf.sessionManager, sf.executor, server, job, timeout,
                 sf.control);
-        id = sessionedID("InteractiveProcessor");
-        Ice.ObjectPrx rv = sf.registerServant(current, id, ip);
+        Ice.Identity procId = sessionedID("InteractiveProcessor");
+        Ice.ObjectPrx rv = sf.registerServant(current, procId, ip);
         allow(rv);
         return InteractiveProcessorPrxHelper.uncheckedCast(rv);
-
     }
 
     public void addProcessor(ProcessorPrx proc, Current __current)
             throws ServerError {
         topicManager.register(PROCESSORACCEPTS.value, proc, false);
+        processorIds.add(Ice.Util.identityToString(proc.ice_getIdentity()));
+        if (sf.control != null) {
+            sf.control.categories().add(new String[]{PROC_ACC_CB_CAT});
+        }
     }
 
     public void removeProcessor(ProcessorPrx proc, Current __current)
             throws ServerError {
         topicManager.unregister(PROCESSORACCEPTS.value, proc);
+        processorIds.remove(Ice.Util.identityToString(proc.ice_getIdentity()));
     }
 
     //
@@ -510,7 +518,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
 
     private Ice.Identity sessionedID(String type) {
-        String key = type + "-" + java.util.UUID.randomUUID();
+        String key = type + "-" + UUID.randomUUID();
         return sf.getIdentity(key);
     }
 
@@ -556,33 +564,32 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         private final Job job;
 
-        private final Ice.Identity id;
-
         private final ServiceFactoryI sf;
 
         private final ResultHolder<String> holder;
 
         private final EventContext ec;
 
-        public AcceptCallback(Ice.Identity id, ServiceFactoryI sf, ResultHolder<String> holder, Job job) {
-            this.id = id;
+        public AcceptCallback(ServiceFactoryI sf, ResultHolder<String> holder, Job job) {
             this.sf = sf;
             this.job = job;
             this.holder = holder;
             this.ec = sf.sessionManager.getEventContext(sf.principal);
         }
 
-        public ProcessorPrx activateAndWait() {
-            Ice.ObjectPrx prx = sf.adapter.add(this, id);
+        public ProcessorPrx activateAndWait(Ice.ObjectAdapter adapter, Ice.Identity acceptId) {
+
+            Ice.ObjectPrx prx = sf.adapter.add(this, acceptId);
+
             try {
-                prx = sf.adapter.createDirectProxy(prx.ice_getIdentity());
+                prx = sf.adapter.createDirectProxy(acceptId);
                 ProcessorAcceptsCallbackPrx cbPrx =
-                    ProcessorAcceptsCallbackPrxHelper.uncheckedCast(prx);
+                        ProcessorAcceptsCallbackPrxHelper.uncheckedCast(prx);
 
                 TopicManager.TopicMessage msg = new TopicManager.TopicMessage(this,
                         PROCESSORACCEPTS.value,
                         new ProcessorPrxHelper(),
-                        "accepts",
+                        "willAccept",
                         new omero.model.ExperimenterI(ec.getCurrentUserId(), false),
                         new omero.model.ExperimenterGroupI(ec.getCurrentGroupId(), false),
                         this.job,
@@ -592,26 +599,35 @@ public class SharedResourcesI extends AbstractAmdServant implements
                 Ice.ObjectPrx p = sf.adapter.getCommunicator().stringToProxy(server);
                 return ProcessorPrxHelper.uncheckedCast(p);
             } finally {
-                sf.adapter.remove(prx.ice_getIdentity());
+                sf.adapter.remove(acceptId);
             }
         }
 
-        public void accepted(String sessionUuid, String procConn, Current __current) {
-            log.debug(String.format(
-                    "Processor with session %s return %s",
-                    sessionUuid, procConn));
-            try {
-                EventContext procEc = sf.sessionManager.getEventContext(new Principal(sessionUuid));
-                if (!procEc.isCurrentUserAdmin()) {
-                    if (!procEc.getCurrentUserId().equals(ec.getCurrentUserId())) {
-                        this.holder.set(null);
-                    }
-                }
-                this.holder.set(procConn);
-            } catch (Exception e) {
+        public void isAccepted(boolean accepted, String sessionUuid, String procConn, Current __current) {
+
+            String reason = "because false returned";
+
+            if (accepted) {
                 log.debug(String.format(
-                        "Processor with session %s rejected", sessionUuid));
+                        "Processor with session %s returned %s accepted",
+                        sessionUuid, procConn, accepted));
+                try {
+                    EventContext procEc = sf.sessionManager.getEventContext(new Principal(sessionUuid));
+                    if (procEc.isCurrentUserAdmin() ||
+                            procEc.getCurrentUserId().equals(ec.getCurrentUserId())) {
+                        this.holder.set(procConn);
+                    } else {
+                        reason = "since disallowed";
+                    }
+                } catch (Exception e) {
+                    reason = "due to exception: " + e.getMessage();
+                }
             }
+
+            log.debug(String.format(
+                    "Processor with session %s rejected %s",
+                    sessionUuid, reason));
+            this.holder.set(null);
 
         }
 
