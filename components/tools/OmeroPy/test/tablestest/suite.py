@@ -10,6 +10,8 @@
 """
 
 import unittest
+import logging
+logging.basicConfig(level=0)
 
 class TopLevel(unittest.TestCase):
     pass
