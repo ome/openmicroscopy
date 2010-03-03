@@ -19,6 +19,7 @@ import exceptions
 import portalocker
 
 from path import path
+from omero.util import get_user_dir
 
 # Activating logging at a static level
 if "DEBUG" in os.environ:
@@ -129,11 +130,7 @@ class TempFileManager(object):
         locktest = None
 
         omerotemp = os.environ.get("OMERO_TEMPDIR", None)
-        try:
-            from win32com.shell import shellcon, shell
-            homeprop = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
-        except ImportError:
-            homeprop = os.path.expanduser("~")
+        homeprop = get_user_dir()
         tempprop = tempfile.gettempdir()
         targets = [omerotemp, homeprop, tempprop]
 

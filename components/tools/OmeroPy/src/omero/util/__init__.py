@@ -613,3 +613,15 @@ class Environment:
             self.env[key] = os.pathsep.join([self.env[key], addition])
         else:
             self.set(key, addition)
+
+#
+# Miscellaneious utilities
+#
+
+def get_user_dir():
+    try:
+        from win32com.shell import shellcon, shell
+        homeprop = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
+    except ImportError:
+        homeprop = os.path.expanduser("~")
+    return homeprop
