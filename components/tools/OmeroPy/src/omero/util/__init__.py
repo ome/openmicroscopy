@@ -255,6 +255,8 @@ class ServerContext(object):
         if self.session:
             try:
                 self.session.keepAlive(None)
+            except Ice.CommunicatorDestroyedException:
+                self.session = None # Ignore
             except exceptions.Exception, e:
                 self.logger.warn("Connection failure: %s" % e)
                 self.session = None
