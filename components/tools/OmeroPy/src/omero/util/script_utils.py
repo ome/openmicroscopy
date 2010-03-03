@@ -240,7 +240,7 @@ def attachFileToParent(updateService, parent, originalFile, description=None, na
     return updateService.saveAndReturnObject(l);
 
 
-def uploadAndAttachFile(queryService, updateService, rawFileStore, parent, output, format, description=None, namespace):
+def uploadAndAttachFile(queryService, updateService, rawFileStore, parent, output, format, description=None, namespace=None):
     """
     Uploads a local file to the server, as an Original File and attaches it to the 
     parent (Project, Dataset or Image)
