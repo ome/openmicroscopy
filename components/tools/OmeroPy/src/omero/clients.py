@@ -552,30 +552,31 @@ class BaseClient(object):
 
         return ofile
 
-    def download(self, ofile, filename, block_size = 1024):
-        file = open(filename, 'wb')
+    def download(self, ofile, filename, block_size = 1024*1024):
+        prx = self.__sf.createRawFileStore()
         try:
-            prx = self.__sf.createRawFileStore()
+            if not ofile or not ofile.id:
+                raise ClientError("No file to download")
+            ofile = self.__sf.getQueryService().get("OriginalFile", ofile.id.val)
+
+            if block_size > ofile.size.val:
+                block_size = ofile.size.val
+
+            prx.setFileId(ofile.id.val)
+
+            size = ofile.size.val
+            offset = 0
+
+            file = open(filename, 'wb')
             try:
-                if not ofile or not ofile.id:
-                    raise ClientError("No file to download")
-                ofile = self.__sf.getQueryService().get("OriginalFile", ofile.id.val)
-
-                if block_size > ofile.size.val:
-                    block_size = ofile.size.val
-
-                prx.setFileId(ofile.id.val)
-                offset = 0
-                while offset < ofile.size.val:
-                    block = prx.read(offset, block_size)
-                    if not block:
-                        break
-                    file.write(block)
-                    offset += len(block)
+                while (offset+block_size) < size:
+                    file.write(prx.read(offset, block_size))
+                    offset += block_size
+                file.write(prx.read(offset, (size-offset)))
             finally:
-                prx.close()
+                file.close()
         finally:
-            file.close()
+            prx.close()
 
     def closeSession(self):
         """
