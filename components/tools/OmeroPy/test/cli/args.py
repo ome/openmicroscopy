@@ -26,11 +26,10 @@ class TestArgs(unittest.TestCase):
         Arguments()
         Arguments("a string")
         Arguments("a list of strings".split())
-        Arguments(*(["list2"],))
+        Arguments((["list2"],))
 
         # Failing calls
         self.assertRaises(Exc, lambda: Arguments({"a":"map"}))
-        self.assertRaises(Exc, lambda: Arguments(*([],[])))
 
     def testPop(self):
 
@@ -73,6 +72,44 @@ class TestArgs(unittest.TestCase):
     def testUnicode(self):
         a = Arguments([unicode("unicode")])
         self.assert_(len(a) == 1)
+
+    def testLoginArgs(self):
+        a = Arguments(" -s localhost -u foo -w pass ")
+
+    def testLoginArgsIncompatible(self):
+        self.assertRaises(Exc, Arguments, "-C -L")
+
+    def testLoginArgsCallsLoginWithCreate(self):
+        class ctx(object):
+            def __init__(this):
+                this.called = False
+            def pub(this, *args):
+                this.called = True
+            def test(this, *args):
+                a1 = Arguments(args)
+                a1.acquire(this)
+                self.assert_(this.called)
+        ctx().test("-C")
+        ctx().test("--create")
+
+    def testLoginArgsDiesOnQuietWithoutPWorKeyself(self):
+        class ctx(object):
+            def __init__(this):
+                this.called = False
+            def pub(self, *args):
+                pass
+            def die(this, *args):
+                this.called = True
+            def test(this, dies, *args):
+                a1 = Arguments(args)
+                a1.acquire(this)
+                self.assertEquals(dies, this.called)
+        ctx().test(True, "-q")
+        ctx().test(True, "--quiet")
+        ctx().test(False, "-q -k KEY")
+        ctx().test(False, "-q -w PASS")
+        ctx().test(False, "--quiet -k KEY")
+        ctx().test(False, "--quiet -w PASS")
 
 if __name__ == '__main__':
     unittest.main()

@@ -89,7 +89,7 @@ class ExportControl(BaseControl):
             f = open(file, "wb")
 
         try:
-            e = c.getSession().createExporter()
+            exporter = client.getSession().createExporter()
             try:
                 for img in images:
                     e.addImage(long(img))
@@ -141,7 +141,7 @@ ex. %s export -s localhost -u bart -w simpson -f image_50.ome.tiff Image:50
 Report bugs to <ome-users@openmicroscopy.org.uk>""" % (sys.argv[0], sys.argv[0]))
 
     def __call__(self, *args):
-        args = Arguments(*args)
+        args = Arguments(args)
         self._run(args)
 
 try:

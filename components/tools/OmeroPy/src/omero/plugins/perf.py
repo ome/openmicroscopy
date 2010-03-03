@@ -22,7 +22,7 @@ class PerfControl(BaseControl):
         self.ctx.out(perf_test.usage(prog = PROG_NAME))
 
     def __call__(self, *args):
-        args = Arguments(*args)
+        args = Arguments(args)
 
         first,other = args.firstOther()
         if first == "help":

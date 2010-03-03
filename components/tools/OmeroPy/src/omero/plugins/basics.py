@@ -24,7 +24,7 @@ class DebugControl(BaseControl):
     def help(self, args = None):
         self.ctx.out("Run command with debug")
     def __call__(self, *args):
-        args = Arguments(*args)
+        args = Arguments(args)
         self.ctx.setdebug()
         self.ctx.pub(args)
 
@@ -32,7 +32,7 @@ class TraceControl(BaseControl):
     def help(self, args = None):
         self.ctx.out("Run command with tracing turned on")
     def __call__(self, *args):
-        args = Arguments(*args)
+        args = Arguments(args)
         import trace
         tracer = trace.Trace()
         tracer.runfunc(self.ctx.pub, args)
@@ -42,7 +42,7 @@ class ProfileControl(BaseControl):
         self.ctx.out("Run command with profiling")
 
     def __call__(self, *args):
-        args = Arguments(*args)
+        args = Arguments(args)
         import hotshot
         from hotshot import stats
         prof = hotshot.Profile("hotshot_edi_stats")
@@ -84,7 +84,7 @@ Syntax: %%(program_name)s file1 file2 file3
         """ % status )
 
     def __call__(self, *args):
-        args = Arguments(*args)
+        args = Arguments(args)
         for arg in args:
             file = open(arg,'r')
             self.ctx.dbg("Loading file %s" % arg)
@@ -100,7 +100,7 @@ class ShellControl(BaseControl):
         """
         Copied from IPython embed-short example
         """
-        args = Arguments(*args)
+        args = Arguments(args)
         from IPython.Shell import IPShellEmbed
         ipshell = IPShellEmbed(args.args)
         ipshell()

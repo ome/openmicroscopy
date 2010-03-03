@@ -24,9 +24,11 @@ sys = __import__("sys")
 
 import cmd, string, re, os, subprocess, socket, exceptions, traceback, glob, platform, time
 import shlex as pyshlex
+from getopt import gnu_getopt, GetoptError
 from exceptions import Exception as Exc
 from threading import Thread, Lock
 from omero_version import omero_version
+from omero.util.sessions import SessionsStore
 from path import path
 
 #
@@ -93,38 +95,89 @@ class Arguments:
 
     To simplify usage, this class can be used at the beginning of every
     method so::
-    
-        def method(self, args):
+
+        def method(self, *args):
             args = Arguments(args)
 
     and it will handle the above cases as well as wrapping other Argument
-    instances. If the method takes varargs and it is desired to test for
-    single argument of the above type, then use::
-
-        args = Arguments(*args)
+    instances.
 
     """
 
-    def __init__(self, args = []):
+    def __init__(self, args = [], shortopts = None, longopts = None):
+
+        self.argmap = {}
+        self.opts = {}
+        self.longopts = longopts
+        self.shortopts = shortopts
+
         if args == None:
             self.args = []
-            self.argmap = {}
         elif isinstance(args, Arguments):
-            self.args = args.args
-            self.argmap = args.argmap
-        elif isinstance(args, str):
+            self._copy_args(args)
+        elif isinstance(args, (str, unicode)):
             self.args = self.shlex(args)
-            self.make_argmap()
-        elif isinstance(args, list) or isinstance(args, tuple):
-            for l in args:
-                assert (isinstance(l, str) or isinstance(l, unicode))
-            self.args = list(args)
-            self.make_argmap()
+            self._apply_opts()
+            self._make_argmap()
+        elif isinstance(args, (list, tuple)):
+            skip = False
+            if len(args) == 1:
+                if isinstance(args[0], (list, tuple)):
+                    args = args[0] # Unwrap if necessary
+                for l in args:
+                    if isinstance(l, (str, unicode)):
+                        pass
+                    elif isinstance(l, Arguments):
+                        self._copy_args(l)
+                        skip = True
+                        continue
+                    else:
+                        raise Exc("arg not string: %s in %s" % (l, args))
+            if not skip:
+                self.args = list(args)
+                self._apply_opts()
+                self._make_argmap()
         else:
-            raise exceptions.Exception("Unknown argument: %s" % args)
+            raise Exc("Unknown argument: %s" % args)
 
-    def make_argmap(self):
-        self.argmap = {}
+    def _copy_args(self, args):
+        self.longopts = args.longopts
+        self.shortopts = args.shortopts
+        self.opts = dict(args.opts)
+        self.args = list(args.args)
+        self.argmap = dict(args.argmap)
+
+    def _apply_opts(self):
+
+        if self.longopts == None:
+            self.longopts = []
+        if not 'quiet' in self.longopts:
+            self.longopts = ['quiet'] + self.longopts
+
+        if self.shortopts == None:
+            self.shortopts = ''
+        if not 'q' in self.shortopts:
+            self.shortopts = 'q' + self.shortopts
+
+        lloginopts = ["create", "server=", "port=", "user=", "key=", "password="]
+        sloginopts = "Cs:p:u:k:w:"
+
+        for l in lloginopts:
+            if l in self.longopts:
+                raise Exc("Duplicate longopt: %s", l)
+
+        for s in sloginopts:
+            if s in self.shortopts and s != ":":
+                raise exception.Exceptions("Duplicate shortopt: %s", s)
+
+        self.longopts = lloginopts + self.longopts
+        self.shortopts = "%s%s" % (sloginopts, self.shortopts)
+
+        opts, self.args = gnu_getopt(self.args, self.shortopts, self.longopts)
+        for k, v in opts:
+            self.opts[k] = v
+
+    def _make_argmap(self):
         for arg in self.args:
             parts = arg.split("=", 1)
             if len(parts) == 1:
@@ -132,13 +185,22 @@ class Arguments:
             else:
                 self.argmap[parts[0]] = parts[1]
 
+    def is_quiet(self):
+        return "-q" in self.opts or "--quiet" in self.opts
+
     def firstOther(self):
+        """
+        Returns the first non-opts argument to this instance as a string,
+        and a second Arguments object with that first argument removed.
+        """
+        other = Arguments(self)
         if len(self.args) == 0:
-            return (None,[])
-        elif len(self.args) == 1:
-            return (self.args[0], [])
-        else:
-            return (self.args[0], self.args[1:])
+            return (None, other)
+
+        first = self.args[0]
+        other.args.pop(0)
+        other.argmap.pop(first)
+        return (first, other)
 
     def popFirst(self):
         return self.args.pop(0)
@@ -159,8 +221,12 @@ class Arguments:
 
     #######################################
     #
-    # Usability methods
+    # Usability methods :
+    # Allow an Argument instance to be used
+    # more like a list and a dict
     #
+    def get(self, key, defvalue):
+        return self.argmap.get(key, defvalue)
     def __iter__(self):
         return iter(self.args)
     def __len__(self):
@@ -176,6 +242,85 @@ class Arguments:
         """
         return self.argmap[idx]
 
+    def getBool(self, key, defvalue):
+        value = self.get(key, defvalue)
+        value = str(value).lower()
+        if value in ("true", "yes", "1"):
+            value = True
+        else:
+            value = False
+
+    def getInt(self, key, defvalue):
+        value = self.get(key, defvalue)
+        if value is None:
+            return value
+        else:
+            value = int(value)
+            return value
+
+    #######################################
+    #
+    # Login methods
+    #
+
+    def is_arg(self, long, short):
+        return long in self.opts or short in self.opts
+
+    def get_arg(self, long, short):
+        rv = self.opts.get(long, None)
+        if not rv:
+            rv = self.opts.get(short, None)
+        return rv
+
+    def is_create(self): return self.is_arg("--create", "-C")
+    def get_server(self): return self.get_arg("--server", "-s")
+    def get_port(self): return self.get_arg("--port", "-p")
+    def get_user(self): return self.get_arg("--user", "-u")
+    def get_password(self): return self.get_arg("--password", "-w")
+    def get_key(self): return self.get_arg("--key", "-k")
+
+    def as_props(self):
+        props = {}
+        srv = self.get_server()
+        prt = self.get_port()
+        key = self.get_key()
+        usr = self.get_user()
+        psw = self.get_password()
+
+        if srv: props["omero.host"] = srv
+        if prt: props["omero.port"] = prt
+        if key:
+            props["omero.user"] = key
+            props["omero.pass"] = key
+        else:
+            if usr: props["omero.user"] = usr
+            if psw: props["omero.pass"] = psw
+
+    def as_args(self):
+        args = []
+        srv = self.get_server()
+        prt = self.get_port()
+        key = self.get_key()
+        usr = self.get_user()
+        psw = self.get_password()
+
+        if self.is_create(): args.append("-C")
+        if srv: args.extend(["-s", srv])
+        if prt: args.extend(["-p", prt])
+        if key: args.extend(["-k", key])
+        if usr: args.extend(["-u", usr])
+        if psw: args.extend(["-w", psw])
+
+        return args
+
+    def acquire(self, ctx):
+        """
+        If passed a context object, will use the current settings to connect.
+        If required attributes are missing, will delegate to the login command.
+        """
+        ctx.pub(["session", "login"] + self.as_args())
+
+
 #####################################################
 #
 class Context:
@@ -190,10 +335,17 @@ class Context:
 
     """
 
-    def __init__(self, controls = {}):
+    def __init__(self, controls = {}, params = {}):
+        self.params = {}
         self.controls = controls
         self.dir = OMERODIR
         self.isdebug = DEBUG # This usage will go away and default will be False
+
+    def get(self, key, defvalue = None):
+        return self.params.get(key, defvalue)
+
+    def set(self, key, value = True):
+        self.params[key] = value
 
     def setdebug(self):
         self.isdebug = True
@@ -246,17 +398,25 @@ class Context:
     def pub(self, args):
         self.safePrint(str(args), sys.stdout)
 
-    def input(self, prompt, hidden = False):
+    def input(self, prompt, hidden = False, required = False):
         """
         Reads from standard in. If hidden == True, then
         uses getpass
         """
-        if hidden:
-            import getpass
-            defuser = getpass.getuser()
-            return getpass.getpass(prompt)
-        else:
-            return raw_input(prompt)
+        try:
+            while True:
+                if hidden:
+                    import getpass
+                    defuser = getpass.getuser()
+                    rv = getpass.getpass(prompt)
+                else:
+                    rv = raw_input(prompt)
+                if required and not rv:
+                    self.out("Input required")
+                    continue
+                return rv
+        except KeyboardInterrupt:
+            self.die(1, "Cancelled")
 
     def out(self, text, newline = True):
         """
@@ -289,10 +449,6 @@ class Context:
 
     def popen(self, args):
         self.out(str(args))
-
-    def conn(self):
-        raise NotImplementedException()
-
 
 
 #####################################################
@@ -544,8 +700,8 @@ class BaseControl:
         Otherwise, the rest of the arguments are passed to the method
         named by the first argument, if _likes() returns True.
         """
-        args = Arguments(*args)
-        first,other = args.firstOther()
+        args = Arguments(args)
+        first, other = args.firstOther()
         if first == None:
             self._noargs()
         else:
@@ -600,7 +756,7 @@ class HelpControl(BaseControl):
 
     def __call__(self, *args):
 
-        args = Arguments(*args)
+        args = Arguments(args)
         first, other = args.firstOther()
 
         self.ctx.waitForPlugins()
@@ -662,7 +818,8 @@ class CLI(cmd.Cmd, Context):
     def __init__(self):
         """
         Also sets the "_client" field for this instance to None. Each cli
-        maintains a single active client.
+        maintains a single active client. The "session" plugin is responsible
+        for the loading of the client object.
         """
         cmd.Cmd.__init__(self)
         Context.__init__(self)
@@ -672,13 +829,19 @@ class CLI(cmd.Cmd, Context):
         self._pluginsLoaded = CLI.PluginsLoaded()
         self.rv = 0 # Return value to be returned
 
-    def invoke(self, line):
+    def assertRC(self):
+        if self.rv != 0:
+            raise NonZeroReturnCode(self.rv, "assert failed")
+
+    def invoke(self, line, strict = False):
         """
         Copied from cmd.py
         """
         line = self.precmd(line)
         stop = self.onecmd(line)
         stop = self.postcmd(stop, line)
+        if strict:
+            self.assertRC()
 
     def invokeloop(self):
         self.selfintro = TEXT
@@ -745,10 +908,10 @@ class CLI(cmd.Cmd, Context):
             else:
                 return (line[0],line[1:],Arguments(line))
         elif isinstance(line, Arguments):
-            first,other = line.firstOther()
-            return (first, other, line)
+            first, other = line.firstOther()
+            return (first, other, line) # Passing new args instance as "other"
         else:
-            return cmd.Cmd.parseline(self,line)
+            return cmd.Cmd.parseline(self, line)
 
     def default(self,arg):
         arg = Arguments(arg)
@@ -778,16 +941,15 @@ class CLI(cmd.Cmd, Context):
         return [ str(n + " ") for n in names if n.startswith(line) ]
 
     # Delegation
-    def do_start(self, args):
-        """
-        Alias for "node start"
-        """
-        args = pyshlex.split(args)
-        if not args:
-            args = ["node","start"]
-        else:
-            args = ["node","start"] + args
+    def delegate(self, prepend, *args):
+        args = Arguments(args)
+        args = list(prepend) + args.args
         self.pub(args)
+
+    # Note: this delegation doesn't work well with "bin/omero debug ..."
+    def do_start(self, args): self.delegate(["node", "start"], args)
+    def do_login(self, args):  self.delegate(["sessions", "login"], args)
+    def do_logout(self, args):  self.delegate(["sessions", "logout"], args)
 
     ##########################################
     ##
@@ -818,7 +980,11 @@ class CLI(cmd.Cmd, Context):
                 control = self.controls[first]
                 control(other)
         except KeyError, ke:
-            self.die(11, "Missing required plugin: "+ str(ke))
+            if hasattr(self, "do_%s" % first):
+                m = getattr(self, "do_%s" % first)
+                m(other)
+            else:
+                self.die(11, "Missing required plugin: "+ str(ke))
 
     def _env(self):
         """
@@ -890,7 +1056,12 @@ class CLI(cmd.Cmd, Context):
         Uses "omero prefs" to create an Ice.InitializationData().
         """
         from omero.plugins.prefs import getprefs
-        output = getprefs(["get"], str(OMERODIR / "lib"))
+        try:
+            output = getprefs(["get"], str(OMERODIR / "lib"))
+        except OSError, err:
+            self.err("Error getting preferences")
+            self.dbg(err)
+            output = ""
 
         import Ice
         data = Ice.InitializationData()
@@ -900,25 +1071,24 @@ class CLI(cmd.Cmd, Context):
         self.parsePropertyFile(data, output)
         return data
 
-
-    def conn(self, properties={}, profile=None):
+    def conn(self, args = None):
         """
-        Either creates or returns the exiting omero.client instance.
-        Uses the comm() method with the same signature.
+        Returns any active _client object. If one is present but
+        not alive, it will be removed.
         """
-
         if self._client:
-            return self._client
-
-        import omero
-        try:
-            data = self.initData(properties)
-            self._client = omero.client(sys.argv, id = data)
-            self._client.createSession()
-            return self._client
-        except Exc, exc:
-            self._client = None
-            raise exc
+            self.dbg("Found client")
+            try:
+                self._client.getSession().keepAlive(None)
+                self.dbg("Using client")
+                return self._client
+            except:
+                self.dbg("Removing client")
+                self._client.closeSession()
+                self._client = None
+        if args:
+            args.acquire(self)
+            return self._client # Added by "login"
 
     ##
     ## Plugin registry

@@ -29,7 +29,7 @@ class TestCli(unittest.TestCase):
     def testParametersParsedCorrectly(self):
         class TestControl(BaseControl):
             def __call__(self2, *args):
-                args = Arguments(*args)
+                args = Arguments(args)
                 self.assertEquals("b",args["a"])
         cli = CLI()
         cli.register("test", TestControl)

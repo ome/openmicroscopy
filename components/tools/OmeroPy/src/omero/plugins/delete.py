@@ -16,7 +16,7 @@ from omero.cli import Arguments, BaseControl, VERSION, OMERODIR
 
 class DeleteControl(BaseControl):
 
-    def _run(self, args = []):
+    def _run(self, *args):
         args = Arguments(args)
 
         from getopt import getopt, GetoptError
@@ -110,7 +110,7 @@ ex. %s delete -s localhost -u bart -w simpson Image:50
 Report bugs to <ome-users@openmicroscopy.org.uk>""" % (sys.argv[0], sys.argv[0]))
 
     def __call__(self, *args):
-        args = Arguments(*args)
+        args = Arguments(args)
         self._run(args)
 
 try:

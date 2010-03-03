@@ -38,7 +38,7 @@ Syntax: %(program_name)s hql param1=value1 param2=value2 select x from X ...
         """)
 
     def __call__(self, *args):
-        args = Arguments(*args)
+        args = Arguments(args)
         hql = HqlCLI()
         if len(args) > 0:
             hql.invoke(args)

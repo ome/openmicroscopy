@@ -51,7 +51,7 @@ class ImportControl(BaseControl):
         self._run() # Prints help by default
 
     def __call__(self, *args):
-        args = Arguments(*args)
+        args = Arguments(args)
         self._run(args)
 
 

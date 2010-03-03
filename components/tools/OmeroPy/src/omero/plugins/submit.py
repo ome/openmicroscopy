@@ -57,7 +57,7 @@ Syntax: %(program_name)s submit single command with args
         """)
 
     def __call__(self, *args):
-        args = Arguments(*args)
+        args = Arguments(args)
         submit = SubmitCLI()
         if arg and len(arg) > 0:
             submit.invoke(arg)

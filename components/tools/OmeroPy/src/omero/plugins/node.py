@@ -74,7 +74,7 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
         self.help()
 
     def __call__(self, *args):
-        args = Arguments(*args)
+        args = Arguments(args)
         first, other = args.firstOther()
         try:
             name = self._node()

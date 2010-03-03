@@ -10,7 +10,7 @@
 
 """
 
-from omero.cli import BaseControl
+from omero.cli import Arguments, BaseControl
 import omero.util.originalfileutils;
 import omero;
 import omero.rtypes
@@ -133,12 +133,11 @@ Syntax: %(program_name)s upload pytable <filename> [1..n]
         for file in fileList:
             obj = self.uploadFile(file);
             self.ctx.out("Uploaded %s as " % file + str(obj.id.val))
-
+            self.ctx.set("last.upload.id", obj.id.val)
 
     def __call__(self, *args):
-        import omero
-        args = Arguments(*args)
-        self.client = self.ctx.conn()
+        args = Arguments(args)
+        self.client = self.ctx.conn(args)
         argMap = self.readCommandArgs(args);
         # if(argMap[self.SCRIPT_ARG]==True): # and argMap[self.PYTABLE_ARG] == True):
         #   raise ClientError("upload can only be used with %s or %s arguments" % (self.SCRIPT_ARG, self.PYTABLE_ARG));

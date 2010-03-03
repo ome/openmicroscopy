@@ -33,7 +33,7 @@ Syntax: %(program_name)s prefs
        """ )
 
     def __call__(self, *args):
-        args = Arguments(*args)
+        args = Arguments(args)
         first, other = args.firstOther()
         if first == 'edit':
             self.__edit()

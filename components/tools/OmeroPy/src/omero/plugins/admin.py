@@ -215,7 +215,7 @@ Syntax: %(program_name)s admin  [ start | update | stop | status ]
         if not self._isWindows():
             self.ctx.die(123, "Not Windows")
 
-        args = Arguments(*args)
+        args = Arguments(args)
         import Ice
         key = "IceGrid.Node.Data"
         properties = Ice.createProperties([self._icecfg()])

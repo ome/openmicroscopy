@@ -120,7 +120,7 @@ BEGIN;
             output.close()
 
     def password(self, *args):
-        args = Arguments(*args)
+        args = Arguments(args)
         root_pass = None
         try:
             root_pass = args.args[0]
@@ -130,7 +130,7 @@ BEGIN;
         self.ctx.out("""UPDATE password SET hash = '%s' WHERE experimenter_id = 0;""" % password_hash)
 
     def script(self, *args):
-        args = Arguments(*args)
+        args = Arguments(args)
 
         data = self.ctx.initData({})
         try:

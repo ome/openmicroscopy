@@ -43,7 +43,7 @@ Syntax: %(program_name)s setup [simple|intermediate|advanced] [+|-psql] [+|-djan
         """)
 
     def __call__(self, *args):
-        args = Arguments(*args)
+        args = Arguments(args)
 
         p = optparse.OptionParser()
         g = optparse.OptionGroup(p, "Skill level","Number of questions asked by setup")
