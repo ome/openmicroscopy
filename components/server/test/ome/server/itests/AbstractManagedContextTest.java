@@ -276,6 +276,12 @@ public class AbstractManagedContextTest extends
 
             List<omero.model.Pixels> pix = fixture.fullImport(ResourceUtils
                     .getFile("classpath:tinyTest.d3d.dv"), "tinyTest");
+            if (pix == null) {
+                throw new RuntimeException("No pixels returned.");
+            }
+            if (pix.size() != 1) {
+                throw new RuntimeException("Expected 1, got: " + pix.size());
+            }
 
             return new Pixels(pix.get(0).getId().getValue(), false);
         } catch (Exception e) {
