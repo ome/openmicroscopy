@@ -24,10 +24,10 @@ sys = __import__("sys")
 
 import cmd, string, re, os, subprocess, socket, exceptions, traceback, glob, platform, time
 import shlex as pyshlex
-from getopt import gnu_getopt, GetoptError
 from exceptions import Exception as Exc
 from threading import Thread, Lock
 from omero_version import omero_version
+from omero_ext.argparse import ArgumentError, ArgumentParser, SUPPRESS
 from omero.util.sessions import SessionsStore
 from path import path
 
@@ -108,6 +108,8 @@ class Arguments:
 
     def __init__(self, args = [], shortopts = None, longopts = None):
 
+        original = args
+
         self.argmap = {}
         self.opts = {}
         self.longopts = longopts
@@ -117,6 +119,8 @@ class Arguments:
             self.args = []
         elif isinstance(args, Arguments):
             self._copy_args(args)
+            opts, self.args = self._argparse(self.args, shortopts, longopts)
+            self.opts.update(opts)
         elif isinstance(args, (str, unicode)):
             self.args = self.shlex(args)
             self._apply_opts()
@@ -141,6 +145,14 @@ class Arguments:
                 self._make_argmap()
         else:
             raise BadArgument("Unknown argument: %s" % args)
+        if DEBUG:
+            print """
+    Current arguments:
+       Passed:    %s, %s, %s
+       Arguments: %s
+       Options:   %s
+       Map:       %s
+            """ % (original, shortopts, longopts, self.args, self.opts, self.argmap)
 
     def _copy_args(self, args):
         self.longopts = args.longopts
@@ -174,13 +186,44 @@ class Arguments:
 
         self.longopts = lloginopts + self.longopts
         self.shortopts = "%s%s" % (sloginopts, self.shortopts)
+        self.opts, self.args = self._argparse(self.args, self.shortopts, self.longopts)
+
+    def _argparse(self, args, shortopts, longopts):
 
         try:
-            opts, self.args = gnu_getopt(self.args, self.shortopts, self.longopts)
-        except GetoptError, ge:
-            raise BadArgument(str(ge))
-        for k, v in opts:
-            self.opts[k] = v
+            # TODO: currently adapting getopt like parameters
+            # to use argparse, but a better way to use argparse
+            # may be to replace this class completely!
+            #
+            a = ArgumentParser()
+
+            if shortopts is not None:
+                i = 0
+                while i < len(shortopts):
+                    o = shortopts[i]
+                    c = "store_true"
+                    try:
+                        if shortopts[i+1] == ":":
+                            i += 1
+                            c = "store"
+                    except IndexError:
+                        pass
+                    a.add_argument("-%s" % o, default=SUPPRESS, action=c, required=False)
+                    i += 1
+
+            if longopts is not None:
+                for o in longopts:
+                    c = "store_true"
+                    if o.endswith("="):
+                        o = o[:-1]
+                        c = "store"
+                    a.add_argument("--%s" % o, default=SUPPRESS, action=c, required=False)
+
+            ns, args = a.parse_known_args(args)
+            opts = dict(ns._get_kwargs())
+            return opts, args
+        except ArgumentError, ae:
+            raise BadArgument(ae)
 
     def _make_argmap(self):
         for arg in self.args:
@@ -193,7 +236,7 @@ class Arguments:
                 self.argmap[parts[0]] = parts[1]
 
     def is_quiet(self):
-        return "-q" in self.opts or "--quiet" in self.opts
+        return "q" in self.opts or "quiet" in self.opts
 
     def firstOther(self):
         """
@@ -287,12 +330,12 @@ class Arguments:
             rv = self.opts.get(short, None)
         return rv
 
-    def is_create(self): return self.is_arg("--create", "-C")
-    def get_server(self): return self.get_arg("--server", "-s")
-    def get_port(self): return self.get_arg("--port", "-p")
-    def get_user(self): return self.get_arg("--user", "-u")
-    def get_password(self): return self.get_arg("--password", "-w")
-    def get_key(self): return self.get_arg("--key", "-k")
+    def is_create(self): return self.is_arg("create", "C")
+    def get_server(self): return self.get_arg("server", "s")
+    def get_port(self): return self.get_arg("port", "p")
+    def get_user(self): return self.get_arg("user", "u")
+    def get_password(self): return self.get_arg("password", "w")
+    def get_key(self): return self.get_arg("key", "k")
 
     def as_props(self):
         props = {}
@@ -886,17 +929,14 @@ class CLI(cmd.Cmd, Context):
 
     def onecmd(self, line):
         try:
-            args = Arguments(line)
+            # Starting a new command. Reset the return value to 0
+            # If err or die are called, set rv non-0 value
+            self.rv = 0
+            return cmd.Cmd.onecmd(self, line)
         except BadArgument, exc:
             self.rv = -1
             self.err("Bad arguments: %s" % exc)
             return False
-
-        try:
-            # Starting a new command. Reset the return value to 0
-            # If err or die are called, set rv non-0 value
-            self.rv = 0
-            return cmd.Cmd.onecmd(self, args)
         except AttributeError, ae:
             self.err("Possible error in plugin:")
             self.err(str(ae))
@@ -925,22 +965,22 @@ class CLI(cmd.Cmd, Context):
             elif len(line) == 0:
                 return (None, None, "")
             elif len(line) == 1:
-                return (line[0],None,line[0])
+                return (line[0], "", line[0])
             else:
-                return (line[0],line[1:],Arguments(line))
+                return (line[0], line[1:], Arguments(line))
         elif isinstance(line, Arguments):
             first, other = line.firstOther()
             return (first, other, line) # Passing new args instance as "other"
         else:
             return cmd.Cmd.parseline(self, line)
 
-    def default(self,arg):
-        arg = Arguments(arg)
+    def default(self, arg):
+        args = Arguments(arg)
         try:
-            arg["EOF"]
+            args["EOF"]
             self.exit("")
         except KeyError:
-            first, other = arg.firstOther()
+            first, other = args.firstOther()
             file = OMEROCLI / "plugins" / (first + ".py")
             loc = {"register": self.register}
             try:
@@ -950,7 +990,7 @@ class CLI(cmd.Cmd, Context):
                 self.waitForPlugins()
 
             if self.controls.has_key(first):
-                return self.invoke(arg.args)
+                return self.invoke(args)
             else:
                 self.unknown_command(first)
 
@@ -964,7 +1004,10 @@ class CLI(cmd.Cmd, Context):
     # Delegation
     def delegate(self, prepend, *args):
         args = Arguments(args)
-        args = list(prepend) + args.args
+        prepend = list(prepend)
+        prepend.reverse()
+        for p in prepend:
+            args.insert(0, p)
         self.pub(args)
 
     # Note: this delegation doesn't work well with "bin/omero debug ..."

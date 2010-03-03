@@ -46,17 +46,17 @@ class TestArgs(unittest.TestCase):
         a = Arguments("a")
         cmd, args = a.firstOther()
         self.assert_( cmd == "a" )
-        self.assert_( args == [] )
+        self.assert_( args.args == [] )
 
         a = Arguments(["a","b"])
         cmd, args = a.firstOther()
         self.assert_( cmd == "a" )
-        self.assert_( args == ["b"] )
+        self.assert_( args.args == ["b"] )
 
         a = Arguments("a b c")
         cmd, args = a.firstOther()
         self.assert_( cmd == "a" )
-        self.assert_( args == ["b", "c"] )
+        self.assert_( args.args == ["b", "c"] )
 
     def testIteration(self):
         a = Arguments("a b c")
@@ -76,9 +76,6 @@ class TestArgs(unittest.TestCase):
     def testLoginArgs(self):
         a = Arguments(" -s localhost -u foo -w pass ")
 
-    def testLoginArgsIncompatible(self):
-        self.assertRaises(Exc, Arguments, "-C -L")
-
     def testLoginArgsCallsLoginWithCreate(self):
         class ctx(object):
             def __init__(this):
@@ -92,24 +89,15 @@ class TestArgs(unittest.TestCase):
         ctx().test("-C")
         ctx().test("--create")
 
-    def testLoginArgsDiesOnQuietWithoutPWorKeyself(self):
-        class ctx(object):
-            def __init__(this):
-                this.called = False
-            def pub(self, *args):
-                pass
-            def die(this, *args):
-                this.called = True
-            def test(this, dies, *args):
-                a1 = Arguments(args)
-                a1.acquire(this)
-                self.assertEquals(dies, this.called)
-        ctx().test(True, "-q")
-        ctx().test(True, "--quiet")
-        ctx().test(False, "-q -k KEY")
-        ctx().test(False, "-q -w PASS")
-        ctx().test(False, "--quiet -k KEY")
-        ctx().test(False, "--quiet -w PASS")
+    def testArgsCtorArgsUsesNewOpts(self):
+        a1 = Arguments(" -s server first-positonal first=keyword -u user -X unknown")
+        a2 = Arguments(a1, shortopts="X:")
+        a1.opts["u"]
+        a2.opts["X"]
+        a2.opts["u"]
+        a2.opts["s"]
+        a2.argmap["first"]
+        "first-positional" in a2.args
 
 if __name__ == '__main__':
     unittest.main()

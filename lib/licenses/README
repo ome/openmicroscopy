@@ -476,6 +476,13 @@
   License File: lgpl-v2.1.txt
 
 
+  Artifacts:    components/tools/OmeroPy/src/omero_ext/argparse.py
+  Project:      argparse: Python command line parser
+  Web Site:     http://code.google.com/p/argparse/
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
   Artifacts:    components/tools/OmeroPy/src/path.py
   Project:      Improved Python path library
   Web Site:     http://www.jorendorff.com/articles/python/path

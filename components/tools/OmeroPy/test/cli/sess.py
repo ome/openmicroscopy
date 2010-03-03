@@ -91,5 +91,24 @@ class TestSessions(unittest.TestCase):
         cli.invoke("s login -s localhost -u root".split())
         self.assert_(cli._client is not None)
 
+    def testLoginArgsDiesOnQuietWithoutPWorKeyself(self):
+        class ctx(object):
+            def __init__(this):
+                this.called = False
+            def pub(self, *args):
+                pass
+            def die(this, *args):
+                this.called = True
+            def test(this, dies, *args):
+                a1 = Arguments(args)
+                a1.acquire(this)
+                self.assertEquals(dies, this.called)
+        ctx().test(True, "-q")
+        ctx().test(True, "--quiet")
+        ctx().test(False, "-q -k KEY")
+        ctx().test(False, "-q -w PASS")
+        ctx().test(False, "--quiet -k KEY")
+        ctx().test(False, "--quiet -w PASS")
+
 if __name__ == '__main__':
     unittest.main()
