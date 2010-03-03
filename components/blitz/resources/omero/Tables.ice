@@ -153,8 +153,19 @@ module omero {
 
             /**
              * Simple slice method which will return only the given columns
-             * and rows. If colNumbers or rowNumbers is empty (or None), then all values
+             * and rows in the order supplied.
+             *
+             * If colNumbers or rowNumbers is empty (or None), then all values
              * will be returned.
+             *
+             * <h4>Python examples:</h4>
+             * <pre>
+             * data = table.slice(None, None)
+             * assert len(data.rowNumbers) == table.getNumberOfRows()
+             *
+             * data = table.slice(None, [3,2,1])
+             * assert data.rowNumbers == [3,2,1]
+             * </pre>
              **/
             Data
                 slice(omero::api::LongArray colNumbers, omero::api::LongArray rowNumbers)
