@@ -454,37 +454,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         final IceMapper mapper = new IceMapper();
 
-        // First create the job with a status of WAITING.
-        // The InteractiveProcessor will be responsible for its
-        // further lifetime.
-        final ome.model.jobs.Job savedJob = (ome.model.jobs.Job) sf.executor
-                .execute(sf.principal, new Executor.SimpleWork(this,
-                        "submitJob") {
-                    @Transactional(readOnly = false)
-                    public ome.model.jobs.Job doWork(Session session,
-                            ServiceFactory sf) {
-
-                        final JobHandle handle = sf.createJobHandle();
-                        try {
-                            JobStatus status = new JobStatusI();
-                            status.setValue(omero.rtypes
-                                    .rstring(JobHandle.WAITING));
-                            submittedJob.setStatus(status);
-                            submittedJob.setMessage(omero.rtypes
-                                    .rstring("Interactive job. Waiting."));
-
-                            handle.submit((ome.model.jobs.Job) mapper
-                                    .reverse(submittedJob));
-                            return handle.getJob();
-                        } catch (ApiUsageException e) {
-                            return null;
-                        } finally {
-                            if (handle != null) {
-                                handle.close();
-                            }
-                        }
-                    }
-                });
+        final ome.model.jobs.Job savedJob = saveJob(submittedJob, mapper);
 
         if (savedJob == null) {
             throw new ApiUsageException(null, null, "Could not submit job. ");
@@ -517,6 +487,42 @@ public class SharedResourcesI extends AbstractAmdServant implements
         allow(rv);
         return InteractiveProcessorPrxHelper.uncheckedCast(rv);
 
+    }
+
+    private ome.model.jobs.Job saveJob(final Job submittedJob,
+            final IceMapper mapper) {
+        // First create the job with a status of WAITING.
+        // The InteractiveProcessor will be responsible for its
+        // further lifetime.
+        final ome.model.jobs.Job savedJob = (ome.model.jobs.Job) sf.executor
+                .execute(sf.principal, new Executor.SimpleWork(this,
+                        "submitJob") {
+                    @Transactional(readOnly = false)
+                    public ome.model.jobs.Job doWork(Session session,
+                            ServiceFactory sf) {
+
+                        final JobHandle handle = sf.createJobHandle();
+                        try {
+                            JobStatus status = new JobStatusI();
+                            status.setValue(omero.rtypes
+                                    .rstring(JobHandle.WAITING));
+                            submittedJob.setStatus(status);
+                            submittedJob.setMessage(omero.rtypes
+                                    .rstring("Interactive job. Waiting."));
+
+                            handle.submit((ome.model.jobs.Job) mapper
+                                    .reverse(submittedJob));
+                            return handle.getJob();
+                        } catch (ApiUsageException e) {
+                            return null;
+                        } finally {
+                            if (handle != null) {
+                                handle.close();
+                            }
+                        }
+                    }
+                });
+        return savedJob;
     }
     
     //

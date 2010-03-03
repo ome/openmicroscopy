@@ -38,13 +38,33 @@ Syntax: %(program_name)s script file [configuration parameters]
 
         if len(args) < 1:
             self.ctx.err("No file given")
+        elif len(args) == 1:
+            if not os.path.exists(args[0]):
+                self.ctx.error("No such file: %s" % args[0])
+            else:
+                _file_ = args[0]
+                _cmnd_ = "run"
+        else:
+            try:
+                _cmnd_, _file_ = args
+                print _cmnd_, _file_
+            except ValueError:
+                self.ctx.error("usage: script [run|serve] file")
 
-        env = os.environ
-        env["PYTHONPATH"] = self.ctx.pythonpath()
-        p = subprocess.Popen(args,env=os.environ)
-        p.wait()
-        if p.poll() != 0:
-            self.ctx.die(p.poll(), "Execution failed.")
+        if _cmnd_ == "run":
+            env = os.environ
+            env["PYTHONPATH"] = self.ctx.pythonpath()
+            p = subprocess.Popen(args,env=os.environ)
+            p.wait()
+            if p.poll() != 0:
+                self.ctx.die(p.poll(), "Execution failed.")
+        else:
+            # TODO : support more than one file. Whole directory? FS.
+            id = self._checkAndUpload(_file_)
+            self._serve(id)
+
+    def _checkAndUpload(self, _file_):
+
 
 try:
     register("script", ScriptControl)

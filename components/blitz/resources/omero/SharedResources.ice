@@ -36,6 +36,20 @@ module omero {
                 throws ServerError;
 
             /**
+             *
+             **/
+            void
+                addProcessor(omero::grid::Processor* proc, omero::model::IObject context)
+                throws SeverError;
+
+            /**
+             *
+             **/
+            void
+                removeProcessor(omero::grid::Processor* proc, omero::model::IObject context)
+                throws SeverError;
+
+            /**
              * Returns a map between Repository descriptions (omero::model::OriginalFile
              * instances) and RepositoryPrx instances (possibly null).
              **/
