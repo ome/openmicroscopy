@@ -443,6 +443,7 @@ class BaseClient(object):
                             except exceptions.Exception, e:
                                 if ic != None:
                                     ic.getLogger().warning("Proxy keep alive failed.")
+                                return False
                         return True
                 self.__resources.add(Entry(self))
         finally:
