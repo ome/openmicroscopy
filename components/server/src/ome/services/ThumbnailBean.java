@@ -243,7 +243,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     public boolean setPixelsId(long id)
     {
         // If we've had a pixels set change, reset our stateful objects.
-        if (pixels != null && pixels.getId() != id)
+        if ((pixels != null && pixels.getId() != id) || pixels == null)
         {
             resetMetadata();
             newContext();

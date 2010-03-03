@@ -509,7 +509,8 @@ public class ThumbnailCtx
         StopWatch s1 = new CommonsLogStopWatch(
                 "omero.bulkLoadOwnerRenderingSettings");
         List<RenderingDef> toReturn = queryService.findAllByQuery(
-                "select r from RenderingDef as r join fetch r.pixels " +
+                "select r from RenderingDef as r " +
+                "join fetch r.pixels as p " +
                 "join fetch r.details.updateEvent " +
                 "join fetch r.pixels.details.updateEvent " +
                 "where r.details.owner.id = p.details.owner.id " +
