@@ -46,7 +46,9 @@ import numpy
 import getopt, sys, os
 
 import omero
+import omero.constants
 from omero.rtypes import *
+import omero_api_Gateway_ice	# see http://tinyurl.com/icebuserror
 import omero.util.script_utils as scriptUtil
 
 
@@ -102,7 +104,8 @@ def createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, plane2
 		link.child = omero.model.ImageI(image.id.val, False)
 		gateway.saveAndReturnObject(link)
 		#gateway.attachImageToDataset(dataset, image)
-
+		
+	return image
 
 def emanToOmero(commandArgs):
 	print commandArgs
@@ -114,6 +117,8 @@ def emanToOmero(commandArgs):
 	queryService = session.getQueryService()
 	pixelsService = session.getPixelsService()
 	rawPixelStore = session.createRawPixelsStore()
+	updateService = session.getUpdateService()
+	rawFileStore = session.createRawFileStore()
 	
 	infile = commandArgs["bdb"]
 	nimg = EMUtil.get_image_count(infile)	# eg images in bdb 'folder'
@@ -164,6 +169,9 @@ def emanToOmero(commandArgs):
 	else:
 		print "Using pixels type ", pixelsType.getValue().getValue()
 	
+	namespace = omero.constants.namespaces.NSCOMPANIONFILE 
+	fileName = "original_metadata.txt"
+	
 	# loop through all the images. 
 	description = "Imported from EMAN2 bdb: %s" % infile
 	for i in range(5):
@@ -174,8 +182,19 @@ def emanToOmero(commandArgs):
 		plane2Dlist = [plane2D]
 		
 		# maybe should move this method to script_utils, since it is also used by imagesFromRois.py
-		createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, plane2Dlist, newImageName, description, dataset)
-
+		image = createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, plane2Dlist, newImageName, description, dataset)
+		
+		f = open(fileName, 'w')
+		f.write("[GlobalMetadata]\n")
+		
+		# now add image attributes as "Original Metadata"
+		for attr, value in d.get_attr_dict().items():
+			print attr, value
+			f.write("%s=%s\n" % (attr, value))
+		f.close()
+		
+		r = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, image, fileName, "text/plain", None, namespace)
+		print r
 
 def readCommandArgs():
 	host = ""
