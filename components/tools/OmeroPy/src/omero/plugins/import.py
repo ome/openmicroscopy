@@ -44,7 +44,8 @@ class ImportControl(BaseControl):
             args.args.remove(err)
             err = open(err[8:], "w")
 
-        p = omero.java.popen(self.command + args.args, debug=False, xargs = xargs, stdout=out, stderr=err)
+        a = self.command + args.as_args() + args.args
+        p = omero.java.popen(a, debug=False, xargs = xargs, stdout=out, stderr=err)
         self.ctx.rv = p.wait()
 
     def help(self, args = None):
