@@ -73,9 +73,7 @@ class BaseController(object):
         self.eContext['user'] = self.conn.getUser()
         
         grs = list(self.conn.getGroupsMemberOf())
-        self.eContext['memberOfGroups'] = self.sortByAttr(grs, "name")
-        
-        #grs.extend(list(self.conn.getGroupsLeaderOf()))
+        self.eContext['memberOfGroups'] = self.sortByAttr(grs, "name")        
         self.eContext['allGroups'] = self.sortByAttr(grs, "name")
         self.eContext['advice'] = None
     

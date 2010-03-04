@@ -73,7 +73,7 @@ from omeroweb.webadmin.controller.uploadfile import BaseUploadFile
 
 from webadmin.models import Gateway
 from forms import ShareForm, ShareCommentForm, ContainerForm, CommentAnnotationForm, TagAnnotationForm, \
-                    UriAnnotationForm, UploadFileForm, MyGroupsForm, MyUserForm, ActiveGroupForm, HistoryTypeForm, \
+                    UriAnnotationForm, UploadFileForm, MyUserForm, ActiveGroupForm, HistoryTypeForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                     MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
                     MetadataLightSourceForm, MetadataDichroicForm, \
@@ -192,8 +192,9 @@ def sessionHelper(request):
 # views controll
 
 def login(request):
-    if request.method == 'POST' and request.REQUEST.get('server'):
-        
+    request.session.modified = True
+    
+    if request.method == 'POST' and request.REQUEST.get('server'):        
         # upgrade check:
         # -------------
         # On each startup OMERO.web checks for possible server upgrades
@@ -237,6 +238,7 @@ def login(request):
         error = x.__class__.__name__
     
     if conn is not None:
+        request.session['group'] = conn.getEventContext().groupId
         url = request.REQUEST.get("url")
         if url is not None:
             return HttpResponseRedirect(url)
@@ -489,7 +491,6 @@ def load_template(request, menu, **kwargs):
     if url is None:
         url = reverse(viewname="load_template", args=[menu])
         
-    
     try:
         manager = BaseContainer(conn)
     except AttributeError, x:
@@ -498,18 +499,8 @@ def load_template(request, menu, **kwargs):
     form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups']})
     
     form_users = None
-    form_mygroups = None
     filter_user_id = None    
-    filter_group_id = None
-    
     if menu == 'userdata':
-        '''grs = list()
-        grs.extend(list(conn.getEventContext().memberOfGroups))
-        #grs.extend(list(conn.getEventContext().leaderOfGroups))
-        my_groups = sortByAttr(list(conn.getExperimenterGroups(set(grs))), "name")
-        request.session['groupId'] = None
-        form_mygroups = MyGroupsForm(initial={'mygroups': my_groups})'''
-                
         users = sortByAttr(list(conn.getColleagues()), "lastName")
 
         try:
@@ -533,41 +524,10 @@ def load_template(request, menu, **kwargs):
                 form_users = MyUserForm(initial={'user':filter_user_id, 'users': users})
             except:
                 form_users = MyUserForm(initial={'users': users})
-    elif menu == "groupdata":
-        users = sortByAttr(list(conn.getColleagues()), "lastName")
-        request.session['experimenter'] = None
-        form_users = MyUserForm(initial={'users': users})
-
-        grs = list()
-        grs.extend(list(conn.getEventContext().memberOfGroups))
-        #grs.extend(list(conn.getEventContext().leaderOfGroups))
-        my_groups = sortByAttr(list(conn.getExperimenterGroups(set(grs))), "name")
-        try:
-            if request.REQUEST['group'] != "": 
-                form_mygroups = MyGroupsForm(initial={'mygroups': my_groups}, data=request.REQUEST.copy())
-                if form_mygroups.is_valid():
-                    filter_group_id = request.REQUEST.get('group', None)
-                    request.session['group'] = filter_group_id
-                    form_mygroups = MyGroupsForm(initial={'mygroup':filter_group_id, 'mygroups': my_groups})
-                else:
-                    try:
-                        filter_group_id = request.session.get('group', None)
-                    except:
-                        pass
-            else:
-                request.session['group'] = None
-                form_mygroups = MyGroupsForm(initial={'mygroups': my_groups})
-        except:
-            try:
-                filter_group_id = request.session.get('group', None)
-                form_mygroups = MyGroupsForm(initial={'mygroup':filter_group_id, 'mygroups': my_groups})
-            except:
-                form_mygroups = MyGroupsForm(initial={'mygroups': my_groups})
     else:
         request.session['experimenter'] = None
-        request.session['group'] = None
         
-    context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'form_active_group':form_active_group, 'form_users':form_users, 'form_mygroups':form_mygroups}
+    context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'form_active_group':form_active_group, 'form_users':form_users}
     
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -632,9 +592,9 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
         return handlerInternalError(x)
 
     # prepare forms
-    filter_user_id = request.session.get('experimenter', None)
-    filter_group_id = request.session.get('group', None)
-    
+    filter_user_id = request.session.get('experimenter')
+    filter_group_id = request.session.get('group')
+
     # load data  
     template = None    
     if o2_type and o2_id:
@@ -2402,7 +2362,6 @@ def flash_uploader(request, **kwargs):
         logger.error(traceback.format_exc())
         return HttpResponse(x)
 
-
 @isUserConnected
 def myaccount(request, action=None, **kwargs):
     template = "omeroweb/myaccount.html"
@@ -2416,16 +2375,12 @@ def myaccount(request, action=None, **kwargs):
     
     controller = BaseExperimenter(conn)
     controller.getMyDetails()
+    controller.getOwnedGroups()
     
     eContext = dict()
     eContext['context'] = conn.getEventContext()
     eContext['user'] = conn.getUser()
-    eContext['breadcrumb'] = ["My Account",  controller.experimenter.id]
-    
-    grs = list(conn.getGroupsMemberOf())
-    #grs.extend(list(conn.getGroupsLeaderOf()))
-    eContext['allGroups']  = controller.sortByAttr(grs, "name")
-    #eContext['memberOfGroups'] = controller.sortByAttr(list(conn.getGroupsMemberOf()), "name")
+    eContext['allGroups']  = controller.sortByAttr(list(conn.getGroupsMemberOf()), "name")
     
     if controller.ldapAuth == "" or controller.ldapAuth is None:
         form = MyAccountForm(initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
@@ -2437,10 +2392,7 @@ def myaccount(request, action=None, **kwargs):
                                 'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
                                 'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
                                 'default_group':controller.defaultGroup, 'groups':controller.otherGroups})
-    photo_size = conn.getExperimenterPhotoSize()
-    form_file = UploadPhotoForm()
 
-    request.session['nav']['edit_mode'] = False    
     if action == "save":
         if controller.ldapAuth == "" or controller.ldapAuth is None:
             form = MyAccountForm(data=request.POST.copy(), initial={'groups':controller.otherGroups})
@@ -2461,13 +2413,35 @@ def myaccount(request, action=None, **kwargs):
                 password = None
             controller.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)
             return HttpResponseRedirect(reverse("myaccount"))
-    elif action == "upload":
+
+    form_active_group = ActiveGroupForm(initial={'activeGroup':eContext['context'].groupId, 'mygroups': eContext['allGroups']})
+    context = {'nav':request.session['nav'], 'eContext': eContext, 'controller':controller, 'form':form, 'ldapAuth': controller.ldapAuth, 'form_active_group':form_active_group}
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    return HttpResponse(t.render(c))
+
+@isUserConnected
+def upload_myphoto(request, action=None, **kwargs):
+    template = "omeroweb/upload_myphoto.html"
+    request.session.modified = True
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    photo_size = conn.getExperimenterPhotoSize()
+    form_file = UploadPhotoForm()
+
+    request.session['nav']['edit_mode'] = False    
+    if action == "upload":
         if request.method == 'POST':
             form_file = UploadPhotoForm(request.POST, request.FILES)
             if form_file.is_valid():
                 controller = BaseUploadFile(conn)
                 controller.attach_photo(request.FILES['photo'])
-                return HttpResponseRedirect(reverse("myaccount"))
+                return HttpResponseRedirect(reverse("upload_myphoto"))
     elif action == "crop": 
         x1 = long(request.REQUEST['x1'].encode('utf-8'))
         x2 = long(request.REQUEST['x2'].encode('utf-8'))
@@ -2475,13 +2449,12 @@ def myaccount(request, action=None, **kwargs):
         y2 = long(request.REQUEST['y2'].encode('utf-8'))
         box = (x1,y1,x2,y2)
         conn.cropExperimenterPhoto(box)
-        return HttpResponseRedirect(reverse("myaccount"))
+        return HttpResponseRedirect(reverse("upload_myphoto"))
     elif action == "editphoto":
         if photo_size is not None:
             request.session['nav']['edit_mode'] = True
 
-    form_active_group = ActiveGroupForm(initial={'activeGroup':eContext['context'].groupId, 'mygroups': eContext['allGroups']})
-    context = {'nav':request.session['nav'], 'eContext': eContext, 'form':form, 'ldapAuth': controller.ldapAuth, 'form_active_group':form_active_group, 'form_file':form_file, 'photo_size':photo_size}
+    context = {'nav':request.session['nav'], 'form_file':form_file, 'photo_size':photo_size}
     t = template_loader.get_template(template)
     c = Context(request,context)
     return HttpResponse(t.render(c))

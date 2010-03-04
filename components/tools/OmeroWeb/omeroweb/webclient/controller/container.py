@@ -47,8 +47,6 @@ class BaseContainer(BaseController):
     tags = None
     
     containers = None
-    containersMyGroups = None
-    myGroup = None
     experimenter = None
     
     c_size = 0
@@ -715,8 +713,7 @@ class BaseContainer(BaseController):
 
     def loadUserContainerHierarchy(self, exp_id):
         self.experimenter = self.conn.getExperimenter(exp_id)
-        obj_list = list(self.conn.loadContainerHierarchy('Project', exp_id))
-        
+        obj_list = list(self.conn.loadContainerHierarchy('Project', eid=exp_id))
         pr_list = list()
         ds_list = list()
         for o in obj_list:
@@ -787,10 +784,8 @@ class BaseContainer(BaseController):
         
     
     # COLLABORATION - group
-    '''
     def listRootsInGroup(self, group_id):
-        self.myGroup = self.conn.getGroup(group_id)
-        self.containersMyGroups = dict()
+        self.containers = dict()
         pr_list = self.sortByAttr(list(self.conn.listProjectsInGroup(group_id)), 'name')
         ds_list = self.sortByAttr(list(self.conn.listDatasetsOutoffProjectInGroup(group_id)), 'name')
         
@@ -817,6 +812,9 @@ class BaseContainer(BaseController):
                 ds.annotation_counter = ds_annotation_counter.get(ds.id)
                 ds_list_with_counters.append(ds)
         
+        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}
+        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)
+        '''
         user_set = set()
         for pr in pr_list_with_counters:
             user_set.add(pr.details.owner.id.val)
@@ -833,11 +831,10 @@ class BaseContainer(BaseController):
             for ds in ds_list_with_counters:
                 self.containersMyGroups[ds.details.owner.id.val]['datasets'].append(ds)
             
-            self.c_mg_size = len(pr_list_with_counters)+len(ds_list_with_counters)
+            self.c_mg_size = len(pr_list_with_counters)+len(ds_list_with_counters)'''
 
     def listDatasetsInProjectInGroup(self, project_id, group_id, page):
-        self.myGroup = self.conn.getGroup(group_id)
-        self.containersMyGroups = dict()                
+        self.containers = dict()                
         ds_list = self.sortByAttr(list(self.conn.listDatasetsInProjectInGroup(project_id, group_id, page)), 'name')
         
         ds_list_with_counters = list()
@@ -852,6 +849,12 @@ class BaseContainer(BaseController):
                 ds.annotation_counter = ds_annotation_counter.get(ds.id)
                 ds_list_with_counters.append(ds)
         
+        self.containers = {'datasets': ds_list_with_counters}
+        self.c_size = self.conn.getCollectionCount("Project", "datasetLinks", [long(project_id)])[long(project_id)]
+
+        self.paging = self.doPaging(page, len(ds_list_with_counters), self.c_size)
+        
+        '''
         user_set = set()
         for ds in ds_list_with_counters:
             user_set.add(ds.details.owner.id.val)
@@ -867,13 +870,12 @@ class BaseContainer(BaseController):
 
         self.c_mg_size = self.conn.getCollectionCount("Project", "datasetLinks", [long(project_id)])[long(project_id)]
         
-        self.paging = self.doPaging(page, len(ds_list_with_counters), self.c_mg_size)
+        self.paging = self.doPaging(page, len(ds_list_with_counters), self.c_mg_size)'''
 
     def listImagesInDatasetInGroup(self, dataset_id, group_id, page):
-        self.myGroup = self.conn.getGroup(group_id)
-        self.containersMyGroups = dict()
+        self.containers = dict()
         
-        im_list = self.sortByAttr(list(self.conn.listImagesInDatasetInGroup(dataset_id, group_id, page)), 'name')
+        im_list = self.sortByAttr(list(self.conn.lookupImagesInDatasetInGroup(dataset_id, group_id, page)), 'name')
         im_list_with_counters = list()
         im_ids = [im.id for im in im_list]
         if len(im_ids) > 0:
@@ -883,6 +885,13 @@ class BaseContainer(BaseController):
                 im.annotation_counter = im_annotation_counter.get(im.id)
                 im_list_with_counters.append(im)
         
+        
+        self.containers = {'images': im_list_with_counters}
+        self.c_size = self.conn.getCollectionCount("Dataset", "imageLinks", [long(dataset_id)])[long(dataset_id)]
+
+        self.paging = self.doPaging(page, len(im_list_with_counters), self.c_size)
+        
+        '''
         user_set = set()
         for im in im_list_with_counters:
             user_set.add(im.details.owner.id.val)
@@ -898,12 +907,11 @@ class BaseContainer(BaseController):
             self.c_mg_size = len(im_list_with_counters)
         
         self.c_mg_size = self.conn.getCollectionCount("Dataset", "imageLinks", [long(dataset_id)])[long(dataset_id)]
-        self.paging = self.doPaging(page, len(im_list_with_counters), self.c_mg_size)
+        self.paging = self.doPaging(page, len(im_list_with_counters), self.c_mg_size)'''
         
     def loadGroupContainerHierarchy(self, group_id):
-        self.myGroup = self.conn.getGroup(group_id)
-        obj_list = self.sortByAttr(list(self.conn.loadGroupContainerHierarchy(group_id)), 'name')
-        
+        obj_list = self.sortByAttr(list(self.conn.loadContainerHierarchy('Project', gid=group_id)), 'name')
+
         pr_list = list()
         ds_list = list()
         for o in obj_list:
@@ -935,11 +943,11 @@ class BaseContainer(BaseController):
                 ds.annotation_counter = ds_annotation_counter.get(ds.id)
                 ds_list_with_counters.append(ds)
         
-        self.containersMyGroups={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}
-        self.c_mg_size = len(pr_list_with_counters)+len(ds_list_with_counters)
+        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters}
+        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)
 
     def loadGroupImages(self, dataset_id, group_id):
-        im_list = self.sortByAttr(list(self.conn.listImagesInDatasetInGroup(dataset_id, group_id)), 'name')
+        im_list = self.sortByAttr(list(self.conn.lookupImagesInDatasetInGroup(dataset_id, group_id)), 'name')
         
         im_list_with_counters = list()
         im_ids = [im.id for im in im_list]
@@ -965,7 +973,7 @@ class BaseContainer(BaseController):
         self.containers = {'images': im_list_with_counters}
         self.subcontainers = im_list_with_counters
         self.c_size = len(im_list_with_counters)
-    '''
+    
     # Annotation list
     def annotationList(self):
         self.text_annotations = list()

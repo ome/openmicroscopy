@@ -30,16 +30,6 @@
 
                 $("div#most_recent_details").html('<h1>Most recents:</h1><p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
                 $("div#most_recent_details").load("{% url index_most_recent %}");
-
-                $("a.loadingData").click(function()
-                {
-                    $("div#context").html('<p>Loading your context... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                    $("div#context").load("{% url index_context %}", function()
-                        {  
-                            $("a.loadingData").remove();
-                        });
-                    return false; 
-                });
         })
     </script>
     

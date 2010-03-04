@@ -163,11 +163,11 @@
         {% for field in form_users %}{{ field.label_tag }} {{ field }} <br/>{% if field.errors %} {{ field.errors }} {% endif %} {{ field.help_text }}{% endfor %}
     </div>
     {% endif %}
-    <!--{% if form_mygroups %}
+    {% if form_mygroups %}
     <div class="box">&nbsp;
         {% for field in form_mygroups %}{{ field.label_tag }} {{ field }}{% if field.errors %} {{ field.errors }} {% endif %} {{ field.help_text }}{% endfor %}
     </div>
-    {% endif %}-->
+    {% endif %}
 </div>
 <div class="clear"> </div>
 

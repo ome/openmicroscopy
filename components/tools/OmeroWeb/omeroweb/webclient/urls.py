@@ -93,12 +93,11 @@ urlpatterns = patterns('',
     url( r'^clipboard/$', views.update_clipboard, name="update_clipboard"),
     
     
-    
-    
     url( r'^import/$', views.importer, name="importer"),
     url( r'^upload/$', views.flash_uploader, name="flash_uploader"), 
     
-    url( r'^myaccount/(?:(?P<action>[a-zA-Z]+)/)?$', views.myaccount, name="myaccount"),
+    url( r'^myaccount/(?:(?P<action>((?i)save))/)?', views.myaccount, name="myaccount"),
+    url( r'^upload_myphoto/(?:(?P<action>((?i)upload|crop|editphoto))/)?$', views.upload_myphoto, name="upload_myphoto"),
     
     url( r'^help/$', views.help, name="help" ),
     

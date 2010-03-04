@@ -395,7 +395,19 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 "where pr.details.owner.id=:eid order by pr.id asc"
         for e in q.findAllByQuery(sql, p):
             yield ProjectWrapper(self, e)
-
+    
+    def listProjectsInGroup (self, gid):
+        """ Retrieves Projects accessed by the for the given group id."""
+        
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["gid"] = rlong(long(gid))
+        sql = "select pr from Project pr join fetch pr.details.creationEvent join fetch pr.details.owner join fetch pr.details.group " \
+              "where pr.details.permissions > '-103' and pr.details.group.id=:gid order by pr.name"
+        for e in q.findAllByQuery(sql, p):
+            yield ProjectWrapper(self, e)
+    
     def lookupOrphanedDatasets (self, eid=None, page=None):
         """ Retrieves every orphaned Datasets. If user id not set, owned by
             the current user."""
@@ -416,7 +428,20 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 ") order by ds.id asc"
         for e in q.findAllByQuery(sql, p):
             yield DatasetWrapper(self, e)
-
+    
+    def listDatasetsOutoffProjectInGroup(self, gid):
+        """ Retrieves orphaned Datasets accessed by the for the given group id."""
+        
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["gid"] = rlong(long(gid))
+        sql = "select ds from Dataset as ds join fetch ds.details.creationEvent join fetch ds.details.owner join fetch ds.details.group " \
+                "where ds.details.permissions > '-103' and ds.details.group.id=:gid and " \
+                "not exists ( select pld from ProjectDatasetLink as pld where pld.child=ds.id)) order by ds.name"
+        for e in q.findAllByQuery(sql, p):
+            yield DatasetWrapper(self, e)
+    
     def lookupOrphanedImages (self, eid=None, page=None):
         """ Retrieves every orphaned Images. If user id not set, owned by 
             the current user."""
@@ -440,7 +465,21 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 ") order by im.id asc"
         for e in q.findAllByQuery(sql,p):
             yield ImageWrapper(self, e)
-
+    
+    def listImagesOutoffDatasetInGroup(self, gid, page=None):
+        """ Retrieves orphaned Images accessed by the for the given group id."""
+        
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["gid"] = rlong(long(gid))
+        sql = "select im from Image as im join fetch im.details.owner join fetch im.details.group " \
+                "where im.details.permissions > '-103' and im.details.group.id=:gid and " \
+                "not exists ( select dsl from DatasetImageLink as dsl where dsl.child=im.id and dsl.details.owner.id=:gid) " \
+                "order by im.id asc"
+        for e in q.findAllByQuery(sql, p):
+            yield ImageWrapper(self, e)
+    
     def lookupDatasetsInProject (self, oid, eid=None, page=None):
         """ Retrieves every Datasets in a for the given Project id. 
             If user id not set, owned by the current user."""
@@ -467,7 +506,26 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 "order by ds.id asc"
         for e in q.findAllByQuery(sql,p):
             yield DatasetWrapper(self, e)
-
+    
+    def listDatasetsInProjectInGroup (self, oid, gid, page=None):
+        """ Retrieves Datasets in a for the given Project id accessed by the for the given group id."""
+        
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["gid"] = rlong(long(gid))
+        p.map["oid"] = rlong(long(oid))
+        if page is not None:
+            f = omero.sys.Filter()
+            f.limit = rint(32)
+            f.offset = rint((int(page)-1)*32)
+            p.theFilter = f
+        sql = "select ds from Dataset ds join fetch ds.details.creationEvent join fetch ds.details.owner join fetch ds.details.group " \
+              "left outer join fetch ds.projectLinks pdl left outer join fetch pdl.parent p " \
+              "where p.id=:oid and ds.details.group.id=:gid order by ds.id asc"
+        for e in q.findAllByQuery(sql,p):
+            yield DatasetWrapper(self, e)
+    
     def lookupImagesInDataset (self, oid, eid=None, page=None):
         """ Retrieves every Images in a for the given Dataset. 
             If user id not set, owned by the current user."""
@@ -495,83 +553,24 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql, p):
             yield ImageWrapper(self, e)
     
-    # COLLABORATION DATA RETRIVAL
-#    def listProjectsInGroup (self, gid):
-#        """ Retrieves Projects accessed by the for the given group id."""
-#        
-#        q = self.getQueryService()
-#        p = omero.sys.Parameters()
-#        p.map = {}
-#        p.map["gid"] = rlong(long(gid))
-#        sql = "select pr from Project pr join fetch pr.details.creationEvent join fetch pr.details.owner join fetch pr.details.group " \
-#              "where pr.details.permissions > '-103' and pr.details.group.id=:gid order by pr.name"
-#        for e in q.findAllByQuery(sql, p):
-#            yield ProjectWrapper(self, e)
-#
-#    def listDatasetsOutoffProjectInGroup(self, gid):
-#        """ Retrieves orphaned Datasets accessed by the for the given group id."""
-#        
-#        q = self.getQueryService()
-#        p = omero.sys.Parameters()
-#        p.map = {}
-#        p.map["gid"] = rlong(long(gid))
-#        sql = "select ds from Dataset as ds join fetch ds.details.creationEvent join fetch ds.details.owner join fetch ds.details.group " \
-#                "where ds.details.permissions > '-103' and ds.details.group.id=:gid and " \
-#                "not exists ( select pld from ProjectDatasetLink as pld where pld.child=ds.id)) order by ds.name"
-#        for e in q.findAllByQuery(sql, p):
-#            yield DatasetWrapper(self, e)
-#
-#    def listImagesOutoffDatasetInGroup(self, gid, page=None):
-#        """ Retrieves orphaned Images accessed by the for the given group id."""
-#        
-#        q = self.getQueryService()
-#        p = omero.sys.Parameters()
-#        p.map = {}
-#        p.map["gid"] = rlong(long(gid))
-#        sql = "select im from Image as im join fetch im.details.owner join fetch im.details.group " \
-#                "where im.details.permissions > '-103' and im.details.group.id=:gid and " \
-#                "not exists ( select dsl from DatasetImageLink as dsl where dsl.child=im.id and dsl.details.owner.id=:gid) " \
-#                "order by im.id asc"
-#        for e in q.findAllByQuery(sql, p):
-#            yield ImageWrapper(self, e)
-#
-#    def listDatasetsInProjectInGroup (self, oid, gid, page=None):
-#        """ Retrieves Datasets in a for the given Project id accessed by the for the given group id."""
-#        
-#        q = self.getQueryService()
-#        p = omero.sys.Parameters()
-#        p.map = {}
-#        p.map["gid"] = rlong(long(gid))
-#        p.map["oid"] = rlong(long(oid))
-#        if page is not None:
-#            f = omero.sys.Filter()
-#            f.limit = rint(32)
-#            f.offset = rint((int(page)-1)*32)
-#            p.theFilter = f
-#        sql = "select ds from Dataset ds join fetch ds.details.creationEvent join fetch ds.details.owner join fetch ds.details.group " \
-#              "left outer join fetch ds.projectLinks pdl left outer join fetch pdl.parent p " \
-#              "where p.id=:oid and ds.details.group.id=:gid order by ds.id asc"
-#        for e in q.findAllByQuery(sql,p):
-#            yield DatasetWrapper(self, e)
-#
-#    def listImagesInDatasetInGroup (self, oid, gid, page=None):
-#        """ Retrieves Images in a for the given Dataset id accessed by the for the given group id."""
-#        
-#        q = self.getQueryService()
-#        p = omero.sys.Parameters()
-#        p.map = {}
-#        p.map["gid"] = rlong(long(gid))
-#        p.map["oid"] = rlong(long(oid))
-#        if page is not None:
-#            f = omero.sys.Filter()
-#            f.limit = rint(32)
-#            f.offset = rint((int(page)-1)*32)
-#            p.theFilter = f
-#        sql = "select im from Image im join fetch im.details.owner join fetch im.details.group " \
-#              "left outer join fetch im.datasetLinks dil left outer join fetch dil.parent d " \
-#              "where d.id=:oid and im.details.group.id=:gid order by im.id asc"
-#        for e in q.findAllByQuery(sql, p):
-#            yield ImageWrapper(self, e)
+    def lookupImagesInDatasetInGroup (self, oid, gid, page=None):
+        """ Retrieves Images in a for the given Dataset id accessed by the for the given group id."""
+        
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["gid"] = rlong(long(gid))
+        p.map["oid"] = rlong(long(oid))
+        if page is not None:
+            f = omero.sys.Filter()
+            f.limit = rint(32)
+            f.offset = rint((int(page)-1)*32)
+            p.theFilter = f
+        sql = "select im from Image im join fetch im.details.owner join fetch im.details.group " \
+              "left outer join fetch im.datasetLinks dil left outer join fetch dil.parent d " \
+              "where d.id=:oid and im.details.group.id=:gid order by im.id asc"
+        for e in q.findAllByQuery(sql, p):
+            yield ImageWrapper(self, e)
     
     # LISTS selections
     def listSelectedImages(self, ids):
@@ -608,16 +607,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             yield ProjectWrapper(self, e)
     
     # HIERARCHY RETRIVAL
-    def loadContainerHierarchy(self, root, eid=None):
+    def loadContainerHierarchy(self, root, eid=None, gid=None):
         """ Retrieves hierarchy trees rooted by a given node - Project, 
             for the given user id linked to the objects in the tree,
             filter them by parameters."""
             
         q = self.getContainerService()
-        if eid == None: 
-            p = ParametersI().orphan().exp(self.getEventContext().userId)
-        else: 
+        if eid is not None: 
             p = ParametersI().orphan().exp(long(eid))
+        elif gid is not None: 
+            p = ParametersI().orphan().grp(self.getEventContext().groupId)
+        else: 
+            p = ParametersI().orphan().exp(self.getEventContext().userId)
         for e in q.loadContainerHierarchy(root, None,  p):
             if isinstance(e, ProjectI):
                 yield ProjectWrapper(self, e)
@@ -628,21 +629,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             elif isinstance(e, PlateI):
                 yield PlateWrapper(self, e)
 
-#    def loadGroupContainerHierarchy(self, gid=None):
-#        """ Retrieves hierarchy trees rooted by a given node - Project, 
-#            for the given Group id linked to the objects in the tree, filter them by parameters."""
-#            
-#        q = self.getContainerService()
-#        if gid == None: 
-#            p = ParametersI().orphan().grp(self.getEventContext().groupId)
-#        else:
-#            p = ParametersI().orphan().grp(long(gid))
-#        for e in q.loadContainerHierarchy('Project', None,  p):
-#            if isinstance(e, ProjectI):
-#                yield ProjectWrapper(self, e)
-#            if isinstance(e, DatasetI):
-#                yield DatasetWrapper(self, e)
-    
     def findContainerHierarchies(self, nid):
         """ Finds hierarchy trees rooted by a given node - Project, 
             for the given Image ids. TODO: #1015"""
