@@ -51,6 +51,13 @@ from omero.rtypes import *
 import omero_api_Gateway_ice	# see http://tinyurl.com/icebuserror
 import omero.util.script_utils as scriptUtil
 
+gateway = None
+queryService= None
+pixelsService= None
+rawPixelStore= None
+re= None
+updateService= None
+rawFileStore= None
 
 def resetRenderingSettings(re, pixelsId, minValue, maxValue):
 	
@@ -106,54 +113,34 @@ def createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, plane2
 		#gateway.attachImageToDataset(dataset, image)
 		
 	return image
-
-def emanToOmero(commandArgs):
-	#print commandArgs
-	client = omero.client(commandArgs["host"])
-	session = client.createSession(commandArgs["username"], commandArgs["password"])
 	
-	gateway = session.createGateway()
-	re = session.createRenderingEngine()
-	queryService = session.getQueryService()
-	pixelsService = session.getPixelsService()
-	rawPixelStore = session.createRawPixelsStore()
-	updateService = session.getUpdateService()
-	rawFileStore = session.createRawFileStore()
+def uploadBdbAsDataset(infile, datasetName, project = None):
 	
-	infile = commandArgs["bdb"]
+	"""
+	@param infile 			path to bdb. Either absolute, or from where we are running
+	@param datasetName		name for new Dataset to put images in
+	@param project			if specified, put the dataset into this project (omero.model.ProjectI)
+	
+	"""
+	
 	nimg = EMUtil.get_image_count(infile)	# eg images in bdb 'folder'
 	print "Found %d images to import from %s" % (nimg, infile)
 	
+	if nimg == 0:
+		return
+		
 	d = EMData()
-	
-	# parse infile (E.g. bdb:path/to/directory#dbname or bdb:dbname) to get names for new Project and dataset
-	datasetName = None
-	projectName = None
-	hashIndex = infile.rfind("#")
-	if hashIndex > 0: 	# we have at least 1 character for project name
-		path, bdb = infile.rsplit("#", 1)
-		datasetName = bdb
-		projectName = path
 		
-	else:
-		datasetName = infile.replace("bdb:")
-		
-	# print projectName, datasetName
-	
-	project = None
 	dataset = omero.model.DatasetI()
 	dataset.name = rstring(datasetName)
 	dataset = gateway.saveAndReturnObject(dataset)
-	if projectName:		# and put it in a new project
-		project = omero.model.ProjectI()
-		project.name = rstring(projectName)
-		project = gateway.saveAndReturnObject(project)
+	if project:		# and put it in a new project
 		link = omero.model.ProjectDatasetLinkI()
 		link.parent = omero.model.ProjectI(project.id.val, False)
 		link.child = omero.model.DatasetI(dataset.id.val, False)
 		gateway.saveAndReturnObject(link)
 	
-	# use first iamge to get data-type (assume all the same!)
+	# use first image to get data-type (assume all the same!)
 	d.read_image(infile, 0)
 	plane2D = EMNumPy.em2numpy(d)
 	pType = plane2D.dtype.name
@@ -174,12 +161,12 @@ def emanToOmero(commandArgs):
 	
 	# loop through all the images. 
 	description = "Imported from EMAN2 bdb: %s" % infile
-	for i in range(2):
+	for i in range(5):
 		print "Importing image: %d" % i
 		newImageName = "%d" % i
 		d.read_image(infile, i)
 		plane2D = EMNumPy.em2numpy(d)
-		print plane2D
+		#print plane2D
 		plane2Dlist = [plane2D]		# single plane image
 		
 		# maybe should move this method to script_utils, since it is also used by imagesFromRois.py
@@ -192,11 +179,98 @@ def emanToOmero(commandArgs):
 		for attr, value in d.get_attr_dict().items():
 			# print attr, value
 			f.write("%s=%s\n" % (attr, value))
+			if attr == "ptcl_source_image":
+				print "Add link to image named: ", value
 		f.close()
 		
 		scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, image, fileName, "text/plain", None, namespace)
 	# delete temp file
 	os.remove(fileName)
+
+def emanToOmero(commandArgs):
+	#print commandArgs
+	client = omero.client(commandArgs["host"])
+	session = client.createSession(commandArgs["username"], commandArgs["password"])
+	
+	#global blitzcon
+	#blitzcon = client_wrapper(commandArgs["username"], commandArgs["password"], host=commandArgs["host"], port=4063)
+	#blitzcon.connect()
+	#queryService = blitzcon.getQueryService()
+	
+	global gateway
+	global re
+	global queryService
+	global pixelsService
+	global rawPixelStore
+	global updateService
+	global rawFileStore
+	
+	gateway = session.createGateway()
+	re = session.createRenderingEngine()
+	queryService = session.getQueryService()
+	pixelsService = session.getPixelsService()
+	rawPixelStore = session.createRawPixelsStore()
+	updateService = session.getUpdateService()
+	rawFileStore = session.createRawFileStore()
+	
+	path = commandArgs["bdb"]
+		
+		
+	# code from e2bdb.py
+	dbpath = path
+	if dbpath.lower()[:4]!="bdb:" : dbpath="bdb:"+dbpath
+	if '#' in dbpath :
+		#if len(args)>1 : print "\n",path,":"
+		dbpath,dbs=dbpath.rsplit("#",1)
+		dbpath+="#"
+		dbs=[dbs]
+	else:
+		if not '#' in dbpath and dbpath[-1]!='/' : dbpath+='#'			
+		#if len(args)>1 : print "\n",path[:-1],":"
+		dbs=db_list_dicts(dbpath)
+		
+	# get a name for the project 
+	head,tail = os.path.split(path)
+	projectName = tail
+	if projectName == "":
+		projectName = head
+	# create project
+	project = omero.model.ProjectI()
+	project.name = rstring(projectName)
+	project = gateway.saveAndReturnObject(project)
+	
+	print dbs
+	
+	for db in dbs:
+		infile = dbpath + db
+		datasetName = db
+		uploadBdbAsDataset(infile, datasetName, project)
+		
+	print path
+	if os.path.isdir(path):
+		for f in os.listdir(path):
+			fullpath = path + f
+			if f != "EMAN2DB" and os.path.isdir(fullpath):
+				print fullpath
+				dbpath = fullpath
+				if dbpath.lower()[:4]!="bdb:" : dbpath="bdb:"+dbpath
+				if '#' in dbpath :
+					#if len(args)>1 : print "\n",path,":"
+					dbpath,dbs=dbpath.rsplit("#",1)
+					dbpath+="#"
+					dbs=[dbs]
+				else:
+					if not '#' in dbpath and dbpath[-1]!='/' : dbpath+='#'			
+					#if len(args)>1 : print "\n",path[:-1],":"
+					dbs=db_list_dicts(dbpath)
+					
+				print "    " , dbs
+
+				for db in dbs:
+					infile = dbpath + db
+					datasetName = db
+					uploadBdbAsDataset(infile, datasetName, project)
+	
 
 def readCommandArgs():
 	host = ""

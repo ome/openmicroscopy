@@ -51,6 +51,11 @@ import omero.util.script_utils as scriptUtil
 
 import Image # for saving as tiff. 
 
+# from http://blake.bcm.edu/emanwiki/EMAN2/BoxSize
+goodBoxSizes = [32, 33, 36, 40, 42, 44, 48, 50, 52, 54, 56, 60, 64, 66, 70, 72, 81, 84, 96, 98, 100, 104, 105, 112, 120, 128,
+130, 132, 140, 150, 154, 168, 180, 182, 192, 196, 208, 210, 220, 224, 240, 250, 256,
+260, 288, 300, 330, 352, 360, 384, 416, 440, 448, 450, 480, 512]
+
 # keep track of log strings. 
 logStrings = []
 
@@ -274,20 +279,28 @@ class Target():
 		r.addShape(rect)	
 		self.updateService.saveAndReturnObject(rect)
 
+def pickBoxSize(width, height):
+	boxSize = (width + height)/2
+	if boxSize not in goodBoxSizes:
+		for size in goodBoxSizes:
+			if boxSize < size: 
+				boxSize = size
+				break
+	if boxSize > goodBoxSizes[-1]:
+		boxSize = goodBoxSizes[-1]
+	return boxSize
 
-def getRectangles(session, imageId, deleteType=None):
+def getRectangles(roiService, updateService, imageId, boxSize=None, deleteType=None):
 	""" Returns (x, y, width, height) of each rectange ROI in the image 
 	
 	@param deleteType 	Delete ROIs that have this string as a text/description. 
+	@param boxSize		If not None, return boxes of this size and update existing ROI rectangles
 	"""
 	
 	rectangles = []
 	shapes = []		# string set. 
 	
-	roiService = session.getRoiService()
 	result = roiService.findByImage(imageId, None)
-	
-	updateService = session.getUpdateService()
 	
 	rectCount = 0
 	for roi in result.rois:
@@ -300,9 +313,24 @@ def getRectangles(session, imageId, deleteType=None):
 			if type(shape) == omero.model.RectI:
 				x = shape.getX().getValue()
 				y = shape.getY().getValue()
-				width = shape.getWidth().getValue()
-				height = shape.getHeight().getValue()
-				rectangles.append((int(x), int(y), int(width), int(height)))
+				width = int(shape.getWidth().getValue())
+				height = int(shape.getHeight().getValue())
+				
+				# box size for all other boxes is fixed by first box we process
+				if boxSize == None:	 
+					boxSize = pickBoxSize(width, height)
+					print "Picked box size: ", boxSize
+				
+				if width != boxSize or height != boxSize:
+					# need to update existing shape, keeping centre in same place
+					x = int(x + (width / 2) - (boxSize / 2))
+					y = int(y + (height / 2) - (boxSize / 2))
+					shape.setX(rdouble(x))
+					shape.setY(rdouble(y))
+					shape.setWidth(rdouble(boxSize))
+					shape.setHeight(rdouble(boxSize))
+					updateService.saveObject(shape)
+				rectangles.append((int(x), int(y), int(boxSize), int(boxSize)))
 				continue
 				
 	return rectangles
@@ -343,13 +371,21 @@ def downloadImage(session, imageId, imageName):
 def doAutoBoxing(session, parameterMap):
 	
 	imageIds = []
+	boxSize = None
 	
 	if "imageIds" in parameterMap:
 		for idCount, imageId in enumerate(parameterMap["imageIds"]):
 			iId = long(imageId.getValue())
 			imageIds.append(iId)
+			
+	if "boxSize" in parameterMap:
+		boxSize = parameterMap["boxSize"]
+		print "Using user-specified box_size: ", boxSize
 	
 	gateway = session.createGateway()
+	roiService = session.getRoiService()
+	updateService = session.getUpdateService()
+	
 	for imageId in imageIds:
 		
 		# download the image as a local temp tiff image
@@ -362,8 +398,9 @@ def doAutoBoxing(session, parameterMap):
 		log("image downloaded: %s" % image_name)
 	
 		# get list of ROI boxes as (x, y, width, height) on the image
+		# if boxSize isn't None, boxes will be set to this size.
 		# and delete any existing AUTO added ROIs. 
-		boxes = getRectangles(session, imageId, SwarmBoxer.AUTO_NAME)
+		boxes = getRectangles(roiService, updateService, imageId, boxSize, SwarmBoxer.AUTO_NAME)
 		if len(boxes) == 0:
 			log("No ROIs found in image: %s" % image_name)
 			continue
@@ -395,7 +432,8 @@ def runAsScript():
 	The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
 	"""
 	client = scripts.client('boxer.py', 'Use EMAN2 to auto-box particles based on 1 or more user-picked particles (ROIs).', 
-	scripts.List("imageIds").inout())		# List of image IDs. Resulting figure will be attached to first image
+	scripts.List("imageIds").inout(),					# List of image IDs.
+	scripts.Long("boxSize", optional=True).inout())		# Size of particle box. If not specified, determined from user ROIs
 	
 	session = client.getSession()
 	
