@@ -926,9 +926,9 @@ public class ThumbnailBean extends AbstractLevel2Service
     {
         // Set defaults and sanity check thumbnail sizes
         Dimension dimensions = sanityCheckThumbnailSizes(sizeX, sizeY);
+        metadata = ctx.createThumbnailMetadata(pixels, dimensions);
 
         BufferedImage image = createScaledImage(theZ, theT);
-        metadata = ctx.createThumbnailMetadata(pixels, dimensions);
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         try {
             compressionService.compressToStream(image, byteStream);
