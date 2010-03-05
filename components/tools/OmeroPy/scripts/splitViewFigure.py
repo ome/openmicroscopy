@@ -336,7 +336,7 @@ def makeSplitViewFigure(session, pixelIds, zStart, zEnd, splitIndexes, channelNa
 		fontsize = 16
 		
 	spacer = (width/25) + 2
-	textGap = 5		# gap between text and image panels
+	textGap = 3		# gap between text and image panels
 	leftTextWidth = 0
 	textHeight = 0
 	
@@ -380,7 +380,7 @@ def makeSplitViewFigure(session, pixelIds, zStart, zEnd, splitIndexes, channelNa
 	
 	topTextHeight = textHeight + textGap
 	if (mergedNames):
-		topTextHeight = ((textHeight + textGap) * len(mergedIndexes))
+		topTextHeight = ((textHeight) * len(mergedIndexes))
 	# make a canvas big-enough to add text to the images. 
 	canvasWidth = leftTextWidth + sv.size[0]
 	canvasHeight = topTextHeight + sv.size[1]
@@ -419,13 +419,15 @@ def makeSplitViewFigure(session, pixelIds, zStart, zEnd, splitIndexes, channelNa
 	
 	# add text for combined image
 	if (mergedNames):
+		mergedIndexes.reverse()
 		for index in mergedIndexes:
+			print index, channelNames[index]
 			rgb = tuple(mergedColours[index])
 			name = channelNames[index]
 			combTextWidth = font.getsize(name)[0]
 			inset = int((width - combTextWidth) / 2)
 			draw.text((px + inset, py), name, font=font, fill=rgb)
-			py = py - textHeight - textGap 
+			py = py - textHeight  
 	else:
 		combTextWidth = font.getsize("Merged")[0]
 		inset = int((width - combTextWidth) / 2)
@@ -576,6 +578,8 @@ def splitViewFigure(session, commandArgs):
 			rgba = imgUtil.RGBIntToRGBA(rgb)
 			mergedColours[int(c)] = rgba
 			mergedIndexes.append(int(c))
+		mergedIndexes.sort()
+		print mergedIndexes
 	else:
 		mergedIndexes = range(sizeC)[1:]
 		for c in mergedIndexes:	# make up some colours 
