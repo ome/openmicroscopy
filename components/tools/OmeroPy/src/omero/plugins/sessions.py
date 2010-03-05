@@ -73,6 +73,7 @@ class SessionsControl(BaseControl):
     def login(self, *args):
 
         if self.ctx.conn():
+            self.ctx.dbg("Active client found")
             return # EARLY EXIT
 
         args = Arguments(args, shortopts="t:d:", longopts=["timeout","dir"])
@@ -118,10 +119,15 @@ class SessionsControl(BaseControl):
         rv = None
         if not args.is_create():
             available = store.available(server, name)
-            if available:
-                id = available[0]
-                rv = store.attach(server, name, id)
-                action = "Reconnected to"
+            for uuid in available:
+                try:
+                    rv = store.attach(server, name, uuid)
+                    action = "Reconnected to"
+                    break
+                except:
+                    self.ctx.dbg("Removing %s" % uuid)
+                    store.clear(server, name, uuid)
+                    continue
 
         if not rv:
             if not pasw:

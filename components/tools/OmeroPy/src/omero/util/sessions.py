@@ -67,7 +67,7 @@ class SessionsStore(object):
         d = self.dir / host / name
         if not d.exists():
             return []
-        return d.files("*")
+        return [x.basename() for x in self.non_dot(d)]
 
     def current(self, host, name, id):
         self.sess_file(host, name).write_text(id)
@@ -82,21 +82,26 @@ class SessionsStore(object):
         except exceptions.Exception, e:
             return false
 
-    def clear(self, host, name):
+    def clear(self, host, name, id = None):
         d = self.dir / host / name
         removed = []
         if d.exists():
-            for f in d.files("*"):
-                removed.append(f)
+            if id is not None:
+                f = d / id
                 f.remove()
+                removed.append(f)
+            else:
+                for f in self.non_dot(d):
+                    removed.append(f)
+                    f.remove()
         return removed
 
     def attach(self, server, name, id):
         props = {}
         props["omero.host"] = server
-        return self.create(name, id, props)
+        return self.create(id, id, props, new=False)
 
-    def create(self, name, pasw, props):
+    def create(self, name, pasw, props, new=True):
         import omero.clients
         props = dict(props)
         client = omero.client(props)
@@ -106,7 +111,8 @@ class SessionsStore(object):
         sess = sf.getSessionService().getSession(id)
         timeToIdle = sess.getTimeToIdle().getValue()
         timeToLive = sess.getTimeToLive().getValue()
-        self.add(props["omero.host"], name, id, props)
+        if new:
+            self.add(props["omero.host"], name, id, props)
         return client, id, timeToIdle, timeToLive
 
     def contents(self):
@@ -133,7 +139,7 @@ class SessionsStore(object):
         d = self.dir / host / name
         if not d.exists():
             return 0
-        return len(d.files("*"))
+        return len(self.non_dot(d))
 
     def destroy(self, id):
         assert False
@@ -150,6 +156,9 @@ class SessionsStore(object):
         if not (self.dir / "lastsess").exists():
             return ""
         return (self.dir / "lastsess").text().strip()
+
+    def non_dot(self, d):
+        return [f for f in d.files("*") if not str(f.basename()).startswith(".")]
 
     def props(self, f):
         txt = f.text()
