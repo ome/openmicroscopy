@@ -10,7 +10,7 @@
 
 """
 
-from omero.cli import BaseControl
+from omero.cli import Arguments, BaseControl
 
 class DownloadControl(BaseControl):
 
@@ -22,14 +22,17 @@ Syntax: %(program_name)s download <id> <filename>
         """ )
 
     def __call__(self, *args):
-        id = 1
-        file = "foo"
+        args = Arguments(args)
+        from omero_model_OriginalFileI import OriginalFileI as OFile
+        if len(args) != 2:
+            self.help()
+            self.ctx.die(2, "")
 
-        client = self.ctx.conn()
-        session = client.getSession()
-        filePrx = session.createRawFileStore()
-        filePrx.setFileId(id)
-        fileSize = filePrx.getSize()
+        orig_file = OFile(long(args.args[0]))
+        target_file = str(args.args[1])
+
+        client = self.ctx.conn(args)
+        client.download(orig_file, target_file)
 
 try:
     register("download", DownloadControl)

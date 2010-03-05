@@ -18,82 +18,45 @@ import omero.java
 class ExportControl(BaseControl):
 
     def _run(self, args = []):
-        args = Arguments(args)
+        args = Arguments(args, shortopts="f:t:", longopts=["file=","type="])
+        c = self.ctx.conn(args)
+        f = args.get_arg("file", "f")
+        t = args.get_arg("type", "t")
+        if not t:
+            t = "TIFF"
 
-        try:
-            options, args = getopt(args.args, "s:u:k:w:p:f:t:h")
-            if len(options) == 0 and len(args) == 0:
-                raise GetoptError("No arguments")
-        except GetoptError, (msg, opt):
-            self.help("Bad arguments")
-            self.ctx.die(0, "")
-
-        server = None
-        user = None
-        port = 4063
-        pasw = None
-        file = None
-        tiff = "TIFF"
-        key = None
-        for option, argument in options:
-            if option == "-u":
-                user = argument
-            elif option == "-w":
-                pasw = argument
-            elif option == "-s":
-                server = argument
-            elif option == "-p":
-                port = int(argument)
-            elif option == "-f":
-                file = argument
-            elif option == "-k":
-                key = argument
-            elif option == "-t":
-                tiff = argument
-            else:
-                self.ctx.out("Ignoring option: %s" % option)
-
-        if server is None:
-            server = self.ctx.input("Server:")
-        if key:
-            user = key
-            pasw = key
-        else:
-            if file is None and pasw is None:
-                self.ctx.die(3, "Password or key must be provided to send to stdout")
-            if user is None and key is None:
-                user = self.ctx.input("Username:")
-            if pasw is None and key is None:
-                pasw = self.ctx.input("Password:", hidden = True)
-        if tiff not in ["TIFF","XML"]:
+        if t not in ("TIFF","XML"):
             self.ctx.die(1, "Only TIFF and XML supported")
-        if file is None:
+        if f is None:
             self.ctx.die(7, "No file specified")
-        if os.path.exists(str(file)):
-            self.ctx.die(2, "%s already exists" % file)
+        if os.path.exists(str(f)):
+            self.ctx.die(2, "%s already exists" % f)
 
-        if len(args) > 1:
+        if len(args) != 1:
             self.ctx.die(4, "Currently only a single image supported")
 
-        klass, id = args[0].split(":")
+        img = args.args[0]
+        if 0 > img.find(":"):
+            self.ctx.die(5, "Format: 'Image:<id>'")
+
+        klass, id = img.split(":")
         images = []
         if klass == "Image":
             images.append(id)
         else:
             self.ctx.die(5, "Can't add type: %s" % klass)
 
-        c = self.ctx.conn({"omero.host":server, "omero.user":user,"omero.pass":pasw})
         e = None
-
-        if file:
-            f = open(file, "wb")
+        handle = None
+        if f:
+            handle = open(f, "wb")
 
         try:
-            exporter = client.getSession().createExporter()
+            e = c.getSession().createExporter()
             try:
                 for img in images:
                     e.addImage(long(img))
-                if tiff == "TIFF":
+                if t == "TIFF":
                     l = e.generateTiff()
                 else:
                     l = e.generateXml()
@@ -104,14 +67,14 @@ class ExportControl(BaseControl):
                     if not rv:
                         break
                     offset += len(rv)
-                    if file:
-                        f.write(rv)
+                    if handle:
+                        handle.write(rv)
                     else:
                         sys.stdout.buffer.write(rv)
 
             finally:
-                if file:
-                    f.close()
+                if handle:
+                    handle.close()
                 e.close()
         finally:
                 c.closeSession() # FIXME

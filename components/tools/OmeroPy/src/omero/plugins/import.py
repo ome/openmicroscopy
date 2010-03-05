@@ -22,6 +22,7 @@ class ImportControl(BaseControl):
 
     def _run(self, args = []):
         args = Arguments(args)
+        self.ctx.conn(args)
         client_dir = self.ctx.dir / "lib" / "client"
         log4j = "-Dlog4j.configuration=log4j-cli.properties"
         classpath = [ file.abspath() for file in client_dir.files("*.jar") ]

@@ -135,6 +135,8 @@ class Arguments:
                         pass
                     elif isinstance(l, Arguments):
                         self._copy_args(l)
+                        opts, self.args = self._argparse(self.args, shortopts, longopts)
+                        self.opts.update(opts)
                         skip = True
                         continue
                     else:
@@ -145,14 +147,6 @@ class Arguments:
                 self._make_argmap()
         else:
             raise BadArgument("Unknown argument: %s" % args)
-        if DEBUG:
-            print """
-    Current arguments:
-       Passed:    %s, %s, %s
-       Arguments: %s
-       Options:   %s
-       Map:       %s
-            """ % (original, shortopts, longopts, self.args, self.opts, self.argmap)
 
     def _copy_args(self, args):
         self.longopts = args.longopts
@@ -988,6 +982,8 @@ class CLI(cmd.Cmd, Context):
 
             if self.controls.has_key(first):
                 return self.invoke(args)
+            elif hasattr(self, "do_%s" % first):
+                return getattr(self, "do_%s" % first)(other)
             else:
                 self.unknown_command(first)
 
@@ -1151,7 +1147,10 @@ class CLI(cmd.Cmd, Context):
                 self._client = None
         if args is not None:
             args.acquire(self)
-            return self._client # Added by "login"
+            if self._client:
+                args.opts["k"] = self._client.sf.ice_getIdentity().name
+
+        return self._client # Possibly added by "login"
 
     ##
     ## Plugin registry

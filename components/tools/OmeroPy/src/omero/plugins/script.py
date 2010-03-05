@@ -320,7 +320,7 @@ Syntax: %(program_name)s script file [configuration parameters]
         ids = list(scripts.keys())
         ids.sort()
         self.ctx.out(msg)
-        self.ctx.out("="*100)
+        self.ctx.out("="*40)
         for id in ids:
             self.ctx.out("%8.8s - %s" % (id, scripts[id]))
 
