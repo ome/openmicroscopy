@@ -320,22 +320,7 @@ public class ThumbnailCtx
      */
     public RenderingDef getSettings(long pixelsId)
     {
-        RenderingDef settings = pixelsIdSettingsMap.get(pixelsId);
-        if (settings == null && securitySystem.isGraphCritical())
-        {
-            Pixels pixels = pixelsIdPixelsMap.get(pixelsId);
-            long ownerId = pixels.getDetails().getOwner().getId();
-            throw new ResourceError(String.format(
-                    "The owner id:%d has not viewed the Pixels set id:%d, " +
-                    "rendering settings are missing.", ownerId, pixelsId));
-        }
-        else if (settings == null)
-        {
-            throw new ome.conditions.InternalException(
-                    "Fatal error retrieving thumbnail metadata for Pixels " +
-                    "set id:" + pixelsId);
-        }
-        return settings;
+        return pixelsIdSettingsMap.get(pixelsId);
     }
 
     /**

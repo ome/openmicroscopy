@@ -269,6 +269,53 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         }
     }
 
+    @Test(groups = {"ticket:1801"},
+          expectedExceptions = { InternalException.class })
+    public void testUserViewsThumbnailWithNoSettingsAndNoSetPixelsId() {
+        loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        deleteRenderingSettings(pix);
+        ThumbnailStore tbUser = sf.createThumbnailService();
+        assertFalse(tbUser.setPixelsId(pix.getId()));
+        tbUser.resetDefaults();
+        //tbUser.setPixelsId(pix.getId() // Code that should be called
+        tbUser.getThumbnail(64, 64);
+    }
+
+    @Test(groups = {"ticket:1801"})
+    public void testUserViewsThumbnailWithNoSettings() {
+        loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        deleteRenderingSettings(pix);
+        ThumbnailStore tbUser = sf.createThumbnailService();
+        assertFalse(tbUser.setPixelsId(pix.getId()));
+        tbUser.resetDefaults();
+        tbUser.setPixelsId(pix.getId());
+        tbUser.getThumbnail(64, 64);
+    }
+
+    @Test(groups = {"ticket:1801"})
+    public void testUserViewsThumbnailDirect() {
+        loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        ThumbnailStore tbUser = sf.createThumbnailService();
+        tbUser.setPixelsId(pix.getId());
+        tbUser.getThumbnailDirect(64, 64);
+    }
+
+    @Test(groups = {"ticket:1801"})
+    public void testUserViewsThumbnailByLongestSideDirect() {
+        loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        ThumbnailStore tbUser = sf.createThumbnailService();
+        tbUser.setPixelsId(pix.getId());
+        tbUser.getThumbnailByLongestSideDirect(64);
+    }
+
     @Test(groups = {"ticket:1801"}, expectedExceptions = {ResourceError.class})
     public void testAdminViewsThumbnailsWithNoMetadata() {
         loginNewUser();
@@ -281,24 +328,12 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         tbRoot.getThumbnail(64, 64);
     }
 
-    @Test(groups = {"ticket:1801"}, expectedExceptions = {ResourceError.class})
+    @Test(groups = {"ticket:1801"})//, expectedExceptions = {ResourceError.class})
     public void testAdminViewsThumbnailsWithNoSettings() {
         loginNewUser();
         final ServiceFactory sf = this.factory;// new InternalServiceFactory();
         Pixels pix = makePixels();
-        Parameters params = new Parameters();
-        params.addId(pix.getId());
-        RenderingDef settings = iQuery.findByQuery(
-                "select rdef from RenderingDef as rdef " +
-                "left outer join fetch rdef.waveRendering " +
-                "where rdef.pixels.id = (:id)", params);
-        params.addId(settings.getId());
-        for (int i = 0; i < settings.sizeOfWaveRendering(); i++)
-        {
-            ChannelBinding channelBinding = settings.getChannelBinding(i);
-            iUpdate.deleteObject(channelBinding);
-        }
-        iUpdate.deleteObject(settings);
+        deleteRenderingSettings(pix);
 
         loginRootKeepGroup();
         ThumbnailStore tbRoot = sf.createThumbnailService();
@@ -360,4 +395,19 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         throw new UnsupportedOperationException();
     }
 
+    private void deleteRenderingSettings(Pixels pix) {
+        Parameters params = new Parameters();
+        params.addId(pix.getId());
+        RenderingDef settings = iQuery.findByQuery(
+                "select rdef from RenderingDef as rdef " +
+                "left outer join fetch rdef.waveRendering " +
+                "where rdef.pixels.id = (:id)", params);
+        params.addId(settings.getId());
+        for (int i = 0; i < settings.sizeOfWaveRendering(); i++)
+        {
+            ChannelBinding channelBinding = settings.getChannelBinding(i);
+            iUpdate.deleteObject(channelBinding);
+        }
+        iUpdate.deleteObject(settings);
+    }
 }

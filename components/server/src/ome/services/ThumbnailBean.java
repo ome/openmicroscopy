@@ -548,7 +548,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     protected void errorIfInvalidState()
     {
-        errorIfNullMetadata();
+        errorIfNullPixelsAndRenderingDef();
         if ((renderer == null && wasPassivated) || dirty)
         {
             load();
@@ -560,7 +560,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         }
     }
 
-    protected void errorIfNullMetadata()
+    protected void errorIfNullPixelsAndRenderingDef()
     {
         errorIfNullPixels();
         errorIfNullRenderingDef();
@@ -577,10 +577,19 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     protected void errorIfNullRenderingDef()
     {
-        if (settings == null)
+        errorIfNullPixels();
+        if (settings == null && sec.isGraphCritical())
         {
-            throw new InternalException(
-            "Thumbnail service state corruption: RenderingDef missing.");
+            long ownerId = pixels.getDetails().getOwner().getId();
+            throw new ResourceError(String.format(
+                    "The owner id:%d has not viewed the Pixels set id:%d, " +
+                    "rendering settings are missing.", ownerId, pixelsId));
+        }
+        else if (settings == null)
+        {
+            throw new ome.conditions.InternalException(
+                    "Fatal error retrieving rendering settings or settings " +
+                    " not loaded for Pixels set id:" + pixelsId);
         }
     }
 
@@ -802,6 +811,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public byte[] getThumbnail(Integer sizeX, Integer sizeY) {
+        errorIfNullPixelsAndRenderingDef();
         Dimension dimensions = sanityCheckThumbnailSizes(sizeX, sizeY);
         // Ensure that we do not have "dirty" pixels or rendering settings 
         // left around in the Hibernate session cache.
@@ -880,6 +890,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public byte[] getThumbnailByLongestSide(Integer size) {
+        errorIfNullPixelsAndRenderingDef();
         // Set defaults and sanity check thumbnail sizes
         Dimension dimensions = sanityCheckThumbnailSizes(size, size);
         size = (int) dimensions.getWidth();
@@ -924,6 +935,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     private byte[] retrieveThumbnailDirect(Integer sizeX, Integer sizeY,
             Integer theZ, Integer theT)
     {
+        errorIfNullPixelsAndRenderingDef();
         // Set defaults and sanity check thumbnail sizes
         Dimension dimensions = sanityCheckThumbnailSizes(sizeX, sizeY);
         metadata = ctx.createThumbnailMetadata(pixels, dimensions);
@@ -1008,7 +1020,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     @RolesAllowed("user")
     public boolean thumbnailExists(Integer sizeX, Integer sizeY) {
         // Set defaults and sanity check thumbnail sizes
-        errorIfNullMetadata();
+        errorIfNullPixelsAndRenderingDef();
         Dimension dimensions = sanityCheckThumbnailSizes(sizeX, sizeY);
 
         Set<Long> pixelsIds = new HashSet<Long>();
