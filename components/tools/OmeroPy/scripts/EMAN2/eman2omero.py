@@ -101,7 +101,10 @@ def createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, plane2
 	rawPixelStore.setPixelsId(pixelsId, True)
 	theC, theT = (0,0)
 	for theZ, plane2D in enumerate(plane2Dlist):
-		scriptUtil.uploadPlane(rawPixelStore, plane2D, theZ, theC, theT)
+		if plane2D.size > 1000000:
+			scriptUtil.uploadPlaneByRow(rawPixelStore, plane2D, theZ, theC, theT)
+		else:
+			scriptUtil.uploadPlane(rawPixelStore, plane2D, theZ, theC, theT)
 
 	resetRenderingSettings(re, pixelsId, minValue, maxValue)
 	
@@ -122,9 +125,15 @@ def uploadBdbAsDataset(infile, datasetName, project = None):
 	@param project			if specified, put the dataset into this project (omero.model.ProjectI)
 	
 	"""
-	
-	nimg = EMUtil.get_image_count(infile)	# eg images in bdb 'folder'
-	print "Found %d images to import from %s" % (nimg, infile)
+
+	imageList = None
+	try:
+		nimg = EMUtil.get_image_count(infile)	# eg images in bdb 'folder'
+		print "Found %d images to import from: %s to new dataset: %s" % (nimg, infile, datasetName)
+	except:
+		nimg = len(infile)	# OK, we're probably dealing with a list
+		imageList = infile
+		print "Importing %d images to new dataset: %s" % (nimg, datasetName)
 	
 	if nimg == 0:
 		return
@@ -141,7 +150,10 @@ def uploadBdbAsDataset(infile, datasetName, project = None):
 		gateway.saveAndReturnObject(link)
 	
 	# use first image to get data-type (assume all the same!)
-	d.read_image(infile, 0)
+	if imageList:
+		d.read_image(imageList[0])
+	else:
+		d.read_image(infile, 0)
 	plane2D = EMNumPy.em2numpy(d)
 	pType = plane2D.dtype.name
 	print pType
@@ -161,10 +173,14 @@ def uploadBdbAsDataset(infile, datasetName, project = None):
 	
 	# loop through all the images. 
 	description = "Imported from EMAN2 bdb: %s" % infile
-	for i in range(5):
-		print "Importing image: %d" % i
+	for i in range(2):
 		newImageName = "%d" % i
-		d.read_image(infile, i)
+		if imageList:
+			print "Importing image: %s" % imageList[i]
+			d.read_image(imageList[i])
+		else:
+			print "Importing image: %d" % i
+			d.read_image(infile, i)
 		plane2D = EMNumPy.em2numpy(d)
 		#print plane2D
 		plane2Dlist = [plane2D]		# single plane image
@@ -175,12 +191,15 @@ def uploadBdbAsDataset(infile, datasetName, project = None):
 		f = open(fileName, 'w')		# will overwrite each time. 
 		f.write("[GlobalMetadata]\n")
 		
-		# now add image attributes as "Original Metadata"
-		for attr, value in d.get_attr_dict().items():
-			# print attr, value
-			f.write("%s=%s\n" % (attr, value))
-			if attr == "ptcl_source_image":
-				print "Add link to image named: ", value
+		# now add image attributes as "Original Metadata", sorted by key. 
+		attributes = d.get_attr_dict()
+		keyList = list(attributes.keys()) 	
+		keyList.sort()
+		for k in keyList:
+			#print k, attributes[k]
+			f.write("%s=%s\n" % (k, attributes[k]))
+			if k == "ptcl_source_image":
+				print "Add link to image named: ", attributes[k]
 		f.close()
 		
 		scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, image, fileName, "text/plain", None, namespace)
@@ -240,18 +259,22 @@ def emanToOmero(commandArgs):
 	project = gateway.saveAndReturnObject(project)
 	
 	print dbs
-	
+	# if we start at root, there won't be any db files here. 
 	for db in dbs:
 		infile = dbpath + db
 		datasetName = db
 		uploadBdbAsDataset(infile, datasetName, project)
 		
-	print path
+	# ignore directories that don't have interesting images in 
+	utilDirs = ["e2boxercache", "EMAN2DB"]
+	# process directories in root dir. 
+	imageList = []		# put any image names here
 	if os.path.isdir(path):
 		for f in os.listdir(path):
 			fullpath = path + f
-			if f != "EMAN2DB" and os.path.isdir(fullpath):
-				print fullpath
+			print fullpath
+			# process folders in root dir:
+			if f not in utilDirs and os.path.isdir(fullpath):	# e.g. 'particles' folder
 				dbpath = fullpath
 				if dbpath.lower()[:4]!="bdb:" : dbpath="bdb:"+dbpath
 				if '#' in dbpath :
@@ -263,13 +286,24 @@ def emanToOmero(commandArgs):
 					if not '#' in dbpath and dbpath[-1]!='/' : dbpath+='#'			
 					#if len(args)>1 : print "\n",path[:-1],":"
 					dbs=db_list_dicts(dbpath)
-					
-				print "    " , dbs
 
 				for db in dbs:
 					infile = dbpath + db
 					datasetName = db
 					uploadBdbAsDataset(infile, datasetName, project)
+			
+			# process files in root dir:
+			else:
+				i = EMData()
+				try:
+					i.read_image(fullpath, 0, True)	# header only 
+					print " is an image"
+					imageList.append(fullpath)
+				except:
+					print " not image"
+					
+	# finally, upload any root images				
+	uploadBdbAsDataset(imageList, "raw_data", project)
 	
 
 def readCommandArgs():

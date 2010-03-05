@@ -35,6 +35,8 @@ the regions within the ROIs, and saves them back to the server.
 
 import omero
 import omero.scripts as scripts
+import omero_api_Gateway_ice
+import omero_api_IRoi_ice
 from omero.rtypes import *
 import omero.util.script_utils as scriptUtil
 
@@ -125,7 +127,10 @@ def createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, plane2
 	rawPixelStore.setPixelsId(pixelsId, True)
 	theC, theT = (0,0)
 	for theZ, plane2D in enumerate(plane2Dlist):
-		scriptUtil.uploadPlane(rawPixelStore, plane2D, theZ, theC, theT)
+		if plane2D.size > 1000000:
+			scriptUtil.uploadPlaneByRow(rawPixelStore, plane2D, theZ, theC, theT)
+		else:
+			scriptUtil.uploadPlane(rawPixelStore, plane2D, theZ, theC, theT)
 
 	resetRenderingSettings(re, pixelsId, minValue, maxValue)
 	
