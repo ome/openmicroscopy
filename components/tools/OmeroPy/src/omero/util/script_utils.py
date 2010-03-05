@@ -449,6 +449,26 @@ def uploadPlane(rawPixelsStore, plane, z, c, t):
     convertedPlane = byteSwappedPlane.tostring();
     rawPixelsStore.setPlane(convertedPlane, z, c, t)
 
+
+def uploadPlaneByRow(rawPixelsStore, plane, z, c, t):
+    """
+    Upload the plane to the server one row at a time,
+    attching it to the current z,c,t of the already instantiated rawPixelStore.
+    @param rawPixelsStore The rawPixelStore which is already pointing to the data.
+    @param plane The data to upload
+    @param z The Z-Section of the plane.
+    @param c The C-Section of the plane.
+    @param t The T-Section of the plane.
+    """
+    byteSwappedPlane = plane.byteswap()
+    
+    rowCount, colCount = plane.shape
+    for y in range(rowCount):
+        row = byteSwappedPlane[y:y+1, :]		# slice y axis into rows
+        convertedRow = row.tostring()
+        rawPixelsStore.setRow(convertedRow, y, z, c, t)
+
+
 def getRenderingEngine(session, pixelsId):  
     """
     Create the renderingEngine for the pixelsId.
