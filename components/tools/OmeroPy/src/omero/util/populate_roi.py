@@ -54,20 +54,20 @@ def usage(error):
     """Prints usage so that we don't have to. :)"""
     cmd = sys.argv[0]
     print """%s
-Usage: %s [-h hostname] [-u username | -k session_key] <-p port> [plate_id]
+Usage: %s [-s hostname] [-u username | -k session_key] <-p port> [plate_id]
 Runs measurement population code for a given plate.
 
 Options:
+  -s    OMERO hostname to use
+  -p    OMERO port to use [defaults to 4063]
   -u    OMERO username to use
   -k    OMERO session key to use
-  -h    OMERO hostname to use
-  -p    OMERO port to use [defaults to 4063]
   -m    Measurement index to populate
   -i    Dump measurement information and exit (no population)
   -d    Print debug statements
 
 Examples:
-  %s -h localhost -p 4063 -u bob 27
+  %s -s localhost -p 4063 -u bob 27
 
 Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % (error, cmd, cmd)
     sys.exit(2)
@@ -1124,7 +1124,7 @@ if __name__ == "__main__":
     for option, argument in options:
         if option == "-u":
             username = argument
-        if option == "-h":
+        if option == "-s":
             hostname = argument
         if option == "-p":
             port = int(argument)
