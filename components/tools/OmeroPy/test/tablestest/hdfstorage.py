@@ -100,6 +100,21 @@ class TestHdfStorage(TestCase):
         self.append(hdf, {"a":1,"b":2,"c":3})
         hdf.cleanup()
 
+    def testModifyRow(self):
+        hdf = omero.tables.HdfStorage(self.hdfpath())
+        self.init(hdf, True)
+        self.append(hdf, {"a":1,"b":2,"c":3})
+        self.append(hdf, {"a":5,"b":6,"c":7})
+        data = hdf.readCoordinates(hdf._stamp, [0,1], self.current)
+        data.columns[0].values[0] = 100
+        data.columns[0].values[1] = 200
+        data.columns[1].values[0] = 300
+        data.columns[1].values[1] = 400
+        hdf.update(hdf._stamp, data)
+        data2 = hdf.readCoordinates(hdf._stamp, [0,1], self.current)
+        print data2
+        hdf.cleanup()
+
     def testSorting(self): # Probably shouldn't work
         hdf = omero.tables.HdfStorage(self.hdfpath())
         self.init(hdf, True)

@@ -179,6 +179,16 @@ module omero {
                 addData(ColumnArray cols)
                 throws omero::ServerError;
 
+            /**
+             * Allows the user to modify a Data instance passed back
+             * from a query method and have the values modified. It
+             * is critical that the [Data::lastModification] and the
+             * [Data::rowNumbers] fields are properly set. An exception
+             * will be thrown if the data has since been modified.
+             **/
+            void update(Data modifiedData)
+                throws omero::ServerError;
+
             //
             // Metadata =======================================================
             //

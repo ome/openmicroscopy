@@ -328,6 +328,14 @@ class HdfStorage(object):
     # Stamped methods
     #
 
+    @locked
+    def update(self, stamp, data):
+        if data:
+            for rn in data.rowNumbers:
+                for col in data.columns:
+                    getattr(self.__mea.cols, col.name)[rn] = col.values[rn]
+        self.__mea.flush()
+
     @stamped
     def getWhereList(self, stamp, condition, variables, unused, start, stop, step):
         self.__initcheck()
@@ -533,7 +541,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     def initialize(self, cols, current = None):
         self.storage.initialize(cols)
         if cols:
-            self.logger.info("Initialized %s with %s cols", self, slen(cols))
+            self.logger.info("Initialized %s with %s col(s)", self, slen(cols))
 
     @remoted
     @perf
@@ -546,8 +554,14 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         self.storage.append(cols)
         sz = 0
         if cols and cols[0] and cols[0].getsize():
-            self.logger.info("Added %s rows of data to %s", cols[0].getsize(), self)
+            self.logger.info("Added %s row(s) of data to %s", cols[0].getsize(), self)
 
+    @remoted
+    @perf
+    def update(self, data, current = None):
+        if data:
+            self.storage.update(data)
+            self.logger.info("Updated %s row(s) of data to %s", slen(data.rowNumbers), self)
 
 class TablesI(omero.grid.Tables, omero.util.Servant):
     """
