@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import ome.services.blitz.repo.InternalRepositoryI;
+//import ome.services.blitz.repo.InternalRepositoryI;
 import omero.api.ServiceFactoryPrx;
 import omero.grid.ClusterNodePrx;
 import omero.grid.ClusterNodePrxHelper;
@@ -22,6 +22,7 @@ import omero.grid.ProcessorPrx;
 import omero.grid.ProcessorPrxHelper;
 import omero.grid.TablesPrx;
 import omero.grid.TablesPrxHelper;
+import omero.grid._InternalRepositoryDisp;
 import omero.grid._ClusterNodeDisp;
 import omero.grid._ProcessorDisp;
 import omero.grid._TablesDisp;
@@ -321,7 +322,7 @@ public interface Registry {
             }
             try {
                 Ice.ObjectPrx[] candidates = null;
-                candidates = query.findAllObjectsByType(InternalRepositoryI
+                candidates = query.findAllObjectsByType(_InternalRepositoryDisp
                         .ice_staticId());
                 InternalRepositoryPrx[] repos = new InternalRepositoryPrx[candidates.length];
                 for (int i = 0; i < repos.length; i++) {

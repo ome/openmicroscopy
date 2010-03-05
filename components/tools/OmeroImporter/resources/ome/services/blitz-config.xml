@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2008 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<beans>
+
+  <bean id="legacyRepository" class="ome.services.blitz.repo.LegacyRepositoryI" destroy-method="close">
+      <constructor-arg index="0" ref="BlitzAdapter"/>
+      <constructor-arg index="1" ref="Registry"/>
+      <constructor-arg index="2" ref="executor"/>
+      <constructor-arg index="3" ref="uuid"/>
+      <constructor-arg index="4" value="${omero.data.dir}"/>
+  </bean>
+  <bean id="repositoryTakeoverRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <property name="targetObject" ref="legacyRepository" />
+    <property name="targetMethod" value="takeover" />
+    <property name="concurrent"   value="false"/>
+  </bean>
+  <bean id="repositoryTakeoverTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+    <description>
+    Runs periodically to give repositories a chance to take over for any dead
+    instance. Calling takeover during regular initialization would cause startup
+    to block. This is okay for separate repository (non-LegacyRepository) instances
+    which run standalone, but not for this bean.
+    </description>
+    <property name="jobDetail" ref="repositoryTakeoverRun" />
+    <property name="repeatInterval" value="60000" /><!-- millis -->
+  </bean>
+
+  <bean id="temporaryRepository" class="ome.services.blitz.repo.TemporaryRepositoryI" destroy-method="close">
+      <description>
+        Test repository which will make the ${java.io.tmpdir} available for testing.
+      </description>
+      <constructor-arg index="0" ref="BlitzAdapter"/>
+      <constructor-arg index="1" ref="Registry"/>
+      <constructor-arg index="2" ref="executor"/>
+      <constructor-arg index="3" ref="uuid"/>
+  </bean>
+  <bean id="temporaryTakeoverRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <property name="targetObject" ref="temporaryRepository" />
+    <property name="targetMethod" value="takeover" />
+    <property name="concurrent"   value="false"/>
+  </bean>
+  <bean id="temporaryTakeoverTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+    <property name="jobDetail" ref="temporaryTakeoverRun" />
+    <property name="repeatInterval" value="60000" /><!-- millis -->
+  </bean>
+
+</beans>
