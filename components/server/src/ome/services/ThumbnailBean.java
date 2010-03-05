@@ -1039,7 +1039,8 @@ public class ThumbnailBean extends AbstractLevel2Service
         if (settings == null && sec.isGraphCritical())
         {
             throw new ApiUsageException(
-                    "Unable to reset rendering settings in a read-only group.");
+                    "Unable to reset rendering settings in a read-only group " +
+                    "for Pixels set id:" + pixelsId);
         }
         _resetDefaults();
         iUpdate.flush();

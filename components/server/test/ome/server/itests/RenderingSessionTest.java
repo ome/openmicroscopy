@@ -12,6 +12,7 @@ import java.util.Map;
 
 import ome.api.IPixels;
 import ome.api.ThumbnailStore;
+import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.ReadOnlyAdminGroupSecurityViolation;
 import ome.conditions.ResourceError;
@@ -328,7 +329,8 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         tbRoot.getThumbnail(64, 64);
     }
 
-    @Test(groups = {"ticket:1801"})//, expectedExceptions = {ResourceError.class})
+    @Test(groups = {"ticket:1801"},
+          expectedExceptions = {ApiUsageException.class})
     public void testAdminViewsThumbnailsWithNoSettings() {
         loginNewUser();
         final ServiceFactory sf = this.factory;// new InternalServiceFactory();
@@ -337,7 +339,8 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
 
         loginRootKeepGroup();
         ThumbnailStore tbRoot = sf.createThumbnailService();
-        tbRoot.setPixelsId(pix.getId());
+        assertFalse(tbRoot.setPixelsId(pix.getId()));
+        tbRoot.resetDefaults();
     }
 
     @Test(groups = {"ticket:1434","ticket:1769","shoola:ticket:1157"})
