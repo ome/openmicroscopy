@@ -68,7 +68,6 @@ public class CommandLineImporter {
         this.reader = new OMEROWrapper(config);
         this.handler = new ErrorHandler(config);
         candidates = new ImportCandidates(reader, paths, handler);
-        this.reader.setMetadataCollected(true);
 
         if (paths == null || paths.length == 0 || getUsedFiles) {
 
@@ -187,11 +186,11 @@ public class CommandLineImporter {
                                         + "\n"
                                         + "  --debug[=0|1|2]\tTurn debug logging on (optional level)\n"
                                         + "  --report\tReport errors to the OME team\n"
-                                        + "  --upload\tUpload broken files and log file with report\n"
-                                        + "  --companion[=on|off]\tEnable|Disable the metadata companion file\n"                                        
+                                        + "  --upload\tUpload broken files with report\n"
+                                        + "  --logs\tUpload log file with report\n"
                                         + "  --email=...\tEmail for reported errors\n "
                                         + "\n"
-                                        + "usage ex: %s -s localhost -u bart -w simpson -d 50 foo.tiff\n"
+                                        + "ex. %s -s localhost -u bart -w simpson -d 50 foo.tiff\n"
                                         + "\n"
                                         + "Report bugs to <ome-users@openmicroscopy.org.uk>",
                                 APP_NAME, APP_NAME, APP_NAME));
@@ -220,21 +219,20 @@ public class CommandLineImporter {
         ImportConfig config = new ImportConfig();
 
         // Defaults
-        config.cliEmail.set("");
+        config.email.set("");
         config.sendFiles.set(false);
         config.sendLogFile.set(false);
         config.sendReport.set(false);
         config.contOnError.set(false);
         config.debug.set(false);
-        config.companionFile.set(true);
 
         LongOpt debug = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 1);
         LongOpt report = new LongOpt("report", LongOpt.NO_ARGUMENT, null, 2);
         LongOpt upload = new LongOpt("upload", LongOpt.NO_ARGUMENT, null, 3);
-        LongOpt companion = new LongOpt("companion", LongOpt.OPTIONAL_ARGUMENT, null, 4);
+        LongOpt logs = new LongOpt("logs", LongOpt.NO_ARGUMENT, null, 4);
         LongOpt email = new LongOpt("email", LongOpt.REQUIRED_ARGUMENT, null, 5);
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
-                new LongOpt[] { debug, report, upload, companion, email });
+                new LongOpt[] { debug, report, upload, email });
         int a;
 
         boolean getUsedFiles = false;
@@ -258,23 +256,14 @@ public class CommandLineImporter {
             }
             case 3: {
                 config.sendFiles.set(true);
-                config.sendLogFile.set(true);
                 break;
             }
             case 4: {
-                String s = g.getOptarg();
-                if (s.toLowerCase().equals("on"))
-                {
-                    config.companionFile.set(true);
-                }
-                if (s.toLowerCase().equals("off"))
-                {
-                    config.companionFile.set(false);
-                }
+                config.sendLogFile.set(true);
                 break;
             }
             case 5: {
-                config.cliEmail.set(g.getOptarg());
+                config.email.set(g.getOptarg());
                 break;
             }
             case 's': {
