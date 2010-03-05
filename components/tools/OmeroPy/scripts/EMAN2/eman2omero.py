@@ -29,6 +29,14 @@ The way you specify an image inside one of these databases is any of:
 For a database in the local directory: bdb:dbname
 For a database in another directory referenced to the current one: bdb:../local/path#dbname
 For a database at an absolute path: bdb:/absolute/path/to/directory#dbname
+
+Example usage:
+wjm:EMAN2 will$ python eman2omero.py -h localhost -u root -p omero -b /Users/will/Documents/EM-data/EMAN2-tutorial/eman_demo/raw_data/
+This will upload raw images (not in bdb) that are in the /raw_data/ folder, 
+and will also upload images from bdb that are in subfolders of /raw_data/, e.g. /raw_data/particles#1160_ptcls
+
+wjm:EMAN2 will$ python eman2omero.py -h localhost -u root -p omero -b raw_data/particles#1160_ptcls
+Uploads the images in the 1160_ptcls bdb to a dataset called "1160_ptcls"
 	
 @author  Will Moore &nbsp;&nbsp;&nbsp;&nbsp;
 <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -51,6 +59,7 @@ from omero.rtypes import *
 import omero_api_Gateway_ice	# see http://tinyurl.com/icebuserror
 import omero.util.script_utils as scriptUtil
 
+# declare the global services here, so we don't have to pass them around so much
 gateway = None
 queryService= None
 pixelsService= None
@@ -59,7 +68,17 @@ re= None
 updateService= None
 rawFileStore= None
 
+
 def resetRenderingSettings(re, pixelsId, minValue, maxValue):
+	"""
+	This method is also in 'imagesFromRois.py' - maybe move to script_utils?
+	Simply resests the rendering settings for a pixel set, according to the min and max values
+	
+	@param re		The OMERO rendering engine
+	@param pixelsId		The Pixels ID
+	@param minValue		Minimum value of rendering window
+	@param maxValue		Maximum value of rendering window
+	"""
 	
 	re.lookupPixels(pixelsId)
 	if not re.lookupRenderingDef(pixelsId):
@@ -77,6 +96,21 @@ def resetRenderingSettings(re, pixelsId, minValue, maxValue):
 
 
 def createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, plane2Dlist, imageName, description, dataset=None):
+	"""
+	This method is also in 'imagesFromRois.py' - maybe move to script_utils?
+	Creates a new single-channel image from the list of 2D numpy arrays in plane2Dlist with each plane2D becoming a Z-section.
+	
+	@param pixelsService		The OMERO pixelsService
+	@param rawPixelStore		The OMERO rawPixelsStore
+	@param re					The OMERO renderingEngine
+	@param pixelsType			The pixelsType object 	omero::model::PixelsType
+	@param gateway				The OMERO gateway service
+	@param plane2Dlist			A list of numpy 2D arrays, corresponding to Z-planes of new image. 
+	@param imageName			Name of new image
+	@param description			Description for the new image
+	@param dataset				If specified, put the image in this dataset. omero.model.Dataset object
+	
+	"""
 	
 	# all planes in plane2Dlist should be same shape. Render according to first plane. 
 	shape = plane2Dlist[0].shape
@@ -120,13 +154,14 @@ def createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, plane2
 def uploadBdbAsDataset(infile, datasetName, project = None):
 	
 	"""
-	@param infile 			path to bdb. Either absolute, or from where we are running
+	@param infile 			path to bdb (absolute OR from where we are running) OR this can be a list of image paths. 
 	@param datasetName		name for new Dataset to put images in
 	@param project			if specified, put the dataset into this project (omero.model.ProjectI)
 	
 	"""
 
 	imageList = None
+	nimg = 0
 	try:
 		nimg = EMUtil.get_image_count(infile)	# eg images in bdb 'folder'
 		print "Found %d images to import from: %s to new dataset: %s" % (nimg, infile, datasetName)
@@ -173,7 +208,7 @@ def uploadBdbAsDataset(infile, datasetName, project = None):
 	
 	# loop through all the images. 
 	description = "Imported from EMAN2 bdb: %s" % infile
-	for i in range(2):
+	for i in range(nimg):
 		newImageName = "%d" % i
 		if imageList:
 			print "Importing image: %s" % imageList[i]
