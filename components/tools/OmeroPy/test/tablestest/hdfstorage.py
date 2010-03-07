@@ -112,7 +112,14 @@ class TestHdfStorage(TestCase):
         data.columns[1].values[1] = 400
         hdf.update(hdf._stamp, data)
         data2 = hdf.readCoordinates(hdf._stamp, [0,1], self.current)
-        print data2
+        hdf.cleanup()
+
+    def testReadTicket1951(self):
+        hdf = omero.tables.HdfStorage(self.hdfpath())
+        self.init(hdf, True)
+        self.append(hdf, {"a":1,"b":2,"c":3})
+        data = hdf.readCoordinates(hdf._stamp, [0], self.current)
+        data2 = hdf.read(hdf._stamp, [0,1,2], 0, 1, self.current)
         hdf.cleanup()
 
     def testSorting(self): # Probably shouldn't work
