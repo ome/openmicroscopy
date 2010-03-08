@@ -671,7 +671,7 @@ def runAsScript():
 	scripts.List("splitIndexes", optional=True).inout(),	# a list of the channels in the split view
 	scripts.Bool("splitPanelsGrey").inout(),# if true, all split panels are greyscale
 	scripts.Map("mergedColours").inout(),	# a map of index:int colours for each merged channel
-	scripts.Bool("mergedNames").inout(), 	# if true, label the merged panel with channel names. Otherwise label with "Merged"
+	scripts.Bool("mergedNames", optional=True).inout(), 	# if true, label the merged panel with channel names. Otherwise label with "Merged"
 	scripts.Long("width", optional=True).inout(),		# the max width of each image panel 
 	scripts.Long("height", optional=True).inout(),		# the max height of each image panel
 	scripts.String("imageLabels").inout(),	# label with IMAGENAME or DATASETS or TAGS

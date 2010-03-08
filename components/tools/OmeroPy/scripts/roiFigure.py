@@ -236,8 +236,8 @@ def getROImovieView	(session, pixels, zStart, zEnd, tStart, tEnd, splitIndexes, 
 	# return the roi splitview canvas, as well as the full merged image
 	return (canvas, fullFirstFrame, textHeight + spacer)
 	
-def getROIsplitView	(session, pixels, zStart, zEnd, splitIndexes, channelNames, colourChannels, mergedIndexes, 
-			mergedColours, roiX, roiY, roiWidth, roiHeight, roiZoom, spacer = 12, algorithm = None, stepping = 1, fontsize=24):
+def getROIsplitView	(session, pixels, zStart, zEnd, splitIndexes, channelNames, mergedNames, colourChannels, mergedIndexes, mergedColours, 
+			roiX, roiY, roiWidth, roiHeight, roiZoom, spacer = 12, algorithm = None, stepping = 1, fontsize=24, showTopLabels=True):
 	""" This takes a ROI rectangle from an image and makes a split view canvas of the region in the ROI, zoomed 
 		by a defined factor. 
 	"""
@@ -348,17 +348,23 @@ def getROIsplitView	(session, pixels, zStart, zEnd, splitIndexes, channelNames, 
 		log(" WARNING channel mismatch: The current image has fewer channels than the primary image.")
 			
 	# now assemble the roi split-view canvas
-	imageCount = len(renderedImages) + 1 	# extra image for merged image
 	font = imgUtil.getFont(fontsize)
 	textHeight = font.getsize("Textq")[1]
+	topSpacer = 0
+	if showTopLabels: 
+		if mergedNames:
+			topSpacer = (textHeight * len(mergedIndexes)) + spacer
+		else:
+			topSpacer = textHeight + spacer
+	imageCount = len(renderedImages) + 1 	# extra image for merged image
 	canvasWidth = ((panelWidth + spacer) * imageCount) - spacer	# no spaces around panels
-	canvasHeight = renderedImages[0].size[1] + textHeight + spacer
+	canvasHeight = renderedImages[0].size[1] + topSpacer
 	size = (canvasWidth, canvasHeight)
 	canvas = Image.new(mode, size, white)		# create a canvas of appropriate width, height
 	
 	px = 0
-	textY = spacer/2
-	panelY = textHeight + spacer
+	textY = topSpacer - textHeight - spacer/2
+	panelY = topSpacer
 	# paste the split images in, with channel labels
 	draw = ImageDraw.Draw(canvas)
 	for i, index in enumerate(splitIndexes):
@@ -369,19 +375,32 @@ def getROIsplitView	(session, pixels, zStart, zEnd, splitIndexes, channelNames, 
 		if index in mergedIndexes:
 			if not colourChannels:
 				rgb = tuple(mergedColours[index])
-				print label, rgb
 				if rgb == (255,255,255,255):	# if white (unreadable), needs to be black! 
 					rgb = (0,0,0)
-		draw.text((px+indent, textY), label, font=font, fill=(0,0,0))
+		if showTopLabels: draw.text((px+indent, textY), label, font=font, fill=(0,0,0))
 		imgUtil.pasteImage(renderedImages[i], canvas, px, panelY)
 		px = px + panelWidth + spacer
 	# and the merged image
-	indent = (panelWidth - (font.getsize("Merged")[0])) / 2
-	draw.text((px+indent, textY), "Merged", font=font, fill=(0,0,0))
+	if showTopLabels:
+		#indent = (panelWidth - (font.getsize("Merged")[0])) / 2
+		#draw.text((px+indent, textY), "Merged", font=font, fill=(0,0,0))
+		if (mergedNames):
+			for index in mergedIndexes:
+				rgb = tuple(mergedColours[index])
+				name = channelNames[index]
+				combTextWidth = font.getsize(name)[0]
+				inset = int((panelWidth - combTextWidth) / 2)
+				draw.text((px + inset, textY), name, font=font, fill=rgb)
+				textY = textY - textHeight  
+		else:
+			combTextWidth = font.getsize("Merged")[0]
+			inset = int((panelWidth - combTextWidth) / 2)
+			px = px + inset
+			draw.text((px, textY), "Merged", font=font, fill=(0,0,0))
 	imgUtil.pasteImage(roiMergedImage, canvas, px, panelY)
 	
 	# return the roi splitview canvas, as well as the full merged image
-	return (canvas, fullMergedImage, textHeight + spacer)
+	return (canvas, fullMergedImage, panelY)
 
 def drawRectangle(image, roiX, roiY, roiX2, roiY2, colour, stroke=1):
 	roiDraw = ImageDraw.Draw(image)
@@ -445,7 +464,7 @@ def getVerticalLabels(labels, font, textGap):
 	return textCanvas.rotate(90)
 	
 	
-def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, colourChannels, mergedIndexes, 
+def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, mergedNames, colourChannels, mergedIndexes, 
 		mergedColours, width, height, imageLabels, spacer = 12, algorithm = None, stepping = 1, scalebar = None, 
 		overlayColour=(255,255,255), roiZoom=None):
 	""" This method makes a figure of a number of images, arranged in rows with each row being the split-view
@@ -508,9 +527,15 @@ def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, colour
 	totalcanvasHeight = 0
 	mergedImages = []
 	roiSplitPanes = []
+	topSpacers = [] 		# space for labels above each row
+	
+	showLabelsAboveEveryRow = False
 	
 	for row, pixelsId in enumerate(pixelIds):
 		log("Rendering row %d" % (row))
+		
+		if showLabelsAboveEveryRow:	showTopLabels = True
+		else: showTopLabels = (row == 0)	# only show top labels for first row
 		
 		# need to get the roi dimensions from the server
 		imageId = imageIds[row]
@@ -539,7 +564,8 @@ def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, colour
 		# get the split pane and full merged image
 		if tStart == tEnd:
 			roiSplitPane, fullMergedImage, topSpacer = getROIsplitView	(session, pixels, zStart, zEnd, splitIndexes, channelNames, 
-				colourChannels, mergedIndexes, mergedColours, roiX, roiY, roiWidth, roiHeight, roiZoom, spacer, algorithm, stepping, fontsize)
+				mergedNames, colourChannels, mergedIndexes, mergedColours, roiX, roiY, roiWidth, roiHeight, roiZoom, spacer, algorithm, 
+				stepping, fontsize, showTopLabels)
 		else:
 			tStep = 1
 			roiSplitPane, fullMergedImage, topSpacer = getROImovieView	(session, pixels, zStart, zEnd, tStart, tEnd, splitIndexes, channelNames, 
@@ -569,6 +595,7 @@ def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, colour
 		
 		mergedImages.append(mergedImage)
 		roiSplitPanes.append(roiSplitPane)
+		topSpacers.append(topSpacer)
 	
 		
 	# make a figure to combine all split-view rows
@@ -581,11 +608,11 @@ def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, colour
 	for row, image in enumerate(mergedImages):
 		labelCanvas = getVerticalLabels(imageLabels[row], font, textGap)
 		vOffset = (image.size[1] - labelCanvas.size[1]) / 2
-		imgUtil.pasteImage(labelCanvas, figureCanvas, spacer/2, rowY+topSpacer+ vOffset)
-		imgUtil.pasteImage(image, figureCanvas, leftTextWidth, rowY+topSpacer)
+		imgUtil.pasteImage(labelCanvas, figureCanvas, spacer/2, rowY+topSpacers[row]+ vOffset)
+		imgUtil.pasteImage(image, figureCanvas, leftTextWidth, rowY+topSpacers[row])
 		x = leftTextWidth + width + spacer
 		imgUtil.pasteImage(roiSplitPanes[row], figureCanvas, x, rowY)
-		rowY = rowY + max(image.size[1]+topSpacer, roiSplitPanes[row].size[1])+ spacer
+		rowY = rowY + max(image.size[1]+topSpacers[row], roiSplitPanes[row].size[1])+ spacer
 
 	return figureCanvas
 			
@@ -710,6 +737,8 @@ def roiFigure(session, commandArgs):
 			rgba = imgUtil.RGBIntToRGBA(rgb)
 			mergedColours[int(c)] = rgba
 			mergedIndexes.append(int(c))
+		mergedIndexes.sort()
+		mergedIndexes.reverse()
 	else:
 		mergedIndexes = range(sizeC)[1:]
 		for c in mergedIndexes:	# make up some colours 
@@ -720,6 +749,11 @@ def roiFigure(session, commandArgs):
 			if c%3 == 2:
 				mergedColours[c] = (255,0,0,255)	# red
 	
+	
+	mergedNames = False
+	if "mergedNames" in commandArgs:
+		mergedNames = commandArgs["mergedNames"]
+		
 	# Make channel-names map. If argument wasn't specified, name by index
 	channelNames = {}
 	if "channelNames" in commandArgs:
@@ -781,7 +815,7 @@ def roiFigure(session, commandArgs):
 			
 	spacer = (width/50) + 2
 	
-	fig = getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, colourChannels, 
+	fig = getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, mergedNames, colourChannels, 
 			mergedIndexes, mergedColours, width, height, imageLabels, spacer, algorithm, stepping, scalebar, overlayColour, roiZoom)
 													
 	#fig.show()		# bug-fixing only
@@ -822,6 +856,7 @@ def runAsScript():
 	#scripts.Long("zStart").inout(),			# projection range
 	#scripts.Long("zEnd").inout(),			# projection range
 	scripts.Map("channelNames").inout(),	# map of index: channel name for All channels
+	scripts.Bool("mergedNames", optional=True).inout(), 	# if true, label the merged panel with channel names. Otherwise label with "Merged"
 	scripts.List("splitIndexes", optional=True).inout(),	# a list of the channels in the split view
 	scripts.Bool("splitPanelsGrey").inout(),# if true, all split panels are greyscale
 	scripts.Map("mergedColours").inout(),	# a map of index:int colours for each merged channel
