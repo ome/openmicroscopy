@@ -53,6 +53,9 @@ public class FileData
 	/** The file representing the original file. */
 	private File file;
 	
+	/** The description to associated to the object. */
+	private String description;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -90,6 +93,23 @@ public class FileData
 			
 		//if (!v.equals(path)) return;
 		setValue(object);
+	}
+	
+	/**
+	 * Returns the description of the file.
+	 * 
+	 * @return See above.
+	 */
+	public String getDescription() { return description; }
+	
+	/**
+	 * Sets the description.
+	 * 
+	 * @param description The value to set.
+	 */
+	public void setDescription(String description)
+	{ 
+		this.description = description;
 	}
 	
 	/**

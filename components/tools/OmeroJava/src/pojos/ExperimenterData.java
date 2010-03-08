@@ -274,4 +274,24 @@ public class ExperimenterData extends DataObject {
         setDirty(true);
         asExperimenter().setMiddleName(rstring(middleName));
     }
+    
+    /**
+     * Returns <code>true</code> if the experimenter is active, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isActive()
+    {
+    	List<GroupData> groups = getGroups();
+		if (groups == null || groups.size() == 0) return false;
+		Iterator<GroupData> i = groups.iterator();
+		GroupData g;
+		while (i.hasNext()) {
+			g = i.next();
+			if (GroupData.USER.equals(g.getName())) return true;
+		}
+		return false;
+    }
+    
 }
