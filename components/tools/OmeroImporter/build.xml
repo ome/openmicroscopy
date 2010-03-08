@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="OmeroImporter" default="install" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="OmeroImporter" default="tools-dist" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -142,7 +142,9 @@
         <ivy:retrieve conf="client" pattern="${target.dir}/client-libs/[module]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.${ant.project.name}"/>
     </target>
 
-    <target name="tools-dist" depends="tools-build,release-zip" description="Copied artifacts to tools/target" unless="skip.compile"/>
+    <target name="tools-dist" depends="tools-build,release-zip" description="Copied artifacts to tools/target" unless="skip.compile">
+        <unjar src="${target.dir}/${ivy.module}.jar" dest="${tools.classes}"/>
+    </target>
 
     <target name="tools-clean" depends="clean"/>
 
