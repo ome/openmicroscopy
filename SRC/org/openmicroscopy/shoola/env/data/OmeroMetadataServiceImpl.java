@@ -178,7 +178,7 @@ class OmeroMetadataServiceImpl
 	 * 
 	 * @param data The data to save
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMEDS service.
 	 * @throws DSAccessException
 	 */
@@ -195,7 +195,7 @@ class OmeroMetadataServiceImpl
 	 * 
 	 * @param data The data to save
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMEDS service.
 	 * @throws DSAccessException
 	 */

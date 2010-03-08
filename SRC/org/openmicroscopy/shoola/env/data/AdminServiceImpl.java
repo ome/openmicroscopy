@@ -199,6 +199,9 @@ class AdminServiceImpl
 		//ADD control
 		if (exp == null) 
 			throw new DSAccessException("No object to update.");
+		ExperimenterData currentUser = (ExperimenterData)
+			context.lookup(LookupNames.CURRENT_USER_DETAILS);
+		if (exp.getId() != currentUser.getId()) return exp;
 		UserCredentials uc = (UserCredentials) 
 			context.lookup(LookupNames.USER_CREDENTIALS);
 		gateway.updateExperimenter(exp.asExperimenter());
@@ -206,8 +209,7 @@ class AdminServiceImpl
 		if (group != null && exp.getDefaultGroup().getId() != group.getId()) {
 			gateway.changeCurrentGroup(exp, group.getId());
 		}
-		ExperimenterData currentUser = (ExperimenterData)
-			context.lookup(LookupNames.CURRENT_USER_DETAILS);
+		
 		
 		data = gateway.getUserDetails(uc.getUserName());
 		if (currentUser.getId() != exp.getId()) 
@@ -436,6 +438,8 @@ class AdminServiceImpl
 		List<Experimenter> administratorsToAdd = new ArrayList<Experimenter>();
 		List<Experimenter> 
 		administratorsToRemove = new ArrayList<Experimenter>();
+		List<ExperimenterData> toActivate = new ArrayList<ExperimenterData>();
+		List<ExperimenterData> toDeactivate = new ArrayList<ExperimenterData>();
 		
 		ExperimenterData exp;
 		UserCredentials uc;
@@ -457,6 +461,12 @@ class AdminServiceImpl
 						administratorsToAdd.add(exp.asExperimenter());
 					else administratorsToRemove.add(exp.asExperimenter());
 				}
+				b = uc.isActive();
+				if (b != null) {
+					if (b.booleanValue()) 
+						toActivate.add(exp);
+					else toDeactivate.add(exp);
+				}
 				//Check owner
 			} catch (Exception e) {
 				l.add(exp);
@@ -469,7 +479,12 @@ class AdminServiceImpl
 				gateway.handleGroupOwners(false, group.asGroup(), 
 						ownersToRemove);
 		}
-		
+		if (toActivate.size() > 0)
+			gateway.modifyExperimentersRoles(true, toActivate, 
+					OMEROGateway.USER);
+		if (toDeactivate.size() > 0)
+			gateway.modifyExperimentersRoles(false, toDeactivate, 
+					OMEROGateway.USER);
 		return l;
 	}
 

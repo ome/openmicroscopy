@@ -82,11 +82,14 @@ public class UserCredentials
     /** The selected group or <code>-1</code>. */
     private long 	group;
     
-	/** Indicates that the experimenters to handle are administrator. */
+	/** Indicates that the experimenter to handle is an administrator. */
 	private Boolean administrator;
 	
 	/** Indicates if the experimenter is the owner of the group. */
 	private Boolean owner;
+	
+	/** Indicates to active or not the user. */ 
+	private Boolean active;
 	
     /** 
      * Controls if the passed speed index is supported.
@@ -257,7 +260,7 @@ public class UserCredentials
 	 * Sets to <code>true</code> if the experimenter is the owner of a group,
 	 * <code>false</code> otherwise.
 	 * 
-	 * @param administrator The value to set.
+	 * @param owner The value to set.
 	 */
 	public void setOwner(Boolean owner)
 	{
@@ -272,6 +275,25 @@ public class UserCredentials
 	 */
 	public Boolean isOwner() { return owner; }
 
+	/**
+	 * Sets to <code>true</code> if the experimenter has to be activated,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param administrator The value to set.
+	 */
+	public void setActive(Boolean active)
+	{
+		this.active = active;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the experimenter has to be activated,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public Boolean isActive() { return active; }
+	
     /**
      * Formats user name and password.
      * Each character of the password is replaced by a star.

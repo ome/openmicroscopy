@@ -72,6 +72,7 @@ import org.openmicroscopy.shoola.agents.metadata.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -593,7 +594,8 @@ class EditorModel
 	{
 		if (g == null) return false;
 		String name = g.getName();
-		if ("user".equals(name) || "default".equals(name)) return false;
+		if (AdminService.USER_GROUP.equals(name) || 
+			AdminService.DEFAULT_GROUP.equals(name)) return false;
 		return true;
 	}
 	
@@ -2210,6 +2212,27 @@ class EditorModel
 	 * @return See above.
 	 */
 	long getUserID() { return parent.getUserID(); }
+	
+	/**
+	 * Returns <code>true</code> if the experimenter is active, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param exp The experimenter to handle.
+	 * @return See above.
+	 */
+	boolean isExperimenterActive(ExperimenterData exp)
+	{
+		if (exp == null) return false;
+		List<GroupData> groups = exp.getGroups();
+		if (groups == null || groups.size() == 0) return false;
+		Iterator<GroupData> i = groups.iterator();
+		GroupData g;
+		while (i.hasNext()) {
+			g = i.next();
+			if (AdminService.USER_GROUP.equals(g.getName())) return true;
+		}
+		return false;
+	}
 	
 }
 	

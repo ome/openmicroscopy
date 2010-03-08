@@ -24,19 +24,17 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
+import java.util.Iterator;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.Iterator;
-import java.util.List;
-
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-
 import pojos.ExperimenterData;
 
 /** 

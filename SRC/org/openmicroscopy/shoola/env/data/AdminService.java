@@ -52,11 +52,18 @@ import pojos.GroupData;
 public interface AdminService
 {
 
+	/** Identifies the <code>User</code> group. */
+	public static final String	USER_GROUP = OMEROGateway.USER;
+	
+	/** Identifies the <code>Default</code> group. */
+	public static final String	DEFAULT_GROUP = OMEROGateway.USER;
+	
+	
 	/** Identifies the used space on the file system. */
-	public static final int USED = 100;
+	public static final int 	USED = 100;
 
 	/** Identifies the free space on the file system. */
-	public static final int FREE = 101;
+	public static final int 	FREE = 101;
 	
 	/**
 	 * Changes the password of the user currently logged in.

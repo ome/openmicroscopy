@@ -48,6 +48,7 @@ import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
+import omero.model.GroupExperimenterMapI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
@@ -236,6 +237,18 @@ public class ModelMapper
         		return null;
         		//throw new IllegalArgumentException("Parent not valid.");
         	return linkAnnotation(parent, (TagAnnotation) child);
+        } else if (parent instanceof ExperimenterGroup) {
+        	 if (!(child instanceof Experimenter))
+                 throw new IllegalArgumentException("Child not valid.");
+        	 ExperimenterGroup unloadedGroup = 
+        		 new ExperimenterGroupI(parent.getId().getValue(), 
+             		false);
+        	 Experimenter unloadedExp = 
+        		 new ExperimenterI(child.getId().getValue(), false);
+             
+             GroupExperimenterMapI l = new GroupExperimenterMapI();
+             l.link(unloadedGroup, unloadedExp);
+             return l;
         }
         return null;
     }

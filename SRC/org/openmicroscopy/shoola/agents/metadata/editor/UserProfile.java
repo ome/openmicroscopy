@@ -275,12 +275,13 @@ class UserProfile
 			owner = true;
 			adminBox.setVisible(true);
 			activeBox.setVisible(true);
-			activeBox.setSelected(true);
 			adminBox.addChangeListener(this);
+			active = model.isExperimenterActive(user);
+			activeBox.setSelected(active);
 			activeBox.addChangeListener(this);
-			active = true;
 			admin = false;
 		}
+		
 		ownerBox.setEnabled(owner);
 		ownerBox.addChangeListener(this);
 		/*
@@ -362,8 +363,6 @@ class UserProfile
         area.setEnabled(false);
         area.setEditable(false);
         content.add(area, c);  
-		
-		
         while (i.hasNext()) {
             ++c.gridy;
             c.gridx = 0;
@@ -610,18 +609,23 @@ class UserProfile
 		String value;
 		JTextField field;
 		String v;
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			key = (String) entry.getKey();
-			field = items.get(key);
-			v = field.getText();
-			if (v != null) {
-				v = v.trim();
-				value = (String) entry.getValue();
-				if (value != null && !v.equals(value))
-					return true;
+		if (items.size() > 0) {
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				key = (String) entry.getKey();
+				field = items.get(key);
+				if (field != null) {
+					v = field.getText();
+					if (v != null) {
+						v = v.trim();
+						value = (String) entry.getValue();
+						if (value != null && !v.equals(value))
+							return true;
+					}
+				}
 			}
 		}
+		
 		Boolean b = ownerBox.isSelected();
 		if (b.compareTo(groupOwner) != 0) return true;
 		if (adminBox.isVisible()) {
@@ -696,6 +700,13 @@ class UserProfile
         		a = true;
         		uc.setAdministrator(b);
         	}
+    	}
+    	if (activeBox.isVisible()) {
+    		b = activeBox.isSelected();
+    		if (b.compareTo(active) != 0) {
+    			a = true;
+    			uc.setActive(b);
+    		}
     	}
     	if (a) {
     		Map<ExperimenterData, UserCredentials> m = 

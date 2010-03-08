@@ -256,10 +256,13 @@ class OMEROGateway
 	static final String				SYSTEM = "system";
 	
 	/** Identifies the <code>User</code> group. */
-	private static final String				USER = "user";
+	static final String				USER = "user";
 	
 	/** Identifies the <code>Guest</code> group. */
-	private static final String				GUEST = "guest";
+	static final String				GUEST = "guest";
+	
+	/** Identifies the <code>User</code> group. */
+	static final String				DEFAULT = "default";
 	
 	static {
 		SUPPORTED_SPECIAL_CHAR = new ArrayList<Character>();
@@ -3400,7 +3403,9 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			getAdminService().updateSelf(exp);
+			//if currently logged in, use update self
+			getAdminService().updateExperimenter(exp);
+			//getAdminService().updateSelf(exp);
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the user. ");
 		}
@@ -3435,13 +3440,86 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Adds or removes the passed experimenters from the specified system group.
+	 * 
+	 * @param toAdd Pass <code>true</code> to add the experimenters as owners,
+	 * 				<code>false</code> otherwise.
+	 * @param experimenters The experimenters to add or remove.
+	 * @param systemGroup	The roles to handle.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	void modifyExperimentersRoles(boolean toAdd, 
+			List<ExperimenterData> experimenters, String systemGroup)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			IAdminPrx svc = getAdminService();
+			if (toAdd) {
+				Iterator<ExperimenterData> i = experimenters.iterator();
+				ExperimenterData exp;
+				List<GroupData> list;
+				Iterator<GroupData> j;
+				GroupExperimenterMap gMap;
+				GroupData group;
+				List<ExperimenterGroup> groups;
+				boolean added = false;
+				ExperimenterGroup gs = svc.lookupGroup(systemGroup);
+				while (i.hasNext()) {
+					exp = i.next();
+					list = exp.getGroups();
+					
+					j = list.iterator();
+					while (j.hasNext()) {
+						group = j.next();
+						if (group.getName().equals(systemGroup))
+							added = true;
+						
+					}
+					if (!added) {
+						groups = new ArrayList<ExperimenterGroup>();
+						groups.add(gs);
+						svc.addGroups(exp.asExperimenter(), groups);
+					}		
+				}
+			} else {
+				Iterator<ExperimenterData> i = experimenters.iterator();
+				ExperimenterData exp;
+				List<GroupData> list;
+				Iterator<GroupData> j;
+				GroupExperimenterMap gMap;
+				GroupData group;
+				List<ExperimenterGroup> groups;
+				while (i.hasNext()) {
+					exp = i.next();
+					list = exp.getGroups();
+					groups = new ArrayList<ExperimenterGroup>();
+					j = list.iterator();
+					while (j.hasNext()) {
+						group = j.next();
+						if (group.getName().equals(systemGroup)) {
+							groups.add(group.asGroup());
+						}
+					}
+					if (groups.size() > 0)
+						svc.removeGroups(exp.asExperimenter(), groups);
+				}
+			}
+		} catch (Throwable t) {
+			handleException(t, "Cannot modify the roles of the experimenters.");
+		}
+	}
+	
+	/**
 	 * Adds the passed experimenters as owner of the group if the flag is
 	 * <code>true</code>, removes them otherwise.
 	 * 
 	 * @param toAdd Pass <code>true</code> to add the experimenters as owners,
 	 * 				<code>false</code> otherwise.
 	 * @param group	The group to handle.
-	 * @param experimenters The experimenters to add.
+	 * @param experimenters The experimenters to add or remove.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
@@ -6313,10 +6391,7 @@ class OMEROGateway
 		                + "left outer join fetch u.groupExperimenterMap m2 "
 		                + "left outer join fetch m2.parent" +
 		                		" where g.id = :id", p);
-				//groups = svc.lookupGroups();
 			}
-			
-			
 			ExperimenterGroup group;
 			//GroupData pojoGroup;
 			Iterator<ExperimenterGroup> i = groups.iterator();

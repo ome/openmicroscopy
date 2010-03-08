@@ -182,7 +182,7 @@ public class CreateTopContainerAction
 			case EXPERIMENTER:
 				name = NAME_EXPERIMENTER;
 				putValue(Action.SMALL_ICON, 
-						icons.getIcon(IconManager.PERSONAL));
+						icons.getIcon(IconManager.OWNER));
 				putValue(Action.SHORT_DESCRIPTION, 
 		                UIUtilities.formatToolTipText(
 		                		DESCRIPTION_EXPERIMENTER));
