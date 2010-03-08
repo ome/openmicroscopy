@@ -152,16 +152,17 @@ def formatTime(seconds, timeUnits):
 	else:
 		return "%.2f sec" % seconds
 	
-def getTimeLabels(queryService, pixelsId, tIndexes, sizeT, timeUnits):
+def getTimeLabels(queryService, pixelsId, tIndexes, sizeT, timeUnits, showRoiDuration = False):
 	"""
 	Returns a list of time labels e.g. "10 min", "20 min" for the first plane at 
 	each t-index (C=0 and Z=0). If no planeInfo is available, returns plane number/total e.g "3/10"
 	
 	@param queryService:		The Omero query service
 	@param pixelsId:			The ID of the pixels you want info for
-	@param tIndexes:			List of t-index to get the times for
+	@param tIndexes:			List of t-index to get the times for. Assumed to be in t order. 
 	@param sizeT:				The T dimension size of the pixels. Used if no plane info
 	@param timeUnits:		Format choice of "SECS", "MINS", "HOURS", "MINS_SECS", "HOURS_MINS". String
+	@param showRoiDuration:		if true, times shown are from the start of the ROI frames, otherwise use movie timestamp.
 	@return:				A list of strings, ordered same as tIndexes
 	"""
 	secondsMap = getTimes(queryService, pixelsId, tIndexes)
@@ -170,6 +171,8 @@ def getTimeLabels(queryService, pixelsId, tIndexes, sizeT, timeUnits):
 	for t in tIndexes:
 		if t in secondsMap:
 			seconds = secondsMap[t]
+			if showRoiDuration:
+				seconds = seconds - secondsMap[tIndexes[0]]
 			labels.append(formatTime(seconds,timeUnits))
 		else:
 			labels.append("%d/%d" % (t+1, sizeT))
