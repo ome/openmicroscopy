@@ -2213,26 +2213,5 @@ class EditorModel
 	 */
 	long getUserID() { return parent.getUserID(); }
 	
-	/**
-	 * Returns <code>true</code> if the experimenter is active, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param exp The experimenter to handle.
-	 * @return See above.
-	 */
-	boolean isExperimenterActive(ExperimenterData exp)
-	{
-		if (exp == null) return false;
-		List<GroupData> groups = exp.getGroups();
-		if (groups == null || groups.size() == 0) return false;
-		Iterator<GroupData> i = groups.iterator();
-		GroupData g;
-		while (i.hasNext()) {
-			g = i.next();
-			if (AdminService.USER_GROUP.equals(g.getName())) return true;
-		}
-		return false;
-	}
-	
 }
 	

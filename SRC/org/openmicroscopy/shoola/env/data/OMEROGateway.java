@@ -6387,8 +6387,8 @@ class OMEROGateway
 			Iterator<ExperimenterGroup> i = groups.iterator();
 			while (i.hasNext()) {
 				group = i.next();
-				if (!isSystemGroup(group))
-					pojos.add((GroupData) PojoMapper.asDataObject(group));
+				if (!isSystemGroup(group)) 
+					pojos.add((GroupData) PojoMapper.asDataObject(group));	
 			}
 			return pojos;
 		} catch (Throwable t) {

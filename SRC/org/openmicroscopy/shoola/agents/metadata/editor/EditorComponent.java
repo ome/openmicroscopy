@@ -47,7 +47,6 @@ import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.util.FigureDialog;
-import org.openmicroscopy.shoola.agents.metadata.util.ScriptMenuItem;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.config.Registry;

@@ -276,7 +276,7 @@ class UserProfile
 			adminBox.setVisible(true);
 			activeBox.setVisible(true);
 			adminBox.addChangeListener(this);
-			active = model.isExperimenterActive(user);
+			active = user.isActive();
 			activeBox.setSelected(active);
 			activeBox.addChangeListener(this);
 			admin = false;

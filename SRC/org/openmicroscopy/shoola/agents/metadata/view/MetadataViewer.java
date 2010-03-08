@@ -345,7 +345,7 @@ public interface MetadataViewer
 	 * 
 	 * @param data The data to update.
 	 */
-	public void onAdminUpdated(DataObject data);
+	public void onAdminUpdated(Object data);
 	
 	/**
 	 * Loads the containers hosting the currently edited object.

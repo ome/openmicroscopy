@@ -1282,13 +1282,16 @@ class BrowserComponent
 
     /**
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#refreshAdmin(DataObjet)
+	 * @see Browser#refreshAdmin(Object)
 	 */
-	public void refreshAdmin(DataObject data)
+	public void refreshAdmin(Object data)
 	{
 		if (model.getState() == DISCARDED) return;
 		if (model.getBrowserType() == ADMIN_EXPLORER) {
 			//visit the browser
+			TreeImageDisplay node = model.getLastSelectedDisplay();
+			refreshBrowser();
+			setSelectedDisplay(node, true);
 		} else {
 			if (data instanceof ExperimenterData) view.refreshExperimenter();
 		}

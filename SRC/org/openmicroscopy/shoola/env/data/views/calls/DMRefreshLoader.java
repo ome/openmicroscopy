@@ -250,7 +250,6 @@ public class DMRefreshLoader
                 long groupID;
                 List<GroupData> groups = svc.loadGroups(-1);
                 List<GroupData> r = new ArrayList<GroupData>();
-                
                 List<Long> toRemove = new ArrayList<Long>();
                 List<GroupData> l;
                 List list;

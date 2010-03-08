@@ -101,8 +101,7 @@ public class AdminEditor
     public void handleResult(Object result) 
     {
     	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
-    	//viewer.onDataSave((List) data);
-    	//viewer.onAdminUpdated((GroupData) result);
+    	viewer.onAdminUpdated(result);
     }
     
 }

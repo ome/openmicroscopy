@@ -68,6 +68,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserManageAction;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
@@ -884,6 +885,8 @@ class BrowserUI
 				else bottom.add(object);
 			} else if (uo instanceof ImageData) {
 				bottom.add(object);
+			} else if (uo instanceof ExperimenterData) {
+				bottom.add(object);
 			}
 		}
 		List<TreeImageDisplay> all = new ArrayList<TreeImageDisplay>();
@@ -1443,8 +1446,7 @@ class BrowserUI
             while (i.hasNext()) {
             	root.addChildDisplay((TreeImageDisplay) i.next());
             } 
-            buildTreeNode(root, prepareSortedList(sorter.sort(nodes)), 
-                    (DefaultTreeModel) treeDisplay.getModel());
+            buildTreeNode(root, prepareSortedList(sorter.sort(nodes)), dtm);
             i = nodes.iterator();
             while (i.hasNext()) {
             	((TreeImageDisplay) i.next()).setExpanded(false);
@@ -1454,16 +1456,20 @@ class BrowserUI
                 TreeImageDisplay display;
                 GroupData group;
                 Object ho;
+                Set l;
+                GroupData g;
                 while (i.hasNext()) {
                 	display = (TreeImageDisplay) i.next();
     				ho = display.getUserObject();
     				if (ho instanceof GroupData) {
-    					if (expanded.contains(((GroupData) ho).getId())) {
+    					g = (GroupData) ho;
+    					if (expanded.contains(g.getId())) {
     						expandNode(display);
     					}
     				}
     			}
             }
+            
         } else buildEmptyNode(root);
 	}
 	

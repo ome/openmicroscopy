@@ -872,7 +872,7 @@ class TreeViewerControl
 		} else if (Browser.DATA_REFRESHED_PROPERTY.equals(name)) {
 			model.onSelectedDisplay();
 		} else if (MetadataViewer.ADMIN_UPDATED_PROPERTY.equals(name)) {
-			DataObject data = (DataObject) pce.getNewValue();
+			Object data = pce.getNewValue();
 			Map browsers = model.getBrowsers();
 			Set set = browsers.entrySet();
 			Entry entry;

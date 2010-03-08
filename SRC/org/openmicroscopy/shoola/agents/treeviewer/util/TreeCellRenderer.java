@@ -206,9 +206,14 @@ public class TreeCellRenderer
         	
         } else if (usrObject instanceof String)
         	icon = icons.getIcon(IconManager.ROOT);
-        else if (usrObject instanceof ExperimenterData)
-        	icon = icons.getIcon(IconManager.OWNER);
-        setIcon(icon);
+        else if (usrObject instanceof ExperimenterData) {
+        	ExperimenterData exp = (ExperimenterData) usrObject;
+        	if (exp.isActive()) icon = icons.getIcon(IconManager.OWNER);
+        	else {
+        		icon = icons.getIcon(IconManager.OWNER_NOT_ACTIVE);
+        		setToolTipText("Experimenter not Active");
+        	}
+        } setIcon(icon);
     }
 
     /**
@@ -295,6 +300,10 @@ public class TreeCellRenderer
         else w += fm.stringWidth(getText());
         setPreferredSize(new Dimension(w, fm.getHeight()+4));//4 b/c GTK L&F
         setEnabled(node.isSelectable());
+        if (ho instanceof ExperimenterData) {
+        	ExperimenterData exp = (ExperimenterData) ho;
+        	setEnabled(exp.isActive());
+        }
         return this;
     }
   

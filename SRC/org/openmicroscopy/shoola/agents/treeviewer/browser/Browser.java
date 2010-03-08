@@ -572,7 +572,7 @@ public interface Browser
      * 
      * @param data Pass either an experimenter or a group.
      */
-    public void refreshAdmin(DataObject data);
+    public void refreshAdmin(Object data);
 
     /**
      * Browses the specified node.

@@ -546,16 +546,46 @@ class MetadataViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#onAdminUpdated(DataObject)
+	 * @see MetadataViewer#onAdminUpdated(Object)
 	 */
-	public void onAdminUpdated(DataObject data)
+	public void onAdminUpdated(Object data)
 	{
+		Object o = data;
+		if (data instanceof List) {
+			o = model.getRefObject();
+			List l = (List) data;
+			if (l.size() > 0) {
+				UserNotifier un = 
+					MetadataViewerAgent.getRegistry().getUserNotifier();
+				StringBuffer buf = new StringBuffer();
+				buf.append("Unable to update the following experimenters:\n");
+				Iterator i = l.iterator();
+				Object node;
+				ExperimenterData exp;
+				while (i.hasNext()) {
+					node = i.next();
+					if (node instanceof ExperimenterData) {
+						exp = (ExperimenterData) node;
+						buf.append(exp.getFirstName()+" "+exp.getLastName());
+						buf.append("\n");
+					}
+				}
+				un.notifyInfo("Update experimenters", buf.toString());
+			}
+			firePropertyChange(CLEAR_SAVE_DATA_PROPERTY, null, data);
+			setRootObject(null, model.getUserID());
+		} else setRootObject(o, model.getUserID());
+		firePropertyChange(ADMIN_UPDATED_PROPERTY, null, data);
+		
+		/*
 		if (data instanceof ExperimenterData || data instanceof GroupData) {
 			firePropertyChange(ADMIN_UPDATED_PROPERTY, null, data);
 			setRootObject(data, model.getUserID());
 		}
+		*/
+		
 	}
-
+	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#loadParents()

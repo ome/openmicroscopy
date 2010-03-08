@@ -425,11 +425,14 @@ public class IconManager
     /** The <code>48x48 Password</code> icon. */
     public static final int           PASSWORD_48 = 122;
     
+    /** The <code>Owner</code> icon. */
+    public static final int           OWNER_NOT_ACTIVE = 123;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 122;
+    private static final int          MAX_ID = 123;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -562,6 +565,7 @@ public class IconManager
         relPaths[IMAGE_UNREGISTERED] = "nuvola_image_grey16.png";
         relPaths[PASSWORD] = "nuvola_download_manager_rotated16.png";
         relPaths[PASSWORD_48] = "nuvola_download_manager_rotated48.png";
+        relPaths[OWNER_NOT_ACTIVE] = "nuvola_kdmconfig_grey16.png";
     }
     
     /** The sole instance. */
