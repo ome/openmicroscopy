@@ -251,19 +251,7 @@ class OMEROGateway
 	
 	/** The collection of system groups. */
 	private static final List<String>		SYSTEM_GROUPS;
-	
-	/** Identifies the <code>System</code> group. */
-	static final String				SYSTEM = "system";
-	
-	/** Identifies the <code>User</code> group. */
-	static final String				USER = "user";
-	
-	/** Identifies the <code>Guest</code> group. */
-	static final String				GUEST = "guest";
-	
-	/** Identifies the <code>User</code> group. */
-	static final String				DEFAULT = "default";
-	
+
 	static {
 		SUPPORTED_SPECIAL_CHAR = new ArrayList<Character>();
 		SUPPORTED_SPECIAL_CHAR.add(new Character('-'));
@@ -283,9 +271,9 @@ class OMEROGateway
 		WILD_CARDS.add("?");
 		WILD_CARDS.add("~");
 		SYSTEM_GROUPS = new ArrayList<String>();
-		SYSTEM_GROUPS.add(SYSTEM);
-		SYSTEM_GROUPS.add(USER);
-		SYSTEM_GROUPS.add(GUEST);
+		SYSTEM_GROUPS.add(GroupData.SYSTEM);
+		SYSTEM_GROUPS.add(GroupData.USER);
+		SYSTEM_GROUPS.add(GroupData.GUEST);
 	}
 	
 	/**
@@ -6213,8 +6201,9 @@ class OMEROGateway
 				exp = (Experimenter) ModelMapper.createIObject(
 						(DataObject) entry.getKey());
 				uc = (UserCredentials) entry.getValue();
-				if (uc.isAdministrator()) l.add(getSystemGroup(SYSTEM));
-				else l.add(getSystemGroup(USER));
+				if (uc.isAdministrator()) 
+					l.add(getSystemGroup(GroupData.SYSTEM));
+				else l.add(getSystemGroup(GroupData.USER));
 				exp.setOmeName(omero.rtypes.rstring(uc.getUserName()));
 				password = uc.getPassword();
 				if (password != null && password.length() > 0) {
@@ -6283,8 +6272,9 @@ class OMEROGateway
 				exp = (Experimenter) ModelMapper.createIObject(
 						(DataObject) entry.getKey());
 				uc = (UserCredentials) entry.getValue();
-				if (uc.isAdministrator()) l.add(getSystemGroup(SYSTEM));
-				else l.add(getSystemGroup(USER));
+				if (uc.isAdministrator()) 
+					l.add(getSystemGroup(GroupData.SYSTEM));
+				else l.add(getSystemGroup(GroupData.USER));
 				exp.setOmeName(omero.rtypes.rstring(uc.getUserName()));
 				password = uc.getPassword();
 				if (password != null && password.length() > 0) {

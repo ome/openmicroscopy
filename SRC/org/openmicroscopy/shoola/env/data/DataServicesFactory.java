@@ -422,7 +422,7 @@ public class DataServicesFactory
         		if (!omeroGateway.isSystemGroup(g.asGroup())) {
         			available.add(g);
         		} else {
-        			if (OMEROGateway.SYSTEM.equals(g.getName()))
+        			if (GroupData.SYSTEM.equals(g.getName()))
         				uc.setAdministrator(true);
         		}
         	}

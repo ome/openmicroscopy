@@ -53,10 +53,10 @@ public interface AdminService
 {
 
 	/** Identifies the <code>User</code> group. */
-	public static final String	USER_GROUP = OMEROGateway.USER;
+	public static final String	USER_GROUP = GroupData.USER;
 	
 	/** Identifies the <code>Default</code> group. */
-	public static final String	DEFAULT_GROUP = OMEROGateway.USER;
+	public static final String	DEFAULT_GROUP = GroupData.DEFAULT;
 	
 	
 	/** Identifies the used space on the file system. */

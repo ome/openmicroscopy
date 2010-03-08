@@ -480,11 +480,10 @@ class AdminServiceImpl
 						ownersToRemove);
 		}
 		if (toActivate.size() > 0)
-			gateway.modifyExperimentersRoles(true, toActivate, 
-					OMEROGateway.USER);
+			gateway.modifyExperimentersRoles(true, toActivate, GroupData.USER);
 		if (toDeactivate.size() > 0)
 			gateway.modifyExperimentersRoles(false, toDeactivate, 
-					OMEROGateway.USER);
+					GroupData.USER);
 		return l;
 	}
 
