@@ -35,14 +35,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 
 import javax.swing.DefaultListModel;
 
-import ome.formats.importer.IObservable;
-import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.Version;
 
@@ -53,14 +49,16 @@ import org.apache.commons.logging.LogFactory;
  * @author Brian W. Loranger
  *
  */
-public class HistoryDB implements IObservable
+/**
+ * @author Zapgun
+ *
+ */
+public class HistoryDB extends HistoryTableAbstractDataSource
 {
 	/** Logger for this class */
 	private static Log log = LogFactory.getLog(HistoryDB.class);
 	
     private static int DB_VERSION = 300;
-    
-    ArrayList<IObserver> observers = new ArrayList<IObserver>();
     
     public SimpleDateFormat day = new SimpleDateFormat("MMM d, ''yy");
     public SimpleDateFormat hour = new SimpleDateFormat("HH:mm");
@@ -74,8 +72,11 @@ public class HistoryDB implements IObservable
     {
         return conn;
     }
-    
-    HistoryDB() throws SQLException, ClassNotFoundException
+        
+    /* (non-Javadoc)
+     * @see ome.formats.importer.gui.IHistoryTableDataSource#initializeDataSource()
+     */
+    public void initializeDataSource() throws SQLException, ClassNotFoundException
     {
         String saveDirectory = System.getProperty("user.home") + File.separator + "omero";
 
@@ -123,10 +124,46 @@ public class HistoryDB implements IObservable
             
         } catch (SQLException ex2) {
         	//ignore SQL error if table already exists
-        } 
-    } // HistoryDB()
+        } 	
+    }
     
-    public void shutdown() throws SQLException {
+    /* (non-Javadoc)
+     * @see ome.formats.importer.gui.IHistoryTableDataSource#wipeDataSource(java.lang.Long)
+     */
+    public boolean wipeDataSource(Long experimenterID)
+    {   
+        if (experimenterID == -1)
+        {
+            try
+            {
+                update("DELETE * FROM import_table");
+                update("DELETE * FROM file_table");
+            } catch (SQLException e)
+            { return false; }
+            return true;            
+        } else
+        {
+            try
+            {
+                update("DELETE FROM import_table WHERE experimenterID = " + experimenterID);
+                update("DELETE FROM file_table WHERE experimenterID = " + experimenterID);
+            }
+            catch (SQLException e)
+            {
+            	String s = String.format(
+            			"Error removing user history for experimenter %d.",
+            			experimenterID);
+            	log.error(s, e);
+            	return false;
+            }
+            return true;
+        }        
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.formats.importer.gui.IHistoryTableDataSource#shutdownDataSource()
+     */
+    public void shutdownDataSource() throws SQLException {
 
         Statement st = conn.createStatement();
 
@@ -170,24 +207,13 @@ public class HistoryDB implements IObservable
         }
     }
 
-    public String stripGarbage(String s) {  
-        String good =
-            " .-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        String result = "";
-        for ( int i = 0; i < s.length(); i++ ) {
-            if ( good.indexOf(s.charAt(i)) >= 0 )
-                result += s.charAt(i);
-        }
-        return result;
-    }
-
     public ResultSet getFileResults(HistoryDB db, String table, int importID, 
             Long experimenterID, String string, boolean done, boolean failed, boolean invalid, 
             boolean pending, Date from, Date to)
     {
         String fromString = null, toString = null;
         if (string == null) string = "";
-        string = stripGarbage(string);
+        string = stripIllegalSearchCharacters(string);
         
         String queryString = "SELECT * FROM " + table  + " WHERE ExperimenterID = " + experimenterID +
             " AND filename like '%" + string + "%'";
@@ -251,39 +277,11 @@ public class HistoryDB implements IObservable
         }
         return null;
     }
-    
-    public boolean wipeUserHistory(Long experimenterID)
-    {   
-        if (experimenterID == -1)
-        {
-            try
-            {
-                update("DELETE * FROM import_table");
-                update("DELETE * FROM file_table");
-            } catch (SQLException e)
-            { return false; }
-            return true;            
-        } else
-        {
-            try
-            {
-                update("DELETE FROM import_table WHERE experimenterID = " + experimenterID);
-                update("DELETE FROM file_table WHERE experimenterID = " + experimenterID);
-            }
-            catch (SQLException e)
-            {
-            	String s = String.format(
-            			"Error removing user history for experimenter %d.",
-            			experimenterID);
-            	log.error(s, e);
-            	return false;
-            }
-            return true;
-        }        
-    }
-    
-    public int insertImportHistory(long experimenterID, String status) 
-    throws SQLException
+
+    /* (non-Javadoc)
+     * @see ome.formats.importer.gui.IHistoryTableDataSource#addBaseTableRow(java.lang.Long, java.lang.String)
+     */
+    public int addBaseTableRow(Long experimenterID, String status) throws SQLException
     {
         
         return update(
@@ -294,7 +292,20 @@ public class HistoryDB implements IObservable
                     "'" + status + "'" + 
                     " )");
     } // insertHistory()
- 
+
+    /* (non-Javadoc)
+     * @see ome.formats.importer.gui.IHistoryTableDataSource#getLastBaseUid()
+     */
+    public int getLastBaseUid() throws SQLException {
+        ResultSet rs = getGeneratedKeys();
+        rs.next(); 
+        return rs.getInt(1);
+    }
+    
+    /**
+     * @return last uid used in base table
+     * @throws SQLException
+     */
     public synchronized ResultSet getGeneratedKeys() throws SQLException {
         Statement st = null;
 
@@ -308,14 +319,13 @@ public class HistoryDB implements IObservable
         
         return rs;
     }
-
-    public int getLastKey() throws SQLException {
-        ResultSet rs = getGeneratedKeys();
-        rs.next(); 
-        return rs.getInt(1);
-    }
     
-    public int insertFileHistory(Integer importID, Long experimenterID, Integer rowNum, 
+    /* (non-Javadoc)
+     * @see ome.formats.importer.gui.IHistoryTableDataSource#addItemTableRow(java.lang.Long, 
+     * java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.Long, java.lang.Long, 
+     * java.lang.String, java.io.File)
+     */
+    public int addItemTableRow(Long experimenterID, Integer importID, Integer rowNum, 
             String filename, Long projectID, Long datasetID, String status, File file) 
     throws SQLException
     {
@@ -376,7 +386,10 @@ public class HistoryDB implements IObservable
         return st.executeQuery(expression);    // run the query
     }    
 
-    public DefaultListModel getImportListByDate(Date start, Date end)
+    /* (non-Javadoc)
+     * @see ome.formats.importer.gui.IHistoryTableDataSource#getBaseTableDataByDate(java.util.Date, java.util.Date)
+     */
+    public DefaultListModel getBaseTableDataByDate(Date start, Date end)
     {
         ResultSet rs;
         try
@@ -415,45 +428,6 @@ public class HistoryDB implements IObservable
         			start.toString(), end.toString());
         	log.error(s, e);
         }
-        return null;
-    }
-    
-    public Date getYesterday() {
-        return getDayBefore(new Date());
-    }
- 
-    public Date getDayBefore(Date date) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        cal.add(Calendar.DATE, -1);
-        return cal.getTime();
-    }
-  
-    // days should be negative
-    public Date getDaysBefore(Date date, int days) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        cal.add(Calendar.DATE, days);
-        return cal.getTime();
-    }
-
-    // Observable methods
-    
-    public boolean addObserver(IObserver object)
-    {
-        return observers.add(object);
-    }
-    
-    public boolean deleteObserver(IObserver object)
-    {
-        return observers.remove(object);
-    }
-
-    public void notifyObservers(ImportEvent event)
-    {
-        for (IObserver observer:observers)
-        {
-            observer.update(this, event);
-        }
+    	return null;
     }
 }

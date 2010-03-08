@@ -10,7 +10,6 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -44,6 +43,10 @@ import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.util.ETable;
+import omero.ServerError;
+import omero.grid.Data;
+import omero.grid.LongColumn;
+import omero.grid.StringColumn;
 import omero.model.Dataset;
 import omero.model.Screen;
 
@@ -113,7 +116,8 @@ public class HistoryTable
     /**
      * THIS SHOULD NOT BE VISIBLE!
      */
-    final HistoryDB db;
+    //final HistoryDB db;
+    final HistoryTableStore db;
     
     private final GuiImporter viewer;
     private final HistoryTaskBar historyTaskBar = new HistoryTaskBar();
@@ -134,10 +138,11 @@ public class HistoryTable
         	log.error("Exception adding property change listener.", ex);
         }
 
-        HistoryDB db = null;
+        HistoryTableStore db = null;
+        //HistoryDB db = null;
         try {
-            db = new HistoryDB();
-            db.addObserver(this);
+        	db = new HistoryTableStore();
+        	db.addObserver(this);
         } catch (Exception e) {
             db = null;
             log.error("Could not start history DB.", e);
@@ -145,8 +150,6 @@ public class HistoryTable
             {
                 JOptionPane.showMessageDialog(null,
                     "We were not able to connect to the history DB.\n" +
-                    "Make sure you do not have a second importer\n" +
-                    "running and try again.\n\n" +
                     "In the meantime, you will still be able to use \n" +
                     "the importer, but the history feature will be disable.",
                     "Warning",
@@ -334,9 +337,13 @@ public class HistoryTable
                 JOptionPane.WARNING_MESSAGE,null,o,o[1]);
         if (result == 0) //yes clicked
         {
-            db.wipeUserHistory(getExperimenterID());
+            try {
+				db.wipeDataSource(getExperimenterID());
+			} catch (ServerError e) {
+		        log.error("exception.", e);
+			}
             updateOutlookBar();
-            getFileQuery(-1, getExperimenterID(), searchField.getText(), 
+            getItemQuery(-1, getExperimenterID(), searchField.getText(), 
                     fromDate.getDate(), toDate.getDate());
         }
     }
@@ -349,7 +356,10 @@ public class HistoryTable
     public void getImportQuery(long ExperimenterID)
     {   
         try {
-            ResultSet rs = db.getImportResults(db, "import_table", ExperimenterID);
+            Data d = db.getBaseTableData();
+            LongColumn importTimes = (LongColumn) d.columns[db.BASE_DATETIME_COLUMN];
+            StringColumn statuses = (StringColumn) d.columns[db.BASE_STATUS_COLUMN];
+
 
             Vector<Object> row = new Vector<Object>();
             
@@ -359,34 +369,37 @@ public class HistoryTable
                 table.removeRow(r);
             }
            
-            // the result set is a cursor into the data.  You can only
-            // point to one row at a time
-            // assume we are pointing to BEFORE the first row
-            // rs.next() points to next row and returns true
-            // or false if there is no next row, which breaks the loop
-            for (; rs.next(); ) {
-                row.add(rs.getObject("date"));
-                row.add(rs.getObject("status"));
-                table.addRow(row);
+            for (int i = 0; i < (int) db.getBaseTableNumberOfRows(); i++)
+            {
+            	row.add(new Date(importTimes.values[i]));
+            	row.add(statuses.values[i].trim());
+            	table.addRow(row);
             }
-            rs.close();
-            db.shutdown();
-        } catch (SQLException ex3) {
-        	log.error("SQL exeception.", ex3);
-        } catch (NullPointerException ex4) {} // results are null
+            
+        } catch (NullPointerException npe) {
+        	
+        } // results are null
+        catch (Exception e) {
+        	log.error("exception.", e);
+        }
     }
     
-    public void getFileQuery(int importID, long experimenterID, String string, Date from, Date to)
+    public void getItemQuery(long importID, long experimenterID, String queryString, Date from, Date to)
     {   
         try {
-            ResultSet rs = db.getFileResults(db, "file_table", importID, experimenterID, string, 
-                    doneCheckBox.isSelected(), failedCheckBox.isSelected(), invalidCheckBox.isSelected(),
-                    pendingCheckBox.isSelected(), from, to);
-                       
-            // the order of the rows in a cursor
-            // are implementation dependent unless you use the SQL ORDER statement
-            //ResultSetMetaData meta = rs.getMetaData();
-            
+        	
+        	Data d = db.getItemTableDataByQuery(importID, queryString, from, to);
+        	
+        	long[] ids = db.getItemTableIDsByDate(importID, from, to);
+        	
+            LongColumn uids = (LongColumn) d.columns[db.ITEM_BASE_UID_COLUMN];
+            StringColumn fileNames = (StringColumn) d.columns[db.ITEM_FILENAME_COLUMN];
+            LongColumn projectIDs = (LongColumn) d.columns[db.ITEM_PROJECTID_COLUMN];
+        	LongColumn objectIDs = (LongColumn) d.columns[db.ITEM_OBJECTID_COLUMN];
+        	LongColumn importTimes = (LongColumn) d.columns[db.ITEM_DATETIME_COLUMN];
+        	StringColumn filePaths = (StringColumn) d.columns[db.ITEM_FILENAME_COLUMN];
+        	StringColumn statuses = (StringColumn) d.columns[db.ITEM_STATUS_COLUMN];
+        	                                  
             int count = table.getRowCount();
             for (int r = count - 1; r >= 0; r--)
             {
@@ -394,51 +407,55 @@ public class HistoryTable
             }
            
             // Format the current time.
-            String dayString, hourString, objectName= "", projectName = "", pdsString = "";
-            long oldObjectID = 0, objectID = 0, oldProjectID = 0, projectID = 0;
+            String dayString, hourString, objectName= "", projectName = "", pdsString = "", fileName = "", filePath = "", status = "";
+            long uid = 0L, oldObjectID = 0L, objectID = 0L, oldProjectID = 0L, projectID = 0L, importTime = 0L;
             
-            // the result set is a cursor into the data.  You can only
-            // point to one row at a time
-            // assume we are pointing to BEFORE the first row
-            // rs.next() points to next row and returns true
-            // or false if there is no next row, which breaks the loop
-            for (; rs.next() ;) {
-                objectID = rs.getLong("datasetID");
-                projectID = rs.getLong("projectID");
-                
-                if (oldObjectID != objectID)
-                {
-                    oldObjectID = objectID;
-                    if (projectID != 0)
-                    {
+            int returnedRows = 0;
+            if (ids != null)
+            	returnedRows = ids.length;
+            
+            for (int h = 0; h < returnedRows; h++)
+            {
+            	int i = (int) ids[h];
+            	uid = uids.values[i];
+            	fileName = fileNames.values[i].trim();
+            	projectID = projectIDs.values[i];
+            	objectID = objectIDs.values[i];
+            	importTime = importTimes.values[i];
+            	filePath = filePaths.values[i].trim();
+            	status = statuses.values[i].trim();
+            	
+            	if (oldObjectID != objectID)
+            	{
+            		oldObjectID = objectID;
+            		if (projectID != 0)
+            		{
                         try {
-                            objectName = store().getTarget(Dataset.class, rs.getLong("datasetID")).getName().getValue();
+                            objectName = store().getTarget(Dataset.class, objectID).getName().getValue();
                         } catch (Exception e)
                         {
                             objectName = "unknown";
                             displayAccessError();
                         } 
                         
-                        
                         if (oldProjectID != projectID)
                         {
                             oldProjectID = projectID;
                             try {
-                                projectName = store().getProject(rs.getLong("projectID")).getName().getValue();
+                                projectName = store().getProject(projectID).getName().getValue();
                             } catch (Exception e)
                             {
                                 projectName = "unknown";
                                 displayAccessError();
                             }
                         }
-                        
+                    	
                         pdsString = projectName + "/" + objectName;
-                        
-                    }
+            		}
                     else
                     {
                         try {
-                            objectName = store().getTarget(Screen.class, rs.getLong("datasetID")).getName().getValue();
+                            objectName = store().getTarget(Screen.class, objectID).getName().getValue();
                         } catch (Exception e)
                         {
                             objectName = "unknown";
@@ -447,10 +464,10 @@ public class HistoryTable
                         
                         pdsString = objectName;
                     }
-                }
-                
-                dayString = db.day.format(rs.getObject("date"));
-                hourString = db.hour.format(rs.getObject("date"));
+            	}
+            	
+                dayString = db.day.format(new Date(importTime));
+                hourString = db.hour.format(new Date(importTime));
 
                 if (db.day.format(new Date()).equals(dayString))
                     dayString = "Today";
@@ -461,30 +478,29 @@ public class HistoryTable
                 }
                 
                 Vector<Object> row = new Vector<Object>();
-                row.add(rs.getObject("filename"));
+                row.add(fileName);
                 row.add(pdsString);
                 row.add(dayString + " " + hourString);
-                row.add(rs.getObject("status"));
-                row.add(rs.getObject("filepath"));
-                row.add(rs.getLong("datasetID"));
-                row.add(rs.getLong("projectID"));
+                row.add(status);
+                row.add(filePath);
+                row.add(objectID);
+                row.add(projectID);
                 table.addRow(row);
                 table.fireTableDataChanged();
                 unknownProjectDatasetFlag = false;
             }
             
-            if (rs.getFetchSize() > 0)
+            if (returnedRows > 0)
                 reimportBtn.setEnabled(true);
             else
                 reimportBtn.setEnabled(false);
-            
-            rs.close();
-            //db.shutdown();
-        } catch (SQLException ex3) {
-        	log.error("SQL exception.", ex3);
-        } catch (NullPointerException ex4) {
-        	log.error("Null pointer exception.", ex4);
+
+        } catch (NullPointerException npe) {
+        	log.error("Null pointer exception.", npe);
         } // results are null
+        catch (Exception e) {
+        	log.error("exception.", e);
+        }
     }
     
     public ResultSet getCurrentResultSet()
@@ -516,26 +532,26 @@ public class HistoryTable
         int dayOfWeek = newCal.get( Calendar.DAY_OF_WEEK );
         int dayOfMonth = newCal.get( Calendar.DAY_OF_MONTH);
         
-        DefaultListModel today = db.getImportListByDate(db.getDaysBefore(new Date(), 1), new Date());
+        DefaultListModel today = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), -1), new Date());
         historyTaskBar.updateList(todayList, historyTaskBar.today, today);
 
-        DefaultListModel yesterday = db.getImportListByDate(new Date(), db.getYesterday());
+        DefaultListModel yesterday = db.getBaseTableDataByDate(new Date(), db.getYesterday());
         historyTaskBar.updateList(yesterdayList, historyTaskBar.yesterday, yesterday);
 
-        DefaultListModel thisWeek = db.getImportListByDate(db.getDaysBefore(new Date(), 1), db.getDaysBefore(new Date(), -(dayOfWeek)));
+        DefaultListModel thisWeek = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), 1), db.getDaysBefore(new Date(), -(dayOfWeek)));
         historyTaskBar.updateList(thisWeekList, historyTaskBar.thisWeek, thisWeek);
 
-        DefaultListModel lastWeek = db.getImportListByDate(db.getDaysBefore(new Date(), -(dayOfWeek)), 
+        DefaultListModel lastWeek = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), -(dayOfWeek)), 
                 db.getDaysBefore(new Date(), -(dayOfWeek+7)));
         historyTaskBar.updateList(lastWeekList, historyTaskBar.lastWeek, lastWeek);
         
-        DefaultListModel thisMonth = db.getImportListByDate(db.getDaysBefore(new Date(), 1), db.getDaysBefore(new Date(), -(dayOfMonth)));
+        DefaultListModel thisMonth = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), 1), db.getDaysBefore(new Date(), -(dayOfMonth)));
         historyTaskBar.updateList(thisMonthList, historyTaskBar.thisMonth, thisMonth);
     }
 
     private void getQuickHistory(Integer importKey)
     {
-       getFileQuery(importKey, getExperimenterID(), null, null, null);
+       getItemQuery(importKey, getExperimenterID(), null, null, null);
     }
 
     public void actionPerformed(ActionEvent e)
@@ -543,7 +559,7 @@ public class HistoryTable
         Object src = e.getSource();
         if (src == searchBtn || src == doneCheckBox || src == failedCheckBox 
                 || src == invalidCheckBox || src == pendingCheckBox)
-            getFileQuery(-1, getExperimenterID(), searchField.getText(), 
+            getItemQuery(-1, getExperimenterID(), searchField.getText(), 
                     fromDate.getDate(), toDate.getDate());
         if (src == clearBtn)
             ClearHistory();
@@ -561,7 +577,7 @@ public class HistoryTable
             getQuickHistory((Integer)e.getNewValue());
         if (prop.equals("date"))
         {
-            getFileQuery(-1, getExperimenterID(), searchField.getText(), 
+            getItemQuery(-1, getExperimenterID(), searchField.getText(), 
                     fromDate.getDate(), toDate.getDate());
         }
             

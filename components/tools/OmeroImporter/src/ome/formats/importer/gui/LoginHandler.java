@@ -323,6 +323,8 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         try
         {
             store = config.createStore();
+    		viewer.historyTable.db.initialize(store.getServiceFactory());
+    		viewer.historyTable.db.initializeDataSource();
         }
         catch (Exception e)
         {

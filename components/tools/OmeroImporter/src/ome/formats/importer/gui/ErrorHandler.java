@@ -91,7 +91,7 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
             } else if (event instanceof ImportEvent.FILE_UPLOAD_COMPLETE) {
                 ImportEvent.FILE_UPLOAD_COMPLETE ev = (ImportEvent.FILE_UPLOAD_COMPLETE) event;
                 errorTable.setFilesProgress(ev.fileIndex);
-            } else if (event instanceof ImportEvent.FILE_UPLOAD_CANCELLED) {
+            } else if (event instanceof ImportEvent.FILE_UPLOAD_CANCELLED || event instanceof ImportEvent.ERRORS_UPLOAD_CANCELLED) {
                 cancelUploads = true;
                 super.cancelUploads = true;
             }

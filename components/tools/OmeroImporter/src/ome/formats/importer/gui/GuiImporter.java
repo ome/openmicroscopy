@@ -35,7 +35,6 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.Enumeration;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -71,7 +70,6 @@ import ome.formats.importer.util.ErrorHandler.INTERNAL_EXCEPTION;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
 import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
@@ -119,6 +117,7 @@ WindowStateListener, WindowFocusListener
     public static final String ERROR_ICON_ANIM = "gfx/warning_msg16_anim.gif";
     public static final String ERROR_ICON = "gfx/warning_msg16.png";
     public static final String LOGFILE_ICON = "gfx/nuvola_output16.png";
+    public static final String FORUM_ICON = "gfx/nuvola_chat16.png";
 
     public final ImportConfig         config;
     public final GuiCommonElements    gui;
@@ -137,6 +136,7 @@ WindowStateListener, WindowFocusListener
     private JMenuItem           login;
     private JMenu               helpMenu;
     private JMenuItem           helpComment;
+    private JMenuItem			helpForums;
     private JMenuItem           helpHome;
     private JMenuItem           helpAbout;
 
@@ -234,11 +234,15 @@ WindowStateListener, WindowFocusListener
         helpHome = new JMenuItem("Visit Importer Homepage...", gui.getImageIcon(HOME_ICON));
         helpHome.setActionCommand("home");
         helpHome.addActionListener(this);
+        helpForums = new JMenuItem("Visit the OMERO Forums...", gui.getImageIcon(FORUM_ICON));
+        helpForums.setActionCommand("forums");
+        helpForums.addActionListener(this);
         helpAbout = new JMenuItem("About the Importer...", gui.getImageIcon(ABOUT_ICON));
         helpAbout.setActionCommand("about");
         helpAbout.addActionListener(this);
         helpMenu.add(helpComment);
         helpMenu.add(helpHome);
+        helpMenu.add(helpForums);
         // Help --> Show log file location...
         JMenuItem helpShowLog = new JMenuItem("Show log file location...", gui.getImageIcon(LOGFILE_ICON));
         helpShowLog.setActionCommand(show_log_file);
@@ -536,6 +540,10 @@ WindowStateListener, WindowFocusListener
         else if ("home".equals(cmd))
         {
             BareBonesBrowserLaunch.openURL(config.getHomeUrl());
+        }
+        else if ("forums".equals(cmd))
+        {
+            BareBonesBrowserLaunch.openURL(config.getForumUrl());
         }
         else if (show_log_file.equals(cmd))
         {

@@ -693,7 +693,7 @@ public class GuiCommonElements
                 JOptionPane.QUESTION_MESSAGE,
                 null,
                 options,
-                s2);
+                s1);
         if (n == JOptionPane.YES_OPTION) {
             return true;
         } else {

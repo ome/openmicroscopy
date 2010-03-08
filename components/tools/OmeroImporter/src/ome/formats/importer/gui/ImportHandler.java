@@ -15,7 +15,6 @@
 package ome.formats.importer.gui;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -50,7 +49,7 @@ public class ImportHandler implements IObservable {
 
     private final ImportLibrary library;
     private final ImportContainer[] importContainer;
-    private final HistoryDB db; // THIS SHOULD NOT BE HERE!
+    private final HistoryTableStore db; // THIS SHOULD NOT BE HERE!
 
     private final GuiImporter viewer;
     private final FileQueueTable qTable;
@@ -136,10 +135,10 @@ public class ImportHandler implements IObservable {
 
         try {
             if (db != null) {
-                db.insertImportHistory(library.getExperimenterID(), "pending");
-                importKey = db.getLastKey();
+                db.addBaseTableRow(library.getExperimenterID(), "pending");
+                importKey = db.getLastBaseUid();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             log.error("SQL exception updating history DB.", e);
         }
 
@@ -149,13 +148,14 @@ public class ImportHandler implements IObservable {
                 try {
                     if (db != null) {
                         // FIXME: This is now "broken" with targets now able to
-                        // be of type Screen or Dataset.
-                        db.insertFileHistory(importKey, library
-                                .getExperimenterID(), i,
+                        // be of type Screen or Dataset.                    	
+                        db.addItemTableRow(library.getExperimenterID(), 
+                        		importKey,
+                        		i, 
                                 importContainer[i].imageName,
-                                importContainer[i].projectID,
-                                importContainer[i].getTarget().getId()
-                                        .getValue(), "pending",
+                                importContainer[i].projectID, 
+                                importContainer[i].getTarget().getId().getValue(),
+                                "pending", 
                                 importContainer[i].file);
                     }
                 } catch (Exception e) {
@@ -191,8 +191,8 @@ public class ImportHandler implements IObservable {
                     this.library.clear();
                     try {
                         if (db != null)
-                            db.updateFileStatus(importKey, j, "done");
-                    } catch (SQLException e) {
+                            db.updateBaseStatus(importKey, j, "done");
+                    } catch (Exception e) {
                         log.error("SQL exception updating history DB.", e);
                     }
 
@@ -229,11 +229,11 @@ public class ImportHandler implements IObservable {
                     } 
                     try {
                         if (db != null) {
-                            db.updateImportStatus(importKey, "incomplete");
-                            db.updateFileStatus(importKey, j, "failed");
+                            db.updateFileStatus(importKey, "incomplete");
+                            db.updateBaseStatus(importKey, j, "failed");
                         }
-                    } catch (SQLException e) {
-                        log.error("SQL exception updating history DB.", e);
+                    } catch (Exception e) {
+                        log.error("Exception updating history DB.", e);
                     }
                 } catch (IOException ioe) {
                     log.error("I/O error while importing image.", ioe);
@@ -245,10 +245,10 @@ public class ImportHandler implements IObservable {
                         importStatus = -1;
                     try {
                         if (db != null) {
-                            db.updateImportStatus(importKey, "incomplete");
-                            db.updateFileStatus(importKey, j, "failed");
+                            db.updateFileStatus(importKey, "incomplete");
+                            db.updateBaseStatus(importKey, j, "failed");
                         }
-                    } catch (SQLException e) {
+                    } catch (Exception e) {
                         log.error("SQL exception updating history DB.", e);
                     }
                 } catch (ResourceError e) {
@@ -266,10 +266,10 @@ public class ImportHandler implements IObservable {
                     qTable.importing = false;
                     try {
                         if (db != null) {
-                            db.updateImportStatus(importKey, "incomplete");
-                            db.updateFileStatus(importKey, j, "failed");
+                            db.updateFileStatus(importKey, "incomplete");
+                            db.updateBaseStatus(importKey, j, "failed");
                         }
-                    } catch (SQLException sqle) {
+                    } catch (Exception sqle) {
                         log.error("SQL exception updating history DB.", sqle);
                     }
 
@@ -286,10 +286,10 @@ public class ImportHandler implements IObservable {
 
                     try {
                         if (db != null) {
-                            db.updateImportStatus(importKey, "incomplete");
-                            db.updateFileStatus(importKey, j, "failed");
+                            db.updateFileStatus(importKey, "incomplete");
+                            db.updateBaseStatus(importKey, j, "failed");
                         }
-                    } catch (SQLException sqle) {
+                    } catch (Exception sqle) {
                         log.error("SQL exception updating history DB.", sqle);
                     }
                 }
@@ -302,9 +302,9 @@ public class ImportHandler implements IObservable {
         if (importStatus >= 0)
             try {
                 if (db != null)
-                    db.updateImportStatus(importKey, "complete");
-            } catch (SQLException e) {
-                log.error("SQL exception when updating import status.", e);
+                    db.updateFileStatus(importKey, "complete");
+            } catch (Exception e) {
+                log.error("Exception when updating import status.", e);
             }
 
         timestampOut = System.currentTimeMillis();

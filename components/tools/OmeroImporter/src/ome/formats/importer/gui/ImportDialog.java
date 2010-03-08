@@ -563,7 +563,7 @@ public class ImportDialog extends JDialog implements ActionListener
 
     public void stateChanged(ChangeEvent e)
     {
-        System.err.println("TESt");
+        System.err.println("Test");
     }
 }
 
