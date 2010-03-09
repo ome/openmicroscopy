@@ -352,73 +352,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
     // Stateful interface methods
     // =========================================================================
 
-    public void activate_async(AMD_StatefulServiceInterface_activate __cb,
-            Current __current) {
-        final IceMapper mapper = new IceMapper(IceMapper.VOID);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.SimpleWork(
-                        this, "activate") {
-                    @Transactional(readOnly = true)
-                    public Object doWork(Session session, ServiceFactory sf) {
-                        // Do nothing for now.
-                        return null;
-                    }
-                }));
-
-    }
-
-    public void passivate_async(AMD_StatefulServiceInterface_passivate __cb,
-            Current __current) {
-        final IceMapper mapper = new IceMapper(IceMapper.VOID);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.SimpleWork(
-                        this, "passivate") {
-                    @Transactional(readOnly = true)
-                    public Object doWork(Session session, ServiceFactory sf) {
-                        // Do nothing for now.
-                        return null;
-                    }
-                }));
-
-    }
-
-    public void close_async(final AMD_StatefulServiceInterface_close __cb,
-            final Current __current) throws ServerError {
-
-        final IceMapper mapper = new IceMapper(IceMapper.VOID);
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.SimpleWork(
-                        this, "close") {
-                    @Transactional(readOnly = true)
-                    public Object doWork(Session session, ServiceFactory sf) {
-
-                        // Nulling should be sufficient.
-                        store = null;
-                        return null;
-                    }
-                }));
-    }
-
-    public void getCurrentEventContext_async(
-            final AMD_StatefulServiceInterface_getCurrentEventContext __cb,
-            final Current __current) throws ServerError {
-
-        final IceMapper mapper = new IceMapper(new IceMapper.ReturnMapping() {
-
-            public Object mapReturnValue(IceMapper mapper, Object value)
-                    throws UserException {
-                return mapper.convert((ome.system.EventContext) value);
-            }
-        });
-
-        runnableCall(__current, new Adapter(__cb, __current, mapper,
-                this.sf.executor, this.sf.principal, new Executor.SimpleWork(
-                        this, "getCurrentEventContext") {
-                    @Transactional(readOnly = true)
-                    public Object doWork(Session session, ServiceFactory sf) {
-                        return null;
-                    }
-                }));
+    @Override
+    protected void preClose() {
+        // Nulling should be sufficient.
+        store = null;
     }
 
 }

@@ -211,7 +211,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     @RolesAllowed("user")
     public void close() {
         rwl.writeLock().lock();
-
+        log.debug("Closing thumbnail bean");
         try {
             if (renderer != null) {
                 renderer.close();

@@ -296,7 +296,7 @@ public class SessionCache implements ApplicationContextAware {
             String reason = reason("timeToLive", lastAccess, hits, start,
                     timeToLive, (alive - timeToLive));
             if (strict) {
-                throw new SessionTimeoutException(reason);
+                throw new SessionTimeoutException(reason, ctx);
             } else {
                 return null;
             }
@@ -304,7 +304,7 @@ public class SessionCache implements ApplicationContextAware {
             String reason = reason("timeToIdle", lastAccess, hits, start,
                     timeToIdle, (idle - timeToIdle));
             if (strict) {
-                throw new SessionTimeoutException(reason);
+                throw new SessionTimeoutException(reason, ctx);
             } else {
                 return null;
             }

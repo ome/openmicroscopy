@@ -19,6 +19,7 @@ import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
+import ome.conditions.SessionTimeoutException;
 import ome.model.IObject;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
@@ -291,13 +292,28 @@ public class BasicSecuritySystem implements SecuritySystem,
     }
 
     public void loadEventContext(boolean isReadOnly) {
+        loadEventContext(isReadOnly, false);
+    }
+
+    public void loadEventContext(boolean isReadOnly, boolean isClose) {
 
         final LocalAdmin admin = (LocalAdmin) sf.getAdminService();
         final LocalUpdate update = (LocalUpdate) sf.getUpdateService();
 
         // Call to session manager throws an exception on failure
         final Principal p = clearAndCheckPrincipal();
-        final EventContext ec = sessionManager.getEventContext(p);
+
+        // ticket:1855 - Catching SessionTimeoutException in order to permit
+        // the close of a stateful service.
+        EventContext ec;
+        try {
+            ec = sessionManager.getEventContext(p);
+        } catch (SessionTimeoutException ste) {
+            if (!isClose) {
+                throw ste;
+            }
+            ec = (EventContext) ste.sessionContext;
+        }
 
         // Refill current details
         cd.copy(ec);

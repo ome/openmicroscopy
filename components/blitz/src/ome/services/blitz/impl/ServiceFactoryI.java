@@ -675,71 +675,31 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                     }
 
                     // Now that we have the servant instance, we do what we can
-                    // to clean it up. Stateful services must use the callback
-                    // mechanism of IceMethodInvoker. InteractiveProcessors must
+                    // to clean it up. Our AmdServants must use a message
+                    // to have the servant removed. InteractiveProcessors must
                     // be stopped and unregistered. Stateless must only be
                     // unregistered.
                     //
-                    // TODO: put all of this in the AbstractAmdServant class.
-                    if (servant instanceof _StatefulServiceInterfaceOperations) {
-
-                        // Cleanup stateful
-                        // ----------------
-                        // Here we call the "close()" method on all methods
-                        // which
-                        // require that logic, allowing the IceMethodInvoker to
-                        // raise the UnregisterServantEvent, otherwise there is
-                        // a
-                        // recursive call back to close
-                        final _StatefulServiceInterfaceOperations stateful = (_StatefulServiceInterfaceOperations) servant;
+                    if (servant instanceof AbstractAmdServant) {
                         final Ice.Current __curr = new Ice.Current();
                         __curr.id = id;
                         __curr.adapter = adapter;
                         __curr.operation = "close";
                         __curr.ctx = new HashMap<String, String>();
                         __curr.ctx.put(CLIENTUUID.value, clientId);
-                        // We have to be more intelligent about this. The call
-                        // should really happen in the same thread so that it's
-                        // complete before the service factory is removed.
-                        stateful.close_async(
-                                new AMD_StatefulServiceInterface_close() {
-                                    public void ice_exception(Exception ex) {
-                                        if (ex instanceof omero.SessionException) {
-                                            log
-                                                    .warn("Stateful session not properly closed: "
-                                                            + key);
-                                        } else {
-                                            log.error(
-                                                    "Error on close callback: "
-                                                            + key + "="
-                                                            + stateful, ex);
-                                        }
-                                    }
-
-                                    public void ice_response() {
-                                        // Ok.
-                                    }
-
-                                }, __curr);
-
+                        AbstractAmdServant amd = (AbstractAmdServant) servant;
+                        amd.close(__curr);
+                    } else if (servant instanceof InteractiveProcessorI) {
+                        // Cleanup interactive processors
+                        // ------------------------------
+                        InteractiveProcessorI ip = (InteractiveProcessorI) servant;
+                        ip.stop();
+                    } else if (servant instanceof SharedResourcesI) {
+                        // Not currently doing anything.
+                        // But will eventually need to cleanup cache.
+                        ((SharedResourcesI)servant).close();
                     } else {
-                        if (servant instanceof InteractiveProcessorI) {
-                            // Cleanup interactive processors
-                            // ------------------------------
-                            InteractiveProcessorI ip = (InteractiveProcessorI) servant;
-                            ip.stop();
-                        } else if (servant instanceof _ServiceInterfaceOperations) {
-                            // Cleanup stateless
-                            // -----------------
-                            // Do nothing.
-                        } else if (servant instanceof SharedResourcesI) {
-                            // Not currently doing anything.
-                            // But will eventually need to cleanup cache.
-                            ((SharedResourcesI)servant).close();
-                        } else {
-                            throw new ome.conditions.InternalException(
-                                    "Unknown servant type: " + servant);
-                        }
+                        log.error("Unknown servant type: " + servant);
                     }
                 } catch (Exception e) {
                     log.error("Error destroying servant: " + key + "="

@@ -62,32 +62,4 @@ public class RawFileStoreI extends AbstractAmdServant implements
 
     }
 
-    // Stateful interface methods
-    // =========================================================================
-
-    public void activate_async(AMD_StatefulServiceInterface_activate __cb,
-            Current __current) {
-        callInvokerOnRawArgs(__cb, __current);
-
-    }
-
-    public void passivate_async(AMD_StatefulServiceInterface_passivate __cb,
-            Current __current) {
-        callInvokerOnRawArgs(__cb, __current);
-
-    }
-
-    public void close_async(AMD_StatefulServiceInterface_close __cb,
-            Current __current) {
-        callInvokerOnRawArgs(__cb, __current);
-
-    }
-
-    public void getCurrentEventContext_async(
-            AMD_StatefulServiceInterface_getCurrentEventContext __cb,
-            Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current);
-
-    }
-
 }

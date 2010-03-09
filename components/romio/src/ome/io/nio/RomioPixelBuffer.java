@@ -40,6 +40,8 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 
     private Pixels pixels;
 
+    private RandomAccessFile file;
+
     private FileChannel channel;
 
     private Integer rowSize;
@@ -89,7 +91,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 
     private FileChannel getFileChannel() throws FileNotFoundException {
         if (channel == null) {
-            RandomAccessFile file = new RandomAccessFile(getPath(), "rw");
+            file = new RandomAccessFile(getPath(), "rw");
             channel = file.getChannel();
         }
 
@@ -104,8 +106,20 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
      */
     public void close() throws IOException {
         if (channel != null) {
-            channel.close();
-            channel = null;
+            try {
+                channel.close();
+            } catch (Exception e) {
+                log.error("Error closing channel", e);
+            } finally {
+                channel = null;
+            }
+            try {
+                file.close();
+            } catch (Exception e) {
+                log.error("Error closing file", e);
+            } finally {
+                file = null;
+            }
         }
     }
 

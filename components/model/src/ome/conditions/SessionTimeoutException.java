@@ -6,6 +6,7 @@
  */
 package ome.conditions;
 
+
 /**
  * The given session has expired and can no longer be used. Clients should
  * assume that after this exception has been thrown, that all further attempts
@@ -18,8 +19,11 @@ public class SessionTimeoutException extends SessionException {
 
     private static final long serialVersionUID = -4513364892739872987L;
 
-    public SessionTimeoutException(String msg) {
+    public final Object sessionContext;
+
+    public SessionTimeoutException(String msg, Object sessionContext) {
         super(msg);
+        this.sessionContext = sessionContext;
     }
 
 }
