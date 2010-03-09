@@ -12,15 +12,22 @@ import java.util.Collections;
 import java.util.List;
 
 import ome.api.ServiceInterface;
+import ome.api.StatefulServiceInterface;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.AopContextInitializer;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.IceMethodInvoker;
+import ome.services.blitz.util.UnregisterServantMessage;
 import ome.services.throttling.ThrottlingStrategy;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
+import ome.util.messages.InternalMessage;
+import omero.ServerError;
+import omero.api.AMD_StatefulServiceInterface_activate;
+import omero.api.AMD_StatefulServiceInterface_close;
+import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
+import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api._ServiceInterfaceOperations;
-import omero.api._StatefulServiceInterfaceOperations;
 import omero.util.IceMapper;
 
 import org.springframework.aop.framework.ProxyFactory;
@@ -28,6 +35,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+
+import Ice.Current;
 
 /**
  * {@link ThrottlingStrategy throttled} implementation base class which can be
@@ -52,6 +61,8 @@ public abstract class AbstractAmdServant implements ApplicationContextAware {
      */
     protected IceMethodInvoker invoker;
 
+    protected OmeroContext ctx;
+
     public AbstractAmdServant(ServiceInterface service, BlitzExecutor be) {
         this.be = be;
         this.service = service;
@@ -64,12 +75,12 @@ public abstract class AbstractAmdServant implements ApplicationContextAware {
      */
     public final void setApplicationContext(ApplicationContext ctx)
             throws BeansException {
-        OmeroContext oc = (OmeroContext) ctx;
+        this.ctx = (OmeroContext) ctx;
         if (service != null) {
-            this.invoker = new IceMethodInvoker(service, oc);
+            this.invoker = new IceMethodInvoker(service, this.ctx);
         }
         try {
-            onSetOmeroContext(oc);
+            onSetOmeroContext(this.ctx);
         } catch (Exception e) {
             throw new FatalBeanException("Error on setOmeroContext", e);
         }
@@ -136,6 +147,81 @@ public abstract class AbstractAmdServant implements ApplicationContextAware {
     //
     // StatefulServiceInterface
     //
-    
-    // Here a final close should be defined.
+
+    public final void activate_async(AMD_StatefulServiceInterface_activate __cb,
+            Current __current) {
+        // Do nothing for the moment
+    }
+
+    public final void passivate_async(AMD_StatefulServiceInterface_passivate __cb,
+            Current __current) {
+        // Do nothing for the moment
+    }
+
+    public final void getCurrentEventContext_async(
+            AMD_StatefulServiceInterface_getCurrentEventContext __cb,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
+
+    }
+
+    public final void close(Ice.Current __current) {
+        final RuntimeException[] re = new RuntimeException[1];
+        AMD_StatefulServiceInterface_close cb =
+            new AMD_StatefulServiceInterface_close() {
+            public void ice_exception(Exception ex) {
+                if (ex instanceof RuntimeException) {
+                    re[0] = (RuntimeException) ex;
+                } else {
+                    re[0] = new RuntimeException(ex);
+                }
+            }
+            public void ice_response() {
+                // ok.
+            }
+        };
+        close_async(cb, __current);
+        if (re[0] != null) {
+            throw re[0];
+        }
+    }
+
+    /**
+     * {@link ome.tools.hibernate.SessionHandler} also
+     * specially catches close() calls, but cannot remove the servant
+     * from the {@link Ice.ObjectAdapter} and thereby prevent any
+     * further communication. Once the invocation is finished, though,
+     * it is possible to raise the message and have the servant
+     * cleaned up.
+     *
+     * @see ticket:1855
+     */
+    public final void close_async(AMD_StatefulServiceInterface_close __cb,
+            Ice.Current __current) {
+
+        // Special call logic:
+        // callInvokerOnRawArgs(__cb, __current);
+
+        try {
+            preClose();
+            if (service instanceof StatefulServiceInterface) {
+                StatefulServiceInterface ss = (StatefulServiceInterface) service;
+                ss.close();
+            }
+            __cb.ice_response();
+        } catch (Exception ex) {
+            __cb.ice_exception(ex);
+        } finally {
+            InternalMessage msg = new UnregisterServantMessage(this,
+                    __current.id.category, __current);
+            ctx.publishEvent(msg);
+        }
+
+
+    }
+
+    protected void preClose() {
+
+    }
+
 }

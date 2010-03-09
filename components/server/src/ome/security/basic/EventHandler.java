@@ -100,6 +100,7 @@ public class EventHandler implements MethodInterceptor {
         boolean readOnly = checkReadOnly(arg0);
         boolean stateful = StatefulServiceInterface.class.isAssignableFrom(arg0
                 .getThis().getClass());
+        boolean isClose = stateful && "close".equals(arg0.getMethod().getName());
 
         if (!readOnly && this.readOnly) {
             throw new ApiUsageException("This instance is read-only");
@@ -110,7 +111,7 @@ public class EventHandler implements MethodInterceptor {
         Statement statement = session.connection().createStatement();
         statement.execute("set constraints all deferred;");
         
-        secSys.loadEventContext(readOnly);
+        secSys.loadEventContext(readOnly, isClose);
         
         // and ticket:1266
         if (!readOnly) {

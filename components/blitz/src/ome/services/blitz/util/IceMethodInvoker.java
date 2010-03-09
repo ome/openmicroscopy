@@ -176,7 +176,7 @@ public class IceMethodInvoker {
 
         Object retVal = null;
         try {
-            retVal = callOrClose(obj, current, info, objs);
+            retVal = info.method.invoke(obj, objs);
         } catch (Throwable t) {
             throw mapper.handleException(t, ctx);
         }
@@ -237,32 +237,6 @@ public class IceMethodInvoker {
         }
         return objs;
 
-    }
-
-    /**
-     * Call the method as given and if is named "close" perform
-     * special logic. {@link ome.tools.hibernate.SessionHandler} also
-     * specially catches close() calls, but cannot remove the servant
-     * from the {@link Ice.ObjectAdapter} and thereby prevent any
-     * further communication. Once the invocation is finished, though,
-     * it is possible to raise the message and have the servant
-     * cleaned up.
-     */
-    private Object callOrClose(Object obj, Ice.Current current, Info info,
-            Object[] objs) throws Throwable, IllegalAccessException,
-            InvocationTargetException {
-
-        Object retVal = null;
-	try {
-	    retVal = info.method.invoke(obj, objs);
-	} finally {
-	    if ("close".equals(info.method.getName())) {
-		UnregisterServantMessage usm = new UnregisterServantMessage(this,
-                    Ice.Util.identityToString(current.id), current);
-		ctx.publishMessage(usm);
-	    }
-        }
-        return retVal;
     }
 
     /** For testing the cached method. */

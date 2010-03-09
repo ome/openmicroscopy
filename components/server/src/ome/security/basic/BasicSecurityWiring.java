@@ -69,7 +69,8 @@ public final class BasicSecurityWiring extends HardWiredInterceptor {
      */
     public Object invoke(MethodInvocation mi) throws Throwable {
 
-        if (methodSecurity.isActive()) {
+        if (!"close".equals(mi.getMethod().getName())
+                && methodSecurity.isActive()) {
             methodSecurity.checkMethod(mi.getThis(), mi.getMethod(),
                     getPrincipal(mi));
         }

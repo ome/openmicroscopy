@@ -233,14 +233,14 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     @RolesAllowed("user")
     public void close() {
         rwl.writeLock().lock();
-
+        log.debug("Closing thumbnail bean");
         try {
-	    if (renderer != null) {
-		renderer.close();
-	    }
-	    renderer = null;
-	    iScale = null;
-	    ioService = null;
+            if (renderer != null) {
+                renderer.close();
+            }
+            renderer = null;
+            iScale = null;
+            ioService = null;
         } finally {
             rwl.writeLock().unlock();
         }

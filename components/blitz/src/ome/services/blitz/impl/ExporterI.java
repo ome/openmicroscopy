@@ -447,41 +447,13 @@ public class ExporterI extends AbstractAmdServant implements
     // Stateful interface methods
     // =========================================================================
 
-    public void activate_async(AMD_StatefulServiceInterface_activate __cb,
-            Current __current) {
-        // Do nothing for the moment
-    }
-
-    public void passivate_async(AMD_StatefulServiceInterface_passivate __cb,
-            Current __current) {
-        // Do nothing for the moment
-    }
-
-    public void close_async(AMD_StatefulServiceInterface_close __cb,
-            Current __current) {
-
-        try {
-            retrieve = null;
-            if (file != null) {
-                file.delete();
-                file = null;
-            }
-
-            InternalMessage msg = new UnregisterServantMessage(this,
-                    factory.principal.getName(), __current);
-            factory.context.publishEvent(msg);
-
-            __cb.ice_response();
-        } catch (Exception e) {
-            __cb.ice_exception(e);
+    public void preClose() {
+        retrieve = null;
+        if (file != null) {
+            file.delete();
+            file = null;
         }
-
     }
 
-    public void getCurrentEventContext_async(
-            AMD_StatefulServiceInterface_getCurrentEventContext __cb,
-            Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current);
 
-    }
 }
