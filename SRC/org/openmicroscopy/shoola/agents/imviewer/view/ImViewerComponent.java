@@ -3077,6 +3077,7 @@ class ImViewerComponent
 	public boolean isReadOnly()
 	{
 		ExperimenterData exp = ImViewerAgent.getUserDetails();
+		if (model.isUserOwner()) return false;
 		GroupData g = exp.getDefaultGroup();
 		PermissionData perm = g.getPermissions();
 		if (perm.isGroupRead()) {

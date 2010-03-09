@@ -2255,8 +2255,7 @@ class ImViewerModel
 	 */
 	boolean isWritable()
 	{ 
-		long userID = ImViewerAgent.getUserDetails().getId();
-		boolean b = EditorUtil.isUserOwner(getImage(), userID);
+		boolean b = isUserOwner();
 		if (b) return b;
 		int level = 
 			ImViewerAgent.getRegistry().getAdminService().getPermissionLevel();
@@ -2266,6 +2265,18 @@ class ImViewerModel
 				return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the user logged in is the owner of the 
+	 * image, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isUserOwner()
+	{
+		long userID = ImViewerAgent.getUserDetails().getId();
+		return EditorUtil.isUserOwner(getImage(), userID);
 	}
 	
 }

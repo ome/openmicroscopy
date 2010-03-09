@@ -87,12 +87,8 @@ public class SaveRndSettingsAction
      */
     protected void onStateChange(ChangeEvent e)
     {
-    	if (model.getState() == ImViewer.READY) {
-    		if (model.getSelectedIndex() == ImViewer.PROJECTION_INDEX)
-    			setEnabled(false);
-    		else 
-    			handleChange();
-    	}
+    	if (model.getState() == ImViewer.READY) onTabSelection();
+    	else setEnabled(false);
     }
     
     /**
