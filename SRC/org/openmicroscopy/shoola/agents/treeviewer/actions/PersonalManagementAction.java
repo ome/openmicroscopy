@@ -28,6 +28,9 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 import javax.swing.Action;
 
 
@@ -39,6 +42,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.GroupData;
 
 /** 
  * Brings up the <code>Personal Management</code> menu.
@@ -64,6 +69,13 @@ public class PersonalManagementAction
     /** The location of the mouse pressed. */
     private Point point;
 
+    /** Sets the name of the action. */
+    private void setActionName()
+    {
+    	GroupData group = model.getSelectedGroup();
+    	if (group != null) putValue(Action.NAME, group.getName());
+    }
+    
     /** 
      * Enables the action if the browser is not ready.
      * @see TreeViewerAction#onBrowserStateChange(Browser)
@@ -100,7 +112,17 @@ public class PersonalManagementAction
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.PERSONAL));
+        putValue(Action.SMALL_ICON, im.getIcon(IconManager.UP_DOWN_9_12));
+        setActionName();
+        model.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			public void propertyChange(PropertyChangeEvent evt) {
+				String name = evt.getPropertyName();
+				if (TreeViewer.GROUP_CHANGED_PROPERTY.equals(name)) {
+					setActionName();
+				}
+			}
+		});
     }
     
     /** 

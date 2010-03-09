@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -47,6 +48,7 @@ import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.EmptyBorder;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXBusyLabel;
@@ -158,25 +160,8 @@ class ToolBar
         //bar.add(b);
         
         bar.add(new JSeparator(JSeparator.VERTICAL));
-        TreeViewerAction a = 
-        	controller.getAction(TreeViewerControl.SWITCH_USER);
-        b = new JButton(a);
-        b.addMouseListener((SwitchUserAction) a);
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        //if (model.isMultiUser()) 
-        bar.add(b);
-        a = controller.getAction(TreeViewerControl.PERSONAL);
-        b = new JButton(a);
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        b.addMouseListener((PersonalManagementAction) a);
-        bar.add(b);
-        /*
-        b = new JButton(controller.getAction(TreeViewerControl.ADMIN));
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        bar.add(b);
-        */
-        bar.add(new JSeparator(JSeparator.VERTICAL));
-        a = controller.getAction(TreeViewerControl.MANAGER);
+       
+        TreeViewerAction a = controller.getAction(TreeViewerControl.MANAGER);
         b = new JButton(a);
         UIUtilities.unifiedButtonLookAndFeel(b);
         b.addMouseListener((ManagerAction) a);
@@ -198,6 +183,21 @@ class ToolBar
         //UIUtilities.unifiedButtonLookAndFeel(button);
         fullScreen.setSelected(model.isFullScreen());
         //bar.add(fullScreen);
+        
+        a = controller.getAction(TreeViewerControl.SWITCH_USER);
+        b = new JButton(a);
+        b.addMouseListener((SwitchUserAction) a);
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        bar.add(b);
+        a = controller.getAction(TreeViewerControl.PERSONAL);
+        b = new JButton(a);
+       
+        //b.setHorizontalTextPosition(SwingConstants.LEFT);
+        //UIUtilities.unifiedButtonLookAndFeel(b);
+        BorderFactory.createCompoundBorder(new EmptyBorder(2, 2, 2, 2), 
+        		BorderFactory.createLineBorder(Color.GRAY));
+        b.addMouseListener((PersonalManagementAction) a);
+        bar.add(b);
         return bar;
     }
     
