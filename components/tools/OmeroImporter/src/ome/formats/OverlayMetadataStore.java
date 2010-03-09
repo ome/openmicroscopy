@@ -127,11 +127,9 @@ public class OverlayMetadataStore implements MetadataStore {
 	 */
 	private Column[] createColumns(int length) {
 		Column[] newColumns = new Column[4];
-		newColumns[IMAGE_COLUMN] = 
-			new ImageColumn("Image", "", new long[length]);
+		newColumns[IMAGE_COLUMN] = new ImageColumn("Image", "", new long[length]);
 		newColumns[ROI_COLUMN] = new RoiColumn("ROI", "", new long[length]);
-		newColumns[COLOR_COLUMN] = 
-			new LongColumn("Color", "", new long[length]);
+		newColumns[COLOR_COLUMN] = new LongColumn("Color", "", new long[length]);
 		newColumns[MASK_COLUMN] = new MaskColumn("Overlays", "", 
 				new long[length],    // imageId
 				new int[length],     // theZ
@@ -157,11 +155,9 @@ public class OverlayMetadataStore implements MetadataStore {
 		// Create our measurement file annotation
 		fileAnnotation = new FileAnnotationI();
 		fileAnnotation.setDescription(rstring("Overlays"));
-		fileAnnotation.setNs(rstring(
-				omero.constants.namespaces.NSMEASUREMENT.value));
+		fileAnnotation.setNs(rstring(omero.constants.namespaces.NSMEASUREMENT.value));
 		fileAnnotation.setFile(new OriginalFileI(tableFileId, false));
-		fileAnnotation = (FileAnnotation) 
-			updateService.saveAndReturnObject(fileAnnotation);
+		fileAnnotation = (FileAnnotation) updateService.saveAndReturnObject(fileAnnotation);
 		fileAnnotationId = fileAnnotation.getId().getValue();
 		log.info(String.format("New table %d annotation %d", 
 				tableFileId, fileAnnotationId));

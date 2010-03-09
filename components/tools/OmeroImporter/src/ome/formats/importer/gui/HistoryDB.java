@@ -174,7 +174,7 @@ public class HistoryDB extends HistoryTableAbstractDataSource
         conn.close();    // if there are no other open connection
     }
     
-    public ResultSet getImportResults(HistoryDB db, String table, Long experimenterID)
+    public ResultSet getImportResults(String table, Long experimenterID)
     {
         if (experimenterID == -1)
         {

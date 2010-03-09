@@ -357,6 +357,10 @@ public class ImportConfig {
     public String getHomeUrl() {
         return ini.getHomeUrl();
     }
+    
+    public String getForumUrl() {
+    	return ini.getForumUrl();
+    }
 
     public String getAppTitle() {
         return ini.getAppTitle();

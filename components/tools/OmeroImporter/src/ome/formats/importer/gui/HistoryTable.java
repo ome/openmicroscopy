@@ -389,7 +389,6 @@ public class HistoryTable
         try {
         	
         	Data d = db.getItemTableDataByQuery(importID, queryString, from, to);
-        	
         	long[] ids = db.getItemTableIDsByDate(importID, from, to);
         	
             LongColumn uids = (LongColumn) d.columns[db.ITEM_BASE_UID_COLUMN];

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportEvent;
+import ome.formats.importer.gui.ErrorFilePart;
 import ome.formats.importer.util.FileUploadCounter.ProgressListener;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -73,7 +74,10 @@ public class FileUploader implements IObservable
         for (String f : files)
         {                 
             if (cancelUpload)
-                return;
+            {
+                System.err.println(cancelUpload);
+                continue;
+            }
             
             fileCount++;
             final int count = fileCount;
@@ -97,7 +101,7 @@ public class FileUploader implements IObservable
                 Part[] parts ={ 
                         new StringPart("token", upload.getToken()), 
                         new StringPart("file_format", format), 
-                        new FilePart("Filedata", file) 
+                        new ErrorFilePart("Filedata", file) 
                         };
                 
                 final long fileLength = file.length();
@@ -110,7 +114,7 @@ public class FileUploader implements IObservable
                     private long parts = -1;
 
                     public void update(long bytesRead)
-                    {
+                    {                       
                         long partsDone = 0;
                         if (fileLength != 0) partsDone = bytesRead / (fileLength/10);
                         if (parts == partsDone) {

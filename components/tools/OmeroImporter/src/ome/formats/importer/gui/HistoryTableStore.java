@@ -4,6 +4,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Vector;
 
 import javax.swing.DefaultListModel;
 
@@ -23,13 +24,15 @@ import omero.grid.Data;
 import omero.grid.LongColumn;
 import omero.grid.StringColumn;
 import omero.grid.TablePrx;
+import omero.model.Dataset;
 import omero.model.OriginalFile;
+import omero.model.Screen;
 
 public class HistoryTableStore extends HistoryTableAbstractDataSource
 {
-	private static String SERVER = "mage.openmicroscopy.org.uk";
-	private static String USER = "root";
-	private static String PASS = "omero";
+	private static String SERVER = "server";
+	private static String USER = "user";
+	private static String PASS = "pass";
 	
 	private static String baseDBNAME = "baseFile";
 	private static String itemDBNAME = "itemFile";
@@ -470,6 +473,69 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         return null;
     }
 
+    
+    public Vector<Object> getItemQuery(long importID, long experimenterID, String queryString, Date from, Date to)
+    {   
+        Vector<Object> rows = new Vector<Object>();
+        
+        try {
+        	Data d = getItemTableDataByQuery(importID, queryString, from, to);
+        	long[] ids = getItemTableIDsByDate(importID, from, to);
+        	
+            StringColumn fileNames = (StringColumn) d.columns[ITEM_FILENAME_COLUMN];
+            LongColumn projectIDs = (LongColumn) d.columns[ITEM_PROJECTID_COLUMN];
+        	LongColumn objectIDs = (LongColumn) d.columns[ITEM_OBJECTID_COLUMN];
+        	LongColumn importTimes = (LongColumn) d.columns[ITEM_DATETIME_COLUMN];
+        	StringColumn filePaths = (StringColumn) d.columns[ITEM_FILENAME_COLUMN];
+        	StringColumn statuses = (StringColumn) d.columns[ITEM_STATUS_COLUMN];
+           
+            // Format the current time.
+            String dayString, hourString, pdsString = "", fileName = "", filePath = "", status = "";
+            long objectID = 0L, projectID = 0L, importTime = 0L;
+            
+            int returnedRows = 0;
+            if (ids != null)
+            	returnedRows = ids.length;
+            
+            for (int h = 0; h < returnedRows; h++)
+            {
+            	int i = (int) ids[h];
+            	fileName = fileNames.values[i].trim();
+            	projectID = projectIDs.values[i];
+            	objectID = objectIDs.values[i];
+            	importTime = importTimes.values[i];
+            	filePath = filePaths.values[i].trim();
+            	status = statuses.values[i].trim();
+            	
+                dayString = day.format(new Date(importTime));
+                hourString = hour.format(new Date(importTime));
+
+                if (day.format(new Date()).equals(dayString))
+                    dayString = "Today";
+                
+                if (day.format(getYesterday()).equals(dayString))
+                {
+                    dayString = "Yesterday";
+                }
+                
+                Vector<Object> row = new Vector<Object>();
+                row.add(fileName);
+                row.add(pdsString);
+                row.add(dayString + " " + hourString);
+                row.add(status);
+                row.add(filePath);
+                row.add(objectID);
+                row.add(projectID);
+                rows.add(row);
+            }
+        } catch (NullPointerException npe) {
+        	log.error("Null pointer exception.", npe);
+        } // results are null
+        catch (Exception e) {
+        	log.error("exception.", e);
+        }
+        return rows;
+    }
     
     /**
      * Simple class to display table data from both tables. Used for testing.
