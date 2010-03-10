@@ -36,6 +36,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Vector;
 
 import javax.swing.DefaultListModel;
 
@@ -430,4 +431,15 @@ public class HistoryDB extends HistoryTableAbstractDataSource
         }
     	return null;
     }
+
+	public Vector<Object> getBaseQuery(Long experimenterID) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public Vector<Object> getItemQuery(Long importID, Long experimenterID,
+			String queryString, Date from, Date to) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

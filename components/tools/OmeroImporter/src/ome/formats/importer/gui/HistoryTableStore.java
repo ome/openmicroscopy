@@ -24,9 +24,7 @@ import omero.grid.Data;
 import omero.grid.LongColumn;
 import omero.grid.StringColumn;
 import omero.grid.TablePrx;
-import omero.model.Dataset;
 import omero.model.OriginalFile;
-import omero.model.Screen;
 
 public class HistoryTableStore extends HistoryTableAbstractDataSource
 {
@@ -146,6 +144,11 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     	baseTable.addData(newRow);
     }
     
+    /**
+     * Initialize the item table
+     * 
+     * @throws ServerError
+     */
     @SuppressWarnings("deprecation")
     private void initializeItemTable() throws ServerError
     {
@@ -473,8 +476,40 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         return null;
     }
 
+    public Vector<Object> getBaseQuery(Long ExperimenterID)
+    {   
+
+        Vector<Object> rows = new Vector<Object>();
+    	
+        try {
+            Data d = getBaseTableData();
+            int returnedRows = (int) getBaseTableNumberOfRows();
+            
+            LongColumn importTimes = (LongColumn) d.columns[BASE_DATETIME_COLUMN];
+            StringColumn statuses = (StringColumn) d.columns[BASE_STATUS_COLUMN];
+           
+            for (int i = 0; i < returnedRows; i++)
+            {
+            	Vector<Object> row = new Vector<Object>();
+            	row.add(new Date(importTimes.values[i]));
+            	row.add(statuses.values[i].trim());
+            	rows.add(row);
+            }
+            
+        } catch (NullPointerException npe) {
+        	
+        } // results are null
+        catch (Exception e) {
+        	log.error("exception.", e);
+        }
+        return rows;
+    }
     
-    public Vector<Object> getItemQuery(long importID, long experimenterID, String queryString, Date from, Date to)
+    
+    /* (non-Javadoc)
+     * @see ome.formats.importer.gui.IHistoryTableDataSource#getItemQuery(java.lang.Long, java.lang.Long, java.lang.String, java.util.Date, java.util.Date)
+     */
+    public Vector<Object> getItemQuery(Long importID, Long experimenterID, String queryString, Date from, Date to)
     {   
         Vector<Object> rows = new Vector<Object>();
         
@@ -490,8 +525,8 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         	StringColumn statuses = (StringColumn) d.columns[ITEM_STATUS_COLUMN];
            
             // Format the current time.
-            String dayString, hourString, pdsString = "", fileName = "", filePath = "", status = "";
-            long objectID = 0L, projectID = 0L, importTime = 0L;
+            String fileName = "", filePath = "", status = "";
+            Long objectID = 0L, projectID = 0L, importTime = 0L;
             
             int returnedRows = 0;
             if (ids != null)
@@ -506,22 +541,10 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
             	importTime = importTimes.values[i];
             	filePath = filePaths.values[i].trim();
             	status = statuses.values[i].trim();
-            	
-                dayString = day.format(new Date(importTime));
-                hourString = hour.format(new Date(importTime));
 
-                if (day.format(new Date()).equals(dayString))
-                    dayString = "Today";
-                
-                if (day.format(getYesterday()).equals(dayString))
-                {
-                    dayString = "Yesterday";
-                }
-                
                 Vector<Object> row = new Vector<Object>();
                 row.add(fileName);
-                row.add(pdsString);
-                row.add(dayString + " " + hourString);
+                row.add(importTime);
                 row.add(status);
                 row.add(filePath);
                 row.add(objectID);

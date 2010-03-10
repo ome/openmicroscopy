@@ -348,31 +348,27 @@ public class HistoryTable
         }
     }
     
-    /**
-     * @param args
-     * @return 
-     */
-    
-    public void getImportQuery(long ExperimenterID)
+   
+    public void getBaseQuery(Long ExperimenterID)
     {   
         try {
-            Data d = db.getBaseTableData();
-            LongColumn importTimes = (LongColumn) d.columns[db.BASE_DATETIME_COLUMN];
-            StringColumn statuses = (StringColumn) d.columns[db.BASE_STATUS_COLUMN];
-
-
-            Vector<Object> row = new Vector<Object>();
-            
+        	
             int count = table.getRowCount();
             for (int r = count - 1; r >= 0; r--)
             {
                 table.removeRow(r);
             }
            
-            for (int i = 0; i < (int) db.getBaseTableNumberOfRows(); i++)
+            Vector<Object> query = db.getBaseQuery(ExperimenterID);
+            int returnedRows = query.size();
+            
+            for (int i = 0; i < returnedRows; i++)
             {
-            	row.add(new Date(importTimes.values[i]));
-            	row.add(statuses.values[i].trim());
+            	Vector<Object> queryRow = (Vector<Object>) query.get(i);
+            	Vector<Object> row = new Vector<Object>();
+            	 
+            	row.add(new Date((Long) queryRow.get(0)));
+            	row.add((String) queryRow.get(1));
             	table.addRow(row);
             }
             
@@ -384,45 +380,39 @@ public class HistoryTable
         }
     }
     
+    /**
+     * @param importID
+     * @param experimenterID
+     * @param queryString
+     * @param from
+     * @param to
+     */
     public void getItemQuery(long importID, long experimenterID, String queryString, Date from, Date to)
     {   
-        try {
-        	
-        	Data d = db.getItemTableDataByQuery(importID, queryString, from, to);
-        	long[] ids = db.getItemTableIDsByDate(importID, from, to);
-        	
-            LongColumn uids = (LongColumn) d.columns[db.ITEM_BASE_UID_COLUMN];
-            StringColumn fileNames = (StringColumn) d.columns[db.ITEM_FILENAME_COLUMN];
-            LongColumn projectIDs = (LongColumn) d.columns[db.ITEM_PROJECTID_COLUMN];
-        	LongColumn objectIDs = (LongColumn) d.columns[db.ITEM_OBJECTID_COLUMN];
-        	LongColumn importTimes = (LongColumn) d.columns[db.ITEM_DATETIME_COLUMN];
-        	StringColumn filePaths = (StringColumn) d.columns[db.ITEM_FILENAME_COLUMN];
-        	StringColumn statuses = (StringColumn) d.columns[db.ITEM_STATUS_COLUMN];
-        	                                  
-            int count = table.getRowCount();
-            for (int r = count - 1; r >= 0; r--)
+    	// Format the current time.
+        String dayString, hourString, objectName= "", projectName = "", pdsString = "", fileName = "", filePath = "", status = "";
+        long oldObjectID = 0L, objectID = 0L, oldProjectID = 0L, projectID = 0L, importTime = 0L;
+        
+        try {        	                                  
+            for (int r = table.getRowCount() - 1; r >= 0; r--)
             {
                 table.removeRow(r);
             }
-           
-            // Format the current time.
-            String dayString, hourString, objectName= "", projectName = "", pdsString = "", fileName = "", filePath = "", status = "";
-            long uid = 0L, oldObjectID = 0L, objectID = 0L, oldProjectID = 0L, projectID = 0L, importTime = 0L;
             
-            int returnedRows = 0;
-            if (ids != null)
-            	returnedRows = ids.length;
-            
-            for (int h = 0; h < returnedRows; h++)
+            Vector<Object> query = db.getItemQuery(importID, experimenterID, queryString, from, to);
+            int returnedRows = query.size();
+
+            for (int i = 0; i < returnedRows; i++)
             {
-            	int i = (int) ids[h];
-            	uid = uids.values[i];
-            	fileName = fileNames.values[i].trim();
-            	projectID = projectIDs.values[i];
-            	objectID = objectIDs.values[i];
-            	importTime = importTimes.values[i];
-            	filePath = filePaths.values[i].trim();
-            	status = statuses.values[i].trim();
+
+            	Vector<Object> queryRow = (Vector<Object>) query.get(i);
+            	
+            	fileName = (String) queryRow.get(0);
+            	importTime = (Long) queryRow.get(1);
+            	status = (String) queryRow.get(2);
+            	filePath = (String) queryRow.get(3);
+            	objectID = (Long) queryRow.get(4);
+            	projectID = (Long) queryRow.get(5);
             	
             	if (oldObjectID != objectID)
             	{

@@ -2,6 +2,7 @@ package ome.formats.importer.gui;
 
 import java.io.File;
 import java.util.Date;
+import java.util.Vector;
 
 import javax.swing.DefaultListModel;
 
@@ -71,7 +72,6 @@ public interface IHistoryTableDataSource
     int addItemTableRow(Long experimenterID, Integer baseUID, Integer fileNumber, 
             String fileName, Long projectID, Long containerID, String status, File file) throws Exception;
 	
-    
     /**
      * return a data collection from the base table based on star and end dates
      * @param start date
@@ -80,5 +80,25 @@ public interface IHistoryTableDataSource
      * @throws Exception
      */
     DefaultListModel getBaseTableDataByDate(Date start, Date end);
+    
+    /**
+     * returns a vector<Object> containing query data from the base table.
+     * 
+     * @param ExperimenterID
+     * @return Vector of objects from base table query
+     */
+    Vector<Object> getBaseQuery(Long ExperimenterID);
+    
+    /**
+     * returns a vector<Object> containing query data from the item table.
+     * 
+     * @param importID
+     * @param experimenterID
+     * @param queryString
+     * @param from
+     * @param to
+     * @return Vector of objects from item table query
+     */
+    Vector<Object> getItemQuery(Long importID, Long experimenterID, String queryString, Date from, Date to);
 }
 
