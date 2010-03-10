@@ -95,8 +95,7 @@ class PublishingDialog
 	private static final String SPLIT_VIEW_FIGURE_TEXT = "Split Figure...";
 	
 	/** The text associated to the SPLIT_VIEW_FIGURE action. */
-	private static final String SPLIT_VIEW_ROI_FIGURE_TEXT = 
-		"Split ROI Figure...";
+	private static final String SPLIT_VIEW_ROI_FIGURE_TEXT = "ROI Figure...";
 	
 	/** The text associated to the Thumbnails action. */
 	private static final String THUMBNAILS_FIGURE_TOOLTIP = "" +

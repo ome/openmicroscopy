@@ -63,7 +63,6 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -82,6 +81,7 @@ import javax.swing.text.Document;
 import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTaskPane;
+import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.DrawingView;
 
@@ -107,6 +107,7 @@ import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.DrawingComponent;
+import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.slider.GridSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
@@ -168,8 +169,11 @@ public class FigureDialog
 	/** Action id indicating to turn on or off the projection's controls. */
 	private static final int 		PROJECTION = 4;
 	
-	/** Action id indicating a change in the magnification factor.. */
+	/** Action id indicating a change in the magnification factor. */
 	private static final int 		ZOOM_FACTOR = 5;
+	
+	/** Action id indicating that the color has changed. */
+	private static final int 		COLOR_SELECTION = 7;
 	
 	/** The default text for the movie. */
 	private static final String		FRAMES_TEXT = "Number of frames: ";
@@ -187,29 +191,32 @@ public class FigureDialog
     /** The height of the component displaying the available tags. */
     private static final int		MAX_HEIGHT = 150;
     
+    /** The stroke width of the ROI displayed on the image. */
+    private static final double		STROKE_WIDTH = 2.5;
+    
     /** The possible options for row names. */
     private static final String[]	ROW_NAMES;
 
     /** The possible options for row names. */
     private static final String[]	MAGNIFICATION;
     
-    /** Index to <code>Auto</code>. */
-    private static final int		ZOOM_AUTO = 0;
-    
     /** Index to <code>100%</code> magnification. */
-    private static final int		ZOOM_100 = 1;
+    private static final int		ZOOM_100 = 0;
     
     /** Index to <code>200%</code> magnification. */
-    private static final int		ZOOM_200 = 2;
+    private static final int		ZOOM_200 = 1;
     
     /** Index to <code>300%</code> magnification. */
-    private static final int		ZOOM_300 = 3;
+    private static final int		ZOOM_300 = 2;
     
     /** Index to <code>400%</code> magnification. */
-    private static final int		ZOOM_400 = 4;
+    private static final int		ZOOM_400 = 3;
     
     /** Index to <code>500%</code> magnification. */
-    private static final int		ZOOM_500 = 5;
+    private static final int		ZOOM_500 = 4;
+    
+    /** Index to <code>Auto</code>. */
+    private static final int		ZOOM_AUTO = 5;
     
     /** Index corresponding to a <code>24x24</code> thumbnail. */
     private static final int		SIZE_24 = 0;
@@ -241,12 +248,12 @@ public class FigureDialog
 		ROW_NAMES[FigureParam.DATASET_NAME] = "Datasets";
 		ROW_NAMES[FigureParam.TAG_NAME] = "Tags";
 		MAGNIFICATION = new String[6];
-		MAGNIFICATION[ZOOM_AUTO] = "Zoom To Fit";
 		MAGNIFICATION[ZOOM_100] = "100%";
 		MAGNIFICATION[ZOOM_200] = "200%";
 		MAGNIFICATION[ZOOM_300] = "300%";
 		MAGNIFICATION[ZOOM_400] = "400%";
 		MAGNIFICATION[ZOOM_500] = "500%";
+		MAGNIFICATION[ZOOM_AUTO] = "Zoom To Fit";
 		SIZE_OPTIONS = new String[7];
 		SIZE_OPTIONS[SIZE_24] = "24x24";
 		SIZE_OPTIONS[SIZE_32] = "32x32";
@@ -332,9 +339,6 @@ public class FigureDialog
 	/** The components hosting the channel components. */
 	private JXTaskPane						channelsPane;
 
-	/** The component hosting the canvas. */
-	private JLayeredPane					pane;
-	
 	/** Component hosting the ROI. */
 	private ROIComponent					roiComponent;
 
@@ -420,8 +424,60 @@ public class FigureDialog
 	/** Copy of the rendering definition. */
 	private RndProxyDef						rndDef;
 	
-	/** Modifies the lens factor. */
-	private void setLensFactor()
+	/** The ROIs currently displayed on the image. */
+	private List<ROI> 						displayedROIs;
+	
+	/**
+	 * Returns the selected color or <code>null</code>.
+	 * 
+	 * @return See above.
+	 */
+	private Color getSelectedColor()
+	{
+		int index = colorBox.getSelectedIndex();
+		Map<Color, String> m = EditorUtil.COLORS_BAR;
+		Iterator i = m.entrySet().iterator();
+		int j = 0;
+		Entry entry;
+		Color c = null;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			if (j == index) c = (Color) entry.getKey();
+			j++;
+		}
+		return c;
+	}
+	
+	/** Modifies the color of the ROIs. */
+	private void modifyROIDisplay()
+	{
+		if (displayedROIs == null) return;
+		Color c = getSelectedColor();
+		if (c == null) return;
+		Entry entry;
+		Iterator<ROI> ro;
+		TreeMap shapes;
+		Iterator k;
+		ROIShape shape;
+		ROI roi;
+		ROIFigure fig;
+		ro = displayedROIs.iterator();
+		while (ro.hasNext()) {
+			roi = (ROI) ro.next();
+			shapes = roi.getShapes();
+			k = shapes.entrySet().iterator();
+			while (k.hasNext()) {
+				entry = (Entry) k.next();
+				shape = (ROIShape) entry.getValue();
+				fig = shape.getFigure();
+				AttributeKeys.STROKE_WIDTH.set(fig, STROKE_WIDTH);
+				AttributeKeys.STROKE_COLOR.set(fig, c);
+			}
+		}
+	}
+	
+	/** Displays the magnification factor. */
+	private void setFactor()
 	{
 		int v = zoomBox.getSelectedIndex();
 		if (v == ZOOM_AUTO) {
@@ -431,9 +487,16 @@ public class FigureDialog
 			lens.setZoomFactor(ff);
 			generalLabel.setText(MAGNIFICATION_TEXT+ff);
 		} else {
+			v++;
 			generalLabel.setText(MAGNIFICATION_TEXT+v);
 			lens.setZoomFactor(v);
 		}
+	}
+	
+	/** Modifies the lens factor. */
+	private void setLensFactor()
+	{
+		setFactor();
 		//reset 
 		Iterator k = components.entrySet().iterator();
 		Entry entry;
@@ -446,7 +509,7 @@ public class FigureDialog
         	entry = (Entry) k.next();
         	j = (Integer) entry.getKey();
 			fc = (FigureComponent) entry.getValue();
-			lens.setPlaneImage(getChannelImage(j, false));
+			lens.setPlaneImage(renderer.createSingleChannelImage(true, j, pDef));
 			img = lens.getZoomedImage();
 			if (img != null) {
 				w = img.getWidth()*size.width/pixels.getSizeX();
@@ -666,7 +729,7 @@ public class FigureDialog
 		zoomBox = new JComboBox(MAGNIFICATION);
 		zoomBox.setActionCommand(""+ZOOM_FACTOR);
 		zoomBox.addActionListener(this);
-		DrawingView canvasView = drawingComponent.getDrawingView();
+		DrawingCanvasView canvasView = drawingComponent.getDrawingView();
 		double factor = getMagnificationFactor();
 		if (factor != -1)
 			canvasView.setScaleFactor(factor);
@@ -705,23 +768,14 @@ public class FigureDialog
 			int rh = (int) roiBox.getHeight();
 			lens = new LensComponent((JFrame) getOwner(), false, rw, rh);
 			lens.setLensLocation((int) roiBox.getX(), (int) roiBox.getY());
-			if (zoomBox.getSelectedIndex() == ZOOM_AUTO) {
-				int h = (Integer) heightField.getValueAsNumber();
-				float f = (float) h/(float) roiBox.getHeight();
-				float ff = (float) (Math.round(f*100)/100.0);
-				lens.setZoomFactor(ff);
-				generalLabel.setText(MAGNIFICATION_TEXT+ff);
-			}
-			drawingComponent.getDrawingView().setDrawing(drawing);
-			//}
+			setFactor();
+			canvasView.setDrawing(drawing);
 		} catch (Exception e) {
-			// TODO: handle exception
+			
 		}
 		List<Integer> active = renderer.getActiveChannels();
 		List<ChannelData> data = renderer.getChannelData();
         ChannelData d;
-        //ChannelToggleButton item;
-        ChannelButton item;
         Iterator<ChannelData> k = data.iterator();
         List<ChannelButton> buttons = new ArrayList<ChannelButton>();
         ChannelButton comp;
@@ -738,7 +792,9 @@ public class FigureDialog
         mergedComponent = new FigureComponent(this, buttons);
         mergedComponent.setCanvasSize(thumbnailWidth, thumbnailHeight);
         mergedComponent.setOriginalImage(getMergedImage());
-
+        //Add the view to the canvas.
+        mergedComponent.addToView(canvasView);
+        
         components = new LinkedHashMap<Integer, FigureComponent>();
 		//Initializes the channels
 		k = data.iterator();
@@ -753,9 +809,9 @@ public class FigureDialog
 			j = d.getIndex();
 			split = new FigureComponent(this, renderer.getChannelColor(j), 
 					d.getChannelLabeling(), j);
-			//split.setSelected(active.contains(j));
 			split.setSelected(true);
-			lens.setPlaneImage(getChannelImage(j, false));
+			lens.setPlaneImage(
+					renderer.createSingleChannelImage(true, j, pDef));
 			img = lens.getZoomedImage();
 			if (img != null) {
 				w = img.getWidth()*size.width/pixels.getSizeX();
@@ -847,7 +903,8 @@ public class FigureDialog
 		colorBox.setModel(new DefaultComboBoxModel(cols));	
 		colorBox.setSelectedIndex(cols.length-1);
 		colorBox.setRenderer(new ColorListRenderer());
-
+		colorBox.setActionCommand(""+COLOR_SELECTION);
+		colorBox.addActionListener(this);
 		showScaleBar.setSelected(false);
 		scaleBar.setEnabled(false);
 
@@ -891,8 +948,6 @@ public class FigureDialog
 		ButtonGroup group = new ButtonGroup();
 		group.add(projectionBox);
 		group.add(planeSelection);
-		
-		pane = new JLayeredPane();
 		thumbnailHeight = Factory.THUMB_DEFAULT_HEIGHT;
 		thumbnailWidth = Factory.THUMB_DEFAULT_WIDTH;	
 		
@@ -1415,19 +1470,7 @@ public class FigureDialog
 			if (n != null) scale = n.intValue();
 		}
 		p.setScaleBar(scale);
-		int index = colorBox.getSelectedIndex();
-		
-		Map<Color, String> m = EditorUtil.COLORS_BAR;
-		Iterator i = m.entrySet().iterator();
-		int j = 0;
-		Entry entry;
-		Color c = null;
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			if (j == index) c = (Color) entry.getKey();
-			j++;
-		}
-		p.setColor(c);
+		p.setColor(getSelectedColor());
 		//projection
 		if (projectionBox.isSelected()) {
 			p.setZStart((int) zRange.getStartValue()-1);
@@ -1861,7 +1904,8 @@ public class FigureDialog
 				result = (ROIResult) r.next();
 				list = result.getROIs();
 				if (list.size() > 0) count++;
-				roiComponent.loadROI(list, true);
+				displayedROIs = roiComponent.loadROI(list, true);
+				modifyROIDisplay();
 			}
 		} catch (Exception e) {}
 		return count != 0;
@@ -1907,6 +1951,8 @@ public class FigureDialog
 			case ZOOM_FACTOR:
 				setLensFactor();
 				break;
+			case COLOR_SELECTION:
+				modifyROIDisplay();
 		}
 	}
 	

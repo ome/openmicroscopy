@@ -106,7 +106,7 @@ class FigureCanvas
         	return;
     	}
     	if (!imageVisible) {
-    		g2D.drawRect(0, 0, image.getWidth(), image.getHeight()-1);
+    		g2D.drawRect(0, 0, image.getWidth()-1, image.getHeight()-1);
     		return;
     	}
     	g2D.drawImage(image, null, 0, 0); 

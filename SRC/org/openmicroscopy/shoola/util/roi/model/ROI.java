@@ -69,10 +69,10 @@ public class ROI
 	private boolean clientSide;
 	
 	/** The TreeMap containing the ROI shapes of the ROI. */ 
-	TreeMap<Coord3D, ROIShape> 				roiShapes;
+	private TreeMap<Coord3D, ROIShape> 				roiShapes;
 	
 	/** The Attachments in the ROI. */
-	AttachmentMap 							attachments;
+	private  AttachmentMap 							attachments;
 	
 	/** Annotations in the ROI. */
 	private Map<AnnotationKey, Object> 	annotations 

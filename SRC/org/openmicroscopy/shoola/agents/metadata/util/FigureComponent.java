@@ -40,6 +40,8 @@ import java.util.Map;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
@@ -75,6 +77,9 @@ class FigureComponent
 
 	/** Reference to the canvas displaying the image. */
 	private FigureCanvas 			canvas;
+	
+	/** The layered pane hosting the canvas. */
+	private JLayeredPane			pane;
 	
 	/** 
 	 * The component displaying the label of the channel so that
@@ -118,6 +123,8 @@ class FigureComponent
 		field.setFont(f.deriveFont(f.getStyle(), ChannelButton.MIN_FONT_SIZE));
 		field.setColumns(8);
 		canvas = new FigureCanvas();
+		pane = new JLayeredPane();
+		pane.add(canvas, Integer.valueOf(0));
 		box = new JCheckBox("Channel names");
 		box.setToolTipText("Label the merged panel with channel names " +
 				"if selected. Otherwise label with 'Merged'.");
@@ -136,14 +143,17 @@ class FigureComponent
 		}
 		JPanel controls = new JPanel();
 		controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
-		if (!single) controls.add(UIUtilities.buildComponentPanel(box));
-		else controls.add(field);
+		if (!single) {
+			//JPanel pBox = UIUtilities.buildComponentPanel(box);
+			//pBox.setBorder(null);
+			controls.add(UIUtilities.buildComponentPanel(box, 5, 4));
+		} else controls.add(field);
 		controls.add(UIUtilities.buildComponentPanel(p));
-		controls.add(UIUtilities.buildComponentPanelCenter(canvas));
+		//controls.add(UIUtilities.buildComponentPanelCenter(pane));
 		setLayout(new BorderLayout(0, 0));
 		add(UIUtilities.buildComponentPanel(controls, 0, 0),
 				BorderLayout.NORTH);
-		add(UIUtilities.buildComponentPanelCenter(canvas), BorderLayout.CENTER);
+		add(UIUtilities.buildComponentPanelCenter(pane), BorderLayout.CENTER);
 	}
 	
 	/**
@@ -181,6 +191,21 @@ class FigureComponent
 		buttons = channels;
 		initComponents(FigureParam.MERGED_TEXT);
 		buildGUI();
+	}
+	
+	/**
+	 * Adds the passed component to the layer.
+	 * 
+	 * @param component The component to add.
+	 */
+	void addToView(JComponent component)
+	{
+		if (component != null) {
+			Dimension d = pane.getPreferredSize();
+			component.setPreferredSize(d);
+			component.setSize(d);
+			pane.add(component, Integer.valueOf(1));
+		}
 	}
 	
 	/**
@@ -277,6 +302,8 @@ class FigureComponent
 	void setCanvasSize(int width, int height)
 	{
 		Dimension d = new Dimension(width, height);
+		pane.setPreferredSize(d);
+	    pane.setSize(d);
 		canvas.setPreferredSize(d);
 		canvas.setSize(d);
 	}

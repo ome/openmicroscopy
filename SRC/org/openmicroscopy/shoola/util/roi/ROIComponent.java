@@ -38,8 +38,6 @@ import java.util.TreeMap;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.model.Image;
-
 import org.jhotdraw.draw.AttributeKeys;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
@@ -195,7 +193,8 @@ public class ROIComponent
 	 * @param figure The figure to remove.
 	 * @throws NoSuchROIException If the ROI does not exist. 
 	 */
-	void removeROI(ROIFigure figure) throws NoSuchROIException
+	void removeROI(ROIFigure figure) 
+		throws NoSuchROIException
 	{
 		if (figure == null) return;
 		long id = figure.getROI().getID();

@@ -569,7 +569,7 @@ public class IconManager
         relPaths[PASSWORD] = "nuvola_download_manager_rotated16.png";
         relPaths[PASSWORD_48] = "nuvola_download_manager_rotated48.png";
         relPaths[OWNER_NOT_ACTIVE] = "nuvola_kdmconfig_grey16.png";
-        relPaths[UP_DOWN_9_12] = "updown.png";
+        relPaths[UP_DOWN_9_12] = "upDown.png";
     }
     
     /** The sole instance. */
