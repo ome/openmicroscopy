@@ -506,7 +506,7 @@ public class HistoryTable
         JOptionPane.showMessageDialog(null,
                 "We were not able to retrieve the project/dataset for\n" +
                 "one or more of the imports in this history selection.\n" +
-                "The most like cause is that the original project or\n" +
+                "The most likely cause is that the original project or\n" +
                 "dataset was deleted.\n\n" +
                 "As a result, the imported items in question cannot be\n" +
                 "reimported automatically using the \"reimport\" button.\n\n" +

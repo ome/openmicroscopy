@@ -14,6 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
 
+
 import ome.formats.OMEROMetadataStoreClient;
 import omero.ServerError;
 import omero.api.IQueryPrx;
@@ -58,6 +59,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     public static final int ITEM_STATUS_COLUMN = 6;
     public static final int ITEM_FILENUMBER_COLUMN = 7;
     
+    private OMEROMetadataStoreClient store;
     private ServiceFactoryPrx sf;
     private IQueryPrx iQuery;
     private TablePrx baseTable;
@@ -66,8 +68,9 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     private Column[] itemColumns;
 	private static long lastUid;
 
-    public void initialize(ServiceFactoryPrx sf) throws ServerError {
-        this.sf = sf;
+    public void initialize(OMEROMetadataStoreClient store) throws ServerError {
+    	this.store = store;
+        this.sf = store.getServiceFactory();
         this.iQuery = sf.getQueryService();
     }
     
@@ -256,7 +259,10 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     {
         try
         {
-        	List l = iQuery.findAllByString(OriginalFile.class.getName(), "name", fileName, false, null);
+            final String queryString = "from OriginalFile as o where o.details.owner.id = '" + 
+            	store.getExperimenterID() + "' and o.name = '" + fileName + "'";
+            
+        	List l = iQuery.findAllByQuery(queryString, null);
         	return (List<OriginalFile>) l;
         }
         catch (NullPointerException npe)
@@ -757,7 +763,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         HistoryTableStore hts = new HistoryTableStore();
         try
         {
-            hts.initialize(store.getServiceFactory());
+            hts.initialize(store);
             
         	if (CLEAN)
         	{
