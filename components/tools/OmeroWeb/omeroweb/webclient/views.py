@@ -222,7 +222,6 @@ def login(request):
         request.session['username'] = request.REQUEST.get('username').encode('utf-8').strip()
         request.session['password'] = request.REQUEST.get('password').encode('utf-8').strip()
         request.session['experimenter'] = None
-        request.session['group'] = None
         request.session['clipboard'] = {'images': None, 'datasets': None, 'plates': None}
         request.session['shares'] = dict()
         request.session['imageInBasket'] = set()
@@ -238,7 +237,6 @@ def login(request):
         error = x.__class__.__name__
     
     if conn is not None:
-        request.session['group'] = conn.getEventContext().groupId
         url = request.REQUEST.get("url")
         if url is not None:
             return HttpResponseRedirect(url)
@@ -305,7 +303,7 @@ def index(request, **kwargs):
         request.session.modified = True
     
     controller = BaseIndex(conn)
-    controller.loadData()
+    #controller.loadData()
     form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups']})
     
     context = {'nav':request.session['nav'], 'controller':controller, 'eContext': controller.eContext, 'form_active_group':form_active_group}
@@ -326,7 +324,7 @@ def index_context(request, **kwargs):
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     controller = BaseIndex(conn)
-    controller.loadData()
+    #controller.loadData()
     
     context = {'nav':request.session['nav'], 'controller':controller}
     t = template_loader.get_template(template)
@@ -401,7 +399,6 @@ def change_active_group(request, **kwargs):
     
     active_group = request.REQUEST['active_group']
     conn.changeActiveGroup(active_group)
-    request.session['group'] = active_group
     return HttpResponseRedirect(reverse("webindex"))
 
 @isUserConnected
@@ -441,10 +438,6 @@ def logout(request, **kwargs):
         logger.error(traceback.format_exc())
     try:
         del request.session['password']
-    except KeyError:
-        logger.error(traceback.format_exc())
-    try:
-        del request.session['group']
     except KeyError:
         logger.error(traceback.format_exc())
     try:
@@ -593,93 +586,42 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
 
     # prepare forms
     filter_user_id = request.session.get('experimenter')
-    filter_group_id = request.session.get('group')
-
+    
     # load data  
     template = None    
     if o2_type and o2_id:
         if o2_type == 'dataset':
-            if filter_user_id is not None:
-                manager.listImagesInDatasetAsUser(o2_id, filter_user_id, page)
-            elif filter_group_id is not None:
-                manager.listImagesInDatasetInGroup(o2_id, filter_group_id, page)
-            elif menu == "mydata":
-                manager.listMyImagesInDataset(o2_id, page)
+            manager.listImagesInDataset(o2_id, page, filter_user_id)
         elif o2_type == 'image':
             template = "omeroweb/image_details.html"
         elif o2_type == 'plate':
             template = "omeroweb/plate_details.html"
-            manager.listMyPlate(o2_id, index, page)
+            manager.listPlate(o2_id, index, page)
     elif o1_type and o1_id:
         if o1_type == 'ajaxdataset':
             template = "omeroweb/container_data_subtree.html"
-            if filter_user_id is not None:
-                manager.loadUserImages(o1_id, filter_user_id)
-            elif filter_group_id is not None:
-                manager.loadGroupImages(o1_id, filter_group_id)
-            elif menu == "mydata":
-                manager.loadMyImages(o1_id)
+            manager.loadImages(o1_id, filter_user_id)
         elif o1_type == 'project':
-            if filter_user_id is not None:
-                manager.listDatasetsInProjectAsUser(o1_id, filter_user_id, page)
-            elif filter_group_id is not None:
-                manager.listDatasetsInProjectInGroup(o1_id, filter_group_id, page)
-            elif menu == "mydata":
-                manager.listMyDatasetsInProject(o1_id, page)
+            manager.listDatasetsInProject(o1_id, page, filter_user_id)
         elif o1_type == 'screen':
-            if filter_user_id is not None:
-                manager.listPlatesInScreenAsUser(o1_id, filter_user_id, page)
-            elif filter_group_id is not None:
-                manager.listPlatesInScreenInGroup(o1_id, filter_group_id, page)
-            elif menu == "mydata":
-                manager.listMyPlatesInScreen(o1_id, page)
+            manager.listPlatesInScreen(o1_id, page, filter_user_id)
         elif o1_type == 'plate':
             template = "omeroweb/plate_details.html"
-            if filter_user_id is not None:
-                manager.listPlateAsUser(o1_id, filter_user_id, page)
-            elif filter_group_id is not None:
-                manager.listPlateInGroup(o1_id, filter_group_id, page)
-            elif menu == "mydata":
-                manager.listMyPlate(o1_id, index, page)
+            manager.listPlate(o1_id, page, filter_user_id)
         elif o1_type == 'dataset':
-            if filter_user_id is not None:
-                manager.listImagesInDatasetAsUser(o1_id, filter_user_id, page)
-            elif filter_group_id is not None:
-                manager.listImagesInDatasetInGroup(o1_id, filter_group_id, page)
-            elif menu == "mydata":
-                manager.listMyImagesInDataset(o1_id, page)
+            manager.listImagesInDataset(o1_id, page, filter_user_id)
         elif o1_type == 'image':
             template = "omeroweb/image_details.html"
     elif o1_type == 'orphaned':
-        if filter_user_id is not None:
-            manager.loadUserOrphanedImages(filter_user_id)
-        elif filter_group_id is not None:
-            manager.loadGroupOrphanedImages(filter_group_id)
-        elif menu == "mydata":
-            manager.loadMyOrphanedImages()
+        manager.loadOrphanedImages(filter_user_id)
     elif o1_type == 'ajaxorphaned':
         template = "omeroweb/container_data_subtree.html"
-        if filter_user_id is not None:
-            manager.loadUserOrphanedImages(filter_user_id)
-        elif filter_group_id is not None:
-            manager.loadGroupOrphanedImages(filter_group_id)
-        elif menu == "mydata":
-            manager.loadMyOrphanedImages()
+        manager.loadOrphanedImages(filter_user_id)
     else:
         if view == 'tree':
-            if filter_user_id is not None:
-                manager.loadUserContainerHierarchy(filter_user_id)
-            elif filter_group_id is not None:
-                manager.loadGroupContainerHierarchy(filter_group_id)
-            elif menu == "mydata":
-                manager.loadMyContainerHierarchy()
+            manager.loadContainerHierarchy(filter_user_id)
         else:
-            if filter_user_id is not None:
-                manager.listRootsAsUser(filter_user_id)
-            elif filter_group_id is not None:
-                manager.listRootsInGroup(filter_group_id)
-            elif menu == "mydata":
-                manager.listMyRoots()
+            manager.listRoots(filter_user_id)
     
     form_well_index = None
     if template is None and view =='tree':

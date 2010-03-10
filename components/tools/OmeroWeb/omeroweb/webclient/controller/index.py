@@ -30,12 +30,12 @@ class BaseIndex(BaseController):
         BaseController.__init__(self, conn)
         self.eContext['breadcrumb'] = ["Home"]
 
-    def loadData(self):
-        self.supervisor = self.conn.getCurrentSupervisor()
-        self.leaderOfGroups = self.sortByAttr(list(self.conn.getGroupsLeaderOf()), "name")
-        self.colleagues = self.sortByAttr(list(self.conn.getColleagues()), "omeName")
-        self.staffs = self.sortByAttr(list(self.conn.getStaffs()), "omeName")
-        self.default_group = self.conn.getDefaultGroup(self.eContext['context'].userId)
+    #def loadData(self):
+    #    self.supervisor = self.conn.getCurrentSupervisor()
+    #    self.leaderOfGroups = self.sortByAttr(list(self.conn.getGroupsLeaderOf()), "name")
+    #    self.colleagues = self.sortByAttr(list(self.conn.getColleagues()), "omeName")
+    #    self.staffs = self.sortByAttr(list(self.conn.getStaffs()), "omeName")
+    #    self.default_group = self.conn.getDefaultGroup(self.eContext['context'].userId)
     
     def loadMostRecent(self):
         #shc.extend(list(self.conn.getMostRecentComments()))
