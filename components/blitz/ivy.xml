@@ -21,9 +21,21 @@
     <dependency org="batik" name="batik-util" rev="${versions.batik}" conf="build,client,server->default"/>
     <dependency org="jts" name="jts" rev="${versions.jts}" conf="build,server->default"/>
     <!-- Export -->
+    <dependency org="gui" name="ini4j" rev="0.3.2"/>
+    <dependency org="gui" name="java-getopt" rev="1.0.13"/>
+    <dependency org="gui" name="commons-httpclient" rev="${versions.commons-httpclient}"/>
+    <dependency org="gui" name="commons-codec" rev="${versions.commons-codec}"/>
+    <dependency org="gui" name="commons-io" rev="${versions.commons-io}"/>
+    <dependency org="OME" name="ome-java" rev="${versions.ome-java}"/>
+    <!-- Loci -->
     <dependency org="OME" name="bio-formats" rev="${versions.bio-formats}"/>
     <dependency org="OME" name="loci-common" rev="${versions.bio-formats}"/>
+    <dependency org="loci" name="poi-loci" rev="${versions.bio-formats}"/>
     <dependency org="loci" name="ome-xml" rev="${versions.bio-formats}"/>
-  </dependencies>
+    <dependency org="loci" name="mdbtools-java" rev="${versions.bio-formats}"/>
+    <dependency org="loci" name="jai_imageio" rev="${versions.bio-formats}"/>
+    <dependency org="loci" name="bufr" rev="1.1.00"/>
+    <dependency org="loci" name="grib" rev="5.1.03"/>
+    <dependency org="loci" name="netcdf" rev="4.0"/>  </dependencies>
 </ivy-module>
 
