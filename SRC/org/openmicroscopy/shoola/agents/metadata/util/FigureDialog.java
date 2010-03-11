@@ -1936,7 +1936,6 @@ public class FigureDialog
 	public void setParentRef(Object parentRef)
 	{
 		this.parentRef = parentRef;
-		System.err.println(parentRef);
 		if (parentRef instanceof DatasetData) {
 			nameField.setText(((DatasetData) parentRef).getName());
 		}
