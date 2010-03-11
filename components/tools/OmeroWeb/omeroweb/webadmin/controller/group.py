@@ -135,7 +135,7 @@ class BaseGroup(BaseController):
         up_gr.description = description is not None and rstring(str(description)) or None
         permissions = None
         perm = int(perm)
-        if self.getActualPermissions() != perm:
+        if self.getActualPermissions() != perm or self.isReadOnly()==r:
             permissions = self.setActualPermissions(perm, r)
         
         # old list of groups
@@ -177,9 +177,9 @@ class BaseGroup(BaseController):
     def updatePermissions(self, perm, r=None):
         permissions = None
         perm = int(perm)
-        if self.getActualPermissions() != perm:
+        if self.getActualPermissions() != perm or self.isReadOnly()==r:
             permissions = self.setActualPermissions(perm, r)
-        self.conn.updatePermissions(self.group._obj, permissions)
+            self.conn.updatePermissions(self.group._obj, permissions)
     
     def getActualPermissions(self):
         p = None
