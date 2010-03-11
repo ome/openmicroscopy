@@ -425,6 +425,9 @@ public class FigureDialog
 	/** The ROIs currently displayed on the image. */
 	private List<ROI> 						displayedROIs;
 	
+	/** The original scaling factor for the ROI. */
+	private double							scalingFactor;
+	
 	/**
 	 * Returns the selected color or <code>null</code>.
 	 * 
@@ -728,9 +731,9 @@ public class FigureDialog
 		zoomBox.setActionCommand(""+ZOOM_FACTOR);
 		zoomBox.addActionListener(this);
 		DrawingCanvasView canvasView = drawingComponent.getDrawingView();
-		double factor = getMagnificationFactor();
-		if (factor != -1)
-			canvasView.setScaleFactor(factor);
+		scalingFactor = getMagnificationFactor();
+		if (scalingFactor != -1)
+			canvasView.setScaleFactor(scalingFactor);
 		try {
 			ROIFigure figure;
 			Drawing drawing = drawingComponent.getDrawing();
@@ -1713,24 +1716,33 @@ public class FigureDialog
 			widthField.setText(""+v);
 			doc.addDocumentListener(this);
 		}
-		if (dialogType == SPLIT_ROI) {
-			int w = (Integer) widthField.getValueAsNumber();
-			if (w <= 0) return;
-			int h = (Integer) heightField.getValueAsNumber();
-			if (h <= 0) return;
-			int x = w*thumbnailWidth/pixels.getSizeX();
-			int y = w*thumbnailHeight/pixels.getSizeY();
-			if (x == 0 || y == 0) return;
-			mergedComponent.setOriginalImage(
-					Factory.scaleBufferedImage(mergeUnscaled, x, y));
-			Dimension d = new Dimension(x, y);
-			DrawingCanvasView canvasView = drawingComponent.getDrawingView();
-			double r = ((double) w)/pixels.getSizeX();
-			double f = canvasView.getScaleFactor()*r;
-			if (r >= 0.5) canvasView.setScaleFactor(f, d);
-			if (zoomBox.getSelectedIndex() == ZOOM_AUTO) setLensFactor();
-			mergedComponent.setCanvasSize(x, y);
-		}
+		setMergedImageForSplitROI(mergeUnscaled);
+	}
+	
+	/**
+	 * Resets the image for the merged component.
+	 * 
+	 * @param image The image to display.
+	 */
+	private void setMergedImageForSplitROI(BufferedImage image)
+	{
+		if (dialogType != SPLIT_ROI) return;
+		int w = (Integer) widthField.getValueAsNumber();
+		if (w <= 0) return;
+		int h = (Integer) heightField.getValueAsNumber();
+		if (h <= 0) return;
+		int x = w*thumbnailWidth/pixels.getSizeX();
+		int y = w*thumbnailHeight/pixels.getSizeY();
+		if (x == 0 || y == 0) return;
+		mergedComponent.setOriginalImage(
+				Factory.scaleBufferedImage(image, x, y));
+		Dimension d = new Dimension(x, y);
+		DrawingCanvasView canvasView = drawingComponent.getDrawingView();
+		double r = ((double) w)/pixels.getSizeX();
+		double f =  scalingFactor*r;
+		if (f != -1) canvasView.setScaleFactor(f, d);
+		if (zoomBox.getSelectedIndex() == ZOOM_AUTO) setLensFactor();
+		mergedComponent.setCanvasSize(x, y);
 	}
 	
 	/**
@@ -1780,7 +1792,10 @@ public class FigureDialog
 	void setChannelSelection(int channel, boolean active, boolean merged)
 	{
 		renderer.setActive(channel, active);
-		mergedComponent.setOriginalImage(getMergedImage());
+		
+		if (dialogType == SPLIT_ROI) 
+			setMergedImageForSplitROI(getMergedImage());
+		else mergedComponent.setOriginalImage(getMergedImage());
 
 		List<Integer> actives = renderer.getActiveChannels();
         int v;
