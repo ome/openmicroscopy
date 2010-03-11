@@ -42,6 +42,9 @@ import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.util.IceMapper;
 
+import ome.formats.importer.ImportContainer;
+import ome.services.blitz.repo.ImportableFiles;
+
 import loci.formats.*; // need to close this down once the r/w are sorted.
 import loci.formats.meta.IMetadata;
 
@@ -578,7 +581,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return rv;
     }
 
-    /**
+   /**
      * Get files corresponding to a collection paths.
      * 
      * @param paths
@@ -759,20 +762,17 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
 
     private List<File> getImportableImageFiles(Collection<File> files) {
-        List<String> paths = filesToPaths(files);
-        
-        // Dummy stuff for now --- just return jpegs
+        List<String> pathList = filesToPaths(files);
         List<File> importableImageFiles = new ArrayList<File>();
-        String name;
-        String ext;
-        for (File f : files) {
-            name = f.getName();
-            ext = name.substring(name.lastIndexOf('.')+1, name.length());
-            if (ext.equals("jpg")) {
-                importableImageFiles.add(f);
-            }
+
+        String paths [] = (String []) pathList.toArray (new String [pathList.size()]);        
+        ImportableFiles imp = new ImportableFiles(paths);
+        List<ImportContainer> containers = imp.getContainers();
+
+        for (ImportContainer ic : containers) {
+            String name = ic.file.getAbsolutePath();
+            importableImageFiles.add(new File(name));
         }
-        
         return importableImageFiles;
     }
 
