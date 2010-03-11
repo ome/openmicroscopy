@@ -110,6 +110,7 @@ import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.slider.GridSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import pojos.ChannelData;
+import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.TagAnnotationData;
@@ -427,6 +428,9 @@ public class FigureDialog
 	
 	/** The original scaling factor for the ROI. */
 	private double							scalingFactor;
+	
+	/** The object of reference. */
+	private Object							parentRef;
 	
 	/**
 	 * Returns the selected color or <code>null</code>.
@@ -924,11 +928,14 @@ public class FigureDialog
 		selectedObjects.setSelected(true);
 		
 		if (dialogType == THUMBNAILS) {
-			includeUntagged = new JCheckBox("Include untagged");
+			includeUntagged = new JCheckBox("Include all thumbnails");
+			includeUntagged.setToolTipText("Include all remaining thumbnails " +
+					"not selected by Tags.");
 			includeUntagged.setHorizontalTextPosition(JCheckBox.LEFT);
 			includeUntagged.setFont(
 					includeUntagged.getFont().deriveFont(Font.BOLD));
 			arrangeByTags = new JCheckBox("Select by Tag");
+			arrangeByTags.setToolTipText("Arrange the thumbnails by Tags");
 			arrangeByTags.setHorizontalTextPosition(JCheckBox.LEFT);
 			arrangeByTags.setFont(
 					arrangeByTags.getFont().deriveFont(Font.BOLD));
@@ -1443,6 +1450,7 @@ public class FigureDialog
 	/** Closes the dialog. */
 	private void close()
 	{
+		if (renderer != null) renderer.resetSettings(rndDef);
 		option = CLOSE;
 		firePropertyChange(CLOSE_FIGURE_PROPERTY, Boolean.valueOf(false), 
 				Boolean.valueOf(true));
@@ -1676,7 +1684,6 @@ public class FigureDialog
 			case THUMBNAILS:
 				p = saveThumbnailsFigure();
 		}
-		renderer.resetSettings(rndDef);
 		close();
 		if (p != null)
 			firePropertyChange(CREATE_FIGURE_PROPERTY, null, p);
@@ -1919,6 +1926,20 @@ public class FigureDialog
 			}
 		} catch (Exception e) {}
 		return count != 0;
+	}
+	
+	/** 
+	 * Sets the parent.
+	 * 
+	 * @param parentRef The value to set.
+	 */
+	public void setParentRef(Object parentRef)
+	{
+		this.parentRef = parentRef;
+		System.err.println(parentRef);
+		if (parentRef instanceof DatasetData) {
+			nameField.setText(((DatasetData) parentRef).getName());
+		}
 	}
 	
     /**

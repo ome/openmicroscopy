@@ -205,9 +205,6 @@ class EditorModel
 	/** Collection of uploaded scripts. */
 	private List						scripts;
 	
-	/** Copies of the rendering settings. */
-	private RndProxyDef					rndDef;
-	
 	/**
 	 * Downloads the files.
 	 * 
@@ -2221,19 +2218,5 @@ class EditorModel
 	 */
 	long getUserID() { return parent.getUserID(); }
 
-	/** 
-	 * Sets the local copy of the rendering settings before creating figure.
-	 */
-	void setRndDef()
-	{
-		if (renderer != null) rndDef = renderer.getRndSettingsCopy();
-	}
-	
-	/** Resets the rendering settings when the figure dialog is closed. */
-	void resetRndSettings()
-	{
-		if (rndDef == null) return;
-		renderer.resetSettings(rndDef);
-	}
 }
 	

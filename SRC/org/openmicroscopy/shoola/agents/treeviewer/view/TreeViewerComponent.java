@@ -768,7 +768,6 @@ class TreeViewerComponent
         } 
        
         metadata.setSelectionMode(single);
-        //TODO: handle TreeImageSet
         if (display != null) { // && !(display instanceof TreeImageTimeSet)) {
         	  Object object = display.getUserObject();
         	  if (!single) {
@@ -786,6 +785,9 @@ class TreeViewerComponent
         		  ExperimenterData exp = browser.getNodeOwner(display);
         		  if (exp == null) exp = model.getUserDetails();
         		  metadata.setRootObject(object, exp.getId());
+        		  TreeImageDisplay p = display.getParentDisplay();
+        		  if (p != null)
+        			  metadata.setParentRootObject(p.getUserObject());
         	  }
         	  if (!model.isFullScreen()) {
         		  showDataBrowser(object, display, false);

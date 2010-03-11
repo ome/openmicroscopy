@@ -77,7 +77,6 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
-import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.PlateData;
@@ -356,6 +355,8 @@ class MetadataViewerComponent
 		}
 		model.setRootObject(root);
 		view.setRootObject();
+		//reset the parent.
+		setParentRootObject(null);
 	}
 
 	/** 
