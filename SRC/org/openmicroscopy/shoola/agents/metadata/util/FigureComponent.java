@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.image.BufferedImage;
@@ -304,8 +305,13 @@ class FigureComponent
 		Dimension d = new Dimension(width, height);
 		pane.setPreferredSize(d);
 	    pane.setSize(d);
-		canvas.setPreferredSize(d);
-		canvas.setSize(d);
+		//canvas.setPreferredSize(d);
+		//canvas.setSize(d);
+		Component[] comps = pane.getComponents();
+		for (int i = 0; i < comps.length; i++) {
+			comps[i].setPreferredSize(d);
+			comps[i].setSize(d);
+		}
 	}
 	
 	/**

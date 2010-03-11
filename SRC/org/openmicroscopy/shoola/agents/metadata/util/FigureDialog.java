@@ -1720,21 +1720,18 @@ public class FigureDialog
 			if (w <= 0) return;
 			int h = (Integer) heightField.getValueAsNumber();
 			if (h <= 0) return;
-			setLensFactor();
-			//Resize the merged image
 			int x = w*thumbnailWidth/pixels.getSizeX();
 			int y = w*thumbnailHeight/pixels.getSizeY();
 			if (x == 0 || y == 0) return;
 			mergedComponent.setOriginalImage(
 					Factory.scaleBufferedImage(mergeUnscaled, x, y));
 			Dimension d = new Dimension(x, y);
+			DrawingCanvasView canvasView = drawingComponent.getDrawingView();
+			double r = ((double) w)/pixels.getSizeX();
+			double f = canvasView.getScaleFactor()*r;
+			if (r >= 0.5) canvasView.setScaleFactor(f, d);
+			if (zoomBox.getSelectedIndex() == ZOOM_AUTO) setLensFactor();
 			mergedComponent.setCanvasSize(x, y);
-			double f = getMagnificationFactor();
-			DrawingView canvasView = drawingComponent.getDrawingView();
-			if (f != -1) canvasView.setScaleFactor(f);
-			JComponent c = drawingComponent.getDrawingView();
-			c.setSize(d);
-			c.setPreferredSize(d);
 		}
 	}
 	
