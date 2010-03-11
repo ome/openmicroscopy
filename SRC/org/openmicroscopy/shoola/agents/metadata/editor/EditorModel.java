@@ -81,6 +81,7 @@ import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -203,6 +204,9 @@ class EditorModel
 	
 	/** Collection of uploaded scripts. */
 	private List						scripts;
+	
+	/** Copies of the rendering settings. */
+	private RndProxyDef					rndDef;
 	
 	/**
 	 * Downloads the files.
@@ -2095,7 +2099,11 @@ class EditorModel
 	 * 
 	 * @param value The value containing the parameters for the figure.
 	 */
-	void createFigure(Object value) { parent.createFigure(value); }
+	void createFigure(Object value)
+	{ 
+		//reset the rendering settings.
+		parent.createFigure(value); 
+	}
 
 	/**
 	 * Runs the passed script.
@@ -2212,6 +2220,20 @@ class EditorModel
 	 * @return See above.
 	 */
 	long getUserID() { return parent.getUserID(); }
+
+	/** 
+	 * Sets the local copy of the rendering settings before creating figure.
+	 */
+	void setRndDef()
+	{
+		if (renderer != null) rndDef = renderer.getRndSettingsCopy();
+	}
 	
+	/** Resets the rendering settings when the figure dialog is closed. */
+	void resetRndSettings()
+	{
+		if (rndDef == null) return;
+		renderer.resetSettings(rndDef);
+	}
 }
 	

@@ -706,6 +706,9 @@ public class EditorUI
 	 */
 	void createFigure(Object value) { model.createFigure(value); }
 	
+	/** Resets the rendering settings when the figure dialog is closed. */
+	void resetRndSettings() { model.resetRndSettings(); }
+	
 	/**
 	 * Runs the passed script.
 	 * 

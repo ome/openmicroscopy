@@ -602,6 +602,7 @@ class EditorComponent
 		model.getRenderer().addPropertyChangeListener(controller);
 		model.onRndLoaded(false);
 		if (d != null) {
+			model.setRndDef();
 			d.setRenderer(model.getRenderer());
 		}
 	}
@@ -761,6 +762,7 @@ class EditorComponent
 					if (!model.isRendererLoaded()) {
 						loadRenderingControl(RenderingControlLoader.LOAD);
 					} else {
+						model.setRndDef();
 						dialog.setRenderer(model.getRenderer());
 					}
 					dialog.centerDialog();
@@ -829,6 +831,7 @@ class EditorComponent
 			if (!model.isRendererLoaded()) {
 				loadRenderingControl(RenderingControlLoader.LOAD);
 			} else {
+				model.setRndDef();
 				dialog.setRenderer(model.getRenderer());
 			}
 			dialog.centerDialog();

@@ -475,9 +475,10 @@ class EditorControl
 					(Integer) l.get(2));
 		} else if (FigureDialog.CREATE_FIGURE_PROPERTY.equals(name)) {
 			view.createFigure(evt.getNewValue());
+			view.resetRndSettings();
 		} else if (FigureDialog.CLOSE_FIGURE_PROPERTY.equals(name)) {
 			figureDialog = null;
-			
+			view.resetRndSettings();
 		} else if (MetadataViewer.CLOSE_RENDERER_PROPERTY.equals(name)) {
 			view.discardRenderer(evt.getNewValue());
 		} else if (ScriptingDialog.RUN_SCRIPT_PROPERTY.equals(name)) {
