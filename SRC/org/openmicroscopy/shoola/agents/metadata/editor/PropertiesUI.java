@@ -537,17 +537,33 @@ class PropertiesUI
      */
     private JPanel layoutEditablefield(Component button, JComponent c)
     {
+    	return layoutEditablefield(button, c, TableLayout.FILL);
+    }
+    
+    /**
+     * Lays out the components using a <code>FlowLayout</code>.
+     * 
+     * @param button    The component to lay out.
+     * @param c			The component to lay out.
+     * @return See above.
+     */
+    private JPanel layoutEditablefield(Component button, JComponent c, double
+    		sizeRow)
+    {
     	JPanel p = new JPanel();
     	double[][] size = {{TableLayout.PREFERRED, TableLayout.FILL}, 
-    			{TableLayout.PREFERRED, TableLayout.FILL}};
+    			{TableLayout.PREFERRED, sizeRow}};
     	p.setLayout(new TableLayout(size));
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	JToolBar bar = new JToolBar();
-    	bar.setBorder(null);
-    	bar.setFloatable(false);
-    	bar.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	bar.add(button);
-    	p.add(bar, "0, 0, LEFT, TOP");
+    	if (button != null) {
+    		JToolBar bar = new JToolBar();
+        	bar.setBorder(null);
+        	bar.setFloatable(false);
+        	bar.setBackground(UIUtilities.BACKGROUND_COLOR);
+        	bar.add(button);
+        	p.add(bar, "0, 0, LEFT, TOP");
+    	}
+    	
     	p.add(c, "1, 0, 1, 1");
     	
     	JPanel content = UIUtilities.buildComponentPanel(p, 0, 0);
@@ -587,15 +603,16 @@ class PropertiesUI
         	(refObject instanceof ScreenData)) {
         	//|| (refObject instanceof FolderData)) {
         	 p.add(Box.createVerticalStrut(5));
-        	 descriptionPanel = layoutEditablefield(editDescription, 
-        			 			descriptionPane);
+        	 descriptionPanel = layoutEditablefield(null, 
+        			 descriptionPane, 80);
+        	 descriptionPanel.setBorder(AnnotationUI.EDIT_BORDER);
         	 p.add(descriptionPanel);
          } else if (refObject instanceof FileData) {
         	 FileData f = (FileData) refObject;
         	 if (f.isImage()) {
         		 p.add(Box.createVerticalStrut(5));
-            	 descriptionPanel = layoutEditablefield(editDescription, 
-            			 			descriptionPane);
+            	 descriptionPanel = layoutEditablefield(null, 
+            			 			descriptionPane, 80);
             	 p.add(descriptionPanel);
         	 }
          }
@@ -806,6 +823,7 @@ class PropertiesUI
         	//if (!(refObject instanceof FolderData))
         	namePane.getDocument().addDocumentListener(this);
         	descriptionPane.getDocument().addDocumentListener(this);
+            descriptionPane.setEditable(b);
         }
         setParentLabel();
         buildGUI();
@@ -826,6 +844,7 @@ class PropertiesUI
 		descriptionPane.setText(originalDescription);
         boolean b = model.isUserOwner(model.getRefObject());
         descriptionPane.setEnabled(b);
+        descriptionPane.setEditable(b);
         if (b) {
         	descriptionPane.getDocument().addDocumentListener(this);
         }
@@ -963,6 +982,8 @@ class PropertiesUI
 		if (name == null) 
 			return value.length() != 0;
 		name = name.trim();
+		if (DEFAULT_DESCRIPTION_TEXT.equals(name) && 
+				DEFAULT_DESCRIPTION_TEXT.equals(value)) return false;
 		if (value.equals(name)) return false;
 		return true;
 	}
@@ -1056,6 +1077,7 @@ class PropertiesUI
 			}
 			//namePane.setCaretPosition(0);
 		} else if (src == descriptionPane) {
+			/*
 			editField(descriptionPanel, descriptionPane, editDescription, 
 					false);
 			editDescription.setEnabled(true);
@@ -1066,6 +1088,13 @@ class PropertiesUI
 				descriptionPane.getDocument().addDocumentListener(this);
 			}
 			descriptionPane.select(0, 0);
+			*/
+			String text = descriptionPane.getText();
+			if (text == null || text.trim().length() == 0) {
+				descriptionPane.getDocument().removeDocumentListener(this);
+				descriptionPane.setText(DEFAULT_DESCRIPTION_TEXT);
+				descriptionPane.getDocument().addDocumentListener(this);
+			}
 		}
 	}
 	

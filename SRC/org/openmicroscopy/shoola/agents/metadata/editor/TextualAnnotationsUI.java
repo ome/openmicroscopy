@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -115,17 +116,17 @@ class TextualAnnotationsUI
 	private boolean				expanded;
 	
 	/**
-	 * Builds and lays out the component hosting the previous annotations.
+	 * Builds and lays out the component hosting all previous annotations.
 	 * 
 	 * @return See above.
 	 */
-	private JPanel buildPreviousCommentsPane()
+	private JPanel displayAllPreviousComments()
 	{
 		JPanel p = new JPanel();
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		List list = model.getTextualAnnotationsByDate();
-		long userID = MetadataViewerAgent.getUserDetails().getId();
+		//long userID = MetadataViewerAgent.getUserDetails().getId();
 		if (list != null) {
 			Iterator i = list.iterator();
 			TextualAnnotationData data;
@@ -133,16 +134,55 @@ class TextualAnnotationsUI
 			int index = 0;
 			while (i.hasNext()) {
 				data = (TextualAnnotationData) i.next();
-				if (data.getOwner().getId() != userID) {
+				//if (data.getOwner().getId() != userID) {
 					comp = new TextualAnnotationComponent(model, data);
 					if (index%2 == 0) 
 						comp.setAreaColor(UIUtilities.BACKGROUND_COLOUR_EVEN);
 		            else comp.setAreaColor(UIUtilities.BACKGROUND_COLOUR_ODD);
 					p.add(comp);
 					index++;
-				}
+				//}
 			}
 		}
+		return p;
+	}
+	
+	/** 
+	 * Builds and lays out the component hosting the first and last previous 
+	 * annotations.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel displayPartialPreviousComments()
+	{
+		JPanel p = new JPanel();
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		List list = model.getTextualAnnotationsByDate();
+		if (list == null || list.size() == 0) return p;
+		
+		//at least one.
+		TextualAnnotationData data = (TextualAnnotationData) list.get(0);
+		TextualAnnotationComponent 
+			comp = new TextualAnnotationComponent(model, data);
+		comp.setAreaColor(UIUtilities.BACKGROUND_COLOUR_EVEN);
+		p.add(comp);
+		
+		int n = list.size();
+		if (n == 1) return p;
+		Color c = UIUtilities.BACKGROUND_COLOUR_ODD;
+		if (n > 2) {
+			JLabel l = new JLabel("...");
+			JPanel lp = UIUtilities.buildComponentPanel(l, 0, 0);
+			l.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
+			lp.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
+			p.add(lp);
+			c = UIUtilities.BACKGROUND_COLOUR_EVEN;
+		}
+		data = (TextualAnnotationData) list.get(n-1);
+		comp = new TextualAnnotationComponent(model, data);
+		comp.setAreaColor(c);
+		p.add(comp);
 		return p;
 	}
 	
@@ -154,15 +194,18 @@ class TextualAnnotationsUI
 	 */
 	private boolean hasPreviousTextualAnnotations()
 	{
+		/*
 		Map<Long, List> m = model.getTextualAnnotationByOwner();
 		long userID = MetadataViewerAgent.getUserDetails().getId();
-		//List l = m.get(userID);
 		int n = m.size();
 		if (n == 0) return false;
 		if (n == 1 && m.containsKey(userID)) return false;
 		if (n >= 1) return true;
-		//if (l != null && l.size() > 1) return true;
 		return false;
+		*/
+		List l = model.getTextualAnnotationsByDate();
+		if (l == null || l.size() == 0) return false;
+		return true;
 	}
 
 	/** Initializes the components. */
@@ -199,6 +242,9 @@ class TextualAnnotationsUI
 		commentArea.setBackground(UIUtilities.BACKGROUND_COLOR);
 		commentArea.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 		commentArea.setComponentBorder(EDIT_BORDER);
+		
+		previousComments = new JScrollPane();
+		previousComments.setBorder(null);
 	}
 	
 	/**
@@ -223,7 +269,7 @@ class TextualAnnotationsUI
     	setBorder(new SeparatorOneLineBorder());
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		double[][] size = {{TableLayout.FILL}, {TableLayout.PREFERRED, 
-			150, 0, 0}};
+			100, 0, 0}};
     	setLayout(new TableLayout(size));
     	JScrollPane pane = new JScrollPane(commentArea);
     	pane.setBorder(null);
@@ -240,10 +286,18 @@ class TextualAnnotationsUI
 	private void hidePreviousComments()
 	{
 		TableLayout layout = (TableLayout) getLayout();
-		layout.setRow(2, TableLayout.PREFERRED);
-		layout.setRow(3, 0);
-		remove(hideComponent);
-		add(moreComponent, "0, 2");
+		layout.setRow(3, TableLayout.PREFERRED);
+		//remove(hideComponent);
+		List l = model.getTextualAnnotationsByDate();
+		if (l != null && l.size() > 2) {
+			remove(hideComponent);
+			layout.setRow(2, TableLayout.PREFERRED);
+			add(moreComponent, "0, 2");
+		}
+		//add(moreComponent, "0, 2");
+		JPanel p = displayPartialPreviousComments();
+		previousComments.getViewport().add(p);
+		add(previousComments, "0, 3");
 		revalidate();
 		repaint();
 	}
@@ -251,18 +305,21 @@ class TextualAnnotationsUI
 	/** Lays out the node. */
 	private void layoutPreviousComments()
 	{
-		if (previousComments == null) {
-			previousComments = new JScrollPane();
-			previousComments.setBorder(null);
-		}
 		TableLayout layout = (TableLayout) getLayout();
-		layout.setRow(2, TableLayout.PREFERRED);
-		layout.setRow(3, TableLayout.PREFERRED);
-		remove(moreComponent);
-		add(hideComponent, "0, 2");
-		JPanel p = buildPreviousCommentsPane();
+		//layout.setRow(2, TableLayout.PREFERRED);
+		//layout.setRow(3, TableLayout.PREFERRED);
+		List l = model.getTextualAnnotationsByDate();
+		if (l != null && l.size() > 2) {
+			remove(moreComponent);
+			layout.setRow(2, TableLayout.PREFERRED);
+			add(hideComponent, "0, 2");
+		}
+		
+		//remove(moreComponent);
+		//add(hideComponent, "0, 2");
+		JPanel p = displayAllPreviousComments();
 		previousComments.getViewport().add(p);
-		add(previousComments, "0, 3");
+		//add(previousComments, "0, 3");
 		revalidate();
 		repaint();
 	}
@@ -297,6 +354,7 @@ class TextualAnnotationsUI
 		URLAnnotationData url = model.getLastUserUrlAnnotation();
 		String urlText = null;
 		if (url != null) urlText = url.getURL();
+		/*
 		TextualAnnotationData data = model.getLastUserAnnotation();
 		if (data != null) {
 			boolean b = false;
@@ -323,16 +381,47 @@ class TextualAnnotationsUI
 				setAreaText(urlText, false);
 			}
 		}
+		*/
+		if (!hasPreviousTextualAnnotations()) {
+			if (urlText != null) {
+				originalText = urlText;
+				setAreaText(urlText, false);
+			} else {
+				originalText = DEFAULT_TEXT_COMMENT;
+				setAreaText(DEFAULT_TEXT_COMMENT, true);
+			}
+		}
+		
 		commentArea.setEnabled(model.isWritable());
 		TableLayout layout = (TableLayout) getLayout();
 		layout.setRow(2, 0);
 		layout.setRow(3, 0);
+		/*
 		if (hasPreviousTextualAnnotations()) {
 			layout.setRow(2, TableLayout.PREFERRED);
 			add(moreComponent, "0, 2");
 			if (expanded) {
 				layout.setRow(3, TableLayout.PREFERRED);
-				previousComments.getViewport().add(buildPreviousCommentsPane());
+				previousComments.getViewport().add(displayAllPreviousComments());
+			}
+		}
+		*/
+		if (hasPreviousTextualAnnotations()) {
+			//layout.setRow(2, TableLayout.PREFERRED);
+			layout.setRow(3, TableLayout.PREFERRED);
+			add(previousComments, "0, 3");
+			List l = model.getTextualAnnotationsByDate();
+			if (l.size() > 2) {
+				layout.setRow(2, TableLayout.PREFERRED);
+				add(moreComponent, "0, 2");
+			}
+			
+			if (expanded) {
+				previousComments.getViewport().add(
+						displayAllPreviousComments());
+			} else {
+				previousComments.getViewport().add(
+						displayPartialPreviousComments());
 			}
 		}
 		revalidate();

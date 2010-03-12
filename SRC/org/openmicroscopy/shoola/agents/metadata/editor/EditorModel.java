@@ -955,6 +955,11 @@ class EditorModel
 		return (TextualAnnotationData) l.get(0);
 	}
 	
+	/**
+	 * Returns the last <code>URL</code> annotation if any.
+	 * 
+	 * @return See above.
+	 */
 	URLAnnotationData getLastUserUrlAnnotation()
 	{
 		Map<Long, List> map = new HashMap<Long, List>();

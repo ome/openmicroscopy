@@ -316,8 +316,6 @@ class OmeroImageServiceImpl
 					r.put(id, img);
 				}
 			}
-			Pixels pix;
-			//pix.getId().getValue();
 			if (ids.size() == 0) return r;
 			Map m = gateway.getThumbnailSet(ids, max);
 			if (m == null || m.size() == 0) return r;
@@ -349,9 +347,7 @@ class OmeroImageServiceImpl
 			}
 			return r;
 		} catch (Exception e) {
-			e.printStackTrace();
 			if (e instanceof SecurityException) return r;
-			
 			if (e instanceof DSOutOfServiceException) {
 				context.getLogger().error(this, e.getMessage());
 				return r;//getThumbnailSet(pixelsID, max);
