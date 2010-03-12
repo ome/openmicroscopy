@@ -15,6 +15,8 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -777,21 +779,9 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
     private List<File> getNonImageFiles(Collection<File> files) {
-        //List<String> paths = filesToPaths(files);
-        // Use paths to get import candidates and filter?
-        //List<File> nonImageFiles = pathsToFiles(paths);
-        
-        // Dummy stuff for now --- just return jpegs
-        List<File> nonImageFiles = new ArrayList<File>();
-        String name;
-        String ext;
-        for (File f : files) {
-            name = f.getName();
-            ext = name.substring(name.lastIndexOf('.')+1, name.length());
-            if (!ext.equals("jpg")) {
-                nonImageFiles.add(f);
-            }
-        }
+        Set<File> allFiles = new HashSet<File>(files);
+        allFiles.removeAll(getImportableImageFiles(files));
+        List<File> nonImageFiles = new ArrayList<File>(allFiles);        
         
         return nonImageFiles;
     }
