@@ -8,11 +8,13 @@
 package ome.services;
 
 import java.awt.Dimension;
+import java.awt.Image;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -274,9 +276,12 @@ public class ThumbnailCtx
         if (count > 0)
         {
             log.info(count + " pixels without settings");
-            Set<Long> resetPixelsIds = settingsService.resetDefaultsInSet(
+            Set<Long> imageIds = settingsService.resetDefaultsInSet(
                     Pixels.class, pixelsIdsWithoutSettings);
-            loadAndPrepareRenderingSettings(resetPixelsIds);
+            //problem imageID returned not pixels id.
+            Set<Long> ids = getPixelsFromImage(imageIds);
+            if (ids.size() > 0)
+            	loadAndPrepareRenderingSettings(ids);
         }
         s1.stop();
     }
@@ -511,6 +516,30 @@ public class ThumbnailCtx
                 new Parameters().addId(userId).addIds(pixelsIds));
         s1.stop();
         return toReturn;
+    }
+    
+    //tmp
+    private Set<Long> getPixelsFromImage(Set<Long> imageIds)
+    {
+    	Set<Long> ids = new HashSet<Long>();
+    	if (imageIds == null || imageIds.size() == 0)
+    		return ids;
+
+    	StopWatch s1 = new CommonsLogStopWatch(
+    			"getPixelsFromImage");
+    	List<Pixels> l = queryService.findAllByQuery(
+    			"select pix from Pixels as pix " +
+    			"join fetch pix.image where pix.image.id in (:ids)", 
+    			new Parameters().addIds(imageIds));
+    	s1.stop();
+
+    	Iterator<Pixels> i = l.iterator();
+    	Pixels pix;
+    	while (i.hasNext()) {
+    		pix = i.next();
+    		ids.add(pix.getId());
+    	}
+    	return ids;
     }
 
     /**
