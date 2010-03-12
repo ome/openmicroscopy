@@ -49,9 +49,10 @@ public class ImportableFiles implements IObserver {
         final IObserver self = this;
         // Default config for now, may need to set some details?
         config = new ImportConfig();
+        config.configureDebug(1);
         OMEROWrapper reader = new OMEROWrapper(config);
         // The first argument here is depth, it doesn't seem to work.
-        candidates = new ImportCandidates(1, reader, paths, self);
+        candidates = new ImportCandidates(0, reader, paths, self);
         containers = candidates.getContainers();  
     }
 
