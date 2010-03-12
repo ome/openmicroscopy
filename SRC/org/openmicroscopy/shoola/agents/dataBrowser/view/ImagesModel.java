@@ -99,24 +99,34 @@ class ImagesModel
 		Iterator<ImageNode> i = nodes.iterator();
 		ImageNode node;
 		List<ImageData> imgs = new ArrayList<ImageData>();
+		ImageData img;
 		if (ids != null) {
-			ImageData img;
 			while (i.hasNext()) {
 				node = i.next();
 				img = (ImageData) node.getHierarchyObject();
 				if (ids.contains(img.getId())) {
 					if (node.getThumbnail().getFullScaleThumb() == null) {
-						imgs.add((ImageData) node.getHierarchyObject());
-						imagesLoaded++;
+						try {
+							//valid.
+							img.getDefaultPixels();
+							imgs.add(img);
+							imagesLoaded++;
+						} catch (Exception e) {}
 					}
 				}
 			}
 		} else {
 			while (i.hasNext()) {
 				node = i.next();
+				img = (ImageData) node.getHierarchyObject();
 				if (node.getThumbnail().getFullScaleThumb() == null) {
-					imgs.add((ImageData) node.getHierarchyObject());
-					imagesLoaded++;
+					try {
+						img.getDefaultPixels();
+						imgs.add(img);
+						imagesLoaded++;
+					} catch (Exception e) {
+						numberOfImages--;
+					}
 				}
 			}
 		}

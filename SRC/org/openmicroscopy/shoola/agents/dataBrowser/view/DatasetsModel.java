@@ -93,8 +93,13 @@ class DatasetsModel
 				while (j.hasNext()) {
 					img = (ImageData) j.next();
 					if (!ids.contains(img.getId())) {
-						ids.add(img.getId());
-						numberOfImages++;
+						try {
+							img.getDefaultPixels();
+							ids.add(img.getId());
+							numberOfImages++;
+						} catch (Exception e) {
+							
+						}
 					}
 				}
 			}
@@ -127,9 +132,12 @@ class DatasetsModel
 					img = (ImageData) node.getHierarchyObject();
 					if (ids.contains(img.getId())) {
 						if (!loaded.contains(img.getId())) {
-							imgs.add(img);
-							loaded.add(img.getId());
-							imagesLoaded++;
+							try {
+								img.getDefaultPixels();
+								imgs.add(img);
+								loaded.add(img.getId());
+								imagesLoaded++;
+							} catch (Exception e) {}
 						}
 					}
 				}
@@ -140,9 +148,13 @@ class DatasetsModel
 				if (node.getThumbnail().getFullScaleThumb() == null) {
 					img = (ImageData) node.getHierarchyObject();
 					if (!loaded.contains(img.getId())) {
-						imgs.add(img);
-						loaded.add(img.getId());
-						imagesLoaded++;
+						try {
+							img.getDefaultPixels();
+							imgs.add(img);
+							loaded.add(img.getId());
+							imagesLoaded++;
+						} catch (Exception e) {}
+						
 					}
 				}
 			}

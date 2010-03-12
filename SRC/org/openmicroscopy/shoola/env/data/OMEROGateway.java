@@ -1842,9 +1842,12 @@ class OMEROGateway
 				repositories = new HashMap<FileData, RepositoryPrx>();
 			while (i.hasNext()) {
 				f = new FileData((OriginalFile) i.next());
-				proxy = (RepositoryPrx) proxys.get(index);
-				repositories.put(f, proxy);
-				index++;
+				if (!f.getName().contains("Tmp")) {
+					proxy = (RepositoryPrx) proxys.get(index);
+					repositories.put(f, proxy);
+					index++;
+				}
+				
 			}
 			view = new FSFileSystemView(userID, repositories);
 		} catch (Throwable e) {

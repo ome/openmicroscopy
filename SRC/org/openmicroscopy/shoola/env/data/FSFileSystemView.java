@@ -111,6 +111,75 @@ public class FSFileSystemView
     	return null;
     }
     
+    /**
+     * Populates the files.
+     * 
+     * @param files 	The collection to populate.
+     * @param listknown The collection of unknown files.
+     * @param listAll	The collection of all the files.
+     * @param useFileHiding Pass <code>true</code> to display the hidden files,
+     * 						<code>false</code> otherwise.
+     */
+    private void populate(Vector<DataObject> files, List listknown, 
+    		List listAll, boolean useFileHiding)
+    {
+    	if (listAll == null) return;
+		Iterator<IObject> i;
+		Map<String, IObject> m = new HashMap<String, IObject>();
+		IObject object;
+		RString path;
+		if (listknown != null) {
+			i = listknown.iterator();
+			while (i.hasNext()) {
+				object = i.next();
+				path = null;
+				if (object instanceof OriginalFile) {
+					path = ((OriginalFile) object).getPath();
+	    			if (path == null) path = ((OriginalFile) object).getName();
+	    			
+				} else if (object instanceof Image) {
+					path = ((Image) object).getName();
+				}
+				if (path != null) m.put(path.getValue(), object);
+			}
+		}
+		i = listAll.iterator();
+		FileData f;
+		String value;
+		boolean image;
+		while (i.hasNext()) {
+			object = i.next();
+			path = null;
+			image = false;
+			f = null;
+			if (object instanceof OriginalFile) {
+				path = ((OriginalFile) object).getPath();
+    			if (path == null) path = ((OriginalFile) object).getName();
+			} else if (object instanceof Image) {
+				path = ((Image) object).getName();
+				image = true;
+			}
+			if (path != null) {
+				value = path.getValue();
+				if (m.containsKey(value)) {
+					object = m.get(value);
+					if (image) {
+						files.addElement(new ImageData((Image) object));
+					} else 
+						f = new FileData(object);
+				} else {
+					f = new FileData(object);
+				}
+				if (f != null) {
+					if (!useFileHiding) {
+						if (!isHiddenFile(f)) files.addElement(f);
+					} else files.addElement(f);
+				}
+				
+			}
+		}
+    }
+    
 	/** 
 	 * Creates a new instance.
 	 * 
@@ -251,66 +320,6 @@ public class FSFileSystemView
     	return null;
     }
     
-    private void populate(Vector<DataObject> files, List listknown, List listAll,
-    		boolean useFileHiding)
-    {
-    	if (listAll == null) return;
-		Iterator<IObject> i;
-		Map<String, IObject> m = new HashMap<String, IObject>();
-		IObject object;
-		RString path;
-		if (listknown != null) {
-			i = listknown.iterator();
-			while (i.hasNext()) {
-				object = i.next();
-				path = null;
-				if (object instanceof OriginalFile) {
-					path = ((OriginalFile) object).getPath();
-	    			if (path == null) path = ((OriginalFile) object).getName();
-	    			
-				} else if (object instanceof Image) {
-					path = ((Image) object).getName();
-				}
-				if (path != null) m.put(path.getValue(), object);
-			}
-		}
-		i = listAll.iterator();
-		FileData f;
-		String value;
-		boolean image;
-		while (i.hasNext()) {
-			object = i.next();
-			path = null;
-			image = false;
-			f = null;
-			if (object instanceof OriginalFile) {
-				path = ((OriginalFile) object).getPath();
-    			if (path == null) path = ((OriginalFile) object).getName();
-			} else if (object instanceof Image) {
-				path = ((Image) object).getName();
-				image = true;
-			}
-			if (path != null) {
-				value = path.getValue();
-				if (m.containsKey(value)) {
-					object = m.get(value);
-					if (image) {
-						files.addElement(new ImageData((Image) object));
-					} else 
-						f = new FileData(object);
-				} else {
-					f = new FileData(object);
-				}
-				if (f != null) {
-					if (!useFileHiding) {
-						if (!isHiddenFile(f)) files.addElement(f);
-					} else files.addElement(f);
-				}
-				
-			}
-		}
-    }
-    
     /**
      * Returns the files contained in the passed directory.
      * 
@@ -331,8 +340,8 @@ public class FSFileSystemView
     		String s = dir.getAbsolutePath();
     		populate(files, proxy.listKnownNonImages(s), proxy.listNonImages(s), 
     				useFileHiding);
-    		populate(files, proxy.listKnownImportableImages(s),
-    				proxy.listImportableImages(s), useFileHiding);
+    		//populate(files, proxy.listKnownImportableImages(s),
+    		//		proxy.listImportableImages(s), useFileHiding);
 		} catch (Exception e) { 
 			new FSAccessException("Cannot retrives the files contained in: " +
 					dir.getAbsolutePath(), e);

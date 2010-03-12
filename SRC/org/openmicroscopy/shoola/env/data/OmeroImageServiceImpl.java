@@ -78,7 +78,6 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
-import pojos.FileData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ROIData;
@@ -288,10 +287,9 @@ class OmeroImageServiceImpl
 	public Map<Long, BufferedImage> getThumbnailSet(List pixelsID, int max)
 		throws RenderingServiceException
 	{
+		Map<Long, BufferedImage> r = new HashMap<Long, BufferedImage>();
 		try {
-			Map<Long, BufferedImage> r = new HashMap<Long, BufferedImage>();
 			if (pixelsID == null || pixelsID.size() == 0) return r;
-			
 			//First check if we have a renderer for the pixel
 			Iterator j = pixelsID.iterator();
 			long id;
@@ -318,9 +316,9 @@ class OmeroImageServiceImpl
 					r.put(id, img);
 				}
 			}
-			
-			if (ids.size() == 0)
-				return r;
+			Pixels pix;
+			//pix.getId().getValue();
+			if (ids.size() == 0) return r;
 			Map m = gateway.getThumbnailSet(ids, max);
 			if (m == null || m.size() == 0) return r;
 			Iterator i = m.keySet().iterator();
@@ -329,6 +327,7 @@ class OmeroImageServiceImpl
 			while (i.hasNext()) {
 				id = (Long) i.next();
 				values = (byte[]) m.get(id);
+				ids.remove(id);
 				if (values == null || values.length == 0)
 					r.put(id, null);
 				else {
@@ -340,14 +339,22 @@ class OmeroImageServiceImpl
 					}
 				}
 			}
+			//could not get a thumbnail for remaining images
+			if (ids.size() > 0) { 
+				i = ids.iterator();
+				while (i.hasNext()) {
+					id = (Long) i.next();
+					r.put(id, null);
+				}
+			}
 			return r;
 		} catch (Exception e) {
-			//e.printStackTrace();
-			if (e instanceof SecurityException) return null;
+			e.printStackTrace();
+			if (e instanceof SecurityException) return r;
 			
 			if (e instanceof DSOutOfServiceException) {
 				context.getLogger().error(this, e.getMessage());
-				return getThumbnailSet(pixelsID, max);
+				return r;//getThumbnailSet(pixelsID, max);
 			}
 			throw new RenderingServiceException("Get Thumbnail set", e);
 		}
