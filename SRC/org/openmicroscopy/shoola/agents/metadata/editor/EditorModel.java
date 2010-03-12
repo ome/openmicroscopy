@@ -81,7 +81,6 @@ import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
-import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -131,6 +130,9 @@ import pojos.WellSampleData;
  */
 class EditorModel 
 {
+	
+	/** The index of the default channel. */
+	static final int	DEFAULT_CHANNEL = 0;
 	
 	/** The default name for the original metadata file. */
 	static final String ORIGINAL_METADATA_NAME = "original_metadata.txt";
@@ -1696,7 +1698,7 @@ class EditorModel
 	}
 	
     /**
-     * Sets the collection of plane info for the specifed channel.
+     * Sets the collection of plane info for the specified channel.
      * 
      * @param index The index of the channel.
      * @param data  The value to set.
@@ -1711,7 +1713,7 @@ class EditorModel
 	/**
 	 * Returns the channel acquisition data.
 	 * 
-	 * @param index The index of the channels.
+	 * @param index The index of the channel.
 	 * @return See above.
 	 */
 	Collection getChannelPlaneInfo(int index)
@@ -1881,9 +1883,10 @@ class EditorModel
 	/**
 	 * Starts asynchronous load of the plane info.
 	 * 
-	 * @param channel The selected channel.
+	 * @param channel 	The selected channel.
+	 * @param z 		The selected z-section.
 	 */
-	void fireLoadPlaneInfo(int channel)
+	void firePlaneInfoLoading(int channel, int z)
 	{
 		Object ref = getRefObject();
 		if (ref instanceof WellSampleData) {
@@ -1893,7 +1896,7 @@ class EditorModel
 		if (!(ref instanceof ImageData)) return;
 		ImageData img = (ImageData) ref;
 		PlaneInfoLoader loader = new PlaneInfoLoader(component, 
-				img.getDefaultPixels().getId(), channel, 0);
+				img.getDefaultPixels().getId(), channel, z);
 		loader.load();
 	}
 
@@ -2138,13 +2141,17 @@ class EditorModel
 		return img;
 	}
 	
-	/** Loads the ROI for the selected image. */
-	void fireROILoading()
+	/** 
+	 * Loads the ROI for the selected image. 
+	 * 
+	 * @param index The index of the figure to create.
+	 */
+	void fireROILoading(int index)
 	{
 		ImageData img = getImage();
 		if (img == null) return;
 		long userID = MetadataViewerAgent.getUserDetails().getId();
-		ROILoader loader = new ROILoader(component, img.getId(), userID);
+		ROILoader loader = new ROILoader(component, img.getId(), userID, index);
 		loader.load();
 	}
 	

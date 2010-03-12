@@ -37,7 +37,6 @@ import javax.swing.JComponent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
-import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -393,10 +392,11 @@ public interface Editor
 	/**
 	 * Sets the ROI associated to the specified image. 
 	 * 
-	 * @param roi The collection of ROI.
-	 * @param imageID The id of the image.
+	 * @param roi 		The collection of ROI.
+	 * @param imageID 	The id of the image.
+	 * @param index   	The index of the figure to create.
 	 */
-	public void setROI(Collection roi, long imageID);
+	public void setROI(Collection roi, long imageID, int index);
 	
 	/** 
 	 * Returns the channel data.

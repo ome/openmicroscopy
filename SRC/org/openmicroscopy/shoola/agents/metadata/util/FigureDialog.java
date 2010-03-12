@@ -65,6 +65,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
@@ -147,6 +148,9 @@ public class FigureDialog
 	/** Indicates that the dialog is for a thumbnails figure. */
 	public static final int			THUMBNAILS = 3;
 	
+	/** Indicates that the dialog is ROI movie figure. */
+	public static final int			ROI_MOVIE = 4;
+	
 	/** Bound property indicating to create a split view figure. */
 	public static final String		CREATE_FIGURE_PROPERTY = "createFigure";
 	
@@ -183,6 +187,9 @@ public class FigureDialog
 	/** Default text describing the compression check box.  */
     private static final String		PROJECTION_DESCRIPTION = 
     				"Select the type of projection.";
+    
+    /** The default text of thumbnails per row. */
+    private static final String		ITEMS_PER_ROW_TEXT = "Images per row";
     
     /** The default number of thumbnails per row. */
     private static final int		ITEMS_PER_ROW = 10;
@@ -428,10 +435,7 @@ public class FigureDialog
 	
 	/** The original scaling factor for the ROI. */
 	private double							scalingFactor;
-	
-	/** The object of reference. */
-	private Object							parentRef;
-	
+
 	/**
 	 * Returns the selected color or <code>null</code>.
 	 * 
@@ -943,11 +947,14 @@ public class FigureDialog
 			arrangeByTags.setActionCommand(""+ARRANGE_BY_TAGS);
 			sizeBox = new JComboBox(SIZE_OPTIONS);
 			sizeBox.setSelectedIndex(SIZE_96);
-			numberPerRow = new NumericalTextField(1, 100);
-			numberPerRow.setColumns(3);
-			numberPerRow.setText(""+ITEMS_PER_ROW);
+			
 			return;
 		}
+		numberPerRow = new NumericalTextField(1, 100);
+		numberPerRow.setColumns(3);
+		numberPerRow.setText(""+ITEMS_PER_ROW);
+		
+		
 		projectionBox = new JRadioButton("Z-projection");
 		projectionBox.addChangeListener(this);
 		planeSelection = new JRadioButton("Last-viewed Z-section");
@@ -1205,7 +1212,7 @@ public class FigureDialog
         	p.add(UIUtilities.setTextFont("Thumbnails Size"), "0, "+i+"");
         	p.add(UIUtilities.buildComponentPanel(sizeBox), "1, "+i);
         	i = i+2;
-        	p.add(UIUtilities.setTextFont("Thumbnails per row"), "0, "+i+"");
+        	p.add(UIUtilities.setTextFont(ITEMS_PER_ROW_TEXT), "0, "+i+"");
         	p.add(UIUtilities.buildComponentPanel(numberPerRow), "1, "+i);
         } else {
         	i = i+2;
@@ -1240,7 +1247,9 @@ public class FigureDialog
 	
 			case MOVIE:
 				if (pixels.getSizeT() > 1) {
-					i = i+2;
+					i++;
+					p.add(new JSeparator(), "0, "+i+", 4, "+i);
+					i++;
 		        	p.add(buildMovieComponent(), "0, "+i+", 4, "+i);
 				}
 				/*
@@ -1348,6 +1357,13 @@ public class FigureDialog
 		c.gridy = 0;
 		c.gridx = 0;
         c.weightx = 0.0;  
+        p.add(UIUtilities.setTextFont(ITEMS_PER_ROW_TEXT), c);
+        c.gridx++;
+        p.add(Box.createHorizontalStrut(5), c); 
+        c.gridx++;
+        p.add(UIUtilities.buildComponentPanel(numberPerRow), c);
+        c.gridy++;
+        c.gridx = 0;
         p.add(UIUtilities.setTextFont("Time-point frequency"), c);
         c.gridx++;
         p.add(Box.createHorizontalStrut(5), c); 
@@ -1604,6 +1620,9 @@ public class FigureDialog
 		p.setIndex(FigureParam.MOVIE);
 		p.setTime(timesBox.getSelectedIndex());
 		p.setTimepoints(sorter.sort(movieSlider.getSelectedCells()));
+		Number n = numberPerRow.getValueAsNumber();
+		if (n != null && n instanceof Integer)
+			p.setHeight((Integer) n);
 		collectParam(p);
 		return p;
 	}
@@ -1828,6 +1847,13 @@ public class FigureDialog
 	}
 
 	/**
+	 * Returns the type of dialog. One of the constants defined by this class.
+	 * 
+	 * @return See above.
+	 */
+	public int getDialogType() { return dialogType; }
+	
+	/**
 	 * Sets the renderer.
 	 * 
 	 * @param renderer 	Reference to the renderer. Mustn't be <code>null</code>.
@@ -1931,14 +1957,22 @@ public class FigureDialog
 	/** 
 	 * Sets the parent.
 	 * 
-	 * @param parentRef The value to set.
+	 * @param parentRef The value to handle.
 	 */
 	public void setParentRef(Object parentRef)
 	{
-		this.parentRef = parentRef;
-		if (parentRef instanceof DatasetData) {
+		if (parentRef instanceof DatasetData) 
 			nameField.setText(((DatasetData) parentRef).getName());
-		}
+	}
+	
+	/**
+	 * Sets the planes information to determine the time interval.
+	 * 
+	 * @param planes The values to set.
+	 */
+	public void setPlaneInfo(Collection planes)
+	{
+		
 	}
 	
     /**

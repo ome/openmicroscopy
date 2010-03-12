@@ -54,6 +54,9 @@ public class ROILoader
 	/** The id of the user. */
 	private long		userID;
 	
+	/** The index of the figure to create. */
+	private int			index;
+	
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
    
@@ -64,14 +67,16 @@ public class ROILoader
      *                  Mustn't be <code>null</code>.
      * @param imageID	The id of the image the ROIs are related to.
      * @param userID	The id of the user.
+     * @param index		The index of the figure to create.
      */
-	public ROILoader(Editor viewer, long imageID, long userID)
+	public ROILoader(Editor viewer, long imageID, long userID, int index)
 	{
 		super(viewer);
 		if (imageID < 0) 
 			throw new IllegalArgumentException("No image specified.");
 		this.imageID = imageID;
 		this.userID = userID;
+		this.index = index;
 	}
 	
 	/**
@@ -96,7 +101,7 @@ public class ROILoader
     public void handleResult(Object result)
     {
     	//if (viewer.getState() == MeasurementViewer.DISCARDED) return;  //Async cancel.
-    	viewer.setROI((Collection) result, imageID);
+    	viewer.setROI((Collection) result, imageID, index);
     }
     
 }

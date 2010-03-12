@@ -578,11 +578,17 @@ class EditorComponent
 		if (!(ref instanceof ImageData)) return;
 		ImageData img = (ImageData) ref;
 		if (pixelsID != img.getDefaultPixels().getId()) return;
+		FigureDialog d = controller.getFigureDialog();
 		if (channel >= 0) {
 			model.setPlaneInfo(channel, result);
-			view.setPlaneInfo(channel);
 			view.setStatus(false);
 		} 
+		if (d != null) {
+			d.setPlaneInfo(model.getChannelPlaneInfo(
+					EditorModel.DEFAULT_CHANNEL));
+		} else {
+			view.setPlaneInfo(channel);
+		}
 	}
 	
 	/** 
@@ -603,6 +609,8 @@ class EditorComponent
 		model.onRndLoaded(false);
 		if (d != null) {
 			d.setRenderer(model.getRenderer());
+			if (d.getDialogType() == FigureDialog.ROI_MOVIE)
+				model.firePlaneInfoLoading(EditorModel.DEFAULT_CHANNEL, 0);
 		}
 	}
 
@@ -766,7 +774,7 @@ class EditorComponent
 					dialog.centerDialog();
 					break;
 				case FigureDialog.SPLIT_ROI:
-					model.fireROILoading();
+					model.fireROILoading(FigureDialog.SPLIT_ROI);
 					break;
 				case FigureDialog.THUMBNAILS:
 					Collection tags = model.getExistingTags();
@@ -774,33 +782,41 @@ class EditorComponent
 							model.getPixels(),
 							FigureDialog.THUMBNAILS);
 					dialog.setParentRef(model.getParentRootObject());
-					if (tags != null) {
-						dialog.setTags(tags);
-					} else {
-						model.loadExistingTags();
-					}
+					if (tags != null) dialog.setTags(tags);
+					else model.loadExistingTags();
 					dialog.centerDialog();
 					break;
 				case FigureDialog.MOVIE:
+					Collection planes = model.getChannelPlaneInfo(
+							EditorModel.DEFAULT_CHANNEL);
 					dialog = controller.createFigureDialog(name, 
 							model.getPixels(), FigureDialog.MOVIE);
+					if (planes != null) dialog.setPlaneInfo(planes);
+					else model.firePlaneInfoLoading(EditorModel.DEFAULT_CHANNEL, 
+							0);
 					dialog.centerDialog();
+					break;
+				case FigureDialog.ROI_MOVIE:
+					model.fireROILoading(FigureDialog.ROI_MOVIE);
+					break;
+					
 			}
 		}
 	}
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#setROI(Collection, long)
+	 * @see Editor#setROI(Collection, long, int)
 	 */
-	public void setROI(Collection rois, long imageID)
+	public void setROI(Collection rois, long imageID, int index)
 	{
+		if (index != FigureDialog.SPLIT_ROI && index != FigureDialog.ROI_MOVIE)
+			return;
 		ImageData img = model.getImage();
 		if (img == null || img.getId() != imageID) return;  
 		UserNotifier un = 
 			MetadataViewerAgent.getRegistry().getUserNotifier();
-		if (rois == null || rois.size() == 0) {
-			
+		if (rois == null || rois.size() == 0) {	
 			un.notifyInfo("ROI Figure", "The primary select does not have " +
 					"Region of Interests.");
 			return;
@@ -824,13 +840,14 @@ class EditorComponent
 		if (controller.getFigureDialog() == null) {
 			String name = model.getRefObjectName();
 			FigureDialog dialog = controller.createFigureDialog(name, 
-					model.getPixels(), FigureDialog.SPLIT_ROI);
+					model.getPixels(), index);
 			dialog.setROIs(rois);
-			
 			if (!model.isRendererLoaded()) {
 				loadRenderingControl(RenderingControlLoader.LOAD);
 			} else {
 				dialog.setRenderer(model.getRenderer());
+				if (index == FigureDialog.ROI_MOVIE)
+					model.firePlaneInfoLoading(EditorModel.DEFAULT_CHANNEL, 0);
 			}
 			dialog.centerDialog();
 		}

@@ -543,7 +543,7 @@ class AcquisitionDataUI
 	void loadPlaneInfo(int index)
 	{
 		if (model.getChannelPlaneInfo(index) == null) {
-			model.fireLoadPlaneInfo(index);
+			model.firePlaneInfoLoading(index, 0);
 			view.setStatus(true);
 		}
 	}
@@ -562,8 +562,9 @@ class AcquisitionDataUI
 		imagePane.setCollapsed(true);
 		*/
 	}
+	
 	/**
-	 * Loads the acquisition metadata.
+	 * Loads the acquisition data.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
 	public void propertyChange(PropertyChangeEvent evt)
