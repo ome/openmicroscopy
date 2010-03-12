@@ -552,6 +552,84 @@ def getPlaneInfo(iQuery, pixelsId, asOrderedList = True):
 def IdentityFn(commandArgs):
     return commandArgs;
 
+
+def resetRenderingSettings(renderingEngine, pixelsId, cIndex, minValue, maxValue):
+    """
+    Simply resests the rendering settings for a pixel set, according to the min and max values
+    The rendering engine does NOT have to be primed with pixelsId, as that is handled by this method. 
+    
+    @param renderingEngine        The OMERO rendering engine
+    @param pixelsId        The Pixels ID
+    @param minValue        Minimum value of rendering window
+    @param maxValue        Maximum value of rendering window
+    """
+    
+    renderingEngine.lookupPixels(pixelsId)
+    if not renderingEngine.lookupRenderingDef(pixelsId):
+        renderingEngine.resetDefaults()    
+    
+    if not renderingEngine.lookupRenderingDef(pixelsId):
+        raise "Still No Rendering Def"
+    
+    renderingEngine.load()
+    renderingEngine.setChannelWindow(cIndex, float(minValue), float(maxValue))
+    renderingEngine.saveCurrentSettings()
+
+
+def createNewImage(pixelsService, rawPixelStore, renderingEngine, pixelsType, gateway, plane2Dlist, imageName, description, dataset=None):
+    """
+    Creates a new single-channel, single-timepoint image from the list of 2D numpy arrays in plane2Dlist 
+    with each numpy 2D plane becoming a Z-section.
+    
+    @param pixelsService        The OMERO pixelsService
+    @param rawPixelStore        The OMERO rawPixelsStore
+    @param renderingEngine        The OMERO renderingEngine
+    @param pixelsType            The pixelsType object     omero::model::PixelsType
+    @param gateway                The OMERO gateway service
+    @param plane2Dlist            A list of numpy 2D arrays, corresponding to Z-planes of new image. 
+    @param imageName            Name of new image
+    @param description            Description for the new image
+    @param dataset                If specified, put the image in this dataset. omero.model.Dataset object
+    
+    @return The new OMERO image: omero.model.ImageI 
+    """
+    theC, theT = (0,0)
+    
+    # all planes in plane2Dlist should be same shape. Render according to first plane. 
+    shape = plane2Dlist[0].shape
+    sizeY, sizeX = shape
+    minValue = plane2Dlist[0].min()
+    maxValue = plane2Dlist[0].max()
+    
+    # get some other dimensions and create the image.
+    channelList = [theC]  # omero::sys::IntList
+    sizeZ, sizeT = (len(plane2Dlist),1)
+    iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description)
+    imageId = iId.getValue()
+    image = gateway.getImage(imageId)
+    
+    # upload plane data
+    pixelsId = image.getPrimaryPixels().getId().getValue()
+    pixelsService.setChannelGlobalMinMax(pixelsId, theC, float(minValue), float(maxValue))
+    rawPixelStore.setPixelsId(pixelsId, True)
+    for theZ, plane2D in enumerate(plane2Dlist):
+        if plane2D.size > 1000000:
+            uploadPlaneByRow(rawPixelStore, plane2D, theZ, theC, theT)
+        else:
+            uploadPlane(rawPixelStore, plane2D, theZ, theC, theT)
+
+    resetRenderingSettings(renderingEngine, pixelsId, theC, minValue, maxValue)
+    
+    # put the image in dataset, if specified. 
+    if dataset:
+        link = omero.model.DatasetImageLinkI()
+        link.parent = omero.model.DatasetI(dataset.id.val, False)
+        link.child = omero.model.ImageI(image.id.val, False)
+        gateway.saveAndReturnObject(link)
+        
+    return image
+
+
 def parseInputs(client, session, processFn=IdentityFn):
     """
     parse the inputs from the client object and map it to some other form, values may be transformed by function.
