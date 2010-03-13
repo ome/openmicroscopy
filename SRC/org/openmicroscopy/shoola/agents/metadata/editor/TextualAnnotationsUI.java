@@ -103,6 +103,9 @@ class TextualAnnotationsUI
 	/** Hide the other comments. */
 	private JPanel				hideComponent;
 	
+	/** Display comments between the first and last comments. */
+	private JButton				inBetweenComponent;
+
 	/** The text set in the {@link #commentArea}. */
 	private String				originalText;
 	
@@ -172,9 +175,9 @@ class TextualAnnotationsUI
 		if (n == 1) return p;
 		Color c = UIUtilities.BACKGROUND_COLOUR_ODD;
 		if (n > 2) {
-			JLabel l = new JLabel("...");
-			JPanel lp = UIUtilities.buildComponentPanel(l, 0, 0);
-			l.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
+			JPanel lp = UIUtilities.buildComponentPanel(inBetweenComponent, 0, 
+					0);
+			inBetweenComponent.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
 			lp.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
 			p.add(lp);
 			c = UIUtilities.BACKGROUND_COLOUR_EVEN;
@@ -232,6 +235,15 @@ class TextualAnnotationsUI
 		hideButton.setActionCommand(""+HIDE);
 		hideComponent = UIUtilities.buildComponentPanel(hideButton, 0, 0);
 		hideComponent.setBackground(UIUtilities.BACKGROUND_COLOR);
+		
+		inBetweenComponent = new JButton("...");
+		UIUtilities.unifiedButtonLookAndFeel(inBetweenComponent);
+		inBetweenComponent.setBorder(null);
+		inBetweenComponent.setBackground(UIUtilities.BACKGROUND_COLOR);
+		inBetweenComponent.setForeground(UIUtilities.HYPERLINK_COLOR);
+		inBetweenComponent.setToolTipText("Display all comments.");
+		inBetweenComponent.addActionListener(this);
+		inBetweenComponent.setActionCommand(""+MORE);
 		
 		commentArea = new OMEWikiComponent();
 		commentArea.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
