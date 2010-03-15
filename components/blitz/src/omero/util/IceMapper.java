@@ -266,6 +266,26 @@ public class IceMapper extends ome.util.ModelMapper implements
         }
     };
 
+    public final static ReturnMapping RTYPEDICT = new ReturnMapping() {
+
+        public Object mapReturnValue(IceMapper mapper, Object value)
+                throws Ice.UserException {
+            if (value == null) {
+                return null;
+            } else {
+                Map map = (Map) value;
+                Map rv = new HashMap();
+                for (Object k : map.keySet()) {
+                    Object v = map.get(k);
+                    Object kr = PRIMITIVE.mapReturnValue(mapper, k);
+                    Object vr = OBJECT_TO_RTYPE.mapReturnValue(mapper, v);
+                    rv.put(kr, vr);
+                }
+                return rv;
+            }
+        }
+    };
+
     /**
      * Returns true only if the current mapping is the {@link #VOID} mapping.
      */
@@ -402,9 +422,22 @@ public class IceMapper extends ome.util.ModelMapper implements
             omero.RObject robj = robject(om);
             return robj;
         } else if (o instanceof Collection) {
-            return rlist(map((Collection) o));
+            List<RType> l = new ArrayList<RType>();
+            for (Object i : (Collection) o) {
+                l.add(toRType(i));
+            }
+            return rlist(l);
         } else if (o instanceof Map) {
-            return rmap(map((Map) o));
+            Map<?, ?> mIn = (Map) o;
+            Map<String, RType> mOut = new HashMap<String, RType>();
+            for (Object k : mIn.keySet()) {
+                if (!(k instanceof String)) {
+                    throw new omero.ValidationException(
+                            null, null, "Map key not a string");
+                }
+                mOut.put((String) k, toRType(mIn.get(k)));
+            }
+            return rmap(mOut);
         } else if (o instanceof omero.Internal) {
             return rinternal((omero.Internal) o);
         } else {

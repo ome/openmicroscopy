@@ -50,6 +50,7 @@ public class ApiConstraintChecker {
             args = new Object[] {};
         }
 
+        Class<?>[] paramTypes = mthd.getParameterTypes();
         boolean[] validated = new boolean[args.length];
 
         Object[] allAnnotations = AnnotationUtils.findParameterAnnotations(
@@ -112,7 +113,8 @@ public class ApiConstraintChecker {
 
             for (int i = 0; i < validated.length; i++) {
                 /* warn if someone's forgotten to annotate a method */
-                if (args[i] instanceof Collection && !validated[i]) {
+                if (!paramTypes[i].equals(Object.class) &&
+                        args[i] instanceof Collection && !validated[i]) {
                     throw new ValidationException(
                             mthd
                                     + " is missing a required @"
