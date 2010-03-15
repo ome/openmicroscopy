@@ -75,14 +75,4 @@ public class Callback extends Task {
         return db;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(super.toString());
-        sb.append(" (");
-        sb.append(cb);
-        sb.append(" )");
-        return sb.toString();
-    }
-
 }

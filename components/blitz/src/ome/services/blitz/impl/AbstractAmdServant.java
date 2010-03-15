@@ -10,6 +10,7 @@ package ome.services.blitz.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import ome.api.ServiceInterface;
 import ome.api.StatefulServiceInterface;
@@ -138,6 +139,11 @@ public abstract class AbstractAmdServant implements ApplicationContextAware {
 
     public final void runnableCall(Ice.Current __current, Runnable r) {
         this.be.runnableCall(__current, r);
+    }
+
+    public final <R> void safeRunnableCall(Ice.Current __current, Object cb,
+            boolean isVoid, Callable<R> callable) {
+        this.be.safeRunnableCall(__current, cb, isVoid, callable);
     }
 
     public final void executorWorkCall(Executor.Work work) {

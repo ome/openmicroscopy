@@ -68,6 +68,7 @@ import omero.util.IceMapper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -540,13 +541,15 @@ public class SharedResourcesI extends AbstractAmdServant implements
                             status.setValue(omero.rtypes
                                     .rstring(JobHandle.WAITING));
                             submittedJob.setStatus(status);
-                            submittedJob.setMessage(omero.rtypes
-                                    .rstring("Interactive job. Waiting."));
+                            // FIXME submittedJob.setMessage(omero.rtypes
+                                    // FIXME.rstring("Interactive job. Waiting."));
 
                             handle.submit((ome.model.jobs.Job) mapper
                                     .reverse(submittedJob));
                             return handle.getJob();
                         } catch (ApiUsageException e) {
+                            return null;
+                        } catch (ObjectNotFoundException onfe) {
                             return null;
                         } finally {
                             if (handle != null) {

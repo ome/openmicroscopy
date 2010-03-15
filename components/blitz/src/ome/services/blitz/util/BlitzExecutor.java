@@ -8,6 +8,8 @@
 
 package ome.services.blitz.util;
 
+import java.util.concurrent.Callable;
+
 import ome.api.ServiceInterface;
 import omero.util.IceMapper;
 
@@ -40,4 +42,6 @@ public interface BlitzExecutor {
 
     void runnableCall(Ice.Current __current, Runnable runnable);
 
+    <R> void safeRunnableCall(Ice.Current __current, Object cb, boolean isVoid,
+            Callable<R> callable);
 }

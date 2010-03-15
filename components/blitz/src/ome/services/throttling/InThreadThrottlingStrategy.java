@@ -7,6 +7,8 @@
 
 package ome.services.throttling;
 
+import java.util.concurrent.Callable;
+
 import ome.api.ServiceInterface;
 import ome.security.basic.CurrentDetails;
 import ome.services.blitz.util.IceMethodInvoker;
@@ -65,6 +67,16 @@ public class InThreadThrottlingStrategy extends AbstractThrottlingStrategy {
         try {
             Callback cb = new Callback(service, invoker, mapper, __cb,
                     __current, args);
+            cb.run();
+        } finally {
+            teardown();
+        }
+    }
+
+    public <R> void safeRunnableCall(Current __current, Object __cb, boolean isVoid, Callable<R> callable) {
+        setup(__current);
+        try {
+            Callback2<R> cb = new Callback2<R>(__current, __cb, isVoid, callable);
             cb.run();
         } finally {
             teardown();

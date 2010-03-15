@@ -7,6 +7,8 @@
 
 package ome.services.throttling;
 
+import java.util.concurrent.Callable;
+
 import ome.api.ServiceInterface;
 import ome.services.blitz.util.IceMethodInvoker;
 import omero.util.IceMapper;
@@ -46,6 +48,10 @@ public class SerialThrottlingStrategy extends AbstractThrottlingStrategy {
     }
 
     public void runnableCall(Current __current, Runnable runnable) {
+        throw new UnsupportedOperationException();
+    }
+
+    public <R> void safeRunnableCall(Current __current, Object __cb, boolean isVoid, Callable<R> callable) {
         throw new UnsupportedOperationException();
     }
 

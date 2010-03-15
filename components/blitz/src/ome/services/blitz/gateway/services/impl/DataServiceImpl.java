@@ -41,6 +41,7 @@ import omero.api.IQueryPrx;
 import omero.api.IScriptPrx;
 import omero.api.ITypesPrx;
 import omero.api.IUpdatePrx;
+import omero.grid.JobParams;
 import omero.model.Dataset;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
@@ -292,7 +293,7 @@ public class DataServiceImpl
 	/* (non-Javadoc)
 	 * @see ome.services.blitz.omerogateway.services.DataService#getParams(long)
 	 */
-	public Map<String, RType> getParams(long id) throws ServerError 
+	public JobParams getParams(long id) throws ServerError
 	{
 		IScriptPrx iScript = gatewayFactory.getIScript();
 		return iScript.getParams(id);
@@ -323,16 +324,6 @@ public class DataServiceImpl
 	{
 		IScriptPrx iScript = gatewayFactory.getIScript();
 		return iScript.getScripts();
-	}
-
-	/* (non-Javadoc)
-	 * @see ome.services.blitz.omerogateway.services.DataService#runScript(long, Map<String, RType>)
-	 */
-	public Map<String, RType> runScript(long id, Map<String, RType> map)
-			throws ServerError 
-	{
-		IScriptPrx iScript = gatewayFactory.getIScript();
-		return iScript.runScript(id, map);
 	}
 
 	/* (non-Javadoc)

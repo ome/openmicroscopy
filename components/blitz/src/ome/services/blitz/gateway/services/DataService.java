@@ -34,6 +34,7 @@ import java.util.Map;
 import omero.RType;
 import omero.ServerError;
 import omero.api.ContainerClass;
+import omero.grid.JobParams;
 import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Image;
@@ -270,23 +271,12 @@ public interface DataService
         throws omero.ServerError;
 
     /**
-     * Get the parameters the script takes, this is a map of the 
-     * parameter name and type.
+     * Get the parameters the script takes.
      * @param id id of the script.
      * @return see above.
      * @throws omero::ServerError
      */
-    Map<String, RType> getParams(long id)
-        throws omero.ServerError;
-
-    /**
-     * Run the script and get the results returned as a name , value map.
-     * @param id id of the script to run.
-     * @param map the map of parameters, values for inputs.
-     * @return see above.
-     * @throws omero::ServerError
-     */
-    Map<String, RType> runScript(long id, Map<String, RType> map)
+    JobParams getParams(long id)
         throws omero.ServerError;
 
     /**

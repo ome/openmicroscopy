@@ -7,19 +7,19 @@
 
 package ome.services.blitz.impl;
 
-import static omero.rtypes.rmap;
-
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.model.core.OriginalFile;
 import ome.model.enums.Format;
-import ome.model.internal.Permissions;
 import ome.model.jobs.JobOriginalFileLink;
+import ome.model.jobs.ScriptJob;
 import ome.parameters.Parameters;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
@@ -33,19 +33,19 @@ import omero.RType;
 import omero.ServerError;
 import omero.ValidationException;
 import omero.api.AMD_IScript_deleteScript;
+import omero.api.AMD_IScript_editScript;
 import omero.api.AMD_IScript_getParams;
 import omero.api.AMD_IScript_getScript;
 import omero.api.AMD_IScript_getScriptID;
 import omero.api.AMD_IScript_getScriptWithDetails;
 import omero.api.AMD_IScript_getScripts;
-import omero.api.AMD_IScript_runScript;
 import omero.api.AMD_IScript_uploadScript;
 import omero.api._IScriptOperations;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.JobParams;
-import omero.grid.Param;
 import omero.model.OriginalFileI;
 import omero.model.ScriptJobI;
+import omero.util.IceMapper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,6 +53,8 @@ import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
+import Ice.ReadObjectCallback;
+import Ice.UnmarshalOutOfBoundsException;
 
 /**
  * implementation of the IScript service interface.
@@ -70,8 +72,14 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     /** The text representation of the format in a python script. */
     private final static String PYTHONSCRIPT = "text/x-python";
 
+    private final static String OCTETSTREAM = "application/octet-stream";
+
     /** Message used in jobs which are only being parsed */
     private final static String PARSING = "ScriptI.parsing_only";
+
+    private /*final*/ Format pythonFormat;
+
+    private /*final*/ Format octetFormat;
 
     protected ServiceFactoryI factory;
 
@@ -81,6 +89,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
     public void setServiceFactory(ServiceFactoryI sf) {
         this.factory = sf;
+        pythonFormat = loadFormat(PYTHONSCRIPT);
+        octetFormat = loadFormat(OCTETSTREAM);
     }
 
     // ~ Service methods
@@ -99,15 +109,13 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     public void getScriptID_async(final AMD_IScript_getScriptID cb,
             final String scriptName, final Current __current)
             throws ServerError {
-        runnableCall(__current, new Runnable() {
-            public void run() {
-
+        safeRunnableCall(__current, cb, false, new Callable<Long>(){
+            public Long call() {
                 final OriginalFile file = getOriginalFileOrNull(scriptName);
-
                 if (file == null) {
-                    cb.ice_response(-1L);
+                    return -1L;
                 } else {
-                    cb.ice_response(file.getId());
+                    return file.getId();
                 }
             }
 
@@ -117,58 +125,60 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     /**
      * Upload script to the server.
      * 
-     * @param script
+     * @param scriptText
      * @param __current
      *            ice context.
      * @return id of the script.
      */
     public void uploadScript_async(final AMD_IScript_uploadScript cb,
-            final String script, final Current __current) throws ServerError {
-        runnableCall(__current, new Runnable() {
-            public void run() {
+            final String scriptText, final Current __current) throws ServerError {
+        safeRunnableCall(__current, cb, false, new Callable<Long>() {
+            public Long call() throws Exception {
 
-                try {
-
-                    if (!validateScript(script)) {
-                        cb.ice_exception(new ApiUsageException(null, null,
-                                "Invalid script"));
-                        return; // EARLY EXIT
-                    }
-
-                    final OriginalFile tempFile = makeFile(script);
-                    writeContent(tempFile, script);
-                    JobParams params = getScriptParams(tempFile, __current);
-
-                    if (params == null) {
-                        cb.ice_exception(new ApiUsageException(null, null,
-                                "Script error: no params found."));
-                        return; // EARLY EXIT
-                    }
-
-                    if (originalFileExists(params.name)) {
-                        OriginalFile file = getOriginalFileOrNull(params.name);
-                        if (file == null) {
-                            cb.ice_exception(new ApiUsageException(null, null,
-                                    "Script error: cannot overwrite file."));
-                            return; // EARLY EXIT
-                        }
-                        writeContent(file, script);
-                        file.setSize((long) script.getBytes().length);
-                        file.setSha1(Utils.bufferToSha1(script.getBytes()));
-                        file = updateFile(file);
-                        deleteOriginalFile(tempFile);
-                        cb.ice_response(file.getId());
-                    }
-
-                    tempFile.setName(params.name);
-                    tempFile.setPath(params.name);
-                    writeContent(tempFile, script);
-                    OriginalFile scriptFile = updateFile(tempFile);
-                    cb.ice_response(scriptFile.getId());
-
-                } catch (Exception e) {
-                    cb.ice_exception(e);
+                if (!validateScript(scriptText)) {
+                    throw new ApiUsageException(null, null, "Invalid script");
                 }
+
+                OriginalFile file = makeFile(scriptText); // FIXME PATH!!!
+                writeContent(file, scriptText);
+                JobParams params = getScriptParams(file.getId(), __current);
+
+                if (params == null) {
+                    throw new ApiUsageException(null, null, "Script error: no params found.");
+                }
+
+                file.setName(params.name);
+                updateFile(file);
+                return file.getId();
+
+            }
+
+        });
+    }
+
+    public void editScript_async(final AMD_IScript_editScript cb,
+            final omero.model.OriginalFile fileObject, final String scriptText,
+            final Current __current) throws ServerError {
+
+        safeRunnableCall(__current, cb, true, new Callable<Object>() {
+            public Object call() throws Exception {
+
+                if (!validateScript(scriptText)) {
+                    throw new ApiUsageException(null, null, "Invalid script");
+                }
+
+                IceMapper mapper = new IceMapper();
+                OriginalFile file = (OriginalFile) mapper.reverse(fileObject);
+                writeContent(file, scriptText);
+                JobParams params = getScriptParams(file.getId(), __current);
+
+                if (params == null) {
+                    throw new ApiUsageException(null, null, "Script error: no params found.");
+                }
+
+                file.setName(params.name);
+                updateFile(file);
+                return null; // void
             }
 
         });
@@ -314,123 +324,11 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     public void getParams_async(final AMD_IScript_getParams cb, final long id,
             final Current __current) throws ServerError {
         runnableCall(__current, new Runnable() {
-
             public void run() {
                 try {
-                    cb.ice_response(getParams(id, __current));
+                    cb.ice_response(getScriptParams(id, __current));
                 } catch (Exception e) {
                     cb.ice_exception(e);
-                }
-            }
-        });
-    }
-
-    /**
-     * Run the script. This script also tests the parameters against the script
-     * params, checking that the names of the parameters match and their types
-     * match.
-     * 
-     * @param id
-     *            of the script to run
-     * @param map
-     *            the map of parameters {String:RType} map of the parameters
-     *            name, value.
-     * @param __current
-     *            ice context.
-     * @return The results, map {String:RType}
-     * @throws ServerError
-     *             validation, api usage.
-     */
-    public void runScript_async(final AMD_IScript_runScript cb, final long id,
-            final Map<String, RType> map, final Current __current)
-            throws ServerError {
-
-        runnableCall(__current, new Runnable() {
-
-            public void run() {
-
-                InteractiveProcessorPrx proc = null;
-
-                try {
-
-                    log.info(String.format(
-                            "runScript: %s param keys: %s",
-                            id, map == null ? null : map.keySet()));
-
-                    ScriptJobI job = buildJob(id);
-                    proc = factory.sharedResources().acquireProcessor(job, 10);
-                    JobParams params = proc.params();
-                    
-                    if (params == null) {
-                        cb
-                                .ice_exception(new ApiUsageException(
-                                        null,
-                                        null,
-                                        "Script has returned no parameters this "
-                                                + "indicates that the script may have crashed."));
-                        return; // EARLY EXIT
-
-                    }
-                    for (Map.Entry<String, Param> entry : params.inputs.entrySet()) {
-                        String paramName = entry.getKey();
-                        Param param = entry.getValue();
-                        RType scriptParamType = param.prototype;
-                        RType inputParamType = map.get(paramName);
-
-                        if (inputParamType == null) {
-                            if (param.optional) {
-                                continue;
-                            } else {
-                                cb
-                                    .ice_exception(new ApiUsageException(
-                                            null,
-                                            null,
-                                            "Script takes required parameter "
-                                                    + paramName
-                                                    + " which has not supplied input params to runScript."));
-                                return; // EARLY EXIT
-                            }
-                        }
-
-                        if (!scriptParamType.getClass().equals(
-                                inputParamType.getClass())) {
-                            cb
-                                    .ice_exception(new ApiUsageException(
-                                            null,
-                                            null,
-                                            "Script takes parameter "
-                                                    + paramName
-                                                    + " of type "
-                                                    + scriptParamType
-                                                    + " runScript was passed parameter "
-                                                    + paramName + " of type "
-                                                    + inputParamType + "."));
-                            return; // EARLY EXIT
-                        }
-                    }
-
-                    omero.grid.ProcessPrx prx = proc.execute(rmap(map));
-                    prx._wait();
-                    Map<String, RType> results = proc.getResults(prx)
-                            .getValue();
-                    if (results == null) {
-                        cb.ice_exception(new ApiUsageException(null, null,
-                                "Script has returned null this indicates "
-                                        + "that the script may have crashed."));
-                        return; // EARLY EXIT
-
-                    }
-                    cb.ice_response(results);
-                } catch (Exception e) {
-                    cb.ice_exception(e);
-                } finally {
-                    if (proc != null) {
-                        try {
-                            proc.stop();
-                        } catch (Exception e) {
-                            log.warn("Err on proc.stop(): " + e.getMessage());
-                        }
-                    }
                 }
             }
         });
@@ -453,7 +351,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             public void run() {
                 try {
                     final Map<Long, String> scriptMap = new HashMap<Long, String>();
-                    final long fmt = getFormat(PYTHONSCRIPT).getId();
+                    final long fmt = pythonFormat.getId();
                     final String queryString = "from OriginalFile as o where o.format.id = "
                             + fmt;
                     factory.executor.execute(factory.principal,
@@ -513,20 +411,6 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     // Non-public-methods
     // =========================================================================
 
-    private Map<String, RType> getParams(long id, Ice.Current __current)
-            throws ServerError {
-        OriginalFile file = getOriginalFileOrNull(id);
-        JobParams params = getScriptParams(file, __current);
-        if (params == null)
-            return null;
-        Map<String, RType> temporary = new HashMap<String, RType>();
-        for (String key : params.inputs.keySet()) {
-            Param p = params.inputs.get(key);
-            temporary.put(key, p.prototype);
-        }
-        return temporary;
-    }
-
     /**
      * Get the script params for the file.
      * 
@@ -537,21 +421,109 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      * @return jobparams of the script.
      * @throws ServerError
      */
-    private JobParams getScriptParams(OriginalFile file, Current __current)
+    private JobParams getScriptParams(final long id, Current __current)
             throws ServerError {
-        if (file == null || file.getId() == null) {
-            throw new ApiUsageException(null, null, file
-                    + " is not persistent.");
+
+        // First search for an existing parse-job
+        OriginalFile file = (OriginalFile) factory.executor.execute(
+                factory.principal, new Executor.SimpleWork(this, "getScriptParams") {
+                    @Transactional(readOnly = false)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        Parameters p = new Parameters();
+                        p.page(0, 1);
+                        p.addString("msg", PARSING);
+                        p.addString("fmt", OCTETSTREAM);
+                        p.addLong("id",  id);
+                        return sf.getQueryService().findByQuery("select param " +
+                                "from ScriptJob job " +
+                                "join job.originalFileLinks scriptlinks " +
+                                "join scriptlinks.child script " +
+                                "join job.originalFileLinks paramlinks " +
+                                "join paramlinks.child param " +
+                                "where job.message = :msg " +
+                                "and script.id = :id " +
+                                "and param.format.value = :fmt",
+                                p);
+                    }
+
+                });
+
+        if (file == null) {
+            return generateScriptParams(id, __current);
+        } else {
+            return parseScriptParams(file, __current);
         }
-        ScriptJobI job = buildJob(file.getId());
-        InteractiveProcessorPrx proc = this.factory.sharedResources()
+    }
+
+    private JobParams generateScriptParams(long id, Ice.Current __current)
+        throws ServerError {
+
+        final ScriptJobI job = buildJob(id);
+        final InteractiveProcessorPrx proc = this.factory.sharedResources()
                 .acquireProcessor(job, 10);
         if (proc == null) {
             throw new InternalException(null, null, "No processor acquired.");
         }
-        JobParams rv = proc.params();
-        deleteTempJob(proc.getJob().getId().getValue());
+        final long jobId = proc.getJob().getId().getValue();
+
+        final JobParams rv = proc.params();
+        if (rv == null) {
+            throw new omero.ValidationException(null, null, "Can't find params for "+id);
+        }
+        final byte[] data = parse(rv, __current);
+        final OriginalFile file = new OriginalFile();
+
+        file.setName("Params for " + id);
+        file.setPath("/params/"+id);
+        file.setSize((long)data.length);
+        file.setSha1(Utils.bufferToSha1(data));
+        file.setFormat(octetFormat.proxy());
+        Timestamp t = new Timestamp(System.currentTimeMillis());
+        file.setCtime(t);
+        file.setAtime(t);
+        file.setMtime(t);
+        factory.executor.execute(
+                factory.principal, new Executor.SimpleWork(this, "saveScriptParams", file) {
+                    @Transactional(readOnly = false)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        // This logic could possibly be a part of the
+                        // Processor.parseJob logic
+                        JobOriginalFileLink link = new JobOriginalFileLink();
+                        link.link(new ScriptJob(jobId, false), file);
+                        link = sf.getUpdateService().saveAndReturnObject(link);
+
+                        long id = link.getChild().getId();
+                        RawFileStore rfs = sf.createRawFileStore();
+                        try {
+                            rfs.setFileId(id);
+                            rfs.write(data, 0, data.length);
+                            return null;
+                        } finally {
+                            rfs.close();
+                        }
+                    }
+                });
+
         return rv;
+
+    }
+
+    private JobParams parseScriptParams(final OriginalFile file, Ice.Current __current) {
+        // First search for an existing parse-job
+        byte[] data = (byte[]) factory.executor.execute(
+                factory.principal, new Executor.SimpleWork(this, "parseScriptParams", file) {
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        RawFileStore rfs = sf.createRawFileStore();
+                        try {
+                            rfs.setFileId(file.getId());
+                            return rfs.read(0, file.getSize().intValue());
+                        } finally {
+                            rfs.close();
+                        }
+                    }
+            });
+        return parse(data, __current);
     }
 
     /**
@@ -565,13 +537,13 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      */
     private OriginalFile makeFile(final String script) throws ServerError {
         String fName = "ScriptName" + UUID.randomUUID();
-        OriginalFile tempFile = new OriginalFile();
-        tempFile.setName(fName);
-        tempFile.setPath(fName);
-        tempFile.setFormat(getFormat(PYTHONSCRIPT));
-        tempFile.setSize((long) script.getBytes().length);
-        tempFile.setSha1(Utils.bufferToSha1(script.getBytes()));
-        return updateFile(tempFile);
+        OriginalFile file = new OriginalFile();
+        file.setName(fName);
+        file.setPath(fName);
+        file.setFormat(pythonFormat.proxy());
+        file.setSize((long) script.getBytes().length);
+        file.setSha1(Utils.bufferToSha1(script.getBytes()));
+        return updateFile(file);
     }
 
     /**
@@ -613,12 +585,15 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 this, "writeContent") {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-
                 RawFileStore rawFileStore = sf.createRawFileStore();
-                rawFileStore.setFileId(file.getId());
-                rawFileStore.write(script.getBytes(), 0,
-                        script.getBytes().length);
-                return file.getId();
+                try {
+                    rawFileStore.setFileId(file.getId());
+                    rawFileStore.write(script.getBytes(), 0,
+                            script.getBytes().length);
+                    return file.getId();
+                } finally {
+                    rawFileStore.close();
+                }
             }
         });
     }
@@ -635,36 +610,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         final OriginalFileI file = new OriginalFileI(id, false);
         final ScriptJobI job = new ScriptJobI();
         job.linkOriginalFile(file);
+        job.setMessage(omero.rtypes.rstring(PARSING));
         return job;
-    }
-
-    /**
-     * Delete a temporary job used for parsing.
-     */
-    private void deleteTempJob(final long id) throws ServerError {
-
-        Boolean success = (Boolean) factory.executor.execute(factory.principal,
-                new Executor.SimpleWork(this, "deleteTempJob") {
-
-                    @Transactional(readOnly = false)
-                    public Object doWork(Session session, ServiceFactory sf) {
-                        try {
-                            IUpdate update = sf.getUpdateService();
-                            update.deleteObject(new ome.model.jobs.ScriptJob(
-                                    id, false));
-                        } catch (ome.conditions.ValidationException ve) {
-                            return false;
-                        }
-                        return true;
-                    }
-
-                });
-
-        if (success == null || !success) {
-            throw new omero.ApiUsageException(null, null, "Cannot delete "
-                    + new ome.model.jobs.ScriptJob(id, false)
-                    + "\nIs in use by other objects");
-        }
     }
 
     /**
@@ -681,19 +628,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                     @Transactional(readOnly = false)
                     public Object doWork(Session session, ServiceFactory sf) {
                         IUpdate update = sf.getUpdateService();
-                        List<JobOriginalFileLink> links = sf.getQueryService()
-                                .findAllByQuery(
-                                        "select link from JobOriginalFileLink link "
-                                                + "join link.child as file "
-                                                + "join link.parent as job "
-                                                + "where file.id = :id and "
-                                                + "job.message = :msg",
-                                        new Parameters().addId(file.getId())
-                                                .addString("msg", PARSING));
                         try {
-                            for (JobOriginalFileLink jobOriginalFileLink : links) {
-                                update.deleteObject(jobOriginalFileLink);
-                            }
                             update.deleteObject(file);
                         } catch (ome.conditions.ValidationException ve) {
                             return false;
@@ -710,38 +645,6 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     }
 
     /**
-     * Method to check that an originalFile exists in the server.
-     * 
-     * @param fileName
-     *            name of the script file.
-     * @return see above.
-     */
-    @SuppressWarnings("unchecked")
-    private boolean originalFileExists(String fileName) {
-        final String queryString = "from OriginalFile as o where o.format.id = "
-                + getFormat(PYTHONSCRIPT).getId()
-                + " and o.name = '"
-                + fileName + "'";
-        List<OriginalFile> fileList = (List<OriginalFile>) factory.executor
-                .execute(factory.principal, new Executor.SimpleWork(this,
-                        "originalFileExists") {
-
-                    @Transactional(readOnly = true)
-                    public Object doWork(Session session, ServiceFactory sf) {
-                        return sf.getQueryService().findAllByQuery(queryString,
-                                null);
-                    }
-                });
-        if (fileList == null) {
-            return false;
-        }
-        if (fileList.size() == 0) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
      * Method to get the original file of the script with name. This method will
      * not throw an exception, but instead will return null.
      * 
@@ -754,10 +657,10 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     private OriginalFile getOriginalFileOrNull(String name) {
 
         try {
+            final Parameters p = new Parameters().addString("name", name);
             final String queryString = "from OriginalFile as o where o.format.id = "
-                    + getFormat(PYTHONSCRIPT).getId()
-                    + " and o.name = '"
-                    + name + "'";
+                    + pythonFormat.getId()
+                    + " and o.name = :name";
             OriginalFile file = (OriginalFile) factory.executor.execute(
                     factory.principal, new Executor.SimpleWork(this,
                             "getOriginalFileOrNull") {
@@ -765,7 +668,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                         @Transactional(readOnly = true)
                         public Object doWork(Session session, ServiceFactory sf) {
                             return sf.getQueryService().findByQuery(
-                                    queryString, null);
+                                    queryString, p);
                         }
                     });
             return file;
@@ -788,10 +691,10 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
         try {
             final String queryString = "from OriginalFile as o where o.format.id = "
-                    + getFormat(PYTHONSCRIPT).getId() + " and o.id = " + id;
+                    + pythonFormat.getId() + " and o.id = " + id;
             OriginalFile file = (OriginalFile) factory.executor.execute(
                     factory.principal, new Executor.SimpleWork(this,
-                            "getOriginalFileOrNull") {
+                            "getOriginalFileOrNull", id) {
 
                         @Transactional(readOnly = true)
                         public Object doWork(Session session, ServiceFactory sf) {
@@ -806,21 +709,21 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     }
 
     /**
-     * Get the iFormat object.
+     * Get the Format object.
      * 
      * @param fmt
      *            the format to retrieve.
      * @return see above.
      */
-    Format getFormat(String fmt) {
+    Format loadFormat(final String fmt) {
         return (Format) factory.executor.execute(factory.principal,
-                new Executor.SimpleWork(this, "getFormat") {
+                new Executor.SimpleWork(this, "loadFormat") {
 
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
                         return sf.getQueryService().findByQuery(
                                 "from Format as f where f.value='"
-                                        + PYTHONSCRIPT + "'", null);
+                                        + fmt + "'", null);
                     }
                 });
     }
@@ -836,4 +739,43 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         return true;
     }
 
+    //
+    // Params storage
+    //
+
+    private byte[] parse(JobParams params, Ice.Current current) {
+        Ice.OutputStream os = Ice.Util.createOutputStream(current.adapter.getCommunicator());
+        byte[] bytes = null;
+        try {
+            os.writeObject(params);
+            os.writePendingObjects();
+            bytes = os.finished();
+        } finally {
+            os.destroy();
+        }
+        return bytes;
+    }
+
+    private JobParams parse(byte[] data, Ice.Current current) {
+
+        if (data == null) {
+            return null; // EARLY EXIT!
+        }
+
+        Ice.InputStream is = Ice.Util.createInputStream(current.adapter.getCommunicator(), data);
+        final JobParams[] params = new JobParams[1];
+        try {
+            is.readObject(new ReadObjectCallback() {
+                public void invoke(Ice.Object arg0) {
+                    params[0] = (JobParams) arg0;
+                }
+            });
+            is.readPendingObjects();
+        } catch (UnmarshalOutOfBoundsException oob) {
+            // ok, returning null.
+        } finally {
+            is.destroy();
+        }
+        return params[0];
+    }
 }
