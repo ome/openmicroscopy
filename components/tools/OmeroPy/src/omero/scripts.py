@@ -18,14 +18,18 @@
 """
 
 import exceptions, omero
+import omero_Scripts_ice
 from omero.rtypes import *
 
 class Type:
-    def __init__(self, name, optional = False, out = False, description = None, type = None):
-        self.name = name
-        self.description = description
-        self.type = type
-        self.optional = optional
+    def __init__(self, name, optional = False, out = False, description = None, type = None, min = None, max = None, values = None):
+        self._param = omero.grid.Param()
+        self._param.name= name
+        self._param.description = description
+        self._param.optional = optional
+        self._param.min = min
+        self._param.max = max
+        self._param.values = values
         self._in = True
         self._out = out
     def out(self):
@@ -37,41 +41,55 @@ class Type:
         self._out = True
         return self
     def optional(self):
-        self.optional = True
+        self._param.optional = True
         return self
+    def values(self, *args):
+        self._param.values = rlist([rtype(x) for x in args])
+        return self
+    def min(self, arg):
+        self._param.min = rtype(arg)
+        return self
+    def max(self, arg):
+        self._param.max = rtype(arg)
+        return self
+    def type(self, arg):
+        self._param.prototype = rtype(arg)
+        return self
+    def param(self):
+        return self._param
 
 class Long(Type):
     def __init__(self, name, optional = False, out = False):
         Type.__init__(self, name, optional, out)
-        self.type = rlong(0)
+        self.type(rlong(0))
 class String(Type):
     def __init__(self, name, optional = False, out = False):
         Type.__init__(self, name, optional, out)
-        self.type = rstring("")
+        self.type(rstring(""))
 class Bool(Type):
     def __init__(self, name, optional = False, out = False):
         Type.__init__(self, name, optional, out)
-        self.type = rbool(False)
+        self.type(rbool(False))
 class Point(Type):
     def __init__(self, name, optional = False, out = False):
         Type.__init__(self, name, optional, out)
-        self.type = rinternal(omero.Point())
+        self.type(rinternal(omero.Point()))
 class Plane(Type):
     def __init__(self, name, optional = False, out = False):
         Type.__init__(self, name, optional, out)
-        self.type = rinternal(omero.Plane())
+        self.type(rinternal(omero.Plane()))
 class Set(Type):
     def __init__(self, name, optional = False, out = False, *contents):
         Type.__init__(self, name, optional, out)
-        self.type = rset(contents)
+        self.type(rset(contents))
 class List(Type):
     def __init__(self, name, optional = False, out = False, *contents):
         Type.__init__(self, name, optional, out)
-        self.type = rlist(contents)
+        self.type(rlist(contents))
 class Map(Type):
     def __init__(self, name, optional = False, out = False, **contents):
         Type.__init__(self, name, optional, out)
-        self.type = rmap(contents)
+        self.type(rmap(contents))
 
 class ParseExit(exceptions.Exception):
     """
@@ -134,16 +152,19 @@ def client(name, description = None, *args, **kwargs):
     c.params.outputs = {}
     c.params.stdoutFormat = kwargs["stdoutFormat"]
     c.params.stderrFormat = kwargs["stderrFormat"]
+
+    # Original style
     for p in args:
-        param = omero.grid.Param()
-        param.name = p.name
-        param.description = param.description
-        param.optional = p.optional
-        param.prototype = p.type
-        if p._in:
-            c.params.inputs[p.name] = param
-        if p._out:
-            c.params.outputs[p.name] = param
+        if isinstance(p, Type):
+            param = p.param()
+            if p._in:
+                c.params.inputs[param.name] = param
+            if p._out:
+                c.params.outputs[param.name] = param
+        elif isinstance(p, omero.grid.Param):
+            c.params.inputs[p.name] = p # INPUT ONLY
+
+    # New style for bulk includes
     inputs = kwargs.get("inputs", [])
     for i in inputs:
         c.params.inputs[i.name] = i
@@ -160,4 +181,78 @@ def handleParse(c):
         c.setOutput("omero.scripts.parse", rinternal(c.params))
         raise ParseExit(c.params)
 
+def error_msg(category, value, *args):
+    c = "%-15.15s" % (category.upper())
+    s = "\t%s ---   %s\n" % (c, value)
+    return s % args
 
+def compare_proto(proto, input):
+    errors = ""
+    itype = input is None and None or input.__class__
+    ptype = proto is None and None or proto.__class__
+    if not isinstance(input, ptype):
+        errors += error_msg("Wrong type", "%s != %s", itype, ptype)
+    if isinstance(proto, omero.RMap):
+        errors += compare_proto(proto.values()[0], input.values()[0])
+    if isinstance(proto, omero.RCollection):
+        errors += compare_proto(proto[0], input[0])
+    return errors
+
+def expand(input):
+    if input is None:
+        items = []
+    elif isinstance(input, (list, tuple)):
+        items = list(input)
+    elif isinstance(input, dict):
+        items = input.values()
+    else:
+        items = [input]
+    return items
+
+def check_boundaries(min, max, input):
+    errors = ""
+
+    # Unwrap
+    min = unwrap(min)
+    max = unwrap(max)
+    input = unwrap(input)
+    items = expand(input)
+
+    # Check
+    for x in items:
+        if min is not None and min > x:
+            errors += error_msg("Out of bounds", "%s is below min %s", x, min)
+        if max is not None and max < x:
+            errors += error_msg("Out of bounds", "%s is above max %s", x, max)
+    return errors
+
+def check_values(values, input):
+    errors = ""
+
+    # Unwrap
+    values = unwrap(values)
+    input = unwrap(input)
+    items = expand(input)
+    values = expand(values)
+
+    if not values:
+        return errors
+
+    for x in items:
+        if x not in values:
+            errors += error_msg("Value list", "%s not in %s", x, values)
+
+    return errors
+
+def validate_inputs(params, inputs):
+    errors = ""
+    for key, param in params.inputs.items():
+        if key not in inputs:
+            if not param.optional:
+                errors += error_msg("Missing input", "%s", key)
+        else:
+            input = inputs[key]
+            errors += compare_proto(param.prototype, input)
+            errors += check_boundaries(param.min, param.max, input)
+            errors += check_values(param.values, input)
+    return errors

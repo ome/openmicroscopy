@@ -48,6 +48,9 @@ def perf(func):
     return handler
 
 
+__FORMAT = "%-.120s"
+__RESULT = " Rslt: " + __FORMAT
+__EXCEPT = " Excp: " + __FORMAT
 def remoted(func):
     """ Decorator for catching any uncaught exception and converting it to an InternalException """
     log = logging.getLogger("omero.remote")
@@ -55,14 +58,12 @@ def remoted(func):
         try:
             self = args[0]
             log.info(" Meth: %s.%s", self.__class__.__name__, func.func_name)
-            start = time.time()
             rv = func(*args, **kwargs)
-            stop = time.time()
-            log.info(" Rslt: %20.20s in %ss", rv, (stop-start))
+            log.info(__RESULT, rv)
             return rv
         except exceptions.Exception, e:
             stop = time.time()
-            log.info(" Excp: %20.20s in %ss.", e, (stop-start))
+            log.info(__EXCEPT, e)
             if isinstance(e, omero.ServerError):
                 raise
             else:

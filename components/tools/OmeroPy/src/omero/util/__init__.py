@@ -563,7 +563,7 @@ class Resources:
     @locked
     def add(self, object, cleanupMethod = "cleanup", checkMethod = "check"):
         entry = (object,cleanupMethod,checkMethod)
-        self.logger.info("Adding object %s" % object)
+        self.logger.debug("Adding object %s" % object)
         self.stuff.append(entry)
 
     @locked
@@ -572,7 +572,7 @@ class Resources:
         for m in self.stuff:
             self.safeClean(m)
         self.stuff = None
-        self.logger.info("Cleanup done")
+        self.logger.debug("Cleanup done")
 
     def safeClean(self, m):
             try:

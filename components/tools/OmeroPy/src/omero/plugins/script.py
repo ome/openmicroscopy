@@ -129,7 +129,8 @@ import omero
 import omero.rtypes as rtypes
 import omero.scripts as scripts
 
-a = scripts.String("a")
+o = scripts.Long("opt").min(0).max(5).optional()
+a = scripts.String("a").values("foo", "bar")
 b = scripts.Long("b").out()
 
 client = scripts.client("length of input string",
@@ -137,13 +138,20 @@ client = scripts.client("length of input string",
     Trivial example script which calculates the length
     of the string passed in as the "a" input, and returns
     the value as the long "b"
-\"\"\", a, b)
+\"\"\", a, b, o)
+
+print "Starting script"
+
 try:
     a = client.getInput("a").getValue()
     b = len(a)
-    client.setOutput(rtypes.rlong(b))
+    client.setOutput("b", rtypes.rlong(b))
+    client.setOutput("unregistered-output-param", rtypes.wrap([1,2,3]))
 finally:
-    client.closeSession()"""
+    client.closeSession()
+
+print "Finished script"
+"""
         from omero.util.temp_files import create_path
         t = create_path("Demo_Script", ".py")
 
@@ -155,37 +163,61 @@ finally:
         self.ctx.out("\nExample script writing session")
         self.ctx.out("="*80)
 
-        query = "select o from OriginalFile o where o.sha1 = '%s'" % sha1
-        files = self.ctx.conn().sf.getQueryService().findAllByQuery(query, None)
+        def msg(title, method = None, *args):
+            self.ctx.out("\n")
+            self.ctx.out("\t+" + ("-"*68) + "+")
+            title = "\t| %-66.66s | " % title
+            self.ctx.out(title)
+            if method:
+                cmd = "%s %s" % (method.__name__, " ".join(args))
+                cmd = "\t| COMMAND: bin/omero script %-40.40s | " % cmd
+                self.ctx.out(cmd)
+            self.ctx.out("\t+" + ("-"*68) + "+")
+            self.ctx.out(" ")
+            if method:
+                try:
+                    method(*args)
+                except exceptions.Exception, e:
+                    self.ctx.out("\nEXECUTION FAILED: %s" % e)
+
+        client = self.ctx.conn()
+        admin = client.sf.getAdminService()
+        current_user = admin.getEventContext().userId
+        query = "select o from OriginalFile o where o.sha1 = '%s' and o.details.owner.id = %s" % (sha1, current_user)
+        files = client.sf.getQueryService().findAllByQuery(query, None)
         if len(files) == 0:
-            self.ctx.out("\nSaving demo script to %s..." % t)
+            msg("Saving demo script to %s" % t)
             t.write_text(SCRIPT)
 
-            self.ctx.out("\nUploading script...")
-            self.upload(args.for_pub(str(t)))
+            msg("Uploading script", self.upload, str(t))
             id = self.ctx.get("script.file.id")
         else:
             id = files[0].id.val
-            self.ctx.out("\nReusing demo script %s" % id)
+            msg("Reusing demo script %s" % id)
 
-        self.ctx.out("")
-        self.list(args.for_pub("user"))
-
-        self.ctx.out("\nScript content for file %s:" % id)
-        self.ctx.out(SCRIPT)
-
-        self.ctx.out("\nServing file %s in background..." % id)
-        self.serve(args.for_pub("user", "background=true", "count=1"))
-
-        self.ctx.out("\nLaunching script...")
-        self.launch(args.for_pub("file=%s" % id, "a=my-demo-string"))
+        msg("Listing available scripts for user", self.list, "user")
+        msg("Printing script content for file %s" % id, self.cat, str(id))
+        msg("Serving file %s in background" % id, self.serve, "user", "background=true")
+        msg("Launching script with parameters: a=bad-string (fails)", self.launch, "file=%s" % id, "a=bad-string")
+        msg("Launching script with parameters: a=bad-string opt=6 (fails)", self.launch, "file=%s" % id, "a=bad-string", "opt=6")
+        msg("Launching script with parameters: a=foo opt=1 (passes)", self.launch, "file=%s" % id, "a=foo", "opt=1")
 
         ## self.ctx.out("\nDeleting script from server...")
         ## self.delete(args.for_pub(str(id)))
 
     @wrapper
     def cat(self, args):
-        pass
+        # TODO: this is identical to delete and could be refactored with a file_wrapper
+        if len(args) != 1:
+            self.ctx.die(123, "Usage: <original file id>")
+
+        ofile = long(args.args[0])
+        import omero_api_IScript_ice
+        client = self.ctx.conn()
+        try:
+            self.ctx.out(client.sf.getScriptService().getScript(ofile))
+        except exceptions.Exception, e:
+            self.ctx.err("Failed to delete script: %s (%s)" % (ofile, e))
 
     @wrapper
     def jobs(self, args):
@@ -197,6 +229,7 @@ finally:
         script_id = self._file(args, client)
 
         import omero
+        import omero.rtypes
         import omero_SharedResources_ice
         job = omero.model.ScriptJobI()
         job.linkOriginalFile(omero.model.OriginalFileI(script_id, False))
@@ -211,9 +244,19 @@ finally:
                 if not a and not param.optional:
                     self.ctx.die(321, "Missing input: %s" % key)
                 else:
-                    m[key] = omero.rtypes.rstring(a)
+                    if a is None:
+                        m[key] = None
+                    elif isinstance(param.prototype, omero.RLong):
+                        m[key] = omero.rtypes.rlong(a)
+                    elif isinstance(param.prototype, omero.RString):
+                        m[key] = omero.rtypes.rstring(a)
             job = interactive.getJob()
-            proc = interactive.execute(omero.rtypes.rmap(m))
+            try:
+                proc = interactive.execute(omero.rtypes.rmap(m))
+            except omero.ValidationException, ve:
+                self.ctx.err("Bad parameters:\n%s" % ve)
+                return # EARLY EXIT
+
             self.ctx.out("Job %s ready" % job.id.val)
             self.ctx.out("Waiting....")
             count = 0
@@ -228,26 +271,28 @@ finally:
             def p(m):
                 class handle(object):
                     def write(this, val):
-                        self.ctx.out(str(val), newline=False)
+                        val = "\t* %s" % val
+                        val = val.replace("\n","\n\t* ")
+                        self.ctx.out(val, newline=False)
                     def close(this):
                         pass
 
                 f = rv.get(m, None)
                 if f and f.val:
-                    self.ctx.out("*** %s ***" % m)
+                    self.ctx.out("\n\t*** start %s ***" % m)
                     try:
                         client.download(ofile=f.val, filehandle=handle())
                     except:
                         self.ctx.err("Failed to display %s" % m)
+                    self.ctx.out("\n\t*** end %s ***\n" % m)
 
             p("stdout")
             p("stderr")
-            self.ctx.out("*** out parameters ***")
+            self.ctx.out("\n\t*** out parameters ***")
             for k, v in rv.items():
                 if k not in ("stdout", "stderr", "omero.scripts.parse"):
-                    if v is not None:
-                        v = v.val # Unwrap rtypes
-                    self.ctx.out("%s=%s" % (k, v))
+                    self.ctx.out("\t* %s=%s" % (k, omero.rtypes.unwrap(v)))
+            self.ctx.out("\t***  done ***")
 
     @wrapper
     def list(self, args):
@@ -287,7 +332,6 @@ finally:
             self.ctx.out("namespaces=%s" % ", ".join(job_params.namespaces))
             self.ctx.out("stdout=%s" % job_params.stdoutFormat)
             self.ctx.out("stderr=%s" % job_params.stderrFormat)
-            print job_params.inputs
             def print_params(which, params):
                 import omero
                 self.ctx.out(which)

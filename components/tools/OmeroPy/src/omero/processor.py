@@ -19,6 +19,7 @@ from path import path
 import Ice
 import omero
 import omero.clients
+import omero.scripts
 import omero.util
 import omero.util.concurrency
 
@@ -261,21 +262,22 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         if self.isRunning():
             self.deactivate()
 
+        if not self.iskill:
+            return
+
         try:
             sf = self.ctx.getSession(recreate = False)
         except:
-            self.logger.warn("Can't get session for cleanup")
+            self.logger.debug("Can't get session for cleanup")
             return
 
-        self.status("Cleaning")
+        self.status("Killing session")
         svc = sf.getSessionService()
         obj = omero.model.SessionI()
         obj.uuid = omero.rtypes.rstring(self.uuid)
         try:
-            if self.iskill:
-                self.status("Killing session")
-                while svc.closeSession(obj) > 0:
-                    pass
+            while svc.closeSession(obj) > 0:
+                pass
             # No action to be taken when iskill == False if
             # we don't have an actual client to worry with.
         except:
@@ -330,7 +332,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         filename = str(filename) # Might be path.path
         sz = os.path.getsize(filename)
         if not sz:
-            self.logger.info("No %s" % name)
+            self.status("No %s" % name)
             return
 
         try:
@@ -537,7 +539,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
                 self.logger.error("Error calling callback %s on pid=%s (%s)" % (key, self.pid, self.uuid), exc_info = True)
 
     def __str__(self):
-        return "<proc:%s,rc=%s,uuid=%s>" % (self.pid, self.rcode, self.uuid)
+        return "<proc:%s,rc=%s,uuid=%s>" % (self.pid, (self.rcode is None and "-" or self.rcode), self.uuid)
 
 class UseSessionHolder(object):
 
@@ -660,12 +662,11 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
     @remoted
     def parseJob(self, session, job, current = None):
-
+        self.logger.info("parseJob: Session = %s, JobId = %s" % (session, job.id.val))
         client = omero.client(["--Ice.Config=%s" % (self.cfg)])
         try:
             iskill = False
             client.joinSession(session).detachOnDestroy()
-            self.logger.info("parseJob: Session = %s, JobId = %s" % (session, job.id.val))
             properties = {}
             properties["omero.scripts.parse"] = "true"
             prx, process = self.process(client, session, job, current, None, properties, iskill)
@@ -684,6 +685,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
     def processJob(self, session, params, job, current = None):
         """
         """
+        self.logger.info("processJob: Session = %s, JobId = %s" % (session, job.id.val))
         client = omero.client(["--Ice.Config=%s" % (self.cfg)])
         try:
             client.joinSession(session).detachOnDestroy()
@@ -715,23 +717,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             sf = self.internal_session()
             svc = sf.getSessionService()
             inputs = svc.getInputs(session)
-            errors = ""
-            for key, param in params.inputs.items():
-                if key not in inputs:
-                    if not param.optional:
-                        errors += "Missing input: %s" % key
-                else:
-                    def compare_proto(proto, input):
-                        input = inputs[key]
-                        intype = input is None and None or input.__class__
-                        proto = param.prototype.__class__
-                        if not isinstance(input, proto):
-                            errors += "Wrong type: %s != %s" % (intype, proto)
-                        if isinstance(param.prototype, RMap):
-                            errors += compare_proto(param.prototype.values()[0], input.values()[0])
-                        if isinstance(param.prototype, RCollection):
-                            errors += compare_proto(param.prototype[0], input[0])
-                    errors += compare_proto(param.prototype, inputs[key], errors)
+            errors = omero.scripts.validate_inputs(params, inputs)
             if errors:
                 errors = "Invalid parameters:\n%s" % errors
                 raise omero.ValidationException(None, None, errors)
@@ -741,7 +727,6 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         properties["omero.pass"] = session
         properties["Ice.Default.Router"] = client.getProperty("Ice.Default.Router")
 
-        self.logger.info("processJob: Session = %s, JobId = %s" % (session, job.id.val))
         process = ProcessI(self.ctx, "python", properties, params, iskill)
         self.resources.add(process)
         client.download(file, str(process.script_path))

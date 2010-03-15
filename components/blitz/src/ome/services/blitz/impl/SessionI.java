@@ -139,12 +139,12 @@ public class SessionI extends AbstractAmdServant implements _ISessionOperations 
 
     public void getInputs_async(AMD_ISession_getInputs __cb, String sess,
             Current __current) throws ServerError {
-        RTypeMapper mapper = new RTypeMapper(IceMapper.OBJECT_TO_RTYPE);
+        RTypeMapper mapper = new RTypeMapper(IceMapper.RTYPEDICT);
         callInvokerOnMappedArgs(mapper, __cb, __current, sess);
     }
     public void getOutputs_async(AMD_ISession_getOutputs __cb, String sess,
             Current __current) throws ServerError {
-        RTypeMapper mapper = new RTypeMapper(IceMapper.OBJECT_TO_RTYPE);
+        RTypeMapper mapper = new RTypeMapper(IceMapper.RTYPEDICT);
         callInvokerOnMappedArgs(mapper, __cb, __current, sess);
     }
 }
