@@ -51,6 +51,13 @@
 			<optional name="description" type="string"/>
 		</properties>
 	</type>
+	<type id="ome.model.jobs.ParseJob" superclass="ome.model.jobs.Job">
+		<!-- Note: ScriptJob is not in model-->
+		<properties>
+			<!-- optional, so that it can be updated after the fact -->
+			<optional name="params" type="ome.model.core.OriginalFile"/>
+		</properties>
+	</type>
 	<link id="ome.model.jobs.JobOriginalFileLink">
 		<!-- Note: JobOriginalFileLink is not in model-->
 		<properties>

@@ -45,6 +45,7 @@ import omero.grid.InteractiveProcessorPrx;
 import omero.grid.InteractiveProcessorPrxHelper;
 import omero.grid.InternalRepositoryPrx;
 import omero.grid.InternalRepositoryPrxHelper;
+import omero.grid.ParamsHelper;
 import omero.grid.ProcessorAcceptsCallbackPrx;
 import omero.grid.ProcessorAcceptsCallbackPrxHelper;
 import omero.grid.ProcessorPrx;
@@ -489,10 +490,10 @@ public class SharedResourcesI extends AbstractAmdServant implements
         }
 
         long timeout = System.currentTimeMillis() + 60 * 60 * 1000L;
-        IScriptPrx iScript = sf.getScriptService(); // Force creation
+
         InteractiveProcessorI ip = new InteractiveProcessorI(sf.principal,
                 sf.sessionManager, sf.executor, server, job, timeout,
-                sf.control, iScript);
+                sf.control, new ParamsHelper(sf));
         Ice.Identity procId = sessionedID("InteractiveProcessor");
         Ice.ObjectPrx rv = sf.registerServant(current, procId, ip);
         allow(rv);

@@ -220,7 +220,7 @@ module omero {
              **/
             void willAccept(omero::model::Experimenter userContext,
                          omero::model::ExperimenterGroup groupContext,
-                         omero::model::ScriptJob scriptContext,
+                         omero::model::Job scriptContext,
                          ProcessorAcceptsCallback* cb);
 
             /**
@@ -265,6 +265,8 @@ module omero {
             /**
              * Retrieves the parameters needed to be passed in an execution
              * and the results which will be passed back out.
+             *
+             * This method is guaranteed to return a non-null value or throw an exception.
              **/
             JobParams params() throws ServerError;
 

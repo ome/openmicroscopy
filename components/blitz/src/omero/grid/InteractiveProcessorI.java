@@ -15,9 +15,11 @@ import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import ome.api.RawFileStore;
 import ome.model.core.OriginalFile;
 import ome.model.meta.Session;
 import ome.parameters.Parameters;
+import ome.security.SecuritySystem;
 import ome.services.procs.Processor;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
@@ -28,9 +30,9 @@ import omero.ApiUsageException;
 import omero.RMap;
 import omero.RType;
 import omero.ServerError;
-import omero.api.IScriptPrx;
 import omero.model.Job;
 import omero.model.OriginalFileI;
+import omero.model.ParseJob;
 import omero.util.IceMapper;
 
 import org.apache.commons.logging.Log;
@@ -60,11 +62,11 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
 
     private final ProcessorPrx prx;
 
+    private final ParamsHelper helper;
+
     private final Executor ex;
 
     private final Job job;
-
-    private final JobParams params;
 
     private final long scriptId;
 
@@ -73,13 +75,11 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
     private final ReadWriteLock rwl = new ReentrantReadWriteLock();
 
     private final Principal principal;
-    
+
     private final SessionControlPrx control;
 
-    private final IScriptPrx iScript;
-
     private boolean detach = false;
-    
+
     private boolean obtainResults = false;
 
     private boolean stop = false;
@@ -87,6 +87,8 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
     private ProcessPrx currentProcess = null;
 
     private Session session;
+
+    private JobParams params;
 
     /**
      * 
@@ -100,9 +102,11 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
      */
     public InteractiveProcessorI(Principal p, SessionManager mgr, Executor ex,
             ProcessorPrx prx, Job job, long timeout, SessionControlPrx control,
-            IScriptPrx iScript) throws ServerError {
+            ParamsHelper helper)
+        throws ServerError {
+
+        this.helper = helper;
         this.principal = p;
-        this.iScript = iScript;
         this.ex = ex;
         this.mgr = mgr;
         this.prx = prx;
@@ -113,7 +117,6 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
 
         // Loading values.
         scriptId = getScriptId(job);
-        params = iScript.getParams(scriptId); // FIXME refactor this here!
 
     }
 
@@ -133,6 +136,34 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
                 session = newSession(__current);
             }
 
+            if (params == null) {
+                try {
+                    if (job instanceof ParseJob) {
+                        params = prx.parseJob(session.getUuid(), job);
+                        if (params == null) {
+                            StringBuilder sb = new StringBuilder();
+                            sb.append("Can't find params for " + scriptId);
+                            OriginalFile file = loadFileOrNull("stderr");
+                            if (file == null) {
+                                sb.append(". No stderr");
+                            } else {
+                                sb.append(". Stderr is in file " + file.getId());
+                                appendIfText(file, sb);
+                            }
+                            throw new omero.ValidationException(null, null,
+                                    sb.toString());
+                        }
+
+                        helper.saveScriptParams(params, (ParseJob) job,
+                                scriptId, __current);
+                    } else {
+                        params = helper.getOrCreateParams(scriptId, __current);
+                    }
+                } catch (ServerError se) {
+                    log.debug("Error while parsing job", se);
+                    throw se;
+                }
+            }
             return params;
 
         } finally {
@@ -170,15 +201,20 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
 
             // Setup environment
             if (inputs != null && inputs.getValue() != null) {
+                IceMapper mapper = new IceMapper();
                 for (String key : inputs.getValue().keySet()) {
-                    mgr.setInput(session.getUuid(), key, inputs.get(key));
+                    Object v = mapper.fromRType(inputs.get(key));
+                    mgr.setInput(session.getUuid(), key, v);
                 }
             }
 
             // Execute
             try {
                 final String uuid = session.getUuid();
-                currentProcess = prx.processJob(session.getUuid(), params, job);
+                if (params == null) {
+                    params = params(__current);
+                }
+                currentProcess = prx.processJob(uuid, params, job);
                 // Have to add the process to the control, otherwise the
                 // user won't be able to view it: ObjectNotExistException!
                 // ticket:1522
@@ -328,27 +364,51 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
     }
 
     private final static String stdfile_query = "select file from Job job "
-            + "join job.originalFileLinks links " + "join links.child file "
-            + "where file.name = :name and job.id = :id";
+            + "join job.originalFileLinks links join links.child file "
+            + "join fetch file.format where file.name = :name and job.id = :id";
 
-    private void optionallyLoadFile(final Map<String, RType> val,
-            final String name) {
-        this.ex.execute(this.principal, new Executor.SimpleWork(this, "optionallyLoadFile") {
+    private OriginalFile loadFileOrNull(final String name) {
+        return (OriginalFile) this.ex.execute(this.principal, new Executor.SimpleWork(this, "optionallyLoadFile") {
             @Transactional(readOnly=true)
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
 
-                OriginalFile file = sf.getQueryService().findByQuery(
+                return sf.getQueryService().findByQuery(
                         stdfile_query,
                         new Parameters().addId(job.getId().getValue())
                                 .addString("name", name));
-                if (file != null) {
-                    val.put(name,
-                            robject(new OriginalFileI(file.getId(), false)));
-                }
-                return null;
             }
         });
+    }
+
+    private void optionallyLoadFile(final Map<String, RType> val,
+            final String name) {
+
+        OriginalFile file = loadFileOrNull(name);
+        if (file != null) {
+            val.put(name,
+            robject(new OriginalFileI(file.getId(), false)));
+        }
+    }
+
+    private void appendIfText(final OriginalFile file, final StringBuilder sb) {
+        if (file.getFormat().getValue().contains("text")) {
+            this.ex.execute(this.principal, new Executor.SimpleWork(this, "appendIfText", file) {
+                @Transactional(readOnly=true)
+                public Object doWork(org.hibernate.Session session,
+                        ServiceFactory sf) {
+                    RawFileStore rfs = sf.createRawFileStore();
+                    try {
+                        rfs.setFileId(file.getId());
+                        sb.append("\n\n---stderr---\n");
+                        sb.append(new String(rfs.read(0, file.getSize().intValue())));
+                    } finally {
+                        rfs.close();
+                    }
+                    return null;
+                }
+            });
+        }
     }
 
     private Session newSession(Current __current) {
@@ -362,7 +422,7 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
         return newSession;
     }
 
-    private String getScriptIdQuery = "select f from ScriptJob s "
+    private String getScriptIdQuery = "select f from Job s "
             + "join s.originalFileLinks links "
             + "join links.child f "
             + "where s.id = :id and f.format.value = :fmt";
