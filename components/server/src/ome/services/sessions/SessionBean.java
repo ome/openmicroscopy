@@ -7,6 +7,7 @@
 
 package ome.services.sessions;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -190,6 +191,16 @@ public class SessionBean implements ISession {
     @RolesAllowed( { "user", "guest" })
     public Set<String> getOutputKeys(String session) {
         return mgr.outputEnvironment(session).keySet();
+    }
+
+    @RolesAllowed( { "user", "guest" })
+    public Map<String, Object> getInputs(String session) {
+        return mgr.inputEnvironment(session);
+    }
+
+    @RolesAllowed( { "user", "guest" })
+    public Map<String, Object> getOutputs(String session) {
+        return mgr.outputEnvironment(session);
     }
 
     // ~ Helpers

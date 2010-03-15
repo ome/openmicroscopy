@@ -7,6 +7,7 @@
 
 package ome.api;
 
+import java.util.Map;
 import java.util.Set;
 
 import ome.annotations.Hidden;
@@ -160,7 +161,7 @@ public interface ISession extends ServiceInterface {
 
     /**
      * Retrieves an entry from the given {@link Session session's} input
-     * environment. If the value is null, the key will be removed.
+     * environment.
      */
     Object getInput(String session, String key);
 
@@ -171,6 +172,12 @@ public interface ISession extends ServiceInterface {
      * @return
      */
     Set<String> getInputKeys(String session);
+
+    /**
+     * Retrieves all inputs from the given {@link Session session's} input
+     * environment.
+     */
+    Map<String, Object> getInputs(String session);
 
     /**
      * Places an entry in the given {@link Session session's} input environment.
@@ -187,6 +194,12 @@ public interface ISession extends ServiceInterface {
      * Retrieves an entry from the {@link Session session's} output environment.
      */
     Object getOutput(String session, String key);
+
+    /**
+     * Retrieves all outputs from the given {@link Session session's} input
+     * environment.
+     */
+    Map<String, Object> getOutputs(String session);
 
     /**
      * Places an entry in the given {@link Session session's} output

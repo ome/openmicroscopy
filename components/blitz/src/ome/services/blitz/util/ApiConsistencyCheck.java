@@ -139,7 +139,7 @@ public class ApiConsistencyCheck implements BeanPostProcessor {
                 if (!matches(apiReturn, amdReturn)) {
                     differences.add(String.format(
                             "Return type mismatch in %s: %s <> %s", apiMethod,
-                            apiReturn, opsReturn));
+                            apiReturn, amdReturn));
                 }
             }
 
@@ -216,6 +216,7 @@ public class ApiConsistencyCheck implements BeanPostProcessor {
         }
 
         if (check.matches(Collection.class, List.class)
+                || check.matches(Map.class, Map.class)
                 || check.matches(CodomainMapContext.class,
                         omero.romio.CodomainMapContext.class)
                 || check.matches(Date.class, RTime.class)

@@ -18,8 +18,10 @@ import omero.api.AMD_ISession_createSessionWithTimeout;
 import omero.api.AMD_ISession_createSessionWithTimeouts;
 import omero.api.AMD_ISession_getInput;
 import omero.api.AMD_ISession_getInputKeys;
+import omero.api.AMD_ISession_getInputs;
 import omero.api.AMD_ISession_getOutput;
 import omero.api.AMD_ISession_getOutputKeys;
+import omero.api.AMD_ISession_getOutputs;
 import omero.api.AMD_ISession_getReferenceCount;
 import omero.api.AMD_ISession_getSession;
 import omero.api.AMD_ISession_setInput;
@@ -134,4 +136,12 @@ public class SessionI extends AbstractAmdServant implements _ISessionOperations 
 
     }
 
+    public void getInputs_async(AMD_ISession_getInputs __cb, String sess,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, sess);
+    }
+    public void getOutputs_async(AMD_ISession_getOutputs __cb, String sess,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, sess);
+    }
 }

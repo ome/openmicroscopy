@@ -397,6 +397,8 @@ module omero {
 	    void setOutput(string sess, string key, omero::RType value) throws ServerError;
 	    StringSet getInputKeys(string sess) throws ServerError;
 	    StringSet getOutputKeys(string sess) throws ServerError;
+	    omero::RTypeDict getInputs(string sess) throws ServerError;
+	    omero::RTypeDict getOutputs(string sess) throws ServerError;
 	};
 
 	/**
