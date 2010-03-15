@@ -823,7 +823,14 @@ public class IceMapper extends ome.util.ModelMapper implements
         if (map == null) {
             return null;
         }
+
+        if (target2model.containsKey(map)) {
+            return (Map) target2model.get(map);
+        }
+
         Map<Object, Object> target = new HashMap<Object, Object>();
+        target2model.put(map, target);
+
         try {
             for (Object key : map.keySet()) {
                 Object value = map.get(key);

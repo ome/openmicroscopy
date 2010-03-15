@@ -12,6 +12,7 @@ import static omero.rtypes.rint;
 import static omero.rtypes.rinternal;
 import static omero.rtypes.rlist;
 import static omero.rtypes.rlong;
+import static omero.rtypes.rmap;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
@@ -58,6 +59,7 @@ import ome.system.OmeroContext;
 import ome.system.Roles;
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.RenderingEngine;
+import omero.RMap;
 import omero.RString;
 import omero.RType;
 import omero.UnloadedCollectionException;
@@ -69,6 +71,7 @@ import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.TagAnnotationI;
 import omero.romio.XY;
+import omero.rtypes.Conversion;
 import omero.sys.Filter;
 import omero.sys.ParametersI;
 import omero.util.IceMap;
@@ -406,6 +409,40 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         rv = invoke(sess, key);
         assertNotNull(rv);
         assertTrue(rv instanceof RString);
+
+    }
+
+    @Test(groups = "ticket:1321")
+    public void testSessionsGetInputs() throws Exception {
+
+        ISession s;
+
+        RString val = rstring("value");
+
+        init(ISession.class, "setInput");
+        method().with(eq("sess"), eq("key"), eq("value"));
+        invoke("sess", "key", rstring("value"));
+
+        Map map = new HashMap();
+        map.put("key", "value");
+
+        init(ISession.class, "getInputs");
+        method().will(returnValue(map));
+        Object rv = invoke("sess");
+
+    }
+
+    @Test
+    public void testRMapRecursion() throws Exception {
+        RMap map = rmap();
+        map.getValue().put("m", map);
+        Conversion c = (Conversion) map;
+        c.convert(new IceMapper());
+
+        init(ISession.class, "getInput");
+        map.put("recurse", map);
+        method().will(returnValue(map));
+        invoke("sess", "recursive");
 
     }
 
@@ -1080,7 +1117,6 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
             // good
         }
     }
-
 
     // ~ RoiResults
     // =========================================================================

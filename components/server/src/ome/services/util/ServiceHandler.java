@@ -12,6 +12,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -109,7 +110,7 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
 
             o = arg0.proceed();
             finalOutput.append(" Rslt:\t");
-            finalOutput.append(getResultsString(o));
+            finalOutput.append(getResultsString(o, null));
             stopWatch.stop("omero.call.success");
             return o;
         } catch (Throwable t) {
@@ -269,7 +270,7 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
 
         String[] prnt = new String[args.length];
         for (int i = 0; i < prnt.length; i++) {
-            prnt[i] = args[i] == null ? "null" : getResultsString(args[i]);
+            prnt[i] = args[i] == null ? "null" : getResultsString(args[i], null);
         }
 
         Object[] allAnnotations = AnnotationUtils.findParameterAnnotations(mi
@@ -299,12 +300,21 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
     /**
      * public for testing purposes.
      */
-    public String getResultsString(Object o) {
+    public String getResultsString(Object o, IdentityHashMap<Object, String> cache) {
+
         if (o == null) {
             return "null";
         }
 
-        else if (o instanceof Collection) {
+        if (cache == null) {
+            cache = new IdentityHashMap<Object, String>();
+        } else {
+            if (cache.containsKey(o)) {
+                return (String) cache.get(o);
+            }
+        }
+
+        if (o instanceof Collection) {
             int count = 0;
             StringBuilder sb = new StringBuilder(128);
             sb.append("(");
@@ -341,7 +351,8 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
                 }
                 sb.append(k);
                 sb.append("=");
-                sb.append(getResultsString(map.get(k)));
+                cache.put(o, o.getClass().getName() + ":" + System.identityHashCode(o));
+                sb.append(getResultsString(map.get(k), cache));
                 count++;
             }
             sb.append("}");

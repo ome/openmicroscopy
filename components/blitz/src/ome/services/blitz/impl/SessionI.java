@@ -13,9 +13,9 @@ import omero.RType;
 import omero.ServerError;
 import omero.api.AMD_ISession_closeSession;
 import omero.api.AMD_ISession_createSession;
-import omero.api.AMD_ISession_createUserSession;
 import omero.api.AMD_ISession_createSessionWithTimeout;
 import omero.api.AMD_ISession_createSessionWithTimeouts;
+import omero.api.AMD_ISession_createUserSession;
 import omero.api.AMD_ISession_getInput;
 import omero.api.AMD_ISession_getInputKeys;
 import omero.api.AMD_ISession_getInputs;
@@ -31,6 +31,7 @@ import omero.api._ISessionOperations;
 import omero.model.Session;
 import omero.sys.Principal;
 import omero.util.IceMapper;
+import omero.util.RTypeMapper;
 import Ice.Current;
 
 /**
@@ -89,7 +90,7 @@ public class SessionI extends AbstractAmdServant implements _ISessionOperations 
 
     public void getInput_async(AMD_ISession_getInput __cb, String sess,
             String key, Current __current) throws ServerError {
-        IceMapper mapper = new IceMapper(IceMapper.OBJECT_TO_RTYPE);
+        RTypeMapper mapper = new RTypeMapper(IceMapper.OBJECT_TO_RTYPE);
         callInvokerOnMappedArgs(mapper, __cb, __current, sess, key);
 
     }
@@ -102,7 +103,7 @@ public class SessionI extends AbstractAmdServant implements _ISessionOperations 
 
     public void getOutput_async(AMD_ISession_getOutput __cb, String sess,
             String key, Current __current) throws ServerError {
-        IceMapper mapper = new IceMapper(IceMapper.OBJECT_TO_RTYPE);
+        RTypeMapper mapper = new RTypeMapper(IceMapper.OBJECT_TO_RTYPE);
         callInvokerOnMappedArgs(mapper, __cb, __current, sess, key);
     }
 
@@ -138,10 +139,12 @@ public class SessionI extends AbstractAmdServant implements _ISessionOperations 
 
     public void getInputs_async(AMD_ISession_getInputs __cb, String sess,
             Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, sess);
+        RTypeMapper mapper = new RTypeMapper(IceMapper.OBJECT_TO_RTYPE);
+        callInvokerOnMappedArgs(mapper, __cb, __current, sess);
     }
     public void getOutputs_async(AMD_ISession_getOutputs __cb, String sess,
             Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, sess);
+        RTypeMapper mapper = new RTypeMapper(IceMapper.OBJECT_TO_RTYPE);
+        callInvokerOnMappedArgs(mapper, __cb, __current, sess);
     }
 }

@@ -27,41 +27,41 @@ public class ServiceHandlerUnitTest extends MockObjectTestCase {
 
         // Plain
         
-        str = sh.getResultsString(null);
+        str = sh.getResultsString(null, null);
         assertEquals("null", str);
         
-        str = sh.getResultsString(1L);
+        str = sh.getResultsString(1L, null);
         assertEquals("1", str);
 
         // Arrays
         
-        str = sh.getResultsString(new Object[]{null});
+        str = sh.getResultsString(new Object[]{null}, null);
         assertEquals("[null]", str);
         
-        str = sh.getResultsString(new Long[]{1L});
+        str = sh.getResultsString(new Long[]{1L}, null);
         assertEquals("[1]", str);
 
-        str = sh.getResultsString(new Long[]{1L,1L,1L,1L});
+        str = sh.getResultsString(new Long[]{1L,1L,1L,1L}, null);
         assertEquals("[1, 1, 1, ... 1 more]", str);
         
         // Lists
 
-        str = sh.getResultsString(Arrays.asList(1L));
+        str = sh.getResultsString(Arrays.asList(1L), null);
         assertEquals("(1)", str);
  
-        str = sh.getResultsString(Arrays.asList(new Object[]{null}));
+        str = sh.getResultsString(Arrays.asList(new Object[]{null}), null);
         assertEquals("(null)", str);
  
         // Sets
         
-        str = sh.getResultsString(new HashSet(Arrays.asList(1L)));
+        str = sh.getResultsString(new HashSet(Arrays.asList(1L)), null);
         assertEquals("(1)", str);
 
         // Maps
         
         HashMap map = new HashMap();
         map.put("a","b");
-        str = sh.getResultsString(map);
+        str = sh.getResultsString(map, null);
         assertEquals("{a=b}", str);
         
     }

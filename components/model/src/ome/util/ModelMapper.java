@@ -90,6 +90,22 @@ public abstract class ModelMapper extends ContextFilter {
     }
 
     /**
+     * extension point which subclasses can override to better map the
+     * keys of maps.
+     */
+    public Object findKeyTarget(Object current) {
+        return findTarget(current);
+    }
+
+    /**
+     * extension point which subclasses can override to better map the
+     * values of collections and maps.
+     */
+    public Object findCollectionTarget(Object current) {
+        return findTarget(current);
+    }
+
+    /**
      * known immutables are return unchanged.
      * 
      * @param current
@@ -101,7 +117,7 @@ public abstract class ModelMapper extends ContextFilter {
         // IMMUTABLES
         if (null == current || current instanceof Number
                 || current instanceof String || current instanceof Boolean
-                || current instanceof Timestamp) {
+                || current instanceof Timestamp || current instanceof Class) {
             return current;
         }
 
@@ -198,7 +214,7 @@ public abstract class ModelMapper extends ContextFilter {
         if (source != null && target != null) {
             for (Iterator it = source.iterator(); it.hasNext();) {
                 Object o = it.next();
-                target.add(this.findTarget(o));
+                target.add(this.findCollectionTarget(o));
             }
         }
     }
@@ -207,7 +223,7 @@ public abstract class ModelMapper extends ContextFilter {
         if (source != null && target != null) {
             for (Iterator it = source.keySet().iterator(); it.hasNext();) {
                 Object o = it.next();
-                target.put(findTarget(o), findTarget(source.get(o)));
+                target.put(findKeyTarget(o), findCollectionTarget(source.get(o)));
             }
         }
     }
