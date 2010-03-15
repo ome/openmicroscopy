@@ -48,10 +48,12 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 import Ice.ConnectionLostException;
+import Ice.Current;
 
 //Application-internal dependencies
 import loci.formats.FormatException;
 
+import org.apache.fop.fo.properties.SrcMaker;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -120,6 +122,7 @@ import omero.grid.Column;
 import omero.grid.Data;
 import omero.grid.DoubleColumn;
 import omero.grid.ImageColumn;
+import omero.grid.InteractiveProcessorPrx;
 import omero.grid.LongColumn;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
@@ -166,6 +169,7 @@ import omero.model.ScreenAcquisition;
 import omero.model.ScreenAcquisitionI;
 import omero.model.ScreenAcquisitionWellSampleLink;
 import omero.model.ScreenI;
+import omero.model.ScriptJobI;
 import omero.model.Shape;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
@@ -389,6 +393,29 @@ class OMEROGateway
 	
 	/** Keep track of the file system view. */
 	private Map<Long, FSFileSystemView>				fsViews;
+	
+	/**
+	 * Returns the specified script.
+	 * 
+	 * @param scriptID The identifier of the script to run.
+	 * @param parameters The parameters to pass to the script.
+	 * @return See above.
+	 * @throws ScriptingException If an error occurred while running the script.
+	 */
+	private Object runScript(long scriptID, Map<String, RType> parameters)
+		throws ScriptingException
+	{
+		try {
+			 ScriptJobI job = new ScriptJobI();
+	         job.linkOriginalFile(getOriginalFile(scriptID));
+	         InteractiveProcessorPrx interactiveProcessor = 
+	        	 getSharedResources().acquireProcessor(job, 100);
+	         interactiveProcessor.execute(omero.rtypes.rmap(parameters));
+		} catch (Exception e) {
+			throw new ScriptingException("Cannot run script with ID:"+scriptID);
+		}
+		return null;
+	}
 	
 	/**
 	 * Retrieves the system groups.
@@ -5063,31 +5090,31 @@ class OMEROGateway
 				startT = def.getDefaultT().getValue();
 				endT = def.getDefaultT().getValue();
 			}
-			ParametersI parameters = new ParametersI();
-			parameters.map.put("imageId", omero.rtypes.rlong(imageID));
-			parameters.map.put("output", omero.rtypes.rstring(param.getName()));
-			parameters.map.put("zStart", omero.rtypes.rlong(startZ));
-			parameters.map.put("zEnd", omero.rtypes.rlong(endZ));
-			parameters.map.put("tStart", omero.rtypes.rlong(startT));
-			parameters.map.put("tEnd", omero.rtypes.rlong(endT));
-			parameters.map.put("channels", omero.rtypes.rset(set));
-			parameters.map.put("fps", omero.rtypes.rlong(param.getFps()));
-			parameters.map.put("showPlaneInfo", 
+			
+			Map<String, RType> map = new HashMap<String, RType>();
+			map.put("imageId", omero.rtypes.rlong(imageID));
+			map.put("output", omero.rtypes.rstring(param.getName()));
+			map.put("zStart", omero.rtypes.rlong(startZ));
+			map.put("zEnd", omero.rtypes.rlong(endZ));
+			map.put("tStart", omero.rtypes.rlong(startT));
+			map.put("tEnd", omero.rtypes.rlong(endT));
+			map.put("channels", omero.rtypes.rset(set));
+			map.put("fps", omero.rtypes.rlong(param.getFps()));
+			map.put("showPlaneInfo", 
 					omero.rtypes.rbool(param.isLabelVisible()));
-			parameters.map.put("showTime", 
+			map.put("showTime", 
 					omero.rtypes.rbool(param.isLabelVisible()));
-			parameters.map.put("splitView", omero.rtypes.rbool(false));
-			parameters.map.put("scalebar", omero.rtypes.rlong(
-					param.getScaleBar()));
-			parameters.map.put("format", omero.rtypes.rstring(
-					param.getFormatAsString()));
-			parameters.map.put("overlayColour", omero.rtypes.rlong(
-					param.getColor()));
-			Map<String, RType> result = svc.runScript(id, parameters.map);
-			RLong type = (RLong) result.get("fileAnnotation");
+			map.put("splitView", omero.rtypes.rbool(false));
+			map.put("scalebar", omero.rtypes.rlong(param.getScaleBar()));
+			map.put("format", omero.rtypes.rstring(param.getFormatAsString()));
+			map.put("overlayColour", omero.rtypes.rlong(param.getColor()));
+			runScript(id, map);
+			
+			//RLong type = (RLong) result.get("fileAnnotation");
 
-			if (type == null) return -1;
-			return type.getValue();
+			//if (type == null) return -1;
+			//return type.getValue();
+			return -1;
 
 		} catch (Exception e) {
 			handleException(e, "Cannot create a movie for image: "+imageID);
@@ -5324,16 +5351,16 @@ class OMEROGateway
 			while (i.hasNext())
 				ids.add(omero.rtypes.rlong(i.next()));
 				
-			ParametersI parameters = new ParametersI();
+			Map<String, RType>  map = new HashMap<String, RType>();
 			if (scriptIndex == FigureParam.THUMBNAILS) {
 				DataObject d = (DataObject) param.getAnchor();
 				long parentID = -1;
 				if (d instanceof DatasetData ||
 						d instanceof ProjectData) parentID = d.getId();
 				if (ImageData.class.equals(type)) {
-					parameters.map.put("imageIds", omero.rtypes.rlist(ids));	
+					map.put("imageIds", omero.rtypes.rlist(ids));	
 				} else if (DatasetData.class.equals(type)) {
-					parameters.map.put("datasetIds", omero.rtypes.rlist(ids));	
+					map.put("datasetIds", omero.rtypes.rlist(ids));	
 				}
 				List<Long> tags = param.getTags();
 				if (tags != null && tags.size() > 0) {
@@ -5341,28 +5368,27 @@ class OMEROGateway
 					i = tags.iterator();
 					while (i.hasNext()) 
 						ids.add(omero.rtypes.rlong(i.next()));
-					parameters.map.put("tagIds", omero.rtypes.rlist(ids));
+					map.put("tagIds", omero.rtypes.rlist(ids));
 				}
 					
 				if (parentID > 0)
-					parameters.map.put("parentId", 
-							omero.rtypes.rlong(parentID));
-				parameters.map.put("showUntaggedImages", 
+					map.put("parentId", omero.rtypes.rlong(parentID));
+				map.put("showUntaggedImages", 
 						omero.rtypes.rbool(param.isIncludeUntagged()));
 				
-				parameters.map.put("thumbSize", 
-						omero.rtypes.rlong(param.getWidth()));
-				parameters.map.put("maxColumns", 
-						omero.rtypes.rlong(param.getHeight()));
-				parameters.map.put("format", 
+				map.put("thumbSize", omero.rtypes.rlong(param.getWidth()));
+				map.put("maxColumns", omero.rtypes.rlong(param.getHeight()));
+				map.put("format", 
 						omero.rtypes.rstring(param.getFormatAsString()));
-				parameters.map.put("figureName", 
+				map.put("figureName", 
 						omero.rtypes.rstring(param.getName()));
-				Map<String, RType> result = svc.runScript(id, parameters.map);
-				RLong r = (RLong) result.get("fileAnnotation");
+				runScript(id, map);
+				//RLong r = (RLong) result.get("fileAnnotation");
 				//RLong type = null;
-				if (r == null) return -1;
-				return r.getValue();
+				//if (r == null) return -1;
+				//return r.getValue();
+				return -1;
+				
 			} 
 			//merge channels
 			Map<String, RType> merge = new LinkedHashMap<String, RType>();
@@ -5396,56 +5422,52 @@ class OMEROGateway
 				while (k.hasNext()) {
 					sa.add(omero.rtypes.rint(k.next()));
 				}
-				parameters.map.put("splitIndexes", omero.rtypes.rlist(sa));
+				map.put("splitIndexes", omero.rtypes.rlist(sa));
 			}
-			parameters.map.put("mergedNames", omero.rtypes.rbool(
+			map.put("mergedNames", omero.rtypes.rbool(
 					param.getMergedLabel()));
-			parameters.map.put("imageIds", omero.rtypes.rlist(ids));
-			parameters.map.put("zStart", omero.rtypes.rlong(param.getStartZ()));
-			parameters.map.put("zEnd", omero.rtypes.rlong(param.getEndZ()));
+			map.put("imageIds", omero.rtypes.rlist(ids));
+			map.put("zStart", omero.rtypes.rlong(param.getStartZ()));
+			map.put("zEnd", omero.rtypes.rlong(param.getEndZ()));
 			if (split.size() > 0) 
-				parameters.map.put("channelNames", omero.rtypes.rmap(split));
+				map.put("channelNames", omero.rtypes.rmap(split));
 			if (merge.size() > 0)
-				parameters.map.put("mergedColours", omero.rtypes.rmap(merge));
+				map.put("mergedColours", omero.rtypes.rmap(merge));
 			if (scriptIndex == FigureParam.MOVIE) {
 				List<Integer> times = param.getTimepoints();
 				List<RType> ts = new ArrayList<RType>(objectIDs.size());
 				Iterator<Integer> k = times.iterator();
 				while (k.hasNext()) 
 					ts.add(omero.rtypes.rint(k.next()));
-				parameters.map.put("tIndexes", omero.rtypes.rlist(ts));
-				parameters.map.put("timeUnits", 
+				map.put("tIndexes", omero.rtypes.rlist(ts));
+				map.put("timeUnits", 
 						omero.rtypes.rstring(param.getTimAsString()));
 			} else 
-				parameters.map.put("splitPanelsGrey", 
+				map.put("splitPanelsGrey", 
 					omero.rtypes.rbool(param.isSplitGrey()));
 			
-			parameters.map.put("scalebar", omero.rtypes.rlong(
-					param.getScaleBar()));
-			parameters.map.put("overlayColour", omero.rtypes.rlong(
+			map.put("scalebar", omero.rtypes.rlong(param.getScaleBar()));
+			map.put("overlayColour", omero.rtypes.rlong(
 					param.getColor()));
-			parameters.map.put("width", omero.rtypes.rlong(param.getWidth()));
-			parameters.map.put("height", omero.rtypes.rlong(param.getHeight()));
-			parameters.map.put("stepping", 
-					omero.rtypes.rlong(param.getStepping()));
-			parameters.map.put("format", 
-					omero.rtypes.rstring(param.getFormatAsString()));
-			parameters.map.put("algorithm", 
+			map.put("width", omero.rtypes.rlong(param.getWidth()));
+			map.put("height", omero.rtypes.rlong(param.getHeight()));
+			map.put("stepping", omero.rtypes.rlong(param.getStepping()));
+			map.put("format", omero.rtypes.rstring(param.getFormatAsString()));
+			map.put("algorithm", 
 					omero.rtypes.rstring(param.getProjectionTypeAsString()));
-			parameters.map.put("figureName", 
+			map.put("figureName", 
 					omero.rtypes.rstring(param.getName()));
-			parameters.map.put("imageLabels", 
+			map.put("imageLabels", 
 					omero.rtypes.rstring(param.getLabelAsString()));
 			if (scriptIndex == FigureParam.SPLIT_VIEW_ROI) {
-				parameters.map.put("roiZoom", 
-						omero.rtypes.rlong((long) 
+				map.put("roiZoom", omero.rtypes.rlong((long) 
 								param.getMagnificationFactor()));
 			}
-			Map<String, RType> result = svc.runScript(id, parameters.map);
-			RLong r = (RLong) result.get("fileAnnotation");
+			runScript(id, map);
+			//RLong r = (RLong) result.get("fileAnnotation");
 			//RLong type = null;
-			if (r == null) return -1;
-			return r.getValue();
+			//if (r == null) return -1;
+			//return r.getValue();
 
 		} catch (Exception e) {
 			handleException(e, "Cannot create a figure " +
@@ -5474,15 +5496,14 @@ class OMEROGateway
 			IScriptPrx svc = getScripService();
 			long id = svc.getScriptID("fitIrf");
 			if (id <= 0) return -1;
-			ParametersI parameters = new ParametersI();
-			parameters.map.put("imageIdNoFret", omero.rtypes.rlong(controlID));
-			parameters.map.put("imageIdFret", 
-					omero.rtypes.rlong(toAnalyzeID));
-			parameters.map.put("irfRecId", omero.rtypes.rlong(irfID));
-			Map<String, RType> result = svc.runScript(id, parameters.map);
-			RLong type = (RLong) result.get("fileAnnotation");
-			if (type == null) return -1;
-			return type.getValue();
+			Map<String, RType> map = new HashMap<String, RType>();
+			map.put("imageIdNoFret", omero.rtypes.rlong(controlID));
+			map.put("imageIdFret", omero.rtypes.rlong(toAnalyzeID));
+			map.put("irfRecId", omero.rtypes.rlong(irfID));
+			runScript(id, map);
+			//RLong type = (RLong) result.get("fileAnnotation");
+			//if (type == null) return -1;
+			//return type.getValue();
 		} catch (Exception e) {
 			handleException(e, "Cannot analyze the control "+controlID+" and "
 					+" image "+toAnalyzeID);
@@ -6103,13 +6124,13 @@ class OMEROGateway
 				}
 			}
 			if (id <= 0) return -1;
-			ParametersI parameters = new ParametersI();
-			parameters.map.put("imageId", omero.rtypes.rlong(ids.get(0)));
+			Map<String, RType> map = new HashMap<String, RType>();
+			map.put("imageId", omero.rtypes.rlong(ids.get(0)));
 			
-			Map<String, RType> result = svc.runScript(id, parameters.map);
-			RLong type = (RLong) result.get("fileAnnotation");
-			if (type == null) return -1;
-			return type.getValue();
+			runScript(id, map);
+			//RLong type = (RLong) result.get("fileAnnotation");
+			//if (type == null) return -1;
+			//return type.getValue();
 		} catch (Exception e) {
 			handleException(e, "Cannot analyze the data.");
 		}
@@ -6134,7 +6155,7 @@ class OMEROGateway
 			long id = script.getScriptID();
 			if (id < 0) return Boolean.valueOf(false);
 			IScriptPrx svc = getScripService();
-			ParametersI parameters = new ParametersI();
+			Map<String, RType> map = new HashMap<String, RType>();
 			Map<String, Object> values = script.getParameterValues();
 			
 			if (values != null) {
@@ -6148,10 +6169,10 @@ class OMEROGateway
 					v = entry.getValue();
 					type = convertValue((String) v);
 					if (type != null)
-					parameters.map.put((String) entry.getKey(), type);
+					map.put((String) entry.getKey(), type);
 				}
 			}
-			Map<String, RType> result = svc.runScript(id, parameters.map);
+			runScript(id, map);
 			//RLong type = (RLong) result.get("fileAnnotation");
 			//if (type == null) return -1;
 			//return type.getValue();
