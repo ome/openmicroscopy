@@ -9,6 +9,7 @@
 import os
 import sys
 import Ice
+import path
 import time
 import uuid
 import omero
@@ -636,3 +637,16 @@ def get_user_dir():
     except ImportError:
         homeprop = os.path.expanduser("~")
     return homeprop
+
+def edit_path(path_or_obj, start_text):
+    f = path.path(path_or_obj)
+    editor = os.getenv("VISUAL") or os.getenv("EDITOR")
+    if not editor:
+        if sys.platform == "windows":
+            editor = "Notepad.exe"
+        else:
+            editor = "vi"
+    f.write_text(start_text)
+    pid = os.spawnlp(os.P_WAIT, editor, editor, f)
+    if pid:
+        raise RuntimeError("Couldn't spawn editor: %s" % editor)
