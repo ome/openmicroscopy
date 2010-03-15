@@ -64,6 +64,10 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
 
     private final Job job;
 
+    private final JobParams params;
+
+    private final long scriptId;
+
     private final long timeout;
 
     private final ReadWriteLock rwl = new ReentrantReadWriteLock();
@@ -96,7 +100,7 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
      */
     public InteractiveProcessorI(Principal p, SessionManager mgr, Executor ex,
             ProcessorPrx prx, Job job, long timeout, SessionControlPrx control,
-            IScriptPrx iScript) {
+            IScriptPrx iScript) throws ServerError {
         this.principal = p;
         this.iScript = iScript;
         this.ex = ex;
@@ -106,6 +110,11 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
         this.timeout = timeout;
         this.control = control;
         this.session = UNINITIALIZED;
+
+        // Loading values.
+        scriptId = getScriptId(job);
+        params = iScript.getParams(scriptId); // FIXME refactor this here!
+
     }
 
     public JobParams params(Current __current) throws ServerError {
@@ -124,12 +133,7 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
                 session = newSession(__current);
             }
 
-            try {
-                return prx.parseJob(session.getUuid(), job);
-            } catch (ServerError se) {
-                log.debug("Error while parsing job", se);
-                throw se;
-            }
+            return params;
 
         } finally {
             rwl.writeLock().unlock();
@@ -174,8 +178,6 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
             // Execute
             try {
                 final String uuid = session.getUuid();
-                final long scriptId = getScriptId(job);
-                final JobParams params = getJobParams(scriptId, __current);
                 currentProcess = prx.processJob(session.getUuid(), params, job);
                 // Have to add the process to the control, otherwise the
                 // user won't be able to view it: ObjectNotExistException!
@@ -385,18 +387,4 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
         return f.getId();
     }
 
-    /**
-     * TODO This should use ScriptI directly, or some refactored logic, but
-     * the classpath doesn't allow that currently.
-     * @param scriptId
-     * @param __current
-     * @return
-     * @throws ServerError
-     */
-    private JobParams getJobParams(long scriptId, Current __current)
-            throws ServerError {
-
-        return iScript.getParams(scriptId);
-
-    }
 }
