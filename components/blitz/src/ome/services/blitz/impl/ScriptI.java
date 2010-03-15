@@ -70,7 +70,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     private final static Log log = LogFactory.getLog(ScriptI.class);
     
     /** The text representation of the format in a python script. */
-    private final static String PYTHONSCRIPT = "text/x-python";
+    public final static String PYTHONSCRIPT = "text/x-python";
 
     private final static String OCTETSTREAM = "application/octet-stream";
 
@@ -196,55 +196,49 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      *             validation, api usage.
      */
     public void getScriptWithDetails_async(
-            final AMD_IScript_getScriptWithDetails cb, final long id,
+            final AMD_IScript_getScriptWithDetails __cb, final long id,
             Current __current) throws ServerError {
 
-        runnableCall(__current, new Runnable() {
+        safeRunnableCall(__current, __cb, false, new Callable<Object>() {
 
-            public void run() {
+            public Object call() throws Exception {
 
                 final OriginalFile file = getOriginalFileOrNull(id);
 
                 if (file == null) {
-                    cb.ice_response(null);
-                    return; // EARLY EXIT
+                    return null;
                 }
 
                 final Long size = file.getSize();
                 if (size == null || size.longValue() > Integer.MAX_VALUE
                         || size.longValue() < 0) {
-                    cb.ice_exception(new ValidationException(null, null,
+                    throw new ValidationException(null, null,
                             "Script size : " + size
-                                    + " invalid on Blitz.OMERO server."));
-                    return; // EARLY EXIT
+                                    + " invalid on Blitz.OMERO server.");
                 }
 
-                try {
-                    Map<String, RType> scr = new HashMap<String, RType>();
-                    scr.put((String) factory.executor.execute(
-                            factory.principal, new Executor.SimpleWork(this,
-                                    "getScriptWithDetails") {
-                                @Transactional(readOnly = true)
-                                public Object doWork(Session session,
-                                        ServiceFactory sf) {
-                                    RawFileStore rawFileStore = sf
-                                            .createRawFileStore();
-                                    try {
-                                        rawFileStore.setFileId(file.getId());
-                                        String script = new String(rawFileStore
-                                                .read(0L, (int) size
-                                                        .longValue()));
+                Map<String, RType> scr = new HashMap<String, RType>();
+                scr.put((String) factory.executor.execute(
+                        factory.principal, new Executor.SimpleWork(this,
+                                "getScriptWithDetails") {
+                            @Transactional(readOnly = true)
+                            public Object doWork(Session session,
+                                    ServiceFactory sf) {
+                                RawFileStore rawFileStore = sf
+                                        .createRawFileStore();
+                                try {
+                                    rawFileStore.setFileId(file.getId());
+                                    String script = new String(rawFileStore
+                                            .read(0L, (int) size
+                                                    .longValue()));
 
-                                        return script;
-                                    } finally {
-                                        rawFileStore.close();
-                                    }
+                                    return script;
+                                } finally {
+                                    rawFileStore.close();
                                 }
-                            }), new omero.util.IceMapper().toRType(file));
-                    cb.ice_response(scr);
-                } catch (omero.ApiUsageException e) {
-                    cb.ice_exception(e);
-                }
+                            }
+                        }), new omero.util.IceMapper().toRType(file));
+                return scr;
             }
         });
     }
@@ -260,52 +254,47 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      * @throws ServerError
      *             validation, api usage.
      */
-    public void getScript_async(final AMD_IScript_getScript cb, final long id,
+    public void getScript_async(final AMD_IScript_getScript __cb, final long id,
             Current __current) throws ServerError {
 
-        runnableCall(__current, new Runnable() {
-            public void run() {
+        safeRunnableCall(__current, __cb, false, new Callable<Object>() {
+            public Object call() throws Exception {
 
                 final OriginalFile file = getOriginalFileOrNull(id);
                 if (file == null) {
-                    cb.ice_response(null);
-                    return; // EARLY EXIT.
+                    return null;
                 }
 
                 final Long size = file.getSize();
                 if (size == null || size.longValue() > Integer.MAX_VALUE
                         || size.longValue() < 0) {
-                    cb.ice_exception(new ValidationException(null, null,
+                    throw new ValidationException(null, null,
                             "Script size : " + size
-                                    + " invalid on Blitz.OMERO server."));
-                    return; // EARLY EXIT
+                                    + " invalid on Blitz.OMERO server.");
                 }
 
-                try {
-                    cb.ice_response((String) factory.executor.execute(
-                            factory.principal, new Executor.SimpleWork(this,
-                                    "getScript") {
+                return (String) factory.executor.execute(
+                        factory.principal, new Executor.SimpleWork(this,
+                                "getScript") {
 
-                                @Transactional(readOnly = true)
-                                public Object doWork(Session session,
-                                        ServiceFactory sf) {
-                                    RawFileStore rawFileStore = sf
-                                            .createRawFileStore();
-                                    try {
-                                        rawFileStore.setFileId(file.getId());
-                                        String script = new String(rawFileStore
-                                                .read(0L, (int) size
-                                                        .longValue()));
+                            @Transactional(readOnly = true)
+                            public Object doWork(Session session,
+                                    ServiceFactory sf) {
+                                RawFileStore rawFileStore = sf
+                                        .createRawFileStore();
+                                try {
+                                    rawFileStore.setFileId(file.getId());
+                                    String script = new String(rawFileStore
+                                            .read(0L, (int) size
+                                                    .longValue()));
 
-                                        return script;
-                                    } finally {
-                                        rawFileStore.close();
-                                    }
+                                    return script;
+                                } finally {
+                                    rawFileStore.close();
                                 }
-                            }));
-                } catch (Exception e) {
-                    cb.ice_exception(e);
-                }
+                            }
+                        });
+
             }
         });
     }
@@ -321,15 +310,11 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      * @throws ServerError
      *             validation, api usage.
      */
-    public void getParams_async(final AMD_IScript_getParams cb, final long id,
+    public void getParams_async(final AMD_IScript_getParams __cb, final long id,
             final Current __current) throws ServerError {
-        runnableCall(__current, new Runnable() {
-            public void run() {
-                try {
-                    cb.ice_response(getScriptParams(id, __current));
-                } catch (Exception e) {
-                    cb.ice_exception(e);
-                }
+        safeRunnableCall(__current, __cb, false, new Callable<Object>() {
+            public Object call() throws Exception {
+                return getScriptParams(id, __current);
             }
         });
     }
@@ -344,36 +329,32 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      * @throws ServerError
      *             validation, api usage.
      */
-    public void getScripts_async(final AMD_IScript_getScripts cb,
+    public void getScripts_async(final AMD_IScript_getScripts __cb,
             Current __current) throws ServerError {
 
-        runnableCall(__current, new Runnable() {
-            public void run() {
-                try {
-                    final Map<Long, String> scriptMap = new HashMap<Long, String>();
-                    final long fmt = pythonFormat.getId();
-                    final String queryString = "from OriginalFile as o where o.format.id = "
-                            + fmt;
-                    factory.executor.execute(factory.principal,
-                            new Executor.SimpleWork(this, "getScripts") {
+        safeRunnableCall(__current, __cb, false, new Callable<Object>() {
+            public Object call() throws Exception {
+                final Map<Long, String> scriptMap = new HashMap<Long, String>();
+                final long fmt = pythonFormat.getId();
+                final String queryString = "from OriginalFile as o where o.format.id = "
+                        + fmt;
+                factory.executor.execute(factory.principal,
+                        new Executor.SimpleWork(this, "getScripts") {
 
-                                @Transactional(readOnly = true)
-                                public Object doWork(Session session,
-                                        ServiceFactory sf) {
-                                    List<OriginalFile> fileList = sf
-                                            .getQueryService().findAllByQuery(
-                                                    queryString, null);
-                                    for (OriginalFile file : fileList) {
-                                        scriptMap.put(file.getId(), file
-                                                .getName());
-                                    }
-                                    return null;
+                            @Transactional(readOnly = true)
+                            public Object doWork(Session session,
+                                    ServiceFactory sf) {
+                                List<OriginalFile> fileList = sf
+                                        .getQueryService().findAllByQuery(
+                                                queryString, null);
+                                for (OriginalFile file : fileList) {
+                                    scriptMap.put(file.getId(), file
+                                            .getName());
                                 }
-                            });
-                    cb.ice_response(scriptMap);
-                } catch (Exception e) {
-                    cb.ice_exception(e);
-                }
+                                return null;
+                            }
+                        });
+                return scriptMap;
             }
         });
     }
@@ -387,22 +368,17 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      */
     public void deleteScript_async(final AMD_IScript_deleteScript cb,
             final long id, Current __current) throws ServerError {
-        runnableCall(__current, new Runnable() {
-            public void run() {
+        safeRunnableCall(__current, cb, true, new Callable<Object>() {
+            public Object call() throws Exception {
 
                 OriginalFile file = getOriginalFileOrNull(id);
                 if (file == null) {
-                    cb.ice_exception(new ApiUsageException(null, null,
-                            "No script with id " + id + " on server."));
-                    return; // EARLY EXIT
+                    throw new ApiUsageException(null, null,
+                            "No script with id " + id + " on server.");
                 }
 
-                try {
-                    deleteOriginalFile(file);
-                    cb.ice_response();
-                } catch (ServerError e) {
-                    cb.ice_exception(e);
-                }
+                deleteOriginalFile(file);
+                return null; // void
 
             }
         });
