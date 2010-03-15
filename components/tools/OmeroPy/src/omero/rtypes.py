@@ -63,6 +63,39 @@ def rtype(val):
     else:
         raise omero.ClientError("Cannot handle conversion from: %s" % type(val))
 
+def wrap(val, cache=None):
+    """
+    """
+    if cache is None:
+        cache = {}
+    elif id(val) in cache:
+        return cache[id(val)]
+
+    if val is None:
+        return None
+    elif isinstance(val, (list, tuple)):
+        rv = rlist()
+        cache[id(val)] = rv
+        for x in val:
+            rv.val.append(wrap(x, cache))
+    elif isinstance(val, set):
+        rv = rset()
+        cache[id(val)] = rv
+        for x in val:
+            rv.val.add(wrap(x, cache))
+    elif isinstance(val, dict):
+        rv = rmap()
+        cache[id(val)] = rv
+        for k, v in val.items():
+            rv.val[k] = wrap(v, cache)
+        rv._validate()
+    elif isinstance(val, omero.RType):
+        rv = val
+    else:
+        rv = rtype(val)
+
+    return rv
+
 def unwrap(val, cache=None):
     """
     """
@@ -1083,10 +1116,13 @@ class RMapI(omero.RMap):
         else:
             self._val = dict(arg) # May throw an exception
         self._val.update(kwargs)
+        self._validate()
+
+    def _validate(self):
         for k, v in self._val.items():
             if not isinstance(k, str):
                 raise ValueError("Key of wrong type: %s" % type(k))
-            if not isinstance(v, omero.RType):
+            if v is not None and not isinstance(v, omero.RType):
                 raise ValueError("Value of wrong type: %s" % type(v))
 
     def compare(self, rhs, current = None):

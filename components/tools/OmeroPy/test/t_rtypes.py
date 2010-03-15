@@ -416,5 +416,21 @@ class TestModel(unittest.TestCase):
         self.assertEquals(m2["a"], unwrap(m1)["a"])
         self.assertEquals(type(m2["m1"]), type(unwrap(m1)["m1"])) # Can't compare directly "maximum recursion depth exceeded in cmp"
 
+    def testWrap(self):
+        rv = wrap([1,2,3])
+        self.assertTrue(isinstance(rv, omero.RList))
+        self.assertEquals([1,2,3], unwrap(rv))
+        for x in rv.val:
+            self.assertTrue(isinstance(x, omero.RInt))
+
+        rv = wrap({"a":1})
+        self.assertTrue(isinstance(rv, omero.RMap))
+        self.assertTrue("a" in rv.val)
+        self.assertTrue(isinstance(rv.val["a"], omero.RInt))
+        self.assertEquals(1, rv.val["a"].val)
+
+        self.assertRaises(ValueError, wrap, {1:2})
+
+
 if __name__ == '__main__':
     unittest.main()
