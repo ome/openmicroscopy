@@ -209,8 +209,6 @@ class AdminServiceImpl
 		if (group != null && exp.getDefaultGroup().getId() != group.getId()) {
 			gateway.changeCurrentGroup(exp, group.getId());
 		}
-		
-		
 		data = gateway.getUserDetails(uc.getUserName());
 		if (currentUser.getId() != exp.getId()) 
 			return data;
@@ -405,6 +403,37 @@ class AdminServiceImpl
 				r.addAll(copyExperimenters((GroupData) parent, 
 						(Set) entry.getValue()));
 		}
+		
+		//Need to check if the experimenters belong to at least one group
+		//which is not the system group.
+		/*
+		Set experimenters;
+		i = toCut.entrySet().iterator();
+		Iterator j;
+		List<GroupData> groups;
+		ExperimenterData exp;
+		List<ExperimenterData> list = new ArrayList<ExperimenterData>();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			parent = entry.getKey();
+			if (parent instanceof GroupData) {
+				experimenters = (Set) entry.getValue();
+				if (experimenters != null) {
+					j = experimenters.iterator();
+					while (j.hasNext()) {
+						exp = (ExperimenterData) j.next();
+						groups = gateway.getGroups(exp.getId());
+						if (groups.size() == 0) list.add(exp);
+						
+					}
+				}
+			}
+		}
+		//Update the list of experimenters.
+		if (list.size() > 0) {
+			
+		}
+		*/
 		return r;
 	}
 

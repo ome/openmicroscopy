@@ -175,7 +175,6 @@ public class FSFileSystemView
 						if (!isHiddenFile(f)) files.addElement(f);
 					} else files.addElement(f);
 				}
-				
 			}
 		}
     }
@@ -237,7 +236,6 @@ public class FSFileSystemView
 			files[index] = (FileData) entry.getKey();
 			index++;
 		}
-    	
         return files;
     }
     
@@ -315,8 +313,6 @@ public class FSFileSystemView
     					""+name, e);
     		}
     	}
-    	
-    	
     	return null;
     }
     
@@ -340,8 +336,8 @@ public class FSFileSystemView
     		String s = dir.getAbsolutePath();
     		populate(files, proxy.listKnownNonImages(s), proxy.listNonImages(s), 
     				useFileHiding);
-    		//populate(files, proxy.listKnownImportableImages(s),
-    		//		proxy.listImportableImages(s), useFileHiding);
+    		populate(files, proxy.listKnownImportableImages(s),
+    				proxy.listImportableImages(s), useFileHiding);
 		} catch (Exception e) { 
 			new FSAccessException("Cannot retrives the files contained in: " +
 					dir.getAbsolutePath(), e);

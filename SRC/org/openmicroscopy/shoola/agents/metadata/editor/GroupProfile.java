@@ -31,7 +31,10 @@ import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JLabel;
@@ -44,11 +47,13 @@ import javax.swing.event.DocumentListener;
 import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionsPane;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
+import pojos.ExperimenterData;
 import pojos.GroupData;
 
 /** 
@@ -95,10 +100,31 @@ class GroupProfile
     	permissionsPane.displayWarningText();
     	permissionsPane.addPropertyChangeListener(this);
     	namePane = new JTextField();
-    	namePane.setEditable(false);
+    	
     	namePane.setText(data.getName());
     	descriptionPane = new JTextField();
     	descriptionPane.setText(data.getDescription());
+    	GroupData group = (GroupData) model.getRefObject();
+    	ExperimenterData exp = MetadataViewerAgent.getUserDetails();
+    	Set l = group.getLeaders();
+    	
+    	ExperimenterData leader;
+    	boolean edit = false;
+    	if (l != null) {
+    		Iterator i = l.iterator();
+        	while (i.hasNext()) {
+        		leader = (ExperimenterData) i.next();
+    			if (leader.getId() == exp.getId()) {
+    				edit = true;
+    				break;
+    			}
+    		}
+    	}
+    	
+    	if (!edit) edit = MetadataViewerAgent.isAdministrator();
+    	namePane.setEditable(edit);
+    	if (edit) namePane.getDocument().addDocumentListener(this);
+    	descriptionPane.getDocument().addDocumentListener(this);
     }
     
     /**

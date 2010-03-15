@@ -1644,12 +1644,6 @@ class OMEROGateway
 	
 		String n = group.getName() == null ? null : group.getName().getValue();
 		return (SYSTEM_GROUPS.contains(n));
-		/*
-		String n = group.getName() == null ? null : group.getName().getValue();
-		return ("system".equals(n) || "user".equals(n) || "default".equals(n) ||
-				"guest".equals(n));
-				*/
-		//return false;
 	}
 	
 	/**
@@ -6351,6 +6345,48 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Returns the collection of groups the user is a member of.
+	 * 
+	 * @param experimenterID The experimenter's identifier.
+	 * @return See above.
+	 *  @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List<GroupData> getGroups(long experimenterID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		List<GroupData> pojos = new ArrayList<GroupData>();
+		if (experimenterID < 0) return pojos;
+		try {
+			IQueryPrx svc = getQueryService();
+			//IAdminPrx svc = getAdminService();
+			List<ExperimenterGroup> groups = null;
+			ParametersI p = new ParametersI();
+			p.addId(experimenterID);
+			groups = (List) svc.findAllByQuery("select distinct g " +
+					"from ExperimenterGroup g "
+	                + "left outer join fetch g.groupExperimenterMap m "
+	                + "left outer join fetch m.child u " +
+	                		" where u.id = :id", p);
+			ExperimenterGroup group;
+			//GroupData pojoGroup;
+			Iterator<ExperimenterGroup> i = groups.iterator();
+			while (i.hasNext()) {
+				group = i.next();
+				if (!isSystemGroup(group)) 
+					pojos.add((GroupData) PojoMapper.asDataObject(group));	
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
+		return pojos;
+	}
+	
+	/**
 	 * Loads the groups the experimenters.
 	 * 
 	 * @param id The group identifier or <code>-1</code>.
@@ -6466,8 +6502,8 @@ class OMEROGateway
 	}
 	
 	/**
-	 * Copies the experimenter to the specified group.
-	 * Returns the experimenters that could not be copied.
+	 * Removes the experimenters from the specified group.
+	 * Returns the experimenters that could not be removed.
 	 * 
 	 * @param group The group to add the experimenters to.
 	 * @param experimenters The experimenters to add.

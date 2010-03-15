@@ -67,6 +67,7 @@ import pojos.ChannelData;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.PlateData;
@@ -815,10 +816,10 @@ class PropertiesUI
         
         if ((refObject instanceof WellSampleData) ||
         		(refObject instanceof ScreenAcquisitionData)) b = false;
+        
         namePane.setEnabled(b);
         descriptionPane.setEnabled(b);
-        //if (refObject instanceof FolderData)
-    	//	namePane.setEnabled(false);
+        
         if (b) {
         	//if (!(refObject instanceof FolderData))
         	namePane.getDocument().addDocumentListener(this);
