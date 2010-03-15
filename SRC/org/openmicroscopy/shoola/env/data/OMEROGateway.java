@@ -48,12 +48,9 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 import Ice.ConnectionLostException;
-import Ice.Current;
 
 //Application-internal dependencies
 import loci.formats.FormatException;
-
-import org.apache.fop.fo.properties.SrcMaker;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
