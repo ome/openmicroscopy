@@ -313,20 +313,18 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
             if self.params:
                 out_format = self.params.stdoutFormat
                 err_format = self.params.stderrFormat
-                upload = True
             else:
                 out_format = "text/plain"
                 err_format = out_format
-                upload = False
 
-            self._upload(upload, client, self.stdout_path, "stdout", out_format)
-            self._upload(upload, client, self.stderr_path, "stderr", err_format)
+            self._upload(client, self.stdout_path, "stdout", out_format)
+            self._upload(client, self.stderr_path, "stderr", err_format)
         finally:
                 client.__del__() # Safe closeSession
 
-    def _upload(self, upload, client, filename, name, format):
+    def _upload(self, client, filename, name, format):
 
-        if not upload or not format:
+        if not format:
             return
 
         filename = str(filename) # Might be path.path
@@ -735,7 +733,8 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
                             errors += compare_proto(param.prototype[0], input[0])
                     errors += compare_proto(param.prototype, inputs[key], errors)
             if errors:
-                print errors
+                errors = "Invalid parameters:\n%s" % errors
+                raise omero.ValidationException(None, None, errors)
 
         properties["omero.job"] = str(job.id.val)
         properties["omero.user"] = session
