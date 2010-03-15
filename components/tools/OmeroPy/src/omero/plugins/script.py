@@ -257,6 +257,20 @@ print "Finished script"
                 self.ctx.err("Bad parameters:\n%s" % ve)
                 return # EARLY EXIT
 
+            # Adding notification
+            class ProcessCallbackI(omero.grid.ProcessCallback):
+                def processFinished(self, returnCode, current = None):
+                    print "Finished"
+                def processCancelled(self, success, current = None):
+                    print "Cancelled"
+                def processKilled(self, success, current = None):
+                    print "Killed"
+            import Ice, uuid
+            iid = Ice.Identity(name=str(uuid.uuid4()), category="ProcessCallback")
+            prx = client.adapter.add(ProcessCallbackI(), iid)
+            prx = omero.grid.ProcessCallbackPrx.uncheckedCast(prx)
+            proc.registerCallback(prx)
+
             self.ctx.out("Job %s ready" % job.id.val)
             self.ctx.out("Waiting....")
             count = 0
@@ -387,7 +401,7 @@ print "Finished script"
                 impl = ProcessorI(ctx, use_session=client.sf, accepts_list=accepts_list)
                 impl.setProxy( client.adapter.addWithUUID(impl) )
             except exceptions.Exception, e:
-                self.ctx.die(100, "Failed initialization")
+                self.ctx.die(100, "Failed initialization: %s" % e)
 
             if background:
                 def cleanup():

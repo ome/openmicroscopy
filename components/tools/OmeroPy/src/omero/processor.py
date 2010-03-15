@@ -384,7 +384,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         else:
             self.deactivate()
             rv = rint(self.rcode)
-            self.allcallbacks("processFinished", rv)
+            self.allcallbacks("processFinished", self.rcode)
             return rv
 
     @perf

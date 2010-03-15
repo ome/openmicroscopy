@@ -90,10 +90,12 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
     private final static String PROC_ACC_CB_CAT = "ProcessorCallbackAccept";
 
+    private final static String PROC_CB_CAT = "ProcessCallback";
+
     private final static Log log = LogFactory.getLog(SharedResourcesI.class);
 
     private final Set<String> tableIds = new HashSet<String>();
-    
+
     private final Set<String> processorIds = new HashSet<String>();
 
     private final TopicManager topicManager;
@@ -506,7 +508,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
         topicManager.register(PROCESSORACCEPTS.value, proc, false);
         processorIds.add(Ice.Util.identityToString(proc.ice_getIdentity()));
         if (sf.control != null) {
-            sf.control.categories().add(new String[]{PROC_ACC_CB_CAT});
+            sf.control.categories().add(new String[]{PROC_ACC_CB_CAT, PROC_CB_CAT});
         }
     }
 
