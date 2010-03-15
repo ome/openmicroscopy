@@ -362,6 +362,9 @@ class Arguments:
 
         return args
 
+    def for_pub(self, *args):
+        return Arguments(list(self.as_args())+list(args))
+
     def acquire(self, ctx):
         """
         If passed a context object, will use the current settings to connect.

@@ -17,7 +17,7 @@
 
 """
 
-import subprocess, os, sys, signal, time
+import exceptions, subprocess, os, sys, signal, time, atexit
 from omero.cli import BaseControl, Arguments
 from omero.util.temp_files import create_path
 from omero_ext.strings import shlex
@@ -45,6 +45,8 @@ class ScriptControl(BaseControl):
 Syntax: %(program_name)s script file [configuration parameters]
         Executes a file as a script. Can be used to test scripts
         for later deployment on the grid.
+
+        demo
 
         set
         set file=[id|name]
@@ -100,8 +102,13 @@ Syntax: %(program_name)s script file [configuration parameters]
         serve group=[id|name] user=[id|name]
         serve background=[true|false]
         serve timeout={min}
+        serve count=1
+        serve log
+        serve log=some/file/somewhere
 
         upload file=/tmp/my_script.py
+        replace
+        delete
 
         #
         # Other
@@ -116,6 +123,67 @@ Syntax: %(program_name)s script file [configuration parameters]
             self.ctx.err("Secure cli cannot execture python scripts")
 
     @wrapper
+    def demo(self, args):
+        SCRIPT = """#!/usr/bin/env python
+import omero
+import omero.rtypes as rtypes
+import omero.scripts as scripts
+
+a = scripts.String("a")
+b = scripts.Long("b").out()
+
+client = scripts.client("length of input string",
+\"\"\"
+    Trivial example script which calculates the length
+    of the string passed in as the "a" input, and returns
+    the value as the long "b"
+\"\"\", a, b)
+try:
+    a = client.getInput("a").getValue()
+    b = len(a)
+    client.setOutput(rtypes.rlong(b))
+finally:
+    client.closeSession()"""
+        from omero.util.temp_files import create_path
+        t = create_path("Demo_Script", ".py")
+
+        import sha
+        digest = sha.new()
+        digest.update(SCRIPT)
+        sha1 = digest.hexdigest()
+
+        self.ctx.out("\nExample script writing session")
+        self.ctx.out("="*80)
+
+        query = "select o from OriginalFile o where o.sha1 = '%s'" % sha1
+        files = self.ctx.conn().sf.getQueryService().findAllByQuery(query, None)
+        if len(files) == 0:
+            self.ctx.out("\nSaving demo script to %s..." % t)
+            t.write_text(SCRIPT)
+
+            self.ctx.out("\nUploading script...")
+            self.upload(args.for_pub(str(t)))
+            id = self.ctx.get("script.file.id")
+        else:
+            id = files[0].id.val
+            self.ctx.out("\nReusing demo script %s" % id)
+
+        self.ctx.out("")
+        self.list(args.for_pub("user"))
+
+        self.ctx.out("\nScript content for file %s:" % id)
+        self.ctx.out(SCRIPT)
+
+        self.ctx.out("\nServing file %s in background..." % id)
+        self.serve(args.for_pub("user", "background=true", "count=1"))
+
+        self.ctx.out("\nLaunching script...")
+        self.launch(args.for_pub("file=%s" % id, "a=my-demo-string"))
+
+        ## self.ctx.out("\nDeleting script from server...")
+        ## self.delete(args.for_pub(str(id)))
+
+    @wrapper
     def cat(self, args):
         pass
 
@@ -128,6 +196,7 @@ Syntax: %(program_name)s script file [configuration parameters]
         client = self.ctx.conn()
         script_id = self._file(args, client)
 
+        import omero
         import omero_SharedResources_ice
         job = omero.model.ScriptJobI()
         job.linkOriginalFile(omero.model.OriginalFileI(script_id, False))
@@ -135,8 +204,16 @@ Syntax: %(program_name)s script file [configuration parameters]
         if not interactive:
             self.ctx.err("No processor found")
         else:
-            proc = interactive.execute(omero.rtypes.rmap())
+            params = interactive.params()
+            m = {}
+            for key, param in params.inputs.items():
+                a = args.get(key, None)
+                if not a and not param.optional:
+                    self.ctx.die(321, "Missing input: %s" % key)
+                else:
+                    m[key] = omero.rtypes.rstring(a)
             job = interactive.getJob()
+            proc = interactive.execute(omero.rtypes.rmap(m))
             self.ctx.out("Job %s ready" % job.id.val)
             self.ctx.out("Waiting....")
             count = 0
@@ -233,6 +310,7 @@ Syntax: %(program_name)s script file [configuration parameters]
         debug = args.getBool("debug", False)
         background = args.getBool("background", False)
         timeout = args.getInt("timeout", 0)
+        count = args.getInt("count", 0)
         user = args.get("user", None)
 
         import omero
@@ -248,9 +326,9 @@ Syntax: %(program_name)s script file [configuration parameters]
         # Similar to omero.util.Server starting here
         import logging
         original = list(logging._handlerList)
-        levels = [o.level for o in original]
-        for o in original:
-            o.level = 500
+        roots = list(logging.getLogger().handlers)
+        logging._handlerList = []
+        logging.getLogger().handlers = []
 
         from omero.util import ServerContext, configure_logging
         from omero.processor import ProcessorI
@@ -268,7 +346,11 @@ Syntax: %(program_name)s script file [configuration parameters]
                 self.ctx.die(100, "Failed initialization")
 
             if background:
-                REGISTER_CLEANUP(timeout)
+                def cleanup():
+                    impl.cleanup()
+                    logging._handlerList = original
+                    logging.getLogger().handlers = roots
+                atexit.register(cleanup)
             else:
                 try:
                     def handler(signum, frame):
@@ -282,14 +364,17 @@ Syntax: %(program_name)s script file [configuration parameters]
                     signal.signal(signal.SIGTERM, old)
                     impl.cleanup()
         finally:
-            for o,l in zip(original,levels):
-                o.level = l
+            if not background:
+                logging._handlerList = original
+                logging.getLogger().handlers = roots
 
 
     @wrapper
     def upload(self, args):
         args.insert(0, "upload")
         self.ctx.pub(args, strict=True)
+        id = self.ctx.get("last.upload.id")
+        self.ctx.set("script.file.id", id)
 
     @wrapper
     def replace(self, args):
@@ -303,6 +388,19 @@ Syntax: %(program_name)s script file [configuration parameters]
         client = self.ctx.conn()
         ofile = client.sf.getQueryService().get("OriginalFile", ofile)
         client.upload(fpath, ofile=ofile)
+
+    @wrapper
+    def delete(self, args):
+        if len(args) != 1:
+            self.ctx.die(123, "Usage: <original file id>")
+
+        ofile = long(args.args[0])
+        import omero_api_IScript_ice
+        client = self.ctx.conn()
+        try:
+            client.sf.getScriptService().deleteScript(ofile)
+        except exceptions.Exception, e:
+            self.ctx.err("Failed to delete script: %s (%s)" % (ofile, e))
 
     #
     # Other
