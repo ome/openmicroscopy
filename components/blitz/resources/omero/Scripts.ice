@@ -12,7 +12,7 @@
 #include <omero/RTypes.ice>
 #include <omero/System.ice>
 #include <omero/ServerErrors.ice>
-#include <Ice/BuiltinSequences.ice>
+#include <omero/Collections.ice>
 
 /*
  * The Processor API is intended to provide an script runner
@@ -51,6 +51,9 @@ module omero {
         int y;
     };
 
+    class Color extends Internal {
+        int packedColor;
+    };
 
     module grid {
 
@@ -63,7 +66,31 @@ module omero {
             string name;
             string description;
             bool optional;
+
+            /**
+             *
+             **/
             omero::RType prototype;
+
+            /**
+             *
+             **/
+            omero::RType min;
+
+            /**
+             *
+             **/
+            omero::RType max;
+
+            /**
+             * An enumeration of acceptable values which can be used
+             * for this parameter. If [min] and [max] are set, this value
+             * will be ignored. If [prototype] is an [omero::RCollection]
+             * or [omero::RMap] instance, then the values in this [omero::RList]
+             * will be of the member types of the collection or map, and not
+             * a collection or map instance.
+             **/
+            omero::RList values;
         };
 
         dictionary<string, Param> ParamMap;
@@ -82,6 +109,8 @@ module omero {
 
             string stdoutFormat;
             string stderrFormat;
+
+            omero::api::StringSet namespaces; // FIXME OR USE DIRECTORY NAME
         };
 
         /**
