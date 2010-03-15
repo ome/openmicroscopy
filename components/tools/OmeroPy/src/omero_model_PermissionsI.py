@@ -33,10 +33,15 @@ class PermissionsI(_omero_model.Permissions):
           return cls.PermissionsI_generator()
       generator = classmethod(generator)
 
-      def __init__(self, l = -1):
+      def __init__(self, l = None):
             super(PermissionsI, self).__init__()
-            self._perm1 = l
-            pass
+            if isinstance(l, str):
+                self._perm1 = -1
+                self.from_string(l)
+            elif l is not None:
+                self._perm1 = long(l)
+            else:
+                self._perm1 = -1
 
       def granted(self, mask, shift):
             return (self._perm1 & (mask<<shift)) == (mask<<shift)
@@ -100,6 +105,28 @@ class PermissionsI(_omero_model.Permissions):
       def setPerm1(self, _perm1):
           self._perm1 = _perm1
           pass
+
+      def from_string(self, perms):
+          import re
+          base = "([rR\-_])([wW\-_])"
+          regex = re.compile("^(L?)%s$" % (base*3))
+          match = regex.match(perms)
+          if match is None:
+            raise ValueError("Invalid permission string: %s" % perms)
+          l = match.group(1)
+          ur = match.group(2)
+          uw = match.group(3)
+          gr = match.group(4)
+          gw = match.group(5)
+          wr = match.group(6)
+          ww = match.group(7)
+          self.setLocked(l.lower() == "L")
+          self.setUserRead(ur.lower() == "r")
+          self.setUserWrite(uw.lower() == "w")
+          self.setGroupRead(gr.lower() == "r")
+          self.setGroupWrite(gw.lower() == "w")
+          self.setWorldRead(wr.lower() == "r")
+          self.setWorldWrite(ww.lower() == "w")
 
       def __str__(self):
           vals = []
