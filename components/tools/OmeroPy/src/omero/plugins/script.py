@@ -125,31 +125,13 @@ Syntax: %(program_name)s script file [configuration parameters]
 
     @wrapper
     def launch(self, args):
-        f = args.get("file", None)
-        if f is None:
-            self.ctx.err("No script provided")
-            return
-
         client = self.ctx.conn()
-        sf = client.sf
-        q = sf.getQueryService()
-        try:
-            script_id = long(f)
-        except:
-            script_name = str(f)
-            p = omero.sys.ParametersI()
-            p.addString("name", script_name)
-            scripts = q.findAllByQuery("select s from OriginalFile s where s.name = :name", p)
-            if len(scripts) != 1:
-                self.ctx.err("Didn't find a single script, but %s" % len(scripts))
-            script_id = scripts[0].id.val
+        script_id = self._file(args, client)
 
-        import omero
-        import omero.clients
         import omero_SharedResources_ice
         job = omero.model.ScriptJobI()
         job.linkOriginalFile(omero.model.OriginalFileI(script_id, False))
-        interactive = sf.sharedResources().acquireProcessor(job, 10)
+        interactive = client.sf.sharedResources().acquireProcessor(job, 10)
         if not interactive:
             self.ctx.err("No processor found")
         else:
@@ -215,7 +197,36 @@ Syntax: %(program_name)s script file [configuration parameters]
 
     @wrapper
     def params(self, args):
-        pass
+        client = self.ctx.conn(args)
+        script_id = self._file(args, client)
+        import omero_api_IScript_ice
+        svc = client.sf.getScriptService()
+        job_params = svc.getParams(script_id)
+        if job_params:
+            self.ctx.out("")
+            self.ctx.out("id=%s" % script_id)
+            self.ctx.out("name=%s" % job_params.name)
+            self.ctx.out("description=%s" % job_params.description)
+            self.ctx.out("namespaces=%s" % ", ".join(job_params.namespaces))
+            self.ctx.out("stdout=%s" % job_params.stdoutFormat)
+            self.ctx.out("stderr=%s" % job_params.stderrFormat)
+            print job_params.inputs
+            def print_params(which, params):
+                import omero
+                self.ctx.out(which)
+                for k, v in params.items():
+                    self.ctx.out("  %s - %s" % (v.name, (v.description and v.description or "(no description)")))
+                    self.ctx.out("    Optional: %s" % v.optional)
+                    self.ctx.out("    Type: %s" % v.prototype.ice_staticId())
+                    if isinstance(v.prototype, omero.RCollection):
+                        self.ctx.out("    Subtype: %s" % v.prototype.val[0].ice_staticId())
+                    elif isinstance(v.prototype, omero.RMap):
+                        self.ctx.out("    Subtype: %s" % v.prototype.val.values[0].ice_staticId())
+                    self.ctx.out("    Min: %s" % (v.min and v.min.val or ""))
+                    self.ctx.out("    Max: %s" % (v.max and v.max.val or ""))
+                    self.ctx.out("    Values: %s" % (v.values and ", ".join(v.values) or ""))
+            print_params("Inputs:", job_params.inputs)
+            print_params("Outputs:", job_params.outputs)
 
     @wrapper
     def serve(self, args):
@@ -323,6 +334,23 @@ Syntax: %(program_name)s script file [configuration parameters]
         self.ctx.out("="*40)
         for id in ids:
             self.ctx.out("%8.8s - %s" % (id, scripts[id]))
+
+    def _file(self, args, client):
+        f = args.get("file", None)
+        if f is None:
+            self.ctx.die(100, "No script provided")
+        try:
+            script_id = long(f)
+        except:
+            q = client.sf.getQueryService()
+            script_name = str(f)
+            p = omero.sys.ParametersI()
+            p.addString("name", script_name)
+            scripts = q.findAllByQuery("select s from OriginalFile s where s.name = :name", p)
+            if len(scripts) != 1:
+                self.ctx.err("Didn't find a single script, but %s" % len(scripts))
+            script_id = scripts[0].id.val
+        return script_id
 
 try:
     register("script", ScriptControl)
