@@ -55,7 +55,7 @@
 		<!-- Note: ScriptJob is not in model-->
 		<properties>
 			<!-- optional, so that it can be updated after the fact -->
-			<optional name="params" type="ome.model.core.OriginalFile"/>
+			<optional name="params" type="byte[]"/>
 		</properties>
 	</type>
 	<link id="ome.model.jobs.JobOriginalFileLink">

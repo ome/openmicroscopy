@@ -20,6 +20,8 @@
 			<!-- Acquisition Context 1 -->
 			<required name="acquisitionDate" type="timestamp"/>
 			<optional name="archived" type="boolean"/>
+			<optional name="partial" type="boolean"/>
+			<optional name="mimetype" type="string"/>
 			<!-- Note: in the model acquisitionDate is called creationDate but the DB already has a creation date for the object -->
 			<!-- Note: in the model acquisitionDate(creationDate) is optional so if not available should be set to current time on import-->
 			<optional name="imagingEnvironment" type="ome.model.acquisition.ImagingEnvironment"/>
