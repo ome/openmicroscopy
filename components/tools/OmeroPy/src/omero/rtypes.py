@@ -63,6 +63,58 @@ def rtype(val):
     else:
         raise omero.ClientError("Cannot handle conversion from: %s" % type(val))
 
+def unwrap(val, cache=None):
+    """
+    """
+    if cache is None:
+        cache = {}
+    elif id(val) in cache:
+        return cache[id(val)]
+
+    if val is None:
+        return None
+    elif isinstance(val, (list, tuple)):
+        rv = []
+        cache[id(val)] = rv
+        for x in val:
+            rv.append(unwrap(x, cache))
+    elif isinstance(val, set):
+        rv = set()
+        cache[id(val)] = rv
+        for x in val:
+            rv.add(unwrap(x, cache))
+    elif isinstance(val, dict):
+        rv = {}
+        cache[id(val)] = rv
+        for k, v in val.items():
+            rv[unwrap(k, cache)] = unwrap(v, cache)
+    elif isinstance(val, omero.RCollection):
+        if val.val is None:
+            rv = None
+            cache[id(val)] = None
+        else:
+            rv = []
+            cache[id(val)] = rv
+            for x in val.val:
+                rv.append(unwrap(x, cache))
+    elif isinstance(val, omero.RMap):
+        if val.val is None:
+            rv = None
+            cache[id(val)] = None
+        else:
+            rv = {}
+            cache[id(val)] = rv
+            for k, v in val.val.items():
+                rv[unwrap(k, cache)] = unwrap(v, cache)
+    elif isinstance(val, omero.RType): # Non-recursive
+        rv = val.val
+        cache[id(val)] = rv
+    else:
+        rv = val
+
+    return rv
+
+
 # Static factory methods (primitives)
 # =========================================================================
 
@@ -273,7 +325,7 @@ class RBoolI(omero.RBool):
         Required due to __getattr__ implementation.
         """
         pass # Currently unused
-      
+
 class RDoubleI(omero.RDouble):
 
     def __init__(self, value):

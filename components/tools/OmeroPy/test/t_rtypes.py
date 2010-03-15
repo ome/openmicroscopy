@@ -8,6 +8,8 @@
 """
 
 import unittest, omero
+import omero_Scripts_ice # For Color
+import omero_model_ImageI # For Image
 from omero.rtypes import *
 
 # Data
@@ -344,6 +346,75 @@ class TestModel(unittest.TestCase):
         ## self.assertEquals(rmap(obj), rmap(rmap(obj)))
         ## self.assertRaises(ValueError, lambda : rmap("string"))
 
+    def testUnwrap(self):
+        # NUMS plain
+        self.assertEquals(0, unwrap(0))
+        self.assertEquals(1, unwrap(1))
+        self.assertEquals(0.0, unwrap(0.0))
+        self.assertEquals(1.0, unwrap(1.0))
+        # NUMS rtyped
+        self.assertEquals(0, unwrap(rint(0)))
+        self.assertEquals(0, unwrap(rlong(0)))
+        self.assertEquals(1, unwrap(rint(1)))
+        self.assertEquals(1, unwrap(rlong(1)))
+        self.assertEquals(0.0, unwrap(rfloat(0.0)))
+        self.assertEquals(0.0, unwrap(rdouble(0.0)))
+        self.assertEquals(1.0, unwrap(rfloat(1.0)))
+        self.assertEquals(1.0, unwrap(rdouble(1.0)))
+
+        # STRINGS
+        self.assertEquals("", unwrap(""))
+        self.assertEquals("str", unwrap("str"))
+
+        # BOOL
+        self.assertEquals(True, unwrap(True))
+        self.assertEquals(False, unwrap(False))
+        self.assertEquals(True, unwrap(rbool(True)))
+        self.assertEquals(False, unwrap(rbool(False)))
+
+        # TIME
+        # Bit odd, do we want the long for time, or transformed?
+        self.assertEquals(0, unwrap(rtime(0)))
+        self.assertEquals(1, unwrap(rtime(1)))
+
+        # CLASS
+        # same for class, should we map it?
+        self.assertEquals("k", unwrap(rclass("k")))
+
+        # INTERNAL
+        color = omero.Color()
+        self.assertEquals(color, unwrap(rinternal(color)))
+
+        # OBJECT
+        image = omero.model.ImageI()
+        self.assertEquals(image, unwrap(robject(image)))
+
+        # COLLECTIONS
+        # empty
+        self.assertEquals([], unwrap([]))
+        self.assertEquals({}, unwrap({}))
+        self.assertEquals(set(), unwrap(set()))
+        # plain in collection
+        self.assertEquals([1], unwrap([1]))
+        # rtype in collection
+        self.assertEquals([1], unwrap([rint(1)]))
+        self.assertEquals({"a":1}, unwrap({"a":1}))
+        ## plain in rcollection ILLEGAL
+        ## self.assertEquals([1], unwrap(rlist([1])))
+        ## self.assertEquals({"a":1}, unwrap(rmap({"a":1})))
+        # rtype in rcollection
+        self.assertEquals([1], unwrap(rlist([rint(1)])))
+        self.assertEquals({"a":1}, unwrap(rmap({"a":rint(1)})))
+        # rtype keys ILLEGAL
+        ## self.assertEquals({"a":1}, unwrap(rmap({rstring("a"):rint(1)})))
+        # recursion, ticket:1977
+        m1 = rmap({"a":rint(1)})
+        m1.val["m1"] = m1
+        m2 = {"a":1}
+        m2["m1"] = m2
+        m3 = unwrap(m1)
+        self.assertEquals(m2["a"], unwrap(m1)["a"])
+        self.assertEquals(type(m2["m1"]), type(unwrap(m1)["m1"])) # Can't compare directly "maximum recursion depth exceeded in cmp"
 
 if __name__ == '__main__':
     unittest.main()

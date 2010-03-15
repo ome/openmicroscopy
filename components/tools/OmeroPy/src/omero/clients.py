@@ -28,6 +28,7 @@ try:
     from omero.rtypes import rstring
     from omero.rtypes import rdouble
     from omero.rtypes import rfloat
+    from omero.rtypes import unwrap
 
 finally:
     __name__ = __save__
@@ -681,7 +682,7 @@ class BaseClient(object):
     # Environment Methods
     # ===========================================================
 
-    def _env(self, method, *args):
+    def _env(self, _unwrap, method, *args):
         """ Helper method to access session environment"""
         session = self.getSession()
         if not session:
@@ -690,45 +691,61 @@ class BaseClient(object):
         u = a.getEventContext().sessionUuid
         s = session.getSessionService()
         m = getattr(s, method)
-        return apply(m, (u,)+args)
+        rv = apply(m, (u,)+args)
+        if callable(_unwrap):
+            rv = _unwrap(rv) # Passed in function
+        elif _unwrap:
+            rv = unwrap(rv) # Default method
+        return rv
 
-    def getInput(self, key):
+    def getInput(self, key, unwrap=False):
         """
         Retrieves an item from the "input" shared (session) memory.
         """
-        return self._env("getInput", key)
+        return self._env(unwrap, "getInput", key)
 
-    def getOutput(self, key):
+    def getOutput(self, key, unwrap=False):
         """
         Retrieves an item from the "output" shared (session) memory.
         """
-        return self._env("getOutput", key)
+        return self._env(unwrap, "getOutput", key)
 
 
     def setInput(self, key, value):
         """
         Sets an item in the "input" shared (session) memory under the given name.
         """
-        self._env("setInput", key, value)
+        self._env(False, "setInput", key, value)
 
     def setOutput(self, key, value):
         """
         Sets an item in the "output" shared (session) memory under the given name.
         """
-        self._env("setOutput", key, value)
+        self._env(False, "setOutput", key, value)
 
     def getInputKeys(self):
         """
         Returns a list of keys for all items in the "input" shared (session) memory
         """
-        return self._env("getInputKeys")
+        return self._env(False, "getInputKeys")
 
     def getOutputKeys(self):
         """
         Returns a list of keys for all items in the "output" shared (session) memory
         """
-        return self._env("getOutputKeys")
+        return self._env(False, "getOutputKeys")
 
+    def getInputs(self, unwrap=False):
+        """
+        Returns all items in the "input" shared (session) memory
+        """
+        return self._env(unwrap, "getInputs")
+
+    def getOutputs(self, unwrap=False):
+        """
+        Returns all items in the "output" shared (session) memory
+        """
+        return self._env(unwrap, "getOutputKeys")
     #
     # Misc.
     #
