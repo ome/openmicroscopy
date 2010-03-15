@@ -21,9 +21,10 @@ import exceptions, omero
 from omero.rtypes import *
 
 class Type:
-    def __init__(self, name, optional = False, out = False):
+    def __init__(self, name, optional = False, out = False, description = None, type = None):
         self.name = name
-        self.type = None
+        self.description = description
+        self.type = type
         self.optional = optional
         self._in = True
         self._out = out
@@ -63,15 +64,15 @@ class Set(Type):
     def __init__(self, name, optional = False, out = False, *contents):
         Type.__init__(self, name, optional, out)
         self.type = rset(contents)
+class List(Type):
+    def __init__(self, name, optional = False, out = False, *contents):
+        Type.__init__(self, name, optional, out)
+        self.type = rlist(contents)
 class Map(Type):
     def __init__(self, name, optional = False, out = False, **contents):
         Type.__init__(self, name, optional, out)
         self.type = rmap(contents)
-class List(Type):
-    def __init__(self, name, optional = False, out = False, **contents):
-        Type.__init__(self, name, optional, out)
-        self.type = rlist(contents)
-        
+
 class ParseExit(exceptions.Exception):
     """
     Raised when this script should just parse parameters and return.
@@ -136,12 +137,19 @@ def client(name, description = None, *args, **kwargs):
     for p in args:
         param = omero.grid.Param()
         param.name = p.name
+        param.description = param.description
         param.optional = p.optional
         param.prototype = p.type
         if p._in:
             c.params.inputs[p.name] = param
         if p._out:
             c.params.outputs[p.name] = param
+    inputs = kwargs.get("inputs", [])
+    for i in inputs:
+        c.params.inputs[i.name] = i
+    outputs = kwargs.get("outputs", [])
+    for o in outputs:
+        c.params.outputs[o.name] = o
 
     c.createSession().detachOnDestroy()
     handleParse(c) # May throw
