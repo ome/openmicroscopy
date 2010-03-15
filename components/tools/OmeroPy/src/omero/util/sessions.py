@@ -82,24 +82,26 @@ class SessionsStore(object):
         except exceptions.Exception, e:
             return false
 
-    def clear(self, host, name, id = None):
-        d = self.dir / host / name
+    def clear(self, host = None, name = None, sess = None):
         removed = []
-        if d.exists():
-            if id is not None:
-                f = d / id
-                f.remove()
-                removed.append(f)
-            else:
-                for f in self.non_dot(d):
-                    removed.append(f)
-                    f.remove()
+        def f(h, n, s):
+            hS = str(h.basename())
+            nS = str(n.basename())
+            sS = str(s.basename())
+            try:
+                client = self.attach(hS, nS, sS)
+                client.killSession()
+            except:
+                pass
+            s.remove()
+            removed.append(s)
+        self.walk(f, host, name, sess)
         return removed
 
-    def attach(self, server, name, id):
+    def attach(self, server, name, sess):
         props = {}
         props["omero.host"] = server
-        return self.create(id, id, props, new=False)
+        return self.create(sess, sess, props, new=False)
 
     def create(self, name, pasw, props, new=True):
         import omero.clients
@@ -135,11 +137,12 @@ class SessionsStore(object):
                     rv[host][name][id] = props
         return rv
 
-    def count(self, host, name):
-        d = self.dir / host / name
-        if not d.exists():
-            return 0
-        return len(self.non_dot(d))
+    def count(self, host=None, name=None):
+        def f(h, n, s):
+            f.i += 1
+        f.i = 0
+        self.walk(f, host, name)
+        return f.i
 
     def destroy(self, id):
         assert False
@@ -156,6 +159,16 @@ class SessionsStore(object):
         if not (self.dir / "lastsess").exists():
             return ""
         return (self.dir / "lastsess").text().strip()
+
+    def walk(self, func, host=None, name=None, sess=None):
+        for h in self.dir.dirs():
+            if host is None or str(h.basename()) == host:
+                for n in h.dirs():
+                    if name is None or str(n.basename()) == name:
+                        for s in self.non_dot(n):
+                            if sess is None or str(s.basename()) == sess:
+                                print "Calling on %s" % s
+                                func(h, n, s)
 
     def non_dot(self, d):
         return [f for f in d.files("*") if not str(f.basename()).startswith(".")]
