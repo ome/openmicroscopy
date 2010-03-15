@@ -54,7 +54,6 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
     private transient ITypes iTypes;
     private transient LocalUpdate iUpdate;
     private transient IProcessManager pm;
-    private transient JobNotification notification;
 
     /** default constructor */
     public JobBean() {
@@ -175,7 +174,6 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
         newJob = secureSave(newJob);
 
         jobId = newJob.getId();
-        // notification.notice(jobId); DISABLED
 
         return jobId;
     }
@@ -231,14 +229,6 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
     public void setProcessManager(IProcessManager procMgr) {
         getBeanHelper().throwIfAlreadySet(this.pm, procMgr);
         this.pm = procMgr;
-    }
-
-    /**
-     * job notification injector.
-     */
-    public void setJobNotification(JobNotification notify) {
-        getBeanHelper().throwIfAlreadySet(this.notification, notify);
-        this.notification = notify;
     }
 
     // Usage methods
