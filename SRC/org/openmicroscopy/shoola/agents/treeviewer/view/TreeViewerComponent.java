@@ -1162,7 +1162,7 @@ class TreeViewerComponent
 		int level = 
 			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel();
 		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
 			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
 				return true;
 		}
@@ -2931,7 +2931,7 @@ class TreeViewerComponent
 			PermissionData data = group.getPermissions();
 			if (data.isGroupRead()) {
 				if (data.isGroupWrite()) 
-					level = AdminObject.PERMISSIONS_GROUP_READ_WRITE;
+					level = AdminObject.PERMISSIONS_GROUP_READ_LINK;
 				else level = AdminObject.PERMISSIONS_GROUP_READ;
 			} else if (data.isWorldRead()) {
 				if (data.isWorldWrite()) 

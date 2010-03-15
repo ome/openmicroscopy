@@ -73,7 +73,7 @@ public class AdminObject
 	public static final int PERMISSIONS_GROUP_READ = 101;
 	
 	/** Indicates that the group is <code>Group</code> i.e. RWRW--. */
-	public static final int PERMISSIONS_GROUP_READ_WRITE = 102;
+	public static final int PERMISSIONS_GROUP_READ_LINK = 102;
 	
 	/** Indicates that the group is <code>Public</code> i.e. RWRWR-. */
 	public static final int PERMISSIONS_PUBLIC_READ = 103;
@@ -146,7 +146,7 @@ public class AdminObject
 		switch (permissions) {
 			case PERMISSIONS_PRIVATE:
 			case PERMISSIONS_GROUP_READ:
-			case PERMISSIONS_GROUP_READ_WRITE:
+			case PERMISSIONS_GROUP_READ_LINK:
 			case PERMISSIONS_PUBLIC_READ:
 			case PERMISSIONS_PUBLIC_READ_WRITE:
 				this.permissions = permissions;

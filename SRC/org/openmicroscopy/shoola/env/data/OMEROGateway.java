@@ -6618,7 +6618,7 @@ class OMEROGateway
 			case AdminObject.PERMISSIONS_GROUP_READ:
 				p.setGroupRead(true);
 				break;
-			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
 				p.setGroupRead(true);
 				p.setGroupWrite(true);
 				break;

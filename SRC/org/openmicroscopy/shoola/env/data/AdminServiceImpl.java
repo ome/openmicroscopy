@@ -316,7 +316,7 @@ class AdminServiceImpl
 		PermissionData perm = g.getPermissions();
 		if (perm.isGroupRead()) {
 			if (perm.isGroupWrite())  
-				return AdminObject.PERMISSIONS_GROUP_READ_WRITE;
+				return AdminObject.PERMISSIONS_GROUP_READ_LINK;
 			return AdminObject.PERMISSIONS_GROUP_READ;
 		}
 		if (perm.isWorldRead()) {

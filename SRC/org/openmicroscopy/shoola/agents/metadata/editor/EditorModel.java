@@ -579,7 +579,7 @@ class EditorModel
 		int level = 
 		MetadataViewerAgent.getRegistry().getAdminService().getPermissionLevel();
 		switch (level) {
-			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
 			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
 				return true;
 		}

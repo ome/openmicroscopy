@@ -133,7 +133,7 @@ public class PermissionsPane
 				readOnlyGroupBox.setSelected(true);
 				readOnlyGroupBox.setEnabled(true);
 				break;
-			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
 				privateBox.setEnabled(false);
 				groupBox.setSelected(true);
 				readOnlyGroupBox.setSelected(false);
@@ -277,7 +277,7 @@ public class PermissionsPane
 		if (permissions != null) {
 			if (permissions.isGroupRead()) {
 	    		if (permissions.isGroupWrite()) 
-	    			level = AdminObject.PERMISSIONS_GROUP_READ_WRITE;
+	    			level = AdminObject.PERMISSIONS_GROUP_READ_LINK;
 	    		else level = AdminObject.PERMISSIONS_GROUP_READ;
 	    	} else if (permissions.isWorldRead()) {
 	    		if (permissions.isGroupWrite()) 
@@ -302,7 +302,7 @@ public class PermissionsPane
 		if (groupBox.isSelected()) {
 			if (readOnlyGroupBox.isSelected())
 				return AdminObject.PERMISSIONS_GROUP_READ; 
-			return AdminObject.PERMISSIONS_GROUP_READ_WRITE; 
+			return AdminObject.PERMISSIONS_GROUP_READ_LINK; 
 		}
 		if (readOnlyPublicBox.isSelected())
 			return AdminObject.PERMISSIONS_PUBLIC_READ; 
@@ -336,7 +336,7 @@ public class PermissionsPane
 				add(privateBox);
 				break;
 			case AdminObject.PERMISSIONS_GROUP_READ:
-			case AdminObject.PERMISSIONS_GROUP_READ_WRITE:
+			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
 				p = new JPanel();
 				p.setBackground(getBackground());
 				p.add(groupBox);
