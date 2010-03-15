@@ -62,7 +62,6 @@ def remoted(func):
             log.info(__RESULT, rv)
             return rv
         except exceptions.Exception, e:
-            stop = time.time()
             log.info(__EXCEPT, e)
             if isinstance(e, omero.ServerError):
                 raise

@@ -70,9 +70,10 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         super(null, be);
     }
 
-    public void setServiceFactory(ServiceFactoryI sf) {
+    public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
         this.factory = sf;
-        helper = new ParamsHelper(sf);
+        helper = new ParamsHelper(
+                sf.sharedResources(), sf.getExecutor(), sf.getPrincipal());
     }
 
     // ~ Service methods

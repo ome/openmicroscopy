@@ -7,28 +7,19 @@
 
 package omero.grid;
 
-import java.sql.Timestamp;
-
-import ome.api.RawFileStore;
-import ome.model.IObject;
-import ome.model.core.OriginalFile;
 import ome.model.enums.Format;
 import ome.parameters.Parameters;
 import ome.security.AdminAction;
-import ome.security.SecureAction;
 import ome.security.SecuritySystem;
-import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.SecureMerge;
-import ome.util.Utils;
 import omero.InternalException;
 import omero.ServerError;
 import omero.model.OriginalFileI;
 import omero.model.ParseJob;
 import omero.model.ParseJobI;
-import omero.util.IceMapper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,7 +44,7 @@ public class ParamsHelper {
 
     public final static String OCTETSTREAM = "application/octet-stream";
 
-    private final ServiceFactoryI sf;
+    private final SharedResourcesPrx sr;
 
     private final Executor ex;
 
@@ -65,10 +56,10 @@ public class ParamsHelper {
 
     public final Format octetFormat;
 
-    public ParamsHelper(ServiceFactoryI sf) {
-        this.sf = sf;
-        this.ex = sf.getExecutor();
-        this.p = sf.getPrincipal();
+    public ParamsHelper(SharedResourcesPrx sr, Executor ex, Principal p) {
+        this.sr = sr;
+        this.ex = ex;
+        this.p = p;
         this.secSys = // FIXME REFACTOR
             (SecuritySystem) ex.getContext().getBean("securitySystem");
 
@@ -113,45 +104,44 @@ public class ParamsHelper {
         return params;
     }
 
-    JobParams getParamsOrNull(final long id, Current __current) {
-        OriginalFile file = getParamsFile(id);
+    JobParams getParamsOrNull(final long scriptId, Current __current) {
+        ome.model.jobs.ParseJob job = getParseJobForScript(scriptId);
 
-        if (file != null) {
-            return parseScriptParams(file, __current);
+        if (job != null) {
+            return parse(job.getParams(), __current);
         }
         return null;
     }
 
-    OriginalFile getParamsFile(final long id) {
-        OriginalFile file = (OriginalFile) ex.execute(p,
-                new Executor.SimpleWork(this, "getScriptParams") {
+    ome.model.jobs.ParseJob getParseJobForScript(final long scriptId) {
+        ome.model.jobs.ParseJob job = (ome.model.jobs.ParseJob) ex.execute(p,
+                new Executor.SimpleWork(this, "getParseJobForScript", scriptId) {
                     @Transactional(readOnly = false)
                     public Object doWork(Session session, ServiceFactory sf) {
                         Parameters p = new Parameters();
                         p.page(0, 1);
-                        p.addLong("id", id);
+                        p.addLong("id", scriptId);
                         return sf
                                 .getQueryService()
                                 .findByQuery(
-                                        "select job.params from ParseJob job "
+                                        "select job from ParseJob job "
                                                 + "join job.originalFileLinks scriptlinks "
                                                 + "join scriptlinks.child script "
                                                 + "where job.params is not null "
                                                 + "and script.id = :id "
-                                                + "order by job.params.details.updateEvent.id desc",
+                                                + "order by job.details.updateEvent.id desc",
                                         p);
                     }
 
                 });
-        return file;
+        return job;
     }
 
     JobParams generateScriptParams(long id, Ice.Current __current)
             throws ServerError {
 
         ParseJob job = buildParseJob(id);
-        InteractiveProcessorPrx proc = sf.sharedResources().acquireProcessor(
-                job, 10);
+        InteractiveProcessorPrx proc = sr.acquireProcessor(job, 10);
         if (proc == null) {
             throw new InternalException(null, null, "No processor acquired.");
         }
@@ -159,72 +149,28 @@ public class ParamsHelper {
         job = (ParseJob) proc.getJob();
         final JobParams rv = proc.params();
         // Guaranteed non-null for a parse job
-        saveScriptParams(rv, job, id, __current);
+        saveScriptParams(rv, job, __current);
         return rv;
     }
 
     void saveScriptParams(JobParams params,
-            final ParseJob job, long id, Ice.Current __current)
+            final ParseJob job, Ice.Current __current)
             throws ServerError {
 
         final byte[] data = parse(params, __current);
-        final OriginalFile file = new OriginalFile();
-        final IceMapper mapper = new IceMapper();
-        final ome.model.jobs.ParseJob j = (ome.model.jobs.ParseJob) mapper
-                .reverse(job);
-
-        file.setName("Params for " + id);
-        file.setPath("/params/" + id);
-        file.setSize((long) data.length);
-        file.setSha1(Utils.bufferToSha1(data));
-        file.setFormat(octetFormat.proxy());
-        Timestamp t = new Timestamp(System.currentTimeMillis());
-        file.setCtime(t);
-        file.setAtime(t);
-        file.setMtime(t);
-
-        ex.execute(p, new Executor.SimpleWork(this, "saveScriptParams", file) {
+        ex.execute(p, new Executor.SimpleWork(this, "saveScriptParams", job.getId().getValue()) {
             @Transactional(readOnly = false)
             public Object doWork(final Session session, final ServiceFactory sf) {
-
-                ome.model.jobs.ParseJob parseJob = sf.getQueryService().get(ome.model.jobs.ParseJob.class, j.getId());
-                parseJob.setParams(file);
-                parseJob = secSys.doAction(new SecureMerge(session), parseJob);
+                ome.model.jobs.ParseJob parseJob = sf.getQueryService().get(
+                        ome.model.jobs.ParseJob.class, job.getId().getValue());
+                parseJob.setParams(data);
                 secSys.runAsAdmin(new AdminAction(){
                     public void runAsAdmin() {
                         session.flush();
                     }});
-
-                long id = parseJob.getParams().getId();
-
-                RawFileStore rfs = sf.createRawFileStore();
-                try {
-                    rfs.setFileId(id);
-                    rfs.write(data, 0, data.length);
-                    return null;
-                } finally {
-                    rfs.close();
-                }
+                return null;
             }
         });
-    }
-
-    JobParams parseScriptParams(final OriginalFile file, Ice.Current __current) {
-        // First search for an existing parse-job
-        byte[] data = (byte[]) ex.execute(p, new Executor.SimpleWork(this,
-                "parseScriptParams", file) {
-            @Transactional(readOnly = true)
-            public Object doWork(Session session, ServiceFactory sf) {
-                RawFileStore rfs = sf.createRawFileStore();
-                try {
-                    rfs.setFileId(file.getId());
-                    return rfs.read(0, file.getSize().intValue());
-                } finally {
-                    rfs.close();
-                }
-            }
-        });
-        return parse(data, __current);
     }
 
     byte[] parse(JobParams params, Ice.Current current) {

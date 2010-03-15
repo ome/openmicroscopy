@@ -155,13 +155,19 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
                         }
 
                         helper.saveScriptParams(params, (ParseJob) job,
-                                scriptId, __current);
+                                __current);
                     } else {
                         params = helper.getOrCreateParams(scriptId, __current);
                     }
-                } catch (ServerError se) {
-                    log.debug("Error while parsing job", se);
-                    throw se;
+                } catch (Throwable t) {
+                    if (t instanceof ServerError) {
+                        log.debug("Error while parsing job", t);
+                        throw (ServerError) t;
+                    } else {
+                        omero.InternalException ie = new omero.InternalException();
+                        IceMapper.fillServerError(ie, t);
+                        throw ie;
+                    }
                 }
             }
             return params;
