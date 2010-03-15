@@ -8,13 +8,11 @@
 package ome.services;
 
 import java.awt.Dimension;
-import java.awt.Image;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,9 +26,13 @@ import ome.api.IPixels;
 import ome.api.IQuery;
 import ome.api.IRenderingSettings;
 import ome.api.IUpdate;
+import ome.conditions.ApiUsageException;
+import ome.conditions.InternalException;
 import ome.conditions.ResourceError;
 import ome.conditions.ValidationException;
 import ome.io.nio.ThumbnailService;
+import ome.model.IObject;
+import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
@@ -140,8 +142,46 @@ public class ThumbnailCtx
      */
     public void loadAndPrepareRenderingSettings(Set<Long> pixelsIds)
     {
-        // First populate our hash maps asking for our settings.
-        List<RenderingDef> settingsList = bulkLoadRenderingSettings(pixelsIds);
+        loadAndPrepareRenderingSettings(Pixels.class, pixelsIds);
+    }
+
+    /**
+     * Bulk loads a set of rendering settings for a  group of pixels sets and
+     * prepares our internal data structures.
+     * @param ids Set of IDs to prepare rendering settings for.
+     * @param klass Either <code>Image</code> or <code>Pixels</code> qualifying
+     * the type that <code>ids</code> are identifiers for.
+     */
+    private void loadAndPrepareRenderingSettings(Class<? extends IObject> klass,
+                                                 Set<Long> ids)
+    {
+        // First we need to load our rendering settings either by Image ID or
+        // by Pixels ID.
+        List<RenderingDef> settingsList = null;
+        Set<Long> pixelsIds = null;
+        if (klass.equals(Pixels.class))
+        {
+            // Populate our hash maps asking for our settings by Pixels ID
+            settingsList = bulkLoadRenderingSettingsByPixelsId(ids);
+            pixelsIds = ids;
+        }
+        else if (klass.equals((Image.class)))
+        {
+            // Populate our hash maps asking for our settings by Image ID
+            settingsList = bulkLoadRenderingSettingsByImageId(ids);
+            pixelsIds = new HashSet<Long>();
+            for (RenderingDef def : settingsList)
+            {
+                pixelsIds.add(def.getPixels().getId());
+            }
+        }
+        else
+        {
+            throw new ApiUsageException(
+                    "Unexpected preparation source type: " + klass.getName());
+        }
+
+        // Now prepare the loaded rendering settings
         for (RenderingDef settings : settingsList)
         {
             prepareRenderingSettings(settings, settings.getPixels());
@@ -278,10 +318,7 @@ public class ThumbnailCtx
             log.info(count + " pixels without settings");
             Set<Long> imageIds = settingsService.resetDefaultsInSet(
                     Pixels.class, pixelsIdsWithoutSettings);
-            //problem imageID returned not pixels id.
-            Set<Long> ids = getPixelsFromImage(imageIds);
-            if (ids.size() > 0)
-            	loadAndPrepareRenderingSettings(ids);
+            loadAndPrepareRenderingSettings(Image.class, imageIds);
         }
         s1.stop();
     }
@@ -315,6 +352,14 @@ public class ThumbnailCtx
      */
     public Pixels getPixels(long pixelsId)
     {
+        Pixels pixels = pixelsIdPixelsMap.get(pixelsId);
+        if (pixels == null)
+        {
+            throw new ResourceError(String.format(
+                    "Error retrieving Pixels id:%d. Pixels set does not " +
+                    "exist or the user id:%d has insufficient permissions " +
+                    "to retrieve it.", pixelsId, userId));
+        }
         return pixelsIdPixelsMap.get(pixelsId);
     }
 
@@ -346,7 +391,7 @@ public class ThumbnailCtx
         }
         else if (thumbnail == null)
         {
-            throw new ome.conditions.InternalException(
+            throw new InternalException(
                     "Fatal error retrieving thumbnail metadata for Pixels " +
                     "set id:" + pixelsId);
         }
@@ -504,7 +549,8 @@ public class ThumbnailCtx
      * @param pixelsIds the Pixels sets to retrieve thumbnails for.
      * @return Loaded rendering settings for <code>pixelsIds</code>.
      */
-    private List<RenderingDef> bulkLoadRenderingSettings(Set<Long> pixelsIds)
+    private List<RenderingDef> bulkLoadRenderingSettingsByPixelsId(
+            Set<Long> pixelsIds)
     {
         StopWatch s1 = new CommonsLogStopWatch(
                 "omero.bulkLoadRenderingSettings");
@@ -517,29 +563,26 @@ public class ThumbnailCtx
         s1.stop();
         return toReturn;
     }
-    
-    //tmp
-    private Set<Long> getPixelsFromImage(Set<Long> imageIds)
+
+    /**
+     * Bulk loads a set of rendering sets for a group of Images.
+     * @param imageIds the Images retrieve thumbnails for.
+     * @return Loaded rendering settings for <code>imageIds</code>.
+     */
+    private List<RenderingDef> bulkLoadRenderingSettingsByImageId(
+            Set<Long> imageIds)
     {
-    	Set<Long> ids = new HashSet<Long>();
-    	if (imageIds == null || imageIds.size() == 0)
-    		return ids;
-
-    	StopWatch s1 = new CommonsLogStopWatch(
-    			"getPixelsFromImage");
-    	List<Pixels> l = queryService.findAllByQuery(
-    			"select pix from Pixels as pix " +
-    			"join fetch pix.image where pix.image.id in (:ids)", 
-    			new Parameters().addIds(imageIds));
-    	s1.stop();
-
-    	Iterator<Pixels> i = l.iterator();
-    	Pixels pix;
-    	while (i.hasNext()) {
-    		pix = i.next();
-    		ids.add(pix.getId());
-    	}
-    	return ids;
+        StopWatch s1 = new CommonsLogStopWatch(
+                "omero.bulkLoadRenderingSettings");
+        List<RenderingDef> toReturn = queryService.findAllByQuery(
+                "select r from RenderingDef as r join fetch r.pixels " +
+                "join fetch r.details.updateEvent " +
+                "join fetch r.pixels.details.updateEvent " +
+                "where r.details.owner.id = :id " +
+                "and r.pixels.image.id in (:ids)",
+                new Parameters().addId(userId).addIds(imageIds));
+        s1.stop();
+        return toReturn;
     }
 
     /**
@@ -673,8 +716,15 @@ public class ThumbnailCtx
         {
             Parameters parameters = new Parameters();
             parameters.addIds(pixelsIds);
+            if (log.isDebugEnabled())
+            {
+                log.debug("Loading " + pixelsIds.size() + " missing Pixels.");
+            }
+            StopWatch s1 = new CommonsLogStopWatch(
+                    "omero.loadMissingPixels");
             List<Pixels> pixelsWithoutSettings = queryService.findAllByQuery(
                     "select p from Pixels as p where id in (:ids)", parameters);
+            s1.stop();
             for (Pixels pixels : pixelsWithoutSettings)
             {
                 pixelsIdPixelsMap.put(pixels.getId(), pixels);

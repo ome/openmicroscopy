@@ -21,7 +21,9 @@ import ome.model.annotations.FileAnnotation;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.RenderingDef;
+import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
 import ome.system.ServiceFactory;
 import omeis.providers.re.RenderingEngine;
@@ -317,6 +319,80 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         tbUser.getThumbnailByLongestSideDirect(64);
     }
 
+    @Test(groups = {"ticket:1929"},
+          expectedExceptions = { ResourceError.class })
+    public void testOtherUserViewsThumbnailInsufficientPermissions() {
+        Experimenter e1 = loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        loginNewUserInOtherUsersGroup(e1);
+        ThumbnailStore tbUser = sf.createThumbnailService();
+        tbUser.setPixelsId(pix.getId());
+    }
+
+    @Test(groups = {"ticket:1929"},
+          expectedExceptions = { InternalException.class })
+    public void testOtherUserViewsThumbnailWithNoSettingsAndNoSetPixelsId() {
+        Experimenter e1 = loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        deleteRenderingSettings(pix);
+        loginRoot();
+        makeDefaultGroupReadWrite(e1);
+        loginNewUserInOtherUsersGroup(e1);
+        ThumbnailStore tbUser = sf.createThumbnailService();
+        assertFalse(tbUser.setPixelsId(pix.getId()));
+        tbUser.resetDefaults();
+        //tbUser.setPixelsId(pix.getId() // Code that should be called
+        tbUser.getThumbnail(64, 64);
+    }
+
+    @Test(groups = {"ticket:1929"})
+    public void testOtherUserViewsThumbnailWithNoSettings() {
+        Experimenter e1 = loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        deleteRenderingSettings(pix);
+        loginRoot();
+        makeDefaultGroupReadWrite(e1);
+        loginNewUserInOtherUsersGroup(e1);
+        ThumbnailStore tbUser = sf.createThumbnailService();
+        assertFalse(tbUser.setPixelsId(pix.getId()));
+        tbUser.resetDefaults();
+        assertTrue(tbUser.setPixelsId(pix.getId()));
+        tbUser.getThumbnail(64, 64);
+    }
+
+    @Test(groups = {"ticket:1929"})
+    public void testOtherUserViewsThumbnailDirect() {
+        Experimenter e1 = loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        loginRoot();
+        makeDefaultGroupReadWrite(e1);
+        loginNewUserInOtherUsersGroup(e1);
+        ThumbnailStore tbUser = sf.createThumbnailService();
+        assertFalse(tbUser.setPixelsId(pix.getId()));
+        tbUser.resetDefaults();
+        assertTrue(tbUser.setPixelsId(pix.getId()));
+        tbUser.getThumbnailDirect(64, 64);
+    }
+
+    @Test(groups = {"ticket:1929"})
+    public void testOtherUserViewsThumbnailByLongestSideDirect() {
+        Experimenter e1 = loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        loginRoot();
+        makeDefaultGroupReadWrite(e1);
+        loginNewUserInOtherUsersGroup(e1);
+        ThumbnailStore tbUser = sf.createThumbnailService();
+        assertFalse(tbUser.setPixelsId(pix.getId()));
+        tbUser.resetDefaults();
+        assertTrue(tbUser.setPixelsId(pix.getId()));
+        tbUser.getThumbnailByLongestSideDirect(64);
+    }
+
     @Test(groups = {"ticket:1801"}, expectedExceptions = {ResourceError.class})
     public void testAdminViewsThumbnailsWithNoMetadata() {
         loginNewUser();
@@ -412,5 +488,12 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
             iUpdate.deleteObject(channelBinding);
         }
         iUpdate.deleteObject(settings);
+    }
+    
+    private void makeDefaultGroupReadWrite(Experimenter experimenter)
+    {
+        ExperimenterGroup group = iAdmin.getDefaultGroup(experimenter.getId());
+        group.getDetails().setPermissions(Permissions.GROUP_WRITEABLE);
+        iAdmin.updateGroup(group);
     }
 }
