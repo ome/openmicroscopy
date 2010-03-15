@@ -323,14 +323,23 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         try
         {
             store = config.createStore();
-    		viewer.historyTable.db.initialize(store);
-    		viewer.historyTable.db.initializeDataSource();
         }
         catch (Exception e)
         {
             log.error("Login failure.", e);
             return false;
         }
+        
+        try
+        {
+    		viewer.historyTable.db.initialize(store);
+    		viewer.historyTable.db.initializeDataSource();
+        }
+        catch (Exception e)
+        {
+        	log.error("Error initializing historytablestore", e);
+        }
+        
         return true;
     }
 
