@@ -224,17 +224,19 @@ module omero {
                          ProcessorAcceptsCallback* cb);
 
             /**
-             * Starts a process based on the given jobf
-             * this processor cannot handle the given job, a
-             * null process will be returned.
+             * Parses a job and returns metadata definition required
+             * for properly submitting the job. This object will be
+             * cached by the server, and passed back into [processJob]
              **/
-            Process* processJob(string session, omero::model::Job j) throws ServerError;
+            JobParams parseJob(string session, omero::model::Job jobObject) throws ServerError;
 
             /**
-             * Parses a job and returns metadata definition required
-             * for properly submitting the job.
+             * Starts a process based on the given job
+             * If this processor cannot handle the given job, a
+             * null process will be returned. The [params] argument
+             * was created by a previously call to [parseJob].
              **/
-            JobParams parseJob(string session, omero::model::Job j) throws ServerError;
+            Process* processJob(string session, JobParams params, omero::model::Job jobObject) throws ServerError;
 
         };
 

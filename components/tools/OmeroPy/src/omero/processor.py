@@ -665,39 +665,36 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
         client = omero.client(["--Ice.Config=%s" % (self.cfg)])
         try:
+            iskill = False
             client.joinSession(session).detachOnDestroy()
-            return self.parse(client, session, job, current, iskill = False)
+            self.logger.info("parseJob: Session = %s, JobId = %s" % (session, job.id.val))
+            properties = {}
+            properties["omero.scripts.parse"] = "true"
+            prx, process = self.process(client, session, job, current, None, properties, iskill)
+            process.wait()
+            rv = client.getOutput("omero.scripts.parse")
+            if rv != None:
+                return rv.val
+            else:
+                self.logger.warning("No output found for omero.scripts.parse. Keys: %s" % client.getOutputKeys())
+                return None
         finally:
             client.closeSession()
             del client
 
     @remoted
-    def processJob(self, session, job, current = None):
+    def processJob(self, session, params, job, current = None):
         """
         """
         client = omero.client(["--Ice.Config=%s" % (self.cfg)])
         try:
             client.joinSession(session).detachOnDestroy()
-            params = self.parse(client, session, job, current, iskill = False)
-            return self.process(client, session, job, current, params, iskill = True)[0]
+            prx, process = self.process(client, session, job, current, params, iskill = True)
+            return prx
         finally:
             client.closeSession()
             del client
 
-    @perf
-    def parse(self, client, session, job, current, iskill):
-
-        self.logger.info("parseJob: Session = %s, JobId = %s" % (session, job.id.val))
-        properties = {}
-        properties["omero.scripts.parse"] = "true"
-        prx, process = self.process(client, session, job, current, None, properties, iskill)
-        process.wait()
-        rv = client.getOutput("omero.scripts.parse")
-        if rv != None:
-            return rv.val
-        else:
-            self.logger.warning("No output found for omero.scripts.parse. Keys: %s" % client.getOutputKeys())
-            return None
 
     @perf
     def process(self, client, session, job, current, params, properties = {}, iskill = True):
@@ -714,6 +711,31 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         if not file:
             raise omero.ApiUsageException(\
                 None, None, "Job should have one executable file attached.")
+
+        if params:
+            self.logger.debug("Checking params for job %s" % job.id.val)
+            sf = self.internal_session()
+            svc = sf.getSessionService()
+            inputs = svc.getInputs(session)
+            errors = ""
+            for key, param in params.inputs.items():
+                if key not in inputs:
+                    if not param.optional:
+                        errors += "Missing input: %s" % key
+                else:
+                    def compare_proto(proto, input):
+                        input = inputs[key]
+                        intype = input is None and None or input.__class__
+                        proto = param.prototype.__class__
+                        if not isinstance(input, proto):
+                            errors += "Wrong type: %s != %s" % (intype, proto)
+                        if isinstance(param.prototype, RMap):
+                            errors += compare_proto(param.prototype.values()[0], input.values()[0])
+                        if isinstance(param.prototype, RCollection):
+                            errors += compare_proto(param.prototype[0], input[0])
+                    errors += compare_proto(param.prototype, inputs[key], errors)
+            if errors:
+                print errors
 
         properties["omero.job"] = str(job.id.val)
         properties["omero.user"] = session

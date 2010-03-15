@@ -28,6 +28,7 @@ import omero.ApiUsageException;
 import omero.RMap;
 import omero.RType;
 import omero.ServerError;
+import omero.api.IScriptPrx;
 import omero.model.Job;
 import omero.model.OriginalFileI;
 import omero.util.IceMapper;
@@ -71,6 +72,8 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
     
     private final SessionControlPrx control;
 
+    private final IScriptPrx iScript;
+
     private boolean detach = false;
     
     private boolean obtainResults = false;
@@ -92,8 +95,10 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
      * @param timeout
      */
     public InteractiveProcessorI(Principal p, SessionManager mgr, Executor ex,
-            ProcessorPrx prx, Job job, long timeout, SessionControlPrx control) {
+            ProcessorPrx prx, Job job, long timeout, SessionControlPrx control,
+            IScriptPrx iScript) {
         this.principal = p;
+        this.iScript = iScript;
         this.ex = ex;
         this.mgr = mgr;
         this.prx = prx;
@@ -168,7 +173,10 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
 
             // Execute
             try {
-                currentProcess = prx.processJob(session.getUuid(), job);
+                final String uuid = session.getUuid();
+                final long scriptId = getScriptId(job);
+                final JobParams params = getJobParams(scriptId, __current);
+                currentProcess = prx.processJob(session.getUuid(), params, job);
                 // Have to add the process to the control, otherwise the
                 // user won't be able to view it: ObjectNotExistException!
                 // ticket:1522
@@ -350,5 +358,45 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
         newSession = mgr.update(newSession, true);
 
         return newSession;
+    }
+
+    private String getScriptIdQuery = "select f from ScriptJob s "
+            + "join s.originalFileLinks links "
+            + "join links.child f "
+            + "where s.id = :id and f.format.value = :fmt";
+
+    private long getScriptId(final Job job) throws omero.ValidationException {
+        final Parameters p = new Parameters();
+        p.addId(job.getId().getValue());
+        p.addString("fmt", "text/x-python");
+        final OriginalFile f = (OriginalFile) this.ex.execute(this.principal,
+                new Executor.SimpleWork(this, "getScriptId") {
+                    @Transactional(readOnly = true)
+                    public Object doWork(org.hibernate.Session session,
+                            ServiceFactory sf) {
+                        return sf.getQueryService().findByQuery(
+                                getScriptIdQuery, p);
+                    }
+                });
+        if (f == null) {
+            throw new omero.ValidationException(null, null,
+                    "No script for job :" + job.getId().getValue());
+        }
+        return f.getId();
+    }
+
+    /**
+     * TODO This should use ScriptI directly, or some refactored logic, but
+     * the classpath doesn't allow that currently.
+     * @param scriptId
+     * @param __current
+     * @return
+     * @throws ServerError
+     */
+    private JobParams getJobParams(long scriptId, Current __current)
+            throws ServerError {
+
+        return iScript.getParams(scriptId);
+
     }
 }

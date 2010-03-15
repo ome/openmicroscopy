@@ -35,6 +35,7 @@ import omero.InternalException;
 import omero.RTime;
 import omero.ServerError;
 import omero.ValidationException;
+import omero.api.IScriptPrx;
 import omero.constants.topics.PROCESSORACCEPTS;
 import omero.grid.AMI_InternalRepository_getDescription;
 import omero.grid.AMI_InternalRepository_getProxy;
@@ -488,9 +489,10 @@ public class SharedResourcesI extends AbstractAmdServant implements
         }
 
         long timeout = System.currentTimeMillis() + 60 * 60 * 1000L;
+        IScriptPrx iScript = sf.getScriptService(); // Force creation
         InteractiveProcessorI ip = new InteractiveProcessorI(sf.principal,
                 sf.sessionManager, sf.executor, server, job, timeout,
-                sf.control);
+                sf.control, iScript);
         Ice.Identity procId = sessionedID("InteractiveProcessor");
         Ice.ObjectPrx rv = sf.registerServant(current, procId, ip);
         allow(rv);
