@@ -1041,17 +1041,19 @@ public class IceMapper extends ome.util.ModelMapper implements
         // First we give registered handlers a chance to convert the message,
         // if that doesn't succeed, then we try either manually, or just
         // wrap the exception in an InternalException
-        try {
-            ConvertToBlitzExceptionMessage ctbem = new ConvertToBlitzExceptionMessage(
-                    this, t);
-            ctx.publishMessage(ctbem);
-            if (ctbem.to != null) {
-                t = ctbem.to;
+        if (ctx != null) {
+            try {
+                ConvertToBlitzExceptionMessage ctbem =
+                    new ConvertToBlitzExceptionMessage(this, t);
+                ctx.publishMessage(ctbem);
+                if (ctbem.to != null) {
+                    t = ctbem.to;
+                }
+            } catch (Throwable handlerT) {
+                // Logging the output, but we shouldn't worry the user
+                // with a failing handler
+                log.error("Exception handler failure", handlerT);
             }
-        } catch (Throwable handlerT) {
-            // Logging the output, but we shouldn't worry the user
-            // with a failing handler
-            log.error("Exception handler failure", handlerT);
         }
 
         Class c = t.getClass();

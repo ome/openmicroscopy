@@ -9,6 +9,7 @@ package ome.services.throttling;
 
 import ome.api.ServiceInterface;
 import ome.services.blitz.util.IceMethodInvoker;
+import ome.system.OmeroContext;
 import omero.util.IceMapper;
 
 import org.springframework.util.Assert;
@@ -50,12 +51,12 @@ public class Callback extends Task {
         this(null, null, service, invoker, cb, mapper, current, args);
     }
 
-    public void run() {
+    public void run(OmeroContext ctx) {
         try {
             Object retVal = invoker.invoke(service, current, mapper, args);
-            response(retVal);
+            response(retVal, ctx);
         } catch (Throwable e) {
-            exception(e);
+            exception(e, ctx);
         }
     }
 

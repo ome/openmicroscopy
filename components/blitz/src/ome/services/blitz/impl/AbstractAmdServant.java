@@ -19,6 +19,7 @@ import ome.services.blitz.fire.AopContextInitializer;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.IceMethodInvoker;
 import ome.services.blitz.util.UnregisterServantMessage;
+import ome.services.throttling.Task;
 import ome.services.throttling.ThrottlingStrategy;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
@@ -137,7 +138,7 @@ public abstract class AbstractAmdServant implements ApplicationContextAware {
                 __current, args);
     }
 
-    public final void runnableCall(Ice.Current __current, Runnable r) {
+    public final void runnableCall(Ice.Current __current, Task r) {
         this.be.runnableCall(__current, r);
     }
 

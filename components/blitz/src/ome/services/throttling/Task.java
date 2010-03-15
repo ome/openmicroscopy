@@ -10,6 +10,7 @@ package ome.services.throttling;
 
 import java.lang.reflect.Method;
 
+import ome.system.OmeroContext;
 import omero.InternalException;
 import omero.util.IceMapper;
 
@@ -22,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
  * 
  * @since Beta4
  */
-public abstract class Task implements Runnable {
+public abstract class Task {
 
     private final static Log log = LogFactory.getLog(Task.class);
 
@@ -49,12 +50,12 @@ public abstract class Task implements Runnable {
         }
     }
 
-    public abstract void run();
+    public abstract void run(OmeroContext ctx);
 
     /**
      * Calls the response method
      */
-    protected void response(Object rv) {
+    protected void response(Object rv, OmeroContext ctx) {
         try {
             if (isVoid) {
                 response.invoke(cb);
@@ -62,27 +63,26 @@ public abstract class Task implements Runnable {
                 response.invoke(cb, rv);
             }
         } catch (Exception e) {
-            try {
-                InternalException ie = new InternalException();
-                IceMapper.fillServerError(ie, e);
-                ie.message = "Failed to invoke: " + this.toString();
-                exception(ie);
-            } catch (Exception e2) {
-                throw new RuntimeException(
-                        "Failed to invoke exception() after failed response()",
-                        e2);
-            }
+            InternalException ie = new InternalException();
+            IceMapper.fillServerError(ie, e);
+            ie.message = "Failed to invoke: " + this.toString();
+            log.error(ie.message, e);
+            exception(ie, ctx);
         }
     }
 
-    protected void exception(Throwable ex) {
+    protected void exception(Throwable ex, OmeroContext ctx) {
         try {
             if (!(ex instanceof Exception)) {
                 log.error("Throwable thrown!", ex);
             }
+            IceMapper mapper = new IceMapper();
+            ex = mapper.handleException(ex, ctx);
             exception.invoke(cb, ex);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to invoke exception()", e);
+        } catch (Exception e2) {
+            String msg = "Failed to invoke exception()";
+            log.error(msg, e2);
+            throw new RuntimeException("Failed to invoke exception()", e2);
         }
     }
 

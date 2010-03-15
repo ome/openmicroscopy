@@ -11,6 +11,7 @@ package ome.services.blitz.util;
 import java.util.concurrent.Callable;
 
 import ome.api.ServiceInterface;
+import ome.services.throttling.Task;
 import omero.util.IceMapper;
 
 /**
@@ -40,7 +41,7 @@ public interface BlitzExecutor {
             IceMethodInvoker invoker, IceMapper mapper, Object __cb,
             Ice.Current __current, Object... args);
 
-    void runnableCall(Ice.Current __current, Runnable runnable);
+    void runnableCall(Ice.Current __current, Task runnable);
 
     <R> void safeRunnableCall(Ice.Current __current, Object cb, boolean isVoid,
             Callable<R> callable);

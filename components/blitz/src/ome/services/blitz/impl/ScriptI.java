@@ -106,10 +106,10 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      * @return The id of the script, -1 if no script found, or more than one
      *         script with that name.
      */
-    public void getScriptID_async(final AMD_IScript_getScriptID cb,
+    public void getScriptID_async(final AMD_IScript_getScriptID __cb,
             final String scriptName, final Current __current)
             throws ServerError {
-        safeRunnableCall(__current, cb, false, new Callable<Long>(){
+        safeRunnableCall(__current, __cb, false, new Callable<Long>(){
             public Long call() {
                 final OriginalFile file = getOriginalFileOrNull(scriptName);
                 if (file == null) {
@@ -130,9 +130,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      *            ice context.
      * @return id of the script.
      */
-    public void uploadScript_async(final AMD_IScript_uploadScript cb,
+    public void uploadScript_async(final AMD_IScript_uploadScript __cb,
             final String scriptText, final Current __current) throws ServerError {
-        safeRunnableCall(__current, cb, false, new Callable<Long>() {
+        safeRunnableCall(__current, __cb, false, new Callable<Long>() {
             public Long call() throws Exception {
 
                 if (!validateScript(scriptText)) {
@@ -156,11 +156,11 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         });
     }
 
-    public void editScript_async(final AMD_IScript_editScript cb,
+    public void editScript_async(final AMD_IScript_editScript __cb,
             final omero.model.OriginalFile fileObject, final String scriptText,
             final Current __current) throws ServerError {
 
-        safeRunnableCall(__current, cb, true, new Callable<Object>() {
+        safeRunnableCall(__current, __cb, true, new Callable<Object>() {
             public Object call() throws Exception {
 
                 if (!validateScript(scriptText)) {

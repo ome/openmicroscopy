@@ -42,7 +42,7 @@ public class CallbackTest extends MockObjectTestCase {
         Callback cb = new Callback(query, invoker, new IceMapper(), amd,
                 current, "query", null);
         mock.expects(once()).method("findAllByQuery");
-        cb.run();
+        cb.run(null);
         assertTrue(amd.response);
     }
 

@@ -53,7 +53,7 @@ public class InThreadThrottlingStrategy extends AbstractThrottlingStrategy {
             IceMapper mapper = new IceMapper();
             Callback cb = new Callback(service, invoker, mapper, __cb,
                     __current, args);
-            cb.run();
+            cb.run(ctx);
         } finally {
             teardown();
         }
@@ -67,7 +67,7 @@ public class InThreadThrottlingStrategy extends AbstractThrottlingStrategy {
         try {
             Callback cb = new Callback(service, invoker, mapper, __cb,
                     __current, args);
-            cb.run();
+            cb.run(ctx);
         } finally {
             teardown();
         }
@@ -77,16 +77,16 @@ public class InThreadThrottlingStrategy extends AbstractThrottlingStrategy {
         setup(__current);
         try {
             Callback2<R> cb = new Callback2<R>(__current, __cb, isVoid, callable);
-            cb.run();
+            cb.run(ctx);
         } finally {
             teardown();
         }
     }
 
-    public void runnableCall(Current __current, Runnable runnable) {
+    public void runnableCall(Current __current, Task runnable) {
         setup(__current);
         try {
-            runnable.run();
+            runnable.run(ctx);
         } catch (Exception e) {
             log.error("Exception during runnableCall", e);
         } finally {

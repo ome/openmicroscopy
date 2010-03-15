@@ -11,18 +11,29 @@ import ome.conditions.OverUsageException;
 import ome.services.messages.stats.AbstractStatsMessage;
 import ome.services.messages.stats.ObjectsReadStatsMessage;
 import ome.services.messages.stats.ObjectsWrittenStatsMessage;
+import ome.system.OmeroContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
 
 /**
  * Throttling implementation which uses the calling server {@link Thread} for
  * execution. This mimics the behavior of the pre-AMD blitz.
  */
-public abstract class AbstractThrottlingStrategy implements ThrottlingStrategy {
+public abstract class AbstractThrottlingStrategy implements ApplicationContextAware, ThrottlingStrategy {
 
     protected final Log log = LogFactory.getLog(getClass());
+
+    protected /*final*/ OmeroContext ctx;
+
+    public void setApplicationContext(ApplicationContext applicationContext)
+            throws BeansException {
+        this.ctx = (OmeroContext) applicationContext;
+    }
 
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof ObjectsReadStatsMessage) {

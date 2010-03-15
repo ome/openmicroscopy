@@ -10,6 +10,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import ome.system.OmeroContext;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -21,11 +23,13 @@ public class Queue {
     static class CancelledException extends Exception {
     }
 
+    private final OmeroContext ctx;
     private final BlockingQueue<Callback> q = new LinkedBlockingQueue<Callback>();
     private final AtomicBoolean done = new AtomicBoolean();
 
-    public Queue() {
+    public Queue(OmeroContext ctx) {
         done.set(false);
+        this.ctx = ctx;
     }
 
     public void put(Callback callback) {
@@ -40,7 +44,7 @@ public class Queue {
                 }
             }
         } else {
-            callback.exception(new CancelledException());
+            callback.exception(new CancelledException(), ctx);
         }
     }
 
@@ -61,7 +65,7 @@ public class Queue {
         boolean wasDone = done.getAndSet(true);
         if (!wasDone) {
             for (Callback cb : q) {
-                cb.exception(new CancelledException());
+                cb.exception(new CancelledException(), ctx);
             }
         }
     }

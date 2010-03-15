@@ -12,6 +12,7 @@ import java.util.concurrent.Callable;
 import ome.api.ServiceInterface;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.IceMethodInvoker;
+import ome.system.OmeroContext;
 import omero.util.IceMapper;
 
 import org.springframework.util.Assert;
@@ -43,12 +44,12 @@ public class Callback2<R> extends Task {
         this.callable = callable;
     }
 
-    public void run() {
+    public void run(OmeroContext ctx) {
         try {
             R rv = callable.call();
-            response(rv);
+            response(rv, ctx);
         } catch (Throwable e) {
-            exception(e);
+            exception(e, ctx);
         }
     }
 

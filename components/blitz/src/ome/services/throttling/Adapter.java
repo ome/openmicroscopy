@@ -8,12 +8,13 @@
 
 package ome.services.throttling;
 
-import org.springframework.util.Assert;
-
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.util.Executor;
+import ome.system.OmeroContext;
 import ome.system.Principal;
 import omero.util.IceMapper;
+
+import org.springframework.util.Assert;
 
 /**
  * Simple adapter which takes a {@link Executor.Work} instance and executes it
@@ -40,7 +41,7 @@ public class Adapter extends Task {
         Assert.notNull(p, "Principal null");
     }
 
-    public void run() {
+    public void run(OmeroContext ctx) {
         try {
             Object retVal = null;
 
@@ -51,7 +52,7 @@ public class Adapter extends Task {
             } catch (Throwable t) {
                 Ice.UserException ue = mapper.handleException(t, ex
                         .getContext());
-                exception(ue);
+                exception(ue, ex.getContext());
                 return; // EARLY EXIT
             }
 
@@ -59,10 +60,10 @@ public class Adapter extends Task {
             if (mapper != null && mapper.canMapReturnValue()) {
                 retVal = mapper.mapReturnValue(retVal);
             }
-            response(retVal);
+            response(retVal, ctx);
 
         } catch (Exception e) {
-            exception(e);
+            exception(e, ctx);
         }
 
     }

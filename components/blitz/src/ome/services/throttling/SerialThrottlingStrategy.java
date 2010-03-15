@@ -11,6 +11,7 @@ import java.util.concurrent.Callable;
 
 import ome.api.ServiceInterface;
 import ome.services.blitz.util.IceMethodInvoker;
+import ome.system.OmeroContext;
 import omero.util.IceMapper;
 import Ice.Current;
 
@@ -25,8 +26,8 @@ public class SerialThrottlingStrategy extends AbstractThrottlingStrategy {
 
     private final Queue queue;
 
-    public SerialThrottlingStrategy() {
-        queue = new Queue();
+    public SerialThrottlingStrategy(OmeroContext ctx) {
+        queue = new Queue(ctx);
         slot = new Slot(queue);
     }
 
@@ -47,7 +48,7 @@ public class SerialThrottlingStrategy extends AbstractThrottlingStrategy {
         queue.put(cb);
     }
 
-    public void runnableCall(Current __current, Runnable runnable) {
+    public void runnableCall(Current __current, Task runnable) {
         throw new UnsupportedOperationException();
     }
 
