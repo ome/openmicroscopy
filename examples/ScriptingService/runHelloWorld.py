@@ -38,6 +38,7 @@ an OMERO server.
 import omero
 import getopt, sys, os, subprocess
 import omero_api_IScript_ice
+import omero_SharedResources_ice
 from omero.rtypes import *
 
 def run(commandArgs):
@@ -56,11 +57,18 @@ def run(commandArgs):
 	# make the parameter map into an rmap
 	scriptId = commandArgs["scriptId"]
 	argMap = omero.rtypes.rmap(map)
-	
+
 	# runs the script
-	scriptService.runScript(scriptId, map)
-	
-	
+        try:
+            # TODO: this will be refactored
+            job = omero.model.ScriptJobI()
+            job.linkOriginalFile(omero.model.OriginalFileI(scriptId, False))
+            processor = session.sharedResources().acquireProcessor(job, 10)
+            proc = processor.execute(argMap)
+            processor.setDetach(True)
+        except omero.ResourceError, re:
+            print "Could not launch", re
+
 def readCommandArgs():
 	"""
 	Read the arguments from the command line and put them in a map
