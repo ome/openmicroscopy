@@ -17,7 +17,6 @@ import ome.model.jobs.ImportJob;
 import ome.model.jobs.JobStatus;
 import ome.security.SecuritySystem;
 import ome.services.JobBean;
-import ome.services.JobNotification;
 import ome.services.procs.IProcessManager;
 import ome.services.procs.Process;
 import ome.system.EventContext;
@@ -47,8 +46,6 @@ public class JobHandleMockTest extends MockObjectTestCase {
     protected Mock mockQuery, mockUpdate, mockTypes, mockSec, mockEc, mockPm,
             mockProcess;
 
-    protected JobNotification jn;
-
     @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
@@ -70,20 +67,12 @@ public class JobHandleMockTest extends MockObjectTestCase {
         org.jmock.core.Stub stub = new org.jmock.core.stub.DefaultResultStub();
         mockEc.setDefaultStub(stub);
 
-        jn = new JobNotification() {
-            @Override
-            public void notice(long jobId) {
-                pm.run();
-            }
-        };
-
         JobBean jb = new JobBean();
         jb.setUpdateService(iUpdate);
         jb.setQueryService(iQuery);
         jb.setTypesService(iTypes);
         jb.setSecuritySystem(sec);
         jb.setProcessManager(pm);
-        jb.setJobNotification(jn);
         jh = jb;
 
     }
