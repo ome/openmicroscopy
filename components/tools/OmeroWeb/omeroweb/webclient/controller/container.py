@@ -74,12 +74,6 @@ class BaseContainer(BaseController):
                     raise AttributeError("We are sorry, but that dataset does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
                 if self.dataset._obj is None:
                     raise AttributeError("We are sorry, but that dataset does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
-                if o3_type == "image":
-                    self.image = self.conn.getImageWithMetadata(o3_id)
-                    if self.image is None:
-                        raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
-                    if self.image._obj is None:
-                        raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
         elif o1_type == "screen":
             self.screen = self.conn.getScreen(o1_id)
             if self.screen is None:
@@ -98,24 +92,12 @@ class BaseContainer(BaseController):
                 raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
             if self.plate._obj is None:
                 raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")  
-        elif o1_type == "well":
-            self.well = self.conn.lookupWell(o1_id, index)
-            if self.well is None:
-                raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
-            if self.well._obj is None:
-                raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")             
         elif o1_type == "dataset":
             self.dataset = self.conn.getDataset(o1_id)
             if self.dataset is None:
                 raise AttributeError("We are sorry, but that dataset does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
             if self.dataset._obj is None:
                 raise AttributeError("We are sorry, but that dataset does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
-            if o2_type == "image":
-                self.image = self.conn.getImageWithMetadata(o2_id)
-                if self.image is None:
-                    raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
-                if self.image._obj is None:
-                    raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
         elif o1_type == "image":
             if metadata:
                 self.image = self.conn.getImageWithMetadata(o1_id)
@@ -357,69 +339,6 @@ class BaseContainer(BaseController):
         #    self.hierarchy={'projects': self.sortByAttr(pr_list, 'name')}
         else:
             self.hierarchy = None
-    
-    def listRoots(self, eid=None):
-        if eid is not None:
-            self.experimenter = self.conn.getExperimenter(eid)
-        
-        pr_list = self.sortByAttr(list(self.conn.lookupProjects(eid=eid)), 'name')
-        ds_list = self.sortByAttr(list(self.conn.lookupOrphanedDatasets(eid=eid)), 'name')
-        pr_list = self.sortByAttr(list(self.conn.lookupScreens(eid=eid)), 'name')
-        ds_list = self.sortByAttr(list(self.conn.lookupOrphanedPlates(eid=eid)), 'name')
-             
-        
-        pr_list_with_counters = list()
-        ds_list_with_counters = list()
-        sc_list_with_counters = list()
-        pl_list_with_counters = list()
-        
-        pr_ids = [pr.id for pr in pr_list]
-        if len(pr_ids) > 0:
-            pr_child_counter = self.conn.getCollectionCount("Project", "datasetLinks", pr_ids)
-            pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
-            
-            for pr in pr_list:
-                pr.child_counter = pr_child_counter.get(pr.id)
-                pr.annotation_counter = pr_annotation_counter.get(pr.id)
-                pr_list_with_counters.append(pr)
-        
-        ds_ids = [ds.id for ds in ds_list]
-        if len(ds_ids) > 0:
-            ds_child_counter = self.conn.getCollectionCount("Dataset", "imageLinks", ds_ids)
-            ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
-            
-            for ds in ds_list:
-                ds.child_counter = ds_child_counter.get(ds.id)
-                ds.annotation_counter = ds_annotation_counter.get(ds.id)
-                ds_list_with_counters.append(ds)
-        
-        sc_ids = [sc.id for sc in sc_list]
-        if len(sc_ids) > 0:
-            sc_child_counter = self.conn.getCollectionCount("Screen", "plateLinks", sc_ids)
-            sc_annotation_counter = self.conn.getCollectionCount("Screen", "annotationLinks", sc_ids)
-            
-            for sc in sc_list:
-                sc.child_counter = sc_child_counter.get(sc.id)
-                sc.annotation_counter = sc_annotation_counter.get(sc.id)
-                sc_list_with_counters.append(sc)
-        
-        pl_ids = [pl.id for pl in pl_list]
-        if len(pl_ids) > 0:
-            pl_child_counter = {}#self.conn.getCollectionCount("Plate", "wellLinks", ds_ids)
-            pl_annotation_counter = self.conn.getCollectionCount("Plate", "annotationLinks", ds_ids)
-            
-            for pl in pl_list:
-                pl.child_counter = pl_child_counter.get(pl.id)
-                pl.annotation_counter = pl_annotation_counter.get(pl.id)
-                pl_list_with_counters.append(pl)
-        
-        pr_list_with_counters = self.sortByAttr(pr_list_with_counters, "name")
-        ds_list_with_counters = self.sortByAttr(ds_list_with_counters, "name")
-        sc_list_with_counters = self.sortByAttr(sc_list_with_counters, "name")
-        pl_list_with_counters = self.sortByAttr(pl_list_with_counters, "name")
-        
-        self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters, 'screens': sc_list_with_counters, 'plates': pl_list_with_counters}
-        self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(sc_list_with_counters)+len(pl_list_with_counters)
 
     def listDatasetsInProject(self, pid, page, eid=None):
         if eid is not None:

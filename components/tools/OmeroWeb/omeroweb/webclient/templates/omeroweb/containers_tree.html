@@ -5,7 +5,7 @@
 
 {% if manager.c_size %}
 <ul class="simpleTree">
-    <li class="root" id='0'><span>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.omeName }}{% endif %}@{{ nav.blitz }}</span>
+    <li class="root" id='0'><span>{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ eContext.user.getFullName }}{% endif %}</span>
         <ul>
             {% for c in manager.containers.projects %}
             <li id='pr-{{ c.id }}'><span>{{ c.shortName }}</span> {% if c.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}
@@ -67,8 +67,8 @@
         </ul>
     </li>
 </ul>
-
-
 {% else %}
     {% trans "No data." %}
 {% endif %}
+
+

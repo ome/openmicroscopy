@@ -103,8 +103,7 @@ function fromBasket (productType, productId) {
 }
 
 
-function manyUnlink() { 
-    var parent = $("#unlink").attr('value');
+function manyUnlink(parent) { 
     if (!isCheckedById("dataset") && !isCheckedById("image") && !isCheckedById("plate")) {
         alert ("Please select at least one object"); 
     } else { 
@@ -236,8 +235,13 @@ function cleanClipboard (productType, productId) {
 
 function changeView(view) { 
     var rel = $("div#content_details").attr('rel');
-    $("div#content_details").html('<p>Loading data... please wait <img src="/webclient/static/images/tree/spinner.gif"/></p>');
-    $("div#content_details").load('/webclient/load_data/dataset/'+rel+'/?view='+view);
+    if(rel=='orphaned') {
+        $("div#content_details").html('<p>Loading data... please wait <img src="/webclient/static/images/tree/spinner.gif"/></p>');
+        $("div#content_details").load('/webclient/load_data/orphaned/?view='+view);
+    } else {
+        $("div#content_details").html('<p>Loading data... please wait <img src="/webclient/static/images/tree/spinner.gif"/></p>');
+        $("div#content_details").load('/webclient/load_data/dataset/'+rel+'/?view='+view);
+    }
     return false;
 };
 

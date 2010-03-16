@@ -176,15 +176,19 @@ class UploadFileForm(forms.Form):
         if self.cleaned_data['annotation_file'] is None:
             raise forms.ValidationError('This field is required.')
 
-class MyUserForm(forms.Form):
+class UsersForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
-        super(MyUserForm, self).__init__(*args, **kwargs)
+        super(UsersForm, self).__init__(*args, **kwargs)
+        try:
+            empty_label = kwargs['initial']['empty_label']
+        except:
+            empty_label='*Mydata'
         try:
             if kwargs['initial']['user']: pass
-            self.fields['experimenter'] = ExperimenterModelChoiceField(queryset=kwargs['initial']['users'], initial=kwargs['initial']['user'], empty_label="Entire group", widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="load_template", args=["userdata"])+'?experimenter=\'+this.options[this.selectedIndex].value'}), required=False)
+            self.fields['experimenter'] = ExperimenterModelChoiceField(queryset=kwargs['initial']['users'], initial=kwargs['initial']['user'], widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="load_template", args=["userdata"])+'?experimenter=\'+this.options[this.selectedIndex].value'}), required=False, empty_label=empty_label)
         except:
-            self.fields['experimenter'] = ExperimenterModelChoiceField(queryset=kwargs['initial']['users'], empty_label="Entire group", widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="load_template", args=["userdata"])+'?experimenter=\'+this.options[this.selectedIndex].value'}), required=False)
+            self.fields['experimenter'] = ExperimenterModelChoiceField(queryset=kwargs['initial']['users'], widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="load_template", args=["userdata"])+'?experimenter=\'+this.options[this.selectedIndex].value'}), required=False, empty_label=empty_label)
         self.fields.keyOrder = ['experimenter']
 
 class ActiveGroupForm(forms.Form):
