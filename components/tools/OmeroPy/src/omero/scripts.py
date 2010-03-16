@@ -186,16 +186,31 @@ def error_msg(category, value, *args):
     s = "\t%s ---   %s\n" % (c, value)
     return s % args
 
-def compare_proto(proto, input):
-    errors = ""
+def compare_proto(proto, input, cache=None):
+
+    if cache is None:
+        cache = {}
+
+    if id(proto) in cache and id(input) in cache:
+        return "" # Prevent StackOverflow
+    else:
+        cache[id(proto)] = True
+        cache[id(input)] = True
+
     itype = input is None and None or input.__class__
     ptype = proto is None and None or proto.__class__
+
     if not isinstance(input, ptype):
-        errors += error_msg("Wrong type", "%s != %s", itype, ptype)
-    if isinstance(proto, omero.RMap):
-        errors += compare_proto(proto.values()[0], input.values()[0])
-    if isinstance(proto, omero.RCollection):
-        errors += compare_proto(proto[0], input[0])
+        return error_msg("Wrong type", "%s != %s", itype, ptype)
+
+    # Now recurse if a collection type
+    errors = ""
+    if isinstance(proto, omero.RMap) and len(proto.val) > 0:
+        for x in input.val.values():
+            errors += compare_proto(proto.val.values()[0], x, cache)
+    elif isinstance(proto, omero.RCollection) and len(proto.val) > 0:
+        for x in input.val:
+            errors += compare_proto(proto.val[0], x, cache)
     return errors
 
 def expand(input):

@@ -1,0 +1,110 @@
+#!/usr/bin/env python
+
+"""
+   Test of the omero.scripts comparison functionality
+
+   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+   Use is subject to license terms supplied in LICENSE.txt
+
+"""
+
+from path import path
+
+import sys
+import unittest
+
+import omero
+import omero_Scripts_ice
+from omero.scripts import *
+from omero.rtypes import *
+
+class TestPrototypes(unittest.TestCase):
+
+    # Nested lists
+
+    def testRListRInt(self):
+        params = omero.grid.JobParams()
+        param = omero.grid.Param()
+        param.name = "a"
+        param.prototype = rlist(rint(0))
+        params.inputs = {"a":param}
+
+        input = rlist(rint(1))
+        inputs = {"a":input}
+        self.assertEquals("", validate_inputs(params, inputs))
+
+    def testRListRList(self):
+        params = omero.grid.JobParams()
+        param = omero.grid.Param()
+        param.name = "a"
+        param.prototype = rlist(rlist())
+        params.inputs = {"a":param}
+
+        input = rlist(rlist(rint(1), rstring("a")))
+        inputs = {"a":input}
+        self.assertEquals("", validate_inputs(params, inputs))
+
+    def testRListRListRString(self):
+        params = omero.grid.JobParams()
+        param = omero.grid.Param()
+        param.name = "a"
+        param.prototype = rlist(rlist(rstring("")))
+        params.inputs = {"a":param}
+
+        input = rlist(rlist(rstring("a")))
+        inputs = {"a":input}
+        self.assertEquals("", validate_inputs(params, inputs))
+
+        input.val[0].val.insert(0, rint(1))
+        self.assertFalse( "" == validate_inputs(params, inputs) )
+
+    # Nested maps
+
+    def testRMapRInt(self):
+        params = omero.grid.JobParams()
+        param = omero.grid.Param()
+        param.name = "a"
+        param.prototype = rmap({"b":rint(0)})
+        params.inputs = {"a":param}
+
+        input = rmap({"b":rint(1)})
+        inputs = {"a":input}
+        self.assertEquals("", validate_inputs(params, inputs))
+
+    def testRMapRMap(self):
+        params = omero.grid.JobParams()
+        param = omero.grid.Param()
+        param.name = "a"
+        param.prototype = rmap({"b":rmap({})})
+        params.inputs = {"a":param}
+
+        input = rmap({"b":rmap({"l":rlong(0)})})
+        inputs = {"a":input}
+        self.assertEquals("", validate_inputs(params, inputs))
+
+    def testRMapRMapRInt(self):
+        params = omero.grid.JobParams()
+        param = omero.grid.Param()
+        param.name = "a"
+        param.prototype = rmap({"b":rmap({"c":rint(0)})})
+        params.inputs = {"a":param}
+
+        input = rmap({"b":rmap({"c":rint(1)})})
+        inputs = {"a":input}
+        self.assertEquals("", validate_inputs(params, inputs))
+
+    # Other
+
+    def testAllParametersChecked(self):
+        params = omero.grid.JobParams()
+        param = omero.grid.Param()
+        param.name = "a"
+        param.prototype = rlist(rstring(""))
+        params.inputs = {"a":param}
+
+        input = rlist(rstring("foo"), rint(1))
+        inputs = {"a":input}
+        self.assertFalse("" == validate_inputs(params, inputs))
+
+if __name__ == '__main__':
+    unittest.main()
