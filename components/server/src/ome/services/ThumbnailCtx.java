@@ -192,7 +192,8 @@ public class ThumbnailCtx
         // them if possible.
         Set<Long> pixelsIdsWithoutSettings = 
             getPixelsIdsWithoutSettings(pixelsIds);
-        if (securitySystem.isGraphCritical())
+        if (pixelsIdsWithoutSettings.size() > 0
+            && securitySystem.isGraphCritical())
         {
             settingsList = 
                 bulkLoadOwnerRenderingSettings(pixelsIdsWithoutSettings);
