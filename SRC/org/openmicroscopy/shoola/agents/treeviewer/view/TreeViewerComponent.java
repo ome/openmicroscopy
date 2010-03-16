@@ -1665,6 +1665,12 @@ class TreeViewerComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		if (object == null) return;
+		Browser browser = null;
+		if (object instanceof DatasetData || object instanceof ProjectData) 
+			browser = model.getBrowser(Browser.PROJECT_EXPLORER);
+		else if (object instanceof ScreenData) 
+			browser = model.getBrowser(Browser.SCREENS_EXPLORER);
+		if (browser != null) browser.expandUser();
 		model.fireDataObjectCreation(object, withParent);
 		fireStateChange();
 	}

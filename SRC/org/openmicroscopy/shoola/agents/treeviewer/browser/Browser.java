@@ -746,5 +746,8 @@ public interface Browser
 	 * @return See above.
 	 */
 	boolean isUserOwner(Object ho);
+
+	/** Expands the node corresponding to the user currently logged in. */
+	void expandUser();
 	
 }

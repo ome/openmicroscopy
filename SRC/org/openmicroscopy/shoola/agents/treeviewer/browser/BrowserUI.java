@@ -958,7 +958,7 @@ class BrowserUI
 		}
 		setExpandedParent(expNode, true);
 	}
-	
+    
     /**
      * Creates a new instance.
      * The {@link #initialize(BrowserControl, BrowserModel) initialize} method
@@ -1397,7 +1397,7 @@ class BrowserUI
 		expNode.removeAllChildren();
 		expNode.removeAllChildrenDisplay();
 		expNode.setChildrenLoaded(Boolean.TRUE);
-		expNode.setExpanded(true);
+		//expNode.setExpanded(true);
         dtm.reload();
         if (nodes.size() != 0) {
             Iterator i = nodes.iterator();
@@ -1410,6 +1410,14 @@ class BrowserUI
         Iterator j = nodesToReset.iterator();
         while (j.hasNext()) 
 			setExpandedParent((TreeImageDisplay) j.next(), true);
+        TreeImageDisplay root = getTreeRoot();
+		TreeImageDisplay element;
+		for (int i = 0; i < root.getChildCount(); i++) {
+			element = (TreeImageDisplay) root.getChildAt(i);
+			if (element.getUserObject() instanceof ExperimenterData) {
+				if (element.isExpanded()) expandNode(element);
+			}
+		}
 	}
 
 	/**
@@ -1578,11 +1586,12 @@ class BrowserUI
 	 */
 	void addExperimenter(ExperimenterData experimenter, boolean load)
 	{
+		
 		TreeImageSet node = createExperimenterNode(experimenter);
 		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
 		dtm.reload();
 		if (load)
-			treeDisplay.expandPath(new TreePath(node.getPath()));
+			treeDisplay.expandPath(new TreePath(node.getPath()));	
 	}
 
 	/**
@@ -1738,6 +1747,27 @@ class BrowserUI
 		tm.reload(node);
 	}
 	
+	/** Expands the node corresponding to the user currently logged in. */
+	void expandUser()
+	{
+		TreeImageDisplay root = getTreeRoot();
+		TreeImageDisplay element;
+		Object ho;
+		ExperimenterData exp;
+		long id = model.getUserID();
+		for (int i = 0; i < root.getChildCount(); i++) {
+			element = (TreeImageDisplay) root.getChildAt(i);
+			ho = element.getUserObject();
+			if (ho instanceof ExperimenterData) {
+				exp = (ExperimenterData) ho;
+				if (exp.getId() == id && !element.isExpanded()) {
+					expandNode(element);
+					break;
+				}
+			}
+		}
+	}
+	
     /**
      * Expands the specified node. To avoid loop, we first need to 
      * remove the <code>TreeExpansionListener</code>.
@@ -1752,4 +1782,5 @@ class BrowserUI
         treeDisplay.expandPath(new TreePath(node.getPath()));
         treeDisplay.addTreeExpansionListener(listener);
     }
+	
 }

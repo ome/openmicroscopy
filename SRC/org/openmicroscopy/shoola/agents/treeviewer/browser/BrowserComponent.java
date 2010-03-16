@@ -1183,6 +1183,14 @@ class BrowserComponent
 				view.setExperimenterData(convertedNodes, expNode);
 			}
 		}
+		//expand the nodes.
+		i = nodes.keySet().iterator();
+		while (i.hasNext()) {
+			userId = (Long) i.next();
+			node = nodes.get(userId);
+			expNode = node.getExperimenterNode();
+			//if (expNode.isExpanded()) view.expandNode(expNode);
+		}
 		model.setSelectedDisplay(null, true);
 		model.setState(READY);
 		countItems(null);
@@ -1619,4 +1627,15 @@ class BrowserComponent
 	{
 		return model.getParentModel().isUserOwner(ho);
 	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see Browser#expandUser()
+	 */
+	public void expandUser()
+	{
+		if (model.getState() == DISCARDED) return;
+		view.expandUser();
+	}
+	
 }

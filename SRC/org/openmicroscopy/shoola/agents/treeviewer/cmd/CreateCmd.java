@@ -161,13 +161,6 @@ public class CreateCmd
         if (browser == null) return;
         if (userObject == null) return; //shouldn't happen.
         if (userObject instanceof ImageData) {
-        	/*
-        	Object object = browser.getLastSelectedDisplay().getUserObject();
-        	if (object instanceof DatasetData) {
-        		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-            	bus.post(new LoadFSImporter((DatasetData) object));
-        	}
-        	*/
         	if (chooser) model.showImporter();
         	else model.importFiles(null);
         } else {
