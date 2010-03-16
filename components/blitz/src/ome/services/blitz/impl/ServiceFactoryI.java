@@ -123,6 +123,7 @@ import omero.constants.THUMBNAILSTORE;
 import omero.constants.TIMELINESERVICE;
 import omero.constants.TYPESSERVICE;
 import omero.constants.UPDATESERVICE;
+import omero.constants.topics.HEARTBEAT;
 import omero.grid.InteractiveProcessorI;
 import omero.grid.SharedResourcesPrx;
 import omero.grid.SharedResourcesPrxHelper;
@@ -519,10 +520,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         log.info("Registered " + prx + " for " + topicName);
     }
 
-    public void setCallback(ClientCallbackPrx callback, Ice.Current current) {
+    public void setCallback(ClientCallbackPrx callback, Ice.Current current) throws ServerError {
         this.callback = callback;
         log.info(Ice.Util.identityToString(this.sessionId())
                 + " set callback to " + this.callback);
+        subscribe(HEARTBEAT.value, callback, current);
     }
 
     public void detachOnDestroy(Ice.Current current) {

@@ -129,8 +129,14 @@ def internal_service_factory(communicator, user="root", group=None, retries=6, i
     query = communicator.stringToProxy("IceGrid/Query")
     query = IceGrid.QueryPrx.checkedCast(query)
 
-    if client_uuid is None:
-        client_uuid = str(uuid.uuid4())
+    import omero_Constants_ice
+    implicit_ctx = communicator.getImplicitContext()
+    if client_uuid is not None:
+        implicit_ctx.put(omero.constants.CLIENTUUID, client_uuid)
+    else:
+        if not implicit_ctx.containsKey(omero.constants.CLIENTUUID):
+            client_uuid = str(uuid.uuid4())
+            implicit_ctx.put(omero.constants.CLIENTUUID, client_uuid)
 
     while tryCount < retries:
         if stop_event.isSet(): # Something is shutting down, exit.
@@ -138,7 +144,7 @@ def internal_service_factory(communicator, user="root", group=None, retries=6, i
         try:
             blitz = query.findAllObjectsByType("::Glacier2::SessionManager")[0]
             blitz = Glacier2.SessionManagerPrx.checkedCast(blitz)
-            sf = blitz.create(user, None, {"omero.client.uuid":client_uuid})
+            sf = blitz.create(user, None)
             # Group currently unused.
             return omero.api.ServiceFactoryPrx.checkedCast(sf)
         except Exception, e:

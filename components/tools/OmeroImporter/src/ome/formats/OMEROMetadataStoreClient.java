@@ -376,10 +376,14 @@ public class OMEROMetadataStoreClient
      */
     public void ping()
     {
-        serviceFactory.keepAllAlive(new ServiceInterfacePrx[] 
-                {iQuery, iAdmin, rawFileStore, rawPixelStore, thumbnailStore,
-        		 iRepoInfo, iContainer, iUpdate, iSettings, delegate});
-        log.debug("KeepAlive ping");
+        try {
+            serviceFactory.keepAllAlive(new ServiceInterfacePrx[]
+                    {iQuery, iAdmin, rawFileStore, rawPixelStore, thumbnailStore,
+			 iRepoInfo, iContainer, iUpdate, iSettings, delegate});
+            log.debug("KeepAlive ping");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
     
     /**

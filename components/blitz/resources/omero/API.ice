@@ -20,6 +20,7 @@
 #include <omero/System.ice>
 #include <Glacier2/Session.ice>
 #include <Ice/BuiltinSequences.ice>
+#include <Ice/Identity.ice>
 
 
 module omero {
@@ -993,6 +994,7 @@ module omero {
 	     * running method invocations will recieve a CancelledException.
 	     **/
 	    void shutdownIn(long milliseconds);
+
 	};
 
 
@@ -1129,12 +1131,12 @@ module omero {
 	     * See the client object's documentation in each language
 	     * mapping for ways to use the callback.
 	     **/
-	    void setCallback(ClientCallback* callback);
+	    void setCallback(ClientCallback* callback) throws ServerError;
 
 	    /**
 	     * Deprecated misnomer.
 	     **/
-	    ["deprecated:close() is deprecated. use closeOnDestroy() instead."] void close();
+	    ["deprecated:close() is deprecated. use closeOnDestroy() instead."] void close() throws ServerError;
 
 	    /**
 	     * Marks the session for closure rather than detachment, which will
@@ -1145,7 +1147,7 @@ module omero {
 	     * resources are removed from the server and can safely be set once
 	     * it is clear that a client is finished with those resources.
 	     **/
-	    void closeOnDestroy();
+	    void closeOnDestroy() throws ServerError;
 
 	    /**
 	     * Marks the session for detachment rather than closure, which will
@@ -1156,7 +1158,7 @@ module omero {
 	     * at a slight security cost since the session will persist longer
 	     * and can be used by others if the UUID is intercepted.
 	     **/
-	    void detachOnDestroy();
+	    void detachOnDestroy() throws ServerError;
 
 	    // Session management
 
@@ -1165,7 +1167,7 @@ module omero {
 	     * _not_ keep services alive, and in fact checks for all expired services
 	     * and removes them.
 	     **/
-	    StringSet activeServices();
+	    StringSet activeServices() throws ServerError;
 
 	    /**
 	     * Requests that the given services be marked as alive. It is
@@ -1179,7 +1181,7 @@ module omero {
 	     * Except for fatal server or session errors, this method should never
 	     * throw an exception.
 	     **/
-	    long keepAllAlive(ServiceList proxies);
+	    long keepAllAlive(ServiceList proxies) throws ServerError;
 
 	    /**
 	     * Returns true if the given service is alive.
@@ -1187,7 +1189,7 @@ module omero {
 	     * Except for fatal server or session errors, this method should never
 	     * throw an exception.
 	     **/
-	    bool keepAlive(ServiceInterface* proxy);
+	    bool keepAlive(ServiceInterface* proxy) throws ServerError;
 
 	};
 

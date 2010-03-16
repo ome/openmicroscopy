@@ -145,7 +145,7 @@ module omero {
    * @see RCollection
    * @see RTypeDict
    */
-  ["java:type:java.util.ArrayList<RType>:java.util.List<RType>"]
+  ["java:type:java.util.ArrayList<omero.RType>:java.util.List<omero.RType>"]
   sequence<RType> RTypeSeq;
 
   /**
@@ -201,7 +201,7 @@ module omero {
    * will be turned into an empty map. If nullability is
    * required, see the [RMap] type.
    **/
-  ["java:type:java.util.HashMap<String,RType>"]
+  ["java:type:java.util.HashMap<String,omero.RType>"]
   dictionary<string,omero::RType> RTypeDict;
 
   /**

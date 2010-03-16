@@ -30,6 +30,7 @@ import omero.WrappedCreateSessionException;
 import omero.api.ClientCallbackPrxHelper;
 import omero.constants.EVENT;
 import omero.constants.GROUP;
+import omero.constants.topics.HEARTBEAT;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -299,7 +300,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
     public void requestHeartBeats() {
         log.info("Performing requestHeartbeats");
         this.context.publishEvent(new TopicManager.TopicMessage(this,
-                "/public/HeartBeat", new ClientCallbackPrxHelper(),
+                HEARTBEAT.value, new ClientCallbackPrxHelper(),
                 "requestHeartbeat"));
     }
 

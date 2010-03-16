@@ -535,6 +535,8 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
             try:
                 m = getattr(cb, method)
                 m(arg)
+            except Ice.LocalException, e:
+                self.logger.debug("LocalException calling callback %s on pid=%s (%s)" % (key, self.pid, self.uuid), exc_info = False)
             except:
                 self.logger.error("Error calling callback %s on pid=%s (%s)" % (key, self.pid, self.uuid), exc_info = True)
 
@@ -608,9 +610,15 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         else:
             return self.ctx.getSession()
 
-    def lookup(self, job):
+    def get_ctx(self, group = None):
+        ctx = self.ctx.communicator.getImplicitContext().getContext()
+        ctx = dict(ctx)
+        if group != None:
+            ctx["omero.group"] = str(group)
+        return ctx
 
-        ctx = {"omero.group": str(job.details.group.id.val)}
+    def lookup(self, job):
+        ctx = self.get_ctx(str(job.details.group.id.val))
         sf = self.internal_session()
         handle = sf.createJobHandle()
         handle.attach(job.id.val, ctx)
@@ -636,13 +644,15 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
              and o.format.value = 'text/x-python'
              """ % (job.id.val, accepts), None, ctx)
 
-        return file
+        return file, handle
 
     @remoted
     def willAccept(self, userContext, groupContext, scriptContext, cb, current = None):
 
         try:
-            valid = (self.lookup(scriptContext) is not None)
+            file, handle = self.lookup(scriptContext)
+            handle.close()
+            valid = (file is not None)
         except:
             self.logger.error("File lookup failed: %s, %s, %s",\
                 userContext, groupContext, scriptContext, exc_info=1)
@@ -706,9 +716,10 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         if not session or not job or not job.id:
             raise omero.ApiUsageException("No null arguments")
 
-        file = self.lookup(job)
+        file, handle = self.lookup(job)
 
         if not file:
+            handle.close()
             raise omero.ApiUsageException(\
                 None, None, "Job should have one executable file attached.")
 

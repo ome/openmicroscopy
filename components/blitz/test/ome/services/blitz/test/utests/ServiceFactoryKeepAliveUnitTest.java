@@ -68,14 +68,14 @@ public class ServiceFactoryKeepAliveUnitTest extends MockObjectTestCase {
     }
 
     @Test
-    void testKeepAliveReturnsAllOnesOnNull() {
+    void testKeepAliveReturnsAllOnesOnNull() throws Exception {
         managerMock.expects(atLeastOnce()).method("getEventContext");
         assertTrue(-1 == sf.keepAllAlive(null, null));
         assertTrue(-1 == sf.keepAllAlive(new ServiceInterfacePrx[] {}));
     }
 
     @Test
-    void testKeepAliveReturnsNonNullIfMissing() {
+    void testKeepAliveReturnsNonNullIfMissing() throws Exception {
         map.remove(Ice.Util.identityToString(id));
         managerMock.expects(atLeastOnce()).method("getEventContext");
         cacheMock.expects(once()).method("get").will(returnValue(null));
@@ -86,7 +86,7 @@ public class ServiceFactoryKeepAliveUnitTest extends MockObjectTestCase {
     }
 
     @Test
-    void testIsAliveReturnsFalseIfMissing() {
+    void testIsAliveReturnsFalseIfMissing() throws Exception {
         map.remove(Ice.Util.identityToString(id));
         managerMock.expects(atLeastOnce()).method("getEventContext");
         cacheMock.expects(once()).method("get").will(returnValue(null));
@@ -96,7 +96,7 @@ public class ServiceFactoryKeepAliveUnitTest extends MockObjectTestCase {
     }
 
     @Test
-    void testKeepAliveReturnsZeroIfPresent() {
+    void testKeepAliveReturnsZeroIfPresent() throws Exception {
         map.put(Ice.Util.identityToString(id), new _IQueryTie());
         managerMock.expects(atLeastOnce()).method("getEventContext");
         proxyMock.expects(once()).method("ice_getIdentity").will(
@@ -106,7 +106,7 @@ public class ServiceFactoryKeepAliveUnitTest extends MockObjectTestCase {
     }
 
     @Test
-    void testIsAliveReturnsTrueIfPresent() {
+    void testIsAliveReturnsTrueIfPresent() throws Exception {
         map.put(Ice.Util.identityToString(id), new _IQueryTie());
         managerMock.expects(atLeastOnce()).method("getEventContext");
         cacheMock.expects(once()).method("get").will(returnValue(elt));

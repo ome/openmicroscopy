@@ -43,6 +43,7 @@
     </properties>
 
     <properties id="PythonServer">
+      <property name="Ice.ImplicitContext" value="Shared"/>
       <!-- Default logging settings for Python servers. -->
       <property name="omero.logging.timedlog" value="False"/>
       <property name="omero.logging.logsize" value="5000000"/>
@@ -108,9 +109,9 @@
       <server id="Blitz-${index}" exe="java" activation="always" pwd="${OMERO_HOME}">
         <!--
         Debugging options:
+        -->
         <option>-Xdebug</option>
         <option>-Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=n</option>
-        -->
         <option>-Xmx512M</option>
         <option>-Djava.awt.headless=true</option>
         <option>-Dlog4j.configuration=${OMERO_ETC}log4j.xml</option>

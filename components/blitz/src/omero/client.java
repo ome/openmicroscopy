@@ -9,12 +9,15 @@ package omero;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 
 import omero.api.ClientCallback;
 import omero.api.ClientCallbackPrxHelper;
@@ -32,6 +35,7 @@ import omero.util.Resources.Entry;
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
 import Ice.Current;
+import Ice.Identity;
 
 /**
  * Central client-side blitz entry point. This class uses solely Ice
@@ -356,6 +360,14 @@ public class client {
         return ic;
     }
 
+    public Ice.ObjectAdapter getAdapter() {
+        Ice.ObjectAdapter oa = __oa;
+        if (oa == null) {
+            throw new ClientError("No ObjectAdapter; call createSession()");
+        }
+        return oa;
+    }
+
     /**
      * Returns the current active session or throws an exception if none has
      * been {@link #createSession(String, String) created} since the last
@@ -521,7 +533,6 @@ public class client {
         Ice.Identity id = __ic.stringToIdentity("ClientCallback/" + __uuid);
         Ice.ObjectPrx raw = __oa.createProxy(id);
         __sf.setCallback(ClientCallbackPrxHelper.uncheckedCast(raw));
-        // __sf.subscribe("/public/HeartBeat", raw);
         return this.__sf;
 
     }

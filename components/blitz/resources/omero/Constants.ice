@@ -158,6 +158,7 @@ module omero {
 
     module topics {
         const string PROCESSORACCEPTS = "/internal/ProcessorAccept";
+        const string HEARTBEAT = "/public/HeartBeat";
     };
   };
 };
