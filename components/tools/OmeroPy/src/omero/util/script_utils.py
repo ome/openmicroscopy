@@ -208,6 +208,36 @@ def uploadFile(rawFileStore, originalFile, filePath=None):
         rawFileStore.write(block, cnt, blockSize);
         cnt = cnt+blockSize;
     fileHandle.close();
+
+
+def downloadFile(rawFileStore, originalFile, filePath=None):
+    """
+    Downloads an OriginalFile from the server.
+    
+    @param rawFileStore:    The Omero rawFileStore
+    @param originalFile:    The OriginalFileI
+    @param filePath:    Where to download the file. If None, use originalFile.getName().getValue()
+    """
+    fileId = originalFile.getId().getValue()
+    rawFileStore.setFileId(fileId)
+    fileSize = originalFile.getSize().getValue()
+    maxBlockSize = 10000
+    cnt = 0
+    if filePath == None:
+        filePath = originalFile.getName().getValue()
+    if os.path.exists(filePath):	# don't overwrite
+        filePath = "%s_%s" % (filePath, fileId)
+    fileHandle = open(filePath, 'w')
+    data = '';
+    cnt = 0;
+    fileSize = originalFile.getSize().getValue()
+    while(cnt<fileSize):
+        blockSize = min(maxBlockSize, fileSize)
+        block = rawFileStore.read(cnt, blockSize)
+        cnt = cnt+blockSize
+        fileHandle.write(block)
+    fileHandle.close()
+    return filePath
     
     
 def attachFileToParent(updateService, parent, originalFile, description=None, namespace=None):
@@ -643,3 +673,58 @@ def parseInputs(client, session, processFn=IdentityFn):
     for key in inputKeys:
         commandArgs[key]=client.getInput(key).getValue();
     return processFn(commandArgs);  
+
+
+class sessionWrapper():
+    """
+    This is a VERY simple wrapper to try and avoid the problem of passing multiple services in method calls.
+    Simply create a sessionWrapper(session) at the start of a script. Then call the getService methods 
+    within the methods that need these services. 
+    Time will tell if a more elaborate session wrapper is needed. Maybe something more like a 
+    script-util wrapper. 
+    """
+
+    def __init__(self, session):
+        self.session = session
+        self.gateway = None
+        self.queryService = None
+        self.pixelsService = None
+        self.rawPixelStore = None
+        self.renderingEngine = None
+        self.updateService = None
+        self.rawFileStore = None
+        
+    def createGateway(self):
+        if self.gateway == None:
+            self.gateway = self.session.createGateway()
+        return self.gateway
+            
+    def getQueryService(self):
+        if self.queryService == None:
+            self.queryService = self.session.getQueryService()
+        return self.queryService
+    
+    def getPixelsService(self):
+        if self.pixelsService == None:
+            self.pixelsService = self.session.getPixelsService()
+        return self.pixelsService
+            
+    def createRawPixelsStore(self):
+        if self.rawPixelStore == None:
+            self.rawPixelStore = self.session.createRawPixelsStore()
+        return self.rawPixelStore
+        
+    def createRenderingEngine(self):
+        if self.renderingEngine == None:
+            self.renderingEngine = self.session.createRenderingEngine()
+        return self.renderingEngine
+    
+    def getUpdateService(self):
+        if self.updateService == None:
+            self.updateService = self.session.getUpdateService()
+        return self.updateService
+        
+    def createRawFileStore(self):
+        if self.rawFileStore == None:
+            self.rawFileStore = self.session.createRawFileStore()
+        return self.rawFileStore
