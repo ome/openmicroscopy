@@ -440,6 +440,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         orig.setOmeName(experimenter.getOmeName());
         orig.setEmail(experimenter.getEmail());
         orig.setFirstName(experimenter.getFirstName());
+        orig.setMiddleName(experimenter.getMiddleName());
         orig.setLastName(experimenter.getLastName());
         orig.setInstitution(experimenter.getInstitution());
         reallySafeSave(orig);
