@@ -1157,13 +1157,6 @@ class BrowserComponent
 	public void setRefreshExperimenterData(
 					Map<Long, RefreshExperimenterDef> nodes)
 	{
-		/*
-		if (model.getState() != LOADING_DATA)
-			throw new IllegalStateException("This method cannot be invoked "+
-			"in the LOADING_DATA state.");
-		if (nodes == null || nodes.size() == 0)
-			throw new IllegalArgumentException("Experimenter cannot be null.");
-			*/
 		if (nodes == null || nodes.size() == 0) return;
 		Iterator i = nodes.keySet().iterator();
 		RefreshExperimenterDef node;
@@ -1618,4 +1611,12 @@ class BrowserComponent
 		return model.getUserGroupID();
 	}
 	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see Browser#isObjectWritable(Object)
+	 */
+	public boolean isUserOwner(Object ho)
+	{
+		return model.getParentModel().isUserOwner(ho);
+	}
 }

@@ -37,10 +37,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.CreateCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.DatasetData;
-import pojos.ImageData;
-import pojos.ProjectData;
 
 /** 
  * Action to import the images.
@@ -102,13 +99,12 @@ public class ImportAction
         }
         Browser browser = model.getSelectedBrowser();
         if (browser == null) {
-        	setEnabled(true);
+        	setEnabled(false);
             return;
         } 
         Object ho = selectedDisplay.getUserObject(); 
-        
         if (ho instanceof DatasetData) {
-        	setEnabled(model.isObjectWritable(ho));
+        	setEnabled(model.isUserOwner(ho));
         } else setEnabled(true);
     }
     

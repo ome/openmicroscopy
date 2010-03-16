@@ -87,9 +87,7 @@ public class BrowserImportAction
         if ((ho instanceof DatasetData) || (ho instanceof ScreenData)) {
         	TreeImageDisplay[] selected = model.getSelectedDisplays();
         	if (selected.length > 1) setEnabled(false);
-        	else {
-        		setEnabled(model.isObjectWritable(ho));
-        	}
+        	else setEnabled(model.isUserOwner(ho));
         } else setEnabled(false);
         //setEnabled(false);
     }

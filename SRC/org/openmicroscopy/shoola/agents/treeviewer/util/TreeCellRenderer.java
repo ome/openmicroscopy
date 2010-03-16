@@ -37,6 +37,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.util.browser.SmartFolder;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
@@ -185,6 +186,10 @@ public class TreeCellRenderer
             		else icon = icons.getIcon(IconManager.FILE_TEXT);
         		}
         		
+        	}
+        } else if (node instanceof SmartFolder) {
+        	if (GroupData.class.equals(((SmartFolder) node).getType())) {
+        		icon = icons.getIcon(IconManager.PERSONAL);
         	}
         } else if (node instanceof TreeImageTimeSet)
         	icon = icons.getIcon(IconManager.DATE);

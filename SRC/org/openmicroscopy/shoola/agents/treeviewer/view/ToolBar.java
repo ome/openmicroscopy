@@ -34,6 +34,8 @@ import java.awt.Font;
 import java.awt.Point;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -189,15 +191,15 @@ class ToolBar
         b.addMouseListener((SwitchUserAction) a);
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
-        a = controller.getAction(TreeViewerControl.PERSONAL);
-        b = new JButton(a);
-       
-        //b.setHorizontalTextPosition(SwingConstants.LEFT);
-        //UIUtilities.unifiedButtonLookAndFeel(b);
-        BorderFactory.createCompoundBorder(new EmptyBorder(2, 2, 2, 2), 
-        		BorderFactory.createLineBorder(Color.GRAY));
-        b.addMouseListener((PersonalManagementAction) a);
-        bar.add(b);
+        Set set = TreeViewerAgent.getAvailableUserGroups();
+        if (set != null && set.size() > 0) {
+        	a = controller.getAction(TreeViewerControl.PERSONAL);
+            b = new JButton(a);
+            BorderFactory.createCompoundBorder(new EmptyBorder(2, 2, 2, 2), 
+            		BorderFactory.createLineBorder(Color.GRAY));
+            b.addMouseListener((PersonalManagementAction) a);
+            bar.add(b);
+        }
         return bar;
     }
     

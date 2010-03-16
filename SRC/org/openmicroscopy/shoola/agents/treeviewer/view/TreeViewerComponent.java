@@ -964,7 +964,7 @@ class TreeViewerComponent
 					(data instanceof DatasetData))
 					browser = model.getBrowser(Browser.PROJECT_EXPLORER);
 				 else if (data instanceof ScreenData)
-					browser = model.getBrowser(Browser.PROJECT_EXPLORER);//model.getBrowser(Browser.SCREENS_EXPLORER);
+					browser = model.getBrowser(Browser.SCREENS_EXPLORER);
 				else if (data instanceof TagAnnotationData)
 					browser = model.getBrowser(Browser.TAGS_EXPLORER);
 			}
@@ -1169,6 +1169,19 @@ class TreeViewerComponent
 		return false;
 	}
 
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#isObjectWritable(Object)
+	 */
+	public boolean isUserOwner(Object ho)
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException(
+					"This method cannot be invoked in the DISCARDED state.");
+		//Check if current user can write in object
+		long id = model.getUserDetails().getId();
+		return EditorUtil.isUserOwner(ho, id);
+	}
 	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.

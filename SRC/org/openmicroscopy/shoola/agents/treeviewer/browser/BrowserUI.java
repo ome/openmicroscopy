@@ -68,13 +68,13 @@ import javax.swing.tree.TreeSelectionModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserManageAction;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.PartialNameVisitor;
+import org.openmicroscopy.shoola.agents.util.browser.SmartFolder;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
@@ -773,21 +773,6 @@ class BrowserUI
         tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), node,
                             node.getChildCount());
     }
-    
-    /**
-     * Expands the specified node. To avoid loop, we first need to 
-     * remove the <code>TreeExpansionListener</code>.
-     * 
-     * @param node The node to expand.
-     */
-    private void expandNode(TreeImageDisplay node)
-    {
-        //First remove listener otherwise an event is fired.
-    	node.setExpanded(true);
-        treeDisplay.removeTreeExpansionListener(listener);
-        treeDisplay.expandPath(new TreePath(node.getPath()));
-        treeDisplay.addTreeExpansionListener(listener);
-    }
 
     /**
      * Sorts the children of the passed node.
@@ -887,7 +872,8 @@ class BrowserUI
 				bottom.add(object);
 			} else if (uo instanceof ExperimenterData) {
 				bottom.add(object);
-			}
+			} else if (object instanceof SmartFolder)
+				bottom.add(object);
 		}
 		List<TreeImageDisplay> all = new ArrayList<TreeImageDisplay>();
 		if (top.size() > 0) all.addAll(top);
@@ -1468,9 +1454,15 @@ class BrowserUI
     					}
     				}
     			}
-            }
-            
-        } else buildEmptyNode(root);
+            }  
+        } 
+        if (TreeViewerAgent.isAdministrator()) {
+        	 SmartFolder folder = new SmartFolder(GroupData.class, 
+             "Group without experimenters");
+             buildEmptyNode(folder);
+             root.addChildDisplay(folder);
+             dtm.insertNodeInto(folder, root, root.getChildCount());
+        }
 	}
 	
 	/**
@@ -1746,4 +1738,18 @@ class BrowserUI
 		tm.reload(node);
 	}
 	
+    /**
+     * Expands the specified node. To avoid loop, we first need to 
+     * remove the <code>TreeExpansionListener</code>.
+     * 
+     * @param node The node to expand.
+     */
+    void expandNode(TreeImageDisplay node)
+    {
+        //First remove listener otherwise an event is fired.
+    	node.setExpanded(true);
+        treeDisplay.removeTreeExpansionListener(listener);
+        treeDisplay.expandPath(new TreePath(node.getPath()));
+        treeDisplay.addTreeExpansionListener(listener);
+    }
 }

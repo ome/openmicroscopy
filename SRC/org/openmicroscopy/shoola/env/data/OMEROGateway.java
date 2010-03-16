@@ -121,6 +121,9 @@ import omero.grid.DoubleColumn;
 import omero.grid.ImageColumn;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.LongColumn;
+import omero.grid.ProcessCallbackPrx;
+import omero.grid.ProcessCallbackPrxHelper;
+import omero.grid.ProcessPrx;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.grid.RoiColumn;
@@ -176,6 +179,7 @@ import omero.model.UriAnnotation;
 import omero.model.UriAnnotationI;
 import omero.model.Well;
 import omero.model.WellSample;
+import omero.sys.EventContext;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import pojos.BooleanAnnotationData;
@@ -404,10 +408,17 @@ class OMEROGateway
 	{
 		try {
 			 ScriptJobI job = new ScriptJobI();
-	         job.linkOriginalFile(getOriginalFile(scriptID));
-	         InteractiveProcessorPrx interactiveProcessor = 
+			 OriginalFile of = getOriginalFile(scriptID);
+			 if (of == null) return null;
+	         job.linkOriginalFile(of);
+	         job.setDescription(of.getName());
+	         InteractiveProcessorPrx processor = 
 	        	 getSharedResources().acquireProcessor(job, 100);
-	         interactiveProcessor.execute(omero.rtypes.rmap(parameters));
+	         ProcessPrx prx = processor.execute(omero.rtypes.rmap(parameters));
+	         ProcessCallbackPrx callBack = null;
+	         ProcessCallbackPrxHelper.uncheckedCast(callBack);
+	         prx.registerCallback(callBack);
+	         //processor.getResults(prx);
 		} catch (Exception e) {
 			throw new ScriptingException("Cannot run script with ID:"+scriptID);
 		}
@@ -4456,8 +4467,6 @@ class OMEROGateway
 		if (!connected) return;
 		try {
 			getAdminService().getEventContext();
-			//EventContext ctx = getAdminService().getEventContext();
-			//getSessionService().getSession(ctx.sessionUuid);
 		} catch (Exception e) {
 			Throwable cause = e.getCause();
 			int index = SERVER_OUT_OF_SERVICE;

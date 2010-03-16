@@ -63,7 +63,7 @@ public class BrowserManageAction
 	/** Indicates to show the menu for container. */
 	public static final int		NEW_CONTAINERS = 1;
 	
-	/** Indicates to show the menu for admin tasks. */
+	/** Indicates to show the menu for administrative tasks. */
 	public static final int		NEW_ADMIN = 2;
 	
     /** The description of the action. */

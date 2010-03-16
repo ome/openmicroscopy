@@ -99,25 +99,31 @@ public class BrowserDeleteAction
             setEnabled(false);
             return;
         }
+        TreeImageDisplay[] selected;
+        int count;
+        boolean b;
         Object ho = selectedDisplay.getUserObject(); 
         if ((ho instanceof DatasetData) || (ho instanceof ProjectData) ||
         	(ho instanceof FileAnnotationData) ||
         	(ho instanceof TagAnnotationData) || 
         	(ho instanceof ScreenData) || 
         	(ho instanceof PlateData)) {
-        	TreeImageDisplay[] selected = model.getSelectedDisplays();
-        	if (selected.length > 1) setEnabled(false);
-        	else {
-        		setEnabled(model.isObjectWritable(ho));
-        	}
+        	selected = model.getSelectedDisplays();
+        	count = 0;
+        	b = false;
+    		for (int i = 0; i < selected.length; i++) {
+				b = model.isUserOwner(selected[i].getUserObject());
+				if (b) count++;
+			}
+    		setEnabled(count == selected.length);
         } else if (ho instanceof ExperimenterData) {
         	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) {
         		setEnabled(true);
-        		TreeImageDisplay[] selected = model.getSelectedDisplays();
+        		selected = model.getSelectedDisplays();
         		if (selected != null) {
         			TreeImageDisplay d;
         			ExperimenterData exp;
-        			boolean b = true;
+        			b = true;
         			for (int i = 0; i < selected.length; i++) {
         				d = selected[i];
         				exp = (ExperimenterData) d.getUserObject();
@@ -135,11 +141,14 @@ public class BrowserDeleteAction
         		setEnabled(TreeViewerAgent.isAdministrator());
         	} else setEnabled(false);
         } else if (ho instanceof ImageData) {
-        	TreeImageDisplay[] selected = model.getSelectedDisplays();
-        	if (selected.length > 1) setEnabled(true);
-        	else {
-        		setEnabled(model.isObjectWritable(ho));
-        	}
+        	count = 0;
+        	b = false;
+        	selected = model.getSelectedDisplays();
+    		for (int i = 0; i < selected.length; i++) {
+				b = model.isUserOwner(selected[i].getUserObject());
+				if (b) count++;
+			}
+    		setEnabled(count == selected.length);
         } else setEnabled(false);
     }
     

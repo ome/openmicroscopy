@@ -82,7 +82,8 @@ public class StatusLabel
 	 * Displays the status of an on-going import.
 	 * @see IObserver#update(IObservable, ImportEvent)
 	 */
-	public void update(IObservable observable, ImportEvent event) {
+	public void update(IObservable observable, ImportEvent event)
+	{
 		if (event == null) return;
 		if (event instanceof ImportEvent.LOADING_IMAGE) {
 			setText("prepping");

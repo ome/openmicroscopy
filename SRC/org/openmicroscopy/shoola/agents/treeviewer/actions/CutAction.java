@@ -97,23 +97,42 @@ public class CutAction
             setEnabled(false);
             return;
         }
+        Browser browser = model.getSelectedBrowser();
+        if (browser == null) {
+        	setEnabled(false);
+            return;
+        }
+        TreeImageDisplay[] selected;
+        int count;
+        boolean b;
         Object ho = selectedDisplay.getUserObject(); 
         if ((ho instanceof DatasetData) ||(ho instanceof ImageData) || 
-             (ho instanceof PlateData))
-            setEnabled(model.isObjectWritable(ho));
-        else if (ho instanceof ExperimenterData) {
-        	Browser browser = model.getSelectedBrowser();
-			if (browser == null) setEnabled(false);
-			else {
-				if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
-					setEnabled(true);
-				} else setEnabled(false);
+             (ho instanceof PlateData)) {
+        	selected = browser.getSelectedDisplays();
+        	count = 0;
+        	b = false;
+    		for (int i = 0; i < selected.length; i++) {
+				b = model.isUserOwner(selected[i].getUserObject());
+				if (b) count++;
 			}
+    		setEnabled(count == selected.length);
+        } else if (ho instanceof ExperimenterData) {
+        	setEnabled(browser.getBrowserType() == Browser.ADMIN_EXPLORER);
         } else if (ho instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) ho;
 			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
 				setEnabled(false);
-			else setEnabled(model.isObjectWritable(ho));
+			else {
+				selected = browser.getSelectedDisplays();
+	        	count = 0;
+	        	b = false;
+	    		for (int i = 0; i < selected.length; i++) {
+					b = model.isUserOwner(selected[i].getUserObject());
+					if (b) count++;
+				}
+	    		setEnabled(count == selected.length);
+				//setEnabled(model.isUserOwner(ho));
+			}
 		} else setEnabled(false);
     }
     

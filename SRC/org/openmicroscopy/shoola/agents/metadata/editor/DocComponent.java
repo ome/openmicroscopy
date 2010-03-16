@@ -300,8 +300,8 @@ class DocComponent
 		}
 	}
 	
-	/** Initializes the {@link #unlinkButton}. */
-	private void initButton()
+	/** Initializes the various buttons. */
+	private void initButtons()
 	{
 		IconManager icons = IconManager.getInstance();
 		unlinkButton = new JButton(icons.getIcon(IconManager.MINUS_12));
@@ -377,7 +377,7 @@ class DocComponent
 	private void initComponents()
 	{
 		imageToLoad = -1;
-		if (model.isUserOwner(data)) initButton();
+		if (model.isUserOwner(data)) initButtons();
 		label = new JLabel();
 		label.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 		if (data == null) {
@@ -402,7 +402,7 @@ class DocComponent
 						break;
 					}
 				}
-				initButton();
+				initButtons();
 				if (id < 0)
 					label.setForeground(
 						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
@@ -418,7 +418,7 @@ class DocComponent
 						*/
 				}
 			} else if (data instanceof File) {
-				initButton();
+				initButtons();
 				File f = (File) data;
 				label.setText(f.getName());
 				label.setForeground(Color.BLUE);
@@ -426,7 +426,7 @@ class DocComponent
 				TagAnnotationData tag = (TagAnnotationData) data;
 				label.setToolTipText(formatTootTip(tag));
 				label.setText(tag.getTagValue());
-				initButton();
+				initButtons();
 				if (tag.getId() < 0)
 					label.setForeground(
 						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
@@ -463,7 +463,7 @@ class DocComponent
 		if (downloadButton != null) bar.add(downloadButton);
 		if (openButton != null) bar.add(openButton);
 		if (deleteButton != null) bar.add(deleteButton);
-		setEnabled(model.isWritable());
+		setEnabled(model.isUserOwner(model.getRefObject()));
 		if (bar.getComponentCount() > 0) add(bar);
 	}
 	
@@ -654,12 +654,15 @@ class DocComponent
 	 */
 	public void setEnabled(boolean enabled)
 	{
-		if (unlinkButton != null) unlinkButton.setEnabled(enabled);
-		if (editButton != null) editButton.setEnabled(enabled);
+		boolean b = enabled;
+		if (enabled) {
+			b = model.isUserOwner(model.getRefObject());
+		}
+		if (unlinkButton != null) unlinkButton.setEnabled(b);
+		if (editButton != null) editButton.setEnabled(b);
 		if (downloadButton != null) downloadButton.setEnabled(enabled);
-		
 		if (openButton != null) openButton.setEnabled(enabled);
-		if (deleteButton != null) deleteButton.setEnabled(enabled);
+		if (deleteButton != null) deleteButton.setEnabled(b);
 	}
 	
 }

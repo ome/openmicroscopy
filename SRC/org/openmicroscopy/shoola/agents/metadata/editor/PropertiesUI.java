@@ -67,7 +67,6 @@ import pojos.ChannelData;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
-import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.PlateData;
@@ -770,8 +769,9 @@ class PropertiesUI
 		namePane.setToolTipText(originalName);
 		Object refObject = model.getRefObject();
 		text = "";
-		editName.setEnabled(true);
+		
 		boolean b = model.isUserOwner(refObject);
+		
 		
         if (refObject instanceof ImageData) text = "Image ";
         else if (refObject instanceof DatasetData) text = "Dataset";
@@ -819,9 +819,9 @@ class PropertiesUI
         
         namePane.setEnabled(b);
         descriptionPane.setEnabled(b);
+        if (!(refObject instanceof FileData)) editName.setEnabled(b);
         
         if (b) {
-        	//if (!(refObject instanceof FolderData))
         	namePane.getDocument().addDocumentListener(this);
         	descriptionPane.getDocument().addDocumentListener(this);
             descriptionPane.setEditable(b);

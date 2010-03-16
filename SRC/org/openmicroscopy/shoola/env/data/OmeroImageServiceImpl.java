@@ -317,9 +317,15 @@ class OmeroImageServiceImpl
 				}
 			}
 			if (ids.size() == 0) return r;
+			Iterator i;
 			Map m = gateway.getThumbnailSet(ids, max);
-			if (m == null || m.size() == 0) return r;
-			Iterator i = m.keySet().iterator();
+			if (m == null || m.size() == 0) {
+				i = ids.iterator();
+				while (i.hasNext()) 
+					r.put((Long) i.next(), null);
+				return r;
+			}
+			i = m.keySet().iterator();
 			
 			byte[] values;
 			while (i.hasNext()) {
@@ -340,10 +346,8 @@ class OmeroImageServiceImpl
 			//could not get a thumbnail for remaining images
 			if (ids.size() > 0) { 
 				i = ids.iterator();
-				while (i.hasNext()) {
-					id = (Long) i.next();
-					r.put(id, null);
-				}
+				while (i.hasNext()) 
+					r.put((Long) i.next(), null);
 			}
 			return r;
 		} catch (Exception e) {

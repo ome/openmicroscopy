@@ -737,4 +737,14 @@ public interface Browser
 	 * @return See above.
 	 */
 	long getUserGroupID();
+	
+	/**
+	 * Returns <code>true</code> if the user currently logged in is the
+	 * owner of the object, <code>false</code> otherwise.
+	 * 
+	 * @param ho    The data object to check.
+	 * @return See above.
+	 */
+	boolean isUserOwner(Object ho);
+	
 }
