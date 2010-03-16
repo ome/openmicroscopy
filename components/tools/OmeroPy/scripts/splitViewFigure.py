@@ -681,7 +681,8 @@ def runAsScript():
 	scripts.String("format").inout(),		# format to save image. Currently JPEG or PNG
 	scripts.String("figureName").inout(),	# name of the file to save.
 	scripts.Long("overlayColour", optional=True).inout(),	# the colour of the scalebar 
-	scripts.Long("fileAnnotation").out());  # script returns a file annotation
+	#scripts.Long("fileAnnotation").out()
+	)  # script returns a file annotation
 	
 	session = client.getSession();
 	gateway = session.createGateway();

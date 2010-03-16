@@ -37,6 +37,7 @@ from EMAN2 import *
 import numpy
 
 import omero
+import omero_api_Gateway_ice	# see http://tinyurl.com/icebuserror
 import omero.scripts as scripts
 from omero.rtypes import *
 import omero.util.script_utils as scriptUtil
@@ -129,6 +130,11 @@ def saveImageAs(session, parameterMap):
 		print "No images"
 		return
 		
+	cIndexes = None
+	theT = 0
+	if "cIndex" in parameterMap:
+		cIndexes = [parameterMap["cIndex"]]
+		
 	extension = None
 	format = None
 	if "extension" in parameterMap:
@@ -143,6 +149,8 @@ def saveImageAs(session, parameterMap):
 		print "No extension specified. Will attempt get extensions from image names."
 	
 	gateway = session.createGateway()
+	originalFileIds = []
+	
 	for imageId in imageIds:
 		
 		image = gateway.getImage(imageId)
@@ -172,33 +180,65 @@ def saveImageAs(session, parameterMap):
 		xSize = pixels.getSizeX().getValue()
 		ySize = pixels.getSizeY().getValue()
 		zSize = pixels.getSizeZ().getValue()
+		cSize = pixels.getSizeC().getValue()
+		
+		if pixels.getPhysicalSizeX() == None:	physicalSizeX = 1.0
+		else:	physicalSizeX = pixels.getPhysicalSizeX().getValue()
+		if pixels.getPhysicalSizeY() == None:	physicalSizeY = 1.0
+		else:	physicalSizeY = pixels.getPhysicalSizeY().getValue()
+		if pixels.getPhysicalSizeZ() == None:	physicalSizeZ = 1.0
+		else:	physicalSizeZ = pixels.getPhysicalSizeZ().getValue()
+		
+		
+		if cIndexes == None:
+			cIndexes = range(cSize)
 
 		# prepare rawPixelStore
-		theC, theT = (0, 0)
 		pixelsId = pixels.getId().getValue()
 		bypassOriginalFile = True
 		rawPixelStore.setPixelsId(pixelsId, bypassOriginalFile)
 
 		e = EMData()
 		em = EMData(xSize,ySize,zSize)
+		# if the physical size was in microns (in OMERO) now it's in Angstroms! 
+		em.set_attr('apix_x', physicalSizeX)
+		em.set_attr('apix_y', physicalSizeY)
+		em.set_attr('apix_z', physicalSizeZ)
 		
-		for z in range(zSize):
-			# get each plane and add to EMData 
-			#print "Downloading plane: %d" % z
-			plane2D = scriptUtil.downloadPlane(rawPixelStore, pixels, z, theC, theT)
-			plane2D.resize((ySize, xSize))		# not sure why we have to resize (y, x)
-			EMNumPy.numpy2em(plane2D, e)
-			em.insert_clip(e,(0,0,z))
+		# export an EM image for every channel
+		for theC in cIndexes:
+			if theC > 0:
+				imageName = imageName.replace(extension, "%s." % theC)
+			for z in range(zSize):
+				# get each plane and add to EMData 
+				#print "Downloading plane: %d" % z
+				plane2D = scriptUtil.downloadPlane(rawPixelStore, pixels, z, theC, theT)
+				plane2D.resize((ySize, xSize))		# not sure why we have to resize (y, x)
+				EMNumPy.numpy2em(plane2D, e)
+				em.insert_clip(e,(0,0,z))
 			
-		em.write_image(imageName)
+			em.write_image(imageName)
 		
-		if format == None:
-			format = ""		# upload method will pick generic format. 
-		print "Uploading image: %s to server with file type: %s" % (imageName, format)
+			if format == None:
+				format = ""		# upload method will pick generic format. 
+			print "Uploading image: %s to server with file type: %s" % (imageName, format)
 		
-		# attach to image
-		fileId = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, image, imageName, format, figLegend)	 
-
+			# attach to image
+			#fileId = scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, image, imageName, format, figLegend)	 
+		
+			# want to return the image to client, without attaching it to anything the server
+			# still need to upload it...
+		
+			fileformat = scriptUtil.getFormat(queryService, format)
+			if fileformat == None:		# if we didn't find a matching format in the DB, use a generic format. 
+				fileformat = scriptUtil.getFormat(queryService, "text/plain")
+			originalFile = scriptUtil.createFile(updateService, imageName, fileformat, imageName)
+			scriptUtil.uploadFile(rawFileStore, originalFile, imageName)
+		
+			originalFileIds.append(originalFile.getId())
+	
+	return originalFileIds
+	
 
 def runAsScript():
 	"""
@@ -206,7 +246,9 @@ def runAsScript():
 	"""
 	client = scripts.client('saveImageAs.py', 'Use EMAN2 to save an image as mrc etc.', 
 	scripts.List("imageIds").inout(),		# List of image IDs. 
-	scripts.String("extension", optional=True).inout())	# File type/extension. E.g. "mrc". If not given, will try to use extension of each image name
+	scripts.Long("cIndex", optional=True).inout(),
+	scripts.String("extension", optional=True).inout(),  # File type/extension. E.g. "mrc". If not given, will try to use extension of each image name
+	scripts.List("originalFileIds").out())
 	
 	session = client.getSession()
 	
@@ -216,8 +258,11 @@ def runAsScript():
 		if client.getInput(key):
 			parameterMap[key] = client.getInput(key).getValue()
 	
-	saveImageAs(session, parameterMap)		# might return None if failed. 
-	
+	fileIds = saveImageAs(session, parameterMap)		# might return None if failed. 
+	print fileIds
+	result = omero.rtypes.rlist(fileIds)
+	print type(result)
+	client.setOutput("originalFileIds", result)
 	
 if __name__ == "__main__":
 	runAsScript()

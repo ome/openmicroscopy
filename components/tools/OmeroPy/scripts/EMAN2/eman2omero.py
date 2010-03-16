@@ -23,6 +23,7 @@
 This script uses EMAN2 to read images from an EMAN2 bdb and upload them to OMERO as new images.
 It should be run as a local script (not via scripting service) in order that it has
 access to the local users bdb repository. 
+Therefore, you need to have EMAN2 installed on the client where this script is run. 
 The bdb repository should be specified as described on http://blake.bcm.edu/emanwiki/Eman2DataStorage 
 
 The way you specify an image inside one of these databases is any of:
@@ -293,8 +294,8 @@ def emanToOmero(commandArgs):
 	project.name = rstring(projectName)
 	project = gateway.saveAndReturnObject(project)
 	
-	print dbs
-	# if we start at root, there won't be any db files here. 
+	print "List of dbs in root directory:"
+	print dbs		# may not be any dbs in root (e.g. spr root directory has no dbs)
 	for db in dbs:
 		infile = dbpath + db
 		datasetName = db
