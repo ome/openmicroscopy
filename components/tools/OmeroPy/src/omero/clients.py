@@ -641,6 +641,7 @@ class BaseClient(object):
                     pass
             finally:
                 oldIc.destroy()
+                del oldIc._impl # WORKAROUND ticket:2007
 
         finally:
             self.__lock.release()
