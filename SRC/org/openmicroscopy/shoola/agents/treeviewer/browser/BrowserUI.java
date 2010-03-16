@@ -1406,7 +1406,10 @@ class BrowserUI
             } 
             buildTreeNode(expNode, prepareSortedList(sorter.sort(nodes)), 
                         (DefaultTreeModel) treeDisplay.getModel());
-        } else buildEmptyNode(expNode);
+        } else {
+        	expNode.setExpanded(false);
+        	buildEmptyNode(expNode);
+        }
         Iterator j = nodesToReset.iterator();
         while (j.hasNext()) 
 			setExpandedParent((TreeImageDisplay) j.next(), true);

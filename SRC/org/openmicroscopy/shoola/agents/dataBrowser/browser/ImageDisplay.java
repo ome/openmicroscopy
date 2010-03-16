@@ -283,6 +283,7 @@ public abstract class ImageDisplay
     {
     	List<JLabel> nodes = new ArrayList<JLabel>();
     	IconManager icons = IconManager.getInstance();
+    	/*
     	if (hierarchyObject instanceof DataObject) {
     		try {
     			ExperimenterData owner = 
@@ -299,11 +300,9 @@ public abstract class ImageDisplay
         				nodes.add(l);
         			}
         		}
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
-    		
+			} catch (Exception e) {}
     	}
+    	*/
     	if (EditorUtil.isAnnotated(hierarchyObject)) 
     		nodes.add(new JLabel(icons.getIcon(IconManager.ANNOTATION_8)));
     	
