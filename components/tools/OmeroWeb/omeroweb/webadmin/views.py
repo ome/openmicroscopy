@@ -378,31 +378,27 @@ def manage_experimenter(request, action, eid=None, **kwargs):
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["new"]))
         else:
-            name_check = conn.checkOmeName(request.REQUEST['omename'].encode('utf-8'))
-            email_check = conn.checkEmail(request.REQUEST['email'].encode('utf-8'))
+            name_check = conn.checkOmeName(request.REQUEST.get('omename').encode('utf-8'))
+            email_check = conn.checkEmail(request.REQUEST.get('email').encode('utf-8'))
             form = ExperimenterForm(initial={'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()}, data=request.REQUEST.copy(), name_check=name_check, email_check=email_check)
             if form.is_valid():
-                omeName = request.REQUEST['omename'].encode('utf-8')
-                firstName = request.REQUEST['first_name'].encode('utf-8')
-                middleName = request.REQUEST['middle_name'].encode('utf-8')
-                lastName = request.REQUEST['last_name'].encode('utf-8')
-                email = request.REQUEST['email'].encode('utf-8')
-                institution = request.REQUEST['institution'].encode('utf-8')
+                omeName = request.REQUEST.get('omename').encode('utf-8')
+                firstName = request.REQUEST.get('first_name').encode('utf-8')
+                middleName = request.REQUEST.get('middle_name').encode('utf-8')
+                lastName = request.REQUEST.get('last_name').encode('utf-8')
+                email = request.REQUEST.get('email').encode('utf-8')
+                institution = request.REQUEST.get('institution').encode('utf-8')
                 admin = False
-                try:
-                    if request.REQUEST['administrator']:
-                        admin = True
-                except:
-                    pass
+                if request.REQUEST.get('administrator'):
+                    admin = True
+
                 active = False
-                try:
-                    if request.REQUEST['active']:
-                        active = True
-                except:
-                    pass
-                defaultGroup = request.REQUEST['default_group']
+                if request.REQUEST.get('active'):
+                    active = True
+
+                defaultGroup = request.REQUEST.get('default_group')
                 otherGroups = request.POST.getlist('other_groups')
-                password = request.REQUEST['password'].encode('utf-8')
+                password = request.REQUEST.get('password').encode('utf-8')
                 controller.createExperimenter(omeName, firstName, lastName, email, admin, active, defaultGroup, otherGroups, password, middleName, institution)
                 return HttpResponseRedirect(reverse("waexperimenters"))
             context = {'info':info, 'eventContext':eventContext, 'form':form}
@@ -426,35 +422,31 @@ def manage_experimenter(request, action, eid=None, **kwargs):
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["edit", controller.experimenter.id]))
         else:
-            name_check = conn.checkOmeName(request.REQUEST['omename'].encode('utf-8'), controller.experimenter.omeName)
-            email_check = conn.checkEmail(request.REQUEST['email'].encode('utf-8'), controller.experimenter.email)
+            name_check = conn.checkOmeName(request.REQUEST.get('omename').encode('utf-8'), controller.experimenter.omeName)
+            email_check = conn.checkEmail(request.REQUEST.get('email').encode('utf-8'), controller.experimenter.email)
             if controller.ldapAuth == "" or controller.ldapAuth is None:
                 form = ExperimenterForm(initial={'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()}, data=request.POST.copy(), name_check=name_check, email_check=email_check)
             else:
                 form = ExperimenterLdapForm(initial={'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()}, data=request.POST.copy(), name_check=name_check, email_check=email_check)
             if form.is_valid():
-                omeName = request.REQUEST['omename'].encode('utf-8')
-                firstName = request.REQUEST['first_name'].encode('utf-8')
-                middleName = request.REQUEST['middle_name'].encode('utf-8')
-                lastName = request.REQUEST['last_name'].encode('utf-8')
-                email = request.REQUEST['email'].encode('utf-8')
-                institution = request.REQUEST['institution'].encode('utf-8')
+                omeName = request.REQUEST.get('omename').encode('utf-8')
+                firstName = request.REQUEST.get('first_name').encode('utf-8')
+                middleName = request.REQUEST.get('middle_name').encode('utf-8')
+                lastName = request.REQUEST.get('last_name').encode('utf-8')
+                email = request.REQUEST.get('email').encode('utf-8')
+                institution = request.REQUEST.get('institution').encode('utf-8')
                 admin = False
-                try:
-                    if request.REQUEST['administrator']:
-                        admin = True
-                except:
-                    pass
+                if request.REQUEST.get('administrator') is not None:
+                    admin = True
+                
                 active = False
-                try:
-                    if request.REQUEST['active']:
-                        active = True
-                except:
-                    pass
-                defaultGroup = request.REQUEST['default_group']
+                if request.REQUEST.get('active') is not None:
+                    active = True
+
+                defaultGroup = request.REQUEST.get('default_group')
                 otherGroups = request.POST.getlist('other_groups')
                 try:
-                    password = request.REQUEST['password'].encode('utf-8')
+                    password = request.REQUEST.get('password').encode('utf-8')
                     if len(password) == 0:
                         password = None
                 except:
@@ -518,7 +510,7 @@ def manage_group(request, action, gid=None, **kwargs):
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanagegroupid", args=["new"]))
         else:
-            name_check = conn.checkGroupName(request.REQUEST['name'].encode('utf-8'))
+            name_check = conn.checkGroupName(request.REQUEST.get('name').encode('utf-8'))
             form = GroupForm(initial={'experimenters':controller.experimenters}, data=request.POST.copy(), name_check=name_check)
             if form.is_valid():
                 name = request.REQUEST.get('name').encode('utf-8')
@@ -539,7 +531,7 @@ def manage_group(request, action, gid=None, **kwargs):
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanagegroupid", args=["edit", controller.group.id]))
         else:
-            name_check = conn.checkGroupName(request.REQUEST['name'].encode('utf-8'), controller.group.name)
+            name_check = conn.checkGroupName(request.REQUEST.get('name').encode('utf-8'), controller.group.name)
             form = GroupForm(initial={'experimenters':controller.experimenters}, data=request.POST.copy(), name_check=name_check)
             if form.is_valid():
                 name = request.REQUEST.get('name').encode('utf-8')
@@ -742,7 +734,7 @@ def manage_enum(request, action, klass, eid=None, **kwargs):
         if request.method == "POST":
             form = EnumerationEntry(data=request.POST.copy())
             if form.is_valid():
-                new_entry = request.REQUEST['new_entry'].encode('utf-8')
+                new_entry = request.REQUEST.get('new_entry').encode('utf-8')
                 controller.saveEntry(new_entry)
                 return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
         else:
@@ -795,23 +787,20 @@ def my_account(request, action=None, **kwargs):
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamyaccount", args=["edit"]))
         else:
-            email_check = conn.checkEmail(request.REQUEST['email'].encode('utf-8'), myaccount.experimenter.email)
+            email_check = conn.checkEmail(request.REQUEST.get('email').encode('utf-8'), myaccount.experimenter.email)
             if myaccount.ldapAuth == "" or myaccount.ldapAuth is None:
                 form = MyAccountForm(data=request.POST.copy(), initial={'groups':myaccount.otherGroups}, email_check=email_check)
             else:
                 form = MyAccountLdapForm(data=request.POST.copy(), initial={'groups':myaccount.otherGroups}, email_check=email_check)
             if form.is_valid():
-                firstName = request.REQUEST['first_name'].encode('utf-8')
-                middleName = request.REQUEST['middle_name'].encode('utf-8')
-                lastName = request.REQUEST['last_name'].encode('utf-8')
-                email = request.REQUEST['email'].encode('utf-8')
-                institution = request.REQUEST['institution'].encode('utf-8')
-                defaultGroup = request.REQUEST['default_group']
-                try:
-                    password = request.REQUEST['password'].encode('utf-8')
-                    if len(password) == 0:
-                        password = None
-                except:
+                firstName = request.REQUEST.get('first_name').encode('utf-8')
+                middleName = request.REQUEST.get('middle_name').encode('utf-8')
+                lastName = request.REQUEST.get('last_name').encode('utf-8')
+                email = request.REQUEST.get('email').encode('utf-8')
+                institution = request.REQUEST.get('institution').encode('utf-8')
+                defaultGroup = request.REQUEST.get('default_group')
+                password = request.REQUEST.get('password').encode('utf-8')
+                if len(password) == 0:
                     password = None
                 myaccount.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)
                 logout(request)
@@ -824,10 +813,10 @@ def my_account(request, action=None, **kwargs):
                 controller.attach_photo(request.FILES['photo'])
                 return HttpResponseRedirect(reverse("wamyaccount"))
     elif action == "crop": 
-        x1 = long(request.REQUEST['x1'].encode('utf-8'))
-        x2 = long(request.REQUEST['x2'].encode('utf-8'))
-        y1 = long(request.REQUEST['y1'].encode('utf-8'))
-        y2 = long(request.REQUEST['y2'].encode('utf-8'))
+        x1 = long(request.REQUEST.get('x1').encode('utf-8'))
+        x2 = long(request.REQUEST.get('x2').encode('utf-8'))
+        y1 = long(request.REQUEST.get('y1').encode('utf-8'))
+        y2 = long(request.REQUEST.get('y2').encode('utf-8'))
         box = (x1,y1,x2,y2)
         conn.cropExperimenterPhoto(box)
         return HttpResponseRedirect(reverse("wamyaccount"))
