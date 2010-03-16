@@ -66,6 +66,7 @@ import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
+import ome.model.meta.Session;
 import ome.model.screen.Screen;
 import ome.model.screen.Plate;
 import ome.model.stats.StatsInfo;
@@ -106,7 +107,16 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 
     /** Reference to the service used to retrieve the pixels metadata. */
     protected transient IPixels pixelsMetadata;
-    
+
+    /**
+     * Returns the Id of the currently logged in user.
+     * @return See above.
+     */
+    private Long getCurrentUserId()
+    {
+        return getSecuritySystem().getEventContext().getCurrentUserId();
+    }
+
     /**
      * Checks to see if a given class is a valid container.
      * @param klass IObject derived class to check for validity.
@@ -372,11 +382,14 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 		{
 			pixelsIds.add(p.getId());
 		}
+		Long userId = getCurrentUserId();
 		Parameters p = new Parameters();
 		p.addIds(pixelsIds);
+		p.addId(userId);
+		
     	String sql = PixelsImpl.RENDERING_DEF_QUERY_PREFIX +
-    		"rdef.pixels.id in (:ids)";
-    	
+    		"rdef.pixels.id in (:ids) and " +
+    		"rdef.details.owner.id = :id";
     	Map<Long, RenderingDef> settingsMap = new HashMap<Long, RenderingDef>();
 		List<RenderingDef> settingsList = iQuery.findAllByQuery(sql, p);
 		for (RenderingDef settings : settingsList)

@@ -8,7 +8,9 @@
 package ome.server.itests;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import ome.api.IPixels;
 import ome.api.ThumbnailStore;
@@ -391,6 +393,49 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         tbUser.resetDefaults();
         assertTrue(tbUser.setPixelsId(pix.getId()));
         tbUser.getThumbnailByLongestSideDirect(64);
+    }
+
+    @Test(groups = {"ticket:1929"})
+    public void testOtherUserViewsSingleThumbnailByLongestSideSet() {
+        Experimenter e1 = loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        loginRoot();
+        makeDefaultGroupReadWrite(e1);
+        loginNewUserInOtherUsersGroup(e1);
+        ThumbnailStore tbUser = sf.createThumbnailService();
+        Set<Long> pixelsIds = Collections.singleton(pix.getId());
+        Map<Long, byte[]> thumbnails = 
+            tbUser.getThumbnailByLongestSideSet(96, pixelsIds);
+        assertNotNull(thumbnails);
+        assertEquals(pixelsIds.size(), thumbnails.size());
+        for (byte[] thumbnail : thumbnails.values())
+        {
+            assertNotNull(thumbnail);
+        }
+    }
+
+    @Test(groups = {"ticket:1929"})
+    public void testOtherUserViewsMultipleThumbnailsByLongestSideSet() {
+        Experimenter e1 = loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix1 = makePixels();
+        Pixels pix2 = makePixels();
+        loginRoot();
+        makeDefaultGroupReadWrite(e1);
+        loginNewUserInOtherUsersGroup(e1);
+        ThumbnailStore tbUser = sf.createThumbnailService();
+        Set<Long> pixelsIds = new HashSet<Long>();
+        pixelsIds.add(pix1.getId());
+        pixelsIds.add(pix2.getId());
+        Map<Long, byte[]> thumbnails = 
+            tbUser.getThumbnailByLongestSideSet(96, pixelsIds);
+        assertNotNull(thumbnails);
+        assertEquals(pixelsIds.size(), thumbnails.size());
+        for (byte[] thumbnail : thumbnails.values())
+        {
+            assertNotNull(thumbnail);
+        }
     }
 
     @Test(groups = {"ticket:1801"}, expectedExceptions = {ResourceError.class})
