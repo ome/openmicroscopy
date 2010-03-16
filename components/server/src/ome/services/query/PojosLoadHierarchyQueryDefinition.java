@@ -107,9 +107,12 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
     protected void enableFilters(Session session) {
         ownerOrGroupFilters(session,
         // TODO this needs to be moved to Hierarchy.
-                new String[] { Project.OWNER_FILTER,
-                        Dataset.OWNER_FILTER }, new String[] {
-                        Project.GROUP_FILTER, Dataset.GROUP_FILTER });
+                new String[] { 
+        				Project.OWNER_FILTER, Dataset.OWNER_FILTER, 
+        				Screen.OWNER_FILTER, Plate.OWNER_FILTER }, 
+                new String[] { 
+        				Project.GROUP_FILTER, Dataset.GROUP_FILTER, 
+        		        Screen.GROUP_FILTER, Plate.GROUP_FILTER });
     }
 
 }
