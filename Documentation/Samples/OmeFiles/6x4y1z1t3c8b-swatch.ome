@@ -3,7 +3,7 @@
    <Image AcquiredPixels="Pixels:0:0" DefaultPixels="Pixels:0:0" 
       ID="Image:0" Name="6x6x1x8-swatch.tif">
       <CreationDate>2010-02-23T12:51:30</CreationDate>
-      <LogicalChannel ID="LogicalChannel:0" SamplesPerPixel="3">
+      <LogicalChannel ID="LogicalChannel:0" SamplesPerPixel="3" >
          <ChannelComponent Index="0" Pixels="Pixels:0:0"/>
          <ChannelComponent Index="1" Pixels="Pixels:0:0"/>
          <ChannelComponent Index="2" Pixels="Pixels:0:0"/>
