@@ -9,6 +9,7 @@ package ome.server.itests;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,10 +24,12 @@ import ome.model.annotations.FileAnnotation;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.RenderingDef;
+import ome.model.display.Thumbnail;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
+import ome.system.EventContext;
 import ome.system.ServiceFactory;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
@@ -319,6 +322,32 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         ThumbnailStore tbUser = sf.createThumbnailService();
         tbUser.setPixelsId(pix.getId());
         tbUser.getThumbnailByLongestSideDirect(64);
+    }
+
+    @Test(groups = {"ticket:1929"})
+    public void testUserViewsOwnThumbnailByLongestSideWithMissingMetadata() {
+        Experimenter user = loginNewUser();
+        ExperimenterGroup group = iAdmin.getDefaultGroup(user.getId());
+        Long userId = user.getId();
+        loginRoot();
+        iAdmin.setGroupOwner(new ExperimenterGroup(group.getId(), false), 
+                             new Experimenter(user.getId(), false));
+        loginUser(user.getOmeName(), group.getName());
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        ThumbnailStore tbUser = sf.createThumbnailService();
+        assertTrue(tbUser.setPixelsId(pix.getId()));
+        assertNotNull(tbUser.getThumbnailByLongestSide(80));
+        List<Thumbnail> thumbnails = iQuery.findAllByQuery(
+                "select t from Thumbnail as t " +
+                "where t.pixels.id = :id", new Parameters().addId(pix.getId()));
+        Set<Long> thumbnailIds = new HashSet<Long>();
+        for (Thumbnail thumbnail : thumbnails)
+        {
+            assertTrue(thumbnailIds.add(thumbnail.getId()));
+            assertEquals(userId, thumbnail.getDetails().getOwner().getId());
+        }
+        assertEquals(2, thumbnails.size());
     }
 
     @Test(groups = {"ticket:1929"},

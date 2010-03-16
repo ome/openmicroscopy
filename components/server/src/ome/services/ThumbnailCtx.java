@@ -76,6 +76,15 @@ public class ThumbnailCtx
     private Map<Long, Pixels> pixelsIdPixelsMap =
         new HashMap<Long, Pixels>();
 
+    /** 
+     * Pixels ID vs. owner ID map. We don't access these RenderingDef object
+     * properties directly due to load/unload issues with Hibernate
+     * (ObjectUnloadedExceptions) when multiple objects were created with or
+     * updated by the same event.
+     */
+    private Map<Long, Long> pixelsIdOwnerIdMap =
+        new HashMap<Long, Long>();
+
     /** Pixels ID vs. RenderingDef object map. */
     private Map<Long, RenderingDef> pixelsIdSettingsMap =
         new HashMap<Long, RenderingDef>();
@@ -187,13 +196,20 @@ public class ThumbnailCtx
             prepareRenderingSettings(settings, settings.getPixels());
         }
 
+        // Locate the Pixels sets we have no settings for this user for.
+        Set<Long> pixelsIdsWithoutSettings = 
+            getPixelsIdsWithoutSettings(pixelsIds);
+
+        // For dimension pooling and checks of graph criticality to work
+        // correctly for the purpose of thumbnail metadata creation we now need
+        // to load the Pixels sets that had no rendering settings.
+        loadMissingPixels(pixelsIdsWithoutSettings);
+
         // Now check to see if we're in a state where missing settings requires
         // us to use the owner's settings (we're "graph critical") and load
         // them if possible.
-        Set<Long> pixelsIdsWithoutSettings = 
-            getPixelsIdsWithoutSettings(pixelsIds);
         if (pixelsIdsWithoutSettings.size() > 0
-            && securitySystem.isGraphCritical())
+            && isReallyGraphCritical(pixelsIdsWithoutSettings))
         {
             settingsList = 
                 bulkLoadOwnerRenderingSettings(pixelsIdsWithoutSettings);
@@ -203,11 +219,6 @@ public class ThumbnailCtx
             }
             pixelsIdsWithoutSettings = getPixelsIdsWithoutSettings(pixelsIds);
         }
-
-        // For dimension pooling to work correctly for the purpose of thumbnail
-        // metadata creation we now need to load the Pixels sets that had no
-        // rendering settings.
-        loadMissingPixels(pixelsIdsWithoutSettings);
     }
 
     /**
@@ -304,7 +315,7 @@ public class ThumbnailCtx
     {
         // Now check to see if we're in a state where missing rendering
         // settings and our state requires us to not save.
-        if (securitySystem.isGraphCritical())
+        if (isReallyGraphCritical(pixelsIds))
         {
             // TODO: Could possibly "su" to the user and create a thumbnail
             return;
@@ -387,8 +398,9 @@ public class ThumbnailCtx
             Pixels pixels = pixelsIdPixelsMap.get(pixelsId);
             long ownerId = pixels.getDetails().getOwner().getId();
             throw new ResourceError(String.format(
-                    "The owner id:%d has not viewed the Pixels set id:%d, " +
-                    "thumbnail metadata is missing.", ownerId, pixelsId));
+                    "The user id:%s may not be the owner id:%d. The owner " +
+                    "has not viewed the Pixels set id:%d and thumbnail " +
+                    "metadata is missing.", userId, ownerId, pixelsId));
         }
         else if (thumbnail == null)
         {
@@ -466,6 +478,51 @@ public class ThumbnailCtx
         }
         float ratio = (float) longestSide / sizeY;
         return new Dimension((int) (sizeX * ratio), longestSide);
+    }
+
+    /**
+     * Whether or not we're really graph critical for a given set of dimension
+     * pools. We're only <b>really</b> graph critical if any of the settings
+     * we have loaded do not belong to us.
+     * @param pixelsIds Set of Pixels to check if we're graph critical for.
+     * @return <code>true</code> if we're really graph critical, and
+     * <code>false</code> otherwise.
+     * @see #isReallyGraphCritical(Set)
+     */
+    private boolean isReallyGraphCritical(
+            Map<Dimension, Set<Long>> dimensionPools)
+    {
+        for (Set<Long> pool : dimensionPools.values())
+        {
+            if (isReallyGraphCritical(pool))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Whether or not we're really graph critical for a given set of Pixels.
+     * We're only <b>really</b> graph critical if any of the settings we have
+     * loaded do not belong to us.
+     * @param pixelsIds Set of Pixels to check if we're graph critical for.
+     * @return <code>true</code> if we're really graph critical, and
+     * <code>false</code> otherwise.
+     */
+    private boolean isReallyGraphCritical(Set<Long> pixelsIds)
+    {
+        if (securitySystem.isGraphCritical())
+        {
+            for (Long pixelsId : pixelsIds)
+            {
+                if (pixelsIdOwnerIdMap.get(pixelsId) != userId)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -688,13 +745,13 @@ public class ThumbnailCtx
                 prepareMetadata(metadata, metadata.getPixels().getId());
             }
 
-            // Now check to see if we're in a state where missing settings
-            // requires us to use the owner's settings (we're "graph critical")
+            // Now check to see if we're in a state where missing metadata
+            // requires us to use the owner's metadata (we're "graph critical")
             // and load them if possible.
             Set<Long> pixelsIdsWithoutMetadata =
                 getPixelsIdsWithoutMetadata(pool);
             if (pixelsIdsWithoutMetadata.size() > 0
-                && securitySystem.isGraphCritical())
+                && isReallyGraphCritical(pixelsIdsWithoutMetadata))
             {
                 thumbnailList = bulkLoadOwnerMetadata(
                         dimensions, pixelsIdsWithoutMetadata); 
@@ -728,7 +785,10 @@ public class ThumbnailCtx
             s1.stop();
             for (Pixels pixels : pixelsWithoutSettings)
             {
-                pixelsIdPixelsMap.put(pixels.getId(), pixels);
+                Long pixelsId = pixels.getId();
+                pixelsIdPixelsMap.put(pixelsId, pixels);
+                pixelsIdOwnerIdMap.put(
+                        pixelsId, pixels.getDetails().getOwner().getId());
             }
         }
     }
@@ -743,6 +803,7 @@ public class ThumbnailCtx
     {
         Long pixelsId = pixels.getId();
         pixelsIdPixelsMap.put(pixelsId, pixels);
+        pixelsIdOwnerIdMap.put(pixelsId, pixels.getDetails().getOwner().getId());
         Details details = settings.getDetails();
         Timestamp timestemp = details.getUpdateEvent().getTime();
         pixelsIdSettingsMap.put(pixelsId, settings);
@@ -774,7 +835,7 @@ public class ThumbnailCtx
     {
         // Now check to see if we're in a state where missing metadata
         // and our state requires us to not save.
-        if (securitySystem.isGraphCritical())
+        if (isReallyGraphCritical(dimensionPools))
         {
             // TODO: Could possibly "su" to the user and create a thumbnail
             return;
@@ -827,7 +888,6 @@ public class ThumbnailCtx
     {
         // Unload the pixels object to avoid transactional headaches
         Pixels unloadedPixels = new Pixels(pixels.getId(), false);
-    
         Thumbnail thumb = new Thumbnail();
         thumb.setPixels(unloadedPixels);
         thumb.setMimeType(DEFAULT_MIME_TYPE);
