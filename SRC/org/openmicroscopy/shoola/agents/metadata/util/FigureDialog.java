@@ -947,7 +947,9 @@ public class FigureDialog
 			arrangeByTags.setActionCommand(""+ARRANGE_BY_TAGS);
 			sizeBox = new JComboBox(SIZE_OPTIONS);
 			sizeBox.setSelectedIndex(SIZE_96);
-			
+			numberPerRow = new NumericalTextField(1, 100);
+			numberPerRow.setColumns(3);
+			numberPerRow.setText(""+ITEMS_PER_ROW);
 			return;
 		}
 		numberPerRow = new NumericalTextField(1, 100);
