@@ -179,7 +179,6 @@ import omero.model.UriAnnotation;
 import omero.model.UriAnnotationI;
 import omero.model.Well;
 import omero.model.WellSample;
-import omero.sys.EventContext;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import pojos.BooleanAnnotationData;
@@ -6263,7 +6262,7 @@ class OMEROGateway
 		IAdminPrx svc = getAdminService();
 		try {
 			Map<ExperimenterData, UserCredentials> 
-			m = object.getExperimenters();
+				m = object.getExperimenters();
 			Entry entry;
 			Iterator i = m.entrySet().iterator();
 			Experimenter exp;
@@ -6291,22 +6290,30 @@ class OMEROGateway
 
 			List<ExperimenterGroup> l = new ArrayList<ExperimenterGroup>();
 			long id;
+			Experimenter value;
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
-				exp = (Experimenter) ModelMapper.createIObject(
-						(DataObject) entry.getKey());
 				uc = (UserCredentials) entry.getValue();
-				if (uc.isAdministrator()) 
-					l.add(getSystemGroup(GroupData.SYSTEM));
-				else l.add(getSystemGroup(GroupData.USER));
-				exp.setOmeName(omero.rtypes.rstring(uc.getUserName()));
-				password = uc.getPassword();
-				if (password != null && password.length() > 0) {
-					id = svc.createExperimenterWithPassword(exp, 
-							omero.rtypes.rstring(password), g, l);			
-				} else
-					id = svc.createExperimenter(exp, g, l);
-				exp = svc.getExperimenter(id);
+				//Check if the experimenter already exist
+				value = svc.lookupExperimenter(uc.getUserName());
+				if (value != null && value.getId() != null) {
+					exp = value;
+				} else {
+					exp = (Experimenter) ModelMapper.createIObject(
+							(ExperimenterData) entry.getKey());
+					
+					if (uc.isAdministrator()) 
+						l.add(getSystemGroup(GroupData.SYSTEM));
+					else l.add(getSystemGroup(GroupData.USER));
+					exp.setOmeName(omero.rtypes.rstring(uc.getUserName()));
+					password = uc.getPassword();
+					if (password != null && password.length() > 0) {
+						id = svc.createExperimenterWithPassword(exp, 
+								omero.rtypes.rstring(password), g, l);			
+					} else
+						id = svc.createExperimenter(exp, g, l);
+					exp = svc.getExperimenter(id);
+				}
 				svc.setGroupOwner(g, exp);
 			}
 			return (GroupData) PojoMapper.asDataObject(g);

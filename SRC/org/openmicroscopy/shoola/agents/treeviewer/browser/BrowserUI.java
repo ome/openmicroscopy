@@ -1469,10 +1469,10 @@ class BrowserUI
         } 
         if (TreeViewerAgent.isAdministrator()) {
         	 SmartFolder folder = new SmartFolder(GroupData.class, 
-             "Group without experimenters");
+             "Experimenters w/o groups");
              buildEmptyNode(folder);
-             root.addChildDisplay(folder);
-             dtm.insertNodeInto(folder, root, root.getChildCount());
+             //root.addChildDisplay(folder);
+             //dtm.insertNodeInto(folder, root, root.getChildCount());
         }
 	}
 	
