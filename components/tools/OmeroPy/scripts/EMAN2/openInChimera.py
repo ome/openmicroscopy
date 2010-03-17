@@ -112,8 +112,8 @@ def run(commandArgs):
 			if path:
 				name = os.path.join(path, name)
 			print "Downloading to:", name
-			fileNames.append(name)
 			filePath = scriptUtil.downloadFile(rawFileStore, originalFile, name)
+			fileNames.append(filePath)		# if 'name' file already exists, filePath will be different 
 			# This only deletes the DB row, not the data on disk! utils.cleanse.py removes files that are not in db. 
 			gateway.deleteObject(originalFile)
 	else:
