@@ -148,7 +148,7 @@ if __name__ == '__main__':
     except KeyError:
         pass
     classpath = "%s:./test-classes:./OmeroImporter.jar" % classpath
-    for f in glob.glob("./libs/test/*.jar"):
+    for f in glob.glob("./target/libs/test/*.jar"):
         classpath += ":%s" % f
 
     bioformats_revision = None
