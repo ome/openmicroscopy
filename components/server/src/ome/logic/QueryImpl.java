@@ -272,7 +272,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                     throws HibernateException {
 
                 Criteria c = session.createCriteria(klass);
-                c.add(Expression.like(fieldName, value));
+                c.add(Expression.eq(fieldName, value));
                 return c.uniqueResult();
 
             }
