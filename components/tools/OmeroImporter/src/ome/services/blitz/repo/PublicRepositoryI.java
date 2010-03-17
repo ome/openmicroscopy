@@ -270,14 +270,20 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
     /**
-     * Get a list of those files and directories at path that are already registered.
+     * Get a list of those files as importable and non-importable list.
      * 
      * @param path
      *            A path on a repository.
      * @param __current
      *            ice context.
-     * @return List of OriginalFile objects at path
+     * @return A Map of IObjects keyed by filename
+     * 
+     * The map uses the object name as key. This is the file name but should be something
+     * guaranteed to be unique. 
      *
+     * The crude test for an image file in a list of importable objects is the extension.
+     * If it is the same as the key's extension then it is treated as an image. A more
+     * certain/elegant method should probably be used especially considee
      */
     public Map<String, List<IObject>> listObjects(String path, Current __current)
             throws ServerError {
@@ -288,12 +294,13 @@ public class PublicRepositoryI extends _RepositoryDisp {
         List<String> names = filesToPaths(files);
         Map<String, List<String>> importableFiles = importableImageFiles(files);
         
-        
+        // Add the importable files as Image/OriginalFiles
         for (String keyFile : importableFiles.keySet()) {
             rv.put(keyFile, new ArrayList<IObject>());
             String keyFileExt = keyFile.substring(keyFile.lastIndexOf('.')+1, keyFile.length());
             List<String> iFileList = importableFiles.get(keyFile);
             for (String iFile : iFileList)  {
+                removeNameFromFileList(iFile, names);
                 String iFileExt = iFile.substring(iFile.lastIndexOf('.')+1, iFile.length());
                 if (keyFileExt.equals(iFileExt)) {
                     List<Image> imageList = getImages(iFile);
@@ -312,6 +319,21 @@ public class PublicRepositoryI extends _RepositoryDisp {
                 }
             }
         }
+        
+        // Add the left over files in he directory as OrignalFiles
+        if (names.size() > 0) {
+            for (String iFile : names) {
+                List objList =  new ArrayList<IObject>();
+                List<OriginalFile> ofList = getOriginalFiles(iFile);
+                if (ofList != null && ofList.size() != 0) {
+                    objList.add(ofList.get(0));
+                } else {
+                    objList.add(createOriginalFile(new File(iFile)));   
+                }
+                rv.put(iFile, objList);
+            }
+        }
+        
         return rv;
     }
 
@@ -366,80 +388,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return knownOriginalFiles(files);
     }
     
-
-
-    /**
-     * Get a list of all importable image files/directories at path.
-     * 
-     * @param path
-     *            A path on a repository.
-     * @param __current
-     *            ice context.
-     * @return List of Image objects at path
-     *
-     */
-    public List<Image> listImportableImages(String path, Current __current)
-            throws ServerError {
-        File file = checkPath(path);
-        List<File> files = Arrays.asList(file.listFiles());
-        List<File> importableImageFiles = getImportableImageFiles(files);
-        return filesToImages(importableImageFiles);
-    }
-
-    /**
-     * Get a list of importable image files/directories at path that are already registered.
-     * 
-     * @param path
-     *            A path on a repository.
-     * @param __current
-     *            ice context.
-     * @return List of Image objects at path
-     *
-     */
-    public List<Image> listKnownImportableImages(String path, Current __current)
-            throws ServerError {
-        File file = checkPath(path);
-        List<File> files = Arrays.asList(file.listFiles());
-        List<File> importableImageFiles = getImportableImageFiles(files);
-        return knownImages(importableImageFiles);
-    }
-    
-
-    /**
-     * Get a list of all non-image files/directories at path.
-     * 
-     * @param path
-     *            A path on a repository.
-     * @param __current
-     *            ice context.
-     * @return List of OriginalFile objects at path
-     *
-     */
-    public List<OriginalFile> listNonImages(String path, Current __current)
-            throws ServerError {
-        File file = checkPath(path);
-        List<File> files = Arrays.asList(file.listFiles());
-        List<File> nonImageFiles = getNonImageFiles(files);
-        return filesToOriginalFiles(nonImageFiles);
-    }
-
-    /**
-     * Get a list of non-image files/directories at path that are already registered.
-     * 
-     * @param path
-     *            A path on a repository.
-     * @param __current
-     *            ice context.
-     * @return List of OriginalFile objects at path
-     *
-     */
-    public List<OriginalFile> listKnownNonImages(String path, Current __current)
-            throws ServerError {
-        File file = checkPath(path);
-        List<File> files = Arrays.asList(file.listFiles());
-        List<File> nonImageFiles = getNonImageFiles(files);
-        return knownOriginalFiles(nonImageFiles);
-    }
     
     /**
      * Get the format object for a file.
@@ -985,5 +933,13 @@ public class PublicRepositoryI extends _RepositoryDisp {
         StringWriter sw = new StringWriter();
         exception.printStackTrace(new PrintWriter(sw));
         return sw.toString();
+    }
+    
+    private void removeNameFromFileList(String sText, List<String> sList) {
+        int index;
+        for(index = 0; index < sList.size(); index ++) {
+            if (sText.equals(sList.get(index))) break;
+        }
+        if (index < sList.size()) sList.remove(index);
     }
 }

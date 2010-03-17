@@ -45,33 +45,10 @@ module omero {
 
             omero::api::IObjectListMap listObjects(string path) throws ServerError;
             
-            
-            //FROM HERE DOWN TO...
             // These list methods provide only registered files and/or directories.
             omero::api::OriginalFileList listKnown(string path) throws ServerError;
             omero::api::OriginalFileList listKnownDirs(string path) throws ServerError;
             omero::api::OriginalFileList listKnownFiles(string path) throws ServerError;
-
-            // This list method provide importable image files registered or not.
-            omero::api::ImageList listImportableImages(string path) 
-                    throws ServerError;
-                    
-            // This list methods provide only registered importable image files.
-            omero::api::ImageList listKnownImportableImages(string path) 
-                    throws ServerError;
-
-            // This list method provide non-image files registered or not.
-            omero::api::OriginalFileList listNonImages(string path) 
-                    throws ServerError;
-                    
-            // This list methods provide only registered non-image files.
-            omero::api::OriginalFileList listKnownNonImages(string path) 
-                    throws ServerError;
-            //...ARE ALL DEPRECATED AND WILL BE REMOVED 
-
-
-            // Or do we use an options object here?
-
 
             /**
              * Returns the best-guess of the [omero::model::Format] for the given path.
