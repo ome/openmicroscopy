@@ -103,6 +103,29 @@ module omero {
 
             string name;
             string description;
+            string contact;
+
+            omero::api::StringArray authors;
+            omero::api::StringArray institutions;
+
+            /**
+             * For authors[i], authorInstitutions[i] should be
+             * and array of indexes j such that author i is a member
+             * of authorsInstitutions[i][j].
+             *
+             * Example:
+             *   authors = ["Jane", "Mike"]
+             *   institutions = ["Acme U.", "Private Corp."]
+             *   authorsInstitutions = [[1, 2], [1]]
+             *
+             * which means that Jane is a member of both "Acme U."
+             * and "Private Corp." while Mike is only a member of
+             * "Acme U."
+             *
+             * An empty authorsInsitutations array implies that all
+             * authors are from all institutions.
+             **/
+            omero::api::IntegerArrayArray authorsInstitutions;
 
             ParamMap inputs;
             ParamMap outputs;

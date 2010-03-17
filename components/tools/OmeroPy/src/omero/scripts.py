@@ -136,22 +136,32 @@ def client(name, description = None, *args, **kwargs):
     must be configured for the argumentless version of createSession()
     """
 
-    # Checking kwargs
-    if not kwargs.has_key("stdoutFormat"):
-        kwargs["stdoutFormat"]="text/plain"
-    if not kwargs.has_key("stderrFormat"):
-        kwargs["stderrFormat"]="text/plain"
     if not kwargs.has_key("client"):
         kwargs["client"] = omero.client()
 
     c = kwargs["client"]
-    c.params = omero.grid.JobParams()
-    c.params.name = name
-    c.params.description = description
-    c.params.inputs = {}
-    c.params.outputs = {}
-    c.params.stdoutFormat = kwargs["stdoutFormat"]
-    c.params.stderrFormat = kwargs["stderrFormat"]
+    if isinstance(name, omero.grid.JobParams):
+        c.params = name
+    else:
+        c.params = omero.grid.JobParams()
+        c.params.name = name
+        c.params.description = description
+        c.params.inputs = {}
+        c.params.outputs = {}
+
+    stdout = kwargs.get("stdoutFormat", None):
+    if stdout is None:
+        if not c.params.stdoutFormat:
+            c.params.stdoutFormat = "text/plain"
+    else:
+        c.params.stdoutFormat = stdout
+
+    stderr = kwargs.get("stderrFormat", None)
+    if stderr is None:
+        if not c.params.stderrFormat:
+            c.params.stderrFormat = "text/plain"
+    else:
+        c.params.stderrFormat = stderr
 
     # Original style
     for p in args:
