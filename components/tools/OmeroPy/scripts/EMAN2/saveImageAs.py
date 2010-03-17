@@ -170,7 +170,7 @@ def saveImageAs(session, parameterMap):
 			
 		if not imageName.endswith(".%s" % extension):
 			imageName = "%s.%s" % (imageName, extension)
-		#print "Preparing to save image: %s" % imageName
+		print "Preparing to save image: %s" % imageName
 		figLegend = ""
 	
 		# get pixels, with pixelsType
@@ -208,7 +208,7 @@ def saveImageAs(session, parameterMap):
 		# export an EM image for every channel
 		for theC in cIndexes:
 			if theC > 0:
-				imageName = imageName.replace(extension, "%s." % theC)
+				imageName = imageName.replace(extension, "%s.%s" % (theC, extension))
 			for z in range(zSize):
 				# get each plane and add to EMData 
 				#print "Downloading plane: %d" % z
