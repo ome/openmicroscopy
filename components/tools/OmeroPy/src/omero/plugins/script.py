@@ -138,7 +138,10 @@ client = scripts.client("length of input string",
     Trivial example script which calculates the length
     of the string passed in as the "a" input, and returns
     the value as the long "b"
-\"\"\", a, b, o)
+\"\"\", a, b, o,
+
+authors = ["OME Team"],
+institutions = ["openmicroscopy.org"])
 
 print "Starting script"
 
@@ -197,6 +200,7 @@ print "Finished script"
 
         msg("Listing available scripts for user", self.list, "user")
         msg("Printing script content for file %s" % id, self.cat, str(id))
+        msg("Printing script params for file %s" % id, self.params, "file=%s" % id)
         msg("Serving file %s in background" % id, self.serve, "user", "background=true")
         msg("Launching script with parameters: a=bad-string (fails)", self.launch, "file=%s" % id, "a=bad-string")
         msg("Launching script with parameters: a=bad-string opt=6 (fails)", self.launch, "file=%s" % id, "a=bad-string", "opt=6")
@@ -341,6 +345,8 @@ print "Finished script"
         if job_params:
             self.ctx.out("")
             self.ctx.out("id=%s" % script_id)
+            self.ctx.out("authors=%s" % ", ".join(job_params.authors))
+            self.ctx.out("institutions=%s" % ", ".join(job_params.institutions))
             self.ctx.out("name=%s" % job_params.name)
             self.ctx.out("description=%s" % job_params.description)
             self.ctx.out("namespaces=%s" % ", ".join(job_params.namespaces))
@@ -350,7 +356,7 @@ print "Finished script"
                 import omero
                 self.ctx.out(which)
                 for k, v in params.items():
-                    self.ctx.out("  %s - %s" % (v.name, (v.description and v.description or "(no description)")))
+                    self.ctx.out("  %s - %s" % (k, (v.description and v.description or "(no description)")))
                     self.ctx.out("    Optional: %s" % v.optional)
                     self.ctx.out("    Type: %s" % v.prototype.ice_staticId())
                     if isinstance(v.prototype, omero.RCollection):
@@ -359,9 +365,10 @@ print "Finished script"
                         self.ctx.out("    Subtype: %s" % v.prototype.val.values[0].ice_staticId())
                     self.ctx.out("    Min: %s" % (v.min and v.min.val or ""))
                     self.ctx.out("    Max: %s" % (v.max and v.max.val or ""))
-                    self.ctx.out("    Values: %s" % (v.values and ", ".join(v.values) or ""))
-            print_params("Inputs:", job_params.inputs)
-            print_params("Outputs:", job_params.outputs)
+                    values = omero.rtypes.unwrap(v.values)
+                    self.ctx.out("    Values: %s" % (values and ", ".join(values) or ""))
+            print_params("inputs:", job_params.inputs)
+            print_params("outputs:", job_params.outputs)
 
     @wrapper
     def serve(self, args):

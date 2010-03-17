@@ -23,8 +23,8 @@ from omero.rtypes import *
 
 class Type:
     def __init__(self, name, optional = False, out = False, description = None, type = None, min = None, max = None, values = None):
+        self._name = name
         self._param = omero.grid.Param()
-        self._param.name= name
         self._param.description = description
         self._param.optional = optional
         self._param.min = min
@@ -100,7 +100,7 @@ class ParseExit(exceptions.Exception):
         exceptions.Exception.__init__(self)
         self.params = params
 
-def client(name, description = None, *args, **kwargs):
+def client(*args, **kwargs):
     """
     Entry point for all script engine scripts.
 
@@ -136,51 +136,44 @@ def client(name, description = None, *args, **kwargs):
     must be configured for the argumentless version of createSession()
     """
 
+    args = list(args)
+    if len(args) >= 1:
+        if isinstance(args[0], str):
+            kwargs["name"] = args.pop(0)
+    if len(args) >= 1:
+        if isinstance(args[0], str):
+            kwargs["description"] = args.pop(0)
+
     if not kwargs.has_key("client"):
         kwargs["client"] = omero.client()
-
     c = kwargs["client"]
-    if isinstance(name, omero.grid.JobParams):
-        c.params = name
+
+    if isinstance(args[0], omero.grid.JobParams):
+        c.params = args.pop(0)
     else:
         c.params = omero.grid.JobParams()
-        c.params.name = name
-        c.params.description = description
         c.params.inputs = {}
         c.params.outputs = {}
 
-    stdout = kwargs.get("stdoutFormat", None):
-    if stdout is None:
-        if not c.params.stdoutFormat:
-            c.params.stdoutFormat = "text/plain"
-    else:
-        c.params.stdoutFormat = stdout
+    for k, v in kwargs.items():
+        if hasattr(c.params, k):
+            setattr(c.params, k, v)
 
-    stderr = kwargs.get("stderrFormat", None)
-    if stderr is None:
-        if not c.params.stderrFormat:
-            c.params.stderrFormat = "text/plain"
-    else:
-        c.params.stderrFormat = stderr
+    if not c.params.stdoutFormat:
+        c.params.stdoutFormat = "text/plain"
 
-    # Original style
+    if not c.params.stderrFormat:
+        c.params.stderrFormat = "text/plain"
+
     for p in args:
         if isinstance(p, Type):
             param = p.param()
             if p._in:
-                c.params.inputs[param.name] = param
+                c.params.inputs[p._name] = param
             if p._out:
-                c.params.outputs[param.name] = param
-        elif isinstance(p, omero.grid.Param):
-            c.params.inputs[p.name] = p # INPUT ONLY
-
-    # New style for bulk includes
-    inputs = kwargs.get("inputs", [])
-    for i in inputs:
-        c.params.inputs[i.name] = i
-    outputs = kwargs.get("outputs", [])
-    for o in outputs:
-        c.params.outputs[o.name] = o
+                c.params.outputs[p._name] = param
+        else:
+            raise ValueError("Not Type: %s" % type(p))
 
     c.createSession().detachOnDestroy()
     handleParse(c) # May throw

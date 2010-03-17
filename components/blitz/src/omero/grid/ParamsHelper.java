@@ -205,6 +205,11 @@ public class ParamsHelper {
             is.readPendingObjects();
         } catch (UnmarshalOutOfBoundsException oob) {
             // ok, returning null.
+        } catch (OutOfMemoryError oom) {
+            // Not ok, but not much we can do.
+            // This is caused by changes to slice files.
+            // See:
+            log.warn("http://www.zeroc.com/forums/bug-reports/4782-3-3-1-outofmemory-client-when-slice-definition-modified.html");
         } finally {
             is.destroy();
         }

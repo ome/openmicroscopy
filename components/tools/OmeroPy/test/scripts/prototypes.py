@@ -25,7 +25,6 @@ class TestPrototypes(unittest.TestCase):
     def testRListRInt(self):
         params = omero.grid.JobParams()
         param = omero.grid.Param()
-        param.name = "a"
         param.prototype = rlist(rint(0))
         params.inputs = {"a":param}
 
@@ -36,7 +35,6 @@ class TestPrototypes(unittest.TestCase):
     def testRListRList(self):
         params = omero.grid.JobParams()
         param = omero.grid.Param()
-        param.name = "a"
         param.prototype = rlist(rlist())
         params.inputs = {"a":param}
 
@@ -47,7 +45,6 @@ class TestPrototypes(unittest.TestCase):
     def testRListRListRString(self):
         params = omero.grid.JobParams()
         param = omero.grid.Param()
-        param.name = "a"
         param.prototype = rlist(rlist(rstring("")))
         params.inputs = {"a":param}
 
@@ -63,7 +60,6 @@ class TestPrototypes(unittest.TestCase):
     def testRMapRInt(self):
         params = omero.grid.JobParams()
         param = omero.grid.Param()
-        param.name = "a"
         param.prototype = rmap({"b":rint(0)})
         params.inputs = {"a":param}
 
@@ -74,7 +70,6 @@ class TestPrototypes(unittest.TestCase):
     def testRMapRMap(self):
         params = omero.grid.JobParams()
         param = omero.grid.Param()
-        param.name = "a"
         param.prototype = rmap({"b":rmap({})})
         params.inputs = {"a":param}
 
@@ -85,7 +80,6 @@ class TestPrototypes(unittest.TestCase):
     def testRMapRMapRInt(self):
         params = omero.grid.JobParams()
         param = omero.grid.Param()
-        param.name = "a"
         param.prototype = rmap({"b":rmap({"c":rint(0)})})
         params.inputs = {"a":param}
 
@@ -98,7 +92,6 @@ class TestPrototypes(unittest.TestCase):
     def testAllParametersChecked(self):
         params = omero.grid.JobParams()
         param = omero.grid.Param()
-        param.name = "a"
         param.prototype = rlist(rstring(""))
         params.inputs = {"a":param}
 

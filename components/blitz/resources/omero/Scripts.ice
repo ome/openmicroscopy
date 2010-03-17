@@ -63,8 +63,22 @@ module omero {
          * environment variables should be.
          **/
         class Param {
-            string name;
+
+            /**
+             * Usage documentation of this param for script users.
+             *
+             * Example of a bad description: "a long value"
+             *
+             * Example of a good description: "long representing
+             * the number of bins to be used by ... A sensible
+             * value would be between 16 and 32"
+             *
+             **/
             string description;
+
+            /**
+             *
+             **/
             bool optional;
 
             /**
