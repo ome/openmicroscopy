@@ -4,6 +4,9 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="resources"/>
+	<classpathentry kind="lib" path="target/libs/blitz.jar"/>
+	<classpathentry kind="lib" path="target/libs/common.jar"/>
+	<classpathentry kind="lib" path="target/libs/server.jar"/>
 	<classpathentry kind="lib" path="target/libs/hsqldb.jar"/>
 	<classpathentry kind="lib" path="target/libs/swingx.jar"/>
 	<classpathentry kind="lib" path="target/libs/TableLayout.jar"/>
