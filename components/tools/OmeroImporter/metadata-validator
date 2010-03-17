@@ -147,7 +147,7 @@ if __name__ == '__main__':
         classpath = os.environ['CLASSPATH']
     except KeyError:
         pass
-    classpath = "%s:./test-classes:./OmeroImporter.jar" % classpath
+    classpath = "%s:./target/test-classes" % classpath
     for f in glob.glob("./target/libs/test/*.jar"):
         classpath += ":%s" % f
 
