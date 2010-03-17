@@ -82,6 +82,9 @@ Syntax: %(program_name)s script file [configuration parameters]
         list group
         list user=[id|name]
         list group=[id|name]
+        list publication=[regex]
+        list ofifical
+        list namespace=[]
 
         log
         log file
@@ -225,7 +228,12 @@ print "Finished script"
 
     @wrapper
     def jobs(self, args):
-        pass
+        client = self.ctx.conn()
+        for x in client.sf.getQueryService().findAllByQuery("select j from Job j where j.finished is null", None):
+            id = x.id.val
+            msg = x.message and x.message.val
+            start = x.started and x.started.val
+            self.ctx.out("%s %s %s" % (id, msg, start))
 
     @wrapper
     def launch(self, args):
@@ -262,13 +270,16 @@ print "Finished script"
                 return # EARLY EXIT
 
             # Adding notification
+            import logging
+            cblog = logging.getLogger("ProcessCallback")
             class ProcessCallbackI(omero.grid.ProcessCallback):
                 def processFinished(self, returnCode, current = None):
-                    print "Finished"
+                    cblog.info("Finished")
                 def processCancelled(self, success, current = None):
-                    print "Cancelled"
+                    cblog.info("Cancelled")
                 def processKilled(self, success, current = None):
-                    print "Killed"
+                    cblog.info("Killed")
+
             import Ice, uuid
             iid = Ice.Identity(name=str(uuid.uuid4()), category="ProcessCallback")
             prx = client.adapter.add(ProcessCallbackI(), iid)

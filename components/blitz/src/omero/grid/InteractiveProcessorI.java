@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import ome.api.JobHandle;
 import ome.api.RawFileStore;
 import ome.model.core.OriginalFile;
 import ome.model.meta.Session;
@@ -29,6 +30,7 @@ import omero.ApiUsageException;
 import omero.RMap;
 import omero.RType;
 import omero.ServerError;
+import omero.ValidationException;
 import omero.model.Job;
 import omero.model.OriginalFileI;
 import omero.model.ParseJob;
@@ -219,12 +221,18 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
                 if (params == null) {
                     params = params(__current);
                 }
+
                 currentProcess = prx.processJob(uuid, params, job);
+
                 // Have to add the process to the control, otherwise the
                 // user won't be able to view it: ObjectNotExistException!
                 // ticket:1522
                 control.identities().add(
                         new Ice.Identity[]{currentProcess.ice_getIdentity()});
+
+            } catch (omero.ValidationException ve) {
+                failJob(ve);
+                throw ve;
             } catch (ServerError se) {
                 log.debug("Error while processing job", se);
                 throw se;
@@ -414,6 +422,23 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
                 }
             });
         }
+    }
+
+    private void failJob(final ValidationException ve) {
+        this.ex.execute(this.principal, new Executor.SimpleWork(this, "failJob", job.getId().getValue()) {
+            @Transactional(readOnly=false)
+            public Object doWork(org.hibernate.Session session,
+                    ServiceFactory sf) {
+                JobHandle jh = sf.createJobHandle();
+                try {
+                    jh.attach(job.getId().getValue());
+                    jh.setStatusAndMessage("Error", ve.message);
+                } finally {
+                    jh.close();
+                }
+                return null;
+            }
+        });
     }
 
     private Session newSession(Current __current) {

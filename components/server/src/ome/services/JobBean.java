@@ -9,13 +9,13 @@ package ome.services;
 
 import java.sql.Timestamp;
 
-import ome.annotations.PermitAll;
 import ome.annotations.RolesAllowed;
 import ome.api.ITypes;
 import ome.api.JobHandle;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
+import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.jobs.Job;
@@ -299,14 +299,44 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
     @Transactional(readOnly = false)
     @RolesAllowed("user")
     public void cancelJob() {
+        setStatus(JobHandle.CANCELLED);
+    }
+
+    @Transactional(readOnly = false)
+    @RolesAllowed("user")
+    public String setStatus(String status) {
+        return setStatusAndMessage(status, null);
+    }
+
+    @Transactional(readOnly = false)
+    @RolesAllowed("user")
+    public String setStatusAndMessage(String status, String message) {
+
+        JobStatus s = iTypes.getEnumeration(JobStatus.class, status);
+
         errorIfInvalidState();
         Job job = internalJobOnly();
-        job.setStatus(new JobStatus(JobHandle.CANCELLED));
-        secureSave(job);
-        Process p = pm.runningProcess(jobId);
-        if (p != null) {
-            p.cancel();
+        String oldStatus = job.getStatus().getValue();
+        job.setStatus(s);
+        if (message != null) {
+            job.setMessage(message);
         }
+        Timestamp t = new Timestamp(System.currentTimeMillis());
+        if (status.equals(RUNNING)) {
+            job.setStarted(t);
+        } else if (status.equals(CANCELLED)) {
+            job.setFinished(t);
+            Process p = pm.runningProcess(jobId);
+            if (p != null) {
+                p.cancel();
+            }
+        } else if (status.equals(FINISHED) || status.equals(ERROR)) {
+            job.setFinished(t);
+        } else {
+            throw new ValidationException("Currently unsupported: " + status);
+        }
+        secureSave(job);
+        return oldStatus;
     }
 
     // ProcessCallback ~

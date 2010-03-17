@@ -100,4 +100,15 @@ public interface JobHandle extends StatefulServiceInterface {
      */
     void cancelJob();
 
+    /**
+     * Updates the {@link JobStatus} for the current job. The previous status
+     * is returned as a string. If the status is {@link #CANCELLED}, this
+     * method is equivalent to {@link #cancelJob()}.
+     */
+    String setStatus(String status);
+
+    /**
+     * Like {@link #setStatus(String)} but also sets the message.
+     */
+    String setStatusAndMessage(@NotNull String status, String message);
 }

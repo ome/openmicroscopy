@@ -35,7 +35,9 @@ import omero.InternalException;
 import omero.RTime;
 import omero.ServerError;
 import omero.ValidationException;
-import omero.api.IScriptPrx;
+import omero.api.JobHandlePrx;
+import omero.constants.categories.PROCESSCALLBACK;
+import omero.constants.categories.PROCESSORCALLBACK;
 import omero.constants.topics.PROCESSORACCEPTS;
 import omero.grid.AMI_InternalRepository_getDescription;
 import omero.grid.AMI_InternalRepository_getProxy;
@@ -46,8 +48,8 @@ import omero.grid.InteractiveProcessorPrxHelper;
 import omero.grid.InternalRepositoryPrx;
 import omero.grid.InternalRepositoryPrxHelper;
 import omero.grid.ParamsHelper;
-import omero.grid.ProcessorAcceptsCallbackPrx;
-import omero.grid.ProcessorAcceptsCallbackPrxHelper;
+import omero.grid.ProcessorCallbackPrx;
+import omero.grid.ProcessorCallbackPrxHelper;
 import omero.grid.ProcessorPrx;
 import omero.grid.ProcessorPrxHelper;
 import omero.grid.RepositoryMap;
@@ -57,7 +59,7 @@ import omero.grid.TablePrx;
 import omero.grid.TablePrxHelper;
 import omero.grid.TablesPrx;
 import omero.grid.TablesPrxHelper;
-import omero.grid._ProcessorAcceptsCallbackDisp;
+import omero.grid._ProcessorCallbackDisp;
 import omero.grid._SharedResourcesOperations;
 import omero.model.Format;
 import omero.model.FormatI;
@@ -87,10 +89,6 @@ import Ice.UserException;
  */
 public class SharedResourcesI extends AbstractAmdServant implements
         _SharedResourcesOperations, BlitzOnly, ServiceFactoryAware {
-
-    private final static String PROC_ACC_CB_CAT = "ProcessorCallbackAccept";
-
-    private final static String PROC_CB_CAT = "ProcessCallback";
 
     private final static Log log = LogFactory.getLog(SharedResourcesI.class);
 
@@ -481,13 +479,20 @@ public class SharedResourcesI extends AbstractAmdServant implements
         final Job job = (Job) mapper.map(savedJob);
         Ice.Identity acceptId = new Ice.Identity();
         acceptId.name = UUID.randomUUID().toString();
-        acceptId.category = PROC_ACC_CB_CAT;
+        acceptId.category = PROCESSORCALLBACK.value;
         ResultHolder<String> holder = new ResultHolder<String>(seconds);
-        AcceptCallback callback = new AcceptCallback(sf, holder, job);
+        Callback callback = new Callback(sf, holder, job);
         ProcessorPrx server = callback.activateAndWait(sf.adapter, acceptId);
 
         // Nothing left to try
         if (server == null) {
+            JobHandlePrx jh = sf.createJobHandle();
+            try {
+                jh.attach(job.getId().getValue());
+                jh.setStatusAndMessage("Error", rstring("No processor available"));
+            } finally {
+                jh.close();
+            }
             throw new omero.ResourceError(null, null, "No processor available.");
         }
 
@@ -508,7 +513,8 @@ public class SharedResourcesI extends AbstractAmdServant implements
         topicManager.register(PROCESSORACCEPTS.value, proc, false);
         processorIds.add(Ice.Util.identityToString(proc.ice_getIdentity()));
         if (sf.control != null) {
-            sf.control.categories().add(new String[]{PROC_ACC_CB_CAT, PROC_CB_CAT});
+            sf.control.categories().add(
+                    new String[]{PROCESSORCALLBACK.value, PROCESSCALLBACK.value});
         }
     }
 
@@ -547,9 +553,6 @@ public class SharedResourcesI extends AbstractAmdServant implements
                             status.setValue(omero.rtypes
                                     .rstring(JobHandle.WAITING));
                             submittedJob.setStatus(status);
-                            // FIXME submittedJob.setMessage(omero.rtypes
-                                    // FIXME.rstring("Interactive job. Waiting."));
-
                             handle.submit((ome.model.jobs.Job) mapper
                                     .reverse(submittedJob));
                             return handle.getJob();
@@ -567,9 +570,9 @@ public class SharedResourcesI extends AbstractAmdServant implements
         return savedJob;
     }
 
-    private static class AcceptCallback extends _ProcessorAcceptsCallbackDisp {
+    private static class Callback extends _ProcessorCallbackDisp {
 
-        private final static Log log = LogFactory.getLog(AcceptCallback.class);
+        private final static Log log = LogFactory.getLog(Callback.class);
 
         private final Job job;
 
@@ -579,7 +582,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         private final EventContext ec;
 
-        public AcceptCallback(ServiceFactoryI sf, ResultHolder<String> holder, Job job) {
+        public Callback(ServiceFactoryI sf, ResultHolder<String> holder, Job job) {
             this.sf = sf;
             this.job = job;
             this.holder = holder;
@@ -592,8 +595,8 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
             try {
                 prx = sf.adapter.createDirectProxy(acceptId);
-                ProcessorAcceptsCallbackPrx cbPrx =
-                        ProcessorAcceptsCallbackPrxHelper.uncheckedCast(prx);
+                ProcessorCallbackPrx cbPrx =
+                        ProcessorCallbackPrxHelper.uncheckedCast(prx);
 
                 TopicManager.TopicMessage msg = new TopicManager.TopicMessage(this,
                         PROCESSORACCEPTS.value,
@@ -638,6 +641,10 @@ public class SharedResourcesI extends AbstractAmdServant implements
                     sessionUuid, reason));
             this.holder.set(null);
 
+        }
+
+        public void responseRunning(List<Long> jobIds, Current __current) {
+            log.error("responseRunning should not have been called");
         }
 
     }

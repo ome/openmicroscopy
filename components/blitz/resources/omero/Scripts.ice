@@ -232,8 +232,9 @@ module omero {
          * Callback interface which is passed to the [Processor::accepts] method
          * to query whether or not a processor will accept a certain operation.
          **/
-        interface ProcessorAcceptsCallback {
+        interface ProcessorCallback {
             void isAccepted(bool accepted, string sessionUuid, string processorConn);
+            void responseRunning(omero::api::LongList jobIds);
         };
 
 
@@ -258,7 +259,13 @@ module omero {
             void willAccept(omero::model::Experimenter userContext,
                          omero::model::ExperimenterGroup groupContext,
                          omero::model::Job scriptContext,
-                         ProcessorAcceptsCallback* cb);
+                         ProcessorCallback* cb);
+
+            /**
+             * Used by servers to find out what jobs are still active.
+             * Response will be sent to [ProcessorCallback::responseRunning]
+             **/
+            void requestRunning(ProcessorCallback* cb);
 
             /**
              * Parses a job and returns metadata definition required

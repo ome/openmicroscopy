@@ -13,6 +13,7 @@ import path
 import time
 import uuid
 import omero
+import IcePy
 import IceGrid
 import logging
 import Glacier2
@@ -233,6 +234,22 @@ class ServerContext(object):
         self.server_id = server_id
         self.communicator = communicator
         self.stop_event = stop_event
+        self.servant_map = dict()
+
+    @locked
+    def add_servant(self, adapter_or_current, servant, ice_identity = None):
+        oa = adapter_or_current
+        if isinstance(adapter_or_current, (Ice.Current, IcePy.Current)):
+            oa = oa.adapter
+        if ice_identity is None:
+            prx = oa.addWithUUID(servant)
+        else:
+            prx = oa.add(servant, ice_identity)
+
+        servant.setProxy(prx)
+        self.servant_map[prx] = servant
+        return prx
+
 
     def newSession(self):
         self.session = internal_service_factory(self.communicator, stop_event = self.stop_event)

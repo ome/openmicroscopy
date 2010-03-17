@@ -759,6 +759,8 @@ module omero {
 	    bool jobRunning()  throws ServerError;
 	    bool jobError()  throws ServerError;
 	    void cancelJob()  throws ServerError;
+            string setStatus(string status) throws ServerError;
+            string setStatusAndMessage(string status, omero::RString message) throws ServerError;
 	};
 
 	/**

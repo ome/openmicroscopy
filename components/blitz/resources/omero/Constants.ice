@@ -160,6 +160,11 @@ module omero {
         const string PROCESSORACCEPTS = "/internal/ProcessorAccept";
         const string HEARTBEAT = "/public/HeartBeat";
     };
+
+    module categories {
+        const string PROCESSORCALLBACK = "ProcessorCallback";
+        const string PROCESSCALLBACK = "ProcessCallback";
+    };
   };
 };
 

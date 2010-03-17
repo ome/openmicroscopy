@@ -70,6 +70,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         self.pid = None                       #: pid of the process. Once set, isn't nulled.
         self.started = None                   #: time the process started
         self.stopped = None                   #: time of deactivation
+        self.final_status = None              #: status which will be sent on set_job_status
         # Non arguments (immutable state)
         self.uuid = properties["omero.user"]  #: session this instance is tied to
 
@@ -175,9 +176,14 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
             self.shutdown()     # Calls cancel & kill which recall this method!
             self.popen = None   # Now we are finished
 
-            self.cleanup_output()
-            self.upload_output() # Important!
-            self.cleanup_tmpdir()
+            client = self.tmp_client()
+            try:
+                self.set_job_status(client)
+                self.cleanup_output()
+                self.upload_output(client) # Important!
+                self.cleanup_tmpdir()
+            finally:
+                client.__del__() # Safe closeSession
 
         except exceptions.Exception:
             self.logger.error("FAILED TO CLEANUP pid=%s (%s)", self.pid, self.uuid, exc_info = True)
@@ -300,29 +306,44 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         except:
             self.logger.error("cleanup of sterr failed", exc_info = True)
 
-    def upload_output(self):
+    def set_job_status(self, client):
+        """
+        Sets the job status
+        """
+        if not client:
+            self.logger.error("No client: Cannot set job status for pid=%s (%s)", self.pid, self.uuid)
+            return
+
+        handle = client.sf.createJobHandle()
+        try:
+            status = self.final_status
+            if status is None:
+                status = ( self.rcode == 0 and "Finished" or "Error" )
+            handle.attach(long(self.properties["omero.job"]))
+            oldStatus = handle.setStatus(status)
+            self.status("Changed job status from %s to %s" % (oldStatus, status))
+        finally:
+            handle.close()
+
+    def upload_output(self, client):
         """
         If this is not a params calculation (i.e. parms != null) and the
         stdout or stderr are non-null, they they will be uploaded and
         attached to the job.
         """
-        client = self.tmp_client()
         if not client:
             self.logger.error("No client: Cannot upload output for pid=%s (%s)", self.pid, self.uuid)
             return
 
-        try:
-            if self.params:
-                out_format = self.params.stdoutFormat
-                err_format = self.params.stderrFormat
-            else:
-                out_format = "text/plain"
-                err_format = out_format
+        if self.params:
+            out_format = self.params.stdoutFormat
+            err_format = self.params.stderrFormat
+        else:
+            out_format = "text/plain"
+            err_format = out_format
 
-            self._upload(client, self.stdout_path, "stdout", out_format)
-            self._upload(client, self.stderr_path, "stderr", err_format)
-        finally:
-                client.__del__() # Safe closeSession
+        self._upload(client, self.stdout_path, "stdout", out_format)
+        self._upload(client, self.stderr_path, "stderr", err_format)
 
     def _upload(self, client, filename, name, format):
 
@@ -444,6 +465,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         if self.alreadyDone():
             return True
 
+        self.final_status = "Cancelled"
         self._send(iskill=False)
         finished = self.isFinished()
         if finished:
@@ -458,6 +480,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         if self.alreadyDone():
             return True
 
+        self.final_status = "Cancelled"
         self._send(iskill=True)
         finished = self.isFinished()
         if finished:
@@ -663,11 +686,23 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
         try:
             id = self.internal_session().ice_getIdentity().name
-            #cb = cb.ice_oneway()
-            cb = omero.grid.ProcessorAcceptsCallbackPrx.uncheckedCast(cb)
+            cb = cb.ice_oneway()
+            cb = omero.grid.ProcessorCallbackPrx.uncheckedCast(cb)
             cb.isAccepted(valid, id, str(self.prx))
         except exceptions.Exception, e:
-            self.logger.warn("Accept callback failed: %s Exception:%s", cb, e)
+            self.logger.warn("callback failed on willAccept: %s Exception:%s", cb, e)
+
+    @remoted
+    def requestRunning(self, cb, current = None):
+
+        try:
+            cb = cb.ice_oneway()
+            cb = omero.grid.ProcessorCallbackPrx.uncheckedCast(cb)
+            servants = list(self.servant_map.values())
+            rv = [long(x.properties["omero.job"]) for x in servants]
+            cb.responseRunning(rv)
+        except exceptions.Exception, e:
+            self.logger.warn("callback failed on requestRunning: %s Exception:%s", cb, e)
 
 
     @remoted
@@ -718,39 +753,42 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
         file, handle = self.lookup(job)
 
-        if not file:
+        try:
+            if not file:
+                raise omero.ApiUsageException(\
+                    None, None, "Job should have one executable file attached.")
+
+            if params:
+                self.logger.debug("Checking params for job %s" % job.id.val)
+                sf = self.internal_session()
+                svc = sf.getSessionService()
+                inputs = svc.getInputs(session)
+                errors = omero.scripts.validate_inputs(params, inputs)
+                if errors:
+                    errors = "Invalid parameters:\n%s" % errors
+                    raise omero.ValidationException(None, None, errors)
+
+            properties["omero.job"] = str(job.id.val)
+            properties["omero.user"] = session
+            properties["omero.pass"] = session
+            properties["Ice.Default.Router"] = client.getProperty("Ice.Default.Router")
+
+            process = ProcessI(self.ctx, "python", properties, params, iskill)
+            self.resources.add(process)
+            client.download(file, str(process.script_path))
+            self.logger.info("Downloaded file: %s" % file.id.val)
+            s = client.sha1(str(process.script_path))
+            if not s == file.sha1.val:
+                msg = "Sha1s don't match! expected %s, found %s" % (file.sha1.val, s)
+                self.logger.error(msg)
+                process.cleanup()
+                raise omero.InternalException(None, None, msg)
+            else:
+                process.activate()
+                handle.setStatus("Running")
+
+            prx = self.ctx.add_servant(current, process)
+            return omero.grid.ProcessPrx.uncheckedCast(prx), process
+
+        finally:
             handle.close()
-            raise omero.ApiUsageException(\
-                None, None, "Job should have one executable file attached.")
-
-        if params:
-            self.logger.debug("Checking params for job %s" % job.id.val)
-            sf = self.internal_session()
-            svc = sf.getSessionService()
-            inputs = svc.getInputs(session)
-            errors = omero.scripts.validate_inputs(params, inputs)
-            if errors:
-                errors = "Invalid parameters:\n%s" % errors
-                raise omero.ValidationException(None, None, errors)
-
-        properties["omero.job"] = str(job.id.val)
-        properties["omero.user"] = session
-        properties["omero.pass"] = session
-        properties["Ice.Default.Router"] = client.getProperty("Ice.Default.Router")
-
-        process = ProcessI(self.ctx, "python", properties, params, iskill)
-        self.resources.add(process)
-        client.download(file, str(process.script_path))
-        self.logger.info("Downloaded file: %s" % file.id.val)
-        s = client.sha1(str(process.script_path))
-        if not s == file.sha1.val:
-            msg = "Sha1s don't match! expected %s, found %s" % (file.sha1.val, s)
-            self.logger.error(msg)
-            process.cleanup()
-            raise omero.InternalException(None, None, msg)
-        else:
-            process.activate()
-
-        prx = current.adapter.addWithUUID(process)
-        process.setProxy( prx )
-        return omero.grid.ProcessPrx.uncheckedCast(prx), process

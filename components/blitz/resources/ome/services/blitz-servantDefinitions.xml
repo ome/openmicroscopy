@@ -270,6 +270,12 @@
         </bean>
     </constructor-arg>
   </bean>
+  <bean class="ome.services.blitz.util.CheckAllJobs" lazy-init="false">
+    <constructor-arg ref="executor"/>
+    <constructor-arg ref="BlitzAdapter"/>
+    <constructor-arg ref="TopicManager"/>
+    <constructor-arg value="120000"/> <!-- ms.; Give processor time to recover -->
+  </bean>
 
   <bean id="omero.api.MetadataStore" class="omero.api._MetadataStoreTie" singleton="false">
     <constructor-arg>

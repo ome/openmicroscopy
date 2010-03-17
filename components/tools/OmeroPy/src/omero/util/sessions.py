@@ -167,7 +167,6 @@ class SessionsStore(object):
                     if name is None or str(n.basename()) == name:
                         for s in self.non_dot(n):
                             if sess is None or str(s.basename()) == sess:
-                                print "Calling on %s" % s
                                 func(h, n, s)
 
     def non_dot(self, d):

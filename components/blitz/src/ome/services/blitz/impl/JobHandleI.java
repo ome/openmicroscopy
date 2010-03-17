@@ -9,6 +9,7 @@ package ome.services.blitz.impl;
 
 import ome.api.JobHandle;
 import ome.services.blitz.util.BlitzExecutor;
+import omero.RString;
 import omero.ServerError;
 import omero.api.AMD_JobHandle_attach;
 import omero.api.AMD_JobHandle_cancelJob;
@@ -18,6 +19,8 @@ import omero.api.AMD_JobHandle_jobFinished;
 import omero.api.AMD_JobHandle_jobMessage;
 import omero.api.AMD_JobHandle_jobRunning;
 import omero.api.AMD_JobHandle_jobStatus;
+import omero.api.AMD_JobHandle_setStatus;
+import omero.api.AMD_JobHandle_setStatusAndMessage;
 import omero.api.AMD_JobHandle_submit;
 import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
@@ -96,6 +99,16 @@ public class JobHandleI extends AbstractAmdServant implements
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current, j);
 
+    }
+
+    public void setStatus_async(AMD_JobHandle_setStatus __cb, String status,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, status);
+    }
+
+    public void setStatusAndMessage_async(AMD_JobHandle_setStatusAndMessage __cb, String status,
+            RString msg, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, status, msg);
     }
 
 }
