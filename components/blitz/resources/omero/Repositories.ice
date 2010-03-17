@@ -43,6 +43,10 @@ module omero {
             omero::api::OriginalFileList listDirs(string path) throws ServerError;
             omero::api::OriginalFileList listFiles(string path) throws ServerError;
 
+            omero::api::IObjectListMap listObjects(string path) throws ServerError;
+            
+            
+            //FROM HERE DOWN TO...
             // These list methods provide only registered files and/or directories.
             omero::api::OriginalFileList listKnown(string path) throws ServerError;
             omero::api::OriginalFileList listKnownDirs(string path) throws ServerError;
@@ -63,7 +67,7 @@ module omero {
             // This list methods provide only registered non-image files.
             omero::api::OriginalFileList listKnownNonImages(string path) 
                     throws ServerError;
-
+            //...ARE ALL DEPRECATED AND WILL BE REMOVED 
 
 
             // Or do we use an options object here?

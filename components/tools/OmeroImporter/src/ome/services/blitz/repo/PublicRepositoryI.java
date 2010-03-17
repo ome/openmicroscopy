@@ -17,10 +17,12 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 import javax.activation.MimetypesFileTypeMap;
 
@@ -36,12 +38,15 @@ import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.grid.RepositoryPrx;
 import omero.grid._RepositoryDisp;
+import omero.model.IObject;
 import omero.model.Format;
 import omero.model.FormatI;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
+import omero.model.Pixels;
+import omero.model.PixelsI;
 import omero.util.IceMapper;
 
 import ome.formats.importer.ImportContainer;
@@ -263,7 +268,53 @@ public class PublicRepositoryI extends _RepositoryDisp {
         List<File> files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.fileFileFilter()));
         return filesToOriginalFiles(files);
     }
-    
+
+    /**
+     * Get a list of those files and directories at path that are already registered.
+     * 
+     * @param path
+     *            A path on a repository.
+     * @param __current
+     *            ice context.
+     * @return List of OriginalFile objects at path
+     *
+     */
+    public Map<String, List<IObject>> listObjects(String path, Current __current)
+            throws ServerError {
+        Map<String, List<IObject>> rv = new HashMap<String, List<IObject>>();
+        
+        File file = checkPath(path);
+        List<File> files = Arrays.asList(file.listFiles());
+        List<String> names = filesToPaths(files);
+        Map<String, List<String>> importableFiles = importableImageFiles(files);
+        
+        
+        for (String keyFile : importableFiles.keySet()) {
+            rv.put(keyFile, new ArrayList<IObject>());
+            String keyFileExt = keyFile.substring(keyFile.lastIndexOf('.')+1, keyFile.length());
+            List<String> iFileList = importableFiles.get(keyFile);
+            for (String iFile : iFileList)  {
+                String iFileExt = iFile.substring(iFile.lastIndexOf('.')+1, iFile.length());
+                if (keyFileExt.equals(iFileExt)) {
+                    List<Image> imageList = getImages(iFile);
+                    if (imageList != null && imageList.size() != 0) {
+                        rv.get(keyFile).add(imageList.get(0));
+                    } else {
+                        rv.get(keyFile).add(createImage(new File(iFile)));   
+                    }
+                } else {
+                    List<OriginalFile> ofList = getOriginalFiles(iFile);
+                    if (ofList != null && ofList.size() != 0) {
+                        rv.get(keyFile).add(ofList.get(0));
+                    } else {
+                        rv.get(keyFile).add(createOriginalFile(new File(iFile)));   
+                    }
+                }
+            }
+        }
+        return rv;
+    }
+
     /**
      * Get a list of those files and directories at path that are already registered.
      * 
@@ -278,7 +329,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
             throws ServerError {
         File file = checkPath(path);
         List<File> files = Arrays.asList(file.listFiles());
-        return knownOriginalFiles(files);
+        return filesToOriginalFiles(files);
     }
 
     /**
@@ -566,6 +617,25 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return rv;
     }
 
+    /**
+     * Get IObject objects corresponding to a collection of File objects.
+     * 
+     * @param files
+     *            A collection of File objects.
+     * @return A list of new OriginalFile objects
+     *
+     */
+    private Map<String, List<IObject>> filesToIObjects(Collection<File> files) {
+        Map<String, List<IObject>> rv = new HashMap<String, List<IObject>>();
+        for (File f : files) {
+            List iObjList = new ArrayList<IObject>();
+            OriginalFile iObj = createOriginalFile(f);
+            iObjList.add(iObj);
+            rv.put(f.getAbsolutePath(), iObjList);
+        }
+        return rv;
+    }
+
 
     /**
      * Get file paths corresponding to a collection of File objects.
@@ -617,6 +687,22 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
     
     /**
+     * Get Pixels objects corresponding to a collection of File objects.
+     * 
+     * @param files
+     *            A collection of File objects.
+     * @return A list of new Image objects
+     *
+     */
+    private List<Pixels> filesToPixels(Collection<File> files) {
+        List rv = new ArrayList<Image>();
+        for (File f : files) {
+            rv.add(createPixels(f));
+        }
+        return rv;
+    }
+    
+    /**
      * Get registered OriginalFile objects corresponding to a collection of File objects.
      * 
      * @param files
@@ -632,7 +718,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         return rv;
     }
-    
+
     /**
      * Get registered Image objects corresponding to a collection of File objects.
      * 
@@ -650,7 +736,25 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return rv;
     }
     
+    private  Map<String, List<String>> importableImageFiles(Collection<File> files) {
+        List<String> pathList = filesToPaths(files);
+        String paths [] = (String []) pathList.toArray (new String [pathList.size()]);        
+        Map<String, List<String>> importableFiles = new  HashMap<String, List<String>>();
 
+        ImportableFiles imp = new ImportableFiles(paths);
+        List<ImportContainer> containers = imp.getContainers();
+
+        for (ImportContainer ic : containers) {
+            String name = ic.file.getAbsolutePath();
+            importableFiles.put(name, Arrays.asList(ic.usedFiles));
+        }
+        return importableFiles;
+    }
+
+
+
+
+    
     /**
      * Create an OriginalFile object corresponding to a File object.
      * 
@@ -691,6 +795,14 @@ public class PublicRepositoryI extends _RepositoryDisp {
         image.setName(rstring(f.getAbsolutePath()));        
         image.setAcquisitionDate(rtime(java.lang.System.currentTimeMillis()));
         return image;
+    }
+    
+    private Pixels createPixels(File f) {
+        Pixels pixels = new PixelsI();
+        // This needs to be unique ala ticket #1753
+        //pixels.setName(rstring(f.getAbsolutePath()));        
+        //image.setAcquisitionDate(rtime(java.lang.System.currentTimeMillis()));
+        return pixels;
     }
     
     /**
@@ -773,6 +885,9 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
         for (ImportContainer ic : containers) {
             String name = ic.file.getAbsolutePath();
+                for(String uf : ic.usedFiles) {
+                    importableImageFiles.add(new File(uf));
+                }
             importableImageFiles.add(new File(name));
         }
         return importableImageFiles;

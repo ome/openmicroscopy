@@ -20,6 +20,7 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportCandidates;
+import ome.formats.importer.ImportCandidates.SCANNING;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
@@ -49,9 +50,8 @@ public class ImportableFiles implements IObserver {
         final IObserver self = this;
         // Default config for now, may need to set some details?
         config = new ImportConfig();
-        config.configureDebug(1);
+        //config.configureDebug(1);
         OMEROWrapper reader = new OMEROWrapper(config);
-        // The first argument here is depth, it doesn't seem to work.
         candidates = new ImportCandidates(0, reader, paths, self);
         containers = candidates.getContainers();  
     }
@@ -67,8 +67,9 @@ public class ImportableFiles implements IObserver {
      */
     public void update(IObservable observable, ImportEvent event)
     {
-        // For now just log a dummy, need to resolve ImportEvents.
-        log.info(String.format("ImportCanditates called updates."));
+        if (event instanceof SCANNING) {
+            log.info(event.toLog());
+        }    
     }
 
 }
