@@ -263,6 +263,14 @@ public class client {
             id.properties.setProperty("omero.ClientCallback.Endpoints", "tcp");
         }
 
+        // Threadpool to 5 if not present
+        String threadpool = id.properties
+                .getProperty("omero.ClientCallback.ThreadPool.Size");
+        if (threadpool == null || threadpool.length() == 0) {
+            id.properties.setProperty("omero.ClientCallback.ThreadPool.Size",
+                Integer.toString(omero.constants.CLIENTTHREADPOOLSIZE.value));
+        }
+
         // Port, setting to default if not present
         String port = parseAndSetInt(id, "omero.port",
                 omero.constants.GLACIER2PORT.value);

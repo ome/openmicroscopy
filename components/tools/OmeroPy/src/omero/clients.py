@@ -193,6 +193,11 @@ class BaseClient(object):
         if not endpoints or len(endpoints) == 0:
             id.properties.setProperty("omero.ClientCallback.Endpoints", "tcp")
 
+        # ThreadPool to 5 if not present
+        threadpool = id.properties.getProperty("omero.ClientCallback.ThreadPool.Size")
+        if not threadpool or len(threadpool) == 0:
+            id.properties.setProperty("omero.ClientCallback.ThreadPool.Size", str(omero.constants.CLIENTTHREADPOOLSIZE))
+
         # Port, setting to default if not present
         port = self.parseAndSetInt(id, "omero.port",\
                                   omero.constants.GLACIER2PORT)

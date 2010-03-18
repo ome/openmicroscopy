@@ -60,6 +60,14 @@ namespace omero {
 	    id.properties->setProperty("omero.ClientCallback.Endpoints", "tcp");
 	}
 
+	// ThreadPool to 5 if not present
+	std::string threadpool = id.properties->getProperty("omero.ClientCallback.ThreadPool.Size");
+	if ( threadpool.length() == 0 ) {
+            stringstream ssTpInt;
+            ssTpInt << omero::constants::CLIENTTHREADPOOLSIZE;
+	    id.properties->setProperty("omero.ClientCallback.ThreadPool.Size", ssTPInt.str());
+	}
+
 	// Port, setting to default if not present
 	std::string port = parseAndSetInt(id, "omero.port",
 			    omero::constants::GLACIER2PORT);

@@ -39,6 +39,12 @@ module omero {
     const int MESSAGESIZEMAX = 65536;
 
     /**
+     * Default omero.ClientCallback.ThreadPool.Size (5).
+     * Must be set before communicator initialization.
+     **/
+    const int CLIENTTHREADPOOLSIZE = 5;
+
+    /**
      * Default Ice.Override.ConnectTimeout (5000). Also not strictly necessary,
      * but prevents clients being blocked by failed servers. -1 disables.
      **/
