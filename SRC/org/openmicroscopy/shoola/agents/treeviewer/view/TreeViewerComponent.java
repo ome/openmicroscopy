@@ -689,9 +689,9 @@ class TreeViewerComponent
 			"invoked in the DISCARDED, SAVE state.");
 		}
 		view.removeAllFromWorkingPane();
-		ExperimenterData exp = model.getUserDetails();
-		model.getMetadataViewer().setRootObject(null, exp.getId());
-		firePropertyChange(REMOVE_EDITOR_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+		model.getMetadataViewer().setRootObject(null, -1);
+		firePropertyChange(REMOVE_EDITOR_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
 	}
 
 	/**
@@ -761,8 +761,7 @@ class TreeViewerComponent
         	 single = false;
         	 TreeImageTimeSet time = (TreeImageTimeSet) display;
         	 if (!time.containsImages()) {
-        		 ExperimenterData exp = model.getUserDetails();
-        		 metadata.setRootObject(null, exp.getId());
+        		 metadata.setRootObject(null, -1);
         		 return;
         	 }
         } 
@@ -794,8 +793,7 @@ class TreeViewerComponent
         		  browse(display, true);
         	  } else showDataBrowser(object, display, true);
         } else {
-        	ExperimenterData exp = model.getUserDetails();
-        	metadata.setRootObject(null, exp.getId());
+        	metadata.setRootObject(null, -1);
         }
 	}
 
@@ -1990,8 +1988,7 @@ class TreeViewerComponent
 		Collection<DataObject> results = (Collection<DataObject>) result;
 		MetadataViewer metadata = model.getMetadataViewer();
 		if (metadata != null) {
-			ExperimenterData exp = model.getUserDetails();
-			metadata.setRootObject(null, exp.getId());
+			metadata.setRootObject(null, -1);
 		}
 		if (results == null || results.size() == 0) {
 			//UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
@@ -2311,8 +2308,7 @@ class TreeViewerComponent
 				model.getSelectedBrowser().removeTreeNodes(toRemove);
 				view.removeAllFromWorkingPane();
 				DataBrowserFactory.discardAll();
-				ExperimenterData exp = model.getUserDetails();
-				model.getMetadataViewer().setRootObject(null, exp.getId());
+				model.getMetadataViewer().setRootObject(null, -1);
 				model.fireObjectsDeletion(l);
 				fireStateChange();
 			}
@@ -2356,8 +2352,7 @@ class TreeViewerComponent
 		}
 		*/
 		//onSelectedDisplay();
-		ExperimenterData exp = model.getUserDetails();
-		model.getMetadataViewer().setRootObject(null, exp.getId());
+		model.getMetadataViewer().setRootObject(null, -1);
 		setStatus(false, "", true);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}

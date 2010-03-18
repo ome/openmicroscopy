@@ -129,7 +129,7 @@ class MetadataViewerModel
 	
 	/** 
 	 * The id of the possible owner, this should only be used
-	 * to handle <code>FileData</code> objects.
+	 * to handle unregistered objects.
 	 */
 	private long									userID;
 	
@@ -643,4 +643,12 @@ class MetadataViewerModel
 		return img.getDefaultPixels().getSizeC() >= Renderer.MAX_CHANNELS;
 	}
 	
+	/** 
+	 * Sets the id of the possible owner. This should only be used for
+	 * unregistered objects.
+	 *  
+	 * @param userID The value to set.
+	 */
+	void setUserID(long userID) { this.userID = userID; }
+
 }

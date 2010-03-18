@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -112,6 +113,14 @@ public class FSFileSystemView
     	return null;
     }
     
+    /**
+     * Populates the collections of files.
+     * 
+     * @param files The files to handles.
+     * @param map   The map to transform.
+     * @param useFileHiding  Pass <code>true</code> to display the hidden files,
+     * 						<code>false</code> otherwise.
+     */
     private void populate(Vector<DataObject> files, Map<String, List<IObject>>
     map, boolean useFileHiding)
     {
@@ -121,6 +130,9 @@ public class FSFileSystemView
 		List list;
 		File f;
 		IObject object;
+		ImageData img;
+		Iterator j;
+		List<FileData> components;
 		if (useFileHiding) {
 		} else {
 			while (i.hasNext()) {
@@ -136,12 +148,23 @@ public class FSFileSystemView
 							files.addElement(new FileData(object));
 						}
 					} else if (list.size() > 1) {
-						
+						object = (IObject) list.get(0);
+						if (object instanceof Image) {
+							img = new ImageData((Image) object);
+							j = list.iterator();
+							components = new ArrayList<FileData>();
+							while (j.hasNext()) {
+								object = (IObject) j.next();
+								if (object instanceof OriginalFile)
+									components.add(new FileData(object));
+							}
+							img.setImageComponents(components);
+							files.addElement(img);
+						}
 					}
 				}
 			}
 		}
-		
     }
     
     /**

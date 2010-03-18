@@ -616,12 +616,10 @@ class EditorModel
 		if (object instanceof ExperimenterData) 
 			return (((ExperimenterData) object).getId() == userID);
 		if (!(object instanceof DataObject)) return false;
-		if (object instanceof FileData) {
-			FileData f = (FileData) object;
-			if (f.getId() < 0) {
-				return userID == getUserID();
-			}
-		}
+		if (object instanceof FileData || object instanceof ImageData) {
+			DataObject f = (DataObject) object;
+			if (f.getId() < 0) return userID == getUserID();
+		} 
 		return EditorUtil.isUserOwner(object, userID);
 	}
 	

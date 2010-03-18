@@ -552,7 +552,7 @@ public interface MetadataViewer
 
 	/**
 	 * Returns the id of the possible owner. This should only be used to 
-	 * handle <code>FileData</code> objects.
+	 * handle unregistered objects.
 	 * 
 	 * @return See above.
 	 */

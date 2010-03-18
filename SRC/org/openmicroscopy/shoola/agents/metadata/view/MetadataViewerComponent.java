@@ -348,14 +348,18 @@ class MetadataViewerComponent
 	 */
 	public void setRootObject(Object root, long userID)
 	{
-		if (root == null) root = "";
 		if (root instanceof WellSampleData) {
 			WellSampleData ws = (WellSampleData) root;
 			if (ws.getId() < 0) root = null;
 		}
+		if (root == null) {
+			root = "";
+			userID = -1;
+		}
 		model.setRootObject(root);
 		view.setRootObject();
 		//reset the parent.
+		model.setUserID(userID);
 		setParentRootObject(null);
 	}
 
@@ -574,7 +578,7 @@ class MetadataViewerComponent
 				un.notifyInfo("Update experimenters", buf.toString());
 			}
 			firePropertyChange(CLEAR_SAVE_DATA_PROPERTY, null, data);
-			setRootObject(null, model.getUserID());
+			setRootObject(null, -1);
 		} else setRootObject(o, model.getUserID());
 		firePropertyChange(ADMIN_UPDATED_PROPERTY, null, data);
 		
@@ -998,6 +1002,5 @@ class MetadataViewerComponent
 	 * @see MetadataViewer#getUserID()
 	 */
 	public long getUserID() { return model.getUserID(); }
-	
 	
 }

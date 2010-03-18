@@ -53,6 +53,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.FileData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
@@ -431,23 +432,6 @@ public class TreeViewerTranslator
             screen.setNumberItems(0);
         }
         return screen;
-    }
-    
-    /**
-     * Transforms a {@link ImageData} into a visualization object i.e.
-     * a {@link TreeImageNode}.
-     * 
-     * @param data  The {@link ImageData} to transform.
-     *              Mustn't be <code>null</code>.
-     * @return See above.
-     */
-    private static TreeImageDisplay transformImage(ImageData data)
-    {
-        if (data == null)
-            throw new IllegalArgumentException("Cannot be null");
-        TreeImageNode node = new TreeImageNode(data);
-        formatToolTipFor(node);
-        return node;
     }
     
     /**
@@ -866,5 +850,25 @@ public class TreeViewerTranslator
 		return nodes;
 	}
 	
+    /**
+     * Transforms a {@link ImageData} into a visualization object i.e.
+     * a {@link TreeImageNode} or {@link TreeImageSet} for image
+     * with multiple files.
+     * 
+     * @param data  The {@link ImageData} to transform.
+     *              Mustn't be <code>null</code>.
+     * @return See above.
+     */
+    public static TreeImageDisplay transformImage(ImageData data)
+    {
+        if (data == null)
+            throw new IllegalArgumentException("Cannot be null");
+        List<FileData> images = data.getImageComponents();
+        TreeImageDisplay node;
+        if (images != null && images.size() > 0) node = new TreeImageSet(data);
+        else node = new TreeImageNode(data);
+        formatToolTipFor(node);
+        return node;
+    }
 }
     

@@ -68,6 +68,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserManageAction;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
@@ -522,6 +523,11 @@ class BrowserUI
     		DataObject object;
     		FileData file;
     		TreeImageDisplay display;
+    		ImageData img;
+    		List list;
+    		Iterator j;
+    		List<TreeImageDisplay> nodes;
+    		DefaultTreeModel dtm =  (DefaultTreeModel) treeDisplay.getModel();
     		for (int i = 0; i < files.length; i++) {
     			object = files[i];
     			display = null;
@@ -538,7 +544,19 @@ class BrowserUI
             			}
             		}
     			} else if (object instanceof ImageData) {
-    				display = new TreeImageNode(object);
+    				img = (ImageData) object;
+    				display = TreeViewerTranslator.transformImage(img);
+    				list = img.getImageComponents();
+    				if (list != null && list.size() > 0) {
+    					j = list.iterator();
+    					display.setChildrenLoaded(Boolean.valueOf(true));
+    					nodes = new ArrayList<TreeImageDisplay>();
+    					while (j.hasNext()) {
+    						nodes.add(new TreeImageNode(j.next()));
+						}
+    					buildTreeNode(display, 
+    							prepareSortedList(sorter.sort(nodes)), dtm);
+    				}
     			}
     			if (display != null) dirSet.addChildDisplay(display);
 			}
