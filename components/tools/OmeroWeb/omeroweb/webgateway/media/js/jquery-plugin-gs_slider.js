@@ -18,7 +18,7 @@
  * TODO: Make css classes configurable to avoid clashes.
  */
 
-$.fn.slider = function(cfg) {
+$.fn.gs_slider = function(cfg) {
   return this.each(function(){
       this.sliderCfg = {
         orientation: cfg && cfg.orientation == 'v' ? 'height' : 'width',

@@ -1,7 +1,7 @@
 /**
  * weblitz-thumbslider - Weblitz image viewport
  *
- * Depends on jquery, jquery-plugin-viewportImage, gs_utils
+ * Depends on jquery, jquery-plugin-viewportImage, gs_utils, gs_slider
  * Uses weblitz.css
  *
  * Copyright (c) 2007, 2008, 2009 Glencoe Software, Inc. All rights reserved.
@@ -51,9 +51,27 @@ var Metadata = function () {
         this[i][j] = cached[i][j];
       }
     }
-    this.current.z = parseInt(this.size.z / 2);
-    this.current.t = 0;
+    this.current.z = this.rdefs.defaultZ;
+    this.current.t = this.rdefs.defaultT;
     this.current.zoom = 100;
+  }
+  this.hasSameSettings = function (other) {
+    if (this.rdefs.model === other.rdefs.model) {
+      for (i in this.channels) {
+        if (this.channels[i].active != other.channels[i].active ||
+            rgbToHex(this.channels[i].color) != rgbToHex(other.channels[i].color) ||
+            this.channels[i].emissionWave != other.channels[i].emissionWave ||
+            this.channels[i].label != other.channels[i].label ||
+            this.channels[i].window.end != other.channels[i].window.end ||
+            this.channels[i].window.min != other.channels[i].window.min ||
+            this.channels[i].window.max != other.channels[i].window.max ||
+            this.channels[i].window.start != other.channels[i].window.start) {
+          return false;
+        }
+      }
+      return true;
+    };
+    return false;
   }
   return true;
 }
@@ -82,6 +100,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
   var _this = this;
   var thisid = this.self.attr('id');
   this.loadedImg = new Metadata();
+  this.loadedImg_def = new Metadata();
   var topid = thisid + '-top';
   var zsliderid = thisid + '-zsl';
   var viewportid = thisid + '-vp';
@@ -112,8 +131,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
 
   this.viewportimg.viewportImage(options);
   this.viewportimg.bind('zoom', function (e,z) { _this.loadedImg.current.zoom = z; });
-  this.zslider.slider({ orientation: 'v', min:0, max:0, tooltip_prefix: 'Z=', repeatCallback: done_reload });
-  this.tslider.slider({ tooltip_prefix: 'T=', min:0, max:0, repeatCallback: done_reload });
+  this.zslider.gs_slider({ orientation: 'v', min:0, max:0, tooltip_prefix: 'Z=', repeatCallback: done_reload });
+  this.tslider.gs_slider({ tooltip_prefix: 'T=', min:0, max:0, repeatCallback: done_reload });
   this.viewportimg.css('overflow', 'hidden');
   this.zslider.bind('change', function (e,pos) {
 	_this.loadedImg.current.z = pos-1;
@@ -154,6 +173,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     hideLoading();
     clearTimeout(ajaxTimeout);
     _this.loadedImg._load(data);
+    _this.loadedImg_def = jQuery.extend(true, {}, _this.loadedImg);
     if (_this.loadedImg.current.query) {
       _this.setQuery(_this.loadedImg.current.query);
     }
@@ -282,9 +302,9 @@ jQuery._WeblitzViewport = function (container, server, options) {
       var pos;
       var targetpos = _this.viewportimg.offset();
       if (_this.getLinePlot().isVertical()) {
-        pos = _this.loadedImg.size.width * (e.clientX - targetpos.left) / _this.viewportimg.width();
+        pos = _this.loadedImg.size.width * (e.pageX - targetpos.left) / _this.viewportimg.width();
       } else {
-        pos = _this.loadedImg.size.height * (e.clientY - targetpos.top) / _this.viewportimg.height();
+        pos = _this.loadedImg.size.height * (e.pageY - targetpos.top) / _this.viewportimg.height();
       }
       _this.self.trigger('linePlotPos', [Math.round(pos)]);
     }
@@ -292,12 +312,12 @@ jQuery._WeblitzViewport = function (container, server, options) {
   };
 
   this.startPickPos = function () {
-    this.viewportimg.bind('onclick', pickPosHandler);
+    this.viewportimg.bind('click', pickPosHandler);
     this.viewportimg.parent().addClass('pick-pos');
   }
 
   this.stopPickPos = function () {
-    this.viewportimg.unbind('onclick', pickPosHandler);
+    this.viewportimg.unbind('click', pickPosHandler);
     this.viewportimg.parent().removeClass('pick-pos');
   }
 
@@ -422,11 +442,30 @@ jQuery._WeblitzViewport = function (container, server, options) {
     }
   }
 
+  this.setChannelLabel = function (idx, label, noreload) {
+    _this.loadedImg.channels[idx].label = label;
+    _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
+    if (!noreload) {
+      _load();
+    }
+  }
+
   this.setChannelWindow = function (idx, start, end, noreload) {
     var channel = _this.loadedImg.channels[idx];
+    if (parseInt(start) > parseInt(end)) {
+      var t = start;
+      start = end;
+      end = t;
+    }
+    if (start < _this.loadedImg.pixel_range[0]) {
+      start = _this.loadedImg.pixel_range[0];
+    }
 //    if (channel.window.min <= start) {
       channel.window.start = start;
 //    }
+    if (end > _this.loadedImg.pixel_range[1]) {
+      end = _this.loadedImg.pixel_range[1];
+    }
 //    if (channel.window.max >= end) {
       channel.window.end = end;
 //    }
@@ -595,11 +634,15 @@ jQuery._WeblitzViewport = function (container, server, options) {
   var channels_bookmark = null;
 
   var compare_stack_entries = function (e1, e2) {
-    for (i in e1) {
-      if (!(e1[i].active == e2[i].active &&
-            rgbToHex(e1[i].color) == rgbToHex(e2[i].color) &&
-            e1[i].windowStart == e2[i].windowStart &&
-            e1[i].windowEnd == e2[i].windowEnd)) {
+    if (e1.model != e2.model) {
+      return false;
+    }
+    for (i in e1.channels) {
+      if (!(e1.channels[i].active == e2.channels[i].active &&
+            rgbToHex(e1.channels[i].color) == rgbToHex(e2.channels[i].color) &&
+            e1.channels[i].windowStart == e2.channels[i].windowStart &&
+            e1.channels[i].windowEnd == e2.channels[i].windowEnd &&
+            e1.channels[i].label == e2.channels[i].label)) {
         return false;
       }
     }
@@ -608,14 +651,15 @@ jQuery._WeblitzViewport = function (container, server, options) {
 
   this.save_channels = function () {
     /* Store all useful information */
-    var entry = [];
+    var entry = {channels:[], model: this.getModel()};
     var channels = _this.loadedImg.channels;
     for (i in channels) {
       var channel = {active: channels[i].active,
                      color: toRGB(channels[i].color),
                      windowStart: channels[i].window.start,
-                     windowEnd: channels[i].window.end};
-      entry.push(channel);
+                     windowEnd: channels[i].window.end,
+                     label: channels[i].label};
+      entry.channels.push(channel);
     }
     /* Trim stack to current position to dump potential redo information */
     if (channels_undo_stack_ptr == -1 || !compare_stack_entries(entry, channels_undo_stack[channels_undo_stack_ptr])) {
@@ -633,10 +677,12 @@ jQuery._WeblitzViewport = function (container, server, options) {
 //      }
       channels_undo_stack_ptr--;
       entry = channels_undo_stack[channels_undo_stack_ptr];
-      for (i in entry) {
-        this.setChannelWindow(i, entry[i].windowStart, entry[i].windowEnd, true);
-        this.setChannelColor(i, entry[i].color, true);
-        this.setChannelActive(i, entry[i].active, true);
+      this.setModel(entry.model);
+      for (i in entry.channels) {
+        this.setChannelWindow(i, entry.channels[i].windowStart, entry.channels[i].windowEnd, true);
+        this.setChannelColor(i, entry.channels[i].color, true);
+        this.setChannelActive(i, entry.channels[i].active, true);
+        this.setChannelLabel(i, entry.channels[i].label, true);
       }
       _load();
     }
@@ -788,6 +834,15 @@ jQuery._WeblitzViewport = function (container, server, options) {
     }
     return rv;
   }
+
+  /**
+   * Verifies if the image has suffered changes since it was first loaded.
+   * Only changes that are related to the rendering settings are checked.
+   * @return true if the rendering settings have changed, false otherwise
+   */
+  this.hasSettingsChanges = function () {
+    return !_this.loadedImg.hasSameSettings(_this.loadedImg_def);
+  };
 
   /**
    * Some events are handled by us, some are proxied to the viewport plugin.

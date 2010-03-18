@@ -28,7 +28,7 @@ build_list = {
         '3rdparty/jquery-1.2.6.js',
         'weblitz-viewport.js',
         'jquery-plugin-viewportImage.js',
-        'jquery-plugin-slider.js',
+        'jquery-plugin-gs_slider.js',
         'gs_utils.js',
         ),
     'weblitz_minimal.css': (

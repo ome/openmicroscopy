@@ -10,6 +10,7 @@ from omero.gateway.scripts.testdb_create import *
 from django.test.client import Client
 from django.core.handlers.wsgi import WSGIRequest
 from django.conf import settings
+from django.http import QueryDict
 
 CLIENT_BASE='test'
 
@@ -30,6 +31,7 @@ def fakeRequest ():
             'SERVER_NAME':       'testserver',
             'SERVER_PORT':       '80',
             'SERVER_PROTOCOL':   'HTTP/1.1',
+            'HTTP_HOST':         'localhost',
             'wsgi.version':      (1,0),
             'wsgi.url_scheme':   'http',
             'wsgi.errors':       None,#self.errors,
@@ -47,6 +49,18 @@ def fakeRequest ():
     Client.bogus_request = bogus_request
     c = Client()
     return c.bogus_request()
+
+class WGTest (GTest):
+    def doLogin (self, user):
+        r = fakeRequest()
+        q = QueryDict('', mutable=True)
+        q.update({'username': user.name, 'password': user.passwd})
+        r.REQUEST.dicts += (q,)
+        self.gateway = views.getBlitzConnection(r, 1, group=user.groupname, try_super=user.admin)
+        if self.gateway is None:
+            # If the login framework was customized (using this app outside omeroweb) the above fails
+            super(WGTest, self).doLogin(user)
+            self.gateway.user = views.UserProxy(self.gateway)
 
 class HelperObjectsTest (unittest.TestCase):
     def testColorHolder (self):
@@ -85,7 +99,7 @@ class HelperObjectsTest (unittest.TestCase):
         self.assertEqual(splitHTMLColor('#$%&%'), None)
 
 
-#class StoredConnectionModelTest(GTest):
+#class StoredConnectionModelTest(WGTest):
 #    def setUp (self):
 #        super(StoredConnectionModelTest, self).setUp()
 #        self._conf = tempfile.mkstemp()
@@ -199,7 +213,7 @@ class WebGatewayCacheTest(unittest.TestCase):
         self.assertEqual(self.wcache.getImage(self.request, 'test', img, 2, 3), None)
         self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), None)
 
-class JsonTest (GTest):
+class JsonTest (WGTest):
     def testImageData (self):
         self.loginAsAuthor()
         iid = self.getTestImage().getId()
@@ -208,8 +222,20 @@ class JsonTest (GTest):
         self.assert_(type(v) == type(''))
         self.assert_('"width": 512' in v)
         self.assert_('"split_channel":' in v)
+        self.assert_('"pixel_range": [-32768, 32767]' in v)
 
-class ZZ_TDTest(GTest):
+class UserProxyTest (WGTest):
+    def test (self):
+        self.loginAsAuthor()
+        user = self.gateway.user
+        self.assertEqual(user.isAdmin(), False)
+        int(user.getId())
+        self.assertEqual(user.getName(), self.AUTHOR.name)
+        self.assertEqual(user.getFirstName(), self.AUTHOR.firstname)
+        views._purge(True)
+
+
+class ZZ_TDTest(WGTest):
     def setUp (self):
         super(ZZ_TDTest, self).setUp(skipTestDB=True)
         dbhelpers.cleanup()

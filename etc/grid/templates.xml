@@ -180,22 +180,6 @@
     <!--
       Python Servers
     -->
-
-    <server-template id="WebTemplate">
-      <parameter name="act" default="on-demand"/>
-      <server id="Web" exe="python" activation-timeout="0" deactivation-timeout="0" activation="${act}" pwd="${OMEROPY_HOME}omeroweb">
-        <option>manage.py</option>
-        <option>runserver</option>
-        <option>--noreload</option>
-        <env>${PYTHONPATH}</env>
-        <adapter name="WebAdapter" endpoints="tcp" server-lifetime="false"/>
-        <properties>
-          <properties refid="SingleThreaded"/>
-          <properties refid="Profile"/>
-        </properties>
-      </server>
-    </server-template>
-
     <server-template id="ProcessorTemplate">
       <parameter name="index"/>
       <parameter name="dir"/>

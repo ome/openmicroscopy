@@ -14,6 +14,8 @@ import omero
 
 import test.gateway.library as lib
 
+from django.utils import simplejson
+from django.http import QueryDict
 
 class RDefsTest (lib.GTest):
     TESTIMG_ID = None
@@ -115,6 +117,44 @@ class RDefsTest (lib.GTest):
         # not channel index anymore, now get default wavelengths (first is 500)
         tiny = self.getTinyTestImage().getChannels()
         self.assertEqual(tiny[0].getEmissionWave(), 500)
+
+    def testBatchCopy (self):
+        """ tests that we can copy rendering settings from one image to a set of targets """
+        self.loginAsAdmin()
+        i1 = self.getTinyTestImage()
+        i1c = i1.getChannels()
+        i2 = self.getTinyTestImage2()
+        i2c = i2.getChannels()
+        t = i1c[0].getWindowStart()
+        self.assertEqual(t, i2c[0].getWindowStart())
+        try:
+            i1c[0].setWindowStart(t+1)
+            self.assertNotEqual(i1c[0].getWindowStart(), i2c[0].getWindowStart())
+            i1.saveDefaults()
+            i1 = self.getTinyTestImage()
+            i1c = i1.getChannels()
+            self.assertEqual(i1c[0].getWindowStart(), t+1)
+
+            r = fakeRequest()
+            q = QueryDict('', mutable=True)
+            q.update({'fromid': i1.getId()})
+            q.update({'toids': i2.getId()})
+            r.REQUEST.dicts += (q,)
+            rv = simplejson.loads(views.copy_image_rdef_json(r, CLIENT_BASE, _conn=self.gateway)._get_content())
+            err = '''FAIL: rsettings.applySettingsToImages(%i, (%i,)) -> %s''' % (i1.getId(), i2.getId(), rv)
+            self.assertEqual(rv["True"], [i2.getId()], err)
+            i2 = self.getTinyTestImage2()
+            i2c = i2.getChannels()
+            self.assertEqual(i2c[0].getWindowStart(), t+1)
+        finally:
+            i1 = self.getTinyTestImage()
+            i1c = i1.getChannels()
+            i2 = self.getTinyTestImage2()
+            i2c = i2.getChannels()
+            i1c[0].setWindowStart(t)
+            i1.saveDefaults()
+            i2c[0].setWindowStart(t)
+            i2.saveDefaults()
 
 if __name__ == '__main__':
     unittest.main()

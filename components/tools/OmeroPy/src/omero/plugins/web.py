@@ -22,6 +22,12 @@ For advance use:
      custom_settings    - Creates only custom_settings.py
      initial            - Creates initial_data.json
      syncdb             - Synchronise local database
+     server             - Set to 'default' for django internal webserver
+                          or 'fastcgi'
+     config             - output a config template for server (only 'nginx'
+                          for the moment)
+     syncmedia          - creates needed symlinks for static media files
+     enableapp          - TODO: document
 
 """
 class WebControl(BaseControl):
@@ -285,6 +291,113 @@ APPLICATION_HOST='%s'
         self.initial(do_exit=False)
         self.ctx.out("\n")
         self.syncdb(do_exit=False)
+        self.syncmedia()
+
+    def server(self, *args):
+        if not len(args[0]):
+            self.ctx.out("OMERO.web application is served by 'default'")
+        else:
+            location = self.ctx.dir / "lib" / "python" / "omeroweb" / "custom_settings.py"
+            settings = file(location, 'rb').read().split('\n')
+            if settings[-1] == '':
+                settings = settings[:-1]
+            cserver = 'default'
+            for l in settings:
+                if l.startswith('APPLICATION_SERVER'):
+                    cserver = l.split('=')[-1].strip().replace("'",'').replace('"','')
+            server = args[0][0]
+            if server == cserver:
+                self.ctx.out("OMERO.web was already configured to be served by '%s'" % server)
+            elif server in ('default', 'fastcgi'):
+                if server == 'fastcgi':
+                    import flup
+                out = file(location, 'wb')
+                wrote = False
+                for l in settings:
+                    if l.startswith('APPLICATION_SERVER'):
+                        wrote = True
+                        out.write("APPLICATION_SERVER = '%s'\n" % server)
+                    else:
+                        out.write(l + '\n')
+                if not wrote:
+                    out.write("APPLICATION_SERVER = '%s'\n" % server)
+                self.ctx.out("OMERO.web has been configured to be served by '%s'" % server)
+            else:
+                self.ctx.err("Unknown server '%s'" % server)
+
+    def config(self, *args):
+        if not len(args[0]):
+            self.ctx.out("Available configuration helpers:\n - nginx\n")
+        else:
+            import omeroweb.custom_settings as settings
+            host = settings.APPLICATION_HOST.split(':')
+            try:
+                port = int(host[-1])
+            except ValueError:
+                port = 8000
+            server = args[0][0]
+            if server == "nginx":
+                c = file(self.ctx.dir / "etc" / "nginx.conf.template").read()
+                d = {
+                    "ROOT":self.ctx.dir,
+                    "OMEROWEBROOT":self.ctx.dir / "lib" / "python" / "omeroweb",
+                    "HTTPPORT":port,
+                    }
+                self.ctx.out(c % d)
+
+    def syncmedia(self, *args):
+        import os, shutil
+        from glob import glob
+        from omeroweb.settings import INSTALLED_APPS
+        location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        # Targets
+        apps = map(lambda x: x.startswith('omeroweb.') and x[9:] or x, INSTALLED_APPS)
+        apps = filter(lambda x: os.path.exists(location / x), apps)
+        # Destination dir
+        if os.path.exists(location / 'media'):
+            shutil.rmtree(location / 'media')
+        os.mkdir(location / 'media')
+        # Create app media links
+        for app in apps:
+            media_dir = location / app / 'media'
+            if os.path.exists(media_dir):
+                os.symlink(os.path.abspath(media_dir), location / 'media' / app)
+        
+    def enableapp(self, *args):
+        from omeroweb.settings import INSTALLED_APPS
+        location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        if len(args[0]) < 1:
+            apps = [x.name for x in filter(lambda x: x.isdir() and (x / 'scripts' / 'enable.py').exists(), location.listdir())]
+            iapps = map(lambda x: x.startswith('omeroweb.') and x[9:] or x, INSTALLED_APPS)
+            apps = filter(lambda x: x not in iapps, apps)
+            self.ctx.out('[enableapp] available apps:\n - ' + '\n - '.join(apps) + '\n')
+        else:
+            for app in args[0]:
+                args = ["python", location / app / "scripts" / "enable.py"]
+                rv = self.ctx.call(args, cwd = location)
+                if rv != 0:
+                    self.ctx.die(121, "Failed to enable '%s'.\n" % app)
+                else:
+                    self.ctx.out("App '%s' was enabled\n" % app)
+            args = ["python", "manage.py", "syncdb", "--noinput"]
+            rv = self.ctx.call(args, cwd = location)
+            self.syncmedia()
+
+    def gateway(self, *args):
+        location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        args = ["python", "-i", location / "../omero/gateway/scripts/dbhelpers.py"]
+        os.environ['ICE_CONFIG'] = self.ctx.dir / "etc" / "ice.config"
+        os.environ['PATH'] = os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin'
+        os.environ['DJANGO_SETTINGS_MODULE'] = os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
+        rv = self.ctx.call(args, cwd = location)
+
+    def test(self, *args):
+        location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        args = ["coverage","-x", "manage.py", "test"]
+        os.environ['ICE_CONFIG'] = self.ctx.dir / "etc" / "ice.config"
+        os.environ['PATH'] = os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin'
+        rv = self.ctx.call(args, cwd = location)
+
 
 try:
     register("web", WebControl)

@@ -16,10 +16,12 @@ import omero.clients
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404
 from django.utils import simplejson
 from django.core import template_loader
+from django.core.urlresolvers import reverse
 from django.template import RequestContext as Context
 
 from omero import client_wrapper, ApiUsageException
 from omero.gateway import timeit
+
 
 #from models import StoredConnection
 
@@ -32,6 +34,8 @@ CONNECTOR_POOL_SIZE = 70
 CONNECTOR_POOL_KEEP = 0.75 # keep only SIZE-SIZE*KEEP of the connectors if POOL_SIZE is reached
 
 import logging, os, traceback, time
+
+omero.gateway.BlitzGateway.ICE_CONFIG = os.environ.get('ICE_CONFIG', 'etc/ice.config')
 
 logger = logging.getLogger('webgateway')
 
@@ -63,8 +67,20 @@ class UserProxy (object):
     def isAdmin (self):
         return self._blitzcon.isAdmin()
 
+    def getId (self):
+        return self._blitzcon._user.id
+
     def getName (self):
         return self._blitzcon._user.omeName
+
+    def getFirstName (self):
+        return self._blitzcon._user.firstName or self.getName()
+
+#    def getPreferences (self):
+#        return self._blitzcon._user.getPreferences()
+#
+#    def getUserObj (self):
+#        return self._blitzcon._user
 
 #class SessionCB (object):
 #    def _log (self, what, c):
@@ -80,12 +96,17 @@ class UserProxy (object):
 #        self._log('close',c)
 #_session_cb = SessionCB()
 
-def _createConnection (server_id, sUuid=None, username=None, passwd=None, host=None, port=None, retry=True):
+def _createConnection (server_id, sUuid=None, username=None, passwd=None, host=None, port=None, retry=True, group=None, try_super=False):
     try:
-        blitzcon = client_wrapper(username, passwd, host=host, port=port)
+        blitzcon = client_wrapper(username, passwd, host=host, port=port, group=None, try_super=try_super)
         blitzcon.connect(sUuid=sUuid)
         blitzcon.server_id = server_id
         blitzcon.user = UserProxy(blitzcon)
+        if blitzcon._anonymous and hasattr(blitzcon.c, 'onEventLogs'):
+            logger.debug('Connecting weblitz_cache to eventslog')
+            def eventlistener (e):
+                return webgateway_cache.eventListener(server_id, e)
+            blitzcon.c.onEventLogs(eventlistener)
         return blitzcon
     except:
         logger.debug(traceback.format_exc())
@@ -94,7 +115,7 @@ def _createConnection (server_id, sUuid=None, username=None, passwd=None, host=N
         logger.error("Critical error during connect, retrying after _purge")
         logger.debug(traceback.format_exc())
         _purge(force=True)
-        return _createConnection(server_id, sUuid, username, passwd, retry=False, host=host, port=port)
+        return _createConnection(server_id, sUuid, username, passwd, retry=False, host=host, port=port, group=None, try_super=try_super)
 
 @timeit
 def _purge (force=False):
@@ -111,7 +132,7 @@ def _purge (force=False):
         logger.debug('new connector_pool_size = %d' % len(connectors))
 
 @timeit
-def getBlitzConnection (request, server_id=None, with_session=False, retry=True, force_key=None):
+def getBlitzConnection (request, server_id=None, with_session=False, retry=True, force_key=None, group=None, try_super=False):
     """
     Grab a connection to the Ice server, trying hard to reuse connections as possible.
     A per-process dictionary of StoredConnection based connections (key = "C:$base") is kept.
@@ -143,8 +164,8 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
     port = request.session.get('port', r.get('port', None))
     #logger.debug(':: %s %s ::' % (str(username), str(passwd)))
 
-    if r.has_key('logout'):
-        logger.debug('logout required by HTTP GET or POST')
+#    if r.has_key('logout'):
+#        logger.debug('logout required by HTTP GET or POST')
 #    elif r.has_key('bsession') and not force_anon:
 #        blitz_session = r['bsession']
 #        request.session[browsersession_connection_key] = blitz_session
@@ -186,19 +207,19 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
         # No stored connection matching the request found, so create a new one
         if ckey.startswith('S:') and not force_key:
             ckey = 'S:'
-        logger.debug('creating new connection with "%s"' % (ckey))
+        logger.debug('creating new connection with "%s" (%s)' % (ckey, try_super))
         if force_key or username:
             sUuid = None
         else:
             sUuid = request.session.get(browsersession_connection_key, None)
         blitzcon = _createConnection(server_id, sUuid=sUuid,
                                      username=username, passwd=passwd,
-                                     host=host, port=port)
+                                     host=host, port=port, group=group, try_super=try_super)
         if blitzcon is None:
             if not retry or username:
                 logger.debug('connection failed with provided login information, bail out')
                 return None
-            return getBlitzConnection(request, server_id, with_session, retry=False)
+            return getBlitzConnection(request, server_id, with_session, retry=False, group=group, try_super=try_super)
         else:
             logger.debug('created new connection %s' % str(blitzcon))
             if not blitzcon.isConnected():
@@ -223,7 +244,7 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
                     ####
                     # Because it was a login, store some data
                     if not force_key:
-                        request.session[browsersession_connection_key] = blitzcon._sessionUuid #blitzcon._sessionUuid
+                        request.session[browsersession_connection_key] = blitzcon._sessionUuid
                     logger.debug('blitz session key: ' + blitzcon._sessionUuid)
                     logger.debug('stored as session.' + ckey)
                     blitzcon.user.logIn()
@@ -317,9 +338,16 @@ def getImgDetailsFromReq (request, as_string=False):
     return rv
 
 @timeit
-def render_thumbnail (request, iid, server_id=None, **kwargs):
+def render_thumbnail (request, iid, server_id=None, w=None, h=None, **kwargs):
     """ Returns an HttpResponse wrapped jpeg with the rendered thumbnail for image 'iid' """
-    jpeg_data = webgateway_cache.getThumb(request, server_id, iid)
+    if w is None:
+        size = (64,)
+    else:
+        if h is None:
+            size = (int(w),)
+        else:
+            size = (int(w), int(h))
+    jpeg_data = webgateway_cache.getThumb(request, server_id, iid, size)
     if jpeg_data is None:
         blitzcon = getBlitzConnection(request, server_id)
         if blitzcon is None or not blitzcon.isConnected():
@@ -332,18 +360,18 @@ def render_thumbnail (request, iid, server_id=None, **kwargs):
             logger.debug("(b)Image %s not found..." % (str(iid)))
             raise Http404
         def getThumb ():
-            return img.getThumbnail()
+            return img.getThumbnail(size=size)
         jpeg_data = timeit(getThumb)()
         if jpeg_data is None:
             logger.debug("(c)Image %s not found..." % (str(iid)))
             raise Http404
-        webgateway_cache.setThumb(request, server_id, iid, jpeg_data)
+        webgateway_cache.setThumb(request, server_id, iid, jpeg_data, size)
     else:
         pass
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
     return rsp
 
-def _get_prepared_image (request, iid, server_id=None, _conn=None, with_session=True, saveDefs=False):
+def _get_prepared_image (request, iid, server_id=None, _conn=None, with_session=True, saveDefs=False, retry=True):
     """
     Fetches the Image object for image 'iid' and prepares it according to the request query, setting the channels,
     rendering model and projection arguments. The compression level is parsed and returned too.
@@ -369,7 +397,15 @@ def _get_prepared_image (request, iid, server_id=None, _conn=None, with_session=
     img.setProjection(r.get('p', None))
     compress_quality = r.get('q', None)
     if saveDefs:
-        img.saveDefaults()
+        r.has_key('z') and img._re.setDefaultZ(long(r['z'])-1)
+        r.has_key('t') and img._re.setDefaultT(long(r['t'])-1)
+        try:
+            img.saveDefaults()
+        except:
+            # retry once, to get around "Session is dirty" exceptions
+            if retry:
+                return _get_prepared_image(request, iid=iid, server_id=server_id, _conn=_conn, with_session=with_session, saveDefs=saveDefs, retry=False)
+            raise
     return (img, compress_quality)
 
 @timeit
@@ -430,11 +466,11 @@ def jsonp (f):
                 blitzcon = getBlitzConnection(request, server_id)
                 kwargs['_conn'] = blitzcon
             if kwargs['_conn'] is None or not kwargs['_conn'].isConnected():
-                return HttpResponseServerError('""', mimetype='application/javascript')
+                return HttpResponseServerError('"failed connection"', mimetype='application/javascript')
             rv = f(request, server_id=server_id, *args, **kwargs)
             rv = simplejson.dumps(rv)
             c = request.REQUEST.get('callback', None)
-            if c is not None:
+            if c is not None and not kwargs.get('_internal', False):
                 rv = '%s(%s)' % (c, rv)
             if _conn is not None or kwargs.get('_internal', False):
                 return rv
@@ -442,7 +478,7 @@ def jsonp (f):
         except omero.ServerError:
             if kwargs.get('_internal', False):
                 raise
-            return HttpResponseServerError('"error in call"', mimetype='application/javascript')
+            return HttpResponseServerError('("error in call","%s")' % traceback.format_exc(), mimetype='application/javascript')
     return wrap
 
 #def json_error_catch (f):
@@ -490,6 +526,17 @@ def render_col_plot (request, iid, z, t, x, w=1, server_id=None, _conn=None, **k
         raise Http404
     rsp = HttpResponse(gif_data, mimetype='image/gif')
     return rsp
+ 
+def channelMarshal (channel):
+    """ return a dict with all there is to know about a channel """
+    return {'emissionWave': channel.getEmissionWave(),
+            'label': channel.getEmissionWave(),
+            'color': channel.getColor().getHtml(),
+            'window': {'min': channel.getWindowMin(),
+                       'max': channel.getWindowMax(),
+                       'start': channel.getWindowStart(),
+                       'end': channel.getWindowEnd(),},
+            'active': channel.isActive()}
 
 def imageMarshal (image, key=None):
     """ return a dict with pretty much everything we know and care about an image,
@@ -520,18 +567,16 @@ def imageMarshal (image, key=None):
                      'image_id': image.id,},
             }
         try:
-            rv['channels'] = map(lambda x: {'emissionWave': x.getEmissionWave(),
-                                       'color': x.getColor().getHtml(),
-                                       'window': {'min': x.getWindowMin(),
-                                                  'max': x.getWindowMax(),
-                                                  'start': x.getWindowStart(),
-                                                  'end': x.getWindowEnd(),},
-                                       'active': x.isActive()}, image.getChannels())
+            rv['pixel_range'] = image.getPixelRange()
+            rv['channels'] = map(lambda x: channelMarshal(x), image.getChannels())
             rv['split_channel'] = image.splitChannelDims()
             rv['rdefs'] = {'model': image.isGreyscaleRenderingModel() and 'greyscale' or 'color',
-                           'projection': 'normal', }
+                           'projection': 'normal',
+                           'defaultZ': image._re.getDefaultZ(),
+                           'defaultT': image._re.getDefaultT()}
         except TypeError:
             # Will happen if an image has bad or missing pixel data
+            rv['pixel_range'] = (0, 0)
             rv['channels'] = ()
             rv['split_channel'] = ()
             rv['rdefs'] = {'model': 'color', 'projection': 'normal',}
@@ -567,8 +612,9 @@ def listImages_json (request, did, server_id=None, _conn=None, **kwargs):
     dataset = blitzcon.getDataset(did)
     if dataset is None:
         return HttpResponseServerError('""', mimetype='application/javascript')
-    path = request.REQUEST.get('baseurl', 'http://'+request.get_host()+'/'+server_id)
-    xtra = {'thumbUrlPrefix': path+'/render_thumbnail/'}
+    def urlprefix(iid):
+        return reverse('webgateway.views.render_thumbnail', args=(iid,))
+    xtra = {'thumbUrlPrefix': urlprefix}
     return map(lambda x: x.simpleMarshal(xtra=xtra), dataset.listChildren())
 
 @timeit
@@ -614,12 +660,24 @@ def projectDetail_json (request, pid, server_id=None, _conn=None, **kwargs):
     return rv
 
 @timeit
-def search_json (request, server_id=None, *args, **kwargs):
-    """ TODO: jsonp, cache """
+@jsonp
+def search_json (request, server_id=None, _conn=None, **kwargs):
+    """
+    Search for objects in blitz.
+
+    @param ctx: (http request) 'imgs' to search only images
+    @param text: (http request) the actual text phrase
+    @param author:
+    @param grabData:
+    @param parents:
+
+    @return: json encoded list of marshalled objects found by the search query
+    TODO: jsonp, cache
+    """
     logger.debug("search request: %s" % (str(request.REQUEST.items())))
-    blitzcon = getBlitzConnection(request, server_id)
-    if blitzcon is None or not blitzcon.isConnected():
-        return HttpResponseServerError('""', mimetype='application/javascript')
+#    blitzcon = getBlitzConnection(request, server_id)
+#    if blitzcon is None or not blitzcon.isConnected():
+#        return HttpResponseServerError('""', mimetype='application/javascript')
     r = request.REQUEST
     search = unicode(r.get('text', '')).encode('utf8')
     author = r.get('author', '')
@@ -631,13 +689,15 @@ def search_json (request, server_id=None, *args, **kwargs):
     rv = []
     logger.debug("simpleSearch(%s)" % (search))
     # search returns blitz_connector wrapper objects
-    xtra = {'thumbUrlPrefix': 'http://'+request.get_host()+'/'+server_id+'/render_thumbnail/'}
+    def urlprefix(iid):
+        return reverse('webgateway.views.render_thumbnail', args=(iid,))
+    xtra = {'thumbUrlPrefix': urlprefix}
     pks = None
     try:
         if ctx == 'imgs':
-            sr = blitzcon.searchImages(search)
+            sr = _conn.searchImages(search)
         else:
-            sr = blitzcon.simpleSearch(search)
+            sr = _conn.simpleSearch(search)
     except ApiUsageException:
         return HttpResponseServerError('"parse exception"', mimetype='application/javascript')
     def marshal ():
@@ -646,7 +706,7 @@ def search_json (request, server_id=None, *args, **kwargs):
             key = r.get('key', None)
             for e in sr:
                 try:
-                    rv.append(imageData_json(request, server_id, e.id, key, _conn=blitzcon, _internal=True))
+                    rv.append(imageData_json(request, server_id, e.id, key, _conn=_conn, _internal=True))
                 except AttributeError, x:
                     logger.debug('(iid %i) ignoring Attribute Error: %s' % (e.id, str(x)))
                     pass
@@ -656,25 +716,146 @@ def search_json (request, server_id=None, *args, **kwargs):
         else:
             return map(lambda x: x.simpleMarshal(xtra=xtra, parents=parents), sr)
     rv = timeit(marshal)()
-    def rv2json ():
-        if (grabData and ctx == 'imgs'):
-            return '['+','.join(rv)+']'
-        return simplejson.dumps(rv)
-    json_data = timeit(rv2json)()
-    return HttpResponse(json_data, mimetype='application/javascript')
+    return rv
+#    def rv2json ():
+#        if (grabData and ctx == 'imgs'):
+#            return '['+','.join(rv)+']'
+#        return simplejson.dumps(rv)
+#    json_data = timeit(rv2json)()
+#    return HttpResponse(json_data, mimetype='application/javascript')
 
 @timeit
-def save_image_rdef_json (request, iid, server_id=None):
+def save_image_rdef_json (request, iid, server_id=None, **kwargs):
     """ Requests that the rendering defs passed in the request be set as the default for this image.
-    Only channel colors are used for now.
     TODO: jsonp """
     r = request.REQUEST
 
     pi = _get_prepared_image(request, iid, server_id=server_id, with_session=True, saveDefs=True)
     if pi is None:
-        return HttpResponse('false', mimetype='application/javascript')
-    webgateway_cache.clearImage(request, server_id, iid)
-    return HttpResponse('true', mimetype='application/javascript')
+        json_data = 'false'
+    else:
+        webgateway_cache.invalidateObject(server_id, pi[0])
+        pi[0].getThumbnail()
+        json_data = 'true'
+    if r.get('callback', None):
+        json_data = '%s(%s)' % (r['callback'], json_data)
+    return HttpResponse(json_data, mimetype='application/javascript')
+ 
+def list_compatible_imgs_json (request, server_id, iid, _conn=None, **kwargs):
+    """ Lists the images on the same project that would be viable targets for copying rendering settings. """
+    json_data = 'false'
+    r = request.REQUEST
+    if _conn is None:
+        blitzcon = getBlitzConnection(request, server_id, with_session=True)
+    else:
+        blitzcon = _conn
+    if blitzcon is None or not blitzcon.isConnected():
+        img = None
+    else:
+        img = blitzcon.getImage(iid)
+
+    if img is not None:
+        # List all images in project
+        imgs = []
+        for ds in img.getProject().listChildren():
+            imgs.extend(ds.listChildren())
+        # Filter the ones that would pass the applySettingsToImages call
+        img_ptype = img.getPrimaryPixels().getPixelsType().getValue()
+        img_ccount = img.c_count()
+        img_ew = [x.getEmissionWave() for x in img.getChannels()]
+        img_ew.sort()
+        def compat (i):
+            if long(i.getId()) == long(iid):
+                return False
+            pp = i.getPrimaryPixels()
+            if pp is None or \
+               i.getPrimaryPixels().getPixelsType().getValue() != img_ptype or \
+               i.c_count() != img_ccount:
+                return False
+            ew = [x.getEmissionWave() for x in i.getChannels()]
+            ew.sort()
+            if ew != img_ew:
+                return False
+            return True
+        imgs = filter(compat, imgs)
+        json_data = simplejson.dumps([x.getId() for x in imgs])
+
+    if r.get('callback', None):
+        json_data = '%s(%s)' % (r['callback'], json_data)
+    return HttpResponse(json_data, mimetype='application/javascript')
+
+def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
+    """ Copy the rendering settings from one image to a list of images. """
+    json_data = 'false'
+    r = request.REQUEST
+    try:
+        fromid = long(r.get('fromid', None))
+        toids = map(lambda x: long(x), r.getlist('toids'))
+    except TypeError:
+        fromid = None
+    except ValueError:
+        fromid = None
+    if fromid is not None and len(toids) > 0:
+        if _conn is None:
+            blitzcon = getBlitzConnection(request, server_id, with_session=True)
+        else:
+            blitzcon = _conn
+
+            
+        fromimg = blitzcon.getImage(fromid)
+        details = fromimg.getDetails()
+        frompid = fromimg.getPixelsId()
+        newConn = None
+        if blitzcon.isAdmin():
+            p = omero.sys.Principal()
+            p.name = details.getOwner().omeName
+            p.group = details.getGroup().name
+            p.eventType = "User"
+            # This connection will have a 20 minute timeout
+            newConnId = blitzcon.getSessionService().createSessionWithTimeout(p, 1200000)
+            newConn = blitzcon.clone()
+            newConn.connect(sUuid=newConnId.getUuid().val)
+        elif fromimg.canWrite():
+            newConn = blitzcon
+            newConn.setGroupForSession(details.getGroup().getId())
+
+        if newConn is not None and newConn.isConnected():
+            frompid = newConn.getImage(fromid).getPixelsId()
+            rsettings = newConn.getRenderingSettingsService()
+            json_data = rsettings.applySettingsToImages(frompid, list(toids))
+            for iid in json_data[True]:
+                img = newConn.getImage(iid)
+                img is not None and webgateway_cache.invalidateObject(server_id, img)
+            json_data = simplejson.dumps(json_data)
+
+    if r.get('callback', None):
+        json_data = '%s(%s)' % (r['callback'], json_data)
+    return HttpResponse(json_data, mimetype='application/javascript')
+
+@timeit
+def reset_image_rdef_json (request, server_id, iid, _conn=None, **kwargs):
+    """ Try to remove all rendering defs the logged in user has for this image. """
+    if _conn is None:
+        blitzcon = getBlitzConnection(request, server_id, with_session=True)
+    else:
+        blitzcon = _conn
+    r = request.REQUEST
+
+    if blitzcon is None or not blitzcon.isConnected():
+        img = None
+    else:
+        img = blitzcon.getImage(iid)
+
+    if img is not None and img.resetRDefs():
+        webgateway_cache.invalidateObject(server_id, img)
+        json_data = 'true'
+    else:
+        json_data = 'false'
+    if _conn is not None:
+        return json_data == 'true'
+    if r.get('callback', None):
+        json_data = '%s(%s)' % (r['callback'], json_data)
+    return HttpResponse(json_data, mimetype='application/javascript')
 
 def dbg_connectors (request):
     rv = connectors.items()
@@ -699,7 +880,7 @@ def full_viewer (request, iid, server_id=None, _conn=None, **kwargs):
              'viewport_server': kwargs.get('viewport_server', '/webgateway'),
              'object': 'image:%i' % int(iid)}
 
-        template = "webgateway/omero_image.html"
+        template = kwargs.get('template', "webgateway/omero_image.html")
         t = template_loader.get_template(template)
         c = Context(request,d)
         rsp = t.render(c)

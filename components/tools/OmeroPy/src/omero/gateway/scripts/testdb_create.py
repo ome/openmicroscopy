@@ -16,12 +16,11 @@ from omero.gateway.scripts import dbhelpers
 dbhelpers.USERS = {
     'user': dbhelpers.UserEntry('weblitz_test_user','foobar', 'User', 'Weblitz'),
     'author': dbhelpers.UserEntry('weblitz_test_author','foobar', 'Author', 'Weblitz'),
-    'editor': dbhelpers.UserEntry('weblitz_test_editor','foobar', 'Editor', 'Weblitz', admin=True),
     }
 
 dbhelpers.PROJECTS = {
-    'testpr1' : dbhelpers.ProjectEntry('weblitz_test_priv_project', 'author', True),
-    'testpr2' : dbhelpers.ProjectEntry('weblitz_test_priv_project2', 'author', True),
+    'testpr1' : dbhelpers.ProjectEntry('weblitz_test_priv_project', 'author'),
+    'testpr2' : dbhelpers.ProjectEntry('weblitz_test_priv_project2', 'author'),
 }
 
 dbhelpers.DATASETS = {
@@ -47,7 +46,8 @@ class GTest(unittest.TestCase):
         self.doDisconnect()
         self.USER = dbhelpers.USERS['user']
         self.AUTHOR = dbhelpers.USERS['author']
-        dbhelpers.ROOT.passwd = self.gateway.getProperty('omero.rootpass')
+        if self.gateway.getProperty('omero.rootpass'):
+            dbhelpers.ROOT.passwd = self.gateway.getProperty('omero.rootpass')
         self.ADMIN = dbhelpers.ROOT
         if not skipTestDB:
             self.prepTestDB()
@@ -73,16 +73,13 @@ class GTest(unittest.TestCase):
         self.gateway = dbhelpers.login(user)
 
     def loginAsAdmin (self):
-        self.gateway = dbhelpers.login(self.ADMIN)
+        self.doLogin(self.ADMIN)
 
     def loginAsAuthor (self):
-        self.gateway = dbhelpers.login(self.AUTHOR)
-
-    def loginAsEditor (self):
-        self.gateway = dbhelpers.login(self.EDITOR)
+        self.doLogin(self.AUTHOR)
 
     def loginAsUser (self):
-        self.gateway = dbhelpers.login(self.USER)
+        self.doLogin(self.USER)
 
     def tearDown(self):
         if self._has_connected:
@@ -119,6 +116,9 @@ class GTest(unittest.TestCase):
 
     def getTinyTestImage (self, dataset=None):
         return dbhelpers.getImage(self.gateway, 'tinyimg', dataset)
+
+    def getTinyTestImage2 (self, dataset=None):
+        return dbhelpers.getImage(self.gateway, 'tinyimg2', dataset)
 
     def prepTestDB (self):
         dbhelpers.bootstrap()

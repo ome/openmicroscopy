@@ -32,6 +32,7 @@ $.fn.colorbtn = function(cfg) {
     var callback = function (color) {
       self.css('background-color', color);
       jQuery('input#'+self[0].cfg.prefix+'-tb').attr('value', color.substring(1).toUpperCase());
+      self.trigger('changed');
     };
     var null_cb = function (color) {};
 
@@ -40,19 +41,23 @@ $.fn.colorbtn = function(cfg) {
       var box = jQuery("#"+this.cfg.prefix+"-box").append('<h1>Choose color</h1><div id="'+this.cfg.prefix+'"></div>');
       box.postit().append('<div style="text-align: center;">Hex RGB <input type="text" id="'+this.cfg.prefix+'-tb" /></div><div style="text-align: center;"></div>');
       var btns = box.find('div:last');
+      btns.append('<div class="postit-resize-bar"></div>');
       var btn_click = function () {
         picker.setColor('#'+rgbToHex(jQuery(this).css("background-color")));
       };
+      btns.append('<span>Preset</span>');
       for (e in colors) {
         if (colors[e] == "") {
           btns.append('<br />');
+          btns.append('<span>Colors</span>');
 	} else {
           btns.append('<button style="background-color: #'+colors[e]+'">&nbsp;</button>');
           btns.find('button:last').click(btn_click);
         }
       }
-      btns.append('<br /><button style="width: 5em;" id="'+this.cfg.prefix+'-defc">&nbsp;</button>');
-      btns.find('button:last').click(btn_click);
+      //btns.append('<br /><button style="width: 5em;" id="'+this.cfg.prefix+'-defc">&nbsp;</button>');
+      //btns.find('button:last').click(btn_click);
+      btns.append('<div class="postit-resize-bar"></div>');
       self.trigger('prepared');
       picker = jQuery.farbtastic("#"+this.cfg.prefix);
       jQuery('input#'+this.cfg.prefix+'-tb').bind('change', function () {
@@ -79,6 +84,7 @@ $.fn.colorbtn = function(cfg) {
       jQuery("#"+this.cfg.prefix+"-tb").attr('value', color.substring(1).toUpperCase());
       jQuery("#"+this.cfg.prefix+"-defc").css("background-color", self.css("background-color"));
       jQuery("#"+this.cfg.prefix+"-box").mousedown(function () {self.trigger('mousedown');}).show();
+      jQuery("#"+this.cfg.prefix+"-box").unbind('closed').bind('closed', function () {self.trigger('hiding');});
       self.trigger('showing');
       //self.addClass('picking');
     }

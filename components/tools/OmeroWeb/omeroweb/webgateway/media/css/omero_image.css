@@ -60,7 +60,7 @@ hr {
   margin: 0px;
   padding: 0 0 0 0;
   clear: both;
-  background: url('/webgateway/appmedia/img/hr_sep_1.gif') repeat-x center;
+  background: url('/appmedia/webgateway/img/hr_sep_1.gif') repeat-x center;
   height: 10px;
 }
 
@@ -162,11 +162,11 @@ hr {
   display: inline;
   width: 10px;
   height: 16px;
-  background: url('/webgateway/appmedia/img/white_arrow_down_bigger.gif') no-repeat center;
+  background: url('/appmedia/webgateway/img/white_arrow_down_bigger.gif') no-repeat center;
 }
 
 .popped .drop-img { 
-  background: url('/webgateway/appmedia/img/white_arrow_up_bigger.gif') no-repeat center;
+  background: url('/appmedia/webgateway/img/white_arrow_up_bigger.gif') no-repeat center;
 }
 
 .drop-left { 
@@ -276,7 +276,7 @@ hr {
 }
 
 #wblitz-workarea button#full-size {
-  background: url('/webgateway/appmedia/img/1_1.gif') no-repeat center;
+  background: url('/appmedia/webgateway/img/1_1.gif') no-repeat center;
   height: 22px;
   width: 22px;
   padding: 0;
@@ -285,7 +285,7 @@ hr {
 }
 
 #wblitz-workarea button#full-screen {
-  background: url('/webgateway/appmedia/img/fs.gif') no-repeat center;
+  background: url('/appmedia/webgateway/img/fs.gif') no-repeat center;
   height: 22px;
   width: 22px;
   padding: 0;
@@ -315,7 +315,6 @@ button.pressed {
 .postit h1 {
   background-color: #bbb;
   color: #fff;
-/*  font-size: 0.9em; */
 }
 
 .postit table { 
@@ -345,15 +344,7 @@ button.pressed {
 }
 
 #metadata-postit { 
-  _width: 350px;
-}
-
-#sizes-postit { 
-  _width: 170px;
-}
-
-#legend-postit {
-  /* opacity: 0.8; */
+  width: 400px;
 }
 
 .chan-window-slider { 
@@ -438,6 +429,15 @@ img.figure-box-hide {
   width: 100%;
 }
 
+.dimensions th {
+  text-align: center;
+}
+
+.dimensions td.title {
+  text-align: right;
+  width: 20%;
+}
+
 td.title {
   width: 1%;
   white-space: nowrap;
@@ -487,4 +487,133 @@ td.title {
 *:first-child+html .multiselect input {
   top: 0px;
   left: 111px;
+}
+
+.postit h3 {
+  background-color: #B2AEA8;
+  color: #504A45;
+  font-size:1em;
+  font-weight:bold;
+  text-align: center;
+}
+
+.postit h3.can-collapse {
+  color: #000000;
+  background-color: #C4DCE4;
+}
+
+.can-collapse {
+  background: url('/appmedia/webgateway/img/white_arrow_up.gif') no-repeat 5px center;
+  border: 1px solid #000000;
+  border-bottom: none;
+  margin: 3px 3px 0px 3px;
+  cursor: pointer;
+}
+
+.can-collapse.closed {
+  background-image: url('/appmedia/webgateway/img/white_arrow_down.gif');
+}
+
+.postit h3.can-collapse.closed {
+  border: 1px solid #504A45;
+  background-color: #B2AEA8;
+  color: #504A45;
+}
+
+.can-collapse + div {
+  border: 1px solid #000000;
+  border-top: none;
+  margin: 0px 3px 0px 3px;
+}
+
+.rangeslider .ui-slider-range {
+  background: transparent;
+}
+
+.rangeslider {
+  background: white;
+  margin: 0.2em 2em 0.2em 2em;
+}
+
+.postit-help-btn {
+  background-image:url(/appmedia/webgateway/img/question.gif);
+  background-position:center center;
+  background-repeat:no-repeat;
+  cursor:pointer;
+  height:1.5em;
+  position:absolute;
+  right:1.2em;
+  top:0;
+  width:1.5em;
+}
+
+a#rdef-postit-help {
+  float: right;
+  margin-top: 1px;
+  margin-right: 0.4em;
+  background-color: transparent;
+}
+
+#rdef-postit-help img {
+  border: none;
+}
+
+.ui-widget-content {
+  border-color: #333333;
+}
+
+.ui-slider-handle.ui-state-default {
+  background:#FEE7D6 none repeat scroll 0 0;
+  border-color:#A9A916;
+}
+
+.ui-slider-handle.ui-state-focus, .ui-slider-handle.ui-state-hover {
+  border-color:#F95916;
+}
+
+#cbpicker-box div span {
+  margin-right: 1em;
+}
+
+input.spin-button {
+  text-align: right;
+}
+
+.rangewidget {
+  margin-top: 0.5em;
+}
+
+.rangewidget input {
+  width: 4.5em;
+}
+
+.rangewidget .min {
+  display: inline-block;
+  width: 10em;
+  text-align: right;
+  font-size: 0.9em;
+}
+
+.rangewidget .max {
+  display: inline-block;
+  width: 10em;
+  text-align: left;
+  font-size: 0.9em;
+}
+
+#rdef-postit table {
+  width:100%;
+}
+
+.postit table th {
+  background-color:#B2AEA8;
+  color:#504A45;
+}
+
+#rdef-postit .odd {
+  background-color: #FFFFFF;   
+}
+
+#rdef-postit .even {
+  background-color: #C4CFD5;   
 }

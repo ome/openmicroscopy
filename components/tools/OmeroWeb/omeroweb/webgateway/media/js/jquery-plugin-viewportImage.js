@@ -362,7 +362,8 @@ $.fn.viewportImage = function(options) {
     dragdiv
       .click(function (e) {
           if (clickinterval != null) {
-            image.trigger('onclick', e);
+            clickinterval = null;
+            image.trigger(e);
           }
         })
     .mousedown(function (e) {
