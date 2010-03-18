@@ -49,6 +49,9 @@
       <property name="omero.logging.logsize" value="5000000"/>
       <property name="omero.logging.lognum" value="9"/>
       <property name="omero.logging.level" value="20"/>
+      <target name="debug">
+        <property name="omero.logging.level" value="10"/>
+      </target>
       <!-- From the python documentation
             CRITICAL  50
             ERROR     40
@@ -107,11 +110,10 @@
       <parameter name="index"/>
       <parameter name="config" default="default"/>
       <server id="Blitz-${index}" exe="java" activation="always" pwd="${OMERO_HOME}">
-        <!--
-        Debugging options:
-        -->
-        <option>-Xdebug</option>
-        <option>-Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=n</option>
+        <target name="debug">
+            <option>-Xdebug</option>
+            <option>-Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=y</option>
+        </target>
         <option>-Xmx512M</option>
         <option>-Djava.awt.headless=true</option>
         <option>-Dlog4j.configuration=${OMERO_ETC}log4j.xml</option>
@@ -370,12 +372,14 @@
         <adapter name="${service}.Publish" id="${instance-name}.Publish" endpoints="${publish-endpoints}"/>
         <properties>
           <properties refid="Profile"/>
-          <property name="Ice.Trace.Network" value="0"/>
           <property name="${service}.InstanceName" value="${instance-name}"/>
           <property name="${service}.Flush.Timeout" value="${flush-timeout}"/>
-          <property name="${service}.Trace.Subscriber" value="1"/>
-          <property name="${service}.Trace.Topic" value="1"/>
-          <property name="${service}.Trace.TopicManager" value="1"/>
+          <target name="debug">
+            <property name="Ice.Trace.Network" value="1"/>
+            <property name="${service}.Trace.Subscriber" value="1"/>
+            <property name="${service}.Trace.Topic" value="1"/>
+            <property name="${service}.Trace.TopicManager" value="1"/>
+          </target>
         </properties>
       </service>
     </service-template>
