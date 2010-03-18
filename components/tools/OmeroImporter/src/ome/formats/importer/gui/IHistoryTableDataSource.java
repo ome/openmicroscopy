@@ -100,5 +100,27 @@ public interface IHistoryTableDataSource
      * @return Vector of objects from item table query
      */
     Vector<Object> getItemQuery(Long importID, Long experimenterID, String queryString, Date from, Date to);
+    
+    /**
+     * Update the base table, changing the uid's status according
+     * 
+     * @param baseUid of record to be changed
+     * @param newStatus new status to be set
+     * @return number of table records changed
+     * @throws Exception
+     */
+    Integer updateBaseStatus(int baseUid, String newStatus) throws Exception;
+    
+    
+    /**
+     * Update the item table, changing the uid's status according
+     * @param baseUid
+     * @param fileIndex
+     * @param newStatus
+     * @return number of table records changed
+     * @throws Exception
+     */
+    Integer updateItemStatus(int baseUid, int fileIndex, String newStatus) throws Exception;
+    
 }
 

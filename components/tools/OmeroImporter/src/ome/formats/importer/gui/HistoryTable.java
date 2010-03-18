@@ -491,13 +491,7 @@ public class HistoryTable
         	log.error("exception.", e);
         }
     }
-    
-    public ResultSet getCurrentResultSet()
-    {
-        return null;
-    }
-    
-    
+        
     private void displayAccessError()
     {
         if (unknownProjectDatasetFlag) return;
@@ -524,23 +518,22 @@ public class HistoryTable
         DefaultListModel today = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), -1), new Date());
         historyTaskBar.updateList(todayList, historyTaskBar.today, today);
 
-        DefaultListModel yesterday = db.getBaseTableDataByDate(new Date(), db.getYesterday());
+        DefaultListModel yesterday = db.getBaseTableDataByDate(db.getYesterday(), new Date());
         historyTaskBar.updateList(yesterdayList, historyTaskBar.yesterday, yesterday);
 
-        DefaultListModel thisWeek = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), 1), db.getDaysBefore(new Date(), -(dayOfWeek)));
+        DefaultListModel thisWeek = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), -(dayOfWeek)), db.getDaysBefore(new Date(), 1));
         historyTaskBar.updateList(thisWeekList, historyTaskBar.thisWeek, thisWeek);
 
-        DefaultListModel lastWeek = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), -(dayOfWeek)), 
-                db.getDaysBefore(new Date(), -(dayOfWeek+7)));
+        DefaultListModel lastWeek = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), -(dayOfWeek+7)), db.getDaysBefore(new Date(), -(dayOfWeek)));
         historyTaskBar.updateList(lastWeekList, historyTaskBar.lastWeek, lastWeek);
         
-        DefaultListModel thisMonth = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), 1), db.getDaysBefore(new Date(), -(dayOfMonth)));
+        DefaultListModel thisMonth = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), -(dayOfMonth)), db.getDaysBefore(new Date(), 1));
         historyTaskBar.updateList(thisMonthList, historyTaskBar.thisMonth, thisMonth);
     }
 
     private void getQuickHistory(Integer importKey)
     {
-       getItemQuery(importKey, getExperimenterID(), null, null, null);
+    		getItemQuery(importKey, getExperimenterID(), null, null, null);
     }
 
     public void actionPerformed(ActionEvent e)

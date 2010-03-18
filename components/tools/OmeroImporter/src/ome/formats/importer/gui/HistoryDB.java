@@ -346,14 +346,17 @@ public class HistoryDB extends HistoryTableAbstractDataSource
                     " )");
     } // insertHistory()
 
-    public int updateImportStatus(int id, String status) throws SQLException
+    /* (non-Javadoc)
+     * @see ome.formats.importer.gui.IHistoryTableDataSource#updateBaseStatus(int, java.lang.String)
+     */
+    public Integer updateBaseStatus(int id, String status) throws SQLException
     {
         int result = update("UPDATE import_table SET status = '" + status + "' WHERE uID = " + id);
         notifyObservers(new ImportEvent.QUICKBAR_UPDATE());
         return result;
     } // updateHistoryStatus()
 
-    public int updateFileStatus(int id, int rowNum, String status) throws SQLException
+    public Integer updateItemStatus(int id, int rowNum, String status) throws SQLException
     {
         return update("UPDATE file_table SET status = '" + status + "' WHERE importID = " + id + 
                 " AND rowNum = " + rowNum);       

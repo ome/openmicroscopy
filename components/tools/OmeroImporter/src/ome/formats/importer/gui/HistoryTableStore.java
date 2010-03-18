@@ -14,7 +14,6 @@ import org.apache.commons.logging.LogFactory;
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
 
-
 import ome.formats.OMEROMetadataStoreClient;
 import omero.ServerError;
 import omero.api.IQueryPrx;
@@ -411,6 +410,59 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     	displayTableData();
     }
     
+    
+    /* (non-Javadoc)
+     * @see ome.formats.importer.gui.IHistoryTableDataSource#updateBaseStatus(int, java.lang.String)
+     */
+    public Integer updateBaseStatus(int baseUid, String newStatus) throws ServerError
+    {
+    	long uid = new Long(baseUid);
+    	String searchString = "(Uid==" + uid + ")";
+    	long[] ids = baseTable.getWhereList(searchString, null, 0, baseTable.getNumberOfRows(), 1);
+    	
+        int returnedRows = ids.length;
+        log.debug("Returned rows: " + returnedRows);
+        
+    	Data baseData = getBaseTableData();	
+    	
+        for (int h = 0; h < returnedRows; h++)
+        {
+        	int i = (int) ids[h];
+        	((StringColumn) baseData.columns[BASE_STATUS_COLUMN]).values[i] = String.format("%1$-32s", newStatus);
+        }
+    	
+        baseTable.update(baseData);
+        
+    	return returnedRows;
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.formats.importer.gui.IHistoryTableDataSource#updateItemStatus(int, int, java.lang.String)
+     */
+    public Integer updateItemStatus(int baseUid, int index, String newStatus) throws ServerError
+    {
+    	long uid = new Long(baseUid);
+    	String searchString = "(BaseUid==" + uid + ")";
+    	long[] ids = itemTable.getWhereList(searchString, null, 0, itemTable.getNumberOfRows(), 1);
+    	
+        int returnedRows = ids.length;
+        log.debug("Returned rows: " + returnedRows);
+        
+    	Data itemData = getItemTableData();	
+    	
+        for (int h = 0; h < returnedRows; h++)
+        {
+        	int i = (int) ids[h];
+        	if (h+1 == index)
+        		((StringColumn) itemData.columns[BASE_STATUS_COLUMN]).values[i] = String.format("%1$-32s", newStatus);
+        }
+    	
+        
+        itemTable.update(itemData);
+        
+    	return returnedRows;
+    }
+    
     /* (non-Javadoc)
      * @see ome.formats.importer.gui.IHistoryTableDataSource#getBaseTableDataByDate(java.util.Date, java.util.Date)
      */
@@ -481,7 +533,10 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         }
         return null;
     }
-
+    
+    /* (non-Javadoc)
+     * @see ome.formats.importer.gui.IHistoryTableDataSource#getBaseQuery(java.lang.Long)
+     */
     public Vector<Object> getBaseQuery(Long ExperimenterID)
     {   
 
@@ -619,21 +674,6 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
 			throw new RuntimeException(e);
 		}
     }
-    
-    /**
-     * Currently this method doesn't work because omero.tables cannot do an update.
-     * @param uid
-     * @param i
-     * @param import_status
-     */
-    public void updateBaseStatus(int uid, int i, String import_status) {}
-    
-    /**
-     * Currently this method doesn't work because omero.tables cannot do an update.
-     * @param uid
-     * @param import_status
-     */
-    public void updateFileStatus(int uid, String import_status) {}
     
     /**
      * Return all the base table data

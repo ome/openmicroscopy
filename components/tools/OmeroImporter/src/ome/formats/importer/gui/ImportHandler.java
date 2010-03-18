@@ -191,7 +191,7 @@ public class ImportHandler implements IObservable {
                     this.library.clear();
                     try {
                         if (db != null)
-                            db.updateBaseStatus(importKey, j, "done");
+                            db.updateItemStatus(importKey, j, "done");
                     } catch (Exception e) {
                         log.error("SQL exception updating history DB.", e);
                     }
@@ -229,8 +229,8 @@ public class ImportHandler implements IObservable {
                     } 
                     try {
                         if (db != null) {
-                            db.updateFileStatus(importKey, "incomplete");
-                            db.updateBaseStatus(importKey, j, "failed");
+                            db.updateBaseStatus(importKey, "incomplete");
+                            db.updateItemStatus(importKey, j, "failed");
                         }
                     } catch (Exception e) {
                         log.error("Exception updating history DB.", e);
@@ -245,8 +245,8 @@ public class ImportHandler implements IObservable {
                         importStatus = -1;
                     try {
                         if (db != null) {
-                            db.updateFileStatus(importKey, "incomplete");
-                            db.updateBaseStatus(importKey, j, "failed");
+                            db.updateBaseStatus(importKey, "incomplete");
+                            db.updateItemStatus(importKey, j, "failed");
                         }
                     } catch (Exception e) {
                         log.error("SQL exception updating history DB.", e);
@@ -266,8 +266,8 @@ public class ImportHandler implements IObservable {
                     qTable.importing = false;
                     try {
                         if (db != null) {
-                            db.updateFileStatus(importKey, "incomplete");
-                            db.updateBaseStatus(importKey, j, "failed");
+                            db.updateBaseStatus(importKey, "incomplete");
+                            db.updateItemStatus(importKey, j, "failed");
                         }
                     } catch (Exception sqle) {
                         log.error("SQL exception updating history DB.", sqle);
@@ -286,8 +286,8 @@ public class ImportHandler implements IObservable {
 
                     try {
                         if (db != null) {
-                            db.updateFileStatus(importKey, "incomplete");
-                            db.updateBaseStatus(importKey, j, "failed");
+                            db.updateBaseStatus(importKey, "incomplete");
+                            db.updateItemStatus(importKey, j, "failed");
                         }
                     } catch (Exception sqle) {
                         log.error("SQL exception updating history DB.", sqle);
@@ -302,7 +302,7 @@ public class ImportHandler implements IObservable {
         if (importStatus >= 0)
             try {
                 if (db != null)
-                    db.updateFileStatus(importKey, "complete");
+                    db.updateBaseStatus(importKey, "complete");
             } catch (Exception e) {
                 log.error("Exception when updating import status.", e);
             }
