@@ -142,6 +142,20 @@ class TestHdfStorage(TestCase):
     def testVersion(self):
         self.fail()
 
+    def testStringCol(self):
+        hdf = omero.tables.HdfStorage(self.hdfpath())
+        cols = [omero.columns.StringColumnI("name","description",16,None)]
+        hdf.initialize(cols)
+        cols[0].settable(hdf._HdfStorage__mea) # Needed for size
+        cols[0].values = ["foo"]
+        hdf.append(cols)
+        rows = hdf.getWhereList(time.time(), '(name=="foo")', None, 'b', None, None, None)
+        self.assertEquals(1, len(rows))
+        self.assertEquals(16, hdf.readCoordinates(time.time(), [0], self.current).columns[0].size)
+        # Doesn't work yet.
+        hdf.cleanup()
+
+
     #
     # ROIs
     #
