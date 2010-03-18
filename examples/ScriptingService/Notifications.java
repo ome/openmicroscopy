@@ -17,12 +17,7 @@ public class Notifications {
             ServiceFactoryPrx sf = client.createSession();
             IScriptPrx scriptService = sf.getScriptService();
             long id = scriptService.uploadScript(SCRIPT);
-            JobParams params = scriptService.getParams(id);
-
-            Job job = new ScriptJobI();
-            job.linkOriginalFile(new OriginalFileI(id, false));
-            InteractiveProcessorPrx ip = sf.sharedResources().acquireProcessor(job, 10);
-            ProcessPrx proc = ip.execute(null);
+            ScriptProcessPrx proc = scriptService.runScript(id, null, null);
             ProcessCallbackI cb = new ProcessCallbackI(client, proc);
             System.out.println(cb.block(5000));
             proc.poll();

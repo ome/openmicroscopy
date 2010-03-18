@@ -24,6 +24,7 @@ import ome.services.util.Executor;
 import ome.system.ServiceFactory;
 import ome.util.Utils;
 import omero.ApiUsageException;
+import omero.RInt;
 import omero.RType;
 import omero.ServerError;
 import omero.ValidationException;
@@ -34,11 +35,16 @@ import omero.api.AMD_IScript_getScript;
 import omero.api.AMD_IScript_getScriptID;
 import omero.api.AMD_IScript_getScriptWithDetails;
 import omero.api.AMD_IScript_getScripts;
+import omero.api.AMD_IScript_runScript;
 import omero.api.AMD_IScript_uploadScript;
 import omero.api._IScriptOperations;
+import omero.grid.InteractiveProcessorPrx;
 import omero.grid.JobParams;
 import omero.grid.ParamsHelper;
+import omero.grid.ProcessPrx;
+import omero.grid.ScriptProcessPrx;
 import omero.model.OriginalFileI;
+import omero.model.ScriptJob;
 import omero.model.ScriptJobI;
 import omero.util.IceMapper;
 
@@ -73,10 +79,37 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
         this.factory = sf;
         helper = new ParamsHelper(
-                sf.sharedResources(), sf.getExecutor(), sf.getPrincipal());
+            sf.sharedResources(), sf.getExecutor(), sf.getPrincipal());
     }
 
-    // ~ Service methods
+    // ~ Process Service methods
+    // =========================================================================
+
+    public void runScript_async(AMD_IScript_runScript __cb, final long scriptID,
+            final Map<String, RType> inputs, final RInt waitSecs, final Current __current)
+            throws ServerError {
+        safeRunnableCall(__current, __cb, false, new Callable<ScriptProcessPrx>(){
+            public ScriptProcessPrx call() throws ServerError {
+
+                ScriptJob job = new ScriptJobI();
+                job.linkOriginalFile(new OriginalFileI(scriptID, false));
+                int timeout = 5;
+                if (waitSecs != null) {
+                    timeout = waitSecs.getValue();
+                }
+                InteractiveProcessorPrx prx =
+                    factory.sharedResources().acquireProcessor(job, timeout);
+                ProcessPrx proc = prx.execute(omero.rtypes.rmap(inputs));
+
+                ScriptProcessI process = new ScriptProcessI(factory, __current, prx, proc);
+                return process.getProxy();
+            }
+
+        });
+
+    }
+
+    // ~ Script Service methods
     // =========================================================================
 
     /**

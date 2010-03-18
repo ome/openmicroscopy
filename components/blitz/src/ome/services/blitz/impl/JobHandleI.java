@@ -22,10 +22,6 @@ import omero.api.AMD_JobHandle_jobStatus;
 import omero.api.AMD_JobHandle_setStatus;
 import omero.api.AMD_JobHandle_setStatusAndMessage;
 import omero.api.AMD_JobHandle_submit;
-import omero.api.AMD_StatefulServiceInterface_activate;
-import omero.api.AMD_StatefulServiceInterface_close;
-import omero.api.AMD_StatefulServiceInterface_passivate;
-import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api._JobHandleOperations;
 import omero.model.Job;
 import Ice.Current;
@@ -110,5 +106,10 @@ public class JobHandleI extends AbstractAmdServant implements
             RString msg, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, status, msg);
     }
+
+    public void setMessage_async(omero.api.AMD_JobHandle_setMessage __cb, String message,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, message);
+    };
 
 }

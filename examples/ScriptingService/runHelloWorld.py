@@ -60,12 +60,8 @@ def run(commandArgs):
 
 	# runs the script
         try:
-            # TODO: this will be refactored
-            job = omero.model.ScriptJobI()
-            job.linkOriginalFile(omero.model.OriginalFileI(scriptId, False))
-            processor = session.sharedResources().acquireProcessor(job, 10)
-            proc = processor.execute(argMap)
-            processor.setDetach(True)
+            proc = scriptService.runScript(long(scriptId), None, None)
+            proc.close(True) # Continue running
         except omero.ResourceError, re:
             print "Could not launch", re
 

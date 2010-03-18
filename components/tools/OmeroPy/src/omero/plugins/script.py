@@ -241,87 +241,69 @@ print "Finished script"
         script_id = self._file(args, client)
 
         import omero
+        import omero.scripts
         import omero.rtypes
-        import omero_SharedResources_ice
-        job = omero.model.ScriptJobI()
-        job.linkOriginalFile(omero.model.OriginalFileI(script_id, False))
-        interactive = client.sf.sharedResources().acquireProcessor(job, 10)
-        if not interactive:
-            self.ctx.err("No processor found")
-        else:
-            params = interactive.params()
-            m = {}
-            for key, param in params.inputs.items():
-                a = args.get(key, None)
-                if not a and not param.optional:
-                    self.ctx.die(321, "Missing input: %s" % key)
-                else:
-                    if a is None:
-                        m[key] = None
-                    elif isinstance(param.prototype, omero.RLong):
-                        m[key] = omero.rtypes.rlong(a)
-                    elif isinstance(param.prototype, omero.RString):
-                        m[key] = omero.rtypes.rstring(a)
-            job = interactive.getJob()
-            try:
-                proc = interactive.execute(omero.rtypes.rmap(m))
-            except omero.ValidationException, ve:
-                self.ctx.err("Bad parameters:\n%s" % ve)
-                return # EARLY EXIT
+        import omero_api_IScript_ice
+        svc = client.sf.getScriptService()
+        params = svc.getParams(script_id)
+        m = {}
+        for key, param in params.inputs.items():
+            a = args.get(key, None)
+            if not a and not param.optional:
+                self.ctx.die(321, "Missing input: %s" % key)
+            else:
+                if a is None:
+                    m[key] = None
+                elif isinstance(param.prototype, omero.RLong):
+                    m[key] = omero.rtypes.rlong(a)
+                elif isinstance(param.prototype, omero.RString):
+                    m[key] = omero.rtypes.rstring(a)
 
-            # Adding notification
-            import logging
-            cblog = logging.getLogger("ProcessCallback")
-            class ProcessCallbackI(omero.grid.ProcessCallback):
-                def processFinished(self, returnCode, current = None):
-                    cblog.info("Finished")
-                def processCancelled(self, success, current = None):
-                    cblog.info("Cancelled")
-                def processKilled(self, success, current = None):
-                    cblog.info("Killed")
+        try:
+            proc = svc.runScript(script_id, m, None)
+            job = proc.getJob()
+        except omero.ValidationException, ve:
+            self.ctx.err("Bad parameters:\n%s" % ve)
+            return # EARLY EXIT
 
-            import Ice, uuid
-            iid = Ice.Identity(name=str(uuid.uuid4()), category="ProcessCallback")
-            prx = client.adapter.add(ProcessCallbackI(), iid)
-            prx = omero.grid.ProcessCallbackPrx.uncheckedCast(prx)
-            proc.registerCallback(prx)
-
+        # Adding notification to wait on result
+        cb = omero.scripts.ProcessCallbackI(client, proc)
+        try:
             self.ctx.out("Job %s ready" % job.id.val)
             self.ctx.out("Waiting....")
             count = 0
             while proc.poll() is None:
-                count += 1
-                if (count%10) == 0:
-                    self.ctx.out(".", newline=False)
-                time.sleep(1)
-            rmap = interactive.getResults(proc)
-            rv = rmap and rmap.val or {}
+                cb.block(1000)
+            self.ctx.out("Callback received: %s" % cb.block(0))
+            rv = proc.getResults(3)
+        finally:
+            cb.close()
 
-            def p(m):
-                class handle(object):
-                    def write(this, val):
-                        val = "\t* %s" % val
-                        val = val.replace("\n","\n\t* ")
-                        self.ctx.out(val, newline=False)
-                    def close(this):
-                        pass
+        def p(m):
+            class handle(object):
+                def write(this, val):
+                    val = "\t* %s" % val
+                    val = val.replace("\n","\n\t* ")
+                    self.ctx.out(val, newline=False)
+                def close(this):
+                    pass
 
-                f = rv.get(m, None)
-                if f and f.val:
-                    self.ctx.out("\n\t*** start %s ***" % m)
-                    try:
-                        client.download(ofile=f.val, filehandle=handle())
-                    except:
-                        self.ctx.err("Failed to display %s" % m)
-                    self.ctx.out("\n\t*** end %s ***\n" % m)
+            f = rv.get(m, None)
+            if f and f.val:
+                self.ctx.out("\n\t*** start %s ***" % m)
+                try:
+                    client.download(ofile=f.val, filehandle=handle())
+                except:
+                    self.ctx.err("Failed to display %s" % m)
+                self.ctx.out("\n\t*** end %s ***\n" % m)
 
-            p("stdout")
-            p("stderr")
-            self.ctx.out("\n\t*** out parameters ***")
-            for k, v in rv.items():
-                if k not in ("stdout", "stderr", "omero.scripts.parse"):
-                    self.ctx.out("\t* %s=%s" % (k, omero.rtypes.unwrap(v)))
-            self.ctx.out("\t***  done ***")
+        p("stdout")
+        p("stderr")
+        self.ctx.out("\n\t*** out parameters ***")
+        for k, v in rv.items():
+            if k not in ("stdout", "stderr", "omero.scripts.parse"):
+                self.ctx.out("\t* %s=%s" % (k, omero.rtypes.unwrap(v)))
+        self.ctx.out("\t***  done ***")
 
     @wrapper
     def list(self, args):

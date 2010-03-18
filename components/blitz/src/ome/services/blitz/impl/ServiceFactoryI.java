@@ -559,7 +559,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         // If an exception if thrown, there's not much we can do,
         // and it's important to continue cleaning up resources!
         try {
-            adapter.remove(sessionId());
+            adapter.remove(sessionId()); // OK ADAPTER USAGE
         } catch (Ice.NotRegisteredException nre) {
             // It's possible that another thread tried to remove
             // this session first. Logging the fact, but we will
@@ -767,6 +767,14 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     // ~ Helpers
     // =========================================================================
 
+
+    public void allow(Ice.ObjectPrx prx) {
+        if (prx != null && control != null) {
+            control.identities().add(
+                    new Ice.Identity[]{prx.ice_getIdentity()});
+        }
+    }
+
     /**
      * Constructs an {@link Ice.Identity} from the name of this
      * {@link ServiceFactoryI} and from the given {@link String} which for
@@ -833,14 +841,14 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * already registered) as well as configures the servant in any post-Spring
      * way necessary, based on the type of the servant.
      */
-    protected Ice.ObjectPrx registerServant(Current current, Ice.Identity id,
+    public Ice.ObjectPrx registerServant(Current current, Ice.Identity id,
             Ice.Object servant) throws ServerError {
 
         Ice.ObjectPrx prx = null;
         try {
             Ice.Object already = adapter.find(id);
             if (null == already) {
-                adapter.add(servant, id);
+                adapter.add(servant, id); // OK ADAPTER USAGE
                 prx = adapter.createDirectProxy(id);
                 if (log.isInfoEnabled()) {
                     log.info("Added servant to adapter: "
@@ -895,7 +903,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         // which case unregisterServant() is being closed via
         // onApplicationEvent().
         // Otherwise, it is being called directly by SF.close().
-        Ice.Object obj = adapter.remove(id);
+        Ice.Object obj = adapter.remove(id); // OK ADAPTER USAGE
         Object removed = holder.remove(id);
         if (removed == null) {
             log.error("Adapter and active servants out of sync.");

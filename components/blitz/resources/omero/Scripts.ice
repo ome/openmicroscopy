@@ -24,12 +24,15 @@
 
 module omero {
 
+    /**
+     * Base class similar to [omero::model::IObject] but for non-model-objects.
+     **/
     class Internal{};
 
     /**
      * Base type for [RType]s whose contents will not be parsed by
-     * the server. This is an intermediate solution while
-     * conversion between Blitz/JBoss types is necessary.
+     * the server. This allows Blitz-specific types to be safely
+     * passed in as the inputs/outputs of scripts.
      **/
     ["protected"] class RInternal extends omero::RType {
         Internal val;
@@ -37,22 +40,31 @@ module omero {
     };
 
     /**
-     * Types using the "Internal" infrastructure to allow storing
-     * useful types in the input/output environments of scripts.
+     * Simple 2D array of bytes.
      **/
     sequence<Ice::ByteSeq> Bytes2D;
 
+    /**
+     * Sequences cannot subclass other types, so the Plane
+     * class extends [Internal] and wraps a [Bytes2D] instance.
+     **/
     class Plane extends Internal {
         Bytes2D data;
     };
 
+    /**
+     * XY-point in space.
+     **/
     class Point extends Internal {
         int x;
         int y;
     };
 
+    /**
+     * RGBA-color packed into a single long.
+     **/
     class Color extends Internal {
-        int packedColor;
+        long packedColor;
     };
 
     module grid {
@@ -60,7 +72,31 @@ module omero {
         /**
          * A single parameter to a Job. For example, used by
          * ScriptJobs to define what the input and output
-         * environment variables should be.
+         * environment variables should be. Helper classes are available
+         * in the Python omero.scripts module, so that the following are
+         * equivalent:
+         *
+         * <pre># 1
+         * a = omero.grid.Params()
+         * a.optional = True
+         * a.prototype = omero.rtypes.rstring("")
+         * a.description = "An optional string which will be ignored by the script"
+         * omero.scripts.client(inputs = {"a":a})
+         * </pre>
+         *
+         * <pre># 2
+         * a = omero.scripts.String("a", optional=True, description=\
+         * "An optional string which will be ignored by the script")
+         * omero.scripts.client(a)
+         * </pre>
+         *
+         * For advanced setters not available on the Type classes (like omero.script.String)
+         * use the getter type.param() and then set values directly.
+         *
+         * <pre>
+         * a = omero.scripts.String("a")
+         * a.param().values = ["hi", "bye"]
+         * </pre>
          **/
         class Param {
 
@@ -70,29 +106,67 @@ module omero {
              * Example of a bad description: "a long value"
              *
              * Example of a good description: "long representing
-             * the number of bins to be used by ... A sensible
+             * the number of bins to be used by <some algorithm>. A sensible
              * value would be between 16 and 32"
              *
              **/
             string description;
 
             /**
-             *
+             * Whether or not a script will require this value to be present
+             * in the input or output. If an input is missing or None when
+             * non-optional, then a [omero::ValidationException] will be thrown
+             * on [processJob]. A missing output param will be marked after
+             * execution.
              **/
             bool optional;
 
             /**
+             * [omero::RType] which represents what the input or output value
+             * should look like. If this is a collection type (i.e. [omero::RCollection]
+             * or [omero::RMap] or their subclasses), then the first contents of
+             * the collection will be used (recursively).
              *
+             * <pre>
+             * param.prototype = rlist(rlist(rstring)))
+             * </pre>
+             * requires that a list of list of strings be passed.
              **/
             omero::RType prototype;
 
             /**
+             * Minimum value which an input may contain. If the prototype
+             * is a collection type, then the min type must match the type
+             * of the innermost non-collection instance.
              *
+             * For example,
+             * <pre>
+             * param.prototype = rlong(0)
+             * param.min = rlong(-5)
+             * </pre>
+             * but
+             * <pre>
+             * param.prototype = rlist(rlong(0))
+             * param.min = rlong(-5)
+             * </pre>
              **/
             omero::RType min;
 
             /**
+             * Maximum value which an input may contain. If the prototype
+             * is a collection type, then the max type must match the type
+             * of the innermost non-collection instance.
              *
+             * For example,
+             * <pre>
+             * param.prototype = rlong(0)
+             * param.max = rlong(5)
+             * </pre>
+             * but
+             * <pre>
+             * param.prototype = rlist(rlong(0))
+             * param.max = rlong(5)
+             * </pre>
              **/
             omero::RType max;
 
@@ -110,16 +184,68 @@ module omero {
         dictionary<string, Param> ParamMap;
 
         /**
-         * Complete job description with all input
-         * and output Params. See above.
+         * Complete job description with all input and output Params.
+         *
+         * JobParams contain information about who wrote a script, what its
+         * purpose is, and how it should be used, and are defined via the
+         * "omero.scripts.client" method.
+         *
+         * <pre>
+         * c = omero.scripts.client(name="my algorithm", version="0.0.1")
+         * </pre>
+         *
+         * Alternatively, a JobParams instance can be passed into the constructor:
+         *
+         * <pre>
+         * params = omero.grid.JobParams()
+         * params.authors = ["Andy", "Kathy"]
+         * params.version = "0.0.1"
+         * params.description = """
+         *     Clever way to count to 5
+         * """
+         * c = omero.scripts.client(params)
+         * </pre>
+         *
+         * A single JobParam instance is parsed from a script and stored by the server.
+         * Later invocations re-use this instance until the script changes.
          **/
         class JobParams extends Internal {
 
+            /**
+             * Descriptive name for this script. This value should be unique where
+             * possible, but no assurance is provided by the server that multiple
+             * scripts with the same name are not present.
+             **/
             string name;
+
+            /**
+             * Author-given version number for this script. Please see the script
+             * authors' guide for information about choosing version numbers.
+             **/
+             string version;
+
+            /**
+             * A general description of a script, including documentation on how
+             * it should be used, what data it will access, and other metrics
+             * like how long it takes to execute, etc.
+             **/
             string description;
+
+            /**
+             * Single, human-readable string for how to contact the script author.
+             **/
             string contact;
 
+            /**
+             * Information about the authors who took part in creating this script.
+             * No particular format is required.
+             **/
             omero::api::StringArray authors;
+
+            /**
+             * Information about the institutions which took part in creating this script.
+             * No particular format is required.
+             **/
             omero::api::StringArray institutions;
 
             /**
@@ -141,12 +267,49 @@ module omero {
              **/
             omero::api::IntegerArrayArray authorsInstitutions;
 
+            /**
+             * Definitive list of the inputs which MAY or MUST be provided
+             * to the script, based on the "optional" flag.
+             **/
             ParamMap inputs;
+
+            /**
+             * Definitive list of the outputs which MAY or MUST be provided
+             * to the script, based on the "optional" flag.
+             **/
             ParamMap outputs;
 
+            /**
+             * [omero::model::Format].value of the stdout stream produced by
+             * the script. If this value is not otherwise set (i.e. is None),
+             * the default of "text/plain" will be set. This is typically a
+             * good idea if the script uses "print" or the logging module.
+             *
+             * If you would like to disable stdout upload, set the value to ""
+             * (the empty string).
+             *
+             * "text/html" or "application/octet-stream" might also be values of interest.
+             **/
             string stdoutFormat;
+
+            /**
+             * [omero::model::Format].value of the stderr stream produced by
+             * the script. If this value is not otherwise set (i.e. is None),
+             * the default of "text/plain" will be set. This is typically a
+             * good idea if the script uses "print" or the logging module.
+             *
+             * If you would like to disable stderr upload, set the value to ""
+             * (the empty string).
+             *
+             * "text/html" or "application/octet-stream" might also be values of interest.
+             **/
             string stderrFormat;
 
+            /**
+             * CURRENTLY UNDER INVESTIGATION!
+             *
+             * Possible way to lookup scripts of interest.
+             **/
             omero::api::StringSet namespaces; // FIXME OR USE DIRECTORY NAME
         };
 
@@ -227,9 +390,57 @@ module omero {
             void unregisterCallback(ProcessCallback* cb) throws omero::ServerError;
         };
 
+        /**
+         * Extension of the [Process] interface which is returned by [IScript]
+         * when an [omero::model::ScriptJob] is launched. It is critical that
+         * instances of [ScriptProcess] are closed on completetion. See the close
+         * method for more information.
+         **/
+        interface ScriptProcess extends Process {
+
+            /**
+             * Returns the job which started this process. Several
+             * scheduling fields (submitted, scheduledFor, started, finished)
+             * may be of interest.
+             **/
+            omero::model::ScriptJob getJob() throws ServerError;
+
+            /**
+             * Returns the results immediately if present. If the process
+             * is not yet finished, waits "waitSecs" before throwing an
+             * [omero.ApiUsageException]. If poll has returned a non-null
+             * value, then this method will always return a non-null value.
+             **/
+            omero::RTypeDict getResults(int waitSecs) throws ServerError;
+
+            /**
+             * Sets the message on the [omero::model::ScriptJob] object.
+             * This value MAY be overwritten by the server if the script
+             * fails.
+             **/
+            string setMessage(string message) throws ServerError;
+
+            /**
+             * Closes this process and frees server resources attached to it.
+             * If the detach argument is True, then the background process
+             * will continue executing. The user can reconnect to the process
+             * via the [IScript] service.
+             *
+             * If the detach argument is False, then the background process
+             * will be shutdown immediately, and all intermediate results
+             * (stdout, stderr, ...) will be uploaded.
+             **/
+            void close(bool detach) throws ServerError;
+        };
+
+
+        //
+        // INTERNAL DEFINITIONS:
+        // The following classes and types will not be needed by the casual user.
+        //
 
         /**
-         * Callback interface which is passed to the [Processor::accepts] method
+         * Internal callback interface which is passed to the [Processor::accepts] method
          * to query whether or not a processor will accept a certain operation.
          **/
         interface ProcessorCallback {
@@ -357,6 +568,7 @@ module omero {
 
         ["java:type:java.util.ArrayList<omero.grid.InteractiveProcessorPrx>:java.util.List<omero.grid.InteractiveProcessorPrx>"]
             sequence<InteractiveProcessor*> InteractiveProcessorList;
+
     };
 };
 

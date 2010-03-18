@@ -125,6 +125,9 @@ module omero {
         ["java:type:java.util.ArrayList<omero.model.Roi>:java.util.List<omero.model.Roi>"]
             sequence<omero::model::Roi> RoiList;
 
+        ["java:type:java.util.ArrayList<omero.model.ScriptJob>:java.util.List<omero.model.ScriptJob>"]
+            sequence<omero::model::ScriptJob> ScriptJobList;
+
         ["java:type:java.util.ArrayList<omero.model.Shape>:java.util.List<omero.model.Shape>"]
             sequence<omero::model::Shape> ShapeList;
 

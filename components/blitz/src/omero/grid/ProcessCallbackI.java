@@ -28,21 +28,23 @@ public class ProcessCallbackI extends _ProcessCallbackDisp {
         KILLED;
     }
 
-    private final omero.client client;
-
-    private final ProcessPrx proc;
+    private final Ice.ObjectAdapter adapter;
 
     private final Ice.Identity id;
 
     private final BlockingQueue<Action> q = new LinkedBlockingQueue<Action>();
 
     public ProcessCallbackI(omero.client client, ProcessPrx process)
-            throws ServerError {
-        this.client = client;
-        this.proc = process;
+    throws ServerError {
+        this(client.getAdapter(), process);
+    }
+
+    public ProcessCallbackI(Ice.ObjectAdapter adapter, ProcessPrx process)
+    throws ServerError {
+        this.adapter = adapter;
         this.id = new Ice.Identity(UUID.randomUUID().toString(),
                 "ProcessCallback");
-        Ice.ObjectPrx prx = this.client.getAdapter().add(this, id);
+        Ice.ObjectPrx prx = adapter.add(this, id);
         ProcessCallbackPrx cb = ProcessCallbackPrxHelper.uncheckedCast(prx);
         process.registerCallback(cb);
     }
@@ -86,6 +88,6 @@ public class ProcessCallbackI extends _ProcessCallbackDisp {
     }
 
     public void close() {
-         this.client.getAdapter().remove(id);
+         adapter.remove(id); // OK ADAPTER USAGE
      }
 }

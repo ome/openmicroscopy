@@ -310,33 +310,47 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
 
     @Transactional(readOnly = false)
     @RolesAllowed("user")
+    public String setMessage(String message) {
+        return setStatusAndMessage(null, message);
+    }
+
+    @Transactional(readOnly = false)
+    @RolesAllowed("user")
     public String setStatusAndMessage(String status, String message) {
 
         JobStatus s = iTypes.getEnumeration(JobStatus.class, status);
 
+        // status can only be null if this is invoked locally, otherwise
+        // the @NotNull will prevent that. therefore the return value
+        // will only be the message when called by setMessage()
+        String rv = null;
+
         errorIfInvalidState();
         Job job = internalJobOnly();
-        String oldStatus = job.getStatus().getValue();
-        job.setStatus(s);
         if (message != null) {
+            rv = job.getMessage();
             job.setMessage(message);
         }
-        Timestamp t = new Timestamp(System.currentTimeMillis());
-        if (status.equals(RUNNING)) {
-            job.setStarted(t);
-        } else if (status.equals(CANCELLED)) {
-            job.setFinished(t);
-            Process p = pm.runningProcess(jobId);
-            if (p != null) {
-                p.cancel();
+        if (status != null) {
+            rv = job.getStatus().getValue();
+            job.setStatus(s);
+            Timestamp t = new Timestamp(System.currentTimeMillis());
+            if (status.equals(RUNNING)) {
+                job.setStarted(t);
+            } else if (status.equals(CANCELLED)) {
+                job.setFinished(t);
+                Process p = pm.runningProcess(jobId);
+                if (p != null) {
+                    p.cancel();
+                }
+            } else if (status.equals(FINISHED) || status.equals(ERROR)) {
+                job.setFinished(t);
+            } else {
+                throw new ValidationException("Currently unsupported: " + status);
             }
-        } else if (status.equals(FINISHED) || status.equals(ERROR)) {
-            job.setFinished(t);
-        } else {
-            throw new ValidationException("Currently unsupported: " + status);
         }
         secureSave(job);
-        return oldStatus;
+        return rv;
     }
 
     // ProcessCallback ~

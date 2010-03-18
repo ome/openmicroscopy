@@ -111,4 +111,13 @@ public interface JobHandle extends StatefulServiceInterface {
      * Like {@link #setStatus(String)} but also sets the message.
      */
     String setStatusAndMessage(@NotNull String status, String message);
+
+    /**
+     * Sets the job's message string, and returns the previous value.
+
+     * @param message
+     * @return
+     */
+    String setMessage(String message);
+
 }

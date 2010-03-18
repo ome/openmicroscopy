@@ -17,9 +17,15 @@
 
 """
 
-import exceptions, omero
+import Ice
+import uuid
+import exceptions
+
+import omero
 import omero_Scripts_ice
+import omero.util.concurrency
 from omero.rtypes import *
+
 
 class Type:
     def __init__(self, name, optional = False, out = False, description = None, type = None, min = None, max = None, values = None):
@@ -274,3 +280,52 @@ def validate_inputs(params, inputs):
             errors += check_boundaries(param.min, param.max, input)
             errors += check_values(param.values, input)
     return errors
+
+
+class ProcessCallbackI(omero.grid.ProcessCallback):
+    """
+    Simple callback which registers itself with the given process.
+    """
+
+    FINISHED = "FINISHED"
+    CANCELLED = "CANCELLED"
+    KILLED = "KILLED"
+
+    def __init__(self, adapter_or_client, process):
+        self.event = omero.util.concurrency.get_event()
+        self.result = None
+        self.process = process
+        self.adapter = adapter_or_client
+        self.id = Ice.Identity(str(uuid.uuid4()), "ProcessCallback")
+        if not isinstance(self.adapter, Ice.ObjectAdapter):
+            self.adapter = self.adapter.adapter
+        self.prx = self.adapter.add(self, self.id) # OK ADAPTER USAGE
+        self.prx = omero.grid.ProcessCallbackPrx.uncheckedCast(self.prx)
+        process.registerCallback(self.prx)
+
+    def block(self, ms):
+        """
+        Should only be used if the default logic of the process methods is kept
+        in place. If "event.set" does not get called, this method will always
+        block for the given milliseconds.
+        """
+        self.event.wait(float(ms) / 1000)
+        if self.event.isSet():
+            return self.result
+        return None
+
+    def processCancelled(self, success, current = None):
+        self.result = ProcessCallbackI.CANCELLED
+        self.event.set()
+
+    def processFinished(self, returncode, current = None):
+        self.result = ProcessCallbackI.FINISHED
+        self.event.set()
+
+    def processKilled(self, success, current = None):
+        self.result = ProcssCallbackI.KILLED
+        self.event.set()
+
+    def close(self):
+         self.adapter.remove(self.id) # OK ADAPTER USAGE
+

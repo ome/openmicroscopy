@@ -760,6 +760,7 @@ module omero {
 	    bool jobError()  throws ServerError;
 	    void cancelJob()  throws ServerError;
             string setStatus(string status) throws ServerError;
+            string setMessage(string message) throws ServerError;
             string setStatusAndMessage(string status, omero::RString message) throws ServerError;
 	};
 

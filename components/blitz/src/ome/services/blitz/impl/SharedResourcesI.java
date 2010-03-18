@@ -132,13 +132,6 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
     // Acquisition framework
     // =========================================================================
-
-    private void allow(Ice.ObjectPrx prx) {
-        if (prx != null && sf.control != null) {
-            sf.control.identities().add(
-                    new Ice.Identity[]{prx.ice_getIdentity()});
-        }
-    }
     
     private void register(TablePrx prx) {
         if (prx != null) {
@@ -260,7 +253,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
                 map.descriptions.add(desc);
                 map.proxies.add(proxy);
                 found.add(desc.getId().getValue());
-                allow(proxy);
+                sf.allow(proxy);
             } catch (Ice.LocalException e) {
                 // Ok.
             }
@@ -451,7 +444,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
                     }
                 });
         
-        allow(tablePrx);
+        sf. allow(tablePrx);
         register(tablePrx);
         return tablePrx;
 
@@ -482,7 +475,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
         acceptId.category = PROCESSORCALLBACK.value;
         ResultHolder<String> holder = new ResultHolder<String>(seconds);
         Callback callback = new Callback(sf, holder, job);
-        ProcessorPrx server = callback.activateAndWait(sf.adapter, acceptId);
+        ProcessorPrx server = callback.activateAndWait(current, acceptId);
 
         // Nothing left to try
         if (server == null) {
@@ -504,7 +497,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
                         sf.sharedResources(), sf.getExecutor(), sf.getPrincipal()));
         Ice.Identity procId = sessionedID("InteractiveProcessor");
         Ice.ObjectPrx rv = sf.registerServant(current, procId, ip);
-        allow(rv);
+        sf.allow(rv);
         return InteractiveProcessorPrxHelper.uncheckedCast(rv);
     }
 
@@ -589,9 +582,9 @@ public class SharedResourcesI extends AbstractAmdServant implements
             this.ec = sf.sessionManager.getEventContext(sf.principal);
         }
 
-        public ProcessorPrx activateAndWait(Ice.ObjectAdapter adapter, Ice.Identity acceptId) {
+        public ProcessorPrx activateAndWait(Ice.Current current, Ice.Identity acceptId) throws ServerError {
 
-            Ice.ObjectPrx prx = sf.adapter.add(this, acceptId);
+            Ice.ObjectPrx prx = sf.registerServant(current, acceptId, this);
 
             try {
                 prx = sf.adapter.createDirectProxy(acceptId);
@@ -611,7 +604,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
                 Ice.ObjectPrx p = sf.adapter.getCommunicator().stringToProxy(server);
                 return ProcessorPrxHelper.uncheckedCast(p);
             } finally {
-                sf.adapter.remove(acceptId);
+                sf.unregisterServant(acceptId);
             }
         }
 
