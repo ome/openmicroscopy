@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -109,6 +110,38 @@ public class FSFileSystemView
     	}
     	
     	return null;
+    }
+    
+    private void populate(Vector<DataObject> files, Map<String, List<IObject>>
+    map, boolean useFileHiding)
+    {
+    	if (map == null) return;
+    	Entry entry;
+		Iterator i = map.entrySet().iterator();
+		List list;
+		File f;
+		IObject object;
+		if (useFileHiding) {
+		} else {
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				f = new File((String) entry.getKey());
+				if (!f.isHidden()) {
+					list = (List) entry.getValue();
+					if (list.size() == 1) {
+						object = (IObject) list.get(0);
+						if (object instanceof Image) {
+							files.addElement(new ImageData((Image) object));
+						} else if (object instanceof OriginalFile) {
+							files.addElement(new FileData(object));
+						}
+					} else if (list.size() > 1) {
+						
+					}
+				}
+			}
+		}
+		
     }
     
     /**
@@ -334,10 +367,16 @@ public class FSFileSystemView
     	Vector<DataObject> files = new Vector<DataObject>();
     	try {
     		String s = dir.getAbsolutePath();
+    		populate(files, proxy.listObjects(s), useFileHiding);
+    		Map<String, List<IObject>> list = proxy.listObjects(s);
+    		
+    		/*
     		populate(files, proxy.listKnownNonImages(s), proxy.listNonImages(s), 
     				useFileHiding);
     		populate(files, proxy.listKnownImportableImages(s),
     				proxy.listImportableImages(s), useFileHiding);
+    			*/
+    		//populate(files, proxy.listObjects(s), proxy.listObjects(s), useFileHiding)
 		} catch (Exception e) { 
 			new FSAccessException("Cannot retrives the files contained in: " +
 					dir.getAbsolutePath(), e);

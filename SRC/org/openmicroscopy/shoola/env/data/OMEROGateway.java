@@ -4491,7 +4491,11 @@ class OMEROGateway
 			entries[index] = reServices.get(j.next());
 			index++;
 		}
-		entry.keepAllAlive(entries);
+		try {
+			entry.keepAllAlive(entries);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 	
 	/**
