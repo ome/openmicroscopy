@@ -45,6 +45,17 @@ import omero_SharedResources_ice
 from omero.rtypes import *
 import omero.util.script_utils as scriptUtil
 
+	
+def getColours(re, sizeC, pixelsId):
+	colours = []
+	re.lookupPixels(pixelsId)
+	re.lookupRenderingDef(pixelsId)
+	re.load()
+	for c in range(sizeC):
+		colours.append(re.getRGBA(c))
+	return colours
+		
+		
 def run(commandArgs):
 	
 	# login details
@@ -60,6 +71,7 @@ def run(commandArgs):
 	rawFileStore = session.createRawFileStore()
 	queryService = session.getQueryService()
 	gateway = session.createGateway()
+	re = session.createRenderingEngine()
 	
 	imageId = None
 	
@@ -120,13 +132,21 @@ def run(commandArgs):
 		print "No OriginalFileIds returned by script"
 		return
 		
+
+	# need to get colours for each channel, to pass to chimera. Chimera uses [(0.0, 0.0, 1.0, 1.0),(0.0, 1.0, 0.0, 1.0)]
+	# This returns e.g. [[0, 0, 255, 255], [0, 255, 0, 255], [255, 0, 0, 255], [255, 0, 0, 255]] but seems to work OK. 
+	pixels = gateway.getImage(imageId).getPrimaryPixels()
+	pixelsId = pixels.getId().getValue()
+	sizeC = pixels.getSizeC().getValue()
+	colours = getColours(re, sizeC, pixelsId)
+	
 	# now we need to make a Chimera script to open the images (channels) and colour them! 
 	scriptLines = []
 	scriptLines.append("from chimera import openModels")
 	scriptLines.append("from VolumeViewer import Volume")
 	for fn in fileNames:
 		scriptLines.append("openModels.open('%s')" % fn)
-	scriptLines.append("colors = [(0.0, 0.0, 1.0, 1.0),(0.0, 1.0, 0.0, 1.0),(1.0, 0.0, 0.0, 1.0),(1.0, 0.0, 0.0, 1.0)]")
+	scriptLines.append("colors = %s" % colours)		# the colours list is rendered suitably as a string 
 	scriptLines.append("for c, v in enumerate(openModels.list(modelTypes=[Volume])):")
 	scriptLines.append("    v.set_parameters(surface_colors = [colors[c]])")
 	scriptLines.append("    v.show()")
