@@ -492,7 +492,7 @@ def load_template(request, menu, **kwargs):
     form_users = None
     filter_user_id = None    
     users = sortByAttr(list(conn.getColleagues()), "lastName")
-    empty_label = conn.getUser().getFullName()
+    empty_label = "*%s" % conn.getUser().getFullName()
     if len(users) > 0:
         if request.REQUEST.get('experimenter') == "":
             request.session['experimenter'] = None
@@ -510,8 +510,8 @@ def load_template(request, menu, **kwargs):
             else:
                 form_users = UsersForm(initial={'users': users, 'empty_label':empty_label})
             
-    form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups']})                
-        
+    form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups']})
+    
     context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'form_active_group':form_active_group, 'form_users':form_users}
     
     t = template_loader.get_template(template)
@@ -612,9 +612,9 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     if o1_type =='plate' or o2_type == 'plate':
         template = "omeroweb/plate_details.html"
     elif o1_type=='ajaxdataset' and o1_id > 0:
-        template = "omeroweb/container_data_subtree.html"        
+        template = "omeroweb/container_subtree.html"        
     elif o1_type=='ajaxorphaned':
-        template = "omeroweb/container_data_subtree.html"
+        template = "omeroweb/container_subtree.html"
     elif view =='tree':
         template = "omeroweb/containers_tree.html"
     elif view =='icon':
@@ -2282,9 +2282,11 @@ def flash_uploader(request, **kwargs):
         return HttpResponse(x)
 
 @isUserConnected
-def myaccount(request, action=None, **kwargs):
+def manage_myaccount(request, action=None, **kwargs):
     template = "omeroweb/myaccount.html"
     request.session.modified = True
+    request.session['nav']['menu'] = 'person'
+    
     conn = None
     try:
         conn = kwargs["conn"]
@@ -2311,7 +2313,7 @@ def myaccount(request, action=None, **kwargs):
                                 'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
                                 'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
                                 'default_group':controller.defaultGroup, 'groups':controller.otherGroups})
-
+    
     if action == "save":
         if controller.ldapAuth == "" or controller.ldapAuth is None:
             form = MyAccountForm(data=request.POST.copy(), initial={'groups':controller.otherGroups})

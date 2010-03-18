@@ -39,7 +39,7 @@ urlpatterns = patterns('',
     
     url( r'^$', views.index, name="webindex" ),
     # render main template
-    url( r'^(?P<menu>((?i)userdata|shares|history|search|importer|myaccount|help))/$', views.load_template, name="load_template" ),
+    url( r'^(?P<menu>((?i)userdata|shares|history|search|importer|help))/$', views.load_template, name="load_template" ),
 
     url( r'^context/$', views.index_context, name="index_context" ),
     url( r'^last_imports/$', views.index_last_imports, name="index_last_imports" ),
@@ -49,7 +49,10 @@ urlpatterns = patterns('',
     url( r'^login/$', views.login, name="weblogin" ),
     url( r'^logout/$', views.logout, name="weblogout" ),
     url( r'^active_group/$', views.change_active_group, name="change_active_group" ),
-           
+    
+    url ( r'^myaccount/(?:(?P<action>((?i)save))/)?$', views.manage_myaccount, name="myaccount"),
+    url ( r'^upload_myphoto/(?:(?P<action>((?i)upload|crop|editphoto))/)?$', views.upload_myphoto, name="upload_myphoto"),
+    
     # loading data
     url( r'^load_data/(?P<o1_type>((?i)orphaned|ajaxorphaned))/$', views.load_data, name="load_data_ajax" ),
     
@@ -62,7 +65,8 @@ urlpatterns = patterns('',
     # load history
     url( r'^load_calendar/(?:(\d{4})/(\d{1,2})/)?$', views.load_calendar, name="load_calendar"),
     url( r'^load_history/(\d{4})/(\d{1,2})/(\d{1,2})/$', views.load_history, name="load_history"),
-    url( r'^load_searching/(?:(?P<form>((?i)form)))$', views.load_searching, name="load_searching"),
+    url( r'^load_searching/(?:(?P<form>((?i)form)))/$', views.load_searching, name="load_searching"),
+    
     
     # others
     url( r'^hierarchy/(?:(?P<o_type>[a-zA-Z]+)/(?P<o_id>[0-9]+)/)$', views.load_hierarchies, name="load_hierarchies" ),
@@ -95,9 +99,6 @@ urlpatterns = patterns('',
     
     url( r'^import/$', views.importer, name="importer"),
     url( r'^upload/$', views.flash_uploader, name="flash_uploader"), 
-    
-    url( r'^myaccount/(?:(?P<action>((?i)save))/)?', views.myaccount, name="myaccount"),
-    url( r'^upload_myphoto/(?:(?P<action>((?i)upload|crop|editphoto))/)?$', views.upload_myphoto, name="upload_myphoto"),
     
     url( r'^help/$', views.help, name="help" ),
     

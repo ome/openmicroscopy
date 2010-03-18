@@ -2,7 +2,6 @@
 {% load custom_tags %}
 
 {% for d in manager.subcontainers %}
-    <li id='img-{{ d.id }}'>
-        <span>{{ d.shortName }} {% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>[{{ d.countAnnotations }}]{% endif %}</span>
+    <li id='img-{{ d.id }}'><span>{{ d.shortName }}</span> {% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}{% if not d.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}
     </li>
 {% endfor %}

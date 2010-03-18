@@ -1,28 +1,5 @@
 /* table */
-#dataTable .ui-selecting { background-color: #f3f3f3; }
-#dataTable .ui-selected { background-color: #f3f3f3; }
 
-#dataTable {
-    list-style-type: none;
-    margin: 0; 
-    padding: 2px; 
-}
-#dataTable li {
-    border: 1px solid #ccc;
-    height: 32px;
-    padding: 5px;
-    margin-top: -1px; 
-}
-
-#dataTable li.clear{
-    clear:both;
-    width: 0;
-}
-
-#dataTable li div.product {
-    border: 0px;
-    text-align: center;
-}
 /* icons */
 #dataIcons .ui-selecting img{ border: 1px dashed #444; padding: 2px; }
 #dataIcons .ui-selected img{ border: 1px dashed #444; padding: 2px; color: white; }

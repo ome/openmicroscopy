@@ -1,5 +1,8 @@
 /* tables */
 
+#dataTable tr.ui-selecting { background-color: #f3f3f3; }
+#dataTable tr.ui-selected { background-color: #f3f3f3; }
+
 table.tablesorter {
     margin:10px 0pt 15px;
     text-align: left;

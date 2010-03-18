@@ -302,7 +302,7 @@ def index(request, **kwargs):
         logger.error(traceback.format_exc())
     
     if conn.isAdmin():
-        return HttpResponseRedirect(reverse("waexperimenters"))
+        return HttpResponseRedirect(reverse("wagroups"))
     else:
         return HttpResponseRedirect(reverse("wamyaccount"))
 

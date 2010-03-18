@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{% url webstatic "css/container.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/calendar.css" %}" type="text/css" />
     <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
@@ -24,7 +25,7 @@
         $(document).ready(function() 
             {
                 var h = $(window).height()-200;
-                $("div#history_calendar").css('height', h+31);
+                $("div#history_calendar").css('height', h+41);
                 $("div#content_details").css('height', h+31);
                 $("div#metadata_details").css('height', h+31);
                 

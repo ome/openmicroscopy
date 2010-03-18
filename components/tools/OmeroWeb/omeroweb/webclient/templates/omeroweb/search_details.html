@@ -3,24 +3,26 @@
 {% load custom_tags %}
 {% load wikitags %}
 
-    
     <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.selectable.js" %}"></script>
+    
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
     
     <script type="text/javascript">
         $(document).ready(function(){
-
-            $("ul#dataTable").selectable({
+            
+            $("table#dataTable tbody").selectable({
             	stop: function(){
             		var result = $("#select-result").empty();
-            		var l = $('li.ui-selected', this).length;
-            		$("li.ui-selected input", this).each(function(){
+            		var l = $('tr.ui-selected', this).length;
+            		$("tr.ui-selected td input", this).each(function(){
             		    this.checked = true;
             		});
             		if (l == 1) {
             		    $("#toolbar").html("");
             		    $("#right_panel").show();
                         $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
-            		    $('li.ui-selected', this).each(function(){  
+            		    $('tr.ui-selected', this).each(function(){  
             		        var h = $(window).height()-169;
             		        var obj = this.id.split("-");
             		        $("div#metadata_details").html('<iframe width="100%" height="'+h+'" src="/webclient/metadata_details/'+obj[0]+'/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
@@ -34,10 +36,17 @@
             		}
             	},
             	start: function(){
-            		$("li input", this).each(function(){
+            		$("tr td input", this).each(function(){
             			this.checked = false;
             		});
             	}
+            });
+            
+            $("#dataTable").tablesorter( {sortList: [[1,0]]} ); 
+
+            $('input#id_search').quicksearch('table#dataTable tbody tr', {
+            	'delay': 300,
+                'loader': 'span.loading'
             });
         });    
     </script>
@@ -48,28 +57,71 @@
 
     <div>
         {% if manager.c_size %}
-        <ul id="dataTable">
+        
+        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url wastatic "images/spinner.gif" %}"></span></form>
+        
+        <table id="dataTable" class="tablesorter">
+            <thead> 
+                <tr> 
+                    <th>{% trans "Image" %}</th> 
+                    <th>{% trans "Name" %}</th> 
+                    <th>{% trans "Date" %}</th> 
+                </tr> 
+            </thead>
+            <tbody>
             {% for c in manager.containers.projects %}
-            <li id="project-{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder32.png" %}" alt="project" title="project"/> {{ c.shortName2 }} ({{ c.getDate }}) {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %} <input type="checkbox" name="project" id="{{ c.id }}">
-            </li>
+                <tr id="project-{{ c.id }}">
+                    <td class="action">
+                        <img id="{{ c.id }}" src="{% url webstatic "images/folder32.png" %}" alt="project" title="{{ c.name }}"/>
+                        <input type="checkbox" name="project" id="{{ c.id }}">      
+                    </td>
+                    <td class="desc">{{ c.shortName2 }} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
+                    <td class="desc">{{ c.getDate }}</td>                    
+                </tr>
             {% endfor %}
             {% for c in manager.containers.screens %}
-            <li id="screen-{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_screen32.png" %}" alt="screen" title="screen"/> {{ c.shortName2 }} ({{ c.getDate }}) {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %} <input type="checkbox" name="screen" id="{{ c.id }}">
-            </li>
+                <tr id="screen-{{ c.id }}">
+                    <td class="action">
+                        <img id="{{ c.id }}" src="{% url webstatic "images/folder_screen32.png" %}" alt="screen" title="{{ c.name }}"/>
+                        <input type="checkbox" name="screen" id="{{ c.id }}">      
+                    </td>
+                    <td class="desc">{{ c.shortName2 }} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
+                    <td class="desc">{{ c.getDate }}</td>                    
+                </tr>
             {% endfor %}
             {% for c in manager.containers.datasets %}
-            <li id="dataset-{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_image32.png" %}" alt="dataset" title="dataset"/> {{ c.shortName2 }} ({{ c.getDate }}) {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %} <input type="checkbox" name="dataset" id="{{ c.id }}">
-            </li>
+                <tr id="dataset-{{ c.id }}">
+                    <td class="action">
+                        <img id="{{ c.id }}" src="{% url webstatic "images/folder_image32.png" %}" alt="dataset" title="{{ c.name }}"/>
+                        <input type="checkbox" name="dataset" id="{{ c.id }}">      
+                    </td>
+                    <td class="desc">{{ c.shortName2 }} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
+                    <td class="desc">{{ c.getDate }}</td>                    
+                </tr>
             {% endfor %}
             {% for c in manager.containers.plates %}
-            <li id="plate-{{ c.id }}"><img id="{{ c.id }}" src="{% url webstatic "images/folder_plate32.png" %}" alt="plate" title="plate"/> {{ c.shortName2 }} ({{ c.getDate }}) {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %} <input type="checkbox" name="plate" id="{{ c.id }}">
-            </li>
+                <tr id="plate-{{ c.id }}">
+                    <td class="action">
+                        <img id="{{ c.id }}" src="{% url webstatic "images/folder_plate32.png" %}" alt="plate" title="{{ c.name }}"/>
+                        <input type="checkbox" name="plate" id="{{ c.id }}">      
+                    </td>
+                    <td class="desc">{{ c.shortName2 }} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
+                    <td class="desc">{{ c.getDate }}</td>                    
+                </tr>
             {% endfor %}
             {% for c in manager.containers.images %}
-            <li id="image-{{ c.id }}"><img id="{{ c.id }}" src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/> {{ c.shortName2 }} ({{ c.getDate }}) {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %} <input type="checkbox" name="image" id="{{ c.id }}">
-            </li>
+                <tr id="image-{{ c.id }}">
+                    <td class="action">
+                        <img id="{{ c.id }}" src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>
+                        <input type="checkbox" name="image" id="{{ c.id }}">      
+                    </td>
+                    <td class="desc">{{ c.shortName2 }} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
+                    <td class="desc">{{ c.getDate }}</td>                    
+                </tr>
             {% endfor %}
-        </ul>
+            </tbody>
+        </table>
+        
         {% else %}
             <p>{% trans "No data." %}</p>
         {% endif %}
@@ -79,9 +131,3 @@
         </div>{% endif %}
 
     </div>
-
-
-
-
-
-{% include "omeroweb/container_paging.html" %}

@@ -1696,6 +1696,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             return False
     
     def checkEmail(self, email, old_email=None):
+        print email
         if email == old_email:
             return False
         query_serv = self.getQueryService()

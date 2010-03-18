@@ -7,10 +7,7 @@
     overflow: scroll;
     overflow: auto;
 }
-form.quicksearch {
-    float: right;
-    margin: 10px 20px 0 0;
-}
+
 input.qs_input{
     width: 100px;
 }

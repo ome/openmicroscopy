@@ -46,6 +46,7 @@ urlpatterns = patterns('',
 
     # admin panel support
     (r'^admin/(.*)', admin.site.root),
+    
     # Require link to admin media
     url( r'^admin_static/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(os.path.realpath(admin.__file__)), 'media').replace('\\','/') }, name="admin_static" ),    
     (r'^webgateway/appmedia/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'webgateway/media')}),

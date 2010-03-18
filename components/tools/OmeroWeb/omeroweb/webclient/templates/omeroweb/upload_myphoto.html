@@ -67,14 +67,15 @@
 {% endblock %}
 
 {% block content %}
+<h1>{% trans "My photo" %}</h1>
 
 <div>
     <div align="center">
         {% if nav.edit_mode %}
         
-		<img src="{% url myphoto %}" style="float: left; margin-right: 10px;" id="thumbnail" alt="Create Thumbnail" />
+		<img src="{% url myphoto %}" style="float: left; margin-right: 10px;" id="thumbnail" alt="Crop thumbnail" />
 		<div style="border:1px #999999 solid; float:left; position:relative; overflow:hidden; width:100px; height:100px;">
-			<img src="{% url myphoto %}" style="position: relative;" alt="Thumbnail Preview" />
+			<img src="{% url myphoto %}" style="position: relative;" alt="Preview" />
 		</div>
 		<div class="clear"> </div>
 		<h1><form name="thumbnail" action="{% url upload_myphoto "crop" %}" method="post">

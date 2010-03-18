@@ -14,7 +14,6 @@ function manyAddToBasket() {
     } else { 
         manyToBasket($("input[type='checkbox']:checked"));
     }
-
 };
 
 function toBasket (productType, productId) {

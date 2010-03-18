@@ -104,7 +104,7 @@ class ExperimenterForm(forms.Form):
     first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
     middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
     last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
-    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30}), required=False)
     institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
     administrator = forms.CharField(widget=forms.CheckboxInput(), required=False)
     active = forms.CharField(widget=forms.CheckboxInput(), required=False)
@@ -152,7 +152,7 @@ class ExperimenterLdapForm(forms.Form):
     first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
     middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
     last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
-    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30}), required=False)
     institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
     administrator = forms.BooleanField(widget=forms.CheckboxInput(), required=False)
     active = forms.BooleanField(widget=forms.CheckboxInput(), required=False)
@@ -227,7 +227,7 @@ class MyAccountForm(forms.Form):
     first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
     middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
     last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
-    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30}), required=False)
     institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
 
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30}), required=False)
@@ -263,7 +263,7 @@ class MyAccountLdapForm(forms.Form):
     first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
     middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
     last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
-    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30}), required=False)
     institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}), required=False)
 
     def clean_email(self):
