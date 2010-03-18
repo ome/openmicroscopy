@@ -36,9 +36,9 @@ import getopt, sys, os, subprocess
 import numpy;
 from struct import *
 
-import PIL
-from PIL import Image
-import ImageDraw
+#import PIL
+#from PIL import Image
+#import ImageDraw
 
 import omero
 import omero_Constants_ice
