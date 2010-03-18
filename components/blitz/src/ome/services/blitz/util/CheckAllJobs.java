@@ -74,7 +74,7 @@ public class CheckAllJobs implements ApplicationListener {
 
     public void run() {
         Callback cb = new Callback();
-        Ice.ObjectPrx prx = oa.add(cb, id);
+        Ice.ObjectPrx prx = oa.add(cb, id); // OK ADAPTER USAGE
         ProcessorCallbackPrx cbPrx = ProcessorCallbackPrxHelper.uncheckedCast(prx);
         tm.onApplicationEvent(new TopicManager.TopicMessage(this,
                 PROCESSORACCEPTS.value, new ProcessorPrxHelper(),
@@ -137,7 +137,7 @@ public class CheckAllJobs implements ApplicationListener {
             });
 
         } finally {
-            oa.remove(id);
+            oa.remove(id); // OK ADAPTER USAGE
         }
     }
 

@@ -185,7 +185,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                 cat.add(new String[]{id.name});
             }
             
-            Ice.ObjectPrx _prx = current.adapter.add(session, id);
+            Ice.ObjectPrx _prx = current.adapter.add(session, id); // OK Usage
             _prx = current.adapter.createDirectProxy(id);
 
             // Logging & sessionToClientIds addition
@@ -326,7 +326,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                         sf.doDestroy();
                         Ice.Identity id = sf.sessionId();
                         log.info("Removing " + id.name);
-                        adapter.remove(id);
+                        adapter.remove(id); // OK ADAPTER USAGE
                     }
                 } catch (Ice.ObjectAdapterDeactivatedException oade) {
                     log.warn("Cannot reap session " + sessionId

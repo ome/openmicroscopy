@@ -281,8 +281,8 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                 Ice.Identity external = Ice.Util
                         .stringToIdentity("PublicRepository-" + repoUuid);
 
-                Ice.ObjectPrx internalObj = oa.add(repo, internal);
-                Ice.ObjectPrx externalObj = oa.add(pr, external);
+                Ice.ObjectPrx internalObj = oa.add(repo, internal); // OK USAGE
+                Ice.ObjectPrx externalObj = oa.add(pr, external); // OK USAGE
 
                 reg.addObject(internalObj);
                 reg.addObject(externalObj);

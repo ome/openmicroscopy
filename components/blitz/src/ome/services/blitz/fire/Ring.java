@@ -150,7 +150,7 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
             // Now our checking is done, add ourselves.
             Ice.Identity clusterNode = this.communicator
                     .stringToIdentity("ClusterNode/" + uuid);
-            this.adapter.add(this, clusterNode);
+            this.adapter.add(this, clusterNode); // OK ADAPTER USAGE
             addManager(uuid, directProxy);
             registry.addObject(this.adapter.createDirectProxy(clusterNode));
             nodeUuids.add(uuid);
