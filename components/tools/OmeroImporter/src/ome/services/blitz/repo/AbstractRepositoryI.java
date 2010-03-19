@@ -276,23 +276,19 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                 PublicRepositoryI pr = new PublicRepositoryI(new File(fileMaker
                         .getDir()), r.getId(), ex, p);
 
-                Ice.Identity internal = Ice.Util
-                        .stringToIdentity("InternalRepository-" + repoUuid);
-                Ice.Identity external = Ice.Util
-                        .stringToIdentity("PublicRepository-" + repoUuid);
+                Ice.ObjectPrx internalObj = addOrReplace("InternalRepository-", repo);
+                Ice.ObjectPrx externalObj = addOrReplace("PublicRepository-", pr);
 
-                Ice.ObjectPrx internalObj = oa.add(repo, internal); // OK USAGE
-                Ice.ObjectPrx externalObj = oa.add(pr, external); // OK USAGE
+                //
+                // Activation & Registration
+                //
+                oa.activate(); // Must happen before the registry tries to connect
 
                 reg.addObject(internalObj);
                 reg.addObject(externalObj);
 
                 proxy = RepositoryPrxHelper.uncheckedCast(externalObj);
 
-                //
-                // Activation & Registration
-                //
-                oa.activate();
                 log.info("Repository now active");
                 return r;
             } catch (Exception e) {
@@ -301,6 +297,17 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                 return e;
             }
 
+        }
+
+        private Ice.ObjectPrx addOrReplace(String prefix, Ice.Object obj) {
+            Ice.Identity id = Ice.Util.stringToIdentity(prefix + repoUuid);
+            Object old = oa.find(id);
+            if (old != null) {
+                oa.remove(id);
+                log.warn(String.format("Found %s; removing: %s", id, old));
+            }
+            oa.add(obj, id);
+            return oa.createDirectProxy(id);
         }
 
     }
