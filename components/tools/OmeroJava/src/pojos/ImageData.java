@@ -100,13 +100,6 @@ public class ImageData extends DataObject {
      */
     private Long annotationCount;
 
-    /**
-     * The number of categories attached to this Imaget. This field may be
-     * <code>null</code> meaning no count retrieved, and it may be less than
-     * the actual number if filtered by user.
-     */
-    private Long classificationCount;
-
     /** Creates a new instance. */
     public ImageData() {
         setDirty(true);
@@ -415,5 +408,5 @@ public class ImageData extends DataObject {
     	if (instrument == null) return -1;
     	return instrument.getId().getValue();
     }
-    
+
 }
