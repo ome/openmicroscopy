@@ -76,21 +76,35 @@ $.fn.postit = function(cfg) {
     self.find('.sdialog-content').removeClass('sdialog-content').addClass('postit-content');
     if (cfg && !cfg.noResize) {
       var resize_bar = self.find('.postit-resize-bar');
-      resize_bar.append('<div class="postit-resize-btn">');
       var _timer_recalcSize = false;
       var timedRecalcSize = function () {
         if (_timer_recalcSize) {
           return false;
         } else {
           _timer_recalcSize = setTimeout(function () {
-              self.get(0).recalcSize(resize_bar.height());
+              //self.get(0).recalcSize(resize_bar.height());
               _timer_recalcSize = false;
             }, 50);
         };
         return false;
       };
-      self.jqResize('.postit-resize-btn', {minW: 40, minH: 40});
-      self.bind('jqResize', timedRecalcSize);
+      var target;
+      if (cfg && cfg.resizeTarget) {
+        target = $(cfg.resizeTarget, self);
+        target.append('<div class="postit-resize-btn"></div>');
+        if (!$.browser.firefox) {
+          target.bind('jqResize', function (e) {
+              w = $(e.target).width();
+              $(e.target).parents('.postit').css('width',w+8);
+            });
+        }
+        target.jqResize('.postit-resize-btn', {minW: 200, minH: 20});
+      } else {
+        resize_bar.append('<div class="postit-resize-btn"></div>');
+        target = self;
+        target.bind('jqResize', timedRecalcSize);
+        target.jqResize('.postit-resize-btn', {minW: 40, minH: 40});
+      }
     }
 
     /* We're done, make it draggable */

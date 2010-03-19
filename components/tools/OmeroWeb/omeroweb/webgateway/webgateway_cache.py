@@ -313,16 +313,16 @@ class WebGatewayCache (object):
     ##
     # Thumb
 
-    def _thumbKey (self, r, client_base, iid):
-        return 'thumb_%s/%s' % (client_base, str(iid))
+    def _thumbKey (self, r, client_base, iid, size):
+        return 'thumb_%s/%s-%s' % (client_base, str(iid), 'x'.join([str(x) for x in size]))
 
-    def setThumb (self, r, client_base, iid, obj):
-        k = self._thumbKey(r, client_base, iid)
+    def setThumb (self, r, client_base, iid, obj, size=()):
+        k = self._thumbKey(r, client_base, iid, size)
         self._cache_set(self._thumb_cache, k, obj)
         return True
 
-    def getThumb (self, r, client_base, iid):
-        k = self._thumbKey(r, client_base, iid)
+    def getThumb (self, r, client_base, iid, size=()):
+        k = self._thumbKey(r, client_base, iid, size)
         r = self._thumb_cache.get(k)
         if r is None:
             logger.debug('  fail: %s' % k)
@@ -330,8 +330,8 @@ class WebGatewayCache (object):
             logger.debug('cached: %s' % k)
         return r
 
-    def clearThumb (self, r, client_base, iid):
-        k = self._thumbKey(r, client_base, iid)
+    def clearThumb (self, r, client_base, iid, size=()):
+        k = self._thumbKey(r, client_base, iid, size)
         self._cache_clear(self._thumb_cache, k)
         return True
 
@@ -389,7 +389,10 @@ class WebGatewayCache (object):
     # hierarchies (json)
 
     def _jsonKey (self, r, client_base, obj, ctx=''):
-        return 'json_%s/%s_%s/%s' % (client_base, obj.OMERO_CLASS, obj.id, ctx)
+        if obj:
+            return 'json_%s/%s_%s/%s' % (client_base, obj.OMERO_CLASS, obj.id, ctx)
+        else:
+            return 'json_%s/single/%s' % (client_base, ctx)
 
     def clearJson (self, client_base, obj):
         logger.debug('clearjson')

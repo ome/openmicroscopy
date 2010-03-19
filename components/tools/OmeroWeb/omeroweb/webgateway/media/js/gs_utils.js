@@ -12,7 +12,7 @@
  * Author: Carlos Neves <carlos(at)glencoesoftware.com>
  */
 
-var gs_script_location_prefix='/webgateway/appmedia/js/3rdparty/';
+var gs_script_location_prefix='/appmedia/webgateway/js/3rdparty/';
 
 /**
  * Given a string that may contain an RGB, RRGGBB or the previous with a # prefix,
@@ -104,32 +104,90 @@ function parseQuery (q) {
 var gs_modalJson_cb;
 
 /**
+ * Lazy loader for the blockUI plugin.
+ */
+
+function gs_loadBlockUI (callback) {
+  if (jQuery.blockUI === undefined) {
+    jQuery.getScript(gs_script_location_prefix + 'jquery.blockUI.js', callback);
+    return false;
+  }
+  return true;
+}
+
+function gs_choiceModalDialog (message, choices, callback, blockui_opts, cancel_callback, _modal_cb) {
+  if (!gs_loadBlockUI (function () {gs_choiceModalDialog(message, choices, callback, blockui_opts, cancel_callback,_modal_cb);})) {
+    return;
+  }
+  if (_modal_cb) {
+    gs_modal_cb = _modal_cb;
+  } else {
+    gs_modal_cb = function (idx) {
+      jQuery.unblockUI();
+      if (choices[idx].data != null) {
+        callback(choices[idx].data);
+      } else if (cancel_callback) {
+        cancel_callback();
+      }
+      return false;
+    }
+  }
+  for (i in choices) {
+    message += '<input type="button" onclick="return gs_modal_cb('+i+');" value="'+choices[i].label+'" />'
+  }
+  if (!blockui_opts) {
+    blockui_opts = {};
+  }
+  jQuery.blockUI({message: message, css: blockui_opts.css});
+  return;
+}
+
+function gs_choiceModalJson (message, choices, callback, blockui_opts, cancel_callback) {
+//  if (!gs_loadBlockUI (function () {gs_choiceModalJson(message, choices, callback, blockui_opts, cancel_callback);})) {
+//    return;
+//  }
+  var gs_modalJson_cb = function (idx) {
+    jQuery.unblockUI();
+    if (choices[idx].url != null) {
+      gs_modalJson(choices[idx].url, choices[idx].data, callback);
+    } else if (cancel_callback) {
+      cancel_callback();
+    }
+    return false;
+  }
+  return gs_choiceModalDialog(message,choices,callback,blockui_opts,cancel_callback,gs_modalJson_cb);
+//  for (i in choices) {
+//    message += '<input type="button" onclick="return gs_modalJson_cb('+i+');" value="'+choices[i].label+'" />'
+//  }
+//  if (!blockui_opts) {
+//    blockui_opts = {};
+//  }
+//  jQuery.blockUI({message: message, css: blockui_opts.css});
+//  return;
+}
+
+/**
  * Calls a jsonp url, just like $.getJson, but also looks out for errors.
  * The call is made in a make-believe synchronous fashion, by adding a semi-transparent overlay and disabling controls.
  */
-function gs_modalJson (url, data, callback, confirm_first) {
-  if (jQuery.blockUI === undefined) {
-    jQuery.getScript(gs_script_location_prefix + 'jquery.blockUI.js', function () {gs_modalJson(url,data,callback,confirm_first);});
+function gs_modalJson (url, data, callback) {
+  if (!gs_loadBlockUI (function () {gs_modalJson(url,data,callback);})) {
     return;
   }
-  if (confirm_first != null) {
-    gs_modalJson_cb = function () {
-      jQuery.unblockUI();
-      gs_modalJson(url, data, callback);
-      return false;
+  jQuery.blockUI();
+  var cb = function (result, rv) {
+    jQuery.unblockUI();
+    if (callback) {
+      callback(result, rv);
     }
-    message = '<h2>Are you sure ?</h2>' +
-              '<input type="button" onclick="return gs_modalJson_cb();" value="Yes" />' +
-              '<input type="button" onclick="jQuery.unblockUI(); return false;" value="No" />';
-    jQuery.blockUI({message: message});
-    return;
-  } else {
-    jQuery.blockUI();
   }
+  gs_json (url, data, cb);
+}
+
+function gs_json (url, data, callback) {
   var cb = function (result) {
     return function (data, textStatus, errorThrown) {
-      jQuery.unblockUI();
-      if (callback != undefined) {
+      if (callback) {
         callback (result, result ? data:errorThrown || textStatus);
       }
     }
@@ -140,7 +198,7 @@ function gs_modalJson (url, data, callback, confirm_first) {
     data = $.param(data);
   }
   return jQuery.ajax({
-        type: "GET",
+        type: "POST",
         url: url,
         data: data,
         success: cb(true),
@@ -154,7 +212,7 @@ function gs_modalJson (url, data, callback, confirm_first) {
  * hyst is an hysteresis value stating the minimum trimmed nr of chars for trimming to occur.
  */
 function gs_text_trim (text, length, hyst, nobreakline, snl) {
-  if (hyst === null) {
+  if (hyst === undefined) {
     hyst = 0;
   }
   var p = nobreakline && text.indexOf('\n') || -1;
@@ -246,7 +304,7 @@ function gs_popViewer (did, iid, baseurl) {
 function gs_searchImgs (text, baseurl, renderurl, result_cb) {
   if (text.length > 0) {
     jQuery('#search-results-summary').removeClass('ajax-error').html('searching for "'+text+'"');
-    jQuery('#search-results').html('<img src="/webgateway/appmedia/img/ajax-loader.gif" alt="loading..." />');
+    jQuery('#search-results').html('<img src="/appmedia/webgateway/img/ajax-loader.gif" alt="loading..." />');
     if (renderurl == null) {
       renderurl = baseurl;
     }

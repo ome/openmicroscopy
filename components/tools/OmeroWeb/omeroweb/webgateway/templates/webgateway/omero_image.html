@@ -20,24 +20,28 @@
 
 {% block extra_css %}
 {{ block.super }}
-    <link rel="stylesheet" type="text/css" href="/webgateway/appmedia/css/jquery-plugin-postit.css" />
-    <link rel="stylesheet" type="text/css" href="/webgateway/appmedia/css/jquery-plugin-rangewidget.css" />
-    <link rel="stylesheet" type="text/css" href="/webgateway/appmedia/css/3rdparty/farbtastic.css" media="all" />
-    <link rel="stylesheet" type="text/css" href="/webgateway/appmedia/css/jquery-plugin-colorbtn.css" />
-    <link rel="stylesheet" type="text/css" href="/webgateway/appmedia/css/3rdparty/JQuerySpinBtn.css" />
-    <link rel="stylesheet" type="text/css" href="/webgateway/appmedia/css/omero_image.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/jquery-plugin-postit.css" />
+    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/jquery-plugin-rangewidget.css" />
+    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/3rdparty/farbtastic.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/jquery-plugin-colorbtn.css" />
+    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/3rdparty/JQuerySpinBtn.css" />
+    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/3rdparty/jquery-ui-1.7.2.custom.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/omero_image.css" media="all" />
 {% endblock %}
 
 {% block extra_js %}
 {{ block.super }}
-    <script type="text/javascript" src="/webgateway/appmedia/js/jquery-plugin-smartdialog.js"></script>
-    <script type="text/javascript" src="/webgateway/appmedia/js/3rdparty/JQuerySpinBtn.js"></script>
-    <script type="text/javascript" src="/webgateway/appmedia/js/jquery-plugin-colorbtn.js"></script>
-    <script type="text/javascript" src="/webgateway/appmedia/js/jquery-plugin-postit.js"></script>
-    <script type="text/javascript" src="/webgateway/appmedia/js/3rdparty/jqDnR.js"></script>
-    <script type="text/javascript" src="/webgateway/appmedia/js/3rdparty/jquery.selectboxes.js"></script>
-    <script type="text/javascript" src="/webgateway/appmedia/js/jquery-plugin-rangewidget.js"></script>
-    <script type="text/javascript" src="/webgateway/appmedia/js/3rdparty/farbtastic.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/jquery-ui-1.7.2.custom.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-smartdialog.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/JQuerySpinBtn.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-colorbtn.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-postit.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/jqDnR.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/jquery.selectboxes.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-rangewidget.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/farbtastic.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/gs_utils.js"></script>
+
 {% endblock %}
 
 
@@ -51,6 +55,7 @@
    * the supporting ajax server.
    */
   var viewport;
+  var on_batchCopyRDefs = false;
 
   /**
    * Zoom input box change event handler.
@@ -66,6 +71,7 @@
 
   function hidePicker () {
     $(".picker").get(0) && $(".picker").get(0).hide_picker && $(".picker").get(0).hide_picker();
+    /*$('.picker-selected').html('&nbsp;');*/
   }
 
   /**
@@ -82,7 +88,7 @@
     $.extend(dim, viewport.self.offset());
 
     var h = dim.height - dim.top - 33 - (ts_visible?$('.figure-box').height():0);
-    var w = dim.width - dim.left  - zl.width();
+    var w = dim.width - dim.left  - zl.width() - {% block vpRightMargin %}0{% endblock %};
 
     /* The following is needed as a hack for IE */
     viewport.viewport.height(10);
@@ -106,6 +112,40 @@
     return viewport.getMetadata();
   }
 
+  var showChannelWindowHelp = function () {
+    if (!gs_loadBlockUI (showChannelWindowHelp)) {
+      return false;
+    }
+    $.blockUI({
+      timeout: 0,
+      message: $('#channel-window-help'),
+{% if dataset.canWrite %}
+      css: {width: '60%', left: '20%', top: '20%'}
+{% else %}
+      css: {width: '50%', left: '25%', top: '20%'}
+{% endif %}
+    });
+    $('.blockMsg').attr('title','Click to close').click($.unblockUI);
+    $('.blockOverlay').attr('title','Click to close').click($.unblockUI);
+    return false;
+  }
+
+  var rdChanSelHelper = function (e) {
+    if (!$('#rd-wblitz-rmodel').get(0).checked) {
+      // Grey model selected, select a single channel active
+      var t = $('[id^=rd-wblitz-ch]').filter(':checked');
+      if (t.size() > 1) {
+        if (e.checked) {
+          t.filter('[id!='+e.id+']:checked').attr('checked', false);
+        } else {
+          t.filter(':checked').not(':first').attr('checked', false);
+        }
+      } else if (t.size() == 0) {
+        $('[id^=rd-wblitz-ch]:first').attr('checked', true)
+      }
+    }
+    return false;
+  }
 
   /**
    * Gets called when an image is initially loaded.
@@ -115,10 +155,11 @@
     /* Sync inputs with initial values */
 
     $('#wblitz-rmodel').attr('checked', !viewport.isGreyModel());
+    //$('#rd-wblitz-rmodel').attr('checked', !viewport.isGreyModel());
 
     var q = viewport.getQuality();
     if (q) {
-      var qr = $('#wblitz-quality > [@value='+q.toFixed(1)+']');
+      var qr = $('#wblitz-quality > [value='+q.toFixed(1)+']');
       if (qr.length) {
         qr.attr('selected','selected');
       }
@@ -132,17 +173,17 @@
       box.append('<button id="wblitz-ch'+i+'"\
                  class="squared' + (channels[i].active?' pressed':'') + '"\
                  style="background-color: #'+channels[i].color+'"\
+                 title="'+channels[i].label+'"\
                  onclick="viewport.toggleChannel('+i+')">'+channels[i].emissionWave+'</button>');
 
     }
-    modelChange();
 
     /* Image details */
     $('#wblitz-t-count').html(viewport.getTCount());
     $('#wblitz-z-count').html(viewport.getZCount());
     var tmp = getMetadata();
     $('#wblitz-image-name').html(tmp.name);
-    $('#wblitz-image-description').html(tmp.description.replace(/\n/g, '<br />'));
+    $('#wblitz-image-description-content').html(tmp.description.replace(/\n/g, '<br />'));
     $('#wblitz-image-author').html(tmp.author);
     $('#wblitz-image-pub').html(tmp.project);
     $('#wblitz-image-pubid').html(tmp.project_id);
@@ -157,26 +198,69 @@
     $('#wblitz-image-z-count').html(tmp.z);
     $('#wblitz-image-t-count').html(tmp.t);
     tmp = viewport.getPixelSizes();
-    $('#wblitz-image-pixel-size-x').html(tmp.x==null?'-':(tmp.x.toFixed(4) + '&micro;m'));
-    $('#wblitz-image-pixel-size-y').html(tmp.y==null?'-':(tmp.y.toFixed(4) + '&micro;m'));
-    $('#wblitz-image-pixel-size-z').html(tmp.z==null?'-':(tmp.z.toFixed(4) + '&micro;m'));
+    $('#wblitz-image-pixel-size-x').html(tmp.x==0?'-':(tmp.x.toFixed(4) + '&micro;m'));
+    $('#wblitz-image-pixel-size-y').html(tmp.y==0?'-':(tmp.y.toFixed(4) + '&micro;m'));
+    $('#wblitz-image-pixel-size-z').html(tmp.z==0?'-':(tmp.z.toFixed(4) + '&micro;m'));
 
     /* Fill in the Rendering Details box */
 
-    $(".picker").unbind('prepared').unbind('showing');
-    $('#rdef-postit li').not('li:last-child').remove();
-    tmp = $('#rdef-postit ul');
-    for (i=channels.length; i>0; i--) {
-      tmp
-        .prepend(
-          '<li><strong>Channel '+channels[i-1].emissionWave+'</strong>&nbsp;->&nbsp;' +
-            '<button id="wblitz-ch'+(i-1)+'-color" class="picker squarred">&nbsp;</button>' +
-            '<div id="wblitz-ch'+(i-1)+'-cw" class="rangewidget"></div>' +
-          '</li>');
-      $('#wblitz-ch'+(i-1)+'-cw').rangewidget({
-	min: channels[i-1].window.min,
-	max: channels[i-1].window.max});
+    $(".picker").unbind('prepared').unbind('showing').unbind('hiding');
+    $('#rdef-postit ul').not('ul:last-child').remove();
+
+    var template = '<tr class="$cls">'
+      + '<td><input id="rd-wblitz-ch$idx0" type="checkbox" onchange="rdChanSelHelper(this)" $act></td>'
+      + '<td>$cwl</td>'
+      + '<td><button id="wblitz-ch$idx0-color" class="picker squarred">&nbsp;</button></td>'
+      + '<td class="picker-selected">&nbsp;</td></tr>'
+      + '<tr class="$cls rdef-window">'
+        + '<td colspan="5"><div id="wblitz-ch$idx0-cw" class="rangewidget"></div></td>'
+        +'</tr>'
+      + '<tr class="$cls rdef-window">'
+        + '<td colspan="5"><div class="rangeslider" id="wblitz-ch$idx0-cwslider"></div></td>'
+        + '</tr>';
+
+    tmp = $('#rdef-postit table tr:first');
+    tmp.siblings().remove();
+    for (i=channels.length-1; i>=0; i--) {
+      tmp.after(template
+      .replace(/\$act/g, channels[i].active?'checked':'')
+      .replace(/\$idx0/g, i) // Channel Index, 0 based
+      .replace(/\$idx1/g, i+1) // Channel Index, 1 based
+      .replace(/\$cwl/g, channels[i].emissionWave) // Wavelength
+      .replace(/\$cls/g, i/2!=parseInt(i/2)?'even':'odd') // class
+      );
+      $('#wblitz-ch'+(i)+'-cw').rangewidget({
+	min: channels[i].window.min,
+	max: channels[i].window.max,
+        template: '<span class="min">min: $min</span> $start - $end <span class="max">max: $max</span>',
+        lblStart: '',
+        lblEnd: ''});
+      $('#wblitz-ch'+i+'-cwslider').slider({
+        range: true,
+        min: channels[i].window.min,
+        max: channels[i].window.max,
+        values: [ channels[i].window.start+1, channels[i].window.end-1 ],
+        slide: function(event, ui) {
+          $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-start').val(ui.values[0]).change();
+          $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-end').val(ui.values[1]).change();
+        }
+        }).data('channel-idx', i);
+      cb = function (i) {
+        return function (e) {
+          $('#wblitz-ch'+i+'-cwslider').slider('values', 0, Math.min(Math.max(parseInt(e.target.value), channels[i].window.min), $('#wblitz-ch'+i+'-cwslider').slider('values')[1]));
+          show_change($('#wblitz-ch'+i+'-cw-start').get(0), channels[i].window.start, 'changed');
+        };
+      }
+      $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).unbind('change').bind('change', cb(i));
+      cb = function (i) {
+        return function (e) {
+          $('#wblitz-ch'+i+'-cwslider').slider('values', 1, Math.max(Math.min(parseInt(e.target.value), channels[i].window.max), $('#wblitz-ch'+i+'-cwslider').slider('values')[0]));
+          show_change($('#wblitz-ch'+i+'-cw-end').get(0), channels[i].window.end, 'changed');
+        };
+      }
+      $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).unbind('change').bind('change', cb(i));
     }
+
 
     /* Prepare color picker buttons */
     $(".picker")
@@ -186,15 +270,22 @@
           var offset = t.offset();
           offset.left += t.width();
           $('#cbpicker-box').css(offset);
+          $('.picker-selected').html('&nbsp;');
+          $(this).parent().siblings('.picker-selected').html('&gt;');
       })
+      .bind('hiding', function () {$(this).parent().siblings('.picker-selected').html('&nbsp;')})
       .bind('prepared', function () {
         zindex_automator('.postit', 10, $('#cbpicker-box'));
+      })
+      .bind('changed', function () {
+        $(this).parents('tr:first').next().find('.ui-slider-range').css('background-color', $(this).css('background-color'));
       });
 
     projectionChange(null,null, true);
 
+    modelChange();
     syncRDCW();
-    
+        
     $('#wblitz-workarea > .box > div.row').show();
   };
 
@@ -212,10 +303,10 @@
   var projectionChange = function (ev, obj, nosync) {
     var p = viewport.getProjection();
     if (p) {
-      $('[@name="wblitz-proj"]').parent().removeClass('selected');
-      $('[@name="wblitz-proj"][@value='+p+']').click().parent().addClass('selected');
+      $('[name="wblitz-proj"]').parent().removeClass('selected');
+      $('[name="wblitz-proj"][value='+p+']').click().parent().addClass('selected');
 //    if (p) {
-//      var pr = $('#wblitz-proj > [@value='+p+']');
+//      var pr = $('#wblitz-proj > [value='+p+']');
 //      if (pr.length) {
 //        pr.attr('selected','selected');
 //      }
@@ -226,7 +317,7 @@
       //$('#wblitz-channels-box button').attr('disabled', p == 'split');
     }
     
-    nosync || syncRDCW();
+    //nosync || syncRDCW();
   };
 
   /**
@@ -234,13 +325,15 @@
    * Bound to the viewport modelChange event.
    */
   var modelChange = function (ev, obj) {
-    var btns = $('button[@id^=wblitz-ch]');
+    var btns = $('button[id^=wblitz-ch]').not('[id$=color]');
     if (viewport.isGreyModel()) {
       btns.addClass('forcegrey');
     } else {
       btns.removeClass('forcegrey');
     }
-    syncRDCW();
+    $('#wblitz-rmodel').attr('checked', !viewport.isGreyModel());
+    //$('#rd-wblitz-rmodel').attr('checked', !viewport.isGreyModel());
+    //syncRDCW();
   };
 
   /**
@@ -248,11 +341,13 @@
    */
   var channelChange = function (ev, obj, idx, ch) {
     if (ch.active) {
-      $('button#wblitz-ch'+idx).addClass('pressed');
+      $('#wblitz-ch'+idx).addClass('pressed');
     } else {
-      $('button#wblitz-ch'+idx).removeClass('pressed');
+      $('#wblitz-ch'+idx).removeClass('pressed');
     }
-    $('#wblitz-ch'+idx).css('background-color', ch.color);
+    //var t = $('#rd-wblitz-ch'+idx).get(0);
+    //if (t != undefined) t.checked=ch.active;
+    $('#wblitz-ch'+idx).css('background-color', ch.color).attr('title', ch.label);
   };
 
   /**
@@ -260,7 +355,9 @@
    */
   var linePlotChange = function (ev, show) {
     if (show) {
-      viewport.startPickPos();
+      if (!viewport.hasLinePlot()) {
+        viewport.startPickPos();
+      }
       var lp = viewport.getLinePlot();
       $('#wblitz-lp-axis').html(lp.isHorizontal() ? 'Y': 'X');
       $('#wblitz-lp-enable').attr('checked', 'checked');
@@ -320,24 +417,17 @@
     var cb;
     var channels = viewport.getChannels();
     for (i in channels) {
-      $('#wblitz-ch'+i+'-color').css('background-color', $('#wblitz-ch'+i).css('background-color'));
-      cb = function (i) {
-        return function () {
-          show_change($('#wblitz-ch'+i+'-cw-start').get(0), channels[i].window.start, 'changed');
-        };
-      }
-      $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).unbind('change').bind('change', cb(i)).change();
-      cb = function (i) {
-        return function () {
-          show_change($('#wblitz-ch'+i+'-cw-end').get(0), channels[i].window.end, 'changed');
-        };
-      }
-      $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).unbind('change').bind('change', cb(i)).change();
+      $('#rd-wblitz-ch'+i).get(0).checked = channels[i].active;
+      $('#wblitz-ch'+i+'-cwslider .ui-slider-range').css('background-color', toRGB(channels[i].color));
+      $('#wblitz-ch'+i+'-color').css('background-color', toRGB(channels[i].color));//$('#wblitz-ch'+i).css('background-color'));
+      $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).change();
+      $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).change();
     }
     hidePicker();
     $('#rdef-undo-btn').attr('disabled',viewport.has_channels_undo()?'':'true');
     $('#rdef-redo-btn').attr('disabled',viewport.has_channels_redo()?'':'true');
     //$('#rdef-default-btn').attr('disabled',viewport.has_channels_undo()?'':'true');
+    $('#rd-wblitz-rmodel').attr('checked', !viewport.isGreyModel());
   }
 
   function undoRDCW () {
@@ -346,15 +436,24 @@
   }
 
   function redoRDCW () {
+    if (on_batchCopyRDefs) {
+      return batchCopyRDefs_action('cancel');
+    }
     viewport.redo_channels();
     syncRDCW();
   }
 
   function applyRDCW(final) {
+    if (on_batchCopyRDefs) {
+      return batchCopyRDefs_action('ok');
+    }
+    viewport.setModel($('#rd-wblitz-rmodel').get(0).checked?'c':'g');
     for (var i=0; i<viewport.getCCount(); i++) {
+      viewport.setChannelActive(i, $('#rd-wblitz-ch'+i).get(0).checked, true);
       viewport.setChannelColor(i, $('#wblitz-ch'+i+'-color').css('background-color'), true);
       viewport.setChannelWindow(i, $('#wblitz-ch'+i+'-cw-start').get(0).value, $('#wblitz-ch'+i+'-cw-end').get(0).value);
     }
+
     if (final) {
       viewport.forget_bookmark_channels();
       $('#rdef-postit').hide();
@@ -418,39 +517,70 @@
     });
   }
 
-{% if dataset.canWrite %}
-  function setDefaultColors (obj) {
-    //$(obj).parent().append('<span class="a-like">'+$(obj).html()+'</span>');
-    //$(obj).hide();
-    applyRDCW();
+  function setImageDefaults (obj, callback, skip_apply) {
+    if (!skip_apply) applyRDCW();
     var old = $(obj).html();
-    $(obj).html('saving...').attr('disabled', true);
-    $.getJSON('/bgw/{{ blitzcon.client_base }}/saveImgRDef/'+viewport.loadedImg.id+'/?'+viewport.getQuery(),
-              function(data) {
-      //$(obj).next('span').remove();
-      //$(obj).show();
-      $(obj).html(old).attr('disabled', false);
-      if (!data) {
-        alert('Setting default colors failed.');
-      }
-    });
+    gs_modalJson('/webgateway/saveImgRDef/'+viewport.loadedImg.id+'/?'+viewport.getQuery(true),
+                 {},
+                 function(success, rv) {
+                    $(obj).html(old).attr('disabled', false);
+                    
+                    if (!(success && rv)) {
+                        alert('Setting image defaults failed.');
+                    }
+                  });
     return false;
   }
+
+{% if dataset.canWrite %}
+  function resetImageDefaults (obj) {
+    var msg = '<h2>Resetting rendering settings</h2><ul><li>This will reset the image rendering settings to their original state at time of import.</li></ul>';
+    var url = '/webgateway/resetImgRDef/'+viewport.loadedImg.id+'/';
+    gs_choiceModalJson(msg, [
+        {label: 'ok', url: url, data: {full: true}},
+        {label: 'cancel'}
+      ],
+      function(success, rv) {
+        if (!rv) {
+          alert('Reset image defaults failed.');
+        } else {
+          viewport.load(viewport.loadedImg.id, viewport.loadedImg.current.dataset_id);
+        }
+      },
+      {css: {width: '50%', left: '25%'}}
+    );
+    return false;
+  }
+
 {% endif %}
+
 
   /* ]]> */
 </script>
-
+    <div id="channel-window-help" style="display: none;">
+{% comment %}
+      <h2>Setting the Default Image Display Settings:</h2>
+      <p>You can use the "Rendering Details" dialog box to change the default settings for viewing this image.</p>
+      <p>To change the color displayed for a channel, click on the color box at the right, which opens the "Choose Color" dialog box. You can choose the color using the interactive features at the top.  Hex color codes can be input in the text box.  Preset colors can be selected at the bottom.  Changes take effect when you click "Apply".</p>
+      <p>To change the color intensity, drag the slider buttons for the individual channels to the left or right.  This changes the values that are used for the minimum and maximum displays settings. Changes take effect when you click "Apply".</p>
+      <p>Once the image is displayed correctly, click "Save Settings". The image thumbnail, the image in the "Mini Viewer", and the image in the "Full Viewer" will now use these display settings.  Clicking the "Reset" button will reset the display settings to the most recently saved settings.</p>
+      <p>Viewers will be able to adjust display settings for viewing images, but not save them.</p>
+      {% endcomment %}
+      <h2>Changing  the Image Display Settings:</h2>
+      <p>You can use the "Rendering Details" dialog box to change the settings for viewing this image.</p>
+      <p>To change the color displayed for a channel, click on the color box at the right, which opens the "Choose Color" dialog box. You can choose the color using the interactive features at the top.  Hex color codes can be input in the text box.  Preset colors can be selected at the bottom.  Changes take effect when you click "Apply".</p>
+      <p>To change the color intensity, drag the slider buttons for the individual channels to the left or right.  This changes the values that are used for the minimum and maximum displays settings. Changes take effect when you click "Apply".</p>
+    </div>
  
     <!-- Floating boxes come on top -->
     <div id="curr-link" class="tooltipbox">
-      <table>
+      <table cellspacing="0">
         <tr>
           <td>
             Link to this page:
           </td>
           <td class="left">
-            <img class="popclose" src="/webgateway/appmedia/img/close.gif" alt="close" />
+            <img class="popclose" src="/appmedia/webgateway/img/close.gif" alt="close" />
           </td>
         </tr>
         <tr>
@@ -459,47 +589,97 @@
       </table>
     </div>
 
-    
-    <div id="metadata-postit" class="postit" style="width: 500px">
-      <h1> Image details </h1>
-      <table>
-        <tr class="odd"><td class="title">Image name:</td><td id="wblitz-image-name"></td></tr>
-        <tr class="odd"><td class="title">Image date:</td><td id="wblitz-image-timestamp"></td></tr>
-        <tr class="odd"><td class="title">Dimensions (XY):</td><td><span id="wblitz-image-width"></span>px x <span id="wblitz-image-height"></span>px</td></tr>
-        <tr class="odd"><td class="title">Pixel size (XYZ):</td><td><span id="wblitz-image-pixel-size-x"></span> x <span id="wblitz-image-pixel-size-y"></span> x <span id="wblitz-image-pixel-size-z"></span></td></tr>
-        <tr class="odd"><td class="title">Z-sections:</td><td><span id="wblitz-image-z-count"></span></td></tr>
-        <tr class="odd"><td class="title">Timepoints:</td><td><span id="wblitz-image-t-count"></span></td></tr>
-      </table>
+    <div id="metadata-postit" class="postit">
+      <h1>Image Information</h1>
+      <h3 class="can-collapse">Basic Information</h3>
+      <div>
+        <table cellspacing="0">
+          <tr class="odd"><td class="title">Image name:&nbsp;</td><td id="wblitz-image-name"></td></tr>
+          <tr class="even"><td class="title">Author:&nbsp;</td><td id="wblitz-image-author"></td></tr>
+          <tr class="odd"><td class="title">Publication:&nbsp;</td><td id="wblitz-image-pub"></td></tr>
+          <tr class="even"><td class="title">Publication ID:&nbsp;</td><td id="wblitz-image-pubid"></td></tr>
+          <tr class="odd"><td class="title">Created on:&nbsp;</td><td id="wblitz-image-timestamp"></td></tr>
+        </table>
+      </div>
+      <h3 class="can-collapse defclose"> Dimensions </h3>
+      <div class="dimensions">
+        <table cellspacing="0">
+          <tr>
+            <th colspan="2" width="50%">Image Size</th>
+            <th colspan="2">Pixel Size</th>
+          </tr>
+          <tr class="odd">
+            <td class="title">X:&nbsp;</td><td><span id="wblitz-image-width"></span>px</td>
+            <td class="title">X:&nbsp;</td><td><span id="wblitz-image-pixel-size-x"></span></td>
+          </tr>
+          <tr class="even">
+            <td class="title">Y:&nbsp;</td><td><span id="wblitz-image-height"></span>px</td>
+            <td class="title">Y:&nbsp;</td><td><span id="wblitz-image-pixel-size-y"></span></td>
+          </tr>
+          <tr class="odd">
+            <td class="title">Z:&nbsp;</td><td><span id="wblitz-image-z-count"></span></td>
+            <td class="title">Z:&nbsp;</td><td><span id="wblitz-image-pixel-size-z"></span></td>
+          </tr>
+          <tr class="even">
+            <td class="title">T:&nbsp;</td><td><span id="wblitz-image-t-count"></span></td>
+            <td colspan="2"></td>
+          </tr>
+        </table>
+      </div>
+      <h3 class="can-collapse defclose"> Legend </h3>
+      <div id="wblitz-image-description"><span id="wblitz-image-description-content"></span></div>
     </div>
 
-    <div id="rdef-postit" class="postit" style="width: 380px">
+    <div id="rdef-postit" class="postit" style="width: 480px">
       <h1> Rendering Details </h1>
-      <h2>Channel Windows</h2>
+        <div id="rdef-active-area">
+        <a id="rdef-postit-help" href="#" onclick="return showChannelWindowHelp();"><img src="/appmedia/webgateway/img/question.png" alt="Show help on channel window ranges" /></a>
+        <label for="rd-wblitz-rmodel">Render as Color</label>
+        <input id="rd-wblitz-rmodel" type="checkbox" onchange="return rdChanSelHelper(this); viewport.setModel(this.checked?'c':'g');" />
+        <table cellspacing="0">
+          <tr>
+            <th>Visible</th>
+            <th>Wavelength</th>
+            <th>Color</th>
+            <th></th>
+          </tr>
+        </table>
+      </div>
       <ul>
-        <li class="buttonbar"><button id="rdef-default-btn" onclick="return resetRDCW();">default</button><button id="rdef-undo-btn" onclick="return undoRDCW();">undo</button><button id="rdef-redo-btn" onclick="return redoRDCW();">redo</button><button id="rdef-apply-btn" onclick="return applyRDCW();">apply</button><button id="rdef-ok-btn" onclick="return applyRDCW(true);">OK</button>
+        <li class="buttonbar">
+        {% block save_rdef %}
         {% if dataset.canWrite %}
-          <br /><button style="width: 10em;" onclick="return setDefaultColors(this)">SAVE</button>
+          <button id="rdef-reset-btn" class="editor" onclick="return resetImageDefaults(this)" title="Returns the image settings to their original state at time of import.">reset</button>
+          <button id="rdef-setdef-btn" class="editor" onclick="return setImageDefaults(this)" title="Applies and saves the current settings as default.">save settings</button>
         {% endif %}
+        {% endblock save_rdef %}
+        <button id="rdef-default-btn" onclick="return resetRDCW();" title="Returns to the saved settings.">default</button><button id="rdef-undo-btn" onclick="return undoRDCW();" title="Returns to the settings as they were before clicking apply.">undo</button><button id="rdef-redo-btn" onclick="return redoRDCW();" title="Returns to the settings as they were before clicking undo.">redo</button><button id="rdef-apply-btn" onclick="return applyRDCW();" title="Applies the current settings to the open image.">apply</button>
         </li>
+        {% block batch_copy %}
+        {% if dataset.canOwnerWrite %}
+        <li class="buttonbar">
+          <button id="rdef-batchcopy-btn" class="editor" onclick="return batchCopyRDefs(this);" title="Offers options to apply current settings to other images in your manuscript.">Select images to apply settings</button>
+        </li>
+        {% endif %}
+        {% endblock batch_copy %}
       </ul>
+
     </div>
 
     <!-- End floating boxes -->
     <div id="wblitz">
       <div id="wblitz-workarea">
       <!-- Top Toolbox -->
-      <div class="omelogo"></div>
         <!-- Zoom -->
         <div class="box">
-            <h1>Image Options</h1>
+            <h1>Viewing Options</h1>
           <div class="even row">
-            <label for="wblitz-proj">Display</label>
             <div class="multiselect selected">
               Normal
               <input type="radio" value="normal" name="wblitz-proj" onclick="return setProjection(this);" />
             </div>
             <div class="multiselect">
-              Maximum Intensity
+              Max Intensity
               <input type="radio" value="intmax" name="wblitz-proj" onclick="return setProjection(this);" />
             </div>
             <div class="multiselect">
@@ -524,16 +704,7 @@
             </select>
           </div>
           <div class="even row">
-            <label for="wblitz-rmodel">Color</label>
-            <input id="wblitz-rmodel" type="checkbox" onchange="viewport.setModel(this.checked?'c':'g');" />
-            <!-- select id="wblitz-rmodel" onchange="viewport.setModel(this.item(this.selectedIndex).value);">
-              <option value="c">Color</option>
-              <option value="g">Greyscale</option>
-            </select -->
-            <br />
-          </div>
-          <div class="odd row">
-            <h2>Zoom</h2>
+            <label for="wblitz-zoom">Zoom</label><br />
             <input type="text" class="spin-button" id="wblitz-zoom" value="100" onchange="zoomCheck(this)" size="5" />
             <button id="full-size"
                     title="1:1"
@@ -542,15 +713,8 @@
                     title="full screen"
                     onclick="viewport.setZoomToFit()"></button>
           </div>
-          <div class="even row">
-            <h2>Channels</h2>
-            <span id="wblitz-channels-box"></span>
-          </div>
           <div class="odd row">
-            <h2>Line Plot</h2>
-            <div>Enabled: 
-              <input id="wblitz-lp-enable" type="checkbox" onclick="editLinePlot(this.checked)" />
-            </div>
+            <label for="wblitz-lp-enable">Line Plot</label> <input id="wblitz-lp-enable" type="checkbox" onclick="editLinePlot(this.checked)" />
             <div id="wblitz-lp-wrap" style="display: none">
               <div>Axis: 
                 <select id="wblitz-lp-axis-select" onchange="prepLinePlot(this.options[this.options.selectedIndex].value)">
@@ -564,38 +728,47 @@
               <div id="wblitz-lp-cur"></div>
             </div>
           </div>
-          <div class="even row" style="display: none">
-            <h2>Current Image</h2>
+          <h1>Rendering Details</h1>
+          <div class="odd row">
+            <label for="wblitz-channels-box">Channels</label> - <a href="#" onclick="$('#rdef-postit').toggle(); return false;">Edit</a><br />
+            <span id="wblitz-channels-box"></span>
+          </div>
+          <div class="even row">
+            <label for="wblitz-rmodel">Color</label>
+            <input id="wblitz-rmodel" type="checkbox" onclick="viewport.setModel(this.checked?'c':'g');" />
+            <br />
+          </div>
+            <h1>Current Image</h1>
+          <div class="even row">
             <span style="font-size: 0.9em">
             <span id="wblitz-shortname" style="white-space: nowrap;"></span><br />
             Z: <span id="wblitz-z-curr">?</span>/<span id="wblitz-z-count">?</span> |
             T: <span id="wblitz-t-curr">1</span>/<span id="wblitz-t-count">1</span>
             </span>
           </div>
-        </div>
-        <div class="box">
-          <h1>Image data</h1>
-            <a href="#" onclick="$('#metadata-postit').toggle(); return false;">Image details</a><br />
-            <a href="#" onclick="$('#rdef-postit').toggle(); return false;">Rendering details</a><br />
-            <a href="#" onmouseover="this.href=viewport.getUrl('img_detail')"
+          <div class="odd row">
+            <a href="#" onclick="$('#metadata-postit').toggle(); return false;">Image Information</a><br />
+          </div>
+          <div class="even row">
+                      <a href="#" onmouseover="this.href=viewport.getUrl('img_detail')"
                onclick="$('#curr-link input').attr('value', location.href.substring(0,location.href.length - location.search.length).replace(/(.*?\/)\d+(?:\/\d+)?(?:\/)?$/,'$1') + viewport.getCurrentImgUrlPath() +'?'+ viewport.getQuery(true));
                         show_tooltip(this, 'curr-link'); return false;">
-                Image link
+                Image Link
             </a><br />
+          </div>
+          {% block current_image_tools %}{% endblock %}
         </div>
-
-
         <!-- Image Viewport -->
         <div id="weblitz-viewport"></div>
-        <img id="z-axis-legend" src="/webgateway/appmedia/img/z_axis.gif" />
-        <img id="t-axis-legend" src="/webgateway/appmedia/img/t_axis.gif" />
+        <img id="z-axis-legend" src="/appmedia/webgateway/img/z_axis.gif" />
+        <img id="t-axis-legend" src="/appmedia/webgateway/img/t_axis.gif" />
         <div class="figure-box-holder">
         </div>
       </div>
     </div>
     <div id="footer">
     {% block footer_content %}
-      &copy;2009 University of Dundee & Open Microscopy Environment
+      &copy;2007/2008 Glencoe Software Inc. All rights reserved.
     {% endblock %}
     </div>
 {% endblock full_body %}
@@ -603,7 +776,7 @@
 {% block content_script %}
   $(document).ready(function () {
     /* Prepare the viewport */
-    viewport = $.WeblitzViewport($('#weblitz-viewport'), '{{ viewport_server }}',{% block viewport_opts %}null{% endblock %});
+    viewport = $.WeblitzViewport($('#weblitz-viewport'), '/webgateway',{% block viewport_opts %}null{% endblock %});
     viewport.bind('imageLoad', _refresh_cb);
 
     /* Prepare the Zoom spin button */
@@ -648,21 +821,24 @@
 
     $("#weblitz-viewport").click(function () {
       $(".popped").removeClass('popped');
+      return false;
     })
     .bind("imageChange", function () {
       $(".popped").removeClass('popped');
     });
 
+//    var pprep = function (t) {
+//    return function () {
     /* Prepare the post-its */
-    var layout_pos = $("#weblitz-viewport").offset();
+    var layout_pos = $("#header").offset(); //$("#weblitz-viewport").offset();
     $(".postit").each(function () {
-      if (this.id == 'legend-postit') {
-        $(this).postit({noResize: false}).css($("#weblitz-viewport-vp").offset());
+      if (this.id == 'metadata-postit') {
+        $(this).postit({noResize: false, resizeTarget: '#wblitz-image-description'});//.css($("#weblitz-viewport-vp").offset());
       } else {
         layout_pos.left += 20;
+        layout_pos.top += 20;
         $(this).postit({noResize: true})
           .css(layout_pos);
-        layout_pos.top += 20;
       }
     });
     var legend_open = function () {
@@ -682,28 +858,44 @@
     zindex_automator('.postit', 10);
 
     /* Make (kind of) sure that closing the rendering defs window closes an eventually opened color picker */
-    $("#rdef-postit").bind('closed', function () {hidePicker(); viewport.back_to_bookmarked_channels(); syncRDCW();})
-      .bind('opening', viewport.bookmark_channels);
+    $("#rdef-postit").bind('closed',
+      function () {
+                    hidePicker();
+                    /* viewport.back_to_bookmarked_channels();*/
+                    //syncRDCW();
+                  })
+      .bind('opening', function () { syncRDCW(); viewport.bookmark_channels()});
+
+    $('.can-collapse').click(function () {
+      $(this).toggleClass('closed').next().slideToggle();
+    });
+
+    $('.can-collapse.defclose').each(function () {
+      $(this).removeClass('defclose').toggleClass('closed').next().hide();
+    });
+//    };
+//    setTimeout ( pprep(this), 1000);
 
     /* Load the selected image into the viewport */
-    {% if image %}
     var did = '{{ dataset.id }}';
     viewport.setQuality('0.9');
     viewport.load({{ image.id }}, did.length ? parseInt(did) : null, location.search);
-    {% endif %}
 
     /* Bind actions needed on window resize */
     $(window).resize(calcResize);
 
-    $('input[@name=wblitz-quality]').click(function () {
+    $('input[name=wblitz-quality]').click(function () {
       viewport.setQuality(this.value);
     });
     /* And we're done! */
-    /* Set Window Initial Size */
-    window.resizeTo(1000,800);
 
-    if ($.browser.safari) setTimeout(1,calcResize);
-    else calcResize();
+{% block initial_resize %}
+    /* Set Window Initial Size */
+    if ($(document).width() < 1024 || $(document).height() < 768) 
+      window.resizeTo(1024,768);
+{% endblock %}
+
+    calcResize();
 
   });
 {% endblock content_script %}

@@ -19,7 +19,7 @@ urlpatterns = patterns('',
     (r'^render_split_channel/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$', 'webgateway.views.render_split_channel'),
     (r'^render_row_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<y>[^/]+)/(?:(?P<w>[^/]+)/)?$', 'webgateway.views.render_row_plot'),
     (r'^render_col_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<x>[^/]+)/(?:(?P<w>[^/]+)/)?$', 'webgateway.views.render_col_plot'),
-    (r'^render_thumbnail/(?P<iid>[^/]+)/$', 'webgateway.views.render_thumbnail'),
+    (r'^render_thumbnail/(?P<iid>[^/]+)/(?:(?P<w>[^/]+)/)?(?:(?P<h>[^/]+)/)?$', 'webgateway.views.render_thumbnail'),
 
     # Template views
     (r'^test/$', 'webgateway.views.test'),
@@ -29,13 +29,16 @@ urlpatterns = patterns('',
     (r'^proj/(?P<pid>[^/]+)/detail/$', 'webgateway.views.projectDetail_json'),
     (r'^proj/(?P<pid>[^/]+)/children/$', 'webgateway.views.listDatasets_json'),
     (r'^dataset/(?P<did>[^/]+)/detail/$', 'webgateway.views.datasetDetail_json'),
-    (r'^dataset/(?P<did>[^/]+)/children/$', 'webgateway.views.listImages_json'),
+    url(r'^dataset/(?P<did>[^/]+)/children/$', 'webgateway.views.listImages_json', name="webgateway_listimages_json"),
     (r'^imgData/(?P<iid>[^/]+)/(?:(?P<key>[^/]+)/)?$', 'webgateway.views.imageData_json'),
-    (r'^search/$', 'webgateway.views.search_json'),
+    url(r'^search/$', 'webgateway.views.search_json', name="webgateway_search_json"),
     (r'^img_detail/(?P<iid>[0-9]+)/$', "webgateway.views.full_viewer"),
 
     (r'^saveImgRDef/(?P<iid>[^/]+)/$', 'webgateway.views.save_image_rdef_json'),
-                       
+    (r'^resetImgRDef/(?P<iid>[^/]+)/$', 'webgateway.views.reset_image_rdef_json'),
+    (r'^compatImgRDef/(?P<iid>[^/]+)/$', 'webgateway.views.list_compatible_imgs_json'),
+    (r'^copyImgRDef/$', 'webgateway.views.copy_image_rdef_json'),
+
     # Debug stuff
     (r'^dbg_connectors/$', 'webgateway.views.dbg_connectors'),
 

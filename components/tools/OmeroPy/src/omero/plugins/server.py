@@ -14,6 +14,7 @@
 import subprocess, optparse, os, sys, signal, time
 from omero.cli import Arguments, BaseControl, VERSION
 import omero.java
+import omeroweb
 
 class ServerControl(BaseControl):
 
@@ -72,7 +73,17 @@ class ServerControl(BaseControl):
         # subprocess.call(["python","manage.py","syncdb","--noinput"], cwd=str(omero_web), env = os.environ)
         # Now exec
         os.chdir(str(omero_web))
-        django = ["python","manage.py","runserver","--noreload"]+list(args)
+        from omeroweb import custom_settings as settings
+        deploy = getattr(settings, 'APPLICATION_SERVER', 'default')
+        if deploy == 'fastcgi':
+            cmd = "python manage.py runfcgi workdir=./"
+            cmd += " method=prefork socket=%(base)s/var/django_fcgi.sock"
+            cmd += " pidfile=%(base)s/var/django.pid daemonize=false"
+            cmd += " maxchildren=5 minspare=1 maxspare=5 maxrequests=400"
+            django = (cmd % {'base': self.ctx.dir}).split()+list(args)
+        else:
+            django = ["python","manage.py","runserver","--noreload",omeroweb.custom_settings.APPLICATION_HOST]+list(args)
+        sys.stderr.write(str(django) + '\n')
         os.execvpe("python", django, os.environ)
 try:
     register("server", ServerControl)
