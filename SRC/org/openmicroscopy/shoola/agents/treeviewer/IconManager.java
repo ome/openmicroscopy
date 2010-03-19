@@ -416,7 +416,7 @@ public class IconManager
     /** The <code>Registered File</code> icon. */
     public static final int           FILE_REGISTERED = 119;
     
-    /** The <code>Registered Image</code> icon. */
+    /** The <code>Unregistered Image</code> icon. */
     public static final int           IMAGE_UNREGISTERED = 120;
     
     /** The <code>Password</code> icon. */
@@ -431,11 +431,17 @@ public class IconManager
     /** The <code>Owner</code> icon. */
     public static final int           UP_DOWN_9_12 = 124;
     
+    /** The <code>Image Directory</code> icon. */
+    public static final int           IMAGE_DIRECTORY = 125;
+    
+    /** The <code>Unregistered Image Directory</code> icon. */
+    public static final int           IMAGE_DIRECTORY_UNREGISTERED = 126;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 124;
+    private static final int          MAX_ID = 126;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -570,6 +576,8 @@ public class IconManager
         relPaths[PASSWORD_48] = "nuvola_download_manager_rotated48.png";
         relPaths[OWNER_NOT_ACTIVE] = "nuvola_kdmconfig_grey16.png";
         relPaths[UP_DOWN_9_12] = "upDown.png";
+        relPaths[IMAGE_DIRECTORY] = "nuvola_folder_image16.png";
+        relPaths[IMAGE_DIRECTORY_UNREGISTERED] = "nuvola_folder_image16.png";
     }
     
     /** The sole instance. */

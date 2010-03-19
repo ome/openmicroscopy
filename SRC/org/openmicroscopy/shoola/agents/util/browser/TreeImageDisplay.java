@@ -47,6 +47,7 @@ import pojos.FileAnnotationData;
 import pojos.FileData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.MultiImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenAcquisitionData;
@@ -454,6 +455,8 @@ public abstract class TreeImageDisplay
         	return ((FileData) obj).getName();
         else if (obj instanceof ScreenAcquisitionData)
         	return ((ScreenAcquisitionData) obj).getLabel();
+        else if (obj instanceof MultiImageData) 
+        	return ((MultiImageData) obj).getName();
         else if (obj instanceof String) return (String) obj;
         return "";
     }

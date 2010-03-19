@@ -193,6 +193,7 @@ import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.InstrumentData;
 import pojos.LongAnnotationData;
+import pojos.MultiImageData;
 import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -1692,6 +1693,8 @@ class OMEROGateway
 			FileData f = (FileData) node;
 			if (f.isImage()) return Image.class;
 			return OriginalFile.class;
+		} else if (node instanceof MultiImageData) {
+			return OriginalFile.class;
 		}
 		return convertPojos(node.getClass());
 	}
@@ -1733,7 +1736,8 @@ class OMEROGateway
 			return WellSample.class;
 		else if (ScreenAcquisitionData.class.equals(nodeType))
 			return ScreenAcquisition.class;
-		else if (FileData.class.equals(nodeType))
+		else if (FileData.class.equals(nodeType) || 
+				MultiImageData.class.equals(nodeType))
 			return OriginalFile.class;
 		else if (GroupData.class.equals(nodeType))
 			return ExperimenterGroup.class;

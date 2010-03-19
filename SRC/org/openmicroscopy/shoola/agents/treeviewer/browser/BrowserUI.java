@@ -90,6 +90,7 @@ import pojos.FileAnnotationData;
 import pojos.FileData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.MultiImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenAcquisitionData;
@@ -523,10 +524,6 @@ class BrowserUI
     		DataObject object;
     		FileData file;
     		TreeImageDisplay display;
-    		ImageData img;
-    		List list;
-    		Iterator j;
-    		List<TreeImageDisplay> nodes;
     		DefaultTreeModel dtm =  (DefaultTreeModel) treeDisplay.getModel();
     		for (int i = 0; i < files.length; i++) {
     			object = files[i];
@@ -539,25 +536,19 @@ class BrowserUI
             				buildEmptyNode(display);
             			}
             		} else {
-            			if (!file.isHidden()) {
-            				display = new TreeImageNode(file);
-            			}
+            			if (!file.isHidden()) display = new TreeImageNode(file);
             		}
-    			} else if (object instanceof ImageData) {
-    				img = (ImageData) object;
-    				display = TreeViewerTranslator.transformImage(img);
-    				list = img.getImageComponents();
-    				if (list != null && list.size() > 0) {
-    					j = list.iterator();
-    					display.setChildrenLoaded(Boolean.valueOf(true));
-    					nodes = new ArrayList<TreeImageDisplay>();
-    					while (j.hasNext()) {
-    						nodes.add(new TreeImageNode(j.next()));
-						}
+    			} else if (object instanceof MultiImageData) {
+    				display = TreeViewerTranslator.transformMultiImage(
+    						(MultiImageData) object);
+    				if (display != null)
     					buildTreeNode(display, 
-    							prepareSortedList(sorter.sort(nodes)), dtm);
-    				}
-    			}
+    						prepareSortedList(sorter.sort(
+    								display.getChildrenDisplay())), dtm);
+    			} else if (object instanceof ImageData) {
+    				display = TreeViewerTranslator.transformImage(
+    						(ImageData) object);
+    			} 
     			if (display != null) dirSet.addChildDisplay(display);
 			}
     	}
@@ -866,7 +857,7 @@ class BrowserUI
 			object = (TreeImageDisplay) j.next();
 			uo = object.getUserObject();
 			if (uo instanceof ProjectData) top.add(object);
-			if (uo instanceof GroupData) top.add(object);
+			else if (uo instanceof GroupData) top.add(object);
 			else if (uo instanceof ScreenData) top2.add(object);
 			else if (uo instanceof DatasetData) bottom.add(object);
 			else if (uo instanceof PlateData) bottom2.add(object);
@@ -886,11 +877,13 @@ class BrowserUI
 				FileData f = (FileData) uo;
 				if (f.isDirectory()) top.add(object);
 				else bottom.add(object);
-			} else if (uo instanceof ImageData) {
+			} else if (uo instanceof ImageData)
 				bottom.add(object);
-			} else if (uo instanceof ExperimenterData) {
+			else if (uo instanceof MultiImageData)
 				bottom.add(object);
-			} else if (object instanceof SmartFolder)
+			else if (uo instanceof ExperimenterData)
+				bottom.add(object);
+			else if (object instanceof SmartFolder)
 				bottom.add(object);
 		}
 		List<TreeImageDisplay> all = new ArrayList<TreeImageDisplay>();

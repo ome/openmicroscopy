@@ -51,6 +51,7 @@ import pojos.FileAnnotationData;
 import pojos.FileData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.MultiImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenAcquisitionData;
@@ -191,8 +192,12 @@ public class TreeCellRenderer
             			icon = icons.getIcon(IconManager.FILE_REGISTERED);
             		else icon = icons.getIcon(IconManager.FILE_TEXT);
         		}
-        		
         	}
+        } else if (usrObject instanceof MultiImageData) {
+        	MultiImageData mi = (MultiImageData) usrObject;
+        	if (mi.getId() > 0) 
+        		icon = icons.getIcon(IconManager.IMAGE_DIRECTORY);
+        	else icon = icons.getIcon(IconManager.IMAGE_DIRECTORY_UNREGISTERED);
         } else if (node instanceof SmartFolder) {
         	if (GroupData.class.equals(((SmartFolder) node).getType())) {
         		icon = icons.getIcon(IconManager.PERSONAL);

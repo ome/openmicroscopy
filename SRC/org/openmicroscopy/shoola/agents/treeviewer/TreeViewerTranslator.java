@@ -41,14 +41,21 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.RLong;
+import omero.model.Details;
+import omero.model.IObject;
+
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
+
+import Ice.Current;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -56,6 +63,7 @@ import pojos.FileAnnotationData;
 import pojos.FileData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.MultiImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenAcquisitionData;
@@ -432,6 +440,24 @@ public class TreeViewerTranslator
             screen.setNumberItems(0);
         }
         return screen;
+    }
+    
+	
+    /**
+     * Transforms a {@link ImageData} into a visualization object i.e.
+     * a {@link TreeImageNode}.
+     * 
+     * @param data  The {@link ImageData} to transform.
+     *              Mustn't be <code>null</code>.
+     * @return See above.
+     */
+    public static TreeImageDisplay transformImage(ImageData data)
+    {
+        if (data == null)
+            throw new IllegalArgumentException("Cannot be null");
+        TreeImageDisplay node = new TreeImageNode(data);
+        formatToolTipFor(node);
+        return node;
     }
     
     /**
@@ -849,26 +875,27 @@ public class TreeViewerTranslator
 		}
 		return nodes;
 	}
+    
+	/**
+	 * Transforms the passed objects.
+	 * 
+	 * @param object The object to handle.
+	 * @return See above.
+	 */
+	public static TreeImageDisplay transformMultiImage(MultiImageData object)
+	{
+		if (object == null) return null;
+		List<ImageData> images = object.getComponents();
+		if (images != null && images.size() > 0) {
+			TreeImageSet node = new TreeImageSet(object);
+			node.setChildrenLoaded(Boolean.valueOf(true));
+			Iterator<ImageData> i = images.iterator();
+			while (i.hasNext())
+				node.addChildDisplay(transformImage(i.next()));
+			return node;
+		} 
+		return new TreeImageNode(object);
+	}
 	
-    /**
-     * Transforms a {@link ImageData} into a visualization object i.e.
-     * a {@link TreeImageNode} or {@link TreeImageSet} for image
-     * with multiple files.
-     * 
-     * @param data  The {@link ImageData} to transform.
-     *              Mustn't be <code>null</code>.
-     * @return See above.
-     */
-    public static TreeImageDisplay transformImage(ImageData data)
-    {
-        if (data == null)
-            throw new IllegalArgumentException("Cannot be null");
-        List<FileData> images = data.getImageComponents();
-        TreeImageDisplay node;
-        if (images != null && images.size() > 0) node = new TreeImageSet(data);
-        else node = new TreeImageNode(data);
-        formatToolTipFor(node);
-        return node;
-    }
 }
     

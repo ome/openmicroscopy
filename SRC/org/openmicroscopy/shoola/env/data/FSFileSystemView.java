@@ -42,10 +42,12 @@ import omero.RString;
 import omero.grid.RepositoryPrx;
 import omero.model.Image;
 import omero.model.IObject;
+import omero.model.ImageI;
 import omero.model.OriginalFile;
 import pojos.DataObject;
 import pojos.FileData;
 import pojos.ImageData;
+import pojos.MultiImageData;
 
 
 /** 
@@ -130,9 +132,9 @@ public class FSFileSystemView
 		List list;
 		File f;
 		IObject object;
-		ImageData img;
+		MultiImageData img;
 		Iterator j;
-		List<FileData> components;
+		List<ImageData> components;
 		if (useFileHiding) {
 		} else {
 			while (i.hasNext()) {
@@ -150,15 +152,20 @@ public class FSFileSystemView
 					} else if (list.size() > 1) {
 						object = (IObject) list.get(0);
 						if (object instanceof Image) {
-							img = new ImageData((Image) object);
+							img = new MultiImageData((Image) object);
 							j = list.iterator();
-							components = new ArrayList<FileData>();
+							components = new ArrayList<ImageData>();
 							while (j.hasNext()) {
 								object = (IObject) j.next();
-								if (object instanceof OriginalFile)
-									components.add(new FileData(object));
+								if (object instanceof OriginalFile) {
+									//tmp
+									Image image = new ImageI();
+									OriginalFile of = (OriginalFile) object;
+									image.setName(of.getName());
+									components.add(new ImageData(image));
+								}
 							}
-							img.setImageComponents(components);
+							img.setComponents(components);
 							files.addElement(img);
 						}
 					}

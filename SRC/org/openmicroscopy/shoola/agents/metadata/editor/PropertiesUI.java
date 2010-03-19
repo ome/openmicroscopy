@@ -68,6 +68,7 @@ import pojos.DatasetData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
 import pojos.ImageData;
+import pojos.MultiImageData;
 import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -804,6 +805,9 @@ class PropertiesUI
         			text = "Image";
         		} else text = "File";
         	}
+        } else if (refObject instanceof MultiImageData) {
+        	editName.setEnabled(false);
+        	text = "File";
         }
         String t = text;
         if (model.getRefObjectID() > 0)
