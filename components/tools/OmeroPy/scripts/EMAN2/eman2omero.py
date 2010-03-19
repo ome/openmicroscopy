@@ -69,88 +69,7 @@ re= None
 updateService= None
 rawFileStore= None
 
-
-def resetRenderingSettings(re, pixelsId, minValue, maxValue):
-	"""
-	This method is also in 'imagesFromRois.py' - maybe move to script_utils?
-	Simply resests the rendering settings for a pixel set, according to the min and max values
-	
-	@param re		The OMERO rendering engine
-	@param pixelsId		The Pixels ID
-	@param minValue		Minimum value of rendering window
-	@param maxValue		Maximum value of rendering window
-	"""
-	
-	re.lookupPixels(pixelsId)
-	if not re.lookupRenderingDef(pixelsId):
-	#	print "No Rendering Def"
-		re.resetDefaults()	
-	
-	if not re.lookupRenderingDef(pixelsId):
-	#	print "Still No Rendering Def"
-		pass
-	
-	re.load()
-	
-	re.setChannelWindow(0, float(minValue), float(maxValue))
-	re.saveCurrentSettings()
-
-
-def createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, plane2Dlist, imageName, description, dataset=None):
-	"""
-	This method is also in 'imagesFromRois.py' - maybe move to script_utils?
-	Creates a new single-channel image from the list of 2D numpy arrays in plane2Dlist with each plane2D becoming a Z-section.
-	
-	@param pixelsService		The OMERO pixelsService
-	@param rawPixelStore		The OMERO rawPixelsStore
-	@param re					The OMERO renderingEngine
-	@param pixelsType			The pixelsType object 	omero::model::PixelsType
-	@param gateway				The OMERO gateway service
-	@param plane2Dlist			A list of numpy 2D arrays, corresponding to Z-planes of new image. 
-	@param imageName			Name of new image
-	@param description			Description for the new image
-	@param dataset				If specified, put the image in this dataset. omero.model.Dataset object
-	
-	"""
-	
-	# all planes in plane2Dlist should be same shape. Render according to first plane. 
-	shape = plane2Dlist[0].shape
-	sizeY, sizeX = shape
-	minValue = plane2Dlist[0].min()
-	maxValue = plane2Dlist[0].max()
-	print "min-max", minValue, maxValue
-	
-	channelList = [0]  # omero::sys::IntList
-	
-	sizeZ, sizeT = (len(plane2Dlist),1)
-	#print sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description
-	iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description)
-	imageId = iId.getValue()
-	
-	image = gateway.getImage(imageId)
-	pixelsId = image.getPrimaryPixels().getId().getValue()
-	pixelsService.setChannelGlobalMinMax(pixelsId, 0, float(minValue), float(maxValue))
-	
-	# upload plane data
-	pixelsId = image.getPrimaryPixels().getId().getValue()
-	rawPixelStore.setPixelsId(pixelsId, True)
-	theC, theT = (0,0)
-	for theZ, plane2D in enumerate(plane2Dlist):
-		if plane2D.size > 1000000:
-			scriptUtil.uploadPlaneByRow(rawPixelStore, plane2D, theZ, theC, theT)
-		else:
-			scriptUtil.uploadPlane(rawPixelStore, plane2D, theZ, theC, theT)
-
-	resetRenderingSettings(re, pixelsId, minValue, maxValue)
-	
-	if dataset:
-		link = omero.model.DatasetImageLinkI()
-		link.parent = omero.model.DatasetI(dataset.id.val, False)
-		link.child = omero.model.ImageI(image.id.val, False)
-		gateway.saveAndReturnObject(link)
-		#gateway.attachImageToDataset(dataset, image)
-		
-	return image
+newImageMap = {}
 	
 def uploadBdbAsDataset(infile, datasetName, project = None):
 	
@@ -208,34 +127,52 @@ def uploadBdbAsDataset(infile, datasetName, project = None):
 	fileName = "original_metadata.txt"
 	
 	# loop through all the images. 
-	description = "Imported from EMAN2 bdb: %s" % infile
-	for i in range(nimg):
-		newImageName = "%d" % i
+	for i in range(2):
+		description = "Imported from EMAN2 bdb: %s" % infile
+		newImageName = ""
 		if imageList:
-			print "Importing image: %s" % imageList[i]
+			h, newImageName = os.path.split(imageList[i])
 			d.read_image(imageList[i])
 		else:
-			print "Importing image: %d" % i
+			newImageName = "%d" % i
 			d.read_image(infile, i)
+		print "Importing image:", newImageName
 		plane2D = EMNumPy.em2numpy(d)
 		#print plane2D
 		plane2Dlist = [plane2D]		# single plane image
 		
-		# maybe should move this method to script_utils, since it is also used by imagesFromRois.py
-		image = createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, plane2Dlist, newImageName, description, dataset)
+		# test attributes for source image link
+		attributes = d.get_attr_dict()
+		if "ptcl_source_image" in attributes:
+			parentName = attributes["ptcl_source_image"]
+			if parentName in newImageMap:
+				print "Add link to image named: ", parentName
+				# simply add to description, since we don't have Image-Image links yet
+				description = description + "\nSource Image: ID: %s Name: %s" % (newImageMap[parentName], parentName)
+		if "ptcl_source_coord" in attributes:
+			try:
+				x, y = attributes["ptcl_source_coord"]
+				xCoord = float(x)
+				yCoord = float(y)
+				description = description + "\nSource Coordinates: %.1f, %.1f" % (xCoord, yCoord)
+			except: pass
+		
+		# create new Image from numpy data.
+		image = scriptUtil.createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, plane2Dlist, newImageName, description, dataset)
+		# make a map of name: imageId, for creating image-image links
+		imageId = image.getId().getValue()
+		newImageMap[newImageName] = imageId
+		print newImageMap
 		
 		f = open(fileName, 'w')		# will overwrite each time. 
 		f.write("[GlobalMetadata]\n")
 		
 		# now add image attributes as "Original Metadata", sorted by key. 
-		attributes = d.get_attr_dict()
-		keyList = list(attributes.keys()) 	
+		keyList = list(attributes.keys())	
 		keyList.sort()
 		for k in keyList:
 			#print k, attributes[k]
 			f.write("%s=%s\n" % (k, attributes[k]))
-			if k == "ptcl_source_image":
-				print "Add link to image named: ", attributes[k]
 		f.close()
 		
 		scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, image, fileName, "text/plain", None, namespace)
@@ -269,8 +206,63 @@ def emanToOmero(commandArgs):
 	rawFileStore = session.createRawFileStore()
 	
 	path = commandArgs["bdb"]
+	
+	# get a name for the project 
+	head,tail = os.path.split(path)
+	projectName = tail
+	if projectName == "":
+		projectName = head
+	# create project
+	project = omero.model.ProjectI()
+	project.name = rstring(projectName)
+	project = gateway.saveAndReturnObject(project)
 		
-		
+	# ignore directories that don't have interesting images in 
+	utilDirs = ["e2boxercache", "EMAN2DB"]
+	# process directories in root dir. 
+	imageList = []		# put any image names here
+	dbs = []			# and any bdbs here
+	if os.path.isdir(path):
+		for f in os.listdir(path):
+			fullpath = path + f
+			print fullpath
+			# process folders in root dir:
+			if f not in utilDirs and os.path.isdir(fullpath):	# e.g. 'particles' folder
+				dbpath = fullpath
+				if dbpath.lower()[:4]!="bdb:" : dbpath="bdb:"+dbpath
+				if '#' in dbpath :
+					#if len(args)>1 : print "\n",path,":"
+					dbpath,db=dbpath.rsplit("#",1)
+					dbpath+="#"
+					dbs=[db]
+				else:
+					if not '#' in dbpath and dbpath[-1]!='/' : dbpath+='#'			
+					#if len(args)>1 : print "\n",path[:-1],":"
+					dbs=db_list_dicts(dbpath)
+			
+			# process files in root dir:
+			else:
+				i = EMData()
+				try:
+					i.read_image(fullpath, 0, True)	# header only 
+					print " is an image"
+					imageList.append(fullpath)
+				except:
+					print " not image"
+					
+	# first, upload any root images	
+	print "Uploading image list: "
+	print imageList			
+	uploadBdbAsDataset(imageList, "raw_data", project)
+	
+	# and now do any bdbs in root folder subdirectories
+	print "Uploading bdbs "
+	for db in dbs:
+		infile = dbpath + db
+		datasetName = db
+		uploadBdbAsDataset(infile, datasetName, project)
+	
+	# code below handles cases where we are starting at a bdb (not a directory)
 	# code from e2bdb.py
 	dbpath = path
 	if dbpath.lower()[:4]!="bdb:" : dbpath="bdb:"+dbpath
@@ -283,16 +275,6 @@ def emanToOmero(commandArgs):
 		if not '#' in dbpath and dbpath[-1]!='/' : dbpath+='#'			
 		#if len(args)>1 : print "\n",path[:-1],":"
 		dbs=db_list_dicts(dbpath)
-		
-	# get a name for the project 
-	head,tail = os.path.split(path)
-	projectName = tail
-	if projectName == "":
-		projectName = head
-	# create project
-	project = omero.model.ProjectI()
-	project.name = rstring(projectName)
-	project = gateway.saveAndReturnObject(project)
 	
 	print "List of dbs in root directory:"
 	print dbs		# may not be any dbs in root (e.g. spr root directory has no dbs)
@@ -300,46 +282,6 @@ def emanToOmero(commandArgs):
 		infile = dbpath + db
 		datasetName = db
 		uploadBdbAsDataset(infile, datasetName, project)
-		
-	# ignore directories that don't have interesting images in 
-	utilDirs = ["e2boxercache", "EMAN2DB"]
-	# process directories in root dir. 
-	imageList = []		# put any image names here
-	if os.path.isdir(path):
-		for f in os.listdir(path):
-			fullpath = path + f
-			print fullpath
-			# process folders in root dir:
-			if f not in utilDirs and os.path.isdir(fullpath):	# e.g. 'particles' folder
-				dbpath = fullpath
-				if dbpath.lower()[:4]!="bdb:" : dbpath="bdb:"+dbpath
-				if '#' in dbpath :
-					#if len(args)>1 : print "\n",path,":"
-					dbpath,dbs=dbpath.rsplit("#",1)
-					dbpath+="#"
-					dbs=[dbs]
-				else:
-					if not '#' in dbpath and dbpath[-1]!='/' : dbpath+='#'			
-					#if len(args)>1 : print "\n",path[:-1],":"
-					dbs=db_list_dicts(dbpath)
-
-				for db in dbs:
-					infile = dbpath + db
-					datasetName = db
-					uploadBdbAsDataset(infile, datasetName, project)
-			
-			# process files in root dir:
-			else:
-				i = EMData()
-				try:
-					i.read_image(fullpath, 0, True)	# header only 
-					print " is an image"
-					imageList.append(fullpath)
-				except:
-					print " not image"
-					
-	# finally, upload any root images				
-	uploadBdbAsDataset(imageList, "raw_data", project)
 	
 
 def readCommandArgs():
