@@ -86,6 +86,7 @@ public class DataBrowserAction
         if (model == null) throw new IllegalArgumentException("No Model.");
         this.model = model;
         model.addChangeListener(this);
+        model.addPropertyChangeListener(this);
     }
     
 	/** 
@@ -108,6 +109,10 @@ public class DataBrowserAction
     		if (node instanceof ImageDisplay)
     			onDisplayChange((ImageDisplay) node);
     		else onDisplayChange(null);
+    	} else if (DataBrowser.SELECTION_UPDATED_PROPERTY.equals(name)) {
+    		Browser browser = model.getBrowser();
+        	if (browser != null)
+        		onDisplayChange(browser.getLastSelectedDisplay());
     	}
     }
 

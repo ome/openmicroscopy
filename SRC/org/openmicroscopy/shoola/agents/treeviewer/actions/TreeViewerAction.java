@@ -108,11 +108,7 @@ public abstract class TreeViewerAction
         this.model = model;
         //Attaches listener property change listener to each browser.
        
-        model.addPropertyChangeListener(
-                TreeViewer.SELECTED_BROWSER_PROPERTY, this);
-        model.addPropertyChangeListener(
-                TreeViewer.ON_COMPONENT_STATE_CHANGED_PROPERTY, this);
-        model.addPropertyChangeListener(TreeViewer.DISPLAY_MODE_PROPERTY, this);
+        model.addPropertyChangeListener(this);
         Map browsers = model.getBrowsers();
         Iterator i = browsers.values().iterator();
         Browser browser;
@@ -166,7 +162,6 @@ public abstract class TreeViewerAction
         String name = evt.getPropertyName();
         if (TreeViewer.SELECTED_BROWSER_PROPERTY.equals(name)) {
             onBrowserSelection((Browser) evt.getNewValue());
-            return;
         } else if (TreeViewer.DISPLAY_MODE_PROPERTY.equals(name)) {
         	int displayMode = ((Integer) evt.getNewValue()).intValue();
         	switch (displayMode) {
@@ -184,18 +179,18 @@ public abstract class TreeViewerAction
 					break;
 			}
         	onDisplayMode();
-        	return;
         } else if (TreeViewer.ON_COMPONENT_STATE_CHANGED_PROPERTY.equals(
-        		name) || TreeViewer.GROUP_CHANGED_PROPERTY.equals(name)) {
+        		name) || TreeViewer.GROUP_CHANGED_PROPERTY.equals(name) ||
+        		TreeViewer.SELECTION_PROPERTY.equals(name)) {
             Browser browser = model.getSelectedBrowser();
             TreeImageDisplay v = null;
             if (browser != null) v = browser.getLastSelectedDisplay();
             onDisplayChange(v);
-            return;
         } else if (TreeViewer.IMPORT_PROPERTY.equals(name)) {
-        	return;
+        	
         }
             
+        /*
         Object newValue = evt.getNewValue();
         if (newValue == null) {
             onDisplayChange(null);
@@ -203,6 +198,7 @@ public abstract class TreeViewerAction
         }
         if (newValue.equals(evt.getOldValue())) return;
         onDisplayChange((TreeImageDisplay) newValue);
+        */
     }
     
     /** 

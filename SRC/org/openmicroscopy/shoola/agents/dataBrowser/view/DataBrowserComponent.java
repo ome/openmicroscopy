@@ -300,6 +300,8 @@ class DataBrowserComponent
 		if (tbView != null) tbView.setSelectedNodes(objects);
 		model.getBrowser().setSelectedNodes(objects);
 		model.setApplicationData(applications);
+		firePropertyChange(SELECTION_UPDATED_PROPERTY, 
+				Boolean.valueOf(false), Boolean.valueOf(true));
 	}
 
 	/**

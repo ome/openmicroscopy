@@ -133,28 +133,24 @@ public class ManageRndSettingsAction
 	{
 		switch (value) {
 			case COPY:
-				//putValue(Action.NAME, NAME_COPY);
 				name = NAME_COPY;
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(DESCRIPTION_COPY));
 				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.COPY));
 				break;
 			case PASTE:
-				//putValue(Action.NAME, NAME_PASTE);
 				name = NAME_PASTE;
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(DESCRIPTION_PASTE));
 				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PASTE));
 				break;
 			case RESET:
-				//putValue(Action.NAME, NAME_RESET);
 				name = NAME_RESET;
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(DESCRIPTION_RESET));
 				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.REDO));
 				break;
 			case SET_ORIGINAL:
-				//putValue(Action.NAME, NAME_SET_ORIGINAL);
 				name = NAME_SET_ORIGINAL;
 				putValue(Action.SHORT_DESCRIPTION, 
 					UIUtilities.formatToolTipText(DESCRIPTION_SET_ORIGINAL));
@@ -202,7 +198,7 @@ public class ManageRndSettingsAction
 				if (selected.length > 1) setEnabled(false);
 				else {
 					if (ho instanceof ImageData || ho instanceof WellSampleData)
-						setEnabled(model.isObjectWritable(ho));
+						setEnabled(model.isUserOwner(ho));
 					else setEnabled(false);
 				}
 				break;

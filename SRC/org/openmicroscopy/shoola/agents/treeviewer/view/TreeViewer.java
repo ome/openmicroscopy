@@ -236,6 +236,12 @@ public interface TreeViewer
 	public static final String		IMPORT_PROPERTY = "import";
 	
 	/** 
+	 * Bound property indicating that the nodes have been selected
+	 * automatically.
+	 */
+	public static final String      SELECTION_PROPERTY = "selection";
+	
+	/** 
 	 * The title displayed in the {@link LoadingWindow} during the saving 
 	 * process.
 	 */

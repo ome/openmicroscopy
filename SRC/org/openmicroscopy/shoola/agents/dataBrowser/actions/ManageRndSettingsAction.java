@@ -232,9 +232,7 @@ public class ManageRndSettingsAction
 		icons = IconManager.getInstance();
 		checkIndex(index);
 		this.index = index;
-		model.addPropertyChangeListener(DataBrowser.COPY_ITEMS_PROPERTY, this);
-		model.addPropertyChangeListener(
-				DataBrowser.RND_SETTINGS_TO_COPY_PROPERTY, this);
+		model.addPropertyChangeListener(this);
 	}
 	
 	/**
@@ -269,7 +267,8 @@ public class ManageRndSettingsAction
     	if (DataBrowser.COPY_ITEMS_PROPERTY.equals(name) ||
     		DataBrowser.RND_SETTINGS_TO_COPY_PROPERTY.equals(name) ||
     		Browser.SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY.equals(
-        			name)) {
+        			name) || 
+                	DataBrowser.SELECTION_UPDATED_PROPERTY.equals(name)) {
     		Browser browser = model.getBrowser();
         	if (browser != null)
         		onDisplayChange(browser.getLastSelectedDisplay());

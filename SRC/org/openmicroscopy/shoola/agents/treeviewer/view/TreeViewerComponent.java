@@ -773,9 +773,8 @@ class TreeViewerComponent
         		  Object child;
         		  for (int i = 0; i < selection.length; i++) {
         			  child = selection[i].getUserObject();
-        			  if (!child.equals(object)) {
+        			  if (!child.equals(object)) 
         				  l.add(child);
-        			  }
         		  }
         		  if (l.size() > 0)
         		  	metadata.setRelatedNodes(l);
@@ -868,6 +867,10 @@ class TreeViewerComponent
 			Browser browser = model.getSelectedBrowser();
 			browse(browser.getLastSelectedDisplay(), false);
 		}
+		
+		//Notifies actions.
+		firePropertyChange(SELECTION_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
 	}
 
 	/**
@@ -1904,6 +1907,8 @@ class TreeViewerComponent
 				mv.setRootObject(null, exp.getId());
 			}
 		}
+		firePropertyChange(SELECTION_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
 	}
 
 	/**

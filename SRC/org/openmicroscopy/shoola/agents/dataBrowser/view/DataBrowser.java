@@ -123,6 +123,12 @@ public interface DataBrowser
 												"selectedNodeDisplay";
 	
 	/** 
+	 * Bound property name indicating that nodes have been marked as selected.
+	 */
+	public static final String 		SELECTION_UPDATED_PROPERTY = 
+												"selectionUpdated";
+	
+	/** 
 	 * Bound property name indicating an {@link ImageDisplay} object has been
 	 * unselected in the visualization tree. 
 	 */
