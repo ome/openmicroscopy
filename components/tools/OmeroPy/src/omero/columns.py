@@ -58,6 +58,13 @@ class AbstractColumn(object):
         else:
             self.recarrtypes = [(self.name, d.recarrtype)]
 
+    def settable(self, tbl):
+        """
+        Called by tables.py when first initializing columns.
+        Can be used to complete further initialization.
+        """
+        self.__table = tbl
+
     def append(self, tbl):
         """
         Called by tables.py to give columns. By default, does nothing.
@@ -201,8 +208,16 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
         omero.grid.StringColumn.__init__(self, name, *args)
         AbstractColumn.__init__(self)
 
+    def settable(self, tbl):
+        AbstractColumn.settable(self, tbl)
+        self.size = getattr(tbl.cols, self.name).dtype.itemsize
+
     def descriptor(self, pos):
-        return tables.StringCol(pos=pos)
+        # During initialization, size might be zero
+        # to prevent exceptions we set it to 1
+        if not self.size or self.size < 0:
+            self.size = 1
+        return tables.StringCol(pos=pos, itemsize=self.size)
 
 class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
 
