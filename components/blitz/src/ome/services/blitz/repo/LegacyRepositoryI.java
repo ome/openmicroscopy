@@ -284,30 +284,37 @@ public class LegacyRepositoryI extends _InternalRepositoryDisp {
                 PublicRepositoryI pr = new PublicRepositoryI(description
                         .getId().getValue(), ex, p);
 
-                Ice.Identity internal = Ice.Util
-                        .stringToIdentity("InternalRepository-" + repoUuid);
-                Ice.Identity external = Ice.Util
-                        .stringToIdentity("PublicRepository-" + repoUuid);
+                Ice.ObjectPrx internalObj = addOrReplace("InternalRepository-", repo);
+                Ice.ObjectPrx externalObj = addOrReplace("PublicRepository-", pr);
 
-                Ice.ObjectPrx internalObj = oa.add(repo, internal);
-                Ice.ObjectPrx externalObj = oa.add(pr, external);
+                //
+                // Activation & Registration
+                //
+                oa.activate(); // Must happen before the registry tries to connect
 
                 reg.addObject(internalObj);
                 reg.addObject(externalObj);
 
                 proxy = RepositoryPrxHelper.uncheckedCast(externalObj);
-
-                //
-                // Activation & Registration
-                //
-                oa.activate();
                 log.info("Repository now active");
+
                 return null;
             } catch (Exception e) {
                 fileMaker.close(); // If anything goes awry, we release for others!
                 return e;
             }
 
+        }
+
+        private Ice.ObjectPrx addOrReplace(String prefix, Ice.Object obj) {
+            Ice.Identity id = Ice.Util.stringToIdentity(prefix + repoUuid);
+            Object old = oa.find(id);
+            if (old != null) {
+                oa.remove(id);
+                log.warn(String.format("Found %s; removing: %s", id, old));
+            }
+            oa.add(obj, id);
+            return oa.createDirectProxy(id);
         }
     }
 
