@@ -68,7 +68,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClearAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CopyAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.CopyRndSettingsAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateTopContainerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CutAction;
@@ -82,20 +81,18 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ImportAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ImporterVisibilityAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.InspectorVisibilityAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.MetadataVisibilityAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasswordResetAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteRndSettingsAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PersonalManagementAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshExperimenterData;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshTreeAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RemoveExperimenterNode;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.ResetRndSettingsAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RollOverAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SearchAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.SetRndSettingsAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TaggingAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
@@ -424,11 +421,15 @@ class TreeViewerControl
 		actionsMap.put(REMOVE_FROM_DISPLAY, new RemoveExperimenterNode(model));
 		actionsMap.put(REFRESH_EXPERIMENTER, 
 				new RefreshExperimenterData(model));
-		actionsMap.put(PASTE_RND_SETTINGS, new PasteRndSettingsAction(model));
-		actionsMap.put(COPY_RND_SETTINGS, new CopyRndSettingsAction(model));
-		actionsMap.put(RESET_RND_SETTINGS, new ResetRndSettingsAction(model));
+		actionsMap.put(PASTE_RND_SETTINGS, new ManageRndSettingsAction(model, 
+				ManageRndSettingsAction.PASTE));
+		actionsMap.put(COPY_RND_SETTINGS, new ManageRndSettingsAction(model, 
+				ManageRndSettingsAction.COPY));
+		actionsMap.put(RESET_RND_SETTINGS, new ManageRndSettingsAction(model, 
+				ManageRndSettingsAction.RESET));
 		actionsMap.put(SEARCH, new SearchAction(model));
-		actionsMap.put(SET_RND_SETTINGS, new SetRndSettingsAction(model));
+		actionsMap.put(SET_RND_SETTINGS, new ManageRndSettingsAction(model, 
+				ManageRndSettingsAction.SET_ORIGINAL));
 		actionsMap.put(CREATE_TOP_SCREEN, 
 				new CreateTopContainerAction(model, 
 						CreateTopContainerAction.SCREEN));

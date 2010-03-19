@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageRndSettingsAction 
+ * org.openmicroscopy.shoola.agents.treeviewer.actions.ManageRndSettingsAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,29 +20,27 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.dataBrowser.actions;
-
+package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.Collection;
-import java.util.Iterator;
-
 import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteRndSettingsCmd;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PlateData;
+import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.WellSampleData;
 
 /** 
@@ -57,11 +55,10 @@ import pojos.WellSampleData;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
 public class ManageRndSettingsAction 
-	extends DataBrowserAction
-	implements PropertyChangeListener
+	extends TreeViewerAction
 {
 
 	/** Identified the copy action. */
@@ -104,11 +101,28 @@ public class ManageRndSettingsAction
     private static final String DESCRIPTION_SET_ORIGINAL = 
     									"Set the original rendering settings.";
     
-    /** Helper reference to the icons manager. */
-	private IconManager icons;
-	
 	/** One of the constants defined by this class. */
 	private int 		index;
+	
+	 /** Helper reference to the icons manager. */
+	private IconManager icons;
+	
+	/** 
+	 * Handles the time nodes.
+	 * 
+	 * @param nodes The node to handle.
+	 */
+	private void handleTreeTimeNode(TreeImageDisplay[] nodes)
+	{
+		int count = 0;
+		TreeImageTimeSet node;
+		for (int i = 0; i < nodes.length; i++) {
+			node = (TreeImageTimeSet) nodes[i];
+			if (node.getNumberItems() > 0 && model.isObjectWritable(node))
+				count++;
+		}
+		setEnabled(count == nodes.length);
+	}
 	
 	/**
 	 * Checks if the passed index is supported.
@@ -119,28 +133,32 @@ public class ManageRndSettingsAction
 	{
 		switch (value) {
 			case COPY:
-				putValue(Action.NAME, NAME_COPY);
+				//putValue(Action.NAME, NAME_COPY);
+				name = NAME_COPY;
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(DESCRIPTION_COPY));
 				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.COPY));
 				break;
 			case PASTE:
-				putValue(Action.NAME, NAME_PASTE);
+				//putValue(Action.NAME, NAME_PASTE);
+				name = NAME_PASTE;
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(DESCRIPTION_PASTE));
 				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PASTE));
 				break;
 			case RESET:
-				putValue(Action.NAME, NAME_RESET);
+				//putValue(Action.NAME, NAME_RESET);
+				name = NAME_RESET;
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(DESCRIPTION_RESET));
-				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.UNDO));
+				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.REDO));
 				break;
 			case SET_ORIGINAL:
-				putValue(Action.NAME, NAME_SET_ORIGINAL);
+				//putValue(Action.NAME, NAME_SET_ORIGINAL);
+				name = NAME_SET_ORIGINAL;
 				putValue(Action.SHORT_DESCRIPTION, 
 					UIUtilities.formatToolTipText(DESCRIPTION_SET_ORIGINAL));
-				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.UNDO));
+				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.REDO));
 				break;
 			default:
 				throw new IllegalArgumentException("Index not supported.");
@@ -148,132 +166,125 @@ public class ManageRndSettingsAction
 	}
 	
 	/**
-     * Call-back to notify a change of state.
-     * @see DataBrowserAction#onStateChange()
-     */
-    protected void onStateChange()
-    {
-    	Browser browser = model.getBrowser();
-    	if (browser != null)
-    		onDisplayChange(browser.getLastSelectedDisplay());
-    }
-    
-    /**
-     * Sets the action enabled depending on the currently selected display.
-     * @see DataBrowserAction#onDisplayChange(ImageDisplay)
-     */
-    protected void onDisplayChange(ImageDisplay node)
-    {
-    	Browser browser = model.getBrowser();
-        if (node == null || browser == null) {
-            setEnabled(false);
-            return;
-        }
-        Object ho = node.getHierarchyObject();
-        Collection selected = browser.getSelectedDataObjects();
-        Iterator i;
-        int count = 0;
-        Object obj;
-        switch (index) {
+	 * Call-back to notify of a change of state in the currently selected 
+	 * browser.
+	 * @see TreeViewerAction#onBrowserStateChange(Browser)
+	 */
+	protected void onBrowserStateChange(Browser browser)
+	{
+		if (browser != null) 
+			onDisplayChange(browser.getLastSelectedDisplay());
+	}
+	
+	/**
+	 * Call-back to notify of a change in the currently selected display
+	 * in the currently selected 
+	 * {@link org.openmicroscopy.shoola.agents.treeviewer.browser.Browser}.
+	 * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
+	 */
+	protected void onDisplayChange(TreeImageDisplay selectedDisplay)
+	{
+		//Copy
+		if (selectedDisplay == null) {
+			setEnabled(false);
+			return;
+		}
+		Object ho = selectedDisplay.getUserObject();
+		Browser browser = model.getSelectedBrowser();
+		if (ho == null || browser == null) {
+			setEnabled(false);
+			return;
+		}
+		TreeImageDisplay[] selected = browser.getSelectedDisplays();
+		int count = 0;
+		switch (index) {
 			case COPY:
-				if (selected.size() > 1) setEnabled(false);
-	    		else {
-	    			if (ho instanceof WellSampleData || ho instanceof ImageData)
-	    				setEnabled(model.isWritable(ho));
-	    			else setEnabled(false);
-	    		}
+				if (selected.length > 1) setEnabled(false);
+				else {
+					if (ho instanceof ImageData || ho instanceof WellSampleData)
+						setEnabled(model.isObjectWritable(ho));
+					else setEnabled(false);
+				}
 				break;
 			case PASTE:
 				if (!model.hasRndSettings()) {
 					setEnabled(false);
 					return;
 				}
-				if (!(ho instanceof ImageData || ho instanceof DatasetData ||
-						ho instanceof PlateData))
+				if (selectedDisplay instanceof TreeImageTimeSet) {
+					handleTreeTimeNode(selected);
+					return;
+				}
+				if (!(ho instanceof ImageData || ho instanceof DatasetData || 
+						ho instanceof PlateData || ho instanceof ScreenData ||
+						ho instanceof ProjectData))
 					setEnabled(false);
 				else {
-					if (ho instanceof PlateData || 
-						ho instanceof ImageData) {
-						i = selected.iterator();
-						while (i.hasNext()) {
-							obj = i.next();
-							if (model.isWritable(obj)) count++;
-						}
-						setEnabled(count == selected.size());
-					} else setEnabled(true);
+					for (int i = 0; i < selected.length; i++) {
+						if (model.isObjectWritable(selected[i].getUserObject()))
+							count++;
+					}
+					setEnabled(count == selected.length);
 				}
 				break;
 			case RESET:
 			case SET_ORIGINAL:
+				if (selectedDisplay instanceof TreeImageTimeSet) {
+					handleTreeTimeNode(selected);
+					return;
+				}
 				if (!(ho instanceof ImageData || ho instanceof DatasetData ||
 						ho instanceof PlateData))
 					setEnabled(false);
 				else {
-					i = selected.iterator();
-					while (i.hasNext()) {
-						obj = i.next();
-						if (model.isWritable(obj)) count++;
+					for (int i = 0; i < selected.length; i++) {
+						if (model.isObjectWritable(selected[i].getUserObject()))
+							count++;
 					}
-					setEnabled(count == selected.size());
+					setEnabled(count == selected.length);
 				}
 		}
-    }
-    
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param model Reference to the Model. Mustn't be <code>null</code>.
-	 * @param index	One of the management constants defined by this class.
+	 * @param index One of the constants defined by this class. 
 	 */
-	public ManageRndSettingsAction(DataBrowser model, int index)
+	public ManageRndSettingsAction(TreeViewer model, int index)
 	{
 		super(model);
 		setEnabled(false);
+		name = NAME;
 		icons = IconManager.getInstance();
 		checkIndex(index);
 		this.index = index;
-		model.addPropertyChangeListener(DataBrowser.COPY_ITEMS_PROPERTY, this);
-		model.addPropertyChangeListener(
-				DataBrowser.RND_SETTINGS_TO_COPY_PROPERTY, this);
 	}
 	
-	/**
-     * Copies, pastes or resets the rendering settings for the selected objects.
-     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-     */
-    public void actionPerformed(ActionEvent e)
-    {
-    	switch (index) {
+	/** 
+	 * Copies, pastes or resets the rendering settings for the selected objects.
+	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		PasteRndSettingsCmd cmd;
+		switch (index) {
 			case COPY:
-				model.copyRndSettings();
-				break;
-			case PASTE:
-				model.pasteRndSettings();
+				model.copyRndSettings(null);
 				break;
 			case RESET:
-				model.resetRndSettings();
+				cmd = new PasteRndSettingsCmd(model, PasteRndSettingsCmd.RESET);
+				cmd.execute();
 				break;
 			case SET_ORIGINAL:
-				model.setOriginalSettings();
+				cmd = new PasteRndSettingsCmd(model, PasteRndSettingsCmd.SET);
+				cmd.execute();
+				break;
+			case PASTE:
+				cmd = new PasteRndSettingsCmd(model, PasteRndSettingsCmd.PASTE);
+				cmd.execute();
 		}
-    }
-    
-    /**
-     * Reacts to property changes in the {@link DataBrowser}.
-     * Sets the enabled flag.
-     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-     */
-    public void propertyChange(PropertyChangeEvent evt)
-    {
-    	String name = evt.getPropertyName();
-    	if (DataBrowser.COPY_ITEMS_PROPERTY.equals(name) ||
-    		DataBrowser.RND_SETTINGS_TO_COPY_PROPERTY.equals(name) ||
-    		Browser.SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY.equals(
-        			name)) {
-    		Browser browser = model.getBrowser();
-        	if (browser != null)
-        		onDisplayChange(browser.getLastSelectedDisplay());
-    	}
-    }
+	}
 	
 }

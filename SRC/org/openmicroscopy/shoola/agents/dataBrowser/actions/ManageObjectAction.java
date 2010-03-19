@@ -27,6 +27,9 @@ package org.openmicroscopy.shoola.agents.dataBrowser.actions;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collection;
+import java.util.Iterator;
+
 import javax.swing.Action;
 
 //Third-party libraries
@@ -146,7 +149,7 @@ public class ManageObjectAction
 	}
 	
 	/**
-     * Callback to notify a change of state.
+     * Call-back to notify a change of state.
      * @see DataBrowserAction#onStateChange()
      */
     protected void onStateChange()
@@ -173,13 +176,21 @@ public class ManageObjectAction
         }
         Object ho = node.getHierarchyObject();
         Class klass = model.hasDataToCopy();
-        
+        Collection selected = browser.getSelectedDataObjects();
+        Iterator i;
+        int count = 0;
+        Object obj;
         switch (index) {
 			case COPY:
-				if ((ho instanceof DatasetData) ||(ho instanceof ImageData) || 
-				         (ho instanceof PlateData))
-					setEnabled(model.isObjectWritable(ho));
-				else setEnabled(false);
+				if (ho instanceof DatasetData || ho instanceof ImageData || 
+				    ho instanceof PlateData) {
+					i = selected.iterator();
+					while (i.hasNext()) {
+						obj = i.next();
+						if (model.isUserOwner(obj)) count++;
+					}
+					setEnabled(count == selected.size());
+				} else setEnabled(false);
 				break;
 			case PASTE:
 				if (klass == null) {
@@ -187,34 +198,59 @@ public class ManageObjectAction
 		            return;
 		        }
 				if (ho instanceof ProjectData) {
-		        	if (DatasetData.class.equals(klass))
-		        		setEnabled(model.isObjectWritable(ho));
-		        	else setEnabled(false);
+		        	if (DatasetData.class.equals(klass)) {
+		        		i = selected.iterator();
+						while (i.hasNext()) {
+							obj = i.next();
+							if (model.isUserOwner(obj)) count++;
+						}
+						setEnabled(count == selected.size());
+		        	} else setEnabled(false);
 		        } else if (ho instanceof ScreenData) {
-		        	if (PlateData.class.equals(klass))
-		        		setEnabled(model.isObjectWritable(ho));
-		        	else setEnabled(false);
+		        	if (PlateData.class.equals(klass)) {
+		        		i = selected.iterator();
+						while (i.hasNext()) {
+							obj = i.next();
+							if (model.isUserOwner(obj)) count++;
+						}
+						setEnabled(count == selected.size());
+		        	} else setEnabled(false);
 		        } else if (ho instanceof DatasetData) {
-		        	if (ImageData.class.equals(klass))
-		        		setEnabled(model.isObjectWritable(ho));
-		        	else setEnabled(false);
+		        	if (ImageData.class.equals(klass)) {
+		        		i = selected.iterator();
+						while (i.hasNext()) {
+							obj = i.next();
+							if (model.isUserOwner(obj)) count++;
+						}
+						setEnabled(count == selected.size());
+		        	} else setEnabled(false);
 		        } else setEnabled(false);
 				break;
 			case REMOVE:
 				if (ho instanceof ExperimenterData) {
 					setEnabled(true);
-				} else if ((ho instanceof ProjectData) 
-					|| (ho instanceof DatasetData)
-					|| (ho instanceof ImageData) || (ho instanceof ScreenData)
-					|| (ho instanceof PlateData)) {
-					setEnabled(model.isObjectWritable(ho));
+				} else if (ho instanceof ProjectData 
+						|| ho instanceof DatasetData
+					|| ho instanceof ImageData || ho instanceof ScreenData
+					|| ho instanceof PlateData) {
+					i = selected.iterator();
+					while (i.hasNext()) {
+						obj = i.next();
+						if (model.isUserOwner(obj)) count++;
+					}
+					setEnabled(count == selected.size());
 				} else setEnabled(false);
 				break;
 			case CUT:
-				if ((ho instanceof DatasetData) ||(ho instanceof ImageData) || 
-				         (ho instanceof PlateData))
-					setEnabled(model.isObjectWritable(ho));
-				else setEnabled(false);
+				if (ho instanceof DatasetData || ho instanceof ImageData || 
+				       ho instanceof PlateData) {
+					i = selected.iterator();
+					while (i.hasNext()) {
+						obj = i.next();
+						if (model.isUserOwner(obj)) count++;
+					}
+					setEnabled(count == selected.size());
+				} else setEnabled(false);
 		}
     }
     

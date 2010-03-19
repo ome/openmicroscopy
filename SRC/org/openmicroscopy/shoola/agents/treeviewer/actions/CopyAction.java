@@ -99,17 +99,13 @@ public class CopyAction
             return;
         }
         TreeImageDisplay[] selected;
-        int count;
-        boolean b;
+        int count = 0;
 		Object ho = selectedDisplay.getUserObject(); 
 		if ((ho instanceof DatasetData) ||(ho instanceof ImageData) || 
 	         (ho instanceof PlateData)) {
 			selected = browser.getSelectedDisplays();
-        	count = 0;
-        	b = false;
     		for (int i = 0; i < selected.length; i++) {
-				b = model.isUserOwner(selected[i].getUserObject());
-				if (b) count++;
+				if (model.isUserOwner(selected[i].getUserObject())) count++;
 			}
     		setEnabled(count == selected.length);
 		} else if (ho instanceof ExperimenterData) {
@@ -120,14 +116,10 @@ public class CopyAction
 				setEnabled(false);
 			else {
 				selected = browser.getSelectedDisplays();
-	        	count = 0;
-	        	b = false;
 	    		for (int i = 0; i < selected.length; i++) {
-					b = model.isUserOwner(selected[i].getUserObject());
-					if (b) count++;
+	    			if (model.isUserOwner(selected[i].getUserObject())) count++;
 				}
 	    		setEnabled(count == selected.length);
-	    		//setEnabled(model.isUserOwner(ho));
 			}
 		} else setEnabled(false);
 	}

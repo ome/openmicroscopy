@@ -126,10 +126,8 @@ public class DeleteAction
         } else if (ho instanceof ImageData) {
         	TreeImageDisplay[] selected = browser.getSelectedDisplays();
         	int count = 0;
-        	boolean b = false;
     		for (int i = 0; i < selected.length; i++) {
-				b = model.isUserOwner(selected[i].getUserObject());
-				if (b) count++;
+				if (model.isUserOwner(selected[i].getUserObject())) count++;
 			}
     		setEnabled(count == selected.length);
         } else if ((ho instanceof GroupData)) {
