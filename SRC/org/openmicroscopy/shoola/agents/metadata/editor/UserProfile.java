@@ -284,12 +284,6 @@ class UserProfile
 		
 		ownerBox.setEnabled(owner);
 		ownerBox.addChangeListener(this);
-		/*
-		if (isOwner) {
-			groups.addActionListener(this);
-			groups.setEnabled(true);
-		} else groups.setEnabled(false);
-		*/
     }
     
     /**
@@ -330,6 +324,7 @@ class UserProfile
     {
     	ExperimenterData user = (ExperimenterData) model.getRefObject();
     	boolean editable = model.isUserOwner(user);
+    	if (!editable) editable = model.isGroupLeader();
     	details = EditorUtil.convertExperimenter(user);
         JPanel content = new JPanel();
         content.setBorder(
@@ -372,10 +367,10 @@ class UserProfile
             label = UIUtilities.setTextFont(key);
             area = new JTextField(value);
             area.setBackground(UIUtilities.BACKGROUND_COLOR);
-            if (editable) {
-            	area.setEditable(editable);
+            area.setEditable(editable);
+            area.setEnabled(editable);
+            if (editable)
             	area.getDocument().addDocumentListener(this);
-            }
             items.put(key, area);
             label.setBackground(UIUtilities.BACKGROUND_COLOR);
             c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last

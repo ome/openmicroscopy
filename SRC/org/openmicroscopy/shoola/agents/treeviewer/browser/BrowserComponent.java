@@ -1577,6 +1577,7 @@ class BrowserComponent
 			Object ho  = exp.getUserObject();
 			if (!(ho instanceof ExperimenterData)) return false;
 			long id = ((ExperimenterData) ho).getId();
+			
 			model.getRepositories(id).register(file);
 		} catch (FSAccessException e) {
 			LogMessage msg = new LogMessage();

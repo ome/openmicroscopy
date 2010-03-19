@@ -1178,7 +1178,7 @@ class TreeViewerModel
 	 */
 	boolean isLeader()
 	{
-		return TreeViewerAgent.getGroupsLeaderof().size() > 0;
+		return TreeViewerAgent.getGroupsLeaderOf().size() > 0;
 	}
 
 	/**
@@ -1210,7 +1210,7 @@ class TreeViewerModel
 	 */
 	boolean isLeaderOfSelectedGroup()
 	{
-		Set groups = TreeViewerAgent.getGroupsLeaderof();
+		Set groups = TreeViewerAgent.getGroupsLeaderOf();
 		if (groups.size() == 0) return false;
 		Iterator i = groups.iterator();
 		GroupData group;

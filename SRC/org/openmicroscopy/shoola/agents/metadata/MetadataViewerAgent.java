@@ -80,6 +80,16 @@ public class MetadataViewerAgent
 	}
 	
 	/**
+	 * Returns the available user groups.
+	 * 
+	 * @return See above.
+	 */
+	public static Set getAvailableUserGroups()
+	{
+		return (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+	}
+	
+	/**
 	 * Returns <code>true</code> if the currently logged in user
 	 * is an administrator, <code>false</code> otherwise.
 	 * 

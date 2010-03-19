@@ -552,7 +552,7 @@ class BrowserModel
 				currentLoader.load();
 				return;
 			} else {
-				component.setGroups(TreeViewerAgent.getGroupsLeaderof(), null);
+				component.setGroups(TreeViewerAgent.getGroupsLeaderOf(), null);
 				return;
 			}
 			

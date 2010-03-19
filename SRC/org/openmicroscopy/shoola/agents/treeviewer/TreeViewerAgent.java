@@ -125,7 +125,7 @@ public class TreeViewerAgent
 	 * 
 	 * @return See above.
 	 */
-	public static Set getGroupsLeaderof()
+	public static Set getGroupsLeaderOf()
 	{
 		Set values = new HashSet();
 		Set groups = getAvailableUserGroups();
@@ -147,7 +147,6 @@ public class TreeViewerAgent
 				}
 			}
 		}
-		
 		return values;
 	}
 	

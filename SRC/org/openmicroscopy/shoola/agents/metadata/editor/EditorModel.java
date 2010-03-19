@@ -614,16 +614,48 @@ class EditorModel
 	 */
 	boolean isUserOwner(Object object)
 	{
-		long userID = MetadataViewerAgent.getUserDetails().getId();
+		long id = MetadataViewerAgent.getUserDetails().getId();
 		if (object == null) return false;
 		if (object instanceof ExperimenterData) 
-			return (((ExperimenterData) object).getId() == userID);
+			return (((ExperimenterData) object).getId() == id);
 		if (!(object instanceof DataObject)) return false;
 		if (object instanceof FileData || object instanceof ImageData) {
 			DataObject f = (DataObject) object;
-			if (f.getId() < 0) return userID == getUserID();
+			if (f.getId() < 0) return id == getUserID();
 		} 
-		return EditorUtil.isUserOwner(object, userID);
+		return EditorUtil.isUserOwner(object, id);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the user currently logged in, is a leader
+	 * of the selected group, <code>false</code> otherwise.
+	 * 
+	 * @return
+	 */
+	boolean isGroupLeader()
+	{
+		ExperimenterData exp = MetadataViewerAgent.getUserDetails();
+		Set groups = MetadataViewerAgent.getAvailableUserGroups();
+		if (groups == null) return false;
+		long groupID = exp.getDefaultGroup().getId();
+		Iterator i = groups.iterator();
+		GroupData g;
+		Set leaders = null;
+		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			if (g.getId() == groupID) {
+				leaders = g.getLeaders();
+				break;
+			}
+		}
+
+		i = leaders.iterator();
+		ExperimenterData data;
+		while (i.hasNext()) {
+			data = (ExperimenterData) i.next();
+			if (data.getId() == exp.getId()) return true;
+		}
+		return false;
 	}
 	
 	/**
