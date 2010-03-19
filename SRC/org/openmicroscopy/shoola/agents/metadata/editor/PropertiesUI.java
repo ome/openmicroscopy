@@ -1099,6 +1099,8 @@ class PropertiesUI
 				descriptionPane.getDocument().removeDocumentListener(this);
 				descriptionPane.setText(DEFAULT_DESCRIPTION_TEXT);
 				descriptionPane.getDocument().addDocumentListener(this);
+				firePropertyChange(EditorControl.SAVE_PROPERTY, 
+						Boolean.valueOf(false), Boolean.valueOf(true));
 			}
 		}
 	}

@@ -880,7 +880,7 @@ public class EditorUtil
         PermissionData permissions = data.getPermissions();
         try {
         	if (userID == data.getOwner().getId())
-                return permissions.isUserWrite();
+                return true; //permissions.isUserWrite();
 		} catch (Exception e) { //owner not loaded
 			return false;
 		}

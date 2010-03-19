@@ -576,7 +576,6 @@ class AnnotationDataUI
 				if (layoutViewedBy()) h = TableLayout.PREFERRED;
 			} 
 			layoutTags(model.getTags());
-			//hTag = TableLayout.PREFERRED;
 		}
 		//Allow to handle annotation.
 		boolean enabled = model.isWritable();
@@ -585,9 +584,6 @@ class AnnotationDataUI
 		addDocsButton.setEnabled(enabled);
 		unrateButton.setEnabled(enabled);
 		
-		
-		
-		//if (refObject instanceof ImageData) hPublished = TableLayout.PREFERRED;
 		layout.setRow(publishedRow, hPublished);
 		layout.setRow(viewedByRow, h);
 		layout.setRow(tagRow, hTag);

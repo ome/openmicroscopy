@@ -36,9 +36,9 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CreateCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ProjectData;
@@ -198,7 +198,10 @@ public class CreateTopContainerAction
      */
     protected void onBrowserStateChange(Browser browser)
     {
-        if (browser == null) return;
+        if (browser == null) {
+        	setEnabled(false);
+        	return;
+        }
         switch (browser.getState()) {
             case Browser.LOADING_DATA:
             case Browser.LOADING_LEAVES:
@@ -208,8 +211,7 @@ public class CreateTopContainerAction
             default:
             	if (browser.getBrowserType() != Browser.ADMIN_EXPLORER)
             		setEnabled(true);
-            	else
-            		onDisplayChange(browser.getLastSelectedDisplay());
+            	else onDisplayChange(browser.getLastSelectedDisplay());
         }
     }
     
@@ -224,8 +226,6 @@ public class CreateTopContainerAction
     		return;
     	}
         if (nodeType != EXPERIMENTER) {
-        	
-        	//Check tag tag set 
         	if (selectedDisplay != null) {
         		Object ho = selectedDisplay.getUserObject();
         		switch (nodeType) {
@@ -234,9 +234,11 @@ public class CreateTopContainerAction
 						setEnabled(model.isObjectWritable(ho));
 						break;
 					case DATASET:
-						long id = model.getUserDetails().getId();
-						boolean b = EditorUtil.isUserOwner(ho, id);
-						setEnabled(b);
+						if (ho instanceof DatasetData) {
+							setEnabled(false);
+						} else
+							setEnabled(model.isUserOwner(ho));
+						break;
 					default:
 						setEnabled(true);
 				}
@@ -298,7 +300,8 @@ public class CreateTopContainerAction
         		Object uo = node.getUserObject();
         		switch (nodeType) {
 					case DATASET:
-						if (uo instanceof ProjectData) withParent = true;
+						if (uo instanceof ProjectData) 
+							withParent = model.isUserOwner(uo);
 						break;
 					case EXPERIMENTER:
 						if (uo instanceof ExperimenterData) withParent = true;
@@ -309,7 +312,7 @@ public class CreateTopContainerAction
 							if (ns != null && 
 									TagAnnotationData.INSIGHT_TAGSET_NS.equals(
 											ns));
-								withParent = true;
+								withParent = model.isUserOwner(tag);
 						}
 				}
         	}

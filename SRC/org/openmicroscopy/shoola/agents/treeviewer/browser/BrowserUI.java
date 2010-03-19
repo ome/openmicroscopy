@@ -251,6 +251,7 @@ class BrowserUI
         int type = model.getBrowserType();
         switch (type) {
 			case Browser.PROJECT_EXPLORER:
+			case Browser.SCREENS_EXPLORER:
 				a = (BrowserManageAction) 
 					controller.getAction(BrowserControl.NEW_CONTAINER);
 				button = new JButton(a);

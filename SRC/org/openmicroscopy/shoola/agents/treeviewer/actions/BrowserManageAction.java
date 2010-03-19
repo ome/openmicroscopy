@@ -35,9 +35,13 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.ExperimenterData;
 
 /**
  * Brings up the <code>Manager</code> menu.
@@ -111,6 +115,25 @@ public class BrowserManageAction
 		}
     }
     
+    /**
+     * Handles the experimenter.
+     * 
+     * @param display The node to handle.
+     */
+    private void handleExperimenter(TreeImageDisplay display)
+    {
+    	if (display == null) {
+    		setEnabled(false);
+    	} else {
+    		Object ho = display.getUserObject();
+        	long id = TreeViewerAgent.getUserDetails().getId();
+        	if (ho instanceof ExperimenterData) {
+        		ExperimenterData exp = (ExperimenterData) ho;
+        		setEnabled(exp.getId() == id);
+        	} 
+    	}
+    }
+    
     /** 
      * Sets the action enabled depending on the state of the {@link Browser}.
      * @see BrowserAction#onStateChange()
@@ -123,9 +146,27 @@ public class BrowserManageAction
 	         case Browser.COUNTING_ITEMS:  
 	             setEnabled(false);
 	             break;
-	         default:
-	         	setEnabled(true);
+	         default: 
+	        	 onDisplayChange(model.getLastSelectedDisplay());
          }
+    }
+
+    /**
+     * Sets the action enabled depending on the selected type.
+     * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
+     */
+    protected void onDisplayChange(TreeImageDisplay selectedDisplay)
+    {
+    	if (selectedDisplay == null) {
+    		handleExperimenter(model.getLastSelectedDisplay());
+    		return;
+    	}
+    	Object ho = selectedDisplay.getUserObject();
+    	if (ho instanceof ExperimenterData) {
+    		handleExperimenter(selectedDisplay);
+    		return;
+    	} 
+    	setEnabled(model.isUserOwner(ho));
     }
     
 	/**
@@ -139,6 +180,7 @@ public class BrowserManageAction
 		super(model);
 		checkIndex(index);
 		this.index = index;
+		setEnabled(true);
 	}
 	
 	/** 
@@ -158,17 +200,21 @@ public class BrowserManageAction
         if (point == null) point = me.getPoint();
         if (source instanceof Component && isEnabled()) {
         	switch (index) {
-			case NEW_TAGS:
-				model.showMenu(TreeViewer.CREATE_MENU_TAGS, 
-	            		(Component) source, point);
-				break;
-			case NEW_CONTAINERS:
-				model.showMenu(TreeViewer.CREATE_MENU_CONTAINERS, 
-	            		(Component) source, point);
-				break;
-			case NEW_ADMIN:
-				model.showMenu(TreeViewer.CREATE_MENU_ADMIN, 
-	            		(Component) source, point);
+				case NEW_TAGS:
+					model.showMenu(TreeViewer.CREATE_MENU_TAGS, 
+		            		(Component) source, point);
+					break;
+				case NEW_CONTAINERS:
+					if (model.getBrowserType() == Browser.PROJECT_EXPLORER)
+						model.showMenu(TreeViewer.CREATE_MENU_CONTAINERS, 
+		            		(Component) source, point);
+					else 
+						model.showMenu(TreeViewer.CREATE_MENU_SCREENS, 
+			            		(Component) source, point);
+					break;
+				case NEW_ADMIN:
+					model.showMenu(TreeViewer.CREATE_MENU_ADMIN, 
+		            		(Component) source, point);
         	}
         }
     }

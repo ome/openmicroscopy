@@ -181,6 +181,9 @@ public interface TreeViewer
 	/** Identifies the <code>Create popUp menu</code> menu. */
 	public static final int         ADMIN_MENU = 7;
 	
+	/** Identifies the <code>Create popUp menu</code> menu. */
+	public static final int         CREATE_MENU_SCREENS = 8;
+
 	/** Identifies the <code>Copy and Paste</code> action. */
 	public static final int         COPY_AND_PASTE = 400;
 

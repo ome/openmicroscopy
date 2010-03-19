@@ -748,7 +748,6 @@ class TreeViewerModel
 		if (withParent) {
 			Browser browser = getSelectedBrowser();
 			TreeImageDisplay node = browser.getLastSelectedDisplay();
-	        
 	        if (node != null) {
 	            Object p =  node.getUserObject();
 	            if (object instanceof DatasetData) {

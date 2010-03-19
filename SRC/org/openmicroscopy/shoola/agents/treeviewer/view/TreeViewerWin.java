@@ -798,6 +798,7 @@ class TreeViewerWin
                 toolBar.showManagementMenu(c, p);
                 break;
             case TreeViewer.CREATE_MENU_CONTAINERS:
+            case TreeViewer.CREATE_MENU_SCREENS:
             case TreeViewer.CREATE_MENU_TAGS:
             case TreeViewer.CREATE_MENU_ADMIN:
                 toolBar.showCreateMenu(c, p, menuID);

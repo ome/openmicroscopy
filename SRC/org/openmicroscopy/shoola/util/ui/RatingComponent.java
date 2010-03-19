@@ -151,7 +151,7 @@ public class RatingComponent
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		add(canvas);
 		//add(Box.createHorizontalStrut(5));
-		if (!hasListeners) canvas.uninstallListeners();
+		if (!hasListeners) canvas.setEnabled(false);
 	}
 	
 	/** Creates a default instance. */

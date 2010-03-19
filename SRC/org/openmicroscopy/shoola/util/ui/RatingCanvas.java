@@ -81,6 +81,7 @@ class RatingCanvas
 	 */
 	private void handleClick(Point p)
 	{
+		if (!isEnabled()) return;
 		boolean found = false;
 		Rectangle r;
 		for (int i = 0; i < stars.size(); i++) {
@@ -101,6 +102,20 @@ class RatingCanvas
 		if (p.x > (r.x+r.width)) model.setValue(RatingComponent.MAX_VALUE);
 	}
 	
+	/** Installs the listeners. */
+	private void installListeners()
+	{
+		addMouseListener(handler);
+		addMouseMotionListener(this);
+	}
+	
+	/** Removes the listeners. */
+	private void uninstallListeners()
+	{
+		removeMouseListener(handler);
+		removeMouseMotionListener(this);
+	}
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -122,24 +137,9 @@ class RatingCanvas
 			public void mouseReleased(MouseEvent e) {
 				super.mouseReleased(e);
 				handleClick(e.getPoint());
-				
 			}
 		};
 		installListeners();
-	}
-
-	/** Installs the listeners. */
-	void installListeners()
-	{
-		addMouseListener(handler);
-		addMouseMotionListener(this);
-	}
-	
-	/** Removes the listeners. */
-	void uninstallListeners()
-	{
-		removeMouseListener(handler);
-		removeMouseMotionListener(this);
 	}
 	
 	/** 
@@ -195,8 +195,8 @@ class RatingCanvas
 	public void mouseDragged(MouseEvent e) { handleClick(e.getPoint()); }
 
 	/**
-	 * Required by the {@link MouseMotionListener} I/F but no-op implentation
-	 * needed in our case.
+	 * Required by the {@link MouseMotionListener} I/F but no-operation 
+	 * implementation needed in our case.
 	 * @see MouseMotionListener#mouseMoved(MouseEvent)
 	 */
 	public void mouseMoved(MouseEvent e) {}

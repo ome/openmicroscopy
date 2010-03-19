@@ -654,7 +654,6 @@ class TreeViewerComponent
     				getSelectedBrowser().getLastSelectedDisplay();
         		uo = node.getUserObject();
     		}
-    		
 			d = new AdminDialog(view, object.getClass(), uo);
 		}
 		
@@ -1253,6 +1252,7 @@ class TreeViewerComponent
 			case CREATE_MENU_TAGS:  
 			case CREATE_MENU_ADMIN:
 			case PERSONAL_MENU:
+			case CREATE_MENU_SCREENS:
 				break;
 			default:
 				throw new IllegalArgumentException("Menu not supported.");
