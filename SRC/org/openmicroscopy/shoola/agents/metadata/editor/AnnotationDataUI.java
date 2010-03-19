@@ -48,6 +48,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -168,6 +169,9 @@ class AnnotationDataUI
 	/** Flag indicating to build the UI once. */
 	private boolean 						init;
 	
+	/** Host the rating average by others. */
+	private JLabel							otherRating;
+	
 	/**
 	 * Creates the selection menu.
 	 * 
@@ -201,6 +205,10 @@ class AnnotationDataUI
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
+		otherRating = new JLabel();
+		otherRating.setBackground(UIUtilities.BACKGROUND_COLOR);
+		Font font = otherRating.getFont();
+		otherRating.setFont(font.deriveFont(Font.ITALIC, font.getSize()-2));
 		content = new JPanel();
     	content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
@@ -316,10 +324,13 @@ class AnnotationDataUI
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.add(UIUtilities.setTextFont("rate", Font.BOLD, size));
 		p.add(createBar(unrateButton));
-		
 		content.add(p, "0, "+i);
-		p = UIUtilities.buildComponentPanel(rating, 0, 0);
+		p = new JPanel();
+		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.add(rating);
+		p.add(Box.createHorizontalStrut(2));
+		p.add(otherRating);
 		content.add(p, "2, "+i);
 		i++;
 		layout.insertRow(i, TableLayout.PREFERRED);
@@ -347,8 +358,6 @@ class AnnotationDataUI
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		content.add(viewedByPane, "2, "+i);
 		viewedByRow = i;
-
-		
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		setBackground(UIUtilities.BACKGROUND);
 		setBorder(new SeparatorOneLineBorder());
@@ -557,8 +566,18 @@ class AnnotationDataUI
 			init = true;
 		}
 		selectedValue = 0;
-		if (!model.isMultiSelection()) 
-		    selectedValue = model.getUserRating();
+		String text = "";
+		if (!model.isMultiSelection()) {
+			selectedValue = model.getUserRating();
+			int n = model.getRatingCount();
+			if (n > 0) {
+				text += "(avg:"+model.getRatingAverage()+" | "+n+" vote";
+				if (n > 1) text += "s";
+				text += ")";
+			}
+		}
+		otherRating.setText(text); 
+		
 		initialValue = selectedValue;
 		rating.setValue(selectedValue);
 		publishedBox.setSelected(model.hasBeenPublished());
@@ -990,6 +1009,7 @@ class AnnotationDataUI
 		if (!model.isMultiSelection())
 		    selectedValue = model.getUserRating();
 		initialValue = 0;
+		otherRating.setText("");
 		rating.removePropertyChangeListener(RatingComponent.RATE_PROPERTY, 
 				this);
 		rating.setValue(selectedValue);

@@ -157,6 +157,13 @@ public class BrowserManageAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+    	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) {
+    		if (!TreeViewerAgent.isAdministrator()) {
+    			setEnabled(false);
+    			return;
+    		}
+    			
+    	}
     	if (selectedDisplay == null) {
     		handleExperimenter(model.getLastSelectedDisplay());
     		return;

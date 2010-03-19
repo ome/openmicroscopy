@@ -648,7 +648,7 @@ class EditorModel
 				break;
 			}
 		}
-
+		if (leaders == null) return false;
 		i = leaders.iterator();
 		ExperimenterData data;
 		while (i.hasNext()) {
@@ -854,8 +854,16 @@ class EditorModel
 	{
 		StructuredDataResults data = parent.getStructuredData();
 		Collection ratings = data.getRatings();
-		if (ratings == null) return 0;
-		return ratings.size();
+		if (ratings == null || ratings.size() == 0) return 0;
+		int n = 0;
+		Iterator i = ratings.iterator();
+		RatingAnnotationData rate;
+		long id = MetadataViewerAgent.getUserDetails().getId();
+		while (i.hasNext()) {
+			rate = (RatingAnnotationData) i.next();
+			if (rate.getOwner().getId() != id) n++;
+		}
+		return n;
 	}
 	
 	/**
@@ -926,14 +934,20 @@ class EditorModel
 		if (data == null) return 0;
 		Collection ratings = data.getRatings();
 		if (ratings == null || ratings.size() == 0) return 0;
+		int n = 0;
 		Iterator i = ratings.iterator();
 		RatingAnnotationData rate;
 		int value = 0;
+		long id = MetadataViewerAgent.getUserDetails().getId();
 		while (i.hasNext()) {
 			rate = (RatingAnnotationData) i.next();
-			value += rate.getRating();
+			if (rate.getOwner().getId() != id) {
+				value += rate.getRating();
+				n++;
+			}
 		}
-		return value/ratings.size();
+		if (n == 0) return 0;
+		return value/n;
 	}
 	
 	/**

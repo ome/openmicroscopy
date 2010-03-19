@@ -192,6 +192,8 @@ public class PermissionsPane
     	c.fill = GridBagConstraints.HORIZONTAL;
     	c.weightx = 1.0;
     	p.add(readOnlyGroupBox, c);
+    	/*
+    	 * TODO: Turn back on when implemented server side.
         c.gridy++;
     	c.gridx = 0;
     	c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
@@ -203,7 +205,7 @@ public class PermissionsPane
     	c.fill = GridBagConstraints.HORIZONTAL;
     	c.weightx = 1.0;
     	p.add(readOnlyPublicBox, c);
-    	
+    	*/
     	JPanel content = new JPanel();
     	content.setBackground(getBackground());
     	content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
