@@ -698,7 +698,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         try:
             cb = cb.ice_oneway()
             cb = omero.grid.ProcessorCallbackPrx.uncheckedCast(cb)
-            servants = list(self.servant_map.values())
+            servants = list(self.ctx.servant_map.values())
             rv = [long(x.properties["omero.job"]) for x in servants]
             cb.responseRunning(rv)
         except exceptions.Exception, e:
@@ -708,7 +708,8 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
     @remoted
     def parseJob(self, session, job, current = None):
         self.logger.info("parseJob: Session = %s, JobId = %s" % (session, job.id.val))
-        client = omero.client(["--Ice.Config=%s" % (self.cfg)])
+        rtr = self.internal_session().ice_getRouter()
+        client = omero.client(["--Ice.Default.Router=%s" % rtr, "--Ice.Config=%s" % (self.cfg)])
         try:
             iskill = False
             client.joinSession(session).detachOnDestroy()

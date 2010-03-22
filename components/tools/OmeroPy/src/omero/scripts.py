@@ -154,7 +154,7 @@ def client(*args, **kwargs):
         kwargs["client"] = omero.client()
     c = kwargs["client"]
 
-    if isinstance(args[0], omero.grid.JobParams):
+    if args and isinstance(args[0], omero.grid.JobParams):
         c.params = args.pop(0)
     else:
         c.params = omero.grid.JobParams()
