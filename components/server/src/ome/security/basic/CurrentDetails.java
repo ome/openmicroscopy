@@ -474,24 +474,4 @@ public class CurrentDetails implements PrincipalHolder {
 
     }
 
-    // ~ Locks
-    // =========================================================================
-
-    public Set<IObject> getLockCandidates() {
-        Set<IObject> s = current().getLockCandidates();
-        if (s == null) {
-            return new HashSet<IObject>();
-        }
-        return s;
-    }
-
-    public void appendLockCandidates(Set<IObject> set) {
-        Set<IObject> s = current().getLockCandidates();
-        if (s == null) {
-            s = new HashSet<IObject>();
-            current().setLockCandidates(s);
-        }
-        s.addAll(set);
-    }
-
 }

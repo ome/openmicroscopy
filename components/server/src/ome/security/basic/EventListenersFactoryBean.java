@@ -131,9 +131,6 @@ public class EventListenersFactoryBean extends AbstractFactoryBean {
     protected void overrides() {
         override("merge", new MergeEventListener(cd, th));
         override("save", new SaveEventListener(cd, th));
-        if (interceptor != null) {
-            override("flush-entity", new FlushEntityEventListener(interceptor));
-        }
         override(new String[] { "replicate", "update" }, getDisablingProxy());
     }
 

@@ -376,8 +376,6 @@ public class OmeroInterceptor implements Interceptor {
             return;
         }
 
-        Set<IObject> s = new HashSet<IObject>();
-
         IObject[] candidates = em.getLockCandidates(iObject);
         for (IObject object : candidates) {
 
@@ -418,29 +416,6 @@ public class OmeroInterceptor implements Interceptor {
             }
         }
 
-        currentUser.appendLockCandidates(s);
-    }
-
-    /**
-     * sets the {@link Flag#LOCKED LOCKED flag} on the entities stored in the
-     * context from the {@link #markLockedIfNecessary(IObject)} method. Called
-     * from
-     * {@link FlushEntityEventListener#onFlushEntity(org.hibernate.event.FlushEntityEvent)}
-     */
-    public void lockMarked() {
-        Set<IObject> c = currentUser.getLockCandidates();
-
-        for (IObject i : c) {
-
-            if (log.isDebugEnabled()) {
-                log.debug("Locking object: " + i);
-            }
-
-            Details d = i.getDetails();
-            Permissions p = new Permissions(d.getPermissions());
-            p.set(Flag.LOCKED);
-            d.setPermissions(p);
-        }
     }
 
     // TODO is this natural? perhaps permissions don't belong in details
