@@ -582,7 +582,14 @@ class _BlitzGateway (object):
         if groupid not in self._ctx.memberOfGroups:
             return False
         self._lastGroupId = self._ctx.groupId
-        self.c.sf.setSecurityContext(omero.model.ExperimenterGroupI(groupid, False))
+        if hasattr(self.c, 'setSecurityContext'):
+            # Beta4.2
+            self.c.sf.setSecurityContext(omero.model.ExperimenterGroupI(groupid, False))
+        else:
+            self.getSession()
+            self._session.getDetails().setGroup(omero.model.ExperimenterGroupI(groupid, False))
+            self._session.setTimeToIdle(None)
+            self.getSessionService().updateSession(self._session)
         return True
 
 
