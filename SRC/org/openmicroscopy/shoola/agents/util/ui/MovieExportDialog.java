@@ -140,7 +140,7 @@ public class MovieExportDialog
 	/** The selected color for scale bar. */
 	private JComboBox				colorBox;
 	
-	/** To specify the movie playback rate in frames per second. */
+	/** To specify the movie play-back rate in frames per second. */
 	private JSpinner            	fps;
 	
 	/** Component to select the time interval. */
@@ -212,9 +212,6 @@ public class MovieExportDialog
 		}
 		formats = new JComboBox(f);
 		formats.setSelectedIndex(index);
-		
-		
-		
 		timeRange = new TextualTwoKnobsSlider(1, maxT, 1, maxT);
 		timeRange.layoutComponents();
 		timeRange.setEnabled(maxT > 1);
@@ -231,15 +228,17 @@ public class MovieExportDialog
 	
 		if (maxT > 1) timeInterval.setSelected(true);
 		else timeInterval.setEnabled(false);
-		if (maxZ > 1 && !timeInterval.isSelected()) {
+		if (maxZ > 1 && maxT <= 1) {
 			zInterval.setEnabled(false);
 			zInterval.setSelected(true);
+			zRange.setEnabled(true);
 		}
 		SpinnerModel sp = new SpinnerNumberModel(defaultZ, 1, maxZ, 1);
 		zSpinner = new JSpinner(sp);
 		sp = new SpinnerNumberModel(defaultT, 1, maxT, 1);
 		tSpinner = new JSpinner(sp);
-		
+		if (maxT <= 1) tSpinner.setEnabled(false);
+		if (maxZ <= 1 || zInterval.isSelected()) zSpinner.setEnabled(false);
 		zInterval.addActionListener(this);
 		zInterval.setActionCommand(""+Z_INTERVAL);
 		timeInterval.addActionListener(this);
@@ -284,23 +283,19 @@ public class MovieExportDialog
 		saveButton.setEnabled(true);
 		if (zInterval.isSelected()) {
 			zRange.setEnabled(maxZ > 1);
+			zSpinner.setEnabled(false);
 		} else {
 			zRange.setEnabled(false);
+			zSpinner.setEnabled(maxZ > 1);
 		}
 		if (timeInterval.isSelected()) {
 			timeRange.setEnabled(maxT > 1);
+			tSpinner.setEnabled(false);
 		} else {
 			timeRange.setEnabled(false);
+			tSpinner.setEnabled(maxT > 1);
 		}
-		/*
-		if (!zInterval.isSelected() && !timeInterval.isSelected())
-			saveButton.setEnabled(false);
-		else {
-			saveButton.setEnabled(true);
-		}
-		*/
 	}
-
 	
 	/** 
 	 * Builds and lays out the control.
