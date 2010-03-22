@@ -24,14 +24,14 @@ public class SetOtherPermissionsTest extends PermissionsTest {
 
     @Test(expectedExceptions = PermissionMismatchGroupSecurityViolation.class)
     public void testUserTriesToCreateObjectWithWorldRead() throws Exception {
-        setup(Permissions.SHARED);
+        setup(Permissions.COLLAB_READONLY);
         Image i = fixture.saveImage(Permissions.PUBLIC);
         fail("This shouldn't be allowed");
     }
 
     @Test
     public void testUserTriesToRemoveReadForSharedGroup() throws Exception {
-        setup(Permissions.SHARED);
+        setup(Permissions.COLLAB_READONLY);
         Image i = fixture.saveImage();
         assertShared(i);
         assertCantSetPermissionsTo(i, Permissions.PRIVATE);
@@ -52,7 +52,7 @@ public class SetOtherPermissionsTest extends PermissionsTest {
         setup(Permissions.PUBLIC);
         Image i = fixture.saveImage();
         assertPublic(i);
-        assertCantSetPermissionsTo(i, Permissions.SHARED);
+        assertCantSetPermissionsTo(i, Permissions.COLLAB_READONLY);
         assertPublic(i);
     }
 
@@ -61,7 +61,7 @@ public class SetOtherPermissionsTest extends PermissionsTest {
         setup(Permissions.PRIVATE);
         Image i = fixture.saveImage();
         assertPrivate(i);
-        assertCantSetPermissionsTo(i, Permissions.SHARED);
+        assertCantSetPermissionsTo(i, Permissions.COLLAB_READONLY);
         assertPrivate(i);
     }
 

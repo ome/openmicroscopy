@@ -48,7 +48,7 @@ public class SetGroupPermissionsTest extends PermissionsTest {
         setup(Permissions.USER_PRIVATE);
         Image image = fixture.saveImage();
         ExperimenterGroup group = fixture.group();
-        group.getDetails().setPermissions(Permissions.SHARED);
+        group.getDetails().setPermissions(Permissions.COLLAB_READONLY);
         loginRootKeepGroup();
         iAdmin.updateGroup(group);
         assertShared(fixture.group());
@@ -59,7 +59,7 @@ public class SetGroupPermissionsTest extends PermissionsTest {
     public void testGroupsCanBeMadeSharedWriteable() throws Exception {
         setup(Permissions.PRIVATE);
         Image image = fixture.saveImage();
-        iAdmin.changePermissions(fixture.group(), Permissions.OPEN);
+        iAdmin.changePermissions(fixture.group(), Permissions.COLLAB_READLINK);
         assertSharedAndWritable(fixture.group());
         assertSharedAndWritable(image);
     }
@@ -133,7 +133,7 @@ public class SetGroupPermissionsTest extends PermissionsTest {
         String uuid = iAdmin.getEventContext().getCurrentSessionUuid();
         ExperimenterGroup new_gr1 = new ExperimenterGroup();
         new_gr1.setName("group1_"+uuid);
-        Permissions p = Permissions.OPEN;
+        Permissions p = Permissions.COLLAB_READLINK;
         new_gr1.getDetails().setPermissions(p);
         long g1_id = iAdmin.createGroup(new_gr1);
             

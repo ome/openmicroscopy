@@ -401,8 +401,8 @@ public class OmeroInterceptor implements Interceptor {
 
                 Long oid = object.getDetails().getOwner().getId();
                 Long uid = currentUser.getOwner().getId();
-                if (currentUser.isGraphCritical() &&
-                        oid != null && !uid.equals(oid)) {
+                if (oid != null && !uid.equals(oid)) {
+                    if (currentUser.isGraphCritical()) {  // ticket:1769
                     String gname = currentUser.getGroup().getName();
                     String oname = currentUser.getOwner().getOmeName();
                     Permissions p = currentUser.getCurrentEventContext()
@@ -412,6 +412,12 @@ public class OmeroInterceptor implements Interceptor {
                             "Current user (%s) is an admin or the owner of\n" +
                             "the private group (%s=%s). It is not allowed to\n" +
                             "link to users' data.", object, oname, gname, p));
+                    } else if (!currentUser.getCurrentEventContext()
+                            .getCurrentGroupPermissions()
+                            .isGranted(Role.GROUP, Right.WRITE)) {// ticket:1922
+                        throw new GroupSecurityViolation("Group is READ-ONLY. " +
+					"Cannot link to object: " + object);
+                    }
                 }
             }
         }
