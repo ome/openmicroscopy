@@ -1155,8 +1155,8 @@ public class IceMapper extends ome.util.ModelMapper implements
 
         // SECURITY
 
-        else if (ome.conditions.ReadOnlyAdminGroupSecurityViolation.class.isAssignableFrom(c)) {
-            omero.ReadOnlyAdminGroupSecurityViolation sv = new omero.ReadOnlyAdminGroupSecurityViolation();
+        else if (ome.conditions.ReadOnlyGroupSecurityViolation.class.isAssignableFrom(c)) {
+            omero.ReadOnlyGroupSecurityViolation sv = new omero.ReadOnlyGroupSecurityViolation();
             return IceMapper.fillServerError(sv, t);
         }
 

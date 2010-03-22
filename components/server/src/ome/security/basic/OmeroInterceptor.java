@@ -15,9 +15,7 @@ import static ome.model.internal.Permissions.Role.WORLD;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
@@ -25,10 +23,9 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.GroupSecurityViolation;
 import ome.conditions.InternalException;
 import ome.conditions.PermissionMismatchGroupSecurityViolation;
-import ome.conditions.ReadOnlyAdminGroupSecurityViolation;
+import ome.conditions.ReadOnlyGroupSecurityViolation;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
-import ome.model.IGlobal;
 import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.internal.Details;
@@ -41,7 +38,6 @@ import ome.model.meta.ExternalInfo;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
 import ome.services.sessions.stats.SessionStats;
-import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
@@ -52,9 +48,9 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.CallbackException;
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.EntityMode;
-import org.hibernate.Hibernate;
 import org.hibernate.Interceptor;
 import org.hibernate.Transaction;
+import org.hibernate.event.FlushEntityEventListener;
 import org.hibernate.type.Type;
 import org.springframework.util.Assert;
 
@@ -407,7 +403,7 @@ public class OmeroInterceptor implements Interceptor {
                     String oname = currentUser.getOwner().getOmeName();
                     Permissions p = currentUser.getCurrentEventContext()
                         .getCurrentGroupPermissions();
-                    throw new ReadOnlyAdminGroupSecurityViolation(String.format(
+                    throw new ReadOnlyGroupSecurityViolation(String.format(
                             "Cannot link to %s\n" +
                             "Current user (%s) is an admin or the owner of\n" +
                             "the private group (%s=%s). It is not allowed to\n" +
@@ -415,7 +411,7 @@ public class OmeroInterceptor implements Interceptor {
                     } else if (!currentUser.getCurrentEventContext()
                             .getCurrentGroupPermissions()
                             .isGranted(Role.GROUP, Right.WRITE)) {// ticket:1922
-                        throw new GroupSecurityViolation("Group is READ-ONLY. " +
+                        throw new ReadOnlyGroupSecurityViolation("Group is READ-ONLY. " +
 					"Cannot link to object: " + object);
                     }
                 }

@@ -42,7 +42,7 @@
  *   |_ SecurityViolation (some no-no)
  *   |   \_ GroupSecurityViolation
  *   |      |_ PermissionMismatchGroupSecurityViolation
- *   |      \_ ReadOnlyAdminGroupSecurityViolation
+ *   |      \_ ReadOnlyGroupSecurityViolation
  *   |
  *   \_SessionException
  *      |_ RemovedSessionException (accessing a non-extant session)
@@ -275,7 +275,7 @@ module omero
   exception PermissionMismatchGroupSecurityViolation extends ServerError
     {
     };
-  exception ReadOnlyAdminGroupSecurityViolation extends ServerError
+  exception ReadOnlyGroupSecurityViolation extends ServerError
     {
     };
 

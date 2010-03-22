@@ -17,7 +17,7 @@ import ome.api.IPixels;
 import ome.api.ThumbnailStore;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
-import ome.conditions.ReadOnlyAdminGroupSecurityViolation;
+import ome.conditions.ReadOnlyGroupSecurityViolation;
 import ome.conditions.ResourceError;
 import ome.model.annotations.ExperimenterAnnotationLink;
 import ome.model.annotations.FileAnnotation;
@@ -248,7 +248,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         try {
             reRoot.resetDefaults();
             fail("group-sec-vio");
-        } catch (ReadOnlyAdminGroupSecurityViolation roagsv) {
+        } catch (ReadOnlyGroupSecurityViolation roagsv) {
             // ok.
         }
 
@@ -272,7 +272,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         try {
             // tbRoot.resetDefaults();
             // fail("group-sec-vio");
-        } catch (ReadOnlyAdminGroupSecurityViolation roagsv) {
+        } catch (ReadOnlyGroupSecurityViolation roagsv) {
             // ok.
         }
     }
@@ -517,7 +517,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         try {
             // tbRoot.resetDefaults();
             // fail("group-sec-vio");
-        } catch (ReadOnlyAdminGroupSecurityViolation roagsv) {
+        } catch (ReadOnlyGroupSecurityViolation roagsv) {
             // ok.
         }
     }
@@ -539,7 +539,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         try {
             // tbRoot.resetDefaults();
             // fail("group-sec-vio");
-        } catch (ReadOnlyAdminGroupSecurityViolation roagsv) {
+        } catch (ReadOnlyGroupSecurityViolation roagsv) {
             // ok.
         }
     }
