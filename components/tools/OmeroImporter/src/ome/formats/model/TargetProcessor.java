@@ -24,7 +24,6 @@
 package ome.formats.model;
 
 import java.util.List;
-import java.util.Map;
 
 import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;

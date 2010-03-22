@@ -8,12 +8,6 @@ import java.util.Vector;
 
 import javax.swing.DefaultListModel;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import Glacier2.CannotCreateSessionException;
-import Glacier2.PermissionDeniedException;
-
 import ome.formats.OMEROMetadataStoreClient;
 import omero.ServerError;
 import omero.api.IQueryPrx;
@@ -25,6 +19,12 @@ import omero.grid.LongColumn;
 import omero.grid.StringColumn;
 import omero.grid.TablePrx;
 import omero.model.OriginalFile;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import Glacier2.CannotCreateSessionException;
+import Glacier2.PermissionDeniedException;
 
 public class HistoryTableStore extends HistoryTableAbstractDataSource
 {

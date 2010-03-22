@@ -22,6 +22,7 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import loci.formats.in.FlexReader;
+import ome.formats.importer.ImportConfig;
 import ome.formats.importer.Version;
 import omero.util.TempFileManager;
 

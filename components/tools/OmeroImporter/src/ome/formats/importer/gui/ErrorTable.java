@@ -1,4 +1,29 @@
+/*
+ * ome.formats.importer.gui.AddDatasetDialog
+ *
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
+
 package ome.formats.importer.gui;
+
+import info.clearthought.layout.TableLayout;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -35,7 +60,6 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import layout.TableLayout;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportEvent;
@@ -46,6 +70,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 
+/**
+ * The layout for the ErrorTable used by the importer gui
+ * 
+ * @author Brian Loranger brain at lifesci.dundee.ac.uk
+ *
+ */
 public class ErrorTable
     extends JPanel
     implements ActionListener, PropertyChangeListener, IObserver, IObservable, MouseListener
@@ -98,6 +128,11 @@ public class ErrorTable
     
     private Thread runThread;
 
+    /**
+     * Constructor for class
+     * 
+     * @param gui - gui common elements class passed in.
+     */
     public ErrorTable(GuiCommonElements gui)
     {   
         this.gui = gui;
@@ -219,10 +254,14 @@ public class ErrorTable
         this.add(mainPanel);
     }
 
-    public void propertyChange(PropertyChangeEvent e)
-    {
-    }
+    /* (non-Javadoc)
+     * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+     */
+    public void propertyChange(PropertyChangeEvent e) {} 
 
+    /* (non-Javadoc)
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == sendBtn)
         {
@@ -235,18 +274,33 @@ public class ErrorTable
         }
     } 
 
-    public void mouseClicked(MouseEvent e) {}
+    /* (non-Javadoc)
+     * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+     */
+    public void mouseClicked(MouseEvent e) {} 
 
 
-    public void mouseEntered(MouseEvent e) {}
+    /* (non-Javadoc)
+     * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+     */
+    public void mouseEntered(MouseEvent e) {} 
 
 
-    public void mouseExited(MouseEvent e) {}
+    /* (non-Javadoc)
+     * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+     */
+    public void mouseExited(MouseEvent e) {} 
 
 
-    public void mousePressed(MouseEvent e) {}
+    /* (non-Javadoc)
+     * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+     */
+    public void mousePressed(MouseEvent e) {} 
 
 
+    /* (non-Javadoc)
+     * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+     */
     public void mouseReleased(MouseEvent e)
     {
         if (e.getSource() == cbe.checkbox)
@@ -255,23 +309,32 @@ public class ErrorTable
         }
     }
 
-    public void update(IObservable importLibrary, ImportEvent event)
-    {
-
-    }
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObserver#update(ome.formats.importer.IObservable, ome.formats.importer.ImportEvent)
+     */
+    public void update(IObservable importLibrary, ImportEvent event) {} 
         
     // Observable methods    
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#addObserver(ome.formats.importer.IObserver)
+     */
     public boolean addObserver(IObserver object)
     {
         return observers.add(object);
     }
     
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#deleteObserver(ome.formats.importer.IObserver)
+     */
     public boolean deleteObserver(IObserver object)
     {
         return observers.remove(object);
         
     }
 
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#notifyObservers(ome.formats.importer.ImportEvent)
+     */
     public void notifyObservers(ImportEvent event)
     {
         for (IObserver observer:observers)

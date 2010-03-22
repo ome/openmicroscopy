@@ -336,6 +336,9 @@ public class ImportHandler implements IObservable {
         
     }
 
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#notifyObservers(ome.formats.importer.ImportEvent)
+     */
     public void notifyObservers(ImportEvent event)
     {
         for (IObserver observer:observers)

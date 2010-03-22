@@ -13,6 +13,8 @@
 
 package ome.formats.importer.gui;
 
+import info.clearthought.layout.TableLayout;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -38,8 +40,6 @@ import javax.swing.UIManager;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
-
-import layout.TableLayout;
 
 public class LoginFrame extends JFrame 
     implements ActionListener, PropertyChangeListener

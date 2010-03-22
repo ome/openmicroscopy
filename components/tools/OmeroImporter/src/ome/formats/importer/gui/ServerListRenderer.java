@@ -27,6 +27,7 @@ package ome.formats.importer.gui;
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
+
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JLabel;

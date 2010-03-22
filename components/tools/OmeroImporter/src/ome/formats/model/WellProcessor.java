@@ -23,7 +23,7 @@
 
 package ome.formats.model;
 
-import static omero.rtypes.*;
+import static omero.rtypes.rstring;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;

@@ -24,9 +24,9 @@
 package ome.formats.model.handler;
 
 import ome.formats.enums.EnumerationProvider;
-import omero.model.IObject;
 import omero.model.Filament;
 import omero.model.FilamentType;
+import omero.model.IObject;
 
 /**
  * A model object handler that handles objects of type Laser. 

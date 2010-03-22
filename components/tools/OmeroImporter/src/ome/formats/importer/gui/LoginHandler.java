@@ -276,7 +276,8 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         view = new ScreenLogin(config.getAppTitle(),
                 gui.getImageIcon("gfx/login_background.png"),
                 img,
-                config.getIniVersionNumber(), Integer.toString(config.port.get()));
+                config.getIniVersionNumber(), 
+                Integer.toString(config.port.get()));
         view.showConnectionSpeed(false);
         viewTop = new ScreenLogo(config.getAppTitle(), gui.getImageIcon(GuiImporter.splash), img);
         viewTop.setStatusVisible(false);
@@ -406,6 +407,9 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         
     }
 
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#notifyObservers(ome.formats.importer.ImportEvent)
+     */
     public void notifyObservers(ImportEvent event)
     {
         for (IObserver observer:observers)

@@ -210,10 +210,12 @@ WindowStateListener, WindowFocusListener
         menubar = new JMenuBar();
         fileMenu = new JMenu("File");
         menubar.add(fileMenu);
+        
         login = new JMenuItem("Login to the server...", gui.getImageIcon(LOGIN_ICON));
         login.setActionCommand("login");
         login.addActionListener(this);        
         fileMenu.add(login);
+        
         
         if (gui.getIsMac())
         {

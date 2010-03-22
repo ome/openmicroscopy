@@ -13,6 +13,8 @@
 
 package ome.formats.importer.gui;
 
+import info.clearthought.layout.TableLayout;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -38,10 +40,8 @@ import javax.swing.JSplitPane;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileFilter;
 
-import layout.TableLayout;
 import loci.formats.IFormatReader;
 import loci.formats.gui.FormatFileFilter;
-
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;

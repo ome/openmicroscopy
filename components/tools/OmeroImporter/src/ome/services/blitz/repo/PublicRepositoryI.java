@@ -7,29 +7,37 @@
 package ome.services.blitz.repo;
 
 import static omero.rtypes.rlong;
-import static omero.rtypes.rtime;
 import static omero.rtypes.rstring;
+import static omero.rtypes.rtime;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.activation.MimetypesFileTypeMap;
 
+import loci.formats.FormatException;
+import loci.formats.FormatTools;
+import loci.formats.IFormatReader;
+import loci.formats.IFormatWriter;
+import loci.formats.ImageReader;
+import loci.formats.ImageWriter;
+import loci.formats.MetadataTools;
+import loci.formats.meta.IMetadata;
+import ome.formats.importer.ImportContainer;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
-import omero.ApiUsageException;
 import omero.ServerError;
 import omero.ValidationException;
 import omero.api.RawFileStorePrx;
@@ -38,9 +46,8 @@ import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.grid.RepositoryPrx;
 import omero.grid._RepositoryDisp;
-import omero.model.IObject;
 import omero.model.Format;
-import omero.model.FormatI;
+import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.OriginalFile;
@@ -49,16 +56,8 @@ import omero.model.Pixels;
 import omero.model.PixelsI;
 import omero.util.IceMapper;
 
-import ome.formats.importer.ImportContainer;
-import ome.services.blitz.repo.ImportableFiles;
-
-import loci.formats.*; // need to close this down once the r/w are sorted.
-import loci.formats.meta.IMetadata;
-
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;

@@ -1,6 +1,5 @@
 package ome.formats.model;
 
-import Ice.Current;
 import omero.RDouble;
 import omero.RInt;
 import omero.RLong;
@@ -9,6 +8,7 @@ import omero.model.Details;
 import omero.model.IObject;
 import omero.model.Instrument;
 import omero.model.LightSource;
+import Ice.Current;
 
 
 /**

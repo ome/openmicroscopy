@@ -30,15 +30,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.DetectorSettings;
 import omero.model.LightSettings;
 import omero.model.ObjectiveSettings;
 import omero.model.WellSample;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Processes the references of an IObjectContainerStore and ensures

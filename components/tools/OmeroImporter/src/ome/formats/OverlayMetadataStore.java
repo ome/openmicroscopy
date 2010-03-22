@@ -5,9 +5,7 @@ import static omero.rtypes.rstring;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import loci.formats.meta.MetadataStore;
 import omero.ServerError;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
@@ -32,7 +30,8 @@ import omero.model.RoiAnnotationLink;
 import omero.model.RoiAnnotationLinkI;
 import omero.model.RoiI;
 
-import loci.formats.meta.MetadataStore;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Client side metadata store implementation that only deals with overlays. At

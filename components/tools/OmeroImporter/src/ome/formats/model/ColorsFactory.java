@@ -13,12 +13,12 @@ package ome.formats.model;
 
 // Application-internal dependencies
 import omero.RInt;
+import omero.model.Channel;
 import omero.model.Filter;
 import omero.model.Laser;
 import omero.model.LightSource;
-import omero.model.TransmittanceRange;
-import omero.model.Channel;
 import omero.model.LogicalChannel;
+import omero.model.TransmittanceRange;
 
 
 /**

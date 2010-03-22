@@ -1,17 +1,29 @@
 /*
- * ome.formats.importer.gui.DebugMessenger
+ * ome.formats.importer.gui.AddDatasetDialog
  *
  *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
- *  Copyright (C) 2005 Open Microscopy Environment
- *      Massachusetts Institute of Technology,
- *      National Institutes of Health,
- *      University of Dundee
  *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *------------------------------------------------------------------------------
  */
+
 package ome.formats.importer.gui;
+
+import info.clearthought.layout.TableLayout;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -36,7 +48,6 @@ import javax.swing.JTextPane;
 import javax.swing.text.Style;
 import javax.swing.text.StyledDocument;
 
-import layout.TableLayout;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportConfig;
@@ -48,7 +59,7 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.io.FileUtils;
 
 /**
- * @author TheBrain
+ * @author Brian Loranger brain at lifesci.dundee.ac.uk
  *
  */
 public class DebugMessenger extends JDialog implements ActionListener, IObservable, IObserver
@@ -98,6 +109,13 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
 
     private String file_info; 
     
+    /**
+     * @param owner - parent JFrame
+     * @param title - dialog title
+     * @param config - importerconfig
+     * @param modal - modal yes/no
+     * @param errorsArrayList - array of ErrorContainers to be sent.
+     */
     DebugMessenger(JFrame owner, String title, ImportConfig config, Boolean modal, ArrayList<ErrorContainer> errorsArrayList)
     {
         super(owner);
@@ -134,11 +152,11 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         this.getRootPane().setDefaultButton(sendBtn);
         gui.enterPressesWhenFocused(sendBtn);
         
-        uploadCheckmark = gui.addCheckBox(mainPanel, "Send the image files for these errors. " + file_info, "1,1,7,c", debug);
+        uploadCheckmark = gui.addCheckBox(mainPanel, "Send the image files for these errors. " + file_info, "1,1,7,1", debug);
         //uploadCheckmark.setSelected(config.sendFiles.get());
         uploadCheckmark.setSelected(true);
        
-        logUploadCheckmark = gui.addCheckBox(mainPanel, "Send importer log file.", "1,2,7,c", debug);
+        logUploadCheckmark = gui.addCheckBox(mainPanel, "Send importer log file.", "1,2,7,2", debug);
         //uploadCheckmark.setSelected(config.sendFiles.get());
         logUploadCheckmark.setSelected(true);
         
@@ -195,6 +213,9 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
     }
 
 
+    /* (non-Javadoc)
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
         Object source = e.getSource();
@@ -219,7 +240,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
             emailText = emailTextField.getText();
             commentText = commentTextArea.getText();
             
-            if (validEmail(emailText) || emailText.trim().length() == 0)
+            if (gui.validEmail(emailText) || emailText.trim().length() == 0)
             {
                 sendBtn.setEnabled(false);
                 config.email.set(emailText);
@@ -248,6 +269,13 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         }
     }
     
+    /**
+     * Send debug information to feedback system
+     * 
+     * @param emailText - email address of sender
+     * @param commentText - their comment
+     * @param extraText - any extra 'hidden' text to send
+     */
     private void sendRequest(String emailText, String commentText, String extraText)
     {
         
@@ -263,17 +291,26 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
     
 
     // Observable methods    
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#addObserver(ome.formats.importer.IObserver)
+     */
     public boolean addObserver(IObserver object)
     {
         return observers.add(object);
     }
     
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#deleteObserver(ome.formats.importer.IObserver)
+     */
     public boolean deleteObserver(IObserver object)
     {
         return observers.remove(object);
         
     }
 
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#notifyObservers(ome.formats.importer.ImportEvent)
+     */
     public void notifyObservers(ImportEvent event)
     {
         for (IObserver observer:observers)
@@ -283,6 +320,9 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
     }
     
     
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObserver#update(ome.formats.importer.IObservable, ome.formats.importer.ImportEvent)
+     */
     public void update(IObservable importLibrary, ImportEvent event)
     {
         if (event instanceof ImportEvent.FILE_SIZE_STEP)
@@ -304,17 +344,9 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         }
     }
     
-    // Validate the basic construct for the user's email
-    public boolean validEmail(String emailAddress)
-    {
-        String[] parts = emailAddress.split("@");
-        if (parts.length == 2 && parts[0].length() != 0 && parts[1].length() != 0)
-            return true;
-        else
-            return false;
-    }
-    
     /**
+     * Main for testing (debugging only)
+     * 
      * @param args
      * @throws Exception 
      */
@@ -332,6 +364,10 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
     }
 }
 
+/**
+ * @author Brian Loranger brain at lifesci.dundee.ac.uk
+ *
+ */
 class FileSizeChecker implements Runnable, IObservable {
 
     private boolean stop = false;
@@ -385,17 +421,26 @@ class FileSizeChecker implements Runnable, IObservable {
     }
 
     // Observable methods    
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#addObserver(ome.formats.importer.IObserver)
+     */
     public boolean addObserver(IObserver object)
     {
         return observers.add(object);
     }
     
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#deleteObserver(ome.formats.importer.IObserver)
+     */
     public boolean deleteObserver(IObserver object)
     {
         return observers.remove(object);
         
     }
 
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#notifyObservers(ome.formats.importer.ImportEvent)
+     */
     public synchronized void notifyObservers(ImportEvent event)
     {
         for (IObserver observer:observers)

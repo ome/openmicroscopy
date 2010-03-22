@@ -35,14 +35,15 @@ import java.io.InputStreamReader;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import ome.formats.importer.ImportConfig;
-
 import loci.formats.FormatTools;
+import ome.formats.importer.ImportConfig;
 
 /**
  * About is a small program for displaying version information in a dialog box.
  * It is intended to be used as a main class for JAR libraries to easily
  * determine library version and build date.
+ * 
+ * @author Brian Loranger brain at lifesci.dundee.ac.uk
  */
 public abstract class About
 {
@@ -51,7 +52,12 @@ public abstract class About
 
     private static String msg;
 
-    public static void show(JFrame c, ImportConfig config, boolean useSplashScreen)
+    /**
+     * @param parent - parent frame
+     * @param config - importer config
+     * @param useSplashScreen - boolean to use splash screen
+     */
+    public static void show(JFrame parent, ImportConfig config, boolean useSplashScreen)
     {
         
         if (useSplashScreen == true)
@@ -98,12 +104,17 @@ public abstract class About
             msg = msg + "\n\n Version: " + config.getVersionNumber();
             msg = msg + "\n Bio-Formats " + FormatTools.VERSION + 
             " (SVN " + FormatTools.SVN_REVISION + ", " + FormatTools.DATE + ")";
-            JOptionPane.showMessageDialog(c, msg, title,
+            JOptionPane.showMessageDialog(parent, msg, title,
                     JOptionPane.INFORMATION_MESSAGE); 
-            c.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+            parent.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         }
     }
 
+    /**
+     * internal test main (only for debugging)
+     * 
+     * @param args
+     */
     public static void main(String[] args)
     {
         show(null, new ImportConfig(), false);

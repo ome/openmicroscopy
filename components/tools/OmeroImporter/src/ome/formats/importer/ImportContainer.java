@@ -10,7 +10,6 @@ package ome.formats.importer;
 import java.io.File;
 
 import loci.formats.FileInfo;
-
 import omero.model.IObject;
 
 public class ImportContainer

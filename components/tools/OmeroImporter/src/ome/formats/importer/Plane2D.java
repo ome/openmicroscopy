@@ -27,6 +27,8 @@ package ome.formats.importer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import loci.formats.IFormatReader;
+
 /**
  * A class which represents an entire 2D plane.
  *

@@ -2,7 +2,6 @@ package ome.formats.model;
 
 import java.util.List;
 
-import Ice.Current;
 import omero.RBool;
 import omero.RFloat;
 import omero.RInt;
@@ -13,6 +12,7 @@ import omero.model.IObject;
 import omero.model.LogicalChannel;
 import omero.model.Roi;
 import omero.model.Shape;
+import Ice.Current;
 
 
 /**

@@ -6,6 +6,8 @@ import java.util.Vector;
 
 import javax.swing.DefaultListModel;
 
+import omero.ServerError;
+
 /**
  * History Table Data Sources consist of two parts: 
  *  - a batch table containing the information about the current import 

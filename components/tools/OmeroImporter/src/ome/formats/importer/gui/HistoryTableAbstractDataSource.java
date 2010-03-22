@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-import ome.formats.importer.IObserver;
 import ome.formats.importer.IObservable;
+import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportEvent;
 
 public abstract class HistoryTableAbstractDataSource implements IObservable, IHistoryTableDataSource 
@@ -90,10 +90,8 @@ public abstract class HistoryTableAbstractDataSource implements IObservable, IHi
         return observers.remove(object);
     }
 
-    /**
-     * Notify observers of event
-     * 
-     * @param event
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#notifyObservers(ome.formats.importer.ImportEvent)
      */
     public void notifyObservers(ImportEvent event)
     {

@@ -32,12 +32,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
-
 import ome.util.LSID;
 import omero.RInt;
 import omero.RString;
@@ -49,6 +45,9 @@ import omero.model.LightSource;
 import omero.model.LogicalChannel;
 import omero.model.Pixels;
 import omero.model.TransmittanceRange;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Processes the pixels sets of an IObjectContainerStore and ensures

@@ -21,13 +21,13 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.OMEROWrapper;
+import ome.formats.importer.reactor.Fileset.FilesetState;
 import ome.formats.importer.reactor.ReactorEvent.FAILURE;
 import ome.formats.importer.reactor.ReactorEvent.QUEUE_APPEND;
 import ome.formats.importer.reactor.ReactorEvent.QUEUE_REMOVE;
 import ome.formats.importer.reactor.ReactorEvent.QUEUE_STATE_CHANGE;
 import ome.formats.importer.reactor.ReactorEvent.REACTOR_STATE_CHANGE;
 import ome.formats.importer.reactor.ReactorEvent.SUCCESS;
-import ome.formats.importer.reactor.Fileset.FilesetState;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

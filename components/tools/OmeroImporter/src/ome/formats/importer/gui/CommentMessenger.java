@@ -1,17 +1,28 @@
 /*
- * ome.formats.importer.gui.CommentMessenger
+ * ome.formats.importer.gui.AddDatasetDialog
  *
  *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
- *  Copyright (C) 2005 Open Microscopy Environment
- *      Massachusetts Institute of Technology,
- *      National Institutes of Health,
- *      University of Dundee
  *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *------------------------------------------------------------------------------
  */
 package ome.formats.importer.gui;
+
+import info.clearthought.layout.TableLayout;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -31,7 +42,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 
-import layout.TableLayout;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.util.HtmlMessenger;
 
@@ -39,7 +49,7 @@ import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
 
 /**
- * @author TheBrain
+ * @author Brian Loranger brain at lifesci.dundee.ac.uk
  *
  */
 public class CommentMessenger extends JDialog implements ActionListener
@@ -66,6 +76,13 @@ public class CommentMessenger extends JDialog implements ActionListener
     JTextArea               commentTextArea;
     String                  commentText         = "";
     
+    /**
+     * @param owner - owner JFrame
+     * @param title - comment dialog title
+     * @param config - import config
+     * @param modal - modal yes/no
+     * @param debug - display debug borders yes/no
+     */
     CommentMessenger(JFrame owner, String title, ImportConfig config, Boolean modal, boolean debug)
     {
         super(owner);
@@ -144,6 +161,9 @@ public class CommentMessenger extends JDialog implements ActionListener
         
     }
     
+    /* (non-Javadoc)
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
         Object source = e.getSource();
@@ -158,7 +178,7 @@ public class CommentMessenger extends JDialog implements ActionListener
             emailText = emailTextField.getText();
             commentText = commentTextArea.getText();
             
-            if (validEmail(emailText) || emailText.trim().length() == 0)
+            if (gui.validEmail(emailText) || emailText.trim().length() == 0)
             {            
                 sendBtn.setEnabled(false);
                 config.email.set(emailText);
@@ -174,6 +194,13 @@ public class CommentMessenger extends JDialog implements ActionListener
         }
     }
 
+    /**
+     * Send the requested comment to the feedback system
+     * 
+     * @param email - email comment
+     * @param comment - text comment
+     * @param extra - any additional information to send
+     */
     private void sendRequest(String email, String comment, String extra)
     {
         List<Part> postList = new ArrayList<Part>();
@@ -209,18 +236,10 @@ public class CommentMessenger extends JDialog implements ActionListener
             sendBtn.setEnabled(true);
         }
     }
-        
-    // Validate the basic construct for the user's email
-    public boolean validEmail(String emailAddress)
-    {
-        String[] parts = emailAddress.split("@");
-        if (parts.length == 2 && parts[0].length() != 0 && parts[1].length() != 0)
-            return true;
-        else
-            return false;
-    }
     
     /**
+     * Test main (for debugging use only)
+     * 
      * @param args
      * @throws Exception 
      */

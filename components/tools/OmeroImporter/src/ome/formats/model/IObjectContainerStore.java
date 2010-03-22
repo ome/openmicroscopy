@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 import loci.formats.IFormatReader;
-
 import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Annotation;

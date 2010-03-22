@@ -14,6 +14,7 @@
 package ome.formats.importer.gui;
 
 import static omero.rtypes.rstring;
+import info.clearthought.layout.TableLayout;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -29,7 +30,6 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 
-import layout.TableLayout;
 import ome.formats.OMEROMetadataStoreClient;
 import omero.RLong;
 import omero.model.Screen;

@@ -14,6 +14,8 @@
 package ome.formats.importer.gui;
 
 
+import info.clearthought.layout.TableLayout;
+
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -32,7 +34,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
 
-import layout.TableLayout;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 

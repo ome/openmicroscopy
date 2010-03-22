@@ -26,9 +26,9 @@ import java.util.prefs.Preferences;
 
 import loci.common.LogTools;
 import loci.formats.FormatTools;
-
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.IniFileLoader;
+import ome.system.PreferenceContext;
 import ome.system.UpgradeCheck;
 import omero.model.Annotation;
 

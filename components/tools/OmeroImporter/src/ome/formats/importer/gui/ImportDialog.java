@@ -14,6 +14,7 @@
 package ome.formats.importer.gui;
 
 import static omero.rtypes.rstring;
+import info.clearthought.layout.TableLayout;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -38,7 +39,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 
-import layout.TableLayout;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.gui.GuiCommonElements.DecimalNumberField;
 import ome.formats.importer.gui.GuiCommonElements.WholeNumberField;
@@ -192,7 +192,7 @@ public class ImportDialog extends JDialog implements ActionListener
 
         namedPanel = gui.addBorderedPanel(importPanel, namedTable, "File Naming", debug);
 
-        fileCheckBox = gui.addCheckBox(namedPanel, "Override default file naming. Instead use:", "0,0,1", debug);
+        fileCheckBox = gui.addCheckBox(namedPanel, "Override default file naming. Instead use:", "0,0,1,0", debug);
        	fileCheckBox.setSelected(!gui.config.overrideImageName.get());
         
 
@@ -256,7 +256,7 @@ public class ImportDialog extends JDialog implements ActionListener
 
         
             archiveImage = gui.addCheckBox(importPanel, 
-                    "Archive the original imported file(s) to the server.", "0,4,4,t", debug);
+                    "Archive the original imported file(s) to the server.", "0,4,4,4", debug);
             archiveImage.setSelected(false);
             if (ARCHIVE_ENABLED)
             {

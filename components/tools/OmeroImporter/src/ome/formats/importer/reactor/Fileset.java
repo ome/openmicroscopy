@@ -8,6 +8,8 @@ package ome.formats.importer.reactor;
 
 import java.io.File;
 
+import ome.formats.importer.ImportContainer;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

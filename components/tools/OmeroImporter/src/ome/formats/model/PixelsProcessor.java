@@ -23,17 +23,18 @@
 
 package ome.formats.model;
 
-import static omero.rtypes.*;
+import static omero.rtypes.rdouble;
+import static omero.rtypes.rstring;
+import static omero.rtypes.rtime;
 
 import java.io.File;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
 
 import loci.formats.IFormatReader;
-
 import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.Annotation;

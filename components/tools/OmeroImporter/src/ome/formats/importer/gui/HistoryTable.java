@@ -1,5 +1,7 @@
 package ome.formats.importer.gui;
 
+import info.clearthought.layout.TableLayout;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -9,7 +11,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -37,16 +38,12 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import layout.TableLayout;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.util.ETable;
 import omero.ServerError;
-import omero.grid.Data;
-import omero.grid.LongColumn;
-import omero.grid.StringColumn;
 import omero.model.Dataset;
 import omero.model.Screen;
 
@@ -229,7 +226,8 @@ public class HistoryTable
         taskPanel.validate();
         */
         
-        bottomSidePanel.add(historyTaskBar, "f,f");  
+        
+        bottomSidePanel.add(historyTaskBar, "0,0");  
         
         clearBtn = gui.addIconButton(mainPanel, "Wipe History", clearIcon, 
                 130, 32, (int)'S', "Click here to clear your history log.", "0,5,c,c", debug);   
@@ -261,7 +259,7 @@ public class HistoryTable
         doneCheckBox = gui.addCheckBox(filterPanel, "Done", "1,0,l,c", debug);
         failedCheckBox = gui.addCheckBox(filterPanel, "Failed", "2,0,l,c", debug);
         invalidCheckBox = gui.addCheckBox(filterPanel, "Invalid", "3,0,l,c", debug);
-        pendingCheckBox = gui.addCheckBox(filterPanel, "Pending", "4,0,1,c", debug);
+        pendingCheckBox = gui.addCheckBox(filterPanel, "Pending", "4,0,l,c", debug);
         
         // Default filters to 'on'
         doneCheckBox.setSelected(true);
@@ -597,6 +595,9 @@ public class HistoryTable
         
     }
 
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#notifyObservers(ome.formats.importer.ImportEvent)
+     */
     public void notifyObservers(ImportEvent event)
     {
         for (IObserver observer:observers)

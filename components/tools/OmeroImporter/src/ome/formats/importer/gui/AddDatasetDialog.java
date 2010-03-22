@@ -23,6 +23,8 @@
 
 package ome.formats.importer.gui;
 
+import info.clearthought.layout.TableLayout;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Window;
@@ -38,12 +40,15 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
 
-import layout.TableLayout;
 import ome.formats.OMEROMetadataStoreClient;
 import omero.model.Dataset;
 import omero.model.Project;
 
 
+/**
+ * @author Brian Loranger brain at lifesci.dundee.ac.uk
+ *
+ */
 @SuppressWarnings("serial")
 public class AddDatasetDialog extends JDialog implements ActionListener
 {
@@ -71,6 +76,16 @@ public class AddDatasetDialog extends JDialog implements ActionListener
 
     Project                 project;
     
+    /**
+     * Add and show a dataset dialog
+     * 
+     * @param gui - gui common elements
+     * @param owner - parent
+     * @param title- title of dialog
+     * @param modal - if modal boolean
+     * @param project - project to pull datasets from
+     * @param store - parent store for project / datasets
+     */
     AddDatasetDialog(GuiCommonElements gui, Window owner, String title, Boolean modal, Project project, OMEROMetadataStoreClient store)
     {
         this.project = project;
@@ -133,6 +148,9 @@ public class AddDatasetDialog extends JDialog implements ActionListener
 
     }
         
+    /* (non-Javadoc)
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
         Object source = e.getSource();
@@ -163,6 +181,8 @@ public class AddDatasetDialog extends JDialog implements ActionListener
     }
 
     /**
+     * Internal testing main (for deugging only)
+     * 
      * @param args
      * @throws Exception 
      */

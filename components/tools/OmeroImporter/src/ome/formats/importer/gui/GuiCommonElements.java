@@ -23,6 +23,8 @@
 
 package ome.formats.importer.gui;
 
+import info.clearthought.layout.TableLayout;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -67,7 +69,6 @@ import javax.swing.text.StyledDocument;
 import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
 
-import layout.TableLayout;
 import ome.formats.importer.ImportConfig;
 
 import org.apache.commons.logging.Log;
@@ -707,6 +708,22 @@ public class GuiCommonElements
             message = "You must restart before your changes will take effect.";
         }
         JOptionPane.showMessageDialog(frame, message);
+    }
+    
+    
+    /**
+     * Validate if entered email is in the correct form.
+     * 
+     * @param emailAddress - email to validate
+     * @return return true or false
+     */
+    public boolean validEmail(String emailAddress)
+    {
+        String[] parts = emailAddress.split("@");
+        if (parts.length == 2 && parts[0].length() != 0 && parts[1].length() != 0)
+            return true;
+        else
+            return false;
     }
     
     public class WholeNumberField extends JTextField {

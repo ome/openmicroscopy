@@ -1,3 +1,26 @@
+/*
+ * ome.formats.importer.gui.AddDatasetDialog
+ *
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
+
 package ome.formats.importer.gui;
 
 import java.awt.BorderLayout;
@@ -18,6 +41,10 @@ import ome.formats.importer.util.ErrorContainer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * @author Brian Loranger brain at lifesci.dundee.ac.uk
+ *
+ */
 @SuppressWarnings("serial")
 public class ErrorHandler extends JPanel implements IObserver, IObservable {
     /** Logger for this class */
@@ -29,6 +56,11 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
     private final ErrorTable errorTable;
     private final GuiCommonElements gui;
 
+    /**
+     * Creates and manages error messages and the errors table tab
+     * @param ex
+     * @param config
+     */
     public ErrorHandler(ScheduledExecutorService ex, ImportConfig config) {
         this.ex = ex;
         this.setOpaque(false);
@@ -44,16 +76,27 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
         errorTable.addObserver(this);
     }
 
+    /**
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     *
+     */
     class MyErrorHandler extends ome.formats.importer.util.ErrorHandler {
 
         private final JPanel panel;
         private DebugMessenger debugMessenger;
 
+        /**
+         * @param config - importerConfig
+         * @param panel - parent panel
+         */
         MyErrorHandler(ImportConfig config, JPanel panel) {
             super(config);
             this.panel = panel;
         }
 
+        /* (non-Javadoc)
+         * @see ome.formats.importer.util.ErrorHandler#onUpdate(ome.formats.importer.IObservable, ome.formats.importer.ImportEvent)
+         */
         public void onUpdate(IObservable importLibrary, ImportEvent event) {
             if (event instanceof ImportEvent.ERRORS_SEND) {
                 cancelUploads = false;
@@ -97,17 +140,26 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
             }
         }
 
+        /* (non-Javadoc)
+         * @see ome.formats.importer.util.ErrorHandler#onCancel()
+         */
         @Override
         protected void onCancel() {
             super.onCancel();
             errorTable.enableSendBtn(true);
         }
 
+        /* (non-Javadoc)
+         * @see ome.formats.importer.util.ErrorHandler#sendErrors()
+         */
         protected void sendErrors() {
             errorTable.enableSendBtn(false);
             super.sendErrors();
         }
 
+        /* (non-Javadoc)
+         * @see ome.formats.importer.util.ErrorHandler#isSend(int)
+         */
         @Override
         protected boolean isSend(int index) {
             return super.isSend(index)
@@ -115,18 +167,27 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
                             .booleanValue();
         }
 
+        /* (non-Javadoc)
+         * @see ome.formats.importer.util.ErrorHandler#onSending(int)
+         */
         @Override
         protected void onSending(int index) {
             super.onSending(index);
             errorTable.setProgressSending(index);
         }
 
+        /* (non-Javadoc)
+         * @see ome.formats.importer.util.ErrorHandler#onSent(int)
+         */
         @Override
         protected void onSent(int index) {
             super.onSent(index);
             errorTable.setProgressDone(index);
         }
 
+        /* (non-Javadoc)
+         * @see ome.formats.importer.util.ErrorHandler#onNotSending(int, java.lang.String)
+         */
         @Override
         protected void onNotSending(int index, String serverReply) {
             super.onNotSending(index, serverReply);
@@ -137,6 +198,9 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
             errorTable.setProgressDone(index);
         }
 
+        /* (non-Javadoc)
+         * @see ome.formats.importer.util.ErrorHandler#onException(java.lang.Exception)
+         */
         @Override
         protected void onException(Exception e) {
             super.onException(e);
@@ -171,6 +235,9 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
             }
         }
 
+        /* (non-Javadoc)
+         * @see ome.formats.importer.util.ErrorHandler#finishCancelled()
+         */
         @Override
         protected void finishCancelled() {
             super.finishCancelled();
@@ -186,6 +253,9 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
                     JOptionPane.INFORMATION_MESSAGE);
         }
 
+        /* (non-Javadoc)
+         * @see ome.formats.importer.util.ErrorHandler#finishComplete()
+         */
         @Override
         protected void finishComplete() {
             super.finishComplete();
@@ -200,6 +270,9 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
                     JOptionPane.INFORMATION_MESSAGE);
         }
 
+        /* (non-Javadoc)
+         * @see ome.formats.importer.util.ErrorHandler#onAddError(ome.formats.importer.util.ErrorContainer, java.lang.String)
+         */
         @Override
         protected void onAddError(ErrorContainer errorContainer, String message) {
             super.onAddError(errorContainer, message);
@@ -225,18 +298,30 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
 
     }
 
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObserver#update(ome.formats.importer.IObservable, ome.formats.importer.ImportEvent)
+     */
     public void update(IObservable importLibrary, ImportEvent event) {
         this.delegate.update(importLibrary, event);
     }
 
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#addObserver(ome.formats.importer.IObserver)
+     */
     public boolean addObserver(IObserver object) {
         return this.delegate.addObserver(object);
     }
 
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#deleteObserver(ome.formats.importer.IObserver)
+     */
     public boolean deleteObserver(IObserver object) {
         return this.delegate.deleteObserver(object);
     }
 
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#notifyObservers(ome.formats.importer.ImportEvent)
+     */
     public void notifyObservers(ImportEvent event) {
         this.delegate.notifyObservers(event);
     }

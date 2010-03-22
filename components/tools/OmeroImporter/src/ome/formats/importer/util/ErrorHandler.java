@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import loci.formats.MissingLibraryException;
-
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportCandidates;
@@ -338,6 +337,9 @@ public abstract class ErrorHandler implements IObserver, IObservable {
 
     }
 
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#notifyObservers(ome.formats.importer.ImportEvent)
+     */
     public final void notifyObservers(ImportEvent event) {
         for (IObserver observer : observers) {
             observer.update(this, event);

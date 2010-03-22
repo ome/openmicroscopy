@@ -10,7 +10,6 @@ package ome.formats.importer;
 import java.util.List;
 
 import loci.formats.StatusEvent;
-
 import omero.model.IObject;
 import omero.model.Pixels;
 
