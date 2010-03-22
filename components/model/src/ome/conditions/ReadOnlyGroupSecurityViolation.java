@@ -14,7 +14,7 @@ package ome.conditions;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.2
  * @see ticket:1769
- * @see ticket:1922
+ * @see ticket:1992
  */
 public class ReadOnlyGroupSecurityViolation extends GroupSecurityViolation {
 

@@ -707,7 +707,7 @@ public class Permissions implements Serializable {
      * {@link #GROUP_READABLE}.
      *
      * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/1434">ticket:1434</a>
-     * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/1922">ticket:1922</a>
+     * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/1992">ticket:1992</a>
      */
     public final static Permissions COLLAB_READONLY = GROUP_READABLE;
 
@@ -716,7 +716,7 @@ public class Permissions implements Serializable {
      * for group members. Identical to {@link #GROUP_PRIVATE}.
      *
      * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/1434">ticket:1434</a>
-     * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/1922">ticket:1922</a>
+     * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/1992">ticket:1992</a>
      */
     public final static Permissions COLLAB_READLINK = GROUP_PRIVATE;
 

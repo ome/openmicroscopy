@@ -410,7 +410,7 @@ public class OmeroInterceptor implements Interceptor {
                             "link to users' data.", object, oname, gname, p));
                     } else if (!currentUser.getCurrentEventContext()
                             .getCurrentGroupPermissions()
-                            .isGranted(Role.GROUP, Right.WRITE)) {// ticket:1922
+                            .isGranted(Role.GROUP, Right.WRITE)) {// ticket:1992
                         throw new ReadOnlyGroupSecurityViolation("Group is READ-ONLY. " +
 					"Cannot link to object: " + object);
                     }

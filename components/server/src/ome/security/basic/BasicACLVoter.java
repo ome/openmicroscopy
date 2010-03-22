@@ -239,7 +239,7 @@ public class BasicACLVoter implements ACLVoter {
                 && o.equals(c.getOwner().getId())) {
             return true;
         }
-        /* ticket:1922 - removing concept of GROUP-WRITE
+        /* ticket:1992 - removing concept of GROUP-WRITE
         if (p.isGranted(GROUP, WRITE) && g != null
                 && c.getMemberOfGroupsList().contains(g)) {
             return true;
