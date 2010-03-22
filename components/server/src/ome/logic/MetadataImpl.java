@@ -153,11 +153,17 @@ public class MetadataImpl
     	if (po.getExperimenter() != null) {
     		sb.append(" and ann.details.owner.id = :userId");
     		param.addLong("userId", po.getExperimenter());
+    	} else {
+    		sb.append(" and ann.details.owner.id = :userId");
+    		param.addLong("userId", sec.getEventContext().getCurrentUserId());
     	}
+    	/*
     	if (po.getGroup() != null) {
     		sb.append(" and ann.details.group.id = :groupId");
     		param.addLong("groupId", po.getGroup());
     	}
+    	*/
+    	/*
     	if (po.getGroup() == null && po.getExperimenter() == null) {
     		
     		sb.append(" and ann.details.owner.id = :userId");
@@ -165,6 +171,7 @@ public class MetadataImpl
     		param.addLong("userId", sec.getEventContext().getCurrentUserId());
     		param.addLong("groupId", sec.getEventContext().getCurrentGroupId());
     	}
+    	*/
 	
     	if (include != null && include.size() > 0) {
     		sb.append(" and ann.ns is not null and ann.ns in (:include)");
@@ -616,7 +623,7 @@ public class MetadataImpl
     }
     
     /**
-     * Implemented as speficied by the {@link IMetadata} I/F
+     * Implemented as specified by the {@link IMetadata} I/F
      * @see IMetadata#loadAnnotation(Set)
      */
     @RolesAllowed("user")
@@ -688,7 +695,11 @@ public class MetadataImpl
 		sb.append(" left outer join fetch link.parent parent");
 		sb.append(" where child member of "+TAG_TYPE);
 		sb.append(" and parent member of "+TAG_TYPE);
-
+		if (po.isExperimenter()) {
+			sb.append(" and parent.details.owner.id = :userID");
+			param.addLong("userID", po.getExperimenter());
+		}
+		
     	List l = iQuery.findAllByQuery(sb.toString(), param);
     	List<Long> tagSetIds = new ArrayList<Long>();
     	List<Long> ids = new ArrayList<Long>();
@@ -704,7 +715,6 @@ public class MetadataImpl
 				link = (AnnotationAnnotationLink) i.next();
 				id = link.getId();
 				ann = link.parent();
-				
 				if (NS_INSIGHT_TAG_SET.equals(ann.getNs())) {
 					if (!ids.contains(ann.getId())) {
 						ids.add(id);
@@ -734,6 +744,10 @@ public class MetadataImpl
 			sb.append(" and ann.id not in (:ids)");
 			param.addIds(tagSetIds);
 		}
+		if (po.isExperimenter()) {
+			sb.append(" and ann.details.owner.id = :userID");
+			param.addLong("userID", po.getExperimenter());
+		}
 		l = iQuery.findAllByQuery(sb.toString(), param);
 	    if (l != null) {
 	    	i = l.iterator();
@@ -757,7 +771,10 @@ public class MetadataImpl
 				sb.append(" and ann.id not in (:ids)");
 				param.addIds(children);
 			}
-	    	
+			if (po.isExperimenter()) {
+				sb.append(" and ann.details.owner.id = :userID");
+				param.addLong("userID", po.getExperimenter());
+			}
 			l = iQuery.findAllByQuery(sb.toString(), param);
 		    if (l != null) {
 		    	i = l.iterator();
