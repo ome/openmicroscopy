@@ -42,6 +42,23 @@
       <property name="Ice.ThreadPool.Server.SizeMax" value="100"/>
     </properties>
 
+    <properties id="JavaServer">
+      <target name="adh">
+        <property name="Ice.Default.Protocol" value="ssl"/>
+        <property name="Ice.Plugin.IceSSL" value="IceSSL.PluginFactory"/>
+        <property name="IceSSL.Ciphers" value="NONE (DH_anon)"/>
+        <property name="IceSSL.VerifyPeer" value="0"/>
+      </target>
+      <target name="ssl">
+        <property name="Ice.Default.Protocol" value="ssl"/>
+        <property name="Ice.Plugin.IceSSL" value="IceSSL.PluginFactory"/>
+        <property name="IceSSL.DefaultDir" value="etc/certs"/>
+        <property name="IceSSL.CertFile" value="pubkey.pem"/>
+        <property name="IceSSL.KeyFile" value="privkey.pem"/>
+        <property name="IceSSL.CertAuthFile" value="ca.pem"/>
+      </target>
+    </properties>
+
     <properties id="PythonServer">
       <property name="Ice.ImplicitContext" value="Shared"/>
       <!-- Default logging settings for Python servers. -->
@@ -60,6 +77,23 @@
             DEBUG     10
             NOTSET    0
       -->
+    </properties>
+
+    <properties id="CppServer">
+      <target name="adh">
+        <property name="Ice.Default.Protocol" value="ssl"/>
+        <property name="Ice.Plugin.IceSSL" value="IceSSL:createIceSSL"/>
+        <property name="IceSSL.Ciphers" value="ADH"/>
+        <property name="IceSSL.VerifyPeer" value="0"/>
+      </target>
+      <target name="ssl">
+        <property name="Ice.Default.Protocol" value="ssl"/>
+        <property name="Ice.Plugin.IceSSL" value="IceSSL:createIceSSL"/>
+        <property name="IceSSL.DefaultDir" value="etc/certs"/>
+        <property name="IceSSL.CertFile" value="pubkey.pem"/>
+        <property name="IceSSL.KeyFile" value="privkey.pem"/>
+        <property name="IceSSL.CertAuthFile" value="ca.pem"/>
+      </target>
    </properties>
 
    <properties id="DropBox">
@@ -123,6 +157,7 @@
         <option>${OMERO_JARS}blitz.jar</option>
         <adapter name="BlitzAdapter" replica-group="BlitzAdapters" endpoints="tcp"/>
         <properties>
+          <properties refid="JavaServer"/>
           <properties refid="Basics"/>
           <properties refid="Blitz"/>
           <properties refid="MultiThreaded"/>
@@ -146,6 +181,7 @@
         <adapter name="IndexerAdapter" endpoints="tcp"/>
         <properties>
           <properties refid="Basics"/>
+          <properties refid="JavaServer"/>
           <properties refid="Blitz"/>
           <properties refid="SingleThreaded"/>
           <properties refid="Profile"/>
@@ -172,6 +208,7 @@
         </adapter>
         <properties>
           <properties refid="Basics"/>
+          <properties refid="JavaServer"/>
           <properties refid="MultiThreaded"/>
           <properties refid="Repository"/>
           <properties refid="Profile"/>
@@ -195,6 +232,7 @@
         <properties>
           <properties refid="Basics"/>
           <properties refid="PythonServer"/>
+          <properties refid="CppServer"/>
           <properties refid="MultiThreaded"/>
           <properties refid="Repository"/>
           <properties refid="Profile"/>
@@ -216,6 +254,7 @@
         <properties>
           <properties refid="Basics"/>
           <properties refid="PythonServer"/>
+          <properties refid="CppServer"/>
           <properties refid="MultiThreaded"/>
           <properties refid="Repository"/>
           <properties refid="Profile"/>
@@ -235,6 +274,7 @@
         <properties>
           <properties refid="Basics"/>
           <properties refid="PythonServer"/>
+          <properties refid="CppServer"/>
           <properties refid="MultiThreaded"/>
           <properties refid="Profile"/>
           <property name="omero.fs.fileServerIdString" value="FileServer"/>
@@ -254,6 +294,7 @@
         <properties>
           <properties refid="Basics"/>
           <properties refid="PythonServer"/>
+          <properties refid="CppServer"/>
           <properties refid="MultiThreaded"/>
           <properties refid="Profile"/>
           <property name="omero.fs.monitorServerIdString" value="MonitorServer"/>
@@ -271,6 +312,7 @@
         <properties>
           <properties refid="Basics"/>
           <properties refid="PythonServer"/>
+          <properties refid="CppServer"/>
           <properties refid="MultiThreaded"/>
           <properties refid="DropBox"/>
           <properties refid="Profile"/>
@@ -290,6 +332,7 @@
         <properties>
           <properties refid="Basics"/>
           <properties refid="PythonServer"/>
+          <properties refid="CppServer"/>
           <properties refid="MultiThreaded"/>
           <properties refid="DropBox"/>
           <properties refid="Profile"/>
@@ -323,7 +366,7 @@
 
     <server-template id="IcePatch2Template">
        <parameter name="instance-name" default="${application}.IcePatch2"/>
-       <parameter name="endpoints" default="default"/>
+       <parameter name="endpoints" default="tcp"/>
        <parameter name="directory"/>
        <server id="${instance-name}" exe="icepatch2server" application-distrib="false" activation="always">
          <adapter name="IcePatch2" endpoints="${endpoints}">
@@ -340,29 +383,41 @@
     </server-template>
 
     <server-template id="Glacier2Template">
-       <parameter name="instance-name" default="${application}.Glacier2"/>
-       <parameter name="client-endpoints"/>
-       <parameter name="server-endpoints"/>
-       <parameter name="session-timeout" default="600"/><!-- 10 min -->
-       <server id="${instance-name}" exe="glacier2router" activation="always">
-         <properties>
-           <properties refid="Basics"/>
-           <properties refid="Profile"/>
-           <property name="Glacier2.Client.Endpoints" value="${client-endpoints}"/>
-           <property name="Glacier2.Server.Endpoints" value="${server-endpoints}"/>
-           <property name="Glacier2.InstanceName" value="${instance-name}"/>
-           <property name="Glacier2.SessionTimeout" value="${session-timeout}"/>
-           <property name="Glacier2.PermissionsVerifier" value="BlitzVerifier@BlitzAdapters"/>
-           <property name="Glacier2.SessionManager" value="BlitzManager@BlitzAdapters"/>
-           <property name="Glacier2.Client.ForwardContext" value="1"/>
-         </properties>
-       </server>
-     </server-template>
+      <parameter name="instance-name" default="${application}.Glacier2"/>
+      <parameter name="client-endpoints"/>
+      <parameter name="server-endpoints"/>
+      <parameter name="session-timeout" default="600"/><!-- 10 min -->
+      <server id="${instance-name}" exe="glacier2router" activation="always">
+        <properties>
+          <properties refid="Basics"/>
+          <properties refid="CppServer"/>
+          <properties refid="Profile"/>
+          <property name="Ice.Plugin.IceSSL" value="IceSSL:createIceSSL"/>
+          <property name="IceSSL.Ciphers" value="ADH"/>
+          <property name="IceSSL.VerifyPeer" value="0"/>
+          <property name="Glacier2.Client.Endpoints" value="${client-endpoints}"/>
+          <property name="Glacier2.Server.Endpoints" value="${server-endpoints}"/>
+          <property name="Glacier2.InstanceName" value="${instance-name}"/>
+          <property name="Glacier2.SessionTimeout" value="${session-timeout}"/>
+          <property name="Glacier2.PermissionsVerifier" value="BlitzVerifier@BlitzAdapters"/>
+          <property name="Glacier2.SessionManager" value="BlitzManager@BlitzAdapters"/>
+          <property name="Glacier2.Client.ForwardContext" value="1"/>
+          <property name="Glacier2.Filter.Category.Accept" value="ProcessCallback ProcessorCallback"/>
+          <target name="trace">
+            <property name="Glacier2.Client.Trace.Override" value="1"/>
+            <property name="Glacier2.Client.Trace.Reject" value="1"/>
+            <property name="Glacier2.Client.Trace.Request" value="1"/>
+            <property name="Glacier2.Server.Trace.Override" value="1"/>
+            <property name="Glacier2.Server.Trace.Request" value="1"/>
+          </target>
+        </properties>
+      </server>
+    </server-template>
 
     <service-template id="StormTemplate">
       <parameter name="instance-name" default="${application}.IceStorm"/>
-      <parameter name="topic-manager-endpoints" default="default"/>
-      <parameter name="publish-endpoints" default="default"/>
+      <parameter name="topic-manager-endpoints" default="tcp"/>
+      <parameter name="publish-endpoints" default="tcp"/>
       <parameter name="flush-timeout" default="1000"/>
       <service name="${instance-name}" entry="IceStormService,33:createIceStorm">
         <dbenv name="${service}"/>
@@ -371,6 +426,7 @@
         </adapter>
         <adapter name="${service}.Publish" id="${instance-name}.Publish" endpoints="${publish-endpoints}"/>
         <properties>
+          <properties refid="CppServer"/>
           <properties refid="Profile"/>
           <property name="${service}.InstanceName" value="${instance-name}"/>
           <property name="${service}.Flush.Timeout" value="${flush-timeout}"/>
@@ -386,8 +442,8 @@
 
     <server-template id="StormTemplate">
       <parameter name="instance-name" default="${application}.IceStorm"/>
-      <parameter name="topic-manager-endpoints" default="default"/>
-      <parameter name="publish-endpoints" default="default"/>
+      <parameter name="topic-manager-endpoints" default="tcp"/>
+      <parameter name="publish-endpoints" default="tcp"/>
       <parameter name="flush-timeout" default="1000"/>
       <icebox id="${instance-name}" exe="icebox" activation="always">
         <env>DYLD_LIBRARY_PATH=lib:$DYLD_LIBRARY_PATH</env>
@@ -398,6 +454,7 @@
             publish-endpoints="${publish-endpoints}"
             flush-timeout="${flush-timeout}"/>
         <properties>
+          <properties refid="CppServer"/>
           <properties refid="Profile"/>
           <property name="IceBox.InheritProperties" value="1"/>
           <property name="Ice.Override.ConnectTimeout" value="5000"/>

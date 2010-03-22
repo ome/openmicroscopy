@@ -1144,6 +1144,8 @@ class CLI(cmd.Cmd, Context):
                 self._client.getSession().keepAlive(None)
                 self.dbg("Using client")
                 return self._client
+            except KeyboardInterrupt:
+                raise
             except:
                 self.dbg("Removing client")
                 self._client.closeSession()

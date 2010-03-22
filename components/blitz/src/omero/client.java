@@ -244,6 +244,10 @@ public class client {
         id.properties.setProperty("Ice.ImplicitContext", "Shared");
         id.properties.setProperty("Ice.ACM.Client", "0");
         id.properties.setProperty("Ice.RetryIntervals", "-1");
+        id.properties.setProperty("Ice.Default.EndpointSelection", "Ordered");
+        id.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
+        id.properties.setProperty("Ice.Ciphers", "none (DH_anon)");
+        id.properties.setProperty("Ice.VerifyPeer", "0");
 
         // Setting MessageSizeMax
         String messageSize = id.properties.getProperty("Ice.MessageSizeMax");

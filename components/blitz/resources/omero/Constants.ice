@@ -30,7 +30,7 @@ module omero {
     /**
      * Default Glacier2 port. Used to define '@omero.port@' if not set.
      **/
-    const int GLACIER2PORT = 4063;
+    const int GLACIER2PORT = 4064;
 
     /**
      * Default Ice.MessageSizeMax (65536kb). Not strictly necessary, but helps to
@@ -55,7 +55,7 @@ module omero {
      * (Ice.Default.Router). The '@omero.port@' and '@omero.host@' values will
      * be replaced by the properties with those names from the context.
      **/
-    const string DEFAULTROUTER = "OMERO.Glacier2/router:tcp -p @omero.port@ -h @omero.host@";
+    const string DEFAULTROUTER = "OMERO.Glacier2/router:ssl -p @omero.port@ -h @omero.host@:tcp -p @omero.port@ -h @omero.host@";
 
     /**
      * Server-side names used for each of the services

@@ -16,7 +16,7 @@
     <variable name="OMEROPY_HOME"  value="lib/python/"/>
     <variable name="OMEROPY_SERV"  value="lib/python/omero/"/>
     <variable name="PYTHONPATH"    value="PYTHONPATH=${OMEROPY_HOME}:$${PYTHONPATH}"/>
-    <variable name="ROUTERPORT"    value="4063"/>
+    <variable name="ROUTERPORT"    value="4064"/>
 
     <properties id="Profile">
       <!--
@@ -37,7 +37,7 @@
 
     <node name="master">
       <server-instance template="Glacier2Template"
-        client-endpoints="tcp -p ${ROUTERPORT}"
+        client-endpoints="ssl -p ${ROUTERPORT}"
         server-endpoints="tcp -h 127.0.0.1"/>
       <server-instance template="BlitzTemplate" index="0" config="default"/>
       <server-instance template="IndexerTemplate" index="0"/>

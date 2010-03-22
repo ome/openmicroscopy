@@ -33,6 +33,10 @@ namespace omero {
 	id.properties->setProperty("Ice.ImplicitContext", "Shared");
         id.properties->setProperty("Ice.ACM.Client", "0");
         id.properties->setProperty("Ice.RetryIntervals", "-1");
+        id.properties->setProperty("Ice.Default.EndpointSelection", "Ordered");
+        id.properties->setProperty("Ice.Plugin.IceSSL" , "IceSSL:createIceSSL");
+        id.properties->setProperty("IceSSL.Ciphers" , "ADH");
+        id.properties->setProperty("IceSSL.VerifyPeer" , "0");
 
 	// C++ only
 	std::string gcInterval = id.properties->getProperty("Ice.GC.Interval");
@@ -81,14 +85,23 @@ namespace omero {
 
 	std::string h_("@omero.host@");
 	std::string p_("@omero.port@");
-	size_t found = router.rfind(h_);
-	if (found != string::npos) {
-	    router.replace(found, h_.length(), host);
-	}
-	found = router.rfind(p_);
-	if (found != string::npos) {
-	    router.replace(found, p_.length(), port);
-	}
+        whilte (true) {
+            size_t found = router.rfind(h_);
+            if (found != string::npos) {
+                router.replace(found, h_.length(), host);
+                continue;
+            }
+            break;
+
+        }
+        while (true)
+            found = router.rfind(p_);
+            if (found != string::npos) {
+                router.replace(found, p_.length(), port);
+                continue;
+            }
+            break;
+        }
 	id.properties->setProperty("Ice.Default.Router", router);
 
 	// Dump properties
