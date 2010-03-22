@@ -56,11 +56,17 @@ public class ProjectsLoader
 	extends DataTreeViewerLoader
 {
 
-	/** Handle to the async call so that we can cancel it. */
+	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  		handle;
     
     /** Reference to the node hosting the project to browse. */
-    private TreeImageDisplay 		node;
+    private TreeImageDisplay 	node;
+    
+    /** The user's identifier. */
+    private long 				userID;
+    
+    /** The group's identifier. */
+    private long 				groupID;
     
     /**
      * Creates a new instance.
@@ -69,13 +75,18 @@ public class ProjectsLoader
      *               Mustn't be <code>null</code>.
      * @param node   The node hosting the project to browse.
      *               Mustn't be <code>null</code>.
+     * @param userID The user's identifier.
+     * @param groupID The group's identifier.            
      */
-    public ProjectsLoader(TreeViewer viewer, TreeImageDisplay node)
+    public ProjectsLoader(TreeViewer viewer, TreeImageDisplay node, long userID,
+    		long groupID)
 	{
 		super(viewer);
 		if (node == null)
 			throw new IllegalArgumentException("No node of reference.");
 		this.node = node;
+		this.userID = userID;
+		this.groupID = groupID;
 	}
 	
 	 /**
@@ -88,7 +99,8 @@ public class ProjectsLoader
     	long id = node.getUserObjectId();
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(id);
-    	handle = hiBrwView.loadHierarchy(ProjectData.class, ids, userID, this);
+    	handle = hiBrwView.loadHierarchy(ProjectData.class, ids, userID, groupID,
+    			this);
     }
 
     /**

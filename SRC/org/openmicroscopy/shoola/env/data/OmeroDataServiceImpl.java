@@ -174,6 +174,7 @@ class OmeroDataServiceImpl
 					LookupNames.CURRENT_USER_DETAILS);
 
 		long userID = exp.getId();
+		long groupID = exp.getDefaultGroup().getId();
 		DataObject data = object.getObjectToDelete();
 		boolean attachment = object.deleteAttachment();
 		boolean content = object.deleteContent();
@@ -218,7 +219,8 @@ class OmeroDataServiceImpl
 			//retrieve all the images
 			List<Long> ids = new ArrayList<Long>(1);
 			ids.add(id);
-			Set l = loadContainerHierarchy(DatasetData.class, ids, true, userID);
+			Set l = loadContainerHierarchy(DatasetData.class, ids, true, userID
+					, groupID);
 			Iterator j = l.iterator();
 			DatasetData d;
 			Set images;
@@ -250,7 +252,7 @@ class OmeroDataServiceImpl
 			List<Long> ids = new ArrayList<Long>(1);
 			ids.add(id);
 			Set l = loadContainerHierarchy(ScreenData.class, ids, false, 
-											userID);
+											userID, groupID);
 			//delete all the plates
 			if (l != null && l.size() > 0) {
 				Iterator i = l.iterator();
@@ -270,7 +272,7 @@ class OmeroDataServiceImpl
 			List<Long> ids = new ArrayList<Long>(1);
 			ids.add(id);
 			Set l = loadContainerHierarchy(ProjectData.class, ids, false, 
-											userID);
+											userID, groupID);
 			Iterator j = l.iterator();
 			ProjectData p;
 			Set datasets;
@@ -652,14 +654,22 @@ class OmeroDataServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroDataService}. 
-	 * @see OmeroDataService#loadContainerHierarchy(Class, List, boolean, long)
+	 * @see OmeroDataService#loadContainerHierarchy(Class, List, boolean, long,
+	 * long)
 	 */
 	public Set loadContainerHierarchy(Class rootNodeType, List rootNodeIDs,
-			boolean withLeaves, long userID)
+			boolean withLeaves, long userID, long groupID)
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		ParametersI param = new ParametersI();
-		if (rootNodeIDs == null) param.exp(omero.rtypes.rlong(userID));
+		if (rootNodeIDs == null) {
+			ExperimenterData exp = 
+				(ExperimenterData) context.lookup(
+						LookupNames.CURRENT_USER_DETAILS);
+			if (userID < 0) userID = exp.getId();
+			if (groupID < 0) groupID = exp.getDefaultGroup().getId();
+			param.exp(omero.rtypes.rlong(userID));
+		}
 		if (withLeaves) param.leaves();
 		else param.noLeaves();
 		if (rootNodeIDs == null || rootNodeIDs.size() == 0) {

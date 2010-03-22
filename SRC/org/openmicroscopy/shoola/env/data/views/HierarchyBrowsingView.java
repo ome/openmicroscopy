@@ -87,12 +87,14 @@ public interface HierarchyBrowsingView
      * @param rootNodeType  The type of the root node. Can only be one out of:
      *                      <code>ProjectData, DatasetData</code>.
      * @param nodesID       The id of the root nodes.
-     * @param userID   		The Id of the user.  
-     * @param observer      Callback handler.
+     * @param userID   		The identifier of the user.  
+     * @param groupID   	The identifier of the user's group.
+     * @param observer      Call-back handler.
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle loadHierarchy(Class rootNodeType, List nodesID,
-    								long userID, AgentEventListener observer);
+    								long userID, long groupID,
+    								AgentEventListener observer);
     
     /**
      * Loads a thumbnail for each specified <code>DataObject</code> object, 

@@ -476,25 +476,6 @@ public interface OmeroMetadataService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
-	 * Loads the data objects related to the tags contained within the specified
-	 * tag set.
-	 * 
-	 * @param id			The id of the tag set or <code>-1</code>.
-     * @param dataObject    Pass <code>true</code> to load the 
-	 * 						<code>DataObject</code> related 
-     * 						to the tags, <code>false</code> otherwise.
-     * @param userID		The id of the user.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                   in.
-	 * @throws DSAccessException        If an error occurred while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public Collection loadTagSetsContainer(Long id, boolean images,
-										long userID)
-		throws DSOutOfServiceException, DSAccessException;
-	
-	/**
 	 * Returns the enumeration corresponding to the specified type.
 	 * 
 	 * @param type 	The type of enumeration. 
@@ -581,7 +562,8 @@ public interface OmeroMetadataService
 	 * @param topLevel  Pass <code>true</code> to indicate to load the 
 	 * 					<code>Tag Set</code> objects, <code>false</code> to 
 	 * 					load the <code>Tag</code> objects.
-	 * @param userID	The id of the user.
+	 * @param userID	The identifier of the user.
+	 * @param groupID	The identifier of the user's group.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
@@ -589,7 +571,7 @@ public interface OmeroMetadataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Collection loadTags(Long id, boolean dataObject, boolean topLevel,
-			long userID)
+			long userID, long groupID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**

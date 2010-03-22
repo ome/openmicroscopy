@@ -69,13 +69,14 @@ public interface DataManagerView
 	 *                      container specified by the rootNodeType.
 	 * @param withLeaves    Passes <code>true</code> to retrieve the images.
 	 *                      <code>false</code> otherwise.   
-	 * @param userID		The Id of the user.
+	 * @param userID		The identifier of the user.
+	 * @param groupID		The identifier of the user's group.
 	 * @param observer      Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadContainerHierarchy(Class rootNodeType,
 			List<Long> rootNodeIDs, boolean withLeaves, long userID,
-			AgentEventListener observer);
+			long groupID, AgentEventListener observer);
 
 	/**
 	 * Retrieves the images for the specified user.
@@ -235,12 +236,13 @@ public interface DataManagerView
      * 						from the <code>Tag Set</code>, <code>false</code>
      * 						otherwise. This parameters will be taken into
      * 						account if the passed id is not negative.
-	 * @param userID		The user id.
+	 * @param userID		The user's identifier.
+	 * @param groupID		The user group's identifier.
 	 * @param observer 		Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadTags(Long id, boolean dataObject, boolean topLevel, 
-			long userID, AgentEventListener observer);
+			long userID, long groupID, AgentEventListener observer);
 	
 	/**
 	 * Loads to the wells contained within the specified plate.

@@ -4846,9 +4846,10 @@ class OMEROGateway
 		
 		isSessionAlive();
 		try {
+			List result = new ArrayList();
 			IMetadataPrx service = getMetadataService();
 			List<IObject> list = service.loadTagSets(options);
-			List result = new ArrayList();
+			
 			if (list == null) return result;
 			Iterator<IObject> i = list.iterator();
 			AnnotationAnnotationLink link;

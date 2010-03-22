@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -66,26 +65,27 @@ public class DMLoader
     
     /**
      * Creates a {@link BatchCall} to retrieve a Container tree, either
-     * Project, Dataset, CategoryGroup or Category.
+     * Project, Dataset.
      * 
      * @param rootNodeType  The type of the root node.
      * @param rootNodeIDs   A set of the IDs of top-most containers.
      * @param withLeaves    Passes <code>true</code> to retrieve the leaves
      *                      nodes, <code>false</code> otherwise.
-     * @param userID		The Id of the user.
+     * @param userID		The identifier of the user.
+     * @param groupID		The identifier of the user's group.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final Class rootNodeType,
                                     final List rootNodeIDs,
                                     final boolean withLeaves,
-                                    final long userID)
+                                    final long userID, final long groupID)
     {
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
                 results = os.loadContainerHierarchy(rootNodeType, 
-    					rootNodeIDs, withLeaves, userID);
+    					rootNodeIDs, withLeaves, userID, groupID);
             }
         };
     }
@@ -93,24 +93,18 @@ public class DMLoader
     /**
      * Creates a {@link BatchCall} to retrieve a Container tree.
      * 
-     * @param userID The Id of the user.
+     * @param userID The identifier of the user.
+     * @param groupID The identifier of the user's group.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(final long userID)
+    private BatchCall makeBatchCall(final long userID, final long groupID)
     {
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
                 results = os.loadContainerHierarchy(ProjectData.class, 
-                		null, false, userID);
-                
-                /*
-                 * results.addAll(r);
-                r = os.loadContainerHierarchy(ScreenData.class, 
-                		null, false, userID);
-                results.addAll(r);
-                */
+                		null, false, userID, groupID);
             }
         };
     }
@@ -139,20 +133,21 @@ public class DMLoader
      *                      container specified by the rootNodeType.
      * @param withLeaves    Passes <code>true</code> to retrieve the images.
      *                      <code>false</code> otherwise.
-     * @param userID		The Id of the user. 
+     * @param userID		The identifier of the user. 
+     * @param groupID		The identifier of the user's group.
      */
     public DMLoader(Class rootNodeType, List<Long> rootNodeIDs, 
-    				boolean withLeaves, long userID)
+    				boolean withLeaves, long userID, long groupID)
     {
         if (userID < 0) 
             throw new IllegalArgumentException("No root ID not valid.");
         if (rootNodeType == null) {
-        	loadCall = makeBatchCall(userID);
+        	loadCall = makeBatchCall(userID, groupID);
         } else if (ProjectData.class.equals(rootNodeType) ||
         		DatasetData.class.equals(rootNodeType) 
                 || ScreenData.class.equals(rootNodeType))
                 loadCall = makeBatchCall(rootNodeType, rootNodeIDs, withLeaves,
-                        				userID);
+                        				userID, groupID);
         else 
             throw new IllegalArgumentException("Unsupported type: "+
                                                 rootNodeType);

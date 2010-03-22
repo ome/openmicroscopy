@@ -289,10 +289,11 @@ public class NullOmeroPojoService
 
 	/**
      * No-op implementation
-     * @see OmeroDataService#loadContainerHierarchy(Class, List, boolean, long)
+     * @see OmeroDataService#loadContainerHierarchy(Class, List, boolean, long,
+     * long)
      */
 	public Set loadContainerHierarchy(Class rootNodeType, List rootNodeIDs, 
-			boolean withLeaves, long userID)
+			boolean withLeaves, long userID, long groupID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

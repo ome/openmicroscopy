@@ -63,68 +63,6 @@ public class TagsLoader
     private BatchCall   loadCall;
     
     /**
-     * Creates a {@link BatchCall} to retrieve the tags.
-     * 
-     * @param nodes T
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall reloadTags(final Map<Long, List> nodes)
-    {
-    	return new BatchCall("Reloadingtags.") {
-            public void doCall() throws Exception
-            {
-            	OmeroMetadataService os = context.getMetadataService();
-            	Iterator users = nodes.keySet().iterator();
-            	Long userID;
-            	List containers;
-            	Map<Long, Object> r = new HashMap<Long, Object>(nodes.size());
-                Object value;
-                Iterator j, c;
-                DataObject data;
-                List l;
-                Set children = null;
-                Long id;
-                Class klass = null;
-                Set newChildren;
-                List loaded = new ArrayList();
-            	while (users.hasNext()) {
-            		userID = (Long) users.next();
-            		containers = nodes.get(userID);
-            		if (containers == null || containers.size() == 0) {
-            			value = os.loadTagSetsContainer(-1L, false, userID);
-            		} else {
-            			value = os.loadTagSetsContainer(-1L, false, userID);
-            			
-            			/*
-            			l = new ArrayList();
-            			j = containers.iterator();
-            			while (j.hasNext()) {
-            				data = (DataObject) j.next();
-            				id = data.getId();
-            				loaded.add(id);
-            				c = os.loadTagsContainer(id, true, userID);
-            				if (c != null && c.size() > 0);
-            				l.addAll(c);
-						}
-            			c = os.loadTagsContainer(-1L, false, userID);
-            			j = c.iterator();
-            			while (j.hasNext()) {
-            				data = (DataObject) j.next();
-            				id = data.getId();
-            				if (!loaded.contains(id))
-            					l.add(data);
-						}
-            			value = l;
-            			*/
-            		}
-            		r.put(userID, value);
-				}
-            	result = r;
-            }
-        };
-    }
-    
-    /**
      * Creates a {@link BatchCall} to retrieve the tagSets owned by the passed
      * user.
      * 
@@ -136,17 +74,19 @@ public class TagsLoader
      * 						<code>false</code> to load <code>Tag</code>.
      * 						This will be taken into account if the Id is 
      * 						negative.
-     * @param userID		The id of the user.
+     * @param userID		The identifier of the user.
+     * @param groupID		The identifier of the user's group.
      * @return The {@link BatchCall}.
      */
     private BatchCall loadTagsCall(final Long id, final boolean dataObject, 
-    							final boolean topLevel,	final long userID)
+    							final boolean topLevel,	final long userID, 
+    							final long groupID)
     {
         return new BatchCall("Loading tags.") {
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
-            	result = os.loadTags(id, dataObject, topLevel, userID);
+            	result = os.loadTags(id, dataObject, topLevel, userID, groupID);
             }
         };
     }
@@ -175,11 +115,12 @@ public class TagsLoader
      * 						This will be taken into account if the Id is 
      * 						negative.
      * @param userID		The id of the user who owns the tags or tag sets.
+     * @param groupID		The id of the group the user is currently logged in.
      */
 	public TagsLoader(Long id, boolean withObjects, boolean topLevel, 
-			long userID)
+			long userID, long groupID)
 	{
-		loadCall = loadTagsCall(id, withObjects, topLevel, userID);
+		loadCall = loadTagsCall(id, withObjects, topLevel, userID, groupID);
 	}
 
 }

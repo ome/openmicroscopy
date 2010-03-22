@@ -797,7 +797,9 @@ class TreeViewerModel
 	void browseProject(TreeImageDisplay node)
 	{
 		state = TreeViewer.LOADING_DATA;
-		currentLoader = new ProjectsLoader(component, node);
+		ExperimenterData exp = getSelectedBrowser().getNodeOwner(node);
+		currentLoader = new ProjectsLoader(component, node, exp.getId(), 
+				getUserGroupID());
 		currentLoader.load();
 	}
 	
@@ -839,7 +841,9 @@ class TreeViewerModel
 	void browseTag(TreeImageDisplay node)
 	{
 		state = TreeViewer.LOADING_DATA;
-		currentLoader = new TagHierarchyLoader(component, node);
+		ExperimenterData exp = getSelectedBrowser().getNodeOwner(node);
+		if (exp == null) exp = TreeViewerAgent.getUserDetails();
+		currentLoader = new TagHierarchyLoader(component, node, exp.getId());
 		currentLoader.load();
 	}
 
@@ -1232,18 +1236,6 @@ class TreeViewerModel
 		currentLoader.load();
 	}
 
-	/**
-	 * Browses the specified folder.
-	 * 
-	 * @param node The folder to browse.
-	 */
-	void browseFolder(TreeImageDisplay node)
-	{
-		state = TreeViewer.LOADING_DATA;
-		currentLoader = new ProjectsLoader(component, node);
-		currentLoader.load();
-	}
-	
 	/**
 	 * Returns the permissions associated to the current group.
 	 * 

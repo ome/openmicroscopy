@@ -33,6 +33,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
+import pojos.GroupData;
 
 
 /** 
@@ -81,9 +83,11 @@ public class DatasetsLoader
 	 */
 	public void load()
 	{
-		long userID = MetadataViewerAgent.getUserDetails().getId();
+		ExperimenterData exp = MetadataViewerAgent.getUserDetails();
+		GroupData group = exp.getDefaultGroup();
+		
 		handle = dmView.loadContainerHierarchy(DatasetData.class, null, 
-				false, userID, this);	
+				false, exp.getId(), group.getId(), this);	
 	}
 	
 	/**

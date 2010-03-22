@@ -74,14 +74,14 @@ class DataManagerViewImpl
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see DataManagerView#loadContainerHierarchy(Class, List, boolean, long,
-	 * 						AgentEventListener)
+	 * 						long, AgentEventListener)
 	 */
 	public CallHandle loadContainerHierarchy(Class rootNodeType,
 			List<Long> rootNodeIDs, boolean withLeaves, long userID,
-			AgentEventListener observer)
+			long groupID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new DMLoader(rootNodeType, rootNodeIDs, withLeaves,
-				userID);
+				userID, groupID);
 		return cmd.exec(observer);
 	}
 
@@ -215,13 +215,14 @@ class DataManagerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadTags(Long, boolean, boolean, long,
+	 * @see DataManagerView#loadTags(Long, boolean, boolean, long, long,
 	 *  AgentEventListener)
 	 */
 	public CallHandle loadTags(Long id, boolean dataObject, boolean topLevel,
-			long userID, AgentEventListener observer)
+			long userID, long groupID, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new TagsLoader(id, dataObject, topLevel, userID);
+		BatchCallTree cmd = new TagsLoader(id, dataObject, topLevel, userID,
+				groupID);
 		return cmd.exec(observer);
 	}
 

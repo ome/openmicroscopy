@@ -60,6 +60,9 @@ public class TagHierarchyLoader
     /** Reference to the node hosting the project to browse. */
     private TreeImageDisplay 	node;
     
+    /** The id of the user. */
+    private long 				userID;
+    
     /**
      * Creates a new instance.
      * 
@@ -67,13 +70,16 @@ public class TagHierarchyLoader
      *               Mustn't be <code>null</code>.
      * @param node   The node hosting the project to browse.
      *               Mustn't be <code>null</code>.
+     * @param userID The id of the user the annotation belongs to.
      */
-    public TagHierarchyLoader(TreeViewer viewer, TreeImageDisplay node)
+    public TagHierarchyLoader(TreeViewer viewer, TreeImageDisplay node, 
+    		long userID)
 	{
 		super(viewer);
 		if (node == null)
 			throw new IllegalArgumentException("No node of reference.");
 		this.node = node;
+		this.userID = userID;
 	}
 	
     /**
@@ -82,8 +88,8 @@ public class TagHierarchyLoader
      */
     public void load()
     {
-    	long userID = TreeViewerAgent.getUserDetails().getId();
-    	handle = dmView.loadTags(node.getUserObjectId(), true, false, userID, this);
+    	handle = dmView.loadTags(node.getUserObjectId(), true, false, userID, 
+    			viewer.getUserGroupID(), this);
     }
 
     /**

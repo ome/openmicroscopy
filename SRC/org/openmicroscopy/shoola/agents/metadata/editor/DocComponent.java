@@ -655,10 +655,8 @@ class DocComponent
 	public void setEnabled(boolean enabled)
 	{
 		boolean b = enabled;
-		if (enabled) {
-			b = model.isUserOwner(model.getRefObject());
-		}
-		if (unlinkButton != null) unlinkButton.setEnabled(b);
+		if (enabled && data != null) b = model.isUserOwner(data);
+		if (unlinkButton != null) unlinkButton.setEnabled(enabled);
 		if (editButton != null) editButton.setEnabled(b);
 		if (downloadButton != null) downloadButton.setEnabled(enabled);
 		if (openButton != null) openButton.setEnabled(enabled);

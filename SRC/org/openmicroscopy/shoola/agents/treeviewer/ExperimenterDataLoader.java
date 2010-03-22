@@ -189,7 +189,8 @@ public class ExperimenterDataLoader
     			id = parent.getUserObjectId();
     		}
     		boolean top = type == TAG_SET;
-    		handle = dmView.loadTags(id, withImages, top, exp.getId(), this);
+    		handle = dmView.loadTags(id, withImages, top, exp.getId(), 
+    				viewer.getUserGroupID(), this);
     	} else if (FileAnnotationData.class.equals(rootNodeType)) {
     		handle = mhView.loadExistingAnnotations(rootNodeType, exp.getId(), 
     				viewer.getUserGroupID(), this);
@@ -199,12 +200,14 @@ public class ExperimenterDataLoader
     		} else {
     			if (parent == null) {
             		handle = dmView.loadContainerHierarchy(rootNodeType, null, 
-            				withImages, exp.getId(), this);	
+            				withImages, exp.getId(), viewer.getUserGroupID(), 
+            				this);	
             	} else {
             		List<Long> ids = new ArrayList<Long>(1);
             		ids.add(Long.valueOf(parent.getUserObjectId()));
             		handle = dmView.loadContainerHierarchy(rootNodeType, ids,
-            				withImages, exp.getId(), this);
+            				withImages, exp.getId(), viewer.getUserGroupID(), 
+            				this);
             	}
     		}
     	}

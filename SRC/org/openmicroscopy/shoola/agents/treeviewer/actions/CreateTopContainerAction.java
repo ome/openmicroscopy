@@ -228,10 +228,23 @@ public class CreateTopContainerAction
         if (nodeType != EXPERIMENTER) {
         	if (selectedDisplay != null) {
         		Object ho = selectedDisplay.getUserObject();
+        		if (ho instanceof ExperimenterData) {
+					ExperimenterData data = (ExperimenterData) ho;
+					long id = TreeViewerAgent.getUserDetails().getId();
+					setEnabled(data.getId() == id);
+					return;
+				}
+        		/*
         		switch (nodeType) {
 					case TAG:
-					case TAG_SET:
-						setEnabled(model.isObjectWritable(ho));
+						if (ho instanceof TagAnnotationData) {
+							TagAnnotationData tag = (TagAnnotationData) ho;
+							String ns = tag.getNameSpace();
+							if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
+								setEnabled(model.isUserOwner(ho));
+							} else setEnabled(false);
+						}
+						//setEnabled(model.isUserOwner(ho));
 						break;
 					case DATASET:
 						if (ho instanceof DatasetData) {
@@ -242,19 +255,21 @@ public class CreateTopContainerAction
 					default:
 						setEnabled(true);
 				}
+				*/
+        		setEnabled(true);
         	}
-        	return;
+        } else {
+        	Browser browser = model.getSelectedBrowser();
+            if (browser == null || selectedDisplay == null) {
+                setEnabled(false);
+                return;
+            } 
+            Object ho = selectedDisplay.getUserObject(); 
+            if (ho instanceof GroupData)  {
+            	TreeImageDisplay[] selected = browser.getSelectedDisplays();
+            	setEnabled(selected.length == 1);
+            } else setEnabled(false);
         }
-        Browser browser = model.getSelectedBrowser();
-        if (browser == null || selectedDisplay == null) {
-            setEnabled(false);
-            return;
-        } 
-        Object ho = selectedDisplay.getUserObject(); 
-        if (ho instanceof GroupData)  {
-        	TreeImageDisplay[] selected = browser.getSelectedDisplays();
-        	setEnabled(selected.length == 1);
-        } else setEnabled(false);
     }
     
     /**

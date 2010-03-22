@@ -64,7 +64,6 @@ import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
-
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
@@ -761,6 +760,7 @@ class OmeroMetadataServiceImpl
 			Iterator i = annotations.iterator();
 			AnnotationData data;
 			BooleanAnnotationData b;
+			Map<Long, AnnotationData> map = new HashMap<Long, AnnotationData>();
 			while (i.hasNext()) {
 				data = (AnnotationData) i.next();
 				if (data instanceof URLAnnotationData)
@@ -768,18 +768,12 @@ class OmeroMetadataServiceImpl
 				else if (data instanceof TextualAnnotationData)
 					texts.add(data);
 				else if ((data instanceof TagAnnotationData)) {
+					map.put(data.getId(), data);
 					tags.add(data);
-					/*
-					if (!(object instanceof TagAnnotationData)) {
-						tag = loadTagDescription((TagAnnotationData) data, 
-				                userID);
-						tags.add(tag);
-					} else isChild = false;
-					*/
-					//need to load the description
 				} else if (data instanceof RatingAnnotationData)
 					ratings.add(data);
 				else if (data instanceof FileAnnotationData) {
+					map.put(data.getId(), data);
 					attachments.add(data);
 				} else if (data instanceof BooleanAnnotationData) {
 					b = (BooleanAnnotationData) data;
@@ -788,30 +782,16 @@ class OmeroMetadataServiceImpl
 						published.add(data);
 				}
 			}
-			/*
-			if ((object instanceof TagAnnotationData) && isChild) {
-				List<Long> ids = new ArrayList<Long>();
-				ids.add(object.getId());
-				Collection r = gateway.fetchAnnotations(ids, userID, true);
-				if (r != null) {
-					i = r.iterator();
-					while (i.hasNext()) {
-						data = (AnnotationData) i.next();
-						if (data instanceof TagAnnotationData) {
-							tag = loadTagDescription((TagAnnotationData) data, 
-					                userID);
-			                tags.add(tag);
-						}
-					}
-				}
-			}
-			*/
 			results.setTextualAnnotations(texts);
 			results.setUrls(urls);
 			results.setTags(tags);
 			results.setRatings(ratings);
 			results.setAttachments(attachments);
 			results.setPublished(published);
+			if (map.size() > 0) {
+				
+				//loadLmap.keySet()
+			}
 		}
 	
 		/*
@@ -1669,53 +1649,7 @@ class OmeroMetadataServiceImpl
 		}
 		return filteredNodes;
 	}
-
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroMetadataService#loadTagSetsContainer(Long, boolean, long)
-	 */
-	public Collection loadTagSetsContainer(Long id, boolean dataObject, 
-										long userID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		/*
-		//Collection of tags linked to tags.
-		if (id >= 0)
-			return gateway.loadTagSetsAndDataObjects(id);
 	
-		Collection c = gateway.loagTagSets(userID);
-		List<Long> ids = new ArrayList<Long>();
-		Iterator i = c.iterator();
-		TagAnnotationData tag, child;
-		Set children;
-		Iterator j;
-		while (i.hasNext()) {
-			tag = (TagAnnotationData) i.next();
-			ids.add(tag.getId());
-			children = tag.getTags();
-			if (children != null) {
-				j = children.iterator();
-				while (j.hasNext()) {
-					child = (TagAnnotationData) j.next();
-					if (!ids.contains(child.getId()))
-						ids.add(child.getId());
-				}
-			}
-		}
-		//load the tags not linked to a tag
-		Collection allTags = loadAnnotations(TagAnnotationData.class, null, -1, 
-				                             userID);
-		i = allTags.iterator();
-		while (i.hasNext()) {
-			tag = (TagAnnotationData) i.next();
-			if (!ids.contains(tag.getId()))
-				c.add(tag);
-		}
-		return c;
-		*/
-		return null;
-	}
-
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#getEnumeration(String)
@@ -1865,14 +1799,15 @@ class OmeroMetadataServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroMetadataService#loadTags(Long, boolean, boolean, long)
+	 * @see OmeroMetadataService#loadTags(Long, boolean, boolean, long, long)
 	 */
 	public Collection loadTags(Long id, boolean dataObject, boolean topLevel,
-			long userID) 
+			long userID, long groupID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		ParametersI po = new ParametersI();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
+		if (groupID >= 0) po.grp(omero.rtypes.rlong(groupID));
 		if (topLevel) {
 			po.orphan();
 			return gateway.loadTagSets(po);

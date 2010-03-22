@@ -91,6 +91,8 @@ public class DMRefreshLoader
     	OmeroDataService os = context.getDataService();
         Iterator users = nodes.entrySet().iterator();
         long userID;
+        //TODO Review that code for refresh.
+        long groupID = -1;
         List containers;
         
         Object result;
@@ -109,7 +111,7 @@ public class DMRefreshLoader
         	containers = (List) entry.getValue();
         	if (containers == null || containers.size() == 0) {
         		result = os.loadContainerHierarchy(rootNodeType, null, 
-                		false, userID);
+                		false, userID, groupID);
         		if (mapResult.containsKey(userID)) {
         			s = (Set) mapResult.get(userID);
         			s.addAll((Set) result);
@@ -118,7 +120,7 @@ public class DMRefreshLoader
         		}
         	} else {
         		set = os.loadContainerHierarchy(rootNodeType, null, 
-                        false, userID);
+                        false, userID, groupID);
                 i = containers.iterator();
                 ids = new ArrayList<Long>(containers.size());
                 while (i.hasNext()) {
@@ -154,7 +156,7 @@ public class DMRefreshLoader
                                 cIds = new ArrayList(1);
                                 cIds.add(id);
                                 r = os.loadContainerHierarchy(klass, cIds, 
-                                        true, userID);
+                                        true, userID, groupID);
                                 k = r.iterator();
                                 while (k.hasNext()) {
                                     newChildren.add(k.next());
@@ -169,7 +171,6 @@ public class DMRefreshLoader
         			map.putAll((Map) result);
         		} else mapResult.put(userID, result);
         	}
-        	//results.put(userID, result);
 		}
     }
     
@@ -327,7 +328,7 @@ public class DMRefreshLoader
                 Object result;
                 while (users.hasNext()) {
                 	userID = (Long) users.next();
-                	result = os.loadTags(-1L, false, true, userID);
+                	result = os.loadTags(-1L, false, true, userID, -1);
                 	r.put(userID, result);
                 }
                 results = r;

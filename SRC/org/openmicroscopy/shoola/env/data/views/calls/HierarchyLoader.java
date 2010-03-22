@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -48,9 +47,8 @@ import pojos.ProjectData;
  * DatasetData, and ImageData</code> objects. A Dataset tree
  * will only have objects of the latter two types.</p>
  * <p>So the object returned in the <code>DSCallOutcomeEvent</code> will be
- * a <code>ProjectData, DatasetData, CategoryGroupData</code> or
- * <code>CategoryData</code> depending on whether you asked for a Project, 
- * Dataset, Category Group, or Category tree.</p>
+ * a <code>ProjectData, DatasetData, ScreenData</code> depending on whether
+ * you asked for a Project, Dataset, or Screen.</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -70,6 +68,9 @@ public class HierarchyLoader
     /** The Id of the user. */
     private long        userID;
     
+    /** The Id of the user. */
+    private long        groupID;
+    
     /** The root nodes of the found trees. */
     private Set         rootNodes;
     
@@ -81,7 +82,7 @@ public class HierarchyLoader
      * 
      * @param rootNodeType  The type of the root node. Can only be one out of:
      *                      {@link ProjectData}, {@link DatasetData}.
-     * @param rootNodeIDs   Collection of root node ids.
+     * @param rootNodeIDs   Collection of root node identifiers.
      */
     private void validate(Class rootNodeType, List<Long> rootNodeIDs)
     {
@@ -102,7 +103,7 @@ public class HierarchyLoader
     
     /**
      * Creates a {@link BatchCall} to retrieve a Container tree, either
-     * Project, Dataset, CategoryGroup or Category.
+     * Project, Dataset.
      * 
      * @param rootNodeType The type of the root node.
      * @param rootNodeIDs Collection of container's id. 
@@ -116,7 +117,7 @@ public class HierarchyLoader
             {
                 OmeroDataService os = context.getDataService();
                 rootNodes = os.loadContainerHierarchy(rootNodeType,
-                                                    rootNodeIDs, true, userID);
+                                             rootNodeIDs, true, userID, groupID);
             }
         };
     }
@@ -143,32 +144,15 @@ public class HierarchyLoader
      * 
      * @param rootNodeType  The type of the root node. Can only be one out of:
      *                      {@link ProjectData}, {@link DatasetData}.
-     * @param rootNodeID    The id of the root node.
-     * @param userID   		The id of the user.
-     */
-    public HierarchyLoader(Class rootNodeType, long rootNodeID, long userID)
-    {
-        this.userID = userID;
-        List<Long> set = new ArrayList<Long>(1);
-        set.add(Long.valueOf(rootNodeID));
-        validate(rootNodeType, set);
-    }
-    
-    /**
-     * Creates a new instance to load a tree rooted by the object having the
-     * specified type and id.
-     * If bad arguments are passed, we throw a runtime exception so to fail
-     * early and in the caller's thread.
-     * 
-     * @param rootNodeType  The type of the root node. Can only be one out of:
-     *                      {@link ProjectData}, {@link DatasetData}.
-     * @param rootNodeIDs   The ids of the root nodes.
-     * @param userID   		The id of the user.
+     * @param rootNodeIDs   The identifiers of the root nodes.
+     * @param userID   		The identifier of the user.
+     * @param groupID   	The identifier of the group.
      */
     public HierarchyLoader(Class rootNodeType, List<Long> rootNodeIDs, 
-    						long userID)
+    						long userID, long groupID)
     {
     	this.userID = userID;
+    	this.groupID = groupID;
         validate(rootNodeType, rootNodeIDs);
     }
     
