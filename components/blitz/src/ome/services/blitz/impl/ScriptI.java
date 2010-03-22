@@ -26,6 +26,7 @@ import ome.util.Utils;
 import omero.ApiUsageException;
 import omero.RInt;
 import omero.RType;
+import omero.ResourceError;
 import omero.ServerError;
 import omero.ValidationException;
 import omero.api.AMD_IScript_deleteScript;
@@ -157,14 +158,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
                 OriginalFile file = makeFile(scriptText); // FIXME PATH!!!
                 writeContent(file, scriptText);
-                JobParams params = helper.getOrCreateParams(file.getId(), __current);
-
-                if (params == null) {
-                    throw new ApiUsageException(null, null, "Script error: no params found.");
-                }
-
-                file.setName(params.name);
-                updateFile(file);
+                updateFileWithParams(__current, file);
                 return file.getId();
 
             }
@@ -186,14 +180,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 IceMapper mapper = new IceMapper();
                 OriginalFile file = (OriginalFile) mapper.reverse(fileObject);
                 writeContent(file, scriptText);
-                JobParams params = helper.getOrCreateParams(file.getId(), __current);
-
-                if (params == null) {
-                    throw new ApiUsageException(null, null, "Script error: no params found.");
-                }
-
-                file.setName(params.name);
-                updateFile(file);
+                updateFileWithParams(__current, file);
                 return null; // void
             }
 
@@ -580,4 +567,23 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         return true;
     }
 
+    private void updateFileWithParams(final Current __current,
+            OriginalFile file) throws ServerError, ApiUsageException {
+        try {
+            JobParams params = helper.getOrCreateParams(file.getId(), __current);
+
+            if (params == null) {
+                throw new ApiUsageException(null, null, "Script error: no params found.");
+            }
+
+            file.setName(params.name);
+            updateFile(file);
+
+        } catch (ResourceError re) {
+            // Probably a user script for which there's currently
+            // no processor running. This doesn't signal a bad script
+            // like null params do, but rather just that we'll have to
+            // generate the params later.
+        }
+    }
 }
