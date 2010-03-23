@@ -62,6 +62,9 @@ public class AnalysisActivity
 	/** The description of the activity when finished. */
 	private static final String		DESCRIPTION_CREATED = "Analysis finished";
 	
+	/** The description of the activity when cancelled. */
+	private static final String		DESCRIPTION_CANCEL = "Analysis cancelled";
+	
 	/** The parameters hosting information about the figure to make. */
     private AnalysisActivityParam	parameters;
     
@@ -90,9 +93,10 @@ public class AnalysisActivity
 	protected UserNotifierLoader createLoader()
 	{
 		AnalysisParam param = (AnalysisParam) parameters.getParameters();
-		return new Analyser(viewer,  registry, parameters.getParameters(), 
+		loader = new Analyser(viewer,  registry, parameters.getParameters(), 
 				param.getIds(), param.getNodeType(), param.getIndex(),
 				this);
+		return loader;
 	}
 
 	/**
@@ -143,4 +147,12 @@ public class AnalysisActivity
 		chooser.centerDialog();
 	}
 	
+	/**
+	 * Modifies the text of the component. 
+	 * @see ActivityComponent#notifyActivityCancelled()
+	 */
+	protected void notifyActivityCancelled()
+	{
+		type.setText(DESCRIPTION_CANCEL);
+	}
 }

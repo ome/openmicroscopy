@@ -74,7 +74,7 @@ public abstract class AbstractComponent
     
     /** 
      * Key used to look up observers in the {@link #propsRegistry} that 
-     * registred for all bound properties. 
+     * registered for all bound properties. 
      */
     private Object      allPropsKey;
     
@@ -97,9 +97,9 @@ public abstract class AbstractComponent
     protected void fireStateChange()
     {
         ChangeListener observer;
-        Iterator i = changeRegistry.iterator();
+        Iterator<ChangeListener> i = changeRegistry.iterator();
         while (i.hasNext()) {
-            observer = (ChangeListener) i.next();
+            observer = i.next();
             observer.stateChanged(changeEvent);
         }
     }

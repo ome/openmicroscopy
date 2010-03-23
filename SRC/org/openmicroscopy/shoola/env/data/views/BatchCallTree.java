@@ -127,7 +127,7 @@ public abstract class BatchCallTree
     BatchCall getCurCall() { return root.getCurCall(); }
     
     /**
-     * Asynchronoulsy executes this task.
+     * Asynchronously executes this task.
      * All leaf {@link BatchCall}s within the tree will be executed 
      * <i>sequentially</i>, respecting the order in which nodes were added to
      * the tree.

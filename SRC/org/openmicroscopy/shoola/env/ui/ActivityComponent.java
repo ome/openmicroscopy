@@ -50,7 +50,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
- * Activity.
+ * Top class that each action should extend.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *         <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -106,6 +106,12 @@ public abstract class ActivityComponent
 	/** One of the constants defined by this class. */
 	private int							index;
 	
+	/** The index of the {@link #cancelButton} or {@link #removeButton}. */
+	private int							buttonIndex;
+	
+	/** The tool bar displaying controls. *. */
+	private JToolBar					toolBar;
+	
 	/** Button to download the activity depending on the type of activity. */
 	protected JButton					downloadButton;
 	
@@ -124,6 +130,9 @@ public abstract class ActivityComponent
     /** The result of the activity. */
     protected Object 					result;
     
+    /** Loader associated to the activity. */
+    protected UserNotifierLoader 		loader;
+
     /**
      * Creates a button.
      * 
@@ -152,6 +161,7 @@ public abstract class ActivityComponent
 	private void initComponents(String text, Icon icon)
 	{
 		removeButton = createButton("Remove", REMOVE);
+		cancelButton = createButton("Cancel", CANCEL);
 		if (index == ADVANCED)
 			downloadButton = createButton("Download", DOWNLOAD);
 		status = new JXBusyLabel(SIZE);
@@ -193,15 +203,17 @@ public abstract class ActivityComponent
 	 */
 	private JComponent createToolBar()
 	{
-		JToolBar bar = new JToolBar();
-		bar.setOpaque(false);
-		bar.setFloatable(false);
-		bar.setBorder(null);
+		toolBar = new JToolBar();
+		toolBar.setOpaque(false);
+		toolBar.setFloatable(false);
+		toolBar.setBorder(null);
+		buttonIndex = 0;
 		if (index == ADVANCED) {
-			bar.add(downloadButton);
-			bar.add(Box.createHorizontalStrut(5));
+			toolBar.add(downloadButton);
+			toolBar.add(Box.createHorizontalStrut(5));
+			buttonIndex = 2;
 		}
-		bar.add(removeButton);
+		toolBar.add(cancelButton);
 		JLabel l = new JLabel();
 		Font f = l.getFont();
 		l.setForeground(UIUtilities.LIGHT_GREY.darker());
@@ -212,16 +224,18 @@ public abstract class ActivityComponent
 			String v = values[1];
 			if (values.length >= 2) v +=" "+values[2];
 			l.setText(v);
-			bar.add(Box.createHorizontalStrut(5));
-			bar.add(l);
-			bar.add(Box.createHorizontalStrut(5));
+			toolBar.add(Box.createHorizontalStrut(5));
+			toolBar.add(l);
+			toolBar.add(Box.createHorizontalStrut(5));
 		}
-		return bar;
+		return toolBar;
 	}
 	
 	/** Resets the controls. */
 	private void reset()
 	{
+		toolBar.remove(buttonIndex);
+		toolBar.add(removeButton, buttonIndex);
 		removeButton.setEnabled(true);
 		if (index == ADVANCED) downloadButton.setEnabled(true);
 		status.setBusy(false);
@@ -321,10 +335,18 @@ public abstract class ActivityComponent
     	return original;
 	}
 	
+	/** Invokes when the activity has been cancelled. */
+	public void onActivityCancelled()
+	{
+		reset();
+		notifyActivityCancelled();
+	}
+	
 	/** Invokes when the activity starts. */ 
 	public void startActivity()
 	{
 		status.setBusy(true);
+		cancelButton.setEnabled(true);
 	}
 	
 	/** 
@@ -376,6 +398,9 @@ public abstract class ActivityComponent
 	}
 	
 	/** Subclasses should override the method. */
+	protected abstract void notifyActivityCancelled();
+	
+	/** Subclasses should override the method. */
 	protected abstract void notifyActivityEnd();
 	
 	/** Creates a loader. */
@@ -399,7 +424,7 @@ public abstract class ActivityComponent
 				notifyDownload();
 				break;
 			case CANCEL:
-				firePropertyChange(REMOVE_ACTIVITY_PROPERTY, null, this);
+				if (loader != null) loader.cancel();
 		}
 	}
 	
@@ -412,6 +437,7 @@ public abstract class ActivityComponent
 	{
 		super.setBackground(color);
 		if (removeButton != null) removeButton.setBackground(color);
+		if (cancelButton != null) cancelButton.setBackground(color);
 	}
 	
 }

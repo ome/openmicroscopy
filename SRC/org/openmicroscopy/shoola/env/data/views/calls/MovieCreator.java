@@ -30,7 +30,9 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.ScriptCallback;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
+import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -51,12 +53,15 @@ public class MovieCreator
 	extends BatchCallTree
 {
 
-	/** The results of the call. */
-    private Object        results;
+	/** The result of the call. */
+    private Object       	result;
     
     /** Loads the specified tree. */
-    private BatchCall   loadCall;
+    private BatchCall   	loadCall;
 
+    /** The server call-handle to the computation. */
+    private ScriptCallback	scriptCallBack;
+    
     /**
      * Creates a {@link BatchCall} to create a movie.
      * 
@@ -73,10 +78,20 @@ public class MovieCreator
             public void doCall() throws Exception
             {
                 OmeroImageService os = context.getImageService();
-                results = os.createMovie(imageID, pixelsID, channels, param);
+                scriptCallBack = os.createMovie(imageID, pixelsID, channels, 
+                		param);
+                System.err.println("callback: "+scriptCallBack);
+                result = Boolean.TRUE;
             }
         };
     }
+    
+    /**
+     * Returns the server call-handle to the computation.
+     * 
+     * @return See above.
+     */
+    protected Object getPartialResult() { return scriptCallBack; }
     
     /**
      * Adds the {@link #loadCall} to the computation tree.
@@ -90,7 +105,7 @@ public class MovieCreator
      * 
      * @see BatchCallTree#getResult()
      */
-    protected Object getResult() { return results; }
+    protected Object getResult() { return scriptCallBack; }
     
     /**
      * Creates a new instance.

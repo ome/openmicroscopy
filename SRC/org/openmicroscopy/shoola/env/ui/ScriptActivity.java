@@ -80,6 +80,13 @@ public class ScriptActivity
 	private static final String		DESCRIPTION_UPLOAD_CREATED = 
 		"Script uploaded";
 	
+	/** The description of the activity when cancelled. */
+	private static final String		DESCRIPTION_UPLOAD_CANCEL = 
+		"Upload cancelled";
+	
+	/** The description of the activity when cancelled. */
+	private static final String		DESCRIPTION_RUN_CANCEL = "Run cancelled";
+	
 	/** The script to run. */
     private ScriptObject	script;
     
@@ -119,7 +126,8 @@ public class ScriptActivity
 	 */
 	protected UserNotifierLoader createLoader()
 	{
-		return new ScriptHandler(viewer,  registry, script, index, this);
+		loader = new ScriptHandler(viewer,  registry, script, index, this);
+		return loader;
 	}
 
 	/**
@@ -134,6 +142,21 @@ public class ScriptActivity
 				break;
 			case RUN:
 				type.setText(DESCRIPTION_RUN_CREATED);
+		}
+	}
+	
+	/**
+	 * Modifies the text of the component. 
+	 * @see ActivityComponent#notifyActivityCancelled()
+	 */
+	protected void notifyActivityCancelled()
+	{
+		switch (index) {
+			case UPLOAD:
+				type.setText(DESCRIPTION_UPLOAD_CANCEL);
+				break;
+			case RUN:
+				type.setText(DESCRIPTION_RUN_CANCEL);
 		}
 	}
 	

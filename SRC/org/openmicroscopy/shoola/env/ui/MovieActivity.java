@@ -64,6 +64,10 @@ public class MovieActivity
 	/** The description of the activity when finished. */
 	private static final String		DESCRIPTION_CREATED = "Movie created for";
 	
+	/** The description of the activity when finished. */
+	private static final String		DESCRIPTION_CANCEL = 
+		"Movie creation cancelled for";
+	
 	/** The parameters hosting information about the image to export. */
     private MovieActivityParam	parameters;
 
@@ -94,8 +98,9 @@ public class MovieActivity
 	 */
 	protected UserNotifierLoader createLoader()
 	{
-		return new MovieCreator(viewer,  registry, parameters.getParameters(), 
+		loader = new MovieCreator(viewer,  registry, parameters.getParameters(), 
 				parameters.getChannels(), parameters.getImage(), this);
+		return loader;
 	}
 
 	/**
@@ -105,6 +110,15 @@ public class MovieActivity
 	protected void notifyActivityEnd()
 	{
 		type.setText(DESCRIPTION_CREATED);
+	}
+	
+	/**
+	 * Modifies the text of the component. 
+	 * @see ActivityComponent#notifyActivityCancelled()
+	 */
+	protected void notifyActivityCancelled()
+	{
+		type.setText(DESCRIPTION_CANCEL);
 	}
 	
 	/** Notifies to download the file. */

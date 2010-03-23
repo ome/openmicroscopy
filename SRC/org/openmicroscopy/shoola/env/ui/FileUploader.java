@@ -82,7 +82,7 @@ class FileUploader
     FileUploader(UserNotifier viewer, Registry reg, MessengerDialog src,
     		MessengerDetails details)
 	{
-		super(viewer, reg);
+		super(viewer, reg, null);
 		if (details == null)
 			throw new IllegalArgumentException("No files to upload.");
 		this.details = details;

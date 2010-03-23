@@ -64,9 +64,6 @@ public class FigureCreator
     /** The result. */
     private FileAnnotationData		data;
     
-    /** Reference to the activity. */
-    private ActivityComponent 		activity;
-    
     /** Notifies the user that an error occurred. */
     protected void onException() { handleNullResult(); }
     
@@ -85,9 +82,7 @@ public class FigureCreator
 			Object param, List<Long> ids, Class type, 
 			ActivityComponent activity)
 	{
-		super(viewer, registry);
-		if (activity == null)
-			throw new IllegalArgumentException("Activity valid.");
+		super(viewer, registry, activity);
 		if (ids == null || ids.size() == 0)
 			throw new IllegalArgumentException("Objects not valid.");
 		if (param == null)
@@ -95,7 +90,6 @@ public class FigureCreator
 		this.param = param;
 		this.ids = ids;
 		this.type = type;
-		this.activity = activity;
 	}
 	
 	/**

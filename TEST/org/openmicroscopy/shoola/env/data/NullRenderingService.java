@@ -297,7 +297,7 @@ public class NullRenderingService
      * No-op implementation
      * @see OmeroImageService#createMovie(long, List, MovieExportParam)
      */
-	public FileAnnotationData createMovie(long imageID, long pixelsID,
+	public ScriptCallback createMovie(long imageID, long pixelsID,
 			List<Integer> channels, MovieExportParam param) 
 		throws DSOutOfServiceException, DSAccessException
 	{

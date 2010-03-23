@@ -447,7 +447,7 @@ public interface OmeroImageService
 	public List<FileFilter> getSupportedFileFilters();
 	
 	/**
-	 * Creates a movie. Returns the annotation hosting the movie.
+	 * Creates a movie. Returns script call-back.
 	 * 
 	 * @param imageID 	The id of the image.
 	 * @param pixelsID 	The id of the pixels set.	
@@ -459,7 +459,7 @@ public interface OmeroImageService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public DataObject createMovie(long imageID, long pixelsID, 
+	public ScriptCallback createMovie(long imageID, long pixelsID, 
 			List<Integer> channels, MovieExportParam param)
 		throws DSOutOfServiceException, DSAccessException;
 	

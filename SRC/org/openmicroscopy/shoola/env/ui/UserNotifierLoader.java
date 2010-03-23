@@ -63,17 +63,24 @@ abstract class UserNotifierLoader
     /** Convenience reference for subclasses. */
     protected final ImageDataView		ivView;
     
+    
+    /** Convenience reference to the activity. */
+    protected final ActivityComponent 	activity;
+    
     /**
      * Creates a new instance.
      * 
      * @param viewer	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
      * @param registry	Convenience reference for subclasses.
+     * @param activity	Convenience reference to the activity.
      */
-    UserNotifierLoader(UserNotifier viewer,  Registry registry)
+    UserNotifierLoader(UserNotifier viewer, Registry registry,
+    		ActivityComponent activity)
     {
     	if (viewer == null) throw new NullPointerException("No viewer.");
     	if (registry == null) throw new NullPointerException("No registry.");
+    	this.activity = activity;
     	this.viewer = viewer;
     	this.registry = registry;
     	mhView = (MetadataHandlerView) 
@@ -96,6 +103,7 @@ abstract class UserNotifierLoader
     {
         String info = "The data retrieval has been cancelled.";
         registry.getLogger().info(this, info);
+        if (activity != null) activity.onActivityCancelled();
     }
     
     /**
@@ -110,7 +118,6 @@ abstract class UserNotifierLoader
         msg.print(s);
         msg.print(exc);
         registry.getLogger().error(this, msg);
-        exc.printStackTrace();
         //registry.getUserNotifier().notifyError("Data Loading Failure", 
         //                                      s, exc);
         onException();

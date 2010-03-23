@@ -60,10 +60,7 @@ public class ScriptHandler
     
     /** Reference to the script to run. */
     private ScriptObject 			script;
-    
-    /** Reference to the activity. */
-    private ActivityComponent 		activity;
-    
+
     /** One of constants defined by this class. */
     private int 					index;
     
@@ -81,13 +78,10 @@ public class ScriptHandler
 	public ScriptHandler(UserNotifier viewer,  Registry registry,
 			ScriptObject script, int index, ActivityComponent activity)
 	{
-		super(viewer, registry);
+		super(viewer, registry, activity);
 		if (script == null)
 			throw new IllegalArgumentException("No script to run.");
-		if (activity == null)
-			throw new IllegalArgumentException("Activity valid.");
 		this.script = script;
-		this.activity = activity;
 		this.index = index;
 	}
 	

@@ -68,9 +68,6 @@ public class Analyser
     /** The type of analysis to perform. */
     private int						index;
     
-    /** Reference to the activity. */
-    private ActivityComponent 		activity;
-    
     /** Notifies the user that an error occurred. */
     protected void onException() { handleNullResult(); }
     
@@ -90,9 +87,7 @@ public class Analyser
 			Object param, List<Long> ids, Class type, int index, 
 			ActivityComponent activity)
 	{
-		super(viewer, registry);
-		if (activity == null)
-			throw new IllegalArgumentException("Activity valid.");
+		super(viewer, registry, activity);
 		if (ids == null || ids.size() == 0)
 			throw new IllegalArgumentException("Objects not valid.");
 		if (param == null)
@@ -100,7 +95,6 @@ public class Analyser
 		this.param = param;
 		this.ids = ids;
 		this.type = type;
-		this.activity = activity;
 		this.index = index;
 	}
 	

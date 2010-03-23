@@ -85,8 +85,7 @@ class FileLoader
 	FileLoader(UserNotifier viewer, Registry reg, File file, long fileID, 
 			long size, boolean toLoad, ActivityComponent activity)
 	{
-		super(viewer, reg);
-		this.activity = activity;
+		super(viewer, reg, activity);
 		this.file = file;
 		this.fileID = fileID;
 		this.size = size;

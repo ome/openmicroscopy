@@ -64,10 +64,7 @@ public class ExportLoader
 
     /** The file where to export the image. */
     private File					file;
-    
-    /** Reference to the activity. */
-    private ActivityComponent 		activity;
-    
+
     /** One of the constants defined by this class. */
     private int						index;
     
@@ -89,14 +86,11 @@ public class ExportLoader
 			ImageData image, File file, int index,
 			ActivityComponent activity)
 	{
-		super(viewer, registry);
-		if (activity == null)
-			throw new IllegalArgumentException("Activity valid.");
+		super(viewer, registry, activity);
 		if (image == null)
 			throw new IllegalArgumentException("Image not valid.");
 		this.image = image;
 		this.file = file;
-		this.activity = activity;
 		this.index = index;
 	}
 	

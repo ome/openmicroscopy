@@ -61,6 +61,9 @@ public class ExportActivity
 	/** The description of the activity when finished. */
 	private static final String		DESCRIPTION_CREATED = "Image exported";
 	
+	/** The description of the activity when cancelled. */
+	private static final String		DESCRIPTION_CANCEL = "Export cancelled";
+	
     /** The parameters hosting information about the image to export. */
     private ExportActivityParam parameters;
     
@@ -123,8 +126,9 @@ public class ExportActivity
 	 */
 	protected UserNotifierLoader createLoader()
 	{
-		return new ExportLoader(viewer,  registry, parameters.getImage(), 
+		loader = new ExportLoader(viewer,  registry, parameters.getImage(), 
 				new File(getFileName()), ExportLoader.EXPORT_AS_OME_TIFF, this);
+		return loader;
 	}
 
 	/**
@@ -136,4 +140,12 @@ public class ExportActivity
 		type.setText(DESCRIPTION_CREATED);
 	}
 	
+	/**
+	 * Modifies the text of the component. 
+	 * @see ActivityComponent#notifyActivityCancelled()
+	 */
+	protected void notifyActivityCancelled()
+	{
+		type.setText(DESCRIPTION_CANCEL);
+	}
 }

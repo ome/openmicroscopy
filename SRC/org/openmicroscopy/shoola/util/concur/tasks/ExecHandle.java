@@ -47,7 +47,7 @@ package org.openmicroscopy.shoola.util.concur.tasks;
 public class ExecHandle
 {
 
-    /** Points to the command that encapsulates the service workflow. */
+    /** Points to the command that encapsulates the service work-flow. */
     private ExecCommand   command;
     
     
@@ -62,7 +62,7 @@ public class ExecHandle
     /**
      * Links this handle to the specified service.
      * 
-     * @param cmd   The command that encapsulates the service workflow.
+     * @param cmd   The command that encapsulates the service work-flow.
      *              Must be a valid reference.
      */
     void setCommand(ExecCommand cmd) 

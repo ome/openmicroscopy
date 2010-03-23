@@ -288,12 +288,14 @@ class OmeroImageServiceImpl
 		throws RenderingServiceException
 	{
 		Map<Long, BufferedImage> r = new HashMap<Long, BufferedImage>();
+		List<Long> ids = new ArrayList<Long>();
+		Iterator i;
 		try {
 			if (pixelsID == null || pixelsID.size() == 0) return r;
 			//First check if we have a renderer for the pixel
 			Iterator j = pixelsID.iterator();
 			long id;
-			List<Long> ids = new ArrayList<Long>();
+			
 			RenderingControl rnd;
 			PlaneDef pDef = new PlaneDef();
 			pDef.slice = omero.romio.XY.value;
@@ -317,7 +319,7 @@ class OmeroImageServiceImpl
 				}
 			}
 			if (ids.size() == 0) return r;
-			Iterator i;
+			
 			Map m = gateway.getThumbnailSet(ids, max);
 			if (m == null || m.size() == 0) {
 				i = ids.iterator();
@@ -351,12 +353,16 @@ class OmeroImageServiceImpl
 			}
 			return r;
 		} catch (Exception e) {
-			if (e instanceof SecurityException) return r;
-			if (e instanceof DSOutOfServiceException) {
-				context.getLogger().error(this, e.getMessage());
-				return r;//getThumbnailSet(pixelsID, max);
-			}
-			throw new RenderingServiceException("Get Thumbnail set", e);
+			//TODO: handle exception
+			e.printStackTrace();
+			context.getLogger().error(this, e.getMessage());
+			if (ids.size() > 0) { 
+				i = ids.iterator();
+				while (i.hasNext()) 
+					r.put((Long) i.next(), null);
+			} 
+			return r;
+			//throw new RenderingServiceException("Get Thumbnail set", e);
 		}
 	}
 	
@@ -725,7 +731,7 @@ class OmeroImageServiceImpl
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#createMovie(long, long, List, MovieExportParam)
 	 */
-	public DataObject createMovie(long imageID, long pixelsID, 
+	public ScriptCallback createMovie(long imageID, long pixelsID, 
 			List<Integer> channels, MovieExportParam param)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -737,10 +743,11 @@ class OmeroImageServiceImpl
 			channels = new ArrayList<Integer>();
 		ExperimenterData exp = (ExperimenterData) context.lookup(
 				LookupNames.CURRENT_USER_DETAILS);
-		long id = gateway.createMovie(imageID, pixelsID, exp.getId(), channels, 
+
+		return gateway.createMovie(imageID, pixelsID, exp.getId(), channels, 
 				param);
-		if (id < 0) return null;
-		return context.getMetadataService().loadAnnotation(id);
+		//if (id < 0) return null;
+		//return context.getMetadataService().loadAnnotation(id);
 	}
 	
 	/** 

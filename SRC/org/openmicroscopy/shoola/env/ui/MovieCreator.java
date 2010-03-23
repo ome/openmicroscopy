@@ -32,6 +32,8 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.ScriptCallback;
+import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.FileAnnotationData;
@@ -68,9 +70,8 @@ public class MovieCreator
     
     /** The result. */
     private FileAnnotationData		data;
-    
-    /** Reference to the activity. */
-    private ActivityComponent 		activity;
+
+    private ScriptCallback 			callBack;
     
     /** Notifies the user that an error occurred. */
     protected void onException() { handleNullResult(); }
@@ -90,9 +91,7 @@ public class MovieCreator
 			MovieExportParam param, List<Integer> channels, 
 			ImageData image, ActivityComponent activity)
 	{
-		super(viewer, registry);
-		if (activity == null)
-			throw new IllegalArgumentException("Activity valid.");
+		super(viewer, registry, activity);
 		if (image == null)
 			throw new IllegalArgumentException("Image not valid.");
 		if (param == null)
@@ -102,7 +101,6 @@ public class MovieCreator
 			channels = new ArrayList<Integer>();
 		this.channels = channels;
 		this.image = image;
-		this.activity = activity;
 	}
 	
 	/**
@@ -120,7 +118,32 @@ public class MovieCreator
      * Cancels the ongoing data retrieval.
      * @see UserNotifierLoader#cancel()
      */
-    public void cancel() { handle.cancel(); }
+    public void cancel()
+    { 
+    	try {
+    		if (callBack != null) callBack.cancel();
+    		activity.onActivityCancelled();
+		} catch (Exception e) {
+			System.err.println("cancel");
+			e.printStackTrace();
+			handleException(e);
+		}
+    	handle.cancel();
+    }
+    
+    /** 
+     * Stores the call-back.
+     * @see UserNotifierLoader#update(DSCallFeedbackEvent)
+     */
+    public void update(DSCallFeedbackEvent fe) 
+    {
+        //if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
+        String status = fe.getStatus();
+        int percDone = fe.getPercentDone();
+        Object o = fe.getPartialResult();
+        System.err.println(o);
+        if (o != null) callBack = (ScriptCallback) o;
+    }
     
     /**
      * Notifies the user that it wasn't possible to create the movie.
@@ -135,6 +158,11 @@ public class MovieCreator
      * Feeds the result back to the viewer. 
      * @see UserNotifierLoader#handleResult(Object)
      */
-    public void handleResult(Object result) { activity.endActivity(result); }
+    public void handleResult(Object result)
+    { 
+    	System.err.println("result:" +result);
+    	callBack = (ScriptCallback) result;
+    	//activity.endActivity(result); 
+    }
 	
 }

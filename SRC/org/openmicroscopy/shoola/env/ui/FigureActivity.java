@@ -22,9 +22,6 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
-
-
-
 //Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -70,6 +67,10 @@ public class FigureActivity
 	/** The description of the activity when finished. */
 	private static final String		DESCRIPTION_CREATED = "Figure created";
 	
+	/** The description of the activity when cancelled. */
+	private static final String		DESCRIPTION_CANCEL = "Figure creation" +
+			" cancelled";
+	
 	/** The parameters hosting information about the figure to make. */
     private FigureActivityParam	parameters;
 
@@ -97,8 +98,9 @@ public class FigureActivity
 	 */
 	protected UserNotifierLoader createLoader()
 	{
-		return new FigureCreator(viewer,  registry, parameters.getParameters(), 
+		loader = new FigureCreator(viewer,  registry, parameters.getParameters(), 
 				parameters.getIds(), parameters.getObjectType(), this);
+		return loader;
 	}
 
 	/**
@@ -123,6 +125,15 @@ public class FigureActivity
 			if (name != null)
 				messageLabel.setText("Attached to "+name);
 		}
+	}
+	
+	/**
+	 * Modifies the text of the component. 
+	 * @see ActivityComponent#notifyActivityCancelled()
+	 */
+	protected void notifyActivityCancelled()
+	{
+		type.setText(DESCRIPTION_CANCEL);
 	}
 	
 	/** Notifies to downnload the file. */

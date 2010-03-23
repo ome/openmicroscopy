@@ -72,6 +72,9 @@ public class DownloadActivity
 	/** The description of the activity when finished. */
 	private static final String		DESCRIPTION = "File downloaded";
 	
+	/** The description of the activity when cancelled. */
+	private static final String		DESCRIPTION_CANCEL = "Download cancelled";
+	
 	/** The text and extension added to the name of the file. */
 	public static final String		LEGEND_TEXT = "_legend.txt";
 	
@@ -206,8 +209,9 @@ public class DownloadActivity
     	if (!b) file.deleteOnExit();
     	boolean load = true;
     	if (!b && file.exists()) load = false;
-		return new FileLoader(viewer, registry, file, f.getId().getValue(),
+		loader = new FileLoader(viewer, registry, file, f.getId().getValue(),
 				f.getSize().getValue(), load, this);
+		return loader;
 	}
 
 	/**
@@ -256,4 +260,13 @@ public class DownloadActivity
 		}
 	}
 
+	/**
+	 * Modifies the text of the component. 
+	 * @see ActivityComponent#notifyActivityCancelled()
+	 */
+	protected void notifyActivityCancelled()
+	{
+		type.setText(DESCRIPTION_CANCEL);
+	}
+	
 }

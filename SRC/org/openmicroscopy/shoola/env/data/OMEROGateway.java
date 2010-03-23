@@ -121,12 +121,14 @@ import omero.grid.DoubleColumn;
 import omero.grid.ImageColumn;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.LongColumn;
+import omero.grid.ProcessCallbackI;
 import omero.grid.ProcessCallbackPrx;
 import omero.grid.ProcessCallbackPrxHelper;
 import omero.grid.ProcessPrx;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.grid.RoiColumn;
+import omero.grid.ScriptProcessPrx;
 import omero.grid.SharedResourcesPrx;
 import omero.grid.StringColumn;
 import omero.grid.TablePrx;
@@ -169,7 +171,6 @@ import omero.model.ScreenAcquisition;
 import omero.model.ScreenAcquisitionI;
 import omero.model.ScreenAcquisitionWellSampleLink;
 import omero.model.ScreenI;
-import omero.model.ScriptJobI;
 import omero.model.Shape;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
@@ -403,26 +404,22 @@ class OMEROGateway
 	 * @return See above.
 	 * @throws ScriptingException If an error occurred while running the script.
 	 */
-	private Object runScript(long scriptID, Map<String, RType> parameters)
+	private ScriptCallback runScript(long scriptID, Map<String, RType> parameters)
 		throws ScriptingException
 	{
+		ScriptCallback cb = null;
 		try {
-			 ScriptJobI job = new ScriptJobI();
-			 OriginalFile of = getOriginalFile(scriptID);
-			 if (of == null) return null;
-	         job.linkOriginalFile(of);
-	         job.setDescription(of.getName());
-	         InteractiveProcessorPrx processor = 
-	        	 getSharedResources().acquireProcessor(job, 100);
-	         ProcessPrx prx = processor.execute(omero.rtypes.rmap(parameters));
-	         ProcessCallbackPrx callBack = null;
-	         ProcessCallbackPrxHelper.uncheckedCast(callBack);
-	         prx.registerCallback(callBack);
-	         //processor.getResults(prx);
+	         IScriptPrx svc = getScripService();
+	         //scriptID, parameters, timeout (5s if null)
+	         ScriptProcessPrx prx = svc.runScript(scriptID, parameters, null);
+	         cb = new ScriptCallback(scriptID, blitzClient, prx);
 		} catch (Exception e) {
+			System.err.println("error");
+			e.printStackTrace();
+			if (cb != null) cb.close();
 			throw new ScriptingException("Cannot run script with ID:"+scriptID);
 		}
-		return null;
+		return cb;
 	}
 	
 	/**
@@ -1818,10 +1815,13 @@ class OMEROGateway
 			this.hostName = hostName;
 			if (port > 0) blitzClient = new client(hostName, port);
 			else blitzClient = new client(hostName);
+			System.err.println(blitzClient.getProperties().getPropertiesForPrefix("Ice"));
+			System.err.println(blitzClient.getProperties().getPropertiesForPrefix("IceSSL"));
 			entry = blitzClient.createSession(userName, password);
 			blitzClient.getProperties().setProperty("Ice.Override.Timeout", 
 					""+5000);
 			connected = true;
+			
 			ExperimenterData exp = getUserDetails(userName);
 			if (groupID >= 0) {
 				long defaultID = exp.getDefaultGroup().getId();
@@ -5063,7 +5063,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	long createMovie(long imageID, long pixelsID, long userID, 
+	ScriptCallback createMovie(long imageID, long pixelsID, long userID, 
 			List<Integer> channels, MovieExportParam param)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -5076,7 +5076,7 @@ class OMEROGateway
 				set.add(omero.rtypes.rlong(i.next()));
 			Map<Long, String> scripts = svc.getScripts();
 			
-			if (scripts == null) return -1;
+			if (scripts == null) return null;
 			long id = -1;
 			Entry en;
 			Iterator j = scripts.entrySet().iterator();
@@ -5088,7 +5088,7 @@ class OMEROGateway
 					if (value > id) id = value;
 				}
 			}
-			if (id <= 0) return -1;
+			if (id <= 0) return null;
 			RenderingDef def = null;
 			int startZ = param.getStartZ();
 			int endZ = param.getEndZ();
@@ -5122,18 +5122,18 @@ class OMEROGateway
 			map.put("scalebar", omero.rtypes.rlong(param.getScaleBar()));
 			map.put("format", omero.rtypes.rstring(param.getFormatAsString()));
 			map.put("overlayColour", omero.rtypes.rlong(param.getColor()));
-			runScript(id, map);
+			return runScript(id, map);
 			
 			//RLong type = (RLong) result.get("fileAnnotation");
 
 			//if (type == null) return -1;
 			//return type.getValue();
-			return -1;
+			//return -1;
 
 		} catch (Exception e) {
 			handleException(e, "Cannot create a movie for image: "+imageID);
 		}
-		return -1;
+		return null;
 	}
 	
 	/**
@@ -6187,9 +6187,7 @@ class OMEROGateway
 				}
 			}
 			runScript(id, map);
-			//RLong type = (RLong) result.get("fileAnnotation");
-			//if (type == null) return -1;
-			//return type.getValue();
+			//Figure out what is returned by the script.
 			return Boolean.valueOf(true);
 		} catch (Exception e) {
 			handleException(e, "Cannot run the script.");
