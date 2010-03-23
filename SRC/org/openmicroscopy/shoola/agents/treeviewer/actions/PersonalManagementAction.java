@@ -69,6 +69,15 @@ public class PersonalManagementAction
     /** The location of the mouse pressed. */
     private Point point;
 
+    /** 
+     * Enables the action if the browser is not ready.
+     * @see TreeViewerAction#onDataImport()
+     */
+    protected void onDataImport()
+    {
+    	onBrowserStateChange(model.getSelectedBrowser());
+    }
+    
     /** Sets the name of the action. */
     private void setActionName()
     {
@@ -87,7 +96,10 @@ public class PersonalManagementAction
     		setEnabled(false);
     	} else {
     		if (browser.getState() == Browser.READY) {
-        		setEnabled(TreeViewerAgent.getAvailableUserGroups().size() > 1);
+    			if (!model.isImporting())
+    				setEnabled(
+    					TreeViewerAgent.getAvailableUserGroups().size() > 1);
+    			else setEnabled(false);
         	} else setEnabled(false);
     	}
     }
@@ -120,6 +132,8 @@ public class PersonalManagementAction
 				String name = evt.getPropertyName();
 				if (TreeViewer.GROUP_CHANGED_PROPERTY.equals(name)) {
 					setActionName();
+				} else if (TreeViewer.IMPORTED_PROPERTY.equals(name)) {
+					onDataImport();
 				}
 			}
 		});

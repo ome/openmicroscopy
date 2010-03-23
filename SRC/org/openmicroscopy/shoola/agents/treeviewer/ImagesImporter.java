@@ -150,7 +150,7 @@ public class ImagesImporter
     public void cancel() { handle.cancel(); }
 
     /** 
-     * Feeds the thumbnails back to the viewer, as they arrive. 
+     * Feeds the imported objects.
      * @see DataTreeViewerLoader#update(DSCallFeedbackEvent)
      */
     public void update(DSCallFeedbackEvent fe) 

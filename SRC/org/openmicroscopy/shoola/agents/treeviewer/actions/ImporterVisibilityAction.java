@@ -24,6 +24,9 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 import javax.swing.Action;
 //Third-party libraries
 
@@ -58,6 +61,21 @@ public class ImporterVisibilityAction
     /** Reference to the icons manager. */
     private IconManager icons;
     
+    /** Invoked when the images have been imported. */
+    private void onDataImported()
+    {
+    	if (model.setImporterVisibility()) {
+    		putValue(Action.SHORT_DESCRIPTION, 
+    				UIUtilities.formatToolTipText(DESCRIPTION_HIDE));
+    		putValue(Action.SMALL_ICON, 
+    				icons.getIcon(IconManager.BACKWARD_NAV)); 
+    	} else {
+    		putValue(Action.SHORT_DESCRIPTION, 
+    				UIUtilities.formatToolTipText(DESCRIPTION_SHOW));
+    		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.FORWARD_NAV)); 
+    	}
+    }
+    
     /**
      * Creates a new instance.
      * 
@@ -71,6 +89,15 @@ public class ImporterVisibilityAction
 				UIUtilities.formatToolTipText(DESCRIPTION_HIDE));
 		icons = IconManager.getInstance();
 		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BACKWARD_NAV)); 
+		model.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			public void propertyChange(PropertyChangeEvent evt) {
+				String name = evt.getPropertyName();
+				if (TreeViewer.IMPORTED_PROPERTY.equals(name)) {
+					onDataImported();
+				}
+			}
+		});
 	}
 	
     /**
@@ -79,16 +106,7 @@ public class ImporterVisibilityAction
      */
     public void actionPerformed(ActionEvent e)
     { 
-    	if (model.setImporterVisibility()) {
-    		putValue(Action.SHORT_DESCRIPTION, 
-    				UIUtilities.formatToolTipText(DESCRIPTION_HIDE));
-    		putValue(Action.SMALL_ICON, 
-    				icons.getIcon(IconManager.BACKWARD_NAV)); 
-    	} else {
-    		putValue(Action.SHORT_DESCRIPTION, 
-    				UIUtilities.formatToolTipText(DESCRIPTION_SHOW));
-    		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.FORWARD_NAV)); 
-    	}
+    	onDataImported();
     }
     
 }

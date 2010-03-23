@@ -233,7 +233,10 @@ public interface TreeViewer
 	public static final String		DISPLAY_MODE_PROPERTY = "searchMode";
 	
 	/** Bound property indicating to import data. */
-	public static final String		IMPORT_PROPERTY = "import";
+	public static final String		IMPORT_PROPERTY = "importImages";
+	
+	/** Bound property indicating that the images have been imported. */
+	public static final String		IMPORTED_PROPERTY = "imported";
 	
 	/** 
 	 * Bound property indicating that the nodes have been selected

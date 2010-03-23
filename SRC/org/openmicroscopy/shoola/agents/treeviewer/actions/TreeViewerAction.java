@@ -95,6 +95,9 @@ public abstract class TreeViewerAction
     /** Call-back to notify that the display mode has changed. */
     protected void onDisplayMode() {};
     
+    /** Call-back to notify any on-going image import. */
+    protected void onDataImport() {};
+    
     /**
      * Creates a new instance.
      * 
@@ -187,7 +190,7 @@ public abstract class TreeViewerAction
             if (browser != null) v = browser.getLastSelectedDisplay();
             onDisplayChange(v);
         } else if (TreeViewer.IMPORT_PROPERTY.equals(name)) {
-        	
+        	onDataImport();
         }
             
         /*

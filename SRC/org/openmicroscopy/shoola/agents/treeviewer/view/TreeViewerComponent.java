@@ -2505,76 +2505,9 @@ class TreeViewerComponent
 		view.setImportStatus("Importing...", true);
 		if (node == null)
 			model.importFiles(parents, list, toImport.isArchived());
-		else {
-			model.importFiles(node, list, toImport.isArchived());
-		}
-		/*
-		if (model.getState() == DISCARDED) return;
-		Browser browser = model.getSelectedBrowser();
-		int type = browser.getBrowserType();
-		List<Object> l = new ArrayList<Object>();
-		int total = 0;
-		List<File> files = toImport.getFiles();
-		List<TreeImageDisplay> parents = new ArrayList<TreeImageDisplay>();
-		TreeImageDisplay node = null;
-		if (type == Browser.PROJECT_EXPLORER || 
-				type == Browser.SCREENS_EXPLORER) {
-			//File chooser import.
-			node = browser.getLastSelectedDisplay();
-			if (files != null) {
-				total = files.size();
-				Iterator<File> i = files.iterator();
-				while (i.hasNext()) 
-					prepareFile(l, i.next(), total);
-			}
-		} else if (type == Browser.FILE_SYSTEM_EXPLORER) {
-			TreeImageDisplay[] nodes = browser.getSelectedDisplays();
-			if (nodes == null) return;
-			
-			Object ho;
-			TreeImageDisplay n, parent;
-			File f;
-			total = nodes.length;
-			for (int i = 0; i < nodes.length; i++) {
-				n = nodes[i];
-				parent = n.getParentDisplay();
-				if (parent != null && !parents.contains(parent))
-					parents.add(parent);
-				ho = n.getUserObject();
-				if (ho instanceof File) {
-					f = (File) ho;
-					prepareFile(l, f, total);
-				}
-			}
-			
-		} else return;
-		
-		if (l.size() == 0) {
-			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-			String s = " is ";
-			if (total > 1) s = "s are ";
-			un.notifyInfo("Import", "The selected file"+s+"not supported.");
-			return;
-		}
-		
-		if (importManager == null) {
-			importManager = new ImportManager();
-			importManager.addPropertyChangeListener(controller);
-		}
-		Map<File, StatusLabel> map = importManager.initialize(l);
-		
-		if (map == null || map.size() == 0) return;
-		if (!view.isImporterVisible())
-			view.setImporterVisibility(importManager.getUIDelegate(), true);
-		view.setImportStatus("Importing...", true);
-		if (node == null)
-			model.importFiles(parents, map, toImport.isArchived(), 
-					toImport.getNumberOfFolders());
-		else {
-			model.importFiles(node, map, toImport.isArchived(), 
-					toImport.getNumberOfFolders());
-		}
-		*/
+		else model.importFiles(node, list, toImport.isArchived());
+		firePropertyChange(IMPORT_PROPERTY, Boolean.valueOf(false),
+				Boolean.valueOf(true));
 	}
 
 	/**
@@ -2614,8 +2547,11 @@ class TreeViewerComponent
 				browser = selectedBrowser;
 			} else browser = null;
 		}
-		if (browser != null && nodes != null && !b) 
+		if (browser != null && nodes != null && !b) {
 			browser.onImportFinished(nodes);
+			firePropertyChange(IMPORTED_PROPERTY, Boolean.valueOf(false), 
+					Boolean.valueOf(true));
+		}
 	}
 
 	/**
