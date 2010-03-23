@@ -186,10 +186,6 @@ public class RefreshExperimenterDataLoader
      */
     public void load()
     {
-    	//if (GroupData.class.equals(rootNodeType)) {
-    		//handle = adminView.loadExperimenterGroups(this);
-    		//return;
-    	//}
     	Entry entry;
     	Iterator i = expNodes.entrySet().iterator();
     	RefreshExperimenterDef def;

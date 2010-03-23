@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data;
 //Java imports
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -553,6 +554,73 @@ class AdminServiceImpl
 			}
 		}
 		return l;
+	}
+
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#reloadPIGroups(ExperimenterData)
+	 */
+	public List<GroupData> reloadPIGroups(ExperimenterData exp)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		Set<GroupData> groups;
+		Set<GroupData> available;
+		UserCredentials uc = (UserCredentials)
+			context.lookup(LookupNames.USER_CREDENTIALS);
+		List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
+		groups = gateway.getAvailableGroups(exp);
+		//Check if the current experimenter is an administrator 
+		Iterator<GroupData> i = groups.iterator();
+		GroupData g;
+		available = new HashSet<GroupData>();
+		while (i.hasNext()) {
+			g = i.next();
+			if (!gateway.isSystemGroup(g.asGroup())) {
+				available.add(g);
+			} else {
+				if (GroupData.SYSTEM.equals(g.getName()))
+					uc.setAdministrator(true);
+			}
+		}
+		context.bind(LookupNames.USER_GROUP_DETAILS, available);
+		List<Long> ids = new ArrayList<Long>();
+		i = available.iterator();
+		Set set;
+		Iterator j;
+		ExperimenterData e;
+		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			set = g.getExperimenters();
+			j = set.iterator();
+			while (j.hasNext()) {
+				e = (ExperimenterData) j.next();
+				if (!ids.contains(e.getId())) {
+					ids.add(e.getId());
+					exps.add(e);
+				}
+			}
+		}
+		context.bind(LookupNames.USERS_DETAILS, exps);	
+		List<GroupData> result = new ArrayList<GroupData>();
+		Iterator<GroupData> k = available.iterator();
+		while (k.hasNext()) {
+			result.add(k.next());
+		}
+		
+        //Bind user details to all agents' registry.
+        List agents = (List) context.lookup(LookupNames.AGENTS);
+		j = agents.iterator();
+		AgentInfo agentInfo;
+		Registry reg;
+		while (i.hasNext()) {
+			agentInfo = (AgentInfo) j.next();
+			if (agentInfo.isActive()) {
+				reg = agentInfo.getRegistry();
+				reg.bind(LookupNames.USER_GROUP_DETAILS, available);
+				reg.bind(LookupNames.USERS_DETAILS, exps);
+			}
+		}
+		return result;
 	}
 	
 }

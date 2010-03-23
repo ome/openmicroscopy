@@ -119,12 +119,7 @@ import omero.grid.Column;
 import omero.grid.Data;
 import omero.grid.DoubleColumn;
 import omero.grid.ImageColumn;
-import omero.grid.InteractiveProcessorPrx;
 import omero.grid.LongColumn;
-import omero.grid.ProcessCallbackI;
-import omero.grid.ProcessCallbackPrx;
-import omero.grid.ProcessCallbackPrxHelper;
-import omero.grid.ProcessPrx;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.grid.RoiColumn;
@@ -1815,8 +1810,6 @@ class OMEROGateway
 			this.hostName = hostName;
 			if (port > 0) blitzClient = new client(hostName, port);
 			else blitzClient = new client(hostName);
-			System.err.println(blitzClient.getProperties().getPropertiesForPrefix("Ice"));
-			System.err.println(blitzClient.getProperties().getPropertiesForPrefix("IceSSL"));
 			entry = blitzClient.createSession(userName, password);
 			blitzClient.getProperties().setProperty("Ice.Override.Timeout", 
 					""+5000);

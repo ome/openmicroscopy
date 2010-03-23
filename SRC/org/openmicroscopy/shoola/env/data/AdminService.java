@@ -312,4 +312,17 @@ public interface AdminService
 	public List<ExperimenterData> resetExperimentersPassword(AdminObject object)
 		throws DSOutOfServiceException, DSAccessException;
 	
+	/**
+	 * Reloads the 
+	 * 
+	 * @param exp
+	 * @return See above
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	public List<GroupData> reloadPIGroups(ExperimenterData exp)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	
 }

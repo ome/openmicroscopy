@@ -38,14 +38,17 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
@@ -249,30 +252,62 @@ public class DMRefreshLoader
                 Iterator i = nodes.entrySet().iterator();
                 Iterator j;
                 long groupID;
-                List<GroupData> groups = svc.loadGroups(-1);
-                List<GroupData> r = new ArrayList<GroupData>();
-                List<Long> toRemove = new ArrayList<Long>();
-                List<GroupData> l;
-                List list;
-                while (i.hasNext()) {
-					entry = (Entry) i.next();
-					list = (List) entry.getValue();
-					j = list.iterator();
-					while (j.hasNext()) {
-						groupID = (Long) j.next();
-						l = svc.loadGroups(groupID);
-						toRemove.add(groupID);
-						if (l.size() == 1) r.add(l.get(0));
+                //Check if the user is an administrator
+                Boolean admin = (Boolean)
+                	context.lookup(LookupNames.USER_ADMINISTRATOR);
+                if (admin != null && admin.booleanValue()) {
+                	List<GroupData> groups = svc.loadGroups(-1);
+                    List<GroupData> r = new ArrayList<GroupData>();
+                    List<Long> toRemove = new ArrayList<Long>();
+                    List<GroupData> l;
+                    List list;
+                    while (i.hasNext()) {
+    					entry = (Entry) i.next();
+    					list = (List) entry.getValue();
+    					j = list.iterator();
+    					while (j.hasNext()) {
+    						groupID = (Long) j.next();
+    						l = svc.loadGroups(groupID);
+    						toRemove.add(groupID);
+    						if (l.size() == 1) r.add(l.get(0));
+    					}
+    				}
+                    i = groups.iterator();
+                    GroupData g;
+                    while (i.hasNext()) {
+    					g = (GroupData) i.next();
+    					if (!toRemove.contains(g.getId())) 
+    						r.add(g);
+    				}
+                    results = r;
+                } else {
+                	ExperimenterData exp = 
+        				(ExperimenterData) context.lookup(
+        						LookupNames.CURRENT_USER_DETAILS);
+                	List<GroupData> groups = svc.reloadPIGroups(exp);
+                	Iterator<GroupData> g = groups.iterator();
+                	GroupData gd;
+                	List<GroupData> toKeep = new ArrayList<GroupData>();
+                	Set leaders;
+                	Iterator k;
+                	ExperimenterData leader;
+                	while (g.hasNext()) {
+						gd = (GroupData) g.next();
+						leaders = gd.getLeaders();
+						if (leaders != null) {
+							k = leaders.iterator();
+							while (k.hasNext()) {
+								leader = (ExperimenterData) k.next();
+								if (leader.getId() == exp.getId()) {
+									toKeep.add(gd);
+								}
+							}
+						}
 					}
-				}
-                i = groups.iterator();
-                GroupData g;
-                while (i.hasNext()) {
-					g = (GroupData) i.next();
-					if (!toRemove.contains(g.getId())) 
-						r.add(g);
-				}
-                results = r;
+                	results = toKeep;
+                }
+                
+                
             }
         };
     }
