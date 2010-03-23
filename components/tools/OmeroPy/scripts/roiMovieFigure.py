@@ -259,7 +259,7 @@ def drawRectangle(image, roiX, roiY, roiX2, roiY2, colour, stroke=1):
 		roiX2 -=1
 		roiY2 -=1
 
-def getRectangle(roiService, imageId):
+def getRectangle(roiService, imageId, roiLabel):
 	""" 
 	Returns (x, y, width, height, timeShapeMap) of the all rectanges in the first ROI of the image where 
 	timeShapeMap is a map of tIndex: (x,y,zMin,zMax) 
@@ -270,7 +270,10 @@ def getRectangle(roiService, imageId):
 	
 	result = roiService.findByImage(imageId, None)
 	
+	roiText = roiLabel.lower()
+	roiCount = 0
 	rectCount = 0
+	foundLabelledRoi = False
 	
 	timeShapeMap = {}	# map of tIndex: (x,y,zMin,zMax)
 	for roi in result.rois:
@@ -280,6 +283,7 @@ def getRectangle(roiService, imageId):
 				z = shape.getTheZ().getValue()
 				x = shape.getX().getValue()
 				y = shape.getY().getValue()
+				text = shape.getTextValue().getValue()
 				
 				# build a map of tIndex: (x,y,zMin,zMax)
 				if t in timeShapeMap:
@@ -297,9 +301,16 @@ def getRectangle(roiService, imageId):
 					x1 = x
 					y1 = y
 				rectCount += 1
-		# will return after the first ROI that contains a rectangle
-		if rectCount > 0:
+				if text != None and text.lower() == roiText:
+					foundLabelledRoi = True
+		# will return after the first ROI that matches text
+		if foundLabelledRoi:
 			return (int(x1), int(y1), int(width), int(height), timeShapeMap)
+		else:
+			rectCount = 0	# try another ROI
+	
+	# if we got here without finding an ROI that matched, simply return any ROI we have (last one)
+	if roiCount > 0:
 				
 				
 def getVerticalLabels(labels, font, textGap):
@@ -324,8 +335,8 @@ def getVerticalLabels(labels, font, textGap):
 	
 	
 def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, mergedNames, colourChannels, mergedIndexes, 
-		mergedColours, width, height, imageLabels, spacer = 12, algorithm = None, stepping = 1, scalebar = None, 
-		overlayColour=(255,255,255), roiZoom=None, maxColumns=None, showRoiDuration=False):
+		mergedColours, width, height, imageLabels, spacer, algorithm, stepping, scalebar, 
+		overlayColour, roiZoom, maxColumns, showRoiDuration, roiLabel):
 	""" This method makes a figure of a number of images, arranged in rows with each row being the split-view
 	of a single image. The channels are arranged left to right, with the combined image added on the right.
 	The combined image is rendered according to current settings on the server, but it's channels will be
@@ -354,7 +365,7 @@ def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, merged
 	
 	# establish dimensions and roiZoom for the primary image
 	# getTheseValues from the server
-	x, y, roiWidth, roiHeight, timeShapeMap = getRectangle(roiService, imageIds[0])
+	x, y, roiWidth, roiHeight, timeShapeMap = getRectangle(roiService, imageIds[0], roiLabel)
 	
 	roiOutline = ((max(width, height)) / 200 ) + 1
 	
@@ -401,7 +412,7 @@ def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, merged
 		
 		# need to get the roi dimensions from the server
 		imageId = imageIds[row]
-		roi = getRectangle(roiService, imageId)
+		roi = getRectangle(roiService, imageId, roiLabel)
 		if roi == None:
 			log("No Rectangle ROI found for this image")
 			del imageLabels[row]	# remove the corresponding labels
@@ -673,11 +684,16 @@ def roiFigure(session, commandArgs):
 	showRoiDuration = False
 	if "showRoiDuration" in commandArgs:
 		showRoiDuration = commandArgs["showRoiDuration"]
-			
+	
+	roiLabel = "FigureROI"
+	if "roiLabel" in commandArgs:
+		roiLabel = commandArgs["roiLabel"]
+				
 	spacer = (width/50) + 2
 	
 	fig = getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, mergedNames, colourChannels, mergedIndexes, 
-			mergedColours, width, height, imageLabels, spacer, algorithm, stepping, scalebar, overlayColour, roiZoom, maxColumns, showRoiDuration)
+			mergedColours, width, height, imageLabels, spacer, algorithm, stepping, scalebar, overlayColour, roiZoom, 
+			maxColumns, showRoiDuration, roiLabel)
 													
 	#fig.show()		# bug-fixing only
 	
@@ -726,6 +742,8 @@ def runAsScript():
 	scripts.Long("roiZoom", optional=True).inout(),			# how much to zoom the ROI. If <= 0 then zoom is chosen to fit 
 	scripts.Long("maxColumns", optional=True).inout(),		# max number of columns in the figure, for ROI-movie frames.
 	scripts.Bool("showRoiDuration", optional=True).inout(), # if true, times shown are from the start of the ROI frames, otherwise use movie timestamp.
+	scripts.String("roiLabel", optional=True).inout(),	# Specify an ROI to pick by specifying it's shape label. "FigureROI" by default.
+														# roiLabel is not case sensitive. If matching ROI not found, use any ROI. 
 	scripts.Long("fileAnnotation").out());  # script returns a file annotation
 	
 	session = client.getSession();
