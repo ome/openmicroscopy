@@ -98,7 +98,7 @@ def addScalebar(scalebar, xIndent, yIndent, image, pixels, colour):
 
 
 def getROIsplitView	(re, pixels, zStart, zEnd, splitIndexes, channelNames, mergedNames, colourChannels, mergedIndexes, mergedColours, 
-			roiX, roiY, roiWidth, roiHeight, roiZoom, tIndex, spacer = 12, algorithm = None, stepping = 1, fontsize=24, showTopLabels=True):
+			roiX, roiY, roiWidth, roiHeight, roiZoom, tIndex, spacer, algorithm, stepping, fontsize, showTopLabels):
 	""" This takes a ROI rectangle from an image and makes a split view canvas of the region in the ROI, zoomed 
 		by a defined factor. 
 		
@@ -270,22 +270,28 @@ def drawRectangle(image, roiX, roiY, roiX2, roiY2, colour, stroke=1):
 		roiX2 -=1
 		roiY2 -=1
 
-def getRectangle(roiService, imageId):
-	""" Returns (x, y, width, height, zMin, zMax, tMin, tMax) of the first rectange in the image """
+def getRectangle(roiService, imageId, roiLabel):
+	""" Returns (x, y, width, height, zMin, zMax, tMin, tMax) of the first rectange in the image that has @roiLabel as text """
 	
 	shapes = []		# string set. 
 	
 	result = roiService.findByImage(imageId, None)
 	
+	roiText = roiLabel.lower()
+	roiCount = 0
 	rectCount = 0
+	foundLabelledRoi = False
 	
 	for roi in result.rois:
+		roiCount += 1
+		# go through all the shapes of the ROI
 		for shape in roi.copyShapes():
 			if type(shape) == omero.model.RectI:
 				t = shape.getTheT().getValue()
 				z = shape.getTheZ().getValue()
 				x = shape.getX().getValue()
 				y = shape.getY().getValue()
+				text = shape.getTextValue().getValue()
 					
 				# get ranges for whole ROI
 				if rectCount == 0:
@@ -301,8 +307,16 @@ def getRectangle(roiService, imageId):
 					tMin = min(tMin, t)
 					tMax = max(tMax, t)
 				rectCount += 1
-		if rectCount > 0:
+				if text != None and text.lower() == roiText:
+					foundLabelledRoi = True
+		if foundLabelledRoi:
 			return (int(x), int(y), int(width), int(height), int(zMin), int(zMax), int(tMin), int(tMax))
+		else:
+			rectCount = 0	# try another ROI
+			
+	# if we got here without finding an ROI that matched, simply return any ROI we have (last one)
+	if roiCount > 0:
+		return (int(x), int(y), int(width), int(height), int(zMin), int(zMax), int(tMin), int(tMax))
 				
 				
 def getVerticalLabels(labels, font, textGap):
@@ -327,8 +341,8 @@ def getVerticalLabels(labels, font, textGap):
 	
 	
 def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, mergedNames, colourChannels, mergedIndexes, 
-		mergedColours, width, height, imageLabels, spacer = 12, algorithm = None, stepping = 1, scalebar = None, 
-		overlayColour=(255,255,255), roiZoom=None):
+		mergedColours, width, height, imageLabels, spacer, algorithm, stepping, scalebar, 
+		overlayColour, roiZoom, roiLabel):
 	""" This method makes a figure of a number of images, arranged in rows with each row being the split-view
 	of a single image. The channels are arranged left to right, with the combined image added on the right.
 	The combined image is rendered according to current settings on the server, but it's channels will be
@@ -357,7 +371,11 @@ def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, merged
 	
 	# establish dimensions and roiZoom for the primary image
 	# getTheseValues from the server
-	roiX, roiY, roiWidth, roiHeight, yMin, yMax, tMin, tMax = getRectangle(roiService, imageIds[0])
+	rect = getRectangle(roiService, imageIds[0], roiLabel)
+	if rect == None:
+		print "No ROI found for the first image."
+		return
+	roiX, roiY, roiWidth, roiHeight, yMin, yMax, tMin, tMax = rect
 	
 	roiOutline = ((max(width, height)) / 200 ) + 1
 	
@@ -404,7 +422,7 @@ def getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, merged
 		
 		# need to get the roi dimensions from the server
 		imageId = imageIds[row]
-		roi = getRectangle(roiService, imageId)
+		roi = getRectangle(roiService, imageId, roiLabel)
 		if roi == None:
 			log("No Rectangle ROI found for this image")
 			del imageLabels[row]	# remove the corresponding labels
@@ -566,9 +584,6 @@ def roiFigure(session, commandArgs):
 	if("splitPanelsGrey" not in commandArgs):
 		commandArgs["splitPanelsGrey"] = False
 	
-	zStart = int(commandArgs["zStart"])
-	zEnd = int(commandArgs["zEnd"])
-	
 	width = sizeX
 	if "width" in commandArgs:
 		w = commandArgs["width"]
@@ -672,12 +687,18 @@ def roiFigure(session, commandArgs):
 		roiZoom = float(commandArgs["roiZoom"])
 		if roiZoom == 0:
 			roiZoom = None
-			
+	
+	roiLabel = "FigureROI"
+	if "roiLabel" in commandArgs:
+		roiLabel = commandArgs["roiLabel"]
+		
 	spacer = (width/50) + 2
 	
 	fig = getSplitView(session, imageIds, pixelIds, splitIndexes, channelNames, mergedNames, colourChannels, mergedIndexes, 
-			mergedColours, width, height, imageLabels, spacer, algorithm, stepping, scalebar, overlayColour, roiZoom)
-													
+			mergedColours, width, height, imageLabels, spacer, algorithm, stepping, scalebar, overlayColour, roiZoom, roiLabel)
+	
+	if fig == None:		# e.g. No ROIs found
+		return												
 	#fig.show()		# bug-fixing only
 	
 	log("")
@@ -716,19 +737,21 @@ def runAsScript():
 	scripts.Map("channelNames").inout(),	# map of index: channel name for All channels
 	scripts.Bool("mergedNames", optional=True).inout(), 	# if true, label the merged panel with channel names. Otherwise label with "Merged"
 	scripts.List("splitIndexes", optional=True).inout(),	# a list of the channels in the split view
-	scripts.Bool("splitPanelsGrey").inout(),			# if true, all split panels are greyscale
+	scripts.Bool("splitPanelsGrey", optional=True).inout(),			# if true, all split panels are greyscale
 	scripts.Map("mergedColours").inout(),				# a map of index:int colours for each merged channel
 	scripts.Long("width", optional=True).inout(),		# the max width of each image panel 
 	scripts.Long("height", optional=True).inout(),		# the max height of each image panel
-	scripts.String("imageLabels").inout(),				# label with IMAGENAME or DATASETS or TAGS
+	scripts.String("imageLabels", optional=True).inout(),				# label with IMAGENAME or DATASETS or TAGS
 	scripts.String("algorithm", optional=True).inout(),	# algorithum for projection. MAXIMUMINTENSITY or MEANINTENSITY
 	scripts.Long("stepping", optional=True).inout(),	# the plane increment from projection (default = 1)
 	scripts.Long("scalebar", optional=True).inout(),	# scale bar (same as makemovie script)
-	scripts.String("format").inout(),					# format to save image. Currently JPEG or PNG
+	scripts.String("format", optional=True).inout(),		# format to save image. Currently JPEG or PNG
 	scripts.String("figureName").inout(),					# name of the file to save.
 	scripts.Long("overlayColour", optional=True).inout(),	# the colour of the scalebar 
 	scripts.Long("roiZoom", optional=True).inout(),			# how much to zoom the ROI. If <= 0 then zoom is chosen to fit 
-scripts.Long("fileAnnotation").out());  # script returns a file annotation
+	scripts.String("roiLabel", optional=True).inout(),	# Specify an ROI to pick by specifying it's shape label. "FigureROI" by default.
+														# roiLabel is not case sensitive. If matching ROI not found, use any ROI. 
+	scripts.Long("fileAnnotation").out());  # script returns a file annotation
 	
 	session = client.getSession();
 	gateway = session.createGateway();
