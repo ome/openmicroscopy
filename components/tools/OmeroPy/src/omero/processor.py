@@ -708,8 +708,12 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
     @remoted
     def parseJob(self, session, job, current = None):
         self.logger.info("parseJob: Session = %s, JobId = %s" % (session, job.id.val))
+        args = ["--Ice.Config=%s" % (self.cfg)]
         rtr = self.internal_session().ice_getRouter()
-        client = omero.client(["--Ice.Default.Router=%s" % rtr, "--Ice.Config=%s" % (self.cfg)])
+        if rtr:
+            args.insert(0, "--Ice.Default.Router=%s" % rtr) # FIXME : How do we find an internal router?
+        client = omero.client(args)
+
         try:
             iskill = False
             client.joinSession(session).detachOnDestroy()
