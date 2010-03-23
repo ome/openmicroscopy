@@ -83,10 +83,11 @@ def run(commandArgs):
 	
 	# get the most recent (highest ID) original file with the correct script name
 	scriptName = "saveImageAs.py"
-	scriptFiles = queryService.findAllByQuery("from OriginalFile as o where o.name = '%s'" % scriptName, None)
-	scriptId = max([s.getId().getValue() for s in scriptFiles])
+	scripts = scriptService.getScripts()
+	scriptId = max([i for i, s in scripts.items() if s == scriptName])
 	
 	print "Running saveImageAs.py with script ID: " , scriptId
+	return
 	imageIds = omero.rtypes.rlist([omero.rtypes.rint(imageId)])
 	
 	map = {
