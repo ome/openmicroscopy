@@ -408,7 +408,7 @@ public class DataServicesFactory
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
         registry.bind(LookupNames.CONNECTION_SPEED, 
         		isFastConnection(uc.getSpeedLevel()));
-        /*
+        
         Set<GroupData> groups;
         Set<GroupData> available;
         List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
@@ -449,17 +449,19 @@ public class DataServicesFactory
 		} catch (DSAccessException e) {
 			throw new DSOutOfServiceException("Cannot retrieve groups", e);
 		}
-		*/
+		/*
         try {
         	registry.getAdminService().reloadPIGroups(exp);
 		} catch (Exception e) {
 			throw new DSOutOfServiceException("Cannot retrieve groups", e);
 		}
-        
-        Set<GroupData> available = (Set) registry.lookup(
+		 Set<GroupData> available = (Set) registry.lookup(
         		LookupNames.USER_GROUP_DETAILS);
         List<ExperimenterData> exps = (List) registry.lookup(
         		LookupNames.USERS_DETAILS);
+		*/
+        
+       
         
         //Bind user details to all agents' registry.
         List agents = (List) registry.lookup(LookupNames.AGENTS);
