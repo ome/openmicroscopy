@@ -2631,27 +2631,27 @@ class ProjectWrapper (OmeroWebObjectWrapper, omero.gateway.ProjectWrapper):
     LINK_NAME = "copyDatasetLinks"
     CHILD = 'Dataset'
     
-    def listChildren (self):
-        """ return a generator yielding child objects """
-        try:
-            childnodes = [ x.child for x in getattr(self._obj, self.LINK_NAME)()]
-
-            child_ids = [child.id.val for child in childnodes]
-            child_counter = None
-            if len(child_ids) > 0:
-                child_counter = self._conn.getCollectionCount(self.CHILD, \
-                    (DatasetWrapper.LINK_NAME[4].lower() + \
-                    DatasetWrapper.LINK_NAME[5:]), child_ids)
-                child_annotation_counter = self._conn.getCollectionCount(self.CHILD, "annotationLinks", child_ids)
-            for child in childnodes:
-                kwargs = dict()
-                if child_counter:
-                    kwargs['child_counter'] = child_counter.get(child.id.val)
-                if child_annotation_counter:
-                    kwargs['annotation_counter'] = child_annotation_counter.get(child.id.val)
-                yield DatasetWrapper(self._conn, child, **kwargs)
-        except:
-            raise NotImplementedError
+#    def listChildren (self):
+#        """ return a generator yielding child objects """
+#        try:
+#            childnodes = [ x.child for x in getattr(self._obj, self.LINK_NAME)()]
+#
+#            child_ids = [child.id.val for child in childnodes]
+#            child_counter = None
+#            if len(child_ids) > 0:
+#                child_counter = self._conn.getCollectionCount(self.CHILD, \
+#                    (DatasetWrapper.LINK_NAME[4].lower() + \
+#                    DatasetWrapper.LINK_NAME[5:]), child_ids)
+#                child_annotation_counter = self._conn.getCollectionCount(self.CHILD, "annotationLinks", child_ids)
+#            for child in childnodes:
+#                kwargs = dict()
+#                if child_counter:
+#                    kwargs['child_counter'] = child_counter.get(child.id.val)
+#                if child_annotation_counter:
+#                    kwargs['annotation_counter'] = child_annotation_counter.get(child.id.val)
+#                yield DatasetWrapper(self._conn, child, **kwargs)
+#        except:
+#            raise NotImplementedError
 
 omero.gateway.ProjectWrapper = ProjectWrapper
 
