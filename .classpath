@@ -129,9 +129,9 @@
 	<classpathentry kind="lib" path="lib/repository/jarbundler-2.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/repository/jdepend-2.9.jar"/>
 	<classpathentry kind="lib" path="lib/repository/jts-1.10.jar"/>
-	<classpathentry kind="lib" path="lib/repository/omero-clients-util-r6779-b12.jar"/>
+	<classpathentry kind="lib" path="lib/repository/omero-clients-util-r7129-b1416.jar"/>
 	<classpathentry kind="lib" path="lib/repository/swingx-0.9.4.jar"/>
-	<classpathentry kind="lib" path="lib/repository/TableLayout-2006-11-27.jar"/>
+	<classpathentry kind="lib" path="lib/repository/TableLayout-bin-jdk1.5-2009-08-26.jar"/>
 	<classpathentry kind="lib" path="lib/repository/jul-to-slf4j-1.5.8.jar"/>
 	<classpathentry kind="output" path="target/eclipse-bin"/>
 </classpath>
