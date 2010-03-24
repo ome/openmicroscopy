@@ -60,8 +60,9 @@ public class SaveFileServerAction
 	 */
 	protected void onStateChange()
 	{
-		int state = model.getState();
-		setEnabled(state == Editor.READY);
+		if (model.getState() == Editor.READY) {
+			setEnabled(model.isObjectWritable());
+		} else setEnabled(false);
 		
 		// if server not available, disable
 		//boolean serverAvailable = EditorAgent.isServerAvailable();
@@ -76,7 +77,6 @@ public class SaveFileServerAction
 	public SaveFileServerAction(Editor model)
 	{
 		super(model);
-		setEnabled(true);
 		setName(NAME);
 		setDescription(DESCRIPTION);
 		setIcon(IconManager.SAVE_AS_ICON);

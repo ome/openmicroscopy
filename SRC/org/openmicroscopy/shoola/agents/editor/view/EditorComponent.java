@@ -409,7 +409,8 @@ class EditorComponent
 			// else the temporary file of this name will not be created and found
 			int lastSlash = fileName.lastIndexOf(File.separator);
 			fileName = fileName.substring(lastSlash + 1);
-			if (fileName.length() == 0)		fileName = "new_protocol.cpe.xml";
+			if (fileName.length() == 0)		
+				fileName = "new_protocol.cpe.xml";
 			
 			model.setFileAnnotationData(null);
 			String dirName = EditorAgent.getEditorHome();
@@ -473,7 +474,6 @@ class EditorComponent
 	
 	/**
 	 * Implemented as specified by the {@link Editor} interface.
-	 * Deletes the Experiment Info of the file in the Browser.
 	 * @see Editor#deleteExperimentInfo()
 	 */
 	public void deleteExperimentInfo()
@@ -481,6 +481,15 @@ class EditorComponent
 		Browser browser = model.getBrowser();
 		if (browser == null) return;
 		browser.deleteExperimentInfo();
+	}
+	
+	/**
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#isObjectWritable()
+	 */
+	public boolean isObjectWritable()
+	{
+		return true;
 	}
 	
 }

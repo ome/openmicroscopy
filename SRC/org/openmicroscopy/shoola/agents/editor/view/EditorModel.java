@@ -196,7 +196,7 @@ class EditorModel
 	 * Creates a new instance and sets the state to {@link Editor#NEW}.
 	 * The {@link #fileSize} and {@link #fileID} are not set. 
 	 * 
-	 * @param parent The object to the new file to.
+	 * @param parent The object to link the file to.
 	 * @param name	 The name of the file.
 	 * @param type   Either {@link Editor#PROTOCOL} or 
 	 * 				 {@link Editor#EXPERIMENT}.
@@ -466,8 +466,10 @@ class EditorModel
 		if (fileAnnotation != null) data = fileAnnotation;
 		else data = new FileAnnotationData(file);
 		String description = CPEsummaryExport.export(browser.getTreeModel());
-		if (description != null)
-			data.setDescription(description);
+		if (description != null) data.setDescription(description);
+		//TODO: discuss that point with Will
+		//pass null if READ_ONLY
+		
 		currentLoader = new FileSaver(component, file, data, fileType, parent);
 		currentLoader.load();
 		state = Editor.SAVING;

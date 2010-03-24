@@ -213,9 +213,16 @@ public interface Editor
      */
     public boolean isExperiment();
     
-    /**
-	 * Deletes the Experiment Info of the file in the Browser.
-	 */
+    /** Deletes the Experiment Info of the file in the Browser. */
 	public void deleteExperimentInfo();
+	
+	/**
+	 * Returns <code>true</code> if the file can be saved server side and
+	 * link to the experimenter.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isObjectWritable();
+	
     
 }
