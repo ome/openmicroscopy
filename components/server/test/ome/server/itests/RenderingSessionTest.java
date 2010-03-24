@@ -363,7 +363,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
 
     @Test(groups = {"ticket:1929"},
           expectedExceptions = { InternalException.class })
-    public void testOtherUserViewsThumbnailWithNoSettingsAndNoSetPixelsId() {
+    public void testOtherUserRWViewsThumbnailWithNoSettingsAndNoSetPixelsId() {
         Experimenter e1 = loginNewUser();
         final ServiceFactory sf = this.factory;// new InternalServiceFactory();
         Pixels pix = makePixels();
@@ -379,7 +379,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
     }
 
     @Test(groups = {"ticket:1929"})
-    public void testOtherUserViewsThumbnailWithNoSettings() {
+    public void testOtherUserRWViewsThumbnailWithNoSettings() {
         Experimenter e1 = loginNewUser();
         final ServiceFactory sf = this.factory;// new InternalServiceFactory();
         Pixels pix = makePixels();
@@ -395,7 +395,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
     }
 
     @Test(groups = {"ticket:1929"})
-    public void testOtherUserViewsThumbnailDirect() {
+    public void testOtherUserRWViewsThumbnailDirect() {
         Experimenter e1 = loginNewUser();
         final ServiceFactory sf = this.factory;// new InternalServiceFactory();
         Pixels pix = makePixels();
@@ -410,7 +410,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
     }
 
     @Test(groups = {"ticket:1929"})
-    public void testOtherUserViewsThumbnailByLongestSideDirect() {
+    public void testOtherUserRWViewsThumbnailByLongestSideDirect() {
         Experimenter e1 = loginNewUser();
         final ServiceFactory sf = this.factory;// new InternalServiceFactory();
         Pixels pix = makePixels();
@@ -425,7 +425,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
     }
 
     @Test(groups = {"ticket:1929"})
-    public void testOtherUserViewsSingleThumbnailByLongestSideSet() {
+    public void testOtherUserRWViewsSingleThumbnailByLongestSideSet() {
         Experimenter e1 = loginNewUser();
         final ServiceFactory sf = this.factory;// new InternalServiceFactory();
         Pixels pix = makePixels();
@@ -445,7 +445,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
     }
 
     @Test(groups = {"ticket:1929"})
-    public void testOtherUserViewsMultipleThumbnailsByLongestSideSet() {
+    public void testOtherUserRWViewsMultipleThumbnailsByLongestSideSet() {
         Experimenter e1 = loginNewUser();
         final ServiceFactory sf = this.factory;// new InternalServiceFactory();
         Pixels pix1 = makePixels();
@@ -466,6 +466,95 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
             assertNotNull(thumbnail);
         }
     }
+
+      @Test(groups = {"ticket:1929"},
+            expectedExceptions = { InternalException.class })
+      public void testOtherUserROViewsThumbnailWithNoSettings() {
+          Experimenter e1 = loginNewUser();
+          final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+          Pixels pix = makePixels();
+          deleteRenderingSettings(pix);
+          loginRoot();
+          makeDefaultGroupReadOnly(e1);
+          loginNewUserInOtherUsersGroup(e1);
+          ThumbnailStore tbUser = sf.createThumbnailService();
+          assertFalse(tbUser.setPixelsId(pix.getId()));
+          // XXX: Shows bug
+          //Permissions perms = iAdmin.getEventContext().getCurrentGroupPermissions();
+          //System.err.println("Permissions: " + perms);
+          //System.err.println("Pixels ID: " + pix.getId());
+          tbUser.resetDefaults();
+          assertFalse(tbUser.setPixelsId(pix.getId()));
+      }
+
+      @Test(groups = {"ticket:1929"})
+      public void testOtherUserROViewsThumbnailDirect() {
+          Experimenter e1 = loginNewUser();
+          final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+          Pixels pix = makePixels();
+          loginRoot();
+          makeDefaultGroupReadOnly(e1);
+          loginNewUserInOtherUsersGroup(e1);
+          ThumbnailStore tbUser = sf.createThumbnailService();
+          assertTrue(tbUser.setPixelsId(pix.getId()));
+          tbUser.getThumbnailDirect(96, 96);
+      }
+
+      @Test(groups = {"ticket:1929"})
+      public void testOtherUserROViewsThumbnailByLongestSideDirect() {
+          Experimenter e1 = loginNewUser();
+          final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+          Pixels pix = makePixels();
+          loginRoot();
+          makeDefaultGroupReadOnly(e1);
+          loginNewUserInOtherUsersGroup(e1);
+          ThumbnailStore tbUser = sf.createThumbnailService();
+          assertTrue(tbUser.setPixelsId(pix.getId()));
+          tbUser.getThumbnailByLongestSideDirect(96);
+      }
+
+      @Test(groups = {"ticket:1929"})
+      public void testOtherUserROViewsSingleThumbnailByLongestSideSet() {
+          Experimenter e1 = loginNewUser();
+          final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+          Pixels pix = makePixels();
+          loginRoot();
+          makeDefaultGroupReadOnly(e1);
+          loginNewUserInOtherUsersGroup(e1);
+          ThumbnailStore tbUser = sf.createThumbnailService();
+          Set<Long> pixelsIds = Collections.singleton(pix.getId());
+          Map<Long, byte[]> thumbnails = 
+              tbUser.getThumbnailByLongestSideSet(96, pixelsIds);
+          assertNotNull(thumbnails);
+          assertEquals(pixelsIds.size(), thumbnails.size());
+          for (byte[] thumbnail : thumbnails.values())
+          {
+              assertNotNull(thumbnail);
+          }
+      }
+
+      @Test(groups = {"ticket:1929"})
+      public void testOtherUserROViewsMultipleThumbnailsByLongestSideSet() {
+          Experimenter e1 = loginNewUser();
+          final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+          Pixels pix1 = makePixels();
+          Pixels pix2 = makePixels();
+          loginRoot();
+          makeDefaultGroupReadOnly(e1);
+          loginNewUserInOtherUsersGroup(e1);
+          ThumbnailStore tbUser = sf.createThumbnailService();
+          Set<Long> pixelsIds = new HashSet<Long>();
+          pixelsIds.add(pix1.getId());
+          pixelsIds.add(pix2.getId());
+          Map<Long, byte[]> thumbnails = 
+              tbUser.getThumbnailByLongestSideSet(96, pixelsIds);
+          assertNotNull(thumbnails);
+          assertEquals(pixelsIds.size(), thumbnails.size());
+          for (byte[] thumbnail : thumbnails.values())
+          {
+              assertNotNull(thumbnail);
+          }
+      }
 
     @Test(groups = {"ticket:1801"}, expectedExceptions = {ResourceError.class})
     public void testAdminViewsThumbnailsWithNoMetadata() {
@@ -563,11 +652,18 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         }
         iUpdate.deleteObject(settings);
     }
-    
+
     private void makeDefaultGroupReadWrite(Experimenter experimenter)
     {
         ExperimenterGroup group = iAdmin.getDefaultGroup(experimenter.getId());
         group.getDetails().setPermissions(Permissions.GROUP_WRITEABLE);
+        iAdmin.updateGroup(group);
+    }
+
+    private void makeDefaultGroupReadOnly(Experimenter experimenter)
+    {
+        ExperimenterGroup group = iAdmin.getDefaultGroup(experimenter.getId());
+        group.getDetails().setPermissions(Permissions.GROUP_READABLE);
         iAdmin.updateGroup(group);
     }
 }

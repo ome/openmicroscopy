@@ -37,6 +37,7 @@ import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
 import ome.model.internal.Details;
+import ome.model.internal.Permissions;
 import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
 
@@ -209,7 +210,7 @@ public class ThumbnailCtx
         // us to use the owner's settings (we're "graph critical") and load
         // them if possible.
         if (pixelsIdsWithoutSettings.size() > 0
-            && isReallyGraphCritical(pixelsIdsWithoutSettings))
+            && isExtendedGraphCritical(pixelsIdsWithoutSettings))
         {
             settingsList = 
                 bulkLoadOwnerRenderingSettings(pixelsIdsWithoutSettings);
@@ -315,7 +316,7 @@ public class ThumbnailCtx
     {
         // Now check to see if we're in a state where missing rendering
         // settings and our state requires us to not save.
-        if (isReallyGraphCritical(pixelsIds))
+        if (isExtendedGraphCritical(pixelsIds))
         {
             // TODO: Could possibly "su" to the user and create a thumbnail
             return;
@@ -481,20 +482,30 @@ public class ThumbnailCtx
     }
 
     /**
-     * Whether or not we're really graph critical for a given set of dimension
-     * pools. We're only <b>really</b> graph critical if any of the settings
-     * we have loaded do not belong to us.
-     * @param pixelsIds Set of Pixels to check if we're graph critical for.
-     * @return <code>true</code> if we're really graph critical, and
+     * Whether or not we're extended graph critical for a given set of
+     * dimension pools. We're extended graph critical if:
+     * <ul>
+     *   <li>
+     *      <code>isGraphGritical() == true</code> and the Pixels set does not
+     *      belong to us.
+     *   </li>
+     *   <li>
+     *      <code>isGraphCritical() == false</code>, the Pixels set does not
+     *      belong to us and the group is READ-ONLY.
+     *   </li>
+     * </ul>
+     * @param dimensionPools Dimension pools to check if we're graph critical
+     * for.
+     * @return <code>true</code> if we're graph critical, and
      * <code>false</code> otherwise.
-     * @see #isReallyGraphCritical(Set)
+     * @see #isExtendedGraphCritical(Set)
      */
-    private boolean isReallyGraphCritical(
+    private boolean isExtendedGraphCritical(
             Map<Dimension, Set<Long>> dimensionPools)
     {
         for (Set<Long> pool : dimensionPools.values())
         {
-            if (isReallyGraphCritical(pool))
+            if (isExtendedGraphCritical(pool))
             {
                 return true;
             }
@@ -503,16 +514,29 @@ public class ThumbnailCtx
     }
 
     /**
-     * Whether or not we're really graph critical for a given set of Pixels.
-     * We're only <b>really</b> graph critical if any of the settings we have
-     * loaded do not belong to us.
+     * Whether or not we're extended graph critical for a given set of
+     * dimension pools. We're extended graph critical if:
+     * <ul>
+     *   <li>
+     *      <code>isGraphGritical() == true</code> and the Pixels set does not
+     *      belong to us.
+     *   </li>
+     *   <li>
+     *      <code>isGraphCritical() == false</code>, the Pixels set does not
+     *      belong to us and the group is READ-ONLY.
+     *   </li>
+     * </ul>
      * @param pixelsIds Set of Pixels to check if we're graph critical for.
-     * @return <code>true</code> if we're really graph critical, and
+     * @return <code>true</code> if we're graph critical, and
      * <code>false</code> otherwise.
      */
-    private boolean isReallyGraphCritical(Set<Long> pixelsIds)
+    private boolean isExtendedGraphCritical(Set<Long> pixelsIds)
     {
-        if (securitySystem.isGraphCritical())
+        Permissions currentGroupPermissions = 
+            securitySystem.getEventContext().getCurrentGroupPermissions();
+        Permissions readOnly = Permissions.parseString("rwr---");
+        if (securitySystem.isGraphCritical()
+            || currentGroupPermissions.identical(readOnly))
         {
             for (Long pixelsId : pixelsIds)
             {
@@ -751,7 +775,7 @@ public class ThumbnailCtx
             Set<Long> pixelsIdsWithoutMetadata =
                 getPixelsIdsWithoutMetadata(pool);
             if (pixelsIdsWithoutMetadata.size() > 0
-                && isReallyGraphCritical(pixelsIdsWithoutMetadata))
+                && isExtendedGraphCritical(pixelsIdsWithoutMetadata))
             {
                 thumbnailList = bulkLoadOwnerMetadata(
                         dimensions, pixelsIdsWithoutMetadata); 
@@ -835,7 +859,7 @@ public class ThumbnailCtx
     {
         // Now check to see if we're in a state where missing metadata
         // and our state requires us to not save.
-        if (isReallyGraphCritical(dimensionPools))
+        if (isExtendedGraphCritical(dimensionPools))
         {
             // TODO: Could possibly "su" to the user and create a thumbnail
             return;
