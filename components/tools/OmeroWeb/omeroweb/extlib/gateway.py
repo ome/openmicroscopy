@@ -2109,12 +2109,12 @@ class OmeroWebObjectWrapper (object):
             else:
                 return 0
     
-    def listAnnotations (self):
-        #container = self._conn.getContainerService()
-        meta = self._conn.getMetadataService()
-        self.annotations = meta.loadAnnotations(self._obj.__class__.__name__, [self._oid], None, None, None).get(self._oid, [])
-        for ann in self.annotations:
-            yield AnnotationWrapper(self._conn, ann)
+    #def listAnnotations (self):
+    #    #container = self._conn.getContainerService()
+    #    meta = self._conn.getMetadataService()
+    #    self.annotations = meta.loadAnnotations(self._obj.__class__.__name__, [self._oid], None, None, None).get(self._oid, [])
+    #    for ann in self.annotations:
+    #        yield AnnotationWrapper(self._conn, ann)
     
     def countAnnotations (self):
         if self.annotation_counter is not None:
@@ -2602,22 +2602,22 @@ class DatasetWrapper (OmeroWebObjectWrapper, omero.gateway.DatasetWrapper):
             return '<OmeroWeb%s id=%s>' % (self.__class__.__name__, str(self._oid))
         return super(DatasetWrapper, self).__repr__()
     
-    def listChildren (self):
-        """ return a generator yielding child objects """
-        try:
-            childnodes = [ x.child for x in getattr(self._obj, self.LINK_NAME)()]
-
-            child_ids = [child.id.val for child in childnodes]
-            child_counter = None
-            if len(child_ids) > 0:
-                child_annotation_counter = self._conn.getCollectionCount(self.CHILD, "annotationLinks", child_ids)
-            for child in childnodes:
-                kwargs = dict()
-                if child_annotation_counter:
-                    kwargs['annotation_counter'] = child_annotation_counter.get(child.id.val)
-                yield ImageWrapper(self._conn, child, **kwargs)
-        except:
-            raise NotImplementedError
+#    def listChildren (self):
+#        """ return a generator yielding child objects """
+#        try:
+#            childnodes = [ x.child for x in getattr(self._obj, self.LINK_NAME)()]
+#
+#            child_ids = [child.id.val for child in childnodes]
+#            child_counter = None
+#            if len(child_ids) > 0:
+#                child_annotation_counter = self._conn.getCollectionCount(self.CHILD, "annotationLinks", child_ids)
+#            for child in childnodes:
+#                kwargs = dict()
+#                if child_annotation_counter:
+#                    kwargs['annotation_counter'] = child_annotation_counter.get(child.id.val)
+#                yield ImageWrapper(self._conn, child, **kwargs)
+#        except:
+#            raise NotImplementedError
 
 omero.gateway.DatasetWrapper = DatasetWrapper
 
