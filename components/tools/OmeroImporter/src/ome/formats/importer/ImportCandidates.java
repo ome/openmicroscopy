@@ -286,7 +286,6 @@ public class ImportCandidates extends DirectoryWalker {
         throw new RuntimeException("Unfound reader for: " + abs);
     }
 
-    @SuppressWarnings("unchecked")
     public List<ImportContainer> getContainers() {
         return new ArrayList<ImportContainer>(containers);
     }

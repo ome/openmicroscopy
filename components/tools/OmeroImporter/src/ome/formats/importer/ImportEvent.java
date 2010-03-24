@@ -268,7 +268,8 @@ public class ImportEvent {
     public static class BIOFORMATS_STATUS extends ImportEvent {
     	private StatusEvent statusEvent;
     	
-    	private String filename;
+    	@SuppressWarnings("unused")
+		private String filename;
     	
         public BIOFORMATS_STATUS(String filename, StatusEvent statusEvent) {
         	this.filename = filename;

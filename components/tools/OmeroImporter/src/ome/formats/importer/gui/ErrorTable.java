@@ -89,8 +89,6 @@ public class ErrorTable
     private static final long serialVersionUID = 1L;
     public ErrorTableModel table = new ErrorTableModel();
     public ETable eTable = new ETable(table);
-
-    GuiCommonElements gui;
     
  // ----- Variables -----
     // Debug Borders
@@ -130,13 +128,9 @@ public class ErrorTable
 
     /**
      * Constructor for class
-     * 
-     * @param gui - gui common elements class passed in.
      */
-    public ErrorTable(GuiCommonElements gui)
+    public ErrorTable()
     {   
-        this.gui = gui;
-        
         // set to layout that will maximize on resizing
         setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
         this.setOpaque(false);
@@ -147,7 +141,7 @@ public class ErrorTable
                 {{5, 200, 140, TableLayout.FILL, 180, 5}, // columns
                 { 5, TableLayout.PREFERRED, TableLayout.FILL, 5, 29, 5}}; // rows
         
-        mainPanel = gui.addMainPanel(this, mainTable, 0,0,0,0, debug); 
+        mainPanel = GuiCommonElements.addMainPanel(this, mainTable, 0,0,0,0, debug); 
                 
         String message = "All errors accumulated during your import are collected here, " +
                 "allowing you to review and send us feedback on the problem. " +
@@ -155,7 +149,7 @@ public class ErrorTable
                 "besides each error.";
 
         JTextPane instructions = 
-                gui.addTextPane(mainPanel, message, "1,1,4,0", debug);
+        	GuiCommonElements.addTextPane(mainPanel, message, "1,1,4,0", debug);
         instructions.setMargin(new Insets(10,10,10,10));
         
         TableColumnModel cModel =  eTable.getColumnModel();
@@ -217,7 +211,7 @@ public class ErrorTable
         {{200}, // columns
         {12, 5, 12}}; // rows
         
-        progressPanel = gui.addPlanePanel(mainPanel, progressTable, debug);
+        progressPanel = GuiCommonElements.addPlanePanel(mainPanel, progressTable, debug);
         
         runThread = new Thread()
         {
@@ -242,12 +236,12 @@ public class ErrorTable
         
         progressPanel.setVisible(false);
        
-        cancelBtn = gui.addButton(mainPanel, "Cancel", 'c', "Cancel sending", "2,4,l,c", debug);
+        cancelBtn = GuiCommonElements.addButton(mainPanel, "Cancel", 'c', "Cancel sending", "2,4,l,c", debug);
         cancelBtn.addActionListener(this);
         
         cancelBtn.setVisible(false);
         
-        sendBtn = gui.addButton(mainPanel, "Send Feedback", 's', "Send your errors to the OMERO team", "4,4,r,c", debug);
+        sendBtn = GuiCommonElements.addButton(mainPanel, "Send Feedback", 's', "Send your errors to the OMERO team", "4,4,r,c", debug);
         sendBtn.addActionListener(this);
         sendBtn.setEnabled(false);
         
@@ -342,116 +336,177 @@ public class ErrorTable
             observer.update(this, event);
         }
     }
-
-
-    public void updateProgress(int rowIndex, int file, int value)
-    {
-        
-    }
     
-    public void initProgress(int rowIndex, int files)
-    {
-        
-    }
-    
-    
+    /**
+     * Return an array of ErrorContainers
+     * 
+     * @return errors
+     */
     public ArrayList<ErrorContainer> getErrors() {
         return errors;
     }
 
-
+    /**
+     * Set internal errorsContainers
+     * 
+     * @param errors
+     */
     public void setErrors(ArrayList<ErrorContainer> errors) {
         this.errors = errors;
     }
     
+    /**
+     *  Fire tableTableDataChanged in the table
+     */
     public void fireTableDataChanged()
     {
         table.fireTableDataChanged();
     }
     
+    /**
+     * Add a row to the table and enable the sendBtn
+     * 
+     * @param rowData
+     */
     public void addRow(Vector<Object> rowData)
     {
         table.addRow(rowData);
         sendBtn.setEnabled(true);
     }
     
+    /**
+     * Change the progress to sending for the row
+     * 
+     * @param row
+     */
     public void setProgressSending(int row)
     {
         table.setValueAt(1, row, 3);
-        failedFiles  = false;
+        setFailedFiles(false);
         table.fireTableDataChanged();
         progressPanel.setVisible(true);
         cancelBtn.setVisible(true); 
         invalidate();
     } 
     
+    /**
+     * Set the progress for the row to 'done'
+     * 
+     * @param row
+     */
     public void setProgressDone(int row)
     {
         table.setValueAt(20, row, 3);
-        failedFiles  = false;
+        setFailedFiles(false);
     }
     
+    /**
+     * Set Files Progress 
+     * 
+     * @param value
+     */
     public void setFilesProgress(int value)
     {
         filesProgressBar.setValue(value);
     }
     
+    /**
+     * Set Files in Set maximum value
+     * @param value
+     */
     public void setFilesInSet(int value)
     {
         filesProgressBar.setMaximum(value);
     }
     
+    /**
+     * Set file bytes progress
+     * 
+     * @param value
+     */
     public void setBytesProgress(int value)
     {
         bytesProgressBar.setValue(value);
     }
 
+    /**
+     * Set bytes file maximum size 
+     * 
+     * @param value
+     */
     public void setBytesFileSize(int value) {
         bytesProgressBar.setMaximum(value);
     }
     
+    /**
+     * Enable or disable send button 
+     * 
+     * @param enabled
+     */
     public void enableSendBtn(boolean enabled)
     {
         sendBtn.setEnabled(enabled);
     }
 
 
-    public void enableCancelBtn(boolean b) {
-        if (b)
+    /**
+     * Enable or disable cancel button 
+     * 
+     * @param enabled
+     */
+    public void enableCancelBtn(boolean enabled) {
+        if (enabled)
         {   
             cancelBtn.setText("Cancel");
-            cancelBtn.setEnabled(b);
+            cancelBtn.setEnabled(enabled);
         }
         else
         {
             cancelBtn.setText("Cancelling...");
-            cancelBtn.setEnabled(b);
+            cancelBtn.setEnabled(enabled);
         }
     }
 
 
+    /**
+     * Set text on cancel button to 'cancelled'
+     */
     public void setCancelBtnCancelled() {
         cancelBtn.setText("Cancelled");
     }
 
-
-    public void setSendBtnEnable(boolean b) {
-        sendBtn.setEnabled(b);
-    }
-
-
-    public void setCancelBtnVisible(boolean b)
+    /**
+     * Set cancel button visible/invisible
+     * @param visible
+     */
+    public void setCancelBtnVisible(boolean visible)
     {
-        cancelBtn.setVisible(b);
+        cancelBtn.setVisible(visible);
     }
     
     //
     // Inner classes
     //
     
-    class ErrorTableModel 
-        extends DefaultTableModel 
-        implements TableModelListener 
+    /**
+	 * @param failedFiles the failedFiles to set
+	 */
+	public void setFailedFiles(boolean failedFiles) {
+		this.failedFiles = failedFiles;
+	}
+
+	/**
+	 * @return the failedFiles
+	 */
+	public boolean getFailedFiles() {
+		return failedFiles;
+	}
+
+	/**
+	 * @author Brian Loranger brain at lifesci.dundee.ac.uk
+	 *
+	 */
+	class ErrorTableModel extends DefaultTableModel implements TableModelListener 
     {
         
         private static final long serialVersionUID = 1L;
@@ -474,8 +529,11 @@ public class ErrorTable
         
     }
 
-    class MyTableHeaderRenderer 
-        extends DefaultTableCellRenderer 
+	/**
+	 * @author Brian Loranger brain at lifesci.dundee.ac.uk
+	 *
+	 */
+    class MyTableHeaderRenderer extends DefaultTableCellRenderer 
     {
         // This method is called each time a column header
         // using this renderer needs to be rendered.
@@ -506,19 +564,41 @@ public class ErrorTable
         }
         
         // The following methods override the defaults for performance reasons
+        
+        /* (non-Javadoc)
+         * @see javax.swing.table.DefaultTableCellRenderer#validate()
+         */
+        
         public void validate() {}
+        /* (non-Javadoc)
+         * @see javax.swing.table.DefaultTableCellRenderer#revalidate()
+         */
         public void revalidate() {}
+        
+        /* (non-Javadoc)
+         * @see javax.swing.table.DefaultTableCellRenderer#firePropertyChange(java.lang.String, java.lang.Object, java.lang.Object)
+         */
         protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {}
+        
+        /* (non-Javadoc)
+         * @see javax.swing.table.DefaultTableCellRenderer#firePropertyChange(java.lang.String, boolean, boolean)
+         */
         public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {}
     }
 
-    class LeftTableHeaderRenderer 
-    extends DefaultTableCellRenderer 
+    /**
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     *
+     */
+    class LeftTableHeaderRenderer extends DefaultTableCellRenderer 
 {
-    // This method is called each time a column header
-    // using this renderer needs to be rendered.
-
     private static final long serialVersionUID = 1L;
+    
+    
+    /* Called each time a column header using this renderer needs to be rendered.
+     * (non-Javadoc)
+     * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+     */
     public Component getTableCellRendererComponent(JTable table, Object value,
             boolean isSelected, boolean hasFocus, int row, int column) {
 
@@ -544,16 +624,44 @@ public class ErrorTable
     }
     
     // The following methods override the defaults for performance reasons
+    
+    /* (non-Javadoc)
+     * @see javax.swing.table.DefaultTableCellRenderer#validate()
+     */
     public void validate() {}
+    /* (non-Javadoc)
+     * @see javax.swing.table.DefaultTableCellRenderer#revalidate()
+     */
+    
+    /* (non-Javadoc)
+     * @see javax.swing.table.DefaultTableCellRenderer#revalidate()
+     */
     public void revalidate() {}
+    
+    /* (non-Javadoc)
+     * @see javax.swing.table.DefaultTableCellRenderer#firePropertyChange(java.lang.String, java.lang.Object, java.lang.Object)
+     */
     protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {}
+    
+    /* (non-Javadoc)
+     * @see javax.swing.table.DefaultTableCellRenderer#firePropertyChange(java.lang.String, boolean, boolean)
+     */
     public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {}
 }
     
-    class LeftDotRenderer 
-        extends DefaultTableCellRenderer
+    /**
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     *
+     */
+    class LeftDotRenderer extends DefaultTableCellRenderer
     {
         private static final long serialVersionUID = 1L;
+        
+        /* Called each time a column header using this renderer needs to be rendered.
+         * (non-Javadoc)
+         * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(
+         * javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+         */
         public Component getTableCellRendererComponent(
             JTable table, Object value, boolean isSelected,
             boolean hasFocus, int row, int column)
@@ -603,13 +711,18 @@ public class ErrorTable
     }
 
 
-    class TextLeftRenderer
-        extends DefaultTableCellRenderer 
-    {
-        // This method is called each time a column header
-        // using this renderer needs to be rendered.
-    
+    /**
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     *
+     */
+    class TextLeftRenderer extends DefaultTableCellRenderer 
+    {    
         private static final long serialVersionUID = 1L;
+           
+        /* Called each time a column header using this renderer needs to be rendered.
+         * (non-Javadoc)
+         * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+         */
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
             
@@ -631,13 +744,18 @@ public class ErrorTable
         }
     }
     
-    class TextCellCenter
-        extends DefaultTableCellRenderer 
+    /**
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     *
+     */
+    class TextCellCenter extends DefaultTableCellRenderer 
     {
-        // This method is called each time a column header
-        // using this renderer needs to be rendered.
-    
-        private static final long serialVersionUID = 1L;
+    	private static final long serialVersionUID = 1L;
+        
+        /* Called each time a column header using this renderer needs to be rendered.
+         * (non-Javadoc)
+         * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+         */
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
             
@@ -660,11 +778,18 @@ public class ErrorTable
         }
     }
  
-    class StatusRenderer 
-    extends DefaultTableCellRenderer 
+    /**
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     *
+     */
+    class StatusRenderer extends DefaultTableCellRenderer 
     {
         private static final long serialVersionUID = 1L;
 
+        /* Called each time a column header using this renderer needs to be rendered.
+         * (non-Javadoc)
+         * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+         */
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
             
@@ -701,12 +826,18 @@ public class ErrorTable
         }
     }
     
-    class CheckboxRenderer 
-    extends JCheckBox 
-    implements TableCellRenderer
+    /**
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     *
+     */
+    class CheckboxRenderer extends JCheckBox implements TableCellRenderer
     {
         private static final long serialVersionUID = 1L;
 
+        /* Called each time a column header using this renderer needs to be rendered.
+         * (non-Javadoc)
+         * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+         */
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
             
@@ -735,22 +866,35 @@ public class ErrorTable
         }
     }
     
-    class CheckboxCellEditor
-    extends AbstractCellEditor
-    implements TableCellEditor   
+    /**
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     *
+     */
+    class CheckboxCellEditor extends AbstractCellEditor implements TableCellEditor   
     {
         private static final long serialVersionUID = 1L;
         JCheckBox checkbox;
         
+        /**
+         * pass in checkbox to class variable
+         * 
+         * @param checkbox
+         */
         public CheckboxCellEditor(JCheckBox checkbox)
         {
             this.checkbox = checkbox;
         }
 
+        /* (non-Javadoc)
+         * @see javax.swing.CellEditor#getCellEditorValue()
+         */
         public Object getCellEditorValue() {
             return Boolean.valueOf(checkbox.isSelected());
         }
         
+        /* (non-Javadoc)
+         * @see javax.swing.table.TableCellEditor#getTableCellEditorComponent(javax.swing.JTable, java.lang.Object, boolean, int, int)
+         */
         public Component getTableCellEditorComponent(JTable table,
                 Object value, boolean isSelected, int row, int column) {
  

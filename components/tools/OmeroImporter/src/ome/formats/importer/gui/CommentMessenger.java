@@ -59,7 +59,6 @@ public class CommentMessenger extends JDialog implements ActionListener
     private static final String ICON = "gfx/nuvola_mail_send64.png";
 
     ImportConfig            config;
-    GuiCommonElements       gui;
     
     JPanel                  mainPanel;
     JPanel                  commentPanel;
@@ -87,7 +86,6 @@ public class CommentMessenger extends JDialog implements ActionListener
     {
         super(owner);
         this.config = config; 
-        this.gui = new GuiCommonElements(config);
         
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         
@@ -102,26 +100,26 @@ public class CommentMessenger extends JDialog implements ActionListener
                 {{10, 150, TableLayout.FILL, 100, 5, 100, 10}, // columns
                 {TableLayout.FILL, 40}}; // rows
 
-        mainPanel = gui.addMainPanel(this, mainTable, 10,10,10,10, debug);
+        mainPanel = GuiCommonElements.addMainPanel(this, mainTable, 10,10,10,10, debug);
 
         // Add the quit, cancel and send buttons to the main panel
-        //quitBtn = gui.addButton(mainPanel, "Quit Application", 'Q',
+        //quitBtn = GuiCommonElements.addButton(mainPanel, "Quit Application", 'Q',
         //        "Quit the application", "1, 1, f, c", debug);
         //quitBtn.addActionListener(this);
 
-        cancelBtn = gui.addButton(mainPanel, "Cancel", 'C',
+        cancelBtn = GuiCommonElements.addButton(mainPanel, "Cancel", 'C',
                 "Cancel your message", "3, 1, f, c", debug);
         cancelBtn.addActionListener(this);
 
-        sendBtn = gui.addButton(mainPanel, "Send", 'S',
+        sendBtn = GuiCommonElements.addButton(mainPanel, "Send", 'S',
                 "Send your comment to the development team", "5, 1, f, c", debug);
         sendBtn.addActionListener(this);
 
         this.getRootPane().setDefaultButton(sendBtn);
-        gui.enterPressesWhenFocused(sendBtn);
+        GuiCommonElements.enterPressesWhenFocused(sendBtn);
         
         // fill out the comments panel (changes according to icon existance)        
-        Icon icon = gui.getImageIcon(ICON);
+        Icon icon = GuiCommonElements.getImageIcon(ICON);
         
         int iconSpace = 0;
         if (icon != null) iconSpace = icon.getIconWidth() + 20;
@@ -130,7 +128,7 @@ public class CommentMessenger extends JDialog implements ActionListener
         {{iconSpace, (160 - iconSpace), TableLayout.FILL}, // columns
                 {90, 30, TableLayout.FILL}}; // rows
         
-        commentPanel = gui.addMainPanel(this, commentTable, 10,10,10,10, debug);
+        commentPanel = GuiCommonElements.addMainPanel(this, commentTable, 10,10,10,10, debug);
 
         String message = "Thank you for taking the time to send us your comments. \n\n" +
                 "Your feedback will be used to futher the developmment of the " +
@@ -142,14 +140,14 @@ public class CommentMessenger extends JDialog implements ActionListener
         
         @SuppressWarnings("unused")
         JTextPane instructions = 
-                gui.addTextPane(commentPanel, message, "1,0,2,0", debug);
+        	GuiCommonElements.addTextPane(commentPanel, message, "1,0,2,0", debug);
 
-        emailTextField = gui.addTextField(commentPanel, "Email: ", emailText, 'E',
+        emailTextField = GuiCommonElements.addTextField(commentPanel, "Email: ", emailText, 'E',
         "Input tyour email address here.", "(Optional)", TableLayout.PREFERRED, "0, 1, 2, 1", debug);
         
         emailTextField.setText(config.email.get());
         
-        commentTextArea = gui.addTextArea(commentPanel, "Comment:", 
+        commentTextArea = GuiCommonElements.addTextArea(commentPanel, "Comment:", 
                 "", 'W', "0, 2, 2, 2", debug);
         
         // Add the tab panel to the main panel
@@ -178,7 +176,7 @@ public class CommentMessenger extends JDialog implements ActionListener
             emailText = emailTextField.getText();
             commentText = commentTextArea.getText();
             
-            if (gui.validEmail(emailText) || emailText.trim().length() == 0)
+            if (GuiCommonElements.validEmail(emailText) || emailText.trim().length() == 0)
             {            
                 sendBtn.setEnabled(false);
                 config.email.set(emailText);

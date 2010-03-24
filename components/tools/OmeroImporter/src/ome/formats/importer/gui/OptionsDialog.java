@@ -1,5 +1,5 @@
 /*
- * ome.formats.importer.gui.OptionsDialog
+ * ome.formats.importer.GuiCommonElements.OptionsDialog
  *
  *------------------------------------------------------------------------------
  *
@@ -19,6 +19,7 @@ import info.clearthought.layout.TableLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -27,7 +28,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
@@ -48,7 +48,7 @@ import org.apache.log4j.Priority;
 @SuppressWarnings("serial")
 public class OptionsDialog extends JDialog implements ActionListener
 {
-    private GuiCommonElements       gui;
+    private ImportConfig       		config;
 
     private Integer                 dialogHeight = 300;
     private Integer                 dialogWidth = 374;
@@ -75,7 +75,8 @@ public class OptionsDialog extends JDialog implements ActionListener
     private boolean oldQuaquaLevel;
 
     /** Logger for this class. */
-    private static Log          log     = LogFactory.getLog(OptionsDialog.class);
+    @SuppressWarnings("unused")
+	private static Log          log     = LogFactory.getLog(OptionsDialog.class);
     
     final String allDescription = "This level of debugging turns on all logging. Use this option if you want to see all messages, " +
     		"but be mindful of the fact this can produce some very large log files.";
@@ -116,7 +117,7 @@ public class OptionsDialog extends JDialog implements ActionListener
 
     private JCheckBox companionFileCheckbox;
 
-    OptionsDialog(GuiCommonElements gui, JFrame owner, String title, boolean modal)
+    OptionsDialog(ImportConfig config, Window owner, String title, boolean modal)
     {
         super(owner);
         
@@ -132,9 +133,9 @@ public class OptionsDialog extends JDialog implements ActionListener
         tabbedPane = new JTabbedPane();
         tabbedPane.setOpaque(false); // content panes must be opaque
 
-        this.gui = gui;
+        this.config = config;
         
-        oldQuaquaLevel = gui.config.getUseQuaqua();
+        oldQuaquaLevel = config.getUseQuaqua();
 
         /////////////////////// START MAIN PANEL ////////////////////////
 
@@ -143,20 +144,20 @@ public class OptionsDialog extends JDialog implements ActionListener
         {{TableLayout.FILL, 120, 5, 120, TableLayout.FILL}, // columns
         {TableLayout.FILL, 5, 30}}; // rows     
         
-        mainPanel = gui.addMainPanel(this, mainPanelTable, 10, 10, 10, 10, debug);
+        mainPanel = GuiCommonElements.addMainPanel(this, mainPanelTable, 10, 10, 10, 10, debug);
         
         // Buttons at the bottom of the form
 
-        cancelBtn = gui.addButton(mainPanel, "Cancel", 'L',
+        cancelBtn = GuiCommonElements.addButton(mainPanel, "Cancel", 'L',
                 "Cancel", "1, 2, f, c", debug);
         cancelBtn.addActionListener(this);
 
-        okBtn = gui.addButton(mainPanel, "OK", 'Q',
+        okBtn = GuiCommonElements.addButton(mainPanel, "OK", 'Q',
                 "Import", "3, 2, f, c", debug);
         okBtn.addActionListener(this);
 
         this.getRootPane().setDefaultButton(okBtn);
-        gui.enterPressesWhenFocused(okBtn);
+        GuiCommonElements.enterPressesWhenFocused(okBtn);
         
         mainPanel.add(tabbedPane, "0,0,4,0");
         
@@ -166,14 +167,14 @@ public class OptionsDialog extends JDialog implements ActionListener
             {{TableLayout.FILL}, // columns
             {10,TableLayout.PREFERRED,20,30,15,TableLayout.FILL}}; // rows
         
-        debugOptionsPanel = gui.addMainPanel(tabbedPane, debugOptionTable, 0, 10, 10, 10, debug);
+        debugOptionsPanel = GuiCommonElements.addMainPanel(tabbedPane, debugOptionTable, 0, 10, 10, 10, debug);
         
         String message = "Choose the level of detail for your log file's data.";
-        gui.addTextPane(debugOptionsPanel, message, "0, 1, 0, 0", debug);
-        dBox = gui.addComboBox(debugOptionsPanel, "Debug Level: ", debugItems, 'D',
+        GuiCommonElements.addTextPane(debugOptionsPanel, message, "0, 1, 0, 0", debug);
+        dBox = GuiCommonElements.addComboBox(debugOptionsPanel, "Debug Level: ", debugItems, 'D',
                 "Choose the level of detail for your log file's data.", 95, "0,3,f,c", debug);
         
-        int debugLevel = gui.config.getDebugLevel();
+        int debugLevel = config.getDebugLevel();
         
         for (int i = 0; i < dBox.getItemCount(); i++)
         {
@@ -183,7 +184,7 @@ public class OptionsDialog extends JDialog implements ActionListener
         dBox.addActionListener(this);
         
         String description = ((DebugItem) dBox.getSelectedItem()).getDescription();
-        descriptionText = gui.addTextPane(debugOptionsPanel, description, "0, 5", debug);
+        descriptionText = GuiCommonElements.addTextPane(debugOptionsPanel, description, "0, 5", debug);
         final Font textFieldFont = (Font)UIManager.get("TextField.font");
         final Font font = new Font(textFieldFont.getFamily(), Font.ITALIC, textFieldFont.getSize());
         descriptionText.setFont(font);
@@ -194,12 +195,12 @@ public class OptionsDialog extends JDialog implements ActionListener
             {{TableLayout.FILL}, // columns
             {10,TableLayout.PREFERRED,20,30,15,TableLayout.FILL}}; // rows
         
-        otherOptionsPanel = gui.addMainPanel(tabbedPane, otherOptionTable, 0, 10, 10, 10, debug);  
+        otherOptionsPanel = GuiCommonElements.addMainPanel(tabbedPane, otherOptionTable, 0, 10, 10, 10, debug);  
                 
-        companionFileCheckbox = gui.addCheckBox(otherOptionsPanel, "<html>Attached a text file to each imported" +
+        companionFileCheckbox = GuiCommonElements.addCheckBox(otherOptionsPanel, "<html>Attached a text file to each imported" +
         		" file containing all collected metadata.</html>", "0,1", debug);
         
-        companionFileCheckbox.setEnabled(gui.config.companionFile.get());
+        companionFileCheckbox.setEnabled(config.companionFile.get());
         
         /////////////////////// START FILECHOOSER PANEL ////////////////////////
         
@@ -209,11 +210,11 @@ public class OptionsDialog extends JDialog implements ActionListener
             {{TableLayout.FILL, 120, 5, 120, TableLayout.FILL}, // columns
             {TableLayout.PREFERRED,15,TableLayout.FILL,10}}; // rows
 
-        fileChooserPanel = gui.addMainPanel(tabbedPane, fileChooserTable, 0,10,0,10, debug);
+        fileChooserPanel = GuiCommonElements.addMainPanel(tabbedPane, fileChooserTable, 0,10,0,10, debug);
 
         message = "Switch between single pane view and triple pane view. " +
         		"You will need to reboot the importer before your changes will take effect.";
-        gui.addTextPane(fileChooserPanel, message, "0, 0, 4, 0", debug);
+        GuiCommonElements.addTextPane(fileChooserPanel, message, "0, 0, 4, 0", debug);
         
         // Set up single pane table
         double singlePaneTable[][] =
@@ -222,13 +223,13 @@ public class OptionsDialog extends JDialog implements ActionListener
 
         // Panel containing the single pane layout
 
-        singlePanePanel = gui.addMainPanel(fileChooserPanel, singlePaneTable, 0, 0, 0, 0, debug);
+        singlePanePanel = GuiCommonElements.addMainPanel(fileChooserPanel, singlePaneTable, 0, 0, 0, 0, debug);
         
-        singlePaneBtn = gui.addRadioButton(singlePanePanel, 
+        singlePaneBtn = GuiCommonElements.addRadioButton(singlePanePanel, 
                 null, 'u', 
                 null, "0,0", debug);
         
-        gui.addImagePanel(singlePanePanel, SINGLE_PANE_IMAGE, "2,0", debug);
+        GuiCommonElements.addImagePanel(singlePanePanel, SINGLE_PANE_IMAGE, "2,0", debug);
         
         fileChooserPanel.add(singlePanePanel, "0, 2, 1, 2");
 
@@ -239,14 +240,14 @@ public class OptionsDialog extends JDialog implements ActionListener
         
         // Panel containing the triple pane layout
 
-        triplePanePanel = gui.addMainPanel(fileChooserPanel, triplePaneTable, 0, 0, 0, 0, debug);
+        triplePanePanel = GuiCommonElements.addMainPanel(fileChooserPanel, triplePaneTable, 0, 0, 0, 0, debug);
 
-        triplePaneBtn = gui.addRadioButton(triplePanePanel, 
+        triplePaneBtn = GuiCommonElements.addRadioButton(triplePanePanel, 
                 null, 'u', 
                 null, "0,0", debug);
         
         
-        gui.addImagePanel(triplePanePanel, TRIPLE_PANE_IMAGE, "2,0", debug);     
+        GuiCommonElements.addImagePanel(triplePanePanel, TRIPLE_PANE_IMAGE, "2,0", debug);     
         
         fileChooserPanel.add(triplePanePanel, "3, 2, 4, 2");
         
@@ -254,7 +255,7 @@ public class OptionsDialog extends JDialog implements ActionListener
         group.add(singlePaneBtn);
         group.add(triplePaneBtn);
         
-        if (gui.config.getUseQuaqua() == true)
+        if (config.getUseQuaqua() == true)
         {
             triplePaneBtn.setSelected(true);
             singlePaneBtn.setSelected(false);
@@ -267,7 +268,7 @@ public class OptionsDialog extends JDialog implements ActionListener
     
         /////////////////////// START TABBED PANE ////////////////////////
         
-        if (gui.getIsMac()) tabbedPane.addTab("FileChooser", null, fileChooserPanel, "FileChooser Settings");
+        if (GuiCommonElements.getIsMac()) tabbedPane.addTab("FileChooser", null, fileChooserPanel, "FileChooser Settings");
         tabbedPane.addTab("Debug", null, debugOptionsPanel, "Debug Settings");
         tabbedPane.addTab("Other", null, otherOptionsPanel, "Other Settings");
         
@@ -286,16 +287,16 @@ public class OptionsDialog extends JDialog implements ActionListener
         if (e.getSource() == okBtn && this.isDisplayable())
         {
             if (singlePaneBtn.isSelected())
-                gui.config.setUseQuaqua(false);
+                config.setUseQuaqua(false);
             else
-                gui.config.setUseQuaqua(true);
+                config.setUseQuaqua(true);
             
             if (companionFileCheckbox.isSelected())
-                gui.config.companionFile.set(true);
+                config.companionFile.set(true);
             else
-                gui.config.companionFile.set(false);
+                config.companionFile.set(false);
             
-            gui.config.setDebugLevel(((DebugItem) dBox.getSelectedItem()).getLevel());
+            config.setDebugLevel(((DebugItem) dBox.getSelectedItem()).getLevel());
             
             // Test code to see if this works
             Level level = org.apache.log4j.Level.toLevel(((DebugItem) dBox.getSelectedItem()).getLevel());
@@ -303,8 +304,8 @@ public class OptionsDialog extends JDialog implements ActionListener
             
             this.dispose();
             
-            if (gui.config.getUseQuaqua() != oldQuaquaLevel)
-                gui.restartNotice(owner, null);
+            if (config.getUseQuaqua() != oldQuaquaLevel)
+                GuiCommonElements.restartNotice(owner, null);
         }
         
         if (e.getSource() == dBox)
@@ -329,7 +330,7 @@ public class OptionsDialog extends JDialog implements ActionListener
 
         ImportConfig config = new ImportConfig(null);
         
-        OptionsDialog dialog = new OptionsDialog(new GuiCommonElements(config), null, "Optional Settings", true);
+        OptionsDialog dialog = new OptionsDialog(config, null, "Optional Settings", true);
         if (dialog != null) System.exit(0);
     }
 }

@@ -41,6 +41,7 @@ import javax.swing.JTextPane;
 import javax.swing.UIManager;
 
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.ImportConfig;
 import omero.model.Project;
 
 
@@ -53,7 +54,7 @@ public class AddProjectDialog extends JDialog implements ActionListener
 {
     boolean debug = false;
 
-    GuiCommonElements       gui;
+    ImportConfig       		config;
     
     Window                  owner;
     
@@ -74,18 +75,18 @@ public class AddProjectDialog extends JDialog implements ActionListener
     OMEROMetadataStoreClient      store;
     
     /**
-     * @param gui - gui common elements
+     * @param config - ImportConfig
      * @param owner - parent window
      * @param title - dialog title
      * @param modal - modal yes/no
      * @param store - parent store to get projects from
      */
-    AddProjectDialog(GuiCommonElements gui, Window owner, String title, Boolean modal, OMEROMetadataStoreClient store)
+    AddProjectDialog(ImportConfig config, Window owner, String title, Boolean modal, OMEROMetadataStoreClient store)
     {
         this.store = store;
         this.owner = owner;
         
-        this.gui = gui;
+        this.config = config;
         
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         
@@ -100,37 +101,37 @@ public class AddProjectDialog extends JDialog implements ActionListener
                 {{TableLayout.FILL, 100, 5, 100, 10}, // columns
                 {TableLayout.FILL, 40}}; // rows
 
-        mainPanel = gui.addMainPanel(this, mainTable, 10,10,10,10, debug);
+        mainPanel = GuiCommonElements.addMainPanel(this, mainTable, 10,10,10,10, debug);
         
         // Add the quit and send buttons to the main panel
-        cancelBtn = gui.addButton(mainPanel, "Cancel", 'C',
+        cancelBtn = GuiCommonElements.addButton(mainPanel, "Cancel", 'C',
                 "Cancel adding a project", "1, 1, f, c", debug);
         cancelBtn.addActionListener(this);
 
-        OKBtn = gui.addButton(mainPanel, "OK", 'O',
+        OKBtn = GuiCommonElements.addButton(mainPanel, "OK", 'O',
                 "Accept your new project", "3, 1, f, c", debug);
         OKBtn.addActionListener(this);
 
         this.getRootPane().setDefaultButton(OKBtn);
-        gui.enterPressesWhenFocused(OKBtn);
+        GuiCommonElements.enterPressesWhenFocused(OKBtn);
         
         double internalTable[][] = 
             {{160, TableLayout.FILL}, // columns
             {30, 30, TableLayout.FILL}}; // rows
         
-        internalPanel = gui.addMainPanel(this, internalTable, 10,10,10,10, debug);
+        internalPanel = GuiCommonElements.addMainPanel(this, internalTable, 10,10,10,10, debug);
 
         String message = "Please enter your project name and an optional " +
                 "description below.";
 
         @SuppressWarnings("unused")
         JTextPane instructions = 
-                gui.addTextPane(internalPanel, message, "0,0,1,0", debug);
+        	GuiCommonElements.addTextPane(internalPanel, message, "0,0,1,0", debug);
 
-        nameField = gui.addTextField(internalPanel, "Project Name: ", "", 'E',
+        nameField = GuiCommonElements.addTextField(internalPanel, "Project Name: ", "", 'E',
         "Input your project name here.", "", TableLayout.PREFERRED, "0, 1, 1, 1", debug);
         
-        descriptionArea = gui.addTextArea(internalPanel, "Description: (optional)", 
+        descriptionArea = GuiCommonElements.addTextArea(internalPanel, "Description: (optional)", 
                 "", 'W', "0, 2, 1, 2", debug);
         
         // Add the tab panel to the main panel
@@ -160,7 +161,7 @@ public class AddProjectDialog extends JDialog implements ActionListener
             else if (projectName.trim().length() > 0)
             {
                 project = store.addProject(projectName, projectDescription);
-                gui.config.savedProject.set(project.getId().getValue());
+                config.savedProject.set(project.getId().getValue());
                 dispose();
             } else {
                 JOptionPane.showMessageDialog(owner, "The project's name can not be blank.");

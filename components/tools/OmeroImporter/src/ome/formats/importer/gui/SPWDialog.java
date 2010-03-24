@@ -17,6 +17,7 @@ import static omero.rtypes.rstring;
 import info.clearthought.layout.TableLayout;
 
 import java.awt.Dimension;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -25,12 +26,12 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.ImportConfig;
 import omero.RLong;
 import omero.model.Screen;
 import omero.model.ScreenI;
@@ -46,7 +47,7 @@ public class SPWDialog extends JDialog implements ActionListener
 {
     boolean debug = false;
 
-    private GuiCommonElements       gui;
+    private ImportConfig	       	config;
 
     private Integer                 dialogHeight = 200;
     private Integer                 dialogWidth = 400;
@@ -80,7 +81,7 @@ public class SPWDialog extends JDialog implements ActionListener
 
     public OMEROMetadataStoreClient store;
 
-    SPWDialog(GuiCommonElements gui, JFrame owner, String title, boolean modal, OMEROMetadataStoreClient store)
+    SPWDialog(ImportConfig config, Window owner, String title, boolean modal, OMEROMetadataStoreClient store)
     {
         super(owner);
         this.store = store;
@@ -100,7 +101,7 @@ public class SPWDialog extends JDialog implements ActionListener
         tabbedPane = new JTabbedPane();
         tabbedPane.setOpaque(false); // content panes must be opaque
 
-        this.gui = gui;
+        this.config = config;
 
         
         /////////////////////// START IMPORT PANEL ////////////////////////
@@ -112,10 +113,10 @@ public class SPWDialog extends JDialog implements ActionListener
             {TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 
                 TableLayout.FILL, 40, 30}}; // rows
 
-        importPanel = gui.addMainPanel(tabbedPane, mainTable, 5,10,0,10, debug);
+        importPanel = GuiCommonElements.addMainPanel(tabbedPane, mainTable, 5,10,0,10, debug);
 
         String message = "Import this plate into which screen?";
-        gui.addTextPane(importPanel, message, "0, 0, 4, 0", debug);
+        GuiCommonElements.addTextPane(importPanel, message, "0, 0, 4, 0", debug);
 
         // Set up the project/dataset table
         double pdTable[][] =
@@ -124,41 +125,41 @@ public class SPWDialog extends JDialog implements ActionListener
 
         // Panel containing the project / dataset layout
 
-        sPanel = gui.addMainPanel(importPanel, pdTable, 0, 0, 0, 0, debug);
+        sPanel = GuiCommonElements.addMainPanel(importPanel, pdTable, 0, 0, 0, 0, debug);
 
-        sbox = gui.addComboBox(sPanel, "Screen: ", screenItems, 'P', 
+        sbox = GuiCommonElements.addComboBox(sPanel, "Screen: ", screenItems, 'P', 
                 "Select dataset to use for this import.", 50, "0,0,f,c", debug);
 
         // Fixing broken mac buttons.
         String offsetButtons = ",c";
-        //if (gui.offsetButtons == true) offsetButtons = ",t";
+        //if (GuiCommonElements.offsetButtons == true) offsetButtons = ",t";
 
         int addBtnSize = 60;
         
-        if (gui.getIsMac() == true)
+        if (GuiCommonElements.getIsMac() == true)
             addBtnSize = 20;
             
         
-        addScreenBtn = gui.addIconButton(sPanel, "", addIcon, 20, addBtnSize, null, null, "2,0,f" + offsetButtons, debug);
+        addScreenBtn = GuiCommonElements.addIconButton(sPanel, "", addIcon, 20, addBtnSize, null, null, "2,0,f" + offsetButtons, debug);
         addScreenBtn.addActionListener(this);
         
         importPanel.add(sPanel, "0, 2, 4, 2");
 
         // Buttons at the bottom of the form
 
-        cancelBtn = gui.addButton(importPanel, "Cancel", 'L',
+        cancelBtn = GuiCommonElements.addButton(importPanel, "Cancel", 'L',
                 "Cancel", "1, 5, f, c", debug);
         cancelBtn.addActionListener(this);
 
-        importBtn = gui.addButton(importPanel, "Add to Queue", 'Q',
+        importBtn = GuiCommonElements.addButton(importPanel, "Add to Queue", 'Q',
                 "Import", "3, 5, f, c", debug);
         importBtn.addActionListener(this);
 
         this.getRootPane().setDefaultButton(importBtn);
-        gui.enterPressesWhenFocused(importBtn);
+        GuiCommonElements.enterPressesWhenFocused(importBtn);
 
         
-            archiveImage = gui.addCheckBox(importPanel, 
+            archiveImage = GuiCommonElements.addCheckBox(importPanel, 
                     "Archive the original imported file(s) to the server.", "0,4,4,t", debug);
             archiveImage.setSelected(false);
             if (ARCHIVE_ENABLED)
@@ -187,12 +188,12 @@ public class SPWDialog extends JDialog implements ActionListener
 
     private void buildScreens()
     {
-        if (gui.config.savedScreen.get() != 0 && screenItems != null) {
+        if (config.savedScreen.get() != 0 && screenItems != null) {
             for (int i = 0; i < screenItems.length; i++)
             {
                 RLong pId = screenItems[i].getScreen().getId();
 
-                if (pId != null && pId.getValue() == gui.config.savedScreen.get())
+                if (pId != null && pId.getValue() == config.savedScreen.get())
                 {
                     sbox.setSelectedIndex(i);
                 }
@@ -210,7 +211,7 @@ public class SPWDialog extends JDialog implements ActionListener
             for (int k = 0; k < screenItems.length; k++ )
             {
                 RLong pId = screenItems[k].getScreen().getId();                
-                if (pId != null && pId.getValue() == gui.config.savedScreen.get())
+                if (pId != null && pId.getValue() == config.savedScreen.get())
                 {
                     sbox.insertItemAt(screenItems[k], k);
                     sbox.setSelectedIndex(k);
@@ -224,7 +225,7 @@ public class SPWDialog extends JDialog implements ActionListener
     {
         if (e.getSource() == addScreenBtn)
         {
-            new AddScreenDialog(gui, this, "Add a new Screen", true, store);
+            new AddScreenDialog(config, this, "Add a new Screen", true, store);
             refreshAndSetProject();
         }
 
@@ -238,7 +239,7 @@ public class SPWDialog extends JDialog implements ActionListener
             cancelled = false;
             importBtn.requestFocus();
             screen = ((ScreenItem) sbox.getSelectedItem()).getScreen();
-            gui.config.savedScreen.set(
+            config.savedScreen.set(
                     ((ScreenItem) sbox.getSelectedItem()).getScreen().getId().getValue());            
             this.dispose();
         }

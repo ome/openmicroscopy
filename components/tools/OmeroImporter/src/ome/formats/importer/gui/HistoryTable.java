@@ -67,8 +67,6 @@ public class HistoryTable
     
     private static final String DATE_FORMAT = "yy/MM/dd";
     
-    GuiCommonElements gui;
-    
  // ----- Variables -----
     // Debug Borders
     Boolean debug = false;
@@ -155,8 +153,6 @@ public class HistoryTable
             }
         }
         
-        this.gui = viewer.gui;
-        
         this.db = db;
         
         // set to layout that will maximize on resizing
@@ -169,14 +165,14 @@ public class HistoryTable
                 {{170, 10, TableLayout.FILL, 80}, // columns
                 { 5, 30, 35, 40, TableLayout.FILL, 35, 5}}; // rows
         
-        mainPanel = gui.addMainPanel(this, mainTable, 0,0,0,0, debug); 
+        mainPanel = GuiCommonElements.addMainPanel(this, mainTable, 0,0,0,0, debug); 
 
         // *****Side Panel****
         double topSideTable[][] = 
                 {{TableLayout.FILL}, // columns
                 {20, 20, 20, 20}}; // rows      
         
-        topSidePanel = gui.addBorderedPanel(mainPanel, topSideTable, " Date Filter ", debug);
+        topSidePanel = GuiCommonElements.addBorderedPanel(mainPanel, topSideTable, " Date Filter ", debug);
         
         String[] dateFormats = new String[1];
         dateFormats[0] = DATE_FORMAT;
@@ -213,7 +209,7 @@ public class HistoryTable
         historyTaskBar.addTaskPane( "Last Week", historyTaskBar.getList(lastWeekList));
         historyTaskBar.addTaskPane( "This Month", historyTaskBar.getList(thisMonthList));
         
-        bottomSidePanel = gui.addBorderedPanel(mainPanel, bottomSideTable, " Quick Date ", debug);
+        bottomSidePanel = GuiCommonElements.addBorderedPanel(mainPanel, bottomSideTable, " Quick Date ", debug);
 
         /*
         JPanel taskPanel = new JPanel( new BorderLayout() );
@@ -229,18 +225,18 @@ public class HistoryTable
         
         bottomSidePanel.add(historyTaskBar, "0,0");  
         
-        clearBtn = gui.addIconButton(mainPanel, "Wipe History", clearIcon, 
+        clearBtn = GuiCommonElements.addIconButton(mainPanel, "Wipe History", clearIcon, 
                 130, 32, (int)'S', "Click here to clear your history log.", "0,5,c,c", debug);   
         
         clearBtn.setActionCommand(HistoryHandler.CLEARHISTORY);
         clearBtn.addActionListener(this);
         
         // *****Top right most row containing search field and buttons*****
-        searchField = gui.addTextField(mainPanel, "Name Filter: ", "*.*", 'N', 
+        searchField = GuiCommonElements.addTextField(mainPanel, "Name Filter: ", "*.*", 'N', 
                 "Type in a file name to search for here.", "", 
                 TableLayout.PREFERRED, "2,1, 0, 0", debug);
 
-        searchBtn = gui.addButton(mainPanel, "Search", 'S', "Click here to search", "3,1,c,c", debug);
+        searchBtn = GuiCommonElements.addButton(mainPanel, "Search", 'S', "Click here to search", "3,1,c,c", debug);
         
         searchBtn.setActionCommand(HistoryHandler.HISTORYSEARCH);
         searchBtn.addActionListener(this);
@@ -253,13 +249,13 @@ public class HistoryTable
                 {{100, 70, 70, 70, 90, TableLayout.FILL}, // columns
                 { 30 }}; // rows
         
-        filterPanel = gui.addPlanePanel(mainPanel, filterTable, debug);     
-        filterLabel = gui.addTextPane(filterPanel, "Status Filters: ", "0,0,r,c", debug);
+        filterPanel = GuiCommonElements.addPlanePanel(mainPanel, filterTable, debug);     
+        filterLabel = GuiCommonElements.addTextPane(filterPanel, "Status Filters: ", "0,0,r,c", debug);
         
-        doneCheckBox = gui.addCheckBox(filterPanel, "Done", "1,0,l,c", debug);
-        failedCheckBox = gui.addCheckBox(filterPanel, "Failed", "2,0,l,c", debug);
-        invalidCheckBox = gui.addCheckBox(filterPanel, "Invalid", "3,0,l,c", debug);
-        pendingCheckBox = gui.addCheckBox(filterPanel, "Pending", "4,0,l,c", debug);
+        doneCheckBox = GuiCommonElements.addCheckBox(filterPanel, "Done", "1,0,l,c", debug);
+        failedCheckBox = GuiCommonElements.addCheckBox(filterPanel, "Failed", "2,0,l,c", debug);
+        invalidCheckBox = GuiCommonElements.addCheckBox(filterPanel, "Invalid", "3,0,l,c", debug);
+        pendingCheckBox = GuiCommonElements.addCheckBox(filterPanel, "Pending", "4,0,l,c", debug);
         
         // Default filters to 'on'
         doneCheckBox.setSelected(true);
@@ -311,7 +307,7 @@ public class HistoryTable
         // Add the table to the scollpane
         JScrollPane scrollPane = new JScrollPane(eTable);
 
-        reimportBtn = gui.addButton(filterPanel, "Reimport", 'R', "Click here to reimport these images", "5,0,r,c", debug);
+        reimportBtn = GuiCommonElements.addButton(filterPanel, "Reimport", 'R', "Click here to reimport these images", "5,0,r,c", debug);
         reimportBtn.setEnabled(false);
         
         reimportBtn.setActionCommand(HistoryHandler.HISTORYREIMPORT);
@@ -347,7 +343,8 @@ public class HistoryTable
     }
     
    
-    public void getBaseQuery(Long ExperimenterID)
+    @SuppressWarnings("unchecked")
+	public void getBaseQuery(Long ExperimenterID)
     {   
         try {
         	
@@ -385,7 +382,8 @@ public class HistoryTable
      * @param from
      * @param to
      */
-    public void getItemQuery(long importID, long experimenterID, String queryString, Date from, Date to)
+    @SuppressWarnings("unchecked")
+	public void getItemQuery(long importID, long experimenterID, String queryString, Date from, Date to)
     {   
     	// Format the current time.
         String dayString, hourString, objectName= "", projectName = "", pdsString = "", fileName = "", filePath = "", status = "";

@@ -1,8 +1,24 @@
 /*
- *   $Id$
+ * ome.formats.importer.gui.AddDatasetDialog
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
  */
 
 package ome.formats.importer.gui;
@@ -20,7 +36,6 @@ import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -39,7 +54,6 @@ import javax.swing.table.TableColumnModel;
 
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
-import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.util.ETable;
@@ -47,9 +61,11 @@ import ome.formats.importer.util.ETable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class FileQueueTable 
-    extends JPanel
-    implements ActionListener, IObserver
+/**
+ * @author Brian Loranger brain at lifesci.dundee.ac.uk
+ *
+ */
+public class FileQueueTable extends JPanel implements ActionListener, IObserver
 {
 	/** Logger for this class */
 	private Log log = LogFactory.getLog(FileQueueTable.class);
@@ -80,7 +96,11 @@ public class FileQueueTable
     private CenterTextRenderer dpCellRenderer;
     private CenterTextRenderer statusCellRenderer;
     
-    FileQueueTable(ImportConfig config) {
+    /**
+     * Set up and display the file queue table
+     */
+    FileQueueTable() 
+    {
             
 // ----- Variables -----
         // Debug Borders
@@ -100,8 +120,6 @@ public class FileQueueTable
 
 // ----- GUI Layout Elements -----
         
-        GuiCommonElements gui = new GuiCommonElements(config);
-        
         // Start layout here
         setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
         setBorder(BorderFactory.createEmptyBorder(6,5,9,8));
@@ -119,7 +137,7 @@ public class FileQueueTable
 //        refreshBtn.setActionCommand(Actions.REFRESH);
 //        refreshBtn.addActionListener(this);
         
-        addBtn = addButton(">>", addIcon, null);
+        addBtn = GuiCommonElements.addBasicButton(">>", addIcon, null);
         addBtn.setMaximumSize(new Dimension(buttonSize, buttonSize));
         addBtn.setPreferredSize(new Dimension(buttonSize, buttonSize));
         addBtn.setMinimumSize(new Dimension(buttonSize, buttonSize));
@@ -127,7 +145,7 @@ public class FileQueueTable
         addBtn.setActionCommand(FileQueueHandler.ADD);
         addBtn.addActionListener(this);
         
-        removeBtn = addButton("<<", removeIcon, null);
+        removeBtn = GuiCommonElements.addBasicButton("<<", removeIcon, null);
         removeBtn.setMaximumSize(new Dimension(buttonSize, buttonSize));
         removeBtn.setPreferredSize(new Dimension(buttonSize, buttonSize));
         removeBtn.setMinimumSize(new Dimension(buttonSize, buttonSize));
@@ -208,9 +226,9 @@ public class FileQueueTable
         
         JPanel importPanel = new JPanel();
         importPanel.setLayout(new BoxLayout(importPanel, BoxLayout.LINE_AXIS));
-        clearDoneBtn = addButton("Clear Done", null, null);
-        clearFailedBtn = addButton("Clear Failed", null, null);
-        importBtn = addButton("Import", null, null);
+        clearDoneBtn = GuiCommonElements.addBasicButton("Clear Done", null, null);
+        clearFailedBtn = GuiCommonElements.addBasicButton("Clear Failed", null, null);
+        importBtn = GuiCommonElements.addBasicButton("Import", null, null);
         importPanel.add(Box.createHorizontalGlue());
         importPanel.add(clearDoneBtn);
         clearDoneBtn.setEnabled(false);
@@ -226,18 +244,30 @@ public class FileQueueTable
         importBtn.setEnabled(false);
         importBtn.setActionCommand(FileQueueHandler.IMPORT);
         importBtn.addActionListener(this);
-        gui.enterPressesWhenFocused(importBtn);
+        GuiCommonElements.enterPressesWhenFocused(importBtn);
         queuePanel.add(Box.createRigidArea(new Dimension(0,5)));
         queuePanel.add(importPanel);
         add(queuePanel);
     }
     
+    /**
+     * Set the progress 'max planes' for file at row
+     * 
+     * @param row - row in table
+     * @param maxPlanes - max planes to set
+     */
     public void setProgressInfo(int row, int maxPlanes)
     {
         this.row = row;
         this.maxPlanes = maxPlanes;
     }
  
+    /**
+     * Set progress of an 'added' row to 'pending'
+     * 
+     * @param row - row to set in file queue
+     * @return return false if row was set for 'added' before attempt
+     */
     public boolean setProgressPending(int row)
     {
         if (table.getValueAt(row, 2).equals("added"))
@@ -249,12 +279,24 @@ public class FileQueueTable
             
     }
     
+    /**
+     * Set file status at row in 'invalid'
+     * 
+     * @param row in file queue to set status on
+     */
     public void setProgressInvalid(int row)
     {
         if (table.getValueAt(row, 2).equals("added"))
             table.setValueAt("invalid format", row, 2);    
     }
     
+    /**
+     * Set import progress of current row in file queue
+     * 
+     * @param count total number of files in series
+     * @param series current file in series
+     * @param step current plane (out of maxPlanes) in the file
+     */
     public void setImportProgress(int count, int series, int step)
     {
         String text;
@@ -265,6 +307,11 @@ public class FileQueueTable
         table.setValueAt(text, row, 2);   
     }
 
+    /**
+     *Set progress for the file at row to 'failed'
+     *
+     * @param row in file queue to set status on
+     */
     public void setProgressFailed(int row)
     {
      	table.setValueAt("failed", row, 2);
@@ -272,6 +319,11 @@ public class FileQueueTable
         table.fireTableDataChanged();
     }
     
+    /**
+     * Set progress for the file at row to 'unknown'
+     * 
+     * @param row in file queue to set status on
+     */
     public void setProgressUnknown(int row)
     {
         table.setValueAt("unreadable", row, 2);
@@ -279,11 +331,21 @@ public class FileQueueTable
         table.fireTableDataChanged();
     }    
         
+    /**
+     * Set progress for the file at row to 'prepping'
+     * 
+     * @param row in file queue to set status on
+     */
     public void setProgressPrepping(int row)
     {
         table.setValueAt("prepping", row, 2); 
     }
 
+    /**
+     * Set progress for the file at row to 'done'
+     * 
+     * @param row in file queue to set status on
+     */
     public void setProgressDone(int row)
     {
         table.setValueAt("done", row, 2);
@@ -291,54 +353,59 @@ public class FileQueueTable
         table.fireTableDataChanged();
     }
 
+    /**
+     * Set progress for the file at row to 'updating db'
+     * 
+     * @param row in file queue to set status on
+     */
     public void setProgressSaveToDb(int row)
     {
         table.setValueAt("updating db", row, 2);       
     }
     
+    /**
+     * Set progress for the file at row to 'overlays'
+     * 
+     * @param row in file queue to set status on
+     */
     public void setProgressOverlays(int row)
     {
         table.setValueAt("overlays", row, 2);       
     }
     
+    /**
+     * Set progress for the file at row to 'archiving'
+     * 
+     * @param row in file queue to set status on
+     */
     public void setProgressArchiving(int row)
     {
         table.setValueAt("archiving", row, 2);       
     }
     
+    /**
+     * Set progress for the file at row to 'thumbnailing'
+     * 
+     * @param row in file queue to set status on
+     */
     public void setProgressResettingDefaults(int row)
     {
         table.setValueAt("thumbnailing", row, 2);       
     }
 
+    /**
+     * Set progress for the file at row to 'analyzing'
+     * 
+     * @param row in file queue to set status on
+     */
     public void setProgressAnalyzing(int row)
     {
         table.setValueAt("analyzing", row, 2); 
     }
-    
-    public int getMaximum()
+        
+    public int getMaximumPlanes()
     {
         return maxPlanes;
-    }
-        
-    private JButton addButton(String name, String image, String tooltip)
-    {
-        JButton button = null;
-
-        if (image == null) 
-        {
-            button = new JButton(name);
-        } else {
-            java.net.URL imgURL = GuiImporter.class.getResource(image);
-            if (imgURL != null)
-            {
-                button = new JButton(null, new ImageIcon(imgURL));
-            } else {
-                button = new JButton(name);
-                log.warn("Couldn't find icon: " + image);
-            }
-        }
-        return button;
     }
 
     /**
@@ -519,9 +586,6 @@ public class FileQueueTable
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
 
-            Component c = super.getTableCellRendererComponent(
-                    table, value, isSelected, hasFocus, row, column);
-
             setFont(UIManager.getFont("TableCell.font"));
             setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
             
@@ -599,7 +663,7 @@ public class FileQueueTable
         } catch (Exception e) 
         { System.err.println(laf + " not supported."); }
         
-        FileQueueTable q = new FileQueueTable(null); 
+        FileQueueTable q = new FileQueueTable(); 
         JFrame f = new JFrame();   
         f.getContentPane().add(q);
         f.setVisible(true);
@@ -609,7 +673,7 @@ public class FileQueueTable
 
     public void update(IObservable importLibrary, ImportEvent event)
     {
-        // TODO : Here we might should check for "cancel" and if so
+        // TODO : Here we should check for "cancel" and if so
         // raise some form of exception. This is currently being
         // done in a similar way in ImportHandler with an anonymous
         // inner class.
@@ -631,7 +695,7 @@ public class FileQueueTable
         }
         else if (event instanceof ImportEvent.IMPORT_STEP) {
             ImportEvent.IMPORT_STEP ev = (ImportEvent.IMPORT_STEP) event;
-            if (ev.step <= getMaximum()) 
+            if (ev.step <= getMaximumPlanes()) 
             {   
                 setImportProgress(ev.seriesCount, ev.series, ev.step);
             }

@@ -31,7 +31,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Insets;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.text.NumberFormat;
@@ -69,64 +68,56 @@ import javax.swing.text.StyledDocument;
 import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
 
-import ome.formats.importer.ImportConfig;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-
 /**
- * Uses TableLayout (see java website)
- * @author TheBrain
- *
+ * Common helper methods used by various gui elements. This class depends on TableLayout available from
+ * the sun java website.
+ * 
+ * @author Brian Loranger brain at lifesci.dundee.ac.uk
  */
 public class GuiCommonElements
 {
 	/** Logger for this class */
-	private Log log = LogFactory.getLog(GuiCommonElements.class);
-	
-	public final ImportConfig config;
-	
-    public boolean lafOpaque = true; // Hack for macness
-    public boolean offsetButtons = false; //Another hack for macness
-    public boolean motif = false;
-    public Rectangle bounds;
-    
-    public GuiCommonElements(ImportConfig config)
-    {
-        this.config = config;
-        this.bounds = config.getUIBounds();
-        
-        String laf = UIManager.getLookAndFeel().getClass().getName();
-        if (laf.equals("apple.laf.AquaLookAndFeel") 
-                || laf.equals("ch.randelshofer.quaqua.QuaquaLookAndFeel")) 
-        {
-            lafOpaque = false;
-            offsetButtons = true;
-        }
-        if (laf.equals("com.sun.java.swing.plaf.motif.MotifLookAndFeel"))
-        {
-            motif = true;
-        }
-    }
+	private static Log log = LogFactory.getLog(GuiCommonElements.class);
 
-    public boolean getIsMac() 
+    /**
+     * @return true if using a mac
+     */
+    public static boolean getIsMac() 
     {
         String laf = UIManager.getLookAndFeel().getClass().getName();
-        if (laf.equals("apple.laf.AquaLookAndFeel") 
-                || laf.equals("ch.randelshofer.quaqua.QuaquaLookAndFeel")) 
+        if (laf.equals("apple.laf.AquaLookAndFeel") || laf.equals("ch.randelshofer.quaqua.QuaquaLookAndFeel")) 
             return true;
         else
             return false;
     }
     
-    // return main frame bound info
-    public Rectangle getUIBounds()
-    {
-        return bounds;
-    }
-    
-    public JPanel addMainPanel(Container container, double tableSize[][], 
+	/**
+	 * @return true if look and feel is motif
+	 */
+	public static boolean isMotif() {
+		String laf = UIManager.getLookAndFeel().getClass().getName();
+        if (laf.equals("com.sun.java.swing.plaf.motif.MotifLookAndFeel"))
+            return true;
+        else
+        	return false;
+	}
+        
+    /**
+     * Add a 'main panel' to a Frame or other container
+     * 
+     * @param container - parent container
+     * @param tableSize - TableLayout table array
+     * @param margin_top - top margin
+     * @param margin_left - left margin
+     * @param margin_bottom - bottom margin
+     * @param margin_right - right margin
+     * @param debug - turn on/off red debug borders
+     * @return
+     */
+    public static JPanel addMainPanel(Container container, double tableSize[][], 
             int margin_top, int margin_left, int margin_bottom, int margin_right,
             boolean debug)
     {
@@ -146,7 +137,7 @@ public class GuiCommonElements
         return panel;
     }
     
-    public JPanel addBorderedPanel(Container container, double tableSize[][], 
+    public static JPanel addBorderedPanel(Container container, double tableSize[][], 
             String name,
             boolean debug)
     {
@@ -165,7 +156,7 @@ public class GuiCommonElements
         return panel;
     }
     
-    public JPanel addPlanePanel(Container container, double tableSize[][], 
+    public static JPanel addPlanePanel(Container container, double tableSize[][], 
             boolean debug)
     {
         JPanel panel = new JPanel();
@@ -183,7 +174,7 @@ public class GuiCommonElements
         return panel;
     }
     
-    public WholeNumberField addWholeNumberField(Container container, String prefexStr,
+    public static WholeNumberField addWholeNumberField(Container container, String prefexStr,
             String initialValue, String suffexStr, int mnemonic, String tooltip,
             int maxChars, int fieldWidth, String placement, boolean debug)
     {
@@ -217,7 +208,7 @@ public class GuiCommonElements
         return result;
     }
     
-    public DecimalNumberField addDecimalNumberField(Container container, String prefexStr,
+    public static DecimalNumberField addDecimalNumberField(Container container, String prefexStr,
             String initialValue, String suffexStr, int mnemonic, String tooltip,
             int maxChars, int fieldWidth, String placement, boolean debug)
     {
@@ -251,7 +242,7 @@ public class GuiCommonElements
         return result;
     }
 
-    public JTextPane addTextPane(Container container, String text, 
+    public static JTextPane addTextPane(Container container, String text, 
             String placement, boolean debug)
     {
         StyleContext context = new StyleContext();
@@ -283,7 +274,7 @@ public class GuiCommonElements
     }
 
     // A version of addTextPane that lets you add a style and context
-    public JTextPane addTextPane(Container container, String text, 
+    public static JTextPane addTextPane(Container container, String text, 
             String placement, StyleContext context, Style style, boolean debug)
     {
         StyledDocument document = new DefaultStyledDocument(context);
@@ -310,7 +301,7 @@ public class GuiCommonElements
         return textPane;
     }
 
-    public JTextField addTextField(Container container, String name,
+    public static JTextField addTextField(Container container, String name,
             String initialValue, int mnemonic, String tooltip, 
             String suffix, double labelWidth, String placement, boolean debug)
     {
@@ -357,7 +348,7 @@ public class GuiCommonElements
         return result;
     }
 
-    public JPasswordField addPasswordField(Container container, String name,
+    public static JPasswordField addPasswordField(Container container, String name,
             String initialValue, int mnemonic, String tooltip, 
             String suffix, double labelWidth, String placement, boolean debug)
     {
@@ -405,7 +396,7 @@ public class GuiCommonElements
         return result;
     }
 
-    public JTextArea addTextArea(Container container, String name, 
+    public static JTextArea addTextArea(Container container, String name, 
             String text, int mnemonic, String placement, boolean debug)
     {
         JPanel panel = new JPanel();
@@ -544,12 +535,40 @@ public class GuiCommonElements
         }
     }
     
-    public JButton addButton(Container container, String label,
+    /**
+     * Basic Button
+     * 
+     * @param name button name
+     * @param image button image
+     * @param tooltip button tooltip
+     * @return button
+     */
+    public static JButton addBasicButton(String name, String image, String tooltip)
+    {
+        JButton button = null;
+
+        if (image == null) 
+        {
+            button = new JButton(name);
+        } else {
+            java.net.URL imgURL = GuiImporter.class.getResource(image);
+            if (imgURL != null)
+            {
+                button = new JButton(null, new ImageIcon(imgURL));
+            } else {
+                button = new JButton(name);
+                log.warn("Couldn't find icon: " + image);
+            }
+        }
+        return button;
+    }
+    
+    public static JButton addButton(Container container, String label,
             int mnemonic, String tooltip, String placement, boolean debug)
     {
         JButton button = new JButton(label);
         button.setMnemonic(mnemonic);
-        button.setOpaque(lafOpaque);
+        button.setOpaque(!getIsMac());
         container.add(button, placement);
         
         if (debug == true)
@@ -560,7 +579,7 @@ public class GuiCommonElements
         return button;
     }
     
-    public JButton addIconButton(Container container, String label, String image,
+    public static JButton addIconButton(Container container, String label, String image,
             Integer width, Integer height, Integer mnemonic, String tooltip, String placement, 
             boolean debug)
     {
@@ -582,14 +601,19 @@ public class GuiCommonElements
                 log.error("Couldn't find icon: " + image);
             }
         }
-        button.setMaximumSize(new Dimension(width, height));
-        button.setPreferredSize(new Dimension(width, height));
-        button.setMinimumSize(new Dimension(width, height));
-        button.setSize(new Dimension(width, height));
+        
+        if (width != null && height != null && width > 0 && height > 0)
+        {
+        	button.setMaximumSize(new Dimension(width, height));
+        	button.setPreferredSize(new Dimension(width, height));
+        	button.setMinimumSize(new Dimension(width, height));
+        	button.setSize(new Dimension(width, height));
+        }
+        
         if (mnemonic != null) button.setMnemonic(mnemonic);
-        button.setOpaque(lafOpaque);
+        button.setOpaque(!getIsMac());
         container.add(button, placement);
-        if (motif == true) 
+        if (isMotif() == true) 
             {
                 Border b = BorderFactory.createLineBorder(Color.gray);
                 button.setMargin(new Insets(0,0,0,0)); 
@@ -604,7 +628,7 @@ public class GuiCommonElements
         return button;
     }
     
-    public JComboBox addComboBox(Container container, String label,
+    public static JComboBox addComboBox(Container container, String label,
          Object[] initialValues, int mnemonic, String tooltip, 
          double labelWidth, String placement, boolean debug)
     {
@@ -634,7 +658,7 @@ public class GuiCommonElements
         return result;
     }
 
-    public JRadioButton addRadioButton(Container container, String label, 
+    public static JRadioButton addRadioButton(Container container, String label, 
             int mnemonic, String tooltip, String placement, boolean debug)
     {
         JRadioButton button = new JRadioButton(label);
@@ -644,7 +668,7 @@ public class GuiCommonElements
         
     }
 
-    public JCheckBox addCheckBox(Container container, 
+    public static JCheckBox addCheckBox(Container container, 
             String string, String placement, boolean debug)
     {
         JCheckBox checkBox = new JCheckBox(string);
@@ -654,7 +678,7 @@ public class GuiCommonElements
     }
 
     // Fires a button click when using the enter key
-    public void enterPressesWhenFocused(JButton button) {
+    public static void enterPressesWhenFocused(JButton button) {
 
         button.registerKeyboardAction(
             button.getActionForKeyStroke(
@@ -670,7 +694,7 @@ public class GuiCommonElements
 
     }
     
-    public ImageIcon getImageIcon(String path)
+    public static ImageIcon getImageIcon(String path)
     {
         java.net.URL imgURL = GuiImporter.class.getResource(path);
         if (imgURL != null) { return new ImageIcon(imgURL); } 
@@ -678,7 +702,7 @@ public class GuiCommonElements
         return null;
     }
 
-    public boolean quitConfirmed(Component frame, String message) {
+    public static boolean quitConfirmed(Component frame, String message) {
         if (message == null)
         {
             message = "Do you really want to quit?\n" +
@@ -702,7 +726,7 @@ public class GuiCommonElements
         }
     }
     
-    public void restartNotice(Component frame, String message) {
+    public static void restartNotice(Component frame, String message) {
         if (message == null)
         {
             message = "You must restart before your changes will take effect.";
@@ -717,7 +741,7 @@ public class GuiCommonElements
      * @param emailAddress - email to validate
      * @return return true or false
      */
-    public boolean validEmail(String emailAddress)
+    public static boolean validEmail(String emailAddress)
     {
         String[] parts = emailAddress.split("@");
         if (parts.length == 2 && parts[0].length() != 0 && parts[1].length() != 0)
@@ -726,7 +750,7 @@ public class GuiCommonElements
             return false;
     }
     
-    public class WholeNumberField extends JTextField {
+    public static class WholeNumberField extends JTextField {
 
         /**
          * 
@@ -795,7 +819,7 @@ public class GuiCommonElements
 
     }
     
-    public class DecimalNumberField extends JTextField {
+    public static class DecimalNumberField extends JTextField {
 
         /**
          * 
@@ -861,7 +885,7 @@ public class GuiCommonElements
         }
     }
 
-    public JPanel addImagePanel(JPanel container, String imageString,
+    public static JPanel addImagePanel(JPanel container, String imageString,
             String placement, boolean debug)
     {
         ImageIcon icon = null;
@@ -888,7 +912,7 @@ public class GuiCommonElements
     }
     
 
-    public class ImagePanel extends JPanel
+    public static class ImagePanel extends JPanel
     {
         private static final long serialVersionUID = 1L;
         ImageIcon image;

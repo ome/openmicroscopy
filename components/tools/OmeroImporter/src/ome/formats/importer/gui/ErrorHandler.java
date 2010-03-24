@@ -54,7 +54,6 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
     public final MyErrorHandler delegate; // THIS SHOULD NOT BE PUBLIC
     private final ScheduledExecutorService ex;
     private final ErrorTable errorTable;
-    private final GuiCommonElements gui;
 
     /**
      * Creates and manages error messages and the errors table tab
@@ -66,8 +65,7 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
         this.setOpaque(false);
         setLayout(new BorderLayout());
 
-        gui = new GuiCommonElements(config);
-        errorTable = new ErrorTable(gui);
+        errorTable = new ErrorTable();
         delegate = new MyErrorHandler(config, this);
 
         if (errorTable != null)
@@ -218,9 +216,9 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
             StyleConstants.setFontSize(debugStyle, 12);
             StyleConstants.setBold(debugStyle, false);
 
-            gui.appendTextToDocument(debugDocument, debugStyle, "");
+            GuiCommonElements.appendTextToDocument(debugDocument, debugStyle, "");
 
-            gui.appendTextToDocument(debugDocument, debugStyle, "----\n"
+            GuiCommonElements.appendTextToDocument(debugDocument, debugStyle, "----\n"
                     + debugText);
             */
             String sendErrorMsg = "Sorry, but due to an error we were not able "
@@ -230,7 +228,7 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
             try {
                 JEditorPane popup = new JEditorPane(sendErrorMsg);
                 JOptionPane.showMessageDialog(panel, popup);
-                errorTable.setSendBtnEnable(true);
+                errorTable.enableSendBtn(true);
             } catch (IOException e1) {
             }
         }

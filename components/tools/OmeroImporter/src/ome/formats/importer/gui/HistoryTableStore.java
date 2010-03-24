@@ -107,8 +107,6 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         return newColumns;
     }
     
-    
-    @SuppressWarnings("deprecation")
     private void initializeBaseTable() throws ServerError 
     {
         List<OriginalFile> baseFiles = getOriginalFiles(baseDBNAME);
@@ -151,7 +149,6 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
      * 
      * @throws ServerError
      */
-    @SuppressWarnings("deprecation")
     private void initializeItemTable() throws ServerError
     {
         List<OriginalFile> itemFiles = getOriginalFiles(itemDBNAME);

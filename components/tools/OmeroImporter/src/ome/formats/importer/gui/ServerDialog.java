@@ -156,12 +156,6 @@ class ServerDialog
 	
 	/** Available server. */
 	private JList		servers;
-    
-    private GuiCommonElements gui;
-    
-    public ServerDialog(GuiCommonElements gui) {
-        this.gui = gui;
-    }
 	
 	/**
 	 * Handles mouse clicks on the {@link #moreOptions}.
@@ -173,10 +167,10 @@ class ServerDialog
 	private void handleClick()
 	{
 		if (isBookmarksShowing) {
-			moreOptions.setIcon(gui.getImageIcon("gfx/nuvola_1rightarrow16.png"));
+			moreOptions.setIcon(GuiCommonElements.getImageIcon("gfx/nuvola_1rightarrow16.png"));
 			body.remove(bookmarks);
 		} else {
-			moreOptions.setIcon(gui.getImageIcon("gfx/nuvola_1downarrow16.png"));
+			moreOptions.setIcon(GuiCommonElements.getImageIcon("gfx/nuvola_1downarrow16.png"));
 			populateBookmarks();
 			body.add(bookmarks);
 		}
@@ -247,7 +241,7 @@ class ServerDialog
 	{
 		//bookmarks.removeAll();
 		final Object[][] objects = new Object[existingServers.size()][2];
-		Icon icon = gui.getImageIcon("gfx/server_connect16.png");
+		Icon icon = GuiCommonElements.getImageIcon("gfx/server_connect16.png");
 		Iterator i = existingServers.iterator();
 		int index = 0;
 		while (i.hasNext()) {
@@ -325,9 +319,9 @@ class ServerDialog
 		finishButton =  new JButton("Apply");
 		getRootPane().setDefaultButton(finishButton);
 		
-		moreOptions = new JButton(gui.getImageIcon("gfx/nuvola_1rightarrow16.png"));
+		moreOptions = new JButton(GuiCommonElements.getImageIcon("gfx/nuvola_1rightarrow16.png"));
 		UIUtilities.unifiedButtonLookAndFeel(moreOptions);
-		removeButton = new JButton(gui.getImageIcon("gfx/remove.png"));
+		removeButton = new JButton(GuiCommonElements.getImageIcon("gfx/remove.png"));
 		removeButton.setToolTipText("Remove the selected server " +
 									"from the list.");
 		buildBookmarks();
@@ -436,7 +430,7 @@ class ServerDialog
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-        Icon icon = gui.getImageIcon("gfx/nuvola_configure48.png");
+        Icon icon = GuiCommonElements.getImageIcon("gfx/nuvola_configure48.png");
 		TitlePanel titlePanel = new TitlePanel(TITLE, TEXT, icon);
         Container c = getContentPane();
         setLayout(new BorderLayout(0, 0));

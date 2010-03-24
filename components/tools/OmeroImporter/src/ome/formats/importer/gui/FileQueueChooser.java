@@ -43,7 +43,6 @@ import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -64,12 +63,12 @@ import org.apache.commons.logging.LogFactory;
  * @author Brian Loranger brain at lifesci.dundee.ac.uk
  *
  */
-public class FileQueueChooser 
-    extends JFileChooser implements ActionListener
+public class FileQueueChooser extends JFileChooser implements ActionListener
 {
     public final static String REFRESHED = "refreshed";
     
 	/** Logger for this class */
+	@SuppressWarnings("unused")
 	private Log log = LogFactory.getLog(FileQueueChooser.class);
 	
     boolean DEBUG = false;
@@ -85,6 +84,12 @@ public class FileQueueChooser
     
     JButton refreshBtn;
     
+    /**
+     * File chooser on the file picker tab of the importer
+     * 
+     * @param config ImportConfig
+     * @param scanReader OmeroWrapper
+     */
     FileQueueChooser(ImportConfig config, OMEROWrapper scanReader) {
         
         try {
@@ -92,7 +97,7 @@ public class FileQueueChooser
             JToolBar tb = null;
             
             String refreshIcon = "gfx/recycled12.png";
-            refreshBtn = addButton("Refresh ", refreshIcon, null);
+            refreshBtn = GuiCommonElements.addBasicButton("Refresh ", refreshIcon, null);
             refreshBtn.setActionCommand(REFRESHED);
             refreshBtn.addActionListener(this);
             JPanel panel = new JPanel();
@@ -240,11 +245,16 @@ public class FileQueueChooser
         }
     }
     
-    // Get all JLists and JTables if the LAF uses lists/tables
-    protected Component[] getFileListObjects(JFileChooser fc) {
+    /**
+     * Get all JLists and JTables if the LAF uses lists/tables
+     * 
+     * @param fileChooser fileChooser
+     * @return fileListObjects
+     */
+    protected Component[] getFileListObjects(JFileChooser fileChooser) {
         Vector<Component> v = new Vector<Component>();
         Stack<Component> s = new Stack<Component>();
-        s.push(fc);
+        s.push(fileChooser);
         while (!s.isEmpty()) {
             Component c = (Component) s.pop();
  
@@ -270,6 +280,10 @@ public class FileQueueChooser
 
 // ----- Utility Classes -----    
     
+    /**
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     *
+     */
     class MouseCommand implements MouseListener
     {
         public void mousePressed(MouseEvent evt) {
@@ -286,12 +300,30 @@ public class FileQueueChooser
             }
         }
         
+        /* (non-Javadoc)
+         * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+         */
         public void mouseReleased(MouseEvent evt) {}
+        
+        /* (non-Javadoc)
+         * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+         */
         public void mouseClicked(MouseEvent evt) {}
+        
+        /* (non-Javadoc)
+         * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+         */
         public void mouseEntered(MouseEvent evt) {}
+        
+        /* (non-Javadoc)
+         * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+         */
         public void mouseExited(MouseEvent evt) {}
     }
 
+    /**
+     * @param evt key pressed event
+     */
     public void keyPressed(KeyEvent evt)
     {
         Object src = evt.getSource();
@@ -306,15 +338,25 @@ public class FileQueueChooser
         }
     }
 
+    /**
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     *
+     */
     class DashFileFilter extends javax.swing.filechooser.FileFilter
     {
 
+        /* (non-Javadoc)
+         * @see javax.swing.filechooser.FileFilter#accept(java.io.File)
+         */
         @Override
         public boolean accept(File f)
         {
            return true;
         }
 
+        /* (non-Javadoc)
+         * @see javax.swing.filechooser.FileFilter#getDescription()
+         */
         @Override
         public String getDescription()
         {
@@ -323,14 +365,24 @@ public class FileQueueChooser
         
     }
     
+    /**
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     *
+     */
     class R3DNewFileFilter extends javax.swing.filechooser.FileFilter
     {
+        /* (non-Javadoc)
+         * @see javax.swing.filechooser.FileFilter#accept(java.io.File)
+         */
         @Override
         public boolean accept(File f)
         {
            return f.isDirectory() || f.getName().toLowerCase().endsWith("r3d.dv");
         }
 
+        /* (non-Javadoc)
+         * @see javax.swing.filechooser.FileFilter#getDescription()
+         */
         @Override
         public String getDescription()
         {
@@ -338,14 +390,24 @@ public class FileQueueChooser
         }  
     }
     
+    /**
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     *
+     */
     class D3DNewFileFilter extends javax.swing.filechooser.FileFilter
     {
+        /* (non-Javadoc)
+         * @see javax.swing.filechooser.FileFilter#accept(java.io.File)
+         */
         @Override
         public boolean accept(File f)
         {
            return f.isDirectory() || f.getName().toLowerCase().endsWith("r3d_d3d.dv");
         }
 
+        /* (non-Javadoc)
+         * @see javax.swing.filechooser.FileFilter#getDescription()
+         */
         @Override
         public String getDescription()
         {
@@ -353,14 +415,24 @@ public class FileQueueChooser
         }  
     }
   
+    /**
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     *
+     */
     class R3DOldFileFilter extends javax.swing.filechooser.FileFilter
     {
+        /* (non-Javadoc)
+         * @see javax.swing.filechooser.FileFilter#accept(java.io.File)
+         */
         @Override
         public boolean accept(File f)
         {
            return f.isDirectory() || f.getName().toLowerCase().endsWith(".r3d");
         }
 
+        /* (non-Javadoc)
+         * @see javax.swing.filechooser.FileFilter#getDescription()
+         */
         @Override
         public String getDescription()
         {
@@ -368,14 +440,24 @@ public class FileQueueChooser
         }  
     }
     
+    /**
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     *
+     */
     class D3DOldFileFilter extends javax.swing.filechooser.FileFilter
     {
+        /* (non-Javadoc)
+         * @see javax.swing.filechooser.FileFilter#accept(java.io.File)
+         */
         @Override
         public boolean accept(File f)
         {
            return f.isDirectory() || f.getName().toLowerCase().endsWith(".r3d_d3d");
         }
 
+        /* (non-Javadoc)
+         * @see javax.swing.filechooser.FileFilter#getDescription()
+         */
         @Override
         public String getDescription()
         {
@@ -383,14 +465,24 @@ public class FileQueueChooser
         }  
     }
     
+    /**
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     *
+     */
     class D3DNPrjFileFilter extends javax.swing.filechooser.FileFilter
     {
+        /* (non-Javadoc)
+         * @see javax.swing.filechooser.FileFilter#accept(java.io.File)
+         */
         @Override
         public boolean accept(File f)
         {
            return f.isDirectory() || f.getName().toLowerCase().endsWith("_prj.dv");
         }
 
+        /* (non-Javadoc)
+         * @see javax.swing.filechooser.FileFilter#getDescription()
+         */
         @Override
         public String getDescription()
         {
@@ -398,39 +490,24 @@ public class FileQueueChooser
         }  
     }
 
-    private JButton addButton(String name, String image, String tooltip)
-    {
-        JButton button = null;
-
-        if (image == null) 
-        {
-            button = new JButton(name);
-        } else {
-            java.net.URL imgURL = GuiImporter.class.getResource(image);
-            if (imgURL != null)
-            {
-                button = new JButton(name, new ImageIcon(imgURL));
-            } else {
-                button = new JButton(name);
-                log.error("Couldn't find icon: " + image);
-            }
-        }
-        return button;
-    }
-
+    /* (non-Javadoc)
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
         Object src = e.getSource();
         if (src == refreshBtn)
-            //firePropertyChange(Actions.REFRESH, false, true);
             this.setVisible(false);
             this.rescanCurrentDirectory();
             this.setVisible(true);
-    }
-
+    } 
     
-    // ----- Main class used for testing ------    
-    
+    /**
+     * Main for testing (debugging only)
+     * 
+     * @param args
+     * @throws Exception 
+     */
     public static void main(String[] args)
     {
        

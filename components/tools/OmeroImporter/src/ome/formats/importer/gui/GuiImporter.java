@@ -19,6 +19,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
@@ -120,7 +121,6 @@ WindowStateListener, WindowFocusListener
     public static final String FORUM_ICON = "gfx/nuvola_chat16.png";
 
     public final ImportConfig         config;
-    public final GuiCommonElements    gui;
     public final ErrorHandler         errorHandler;
     public final FileQueueHandler     fileQueueHandler;
     public final StatusBar            statusBar;
@@ -153,6 +153,8 @@ WindowStateListener, WindowFocusListener
 
     private ScheduledExecutorService scanEx = Executors.newScheduledThreadPool(1);
     private ScheduledExecutorService importEx = Executors.newScheduledThreadPool(1);
+    
+    public Rectangle bounds;
 
     /**
      * Main entry class for the application
@@ -164,7 +166,7 @@ WindowStateListener, WindowFocusListener
         javax.swing.ToolTipManager.sharedInstance().setDismissDelay(0);
 
         this.config = config;
-        this.gui = new GuiCommonElements(config);
+        this.bounds = config.getUIBounds();
         
         Level level = org.apache.log4j.Level.toLevel(config.getDebugLevel());
         LogAppender.setLoggingLevel(level);
@@ -182,10 +184,10 @@ WindowStateListener, WindowFocusListener
 
         // Set app defaults
         setTitle(config.getAppTitle());
-        setIconImage(gui.getImageIcon(GuiImporter.ICON).getImage());
-        setPreferredSize(new Dimension(gui.bounds.width, gui.bounds.height));
-        setSize(gui.bounds.width, gui.bounds.height);
-        setLocation(gui.bounds.x, gui.bounds.y);      
+        setIconImage(GuiCommonElements.getImageIcon(GuiImporter.ICON).getImage());
+        setPreferredSize(new Dimension(bounds.width, bounds.height));
+        setSize(bounds.width, bounds.height);
+        setLocation(bounds.x, bounds.y);      
         setLayout(new BorderLayout());
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         pack();
@@ -195,14 +197,14 @@ WindowStateListener, WindowFocusListener
         // capture move info
         addComponentListener(new ComponentAdapter() {
             public void componentMoved(ComponentEvent evt) {
-                gui.bounds = getBounds();
+                bounds = getBounds();
             }
         });
 
         // capture resize info
         addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent evt) {
-                gui.bounds = getBounds();               
+                bounds = getBounds();               
             }
         });
 
@@ -211,42 +213,42 @@ WindowStateListener, WindowFocusListener
         fileMenu = new JMenu("File");
         menubar.add(fileMenu);
         
-        login = new JMenuItem("Login to the server...", gui.getImageIcon(LOGIN_ICON));
+        login = new JMenuItem("Login to the server...", GuiCommonElements.getImageIcon(LOGIN_ICON));
         login.setActionCommand("login");
         login.addActionListener(this);        
         fileMenu.add(login);
         
         
-        if (gui.getIsMac())
+        if (GuiCommonElements.getIsMac())
         {
-            options = new JMenuItem("Options...", gui.getImageIcon(CONFIG_ICON));
+            options = new JMenuItem("Options...", GuiCommonElements.getImageIcon(CONFIG_ICON));
             options.setActionCommand("options");
             options.addActionListener(this);        
             fileMenu.add(options);
         }
-        fileQuit = new JMenuItem("Quit", gui.getImageIcon(QUIT_ICON));
+        fileQuit = new JMenuItem("Quit", GuiCommonElements.getImageIcon(QUIT_ICON));
         fileQuit.setActionCommand("quit");
         fileQuit.addActionListener(this);
         fileMenu.add(fileQuit);
         helpMenu = new JMenu("Help");
         menubar.add(helpMenu);
-        helpComment = new JMenuItem("Send a Comment...", gui.getImageIcon(COMMENT_ICON));
+        helpComment = new JMenuItem("Send a Comment...", GuiCommonElements.getImageIcon(COMMENT_ICON));
         helpComment.setActionCommand("comment");
         helpComment.addActionListener(this);
-        helpHome = new JMenuItem("Visit Importer Homepage...", gui.getImageIcon(HOME_ICON));
+        helpHome = new JMenuItem("Visit Importer Homepage...", GuiCommonElements.getImageIcon(HOME_ICON));
         helpHome.setActionCommand("home");
         helpHome.addActionListener(this);
-        helpForums = new JMenuItem("Visit the OMERO Forums...", gui.getImageIcon(FORUM_ICON));
+        helpForums = new JMenuItem("Visit the OMERO Forums...", GuiCommonElements.getImageIcon(FORUM_ICON));
         helpForums.setActionCommand("forums");
         helpForums.addActionListener(this);
-        helpAbout = new JMenuItem("About the Importer...", gui.getImageIcon(ABOUT_ICON));
+        helpAbout = new JMenuItem("About the Importer...", GuiCommonElements.getImageIcon(ABOUT_ICON));
         helpAbout.setActionCommand("about");
         helpAbout.addActionListener(this);
         helpMenu.add(helpComment);
         helpMenu.add(helpHome);
         helpMenu.add(helpForums);
         // Help --> Show log file location...
-        JMenuItem helpShowLog = new JMenuItem("Show log file location...", gui.getImageIcon(LOGFILE_ICON));
+        JMenuItem helpShowLog = new JMenuItem("Show log file location...", GuiCommonElements.getImageIcon(LOGFILE_ICON));
         helpShowLog.setActionCommand(show_log_file);
         helpShowLog.addActionListener(this);
         helpMenu.add(helpShowLog);
@@ -272,7 +274,7 @@ WindowStateListener, WindowFocusListener
         //splitPane.setResizeWeight(0.5);
 
         filePanel.add(fileQueueHandler, BorderLayout.CENTER);
-        tPane.addTab("File Chooser", gui.getImageIcon(CHOOSER_ICON), filePanel,
+        tPane.addTab("File Chooser", GuiCommonElements.getImageIcon(CHOOSER_ICON), filePanel,
         "Add and delete images here to the import queue.");
         tPane.setMnemonicAt(0, KeyEvent.VK_1);
 
@@ -281,7 +283,7 @@ WindowStateListener, WindowFocusListener
         historyPanel.setOpaque(false);
         historyPanel.setLayout(new BorderLayout());
 
-        tPane.addTab("Import History", gui.getImageIcon(HISTORY_ICON), historyPanel,
+        tPane.addTab("Import History", GuiCommonElements.getImageIcon(HISTORY_ICON), historyPanel,
         "Import history is displayed here.");
         tPane.setMnemonicAt(0, KeyEvent.VK_4);
 
@@ -307,7 +309,7 @@ WindowStateListener, WindowFocusListener
 
         outputPanel.add(outputScrollPane, BorderLayout.CENTER);
 
-        tPane.addTab("Output Text", gui.getImageIcon(OUTPUT_ICON), outputPanel,
+        tPane.addTab("Output Text", GuiCommonElements.getImageIcon(OUTPUT_ICON), outputPanel,
         "Standard output text goes here.");
         tPane.setMnemonicAt(0, KeyEvent.VK_2);
 
@@ -334,7 +336,7 @@ WindowStateListener, WindowFocusListener
 
         debugPanel.add(debugScrollPane, BorderLayout.CENTER);
 
-        tPane.addTab("Debug Text", gui.getImageIcon(BUG_ICON), debugPanel,
+        tPane.addTab("Debug Text", GuiCommonElements.getImageIcon(BUG_ICON), debugPanel,
         "Debug messages are displayed here.");
         tPane.setMnemonicAt(0, KeyEvent.VK_3);
 
@@ -343,7 +345,7 @@ WindowStateListener, WindowFocusListener
         errorPanel.setOpaque(false);
         errorPanel.setLayout(new BorderLayout());
 
-        tPane.addTab("Import Errors", gui.getImageIcon(ERROR_ICON), errorPanel,
+        tPane.addTab("Import Errors", GuiCommonElements.getImageIcon(ERROR_ICON), errorPanel,
         "Import errors are displayed here.");
         tPane.setMnemonicAt(0, KeyEvent.VK_5);
 
@@ -394,7 +396,7 @@ WindowStateListener, WindowFocusListener
 
         // Get and save the UI window placement
         try {
-            config.setUIBounds(gui.getUIBounds());
+            config.setUIBounds(bounds);
         } finally {
             config.saveAll();
             config.saveGui();
@@ -520,14 +522,14 @@ WindowStateListener, WindowFocusListener
                 //loginHandler.displayLogin(false);
             }
         } else if ("quit".equals(cmd)) {
-            if (gui.quitConfirmed(this, null) == true)
+            if (GuiCommonElements.quitConfirmed(this, null) == true)
             {
                 System.exit(0);
             }
         } else if ("options".equals(cmd)) {
             @SuppressWarnings("unused")
             final OptionsDialog dialog = 
-                new OptionsDialog(gui, this, "Import", true);
+                new OptionsDialog(config, this, "Import", true);
         }
         else if ("about".equals(cmd))
         {
@@ -613,7 +615,7 @@ WindowStateListener, WindowFocusListener
 
     public void windowClosing(WindowEvent e)  
     {
-        if (gui.quitConfirmed(this, null) == true)
+        if (GuiCommonElements.quitConfirmed(this, null) == true)
         {
             System.exit(0);
         }
@@ -769,13 +771,13 @@ WindowStateListener, WindowFocusListener
 
         else if (event instanceof ImportEvent.ERRORS_PENDING)
         {
-            tPane.setIconAt(4, gui.getImageIcon(ERROR_ICON_ANIM));
+            tPane.setIconAt(4, GuiCommonElements.getImageIcon(ERROR_ICON_ANIM));
             errors_pending  = true;
         }
 
         else if (event instanceof ImportEvent.ERRORS_COMPLETE)
         {
-            tPane.setIconAt(4, gui.getImageIcon(ERROR_ICON));
+            tPane.setIconAt(4, GuiCommonElements.getImageIcon(ERROR_ICON));
         }
 
         else if (event instanceof ImportEvent.ERRORS_FAILED)
@@ -877,7 +879,7 @@ WindowStateListener, WindowFocusListener
             LoginCredentials lc = (LoginCredentials) evt.getNewValue();
             if (lc != null) login(lc);
         } else if (ScreenLogin.QUIT_PROPERTY.equals(name) || name.equals("quitpplication")) {
-            if (gui.quitConfirmed(this, null) == true)
+            if (GuiCommonElements.quitConfirmed(this, null) == true)
             {
                 System.exit(0);
             }

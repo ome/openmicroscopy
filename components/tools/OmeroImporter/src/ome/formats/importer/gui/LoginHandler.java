@@ -84,7 +84,6 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     private boolean modal, displayTop;
     
     private final HistoryTable historyTable;
-    private final GuiCommonElements gui;
     private final ImportConfig config;
 
     
@@ -99,8 +98,6 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         this.center = center;
         this.modal = modal;
         this.config = viewer.config;
-
-        gui = new GuiCommonElements(viewer.config);
         
         historyTable = table;
         if (historyTable != null)
@@ -257,12 +254,12 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     {
         if (modal == true)
         {
-            dialog = new LoginDialog(gui, viewer, viewer, "Login", modal, center);
+            dialog = new LoginDialog(config, viewer, viewer, "Login", modal, center);
             dialog.setAlwaysOnTop(true);
             if (dialog.cancelled == true) return true;
         } else {
 
-            frame = new LoginFrame(gui, viewer, viewer, "Login", modal, center);
+            frame = new LoginFrame(config, viewer, viewer, "Login", modal, center);
             frame.addPropertyChangeListener(this);    
             
         }
@@ -274,12 +271,12 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     {   
         Image img = Toolkit.getDefaultToolkit().createImage(GuiImporter.ICON);
         view = new ScreenLogin(config.getAppTitle(),
-                gui.getImageIcon("gfx/login_background.png"),
+                GuiCommonElements.getImageIcon("gfx/login_background.png"),
                 img,
                 config.getIniVersionNumber(), 
                 Integer.toString(config.port.get()));
         view.showConnectionSpeed(false);
-        viewTop = new ScreenLogo(config.getAppTitle(), gui.getImageIcon(GuiImporter.splash), img);
+        viewTop = new ScreenLogo(config.getAppTitle(), GuiCommonElements.getImageIcon(GuiImporter.splash), img);
         viewTop.setStatusVisible(false);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension d = viewTop.getExtendedSize();
@@ -379,7 +376,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
             } else if (ScreenLogin.QUIT_PROPERTY.equals(prop)) {
                 if (displayTop)
                 {
-                    if (gui.quitConfirmed(viewer, "Do you really want to quit?")
+                    if (GuiCommonElements.quitConfirmed(viewer, "Do you really want to quit?")
                             == true)
                     {
                         System.exit(0);

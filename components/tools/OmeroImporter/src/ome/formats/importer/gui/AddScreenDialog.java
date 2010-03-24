@@ -41,6 +41,7 @@ import javax.swing.JTextPane;
 import javax.swing.UIManager;
 
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.ImportConfig;
 import omero.model.Screen;
 
 
@@ -68,19 +69,19 @@ public class AddScreenDialog extends JDialog implements ActionListener
     String                  screenDescription;
     
     Screen                  screen;
-    GuiCommonElements       gui;
+    ImportConfig	      	config;
     OMEROMetadataStoreClient      store;
     
     /**
-     * @param gui - gui common elements
+     * @param config - ImportConfig
      * @param owner - parent window
      * @param title - dialog title
      * @param modal - modal yes/no
      * @param store - store to pull list of screens from
      */
-    AddScreenDialog(GuiCommonElements gui, Window owner, String title, Boolean modal, OMEROMetadataStoreClient store)
+    AddScreenDialog(ImportConfig config, Window owner, String title, Boolean modal, OMEROMetadataStoreClient store)
     {
-        this.gui = gui;
+        this.config = config;
         this.store = store;
         this.owner = owner;
         
@@ -97,37 +98,37 @@ public class AddScreenDialog extends JDialog implements ActionListener
                 {{TableLayout.FILL, 100, 5, 100, 10}, // columns
                 {TableLayout.FILL, 40}}; // rows
 
-        mainPanel = gui.addMainPanel(this, mainTable, 10,10,10,10, debug);
+        mainPanel = GuiCommonElements.addMainPanel(this, mainTable, 10,10,10,10, debug);
         
         // Add the quit and send buttons to the main panel
-        cancelBtn = gui.addButton(mainPanel, "Cancel", 'C',
+        cancelBtn = GuiCommonElements.addButton(mainPanel, "Cancel", 'C',
                 "Cancel adding a screen", "1, 1, f, c", debug);
         cancelBtn.addActionListener(this);
 
-        OKBtn = gui.addButton(mainPanel, "OK", 'O',
+        OKBtn = GuiCommonElements.addButton(mainPanel, "OK", 'O',
                 "Accept your new screen", "3, 1, f, c", debug);
         OKBtn.addActionListener(this);
 
         this.getRootPane().setDefaultButton(OKBtn);
-        gui.enterPressesWhenFocused(OKBtn);
+        GuiCommonElements.enterPressesWhenFocused(OKBtn);
         
         double internalTable[][] = 
             {{160, TableLayout.FILL}, // columns
             {30, 30, TableLayout.FILL}}; // rows
         
-        internalPanel = gui.addMainPanel(this, internalTable, 10,10,10,10, debug);
+        internalPanel = GuiCommonElements.addMainPanel(this, internalTable, 10,10,10,10, debug);
 
         String message = "Please enter your screen name and an optional " +
                 "description below.";
 
         @SuppressWarnings("unused")
         JTextPane instructions = 
-                gui.addTextPane(internalPanel, message, "0,0,1,0", debug);
+        	GuiCommonElements.addTextPane(internalPanel, message, "0,0,1,0", debug);
 
-        nameField = gui.addTextField(internalPanel, "Screen Name: ", "", 'E',
+        nameField = GuiCommonElements.addTextField(internalPanel, "Screen Name: ", "", 'E',
         "Input your screen name here.", "", TableLayout.PREFERRED, "0, 1, 1, 1", debug);
         
-        descriptionArea = gui.addTextArea(internalPanel, "Description: (optional)", 
+        descriptionArea = GuiCommonElements.addTextArea(internalPanel, "Description: (optional)", 
                 "", 'W', "0, 2, 1, 2", debug);
         
         // Add the tab panel to the main panel
@@ -157,7 +158,7 @@ public class AddScreenDialog extends JDialog implements ActionListener
             else if (screenName.trim().length() > 0)
             {
                 screen = store.addScreen(screenName, screenDescription);
-                gui.config.savedScreen.set(screen.getId().getValue());
+                config.savedScreen.set(screen.getId().getValue());
                 dispose();
             } else {
                 JOptionPane.showMessageDialog(this, "The screen's name can not be blank.");

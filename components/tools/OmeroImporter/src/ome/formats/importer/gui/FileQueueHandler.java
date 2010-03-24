@@ -1,12 +1,22 @@
 /*
- * ome.formats.importer.gui.FileQueueHandler
+ * ome.formats.importer.gui.AddDatasetDialog
  *
  *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
- *  Copyright (C) 2005 Open Microscopy Environment
- *      Massachusetts Institute of Technology,
- *      National Institutes of Health,
- *      University of Dundee
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *------------------------------------------------------------------------------
  */
@@ -58,9 +68,12 @@ import omero.model.Screen;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * @author Brian Loranger brain at lifesci.dundee.ac.uk
+ *
+ */
 @SuppressWarnings("serial")
-public class FileQueueHandler 
-    extends JPanel 
+public class FileQueueHandler extends JPanel 
     implements ActionListener, PropertyChangeListener, IObserver
 {
     /** Logger for this class */
@@ -76,7 +89,6 @@ public class FileQueueHandler
 	private final ImportConfig config;
     private final OMEROWrapper importReader, scanReader;
     private final GuiImporter viewer;
-    private final GuiCommonElements gui;
     
     private final FileQueueChooser fileChooser;
     private final FileQueueTable qTable;
@@ -93,7 +105,10 @@ public class FileQueueHandler
     private boolean candidatesFormatException = false;
     
     /**
-     * @param viewer
+     * @param scanEx ScheduledExecutorService for scanning
+     * @param importEx ScheduledExecutorService for importing
+     * @param viewer Parent viewer class
+     * @param config ImportConfig
      */
     FileQueueHandler(ScheduledExecutorService scanEx, ScheduledExecutorService importEx,
             GuiImporter viewer, ImportConfig config)
@@ -102,7 +117,6 @@ public class FileQueueHandler
         this.importEx = importEx;
         this.config = config;
         this.viewer = viewer;
-        this.gui = new GuiCommonElements(config);
         this.historyTable = viewer.historyTable;
         this.importReader = new OMEROWrapper(config);
         this.scanReader = new OMEROWrapper(config);
@@ -116,7 +130,7 @@ public class FileQueueHandler
         
         //fc.setAccessory(new FindAccessory(fc));
         
-        qTable = new FileQueueTable(config);
+        qTable = new FileQueueTable();
         qTable.addPropertyChangeListener(this);
         
         // Functionality to allows the reimport button to work
@@ -134,10 +148,16 @@ public class FileQueueHandler
         add(splitPane, BorderLayout.CENTER);
     }
     
-    protected OMEROMetadataStoreClient store() {
+    /**
+     * @return OMEROMetadataStoreClient
+     */
+    protected OMEROMetadataStoreClient getOMEROMetadataStoreClient() {
         return viewer.loginHandler.getMetadataStore();
     }
 
+    /* (non-Javadoc)
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
     public void actionPerformed(ActionEvent e)
     {
         final String action = e.getActionCommand();
@@ -145,11 +165,14 @@ public class FileQueueHandler
         
         //If the directory changed, don't show an image.
         if (action.equals(JFileChooser.APPROVE_SELECTION)) {
-            addFiles();
+            addSelectedFiles();
         }
     }
 
-    private void addFiles()
+    /**
+     * Add all files that are selected in the JFileChooser
+     */
+    private void addSelectedFiles()
     {
         boolean filesOnly = true;
         
@@ -227,18 +250,24 @@ public class FileQueueHandler
         scanEx.execute(run);
     }
     
+    /**
+     * Retrieve the file chooser's selected reader then iterate over
+     * each of our supplied containers filtering out those whose format
+     * do not match those of the selected reader.
+     * 
+     * @param allContainers List of ImporterContainers
+     */
     private void handleFiles(List<ImportContainer> allContainers)
     {
-    	// Retrieve the file chooser's selected reader then iterate over
-    	// each of our supplied containers filtering out those whose format
-    	// do not match those of the selected reader.
     	FileFilter selectedFilter = fileChooser.getFileFilter();
     	IFormatReader selectedReader = null;
+    	
     	if (selectedFilter instanceof FormatFileFilter)
     	{
     		log.debug("Selected file filter: " + selectedFilter);
     		selectedReader = ((FormatFileFilter) selectedFilter).getReader();
     	}
+    	
     	List<ImportContainer> containers = new ArrayList<ImportContainer>();
     	for (ImportContainer ic : allContainers)
     	{
@@ -275,11 +304,11 @@ public class FileQueueHandler
             return; // Invalid containers.
         }
         
-        if (store() != null && spw.booleanValue())
+        if (getOMEROMetadataStoreClient() != null && spw.booleanValue())
         {
             setCursor(Cursor.getDefaultCursor());
             SPWDialog dialog =
-                new SPWDialog(gui, viewer, "Screen Import", true, store());
+                new SPWDialog(config, viewer, "Screen Import", true, getOMEROMetadataStoreClient());
             if (dialog.cancelled == true || dialog.screen == null) 
                 return;                    
             for (ImportContainer ic : containers)
@@ -294,16 +323,16 @@ public class FileQueueHandler
             qTable.importBtn.requestFocus();
 
         }
-        else if (store() != null)
+        else if (getOMEROMetadataStoreClient() != null)
         {
             setCursor(Cursor.getDefaultCursor());
             ImportDialog dialog = 
-                new ImportDialog(gui, viewer, "Image Import", true, store());
+                new ImportDialog(config, viewer, "Image Import", true, getOMEROMetadataStoreClient());
             if (dialog.cancelled == true || dialog.dataset == null) 
                 return;  
 
             Double[] pixelSizes = new Double[] {dialog.pixelSizeX, dialog.pixelSizeY, dialog.pixelSizeZ};
-            Boolean useFullPath = gui.config.useFullPath.get();
+            Boolean useFullPath = config.useFullPath.get();
             if (dialog.fileCheckBox.isSelected() == false)
                 useFullPath = null; //use the default bio-formats naming
                 
@@ -319,13 +348,11 @@ public class FileQueueHandler
                 dialog.project.getName().getValue() + " / " +
                 dialog.dataset.getName().getValue();
                 
-                addFileToQueue(ic, title, useFullPath, gui.config.numOfDirectories.get());
+                addFileToQueue(ic, title, useFullPath, config.numOfDirectories.get());
             }
             
             qTable.centerOnRow(qTable.queue.getRowCount()-1);
             qTable.importBtn.requestFocus();
-
-            
         } else {
             setCursor(Cursor.getDefaultCursor());
             JOptionPane.showMessageDialog(viewer, 
@@ -336,6 +363,9 @@ public class FileQueueHandler
         }
     }
     
+    /**
+     * Dialog 'must select at least one importable file'
+     */
     private void mustSelectFile()
     {
         JOptionPane.showMessageDialog(viewer, 
@@ -344,12 +374,15 @@ public class FileQueueHandler
                 "left-hand panel first before continuing.");
     }
     
+    /* (non-Javadoc)
+     * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+     */
     public void propertyChange(PropertyChangeEvent e)
     {
         String prop = e.getPropertyName();
         if (prop.equals(ADD))
         {
-            addFiles();
+            addSelectedFiles();
         }
         
         else if (prop.equals(REMOVE))
@@ -422,10 +455,10 @@ public class FileQueueHandler
 
                     if (candidates != null)
                     {
-                        ImportLibrary library = new ImportLibrary(store(), importReader);
+                        ImportLibrary library = new ImportLibrary(getOMEROMetadataStoreClient(), importReader);
                         library.addObserver(new LoggingImportMonitor());
 
-                        if (store() != null) {
+                        if (getOMEROMetadataStoreClient() != null) {
                             ImportHandler importHandler = new ImportHandler(importEx, viewer, qTable, config, library, candidates);
                             importHandler.addObserver(viewer);
                             importHandler.addObserver(qTable);
@@ -505,6 +538,12 @@ public class FileQueueHandler
     }
     
     
+    /**
+     * Import cancelled dialog
+     * 
+     * @param frame parent frame
+     * @return - true / false if import cancelled
+     */
     private boolean cancelImportDialog(Component frame) {
         String s1 = "OK";
         String s2 = "Force Quit Now";
@@ -575,7 +614,11 @@ public class FileQueueHandler
        }
     }
 
-    // Split the directories by file seperator character ("/" or "\")
+    /**
+     * Split the directories by file seperator character ("/" or "\")
+     * @param path
+     * @return
+     */
     private String[] splitDirectories(String path)
     {
         //viewer.appendToDebugLn(path);
@@ -588,6 +631,11 @@ public class FileQueueHandler
         return fields;
     }
     
+    /**
+     * Remove file from Queue
+     * 
+     * @param row - row index of file to remove
+     */
     private void removeFileFromQueue(int row)
     {
         qTable.table.removeRow(row);
@@ -596,6 +644,9 @@ public class FileQueueHandler
             qTable.importBtn.setEnabled(false);
     }
 
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObserver#update(ome.formats.importer.IObservable, ome.formats.importer.ImportEvent)
+     */
     @SuppressWarnings("unchecked")
     public void update(IObservable observable, ImportEvent event)
     {
@@ -804,6 +855,14 @@ public class FileQueueHandler
     }
 
     
+    /**
+     * Add file to queue
+     * 
+     * @param container - container for file adding
+     * @param pdsString - project/dataset/screen string
+     * @param useFullPath - use full path / partial path for name
+     * @param numOfDirectories how many directories to use for partial path
+     */
     @SuppressWarnings("unchecked")
     private void addFileToQueue(ImportContainer container, String pdsString, Boolean useFullPath, int numOfDirectories) {
         Vector row = new Vector();
@@ -825,6 +884,12 @@ public class FileQueueHandler
             qTable.importBtn.setEnabled(true);
     }
     
+    /**
+     * Update progress 
+     * 
+     * @param totalFiles
+     * @param numFiles
+     */
     private void updateProgress(final int totalFiles, final int numFiles)
     {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {

@@ -1,5 +1,5 @@
 /*
- * ome.formats.importer.gui.AddDatasetDialog
+ * ome.formats.importer.GuiCommonElements.AddDatasetDialog
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -73,9 +73,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
     private static final String ICON = "gfx/nuvola_mail_send64.png";
     
     ArrayList<IObserver> observers = new ArrayList<IObserver>();
-    
-    GuiCommonElements       gui;
-    
+
     JFrame                  owner;
     
     JPanel                  mainPanel;
@@ -120,7 +118,6 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
     {
         super(owner);
         this.config = config;
-        this.gui = new GuiCommonElements(config);
         this.owner = owner;
         this.errorsArrayList = errorsArrayList;
         
@@ -139,29 +136,29 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
                 {{10, 150, TableLayout.FILL, 100, 5, 150, 5, 150, 10}, // columns
                 {TableLayout.FILL, 20, 40}}; // rows
         
-        mainPanel = gui.addMainPanel(this, mainTable, 10, 10, 10, 10, debug);
+        mainPanel = GuiCommonElements.addMainPanel(this, mainTable, 10, 10, 10, 10, debug);
 
-        cancelBtn = gui.addButton(mainPanel, "Cancel", 'C',
+        cancelBtn = GuiCommonElements.addButton(mainPanel, "Cancel", 'C',
                 "Cancel your message", "5, 2, f, c", debug);
         cancelBtn.addActionListener(this);
 
-        sendBtn = gui.addButton(mainPanel, "Send Comment", 'S',
+        sendBtn = GuiCommonElements.addButton(mainPanel, "Send Comment", 'S',
                 "Send your comment to the development team", "7, 2, f, c", debug);
         sendBtn.addActionListener(this);
 
         this.getRootPane().setDefaultButton(sendBtn);
-        gui.enterPressesWhenFocused(sendBtn);
+        GuiCommonElements.enterPressesWhenFocused(sendBtn);
         
-        uploadCheckmark = gui.addCheckBox(mainPanel, "Send the image files for these errors. " + file_info, "1,1,7,1", debug);
+        uploadCheckmark = GuiCommonElements.addCheckBox(mainPanel, "Send the image files for these errors. " + file_info, "1,1,7,1", debug);
         //uploadCheckmark.setSelected(config.sendFiles.get());
         uploadCheckmark.setSelected(true);
        
-        logUploadCheckmark = gui.addCheckBox(mainPanel, "Send importer log file.", "1,2,7,2", debug);
+        logUploadCheckmark = GuiCommonElements.addCheckBox(mainPanel, "Send importer log file.", "1,2,7,2", debug);
         //uploadCheckmark.setSelected(config.sendFiles.get());
         logUploadCheckmark.setSelected(true);
         
         // fill out the comments panel (changes according to icon existance)        
-        Icon icon = gui.getImageIcon(ICON);
+        Icon icon = GuiCommonElements.getImageIcon(ICON);
         
         int iconSpace = 0;
         if (icon != null) iconSpace = icon.getIconWidth() + 10;
@@ -170,7 +167,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         {{iconSpace, (160 - iconSpace), TableLayout.FILL}, // columns
                 {100, 30, TableLayout.FILL, 110}}; // rows
         
-        commentPanel = gui.addMainPanel(this, commentTable, 10, 10, 10, 10, debug);
+        commentPanel = GuiCommonElements.addMainPanel(this, commentTable, 10, 10, 10, 10, debug);
 
         String message = "To help us improve our software, please fill " +
         "out the following form. \n\nPlease note that providing your email " +
@@ -183,14 +180,14 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         
         @SuppressWarnings("unused")
         JTextPane instructions = 
-                gui.addTextPane(commentPanel, message, "1,0,2,0", debug);
+                GuiCommonElements.addTextPane(commentPanel, message, "1,0,2,0", debug);
 
-        emailTextField = gui.addTextField(commentPanel, "Email: ", emailText, 'E',
+        emailTextField = GuiCommonElements.addTextField(commentPanel, "Email: ", emailText, 'E',
         "Input your email address here.", "(Optional)", TableLayout.PREFERRED, "0, 1, 2, 1", debug);
         
         emailTextField.setText(config.email.get());
         
-        commentTextArea = gui.addTextArea(commentPanel, "Please provide any additional information of importance.", 
+        commentTextArea = GuiCommonElements.addTextArea(commentPanel, "Please provide any additional information of importance.", 
                 "", 'W', "0, 2, 2, 3", debug);
         
         // Add the tab panel to the main panel
@@ -223,7 +220,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         
         if (source == quitBtn)
         {
-            if (gui.quitConfirmed(this, "Abandon your import and quit the application?") == true)
+            if (GuiCommonElements.quitConfirmed(this, "Abandon your import and quit the application?") == true)
             {
                 System.exit(0);
             }
@@ -240,7 +237,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
             emailText = emailTextField.getText();
             commentText = commentTextArea.getText();
             
-            if (gui.validEmail(emailText) || emailText.trim().length() == 0)
+            if (GuiCommonElements.validEmail(emailText) || emailText.trim().length() == 0)
             {
                 sendBtn.setEnabled(false);
                 config.email.set(emailText);

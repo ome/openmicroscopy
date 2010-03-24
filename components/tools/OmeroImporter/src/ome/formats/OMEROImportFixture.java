@@ -59,7 +59,8 @@ public class OMEROImportFixture {
 
     private List<Pixels> pixels;
 
-    private String name;
+    @SuppressWarnings("unused")
+	private String name;
 
     public OMEROImportFixture(OMEROMetadataStoreClient store,
             OMEROWrapper reader) {

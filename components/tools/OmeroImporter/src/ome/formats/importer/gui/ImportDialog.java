@@ -18,6 +18,7 @@ import info.clearthought.layout.TableLayout;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -31,7 +32,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -40,6 +40,7 @@ import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 
 import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.ImportConfig;
 import ome.formats.importer.gui.GuiCommonElements.DecimalNumberField;
 import ome.formats.importer.gui.GuiCommonElements.WholeNumberField;
 import omero.RLong;
@@ -59,7 +60,7 @@ public class ImportDialog extends JDialog implements ActionListener
 {
     boolean debug = false;
 
-    private GuiCommonElements       gui;
+    private ImportConfig       	config;
 
     private Integer                 dialogHeight = 360;
     private Integer                 dialogWidth = 400;
@@ -115,7 +116,7 @@ public class ImportDialog extends JDialog implements ActionListener
 
     public OMEROMetadataStoreClient store;
 
-    ImportDialog(GuiCommonElements gui, JFrame owner, String title, boolean modal, OMEROMetadataStoreClient store)
+    ImportDialog(ImportConfig config, Window owner, String title, boolean modal, OMEROMetadataStoreClient store)
     {
         this.store = store;
 
@@ -135,7 +136,7 @@ public class ImportDialog extends JDialog implements ActionListener
         tabbedPane = new JTabbedPane();
         tabbedPane.setOpaque(false); // content panes must be opaque
 
-        this.gui = gui;
+        this.config = config;
 
         
         /////////////////////// START IMPORT PANEL ////////////////////////
@@ -147,10 +148,10 @@ public class ImportDialog extends JDialog implements ActionListener
             {TableLayout.PREFERRED, 10, TableLayout.PREFERRED, 
                 TableLayout.FILL, 40, 30}}; // rows
 
-        importPanel = gui.addMainPanel(tabbedPane, mainTable, 0,10,0,10, debug);
+        importPanel = GuiCommonElements.addMainPanel(tabbedPane, mainTable, 0,10,0,10, debug);
 
         String message = "Import these images into which dataset?";
-        gui.addTextPane(importPanel, message, "0, 0, 4, 0", debug);
+        GuiCommonElements.addTextPane(importPanel, message, "0, 0, 4, 0", debug);
 
         // Set up the project/dataset table
         double pdTable[][] =
@@ -159,24 +160,24 @@ public class ImportDialog extends JDialog implements ActionListener
 
         // Panel containing the project / dataset layout
 
-        pdPanel = gui.addMainPanel(importPanel, pdTable, 0, 0, 0, 0, debug);
+        pdPanel = GuiCommonElements.addMainPanel(importPanel, pdTable, 0, 0, 0, 0, debug);
 
-        pbox = gui.addComboBox(pdPanel, "Project: ", projectItems, 'P', 
+        pbox = GuiCommonElements.addComboBox(pdPanel, "Project: ", projectItems, 'P', 
                 "Select dataset to use for this import.", 60, "0,0,f,c", debug);
 
         // Fixing broken mac buttons.
         String offsetButtons = ",c";
-        //if (gui.offsetButtons == true) offsetButtons = ",t";
+        //if (GuiCommonElements.offsetButtons == true) offsetButtons = ",t";
 
-        addProjectBtn = gui.addIconButton(pdPanel, "", addIcon, 20, 60, null, null, "2,0,f" + offsetButtons, debug);
+        addProjectBtn = GuiCommonElements.addIconButton(pdPanel, "", addIcon, 20, 60, null, null, "2,0,f" + offsetButtons, debug);
         addProjectBtn.addActionListener(this);
         
-        dbox = gui.addComboBox(pdPanel, "Dataset: ", datasetItems, 'D',
+        dbox = GuiCommonElements.addComboBox(pdPanel, "Dataset: ", datasetItems, 'D',
                 "Select dataset to use for this import.", 60, "0,1,f,c", debug);
 
         dbox.setEnabled(false);
 
-        addDatasetBtn = gui.addIconButton(pdPanel, "", addIcon, 20, 60, null, null, "2,1,f" + offsetButtons, debug);
+        addDatasetBtn = GuiCommonElements.addIconButton(pdPanel, "", addIcon, 20, 60, null, null, "2,1,f" + offsetButtons, debug);
         addDatasetBtn.addActionListener(this);
         
         addDatasetBtn.setEnabled(false);
@@ -190,10 +191,10 @@ public class ImportDialog extends JDialog implements ActionListener
                 {24, TableLayout.PREFERRED, 
             TableLayout.PREFERRED, TableLayout.FILL}}; // rows      
 
-        namedPanel = gui.addBorderedPanel(importPanel, namedTable, "File Naming", debug);
+        namedPanel = GuiCommonElements.addBorderedPanel(importPanel, namedTable, "File Naming", debug);
 
-        fileCheckBox = gui.addCheckBox(namedPanel, "Override default file naming. Instead use:", "0,0,1,0", debug);
-       	fileCheckBox.setSelected(!gui.config.overrideImageName.get());
+        fileCheckBox = GuiCommonElements.addCheckBox(namedPanel, "Override default file naming. Instead use:", "0,0,1,0", debug);
+       	fileCheckBox.setSelected(!config.overrideImageName.get());
         
 
         String fullPathTooltip = "The full file+path name for " +
@@ -202,20 +203,20 @@ public class ImportDialog extends JDialog implements ActionListener
         String partPathTooltip = "A partial path and file name for " +
         "the file. For example: \"mysubfolder/myfile.dv\"";
 
-        fullPathButton = gui.addRadioButton(namedPanel, 
+        fullPathButton = GuiCommonElements.addRadioButton(namedPanel, 
                 "the full path+file name of your file", 'u', 
                 fullPathTooltip, "1,1", debug);
 
-        partPathButton = gui.addRadioButton(namedPanel, 
+        partPathButton = GuiCommonElements.addRadioButton(namedPanel, 
                 "a partial path+file name with...", 'u', 
                 partPathTooltip, "1,2", debug);
 
-        numOfDirectoriesField = gui.addWholeNumberField(namedPanel, 
+        numOfDirectoriesField = GuiCommonElements.addWholeNumberField(namedPanel, 
                 "" , "0", "of the directories immediately before it.", 0, 
                 "Add this number of directories to the file names",
                 3, 40, "1,3,l,c", debug);
         
-        numOfDirectoriesField.setText(Integer.toString(gui.config.numOfDirectories.get()));
+        numOfDirectoriesField.setText(Integer.toString(config.numOfDirectories.get()));
 
         // focus on the partial path button if you enter the numofdirfield
         numOfDirectoriesField.addFocusListener(new FocusListener() {
@@ -231,7 +232,7 @@ public class ImportDialog extends JDialog implements ActionListener
         group.add(fullPathButton);
         group.add(partPathButton);
 
-        if (gui.config.useFullPath.get() == true )
+        if (config.useFullPath.get() == true )
             group.setSelected(fullPathButton.getModel(), true);
         else
             group.setSelected(partPathButton.getModel(), true);
@@ -243,19 +244,19 @@ public class ImportDialog extends JDialog implements ActionListener
 
         // Buttons at the bottom of the form
 
-        cancelBtn = gui.addButton(importPanel, "Cancel", 'L',
+        cancelBtn = GuiCommonElements.addButton(importPanel, "Cancel", 'L',
                 "Cancel", "1, 5, f, c", debug);
         cancelBtn.addActionListener(this);
 
-        importBtn = gui.addButton(importPanel, "Add to Queue", 'Q',
+        importBtn = GuiCommonElements.addButton(importPanel, "Add to Queue", 'Q',
                 "Import", "3, 5, f, c", debug);
         importBtn.addActionListener(this);
 
         this.getRootPane().setDefaultButton(importBtn);
-        gui.enterPressesWhenFocused(importBtn);
+        GuiCommonElements.enterPressesWhenFocused(importBtn);
 
         
-            archiveImage = gui.addCheckBox(importPanel, 
+            archiveImage = GuiCommonElements.addCheckBox(importPanel, 
                     "Archive the original imported file(s) to the server.", "0,4,4,4", debug);
             archiveImage.setSelected(false);
             if (ARCHIVE_ENABLED)
@@ -271,25 +272,25 @@ public class ImportDialog extends JDialog implements ActionListener
         {{TableLayout.FILL}, // columns
         {TableLayout.FILL, 10, TableLayout.FILL}}; // rows
         
-        metadataPanel = gui.addMainPanel(tabbedPane, metadataTable, 0,10,0,10, debug);
+        metadataPanel = GuiCommonElements.addMainPanel(tabbedPane, metadataTable, 0,10,0,10, debug);
         
         double pixelTable[][] =
             {{10,TableLayout.FILL, 10,TableLayout.FILL, 10, TableLayout.FILL,10}, // columns
              {68, TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.FILL}}; // rows      
 
-        pixelPanel = gui.addBorderedPanel(metadataPanel, pixelTable, "Pixel Size Defaults", debug);
+        pixelPanel = GuiCommonElements.addBorderedPanel(metadataPanel, pixelTable, "Pixel Size Defaults", debug);
         
         message = "These X, Y & Z pixel size values (typically measured in microns) " +
         		"will be used if no values are included in the image file metadata:";
-        gui.addTextPane(pixelPanel, message, "1, 0, 6, 0", debug);
+        GuiCommonElements.addTextPane(pixelPanel, message, "1, 0, 6, 0", debug);
         
-        xPixelSize = gui.addDecimalNumberField(pixelPanel, 
+        xPixelSize = GuiCommonElements.addDecimalNumberField(pixelPanel, 
                 "X: " , null, "", 0, "", 8, 80, "1,1,l,c", debug);
 
-        yPixelSize = gui.addDecimalNumberField(pixelPanel, 
+        yPixelSize = GuiCommonElements.addDecimalNumberField(pixelPanel, 
                 "Y: " , null, "", 0, "", 8, 80, "3,1,l,c", debug);
 
-        zPixelSize = gui.addDecimalNumberField(pixelPanel, 
+        zPixelSize = GuiCommonElements.addDecimalNumberField(pixelPanel, 
                 "Z: " , null, "", 0, "", 8, 80, "5,1,l,c", debug);
         
         metadataPanel.add(pixelPanel, "0, 0");
@@ -298,20 +299,20 @@ public class ImportDialog extends JDialog implements ActionListener
         {{10,TableLayout.FILL, 10,TableLayout.FILL, 10, TableLayout.FILL,10}, // columns
          {68, TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.FILL}}; // rows      
 
-        channelPanel = gui.addBorderedPanel(metadataPanel, channelTable, "Channel Defaults", debug);
+        channelPanel = GuiCommonElements.addBorderedPanel(metadataPanel, channelTable, "Channel Defaults", debug);
         
-        rChannel = gui.addWholeNumberField(channelPanel, 
+        rChannel = GuiCommonElements.addWholeNumberField(channelPanel, 
                 "R: " , "0", "", 0, "", 8, 80, "1,1,l,c", debug);
 
-        gChannel = gui.addWholeNumberField(channelPanel, 
+        gChannel = GuiCommonElements.addWholeNumberField(channelPanel, 
                 "G: " , "1", "", 0, "", 8, 80, "3,1,l,c", debug);
 
-        bChannel = gui.addWholeNumberField(channelPanel, 
+        bChannel = GuiCommonElements.addWholeNumberField(channelPanel, 
                 "B: " , "2", "", 0, "", 8, 80, "5,1,l,c", debug);
         
         message = "These RGB channel wavelengths (typically measured in nanometers)" +
         		" will be used if no channel values are included in the image file metadata:";
-        gui.addTextPane(channelPanel, message, "1, 0, 6, 0", debug);
+        GuiCommonElements.addTextPane(channelPanel, message, "1, 0, 6, 0", debug);
         
         //metadataPanel.add(channelPanel, "0, 2");
 
@@ -339,8 +340,8 @@ public class ImportDialog extends JDialog implements ActionListener
 
     private void buildProjectsAndDatasets()
     {
-        long savedProject = gui.config.savedProject.get();
-        long savedDataset = gui.config.savedDataset.get();
+        long savedProject = config.savedProject.get();
+        long savedDataset = config.savedDataset.get();
         
         if (savedProject != 0 && projectItems != null) {
             for (int i = 0; i < projectItems.length; i++)
@@ -392,7 +393,7 @@ public class ImportDialog extends JDialog implements ActionListener
             for (int k = 0; k < projectItems.length; k++ )
             {
                 RLong pId = projectItems[k].getProject().getId();                
-                if (pId != null && pId.getValue() == gui.config.savedProject.get())
+                if (pId != null && pId.getValue() == config.savedProject.get())
                 {
                     pbox.insertItemAt(projectItems[k], k);
                     pbox.setSelectedIndex(k);
@@ -416,7 +417,7 @@ public class ImportDialog extends JDialog implements ActionListener
             addDatasetBtn.setEnabled(true);
             importBtn.setEnabled(true);
             dbox.insertItemAt(datasetItems[k], k);
-            if (dId != null && dId.getValue() == gui.config.savedDataset.get())
+            if (dId != null && dId.getValue() == config.savedDataset.get())
             {
                 dbox.setSelectedIndex(k);
             }                        
@@ -462,23 +463,23 @@ public class ImportDialog extends JDialog implements ActionListener
         } 
         else if (e.getSource() == addProjectBtn)
         {
-            new AddProjectDialog(gui, this, "Add a new Project", true, store);
+            new AddProjectDialog(config, this, "Add a new Project", true, store);
             refreshAndSetProject();
         } 
         else if (e.getSource() == addDatasetBtn)
         {
             project = ((ProjectItem) pbox.getSelectedItem()).getProject();
-            new AddDatasetDialog(gui, this, "Add a new Dataset to: " + project.getName().getValue(), true, project, store);
+            new AddDatasetDialog(config, this, "Add a new Dataset to: " + project.getName().getValue(), true, project, store);
             refreshAndSetDataset(project);
         } 
         else if (e.getSource() == fullPathButton)
         {
-            gui.config.useFullPath.set(true);
+            config.useFullPath.set(true);
 
         }
         else if (e.getSource() == partPathButton)
         {
-            gui.config.useFullPath.set(false);
+            config.useFullPath.set(false);
         }
         else if (e.getSource() == cancelBtn)
         {
@@ -489,14 +490,14 @@ public class ImportDialog extends JDialog implements ActionListener
         {
             cancelled = false;
             importBtn.requestFocus();
-            gui.config.numOfDirectories.set(numOfDirectoriesField.getValue());
+            config.numOfDirectories.set(numOfDirectoriesField.getValue());
             dataset = ((DatasetItem) dbox.getSelectedItem()).getDataset();
             project = ((ProjectItem) pbox.getSelectedItem()).getProject();
-            gui.config.savedProject.set(
+            config.savedProject.set(
                     ((ProjectItem) pbox.getSelectedItem()).getProject().getId().getValue());
-            gui.config.savedDataset.set(dataset.getId().getValue());
-            gui.config.overrideImageName.set(!fileCheckBox.isSelected());
-            gui.config.savedFileNaming.set(fullPathButton.isSelected());
+            config.savedDataset.set(dataset.getId().getValue());
+            config.overrideImageName.set(!fileCheckBox.isSelected());
+            config.savedFileNaming.set(fullPathButton.isSelected());
             
             pixelSizeX = xPixelSize.getValue();
             pixelSizeY = yPixelSize.getValue();

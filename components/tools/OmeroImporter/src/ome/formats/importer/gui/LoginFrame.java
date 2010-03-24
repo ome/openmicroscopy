@@ -41,6 +41,8 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 
+import ome.formats.importer.ImportConfig;
+
 public class LoginFrame extends JFrame 
     implements ActionListener, PropertyChangeListener
 {
@@ -53,7 +55,7 @@ public class LoginFrame extends JFrame
 
     JFrame                  main;
     
-    GuiCommonElements       gui;
+    ImportConfig       		config;
 
     Integer                 loginHeight = 113;
     Integer                 loginWidth = 551;
@@ -88,13 +90,13 @@ public class LoginFrame extends JFrame
     
     public boolean          cancelled = true;
 
-    LoginFrame (GuiCommonElements gui, JFrame owner, JFrame main, String title, boolean modal, boolean center)
+    LoginFrame (ImportConfig config, JFrame owner, JFrame main, String title, boolean modal, boolean center)
     {   
         this.main = main;
-        this.gui = gui;
+        this.config = config;
         
         setTitle("Login");
-        setIconImage(gui.getImageIcon(GuiImporter.ICON).getImage());
+        setIconImage(GuiCommonElements.getImageIcon(GuiImporter.ICON).getImage());
 
         setLocation(200, 200);
         setResizable(false);
@@ -106,7 +108,7 @@ public class LoginFrame extends JFrame
         if (!center && GuiImporter.getSplashLocation() != null)
         {
             int offset = GuiImporter.getSplashLocation().y 
-                    + gui.getImageIcon(GuiImporter.splash).getIconHeight() + 5;
+                    + GuiCommonElements.getImageIcon(GuiImporter.splash).getIconHeight() + 5;
             setLocation(this.getX(), offset);           
         }
         setUndecorated(true);
@@ -116,27 +118,27 @@ public class LoginFrame extends JFrame
                 {{TableLayout.FILL, 100, 5, 100}, // columns
                 {TableLayout.FILL, 30}}; // rows
         
-        mainPanel = gui.addMainPanel(this, mainTable, 10,20,10,20, debug);
+        mainPanel = GuiCommonElements.addMainPanel(this, mainTable, 10,20,10,20, debug);
 
         // Add the login and quit buttons to the main panel
 
-        loginBtn = gui.addButton(mainPanel, "Login", 'L',
+        loginBtn = GuiCommonElements.addButton(mainPanel, "Login", 'L',
                 "Login", "1, 1, f, c", debug);
         loginBtn.addActionListener(this);
         
-        quitBtn = gui.addButton(mainPanel, "Quit", 'Q',
+        quitBtn = GuiCommonElements.addButton(mainPanel, "Quit", 'Q',
                 "Quit the Application", "3, 1, f, c", debug);
         quitBtn.addActionListener(this);
 
         this.getRootPane().setDefaultButton(loginBtn);
-        gui.enterPressesWhenFocused(loginBtn);
+        GuiCommonElements.enterPressesWhenFocused(loginBtn);
         
         // top table containing comment and server information
         double topTable[][] = 
                 {{245, 18, 220, 28}, // columns
                 {32, TableLayout.FILL}}; // rows
         
-        topPanel = gui.addMainPanel(this, topTable, 0,0,0,0, debug);
+        topPanel = GuiCommonElements.addMainPanel(this, topTable, 0,0,0,0, debug);
         
         String message = "Please Log In";
         
@@ -148,21 +150,21 @@ public class LoginFrame extends JFrame
         StyleConstants.setBold(style, true);
         StyleConstants.setFontSize(style, 18);
         
-        pleaseLogIn = gui.addTextPane(topPanel, message, "0, 0, l, c", 
+        pleaseLogIn = GuiCommonElements.addTextPane(topPanel, message, "0, 0, l, c", 
                 context, style, debug);
 
         style = context.getStyle(StyleContext.DEFAULT_STYLE);
         StyleConstants.setAlignment(style, StyleConstants.ALIGN_RIGHT);
         StyleConstants.setForeground(style, textColor);
         
-        String currentServer = gui.config.hostname.get();
-        List<String> serverList = gui.config.getServerList();
+        String currentServer = config.hostname.get();
+        List<String> serverList = config.getServerList();
         if (serverList == null || !serverList.contains(currentServer))
             currentServer = DEFAULT_SERVER_TEXT;
-        serverText = gui.addTextPane(topPanel, currentServer, "2, 0, r, c", 
+        serverText = GuiCommonElements.addTextPane(topPanel, currentServer, "2, 0, r, c", 
                 context, style, debug);
         
-        configBtn = gui.addButton(topPanel, "", 'X', "Config Server", "3, 0, c, c", debug);
+        configBtn = GuiCommonElements.addButton(topPanel, "", 'X', "Config Server", "3, 0, c, c", debug);
         configBtn.setText(null);
         
         configBtn.setBorderPainted(false);
@@ -172,17 +174,17 @@ public class LoginFrame extends JFrame
         configBtn.setOpaque(false);
         configBtn.setContentAreaFilled(false);
         
-        configBtn.setIcon(gui.getImageIcon("gfx/config.png"));
-        configBtn.setPressedIcon(gui.getImageIcon("gfx/config_pressed.png"));
+        configBtn.setIcon(GuiCommonElements.getImageIcon("gfx/config.png"));
+        configBtn.setPressedIcon(GuiCommonElements.getImageIcon("gfx/config_pressed.png"));
         
-        uname = gui.addTextField(topPanel, 
+        uname = GuiCommonElements.addTextField(topPanel, 
                 unameLabel, 
-                gui.config.username.get(), 'U',"Input your useername here.", "", 
+                config.username.get(), 'U',"Input your useername here.", "", 
                 TableLayout.PREFERRED, "0, 1, 0, 1", debug);
                 
-        pswd = gui.addPasswordField(topPanel, 
+        pswd = GuiCommonElements.addPasswordField(topPanel, 
                 pswdLabel, 
-                gui.config.password.get(), 'U',"Input your useername here.", "", 
+                config.password.get(), 'U',"Input your useername here.", "", 
                 TableLayout.PREFERRED, "2, 1, 3, 1", debug);
 
         style = context.getStyle(StyleContext.DEFAULT_STYLE);
@@ -191,7 +193,7 @@ public class LoginFrame extends JFrame
         StyleConstants.setFontSize(style, 12);
         StyleConstants.setBold(style, true);
         
-        versionInfo = gui.addTextPane(mainPanel, gui.config.getIniVersionNumber(), "0, 1, l, b", 
+        versionInfo = GuiCommonElements.addTextPane(mainPanel, config.getIniVersionNumber(), "0, 1, l, b", 
                 context, style, debug);
         
         // Add an action listener to the uname to move to pswd
@@ -211,7 +213,7 @@ public class LoginFrame extends JFrame
         // Add the tab panel to the main panel
         mainPanel.add(topPanel, "0, 0, 3, 0");
         
-        JLabel background = new JLabel(gui.getImageIcon("gfx/login_background.png"));
+        JLabel background = new JLabel(GuiCommonElements.getImageIcon("gfx/login_background.png"));
         background.setBorder(BorderFactory.createEmptyBorder());
         this.getRootPane().setBorder(null);
         JLayeredPane layers = new JLayeredPane();  //Default is absolute layout.
@@ -233,8 +235,8 @@ public class LoginFrame extends JFrame
     {
         if (e.getSource() == loginBtn)
         {
-            gui.config.username.set(uname.getText());
-            gui.config.password.set(new String(pswd.getPassword()));
+            config.username.set(uname.getText());
+            config.password.set(new String(pswd.getPassword()));
             //server = srvr.getText();
             //port = prt.getText();
             cancelled = false;
@@ -249,7 +251,7 @@ public class LoginFrame extends JFrame
 
         if(e.getSource() == configBtn)
         {
-            List<String> serverList = gui.config.getServerList();
+            List<String> serverList = config.getServerList();
             ServerDialog serverDialog = new ServerDialog(serverList);
             serverDialog.setLocationRelativeTo(main);
             serverDialog.addPropertyChangeListener(this);
@@ -272,9 +274,9 @@ public class LoginFrame extends JFrame
         String e = evt.getPropertyName();
         if (ServerDialog.REMOVE_PROPERTY.equals(e)) {
             String oldValue = (String) evt.getOldValue();
-            gui.config.removeServer(oldValue);
-            if (gui.config.hostname.get().equals(oldValue)) 
-                gui.config.hostname.set(DEFAULT_SERVER_TEXT);
+            config.removeServer(oldValue);
+            if (config.hostname.get().equals(oldValue)) 
+                config.hostname.set(DEFAULT_SERVER_TEXT);
         }
     }
     
