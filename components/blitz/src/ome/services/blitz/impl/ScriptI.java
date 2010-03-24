@@ -584,6 +584,11 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             // no processor running. This doesn't signal a bad script
             // like null params do, but rather just that we'll have to
             // generate the params later.
+        } catch (Exception e) {
+            // ticket:2044. Ignoring  other exceptions as well since these
+            // may be caused by processor misbehavior. Note: the same
+            // exception may be thrown again during execution
+            log.warn("Unexpected exception on updateFileWithParams", e);
         }
     }
 }
