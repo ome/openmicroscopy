@@ -1248,5 +1248,5 @@ class TreeViewerModel
 		PermissionData perm = g.getPermissions();
 		return 0;
 	}
-	
+
 }

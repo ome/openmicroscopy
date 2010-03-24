@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 import pojos.TagAnnotationData;
 import pojos.URLAnnotationData;
 
@@ -195,6 +196,10 @@ public class DataObjectListCellRenderer
 			DatasetData d = (DatasetData) value;
 			setText(d.getName());
 			setIcon(icons.getIcon(IconManager.DATASET));
+		} else if (value instanceof GroupData) {
+			GroupData d = (GroupData) value;
+			setText(d.getName());
+			setIcon(icons.getIcon(IconManager.GROUP));
 		}
 		return this;
 	}

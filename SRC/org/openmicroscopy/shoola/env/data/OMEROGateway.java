@@ -75,6 +75,7 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.system.UpgradeCheck;
+import omero.ApiUsageException;
 import omero.AuthenticationException;
 import omero.InternalException;
 import omero.RBool;
@@ -6216,28 +6217,45 @@ class OMEROGateway
 			Experimenter exp;
 			UserCredentials uc;
 			String password;
-			ExperimenterGroup g = object.getGroup().asGroup();
+			List<GroupData> groups = object.getGroups();
+			ExperimenterGroup g = null;
 			List<ExperimenterGroup> l = new ArrayList<ExperimenterGroup>();
+			if (groups != null && groups.size() >= 1) {
+				g = groups.get(0).asGroup();
+				Iterator<GroupData> j = groups.iterator();
+				while (j.hasNext()) 
+					l.add(((GroupData) j.next()).asGroup());
+			}
 			long id;
+			Experimenter value;
+			boolean systemGroup = false;
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				exp = (Experimenter) ModelMapper.createIObject(
 						(DataObject) entry.getKey());
 				uc = (UserCredentials) entry.getValue();
-				if (uc.isAdministrator()) 
-					l.add(getSystemGroup(GroupData.SYSTEM));
-				else l.add(getSystemGroup(GroupData.USER));
-				exp.setOmeName(omero.rtypes.rstring(uc.getUserName()));
-				password = uc.getPassword();
-				if (password != null && password.length() > 0) {
-					id = svc.createExperimenterWithPassword(exp, 
-							omero.rtypes.rstring(password), g, l);			
-				} else
-					id = svc.createExperimenter(exp, g, l);
-				exp = svc.getExperimenter(id);
-				if (uc.isOwner())
-					svc.setGroupOwner(g, exp);
-				results.add((ExperimenterData) PojoMapper.asDataObject(exp));
+				value = lookupExperimenter(uc.getUserName());
+				if (value == null) {
+					if (uc.isAdministrator()) 
+						l.add(getSystemGroup(GroupData.SYSTEM));
+					else l.add(getSystemGroup(GroupData.USER));
+					if (g == null) {
+						g = l.get(0);
+						systemGroup = true;
+					}
+					exp.setOmeName(omero.rtypes.rstring(uc.getUserName()));
+					password = uc.getPassword();
+					if (password != null && password.length() > 0) {
+						id = svc.createExperimenterWithPassword(exp, 
+								omero.rtypes.rstring(password), g, l);			
+					} else
+						id = svc.createExperimenter(exp, g, l);
+					exp = svc.getExperimenter(id);
+					if (uc.isOwner() && !systemGroup)
+						svc.setGroupOwner(g, exp);
+					results.add((ExperimenterData) 
+							PojoMapper.asDataObject(exp));
+				}
 			}
 		} catch (Exception e) {
 			handleException(e, "Cannot create the experimenters.");
@@ -6268,14 +6286,13 @@ class OMEROGateway
 			Experimenter exp;
 			UserCredentials uc;
 			String password;
-
-			ExperimenterGroup g = (ExperimenterGroup) ModelMapper.createIObject(
-					(DataObject) object.getGroup());
-
+			GroupData groupData = (GroupData) object.getGroup();
+			ExperimenterGroup g = lookupGroup(groupData.getName());
+			
+			if (g != null) return null; 
+				
+			g = (ExperimenterGroup) ModelMapper.createIObject(groupData);
 			long groupID = svc.createGroup(g);
-			
-			
-			
 			g = svc.getGroup(groupID);
 			int level = object.getPermissions();
 			if (level != AdminObject.PERMISSIONS_PRIVATE) {
@@ -6295,13 +6312,12 @@ class OMEROGateway
 				entry = (Entry) i.next();
 				uc = (UserCredentials) entry.getValue();
 				//Check if the experimenter already exist
-				value = svc.lookupExperimenter(uc.getUserName());
-				if (value != null && value.getId() != null) {
+				value = lookupExperimenter(uc.getUserName());
+				if (value != null) {
 					exp = value;
 				} else {
 					exp = (Experimenter) ModelMapper.createIObject(
 							(ExperimenterData) entry.getKey());
-					
 					if (uc.isAdministrator()) 
 						l.add(getSystemGroup(GroupData.SYSTEM));
 					else l.add(getSystemGroup(GroupData.USER));
@@ -6663,6 +6679,57 @@ class OMEROGateway
 				p.setWorldRead(true);
 				p.setWorldWrite(true);
 		}
+	}
+	
+	/**
+	 * Returns the group corresponding to the passed name or <code>null</code>.
+	 * 
+	 * @param name The name of the group.
+	 * @return See above
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	ExperimenterGroup lookupGroup(String name)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		IAdminPrx svc = getAdminService();
+		try {
+			return svc.lookupGroup(name);
+		} catch (Exception e) {
+			if (e instanceof ApiUsageException) 
+				return null;
+			handleException(e, "Cannot loade the required group.");
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the experimenter corresponding to the passed name or 
+	 * <code>null</code>.
+	 * 
+	 * @param name The name of the experimenter.
+	 * @return See above
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Experimenter lookupExperimenter(String name)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		IAdminPrx svc = getAdminService();
+		try {
+			return svc.lookupExperimenter(name);
+		} catch (Exception e) {
+			if (e instanceof ApiUsageException) 
+				return null;
+			handleException(e, "Cannot loade the required group.");
+		}
+		return null;
 	}
 	
 }

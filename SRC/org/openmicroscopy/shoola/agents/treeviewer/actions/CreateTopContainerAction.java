@@ -38,7 +38,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.CreateCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ProjectData;
@@ -221,7 +220,7 @@ public class CreateTopContainerAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
-    	if (nodeType == GROUP) {
+    	if (nodeType == GROUP || nodeType == EXPERIMENTER) {
     		setEnabled(TreeViewerAgent.isAdministrator());
     		return;
     	}
@@ -319,7 +318,7 @@ public class CreateTopContainerAction
 							withParent = model.isUserOwner(uo);
 						break;
 					case EXPERIMENTER:
-						if (uo instanceof ExperimenterData) withParent = true;
+						if (uo instanceof ExperimenterData) withParent = false;//true;
 					case TAG:
 						if (uo instanceof TagAnnotationData) {
 							TagAnnotationData tag = (TagAnnotationData) uo;

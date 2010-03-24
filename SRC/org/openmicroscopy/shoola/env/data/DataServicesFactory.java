@@ -445,7 +445,8 @@ public class DataServicesFactory
         			}
         		}
         	}
-        	registry.bind(LookupNames.USERS_DETAILS, exps);	 
+        	registry.bind(LookupNames.USERS_DETAILS, exps);	
+        	registry.bind(LookupNames.USER_ADMINISTRATOR, uc.isAdministrator());
 		} catch (DSAccessException e) {
 			throw new DSOutOfServiceException("Cannot retrieve groups", e);
 		}

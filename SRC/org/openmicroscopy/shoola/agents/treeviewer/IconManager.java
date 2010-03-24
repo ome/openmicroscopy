@@ -393,55 +393,55 @@ public class IconManager
     public static final int          PERSONAL = 112;
     
     /** The 48x48 <code>Personal</code> icon. */
-    public static final int          PERSONAL_48 = 112;
+    public static final int          PERSONAL_48 = 113;
     
     /** The <code>Plate Acquisition</code> icon. */
-    public static final int           PLATE_ACQUISITION = 113;
+    public static final int           PLATE_ACQUISITION = 114;
 
     /** The <code>Data Browser</code> icon. */
-    public static final int           DATA_BROWSER = 114;
+    public static final int           DATA_BROWSER = 115;
 
     /** The <code>Upload</code> icon. */
-    public static final int           UPLOAD = 115;
+    public static final int           UPLOAD = 116;
     
     /** The 48x48 <code>Upload</code> icon. */
-    public static final int           UPLOAD_48 = 116;
+    public static final int           UPLOAD_48 = 117;
 
     /** The <code>Admin</code> icon. */
-    public static final int           ADMIN = 117;
+    public static final int           ADMIN = 118;
     
     /** The <code>Registered Directory</code> icon. */
-    public static final int           DIRECTORY_REGISTERED = 118;
+    public static final int           DIRECTORY_REGISTERED = 119;
     
     /** The <code>Registered File</code> icon. */
-    public static final int           FILE_REGISTERED = 119;
+    public static final int           FILE_REGISTERED = 120;
     
     /** The <code>Unregistered Image</code> icon. */
-    public static final int           IMAGE_UNREGISTERED = 120;
+    public static final int           IMAGE_UNREGISTERED = 121;
     
     /** The <code>Password</code> icon. */
-    public static final int           PASSWORD = 121;
+    public static final int           PASSWORD = 122;
     
     /** The <code>48x48 Password</code> icon. */
-    public static final int           PASSWORD_48 = 122;
+    public static final int           PASSWORD_48 = 123;
     
     /** The <code>Owner not active</code> icon. */
-    public static final int           OWNER_NOT_ACTIVE = 123;
+    public static final int           OWNER_NOT_ACTIVE = 124;
     
     /** The <code>Owner</code> icon. */
-    public static final int           UP_DOWN_9_12 = 124;
+    public static final int           UP_DOWN_9_12 = 125;
     
     /** The <code>Image Directory</code> icon. */
-    public static final int           IMAGE_DIRECTORY = 125;
+    public static final int           IMAGE_DIRECTORY = 126;
     
     /** The <code>Unregistered Image Directory</code> icon. */
-    public static final int           IMAGE_DIRECTORY_UNREGISTERED = 126;
+    public static final int           IMAGE_DIRECTORY_UNREGISTERED = 127;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 126;
+    private static final int          MAX_ID = 127;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -563,7 +563,7 @@ public class IconManager
         relPaths[DOWNLOAD_22] = "nuvola_download_manager22.png";
         relPaths[APPLICATION_48] = "nuvola_download_manager48.png";
         relPaths[PERSONAL] = "nuvola_personal16.png";
-        relPaths[PERSONAL_48] = "nuvola_personal16.png";
+        relPaths[PERSONAL_48] = "nuvola_personal48.png";
         relPaths[PLATE_ACQUISITION] = "plateAcquisition16.png";
         relPaths[DATA_BROWSER] = "nuvola_kwrite16.png";//"plateAcquisition16.png";
         relPaths[UPLOAD] = "nuvola_download_manager_rotated16.png";

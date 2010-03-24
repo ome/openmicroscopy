@@ -74,8 +74,10 @@ import org.openmicroscopy.shoola.agents.treeviewer.util.ImportDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject;
 import org.openmicroscopy.shoola.agents.treeviewer.util.NotDeletedObjectDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.OpenWithDialog;
+import org.openmicroscopy.shoola.agents.util.browser.ContainerFinder;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
@@ -649,12 +651,25 @@ class TreeViewerComponent
 		}  else if ((object instanceof GroupData) || 
 				(object instanceof ExperimenterData)) {
 			Object uo = null;
+			Set<DataObject> nodes = null;
     		if (object instanceof ExperimenterData) {
     			TreeImageDisplay node = 
     				getSelectedBrowser().getLastSelectedDisplay();
-        		uo = node.getUserObject();
+        		uo = null;//node.getUserObject();
+        		ContainerFinder finder = new ContainerFinder(GroupData.class);
+        		getSelectedBrowser().accept(finder, 
+        				TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+        		 nodes = finder.getContainers();
+        		 if (nodes.size() == 0) {
+        			 //Notify user
+        			 UserNotifier un = 
+        				 TreeViewerAgent.getRegistry().getUserNotifier();
+        			 un.notifyInfo("Experimenter Creation", 
+        				"No group available. Please create a group first.");
+        			 return;
+        		 }
     		}
-			d = new AdminDialog(view, object.getClass(), uo);
+			d = new AdminDialog(view, object.getClass(), uo, nodes);
 		}
 		
 		if (d != null) {

@@ -28,17 +28,22 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JSeparator;
 import javax.swing.JTextField;
 
 
@@ -46,10 +51,15 @@ import javax.swing.JTextField;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.SelectionWizardUI;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * Displays the fields necessary to collect details about the user to create.
@@ -89,14 +99,18 @@ class ExperimenterPane
     /** The Button to display existing user as possible group owner. */
     private JButton					groupOwner;
     
+    /** The component used to select the groups. */
+    private SelectionWizardUI		selectionComponent;
+    
+    /** Flag indicating that the password is required. */
+    private boolean 				passwordRequired;
+    
     /** 
      * Initializes the components composing this display. 
      * 
-     * @param administrator Pass <code>true</code> to indicate that the
-     * 						user is an administrator, <code>false</code>
-     * 						otherwise.
+     * @param groups		The collection of groups is any available.
      */
-    private void initComponents(boolean administrator)
+    private void initComponents(Collection groups)
     {
     	passwordField = new JPasswordField();
     	passwordField.getDocument().addDocumentListener(this);
@@ -111,16 +125,21 @@ class ExperimenterPane
 		items = new LinkedHashMap<String, JTextField>();
 		activeBox = new JCheckBox();
 		activeBox.setSelected(true);
-		activeBox.setEnabled(!administrator);
+		activeBox.setEnabled(!passwordRequired);
 		adminBox = new JCheckBox();
-		adminBox.setVisible(administrator);
+		//adminBox.setVisible(administrator);
 		ownerBox = new JCheckBox();
-		ownerBox.setEnabled(!administrator);
-		ownerBox.setSelected(administrator);
+		ownerBox.setEnabled(passwordRequired);
+		ownerBox.setSelected(!passwordRequired);
 		IconManager icons = IconManager.getInstance();
 		groupOwner = new JButton(icons.getIcon(IconManager.USER_GROUP));
 		groupOwner.setToolTipText("Select an existing user as owner");
-		groupOwner.setVisible(administrator);
+		groupOwner.setVisible(passwordRequired);
+		if (groups != null && groups.size() > 0) {
+			long userID = TreeViewerAgent.getUserDetails().getId();
+			selectionComponent = new SelectionWizardUI(groups,
+					GroupData.class, userID);
+		}
     }
     
     /**
@@ -173,7 +192,10 @@ class ExperimenterPane
         }
         c.gridx = 0;
         c.gridy++;
-        label = UIUtilities.setTextFont("Password"+EditorUtil.MANDATORY_SYMBOL);
+        if (passwordRequired)
+        	label = UIUtilities.setTextFont("Password"+
+        			EditorUtil.MANDATORY_SYMBOL);
+        else label = UIUtilities.setTextFont("Password");
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
         c.fill = GridBagConstraints.NONE;      //reset to default
         c.weightx = 0.0;  
@@ -241,13 +263,7 @@ class ExperimenterPane
         content.add(label, c);
         return content;
     }
-    
-    private JPanel buildStatus()
-    {
-    	JPanel p = new JPanel();
-    	return p;
-    }
-    
+
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
@@ -261,21 +277,36 @@ class ExperimenterPane
 		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
 		c.weightx = 1.0;  
     	add(buildContentPanel(), c);
+    	if (selectionComponent != null) {
+    		
+    		JPanel p = new JPanel();
+    		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+    		p.add(UIUtilities.buildComponentPanel(
+    				UIUtilities.setTextFont("Select the group(s) to add the " +
+    				"Experimenter to")));
+    		p.add(selectionComponent);
+    		c.gridy++;
+    		add(new JSeparator(), c);
+    		c.gridy++;
+    		add(p, c);
+    	}
     }
 
     /** 
      * Creates a new instance. 
      * 
-     * @param administrator Pass <code>true</code> to indicate that the
-     * 						user is an administrator, <code>false</code>
-     * 						otherwise.
+     * @param passwordRequired 	Pass <code>true</code> to indicate that a
+     * 							password is required, <code>false</code>
+     * 							otherwise.
+     * @param groups		The available groups.
      */
-    ExperimenterPane(boolean administrator)
+    ExperimenterPane(boolean passwordRequired, Collection<DataObject> groups)
     {
-    	initComponents(administrator);
+    	this.passwordRequired = passwordRequired;
+    	initComponents(groups);
     	buildGUI();
     }
-
+    
 	/**
 	 * Returns the experimenter to save.
 	 * 
@@ -283,11 +314,18 @@ class ExperimenterPane
 	 */
 	Map<ExperimenterData, UserCredentials> getObjectToSave()
 	{
+		JTextField field = items.get(EditorUtil.DISPLAY_NAME);
+		String s = field.getText().trim();
+		
 		ExperimenterData data = new ExperimenterData();
-		JTextField field = items.get(EditorUtil.FIRST_NAME);
-		data.setFirstName(field.getText().trim());
+		field = items.get(EditorUtil.FIRST_NAME);
+		String value = field.getText().trim();
+		if (value.length() == 0) value = s;
+		data.setFirstName(value);
 		field = items.get(EditorUtil.LAST_NAME);
-		data.setLastName(field.getText().trim());
+		value = field.getText().trim();
+		if (value.length() == 0) value = s;
+		data.setLastName(s);
 		field = items.get(EditorUtil.MIDDLE_NAME);
 		//data.setMiddleName(field.getText().trim());
 		field = items.get(EditorUtil.EMAIL);
@@ -298,20 +336,47 @@ class ExperimenterPane
 		Map<ExperimenterData, UserCredentials> m = 
 			new HashMap<ExperimenterData, UserCredentials>();
 		
-		field = items.get(EditorUtil.DISPLAY_NAME);
-		String s = field.getText().trim();
 		StringBuffer buf = new StringBuffer();
 		buf.append(passwordField.getPassword());
 		
 		if (s == null || s.length() == 0) return m;
 		String pass = buf.toString();
-		if (pass == null || pass.length() == 0) return m;
+		if (passwordRequired) {
+			if (pass == null || pass.length() == 0 )  {
+				UserNotifier un =
+					TreeViewerAgent.getRegistry().getUserNotifier();
+				un.notifyInfo("Create Experimenter", "Please Enter a Password");
+				return m;
+			}
+		}
 		UserCredentials uc = new UserCredentials(s, pass);
 		uc.setAdministrator(adminBox.isSelected());
 		uc.setOwner(ownerBox.isSelected());
-		
 		m.put(data, uc);
 		return m;
 	}
     
+	/**
+	 * Returns the selected groups.
+	 * 
+	 * @return See above.
+	 */
+	List<GroupData> getSelectedGroups()
+	{
+		List<GroupData> groups = new ArrayList<GroupData>();
+		if (selectionComponent != null) {
+			Collection l = selectionComponent.getSelection();
+			if (l != null) {
+				Iterator i = l.iterator();
+				Object o;
+				while (i.hasNext()) {
+					o = i.next();
+					if (o instanceof GroupData)
+						groups.add((GroupData) o);
+				}
+			}
+		}
+		return groups;
+	}
+	
 }

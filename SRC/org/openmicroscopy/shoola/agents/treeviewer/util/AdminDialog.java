@@ -26,12 +26,14 @@ package org.openmicroscopy.shoola.agents.treeviewer.util;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -44,10 +46,15 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -86,7 +93,7 @@ public class AdminDialog
 	
 	/** The text displayed if the object to create is a group. */
 	private static final String TEXT_EXPERIMENTER = 
-		"Create a new Experimenter. Add him/her to ";
+		"Create a new Experimenter.";
 	
 	/** Action ID to close the dialog. */
 	private static final int CANCEL = 0;
@@ -131,6 +138,43 @@ public class AdminDialog
 		dispose();
 	}
 	
+	/**
+	 * Returns <code>true</code> if the name of the group already exists,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	private boolean isExistingObject(String name, boolean group)
+	{
+		AdminService svc = TreeViewerAgent.getRegistry().getAdminService();
+		try {
+			if (group) return svc.lookupGroup(name) != null;
+			return svc.lookupExperimenter(name) != null;
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return true;
+	}
+	
+	/**
+	 * Notifies that a group with same name already exists if the passed
+	 * value is <code>true</code>, that an experimenter with the same name
+	 * already exists if the passed value is <code>false</code>.
+	 * 
+	 * @param group Pass <code>true</code> to indicate that the message is
+	 * 				related to a group, <code>false</code> if related to an
+	 * 				experimenter.
+	 */
+	private void notifyUser(boolean group)
+	{
+		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+		StringBuffer text = new StringBuffer();
+		if (group) text.append("This Group name already exists.");
+		else text.append("This Experimenter name already exists.");
+		text.append("\nPlease choose another name.");
+		un.notifyInfo("Admin Error", text.toString());
+	}
+	
 	/** Saves the data. */
 	private void save()
 	{
@@ -138,12 +182,63 @@ public class AdminDialog
 		if (body instanceof GroupPane) {
 			object = ((GroupPane) body).getObjectToSave();
 		} else if (body instanceof ExperimenterPane) {
-			Map<ExperimenterData, UserCredentials> m =
-				((ExperimenterPane) body).getObjectToSave();
-			object = new AdminObject((GroupData) parent, m, 
-					AdminObject.CREATE_EXPERIMENTER);
+			ExperimenterPane pane = (ExperimenterPane) body;
+			Map<ExperimenterData, UserCredentials> m = pane.getObjectToSave();
+			if (m.size() == 0) {
+				/*
+				UserNotifier un = 
+					TreeViewerAgent.getRegistry().getUserNotifier();
+				un.notifyInfo("Create Experimenter", 
+						"No experimenter to create");
+						*/
+				return;
+			}
+			object = new AdminObject(m, AdminObject.CREATE_EXPERIMENTER);
+			object.setGroups(pane.getSelectedGroups());
 		}
 		if (object == null) return;
+		//Check if group already exist.
+		Entry entry;
+		Iterator i;
+		UserCredentials uc;
+		Map<ExperimenterData, UserCredentials>  map;
+		boolean b = false;
+		switch (object.getIndex()) {
+			case AdminObject.CREATE_GROUP:
+				b = isExistingObject(object.getGroup().getName(), true);
+				if (b) {
+					notifyUser(true);
+					return;
+				}
+				/*
+				map = object.getExperimenters();
+				if (map != null) {
+					i = map.entrySet().iterator();
+					while (i.hasNext()) {
+						entry = (Entry) i.next();
+						uc = (UserCredentials) entry.getValue();
+						b = isExistingObject(uc.getUserName(), false);
+						if (b) {
+							notifyUser(false);
+							break;
+						}
+					}
+				}
+				*/
+				break;
+			case AdminObject.CREATE_EXPERIMENTER:
+				map = object.getExperimenters();
+				i = map.entrySet().iterator();
+				while (i.hasNext()) {
+					entry = (Entry) i.next();
+					uc = (UserCredentials) entry.getValue();
+					b = isExistingObject(uc.getUserName(), false);
+					if (b) {
+						notifyUser(false);
+						return;
+					}
+				}
+		}
 		firePropertyChange(CREATE_ADMIN_PROPERTY, null, object);
 		cancel();
 	}
@@ -174,14 +269,14 @@ public class AdminDialog
 		TitlePanel tp = null;
 		if (GroupData.class.equals(type)) {
 			tp = new TitlePanel(getTitle(), TEXT_GROUP, 
-					icons.getIcon(IconManager.CREATE_48));
+					icons.getIcon(IconManager.PERSONAL_48));
 		} else if (ExperimenterData.class.equals(type)) {
 			String text = TEXT_EXPERIMENTER;
 			if (parent instanceof GroupData) {
 				text += ((GroupData) parent).getName();
 			}
 			tp = new TitlePanel(getTitle(), text, 
-					icons.getIcon(IconManager.CREATE_48));
+					icons.getIcon(IconManager.OWNER_48));
 		}
 		return tp;
 	}
@@ -214,18 +309,20 @@ public class AdminDialog
 	/** 
 	 * Creates a new instance.
 	 * 
-	 * @param owner The owner of the frame.
-	 * @param type  The type of object to create.
+	 * @param owner  The owner of the frame.
+	 * @param type   The type of object to create.
 	 * @param parent The parent of the data object or <code>null</code>.
+	 * @param groups The groups to add the experimenter to.
 	 */
-	public AdminDialog(JFrame owner, Class type, Object parent)
+	public AdminDialog(JFrame owner, Class type, Object parent, 
+			Collection<DataObject> groups)
 	{
 		super(owner);
 		setProperties(type);
 		this.type = type;
 		this.parent = parent;
 		if (ExperimenterData.class.equals(type)) {
-			body = new ExperimenterPane(false);
+			body = new ExperimenterPane(true, groups);
 		} else if (GroupData.class.equals(type)) {
 			body = new GroupPane();
 		}
@@ -264,6 +361,5 @@ public class AdminDialog
 			save.setEnabled((Boolean) evt.getNewValue());
 		}
 	}
-	
 	
 }

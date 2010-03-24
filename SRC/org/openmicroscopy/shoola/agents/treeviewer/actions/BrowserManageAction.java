@@ -41,6 +41,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import com.mdl.dbbrowser.client.SetSortDialog;
+
 import pojos.ExperimenterData;
 
 /**
@@ -161,8 +163,10 @@ public class BrowserManageAction
     		if (!TreeViewerAgent.isAdministrator()) {
     			setEnabled(false);
     			return;
+    		} else {
+    			setEnabled(true);
+    			return;
     		}
-    			
     	}
     	if (selectedDisplay == null) {
     		handleExperimenter(model.getLastSelectedDisplay());

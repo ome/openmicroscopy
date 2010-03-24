@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.env.data.model;
 
 
 //Java imports
+import java.util.List;
 import java.util.Map;
 
 //Third-party libraries
@@ -104,7 +105,10 @@ public class AdminObject
 	 * Can be the group to create or the group to add the experimenters to
 	 * depending on the index.
 	 */
-	private GroupData group;
+	private GroupData 		group;
+	
+	/** The collection of groups to create. */
+	private List<GroupData> groups;
 	
 	/** 
 	 * Can be the owners of the group or the experimenters to create
@@ -133,6 +137,18 @@ public class AdminObject
 		this.experimenters = experimenters;
 		this.index = index;
 		this.permissions = -1;
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param experimenters The experimenters to handle.
+	 * @param index One of the constants defined by this class.
+	 */
+	public AdminObject(Map<ExperimenterData, UserCredentials> experimenters, 
+			int index)
+	{
+		this(null, experimenters, index);
 	}
 
 	/**
@@ -180,6 +196,19 @@ public class AdminObject
 	 */
 	public GroupData getGroup() { return group; }
 	
+	/**
+	 * Sets the groups.
+	 * 
+	 * @param groups The value to handle.
+	 */
+	public void setGroups(List<GroupData> groups) { this.groups = groups; }
+	
+	/**
+	 * Returns the groups to add the new users to.
+	 * 
+	 * @return See above.
+	 */
+	public List<GroupData> getGroups() { return groups; }
 	
 	/**
 	 * Returns one of the constants defined by this class.

@@ -32,37 +32,35 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout; 
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
+
+import pojos.DataObject;
 import pojos.TagAnnotationData;
 
 /** 
@@ -80,68 +78,27 @@ import pojos.TagAnnotationData;
  */
 public class SelectionWizard 
 	extends JDialog 
-	implements ActionListener, DocumentListener
+	implements ActionListener, DocumentListener, PropertyChangeListener
 {
 	
 	/** Bound property indicating the selected items. */
 	public static final String		SELECTED_ITEMS_PROPERTY = "selectedItems";
 	
-	/** Action command ID to add a field to the result table. */
-	private static final int 		ADD = 0;
-	
-	/** Action command ID to remove a field from the result table. */
-	private static final int 		REMOVE = 1;
-	
-	/** Action command ID to add all fields to the result table. */
-	private static final int 		ADD_ALL = 2;
-	
-	/** Action command ID to remove all fields from the result table. */
-	private static final int 		REMOVE_ALL = 3;
 	
 	/** Action command ID to Accept the current field selection. */
-	private static final int 		ACCEPT = 4;
+	private static final int 		ACCEPT = 0;
 
 	/** Action command ID to cancel the wizard. */
-	private static final int 		CANCEL = 5;
+	private static final int 		CANCEL = 1;
 	
 	/** Action command ID to reset the current field selection. */
-	private static final int 		RESET = 6;
+	private static final int 		RESET = 2;
 	
 	/** Action command ID to add new object to the selection. */
-	private static final int 		ADD_NEW = 7;
+	private static final int 		ADD_NEW = 3;
 	
 	/** The default size. */
 	private static final Dimension 	DEFAULT_SIZE = new Dimension(500, 500);
-	
-	/** The original items before the user selects items. */
-	private List<Object>		originalItems;
-	
-	/** The original selected items before the user selects items. */
-	private List<Object>		originalSelectedItems;
-	
-	/** Collection of available items. */
-	private Collection<Object>	availableItems;
-
-	/** Collection of all the selected items. */
-	private Collection<Object>	selectedItems;
-	
-	/** The list box showing the available items. */
-	private JList				availableItemsListbox;
-	
-	/** The list box showing the selected items. */
-	private JList				selectedItemsListbox;
-	
-	/** The button to move an item from the remaining items to current items. */
-	private JButton 			addButton;
-	
-	/** The button to move an item from the current items to remaining items. */
-	private JButton 			removeButton;
-	
-	/** The button to move all items to the current items. */
-	private JButton 			addAllButton;
-	
-	/** The button to move all items to the remaining items. */
-	private JButton 			removeAllButton;
 	
 	/** The button to accept the current selection. */
 	private JButton 			acceptButton;
@@ -152,9 +109,6 @@ public class SelectionWizard
 	/** The button to cancel the current selection. */
 	private JButton 			cancelButton;
 	
-	/** Sorts the object. */
-	private ViewerSorter		sorter;
-	
 	/** The type to handle. */
 	private Class				type;
 	
@@ -164,26 +118,17 @@ public class SelectionWizard
 	/** The component used to add new objects. */
 	private JTextField			addField;
 	
+	/** The component displaying the selection. */
+	private SelectionWizardUI 	uiDelegate;
+	
 	/** 
 	 * Initializes the components composing the display. 
 	 * 
 	 * @param userID The id of the user currently logged in.
 	 */
-	private void initComponents(long userID)
+	private void initComponents()
 	{
-		sorter = new ViewerSorter();
-		availableItemsListbox = new JList();
-		DataObjectListCellRenderer rnd = new DataObjectListCellRenderer(userID);
-		availableItemsListbox.setCellRenderer(rnd);
-		selectedItemsListbox = new JList();
-		selectedItemsListbox.setCellRenderer(rnd);
-		IconManager icons = IconManager.getInstance();
-		addButton = new JButton(icons.getIcon(IconManager.RIGHT_ARROW));
-		removeButton = new JButton(icons.getIcon(IconManager.LEFT_ARROW));
-		addAllButton = new JButton(
-								icons.getIcon(IconManager.DOUBLE_RIGHT_ARROW));
-		removeAllButton = new JButton(
-								icons.getIcon(IconManager.DOUBLE_LEFT_ARROW));
+		
 		acceptButton = new JButton("Accept");
 		acceptButton.setToolTipText("Accept the selection.");
 		cancelButton = new JButton("Cancel");
@@ -197,14 +142,6 @@ public class SelectionWizard
 		addNewButton.setActionCommand(""+ADD_NEW);
 		addNewButton.addActionListener(this);
 		
-		addButton.setActionCommand(""+ADD);
-		addButton.addActionListener(this);
-		addAllButton.setActionCommand(""+ADD_ALL);
-		addAllButton.addActionListener(this);
-		removeButton.setActionCommand(""+REMOVE);
-		removeButton.addActionListener(this);
-		removeAllButton.setActionCommand(""+REMOVE_ALL);
-		removeAllButton.addActionListener(this);
 		acceptButton.setActionCommand(""+ACCEPT);
 		acceptButton.addActionListener(this);
 		acceptButton.setEnabled(false);
@@ -229,136 +166,6 @@ public class SelectionWizard
 		addField.getDocument().addDocumentListener(this);
 		//getRootPane().setDefaultButton(cancelButton);
 	}
-
-	/** Creates a copy of the original selections. */
-	private void createOriginalSelections()
-	{
-		originalItems = new ArrayList<Object>();
-		if (availableItems != null) {
-			for (Object item : availableItems)
-				originalItems.add(item);
-		}
-		
-		originalSelectedItems  = new ArrayList<Object>();
-		if (selectedItems != null) {
-			for (Object item : selectedItems)
-				originalSelectedItems.add(item);
-		}
-	}
-	
-	/** Adds an item to the list and then sorts the list to maintain order.  */
-	private void addItem()
-	{
-		if (availableItemsListbox.getSelectedIndex() == -1) return;
-		int [] indexes = availableItemsListbox.getSelectedIndices();
-		DefaultListModel model = 
-				(DefaultListModel) availableItemsListbox.getModel();
-		Object object;
-		for (int i = 0 ; i < indexes.length ; i++) {
-			object = model.getElementAt(indexes[i]);
-			if (availableItems.contains(object)) {
-				selectedItems.add(object);
-				availableItems.remove(object);
-			}
-		}
-		sortLists();
-		populateSelectedItems();
-		populateAvailableItems();
-		setButtonsEnabled();
-	}
-	
-	/** Sorts the lists. */
-	private void sortLists()
-	{
-		if (availableItems != null) 
-			availableItems = sorter.sort(availableItems);
-		if (selectedItems != null) selectedItems = sorter.sort(selectedItems);
-	}
-	
-	/** Adds all the items to the selection. */
-	private void addAllItems()
-	{
-		//selectedItems.clear();
-		for (Object item: availableItems)
-			selectedItems.add(item);
-		availableItems.clear();
-		sortLists();
-		populateAvailableItems();
-		populateSelectedItems();
-		setButtonsEnabled();
-	}
-	
-	/** Removes an item from the selection. */
-	private void removeItem()
-	{
-		if (selectedItemsListbox.getSelectedIndex() == -1) return;
-		DefaultListModel model = (DefaultListModel)
-									selectedItemsListbox.getModel();
-		int [] indexes = selectedItemsListbox.getSelectedIndices();
-		Object object; 
-		TagAnnotationData tag;
-		for (int i = 0 ; i < indexes.length ; i++) {
-			object = model.getElementAt(indexes[i]);
-			if (selectedItems.contains(object)) {
-				selectedItems.remove(object);
-				if (TagAnnotationData.class.equals(type)) {
-					tag = (TagAnnotationData) object;
-					if (tag.getId() > 0) availableItems.add(object);
-				} else {
-					availableItems.add(object);
-				}
-			}
-		}
-		
-		sortLists();	
-		populateAvailableItems();
-		populateSelectedItems();
-		setButtonsEnabled();
-	}
-	
-	/** Removes all items from the selection. */
-	private void removeAllItems()
-	{
-		if (TagAnnotationData.class.equals(type)) {
-			TagAnnotationData tag;
-			for (Object item: selectedItems) {
-				tag = (TagAnnotationData) item;
-				if (tag.getId() > 0)
-					availableItems.add(item);
-			}
-		} else {
-			for (Object item: selectedItems)
-				availableItems.add(item);
-		}
-		
-		selectedItems.clear();
-		sortLists();
-		populateAvailableItems();
-		populateSelectedItems();
-		setButtonsEnabled();
-	}
-	
-	/**
-	 * Sets the enabled flag of the {@link #acceptButton} and
-	 * {@link #resetButton}
-	 */
-	private void setButtonsEnabled()
-	{
-		if (originalSelectedItems.size() != selectedItems.size()) {
-			acceptButton.setEnabled(true);
-			resetButton.setEnabled(true);
-		} else {
-			boolean b = false;
-			int n = 0;
-			Iterator i = selectedItems.iterator();
-			while (i.hasNext()) {
-				if (originalSelectedItems.contains(i.next())) n++;
-			}
-			b = (n != originalSelectedItems.size());
-			acceptButton.setEnabled(b);
-			resetButton.setEnabled(b);
-		}
-	}
 	
 	/** Closes and disposes. */
 	private void cancel()
@@ -372,42 +179,9 @@ public class SelectionWizard
 	{
 		Map<Class, Collection<Object>> 
 			r = new HashMap<Class, Collection<Object>>();
-		r.put(type, selectedItems);
+		r.put(type, uiDelegate.getSelection());
 		firePropertyChange(SELECTED_ITEMS_PROPERTY, null, r);
 		cancel();
-	}
-	
-	/** Resets the selection to the original selection. */
-	private void reset()
-	{
-		availableItems.clear();
-		selectedItems.clear();
-		for (Object item : originalItems)
-			availableItems.add(item);
-		for (Object item : originalSelectedItems)
-			selectedItems.add(item);
-		
-		populateAvailableItems();
-		populateSelectedItems();
-		setButtonsEnabled();
-	}
-	
-	/**
-	 * Builds and lays out the selection components.
-	 * 
-	 * @return See above.
-	 */
-	private JPanel layoutSelectionPane()
-	{
-		JPanel container = new JPanel();
-		container.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		double[][] size = {{TableLayout.FILL, 40, TableLayout.FILL},
-				{TableLayout.FILL}};
-		container.setLayout(new TableLayout(size));
-		container.add(createAvailableItemsPane(), "0, 0");
-		container.add(createSelectionPane(), "1, 0, CENTER, CENTER");
-		container.add(createSelectedItemsPane(), "2, 0");
-		return container;
 	}
 	
 	/** 
@@ -423,11 +197,11 @@ public class SelectionWizard
 		c.setLayout(new BorderLayout());
 		
 		if (!addCreation || !TagAnnotationData.class.equals(type)) 
-			c.add(layoutSelectionPane(), BorderLayout.CENTER);
+			c.add(uiDelegate, BorderLayout.CENTER);
 		else {
 			JPanel container = new JPanel();
 			container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
-			container.add(layoutSelectionPane());
+			container.add(uiDelegate);
 			container.add(createAdditionPane());
 			c.add(container, BorderLayout.CENTER);
 		}
@@ -450,41 +224,6 @@ public class SelectionWizard
 		return UIUtilities.buildComponentPanelRight(controlPanel);
 	}
 	
-	/**
-	 * Builds and lays out the list of selected tags.
-	 * 
-	 * @return See above.
-	 */
-	private JPanel createSelectedItemsPane()
-	{
-		JPanel p = new JPanel();
-		p.setLayout(new BorderLayout());
-		p.add(UIUtilities.setTextFont("Selected:"), BorderLayout.NORTH);
-		p.add(new JScrollPane(selectedItemsListbox), BorderLayout.CENTER);
-		populateSelectedItems();
-		return p;
-	}
-	
-	/**
-	 * Builds and lays out the buttons used to select tags.
-	 * 
-	 * @return See above.
-	 */
-	private JPanel createSelectionPane()
-	{
-		JPanel buttonPanel = new JPanel();
-		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
-		buttonPanel.add(Box.createVerticalStrut(30));
-		buttonPanel.add(addButton);
-		buttonPanel.add(Box.createVerticalStrut(10));
-		buttonPanel.add(removeButton);
-		buttonPanel.add(Box.createVerticalStrut(10));
-		buttonPanel.add(addAllButton);
-		buttonPanel.add(Box.createVerticalStrut(10));
-		buttonPanel.add(removeAllButton);
-		buttonPanel.add(Box.createVerticalStrut(10));
-		return buttonPanel;
-	}
 	
 	/**
 	 * Builds and lays out the component to add new objects to the selection.
@@ -516,54 +255,6 @@ public class SelectionWizard
 		return UIUtilities.buildComponentPanel(p);
 	}
 	
-	/**
-	 * Builds and lays out the available tags.
-	 * 
-	 * @return See above.
-	 */
-	private JPanel createAvailableItemsPane()
-	{
-		JPanel p = new JPanel();
-		p.setLayout(new BorderLayout());
-		p.add(UIUtilities.setTextFont("Available:"), BorderLayout.NORTH);
-		p.add(new JScrollPane(availableItemsListbox), BorderLayout.CENTER);
-		populateAvailableItems();
-		return p;
-	}
-	
-	/** Updates the currentFields list box. */
-	private void populateAvailableItems()
-	{
-	    DefaultListModel listModel = new DefaultListModel();
-		for (Object item : availableItems)
-			listModel.addElement(item);
-		availableItemsListbox.setModel(listModel);
-	}
-	
-	/**
-	 * Returns <code>true</code> if an object object of the same type 
-	 * already exist in the list, <code>false</code> otherwise.
-	 * 
-	 * @param object The object to handle.
-	 * @return See above.
-	 */
-	private boolean doesTagExist(TagAnnotationData object)
-	{
-		Iterator<Object> i = availableItems.iterator();
-		TagAnnotationData ob;
-		String value = object.getTagValue();
-		while (i.hasNext()) {
-			ob = (TagAnnotationData) i.next();
-			if (ob.getTagValue().equals(value)) return true;
-		}
-		i = selectedItems.iterator();
-		while (i.hasNext()) {
-			ob = (TagAnnotationData) i.next();
-			if (ob.getTagValue().equals(value)) return true;
-		}
-		return false;
-	}
-	
 	/** Adds new objects to the selection list. */
 	private void addNewObjects()
 	{
@@ -572,28 +263,17 @@ public class SelectionWizard
 			if (text == null || text.trim().length() == 0) return;
 			String[] names = text.split(SearchUtil.COMMA_SEPARATOR);
 			TagAnnotationData data;
+			List<DataObject> objects = new ArrayList<DataObject>();
 			for (int i = 0; i < names.length; i++) {
 				if (names[i] != null && names[i].length() > 0) {	
-					data = new TagAnnotationData(names[i].trim());
-					if (!doesTagExist(data))
-						selectedItems.add(data);
+					objects.add(new TagAnnotationData(names[i].trim()));
+					//if (!doesTagExist(data))
+					//	selectedItems.add(data);
 				}
 			}
+			uiDelegate.addObjects(objects);
+			addField.setText("");
 		}
-		sortLists();	
-		populateSelectedItems();
-		addField.setText("");
-		setButtonsEnabled();
-	}
-	
-	/** Updates the remaining fields list box. */
-	private void populateSelectedItems()
-	{
-	    DefaultListModel listModel = new DefaultListModel();
-		for (Object item : selectedItems)
-			listModel.addElement(item);
-		
-		selectedItemsListbox.setModel(listModel);
 	}
 	
 	/**
@@ -619,7 +299,7 @@ public class SelectionWizard
 	 * @param addCreation	Pass <code>true</code> to add a component
 	 * 						allowing creation of object of the passed type,
 	 * 						<code>false</code> otherwise.
-	 * @param userID        The if of the current user.
+	 * @param userID        The id of the current user.
 	 */
 	public SelectionWizard(JFrame owner, Collection<Object> available, 
 						Class type, boolean addCreation, long userID)
@@ -660,14 +340,10 @@ public class SelectionWizard
 	{
 		super(owner);
 		setModal(true);
-		if (selected == null) selected = new ArrayList<Object>();
-		if (available == null) available = new ArrayList<Object>();
-		this.availableItems = available;
-		this.selectedItems = selected;
+		uiDelegate = new SelectionWizardUI(available, selected, type, userID);
+		uiDelegate.addPropertyChangeListener(this);
 		this.type = type;
-		createOriginalSelections();
-		initComponents(userID);
-		sortLists();
+		initComponents();
 		buildUI(addCreation);
 		setSize(DEFAULT_SIZE);
 	}
@@ -709,18 +385,6 @@ public class SelectionWizard
 	{
 		int id = Integer.parseInt(evt.getActionCommand());
 		switch (id) {
-			case ADD:
-				addItem();
-				break;
-			case ADD_ALL:
-				addAllItems();
-				break;
-			case REMOVE:
-				removeItem();
-				break;
-			case REMOVE_ALL:
-				removeAllItems();
-				break;
 			case ACCEPT:
 				accept();
 				break;
@@ -728,7 +392,7 @@ public class SelectionWizard
 				cancel();
 				break;
 			case RESET:
-				reset();
+				uiDelegate.reset();
 				break;
 			case ADD_NEW:
 				addNewObjects();
@@ -767,11 +431,24 @@ public class SelectionWizard
 		addNewButton.setEnabled(b);
 	}
 
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (SelectionWizardUI.SELECTION_CHANGE.equals(name)) {
+			Boolean b = (Boolean) evt.getNewValue();
+			acceptButton.setEnabled(b.booleanValue());
+			resetButton.setEnabled(b.booleanValue());
+		}
+	}
+	
 	/**
 	 * Required by the {@link DocumentListener} I/F but no-op implementation 
 	 * in our case.
 	 * @see DocumentListener#changedUpdate(DocumentEvent)
 	 */
 	public void changedUpdate(DocumentEvent e) {}
+
+
+
 
 }

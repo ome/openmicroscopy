@@ -476,11 +476,14 @@ public class IconManager
     /** The <code>Tag</code> icon. */
     public static final int	TAG_SET_OTHER_OWNER = 136;
     
+    /** ID of the <code>Group</code> icon. */
+    public static final int GROUP = 137;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 136;
+    private static int      MAX_ID = 137;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -625,6 +628,7 @@ public class IconManager
         relPaths[ZOOM_IN] = "nuvola_viewmag+16.png";
         relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
         relPaths[TAG_SET_OTHER_OWNER] = "nuvola_knotesRed_group16.png";
+        relPaths[GROUP] = "nuvola_personal16.png";
     }
 	
 	/**

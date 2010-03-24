@@ -184,6 +184,29 @@ class GroupProfile
     }
     
     /**
+     * Builds and lays out the component displaying the owners of the group.
+     * 
+     * @return See above.
+     */
+    private JPanel buildOwnersPane()
+    {
+    	JPanel p = new JPanel();
+    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	GroupData group = (GroupData) model.getRefObject();
+    	Set leaders = group.getLeaders();
+    	if (leaders == null || leaders.size() == 0) return p;
+    	p.setBorder(BorderFactory.createTitledBorder("Owners"));
+    	
+    	Iterator i = leaders.iterator();
+    	ExperimenterData exp;
+    	while (i.hasNext()) {
+			exp = (ExperimenterData) i.next();
+			p.add(new JLabel(exp.getFirstName()+" "+exp.getLastName()));
+		}
+    	return p;
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param model	Reference to the model. Mustn't be <code>null</code>. 
@@ -227,10 +250,12 @@ class GroupProfile
 		removeAll();
     	initComponents();
 		double[][] size = {{TableLayout.FILL}, 
-				{TableLayout.PREFERRED, TableLayout.PREFERRED}};
+				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
+			TableLayout.PREFERRED}};
 		setLayout(new TableLayout(size));
 		add(buildContentPanel(), "0, 0");
 		add(permissionsPane, "0, 1");
+		add(buildOwnersPane(), "0, 2");
 	}
 
 	/**

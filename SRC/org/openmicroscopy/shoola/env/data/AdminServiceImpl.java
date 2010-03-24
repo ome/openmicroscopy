@@ -44,6 +44,8 @@ import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.util.PojoMapper;
+
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.PermissionData;
@@ -621,6 +623,32 @@ class AdminServiceImpl
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#isExistingExperimenter(String)
+	 */
+	public ExperimenterData lookupExperimenter(String name)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		Experimenter value = gateway.lookupExperimenter(name);
+		if (value != null) 
+			return (ExperimenterData) PojoMapper.asDataObject(value);
+		return null;
+	}
+
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#isExistingGroup(String)
+	 */
+	public GroupData lookupGroup(String name) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		ExperimenterGroup value = gateway.lookupGroup(name);
+		if (value != null) 
+			return (GroupData) PojoMapper.asDataObject(value);
+		return null;
 	}
 	
 }

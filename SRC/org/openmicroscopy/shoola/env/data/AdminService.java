@@ -313,10 +313,10 @@ public interface AdminService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
-	 * Reloads the 
+	 * Reloads the groups and experimenters for a group owners.
 	 * 
-	 * @param exp
-	 * @return See above
+	 * @param exp The onwer of a group.
+	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.
@@ -324,5 +324,28 @@ public interface AdminService
 	public List<GroupData> reloadPIGroups(ExperimenterData exp)
 		throws DSOutOfServiceException, DSAccessException;
 	
+	/**
+	 * Returns the <code>Group</code> if the name of the group already exists,
+	 * <code>null</code> otherwise.
+	 * 
+	 * @param name The name of the group.
+	 * @return See above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public GroupData lookupGroup(String name)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Returns the <code>Experimenter</code> if the name of the experimenter 
+	 * already exists, <code>null</code> otherwise.
+	 * 
+	 * @param name The name of the experimenter.
+	 * @return See above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public ExperimenterData lookupExperimenter(String name)
+		throws DSOutOfServiceException, DSAccessException;
 	
 }
