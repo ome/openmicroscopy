@@ -78,12 +78,21 @@ insert into session
         (id,permissions,timetoidle,timetolive,started,closed,defaultpermissions,defaulteventtype,uuid,owner,node)
         select ome_nextval('seq_session'),-35, 0,0,now(),now(),'rw----','PREVIOUSITEMS','1111',0,0;
 insert into event (id,permissions,time,status,experimenter,session) values (0,0,now(),'BOOTSTRAP',0,0);
+
+--
+-- Default group permissions (ticket:1783)
+-- * "system" is private, so that administrators do not share by accident
+-- * "user" is public by default since its purpose is to share objects (ticket:1794)
+-- * "guest" is private by default so that it doesn't show up on any lists,
+--    though nothing should be created there.
+--
 insert into experimentergroup (id,permissions,version,name)
-        values (0,-35,0,'system');
+        values (0,-103,0,'system');
 insert into experimentergroup (id,permissions,version,name)
         values (ome_nextval('seq_experimentergroup'),-35,0,'user');
 insert into experimentergroup (id,permissions,version,name)
-        values (ome_nextval('seq_experimentergroup'),-35,0,'guest');
+        values (ome_nextval('seq_experimentergroup'),-103,0,'guest');
+
 insert into eventtype (id,permissions,value) values
         (0,-35,'Bootstrap');
 insert into groupexperimentermap
