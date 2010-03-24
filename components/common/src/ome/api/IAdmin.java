@@ -9,13 +9,12 @@ package ome.api;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import ome.annotations.Hidden;
 import ome.annotations.NotNull;
-import ome.annotations.Validate;
 import ome.conditions.AuthenticationException;
 import ome.model.IObject;
+import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
@@ -212,6 +211,35 @@ public interface IAdmin extends ServiceInterface {
      */
     void updateSelf(@NotNull
     Experimenter experimenter);
+
+    /**
+     * Uploads a photo for the user which will be displayed on his/her profile.
+     * This photo will be saved as an {@link ome.model.core.OriginalFile} object
+     * with the given format, and attached to the user's {@link Experimenter}
+     * object via an {@link ome.model.annotations.FileAnnotation} with
+     * the namespace: "openmicroscopy.org/omero/experimenter/photo" (NSEXPERIMENTERPHOTO).
+     * If such an {@link ome.model.core.OriginalFile} instance already exists,
+     * it will be overwritten. If more than one photo is present, the oldest
+     * version will be modified (i.e. the highest updateEvent id).
+     *
+     * Note: as outlined in ticket:1794, this photo will be placed in the "user"
+     * group and therefore will be visible to everyone on the system.
+     *
+     * @param filename Not null. String name which will be used.
+     * @param format Not null. Format.value string. 'image/jpeg' and 'image/png' are common values.
+     * @param data Not null. Data from the image. This will be written to disk.
+     * @return the id of the overwritten or newly created user photo OriginalFile object.
+     */
+    long uploadMyUserPhoto(String filename, String format, byte[] data);
+
+    /**
+     * Retrieve the {@link ome.model.core.OriginalFile} objectd attached to this
+     * user as specified by {@link #uploadMyUserPhoto(String, String, byte[]).
+     * The return value is order by the most recently modified file first.
+     *
+     * @return file objects. Possibly empty.
+     */
+    List<OriginalFile> getMyUserPhotos();
 
     /**
      * Updates an experimenter if admin or owner of group.
@@ -499,6 +527,15 @@ public interface IAdmin extends ServiceInterface {
      *         that the instance is now unlocked in the database.
      */
     boolean[] unlock(IObject... iObjects);
+
+    /**
+     * Moves the given objects into the "user" group to make them visible
+     * and linkable from all security contexts.
+     *
+     * @param iObjects
+     * @see ticket:1794
+     */
+    void moveToCommonSpace(IObject... iObjects);
 
     // ~ Authentication and Authorization
     // =========================================================================

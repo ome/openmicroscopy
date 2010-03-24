@@ -190,9 +190,11 @@ public class BasicACLVoter implements ACLVoter {
             sysTypes.isInSystemGroup(iObject.getDetails());
 
         // needs no details info
-        if (update && !sysType && currentUser.isGraphCritical()) { //ticket:1769
+        if (tokenHolder.hasPrivilegedToken(iObject)) {
+            return true; // ticket:1794, allow move to "user
+        } else if (update && !sysType && currentUser.isGraphCritical()) { //ticket:1769
             return objectBelongsToUser(iObject, uid);
-        } else if (tokenHolder.hasPrivilegedToken(iObject) || c.isCurrentUserAdmin()) {
+        } else if (c.isCurrentUserAdmin()) {
             return true;
         } else if (sysType) {
             return false;

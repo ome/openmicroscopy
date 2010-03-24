@@ -89,6 +89,15 @@ public class PermissionsTest extends AbstractManagedContextTest {
             iAdmin.addGroupOwners(fixture.group(), fixture.user);
             fixture.log_in();
         }
+
+        void make_admin() {
+            loginRoot();
+            iAdmin.addGroupOwners(
+                    new ExperimenterGroup(roles.getSystemGroupId(), false),
+                    fixture.user);
+            fixture.log_in();
+        }
+
     }
 
     protected Fixture fixture;

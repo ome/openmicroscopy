@@ -72,8 +72,7 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
                 + "\n       owner_id = :current_user"
                 + "\n     )"
                 + "\n  ) OR"
-                + "\n  group_id = %s OR "
-                + "\n  group_id = %s OR "
+                + "\n  group_id = %s OR " // ticket:1794
                 + "\n :is_share"
                 + "\n)\n";
     }
@@ -100,7 +99,7 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
         this.setFilterName(filterName);
         this.setParameterTypes(parameterTypes);
         this.setDefaultFilterCondition(String.format(defaultFilterCondition,
-                roles.getSystemGroupId(), roles.getUserGroupId()));
+                roles.getUserGroupId()));
     }
 
     /**

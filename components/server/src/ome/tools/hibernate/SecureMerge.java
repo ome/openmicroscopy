@@ -24,12 +24,24 @@ public class SecureMerge implements SecureAction {
 
     private final Session session;
 
+    private final boolean flush;
+
     public SecureMerge(Session session) {
+        this(session, false);
+    }
+
+    public SecureMerge(Session session, boolean flush) {
+        this.flush = flush;
         this.session = session;
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends IObject> T updateObject(T... objs) {
-        return (T) session.merge(objs[0]);
+        T t = (T) session.merge(objs[0]);
+        if (flush) {
+            session.flush();
+        }
+        return t;
     }
 
 }

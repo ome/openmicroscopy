@@ -42,12 +42,14 @@ import omero.api.AMD_IAdmin_getGroup;
 import omero.api.AMD_IAdmin_getLeaderOfGroupIds;
 import omero.api.AMD_IAdmin_getMemberOfGroupIds;
 import omero.api.AMD_IAdmin_getSecurityRoles;
+import omero.api.AMD_IAdmin_getMyUserPhotos;
 import omero.api.AMD_IAdmin_lookupExperimenter;
 import omero.api.AMD_IAdmin_lookupExperimenters;
 import omero.api.AMD_IAdmin_lookupGroup;
 import omero.api.AMD_IAdmin_lookupGroups;
 import omero.api.AMD_IAdmin_lookupLdapAuthExperimenter;
 import omero.api.AMD_IAdmin_lookupLdapAuthExperimenters;
+import omero.api.AMD_IAdmin_moveToCommonSpace;
 import omero.api.AMD_IAdmin_removeGroupOwners;
 import omero.api.AMD_IAdmin_removeGroups;
 import omero.api.AMD_IAdmin_reportForgottenPassword;
@@ -60,6 +62,7 @@ import omero.api.AMD_IAdmin_updateExperimenter;
 import omero.api.AMD_IAdmin_updateExperimenterWithPassword;
 import omero.api.AMD_IAdmin_updateGroup;
 import omero.api.AMD_IAdmin_updateSelf;
+import omero.api.AMD_IAdmin_uploadMyUserPhoto;
 import omero.api._IAdminOperations;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
@@ -367,5 +370,19 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
         callInvokerOnRawArgs(__cb, __current, exp);                
     }
 
-    
+    public void getMyUserPhotos_async(AMD_IAdmin_getMyUserPhotos __cb,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
+    }
+
+    public void uploadMyUserPhoto_async(AMD_IAdmin_uploadMyUserPhoto __cb,
+            String filename, String format, byte[] data, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, filename, format, data);
+    }
+
+    public void moveToCommonSpace_async(AMD_IAdmin_moveToCommonSpace __cb, List<IObject> objects,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, objects);
+    }
+
 }

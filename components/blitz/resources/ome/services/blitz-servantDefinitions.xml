@@ -42,6 +42,7 @@
     </constructor-arg>
   </bean>
   <bean id="populateRoiJob" class="ome.services.roi.PopulateRoiJob" lazy-init="false">
+      <constructor-arg ref="roles"/>
       <constructor-arg ref="uuid"/>
       <constructor-arg ref="executor"/>
   </bean>
@@ -78,6 +79,7 @@
     </constructor-arg>
   </bean>
   <bean id="makeMovieJob" class="ome.services.scripts.MakeMovieJob" lazy-init="false">
+      <constructor-arg ref="roles"/>
       <constructor-arg ref="uuid"/>
       <constructor-arg ref="executor"/>
   </bean>

@@ -17,9 +17,11 @@ import ome.model.enums.Format;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
+import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
 import ome.services.util.Executor;
 import ome.system.Principal;
+import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.util.Utils;
 import omero.model.OriginalFileI;
@@ -50,6 +52,8 @@ public abstract class ScriptUploader {
 
     private final Executor ex;
 
+    private final Roles roles;
+
     /**
      * Source file to use for uploading.
      */
@@ -65,11 +69,12 @@ public abstract class ScriptUploader {
      */
     private/* final */OriginalFile file = null;
 
-    public ScriptUploader(String uuid, Executor executor, File source) {
-        this(new Principal(uuid, "system", "Internal"), executor, source);
+    public ScriptUploader(Roles roles, String uuid, Executor executor, File source) {
+        this(roles, new Principal(uuid, "system", "Internal"), executor, source);
     }
 
-    public ScriptUploader(Principal principal, Executor executor, File source) {
+    public ScriptUploader(Roles roles, Principal principal, Executor executor, File source) {
+        this.roles = roles;
         this.principal = principal;
         this.ex = executor;
         this.source = source;
@@ -129,20 +134,6 @@ public abstract class ScriptUploader {
 
                         });
 
-                if (!file.getDetails().getPermissions().isGranted(Role.WORLD,
-                        Right.READ)) {
-                    log.warn("Making script readable...");
-                    ex.execute(principal, new Executor.SimpleWork(this,
-                            "chmodScript") {
-                        @Transactional(readOnly = false)
-                        public Object doWork(Session session, ServiceFactory sf) {
-                            sf.getAdminService().changePermissions(file,
-                                    Permissions.WORLD_IMMUTABLE);
-                            return null;
-                        }
-                    });
-                }
-
             } catch (Exception e) {
                 throw new RuntimeException("Failed to register script", e);
             }
@@ -155,8 +146,10 @@ public abstract class ScriptUploader {
      * Load all scripts that match the name, sha1, and format for script
      */
     protected List<OriginalFile> loadScripts(ServiceFactory sf, Parameters p) {
+        p.addLong("gid", roles.getSystemGroupId());
         List<OriginalFile> files = sf.getQueryService().findAllByQuery(
                 "select f from OriginalFile f where f.sha1 = :sha1 "
+                        + "and f.details.group.id = :gid "
                         + "and f.name = :name "
                         + "and f.format.value = 'text/x-python'", p);
         return files;
@@ -178,8 +171,8 @@ public abstract class ScriptUploader {
         file.setPath("lib/python/" + getName());
         file.setSize(Long.valueOf(buf.length));
         file.setFormat(new Format("text/x-python"));
-        // ticket:1794 - currently perms == group.perms only!
-        // file.getDetails().setPermissions(Permissions.WORLD_IMMUTABLE);
+        file.getDetails().setGroup(new ExperimenterGroup(roles.getUserGroupId(), false));
+        file.getDetails().setPermissions(Permissions.WORLD_IMMUTABLE);
         file = sf.getUpdateService().saveAndReturnObject(file);
 
         RawFileStore rfs = sf.createRawFileStore();

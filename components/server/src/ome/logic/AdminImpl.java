@@ -25,6 +25,7 @@ import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.annotations.RolesAllowed;
 import ome.api.IAdmin;
+import ome.api.RawFileStore;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalAdmin;
 import ome.api.local.LocalUpdate;
@@ -36,6 +37,10 @@ import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.model.IGlobal;
 import ome.model.IObject;
+import ome.model.annotations.ExperimenterAnnotationLink;
+import ome.model.annotations.FileAnnotation;
+import ome.model.core.OriginalFile;
+import ome.model.enums.Format;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
 import ome.model.internal.Permissions.Right;
@@ -63,6 +68,7 @@ import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Roles;
+import ome.system.ServiceFactory;
 import ome.system.SimpleEventContext;
 import ome.tools.hibernate.QueryBuilder;
 import ome.tools.hibernate.SecureMerge;
@@ -411,6 +417,67 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 "Updated own user info: " + self.getOmeName());
     }
 
+    protected static final String NSEXPERIMENTERPHOTO = "openmicroscopy.org/omero/experimenter/photo";
+
+    public List<OriginalFile> getMyUserPhotos() {
+        Parameters parameters = new Parameters();
+        parameters.addId(getEventContext().getCurrentUserId());
+        parameters.addString("ns", NSEXPERIMENTERPHOTO);
+        List<OriginalFile> photos = iQuery.findAllByQuery(
+                "select f from Experimenter e join e.annotationLinks l " +
+			"join l.child a join a.file f where e.id = :id and a.ns = :ns",
+			parameters);
+        return photos;
+    }
+
+    @RolesAllowed("user")
+    public long uploadMyUserPhoto(String filename, String format, byte[] data) {
+        Long uid = getEventContext().getCurrentUserId();
+        List<OriginalFile> photos = getMyUserPhotos();
+        OriginalFile file = null;
+        if (photos.size() > 0) {
+            file = photos.get(0);
+        }
+
+        if (file == null) {
+            file = new OriginalFile();
+            file.setName(filename);
+            file.setPath(filename); // FIXME this should be something like /users/<name>/photo
+            file.setSize((long) data.length);
+            file.setSha1(Utils.bufferToSha1(data));
+            file.setFormat(new Format(format));
+            FileAnnotation fa = new FileAnnotation();
+            fa.setNs(NSEXPERIMENTERPHOTO);
+            fa.setFile(file);
+            ExperimenterAnnotationLink link = new ExperimenterAnnotationLink();
+            link.link(new Experimenter(uid, false), fa);
+            link = iUpdate.saveAndReturnObject(link);
+            fa = (FileAnnotation) link.getChild();
+            file = fa.getFile();
+            internalMoveToCommonSpace(file);
+            internalMoveToCommonSpace(fa);
+            internalMoveToCommonSpace(link);
+        } else {
+            file.setName(filename);
+            file.setPath(filename);
+            file.setSize((long) data.length);
+            file.setFormat(new Format(format));
+            file.setSha1(Utils.bufferToSha1(data));
+            file = iUpdate.saveAndReturnObject(file);
+        }
+
+        RawFileStore rfs = (RawFileStore) context.getBean("internal-ome.api.RawFileStore");
+        try {
+            rfs.setFileId(file.getId());
+            rfs.write(data, 0, data.length);
+        } finally {
+            rfs.close();
+        }
+
+        return file.getId();
+
+    }
+
     @RolesAllowed("user")
     public void updateExperimenter(@NotNull final
     Experimenter experimenter) {
@@ -754,6 +821,10 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
         // make change.
         copy.getDetails().setGroup(group);
+        secureFlush(copy);
+    }
+
+    private void secureFlush(final IObject copy) {
         getSecuritySystem().doAction(new SecureAction(){
             public <T extends IObject> T updateObject(T... objs) {
                 iUpdate.flush();
@@ -818,6 +889,36 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 iUpdate.flush();
             }
         });
+    }
+
+    @RolesAllowed("user")
+    @SuppressWarnings("unchecked")
+    public void moveToCommonSpace(IObject... iObjects) {
+        // ticket:1794
+        for (IObject object : iObjects) {
+            if (object != null) {
+                Long id = object.getId();
+                Class<IObject> c = (Class<IObject>) Utils.trueClass(object.getClass());
+                IObject o = (IObject) iQuery.get(c, id);
+                ExperimenterGroup g = o.getDetails().getGroup();
+                adminOrPiOfGroup(g);
+                internalMoveToCommonSpace(o);
+            }
+        }
+    }
+
+    /**
+     * Helpers which unconditonally moves the object to the common space. This
+     * can be used by other methods like {@link #uploadMyUserPhoto(String, String, byte[])}
+     *
+     * @param not null object. Should be linked to the current session.
+     */
+    private void internalMoveToCommonSpace(IObject obj) {
+        final Session session = osf.getSession();
+        obj.getDetails().setGroup(
+                groupProxy(getSecurityRoles().getUserGroupId()));
+        secureFlush(obj);
+        getBeanHelper().getLogger().info("Moved object to common space: " + obj);
     }
 
     @RolesAllowed("system")

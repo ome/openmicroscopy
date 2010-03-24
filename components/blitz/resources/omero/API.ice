@@ -142,6 +142,9 @@ module omero {
 	    // Mutators
 
 	    void updateSelf(omero::model::Experimenter experimenter) throws ServerError;
+	    long uploadMyUserPhoto(string filename, string format, Ice::ByteSeq data) throws ServerError;
+	    idempotent OriginalFileList getMyUserPhotos() throws ServerError;
+
 	    void updateExperimenter(omero::model::Experimenter experimenter) throws ServerError;
 	    void updateExperimenterWithPassword(omero::model::Experimenter experimenter,
                                                 omero::RString password) throws ServerError;
@@ -165,6 +168,7 @@ module omero {
 	    idempotent void changeOwner(omero::model::IObject obj, string omeName) throws ServerError;
 	    idempotent void changeGroup(omero::model::IObject obj, string omeName) throws ServerError;
 	    idempotent void changePermissions(omero::model::IObject obj, omero::model::Permissions perms) throws ServerError;
+	    idempotent void moveToCommonSpace(IObjectList objects) throws ServerError;
 	    /* Leaving this non-idempotent, because of the overhead, though technically it is. */
 	    Ice::BoolSeq unlock(IObjectList objects) throws ServerError;
 

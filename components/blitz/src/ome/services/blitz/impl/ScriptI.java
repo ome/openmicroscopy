@@ -156,7 +156,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                     throw new ApiUsageException(null, null, "Invalid script");
                 }
 
-                OriginalFile file = makeFile(scriptText); // FIXME PATH!!!
+                OriginalFile file = makeFile(scriptText); // FIXME PATH & PERMS
                 writeContent(file, scriptText);
                 updateFileWithParams(__current, file);
                 return file.getId();

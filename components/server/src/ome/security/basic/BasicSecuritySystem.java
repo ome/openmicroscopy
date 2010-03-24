@@ -55,6 +55,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Filter;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.proxy.HibernateProxy;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -488,6 +489,16 @@ public class BasicSecuritySystem implements SecuritySystem,
             if (obj.getId() != null && !query.contains(obj)) {
                 throw new SecurityViolation("Services are not allowed to call "
                         + "doAction() on non-Session-managed entities.");
+            }
+
+            // ticket:1794 - use of IQuery.get along with doAction() creates
+            // two objects (outer proxy and inner target) and only the outer
+            // proxy has its graph holder modified without this block, leading
+            // to security violations on flush since no token is present.
+            if (obj instanceof HibernateProxy) {
+                HibernateProxy hp = (HibernateProxy) obj;
+                IObject obj2 = (IObject) hp.getHibernateLazyInitializer().getImplementation();
+                ghs.add(obj2.getGraphHolder());
             }
 
             // FIXME

@@ -11,6 +11,7 @@ import java.io.File;
 
 import ome.services.util.Executor;
 import ome.system.Principal;
+import ome.system.Roles;
 
 /**
  * Start-up task which guarantees that lib/python/makemovie.py is added as a
@@ -28,16 +29,16 @@ public class MakeMovieJob extends ScriptUploader {
         return populate;
     }
 
-    public MakeMovieJob(String uuid, Executor executor) {
-        super(uuid, executor, production());
+    public MakeMovieJob(Roles roles, String uuid, Executor executor) {
+        super(roles, uuid, executor, production());
     }
 
-    public MakeMovieJob(String uuid, Executor executor, File source) {
-        super(new Principal(uuid, "system", "Internal"), executor, source);
+    public MakeMovieJob(Roles roles, String uuid, Executor executor, File source) {
+        super(roles, new Principal(uuid, "system", "Internal"), executor, source);
     }
 
-    public MakeMovieJob(Principal principal, Executor executor, File source) {
-        super(principal, executor, source);
+    public MakeMovieJob(Roles roles, Principal principal, Executor executor, File source) {
+        super(roles, principal, executor, source);
     }
 
     @Override

@@ -444,18 +444,6 @@ public class OmeroInterceptor implements Interceptor {
 
         if (source != null) {
 
-            // PERMISSIONS: ticket:1434 and #1731 and #1779 (systypes)
-            // before 4.2, users were allowed to manually set the permissions
-            // on an object, and even set a umask to be applied. for the initial
-            // 4.2 version, however, we are disallowing manually setting
-            // permissions so that all objects will match group permissions.
-            if (source.getPermissions() != null) {
-                if (!sysTypes.isSystemType(obj.getClass())) {
-                    throw new PermissionMismatchGroupSecurityViolation(
-                        "Manually setting permissions currently disallowed");
-                }
-            }
-
             // OWNER
             // users *aren't* allowed to set the owner of an item.
             if (source.getOwner() != null
@@ -482,7 +470,8 @@ public class OmeroInterceptor implements Interceptor {
                 }
 
                 // ticket:1794
-                else if (Long.valueOf(roles.getUserGroupId())
+                else if (bec.isCurrentUserAdmin() &&
+                        Long.valueOf(roles.getUserGroupId())
                         .equals(source.getGroup().getId())) {
                     newDetails.setGroup(source.getGroup());
                 }
@@ -493,6 +482,31 @@ public class OmeroInterceptor implements Interceptor {
                             "You are not authorized to set the ExperimenterGroup"
                                     + " for %s to %s", obj, source.getGroup()));
                 }
+            }
+
+
+            // PERMISSIONS: ticket:1434 and #1731 and #1779 (systypes)
+            // before 4.2, users were allowed to manually set the permissions
+            // on an object, and even set a umask to be applied. for the initial
+            // 4.2 version, however, we are disallowing manually setting
+            // permissions so that all objects will match group permissions.
+            // Doing this after the setting of newDetails.group in case the
+            // user is logged into user or system.
+            if (source.getPermissions() != null) {
+                boolean isInSysGrp = sysTypes.isInSystemGroup(newDetails);
+                boolean isInUsrGrp = sysTypes.isInUserGroup(newDetails);
+                if (!sysTypes.isSystemType(obj.getClass())) {
+                    if (isInSysGrp) {
+                        // allow admin to do what they want. is this right?
+                    } else if (isInUsrGrp) {
+                        // similarly, allow whatever in user group for the moment.
+                    } else {
+                        throw new PermissionMismatchGroupSecurityViolation(
+                        "Manually setting permissions currently disallowed");
+                    }
+                }
+                // Above didn't throw, so set permissions.
+                newDetails.setPermissions(source.getPermissions());
             }
 
             // EXTERNALINFO
@@ -918,8 +932,10 @@ public class OmeroInterceptor implements Interceptor {
             // or if the entity has been marked as privileged, then use the
             // current group.
             // TODO refactor
-            else if (bec.getMemberOfGroupsList().contains(
-                    currentDetails.getGroup().getId())
+            else if ((!currentDetails.getGroup().getId().equals(
+                         roles.getUserGroupId()) &&
+                       bec.getMemberOfGroupsList().contains(
+                         currentDetails.getGroup().getId())) // ticket:1794
                     || bec.isCurrentUserAdmin() || privileged) {
                 newDetails.setGroup(currentDetails.getGroup());
                 return true;

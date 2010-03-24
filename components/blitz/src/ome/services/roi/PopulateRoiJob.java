@@ -12,6 +12,7 @@ import java.io.File;
 import ome.services.scripts.ScriptUploader;
 import ome.services.util.Executor;
 import ome.system.Principal;
+import ome.system.Roles;
 
 /**
  * Start-up task which guarantees that lib/python/populateroi.py is added as a
@@ -30,16 +31,16 @@ public class PopulateRoiJob extends ScriptUploader {
         return populate;
     }
 
-    public PopulateRoiJob(String uuid, Executor executor) {
-        super(uuid, executor, production());
+    public PopulateRoiJob(Roles roles, String uuid, Executor executor) {
+        super(roles, uuid, executor, production());
     }
 
-    public PopulateRoiJob(String uuid, Executor executor, File source) {
-        super(new Principal(uuid, "system", "Internal"), executor, source);
+    public PopulateRoiJob(Roles roles, String uuid, Executor executor, File source) {
+        super(roles, new Principal(uuid, "system", "Internal"), executor, source);
     }
 
-    public PopulateRoiJob(Principal principal, Executor executor, File source) {
-        super(principal, executor, source);
+    public PopulateRoiJob(Roles roles, Principal principal, Executor executor, File source) {
+        super(roles, principal, executor, source);
     }
     
     @Override
