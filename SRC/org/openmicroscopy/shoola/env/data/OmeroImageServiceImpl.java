@@ -301,10 +301,12 @@ class OmeroImageServiceImpl
 			pDef.slice = omero.romio.XY.value;
 			BufferedImage img;
 			Dimension d;
+			int level;
 			while (j.hasNext()) {
 				id = (Long) j.next();
 				rnd = PixelsServicesFactory.getRenderingControl(context, id, 
 						false);
+				System.err.println(rnd);
 				if (rnd == null) ids.add(id);
 				else {
 					pDef.t = rnd.getDefaultT();
@@ -313,9 +315,17 @@ class OmeroImageServiceImpl
 					d = Factory.computeThumbnailSize(max, max, 
 	        				rnd.getPixelsDimensionsX(), 
 	        				rnd.getPixelsDimensionsY());
-					img = Factory.scaleBufferedImage(rnd.renderPlane(pDef),
-							d.width, d.height);
-					r.put(id, img);
+					try {
+						level = rnd.getCompressionLevel();
+						rnd.setCompression(RenderingControl.LOW);
+						img = Factory.scaleBufferedImage(rnd.renderPlane(pDef),
+								d.width, d.height);
+						rnd.setCompression(level);
+						r.put(id, img);
+					} catch (Exception e) {//failed to get it that way
+						ids.add(id);
+						context.getLogger().error(this, e.getMessage());
+					}
 				}
 			}
 			if (ids.size() == 0) return r;

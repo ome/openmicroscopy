@@ -60,7 +60,7 @@ public interface CacheService
 	 * Creates a default cache.
 	 * 
 	 * @return See above.
-	 * @throws CacheServiceException 	Thrown if an error occured while 
+	 * @throws CacheServiceException 	Thrown if an error occurred while 
 	 * 									creating the cache.
 	 */
 	public int createCache();
@@ -71,7 +71,7 @@ public interface CacheService
 	 * @param type The type of cache to create.
 	 * @param size The size of the cache.
 	 * @return See above.
-	 * @throws CacheServiceException 	Thrown if an error occured while 
+	 * @throws CacheServiceException 	Thrown if an error occurred while 
 	 * 									creating the cache.
 	 */
 	public int createCache(int type, int size);
@@ -81,7 +81,7 @@ public interface CacheService
 	 * 
 	 * @param type The type of cache to create.
 	 * @return See above.
-	 * @throws CacheServiceException 	Thrown if an error occured while 
+	 * @throws CacheServiceException 	Thrown if an error occurred while 
 	 * 									creating the cache.
 	 */
 	public int createCache(int type);
@@ -99,7 +99,7 @@ public interface CacheService
 	 * @param cacheID The id of the cache.
 	 * @param key	  The key corresponding to the element to add.
 	 * @param element The element to add.
-	 * @throws CacheServiceException 	Thrown if an error occured while adding 
+	 * @throws CacheServiceException 	Thrown if an error occurred while adding 
 	 * 									the element to the cache.
 	 */
 	public void addElement(int cacheID, Object key, Object element);
@@ -110,7 +110,7 @@ public interface CacheService
 	 * @param cacheID The id of the cache.
 	 * @param key	  The key corresponding to the element to add.
 	 * @return See above.
-	 * @throws CacheServiceException 	Thrown if an error occured while 
+	 * @throws CacheServiceException 	Thrown if an error occurred while 
 	 * 									retrieving an element from the cache.
 	 */
 	public Object getElement(int cacheID, Object key);

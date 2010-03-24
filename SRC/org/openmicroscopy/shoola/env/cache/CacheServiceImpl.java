@@ -161,7 +161,11 @@ class CacheServiceImpl
 	{
 		Cache cache = manager.getCache(""+cacheID);
 		if (cache == null) return null;
-		Element element = cache.get(key);
+		Element element = null;
+		try {
+			element = cache.get(key);
+		} catch (Exception e) { //Problem w/ cache.
+		}
 		if (element == null) return null;
 		return element.getObjectValue();
 	}
