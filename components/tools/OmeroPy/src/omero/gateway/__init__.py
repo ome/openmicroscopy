@@ -142,7 +142,7 @@ class _BlitzGateway (object):
             passwd = self.c.ic.getProperties().getProperty('omero.gateway.anon_pass')
         #logger.debug('super: %s %s %s' % (try_super, str(group), self.c.ic.getProperties().getProperty('omero.gateway.admin_group')))
         if try_super:
-            group = 'system' #self.c.ic.getProperties().getProperty('omero.gateway.admin_group')
+            self.group = 'system' #self.c.ic.getProperties().getProperty('omero.gateway.admin_group')
         self.group = group and group or None
         self._sessionUuid = None
         self._session_cb = None
@@ -1587,6 +1587,7 @@ class BlitzObjectWrapper (object):
             # Not yet in db, save it
             ann.details.setPermissions(omero.model.PermissionsI())
             ann.details.permissions.setWorldRead(True)
+            ann.details.permissions.setGroupWrite(True)
             ann = ann.__class__(self._conn, self._conn.getUpdateService().saveAndReturnObject(ann._obj))
         #else:
         #    ann.save()
@@ -1594,6 +1595,7 @@ class BlitzObjectWrapper (object):
         lnk = getattr(omero.model, lnktype)()
         lnk.details.setPermissions(omero.model.PermissionsI())
         lnk.details.permissions.setWorldRead(True)
+        lnk.details.permissions.setGroupWrite(True)
         lnk.details.permissions.setUserWrite(True)
         lnk.setParent(self._obj.__class__(self._obj.id, False))
         lnk.setChild(ann._obj.__class__(ann._obj.id, False))
