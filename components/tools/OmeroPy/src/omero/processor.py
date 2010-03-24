@@ -26,8 +26,45 @@ import omero.util.concurrency
 from omero.util.temp_files import create_path, remove_path
 from omero.util.decorators import remoted, perf, locked
 from omero.rtypes import *
-from omero.util.decorators import remoted, perf
+from omero.util.decorators import remoted, perf, wraps
 
+def with_context(func, context):
+    """ Decorator for invoking Ice methods with a context """
+    def handler(*args, **kwargs):
+        args = list(args)
+        args.append(context)
+        return func(*args, **kwargs)
+    handler = wraps(func)(handler)
+    return handler
+
+class WithGroup(object):
+    """
+    Wraps a ServiceInterfacePrx instance and applies
+    a "omero.group" to the passed context on every
+    invotation.
+
+    For example, using a job handle as root requires logging
+    manually into the group. (ticket:2044)
+    """
+
+    def __init__(self, service, group_id):
+        self._service = service
+        self._group_id = str(group_id)
+
+    def _get_ctx(self, group = None):
+        ctx = self._service.ice_getCommunicator().getImplicitContext().getContext()
+        ctx = dict(ctx)
+        ctx["omero.group"] = group
+        return ctx
+
+    def __getattr__(self, name):
+        if name.startswith("_"):
+            return self.__dict__[name]
+        elif hasattr(self._service, name):
+            method = getattr(self._service, name)
+            ctx = self._get_ctx(self._group_id)
+            return with_context(method, ctx)
+        raise AttributeError("'%s' object has no attribute '%s'" % (self.service, name))
 
 class ProcessI(omero.grid.Process, omero.util.SimpleServant):
     """
@@ -314,7 +351,8 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
             self.logger.error("No client: Cannot set job status for pid=%s (%s)", self.pid, self.uuid)
             return
 
-        handle = client.sf.createJobHandle()
+        gid = client.sf.getAdminService().getEventContext().groupId
+        handle = WithGroup(client.sf.createJobHandle(), gid)
         try:
             status = self.final_status
             if status is None:
@@ -633,19 +671,13 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
         else:
             return self.ctx.getSession()
 
-    def get_ctx(self, group = None):
-        ctx = self.ctx.communicator.getImplicitContext().getContext()
-        ctx = dict(ctx)
-        if group != None:
-            ctx["omero.group"] = str(group)
-        return ctx
-
     def lookup(self, job):
-        ctx = self.get_ctx(str(job.details.group.id.val))
+        gid = job.details.group.id.val
         sf = self.internal_session()
-        handle = sf.createJobHandle()
-        handle.attach(job.id.val, ctx)
-        if handle.jobFinished(ctx):
+        query = WithGroup(sf.getQueryService(), gid)
+        handle = WithGroup(sf.createJobHandle(), gid)
+        handle.attach(job.id.val)
+        if handle.jobFinished():
             raise omero.ApiUsageException("Job already finished.")
 
         if not self.accepts_list:
@@ -656,7 +688,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
                 if isinstance(a, omero.model.Experimenter):
                     accepts += ("            and o.details.owner.id = %s" % a.id.val)
 
-        file = sf.getQueryService().findByQuery(\
+        file = query.findByQuery(\
             """select o from Job j
              join j.originalFileLinks links
              join links.child o
@@ -665,7 +697,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
                  j.id = %d
              %s
              and o.format.value = 'text/x-python'
-             """ % (job.id.val, accepts), None, ctx)
+             """ % (job.id.val, accepts), None)
 
         return file, handle
 
