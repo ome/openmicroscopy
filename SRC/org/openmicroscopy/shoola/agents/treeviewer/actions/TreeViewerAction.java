@@ -184,7 +184,8 @@ public abstract class TreeViewerAction
         	onDisplayMode();
         } else if (TreeViewer.ON_COMPONENT_STATE_CHANGED_PROPERTY.equals(
         		name) || TreeViewer.GROUP_CHANGED_PROPERTY.equals(name) ||
-        		TreeViewer.SELECTION_PROPERTY.equals(name)) {
+        		TreeViewer.SELECTION_PROPERTY.equals(name) ||
+        		Browser.SELECTED_TREE_NODE_DISPLAY_PROPERTY.equals(name)) {
             Browser browser = model.getSelectedBrowser();
             TreeImageDisplay v = null;
             if (browser != null) v = browser.getLastSelectedDisplay();

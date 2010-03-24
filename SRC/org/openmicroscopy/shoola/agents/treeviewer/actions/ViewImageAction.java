@@ -76,9 +76,7 @@ public class ViewImageAction
             setEnabled(false);
             return;
         }
-
-        Object ho = selectedDisplay.getUserObject();
-        setEnabled(ho instanceof ImageData);
+        setEnabled(selectedDisplay.getUserObject() instanceof ImageData);
     }
     
 	/**
