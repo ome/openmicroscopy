@@ -29,7 +29,6 @@ import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
-import ome.system.EventContext;
 import ome.system.ServiceFactory;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
@@ -468,7 +467,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
     }
 
       @Test(groups = {"ticket:1929"},
-            expectedExceptions = { InternalException.class })
+            expectedExceptions = { ReadOnlyGroupSecurityViolation.class })
       public void testOtherUserROViewsThumbnailWithNoSettings() {
           Experimenter e1 = loginNewUser();
           final ServiceFactory sf = this.factory;// new InternalServiceFactory();
@@ -479,10 +478,6 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
           loginNewUserInOtherUsersGroup(e1);
           ThumbnailStore tbUser = sf.createThumbnailService();
           assertFalse(tbUser.setPixelsId(pix.getId()));
-          // XXX: Shows bug
-          //Permissions perms = iAdmin.getEventContext().getCurrentGroupPermissions();
-          //System.err.println("Permissions: " + perms);
-          //System.err.println("Pixels ID: " + pix.getId());
           tbUser.resetDefaults();
           assertFalse(tbUser.setPixelsId(pix.getId()));
       }
