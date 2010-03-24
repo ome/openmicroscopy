@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.measurement;
 
 //Java imports
 import java.util.Collection;
+
 //Third-party libraries
 
 //Application-internal dependencies

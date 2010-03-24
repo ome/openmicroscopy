@@ -306,6 +306,7 @@ public class FSFileSystemView
      * Registers the passed file. Returns the updated file object.
      * 
      * @param file The file to register.
+     * @param userID The id of the owner of the directory to register.
      * @return See above.
      */
     public FileData register(FileData file)

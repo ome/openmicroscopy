@@ -803,14 +803,16 @@ class MeasurementViewerModel
 	/** 
 	 * Fires an asynchronous retrieval of the ROI related to the pixels set. 
 	 * 
-	 * @param dataChanged has the roi been changed.
+	 * @param dataChanged 	Pass <code>true</code> if the ROI has been changed.
+	 * 						<code>false</code> otherwise.
 	 */
 	void fireLoadROIServerOrClient(boolean dataChanged)
 	{
 		state = MeasurementViewer.LOADING_ROI;
 		ExperimenterData exp = 
 			(ExperimenterData) MeasurementAgent.getUserDetails();
-		currentLoader = new ServerSideROILoader(component, getImageID(), exp.getId());
+		currentLoader = new ServerSideROILoader(component, getImageID(), 
+				exp.getId());
 		currentLoader.load();
 		nofityDataChanged(dataChanged);
 	}
@@ -850,6 +852,7 @@ class MeasurementViewerModel
 	 * 
 	 * @param measurements The measurements if any.
 	 */
+	/*
 	void fireLoadROIFromServer(List<FileAnnotationData> measurements)
 	{
 		this.measurements = measurements;
@@ -868,6 +871,7 @@ class MeasurementViewerModel
 				exp.getId());
 		currentLoader.load();
 	}
+	*/
 	
 	/** 
 	 * Returns the path to the file where the ROIs have been saved
@@ -908,12 +912,7 @@ class MeasurementViewerModel
 		}
 	}
 	
-	/**
-	 * Saves the current ROISet in the ROI component to server.
-	 * 
-	 * @param post		Pass <code>true</code> to post an event, 
-	 * 					<code>false</code> otherwise.
-	 */
+	/** Saves the current ROISet in the ROI component to server. */
 	void saveROIToServer()
 	{
 		List<ROIData> roiList;
@@ -926,7 +925,6 @@ class MeasurementViewerModel
 			currentSaver.load();
 			nofityDataChanged(false);
 		} catch (Exception e) {
-			e.printStackTrace();
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot save to server "+e.getMessage());
 		}
@@ -1238,6 +1236,13 @@ class MeasurementViewerModel
 		return null; 
 	}
 
+	/**
+	 * Returns the object of reference.
+	 * 
+	 * @return See above.
+	 */
+	Object getRefObject() { return pixels; }
+	
 	/**
 	 * Returns <code>true</code> if data to save, <code>false</code>
 	 * otherwise.

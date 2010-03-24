@@ -37,7 +37,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ROIData;
 
 /**
- *
+ * Save the ROIs for a given image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -59,7 +59,7 @@ public class ROISaver
 	/** The id of the user. */
 	private long		userID;
 	
-	/** The roidata to save. */
+	/** The ROI data to save. */
 	private List<ROIData> roiList;
 	
 	/** Handle to the asynchronous call so that we can cancel it. */

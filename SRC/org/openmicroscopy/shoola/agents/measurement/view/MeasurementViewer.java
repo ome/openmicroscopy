@@ -322,4 +322,12 @@ public interface MeasurementViewer
 	 */
 	public void setUpdateROIComponent(Collection result);
 
+	/**
+	 * Returns <code>true</code> if the specified image is writable,
+	 * <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isImageWritable();
+	
 }

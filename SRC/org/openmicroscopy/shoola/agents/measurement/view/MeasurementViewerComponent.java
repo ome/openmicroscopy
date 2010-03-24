@@ -46,7 +46,10 @@ import org.jhotdraw.draw.Drawing;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -63,6 +66,8 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+
+import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 
 /** 
@@ -850,6 +855,29 @@ class MeasurementViewerComponent
 			e.printStackTrace();
 		}
 		model.fireLoadROIServerOrClient(false);
+	}
+	
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#isObjectWritable()
+     */
+	public boolean isImageWritable()
+	{
+		if (model.getState() == DISCARDED) return false;
+		//Check if current user can write in object
+		ExperimenterData exp = 
+			(ExperimenterData) MeasurementAgent.getUserDetails();
+		long id = exp.getId();
+		boolean b = EditorUtil.isUserOwner(model.getRefObject(), id);
+		if (b) return b;
+		int level = 
+			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel();
+		switch (level) {
+			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
+			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+				return true;
+		}
+		return false;
 	}
 	
 }

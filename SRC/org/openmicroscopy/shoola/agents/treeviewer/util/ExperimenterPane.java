@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.admin.util.ExperimenterPane 
+ * org.openmicroscopy.shoola.agents.treeviewer.util.ExperimenterPane 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -34,6 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -44,6 +45,7 @@ import javax.swing.JTextField;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -67,7 +69,7 @@ class ExperimenterPane
 {
 	
 	/** Password field to enter password. */
-    private JPasswordField passwordField;
+    private JPasswordField 			passwordField;
     
     /** The items that can be edited. */
     private Map<String, JTextField>	items;
@@ -83,6 +85,9 @@ class ExperimenterPane
     
     /** Select to indicate that the user is an owner of the group. */
     private JCheckBox				ownerBox;
+    
+    /** The Button to display existing user as possible group owner. */
+    private JButton					groupOwner;
     
     /** 
      * Initializes the components composing this display. 
@@ -112,6 +117,10 @@ class ExperimenterPane
 		ownerBox = new JCheckBox();
 		ownerBox.setEnabled(!administrator);
 		ownerBox.setSelected(administrator);
+		IconManager icons = IconManager.getInstance();
+		groupOwner = new JButton(icons.getIcon(IconManager.USER_GROUP));
+		groupOwner.setToolTipText("Select an existing user as owner");
+		groupOwner.setVisible(administrator);
     }
     
     /**
@@ -141,7 +150,7 @@ class ExperimenterPane
             value = (String) entry.getValue();
             area = new JTextField(value);
             area.setEditable(true);
-            if (key.equals(EditorUtil.DISPLAY_NAME)) {
+            if (EditorUtil.DISPLAY_NAME.equals(key)) {
             	label = UIUtilities.setTextFont(
             			key+EditorUtil.MANDATORY_SYMBOL);
             	area.getDocument().addDocumentListener(this);
@@ -152,6 +161,7 @@ class ExperimenterPane
             c.fill = GridBagConstraints.NONE;      //reset to default
             c.weightx = 0.0;  
             content.add(label, c);
+            
             label.setLabelFor(area);
             c.gridx++;
             content.add(Box.createHorizontalStrut(5), c); 
