@@ -583,7 +583,7 @@ def IdentityFn(commandArgs):
     return commandArgs;
 
 
-def resetRenderingSettings(renderingEngine, pixelsId, cIndex, minValue, maxValue):
+def resetRenderingSettings(renderingEngine, pixelsId, cIndex, minValue, maxValue, rgba=None):
     """
     Simply resests the rendering settings for a pixel set, according to the min and max values
     The rendering engine does NOT have to be primed with pixelsId, as that is handled by this method. 
@@ -592,6 +592,7 @@ def resetRenderingSettings(renderingEngine, pixelsId, cIndex, minValue, maxValue
     @param pixelsId        The Pixels ID
     @param minValue        Minimum value of rendering window
     @param maxValue        Maximum value of rendering window
+    @param rgba            Option to set the colour of the channel. (r,g,b,a) tuple. 
     """
     
     renderingEngine.lookupPixels(pixelsId)
@@ -603,6 +604,9 @@ def resetRenderingSettings(renderingEngine, pixelsId, cIndex, minValue, maxValue
     
     renderingEngine.load()
     renderingEngine.setChannelWindow(cIndex, float(minValue), float(maxValue))
+    if rgba:
+        red, green, blue, alpha = rgba
+        renderingEngine.setRGBA(cIndex, red, green, blue, alpha)
     renderingEngine.saveCurrentSettings()
 
 
@@ -625,7 +629,7 @@ def createNewImage(pixelsService, rawPixelStore, renderingEngine, pixelsType, ga
     """
     theC, theT = (0,0)
     
-    # all planes in plane2Dlist should be same shape. Render according to first plane. 
+    # all planes in plane2Dlist should be same shape.
     shape = plane2Dlist[0].shape
     sizeY, sizeX = shape
     minValue = plane2Dlist[0].min()
@@ -640,14 +644,15 @@ def createNewImage(pixelsService, rawPixelStore, renderingEngine, pixelsType, ga
     
     # upload plane data
     pixelsId = image.getPrimaryPixels().getId().getValue()
-    pixelsService.setChannelGlobalMinMax(pixelsId, theC, float(minValue), float(maxValue))
     rawPixelStore.setPixelsId(pixelsId, True)
     for theZ, plane2D in enumerate(plane2Dlist):
+        minValue = min(minValue, plane2D.min())
+	    maxValue = max(maxValue, plane2D.max())
         if plane2D.size > 1000000:
             uploadPlaneByRow(rawPixelStore, plane2D, theZ, theC, theT)
         else:
             uploadPlane(rawPixelStore, plane2D, theZ, theC, theT)
-
+    pixelsService.setChannelGlobalMinMax(pixelsId, theC, float(minValue), float(maxValue))
     resetRenderingSettings(renderingEngine, pixelsId, theC, minValue, maxValue)
     
     # put the image in dataset, if specified. 
