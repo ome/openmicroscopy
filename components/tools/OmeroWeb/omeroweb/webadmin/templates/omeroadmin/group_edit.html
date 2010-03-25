@@ -13,12 +13,11 @@
 
     <script type="text/javascript" src="{% url wastatic "javascript/jquery_1.3.2.js" %}"></script>
     <script type="text/javascript" src="{% url wastatic "javascript/jquery.multiselects.js" %}"></script>
-    <script type="text/javascript" src="{% url wastatic "javascript/jquery.multiselects.pack.js" %}"></script>
-
+    
     <script type="text/javascript">
     jQuery(function($){
         // (OPTIONAL) adjust the width of the select box to the bigger of the two
-        $("select[name='members']").selectAdjustWidth("select[name='available']");
+        //$("select[name='members']").selectAdjustWidth("select[name='available']");
 
         $("select[name='members']").multiSelect("select[name='available']", {
             trigger: "input[name='remove']",
@@ -43,7 +42,7 @@
 
 
 <form action="{% url wamanagegroupid "update" controller.group.id %}" method="POST">
-<table id="dogBreedsTable" border="0" cellspacing="0" cellpadding="0" class="formTable">
+<table border="0" cellspacing="0" cellpadding="0" class="formTable">
     <tbody>
     <tr>
         <th>{{ form.members.label_tag }}{% if form.members.field.required %}*{% endif %}</th>

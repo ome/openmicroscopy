@@ -87,18 +87,18 @@ class ExperimenterForm(forms.Form):
     def __init__(self, name_check=False, email_check=False, *args, **kwargs):
         super(ExperimenterForm, self).__init__(*args, **kwargs)
         self.name_check=name_check
-        self.email_check=email_check
+        self.email_check=email_check 
+        
         try:
-            if kwargs['initial']['default_group']: pass
-            self.fields['default_group'] = GroupModelChoiceField(queryset=kwargs['initial']['dgroups'], initial=kwargs['initial']['default_group'])
+            self.fields['default_group'] = forms.ChoiceField(choices=kwargs['initial']['default'], widget=forms.RadioSelect(), required=True, label="Groups")
+            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['others'], initial=kwargs['initial']['others'], required=False, widget=forms.SelectMultiple(attrs={'size':10}))
         except:
-            self.fields['default_group'] = GroupModelChoiceField(queryset=kwargs['initial']['dgroups'])
-        try:
-            if kwargs['initial']['other_groups']: pass
-            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['groups'], initial=kwargs['initial']['other_groups'], required=False, widget=forms.SelectMultiple(attrs={'size':7}))
-        except:
-            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['groups'], required=False, widget=forms.SelectMultiple(attrs={'size':7}))
-        self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups', 'password', 'confirmation']
+            self.fields['default_group'] = forms.ChoiceField(choices=list(), widget=forms.RadioSelect(), required=True, label="Groups")
+            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=list(), required=False, widget=forms.SelectMultiple(attrs={'size':10}))
+        
+        self.fields['available_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['available'], required=False, widget=forms.SelectMultiple(attrs={'size':10}))
+        
+        self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'password', 'confirmation', 'default_group', 'other_groups', 'available_groups']
 
     omename = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
     first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
@@ -128,7 +128,6 @@ class ExperimenterForm(forms.Form):
                 raise forms.ValidationError('Passwords do not match')
             else:
                 return self.cleaned_data.get('password')
-            
 
 class ExperimenterLdapForm(forms.Form):
 
@@ -136,17 +135,7 @@ class ExperimenterLdapForm(forms.Form):
         super(ExperimenterLdapForm, self).__init__(*args, **kwargs)
         self.name_check=name_check
         self.email_check=email_check
-        try:
-            if kwargs['initial']['default_group']: pass
-            self.fields['default_group'] = GroupModelChoiceField(queryset=kwargs['initial']['dgroups'], initial=kwargs['initial']['default_group'])
-        except:
-            self.fields['default_group'] = GroupModelChoiceField(queryset=kwargs['initial']['dgroups'])
-        try:
-            if kwargs['initial']['other_groups']: pass
-            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['groups'], initial=kwargs['initial']['other_groups'], required=False, widget=forms.SelectMultiple(attrs={'size':7}))
-        except:
-            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['groups'], required=False, widget=forms.SelectMultiple(attrs={'size':7}))
-        self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups']
+        self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active']
 
     omename = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))
     first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))

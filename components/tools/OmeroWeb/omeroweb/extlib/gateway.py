@@ -132,6 +132,21 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     ##############################################
     ##   Gets methods                           ##
     
+    def isAnythingCreated(self):
+        """ Checks if any of the experimenter was created before"""
+        
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["default_names"] = rlist([rstring("user"), rstring("system"), rstring("guest")])
+        f = omero.sys.Filter()
+        f.limit = rint(1)
+        p.theFilter = f
+        sql = "select g from ExperimenterGroup as g where g.name not in (:default_names)"
+        if len(q.findAllByQuery(sql, p)) > 0:
+            return False
+        return True
+            
     def lookupExperimenters(self):
         """ Look up all experimenters all related groups.
             The experimenters are also loaded."""
@@ -141,7 +156,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             yield ExperimenterWrapper(self, exp)
     
     def getExperimenters(self, ids=None):
-        """ Get experimenters for for the given user ids. If ID is not set, return current user. """
+        """ Get experimenters for the given user ids. If ID is not set, return current user. """
         
         q = self.getQueryService()
         p = omero.sys.Parameters()
@@ -1696,7 +1711,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             return False
     
     def checkEmail(self, email, old_email=None):
-        print email
+        if email == "":
+            return False
         if email == old_email:
             return False
         query_serv = self.getQueryService()

@@ -221,6 +221,7 @@ td.input ul {
     margin-left: -30px;
 }
 
+
 ul.errorlist {
     list-style: none;
     color: #e3646f;
@@ -230,7 +231,6 @@ ul.errorlist {
 }
 
 .error {
-    list-style: none;
     color: #e3646f;
     margin: 0;
     padding: 0;

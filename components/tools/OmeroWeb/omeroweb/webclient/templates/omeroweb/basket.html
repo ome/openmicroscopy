@@ -1,90 +1,134 @@
-{% extends "omeroweb/base_main.html" %}
+{% extends "omeroweb/base.html" %}
 {% load i18n %}
 {% load markup %}
 {% load custom_tags %}
-{% load wikitags %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% url webstatic "css/container.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
+    
 {% endblock %}
 
 {% block jscript %}
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.selectable.js" %}"></script>
     
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
 
 {% endblock %}
 
 {% block script %}
-    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>    
-    
+
+    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
     
     <script type="text/javascript">
-        $(function() {
-            $("#sharing, #empty").tooltip({ 
-                track: true, 
-                delay: 0, 
-                showURL: false, 
-                opacity: 1, 
-                fixPNG: true, 
-                showBody: " - ", 
-                top: -15, 
-                left: 5 
+        $(document).ready(function(){
+
+            var h = $(window).height()-200;
+            $("div#basket_details").css('height', h);
+            $("#right_panel").show();
+            $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+            
+            
+            $("table#dataTable tbody").selectable({
+            	stop: function(){
+            		var result = $("#select-result").empty();
+            		var l = $('tr.ui-selected', this).length;
+            		$("tr.ui-selected td input", this).each(function(){
+            		    this.checked = true;
+            		});
+            		if (l == 1) {
+            		    $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" onclick="document.location.href=\'{% url basket_action %}\';"> | <input class="button" type="image" src="{% url webstatic "images/folder_html16.png" %}" onclick="makeShare();"> <input class="button" type="image" src="{% url webstatic "images/wp_protocol16.png" %}" onclick="makeDiscussion();"> | <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" onclick="manyRemoveFromBasket();"> <input class="button" type="image" src="{% url webstatic "images/reset.png" %}" onclick="document.location.href=\'{% url empty_basket %}\';">');
+            		    
+            		    $("#right_panel").show();
+                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
+            		    $('tr.ui-selected', this).each(function(){  
+            		        var h = $(window).height()-169;
+            		        $("div#metadata_details").html('<iframe width="100%" height="'+h+'" src="/webclient/metadata_details/image/'+this.id+'/" id="metadata_details" name="metadata_details"></iframe>');
+                            $('iframe#metadata_details').load();
+                        });
+            		} else {
+            		    var rel = $("div#content_details").attr('rel');
+                        $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" onclick="document.location.href=\'{% url basket_action %}\';"> | <input class="button" type="image" src="{% url webstatic "images/folder_html16.png" %}" onclick="makeShare();"> <input class="button" type="image" src="{% url webstatic "images/wp_protocol16.png" %}" onclick="makeDiscussion();"> | <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" onclick="manyRemoveFromBasket();"> <input class="button" type="image" src="{% url webstatic "images/reset.png" %}" onclick="document.location.href=\'{% url empty_basket %}\';">');
+
+            		    $("#right_panel").show();
+            		    $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
+            		    $("div#metadata_details").html('<p>'+ l +' elements selected.</p>');
+            		}
+            	},
+            	start: function(){
+            		$("tr input", this).each(function(){
+            			this.checked = false;
+            		});
+            	}
             });
-        });
-    </script>
-    
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $("#products li.product").css('width', 160);
-            $("#products li.product").css('height', 150);
-            $('#products img.imgzoom').attr('width', 120);
-            $('#products img.catzoom').attr('width', 120);
-        });
-    </script>
-    <script>
-    var popup = function (url) {
-          window.open(url,'_blank','toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=1000,height=800');
-          return false;
-    }
-    </script>
-    
-{% endblock %}
+            
+            $("#dataTable").tablesorter( {sortList: [[1,0]]} ); 
 
-{% block top %}
-
-<div>
-    <h1>{% trans "Basket" %}</h1>
-    <p>{% trans "This page shows the current contents of your basket. You can delete any item from your basket by clicking the delete button below the item. If you have finished adding items to your basket, you can go to the <strong>Share</strong> or <strong>Discussion</strong> by choosing the button from the menu below." %}</p>
-</div>
-
-<div class="separate30"></div>
+            $('input#id_search').quicksearch('table#dataTable tbody tr', {
+            	'delay': 300,
+                'loader': 'span.loading'
+            });
+        });    
+    </script>
 
 {% endblock %}
 
+{% block center %}
 
-{% block left %}
-<!--content-->
+<div id="basket_details" class="content_details">
+    <h1>Basket</h1>
+    {% if basket.sizeOfBasket %}
 
-<div>
+        <div id="toolbar" class="toolbar_noborder">
+            <input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" onclick="document.location.href='{% url basket_action %}';"> | <input class="button" type="image" src="{% url webstatic "images/reset.png" %}" onclick="document.location.href='{% url empty_basket %}';">
+        </div>
+        <div class="clear"> </div>
+
+        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url wastatic "images/spinner.gif" %}"></span></form>
+
+        <table id="dataTable" class="tablesorter">
+            <thead> 
+                <tr> 
+                    <th>{% trans "Image" %}</th> 
+                    <th>{% trans "Name" %}</th> 
+                    <th>{% trans "Date" %}</th> 
+                </tr> 
+            </thead>
+            <tbody>
+                {% for c in basket.imageInBasket %}
+                    <tr id="{{ c.id }}">
+                        <td class="action">
+                            <img src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" title="{{ c.name }}"/>
+                            <input type="checkbox" name="image" id="{{ c.id }}">      
+                        </td>
+                        <td class="desc">{{ c.shortName2 }} {% if c.annotation_counter %}<img src="{% url webstatic "images/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
+                        <td class="desc">{{ c.getDate }}</td>                    
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        </div>
+
+    {% else %}
+        <p>{% trans "Basket is empty." %}</p>
+    {% endif %}
+</div>    
     
-    <div id="view"> 
-        | {% if basket.sizeOfBasket %}<a href="{% url basket_action "toshare" %}" target="metadata_details"><img src="{% url webstatic "images/folder_html16.png" %}" alt="sh" title="Create share for images stored currently in the basket"/></a>{% endif %}
-        <a href="{% url basket_action "todiscuss" %}" target="metadata_details"><img src="{% url webstatic "images/wp_protocol16.png" %}" alt="d" title="Create discussion."/></a> |
-        {% if basket.sizeOfBasket %}<input type="submit" name="action" value="Empty" onClick="location.href='{% url empty_basket %}'"/>
-        <span id="empty" title="{% trans 'Empty basket' %} - <small>{% trans 'Empty the basket.' %}</small>"><img src="{% url webstatic "images/help16.png" %}" /></span> |{% endif %}
-    </div>
-    <div class="clear"> </div>
-        
-    <div class="content">
-        {% include "omeroweb/basket_data_icon.html" %}
-    </div>
-</div>
-
 {% endblock %}
 
 {% block right %}
-
-<iframe width="100%" height="680" name="metadata_details"></iframe>
-
+    
+    <div id="metadata_details" style="overflow: auto;">
+        <h1>{% trans "Basket" %}</h1>
+        <p>{% trans "This page shows the current contents of your basket." %}
+            {% if not basket.sizeOfBasket %}
+                {% trans "Your basket is empty. Please add some of your bio-data from" %} <a href="{% url load_template "userdata" %}">{% trans "Data" %}</a> {% trans "or initiate a discussion." %}
+            {% else %}
+                {% trans "You can remove items from your basket by selecting item(s) and clicking the remove button on the toolbar or empty. If you have finished adding items to your basket, you can go to the <strong>Share</strong> or <strong>Discussion</strong> by choosing the button from the menu below." %}
+            {% endif %}
+        </p>
+    </div>
+    
 {% endblock %}

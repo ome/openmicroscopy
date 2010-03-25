@@ -53,6 +53,11 @@ urlpatterns = patterns('',
     url ( r'^myaccount/(?:(?P<action>((?i)save))/)?$', views.manage_myaccount, name="myaccount"),
     url ( r'^upload_myphoto/(?:(?P<action>((?i)upload|crop|editphoto))/)?$', views.upload_myphoto, name="upload_myphoto"),
     
+    # load basket
+    url( r'^basket/empty/$', views.empty_basket, name="empty_basket"),
+    url( r'^basket/update/$', views.update_basket, name="update_basket"),
+    url( r'^basket/(?:(?P<action>[a-zA-Z]+)/)?$', views.basket_action, name="basket_action"),
+    
     # loading data
     url( r'^load_data/(?P<o1_type>((?i)orphaned|ajaxorphaned))/$', views.load_data, name="load_data_ajax" ),
     
@@ -89,10 +94,6 @@ urlpatterns = patterns('',
     url( r'^share/(?P<action>[a-zA-Z]+)/(?:(?P<sid>[0-9]+)/)?$', views.manage_share, name="manage_share" ),
     url( r'^share_content/(?P<share_id>[0-9]+)/$', views.load_share_content, name="load_share_content" ),
     url( r'^share_owner_content/(?P<share_id>[0-9]+)/$', views.load_share_owner_content, name="load_share_owner_content" ),
-    
-    url( r'^basket/empty/$', views.empty_basket, name="empty_basket"),
-    url( r'^basket/update/$', views.update_basket, name="update_basket"),
-    url( r'^basket/(?:(?P<action>[a-zA-Z]+)/)?$', views.basket_action, name="basket_action"),
     
     url( r'^clipboard/$', views.update_clipboard, name="update_clipboard"),
     

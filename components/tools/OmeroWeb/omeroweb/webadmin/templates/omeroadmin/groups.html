@@ -31,6 +31,8 @@
 
 <p><img src="{% url wastatic "images/add.png" %}" alt="add" title="add"> <a href="{% url wamanagegroupid "new" %}">{% trans "Add new group" %}</a></p>
 
+{% if info.message %}<div class="error">{{ info.message|safe|linebreaks }}</div>{% endif %}
+
 <h2>{% trans "Groups" %}</h2>
 {% if controller.groupsCount %}
 
@@ -52,7 +54,7 @@
                 {% if not dict.locked %}
                     <a href="{% url wamanagegroupid "edit" dict.group.id %}"><img src="{% url wastatic "images/edit.png" %}" alt="edit" title="edit"></a>
                 {% endif %}
-                <a href="{% url wamanagegroupid "members" dict.group.id %}"><img src="{% url wastatic "images/editing.png" %}" alt="manage" title="manage members"></a>
+                <a href="{% url wamanagegroupid "members" dict.group.id %}"><img src="{% url wastatic "images/editing.png" %}" alt="manage" title="manage members"></a>  id:{{ dict.group.id }}
             </td>
             <td class="link">{{ dict.group.name }}</td>
             <td class="link">{{ dict.permissions }} ({{ dict.group.details.permissions }})</td>

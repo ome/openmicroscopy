@@ -2100,6 +2100,7 @@ def empty_basket(request, **kwargs):
 def update_basket(request, **kwargs):
     action = None
     if request.method == 'POST':
+        request.session.modified = True
         try:
             action = request.REQUEST['action']
         except Exception, x:
@@ -2159,9 +2160,17 @@ def update_basket(request, **kwargs):
                 else:
                     rv = "Error: This action is not available"
                     return HttpResponse(rv)
+            elif action == 'delmany':
+                images = [long(i) for i in request.REQUEST.getlist('image')]
+                for i in images:
+                    if i in request.session['imageInBasket']:
+                        request.session['imageInBasket'].remove(long(i))
+                    else:
+                        rv = "Error: could not remove image from the basket."
+                        return HttpResponse(rv)                
+
         total = len(request.session['imageInBasket'])#+len(request.session['datasetInBasket'])
         request.session['nav']['basket'] = total
-        request.session.modified = True
         return HttpResponse(total)
     else:
         return handlerInternalError("Request method error in Basket.")

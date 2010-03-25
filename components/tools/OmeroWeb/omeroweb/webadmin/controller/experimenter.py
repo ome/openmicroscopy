@@ -111,36 +111,41 @@ class BaseExperimenter(BaseController):
             else:
                 self.defaultGroup = None
             self.otherGroups = list()
+            self.others = list()
+            self.default = list()
             for gem in self.experimenter.copyGroupExperimenterMap():
                 if gem.parent.name.val == "user":
                     pass
-                elif gem.parent.name.val == "system":
+                #elif gem.parent.name.val == "system":
+                #    pass
+                elif gem.parent.name.val == "guest":
                     pass
                 else:
                     self.otherGroups.append(gem.parent.id.val)
+                    self.others.append(gem.parent)
+                    self.default.append((gem.parent.id.val, gem.parent.name.val))
         self.groups = list(self.conn.lookupGroups())
     
-    def defaultGroupsInitialList(self):
+    def otherGroupsInitialList(self, exclude=list()):
         formGroups = list()
         for gr in self.groups:
             flag = False
             if gr.name == "user":
+                flag = True
+            #elif gr.name == "system":
+            #    flag = True
+            elif gr.name == "guest":
+                flag = True
+            if gr.id in exclude:
                 flag = True
             if not flag:
                 formGroups.append(gr)
         return formGroups
     
-    def otherGroupsInitialList(self):
-        formGroups = list()
-        for gr in self.groups:
-            flag = False
-            if gr.name == "user":
-                flag = True
-            elif gr.name == "system":
-                flag = True
-            if not flag:
-                formGroups.append(gr)
-        return formGroups
+    def getSelectedGroups(self, ids):
+        if len(ids)>0:
+            return list(self.conn.getExperimenterGroups(ids))
+        return list()
     
     def getMyDetails(self):
         self.experimenter = self.conn.getUser()

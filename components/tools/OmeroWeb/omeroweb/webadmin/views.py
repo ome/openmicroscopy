@@ -185,6 +185,16 @@ def isUserConnected (f):
     
     return wrapped
 
+def isAnythingCreated(f):
+    def wrapped (request, *args, **kwargs):
+        kwargs["firsttime"] = kwargs["conn"].isAnythingCreated()
+        if kwargs['firsttime']:
+            kwargs['msg'] = _('User must be in a group - You have not created any groups yet. Click <a href="%s">here</a> to create a group') % (reverse(viewname="wamanagegroupid", args=["new"]))
+        #return HttpResponseRedirect(reverse(viewname="wamanagegroupid", args=["new"]))   
+        return f(request, *args, **kwargs)
+
+    return wrapped
+
 ################################################################################
 # views controll
 
@@ -294,6 +304,7 @@ def login(request):
         return HttpResponse(rsp)
 
 @isUserConnected
+@isAnythingCreated
 def index(request, **kwargs):    
     conn = None
     try:
@@ -302,7 +313,10 @@ def index(request, **kwargs):
         logger.error(traceback.format_exc())
     
     if conn.isAdmin():
-        return HttpResponseRedirect(reverse("wagroups"))
+        if kwargs["firsttime"]:
+            return HttpResponseRedirect(reverse("wagroups"))
+        else:
+            return HttpResponseRedirect(reverse("waexperimenters"))
     else:
         return HttpResponseRedirect(reverse("wamyaccount"))
 
@@ -334,6 +348,7 @@ def logout(request):
     return HttpResponseRedirect(reverse("waindex"))
 
 @isAdminConnected
+@isAnythingCreated
 def experimenters(request, **kwargs):
     experimenters = True
     template = "omeroadmin/experimenters.html"
@@ -345,6 +360,9 @@ def experimenters(request, **kwargs):
         logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'experimenters':experimenters}
+    if kwargs['firsttime']:
+        info['message'] = kwargs["msg"]
+    
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
     controller = BaseExperimenters(conn)
     
@@ -356,6 +374,7 @@ def experimenters(request, **kwargs):
     return HttpResponse(rsp)
 
 @isAdminConnected
+@isAnythingCreated
 def manage_experimenter(request, action, eid=None, **kwargs):
     experimenters = True
     template = "omeroadmin/experimenter_form.html"
@@ -367,12 +386,16 @@ def manage_experimenter(request, action, eid=None, **kwargs):
         logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'experimenters':experimenters}
+    if kwargs['firsttime']:
+        info['message'] = kwargs["msg"]
+    
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
     
     controller = BaseExperimenter(conn, eid)
     
     if action == 'new':
-        form = ExperimenterForm(initial={'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()})
+        form = ExperimenterForm(initial={'active':True, 'available':controller.otherGroupsInitialList()})
+        
         context = {'info':info, 'eventContext':eventContext, 'form':form}
     elif action == 'create':
         if request.method != 'POST':
@@ -380,7 +403,18 @@ def manage_experimenter(request, action, eid=None, **kwargs):
         else:
             name_check = conn.checkOmeName(request.REQUEST.get('omename').encode('utf-8'))
             email_check = conn.checkEmail(request.REQUEST.get('email').encode('utf-8'))
-            form = ExperimenterForm(initial={'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()}, data=request.REQUEST.copy(), name_check=name_check, email_check=email_check)
+            initial={'active':True}
+            exclude = list()
+            
+            if len(request.REQUEST.getlist('other_groups')) > 0:
+                others = controller.getSelectedGroups(request.REQUEST.getlist('other_groups'))   
+                initial['others'] = others
+                initial['default'] = [(g.id, g.name) for g in others]
+                exclude.extend([g.id for g in others])
+            
+            available = controller.otherGroupsInitialList(exclude)
+            initial['available'] = available
+            form = ExperimenterForm(initial=initial, data=request.REQUEST.copy(), name_check=name_check, email_check=email_check)
             if form.is_valid():
                 omeName = request.REQUEST.get('omename').encode('utf-8')
                 firstName = request.REQUEST.get('first_name').encode('utf-8')
@@ -404,19 +438,40 @@ def manage_experimenter(request, action, eid=None, **kwargs):
             context = {'info':info, 'eventContext':eventContext, 'form':form}
     elif action == 'edit' :
         if controller.ldapAuth == "" or controller.ldapAuth is None:
-            form = ExperimenterForm(initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
+            
+            initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
                                     'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
                                     'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
-                                    'administrator': controller.isAdmin, 'active': controller.isActive,
-                                    'default_group':controller.defaultGroup, 'other_groups': controller.otherGroups,
-                                    'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()})
+                                    'administrator': controller.isAdmin, 'active': controller.isActive, 
+                                    'default_group': controller.defaultGroup, 'other_groups':controller.otherGroups}
+            
+            initial['default'] = controller.default
+            others = controller.others
+            initial['others'] = others
+            if len(others) > 0:
+                exclude = [g.id.val for g in others]
+            else:
+                exclude = [controller.defaultGroup]
+            available = controller.otherGroupsInitialList(exclude)
+            initial['available'] = available
+            form = ExperimenterForm(initial=initial)
         else:
-            form = ExperimenterLdapForm(initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
+            initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
                                     'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
                                     'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
-                                    'administrator': controller.isAdmin, 'active': controller.isActive,
-                                    'default_group':controller.defaultGroup, 'other_groups': controller.otherGroups,
-                                    'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()})
+                                    'administrator': controller.isAdmin, 'active': controller.isActive, 
+                                    'default_group': controller.defaultGroup, 'other_groups':controller.otherGroups}
+            
+            initial['default'] = controller.default
+            others = controller.others
+            initial['others'] = others
+            if len(others) > 0:
+                exclude = [g.id.val for g in others]
+            else:
+                exclude = [controller.defaultGroup]
+            available = controller.otherGroupsInitialList(exclude)
+            initial['available'] = available
+            form = ExperimenterLdapForm(initial=initial)
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'eid': eid, 'ldapAuth': controller.ldapAuth}
     elif action == 'save':
         if request.method != 'POST':
@@ -424,10 +479,23 @@ def manage_experimenter(request, action, eid=None, **kwargs):
         else:
             name_check = conn.checkOmeName(request.REQUEST.get('omename').encode('utf-8'), controller.experimenter.omeName)
             email_check = conn.checkEmail(request.REQUEST.get('email').encode('utf-8'), controller.experimenter.email)
+            initial={'active':True}
+            exclude = list()
+            
+            if len(request.REQUEST.getlist('other_groups')) > 0:
+                others = controller.getSelectedGroups(request.REQUEST.getlist('other_groups'))   
+                initial['others'] = others
+                initial['default'] = [(g.id, g.name) for g in others]
+                exclude.extend([g.id for g in others])
+            
+            available = controller.otherGroupsInitialList(exclude)
+            initial['available'] = available
+            
             if controller.ldapAuth == "" or controller.ldapAuth is None:
-                form = ExperimenterForm(initial={'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()}, data=request.POST.copy(), name_check=name_check, email_check=email_check)
+                form = ExperimenterForm(initial=initial, data=request.POST.copy(), name_check=name_check, email_check=email_check)
             else:
-                form = ExperimenterLdapForm(initial={'dgroups':controller.defaultGroupsInitialList(), 'groups':controller.otherGroupsInitialList()}, data=request.POST.copy(), name_check=name_check, email_check=email_check)
+                form = ExperimenterLdapForm(initial=initial, data=request.POST.copy(), name_check=name_check, email_check=email_check)
+                
             if form.is_valid():
                 omeName = request.REQUEST.get('omename').encode('utf-8')
                 firstName = request.REQUEST.get('first_name').encode('utf-8')
@@ -436,11 +504,11 @@ def manage_experimenter(request, action, eid=None, **kwargs):
                 email = request.REQUEST.get('email').encode('utf-8')
                 institution = request.REQUEST.get('institution').encode('utf-8')
                 admin = False
-                if request.REQUEST.get('administrator') is not None:
+                if request.REQUEST.get('administrator'):
                     admin = True
-                
+
                 active = False
-                if request.REQUEST.get('active') is not None:
+                if request.REQUEST.get('active'):
                     active = True
 
                 defaultGroup = request.REQUEST.get('default_group')
@@ -466,6 +534,7 @@ def manage_experimenter(request, action, eid=None, **kwargs):
     return HttpResponse(rsp)
 
 @isAdminConnected
+@isAnythingCreated
 def groups(request, **kwargs):
     groups = True
     template = "omeroadmin/groups.html"
@@ -477,6 +546,9 @@ def groups(request, **kwargs):
         logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'groups':groups}
+    if kwargs['firsttime']:
+        info['message'] = kwargs["msg"]
+    
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
     controller = BaseGroups(conn)
     
@@ -488,6 +560,7 @@ def groups(request, **kwargs):
     return HttpResponse(rsp)
 
 @isAdminConnected
+@isAnythingCreated
 def manage_group(request, action, gid=None, **kwargs):
     groups = True
     template = "omeroadmin/group_form.html"
@@ -499,6 +572,9 @@ def manage_group(request, action, gid=None, **kwargs):
         logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'groups':groups}
+    if kwargs['firsttime']:
+        info['message'] = kwargs["msg"]
+    
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
     
     controller = BaseGroup(conn, gid)

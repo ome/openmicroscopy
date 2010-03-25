@@ -30,6 +30,7 @@
 
 <p><img src="{% url wastatic "images/add.png" %}" alt="add" title="add"> <a href="{% url wamanageexperimenterid "new" %}">{% trans "Add new scientist" %}</a></p>
 
+{% if info.message %}<div class="error">{{ info.message|safe|linebreaks }}</div>{% endif %}
 
 <h2>{% trans "Scientists" %}</h2>
 {% if controller.experimentersCount %}
