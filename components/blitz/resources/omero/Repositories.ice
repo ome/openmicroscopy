@@ -36,6 +36,8 @@ module omero {
             omero::model::OriginalFile file;
 	        string name;
             omero::api::IObjectList usedFiles;
+	        int imageCount;
+            omero::api::ImageList imageList;
         };
 
         ["java:type:java.util.ArrayList<FileSet>:java.util.List<FileSet>"]

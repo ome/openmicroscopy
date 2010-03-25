@@ -9,6 +9,7 @@ package ome.services.blitz.repo;
 import java.util.List;
 
 import omero.model.IObject;
+import omero.model.Image;
 import omero.grid.FileSet;
 
 /**
@@ -23,6 +24,9 @@ public class FileSetI extends FileSet {
         file = null;
 	    name = "";
         usedFiles = null;
+        imageCount = 0;
+        imageList = null;
+
     }
     
     public void setImportableImage(boolean importableImage) {
@@ -55,6 +59,22 @@ public class FileSetI extends FileSet {
     
     public List<IObject> getUsedFiles() {
         return usedFiles;
+    }
+
+    public void setImageCount(int imageCount) {
+        imageCount = imageCount;
+    }
+    
+    public int getImageCount() {
+        return imageCount;
+    }
+
+    public void setImageList(List<Image> imageList) {
+        imageList = imageList;
+    }
+    
+    public List<Image> getImageList() {
+        return imageList;
     }
 
 

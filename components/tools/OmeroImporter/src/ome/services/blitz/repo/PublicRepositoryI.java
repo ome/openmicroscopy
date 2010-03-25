@@ -65,6 +65,7 @@ import ome.formats.importer.ImportContainer;
 import ome.services.blitz.repo.ImportableFiles;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -242,6 +243,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         List<File> files;
         List<OriginalFile> oFiles;
         RepositoryListConfig conf;
+        
         if(config == null) {
             conf = new RepositoryListConfigI();
         } else {
@@ -255,35 +257,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
             oFiles = filesToOriginalFiles(files);
         }
         return oFiles;
-    }
-
-    private List<File> filteredFiles(File file, RepositoryListConfig config) throws ServerError {
-        List<File> files = new ArrayList<File>();
-        
-        if (config.system) {
-            if (config.files && config.dirs) {
-                files = Arrays.asList(file.listFiles());
-            } else if (config.dirs) {
-                files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.directoryFileFilter()));
-            } else if (config.files) {
-                files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.fileFileFilter()));
-            }  
-        } else {
-            if (config.files && config.dirs) {
-                files = Arrays.asList(file.listFiles((FileFilter)
-                        FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter("."))));
-            } else if (config.dirs) {
-                files = Arrays.asList(file.listFiles((FileFilter)
-                        FileFilterUtils.andFileFilter(FileFilterUtils.directoryFileFilter(), 
-                        FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter(".")))));
-            } else if (config.files) {
-                files = Arrays.asList(file.listFiles((FileFilter)
-                        FileFilterUtils.andFileFilter(FileFilterUtils.fileFileFilter(), 
-                        FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter(".")))));
-            }  
-        }
-        
-        return files;
     }
 
     /**
@@ -307,6 +280,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         List<FileSet> rv = new ArrayList<FileSet>();
         File file = checkPath(path);
         RepositoryListConfig conf;
+        
         if(config == null) {
             conf = new RepositoryListConfigI();
         } else {
@@ -314,7 +288,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         List<File> files = filteredFiles(file, conf);
         List<String> names = filesToPaths(files);
-        Map<String, List<String>> importableFiles = importableImageFiles(files, config.depth);
+        Map<String, List<String>> importableFiles = importableImageFiles(files, conf.depth);
         
         // Add the importable files as Image/OriginalFiles
         for (String keyFile : importableFiles.keySet()) {
@@ -498,12 +472,50 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
         return new File(path).getAbsoluteFile();
     }
+
+   /**
+     * Get a filtered file listing based on the config options.
+     * 
+     * @param file
+     *            A File object representing the directory to be listed.
+     * @param config 
+     *            A RepositoryListConfig object holding the filter options.
+     * @return A list of File objects
+     *
+     */
+    private List<File> filteredFiles(File file, RepositoryListConfig config) throws ServerError {
+        List<File> files;
+        IOFileFilter filter;
+        
+        // If system is true list all files othersise only those files not starting with "."
+        if (config.system) {
+            filter = FileFilterUtils.trueFileFilter();
+        } else {
+            filter = FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter("."));
+        }
+        
+        // Now decorate the filter to restrict to files or directories,
+        // the else case is for a bizarre config of wanting nothing returned!
+        if (!(config.dirs && config.files)) {
+            if (config.dirs) {
+                filter = FileFilterUtils.makeDirectoryOnly(filter);
+            } else if (config.files) {
+                filter = FileFilterUtils.makeFileOnly(filter);
+            } else {
+                filter = FileFilterUtils.falseFileFilter();
+            }
+        }
+        
+        files = Arrays.asList(file.listFiles((FileFilter)filter));
+        
+        return files;
+    }
     
     /**
      * Get the Format for a file using its MIME content type
      * 
      * @param file
-     *            A file in a repository.
+     *            A File in a repository.
      * @return A Format object
      *
      * TODO Return the correct Format object in place of a dummy one
@@ -585,7 +597,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * 
      * @param paths
      *            A collection of Strings.
-     * @return A list of path Strings
+     * @return A list of File objects
      *
      */
     private List<File> pathsToFiles(Collection<String> paths) {
