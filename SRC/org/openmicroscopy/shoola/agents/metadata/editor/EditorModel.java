@@ -654,6 +654,32 @@ class EditorModel
 		}
 		return false;
 	}
+
+	/**
+	 * Returns the collection of annotation that cannot be removed 
+	 * by the user currently logged.
+	 * 
+	 * @return See above.
+	 */
+	Collection getImmutableAnnotation()
+	{
+		List<DataObject> list = new ArrayList<DataObject>();
+		StructuredDataResults data = parent.getStructuredData();
+		if (data == null) return list;
+		Map m = data.getOtherOwnerLinks();
+		if (m == null) return list;
+		long id = MetadataViewerAgent.getUserDetails().getId();
+		Entry entry;
+		Iterator i = m.entrySet().iterator();
+		DataObject o;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			o = (DataObject) entry.getKey();
+			if (id != ((Long) entry.getValue()).longValue())
+				list.add(o);
+		}
+		return list;
+	}
 	
 	/**
 	 * Returns <code>true</code> if the user currently logged in, is a leader

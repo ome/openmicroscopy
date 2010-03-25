@@ -120,6 +120,38 @@ public class SelectionWizardUI
 	
 	/** The type to handle. */
 	private Class				type;
+
+	/** The collection of immutable  nodes. */
+	private Collection			immutable;
+	
+	/** The renderer used. */
+	private DataObjectListCellRenderer cellRenderer;
+	
+	/**
+	 * Returns <code>true</code> if an object object of the same type 
+	 * already exist in the list, <code>false</code> otherwise.
+	 * 
+	 * @param object The object to handle.
+	 * @return See above.
+	 */
+	private boolean doesObjectExist(DataObject object)
+	{
+		Iterator<Object> i = availableItems.iterator();
+		if (object instanceof TagAnnotationData) {
+			TagAnnotationData ob;
+			String value = ((TagAnnotationData) object).getTagValue();
+			while (i.hasNext()) {
+				ob = (TagAnnotationData) i.next();
+				if (ob.getTagValue().equals(value)) return true;
+			}
+			i = selectedItems.iterator();
+			while (i.hasNext()) {
+				ob = (TagAnnotationData) i.next();
+				if (ob.getTagValue().equals(value)) return true;
+			}
+		}
+		return false;
+	}
 	
 	/** 
 	 * Initializes the components composing the display. 
@@ -130,10 +162,10 @@ public class SelectionWizardUI
 	{
 		sorter = new ViewerSorter();
 		availableItemsListbox = new JList();
-		DataObjectListCellRenderer rnd = new DataObjectListCellRenderer(userID);
-		availableItemsListbox.setCellRenderer(rnd);
+		cellRenderer = new DataObjectListCellRenderer(userID);
+		availableItemsListbox.setCellRenderer(cellRenderer);
 		selectedItemsListbox = new JList();
-		selectedItemsListbox.setCellRenderer(rnd);
+		selectedItemsListbox.setCellRenderer(cellRenderer);
 		IconManager icons = IconManager.getInstance();
 		addButton = new JButton(icons.getIcon(IconManager.RIGHT_ARROW));
 		removeButton = new JButton(icons.getIcon(IconManager.LEFT_ARROW));
@@ -150,6 +182,7 @@ public class SelectionWizardUI
 		removeButton.addActionListener(this);
 		removeAllButton.setActionCommand(""+REMOVE_ALL);
 		removeAllButton.addActionListener(this);
+		setImmutableElements(null);
 	}
 	
 	/** Creates a copy of the original selections. */
@@ -181,8 +214,21 @@ public class SelectionWizardUI
 		setSelectionChange();
 	}
 	
-	private boolean isLinkOwner(DataObject data)
+	/**
+	 * Returns <code>true</code> if the node cannot remove,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The element to handle.
+	 * @return See above.
+	 */
+	private boolean isImmutable(DataObject data)
 	{
+		Iterator i = immutable.iterator();
+		DataObject o;
+		while (i.hasNext()) {
+			o = (DataObject) i.next();
+			if (data.getId() == o.getId()) return true;
+		}
 		return false;
 	}
 	
@@ -206,8 +252,10 @@ public class SelectionWizardUI
 						selectedItems.remove(object);
 						if (data.getId() > 0) availableItems.add(object);
 					} else {
-						//need to know about owner of the link
-						
+						if (!isImmutable(data)) {
+							selectedItems.remove(object);
+							availableItems.add(object);
+						}
 					}
 				} else {
 					selectedItems.remove(object);
@@ -231,13 +279,16 @@ public class SelectionWizardUI
 			DataObject data;
 			for (Object item: selectedItems) {
 				data = (DataObject) item;
-				if (!originalItems.contains(data)) {
+				if (!originalSelectedItems.contains(data)) {
 					if (data.getId() > 0) {
 						availableItems.add(item);
 						toRemove.add(item);
 					}
 				} else {
-					
+					if (!isImmutable(data)) {
+						selectedItems.remove(data);
+						availableItems.add(data);
+					}
 				}
 			}
 			Iterator<Object> i = toRemove.iterator();
@@ -434,33 +485,12 @@ public class SelectionWizardUI
 		populateSelectedItems();
 		setSelectionChange();
 	}
-	
+
 	/**
-	 * Returns <code>true</code> if an object object of the same type 
-	 * already exist in the list, <code>false</code> otherwise.
+	 * Adds the passed objects.
 	 * 
-	 * @param object The object to handle.
-	 * @return See above.
+	 * @param toAdd The objects to add.
 	 */
-	private boolean doesObjectExist(DataObject object)
-	{
-		Iterator<Object> i = availableItems.iterator();
-		if (object instanceof TagAnnotationData) {
-			TagAnnotationData ob;
-			String value = ((TagAnnotationData) object).getTagValue();
-			while (i.hasNext()) {
-				ob = (TagAnnotationData) i.next();
-				if (ob.getTagValue().equals(value)) return true;
-			}
-			i = selectedItems.iterator();
-			while (i.hasNext()) {
-				ob = (TagAnnotationData) i.next();
-				if (ob.getTagValue().equals(value)) return true;
-			}
-		}
-		return false;
-	}
-	
 	void addObjects(List<DataObject> toAdd)
 	{
 		if (toAdd == null || toAdd.size() == 0) return;
@@ -475,6 +505,18 @@ public class SelectionWizardUI
 		sortLists();	
 		populateSelectedItems();
 		setSelectionChange();
+	}
+
+	/**
+	 * Sets the collection of nodes that cannot be removed.
+	 * 
+	 * @param immutable The collection to set.
+	 */
+	void setImmutableElements(Collection immutable)
+	{
+		if (immutable == null) immutable = new ArrayList();
+		this.immutable = immutable;
+		cellRenderer.setImmutableElements(immutable);
 	}
 	
 	/**

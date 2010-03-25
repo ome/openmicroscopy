@@ -26,6 +26,9 @@ package org.openmicroscopy.shoola.agents.util;
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
+import java.util.Collection;
+import java.util.Iterator;
+
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.Icon;
 import javax.swing.JList;
@@ -36,6 +39,8 @@ import javax.swing.JList;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.ui.IconManager;
+
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -73,6 +78,9 @@ public class DataObjectListCellRenderer
     /** Filter to identify protocol file. */
     private EditorFileFilter 	filter;
     
+	/** The collection of immutable  nodes. */
+	private Collection			immutable;
+	
     /**
      * Sets the text displayed in the tool tip.
      * 
@@ -83,6 +91,31 @@ public class DataObjectListCellRenderer
     	if (exp == null) return;
     	String s = "Created by: "+exp.getFirstName()+" "+exp.getLastName();
     	setToolTipText(s);
+    }
+    
+    /**
+     * Returns <code>true</code> if the passed element is immutable.
+     * <code>false</code> otherwise.
+     * 
+     * @param value The element to handle.
+     * @return See above.
+     */
+    private boolean isImmutable(Object value)
+    {
+    	if (immutable == null || immutable.size() == 0) return false;
+    	if (!(value instanceof DataObject)) return false;
+    	Iterator i = immutable.iterator();
+    	long id = ((DataObject) value).getId();
+    	if (id < 0) return false;
+    	Object object;
+    	while (i.hasNext()) {
+			object = i.next();
+			if (object.getClass().equals(value.getClass())) {
+				if (((DataObject) object).getId() == id)
+					return true;
+			}
+		}
+    	return false;
     }
     
 	/** Creates a new instance. */
@@ -101,6 +134,16 @@ public class DataObjectListCellRenderer
 		this.currentUserID = currentUserID;
 		icons = IconManager.getInstance();
         filter = new EditorFileFilter();
+	}
+	
+	/**
+	 * Sets the collection of nodes that cannot be removed.
+	 * 
+	 * @param immutable The collection to set.
+	 */
+	void setImmutableElements(Collection immutable)
+	{
+		this.immutable = immutable;
 	}
 	
 	/**
@@ -201,6 +244,7 @@ public class DataObjectListCellRenderer
 			setText(d.getName());
 			setIcon(icons.getIcon(IconManager.GROUP));
 		}
+		setEnabled(!isImmutable(value));
 		return this;
 	}
 	

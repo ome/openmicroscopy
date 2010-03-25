@@ -663,7 +663,6 @@ class DocComponent
 			b = model.isUserOwner(data);
 			link = model.isLinkOwner(data);
 		}
-		System.err.println(enabled+" "+link+" "+b+" "+data);
 		if (unlinkButton != null) unlinkButton.setEnabled(link);
 		if (editButton != null) editButton.setEnabled(b);
 		if (downloadButton != null) downloadButton.setEnabled(link);

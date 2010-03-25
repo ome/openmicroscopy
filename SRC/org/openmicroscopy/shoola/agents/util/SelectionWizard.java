@@ -349,6 +349,16 @@ public class SelectionWizard
 	}
 
 	/**
+	 * Sets the collection of nodes that cannot be removed.
+	 * 
+	 * @param immutable The collection to set.
+	 */
+	public void setImmutableElements(Collection immutable)
+	{
+		uiDelegate.setImmutableElements(immutable);
+	}
+	
+	/**
 	 * Sets the title, the text and the icon displayed in the header.
 	 * 
 	 * @param title		The title to set.

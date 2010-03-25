@@ -134,6 +134,7 @@ class EditorComponent
 		SelectionWizard wizard = new SelectionWizard(
 				reg.getTaskBar().getFrame(), available, selected, type,
 				addCreation, userID);
+		wizard.setImmutableElements(model.getImmutableAnnotation());
 		if (model.isMultiSelection())
 			wizard.setAcceptButtonText("Save");
 		wizard.setTitle(title, text, icon);
