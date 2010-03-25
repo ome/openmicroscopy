@@ -186,15 +186,7 @@ public class AdminDialog
 		} else if (body instanceof ExperimenterPane) {
 			ExperimenterPane pane = (ExperimenterPane) body;
 			Map<ExperimenterData, UserCredentials> m = pane.getObjectToSave();
-			if (m.size() == 0) {
-				/*
-				UserNotifier un = 
-					TreeViewerAgent.getRegistry().getUserNotifier();
-				un.notifyInfo("Create Experimenter", 
-						"No experimenter to create");
-						*/
-				return;
-			}
+			if (m.size() == 0) return;
 			object = new AdminObject(m, AdminObject.CREATE_EXPERIMENTER);
 			object.setGroups(pane.getSelectedGroups());
 		}
@@ -212,21 +204,30 @@ public class AdminDialog
 					notifyUser(true);
 					return;
 				}
-				/*
 				map = object.getExperimenters();
 				if (map != null) {
 					i = map.entrySet().iterator();
+					String password;
+					StringBuffer text;
+					UserNotifier un = 
+						TreeViewerAgent.getRegistry().getUserNotifier();
 					while (i.hasNext()) {
 						entry = (Entry) i.next();
 						uc = (UserCredentials) entry.getValue();
 						b = isExistingObject(uc.getUserName(), false);
-						if (b) {
-							notifyUser(false);
-							break;
+						if (!b) {
+							password = uc.getPassword();
+							if (password == null || password.length() == 0) {
+								text = new StringBuffer();
+								text.append("No Password set for the new " +
+										"Experimenter.");
+								text.append("\nPlease enter one.");
+								un.notifyInfo("Admin Error", text.toString());
+								return;
+							}
 						}
 					}
 				}
-				*/
 				break;
 			case AdminObject.CREATE_EXPERIMENTER:
 				map = object.getExperimenters();
