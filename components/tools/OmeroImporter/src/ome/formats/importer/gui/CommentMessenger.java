@@ -147,7 +147,7 @@ public class CommentMessenger extends JDialog implements ActionListener
         
         emailTextField.setText(config.email.get());
         
-        commentTextArea = GuiCommonElements.addTextArea(commentPanel, "Comment:", 
+        commentTextArea = GuiCommonElements.addScrollingTextArea(commentPanel, "Comment:", 
                 "", 'W', "0, 2, 2, 2", debug);
         
         // Add the tab panel to the main panel
@@ -162,9 +162,9 @@ public class CommentMessenger extends JDialog implements ActionListener
     /* (non-Javadoc)
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed(ActionEvent event)
     {
-        Object source = e.getSource();
+        Object source = event.getSource();
         
         if (source == cancelBtn)
         {

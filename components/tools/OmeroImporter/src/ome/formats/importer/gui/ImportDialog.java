@@ -18,7 +18,6 @@ import info.clearthought.layout.TableLayout;
 
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -455,39 +454,39 @@ public class ImportDialog extends JDialog implements ActionListener
     }
 
     
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed(ActionEvent event)
     {
        
-        if (e.getSource() == fileCheckBox && !fileCheckBox.isSelected())
+        if (event.getSource() == fileCheckBox && !fileCheckBox.isSelected())
         {
             sendingNamingWarning(this);   
         } 
-        else if (e.getSource() == addProjectBtn)
+        else if (event.getSource() == addProjectBtn)
         {
             new AddProjectDialog(config, this, "Add a new Project", true, store);
             refreshAndSetProject();
         } 
-        else if (e.getSource() == addDatasetBtn)
+        else if (event.getSource() == addDatasetBtn)
         {
             project = ((ProjectItem) pbox.getSelectedItem()).getProject();
             new AddDatasetDialog(config, this, "Add a new Dataset to: " + project.getName().getValue(), true, project, store);
             refreshAndSetDataset(project);
         } 
-        else if (e.getSource() == fullPathButton)
+        else if (event.getSource() == fullPathButton)
         {
             config.useFullPath.set(true);
 
         }
-        else if (e.getSource() == partPathButton)
+        else if (event.getSource() == partPathButton)
         {
             config.useFullPath.set(false);
         }
-        else if (e.getSource() == cancelBtn)
+        else if (event.getSource() == cancelBtn)
         {
             cancelled = true;
             this.dispose();
         }
-        else if (e.getSource() == importBtn)
+        else if (event.getSource() == importBtn)
         {
             cancelled = false;
             importBtn.requestFocus();
@@ -510,7 +509,7 @@ public class ImportDialog extends JDialog implements ActionListener
             
             this.dispose();
         }
-        else if (e.getSource() == pbox)
+        else if (event.getSource() == pbox)
         {
             cancelled = false;
 

@@ -187,7 +187,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         
         emailTextField.setText(config.email.get());
         
-        commentTextArea = GuiCommonElements.addTextArea(commentPanel, "Please provide any additional information of importance.", 
+        commentTextArea = GuiCommonElements.addScrollingTextArea(commentPanel, "Please provide any additional information of importance.", 
                 "", 'W', "0, 2, 2, 3", debug);
         
         // Add the tab panel to the main panel
@@ -213,9 +213,9 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
     /* (non-Javadoc)
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed(ActionEvent event)
     {
-        Object source = e.getSource();
+        Object source = event.getSource();
         
         
         if (source == quitBtn)

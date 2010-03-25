@@ -131,7 +131,7 @@ public class AddProjectDialog extends JDialog implements ActionListener
         nameField = GuiCommonElements.addTextField(internalPanel, "Project Name: ", "", 'E',
         "Input your project name here.", "", TableLayout.PREFERRED, "0, 1, 1, 1", debug);
         
-        descriptionArea = GuiCommonElements.addTextArea(internalPanel, "Description: (optional)", 
+        descriptionArea = GuiCommonElements.addScrollingTextArea(internalPanel, "Description: (optional)", 
                 "", 'W', "0, 2, 1, 2", debug);
         
         // Add the tab panel to the main panel
@@ -145,9 +145,9 @@ public class AddProjectDialog extends JDialog implements ActionListener
     /* (non-Javadoc)
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed(ActionEvent event)
     {
-        Object source = e.getSource();
+        Object source = event.getSource();
         
         if (source == OKBtn)
         {  

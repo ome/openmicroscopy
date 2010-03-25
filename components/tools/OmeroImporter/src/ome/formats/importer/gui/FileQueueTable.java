@@ -409,9 +409,11 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
     }
 
     /**
+     * Retrieves the import containers from the table.
+     * 
      * @return ImportContainer
      */
-    public ImportContainer[] getFilesAndObjectTypes() {
+    public ImportContainer[] getImportContainersFromTable() {
 
         int num = table.getRowCount();     
         ImportContainer[] importContainer = new ImportContainer[num];
@@ -423,15 +425,18 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
         return importContainer;
     }
 
-    public void actionPerformed(ActionEvent e)
+    /**
+     * Fire property changes on action events for buttons and ui
+     * 
+     * @param event
+     */
+    public void actionPerformed(ActionEvent event)
     {
-        Object src = e.getSource();
+        Object src = event.getSource();
         if (src == addBtn)
             firePropertyChange(FileQueueHandler.ADD, false, true);
         if (src == removeBtn)
             firePropertyChange(FileQueueHandler.REMOVE, false, true);
-//        if (src == refreshBtn)
-//            firePropertyChange(FileQueueHandler.REFRESH, false, true);
         if (src == clearDoneBtn)
             firePropertyChange(FileQueueHandler.CLEARDONE, false, true);
         if (src == clearFailedBtn)
@@ -441,9 +446,14 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
             queue.clearSelection();
             firePropertyChange(FileQueueHandler.IMPORT, false, true);
         }
+        //if (src == refreshBtn)
+        //firePropertyChange(FileQueueHandler.REFRESH, false, true);
     }
     
 
+    /**
+     * @param row
+     */
     public void centerOnRow(int row)
     {
         queue.getSelectionModel().setSelectionInterval(row, row);
@@ -462,215 +472,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
         }
         queue.scrollRectToVisible(cellRect);
     }
-
-    class QueueTableModel 
-        extends DefaultTableModel 
-        implements TableModelListener {
         
-        private static final long serialVersionUID = 1L;
-        private String[] columnNames = {"Files in Queue", "Project/Dataset or Screen", "Status", "DatasetNum", "Path", "Archive", "ProjectNum", "UserPixels", "UserSpecifiedName"};
-
-        public void tableChanged(TableModelEvent arg0) { }
-        
-        public int getColumnCount() { return columnNames.length; }
-
-        public String getColumnName(int col) { return columnNames[col]; }
-        
-        public boolean isCellEditable(int row, int col) { return false; }
-        
-        public boolean rowSelectionAllowed() { return true; }
-    }
- 
-    public class MyTableHeaderRenderer 
-        extends DefaultTableCellRenderer 
-    {
-        // This method is called each time a column header
-        // using this renderer needs to be rendered.
-
-        private static final long serialVersionUID = 1L;
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
-
-           // setBorder(UIManager.getBorder("TableHeader.cellBorder"));
-            setBorder(BorderFactory.createLineBorder(new Color(0xe0e0e0)));
-            setForeground(UIManager.getColor("TableHeader.foreground"));
-            setBackground(UIManager.getColor("TableHeader.background"));
-            setFont(UIManager.getFont("TableHeader.font"));
-    
-            // Configure the component with the specified value
-            setFont(getFont().deriveFont(Font.BOLD));
-            setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
-            setText(value.toString());
-            setOpaque(true);
-                
-            // Set tool tip if desired
-            //setToolTipText((String)value);
-            
-            setEnabled(table == null || table.isEnabled());
-                        
-            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-    
-            // Since the renderer is a component, return itself
-            return this;
-        }
-        
-        // The following methods override the defaults for performance reasons
-        public void validate() {}
-        public void revalidate() {}
-        protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {}
-        public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {}
-    }
-    
-    @SuppressWarnings("serial")
-    class LeftDotRenderer 
-        extends DefaultTableCellRenderer
-    {       
-        public Component getTableCellRendererComponent(
-            JTable table, Object value, boolean isSelected,
-            boolean hasFocus, int row, int column)        
-        {
-            super.getTableCellRendererComponent(
-                    table, value, isSelected, hasFocus, row, column);
-
-            int availableWidth = table.getColumnModel().getColumn(column).getWidth();
-            availableWidth -= table.getIntercellSpacing().getWidth();
-            Insets borderInsets = getBorder().getBorderInsets((Component)this);
-            availableWidth -= (borderInsets.left + borderInsets.right);
-            String cellText = getText();
-            FontMetrics fm = getFontMetrics( getFont() );
-            // Set tool tip if desired
- 
-            if (fm.stringWidth(cellText) > availableWidth)
-            {
-                String dots = "...";
-                int textWidth = fm.stringWidth( dots );
-                int nChars = cellText.length() - 1;
-                for (; nChars > 0; nChars--)
-                {
-                    textWidth += fm.charWidth(cellText.charAt(nChars));
- 
-                    if (textWidth > availableWidth)
-                    {
-                        break;
-                    }
-                }
- 
-                setText( dots + cellText.substring(nChars + 1) );
-            }
-
-            setFont(UIManager.getFont("TableCell.font"));
-            
-            if (queue.getValueAt(row, 2).equals("done"))
-            { this.setEnabled(false); } 
-            else
-            { this.setEnabled(true); }
-
-            if (queue.getValueAt(row, 2).equals("failed"))
-            { setForeground(Color.red);} 
-            else if (queue.getValueAt(row, 2).equals("unreadable"))
-            { setForeground(ETable.DARK_ORANGE);} 
-            else
-            { setForeground(null);}
-            
-            return this;
-        }
-    }
-    
-    public class CenterTextRenderer
-        extends DefaultTableCellRenderer 
-    {
-        // This method is called each time a column header
-        // using this renderer needs to be rendered.
-
-        private static final long serialVersionUID = 1L;
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
-
-            setFont(UIManager.getFont("TableCell.font"));
-            setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
-            
-            // Set tool tip if desired
-            //setToolTipText((String)value);
-            
-            if (queue.getValueAt(row, 2).equals("done"))
-            { this.setEnabled(false); } 
-            else
-            { this.setEnabled(true); }
-
-            if (queue.getValueAt(row, 2).equals("failed"))
-            { setForeground(Color.red);} 
-            else if (queue.getValueAt(row, 2).equals("unreadable"))
-            { setForeground(ETable.DARK_ORANGE);} 
-            else
-            { setForeground(null);}
-            
-            // Since the renderer is a component, return itself
-            return this;
-        }
-    }
-
-    public class SelectionListener 
-        implements ListSelectionListener {
-        JTable table;
-    
-        // It is necessary to keep the table since it is not possible
-        // to determine the table from the event's source
-        SelectionListener(JTable table) {
-            this.table = table;
-        }
-        public void valueChanged(ListSelectionEvent e) {
-            // If cell selection is enabled, both row and column change events are fired
-            if (e.getSource() == table.getSelectionModel()
-                  && table.getRowSelectionAllowed()) 
-            {
-                    dselectRows();
-            } 
-        }
-        
-        private void dselectRows()
-        {
-            // Column selection changed
-            int rows = queue.getRowCount();
-
-            for (int i = 0; i < rows; i++ )
-            {
-                try
-                {
-                    if (!(queue.getValueAt(i, 2).equals("added") ||
-                            queue.getValueAt(i, 2).equals("pending")) 
-                            && table.getSelectionModel().isSelectedIndex(i))
-                    {
-                        table.getSelectionModel().removeSelectionInterval(i, i);
-                    }
-                } catch (ArrayIndexOutOfBoundsException e)
-                {
-                	log.error("Error deselecting rows in table.", e);
-                }
-            }
-        }
-    }
-        
-    public static void main (String[] args) {
-
-        String laf = UIManager.getSystemLookAndFeelClassName() ;
-        //laf = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
-        //laf = "javax.swing.plaf.metal.MetalLookAndFeel";
-        
-        try {
-            UIManager.setLookAndFeel(laf);
-        } catch (Exception e) 
-        { System.err.println(laf + " not supported."); }
-        
-        FileQueueTable q = new FileQueueTable(); 
-        JFrame f = new JFrame();   
-        f.getContentPane().add(q);
-        f.setVisible(true);
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.pack();
-    }
-
     public void update(IObservable importLibrary, ImportEvent event)
     {
         // TODO : Here we should check for "cancel" and if so
@@ -778,5 +580,310 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
     public CenterTextRenderer getStatusCellRenderer()
     {
         return statusCellRenderer;
+    }
+    
+    /**
+     * Set up queue table model
+     * 
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     *
+     */
+    class QueueTableModel extends DefaultTableModel implements TableModelListener {
+        
+        private static final long serialVersionUID = 1L;
+        
+        private String[] columnNames = {"Files in Queue", 
+        		"Project/Dataset or Screen", "Status", "DatasetNum", "Path", 
+        		"Archive", "ProjectNum", "UserPixels", "UserSpecifiedName"};
+
+        /* (non-Javadoc)
+         * @see javax.swing.event.TableModelListener#tableChanged(javax.swing.event.TableModelEvent)
+         */
+        public void tableChanged(TableModelEvent arg0) { }
+        
+        /* (non-Javadoc)
+         * @see javax.swing.table.DefaultTableModel#getColumnCount()
+         */
+        public int getColumnCount() { return columnNames.length; }
+
+        /* (non-Javadoc)
+         * @see javax.swing.table.DefaultTableModel#getColumnName(int)
+         */
+        public String getColumnName(int col) { return columnNames[col]; }
+        
+        /* (non-Javadoc)
+         * @see javax.swing.table.DefaultTableModel#isCellEditable(int, int)
+         */
+        public boolean isCellEditable(int row, int col) { return false; }
+        
+        /**
+         * Allow rows to be selected
+         * 
+         * @return
+         */
+        public boolean rowSelectionAllowed() { return true; }
+    }
+ 
+    /**
+     * Set up queue table headers
+     * 
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     *
+     */
+    public class MyTableHeaderRenderer extends DefaultTableCellRenderer 
+    {
+        // This method is called each time a column header
+        // using this renderer needs to be rendered.
+
+        private static final long serialVersionUID = 1L;
+        
+        /* (non-Javadoc)
+         * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+         */
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+
+           // setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+            setBorder(BorderFactory.createLineBorder(new Color(0xe0e0e0)));
+            setForeground(UIManager.getColor("TableHeader.foreground"));
+            setBackground(UIManager.getColor("TableHeader.background"));
+            setFont(UIManager.getFont("TableHeader.font"));
+    
+            // Configure the component with the specified value
+            setFont(getFont().deriveFont(Font.BOLD));
+            setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
+            setText(value.toString());
+            setOpaque(true);
+                
+            // Set tool tip if desired
+            //setToolTipText((String)value);
+            
+            setEnabled(table == null || table.isEnabled());
+                        
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+    
+            // Since the renderer is a component, return itself
+            return this;
+        }
+        
+        // The following methods override the defaults for performance reasons
+        
+        /* (non-Javadoc)
+         * @see javax.swing.table.DefaultTableCellRenderer#validate()
+         */
+        public void validate() {}
+        
+        /* (non-Javadoc)
+         * @see javax.swing.table.DefaultTableCellRenderer#revalidate()
+         */
+        public void revalidate() {}
+        
+        /* (non-Javadoc)
+         * @see javax.swing.table.DefaultTableCellRenderer#firePropertyChange(java.lang.String, java.lang.Object, java.lang.Object)
+         */
+        protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {}
+        
+        /* (non-Javadoc)
+         * @see javax.swing.table.DefaultTableCellRenderer#firePropertyChange(java.lang.String, boolean, boolean)
+         */
+        public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {}
+    }
+    
+// Internal Helper Classes
+    
+    /**
+     * Set up left dot column for long file names
+     * 
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     *
+     */
+    class LeftDotRenderer extends DefaultTableCellRenderer
+    {   
+    	private static final long serialVersionUID = 1L;
+    	
+        /* (non-Javadoc)
+         * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+         */
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+            boolean hasFocus, int row, int column)        
+        {
+            super.getTableCellRendererComponent(
+                    table, value, isSelected, hasFocus, row, column);
+
+            int availableWidth = table.getColumnModel().getColumn(column).getWidth();
+            availableWidth -= table.getIntercellSpacing().getWidth();
+            Insets borderInsets = getBorder().getBorderInsets((Component)this);
+            availableWidth -= (borderInsets.left + borderInsets.right);
+            String cellText = getText();
+            FontMetrics fm = getFontMetrics( getFont() );
+            // Set tool tip if desired
+ 
+            if (fm.stringWidth(cellText) > availableWidth)
+            {
+                String dots = "...";
+                int textWidth = fm.stringWidth( dots );
+                int nChars = cellText.length() - 1;
+                for (; nChars > 0; nChars--)
+                {
+                    textWidth += fm.charWidth(cellText.charAt(nChars));
+ 
+                    if (textWidth > availableWidth)
+                    {
+                        break;
+                    }
+                }
+ 
+                setText( dots + cellText.substring(nChars + 1) );
+            }
+
+            setFont(UIManager.getFont("TableCell.font"));
+            
+            if (queue.getValueAt(row, 2).equals("done"))
+            { this.setEnabled(false); } 
+            else
+            { this.setEnabled(true); }
+
+            if (queue.getValueAt(row, 2).equals("failed"))
+            { setForeground(Color.red);} 
+            else if (queue.getValueAt(row, 2).equals("unreadable"))
+            { setForeground(ETable.DARK_ORANGE);} 
+            else
+            { setForeground(null);}
+            
+            return this;
+        }
+    }
+    
+    /**
+     * Set up center aligned column
+     * 
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     *
+     */
+    public class CenterTextRenderer extends DefaultTableCellRenderer 
+    {
+        // This method is called each time a column header
+        // using this renderer needs to be rendered.
+
+        private static final long serialVersionUID = 1L;
+        
+        /* (non-Javadoc)
+         * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+         */
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+
+			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        	
+            setFont(UIManager.getFont("TableCell.font"));
+            setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
+            
+            // Set tool tip if desired
+            //setToolTipText((String)value);
+            
+            if (queue.getValueAt(row, 2).equals("done"))
+            { this.setEnabled(false); } 
+            else
+            { this.setEnabled(true); }
+
+            if (queue.getValueAt(row, 2).equals("failed"))
+            { setForeground(Color.red);} 
+            else if (queue.getValueAt(row, 2).equals("unreadable"))
+            { setForeground(ETable.DARK_ORANGE);} 
+            else
+            { setForeground(null);}
+            
+            // Since the renderer is a component, return itself
+            return this;
+        }
+    }
+
+    /**
+     * Selection listener for cells
+     * 
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     *
+     */
+    public class SelectionListener implements ListSelectionListener {
+    	
+        JTable table;
+        
+        /**
+         * It is necessary to pass in the table since it is not possible
+         * to determine the table from the event's source
+         * 
+         * @param table
+         */
+        SelectionListener(JTable table) 
+        {
+            this.table = table;
+        }
+        
+        /* (non-Javadoc)
+         * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
+         */
+        public void valueChanged(ListSelectionEvent e) 
+        {
+            // If cell selection is enabled, both row and column change events are fired
+            if (e.getSource() == table.getSelectionModel() && table.getRowSelectionAllowed()) 
+            {
+                    dselectRows();
+            } 
+        }
+        
+        /**
+         * Only select rows with a status of 'added' or 'pending'
+         */
+        private void dselectRows()
+        {
+            // Column selection changed
+            int rows = queue.getRowCount();
+
+            for (int i = 0; i < rows; i++ )
+            {
+                try
+                {
+                    if (!(queue.getValueAt(i, 2).equals("added") ||
+                            queue.getValueAt(i, 2).equals("pending")) 
+                            && table.getSelectionModel().isSelectedIndex(i))
+                    {
+                        table.getSelectionModel().removeSelectionInterval(i, i);
+                    }
+                } catch (ArrayIndexOutOfBoundsException e)
+                {
+                	log.error("Error deselecting rows in table.", e);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Main for testing (debugging only)
+     * 
+     * @param args
+     * @throws Exception 
+     */
+    public static void main (String[] args) {
+
+        String laf = UIManager.getSystemLookAndFeelClassName() ;
+        //laf = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+        //laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
+        //laf = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
+        //laf = "javax.swing.plaf.metal.MetalLookAndFeel";
+        
+        try 
+        {
+            UIManager.setLookAndFeel(laf);
+        } catch (Exception e) 
+        { 
+        	System.err.println(laf + " not supported."); 
+        }
+        
+        FileQueueTable q = new FileQueueTable(); 
+        JFrame f = new JFrame();   
+        f.getContentPane().add(q);
+        f.setVisible(true);
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.pack();
     }
 }

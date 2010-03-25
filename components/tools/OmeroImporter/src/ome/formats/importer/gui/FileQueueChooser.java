@@ -493,9 +493,9 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
     /* (non-Javadoc)
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed(ActionEvent event)
     {
-        Object src = e.getSource();
+        Object src = event.getSource();
         if (src == refreshBtn)
             this.setVisible(false);
             this.rescanCurrentDirectory();

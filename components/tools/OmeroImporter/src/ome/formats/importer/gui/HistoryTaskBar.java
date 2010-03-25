@@ -101,7 +101,7 @@ public class HistoryTaskBar extends JXPanel implements ActionListener
         tpContainer.validate();
     }
 
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed(ActionEvent event)
     {
     }
 }

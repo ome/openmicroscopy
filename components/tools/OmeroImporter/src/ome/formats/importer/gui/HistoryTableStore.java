@@ -528,7 +528,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         	System.err.println(s);
         	e.printStackTrace();
         }
-        return null;
+        return new DefaultListModel(); // return empty defaultlist
     }
     
     /* (non-Javadoc)

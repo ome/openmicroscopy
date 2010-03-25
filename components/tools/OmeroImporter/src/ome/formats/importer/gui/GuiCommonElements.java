@@ -35,7 +35,6 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Locale;
 
 import javax.swing.BorderFactory;
@@ -65,8 +64,6 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
-import javax.swing.text.TabSet;
-import javax.swing.text.TabStop;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -115,7 +112,7 @@ public class GuiCommonElements
      * @param margin_bottom - bottom margin
      * @param margin_right - right margin
      * @param debug - turn on/off red debug borders
-     * @return
+     * @return new JPanel
      */
     public static JPanel addMainPanel(Container container, double tableSize[][], 
             int margin_top, int margin_left, int margin_bottom, int margin_right,
@@ -137,6 +134,15 @@ public class GuiCommonElements
         return panel;
     }
     
+    /**
+     * Add a bordered 'sub-panel' with title to a container
+     * 
+     * @param container - parent container
+     * @param tableSize - TableLayout table array
+     * @param name - panel name
+     * @param debug - turn on/off red debug borders
+     * @return new JPanel
+     */
     public static JPanel addBorderedPanel(Container container, double tableSize[][], 
             String name,
             boolean debug)
@@ -156,6 +162,14 @@ public class GuiCommonElements
         return panel;
     }
     
+    /**
+     * Add a plane sub-panel to an existing container
+     * 
+     * @param container - parent container
+     * @param tableSize - TableLayout table array
+     * @param debug - turn on/off red debug borders
+     * @return new JPanel
+     */
     public static JPanel addPlanePanel(Container container, double tableSize[][], 
             boolean debug)
     {
@@ -173,75 +187,16 @@ public class GuiCommonElements
         
         return panel;
     }
-    
-    public static WholeNumberField addWholeNumberField(Container container, String prefexStr,
-            String initialValue, String suffexStr, int mnemonic, String tooltip,
-            int maxChars, int fieldWidth, String placement, boolean debug)
-    {
-        JPanel panel = new JPanel();
-        panel.setOpaque(false);
-        
-        double table[][] = 
-            {{TableLayout.PREFERRED, fieldWidth, 5, TableLayout.PREFERRED}, // columns
-            {TableLayout.PREFERRED}}; // rows 
-        
-        TableLayout layout = new TableLayout(table);
-        panel.setLayout(layout);  
 
-        JLabel prefex = new JLabel(prefexStr);
-        prefex.setDisplayedMnemonic(mnemonic);
-        panel.add(prefex,"0,0");
-
-        WholeNumberField result = new WholeNumberField(0, maxChars);
-        result.setHorizontalAlignment(JTextField.CENTER);
-        prefex.setLabelFor(result);
-        result.setToolTipText(tooltip);
-        if (initialValue != null) result.setText(initialValue);
-
-        panel.add(result,"1,0");
-
-        JLabel suffex = new JLabel(suffexStr);
-        panel.add(suffex,"3,0");
-        
-        container.add(panel, placement);
-        
-        return result;
-    }
-    
-    public static DecimalNumberField addDecimalNumberField(Container container, String prefexStr,
-            String initialValue, String suffexStr, int mnemonic, String tooltip,
-            int maxChars, int fieldWidth, String placement, boolean debug)
-    {
-        JPanel panel = new JPanel();
-        panel.setOpaque(false);
-        
-        double table[][] = 
-            {{TableLayout.PREFERRED, fieldWidth, 5, TableLayout.PREFERRED}, // columns
-            {TableLayout.PREFERRED}}; // rows 
-        
-        TableLayout layout = new TableLayout(table);
-        panel.setLayout(layout);  
-
-        JLabel prefex = new JLabel(prefexStr);
-        prefex.setDisplayedMnemonic(mnemonic);
-        panel.add(prefex,"0,0");
-
-        DecimalNumberField result = new DecimalNumberField(null, maxChars);
-        result.setHorizontalAlignment(JTextField.CENTER);
-        prefex.setLabelFor(result);
-        result.setToolTipText(tooltip);
-        if (initialValue != null) result.setText(initialValue);
-
-        panel.add(result,"1,0");
-
-        JLabel suffex = new JLabel(suffexStr);
-        panel.add(suffex,"3,0");
-        
-        container.add(panel, placement);
-        
-        return result;
-    }
-
+    /**
+     * Add a text pane to the parent container
+     * 
+     * @param container - parent container
+     * @param text - text for new Text Pane
+     * @param placement - TableLayout placement within the parent container
+     * @param debug - turn on/off red debug borders
+     * @return new JTextPane
+     */
     public static JTextPane addTextPane(Container container, String text, 
             String placement, boolean debug)
     {
@@ -272,8 +227,18 @@ public class GuiCommonElements
 
         return textPane;
     }
-
-    // A version of addTextPane that lets you add a style and context
+ 
+    /**
+     * A version of addTextPane that lets you add a style and context
+     * 
+     * @param container - parent container
+     * @param text - text for new Text Pane
+     * @param placement - TableLayout placement within the parent container
+     * @param context - context for new text pane
+     * @param style - style to apply to new text pane
+     * @param debug - turn on/off red debug borders
+     * @return new JTextPane
+     */
     public static JTextPane addTextPane(Container container, String text, 
             String placement, StyleContext context, Style style, boolean debug)
     {
@@ -301,6 +266,20 @@ public class GuiCommonElements
         return textPane;
     }
 
+    /**
+     * Add a new Text Field
+     * 
+     * @param container - parent container
+     * @param name - name of text field
+     * @param initialValue - initial value of text field
+     * @param mnemonic - mnemonic key
+     * @param tooltip - tool tip for field
+     * @param suffix - suffix text for field
+     * @param labelWidth - label width 
+     * @param placement - TableLayout placement
+     * @param debug - turn on/off red debug borders
+     * @return JTextField
+     */
     public static JTextField addTextField(Container container, String name,
             String initialValue, int mnemonic, String tooltip, 
             String suffix, double labelWidth, String placement, boolean debug)
@@ -348,6 +327,20 @@ public class GuiCommonElements
         return result;
     }
 
+    /**
+     * Add a new Password Text Field
+     * 
+     * @param container - parent container
+     * @param name - name of text field
+     * @param initialValue - initial value of text field
+     * @param mnemonic - mnemonic key
+     * @param tooltip - tool tip for field
+     * @param suffix - suffix text for field
+     * @param labelWidth - label width 
+     * @param placement - TableLayout placement
+     * @param debug - turn on/off red debug borders
+     * @return JPasswordField
+     */
     public static JPasswordField addPasswordField(Container container, String name,
             String initialValue, int mnemonic, String tooltip, 
             String suffix, double labelWidth, String placement, boolean debug)
@@ -396,7 +389,18 @@ public class GuiCommonElements
         return result;
     }
 
-    public static JTextArea addTextArea(Container container, String name, 
+    /**
+     * Add a TextArea that has scrolling functionality
+     * 
+     * @param container - parent container
+     * @param name - name of text area
+     * @param text - text to put in text area
+     * @param mnemonic - mnemonic key
+     * @param placement - TableLayout placement in parent container
+     * @param debug - turn on/off red debug borders
+     * @return JTextArea
+     */
+    public static JTextArea addScrollingTextArea(Container container, String name, 
             String text, int mnemonic, String placement, boolean debug)
     {
         JPanel panel = new JPanel();
@@ -435,112 +439,13 @@ public class GuiCommonElements
         
         return textArea;
     }
-
-    public JTextPane addTextPane(Container container, String name, 
-            String text, int mnemonic, String placement, boolean debug)
-    {
-        JPanel panel = new JPanel();
-        panel.setOpaque(false);
-        
-        double size[][] = {{TableLayout.FILL},{20, TableLayout.FILL}};
-        TableLayout layout = new TableLayout(size);
-        panel.setLayout(layout);
-        
-        StyleContext context = new StyleContext();
-        StyledDocument document = new DefaultStyledDocument(context);
-
-        JTextPane textPane = new JTextPane(document);
-        textPane.setOpaque(false);
-
-        // Create one of each type of tab stop
-        java.util.List<TabStop> list = new ArrayList<TabStop>();
-        
-        // Create a left-aligned tab stop at 100 pixels from the left margin
-        float pos = 15;
-        int align = TabStop.ALIGN_LEFT;
-        int leader = TabStop.LEAD_NONE;
-        TabStop tstop = new TabStop(pos, align, leader);
-        list.add(tstop);
-        
-        // Create a right-aligned tab stop at 200 pixels from the left margin
-        pos = 15;
-        align = TabStop.ALIGN_RIGHT;
-        leader = TabStop.LEAD_NONE;
-        tstop = new TabStop(pos, align, leader);
-        list.add(tstop);
-        
-        // Create a center-aligned tab stop at 300 pixels from the left margin
-        pos = 15;
-        align = TabStop.ALIGN_CENTER;
-        leader = TabStop.LEAD_NONE;
-        tstop = new TabStop(pos, align, leader);
-        list.add(tstop);
-        
-        // Create a decimal-aligned tab stop at 400 pixels from the left margin
-        pos = 15;
-        align = TabStop.ALIGN_DECIMAL;
-        leader = TabStop.LEAD_NONE;
-        tstop = new TabStop(pos, align, leader);
-        list.add(tstop);
-        
-        // Create a tab set from the tab stops
-        TabStop[] tstops = (TabStop[])list.toArray(new TabStop[0]);
-        TabSet tabs = new TabSet(tstops);
-        
-        // Add the tab set to the logical style;
-        // the logical style is inherited by all paragraphs
-        Style style = textPane.getLogicalStyle();
-        StyleConstants.setTabSet(style, tabs);
-        textPane.setLogicalStyle(style);
-        
-        JScrollPane areaScrollPane = new JScrollPane(textPane);
-        areaScrollPane.
-            setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        
-        if (debug == true)
-        panel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.red),
-                panel.getBorder()));
-        
-        if (name != "")
-        {
-            JLabel label = new JLabel(name);
-            label.setDisplayedMnemonic(mnemonic);
-            panel.add(label, "0, 0, l, c");
-            panel.add(areaScrollPane, "0, 1, f, f");
-        } else {
-            panel.add(areaScrollPane, "0, 0, 0, 1");            
-        }
-        
-
-        container.add(panel, placement);
-        
-        return textPane;
-    }
-
-    /**
-     * @param doc
-     * @param style
-     * @param text
-     * appends text to the end of a styled document
-     */
-    public void appendTextToDocument(StyledDocument doc, Style style, String text)
-    {
-        try
-        {
-            doc.insertString(doc.getLength(), text, style);
-        } catch (BadLocationException e)
-        {
-        	log.error("Bad location exception appending text to document.", e);
-        }
-    }
     
     /**
-     * Basic Button
+     * Basic Button not using TableLayout
      * 
      * @param name button name
      * @param image button image
-     * @param tooltip button tooltip
+     * @param tooltip button tool tip
      * @return button
      */
     public static JButton addBasicButton(String name, String image, String tooltip)
@@ -702,6 +607,11 @@ public class GuiCommonElements
         return null;
     }
 
+    /**
+     * @param frame
+     * @param message
+     * @return
+     */
     public static boolean quitConfirmed(Component frame, String message) {
         if (message == null)
         {
@@ -726,6 +636,12 @@ public class GuiCommonElements
         }
     }
     
+    /**
+     * Pop-up a restart notification dialog
+     * 
+     * @param frame - parent frame
+     * @param message - custom message to use instead of default supplied
+     */
     public static void restartNotice(Component frame, String message) {
         if (message == null)
         {
@@ -750,6 +666,60 @@ public class GuiCommonElements
             return false;
     }
     
+    /**
+     * Add a whole number field to the parent container
+     * 
+     * @param container - parent container 
+     * @param prefexStr - prefix text for field
+     * @param initialValue - intial field value
+     * @param suffexStr - suffex for field
+     * @param mnemonic - accellerator key menonic
+     * @param tooltip - tool tip for field
+     * @param maxChars - maximum characters in field
+     * @param fieldWidth - width of field
+     * @param placement - TableLayout placement of field in parent container
+     * @param debug - red debug border on/off
+     * @return WholeNumberField
+     */
+    public static WholeNumberField addWholeNumberField(Container container, String prefexStr,
+            String initialValue, String suffexStr, int mnemonic, String tooltip,
+            int maxChars, int fieldWidth, String placement, boolean debug)
+    {
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+        
+        double table[][] = 
+            {{TableLayout.PREFERRED, fieldWidth, 5, TableLayout.PREFERRED}, // columns
+            {TableLayout.PREFERRED}}; // rows 
+        
+        TableLayout layout = new TableLayout(table);
+        panel.setLayout(layout);  
+
+        JLabel prefex = new JLabel(prefexStr);
+        prefex.setDisplayedMnemonic(mnemonic);
+        panel.add(prefex,"0,0");
+
+        WholeNumberField result = new WholeNumberField(0, maxChars);
+        result.setHorizontalAlignment(JTextField.CENTER);
+        prefex.setLabelFor(result);
+        result.setToolTipText(tooltip);
+        if (initialValue != null) result.setText(initialValue);
+
+        panel.add(result,"1,0");
+
+        JLabel suffex = new JLabel(suffexStr);
+        panel.add(suffex,"3,0");
+        
+        container.add(panel, placement);
+        
+        return result;
+    }
+    
+    /**
+     * Create a text field that only holds whole numbers
+     * 
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     */
     public static class WholeNumberField extends JTextField {
 
         /**
@@ -759,6 +729,11 @@ public class GuiCommonElements
         private Toolkit toolkit;
         private NumberFormat integerFormatter;
 
+        /**
+         * New WholeNumber field containing value
+         * @param value - value to set
+         * @param columns - columns
+         */
         public WholeNumberField(int value, int columns) {
             super(columns);
             toolkit = Toolkit.getDefaultToolkit();
@@ -767,6 +742,10 @@ public class GuiCommonElements
             setValue(value);
         }
 
+        /**
+         * get value from field
+         * @return - value
+         */
         public int getValue() {
             int retVal = 0;
             try {
@@ -779,21 +758,33 @@ public class GuiCommonElements
             return retVal;
         }
 
+        /**
+         * set value on field
+         * 
+         * @param value
+         */
         public void setValue(int value) {
             setText(integerFormatter.format(value));
         }
 
+        /* (non-Javadoc)
+         * @see javax.swing.JTextField#createDefaultModel()
+         */
         protected Document createDefaultModel() {
             return new WholeNumberDocument();
         }
 
+        /**
+         * 
+         * @author Brian Loranger brain at lifesci.dundee.ac.uk
+         */
         protected class WholeNumberDocument extends PlainDocument {
 
-            /**
-             * 
-             */
             private static final long serialVersionUID = 1L;
 
+            /* (non-Javadoc)
+             * @see javax.swing.text.PlainDocument#insertString(int, java.lang.String, javax.swing.text.AttributeSet)
+             */
             public void insertString(int offs, String str, AttributeSet a) 
             throws BadLocationException {
 
@@ -819,6 +810,59 @@ public class GuiCommonElements
 
     }
     
+    /**
+     * Add a text field that only allows decimal numbers to be entered
+     * 
+     * @param container - parent container
+     * @param prefexStr - prefix string for the text field
+     * @param initialValue - initial decimal value
+     * @param suffexStr - suffix string for the text field
+     * @param mnemonic - accellerator key nmemonic
+     * @param tooltip - tooltip for the field
+     * @param maxChars - max length for the field
+     * @param fieldWidth - width for the field
+     * @param placement - TableLayout placement in parent container
+     * @param debug - turn debug red borders on/off
+     * @return DecimalNumberField
+     */
+    public static DecimalNumberField addDecimalNumberField(Container container, String prefexStr,
+            String initialValue, String suffexStr, int mnemonic, String tooltip,
+            int maxChars, int fieldWidth, String placement, boolean debug)
+    {
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+        
+        double table[][] = 
+            {{TableLayout.PREFERRED, fieldWidth, 5, TableLayout.PREFERRED}, // columns
+            {TableLayout.PREFERRED}}; // rows 
+        
+        TableLayout layout = new TableLayout(table);
+        panel.setLayout(layout);  
+
+        JLabel prefex = new JLabel(prefexStr);
+        prefex.setDisplayedMnemonic(mnemonic);
+        panel.add(prefex,"0,0");
+
+        DecimalNumberField result = new DecimalNumberField(null, maxChars);
+        result.setHorizontalAlignment(JTextField.CENTER);
+        prefex.setLabelFor(result);
+        result.setToolTipText(tooltip);
+        if (initialValue != null) result.setText(initialValue);
+
+        panel.add(result,"1,0");
+
+        JLabel suffex = new JLabel(suffexStr);
+        panel.add(suffex,"3,0");
+        
+        container.add(panel, placement);
+        
+        return result;
+    }
+    
+    /**
+     * 
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     */
     public static class DecimalNumberField extends JTextField {
 
         /**
@@ -828,19 +872,33 @@ public class GuiCommonElements
         private Toolkit toolkit;
         private NumberFormat formatter;
 
-        public DecimalNumberField(Double avaluelue, int columns) {
+        /**
+         * Set decimal field value
+         * 
+         * @param value - value to set
+         * @param columns - number of decimal places
+         */
+        public DecimalNumberField(Double value, int columns) 
+        {
             super(columns);
             toolkit = Toolkit.getDefaultToolkit();
             formatter = NumberFormat.getNumberInstance(Locale.US);
             formatter.setParseIntegerOnly(false);
-            setValue(avaluelue);
+            setValue(value);
         }
 
-        public Double getValue() {
+        /**
+         * Retrieve the text field's value
+         * @return
+         */
+        public Double getValue() 
+        {
             Double retVal = null;
-            try {
+            try 
+            {
                 retVal = formatter.parse(getText()).doubleValue();
-            } catch (ParseException e) {
+            } catch (ParseException e) 
+            {
                 // This should never happen because insertString allows
                 // only properly formatted data to get in the field.
                 toolkit.beep();
@@ -848,15 +906,29 @@ public class GuiCommonElements
             return retVal;
         }
 
-        public void setValue(Double value) {
+        /**
+         * Set the text field's value
+         * 
+         * @param value
+         */
+        public void setValue(Double value) 
+        {
             if (value != null)
                 setText(formatter.format(value));
         }
 
-        protected Document createDefaultModel() {
+        /* (non-Javadoc)
+         * @see javax.swing.JTextField#createDefaultModel()
+         */
+        protected Document createDefaultModel() 
+        {
             return new DecimalNumberDocument();
         }
 
+        /**
+         * 
+         * @author Brian Loranger brain at lifesci.dundee.ac.uk
+         */
         protected class DecimalNumberDocument extends PlainDocument {
 
             /**
@@ -864,14 +936,19 @@ public class GuiCommonElements
              */
             private static final long serialVersionUID = 1L;
 
+            /* (non-Javadoc)
+             * @see javax.swing.text.PlainDocument#insertString(int, java.lang.String, javax.swing.text.AttributeSet)
+             */
             public void insertString(int offs, String str, AttributeSet a) 
-            throws BadLocationException {
+            throws BadLocationException 
+            {
 
                 char[] source = str.toCharArray();
                 char[] result = new char[source.length];
                 int j = 0;
 
-                for (int i = 0; i < result.length; i++) {
+                for (int i = 0; i < result.length; i++) 
+                {
                     if (Character.isDigit(source[i]) || Character.toString(source[i]).equals("."))
                     {
                         result[j++] = source[i];
@@ -884,7 +961,16 @@ public class GuiCommonElements
             }
         }
     }
-
+    
+    /**
+     * Add an image panel to the parent container
+     * 
+     * @param container - parent container
+     * @param imageString - string to use for imgURL
+     * @param placement - TableLayout placement of panel within parent
+     * @param debug - turn on/off red debug borders
+     * @return image JPanel
+     */
     public static JPanel addImagePanel(JPanel container, String imageString,
             String placement, boolean debug)
     {
@@ -908,21 +994,33 @@ public class GuiCommonElements
         container.add(panel, placement);
         
         return panel;
-
     }
     
 
+    /**
+     * Extended JPanel for holding images
+     * 
+     * @author Brian Loranger brain at lifesci.dundee.ac.uk
+     */
     public static class ImagePanel extends JPanel
     {
         private static final long serialVersionUID = 1L;
         ImageIcon image;
     
+        /**
+         * Icon image to use for this JPanel
+         * 
+         * @param icon
+         */
         public ImagePanel(ImageIcon icon)
         {
             super();
             this.image = icon;
         }
         
+        /* (non-Javadoc)
+         * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+         */
         public void paintComponent(Graphics g)
         {
             super.paintComponent(g);

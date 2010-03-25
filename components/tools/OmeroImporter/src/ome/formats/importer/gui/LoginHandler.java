@@ -420,7 +420,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         }
     }
 
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed(ActionEvent event)
     {
     }
 

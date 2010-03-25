@@ -19,7 +19,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Insets;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -239,9 +238,9 @@ public class LoginDialog extends JDialog
 
 
 
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed(ActionEvent event)
     {
-        if (e.getSource() == loginBtn)
+        if (event.getSource() == loginBtn)
         {
             @SuppressWarnings("unused")
             String username = uname.getText();
@@ -255,7 +254,7 @@ public class LoginDialog extends JDialog
             this.dispose();
             if (f != null) f.dispose();
         }
-        if(e.getSource() == quitBtn)
+        if(event.getSource() == quitBtn)
         {
             cancelled = true;
             firePropertyChange(LoginHandler.LOGIN_CANCELLED, false, true);
@@ -263,7 +262,7 @@ public class LoginDialog extends JDialog
             if (f != null) f.dispose();
         }
 
-        if(e.getSource() == configBtn)
+        if(event.getSource() == configBtn)
         {
             ServerDialog serverDialog = new ServerDialog(config.getServerList());
             serverDialog.setLocationRelativeTo(main);

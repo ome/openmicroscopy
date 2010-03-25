@@ -532,9 +532,9 @@ public class HistoryTable
     		getItemQuery(importKey, getExperimenterID(), null, null, null);
     }
 
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed(ActionEvent event)
     {
-        Object src = e.getSource();
+        Object src = event.getSource();
         if (src == searchBtn || src == doneCheckBox || src == failedCheckBox 
                 || src == invalidCheckBox || src == pendingCheckBox)
             getItemQuery(-1, getExperimenterID(), searchField.getText(), 

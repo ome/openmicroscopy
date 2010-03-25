@@ -282,11 +282,11 @@ class ServerDialog
 	private void initListeners()
 	{
 		cancelButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { close(); }
+			public void actionPerformed(ActionEvent event) { close(); }
 		
 		});
 		finishButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { apply(); }
+			public void actionPerformed(ActionEvent event) { apply(); }
 
 		});
 		addWindowListener(new WindowAdapter()
@@ -296,10 +296,10 @@ class ServerDialog
 			} 
 		});
 		moreOptions.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { handleClick(); }
+			public void actionPerformed(ActionEvent event) { handleClick(); }
 		});
 		removeButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { remove(); }
+			public void actionPerformed(ActionEvent event) { remove(); }
 		});
 	}
 	

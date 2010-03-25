@@ -498,9 +498,9 @@ WindowStateListener, WindowFocusListener
         appendToDebug(s + "\n");
     }
 
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed(ActionEvent event)
     {
-        String cmd = e.getActionCommand();
+        String cmd = event.getActionCommand();
 
         if ("login".equals(cmd))
         {

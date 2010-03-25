@@ -221,20 +221,20 @@ public class SPWDialog extends JDialog implements ActionListener
         }
     }
 
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed(ActionEvent event)
     {
-        if (e.getSource() == addScreenBtn)
+        if (event.getSource() == addScreenBtn)
         {
             new AddScreenDialog(config, this, "Add a new Screen", true, store);
             refreshAndSetProject();
         }
 
-        if (e.getSource() == cancelBtn)
+        if (event.getSource() == cancelBtn)
         {
             cancelled = true;
             this.dispose();
         }
-        if (e.getSource() == importBtn)
+        if (event.getSource() == importBtn)
         {
             cancelled = false;
             importBtn.requestFocus();
@@ -243,7 +243,7 @@ public class SPWDialog extends JDialog implements ActionListener
                     ((ScreenItem) sbox.getSelectedItem()).getScreen().getId().getValue());            
             this.dispose();
         }
-        if (e.getSource() == sbox)
+        if (event.getSource() == sbox)
         {
             cancelled = false;
 

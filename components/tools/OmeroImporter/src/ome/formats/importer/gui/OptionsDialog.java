@@ -277,14 +277,14 @@ public class OptionsDialog extends JDialog implements ActionListener
         setVisible(true);
     }
 
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed(ActionEvent event)
     {
-        if (e.getSource() == cancelBtn)
+        if (event.getSource() == cancelBtn)
         {
             cancelled = true;
             this.dispose();
         }
-        if (e.getSource() == okBtn && this.isDisplayable())
+        if (event.getSource() == okBtn && this.isDisplayable())
         {
             if (singlePaneBtn.isSelected())
                 config.setUseQuaqua(false);
@@ -308,7 +308,7 @@ public class OptionsDialog extends JDialog implements ActionListener
                 GuiCommonElements.restartNotice(owner, null);
         }
         
-        if (e.getSource() == dBox)
+        if (event.getSource() == dBox)
         {
             descriptionText.setText(((DebugItem) dBox.getSelectedItem()).getDescription());
             this.repaint();

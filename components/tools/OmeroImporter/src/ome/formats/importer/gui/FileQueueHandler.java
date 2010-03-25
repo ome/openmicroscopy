@@ -72,10 +72,11 @@ import org.apache.commons.logging.LogFactory;
  * @author Brian Loranger brain at lifesci.dundee.ac.uk
  *
  */
-@SuppressWarnings("serial")
 public class FileQueueHandler extends JPanel 
     implements ActionListener, PropertyChangeListener, IObserver
 {
+	private static final long serialVersionUID = 1L;
+	
     /** Logger for this class */
     private static final Log log = LogFactory.getLog(FileQueueHandler.class);
 
@@ -158,9 +159,9 @@ public class FileQueueHandler extends JPanel
     /* (non-Javadoc)
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed(ActionEvent event)
     {
-        final String action = e.getActionCommand();
+        final String action = event.getActionCommand();
         //final File[] files = fileChooser.getSelectedFiles();
         
         //If the directory changed, don't show an image.
@@ -451,7 +452,7 @@ public class FileQueueHandler extends JPanel
             try {
                 if (qTable.importing == false)
                 {
-                    ImportContainer[] candidates = qTable.getFilesAndObjectTypes();
+                    ImportContainer[] candidates = qTable.getImportContainersFromTable();
 
                     if (candidates != null)
                     {
@@ -712,7 +713,7 @@ public class FileQueueHandler extends JPanel
                     
                     cancelBtn.addActionListener(new ActionListener() {
                         
-                        public void actionPerformed(ActionEvent e)
+                        public void actionPerformed(ActionEvent event)
                         {
                             cancelScan  = true;
                             progressDialog.dispose();

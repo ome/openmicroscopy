@@ -256,12 +256,12 @@ public class ErrorTable
     /* (non-Javadoc)
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == sendBtn)
+    public void actionPerformed(ActionEvent event) {
+        if (event.getSource() == sendBtn)
         {
             notifyObservers(new ImportEvent.ERRORS_SEND());
         }
-        if (e.getSource() == cancelBtn)
+        if (event.getSource() == cancelBtn)
         {
             enableCancelBtn(false);
             notifyObservers(new ImportEvent.ERRORS_UPLOAD_CANCELLED());

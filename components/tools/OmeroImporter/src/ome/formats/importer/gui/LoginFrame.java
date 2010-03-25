@@ -231,9 +231,9 @@ public class LoginFrame extends JFrame
     }
 
 
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed(ActionEvent event)
     {
-        if (e.getSource() == loginBtn)
+        if (event.getSource() == loginBtn)
         {
             config.username.set(uname.getText());
             config.password.set(new String(pswd.getPassword()));
@@ -244,12 +244,12 @@ public class LoginFrame extends JFrame
             this.dispose();
             if (f != null) f.dispose();
         }
-        if(e.getSource() == quitBtn)
+        if(event.getSource() == quitBtn)
         {
             System.exit(0);
         }
 
-        if(e.getSource() == configBtn)
+        if(event.getSource() == configBtn)
         {
             List<String> serverList = config.getServerList();
             ServerDialog serverDialog = new ServerDialog(serverList);
