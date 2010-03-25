@@ -237,9 +237,9 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                     r.setCtime(t);
                     r.setFormat(new Format("Repository"));
                     r.setSize(0L);
-                    // ticket:1794 - currently only perms == group.perms allowed
-                    // r.getDetails().setPermissions(Permissions.WORLD_IMMUTABLE);
                     r = sf.getUpdateService().saveAndReturnObject(r);
+                    // ticket:1794
+                    sf.getAdminService().moveToCommonSpace(r);
                     fileMaker.writeLine(repoUuid);
                     log.info(String.format(
                             "Registered new repository %s (uuid=%s)", r
@@ -253,16 +253,8 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                         throw new InternalException(
                                 "Can't find repository object: " + line);
                     } else {
-                        if (!r.getDetails().getPermissions().isGranted(
-                                Role.WORLD, Right.READ)) {
-                            // TODO: See changes to SharedResources. The current
-                            // repository usage is at odds to the security
-                            // system and needs to be reviewed
-                            log.warn("Making repository readable...");
-                            r.getDetails().setPermissions(
-                                    Permissions.WORLD_IMMUTABLE);
-                            sf.getUpdateService().saveObject(r);
-                        }
+                        // ticket:1794 - only adds if necessary
+                        sf.getAdminService().moveToCommonSpace(r);
                     }
                     log.info(String.format("Opened repository %s (uuid=%s)", r
                             .getName(), repoUuid));

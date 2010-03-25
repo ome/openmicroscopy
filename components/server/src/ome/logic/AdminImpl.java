@@ -901,8 +901,10 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                 Class<IObject> c = (Class<IObject>) Utils.trueClass(object.getClass());
                 IObject o = (IObject) iQuery.get(c, id);
                 ExperimenterGroup g = o.getDetails().getGroup();
-                adminOrPiOfGroup(g);
-                internalMoveToCommonSpace(o);
+                if (!g.getId().equals(getSecurityRoles().getUserGroupId())) {
+                    adminOrPiOfGroup(g);
+                    internalMoveToCommonSpace(o);
+                }
             }
         }
     }
