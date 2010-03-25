@@ -22,11 +22,11 @@ public class FileSetI extends FileSet {
     FileSetI() {
         importableImage = false;
         file = null;
-	    name = "";
+	    imageName = "";
         usedFiles = null;
         imageCount = 0;
         imageList = null;
-
+        pixelsList = null;
     }
     
     public void setImportableImage(boolean importableImage) {
@@ -37,12 +37,12 @@ public class FileSetI extends FileSet {
         return importableImage;
     }
 
-    public void setName(String name) {
-        name = name;
+    public void setImageName(String name) {
+        imageName = name;
     }
     
-    public String getName() {
-        return name;
+    public String getImageName() {
+        return imageName;
     }
 
     public void setFile(IObject file) {

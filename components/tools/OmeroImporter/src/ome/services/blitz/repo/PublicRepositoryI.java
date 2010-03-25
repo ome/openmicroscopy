@@ -288,34 +288,44 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         List<File> files = filteredFiles(file, conf);
         List<String> names = filesToPaths(files);
-        Map<String, List<String>> importableFiles = importableImageFiles(files, conf.depth);
-        
-        // Add the importable files as Image/OriginalFiles
-        for (String keyFile : importableFiles.keySet()) {
+        List<ImportContainer> containers = importableImageFiles(files, conf.depth);
+
+        for (ImportContainer ic : containers) {
             FileSet set = new FileSetI();
-            set.usedFiles = new ArrayList<IObject>();
+            List<OriginalFile> ofList;
+            
+            set.imageName = ic.imageName;
             set.importableImage = true;
-            List<String> iFileList = importableFiles.get(keyFile);
+            set.imageCount = ic.bfImageCount;
+            
+            ofList = getOriginalFiles(ic.file.getAbsolutePath());
+            if (ofList != null && ofList.size() != 0) {
+                set.file = ofList.get(0);
+            } else {
+                set.file = createOriginalFile(ic.file);   
+            }
+            
+            set.usedFiles = new ArrayList<IObject>();
+            List<String> iFileList = Arrays.asList(ic.usedFiles);
             for (String iFile : iFileList)  {
                 removeNameFromFileList(iFile, names);
-                // Primary file as Image object
-                if (keyFile.equals(iFile)) {
-                    set.name = iFile;
-                    List<OriginalFile> ofList = getOriginalFiles(iFile);
-                    if (ofList != null && ofList.size() != 0) {
-                        set.file = ofList.get(0);
-                    } else {
-                        set.file = createOriginalFile(new File(iFile));   
-                    }
-                // Remaining used files as OriginalFile objects
+                ofList = getOriginalFiles(iFile);
+                if (ofList != null && ofList.size() != 0) {
+                    set.usedFiles.add(ofList.get(0));
                 } else {
-                    List<OriginalFile> ofList = getOriginalFiles(iFile);
-                    if (ofList != null && ofList.size() != 0) {
-                        set.usedFiles.add(ofList.get(0));
-                    } else {
-                        set.usedFiles.add(createOriginalFile(new File(iFile)));   
-                    }
+                    set.usedFiles.add(createOriginalFile(new File(iFile)));   
                 }
+            }
+            
+            set.pixelsList = ic.bfPixels;
+            
+            set.imageList = new ArrayList<Image>();
+            for (Pixels pix : ic.bfPixels)  {
+                Image image = new ImageI();
+                // This needs to be unique ala ticket #1753
+                image.setName(rstring(set.imageName));        
+                image.setAcquisitionDate(rtime(java.lang.System.currentTimeMillis()));
+                set.imageList.add(image);
             }
             rv.add(set);
         }
@@ -324,14 +334,13 @@ public class PublicRepositoryI extends _RepositoryDisp {
         if (names.size() > 0) {
             for (String iFile : names) {
                 FileSet set = new FileSetI();
-                set.usedFiles = new ArrayList<IObject>();
                 set.importableImage = false;
-                set.name = iFile;
+                set.imageCount = 0;
                 List<OriginalFile> ofList = getOriginalFiles(iFile);
                 if (ofList != null && ofList.size() != 0) {
-                    set.usedFiles.add(ofList.get(0));
+                    set.file = ofList.get(0);
                 } else {
-                    set.usedFiles.add(createOriginalFile(new File(iFile)));   
+                    set.file = createOriginalFile(new File(iFile));   
                 }
                 rv.add(set);
             }
@@ -675,19 +684,19 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return rv;
     }
     
-    private  Map<String, List<String>> importableImageFiles(Collection<File> files, int depth) {
+    private  List<ImportContainer> importableImageFiles(Collection<File> files, int depth) {
         List<String> pathList = filesToPaths(files);
         String paths [] = (String []) pathList.toArray (new String [pathList.size()]);        
-        Map<String, List<String>> importableFiles = new  HashMap<String, List<String>>();
+        //Map<String, List<String>> importableFiles = new  HashMap<String, List<String>>();
 
         ImportableFiles imp = new ImportableFiles(paths, depth);
         List<ImportContainer> containers = imp.getContainers();
 
-        for (ImportContainer ic : containers) {
-            String name = ic.file.getAbsolutePath();
-            importableFiles.put(name, Arrays.asList(ic.usedFiles));
-        }
-        return importableFiles;
+        //for (ImportContainer ic : containers) {
+        //    String name = ic.file.getAbsolutePath();
+        //    importableFiles.put(name, Arrays.asList(ic.usedFiles));
+        //}
+        return containers;
     }
 
 

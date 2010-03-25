@@ -34,10 +34,11 @@ module omero {
         {
             bool importableImage;
             omero::model::OriginalFile file;
-	        string name;
+	        string imageName;
             omero::api::IObjectList usedFiles;
 	        int imageCount;
             omero::api::ImageList imageList;
+            omero::api::PixelsList pixelsList;
         };
 
         ["java:type:java.util.ArrayList<FileSet>:java.util.List<FileSet>"]

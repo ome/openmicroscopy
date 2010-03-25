@@ -345,7 +345,7 @@ public class ImportCandidates extends DirectoryWalker {
 
                 ImportContainer ic = new ImportContainer(file, null, null,
                         null, false, null, format, usedFiles, isSPW);
-                ic.bfImageCount = reader.getImageCount();
+                ic.bfImageCount = reader.getSeriesCount();
                 ic.bfPixels = getPixelsWithDimensions();
                 return ic;
             } finally {
@@ -374,7 +374,7 @@ public class ImportCandidates extends DirectoryWalker {
      */
     private List<Pixels> getPixelsWithDimensions() {
         List<Pixels> toReturn = new ArrayList<Pixels>();
-        for (int i = 0; i < reader.getImageCount(); i++) {
+        for (int i = 0; i < reader.getSeriesCount(); i++) {
             reader.setSeries(i);
             Pixels pixels = new PixelsI();
             pixels.setSizeX(rint(reader.getSizeX()));
