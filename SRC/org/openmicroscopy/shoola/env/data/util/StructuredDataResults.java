@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.util;
 
 //Java imports
 import java.util.Collection;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -78,8 +79,11 @@ public class StructuredDataResults
 	/** The ratings of the objects. */
 	private Collection					ratings;
 
-	/** Flag indicating if tha object has been published e.g. image. */
+	/** Flag indicating if the object has been published e.g. image. */
 	private Collection					published;
+	
+	/** The tags and documents links. */
+	private Map							otherOwnerLinks;
 	
 	/**
 	 * Creates a new instance.
@@ -224,5 +228,22 @@ public class StructuredDataResults
 	 * @return See above.
 	 */
 	public Collection getPublished() { return published; }
+	
+	/**
+	 * Returns the collection of links.
+	 * 
+	 * @return See above.
+	 */
+	public Map getOtherOwnerLinks() { return otherOwnerLinks; }
+	
+	/**
+	 * Sets the collection.
+	 * 
+	 * @param otherOwnerLinks The collection to set.
+	 */
+	public void setOtherOwnerLinks(Map otherOwnerLinks)
+	{
+		this.otherOwnerLinks = otherOwnerLinks;
+	}
 	
 }

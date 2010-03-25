@@ -48,6 +48,7 @@ import info.clearthought.layout.TableLayout;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
+import pojos.FileAnnotationData;
 import pojos.TagAnnotationData;
 
 
@@ -180,6 +181,11 @@ public class SelectionWizardUI
 		setSelectionChange();
 	}
 	
+	private boolean isLinkOwner(DataObject data)
+	{
+		return false;
+	}
+	
 	/** Removes an item from the selection. */
 	private void removeItem()
 	{
@@ -188,15 +194,23 @@ public class SelectionWizardUI
 									selectedItemsListbox.getModel();
 		int [] indexes = selectedItemsListbox.getSelectedIndices();
 		Object object; 
-		TagAnnotationData tag;
+		DataObject data;
 		for (int i = 0 ; i < indexes.length ; i++) {
 			object = model.getElementAt(indexes[i]);
 			if (selectedItems.contains(object)) {
-				selectedItems.remove(object);
-				if (TagAnnotationData.class.equals(type)) {
-					tag = (TagAnnotationData) object;
-					if (tag.getId() > 0) availableItems.add(object);
+				if (TagAnnotationData.class.equals(type) || 
+					FileAnnotationData.class.equals(type)) {
+					data = (DataObject) object;
+					//not in original list so can be removed
+					if (!originalSelectedItems.contains(object)) {
+						selectedItems.remove(object);
+						if (data.getId() > 0) availableItems.add(object);
+					} else {
+						//need to know about owner of the link
+						
+					}
 				} else {
+					selectedItems.remove(object);
 					availableItems.add(object);
 				}
 			}
@@ -211,19 +225,30 @@ public class SelectionWizardUI
 	/** Removes all items from the selection. */
 	private void removeAllItems()
 	{
-		if (TagAnnotationData.class.equals(type)) {
-			TagAnnotationData tag;
+		List<Object> toRemove = new ArrayList<Object>();
+		if (TagAnnotationData.class.equals(type) || 
+			FileAnnotationData.class.equals(type)) {
+			DataObject data;
 			for (Object item: selectedItems) {
-				tag = (TagAnnotationData) item;
-				if (tag.getId() > 0)
-					availableItems.add(item);
+				data = (DataObject) item;
+				if (!originalItems.contains(data)) {
+					if (data.getId() > 0) {
+						availableItems.add(item);
+						toRemove.add(item);
+					}
+				} else {
+					
+				}
 			}
+			Iterator<Object> i = toRemove.iterator();
+			while (i.hasNext())
+				selectedItems.remove(i.next());
 		} else {
-			for (Object item: selectedItems)
+			for (Object item: selectedItems) 
 				availableItems.add(item);
+			selectedItems.clear();
 		}
 		
-		selectedItems.clear();
 		sortLists();
 		populateAvailableItems();
 		populateSelectedItems();

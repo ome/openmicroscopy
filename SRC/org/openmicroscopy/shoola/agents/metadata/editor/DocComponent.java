@@ -463,7 +463,7 @@ class DocComponent
 		if (downloadButton != null) bar.add(downloadButton);
 		if (openButton != null) bar.add(openButton);
 		if (deleteButton != null) bar.add(deleteButton);
-		setEnabled(model.isUserOwner(model.getRefObject()));
+		setControlsEnabled(data != null);
 		if (bar.getComponentCount() > 0) add(bar);
 	}
 	
@@ -649,17 +649,25 @@ class DocComponent
 	}
 	
 	/**
-	 * Overridden to turn the flag of all the controls.
-	 * @see JPanel#setEnabled(boolean)
+	 * Enables or disables the various buttons depending on the passed value.
+	 * 
+	 * @param enabled 	Pass <code>true</code> to enable the controls,
+	 * 					<code>false</code> otherwise.
 	 */
-	public void setEnabled(boolean enabled)
+	private void setControlsEnabled(boolean enabled)
 	{
 		boolean b = enabled;
-		if (enabled && data != null) b = model.isUserOwner(data);
-		if (unlinkButton != null) unlinkButton.setEnabled(enabled);
+		boolean link = enabled;
+		
+		if (enabled && data != null) {
+			b = model.isUserOwner(data);
+			link = model.isLinkOwner(data);
+		}
+		System.err.println(enabled+" "+link+" "+b+" "+data);
+		if (unlinkButton != null) unlinkButton.setEnabled(link);
 		if (editButton != null) editButton.setEnabled(b);
-		if (downloadButton != null) downloadButton.setEnabled(enabled);
-		if (openButton != null) openButton.setEnabled(enabled);
+		if (downloadButton != null) downloadButton.setEnabled(link);
+		if (openButton != null) openButton.setEnabled(link);
 		if (deleteButton != null) deleteButton.setEnabled(b);
 	}
 	

@@ -627,6 +627,35 @@ class EditorModel
 	}
 	
 	/**
+	 * Returns <code>true</code> if the current user is the owner of the link
+	 * between the passed annotation and the currently selected object.
+	 * 
+	 * @param annotation The annotation to handle.
+	 * @return See above.
+	 */
+	boolean isLinkOwner(Object annotation)
+	{
+		StructuredDataResults data = parent.getStructuredData();
+		if (!(annotation instanceof DataObject)) return false;
+		if (data == null) return false;
+		Map m = data.getOtherOwnerLinks();
+		if (m == null) return false;
+		long id = MetadataViewerAgent.getUserDetails().getId();
+		Entry entry;
+		Iterator i = m.entrySet().iterator();
+		DataObject o;
+		DataObject ann = (DataObject) annotation;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			o = (DataObject) entry.getKey();
+			if (o.getId() == ann.getId()) {
+				return id == ((Long) entry.getValue()).longValue();
+			}
+		}
+		return false;
+	}
+	
+	/**
 	 * Returns <code>true</code> if the user currently logged in, is a leader
 	 * of the selected group, <code>false</code> otherwise.
 	 * 

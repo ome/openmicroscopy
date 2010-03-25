@@ -761,6 +761,8 @@ class OmeroMetadataServiceImpl
 			AnnotationData data;
 			BooleanAnnotationData b;
 			Map<Long, AnnotationData> map = new HashMap<Long, AnnotationData>();
+			//Check link when not owner 
+			List<Long> annotationIds = new ArrayList<Long>();
 			while (i.hasNext()) {
 				data = (AnnotationData) i.next();
 				if (data instanceof URLAnnotationData)
@@ -768,11 +770,15 @@ class OmeroMetadataServiceImpl
 				else if (data instanceof TextualAnnotationData)
 					texts.add(data);
 				else if ((data instanceof TagAnnotationData)) {
+					//if (data.getOwner().getId() != userID) 
+					annotationIds.add(data.getId());
 					map.put(data.getId(), data);
 					tags.add(data);
 				} else if (data instanceof RatingAnnotationData)
 					ratings.add(data);
 				else if (data instanceof FileAnnotationData) {
+					//if (data.getOwner().getId() != userID) 
+					annotationIds.add(data.getId());
 					map.put(data.getId(), data);
 					attachments.add(data);
 				} else if (data instanceof BooleanAnnotationData) {
@@ -782,6 +788,28 @@ class OmeroMetadataServiceImpl
 						published.add(data);
 				}
 			}
+			//load the links tags and attachments
+			if (annotationIds.size() > 0) {
+				List links = gateway.findAnnotationLinks(object.getClass(), 
+						annotationIds, -1);
+				if (links != null) {
+					Map<DataObject, Long> m = new HashMap<DataObject, Long>();
+					Iterator j = links.iterator();
+					IObject link;
+					DataObject d;
+					while (j.hasNext()) {
+						link = (IObject) j.next();
+						d = PojoMapper.asDataObject(
+								ModelMapper.getChildFromLink(link));
+						if (d != null)
+							m.put(d,
+							link.getDetails().getOwner().getId().getValue());
+					}
+					results.setOtherOwnerLinks(m);
+				}
+				
+			}
+			
 			results.setTextualAnnotations(texts);
 			results.setUrls(urls);
 			results.setTags(tags);

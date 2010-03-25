@@ -82,6 +82,7 @@ import omero.model.UriAnnotationI;
 import omero.model.Well;
 import omero.model.WellAnnotationLink;
 import omero.model.WellAnnotationLinkI;
+import omero.model.WellSampleAnnotationLink;
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
@@ -186,6 +187,26 @@ public class ModelMapper
         throw new IllegalArgumentException("Parent not supported.");
     }
 
+    public static IObject getChildFromLink(IObject link)
+    {
+    	if (link == null) return null;
+    	if (link instanceof ProjectAnnotationLink)
+    		return ((ProjectAnnotationLink) link).getChild();
+    	if (link instanceof DatasetAnnotationLink)
+    		return ((DatasetAnnotationLink) link).getChild();
+    	if (link instanceof ImageAnnotationLink)
+    		return ((ImageAnnotationLink) link).getChild();
+    	if (link instanceof PlateAnnotationLink)
+    		return ((PlateAnnotationLink) link).getChild();
+    	if (link instanceof ScreenAnnotationLink)
+    		return ((ScreenAnnotationLink) link).getChild();
+    	if (link instanceof WellSampleAnnotationLink)
+    		return ((WellSampleAnnotationLink) link).getChild();
+    	if (link instanceof AnnotationAnnotationLink)
+    		return ((AnnotationAnnotationLink) link).getChild();
+    	return null;
+    }
+    
     /**
      * Links the  {@link IObject child} to its {@link IObject parent}.
      * 

@@ -811,6 +811,36 @@ class OMEROGateway
 			table = "AnnotationAnnotationLink";
 		return table;
 	}
+	
+	/**
+	 * Determines the table name corresponding to the specified class.
+	 * 
+	 * @param klass The class to analyze.
+	 * @return See above.
+	 */
+	private String getAnnotationTableLink(Class klass)
+	{
+		String table = null;
+		if (Dataset.class.equals(klass) ||
+			DatasetData.class.equals(klass)) 
+			table = "DatasetAnnotationLink";
+		else if (Project.class.equals(klass) ||
+				ProjectData.class.equals(klass)) 
+			table = "ProjectAnnotationLink";
+		else if (Image.class.equals(klass) ||
+				ImageData.class.equals(klass)) table = "ImageAnnotationLink";
+		else if (Screen.class.equals(klass) ||
+				ScreenData.class.equals(klass)) 
+			table = "ScreenAnnotationLink";
+		else if (Plate.class.equals(klass) ||
+				PlateData.class.equals(klass)) 
+			table = "ScreenAnnotationLink";
+		else if (WellSample.class.equals(klass) ||
+				WellSampleData.class.equals(klass)) 
+			table = "ScreenAnnotationLink";
+		else table = "AnnotationAnnotationLink";
+		return table;
+	}
 
 	/**
 	 * Determines the table name corresponding to the specified class.
@@ -904,6 +934,48 @@ class OMEROGateway
 		return null;
 	}
 	
+	/**
+	 * Loads the links.
+	 * 
+	 * @param table 	The table's link.
+	 * @param childID	The annotation's identifier
+	 * @param userID	The user's identifier.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	private List loadLinks(String table, long childID, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			if (table == null) return new ArrayList();
+			ParametersI param = new ParametersI();
+			param.map.put("id", omero.rtypes.rlong(childID));
+			StringBuffer sb = new StringBuffer();
+			sb.append("select link from "+table+" as link ");
+			sb.append("left outer join fetch link.child as child ");
+			sb.append("left outer join fetch link.parent parent ");
+			if (childID >= 0) {
+				sb.append("where link.child.id = :id");
+				param.addId(childID);
+				if (userID >= 0) {
+					sb.append(" and link.details.owner.id = :userID");
+					param.map.put("userID", omero.rtypes.rlong(userID));
+				}
+			} else {
+				if (userID >= 0) {
+					sb.append("where link.details.owner.id = :userID");
+					param.map.put("userID", omero.rtypes.rlong(userID));
+				}
+			}
+			return getQueryService().findAllByQuery(sb.toString(), param);
+		} catch (Throwable t) {
+			handleException(t, "Cannot retrieve the requested link for "+
+					"child ID: "+childID);
+		}
+		return new ArrayList();
+	}
 	/**
 	 * Returns the {@link ISessionPrx} service.
 	 * 
@@ -2949,34 +3021,30 @@ class OMEROGateway
 		return new ArrayList();
 	}
 
-	private List loadLinks(String table, long childID, long userID)
+	List findAnnotationLinks(Class node, List children, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		isSessionAlive();
 		try {
-			if (table == null) return new ArrayList();
-			ParametersI param = new ParametersI();
-			param.map.put("id", omero.rtypes.rlong(childID));
+			String table = getAnnotationTableLink(node);
+			if (table == null) return null;
 			StringBuffer sb = new StringBuffer();
 			sb.append("select link from "+table+" as link ");
-			sb.append("left outer join fetch link.child as child ");
-			sb.append("left outer join fetch link.parent parent ");
-			if (childID >= 0) {
-				sb.append("where link.child.id = :id");
-				param.addId(childID);
-				if (userID >= 0) {
-					sb.append(" and link.details.owner.id = :userID");
-					param.map.put("userID", omero.rtypes.rlong(userID));
-				}
-			} else {
-				if (userID >= 0) {
-					sb.append("where link.details.owner.id = :userID");
-					param.map.put("userID", omero.rtypes.rlong(userID));
-				}
+			sb.append("left outer join fetch link.child child ");
+			sb.append("left outer join fetch child.details.owner ownerChild ");
+			sb.append("where link.child.id in (:childIDs)");
+			ParametersI param = new ParametersI();
+			param.addLongs("childIDs", children);
+
+			if (userID >= 0) {
+				sb.append(" and link.details.owner.id = :userID");
+				param.map.put("userID", omero.rtypes.rlong(userID));
 			}
+			
 			return getQueryService().findAllByQuery(sb.toString(), param);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested link for "+
-					"child ID: "+childID);
+			"the specified children");
 		}
 		return new ArrayList();
 	}
