@@ -258,19 +258,31 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
     private List<File> filteredFiles(File file, RepositoryListConfig config) throws ServerError {
-        List<File> files;
+        List<File> files = new ArrayList<File>();
         
-        if (config.files && config.dirs) {
-            files = Arrays.asList(file.listFiles());
-        } else if (config.dirs) {
-            files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.directoryFileFilter()));
-        } else if (config.files) {
-            files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.fileFileFilter()));
+        if (config.system) {
+            if (config.files && config.dirs) {
+                files = Arrays.asList(file.listFiles());
+            } else if (config.dirs) {
+                files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.directoryFileFilter()));
+            } else if (config.files) {
+                files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.fileFileFilter()));
+            }  
         } else {
-            files = new ArrayList<File>();
+            if (config.files && config.dirs) {
+                files = Arrays.asList(file.listFiles((FileFilter)
+                        FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter("."))));
+            } else if (config.dirs) {
+                files = Arrays.asList(file.listFiles((FileFilter)
+                        FileFilterUtils.andFileFilter(FileFilterUtils.directoryFileFilter(), 
+                        FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter(".")))));
+            } else if (config.files) {
+                files = Arrays.asList(file.listFiles((FileFilter)
+                        FileFilterUtils.andFileFilter(FileFilterUtils.fileFileFilter(), 
+                        FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter(".")))));
+            }  
         }
         
-        //TODO filter out system files if config.system is false
         return files;
     }
 
