@@ -21,7 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- *  A helper class used to obtain the mport candidates
+ *  A helper class used to obtain the import candidates
  *
  * @since Beta4.1
  */
@@ -33,13 +33,13 @@ public class ImportableFiles implements IObserver {
     private List<ImportContainer> containers;
 
 
-    ImportableFiles(String[] paths) {
+    ImportableFiles(String[] paths, int depth) {
         final IObserver self = this;
         // Default config for now, may need to set some details?
         config = new ImportConfig();
         //config.configureDebug(1);
         OMEROWrapper reader = new OMEROWrapper(config);
-        candidates = new ImportCandidates(0, reader, paths, self);
+        candidates = new ImportCandidates(depth, reader, paths, self);
         containers = candidates.getContainers();  
     }
 

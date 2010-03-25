@@ -20,7 +20,27 @@ module omero {
     // See README.ice for a description of this module.
     //
     module grid {
+        
+        class RepositoryListConfig 
+        {
+            int depth;
+            bool files;
+            bool dirs;
+            bool system;
+            bool registered;
+        };
 
+        class FileSet 
+        {
+            bool importableImage;
+            omero::model::OriginalFile file;
+	        string name;
+            omero::api::IObjectList usedFiles;
+        };
+
+        ["java:type:java.util.ArrayList<FileSet>:java.util.List<FileSet>"]
+            sequence<FileSet> FileSetList;
+        
         /**
          * Client-accessible interface representing a single mount point on the server-side.
          **/
@@ -39,16 +59,16 @@ module omero {
              */
 
             // These list methods provide all files and/or directories, registered or not.
-            omero::api::OriginalFileList list(string path) throws ServerError;
-            omero::api::OriginalFileList listDirs(string path) throws ServerError;
-            omero::api::OriginalFileList listFiles(string path) throws ServerError;
+            omero::api::OriginalFileList list(string path, RepositoryListConfig config) throws ServerError;
+            //omero::api::OriginalFileList listDirs(string path) throws ServerError;
+            //omero::api::OriginalFileList listFiles(string path) throws ServerError;
 
-            omero::api::IObjectListMap listObjects(string path) throws ServerError;
+            FileSetList listObjects(string path, RepositoryListConfig config) throws ServerError;
             
             // These list methods provide only registered files and/or directories.
-            omero::api::OriginalFileList listKnown(string path) throws ServerError;
-            omero::api::OriginalFileList listKnownDirs(string path) throws ServerError;
-            omero::api::OriginalFileList listKnownFiles(string path) throws ServerError;
+            //omero::api::OriginalFileList listKnown(string path) throws ServerError;
+            //omero::api::OriginalFileList listKnownDirs(string path) throws ServerError;
+            //omero::api::OriginalFileList listKnownFiles(string path) throws ServerError;
 
             /**
              * Returns the best-guess of the [omero::model::Format] for the given path.
@@ -80,6 +100,21 @@ module omero {
              **/
             omero::model::OriginalFile registerOriginalFile(omero::model::OriginalFile file) 
                     throws ServerError;
+            
+            /**
+             * Create an entry in the database for the given IObject.
+             *
+             * If the given IObject is null a ValidationException is thrown. 
+             * If the given IObject is not a recognised type ValidationException is thrown. 
+             * If the given IObject is already registered a ValidationException is thrown. 
+             * Otherwise, an entry is added and an unloaded IObject returned with id set.
+             *
+             * TODO should this final exception just return and not throw?
+             *
+             **/
+            /* omero::model::IObject registerObject(omero::model::IObject obj) 
+                    throws ServerError;
+            */
             
             /**
              * Create an Image in the database for the given Image.

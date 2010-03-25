@@ -177,6 +177,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return file;
     }
 
+
     /**
      * Register an Image object
      * 
@@ -228,44 +229,38 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * @return List of OriginalFile objects at path
      *
      */
-    public List<OriginalFile> list(String path, Current __current) throws ServerError {
+    public List<OriginalFile> list(String path, RepositoryListConfig config, Current __current) throws ServerError {
         File file = checkPath(path);
-        List<File> files = Arrays.asList(file.listFiles());
-        return filesToOriginalFiles(files);
+        List<File> files;
+        List<OriginalFile> oFiles;
+        if(config == null) {
+            RepositoryListConfig config = new RepositoryListConfigI();
+        }
+        files = filteredFiles(file, config);
+        
+        if (config.registered) {
+            oFiles = knownOriginalFiles(files);
+        } else {
+            oFiles = filesToOriginalFiles(files);
+        }
+        return oFiles;
     }
 
-    /**
-     * Get a list of all directories at path.
-     * 
-     * @param path
-     *            A path on a repository.
-     * @param __current
-     *            ice context.
-     * @return List of OriginalFile objects at path
-     *
-     */
-    public List<OriginalFile> listDirs(String path, Current __current)
-            throws ServerError {
-        File file = checkPath(path);
-        List<File> files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.directoryFileFilter()));
-        return filesToOriginalFiles(files);
-    }
-
-    /**
-     * Get a list of all files at path.
-     * 
-     * @param path
-     *            A path on a repository.
-     * @param __current
-     *            ice context.
-     * @return List of OriginalFile objects at path
-     *
-     */
-    public List<OriginalFile> listFiles(String path, Current __current)
-            throws ServerError {
-        File file = checkPath(path);
-        List<File> files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.fileFileFilter()));
-        return filesToOriginalFiles(files);
+    private List<File> filteredFiles(File file, RepositoryListConfig config) throws ServerError {
+        List<File> files;
+        
+        if (config.files && config.dirs) {
+            files = Arrays.asList(file.listFiles());
+        } else if (config.dirs) {
+            files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.directoryFileFilter()));
+        } else if (config.files) {
+            files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.fileFileFilter()));
+        } else {
+            files = new ArrayList<File>();
+        }
+        
+        //TODO filter out system files if config.system is false
+        return files;
     }
 
     /**
@@ -284,108 +279,67 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * If it is the same as the key's extension then it is treated as an image. A more
      * certain/elegant method should probably be used especially considee
      */
-    public Map<String, List<IObject>> listObjects(String path, Current __current)
+     public List<FileSet> listObjects(String path, RepositoryListConfig config, Current __current)
             throws ServerError {
-        Map<String, List<IObject>> rv = new HashMap<String, List<IObject>>();
-        
+        List<FileSet> rv = new ArrayList<FileSet>();
         File file = checkPath(path);
-        List<File> files = Arrays.asList(file.listFiles());
+        if(config == null) {
+            RepositoryListConfig config = new RepositoryListConfigI();
+        }
+        List<File> files = filteredFiles(file, config);
         List<String> names = filesToPaths(files);
-        Map<String, List<String>> importableFiles = importableImageFiles(files);
+        Map<String, List<String>> importableFiles = importableImageFiles(files, config.depth);
         
         // Add the importable files as Image/OriginalFiles
         for (String keyFile : importableFiles.keySet()) {
-            rv.put(keyFile, new ArrayList<IObject>());
-            String keyFileExt = keyFile.substring(keyFile.lastIndexOf('.')+1, keyFile.length());
+            FileSet set = new FileSetI();
+            set.usedFiles = new ArrayList<IObject>();
+            set.importableImage = true;
             List<String> iFileList = importableFiles.get(keyFile);
             for (String iFile : iFileList)  {
                 removeNameFromFileList(iFile, names);
-                String iFileExt = iFile.substring(iFile.lastIndexOf('.')+1, iFile.length());
-                if (keyFileExt.equals(iFileExt)) {
-                    List<Image> imageList = getImages(iFile);
-                    if (imageList != null && imageList.size() != 0) {
-                        rv.get(keyFile).add(imageList.get(0));
+                // Primary file as Image object
+                if (keyFile.equals(iFile)) {
+                    set.name = iFile;
+                    List<OriginalFile> ofList = getOriginalFiles(iFile);
+                    if (ofList != null && ofList.size() != 0) {
+                        set.file = ofList.get(0);
                     } else {
-                        rv.get(keyFile).add(createImage(new File(iFile)));   
+                        set.file = createOriginalFile(new File(iFile));   
                     }
+                // Remaining used files as OriginalFile objects
                 } else {
                     List<OriginalFile> ofList = getOriginalFiles(iFile);
                     if (ofList != null && ofList.size() != 0) {
-                        rv.get(keyFile).add(ofList.get(0));
+                        set.usedFiles.add(ofList.get(0));
                     } else {
-                        rv.get(keyFile).add(createOriginalFile(new File(iFile)));   
+                        set.usedFiles.add(createOriginalFile(new File(iFile)));   
                     }
                 }
             }
+            rv.add(set);
         }
         
-        // Add the left over files in he directory as OrignalFiles
+        // Add the left over files in the directory as OrignalFile objects
         if (names.size() > 0) {
             for (String iFile : names) {
-                List objList =  new ArrayList<IObject>();
+                FileSet set = new FileSetI();
+                set.usedFiles = new ArrayList<IObject>();
+                set.importableImage = false;
+                set.name = iFile;
                 List<OriginalFile> ofList = getOriginalFiles(iFile);
                 if (ofList != null && ofList.size() != 0) {
-                    objList.add(ofList.get(0));
+                    set.usedFiles.add(ofList.get(0));
                 } else {
-                    objList.add(createOriginalFile(new File(iFile)));   
+                    set.usedFiles.add(createOriginalFile(new File(iFile)));   
                 }
-                rv.put(iFile, objList);
+                rv.add(set);
             }
         }
         
         return rv;
     }
 
-    /**
-     * Get a list of those files and directories at path that are already registered.
-     * 
-     * @param path
-     *            A path on a repository.
-     * @param __current
-     *            ice context.
-     * @return List of OriginalFile objects at path
-     *
-     */
-    public List<OriginalFile> listKnown(String path, Current __current)
-            throws ServerError {
-        File file = checkPath(path);
-        List<File> files = Arrays.asList(file.listFiles());
-        return filesToOriginalFiles(files);
-    }
-
-    /**
-     * Get a list of directories at path that are already registered.
-     * 
-     * @param path
-     *            A path on a repository.
-     * @param __current
-     *            ice context.
-     * @return List of OriginalFile objects at path
-     *
-     */
-    public List<OriginalFile> listKnownDirs(String path, Current __current)
-            throws ServerError {
-        File file = checkPath(path);
-        List<File> files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.directoryFileFilter()));
-        return knownOriginalFiles(files);
-    }
-
-    /**
-     * Get a list of files at path that are already registered.
-     * 
-     * @param path
-     *            A path on a repository.
-     * @param __current
-     *            ice context.
-     * @return List of OriginalFile objects at path
-     *
-     */
-    public List<OriginalFile> listKnownFiles(String path, Current __current)
-            throws ServerError {
-        File file = checkPath(path);
-        List<File> files = Arrays.asList(file.listFiles((FileFilter)FileFilterUtils.fileFileFilter()));
-        return knownOriginalFiles(files);
-    }
     
     
     /**
@@ -683,12 +637,12 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return rv;
     }
     
-    private  Map<String, List<String>> importableImageFiles(Collection<File> files) {
+    private  Map<String, List<String>> importableImageFiles(Collection<File> files, int depth) {
         List<String> pathList = filesToPaths(files);
         String paths [] = (String []) pathList.toArray (new String [pathList.size()]);        
         Map<String, List<String>> importableFiles = new  HashMap<String, List<String>>();
 
-        ImportableFiles imp = new ImportableFiles(paths);
+        ImportableFiles imp = new ImportableFiles(paths, depth);
         List<ImportContainer> containers = imp.getContainers();
 
         for (ImportContainer ic : containers) {
@@ -819,35 +773,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
         return rv;
     }
-
-
-
-    private List<File> getImportableImageFiles(Collection<File> files) {
-        List<String> pathList = filesToPaths(files);
-        List<File> importableImageFiles = new ArrayList<File>();
-
-        String paths [] = (String []) pathList.toArray (new String [pathList.size()]);        
-        ImportableFiles imp = new ImportableFiles(paths);
-        List<ImportContainer> containers = imp.getContainers();
-
-        for (ImportContainer ic : containers) {
-            String name = ic.file.getAbsolutePath();
-                for(String uf : ic.usedFiles) {
-                    importableImageFiles.add(new File(uf));
-                }
-            importableImageFiles.add(new File(name));
-        }
-        return importableImageFiles;
-    }
-
-    private List<File> getNonImageFiles(Collection<File> files) {
-        Set<File> allFiles = new HashSet<File>(files);
-        allFiles.removeAll(getImportableImageFiles(files));
-        List<File> nonImageFiles = new ArrayList<File>(allFiles);        
-        
-        return nonImageFiles;
-    }
-
 
     /**
      * Create a jpeg thumbnail from an image file 
