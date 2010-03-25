@@ -239,6 +239,8 @@ public class MetadataImpl
 		sb.append("left outer join fetch img.annotationLinks ail ");
 		sb.append("left outer join fetch ail.child child ");
 		sb.append("left outer join fetch ail.parent parent ");
+		sb.append("left outer join fetch child.details.owner ownerChild ");
+		sb.append("left outer join fetch parent.details.owner ownerParent ");
 		sb.append("left outer join fetch img.pixels as pix ");
 		sb.append("left outer join fetch pix.pixelsType as pt ");
 		sb.append("where child.id = :id");
@@ -251,6 +253,8 @@ public class MetadataImpl
 		sb.append("left outer join fetch d.annotationLinks ail ");
 		sb.append("left outer join fetch ail.child child ");
 		sb.append("left outer join fetch ail.parent parent ");
+		sb.append("left outer join fetch child.details.owner ownerChild ");
+		sb.append("left outer join fetch parent.details.owner ownerParent ");
 		sb.append("where child.id = :id");
 		l = iQuery.findAllByQuery(sb.toString(), param);
 		if (l != null) result.addAll(l);
@@ -274,6 +278,8 @@ public class MetadataImpl
 		sb.append("left outer join fetch p.annotationLinks ail ");
 		sb.append("left outer join fetch ail.child child ");
 		sb.append("left outer join fetch ail.parent parent ");
+		sb.append("left outer join fetch child.details.owner ownerChild ");
+		sb.append("left outer join fetch parent.details.owner ownerParent ");
 		sb.append("where child.id = :id");
 		l = iQuery.findAllByQuery(sb.toString(), param);
 		if (l != null && l.size() > 0) {
@@ -296,6 +302,8 @@ public class MetadataImpl
 		sb.append("left outer join fetch s.annotationLinks ail ");
 		sb.append("left outer join fetch ail.child child ");
 		sb.append("left outer join fetch ail.parent parent ");
+		sb.append("left outer join fetch child.details.owner ownerChild ");
+		sb.append("left outer join fetch parent.details.owner ownerParent ");
 		sb.append("where child.id = :id");
 		l = iQuery.findAllByQuery(sb.toString(), param);
 		if (l != null && l.size() > 0) {
@@ -672,10 +680,12 @@ public class MetadataImpl
     	Parameters po = new Parameters(options);
     	Parameters param = new Parameters();
     	StringBuilder sb = new StringBuilder();
-    	sb.append("select link from AnnotationAnnotationLink as link");
-		sb.append(" left outer join fetch link.child child");
-		sb.append(" left outer join fetch link.parent parent");
-		sb.append(" where child member of "+TAG_TYPE);
+    	sb.append("select link from AnnotationAnnotationLink as link ");
+		sb.append("left outer join fetch link.child child ");
+		sb.append("left outer join fetch link.parent parent ");
+		sb.append("left outer join fetch child.details.owner ownerChild ");
+		sb.append("left outer join fetch parent.details.owner ownerParent ");
+		sb.append("where child member of "+TAG_TYPE);
 		sb.append(" and parent member of "+TAG_TYPE);
 		if (po.isExperimenter()) {
 			sb.append(" and parent.details.owner.id = :userID");
