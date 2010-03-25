@@ -56,6 +56,14 @@ import omero.model.Pixels;
 import omero.model.PixelsI;
 import omero.util.IceMapper;
 
+import omero.grid.FileSet;
+import omero.grid.RepositoryListConfig;
+import ome.services.blitz.repo.FileSetI;
+import ome.services.blitz.repo.RepositoryListConfigI;
+
+import ome.formats.importer.ImportContainer;
+import ome.services.blitz.repo.ImportableFiles;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.logging.Log;
