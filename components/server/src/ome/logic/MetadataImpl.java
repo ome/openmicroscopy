@@ -153,26 +153,8 @@ public class MetadataImpl
     	if (po.getExperimenter() != null) {
     		sb.append(" and ann.details.owner.id = :userId");
     		param.addLong("userId", po.getExperimenter());
-    	} else {
-    		sb.append(" and ann.details.owner.id = :userId");
-    		param.addLong("userId", sec.getEventContext().getCurrentUserId());
-    	}
-    	/*
-    	if (po.getGroup() != null) {
-    		sb.append(" and ann.details.group.id = :groupId");
-    		param.addLong("groupId", po.getGroup());
-    	}
-    	*/
-    	/*
-    	if (po.getGroup() == null && po.getExperimenter() == null) {
-    		
-    		sb.append(" and ann.details.owner.id = :userId");
-    		sb.append(" and ann.details.group.id = :groupId");
-    		param.addLong("userId", sec.getEventContext().getCurrentUserId());
-    		param.addLong("groupId", sec.getEventContext().getCurrentGroupId());
-    	}
-    	*/
-	
+    	} 
+
     	if (include != null && include.size() > 0) {
     		sb.append(" and ann.ns is not null and ann.ns in (:include)");
     		param.addSet("include", include);
