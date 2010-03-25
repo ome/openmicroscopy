@@ -444,7 +444,7 @@ public class ThumbnailCtx
         Thumbnail metadata = pixelsIdMetadataMap.get(pixelsId);
         try
         {
-            if (dirtyMetadata(pixelsId)
+            if (!dirtyMetadata(pixelsId)
                 && thumbnailService.getThumbnailExists(metadata))
             {
                 return true;

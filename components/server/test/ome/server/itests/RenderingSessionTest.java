@@ -7,6 +7,7 @@
 
 package ome.server.itests;
 
+import java.io.FileOutputStream;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -25,6 +26,7 @@ import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
+import ome.model.enums.RenderingModel;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -274,6 +276,82 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         } catch (ReadOnlyGroupSecurityViolation roagsv) {
             // ok.
         }
+    }
+
+    @Test(groups = {"ticket:2302"})
+    public void testUserViewsOwnUpdatedThumbnailByLongestSideSet()
+        throws Exception {
+        loginNewUser();
+        Pixels pix = makePixels();
+        System.err.println("PIXELS ID: " + pix.getId());
+        final ServiceFactory sf = this.factory;
+        RenderingEngine re = sf.createRenderingEngine();
+        ThumbnailStore tb = sf.createThumbnailService();
+        re.lookupPixels(pix.getId());
+        assertTrue(re.lookupRenderingDef(pix.getId()));
+        re.load();
+        List<RenderingModel> models = re.getAvailableModels();
+        RenderingModel rgbModel = getModel(models, "rgb");
+        RenderingModel greyscaleModel = getModel(models, "greyscale");
+        assertEquals(greyscaleModel.getId(), re.getModel().getId());
+        Map<Long, byte[]> thumbnails = tb.getThumbnailByLongestSideSet(
+                96, Collections.singleton(pix.getId()));
+        assertEquals(1, thumbnails.size());
+        byte[] before = thumbnails.get(pix.getId());
+        assertNotNull(before);
+        re.setModel(rgbModel);
+        assertEquals(rgbModel.getId(), re.getModel().getId());
+        re.saveCurrentSettings();
+        thumbnails = tb.getThumbnailByLongestSideSet(
+                96, Collections.singleton(pix.getId()));
+        assertEquals(1, thumbnails.size());
+        byte[] after = thumbnails.get(pix.getId());
+        assertNotNull(after);
+        FileOutputStream stream = new FileOutputStream("/Users/callan/tmp/before.jpg");
+        stream.write(before);
+        stream.close();
+        stream = new FileOutputStream("/Users/callan/tmp/after.jpg");
+        stream.write(after);
+        stream.close();
+        assertTrue(before.length != after.length);
+    }
+
+    @Test(groups = {"ticket:2302"})
+    public void testUserViewsOwnUpdatedThumbnailSet()
+        throws Exception {
+        loginNewUser();
+        Pixels pix = makePixels();
+        System.err.println("PIXELS ID: " + pix.getId());
+        final ServiceFactory sf = this.factory;
+        RenderingEngine re = sf.createRenderingEngine();
+        ThumbnailStore tb = sf.createThumbnailService();
+        re.lookupPixels(pix.getId());
+        assertTrue(re.lookupRenderingDef(pix.getId()));
+        re.load();
+        List<RenderingModel> models = re.getAvailableModels();
+        RenderingModel rgbModel = getModel(models, "rgb");
+        RenderingModel greyscaleModel = getModel(models, "greyscale");
+        assertEquals(greyscaleModel.getId(), re.getModel().getId());
+        Map<Long, byte[]> thumbnails = tb.getThumbnailSet(
+                96, 96, Collections.singleton(pix.getId()));
+        assertEquals(1, thumbnails.size());
+        byte[] before = thumbnails.get(pix.getId());
+        assertNotNull(before);
+        re.setModel(rgbModel);
+        assertEquals(rgbModel.getId(), re.getModel().getId());
+        re.saveCurrentSettings();
+        thumbnails = tb.getThumbnailSet(
+                96, 96, Collections.singleton(pix.getId()));
+        assertEquals(1, thumbnails.size());
+        byte[] after = thumbnails.get(pix.getId());
+        assertNotNull(after);
+        FileOutputStream stream = new FileOutputStream("/Users/callan/tmp/before.jpg");
+        stream.write(before);
+        stream.close();
+        stream = new FileOutputStream("/Users/callan/tmp/after.jpg");
+        stream.write(after);
+        stream.close();
+        assertTrue(before.length != after.length);
     }
 
     @Test(groups = {"ticket:1801"},
@@ -630,6 +708,15 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
 
     private long syntheticImage() {
         throw new UnsupportedOperationException();
+    }
+
+    private RenderingModel getModel(List<RenderingModel> models, String value) {
+        for (RenderingModel model : models) {
+            if (model.getValue().equals(value)) {
+                return model;
+            }
+        }
+        throw new RuntimeException("Could not find model: " + value);
     }
 
     private void deleteRenderingSettings(Pixels pix) {
