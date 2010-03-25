@@ -3927,6 +3927,9 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IMetadataPrx service = getMetadataService();
+			List<Annotation> l = service.loadSpecifiedAnnotations(
+					convertPojos(type).getName(), toInclude, 
+					toExclude, options);
 			return PojoMapper.asDataObjects(
 					service.loadSpecifiedAnnotations(
 							convertPojos(type).getName(), toInclude, 

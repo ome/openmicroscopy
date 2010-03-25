@@ -111,6 +111,9 @@ class PropertiesUI
     /** The text for the id. */
     private static final String ID_TEXT = "ID: ";
     
+    /** The text for the owner. */
+    private static final String OWNER_TEXT = "Owner: ";
+    
     /** Action ID indicating to edit the name. */
     private static final int	EDIT_NAME = 0;
     
@@ -150,6 +153,12 @@ class PropertiesUI
     /** The component hosting the id of the <code>DataObject</code>. */
     private JLabel				idLabel;
     
+    /** 
+     * The component hosting the owner of the <code>DataObject</code>.
+     * if not the current user. 
+     */
+    private JLabel				ownerLabel;
+    
     /** The label displaying the parent of the node. */
     private JLabel				parentLabel;
     
@@ -182,6 +191,8 @@ class PropertiesUI
        	parentLabel.setOpaque(false);
        	parentLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
        	idLabel = UIUtilities.setTextFont("");
+       	ownerLabel = new JLabel();
+       	ownerLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
     	namePane = createTextPane();
     	/*
     	namePane.addMouseListener(new MouseAdapter() {
@@ -225,6 +236,9 @@ class PropertiesUI
     	f = parentLabel.getFont();
     	parentLabel.setFont(f.deriveFont(Font.BOLD));
     	parentLabel.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+    	f = ownerLabel.getFont();
+    	ownerLabel.setFont(f.deriveFont(Font.BOLD, f.getSize()-2));
+    	
     	
     	channelsArea = UIUtilities.createComponent(null);
     	
@@ -587,6 +601,9 @@ class PropertiesUI
          l.setBackground(UIUtilities.BACKGROUND_COLOR);
          int w = editName.getIcon().getIconWidth()+4;
          p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
+         l = UIUtilities.buildComponentPanel(ownerLabel, 0, 0);
+         l.setBackground(UIUtilities.BACKGROUND_COLOR);
+         p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
          l = UIUtilities.buildComponentPanel(parentLabel, 0, 0);
          l.setBackground(UIUtilities.BACKGROUND_COLOR);
          p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
@@ -813,6 +830,9 @@ class PropertiesUI
         if (model.getRefObjectID() > 0)
         	t += " "+ID_TEXT+model.getRefObjectID();
 		idLabel.setText(t);
+		String ownerName = model.getOwnerName();
+		if (ownerName != null && ownerName.length() > 0)
+			ownerLabel.setText(OWNER_TEXT+ownerName);
 		originalDescription = model.getRefObjectDescription();
 		if (originalDescription == null || originalDescription.length() == 0)
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;
@@ -1005,6 +1025,7 @@ class PropertiesUI
 		namePane.getDocument().removeDocumentListener(this);
 		descriptionPane.getDocument().removeDocumentListener(this);
 		idLabel.setText("");
+		ownerLabel.setText("");
 		namePane.setText(originalName);
 		descriptionPane.setText(originalDescription);
 		namePane.getDocument().addDocumentListener(this);

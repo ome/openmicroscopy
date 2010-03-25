@@ -2277,5 +2277,28 @@ class EditorModel
 	 */
 	long getUserID() { return parent.getUserID(); }
 
+	/** 
+	 * Returns the name of the owner or <code>null</code> if the current owner
+	 * is the user currently logged in.
+	 * @return
+	 */
+	String getOwnerName()
+	{
+		Object o = getRefObject();
+		if (o == null) return null;
+		if (o instanceof ExperimenterData || o instanceof GroupData)
+			return null;
+		if (o instanceof DataObject) {
+			DataObject data = (DataObject) o;
+			long id = MetadataViewerAgent.getUserDetails().getId();
+			ExperimenterData owner = data.getOwner();
+			if (owner.getId() == id) return null;
+			try {
+				return owner.getFirstName()+" "+owner.getLastName();
+			} catch (Exception e) {}
+		}
+		return null;
+	}
+	
 }
 	

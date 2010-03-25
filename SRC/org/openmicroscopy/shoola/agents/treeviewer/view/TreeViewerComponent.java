@@ -331,8 +331,12 @@ class TreeViewerComponent
 		} else if (object instanceof ExperimenterData && 
 				model.getSelectedBrowser().getBrowserType() 
 				== Browser.ADMIN_EXPLORER) {
-			Object ho = display.getParentDisplay().getUserObject();
-			db = DataBrowserFactory.getDataBrowser(ho);
+			Object ho = null;
+			if (display.getParentDisplay() != null) {
+				ho = display.getParentDisplay().getUserObject();
+				db = DataBrowserFactory.getDataBrowser(ho);
+			} else db = null; 
+			
         	if (db != null) {
         		db.setComponentTitle("");
         		if (visible) {

@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.util;
 
 
 //Java imports
-
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -48,13 +47,12 @@ import info.clearthought.layout.TableLayout;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.DataObject;
 import pojos.TagAnnotationData;
 
 
 /** 
- * 
+ * Provided UI to select between two lists of objects.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

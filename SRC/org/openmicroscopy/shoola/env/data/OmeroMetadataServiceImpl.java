@@ -1036,7 +1036,7 @@ class OmeroMetadataServiceImpl
 	{
 		ParametersI po = new ParametersI();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
-		if (groupID >= 0) po.grp(omero.rtypes.rlong(groupID));
+		//if (groupID >= 0) po.grp(omero.rtypes.rlong(groupID));
 		//else po.grp(i)
 		List<String> toInclude = new ArrayList<String>();
 		List<String> toExclude = new ArrayList<String>();
