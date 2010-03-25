@@ -145,30 +145,49 @@ public class GeomTool implements ApplicationListener {
         }
 
         try {
-            int count;
+            int loops = 10;
+            final List<Long> nullShapes = new ArrayList<Long>();
+
+            // Do 10 loops of 1000.
             do {
-                count = (Integer) ex.execute(new Principal(uuid, "system",
+                loops--;
+                ex.execute(new Principal(uuid, "system",
                         "Internal"), new Executor.SimpleWork(this,
                         "backgroundSynchronization") {
                     @Transactional(readOnly = false)
                     public Object doWork(Session session, ServiceFactory sf) {
-                        List<Long> l = getNullShapes();
-                        if (l.size() > 0) {
-                            log
-                                    .info("Batch processing " + l.size()
-                                            + " shapes");
-                            synchronizeShapeGeometries(l);
+
+                        if (nullShapes.size() == 0) {
+                            nullShapes.addAll(getNullShapes()); // First invocation
                         }
-                        return l.size();
+
+                        if (nullShapes.size() > 0) {
+                            log.info(String.format(
+                                    "Batch processing %s shapes",
+                                    nullShapes.size()));
+                            synchronizeShapeGeometries(nullShapes);
+                            nullShapes.clear();
+                        }
+
+                        nullShapes.addAll(getNullShapes());
+                        return null;
                     }
                 });
-            } while (count > 0);
+            } while (loops > 0 && nullShapes.size() > 0);
+
+
+            // After 10 loops (10K shapes) there are more left. Set flag.
+            if (nullShapes.size() > 0) {
+                hasShapes.set(true);
+                log.info("Shapes remaining: " + nullShapes.size());
+            }
 
         } catch (Exception e) {
             hasShapes.set(true);
-            log
-                    .warn("Exception during batch processing: setting hasShapes=true");
+            log.warn("Exception during batch processing: " +
+			"setting hasShapes=true");
         }
+
     }
 
     public void synchronizeShapeGeometries(List<Long> shapeIds) {
@@ -181,12 +200,16 @@ public class GeomTool implements ApplicationListener {
         Session session = factory.getSession();
         Shape s = justShapeById(shapeId, session);
         String path = dbPath(s);
-        int results = jdbc.update(String.format(
-                "update shape set pg_geom = %s::polygon where id = ?", path),
-                shapeId);
+        int results = savePath(shapeId, path);
         if (results == 0) {
             throw new RuntimeException("pg_geom missing: " + shapeId);
         }
+    }
+
+    public int savePath(long shapeId, String path) {
+        return jdbc.update(String.format(
+                "update shape set pg_geom = %s::polygon where id = ?", path),
+                shapeId);
     }
 
     /**
@@ -281,10 +304,14 @@ public class GeomTool implements ApplicationListener {
     // Conversion methods
     //
 
+    private static final String ORIGIN = "'(0,0)'";
+
     public String dbPath(Shape shape) {
 
         if (shape == null) {
-            return null;
+            // ticket:2045 doing anything we can to prevent null returns values
+            log.warn("Shape is null");
+            return ORIGIN;
         }
 
         SmartShape ss = assertSmart(shape);
@@ -293,7 +320,7 @@ public class GeomTool implements ApplicationListener {
         // checked, they must be set to something. Here we are using
         // the top-left point as a default (like SmartText)
         if (points == null) {
-            return "'(0,0)'";
+            return ORIGIN;
         }
 
         StringBuilder sb = new StringBuilder();
@@ -643,7 +670,7 @@ public class GeomTool implements ApplicationListener {
         return ss;
     }
 
-    private List<Long> getNullShapes() {
+    public List<Long> getNullShapes() {
         List<Long> l = jdbc.query(
                 "select id from shape where pg_geom is null limit 1000",
                 new ParameterizedRowMapper<Long>() {
