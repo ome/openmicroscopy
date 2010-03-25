@@ -32,6 +32,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -116,7 +117,7 @@ public class ImportDialog extends JDialog implements ActionListener
 
     public OMEROMetadataStoreClient store;
 
-    ImportDialog(ImportConfig config, Window owner, String title, boolean modal, OMEROMetadataStoreClient store)
+    ImportDialog(ImportConfig config, JFrame owner, String title, boolean modal, OMEROMetadataStoreClient store)
     {
         this.store = store;
 

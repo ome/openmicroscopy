@@ -17,7 +17,6 @@ import static omero.rtypes.rstring;
 import info.clearthought.layout.TableLayout;
 
 import java.awt.Dimension;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -26,6 +25,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
@@ -81,7 +81,7 @@ public class SPWDialog extends JDialog implements ActionListener
 
     public OMEROMetadataStoreClient store;
 
-    SPWDialog(ImportConfig config, Window owner, String title, boolean modal, OMEROMetadataStoreClient store)
+    SPWDialog(ImportConfig config, JFrame owner, String title, boolean modal, OMEROMetadataStoreClient store)
     {
         super(owner);
         this.store = store;

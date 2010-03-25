@@ -92,7 +92,7 @@ public class LoginDialog extends JDialog
     
     public boolean          cancelled = true;
 
-    LoginDialog (ImportConfig config, Window owner, JFrame main, String title, boolean modal, boolean center)
+    LoginDialog (ImportConfig config, JFrame owner, JFrame main, String title, boolean modal, boolean center)
     {   
         super(owner);
         this.config = config;

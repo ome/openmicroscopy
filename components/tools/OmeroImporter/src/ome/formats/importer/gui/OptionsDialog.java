@@ -19,7 +19,6 @@ import info.clearthought.layout.TableLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -28,6 +27,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
@@ -117,7 +117,7 @@ public class OptionsDialog extends JDialog implements ActionListener
 
     private JCheckBox companionFileCheckbox;
 
-    OptionsDialog(ImportConfig config, Window owner, String title, boolean modal)
+    OptionsDialog(ImportConfig config, JFrame owner, String title, boolean modal)
     {
         super(owner);
         
