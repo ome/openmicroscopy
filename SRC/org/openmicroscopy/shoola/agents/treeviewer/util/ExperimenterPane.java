@@ -325,7 +325,7 @@ class ExperimenterPane
 		field = items.get(EditorUtil.LAST_NAME);
 		value = field.getText().trim();
 		if (value.length() == 0) value = s;
-		data.setLastName(s);
+		data.setLastName(value);
 		field = items.get(EditorUtil.MIDDLE_NAME);
 		//data.setMiddleName(field.getText().trim());
 		field = items.get(EditorUtil.EMAIL);
