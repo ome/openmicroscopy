@@ -33,43 +33,10 @@ class BaseUploadFile(BaseController):
         BaseController.__init__(self, conn)
 
     def attach_photo(self, newFile):
-        has = self.conn.hasExperimenterPhoto()
-        if has is not None:
-            if newFile.content_type.startswith("image"):
-                f = newFile.content_type.split("/") 
-                format = self.conn.getFileFormat(f[1].upper())
-            else:
-                format = self.conn.getFileFormat(newFile.content_type)
-            
-            oFile = has._obj.file
-            oFile.setName(rstring(str(newFile.name)));
-            oFile.setPath(rstring(str(newFile.name)));
-            oFile.setSize(rlong(long(newFile.size)));
-            oFile.setSha1(rstring("pending"));
-            oFile.setFormat(format);
-            self.conn.saveFile(newFile, oFile.id.val)
-            has._obj.setFile(oFile)
-            self.conn.saveObject(has._obj)
+        if newFile.content_type.startswith("image"):
+            f = newFile.content_type.split("/") 
+            format = f[1].upper()
         else:
-            if newFile.content_type.startswith("image"):
-                f = newFile.content_type.split("/") 
-                format = self.conn.getFileFormat(f[1].upper())
-            else:
-                format = self.conn.getFileFormat(newFile.content_type)
-            oFile = OriginalFileI()
-            oFile.setName(rstring(str(newFile.name)));
-            oFile.setPath(rstring(str(newFile.name)));
-            oFile.setSize(rlong(long(newFile.size)));
-            oFile.setSha1(rstring("pending"));
-            oFile.setFormat(format);
-            
-            of = self.conn.saveAndReturnObject(oFile);
-            self.conn.saveFile(newFile, of.id)
+            format = newFile.content_type
 
-            fa = FileAnnotationI()
-            fa.setFile(of._obj)
-            fa.setNs(rstring(omero.constants.namespaces.NSEXPERIMENTERPHOTO))
-            l_ea = ExperimenterAnnotationLinkI()
-            l_ea.setParent(self.conn.getUser()._obj)
-            l_ea.setChild(fa)
-            self.conn.saveObject(l_ea)
+        self.conn.uploadMyUserPhoto(newFile.name, format, newFile.read())

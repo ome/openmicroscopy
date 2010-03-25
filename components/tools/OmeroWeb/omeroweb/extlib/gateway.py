@@ -1499,6 +1499,12 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             return temp
         return None
     
+    def uploadMyUserPhoto(self, filename, format, data):
+        admin_serv = self.getAdminService()
+        pid = admin_serv.uploadMyUserPhoto(filename, format, data)
+        if pid is not None:
+            return pid
+    
     def hasExperimenterPhoto(self, oid=None):
         photo = None
         meta = self.getMetadataService()
@@ -1526,6 +1532,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             store.setFileId(ann.file.id.val)
             photo = store.read(0,long(ann.file.size.val))
         except:
+            logger.error(traceback.format_exc())
             photo = self.getExperimenterDefaultPhoto()
         if photo == None:
             photo = self.getExperimenterDefaultPhoto()        
@@ -1573,17 +1580,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         except IOError:
             raise IOError("Cannot open that photo.")
         else:
-            store = self.createRawFileStore()
-            store.setFileId(long(ann.file.id.val))
-            buf = 1048576
             imdata=StringIO()
             region.save(imdata, format=im.format)
-            size = len(imdata.getvalue())
-            store.write(imdata.getvalue(), 0, size)
-            
-            oFile = ann.file
-            oFile.setSize(rlong(size));
-            self.saveObject(oFile)
+            self.uploadMyUserPhoto(ann.file.name.val, ann.file.format.value.val, imdata.getvalue())
             
     def getExperimenterDefaultPhoto(self):
         img = Image.open(settings.DEFAULT_USER)
