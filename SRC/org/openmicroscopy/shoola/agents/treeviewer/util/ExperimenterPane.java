@@ -108,9 +108,10 @@ class ExperimenterPane
     /** 
      * Initializes the components composing this display. 
      * 
-     * @param groups		The collection of groups is any available.
+     * @param available	The collection of groups is any available.
+     * @param selected  The collection of selected groups.
      */
-    private void initComponents(Collection groups)
+    private void initComponents(Collection available, Collection selected)
     {
     	passwordField = new JPasswordField();
     	passwordField.getDocument().addDocumentListener(this);
@@ -135,11 +136,10 @@ class ExperimenterPane
 		groupOwner = new JButton(icons.getIcon(IconManager.USER_GROUP));
 		groupOwner.setToolTipText("Select an existing user as owner");
 		groupOwner.setVisible(passwordRequired);
-		if (groups != null && groups.size() > 0) {
-			long userID = TreeViewerAgent.getUserDetails().getId();
-			selectionComponent = new SelectionWizardUI(groups,
-					GroupData.class, userID);
-		}
+		if (available == null && selected == null) return;
+		long userID = TreeViewerAgent.getUserDetails().getId();
+		selectionComponent = new SelectionWizardUI(available, selected,
+				GroupData.class, userID);
     }
     
     /**
@@ -278,7 +278,6 @@ class ExperimenterPane
 		c.weightx = 1.0;  
     	add(buildContentPanel(), c);
     	if (selectionComponent != null) {
-    		
     		JPanel p = new JPanel();
     		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
     		p.add(UIUtilities.buildComponentPanel(
@@ -298,12 +297,14 @@ class ExperimenterPane
      * @param passwordRequired 	Pass <code>true</code> to indicate that a
      * 							password is required, <code>false</code>
      * 							otherwise.
-     * @param groups		The available groups.
+     * @param groups			The available groups.
+     * @param selected			The selected groups.
      */
-    ExperimenterPane(boolean passwordRequired, Collection<DataObject> groups)
+    ExperimenterPane(boolean passwordRequired, Collection<DataObject> available,
+    		Collection<DataObject> selected)
     {
     	this.passwordRequired = passwordRequired;
-    	initComponents(groups);
+    	initComponents(available, selected);
     	buildGUI();
     }
     

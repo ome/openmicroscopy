@@ -655,7 +655,7 @@ class TreeViewerComponent
     		if (object instanceof ExperimenterData) {
     			TreeImageDisplay node = 
     				getSelectedBrowser().getLastSelectedDisplay();
-        		uo = null;//node.getUserObject();
+        		uo = node.getUserObject();
         		ContainerFinder finder = new ContainerFinder(GroupData.class);
         		getSelectedBrowser().accept(finder, 
         				TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);

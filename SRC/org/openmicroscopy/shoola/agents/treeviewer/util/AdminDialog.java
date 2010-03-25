@@ -30,8 +30,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -322,7 +324,26 @@ public class AdminDialog
 		this.type = type;
 		this.parent = parent;
 		if (ExperimenterData.class.equals(type)) {
-			body = new ExperimenterPane(true, groups);
+			List<DataObject> selected = null;
+			if (parent instanceof GroupData) {
+				DataObject p = (DataObject) parent;
+				selected = new ArrayList<DataObject>();
+				selected.add(p);
+				//Remove from the groups.
+				Iterator<DataObject> i = groups.iterator();
+				DataObject data;
+				DataObject toRemove = null;
+				while (i.hasNext()) {
+					data = i.next();
+					if (data.getId() == p.getId()) {
+						toRemove = data;
+						break;
+					}
+						
+				}
+				if (toRemove != null) groups.remove(toRemove);
+			}
+			body = new ExperimenterPane(true, groups, selected);
 		} else if (GroupData.class.equals(type)) {
 			body = new GroupPane();
 		}

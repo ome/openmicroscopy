@@ -78,7 +78,7 @@ class GroupPane
     	permissions.setBorder(
 				BorderFactory.createTitledBorder("Permissions"));
     	descriptionArea = new JTextField();
-    	expPane = new ExperimenterPane(false, null);
+    	expPane = new ExperimenterPane(false, null, null);
     	expPane.setBorder(
 				BorderFactory.createTitledBorder("Owner"));
     }
