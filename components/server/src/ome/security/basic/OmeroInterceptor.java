@@ -903,7 +903,8 @@ public class OmeroInterceptor implements Interceptor {
         if (null != previousDetails.getGroup()) {
             long objGroupId = previousDetails.getGroup().getId();
             long sessGroupId = currentUser.getGroup().getId();
-            if (sessGroupId != objGroupId) {
+            long userGroupId = roles.getUserGroupId();
+            if (sessGroupId != objGroupId && objGroupId != userGroupId) { // ticket:1794 & ticket:2058
                 throw new SecurityViolation(String.format(
                         "Currently logged into group %s. Cannot alter object in group %s",
                         sessGroupId, objGroupId));

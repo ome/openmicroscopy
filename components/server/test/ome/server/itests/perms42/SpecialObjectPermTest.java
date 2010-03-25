@@ -162,6 +162,12 @@ public class SpecialObjectPermTest extends PermissionsTest {
         List<OriginalFile> fotos = iAdmin.getMyUserPhotos();
         OriginalFile foto = fotos.get(0);
         assertUserGroup(foto);
+        // and the next version
+        iAdmin.uploadMyUserPhoto("foo", "image/jpeg", new byte[]{0,0,0,0});
+        fotos = iAdmin.getMyUserPhotos();
+        fotos.get(0);
+        assertUserGroup(foto);
+
     }
 
     private void assertUserGroup(IObject obj) {
