@@ -40,9 +40,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import com.mdl.dbbrowser.client.SetSortDialog;
-
 import pojos.ExperimenterData;
 
 /**
