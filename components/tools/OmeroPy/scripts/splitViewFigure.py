@@ -669,12 +669,12 @@ def runAsScript():
 	scripts.Long("zEnd", optional=True).inout(),	# projection range (if not specified or negative, use defaultZ only - no projection)
 	scripts.Map("channelNames", optional=True).inout(),	# map of index: channel name for all channels
 	scripts.List("splitIndexes", optional=True).inout(),	# a list of the channels in the split view
-	scripts.Bool("splitPanelsGrey").inout(),# if true, all split panels are greyscale
-	scripts.Map("mergedColours").inout(),	# a map of index:int colours for each merged channel
+	scripts.Bool("splitPanelsGrey", optional=True).inout(),	# if true, all split panels are greyscale
+	scripts.Map("mergedColours").inout(),					# a map of index:int colours for each merged channel
 	scripts.Bool("mergedNames", optional=True).inout(), 	# if true, label the merged panel with channel names. Otherwise label with "Merged"
 	scripts.Long("width", optional=True).inout(),		# the max width of each image panel 
 	scripts.Long("height", optional=True).inout(),		# the max height of each image panel
-	scripts.String("imageLabels").inout(),	# label with IMAGENAME or DATASETS or TAGS
+	scripts.String("imageLabels", optional=True).inout(),	# label with IMAGENAME (default) or DATASETS or TAGS
 	scripts.String("algorithm", optional=True).inout(),	# algorithum for projection. MAXIMUMINTENSITY or MEANINTENSITY
 	scripts.Long("stepping", optional=True).inout(),	# the plane increment from projection (default = 1)
 	scripts.Long("scalebar", optional=True).inout(),	# scale bar (same as makemovie script)

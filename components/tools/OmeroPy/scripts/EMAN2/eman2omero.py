@@ -162,7 +162,6 @@ def uploadBdbAsDataset(infile, datasetName, project = None):
 		# make a map of name: imageId, for creating image-image links
 		imageId = image.getId().getValue()
 		newImageMap[newImageName] = imageId
-		print newImageMap
 		
 		f = open(fileName, 'w')		# will overwrite each time. 
 		f.write("[GlobalMetadata]\n")

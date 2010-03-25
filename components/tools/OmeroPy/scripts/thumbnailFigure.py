@@ -360,6 +360,7 @@ def runAsScript():
 	for key in client.getInputKeys():
 		if client.getInput(key):
 			commandArgs[key] = client.getInput(key).getValue()
+	print commandArgs
 	# Makes the figure and attaches it to Project/Dataset. Returns the id of the originalFileLink child. (ID object, not value)
 	fileId = makeThumbnailFigure(client, session, commandArgs)
 	client.setOutput("fileAnnotation",fileId)

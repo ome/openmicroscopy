@@ -81,13 +81,12 @@ def run(commandArgs):
 		print "No image ID given"
 		return
 	
-	# get the most recent (highest ID) original file with the correct script name
+	# get the most recent (highest ID) script with the correct name
 	scriptName = "saveImageAs.py"
-	scripts = scriptService.getScripts()
+	scripts = scriptService.getScripts()	# map of ID: Name for all scripts
 	scriptId = max([i for i, s in scripts.items() if s == scriptName])
 	
 	print "Running saveImageAs.py with script ID: " , scriptId
-	return
 	imageIds = omero.rtypes.rlist([omero.rtypes.rint(imageId)])
 	
 	map = {
