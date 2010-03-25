@@ -18,12 +18,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static omero.rtypes.rint;
+
 import loci.formats.FileInfo;
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.MissingLibraryException;
 import loci.formats.UnknownFormatException;
 import ome.formats.importer.util.ErrorHandler;
+import omero.model.Pixels;
+import omero.model.PixelsI;
 
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -339,9 +343,11 @@ public class ImportCandidates extends DirectoryWalker {
                 String[] domains = reader.getReader().getDomains();
                 boolean isSPW = Arrays.asList(domains).contains(FormatTools.HCS_DOMAIN);
 
-                return new ImportContainer(file, null, null, null, false, null,
-                        format, usedFiles, isSPW);
-
+                ImportContainer ic = new ImportContainer(file, null, null,
+                        null, false, null, format, usedFiles, isSPW);
+                ic.bfImageCount = reader.getImageCount();
+                ic.bfPixels = getPixelsWithDimensions();
+                return ic;
             } finally {
                 readerTime += (System.currentTimeMillis() - start);
                 reader.close();
@@ -358,6 +364,27 @@ public class ImportCandidates extends DirectoryWalker {
 
         return null;
 
+    }
+
+    /**
+     * Creates a Pixels object populated with the dimensions for each image
+     * that Bio-Formats has detected.
+     * @return A list of Pixels objects, in the order of <i>series</i>
+     * populated with dimensions X, Y, Z, C and T.
+     */
+    private List<Pixels> getPixelsWithDimensions() {
+        List<Pixels> toReturn = new ArrayList<Pixels>();
+        for (int i = 0; i < reader.getImageCount(); i++) {
+            reader.setSeries(i);
+            Pixels pixels = new PixelsI();
+            pixels.setSizeX(rint(reader.getSizeX()));
+            pixels.setSizeY(rint(reader.getSizeY()));
+            pixels.setSizeZ(rint(reader.getSizeZ()));
+            pixels.setSizeC(rint(reader.getSizeC()));
+            pixels.setSizeT(rint(reader.getSizeT()));
+            toReturn.add(pixels);
+        }
+        return toReturn;
     }
 
     /**

@@ -8,9 +8,11 @@
 package ome.formats.importer;
 
 import java.io.File;
+import java.util.List;
 
 import loci.formats.FileInfo;
 import omero.model.IObject;
+import omero.model.Pixels;
 
 public class ImportContainer
 {
@@ -20,7 +22,16 @@ public class ImportContainer
     public String reader;
     public String[] usedFiles;
     public Boolean isSPW;
-    
+
+    /** The number of Images that Bio-Formats has detected. */
+    public Integer bfImageCount;
+
+    /**
+     * Image dimensions populated OMERO Pixels objects for each of the Images
+     * that Bio-Formats has detected.
+     */
+    public List<Pixels> bfPixels;
+
     private Boolean archive;
     private Double[] userPixels;
     private String userSpecifiedImageName;
