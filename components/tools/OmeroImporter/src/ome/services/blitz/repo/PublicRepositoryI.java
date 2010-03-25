@@ -241,12 +241,15 @@ public class PublicRepositoryI extends _RepositoryDisp {
         File file = checkPath(path);
         List<File> files;
         List<OriginalFile> oFiles;
+        RepositoryListConfig conf;
         if(config == null) {
-            RepositoryListConfig config = new RepositoryListConfigI();
+            conf = new RepositoryListConfigI();
+        } else {
+            conf = config;
         }
-        files = filteredFiles(file, config);
+        files = filteredFiles(file, conf);
         
-        if (config.registered) {
+        if (conf.registered) {
             oFiles = knownOriginalFiles(files);
         } else {
             oFiles = filesToOriginalFiles(files);
@@ -291,10 +294,13 @@ public class PublicRepositoryI extends _RepositoryDisp {
             throws ServerError {
         List<FileSet> rv = new ArrayList<FileSet>();
         File file = checkPath(path);
+        RepositoryListConfig conf;
         if(config == null) {
-            RepositoryListConfig config = new RepositoryListConfigI();
+            conf = new RepositoryListConfigI();
+        } else {
+            conf = config;
         }
-        List<File> files = filteredFiles(file, config);
+        List<File> files = filteredFiles(file, conf);
         List<String> names = filesToPaths(files);
         Map<String, List<String>> importableFiles = importableImageFiles(files, config.depth);
         
