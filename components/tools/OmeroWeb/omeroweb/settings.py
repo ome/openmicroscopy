@@ -37,7 +37,7 @@ import omero.clients
 
 # Debuging mode. 
 # A boolean that turns on/off debug mode.
-DEBUG = True # handler404 and handler500 works only when False
+DEBUG = False # handler404 and handler500 works only when False
 TEMPLATE_DEBUG = DEBUG
 
 # Configure logging and set place to store logs.
