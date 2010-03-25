@@ -493,9 +493,17 @@ public class OmeroInterceptor implements Interceptor {
             // Doing this after the setting of newDetails.group in case the
             // user is logged into user or system.
             if (source.getPermissions() != null) {
+
+                Permissions groupPerms = currentUser.getCurrentEventContext()
+                    .getCurrentGroupPermissions();
+                
                 boolean isInSysGrp = sysTypes.isInSystemGroup(newDetails);
                 boolean isInUsrGrp = sysTypes.isInUserGroup(newDetails);
-                if (!sysTypes.isSystemType(obj.getClass())) {
+                if (groupPerms.identical(source.getPermissions())) {
+                    // ok. weird that they're set. probably an instance
+                    // of a managed object being passed in as with
+                    // ticket:2055
+                } else if (!sysTypes.isSystemType(obj.getClass())) {
                     if (isInSysGrp) {
                         // allow admin to do what they want. is this right?
                     } else if (isInUsrGrp) {
