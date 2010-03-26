@@ -173,6 +173,43 @@ class DocComponent
 	 */
 	private Icon 		thumbnail;
 	
+	/**
+	 * Enables or disables the various buttons depending on the passed value.
+	 * 
+	 * @param enabled 	Pass <code>true</code> to enable the controls,
+	 * 					<code>false</code> otherwise.
+	 */
+	private void setControlsEnabled(boolean enabled)
+	{
+		boolean b = enabled;
+		boolean link = enabled;
+		
+		if (enabled && data != null) {
+			b = model.isUserOwner(data);
+			link = model.isLinkOwner(data);
+		}
+		if (unlinkButton != null) {
+			unlinkButton.setEnabled(link);
+			unlinkButton.setVisible(link);
+		} 
+		if (editButton != null) {
+			editButton.setEnabled(b);
+			editButton.setVisible(b);
+		}
+		if (downloadButton != null) {
+			downloadButton.setEnabled(link);
+			downloadButton.setVisible(link);
+		}
+		if (openButton != null) {
+			openButton.setEnabled(enabled);
+			openButton.setVisible(enabled);
+		}
+		if (deleteButton != null) {
+			deleteButton.setEnabled(b);
+			deleteButton.setVisible(b);
+		}
+	}
+	
 	/** Opens the file. */
 	private void openFile()
 	{
@@ -646,28 +683,6 @@ class DocComponent
 			un.notifyActivity(activity);
 			//un.notifyDownload((FileAnnotationData) data, folder);
 		}
-	}
-	
-	/**
-	 * Enables or disables the various buttons depending on the passed value.
-	 * 
-	 * @param enabled 	Pass <code>true</code> to enable the controls,
-	 * 					<code>false</code> otherwise.
-	 */
-	private void setControlsEnabled(boolean enabled)
-	{
-		boolean b = enabled;
-		boolean link = enabled;
-		
-		if (enabled && data != null) {
-			b = model.isUserOwner(data);
-			link = model.isLinkOwner(data);
-		}
-		if (unlinkButton != null) unlinkButton.setEnabled(link);
-		if (editButton != null) editButton.setEnabled(b);
-		if (downloadButton != null) downloadButton.setEnabled(link);
-		if (openButton != null) openButton.setEnabled(link);
-		if (deleteButton != null) deleteButton.setEnabled(b);
 	}
 	
 }
