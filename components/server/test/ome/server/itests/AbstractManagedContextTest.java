@@ -181,12 +181,32 @@ public class AbstractManagedContextTest extends
         login(roles.getRootName(), groupName, "Test");
     }
 
+    protected ExperimenterGroup currentGroup() {
+        long gid = iAdmin.getEventContext().getCurrentGroupId();
+        return iAdmin.getGroup(gid);
+    }
+
+    protected void loginUserKeepGroup(String uname) {
+        String gname = iAdmin.getEventContext().getCurrentGroupName();
+        loginUser(uname, gname);
+    }
+
+    protected void loginUserKeepGroup(Experimenter e) {
+        String gname = iAdmin.getEventContext().getCurrentGroupName();
+        loginUser(e.getOmeName(), gname);
+    }
+
     public Experimenter loginNewUser() {
+        return loginNewUser(Permissions.PRIVATE);
+    }
+
+    public Experimenter loginNewUser(Permissions p) {
         loginRoot();
         String uuid;
         Experimenter user;
         String guid = uuid();
         ExperimenterGroup group = new ExperimenterGroup();
+        group.getDetails().setPermissions(p);
         group.setName(guid);
 
         iAdmin.createGroup(group);

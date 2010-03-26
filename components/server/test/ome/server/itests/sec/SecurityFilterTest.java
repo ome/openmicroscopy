@@ -6,25 +6,26 @@
  */
 package ome.server.itests.sec;
 
-import static ome.model.internal.Permissions.Right.READ;
-import static ome.model.internal.Permissions.Role.GROUP;
-import static ome.model.internal.Permissions.Role.USER;
-import static ome.model.internal.Permissions.Role.WORLD;
-
 import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import ome.annotations.RolesAllowed;
+import ome.api.IQuery;
 import ome.model.IObject;
+import ome.model.annotations.Annotation;
+import ome.model.annotations.ExperimenterAnnotationLink;
+import ome.model.annotations.FileAnnotation;
 import ome.model.containers.Dataset;
+import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
+import ome.model.internal.Permissions.Right;
+import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.security.AdminAction;
@@ -33,6 +34,7 @@ import ome.services.query.Definitions;
 import ome.services.query.Query;
 import ome.services.query.QueryParameterDef;
 import ome.services.util.Executor;
+import ome.system.Principal;
 import ome.system.ServiceFactory;
 
 import org.hibernate.Criteria;
@@ -40,81 +42,29 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.transaction.annotation.Transactional;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 
 @Test(groups = { "ticket:117", "security", "filter" })
 public class SecurityFilterTest extends AbstractManagedContextTest {
 
     static String ticket117 = "ticket:117";
 
-    Permissions userReadableOnly = new Permissions().revoke(GROUP, READ)
-            .revoke(WORLD, READ);
-
-    Permissions unreadable = new Permissions(userReadableOnly).revoke(USER,
-            READ);
-
-    Permissions groupReadable = new Permissions().revoke(WORLD, READ);
-
-    List<Experimenter> users = new ArrayList<Experimenter>();
-
-    List<String> names = new ArrayList<String>();
-
-    ome.api.local.LocalQuery wrappedQuery;
-
     Executor ex;
-
-    @BeforeMethod
-    public void setup() {
-        ex = (Executor) this.applicationContext.getBean("executor");
-    }
-
-    @Configuration(beforeTestClass = true)
-    public void createData() throws Exception {
-        setUp();
-        wrappedQuery = this.iQuery;
-
-        String gname = uuid();
-        ExperimenterGroup g = new ExperimenterGroup();
-        g.setName(gname);
-        iAdmin.createGroup(g);
-
-        for (int i = 0; i < 3; i++) {
-            String name = UUID.randomUUID().toString();
-            Experimenter e2 = new Experimenter();
-            e2.setOmeName(name);
-            e2.setFirstName("security");
-            e2.setLastName("filter too");
-            users.add(new Experimenter(factory.getAdminService().createUser(e2,
-                    gname), false));
-            names.add(name);
-
-        }
-        tearDown();
-    }
-
-    /**
-     * Below we are resetting the iQuery value for use with {@link Backdoor},
-     * so we will need to make sure this is valid for all other tests.
-     */
-    @BeforeMethod
-    public void fixQuery() throws Exception {
-        this.iQuery = wrappedQuery;
-    }
 
     @Test
     public void testFilterDisallowsRead() throws Exception {
 
         Image i;
 
-        loginUser(names.get(0));
-        i = createImage(userReadableOnly);
+        Experimenter e = loginNewUser(Permissions.PRIVATE);
+        i = createImage();
 
-        loginUser(names.get(1));
+        loginNewUserInOtherUsersGroup(e);
         assertCannotReadImage(i);
 
-        loginUser(names.get(0));
+        loginUserKeepGroup(e);
         assertCanReadImage(i);
     }
 
@@ -123,46 +73,48 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
 
         Image i;
 
-        loginUser(names.get(0));
-        i = createImage(unreadable);
+        Experimenter e = loginNewUser(Permissions.PRIVATE);
+        i = createImage();
+        assertCanReadImage(i);
+
+        loginNewUserInOtherUsersGroup(e);
         assertCannotReadImage(i);
 
-        loginUser(names.get(1));
-        assertCannotReadImage(i);
-
-        loginRoot();
+        loginRootKeepGroup();
         assertCanReadImage(i);
     }
 
-    @Test(groups = "broken")
-    // Must add the xml-rpc jar for this to work
+    @Test
     public void testRunAsAdminCanReadAll() throws Exception {
 
         final Image i;
         final Dataset d;
 
-        loginUser(names.get(0));
-        d = createDataset(userReadableOnly);
-        i = createImage(userReadableOnly);
+        Experimenter e = loginNewUser(Permissions.PRIVATE);
+        d = createDataset();
+        i = createImage();
 
-        loginUser(names.get(1));
+        loginNewUserInOtherUsersGroup(e);
         assertCannotReadImage(d, i);
 
         final SecurityFilterTest test = this;
-	ex.execute(null /*principal*/, new Executor.SimpleWork(this, "run as admin") {
+        String uuid = (String) applicationContext.getBean("uuid");
+
+        ex = (Executor) applicationContext.getBean("executor");
+        ex.execute(new Principal(uuid), new Executor.SimpleWork(this, "run as admin") {
 		@RolesAllowed("user")
 		@Transactional(readOnly=true)
-		    public Object doWork(org.hibernate.Session session, ServiceFactory sf) {
+		    public Object doWork(org.hibernate.Session session, final ServiceFactory sf) {
 		    securitySystem.runAsAdmin(new AdminAction() {
 			    public void runAsAdmin() {
-				assertCanReadImage(d, i);
+			        assertCanReadImage(sf.getQueryService(), i);
 			    }
 			});
 		    return null;
 		}
 	    });
 
-        loginUser(names.get(0));
+        loginUserKeepGroup(e);
         assertCanReadImage(d, i);
     }
 
@@ -171,25 +123,14 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
 
         Image i;
 
-        loginRoot();
-        ExperimenterGroup group = new ExperimenterGroup();
-        group.setName(UUID.randomUUID().toString());
-        group = factory.getAdminService().getGroup(
-                factory.getAdminService().createGroup(group));
-
-        ExperimenterGroup proxy = new ExperimenterGroup(group.getId(), false);
-        factory.getAdminService().addGroups(users.get(0), proxy);
-        factory.getAdminService().addGroups(users.get(1), proxy);
-
-        loginUser(names.get(0));
-        i = createImage(groupReadable);
-        factory.getAdminService().changeGroup(i, group.getName());
+        Experimenter e = loginNewUser(Permissions.COLLAB_READONLY);
+        i = createImage();
         assertCanReadImage(i);
 
-        loginUser(names.get(1));
+        loginNewUserInOtherUsersGroup(e);
         assertCanReadImage(i);
 
-        loginUser(names.get(2));
+        loginNewUser();
         assertCannotReadImage(i);
 
     }
@@ -198,42 +139,32 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
     public void testGroupLeadersCanReadAllInGroup() throws Exception {
         Image i;
 
-        loginRoot();
-        // add user(2) as PI of a new group
-        ExperimenterGroup group = new ExperimenterGroup();
-        group.setName(UUID.randomUUID().toString());
-        group.getDetails().setOwner(users.get(2));
-        group = factory.getAdminService().getGroup(
-                factory.getAdminService().createGroup(group));
-
-        // add all users to that group
-        ExperimenterGroup proxy = new ExperimenterGroup(group.getId(), false);
-        factory.getAdminService().addGroups(users.get(0), proxy);
-        factory.getAdminService().addGroups(users.get(1), proxy);
-        factory.getAdminService().addGroups(users.get(2), proxy);
-
         // as non-PI create an image..
-        loginUser(names.get(0));
-        i = createImage(userReadableOnly);
-        factory.getAdminService().changeGroup(i, group.getName());
+        Experimenter e = loginNewUser(Permissions.PRIVATE);
+        i = createImage();
         assertCanReadImage(i);
 
         // others in group can't read
-        loginUser(names.get(1));
+        loginNewUserInOtherUsersGroup(e);
         assertCannotReadImage(i);
 
         // but PI can
-        loginUser(names.get(2));
+        Experimenter pi = loginNewUserInOtherUsersGroup(e);
+        loginRootKeepGroup();
+        iAdmin.setGroupOwner(currentGroup(), pi);
+        loginUserKeepGroup(pi);
         assertCanReadImage(i);
     }
 
-    @Test
+    @Test(groups = "broken") /* not supported currently */
     public void testUserCanHideFromSelf() throws Exception {
         Image i;
 
         // create an image with no permissions
-        loginUser(names.get(0));
-        i = createImage(unreadable);
+        Permissions unreadable = new Permissions(Permissions.USER_IMMUTABLE)
+            .revoke(Role.USER, Right.READ);
+        loginNewUser(unreadable);
+        i = createImage();
         assertCannotReadImage(i);
 
     }
@@ -253,24 +184,75 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
 
     }
 
+    @Test /* doesn't reproduce */
+    public void testTicket663() {
+
+        Experimenter e = loginNewUser(Permissions.PRIVATE);
+        Project p = new Project("663");
+        Dataset d = new Dataset("663");
+        p.linkDataset(d);
+        iUpdate.saveObject(p);
+
+        long uid = iAdmin.getEventContext().getCurrentUserId();
+        ome.parameters.Filter filter = new ome.parameters.Filter().owner(uid);
+        ome.parameters.Parameters params = new ome.parameters.Parameters(filter);
+
+        findAllProjects(params);
+
+        loginUserInNewGroup(e);
+
+        findAllProjects(params);
+
+    }
+
+    private void findAllProjects(ome.parameters.Parameters params) {
+        iQuery.findAllByQuery("select p from Project p" +
+                " left outer join fetch p.datasetLinks l"+
+                " left outer join fetch l.child d", params);
+    }
+
+    @Test
+    public void testTicket1798() throws Exception {
+        Experimenter e = loginNewUser();
+
+        // Create an annotation like a user photo in #1798
+        long uid = iAdmin.getEventContext().getCurrentUserId();
+        FileAnnotation fa = new FileAnnotation();
+        ExperimenterAnnotationLink link = new ExperimenterAnnotationLink();
+        link.link(new Experimenter(uid, false), fa);
+        iUpdate.saveObject(link);
+
+        loadUserFileAnnotations(uid);
+
+        // Now login to another group and see what happens
+        loginUserInNewGroup(e);
+        loadUserFileAnnotations(uid);
+    }
+
+    private void loadUserFileAnnotations(long uid) {
+        Map<Long, Set<Annotation>> map = iMetadata.loadAnnotations(
+                Experimenter.class, java.util.Collections.singleton(uid),
+                Collections.singleton("FileAnnotation"), null, null);
+    }
+
+
     // ~ Helpers
     // =========================================================================
 
-    private Image createImage(Permissions p) {
+    private Image createImage() {
         Image img = new Image();
         img.setName(ticket117 + ":" + UUID.randomUUID().toString());
         img.setAcquisitionDate(new Timestamp(0));
-        return createObject(img, p);
+        return createObject(img);
     }
 
-    private Dataset createDataset(Permissions p) {
+    private Dataset createDataset() {
         Dataset ds = new Dataset();
         ds.setName(ticket117 + ":" + UUID.randomUUID().toString());
-        return createObject(ds, p);
+        return createObject(ds);
     }
 
-    private <T extends IObject> T createObject(T obj, Permissions p) {
-        obj.getDetails().setPermissions(p);
+    private <T extends IObject> T createObject(T obj) {
         obj = factory.getUpdateService().saveAndReturnObject(obj);
         return obj;
     }
@@ -289,25 +271,36 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
     }
 
     private <T extends IObject> void assertCanReadImage(T... ts) {
+        assertCanReadImage(iQuery, ts);
+    }
 
+    private <T extends IObject> void assertCanReadImage(IQuery q, T... ts) {
         T test;
         for (T t : ts) {
-            test = getAsString(t);
+            test = getAsString(q, t);
             assertNotNull(t + "!=null", test);
 
-            test = getByCriteria(t);
+            test = getByCriteria(q, t);
             assertNotNull(t + "!=null", test);
         }
 
     }
 
-    private <T extends IObject> T getAsString(T obj) {
+    private <T extends IObject> T getAsString(IQuery q, T obj) {
         return (T) iQuery.findByString(obj.getClass(), "name", ByNameQuery
                 .name(obj));
     }
 
-    private <T extends IObject> T getByCriteria(T obj) {
+    private <T extends IObject> T getByCriteria(IQuery q, T obj) {
         return (T) iQuery.execute(new ByNameQuery(obj));
+    }
+
+    private <T extends IObject> T getAsString(T obj) {
+        return getAsString(iQuery, obj);
+    }
+
+    private <T extends IObject> T getByCriteria(T obj) {
+        return getByCriteria(iQuery, obj);
     }
 }
 

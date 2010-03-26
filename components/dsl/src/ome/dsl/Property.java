@@ -133,6 +133,12 @@ public abstract class Property { // TODO need to define equality so that two
      */
     private SemanticType actualType;
 
+    /**
+     * The {@link SemanticType} instance which is the target of this property
+     * (for collections)
+     */
+    private SemanticType actualTarget;
+
     // String based values.
     private String name;
 
@@ -255,6 +261,14 @@ public abstract class Property { // TODO need to define equality so that two
 
     public SemanticType getActualType() {
         return this.actualType;
+    }
+
+    public void setActualTarget(SemanticType type) {
+        this.actualTarget = type;
+    }
+
+    public SemanticType getActualTarget() {
+        return this.actualTarget;
     }
 
     /**

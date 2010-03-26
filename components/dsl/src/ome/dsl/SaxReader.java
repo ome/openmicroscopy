@@ -371,10 +371,14 @@ class DSLHandler extends DefaultHandler {
 
         /**
          * Each property is given its an actual
-         * {@link SemanticType implementation which it points to
+         * {@link SemanticType implementation which it belongs to and points to
          */
         for (SemanticType semanticType : types.values()) {
             for (Property property : semanticType.getPropertyClosure()) {
+
+                SemanticType target = types.get(property.getType());
+                property.setActualTarget(target);
+
                 SemanticType currentType = semanticType;
                 SemanticType actualType = semanticType;
                 
