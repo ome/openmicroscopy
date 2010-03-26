@@ -294,17 +294,12 @@ public class PublicRepositoryI extends _RepositoryDisp {
             FileSet set = new FileSetI();
             List<OriginalFile> ofList;
             
-            set.imageName = ic.imageName;
             set.importableImage = true;
+            set.fileName = ic.file.getAbsolutePath();
+            set.imageName = set.fileName; //ic.imageName seems to be empty
+            set.reader = ic.reader;
             set.imageCount = ic.bfImageCount;
-            
-            ofList = getOriginalFiles(ic.file.getAbsolutePath());
-            if (ofList != null && ofList.size() != 0) {
-                set.file = ofList.get(0);
-            } else {
-                set.file = createOriginalFile(ic.file);   
-            }
-            
+                        
             set.usedFiles = new ArrayList<IObject>();
             List<String> iFileList = Arrays.asList(ic.usedFiles);
             for (String iFile : iFileList)  {
@@ -317,14 +312,14 @@ public class PublicRepositoryI extends _RepositoryDisp {
                 }
             }
             
-            set.pixelsList = ic.bfPixels;
-            
+            int i = 0;
             set.imageList = new ArrayList<Image>();
             for (Pixels pix : ic.bfPixels)  {
                 Image image = new ImageI();
-                // This needs to be unique ala ticket #1753
-                image.setName(rstring(set.imageName));        
+                // This needs to be unique ala ticket #1753 currently filename + number
+                image.setName(rstring(set.imageName.concat(String.format("_%03d", i++))));        
                 image.setAcquisitionDate(rtime(java.lang.System.currentTimeMillis()));
+                image.addPixels(pix);
                 set.imageList.add(image);
             }
             rv.add(set);
@@ -334,13 +329,18 @@ public class PublicRepositoryI extends _RepositoryDisp {
         if (names.size() > 0) {
             for (String iFile : names) {
                 FileSet set = new FileSetI();
+                List<OriginalFile> ofList;
+            
                 set.importableImage = false;
+                set.fileName = iFile;
                 set.imageCount = 0;
-                List<OriginalFile> ofList = getOriginalFiles(iFile);
+                        
+                set.usedFiles = new ArrayList<IObject>();
+                ofList = getOriginalFiles(iFile);
                 if (ofList != null && ofList.size() != 0) {
-                    set.file = ofList.get(0);
+                    set.usedFiles.add(ofList.get(0));
                 } else {
-                    set.file = createOriginalFile(new File(iFile));   
+                    set.usedFiles.add(createOriginalFile(new File(iFile)));   
                 }
                 rv.add(set);
             }
