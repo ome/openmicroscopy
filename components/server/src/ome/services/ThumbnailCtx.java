@@ -535,12 +535,34 @@ public class ThumbnailCtx
         Permissions currentGroupPermissions = 
             securitySystem.getEventContext().getCurrentGroupPermissions();
         Permissions readOnly = Permissions.parseString("rwr---");
+
         if (securitySystem.isGraphCritical()
             || currentGroupPermissions.identical(readOnly))
         {
             for (Long pixelsId : pixelsIds)
             {
-                if (pixelsIdOwnerIdMap.get(pixelsId) != userId)
+                // Check if the Pixels ID vs. Owner ID map is missing, which
+                // signifies that we were completely unable to load any of the
+                // Pixels sets identified in pixelsIds.
+                if (pixelsIdOwnerIdMap == null) {
+                    throw new ResourceError(String.format(
+                            "Error retrieving Pixels id:%d. Pixels set does " +
+                            "not exist or the user id:%d has insufficient " +
+                            "permissions to retrieve it.", pixelsId, userId));
+                }
+                Long pixelsOwner = pixelsIdOwnerIdMap.get(pixelsId);
+                // Check if the Owner ID is missing from the map, which as
+                // above signifies that we unable to load this particular
+                // Pixels set as identified by Pixels ID. This will be a hard
+                // failure due to the crazy state that this potentially
+                // suggests.
+                if (pixelsOwner == null) {
+                    throw new ResourceError(String.format(
+                            "Error retrieving Pixels id:%d. Pixels set does " +
+                            "not exist or the user id:%d has insufficient " +
+                            "permissions to retrieve it.", pixelsId, userId));
+                }
+                if (pixelsOwner != userId)
                 {
                     return true;
                 }
