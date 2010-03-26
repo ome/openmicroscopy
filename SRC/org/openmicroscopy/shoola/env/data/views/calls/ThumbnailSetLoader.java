@@ -215,19 +215,11 @@ public class ThumbnailSetLoader
 				obj = (DataObject) entry.getKey();
 				thumb = (BufferedImage) entry.getValue();
 				if (thumb == null) {
-					if (obj instanceof FileData) {
-						f = (FileData) obj;
-						if (f.isImage()) {
-							thumb = Factory.createDefaultImageThumbnail(true);
-						} else
-							thumb = Factory.createDefaultImageThumbnail(true);
-					}
+					thumb = Factory.createDefaultImageThumbnail(true);
 				}
-				//input.remove(obj.getId());
-				if (obj instanceof ImageData) {
-					result.add(new ThumbnailData(((ImageData) obj).getId(), 
-							thumb, valid));
-				} else 
+				if (obj.getId() > 0)
+					result.add(new ThumbnailData(obj.getId(), thumb, valid));
+				else 
 					result.add(new ThumbnailData(obj, thumb, valid));
 			}
         	currentThumbs = result;

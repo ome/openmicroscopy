@@ -52,7 +52,7 @@ public class TimeIntervalsLoader
 	extends DataTreeViewerLoader
 {
 
-	/** Handle to the async call so that we can cancel it. */
+	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  		handle;
     
     /** Reference to the node hosting the time interval to browse. */

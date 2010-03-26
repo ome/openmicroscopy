@@ -191,7 +191,7 @@ public class ThumbnailLoader
                                          ""; //Description wasn't available.   
             viewer.setStatus(status, percDone);
             List l = (List) fe.getPartialResult();
-            if (l != null) {
+            if (l != null && l.size()  > 0) {
             	Iterator i = l.iterator();
             	ThumbnailData td;
             	Object ref;

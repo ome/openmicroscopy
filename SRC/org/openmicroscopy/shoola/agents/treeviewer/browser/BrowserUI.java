@@ -529,23 +529,24 @@ class BrowserUI
     		for (int i = 0; i < files.length; i++) {
     			object = files[i];
     			display = null;
-    			if (object instanceof FileData) {
-    				file = (FileData) object;
+    			if (object instanceof MultiImageData) {
+					display = TreeViewerTranslator.transformMultiImage(
+    						(MultiImageData) object);
+    				if (display != null)
+    					buildTreeNode(display, 
+    						prepareSortedList(sorter.sort(
+    								display.getChildrenDisplay())), dtm);
+				} else if (object instanceof FileData) {
+					file = (FileData) object;
     				if (file.isDirectory()) {
             			if (!file.isHidden()) {
             				display = new TreeImageSet(file);
             				buildEmptyNode(display);
             			}
             		} else {
-            			if (!file.isHidden()) display = new TreeImageNode(file);
+            			if (!file.isHidden()) 
+            				display = new TreeImageNode(file);
             		}
-    			} else if (object instanceof MultiImageData) {
-    				display = TreeViewerTranslator.transformMultiImage(
-    						(MultiImageData) object);
-    				if (display != null)
-    					buildTreeNode(display, 
-    						prepareSortedList(sorter.sort(
-    								display.getChildrenDisplay())), dtm);
     			} else if (object instanceof ImageData) {
     				display = TreeViewerTranslator.transformImage(
     						(ImageData) object);

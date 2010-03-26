@@ -30,7 +30,6 @@ package org.openmicroscopy.shoola.agents.util.browser;
 //Third-party libraries
 
 //Application-internal dependencies
-import pojos.FileData;
 
 /** 
  * Represents a leaf in the composite structure used to visualize an
@@ -70,19 +69,6 @@ public class TreeImageNode
     public TreeImageNode(Object hierarchyObject)
     {
         super(hierarchyObject);
-    }
-    
-    /**
-     * Returns <code>true</code> to indicate that the image is supported, 
-     * <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    public boolean isSupportedImageFormat()
-    { 
-    	if (getUserObject() instanceof FileData)
-    		return ((FileData) getUserObject()).isImage();
-    	return false;
     }
     
     /**

@@ -626,6 +626,7 @@ class EditorComponent
 			return;
 		ImageData image = model.getImage();
 		if (image == null) return;
+		if (image.getId() < 0) return;
 		PixelsData pixels = image.getDefaultPixels();
 		if  (pixels == null) {
 			/*

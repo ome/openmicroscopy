@@ -111,6 +111,7 @@ import pojos.FileAnnotationData;
 import pojos.FileData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.MultiImageData;
 import pojos.PermissionData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -1734,9 +1735,11 @@ class TreeViewerComponent
 					(GroupData) parentObject, leaves);
 		} else if (parentObject instanceof FileData) {
 			FileData f = (FileData) parentObject;
-			if (f.isDirectory() && !f.isHidden()) 
-				db = DataBrowserFactory.getFSFolderBrowser(
-						(FileData) parentObject, leaves);
+			if (!f.isHidden()) {
+				if (f.isDirectory() || f instanceof MultiImageData) 
+					db = DataBrowserFactory.getFSFolderBrowser(
+							(FileData) parentObject, leaves);
+			}
 		} else 
 			db = DataBrowserFactory.getDataBrowser(grandParentObject, 
 					parentObject, leaves);
@@ -2276,7 +2279,7 @@ class TreeViewerComponent
 		} else if (uo instanceof FileData) {
 			FileData fa = (FileData) uo;
 			if (!fa.isHidden()) {
-				if (fa.isDirectory()) {
+				if (fa.isDirectory() || fa instanceof MultiImageData) {
 					model.getSelectedBrowser().loadExperimenterData(
 							BrowserFactory.getDataOwner(node), 
 		        			node);

@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.env.data;
 //Java imports
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -38,12 +37,13 @@ import javax.swing.filechooser.FileSystemView;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.RString;
+import omero.grid.FileSet;
+import omero.grid.RepositoryListConfig;
 import omero.grid.RepositoryPrx;
 import omero.model.Image;
 import omero.model.IObject;
-import omero.model.ImageI;
 import omero.model.OriginalFile;
+import omero.model.OriginalFileI;
 import pojos.DataObject;
 import pojos.FileData;
 import pojos.ImageData;
@@ -71,6 +71,9 @@ public class FSFileSystemView
 	
 	/** The id of the user the directory structure if for. */ 
 	private long userID;
+	
+	/** Default configuration. */
+	private RepositoryListConfig config;
 	
 	/**
 	 * Returns the repository corresponding to the passed file.
@@ -118,52 +121,66 @@ public class FSFileSystemView
     /**
      * Populates the collections of files.
      * 
-     * @param files The files to handles.
-     * @param map   The map to transform.
+     * @param files 	The files to handle.
+     * @param elements  The elements from the <code>FileSystem</code>
      * @param useFileHiding  Pass <code>true</code> to display the hidden files,
      * 						<code>false</code> otherwise.
      */
-    private void populate(Vector<DataObject> files, Map<String, List<IObject>>
-    map, boolean useFileHiding)
+    private void populate(Vector<DataObject> files, List<FileSet> elements,
+    		boolean useFileHiding)
     {
-    	if (map == null) return;
-    	Entry entry;
-		Iterator i = map.entrySet().iterator();
+    	if (elements == null) return;
+		Iterator<FileSet> i = elements.iterator();
 		List list;
 		File f;
-		IObject object;
+		Image object;
 		MultiImageData img;
 		Iterator j;
 		List<ImageData> components;
+		FileSet fs;
+		String name;
+		int count = 0;
+		OriginalFile of;
+		List<Image> images;
+		List<IObject> usedFiles;
+		OriginalFile file = null;
+		ImageData image;
 		if (useFileHiding) {
 		} else {
 			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				f = new File((String) entry.getKey());
+				fs = i.next();
+				name = fs.fileName;
+				f = new File(name);
 				if (!f.isHidden()) {
-					list = (List) entry.getValue();
-					if (list.size() == 1) {
-						object = (IObject) list.get(0);
-						if (object instanceof Image) {
-							files.addElement(new ImageData((Image) object));
-						} else if (object instanceof OriginalFile) {
-							files.addElement(new FileData(object));
+					count = fs.imageCount;
+					usedFiles = fs.usedFiles;
+					if (usedFiles.size() > 0) 
+						file = (OriginalFile) usedFiles.get(0);
+					if (count == 0) {
+						
+						if (file == null) {
+							of = new OriginalFileI();
+							of.setName(omero.rtypes.rstring(name));
+							file = of;
 						}
-					} else if (list.size() > 1) {
-						object = (IObject) list.get(0);
-						if (object instanceof Image) {
-							img = new MultiImageData((Image) object);
-							j = list.iterator();
+						files.addElement(new FileData(file));
+					} else {
+						images = fs.imageList;
+						count = images.size();
+						if (count == 1) {
+							image = new ImageData(images.get(0));
+							//if (!image.getName().equals(name))
+							//	image.setName(f.getName());
+							files.addElement(image);
+						} else if (count > 1) {
+							img = new MultiImageData(file);
+							j = images.iterator();
 							components = new ArrayList<ImageData>();
 							while (j.hasNext()) {
-								object = (IObject) j.next();
-								if (object instanceof OriginalFile) {
-									//tmp
-									Image image = new ImageI();
-									OriginalFile of = (OriginalFile) object;
-									image.setName(of.getName());
-									components.add(new ImageData(image));
-								}
+								image = new ImageData((Image) j.next()); 
+								//f = new File(image.getName());
+								//image.setName(f.getName());
+								components.add(image);
 							}
 							img.setComponents(components);
 							files.addElement(img);
@@ -173,75 +190,7 @@ public class FSFileSystemView
 			}
 		}
     }
-    
-    /**
-     * Populates the files.
-     * 
-     * @param files 	The collection to populate.
-     * @param listknown The collection of unknown files.
-     * @param listAll	The collection of all the files.
-     * @param useFileHiding Pass <code>true</code> to display the hidden files,
-     * 						<code>false</code> otherwise.
-     */
-    private void populate(Vector<DataObject> files, List listknown, 
-    		List listAll, boolean useFileHiding)
-    {
-    	if (listAll == null) return;
-		Iterator<IObject> i;
-		Map<String, IObject> m = new HashMap<String, IObject>();
-		IObject object;
-		RString path;
-		if (listknown != null) {
-			i = listknown.iterator();
-			while (i.hasNext()) {
-				object = i.next();
-				path = null;
-				if (object instanceof OriginalFile) {
-					path = ((OriginalFile) object).getPath();
-	    			if (path == null) path = ((OriginalFile) object).getName();
-	    			
-				} else if (object instanceof Image) {
-					path = ((Image) object).getName();
-				}
-				if (path != null) m.put(path.getValue(), object);
-			}
-		}
-		i = listAll.iterator();
-		FileData f;
-		String value;
-		boolean image;
-		while (i.hasNext()) {
-			object = i.next();
-			path = null;
-			image = false;
-			f = null;
-			if (object instanceof OriginalFile) {
-				path = ((OriginalFile) object).getPath();
-    			if (path == null) path = ((OriginalFile) object).getName();
-			} else if (object instanceof Image) {
-				path = ((Image) object).getName();
-				image = true;
-			}
-			if (path != null) {
-				value = path.getValue();
-				if (m.containsKey(value)) {
-					object = m.get(value);
-					if (image) {
-						files.addElement(new ImageData((Image) object));
-					} else 
-						f = new FileData(object);
-				} else {
-					f = new FileData(object);
-				}
-				if (f != null) {
-					if (!useFileHiding) {
-						if (!isHiddenFile(f)) files.addElement(f);
-					} else files.addElement(f);
-				}
-			}
-		}
-    }
-    
+   
 	/** 
 	 * Creates a new instance.
 	 * 
@@ -254,6 +203,7 @@ public class FSFileSystemView
 			throw new IllegalArgumentException("No repositories specified.");
 		this.userID = userID;
 		this.repositories = repositories;
+		config = new RepositoryListConfig(0, true, true, false, true);
 	}
 
 	/**
@@ -329,8 +279,9 @@ public class FSFileSystemView
     		} else if (object instanceof OriginalFile) {
     			r = proxy.registerOriginalFile(
             			(OriginalFile) object);
+    			file.setRegisteredFile((OriginalFile) r);
     		}
-    		if (r != null) file.setRegisteredFile(r);
+    		//if (r != null) file.setRegisteredFile(r);
     		
 		} catch (Exception e) {
 			new FSAccessException("Cannot register the file: " +
@@ -398,8 +349,8 @@ public class FSFileSystemView
     	Vector<DataObject> files = new Vector<DataObject>();
     	try {
     		String s = dir.getAbsolutePath();
-    		populate(files, proxy.listObjects(s), useFileHiding);
-    		Map<String, List<IObject>> list = proxy.listObjects(s);
+    		populate(files, proxy.listObjects(s, config), useFileHiding);
+    		//Map<String, List<IObject>> list = proxy.listObjects(s);
     		
     		/*
     		populate(files, proxy.listKnownNonImages(s), proxy.listNonImages(s), 

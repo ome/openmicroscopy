@@ -70,6 +70,7 @@ import pojos.ExperimenterData;
 import pojos.FileData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.MultiImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -941,21 +942,42 @@ class BrowserComponent
         else {
         	if (model.getBrowserType() == FILE_SYSTEM_EXPLORER) {
         		uo = n.getUserObject();
-        		if (uo instanceof FileData) {
+        		TreeImageDisplay expNode = BrowserFactory.getDataOwner(n);
+				if (expNode == null) return;  
+				Object ho = expNode.getUserObject();
+				if (!(ho instanceof ExperimenterData)) return;
+        		if (uo instanceof MultiImageData) {
+        			MultiImageData mi = (MultiImageData) uo;
+        			model.setState(LOADING_LEAVES);
+					setLeaves(mi.getComponents(), (TreeImageSet) n, 
+							(TreeImageSet) exp);
+        		} else if (uo instanceof FileData) {
         			FileData dir = (FileData) uo;
-        			if (dir.isDirectory() && !dir.isHidden()) {
-        				TreeImageDisplay expNode = 
-        					BrowserFactory.getDataOwner(n);
-        				if (expNode == null) return;  
-        				Object ho = expNode.getUserObject();
-        				if (!(ho instanceof ExperimenterData)) return;
-        				long expID = ((ExperimenterData) ho).getId();
-        				DataObject[] files = model.getFilesData(expID, dir);
-        				if (files != null) {
-        					List<DataObject> list = new ArrayList<DataObject>();
-        					for (int i = 0; i < files.length; i++) {
-								list.add(files[i]);
+        			if (dir.isHidden()) return;
+        			if (dir.isDirectory()) {
+        				//Check if data loaded
+        				List<DataObject> list = new ArrayList<DataObject>();
+        				if (n.isChildrenLoaded()) {
+        					List children = n.getChildrenDisplay();
+        					Iterator k = children.iterator();
+        					TreeImageDisplay d;
+        					Object o;
+        					while (k.hasNext()) {
+								d = (TreeImageDisplay) k.next();
+								o = d.getUserObject();
+								if (o instanceof DataObject) {
+									list.add((DataObject) o);
+								}
 							}
+        				} else {
+        					long expID = ((ExperimenterData) ho).getId();
+            				DataObject[] files = model.getFilesData(expID, dir);
+            				if (files != null) {
+            					for (int i = 0; i < files.length; i++) 
+    								list.add(files[i]);
+            				}
+        				}
+        				if (list.size() > 0) {
         					model.setState(LOADING_LEAVES);
         					setLeaves(list, (TreeImageSet) n, 
         							(TreeImageSet) exp);

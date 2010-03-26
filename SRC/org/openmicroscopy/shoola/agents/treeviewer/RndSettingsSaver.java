@@ -132,7 +132,7 @@ public class RndSettingsSaver
 	 * 					<code>ImageData</code>, <code>DatasetData</code>, 
 	 * 					<code>ProjectData</code>, <code>PlateData</code> 
 	 * 					or <code>ScreenData</code>.
-	 * @param ids		Collection of nodes ids. If the rootType equals 
+	 * @param ids		Collection of nodes identifiers. If the rootType equals 
 	 * 					<code>DatasetData</code>, 
 	 * 					<code>ProjectData</code>, <code>PlateData</code> 
 	 * 					or <code>ScreenData</code>, the settings will be applied
@@ -180,7 +180,7 @@ public class RndSettingsSaver
 	 * 					<code>ImageData</code>, <code>DatasetData</code>, 
 	 * 					<code>ProjectData</code>, <code>PlateData</code> 
 	 * 					or <code>ScreenData</code>.
-	 * @param ids		Collection of nodes ids. If the rootType equals 
+	 * @param ids		Collection of nodes identifiers. If the rootType equals 
 	 * 					<code>DatasetData</code>, 
 	 * 					<code>ProjectData</code>, <code>PlateData</code> 
 	 * 					or <code>ScreenData</code>, the settings will be applied

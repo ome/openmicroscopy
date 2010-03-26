@@ -2346,6 +2346,7 @@ class EditorModel
 		if (o instanceof DataObject) {
 			DataObject data = (DataObject) o;
 			long id = MetadataViewerAgent.getUserDetails().getId();
+			if (data.getId() < 0) return null;
 			ExperimenterData owner = data.getOwner();
 			if (owner.getId() == id) return null;
 			try {

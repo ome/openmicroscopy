@@ -45,6 +45,7 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileData;
 import pojos.ImageData;
+import pojos.MultiImageData;
 import pojos.PermissionData;
 import pojos.ProjectData;
 import pojos.TagAnnotationData;
@@ -53,7 +54,7 @@ import pojos.WellSampleData;
 
 /** 
  * This class contains a collection of utility static methods that transform
- * an hierarchy of {@link DataObject}s into a visualisation tree.
+ * an hierarchy of {@link DataObject}s into a visualization tree.
  * The tree is then displayed in the DataBrowser. For example,
  * A list of Projects-Datasets-Images is passed to the 
  * {@link #transformProjects(Set, long, long)} method and transforms into a set
@@ -116,7 +117,7 @@ public class DataBrowserTranslator
     }
     
     /** 
-     * Transforms each {@link ImageData} object into a visualisation object
+     * Transforms each {@link ImageData} object into a visualization object
      * i.e. {@link ImageNode}.
      * Then adds the newly created {@link ImageNode} to the specified 
      * {@link ImageSet parent}. 
@@ -187,7 +188,7 @@ public class DataBrowserTranslator
     
     /** 
      * Transforms each {@link ImageData} object contained in the specified
-     * list into a visualisation object i.e. {@link ImageNode}.
+     * list into a visualization object i.e. {@link ImageNode}.
      * Then adds the newly created {@link ImageNode} to the specified 
      * {@link ImageSet parent}. 
      * 
@@ -240,7 +241,7 @@ public class DataBrowserTranslator
     }
     
     /**
-     * Transforms a Projects/Datasets/Images hierarchy into a visualisation
+     * Transforms a Projects/Datasets/Images hierarchy into a visualization
      * tree. 
      * 
      * @param projects  Collection of {@link ProjectData}s to transform.
@@ -260,7 +261,7 @@ public class DataBrowserTranslator
         //DataObject
         ProjectData ps;
         DataObject child;
-        //Visualisation object.
+        //visualization object.
         ImageSet project;  
         Set datasets;
         //String note = "";
@@ -295,7 +296,7 @@ public class DataBrowserTranslator
  
     /**
      * Transforms the specified <code>Well</code> object into its corresponding
-     * visualisation object.
+     * visualization object.
      *  
      * @param data		The <code>Well</code> to transform
      * @param userID	The id of the current user.
@@ -358,7 +359,7 @@ public class DataBrowserTranslator
     }
     
     /**
-     * Transforms a Datasets/Images hierarchy into a visualisation
+     * Transforms a Datasets/Images hierarchy into a visualization
      * tree. 
      * 
      * @param tag     The {@link TagAnnotationData}s to transform.
@@ -425,7 +426,7 @@ public class DataBrowserTranslator
     
     /** 
      * Transforms the specified {@link DataObject} into its corresponding
-     * visualisation element.
+     * visualization element.
      * 
      * @param project   The {@link DataObject} to transform. 
      *                  Must be an instance of {@link ProjectData}.
@@ -443,7 +444,7 @@ public class DataBrowserTranslator
     }
     
     /**
-     * Transforms a Datasets/Images hierarchy into a visualisation
+     * Transforms a Datasets/Images hierarchy into a visualization
      * tree. 
      * 
      * @param datasets  Collection of {@link DatasetData}s to transform.
@@ -473,7 +474,7 @@ public class DataBrowserTranslator
     
     /** 
      * Transforms the specified {@link DataObject} into its corresponding
-     * visualisation element.
+     * visualization element.
      * 
      * @param dataset   The {@link DataObject} to transform.
      *                  Must be an instance of {@link DatasetData}.
@@ -488,6 +489,27 @@ public class DataBrowserTranslator
         Set set = new HashSet(1);
         set.add(dataset);
         return transformDatasets(set, userID, groupID);
+    }
+    
+    /**
+     * Transforms the passed multi-image e.g. <code>.lei</code>  
+     * into its corresponding visualization object.
+     * 
+     * @param img The object to handle
+     * @return See above.
+     */
+    private static ImageDisplay transformMultiImage(MultiImageData img)
+    {
+    	ImageSet node = new ImageSet(img.getName(), img);
+    	formatToolTipFor(node);
+    	List<ImageData> images = img.getComponents();
+    	Iterator i = images.iterator();
+        ImageData child;
+        while (i.hasNext()) {
+            child = (ImageData) i.next();
+            linkImageTo(child, node);
+        }  
+    	return node;
     }
     
     /** 
@@ -640,13 +662,16 @@ public class DataBrowserTranslator
         Set results = new HashSet();
         DataObject ho;
         FileData f;
+        MultiImageData img;
         Iterator i = dataObjects.iterator();
         while (i.hasNext()) {
             ho = (DataObject) i.next();
-            if (ho instanceof FileData) {
+            if (ho instanceof MultiImageData) {
+            	results.add(transformMultiImage((MultiImageData) ho));
+            } else if (ho instanceof FileData) {
             	f = (FileData) ho;
             	if (f.isFile() && !f.isHidden())
-            		 results.add(linkFileTo(f, null));
+            		results.add(linkFileTo(f, null));
             } else if (ho instanceof ImageData) {
             	 results.add(linkImageTo((ImageData) ho, null));
             }

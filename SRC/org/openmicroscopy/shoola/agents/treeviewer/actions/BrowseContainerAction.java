@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.List;
-
 import javax.swing.Action;
 
 //Third-party libraries
@@ -48,6 +47,7 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
 import pojos.ImageData;
+import pojos.MultiImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenAcquisitionData;
@@ -114,6 +114,11 @@ public class BrowseContainerAction
      */
     private static final String DESCRIPTION_FOLDER = "Browse the selected " +
     		"Folder.";
+    /** 
+     * Description of the action if the <code>Object</code> is a folder. 
+     */
+    private static final String DESCRIPTION_MULTIIMAGE = 
+    	"Browse the selected Image.";
     
     /** Convenience reference to the icon manager. */
     private static IconManager	icons = IconManager.getInstance();
@@ -237,6 +242,12 @@ public class BrowseContainerAction
             			setEnabled(n > 0);
             		}
             		if (!withThumnails) setEnabled(false);
+                } else if (ho instanceof MultiImageData) {
+                	MultiImageData mi = (MultiImageData) ho;
+            		if (!mi.isHidden()) {
+            			setEnabled(mi.getComponents().size() > 0);
+            			description = DESCRIPTION_MULTIIMAGE;
+            		} else setEnabled(false);
             	} else if (ho instanceof FileData) {
             		FileData f = (FileData) ho;
             		if (f.isDirectory() && !f.isHidden()) {

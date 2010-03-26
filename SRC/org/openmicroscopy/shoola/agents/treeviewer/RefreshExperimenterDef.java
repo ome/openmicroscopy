@@ -31,8 +31,6 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
-import pojos.ExperimenterData;
-import pojos.GroupData;
 
 /** 
  * Utility class used to refresh the tree.
@@ -79,11 +77,6 @@ public class RefreshExperimenterDef
     	if (expNode == null)
         	throw new IllegalArgumentException("Node not valid.");
     	Object uo = expNode.getUserObject();
-    	/*
-    	if (!((uo instanceof ExperimenterData) || 
-    			(uo instanceof GroupData)))
-    		throw new IllegalArgumentException("Node not valid.");	
-    		*/
     	this.expandedNodes = expandedNodes;
         this.expandedTopNodes = expandedTopNodes;
         this.expNode = expNode;

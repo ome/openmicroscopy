@@ -1754,13 +1754,8 @@ class OMEROGateway
 	 */
 	Class convertPojos(DataObject node)
 	{
-		if (node instanceof FileData) {
-			FileData f = (FileData) node;
-			if (f.isImage()) return Image.class;
+		if (node instanceof FileData || node instanceof MultiImageData)
 			return OriginalFile.class;
-		} else if (node instanceof MultiImageData) {
-			return OriginalFile.class;
-		}
 		return convertPojos(node.getClass());
 	}
 	

@@ -39,8 +39,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import pojos.DataObject;
-import pojos.FileData;
 import pojos.ImageData;
+import pojos.MultiImageData;
 
 /** 
  * A concrete Model for a folder accessed via FS.
@@ -74,17 +74,19 @@ class FSFolderModel
 		List<DataObject> toTransform = new ArrayList<DataObject>();
 		Iterator<DataObject> i = files.iterator();
 		DataObject o;
-		FileData f;
+		numberOfImages = 0;
 		while (i.hasNext()) {
 			o = i.next();
-			if (o instanceof ImageData) toTransform.add(o);
-			else if (o instanceof FileData) {
-				f = (FileData) o;
-				if (f.isImage()) toTransform.add(o);
+			if (o instanceof ImageData) {
+				toTransform.add(o);
+				numberOfImages++;
+			} else if (o instanceof MultiImageData) {
+				toTransform.add(o);
+				numberOfImages += ((MultiImageData) o).getComponents().size();
 			}
 		}
 		Set visTrees = DataBrowserTranslator.transformFSFolder(toTransform);
-		numberOfImages = visTrees.size();
+		//numberOfImages = visTrees.size();
         browser = BrowserFactory.createBrowser(visTrees);
         layoutBrowser();
 	}
@@ -124,7 +126,7 @@ class FSFolderModel
 			}
 		} else {
 			long id;
-			FileData f;
+			List<ImageData> list;
 			while (i.hasNext()) {
 				node = i.next();
 				if (node.getThumbnail().getFullScaleThumb() == null) {
@@ -137,12 +139,13 @@ class FSFolderModel
 							imagesLoaded++;
 						}
 					} else {
-						if (data instanceof FileData) {
-							f = (FileData) data;
-							if (f.isImage()) {
-								imgs.add(data);
-								imagesLoaded++;
-							}
+						if (data instanceof ImageData) {
+							imgs.add(data);
+							imagesLoaded++;
+						} else if (data instanceof MultiImageData) {
+							list = ((MultiImageData) data).getComponents();
+							imgs.addAll(list);
+							imagesLoaded += list.size();
 						}
 					}
 				}

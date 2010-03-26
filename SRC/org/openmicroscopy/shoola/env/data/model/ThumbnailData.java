@@ -32,7 +32,6 @@ import java.awt.image.BufferedImage;
 //Third-party libraries
 
 //Application-internal dependencies
-import pojos.FileData;
 import pojos.ImageData;
 
 /** 
@@ -125,7 +124,7 @@ public class ThumbnailData
               throw new NullPointerException("No thumbnail.");
     	  if (refOjbect == null)
     		  throw new IllegalArgumentException("No object.");
-    	  if (!(refOjbect instanceof FileData || refOjbect instanceof ImageData))
+    	  if (!(refOjbect instanceof ImageData))
     		  throw new IllegalArgumentException("Type not valid.");
     	  this.refObject = refOjbect;
     	  this.validImage = validImage;

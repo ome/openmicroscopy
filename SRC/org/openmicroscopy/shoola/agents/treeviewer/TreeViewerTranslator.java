@@ -41,26 +41,18 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.RLong;
-import omero.model.Details;
-import omero.model.IObject;
-
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
-
-import Ice.Current;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
-import pojos.FileData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.MultiImageData;
@@ -889,6 +881,7 @@ public class TreeViewerTranslator
 		if (images != null && images.size() > 0) {
 			TreeImageSet node = new TreeImageSet(object);
 			node.setChildrenLoaded(Boolean.valueOf(true));
+			node.setNumberItems(images.size());
 			Iterator<ImageData> i = images.iterator();
 			while (i.hasNext())
 				node.addChildDisplay(transformImage(i.next()));

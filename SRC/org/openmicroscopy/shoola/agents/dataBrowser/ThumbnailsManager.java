@@ -39,8 +39,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
-
-import pojos.FileData;
 import pojos.ImageData;
 
 /** 
@@ -113,8 +111,11 @@ public class ThumbnailsManager
         			((WellImageSet) node).getSelectedWellSample().getThumbnail();
             } else if (node instanceof ImageNode) {
             	ho = node.getHierarchyObject();
-            	if (ho instanceof ImageData) 
+            	if (ho instanceof ImageData) {
             		is = (ImageData) ho;
+            		if (is.getId() < 0) is = null;
+            	}
+            		
             	thumb = ((ImageNode) node).getThumbnail();
             }
             if (is != null) {
@@ -126,7 +127,7 @@ public class ThumbnailsManager
                  }
                  providers.add(thumb);
             } else {
-            	if (ho instanceof FileData) {
+            	if (ho instanceof ImageData) {
             		providers = thumbProviders.get(ho);
                     if (providers == null) {
                         providers = new HashSet<Thumbnail>();
@@ -150,7 +151,7 @@ public class ThumbnailsManager
     public void setThumbnail(Object ref, BufferedImage thumb, boolean valid)
     {
         if (thumb == null) throw new NullPointerException("No thumbnail.");
-        if (ref instanceof Long || ref instanceof FileData) {
+        if (ref instanceof Long || ref instanceof ImageData) {
              Set providers = thumbProviders.get(ref);
              if (providers != null) {
                  Iterator p = providers.iterator();

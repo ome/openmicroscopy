@@ -40,7 +40,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.util.browser.SmartFolder;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
@@ -168,6 +167,12 @@ public class TreeCellRenderer
         	} else if (data.isMovieFile()) {
         		icon = icons.getIcon(IconManager.MOVIE);
         	} else icon = icons.getIcon(IconManager.FILE_TEXT); 
+        } else if (usrObject instanceof MultiImageData) {
+        	MultiImageData mi = (MultiImageData) usrObject;
+        	if (mi.getId() > 0) 
+        		icon = icons.getIcon(IconManager.IMAGE_DIRECTORY);
+        	else icon = icons.getIcon(
+        			IconManager.IMAGE_DIRECTORY_UNREGISTERED);
         } else if (usrObject instanceof FileData) {
         	FileData f = (FileData) usrObject;
         	if (f.isDirectory()) {
@@ -175,29 +180,10 @@ public class TreeCellRenderer
         			icon = icons.getIcon(IconManager.DIRECTORY_REGISTERED);
         		else icon = icons.getIcon(IconManager.DIRECTORY);
         	} else {
-        		if (node instanceof TreeImageNode) {
-        			TreeImageNode n = (TreeImageNode) node;
-        			if (n.isSupportedImageFormat()) {
-        				if (f.getId() > 0) 
-                			icon = icons.getIcon(IconManager.IMAGE);
-                		else 
-                			icon = icons.getIcon(IconManager.IMAGE_UNREGISTERED);
-        			} else {
-        				if (f.getId() > 0)
-                			icon = icons.getIcon(IconManager.FILE_REGISTERED);
-                		else icon = icons.getIcon(IconManager.FILE_TEXT);
-        			}
-        		} else {
-        			if (f.getId() > 0)
-            			icon = icons.getIcon(IconManager.FILE_REGISTERED);
-            		else icon = icons.getIcon(IconManager.FILE_TEXT);
-        		}
+        		if (f.getId() > 0)
+        			icon = icons.getIcon(IconManager.FILE_REGISTERED);
+        		else icon = icons.getIcon(IconManager.FILE_TEXT);
         	}
-        } else if (usrObject instanceof MultiImageData) {
-        	MultiImageData mi = (MultiImageData) usrObject;
-        	if (mi.getId() > 0) 
-        		icon = icons.getIcon(IconManager.IMAGE_DIRECTORY);
-        	else icon = icons.getIcon(IconManager.IMAGE_DIRECTORY_UNREGISTERED);
         } else if (node instanceof SmartFolder) {
         	if (GroupData.class.equals(((SmartFolder) node).getType())) {
         		icon = icons.getIcon(IconManager.PERSONAL);

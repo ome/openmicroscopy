@@ -626,6 +626,7 @@ class PropertiesUI
         	 descriptionPanel.setBorder(AnnotationUI.EDIT_BORDER);
         	 p.add(descriptionPanel);
          } else if (refObject instanceof FileData) {
+        	 /*
         	 FileData f = (FileData) refObject;
         	 if (f.isImage()) {
         		 p.add(Box.createVerticalStrut(5));
@@ -633,6 +634,7 @@ class PropertiesUI
             			 			descriptionPane, 80);
             	 p.add(descriptionPanel);
         	 }
+        	 */
          }
          p.add(Box.createVerticalStrut(5));
          return p;
@@ -817,10 +819,13 @@ class PropertiesUI
         	FileData f = (FileData) refObject;
         	if (f.isDirectory()) text = "Folder";
         	else {
+        		/*
         		if (f.isImage()) {
         			b = true;
         			text = "Image";
-        		} else text = "File";
+        		} else 
+        		*/
+        		text = "File";
         	}
         } else if (refObject instanceof MultiImageData) {
         	editName.setEnabled(false);
@@ -922,7 +927,7 @@ class PropertiesUI
 		} else if (object instanceof FileData) {
 			FileData f = (FileData) object;
 			if (f.getId() > 0) return;
-			if (f.isImage()) f.setDescription(desc);
+			//if (f.isImage()) f.setDescription(desc);
 		}
 	}
 	

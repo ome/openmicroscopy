@@ -477,6 +477,8 @@ public abstract class TreeImageDisplay
         } else if (uo instanceof ExperimenterData) return name;
         else if (uo instanceof FileAnnotationData) return name;
         else if (uo instanceof File) return name; 
+        else if (uo instanceof MultiImageData) 
+        	return (name+SPACE+"["+numberItems+"]");
         else if (uo instanceof FileData) return name;
         else if (uo instanceof ScreenAcquisitionData) return name;
         else if (uo instanceof String && numberItems < 0) 
