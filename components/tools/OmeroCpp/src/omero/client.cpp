@@ -69,7 +69,7 @@ namespace omero {
 	if ( threadpool.length() == 0 ) {
             stringstream ssTpInt;
             ssTpInt << omero::constants::CLIENTTHREADPOOLSIZE;
-	    id.properties->setProperty("omero.ClientCallback.ThreadPool.Size", ssTPInt.str());
+	    id.properties->setProperty("omero.ClientCallback.ThreadPool.Size", ssTpInt.str());
 	}
 
 	// Port, setting to default if not present
@@ -85,7 +85,7 @@ namespace omero {
 
 	std::string h_("@omero.host@");
 	std::string p_("@omero.port@");
-        whilte (true) {
+        while (true) {
             size_t found = router.rfind(h_);
             if (found != string::npos) {
                 router.replace(found, h_.length(), host);
