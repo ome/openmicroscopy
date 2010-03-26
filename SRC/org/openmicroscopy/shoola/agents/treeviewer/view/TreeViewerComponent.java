@@ -865,9 +865,20 @@ class TreeViewerComponent
 			Browser browser = model.getSelectedBrowser();
 			browser.onSelectedNode(parent, selected, size > 0);
 		}
-
-		mv.setSelectionMode(size == 0);
+		size = siblings.size();
 		
+		mv.setSelectionMode(size == 0);
+		Browser browser = model.getSelectedBrowser();
+		ExperimenterData exp = null;
+		TreeImageDisplay last = browser.getLastSelectedDisplay();
+		if (last != null) exp = browser.getNodeOwner(last);
+		if (exp == null) exp = model.getUserDetails();
+		mv.setRootObject(selected, exp.getId());
+		mv.setParentRootObject(parent);
+		if (size > 0) 
+			mv.setRelatedNodes(siblings);
+		
+		/*
 		mv.setParentRootObject(parent);
 		if (size > 0) {
 			mv.setRelatedNodes(siblings);
@@ -878,12 +889,12 @@ class TreeViewerComponent
 			if (last != null) exp = browser.getNodeOwner(last);
 			if (exp == null) exp = model.getUserDetails();
 			mv.setRootObject(selected, exp.getId());
-		}
+		}*/
 		model.getDataViewer().setApplications(
 				TreeViewerFactory.getApplications(
 						model.getObjectMimeType(selected)));
 		if (!model.isFullScreen()) {
-			Browser browser = model.getSelectedBrowser();
+			//Browser browser = model.getSelectedBrowser();
 			browse(browser.getLastSelectedDisplay(), false);
 		}
 		
