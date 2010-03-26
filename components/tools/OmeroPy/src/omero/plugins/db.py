@@ -143,10 +143,17 @@ BEGIN;
         map = {}
         root_pass = None
         try:
-            data.properties.setProperty("omero.db.version", args.args[0])
-            self.ctx.out("Using %s for version" % args.args[0])
-            data.properties.setProperty("omero.db.patch", args.args[1])
-            self.ctx.out("Using %s for patch" % args.args[1])
+            db_vers = args.args[0]
+            db_patch = args.args[1]
+            if data2:
+                if len(db_vers) == 0:
+                    db_vers = data2.properties.getProperty("omero.db.version")
+                if len(db_patch) == 0:
+                    db_patch = data2.properties.getProperty("omero.db.patch")
+            data.properties.setProperty("omero.db.version", db_vers)
+            self.ctx.out("Using %s for version" % db_vers)
+            data.properties.setProperty("omero.db.patch", db_patch)
+            self.ctx.out("Using %s for patch" % db_patch)
             root_pass = args.args[2]
             self.ctx.out("Using password from commandline")
         except Exception, e:
