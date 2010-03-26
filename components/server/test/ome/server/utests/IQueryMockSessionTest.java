@@ -30,6 +30,8 @@ import org.jmock.MockObjectTestCase;
 import org.jmock.core.stub.DefaultResultStub;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.ExpectedExceptions;
 import org.testng.annotations.Test;
@@ -49,7 +51,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
     protected Mock mockSession, mockFactory;
 
     @Override
-    @Configuration(beforeTestMethod = true)
+    @BeforeMethod
     protected void setUp() throws Exception {
         super.setUp();
         impl = new QueryImpl();
@@ -65,7 +67,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
     }
 
     @Override
-    @Configuration(afterTestMethod = true)
+    @AfterMethod
     protected void tearDown() throws Exception {
         super.verify();
         super.tearDown();
@@ -97,8 +99,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
         iQuery.get(IObject.class, 1L);
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void test_get_nulls() throws Exception {
         iQuery.get(null, 1L);
     }
@@ -109,8 +110,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
         iQuery.find(IObject.class, 1L);
     }
 
-    @Test
-    @ExpectedExceptions(ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class)
     public void test_find_nulls() throws Exception {
         iQuery.find(null, 1L);
     }

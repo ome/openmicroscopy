@@ -41,9 +41,9 @@
 
   <!-- Redirector configuration -->
   <alias name="${omero.cluster.redirector}" alias="redirector"/>
-  
+
   <bean id="nullRedirector" class="ome.services.blitz.redirect.NullRedirector"/>
-  
+
   <bean id="configRedirector" class="ome.services.blitz.redirect.ConfigRedirector">
     <constructor-arg ref="executor"/>
   </bean>
@@ -62,7 +62,7 @@
     <property name="cronExpression" value="0 0/3 * * * ?" />
     <property name="jobDetail" ref="requestHeartBeatsRun"/>
   </bean>
-  
+
   <bean id="clusterCheckRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
     <property name="targetObject" ref="ring" />
     <property name="targetMethod" value="checkCluster" />
@@ -70,6 +70,13 @@
   <bean id="clusterCheckTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
     <property name="cronExpression" value="13 0/30 * * * ?" />
     <property name="jobDetail" ref="clusterCheckRun"/>
+  </bean>
+
+  <bean class="ome.services.blitz.util.CheckAllJobs" lazy-init="false">
+    <constructor-arg ref="executor"/>
+    <constructor-arg ref="BlitzAdapter"/>
+    <constructor-arg ref="TopicManager"/>
+    <constructor-arg value="120000"/> <!-- ms.; Give processor time to recover -->
   </bean>
 
   <!-- Lookups -->

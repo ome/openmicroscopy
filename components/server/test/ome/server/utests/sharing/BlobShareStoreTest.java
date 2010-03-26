@@ -15,9 +15,14 @@ import ome.model.core.Image;
 import ome.model.meta.Share;
 import ome.services.sharing.BlobShareStore;
 import ome.services.sharing.data.ShareData;
+import ome.services.util.Executor;
 import ome.system.OmeroContext;
+import ome.system.Principal;
+import ome.system.ServiceFactory;
 
+import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -47,15 +52,26 @@ public class BlobShareStoreTest extends TestCase {
 
     @Test
     public <T extends IObject> void testSimple() {
-        store.set(new Share(1L, true), 3L, Collections.<T> emptyList(),
-                Collections.<Long> emptyList(), Collections
-                        .<String> emptyList(), false);
-        store.set(new Share(2L, true), 4L, Arrays.asList(new Image(1L, false)),
-                Arrays.asList(1L, 2L), Arrays.asList("example@example.com"),
-                true);
-        ShareData data = store.get(2L);
-        assertEquals(2L, data.id);
-        assertEquals("example@example.com", data.guests.get(0));
+
+        Executor ex = (Executor) ctx.getBean("executor");
+        String uuid = (String) ctx.getBean("uuid");
+        ex.execute(new Principal(uuid), new Executor.SimpleWork(this, "testSimple") {
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+                store.set(new Share(1L, true), 3L, Collections.<T> emptyList(),
+                        Collections.<Long> emptyList(), Collections
+                                .<String> emptyList(), false);
+                store.set(new Share(2L, true), 4L, Arrays.asList(new Image(1L, false)),
+                        Arrays.asList(1L, 2L), Arrays.asList("example@example.com"),
+                        true);
+                ShareData data = store.get(2L);
+                assertEquals(2L, data.id);
+                assertEquals("example@example.com", data.guests.get(0));
+                return null;
+            }
+        });
+
+
     }
     // Helpers
     // ====================

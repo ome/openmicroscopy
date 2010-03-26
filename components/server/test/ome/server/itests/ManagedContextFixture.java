@@ -76,10 +76,15 @@ public class ManagedContextFixture {
     // =========================================================================
 
     /**
-     * Create a new user in the "default" group
+     * Create a new user in a new group.
      */
     public String newUser() {
-        return newUser("default");
+        String uuid = uuid();
+        IAdmin admin = managedSf.getAdminService();
+        ExperimenterGroup group = new ExperimenterGroup();
+        group.setName(uuid);
+        admin.createGroup(group);
+        return newUser(uuid);
     }
 
     /**

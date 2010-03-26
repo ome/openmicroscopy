@@ -62,14 +62,7 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
     }
 
     private long newPixels() throws Exception {
-        TinyImportFixture fixture = new TinyImportFixture(this.factory);
-        try {
-            fixture.setUp();
-            fixture.doImport();
-            return fixture.getPixels().getId();
-        } finally {
-            fixture.tearDown();
-        }
+        return makePixels().getId();
     }
 
 

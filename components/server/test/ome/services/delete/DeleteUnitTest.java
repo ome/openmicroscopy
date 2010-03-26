@@ -81,15 +81,14 @@ public class DeleteUnitTest extends MockObjectTestCase {
 
         ecm = mock(EventContext.class);
         ec = (EventContext) ecm.proxy();
-        ecm.expects(atLeastOnce()).method("isCurrentUserAdmin").will(
-                returnValue(false));
+
     }
 
     @Test(expectedExceptions = SecurityViolation.class)
     public void testImageNotOwnedByUser() throws Exception {
 
         setReturnedImage(1L, 1L);
-        setCurrentEventContext("user", 100L);
+        setCurrentEventContext("user", 100L, false);
         setConstrainingObjects(Arrays.<Dataset> asList(), false);
         bean.deleteImage(4, true);
 
@@ -99,7 +98,7 @@ public class DeleteUnitTest extends MockObjectTestCase {
     public void testImageNotOwnedByPI() throws Exception {
 
         setReturnedImage(1L, 1L);
-        setCurrentEventContext("pi", 50L, 1L);
+        setCurrentEventContext("pi", 50L, false, 1L);
         setConstrainingObjects(Arrays.<Dataset> asList(), false);
         setDeleteObjects(i);
         bean.deleteImage(4, true);
@@ -109,7 +108,7 @@ public class DeleteUnitTest extends MockObjectTestCase {
     public void testImageNotOwnedByRoot() throws Exception {
 
         setReturnedImage(1L, 1L);
-        setCurrentEventContext("root", 0L, 0L);
+        setCurrentEventContext("root", 0L, true, 0L);
         setConstrainingObjects(Arrays.<Dataset> asList(), false);
         setDeleteObjects(i);
         bean.deleteImage(4, true);
@@ -130,7 +129,7 @@ public class DeleteUnitTest extends MockObjectTestCase {
     public void testImageInOtherDatasets() throws Exception {
 
         setReturnedImage(100L, 100L);
-        setCurrentEventContext("user", 100L);
+        setCurrentEventContext("user", 100L, false);
         setConstrainingObjects(Arrays.<Dataset> asList(new Dataset()), false);
         bean.deleteImage(4, false);
     }
@@ -139,7 +138,7 @@ public class DeleteUnitTest extends MockObjectTestCase {
     public void testImageInOwnDatasetsNoForce() throws Exception {
 
         setReturnedImage(100L, 100L);
-        setCurrentEventContext("user", 100L);
+        setCurrentEventContext("user", 100L, false);
         setConstrainingObjects(Arrays.<Dataset> asList(new Dataset()), false);
         bean.deleteImage(4, false);
     }
@@ -148,7 +147,7 @@ public class DeleteUnitTest extends MockObjectTestCase {
     public void testImageInOwnDatasetsForce() throws Exception {
 
         setReturnedImage(100L, 100L);
-        setCurrentEventContext("user", 100L);
+        setCurrentEventContext("user", 100L, false);
         setConstrainingObjects(Arrays.<Dataset> asList(), true);
         setDeleteObjects(i);
         bean.deleteImage(4, true);
@@ -211,13 +210,15 @@ public class DeleteUnitTest extends MockObjectTestCase {
         });
     }
 
-    private void setCurrentEventContext(String name, long user,
+    private void setCurrentEventContext(String name, long user, boolean admin,
             Long... leaderof) {
         am.expects(once()).method("getEventContext").will(returnValue(ec));
         ecm.expects(atLeastOnce()).method("getCurrentUserName").will(
                 returnValue(name));
         ecm.expects(atLeastOnce()).method("getCurrentUserId").will(
                 returnValue(user));
+        ecm.expects(atLeastOnce()).method("isCurrentUserAdmin").will(
+                returnValue(admin));
         ecm.expects(once()).method("getLeaderOfGroupsList").will(
                 returnValue(Arrays.asList(leaderof)));
     }

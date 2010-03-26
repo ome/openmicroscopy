@@ -27,38 +27,17 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
-@Test(groups = { "mockable", "security", "integration" })
-public class LoginTest extends TestCase {
-
-    protected void login(String user, String group, String eventType) {
-        Session s = sm.create(new Principal(user, group, eventType));
-        sec.login(new Principal(s.getUuid(), group, eventType));
-    }
-
-    protected OmeroContext ctx;
-
-    protected ServiceFactory sf;
-
-    protected IQuery q;
-
-    protected IUpdate u;
+@Test(groups = { "security", "integration" })
+public class LoginTest extends AbstractManagedContextTest {
 
     protected SecuritySystem sec;
-
-    protected ome.services.sessions.SessionManager sm;
 
     protected PrincipalHolder ph;
 
     @BeforeMethod
     public void config() {
-        ctx = OmeroContext.getManagedServerContext();
-        ctx.refreshAllIfNecessary();
-        sf = new ServiceFactory(ctx);
-        q = sf.getQueryService();
-        u = sf.getUpdateService();
-        sec = (SecuritySystem) ctx.getBean("securitySystem");
-        sm = (SessionManager) ctx.getBean("sessionManager");
-        ph = (PrincipalHolder) ctx.getBean("principalHolder");
+        sec = (SecuritySystem) applicationContext.getBean("securitySystem");
+        ph = (PrincipalHolder) applicationContext.getBean("principalHolder");
         while (ph.size() > 0) {
             ph.logout();
         }
@@ -75,7 +54,7 @@ public class LoginTest extends TestCase {
     @Test
     public void testNoLoginThrowsException() throws Exception {
         try {
-            q.find(Experimenter.class, 0l);
+            iQuery.find(Experimenter.class, 0l);
             fail("Non-logged-in call allowed!");
         } catch (RuntimeException e) {
             // ok.
@@ -85,13 +64,13 @@ public class LoginTest extends TestCase {
     @Test
     public void testLoggedInAllowed() throws Exception {
         login("root", "system", "Test");
-        q.find(Experimenter.class, 0l);
+        iQuery.find(Experimenter.class, 0l);
     }
 
     @Test
     public void testLoggedOutAfterCall() throws Exception {
         login("root", "system", "Test");
-        q.find(Experimenter.class, 0l);
+        iQuery.find(Experimenter.class, 0l);
         assertTrue(!sec.isReady());
     }
 
@@ -99,7 +78,7 @@ public class LoginTest extends TestCase {
     public void testLoginWithInvalidThrowsException() throws Exception {
         try {
             login("unknown2349akljf9q283", "system", "Test");
-            q.find(Experimenter.class, 0l);
+            iQuery.find(Experimenter.class, 0l);
             fail("Login allowed with unknown user.");
         } catch (RuntimeException r) {
         }
@@ -107,7 +86,7 @@ public class LoginTest extends TestCase {
 
         try {
             login("root", "baba9o38023984019", "Test");
-            q.find(Experimenter.class, 0l);
+            iQuery.find(Experimenter.class, 0l);
             fail("Login allowed with unknown group.");
         } catch (RuntimeException r) {
         }
@@ -115,7 +94,7 @@ public class LoginTest extends TestCase {
 
         try {
             login("root", "system", "blarg23498239048230");
-            q.find(Experimenter.class, 0l);
+            iQuery.find(Experimenter.class, 0l);
             fail("Login allowed with unknown type.");
         } catch (RuntimeException r) {
         }
@@ -131,21 +110,16 @@ public class LoginTest extends TestCase {
         String gname = UUID.randomUUID().toString();
         ExperimenterGroup g = new ExperimenterGroup();
         g.setName(gname);
-        sf.getAdminService().createGroup(g);
+        iAdmin.createGroup(g);
 
-        String uname = UUID.randomUUID().toString();
-        Experimenter e = new Experimenter();
-        e.setOmeName(uname);
-        e.setFirstName("badgroup");
-        e.setLastName("login");
-        sf.getAdminService().createUser(e, "default");
+        Experimenter e = loginNewUser();
 
         try {
-            login(uname, gname, "Test");
-            q.find(Experimenter.class, 0l);
+            login(e.getOmeName(), gname, "Test");
+            iQuery.find(Experimenter.class, 0l);
             Image i = new Image();
             i.setName("belongs to wrong group");
-            i = sf.getUpdateService().saveAndReturnObject(i);
+            i = iUpdate.saveAndReturnObject(i);
             fail("Login allowed for user in non-member group.");
         } catch (RuntimeException r) {
         }

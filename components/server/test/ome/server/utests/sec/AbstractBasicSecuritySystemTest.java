@@ -117,6 +117,8 @@ public abstract class AbstractBasicSecuritySystemTest extends
                 returnValue(1L));
         mockEc.expects(atLeastOnce()).method("getCurrentUserId").will(
                 returnValue(1L));
+        mockEc.expects(atLeastOnce()).method("getCurrentUserName").will(
+                returnValue("some-user"));
         mockEc.expects(atLeastOnce()).method("getCurrentGroupName").will(
                 returnValue("test"));
         mockEc.expects(atLeastOnce()).method("getCurrentGroupId").will(
