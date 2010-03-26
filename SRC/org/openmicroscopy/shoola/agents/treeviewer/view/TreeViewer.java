@@ -243,7 +243,7 @@ public interface TreeViewer
 	 * automatically.
 	 */
 	public static final String      SELECTION_PROPERTY = "selection";
-	
+
 	/** 
 	 * The title displayed in the {@link LoadingWindow} during the saving 
 	 * process.

@@ -759,7 +759,6 @@ class TreeViewerModel
 	            }
 	        }
 		}
-		
 		currentLoader = new DataObjectCreator(component, object, data);
 		currentLoader.load();
 	}
@@ -1234,7 +1233,6 @@ class TreeViewerModel
 	{
 		currentLoader = new AdminCreator(component, object);
 		currentLoader.load();
-		state = TreeViewerComponent.SAVE; //to review that.
 	}
 
 }
