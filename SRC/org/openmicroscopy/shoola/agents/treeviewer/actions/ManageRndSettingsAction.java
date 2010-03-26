@@ -118,8 +118,15 @@ public class ManageRndSettingsAction
 		TreeImageTimeSet node;
 		for (int i = 0; i < nodes.length; i++) {
 			node = (TreeImageTimeSet) nodes[i];
-			if (node.getNumberItems() > 0 && model.isObjectWritable(node))
-				count++;
+			if (node.getNumberItems() > 0) {
+				if (index == COPY) {
+					if (model.isObjectWritable(node))
+						count++;
+				} else {
+					if (model.isUserOwner(node))
+						count++;
+				}
+			}
 		}
 		setEnabled(count == nodes.length);
 	}
@@ -217,7 +224,7 @@ public class ManageRndSettingsAction
 					setEnabled(false);
 				else {
 					for (int i = 0; i < selected.length; i++) {
-						if (model.isObjectWritable(selected[i].getUserObject()))
+						if (model.isUserOwner(selected[i].getUserObject()))
 							count++;
 					}
 					setEnabled(count == selected.length);
@@ -234,7 +241,7 @@ public class ManageRndSettingsAction
 					setEnabled(false);
 				else {
 					for (int i = 0; i < selected.length; i++) {
-						if (model.isObjectWritable(selected[i].getUserObject()))
+						if (model.isUserOwner(selected[i].getUserObject()))
 							count++;
 					}
 					setEnabled(count == selected.length);

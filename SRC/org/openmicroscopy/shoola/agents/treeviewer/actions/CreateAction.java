@@ -132,12 +132,21 @@ public class CreateAction
     	chooser = true;
         IconManager im = IconManager.getInstance();
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.CREATE));
-        if (selectedDisplay == null) {
+        Browser browser = model.getSelectedBrowser();
+        if (selectedDisplay == null || browser == null) {
             setEnabled(false);
             name = NAME;  
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION));
             return;
+        }
+        TreeImageDisplay[] nodes = browser.getSelectedDisplays();
+        if (nodes.length > 1) {
+        	 setEnabled(false);
+             name = NAME;  
+             putValue(Action.SHORT_DESCRIPTION, 
+                     UIUtilities.formatToolTipText(DESCRIPTION));
+             return;
         }
         Object ho = selectedDisplay.getUserObject();
         if (ho instanceof String || ho instanceof ExperimenterData) { // root
@@ -146,42 +155,13 @@ public class CreateAction
                 putValue(Action.SHORT_DESCRIPTION, 
                         UIUtilities.formatToolTipText(DESCRIPTION));
         } else if (ho instanceof ProjectData) {
-            setEnabled(model.isObjectWritable(ho));
+            setEnabled(model.isUserOwner(ho));
             name = NAME_DATASET; 
             nodeType = CreateCmd.DATASET;
-           
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
-        } else if (ho instanceof ScreenData) {
-        	Browser browser = model.getSelectedBrowser();
-        	if (browser == null) {
-        		setEnabled(false);
-        	} else {
-        		TreeImageDisplay[] nodes = browser.getSelectedDisplays();
-            	if (nodes != null && nodes.length == 1)
-            		setEnabled(model.isObjectWritable(ho) && 
-            				!model.isImporting());
-            	else setEnabled(false);
-        	}
-            nodeType = CreateCmd.IMAGE;
-            putValue(Action.SMALL_ICON, im.getIcon(IconManager.IMPORTER));
-            name = NAME_IMAGE;
-            putValue(Action.SHORT_DESCRIPTION, 
-                    UIUtilities.formatToolTipText(DESCRIPTION_IMAGE));
-        } else if (ho instanceof DatasetData) {
-        	Browser browser = model.getSelectedBrowser();
-        	if (browser == null) {
-        		setEnabled(false);
-        	} else {
-        		TreeImageDisplay[] nodes = browser.getSelectedDisplays();
-        		if (model.isImporting()) {
-        			setEnabled(false);
-        		} else {
-        			if (nodes != null && nodes.length == 1)
-        				setEnabled(model.isObjectWritable(ho));
-        			else setEnabled(false);
-        		}
-        	}
+        } else if (ho instanceof ScreenData || ho instanceof DatasetData) {
+        	setEnabled(model.isUserOwner(ho) && !model.isImporting());
             nodeType = CreateCmd.IMAGE;
             putValue(Action.SMALL_ICON, im.getIcon(IconManager.IMPORTER));
             name = NAME_IMAGE;
@@ -190,7 +170,7 @@ public class CreateAction
         } else if (ho instanceof TagAnnotationData) {
         	String ns = ((TagAnnotationData) ho).getNameSpace();
         	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
-        		setEnabled(model.isObjectWritable(ho));
+        		setEnabled(model.isUserOwner(ho));
             	nodeType = CreateCmd.TAG;
             	putValue(Action.SMALL_ICON, im.getIcon(IconManager.TAG));
             	name = NAME_TAG;
@@ -202,14 +182,6 @@ public class CreateAction
                 putValue(Action.SHORT_DESCRIPTION, 
                         UIUtilities.formatToolTipText(DESCRIPTION));
         	} 
-        } else if (ho instanceof File) {
-        	chooser = false;
-        	setEnabled(!model.isImporting());
-        	nodeType = CreateCmd.IMAGE;
-            putValue(Action.SMALL_ICON, im.getIcon(IconManager.IMPORTER));
-            name = NAME_IMAGE;
-            putValue(Action.SHORT_DESCRIPTION, 
-                    UIUtilities.formatToolTipText(DESCRIPTION_IMAGE));
         } else if (ho instanceof ImageData) {
         	setEnabled(false);
         	nodeType = CreateCmd.IMAGE;

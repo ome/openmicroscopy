@@ -179,7 +179,7 @@ public class ManageRndSettingsAction
 				if (selected.size() > 1) setEnabled(false);
 	    		else {
 	    			if (ho instanceof WellSampleData || ho instanceof ImageData)
-	    				setEnabled(model.isWritable(ho));
+	    				setEnabled(model.isUserOwner(ho));
 	    			else setEnabled(false);
 	    		}
 				break;
@@ -197,7 +197,7 @@ public class ManageRndSettingsAction
 						i = selected.iterator();
 						while (i.hasNext()) {
 							obj = i.next();
-							if (model.isWritable(obj)) count++;
+							if (model.isUserOwner(obj)) count++;
 						}
 						setEnabled(count == selected.size());
 					} else setEnabled(true);
@@ -212,7 +212,7 @@ public class ManageRndSettingsAction
 					i = selected.iterator();
 					while (i.hasNext()) {
 						obj = i.next();
-						if (model.isWritable(obj)) count++;
+						if (model.isUserOwner(obj)) count++;
 					}
 					setEnabled(count == selected.size());
 				}

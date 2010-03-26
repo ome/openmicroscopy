@@ -1216,6 +1216,11 @@ class TreeViewerComponent
 					"This method cannot be invoked in the DISCARDED state.");
 		//Check if current user can write in object
 		long id = model.getUserDetails().getId();
+		if (ho instanceof TreeImageTimeSet) {
+			Browser browser = model.getSelectedBrowser();
+			ExperimenterData exp = browser.getNodeOwner((TreeImageDisplay) ho);
+			return (exp.getId() == id);
+		}
 		return EditorUtil.isUserOwner(ho, id);
 	}
 	

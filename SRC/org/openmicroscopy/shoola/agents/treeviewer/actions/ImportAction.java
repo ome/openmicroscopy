@@ -77,9 +77,7 @@ public class ImportAction
 	            break;
 	        default:
 	        	onDisplayChange(browser.getLastSelectedDisplay());
-	        	
         }
-        //setEnabled(false);
     }
     
     /**
@@ -102,10 +100,15 @@ public class ImportAction
         	setEnabled(false);
             return;
         } 
+        TreeImageDisplay[] nodes = browser.getSelectedDisplays();
+        if (nodes.length > 1) {
+        	setEnabled(false);
+            return;
+        }
         Object ho = selectedDisplay.getUserObject(); 
         if (ho instanceof DatasetData) {
         	setEnabled(model.isUserOwner(ho));
-        } else setEnabled(true);
+        } else setEnabled(false);
     }
     
     /**

@@ -1446,15 +1446,6 @@ class BrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#isObjectWritable(Object)
-	 */
-	public boolean isObjectWritable(Object ho)
-	{
-		return model.getParentModel().isObjectWritable(ho);
-	}
-
-	/**
-	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#deleteObjects(List)
 	 */
 	public void deleteObjects(List nodes)

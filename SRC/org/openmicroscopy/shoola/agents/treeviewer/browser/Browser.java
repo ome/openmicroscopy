@@ -647,15 +647,6 @@ public interface Browser
 
 	/** Displays the list of supported file formats. */
 	void showSupportedFiles();
-
-	/**
-	 * Returns <code>true</code> if the specified object is writable,
-	 * <code>false</code> otherwise, depending on the permission.
-	 * 
-	 * @param ho    The data object to check.
-	 * @return See above.
-	 */
-	public boolean isObjectWritable(Object ho);
 	
 	/**
 	 * Deletes the {@link DataObject}s hosted by the passed nodes.

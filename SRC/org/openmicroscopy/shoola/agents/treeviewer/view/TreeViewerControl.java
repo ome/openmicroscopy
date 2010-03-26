@@ -67,11 +67,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClearAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.CopyAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateTopContainerAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.CutAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.DeleteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.DownloadAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.EditorAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ExitApplicationAction;
@@ -81,12 +78,12 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ImportAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ImporterVisibilityAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.InspectorVisibilityAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.ManageObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.MetadataVisibilityAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasswordResetAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PersonalManagementAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshExperimenterData;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshTreeAction;
@@ -384,9 +381,14 @@ class TreeViewerControl
 		actionsMap.put(BROWSE_NO_THUMBNAILS, 
 				new BrowseContainerAction(model, false));
 		actionsMap.put(CREATE_OBJECT, new CreateAction(model));
-		actionsMap.put(COPY_OBJECT, new CopyAction(model));
-		actionsMap.put(DELETE_OBJECT, new DeleteAction(model));
-		actionsMap.put(PASTE_OBJECT, new PasteAction(model));
+		actionsMap.put(COPY_OBJECT, new ManageObjectAction(model, 
+				ManageObjectAction.COPY));// CopyAction(model));
+		actionsMap.put(DELETE_OBJECT, new ManageObjectAction(model, 
+				ManageObjectAction.REMOVE));//new DeleteAction(model));
+		actionsMap.put(PASTE_OBJECT, new ManageObjectAction(model, 
+				ManageObjectAction.PASTE));//new PasteAction(model));
+		actionsMap.put(CUT_OBJECT, new ManageObjectAction(model, 
+				ManageObjectAction.CUT));//new CutAction(model));
 		actionsMap.put(SCREENS_EXPLORER, 
 				new BrowserSelectionAction(model, Browser.SCREENS_EXPLORER));
 		actionsMap.put(HIERARCHY_EXPLORER, 
@@ -414,7 +416,6 @@ class TreeViewerControl
 						CreateTopContainerAction.TAG));
 		actionsMap.put(REFRESH_TREE, new RefreshTreeAction(model));
 		actionsMap.put(MANAGER, new ManagerAction(model));
-		actionsMap.put(CUT_OBJECT, new CutAction(model));
 		actionsMap.put(ACTIVATION, new ActivationAction(model));
 		actionsMap.put(SWITCH_USER, new SwitchUserAction(model));
 		actionsMap.put(ROLL_OVER, new RollOverAction(model));
