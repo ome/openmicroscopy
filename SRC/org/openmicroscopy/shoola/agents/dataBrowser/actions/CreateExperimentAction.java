@@ -82,11 +82,10 @@ public class CreateExperimentAction
     	Collection l = browser.getSelectedDisplays();
     	if (l != null && l.size() == 1) {
     		Object object = node.getHierarchyObject();
-    		setEnabled((object instanceof ImageData) || 
-    				(object instanceof DatasetData) || 
-    				(object instanceof ProjectData) ||
-    				(object instanceof ScreenData) ||
-    				(object instanceof PlateData));
+    		if (object instanceof ImageData || object instanceof DatasetData ||
+    			object instanceof ProjectData || object instanceof ScreenData ||
+    			object instanceof PlateData)
+    		setEnabled(model.isWritable(object));
     	}
     }
     
