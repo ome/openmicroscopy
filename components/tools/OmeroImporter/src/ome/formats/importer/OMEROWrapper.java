@@ -16,7 +16,6 @@ import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.MinMaxCalculator;
-import loci.formats.StatusListener;
 import loci.formats.in.LeicaReader;
 import loci.formats.meta.MetadataStore;
 import omero.model.Channel;
@@ -136,11 +135,6 @@ public class OMEROWrapper extends MinMaxCalculator {
             }
         }
         return minMaxSet;
-    }
-    
-    @Override
-    public void addStatusListener(StatusListener statusListener) {
-    	iReader.addStatusListener(statusListener);
     }
 
     @Override

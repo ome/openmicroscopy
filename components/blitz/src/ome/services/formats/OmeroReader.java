@@ -117,7 +117,7 @@ public class OmeroReader extends FormatReader {
     }
 
     protected void initFile(String id) throws FormatException, IOException {
-        debug("OmeroReader.initFile(" + id + ")");
+        log.debug("OmeroReader.initFile(" + id + ")");
 
         super.initFile(id);
 

@@ -101,6 +101,7 @@ public class MetadataValidatorTest
 	@BeforeTest
 	public void setUp(String target) throws Exception
 	{
+        log.info("METADATA VALIDATOR TARGET: " + target);
 		ServiceFactoryPrx sf = new TestServiceFactory();
         store = new OMEROMetadataStoreClient();
         store.initialize(sf);

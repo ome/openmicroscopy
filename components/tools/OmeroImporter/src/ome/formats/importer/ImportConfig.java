@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import loci.common.LogTools;
 import loci.formats.FormatTools;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.IniFileLoader;
@@ -284,41 +283,20 @@ public class ImportConfig {
         if (level == null) {
             level = Integer.valueOf(ini.getDebugLevel()); 
         }
-        
         if (level.intValue() < 0) {
             return;
         }
-        
+
         log.info("Debugging at level " + level);
         debug.set(true);        
-        
+
         Logger l = Logger.getLogger("ome.formats");
         l.setLevel(Level.DEBUG);
-        
-        // loci.* prints so much, that at 0 we're ignoring it
-        // beyond that, we set loci's level to level - 1
-        if (level.intValue() > 0) {
-            final Logger loci = Logger.getLogger("loci.common.Log");
-            LogTools.setDebug(true);
-            loci.setLevel(Level.DEBUG);
-    
-            LogTools.setDebug(true);
-            LogTools.setDebugLevel(level-1);
-            LogTools.setLog(new loci.common.Log() {
-                @Override
-                public void print(String x) {
-                    loci.debug(x);
-                }
-                @Override
-                public void flush() {
-                    // noop
-                }
-            } );
-        }
 
-
+        l = Logger.getLogger("loci");
+        l.setLevel(Level.DEBUG);
     }
-    
+
     //
     // Login methods
     //

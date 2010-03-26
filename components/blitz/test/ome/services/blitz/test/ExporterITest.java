@@ -45,7 +45,8 @@ public class ExporterITest extends AbstractServantTest {
     public void testSimpleXml() throws Exception {
         OmeroMetadata retrieve = new OmeroMetadata(db);
         retrieve.addImage(new ImageI());
-        String xml = ExporterI.generateXml(retrieve);
+        ExporterI exporter = new ExporterI(null, null);
+        String xml = exporter.generateXml(retrieve);
         assertNotNull(xml);
     }
 
@@ -87,7 +88,8 @@ public class ExporterITest extends AbstractServantTest {
         String xml1 = new String(buf);
         OmeroMetadata retrieve = new OmeroMetadata(db);
         retrieve.addImage(i);
-        String xml2 = ExporterI.generateXml(retrieve);
+        ExporterI exporter = new ExporterI(null, null);
+        String xml2 = exporter.generateXml(retrieve);
         System.out.println(xml1);
         assertEquals(xml1, xml2);
 

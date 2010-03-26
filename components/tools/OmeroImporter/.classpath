@@ -4,10 +4,12 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="resources"/>
+	<classpathentry kind="lib" path="target/libs/hibernate.jar"/>
 	<classpathentry kind="lib" path="target/libs/blitz.jar"/>
 	<classpathentry kind="lib" path="target/libs/common.jar"/>
 	<classpathentry kind="lib" path="target/libs/server.jar"/>
 	<classpathentry kind="lib" path="target/libs/hsqldb.jar"/>
+	<classpathentry kind="lib" path="target/libs/hibernate.jar"/>
 	<classpathentry kind="lib" path="target/libs/swingx.jar"/>
 	<classpathentry kind="lib" path="target/libs/TableLayout.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-httpclient.jar"/>
@@ -35,5 +37,6 @@
 	<classpathentry kind="lib" path="target/libs/ome-xml.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="target/libs/perf4j.jar"/>
+	<classpathentry kind="con" path="org.testng.TESTNG_CONTAINER"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

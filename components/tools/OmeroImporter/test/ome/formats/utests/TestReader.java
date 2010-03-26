@@ -9,7 +9,6 @@ import loci.formats.FileInfo;
 import loci.formats.FormatException;
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
-import loci.formats.StatusListener;
 import loci.formats.meta.MetadataStore;
 
 public class TestReader implements IFormatReader {
@@ -423,24 +422,9 @@ public class TestReader implements IFormatReader {
 
 	}
 
-	public void addStatusListener(StatusListener arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public StatusListener[] getStatusListeners() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public int getBitsPerPixel() {
 		// TODO Auto-generated method stub
         return 0;
-	}
-
-	public void removeStatusListener(StatusListener arg0) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

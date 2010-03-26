@@ -26,6 +26,8 @@ import omero.util.TempFileManager;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.ini4j.IniFile;
 import org.ini4j.IniFile.Mode;
 import org.testng.annotations.Test;
@@ -106,7 +108,8 @@ public class IniFileLoaderTest extends TestCase {
 
 
     public void testLocation() throws Exception {
-        loci.common.LogTools.setDebug(true);
+        Logger l = Logger.getLogger("loci");
+        l.setLevel(Level.DEBUG);
         Location loc = new Location("/");
         assertTrue(loc.exists());
         loc = new Location("\\squig.openmicroscopy.org.uk");

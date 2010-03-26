@@ -12,6 +12,8 @@
 	<classpathentry kind="lib" path="target/libs/antlr.jar"/>
 	<classpathentry kind="lib" path="target/libs/asm-attrs.jar"/>
 	<classpathentry kind="lib" path="target/libs/asm.jar"/>
+	<classpathentry kind="lib" path="target/libs/batik.jar"/>
+	<classpathentry kind="lib" path="target/libs/batik-util.jar"/>
 	<classpathentry kind="lib" path="target/libs/backport-util-concurrent.jar"/>
 	<classpathentry kind="lib" path="target/libs/btm.jar"/>
 	<classpathentry kind="lib" path="target/libs/cglib.jar"/>
@@ -64,5 +66,6 @@
 	<classpathentry kind="lib" path="target/libs/velocity.jar"/>
 	<classpathentry kind="lib" path="target/libs/xml-apis.jar"/>
 	<classpathentry kind="lib" path="target/libs/perf4j.jar"/>
+	<classpathentry kind="con" path="org.testng.TESTNG_CONTAINER"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

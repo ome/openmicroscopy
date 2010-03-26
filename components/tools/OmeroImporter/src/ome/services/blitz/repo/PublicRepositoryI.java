@@ -64,6 +64,12 @@ import ome.services.blitz.repo.RepositoryListConfigI;
 import ome.formats.importer.ImportContainer;
 import ome.services.blitz.repo.ImportableFiles;
 
+import loci.common.services.DependencyException;
+import loci.common.services.ServiceException;
+import loci.formats.*; // need to close this down once the r/w are sorted.
+import loci.formats.meta.IMetadata;
+import loci.formats.services.OMEXMLService;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.FileFilterUtils;
@@ -866,7 +872,19 @@ public class PublicRepositoryI extends _RepositoryDisp {
         // Next create the metadata for the thumbnail image file.
         // How much of this is needed for a jpeg? 
         // At present provides monochrome images for some formats, need to provide colour?
-        IMetadata meta = MetadataTools.createOMEXMLMetadata();
+        IMetadata meta = null;
+        try {
+            // Fully qualified to avoid collisions with OMERO service factory
+            loci.common.services.ServiceFactory sf =
+                new loci.common.services.ServiceFactory();
+            meta = sf.getInstance(OMEXMLService.class).createOMEXMLMetadata();
+        } catch (DependencyException e) {
+            throw new ServerError(null, stackTraceAsString(e),
+                    "Thumbnail error, could not create OME-XML service.");
+        } catch (ServiceException e) {
+            throw new ServerError(null, stackTraceAsString(e),
+                    "Thumbnail error, could not create OME-XML metadata.");
+        }
         int thumbSizeX = reader.getThumbSizeX();
         int thumbSizeY = reader.getThumbSizeY();  
         int pixelType = FormatTools.UINT8;            

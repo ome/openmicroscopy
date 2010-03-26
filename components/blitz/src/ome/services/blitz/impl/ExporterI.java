@@ -14,10 +14,13 @@ import java.io.RandomAccessFile;
 
 import javax.xml.transform.TransformerException;
 
+import loci.common.services.DependencyException;
+import loci.common.services.ServiceException;
 import loci.formats.ImageWriter;
 import loci.formats.MetadataTools;
 import loci.formats.meta.IMetadata;
 import loci.formats.meta.MetadataRetrieve;
+import loci.formats.services.OMEXMLService;
 import ome.api.RawPixelsStore;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
@@ -109,10 +112,17 @@ public class ExporterI extends AbstractAmdServant implements
      */
     private final DatabaseIdentity databaseIdentity;
 
-    public ExporterI(BlitzExecutor be, DatabaseIdentity databaseIdentity) {
+    /** LOCI OME-XML service for working with OME-XML. */
+    private OMEXMLService service;
+
+    public ExporterI(BlitzExecutor be, DatabaseIdentity databaseIdentity)
+        throws DependencyException {
         super(null, be);
         this.databaseIdentity = databaseIdentity;
         retrieve = new OmeroMetadata(databaseIdentity);
+        loci.common.services.ServiceFactory sf =
+            new loci.common.services.ServiceFactory();
+        service = sf.getInstance(OMEXMLService.class);
     }
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
@@ -239,7 +249,13 @@ public class ExporterI extends AbstractAmdServant implements
                         @Transactional(readOnly = true)
                         public Object doWork(Session session, ServiceFactory sf) {
                             retrieve.initialize(session);
-                            IMetadata xmlMetadata = convertXml(retrieve);
+                            IMetadata xmlMetadata = null;
+                            try {
+                                 xmlMetadata = convertXml(retrieve);
+                            } catch (ServiceException e) {
+                                log.error(e);
+                                return null;
+                            }
                             if (xmlMetadata != null) {
                                 Object root = xmlMetadata.getRoot();
                                 if (root instanceof OMEXMLNode) {
@@ -428,20 +444,18 @@ public class ExporterI extends AbstractAmdServant implements
     // XML Generation (public for testing)
     // =========================================================================
 
-    public static IMetadata convertXml(MetadataRetrieve retrieve) {
-        try {
-            IMetadata xmlMeta = MetadataTools.createOMEXMLMetadata();
-            xmlMeta.createRoot();
-            MetadataTools.convertMetadata(retrieve, xmlMeta);
-            return xmlMeta;
-        } catch (ClassCastException cce) {
-            return null;
-        }
+    public IMetadata convertXml(MetadataRetrieve retrieve)
+        throws ServiceException {
+        IMetadata xmlMeta = service.createOMEXMLMetadata();
+        xmlMeta.createRoot();
+        service.convertMetadata(retrieve, xmlMeta);
+        return xmlMeta;
     }
 
-    public static String generateXml(MetadataRetrieve retrieve) {
+    public String generateXml(MetadataRetrieve retrieve)
+        throws ServiceException {
         IMetadata xmlMeta = convertXml(retrieve);
-        return MetadataTools.getOMEXML(xmlMeta);
+        return service.getOMEXML(xmlMeta);
     }
 
     // Stateful interface methods

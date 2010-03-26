@@ -9,7 +9,6 @@ package ome.formats.importer;
 
 import java.util.List;
 
-import loci.formats.StatusEvent;
 import omero.model.IObject;
 import omero.model.Pixels;
 
@@ -264,32 +263,7 @@ public class ImportEvent {
     // possibly
     // be moved closer to the classes using them.
     //
-    
-    public static class BIOFORMATS_STATUS extends ImportEvent {
-    	private StatusEvent statusEvent;
-    	
-    	@SuppressWarnings("unused")
-		private String filename;
-    	
-        public BIOFORMATS_STATUS(String filename, StatusEvent statusEvent) {
-        	this.filename = filename;
-            this.statusEvent = statusEvent;
-        }
-        
-        @Override
-        public String toLog() {
-        	int a = statusEvent.getProgressValue();
-        	int b = statusEvent.getProgressMaximum();
-        	if (a > 0 && b > 0)
-        	{
-	            return String.format("%s: %s [%d/%d]", super.toLog(), 
-	            		statusEvent.getStatusMessage(), a, b);
-        	}
-        	return String.format("%s: %s", super.toLog(), 
-        			statusEvent.getStatusMessage());        		
-        }
-    }
-    
+
     public static class BEGIN_POST_PROCESS extends PROGRESS_EVENT {
         public BEGIN_POST_PROCESS(int index, String filename, IObject target,
                 Long pixId, int series, ImportSize size) {
