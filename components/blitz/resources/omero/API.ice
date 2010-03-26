@@ -169,8 +169,6 @@ module omero {
 	    idempotent void changeGroup(omero::model::IObject obj, string omeName) throws ServerError;
 	    idempotent void changePermissions(omero::model::IObject obj, omero::model::Permissions perms) throws ServerError;
 	    idempotent void moveToCommonSpace(IObjectList objects) throws ServerError;
-	    /* Leaving this non-idempotent, because of the overhead, though technically it is. */
-	    Ice::BoolSeq unlock(IObjectList objects) throws ServerError;
 
 	    // UAuth
 	    idempotent void changePassword(omero::RString newPassword) throws ServerError;

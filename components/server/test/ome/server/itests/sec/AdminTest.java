@@ -556,41 +556,6 @@ public class AdminTest extends AbstractManagedContextTest {
         assertNotNull(exp.getPrimaryGroupExperimenterMap());
     }
 
-    // ~ IAdmin.unlock
-    // =========================================================================
-
-    @Test
-    public void testUnlock() throws Exception {
-        loginRoot();
-
-        boolean[] unlocked;
-
-        Project pt, p = new Project();
-        p.setName("unlock test");
-
-        Dataset dt, d = new Dataset();
-        d.setName("unlock test");
-
-        pt = iUpdate.saveAndReturnObject(p);
-        unlocked = iAdmin.unlock(pt);
-        assertTrue(unlocked[0]);
-
-        // With the security changes in 4.0, it is necessary to add world
-        // readable to the project, otherwise it wouldn't get locked.
-        ILink link = pt.linkDataset(d);
-        link.getDetails().setPermissions(Permissions.WORLD_IMMUTABLE);
-        pt = iUpdate.saveAndReturnObject(pt); // Still broken ticket:1226
-        assertTrue(pt.getDetails().getPermissions().isSet(Flag.LOCKED));
-        unlocked = iAdmin.unlock(pt);
-        assertFalse(unlocked[0]);
-        iUpdate.deleteObject((IObject) pt.collectDatasetLinks(null).get(0));
-        unlocked = iAdmin.unlock(pt);
-        assertTrue(unlocked[0]);
-        pt = iQuery.get(pt.getClass(), pt.getId());
-        assertFalse(pt.getDetails().getPermissions().isSet(Flag.LOCKED));
-
-    }
-
     // ~ Passwords
     // =========================================================================
 

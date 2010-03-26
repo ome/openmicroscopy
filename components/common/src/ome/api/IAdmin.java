@@ -515,20 +515,6 @@ public interface IAdmin extends ServiceInterface {
     Permissions perms);
 
     /**
-     * checks an entity for any in-bound references and if none are present,
-     * will remove the {@link Flag#LOCKED} status. This method is backend-
-     * intensive and should not be used in a tight loop. Returns an array with
-     * length equal to the number of instances passed in. A true value means
-     * that the object is now unlocked.
-     * 
-     * @param iObjects
-     *            a variable array argument of objects to be unlocked
-     * @return an array of equal length to iObjects where a true value asserts
-     *         that the instance is now unlocked in the database.
-     */
-    boolean[] unlock(IObject... iObjects);
-
-    /**
      * Moves the given objects into the "user" group to make them visible
      * and linkable from all security contexts.
      *

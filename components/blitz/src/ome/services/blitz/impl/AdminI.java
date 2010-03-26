@@ -56,7 +56,6 @@ import omero.api.AMD_IAdmin_reportForgottenPassword;
 import omero.api.AMD_IAdmin_setDefaultGroup;
 import omero.api.AMD_IAdmin_setGroupOwner;
 import omero.api.AMD_IAdmin_synchronizeLoginCache;
-import omero.api.AMD_IAdmin_unlock;
 import omero.api.AMD_IAdmin_unsetGroupOwner;
 import omero.api.AMD_IAdmin_updateExperimenter;
 import omero.api.AMD_IAdmin_updateExperimenterWithPassword;
@@ -320,16 +319,11 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
         callInvokerOnRawArgs(__cb, __current);
     }
 
-    public void unlock_async(AMD_IAdmin_unlock __cb, List<IObject> objects,
-            Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, objects);
-    }
-
     public void updateExperimenter_async(AMD_IAdmin_updateExperimenter __cb,
             Experimenter experimenter, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, experimenter);
     }
-    
+
     public void updateExperimenterWithPassword_async(
             AMD_IAdmin_updateExperimenterWithPassword __cb,
             Experimenter experimenter, RString password, Current __current)
