@@ -718,11 +718,6 @@ public class ThumbnailBean extends AbstractLevel2Service
         // Set defaults and sanity check thumbnail sizes
         Dimension checkedDimensions = sanityCheckThumbnailSizes(sizeX, sizeY);
 
-        // Ensure that we do not have "dirty" pixels or rendering settings left
-        // around in the Hibernate session cache.
-        iQuery.clear();
-        iUpdate.flush();
-
         // Prepare our thumbnail context
         newContext();
         ctx.loadAndPrepareRenderingSettings(pixelsIds);
@@ -740,11 +735,6 @@ public class ThumbnailBean extends AbstractLevel2Service
         // Set defaults and sanity check thumbnail sizes
         Dimension checkedDimensions = sanityCheckThumbnailSizes(size, size);
         size = (int) checkedDimensions.getWidth();
-
-        // Ensure that we do not have "dirty" pixels or rendering settings left
-        // around in the Hibernate session cache.
-        iQuery.clear();
-        iUpdate.flush();
 
         // Prepare our thumbnail context
         newContext();
@@ -804,6 +794,10 @@ public class ThumbnailBean extends AbstractLevel2Service
         // Pixels will be unloaded and we will hit 
         // IllegalStateException's when checking update events.
         iUpdate.saveArray(toSave.toArray(new Thumbnail[toSave.size()]));
+        // Ensure that we do not have "dirty" pixels or rendering settings left
+        // around in the Hibernate session cache.
+        iQuery.clear();
+        iUpdate.flush();
         return toReturn;
     }
 
