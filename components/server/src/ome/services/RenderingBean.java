@@ -41,6 +41,7 @@ import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
+import ome.model.internal.Permissions;
 import ome.security.SecuritySystem;
 import ome.services.util.Executor;
 import ome.system.EventContext;
@@ -1435,6 +1436,10 @@ public class RenderingBean implements RenderingEngine, Serializable {
     }
 
     private RenderingDef retrieveRndSettings(final long pixelsId) {
+        // FIXME check for null here?
+        // Do not move this below errorIfNullPixels()
+        boolean isGraphCritical = isGraphCritical();
+        errorIfNullPixels();
         RenderingDef rd = (RenderingDef) ex.execute(/*ex*/null/*principal*/,
                 new Executor.SimpleWork(this, "retrieveRndDef") {
                     @Transactional(readOnly = true)
@@ -1443,12 +1448,20 @@ public class RenderingBean implements RenderingEngine, Serializable {
                                 pixelsId);
                     }
                 });
-        if (rd == null) {
+        long pixOwner = pixelsObj.getDetails().getOwner().getId();
+        long currentUser = getCurrentEventContext().getCurrentUserId();
+        if (rd == null && currentUser != pixOwner) {
             // ticket:1434 and shoola:ticket:1157. If this is graph critical
             // and we couldn't find a rendering def for the current user,
-            // then we try to find one for the pixels owner
-            if (isGraphCritical()) { // FIXME check for null here?
-                long pixOwner = pixelsObj.getDetails().getOwner().getId();
+            // then we try to find one for the pixels owner. As in the
+            // thumbnail bean we also have to check if we're in a read-only
+            // group and not the owner of the Pixels object as well.
+            
+            Permissions currentGroupPermissions = 
+                getCurrentEventContext().getCurrentGroupPermissions();
+            Permissions readOnly = Permissions.parseString("rwr---");
+            if (isGraphCritical
+                || currentGroupPermissions.identical(readOnly)) {
                 rd = retrieveRndSettingsFor(pixelsId, pixOwner);
             }
         }

@@ -118,16 +118,10 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
 
     }
 
-    @Test
+    @Test(expectedExceptions = { ApiUsageException.class })
     public void testIPixelsHasSecuritySystem() {
         RenderingEngine re = this.factory.createRenderingEngine();
-        try {
-            re.lookupRenderingDef(-1L);
-        } catch (InternalException ie) {
-            if (ie.getMessage().contains("NullPointerException")) {
-                fail("Improperly configured");
-            }
-        }
+        re.lookupRenderingDef(-1L);
     }
 
     @Test
@@ -222,60 +216,6 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         re.saveCurrentSettings();
         re.setChannelWindow(0, 0.0, 2.0);
         re.saveCurrentSettings();
-    }
-
-    @Test(groups = {"ticket:1434","shoola:ticket:1157"})
-    public void testAdminViewsImage() {
-        loginNewUser();
-        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
-        Pixels pix = makePixels();
-        RenderingEngine reUser = sf.createRenderingEngine();
-        reUser.lookupPixels(pix.getId());
-        assertTrue(reUser.lookupRenderingDef(pix.getId()));
-        reUser.load();
-        reUser.render(new PlaneDef(0,0));
-        reUser.resetDefaults();
-
-        loginRootKeepGroup();
-        RenderingEngine reRoot = sf.createRenderingEngine();
-        reRoot.lookupPixels(pix.getId());
-        // Before the ticket fix, the following was true
-        // assertFalse(reRoot.lookupRenderingDef(pix.getId()));
-
-        assertTrue(reRoot.lookupRenderingDef(pix.getId()));
-        reRoot.load();
-        reRoot.render(new PlaneDef(0,0));
-
-        try {
-            reRoot.resetDefaults();
-            fail("group-sec-vio");
-        } catch (ReadOnlyGroupSecurityViolation roagsv) {
-            // ok.
-        }
-
-    }
-
-    @Test(groups = {"ticket:1434","ticket:1769","shoola:ticket:1157"})
-    public void testAdminViewsThumbnails() {
-        loginNewUser();
-        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
-        Pixels pix = makePixels();
-        ThumbnailStore tbUser = sf.createThumbnailService();
-        tbUser.setPixelsId(pix.getId());
-        tbUser.getThumbnail(64, 64);
-        //tbUser.resetDefaults();
-
-        loginRootKeepGroup();
-        ThumbnailStore tbRoot = sf.createThumbnailService();
-        assertTrue(tbRoot.setPixelsId(pix.getId()));
-        tbRoot.getThumbnail(64, 64);
-
-        try {
-            // tbRoot.resetDefaults();
-            // fail("group-sec-vio");
-        } catch (ReadOnlyGroupSecurityViolation roagsv) {
-            // ok.
-        }
     }
 
     @Test(groups = {"ticket:2302"})
@@ -427,6 +367,47 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         assertEquals(2, thumbnails.size());
     }
 
+    @Test(groups = {"ticket:1801"},
+            expectedExceptions = { InternalException.class })
+    public void testUserViewsImageWithNoSettingsAndNoSetPixelsId() {
+        loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        deleteRenderingSettings(pix);
+        RenderingEngine reUser = sf.createRenderingEngine();
+        reUser.lookupPixels(pix.getId());
+        assertFalse(reUser.lookupRenderingDef(pix.getId()));
+        reUser.resetDefaults();
+        reUser.load();
+    }
+
+    @Test(groups = {"ticket:1801"})
+    public void testUserViewsImageWithNoSettings() {
+        loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        deleteRenderingSettings(pix);
+        RenderingEngine reUser = sf.createRenderingEngine();
+        reUser.lookupPixels(pix.getId());
+        assertFalse(reUser.lookupRenderingDef(pix.getId()));
+        reUser.resetDefaults();
+        reUser.lookupRenderingDef(pix.getId());
+        reUser.load();
+        assertNotNull(reUser.renderAsPackedInt(new PlaneDef(PlaneDef.XY, 0)));
+    }
+
+    @Test(groups = {"ticket:1801"})
+    public void testUserViewsImage() {
+        loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        RenderingEngine reUser = sf.createRenderingEngine();
+        reUser.lookupPixels(pix.getId());
+        assertTrue(reUser.lookupRenderingDef(pix.getId()));
+        reUser.load();
+        assertNotNull(reUser.renderAsPackedInt(new PlaneDef(PlaneDef.XY, 0)));
+    }
+
     @Test(groups = {"ticket:1929"},
           expectedExceptions = { ResourceError.class })
     public void testOtherUserViewsThumbnailInsufficientPermissions() {
@@ -543,6 +524,58 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
             assertNotNull(thumbnail);
         }
     }
+    
+    @Test(groups = {"ticket:1801"},
+            expectedExceptions = { InternalException.class })
+    public void testOtherUserRWViewsImageWithNoSettingsAndNoSetPixelsId() {
+        Experimenter e1 = loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        deleteRenderingSettings(pix);
+        loginRoot();
+        makeDefaultGroupReadWrite(e1);
+        loginNewUserInOtherUsersGroup(e1);
+        RenderingEngine reUser = sf.createRenderingEngine();
+        reUser.lookupPixels(pix.getId());
+        assertFalse(reUser.lookupRenderingDef(pix.getId()));
+        reUser.resetDefaults();
+        reUser.load();
+    }
+
+    @Test(groups = {"ticket:1801"})
+    public void testOtherUserRWViewsImageWithNoSettings() {
+        Experimenter e1 = loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        deleteRenderingSettings(pix);
+        loginRoot();
+        makeDefaultGroupReadWrite(e1);
+        loginNewUserInOtherUsersGroup(e1);
+        RenderingEngine reUser = sf.createRenderingEngine();
+        reUser.lookupPixels(pix.getId());
+        assertFalse(reUser.lookupRenderingDef(pix.getId()));
+        reUser.resetDefaults();
+        reUser.lookupRenderingDef(pix.getId());
+        reUser.load();
+        assertNotNull(reUser.renderAsPackedInt(new PlaneDef(PlaneDef.XY, 0)));
+    }
+
+    @Test(groups = {"ticket:1801"})
+    public void testOtherUserRWViewsImage() {
+        Experimenter e1 = loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        loginRoot();
+        makeDefaultGroupReadWrite(e1);
+        loginNewUserInOtherUsersGroup(e1);
+        RenderingEngine reUser = sf.createRenderingEngine();
+        reUser.lookupPixels(pix.getId());
+        assertFalse(reUser.lookupRenderingDef(pix.getId()));
+        reUser.resetDefaults();
+        reUser.lookupRenderingDef(pix.getId());
+        reUser.load();
+        assertNotNull(reUser.renderAsPackedInt(new PlaneDef(PlaneDef.XY, 0)));
+    }
 
       @Test(groups = {"ticket:1929"},
             expectedExceptions = { ReadOnlyGroupSecurityViolation.class })
@@ -629,6 +662,37 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
           }
       }
 
+      @Test(groups = {"ticket:1801"},
+            expectedExceptions = { ReadOnlyGroupSecurityViolation.class })
+      public void testOtherUserROViewsImageWithNoSettings() {
+          Experimenter e1 = loginNewUser();
+          final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+          Pixels pix = makePixels();
+          deleteRenderingSettings(pix);
+          loginRoot();
+          makeDefaultGroupReadOnly(e1);
+          loginNewUserInOtherUsersGroup(e1);
+          RenderingEngine reUser = sf.createRenderingEngine();
+          reUser.lookupPixels(pix.getId());
+          assertFalse(reUser.lookupRenderingDef(pix.getId()));
+          reUser.resetDefaults();
+      }
+
+      @Test(groups = {"ticket:1801"})
+      public void testOtherUserROViewsImage() {
+          Experimenter e1 = loginNewUser();
+          final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+          Pixels pix = makePixels();
+          loginRoot();
+          makeDefaultGroupReadOnly(e1);
+          loginNewUserInOtherUsersGroup(e1);
+          RenderingEngine reUser = sf.createRenderingEngine();
+          reUser.lookupPixels(pix.getId());
+          assertTrue(reUser.lookupRenderingDef(pix.getId()));
+          reUser.load();
+          assertNotNull(reUser.renderAsPackedInt(new PlaneDef(PlaneDef.XY, 0)));
+      }
+
     @Test(groups = {"ticket:1801"}, expectedExceptions = {ResourceError.class})
     public void testAdminViewsThumbnailsWithNoMetadata() {
         loginNewUser();
@@ -704,6 +768,56 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         } catch (ReadOnlyGroupSecurityViolation roagsv) {
             // ok.
         }
+    }
+
+    @Test(groups = {"ticket:1434","ticket:1769","shoola:ticket:1157"})
+    public void testAdminViewsThumbnails() {
+        loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        ThumbnailStore tbUser = sf.createThumbnailService();
+        tbUser.setPixelsId(pix.getId());
+        tbUser.getThumbnail(64, 64);
+        //tbUser.resetDefaults();
+    
+        loginRootKeepGroup();
+        ThumbnailStore tbRoot = sf.createThumbnailService();
+        assertTrue(tbRoot.setPixelsId(pix.getId()));
+        tbRoot.getThumbnail(64, 64);
+    
+        try {
+            // tbRoot.resetDefaults();
+            // fail("group-sec-vio");
+        } catch (ReadOnlyGroupSecurityViolation roagsv) {
+            // ok.
+        }
+    }
+
+    @Test(groups = {"ticket:1801"},
+          expectedExceptions = { ReadOnlyGroupSecurityViolation.class })
+    public void testAdminViewsImageWithNoSettings() {
+        loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        deleteRenderingSettings(pix);
+        loginRootKeepGroup();
+        RenderingEngine reUser = sf.createRenderingEngine();
+        reUser.lookupPixels(pix.getId());
+        assertFalse(reUser.lookupRenderingDef(pix.getId()));
+        reUser.resetDefaults();
+    }
+
+    @Test(groups = {"ticket:1434","shoola:ticket:1157"})
+    public void testAdminViewsImage() {
+        loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        loginRootKeepGroup();
+        RenderingEngine reUser = sf.createRenderingEngine();
+        reUser.lookupPixels(pix.getId());
+        assertTrue(reUser.lookupRenderingDef(pix.getId()));
+        reUser.load();
+        assertNotNull(reUser.renderAsPackedInt(new PlaneDef(PlaneDef.XY, 0)));
     }
 
     private long syntheticImage() {
