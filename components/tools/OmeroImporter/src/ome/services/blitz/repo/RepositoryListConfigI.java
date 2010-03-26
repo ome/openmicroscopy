@@ -20,7 +20,7 @@ public class RepositoryListConfigI extends RepositoryListConfig {
         files = true;
         dirs = true;
         system = false;
-        registered = false;
+        registered = true;
     }
 
     RepositoryListConfigI(int depth, boolean files, boolean dirs, boolean system, boolean registered) {
@@ -30,4 +30,45 @@ public class RepositoryListConfigI extends RepositoryListConfig {
         system = system;
         registered = registered;
     }
+    
+    public void setDepth(int depth) {
+        depth = depth;
+    }
+    
+    public int getDepth() {
+        return depth;
+    }
+
+    public void setFiles(boolean files) {
+       files = files;
+    }
+    
+    public boolean getFiles() {
+        return files;
+    }
+
+    public void setDirs(boolean dirs) {
+        dirs = dirs;
+    }
+    
+    public boolean getDirs() {
+        return dirs;
+    }
+
+    public void setSystem(boolean system) {
+        system = system;
+    }
+    
+    public boolean getSystem() {
+        return system;
+    }
+
+    public void setRegistered(boolean registered) {
+        registered = registered;
+    }
+    
+    public boolean getRegistered() {
+        return registered;
+    }
+    
 }
