@@ -647,7 +647,7 @@ def createNewImage(pixelsService, rawPixelStore, renderingEngine, pixelsType, ga
     rawPixelStore.setPixelsId(pixelsId, True)
     for theZ, plane2D in enumerate(plane2Dlist):
         minValue = min(minValue, plane2D.min())
-	    maxValue = max(maxValue, plane2D.max())
+        maxValue = max(maxValue, plane2D.max())
         if plane2D.size > 1000000:
             uploadPlaneByRow(rawPixelStore, plane2D, theZ, theC, theT)
         else:
