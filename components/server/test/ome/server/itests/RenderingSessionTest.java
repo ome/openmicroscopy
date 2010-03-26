@@ -247,12 +247,6 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         assertEquals(1, thumbnails.size());
         byte[] after = thumbnails.get(pix.getId());
         assertNotNull(after);
-        FileOutputStream stream = new FileOutputStream("/Users/callan/tmp/before.jpg");
-        stream.write(before);
-        stream.close();
-        stream = new FileOutputStream("/Users/callan/tmp/after.jpg");
-        stream.write(after);
-        stream.close();
         assertTrue(before.length != after.length);
     }
 
@@ -285,12 +279,6 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         assertEquals(1, thumbnails.size());
         byte[] after = thumbnails.get(pix.getId());
         assertNotNull(after);
-        FileOutputStream stream = new FileOutputStream("/Users/callan/tmp/before.jpg");
-        stream.write(before);
-        stream.close();
-        stream = new FileOutputStream("/Users/callan/tmp/after.jpg");
-        stream.write(after);
-        stream.close();
         assertTrue(before.length != after.length);
     }
 
