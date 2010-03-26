@@ -223,7 +223,8 @@ class Arguments:
         for arg in self.args:
             parts = arg.split("=", 1)
             if parts[0] in self.argmap:
-                raise BadArgument("Argument overwrite: %s" % parts[0])
+                # ticket:2062 raise BadArgument("Argument overwrite: %s" % parts[0])
+                pass
             if len(parts) == 1:
                 self.argmap[parts[0]] = True
             else:
