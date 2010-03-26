@@ -59,12 +59,13 @@ echo Adding pgsql to db
 createlang -U postgres plpgsql %OMERO_CONFIG%
 if errorlevel 1 echo Already installed?
 
-echo Creating DB script
-python bin\omero db script OMERO4.1 0 ome
+echo Creating latest DB script
+del *.sql
+python bin\omero db script "" "" ome
 if errorlevel 1 goto ERROR
 
 echo Iniitializing DB
-psql -U omero -f OMERO4.1__0.sql %OMERO_CONFIG% 2>quickstart.err >quickstart.out
+psql -U omero -f *.sql %OMERO_CONFIG% 2>quickstart.err >quickstart.out
 if errorlevel 1 goto ERROR
 
 echo Setting PYTHONPATH
