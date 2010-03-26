@@ -64,10 +64,12 @@ public class SaveFileAction
 	 */
 	protected void onStateChange()
 	{
-		int state = model.getState();
-		setEnabled(state == Editor.READY);
-		
-		if (!model.hasDataToSave()) setEnabled(false);
+		if (model.getState() != Editor.READY) {
+			setEnabled(false);
+		} else {
+			if (model.hasDataToSave()) setEnabled(model.isUserOwner());
+			else setEnabled(false);
+		}
 	}
 	
 	/** 

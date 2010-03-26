@@ -217,12 +217,12 @@ public interface Editor
 	public void deleteExperimentInfo();
 	
 	/**
-	 * Returns <code>true</code> if the file can be saved server side and
-	 * link to the experimenter.
+	 * Returns <code>true</code> if the currently logged in user is the
+	 * owner of the file.
 	 * 
 	 * @return See above.
 	 */
-	public boolean isObjectWritable();
+	public boolean isUserOwner();
 	
     
 }

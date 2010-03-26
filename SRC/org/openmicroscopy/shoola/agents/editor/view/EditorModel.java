@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.agents.editor.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.editor.model.CPEsummaryExport;
 import org.openmicroscopy.shoola.agents.editor.model.TreeModelFactory;
 import org.openmicroscopy.shoola.agents.editor.model.CPEexport;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -569,5 +570,20 @@ class EditorModel
 	 * @return See above.
 	 */
 	int getType() { return type; }
+	
+	/**
+	 * Returns <code>true</code> if the user is the owner of the file,
+	 * <code>false</code> otherwise. If the file is <code>null</code>,
+	 * return <code>true</code>.
+	 * 
+	 * @return See above.
+	 */
+	boolean isUserOwner()
+	{
+		if (fileAnnotation == null) return true;
+		long userID = EditorAgent.getUserDetails().getId();
+		return EditorUtil.isUserOwner(fileAnnotation, userID);
+	}
+	
 
 }

@@ -159,7 +159,7 @@ class EditorComponent
 	public void discard()
 	{
 		// if the file has been edited, ask the user if they want to save...
-		if (model.hasDataToSave()) {
+		if (model.hasDataToSave() && isUserOwner()) {
 			
 			MessageBox msg = new MessageBox(view, "Save Data", 
 			"Before closing the Editor, do you want to save?");
@@ -187,8 +187,7 @@ class EditorComponent
 				model.discard();
 				autosave.shutDown();
 			}
-		}
-		else {
+		} else {
 			// no data to save 
 			model.discard();
 			autosave.shutDown();
@@ -485,11 +484,11 @@ class EditorComponent
 	
 	/**
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#isObjectWritable()
+	 * @see Editor#isUserOwner()
 	 */
-	public boolean isObjectWritable()
+	public boolean isUserOwner()
 	{
-		return true;
+		return model.isUserOwner();
 	}
 	
 }
