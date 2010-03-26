@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserDeleteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserImportAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserInfoAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserManageAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserPasswordResetAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserRefreshAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CloseAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CollapseAction;
@@ -118,6 +119,9 @@ class BrowserControl
 	/** Identifies the <code>New Admin</code> action. */
 	static final Integer    NEW_ADMIN = Integer.valueOf(11);
 
+	/** Identifies the <code>Reset Password</code> action. */
+	static final Integer    RESET_PASSWORD = Integer.valueOf(12);
+	
     /** 
      * Reference to the {@link Browser} component, which, in this context,
      * is regarded as the Model.
@@ -127,7 +131,7 @@ class BrowserControl
     /** Reference to the View. */
     private BrowserUI   			view;
     
-    /** Maps actions ids onto actual <code>Action</code> object. */
+    /** Maps actions identifiers onto actual <code>Action</code> object. */
     private Map<Integer, Action>	actionsMap;
     
     /** Helper method to create all the UI actions. */
@@ -148,6 +152,7 @@ class BrowserControl
         		BrowserManageAction.NEW_TAGS));
         actionsMap.put(IMPORT, new BrowserImportAction(model));
         actionsMap.put(REFRESH, new BrowserRefreshAction(model));
+        actionsMap.put(RESET_PASSWORD, new BrowserPasswordResetAction(model));
     }
     
     /**

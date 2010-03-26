@@ -1622,7 +1622,7 @@ class BrowserComponent
 	}
 
 	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getUserGroupID()
 	 */
 	public long getUserGroupID()
@@ -1634,7 +1634,7 @@ class BrowserComponent
 	}
 	
 	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#isObjectWritable(Object)
 	 */
 	public boolean isUserOwner(Object ho)
@@ -1643,13 +1643,23 @@ class BrowserComponent
 	}
 
 	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#expandUser()
 	 */
 	public void expandUser()
 	{
 		if (model.getState() == DISCARDED) return;
 		view.expandUser();
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#expandUser()
+	 */
+	public void resetPassword(String value)
+	{
+		if (model.getState() == DISCARDED) return;
+		model.getParentModel().resetPassword(value);
 	}
 	
 }

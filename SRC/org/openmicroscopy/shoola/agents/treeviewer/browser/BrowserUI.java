@@ -282,7 +282,12 @@ class BrowserUI
 		button.setBorderPainted(false);
 		rightMenuBar.add(button);
 		
-		if (type != Browser.ADMIN_EXPLORER) {
+		if (type == Browser.ADMIN_EXPLORER) {
+			button = new JButton(controller.getAction(
+					BrowserControl.RESET_PASSWORD));
+			button.setBorderPainted(false);
+			rightMenuBar.add(button);
+		} else {
 			button = new JButton(controller.getAction(BrowserControl.IMPORT));
 			button.setBorderPainted(false);
 			rightMenuBar.add(button);

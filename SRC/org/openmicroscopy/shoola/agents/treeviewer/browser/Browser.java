@@ -740,5 +740,12 @@ public interface Browser
 
 	/** Expands the node corresponding to the user currently logged in. */
 	void expandUser();
+
+	/** 
+	 * Sets the new password.
+	 * 
+	 * @param value The value to set.
+	 */
+	void resetPassword(String value);
 	
 }

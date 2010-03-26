@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.PasswordResetAction 
+ * org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserPasswordResetAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -27,8 +27,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
 import javax.swing.Action;
+import javax.swing.JFrame;
 
 //Third-party libraries
 
@@ -37,7 +37,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.util.PasswordDialog;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
@@ -56,83 +55,74 @@ import pojos.ExperimenterData;
  * </small>
  * @since 3.0-Beta4
  */
-public class PasswordResetAction 
-	extends TreeViewerAction
+public class BrowserPasswordResetAction 
+	extends BrowserAction
 {
 
-	/** The name of the action. */
-    private static final String NAME = "Reset Password...";
-    
     /** The description of the action. */
     private static final String DESCRIPTION = "Resets the password " +
     		"of the selected experimenters.";
     
     /** 
      * Sets the action enabled depending on the state of the {@link Browser}.
-     * @see TreeViewerAction#onBrowserStateChange(Browser)
+     * @see BrowserAction#onStateChange()
      */
-    protected void onBrowserStateChange(Browser browser)
+    protected void onStateChange()
     {
-        if (browser == null) return;
-        switch (browser.getState()) {
-            case Browser.LOADING_DATA:
-            case Browser.LOADING_LEAVES:
-            case Browser.COUNTING_ITEMS:  
-                setEnabled(false);
-                break;
-            default:
-            	if (browser.getBrowserType() != Browser.ADMIN_EXPLORER)
-            		setEnabled(false);
-            	else
-            		onDisplayChange(browser.getLastSelectedDisplay());
-        }
+    	 switch (model.getState()) {
+	    	 case Browser.LOADING_DATA:
+	         case Browser.LOADING_LEAVES:
+	         case Browser.COUNTING_ITEMS:  
+	             setEnabled(false);
+	             break;
+	         default: 
+	        	 if (model.getBrowserType() != Browser.ADMIN_EXPLORER)
+	             		setEnabled(false);
+	             	else
+	             		onDisplayChange(model.getLastSelectedDisplay());
+         }
     }
-    
+
     /**
      * Sets the action enabled depending on the selected type.
      * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
-    	if (!TreeViewerAgent.isAdministrator()) {
-    		 setEnabled(false);
-             return;
+    	if (!TreeViewerAgent.isAdministrator() || selectedDisplay == null) {
+   		 	setEnabled(false);
+            return;
     	}
-        Browser browser = model.getSelectedBrowser(); 
-        if (browser == null || selectedDisplay == null) {
-        	 setEnabled(false);
-             return;
-        } 
-        if (browser.getBrowserType() != Browser.ADMIN_EXPLORER) {
-        	 setEnabled(false);
-             return;
-        }
-        Object ho = selectedDisplay.getUserObject(); 
-        setEnabled(ho instanceof ExperimenterData);
+    	if (model.getBrowserType() != Browser.ADMIN_EXPLORER) {
+    		setEnabled(false);
+    		return;
+    	}
+    	setEnabled(selectedDisplay.getUserObject() instanceof ExperimenterData);
     }
     
 	/**
-	 * Creates a new instance.
-	 * 
-	 * @param model Reference to the Model. Mustn't be <code>null</code>.
-	 */
-    public PasswordResetAction(TreeViewer model)
-    {
-        super(model);
-        name = NAME;
-        IconManager icons = IconManager.getInstance();
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
+	public BrowserPasswordResetAction(Browser model)
+	{
+		super(model);
+		setEnabled(false);
+		IconManager icons = IconManager.getInstance();
 		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PASSWORD));
 		putValue(Action.SHORT_DESCRIPTION, 
 				UIUtilities.formatToolTipText(DESCRIPTION));
-    } 
-    
+	}
+	
     /**
      * Displays a modal dialog.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     {
-    	PasswordDialog d = new PasswordDialog(model.getUI());
+    	JFrame f = TreeViewerAgent.getRegistry().getTaskBar().getFrame();
+    	PasswordDialog d = new PasswordDialog(f);
     	d.addPropertyChangeListener(new PropertyChangeListener() {
 			
 			public void propertyChange(PropertyChangeEvent evt) {
@@ -146,5 +136,5 @@ public class PasswordResetAction
 		});
     	UIUtilities.centerAndShow(d);
     }
-    
+	
 }
