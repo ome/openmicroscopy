@@ -30,6 +30,7 @@ import java.util.List;
 //Application-internal dependencies
 import static omero.rtypes.rstring;
 import omero.model.Image;
+import omero.model.OriginalFile;
 
 /** 
  * Handle image file composed of multiples files e.g. lei. 
@@ -45,7 +46,7 @@ import omero.model.Image;
  * @since 3.0-Beta4
  */
 public class MultiImageData 
-	extends DataObject
+	extends FileData
 {
 
     /** The collection of files composing the image. */
@@ -56,25 +57,9 @@ public class MultiImageData
      * 
      * @param image The object to host.
      */
-    public MultiImageData(Image image)
+    public MultiImageData(OriginalFile image)
     {
-        setDirty(true);
-        setValue(image);
-    }
-    
-    /**
-     * Returns the name associated to the file.
-     * 
-     * @return See above.
-     */
-    public String getName()
-    {
-        omero.RString n = asImage().getName();
-        if (n == null || n.getValue() == null) {
-            throw new IllegalStateException(
-                    "The name should never have been null");
-        }
-        return n.getValue();
+        super(image);
     }
     
     /**

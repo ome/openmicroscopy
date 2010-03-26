@@ -29,7 +29,6 @@ import java.io.File;
 
 //Application-internal dependencies
 import omero.RTime;
-import omero.model.Image;
 import omero.model.IObject;
 import omero.model.OriginalFile;
 
@@ -61,20 +60,12 @@ public class FileData
 	 * 
 	 * @param object The object to store.
 	 */
-	public FileData(IObject object)
+	public FileData(OriginalFile object)
 	{
-		if (!(object instanceof OriginalFile || object instanceof Image))
+		if (!(object instanceof OriginalFile))
 			throw new IllegalArgumentException("File not supported.");
 		setValue(object);
-		String path = null;
-		if (object != null) {
-			if (object instanceof OriginalFile) {
-				path = ((OriginalFile) object).getName().getValue();
-			} else if (object instanceof Image) {
-				path = ((Image) object).getName().getValue();
-			}
-			
-		}
+		String path = object.getName().getValue();
 		file = new File(path);
 	}
 	
@@ -83,10 +74,10 @@ public class FileData
 	 * 
 	 * @param object The object to store.
 	 */
-	public void setRegisteredFile(IObject object)
+	public void setRegisteredFile(OriginalFile object)
 	{
 		if (object == null) return;
-		if (!(object instanceof OriginalFile || object instanceof Image))
+		if (!(object instanceof OriginalFile))
 			throw new IllegalArgumentException("File not supported.");
 		//String v = getAbsolutePath();
 		//String path = oFile.getName().getValue();
@@ -128,18 +119,6 @@ public class FileData
 	public boolean isHidden() { return file.isHidden(); }
 	
 	/**
-	 * Returns <code>true</code> if the file is an image, <code>false</code>
-	 * otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isImage()
-	{
-		IObject o = asIObject();
-		return (o instanceof Image);
-	}
-	
-	/**
 	 * Returns when the file was last modified.
 	 * 
 	 * @return See above.
@@ -148,13 +127,8 @@ public class FileData
 	{
 		IObject o = asIObject();
 		if (o == null) return -1;
-		if (o instanceof OriginalFile) {
+		if (o instanceof OriginalFile) 
 			return ((OriginalFile) o).getCtime().getValue();
-		} else if (o instanceof Image) {
-			RTime time = ((Image) o).getAcquisitionDate();
-	    	if (time == null) return -1;
-	    	return time.getValue();
-		}
 		return -1;
 	}
 	
