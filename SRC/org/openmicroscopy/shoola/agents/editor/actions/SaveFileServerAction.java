@@ -60,9 +60,7 @@ public class SaveFileServerAction
 	 */
 	protected void onStateChange()
 	{
-		if (model.getState() == Editor.READY) {
-			setEnabled(model.isObjectWritable());
-		} else setEnabled(false);
+		setEnabled(model.getState() == Editor.READY);
 		
 		// if server not available, disable
 		//boolean serverAvailable = EditorAgent.isServerAvailable();
