@@ -85,6 +85,7 @@ import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.Drawing;
 
 //Application-internal dependencies
+import omero.model.PlaneInfo;
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
@@ -162,6 +163,9 @@ public class FigureDialog
 	
 	/** Action id indicating to create a movie. */
 	public static final int 		SAVE = 1;
+	
+	/** The maximum number of time-points visible at a time. */
+	private static final int		MAX_CELLS = 20;
 	
 	/** Action id indicating to allow the modification of the scale bar. */
 	private static final int 		SCALE_BAR = 2;
@@ -998,8 +1002,6 @@ public class FigureDialog
 		splitPanelGrey.addChangeListener(this);
 		g.add(splitPanelGrey);
 		g.add(splitPanelColor);
-		
-		
 		splitPanelColor.setSelected(true);
 		int maxT = pixels.getSizeT();
 		movieFrequency = new JSpinner(new SpinnerNumberModel(1, 1, maxT+1, 1));
@@ -1013,7 +1015,7 @@ public class FigureDialog
 		
 		widthField.getDocument().addDocumentListener(this);
 		heightField.getDocument().addDocumentListener(this);
-		movieSlider = new GridSlider(maxT);
+		movieSlider = new GridSlider(maxT, 1);
 		movieSlider.addPropertyChangeListener(
 				GridSlider.COLUMN_SELECTION_PROPERTY, this);
 		setProjectionSelected(false);
@@ -1028,7 +1030,7 @@ public class FigureDialog
 		timesBox = new JComboBox(f);
 		switch (dialogType) {
 			case MOVIE:
-				generalLabel = new JLabel(FRAMES_TEXT+maxT);
+				generalLabel = new JLabel(FRAMES_TEXT+maxT+"/"+maxT);
 				break;
 			case SPLIT_ROI:
 				generalLabel = new JLabel(MAGNIFICATION_TEXT);
@@ -1382,8 +1384,14 @@ public class FigureDialog
         c.gridx++;
         p.add(Box.createHorizontalStrut(5), c); 
         c.gridx++;
-        //JScrollPane sp = new JScrollPane(movieSlider); 
-        p.add(movieSlider, c);
+        if (pixels.getSizeT() <= MAX_CELLS)
+        	p.add(movieSlider, c);
+        else {
+        	JScrollPane sp = new JScrollPane(movieSlider);
+        	Dimension ds = movieSlider.getPreferredSize();
+        	sp.getViewport().setPreferredSize(new Dimension(
+        			MAX_CELLS*GridSlider.CELL_SIZE.width, ds.height));
+        }
         c.weightx = 0.0;          
         c.gridy++;
         c.gridx = 0;
@@ -1395,7 +1403,6 @@ public class FigureDialog
         
 		controls.add(UIUtilities.buildComponentPanel(p));
 		controls.add(buildDimensionComponent());
-		//controls.add(p, "0, 2");
 		return controls;
 	}
 	
@@ -1974,7 +1981,20 @@ public class FigureDialog
 	 */
 	public void setPlaneInfo(Collection planes)
 	{
-		
+		if (planes == null) return;
+		Map<Integer, String> values = new HashMap<Integer, String>();
+		Iterator i = planes.iterator();
+		String value = "";
+		Map<String, Object> details;
+		PlaneInfo pi;
+		while (i.hasNext()) {
+			pi = (PlaneInfo) i.next();
+			details = EditorUtil.transformPlaneInfo(pi);
+			value = EditorUtil.formatTimeInSeconds(
+					(Double) details.get(EditorUtil.DELTA_T));
+			values.put(pi.getTheT().getValue(), value);
+		}
+		movieSlider.setCellNames(values);
 	}
 	
     /**
@@ -2076,8 +2096,9 @@ public class FigureDialog
 			ChannelComponent c = (ChannelComponent) evt.getNewValue();
 			setChannelSelection(c.getChannelIndex(), c.isActive(), true);
 		} else if (GridSlider.COLUMN_SELECTION_PROPERTY.equals(name)) {
+			int maxT = pixels.getSizeT();
 			generalLabel.setText(
-					FRAMES_TEXT+movieSlider.getNumberOfSelectedCells());
+					FRAMES_TEXT+movieSlider.getNumberOfSelectedCells()+"/"+maxT);
 			generalLabel.repaint();
 		}
 	}
@@ -2119,8 +2140,10 @@ public class FigureDialog
 				if (src == movieFrequency) {
 					Integer value = (Integer) movieFrequency.getValue();
 					movieSlider.selectCells(value);
+					
 					generalLabel.setText(
-							FRAMES_TEXT+movieSlider.getNumberOfSelectedCells());
+							FRAMES_TEXT+movieSlider.getNumberOfSelectedCells()+
+							"/"+pixels.getSizeT());
 					generalLabel.repaint();
 				}
 		}

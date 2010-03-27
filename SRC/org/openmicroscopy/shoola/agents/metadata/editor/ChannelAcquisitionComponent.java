@@ -530,7 +530,8 @@ class ChannelAcquisitionComponent
 		while (j.hasNext()) {
 			info = (PlaneInfo) j.next();
 			details = EditorUtil.transformPlaneInfo(info);
-			values[0][i] = details.get(EditorUtil.EXPOSURE_TIME)+"s";
+			values[0][i] = details.get(EditorUtil.EXPOSURE_TIME)+
+							EditorUtil.TIME_UNIT;
 			names[i] = "t="+(i+1);
 			i++;
 		}

@@ -69,10 +69,19 @@ public class GridSlider
 	public static final String	COLUMN_SELECTION_PROPERTY = "columnSelection";
 	
 	/** The dimension of a cell. */
-	private static final Dimension CELL_SIZE = new Dimension(12, 12);
+	public static final Dimension CELL_SIZE = new Dimension(14, 14);
 	
 	/** Holds the selected cells. */
-	private Map<Integer, Boolean> selectedCells;
+	private Map<Integer, Boolean> 	selectedCells;
+	
+	/** The name associated to a cell. */
+	private Map<Integer, String>	cellNames;
+	
+	/** 
+	 * The value by which the column value should be incremented by to 
+	 * set the text associated to that given column.
+	 */
+	private int						textIncrement;
 	
 	/** 
 	 * Initializes the component. 
@@ -139,6 +148,34 @@ public class GridSlider
 	}
 	
 	/**
+	 * Creates a new instance.
+	 * 
+	 * @param columns 		The number of columns.
+	 * @param textIncrement The value by which the column value should be 
+	 * 						incremented by to set the text associated to 
+	 * 						that given column.
+	 */
+	public GridSlider(int columns, int textIncrement)
+	{
+		initiliaze(columns);
+		this.textIncrement = textIncrement;
+	}
+	
+	/**
+	 * Returns the text associated to a given column.
+	 * 
+	 * @param column 		The column to handle.
+	 * 
+	 * @return See above.
+	 */
+	String getCellTooltipText(int column)
+	{
+		if (cellNames != null && cellNames.containsKey(column))
+			return cellNames.get(column);
+		return ""+(column+textIncrement);
+	}
+	
+	/**
 	 * Returns <code>true</code> if the column is selected,
 	 * <code>false</code> otherwise.
 	 * 
@@ -148,6 +185,16 @@ public class GridSlider
 	boolean isSelected(int column)
 	{
 		return selectedCells.containsKey(column);
+	}
+	
+	/**
+	 * Sets the name associated to cells.
+	 * 
+	 * @param cellNames The value to set.
+	 */
+	public void setCellNames(Map<Integer, String> cellNames)
+	{
+		this.cellNames = cellNames;
 	}
 	
 	/**
@@ -228,12 +275,14 @@ public class GridSlider
 		
 		/**
 		 * Overridden to set the color of the selected cell.
+		 * @see DefaultTableCellRenderer#getTableCellRendererComponent(JTable, 
+		 * Object, boolean, boolean, int, int)
 		 */
 		public Component getTableCellRendererComponent(JTable table, 
 				Object value, boolean isSelected, boolean hasFocus, 
 				int row, int column)
 		{
-			setToolTipText(""+column);
+			setToolTipText(model.getCellTooltipText(column));
 			if (model.isSelected(column)) {
 				setBackground(PlateGrid.SELECTED_COLOR);
 			} else {

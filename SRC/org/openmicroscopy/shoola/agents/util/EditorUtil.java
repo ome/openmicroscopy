@@ -436,6 +436,9 @@ public class EditorUtil
 	/** The maximum number of field for a microscope. */
 	public static final int		MAX_FIELDS_MICROSCOPE = 5;
 	
+	/** The unit used to store time in Plane info. */
+	public static final String	TIME_UNIT = "s";
+	
 	/** Identifies the <code>Indigo</code> color. */
 	private static final Color  INDIGO = new Color(75, 0, 130);
 
@@ -1730,6 +1733,29 @@ public class EditorUtil
         details.put(BINNING, s);
     	details.put(NOT_SET, notSet);
     	return details;
+    }
+    
+    /**
+     * Formats the passed value in seconds.
+     * 
+     * @param value The value to transform.
+     * @return See above.
+     */
+    public static String formatTimeInSeconds(Double value)
+    {
+    	int v = value.intValue();
+    	int hours = v/3600;
+    	int remainder = v%3600;
+    	int minutes = remainder/60;
+    	int seconds = remainder%60;
+    	String text = "";
+    	if (hours > 0) text += hours+"h";
+    	if (minutes > 0) {
+    		text += minutes+"min";
+    		if (seconds > 0) text += seconds+"s";
+    	} else text +=  seconds+"s";
+	
+		return text;
     }
     
     /**

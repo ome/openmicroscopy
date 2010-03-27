@@ -1340,9 +1340,11 @@ class ImViewerUI
 				if (info != null) {
 					details = EditorUtil.transformPlaneInfo(info);
 					comp.setColor(colors.get(index));
-					s += details.get(EditorUtil.DELTA_T)+"s ";
+					s += EditorUtil.formatTimeInSeconds(
+							(Double) details.get(EditorUtil.DELTA_T));
 					toolTipText += EditorUtil.EXPOSURE_TIME+": ";
-					toolTipText += details.get(EditorUtil.EXPOSURE_TIME)+"s";
+					toolTipText += details.get(EditorUtil.EXPOSURE_TIME);
+					toolTipText += EditorUtil.TIME_UNIT;
 					tips.add(toolTipText);
 					toolTipText = "";
 					toolTipText += "Stage coordinates: ";

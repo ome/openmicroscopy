@@ -306,7 +306,6 @@ class OmeroImageServiceImpl
 				id = (Long) j.next();
 				rnd = PixelsServicesFactory.getRenderingControl(context, id, 
 						false);
-				System.err.println(rnd);
 				if (rnd == null) ids.add(id);
 				else {
 					pDef.t = rnd.getDefaultT();
