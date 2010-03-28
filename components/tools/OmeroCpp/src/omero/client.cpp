@@ -83,10 +83,11 @@ namespace omero {
 	}
 	std::string host = id.properties->getPropertyWithDefault("omero.host", "<\"omero.host\" not set >");
 
+        size_t found;
 	std::string h_("@omero.host@");
 	std::string p_("@omero.port@");
         while (true) {
-            size_t found = router.rfind(h_);
+            found = router.rfind(h_);
             if (found != string::npos) {
                 router.replace(found, h_.length(), host);
                 continue;
@@ -94,7 +95,7 @@ namespace omero {
             break;
 
         }
-        while (true)
+        while (true) {
             found = router.rfind(p_);
             if (found != string::npos) {
                 router.replace(found, p_.length(), port);
