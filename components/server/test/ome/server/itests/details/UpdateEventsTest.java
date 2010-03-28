@@ -92,28 +92,6 @@ public class UpdateEventsTest extends AbstractManagedContextTest {
                 modification.getId().equals(test.getId()));
     }
 
-    @Test
-    public void testLockingCanUpdateInTheBackground() throws Exception {
-
-        loginNewUser();
-
-        Image i = new_Image();
-        i.setName("lock suprise");
-        i = iUpdate.saveAndReturnObject(i);
-        Event modification = i.getDetails().getUpdateEvent();
-
-        Dataset d = new Dataset();
-        d.setName("contains i");
-        d.linkImage(i);
-
-        d = iUpdate.saveAndReturnObject(d);
-        i = iQuery.get(i.getClass(), i.getId());
-        Event test = i.getDetails().getUpdateEvent();
-
-        assertFalse("Locking must also change the update event", modification
-                .getId().equals(test.getId()));
-    }
-
 
     private Image new_Image() {
         Image i = new Image();

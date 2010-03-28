@@ -388,9 +388,8 @@ public class UseSecurityTest extends AbstractPermissionsTest {
             r.getUpdateService().deleteObject(instr);
             List<IObject> micros = new ArrayList<IObject>();
             micros.add(micro);
-            // FIXME: No unlock() method?
-            //boolean[] unlocked = r.getAdminService().unlock(micros);
-            //assertTrue(unlocked[0]);
+            // boolean[] unlocked = r.getAdminService().unlock(micros);
+            // assertTrue(unlocked[0]); ticket:2039 - TOO BE REMOVED
         }
 
     }
@@ -471,10 +470,9 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         verifyLockStatus(ds, will_lock);
 
         r.getUpdateService().deleteObject(link);
-        // FIXME: No unlock() method?
-        //boolean[] unlocked = r.getAdminService().unlock(Arrays.asList(prj, ds));
-        //assertTrue(unlocked[0]);
-        //assertTrue(unlocked[1]);
+        // boolean[] unlocked = r.getAdminService().unlock(Arrays.asList(prj, ds));
+        // assertTrue(unlocked[0]);
+        // assertTrue(unlocked[1]);ticket:2039 - TOO BE REMOVED
 
     }
 
@@ -670,8 +668,8 @@ public class UseSecurityTest extends AbstractPermissionsTest {
                         ds.getId()));
         r.getUpdateService().deleteObject(link);
 
-        // FIXME: No unlock() method?
-        //r.getAdminService().unlock(Arrays.<IObject>asList(prj));
+        // r.getAdminService().unlock(Arrays.<IObject>asList(prj));
+        // ticket:2039 - TOO BE REMOVED
 
         prj = (Project) r.getQueryService().find(prj.getClass().getName(), prj.getId().getValue());
         assertFalse(prj.getDetails().getPermissions().isLocked());
