@@ -27,6 +27,7 @@ import ome.model.core.LogicalChannel;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.enums.Format;
+import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.screen.Plate;
@@ -215,7 +216,7 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
 
     public void testDeleteImageAfterViewedByAnotherUser() throws Exception {
 
-        Experimenter e1 = loginNewUser();
+        Experimenter e1 = loginNewUser(Permissions.COLLAB_READLINK);
         Image i1 = makeImage(false);
         Pixels p1 = i1.iteratePixels().next();
 
@@ -241,8 +242,8 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
 
         // In 4.0, default permissions were made private which prevents this
         // test from being carried out as a regular user. Now testing as
-        // admin.
-        loginRoot();
+        // admin (who must be logged into the same group in 4.2)
+        loginRootKeepGroup();
         iAdmin.addGroups(e2, new ExperimenterGroup(0L, false));
         loginUser(e2.getOmeName());
 
@@ -258,11 +259,11 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
 
     public void testDeleteSettingsAfterViewedByRoot() throws Exception {
 
-        Experimenter e1 = loginNewUser();
+        Experimenter e1 = loginNewUser(Permissions.COLLAB_READLINK);
         Image i1 = makeImage(false);
         Pixels p1 = i1.iteratePixels().next();
 
-        loginRoot();
+        loginRootKeepGroup();
 
         ThumbnailStore tb = this.factory.createThumbnailService();
         tb.setPixelsId(p1.getId());

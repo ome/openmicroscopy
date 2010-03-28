@@ -37,6 +37,8 @@ public class SetGroupPermissionsTest extends PermissionsTest {
     @Test
     public void testGroupsCanBeMadeShared() throws Exception {
         setup(Permissions.USER_PRIVATE);
+        fixture.make_leader();
+
         Image image = fixture.saveImage();
         iAdmin.changePermissions(fixture.group(), Permissions.GROUP_PRIVATE);
         assertShared(fixture.group());
@@ -58,7 +60,10 @@ public class SetGroupPermissionsTest extends PermissionsTest {
     @Test
     public void testGroupsCanBeMadeSharedWriteable() throws Exception {
         setup(Permissions.PRIVATE);
+        fixture.make_leader();
+
         Image image = fixture.saveImage();
+
         iAdmin.changePermissions(fixture.group(), Permissions.COLLAB_READLINK);
         assertSharedAndWritable(fixture.group());
         assertSharedAndWritable(image);
@@ -67,6 +72,8 @@ public class SetGroupPermissionsTest extends PermissionsTest {
     @Test
     public void testGroupsCanBeMadePublic() throws Exception {
         setup(Permissions.USER_PRIVATE);
+        fixture.make_leader();
+
         Image image = fixture.saveImage();
         assertPrivate(image);
         assertPrivate(fixture.group());
@@ -78,6 +85,8 @@ public class SetGroupPermissionsTest extends PermissionsTest {
     @Test
     public void testGroupsCanBeMadePrivateAgain() throws Exception {
         setup(Permissions.USER_PRIVATE);
+        fixture.make_leader();
+
         Image image = fixture.saveImage();
         iAdmin.changePermissions(fixture.group(), Permissions.PUBLIC);
         assertPublic(image);

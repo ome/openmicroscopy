@@ -117,8 +117,10 @@ public class PojosServiceTest extends AbstractManagedContextTest {
 
     @Test(groups = "ticket:651")
     public void testIntervalInParameters() {
-        Long userID = factory.getAdminService().getEventContext()
-                .getCurrentUserId();
+
+        // Previously this was throwing an OOM
+        Long userID = loginNewUser().getId();
+
         // create
         Dataset ds = new Dataset();
         ds.setName("ticket:651");
@@ -145,8 +147,10 @@ public class PojosServiceTest extends AbstractManagedContextTest {
 
     @Test(groups = "ticket:1018")
     public void testIntervalPojoMethodsReturnsCounts() {
-        Long userID = factory.getAdminService().getEventContext()
-                .getCurrentUserId();
+
+        // Previously this was throwing an OOM
+        Long userID = loginNewUser().getId();
+
         // create
         Dataset ds = new Dataset();
         ds.setName("ticket:1018");
@@ -174,6 +178,9 @@ public class PojosServiceTest extends AbstractManagedContextTest {
 
     @Test
     public void testSPLoadHierarchy() throws Exception {
+
+        loginNewUser();
+
         Screen s = new Screen();
         s.setName("screen 1");
         
@@ -192,7 +199,7 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         Set screens = iContainer.loadContainerHierarchy(Screen.class, 
         		new HashSet(), options);
 
-        assertTrue(screens.size() == 1);
+        assertEquals(1, screens.size());
         
         Iterator i = screens.iterator();
         Screen screen;
@@ -207,7 +214,7 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         	j = plates.iterator();
         	while (j.hasNext()) {
         		plate = (Plate) j.next();
-        		assertTrue(plate.getId() == p1.getId());
+			assertEquals(plate.getId(), p1.getId());
 			}
 		}
 

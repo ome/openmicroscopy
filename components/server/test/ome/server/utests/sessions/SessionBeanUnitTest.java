@@ -6,6 +6,12 @@
  */
 package ome.server.utests.sessions;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import ome.conditions.AuthenticationException;
 import ome.conditions.SessionException;
 import ome.model.meta.Session;
@@ -17,6 +23,8 @@ import ome.system.Principal;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
+import org.jmock.core.Invocation;
+import org.jmock.core.Stub;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -65,6 +73,7 @@ public class SessionBeanUnitTest extends MockObjectTestCase {
     @Test
     public void testUpdate() throws Exception {
         testCreateSessionPasses();
+        expectsExecutorSubmit();
         smMock.expects(once()).method("update").will(returnValue(session));
         session.setUserAgent("test");
         bean.updateSession(session);
@@ -72,8 +81,57 @@ public class SessionBeanUnitTest extends MockObjectTestCase {
 
     @Test
     public void testClose() throws Exception {
+        expectsExecutorSubmit();
         smMock.expects(once()).method("close").will(returnValue(0));
         bean.closeSession(session);
     }
 
+
+    private void expectsExecutorSubmit() {
+        exMock.expects(once()).method("submit").will(new Stub(){
+
+            public Object invoke(Invocation arg0) throws Throwable {
+                Callable callable = (Callable) arg0.parameterValues.get(0);
+                final Object rv = callable.call();
+                return new Future() {
+
+                    public boolean cancel(boolean arg0) {
+                        throw new UnsupportedOperationException();
+                    }
+
+                    public Object get() throws InterruptedException,
+                            ExecutionException {
+                        return rv;
+                    }
+
+                    public Object get(long arg0, TimeUnit arg1)
+                            throws InterruptedException, ExecutionException,
+                            TimeoutException {
+                        return rv;
+                    }
+
+                    public boolean isCancelled() {
+                        throw new UnsupportedOperationException();
+                    }
+
+                    public boolean isDone() {
+                        throw new UnsupportedOperationException();
+                    }};
+            }
+
+            public StringBuffer describeTo(StringBuffer arg0) {
+                arg0.append("calls submit");
+                return arg0;
+            }});
+
+        exMock.expects(once()).method("get").will(new Stub(){
+
+            public Object invoke(Invocation arg0) throws Throwable {
+                return ((Future)arg0.parameterValues.get(0)).get();
+            }
+
+            public StringBuffer describeTo(StringBuffer arg0) {
+                return arg0;
+            }});
+    }
 }

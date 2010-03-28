@@ -96,7 +96,7 @@ public class OmeroInterceptor implements Interceptor {
         Assert.notNull(tokenHolder);
         Assert.notNull(sysTypes);
         // Assert.notNull(em); Permitting null for testing
-        Assert.notNull(cd);
+        // Assert.notNull(cd); Permitting null for testing
         Assert.notNull(stats);
         Assert.notNull(roles);
         this.tokenHolder = tokenHolder;

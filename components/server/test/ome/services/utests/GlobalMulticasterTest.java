@@ -31,8 +31,8 @@ public class GlobalMulticasterTest extends MockObjectTestCase {
         GMBean one = (GMBean) ac1.getBean("one");
         GMBean two = (GMBean) ac2.getBean("two");
 
-        assertEquals(2, one.invoked);
-        assertEquals(2, two.invoked);
+        assertEquals(3, one.invoked);
+        assertEquals(3, two.invoked);
 
     }
 

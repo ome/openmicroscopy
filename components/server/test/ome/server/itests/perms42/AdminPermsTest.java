@@ -123,7 +123,7 @@ public class AdminPermsTest extends PermissionsTest {
         setup(Permissions.PRIVATE);
 
         Experimenter e = uuidUser();
-        iAdmin.createUser(e, fixture.groupName);
+
         try {
             iAdmin.createUser(e, g2.getName());
             fail("not in my group");

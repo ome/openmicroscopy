@@ -128,7 +128,7 @@ public class AdminTest extends AbstractManagedContextTest {
     public void testExperimenterAccountCreation() throws Exception {
         Experimenter e = testExperimenter();
         e = iAdmin.getExperimenter(iAdmin.createExperimenter(e,
-                new ExperimenterGroup(0L, false), (ome.model.meta.ExperimenterGroup[])null));
+                new ExperimenterGroup(0L, false)));
         assertNotNull(e.getEmail());
         assertNotNull(e.getOmeName());
         assertNotNull(e.getFirstName());
@@ -140,7 +140,7 @@ public class AdminTest extends AbstractManagedContextTest {
     public void testExperimenterAccountCreationAndUpdateWithPassword() throws Exception {
         Experimenter e = testExperimenter();
         e = iAdmin.getExperimenter(iAdmin.createExperimenterWithPassword(e, "password", 
-                new ExperimenterGroup(0L, false), (ome.model.meta.ExperimenterGroup[])null));
+                new ExperimenterGroup(0L, false)));
         assertNotNull(e.getEmail());
         assertNotNull(e.getOmeName());
         assertNotNull(e.getFirstName());
@@ -211,13 +211,8 @@ public class AdminTest extends AbstractManagedContextTest {
     // =========================================================================
     @Test(groups = "ticket:293")
     public void testUserCanOnlySetDetailsOnOwnObject() throws Exception {
-        ExperimenterGroup g = testGroup();
-        iAdmin.createGroup(g);
 
-        Experimenter e1 = testExperimenter();
-        iAdmin.createUser(e1, g.getName());
-
-        loginUser(e1.getOmeName());
+        Experimenter e1 = loginNewUser();
 
         Image i = new Image();
         i.setName("test");
@@ -225,10 +220,7 @@ public class AdminTest extends AbstractManagedContextTest {
         i = iUpdate.saveAndReturnObject(i);
 
         // this user should not be able to change things
-        Experimenter e2 = testExperimenter();
-        iAdmin.createUser(e2, g.getName());
-
-        loginUser(e2.getOmeName());
+        Experimenter e2 = loginNewUserInOtherUsersGroup(e1);
 
         try {
             iAdmin.changeOwner(i, e2.getOmeName());

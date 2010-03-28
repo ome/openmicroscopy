@@ -30,8 +30,11 @@ import ome.system.EventContext;
 import ome.system.Roles;
 import ome.testing.ObjectFactory;
 import ome.tools.hibernate.HibernateUtils;
+import ome.tools.hibernate.SessionFactory;
 import ome.util.CBlock;
 
+import org.hibernate.Query;
+import org.hibernate.Session;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.jmock.core.Constraint;
@@ -48,12 +51,14 @@ public class DeleteUnitTest extends MockObjectTestCase {
 
     Image i;
 
-    Mock am, qm, um, ecm, sm;
+    Mock am, qm, um, ecm, sm, hm, xm;
     LocalAdmin a;
     LocalQuery q;
     LocalUpdate u;
     EventContext ec;
     SecuritySystem s;
+    Session hibernate;
+    Query query;
 
     @Override
     @BeforeClass
@@ -62,7 +67,20 @@ public class DeleteUnitTest extends MockObjectTestCase {
         am = mock(LocalAdmin.class);
         a = (LocalAdmin) am.proxy();
 
-        bean = new DeleteBean(a, null);
+        hm = mock(Session.class);
+        hibernate = (Session) hm.proxy();
+
+        xm = mock(Query.class);
+        query = (Query) xm.proxy();
+        hm.expects(atLeastOnce()).method("createQuery").will(returnValue(query));
+        xm.expects(atLeastOnce()).method("executeMethod").will(returnValue(0));
+
+        bean = new DeleteBean(a, new SessionFactory(null){
+            @Override
+            public Session getSession() {
+                return hibernate;
+            }
+        });
         service = bean;
 
         qm = mock(LocalQuery.class);

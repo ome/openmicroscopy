@@ -6,25 +6,17 @@
  */
 package ome.server.itests;
 
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
-import junit.framework.TestCase;
-import ome.api.IQuery;
-import ome.api.IUpdate;
 import ome.model.core.Image;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.model.meta.Session;
 import ome.security.SecuritySystem;
 import ome.security.basic.PrincipalHolder;
-import ome.services.sessions.SessionManager;
-import ome.system.OmeroContext;
-import ome.system.Principal;
-import ome.system.ServiceFactory;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
 @Test(groups = { "security", "integration" })
@@ -54,6 +46,8 @@ public class LoginTest extends AbstractManagedContextTest {
     @Test
     public void testNoLoginThrowsException() throws Exception {
         try {
+            cleanup();
+            loginAop.p = null;
             iQuery.find(Experimenter.class, 0l);
             fail("Non-logged-in call allowed!");
         } catch (RuntimeException e) {
@@ -71,7 +65,11 @@ public class LoginTest extends AbstractManagedContextTest {
     public void testLoggedOutAfterCall() throws Exception {
         login("root", "system", "Test");
         iQuery.find(Experimenter.class, 0l);
-        assertTrue(!sec.isReady());
+        try {
+            assertTrue(!sec.isReady());
+        } catch (NoSuchElementException nsee) {
+            // ok. that's our current meaning of "logged out"
+        }
     }
 
     @Test(enabled = false)

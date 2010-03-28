@@ -26,6 +26,8 @@ import ome.conditions.InternalException;
 import ome.conditions.RemovedSessionException;
 import ome.conditions.SessionException;
 import ome.conditions.SessionTimeoutException;
+import ome.model.internal.Permissions;
+import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.SessionCallback;
@@ -519,6 +521,9 @@ public class SessionCacheTest extends TestCase {
         s.setTimeToIdle(0L);
         s.setTimeToLive(0L);
         s.setUuid(UUID.randomUUID().toString());
+        ExperimenterGroup g = new ExperimenterGroup();
+        g.getDetails().setPermissions(Permissions.PRIVATE);
+        s.getDetails().setGroup(g);
         return s;
     }
 

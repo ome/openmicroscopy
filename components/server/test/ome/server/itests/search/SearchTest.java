@@ -421,7 +421,7 @@ public class SearchTest extends AbstractTest {
         i.setName(abc + " " + def + " " + ghi);
         i = iUpdate.saveAndReturnObject(i);
         iUpdate.indexObject(i);
-        loginRoot();
+        loginRootKeepGroup();
 
         final Search search = this.factory.createSearchService();
         search.onlyType(Image.class);
@@ -889,7 +889,7 @@ public class SearchTest extends AbstractTest {
     @Test
     public void testOnlyOwnedByOwner() {
 
-        Experimenter e = loginNewUser();
+        Experimenter e = loginNewUser(Permissions.COLLAB_READONLY);
         Details user = Details.create();
         user.setOwner(e);
 
@@ -998,7 +998,7 @@ public class SearchTest extends AbstractTest {
     @Test
     public void testOnlyOwnedByGroup() {
 
-        Experimenter e = loginNewUser();
+        Experimenter e = loginNewUser(Permissions.COLLAB_READONLY);
         ExperimenterGroup g = new ExperimenterGroup(iAdmin.getEventContext()
                 .getCurrentGroupId(), false);
         Details user = Details.create();
@@ -2083,7 +2083,7 @@ public class SearchTest extends AbstractTest {
         final IUpdate update = this.factory.getUpdateService();
 
         // Save a public image
-        Experimenter user1 = loginNewUser();
+        Experimenter user1 = loginNewUser(Permissions.COLLAB_READONLY);
         Image i = new Image(testTimestamp, "foo");
         i = update.saveAndReturnObject(i);
         update.indexObject(i);
@@ -2271,7 +2271,7 @@ public class SearchTest extends AbstractTest {
 
         // Create user which will own the image.
         String uuid = uuid();
-        Experimenter owner = loginNewUser();
+        Experimenter owner = loginNewUser(Permissions.COLLAB_READONLY);
         Details d_owner = Details.create();
         d_owner.setOwner(owner);
 

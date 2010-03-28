@@ -30,7 +30,11 @@ public class LoginInterceptor implements MethodInterceptor {
         if (still != 0) {
             throw new RuntimeException(still + " remaining on login!");
         }
-        holder.login(p);
+
+        if (p != null) {
+            holder.login(p);
+        }
+
         try {
             return arg0.proceed();
         } finally {

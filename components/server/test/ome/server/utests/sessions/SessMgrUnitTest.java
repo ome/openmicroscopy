@@ -139,6 +139,8 @@ public class SessMgrUnitTest extends MockObjectTestCase {
                 returnValue(true));
         sf.mockAdmin.expects(atLeastOnce()).method("userProxy").will(
                 returnValue(user));
+        sf.mockAdmin.expects(atLeastOnce()).method("lookupExperimenter").will(
+                        returnValue(user));
         sf.mockAdmin.expects(atLeastOnce()).method("groupProxy").will(
                 returnValue(group));
         sf.mockAdmin.expects(atLeastOnce()).method("getMemberOfGroupIds").will(
@@ -149,8 +151,12 @@ public class SessMgrUnitTest extends MockObjectTestCase {
                 returnValue(userRoles));
         sf.mockAdmin.expects(once()).method("checkPassword").will(
                 returnValue(true));
+
+        EventType t = new EventType(0L, true);
+        t.setValue("mock");
         sf.mockTypes.expects(once()).method("getEnumeration").will(
-                returnValue(new EventType(0L, false)));
+                returnValue(t));
+
         sf.mockQuery.expects(once()).method("findAllByQuery")
                 .will(
                         returnValue(Collections

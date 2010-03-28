@@ -141,7 +141,7 @@ public class GraphConsistencyTest extends PermissionsTest {
             // load the object for linking?
             d = iUpdate.saveAndReturnObject(d);
             fail("Mixed group should not allowed!");
-        } catch (GroupSecurityViolation sv) {
+        } catch (SecurityViolation sv) {
             // good
         }
 

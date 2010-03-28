@@ -17,6 +17,7 @@ import ome.formats.importer.util.TinyImportFixture;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.parameters.Parameters;
+import omeis.providers.re.RenderingEngine;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -68,8 +69,12 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
 
     @Test
     public void testSimpleCallsPostJta() throws Exception {
+        RenderingEngine re = factory.createRenderingEngine();
+        re.lookupPixels(pix1);
+        re.load();
+        re.resetDefaults();
+        re.close();
         tb.setPixelsId(pix1);
-        tb.resetDefaults();
         tb.getThumbnailSet(16, 16, new HashSet<Long>(Arrays.asList(pix1, pix2)));
     }
 

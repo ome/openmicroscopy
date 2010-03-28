@@ -168,8 +168,6 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
         // ~ USER FILTER
         // =====================================================================
 
-        // TODO submit bug. leaving out the e of "Experimenter e" throws a
-        // null pointer exception in org.hibernate.hql.ast.*
         user = null;
         // (Experimenter) iQuery.findByQuery(
         // "select e from Experimenter e " +
