@@ -1,6 +1,6 @@
 <!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
   
-<suite name="server.unit" >
+<suite name="server.unit" time-out="1000">
   
   <test name="server.unit.active">
     <groups>

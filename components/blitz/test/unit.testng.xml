@@ -1,6 +1,6 @@
 <!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
   
-<suite name="blitz.unit" >
+<suite name="blitz.unit" time-out="1000">
   
   <test name="blitz.unit.active">
     <groups>

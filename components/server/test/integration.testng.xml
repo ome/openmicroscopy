@@ -1,8 +1,8 @@
 <!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
   
-<suite name="server.integration" >
+<suite name="server.integration" time-out="200" parallel="true" thread-count="5">
   
-  <test name="server.integration.active">
+  <test name="server.integration.active" time-out="200">
     <groups>
       <run>
         <exclude name="broken"/>
@@ -10,7 +10,8 @@
         <exclude name="client"/>
         <exclude name="blitz"/>
         <exclude name="manual"/>
-      </run>        
+        <exclude name="longrunning"/>
+      </run>
     </groups>
     <packages>
       <package name="ome.io.*"/>

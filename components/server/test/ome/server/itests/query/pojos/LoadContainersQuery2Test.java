@@ -127,7 +127,7 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
 
     }
     
-    @Test(groups = "ticket:1223")
+    @Test(groups = {"ticket:1223", "longrunning"})
     public void testStackOverflowWithLotsOfDatasets() throws Exception {
         
         loginNewUser();

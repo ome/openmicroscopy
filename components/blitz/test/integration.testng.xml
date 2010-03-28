@@ -1,6 +1,6 @@
 <!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
   
-<suite name="blitz.integration" >
+<suite name="blitz.integration" time-out="10000">
   
   <test name="blitz.integration.active">
     <groups>
@@ -8,7 +8,8 @@
         <exclude name="broken"/>
         <exclude name="ignore"/>
         <exclude name="manual"/>
-      </run>        
+        <exclude name="longrunning"/>
+      </run>
     </groups>
     <packages>
       <package name="ome.*"/>
