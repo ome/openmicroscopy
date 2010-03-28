@@ -59,7 +59,7 @@ import omero.sys.ParametersI;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.ResourceUtils;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import pojos.AnnotationData;
@@ -111,22 +111,23 @@ public class PojosServiceTest extends TestCase {
     ParametersI OWNER_FILTER;
 
     @Override
-    @BeforeTest
+    @BeforeClass
     protected void setUp() throws Exception {
         
+	/*
         OmeroContext test = new OmeroContext(new String[]{
                 "classpath:ome/config.xml",
                 "classpath:ome/testing/data.xml"});
         data = (OMEData) test.getBean("data");
+	*/
         
-        File local = ResourceUtils.getFile("classpath:local.properties");
-        omero.client client = new omero.client(local);
+        omero.client client = new omero.client();
         factory = client.createSession();
         iContainer = factory.getContainerService();
         iQuery = factory.getQueryService();
         iUpdate = factory.getUpdateService();
 
-        omero.client root = new omero.client(local);
+        omero.client root = new omero.client();
         root.createSession("root", client.getProperty("omero.rootpass"));
         fixture = CreatePojosFixture2.withNewUser(root);
         fixture.createAllPojos();
