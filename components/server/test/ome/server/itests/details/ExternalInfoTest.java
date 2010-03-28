@@ -21,7 +21,7 @@ import ome.server.itests.AbstractManagedContextTest;
 
 import org.testng.annotations.Test;
 
-@Test(groups = "ticket:371")
+@Test(groups = {"ticket:371","broken"})
 public class ExternalInfoTest extends AbstractManagedContextTest {
 
     Image i;

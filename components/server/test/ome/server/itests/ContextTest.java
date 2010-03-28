@@ -47,7 +47,7 @@ public class ContextTest extends TestCase {
         rb = new TB();
     }
 
-    @Test
+    @Test(groups = "broken") // This only works while running standalone
     public void testFullTextContext() throws Exception {
         OmeroContext.getInstance("ome.fulltext");
     }
