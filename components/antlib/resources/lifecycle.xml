@@ -144,6 +144,7 @@ omero.version=${omero.version}
 		<testng outputDir="${testreports.dir}"
 			haltonfailure="${test.with.fail}"
 			haltonskipped="${test.with.fail}"
+			verbose="2"
 			>
 			<classpath>
 				<pathelement location="${emmaclasses.dir}"/>
@@ -190,12 +191,25 @@ omero.version=${omero.version}
 		</emma>
 	</target>
 
-	<target name="test" depends="test-compile" unless="test.skip">
+	<target name="test-single" if="TEST">
+		<suite>
+			<classfileset dir="${testclasses.dir}">
+				<include name="**/${TEST}.class"/>
+			</classfileset>
+		</suite>
+	</target>
+
+	<target name="test-suite" unless="TEST">
 		<suite>
 			<xmlfileset dir="${test.dir}">
 				<include name="${unit.suite}"/>
 			</xmlfileset>
 		</suite>
+	</target>
+
+	<target name="test" depends="test-compile" unless="test.skip">
+		<antcall target="test-single" inheritRefs="true" inheritAll="true"/>
+		<antcall target="test-suite" inheritRefs="true" inheritAll="true"/>
 		<emma enabled="${emma.enabled}" >
 			<report sourcepath="${src.dir}" >
 				<fileset dir="${target.dir}" includes="*.emma"/>

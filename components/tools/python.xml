@@ -51,10 +51,23 @@
         </setup_py>
     </target>
 
-    <target name="python-test" unless="env.NOPYTHON">
-        <setup_py failonerror="false">
+    <target name="python-test-single" if="TEST">
+        <setup_py failonerror="${test.with.fail}">
+            <arg value="test"/>
+            <arg value="-s"/>
+            <arg value="${TEST}"/>
+        </setup_py>
+    </target>
+
+    <target name="python-test-suite" unless="TEST">
+        <setup_py failonerror="${test.with.fail}">
             <arg value="test"/>
         </setup_py>
+    </target>
+
+    <target name="python-test" unless="env.NOPYTHON">
+        <antcall target="python-test-single" inheritRefs="true" inheritAll="true"/>
+        <antcall target="python-test-suite" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <target name="python-integration" unless="env.NOPYTHON">
