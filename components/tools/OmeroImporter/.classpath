@@ -9,7 +9,6 @@
 	<classpathentry kind="lib" path="target/libs/common.jar"/>
 	<classpathentry kind="lib" path="target/libs/server.jar"/>
 	<classpathentry kind="lib" path="target/libs/hsqldb.jar"/>
-	<classpathentry kind="lib" path="target/libs/hibernate.jar"/>
 	<classpathentry kind="lib" path="target/libs/swingx.jar"/>
 	<classpathentry kind="lib" path="target/libs/TableLayout.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-httpclient.jar"/>
