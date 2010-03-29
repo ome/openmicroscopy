@@ -30,8 +30,8 @@ def change_ports(glacier2, registry, revert = False):
 
     Example::
 
-        ./grid/default.xml:    <variable name="ROUTERPORT"   value="4063"/>
-        ./grid/windefault.xml:    <variable name="ROUTERPORT"   value="4063"/>
+        ./grid/default.xml:    <variable name="ROUTERPORT"   value="4064"/>
+        ./grid/windefault.xml:    <variable name="ROUTERPORT"   value="4064"/>
         ./internal.cfg:Ice.Default.Locator=IceGrid/Locator:tcp -h 127.0.0.1 -p 4061
         ./master.cfg:IceGrid.Registry.Client.Endpoints=tcp -h 127.0.0.1 -p 4061
 
@@ -40,12 +40,12 @@ def change_ports(glacier2, registry, revert = False):
     if revert:
         f_glacier2 = str(int(glacier2))
         f_registry = str(int(registry))
-        t_glacier2 = "4063"
+        t_glacier2 = "4064"
         t_registry = "4061"
     else:
         t_glacier2 = str(int(glacier2))
         t_registry = str(int(registry))
-        f_glacier2 = "4063"
+        f_glacier2 = "4064"
         f_registry = "4061"
 
     cfgs = [ str(x) for x in etc.files("*.cfg") ]
@@ -88,7 +88,7 @@ if __name__ == "__main__":
         if len(sys.argv) < 3 or len(sys.argv) > 4:
             print """ %s [--revert] <glacier2 port> <icegrid registry port>
 
-    Changes all 4063 ports to the given glacier2 port
+    Changes all 4064 ports to the given glacier2 port
     and all 4061 ports to the given registry port. You will
     need to give your clients the new glacier2 port.""" % sys.argv[0]
             sys.exit(2)
