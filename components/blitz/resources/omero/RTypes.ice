@@ -149,6 +149,12 @@ module omero {
   sequence<RType> RTypeSeq;
 
   /**
+   *
+   **/
+  ["java:type:java.util.ArrayList<java.util.List<omero.RType>>:java.util.List<java.util.List<omero.RType>>"]
+  sequence<RTypeSeq> RTypeSeqSeq;
+
+  /**
    * The collection ["protected"] classes permit the passing of sequences of all
    * other RTypes (including other collections) and it is itself
    * nullable. The allows for similar arguments to collections in

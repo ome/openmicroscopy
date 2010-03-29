@@ -154,7 +154,8 @@ public class Parameters implements Serializable {
      * 
      * @return a Set of Strings.
      */
-    public Set keySet() {
+    @SuppressWarnings("unchecked")
+    public Set<String> keySet() {
         return new HashSet(queryParameters.keySet());
     }
 

@@ -34,6 +34,7 @@ def additional_tests():
     suite.addTest(load("test.integration.isession"))
     suite.addTest(load("test.integration.ishare"))
     suite.addTest(load("test.integration.itypes"))
+    suite.addTest(load("test.integration.iquery"))
     suite.addTest(load("test.integration.metadatastore"))
     suite.addTest(load("test.integration.scripts"))
     suite.addTest(load("test.integration.files"))

@@ -21,11 +21,13 @@ import omero.api.AMD_IQuery_findByExample;
 import omero.api.AMD_IQuery_findByQuery;
 import omero.api.AMD_IQuery_findByString;
 import omero.api.AMD_IQuery_get;
+import omero.api.AMD_IQuery_projection;
 import omero.api.AMD_IQuery_refresh;
 import omero.api._IQueryOperations;
 import omero.model.IObject;
 import omero.sys.Filter;
 import omero.sys.Parameters;
+import omero.util.IceMapper;
 import Ice.Current;
 
 /**
@@ -113,6 +115,13 @@ public class QueryI extends AbstractAmdServant implements _IQueryOperations {
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, object);
 
+    }
+
+    public void projection_async(AMD_IQuery_projection __cb, String query,
+            Parameters params, Current __current) throws ServerError {
+        IceMapper mapper = new IceMapper(IceMapper.LISTOBJECTARRAY_TO_RTYPESEQSEQ);
+        ome.parameters.Parameters p = mapper.convert(params);
+        callInvokerOnMappedArgs(mapper, __cb, __current, query, p);
     }
 
 }

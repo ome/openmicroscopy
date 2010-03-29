@@ -161,9 +161,46 @@ public class IceMapper extends ome.util.ModelMapper implements
 
     };
 
+    public final static ReturnMapping OBJECTARRAY_TO_RTYPESEQ = new ReturnMapping() {
+        public Object mapReturnValue(IceMapper mapper, Object value)
+        throws Ice.UserException {
+
+            if (value == null) {
+                return null;
+            }
+
+            Object[] objArr = (Object[]) value;
+            List<RType> rv = new ArrayList<RType>();
+            for (Object obj : objArr) {
+                rv.add((RType) OBJECT_TO_RTYPE.mapReturnValue(mapper, obj));
+            }
+
+            return rv;
+        }
+    };
+
+    @SuppressWarnings("unchecked")
+    public final static ReturnMapping LISTOBJECTARRAY_TO_RTYPESEQSEQ = new ReturnMapping() {
+        public Object mapReturnValue(IceMapper mapper, Object value)
+        throws Ice.UserException {
+
+            if (value == null) {
+                return null;
+            }
+
+            List<Object[]> listObjArr = (List<Object[]>) value;
+            List<List<RType>> rv = new ArrayList<List<RType>>();
+            for (Object[] objs : listObjArr) {
+                rv.add((List<RType>)OBJECTARRAY_TO_RTYPESEQ.mapReturnValue(mapper, objs));
+            }
+
+            return rv;
+        }
+    };
+
     public final static ReturnMapping OBJECT_TO_RTYPE = new ReturnMapping() {
         public Object mapReturnValue(IceMapper mapper, Object value)
-                throws Ice.UserException {
+        throws Ice.UserException {
             return mapper.toRType(value);
         }
     };

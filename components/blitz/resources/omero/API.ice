@@ -349,6 +349,7 @@ module omero {
 	    idempotent omero::model::IObject findByQuery(string query, omero::sys::Parameters params) throws ServerError;
 	    idempotent IObjectList           findAllByQuery(string query, omero::sys::Parameters params) throws ServerError;
 	    idempotent IObjectList           findAllByFullText(string klass, string query, omero::sys::Parameters params) throws ServerError;
+	    idempotent RTypeSeqSeq           projection(string query, omero::sys::Parameters params) throws ServerError;
 	    idempotent omero::model::IObject refresh(omero::model::IObject iObject) throws ServerError;
 	};
 

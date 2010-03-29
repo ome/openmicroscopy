@@ -15,6 +15,7 @@ import java.util.Set;
 
 import ome.conditions.ApiUsageException;
 import ome.parameters.Filter;
+import ome.parameters.Parameters;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -346,5 +347,19 @@ public class QueryBuilder {
     public void filter(String string, Filter filter) {
         filterTarget = string;
         this.filter = filter;
+    }
+
+    public void params(Parameters params2) {
+        if (params2 != null) {
+            for (String key : params2.keySet()) {
+                Object o = params2.get(key).value;
+                if (o instanceof Collection) {
+                    paramList(key, (Collection) o);
+                } else {
+                    param(key, o);
+                }
+            }
+        }
+
     }
 }

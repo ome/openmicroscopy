@@ -8,6 +8,7 @@
 package ome.api;
 
 import java.util.List;
+import java.util.Map;
 
 import ome.annotations.NotNull;
 import ome.conditions.ApiUsageException;
@@ -279,6 +280,25 @@ public interface IQuery extends ServiceInterface {
     <T extends IObject> List<T> findAllByFullText(@NotNull
     Class<T> type, @NotNull
     String query, Parameters parameters);
+
+    // ~ Projections
+    // =========================================================================
+
+    /**
+     * Return a list of Java {@link Object} instances (not {@link IObject}
+     * instances). These are the column names as specified in the HQL
+     * select statement (more than one is required).
+     *
+     * If an aggregation statement is used, a group by clause must be added.
+     *
+     * Examples:
+     * <ul>
+     * <li>select i.name, i.description from Image i where i.name like '%.dv'</li>
+     * <li>select tag.textValue, tagset.textValue from TagAnnotation tag join tag.annotationLinks l join l.child tagset</li>
+     * <li>select p.pixelsType.value, count(p.id) from Pixel p group by p.pixelsType.value</li>
+     * </ul>
+     */
+    List<Object[]> projection(@NotNull String query, Parameters parameters);
 
     // ~ Other
     // =========================================================================

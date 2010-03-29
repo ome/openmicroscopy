@@ -110,7 +110,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/repository/spring-sources-2.5.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/spring-test-2.5.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/spring-test-sources-2.5.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/testng-5.2-jdk15.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/testng-5.11-jdk15.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/velocity-1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/velocity-tools-generic-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/xercesImpl-2.6.2.jar"/>
