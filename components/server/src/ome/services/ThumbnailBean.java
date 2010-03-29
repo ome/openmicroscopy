@@ -131,7 +131,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     private RenderingDef settings;
 
     /** The thumbnail metadata that the service is currently working with. */
-    private Thumbnail metadata;
+    private Thumbnail thumbnailMetadata;
 
     /** The thumbnail metadata context. */
     private ThumbnailCtx ctx;
@@ -518,8 +518,8 @@ public class ThumbnailBean extends AbstractLevel2Service
         }
 
         // Finally, scale our image using scaling factors (percentage).
-        float xScale = (float) metadata.getSizeX() / origSizeX;
-        float yScale = (float) metadata.getSizeY() / origSizeY;
+        float xScale = (float) thumbnailMetadata.getSizeX() / origSizeX;
+        float yScale = (float) thumbnailMetadata.getSizeY() / origSizeY;
         return iScale.scaleBufferedImage(image, xScale, yScale);
     }
 
@@ -544,7 +544,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         settings = null;
         dirty = true;
         dirtyMetadata = false;
-        metadata = null;
+        thumbnailMetadata = null;
     }
 
     protected void errorIfInvalidState()
@@ -618,11 +618,11 @@ public class ThumbnailBean extends AbstractLevel2Service
             Set<Long> pixelsIds = new HashSet<Long>();
             pixelsIds.add(pixelsId);
             ctx.loadAndPrepareMetadata(pixelsIds, dimensions);
-            metadata = ctx.getMetadata(pixels.getId());
-            metadata = _createThumbnail();
+            thumbnailMetadata = ctx.getMetadata(pixels.getId());
+            thumbnailMetadata = _createThumbnail();
             if (dirtyMetadata)
             {
-                metadata = iUpdate.saveAndReturnObject(metadata);
+                thumbnailMetadata = iUpdate.saveAndReturnObject(thumbnailMetadata);
             }
 
             // Ensure that we do not have "dirty" pixels or rendering settings 
@@ -638,7 +638,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     /** Actually does the work specified by {@link createThumbnail()}.*/
     private Thumbnail _createThumbnail() {
         StopWatch s1 = new CommonsLogStopWatch("omero._createThumbnail");
-        if (metadata == null) {
+        if (thumbnailMetadata == null) {
             throw new ValidationException("Missing thumbnail metadata.");
         } else if (ctx.dirtyMetadata(pixels.getId())) {
             // Increment the version of the thumbnail so that its
@@ -646,9 +646,9 @@ public class ThumbnailBean extends AbstractLevel2Service
             // the rendering settings. FIXME: This should be 
             // implemented using IUpdate.touch() or similar once that 
             // functionality exists.
-            metadata.setVersion(metadata.getVersion() + 1);
+            thumbnailMetadata.setVersion(thumbnailMetadata.getVersion() + 1);
             Pixels unloadedPixels = new Pixels(pixels.getId(), false);
-            metadata.setPixels(unloadedPixels);
+            thumbnailMetadata.setPixels(unloadedPixels);
             dirtyMetadata = true;
         }
         // dirtyMetadata is left false here because we may be creating a
@@ -657,9 +657,9 @@ public class ThumbnailBean extends AbstractLevel2Service
 
         BufferedImage image = createScaledImage(null, null);
         try {
-            compressThumbnailToDisk(metadata, image);
+            compressThumbnailToDisk(thumbnailMetadata, image);
             s1.stop();
-            return metadata;
+            return thumbnailMetadata;
         } catch (IOException e) {
             log.error("Thumbnail could not be compressed.", e);
             throw new ResourceError(e.getMessage());
@@ -679,7 +679,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         {
             List<Thumbnail> thumbnails = ctx.loadAllMetadata(pixelsId);
             for (Thumbnail thumbnail : thumbnails) {
-                metadata = thumbnail;
+                thumbnailMetadata = thumbnail;
                 _createThumbnail();
             }
             // We're doing the update or creation and save as a two step 
@@ -758,6 +758,10 @@ public class ThumbnailBean extends AbstractLevel2Service
         List<Thumbnail> toSave = new ArrayList<Thumbnail>();
         for (Long pixelsId : pixelsIds)
         {
+            // Ensure that the renderer has been made dirty otherwise the
+            // same renderer will be used to return all thumbnails with dirty
+            // metadata. (See #2075).
+            resetMetadata();
             try
             {
                 if (!ctx.hasSettings(pixelsId))
@@ -767,14 +771,14 @@ public class ThumbnailBean extends AbstractLevel2Service
                 pixels = ctx.getPixels(pixelsId);
                 pixelsId = pixels.getId();
                 settings = ctx.getSettings(pixelsId);
-                metadata = ctx.getMetadata(pixelsId);
+                thumbnailMetadata = ctx.getMetadata(pixelsId);
                 try
                 {
                     byte[] thumbnail = retrieveThumbnail();
                     toReturn.put(pixelsId, thumbnail);
                     if (dirtyMetadata)
                     {
-                        toSave.add(metadata);
+                        toSave.add(thumbnailMetadata);
                     }
                 }
                 finally
@@ -821,7 +825,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         Set<Long> pixelsIds = new HashSet<Long>();
         pixelsIds.add(pixelsId);
         ctx.loadAndPrepareMetadata(pixelsIds, dimensions);
-        metadata = ctx.getMetadata(pixelsId);
+        thumbnailMetadata = ctx.getMetadata(pixelsId);
         return retrieveThumbnailAndUpdateMetadata(); 
     }
 
@@ -837,7 +841,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         {
             try
             {
-                iUpdate.saveObject(metadata);
+                iUpdate.saveObject(thumbnailMetadata);
             }
             finally
             {
@@ -871,7 +875,7 @@ public class ThumbnailBean extends AbstractLevel2Service
                 }
                 _createThumbnail();
             }
-            byte[] thumbnail = ioService.getThumbnail(metadata);
+            byte[] thumbnail = ioService.getThumbnail(thumbnailMetadata);
             return thumbnail;
         }
         catch (IOException e)
@@ -903,7 +907,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         Set<Long> pixelsIds = new HashSet<Long>();
         pixelsIds.add(pixelsId);
         ctx.loadAndPrepareMetadata(pixelsIds, size);
-        metadata = ctx.getMetadata(pixelsId);
+        thumbnailMetadata = ctx.getMetadata(pixelsId);
         return retrieveThumbnailAndUpdateMetadata();
     }
 
@@ -938,7 +942,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         errorIfNullPixelsAndRenderingDef();
         // Set defaults and sanity check thumbnail sizes
         Dimension dimensions = sanityCheckThumbnailSizes(sizeX, sizeY);
-        metadata = ctx.createThumbnailMetadata(pixels, dimensions);
+        thumbnailMetadata = ctx.createThumbnailMetadata(pixels, dimensions);
 
         BufferedImage image = createScaledImage(theZ, theT);
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();

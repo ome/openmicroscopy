@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ome.api.IPixels;
+import ome.api.IRenderingSettings;
 import ome.api.ThumbnailStore;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
@@ -65,6 +66,9 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
             re.load();
         }
     }
+    //
+    // XXX: Complex *interaction* thumbnail tests are in ThumbnailServiceTest
+    //
 
     @Test(groups = "ticket:1205")
     public void testSaveRenderingSettingsFails() {
@@ -216,70 +220,6 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
         re.saveCurrentSettings();
         re.setChannelWindow(0, 0.0, 2.0);
         re.saveCurrentSettings();
-    }
-
-    @Test(groups = {"ticket:2302"})
-    public void testUserViewsOwnUpdatedThumbnailByLongestSideSet()
-        throws Exception {
-        loginNewUser();
-        Pixels pix = makePixels();
-        System.err.println("PIXELS ID: " + pix.getId());
-        final ServiceFactory sf = this.factory;
-        RenderingEngine re = sf.createRenderingEngine();
-        ThumbnailStore tb = sf.createThumbnailService();
-        re.lookupPixels(pix.getId());
-        assertTrue(re.lookupRenderingDef(pix.getId()));
-        re.load();
-        List<RenderingModel> models = re.getAvailableModels();
-        RenderingModel rgbModel = getModel(models, "rgb");
-        RenderingModel greyscaleModel = getModel(models, "greyscale");
-        assertEquals(greyscaleModel.getId(), re.getModel().getId());
-        Map<Long, byte[]> thumbnails = tb.getThumbnailByLongestSideSet(
-                96, Collections.singleton(pix.getId()));
-        assertEquals(1, thumbnails.size());
-        byte[] before = thumbnails.get(pix.getId());
-        assertNotNull(before);
-        re.setModel(rgbModel);
-        assertEquals(rgbModel.getId(), re.getModel().getId());
-        re.saveCurrentSettings();
-        thumbnails = tb.getThumbnailByLongestSideSet(
-                96, Collections.singleton(pix.getId()));
-        assertEquals(1, thumbnails.size());
-        byte[] after = thumbnails.get(pix.getId());
-        assertNotNull(after);
-        assertTrue(before.length != after.length);
-    }
-
-    @Test(groups = {"ticket:2302"})
-    public void testUserViewsOwnUpdatedThumbnailSet()
-        throws Exception {
-        loginNewUser();
-        Pixels pix = makePixels();
-        System.err.println("PIXELS ID: " + pix.getId());
-        final ServiceFactory sf = this.factory;
-        RenderingEngine re = sf.createRenderingEngine();
-        ThumbnailStore tb = sf.createThumbnailService();
-        re.lookupPixels(pix.getId());
-        assertTrue(re.lookupRenderingDef(pix.getId()));
-        re.load();
-        List<RenderingModel> models = re.getAvailableModels();
-        RenderingModel rgbModel = getModel(models, "rgb");
-        RenderingModel greyscaleModel = getModel(models, "greyscale");
-        assertEquals(greyscaleModel.getId(), re.getModel().getId());
-        Map<Long, byte[]> thumbnails = tb.getThumbnailSet(
-                96, 96, Collections.singleton(pix.getId()));
-        assertEquals(1, thumbnails.size());
-        byte[] before = thumbnails.get(pix.getId());
-        assertNotNull(before);
-        re.setModel(rgbModel);
-        assertEquals(rgbModel.getId(), re.getModel().getId());
-        re.saveCurrentSettings();
-        thumbnails = tb.getThumbnailSet(
-                96, 96, Collections.singleton(pix.getId()));
-        assertEquals(1, thumbnails.size());
-        byte[] after = thumbnails.get(pix.getId());
-        assertNotNull(after);
-        assertTrue(before.length != after.length);
     }
 
     @Test(groups = {"ticket:1801"},
@@ -816,15 +756,6 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
 
     private long syntheticImage() {
         throw new UnsupportedOperationException();
-    }
-
-    private RenderingModel getModel(List<RenderingModel> models, String value) {
-        for (RenderingModel model : models) {
-            if (model.getValue().equals(value)) {
-                return model;
-            }
-        }
-        throw new RuntimeException("Could not find model: " + value);
     }
 
     private void deleteRenderingSettings(Pixels pix) {
