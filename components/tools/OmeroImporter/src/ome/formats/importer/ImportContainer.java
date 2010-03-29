@@ -32,6 +32,12 @@ public class ImportContainer
      */
     public List<Pixels> bfPixels;
 
+    /**
+     * Image names populated for each of the Images that Bio-Formats has
+     * detected.
+     */    
+    public List<String> bfImageNames;
+
     private Boolean archive;
     private Double[] userPixels;
     private String userSpecifiedImageName;

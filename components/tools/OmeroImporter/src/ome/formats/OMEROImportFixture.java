@@ -82,6 +82,7 @@ public class OMEROImportFixture {
      * null. Also attempts to call {@link FormatReader#close()}.
      */
     public void tearDown() {
+        this.store.logout();
         this.store = null;
         this.library = null;
         try {

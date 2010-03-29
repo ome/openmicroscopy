@@ -347,6 +347,7 @@ public class ImportCandidates extends DirectoryWalker {
                         null, false, null, format, usedFiles, isSPW);
                 ic.bfImageCount = reader.getSeriesCount();
                 ic.bfPixels = getPixelsWithDimensions();
+                ic.bfImageNames = getImageNames();
                 return ic;
             } finally {
                 readerTime += (System.currentTimeMillis() - start);
@@ -364,6 +365,19 @@ public class ImportCandidates extends DirectoryWalker {
 
         return null;
 
+    }
+
+    /**
+     * Retrieves Image names for each image that Bio-Formats has detected.
+     * @return See A list of Image names, in the order of <i>series</i>.
+     */
+    private List<String> getImageNames() {
+        List<String> toReturn = new ArrayList<String>();
+        for (int i = 0; i < reader.getSeriesCount(); i++) {
+            reader.setSeries(i);
+            toReturn.add("THE NAME");  // FIXME: Need a special MetadataStore
+        }
+        return toReturn;
     }
 
     /**
