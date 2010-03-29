@@ -34,7 +34,9 @@ public class ImportContainer
 
     /**
      * Image names populated for each of the Images that Bio-Formats has
-     * detected.
+     * detected.<b>NOTE</b> This list may be sparse, contain <code>null</code>
+     * values or empty length strings. Caution should be exercised when
+     * working directly with this metadata.
      */    
     public List<String> bfImageNames;
 
