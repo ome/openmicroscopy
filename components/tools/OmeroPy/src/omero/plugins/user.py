@@ -44,6 +44,7 @@ class UserControl(BaseControl):
 	import omero, Ice
         from omero.rtypes import rstring
 	from omero_model_ExperimenterI import ExperimenterI as Exp
+	from omero_model_ExperimenterGroupI import ExperimenterGroupI as Grp
         c = self.ctx.conn(args)
 	p = c.ic.getProperties()
 	e = Exp()
@@ -54,10 +55,15 @@ class UserControl(BaseControl):
 	e.email = email and rstring(email) or None
 	e.institution = inst and rstring(inst) or None
 	admin = c.getSession().getAdminService()
-	id = admin.createUser(e, group)
-	self.ctx.out("Added user "+str(id))
-        if pasw:
-            admin.changeUserPassword(id, rstring(pasw))
+
+        group = admin.lookupGroup(group)
+        if pasw is None:
+            id = admin.createUser(e, group)
+            self.ctx.out("Added user %s" % id)
+        else:
+            user_group = Grp(admin.getSecurityRoles().userGroupId, False)
+            id = admin.createExperimenterWithPassword(e, rstring(pasw), group, [user_group])
+            self.ctx.out("Added user %s with password" % id)
 
 register("user", UserControl)
 
