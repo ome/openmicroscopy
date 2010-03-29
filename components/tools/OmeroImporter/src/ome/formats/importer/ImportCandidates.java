@@ -25,6 +25,7 @@ import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.MissingLibraryException;
 import loci.formats.UnknownFormatException;
+import ome.formats.ImageNameMetadataStore;
 import ome.formats.importer.util.ErrorHandler;
 import omero.model.Pixels;
 import omero.model.PixelsI;
@@ -336,6 +337,7 @@ public class ImportCandidates extends DirectoryWalker {
             try {
                 setids++;
                 reader.close();
+                reader.setMetadataStore(new ImageNameMetadataStore());
                 reader.setMetadataCollected(METADATA);
                 reader.setId(path);
                 format = reader.getFormat();
@@ -373,9 +375,10 @@ public class ImportCandidates extends DirectoryWalker {
      */
     private List<String> getImageNames() {
         List<String> toReturn = new ArrayList<String>();
+        Map<Integer, String> imageNames = ((ImageNameMetadataStore)
+                reader.getMetadataStore()).getImageNames();
         for (int i = 0; i < reader.getSeriesCount(); i++) {
-            reader.setSeries(i);
-            toReturn.add("THE NAME");  // FIXME: Need a special MetadataStore
+            toReturn.add(imageNames.get(i));
         }
         return toReturn;
     }
