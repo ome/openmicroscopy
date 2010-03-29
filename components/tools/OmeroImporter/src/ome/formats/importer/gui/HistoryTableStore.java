@@ -1,3 +1,31 @@
+/*
+ * ome.formats.importer.gui.History
+ *
+ *------------------------------------------------------------------------------
+ *
+ *  Copyright (C) 2005 Open Microscopy Environment
+ *      Massachusetts Institute of Technology,
+ *      National Institutes of Health,
+ *      University of Dundee
+ *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *------------------------------------------------------------------------------
+ */
 package ome.formats.importer.gui;
 
 import java.io.File;
@@ -26,6 +54,10 @@ import org.apache.commons.logging.LogFactory;
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
 
+/**
+ * @author Brian W. Loranger
+ *
+ */
 public class HistoryTableStore extends HistoryTableAbstractDataSource
 {
 	private static String SERVER = "server";
@@ -67,6 +99,12 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     private Column[] itemColumns;
 	private static long lastUid;
 
+    /**
+     * Initialize the needed store services
+     * 
+     * @param store - OMEROmetadataStore
+     * @throws ServerError - returned server error if unable to contact server
+     */
     public void initialize(OMEROMetadataStoreClient store) throws ServerError {
     	this.store = store;
         this.sf = store.getServiceFactory();
@@ -83,8 +121,13 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     	initializeBaseTable();
     	initializeItemTable();
     }
-    
-    // Creates a number of empty rows of [rows] size for the base history table
+     
+    /**
+     * Creates a number of empty rows of [rows] size for the base history table
+     * 
+     * @param rows to add to column array (int)
+     * @return new bae column array
+     */
     private Column[] createBaseColumns(int rows) {
         Column[] newColumns = new Column[3];
         newColumns[BASE_UID_COLUMN] = new LongColumn("Uid", "", new long[rows]);
@@ -93,7 +136,12 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         return newColumns;
     }
     
-    // Creates a number of empty rows of [rows] size for the item history table
+    /**
+     * Creates a number of empty rows of [rows] size for the item history table
+     * 
+     * @param rows to add to column array (int)
+     * @return new item column array
+     */
     private Column[] createItemColumns(int rows) {
         Column[] newColumns = new Column[8];
         newColumns[ITEM_BASE_UID_COLUMN] = new LongColumn("BaseUid", "", new long[rows]);
@@ -107,6 +155,11 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         return newColumns;
     }
     
+    /**
+     * Initialize a new base table or connect to exist one
+     * 
+     * @throws ServerError
+     */
     private void initializeBaseTable() throws ServerError 
     {
         List<OriginalFile> baseFiles = getOriginalFiles(baseDBNAME);
@@ -145,7 +198,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     }
     
     /**
-     * Initialize the item table
+     * Initialize the item table (or connect to existing one)
      * 
      * @throws ServerError
      */
@@ -369,6 +422,8 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     }
             
     /**
+     * add a row of information to the item table
+     * 
      * @param baseUid
      * @param fileName
      * @param fileNumber

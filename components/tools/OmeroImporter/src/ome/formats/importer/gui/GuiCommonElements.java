@@ -468,6 +468,17 @@ public class GuiCommonElements
         return button;
     }
     
+    /**
+     * Add a button
+     * 
+     * @param container - parent container
+     * @param label - button label
+     * @param mnemonic - button mnemonic
+     * @param tooltip - button tool tip
+     * @param placement - TableLayout placement in parent container
+     * @param debug - turn on/off red debug borders
+     * @return JButton
+     */
     public static JButton addButton(Container container, String label,
             int mnemonic, String tooltip, String placement, boolean debug)
     {
@@ -484,6 +495,20 @@ public class GuiCommonElements
         return button;
     }
     
+    /**
+     * Add a button with an icon in it
+     * 
+     * @param container - parent container
+     * @param label - button label
+     * @param image - button image
+     * @param width - button width
+     * @param height - button height
+     * @param mnemonic - button mnemonic
+     * @param tooltip - tool tip for button
+     * @param placement - TableLayout placement in parent container
+     * @param debug - turn on/off red debug borders
+     * @return JButton with image
+     */
     public static JButton addIconButton(Container container, String label, String image,
             Integer width, Integer height, Integer mnemonic, String tooltip, String placement, 
             boolean debug)
@@ -532,7 +557,80 @@ public class GuiCommonElements
         
         return button;
     }
+
+    /**
+     * Fires a button click when using the enter key
+     * 
+     * @param button to press when enter is pressed
+     */
+    public static void enterPressesWhenFocused(JButton button) {
+
+        button.registerKeyboardAction(
+            button.getActionForKeyStroke(
+                KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false)), 
+                KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, false), 
+                JComponent.WHEN_FOCUSED);
+
+        button.registerKeyboardAction(
+            button.getActionForKeyStroke(
+                KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, true)), 
+                KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, true), 
+                JComponent.WHEN_FOCUSED);
+
+    }
     
+    /**
+     * Add a radio button (with label) to parent container 
+     * 
+     * @param container - parent container
+     * @param label - radio button label
+     * @param mnemonic - mnemonic for button
+     * @param tooltip - button tool tip
+     * @param placement - TableLayout placement of button in parent container
+     * @param debug - turn on/off red debug borders
+     * @return JRadioButton
+     */
+    public static JRadioButton addRadioButton(Container container, String label, 
+            int mnemonic, String tooltip, String placement, boolean debug)
+    {
+        JRadioButton button = new JRadioButton(label);
+        container.add(button, placement);  
+        button.setOpaque(false);
+        return button;
+        
+    }
+
+    /**
+     * Add a check box (with label) to parent container 
+     * 
+     * @param container - parent container
+     * @param label - check box label
+     * @param placement - TableLayout placement in parent container
+     * @param debug - turn on/off red debug borders
+     * @return JCheckBox
+     */
+    public static JCheckBox addCheckBox(Container container, 
+            String label, String placement, boolean debug)
+    {
+        JCheckBox checkBox = new JCheckBox(label);
+        container.add(checkBox, placement);
+        checkBox.setOpaque(false);
+        return checkBox;
+    }
+    
+    /**
+     * Add a combo box (with label) to parent container
+     * 
+     * @param container - parent container
+     * @param label - combo box label
+     * @param initialValues - initial value for combo box
+     * @param mnemonic - combo box mnemonic
+     * @param tooltip - tool tip for combo box
+     * @param labelWidth - width of label
+     * @param placement - TableLayout placement in parent container
+     * @param debug - turn on/off red debug borders
+     * @return JComboBox
+     */
     public static JComboBox addComboBox(Container container, String label,
          Object[] initialValues, int mnemonic, String tooltip, 
          double labelWidth, String placement, boolean debug)
@@ -562,43 +660,13 @@ public class GuiCommonElements
         result.setOpaque(false);
         return result;
     }
-
-    public static JRadioButton addRadioButton(Container container, String label, 
-            int mnemonic, String tooltip, String placement, boolean debug)
-    {
-        JRadioButton button = new JRadioButton(label);
-        container.add(button, placement);  
-        button.setOpaque(false);
-        return button;
-        
-    }
-
-    public static JCheckBox addCheckBox(Container container, 
-            String string, String placement, boolean debug)
-    {
-        JCheckBox checkBox = new JCheckBox(string);
-        container.add(checkBox, placement);
-        checkBox.setOpaque(false);
-        return checkBox;
-    }
-
-    // Fires a button click when using the enter key
-    public static void enterPressesWhenFocused(JButton button) {
-
-        button.registerKeyboardAction(
-            button.getActionForKeyStroke(
-                KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false)), 
-                KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, false), 
-                JComponent.WHEN_FOCUSED);
-
-        button.registerKeyboardAction(
-            button.getActionForKeyStroke(
-                KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, true)), 
-                KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, true), 
-                JComponent.WHEN_FOCUSED);
-
-    }
     
+    /**
+     * Small helper class to return an imageIcon from a string path
+     * 
+     * @param path - imgURL path string
+     * @return ImageIcon from path
+     */
     public static ImageIcon getImageIcon(String path)
     {
         java.net.URL imgURL = GuiImporter.class.getResource(path);
@@ -608,11 +676,13 @@ public class GuiCommonElements
     }
 
     /**
-     * @param frame
-     * @param message
-     * @return
+     * Quit Confirmation pop up dialog
+     * 
+     * @param parent - parent component
+     * @param message - message to use instead of default
+     * @return boolean if quit (true) or cancel dialog (false)
      */
-    public static boolean quitConfirmed(Component frame, String message) {
+    public static boolean quitConfirmed(Component parent, String message) {
         if (message == null)
         {
             message = "Do you really want to quit?\n" +
@@ -621,7 +691,7 @@ public class GuiCommonElements
         String s1 = "Quit";
         String s2 = "Don't Quit";
         Object[] options = {s1, s2};
-        int n = JOptionPane.showOptionDialog(frame,
+        int n = JOptionPane.showOptionDialog(parent,
                 message,
                 "Quit Confirmation",
                 JOptionPane.YES_NO_OPTION,

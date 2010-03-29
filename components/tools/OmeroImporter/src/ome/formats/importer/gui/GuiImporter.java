@@ -1,12 +1,22 @@
 /*
- * ome.formats.importer.gui.GuiImporter
+ * ome.formats.importer.gui.GuiCommonElements
  *
  *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
- *  Copyright (C) 2005 Open Microscopy Environment
- *      Massachusetts Institute of Technology,
- *      National Institutes of Health,
- *      University of Dundee
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *------------------------------------------------------------------------------
  */
@@ -79,7 +89,6 @@ import org.openmicroscopy.shoola.util.ui.login.ScreenLogo;
 /**
  * @author Brian W. Loranger
  */
-
 public class GuiImporter extends JFrame 
 implements  ActionListener, WindowListener, IObserver, PropertyChangeListener, 
 WindowStateListener, WindowFocusListener
@@ -158,6 +167,8 @@ WindowStateListener, WindowFocusListener
 
     /**
      * Main entry class for the application
+     * 
+     * @param config - ImportConfig file
      */
     public GuiImporter(ImportConfig config)
     {
@@ -376,7 +387,9 @@ WindowStateListener, WindowFocusListener
         //displayLoginDialog(this, true);
     }
 
-    // save ini file and gui settings on exist
+    /**
+     * save ini file and gui settings on exist
+     */
     protected void shutdown()
     {
         log.debug("Shutdown called");
@@ -403,6 +416,11 @@ WindowStateListener, WindowFocusListener
         }
     }
 
+    /**
+     * @param msg
+     * @param ex
+     * @param secs
+     */
     private void waitOnExecutor(String msg, ScheduledExecutorService ex,
             int secs) {
         try {
@@ -416,7 +434,9 @@ WindowStateListener, WindowFocusListener
         }
     }
 
-    /* Fixes menu issues with the about this app quit functions on mac */
+    /**
+     * Fixes menu issues with the about this app quit functions on mac
+     */
     private void macMenuFix()
     {
         try {
@@ -431,7 +451,9 @@ WindowStateListener, WindowFocusListener
     }
 
     /**
-     * @param s This method appends data to the output window.
+     * This method appends data to the output window
+     * 
+     * @param s - text to append
      */
     public void appendToOutput(String s)
     {
@@ -456,7 +478,9 @@ WindowStateListener, WindowFocusListener
     }
 
     /**
-     * @param s Append to the output window and add a line return
+     * Append to the output window and add a line return
+     * 
+     * @param s - text to append
      */
     public void appendToOutputLn(String s)
     {
@@ -464,7 +488,9 @@ WindowStateListener, WindowFocusListener
     }
 
     /**
-     * @param s This method appends data to the output window.
+     * This method appends data to the output window.
+     * 
+     * @param s - string to append
      */
     public void appendToDebug(String s)
     {
@@ -491,13 +517,20 @@ WindowStateListener, WindowFocusListener
     }
 
     /**
-     * @param s Append to the output window and add a line return
+     * Append to the output window and add a line return
+     * 
+     * @param s - string to append
      */
     public void appendToDebugLn(String s)
     {
         appendToDebug(s + "\n");
     }
 
+    /**
+     * Handle action events
+     * 
+     * @param event
+     */
     public void actionPerformed(ActionEvent event)
     {
         String cmd = event.getActionCommand();
@@ -568,10 +601,12 @@ WindowStateListener, WindowFocusListener
     }
 
     /**
+     * This function strips out the unwanted sections of the keywords
+     * used for the version number and build time variables, leaving
+     * only the stuff we want.
+     *         
      * @param keyword
-     * @return This function strips out the unwanted sections of the keywords
-     *         used for the version number and build time variables, leaving
-     *         only the stuff we want.
+     * @return parsed String
      */
     public static String getPrintableKeyword(String keyword)
     {
@@ -580,14 +615,20 @@ WindowStateListener, WindowFocusListener
         return keyword.substring(begin, end);
     }
 
-    /** Toggles wait cursor. */
+    /**
+     * Toggles wait cursor.
+     * 
+     * @param wait
+     */
     public void waitCursor(boolean wait)
     {
         setCursor(wait ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : null);
     }
 
     /**
-     * @param toggle boolean toggle for the import menu
+     * Toggle the import login/logout menu item
+     * 
+     * @param toggle - boolean toggle (true is logged in)
      */
     public void setImportEnabled(boolean toggle)
     {
@@ -613,66 +654,18 @@ WindowStateListener, WindowFocusListener
         helpMenu.setEnabled(toggle);
     }
 
-    public void windowClosing(WindowEvent e)  
-    {
-        if (GuiCommonElements.quitConfirmed(this, null) == true)
-        {
-            System.exit(0);
-        }
-    }
-
-    public void windowActivated(WindowEvent e)  {}
-    public void windowClosed(WindowEvent e)  {}
-    public void windowDeactivated(WindowEvent e)  {}
-    public void windowDeiconified(WindowEvent e)  {}
-    public void windowIconified(WindowEvent e)  {}
-    public void windowOpened(WindowEvent e) {}
-
     /**
-     * @param args Start up the application, display the main window and the
-     *            login dialog.
+     * @return
      */
-    public static void main(String[] args)
-    {  
-        LogAppenderProxy.configure(new File(IniFileLoader.LOGFILE));
-        ImportConfig config = new ImportConfig(args.length > 0 ? new File(args[0]) : null);
-        config.configureDebug(null); // Uses ini
-        
-        config.loadAll();
-        config.loadGui();
-        USE_QUAQUA = config.getUseQuaqua();
-        
-        String laf = UIManager.getSystemLookAndFeelClassName() ;
-
-        //laf = "ch.randelshofer.quaqua.QuaquaLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
-        //laf = "javax.swing.plaf.metal.MetalLookAndFeel";
-
-        if (laf.equals("apple.laf.AquaLookAndFeel") && USE_QUAQUA)
-        {
-            System.setProperty("Quaqua.design", "panther");
-
-            try {
-                UIManager.setLookAndFeel("ch.randelshofer.quaqua.QuaquaLookAndFeel");
-            } catch (Exception e) { System.err.println(laf + " not supported.");}
-        } else {
-            try {
-                UIManager.setLookAndFeel(laf);
-            } catch (Exception e) 
-            { System.err.println(laf + " not supported."); }
-        }
-
-        new GuiImporter(config);
-    }
-
     public static Point getSplashLocation()
     {
         return null;
         //return splashLocation;
     }
 
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObserver#update(ome.formats.importer.IObservable, ome.formats.importer.ImportEvent)
+     */
     public void update(IObservable importLibrary, ImportEvent event)
     {
         if (event instanceof ImportEvent.LOADING_IMAGE)
@@ -768,7 +761,6 @@ WindowStateListener, WindowFocusListener
             // handled here?
         }
 
-
         else if (event instanceof ImportEvent.ERRORS_PENDING)
         {
             tPane.setIconAt(4, GuiCommonElements.getImageIcon(ERROR_ICON_ANIM));
@@ -793,6 +785,11 @@ WindowStateListener, WindowFocusListener
 
     }
 
+    /**
+     * Display errors in import dialog 
+     * 
+     * @param frame - parent frame
+     */
     private void importErrorsCollected(Component frame)
     {
         final JOptionPane optionPane = new JOptionPane("\nYour import has produced one or more errors, "
@@ -819,6 +816,11 @@ WindowStateListener, WindowFocusListener
         errorDialog.setVisible(true);
     }
 
+    /**
+     * Display errors in candidates dialog
+     * 
+     * @param frame - parent frame
+     */
     public void candidateErrorsCollected(Component frame)
     {
         errors_pending = false;
@@ -846,11 +848,18 @@ WindowStateListener, WindowFocusListener
         errorDialog.setVisible(true);
     }
 
+    /**
+     * Display failed sending errors dialog
+     * 
+     * @param frame - parent frame
+     */
     public void sendingErrorsFailed(Component frame)
     {
         final JOptionPane optionPane = new JOptionPane("\nDue to an error we were not able to send your error messages." +
         		"\nto our feedback server. Please try again.", JOptionPane.WARNING_MESSAGE);
+        
         final JDialog failedDialog = new JDialog(this, "Feedback Failed!", true);
+        
         failedDialog.setContentPane(optionPane);
 
         optionPane.addPropertyChangeListener(
@@ -872,6 +881,9 @@ WindowStateListener, WindowFocusListener
         failedDialog.setVisible(true);
     }
         
+    /* (non-Javadoc)
+     * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+     */
     public void propertyChange(PropertyChangeEvent evt)
     {
         String name = evt.getPropertyName();
@@ -896,8 +908,105 @@ WindowStateListener, WindowFocusListener
 
     }
 
+    /**
+     * Log in using loging credentials supplied
+     * @param lc - login credentials
+     */
     public void login(LoginCredentials lc) {}
+    
+    /* (non-Javadoc)
+     * @see java.awt.event.WindowListener#windowClosing(java.awt.event.WindowEvent)
+     */
+    public void windowClosing(WindowEvent e)  
+    {
+        if (GuiCommonElements.quitConfirmed(this, null) == true)
+        {
+            System.exit(0);
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.WindowListener#windowActivated(java.awt.event.WindowEvent)
+     */
+    public void windowActivated(WindowEvent e)  {}
+    
+    /* (non-Javadoc)
+     * @see java.awt.event.WindowListener#windowClosed(java.awt.event.WindowEvent)
+     */
+    public void windowClosed(WindowEvent e)  {}
+    
+    /* (non-Javadoc)
+     * @see java.awt.event.WindowListener#windowDeactivated(java.awt.event.WindowEvent)
+     */
+    public void windowDeactivated(WindowEvent e)  {}
+    
+    /* (non-Javadoc)
+     * @see java.awt.event.WindowListener#windowDeiconified(java.awt.event.WindowEvent)
+     */
+    public void windowDeiconified(WindowEvent e)  {}
+    
+    /* (non-Javadoc)
+     * @see java.awt.event.WindowListener#windowIconified(java.awt.event.WindowEvent)
+     */
+    public void windowIconified(WindowEvent e)  {}
+    
+    /* (non-Javadoc)
+     * @see java.awt.event.WindowListener#windowOpened(java.awt.event.WindowEvent)
+     */
+    public void windowOpened(WindowEvent e) {}
+    
+    /* (non-Javadoc)
+     * @see java.awt.event.WindowStateListener#windowStateChanged(java.awt.event.WindowEvent)
+     */
     public void windowStateChanged(WindowEvent arg0) {}
+    
+    /* (non-Javadoc)
+     * @see java.awt.event.WindowFocusListener#windowGainedFocus(java.awt.event.WindowEvent)
+     */
     public void windowGainedFocus(WindowEvent arg0) {}
+    
+    /* (non-Javadoc)
+     * @see java.awt.event.WindowFocusListener#windowLostFocus(java.awt.event.WindowEvent)
+     */
     public void windowLostFocus(WindowEvent arg0) {}
+    
+    /**
+     * Start up the application, display the main window and the login dialog.
+     *            
+     * @param args 
+     */
+    public static void main(String[] args)
+    {  
+        LogAppenderProxy.configure(new File(IniFileLoader.LOGFILE));
+        ImportConfig config = new ImportConfig(args.length > 0 ? new File(args[0]) : null);
+        config.configureDebug(null); // Uses ini
+        
+        config.loadAll();
+        config.loadGui();
+        USE_QUAQUA = config.getUseQuaqua();
+        
+        String laf = UIManager.getSystemLookAndFeelClassName() ;
+
+        //laf = "ch.randelshofer.quaqua.QuaquaLookAndFeel";
+        //laf = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+        //laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
+        //laf = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
+        //laf = "javax.swing.plaf.metal.MetalLookAndFeel";
+
+        if (laf.equals("apple.laf.AquaLookAndFeel") && USE_QUAQUA)
+        {
+            System.setProperty("Quaqua.design", "panther");
+
+            try {
+                UIManager.setLookAndFeel("ch.randelshofer.quaqua.QuaquaLookAndFeel");
+            } catch (Exception e) { System.err.println(laf + " not supported.");}
+        } else {
+            try {
+                UIManager.setLookAndFeel(laf);
+            } catch (Exception e) 
+            { System.err.println(laf + " not supported."); }
+        }
+
+        new GuiImporter(config);
+    }
 }

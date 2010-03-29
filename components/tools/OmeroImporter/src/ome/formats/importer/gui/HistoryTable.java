@@ -1,3 +1,31 @@
+/*
+ * ome.formats.importer.gui.History
+ *
+ *------------------------------------------------------------------------------
+ *
+ *  Copyright (C) 2005 Open Microscopy Environment
+ *      Massachusetts Institute of Technology,
+ *      National Institutes of Health,
+ *      University of Dundee
+ *
+ *
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *------------------------------------------------------------------------------
+ */
 package ome.formats.importer.gui;
 
 import info.clearthought.layout.TableLayout;
@@ -52,6 +80,10 @@ import org.apache.commons.logging.LogFactory;
 import org.jdesktop.swingx.JXDatePicker;
 
 
+/**
+ * @author Brian W. Loranger
+ *
+ */
 public class HistoryTable
     extends JPanel
     implements ActionListener, PropertyChangeListener, IObserver, IObservable
@@ -124,6 +156,11 @@ public class HistoryTable
     JList thisMonthList = new JList(historyTaskBar.thisMonth);
     private boolean unknownProjectDatasetFlag;
 
+    /**
+     * Create history table
+     * 
+     * @param viewer- GuiImporter parent
+     */
     HistoryTable(GuiImporter viewer)
     {
         this.viewer = viewer;
@@ -321,6 +358,9 @@ public class HistoryTable
         this.add(mainPanel);
     }
  
+    /**
+     * Clear the history table of all data
+     */
     private void ClearHistory()
     {
         String message = "This will delete your import history. \n" +
@@ -343,6 +383,11 @@ public class HistoryTable
     }
     
    
+    /**
+     * Display base table query in table based on experimenter's id
+     * 
+     * @param ExperimenterID
+     */
     @SuppressWarnings("unchecked")
 	public void getBaseQuery(Long ExperimenterID)
     {   
@@ -376,11 +421,13 @@ public class HistoryTable
     }
     
     /**
-     * @param importID
-     * @param experimenterID
-     * @param queryString
-     * @param from
-     * @param to
+     * Do an item query and return results to table
+     * 
+     * @param importID - base ID
+     * @param experimenterID - experimenter's id
+     * @param queryString - query string for search
+     * @param from - from date of search 
+     * @param to - to date of search
      */
     @SuppressWarnings("unchecked")
 	public void getItemQuery(long importID, long experimenterID, String queryString, Date from, Date to)
@@ -416,7 +463,7 @@ public class HistoryTable
             		if (projectID != 0)
             		{
                         try {
-                            objectName = store().getTarget(Dataset.class, objectID).getName().getValue();
+                            objectName = getStore().getTarget(Dataset.class, objectID).getName().getValue();
                         } catch (Exception e)
                         {
                             objectName = "unknown";
@@ -427,7 +474,7 @@ public class HistoryTable
                         {
                             oldProjectID = projectID;
                             try {
-                                projectName = store().getProject(projectID).getName().getValue();
+                                projectName = getStore().getProject(projectID).getName().getValue();
                             } catch (Exception e)
                             {
                                 projectName = "unknown";
@@ -440,7 +487,7 @@ public class HistoryTable
                     else
                     {
                         try {
-                            objectName = store().getTarget(Screen.class, objectID).getName().getValue();
+                            objectName = getStore().getTarget(Screen.class, objectID).getName().getValue();
                         } catch (Exception e)
                         {
                             objectName = "unknown";
@@ -488,6 +535,9 @@ public class HistoryTable
         }
     }
         
+    /**
+     * Display an access error the db is inaccessible
+     */
     private void displayAccessError()
     {
         if (unknownProjectDatasetFlag) return;
@@ -505,6 +555,9 @@ public class HistoryTable
                 JOptionPane.ERROR_MESSAGE);
     }
 
+    /**
+     * Update the outlook bar with base data for appropriate dates
+     */
     private void updateOutlookBar()
     {
         GregorianCalendar newCal = new GregorianCalendar( );
@@ -527,11 +580,19 @@ public class HistoryTable
         historyTaskBar.updateList(thisMonthList, historyTaskBar.thisMonth, thisMonth);
     }
 
+    /**
+     * Retrieve base history using importkey
+     * 
+     * @param importKey - import key
+     */
     private void getQuickHistory(Integer importKey)
     {
     		getItemQuery(importKey, getExperimenterID(), null, null, null);
     }
 
+    /* (non-Javadoc)
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
     public void actionPerformed(ActionEvent event)
     {
         Object src = event.getSource();
@@ -548,6 +609,9 @@ public class HistoryTable
     }
 
 
+    /* (non-Javadoc)
+     * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+     */
     public void propertyChange(PropertyChangeEvent e)
     {
         String prop = e.getPropertyName();
@@ -561,14 +625,28 @@ public class HistoryTable
             
     }
 
-    private OMEROMetadataStoreClient store() {
+    // TODO: get rid of this
+    /**
+     * Return the OMERO Metadata Store
+     * 
+     * @return - OMEROMetadataStore
+     */
+    private OMEROMetadataStoreClient getStore() {
         return viewer.loginHandler.getMetadataStore();
     }
     
+    /**
+     * Return experiementer's id from store
+     * 
+     * @return - getStore().getExperimenterID()
+     */
     private long getExperimenterID() {
-        return store().getExperimenterID();
+        return getStore().getExperimenterID();
     }
     
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObserver#update(ome.formats.importer.IObservable, ome.formats.importer.ImportEvent)
+     */
     public void update(IObservable importLibrary, ImportEvent event)
     {
         long experimenterID = getExperimenterID();
@@ -581,12 +659,17 @@ public class HistoryTable
 
     // Observable methods
 
-
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#addObserver(ome.formats.importer.IObserver)
+     */
     public boolean addObserver(IObserver object)
     {
         return observers.add(object);
     }
     
+    /* (non-Javadoc)
+     * @see ome.formats.importer.IObservable#deleteObserver(ome.formats.importer.IObserver)
+     */
     public boolean deleteObserver(IObserver object)
     {
         return observers.remove(object);
@@ -604,26 +687,48 @@ public class HistoryTable
         }
     }
 
-    class HistoryTableModel 
-        extends DefaultTableModel 
-        implements TableModelListener {
+    /**
+     * @author Brian W. Loranger
+     *
+     */
+    class HistoryTableModel extends DefaultTableModel implements TableModelListener 
+    {
         
         private static final long serialVersionUID = 1L;
         private String[] columnNames = {"File Name", "Project/Dataset or Screen", "Import Date/Time", "Status", "FilePath", "DatasetID", "ProjectID"};
     
-        public void tableChanged(TableModelEvent arg0) { }
+        /* (non-Javadoc)
+         * @see javax.swing.event.TableModelListener#tableChanged(javax.swing.event.TableModelEvent)
+         */
+        public void tableChanged(TableModelEvent arg0) {}
         
+        /** Always allow rows to be selected
+         * 
+         * @return - true 
+         */
+        public boolean rowSelectionAllowed() { return true; }
+        
+        /* (non-Javadoc)
+         * @see javax.swing.table.DefaultTableModel#getColumnCount()
+         */
         public int getColumnCount() { return columnNames.length; }
     
+        /* (non-Javadoc)
+         * @see javax.swing.table.DefaultTableModel#getColumnName(int)
+         */
         public String getColumnName(int col) { return columnNames[col]; }
         
+        /* (non-Javadoc)
+         * @see javax.swing.table.DefaultTableModel#isCellEditable(int, int)
+         */
         public boolean isCellEditable(int row, int col) { return false; }
-        
-        public boolean rowSelectionAllowed() { return true; }
     }
 
-    public class MyTableHeaderRenderer 
-        extends DefaultTableCellRenderer 
+    /**
+     * @author Brian W. Loranger
+     *
+     */
+    public class MyTableHeaderRenderer extends DefaultTableCellRenderer 
     {
         // This method is called each time a column header
         // using this renderer needs to be rendered.
@@ -656,14 +761,35 @@ public class HistoryTable
         }
         
         // The following methods override the defaults for performance reasons
+        
+        /* (non-Javadoc)
+         * @see javax.swing.table.DefaultTableCellRenderer#validate()
+         */
         public void validate() {}
+        
+        /* (non-Javadoc)
+         * @see javax.swing.table.DefaultTableCellRenderer#revalidate()
+         */
         public void revalidate() {}
+        
+        /* (non-Javadoc)
+         * @see javax.swing.table.DefaultTableCellRenderer#firePropertyChange(java.lang.String, java.lang.Object, java.lang.Object)
+         */
         protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {}
+        
+        /* (non-Javadoc)
+         * @see javax.swing.table.DefaultTableCellRenderer#firePropertyChange(java.lang.String, boolean, boolean)
+         */
         public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {}
     }
 
-    class LeftDotRenderer 
-        extends DefaultTableCellRenderer
+    /**
+     * Create left dot aligned text cell for table
+     * 
+     * @author Brian W. Loranger
+     *
+     */
+    class LeftDotRenderer extends DefaultTableCellRenderer
     {
         private static final long serialVersionUID = 1L;
         public Component getTableCellRendererComponent(
@@ -709,8 +835,13 @@ public class HistoryTable
         }
     }
 
-    public class TextCellCenter
-        extends DefaultTableCellRenderer 
+    /**
+     * Create centered aligned text cell for table
+     * 
+     * @author Brian W. Loranger
+     *
+     */
+    public class TextCellCenter extends DefaultTableCellRenderer 
     {
         // This method is called each time a column header
         // using this renderer needs to be rendered.

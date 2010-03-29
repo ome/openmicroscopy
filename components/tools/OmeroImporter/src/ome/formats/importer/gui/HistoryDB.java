@@ -26,6 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package ome.formats.importer.gui;
 
 import java.io.File;
@@ -48,10 +49,6 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * @author Brian W. Loranger
- *
- */
-/**
- * @author Zapgun
  *
  */
 public class HistoryDB extends HistoryTableAbstractDataSource
@@ -175,6 +172,14 @@ public class HistoryDB extends HistoryTableAbstractDataSource
         conn.close();    // if there are no other open connection
     }
     
+    /**
+     * Retrieve import results from db based on experimenter id
+     * (will return all if experimenterID is -1)
+     * 
+     * @param table - table name
+     * @param experimenterID - experimenter's id
+     * @return
+     */
     public ResultSet getImportResults(String table, Long experimenterID)
     {
         if (experimenterID == -1)
@@ -208,6 +213,22 @@ public class HistoryDB extends HistoryTableAbstractDataSource
         }
     }
 
+    /**
+     * Get a result from the File database 
+     * 
+     * @param db - db to use
+     * @param table - table in db
+     * @param importID - importID supplied from base table
+     * @param experimenterID - experimenter ID
+     * @param string - search term supplied
+     * @param done - include 'done' status files in search results yes/no
+     * @param failed - included 'failed' status files in search results yes/no
+     * @param invalid - include 'invalid' status files in search results yes/no
+     * @param pending - include 'pedning' status files in search results yes/no
+     * @param from - from date for search
+     * @param to - to date for search
+     * @return ResultSet of search
+     */
     public ResultSet getFileResults(HistoryDB db, String table, int importID, 
             Long experimenterID, String string, boolean done, boolean failed, boolean invalid, 
             boolean pending, Date from, Date to)
@@ -304,7 +325,9 @@ public class HistoryDB extends HistoryTableAbstractDataSource
     }
     
     /**
-     * @return last uid used in base table
+     * return the keys generated from the last statement run
+     * 
+     * @return last uid used in base table (as a resultSet)
      * @throws SQLException
      */
     public synchronized ResultSet getGeneratedKeys() throws SQLException {
@@ -356,13 +379,22 @@ public class HistoryDB extends HistoryTableAbstractDataSource
         return result;
     } // updateHistoryStatus()
 
+    /* (non-Javadoc)
+     * @see ome.formats.importer.gui.IHistoryTableDataSource#updateItemStatus(int, int, java.lang.String)
+     */
     public Integer updateItemStatus(int id, int rowNum, String status) throws SQLException
     {
         return update("UPDATE file_table SET status = '" + status + "' WHERE importID = " + id + 
                 " AND rowNum = " + rowNum);       
     } // updateHistoryStatus()
     
-    //use for SQL commands CREATE, DROP, INSERT and UPDATE
+    /**
+     * used for SQL commands CREATE, DROP, INSERT and UPDATE
+     * 
+     * @param expression - SQL expression
+     * @return num of rows returned (int)
+     * @throws SQLException
+     */
     public synchronized int update(String expression) throws SQLException {
 
         Statement st = null;
@@ -380,6 +412,13 @@ public class HistoryDB extends HistoryTableAbstractDataSource
         return i;
     } // Update()
     
+    /**
+     * use for SQL commands CREATE, DROP, INSERT and UPDATE
+     * 
+     * @param expression - SQL expression
+     * @return resultSet from query
+     * @throws SQLException
+     */
     public synchronized ResultSet getQueryResults(String expression) throws SQLException {
         Statement st = null;
 
@@ -435,11 +474,17 @@ public class HistoryDB extends HistoryTableAbstractDataSource
     	return null;
     }
 
+	/* (non-Javadoc)
+	 * @see ome.formats.importer.gui.IHistoryTableDataSource#getBaseQuery(java.lang.Long)
+	 */
 	public Vector<Object> getBaseQuery(Long experimenterID) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 	
+	/* (non-Javadoc)
+	 * @see ome.formats.importer.gui.IHistoryTableDataSource#getItemQuery(java.lang.Long, java.lang.Long, java.lang.String, java.util.Date, java.util.Date)
+	 */
 	public Vector<Object> getItemQuery(Long importID, Long experimenterID,
 			String queryString, Date from, Date to) {
 		// TODO Auto-generated method stub
