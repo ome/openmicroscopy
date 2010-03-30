@@ -1,8 +1,26 @@
 /*
- *   $Id$
+ * ome.services.blitz.repo.PublicRepositoryI
  *
- *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ *
+ * 
  */
 package ome.services.blitz.repo;
 
@@ -81,8 +99,9 @@ import org.springframework.transaction.annotation.Transactional;
 import Ice.Current;
 
 /**
+ * An implementation of he PublicRepository interface
  * 
- * @since Beta4.1
+ * @author Colin Blackburn <cblackburn at dundee dot ac dot uk>
  */
 public class PublicRepositoryI extends _RepositoryDisp {
 
@@ -256,11 +275,9 @@ public class PublicRepositoryI extends _RepositoryDisp {
             conf = config;
         }
         files = filteredFiles(file, conf);
-        
+        oFiles = filesToOriginalFiles(files);
         if (conf.registered) {
-            oFiles = knownOriginalFiles(files);
-        } else {
-            oFiles = filesToOriginalFiles(files);
+            oFiles = knownOriginalFiles(oFiles);
         }
         return oFiles;
     }
@@ -320,13 +337,32 @@ public class PublicRepositoryI extends _RepositoryDisp {
             
             int i = 0;
             set.imageList = new ArrayList<Image>();
+            List<String> iNames = ic.bfImageNames;
             for (Pixels pix : ic.bfPixels)  {
-                Image image = new ImageI();
+                Image image;
+                String imageName;
                 // This needs to be unique ala ticket #1753 currently filename + number
-                image.setName(rstring(set.imageName.concat(String.format("_%03d", i++))));        
-                image.setAcquisitionDate(rtime(java.lang.System.currentTimeMillis()));
-                image.addPixels(pix);
+                if (set.imageCount == 1) {
+                    imageName = set.imageName;
+                } else {
+                    imageName = iNames.get(i);
+                    if (imageName == null) {
+                        imageName = "";
+                    }
+                }
+                
+                if (imageName == "") {
+                    List<Image> iList = getImages(imageName);
+                    if (iList != null && iList.size() != 0) {
+                        image = iList.get(0);
+                    } else {
+                        image = createImage(imageName, pix);   
+                    }
+                } else {
+                    image = createImage(imageName, pix);
+                }
                 set.imageList.add(image);
+                i++;
             }
             rv.add(set);
         }
@@ -579,6 +615,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * @return A list of new OriginalFile objects
      *
      */
+    // NOT USED
     private Map<String, List<IObject>> filesToIObjects(Collection<File> files) {
         Map<String, List<IObject>> rv = new HashMap<String, List<IObject>>();
         for (File f : files) {
@@ -615,6 +652,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * @return A list of File objects
      *
      */
+    // NOT USED
     private List<File> pathsToFiles(Collection<String> paths) {
         List rv = new ArrayList<File>();
         for (String p : paths) {
@@ -625,50 +663,22 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
     
     /**
-     * Get Image objects corresponding to a collection of File objects.
-     * 
-     * @param files
-     *            A collection of File objects.
-     * @return A list of new Image objects
-     *
-     */
-    private List<Image> filesToImages(Collection<File> files) {
-        List rv = new ArrayList<Image>();
-        for (File f : files) {
-            rv.add(createImage(f));
-        }
-        return rv;
-    }
-    
-    /**
-     * Get Pixels objects corresponding to a collection of File objects.
-     * 
-     * @param files
-     *            A collection of File objects.
-     * @return A list of new Image objects
-     *
-     */
-    private List<Pixels> filesToPixels(Collection<File> files) {
-        List rv = new ArrayList<Image>();
-        for (File f : files) {
-            rv.add(createPixels(f));
-        }
-        return rv;
-    }
-    
-    /**
      * Get registered OriginalFile objects corresponding to a collection of File objects.
      * 
      * @param files
-     *            A collection of File objects.
+     *            A collection of OriginalFile objects.
      * @return A list of registered OriginalFile objects. 
      *
      */
-    private List<OriginalFile> knownOriginalFiles(Collection<File> files)  {
+    private List<OriginalFile> knownOriginalFiles(Collection<OriginalFile> files)  {
         List rv = new ArrayList<OriginalFile>();
-        for (File f : files) {
-            List<OriginalFile> fileList = getOriginalFiles(f.getAbsolutePath());
-            rv.addAll(fileList);
+        for (OriginalFile f : files) {
+            List<OriginalFile> fileList = getOriginalFiles(f.getPath().getValue());
+            if (fileList.size() > 0) {
+                rv.add(fileList.get(0));
+            } else {
+                rv.add(f);
+            }
         }
         return rv;
     }
@@ -681,6 +691,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * @return A list of registered Image objects. 
      *
      */
+    // NOT USED
     private List<Image> knownImages(Collection<File> files)  {
         List rv = new ArrayList<Image>();
         for (File f : files) {
@@ -693,22 +704,11 @@ public class PublicRepositoryI extends _RepositoryDisp {
     private  List<ImportContainer> importableImageFiles(Collection<File> files, int depth) {
         List<String> pathList = filesToPaths(files);
         String paths [] = (String []) pathList.toArray (new String [pathList.size()]);        
-        //Map<String, List<String>> importableFiles = new  HashMap<String, List<String>>();
-
         ImportableFiles imp = new ImportableFiles(paths, depth);
         List<ImportContainer> containers = imp.getContainers();
-
-        //for (ImportContainer ic : containers) {
-        //    String name = ic.file.getAbsolutePath();
-        //    importableFiles.put(name, Arrays.asList(ic.usedFiles));
-        //}
         return containers;
     }
 
-
-
-
-    
     /**
      * Create an OriginalFile object corresponding to a File object.
      * 
@@ -743,20 +743,12 @@ public class PublicRepositoryI extends _RepositoryDisp {
      *
      * TODO populate more attribute fields than the few set here.
      */
-    private Image createImage(File f) {
+    private Image createImage(String imageName, Pixels pix) {
         Image image = new ImageI();
-        // This needs to be unique ala ticket #1753
-        image.setName(rstring(f.getAbsolutePath()));        
+        image.setName(rstring(imageName));        
         image.setAcquisitionDate(rtime(java.lang.System.currentTimeMillis()));
+        image.addPixels(pix);
         return image;
-    }
-    
-    private Pixels createPixels(File f) {
-        Pixels pixels = new PixelsI();
-        // This needs to be unique ala ticket #1753
-        //pixels.setName(rstring(f.getAbsolutePath()));        
-        //image.setAcquisitionDate(rtime(java.lang.System.currentTimeMillis()));
-        return pixels;
     }
     
     /**

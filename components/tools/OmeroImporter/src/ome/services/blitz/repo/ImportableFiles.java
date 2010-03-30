@@ -1,8 +1,26 @@
 /*
- *   $Id$
+ * ome.services.blitz.repo.ImportableFiles
  *
- *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ *
+ * 
  */
 package ome.services.blitz.repo;
 
@@ -22,8 +40,8 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  *  A helper class used to obtain the import candidates
- *
- * @since Beta4.1
+ * 
+ * @author Colin Blackburn <cblackburn at dundee dot ac dot uk>
  */
 public class ImportableFiles implements IObserver {
 

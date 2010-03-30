@@ -61,18 +61,14 @@ module omero {
              * need to know what is an original file and what is not yet.
              */
 
-            // These list methods provide all files and/or directories, registered or not.
-            omero::api::OriginalFileList list(string path, RepositoryListConfig config) throws ServerError;
-            //omero::api::OriginalFileList listDirs(string path) throws ServerError;
-            //omero::api::OriginalFileList listFiles(string path) throws ServerError;
-
-            FileSetList listObjects(string path, RepositoryListConfig config) throws ServerError;
+            // A list of all files and/or directories, registered or not depending on cnfig.
+            omero::api::OriginalFileList list(string path, RepositoryListConfig config) 
+                    throws ServerError;
             
-            // These list methods provide only registered files and/or directories.
-            //omero::api::OriginalFileList listKnown(string path) throws ServerError;
-            //omero::api::OriginalFileList listKnownDirs(string path) throws ServerError;
-            //omero::api::OriginalFileList listKnownFiles(string path) throws ServerError;
-
+            // A list of importable and non-importable file sets in a directory depending on config.
+            FileSetList listObjects(string path, RepositoryListConfig config) 
+                    throws ServerError;
+            
             /**
              * Returns the best-guess of the [omero::model::Format] for the given path.
              * If the file is "known" (see [listKnown]), then the format returned will
