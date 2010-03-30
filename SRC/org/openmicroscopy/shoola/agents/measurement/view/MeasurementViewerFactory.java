@@ -211,13 +211,27 @@ public class MeasurementViewerFactory
 	 */
 	public static void saveInstances(List<Object> instances)
 	{
-		if (singleton.viewers.size() == 0) return;
+		//if (singleton.viewers.size() == 0) return;
+		if (instances != null) {
+			Iterator i = instances.iterator();
+			Object o;
+			MeasurementViewerComponent comp;
+			while (i.hasNext()) {
+				o = i.next();
+				if (o instanceof MeasurementViewerComponent) {
+					comp = (MeasurementViewerComponent) o;
+					comp.saveAndDiscard();
+				}
+			}
+		}
+		/*
 		Iterator i = singleton.viewers.iterator();
 		MeasurementViewerComponent comp;
 		while (i.hasNext()) {
 			comp = (MeasurementViewerComponent) i.next();
 			comp.saveAndDiscard();
 		}
+		*/
 	}
 	
 	/**

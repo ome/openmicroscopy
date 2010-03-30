@@ -125,12 +125,17 @@ public class MetadataViewerFactory
 	 */
 	public static void saveInstances(List<Object> instances)
 	{
-		if (singleton.viewers.size() == 0) return;
-		Iterator i = singleton.viewers.iterator();
-		MetadataViewerComponent comp;
-		while (i.hasNext()) {
-			comp = (MetadataViewerComponent) i.next();
-			comp.saveBeforeClose();
+		//if (singleton.viewers.size() == 0) return;
+		if (instances != null) {
+			Iterator i = singleton.viewers.iterator();
+			MetadataViewerComponent comp;
+			Object o;
+			while (i.hasNext()) {
+				o = i.next();
+				if (o instanceof MetadataViewerComponent) {
+					((MetadataViewerComponent) o).saveBeforeClose();
+				}
+			}
 		}
 	}
 	

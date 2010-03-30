@@ -281,13 +281,31 @@ public class ImViewerFactory
 	 */
 	public static void saveInstances(List<Object> instances)
 	{
-		if (singleton.viewers.size() == 0) return;
+		//if (singleton.viewers.size() == 0) return;
+		if (instances != null) {
+			Iterator i = instances.iterator();
+			ImViewerComponent comp;
+			Object o;
+			while (i.hasNext()) {
+				o = i.next();
+				if (o instanceof ImViewerComponent) {
+					comp = (ImViewerComponent) o;
+					comp.close(false);
+					singleton.viewers.remove(comp);
+					singleton.recentViewers.remove(comp);
+				}
+			}
+		}
+		//singleton.viewers.clear();
+		//singleton.recentViewers.clear();
+		/*
 		Iterator i = singleton.viewers.iterator();
 		ImViewerComponent comp;
 		while (i.hasNext()) {
 			comp = (ImViewerComponent) i.next();
 			comp.close(false);
 		}
+		*/
 	}
 	
 	/**
