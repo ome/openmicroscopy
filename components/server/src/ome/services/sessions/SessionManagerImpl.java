@@ -8,6 +8,7 @@ package ome.services.sessions;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -457,6 +458,49 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         return (sessionContext == null) ? null : sessionContext.getSession();
     }
 
+    private final static String findBy1 =
+        "select s.id, s.uuid from Session s " +
+        "join s.owner o where " +
+        "s.closed is null and o.omeName = :name ";
+
+    private final static String findByOrder =
+        "order by s.started desc";
+
+    private List<Session> findByQuery(String query, Parameters p) {
+        List<Object[]> ids_uuids = executeProjection(query, p);
+        List<Session> rv = new ArrayList<Session>();
+        for (Object[] arr : ids_uuids) {
+            String uuid = (String) arr[1];
+            try {
+                SessionContext sc = cache.getSessionContext(uuid, false);
+                rv.add(sc.getSession());
+            } catch (Exception e) {
+                // skip
+            }
+        }
+        return rv;
+    }
+
+    public List<Session> findByUser(String user) {
+        return findByQuery(findBy1 + findByOrder,
+                new Parameters().addString("name", user));
+    }
+
+    public List<Session> findByUserAndAgent(String user, String... agents) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(findBy1);
+        Parameters p = new Parameters().addString("name", user);
+        if (agents == null || agents.length == 0 ||
+                (agents.length == 1  && agents[0] == null)) {
+            sb.append("and s.userAgent is null ");
+        } else {
+            sb.append("and s.userAgent in (:agents) ");
+            p.addList("agents", Arrays.asList(agents));
+        }
+        sb.append(findByOrder);
+        return findByQuery(sb.toString(), p);
+    }
+
     public int getReferenceCount(String uuid) {
         SessionContext ctx = cache.getSessionContext(uuid, true);
         return ctx.refCount();
@@ -843,6 +887,17 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
     // Executor methods
     // =========================================================================
+
+    @SuppressWarnings("unchecked")
+    private List<Object[]> executeProjection(final String projection, final Parameters parameters) {
+        return (List<Object[]>) executor.execute(asroot,
+                new Executor.SimpleWork(this, "executeProjection", projection) {
+                    @Transactional(readOnly = true)
+                    public Object doWork(org.hibernate.Session session, ServiceFactory sf) {
+                        return sf.getQueryService().projection(projection, parameters);
+                    }
+        });
+    }
 
     public boolean executePasswordCheck(final String name,
             final String credentials) {

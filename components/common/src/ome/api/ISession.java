@@ -7,6 +7,7 @@
 
 package ome.api;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -144,6 +145,26 @@ public interface ISession extends ServiceInterface {
      * -2.
      */
     int closeSession(@NotNull Session session);
+
+    // Session listings (ticket:1975)
+
+    /**
+     * Returns a list of open sessions for the current user. The list is ordered
+     * by session creation time, so that the last item was created last.
+     */
+    List<Session> getMyOpenSessions();
+
+    /**
+     * Like {@link #getMyOpenSessions()} but returns only those sessions
+     * with the given agent string.
+     */
+    List<Session> getMyOpenAgentSessions(String agent);
+
+    /**
+     * Like {@link #getMyOpenSessions()} but returns only those sessions
+     * started by official OMERO clients.
+     */
+    List<Session> getMyOpenClientSessions();
 
     // void addNotification(String notification);
     // void removeNotification(String notification);

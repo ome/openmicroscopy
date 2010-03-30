@@ -109,5 +109,11 @@ class TestISession(lib.ITest):
         s.closeOnDestroy()
         c.closeSession()
 
+    def testGetMySessionsTicket1975(self):
+        svc = self.client.sf.getSessionService()
+        svc.getMyOpenSessions()
+        svc.getMyOpenAgentSessions("OMERO.web")
+        svc.getMyOpenClientSessions()
+
 if __name__ == '__main__':
     unittest.main()

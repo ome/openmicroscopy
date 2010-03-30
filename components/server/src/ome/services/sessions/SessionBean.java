@@ -7,6 +7,7 @@
 
 package ome.services.sessions;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -156,6 +157,37 @@ public class SessionBean implements ISession {
         Future<Integer> future = ex.submit(new Callable<Integer>(){
             public Integer call() throws Exception {
                 return mgr.close(session.getUuid());
+            }});
+        return ex.get(future);
+    }
+
+    @RolesAllowed("user")
+    public java.util.List<Session> getMyOpenSessions() {
+        final String user = currentUser();
+        Future<List<Session>> future = ex.submit(new Callable<List<Session>>(){
+            public List<Session> call() throws Exception {
+                return mgr.findByUser(user);
+            }});
+        return ex.get(future);
+    }
+
+    @RolesAllowed("user")
+    public java.util.List<Session> getMyOpenAgentSessions(final String agent) {
+        final String user = currentUser();
+        Future<List<Session>> future = ex.submit(new Callable<List<Session>>(){
+            public List<Session> call() throws Exception {
+                return mgr.findByUserAndAgent(user, agent);
+            }});
+        return ex.get(future);
+    }
+
+    @RolesAllowed("user")
+    public java.util.List<Session> getMyOpenClientSessions() {
+        final String user = currentUser();
+        Future<List<Session>> future = ex.submit(new Callable<List<Session>>(){
+            public List<Session> call() throws Exception {
+                return mgr.findByUserAndAgent(user, "OMERO.insight",
+                        "OMERO.web", "OMERO.importer");
             }});
         return ex.get(future);
     }

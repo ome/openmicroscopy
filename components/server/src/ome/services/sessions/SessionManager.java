@@ -7,6 +7,7 @@
 
 package ome.services.sessions;
 
+import java.util.List;
 import java.util.Map;
 
 import net.sf.ehcache.Ehcache;
@@ -129,6 +130,21 @@ public interface SessionManager extends ApplicationListener {
      *             if a previous call already excised this session
      */
     Session find(String uuid);
+
+    /**
+     *
+     * @param user
+     * @return
+     */
+    List<Session> findByUser(String user);
+
+    /**
+     * Returns a non-null, possibly empty list of session instances
+     * belonging to the given user and with one of the given agents.
+     * If the agent list is empty, then only sessions without agent values
+     * will be returned.
+     */
+    List<Session> findByUserAndAgent(String user, String... agent);
 
     /**
      * If reference count for the session is less than 1, close the session.

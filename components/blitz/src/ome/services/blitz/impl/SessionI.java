@@ -19,6 +19,9 @@ import omero.api.AMD_ISession_createUserSession;
 import omero.api.AMD_ISession_getInput;
 import omero.api.AMD_ISession_getInputKeys;
 import omero.api.AMD_ISession_getInputs;
+import omero.api.AMD_ISession_getMyOpenAgentSessions;
+import omero.api.AMD_ISession_getMyOpenClientSessions;
+import omero.api.AMD_ISession_getMyOpenSessions;
 import omero.api.AMD_ISession_getOutput;
 import omero.api.AMD_ISession_getOutputKeys;
 import omero.api.AMD_ISession_getOutputs;
@@ -146,5 +149,22 @@ public class SessionI extends AbstractAmdServant implements _ISessionOperations 
             Current __current) throws ServerError {
         RTypeMapper mapper = new RTypeMapper(IceMapper.RTYPEDICT);
         callInvokerOnMappedArgs(mapper, __cb, __current, sess);
+    }
+
+    public void getMyOpenAgentSessions_async(
+            AMD_ISession_getMyOpenAgentSessions __cb, String agent,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, agent);
+    }
+
+    public void getMyOpenClientSessions_async(
+            AMD_ISession_getMyOpenClientSessions __cb, Current __current)
+            throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
+    }
+
+    public void getMyOpenSessions_async(AMD_ISession_getMyOpenSessions __cb,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
     }
 }

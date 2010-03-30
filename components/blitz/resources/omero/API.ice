@@ -394,6 +394,11 @@ module omero {
 	                                                    long timeToLiveMilliseconds,
 	                                                    long timeToIdleMilliseconds) throws ServerError;
 
+            // Listing
+            SessionList getMyOpenSessions() throws ServerError;
+            SessionList getMyOpenAgentSessions(string agent) throws ServerError;
+            SessionList getMyOpenClientSessions() throws ServerError;
+
 	    // Environment
 	    omero::RType getInput(string sess, string key) throws ServerError;
 	    omero::RType getOutput(string sess, string key) throws ServerError;
