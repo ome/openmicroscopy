@@ -352,10 +352,17 @@ public class BasicSecuritySystem implements SecuritySystem,
             }
         }
 
+        // public groups (ticket:1940)
         if (!isAdmin && !ec.getMemberOfGroupsList().contains(grp.getId())) {
-            throw new SecurityViolation(String.format(
+            // Only force loading the group if we would otherwise throw an exception.
+            // The extra performance hit on READ is just the price of browsing
+            // public data
+            ExperimenterGroup publicGroup = admin.groupProxy(groupId);
+            if (!publicGroup.getDetails().getPermissions().isGranted(Role.WORLD, Right.READ)) {
+                throw new SecurityViolation(String.format(
                     "User %s is not a member of group %s and cannot login",
                             ec.getCurrentUserId(), grp.getId()));
+            }
         }
         tokenHolder.setToken(grp.getGraphHolder());
 

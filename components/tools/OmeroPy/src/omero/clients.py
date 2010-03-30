@@ -218,9 +218,11 @@ class BaseClient(object):
         # Dump properties
         dump = id.properties.getProperty("omero.dump")
         if len(dump) > 0:
-            for prefix in ["omero","Ice"]:
-                for k,v in id.properties.getPropertiesForPrefix(prefix).items():
-                    print "%s=%s" % (k,v)
+            m = self.getPropertyMap(id.properties)
+            keys = list(m.keys())
+            keys.sort()
+            for key in keys:
+                print "%s=%s" % (key, m[key])
 
         self.__lock.acquire()
         try:
@@ -323,6 +325,17 @@ class BaseClient(object):
         Returns the property for the given key or "" if none present
         """
         return self.getProperties().getProperty(key)
+
+    def getPropertyMap(self, properties = None):
+
+        if properties is None:
+            properties = self.getProperties()
+
+        rv = dict()
+        for prefix in ["omero","Ice"]:
+            for k,v in properties.getPropertiesForPrefix(prefix).items():
+                rv[k] = v
+        return rv
 
     def joinSession(self, session):
         """

@@ -14,6 +14,7 @@ import omero
 from omero_model_PermissionsI import PermissionsI
 from omero_model_ImageI import ImageI
 from omero_model_DatasetI import DatasetI
+from omero_model_TagAnnotationI import TagAnnotationI
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
@@ -21,7 +22,31 @@ from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero.rtypes import *
 
 class TestAdmin(lib.ITest):
-    
+
+    def testLoginToPublicGroupTicket1940(self):
+        # As root create a new group
+        from uuid import uuid4
+        uuid = str(uuid4())
+        g = ExperimenterGroupI()
+        g.name = rstring(uuid)
+        g.details.permissions = PermissionsI("rwrwrw")
+        gid = self.root.sf.getAdminService().createGroup(g)
+
+        # As a regular user, login to that group
+        rv = self.root.getPropertyMap()
+        ec = self.client.sf.getAdminService().getEventContext()
+        public_client = omero.client(rv)
+        public_client.getImplicitContext().put("omero.group", uuid)
+        sf = public_client.createSession(ec.userName, "foo")
+        ec = sf.getAdminService().getEventContext()
+        self.assertEquals(uuid, ec.groupName)
+
+        # But can the user write anything?
+        tag = TagAnnotationI()
+        sf.getUpdateService().saveObject(tag)
+        # And link?
+        # And edit? cF. READ-ONLY & READ-LINK
+
     def testCreatAndUpdatePrivateGroup(self):
         # this is the test of creating private group and updating it
         # including changes in #1434
@@ -186,13 +211,18 @@ class TestAdmin(lib.ITest):
         new_exp1.firstName = rstring("New")
         new_exp1.lastName = rstring("Test")
         new_exp1.email = rstring("newtest@emaildomain.com")
-        
-        defaultGroup = admin.lookupGroup("default")
+
+        from uuid import uuid4
+        uuid = str(uuid4())
+        uuidGroup = ExperimenterGroupI()
+        uuidGroup.name = rstring(uuid)
+        uuidGroupId = admin.createGroup(uuidGroup)
+        uuidGroup = ExperimenterGroupI(uuidGroupId, False)
         listOfGroups = list()
         listOfGroups.append(admin.lookupGroup("user"))
-        eid1 = admin.createExperimenterWithPassword(new_exp1, rstring("ome"), defaultGroup, listOfGroups)
+        eid1 = admin.createExperimenterWithPassword(new_exp1, rstring("ome"), uuidGroup, listOfGroups)
         exp1 = admin.getExperimenter(eid1)
-        
+
         #set owner of the group (user is not a member of)
         admin.addGroupOwners(gr1, [exp1])
         # chech if is the leader
