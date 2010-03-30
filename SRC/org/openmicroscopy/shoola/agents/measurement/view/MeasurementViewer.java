@@ -252,9 +252,6 @@ public interface MeasurementViewer
 	 * 						tool.
 	 */
 	public void createSingleFigure(boolean createSingleFig);
-
-	/** Saves the roi data and discards. */
-	public void saveAndDiscard();
 	
 	/** Moves the window to the front. */
     public void toFront();

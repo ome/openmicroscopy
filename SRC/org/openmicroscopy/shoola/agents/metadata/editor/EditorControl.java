@@ -402,7 +402,8 @@ class EditorControl
 				PreviewPanel.PREVIEW_EDITED_PROPERTY.equals(name)) {
 			view.setDataToSave(view.hasDataToSave());
 		} else if (MetadataViewer.SAVE_DATA_PROPERTY.equals(name)) {
-			view.saveData();
+			Boolean b = (Boolean) evt.getNewValue();
+			view.saveData(b.booleanValue());
 		} else if (MetadataViewer.CLEAR_SAVE_DATA_PROPERTY.equals(name) ||
 				MetadataViewer.ON_DATA_SAVE_PROPERTY.equals(name)) {
 			view.clearData();
@@ -508,7 +509,7 @@ class EditorControl
 				model.loadExistingAttachments();
 				break;
 			case SAVE:
-				view.saveData();
+				view.saveData(true);
 				break;
 			case DOWNLOAD:
 				download();

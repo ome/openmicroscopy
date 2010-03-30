@@ -27,14 +27,19 @@ package org.openmicroscopy.shoola.env.data.views;
 //Java imports
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+
+import pojos.ExperimenterData;
 
 /** 
 * Provides methods to support annotation.
@@ -59,7 +64,7 @@ public interface DataHandlerView
 	 * @param startTime		The lower bound of the period interval. 
 	 * @param endTime		The upper bound of the interval. 
 	 * @param userID		The id of the user the images belonged to.
-	 * @param observer		Callback handler.
+	 * @param observer		Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadImages(Timestamp startTime, Timestamp endTime, 
@@ -78,7 +83,7 @@ public interface DataHandlerView
 	 * 						<code>CategoryData</code>.
 	 * @param ids			The ids of the nodes to apply settings to. 
 	 * 						Mustn't be <code>null</code>.
-	 * @param observer		Callback handler.
+	 * @param observer		Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle pasteRndSettings(long pixelsID, Class rootNodeType,
@@ -93,7 +98,7 @@ public interface DataHandlerView
 	 * 
 	 * @param pixelsID		The id of the pixels set of reference.
 	 * @param ref			The time reference object.
-	 * @param observer		Callback handler.
+	 * @param observer		Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle pasteRndSettings(long pixelsID, TimeRefObject ref, 
@@ -111,7 +116,7 @@ public interface DataHandlerView
 	 * 						<code>CategoryData</code>.
 	 * @param ids			The ids of the nodes to apply settings to. 
 	 * 						Mustn't be <code>null</code>.
-	 * @param observer		Callback handler.
+	 * @param observer		Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle resetRndSettings(Class rootNodeType, List<Long> ids, 
@@ -122,7 +127,7 @@ public interface DataHandlerView
 	 * a period of time
 	 * 
 	 * @param ref			The time reference object.
-	 * @param observer		Callback handler.
+	 * @param observer		Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle resetRndSettings(TimeRefObject ref, 
@@ -140,7 +145,7 @@ public interface DataHandlerView
 	 * 						<code>CategoryData</code>.
 	 * @param ids			The ids of the nodes to apply settings to. 
 	 * 						Mustn't be <code>null</code>.
-	 * @param observer		Callback handler.
+	 * @param observer		Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle setRndSettings(Class rootNodeType, List<Long> ids, 
@@ -151,7 +156,7 @@ public interface DataHandlerView
 	 * a period of time
 	 * 
 	 * @param ref			The time reference object.
-	 * @param observer		Callback handler.
+	 * @param observer		Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle setRndSettings(TimeRefObject ref, 
@@ -161,7 +166,7 @@ public interface DataHandlerView
 	 * Retrieves the objects specified by the context of the search.
 	 * 
 	 * @param context	The context of the search.
-	 * @param observer	Callback handler.
+	 * @param observer	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle advancedSearchFor(SearchDataContext context, 
@@ -173,10 +178,23 @@ public interface DataHandlerView
 	 * 
 	 * @param type 	The type to handle.
 	 * @param userID The id of the user.
-	 * @param observer Callback handler.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadFiles(int type, long userID,
+			AgentEventListener observer);
+	
+	/**
+	 * Switches the user's group.
+	 * 
+	 * @param save 			The data to save before switching group.
+	 * @param experimenter  The experimenter to handle.
+	 * @param groupID		The identifier of the group.
+	 * @param observer		Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle switchUserGroup(Map<Agent, AgentSaveInfo> save, 
+			ExperimenterData experimenter, long groupID, 
 			AgentEventListener observer);
 	
 }

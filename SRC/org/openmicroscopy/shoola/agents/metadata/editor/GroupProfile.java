@@ -195,7 +195,6 @@ class GroupProfile
     	GroupData group = (GroupData) model.getRefObject();
     	Set leaders = group.getLeaders();
     	if (leaders == null || leaders.size() == 0) return p;
-    	p.setBorder(BorderFactory.createTitledBorder("Owners"));
     	
     	Iterator i = leaders.iterator();
     	ExperimenterData exp;
@@ -203,7 +202,11 @@ class GroupProfile
 			exp = (ExperimenterData) i.next();
 			p.add(new JLabel(exp.getFirstName()+" "+exp.getLastName()));
 		}
-    	return p;
+    	JPanel content = UIUtilities.buildComponentPanel(p);
+    	content.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	content.setBorder(BorderFactory.createTitledBorder("Owners"));
+    	
+    	return content;
     }
     
     /**

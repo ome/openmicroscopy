@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent 
+ * org.openmicroscopy.shoola.env.data.events.UserGroupSwitched 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.events.treeviewer;
+package org.openmicroscopy.shoola.env.data.events;
 
 
 //Java imports
@@ -30,10 +30,8 @@ package org.openmicroscopy.shoola.agents.events.treeviewer;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
-
 /** 
- * Event indicating that the current group of the currently logged in user
- * has been modified.
+ * Event indicating if the group switch was successful or not.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,40 +43,30 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * </small>
  * @since 3.0-Beta4
  */
-public class ChangeUserGroupEvent
+public class UserGroupSwitched
 	extends RequestEvent
 {
 
-	/** The id of the new group. */
-	private long groupID;
-	
-	/** The id of the group before switching. */
-	private long oldGroupID;
+	/** Flag indicating the switch was successful or not. */
+	private boolean successful;
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param groupID 		The id of the current group.
-	 * @param oldGroupID 	The id of the previous group.
+	 * @param success 	Pass <code>true</code> if the switch was successful,
+	 * 					<code>false</code> otherwise.
 	 */
-	public ChangeUserGroupEvent(long groupID, long oldGroupID)
+	public UserGroupSwitched(boolean successful)
 	{
-		this.groupID = groupID;
-		this.oldGroupID = oldGroupID;
+		this.successful = successful;
 	}
 	
 	/**
-	 * Returns the identifier of the group.
+	 * Returns <code>true</code> if the switch was successful, 
+	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
-	public long getGroupID() { return groupID; }
+	public boolean isSuccessful() { return successful; }
 
-	/**
-	 * Returns the identifier of the old group.
-	 * 
-	 * @return See above.
-	 */
-	public long getOldGroupID() { return oldGroupID; }
-	
 }

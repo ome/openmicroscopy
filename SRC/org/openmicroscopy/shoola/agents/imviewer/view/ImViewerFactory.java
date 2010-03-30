@@ -32,11 +32,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.prefs.Preferences;
 import javax.swing.JMenu;
@@ -48,12 +46,10 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivateRecentAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivationAction;
-import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import pojos.DataObject;
 import pojos.ImageData;
@@ -153,18 +149,23 @@ public class ImViewerFactory
 	}
 
 	/**
-	 * Discards all active viewers and cleans up the menu.
+	 * Notifies the model that the user's group has successfully be modified
+	 * if the passed value is <code>true</code>, unsuccessfully 
+	 * if <code>false</code>.
 	 * 
-	 * @param groupID The id of the group.
+	 * @param success 	Pass <code>true</code> if successful, <code>false</code>
+	 * 					otherwise.
 	 */
-	public static void changeUserGroup(long groupID)
+	public static void onGroupSwitched(boolean success)
 	{
+		if (!success)  return;
 		Iterator v = singleton.viewers.iterator();
 		ImViewerComponent comp;
 		while (v.hasNext()) {
 			comp = (ImViewerComponent) v.next();
 			comp.discard();
 		}
+		singleton.viewers.clear();
 		singleton.recentViewers.clear();
 	}
 	
@@ -255,51 +256,38 @@ public class ImViewerFactory
 	}
 
 	/**
-	 * Returns map containing the event to post if selected.
+	 * Returns the instances to save.
 	 * 
 	 * @return See above.
 	 */
-	public static Map<String, Set> hasDataToSave()
+	public static List<Object> getInstancesToSave()
 	{
-		Set<SaveEventRequest> events;
+		if (singleton.viewers.size() == 0) return null;
+		List<Object> instances = new ArrayList<Object>();
 		Iterator i = singleton.viewers.iterator();
 		ImViewerComponent comp;
-		SaveData event;
-		Map<String, SaveRelatedData> saveEvents;
-		Iterator j;
-		SaveRelatedData value;
-		Map<String, Set> m =  new HashMap<String, Set>();
 		while (i.hasNext()) {
-			events = new HashSet<SaveEventRequest>();
 			comp = (ImViewerComponent) i.next();
-			if (comp.hasRndToSave()){
-				event = new SaveData(comp.getPixelsID(), 
-									SaveData.VIEWER_RND_SETTINGS);
-				event.setMessage(ImViewerComponent.RND);
-				events.add(new SaveEventRequest(comp, event));
-			}
-			if (comp.hasAnnotationToSave()){
-				event = new SaveData(comp.getPixelsID(), 
-									SaveData.VIEWER_ANNOTATION);
-				event.setMessage(ImViewerComponent.RND);
-				events.add(new SaveEventRequest(comp, event));
-			}
-			saveEvents = comp.getSaveEvents();
-			if (saveEvents != null) {
-				j = saveEvents.keySet().iterator();
-				while (j.hasNext()) {
-					value = saveEvents.get(j.next());
-					if (value.isToSave()) {
-						event = value.getSaveEvent();
-						event.setMessage(value.toString());
-						events.add(new SaveEventRequest(comp, event));
-					}
-				}
-			}
-			if (events.size() != 0)
-				m.put(NAME+comp.getTitle(), events);
+			if (!comp.isOriginalSettings()) 
+				instances.add(comp);
 		}
-		return m;
+		return instances;
+	}
+	
+	/** 
+	 * Saves the passed instances and discards them. 
+	 * 
+	 * @param instances The instances to save.
+	 */
+	public static void saveInstances(List<Object> instances)
+	{
+		if (singleton.viewers.size() == 0) return;
+		Iterator i = singleton.viewers.iterator();
+		ImViewerComponent comp;
+		while (i.hasNext()) {
+			comp = (ImViewerComponent) i.next();
+			comp.close(false);
+		}
 	}
 	
 	/**

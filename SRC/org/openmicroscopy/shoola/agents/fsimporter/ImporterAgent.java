@@ -24,18 +24,19 @@ package org.openmicroscopy.shoola.agents.fsimporter;
 
 
 //Java imports
-import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.List;
+
 import org.openmicroscopy.shoola.agents.events.fsimporter.LoadFSImporter;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.fsimporter.view.ImporterFactory;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -121,20 +122,19 @@ public class ImporterAgent
      * Implemented as specified by {@link Agent}. 
      * @see Agent#canTerminate()
      */
-    public boolean canTerminate()
-    { 
-    	//Map m = ImViewerFactory.hasDataToSave();
-    	return true; 
-    }
+    public boolean canTerminate() { return true; }
 
     /**
      * Implemented as specified by {@link Agent}. 
-     * @see Agent# hasDataToSave()
+     * @see Agent#getDataToSave()
      */
-    public Map<String, Set> hasDataToSave()
-    {
-    	return null;
-	}
+    public AgentSaveInfo getDataToSave() { return null; }
+    
+    /**
+     * Implemented as specified by {@link Agent}. 
+     * @see Agent#save(List)
+     */
+    public void save(List<Object> instances) {}
     
     /**
      * Responds to an event fired trigger on the bus.

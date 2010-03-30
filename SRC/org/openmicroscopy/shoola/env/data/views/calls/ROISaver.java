@@ -24,17 +24,17 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.util.List;
+
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-
 import pojos.ROIData;
 
 /**
- *
+ * Saves the region of interest related to a given image back to the server.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -82,6 +82,12 @@ public class ROISaver
 	 */
 	protected void buildTree() { add(saveCall); }
 		
+    /**
+     * Returns the result of the save.
+     * @see BatchCallTree#getResult()
+     */
+    protected Object getResult() { return result; }
+    
 	/**
 	 * Creates a new instance.
 	 * 
@@ -92,12 +98,6 @@ public class ROISaver
 	public ROISaver(long imageID,long userID, List<ROIData> roiList)
 	{
 		saveCall = makeSaveCall(imageID, userID, roiList);
-	}
-
-	@Override
-	protected Object getResult() 
-	{
-		return result;
 	}
 
 }

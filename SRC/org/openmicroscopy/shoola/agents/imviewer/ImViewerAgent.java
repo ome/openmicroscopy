@@ -27,8 +27,7 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 //Java imports
 import java.awt.Rectangle;
-import java.util.Map;
-import java.util.Set;
+import java.util.List;
 
 //Third-party libraries
 
@@ -42,12 +41,13 @@ import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
-import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
+import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -255,10 +255,10 @@ public class ImViewerAgent
      * 
      * @param evt The event to handle.
      */
-    private void handleChangeUserGroupEvent(ChangeUserGroupEvent evt)
+    private void handleUserGroupSwitched(UserGroupSwitched evt)
     {
     	if (evt == null) return;
-    	ImViewerFactory.changeUserGroup(evt.getGroupID());
+    	ImViewerFactory.onGroupSwitched(evt.isSuccessful());
     }
     
     /** Creates a new instance. */
@@ -292,32 +292,37 @@ public class ImViewerAgent
         bus.register(this, FocusGainedEvent.class);
         bus.register(this, RndSettingsCopied.class);
         bus.register(this, ImageViewport.class);
-        bus.register(this, ChangeUserGroupEvent.class);
+        bus.register(this, UserGroupSwitched.class);
     }
 
     /**
      * Implemented as specified by {@link Agent}. 
      * @see Agent#canTerminate()
      */
-    public boolean canTerminate()
-    { 
-    	//Map m = ImViewerFactory.hasDataToSave();
-    	return true; 
-    }
+    public boolean canTerminate() { return true; }
 
     /**
      * Implemented as specified by {@link Agent}. 
-     * @see Agent#hasDataToSave()
+     * @see Agent#getDataToSave()
      */
-    public Map<String, Set> hasDataToSave()
+    public AgentSaveInfo getDataToSave()
     {
-		// TODO Auto-generated method stub
-		return ImViewerFactory.hasDataToSave();
+    	List<Object> list = ImViewerFactory.getInstancesToSave();
+    	if (list == null || list.size() == 0) return null; 
+    	return new AgentSaveInfo("Image Viewer", list);
 	}
     
     /**
-     * Responds to an event fired trigger on the bus.
-     * Listens to ViewImage event.
+     * Implemented as specified by {@link Agent}. 
+     * @see Agent#save(List)
+     */
+    public void save(List<Object> instances)
+    {
+    	ImViewerFactory.saveInstances(instances);
+    }
+    
+    /**
+     * Responds to events fired trigger on the bus.
      * @see AgentEventListener#eventFired(AgentEvent)
      */
     public void eventFired(AgentEvent e)
@@ -337,8 +342,8 @@ public class ImViewerAgent
 			handleRndSettingsCopiedEvent((RndSettingsCopied) e);
         else if (e instanceof ImageViewport)
 			handleImageViewportEvent((ImageViewport) e);
-        else if (e instanceof ChangeUserGroupEvent)
-			handleChangeUserGroupEvent((ChangeUserGroupEvent) e);
+        else if (e instanceof UserGroupSwitched)
+			handleUserGroupSwitched((UserGroupSwitched) e);
     }
 
 }

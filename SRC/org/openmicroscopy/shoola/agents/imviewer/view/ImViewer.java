@@ -272,7 +272,7 @@ public interface ImViewer
 	public int getState();
 
 	/**
-	 * Callback used by data loaders to provide the viewer with feedback about
+	 * Call-back used by data loaders to provide the viewer with feedback about
 	 * the data retrieval.
 	 * 
 	 * @param description   Textual description of the ongoing operation.
@@ -1122,8 +1122,13 @@ public interface ImViewer
 	/** Refreshes the view. */
 	public void refresh();
 
-	/** Closes the viewer. */
-	public void close();
+	/** 
+	 * Closes the viewer. 
+	 * 
+	 * @param notifyUser Pass <code>true</code> to notify the user, 
+	 * 					<code>false</code> otherwise.
+	 */
+	public void close(boolean notifyUser);
 
 	/** Detaches the viewer. */
 	public void detach();

@@ -26,17 +26,23 @@ package org.openmicroscopy.shoola.env.data.views;
 //Java imports
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.views.calls.FilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ObjectFinder;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
+import org.openmicroscopy.shoola.env.data.views.calls.SwitchUserLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+
+import pojos.ExperimenterData;
 
 /** 
  * Implementation of the {@link DataHandlerView} implementation.
@@ -160,6 +166,19 @@ public class DataHandlerViewImpl
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new FilesLoader(type, userID);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataHandlerView#switchUserGroup(Map, ExperimenterData, long, 
+	 * AgentEventListener)
+	 */
+	public CallHandle switchUserGroup(Map<Agent, AgentSaveInfo> toSave,
+			ExperimenterData experimenter, long groupID,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new SwitchUserLoader(toSave, experimenter, groupID);
 		return cmd.exec(observer);
 	}
 

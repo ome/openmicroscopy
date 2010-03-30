@@ -25,8 +25,7 @@ package org.openmicroscopy.shoola.agents.editor;
 
 //Java imports
 import java.io.File;
-import java.util.Map;
-import java.util.Set;
+import java.util.List;
 
 //Third-party libraries
 
@@ -46,6 +45,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
+import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -106,8 +106,9 @@ public class EditorAgent
 	}
 	
 	/**
-	 * Returns the path of the 'omero home' directory. E.g. user/omero
-	 * @return		see above.
+	 * Returns the path of the 'omero home' directory, e.g. user/omero.
+	 * 
+	 * @return See above.
 	 */
 	public static String getOmeroHome()
 	{
@@ -120,9 +121,10 @@ public class EditorAgent
 	}
 	
 	/**
-	 * Returns the path of the 'editor home' directory. E.g. user/omero/editor. 
+	 * Returns the path of the 'editor home' directory, e.g. user/omero/editor. 
 	 * Folder will be created if it doesn't exist. 
-	 * @return		see above.
+	 * 
+	 * @return	See above.
 	 */
 	public static String getEditorHome()
 	{
@@ -135,10 +137,11 @@ public class EditorAgent
 	}
 	
 	/**
-	 * Returns the path of the 'editor autosave' directory. 
-	 * E.g. user/omero/editor/autosave. 
+	 * Returns the path of the 'editor autosave' directory,
+	 * e.g. user/omero/editor/autosave. 
 	 * Folder will be created if it doesn't exist. 
-	 * @return		see above.
+	 * 
+	 * @return	See above.
 	 */
 	public static String getEditorAutosave()
 	{
@@ -181,10 +184,10 @@ public class EditorAgent
 		}
 		return editor;
 	}
-	
-	
+
 	/**
 	 * Creates or recycles an editor.
+	 * 
 	 * @param event The event to handle.
 	 */
 	private void handleFileEdition(EditFileEvent event)
@@ -297,22 +300,25 @@ public class EditorAgent
      * Implemented as specified by {@link Agent}. 
      * @see Agent#canTerminate()
      */
-    public boolean canTerminate()
-    { 
-    	//Map m = ImViewerFactory.hasDataToSave();
-    	return true; 
-    }
+    public boolean canTerminate() { return true; }
 
     /**
      * Implemented as specified by {@link Agent}. 
-     * @see Agent# hasDataToSave()
+     * @see Agent#getDataToSave()
      */
-    public Map<String, Set> hasDataToSave()
+    public AgentSaveInfo getDataToSave()
     {
-		// TODO Auto-generated method stub
-		//return EditorFactory.hasDataToSave();
     	return null;
 	}
+    
+    /**
+     * Implemented as specified by {@link Agent}. 
+     * @see Agent#save(List)
+     */
+    public void save(List<Object> instances)
+    {
+    	
+    }
     
     /**
      * Responds to an event fired trigger on the bus.

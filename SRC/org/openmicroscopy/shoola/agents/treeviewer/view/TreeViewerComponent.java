@@ -55,7 +55,6 @@ import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
-import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
@@ -88,6 +87,7 @@ import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
+import org.openmicroscopy.shoola.env.data.events.SwitchUserGroup;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
@@ -2771,15 +2771,14 @@ class TreeViewerComponent
 		if (model.getState() != READY) return;
 		if (group == null) return;
 		ExperimenterData exp = TreeViewerAgent.getUserDetails();
-		IconManager icons = IconManager.getInstance();
-		MessageBox box = new MessageBox(view, "Group change", "Changing group" +
-				" will remove data currently displayed.\nDo you" +
-				" want to continue?");
-		if (box.centerMsgBox() == MessageBox.NO_OPTION) return;
+		long oldId = model.getUserGroupID();
+		if (group.getId() == oldId) return;
 		Registry reg = TreeViewerAgent.getRegistry();
+		reg.getEventBus().post(new SwitchUserGroup(exp, group.getId()));
+		/*
 		try {
 			//Review that code.
-			reg.getAdminService().changeExperimenterGroup(exp, group);
+			reg.getAdminService().changeExperimenterGroup(exp, group.getId());
 		} catch (Exception e) {
 			LogMessage msg = new LogMessage();
 	        msg.print("Cannot modify current group.");
@@ -2789,9 +2788,9 @@ class TreeViewerComponent
 			un.notifyInfo("Group change", "Cannot modify current group.");
 			return;
 		}
-		long oldId = model.getUserGroupID();
+		
 		model.setGroupId(group.getId());
-		reg.getEventBus().post(new ChangeUserGroupEvent(group.getId()));
+		reg.getEventBus().post(new ChangeUserGroupEvent(group.getId(), oldId));
 		Map browsers = model.getBrowsers();
 		Entry entry;
 		Browser browser;
@@ -2804,6 +2803,7 @@ class TreeViewerComponent
 		model.setDataViewer(null);
 		firePropertyChange(GROUP_CHANGED_PROPERTY, oldId, 
 				model.getUserGroupID());
+				*/
 	}
 
 	/** 
@@ -2914,7 +2914,7 @@ class TreeViewerComponent
 		if (browser.register(data)) 
 			model.getMetadataViewer().saveData(file.getToAdd(), 
 					file.getToRemove(), file.getToDelete(), 
-					file.getMetadata(), data);
+					file.getMetadata(), data, true);
 	}
 
 	/** 
@@ -2990,6 +2990,34 @@ class TreeViewerComponent
 				AdminObject.RESET_PASSWORD);
 		model.fireAdmin(admin);
 		fireStateChange();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#resetPassword(String)
+	 */
+	public void onGroupSwitched(boolean success)
+	{
+		ExperimenterData exp = TreeViewerAgent.getUserDetails();
+		GroupData group = exp.getDefaultGroup();
+		long oldGroup = model.getUserGroupID();
+		if (success) {
+			model.setGroupId(group.getId());
+			model.setDataViewer(null);
+			//model.resetMetadataViewer();
+			Map browsers = model.getBrowsers();
+			Entry entry;
+			Browser browser;
+			Iterator i = browsers.entrySet().iterator();
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				browser = (Browser) entry.getValue();
+				browser.reActivate();
+			}
+			
+			firePropertyChange(GROUP_CHANGED_PROPERTY, oldGroup, 
+					model.getUserGroupID());
+		}
 	}
 	
 }

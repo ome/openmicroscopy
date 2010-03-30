@@ -239,9 +239,11 @@ class ImViewerComponent
 	 * Returns <code>true</code> if we need to close the viewer,
 	 * <code>false</code> otherwise.
 	 * 
+	 * @param notifyUser Pass <code>true</code> to notify the user, 
+	 * 					<code>false</code> otherwise.
 	 * @return See above.
 	 */
-	private boolean saveOnClose()
+	private boolean saveOnClose(boolean notifyUser)
 	{
 		if (isReadOnly()) return true;
 		if (saveBeforeCopy) {
@@ -253,6 +255,18 @@ class ImViewerComponent
 				logMsg.print(e);
 				ImViewerAgent.getRegistry().getLogger().error(this, logMsg);
 			}
+		}
+		if (!notifyUser) {
+			//savePlane();
+			try {
+				saveRndSettings();
+			} catch (Exception e) {
+				LogMessage logMsg = new LogMessage();
+				logMsg.println("Cannot save rendering settings. ");
+				logMsg.print(e);
+				ImViewerAgent.getRegistry().getLogger().error(this, logMsg);
+			}
+			return true;
 		}
 		boolean showBox = false;
 		JPanel p = new JPanel();
@@ -498,26 +512,7 @@ class ImViewerComponent
 	{
 		return events;
 	}
-	
-	/**
-	 * Returns <code>true</code> if there are annotations to save,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean hasAnnotationToSave() 
-	{ 
-		return model.hasMetadataToSave();
-	}
-	
-	/**
-	 * Returns <code>true</code> if there are rendering settings to save,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean hasRndToSave() { return model.isOriginalSettings(); }
-	
+
 	/**
 	 * Returns the id of the pixels set this viewer is for.
 	 * 
@@ -580,26 +575,19 @@ class ImViewerComponent
 	 */
 	public void discard()
 	{
-		switch (model.getState()) {
-			//case DISCARDED:
-			default:
-				controller.setPreferences();
-				//tmp store compression
-				ImViewerFactory.setCompressionLevel(
-						view.getUICompressionLevel());
-				if (!saveOnClose()) {
-					return;
-				}
-				postViewerState(ViewerState.CLOSE);
-				ImViewerRecentObject object = new ImViewerRecentObject(
-						model.getImageID(), model.getImageTitle(),
-						getImageIcon());
-				firePropertyChange(RECENT_VIEWER_PROPERTY, null, object);
-				model.discard();
-				fireStateChange();
-		}
+		model.discard();
+		fireStateChange();
 	}
 
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#changeUserGroup(long, long)
+	 */
+	public void changeUserGroup(long groupID, long oldGroupID)
+	{
+		
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getState()
@@ -3046,13 +3034,33 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#close()
+	 * @see ImViewer#close(boolean)
 	 */
-	public void close()
+	public void close(boolean notifyUser)
 	{
 		if (model.getState() == DISCARDED) return;
-		if (model.isSeparateWindow()) return; //Option not available.
-		postViewerCreated(false, false);
+		if (!view.isVisible()) return;
+		//if (model.isSeparateWindow()) return; //Option not available.
+		if (notifyUser) postViewerCreated(false, false);
+		switch (model.getState()) {
+			//case DISCARDED:
+			default:
+				controller.setPreferences();
+				//tmp store compression
+				ImViewerFactory.setCompressionLevel(
+						view.getUICompressionLevel());
+				if (!saveOnClose(notifyUser)) {
+					return;
+				}
+				if (notifyUser) {
+					postViewerState(ViewerState.CLOSE);
+					ImViewerRecentObject object = new ImViewerRecentObject(
+							model.getImageID(), model.getImageTitle(),
+							getImageIcon());
+					firePropertyChange(RECENT_VIEWER_PROPERTY, null, object);
+				}
+				
+		}
 		discard();
 	}
 

@@ -335,7 +335,7 @@ class ToolBar
     	if (p == null) return;
         if (c == null) throw new IllegalArgumentException("No component.");
         //if (p == null) throw new IllegalArgumentException("No point.");
-        if (personalMenu == null) {
+        //if (personalMenu == null) {
         	personalMenu = new JPopupMenu();
         	personalMenu.setBorder(
         			BorderFactory.createBevelBorder(BevelBorder.RAISED));
@@ -355,7 +355,7 @@ class ToolBar
 				buttonGroup.add(item);
 				personalMenu.add(item);
 			}
-        }
+        //}
         personalMenu.show(c, p.x, p.y);
     }
     

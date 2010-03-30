@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent 
+ * org.openmicroscopy.shoola.env.data.util.AgentSaveInfo 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -20,20 +20,18 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.events.treeviewer;
+package org.openmicroscopy.shoola.env.data.util;
 
+import java.util.List;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.event.RequestEvent;
-
 
 /** 
- * Event indicating that the current group of the currently logged in user
- * has been modified.
+ * Holds information about instances of a given agent to save.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,40 +43,50 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * </small>
  * @since 3.0-Beta4
  */
-public class ChangeUserGroupEvent
-	extends RequestEvent
+public class AgentSaveInfo
 {
 
-	/** The id of the new group. */
-	private long groupID;
+	/** The name associated to the agent. */
+	private String 	name;
 	
-	/** The id of the group before switching. */
-	private long oldGroupID;
+	/** The instances to save. */
+	private List<Object> instances;
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param groupID 		The id of the current group.
-	 * @param oldGroupID 	The id of the previous group.
+	 * @param name  The name associated to the agent.
+	 * @param count The number of instances to save.
 	 */
-	public ChangeUserGroupEvent(long groupID, long oldGroupID)
+	public AgentSaveInfo(String name, List<Object> instances)
 	{
-		this.groupID = groupID;
-		this.oldGroupID = oldGroupID;
+		this.instances = instances;
+		this.name = name;
 	}
 	
 	/**
-	 * Returns the identifier of the group.
+	 * Returns the name associated to the agent.
 	 * 
 	 * @return See above.
 	 */
-	public long getGroupID() { return groupID; }
-
+	public String getName() { return name; }
+	
 	/**
-	 * Returns the identifier of the old group.
+	 * Returns the number of instances to save.
 	 * 
 	 * @return See above.
 	 */
-	public long getOldGroupID() { return oldGroupID; }
+	public int getCount()
+	{ 
+		if (instances == null) return 0;
+		return instances.size(); 
+	}
+	
+	/**
+	 * Returns the instances to save.
+	 * 
+	 * @return
+	 */
+	public List<Object> getInstances() { return instances; }
 	
 }

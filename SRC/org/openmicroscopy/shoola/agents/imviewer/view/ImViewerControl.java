@@ -502,7 +502,7 @@ class ImViewerControl
 
 		view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		view.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) { model.discard(); }
+			public void windowClosing(WindowEvent e) { model.close(true); }
 			public void windowDeiconified(WindowEvent e) { 
 				model.iconified(false);
 			}

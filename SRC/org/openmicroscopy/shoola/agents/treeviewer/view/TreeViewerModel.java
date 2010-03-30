@@ -1095,6 +1095,12 @@ class TreeViewerModel
 		}
 	}
 	
+	/** Resets the metadata view. */
+	void resetMetadataViewer()
+	{
+		metadataViewer = null;
+	}
+	
 	/**
 	 * Reloads the specified thumbnails.
 	 * 

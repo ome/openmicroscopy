@@ -27,16 +27,20 @@ package org.openmicroscopy.shoola.agents.metadata;
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
+import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
+import org.openmicroscopy.shoola.env.event.AgentEvent;
+import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import pojos.ExperimenterData;
 
@@ -55,7 +59,7 @@ import pojos.ExperimenterData;
  * @since OME3.0
  */
 public class MetadataViewerAgent 
-	implements Agent
+	implements Agent, AgentEventListener
 {
 
 	/** Reference to the registry. */
@@ -147,6 +151,19 @@ public class MetadataViewerAgent
 		return null;
 	}
 	
+    /**
+     * Handles the {@link UserGroupSwitched} event.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleUserGroupSwitched(UserGroupSwitched evt)
+    {
+    	if (evt == null) return;
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	MetadataViewerFactory.onGroupSwitched(evt.isSuccessful());
+    }
+    
     /** Creates a new instance. */
     public MetadataViewerAgent() {}
     
@@ -169,24 +186,43 @@ public class MetadataViewerAgent
     public void setContext(Registry ctx)
     {
         registry = ctx;
+        registry.getEventBus().register(this, UserGroupSwitched.class);
     }
 
     /**
      * Implemented as specified by {@link Agent}. 
      * @see Agent#canTerminate()
      */
-    public boolean canTerminate()
-    { 
-    	return true; 
-    }
+    public boolean canTerminate() {  return true;  }
     
     /**
      * Implemented as specified by {@link Agent}. 
-     * @see Agent#hasDataToSave()
+     * @see Agent#getDataToSave()
      */
-    public Map<String, Set> hasDataToSave()
+    public AgentSaveInfo getDataToSave()
     {
-		return null;
+    	List<Object> instances = MetadataViewerFactory.getInstancesToSave();
+    	if (instances == null || instances.size() == 0) return null;
+    	return new AgentSaveInfo("Edition", instances);
 	}
     
+    /**
+     * Implemented as specified by {@link Agent}. 
+     * @see Agent#save(List)
+     */
+    public void save(List<Object> instances)
+    { 
+    	MetadataViewerFactory.saveInstances(instances); 
+    }
+    
+    /**
+     * Responds to events fired trigger on the bus.
+     * @see AgentEventListener#eventFired(AgentEvent)
+     */
+	public void eventFired(AgentEvent e)
+	{
+		if (e instanceof UserGroupSwitched)
+			handleUserGroupSwitched((UserGroupSwitched) e);
+	}
+	
 }

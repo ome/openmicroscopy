@@ -211,6 +211,13 @@ class MetadataViewerComponent
 			setSelectionMode(true);
 	}
 
+	/** Saves before close. */
+	void saveBeforeClose()
+	{
+		firePropertyChange(SAVE_DATA_PROPERTY, Boolean.valueOf(true), 
+				Boolean.valueOf(false));
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#activate(Map)
@@ -235,6 +242,7 @@ class MetadataViewerComponent
 	public void discard()
 	{
 		model.discard();
+		fireStateChange();
 	}
 
 	/** 
@@ -412,12 +420,11 @@ class MetadataViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#saveData(List, List, List, List, DataObject)
+	 * @see MetadataViewer#saveData(List, List, List, List, DataObject, boolean)
 	 */
 	public void saveData(List<AnnotationData> toAdd, 
 				List<AnnotationData> toRemove, List<AnnotationData> toDelete,
-				List<Object> metadata,
-				DataObject data)
+				List<Object> metadata, DataObject data, boolean asynch)
 	{
 		if (data == null) return;
 		Object refObject = model.getRefObject();
@@ -427,7 +434,8 @@ class MetadataViewerComponent
 			FileData fa = (FileData) data;
 			if (fa.getId() > 0) {
 				toSave.add(data);
-				model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave);
+				model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave,
+						asynch);
 				fireStateChange();
 			} else {
 				FileDataRegistration r = new FileDataRegistration(toAdd, 
@@ -449,21 +457,28 @@ class MetadataViewerComponent
 		}
 		
 		if (refObject instanceof ProjectData) {
-			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave);
+			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave, 
+					asynch);
 		} else if (refObject instanceof ScreenData) {
-			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave);
+			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave,
+					asynch);
 		} else if (refObject instanceof PlateData) {
-			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave);
+			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave,
+					asynch);
 		} else if (refObject instanceof DatasetData) {
-			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave);
+			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave, 
+					asynch);
 		} else if (refObject instanceof ImageData) {
-			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave);
+			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave,
+					asynch);
 		} else if (refObject instanceof WellSampleData) {
-			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave);
+			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave,
+					asynch);
 		} else if (refObject instanceof TagAnnotationData) {
 			//Only update properties.
 			if ((toAdd.size() == 0 && toRemove.size() == 0)) {
-				model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave);
+				model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave,
+						asynch);
 				return;
 			}	
 		}
@@ -487,7 +502,8 @@ class MetadataViewerComponent
 	 */
 	public void saveData()
 	{
-		firePropertyChange(SAVE_DATA_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+		firePropertyChange(SAVE_DATA_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
 	}
 
 	/** 
@@ -987,14 +1003,14 @@ class MetadataViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#updateAdminObject(Object)
+	 * @see MetadataViewer#updateAdminObject(Object, boolean)
 	 */
-	public void updateAdminObject(Object data)
+	public void updateAdminObject(Object data, boolean async)
 	{
 		if (data instanceof ExperimenterData) {
-			model.fireExperimenterSaving((ExperimenterData) data);
+			model.fireExperimenterSaving((ExperimenterData) data, async);
 		} else if (data instanceof AdminObject)
-			model.fireAdminSaving((AdminObject) data);
+			model.fireAdminSaving((AdminObject) data, async);
 	}
 
 	/**

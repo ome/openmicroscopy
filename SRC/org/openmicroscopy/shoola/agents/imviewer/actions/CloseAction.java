@@ -77,9 +77,6 @@ public class CloseAction
      * Closes the viewer.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
-    { 
-    	model.close();
-    }
+    public void actionPerformed(ActionEvent e) { model.close(true); }
     
 }

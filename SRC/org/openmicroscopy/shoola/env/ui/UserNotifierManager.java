@@ -37,6 +37,9 @@ import javax.swing.JOptionPane;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.SwitchUserGroup;
+import org.openmicroscopy.shoola.env.event.AgentEvent;
+import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.svc.SvcRegistry;
@@ -375,5 +378,5 @@ class UserNotifierManager
 			if (loader != null) loader.cancel();
 		} 
 	}
-	
+
 }

@@ -31,7 +31,7 @@ package org.openmicroscopy.shoola.env.config;
 import org.openmicroscopy.shoola.env.Agent;
 
 /** 
- * Holds the configration information for an <i>agent</i> tag in the
+ * Holds the configuration information for an <i>agent</i> tag in the
  * container's configuration file.
  * The content of each tag is stored by a member field.
  * 

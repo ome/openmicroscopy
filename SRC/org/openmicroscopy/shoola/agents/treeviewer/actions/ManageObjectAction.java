@@ -24,14 +24,12 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 
 //Java imports
+import java.awt.event.ActionEvent;
+import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
@@ -43,7 +41,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -71,7 +68,6 @@ public class ManageObjectAction
 	extends TreeViewerAction
 {
 
-	
 	/** Identified the copy action. */
 	public static final int 	COPY = 0;
 	
@@ -237,8 +233,13 @@ public class ManageObjectAction
 					selected = browser.getSelectedDisplays();
 		    		for (int i = 0; i < selected.length; i++) {
 		    			ho = selected[i].getUserObject();
-		    			if (isPasteValid(ho, klass) && model.isUserOwner(ho))
-		    				count++;
+		    			if (isPasteValid(ho, klass)) {
+		    				if (ho instanceof GroupData) {
+		    					count++;
+			    			} else {
+			    				if (model.isUserOwner(ho)) count++;
+			    			}
+		    			}
 					}
 		    		setEnabled(count == selected.length);
 				} else setEnabled(false);

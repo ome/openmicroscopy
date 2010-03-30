@@ -22,10 +22,13 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.view;
 
-
-
 //Java imports
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 
 //Third-party libraries
 
@@ -45,6 +48,7 @@ import java.util.List;
  * @since OME3.0
  */
 public class MetadataViewerFactory 
+	implements ChangeListener
 {
 
 	/** The sole instance. */
@@ -96,8 +100,62 @@ public class MetadataViewerFactory
 		return singleton.createViewer(model);
 	}
 	
+	/**
+	 * Returns the instances to save.
+	 * 
+	 * @return See above.
+	 */
+	public static List<Object> getInstancesToSave()
+	{
+		if (singleton.viewers.size() == 0) return null;
+		List<Object> instances = new ArrayList<Object>();
+		Iterator i = singleton.viewers.iterator();
+		MetadataViewerComponent comp;
+		while (i.hasNext()) {
+			comp = (MetadataViewerComponent) i.next();
+			if (comp.hasDataToSave()) instances.add(comp);
+		}
+		return instances;
+	}
+	
+	/** 
+	 * Saves the passed instances and discards them. 
+	 * 
+	 * @param instances The instances to save.
+	 */
+	public static void saveInstances(List<Object> instances)
+	{
+		if (singleton.viewers.size() == 0) return;
+		Iterator i = singleton.viewers.iterator();
+		MetadataViewerComponent comp;
+		while (i.hasNext()) {
+			comp = (MetadataViewerComponent) i.next();
+			comp.saveBeforeClose();
+		}
+	}
+	
+	/**
+	 * Notifies the model that the user's group has successfully be modified
+	 * if the passed value is <code>true</code>, unsuccessfully 
+	 * if <code>false</code>.
+	 * 
+	 * @param success 	Pass <code>true</code> if successful, <code>false</code>
+	 * 					otherwise.
+	 */
+	public static void onGroupSwitched(boolean success)
+	{
+		if (!success)  return;
+		//singleton.clear();
+	}
+	
+	/** All the tracked components. */
+    private List<MetadataViewer>	viewers;
+    
 	/** Creates a new instance. */
-	private MetadataViewerFactory() {}
+	private MetadataViewerFactory()
+	{
+		viewers = new ArrayList<MetadataViewer>();
+	}
 	
 	/**
 	 * Creates and returns a {@link MetadataViewer}.
@@ -110,7 +168,21 @@ public class MetadataViewerFactory
 		MetadataViewerComponent comp = new MetadataViewerComponent(model);
 		model.initialize(comp);
 		comp.initialize();
+		comp.addChangeListener(this);
+		viewers.add(comp);
 		return comp;
+	}
+	
+	/**
+	 * Removes a viewer from the {@link #viewers} set when it is
+	 * {@link MetadataViewer#DISCARDED discarded}. 
+	 * @see ChangeListener#stateChanged(ChangeEvent)
+	 */
+	public void stateChanged(ChangeEvent e)
+	{
+		MetadataViewerComponent comp = (MetadataViewerComponent) e.getSource(); 
+		if (comp.getState() == MetadataViewer.DISCARDED && viewers.size() > 0) 
+			viewers.remove(comp);
 	}
 	
 }

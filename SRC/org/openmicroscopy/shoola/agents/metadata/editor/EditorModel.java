@@ -1529,9 +1529,12 @@ class EditorModel
 	 * @param toAdd		The annotation to save.
 	 * @param toRemove	The annotation to remove.
 	 * @param metadata	The metadata to save.
+	 * @param asynch 	Pass <code>true</code> to save data asynchronously,
+     * 				 	<code>false</code> otherwise.
 	 */
 	void fireAnnotationSaving(List<AnnotationData> toAdd,
-			List<AnnotationData> toRemove, List<Object> metadata)
+			List<AnnotationData> toRemove, List<Object> metadata, 
+			boolean asynch)
 	{
 		Object ref = getRefObject();
 		if (ref instanceof DataObject) {
@@ -1539,19 +1542,21 @@ class EditorModel
 			if (data instanceof WellSampleData) {
 				data = ((WellSampleData) ref).getImage();
 			}
-			parent.saveData(toAdd, toRemove, toDelete, metadata, data);
+			parent.saveData(toAdd, toRemove, toDelete, metadata, data, asynch);
 		}
 	}
 	
 	/**
 	 * Starts an asynchronous call to update the experimenter or the group.
 	 * 
-	 * @param data The experimenter or the group to save.
+	 * @param data 	 The experimenter or the group to save.
+	 * @param asynch Pass <code>true</code> to save data asynchronously,
+     * 				 <code>false</code> otherwise.
 	 */
-	void fireAdminSaving(Object data)
+	void fireAdminSaving(Object data, boolean asynch)
 	{
 		if ((data instanceof ExperimenterData) || (data instanceof AdminObject))	
-			parent.updateAdminObject(data);
+			parent.updateAdminObject(data, asynch);
 	}
 	
 	/**

@@ -303,12 +303,16 @@ public class DataBrowserFactory
 	}
 	
 	/**
-	 * Discards all active viewers and cleans up the menu.
+	 * Notifies the model that the user's group has successfully be modified
+	 * if the passed value is <code>true</code>, unsuccessfully 
+	 * if <code>false</code>.
 	 * 
-	 * @param groupID The id of the group.
+	 * @param success 	Pass <code>true</code> if successful, <code>false</code>
+	 * 					otherwise.
 	 */
-	public static final void changeUserGroup(long groupID)
+	public static final void onGroupSwitched(boolean success)
 	{
+		if (!success)  return;
 		singleton.dataToCopy = null;
 		Iterator v = singleton.browsers.entrySet().iterator();
 		DataBrowserComponent comp;

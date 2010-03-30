@@ -30,7 +30,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -47,6 +47,8 @@ import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
+import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
+import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -237,8 +239,22 @@ public class TreeViewerAgent
     	long id = -1;
     	if (gp != null) id = gp.getId();
         TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
-        viewer.displayViewer(evt.getViewer(), evt.getControls(), evt.isToAdd(),
-        		evt.isToDetach());
+        if (viewer != null)
+        	viewer.displayViewer(evt.getViewer(), evt.getControls(), 
+        			evt.isToAdd(), evt.isToDetach());
+    }
+    
+    /**
+     * Handles the {@link UserGroupSwitched} event.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleUserGroupSwitched(UserGroupSwitched evt)
+    {
+    	if (evt == null) return;
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	TreeViewerFactory.onGroupSwitched(evt.isSuccessful());
     }
     
     /**
@@ -278,6 +294,7 @@ public class TreeViewerAgent
         bus.register(this, ImageProjected.class);
         bus.register(this, ActivityFinishedEvent.class);
         bus.register(this, ViewerCreated.class);
+        bus.register(this, UserGroupSwitched.class);
     }
 
     /**
@@ -292,16 +309,18 @@ public class TreeViewerAgent
 
     /**
      * Implemented as specified by {@link Agent}. 
-     * @see Agent#hasDataToSave()
+     * @see Agent#getDataToSave()
      */
-    public Map<String, Set> hasDataToSave()
-    {
-    	return TreeViewerFactory.hasDataToSave();
-	}
+    public AgentSaveInfo getDataToSave() { return null; }
     
     /**
-     * Responds to an event fired trigger on the bus.
-     * Listens to ViewImage event.
+     * Implemented as specified by {@link Agent}. 
+     * @see Agent#save(List)
+     */
+    public void save(List<Object> instances) {}
+    
+    /**
+     * Responds to events fired trigger on the bus.
      * @see AgentEventListener#eventFired(AgentEvent)
      */
 	public void eventFired(AgentEvent e)
@@ -318,6 +337,8 @@ public class TreeViewerAgent
 			handleActivityFinished((ActivityFinishedEvent) e);
 		else if (e instanceof ViewerCreated)
 			handleViewerCreated((ViewerCreated) e);
+		else if (e instanceof UserGroupSwitched)
+			handleUserGroupSwitched((UserGroupSwitched) e);
 	}
 
 }

@@ -50,9 +50,13 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.editor.EditorFactory;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.env.data.AdminService;
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.env.log.LogMessage;
+
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -417,49 +421,115 @@ class MetadataViewerModel
 	 * @param toDelete	Collection of annotations to delete.
 	 * @param metadata	The acquisition metadata to save.
 	 * @param data		The object to update.
+	 * @param asynch 	Pass <code>true</code> to save data asynchronously,
+     * 				 	<code>false</code> otherwise.
 	 */
 	void fireSaving(List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
 			List<AnnotationData> toDelete, List<Object> metadata, 
-			Collection<DataObject> data)
+			Collection<DataObject> data, boolean asynch)
 	{
-		DataSaver loader = new DataSaver(component, data, toAdd, toRemove, 
-				toDelete, metadata);
-		loader.load();
-		state = MetadataViewer.SAVING;
+		if (asynch) {
+			DataSaver loader = new DataSaver(component, data, toAdd, toRemove, 
+					toDelete, metadata);
+			loader.load();
+			state = MetadataViewer.SAVING;
+		} else {
+			OmeroMetadataService os = 
+				MetadataViewerAgent.getRegistry().getMetadataService();
+			try {
+            	if (metadata != null) {
+            		Iterator<Object> i = metadata.iterator();
+            		while (i.hasNext()) 
+						os.saveAcquisitionData(i.next()) ;
+            	}
+            	os.saveData(data, toAdd, toRemove, toDelete, userID);
+			} catch (Exception e) {
+				LogMessage msg = new LogMessage();
+				msg.print("Unable to save annotation and/or edited data");
+				msg.print(e);
+				MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
+			}
+		}
 	}
 	
 	/**
 	 * Fires an asynchronous call to update the passed experimenter.
 	 * 
-	 * @param data The object to update.
+	 * @param data 	 The object to update.
+	 * @param asynch Pass <code>true</code> to save data asynchronously,
+     * 				 <code>false</code> otherwise.
 	 */
-	void fireExperimenterSaving(ExperimenterData data)
+	void fireExperimenterSaving(ExperimenterData data, boolean async)
 	{
-		ExperimenterEditor loader = new ExperimenterEditor(component, data);
-		loader.load();
-		state = MetadataViewer.SAVING;
+		if (async) {
+			ExperimenterEditor loader = new ExperimenterEditor(component, data);
+			loader.load();
+			state = MetadataViewer.SAVING;
+		} else {
+			AdminService svc = 
+				MetadataViewerAgent.getRegistry().getAdminService();
+			try {
+				svc.updateExperimenter(data, null);
+			} catch (Exception e) {
+				LogMessage msg = new LogMessage();
+				msg.print("Unable to update the experimenter");
+				msg.print(e);
+				MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
+			}
+		}
 	}
 	
 	/**
 	 * Fires an asynchronous call to update the passed group.
 	 * 
-	 * @param data The object to update.
+	 * @param data   The object to update.
+	 * @param asynch Pass <code>true</code> to save data asynchronously,
+     * 				 <code>false</code> otherwise.
 	 */
-	void fireAdminSaving(AdminObject data)
+	void fireAdminSaving(AdminObject data, boolean asynch)
 	{
-		MetadataLoader loader = null;
-		switch (data.getIndex()) {
-			case AdminObject.UPDATE_GROUP:
-				loader = new GroupEditor(component, data.getGroup(), 
-						data.getPermissions());
-				break;
-			case AdminObject.UPDATE_EXPERIMENTER:
-				loader = new AdminEditor(component, data.getGroup(),
-						data.getExperimenters());
-		}	
-		if (loader != null) {
-			loader.load();
-			state = MetadataViewer.SAVING;
+		if (asynch) {
+			MetadataLoader loader = null;
+			switch (data.getIndex()) {
+				case AdminObject.UPDATE_GROUP:
+					loader = new GroupEditor(component, data.getGroup(), 
+							data.getPermissions());
+					break;
+				case AdminObject.UPDATE_EXPERIMENTER:
+					loader = new AdminEditor(component, data.getGroup(),
+							data.getExperimenters());
+			}	
+			if (loader != null) {
+				loader.load();
+				state = MetadataViewer.SAVING;
+			}
+		} else {
+			AdminService svc = 
+				MetadataViewerAgent.getRegistry().getAdminService();
+			LogMessage msg = new LogMessage();
+			switch (data.getIndex()) {
+				case AdminObject.UPDATE_GROUP:
+					try {
+						svc.updateGroup(data.getGroup(), 
+								data.getPermissions());
+					} catch (Exception e) {
+						msg.print("Unable to update the group");
+						msg.print(e);
+						MetadataViewerAgent.getRegistry().getLogger().error(
+								this, msg);
+					}
+					break;
+				case AdminObject.UPDATE_EXPERIMENTER:
+					try {
+						svc.updateExperimenters(data.getGroup(), 
+								data.getExperimenters());
+					} catch (Exception e) {
+						msg.print("Unable to update experimenters");
+						msg.print(e);
+						MetadataViewerAgent.getRegistry().getLogger().error(
+								this, msg);
+					}
+			}	
 		}
 	}
 	

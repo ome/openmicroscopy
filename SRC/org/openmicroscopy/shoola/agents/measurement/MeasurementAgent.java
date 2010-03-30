@@ -24,12 +24,12 @@ package org.openmicroscopy.shoola.agents.measurement;
 
 
 //Java imports
-import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.List;
+
 import org.openmicroscopy.shoola.agents.events.FocusGainedEvent;
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ChannelSelection;
@@ -42,10 +42,11 @@ import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerFactor
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
+import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
-
 import pojos.ExperimenterData;
 import pojos.PixelsData;
 
@@ -180,7 +181,8 @@ public class MeasurementAgent
     	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
     									evt.getPixelsID());
     	if (viewer != null && evt.getType() == SaveData.MEASUREMENT_TYPE) {
-    		viewer.saveAndDiscard();
+    		viewer.saveROIToServer();
+    		viewer.discard();
     	}
     }
     
@@ -197,6 +199,17 @@ public class MeasurementAgent
     		viewer.setIconImage(evt.getThumbnail());
     		viewer.setRndImage(evt.getRenderedImage());
     	}
+    }
+    
+    /**
+     * Removes all the references to the existing viewers.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleUserGroupSwitched(UserGroupSwitched evt)
+    {
+    	if (evt == null) return;
+    	MeasurementViewerFactory.onGroupSwitched(evt.isSuccessful());
     }
     
     /**
@@ -244,16 +257,28 @@ public class MeasurementAgent
 		bus.register(this, SaveData.class);
 		bus.register(this, FocusGainedEvent.class);
 		bus.register(this, ImageRendered.class);
+		 bus.register(this, UserGroupSwitched.class);
 	}
 
-	/**
+    /**
      * Implemented as specified by {@link Agent}. 
-     * @see Agent# hasDataToSave()
+     * @see Agent#getDataToSave()
      */
-    public Map<String, Set> hasDataToSave() {
-		// TODO Auto-generated method stub
-		return null;
+    public AgentSaveInfo getDataToSave()
+    {
+    	List<Object> instances = MeasurementViewerFactory.getInstancesToSave();
+    	if (instances == null || instances.size() == 0) return null;
+    	return new AgentSaveInfo("Measurements", instances);
 	}
+    
+    /**
+     * Implemented as specified by {@link Agent}. 
+     * @see Agent#save(List)
+     */
+    public void save(List<Object> instances)
+    {
+    	MeasurementViewerFactory.saveInstances(instances);
+    }
     
 	/**
      * Implemented as specified by {@link Agent}.
@@ -281,6 +306,8 @@ public class MeasurementAgent
 			handleFocusGainedEvent((FocusGainedEvent) e);
 		else if (e instanceof ImageRendered)
 			handleImageRenderedEvent((ImageRendered) e);
+		 else if (e instanceof UserGroupSwitched)
+				handleUserGroupSwitched((UserGroupSwitched) e);
 	}
 	
 }

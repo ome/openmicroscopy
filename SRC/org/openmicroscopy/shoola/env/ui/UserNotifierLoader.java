@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.env.ui;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -63,6 +64,8 @@ abstract class UserNotifierLoader
     /** Convenience reference for subclasses. */
     protected final ImageDataView		ivView;
     
+    /** Convenience reference for subclasses. */
+    protected final DataHandlerView		dhView;
     
     /** Convenience reference to the activity. */
     protected final ActivityComponent 	activity;
@@ -87,6 +90,8 @@ abstract class UserNotifierLoader
      		registry.getDataServicesView(MetadataHandlerView.class);
     	ivView = (ImageDataView) 
  			registry.getDataServicesView(ImageDataView.class);
+    	dhView = (DataHandlerView) 
+			registry.getDataServicesView(DataHandlerView.class);
     }
     
     /**

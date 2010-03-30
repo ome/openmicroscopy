@@ -319,19 +319,24 @@ public class EditorUI
 		}
 	}
 	
-    /** Save data. */
-	void saveData()
+    /** 
+     * Save data. 
+     * 
+     * @param asynch Pass <code>true</code> to save data asynchronously,
+     * 				 <code>false</code> otherwise.
+     */
+	void saveData(boolean async)
 	{
 		saved = true;
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		toolBar.setDataToSave(false);
 		if (model.getRefObject() instanceof ExperimenterData) {
 			Object exp = userUI.getExperimenterToSave();
-			model.fireAdminSaving(exp);
+			model.fireAdminSaving(exp, async);
 			return;
 		} else if  (model.getRefObject() instanceof GroupData) {
 			AdminObject o = groupUI.getAdminObject();
-			model.fireAdminSaving(o);
+			model.fireAdminSaving(o, async);
 			return;
 		}
 		Map<Integer, List<AnnotationData>> m = generalPane.prepareDataToSave();
@@ -342,7 +347,7 @@ public class EditorUI
 		if (refObject instanceof ImageData)
 			metadata = acquisitionPane.prepareDataToSave();
 
-		model.fireAnnotationSaving(toAdd, toRemove, metadata);
+		model.fireAnnotationSaving(toAdd, toRemove, metadata, async);
 	}
 
 	/** Lays out the thumbnails. */
@@ -493,10 +498,8 @@ public class EditorUI
 	{
 		if (objects == null) return;
 		generalPane.handleObjectsSelection(type, objects);
-		//if (model.isMultiSelection()) {
 		if (TagAnnotationData.class.equals(type))
-			saveData();
-		//}	
+			saveData(true);	
 	}
 	
 	/** 

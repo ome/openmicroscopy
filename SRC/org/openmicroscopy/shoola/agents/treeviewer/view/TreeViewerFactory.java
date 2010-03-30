@@ -252,6 +252,25 @@ public class TreeViewerFactory
 	}
 	
 	/**
+	 * Notifies the model that the user's group has successfully be modified
+	 * if the passed value is <code>true</code>, unsuccessfully 
+	 * if <code>false</code>.
+	 * 
+	 * @param success 	Pass <code>true</code> if successful, <code>false</code>
+	 * 					otherwise.
+	 */
+	public static void onGroupSwitched(boolean success)
+	{
+		if (!success)  return;
+		Iterator v = singleton.viewers.iterator();
+		TreeViewerComponent comp;
+		while (v.hasNext()) {
+			comp = (TreeViewerComponent) v.next();
+			comp.onGroupSwitched(success);
+		}
+	}
+	
+	/**
 	 * Returns the {@link TreeViewer}.
 	 * 
 	 * @param exp	    	The experiment the TreeViewer is for.
@@ -267,33 +286,6 @@ public class TreeViewerFactory
 		return singleton.getTreeViewer(model, bounds);
 	}
 
-	/**
-	 * Returns map containing the event to post if selected.
-	 * 
-	 * @return See above.
-	 */
-	public static Map<String, Set> hasDataToSave()
-	{
-		Set<SaveEventRequest> events = new HashSet<SaveEventRequest>();
-		Iterator i = singleton.viewers.iterator();
-		TreeViewerComponent comp;
-		SaveData event;
-		while (i.hasNext()) {
-			comp = (TreeViewerComponent) i.next();
-			if (comp.hasDataToSave()) {
-				event = new SaveData(SaveData.DATA_MANAGER_ANNOTATION);
-				event.setMessage("Edited data");
-				events.add(new SaveEventRequest(comp, event));
-			}
-		}
-		if (events.size() != 0) {
-			Map<String, Set> m =  new HashMap<String, Set>();
-			m.put(NAME, events);
-			return m;
-		}
-		return null;
-	}
-	
 	/** Writes the external applications used to open document. */
 	public static void writeExternalApplications()
 	{

@@ -27,9 +27,6 @@ package org.openmicroscopy.shoola.agents.dataBrowser;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 
 //Third-party libraries
 
@@ -37,11 +34,13 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
-import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
 import org.openmicroscopy.shoola.env.Agent;
+import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
+import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -137,14 +136,16 @@ public class DataBrowserAgent
     }
     
     /**
-     * Removes all the references to the existing viewers.
+     * Handles the {@link UserGroupSwitched} event.
      * 
      * @param evt The event to handle.
      */
-    private void handleChangeUserGroupEvent(ChangeUserGroupEvent evt)
+    private void handleUserGroupSwitched(UserGroupSwitched evt)
     {
     	if (evt == null) return;
-    	DataBrowserFactory.changeUserGroup(evt.getGroupID());
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	DataBrowserFactory.onGroupSwitched(evt.isSuccessful());
     }
     
 	/** Creates a new instance. */
@@ -173,7 +174,7 @@ public class DataBrowserAgent
         bus.register(this, RndSettingsCopied.class);
         bus.register(this, CopyRndSettings.class);
         bus.register(this, CopyItems.class);
-        bus.register(this, ChangeUserGroupEvent.class);
+        bus.register(this, UserGroupSwitched.class);
     }
     
     /**
@@ -184,15 +185,18 @@ public class DataBrowserAgent
 
     /**
      * Implemented as specified by {@link Agent}. 
-     * @see Agent#hasDataToSave()
+     * @see Agent#getDataToSave()
      */
-    public Map<String, Set> hasDataToSave()
-    {
-		return null;
-	}
+    public AgentSaveInfo getDataToSave() { return null; }
     
     /**
-     * Responds to an event fired trigger on the bus.
+     * Implemented as specified by {@link Agent}. 
+     * @see Agent#save(List)
+     */
+    public void save(List<Object> instances) {}
+    
+    /**
+     * Responds to events fired trigger on the bus.
      * @see AgentEventListener#eventFired(AgentEvent)
      */
     public void eventFired(AgentEvent e)
@@ -203,8 +207,8 @@ public class DataBrowserAgent
 			handleCopyRndSettings((CopyRndSettings) e);
     	else if (e instanceof CopyItems)
 			handleCopyItems((CopyItems) e);
-    	else if (e instanceof ChangeUserGroupEvent)
-			handleChangeUserGroupEvent((ChangeUserGroupEvent) e);
+    	else if (e instanceof UserGroupSwitched)
+			handleUserGroupSwitched((UserGroupSwitched) e);
     }
     
 }

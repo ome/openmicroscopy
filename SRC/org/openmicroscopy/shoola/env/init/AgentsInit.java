@@ -84,7 +84,7 @@ public final class AgentsInit
 			
 			//Create a new instance.
 			agentInstance = agentClass.newInstance();
-			
+		
 			//Create the agent's registry.
 			reg = createAgentRegistry(info.getConfigPath());
 			

@@ -35,8 +35,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
@@ -50,6 +56,7 @@ import org.w3c.dom.NodeList;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -58,8 +65,10 @@ import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.events.SaveEventResponse;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
+import org.openmicroscopy.shoola.env.data.events.SwitchUserGroup;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -257,6 +266,57 @@ public class TaskBarManager
 	}
 	
 	/**
+	 * Switches user group, notifies the agents to save data before switching.
+	 * 
+	 * @param evt The event to handle.
+	 */
+	private void handleSwitchUserGroup(SwitchUserGroup evt)
+	{
+		if (evt == null) return;
+		MessageBox box = new MessageBox(view, "Group change", "Changing group" +
+				" will remove data currently displayed. " +
+				"Do you want to continue?");
+		//Do we have data to save.
+		List agents = (List) container.getRegistry().lookup(LookupNames.AGENTS);
+		Iterator i = agents.iterator();
+		Agent agent;
+		AgentSaveInfo info;
+		Map<Agent, AgentSaveInfo> l = new HashMap<Agent, AgentSaveInfo>();
+		AgentInfo ai;
+		while (i.hasNext()) {
+			ai = (AgentInfo) i.next();
+			if (ai.isActive()) {
+				agent = ai.getAgent();
+				if (agent != null) {
+					info = agent.getDataToSave();
+					if (info != null && info.getCount() > 0)
+						l.put(agent, info);
+				}
+			}
+		}
+		JCheckBox saveBox = new JCheckBox("Save Data before switching group");
+		if (l.size() > 0) {
+			saveBox.setSelected(true);
+			JPanel p = new JPanel();
+			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+			p.add(saveBox);
+			box.addBodyComponent(UIUtilities.buildComponentPanel(p));
+		}
+		
+		if (box.centerMsgBox() == MessageBox.YES_OPTION) {
+			Registry reg = container.getRegistry();
+			if (!saveBox.isSelected()) l = null;
+			
+			UserNotifierLoader loader = new SwitchUserLoader(
+					reg.getUserNotifier(), reg, l, evt.getExperimenterData(), 
+					evt.getGroupID());
+			loader.load();
+		} else {
+			//post an event to roll back 
+		}
+	}
+	
+	/**
 	 * The exit action.
 	 * Just forwards to the container.
 	 * 
@@ -362,9 +422,10 @@ public class TaskBarManager
 		    			icons.getIcon(IconManager.QUESTION));
 			 option = msg.centerMsgBox();
 		}
-       
-        
 		if (option == MessageBox.YES_OPTION) {
+			
+			
+			
 			try {
 				DataServicesFactory f = 
 					DataServicesFactory.getInstance(container);
@@ -503,6 +564,8 @@ public class TaskBarManager
 		bus.register(this, ServiceActivationResponse.class);
         bus.register(this, ExitApplication.class);
         bus.register(this, SaveEventResponse.class);
+
+        bus.register(this, SwitchUserGroup.class);
 		if (UIUtilities.isMacOS()) {
 			try {
 				MacOSMenuHandler handler = new MacOSMenuHandler(view);
@@ -655,10 +718,12 @@ public class TaskBarManager
 	 */
 	public void eventFired(AgentEvent e) 
 	{
-		if (e instanceof ServiceActivationResponse)	{
+		if (e instanceof ServiceActivationResponse)	
 			synchConnectionButtons();
-		} else if (e instanceof ExitApplication) 
+		else if (e instanceof ExitApplication) 
         	doExit(((ExitApplication) e).isAskQuestion());
+		else if (e instanceof SwitchUserGroup) 
+			handleSwitchUserGroup((SwitchUserGroup) e);
         else if (e instanceof SaveEventResponse) 
         	handleSaveEventResponse((SaveEventResponse) e);
 	}

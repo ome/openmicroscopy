@@ -992,5 +992,14 @@ public interface TreeViewer
 	 * @param value The new password.
 	 */
 	void resetPassword(String value);
+
+	/** 
+	 * Indicates that the group has been successfully switched if 
+	 * <code>true</code>, unsuccessfully if <code>false</code>.
+	 * 
+	 * @param success 	Pass <code>true</code> if successful, 
+	 * 					<code>false</code> otherwise.
+	 */
+	void onGroupSwitched(boolean success);
 	
 }

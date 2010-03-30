@@ -487,8 +487,9 @@ class TreeViewerWin
     
     /**
      * Creates a new instance. The
-     * {@link #initialize(TreeViewerControl, TreeViewerModel) initialize}method
-     * should be called straight after to link this View to the Controller.
+     * {@link #initialize(TreeViewerControl, TreeViewerModel) initialize}
+     * method should be called straight after to link this View to the
+     * Controller.
      */
     TreeViewerWin()
     {

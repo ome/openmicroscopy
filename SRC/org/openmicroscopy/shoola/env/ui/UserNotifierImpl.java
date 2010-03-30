@@ -87,6 +87,9 @@ public class UserNotifierImpl
     /** Reference to the manager. */
     private UserNotifierManager		manager;
     
+    /** The dialog displaying the progress of the save. */
+    private ChangesDialog			dialog;
+    
     /**
 	 * Utility method to print the error message
 	 * 
@@ -172,6 +175,16 @@ public class UserNotifierImpl
     	}
     }
     
+	/** Displays the activity. */
+	void showActivity() { manager.showActivity(); }
+	
+	/** Notifies that data are saved before closing or switching group. */
+	void notifySaving(int totalTasks)
+	{
+		dialog = new ChangesDialog(SHARED_FRAME, totalTasks);
+		UIUtilities.centerAndShow(dialog);
+	}
+	
 	/** 
      * Implemented as specified by {@link UserNotifier}. 
      * @see UserNotifier#notifyError(String, String)
@@ -364,8 +377,5 @@ public class UserNotifierImpl
 			
 		}
 	}
-	
-	/** Displays the activity. */
-	void showActivity() { manager.showActivity(); }
 
 }

@@ -160,18 +160,17 @@ class AdminServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link AdminService}.
-	 * @see AdminService#changeExperimenterGroup(ExperimenterData, GroupData)
+	 * @see AdminService#changeExperimenterGroup(ExperimenterData, long)
 	 */
-	public void changeExperimenterGroup(ExperimenterData exp, GroupData 
-			group)
+	public void changeExperimenterGroup(ExperimenterData exp, long groupID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (exp == null) 
 			throw new DSAccessException("No object to update.");
-		if (group == null)
+		if (groupID < 0)
 			throw new DSAccessException("No group specified.");
-		if (group != null && exp.getDefaultGroup().getId() != group.getId()) {
-			gateway.changeCurrentGroup(exp, group.getId());
+		if (exp.getDefaultGroup().getId() != groupID) {
+			gateway.changeCurrentGroup(exp, groupID);
 		}
 		UserCredentials uc = (UserCredentials) 
 			context.lookup(LookupNames.USER_CREDENTIALS);

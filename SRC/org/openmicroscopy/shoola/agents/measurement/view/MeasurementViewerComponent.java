@@ -197,6 +197,13 @@ class MeasurementViewerComponent
      */
     MeasurementViewerModel getModel() { return model; }
 
+    /** Saves the ROI (not asynchronously) and discards. */
+    void saveAndDiscard()
+    {
+    	model.saveROIToServer(false);
+    	discard();
+    }
+    
     /** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#activate()
@@ -253,6 +260,7 @@ class MeasurementViewerComponent
 	public void discard()
 	{
 		if (model.getState() != DISCARDED) {
+			view.setVisible(false);
 			model.discard();
 			fireStateChange();
 		}
@@ -465,7 +473,7 @@ class MeasurementViewerComponent
      */
 	public void saveROIToServer()
 	{
-		model.saveROIToServer();
+		model.saveROIToServer(true);
 	}
 	
 	/** 
@@ -705,16 +713,6 @@ class MeasurementViewerComponent
 		firePropertyChange(ROI_CHANGED_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 	}
 
-	/** 
-	 * Implemented as specified by the {@link MeasurementViewer} interface.
-	 * @see MeasurementViewer#saveAndDiscard()
-	 */
-	public void saveAndDiscard()
-	{
-		saveROIToServer();
-		discard();
-	}
-	
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#toFront()

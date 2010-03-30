@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.agents.measurement.ROISaver;
 import org.openmicroscopy.shoola.agents.measurement.ServerSideROILoader;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -912,18 +913,30 @@ class MeasurementViewerModel
 		}
 	}
 	
-	/** Saves the current ROISet in the ROI component to server. */
-	void saveROIToServer()
+	/** 
+	 * Saves the current ROISet in the ROI component to server. 
+	 * 
+	 * @param asynch Pass <code>true</code> to save the ROI asynchronously,
+	 * 				 <code>false</code> otherwise.
+	 */
+	void saveROIToServer(boolean async)
 	{
 		List<ROIData> roiList;
 		try {
 			roiList = roiComponent.saveROI(pixels.getImage());
 			ExperimenterData exp = 
 				(ExperimenterData) MeasurementAgent.getUserDetails();
-			currentSaver = new ROISaver(component, getImageID(), exp.getId(), 
-					roiList);
-			currentSaver.load();
-			nofityDataChanged(false);
+			if (async) {
+				currentSaver = new ROISaver(component, getImageID(), 
+						exp.getId(), roiList);
+				currentSaver.load();
+				nofityDataChanged(false);
+			} else {
+				OmeroImageService svc = 
+					MeasurementAgent.getRegistry().getImageService();
+				svc.saveROI(getImageID(), exp.getId(), roiList);
+				event = null;
+			}
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot save to server "+e.getMessage());

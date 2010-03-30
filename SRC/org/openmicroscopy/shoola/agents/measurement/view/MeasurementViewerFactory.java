@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.Rectangle;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -42,7 +43,6 @@ import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.ActivationAction;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
-
 import pojos.ChannelData;
 import pojos.PixelsData;
 
@@ -99,28 +99,11 @@ public class MeasurementViewerFactory
 	 */
 	static void register(JMenu menu)
 	{ 
-		//return singleton.viewers; 
 		if (menu == null) return;
 		Iterator<MeasurementViewer> i = singleton.viewers.iterator();
 		menu.removeAll();
 		while (i.hasNext()) 
 			menu.add(new JMenuItem(new ActivationAction(i.next())));
-		
-		/*
-		int n = singleton.recentViewers.size();
-		if (n > 0) {
-			Iterator<ImViewerRecentObject> 
-				j = singleton.recentViewers.iterator();
-			singleton.recentMenu.removeAll();
-			while (j.hasNext()) {
-				singleton.recentMenu.add(new JMenuItem(
-						new ActivateRecentAction(j.next())));
-			}
-			singleton.recentMenu.add(new JSeparator());
-			singleton.recentMenu.add(singleton.clearMenu);
-			menu.add(singleton.recentMenu);
-		}
-		*/
 	}
 	
     /**
@@ -202,6 +185,62 @@ public class MeasurementViewerFactory
 		return null;
 	}
 	
+	/**
+	 * Returns the instances to save.
+	 * 
+	 * @return See above.
+	 */
+	public static List<Object> getInstancesToSave()
+	{
+		if (singleton.viewers.size() == 0) return null;
+		List<Object> instances = new ArrayList<Object>();
+		Iterator i = singleton.viewers.iterator();
+		MeasurementViewerComponent comp;
+		while (i.hasNext()) {
+			comp = (MeasurementViewerComponent) i.next();
+			if (comp.hasROIToSave())	
+				instances.add(comp);
+		}
+		return instances;
+	}
+	
+	/** 
+	 * Saves the passed instances and discards them. 
+	 * 
+	 * @param instances The instances to save.
+	 */
+	public static void saveInstances(List<Object> instances)
+	{
+		if (singleton.viewers.size() == 0) return;
+		Iterator i = singleton.viewers.iterator();
+		MeasurementViewerComponent comp;
+		while (i.hasNext()) {
+			comp = (MeasurementViewerComponent) i.next();
+			comp.saveAndDiscard();
+		}
+	}
+	
+	/**
+	 * Notifies the model that the user's group has successfully be modified
+	 * if the passed value is <code>true</code>, unsuccessfully 
+	 * if <code>false</code>.
+	 * 
+	 * @param success 	Pass <code>true</code> if successful, <code>false</code>
+	 * 					otherwise.
+	 */
+	public static void onGroupSwitched(boolean success)
+	{
+		if (!success)  return;
+		Iterator v = singleton.viewers.iterator();
+		MeasurementViewerComponent comp;
+		while (v.hasNext()) {
+			comp = (MeasurementViewerComponent) v.next();
+			comp.discard();
+		}
+		singleton.requests.clear();
+		singleton.viewers.clear();
+	}
+	
 	/** All the tracked components. */
     private Set<MeasurementViewer>	viewers;
     
@@ -248,11 +287,11 @@ public class MeasurementViewerFactory
         return comp;
 	}
 
-	 /**
-     * Removes a viewer from the {@link #viewers} set when it is
-     * {@link MeasurementViewer#DISCARDED discarded}. 
-     * @see ChangeListener#stateChanged(ChangeEvent)
-     */
+	/**
+	 * Removes a viewer from the {@link #viewers} set when it is
+	 * {@link MeasurementViewer#DISCARDED discarded}. 
+	 * @see ChangeListener#stateChanged(ChangeEvent)
+	 */
 	public void stateChanged(ChangeEvent e)
 	{
 		MeasurementViewerComponent comp = 

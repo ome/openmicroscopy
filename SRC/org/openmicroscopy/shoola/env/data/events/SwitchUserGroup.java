@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent 
+ * org.openmicroscopy.shoola.env.data.events.SwitchUserGroup 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.events.treeviewer;
+package org.openmicroscopy.shoola.env.data.events;
 
 
 //Java imports
@@ -29,11 +29,10 @@ package org.openmicroscopy.shoola.agents.events.treeviewer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
-
+import pojos.ExperimenterData;
 
 /** 
- * Event indicating that the current group of the currently logged in user
- * has been modified.
+ * Event fired to switch group and to ask agent to save data.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,26 +44,26 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * </small>
  * @since 3.0-Beta4
  */
-public class ChangeUserGroupEvent
+public class SwitchUserGroup 
 	extends RequestEvent
 {
 
-	/** The id of the new group. */
-	private long groupID;
+	/** The experimenter to handle. */
+	private ExperimenterData	experimenter;
 	
-	/** The id of the group before switching. */
-	private long oldGroupID;
+	/** The identifier of the group. */
+	private long 				groupID;
 	
-	/**
+	/** 
 	 * Creates a new instance.
 	 * 
-	 * @param groupID 		The id of the current group.
-	 * @param oldGroupID 	The id of the previous group.
+	 * @param experimenter 	The experimenter to handle.
+	 * @param groupID		The identifier of the group.
 	 */
-	public ChangeUserGroupEvent(long groupID, long oldGroupID)
+	public SwitchUserGroup(ExperimenterData experimenter, long groupID)
 	{
+		this.experimenter = experimenter;
 		this.groupID = groupID;
-		this.oldGroupID = oldGroupID;
 	}
 	
 	/**
@@ -73,12 +72,12 @@ public class ChangeUserGroupEvent
 	 * @return See above.
 	 */
 	public long getGroupID() { return groupID; }
-
+	
 	/**
-	 * Returns the identifier of the old group.
+	 * Returns the experimenter to handle.
 	 * 
 	 * @return See above.
 	 */
-	public long getOldGroupID() { return oldGroupID; }
+	public ExperimenterData getExperimenterData() { return experimenter; }
 	
 }

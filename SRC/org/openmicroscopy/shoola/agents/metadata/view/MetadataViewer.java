@@ -281,11 +281,13 @@ public interface MetadataViewer
 	 * @param toDelete	The annotations to delete.
 	 * @param metadata	The metadata to save.
 	 * @param data		The data object to annotate.
+	 * @param asynch 	Pass <code>true</code> to save data asynchronously,
+     * 				 	<code>false</code> otherwise.
 	 */
 	public void saveData(List<AnnotationData> toAdd, 
 						List<AnnotationData> toRemove, 
 						List<AnnotationData> toDelete, List<Object> metadata,
-						DataObject data);
+						DataObject data, boolean asynch);
 	
 	/**
 	 * Returns <code>true</code> if data to save, <code>false</code>
@@ -546,9 +548,11 @@ public interface MetadataViewer
 	/**
 	 * Updates the experimenter or the group.
 	 * 
-	 * @param data The object to handle.
+	 * @param data 		The object to handle.
+	 * @param asynch 	Pass <code>true</code> to save data asynchronously,
+     * 					 <code>false</code> otherwise.
 	 */
-	public void updateAdminObject(Object data);
+	public void updateAdminObject(Object data, boolean asynch);
 
 	/**
 	 * Returns the id of the possible owner. This should only be used to 

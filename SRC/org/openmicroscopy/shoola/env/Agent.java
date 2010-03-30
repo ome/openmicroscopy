@@ -24,16 +24,14 @@
 package org.openmicroscopy.shoola.env;
 
 
-// Java Imports;
-import java.util.Map;
-import java.util.Set;
+// Java Imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-
-// App-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 
 
 /** 
@@ -77,12 +75,19 @@ public interface Agent
      * @return See above.
      */
     public boolean canTerminate();
-    
+
     /**
-     * Returns the map with events and data to save.
+     * Returns the number of instances to save before discarding them.
      * 
      * @return See above.
      */
-    public Map<String, Set> hasDataToSave();
-
+    public AgentSaveInfo getDataToSave();
+    
+    /** 
+     * Saves the passed instances. 
+     * 
+     * @param instances The instances to save.
+     */
+    public void save(List<Object> instances);
+    
 }

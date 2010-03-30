@@ -73,33 +73,46 @@ public class ManageRndSettingsAction
 	/** Identified the reset action. */
 	public static final int 	SET_ORIGINAL = 3;
 	
-	/** The default name of the action if the index is {@link #COPY}. */
+	/** Identified the set owner settings action. */
+	public static final int 	SET_OWNER_SETTING = 4;
+	
+	/** The name of the action if the index is {@link #COPY}. */
     private static final String NAME_COPY = "Copy Settings";
     
     /** The description of the action if the index is {@link #COPY}. */
     private static final String DESCRIPTION_COPY = 
     										"Copy the rendering settings.";
     
-    /** The default name of the action if the index is {@link #PASTE}. */
+    /** The name of the action if the index is {@link #PASTE}. */
     private static final String NAME_PASTE = "Paste Settings";
     
     /** The description of the action if the index is {@link #PASTE}. */
     private static final String DESCRIPTION_PASTE = 
     									"Paste the rendering settings.";
     
-    /** The default name of the action if the index is {@link #RESET}. */
+    /** The name of the action if the index is {@link #RESET}. */
     private static final String NAME_RESET = "Reset Settings";
     
     /** The description of the action if the index is {@link #RESET}. */
     private static final String DESCRIPTION_RESET = 
     									"Reset the rendering settings.";
     
-    /** The default name of the action if the index is {@link #SET_ORIGINAL}. */
+    /** The name of the action if the index is {@link #SET_ORIGINAL}. */
     private static final String NAME_SET_ORIGINAL = "Set Original Settings";
     
     /** The description of the action if the index is {@link #SET_ORIGINAL}. */
     private static final String DESCRIPTION_SET_ORIGINAL = 
     									"Set the original rendering settings.";
+    
+    /** The name of the action if the index is {@link #SET_OWNER_SETTING}. */
+    private static final String NAME_SET_OWNER_SETTING = "Set Owner's Settings";
+    
+    /** 
+     * The description of the action if the index is {@link #SET_OWNER_SETTING}. 
+     */
+    private static final String DESCRIPTION_SET_OWNER_SETTING  = 
+    									"Set the original rendering settings.";
+    
     
 	/** One of the constants defined by this class. */
 	private int 		index;
@@ -119,6 +132,7 @@ public class ManageRndSettingsAction
 		for (int i = 0; i < nodes.length; i++) {
 			node = (TreeImageTimeSet) nodes[i];
 			if (node.getNumberItems() > 0) {
+				/*
 				if (index == COPY) {
 					if (model.isObjectWritable(node))
 						count++;
@@ -126,6 +140,9 @@ public class ManageRndSettingsAction
 					if (model.isUserOwner(node))
 						count++;
 				}
+				*/
+				if (model.isObjectWritable(node))
+					count++;
 			}
 		}
 		setEnabled(count == nodes.length);
@@ -161,6 +178,13 @@ public class ManageRndSettingsAction
 				name = NAME_SET_ORIGINAL;
 				putValue(Action.SHORT_DESCRIPTION, 
 					UIUtilities.formatToolTipText(DESCRIPTION_SET_ORIGINAL));
+				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.REDO));
+				break;
+			case SET_OWNER_SETTING:
+				name = NAME_SET_OWNER_SETTING;
+				putValue(Action.SHORT_DESCRIPTION, 
+						UIUtilities.formatToolTipText(
+							DESCRIPTION_SET_OWNER_SETTING));
 				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.REDO));
 				break;
 			default:
@@ -205,7 +229,7 @@ public class ManageRndSettingsAction
 				if (selected.length > 1) setEnabled(false);
 				else {
 					if (ho instanceof ImageData || ho instanceof WellSampleData)
-						setEnabled(model.isUserOwner(ho));
+						setEnabled(true);//setEnabled(model.isUserOwner(ho));
 					else setEnabled(false);
 				}
 				break;
@@ -224,7 +248,8 @@ public class ManageRndSettingsAction
 					setEnabled(false);
 				else {
 					for (int i = 0; i < selected.length; i++) {
-						if (model.isUserOwner(selected[i].getUserObject()))
+						//if (model.isUserOwner(selected[i].getUserObject()))
+						if (model.isObjectWritable(selected[i].getUserObject()))
 							count++;
 					}
 					setEnabled(count == selected.length);
@@ -232,6 +257,7 @@ public class ManageRndSettingsAction
 				break;
 			case RESET:
 			case SET_ORIGINAL:
+			case SET_OWNER_SETTING:
 				if (selectedDisplay instanceof TreeImageTimeSet) {
 					handleTreeTimeNode(selected);
 					return;
@@ -241,7 +267,8 @@ public class ManageRndSettingsAction
 					setEnabled(false);
 				else {
 					for (int i = 0; i < selected.length; i++) {
-						if (model.isUserOwner(selected[i].getUserObject()))
+						//if (model.isUserOwner(selected[i].getUserObject()))
+						if (model.isObjectWritable(selected[i].getUserObject()))
 							count++;
 					}
 					setEnabled(count == selected.length);
