@@ -84,7 +84,6 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ImportLibrary implements IObservable
 {
-   
     private static Log log = LogFactory.getLog(ImportLibrary.class);
 
     private final ArrayList<IObserver> observers = new ArrayList<IObserver>();
@@ -94,7 +93,7 @@ public class ImportLibrary implements IObservable
     private final OMEROMetadataStoreClient store;
 
     private final OMEROWrapper reader;
-    
+
     private byte[] arrayBuf;
 
     /**
@@ -109,9 +108,9 @@ public class ImportLibrary implements IObservable
         if (client == null || reader == null)
         {
             throw new NullPointerException(
-                    "All arguments to ImportLibrary() must be non-null.");
+            "All arguments to ImportLibrary() must be non-null.");
         }
-        
+
         this.store = client;
         this.reader = reader;
     }
@@ -119,26 +118,28 @@ public class ImportLibrary implements IObservable
     //
     // Delegation methods
     //
-    
 
-    public long getExperimenterID() {
+    public long getExperimenterID()
+    {
         return store.getExperimenterID();
     }
 
-
-    public InstanceProvider getInstanceProvider() {
+    public InstanceProvider getInstanceProvider()
+    {
         return store.getInstanceProvider();
     }
 
     //
     // Observable methods
     //
-    
-    public boolean addObserver(IObserver object) {
+
+    public boolean addObserver(IObserver object)
+    {
         return observers.add(object);
     }
 
-    public boolean deleteObserver(IObserver object) {
+    public boolean deleteObserver(IObserver object)
+    {
         return observers.remove(object);
 
     }
@@ -146,27 +147,28 @@ public class ImportLibrary implements IObservable
     /* (non-Javadoc)
      * @see ome.formats.importer.IObservable#notifyObservers(ome.formats.importer.ImportEvent)
      */
-    public void notifyObservers(ImportEvent event) {
+    public void notifyObservers(ImportEvent event)
+    {
         for (IObserver observer : observers) {
             observer.update(this, event);
         }
     }
 
-    
+
     // ~ Actions
     // =========================================================================
-
 
     /**
      * Primary user method for importing a number 
      */
-    public void importCandidates(ImportConfig config, ImportCandidates candidates) {
+    public void importCandidates(ImportConfig config, ImportCandidates candidates)
+    {
         List<ImportContainer> containers = candidates.getContainers();
         if (containers != null) {
             int numDone = 0;
             for (int index = 0; index < containers.size(); index++) {
                 ImportContainer ic = containers.get(index);
-                
+
                 if (config.targetClass.get() == "omero.model.Dataset")
                 {
                     ic.setTarget(store.getTarget(Dataset.class, config.targetId.get()));
@@ -175,7 +177,7 @@ public class ImportLibrary implements IObservable
                 {
                     ic.setTarget(store.getTarget(Screen.class, config.targetId.get()));                 
                 }
-                
+
                 try {
                     importImage(
                             ic.file,
@@ -200,7 +202,6 @@ public class ImportLibrary implements IObservable
         }
     }
 
-
     /** opens the file using the {@link FormatReader} instance */
     private void open(String fileName) throws IOException, FormatException
     {
@@ -223,73 +224,73 @@ public class ImportLibrary implements IObservable
      * @param userSpecifiedAnnotations The annotations to link to each image
      * in the import.
      * @return the newly created {@link Pixels} id.
-	 * @throws FormatException if there is an error parsing metadata.
-	 * @throws IOException if there is an error reading the file.
+     * @throws FormatException if there is an error parsing metadata.
+     * @throws IOException if there is an error reading the file.
      */
-	private List<Pixels> importMetadata(
-			                            int index,
-	                                    IObject userSpecifiedTarget,
-	                                    String userSpecifiedImageName,
-			                            String userSpecifiedImageDescription,
-			                            Double[] userPixels,
-			                            List<Annotation> userSpecifiedAnnotations)
-    	throws FormatException, IOException
+    private List<Pixels> importMetadata(
+            int index,
+            IObject userSpecifiedTarget,
+            String userSpecifiedImageName,
+            String userSpecifiedImageDescription,
+            Double[] userPixels,
+            List<Annotation> userSpecifiedAnnotations)
+            throws FormatException, IOException
     {
-    	// 1st we post-process the metadata that we've been given.
-    	notifyObservers(new ImportEvent.BEGIN_POST_PROCESS(index, null, userSpecifiedTarget, null, 0, null));
-    	store.setUserSpecifiedImageName(userSpecifiedImageName);
-    	store.setUserSpecifiedImageDescription(userSpecifiedImageDescription);
-    	if (userPixels != null)
-    	    store.setUserSpecifiedPhysicalPixelSizes(userPixels[0], userPixels[1], userPixels[2]);
-    	store.setUserSpecifiedTarget(userSpecifiedTarget);
-    	store.setUserSpecifiedAnnotations(userSpecifiedAnnotations);
+        // 1st we post-process the metadata that we've been given.
+        notifyObservers(new ImportEvent.BEGIN_POST_PROCESS(index, null, userSpecifiedTarget, null, 0, null));
+        store.setUserSpecifiedImageName(userSpecifiedImageName);
+        store.setUserSpecifiedImageDescription(userSpecifiedImageDescription);
+        if (userPixels != null)
+            store.setUserSpecifiedPhysicalPixelSizes(userPixels[0], userPixels[1], userPixels[2]);
+        store.setUserSpecifiedTarget(userSpecifiedTarget);
+        store.setUserSpecifiedAnnotations(userSpecifiedAnnotations);
         store.postProcess();
         notifyObservers(new ImportEvent.END_POST_PROCESS(index, null, userSpecifiedTarget, null, 0, null));
-        
+
         notifyObservers(new ImportEvent.BEGIN_SAVE_TO_DB(index, null, userSpecifiedTarget, null, 0, null));
         List<Pixels> pixelsList = store.saveToDB();
         notifyObservers(new ImportEvent.END_SAVE_TO_DB(index, null, userSpecifiedTarget, null, 0, null));
         return pixelsList;
     }
-    
-	/**
-	 * If available, populates overlays for a given set of pixels objects.
-	 * @param pixelsList Pixels objects to populate overlays for.
-	 * @param plateIds Plate object IDs to populate overlays for.
-	 */
-	private void importOverlays(List<Pixels> pixelsList, List<Long> plateIds)
-		throws ServerError, FormatException, IOException
-	{
-		IFormatReader baseReader = reader.getImageReader().getReader();
-		if (baseReader instanceof MIASReader)
-		{
-			try
-			{
-				MIASReader miasReader = (MIASReader) baseReader;
-				String currentFile = miasReader.getCurrentFile();
-				reader.close();
-				miasReader.setAutomaticallyParseMasks(true);
-				ServiceFactoryPrx sf = store.getServiceFactory();
-				OverlayMetadataStore s = new OverlayMetadataStore();
-				s.initialize(sf, pixelsList, plateIds);
-				reader.setMetadataStore(s);
-				miasReader.close();
-				miasReader.setAutomaticallyParseMasks(true);
-				miasReader.setId(currentFile);
-				s.complete();
-			}
-			catch (ServerError e)
-			{
-				log.warn("Error while populating MIAS overlays.", e);
-			}
-			finally
-			{
-				reader.close();
-				reader.setMetadataStore(store);
-			}
-		}
-	}
-	
+
+    /**
+     * If available, populates overlays for a given set of pixels objects.
+     * @param pixelsList Pixels objects to populate overlays for.
+     * @param plateIds Plate object IDs to populate overlays for.
+     */
+    private void importOverlays(List<Pixels> pixelsList, List<Long> plateIds)
+        throws ServerError, FormatException, IOException
+    {
+        IFormatReader baseReader = reader.getImageReader().getReader();
+        if (baseReader instanceof MIASReader)
+        {
+            try
+            {
+                MIASReader miasReader = (MIASReader) baseReader;
+                String currentFile = miasReader.getCurrentFile();
+                reader.close();
+                miasReader.setAutomaticallyParseMasks(true);
+                ServiceFactoryPrx sf = store.getServiceFactory();
+                OverlayMetadataStore s = new OverlayMetadataStore();
+                s.initialize(sf, pixelsList, plateIds);
+                reader.setMetadataStore(s);
+                miasReader.close();
+                miasReader.setAutomaticallyParseMasks(true);
+                miasReader.setId(currentFile);
+                s.complete();
+            }
+            catch (ServerError e)
+            {
+                log.warn("Error while populating MIAS overlays.", e);
+            }
+            finally
+            {
+                reader.close();
+                reader.setMetadataStore(store);
+            }
+        }
+    }
+
     /**
      * Perform an image import.  <em>Note: this method both notifes {@link #observers}
      * of error states AND throws the exception to cancel processing.</em>
@@ -327,12 +328,12 @@ public class ImportLibrary implements IObservable
             boolean archive, boolean useMetadataFile,
             Double[] userPixels, IObject userSpecifiedTarget)
         throws FormatException, IOException, Throwable
-    {   
-    	return importImage(file, index, numDone, total, userSpecifiedImageName,
-    			userSpecifiedImageDescription, archive, useMetadataFile,
-    			userPixels, userSpecifiedTarget, new ArrayList<Annotation>());
+    {
+        return importImage(file, index, numDone, total, userSpecifiedImageName,
+                userSpecifiedImageDescription, archive, useMetadataFile,
+                userPixels, userSpecifiedTarget, new ArrayList<Annotation>());
     }
-	
+
     /**
      * Perform an image import.  <em>Note: this method both notifes {@link #observers}
      * of error states AND throws the exception to cancel processing.</em>
@@ -367,13 +368,13 @@ public class ImportLibrary implements IObservable
      * server we're importing into.
      */
     public List<Pixels> importImage(File file, int index, int numDone,
-    		                        int total, String userSpecifiedImageName, 
-    		                        String userSpecifiedImageDescription,
-    		                        boolean archive, boolean useMetadataFile,
-    		                        Double[] userPixels, IObject userSpecifiedTarget,
-    		                        List<Annotation> userSpecifiedAnnotations)
-    	throws FormatException, IOException, Throwable
-    {   
+            int total, String userSpecifiedImageName, 
+            String userSpecifiedImageDescription,
+            boolean archive, boolean useMetadataFile,
+            Double[] userPixels, IObject userSpecifiedTarget,
+            List<Annotation> userSpecifiedAnnotations)
+            throws FormatException, IOException, Throwable
+    {
         String fileName = file.getAbsolutePath();
         String shortName = file.getName();
         String format = null;
@@ -381,196 +382,214 @@ public class ImportLibrary implements IObservable
         String[] usedFiles = new String[1];
         boolean isScreeningDomain = false;
         usedFiles[0] = file.getAbsolutePath();      
-        
+
         try {
-            
-            notifyObservers(new ImportEvent.LOADING_IMAGE(shortName, index, numDone, total));
-        
+            notifyObservers(new ImportEvent.LOADING_IMAGE(
+                    shortName, index, numDone, total));
+
             open(file.getAbsolutePath());
             format = reader.getFormat();
             domains = reader.getDomains();
             if (reader.getUsedFiles() != null)
             {
-            	usedFiles = reader.getUsedFiles();
+                usedFiles = reader.getUsedFiles();
             }
             for (String domain : domains)
             {
-            	if (domain.equals(FormatTools.HCS_DOMAIN))
-            	{
-            		isScreeningDomain = true;
-            		break;
-            	}
+                if (domain.equals(FormatTools.HCS_DOMAIN))
+                {
+                    isScreeningDomain = true;
+                    break;
+                }
             }
-            notifyObservers(new ImportEvent.LOADED_IMAGE(shortName, index, numDone, total));
-            
-            String formatString = reader.getImageReader().getReader().getClass().toString();
+            notifyObservers(new ImportEvent.LOADED_IMAGE(
+                    shortName, index, numDone, total));
+
+            String formatString = 
+                reader.getImageReader().getReader().getClass().toString();
             formatString = formatString.replace("class loci.formats.in.", "");
             formatString = formatString.replace("Reader", "");
-            
+
             // Save metadata and prepare the RawPixelsStore for our arrival.
             List<File> metadataFiles;
             if (isScreeningDomain)
             {
-            	log.info("Reader is of HCS domain, disabling metafile.");
-            	
-            	metadataFiles = store.setArchiveScreeningDomain(archive);
+                log.info("Reader is of HCS domain, disabling metafile.");
+
+                metadataFiles = store.setArchiveScreeningDomain(archive);
             }
             else
             {
-            	log.info("Reader is not of HCS domain, use metafile: "
-            			 + useMetadataFile);
-            	metadataFiles = store.setArchive(archive, useMetadataFile);
+                log.info("Reader is not of HCS domain, use metafile: "
+                        + useMetadataFile);
+                metadataFiles = store.setArchive(archive, useMetadataFile);
             }
             List<Pixels> pixList = 
-            	importMetadata(index,
-            			       userSpecifiedTarget,
-            	               userSpecifiedImageName,
-            			       userSpecifiedImageDescription,
-            			       userPixels,
-            			       userSpecifiedAnnotations);
-        	List<Long> plateIds = new ArrayList<Long>();
-        	Image image = pixList.get(0).getImage();
-        	if (image.sizeOfWellSamples() > 0)
-        	{
-        		Plate plate = image.copyWellSamples().get(0).getWell().getPlate();
-        		plateIds.add(plate.getId().getValue());
-        	}
+                importMetadata(index,
+                        userSpecifiedTarget,
+                        userSpecifiedImageName,
+                        userSpecifiedImageDescription,
+                        userPixels,
+                        userSpecifiedAnnotations);
+            List<Long> plateIds = new ArrayList<Long>();
+            Image image = pixList.get(0).getImage();
+            if (image.sizeOfWellSamples() > 0)
+            {
+                Plate plate = 
+                    image.copyWellSamples().get(0).getWell().getPlate();
+                plateIds.add(plate.getId().getValue());
+            }
             List<Long> pixelsIds = new ArrayList<Long>(pixList.size());
             for (Pixels pixels : pixList)
             {
-            	pixelsIds.add(pixels.getId().getValue());
+                pixelsIds.add(pixels.getId().getValue());
             }
             store.preparePixelsStore(pixelsIds);
-        
+
             int seriesCount = reader.getSeriesCount();
             boolean saveSha1 = false;
             for (int series = 0; series < seriesCount; series++)
             {
-                
+
                 // Calculate the dimensions for import this single file.
-                ImportSize size = new ImportSize(fileName, pixList.get(series), reader.getDimensionOrder());
-                
+                ImportSize size = new ImportSize(fileName, pixList.get(series),
+                        reader.getDimensionOrder());
+
                 Pixels pixels = pixList.get(series); 
                 long pixId = pixels.getId().getValue(); 
-                
-                notifyObservers(new ImportEvent.DATASET_STORED(index, fileName, userSpecifiedTarget, pixId, series, size, numDone, total));
-        
+
+                notifyObservers(new ImportEvent.DATASET_STORED(
+                        index, fileName, userSpecifiedTarget, pixId, series,
+                        size, numDone, total));
+
                 MessageDigest md = importData(pixId, fileName, series, size);
                 if (md != null)
                 {
-                	String s = OMEROMetadataStoreClient.byteArrayToHexString(md.digest());
-                	pixels.setSha1(store.toRType(s));
-                	saveSha1 = true;
+                    String s = OMEROMetadataStoreClient.byteArrayToHexString(md.digest());
+                    pixels.setSha1(store.toRType(s));
+                    saveSha1 = true;
                 }
-                
-                notifyObservers(new ImportEvent.DATA_STORED(index, fileName, userSpecifiedTarget, pixId, series, size));
+
+                notifyObservers(new ImportEvent.DATA_STORED(
+                        index, fileName, userSpecifiedTarget, pixId,
+                        series, size));
             }
-            
+
             // Original file absolute path to original file map for uploading
-        	Map<String, OriginalFile> originalFileMap =
-        		new HashMap<String, OriginalFile>();
-        	for (Pixels pixels : pixList)
-        	{
-        		Image i = pixels.getImage();
-        		for (Annotation annotation : i.linkedAnnotationList())
-        		{
-        			if (annotation instanceof FileAnnotation)
-        			{
-        				FileAnnotation fa = (FileAnnotation) annotation;
-        				OriginalFile of = fa.getFile();
-        				originalFileMap.put(of.getPath().getValue(), of);
-        			}
-        		}
-        		for (OriginalFile of : pixels.linkedOriginalFileList())
-        		{
-        			originalFileMap.put(of.getPath().getValue(), of);
-        		}
-        		for (WellSample ws : i.copyWellSamples())
-        		{
-        			Plate plate = ws.getWell().getPlate();
-        			for (Annotation annotation : plate.linkedAnnotationList())
-        			{
-        				if (annotation instanceof FileAnnotation)
-        				{
-        					FileAnnotation fa = (FileAnnotation) annotation;
-            				OriginalFile of = fa.getFile();
-            				originalFileMap.put(of.getPath().getValue(), of);
-        				}
-        			}
-        		}
-        	}
-        	
-        	List<File> fileNameList = new ArrayList<File>();
+            Map<String, OriginalFile> originalFileMap =
+                new HashMap<String, OriginalFile>();
+            for (Pixels pixels : pixList)
+            {
+                Image i = pixels.getImage();
+                for (Annotation annotation : i.linkedAnnotationList())
+                {
+                    if (annotation instanceof FileAnnotation)
+                    {
+                        FileAnnotation fa = (FileAnnotation) annotation;
+                        OriginalFile of = fa.getFile();
+                        originalFileMap.put(of.getPath().getValue(), of);
+                    }
+                }
+                for (OriginalFile of : pixels.linkedOriginalFileList())
+                {
+                    originalFileMap.put(of.getPath().getValue(), of);
+                }
+                for (WellSample ws : i.copyWellSamples())
+                {
+                    Plate plate = ws.getWell().getPlate();
+                    for (Annotation annotation : plate.linkedAnnotationList())
+                    {
+                        if (annotation instanceof FileAnnotation)
+                        {
+                            FileAnnotation fa = (FileAnnotation) annotation;
+                            OriginalFile of = fa.getFile();
+                            originalFileMap.put(of.getPath().getValue(), of);
+                        }
+                    }
+                }
+            }
+
+            List<File> fileNameList = new ArrayList<File>();
             if (archive)
             {
-            	for (String filename : reader.getUsedFiles())
-            	{
-            		fileNameList.add(new File(filename));
-            	}
+                for (String filename : reader.getUsedFiles())
+                {
+                    fileNameList.add(new File(filename));
+                }
             } 
             else
             {
-            	for (String filename : store.getFilteredCompanionFiles())
-            	{
-            		fileNameList.add(new File(filename));
-            	}
+                for (String filename : store.getFilteredCompanionFiles())
+                {
+                    fileNameList.add(new File(filename));
+                }
             }
-            
+
             fileNameList.addAll(metadataFiles);
             if (fileNameList.size() != originalFileMap.size())
             {
-            	log.warn(String.format("Original file number mismatch, %d!=%d.", 
-            			fileNameList.size(), originalFileMap.size()));
+                log.warn(String.format("Original file number mismatch, %d!=%d.", 
+                        fileNameList.size(), originalFileMap.size()));
             }
-            
+
             if (archive)
             {
-                notifyObservers(new ImportEvent.IMPORT_ARCHIVING(index, null, userSpecifiedTarget, null, 0, null));
+                notifyObservers(new ImportEvent.IMPORT_ARCHIVING(
+                        index, null, userSpecifiedTarget, null, 0, null));
             }
-        	store.writeFilesToFileStore(fileNameList, originalFileMap);
-            
+            store.writeFilesToFileStore(fileNameList, originalFileMap);
+
             if (saveSha1)
             {
-            	store.updatePixels(pixList);
+                store.updatePixels(pixList);
             }
-            
+
             if (reader.isMinMaxSet() == false)
             {
                 store.populateMinMax();
             }
 
-            notifyObservers(new ImportEvent.IMPORT_OVERLAYS(index, null, userSpecifiedTarget, null, 0, null));
+            notifyObservers(new ImportEvent.IMPORT_OVERLAYS(
+                    index, null, userSpecifiedTarget, null, 0, null));
             importOverlays(pixList, plateIds);
-            notifyObservers(new ImportEvent.IMPORT_THUMBNAILING(index, null, userSpecifiedTarget, null, 0, null));
+            notifyObservers(new ImportEvent.IMPORT_THUMBNAILING(
+                    index, null, userSpecifiedTarget, null, 0, null));
             store.resetDefaultsAndGenerateThumbnails(plateIds, pixelsIds);
             store.launchProcessing(); // Use or return value here later. TODO
-            notifyObservers(new ImportEvent.IMPORT_DONE(index, null, userSpecifiedTarget, null, 0, null, pixList));
-            
+            notifyObservers(new ImportEvent.IMPORT_DONE(
+                    index, null, userSpecifiedTarget, null, 0, null, pixList));
+
             return pixList;
-            
+
         } catch (MissingLibraryException mle) {
-            notifyObservers(new ErrorHandler.MISSING_LIBRARY(fileName, mle, usedFiles, format));
+            notifyObservers(new ErrorHandler.MISSING_LIBRARY(
+                    fileName, mle, usedFiles, format));
             throw mle;
         } catch (IOException io) {
-            notifyObservers(new ErrorHandler.FILE_EXCEPTION(fileName, io, usedFiles, format));
+            notifyObservers(new ErrorHandler.FILE_EXCEPTION(
+                    fileName, io, usedFiles, format));
             throw io;
         } catch (UnknownFormatException ufe) {
-            notifyObservers(new ErrorHandler.UNKNOWN_FORMAT(fileName, ufe, this));
+            notifyObservers(new ErrorHandler.UNKNOWN_FORMAT(
+                    fileName, ufe, this));
             throw ufe;
         } catch (FormatException fe) {
-            notifyObservers(new ErrorHandler.FILE_EXCEPTION(fileName, fe, usedFiles, format));
+            notifyObservers(new ErrorHandler.FILE_EXCEPTION(
+                    fileName, fe, usedFiles, format));
             throw fe;
         } catch (Exception e) {
-            notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(fileName, e, usedFiles, format));
+            notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
+                    fileName, e, usedFiles, format));
             throw e;
         } catch (Throwable t) {
-        	notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(fileName, new RuntimeException(t), usedFiles, format));
-        	throw t;
+            notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
+                    fileName, new RuntimeException(t), usedFiles, format));
+            throw t;
         } finally {
             store.createRoot(); // CLEAR MetadataStore
         }
-    }
-    
+            }
+
     /**
      * saves the binary data to the server. After each successful save,
      * an {@link ImportEvent.IMPORT_STEP} is raised with the number of the iteration just
@@ -578,8 +597,9 @@ public class ImportLibrary implements IObservable
      * @param series 
      * @return The SHA1 message digest for the Pixels saved.
      */
-    public MessageDigest importData(Long pixId, String fileName, int series, ImportSize size)
-    throws FormatException, IOException, ServerError
+    public MessageDigest importData(Long pixId, String fileName,
+                                    int series, ImportSize size)
+        throws FormatException, IOException, ServerError
     {
         int i = 1;
         reader.setSeries(series);
@@ -591,24 +611,25 @@ public class ImportLibrary implements IObservable
         }
 
         MessageDigest md;
-        
+
         try {
             md = MessageDigest.getInstance("SHA-1");
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(
-                    "Required SHA-1 message digest algorithm unavailable.");
+            "Required SHA-1 message digest algorithm unavailable.");
         }
-        
+
         FileChannel wChannel = null;
         File f;
-        
+
         if (dumpPixels)
         {
             f = new File("pixeldump");
             boolean append = true;
             wChannel = new FileOutputStream(f, append).getChannel();   
         }
-        
+
+
         for (int t = 0; t < size.sizeT; t++)
         {
             for (int c = 0; c < size.sizeC; c++)
@@ -617,8 +638,8 @@ public class ImportLibrary implements IObservable
                 {
                     int planeNumber = reader.getIndex(z, c, t);
                     //int planeNumber = getTotalOffset(z, c, t);
-                    ByteBuffer buf =
-                        reader.openPlane2D(fileName, planeNumber, arrayBuf).getData();
+                    ByteBuffer buf = reader.openPlane2D(
+                            fileName, planeNumber, arrayBuf).getData();
                     arrayBuf = swapIfRequired(buf, fileName);
                     try {
                         md.update(arrayBuf);
@@ -626,9 +647,10 @@ public class ImportLibrary implements IObservable
                         // This better not happen. :)
                         throw new RuntimeException(e);
                     }
-                    
-                    notifyObservers(new ImportEvent.IMPORT_STEP(i, series, reader.getSeriesCount()));
-                    
+
+                    notifyObservers(new ImportEvent.IMPORT_STEP(
+                            i, series, reader.getSeriesCount()));
+
                     store.setPlane(pixId, arrayBuf, z, c, t);
                     if (dumpPixels)
                         wChannel.write(buf);
@@ -636,23 +658,25 @@ public class ImportLibrary implements IObservable
                 }
             }
         }
-        
+
         if (dumpPixels)
             wChannel.close();
         return md;
     }
-    
+
     // ~ Helpers
     // =========================================================================
-    
+
     /**
      * Return true if the data is in little-endian format. 
      * @throws IOException 
      * @throws FormatException */
-    private boolean isLittleEndian(String fileName) throws FormatException, IOException {
-      return reader.isLittleEndian();
+    private boolean isLittleEndian(String fileName)
+        throws FormatException, IOException
+    {
+        return reader.isLittleEndian();
     }
-    
+
     /**
      * Examines a byte array to see if it needs to be byte swapped and modifies
      * the byte array directly.
@@ -662,72 +686,74 @@ public class ImportLibrary implements IObservable
      * @throws FormatException if there is an error during metadata parsing.
      */
     private byte[] swapIfRequired(ByteBuffer buffer, String fileName)
-    throws FormatException, IOException
-  {
-    int pixelType = reader.getPixelType();
-    int bytesPerPixel = getBytesPerPixel(pixelType);
-    
-    // We've got nothing to do if the samples are only 8-bits wide.
-    if (bytesPerPixel == 1) 
-        return buffer.array();
+        throws FormatException, IOException
+    {
+        int pixelType = reader.getPixelType();
+        int bytesPerPixel = getBytesPerPixel(pixelType);
 
-    int length;
-    
-    if (isLittleEndian(fileName)) {
-      if (bytesPerPixel == 2) { // short
-        ShortBuffer buf = buffer.asShortBuffer();
-        length = buffer.capacity() / 2;
-        short x;
-        for (int i = 0; i < length; i++) {
-          x = buf.get(i);
-          buf.put(i, (short) ((x << 8) | ((x >> 8) & 0xFF)));
+        // We've got nothing to do if the samples are only 8-bits wide.
+        if (bytesPerPixel == 1) 
+            return buffer.array();
+
+        int length;
+
+        if (isLittleEndian(fileName)) {
+            if (bytesPerPixel == 2) { // short
+                ShortBuffer buf = buffer.asShortBuffer();
+                length = buffer.capacity() / 2;
+                short x;
+                for (int i = 0; i < length; i++) {
+                    x = buf.get(i);
+                    buf.put(i, (short) ((x << 8) | ((x >> 8) & 0xFF)));
+                }
+            } else if (bytesPerPixel == 4) { // int/uint/float
+                IntBuffer buf = buffer.asIntBuffer();
+                length = buffer.capacity() / 4;
+                for (int i = 0; i < length; i++) {
+                    buf.put(i, DataTools.swap(buf.get(i)));
+                }
+            } else if (bytesPerPixel == 8) // double
+            {
+                LongBuffer buf = buffer.asLongBuffer();
+                length = buffer.capacity() / 8;
+                for (int i = 0; i < length ; i++) {
+                    buf.put(i, DataTools.swap(buf.get(i)));
+                }
+            } else {
+                throw new FormatException(
+                        "Unsupported sample bit width: '" + bytesPerPixel + "'");
+            }
         }
-      } else if (bytesPerPixel == 4) { // int/uint/float
-          IntBuffer buf = buffer.asIntBuffer();
-          length = buffer.capacity() / 4;
-          for (int i = 0; i < length; i++) {
-            buf.put(i, DataTools.swap(buf.get(i)));
-          }
-      } else if (bytesPerPixel == 8) // double
-      {
-          LongBuffer buf = buffer.asLongBuffer();
-          length = buffer.capacity() / 8;
-          for (int i = 0; i < length ; i++) {
-            buf.put(i, DataTools.swap(buf.get(i)));
-          }
-      } else {
-        throw new FormatException(
-          "Unsupported sample bit width: '" + bytesPerPixel + "'");
-      }
+        // We've got a big-endian file with a big-endian byte array.
+        return buffer.array();
     }
-    // We've got a big-endian file with a big-endian byte array.
-    return buffer.array();
-  }
 
 
     /**
      * Retrieves how many bytes per pixel the current plane or section has.
      * @return the number of bytes per pixel.
      */
-    private int getBytesPerPixel(int type) {
-      switch(type) {
-      case 0:
-      case 1:
-        return 1;  // INT8 or UINT8
-      case 2:
-      case 3:
-        return 2;  // INT16 or UINT16
-      case 4:
-      case 5:
-      case 6:
-        return 4;  // INT32, UINT32 or FLOAT
-      case 7:
-        return 8;  // DOUBLE
-      }
-      throw new RuntimeException("Unknown type with id: '" + type + "'");
+    private int getBytesPerPixel(int type)
+    {
+        switch(type) {
+            case 0:
+            case 1:
+                return 1;  // INT8 or UINT8
+            case 2:
+            case 3:
+                return 2;  // INT16 or UINT16
+            case 4:
+            case 5:
+            case 6:
+                return 4;  // INT32, UINT32 or FLOAT
+            case 7:
+                return 8;  // DOUBLE
+        }
+        throw new RuntimeException("Unknown type with id: '" + type + "'");
     }
 
-    public void clear() {
+    public void clear()
+    {
         store.createRoot();
     }
 
