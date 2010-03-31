@@ -111,7 +111,7 @@ public class ManageRndSettingsAction
      * The description of the action if the index is {@link #SET_OWNER_SETTING}. 
      */
     private static final String DESCRIPTION_SET_OWNER_SETTING  = 
-    									"Set the original rendering settings.";
+    									"Set the Owner's rendering settings.";
     
     
 	/** One of the constants defined by this class. */
@@ -313,6 +313,11 @@ public class ManageRndSettingsAction
 				break;
 			case PASTE:
 				cmd = new PasteRndSettingsCmd(model, PasteRndSettingsCmd.PASTE);
+				cmd.execute();
+				break;
+			case SET_OWNER_SETTING:
+				cmd = new PasteRndSettingsCmd(model, 
+						PasteRndSettingsCmd.SET_OWNER);
 				cmd.execute();
 		}
 	}

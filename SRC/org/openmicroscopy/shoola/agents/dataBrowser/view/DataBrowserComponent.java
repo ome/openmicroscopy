@@ -851,7 +851,30 @@ class DataBrowserComponent
 						getBrowser().getSelectedDataObjects());
 			else 
 				firePropertyChange(SET__ORIGINAL_RND_SETTINGS_PROPERTY, 
-					Boolean.FALSE, Boolean.TRUE);
+					Boolean.valueOf(false), Boolean.valueOf(true));
+		}
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#setOwnerSettings()
+	 */
+	public void setOwnerSettings()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalArgumentException("This method cannot be " +
+					"invoked in the DISCARDED state.");
+		if (model.getType() == DataBrowserModel.SEARCH) {
+			firePropertyChange(SET__OWNER_RND_SETTINGS_PROPERTY, null, 
+					getBrowser().getSelectedDataObjects());
+		} else {
+			ImageDisplay d = getBrowser().getLastSelectedDisplay();
+			if (d instanceof WellSampleNode) 
+				firePropertyChange(SET__OWNER_RND_SETTINGS_PROPERTY, null, 
+						getBrowser().getSelectedDataObjects());
+			else 
+				firePropertyChange(SET__OWNER_RND_SETTINGS_PROPERTY, 
+						Boolean.valueOf(false), Boolean.valueOf(true));
 		}
 	}
 

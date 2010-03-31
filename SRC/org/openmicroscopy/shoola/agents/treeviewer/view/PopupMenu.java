@@ -113,6 +113,9 @@ class PopupMenu
 	
 	/** Button to reset default Rnd settings. */
 	private JMenuItem			setRndElement;
+	
+	/** Button to reset default Rnd settings. */
+	private JMenuItem			setOwnerRndElement;
 
 	/** Button to quit the application. */
 	private JMenuItem			quitElement;
@@ -249,6 +252,10 @@ class PopupMenu
 				a = controller.getAction(TreeViewerControl.SET_RND_SETTINGS);
 				setRndElement = new JMenuItem(a);
 				initMenuItem(setRndElement, a.getActionName());
+				a = controller.getAction(
+						TreeViewerControl.SET_OWNER_RND_SETTINGS);
+				setOwnerRndElement = new JMenuItem(a);
+				initMenuItem(setOwnerRndElement, a.getActionName());
 				
 				a = controller.getAction(
 						TreeViewerControl.EDITOR_NEW_WITH_SELECTION);
@@ -325,27 +332,6 @@ class PopupMenu
 		}
 	}
 
-	/**
-	 * Creates the sub-menu to manage the data.
-	 * 
-	 * @return See above
-	 */
-	/*
-	private JMenu createManagementMenu()
-	{
-		JMenu managementMenu = new JMenu();
-		initMenuItem(managementMenu, "Manage");
-		IconManager im = IconManager.getInstance();
-		managementMenu.setIcon(im.getIcon(IconManager.TRANSPARENT));
-		managementMenu.add(newElement);
-		managementMenu.add(cutElement);
-		managementMenu.add(copyElement);
-		managementMenu.add(pasteElement);
-		managementMenu.add(deleteElement);
-		return managementMenu;
-	}
-	*/
-
 	/** Builds and lays out the GUI. */
 	private void buildGUI()
 	{
@@ -372,6 +358,7 @@ class PopupMenu
 				add(pasteRndElement);
 				//add(resetRndElement);
 				add(setRndElement);
+				add(setOwnerRndElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(refreshExperimenterElement);
 				add(removeExperimenterElement);

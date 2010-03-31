@@ -300,6 +300,30 @@ public interface OmeroImageService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
+	 * Sets the rendering settings for the images contained in the 
+	 * specified datasets if the rootType is <code>DatasetData</code>
+	 * Resets the settings to the passed images if the type is 
+	 * <code>ImageData</code>.
+	 * 
+	 * @param rootNodeType	The type of nodes. Can either be 
+	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
+	 * 						<code>CategoryData</code>.
+	 * @param nodeIDs		The id of the nodes to apply settings to. 
+	 * 						Mustn't be <code>null</code>.
+	 * @return A map with two keys. A <code>True</code> key whose value 
+	 * is a list of image's id, the settings have been applied to. 
+	 * A <code>False</code> key whose value is a list
+	 * of image's id, the settings couldn't be applied.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Map setOwnerRenderingSettings(Class rootNodeType, 
+											List<Long> nodeIDs)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
 	 * Retrieves the rendering setting related to a given set of pixels.
 	 * Returns a Map whose keys are the experimenter who created the rendering 
 	 * settings and the value the settings itself.

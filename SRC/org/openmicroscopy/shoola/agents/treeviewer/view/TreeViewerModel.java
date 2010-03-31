@@ -648,8 +648,8 @@ class TreeViewerModel
 	/**
 	 * Fires an asynchronous call to paste the rendering settings.
 	 * 
-	 * @param ids 	Collection of nodes ids.
-	 * @param klass Either dataset, Plate, Project, Screen or image.
+	 * @param ids 	Collection of nodes identifiers.
+	 * @param klass The type of nodes to handle.
 	 */
 	void firePasteRenderingSettings(List<Long> ids, Class klass)
 	{
@@ -684,8 +684,8 @@ class TreeViewerModel
 	/**
 	 * Fires an asynchronous call to paste the rendering settings.
 	 * 
-	 * @param ids 	Collection of nodes ids.
-	 * @param klass Either dataset, or image.
+	 * @param ids 	Collection of nodes identifiers.
+	 * @param klass The type of nodes to handle.
 	 */
 	void fireResetRenderingSettings(List<Long> ids, Class klass)
 	{
@@ -711,8 +711,8 @@ class TreeViewerModel
 	/**
 	 * Fires an asynchronous call to paste the rendering settings.
 	 * 
-	 * @param ids 	Collection of nodes ids.
-	 * @param klass Either dataset or image.
+	 * @param ids 	Collection of nodes identifiers.
+	 * @param klass The type of nodes to handle.
 	 */
 	void fireSetOriginalRenderingSettings(List<Long> ids, Class klass)
 	{
@@ -725,9 +725,37 @@ class TreeViewerModel
 	/**
 	 * Fires an asynchronous call to paste the rendering settings.
 	 * 
+	 * @param ids 	Collection of nodes identifiers.
+	 * @param klass The type of nodes to handle.
+	 */
+	void fireSetOwnerRenderingSettings(List<Long> ids, Class klass)
+	{
+		state = TreeViewer.SETTINGS_RND;
+		currentLoader = new RndSettingsSaver(component, klass, ids, 
+										RndSettingsSaver.SET_OWNER);
+		currentLoader.load();
+	}
+	
+	/**
+	 * Fires an asynchronous call to set the original rendering settings.
+	 * 
 	 * @param ref The time reference object.	
 	 */
 	void fireSetOriginalRenderingSettings(TimeRefObject ref)
+	{
+		state = TreeViewer.SETTINGS_RND;
+		currentLoader = new RndSettingsSaver(component, ref, 
+											RndSettingsSaver.SET);
+		currentLoader.load();
+	}
+	
+	/**
+	 * Fires an asynchronous call to set the rendering settings used by the 
+	 * owner of the images.
+	 * 
+	 * @param ref The time reference object.	
+	 */
+	void fireSetOwnerRenderingSettings(TimeRefObject ref)
 	{
 		state = TreeViewer.SETTINGS_RND;
 		currentLoader = new RndSettingsSaver(component, ref, 

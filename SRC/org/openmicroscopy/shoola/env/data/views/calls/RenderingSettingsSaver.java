@@ -77,6 +77,9 @@ public class RenderingSettingsSaver
 	/** Indicates to create rendering settings. */
 	public static final int CREATE = 3;
 	
+	/** Indicates to reset the rendering settings. */
+	public static final int SET_OWNER = 4;
+	
 	/** Result of the call. */
 	private Object    	result;
 
@@ -126,8 +129,10 @@ public class RenderingSettingsSaver
 						break;
 					case SET_ORIGINAL:
 						result = rds.setOriginalRenderingSettings(rootType, ids);
+						break;
+					case SET_OWNER:
+						result = rds.setOwnerRenderingSettings(rootType, ids);
 				}
-				
 			}
 		};
 	} 
@@ -172,6 +177,11 @@ public class RenderingSettingsSaver
 						case SET_ORIGINAL:
 							result = rds.setOriginalRenderingSettings(
 												ImageData.class, ids);
+							break;
+						case SET_OWNER:
+							result = rds.setOwnerRenderingSettings(
+												ImageData.class, ids);
+							break;
 					}
 				}
 

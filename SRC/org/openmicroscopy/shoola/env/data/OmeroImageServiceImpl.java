@@ -484,6 +484,18 @@ class OmeroImageServiceImpl
 	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#setOwnerRenderingSettings(Class, List)
+	 */
+	public Map setOwnerRenderingSettings(Class rootNodeType, List nodesID) 
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		if (nodesID == null || nodesID.size() == 0)
+			throw new IllegalArgumentException("No nodes specified.");
+		return gateway.setOwnerRenderingSettings(rootNodeType, nodesID);
+	}
+	
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#getRenderingSettings(long, long)
 	 */
 	public Map getRenderingSettings(long pixelsID, long userID) 

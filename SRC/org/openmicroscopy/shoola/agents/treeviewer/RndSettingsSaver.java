@@ -69,6 +69,9 @@ public class RndSettingsSaver
 	/** Indicates to set the rendering settings. */
 	public static final int SET = 2;
 	
+	/** Indicates to set the rendering settings used by the owner. */
+	public static final int SET_OWNER = 3;
+	
 	/** The id of the pixels set of reference. */
 	private long 			pixelsID;
 
@@ -103,6 +106,7 @@ public class RndSettingsSaver
 			case PASTE:
 			case RESET:
 			case SET:
+			case SET_OWNER:
 				break;
 			default:
 				throw new IllegalArgumentException("Index not supported.");
@@ -254,6 +258,12 @@ public class RndSettingsSaver
 					handle = dhView.setRndSettings(rootType, ids, this);
 				else 
 					handle = dhView.setRndSettings(ref, this);
+				break;
+			case SET_OWNER:
+				if (ref == null)
+					handle = dhView.setOwnerRndSettings(rootType, ids, this);
+				else 
+					handle = dhView.setOwnerRndSettings(ref, this);	
 		}
 	}
 

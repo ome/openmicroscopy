@@ -137,6 +137,11 @@ class DataBrowserControl
 	static final Integer    OPEN_WITH = Integer.valueOf(14);
 	
 	/** 
+	 * Identifies the <code>Set the original rendering settings action</code>. 
+	 */
+	static final Integer    SET_OWNER_RND_SETTINGS = Integer.valueOf(15);
+	
+	/** 
 	 * Reference to the {@link DataBrowser} component, which, in this context,
 	 * is regarded as the Model.
 	 */
@@ -170,6 +175,9 @@ class DataBrowserControl
     	actionsMap.put(SET_ORIGINAL_RND_SETTINGS, 
     			new ManageRndSettingsAction(model, 
     					ManageRndSettingsAction.SET_ORIGINAL));
+    	actionsMap.put(SET_OWNER_RND_SETTINGS, 
+    			new ManageRndSettingsAction(model, 
+    					ManageRndSettingsAction.SET_OWNER));
     	actionsMap.put(SAVE_AS, new SaveAction(model));
     	actionsMap.put(TAG, new TaggingAction(model));
     	actionsMap.put(NEW_EXPERIMENT, new CreateExperimentAction(model));

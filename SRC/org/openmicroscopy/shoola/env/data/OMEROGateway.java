@@ -1980,10 +1980,15 @@ class OMEROGateway
 		try {
 			getAdminService().setDefaultGroup(exp.asExperimenter(), 
 					group.asGroup());
-			clear();
 			entry.setSecurityContext(new ExperimenterGroupI(groupID, false));
 		} catch (Exception e) {
 			handleException(e, s);
+		}
+		//Clear
+		try {
+			clear();
+		} catch (Exception e) {
+			//ignore exception
 		}
 	}
 	
@@ -2780,7 +2785,6 @@ class OMEROGateway
 					omero.rtypes.rint(maxLength), pixelsID);
 					
 		} catch (Throwable t) {
-			t.printStackTrace();
 			if (thumbnailService != null) {
 				try {
 					thumbnailService.close();
@@ -3769,14 +3773,12 @@ class OMEROGateway
   
 	/**
 	 * Resets the rendering settings for the images contained in the 
-	 * specified datasets or categories
-	 * if the rootType is <code>DatasetData</code> or <code>CategoryData</code>.
+	 * specified datasets if the rootType is <code>DatasetData</code>.
 	 * Resets the settings to the passed images if the type is 
 	 * <code>ImageData</code>.
 	 * 
 	 * @param rootNodeType	The type of nodes. Can either be 
-	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
-	 * 						<code>CategoryData</code>.
+	 * 						<code>ImageData</code>, <code>DatasetData</code>.
 	 * @param nodes			The nodes to apply settings to. 
 	 * @return <true> if the call was successful, <code>false</code> otherwise.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
@@ -3785,6 +3787,51 @@ class OMEROGateway
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Map setOriginalRenderingSettings(Class rootNodeType, List nodes) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		List<Long> success = new ArrayList<Long>();
+		List<Long> failure = new ArrayList<Long>();
+		
+		isSessionAlive();
+		try {
+			IRenderingSettingsPrx service = getRenderingSettingsService();
+			String klass = convertPojos(rootNodeType).getName();
+			if (klass.equals(Image.class)) failure.addAll(nodes);
+			if (klass.equals(Image.class.getName()) 
+				|| klass.equals(Dataset.class.getName()) || 
+						klass.equals(Plate.class.getName()))
+				success = service.resetDefaultsInSet(klass, nodes);
+		} catch (Exception e) {
+			handleException(e, "Cannot reset the rendering settings.");
+		}
+		Iterator<Long> i = success.iterator(); 
+		Long id;
+		while (i.hasNext()) {
+			id = i.next();
+			if (failure.contains(id)) failure.remove(id);
+		}
+		Map<Boolean, List> result = new HashMap<Boolean, List>(2);
+		result.put(Boolean.TRUE, success);
+		result.put(Boolean.FALSE, failure);
+		return result;
+	}
+	
+	/**
+	 * Resets the rendering settings, used by the owner of the images contained 
+	 * in the specified datasets if the rootType is <code>DatasetData</code>.
+	 * Resets the settings to the passed images if the type is 
+	 * <code>ImageData</code>.
+	 * 
+	 * @param rootNodeType	The type of nodes. Can either be 
+	 * 						<code>ImageData</code>, <code>DatasetData</code>.
+	 * @param nodes			The nodes to apply settings to. 
+	 * @return <true> if the call was successful, <code>false</code> otherwise.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Map setOwnerRenderingSettings(Class rootNodeType, List nodes) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<Long> success = new ArrayList<Long>();

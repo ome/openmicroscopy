@@ -152,6 +152,13 @@ public interface DataBrowser
 										"setOriginalRndSettings";
 	
 	/** 
+	 * Bound property indicating to set the rendering settings used
+	 * by the owner. 
+	 */
+	public static final String		SET__OWNER_RND_SETTINGS_PROPERTY = 
+										"setOwnerRndSettings";
+	
+	/** 
 	 * Bound property indicating that some rendering settings can be copied. 
 	 */
 	public static final String		RND_SETTINGS_TO_COPY_PROPERTY = 
@@ -492,6 +499,9 @@ public interface DataBrowser
 	/** Sets the original rendering settings. */
 	public void setOriginalSettings();
 
+	/** Sets the rendering settings used by the owner of the images. */
+	public void setOwnerSettings();
+	
 	/**
 	 * Shows the tagged nodes if the passed value is <code>true</code>,
 	 * shows the untagged nodes if the passed value is <code>false</code>.

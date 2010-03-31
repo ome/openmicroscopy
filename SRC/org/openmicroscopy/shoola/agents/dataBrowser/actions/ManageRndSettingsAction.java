@@ -29,7 +29,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.Iterator;
-
 import javax.swing.Action;
 
 //Third-party libraries
@@ -76,6 +75,9 @@ public class ManageRndSettingsAction
 	/** Identified the reset action. */
 	public static final int 	SET_ORIGINAL = 3;
 	
+	/** Identified the reset action. */
+	public static final int 	SET_OWNER = 4;
+	
 	/** The default name of the action if the index is {@link #COPY}. */
     private static final String NAME_COPY = "Copy Settings";
     
@@ -103,6 +105,15 @@ public class ManageRndSettingsAction
     /** The description of the action if the index is {@link #SET_ORIGINAL}. */
     private static final String DESCRIPTION_SET_ORIGINAL = 
     									"Set the original rendering settings.";
+    
+    /** The name of the action if the index is {@link #SET_OWNER}. */
+    private static final String NAME_SET_OWNER= "Set Owner's Settings";
+    
+    /** 
+     * The description of the action if the index is {@link #SET_OWNER}. 
+     */
+    private static final String DESCRIPTION_SET_OWNER  = 
+    									"Set the Owner's rendering settings.";
     
     /** Helper reference to the icons manager. */
 	private IconManager icons;
@@ -142,6 +153,13 @@ public class ManageRndSettingsAction
 					UIUtilities.formatToolTipText(DESCRIPTION_SET_ORIGINAL));
 				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.UNDO));
 				break;
+			case SET_OWNER:
+				putValue(Action.NAME, NAME_SET_OWNER);
+				putValue(Action.SHORT_DESCRIPTION, 
+						UIUtilities.formatToolTipText(
+							DESCRIPTION_SET_OWNER));
+				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.UNDO));
+				break;
 			default:
 				throw new IllegalArgumentException("Index not supported.");
 		}
@@ -179,7 +197,7 @@ public class ManageRndSettingsAction
 				if (selected.size() > 1) setEnabled(false);
 	    		else {
 	    			if (ho instanceof WellSampleData || ho instanceof ImageData)
-	    				setEnabled(model.isUserOwner(ho));
+	    				setEnabled(true);//setEnabled(model.isUserOwner(ho));
 	    			else setEnabled(false);
 	    		}
 				break;
@@ -197,7 +215,8 @@ public class ManageRndSettingsAction
 						i = selected.iterator();
 						while (i.hasNext()) {
 							obj = i.next();
-							if (model.isUserOwner(obj)) count++;
+							//if (model.isUserOwner(obj)) count++;
+							if (model.isWritable(obj)) count++;
 						}
 						setEnabled(count == selected.size());
 					} else setEnabled(true);
@@ -205,6 +224,7 @@ public class ManageRndSettingsAction
 				break;
 			case RESET:
 			case SET_ORIGINAL:
+			case SET_OWNER:
 				if (!(ho instanceof ImageData || ho instanceof DatasetData ||
 						ho instanceof PlateData))
 					setEnabled(false);
@@ -212,7 +232,8 @@ public class ManageRndSettingsAction
 					i = selected.iterator();
 					while (i.hasNext()) {
 						obj = i.next();
-						if (model.isUserOwner(obj)) count++;
+						//if (model.isUserOwner(obj)) count++;
+						if (model.isWritable(obj)) count++;
 					}
 					setEnabled(count == selected.size());
 				}
@@ -253,6 +274,9 @@ public class ManageRndSettingsAction
 				break;
 			case SET_ORIGINAL:
 				model.setOriginalSettings();
+				break;
+			case SET_OWNER:
+				model.setOwnerSettings();
 		}
     }
     

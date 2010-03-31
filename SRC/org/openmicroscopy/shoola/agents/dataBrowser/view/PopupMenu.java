@@ -85,6 +85,9 @@ class PopupMenu
 	/** Button to set the original rendering settings. */
 	private JMenuItem			setOriginalRndSettings;
 
+	/** Button to set the original rendering settings. */
+	private JMenuItem			setOwnerRndSettings;
+	
 	/** Button to tag the element. */
 	private JMenuItem			tagElement;
 	
@@ -126,6 +129,9 @@ class PopupMenu
 		setOriginalRndSettings = new JMenuItem(
 				controller.getAction(
 						DataBrowserControl.SET_ORIGINAL_RND_SETTINGS));
+		setOwnerRndSettings = new JMenuItem(
+				controller.getAction(
+						DataBrowserControl.SET_OWNER_RND_SETTINGS));
 		openWithMenu = new JMenu("Open with");
 		IconManager icons = IconManager.getInstance();
 		openWithMenu.setIcon(icons.getIcon(IconManager.VIEWER));
@@ -156,6 +162,7 @@ class PopupMenu
 		add(pasteRndSettings);
 		//add(resetRndSettings);
 		add(setOriginalRndSettings);
+		add(setOwnerRndSettings);
 	}
 	
 	/** 

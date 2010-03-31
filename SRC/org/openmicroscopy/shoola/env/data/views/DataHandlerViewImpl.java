@@ -148,6 +148,30 @@ public class DataHandlerViewImpl
 	
 	/**
 	 * Implemented as specified by the view interface.
+	 * @see DataHandlerView#setOwnerRndSettings(Class, List, AgentEventListener)
+	 */
+	public CallHandle setOwnerRndSettings(Class rootNodeType, List<Long> ids, 
+										AgentEventListener observer)
+	{
+		BatchCallTree cmd = new RenderingSettingsSaver(rootNodeType, ids, 
+									RenderingSettingsSaver.SET_OWNER);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataHandlerView#setOwnerRndSettings(TimeRefObject, AgentEventListener)
+	 */
+	public CallHandle setOwnerRndSettings(TimeRefObject ref, 
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new RenderingSettingsSaver(ref, 
+								RenderingSettingsSaver.SET_OWNER);
+		return cmd.exec(observer);
+	}
+	
+	/**
+	 * Implemented as specified by the view interface.
 	 * @see DataHandlerView#advancedSearchFor(SearchDataContext,
 	 * 										AgentEventListener)
 	 */

@@ -485,4 +485,14 @@ public class NullRenderingService
 		return null;
 	}
 
+	/**
+     * No-op implementation
+     * @see OmeroImageService#setOwnerRenderingSettings(Class, List)
+     */
+	public Map setOwnerRenderingSettings(Class rootNodeType, List<Long> nodeIDs)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
 }

@@ -328,6 +328,9 @@ class TreeViewerControl
 	/** Identifies the <code>Reset Password</code> action. */
 	static final Integer    RESET_PASSWORD = Integer.valueOf(63);
 	
+	/** Identifies the <code>Reset the rendering settings action</code>. */
+	static final Integer    SET_OWNER_RND_SETTINGS = Integer.valueOf(64);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -382,13 +385,13 @@ class TreeViewerControl
 				new BrowseContainerAction(model, false));
 		actionsMap.put(CREATE_OBJECT, new CreateAction(model));
 		actionsMap.put(COPY_OBJECT, new ManageObjectAction(model, 
-				ManageObjectAction.COPY));// CopyAction(model));
+				ManageObjectAction.COPY));
 		actionsMap.put(DELETE_OBJECT, new ManageObjectAction(model, 
-				ManageObjectAction.REMOVE));//new DeleteAction(model));
+				ManageObjectAction.REMOVE));
 		actionsMap.put(PASTE_OBJECT, new ManageObjectAction(model, 
-				ManageObjectAction.PASTE));//new PasteAction(model));
+				ManageObjectAction.PASTE));
 		actionsMap.put(CUT_OBJECT, new ManageObjectAction(model, 
-				ManageObjectAction.CUT));//new CutAction(model));
+				ManageObjectAction.CUT));
 		actionsMap.put(SCREENS_EXPLORER, 
 				new BrowserSelectionAction(model, Browser.SCREENS_EXPLORER));
 		actionsMap.put(HIERARCHY_EXPLORER, 
@@ -428,6 +431,9 @@ class TreeViewerControl
 				ManageRndSettingsAction.COPY));
 		actionsMap.put(RESET_RND_SETTINGS, new ManageRndSettingsAction(model, 
 				ManageRndSettingsAction.RESET));
+		actionsMap.put(SET_OWNER_RND_SETTINGS, 
+				new ManageRndSettingsAction(model, 
+				ManageRndSettingsAction.SET_OWNER_SETTING));
 		actionsMap.put(SEARCH, new SearchAction(model));
 		actionsMap.put(SET_RND_SETTINGS, new ManageRndSettingsAction(model, 
 				ManageRndSettingsAction.SET_ORIGINAL));
@@ -850,6 +856,17 @@ class TreeViewerControl
 				cmd = new PasteRndSettingsCmd(model, PasteRndSettingsCmd.SET,
 						(Collection) data);
 			else cmd = new PasteRndSettingsCmd(model, PasteRndSettingsCmd.SET);
+			cmd.execute();
+		} else if (DataBrowser.SET__ORIGINAL_RND_SETTINGS_PROPERTY.equals(
+				name)) {
+			Object data = pce.getNewValue();
+			PasteRndSettingsCmd cmd;
+			if (data instanceof Collection) 
+				cmd = new PasteRndSettingsCmd(model, 
+						PasteRndSettingsCmd.SET_OWNER,
+						(Collection) data);
+			else cmd = new PasteRndSettingsCmd(model, 
+					PasteRndSettingsCmd.SET_OWNER);
 			cmd.execute();
 		} else if (DataBrowser.CUT_ITEMS_PROPERTY.equals(name)) {
 			CutCmd cmd = new CutCmd(model);

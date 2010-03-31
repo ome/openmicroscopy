@@ -712,7 +712,7 @@ public interface TreeViewer
 	 * @param klass		The class identifying the object.
 	 */
 	public void setOriginalRndSettings(List<Long> ids, Class klass);
-
+	
 	/**
 	 * Sets the original rendering settings for images 
 	 * imported during the specified period of time.
@@ -721,6 +721,23 @@ public interface TreeViewer
 	 */
 	public void setOriginalRndSettings(TimeRefObject ref);
 
+	/**
+	 * Sets the rendering settings used by the owner, 
+	 * for the images identified by the specified parameters.
+	 * 
+	 * @param ids		The collection of objects id.
+	 * @param klass		The class identifying the object.
+	 */
+	public void setOwnerRndSettings(List<Long> ids, Class klass);
+
+	/**
+	 * Sets the original rendering settings used by the owner, for images 
+	 * imported during the specified period of time.
+	 * 
+	 * @param ref The object storing the time interval information.
+	 */
+	public void setOwnerRndSettings(TimeRefObject ref);
+	
 	/** Shows or hides the searching component. */
 	public void showSearch();
     

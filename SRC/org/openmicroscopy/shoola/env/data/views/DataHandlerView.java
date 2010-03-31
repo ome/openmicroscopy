@@ -72,16 +72,15 @@ public interface DataHandlerView
 
 	/**
 	 * Applies the rendering settings associated to the passed pixels set 
-	 * to the images contained in the specified datasets or categories
-	 * if the rootType is <code>DatasetData</code> or <code>CategoryData</code>.
+	 * to the images contained in the specified datasets
+	 * if the rootType is <code>DatasetData</code>.
 	 * Applies the settings to the passed images if the type is 
 	 * <code>ImageData</code>.
 	 * 
 	 * @param pixelsID		The id of the pixels set of reference.
 	 * @param rootNodeType	The type of nodes. Can either be 
-	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
-	 * 						<code>CategoryData</code>.
-	 * @param ids			The ids of the nodes to apply settings to. 
+	 * 						<code>ImageData</code>, <code>DatasetData</code>.
+	 * @param ids			The identifiers of the nodes to apply settings to. 
 	 * 						Mustn't be <code>null</code>.
 	 * @param observer		Call-back handler.
 	 * @return A handle that can be used to cancel the call.
@@ -91,12 +90,12 @@ public interface DataHandlerView
 
 	/**
 	 * Applies the rendering settings associated to the passed pixels set 
-	 * to the images contained in the specified datasets or categories
-	 * if the rootType is <code>DatasetData</code> or <code>CategoryData</code>.
+	 * to the images contained in the specified datasets
+	 * if the rootType is <code>DatasetData</code>.
 	 * Applies the settings to the passed images if the type is 
 	 * <code>ImageData</code>.
 	 * 
-	 * @param pixelsID		The id of the pixels set of reference.
+	 * @param pixelsID		The identifier of the pixels set of reference.
 	 * @param ref			The time reference object.
 	 * @param observer		Call-back handler.
 	 * @return A handle that can be used to cancel the call.
@@ -106,15 +105,13 @@ public interface DataHandlerView
 	
 	/**
 	 * Resets the rendering settings for the images contained in the 
-	 * specified datasets or categories
-	 * if the rootType is <code>DatasetData</code> or <code>CategoryData</code>.
+	 * specified datasets if the rootType is <code>DatasetData</code>.
 	 * Resets the settings to the passed images if the type is 
 	 * <code>ImageData</code>.
 	 * 
 	 * @param rootNodeType	The type of nodes. Can either be 
-	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
-	 * 						<code>CategoryData</code>.
-	 * @param ids			The ids of the nodes to apply settings to. 
+	 * 						<code>ImageData</code>, <code>DatasetData</code>.
+	 * @param ids			The identifiers of the nodes to apply settings to. 
 	 * 						Mustn't be <code>null</code>.
 	 * @param observer		Call-back handler.
 	 * @return A handle that can be used to cancel the call.
@@ -135,15 +132,13 @@ public interface DataHandlerView
 
 	/**
 	 * Resets the rendering settings for the images contained in the 
-	 * specified datasets or categories
-	 * if the rootType is <code>DatasetData</code> or <code>CategoryData</code>.
+	 * specified datasets if the rootType is <code>DatasetData</code>.
 	 * Resets the settings to the passed images if the type is 
 	 * <code>ImageData</code>.
 	 * 
 	 * @param rootNodeType	The type of nodes. Can either be 
-	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
-	 * 						<code>CategoryData</code>.
-	 * @param ids			The ids of the nodes to apply settings to. 
+	 * 						<code>ImageData</code>, <code>DatasetData</code>.
+	 * @param ids			The identifiers of the nodes to apply settings to. 
 	 * 						Mustn't be <code>null</code>.
 	 * @param observer		Call-back handler.
 	 * @return A handle that can be used to cancel the call.
@@ -160,6 +155,33 @@ public interface DataHandlerView
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle setRndSettings(TimeRefObject ref, 
+										AgentEventListener observer);
+	
+	/**
+	 * Resets the rendering settings used by the owner of the images contained 
+	 * in the specified datasets.
+	 * If the rootType is <code>ImageData</code, resets the settings to the 
+	 * passed images.
+	 * 
+	 * @param rootNodeType	The type of nodes. Can either be 
+	 * 						<code>ImageData</code>, <code>DatasetData</code>.
+	 * @param ids			The identifiers of the nodes to apply settings to. 
+	 * 						Mustn't be <code>null</code>.
+	 * @param observer		Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle setOwnerRndSettings(Class rootNodeType, List<Long> ids, 
+									AgentEventListener observer);
+
+	/**
+	 * Resets the rendering settings used by the owner of the images
+	 * imported during a period of time
+	 * 
+	 * @param ref			The time reference object.
+	 * @param observer		Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle setOwnerRndSettings(TimeRefObject ref, 
 										AgentEventListener observer);
 	
 	/**

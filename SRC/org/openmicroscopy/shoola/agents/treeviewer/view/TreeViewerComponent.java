@@ -1996,10 +1996,42 @@ class TreeViewerComponent
 					" one element.");
 			return;
 		}
-		model.fireSetOriginalRenderingSettings(ref);
+		model.fireSetOwnerRenderingSettings(ref);
 		fireStateChange();
 	}
 
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setOwnerRndSettings(List, Class)
+	 */
+	public void setOwnerRndSettings(List<Long> ids, Class klass)
+	{
+		if (ids == null || ids.size() == 0) {
+			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Set settings", "Please select at least " +
+					"one element.");
+			return;
+		}
+		model.fireSetOwnerRenderingSettings(ids, klass);
+		fireStateChange();
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setOwnerRndSettings(TimeRefObject)
+	 */
+	public void setOwnerRndSettings(TimeRefObject ref)
+	{
+		if (ref == null) {
+			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Set settings", "Please select at least" +
+					" one element.");
+			return;
+		}
+		model.fireSetOriginalRenderingSettings(ref);
+		fireStateChange();
+	}
+	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#setOriginalRndSettings(TimeRefObject)
