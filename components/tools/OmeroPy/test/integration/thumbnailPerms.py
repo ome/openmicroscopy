@@ -4,11 +4,18 @@
    Integration test for getting thumbnails between members of groups.
    Testing permissions and thumbnail service on a running server. 
 
+   dir(self)
+   'assertAlmostEqual', 'assertAlmostEquals', 'assertEqual', 'assertEquals', 'assertFalse', 'assertNotAlmostEqual', 'assertNotAlmostEquals', 
+   'assertNotEqual', 'assertNotEquals', 'assertRaises', 'assertTrue', 'assert_', 'client', 'countTestCases', 'debug', 'defaultTestResult', 
+   'fail', 'failIf', 'failIfAlmostEqual', 'failIfEqual', 'failUnless', 'failUnlessAlmostEqual', 'failUnlessEqual', 'failUnlessRaises', 
+   'failureException', 'id', 'login_args', 'new_user', 'query', 'root', 'run', 'setUp', 'sf', 'shortDescription', 'tearDown', 'testfoo', 
+   'tmpfile', 'tmpfiles', 'update'
+   
 """
 import unittest, time
 import test.integration.library as lib
 import omero
-from omero.rtypes import rtime, rlong, rstring, rlist
+from omero.rtypes import rtime, rlong, rstring, rlist, rint
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_PermissionsI import PermissionsI
@@ -25,8 +32,10 @@ class TestIShare(lib.ITest):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         admin = self.root.sf.getAdminService()
         
-        ### create three users in one group
+        ### create three users in 3 groups
         listOfGroups = list()
+        listOfGroups.append(admin.lookupGroup("user"))  # all users need to be in 'user' group to do anything! 
+        
         #group1 - private
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("private_%s" % uuid)
@@ -82,7 +91,11 @@ class TestIShare(lib.ITest):
         owner.lastName = rstring("Owner")
         owner.email = rstring("owner@emaildomain.com")
         
-        eid = admin.createExperimenterWithPassword(owner, rstring("ome"), privateGroup, listOfGroups)
+        ownerId = admin.createExperimenterWithPassword(owner, rstring("ome"), privateGroup, listOfGroups)
+        newOwner = admin.getExperimenter(ownerId) 
+        admin.setGroupOwner(privateGroup, newOwner) 
+        admin.setGroupOwner(readOnlyGroup, newOwner) 
+        admin.setGroupOwner(collaborativeGroup, newOwner) 
         
         #new user1
         new_exp = ExperimenterI()
@@ -110,10 +123,118 @@ class TestIShare(lib.ITest):
         client_share1 = omero.client()
         client_share1.createSession(user1.omeName.val,"ome")
         
-        # create image
-        iId = createTestImage(self.root.sf)         # this works as root
-        iId = createTestImage(client_share1.sf)     # this fails at queryService!
-        print "imageId", iId
+        # create image and get thumbnail (in private group)
+        privateImageId = createTestImage(client_share1.sf)
+        self.getThumbnail(client_share1.sf, privateImageId)
+        
+        # change user into read-only group. Use object Ids for this, NOT objects from a different context
+        a = client_share1.sf.getAdminService()
+        me = a.getExperimenter(a.getEventContext().userId)
+        a.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid2, False))
+        client_share1.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid2, False))
+        #print a.getEventContext()
+        
+        # create image and get thumbnail (in read-only group)
+        readOnlyImageId = createTestImage(client_share1.sf)
+        self.getThumbnail(client_share1.sf, readOnlyImageId)
+        
+        # change user into collaborative group. Use object Ids for this, NOT objects from a different context
+        a.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid3, False))
+        client_share1.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid3, False))
+        
+        # create image and get thumbnail (in collaborative group)
+        collaborativeImageId = createTestImage(client_share1.sf)
+        self.getThumbnail(client_share1.sf, collaborativeImageId)
+        
+        # check that we can't get thumbnails for images in other groups
+        self.assertEquals(None, self.getThumbnail(client_share1.sf, privateImageId))
+        self.assertEquals(None, self.getThumbnail(client_share1.sf, readOnlyImageId))
+        
+        
+        # now check that the 'owner' of each group can see all 3 thumbnails.
+        ## login as owner (into private group)
+        owner_client = omero.client()
+        owner_client.createSession(newOwner.omeName.val,"ome")
+        
+        self.getThumbnail(owner_client.sf, privateImageId)
+        # check that we can't get thumbnails for images in other groups
+        self.assertEquals(None, self.getThumbnail(owner_client.sf, readOnlyImageId))
+        self.assertEquals(None, self.getThumbnail(owner_client.sf, collaborativeImageId))
+        
+        # change owner into read-only group.
+        o = client_share1.sf.getAdminService()
+        me = o.getExperimenter(o.getEventContext().userId)
+        o.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid2, False))
+        owner_client.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid2, False))
+
+        self.getThumbnail(owner_client.sf, readOnlyImageId)
+        # check that we can't get thumbnails for images in other groups
+        self.assertEquals(None, self.getThumbnail(owner_client.sf, privateImageId))
+        self.assertEquals(None, self.getThumbnail(owner_client.sf, collaborativeImageId))
+        
+        # change owner into collaborative group.
+        o.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid3, False))
+        owner_client.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid3, False))
+        
+        self.getThumbnail(owner_client.sf, collaborativeImageId)
+        # check that we can't get thumbnails for images in other groups
+        self.assertEquals(None, self.getThumbnail(owner_client.sf, privateImageId))
+        self.assertEquals(None, self.getThumbnail(owner_client.sf, readOnlyImageId))
+        
+        
+        # now check that the 'user2' of each group can see all thumbnails except private.
+        ## login as user2 (into private group)
+        user2_client = omero.client()
+        user2_client.createSession(user2.omeName.val,"ome")
+        
+        # check that we can't get thumbnails for any images in private group
+        self.assertEquals(None, self.getThumbnail(user2_client.sf, privateImageId))
+        self.assertEquals(None, self.getThumbnail(user2_client.sf, readOnlyImageId))
+        self.assertEquals(None, self.getThumbnail(user2_client.sf, collaborativeImageId))
+        
+        # change owner into read-only group.
+        u = user2_client.sf.getAdminService()
+        me = u.getExperimenter(u.getEventContext().userId)
+        u.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid2, False))
+        user2_client.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid2, False))
+
+        self.getThumbnail(user2_client.sf, readOnlyImageId)
+        # check that we can't get thumbnails for images in other groups
+        self.assertEquals(None, self.getThumbnail(user2_client.sf, privateImageId))
+        self.assertEquals(None, self.getThumbnail(user2_client.sf, collaborativeImageId))
+        
+        # change owner into collaborative group.
+        u.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid3, False))
+        user2_client.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid3, False))
+        
+        self.getThumbnail(user2_client.sf, collaborativeImageId)
+        # check that we can't get thumbnails for images in other groups
+        self.assertEquals(None, self.getThumbnail(user2_client.sf, privateImageId))
+        self.assertEquals(None, self.getThumbnail(user2_client.sf, readOnlyImageId))
+        
+        
+    def getThumbnail(self, session, imageId):
+    
+        gateway = session.createGateway()
+        thumbnailStore = session.createThumbnailStore()
+    
+        image = gateway.getImage(imageId)
+        if image is None:
+            return None
+        pId = image.getPrimaryPixels().getId().getValue()
+    
+        pixelsIds = [pId]
+        s = thumbnailStore.getThumbnailByLongestSideSet(rint(16), pixelsIds)
+        self.assertEqual(1, len(s))
+        s = thumbnailStore.getThumbnailSet(rint(16), rint(16), pixelsIds)
+        self.assertEqual(1, len(s))
+    
+        thumbnailStore.setPixelsId(pId)
+        t = thumbnailStore.getThumbnail(rint(16),rint(16))
+        self.assertNotEqual(None, t)
+        t = thumbnailStore.getThumbnailByLongestSide(rint(16))
+        self.assertNotEqual(None, t)
+        return t
         
 def createTestImage(session):
     
