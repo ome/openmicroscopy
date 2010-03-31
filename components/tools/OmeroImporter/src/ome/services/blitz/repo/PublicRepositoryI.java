@@ -212,6 +212,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
 
+
     /**
      * Register an Image object
      * 
@@ -429,6 +430,31 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return tnPath;
     }
 
+    /**
+     * Get (the path of) the thumbnail image for an image file on the repository.
+     * 
+     * @param path
+     *            A path on a repository.
+     * @param imageIndex
+     *            The index of an image in a multi-image file set.
+     * @param __current
+     *            ice context.
+     * @return The path of the thumbnail
+     *
+     */
+    public String getThumbnailByIndex(String path, int imageIndex, Current __current)  throws ServerError {
+        File file = checkPath(path);
+        String tnPath;
+        try {
+            tnPath = createThumbnail(file, imageIndex);   
+        } catch (ServerError exc) {
+            throw exc;
+        }
+        return tnPath;
+    }
+
+
+
 
     /**
      *
@@ -615,7 +641,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * @return A list of new OriginalFile objects
      *
      */
-    // NOT USED
+    // NOT USED 
+    /*
     private Map<String, List<IObject>> filesToIObjects(Collection<File> files) {
         Map<String, List<IObject>> rv = new HashMap<String, List<IObject>>();
         for (File f : files) {
@@ -626,7 +653,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         return rv;
     }
-
+    */
 
     /**
      * Get file paths corresponding to a collection of File objects.
@@ -653,6 +680,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      *
      */
     // NOT USED
+    /*
     private List<File> pathsToFiles(Collection<String> paths) {
         List rv = new ArrayList<File>();
         for (String p : paths) {
@@ -660,7 +688,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         return rv;
     }
-
+    */
     
     /**
      * Get registered OriginalFile objects corresponding to a collection of File objects.
@@ -692,6 +720,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      *
      */
     // NOT USED
+    /*
     private List<Image> knownImages(Collection<File> files)  {
         List rv = new ArrayList<Image>();
         for (File f : files) {
@@ -700,6 +729,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         return rv;
     }
+    */
+    
     
     private  List<ImportContainer> importableImageFiles(Collection<File> files, int depth) {
         List<String> pathList = filesToPaths(files);
@@ -820,27 +851,38 @@ public class PublicRepositoryI extends _RepositoryDisp {
     }
 
     /**
-     * Create a jpeg thumbnail from an image file 
+     * Create a jpeg thumbnail from an image file using the zeroth image
      * 
      * @param path
      *            A path to a file.
      * @return The path of the thumbnail
      *
+     */
+    private String createThumbnail(File file) throws ServerError {
+        return createThumbnail(file, 0);
+    }
+
+    /**
+     * Create a jpeg thumbnail from an image file using the nth image
+     * 
+     * @param path
+     *            A path to a file.
+     * @param imageIndex
+     *            the image index in a multi-image file.
+     * @return The path of the thumbnail
+     *
      * TODO Weak at present, no caching
      */
-     private String createThumbnail(File file)  throws ServerError {
-        
+    private String createThumbnail(File file, int imageIndex) throws ServerError {
         // Build a path to the thumbnail
         File parent = file.getParentFile();
         File tnParent = new File(new File(parent, OMERO_PATH), THUMB_PATH);
         tnParent.mkdirs(); // Need to check if this is created?
-        File tnFile = new File(tnParent, file.getName() + "_tn.jpg");
-        
+        File tnFile = new File(tnParent, file.getName() + "_" + Integer.toString(imageIndex) + "_tn.jpg");
         // Very basic caching... if a file exists return it.
         if (tnFile.exists()) {
             return tnFile.getAbsolutePath();
         }
-        // As it doesn't exist, create it.  
         
         // First get the thumb bytes from the image file  
         IFormatReader reader = new ImageReader();
@@ -848,6 +890,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         reader.setNormalized(true);
         try {
             reader.setId(file.getAbsolutePath());
+            reader.setSeries(imageIndex);
             // open middle image thumbnail
             int z = reader.getSizeZ() / 2;
             int t = reader.getSizeT() / 2;
@@ -897,8 +940,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         try {
             writer.setId(tnFile.getAbsolutePath());
             writer.saveBytes(thumb, true);
-            writer.close();
-            return tnFile.getAbsolutePath();  
+            writer.close();  
         } catch (FormatException exc) { 
             throw new ServerError(null, stackTraceAsString(exc), 
                     "Thumbnail error, write failed."); 
@@ -907,6 +949,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
                     "Thumbnail error, write failed."); 
         }
         
+        return tnFile.getAbsolutePath();
 	}
 
     // Utility function for passing stack traces back in exceptions.

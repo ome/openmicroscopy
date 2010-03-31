@@ -111,7 +111,7 @@ module omero {
              * TODO should this final exception just return and not throw?
              *
              **/
-            /* omero::model::IObject registerObject(omero::model::IObject obj) 
+            /*omero::model::IObject registerObject(omero::model::IObject obj) 
                     throws ServerError;
             */
             
@@ -162,7 +162,20 @@ module omero {
             void transfer(string srcPath, Repository* target, string targetPath) 
                     throws ServerError;
 
+            /* TODO for both methods: return binary data rather than paths to jpgs ? */
+            /**
+             * Return the full path of a jpg thumbnail of the image file
+             * given in the path argument.
+             **/
             string getThumbnail(string path) throws ServerError;
+            
+            /**
+             * Return the full path of a jpg thumbnail of the image 
+             * at the imageIndex in the file set represented by
+             * the file given in the path argument.
+             **/
+            string getThumbnailByIndex(string path, int imageIndex) throws ServerError;
+            
         };
 
         /**
