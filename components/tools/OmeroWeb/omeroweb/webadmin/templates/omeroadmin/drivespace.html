@@ -32,13 +32,13 @@
 <div id="piechart" class="loading"></div>
 
 <br/>
-<p>{% trans "Free space" %}: {{ driveSpace.free }} [KB]</p>
-<p>{% trans "Used space" %}: {{ driveSpace.used }} [KB]</p>
+<p>{% trans "Free space" %}: {{ driveSpace.free|filesizeformat }}</p>
+<p>{% trans "Used space" %}: {{ driveSpace.used|filesizeformat }}</p>
 
-<p>{% trans "Top ten list" %}:</p>
+<p>{% trans "Experimenter list" %}:</p>
 <ol>
-{% for item in topTen %}
-    <li>{{ item.0 }} - {{ item.1 }} [KB]</li>
+{% for item in usage %}
+    <li>{{ item.0 }} - {{ item.1|filesizeformat }}</li>
 {% endfor %}
 </ul>
 {% endblock %}

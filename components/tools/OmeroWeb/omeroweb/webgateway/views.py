@@ -815,7 +815,7 @@ def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
             newConnId = blitzcon.getSessionService().createSessionWithTimeout(p, 1200000)
             newConn = blitzcon.clone()
             newConn.connect(sUuid=newConnId.getUuid().val)
-        elif fromimg.canWrite():
+        elif fromimg.isEditable():
             newConn = blitzcon
             newConn.setGroupForSession(details.getGroup().getId())
 

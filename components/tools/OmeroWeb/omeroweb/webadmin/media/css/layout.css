@@ -253,6 +253,9 @@ ul.errorlist {
     padding: 0px;
 }
 
+#piechart img{
+    width: 600px;
+}
 #piechart.loading {
   background: url(../images/spinner.gif) no-repeat center center;
 }

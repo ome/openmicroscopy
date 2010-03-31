@@ -40,10 +40,10 @@ class BaseExperimenters(BaseController):
         self.experimenters = list()
         self.experimentersCount = {'experimenters': 0, 'active': 0, 'ldap': 0, 'admin': 0, 'guest': 0}
         for exp in self.experimentersList:
-            isActive = self.isActive(exp.id)
             isLdap = self.isLdap(exp.id)
-            isAdmin = self.isAdmin(exp.id)
-            isGuest = self.isGuest(exp.id)
+            isActive = exp.isActive()
+            isAdmin = exp.isAdmin()
+            isGuest = exp.isGuest()
             self.experimenters.append({'experimenter': exp, 'active': isActive, 'ldap':isLdap,
                                        'admin': isAdmin, 'guest':isGuest })
             if isActive:
@@ -67,30 +67,7 @@ class BaseExperimenters(BaseController):
         except:
             return False
         return False
-    
-    def isActive(self, eid):
-        for exp in self.experimentersList:
-            if exp.id == eid:
-                for ob in exp.copyGroupExperimenterMap():
-                    if ob.parent.name.val == "user":
-                        return True
-        return False
-    
-    def isGuest(self, eid):
-        for exp in self.experimentersList:
-            if exp.id == eid:
-                for ob in exp.copyGroupExperimenterMap():
-                    if ob.parent.name.val == "guest":
-                        return True
-        return False
-    
-    def isAdmin(self, eid):
-        for exp in self.experimentersList:
-            if exp.id == eid:
-                for ob in exp.copyGroupExperimenterMap():
-                    if ob.parent.name.val == "system":
-                        return True
-        return False
+
     
 class BaseExperimenter(BaseController):
     
@@ -178,18 +155,6 @@ class BaseExperimenter(BaseController):
         
         defaultGroup = self.conn.getGroup(long(dGroup))._obj
         self.conn.updateMyAccount(up_exp, defaultGroup, password)
-    
-    def isActive(self):
-        for ob in self.experimenter.copyGroupExperimenterMap():
-            if ob.parent.name.val == "user":
-                return True
-        return False
-    
-    def isAdmin(self):
-        for ob in self.experimenter.copyGroupExperimenterMap():
-            if ob.parent.name.val == "system":
-                return True
-        return False
     
     def createExperimenter(self, omeName, firstName, lastName, email, admin, active, dGroup, otherGroups, password, middleName=None, institution=None):
         new_exp = ExperimenterI()

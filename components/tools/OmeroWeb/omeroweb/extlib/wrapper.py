@@ -113,7 +113,7 @@ class OmeroWebObjectWrapper (object):
         return False
     
     def isEditable(self):
-        if self.isOwned() or self.isLeaded() or not self.isReadOnly():
+        if self.isOwned() or not self.isReadOnly():
             return True
         return False
     
@@ -221,6 +221,24 @@ class ExperimenterWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterWrap
         self.LINK_CLASS = "copyGroupExperimenterMap"
         self.CHILD_WRAPPER_CLASS = None
         self.PARENT_WRAPPER_CLASS = 'ExperimenterGroupWrapper'
+    
+    def isAdmin(self):
+        for ob in self._obj.copyGroupExperimenterMap():
+            if ob.parent.name.val == "system":
+                return True
+        return False
+    
+    def isActive(self):
+        for ob in self._obj.copyGroupExperimenterMap():
+            if ob.parent.name.val == "user":
+                return True
+        return False
+    
+    def isGuest(self):
+        for ob in self._obj.copyGroupExperimenterMap():
+            if ob.parent.name.val == "guest":
+                return True
+        return False
     
     def shortInstitution(self):
         try:

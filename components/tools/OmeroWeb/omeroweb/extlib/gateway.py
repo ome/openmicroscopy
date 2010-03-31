@@ -212,35 +212,60 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     
     
     # Repository info
-    def getUsedSpaceInKilobytes(self):
+    def getUsedSpace(self):
         """ Returns the total space in bytes for this file system
             including nested subdirectories. """
         
         rep_serv = self.getRepositoryInfoService()
-        return rep_serv.getUsedSpaceInKilobytes()
+        return rep_serv.getUsedSpaceInKilobytes() * 1024
     
-    def getFreeSpaceInKilobytes(self):
+    def getFreeSpace(self):
         """ Returns the free or available space on this file system
             including nested subdirectories. """
         
         rep_serv = self.getRepositoryInfoService()
-        return rep_serv.getFreeSpaceInKilobytes()
+        return rep_serv.getFreeSpaceInKilobytes() * 1024
     
     def getUsage(self):
         """ Returns list of users and how much space each of them use."""
-        
+       
         query_serv = self.getQueryService()
-        pixels = query_serv.findAllByQuery("select p from Pixels as p left outer join fetch p.pixelsType",None)
         usage = dict()
-        for p in pixels:
-            expid = long(p.details.owner.id.val)
-            if usage.has_key(expid):
-                bytesUsed = usage[expid]
-            else:
-                bytesUsed = 0
-            bytesUsed += p.sizeX.val * p.sizeY.val * p.sizeZ.val * p.sizeC.val * p.sizeT.val * self.bytesPerPixel(p.pixelsType.value)
-            usage[expid] = long(bytesUsed)
-        
+        if self.getUser().isAdmin():
+            admin_serv = self.getAdminService()
+            groups = admin_serv.lookupGroups()
+            for group in groups:
+                for gem in group.copyGroupExperimenterMap():
+                    exp = gem.child
+                    res = query_serv.projection("""
+                    select o.id, sum(p.sizeX * p.sizeY * p.sizeZ * p.sizeT * p.sizeC), p.pixelsType.value 
+                    from Pixels p join p.details.owner o 
+                    group by o.id, p.pixelsType.value
+                    """, None, {"omero.group":str(group.id.val)})
+                    rv = unwrap(res)        
+                    for r in rv:
+                        if usage.has_key(r[0]):
+                            usage[r[0]] += r[1]*self.bytesPerPixel(r[2])
+                        else:
+                            usage[r[0]] = r[1]*self.bytesPerPixel(r[2])
+        else:
+            groups = self.getEventContext().memberOfGroups
+            groups.extend(self.getEventContext().leaderOfGroups)
+            groups = set(groups)
+            for gid in groups:
+                p = omero.sys.Parameters()
+                p.map = {}
+                p.map["eid"] = rlong(self.getEventContext().userId)
+                res = query_serv.projection("""
+                select p.pixelsType.value, sum(p.sizeX * p.sizeY * p.sizeZ * p.sizeT * p.sizeC)
+                from Pixels p group by p.pixelsType.value
+                """, None, {"omero.group":str(gid)})
+                rv = unwrap(res)
+                for r in rv:
+                    if usage.has_key(gid):
+                        usage[gid] += r[1]*self.bytesPerPixel(r[0])
+                    else:
+                        usage[gid] = r[1]*self.bytesPerPixel(r[0])
         return usage
     
     # SPW
@@ -2210,18 +2235,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     ##  helpers                                 ##
     
     def bytesPerPixel(self, pixel_type):
-        if pixel_type.val == "int8" or pixel_type.val == "uint8":
+        if pixel_type == "int8" or pixel_type == "uint8":
             return 1
-        elif pixel_type.val == "int16" or pixel_type.val == "uint16":
+        elif pixel_type == "int16" or pixel_type == "uint16":
             return 2
-        elif pixel_type.val == "int32" or pixel_type.val == "uint32" or pixel_type.val == "float":
+        elif pixel_type == "int32" or pixel_type == "uint32" or pixel_type == "float":
             return 4
-        elif pixel_type.val == "double":
+        elif pixel_type == "double":
             return 8;
         else:
-            logger.error("Error: Unknown pixel type: %s" %s (pixel_type.val))
+            logger.error("Error: Unknown pixel type: %s" %s (pixel_type))
             logger.error(traceback.format_exc())
-            raise AttributeError("Unknown pixel type: %s" %s (pixel_type.val))
+            raise AttributeError("Unknown pixel type: %s" %s (pixel_type))
     
 
 omero.gateway.BlitzGateway = OmeroWebGateway

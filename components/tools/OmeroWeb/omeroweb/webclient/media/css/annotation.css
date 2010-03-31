@@ -18,7 +18,7 @@ div.excomment {
     float: right;
 }
 div.lncomments{
-    max-height: 230px;
+    /*max-height: 230px;*/
     overflow: auto;
     border: 1px solid #bbb;
     padding: 10px;
@@ -37,7 +37,7 @@ div.extags {
     float: left;
 }
 div.lntags{
-    max-height: 110px;
+    /*max-height: 110px;*/
     overflow: auto;
     border: 1px solid #bbb;
     padding: 0 10px;
@@ -50,7 +50,7 @@ div.exfile {
     float: left;
 }
 div.lnfiles{
-    max-height: 175px;
+    /*max-height: 175px;*/
     overflow: auto;
     border: 1px solid #bbb;
     padding: 0 10px;

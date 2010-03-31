@@ -442,7 +442,7 @@ def manage_experimenter(request, action, eid=None, **kwargs):
             initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
                                     'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
                                     'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
-                                    'administrator': controller.isAdmin, 'active': controller.isActive, 
+                                    'administrator': controller.experimenter.isAdmin(), 'active': controller.experimenter.isActive(), 
                                     'default_group': controller.defaultGroup, 'other_groups':controller.otherGroups}
             
             initial['default'] = controller.default
@@ -459,7 +459,7 @@ def manage_experimenter(request, action, eid=None, **kwargs):
             initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
                                     'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
                                     'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
-                                    'administrator': controller.isAdmin, 'active': controller.isActive, 
+                                    'administrator': controller.experimenter.isAdmin(), 'active': controller.experimenter.isActive(), 
                                     'default_group': controller.defaultGroup, 'other_groups':controller.otherGroups}
             
             initial['default'] = controller.default
@@ -953,20 +953,9 @@ def drivespace(request, **kwargs):
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'drivespace':drivespace}
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin }
     controller = BaseDriveSpace(conn)
-    controller.pieChartData()
+    controller.usersData()
     
-    for item in controller.topTen:
-        if item[0] == "free space":
-            controller.topTen.remove(item)
-            continue
-        if item[0] == "rest":
-            controller.topTen.remove(item)
-            continue
-    
-    topTen = controller.topTen
-    cache.set('topTen', topTen, settings.CACHE_TIMEOUT)
-    
-    context = {'info':info, 'eventContext':eventContext, 'driveSpace': {'free':controller.freeSpace, 'used':controller.usedSpace }, 'topTen':topTen}
+    context = {'info':info, 'eventContext':eventContext, 'driveSpace': {'free':controller.freeSpace, 'used':controller.usedSpace }, 'usage':controller.usage}
     
     t = template_loader.get_template(template)
     c = Context(request, context)
@@ -991,20 +980,19 @@ def piechart(request, **kwargs):
         from pylab import * 
     except:
         logger.error(traceback.format_exc())
-     
-    topTen = cache.get('topTen')
-    if topTen is None:
-        raise AttributeError('topTen could not be loaded from cache.')
     
-    values = list()
-    keys = list()
-    for item in topTen:
+    controller = BaseDriveSpace(conn)
+    controller.pieChartData() 
+    
+    keys, values = list(), list()
+    for item in controller.usage:
         keys.append(str(item[0]))
         values.append(long(item[1]))
     
+    print controller.usage
     explode = list()
     explode.append(0.1)
-    for e in topTen:
+    for e in range(0, len(keys)):
         explode.append(0)
     explode.remove(0)
     

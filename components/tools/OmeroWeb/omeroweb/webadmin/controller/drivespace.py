@@ -32,21 +32,32 @@ class BaseDriveSpace(BaseController):
 
     def __init__(self, conn):
         BaseController.__init__(self, conn)
-        self.freeSpace = self.conn.getFreeSpaceInKilobytes()
-        self.usedSpace = self.conn.getUsedSpaceInKilobytes()
-
+        self.freeSpace = self.conn.getFreeSpace()
+        self.usedSpace = self.conn.getUsedSpace()
+        self.experimenters = list(self.conn.lookupExperimenters())
+        self.usage = self.conn.getUsage()
+    
+    def usersData(self):
+        tt = dict()
+        for k,v in self.usage.iteritems():
+            for exp in self.experimenters:
+                if long(exp.id) == k:
+                    tt[str(exp.omeName)] = v
+                    break
+        self.usage = sorted(tt.iteritems(), key=lambda (k,v):(v,k), reverse=True)
+    
     def pieChartData(self):
-        experimenters = list(self.conn.lookupExperimenters())
         tt = {"free space":self.freeSpace}
         used = 0
         i=0
-        for k,v in self.conn.getUsage().iteritems():
-            if i<10:
-                for exp in experimenters:
+        for k,v in self.usage.iteritems():
+            if i < 20:
+                for exp in self.experimenters:
                     if long(exp.id) == k:
-                        tt[str(exp.omeName)] = v / 1024
-                        used += v / 1024
+                        tt[str(exp.omeName)] = v
                         break
+            else:
+                used += v
             i+=1
-        tt["rest"] = self.usedSpace - used
-        self.topTen = sorted(tt.iteritems(), key=lambda (k,v):(v,k), reverse=True)
+        tt["rest"] = used
+        self.usage = sorted(tt.iteritems(), key=lambda (k,v):(v,k), reverse=True)

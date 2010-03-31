@@ -75,9 +75,7 @@
         <ul>
             {% if manager.image or manager.well %}<li>|&nbsp;<a href="#preview_tab">{% trans "Preview" %}</a>&nbsp;</li>{% endif %}
             <li>|&nbsp;<a href="#metadata_tab">{% trans "Metadata" %}</a>&nbsp;</li>
-            <li>|&nbsp;<a href="#comment_tab">{% trans "Comments" %}</a>&nbsp;</li>
-            <li>|&nbsp;<a href="#tags_tab">{% trans "Tags" %}</a>&nbsp;</li>
-            <li>|&nbsp;<a href="#file_tab">{% trans "Attachments" %}</a>&nbsp;|</li>
+            <li>|&nbsp;<a href="#annotation_tab">{% trans "Annotation" %}</a>&nbsp;</li>
         </ul>
         <div class="clear"></div>        
         
@@ -323,14 +321,21 @@
         </div>        
         
         <!-- ANNOTATIONS -->
-        <div id="comment_tab">
-            <h1>{% trans "Comments" %}:</h1>
+        <div id="annotation_tab">
+            <h1>{% trans "Comments" %}:
+                {% if manager.project and manager.isObjectEditable %}<a href="{% url manage_action_containers "newcomment" "project" manager.project.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Create new comment."/></a>{% else %}
+                {% if manager.dataset and manager.isObjectEditable %}<a href="{% url manage_action_containers "newcomment" "dataset" manager.dataset.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Create new comment."/></a>{% else %}
+                {% if manager.image and manager.isObjectEditable %}<a href="{% url manage_action_containers "newcomment" "image" manager.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Create new comment."/></a>{% else %}
+                {% if manager.screen and manager.isObjectEditable %}<a href="{% url manage_action_containers "newcomment" "screen" manager.screen.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Create new comment."/></a>{% else %}
+                {% if manager.plate and manager.isObjectEditable %}<a href="{% url manage_action_containers "newcomment" "plate" manager.plate.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Create new comment."/></a>{% else %}
+                {% if manager.well and manager.isObjectEditable %}<a href="{% url manage_action_containers "newcomment" "well" manager.well.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Create new comment."/></a>
+                {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}</h1>            
             {% if manager.txannSize %}
             <div class="lncomments">            
                 {% for tann in manager.text_annotations %}
                 <div id="ann_comment_wrapper">
                     <div class="avatar"><img src="{% url load_photo tann.details.owner.id.val %}" alt="{{ tann.getOwnerFullName }}" title="{{ tann.getOwnerFullName }}" width="40" height="40" /></div>
-                    <div class="ann_comment"><span class="ann_comment_header">{{ tann.getOwnerFullName }} {% trans "posted comment at" %} {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}</span> {% if tann.canWrite %}<a href="{% url manage_action_containers "edit" "comment" tann.id %}?url={{ url }}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}<br/>
+                    <div class="ann_comment"><span class="ann_comment_header">{{ tann.getOwnerFullName }} {% trans "posted comment at" %} {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}</span> {% if tann.isEditable %}<a href="{% url manage_action_containers "edit" "comment" tann.id %}?url={{ url }}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %}<br/>
                         {{ tann.textValue|safe|linebreaks }}
                     </div>
                 </div>
@@ -339,42 +344,21 @@
             {% else %}
                 <p>Have not been commented yet.</p>    
             {% endif %}
-            
             <div class="clear"></div>
-            
-            {% if form_comment %}
-            <div class="comment">
-                <h1>{% trans "Add new comment" %}:</h1>
-                <form action="#comment_tab" method="post"><input type="hidden" name="action" value="comment" />
-                <table>
-                    {% for field in form_comment %}
-                        <tr>
-                            <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
-                        </tr>
-                        <tr>
-                            <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
-                        </tr>
-                    {% endfor %}
-                        <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
-                </table>
-                </form>
-                <script type="text/javascript">
-                    var googie_spell = new GoogieSpell("static_core/googiespell/", "{% url spellchecker %}"+"?lang=");
-                    googie_spell.decorateTextarea("id_content", null, "600px");
-                </script>
-            </div>
-            {% endif %}
-
-            <div class="clear"></div>
-        </div>
         
         <!-- TAGS -->
-        <div id="tags_tab">
-            <h1>{% trans "Tags" %}:</h1>
+            <h1>{% trans "Tags" %}: 
+                {% if manager.project and manager.isObjectEditable %}<a href="{% url manage_action_containers "newtag" "project" manager.project.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
+                {% if manager.dataset and manager.isObjectEditable %}<a href="{% url manage_action_containers "newtag" "dataset" manager.dataset.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
+                {% if manager.image and manager.isObjectEditable %}<a href="{% url manage_action_containers "newtag" "image" manager.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
+                {% if manager.screen and manager.isObjectEditable %}<a href="{% url manage_action_containers "newtag" "screen" manager.screen.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
+                {% if manager.plate and manager.isObjectEditable %}<a href="{% url manage_action_containers "newtag" "plate" manager.plate.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
+                {% if manager.well and manager.isObjectEditable %}<a href="{% url manage_action_containers "newtag" "well" manager.well.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Create new tag or use an existing one."/></a>
+                {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}</h1>
             {% if manager.tgannSize %}
             <div class="lntags"> <h1>                  
             {% for tag in manager.tag_annotations %}
-                <span id="tagdesc{{ tag.id }}" title="{{ tag.textValue }} - <small>{{ tag.description|default_if_none:""|safe|linebreaks  }}</small>"><a href="{% url manage_data_by_tag tag.id %}"> {{ tag.textValue }}</a></span> {% if tag.canWrite %}<a href="{% url manage_action_containers "remove" %}?parent={% if manager.image %}img-{{ manager.image.id}}{% else %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% else %}{% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&source=tann-{{ tag.id }}&url={{ url }}#tags_tab" onClick="return confirm('Unlink tag?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}, 
+                <span id="tagdesc{{ tag.id }}" title="{{ tag.textValue }} - <small>{{ tag.description|default_if_none:""|safe|linebreaks  }}</small>"><a href="{% url manage_data_by_tag tag.id %}"> {{ tag.textValue }}</a></span> {% if tag.isEditable %}<a href="{% url manage_action_containers "remove" %}?parent={% if manager.image %}img-{{ manager.image.id}}{% else %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% else %}{% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&source=tann-{{ tag.id }}&url={{ url }}#annotation_tab" onClick="return confirm('Unlink tag?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}, 
             {% endfor %}
             </h1></div>
             {% else %}
@@ -382,55 +366,20 @@
             {% endif %}
             
             <div class="clear"></div>
-            
-            {% if form_tag %}
-            <div class="tags">
-                <h1>{% trans "Add new tag" %}:</h1>
-                <form action="#tags_tab" method="post"><input type="hidden" name="action" value="tag" />
-                <table>
-                    {% for field in form_tag %}
-                        <tr>
-                            <td></td><td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
-                        </tr>
-                        <tr>
-                            <td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
-                        </tr>
-                    {% endfor %}
-                    <tr><td></td><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
-                    </table>
-                </form>
-            </div>
-            {% endif %}
-            
-            {% if form_tags %}
-            <div class="extags">
-                <h1>{% trans "Use existing tag" %}:</h1>
-                <form action="#tags_tab" method="post"><input type="hidden" name="action" value="usetag" />
-                <table>
-                {% for field in form_tags %}
-                    <tr>
-                        <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
-                    </tr>
-                    <tr>
-                        <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
-                    </tr>
-                {% endfor %}
-                <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
-                </table>
-                </form>
-            </div>
-            {% endif %}
-
-            <div class="clear"></div>
-        </div>
         
         <!-- FILES -->
-        <div id="file_tab">
-            <h1>{% trans "Files" %}:</h1>
+            <h1>{% trans "Files" %}:
+                {% if manager.project and manager.isObjectEditable %}<a href="{% url manage_action_containers "newfile" "project" manager.project.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
+                {% if manager.dataset and manager.isObjectEditable %}<a href="{% url manage_action_containers "newfile" "dataset" manager.dataset.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
+                {% if manager.image and manager.isObjectEditable %}<a href="{% url manage_action_containers "newfile" "image" manager.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
+                {% if manager.screen and manager.isObjectEditable %}<a href="{% url manage_action_containers "newfile" "screen" manager.screen.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
+                {% if manager.plate and manager.isObjectEditable %}<a href="{% url manage_action_containers "newfile" "plate" manager.plate.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
+                {% if manager.well and manager.isObjectEditable %}<a href="{% url manage_action_containers "newfile" "well" manager.well.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Attache new file or use an existing one."/></a>
+                {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}</h1>
             {% if manager.fileannSize %}
             <div class="lnfiles">
                 {% for fileann in manager.file_annotations %}
-                <p><a href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';">{{ fileann.getFileName }}</a> ({{ fileann.getFileSize|default_if_none:0|filesizeformat }}) {% trans "by" %} {{ fileann.getDetails.getOwner.getInitialName }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }} {% if fileann.canWrite and not fileann.isOriginalMetadat %}<a href="{% url manage_action_containers "remove" %}?parent={% if manager.image %}img-{{ manager.image.id}}{% else %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% else %}{% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&source=fann-{{ fileann.id }}&url={{ url }}#file_tab" onClick="return confirm('Unlink file?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}</p>
+                <p><a href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';">{{ fileann.getFileName }}</a> ({{ fileann.getFileSize|default_if_none:0|filesizeformat }}) {% trans "by" %} {{ fileann.getDetails.getOwner.getInitialName }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }} {% if fileann.isEditable and not fileann.isOriginalMetadat %}<a href="{% url manage_action_containers "remove" %}?parent={% if manager.image %}img-{{ manager.image.id}}{% else %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% else %}{% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&source=fann-{{ fileann.id }}&url={{ url }}#annotation_tab" onClick="return confirm('Unlink file?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}</p>
                 {% endfor %}
             </ol>
             </div>
@@ -439,45 +388,6 @@
             {% endif %}
             
             <div class="clear"></div>
-            
-            {% if form_file %}
-            <div class="file">
-                <h1>{% trans "Upload a new file" %}:</h1>
-                <form action="#file_tab" enctype="multipart/form-data" method="post"><input type="hidden" name="action" value="file" />
-                <table>
-                {% for field in form_file %}
-                    <tr>
-                        <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
-                    </tr>
-                    <tr>
-                        <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
-                    </tr>
-                {% endfor %}
-                <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
-                </table>
-                </form>
-            </div>
-            {% endif %}
-
-            {% if form_files %}
-            <div class="exfile">
-                <h1>{% trans "Attache existing file" %}:</h1>
-                <form action="#file_tab" method="post"><input type="hidden" name="action" value="usefile" />
-                <table>
-                {% for field in form_files %}
-                    <tr>
-                        <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
-                    </tr>
-                    <tr>
-                        <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
-                    </tr>
-                {% endfor %}
-                <tr><td colspan="2"><input type="submit" value="{% trans 'Save' %}" /></td></tr>
-                </table>
-                </form>
-            </div>
-            {% endif %}
-            
         </div>
 
     </div>
