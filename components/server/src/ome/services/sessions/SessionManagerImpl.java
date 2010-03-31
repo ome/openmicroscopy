@@ -1086,6 +1086,17 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             throw new ApiUsageException("Security context must be managed!");
         }
 
+        SessionContext sc = cache.getSessionContext(principal.getName(), false);
+        Long shareId = sc.getCurrentShareId();
+        Long groupId = sc.getCurrentGroupId();
+        ome.model.IObject prevCtx = null;
+
+        if (shareId != null) {
+            prevCtx = new Share(shareId, false);
+        } else {
+            prevCtx = new ExperimenterGroup(groupId, false);
+        }
+
         if (obj instanceof ExperimenterGroup) {
             setGroupSecurityContext(principal, id);
         } else if (obj instanceof Share) {
@@ -1094,7 +1105,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             throw new ApiUsageException("Unknown security context:" + obj);
         }
 
-        return null; // FIXME this should return the previous value
+        return prevCtx;
     }
 
     /**
