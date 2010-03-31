@@ -58,7 +58,7 @@ class UserControl(BaseControl):
 
         group = admin.lookupGroup(group)
         if pasw is None:
-            id = admin.createUser(e, group)
+            id = admin.createUser(e, group.name.val)
             self.ctx.out("Added user %s" % id)
         else:
             user_group = Grp(admin.getSecurityRoles().userGroupId, False)
