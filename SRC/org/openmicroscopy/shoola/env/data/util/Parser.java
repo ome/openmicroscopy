@@ -22,6 +22,9 @@
  */
 package org.openmicroscopy.shoola.env.data.util;
 
+
+
+//Java imports
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,15 +35,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-//Java imports
-
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * Parses file identifying application on Mac.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -73,7 +73,13 @@ public class Parser
 	/** The file to look to retrieve the information. */
 	private static final String INFO_FILE_MAC = "/Contents/Info.plist";
 
-	
+	/**
+	 * Parses the <code>Info.plist</code> file.
+	 * 
+	 * @param path The path to the file.
+	 * @return Parsed objects.
+	 * @throws Exception Thrown if an error occurred while parsing the file.
+	 */
 	public static Map<String, Object> parseInfoPList(String path)
 		throws Exception
 	{
@@ -85,7 +91,7 @@ public class Parser
 		NodeList list = doc.getElementsByTagName("dict");
 		Node node, child, s;
 		NodeList nodes;
-		String value, name;
+		String value;
 		String r;
 		for (int i = 0; i < list.getLength() ; i++){
 			node = list.item(i);
@@ -122,6 +128,5 @@ public class Parser
 		}
 		return map;
 	}
-	
 	
 }

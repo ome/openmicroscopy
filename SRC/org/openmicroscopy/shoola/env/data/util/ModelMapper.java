@@ -156,11 +156,13 @@ public class ModelMapper
      */
     public static IObject unlinkChildFromParent(IObject child, IObject parent)
     {
+    	List links;
+    	Iterator i;
         if (parent instanceof Dataset) {
             if (!(child instanceof Image))
                 throw new IllegalArgumentException("Child not valid.");
-            List links = ((Image) child).copyDatasetLinks();
-            Iterator i = links.iterator();
+            links = ((Image) child).copyDatasetLinks();
+            i = links.iterator();
             DatasetImageLink link = null;
             long parentID = parent.getId().getValue();
             while (i.hasNext()) {
@@ -172,8 +174,8 @@ public class ModelMapper
         } else if (parent instanceof Project) {
             if (!(child instanceof Dataset))
                 throw new IllegalArgumentException("Child not valid.");
-            List links = ((Project) parent).copyDatasetLinks();
-            Iterator i = links.iterator();
+            links = ((Project) parent).copyDatasetLinks();
+            i = links.iterator();
             ProjectDatasetLink link = null;
             long childID = child.getId().getValue();
             while (i.hasNext()) {
@@ -187,6 +189,12 @@ public class ModelMapper
         throw new IllegalArgumentException("Parent not supported.");
     }
 
+    /**
+     * Returns the child from the passed link.
+     * 
+     * @param link The link to handle.
+     * @return See above.
+     */
     public static IObject getChildFromLink(IObject link)
     {
     	if (link == null) return null;
@@ -210,8 +218,8 @@ public class ModelMapper
     /**
      * Links the  {@link IObject child} to its {@link IObject parent}.
      * 
-     * @param child     The child. 
-     * @param parent    The parent.
+     * @param child     The child to handle. 
+     * @param parent    The parent to handle. 
      * @return The link.
      */
     public static IObject linkParentToChild(IObject child, IObject parent)
@@ -288,6 +296,7 @@ public class ModelMapper
         if (child == null) throw new IllegalArgumentException("Child cannot" +
                                 "be null.");
         List l;
+        Iterator it;
         if (parent instanceof Project) {
             if (!(child instanceof Dataset))
                 throw new IllegalArgumentException("Child not valid.");
@@ -297,7 +306,7 @@ public class ModelMapper
             l = d.copyProjectLinks();
             if (l == null) return;
             ProjectDatasetLink link;
-            Iterator it = l.iterator();
+            it = l.iterator();
             long id = p.getId().getValue();
             while (it.hasNext()) {
                 link = (ProjectDatasetLink) it.next();
@@ -312,7 +321,7 @@ public class ModelMapper
             l = d.copyDatasetLinks();
             if (l == null) return;
             DatasetImageLink link;
-            Iterator it = l.iterator();
+            it = l.iterator();
             long id = p.getId().getValue();
             while (it.hasNext()) {
                 link = (DatasetImageLink) it.next();
@@ -327,7 +336,7 @@ public class ModelMapper
      * Converts the specified <code>DataObject</code> into its corresponding 
      * <code>IObject</code>.
      * 
-     * @param child     The child to create.
+     * @param child The child to create.
      * @return The {@link IObject} to create.
      */
     public static IObject createIObject(DataObject child)

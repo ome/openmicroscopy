@@ -342,11 +342,17 @@ public abstract class ActivityComponent
 		notifyActivityCancelled();
 	}
 	
+	/** Invokes when the call-back has been set. */
+	public void onCallBackSet()
+	{
+		cancelButton.setEnabled(true);
+	}
+	
 	/** Invokes when the activity starts. */ 
 	public void startActivity()
 	{
 		status.setBusy(true);
-		cancelButton.setEnabled(true);
+		//cancelButton.setEnabled(true);
 	}
 	
 	/** 

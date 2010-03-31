@@ -410,7 +410,6 @@ class OMEROGateway
 	         ScriptProcessPrx prx = svc.runScript(scriptID, parameters, null);
 	         cb = new ScriptCallback(scriptID, blitzClient, prx);
 		} catch (Exception e) {
-			System.err.println("error");
 			e.printStackTrace();
 			if (cb != null) cb.close();
 			throw new ScriptingException("Cannot run script with ID:"+scriptID);

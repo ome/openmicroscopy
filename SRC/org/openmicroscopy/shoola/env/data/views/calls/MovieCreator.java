@@ -31,8 +31,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.ScriptCallback;
-import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
-import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
+import org.openmicroscopy.shoola.env.data.model.MovieExportParam;  
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -105,7 +104,7 @@ public class MovieCreator
      * 
      * @see BatchCallTree#getResult()
      */
-    protected Object getResult() { return scriptCallBack; }
+    protected Object getResult() { return null; }
     
     /**
      * Creates a new instance.

@@ -50,7 +50,7 @@ import java.util.Set;
 public class SearchResult
 {
 
-	/** Collection of image's ids. */
+	/** Collection of image's identifiers. */
 	private Set<Long> 			nodeIDs;
 	
 	/** 
@@ -67,7 +67,7 @@ public class SearchResult
 	}
 	
 	/**
-	 * Sets the collection of image's ids.
+	 * Sets the collection of image's identifiers.
 	 * 
 	 * @param nodeIDs The value to set.
 	 */
@@ -81,7 +81,7 @@ public class SearchResult
 	public void setContext(Map<String, Map> context) { this.context = context; }
 	
 	/**
-	 * Returns the collection of image's ids.
+	 * Returns the collection of image's identifiers.
 	 * 
 	 * @return See above.
 	 */

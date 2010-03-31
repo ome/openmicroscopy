@@ -71,6 +71,7 @@ public class MovieCreator
     /** The result. */
     private FileAnnotationData		data;
 
+    /** The call-back returned by the server. */
     private ScriptCallback 			callBack;
     
     /** Notifies the user that an error occurred. */
@@ -121,11 +122,11 @@ public class MovieCreator
     public void cancel()
     { 
     	try {
-    		if (callBack != null) callBack.cancel();
-    		activity.onActivityCancelled();
+    		if (callBack != null) {
+    			callBack.cancel();
+        		activity.onActivityCancelled();
+    		}
 		} catch (Exception e) {
-			System.err.println("cancel");
-			e.printStackTrace();
 			handleException(e);
 		}
     	handle.cancel();
@@ -141,28 +142,21 @@ public class MovieCreator
         String status = fe.getStatus();
         int percDone = fe.getPercentDone();
         Object o = fe.getPartialResult();
-        System.err.println(o);
-        if (o != null) callBack = (ScriptCallback) o;
+        if (o != null) {
+        	callBack = (ScriptCallback) o;
+        	activity.onCallBackSet();
+        }
     }
     
     /**
      * Notifies the user that it wasn't possible to create the movie.
      * @see UserNotifierLoader#handleNullResult()
      */
+    /*
     public void handleNullResult()
     { 
     	activity.notifyError("Unable to create movie for ");
     }
- 
-    /** 
-     * Feeds the result back to the viewer. 
-     * @see UserNotifierLoader#handleResult(Object)
-     */
-    public void handleResult(Object result)
-    { 
-    	System.err.println("result:" +result);
-    	callBack = (ScriptCallback) result;
-    	//activity.endActivity(result); 
-    }
+    */
 	
 }
