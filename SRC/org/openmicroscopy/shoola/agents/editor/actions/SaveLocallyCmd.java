@@ -118,7 +118,7 @@ class SaveLocallyCmd
 	public void propertyChange(PropertyChangeEvent evt) 
 	{
 		if (! (evt.getSource() instanceof FileChooser)) return;
-		FileChooser fileChooser = (FileChooser)evt.getSource();
+		FileChooser fileChooser = (FileChooser) evt.getSource();
 		
 		String name = evt.getPropertyName();
 		if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
@@ -145,12 +145,9 @@ class SaveLocallyCmd
 				JFrame f = EditorAgent.getRegistry().getTaskBar().getFrame();
 				MessageBox msg = new MessageBox(f, title, message);
 				int option = msg.centerMsgBox();
-				if (option != MessageBox.YES_OPTION) {
-					return;
-				}
+				if (option != MessageBox.YES_OPTION) return;
 			}
-			
-			model.saveFileLocally(file);
+			model.save(file, Editor.SAVE_LOCALLY);
 		}
 	}
 	

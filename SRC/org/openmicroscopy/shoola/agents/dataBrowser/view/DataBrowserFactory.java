@@ -35,8 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 
@@ -72,7 +70,6 @@ import pojos.WellData;
  * @since OME3.0
  */
 public class DataBrowserFactory
-	implements ChangeListener
 {
 
 	/** The sole instance. */
@@ -565,16 +562,5 @@ public class DataBrowserFactory
         };
         Collections.sort(nodes, c);
     }
-    
-	/**
-	 * Removes a browser from the {@link #browsers} set when it is
-	 * {@link DataBrowser#DISCARDED discarded}. 
-	 * @see ChangeListener#stateChanged(ChangeEvent)
-	 */
-	public void stateChanged(ChangeEvent e)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-	
+
 }

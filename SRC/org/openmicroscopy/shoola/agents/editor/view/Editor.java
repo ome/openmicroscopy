@@ -52,6 +52,12 @@ public interface Editor
 	extends ObservableComponent
 {
 
+	/** Indicates to save the file locally. */
+	public static final int SAVE_LOCALLY = 0;
+	
+	/** Indicates to save the file locally. */
+	public static final int SAVE_SERVER = 1;
+	
 	/** Possible extension of the experiment. */
 	public static final String EXPERIMENT_EXTENSION = 
 		ShowEditorEvent.EXPERIMENT_EXTENSION;
@@ -93,6 +99,9 @@ public interface Editor
 	 */
 	public void discard();
 
+	/** Closes the editor. */
+	public void close();
+	
 	/**
 	 * Queries the current state.
 	 * 
@@ -162,34 +171,6 @@ public interface Editor
 	public void setBlankFile();
 	
 	/**
-	 * Saves the currently-edited file to the location it came from (as defined
-	 * in the model). 
-	 * If the current file is local, saves there, overwriting the old file. 
-	 * If file is on server...
-	 * 
-	 * @return See above.
-	 */
-	public boolean saveCurrentFile();
-	
-	/**
-	 * Saves to the specified file, and remembers file location in model.
-	 * 
-	 * @param file The location to save to (local file). 
-	 * 
-	 * @return  <code>true</code> if the saving was successful, 
-	 * 			<code>false</code> otherwise.
-	 */
-	public boolean saveFileLocally(File file);
-	
-	/**
-	 * Saves the currently edited file to the server as a new file with
-	 * the given name.
-	 * 
-	 * @param fileName	The name to give the new file on the server. 
-	 */
-	public void saveFileServer(String fileName);
-	
-	/**
 	 * Invokes when the file has been saved to the server.
 	 * 
 	 * @param data The annotation.
@@ -223,6 +204,30 @@ public interface Editor
 	 * @return See above.
 	 */
 	public boolean isUserOwner();
+	
+	/**
+	 * Saves the currently-edited file to the location it came from (as defined
+	 * in the model). 
+	 * If the current file is local, saves there, overwriting the old file. 
+	 * If file is on server...
+	 * 
+	 * @return See above.
+	 */
+	public boolean saveCurrentFile();
+	
+	/**
+	 * Saves the file locally or server side depending on the passed index.
+	 * Returns <code>true</code> if the save was successful, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param object The object to handle.
+	 * @param index  One of the <code>Save</code> constants defined by this 
+	 * 				 class.
+	 * @return 
+	 */
+	public boolean save(Object object, int index);
+	
+	public void save(boolean asynch);
 	
     
 }

@@ -24,8 +24,10 @@ package org.openmicroscopy.shoola.agents.editor.view;
 
 //Java imports
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -200,11 +202,62 @@ public class EditorFactory
 	 * Returns the number of Editors. 
 	 * Used for incrementing the position on screen of new Editor windows. 
 	 * 
-	 * @return		see above. 
+	 * @return See above. 
 	 */
-	public static int getEditorCount()
+	public static int getEditorCount() { return singleton.editors.size(); }
+	
+	/**
+	 * Notifies the model that the user's group has successfully be modified
+	 * if the passed value is <code>true</code>, unsuccessfully 
+	 * if <code>false</code>.
+	 * 
+	 * @param success Pass <code>true</code> if successful, <code>false</code>
+	 * 				  otherwise.
+	 */
+	public static final void onGroupSwitched(boolean success)
 	{
-		return singleton.editors.size();
+		if (!success) return;
+		singleton.clear();
+	}
+	
+	/**
+	 * Returns the instances to save.
+	 * 
+	 * @return See above.
+	 */
+	public static List<Object> getInstancesToSave()
+	{
+		List<Object> instances = new ArrayList<Object>();
+		if (singleton.editors.size() == 0) return instances;
+		Iterator i = singleton.editors.iterator();
+		EditorComponent comp;
+		while (i.hasNext()) {
+			comp = (EditorComponent) i.next();
+			if (comp.hasDataToSave())
+				instances.add(comp);
+		}
+		return instances;
+	}
+	
+	/** 
+	 * Saves the passed instances and discards them. 
+	 * 
+	 * @param instances The instances to save.
+	 */
+	public static void saveInstances(List<Object> instances)
+	{
+		if (instances != null) {
+			Iterator i = instances.iterator();
+			EditorComponent comp;
+			Object object;
+			while (i.hasNext()) {
+				object = (Object) i.next();
+				if (object instanceof EditorComponent) {
+					comp = (EditorComponent) object;
+					comp.save(false);
+				}
+			}
+		}
 	}
 	
 	/** 
@@ -263,6 +316,19 @@ public class EditorFactory
 		editors = new HashSet<Editor>();
 		windowMenu = new JMenu("Editors");
 		isAttached = false;
+	}
+	
+	/** Clears the collection of editors. */
+	private void clear()
+	{
+		Iterator i = editors.iterator();
+		EditorComponent comp;
+		while (i.hasNext()) {
+			comp = (EditorComponent) i.next();
+			comp.removeChangeListener(this);
+			comp.discard();
+		}
+		editors.clear();
 	}
 	
 	/**

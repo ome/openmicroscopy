@@ -136,20 +136,23 @@ public abstract class DataBrowserLoader
      */
     public void handleException(Throwable exc) 
     {
+    	int state = viewer.getState();
     	String s = "Data Retrieval Failure: ";
         LogMessage msg = new LogMessage();
+        msg.print("State: "+state);
         msg.print(s);
         msg.print(exc);
         registry.getLogger().error(this, msg);
-        registry.getUserNotifier().notifyError("Data Retrieval Failure", 
+        if (state != DataBrowser.DISCARDED)
+        	registry.getUserNotifier().notifyError("Data Retrieval Failure", 
                                                s, exc);
         //viewer.discard();
         //TODO: Change this.  What to do in the case of failure is up to
         //the viewer.  So we need to refactor this b/c the decision is
-        //made in the worng place!
+        //made in the wrong place!
     }
     
-    /** Fires an asynchrnonous data loading. */
+    /** Fires an asynchronous data loading. */
     public abstract void load();
     
     /** Cancels any ongoing data loading. */

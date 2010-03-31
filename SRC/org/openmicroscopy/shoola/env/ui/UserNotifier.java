@@ -165,4 +165,11 @@ public interface UserNotifier
      */
     public void openApplication(ApplicationData data, String path);
     
+    /**
+     * Sets the status of the saving.
+     * 
+     * @param node		 The node returned.
+     */
+    public void setStatus(Object node);
+    
 }

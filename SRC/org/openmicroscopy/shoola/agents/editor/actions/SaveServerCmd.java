@@ -86,7 +86,7 @@ class SaveServerCmd
 				EditorFileFilter editor = new EditorFileFilter();
 				if (!editor.accept(fileName)) 
 					fileName = fileName + "." + editor.getExtension();
-				model.saveFileServer(fileName);
+				model.save(fileName, Editor.SAVE_SERVER);
 			}
 		}
 	}

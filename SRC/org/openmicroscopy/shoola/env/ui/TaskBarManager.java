@@ -35,14 +35,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.swing.BoxLayout;
 import javax.swing.Icon;
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
@@ -111,7 +109,21 @@ public class TaskBarManager
 	/** The value of the tag to find. */
 	private static final String		A_TAG = "a";
 	
-
+	/** The title displayed before switching group. */
+	private static final String		SWITCH_GROUP_TITLE = "Switch Group";
+	
+	/** The text displayed before switching group. */
+	private static final String		SWITCH_GROUP_TEXT = 
+		"Switching group will remove data from the display. " +
+		"\nDo you want to continue?";
+	
+	/** The title displayed before closing the application. */
+	private static final String		CLOSE_APP_TITLE = "Exit Application";
+		
+	/** The text displayed before closing the application. */
+	private static final String		CLOSE_APP_TEXT = 
+		"Do you really want to close the application?";
+		
 	/** The view this controller is managing. */
 	private TaskBarView				view;
 	
@@ -158,8 +170,6 @@ public class TaskBarManager
 	        msg.print("Error while saving.");
 	        msg.print(e);
 	        logger.error(this, msg);
-        	//UserNotifier un = container.getRegistry().getUserNotifier();
-			//un.notifyInfo("Launch Browser", "Cannot launch the web browser.");
         }   
         return null;
 	}
@@ -266,17 +276,12 @@ public class TaskBarManager
 	}
 	
 	/**
-	 * Switches user group, notifies the agents to save data before switching.
+	 * Returns instances of <code>Agent</code> that can be saved.
 	 * 
-	 * @param evt The event to handle.
+	 * @return See above.
 	 */
-	private void handleSwitchUserGroup(SwitchUserGroup evt)
+	private Map<Agent, AgentSaveInfo> getInstancesToSave()
 	{
-		if (evt == null) return;
-		MessageBox box = new MessageBox(view, "Group change", "Changing group" +
-				" will remove data currently displayed. " +
-				"Do you want to continue?");
-		//Do we have data to save.
 		List agents = (List) container.getRegistry().lookup(LookupNames.AGENTS);
 		Iterator i = agents.iterator();
 		Agent agent;
@@ -294,25 +299,38 @@ public class TaskBarManager
 				}
 			}
 		}
-		JCheckBox saveBox = new JCheckBox("Save Data before switching group");
-		if (l.size() > 0) {
-			saveBox.setSelected(true);
-			JPanel p = new JPanel();
-			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-			p.add(saveBox);
-			box.addBodyComponent(UIUtilities.buildComponentPanel(p));
-		}
+		return l;
+	}
+	
+	/**
+	 * Switches user group, notifies the agents to save data before switching.
+	 * 
+	 * @param evt The event to handle.
+	 */
+	private void handleSwitchUserGroup(SwitchUserGroup evt)
+	{
+		if (evt == null) return;
+		//Do we have data to save.
 		
+		CheckoutBox box = new CheckoutBox(view, SWITCH_GROUP_TITLE, 
+				SWITCH_GROUP_TEXT, getInstancesToSave());
 		if (box.centerMsgBox() == MessageBox.YES_OPTION) {
+			Map<Agent, AgentSaveInfo> map = box.getInstancesToSave();
+			UserNotifierImpl un = (UserNotifierImpl) 
+				container.getRegistry().getUserNotifier();
+			List<Object> nodes = new ArrayList<Object>();
+			if (map != null) {
+				Iterator i = map.values().iterator();
+				while (i.hasNext())
+					nodes.add(i.next());
+			}
+			nodes.add(evt.getExperimenterData());
+			un.notifySaving(nodes, null);
 			Registry reg = container.getRegistry();
-			if (!saveBox.isSelected()) l = null;
-			
 			UserNotifierLoader loader = new SwitchUserLoader(
-					reg.getUserNotifier(), reg, l, evt.getExperimenterData(), 
+					reg.getUserNotifier(), reg, map, evt.getExperimenterData(), 
 					evt.getGroupID());
 			loader.load();
-		} else {
-			//post an event to roll back 
 		}
 	}
 	
@@ -326,114 +344,49 @@ public class TaskBarManager
 	private void doExit(boolean askQuestion)
     {
         IconManager icons = IconManager.getInstance(container.getRegistry());
-        /*
-        JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		List agents = (List) container.getRegistry().lookup(LookupNames.AGENTS);
-		Iterator i = agents.iterator();
-		AgentInfo agentInfo;
-		Agent a;
-		//Agents termination phase.
-		i = agents.iterator();
-		Map m;
-		List<SaveEventBox> boxes = null;
-		SaveEventBox box;
-		Iterator k, v;
-		String key;
-		JPanel item;
-		Set values;
-		Map<Agent, List> results = new HashMap<Agent, List>();
-		while (i.hasNext()) {
-			agentInfo = (AgentInfo) i.next();
-			a = agentInfo.getAgent();
-			m = a.hasDataToSave();
-			if (m != null && m.size() > 0) {
-				boxes = new ArrayList<SaveEventBox>();
-				k = m.keySet().iterator();
-				while (k.hasNext()) {
-					key = (String) k.next();
-					item = new JPanel();
-					item.setLayout(new BoxLayout(item, BoxLayout.Y_AXIS));
-					p.add(UIUtilities.setTextFont(key));
-					p.add(item);
-					values = (Set) m.get(key);
-					v = values.iterator();
-					while (v.hasNext()) {
-						box = new SaveEventBox((RequestEvent) v.next());
-						boxes.add(box);
-						item.add(box);
-					}
-				}
-				if (boxes != null && boxes.size() != 0) results.put(a, boxes);
-			}
-		}
-		
-		MessageBox msg;
-		if (results.size() != 0) {
-			EventBus bus = container.getRegistry().getEventBus();
-			msg = new MessageBox(view, "Exit application", 
-        			"Before closing the application, do you want to save" +
-        			" data from : ", icons.getIcon(IconManager.QUESTION));
-			msg.addCancelButton();
-			msg.addBodyComponent(p);
-			exitResponses = new HashMap<Agent, Integer>();
-			switch (msg.centerMsgBox()) {
-				case MessageBox.YES_OPTION:
-					i = results.keySet().iterator();
-					Integer number;
-					while (i.hasNext()) {
-						a = (Agent) i.next();
-						boxes = results.get(a);
-						k = boxes.iterator();
-						while (k.hasNext()) {
-							box = (SaveEventBox) k.next();
-							if (box.isSelected()) {
-								bus.post(box.getEvent());
-								number = exitResponses.get(a);
-								System.err.println("Agent: "+a);
-								if (number == null) {
-									exitResponses.put(a, new Integer(1));
-								} else {
-									number = new Integer(number.intValue()+1);
-								}
-							}
-						}
-					}
-					//container.exit();
-					break;
-				case MessageBox.NO_OPTION:
-					container.exit();
-					break;
-				case MessageBox.CANCEL:
-					break;
-			}
-		} else {
-			msg = new MessageBox(view, "Exit application", 
-        			"Do you really want to close the application?", 
-        			icons.getIcon(IconManager.QUESTION));
-			if (msg.centerMsgBox() == MessageBox.YES_OPTION)
-				container.exit();
-		}
-		*/
         int option = MessageBox.YES_OPTION; 
+        Map<Agent, AgentSaveInfo> instances = getInstancesToSave();
+        CheckoutBox msg = null;
 		if (askQuestion) {
-			 MessageBox msg = new MessageBox(view, "Exit application", 
-		    			"Do you really want to close the application?", 
-		    			icons.getIcon(IconManager.QUESTION));
+			 msg = new CheckoutBox(view, CLOSE_APP_TITLE, CLOSE_APP_TEXT, 
+					 icons.getIcon(IconManager.QUESTION), instances);
 			 option = msg.centerMsgBox();
 		}
 		if (option == MessageBox.YES_OPTION) {
-			
-			
-			
-			try {
-				DataServicesFactory f = 
-					DataServicesFactory.getInstance(container);
-				f.exitApplication();
-			} catch (Exception e) {}
+			if (msg == null) {
+				exitApplication();
+			} else {
+				Map<Agent, AgentSaveInfo> map = msg.getInstancesToSave();
+				if (map == null || map.size() == 0) {
+					exitApplication();
+				} else {
+					List<Object> nodes = new ArrayList<Object>();
+					Iterator i = map.values().iterator();
+					while (i.hasNext()) {
+						nodes.add(i.next());
+					}
+					UserNotifierImpl un = (UserNotifierImpl) 
+					container.getRegistry().getUserNotifier();
+					un.notifySaving(nodes, this);
+					Registry reg = container.getRegistry();
+					UserNotifierLoader loader = new SwitchUserLoader(
+							reg.getUserNotifier(), reg, map, null, -1);
+					loader.load();
+				}
+			}
 		}
     }
 
+	/** Exits the application. */
+	private void exitApplication()
+	{
+		try {
+			DataServicesFactory f = 
+				DataServicesFactory.getInstance(container);
+			f.exitApplication();
+		} catch (Exception e) {} //ignore
+	}
+	
 	/**  Displays information about software. */
     private void softwareAbout()
     {
@@ -747,12 +700,14 @@ public class TaskBarManager
 			else doExit(true);
 		} else if (ScreenLogin.LOGIN_PROPERTY.equals(name)) {
 			LoginCredentials lc = (LoginCredentials) evt.getNewValue();
-			if (lc != null) {
-				collectCredentials(lc);
-			}
+			if (lc != null) collectCredentials(lc);
 		} else if (ScreenLogin.QUIT_PROPERTY.equals(name)) {
 			login.close();
 			success = false;
+		} else if (ChangesDialog.DONE_PROPERTY.equals(name)) {
+			Boolean value = (Boolean) evt.getNewValue();
+			if (value.booleanValue())
+				exitApplication();
 		}
 	}
 

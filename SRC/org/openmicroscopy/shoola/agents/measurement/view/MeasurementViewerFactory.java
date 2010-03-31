@@ -224,14 +224,6 @@ public class MeasurementViewerFactory
 				}
 			}
 		}
-		/*
-		Iterator i = singleton.viewers.iterator();
-		MeasurementViewerComponent comp;
-		while (i.hasNext()) {
-			comp = (MeasurementViewerComponent) i.next();
-			comp.saveAndDiscard();
-		}
-		*/
 	}
 	
 	/**
@@ -245,14 +237,7 @@ public class MeasurementViewerFactory
 	public static void onGroupSwitched(boolean success)
 	{
 		if (!success)  return;
-		Iterator v = singleton.viewers.iterator();
-		MeasurementViewerComponent comp;
-		while (v.hasNext()) {
-			comp = (MeasurementViewerComponent) v.next();
-			comp.discard();
-		}
-		singleton.requests.clear();
-		singleton.viewers.clear();
+		singleton.clear();
 	}
 	
 	/** All the tracked components. */
@@ -277,6 +262,22 @@ public class MeasurementViewerFactory
 		requests = new HashSet<MeasurementTool>();
 		isAttached = false;
 		windowMenu = new JMenu(MENU_NAME);
+	}
+	
+	/** Discards the tracked viewers. */
+	private void clear()
+	{
+		if (viewers.size() == 0) return;
+		Iterator i = viewers.iterator();
+		MeasurementViewerComponent comp;
+		
+		while (i.hasNext()) {
+			comp = (MeasurementViewerComponent) i.next();
+			comp.removeChangeListener(this);
+			comp.discard();
+		}
+		viewers.clear();
+		requests.clear();
 	}
 	
 	/**

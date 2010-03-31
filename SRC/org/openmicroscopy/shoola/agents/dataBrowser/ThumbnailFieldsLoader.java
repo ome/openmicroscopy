@@ -33,9 +33,7 @@ import java.util.List;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
 import pojos.DataObject;
-import pojos.ImageData;
 
 /** 
  * Loads the thumbnails for the fields of a given well.

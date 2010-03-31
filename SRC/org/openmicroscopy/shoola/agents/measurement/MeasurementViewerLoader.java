@@ -29,10 +29,12 @@ package org.openmicroscopy.shoola.agents.measurement;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 
 /** 
  * Parent of all classes that load data asynchronously for a 
@@ -113,9 +115,15 @@ public abstract class MeasurementViewerLoader
      */
     public void handleException(Throwable exc) 
     {
+    	int state = viewer.getState();
         String s = "Data Retrieval Failure: ";
-        registry.getLogger().error(this, s+exc);
-        registry.getUserNotifier().notifyError("Data Retrieval Failure", 
+        LogMessage msg = new LogMessage();
+        msg.print("State: "+state);
+        msg.print(s);
+        msg.print(exc);
+        registry.getLogger().error(this, msg);
+        if (state != MeasurementViewer.DISCARDED)
+        	registry.getUserNotifier().notifyError("Data Retrieval Failure", 
                                                s, exc);
         //viewer.setStatus(true);
         viewer.cancel();

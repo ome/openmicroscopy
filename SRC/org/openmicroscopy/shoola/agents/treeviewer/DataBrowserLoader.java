@@ -130,17 +130,20 @@ public abstract class DataBrowserLoader
      */
     public void handleException(Throwable exc) 
     {
+    	int state = viewer.getState();
     	String s = "Data Retrieval Failure: ";
         LogMessage msg = new LogMessage();
+        msg.print("State: "+state);
         msg.print(s);
         msg.print(exc);
         registry.getLogger().error(this, msg);
-        registry.getUserNotifier().notifyError("Data Retrieval Failure", 
+        if (state != Browser.DISCARDED)
+        	registry.getUserNotifier().notifyError("Data Retrieval Failure", 
                                                s, exc);
         viewer.cancel();
     }
     
-    /** Fires an asynchrnonous data loading. */
+    /** Fires an asynchronous data loading. */
     public abstract void load();
     
     /** Cancels any ongoing data loading. */

@@ -108,12 +108,15 @@ public abstract class EditorLoader
      */
     public void handleException(Throwable exc) 
     {
+    	int state = viewer.getState();
     	String s = "Data Retrieval Failure: ";
         LogMessage msg = new LogMessage();
+        msg.print("State: "+state);
         msg.print(s);
         msg.print(exc);
         registry.getLogger().error(this, msg);
-        registry.getUserNotifier().notifyError("Data Retrieval Failure", 
+        if (state != Editor.DISCARDED)
+        	registry.getUserNotifier().notifyError("Data Retrieval Failure", 
                                                s, exc);
         viewer.cancel();
     }

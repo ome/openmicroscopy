@@ -47,7 +47,7 @@ import pojos.ExperimenterData;
  * which this class makes available through a <code>protected</code> field.
  * Also, this class extends {@link DSCallAdapter} so that subclasses
  * automatically become observers to an asynchronous call.  This class provides
- * default implementations of some of the callbacks to notify the 
+ * default implementations of some of the call-backs to notify the 
  * {@link ImViewer} of the progress and the user in the case of errors. 
  * Subclasses should at least implement the <code>handleResult</code> method 
  * to feed the {@link ImViewer} back with the results.
@@ -147,12 +147,15 @@ public abstract class DataLoader
      */
     public void handleException(Throwable exc) 
     {
+    	int state = viewer.getState();
         String s = "Data Retrieval Failure: ";
         LogMessage msg = new LogMessage();
+        msg.print("State: "+state);
         msg.print(s);
         msg.print(exc);
         registry.getLogger().error(this, msg);
-        registry.getUserNotifier().notifyError("Data Retrieval Failure", 
+        if (state != ImViewer.DISCARDED)
+        	registry.getUserNotifier().notifyError("Data Retrieval Failure", 
                                                s, exc);
         viewer.discard();
         //TODO: Change this.  What to do in the case of failure is up to

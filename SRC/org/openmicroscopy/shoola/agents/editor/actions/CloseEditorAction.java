@@ -71,6 +71,6 @@ public class CloseEditorAction
 	 * Discards the editor.
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
 	 */
-	public void actionPerformed(ActionEvent e)  { model.discard(); }
+	public void actionPerformed(ActionEvent e)  { model.close(); }
    
 }

@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.editor.model.TreeModelFactory;
 import org.openmicroscopy.shoola.agents.editor.model.CPEexport;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.IOUtil;
@@ -442,22 +443,25 @@ class EditorModel
 	 * calling {@link #fireFileSaving(File)}, saving according to the 
 	 * current {@link #fileAnnotation}.
 	 * 
-	 * @param fileName		The name of the file 
+	 * @param fileName The name of the file.
+	 * @param asynch   Pass <code>true</code> to save asynchronously,
+	 * 				   <code>false</code> otherwise.
 	 */
-	void fireFileSaving(String fileName)
+	void fireFileSaving(String fileName, boolean asynch)
 	{
-		String filePath = EditorAgent.getEditorHome() + 
-													File.separator + fileName;
+		String filePath = EditorAgent.getEditorHome()+File.separator+fileName;
 		File toEdit = new File(filePath);
-		fireFileSaving(toEdit);
+		fireFileSaving(toEdit, asynch);
 	}
 	
 	/**
 	 * Starts an asynchronous call to save the passed file back to the server.
 	 * 
-	 * @param file The file to save.
+	 * @param file 	 The file to save.
+	 * @param asynch Pass <code>true</code> to save asynchronously,
+	 * 				 <code>false</code> otherwise.
 	 */
-	void fireFileSaving(File file)
+	void fireFileSaving(File file, boolean asynch)
 	{
 		boolean fileIsExp = browser.isModelExperiment();
 		int fileType = (fileIsExp ? FileSaver.EXPERIMENT : FileSaver.PROTOCOL);
@@ -468,12 +472,25 @@ class EditorModel
 		else data = new FileAnnotationData(file);
 		String description = CPEsummaryExport.export(browser.getTreeModel());
 		if (description != null) data.setDescription(description);
-		//TODO: discuss that point with Will
-		//pass null if READ_ONLY
 		
-		currentLoader = new FileSaver(component, file, data, fileType, parent);
-		currentLoader.load();
-		state = Editor.SAVING;
+		if (asynch) {
+			currentLoader = new FileSaver(component, file, data, fileType, 
+						parent);
+			currentLoader.load();
+			state = Editor.SAVING;
+		} else {
+			OmeroMetadataService svc = 
+				EditorAgent.getRegistry().getMetadataService();
+			try {
+				svc.archivedFile(fileAnnotation, file, fileType, parent);
+			} catch (Exception e) {
+				LogMessage msg = new LogMessage();
+				msg.print("State: "+state);
+				msg.print("Cannot save file back to server");
+				msg.print(e);
+				EditorAgent.getRegistry().getLogger().error(this, msg);
+			}
+		}
 	}
 	
 	/**

@@ -285,7 +285,6 @@ public class OptionsDialog
 	 */
 	public void addBodyComponent(JComponent c) 
 	{
-		//c.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		body.add(c);
 		body.validate();
 		body.repaint();

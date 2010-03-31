@@ -139,9 +139,14 @@ public class NullUserNotifier
 	 */
 	public void notifyActivity(Object activity) {}
 
-	public void openApplication(ApplicationData data, String path) {
-		// TODO Auto-generated method stub
-		
-	}
+	/**
+	 * @see UserNotifier#openApplication(ApplicationData, String)
+	 */
+	public void openApplication(ApplicationData data, String path) {}
+
+	/**
+	 * @see UserNotifier#setStatus(Object)
+	 */
+	public void setStatus(Object node) {}
 
 }

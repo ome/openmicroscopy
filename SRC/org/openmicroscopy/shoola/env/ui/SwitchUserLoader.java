@@ -110,12 +110,11 @@ public class SwitchUserLoader
     public void update(DSCallFeedbackEvent fe) 
     {
     	Object result = fe.getPartialResult();
-    	System.err.println(result);
     	if (result != null) {
-    		
+    		viewer.setStatus(result);
     		if (result instanceof ExperimenterData) {
     			registry.getEventBus().post(new UserGroupSwitched(true));
-    		}
+    		} 
     	}
     }
     

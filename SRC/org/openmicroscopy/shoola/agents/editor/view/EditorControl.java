@@ -141,7 +141,7 @@ class EditorControl
 
 			/** 
 			 * Required by I/F but not actually needed in our case, 
-			 * no-op implementation.
+			 * no-operation implementation.
 			 * @see MenuListener#menuCanceled(MenuEvent)
 			 */ 
 			public void menuCanceled(MenuEvent e) {}
@@ -155,7 +155,7 @@ class EditorControl
 
 		});
 		
-//		Listen to keyboard selection
+		//Listen to keyboard selection
 		menu.addMenuKeyListener(new MenuKeyListener() {
 
 			public void menuKeyReleased(MenuKeyEvent e)
@@ -167,14 +167,14 @@ class EditorControl
 
 			/** 
 			 * Required by I/F but not actually needed in our case, 
-			 * no op implementation.
+			 * no-operation implementation.
 			 * @see MenuKeyListener#menuKeyPressed(MenuKeyEvent)
 			 */
 			public void menuKeyPressed(MenuKeyEvent e) {}
 
 			/** 
 			 * Required by I/F but not actually needed in our case, 
-			 * no op implementation.
+			 * no-operation implementation.
 			 * @see MenuKeyListener#menuKeyTyped(MenuKeyEvent)
 			 */
 			public void menuKeyTyped(MenuKeyEvent e) {}
@@ -183,7 +183,7 @@ class EditorControl
 		
 		view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		view.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) { model.discard(); }
+			public void windowClosing(WindowEvent e) { model.close(); }
 		});
 	}
 	

@@ -159,14 +159,7 @@ public class ImViewerFactory
 	public static void onGroupSwitched(boolean success)
 	{
 		if (!success)  return;
-		Iterator v = singleton.viewers.iterator();
-		ImViewerComponent comp;
-		while (v.hasNext()) {
-			comp = (ImViewerComponent) v.next();
-			comp.discard();
-		}
-		singleton.viewers.clear();
-		singleton.recentViewers.clear();
+		singleton.clear();
 	}
 	
 	/**
@@ -296,16 +289,6 @@ public class ImViewerFactory
 				}
 			}
 		}
-		//singleton.viewers.clear();
-		//singleton.recentViewers.clear();
-		/*
-		Iterator i = singleton.viewers.iterator();
-		ImViewerComponent comp;
-		while (i.hasNext()) {
-			comp = (ImViewerComponent) i.next();
-			comp.close(false);
-		}
-		*/
 	}
 	
 	/**
@@ -423,6 +406,21 @@ public class ImViewerFactory
 		});
 	}
 
+	/** Clears the collection of tracked viewers. */
+	private void clear()
+	{
+		Iterator i = viewers.iterator();
+		ImViewerComponent comp;
+		while (i.hasNext()) {
+			comp = (ImViewerComponent) i.next();
+			comp.removeChangeListener(this);
+			comp.discard();
+			
+		}
+		singleton.viewers.clear();
+		singleton.recentViewers.clear();
+	}
+	
 	/**
 	 * Creates or recycles a viewer component for the specified 
 	 * <code>model</code>.
@@ -470,12 +468,6 @@ public class ImViewerFactory
 		if (comp.getState() == ImViewer.DISCARDED) {
 			viewers.remove(comp);
 		}
-		/*
-		if (viewers.size() == 0) {
-			TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
-			tb.removeFromMenu(TaskBar.WINDOW_MENU, windowMenu);
-			isAttached = false;
-		}*/
 	}
 
 	/**

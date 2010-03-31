@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JDialog;
@@ -33,14 +34,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Indicates the progress of the save before closing or switching.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -52,34 +54,42 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta4
  */
-public class ChangesDialog 
+class ChangesDialog 
 	extends JDialog
 {
 
+	/** Bound property indicating that all the tasks are done. */
+	static final String	 DONE_PROPERTY = "Done";
+	
 	/** The title of the dialog. */
 	private static final String TITLE = "Saving data";
 	
 	/** Displayed the progress. */
-	private JLabel 	status;
+	private JLabel 			status;
 	
 	/** Displayed the progress. */
-	private JProgressBar progressBar;
+	private JProgressBar 	progressBar;
 	
 	/** The number of tasks. */
-	private int 	totalTask;
+	private int 		 	count;
+	
+	/** The nodes to handle. */
+	private List<Object> 	nodes;
 	
 	/** Sets the properties of the dialog. */
 	private void setProperties()
 	{
 		setTitle(TITLE);
-		setModal(true);
+		//setModal(true);
 	}
 	
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
-		status = new JLabel();
-		progressBar = new JProgressBar(0, totalTask);
+		status = new JLabel("Saving...");
+		progressBar = new JProgressBar(0, nodes.size());
+		if (nodes.size() <= 1)
+			progressBar.setIndeterminate(true);
 		progressBar.setValue(0);
 	}
 	
@@ -100,10 +110,11 @@ public class ChangesDialog
 	 * @param owner		The owner of the dialog.
 	 * @param totalTask The number of tasks to perform.
 	 */
-	public ChangesDialog(JFrame owner, int totalTask)
+	ChangesDialog(JFrame owner, List<Object> nodes)
 	{
 		super(owner);
-		this.totalTask = totalTask;
+		count = 0;
+		this.nodes = nodes;
 		setProperties();
 		initComponents();
 		buildGUI();
@@ -113,14 +124,21 @@ public class ChangesDialog
 	/**
 	 * Sets the progress status.
 	 * 
-	 * @param text The text to display.
+	 * @param node The node to set.
 	 * @param count
 	 */
-	public void setStatus(String text, int count)
+	void setStatus(Object node)
 	{
-		if (count == totalTask) {
-			setVisible(false);
-			dispose();
+		nodes.remove(node);
+		count++;
+		String text = "";
+		if (node instanceof AgentSaveInfo) {
+			text = "Saved "+((AgentSaveInfo) node).getName();
+		}
+		
+		if (nodes.size() == 0) {
+			firePropertyChange(DONE_PROPERTY, Boolean.valueOf(false), 
+					Boolean.valueOf(true));
 		} else {
 			status.setText(text);
 			progressBar.setValue(count);

@@ -127,7 +127,7 @@ public class MetadataViewerFactory
 	{
 		//if (singleton.viewers.size() == 0) return;
 		if (instances != null) {
-			Iterator i = singleton.viewers.iterator();
+			Iterator i = instances.iterator();
 			MetadataViewerComponent comp;
 			Object o;
 			while (i.hasNext()) {

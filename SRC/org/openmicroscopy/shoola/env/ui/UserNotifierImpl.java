@@ -24,12 +24,16 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.Icon;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -63,7 +67,7 @@ import pojos.ExperimenterData;
  * @since OME2.2
  */
 public class UserNotifierImpl 
-    implements UserNotifier
+    implements UserNotifier, PropertyChangeListener
 {
 
     /** Default title for the error dialog. */
@@ -178,10 +182,18 @@ public class UserNotifierImpl
 	/** Displays the activity. */
 	void showActivity() { manager.showActivity(); }
 	
-	/** Notifies that data are saved before closing or switching group. */
-	void notifySaving(int totalTasks)
+	/** 
+	 * Notifies that data are saved before closing or switching group. 
+	 * 
+	 * @param nodes The nodes to handle.
+	 * @param listener The listener to register.
+	 * @return See above
+	 */
+	void notifySaving(List<Object> nodes, PropertyChangeListener listener)
 	{
-		dialog = new ChangesDialog(SHARED_FRAME, totalTasks);
+		dialog = new ChangesDialog(SHARED_FRAME, nodes);
+		dialog.addPropertyChangeListener(this);
+		if (listener != null) dialog.addPropertyChangeListener(listener);
 		UIUtilities.centerAndShow(dialog);
 	}
 	
@@ -375,6 +387,32 @@ public class UserNotifierImpl
 			run.exec(values);
 		} catch (Exception e) {
 			
+		}
+	}
+
+	/** 
+	 * Implemented as specified by {@link UserNotifier}. 
+	 * @see UserNotifier#setStatus(Object)
+	 */ 
+	public void setStatus(Object node)
+	{
+		if (dialog == null) return;
+		dialog.setStatus(node);
+	}
+
+	/**
+	 * Listens to property fired by the <code>ChangesDialog</code>
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (ChangesDialog.DONE_PROPERTY.equals(name)) {
+			if (dialog != null) {
+				dialog.setVisible(false);
+				dialog.dispose();
+				dialog = null;
+			}
 		}
 	}
 

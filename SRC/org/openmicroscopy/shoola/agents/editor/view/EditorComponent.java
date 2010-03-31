@@ -158,6 +158,17 @@ class EditorComponent
 	 */
 	public void discard()
 	{
+		model.discard();
+		autosave.shutDown();
+		fireStateChange();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#close()
+	 */
+	public void close()
+	{
 		// if the file has been edited, ask the user if they want to save...
 		if (model.hasDataToSave() && isUserOwner()) {
 			
@@ -167,14 +178,10 @@ class EditorComponent
 			
 			int option = msg.centerMsgBox();
 			if (option == MessageBox.YES_OPTION) {
-				
 				// if Save, need to try save current file. 
 				boolean saved = saveCurrentFile();
 				
-				if (saved) {
-					model.discard();
-					autosave.shutDown();
-				}
+				if (saved) discard();
 				// If that doesn't work, save as new file.. 
 				else {
 					SaveNewCmd save = new SaveNewCmd(this);
@@ -182,30 +189,19 @@ class EditorComponent
 					// don't discard in case user cancelled. 
 				}
 			
-			}
-			else if (option == MessageBox.NO_OPTION) {
-				model.discard();
-				autosave.shutDown();
+			} else if (option == MessageBox.NO_OPTION) {
+				discard();
 			}
 		} else {
-			// no data to save 
-			model.discard();
-			autosave.shutDown();
+			discard();
 		}
-		
-		// the EditorControl will handle view.close() if discard has been 
-		// called. Otherwise, window will remain open. 
-		fireStateChange();
 	}
-
+	
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#getState()
 	 */
-	public int getState()
-	{
-		return model.getState();
-	}
+	public int getState() { return model.getState(); }
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
@@ -312,7 +308,6 @@ class EditorComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * Saves the file in model. 
 	 * @see Editor#saveCurrentFile()
 	 */
 	public boolean saveCurrentFile()
@@ -373,17 +368,22 @@ class EditorComponent
 		// else the temporary file of this name will not be created and found
 		int lastSlash = fileName.lastIndexOf(File.separator);
 		fileName = fileName.substring(lastSlash + 1);
-		if (fileName.length() == 0)		fileName = "new_protocol.cpe.xml";
-		model.fireFileSaving(fileName);
+		if (fileName.length() == 0)		
+			fileName = "new_protocol.cpe.xml";
+		model.fireFileSaving(fileName, true);
 		model.updateNameSpace(); // refresh namespace of saved file
 		return true;
 	}
 	
-	/** 
-	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#saveFileLocally(File)
+	/**
+	 * Saves to the specified file, and remembers file location in model.
+	 * 
+	 * @param file The location to save to (local file). 
+	 * 
+	 * @return  <code>true</code> if the saving was successful, 
+	 * 			<code>false</code> otherwise.
 	 */
-	public boolean saveFileLocally(File file)
+	private boolean saveFileLocally(File file)
 	{
 		if (model.saveFileAs(file)) {
 			view.setTitle(model.getFileName());
@@ -393,14 +393,62 @@ class EditorComponent
 		return false;
 	}
 	
-	/** 
+	/**
 	 * Implemented as specified by the {@link Editor} interface.
-	 * This provides 'Save As' functionality, to create a new file
-	 * on the server. 
-	 * 
-	 * @see Editor#saveFileServer(String)
+	 * @see Editor#save(Object, int, boolean)
 	 */
-	public void saveFileServer(String fileName) 
+	public boolean save(Object object, int index)
+	{
+		switch (index) {
+			case SAVE_LOCALLY:
+				if (object instanceof File)
+					return saveFileLocally((File) object);
+				return false;
+
+			case SAVE_SERVER:
+				if (object instanceof String) {
+					saveFileServer((String) object, true);
+					return true;
+				}
+				return false;
+		}
+		return false;
+	}
+	
+	/**
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#save(boolean)
+	 */
+	public void save(boolean asynch)
+	{
+		long fileID = model.getFileID();
+		// If no fileID, file is not saved on server. 
+		if (fileID <= 0 || !EditorAgent.isServerAvailable()) {
+			//save the server
+			model.saveLocalFile();
+			return;
+		} 
+		// now we are saving to server....
+		String fileName = model.getFileName();
+		// make sure the fileName contains no file separators 
+		// else the temporary file of this name will not be created and found
+		int lastSlash = fileName.lastIndexOf(File.separator);
+		fileName = fileName.substring(lastSlash + 1);
+		if (fileName.length() == 0)		
+			fileName = "new_protocol.cpe.xml";
+		model.fireFileSaving(fileName, asynch);
+	}
+	
+	
+	/**
+	 * Saves the currently edited file to the server as a new file with
+	 * the given name.
+	 * 
+	 * @param fileName	The name to give the new file on the server. 
+	 * @param asynch	Pass <code>true</code> to save asynchronously,
+	 * 					<code>false</code> otherwise.
+	 */
+	private void saveFileServer(String fileName, boolean asynch) 
 	{
 		//Need to check if already log in.
 		if (EditorAgent.getRegistry().getTaskBar().login()) {
@@ -414,7 +462,7 @@ class EditorComponent
 			model.setFileAnnotationData(null);
 			String dirName = EditorAgent.getEditorHome();
 			fileName = dirName + File.separator + fileName;
-			model.fireFileSaving(new File(fileName));
+			model.fireFileSaving(fileName, asynch);
 			fireStateChange();
 		}
 	}
