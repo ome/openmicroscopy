@@ -11,6 +11,7 @@ import java.awt.Dimension;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -444,9 +445,34 @@ public class ThumbnailCtx
         Thumbnail metadata = pixelsIdMetadataMap.get(pixelsId);
         try
         {
-            if (!dirtyMetadata(pixelsId)
-                && thumbnailService.getThumbnailExists(metadata))
+            boolean dirtyMetadata = dirtyMetadata(pixelsId);
+            boolean thumbnailExists = 
+                thumbnailService.getThumbnailExists(metadata);
+            boolean isExtendedGraphCritical = 
+                isExtendedGraphCritical(Collections.singleton(pixelsId));
+            if (!dirtyMetadata)
             {
+                if (thumbnailExists)
+                {
+                    return true;
+                }
+                else if (!thumbnailExists && isExtendedGraphCritical)
+                {
+                    throw new ResourceError(String.format(
+                            "Error retrieving Pixels id:%d. Thumbnail " +
+                            "metadata exists but a thumbnail is not " +
+                            "available in the cache. User id:%d has " +
+                            "insufficient permissions to create it.",
+                            pixelsId, userId));
+                }
+            }
+            else if (thumbnailExists && isExtendedGraphCritical)
+            {
+                log.warn(String.format(
+                        "Thumbnail metadata is dirty for Pixels Id:%d and " +
+                        "graph is critical for User id:%d. Ignoring this " +
+                        "and returning the cached thumbnail.",
+                        pixelsId, userId));
                 return true;
             }
         }

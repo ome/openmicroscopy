@@ -693,7 +693,7 @@ public class RenderingSessionTest extends AbstractManagedContextTest {
 
         loginRootKeepGroup();
         ThumbnailStore tbRoot = sf.createThumbnailService();
-        tbUser.getThumbnailByLongestSideSet(64, Collections.singleton(pix.getId()));
+        tbRoot.getThumbnailByLongestSideSet(64, Collections.singleton(pix.getId()));
 
         try {
             // tbRoot.resetDefaults();
