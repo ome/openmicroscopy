@@ -110,24 +110,43 @@ public class OMEROWrapper extends MinMaxCalculator {
     };
 
     /**
-     * Obtains an object which represents a given plane within the file.
-     * 
-     * @param id
-     *            The path to the file.
-     * @param planeNumber
-     *            The plane or section within the file to obtain.
-     * @param buf
-     *            Pre-allocated buffer which has a <i>length</i> that can fit
-     *            the byte count of an entire plane.
+     * Obtains an object which represents a given sub-image of a plane within
+     * the file.
+     * @param id The path to the file.
+     * @param planeNumber The plane or section within the file to obtain.
+     * @param buf Pre-allocated buffer which has a <i>length</i> that can fit
+     * the entire plane.
      * @return an object which represents the plane.
-     * @throws FormatException
-     *             if there is an error parsing the file.
-     * @throws IOException
-     *             if there is an error reading from the file or acquiring
-     *             permissions to read the file.
+     * @throws FormatException If there is an error parsing the file.
+     * @throws IOException If there is an error reading from the file or
+     * acquiring permissions to read the file.
      */
     public Plane2D openPlane2D(String id, int planeNumber, byte[] buf)
-            throws FormatException, IOException {
+            throws FormatException, IOException
+    {
+        return openPlane2D(id, planeNumber, buf, 0, 0, getSizeX(), getSizeY());
+    }
+
+    /**
+     * Obtains an object which represents a given sub-image of a plane within
+     * the file.
+     * @param id The path to the file.
+     * @param planeNumber The plane or section within the file to obtain.
+     * @param buf Pre-allocated buffer which has a <i>length</i> that can fit
+     * the byte count of the sub-image.
+     * @param x X coordinate of the upper-left corner of the sub-image
+     * @param y Y coordinate of the upper-left corner of the sub-image
+     * @param w width of the sub-image
+     * @param h height of the sub-image
+     * @return an object which represents the sub-image of the plane.
+     * @throws FormatException If there is an error parsing the file.
+     * @throws IOException If there is an error reading from the file or
+     * acquiring permissions to read the file.
+     */
+    public Plane2D openPlane2D(String id, int planeNumber, byte[] buf,
+                               int x, int y, int w, int h)
+            throws FormatException, IOException
+    {
         // FIXME: HACK! The ChannelSeparator isn't exactly what one would call
         // "complete" so we have to work around the fact that it still copies
         // all of the plane data (all three channels) from the file if the file
@@ -135,11 +154,11 @@ public class OMEROWrapper extends MinMaxCalculator {
         ByteBuffer plane;
         if (iReader.isRGB() || isLeicaReader()) {
             // System.err.println("RGB, not using cached buffer.");
-            byte[] bytePlane = openBytes(planeNumber);
+            byte[] bytePlane = openBytes(planeNumber, x, y, w, h);
             plane = ByteBuffer.wrap(bytePlane);
         } else {
             // System.err.println("Not RGB, using cached buffer.");
-            plane = ByteBuffer.wrap(openBytes(planeNumber, buf));
+            plane = ByteBuffer.wrap(openBytes(planeNumber, buf, x, y, w, h));
         }
         return new Plane2D(plane, getPixelType(), isLittleEndian(), getSizeX(),
                 getSizeY());

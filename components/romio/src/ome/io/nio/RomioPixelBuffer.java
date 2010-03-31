@@ -370,7 +370,9 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 
     public void setRegion(Integer size, Long offset, byte[] buffer)
             throws IOException {
-    	setRegion(size, offset, MappedByteBuffer.wrap(buffer));
+    	ByteBuffer buf = MappedByteBuffer.wrap(buffer);
+    	buf.limit(size);
+    	setRegion(size, offset, buf);
     }
 
     public void setRegion(Integer size, Long offset, ByteBuffer buffer)

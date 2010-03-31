@@ -15,13 +15,11 @@
 package ome.formats.importer;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
-import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -86,15 +84,16 @@ public class ImportLibrary implements IObservable
 {
     private static Log log = LogFactory.getLog(ImportLibrary.class);
 
-    private final ArrayList<IObserver> observers = new ArrayList<IObserver>();
+    /** Default arraybuf size for planar data transfer. (1MB) */
+    public static final int DEFAULT_ARRAYBUF_SIZE = 1048576;
 
-    private final boolean dumpPixels = false;    
+    private final ArrayList<IObserver> observers = new ArrayList<IObserver>();
 
     private final OMEROMetadataStoreClient store;
 
     private final OMEROWrapper reader;
 
-    private byte[] arrayBuf;
+    private byte[] arrayBuf = new byte[DEFAULT_ARRAYBUF_SIZE];
 
     /**
      * The library will not close the client instance. The reader will be closed
@@ -171,11 +170,13 @@ public class ImportLibrary implements IObservable
 
                 if (config.targetClass.get() == "omero.model.Dataset")
                 {
-                    ic.setTarget(store.getTarget(Dataset.class, config.targetId.get()));
+                    ic.setTarget(store.getTarget(
+                            Dataset.class, config.targetId.get()));
                 }
                 else if (config.targetClass.get() == "omero.model.Screen")
                 {
-                    ic.setTarget(store.getTarget(Screen.class, config.targetId.get()));                 
+                    ic.setTarget(store.getTarget(
+                            Screen.class, config.targetId.get()));
                 }
 
                 try {
@@ -237,19 +238,24 @@ public class ImportLibrary implements IObservable
             throws FormatException, IOException
     {
         // 1st we post-process the metadata that we've been given.
-        notifyObservers(new ImportEvent.BEGIN_POST_PROCESS(index, null, userSpecifiedTarget, null, 0, null));
+        notifyObservers(new ImportEvent.BEGIN_POST_PROCESS(
+                index, null, userSpecifiedTarget, null, 0, null));
         store.setUserSpecifiedImageName(userSpecifiedImageName);
         store.setUserSpecifiedImageDescription(userSpecifiedImageDescription);
         if (userPixels != null)
-            store.setUserSpecifiedPhysicalPixelSizes(userPixels[0], userPixels[1], userPixels[2]);
+            store.setUserSpecifiedPhysicalPixelSizes(
+                    userPixels[0], userPixels[1], userPixels[2]);
         store.setUserSpecifiedTarget(userSpecifiedTarget);
         store.setUserSpecifiedAnnotations(userSpecifiedAnnotations);
         store.postProcess();
-        notifyObservers(new ImportEvent.END_POST_PROCESS(index, null, userSpecifiedTarget, null, 0, null));
+        notifyObservers(new ImportEvent.END_POST_PROCESS(
+                index, null, userSpecifiedTarget, null, 0, null));
 
-        notifyObservers(new ImportEvent.BEGIN_SAVE_TO_DB(index, null, userSpecifiedTarget, null, 0, null));
+        notifyObservers(new ImportEvent.BEGIN_SAVE_TO_DB(
+                index, null, userSpecifiedTarget, null, 0, null));
         List<Pixels> pixelsList = store.saveToDB();
-        notifyObservers(new ImportEvent.END_SAVE_TO_DB(index, null, userSpecifiedTarget, null, 0, null));
+        notifyObservers(new ImportEvent.END_SAVE_TO_DB(
+                index, null, userSpecifiedTarget, null, 0, null));
         return pixelsList;
     }
 
@@ -292,8 +298,9 @@ public class ImportLibrary implements IObservable
     }
 
     /**
-     * Perform an image import.  <em>Note: this method both notifes {@link #observers}
-     * of error states AND throws the exception to cancel processing.</em>
+     * Perform an image import.  <em>Note: this method both notifes
+     * {@link #observers} of error states AND throws the exception to cancel
+     * processing.</em>
      * {@link #importCandidates(ImportConfig, ImportCandidates)}
      * uses {@link ImportConfig#contOnError} to act on these exceptions.
      * 
@@ -304,10 +311,10 @@ public class ImportLibrary implements IObservable
      * safe if this is a singular import.
      * @param total Total number of imports in a set. <code>1</code> is safe
      * if this is a singular import.
-     * @param userSpecifiedImageName Name to use for all images that are imported from the
-     * target file <code>file</code>.
-     * @param userSpecifiedImageDescription Description to use for all images that are
-     * imported from target file <code>file</code>
+     * @param userSpecifiedImageName Name to use for all images that are
+     * imported from the target file <code>file</code>.
+     * @param userSpecifiedImageDescription Description to use for all images
+     * that are imported from target file <code>file</code>
      * @param archive Whether or not to archive target file <code>file</code>
      * and all sub files.
      * @param useMetadataFile Whether or not to dump all metadata to a flat
@@ -335,8 +342,9 @@ public class ImportLibrary implements IObservable
     }
 
     /**
-     * Perform an image import.  <em>Note: this method both notifes {@link #observers}
-     * of error states AND throws the exception to cancel processing.</em>
+     * Perform an image import.  <em>Note: this method both notifes
+     * {@link #observers} of error states AND throws the exception to cancel
+     * processing.</em>
      * {@link #importCandidates(ImportConfig, ImportCandidates)}
      * uses {@link ImportConfig#contOnError} to act on these exceptions.
      * 
@@ -347,10 +355,10 @@ public class ImportLibrary implements IObservable
      * safe if this is a singular import.
      * @param total Total number of imports in a set. <code>1</code> is safe
      * if this is a singular import.
-     * @param userSpecifiedImageName Name to use for all images that are imported from the
-     * target file <code>file</code>.
-     * @param userSpecifiedImageDescription Description to use for all images that are
-     * imported from target file <code>file</code>
+     * @param userSpecifiedImageName Name to use for all images that are
+     * imported from the target file <code>file</code>.
+     * @param userSpecifiedImageDescription Description to use for all images
+     * that are imported from target file <code>file</code>
      * @param archive Whether or not to archive target file <code>file</code>
      * and all sub files.
      * @param useMetadataFile Whether or not to dump all metadata to a flat
@@ -592,8 +600,8 @@ public class ImportLibrary implements IObservable
 
     /**
      * saves the binary data to the server. After each successful save,
-     * an {@link ImportEvent.IMPORT_STEP} is raised with the number of the iteration just
-     * completed.
+     * an {@link ImportEvent.IMPORT_STEP} is raised with the number of the
+     * iteration just completed.
      * @param series 
      * @return The SHA1 message digest for the Pixels saved.
      */
@@ -601,66 +609,77 @@ public class ImportLibrary implements IObservable
                                     int series, ImportSize size)
         throws FormatException, IOException, ServerError
     {
-        int i = 1;
         reader.setSeries(series);
         int bytesPerPixel = getBytesPerPixel(reader.getPixelType());
-        int arraySize = size.sizeX * size.sizeY * bytesPerPixel;
-        if (arrayBuf == null || arrayBuf.length != arraySize)
-        {
-            arrayBuf = new byte[arraySize];
-        }
+        int maximumPixelCount = arrayBuf.length / bytesPerPixel;
+        int maximumRowCount = maximumPixelCount / size.sizeX;
 
         MessageDigest md;
-
-        try {
-            md = MessageDigest.getInstance("SHA-1");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(
-            "Required SHA-1 message digest algorithm unavailable.");
-        }
-
-        FileChannel wChannel = null;
-        File f;
-
-        if (dumpPixels)
+        try
         {
-            f = new File("pixeldump");
-            boolean append = true;
-            wChannel = new FileOutputStream(f, append).getChannel();   
+            md = MessageDigest.getInstance("SHA-1");
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            throw new RuntimeException(
+                "Required SHA-1 message digest algorithm unavailable.");
         }
 
-
+        int planeNo = 1;
+        int posY;
+        int bytesToRead;
+        int planeNumber;
+        int width = size.sizeX;
+        int height;
+        int offset = 0;
+        int arrayBufSize;
         for (int t = 0; t < size.sizeT; t++)
         {
             for (int c = 0; c < size.sizeC; c++)
             {
                 for (int z = 0; z < size.sizeZ; z++)
                 {
-                    int planeNumber = reader.getIndex(z, c, t);
-                    //int planeNumber = getTotalOffset(z, c, t);
-                    ByteBuffer buf = reader.openPlane2D(
-                            fileName, planeNumber, arrayBuf).getData();
-                    arrayBuf = swapIfRequired(buf, fileName);
-                    try {
-                        md.update(arrayBuf);
-                    } catch (Exception e) {
-                        // This better not happen. :)
-                        throw new RuntimeException(e);
+                    posY = 0;
+                    bytesToRead = size.sizeX * size.sizeY;
+                    while (bytesToRead > 0)
+                    {
+                        planeNumber = reader.getIndex(z, c, t);
+                        height = maximumRowCount;
+                        if ((posY + height) > size.sizeY)
+                        {
+                            height = size.sizeY - posY;
+                        }
+                        Plane2D data = reader.openPlane2D(
+                                fileName, planeNumber, arrayBuf, 0, posY,
+                                width, height);
+                        ByteBuffer buf = data.getData();
+                        arrayBuf = swapIfRequired(buf, fileName);
+                        arrayBufSize = bytesPerPixel * height * width;
+                        try
+                        {
+                            md.update(arrayBuf);
+                        }
+                        catch (Exception e)
+                        {
+                            // This better not happen. :)
+                            throw new RuntimeException(e);
+                        }
+                        store.setRegion(pixId, arrayBuf, arrayBufSize, offset);
+
+                        // Update offsets, etc.
+                        posY += height;
+                        bytesToRead -= height * width;
+                        offset += arrayBufSize;
+                        log.debug(String.format(
+                                "ToRead:%d Size:%d Offset: %d Width:%d Height: %d PosY:%d",
+                                bytesToRead, arrayBufSize, offset, width, height, posY));
                     }
-
+                    planeNo++;
                     notifyObservers(new ImportEvent.IMPORT_STEP(
-                            i, series, reader.getSeriesCount()));
-
-                    store.setPlane(pixId, arrayBuf, z, c, t);
-                    if (dumpPixels)
-                        wChannel.write(buf);
-                    i++;
+                            planeNo, series, reader.getSeriesCount()));
                 }
             }
         }
-
-        if (dumpPixels)
-            wChannel.close();
         return md;
     }
 
@@ -720,8 +739,8 @@ public class ImportLibrary implements IObservable
                     buf.put(i, DataTools.swap(buf.get(i)));
                 }
             } else {
-                throw new FormatException(
-                        "Unsupported sample bit width: '" + bytesPerPixel + "'");
+                throw new FormatException(String.format(
+                        "Unsupported sample bit width: %d", bytesPerPixel));
             }
         }
         // We've got a big-endian file with a big-endian byte array.

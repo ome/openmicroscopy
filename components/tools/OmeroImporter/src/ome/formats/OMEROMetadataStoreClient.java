@@ -3686,20 +3686,41 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * @param pixId
-     * @param arrayBuf
-     * @param z
-     * @param c
-     * @param t
-     * @throws ServerError
+     * Writes a region of pixels to the server.
+     * @param pixId Pixels set to write to.
+     * @param arrayBuf Byte array containing the pixels.
+     * @param size Size of the bytes within <code>arrayBuf</code> to write.
+     * @param offset Offset within the plane Pixels set to write at.
+     * @throws ServerError If there is an error writing this plane to the
+     * server.
+     * @see #setPlane(Long, byte[], int, int, int)
+     */
+    public void setRegion(Long pixId, byte[] arrayBuf, int size, long offset)
+        throws ServerError
+    {
+        if (currentPixId != pixId)
+        {
+            rawPixelStore.setPixelsId(pixId, true);
+            currentPixId = pixId;
+        }
+        rawPixelStore.setRegion(size, offset, arrayBuf);
+    }
+
+    /**
+     * Writes a plane to the server.
+     * @param pixId Pixels set to write to.
+     * @param arrayBuf Byte array containing all pixels for this plane.
+     * @param z Z offset within the Pixels set.
+     * @param c Channel offset within the Pixels set.
+     * @param t Timepoint offset within the Pixels set.
+     * @throws ServerError If there is an error writing this plane to the
+     * server.
      */
     public void setPlane(Long pixId, byte[] arrayBuf, int z, int c, int t)
         throws ServerError
     {
         if (currentPixId != pixId)
         {
-            //rawPixelStore.close();
-            //rawPixelStore = serviceFactory.createRawPixelsStore();
             rawPixelStore.setPixelsId(pixId, true);
             currentPixId = pixId;
         }
